@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="theme-color" content="#F7A21B" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Voice Journal: WorkHive</title>
+  <meta name="description" content="Speak your day. WorkHive Voice Journal transcribes, remembers, and reflects back in any language you speak." />
+  <meta name="robots" content="noindex, follow" />
+  <link rel="canonical" href="https://workhiveph.com/voice-journal.html" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="preconnect" href="https://hzyvnjtisfgbksicrouu.supabase.co" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            'orange-wh': '#F7A21B',
+            'blue-wh':   '#29B6D9',
+            'navy-wh':   '#162032',
+          },
+          fontFamily: { poppins: ['Poppins', 'sans-serif'] },
+        },
+      },
+    };
+  </script>
+  <style>
+    * { font-family: 'Poppins', sans-serif; }
+    body {
+      background-color: #162032;
+      min-height: 100vh;
+      color: #fff;
+      background-image:
+        radial-gradient(ellipse 70% 45% at 50% -10%, rgba(247,162,27,0.07) 0%, transparent 60%),
+        radial-gradient(ellipse 55% 35% at 80% 80%, rgba(41,182,217,0.05) 0%, transparent 60%);
+    }
+
+    .wh-card {
+      background: linear-gradient(145deg, rgba(42,61,88,0.5) 0%, rgba(31,46,69,0.7) 100%);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 1rem;
+    }
+    .wh-input {
+      background: rgba(22,32,50,0.6);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 0.75rem;
+      color: white;
+      padding: 0.75rem 1rem;
+      width: 100%;
+      font-size: 1rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .wh-input:focus { border-color: rgba(247,162,27,0.5); box-shadow: 0 0 0 3px rgba(247,162,27,0.08); }
+    .wh-input::placeholder { color: rgba(255,255,255,0.3); }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #F7A21B, #FDB94A);
+      color: #162032;
+      font-weight: 700;
+      border-radius: 0.75rem;
+      padding: 0.75rem 1.25rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: none;
+      font-size: 0.9rem;
+      min-height: 44px;
+    }
+    .btn-primary:hover  { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(247,162,27,0.35); }
+    .btn-primary:active { opacity: 0.75; transform: scale(0.98); }
+    .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; transform: none; box-shadow: none; }
+
+    .btn-ghost {
+      background: transparent;
+      border: 1px solid rgba(255,255,255,0.12);
+      color: rgba(255,255,255,0.6);
+      font-weight: 500;
+      border-radius: 0.75rem;
+      padding: 0.5rem 0.9rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 0.78rem;
+      min-height: 36px;
+    }
+    .btn-ghost:hover  { border-color: rgba(255,255,255,0.25); color: white; }
+    .btn-ghost:active { background: rgba(255,255,255,0.08); transform: scale(0.97); }
+    @media (max-width: 480px) { .btn-ghost { min-height: 44px; padding: 0.65rem 1rem; } }
+
+    /* Mic button: thumb-sized circular focal control. */
+    .mic-btn {
+      width: 132px; height: 132px; border-radius: 50%; border: none; cursor: pointer;
+      background: linear-gradient(135deg, #F7A21B, #FDB94A);
+      color: #162032;
+      box-shadow: 0 18px 48px rgba(247,162,27,0.32);
+      display: flex; align-items: center; justify-content: center;
+      transition: transform 0.18s ease, box-shadow 0.18s ease;
+      margin: 0 auto;
+    }
+    .mic-btn:hover  { transform: translateY(-2px); box-shadow: 0 22px 56px rgba(247,162,27,0.42); }
+    .mic-btn:active { transform: scale(0.96); }
+    .mic-btn:disabled { opacity: 0.45; cursor: not-allowed; box-shadow: none; transform: none; }
+    .mic-btn.recording {
+      background: linear-gradient(135deg, #EF5757, #c33b3b);
+      color: white;
+      animation: mic-pulse 1.4s ease-in-out infinite;
+    }
+    @keyframes mic-pulse {
+      0%, 100% { box-shadow: 0 18px 38px rgba(195,59,59,0.45); }
+      50%      { box-shadow: 0 24px 70px rgba(195,59,59,0.78); }
+    }
+    /* Functional animation: keep on mobile but reduce intensity. */
+    @media (max-width: 767px) {
+      .mic-btn { width: 116px; height: 116px; }
+    }
+
+    .lang-pill {
+      display: inline-flex; align-items: center; gap: 0.35rem;
+      background: rgba(41,182,217,0.14); color: #7adff5;
+      border: 1px solid rgba(41,182,217,0.25);
+      font-size: 0.66rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
+      padding: 0.18rem 0.55rem; border-radius: 999px;
+    }
+    .lang-pill.warn { background: rgba(247,162,27,0.14); color: #ffcc7a; border-color: rgba(247,162,27,0.25); }
+
+    .transcript-box {
+      background: rgba(22,32,50,0.55);
+      border: 1px dashed rgba(255,255,255,0.12);
+      border-radius: 0.75rem;
+      padding: 0.85rem 1rem;
+      min-height: 3.2rem;
+      font-size: 0.95rem; line-height: 1.5;
+      color: rgba(255,255,255,0.92);
+      word-break: break-word;
+    }
+    .transcript-box.empty { color: rgba(255,255,255,0.35); font-style: italic; }
+
+    .reply-bubble {
+      background: linear-gradient(145deg, rgba(247,162,27,0.14), rgba(247,162,27,0.06));
+      border: 1px solid rgba(247,162,27,0.22);
+      border-radius: 1rem 1rem 1rem 0.25rem;
+      padding: 0.85rem 1rem;
+      font-size: 0.94rem; line-height: 1.55;
+      color: rgba(255,255,255,0.95);
+      word-break: break-word;
+    }
+
+    .history-entry {
+      background: rgba(22,32,50,0.45);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 0.85rem;
+      padding: 0.85rem 1rem;
+    }
+    .history-entry + .history-entry { margin-top: 0.6rem; }
+    .history-day {
+      font-size: 0.62rem; letter-spacing: 0.10em; text-transform: uppercase;
+      color: rgba(255,255,255,0.45); margin: 1.1rem 0 0.5rem;
+      font-weight: 700;
+    }
+    .history-day:first-child { margin-top: 0.25rem; }
+    .history-meta { font-size: 0.7rem; color: rgba(255,255,255,0.4); display: flex; gap: 0.5rem; align-items: center; }
+    .history-text { font-size: 0.85rem; line-height: 1.5; color: rgba(255,255,255,0.88); margin-top: 0.35rem; word-break: break-word; }
+    .history-reply { font-size: 0.82rem; line-height: 1.5; color: rgba(255,255,255,0.6); margin-top: 0.4rem; padding-left: 0.7rem; border-left: 2px solid rgba(247,162,27,0.4); word-break: break-word; }
+
+    .speak-btn {
+      background: rgba(247,162,27,0.18);
+      border: 1px solid rgba(247,162,27,0.3);
+      color: #ffcc7a;
+      border-radius: 999px;
+      font-size: 0.66rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
+      padding: 0.3rem 0.7rem; cursor: pointer;
+      min-height: 32px;
+    }
+    .speak-btn:hover  { background: rgba(247,162,27,0.28); }
+    .speak-btn:active { transform: scale(0.96); }
+
+    .filter-chip {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.10);
+      color: rgba(255,255,255,0.6);
+      border-radius: 999px;
+      padding: 0.3rem 0.75rem;
+      font-size: 0.7rem; font-weight: 600;
+      cursor: pointer;
+      min-height: 32px;
+    }
+    .filter-chip:hover  { color: white; border-color: rgba(255,255,255,0.2); }
+    .filter-chip:active { transform: scale(0.97); }
+    .filter-chip.active {
+      background: rgba(247,162,27,0.18); border-color: rgba(247,162,27,0.35); color: #ffcc7a;
+    }
+    @media (max-width: 480px) { .filter-chip { min-height: 36px; padding: 0.45rem 0.95rem; } }
+
+    .toast {
+      position: fixed; left: 50%; bottom: 1.5rem;
+      transform: translateX(-50%) translateY(4px);
+      background: linear-gradient(135deg, rgba(42,61,88,0.95), rgba(31,46,69,0.98));
+      border: 1px solid rgba(255,255,255,0.12);
+      padding: 0.625rem 1.25rem; border-radius: 999px;
+      font-size: 0.8rem; font-weight: 500;
+      opacity: 0; transition: opacity 0.3s, transform 0.3s;
+      pointer-events: none; z-index: 9999; white-space: nowrap;
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    .skeleton-row {
+      background: rgba(255,255,255,0.04);
+      border-radius: 0.6rem; height: 64px;
+      animation: skeleton 1.2s ease-in-out infinite;
+    }
+    @keyframes skeleton {
+      0%, 100% { opacity: 0.4; }
+      50%      { opacity: 0.7; }
+    }
+
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+    .fade-up { animation: fadeUp 0.3s ease forwards; }
+
+    #signin-gate { display: none; }
+    #signin-gate.show { display: block; }
+  </style>
+</head>
+<body>
+
+  <div class="max-w-2xl mx-auto px-4 pt-5 pb-24" style="padding-bottom: max(6rem, calc(6rem + env(safe-area-inset-bottom)));">
+
+    <!-- Header -->
+    <header class="flex items-center justify-between mb-5">
+      <button onclick="history.back()" class="flex items-center gap-2 text-white/40 hover:text-white/70 text-sm font-medium" style="min-height:44px;">
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
+        </svg>
+        <span>Back</span>
+      </button>
+      <div class="text-center">
+        <div class="text-[10px] uppercase tracking-widest text-white/40 font-semibold">WorkHive</div>
+        <div class="text-base font-bold">Voice Journal</div>
+      </div>
+      <button id="tts-toggle" class="btn-ghost" aria-pressed="true" title="Toggle voice replies">
+        <span id="tts-toggle-label">Voice On</span>
+      </button>
+    </header>
+
+    <!-- Sign-in gate -->
+    <div id="signin-gate" class="wh-card p-5 mb-5 fade-up">
+      <div class="text-sm font-semibold text-white mb-1">Sign in to journal</div>
+      <p class="text-xs text-white/55 mb-3">Your spoken entries are saved privately under your account. Sign in once and they sync across devices.</p>
+      <a href="login.html" class="btn-primary inline-flex" style="text-decoration:none;">Sign in</a>
+    </div>
+
+    <!-- Live capture panel -->
+    <section id="capture-panel" class="wh-card p-5 mb-5">
+      <div class="text-xs uppercase tracking-widest text-white/40 font-semibold mb-3 text-center">Today, your turn</div>
+
+      <button id="mic-btn" class="mic-btn" aria-label="Hold to talk">
+        <svg id="mic-icon" width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/>
+          <path d="M19 10v2a7 7 0 01-14 0v-2"/>
+          <line x1="12" y1="19" x2="12" y2="23"/>
+          <line x1="8" y1="23" x2="16" y2="23"/>
+        </svg>
+      </button>
+
+      <div id="mic-state" class="text-center text-sm text-white/55 mt-3" style="min-height:1.25rem;">Tap to start. Tap again to stop.</div>
+      <div id="mic-timer" class="text-center text-xs text-white/35 mt-1" style="min-height:1rem;"></div>
+
+      <div class="mt-4 space-y-3" id="current-turn" style="display:none;">
+        <div class="flex items-center justify-between gap-2">
+          <span class="text-[10px] uppercase tracking-widest text-white/40 font-semibold">You said</span>
+          <span id="current-lang" class="lang-pill" style="display:none;"></span>
+        </div>
+        <div id="current-transcript" class="transcript-box empty">Waiting for voice...</div>
+
+        <div class="flex items-center justify-between gap-2 mt-3">
+          <span class="text-[10px] uppercase tracking-widest text-white/40 font-semibold">Journal reply</span>
+          <button id="current-replay" class="speak-btn" style="display:none;" type="button">Speak again</button>
+        </div>
+        <div id="current-reply" class="reply-bubble" style="display:none;"></div>
+        <div id="current-reply-loading" class="text-xs text-white/40" style="display:none;">Composing reply...</div>
+      </div>
+    </section>
+
+    <!-- History panel -->
+    <section class="wh-card p-5">
+      <div class="flex items-center justify-between mb-3">
+        <h2 class="text-sm font-bold text-white/90">Your journal</h2>
+        <span id="entry-count" class="text-[11px] text-white/40"></span>
+      </div>
+
+      <input id="search-input" class="wh-input mb-3" type="search" placeholder="Search your entries..." />
+
+      <div id="filter-chips" class="flex flex-wrap gap-1.5 mb-4"></div>
+
+      <div id="history-list">
+        <div class="skeleton-row mb-2"></div>
+        <div class="skeleton-row mb-2"></div>
+        <div class="skeleton-row"></div>
+      </div>
+      <div id="history-empty" class="text-center text-xs text-white/40 py-6" style="display:none;">No entries yet. Tap the mic above and say something.</div>
+    </section>
+
+  </div>
+
+  <div id="toast" class="toast" role="alert" aria-live="polite"></div>
+
+  <script src="utils.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="nav-hub.js"></script>
+  <script src="floating-ai.js" defer></script>
+
+  <script>
+  (function() {
+    'use strict';
+
+    // ──────────────── Config + identity ────────────────
+    const SUPABASE_URL = 'https://hzyvnjtisfgbksicrouu.supabase.co';
+    const SUPABASE_KEY = 'sb_publishable_ePj-suLMwkMRVDH6eM6S8g_R0rZVbMZ';
+    const AGENT_ID     = 'voice-journal';
+    const MAX_RECORD_MS = 60 * 1000;        // 60s per entry
+    const MAX_TRANSCRIPT_CHARS = 500;       // matches edge fn cap, prompt-injection safety
+    const HISTORY_LIMIT = 80;
+    const TTS_STORAGE_KEY = 'wh_voice_journal_tts';
+
+    const LANG_NAMES = {
+      en:  'English',
+      tl:  'Filipino',
+      fil: 'Filipino',
+      ceb: 'Cebuano',
+      ilo: 'Ilocano',
+      hil: 'Hiligaynon',
+      pam: 'Kapampangan',
+      war: 'Waray',
+      bik: 'Bikol',
+      pag: 'Pangasinan',
+    };
+    const LANG_TO_BCP47 = {
+      en:  'en-US',
+      tl:  'fil-PH',
+      fil: 'fil-PH',
+      ceb: 'fil-PH',   // browser TTS rarely has Cebuano; fall back to Filipino voice if present
+      ilo: 'fil-PH',
+      hil: 'fil-PH',
+      pam: 'fil-PH',
+      war: 'fil-PH',
+      bik: 'fil-PH',
+      pag: 'fil-PH',
+    };
+
+    const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    // Identity chain: Supabase Auth is the source of truth (gateway requires it),
+    // but the 3 canonical localStorage keys are read as a fallback display name
+    // and to keep nav-hub identity consistent with the rest of the platform.
+    let WORKER_NAME = localStorage.getItem('wh_last_worker')
+                   || localStorage.getItem('wh_worker_name')
+                   || localStorage.getItem('workerName')
+                   || '';
+    let AUTH_UID    = '';
+    let HIVE_ID     = localStorage.getItem('wh_active_hive_id') || localStorage.getItem('wh_hive_id') || null;
+
+    // Recording state
+    let _stream   = null;
+    let _recorder = null;
+    let _chunks   = [];
+    let _stopTimer = null;
+    let _startedAt = 0;
+    let _busy = false;
+
+    // History state
+    let _entries      = [];       // pairs of { user, agent, lang, ts }
+    let _activeFilter = 'all';
+
+    // TTS state
+    let _ttsOn = localStorage.getItem(TTS_STORAGE_KEY) !== 'off';
+
+    // ──────────────── DOM helpers ────────────────
+    const $ = (id) => document.getElementById(id);
+    function showToast(msg, ms) {
+      const el = $('toast');
+      el.textContent = msg;
+      el.classList.add('show');
+      clearTimeout(showToast._t);
+      showToast._t = setTimeout(() => el.classList.remove('show'), ms || 3200);
+    }
+    function escSafe(s) {
+      // Belt: rely on utils.js escHtml; suspenders: minimal local fallback.
+      return (typeof escHtml === 'function')
+        ? escHtml(s)
+        : String(s == null ? '' : s)
+            .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+    }
+    function langName(code) { return LANG_NAMES[code] || (code ? code.toUpperCase() : 'Auto'); }
+
+    // ──────────────── TTS ────────────────
+    function setTtsButton() {
+      const lbl = $('tts-toggle-label');
+      if (lbl) lbl.textContent = _ttsOn ? 'Voice On' : 'Voice Off';
+      const btn = $('tts-toggle');
+      if (btn) btn.setAttribute('aria-pressed', String(_ttsOn));
+    }
+    function toggleTts() {
+      _ttsOn = !_ttsOn;
+      localStorage.setItem(TTS_STORAGE_KEY, _ttsOn ? 'on' : 'off');
+      setTtsButton();
+      if (!_ttsOn && window.speechSynthesis) {
+        try { window.speechSynthesis.cancel(); } catch (_) {}
+      }
+    }
+    function pickVoice(bcp47) {
+      if (!window.speechSynthesis) return null;
+      const voices = window.speechSynthesis.getVoices() || [];
+      if (!voices.length) return null;
+      const exact = voices.find(v => v.lang && v.lang.toLowerCase() === bcp47.toLowerCase());
+      if (exact) return exact;
+      const prefix = bcp47.split('-')[0].toLowerCase();
+      const prefixMatch = voices.find(v => v.lang && v.lang.toLowerCase().startsWith(prefix));
+      return prefixMatch || voices.find(v => v.default) || voices[0];
+    }
+    function speak(text, langCode) {
+      if (!_ttsOn || !text || !window.speechSynthesis) return;
+      try {
+        window.speechSynthesis.cancel();
+        const u = new SpeechSynthesisUtterance(String(text));
+        const bcp47 = LANG_TO_BCP47[langCode] || 'en-US';
+        u.lang = bcp47;
+        const v = pickVoice(bcp47);
+        if (v) u.voice = v;
+        u.rate = 1.0;
+        u.pitch = 1.0;
+        window.speechSynthesis.speak(u);
+      } catch (e) {
+        console.warn('speak failed:', e);
+      }
+    }
+
+    // ──────────────── Identity gate ────────────────
+    async function bootstrapIdentity() {
+      try {
+        const { data: sess } = await db.auth.getSession();
+        if (!sess?.session?.user) {
+          $('signin-gate').classList.add('show');
+          $('mic-btn').disabled = true;
+          $('history-list').innerHTML = '';
+          $('history-empty').style.display = 'block';
+          $('history-empty').textContent = 'Sign in to see your journal entries.';
+          return false;
+        }
+        AUTH_UID = sess.session.user.id;
+        // Pull display name (matches ai-gateway lookup)
+        const { data: profile } = await db.from('worker_profiles')
+          .select('display_name')
+          .eq('auth_uid', AUTH_UID)
+          .maybeSingle();
+        WORKER_NAME = profile?.display_name || sess.session.user.email || 'You';
+        $('signin-gate').classList.remove('show');
+        return true;
+      } catch (err) {
+        console.error('bootstrapIdentity:', err);
+        showToast('Could not verify session. Try again.');
+        return false;
+      }
+    }
+
+    // ──────────────── History load + render ────────────────
+    async function loadHistory() {
+      const listEl  = $('history-list');
+      const emptyEl = $('history-empty');
+      listEl.innerHTML = '<div class="skeleton-row mb-2"></div><div class="skeleton-row mb-2"></div><div class="skeleton-row"></div>';
+      emptyEl.style.display = 'none';
+
+      let query = db.from('agent_memory')
+        .select('id, turn_text, meta, created_at')
+        .eq('agent_id', AGENT_ID)
+        .eq('kind', 'turn')
+        .order('created_at', { ascending: false })
+        .limit(HISTORY_LIMIT * 2); // each pair is 2 rows
+      if (HIVE_ID) query = query.eq('hive_id', HIVE_ID);
+      else         query = query.is('hive_id', null);
+
+      const { data, error } = await query;
+      if (error) {
+        console.error('loadHistory:', error);
+        listEl.innerHTML = '';
+        emptyEl.style.display = 'block';
+        emptyEl.textContent = 'Could not load your journal. Try again.';
+        return;
+      }
+
+      // agent_memory stores 2 rows per exchange (user + agent), inserted back-to-back.
+      // Pair them up by walking the result in reverse-chronological order.
+      const rows = data || [];
+      const pairs = [];
+      for (let i = 0; i < rows.length; i++) {
+        const r = rows[i];
+        const role = (r.meta && r.meta.role) || 'user';
+        if (role === 'agent') {
+          const next = rows[i + 1];
+          if (next && (next.meta?.role || 'user') === 'user') {
+            pairs.push({
+              id:   next.id,
+              user: next.turn_text || '',
+              agent: r.turn_text || '',
+              lang: (r.meta && r.meta.lang) || (next.meta && next.meta.lang) || '',
+              ts:   next.created_at,
+            });
+            i++; // consume both
+          } else {
+            pairs.push({
+              id:   r.id,
+              user: '',
+              agent: r.turn_text || '',
+              lang: (r.meta && r.meta.lang) || '',
+              ts:   r.created_at,
+            });
+          }
+        } else {
+          pairs.push({
+            id:   r.id,
+            user: r.turn_text || '',
+            agent: '',
+            lang: (r.meta && r.meta.lang) || '',
+            ts:   r.created_at,
+          });
+        }
+      }
+
+      _entries = pairs;
+      renderFilters();
+      renderHistory();
+    }
+
+    function dayLabel(d) {
+      const now = new Date();
+      const date = new Date(d);
+      const sameDay = date.toDateString() === now.toDateString();
+      const yest = new Date(now); yest.setDate(now.getDate() - 1);
+      if (sameDay) return 'Today';
+      if (date.toDateString() === yest.toDateString()) return 'Yesterday';
+      return date.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' });
+    }
+    function timeLabel(d) {
+      return new Date(d).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
+    }
+
+    function renderFilters() {
+      const root = $('filter-chips');
+      const seen = {};
+      for (const p of _entries) {
+        if (p.lang) seen[p.lang] = (seen[p.lang] || 0) + 1;
+      }
+      const codes = Object.keys(seen).sort((a, b) => seen[b] - seen[a]);
+      const chips = [
+        `<button class="filter-chip ${_activeFilter === 'all' ? 'active' : ''}" data-filter="all" type="button">All (${_entries.length})</button>`,
+      ].concat(codes.map(c =>
+        `<button class="filter-chip ${_activeFilter === c ? 'active' : ''}" data-filter="${escSafe(c)}" type="button">${escSafe(langName(c))} (${seen[c]})</button>`
+      ));
+      root.innerHTML = chips.join('');
+      root.querySelectorAll('.filter-chip').forEach(btn => {
+        btn.addEventListener('click', () => {
+          _activeFilter = btn.getAttribute('data-filter');
+          renderFilters();
+          renderHistory();
+        });
+      });
+    }
+
+    function renderHistory() {
+      const listEl  = $('history-list');
+      const emptyEl = $('history-empty');
+      const search  = ($('search-input').value || '').trim().toLowerCase();
+
+      const filtered = _entries.filter(p => {
+        if (_activeFilter !== 'all' && p.lang !== _activeFilter) return false;
+        if (!search) return true;
+        return (p.user || '').toLowerCase().includes(search)
+            || (p.agent || '').toLowerCase().includes(search);
+      });
+
+      $('entry-count').textContent = filtered.length
+        ? `${filtered.length} entr${filtered.length === 1 ? 'y' : 'ies'}`
+        : '';
+
+      if (!filtered.length) {
+        listEl.innerHTML = '';
+        emptyEl.style.display = 'block';
+        emptyEl.textContent = search || _activeFilter !== 'all'
+          ? 'No entries match those filters.'
+          : 'No entries yet. Tap the mic above and say something.';
+        return;
+      }
+      emptyEl.style.display = 'none';
+
+      let lastDay = '';
+      const html = filtered.map(p => {
+        const dl = dayLabel(p.ts);
+        const dayHeader = dl !== lastDay ? `<div class="history-day">${escSafe(dl)}</div>` : '';
+        lastDay = dl;
+        const langPill = p.lang
+          ? `<span class="lang-pill">${escSafe(langName(p.lang))}</span>`
+          : '';
+        const replayBtn = p.agent
+          ? `<button class="speak-btn" data-action="replay" data-text="${escSafe(p.agent)}" data-lang="${escSafe(p.lang || 'en')}" type="button">Speak again</button>`
+          : '';
+        return `${dayHeader}
+          <div class="history-entry fade-up">
+            <div class="history-meta">
+              <span>${escSafe(timeLabel(p.ts))}</span>
+              ${langPill}
+              <span style="margin-left:auto;">${replayBtn}</span>
+            </div>
+            ${p.user  ? `<div class="history-text">${escSafe(p.user)}</div>` : ''}
+            ${p.agent ? `<div class="history-reply">${escSafe(p.agent)}</div>` : ''}
+          </div>`;
+      }).join('');
+
+      listEl.innerHTML = html;
+      listEl.querySelectorAll('[data-action="replay"]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const text = btn.getAttribute('data-text') || '';
+          const lang = btn.getAttribute('data-lang') || 'en';
+          speak(text, lang);
+        });
+      });
+    }
+
+    // ──────────────── Recording flow ────────────────
+    async function toggleRecord() {
+      if (_busy) return;
+      if (_recorder && _recorder.state === 'recording') {
+        stopRecording();
+      } else {
+        await startRecording();
+      }
+    }
+
+    async function startRecording() {
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        showToast('Voice not supported on this browser.');
+        return;
+      }
+      try {
+        _stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      } catch (err) {
+        showToast('Microphone permission denied.');
+        return;
+      }
+      _chunks = [];
+      const mime = MediaRecorder.isTypeSupported('audio/webm') ? 'audio/webm' : 'audio/mp4';
+      try {
+        _recorder = new MediaRecorder(_stream, { mimeType: mime });
+      } catch (err) {
+        showToast('Recording not supported.');
+        return;
+      }
+      _recorder.ondataavailable = (ev) => { if (ev.data && ev.data.size) _chunks.push(ev.data); };
+      _recorder.onstop = onStopRecording;
+      _recorder.start();
+      _startedAt = Date.now();
+
+      $('mic-btn').classList.add('recording');
+      $('mic-btn').setAttribute('aria-label', 'Tap to stop');
+      $('mic-state').textContent = 'Listening. Tap to stop.';
+      $('mic-timer').textContent = '0:00';
+
+      // Pre-create the current-turn surface so the user sees feedback while talking.
+      $('current-turn').style.display = 'block';
+      $('current-transcript').classList.add('empty');
+      $('current-transcript').textContent = 'Waiting for voice...';
+      $('current-lang').style.display = 'none';
+      $('current-reply').style.display = 'none';
+      $('current-replay').style.display = 'none';
+      $('current-reply-loading').style.display = 'none';
+
+      const tick = () => {
+        if (!_recorder || _recorder.state !== 'recording') return;
+        const s = Math.floor((Date.now() - _startedAt) / 1000);
+        $('mic-timer').textContent = `${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`;
+        requestAnimationFrame(tick);
+      };
+      tick();
+
+      _stopTimer = setTimeout(stopRecording, MAX_RECORD_MS);
+    }
+
+    function stopRecording() {
+      if (_stopTimer) { clearTimeout(_stopTimer); _stopTimer = null; }
+      try { if (_recorder && _recorder.state === 'recording') _recorder.stop(); } catch (_) {}
+      $('mic-btn').classList.remove('recording');
+      $('mic-btn').setAttribute('aria-label', 'Tap to start');
+    }
+
+    async function onStopRecording() {
+      if (_stream) { _stream.getTracks().forEach(t => t.stop()); _stream = null; }
+      $('mic-state').textContent = 'Transcribing...';
+      if (!_chunks.length) {
+        $('mic-state').textContent = 'No audio captured. Tap to try again.';
+        return;
+      }
+      _busy = true;
+      $('mic-btn').disabled = true;
+      const mime = _recorder?.mimeType || 'audio/webm';
+      const blob = new Blob(_chunks, { type: mime });
+
+      try {
+        const transcript = await transcribeBlob(blob);
+        if (!transcript.text) {
+          $('mic-state').textContent = 'I did not catch that. Tap to try again.';
+          return;
+        }
+        $('current-transcript').classList.remove('empty');
+        $('current-transcript').textContent = transcript.text;
+        if (transcript.lang) {
+          $('current-lang').textContent = langName(transcript.lang);
+          $('current-lang').classList.toggle('warn', !LANG_TO_BCP47[transcript.lang]);
+          $('current-lang').style.display = 'inline-flex';
+        }
+
+        $('mic-state').textContent = 'Composing reply...';
+        $('current-reply-loading').style.display = 'block';
+
+        const reply = await callJournalAgent(transcript.text, transcript.lang);
+        $('current-reply-loading').style.display = 'none';
+        if (!reply) {
+          $('mic-state').textContent = 'No reply. Try again.';
+          return;
+        }
+        $('current-reply').textContent = reply;
+        $('current-reply').style.display = 'block';
+        $('current-replay').style.display = 'inline-flex';
+        $('current-replay').onclick = () => speak(reply, transcript.lang || 'en');
+
+        // Auto-speak the reply.
+        speak(reply, transcript.lang || 'en');
+
+        $('mic-state').textContent = 'Tap to add another thought.';
+
+        // Refresh history so the new pair shows up.
+        loadHistory().catch(e => console.warn('history refresh failed:', e));
+      } catch (err) {
+        console.error('onStopRecording:', err);
+        $('current-reply-loading').style.display = 'none';
+        $('mic-state').textContent = 'Something went wrong. Tap to try again.';
+        showToast((err && err.message) || 'Voice processing failed.');
+      } finally {
+        _busy = false;
+        $('mic-btn').disabled = false;
+      }
+    }
+
+    async function transcribeBlob(blob) {
+      const fd = new FormData();
+      fd.append('audio', blob, 'journal.webm');
+      // No `language` field: let Whisper auto-detect.
+      const resp = await fetch(SUPABASE_URL + '/functions/v1/voice-transcribe', {
+        method: 'POST',
+        headers: {
+          'Authorization': 'Bearer ' + SUPABASE_KEY,
+          'apikey':        SUPABASE_KEY,
+        },
+        body: fd,
+      });
+      const data = await resp.json().catch(() => ({}));
+      if (!resp.ok) throw new Error(data.error || 'Transcribe failed');
+      const text = String(data.text || '').trim().slice(0, MAX_TRANSCRIPT_CHARS);
+      const lang = String(data.lang || '').trim().toLowerCase();
+      return { text, lang };
+    }
+
+    async function callJournalAgent(message, lang) {
+      const { data, error } = await db.functions.invoke('ai-gateway', {
+        body: {
+          agent:   AGENT_ID,
+          message: message,
+          context: { lang: lang || 'en' },
+          hive_id: HIVE_ID || null,
+        },
+      });
+      if (error) throw new Error(error.message || 'Gateway failed');
+      if (!data)  throw new Error('Empty gateway response');
+      if (data.error) throw new Error(data.error);
+      return String(data.answer || '').trim();
+    }
+
+    // ──────────────── Bootstrap ────────────────
+    document.addEventListener('DOMContentLoaded', async () => {
+      setTtsButton();
+      $('tts-toggle').addEventListener('click', toggleTts);
+      $('mic-btn').addEventListener('click', toggleRecord);
+      $('search-input').addEventListener('input', () => renderHistory());
+
+      // Prime the voice list on browsers that load it asynchronously.
+      if (window.speechSynthesis && typeof window.speechSynthesis.onvoiceschanged !== 'undefined') {
+        window.speechSynthesis.onvoiceschanged = () => { /* no-op, voices cached */ };
+        try { window.speechSynthesis.getVoices(); } catch (_) {}
+      }
+
+      const ok = await bootstrapIdentity();
+      if (!ok) return;
+      loadHistory().catch(e => {
+        console.error('initial history:', e);
+        showToast('Could not load your journal.');
+      });
+    });
+  })();
+  </script>
+
+</body>
+</html>

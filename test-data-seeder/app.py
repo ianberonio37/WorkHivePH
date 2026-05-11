@@ -6,7 +6,7 @@ import threading
 from datetime import datetime, timezone
 from pathlib import Path
 
-from flask import Flask, render_template, jsonify, request, send_from_directory, Response, abort, redirect
+from flask import Flask, render_template, jsonify, request, send_from_directory, Response, abort, redirect, stream_with_context
 
 from lib.supabase_client import get_client
 from lib.config import SUPABASE_URL
@@ -76,6 +76,7 @@ PUBLIC_PAGES = [
     ("shift-brain.html", "Shift Brain"),
     ("alert-hub.html", "Alert Hub"),
     ("audit-log.html", "Audit Log"),
+    ("voice-journal.html", "Voice Journal"),
 ]
 PUBLIC_PAGE_SET = {p[0] for p in PUBLIC_PAGES}
 
@@ -89,12 +90,23 @@ JOB_STATE = {
     "finished_at": None,
     "result": None,
     "error": None,
+    # Bumped on every _run_job call. The SSE stream watches this so it can
+    # detect a new job starting (log was reset behind it) and snap its cursor
+    # back to 0. Without this, the second click of any button shows nothing
+    # in the live log because the cursor is stuck past the new log's length.
+    "id": 0,
 }
+
+# Event that fires whenever a new log line is appended. The SSE stream
+# (`/api/log-stream`) blocks on this so lines surface within ~10ms instead
+# of the 1s the old polling loop had.
+LOG_EVENT = threading.Event()
 
 
 def _log_to_state(msg: str):
     ts = datetime.now(timezone.utc).strftime("%H:%M:%S")
     JOB_STATE["log"].append(f"[{ts}] {msg}")
+    LOG_EVENT.set()
     # Console may be cp1252 on stock Windows; a stray Unicode arrow or emoji
     # would crash the worker thread mid-job. Fall back to ASCII replacement.
     try:
@@ -113,7 +125,12 @@ def _run_job(name: str, fn):
         "finished_at": None,
         "result": None,
         "error": None,
+        "id": JOB_STATE["id"] + 1,
     })
+    # Wake the SSE stream so it observes the new job_id + running=True and
+    # resets its cursor. Without this, the stream stays asleep until the
+    # first log line lands, so the badge "RUNNING" indicator lags.
+    LOG_EVENT.set()
 
     def worker():
         try:
@@ -126,6 +143,7 @@ def _run_job(name: str, fn):
         finally:
             JOB_STATE["running"] = False
             JOB_STATE["finished_at"] = datetime.now(timezone.utc).isoformat()
+            LOG_EVENT.set()  # wake the SSE stream so it can emit `done`
 
     threading.Thread(target=worker, daemon=True).start()
 
@@ -310,6 +328,68 @@ def api_status():
         "result": JOB_STATE["result"],
         "error": JOB_STATE["error"],
         "counts": get_db_counts() if not JOB_STATE["running"] else None,
+    })
+
+
+@app.route("/api/log-stream")
+def api_log_stream():
+    """Server-Sent Events stream that pushes log lines as they're written.
+
+    Replaces the 1s polling loop with sub-100ms push. The client opens an
+    EventSource(); we block on LOG_EVENT until `_log_to_state` fires it,
+    then flush any new lines past the cursor. On job completion we emit
+    `event: done` with fresh counts so the UI can refresh the table.
+    The stream stays open across runs so the next job streams immediately.
+    """
+    @stream_with_context
+    def gen():
+        cursor = len(JOB_STATE["log"])
+        last_running = JOB_STATE["running"]
+        last_id = JOB_STATE["id"]
+        # Hint to the browser/proxy: don't buffer.
+        yield ": connected\n\n"
+        # Replay nothing initially — the client clears its panel on trigger.
+        while True:
+            log = JOB_STATE["log"]
+            job_id = JOB_STATE["id"]
+            running = JOB_STATE["running"]
+            # New job started behind our back: log was replaced, so our
+            # cursor is stale. Snap it back to 0 and treat the transition
+            # as if we observed running=True (otherwise a fast-finishing
+            # job between two waits would collapse start+end into one wake
+            # and we'd never emit the `done` event the UI needs to re-enable
+            # buttons).
+            if job_id != last_id:
+                cursor = 0
+                last_id = job_id
+                last_running = True
+            if cursor < len(log):
+                batch = log[cursor:]
+                cursor = len(log)
+                payload = json.dumps({
+                    "lines":   batch,
+                    "running": running,
+                    "name":    JOB_STATE["name"],
+                })
+                yield f"data: {payload}\n\n"
+            if last_running and not running:
+                final = {
+                    "name":    JOB_STATE["name"],
+                    "error":   JOB_STATE["error"],
+                    "counts":  get_db_counts(),
+                }
+                yield f"event: done\ndata: {json.dumps(final)}\n\n"
+            last_running = running
+            # Block until a new line arrives. Heartbeat every 15s keeps
+            # the connection alive through proxies/load-balancers.
+            if not LOG_EVENT.wait(timeout=15.0):
+                yield ": heartbeat\n\n"
+            LOG_EVENT.clear()
+
+    return Response(gen(), mimetype="text/event-stream", headers={
+        "Cache-Control": "no-cache",
+        "X-Accel-Buffering": "no",
+        "Connection": "keep-alive",
     })
 
 

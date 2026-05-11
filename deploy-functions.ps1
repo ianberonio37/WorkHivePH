@@ -14,6 +14,8 @@ npx supabase functions deploy analytics-orchestrator --no-verify-jwt
 npx supabase functions deploy send-report-email --no-verify-jwt
 npx supabase functions deploy voice-report-intent --no-verify-jwt
 npx supabase functions deploy voice-transcribe --no-verify-jwt
+npx supabase functions deploy voice-journal-agent --no-verify-jwt
+npx supabase functions deploy ai-gateway --no-verify-jwt
 npx supabase functions deploy semantic-search --no-verify-jwt
 npx supabase functions deploy embed-entry --no-verify-jwt
 npx supabase functions deploy marketplace-checkout --no-verify-jwt
@@ -32,3 +34,4 @@ npx supabase functions deploy voice-action-router --no-verify-jwt
 npx supabase functions deploy fmea-populator --no-verify-jwt
 npx supabase functions deploy weibull-fitter --no-verify-jwt
 npx supabase functions deploy pf-calculator --no-verify-jwt
+npx supabase functions deploy ai-eval-runner --no-verify-jwt

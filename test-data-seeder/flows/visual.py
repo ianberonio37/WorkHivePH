@@ -28,6 +28,7 @@ PAGES = [
     "shift-brain.html",
     "alert-hub.html",
     "audit-log.html",
+    "voice-journal.html",
 ]
 
 # Pages that render dynamic content (dates, live data) — captured but never compared.

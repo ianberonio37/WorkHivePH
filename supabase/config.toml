@@ -5,6 +5,11 @@ enabled = true
 verify_jwt = false
 entrypoint = "./functions/ai-gateway/index.ts"
 
+[functions.ai-eval-runner]
+enabled = true
+verify_jwt = false
+entrypoint = "./functions/ai-eval-runner/index.ts"
+
 [functions.ai-orchestrator]
 enabled = true
 verify_jwt = false
@@ -131,6 +136,11 @@ entrypoint = "./functions/voice-report-intent/index.ts"
 enabled = true
 verify_jwt = false
 entrypoint = "./functions/voice-transcribe/index.ts"
+
+[functions.voice-journal-agent]
+enabled = true
+verify_jwt = false
+entrypoint = "./functions/voice-journal-agent/index.ts"
 
 [functions.marketplace-checkout]
 enabled = true

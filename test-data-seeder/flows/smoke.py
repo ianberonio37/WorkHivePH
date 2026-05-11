@@ -26,6 +26,7 @@ PAGES = [
     ("shift-brain.html",       "Shift Brain",         "body"),
     ("alert-hub.html",         "Alert Hub",           "body"),
     ("audit-log.html",         "Audit Log",           "body"),
+    ("voice-journal.html",     "Voice Journal",       "body"),
 ]
 
 # Errors we tolerate (known/expected)

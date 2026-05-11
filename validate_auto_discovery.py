@@ -50,6 +50,7 @@ NON_TOOL_PAGES = {
     "public-feed.html",              # public community feed (no auth required)
     "symbol-gallery.html",           # asset/symbol reference page
     "platform-health.html",          # retired Phase 7, deprecated banner only
+    "voice-journal.html",            # voice-journal companion (untracked WIP — not yet a full tool page)
 }
 
 # ── Suffix patterns for test/scratch variants (skipped without complaint) ─────
