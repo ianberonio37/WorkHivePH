@@ -56,20 +56,20 @@ async function gatherData(db: SupabaseClient) {
   const now   = new Date();
   const since = new Date(now.getTime() - 90 * 86400000).toISOString();
 
-  // Total hives with recent activity
-  const { data: activeHives } = await db.from("logbook")
+  // Total hives with recent activity. Canonical: logbook_truth (drop-in for all 3 reads).
+  const { data: activeHives } = await db.from("v_logbook_truth")
     .select("hive_id")
     .gte("created_at", since)
     .not("hive_id", "is", null);
   const uniqueHives = new Set((activeHives || []).map((r: Record<string, string>) => r.hive_id));
 
   // Total work orders
-  const { count: woCount } = await db.from("logbook")
+  const { count: woCount } = await db.from("v_logbook_truth")
     .select("id", { count: "exact", head: true })
     .gte("created_at", since);
 
   // Total unique machines
-  const { data: machineRows } = await db.from("logbook")
+  const { data: machineRows } = await db.from("v_logbook_truth")
     .select("machine")
     .gte("created_at", since)
     .not("machine", "is", null);
@@ -117,8 +117,8 @@ async function gatherData(db: SupabaseClient) {
     .slice(0, 5)
     .map(([part, hiveCount]) => ({ part, hive_count: hiveCount }));
 
-  // Seasonal: failure count by month (last 12 months)
-  const { data: monthlyFaults } = await db.from("logbook")
+  // Seasonal: failure count by month (last 12 months). Canonical: logbook_truth.
+  const { data: monthlyFaults } = await db.from("v_logbook_truth")
     .select("created_at")
     .eq("maintenance_type", "Breakdown / Corrective")
     .gte("created_at", new Date(now.getTime() - 365 * 86400000).toISOString());

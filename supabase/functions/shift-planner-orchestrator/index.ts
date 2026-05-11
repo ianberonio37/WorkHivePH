@@ -100,8 +100,9 @@ async function fetchPMsDue(db: SupabaseClient, hiveId: string): Promise<AnyRow[]
 
 async function fetchCarryForward(db: SupabaseClient, hiveId: string): Promise<AnyRow[]> {
   // Open logbook entries created more than 8h ago.
+  // Canonical: logbook_truth (drop-in column-compatible with logbook).
   const cutoff = new Date(Date.now() - 8 * 3600 * 1000).toISOString();
-  const { data } = await db.from("logbook")
+  const { data } = await db.from("v_logbook_truth")
     .select("id, machine, problem, maintenance_type, status, created_at, worker_name, downtime_hours")
     .eq("hive_id", hiveId)
     .eq("status", "Open")

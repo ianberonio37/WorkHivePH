@@ -162,27 +162,15 @@ KNOWN_DRIFT = {
     ("search-overlay.js", "pm_assets"),
 
     # ── Edge functions slated to migrate to canonical views ─────────────────
-    # analytics-orchestrator: Phase 1.2 (2026-05-12) migrated hive-mode reads
-    # to v_pm_compliance_truth; solo-mode fallback uses inline canonical-allow
-    # comments, so this file is fully off KNOWN_DRIFT now.
+    # 2026-05-12 batch migration cleared 7 edge functions: analytics-orchestrator,
+    # ai-orchestrator (hive mode), shift-planner-orchestrator, intelligence-report,
+    # failure-signature-scan, benchmark-compute, scheduled-agents, embed-entry.
+    # All now read through v_logbook_truth / v_pm_compliance_truth in hive mode,
+    # with inline `canonical-allow` for solo-mode fallback paths.
     #
-    # ai-orchestrator's PM-status sub-agent still reads raw pm_assets for
-    # tag_id resolution; migrate to v_pm_compliance_truth (hive-only) in a
-    # follow-up sweep.
-    ("supabase/functions/ai-orchestrator/index.ts", "pm_assets"),
     # Asset Brain neighbor traversal: v_asset_truth covers the focal asset
-    # but neighbor lookups need raw asset_nodes. Document as permanent.
+    # but neighbor lookups need raw asset_nodes. Permanent.
     ("supabase/functions/asset-brain-query/index.ts", "asset_nodes"),
-    # Bulk readers slated for migration to v_logbook_truth:
-    ("supabase/functions/benchmark-compute/index.ts", "logbook"),
-    ("supabase/functions/failure-signature-scan/index.ts", "logbook"),
-    ("supabase/functions/intelligence-report/index.ts", "logbook"),
-    ("supabase/functions/shift-planner-orchestrator/index.ts", "logbook"),
-    # Scheduled cron agents (multi-table sweeps):
-    ("supabase/functions/scheduled-agents/index.ts", "logbook"),
-    ("supabase/functions/scheduled-agents/index.ts", "pm_assets"),
-    # Knowledge embed pipeline reads raw pm_assets to embed PM descriptions:
-    ("supabase/functions/embed-entry/index.ts", "pm_assets"),
 }
 
 # Inline opt-out token: a comment like `// canonical-allow: writes here`

@@ -92,7 +92,17 @@ only by which **window W** they ask for and how stale the answer is allowed to b
 
 ---
 
-## What's shipped as of 2026-05-12
+## What's shipped as of 2026-05-12 (Wave 2 batch)
+
+Wave 2 (everything-at-once revamp batch):
+- **Drift backlog cleared**: 7 edge functions migrated from underlying tables to canonical views in hive mode (`ai-orchestrator`, `shift-planner-orchestrator`, `intelligence-report` 4x, `failure-signature-scan`, `benchmark-compute`, `scheduled-agents` 5x, `embed-entry`). Solo-mode paths use inline `canonical-allow` comments where the canonical view is hive-scoped and can't serve solo workers.
+- **Chip coverage reaches 9 of 9**: every page that reads a KPI canonical view now either renders the helper-driven chip OR carries an inline `chip-allow:` comment documenting why a chip isn't appropriate (editor surface, chronological feed, per-question grounding, etc.). `KNOWN_NO_CHIP` is empty.
+- **`KNOWN_DRIFT` shrunk from 14 to 1**: only the Asset Brain neighbor-traversal `asset_nodes` read remains, and that one is permanent (neighbor lookups need the underlying graph table, not a canonical view).
+- **Phase 2.1 verified**: `validate_gateway_coverage.py` reports 16 fns routed through `platform-gateway`, 26 in `GATEWAY_BYPASS_OK` with justifications; Layer 3 ("every user-facing fn is routed or allowlisted") PASS.
+
+---
+
+## Wave 1 (cross-surface audit batch — earlier this session)
 
 | Phase | Deliverable | Layer |
 |---|---|---|
@@ -108,72 +118,48 @@ only by which **window W** they ask for and how stale the answer is allowed to b
 
 ---
 
-## Remaining roadmap (priority-ordered)
+## Remaining roadmap (slimmed by Wave 2)
 
-### Near-term (small batch, fast wins)
+### Optional polish (no urgency)
 
-**Phase 3.2 — Chip the remaining KPI-reading pages**
-The chip coverage validator currently lists 6 pages on `KNOWN_NO_CHIP` debt
-(`asset-hub.html`, `hive.html`, `shift-brain.html`, `dayplanner.html`,
-`index.html`, plus the editor/utility pages). Each needs a chip placement
-review:
-- `hive.html` PM Health card and Open Work card -> per-card chip variant.
-- `shift-brain.html` top-risk list -> chip below the page sub-header.
-- `index.html` dashboard widgets -> per-widget chip pattern.
-- `asset-hub.html` -> add a global page-level chip in addition to the per-card chip already on the Risk Profile section.
-- `dayplanner.html` -> decide whether the logbook stream needs a chip or whether the page can be marked `chip-allow: chronological feed, not a KPI tile`.
+**Per-widget chips on `hive.html` and `index.html`**
+Both pages currently carry a page-level `chip-allow` comment. They display
+multiple windows simultaneously (Open Work, PM Health, Inventory) and the
+correct long-term placement is one chip *per metric card*. Suggested
+pattern: each card renders a `<p id="card-N-chip"></p>` placeholder and
+the init code calls `renderSourceChip` per card with the right
+freshness/window. Estimated 1-2 hours combined.
 
-When each page gets a chip, remove it from `KNOWN_NO_CHIP` in
-`validate_kpi_chip_coverage.py`. The gate ratchets down automatically.
+### Long-term (deferred until forced)
 
-**Closing `KNOWN_DRIFT` entries**
-`validate_canonical_sources.py` `KNOWN_DRIFT` currently lists ~14 entries.
-Each is a documented migration target. Priority order (highest unlock first):
-1. `ai-orchestrator/index.ts` reads `pm_assets` -> migrate hive-mode to `v_pm_compliance_truth` (pattern is identical to the analytics-orchestrator migration shipped in Phase 1.2; ~30 min).
-2. `shift-planner-orchestrator/index.ts` reads `logbook` -> migrate to `v_logbook_truth` (~30 min).
-3. `intelligence-report/index.ts` reads `logbook` 4 times -> migrate to `v_logbook_truth` (~45 min).
-4. `failure-signature-scan/index.ts` reads `logbook` -> migrate to `v_logbook_truth` (~20 min).
-5. `benchmark-compute/index.ts` reads `logbook` -> migrate to `v_logbook_truth` (~20 min).
-6. `scheduled-agents/index.ts` reads `logbook` (4x) + `pm_assets` -> bulk sweep (~1 hour).
-7. `embed-entry/index.ts` reads `pm_assets` -> migrate (~20 min).
+**Phase 1.3 — `v_kpi_truth` materialised view**
+Promote a canonical view to materialised when latency forces it. Trigger:
+a real >3 s p95 Analytics phase OR a Python API 90 s timeout in production.
+View contract stays identical; only `freshness` in `canonical_sources`
+changes. **Do not pre-build.**
 
-Total estimated effort: ~3-4 hours to clear the entire backlog. Each
-migration shrinks `KNOWN_DRIFT` and proves the canonical view scales.
+**Phase 5 — Fuel cleanup**
+Deprecate `logbook.asset_ref_id` (text) and `inventory_items.linked_asset_ids`
+(text[]) in favour of pure UUID FKs to `asset_nodes`. Scope: ~2 sessions
+touching every writer. The `populate_asset_node_bridges` trigger keeps the
+current scheme working, so this is on hold until a real bug forces it.
 
-### Medium-term
+### What's now architecturally impossible to regress (the ratchet)
 
-**Phase 2.1 — Route every AI call through `ai-gateway`**
-Today the platform has multiple direct `callAI` importers (Asset Brain,
-analytics-orchestrator's Groq synthesis, shift-planner-orchestrator,
-ai-orchestrator, amc-orchestrator, voice-action-router, etc.). The
-`ai-gateway` shipped 2026-05-11 already handles per-route quotas, PII
-redaction, audit, and provider fallback; adoption is the remaining work.
+Three gates make sure the platform can't drift back into the "feels off"
+state that triggered this revamp:
 
-Per-function changes are small (replace `callAI(prompt, opts)` with a
-gateway-routed fetch that includes the route name and the existing opts),
-but coordination is needed because each function's prompt + cache key +
-audit category is different. Suggest one PR per function so the audit
-trail is clean. Estimated 30 min per function * ~8 functions = ~4 hours.
+1. `validate_canonical_sources` L2 — any new HTML page or edge function
+   reading an underlying table when a canonical view exists FAILS CI.
+2. `validate_kpi_chip_coverage` — any new page reading a KPI canonical
+   view without rendering a chip (or carrying a `chip-allow` comment)
+   FAILS CI.
+3. `validate_gateway_coverage` — any new user-facing edge fn not routed
+   through `platform-gateway` and not in `GATEWAY_BYPASS_OK` FAILS CI.
 
-**Phase 1.3 — `v_kpi_truth` materialised view (only if latency forces it)**
-Today the canonical views are regular (live-recomputed) views. If an
-Analytics phase ever exceeds 3 s p95 in production OR the Python API
-times out at the 90 s cap, promote the relevant view to materialised
-with a 1 h refresh cron. The view contract stays identical; only the
-`freshness` field in `canonical_sources` changes. No surface change.
-
-**Trigger to start**: a real production latency complaint or a
-`platform-health` SLA breach. Do not pre-build.
-
-### Long-term
-
-**Phase 5 — Fuel cleanup (deferred until forced)**
-The text/uuid bridges (`logbook.asset_ref_id` text, `inventory_items.linked_asset_ids` text[]) exist for backwards compat with the original asset model.
-Migration to write the canonical UUID alongside, then deprecate the text
-columns, is a 2-step cut-over touching every writer. Scope: ~2 sessions.
-Defer until a real bug forces it (e.g. a text-vs-uuid join silently drops
-rows). Today the `populate_asset_node_bridges` trigger keeps the bridges
-populated so the existing scheme works.
+Adding documented allowlist entries is always cheaper than landing the
+real fix, but is also visible in code review -- so engineers naturally
+choose the canonical path unless there is a real reason not to.
 
 ---
 

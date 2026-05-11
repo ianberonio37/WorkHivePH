@@ -42,8 +42,15 @@ Identify assets with no PM in 30+ days as overdue, 15-29 days as at-risk.
 Respond only in JSON: { "overdue_count": number, "at_risk_count": number, "overdue_assets": [{"asset_name","days_since_pm","risk":"CRITICAL|HIGH"}], "summary": "one sentence for supervisor" }`;
 
 async function runPMOverdue(db: SupabaseClient, hiveId: string, voiceContext?: string): Promise<string> {
-  const { data: assets } = await db.from("pm_assets").select("id, asset_name, category").eq("hive_id", hiveId);
-  if (!assets?.length) return "No assets found.";
+  // Canonical: pm_compliance_truth (drop-in; pm_asset_id column remapped to id
+  // for downstream compatibility with the pm_completions join).
+  const { data: assetsRaw } = await db.from("v_pm_compliance_truth")
+    .select("pm_asset_id, asset_name, category")
+    .eq("hive_id", hiveId);
+  const assets = (assetsRaw || []).map(a => ({
+    id: a.pm_asset_id, asset_name: a.asset_name, category: a.category,
+  }));
+  if (!assets.length) return "No assets found.";
 
   const assetIds = assets.map(a => a.id);
   const { data: completions } = await db.from("pm_completions")
@@ -75,7 +82,8 @@ Respond only in JSON: { "top_risk_machines": [{"machine","failure_count","total_
 
 async function runFailureDigest(db: SupabaseClient, hiveId: string, voiceContext?: string): Promise<string> {
   const since = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
-  const { data } = await db.from("logbook")
+  // Canonical: logbook_truth.
+  const { data } = await db.from("v_logbook_truth")
     .select("machine, category, root_cause, downtime_hours, created_at")
     .eq("hive_id", hiveId)
     .eq("maintenance_type", "Breakdown / Corrective")
@@ -102,7 +110,8 @@ Respond only in JSON: { "open_jobs": [{"machine","problem","priority":"HIGH|MEDI
 
 async function runShiftHandover(db: SupabaseClient, hiveId: string, voiceContext?: string): Promise<string> {
   const since = new Date(Date.now() - 8 * 60 * 60 * 1000).toISOString();
-  const { data } = await db.from("logbook")
+  // Canonical: logbook_truth.
+  const { data } = await db.from("v_logbook_truth")
     .select("machine, category, problem, action, status, worker_name, created_at")
     .eq("hive_id", hiveId)
     .gte("created_at", since)
@@ -130,7 +139,8 @@ const PREDICTIVE_SYSTEM = `You are a predictive maintenance analyst. Calculate M
 Respond only in JSON: { "predictions": [{"machine","mtbf_days":number,"last_failure":"YYYY-MM-DD","predicted_next":"YYYY-MM-DD","risk":"HIGH|MEDIUM|LOW"}], "highest_risk_machine": "machine name", "summary": "one sentence for supervisor" }`;
 
 async function runPredictive(db: SupabaseClient, hiveId: string, voiceContext?: string): Promise<string> {
-  const { data } = await db.from("logbook")
+  // Canonical: logbook_truth.
+  const { data } = await db.from("v_logbook_truth")
     .select("machine, created_at")
     .eq("hive_id", hiveId)
     .eq("maintenance_type", "Breakdown / Corrective")
@@ -176,7 +186,8 @@ Suggest at most 5 assets. If no clear candidates, return empty suggestions array
 
 async function runProjectSuggestions(db: SupabaseClient, hiveId: string, voiceContext?: string): Promise<string> {
   const since = new Date(Date.now() - 90 * 86400000).toISOString();
-  const { data: logs } = await db.from("logbook")
+  // Canonical: logbook_truth.
+  const { data: logs } = await db.from("v_logbook_truth")
     .select("machine, root_cause, maintenance_type, created_at")
     .eq("hive_id", hiveId).eq("maintenance_type", "Breakdown / Corrective")
     .gte("created_at", since).limit(500);

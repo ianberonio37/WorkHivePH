@@ -64,12 +64,24 @@ const PM_SYSTEM = `You are a preventive maintenance analyst. Given a list of ass
 Respond only in JSON: { "overdue": [{"asset_name","days_since_last_pm","risk_level"}], "never_done": ["asset_name"], "health_score": number, "summary": "one sentence" }`;
 
 async function pmStatusAgent(db: SupabaseClient, hiveId: string | null, workerName: string | null) {
-  const assetQuery = db.from("pm_assets").select("id, asset_name, category");
-  if (hiveId) assetQuery.eq("hive_id", hiveId);
-  else if (workerName) assetQuery.eq("worker_name", workerName);
-
-  const { data: assets } = await assetQuery;
-  if (!assets?.length) return { agent: "pm_status", result: null };
+  // Canonical: pm_compliance_truth for hive mode. Solo mode falls back to
+  // raw pm_assets because the canonical view is hive-scoped.
+  let assets: Array<Record<string, string>> = [];
+  if (hiveId) {
+    const { data } = await db.from("v_pm_compliance_truth")
+      .select("pm_asset_id, asset_name, category")
+      .eq("hive_id", hiveId);
+    assets = (data || []).map(a => ({
+      id: a.pm_asset_id, asset_name: a.asset_name, category: a.category,
+    }));
+  } else if (workerName) {
+    // canonical-allow: solo mode (no hive_id) cannot use hive-scoped v_pm_compliance_truth
+    const { data } = await db.from("pm_assets")
+      .select("id, asset_name, category")
+      .eq("worker_name", workerName);
+    assets = (data || []) as Array<Record<string, string>>;
+  }
+  if (!assets.length) return { agent: "pm_status", result: null };
 
   const assetIds = assets.map(a => a.id);
   const { data: completions } = await db.from("pm_completions")

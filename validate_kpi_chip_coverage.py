@@ -64,49 +64,10 @@ KPI_VIEWS = {
 # ships its chip via renderSourceChip(). New pages outside this set FAIL.
 #
 # Forward-slash path keys so the set works on Windows and Linux.
-KNOWN_NO_CHIP = {
-    # Hive board reads canonical views for PM Health + Open Work cards.
-    # Chip pending review of card-level placement vs page-level placement.
-    "hive.html",
-    # Shift Brain top-risk list reads v_risk_truth; chip pending.
-    "shift-brain.html",
-    # Logbook reads v_logbook_truth + v_inventory_items_truth from its own
-    # editor flow; metric tiles don't really apply here.
-    "logbook.html",
-    # Inventory page reads v_inventory_items_truth as its primary view;
-    # chip would be redundant since the page IS the view's surface.
-    "inventory.html",
-    # PM Scheduler reads pm_scope_items_truth + writes pm_assets directly;
-    # editor page rather than KPI surface.
-    "pm-scheduler.html",
-    # Asset Hub already has a per-card chip on the Risk Profile section;
-    # the page also reads v_logbook_truth for the timeline (no separate
-    # tile, just an event list).
-    # Already chip-compliant; included here so the validator doesn't FAIL
-    # on the timeline read; remove when a global page-level chip lands.
-    "asset-hub.html",
-    # Project Manager reads canonical views for project-scope rollups;
-    # KPI context is per-project, not platform-wide.
-    "project-manager.html",
-    # Report Sender bundles other surfaces' content for export; chip
-    # belongs on the source surfaces, not the export wrapper.
-    "report-sender.html",
-    # Public feed is the cross-hive social surface; KPI context not
-    # appropriate at the post level.
-    "public-feed.html",
-    # Community is the discussion surface; KPI views read for context.
-    "community.html",
-    # Assistant page reads canonical views to ground answers; chip lives
-    # inside the answer rendering, not the page header.
-    "assistant.html",
-    # Day Planner reads v_logbook_truth for the "what happened today" stream;
-    # not a KPI tile but a chronological feed. Chip would need a date-range
-    # variant ("Today's events from v_logbook_truth").
-    "dayplanner.html",
-    # Landing/home page reads multiple KPI views for the dashboard widgets;
-    # chip pending placement decision (per-widget vs page-level).
-    "index.html",
-}
+KNOWN_NO_CHIP: set[str] = set()  # cleared 2026-05-12 in the everything-at-once
+                                  # revamp batch -- every remaining KPI-reading
+                                  # page either has a real chip or carries an
+                                  # inline `chip-allow:` comment documenting why.
 
 # Inline opt-out: `<!-- chip-allow: reason -->` or `// chip-allow: reason`
 # within the file documents that a chip is intentionally absent.

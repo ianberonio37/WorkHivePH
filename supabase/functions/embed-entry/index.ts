@@ -50,9 +50,10 @@ serve(async (req) => {
 
       } else if (body.table === "pm_completions") {
         type = "pm";
-        const { data: asset } = await db.from("pm_assets")
+        // Canonical: pm_compliance_truth (pm_asset_id keyed).
+        const { data: asset } = await db.from("v_pm_compliance_truth")
           .select("asset_name, category, hive_id")
-          .eq("id", record.asset_id)
+          .eq("pm_asset_id", record.asset_id)
           .single();
         hive_id = asset?.hive_id || null;
         entry = {

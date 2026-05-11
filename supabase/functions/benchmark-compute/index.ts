@@ -127,7 +127,8 @@ function computeHiveMetrics(
 async function computeForHive(db: SupabaseClient, hiveId: string, now: Date) {
   const since = new Date(now.getTime() - PERIOD_DAYS * 86400000).toISOString();
 
-  const { data: rows } = await db.from("logbook")
+  // Canonical: logbook_truth (drop-in column-compatible with logbook).
+  const { data: rows } = await db.from("v_logbook_truth")
     .select("machine, category, maintenance_type, downtime_hours, created_at")
     .eq("hive_id", hiveId)
     .gte("created_at", since)

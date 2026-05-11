@@ -185,9 +185,10 @@ async function scanHive(
   const since90 = new Date(now.getTime() - 90 * 86400000).toISOString();
   const since30 = new Date(now.getTime() - 30 * 86400000).toISOString();
 
-  // Fetch recent breakdowns for this hive
+  // Fetch recent breakdowns for this hive.
+  // Canonical: logbook_truth.
   const { data: logbook, error } = await db
-    .from("logbook")
+    .from("v_logbook_truth")
     .select("machine, category, root_cause, maintenance_type, created_at")
     .eq("hive_id", hiveId)
     .in("maintenance_type", ["Breakdown / Corrective", "Inspection", "Preventive Maintenance"])
