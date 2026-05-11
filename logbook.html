@@ -1406,7 +1406,7 @@ async function searchTeam(append = false) {
   const dateTo    = document.getElementById('filter-date-to').value;
 
   let query = db.from('logbook')
-    .select('id, date, machine, category, maintenance_type, root_cause, problem, action, knowledge, downtime_hours, photo, status, asset_ref_id, parts_used, closed_at, created_at, tasklist_acknowledged, tasklist_note, failure_consequence, readings_json, production_output, worker_name')
+    .select('id, date, machine, category, maintenance_type, root_cause, problem, action, knowledge, downtime_hours, photo, status, asset_node_id, parts_used, closed_at, created_at, tasklist_acknowledged, tasklist_note, failure_consequence, readings_json, production_output, worker_name')
     .eq('hive_id', HIVE_ID)
     .order('date', { ascending: false })
     .limit(TEAM_PAGE);
@@ -1427,7 +1427,7 @@ async function searchTeam(append = false) {
     maintenance_type: r.maintenance_type, root_cause: r.root_cause,
     problem: r.problem, action: r.action, knowledge: r.knowledge,
     downtime_hours: r.downtime_hours, photo: r.photo, status: r.status,
-    asset_ref_id: r.asset_ref_id || null, parts_used: r.parts_used || [],
+    asset_node_id: r.asset_node_id || null, parts_used: r.parts_used || [],
     closed_at: r.closed_at || null, created_at: r.created_at || null,
     tasklist_acknowledged: r.tasklist_acknowledged || false,
     tasklist_note: r.tasklist_note || null,
@@ -1551,7 +1551,7 @@ async function syncOfflineQueue() {
 async function loadEntries() {
   // Mine-mode only. Team mode uses searchTeam().
   let query = db.from('logbook')
-    .select('id, date, machine, category, maintenance_type, root_cause, problem, action, knowledge, downtime_hours, photo, status, asset_ref_id, parts_used, closed_at, created_at, tasklist_acknowledged, tasklist_note, failure_consequence, readings_json, production_output, worker_name')
+    .select('id, date, machine, category, maintenance_type, root_cause, problem, action, knowledge, downtime_hours, photo, status, asset_node_id, parts_used, closed_at, created_at, tasklist_acknowledged, tasklist_note, failure_consequence, readings_json, production_output, worker_name')
     .eq('worker_name', WORKER_NAME);
   if (HIVE_ID) query = query.or(`hive_id.eq.${HIVE_ID},hive_id.is.null`);
   query = query.order('date', { ascending: false }).limit(200);
@@ -1573,7 +1573,7 @@ async function loadEntries() {
         maintenance_type: r.maintenance_type, root_cause: r.root_cause,
         problem: r.problem, action: r.action, knowledge: r.knowledge,
         downtime_hours: r.downtime_hours, photo: r.photo, status: r.status,
-        asset_ref_id: r.asset_ref_id || null, parts_used: r.parts_used || [],
+        asset_node_id: r.asset_node_id || null, parts_used: r.parts_used || [],
         closed_at: r.closed_at || null, created_at: r.created_at || null,
         tasklist_acknowledged: r.tasklist_acknowledged || false,
         tasklist_note: r.tasklist_note || null,
@@ -1596,7 +1596,7 @@ async function addEntry(entry) {
     category: entry.category, problem: entry.problem, root_cause: entry.root_cause,
     action: entry.action, knowledge: entry.knowledge, downtime_hours: entry.downtime_hours,
     photo: entry.photo, status: entry.status, hive_id: HIVE_ID,
-    asset_ref_id: entry.asset_ref_id || null,
+    asset_node_id: entry.asset_node_id || null,
     parts_used: entry.parts_used || [],
     closed_at: entry.status === 'Closed' ? new Date().toISOString() : null,
     tasklist_acknowledged: entry.tasklist_acknowledged || false,
@@ -1643,12 +1643,18 @@ async function addEntry(entry) {
 // linked to an active project, auto-create a project_link so the work
 // surfaces under the project. Silent if no match; gentle toast if matched.
 async function _autoLinkLogbookToProject(entry) {
-  if (!HIVE_ID || !entry?.asset_ref_id || !entry?.id) return;
+  if (!HIVE_ID || !entry?.asset_node_id || !entry?.id) return;
+  // Phase 5b: entry.asset_node_id is the canonical uuid, but project_links.link_id
+  // for 'asset' rows still holds the legacy assets.id text (project_links is a
+  // mixed-type bag by design). Resolve the uuid back to legacy text via the
+  // asset_nodes.legacy_asset_id bridge column so the match works.
+  const legacyId = await resolveLegacyAssetId(db, entry.asset_node_id);
+  if (!legacyId) return;
   const { data: assetLinks } = await db.from('project_links')
     .select('project_id, label')
     .eq('hive_id', HIVE_ID)
     .eq('link_type', 'asset')
-    .eq('link_id', entry.asset_ref_id);
+    .eq('link_id', legacyId);
   if (!assetLinks?.length) return;
   const projectIds = [...new Set(assetLinks.map(l => l.project_id))];
   const { data: projs } = await db.from('projects')
@@ -1777,34 +1783,15 @@ async function initAssets() {
   refreshAssetCountBadge();
 }
 
-// ── ASSET_REF_ID BACKFILL (one-time, silent) ──
+// ── ASSET_NODE_ID BACKFILL (Phase 5b: now a no-op) ──
+// Pre-Phase-5b this one-off backfill populated asset_ref_id (text) for
+// legacy logbook rows by matching `assets` by machine code. Phase 5b
+// migration 20260512000007 dropped the asset_ref_id column entirely and
+// the asset_node_id uuid is now populated by the asset-picker resolution
+// at write time. Legacy rows backfilled during Phase 5a still carry their
+// resolved uuid. Kept as an empty fn so the call sites stay valid.
 async function runAssetRefBackfill() {
-  const assets = loadAssets();
-  if (!assets.length) return;
-  const key = 'wh_assetref_backfilled_' + WORKER_NAME;
-  if (sessionStorage.getItem(key)) return;
-  sessionStorage.setItem(key, '1');
-
-  // Fetch logbook rows with no asset_ref_id
-  const { data: rows } = await db.from('logbook')
-    .select('id, machine')
-    .eq('worker_name', WORKER_NAME)
-    .is('asset_ref_id', null);
-  if (!rows || !rows.length) return;
-
-  // Build a lookup: asset_id (uppercase) → uuid
-  const lookup = {};
-  assets.forEach(a => { lookup[a.asset_id.toUpperCase()] = a.id; });
-
-  // Match and batch update
-  const matches = rows
-    .map(r => ({ id: r.id, ref: lookup[(r.machine || '').toUpperCase()] }))
-    .filter(r => r.ref);
-  if (!matches.length) return;
-
-  await Promise.all(matches.map(m =>
-    db.from('logbook').update({ asset_ref_id: m.ref }).eq('id', m.id)
-  ));
+  return;
 }
 
 function openAssetModal(tab) {
@@ -2110,30 +2097,38 @@ function openAssetDetail(id) {
 }
 
 async function loadAssetDetail(asset) {
-  // Build inventory queries: own items + hive-approved items (mirrors loadInventoryForPicker)
-  const invQueries = [
-    db.from('inventory_items')
-      .select('id, part_name, part_number, qty_on_hand, min_qty, unit, bin_location')
-      .eq('worker_name', WORKER_NAME)
-      .contains('linked_asset_ids', [asset.asset_id])
-  ];
-  if (HIVE_ID) {
-    invQueries.push(
-      db.from('inventory_items')
-        .select('id, part_name, part_number, qty_on_hand, min_qty, unit, bin_location')
-        .eq('hive_id', HIVE_ID)
-        .eq('status', 'approved')
-        .contains('linked_asset_ids', [asset.asset_id])
-    );
-  }
+  // Phase 5b: resolve the legacy assets.id (text) to the canonical asset_node
+  // uuid once, then use it for both the inventory linkage filter (now
+  // linked_asset_node_ids uuid[]) and the logbook faults filter (now
+  // asset_node_id uuid). If the asset has no canonical node yet, fall back
+  // to empty queries so the UI shows "no linked items / faults" gracefully.
+  const assetNodeId = await resolveAssetNodeId(db, HIVE_ID, asset.id);
+
+  const invQueries = assetNodeId
+    ? [
+        db.from('inventory_items')
+          .select('id, part_name, part_number, qty_on_hand, min_qty, unit, bin_location')
+          .eq('worker_name', WORKER_NAME)
+          .contains('linked_asset_node_ids', [assetNodeId]),
+        ...(HIVE_ID ? [
+          db.from('inventory_items')
+            .select('id, part_name, part_number, qty_on_hand, min_qty, unit, bin_location')
+            .eq('hive_id', HIVE_ID)
+            .eq('status', 'approved')
+            .contains('linked_asset_node_ids', [assetNodeId]),
+        ] : []),
+      ]
+    : [];
 
   const [faultsRes, ...invResults] = await Promise.all([
-    db.from('logbook')
-      .select('id, date, machine, category, maintenance_type, problem, status, created_at')
-      .eq('asset_ref_id', asset.id)
-      .order('created_at', { ascending: false })
-      .limit(50),
-    ...invQueries
+    assetNodeId
+      ? db.from('logbook')
+          .select('id, date, machine, category, maintenance_type, problem, status, created_at')
+          .eq('asset_node_id', assetNodeId)
+          .order('created_at', { ascending: false })
+          .limit(50)
+      : Promise.resolve({ data: [] }),
+    ...invQueries,
   ]);
 
   // Deduplicate by id: own items take precedence (preserve pending status)
@@ -2359,12 +2354,15 @@ function renderAssetPickerList(query) {
   });
 }
 
-function selectAsset(assetId, assetName, assetRefId) {
+async function selectAsset(assetId, assetName, assetRefId) {
   document.getElementById('f-machine').value = assetId;
   const labelEl = document.getElementById('asset-picker-label');
   labelEl.textContent = assetId + (assetName && assetName !== assetId ? ': ' + assetName : '');
   labelEl.style.color = 'white';
-  _pendingAssetRefId = assetRefId || null;
+  // Phase 5b: the asset picker passes the legacy `assets.id` (text) but
+  // logbook now stores `asset_node_id` (uuid). Resolve via the canonical
+  // bridge column on asset_nodes. _pendingAssetRefId now holds a uuid.
+  _pendingAssetRefId = await resolveAssetNodeId(db, HIVE_ID, assetRefId);
   closeAssetPicker();
   saveDraft();
   loadPMTasksForAsset();
@@ -3060,7 +3058,7 @@ async function openEditModal(id) {
   document.getElementById('f-machine').value = entry.machine || '';
   const labelEl = document.getElementById('asset-picker-label');
   if (entry.machine) { labelEl.textContent = entry.machine; labelEl.style.color = 'white'; }
-  _pendingAssetRefId = entry.asset_ref_id || null;
+  _pendingAssetRefId = entry.asset_node_id || null;
 
   // ── Maintenance type ──
   document.getElementById('f-maint-type').value = entry.maintenance_type || '';
@@ -3193,7 +3191,8 @@ async function saveEdit(id) {
     downtime_hours:  downtimeRaw !== '' ? parseFloat(downtimeRaw) : null,
     photo:           _editPhotoData,
     status:          newStatus,
-    asset_ref_id:    assetMatch ? assetMatch.id : null,
+    // Phase 5b: assetMatch.id is the legacy text id; resolve to uuid.
+    asset_node_id:   assetMatch ? await resolveAssetNodeId(db, HIVE_ID, assetMatch.id) : null,
     hive_id:         HIVE_ID,
     parts_used:             _editPartsUsed.map(p => ({ partId: p.partId, partName: p.partName, partNumber: p.partNumber, qty: p.qty, unit: p.unit })),
     closed_at:              closedAt,
@@ -3272,7 +3271,10 @@ async function saveEditFromForm() {
     downtime_hours:        downtimeRaw !== '' ? parseFloat(downtimeRaw) : null,
     photo:                 currentPhotoData,
     status:                newStatus,
-    asset_ref_id:          assetMatch ? assetMatch.id : (_pendingAssetRefId || null),
+    // Phase 5b: assetMatch.id is text; _pendingAssetRefId is already uuid (resolved in selectAsset).
+    asset_node_id:         assetMatch
+                             ? await resolveAssetNodeId(db, HIVE_ID, assetMatch.id)
+                             : (_pendingAssetRefId || null),
     hive_id:               HIVE_ID,
     worker_name:           WORKER_NAME,
     parts_used:            _partsUsed.map(p => ({ partId: p.partId, partName: p.partName, partNumber: p.partNumber, qty: p.qty, unit: p.unit })),
@@ -3655,7 +3657,7 @@ document.getElementById('log-form').addEventListener('submit', async function(e)
     failure_consequence: failureConsequence,
     readings_json: readingsJson,
     production_output: productionOutput,
-    photo, status, asset_ref_id: _pendingAssetRefId,
+    photo, status, asset_node_id: _pendingAssetRefId,
     parts_used: _partsUsed.map(p => ({ partId: p.partId, partName: p.partName, partNumber: p.partNumber, qty: p.qty, unit: p.unit })),
     tasklist_acknowledged: tasklistAcknowledged,
     tasklist_note: tasklistNote,

@@ -201,16 +201,15 @@ def check_asset_lifecycle_state(pages):
 
 def check_logbook_asset_linkage(pages):
     """
-    Logbook entries must include asset_ref_id in the addEntry() insert payload.
-    This UUID FK links the maintenance record to the digital twin asset record,
-    enabling:
-    - Direct DT query: 'show all maintenance history for this asset'
-    - MTBF computation from linked entries (not just machine text matching)
-    - Predictive model features tied to the specific physical asset
+    Logbook entries must carry a canonical asset FK in the addEntry() insert
+    payload so the DT can link maintenance history to the asset record.
+    Phase 5b.1 (2026-05-12) replaced `asset_ref_id` (text -> assets) with
+    `asset_node_id` (uuid -> asset_nodes); either is accepted because old
+    forks may not have migrated yet, but at least one must be present.
 
-    Without asset_ref_id, the DT can only match entries by machine name string —
-    which breaks when the machine name is inconsistent ('Pump A', 'pump-a', 'PUMP A').
-    This is a regression guard — the field is currently included.
+    Without an asset FK, the DT can only match entries by machine name string,
+    which breaks under name drift ('Pump A', 'pump-a', 'PUMP A'). This is a
+    regression guard -- one of the two fields is always included.
     """
     issues = []
     for page in pages:
@@ -222,12 +221,13 @@ def check_logbook_asset_linkage(pages):
         if not m:
             continue
         body = content[m.start():m.start() + 1500]
-        if "asset_ref_id" not in body:
+        if "asset_node_id" not in body and "asset_ref_id" not in body:
             issues.append({"check": "logbook_asset_linkage", "page": page,
                            "reason": (f"{page} addEntry() insert payload does not include "
-                                      f"asset_ref_id — logbook entries cannot be linked to the "
-                                      f"digital twin asset record; MTBF and predictive models "
-                                      f"fall back to unreliable machine name text matching")})
+                                      f"asset_node_id (Phase 5b.1) or asset_ref_id (legacy) -- "
+                                      f"logbook entries cannot be linked to the digital twin "
+                                      f"asset record; MTBF and predictive models fall back to "
+                                      f"unreliable machine name text matching")})
     return issues
 
 

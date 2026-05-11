@@ -137,22 +137,13 @@ serve(async (req) => {
         { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } },
       );
     }
-    const legacyId = (asset as AnyRow).legacy_asset_id;
-    if (!legacyId) {
-      return new Response(
-        JSON.stringify({
-          error: "Asset has no legacy_asset_id bridge. Register or backfill the asset before fitting Weibull.",
-        }),
-        { status: 422, headers: { ...corsHeaders, "Content-Type": "application/json" } },
-      );
-    }
-
-    // Pull corrective logbook entries in window. asset_ref_id (text) joins legacy_asset_id.
+    // Phase 5b: filter logbook by canonical asset_node_id (uuid) directly.
+    // The legacy_asset_id text bridge is gone; asset_id IS the asset_node uuid.
     const sinceIso = new Date(Date.now() - since_days * 86_400_000).toISOString();
     const { data: rows, error: logErr } = await db.from("v_logbook_truth")   // canonical
       .select("id, created_at, maintenance_type")
       .eq("hive_id", hive_id)
-      .eq("asset_ref_id", legacyId)
+      .eq("asset_node_id", asset_id)
       .gte("created_at", sinceIso)
       .order("created_at", { ascending: true })
       .limit(500);

@@ -176,16 +176,16 @@ async function fetchAssetTimeline(
   if (!node) return { logbook: [], pm: [] };
 
   const queries: Promise<unknown>[] = [];
-  if (node.legacy_asset_id) {
-    queries.push(
-      db.from("v_logbook_truth")    // canonical: logbook_truth
-        .select("id, machine, problem, action, root_cause, maintenance_type, status, created_at, closed_at, downtime_hours")
-        .eq("hive_id", hiveId)
-        .eq("asset_ref_id", node.legacy_asset_id)
-        .order("created_at", { ascending: false })
-        .limit(TIMELINE_CAP)
-    );
-  }
+  // Phase 5b: logbook is now keyed by asset_node_id (uuid) directly; the
+  // legacy_asset_id text bridge was dropped. node.id is the canonical uuid.
+  queries.push(
+    db.from("v_logbook_truth")    // canonical: logbook_truth
+      .select("id, machine, problem, action, root_cause, maintenance_type, status, created_at, closed_at, downtime_hours")
+      .eq("hive_id", hiveId)
+      .eq("asset_node_id", node.id)
+      .order("created_at", { ascending: false })
+      .limit(TIMELINE_CAP)
+  );
   if (node.pm_asset_id) {
     queries.push(
       db.from("pm_completions")
@@ -205,7 +205,7 @@ async function fetchAssetTimeline(
     if (res.status !== "fulfilled") return;
     const v = res.value as { data?: AnyRow[] };
     const rows = v.data || [];
-    if (idx === 0 && node.legacy_asset_id) logbook = rows;
+    if (idx === 0) logbook = rows;
     else pm = rows;
   });
 
@@ -220,8 +220,9 @@ async function fetchSimilarFailures(
   if (!node || !node.iso_class) return [];
 
   // Find peer assets in the same hive + iso_class (excluding self).
+  // canonical-allow: asset-brain neighbor traversal needs the raw graph table
   const { data: peers } = await db.from("asset_nodes")
-    .select("id, legacy_asset_id, tag, name")
+    .select("id, tag, name")
     .eq("hive_id", hiveId)
     .eq("iso_class", node.iso_class)
     .neq("id", node.id)
@@ -229,21 +230,23 @@ async function fetchSimilarFailures(
 
   if (!peers || !peers.length) return [];
 
-  const legacyIds = peers.map(p => p.legacy_asset_id).filter(Boolean) as string[];
-  if (!legacyIds.length) return [];
+  // Phase 5b: filter logbook by canonical asset_node_id (uuid). The text
+  // legacy_asset_id bridge was dropped.
+  const peerIds = peers.map(p => p.id).filter(Boolean) as string[];
+  if (!peerIds.length) return [];
 
   const { data: rows } = await db.from("v_logbook_truth")    // canonical
-    .select("id, machine, problem, root_cause, maintenance_type, created_at, closed_at, asset_ref_id")
+    .select("id, machine, problem, root_cause, maintenance_type, created_at, closed_at, asset_node_id")
     .eq("hive_id", hiveId)
     .eq("maintenance_type", "Breakdown / Corrective")
-    .in("asset_ref_id", legacyIds)
+    .in("asset_node_id", peerIds)
     .order("created_at", { ascending: false })
     .limit(SIMILAR_CAP);
 
   if (!rows) return [];
 
   return rows.map(r => {
-    const peer = peers.find(p => p.legacy_asset_id === r.asset_ref_id);
+    const peer = peers.find(p => p.id === r.asset_node_id);
     return { ...r, peer_tag: peer ? (peer.tag || peer.name) : null };
   });
 }

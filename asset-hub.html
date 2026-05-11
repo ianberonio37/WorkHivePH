@@ -1558,19 +1558,18 @@
       const node = _allNodes.find(n => n.id === nodeId);
       if (!node) { tl.innerHTML = '<div class="tl-empty">Node not found.</div>'; return; }
 
-      // Pull recent logbook + pm_completions tied to this node via legacy_asset_id and pm_asset_id.
-      // Both queries are hive-scoped per multitenant skill.
+      // Pull recent logbook + pm_completions tied to this node.
+      // Phase 5b: logbook is now keyed by asset_node_id (uuid) directly; the
+      // legacy_asset_id text bridge was dropped. node.id is the canonical uuid.
       const queries = [];
-      if (node.legacy_asset_id) {
-        queries.push(
-          db.from('v_logbook_truth')
-            .select('id, machine, problem, action, maintenance_type, status, created_at, closed_at')
-            .eq('hive_id', HIVE_ID)
-            .eq('asset_ref_id', node.legacy_asset_id)
-            .order('created_at', { ascending: false })
-            .limit(20)
-        );
-      }
+      queries.push(
+        db.from('v_logbook_truth')
+          .select('id, machine, problem, action, maintenance_type, status, created_at, closed_at')
+          .eq('hive_id', HIVE_ID)
+          .eq('asset_node_id', node.id)
+          .order('created_at', { ascending: false })
+          .limit(20)
+      );
       if (node.pm_asset_id) {
         queries.push(
           db.from('pm_completions')
@@ -2659,7 +2658,7 @@
             .eq('hive_id', HIVE_ID).eq('asset_id', nodeId).limit(20),
           db.from('v_logbook_truth')
             .select('created_at, problem, root_cause, downtime_hours, maintenance_type')
-            .eq('hive_id', HIVE_ID).eq('asset_ref_id', node.legacy_asset_id || '__none__')
+            .eq('hive_id', HIVE_ID).eq('asset_node_id', node.id)
             .gte('created_at', sinceIso)
             .order('created_at', { ascending: false }).limit(8),
         ]);
@@ -3035,21 +3034,19 @@
       _hubChannel = db.channel('asset-hub:' + nodeId);
 
       // Logbook events tied to this asset. Hive-scoped per multitenant skill;
-      // asset_ref_id matched client-side so cross-tenant events are dropped
-      // even if a legacy_asset_id collision ever occurred.
-      if (node.legacy_asset_id) {
-        _hubChannel.on('postgres_changes', {
-          event: 'INSERT', schema: 'public', table: 'logbook',
-          filter: 'hive_id=eq.' + HIVE_ID,
-        }, (payload) => {
-          const row = payload.new || {};
-          if (row.asset_ref_id !== node.legacy_asset_id) return;
-          if (_selectedNodeId === nodeId) {
-            loadDetailTimeline(nodeId);
-            loadDetailStats(nodeId);
-          }
-        });
-      }
+      // asset_node_id matched client-side so cross-tenant events are dropped.
+      // Phase 5b: filter by canonical uuid directly (no legacy text bridge).
+      _hubChannel.on('postgres_changes', {
+        event: 'INSERT', schema: 'public', table: 'logbook',
+        filter: 'hive_id=eq.' + HIVE_ID,
+      }, (payload) => {
+        const row = payload.new || {};
+        if (row.asset_node_id !== node.id) return;
+        if (_selectedNodeId === nodeId) {
+          loadDetailTimeline(nodeId);
+          loadDetailStats(nodeId);
+        }
+      });
 
       // PM completions tied to this asset. Same pattern: hive_id filter at the
       // wire, asset_id check client-side.

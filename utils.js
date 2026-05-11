@@ -56,6 +56,56 @@ function renderSourceChip(opts) {
     + '</p>';
 }
 
+// ─────────────────────────────────────────────
+// resolveAssetNodeId — writer-side legacy-to-canonical bridge (Phase 5b)
+// ─────────────────────────────────────────────
+// Phase 5b dropped logbook.asset_ref_id (text) in favour of
+// logbook.asset_node_id (uuid). The asset picker in legacy writer surfaces
+// (logbook.html, parts-tracker.html) still queries the `assets` table, which
+// is keyed by text. This helper looks up the corresponding canonical
+// asset_nodes.id (uuid) via the legacy_asset_id bridge column so the writer
+// can store the uuid FK on the new logbook column.
+//
+// Returns null when:
+//   - hiveId is missing (solo mode -- asset_nodes is hive-scoped)
+//   - legacyAssetId is missing
+//   - no asset_node exists for that legacy id in the hive (e.g. user
+//     registered an asset but the node wasn't created yet)
+//
+// Skill alignment: architect (parallel-cutover pattern), data-engineer
+// (narrow .maybeSingle lookup, hive-scoped match), KPI_ENGINE.md Phase 5b.
+async function resolveAssetNodeId(db, hiveId, legacyAssetId) {
+  if (!db || !hiveId || !legacyAssetId) return null;
+  try {
+    // canonical-allow: bridge helper needs the legacy_asset_id column on the raw graph table
+    const { data } = await db.from('asset_nodes')
+      .select('id')
+      .eq('hive_id', hiveId)
+      .eq('legacy_asset_id', legacyAssetId)
+      .maybeSingle();
+    return data?.id || null;
+  } catch (_) {
+    return null;
+  }
+}
+
+// Inverse helper: given a canonical asset_node_id (uuid), return the
+// legacy_asset_id (text) that still keys older systems like project_links.
+// Used at use-site rather than rewriting the data model of every dependent.
+async function resolveLegacyAssetId(db, assetNodeId) {
+  if (!db || !assetNodeId) return null;
+  try {
+    // canonical-allow: bridge helper needs the legacy_asset_id column on the raw graph table
+    const { data } = await db.from('asset_nodes')
+      .select('legacy_asset_id')
+      .eq('id', assetNodeId)
+      .maybeSingle();
+    return data?.legacy_asset_id || null;
+  } catch (_) {
+    return null;
+  }
+}
+
 // Debounce — delay fn execution until after `wait` ms of silence
 function debounce(fn, wait) {
   let t;

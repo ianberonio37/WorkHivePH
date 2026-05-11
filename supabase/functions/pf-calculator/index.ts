@@ -143,18 +143,18 @@ serve(async (req) => {
     if (!legacyId) {
       return new Response(
         JSON.stringify({
-          error: "Asset has no legacy_asset_id bridge. Register or backfill the asset before computing P-F.",
+          error: "Asset not found in this hive.",
         }),
-        { status: 422, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+        { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } },
       );
     }
 
-    // Pull logbook readings within window
+    // Phase 5b: filter by canonical asset_node_id (uuid) directly.
     const sinceIso = new Date(Date.now() - since_days * 86_400_000).toISOString();
     const { data: rows, error: logErr } = await db.from("v_logbook_truth")  // canonical
       .select("created_at, readings_json")
       .eq("hive_id", hive_id)
-      .eq("asset_ref_id", legacyId)
+      .eq("asset_node_id", asset_id)
       .gte("created_at", sinceIso)
       .not("readings_json", "is", null)
       .order("created_at", { ascending: true })

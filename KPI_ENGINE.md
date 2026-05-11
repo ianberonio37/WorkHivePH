@@ -176,18 +176,47 @@ bridge's lookup perf.
 readers were already on the canonical path; Phase 5a is writer-side
 integrity + the precondition for Phase 5b.
 
+### Shipped 2026-05-12 (Wave 6)
+
+**Phase 5b.1 -- Drop logbook.asset_ref_id** [DONE]
+Migration `20260512000007_phase_5b1_drop_logbook_asset_ref.sql`:
+- Re-defined `v_logbook_truth` to JOIN via `l.asset_node_id = n.id` (uuid)
+  instead of the legacy text bridge.
+- Re-defined `v_asset_truth` aggregate subqueries (`lifetime_logbook_entries`,
+  `last_failure_at`) to filter logbook by `asset_node_id`.
+- Dropped the Phase 5a trigger `trg_resolve_logbook_asset_node_id` + its
+  function; writers now produce `asset_node_id` directly.
+- Dropped `logbook_asset_ref_id_fkey` (FK to legacy assets) + the
+  supporting index `logbook_asset_ref_id_idx`.
+- Dropped `logbook.asset_ref_id` column.
+
+Caller-side migrations in the same wave: `utils.js` gained
+`resolveAssetNodeId(db, hiveId, legacyAssetId)` + inverse
+`resolveLegacyAssetId(db, assetNodeId)`. The asset picker in `logbook.html`
+resolves the legacy id to a uuid at pick time (`selectAsset` is now async).
+`_autoLinkLogbookToProject` resolves the uuid back to legacy text at
+use-site so `project_links.link_id` matching still works without changing
+that table's mixed-type design. Edge functions (`asset-brain-query`,
+`weibull-fitter`, `pf-calculator`, `fmea-populator`) filter logbook by
+`asset_node_id` directly; their "Asset has no legacy_asset_id bridge"
+error path is gone.
+
 ### Long-term (deferred until forced)
 
-**Phase 5b -- Drop the text bridges**
-The next half of Phase 5: migrate the remaining direct readers of
-`logbook.asset_ref_id` and `inventory_items.linked_asset_ids` to use the
-uuid columns (or read through `v_logbook_truth.asset_node_id`), then drop
-the text columns and the legacy FK to `assets`. Scope: ~1 session.
+**Phase 5b.2 -- Drop inventory_items.linked_asset_ids**
+The same drop pattern for inventory, but requires the inventory.html asset
+picker to switch from the legacy `assets` table to canonical `asset_nodes`.
+That's a UX session in its own right because the user-visible list of
+selectable assets changes. Today the Phase 5a trigger keeps
+`linked_asset_node_ids` (uuid[]) populated from `linked_asset_ids` (text[]),
+so the legacy path stays working until the picker is migrated.
 
-Trigger to start: any feature that needs to write to `logbook` with an
-asset that isn't in the legacy `assets` table (e.g. an asset created
-through the asset wizard with no legacy mirror). Today the text bridge
-keeps the legacy path readable so there's no pressure.
+**Phase 5c -- Drop the `assets` table entirely**
+Once both column drops land, the legacy `assets` table only feeds the
+asset wizard. Migrating the wizard to write to `asset_nodes` directly
+(currently mediated by `populate_asset_node_bridges` trigger) is the last
+fuel-layer simplification. Trigger to start: a real bug where dual writes
+to `assets` + `asset_nodes` diverge. Today they don't.
 
 ### What's now architecturally impossible to regress (the ratchet)
 

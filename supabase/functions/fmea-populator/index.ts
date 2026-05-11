@@ -257,22 +257,14 @@ serve(async (req) => {
       );
     }
 
-    // Pull corrective logbook in window. asset_ref_id (text) joins to legacy_asset_id.
+    // Phase 5b: filter by canonical asset_node_id (uuid). The legacy_asset_id
+    // text bridge was dropped; asset_id IS the asset_node uuid.
     const sinceIso = new Date(Date.now() - since_days * 86400000).toISOString();
-    const legacyId = (asset as AnyRow).legacy_asset_id;
-    if (!legacyId) {
-      return new Response(
-        JSON.stringify({
-          error: "Asset has no legacy_asset_id bridge. Register or backfill the asset before AI-populating FMEA.",
-        }),
-        { status: 422, headers: { ...corsHeaders, "Content-Type": "application/json" } },
-      );
-    }
 
     const { data: rows, error: logErr } = await db.from("v_logbook_truth")  // canonical
       .select("id, problem, action, root_cause, failure_consequence, downtime_hours, created_at, maintenance_type")
       .eq("hive_id", hive_id)
-      .eq("asset_ref_id", legacyId)
+      .eq("asset_node_id", asset_id)
       .gte("created_at", sinceIso)
       .order("created_at", { ascending: false })
       .limit(200);
