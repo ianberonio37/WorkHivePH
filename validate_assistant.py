@@ -55,6 +55,7 @@ LIVE_TOOL_PAGES = [
     "shift-brain",
     "alert-hub",
     "audit-log",
+    "voice-journal",
 ]
 
 RETIRED_PAGES = ["parts-tracker", "checklist"]
@@ -281,6 +282,42 @@ def check_no_db_access_disclaimer(content, page):
     return []
 
 
+# Forward-looking ratchet — baseline 2026-05-11: assistant.html system
+# prompt is documented in PRODUCTION_FIXES as needing compression. Flag
+# the violation but skip it so guardian stays green; flip to non-skip
+# once the prompt is rewritten under threshold.
+ASSISTANT_PROMPT_DEFERRED = True
+ASSISTANT_PROMPT_MAX_CHARS = 5000
+
+
+def check_assistant_prompt_length(content, page):
+    """assistant.html system prompt should fit within ASSISTANT_PROMPT_MAX_CHARS
+    so Claude prompt caching can hit it efficiently and per-call cost stays
+    predictable. Long bespoke prompts also resist iteration — they accrete
+    edge-case patches over months and become hard to refactor cleanly.
+    """
+    if not content:
+        return []
+    # Try several anchor patterns commonly used in assistant.html.
+    # We measure the largest template-literal blob referenced as system context.
+    candidates = re.findall(r"`([^`]{200,})`", content)
+    if not candidates:
+        return []
+    longest = max(candidates, key=len)
+    n = len(longest)
+    if n > ASSISTANT_PROMPT_MAX_CHARS:
+        return [{
+            "check": "assistant_prompt_length",
+            "page":  page,
+            "reason": (
+                f"Longest template-literal system prompt is {n} chars > {ASSISTANT_PROMPT_MAX_CHARS} threshold. "
+                f"Prompt-cache hits are still possible but per-call billable tokens scale linearly with prompt size."
+            ),
+            "skip": ASSISTANT_PROMPT_DEFERRED,
+        }]
+    return []
+
+
 # ── Runner ─────────────────────────────────────────────────────────────────────
 
 CHECK_NAMES = [
@@ -293,7 +330,7 @@ CHECK_NAMES = [
     # L3
     "skillmatrix_disciplines", "calc_count_accuracy", "system_prompt_word_limit",
     # L4
-    "render_markdown_used", "no_db_access_disclaimer",
+    "render_markdown_used", "no_db_access_disclaimer", "assistant_prompt_length",
 ]
 
 CHECK_LABELS = {
@@ -314,6 +351,7 @@ CHECK_LABELS = {
     # L4
     "render_markdown_used":        "L4  AI output passes through renderMarkdown",
     "no_db_access_disclaimer":     "L4  Widget disclaims no DB access to worker records",
+    "assistant_prompt_length":     f"L4  assistant.html system prompt <= {ASSISTANT_PROMPT_MAX_CHARS} chars (cache-friendly)",
 }
 
 
@@ -352,6 +390,7 @@ def main():
     # L4
     all_issues += check_render_markdown_used(float_js, FLOAT_JS)
     all_issues += check_no_db_access_disclaimer(float_js, FLOAT_JS)
+    all_issues += check_assistant_prompt_length(assistant, ASSISTANT_PAGE)
 
     n_pass, n_skip, n_fail = format_result(CHECK_NAMES, CHECK_LABELS, all_issues)
 
