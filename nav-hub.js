@@ -123,9 +123,26 @@
     { id: 'engineer',   label: 'Engineer',   icon: '📐' },
   ];
 
+  // Phase H.1 (2026-05-12 home streamline): on first load, default to the
+  // user's HIVE_ROLE so a new worker doesn't see all 33 tools at once. The
+  // 'all' fallback applies only when no role hint is in localStorage (solo
+  // mode + new install). Existing users with an explicit choice keep it.
+  function _defaultMode() {
+    var role = localStorage.getItem('wh_hive_role') || '';
+    if (role === 'supervisor') return 'supervisor';
+    if (role === 'engineer')   return 'engineer';
+    // Workers default to 'field'. Solo mode (no hive) gets 'field' too --
+    // it's the tightest tool set and matches what a lone tech needs day-to-day.
+    return 'field';
+  }
   function getMode() {
     var v = localStorage.getItem(MODE_KEY);
-    return MODES.some(function(m){ return m.id === v; }) ? v : 'all';
+    if (MODES.some(function(m){ return m.id === v; })) return v;
+    // Persist the role-derived default so the analytics + chip surfaces
+    // can read it the same way without re-deriving on every page.
+    var d = _defaultMode();
+    try { localStorage.setItem(MODE_KEY, d); } catch (_) {}
+    return d;
   }
   function setMode(id) {
     if (!MODES.some(function(m){ return m.id === id; })) return;

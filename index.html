@@ -733,6 +733,13 @@
       </div>
     </div>
 
+    <!-- Phase H.1 (2026-05-12 home streamline): Today's One Thing.
+         The single highest-priority action ranked across canonical views.
+         Hidden until the ranker resolves; falls back to the 4-stat grid as
+         the secondary "Your Stack" layer below. Tools drawer (33-tile grid)
+         is the FAB and remains the third layer. -->
+    <div id="oh-today" style="display:none; margin-bottom:16px;"></div>
+
     <!-- Summary stats (4 cards) -->
     <div id="oh-stats" class="oh-stats-grid" style="display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-bottom:8px;"></div>
 
@@ -2694,6 +2701,122 @@
     _s('oh-stat-risk',  risks.length);
     _s('oh-stat-stock', lowStock.length);
     _s('oh-stat-pm',    pmOverdueCount);
+
+    // ── Phase H.1 (2026-05-12): Today's One Thing ─────────────────────────
+    // Rank the four canonical signals (critical risk, PM overdue + critical,
+    // low stock, open jobs) and surface the single highest-priority action at
+    // the top of the home so the driver opens to one decision, not 33 tools.
+    // The card always deep-links to the dedicated surface; clicking it opens
+    // the page where the action gets done. Empty state = "all clear, focus
+    // on PMs / planner" (depends on role).
+    (function renderTodaysOneThing() {
+      const el = document.getElementById('oh-today');
+      if (!el) return;
+      const role = (localStorage.getItem('wh_nav_mode') === 'supervisor' || HIVE_ROLE === 'supervisor') ? 'supervisor' : 'field';
+
+      const candidates = [];
+      // 1) Critical-risk asset (anyone, top priority).
+      const critRisks = risks.filter(r => r.risk_level === 'critical');
+      if (critRisks.length) {
+        const r = critRisks[0];
+        candidates.push({
+          rank: 100,
+          tone: 'critical', accent: '#f87171',
+          label: 'Critical Risk',
+          headline: `${r.asset_name || 'Unnamed asset'}: risk ${Math.round((Number(r.risk_score) || 0) * 100)}%`,
+          detail: r.mtbf_days != null ? `MTBF ${Math.round(r.mtbf_days)}d. Inspect now.` : 'Inspect now to avoid breakdown.',
+          cta: 'Open Asset Hub',
+          href: `asset-hub.html?tag=${encodeURIComponent(r.asset_name || '')}`,
+        });
+      }
+      // 2) PM overdue on a critical asset (supervisor only — workers act on
+      //    their stack, supervisor acts on the next overdue critical).
+      if (role === 'supervisor' && HIVE_ID && pmAssets.length) {
+        const critPM = pmAssets.find(a => a.is_due && (a.criticality === 'critical'));
+        if (critPM) {
+          candidates.push({
+            rank: 90,
+            tone: 'high', accent: '#fb923c',
+            label: 'Critical PM Overdue',
+            headline: `${critPM.asset_name || critPM.tag_id || 'Asset'}: PM due`,
+            detail: 'Schedule the technician before the next shift.',
+            cta: 'Open PM Scheduler',
+            href: 'pm-scheduler.html',
+          });
+        }
+      }
+      // 3) Any PM overdue (for field workers this is the actionable item).
+      if (pmOverdueCount > 0 && role === 'field') {
+        candidates.push({
+          rank: 80,
+          tone: 'medium', accent: '#facc15',
+          label: 'PM Overdue',
+          headline: `${pmOverdueCount} PM ${pmOverdueCount === 1 ? 'task is' : 'tasks are'} due`,
+          detail: 'Open the scheduler to claim the next one.',
+          cta: 'Open PM Scheduler',
+          href: 'pm-scheduler.html',
+        });
+      }
+      // 4) Out-of-stock parts (anyone).
+      const outOfStock = lowStock.filter(i => Number(i.qty_on_hand) <= 0);
+      if (outOfStock.length) {
+        candidates.push({
+          rank: 70,
+          tone: 'high', accent: '#fb923c',
+          label: 'Out of Stock',
+          headline: `${outOfStock.length} part${outOfStock.length === 1 ? '' : 's'} at zero`,
+          detail: 'Reorder before the next breakdown. Inventory page.',
+          cta: 'Open Inventory',
+          href: 'inventory.html',
+        });
+      }
+      // 5) My oldest open job (field).
+      if (role === 'field' && jobs.length) {
+        const oldest = jobs[jobs.length - 1];
+        candidates.push({
+          rank: 60,
+          tone: 'medium', accent: '#facc15',
+          label: 'Oldest Open Job',
+          headline: `${oldest.machine || 'Job'}: ${oldest.category || 'Unspecified'}`,
+          detail: 'Close it or update the status.',
+          cta: 'Open Logbook',
+          href: 'logbook.html',
+        });
+      }
+
+      candidates.sort((a, b) => b.rank - a.rank);
+      const pick = candidates[0];
+
+      if (!pick) {
+        // Empty / all-clear state.
+        el.style.display = 'block';
+        el.innerHTML = `
+          <a href="${role === 'supervisor' ? 'alert-hub.html' : 'pm-scheduler.html'}" class="oh-card"
+             style="display:flex; align-items:center; gap:14px; padding:18px; text-decoration:none; border-left:3px solid #4ade80;">
+            <div style="width:36px; height:36px; border-radius:50%; background:rgba(74,222,128,0.12); color:#4ade80; display:flex; align-items:center; justify-content:center; font-size:1.2rem; flex-shrink:0;">&#10003;</div>
+            <div style="flex:1; min-width:0;">
+              <p style="font-size:.6rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:#4ade80; margin:0 0 2px;">All clear</p>
+              <p style="font-size:.92rem; font-weight:700; color:#F4F6FA; margin:0;">Nothing urgent right now.</p>
+              <p style="font-size:.72rem; color:rgba(255,255,255,.4); margin:3px 0 0;">${role === 'supervisor' ? 'Review the alert feed or the AMC daily brief.' : 'Plan your shift in the Day Planner.'}</p>
+            </div>
+            <span style="font-size:.7rem; color:rgba(255,255,255,.4);">&#8594;</span>
+          </a>`;
+        return;
+      }
+
+      el.style.display = 'block';
+      el.innerHTML = `
+        <a href="${_escHtml(pick.href)}" class="oh-card"
+           style="display:flex; align-items:center; gap:14px; padding:18px; text-decoration:none; border-left:3px solid ${pick.accent};">
+          <div style="width:36px; height:36px; border-radius:50%; background:${pick.accent}1f; color:${pick.accent}; display:flex; align-items:center; justify-content:center; font-size:1rem; font-weight:800; flex-shrink:0;">!</div>
+          <div style="flex:1; min-width:0;">
+            <p style="font-size:.6rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:${pick.accent}; margin:0 0 2px;">Today &middot; ${_escHtml(pick.label)}</p>
+            <p style="font-size:.92rem; font-weight:700; color:#F4F6FA; margin:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${_escHtml(pick.headline)}</p>
+            <p style="font-size:.72rem; color:rgba(255,255,255,.55); margin:3px 0 0;">${_escHtml(pick.detail)}</p>
+          </div>
+          <span style="font-size:.65rem; font-weight:700; color:${pick.accent}; white-space:nowrap; padding:6px 12px; border-radius:8px; background:${pick.accent}14; border:1px solid ${pick.accent}33;">${_escHtml(pick.cta)} &#8594;</span>
+        </a>`;
+    })();
 
     // Top 3 At-Risk Assets (Phase A integration: links to Asset Hub for the 360 view)
     const topRiskEl = document.getElementById('oh-top-risk');
