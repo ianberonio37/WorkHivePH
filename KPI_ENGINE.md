@@ -130,13 +130,30 @@ pattern: each card renders a `<p id="card-N-chip"></p>` placeholder and
 the init code calls `renderSourceChip` per card with the right
 freshness/window. Estimated 1-2 hours combined.
 
-### Long-term (deferred until forced)
+### Shipped 2026-05-12 (Wave 4)
 
-**Phase 1.3 — `v_kpi_truth` materialised view**
-Promote a canonical view to materialised when latency forces it. Trigger:
-a real >3 s p95 Analytics phase OR a Python API 90 s timeout in production.
-View contract stays identical; only `freshness` in `canonical_sources`
-changes. **Do not pre-build.**
+**Phase 1.3 — `v_kpi_truth` materialised view** [DONE]
+Migration `20260512000005_v_kpi_truth.sql` ships the first materialised
+canonical view: per `(hive_id, machine)`, with `failures_*`, `mtbf_*`,
+`mttr_*`, and `total_downtime_*` at the 30 / 90 / 365 day windows.
+Hourly refresh wired in `enable_v_kpi_truth_cron.sql` (kept outside
+migrations because cron is environment-specific; matches the AMC pattern).
+
+The MTBF formula mirrors `get_mtbf_by_machine` RPC exactly (mean of
+inter-arrival intervals via LAG), so the snapshot view and the interactive
+RPC never drift. Surfaces that need a fixed-window snapshot (Asset Hub,
+Alert Hub, Hive Board) can read `v_kpi_truth` directly; Analytics keeps
+using the RPC for user-selected windows. Same formula, two delivery modes.
+
+Registered in `canonical_sources` with `freshness: 1h_materialized` so
+the registry advertises the SLA. `refresh_v_kpi_truth()` runs CONCURRENTLY
+and writes a `v_kpi_truth_refresh` row to `automation_log` on each run.
+
+Adoption is opt-in: any surface that currently joins `logbook` + window
+filters can collapse the read to one row per machine from `v_kpi_truth`.
+Phase B.2 will sweep readers as they hit latency pressure.
+
+### Long-term (deferred until forced)
 
 **Phase 5 — Fuel cleanup**
 Deprecate `logbook.asset_ref_id` (text) and `inventory_items.linked_asset_ids`

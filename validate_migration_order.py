@@ -73,9 +73,15 @@ ALWAYS_PRESENT_TABLES = {
 }
 
 CREATE_TABLE_RE = re.compile(
-    r"""CREATE\s+TABLE\s+(?:IF\s+NOT\s+EXISTS\s+)?
+    # Matches CREATE TABLE and CREATE [MATERIALIZED] VIEW. Materialised views
+    # are first-class declared objects too: indexes can reference them,
+    # REFRESH statements name them, and the dependency-order check needs to
+    # see them in the first-seen registry.
+    r"""CREATE\s+
+        (?:TABLE|(?:MATERIALIZED\s+)?VIEW)
+        \s+(?:IF\s+NOT\s+EXISTS\s+)?
         (?:(?P<schema>public|auth)\.|"(?P<schema_q>public|auth)"\.)?
-        "?(?P<name>\w+)"?\s*\(""",
+        "?(?P<name>\w+)"?\s*(?:\(|AS\b)""",
     re.IGNORECASE | re.VERBOSE,
 )
 ALTER_ADD_COLUMN_RE = re.compile(
