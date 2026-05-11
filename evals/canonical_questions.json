@@ -1,0 +1,153 @@
+{
+  "_meta": {
+    "format_version": "1.0",
+    "description": "AI agent eval fixtures. Each agent_id maps to a list of {question, expected_keywords, expected_shape} fixtures. The LLM-as-judge cron (ai-eval-daily, 03:30 UTC) compares live agent responses against these fixtures and writes scores to ai_quality_log.",
+    "min_fixtures_per_agent": 3,
+    "schema": {
+      "id":                "string (unique fixture id; eval logs reference this)",
+      "question":          "string (the user prompt sent to the agent)",
+      "expected_keywords": "string[] (keywords that MUST appear in the answer)",
+      "expected_shape":    "object | null (JSON shape the answer must satisfy if jsonMode)",
+      "context":           "object | null (additional context passed in the gateway call)"
+    },
+    "scoring": "LLM-as-judge gives 0-100 score per fixture; passed = score >= 70 AND all expected_keywords present"
+  },
+  "asset-brain": [
+    {
+      "id": "asset-brain-failure-history",
+      "question": "What is the failure history of this asset?",
+      "context": { "asset_type": "centrifugal pump", "tag_id": "PMP-001" },
+      "expected_keywords": ["failure", "history", "MTBF"],
+      "expected_shape": null
+    },
+    {
+      "id": "asset-brain-next-pm",
+      "question": "When is the next PM due?",
+      "context": { "tag_id": "PMP-001" },
+      "expected_keywords": ["PM", "due", "schedule"],
+      "expected_shape": null
+    },
+    {
+      "id": "asset-brain-similar-failures",
+      "question": "Have similar pumps failed recently? What was the root cause?",
+      "context": { "asset_type": "centrifugal pump", "tag_id": "PMP-001" },
+      "expected_keywords": ["similar", "pump", "root cause"],
+      "expected_shape": null
+    }
+  ],
+  "analytics": [
+    {
+      "id": "analytics-oee-last-week",
+      "question": "What was OEE last week and what drove it?",
+      "context": { "phase": "descriptive" },
+      "expected_keywords": ["OEE", "availability", "performance", "quality"],
+      "expected_shape": null
+    },
+    {
+      "id": "analytics-mtbf-trend",
+      "question": "Show MTBF trend by asset for the last 30 days.",
+      "context": { "phase": "diagnostic" },
+      "expected_keywords": ["MTBF", "asset", "trend"],
+      "expected_shape": null
+    },
+    {
+      "id": "analytics-pm-failure-correlation",
+      "question": "Is there a correlation between PM gaps and failures?",
+      "context": { "phase": "diagnostic" },
+      "expected_keywords": ["correlation", "PM", "failure"],
+      "expected_shape": null
+    }
+  ],
+  "project": [
+    {
+      "id": "project-status-summary",
+      "question": "Summarise the current project's status.",
+      "context": {},
+      "expected_keywords": ["status", "progress", "items"],
+      "expected_shape": null
+    },
+    {
+      "id": "project-blockers",
+      "question": "What's blocking us on this project?",
+      "context": {},
+      "expected_keywords": ["block", "pending", "depend"],
+      "expected_shape": null
+    },
+    {
+      "id": "project-change-order-risk",
+      "question": "Are there pending change orders that affect the critical path?",
+      "context": {},
+      "expected_keywords": ["change order", "critical path"],
+      "expected_shape": null
+    }
+  ],
+  "shift": [
+    {
+      "id": "shift-handover-summary",
+      "question": "Generate the handover for the next shift.",
+      "context": { "shift_window": "8h" },
+      "expected_keywords": ["handover", "open", "completed"],
+      "expected_shape": null
+    },
+    {
+      "id": "shift-critical-alerts",
+      "question": "What critical alerts should the next shift watch for?",
+      "context": { "shift_window": "8h" },
+      "expected_keywords": ["critical", "alert", "shift"],
+      "expected_shape": null
+    },
+    {
+      "id": "shift-worker-coverage",
+      "question": "Which workers are on the next shift?",
+      "context": { "shift_window": "8h" },
+      "expected_keywords": ["worker", "shift", "schedule"],
+      "expected_shape": null
+    }
+  ],
+  "logbook-voice": [
+    {
+      "id": "logbook-voice-pump-bearing",
+      "question": "Pump 5 bearing replacement, took 3 hours, used 2 SKF 6205 bearings.",
+      "context": { "voice_transcription": true },
+      "expected_keywords": ["pump", "bearing", "replacement", "SKF"],
+      "expected_shape": null
+    },
+    {
+      "id": "logbook-voice-motor-vibration",
+      "question": "Motor M-12 vibration high, found loose coupling, tightened bolts.",
+      "context": { "voice_transcription": true },
+      "expected_keywords": ["motor", "vibration", "coupling"],
+      "expected_shape": null
+    },
+    {
+      "id": "logbook-voice-electrical-fault",
+      "question": "Panel ELEC-3 tripped twice today, replaced fuse 32A on circuit 7.",
+      "context": { "voice_transcription": true },
+      "expected_keywords": ["panel", "fuse", "circuit"],
+      "expected_shape": null
+    }
+  ],
+  "report-voice": [
+    {
+      "id": "report-voice-daily-summary",
+      "question": "Send the daily report to the supervisor.",
+      "context": { "voice_transcription": true },
+      "expected_keywords": ["daily", "report", "supervisor"],
+      "expected_shape": null
+    },
+    {
+      "id": "report-voice-incident",
+      "question": "Send an incident report about the pump 5 failure to maintenance lead.",
+      "context": { "voice_transcription": true },
+      "expected_keywords": ["incident", "pump", "maintenance lead"],
+      "expected_shape": null
+    },
+    {
+      "id": "report-voice-shift-handover",
+      "question": "Send the shift handover summary to the night-shift supervisor.",
+      "context": { "voice_transcription": true },
+      "expected_keywords": ["shift", "handover", "supervisor"],
+      "expected_shape": null
+    }
+  ]
+}
