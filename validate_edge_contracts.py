@@ -34,6 +34,7 @@ from validator_utils import read_file, format_result
 FUNCTIONS_DIR = os.path.join("supabase", "functions")
 
 ALL_FUNCTIONS = [
+    "ai-gateway",
     "ai-orchestrator",
     "analytics-orchestrator",
     "engineering-calc-agent",
@@ -99,6 +100,7 @@ REQUIRED_FIELDS = {
     "parts-staging-recommender":    [],
     "trigger-ml-retrain":           [],
     "asset-brain-query":            ["question", "asset_id", "hive_id"],
+    "ai-gateway":                   ["agent", "message"],
     "shift-planner-orchestrator":   ["shift_window"],
     "voice-action-router":          ["transcript", "hive_id"],
     "fmea-populator":               ["hive_id", "asset_id"],

@@ -72,6 +72,8 @@ LIVE_PAGES = [
     # Phase B.3: cross-page voice handler. Lazy-loaded by nav-hub.js so it
     # ends up on every page; needs the same XSS coverage as the HTML files.
     "voice-handler.js",
+    # Shared helper that uses innerHTML with interpolation (PRODUCTION_FIXES #15)
+    "worker-drawer.js",
 ]
 
 # Pages that define escHtml themselves (don't load utils.js)

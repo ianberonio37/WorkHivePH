@@ -65,6 +65,9 @@ LIVE_PAGES = [
     "asset-hub.html",
     "shift-brain.html",
     "audit-log.html",
+    # Shared helpers that touch db.from() (PRODUCTION_FIXES #15 / #43)
+    "worker-drawer.js",
+    "oc-helper.js",
 ]
 
 RETIRED_TABLES = {"parts_records", "checklist_records"}
