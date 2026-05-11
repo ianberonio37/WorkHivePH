@@ -18610,7 +18610,7 @@ function renderElevatorTrafficReport(inputs, results, narrative) {
     <p contenteditable="true" class="editable-field" style="font-size:0.83rem;color:#333;">${escHtml(narrative?.assumptions || `1. Up-peak scenario (morning arrival) used as the critical design case.\n2. Car loading efficiency of 80% of rated capacity per CIBSE Guide D.\n3. Average stops (S) computed using CIBSE formula: S = n × [1 − (1 − 1/n)^P] where n = floors and P = effective passengers.\n4. Loading/unloading time estimated proportional to car capacity.\n5. All elevators in the group operate simultaneously under group supervisory control.\n6. Floor heights are uniform throughout the building.`)}</p>
 
     <h2>8. Recommendations</h2>
-    <p contenteditable="true" class="editable-field" style="font-size:0.83rem;color:#333;">${escHtml(narrative?.recommendations || `1. Computed interval of ${r.interval_s} s (${intervalGrade}) and HC% of ${r.HC_pct}% (${hcGrade}): verify against occupancy-specific grade of service targets.\n2. Install group supervisory control to optimize dispatching and minimize passenger waiting time.\n3. Specify door operator with re-opening device (light curtain or safety edge) per ASME A17.1 and BP 344 accessibility requirements.\n4. At least one elevator in the group must comply with BP 344 / RA 10754: minimum car size 1100 mm × 1400 mm, Braille controls, audible floor announcements.\n5. If interval exceeds the target, consider: (a) increasing speed, (b) adding one elevator to the group, or (c) reducing car loading efficiency assumption.\n6. Submit elevator specifications and traffic analysis to DPWH / LGU Building Official as part of the building permit application.\n7. A PRC-licensed Mechanical Engineer must sign and seal this document before submission.`)}</p>
+    <p contenteditable="true" class="editable-field" style="font-size:0.83rem;color:#333;">${escHtml(`1. Computed interval of ${r.interval_s} s (${intervalGrade}) and HC% of ${r.HC_pct}% (${hcGrade}): ${(intervalGrade === 'Poor' || hcGrade === 'Poor') ? 'REMEDIATION REQUIRED before building permit submission — consider increasing speed, adding an elevator to the group, or adjusting group supervisory control.' : (intervalGrade === 'Excellent' && hcGrade === 'Excellent') ? 'design exceeds CIBSE Guide D targets for the occupancy type; proceed to detailed equipment specification.' : 'acceptable for the occupancy type per CIBSE Guide D; design meets grade of service requirements.'}\n2. Install group supervisory control to optimize dispatching and minimize passenger waiting time; modern destination-dispatch systems reduce interval by 10 to 20 percent vs. up/down collective control.\n3. Specify door operator with re-opening device (light curtain or safety edge) per ASME A17.1 Section 2.11 and BP 344 accessibility requirements; reopening response time not more than 0.5 s.\n4. At least one elevator in the group must comply with BP 344 / RA 10754: minimum car size 1100 mm x 1400 mm, Braille and tactile controls, audible floor announcements, mirror at rear wall, handrail at not more than 900 mm above floor.\n5. Specify VVVF (variable-voltage variable-frequency) drive, regenerative type preferred to recover braking energy (15 to 25 percent power saving for high-rise buildings).\n6. Automatic Rescue Device (ARD) required for buildings 4 floors and above per ASME A17.1: brings car to nearest floor on mains power failure, allowing safe egress within 30 seconds.\n7. Pit equipment: spring or oil-type buffers sized per contract speed (oil buffers required for speed not less than 2.5 m/s), pit stop switch, pit lighting, sump pump in flood-prone locations.\n8. Submit elevator specifications, traffic analysis report, and Factory Acceptance Test (FAT) certificates to DPWH / LGU Building Official as part of the building permit application; ASME A17.1 acceptance inspection witnessed by OSHC-accredited elevator inspector before commissioning.\n9. Establish annual mandatory inspection program per DOLE OSHC (Department of Labor and Employment, Occupational Safety and Health Center); maintain O&M manual and log book for each elevator.\n10. A PRC-licensed Mechanical Engineer must sign and seal this document before building-permit submission.`)}</p>
 
     <div class="sig-block" style="margin-top:2rem;display:grid;grid-template-columns:1fr 1fr 1fr;gap:1.5rem;">
       <div style="border-top:1.5px solid #333;padding-top:0.5rem;">
@@ -19317,7 +19317,7 @@ async function _runDrawing() {
       const _r = _lastResults || {};
       _renderGenericSLD(svg, _buildGenericTitleBlock(_lastInputs,
         `RTT=${Number(_r.RTT_s||0).toFixed(0)}s  |  Interval=${Number(_r.interval_s||0).toFixed(0)}s  |  HC=${Number(_r.HC_pct||0).toFixed(1)}%`,
-        { drawingNo:'TRANS-ELEV-SCH-001', drawingTitle:'Elevator Traffic Analysis — Building Diagram', standard:'ASME A17.1 / EN 81-20 / CIBSE Guide D' }));
+        { drawingNo:'VT-ETA-SCH-001', drawingTitle:'Elevator Traffic Analysis - Building Diagram', standard:'ASME A17.1 / EN 81-20 / CIBSE Guide D' }));
     } else if (ct === 'Hoist Capacity') {
       const svg = buildHoistCapacitySVG(_lastInputs, _lastResults);
       const _r = _lastResults || {};
@@ -27209,7 +27209,9 @@ function buildElevatorTrafficSVG(inputs, results) {
   const p=[];
   const RTTs=Number(r.RTT_s||0).toFixed(0);
   const intS=Number(r.interval_s||0).toFixed(0);
+  const intSnum=Number(r.interval_s||0);
   const HCpct=Number(r.HC_pct||0).toFixed(1);
+  const HCnum=Number(r.HC_pct||0);
   const cap5min=Number(r.capacity_5min||0).toFixed(0);
   const intOK=Boolean(r.interval_check??true);
   const HCok=Boolean(r.HC_check??true);
@@ -27220,10 +27222,16 @@ function buildElevatorTrafficSVG(inputs, results) {
   const speed=Number(inp.speed||inp.contract_speed_mps||1.5).toFixed(1);
   const pop=Number(inp.population||inp.building_population||200).toFixed(0);
   const flrH=Number(inp.floor_height||inp.floor_height_m||3.5).toFixed(1);
+  // CIBSE grade-of-service classification (interval thresholds vary by occupancy:
+  // Offices target not more than 30s; residential target not more than 40s).
+  const occType=String(inp.occupancy_type||'Office');
+  const intTarget=occType.toLowerCase().includes('residential')?40:30;
+  const intGrade=intSnum<=30?'Excellent':intSnum<=40?'Good':intSnum<=60?'Adequate':'Poor';
+  const hcGrade=HCnum>=12?'Excellent':HCnum>=11?'Good':HCnum>=9?'Adequate':'Poor';
   p.push(`<rect width="${W}" height="${H}" fill="#f5f7fa"/>`);
   p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="2"/>`);
   p.push(`<rect x="11" y="11" width="${W-22}" height="32" fill="${CC}"/>`);
-  p.push(_plumbT(W/2,31,`ELEVATOR TRAFFIC — RTT=${RTTs}s  |  Interval=${intS}s  |  HC=${HCpct}%  |  ASME A17.1`,{sz:10.5,c:'white',w:'700'}));
+  p.push(_plumbT(W/2,31,`ELEVATOR TRAFFIC - RTT=${RTTs}s  |  Interval=${intS}s  |  HC=${HCpct}%  |  ASME A17.1`,{sz:10.5,c:'white',w:'700'}));
   p.push(`<line x1="11" y1="43" x2="${W-11}" y2="43" stroke="${CC}" stroke-width="1.5"/><line x1="${SPLIT_X}" y1="43" x2="${SPLIT_X}" y2="${STRIP_Y}" stroke="${CC}" stroke-width="1.2"/>`);
   // Building elevation with elevator shafts
   const BX=50,BT=65,flrH_px=50,bldH=Math.min(Number(nFloors),8)*flrH_px;
@@ -27260,29 +27268,29 @@ function buildElevatorTrafficSVG(inputs, results) {
   p.push(_plumbT(TLX,intY-14,'INTERVAL = RTT / No. of elevators',{a:'start',sz:8,c:CC,w:'700'}));
   p.push(`<rect x="${TLX}" y="${intY}" width="${TLW}" height="${TLH}" fill="${intOK?'#e8f5e9':'#ffebee'}" stroke="${intOK?OK_C:FAIL_C}" stroke-width="1.5" rx="3"/>`);
   p.push(`<rect x="${TLX}" y="${intY}" width="${intW.toFixed(0)}" height="${TLH}" fill="${ELV}" opacity="0.4" rx="3"/>`);
-  p.push(_plumbT(TLX+TLW/2,intY+TLH/2+5,`Interval = ${intS}s  ${intOK?'✓ ≤ 30s':'✗ > 30s'}`,{sz:9,c:intOK?OK_C:FAIL_C,w:'700'}));
+  p.push(_plumbT(TLX+TLW/2,intY+TLH/2+5,`Interval = ${intS}s  -  ${intGrade} (target not more than ${intTarget}s)`,{sz:9,c:intOK?OK_C:FAIL_C,w:'700'}));
   // HC badge
   const hcY=intY+55;
   p.push(`<rect x="${TLX}" y="${hcY}" width="${TLW}" height="50" rx="4" fill="${overallOK?'#e8f5e9':'#ffebee'}" stroke="${overallOK?OK_C:FAIL_C}" stroke-width="2"/>`);
-  p.push(_plumbT(TLX+TLW/2,hcY+16,`Handling Capacity: ${HCpct}%`,{sz:11,c:overallOK?OK_C:FAIL_C,w:'700'}));
-  p.push(_plumbT(TLX+TLW/2,hcY+30,`${cap5min} persons/5min  |  Target ≥ 12%  —  ${overallOK?'PASS ✓':'FAIL ✗'}`,{sz:7.5,c:overallOK?OK_C:FAIL_C,w:'700'}));
+  p.push(_plumbT(TLX+TLW/2,hcY+16,`Handling Capacity: ${HCpct}% - ${hcGrade}`,{sz:11,c:overallOK?OK_C:FAIL_C,w:'700'}));
+  p.push(_plumbT(TLX+TLW/2,hcY+30,`${cap5min} persons/5min  |  Target not less than 12%  -  ${overallOK?'PASS':'FAIL'}`,{sz:7.5,c:overallOK?OK_C:FAIL_C,w:'700'}));
   p.push(_plumbT(TLX+TLW/2,hcY+44,'ASME A17.1 / EN 81-20',{sz:7,c:SC}));
   const LY=STRIP_Y+6;
   p.push(`<line x1="11" y1="${STRIP_Y}" x2="${W-11}" y2="${STRIP_Y}" stroke="${CC}" stroke-width="0.8"/>`);
   p.push(_plumbT(18,LY+10,'LEGEND',{a:'start',sz:8,c:CC,w:'700'}));
   p.push(`<rect x="25" y="${LY+20}" width="28" height="20" fill="${ELV}" opacity="0.5" stroke="${ELV}" stroke-width="1.5" rx="2"/>`);
   p.push(_plumbT(57,LY+32,'Elevator shaft / car',{a:'start',sz:7.5,c:CC}));
-  [`1. RTT = 2 × H / v + stops × (door + load/unload). Interval = RTT / number of elevators.`,
-   `2. Handling capacity ≥ 12% of building population per 5 minutes (CIBSE Guide D / EN 81).`,
-   `3. Interval ≤ 30s (offices), ≤ 40s (residential) for acceptable waiting experience.`
-  ].forEach((n,i)=>p.push(_plumbT(18,LY+62+i*11,n,{a:'start',sz:6.5,c:CC})));
+  [`1. RTT = 2 x H / v + stops x (door + load/unload). Interval = RTT / number of elevators.`,
+   `2. Handling capacity not less than 12% of building population per 5 minutes (CIBSE Guide D / EN 81).`,
+   `3. Interval not more than 30s (offices), not more than 40s (residential) for acceptable waiting experience.`
+  ].forEach((n,i)=>p.push(_plumbT(18,LY+76+i*11,n,{a:'start',sz:6.5,c:CC})));
   _plumbPanel(p,SPLIT_X+10,W-SPLIT_X-22,[],[{title:'ELEVATOR TRAFFIC', rows:[
     ['No. of Floors',`${nFloors}  @  ${flrH}m`,CC],['No. of Elevators',`${nElev}`,ELV],
     ['Car Capacity',`${carCap} persons`,ELV],['Contract Speed',`${speed} m/s`,ELV],
     ['Building Population',`${pop}`,CC],['RTT',`${RTTs} s`,ELV],
-    ['Interval',`${intS} s  ${intOK?'✓':'✗'}`,intOK?OK_C:FAIL_C],
+    ['Interval',`${intS} s  (${intGrade})`,intOK?OK_C:FAIL_C],
     ['5-min Capacity',`${cap5min} persons`,CC],
-    ['Handling Capacity',`${HCpct}%  ${HCok?'✓':'✗'}`,HCok?OK_C:FAIL_C],
+    ['Handling Capacity',`${HCpct}%  (${hcGrade})`,HCok?OK_C:FAIL_C],
     ['Overall',overallOK?'PASS ✓':'FAIL ✗',overallOK?OK_C:FAIL_C]
   ]}]);
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" style="display:block;width:100%;height:auto;">\n  `+p.join('\n  ')+`\n</svg>`;

@@ -2657,22 +2657,29 @@ async function elevatorTrafficBomSowAgent(
   const machineType    = isHighSpeed ? "Gearless traction machine (VVVF drive)" : "Geared traction machine (VVVF drive)";
   const motorKW        = Math.round(capacity * speed * 0.15 * nElevators); // rough estimate
 
+  const asciiDirective = `IMPORTANT: All output text must be ASCII only. Do NOT use Unicode characters such as multiplication sign x, en-dash, em-dash, less-than-or-equal, greater-than-or-equal, sub/superscripts, Greek letters, middle-dot, or degree symbol. Use "x" for multiplication (e.g. "6x19 construction", "1100 mm x 1400 mm"), "to" for ranges, "not less than" for ge, "not more than" for le, "Section" for clause references.`;
+
+  const ratedLoadKg = capacity * 75;  // CIBSE 75 kg/person assumption
+  const totalLandingDoors = nFloors * nElevators;
+
   const prompt = `You are a Philippine vertical transportation engineering expert (ASME A17.1, EN 81, CIBSE Guide D). Generate a professional BOM and SOW for an ELEVATOR INSTALLATION project based on the traffic analysis results.
+
+${asciiDirective}
 
 PROJECT: ${project}
 OCCUPANCY TYPE: ${occupancyType}
 BUILDING: ${nFloors} floors, ${floorHeight} m floor-to-floor, total rise ${H_m} m
 POPULATION SERVED: ${population} persons (up-peak scenario)
-ELEVATOR GROUP: ${nElevators} elevator(s), ${capacity}-person capacity each
-RATED SPEED: ${speed} m/s: Machine type: ${machineType}
+ELEVATOR GROUP: ${nElevators} elevator(s), ${capacity}-person capacity each (rated load ${ratedLoadKg} kg)
+RATED SPEED: ${speed} m/s | Machine type: ${machineType}
 DOOR TIMING: Open ${tDoorOpen}s / Close ${tDoorClose}s / Dwell ${tDwell}s
 AVERAGE STOPS PER TRIP: ${avg_stops}
 EFFECTIVE PASSENGERS PER TRIP (80% loading): ${effective_pax}
 
 TRAFFIC ANALYSIS RESULTS:
 - Round Trip Time (RTT): ${RTT_s} seconds
-- Interval Between Arrivals: ${interval_s} s (target: ${target_interval} s for ${occupancyType})
-- 5-Min Handling Capacity (HC%): ${HC_pct}% (target: ${target_HC}% for ${occupancyType})
+- Interval Between Arrivals: ${interval_s} s (target not more than ${target_interval} s for ${occupancyType})
+- 5-Min Handling Capacity (HC%): ${HC_pct}% (target not less than ${target_HC}% for ${occupancyType})
 - 5-Min Capacity: ${capacity_5min} persons of ${population} total
 - Interval Grade: ${intervalGrade} | HC Grade: ${hcGrade}
 - ${gradeNote}
@@ -2680,12 +2687,31 @@ TRAFFIC ANALYSIS RESULTS:
 STANDARDS: ASME A17.1 (Safety Code for Elevators), EN 81-1/EN 81-2 (Safety Rules for Lifts), CIBSE Guide D (Transportation Systems), National Building Code PD 1096, BP 344 / RA 10754 (Accessibility Law: PWD requirements), Philippine Electrical Code (PEC) for elevator motor circuits
 
 Generate a JSON object with:
-1. "bom_items": array of 16 items (each: description, specification, qty, unit, remarks, checked: true)
-   Include: Traction elevator machine: ${machineType}, ${capacity}-person (${capacity * 75}kg) rated load, ${speed} m/s, ${nElevators} units (ASME A17.1 compliant, factory-tested); elevator car and sling: ${capacity}-person rated, GI sheet cab with stainless steel interior finish, LED lighting, ventilation fan, emergency light, intercom (${nElevators} units); counterweight assembly: cast iron blocks, guided by T-section guide rails (${nElevators} sets); guide rails: T-section steel, cold-drawn, for car and counterweight (${nElevators} sets, rail length = ${H_m} m per set × 2); suspension ropes / steel wire ropes: 6×19 construction or 8×19, factor of safety ≥12 per ASME A17.1 (${nElevators} sets); VVVF drive / variable voltage variable frequency controller: regenerative type preferred, rated for ${speed} m/s, ${capacity * 75}kg (${nElevators} units); automatic rescue device / ARD: brings car to nearest floor on power failure, required for ${nFloors}-floor building (${nElevators} units); landing doors and frames: stainless steel, 2-panel center-opening, ${nFloors} floors × ${nElevators} elevators = ${nFloors * nElevators} sets (ASME A17.1 door interlock required); car door operator and safety edge / light curtain: full-height infrared light curtain, re-opening on obstruction, per ASME A17.1 Section 2.11 (${nElevators} units); group supervisory controller / group dispatch panel: microprocessor-based, up/down collective with destination dispatch option, for ${nElevators}-elevator group (1 unit); machine room or machine room-less MRL panel: control cabinet with main breaker, door interlock monitoring, overload protection (${nElevators} units); pit equipment: buffers (spring or oil type per speed ${speed} m/s), pit stop switch, pit lighting, sump pump if required (${nElevators} pits); PWD-compliant car: one car in group must have: minimum 1100 mm × 1400 mm interior, Braille + tactile controls, audible floor announcements, handrail, mirror per BP 344 / RA 10754 (1 unit designated); intercom and emergency phone: two-way communication to building security or monitoring station, per ASME A17.1 Section 2.27 (${nElevators} units); elevator shaft construction: reinforced concrete hoistway, minimum ${nElevators} shaft(s), internal dimensions per car size + clearances per ASME A17.1 (civil works: contractor to confirm dimensions); annual maintenance and inspection kit: lubrication, brake adjustment, safety gear test, governor test, load test tools per ASME A17.1 Section 8.6 (1 set per elevator group)
-2. "sow_sections": array of 8 sections (each: section_no, title, content)
-   Cover: Scope of Works, Traffic Analysis Basis (CIBSE Guide D up-peak method, ${nElevators} elevators × ${capacity}-person @ ${speed} m/s, RTT=${RTT_s}s, Interval=${interval_s}s [${intervalGrade}], HC=${HC_pct}% [${hcGrade}]${isPoor ? ": REMEDIATION REQUIRED before permit submission" : ": acceptable for " + occupancyType}), Elevator Equipment Supply and Installation (traction machine, ropes, guide rails, counterweight, VVVF drive installation per ASME A17.1 Section 2), Hoistway and Machine Room Works (hoistway dimensional requirements per ASME A17.1, machine room ventilation, emergency lighting, fire rating of hoistway walls per NBC), Electrical Works (motor circuit sizing per PEC Art. 6.20 for elevator motors, machine room panel, emergency power connection, lighting circuit), Accessibility Compliance: BP 344 / RA 10754 (one designated PWD-accessible car with Braille controls, 1100×1400mm minimum car size, audible announcements, handrail, mirror, tactile floor indicators at landings), Inspection Testing and Commissioning (no-load and full-load test, governor and safety gear drop test, door interlock test, ARD test, buffer compression test, speed test per ASME A17.1 Section 8: witnessed by DPWH / LGU building official and OSHC-accredited elevator inspector), Regulatory Compliance (National Building Code PD 1096, ASME A17.1 acceptance inspection, LGU elevator permit, BP 344 / RA 10754 PWD compliance, annual mandatory inspection per DOLE-OSHC, O&M manual and log book submission)
+1. "bom_items": array of 16 items (each: description, specification, qty, unit, remarks)
+   Cover the following items with these EXACT specifications (use ASCII, never Unicode):
+   (1) Traction Elevator Machine: ${machineType}, ${capacity}-person (${ratedLoadKg} kg) rated load, ${speed} m/s, ${nElevators} units (ASME A17.1 compliant, factory-tested)
+   (2) Elevator Car and Sling: ${capacity}-person rated, GI sheet cab with stainless steel interior finish, LED lighting, ventilation fan, emergency light, intercom (${nElevators} units)
+   (3) Counterweight Assembly: cast iron blocks, guided by T-section guide rails (${nElevators} sets)
+   (4) Guide Rails: T-section steel cold-drawn, for car and counterweight, total rail length ${(Number(H_m) * 2).toFixed(1)} m per elevator (one set of 2 rails: 1 car-side plus 1 counterweight-side, each ${H_m} m), ${nElevators} sets
+   (5) Suspension Ropes / Steel Wire Ropes: 6x19 construction or 8x19 (write x with the letter x, NOT the multiplication symbol), factor of safety not less than 12 per ASME A17.1, ${nElevators} sets
+   (6) VVVF Drive / Variable Voltage Variable Frequency Controller: regenerative type preferred, rated for ${speed} m/s, ${ratedLoadKg} kg (${nElevators} units)
+   (7) Automatic Rescue Device / ARD: brings car to nearest floor on power failure, required for ${nFloors}-floor building (${nElevators} units)
+   (8) Landing Doors and Frames: stainless steel, 2-panel center-opening, ${nFloors} floors x ${nElevators} elevators = ${totalLandingDoors} sets (ASME A17.1 door interlock required)
+   (9) Car Door Operator and Safety Edge / Light Curtain: full-height infrared light curtain, re-opening on obstruction per ASME A17.1 Section 2.11, ${nElevators} units
+   (10) Group Supervisory Controller / Group Dispatch Panel: microprocessor-based, up/down collective with destination dispatch option, for ${nElevators}-elevator group (1 unit)
+   (11) Machine Room or Machine-Room-Less MRL Panel: control cabinet with main breaker, door interlock monitoring, overload protection (${nElevators} units)
+   (12) Pit Equipment: buffers (spring or oil type per speed ${speed} m/s), pit stop switch, pit lighting, sump pump if required (${nElevators} sets)
+   (13) PWD-Compliant Car: minimum 1100 mm x 1400 mm interior (write x with the letter x), Braille plus tactile controls, audible floor announcements, handrail, mirror per BP 344 / RA 10754 (1 unit designated)
+   (14) Intercom and Emergency Phone: two-way communication to building security or monitoring station, per ASME A17.1 Section 2.27 (${nElevators} units)
+   (15) Elevator Shaft Construction: reinforced concrete hoistway, minimum ${nElevators} shaft(s), internal dimensions per car size plus clearances per ASME A17.1 (civil works: contractor to confirm dimensions, 1 lot)
+   (16) Annual Maintenance and Inspection Kit: lubrication, brake adjustment, safety gear test, governor test, load test tools per ASME A17.1 Section 8.6 (1 set per elevator group)
 
-Respond ONLY in JSON with keys bom_items and sow_sections.`;
+   CRITICAL: every "specification" field must be fully populated; never blank. Use ASCII text only (no Unicode multiplication, less-than-or-equal, greater-than-or-equal, em-dash). Specifically write "6x19 construction" with the LETTER x, "1100 mm x 1400 mm" with the LETTER x, "factor of safety not less than 12" instead of "ge 12".
+
+2. "sow_sections": array of 8 sections (each: section_no, title, content)
+   Cover: 1.0 Scope of Works, 2.0 Traffic Analysis Basis (CIBSE Guide D up-peak method, ${nElevators} elevators of ${capacity}-person capacity at ${speed} m/s, RTT=${RTT_s} s, Interval=${interval_s} s [${intervalGrade}], HC=${HC_pct} percent [${hcGrade}]${isPoor ? ": REMEDIATION REQUIRED before permit submission" : ": acceptable for " + occupancyType}), 3.0 Elevator Equipment Supply and Installation (traction machine, 6x19 ropes, T-rail guide rails, counterweight, VVVF drive installation per ASME A17.1 Section 2), 4.0 Hoistway and Machine Room Works (hoistway dimensional requirements per ASME A17.1, machine room ventilation, emergency lighting, fire rating of hoistway walls per NBC), 5.0 Electrical Works (motor circuit sizing per PEC Article 6.20 for elevator motors, machine room panel, emergency power connection, lighting circuit), 6.0 Accessibility Compliance per BP 344 / RA 10754 (one designated PWD-accessible car with Braille controls, 1100 mm x 1400 mm minimum car size [write x as the letter x], audible announcements, handrail, mirror, tactile floor indicators at landings), 7.0 Inspection Testing and Commissioning (no-load and full-load test, governor and safety gear drop test, door interlock test, ARD test, buffer compression test, speed test per ASME A17.1 Section 8: witnessed by DPWH or LGU building official and OSHC-accredited elevator inspector), 8.0 Regulatory Compliance (National Building Code PD 1096, ASME A17.1 acceptance inspection, LGU elevator permit, BP 344 / RA 10754 PWD compliance, annual mandatory inspection per DOLE-OSHC, O&M manual and log book submission)
+
+Each "content" field MUST start with "The Contractor shall..." and use ASCII text only. Respond ONLY in JSON with keys bom_items and sow_sections.`;
 
   const raw = await callGroq(prompt);
   const parsed = JSON.parse(raw);
