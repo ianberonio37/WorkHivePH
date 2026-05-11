@@ -72,14 +72,34 @@ async function fetchDescriptiveData(
   // ── RAW DATA: still needed for PM compliance, OEE, parts consumption ─────────
   // These require JSONB access or complex period math — handled by Python.
 
-  // PM assets → PM completions → PM scope items (sequential: need asset IDs first).
+  // PM assets -> PM completions -> PM scope items (sequential: need asset IDs first).
   // Include `tag_id` (the human asset code, e.g. "PMP-001") because logbook.machine
   // stores that same code. Without tag_id, downstream calcs that join PM data with
   // logbook entries can't bridge the two (PRODUCTION_FIXES #17).
-  const assetsQ = db.from("pm_assets").select("id, asset_name, tag_id, category");
-  if (hiveId) assetsQ.eq("hive_id", hiveId);
-  else if (workerName) assetsQ.eq("worker_name", workerName);
-  const { data: assets } = await assetsQ;
+  //
+  // Phase 1.2 engine consolidation: hive-mode reads now go through
+  // v_pm_compliance_truth (the canonical PM read path), so Analytics and
+  // Alert Hub agree on the per-asset PM contract. Solo mode falls back to
+  // raw pm_assets because the canonical view is hive-scoped and has no
+  // worker_name filter -- the canonical-allow comment documents that.
+  let assets: Array<Record<string, string>> = [];
+  if (hiveId) {
+    const { data } = await db.from("v_pm_compliance_truth")
+      .select("pm_asset_id, asset_name, tag_id, category")
+      .eq("hive_id", hiveId);
+    assets = (data || []).map((a: Record<string, string>) => ({
+      id: a.pm_asset_id,
+      asset_name: a.asset_name,
+      tag_id:     a.tag_id,
+      category:   a.category,
+    }));
+  } else if (workerName) {
+    // canonical-allow: solo mode (no hive_id) cannot use hive-scoped v_pm_compliance_truth
+    const { data } = await db.from("pm_assets")
+      .select("id, asset_name, tag_id, category")
+      .eq("worker_name", workerName);
+    assets = (data || []) as Array<Record<string, string>>;
+  }
   const assetIds = (assets || []).map((a: Record<string, string>) => a.id);
 
   const completionsLimit = dynLimit(periodDays, 5 * Math.max(assetIds.length, 1) / 30, 5000);
@@ -239,16 +259,38 @@ async function fetchPrescriptiveData(
 ) {
   const base = await fetchPredictiveData(db, hiveId, workerName, periodDays);
 
-  // pm_assets — fetch all (no reasonable hive has > 500 assets).
+  // pm_assets -- fetch all (no reasonable hive has > 500 assets).
   // tag_id is the human asset code (e.g. "PMP-001") that logbook.machine
   // stores; needed for the priority calc to look up criticality per machine.
-  const assetsQ = db.from("pm_assets")
-    .select("id, asset_name, tag_id, category, criticality")
-    .limit(500); // was hardcoded 200
-  if (hiveId) assetsQ.eq("hive_id", hiveId);
-  else if (workerName) assetsQ.eq("worker_name", workerName);
+  //
+  // Phase 1.2 engine consolidation: hive-mode goes through v_pm_compliance_truth.
+  // The view exposes the same columns but keys on pm_asset_id; we remap to
+  // `id` so the downstream Python prescriptive payload shape stays stable.
+  // Solo mode falls back to raw pm_assets (canonical-allow documented inline).
+  const assetsPromise: Promise<Array<Record<string, string>>> = (async () => {
+    if (hiveId) {
+      const { data } = await db.from("v_pm_compliance_truth")
+        .select("pm_asset_id, asset_name, tag_id, category, criticality")
+        .eq("hive_id", hiveId)
+        .limit(500);
+      return (data || []).map((a: Record<string, string>) => ({
+        id:          a.pm_asset_id,
+        asset_name:  a.asset_name,
+        tag_id:      a.tag_id,
+        category:    a.category,
+        criticality: a.criticality,
+      }));
+    }
+    // canonical-allow: solo mode (no hive_id) cannot use hive-scoped v_pm_compliance_truth
+    const q = db.from("pm_assets")
+      .select("id, asset_name, tag_id, category, criticality")
+      .limit(500);
+    if (workerName) q.eq("worker_name", workerName);
+    const { data } = await q;
+    return (data || []) as Array<Record<string, string>>;
+  })();
 
-  // skill_badges — scales with team (5 disciplines × 5 levels × N workers)
+  // skill_badges -- scales with team (5 disciplines x 5 levels x N workers)
   const badgesQ = db.from("skill_badges")
     .select("worker_name, discipline, level")
     .limit(2000); // was hardcoded 500
@@ -261,18 +303,59 @@ async function fetchPrescriptiveData(
     badgesQ.eq("worker_name", workerName);
   }
 
-  const [assetsRes, badgesRes] = await Promise.allSettled([assetsQ, badgesQ]);
+  const [assetsRes, badgesRes] = await Promise.allSettled([assetsPromise, badgesQ]);
 
   return {
     ...base,
-    pm_assets:   (assetsRes.status === "fulfilled" ? assetsRes.value.data : null) || [],
+    pm_assets:   (assetsRes.status === "fulfilled" ? assetsRes.value : []),
     skill_badges:(badgesRes.status === "fulfilled" ? badgesRes.value.data : null) || [],
   };
 }
 
+// ── Canonical risk lookup (Phase 2.2 — Brain reads Engine, not raw data) ─────
+// Pulls the top-N at-risk assets from v_risk_truth so the action_plan synthesis
+// cites the same risk numbers that Predictive Maintenance, Alert Hub, and
+// Asset Hub display. Without this, the AI re-derives "top at-risk" from
+// per-phase MTTR / Pareto signals and disagrees with the dashboards.
+
+async function fetchCanonicalRiskTop(
+  db: ReturnType<typeof createClient>,
+  hiveId: string | null,
+  limit = 5,
+): Promise<Array<Record<string, unknown>>> {
+  if (!hiveId) return [];
+  const { data } = await db.from("v_risk_truth")
+    .select("asset_name, risk_score, risk_level, mtbf_days, days_until_failure, top_factors, generated_at")
+    .eq("hive_id", hiveId)
+    .order("risk_score", { ascending: false })
+    .limit(limit);
+  return (data || []) as Array<Record<string, unknown>>;
+}
+
+// Compact serialiser for top_factors so the prompt payload stays cheap.
+// Structured factors collapse to "factor (contribution%): explanation",
+// legacy string factors pass through. Caps at 3 factors per asset.
+function summariseRiskFactors(factors: unknown): string[] {
+  if (!Array.isArray(factors)) return [];
+  return factors.slice(0, 3).map((f) => {
+    if (f && typeof f === "object") {
+      const fo = f as Record<string, unknown>;
+      const label = String(fo.factor || "").replace(/_/g, " ");
+      const pct   = Math.round(((Number(fo.contribution) || 0)) * 100);
+      const exp   = fo.explanation ? String(fo.explanation) : "";
+      return `${label} (${pct}%)${exp ? ": " + exp : ""}`;
+    }
+    return String(f).replace(/_/g, " ");
+  });
+}
+
 // ── Groq synthesis for Prescriptive phase ─────────────────────────────────────
 
-async function callGroqSynthesis(fullContext: Record<string, unknown>, hiveMembers: string[]): Promise<string> {
+async function callGroqSynthesis(
+  fullContext: Record<string, unknown>,
+  hiveMembers: string[],
+  canonicalRisk: Array<Record<string, unknown>>,
+): Promise<string> {
   const memberList = hiveMembers.length > 0
     ? `Your actual team members are: ${hiveMembers.join(", ")}. ONLY use these names — never invent names like John, Bob, or any other person not in this list.`
     : "You do not know the team member names — do not invent names. Refer to workers by their discipline (e.g. 'the Mechanical technician').";
@@ -289,6 +372,14 @@ Write a connected plan that DRAWS FROM ALL 4 PHASES, not just prescriptive recom
   • "Pump P-103 has the highest failure rate (descriptive) AND its top root cause is bearing wear (diagnostic), so tighten its quarterly bearing inspection (prescriptive)."
   • "Compressor AC-002 is forecast to fail by next Tuesday (predictive), and we have only 1 spare seal kit (prescriptive reorder), so order 2 more this week."
   • "Mechanical category has 3.2h higher MTTR than the team average (diagnostic) — schedule the L4 mechanical tech to mentor L1-L2 workers on bearing replacement procedures."
+
+CANONICAL RISK RULE (Phase 2.2): When the input has a non-empty canonical_risk
+array, that array IS the platform's source of truth for "which assets are at
+risk and why" — the same list shown on Predictive Maintenance and Alert Hub.
+Always anchor at-risk references to canonical_risk[].asset_name and quote a
+factor's "explanation" verbatim. Do NOT re-rank assets by MTTR / Pareto /
+priority_ranking when canonical_risk disagrees. Cite canonical_risk first;
+descriptive / diagnostic / prescriptive top-Ns are corroborating context.
 
 ${memberList}
 Only reference machines, parts, and workers that appear in the data. Never invent names or equipment not mentioned. Be specific: cite the machine codes (e.g. PMP-001, AC-002), KPI numbers, dates.
@@ -309,6 +400,17 @@ Format as JSON:
   // Slim each phase down to its top signals — we don't need the full payload,
   // just the headline data the AI should reason about.
   const promptPayload = {
+    // Canonical risk snapshot from v_risk_truth — the same rows Predictive
+    // Maintenance and Alert Hub render. Highest priority in the prompt so the
+    // model anchors at-risk references here, not on per-phase top-Ns.
+    canonical_risk: (canonicalRisk || []).map((r) => ({
+      asset_name:         r.asset_name,
+      risk_score:         r.risk_score,
+      risk_level:         r.risk_level,
+      mtbf_days:          r.mtbf_days,
+      days_until_failure: r.days_until_failure,
+      top_factors:        summariseRiskFactors(r.top_factors),
+    })),
     descriptive: desc ? {
       top_downtime: (desc.downtime_pareto as Record<string, unknown>)?.pareto?.slice?.(0,3),
       top_mtbf:     (desc.mtbf as Record<string, unknown>)?.mtbf_by_asset?.slice?.(0,3),
@@ -539,9 +641,11 @@ serve(async (req) => {
           hiveMembers = [worker_name];
         }
         try {
+          const canonicalRisk = await fetchCanonicalRiskTop(db, hive_id || null, 5);
           const raw = await callGroqSynthesis(
             { descriptive, diagnostic, predictive, prescriptive },
             hiveMembers,
+            canonicalRisk,
           );
           actionPlan = JSON.parse(raw);
         } catch (_e) { actionPlan = null; }
@@ -617,7 +721,8 @@ serve(async (req) => {
         prescriptive: results,
       };
 
-      const raw = await callGroqSynthesis(fullContext, hiveMembers);
+      const canonicalRisk = await fetchCanonicalRiskTop(db, hive_id || null, 5);
+      const raw = await callGroqSynthesis(fullContext, hiveMembers, canonicalRisk);
       try { groqSynthesis = JSON.parse(raw); } catch { groqSynthesis = null; }
     }
 

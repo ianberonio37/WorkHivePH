@@ -92,16 +92,100 @@ only by which **window W** they ask for and how stale the answer is allowed to b
 
 ---
 
-## Phase 2 (deferred — when scale forces it)
+## What's shipped as of 2026-05-12
 
-When the dashboard latency budget no longer fits "live recomputation each
-refresh", promote the relevant `v_*_truth` view to a **materialized view**
-with a refresh schedule, and update its `freshness` field in the
-`canonical_sources` registry. The view contract stays the same; only the
-freshness SLA changes. Surfaces do not change.
+| Phase | Deliverable | Layer |
+|---|---|---|
+| 1.1 | `batch-risk-scoring` reads MTBF from `get_mtbf_by_machine` RPC instead of inline math; Analytics + Predictive share one MTBF engine | Engine |
+| 1.2 | `analytics-orchestrator` descriptive + prescriptive PM reads migrated to `v_pm_compliance_truth` (hive mode); solo mode falls back via inline `canonical-allow` | Engine |
+| 2.2 | `analytics-orchestrator` action_plan synthesis ingests `v_risk_truth` top-N rows so the AI cites the same risk numbers as Predictive Maintenance and Alert Hub | Brain |
+| 3.1 | `renderSourceChip({ source, freshness, window, notes })` helper in `utils.js`; the 4 audit surfaces render their chip via the helper | Dashboard |
+| 4.1 | `validate_canonical_sources.py` L2 drift detection — consumers that read an underlying table while a canonical view exists now FAIL CI (with `canonical-allow` inline opt-out + `KNOWN_DRIFT` debt allowlist) | Driver / Validator |
+| 4.2 | `validate_kpi_chip_coverage.py` — any page reading a `v_*_truth` KPI view must render a `renderSourceChip` (or be on `KNOWN_NO_CHIP` debt) | Driver / Validator |
+| -   | Asset Brain consumes `v_risk_truth.top_factors`; Asset Brain narrative no longer re-derives risk from raw history | Brain |
+| -   | `populate_asset_node_bridges` trigger keeps `legacy_asset_id` / `pm_asset_id` populated so Asset Brain timeline never silently empties | Fuel |
+| -   | Source/window chips on analytics, alert-hub, asset-hub, predictive | Dashboard |
 
-Trigger to promote: a single Analytics phase taking > 3s p95 in production,
-or the Python API timing out at the 90s cap.
+---
+
+## Remaining roadmap (priority-ordered)
+
+### Near-term (small batch, fast wins)
+
+**Phase 3.2 — Chip the remaining KPI-reading pages**
+The chip coverage validator currently lists 6 pages on `KNOWN_NO_CHIP` debt
+(`asset-hub.html`, `hive.html`, `shift-brain.html`, `dayplanner.html`,
+`index.html`, plus the editor/utility pages). Each needs a chip placement
+review:
+- `hive.html` PM Health card and Open Work card -> per-card chip variant.
+- `shift-brain.html` top-risk list -> chip below the page sub-header.
+- `index.html` dashboard widgets -> per-widget chip pattern.
+- `asset-hub.html` -> add a global page-level chip in addition to the per-card chip already on the Risk Profile section.
+- `dayplanner.html` -> decide whether the logbook stream needs a chip or whether the page can be marked `chip-allow: chronological feed, not a KPI tile`.
+
+When each page gets a chip, remove it from `KNOWN_NO_CHIP` in
+`validate_kpi_chip_coverage.py`. The gate ratchets down automatically.
+
+**Closing `KNOWN_DRIFT` entries**
+`validate_canonical_sources.py` `KNOWN_DRIFT` currently lists ~14 entries.
+Each is a documented migration target. Priority order (highest unlock first):
+1. `ai-orchestrator/index.ts` reads `pm_assets` -> migrate hive-mode to `v_pm_compliance_truth` (pattern is identical to the analytics-orchestrator migration shipped in Phase 1.2; ~30 min).
+2. `shift-planner-orchestrator/index.ts` reads `logbook` -> migrate to `v_logbook_truth` (~30 min).
+3. `intelligence-report/index.ts` reads `logbook` 4 times -> migrate to `v_logbook_truth` (~45 min).
+4. `failure-signature-scan/index.ts` reads `logbook` -> migrate to `v_logbook_truth` (~20 min).
+5. `benchmark-compute/index.ts` reads `logbook` -> migrate to `v_logbook_truth` (~20 min).
+6. `scheduled-agents/index.ts` reads `logbook` (4x) + `pm_assets` -> bulk sweep (~1 hour).
+7. `embed-entry/index.ts` reads `pm_assets` -> migrate (~20 min).
+
+Total estimated effort: ~3-4 hours to clear the entire backlog. Each
+migration shrinks `KNOWN_DRIFT` and proves the canonical view scales.
+
+### Medium-term
+
+**Phase 2.1 — Route every AI call through `ai-gateway`**
+Today the platform has multiple direct `callAI` importers (Asset Brain,
+analytics-orchestrator's Groq synthesis, shift-planner-orchestrator,
+ai-orchestrator, amc-orchestrator, voice-action-router, etc.). The
+`ai-gateway` shipped 2026-05-11 already handles per-route quotas, PII
+redaction, audit, and provider fallback; adoption is the remaining work.
+
+Per-function changes are small (replace `callAI(prompt, opts)` with a
+gateway-routed fetch that includes the route name and the existing opts),
+but coordination is needed because each function's prompt + cache key +
+audit category is different. Suggest one PR per function so the audit
+trail is clean. Estimated 30 min per function * ~8 functions = ~4 hours.
+
+**Phase 1.3 — `v_kpi_truth` materialised view (only if latency forces it)**
+Today the canonical views are regular (live-recomputed) views. If an
+Analytics phase ever exceeds 3 s p95 in production OR the Python API
+times out at the 90 s cap, promote the relevant view to materialised
+with a 1 h refresh cron. The view contract stays identical; only the
+`freshness` field in `canonical_sources` changes. No surface change.
+
+**Trigger to start**: a real production latency complaint or a
+`platform-health` SLA breach. Do not pre-build.
+
+### Long-term
+
+**Phase 5 — Fuel cleanup (deferred until forced)**
+The text/uuid bridges (`logbook.asset_ref_id` text, `inventory_items.linked_asset_ids` text[]) exist for backwards compat with the original asset model.
+Migration to write the canonical UUID alongside, then deprecate the text
+columns, is a 2-step cut-over touching every writer. Scope: ~2 sessions.
+Defer until a real bug forces it (e.g. a text-vs-uuid join silently drops
+rows). Today the `populate_asset_node_bridges` trigger keeps the bridges
+populated so the existing scheme works.
+
+---
+
+## When the dashboard latency budget breaks
+
+When live recomputation each refresh no longer fits, promote the relevant
+`v_*_truth` view to a **materialized view** with a refresh schedule, and
+update its `freshness` field in the `canonical_sources` registry. The view
+contract stays the same; only the freshness SLA changes. Surfaces do not change.
+
+Trigger to promote: a single Analytics phase taking > 3 s p95 in production,
+or the Python API timing out at the 90 s cap.
 
 ---
 

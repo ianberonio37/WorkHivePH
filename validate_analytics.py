@@ -269,11 +269,24 @@ def check_edge_hive_id_scoping(ts, path):
     if not ts:
         return []
     issues = []
-    # logbook is now queried via oeeQ (refactored from logbookQ)
+    # logbook is now queried via oeeQ (refactored from logbookQ).
+    # pm_assets path was refactored 2026-05-12 (Phase 1.2) to route hive-mode
+    # reads through v_pm_compliance_truth (canonical PM view). The variable
+    # `assetsQ` may no longer exist; instead the orchestrator does
+    # `db.from("v_pm_compliance_truth").select(...).eq("hive_id", hiveId)`
+    # inside an async IIFE. Accept either pattern as proof of hive scoping.
     for table, var in [("logbook", "oeeQ"), ("inventory_transactions", "txnQ"), ("pm_assets", "assetsQ")]:
-        if not re.search(rf'{re.escape(var)}\.eq\("hive_id"', ts):
-            issues.append({"check": "edge_hive_id_scoping", "page": path, "table": table,
-                           "reason": f'{var} missing .eq("hive_id", hiveId) — data leaks across tenants'})
+        if re.search(rf'{re.escape(var)}\.eq\("hive_id"', ts):
+            continue
+        # Phase 1.2 fallback: hive_id-scoped read against v_pm_compliance_truth
+        # covers the pm_assets requirement.
+        if table == "pm_assets" and re.search(
+            r'\.from\(\s*"v_pm_compliance_truth"\s*\)[\s\S]{0,200}?\.eq\(\s*"hive_id"',
+            ts,
+        ):
+            continue
+        issues.append({"check": "edge_hive_id_scoping", "page": path, "table": table,
+                       "reason": f'{var} missing .eq("hive_id", hiveId) — data leaks across tenants'})
     return issues
 
 
