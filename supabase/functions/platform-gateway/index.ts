@@ -132,6 +132,24 @@ const PLATFORM_ROUTES: Record<string, {
     audit: true,
     description: "P-F interval calculator",
   },
+  "amc-orchestrator": {
+    fn: "amc-orchestrator",
+    requires_auth: true,
+    audit: true,
+    description: "Autonomous Maintenance Crew daily brief (5 sub-agents -> amc_briefings)",
+  },
+  "visual-defect-capture": {
+    fn: "visual-defect-capture",
+    requires_auth: true,
+    audit: true,
+    description: "Photo -> multimodal classify -> logbook draft + fault_knowledge embed",
+  },
+  "sensor-readings-ingest": {
+    fn: "sensor-readings-ingest",
+    requires_auth: true,
+    audit: true,
+    description: "Batch ingest endpoint for plant-side MQTT/OPC-UA bridges -> sensor_readings",
+  },
 };
 
 function jsonResponse(

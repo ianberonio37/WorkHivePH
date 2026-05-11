@@ -186,3 +186,18 @@ entrypoint = "./functions/project-progress/index.ts"
 enabled = true
 verify_jwt = false
 entrypoint = "./functions/project-orchestrator/index.ts"
+
+[functions.amc-orchestrator]
+enabled = true
+verify_jwt = false
+entrypoint = "./functions/amc-orchestrator/index.ts"
+
+[functions.visual-defect-capture]
+enabled = true
+verify_jwt = false
+entrypoint = "./functions/visual-defect-capture/index.ts"
+
+[functions.sensor-readings-ingest]
+enabled = true
+verify_jwt = false
+entrypoint = "./functions/sensor-readings-ingest/index.ts"

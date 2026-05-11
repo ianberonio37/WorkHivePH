@@ -3,9 +3,13 @@ import { transcribeAudio } from "../_shared/audio-chain.ts";
 import { getCorsHeaders } from "../_shared/cors.ts";
 
 // Receives a multipart audio blob from the browser (iOS MediaRecorder output),
-// transcribes via Groq Whisper fallback chain, and returns plain text.
-// Input:  FormData with field "audio" (audio/mp4 or audio/webm blob)
-// Output: { text: "transcribed text" }
+// transcribes via Groq Whisper fallback chain, and returns plain text plus
+// the ISO-639-1 language code Whisper auto-detected.
+//
+// Input:  FormData with field "audio" (audio/mp4 or audio/webm blob).
+//         Optional field "language" (e.g. "en") to force a specific language;
+//         omit to auto-detect (used by voice-journal for multilingual capture).
+// Output: { text: "transcribed text", lang: "en" }
 
 serve(async (req) => {
   const corsHeaders = getCorsHeaders(req);
@@ -25,6 +29,10 @@ serve(async (req) => {
 
     const form      = await req.formData();
     const audioFile = form.get("audio") as File | null;
+    const langField = form.get("language");
+    const language  = typeof langField === "string" && langField.trim()
+      ? langField.trim().toLowerCase()
+      : undefined;
 
     if (!audioFile || audioFile.size === 0) {
       return new Response(
@@ -33,7 +41,7 @@ serve(async (req) => {
       );
     }
 
-    // Cap at 10 MB — Groq Whisper limit is 25 MB but field workers speak for < 30s
+    // Cap at 10 MB. Groq Whisper limit is 25 MB but field workers speak for < 30s.
     if (audioFile.size > 10 * 1024 * 1024) {
       return new Response(
         JSON.stringify({ error: "Audio file too large (max 10 MB)" }),
@@ -42,10 +50,10 @@ serve(async (req) => {
     }
 
     const filename = audioFile.name || "audio.mp4";
-    const text     = await transcribeAudio(audioFile, filename);
+    const result   = await transcribeAudio(audioFile, filename, language);
 
     return new Response(
-      JSON.stringify({ text }),
+      JSON.stringify({ text: result.text, lang: result.lang }),
       { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
 

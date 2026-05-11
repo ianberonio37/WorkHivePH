@@ -53,6 +53,7 @@ const SYSTEM_PROMPT = `You are WorkHive Asset Brain, an industrial maintenance a
 You will receive a JSON payload with:
 - asset: the asset's tag, name, criticality, hierarchy, neighbors
 - stats: aggregate counts (logbook entries, PM completions, last failure)
+- risk: the canonical risk snapshot from v_risk_truth (daily, 365-day failure window) — risk_score 0..1, risk_level, mtbf_days, days_until_failure, and a structured top_factors array. This is the same risk the Predictive Maintenance page and Alert Hub show.
 - timeline: the 20 most recent events on this asset
 - similar: events on peer assets in the same equipment class
 - reliability: engineer-validated FMEA modes, RCM strategies, Weibull fit, P-F intervals
@@ -60,14 +61,15 @@ You will receive a JSON payload with:
 
 Your job is to answer the question using ONLY the provided context. Rules:
 1. If the context lacks the answer, say so plainly. Never invent values.
-2. Cite sources by index (e.g. "logbook #3", "pm #1", "fmea #0", "rcm #1", "pf #0") when the answer rests on a specific row.
-3. Prefer the reliability block when answering risk / failure-mode / maintenance-strategy questions; FMEA RPN, Weibull pattern (wearout / random / infant), and P-F intervals are engineer-validated and outrank raw logbook history.
-4. When Weibull pattern = wearout (beta > 1), age matters; when random (beta ~ 1), age does not predict next failure.
-5. Keep responses under 120 words unless the question explicitly asks for more.
-6. Use Filipino industrial vocabulary (PEC 2017, PSME, ISO 14224) when appropriate.
-7. No em dashes in the response. Use colons, commas, parentheses, or restructure.
+2. Cite sources by index (e.g. "logbook #3", "pm #1", "fmea #0", "rcm #1", "pf #0", "risk", "risk-factor #0") when the answer rests on a specific row.
+3. For "why is this asset at risk / what is driving the risk score" questions, cite from risk.top_factors and quote each factor's explanation verbatim. Do NOT re-derive factors from the raw timeline; the risk block is the canonical answer the rest of the platform agrees on.
+4. Prefer the reliability block when answering failure-mode / maintenance-strategy questions; FMEA RPN, Weibull pattern (wearout / random / infant), and P-F intervals are engineer-validated and outrank raw logbook history.
+5. When Weibull pattern = wearout (beta > 1), age matters; when random (beta ~ 1), age does not predict next failure.
+6. Keep responses under 120 words unless the question explicitly asks for more.
+7. Use Filipino industrial vocabulary (PEC 2017, PSME, ISO 14224) when appropriate.
+8. No em dashes in the response. Use colons, commas, parentheses, or restructure.
 
-Output JSON: { "answer": string, "cited": [ { "kind": "logbook"|"pm"|"neighbor"|"stat"|"fmea"|"rcm"|"weibull"|"pf", "index": number } ] }`;
+Output JSON: { "answer": string, "cited": [ { "kind": "logbook"|"pm"|"neighbor"|"stat"|"fmea"|"rcm"|"weibull"|"pf"|"risk"|"risk-factor", "index": number } ] }`;
 
 // ---------------------------------------------------------------------------
 // Rate limit gate
@@ -246,6 +248,45 @@ async function fetchSimilarFailures(
   });
 }
 
+// Canonical risk lane: read v_risk_truth so the Asset Brain narrative cites
+// the same factors that Predictive Maintenance and Alert Hub display. Closes
+// the divergence where Asset Brain re-derived "why is this risky?" from raw
+// logbook history while the rest of the platform read top_factors from the
+// daily batch-risk-scoring snapshot. The view is hive-scoped and exposes
+// asset_id when name resolution against asset_nodes succeeds; we filter by
+// asset_id first, then fall back to asset_name match using the node tag/name.
+async function fetchRisk(
+  db: SupabaseClient,
+  node: AnyRow | null,
+  assetId: string,
+  hiveId: string,
+): Promise<AnyRow | null> {
+  // Primary path: v_risk_truth.asset_id is populated when the name match
+  // against asset_nodes succeeded inside the view. This is the cheap path.
+  const { data: byId } = await db.from("v_risk_truth")
+    .select("asset_id, asset_name, risk_score, risk_level, health_score, mtbf_days, days_until_failure, top_factors, model_version, generated_at")
+    .eq("hive_id", hiveId)
+    .eq("asset_id", assetId)
+    .limit(1);
+  if (byId && byId[0]) return byId[0];
+
+  // Fallback: the view has NULL asset_id when the writer's asset_name string
+  // does not case-insensitively match asset_nodes.tag or .name. Look up by
+  // the node's own tag/name so this asset still gets its risk row.
+  if (!node) return null;
+  const candidates = [node.tag, node.name]
+    .map(v => (typeof v === "string" ? v.trim() : ""))
+    .filter(Boolean);
+  if (!candidates.length) return null;
+
+  const { data: byName } = await db.from("v_risk_truth")
+    .select("asset_id, asset_name, risk_score, risk_level, health_score, mtbf_days, days_until_failure, top_factors, model_version, generated_at")
+    .eq("hive_id", hiveId)
+    .in("asset_name", candidates)
+    .limit(1);
+  return (byName && byName[0]) || null;
+}
+
 // Phase R-tie-in: pull reliability canonical truths for this asset so the
 // AI can reason about engineer-validated failure modes, RCM strategies,
 // Weibull pattern, and P-F intervals — not just raw logbook history.
@@ -286,6 +327,7 @@ function composeContext(
   timeline: { logbook: AnyRow[]; pm: AnyRow[] },
   similar: AnyRow[],
   reliability: { fmea: AnyRow[]; rcm: AnyRow[]; weibull: AnyRow | null; pf: AnyRow[] },
+  risk: AnyRow | null,
   question: string,
 ) {
   // Token discipline (ai-engineer skill): summary strings, capped row counts.
@@ -307,6 +349,36 @@ function composeContext(
       pm_completed_count:       graph.overview.pm_completed_count,
       last_failure_at:          graph.overview.last_failure_at,
       edge_count:               graph.overview.edge_count,
+    },
+    // Canonical risk snapshot from v_risk_truth. Same source as predictive.html
+    // and alert-hub.html so the narrative cannot drift from the dashboards.
+    // top_factors_structured shape: array of { factor, weight, value, contribution, explanation }.
+    // Legacy shape: array of plain-string factor names. We pass through whatever
+    // the writer emitted; the prompt rules tell the model to quote explanation verbatim.
+    risk: risk && {
+      risk_score:         risk.risk_score,
+      risk_level:         risk.risk_level,
+      health_score:       risk.health_score,
+      mtbf_days:          risk.mtbf_days,
+      days_until_failure: risk.days_until_failure,
+      model_version:      risk.model_version,
+      generated_at:       risk.generated_at,
+      top_factors: Array.isArray(risk.top_factors)
+        ? (risk.top_factors as Array<unknown>).map((f, i) => {
+            if (f && typeof f === "object") {
+              const fo = f as Record<string, unknown>;
+              return {
+                index:        i,
+                factor:       fo.factor,
+                weight:       fo.weight,
+                value:        fo.value,
+                contribution: fo.contribution,
+                explanation:  fo.explanation,
+              };
+            }
+            return { index: i, factor: String(f), explanation: null };
+          })
+        : [],
     },
     neighbors: graph.neighbors.map((n, i) => ({
       index: i, tag: n.tag, edge_type: n.edge_type, criticality: n.criticality,
@@ -432,17 +504,19 @@ serve(async (req) => {
       );
     }
 
-    const [tlRes, simRes, relRes] = await Promise.allSettled([
+    const [tlRes, simRes, relRes, riskRes] = await Promise.allSettled([
       fetchAssetTimeline(db, graphRes.node, hive_id),
       fetchSimilarFailures(db, graphRes.node, hive_id),
       fetchReliability(db, asset_id, hive_id),
+      fetchRisk(db, graphRes.node, asset_id, hive_id),
     ]);
 
     const timeline    = tlRes.status  === "fulfilled" ? tlRes.value  : { logbook: [], pm: [] };
     const similar     = simRes.status === "fulfilled" ? simRes.value : [];
     const reliability = relRes.status === "fulfilled" ? relRes.value : { fmea: [], rcm: [], weibull: null, pf: [] };
+    const risk        = riskRes.status === "fulfilled" ? riskRes.value : null;
 
-    const context = composeContext(graphRes, timeline, similar, reliability, question);
+    const context = composeContext(graphRes, timeline, similar, reliability, risk, question);
     // PII redaction before the prompt leaves the platform: worker_name in
     // the timeline.pm array gets `<redacted>` so the model provider never
     // sees worker identity. Closes PRODUCTION_FIXES #44 for this fn.

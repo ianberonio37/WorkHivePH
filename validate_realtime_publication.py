@@ -89,6 +89,14 @@ EXPECTED_PUBLISHED_TABLES = {
     # without a manual refresh. Added via:
     # 20260510000007_hive_audit_log_realtime.sql.
     "hive_audit_log",
+    # Autonomous Maintenance Crew (AMC) Phase A1 (2026-05-12): alert-hub.html
+    # subscribes for live status flips when supervisor approves/rejects the
+    # daily brief. Added via 20260512000002_amc_briefings.sql.
+    "amc_briefings",
+    # Physical AI Wave B1 (2026-05-12): asset-hub.html Live Telemetry tile
+    # subscribes per-asset for live sensor readings from MQTT/OPC-UA bridge.
+    # Added via 20260512000003_sensor_readings.sql.
+    "sensor_readings",
 }
 
 CHECKS = {

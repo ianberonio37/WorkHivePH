@@ -1485,11 +1485,23 @@
     const btn       = document.getElementById('apBtn-' + ideaId);
     const messageEl = document.getElementById('apMessage-' + ideaId);
 
+    // Resilient polling: the server job runs in a background thread and keeps
+    // going even if the browser briefly can't reach Flask (Wi-Fi blip, FFmpeg
+    // saturating the dev server, tab throttling). Tolerate ~20 consecutive
+    // failures (~60s of network trouble) before giving up.
+    const MAX_CONSECUTIVE_FAILURES = 20;
+    let consecutiveFailures        = 0;
+    let lastGoodMessage            = '';
+
     const tick = async () => {
       try {
-        const r    = await fetch('/api/produce-jobs/' + jobId);
+        const r    = await fetch('/api/produce-jobs/' + jobId, { cache: 'no-store' });
+        if (!r.ok) throw new Error('HTTP ' + r.status);
         const data = await r.json();
         if (!data.success) throw new Error(data.error);
+
+        // Success — reset failure counter
+        consecutiveFailures = 0;
 
         const currentStage = data.stage;
         const stageIdx     = PIPELINE_STAGES.indexOf(currentStage);
@@ -1507,6 +1519,7 @@
 
         messageEl.className   = 'ap-message';
         messageEl.textContent = data.message || '';
+        lastGoodMessage       = data.message || '';
 
         if (data.status === 'complete') {
           messageEl.className   = 'ap-message done';
@@ -1526,10 +1539,26 @@
         }
         setTimeout(tick, 1500);
       } catch (err) {
-        messageEl.className   = 'ap-message error';
-        messageEl.textContent = 'Lost connection: ' + err.message;
-        btn.disabled = false;
-        btn.textContent = 'Retry Auto-Produce';
+        consecutiveFailures += 1;
+
+        if (consecutiveFailures >= MAX_CONSECUTIVE_FAILURES) {
+          messageEl.className   = 'ap-message error';
+          messageEl.textContent =
+            'Lost connection after ' + consecutiveFailures + ' retries (' + err.message + '). ' +
+            'The server job may still be running — check the assets below or reload the page.';
+          btn.disabled = false;
+          btn.textContent = 'Retry Auto-Produce';
+          return;
+        }
+
+        // Transient blip — show reconnecting state, keep polling with backoff
+        messageEl.className   = 'ap-message';
+        messageEl.textContent =
+          'Reconnecting (' + consecutiveFailures + '/' + MAX_CONSECUTIVE_FAILURES + ')... ' +
+          (lastGoodMessage ? '· last: ' + lastGoodMessage : '');
+        // Backoff: 1.5s → 3s → 4.5s, capped at 5s
+        const delay = Math.min(1500 * consecutiveFailures, 5000);
+        setTimeout(tick, delay);
       }
     };
     tick();

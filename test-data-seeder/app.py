@@ -461,24 +461,36 @@ def _run_subprocess(script_name: str, log):
     py = Path(__file__).parent / "venv" / "Scripts" / "python.exe"
     if not py.exists():
         py = "python"
+    if not runner.exists():
+        log(f"ERROR: script not found at {runner}")
+        return {"summary": "", "exit_code": 1}
+    log(f"Launching {script_name} via {py}")
     # -u: unbuffered stdout/stderr, so the live log streams in real time
     # instead of pooling lines until the OS pipe buffer fills.
-    proc = subprocess.Popen(
-        [str(py), "-u", str(runner)],
-        stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
-        cwd=str(Path(__file__).parent), bufsize=1,
-        text=True, encoding="utf-8", errors="replace",
-    )
+    try:
+        proc = subprocess.Popen(
+            [str(py), "-u", str(runner)],
+            stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+            cwd=str(Path(__file__).parent), bufsize=1,
+            text=True, encoding="utf-8", errors="replace",
+        )
+    except Exception as e:
+        log(f"ERROR: failed to launch subprocess: {type(e).__name__}: {e}")
+        return {"summary": "", "exit_code": 1}
+    log(f"Subprocess PID {proc.pid} started, streaming output...")
     import re
     ansi = re.compile(r"\x1b\[[0-9;]*m")
     last_summary = ""
+    line_count = 0
     for line in proc.stdout:
         clean = ansi.sub("", line.rstrip())
         if clean:
             log(clean)
+            line_count += 1
             if "Summary" in clean:
                 last_summary = clean
     proc.wait()
+    log(f"Subprocess exited code={proc.returncode} after {line_count} output lines")
     return {"summary": last_summary, "exit_code": proc.returncode}
 
 

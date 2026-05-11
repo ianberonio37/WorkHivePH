@@ -107,6 +107,44 @@
     @media (max-width: 480px) {
       .alert-time { display: none; }
     }
+
+    /* AMC daily brief card (Autonomous Maintenance Crew). Distinct from
+       alert rows — this is a batch supervisor decision, not a single event. */
+    .amc-card {
+      background: linear-gradient(180deg, rgba(167,139,250,0.10), rgba(167,139,250,0.04));
+      border: 1px solid rgba(167,139,250,0.30);
+      border-radius: 14px;
+      padding: 18px;
+      margin-bottom: 18px;
+    }
+    .amc-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 10px; }
+    .amc-badge { font-size: .58rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--purple); padding: 3px 8px; border-radius: 6px; background: rgba(167,139,250,0.14); border: 1px solid rgba(167,139,250,0.25); }
+    .amc-headline { font-size: .98rem; font-weight: 800; color: var(--text); line-height: 1.35; }
+    .amc-summary { font-size: .78rem; color: rgba(255,255,255,0.78); line-height: 1.5; margin: 6px 0 12px; }
+    .amc-stats { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 8px; margin: 12px 0; }
+    .amc-stat { background: rgba(15,25,35,0.4); border: 1px solid var(--border); border-radius: 8px; padding: 8px 10px; text-align: center; }
+    .amc-stat-num { font-size: 1.1rem; font-weight: 800; color: var(--text); line-height: 1; }
+    .amc-stat-label { font-size: .55rem; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); margin-top: 4px; }
+    .amc-details { display: none; margin-top: 12px; padding-top: 12px; border-top: 1px dashed var(--border); font-size: .76rem; color: rgba(255,255,255,0.7); }
+    .amc-details.open { display: block; }
+    .amc-section-title { font-size: .6rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--purple); margin: 10px 0 4px; }
+    .amc-row { padding: 4px 0; border-bottom: 1px dotted rgba(255,255,255,0.05); }
+    .amc-row:last-child { border-bottom: 0; }
+    .amc-actions { display: flex; gap: 8px; margin-top: 14px; flex-wrap: wrap; }
+    .amc-btn { min-height: 44px; padding: 8px 18px; border-radius: 8px; font-family: inherit; font-size: .78rem; font-weight: 700; cursor: pointer; border: 1px solid transparent; }
+    .amc-btn-approve { background: rgba(74,222,128,0.16); color: var(--green); border-color: rgba(74,222,128,0.32); }
+    .amc-btn-approve:hover:not(:disabled) { background: rgba(74,222,128,0.26); }
+    .amc-btn-approve:disabled { opacity: 0.5; cursor: wait; }
+    .amc-btn-reject { background: rgba(248,113,113,0.10); color: var(--red); border-color: rgba(248,113,113,0.30); }
+    .amc-btn-reject:hover:not(:disabled) { background: rgba(248,113,113,0.20); }
+    .amc-btn-toggle { background: rgba(255,255,255,0.04); color: rgba(255,255,255,0.6); border-color: var(--border); }
+    .amc-btn-toggle:hover { background: rgba(255,255,255,0.08); color: var(--text); }
+    .amc-readonly-note { font-size: .68rem; color: var(--muted); margin-left: auto; align-self: center; }
+    .amc-status-msg { font-size: .72rem; color: var(--muted); margin-top: 8px; min-height: 1.1em; }
+    @media (max-width: 480px) {
+      .amc-stats { grid-template-columns: repeat(2, minmax(0,1fr)); }
+      .amc-card { padding: 14px; }
+    }
   </style>
 </head>
 <body>
@@ -117,6 +155,10 @@
     <div>
       <div class="page-title">Alert Hub</div>
       <p style="font-size:.7rem; color:var(--muted); margin-top:2px;" id="page-sub">Everything that needs your attention, in one place.</p>
+      <p style="font-size:.6rem; color:var(--muted); margin-top:3px; line-height:1.35;">
+        Live data · Risk from <code style="background:rgba(255,255,255,0.06);padding:1px 4px;border-radius:3px;font-size:.95em;">v_risk_truth</code> ·
+        PM overdue threshold: 30 days since last anchor
+      </p>
     </div>
     <span id="hive-pill" class="hive-pill" style="display:none;"></span>
   </div>
@@ -131,6 +173,35 @@
 
   <!-- Main content -->
   <div id="main-content" style="display:none;">
+    <!-- Autonomous Maintenance Crew (AMC) daily brief — populated only when
+         a pending brief exists for today. Renders above the alert feed because
+         it is a batch supervisor decision, not a single event. -->
+    <div id="amc-card" class="amc-card" style="display:none;">
+      <div class="amc-head">
+        <div>
+          <span class="amc-badge">AMC Daily Brief</span>
+          <span id="amc-shift-meta" style="font-size:.65rem; color:var(--muted); margin-left:6px;"></span>
+        </div>
+        <span id="amc-status-pill" class="alert-tag tag-info">pending</span>
+      </div>
+      <div id="amc-headline" class="amc-headline"></div>
+      <div id="amc-summary" class="amc-summary"></div>
+      <div class="amc-stats">
+        <div class="amc-stat"><div id="amc-stat-assets" class="amc-stat-num">0</div><div class="amc-stat-label">High Risk</div></div>
+        <div class="amc-stat"><div id="amc-stat-pms"    class="amc-stat-num">0</div><div class="amc-stat-label">PMs Due</div></div>
+        <div class="amc-stat"><div id="amc-stat-parts"  class="amc-stat-num">0</div><div class="amc-stat-label">Parts</div></div>
+        <div class="amc-stat"><div id="amc-stat-crew"   class="amc-stat-num">0</div><div class="amc-stat-label">Crew</div></div>
+      </div>
+      <div id="amc-details" class="amc-details"></div>
+      <div class="amc-actions">
+        <button id="amc-toggle-btn"  class="amc-btn amc-btn-toggle"  type="button">Show details</button>
+        <button id="amc-approve-btn" class="amc-btn amc-btn-approve" type="button" style="display:none;">Approve brief</button>
+        <button id="amc-reject-btn"  class="amc-btn amc-btn-reject"  type="button" style="display:none;">Reject</button>
+        <span id="amc-readonly-note" class="amc-readonly-note" style="display:none;">Supervisor approval required.</span>
+      </div>
+      <div id="amc-status-msg" class="amc-status-msg"></div>
+    </div>
+
     <div class="filter-row" id="filters" role="tablist" aria-label="Alert filters"></div>
     <div id="feed" class="feed">
       <div class="loading">Loading alerts...</div>
@@ -163,6 +234,7 @@
 
   const HIVE_ID   = localStorage.getItem('wh_active_hive_id') || localStorage.getItem('wh_hive_id') || '';
   const HIVE_NAME = localStorage.getItem('wh_hive_name') || '';
+  const HIVE_ROLE = localStorage.getItem('wh_hive_role') || '';
 
   if (!HIVE_ID) {
     document.getElementById('gate-card').style.display = 'block';
@@ -179,6 +251,7 @@
   // ── Module state ───────────────────────────────────────────────────────────
   const KINDS = [
     { id: 'all',     label: 'All',     icon: '⊞' },
+    { id: 'amc',     label: 'AMC',     icon: '🤖' },
     { id: 'risk',    label: 'Risk',    icon: '🔴' },
     { id: 'pm',      label: 'PM',      icon: '⚠️' },
     { id: 'stock',   label: 'Stock',   icon: '📦' },
@@ -186,6 +259,11 @@
     { id: 'pattern', label: 'Pattern', icon: '🧬' },
     { id: 'system',  label: 'System',  icon: '⚙️' },
   ];
+
+  // The active AMC brief (today's pending row, if any). Loaded by loadAmc()
+  // and refreshed via realtime + the 60s poll.
+  let _amcBrief = null;
+  let _amcChannel = null;
   let _alerts = [];
   let _activeKind = 'all';
   let _refreshTimer = null;
@@ -213,8 +291,230 @@
   });
   window.addEventListener('beforeunload', stopRefresh);
 
+  // Wire the AMC card buttons (idempotent — only runs once, the handlers
+  // read from the live _amcBrief module-level).
+  wireAmcCardOnce();
+
   await loadAll();
   startRefresh();
+  startAmcRealtime();
+
+  // ── AMC daily brief ────────────────────────────────────────────────────────
+  // Fetched in parallel with the rest of the feed in loadAll(). Renders into
+  // the dedicated #amc-card above the chip row when a pending or approved
+  // row for TODAY's shift_date is found. Older briefs (yesterday+) feed the
+  // normal alert list with kind='amc'.
+
+  function todayPhtIso() {
+    // shift_date in the DB is timezone('Asia/Manila', now())::date.
+    // Build the same value here so the query filter matches exactly.
+    const phtNow = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Manila' }));
+    const y = phtNow.getFullYear();
+    const m = String(phtNow.getMonth() + 1).padStart(2, '0');
+    const d = String(phtNow.getDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
+  }
+
+  async function fetchAmcBriefings() {
+    // Pull today's brief separately so the card always reflects the latest
+    // pending/approved row regardless of how many historic briefs exist.
+    const today = todayPhtIso();
+    const [todayRes, historicRes] = await Promise.allSettled([
+      db.from('amc_briefings')
+        .select('id, hive_id, shift_date, status, brief, model_version, approved_by, approved_at, generated_at, expires_at, asset_count, pm_count, parts_count')
+        .eq('hive_id', HIVE_ID)
+        .eq('shift_date', today)
+        .order('generated_at', { ascending: false })
+        .limit(1),
+      db.from('amc_briefings')
+        .select('id, shift_date, status, brief, generated_at, asset_count, pm_count, parts_count')
+        .eq('hive_id', HIVE_ID)
+        .neq('shift_date', today)
+        .order('generated_at', { ascending: false })
+        .limit(10),
+    ]);
+    return {
+      todayBrief: (todayRes.status === 'fulfilled' && todayRes.value.data && todayRes.value.data[0]) || null,
+      historic:   (historicRes.status === 'fulfilled' && historicRes.value.data) || [],
+    };
+  }
+
+  function renderAmcCard(brief) {
+    const e = escHtml;
+    const card = document.getElementById('amc-card');
+    if (!card) return;
+    if (!brief) {
+      card.style.display = 'none';
+      _amcBrief = null;
+      return;
+    }
+    _amcBrief = brief;
+    card.style.display = 'block';
+
+    const meta = document.getElementById('amc-shift-meta');
+    if (meta) meta.textContent = `shift ${brief.shift_date} · model ${brief.model_version || 'amc-v1'}`;
+
+    const statusPill = document.getElementById('amc-status-pill');
+    if (statusPill) {
+      statusPill.textContent = brief.status;
+      statusPill.className = 'alert-tag ' + (
+        brief.status === 'approved' ? 'tag-info'     :
+        brief.status === 'rejected' ? 'tag-critical' :
+        brief.status === 'expired'  ? 'tag-medium'   :
+                                      'tag-high'
+      );
+    }
+
+    const b = brief.brief || {};
+    const headlineEl = document.getElementById('amc-headline');
+    const summaryEl  = document.getElementById('amc-summary');
+    if (headlineEl) headlineEl.textContent = String(b.headline || '(no headline)');
+    if (summaryEl)  summaryEl.textContent  = String(b.summary  || '');
+
+    const setStat = (id, n) => { const el = document.getElementById(id); if (el) el.textContent = String(n); };
+    setStat('amc-stat-assets', brief.asset_count ?? (Array.isArray(b.top_assets) ? b.top_assets.length : 0));
+    setStat('amc-stat-pms',    brief.pm_count    ?? (Array.isArray(b.pm_due) ? b.pm_due.length : 0));
+    setStat('amc-stat-parts',  brief.parts_count ?? (Array.isArray(b.parts_to_stage) ? b.parts_to_stage.length : 0));
+    setStat('amc-stat-crew',   Array.isArray(b.crew) ? b.crew.length : 0);
+
+    // Details block (hidden by default; rendered eagerly because it's small).
+    const details = document.getElementById('amc-details');
+    if (details) {
+      const sections = [];
+
+      if (Array.isArray(b.top_assets) && b.top_assets.length) {
+        sections.push(
+          '<div class="amc-section-title">Top risk assets</div>' +
+          b.top_assets.map(a =>
+            `<div class="amc-row"><strong>${e(a.asset_name || '?')}</strong> — ${e(a.risk_level || '?')} (${Math.round((Number(a.risk_score) || 0) * 100)}%)</div>`,
+          ).join('')
+        );
+      }
+      if (Array.isArray(b.pm_due) && b.pm_due.length) {
+        sections.push(
+          '<div class="amc-section-title">PMs due</div>' +
+          b.pm_due.map(p =>
+            `<div class="amc-row"><strong>${e(p.asset_name || '?')}</strong> — ${e(p.category || 'general')}` +
+            (p.days_since_last_completion != null ? `, ${p.days_since_last_completion}d since last` : '') +
+            (p.criticality ? ` <em>(${e(p.criticality)})</em>` : '') +
+            `</div>`,
+          ).join('')
+        );
+      }
+      if (Array.isArray(b.parts_to_stage) && b.parts_to_stage.length) {
+        sections.push(
+          '<div class="amc-section-title">Parts to stage</div>' +
+          b.parts_to_stage.map(p => {
+            const n = Array.isArray(p.parts) ? p.parts.length : 0;
+            const conf = p.confidence != null ? Math.round(Number(p.confidence) * 100) + '%' : '?';
+            return `<div class="amc-row"><strong>${e(p.asset_name || '?')}</strong> — ${n} part(s), ${conf} confidence${p.rationale ? ' · ' + e(String(p.rationale).slice(0, 120)) : ''}</div>`;
+          }).join('')
+        );
+      }
+      if (Array.isArray(b.crew) && b.crew.length) {
+        sections.push(
+          '<div class="amc-section-title">Crew suggestions</div>' +
+          b.crew.map(c =>
+            `<div class="amc-row"><strong>${e(c.asset_name || '?')}</strong> → ${e(c.suggested_worker || '(no one available)')}` +
+            (c.discipline ? ` <em>${e(c.discipline)}</em>` : '') +
+            (c.current_level != null ? ` L${c.current_level}` : '') +
+            `</div>`,
+          ).join('')
+        );
+      }
+      details.innerHTML = sections.join('') || '<em style="color:var(--muted);">Brief is empty for this hive today.</em>';
+    }
+
+    // Action buttons: only show approve/reject for supervisors on pending briefs.
+    const approveBtn = document.getElementById('amc-approve-btn');
+    const rejectBtn  = document.getElementById('amc-reject-btn');
+    const readonly   = document.getElementById('amc-readonly-note');
+    const isSupervisor = HIVE_ROLE === 'supervisor';
+    const isActionable = brief.status === 'pending';
+    if (approveBtn) approveBtn.style.display = (isSupervisor && isActionable) ? 'inline-block' : 'none';
+    if (rejectBtn)  rejectBtn.style.display  = (isSupervisor && isActionable) ? 'inline-block' : 'none';
+    if (readonly)   readonly.style.display   = (!isSupervisor && isActionable) ? 'inline-block' : 'none';
+
+    const statusMsg = document.getElementById('amc-status-msg');
+    if (statusMsg) {
+      if (brief.status === 'approved' && brief.approved_by) {
+        const when = brief.approved_at ? new Date(brief.approved_at).toLocaleString('en-PH') : '';
+        statusMsg.textContent = `Approved by ${brief.approved_by}${when ? ' at ' + when : ''}.`;
+      } else if (brief.status === 'rejected') {
+        statusMsg.textContent = 'Brief rejected. The next 06:00 PHT run will generate a fresh one.';
+      } else if (brief.status === 'expired') {
+        statusMsg.textContent = 'Brief expired without action.';
+      } else {
+        statusMsg.textContent = '';
+      }
+    }
+  }
+
+  function wireAmcCardOnce() {
+    const toggleBtn  = document.getElementById('amc-toggle-btn');
+    const approveBtn = document.getElementById('amc-approve-btn');
+    const rejectBtn  = document.getElementById('amc-reject-btn');
+
+    toggleBtn?.addEventListener('click', () => {
+      const details = document.getElementById('amc-details');
+      if (!details || !toggleBtn) return;
+      const open = details.classList.toggle('open');
+      toggleBtn.textContent = open ? 'Hide details' : 'Show details';
+    });
+
+    approveBtn?.addEventListener('click', () => actOnAmcBrief('approved'));
+    rejectBtn?.addEventListener('click',  () => actOnAmcBrief('rejected'));
+  }
+
+  async function actOnAmcBrief(newStatus) {
+    if (HIVE_ROLE !== 'supervisor') { showAmcMsg('Supervisor approval required.'); return; }
+    if (!_amcBrief || _amcBrief.status !== 'pending') return;
+
+    const approveBtn = document.getElementById('amc-approve-btn');
+    const rejectBtn  = document.getElementById('amc-reject-btn');
+    if (approveBtn) approveBtn.disabled = true;
+    if (rejectBtn)  rejectBtn.disabled  = true;
+    showAmcMsg(newStatus === 'approved' ? 'Approving brief...' : 'Rejecting brief...');
+
+    const { error } = await db.from('amc_briefings')
+      .update({
+        status:        newStatus,
+        approved_by:   WORKER_NAME,
+        approved_at:   new Date().toISOString(),
+      })
+      .eq('id', _amcBrief.id)
+      .eq('hive_id', HIVE_ID);
+
+    if (approveBtn) approveBtn.disabled = false;
+    if (rejectBtn)  rejectBtn.disabled  = false;
+
+    if (error) {
+      showAmcMsg('Could not save: ' + (error.message || 'unknown error'));
+      return;
+    }
+    showAmcMsg(newStatus === 'approved' ? 'Brief approved.' : 'Brief rejected.');
+    // Local refresh — realtime will also fire, but be fast for the actor.
+    _amcBrief = { ..._amcBrief, status: newStatus, approved_by: WORKER_NAME, approved_at: new Date().toISOString() };
+    renderAmcCard(_amcBrief);
+  }
+
+  function showAmcMsg(msg) {
+    const el = document.getElementById('amc-status-msg');
+    if (el) el.textContent = msg;
+  }
+
+  function startAmcRealtime() {
+    if (_amcChannel) return;
+    _amcChannel = db.channel('hive-amc:' + HIVE_ID)
+      .on('postgres_changes', {
+        event: '*', schema: 'public', table: 'amc_briefings',
+        filter: 'hive_id=eq.' + HIVE_ID,
+      }, () => { loadAll(); })
+      .subscribe();
+    window.addEventListener('beforeunload', () => {
+      if (_amcChannel) { db.removeChannel(_amcChannel); _amcChannel = null; }
+    });
+  }
 
   // ── Data load ──────────────────────────────────────────────────────────────
   async function loadAll() {
@@ -387,6 +687,32 @@
           actionLabel: '',
         });
       }
+    }
+
+    // ── AMC daily brief — separate fetch (does not gate the main feed) ──────
+    // Today's brief renders into the dedicated #amc-card above the feed.
+    // Historic briefs (yesterday and back) feed into the alert list as
+    // kind='amc' so the chip filter still shows past activity.
+    try {
+      const amcRes = await fetchAmcBriefings();
+      renderAmcCard(amcRes.todayBrief);
+      for (const b of (amcRes.historic || [])) {
+        const head = (b.brief && b.brief.headline) ? String(b.brief.headline) : '(no headline)';
+        const sev  = b.status === 'rejected' ? 'high'
+                   : b.status === 'expired'  ? 'medium'
+                   : 'info';
+        all.push({
+          kind: 'amc',
+          severity: sev,
+          title: `AMC brief ${b.shift_date}`,
+          msg: head + ' (' + b.status + ')',
+          time: b.generated_at,
+          href: '#',
+          actionLabel: '',
+        });
+      }
+    } catch (err) {
+      console.warn('amc fetch failed:', err && err.message ? err.message : err);
     }
 
     // Sort newest first

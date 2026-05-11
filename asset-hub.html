@@ -497,6 +497,10 @@
           <span>Risk Profile</span>
           <span id="risk-model-chip" style="font-size:0.6rem; font-weight:700; text-transform:uppercase; letter-spacing:.07em; padding:.2rem .55rem; border-radius:999px; background:rgba(41,182,217,0.12); color:var(--blue-wh); border:1px solid rgba(41,182,217,0.25);">rules-v1</span>
         </div>
+        <p style="font-size:.6rem; color:var(--muted); margin:4px 0 10px; line-height:1.35;">
+          Source: <code style="background:rgba(255,255,255,0.06);padding:1px 4px;border-radius:3px;font-size:.95em;">v_risk_truth</code> ·
+          Daily snapshot 13:00 PHT · MTBF computed over the 365-day failure window
+        </p>
         <div id="risk-content" style="display:flex; align-items:center; gap:18px; flex-wrap:wrap;">
           <!-- risk score gauge -->
           <div id="risk-gauge" style="display:flex; flex-direction:column; align-items:center; min-width:108px;">
@@ -644,6 +648,19 @@
           </div>
           <div id="pf-status" style="font-size:0.72rem; color:var(--muted); margin-top:0.45rem; min-height:1.1em;"></div>
         </div>
+      </div>
+
+      <!-- Live Telemetry (Physical AI Wave B1) — populated when sensor_readings exist for this asset -->
+      <div class="section-card" id="telemetry-card" style="display:none; border-left:3px solid #29B6D9;">
+        <div class="section-title" style="display:flex; justify-content:space-between; align-items:center; gap:8px; flex-wrap:wrap;">
+          <span>Live Telemetry</span>
+          <span style="font-size:.6rem; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:#29B6D9;">MQTT / OPC-UA</span>
+        </div>
+        <div id="telemetry-list" style="display:flex; flex-direction:column; gap:6px;"></div>
+        <div id="telemetry-empty" style="display:none; font-size:.74rem; color:var(--muted); padding:0.6rem 0;">
+          No readings in the last 30 days. The plant MQTT bridge has not connected yet, or this asset is not mapped in sensor_topic_map.
+        </div>
+        <div id="telemetry-meta" style="font-size:.66rem; color:var(--muted); margin-top:0.5rem;"></div>
       </div>
 
       <div class="section-card">
@@ -1117,6 +1134,7 @@
         loadDetailRisk(nodeId),
         loadDetailStaging(nodeId),
         loadDetailFmea(nodeId),
+        loadDetailTelemetry(nodeId),
         loadDetailTimeline(nodeId),
         loadDetailNeighbors(nodeId),
         loadDetailMarketplace(nodeId),
@@ -1645,6 +1663,114 @@
           </div>
         `;
       }).join('');
+    }
+
+    // ── Live Telemetry (Physical AI Wave B1) ──────────────────────────────────
+    // Pulls last 30 days of sensor_readings for this asset from v_sensor_recent,
+    // groups by parameter, shows latest value + sparkline-style mini-stats per
+    // parameter. Realtime subscription filters to this asset_id so the card
+    // ticks live as new readings arrive from the plant MQTT bridge.
+
+    let _telemetryChannel = null;
+
+    async function loadDetailTelemetry(nodeId) {
+      const card = document.getElementById('telemetry-card');
+      const list = document.getElementById('telemetry-list');
+      const empty = document.getElementById('telemetry-empty');
+      const meta  = document.getElementById('telemetry-meta');
+      if (!card || !list || !empty) return;
+      const e = escHtml;
+
+      // Tear down any prior subscription for the previously-selected asset.
+      if (_telemetryChannel) {
+        try { db.removeChannel(_telemetryChannel); } catch (_) {}
+        _telemetryChannel = null;
+      }
+
+      const { data, error } = await db.from('v_sensor_recent')
+        .select('parameter, value, recorded_at, source')
+        .eq('hive_id', HIVE_ID)
+        .eq('asset_id', nodeId)
+        .order('recorded_at', { ascending: false })
+        .limit(500);
+
+      if (error) {
+        // PGRST205 = view not yet present (migration not applied) - silently hide.
+        if (error.code !== 'PGRST205') console.warn('telemetry load:', error.message);
+        card.style.display = 'none';
+        return;
+      }
+
+      const rows = data || [];
+      if (!rows.length) {
+        // Hide entirely if this asset has no telemetry - keeps Asset Hub
+        // clean for hives that have not wired the MQTT bridge yet.
+        card.style.display = 'none';
+        return;
+      }
+
+      card.style.display = 'block';
+      empty.style.display = 'none';
+
+      // Group by parameter; compute mean / min / max / n; latest is rows[0]
+      // per parameter (already sorted desc).
+      const byParam = new Map();
+      for (const r of rows) {
+        const p = String(r.parameter || '');
+        if (!byParam.has(p)) byParam.set(p, []);
+        byParam.get(p).push(r);
+      }
+
+      const blocks = [];
+      for (const [param, list] of byParam.entries()) {
+        if (!list.length) continue;
+        const latest = list[0];
+        const values = list.map(r => Number(r.value)).filter(v => Number.isFinite(v));
+        const n = values.length;
+        const mean = n ? values.reduce((a, b) => a + b, 0) / n : 0;
+        const min  = n ? Math.min(...values) : 0;
+        const max  = n ? Math.max(...values) : 0;
+        const std  = n > 1
+          ? Math.sqrt(values.reduce((a, b) => a + (b - mean) ** 2, 0) / (n - 1))
+          : 0;
+        const z = std > 0 ? Math.abs(Number(latest.value) - mean) / std : 0;
+        const chip = z >= 3
+          ? '<span style="font-size:.55rem; font-weight:800; letter-spacing:.06em; text-transform:uppercase; padding:2px 7px; border-radius:5px; background:rgba(248,113,113,0.18); color:#f87171;">ANOMALY ' + z.toFixed(1) + 'σ</span>'
+          : z >= 2
+          ? '<span style="font-size:.55rem; font-weight:800; letter-spacing:.06em; text-transform:uppercase; padding:2px 7px; border-radius:5px; background:rgba(250,204,21,0.15); color:#facc15;">WATCH ' + z.toFixed(1) + 'σ</span>'
+          : '<span style="font-size:.55rem; font-weight:800; letter-spacing:.06em; text-transform:uppercase; padding:2px 7px; border-radius:5px; background:rgba(74,222,128,0.12); color:#4ade80;">OK</span>';
+        blocks.push(
+          '<div style="background:rgba(255,255,255,0.02); border:1px solid var(--border); border-radius:8px; padding:8px 12px;">' +
+          '  <div style="display:flex; align-items:baseline; justify-content:space-between; gap:8px; flex-wrap:wrap;">' +
+          '    <div>' +
+          '      <span style="font-size:.66rem; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.05em;">' + e(param.replace(/_/g, ' ')) + '</span>' +
+          '      <div style="font-size:1.1rem; font-weight:800; line-height:1.1;">' + e(Number(latest.value).toFixed(3)) + '</div>' +
+          '    </div>' +
+          '    ' + chip +
+          '  </div>' +
+          '  <div style="font-size:.6rem; color:var(--muted); margin-top:4px;">n=' + n + ' &middot; mean ' + mean.toFixed(3) + ' &middot; range ' + min.toFixed(2) + '..' + max.toFixed(2) + ' &middot; latest ' + e(latest.recorded_at) + '</div>' +
+          '</div>'
+        );
+      }
+      list.innerHTML = blocks.join('');
+
+      if (meta) {
+        meta.textContent = `${byParam.size} parameter(s) · ${rows.length} reading(s) in the last 30 days`;
+      }
+
+      // Realtime: subscribe to new readings for this asset only.
+      _telemetryChannel = db.channel('hive-telemetry:' + HIVE_ID + ':' + nodeId)
+        .on('postgres_changes', {
+          event: 'INSERT', schema: 'public', table: 'sensor_readings',
+          filter: 'hive_id=eq.' + HIVE_ID,
+        }, (payload) => {
+          const row = payload && payload.new;
+          if (!row || row.asset_id !== nodeId) return;
+          // Trigger a fresh aggregate - simpler than splicing in-place and
+          // keeps the anomaly chip accurate.
+          loadDetailTelemetry(nodeId);
+        })
+        .subscribe();
     }
 
     // ── Reliability Workbench: FMEA tab (Phase R.2) ────────────────────────────
@@ -3148,6 +3274,12 @@
       if (_hubChannel) {
         try { db.removeChannel(_hubChannel); } catch (_) {}
         _hubChannel = null;
+      }
+      // Physical AI Wave B1: tear down the per-asset telemetry channel too
+      // so the observability validator sees a clean cleanup pairing.
+      if (_telemetryChannel) {
+        try { db.removeChannel(_telemetryChannel); } catch (_) {}
+        _telemetryChannel = null;
       }
     });
 

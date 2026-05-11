@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <title>WorkHive Test Seeder</title>
+<link rel="icon" href="data:,">  <!-- silence /favicon.ico 404 in dev console -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -693,13 +694,287 @@
   @media (max-width: 700px) {
     .preview-grid { grid-template-columns: 1fr; }
   }
+
+  /* ── Sidebar shell (May 2026 revamp) ────────────────────────────────── */
+  body { padding-bottom: 220px; }            /* leave room for log drawer */
+  .tester-shell {
+    display: grid;
+    grid-template-columns: 200px 1fr;
+    gap: 28px;
+    align-items: start;
+  }
+  aside.sidebar {
+    position: sticky;
+    top: 24px;
+    align-self: start;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 16px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .sidebar-title {
+    font-size: 0.78rem;
+    font-weight: 800;
+    color: var(--gold);
+    letter-spacing: 0.04em;
+    margin: 4px 8px 12px;
+  }
+  .sidebar-link {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 8px 10px;
+    border-radius: 8px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--muted-2);
+    text-decoration: none;
+    cursor: pointer;
+    background: transparent;
+    border: 1px solid transparent;
+    transition: all 0.12s;
+    text-align: left;
+    font-family: inherit;
+  }
+  .sidebar-link:hover { background: rgba(255,255,255,0.04); color: var(--text); }
+  .sidebar-link.active {
+    background: rgba(247,162,27,0.1);
+    color: var(--gold);
+    border-color: rgba(247,162,27,0.25);
+  }
+  .sidebar-link .pill {
+    font-size: 0.62rem;
+    color: var(--muted);
+    background: rgba(255,255,255,0.04);
+    border-radius: 999px;
+    padding: 1px 7px;
+  }
+  .sidebar-foot {
+    margin-top: 14px;
+    padding-top: 12px;
+    border-top: 1px solid var(--border);
+    font-size: 0.7rem;
+    color: var(--muted);
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .sidebar-foot a {
+    color: var(--blue);
+    text-decoration: none;
+  }
+  .sidebar-foot a:hover { color: var(--gold); }
+
+  main.tester-main { min-width: 0; }
+
+  .pane { display: none; }
+  .pane.active { display: block; animation: pane-in 0.18s ease-out; }
+  @keyframes pane-in { from { opacity:0; transform: translateY(4px); } to { opacity:1; transform:none; } }
+
+  /* ── Live log drawer (fixed bottom) ─────────────────────────────────── */
+  .log-drawer {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    background: linear-gradient(180deg, rgba(15,25,35,0.92), rgba(15,25,35,0.98));
+    border-top: 1px solid var(--border-strong);
+    backdrop-filter: blur(8px);
+    z-index: 50;
+    box-shadow: 0 -8px 24px rgba(0,0,0,0.35);
+    transition: max-height 0.22s ease-out;
+    max-height: 56px;
+    overflow: hidden;
+  }
+  .log-drawer.expanded { max-height: 62vh; }
+  .log-drawer.expanded .log-panel { height: calc(62vh - 56px); }
+  .drawer-bar {
+    display: flex; align-items: center; gap: 12px;
+    padding: 14px 22px;
+    cursor: pointer;
+    user-select: none;
+    height: 56px;
+    box-sizing: border-box;
+  }
+  .drawer-bar:hover { background: rgba(255,255,255,0.025); }
+  .drawer-title {
+    font-size: 0.78rem; font-weight: 700;
+    color: var(--text); letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+  .drawer-meta {
+    font-size: 0.72rem; color: var(--muted-2); flex: 1;
+  }
+  .drawer-chevron {
+    color: var(--muted); transition: transform 0.18s;
+    font-size: 0.85rem;
+  }
+  .log-drawer.expanded .drawer-chevron { transform: rotate(180deg); }
+  .log-drawer .log-panel {
+    background: rgba(0,0,0,0.4);
+    color: var(--text);
+    font-family: ui-monospace, SFMono-Regular, monospace;
+    font-size: 0.74rem;
+    line-height: 1.5;
+    padding: 12px 22px;
+    margin: 0 14px 14px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    overflow-y: auto;
+    white-space: pre-wrap;
+    height: 220px;
+  }
+  .drawer-actions {
+    display: flex; gap: 6px; margin-left: auto;
+  }
+  .drawer-btn {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--border);
+    color: var(--muted-2);
+    border-radius: 6px;
+    padding: 4px 10px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .drawer-btn:hover { background: rgba(255,255,255,0.08); color: var(--text); }
+  .pulse-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--muted);
+    display: inline-block;
+    flex-shrink: 0;
+  }
+  .pulse-dot.active {
+    background: var(--green);
+    box-shadow: 0 0 0 0 rgba(74,222,128,0.6);
+    animation: pulse-dot 1.4s ease-out infinite;
+  }
+  @keyframes pulse-dot {
+    0%   { box-shadow: 0 0 0 0 rgba(74,222,128,0.55); }
+    70%  { box-shadow: 0 0 0 8px rgba(74,222,128,0); }
+    100% { box-shadow: 0 0 0 0 rgba(74,222,128,0); }
+  }
+
+  @media (max-width: 900px) {
+    .tester-shell { grid-template-columns: 1fr; }
+    aside.sidebar {
+      position: static;
+      flex-direction: row;
+      flex-wrap: wrap;
+      overflow-x: auto;
+    }
+    .sidebar-title { display: none; }
+    .sidebar-foot { width: 100%; }
+  }
+
+  /* ── Hover Tip Popover ────────────────────────────────────────────────
+     Rich tooltip: appears on [data-tip] hover, stays if you hover INTO
+     it, scrollable if content is long. */
+  .tip-popover {
+    position: fixed;
+    top: 0; left: 0;
+    background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+    border: 1px solid var(--border-strong);
+    border-radius: 10px;
+    padding: 12px 14px;
+    max-width: 360px;
+    max-height: 280px;
+    overflow-y: auto;
+    font-size: 0.78rem;
+    line-height: 1.55;
+    color: var(--text);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.55);
+    z-index: 9999;
+    pointer-events: auto;
+    white-space: pre-line;
+    display: none;
+  }
+  .tip-popover.show { display: block; animation: tip-fade 0.15s ease-out; }
+  .tip-popover .tip-title {
+    display: block;
+    font-weight: 700;
+    color: var(--gold);
+    margin-bottom: 6px;
+    font-size: 0.82rem;
+    letter-spacing: 0.02em;
+  }
+  .tip-popover .tip-body { color: rgba(255,255,255,0.82); }
+  .tip-popover .tip-foot {
+    display: block;
+    margin-top: 8px;
+    padding-top: 6px;
+    border-top: 1px solid rgba(255,255,255,0.07);
+    font-size: 0.7rem;
+    color: var(--muted-2);
+    font-style: italic;
+  }
+  @keyframes tip-fade {
+    from { opacity: 0; transform: translateY(3px); }
+    to   { opacity: 1; transform: none; }
+  }
+  [data-tip] { position: relative; }
+  /* subtle hint that the element is helpful */
+  [data-tip]:hover { cursor: help; }
+  button[data-tip]:hover, a[data-tip]:hover { cursor: pointer; }
 </style>
 </head>
 <body>
-  <h1>WorkHive Tester <a href="/lineage" target="_blank" style="font-size:.65rem; font-weight:600; color:var(--blue); background:rgba(41,182,217,0.1); border:1px solid rgba(41,182,217,0.25); border-radius:6px; padding:3px 10px; margin-left:10px; text-decoration:none; vertical-align:middle;">🔍 Platform Lineage →</a></h1>
+<div class="tester-shell">
+  <aside class="sidebar">
+    <div class="sidebar-title">WorkHive Tester</div>
+    <button class="sidebar-link active" data-pane="overview"
+      data-tip-title="Overview"
+      data-tip="Where you confirm the environment is healthy before doing anything else. Shows the platform health score, current green-day streak, test login credentials, and live row counts for every seeded table. Open this first."
+      data-tip-foot="Use when: starting a session, checking last-run verdict, grabbing a login to sign in.">Overview</button>
+    <button class="sidebar-link" data-pane="run"
+      data-tip-title="Run Tests"
+      data-tip="The pre-commit gate panel. Mega Gate runs everything (~7-10 min). The lighter gates target specific concerns: 120 architectural validators (Release Gate), 20 sections of DB checks (Data Tests), Playwright smoke (UI Tests), real DB writes (CRUD Tests), pixel-diff (Visual Regression), Groq prompt regressions (AI Full)."
+      data-tip-foot="Use when: about to commit, about to deploy, or verifying a fix didn't regress anything else.">Run Tests <span class="pill" id="pill-run">9</span></button>
+    <button class="sidebar-link" data-pane="seed"
+      data-tip-title="Seed"
+      data-tip="Generates fake industrial data into local Supabase: hives, workers, assets, PM templates, ~3700 logbook entries, inventory, skill matrix, marketplace listings, community posts, projects, achievements. Seed Everything = full run in dependency order. Individual numbered buttons seed one module (require earlier modules)."
+      data-tip-foot="Use when: fresh DB, after Reset, or schema/seeder code changed.">Seed <span class="pill">10</span></button>
+    <button class="sidebar-link" data-pane="wizards"
+      data-tip-title="Wizards"
+      data-tip="Scaffold new platform pieces with every registration the gate expects. New HTML page wires 9 registries in one shot (TOOLS, floating-ai, system prompt, validators, flow files). New edge function creates the dir + index.ts + adds the config.toml entry. Skill lesson appends an entry to a SKILL.md."
+      data-tip-foot="Use when: adding a new tool page, server endpoint, or skill curriculum item.">Wizards <span class="pill">3</span></button>
+    <button class="sidebar-link" data-pane="cmms"
+      data-tip-title="CMMS Integration Tester"
+      data-tip="Simulates a Philippine manufacturing company's existing SAP PM / IBM Maximo / generic CMMS. Generates CSVs in their field format (AUFNR, WONUM) so you can design and test the WorkHive import wizard before any real client connects. Also hosts a mock CMMS API and webhook sender."
+      data-tip-foot="Use when: building the import wizard, demoing to a prospect, designing field-mapping logic.">CMMS</button>
+    <button class="sidebar-link" data-pane="library"
+      data-tip-title="Library"
+      data-tip="Browse the realism libraries the seeders draw from: Filipino male/female first names, surnames, equipment archetypes, fault catalog, PH cities, hive templates. Refresh the page to see new sample draws."
+      data-tip-foot="Use when: curious what the fake data looks like before seeding.">Library</button>
+    <div class="sidebar-foot">
+      <a href="/lineage" target="_blank"
+        data-tip-title="Platform Lineage"
+        data-tip="Maps every page, edge function, validator, table, and migration to where it's referenced across the codebase. Shows the dependency graph and detects orphans (defined but never used) and phantoms (referenced but never defined)."
+        data-tip-foot="Use when: tracking down what depends on what, or finding stale code.">🔍 Platform Lineage</a>
+      <a href="/findings" target="_blank"
+        data-tip-title="Findings (Production Fixes)"
+        data-tip="The PRODUCTION_FIXES.md log rendered as a clickable list, grouped by severity (Critical / Important / Nice-to-have / Fixed). Every bug you ship is appended here as it's discovered, with the fix commit when closed."
+        data-tip-foot="Use when: triaging open bugs, or recording a new one you just found.">📋 Findings</a>
+      <a href="/token_stats" target="_blank"
+        data-tip-title="Token Stats"
+        data-tip="Per-agent breakdown of AI token usage and cost across every Groq / Cerebras / OpenRouter call the platform makes. Surfaces the most expensive agents and the cheapest providers."
+        data-tip-foot="Use when: investigating cost spikes or comparing provider pricing.">💰 Token Stats</a>
+    </div>
+  </aside>
+
+  <main class="tester-main">
+  <h1>WorkHive Tester</h1>
   <p class="subtitle">Unified workspace: health · seed · gate · backlog. <span id="health-meta" style="color:#9ca3af;"></span>
-    <button id="copy-failures-btn" onclick="copyAllFailures(false)" title="Copy all FAILs to clipboard for pasting" style="margin-left:12px; padding:4px 12px; background:rgba(248,113,113,0.1); color:var(--red); border:1px solid rgba(248,113,113,0.35); border-radius:6px; font-family:inherit; font-size:.7rem; font-weight:700; cursor:pointer;">📋 Copy Failures</button>
-    <button onclick="copyAllFailures(true)" title="Copy FAILs + WARNs to clipboard" style="margin-left:4px; padding:4px 10px; background:rgba(251,191,36,0.1); color:var(--yellow); border:1px solid rgba(251,191,36,0.3); border-radius:6px; font-family:inherit; font-size:.7rem; font-weight:600; cursor:pointer;">+ WARNs</button>
+    <button id="copy-failures-btn" onclick="copyAllFailures(false)" style="margin-left:12px; padding:4px 12px; background:rgba(248,113,113,0.1); color:var(--red); border:1px solid rgba(248,113,113,0.35); border-radius:6px; font-family:inherit; font-size:.7rem; font-weight:700; cursor:pointer;"
+      data-tip-title="Copy Failures"
+      data-tip="Pulls every FAIL line from the latest gate run and copies them to your clipboard, formatted ready to paste into a PR / chat / AI prompt. Pulls from platform_health.json + the run history."
+      data-tip-foot="Use when: pasting failures into Claude / ChatGPT to get a fix, or sharing with a teammate.">📋 Copy Failures</button>
+    <button onclick="copyAllFailures(true)" style="margin-left:4px; padding:4px 10px; background:rgba(251,191,36,0.1); color:var(--yellow); border:1px solid rgba(251,191,36,0.3); border-radius:6px; font-family:inherit; font-size:.7rem; font-weight:600; cursor:pointer;"
+      data-tip-title="Copy Failures + WARNs"
+      data-tip="Same as Copy Failures but also includes WARN-level findings. Useful when triaging things that aren't blocking but should still be fixed.">+ WARNs</button>
   </p>
 
   <!-- Failures panel (shown after copy) -->
@@ -718,9 +993,17 @@
   <!-- ── Service Status Bar ─────────────────────────────────────────────────── -->
   <div id="service-bar" style="display:flex; align-items:center; gap:12px; flex-wrap:wrap; padding:10px 14px; background:rgba(0,0,0,0.25); border:1px solid rgba(255,255,255,0.07); border-radius:10px; margin-bottom:18px; font-size:.72rem;">
     <span style="font-weight:700; color:rgba(255,255,255,0.4); text-transform:uppercase; letter-spacing:.06em; font-size:.65rem;">Services</span>
-    <span id="svc-seeder">⬤ Seeder</span>
-    <span id="svc-supabase">⬤ Supabase</span>
-    <span id="svc-functions">⬤ Edge Functions</span>
+    <span id="svc-seeder"
+      data-tip-title="Seeder service"
+      data-tip="The Flask app you're looking at right now. Green = it's serving this page. If this is red something is very wrong because you wouldn't be seeing the page at all.">⬤ Seeder</span>
+    <span id="svc-supabase"
+      data-tip-title="Local Supabase"
+      data-tip="Local Supabase running at 127.0.0.1:54321 (Postgres + Auth + Realtime + Storage in Docker). Red means you need to run `supabase start` from the project root."
+      data-tip-foot="If red: open Docker Desktop, wait for it to finish starting, then run `supabase start`.">⬤ Supabase</span>
+    <span id="svc-functions"
+      data-tip-title="Edge Functions"
+      data-tip="Whether deployed Supabase Edge Functions respond. Tested by calling a known function. Red usually means you haven't run `.\deploy-functions.ps1` yet or the function deploy failed."
+      data-tip-foot="If red: from Z: drive run `.\deploy-functions.ps1`. Remember --no-verify-jwt is reset every deploy.">⬤ Edge Functions</span>
     <span style="flex:1;"></span>
     <!-- Quick Demo -->
     <div style="display:flex; align-items:center; gap:8px;">
@@ -736,7 +1019,10 @@
         <option value="medium" selected>Medium</option>
         <option value="large">Large</option>
       </select>
-      <button id="quick-demo-btn" onclick="runQuickDemo()" style="padding:6px 14px; background:rgba(74,222,128,0.14); color:var(--green); border:1px solid rgba(74,222,128,0.4); border-radius:7px; font-family:inherit; font-size:.75rem; font-weight:700; cursor:pointer; white-space:nowrap;">
+      <button id="quick-demo-btn" onclick="runQuickDemo()" style="padding:6px 14px; background:rgba(74,222,128,0.14); color:var(--green); border:1px solid rgba(74,222,128,0.4); border-radius:7px; font-family:inherit; font-size:.75rem; font-weight:700; cursor:pointer; white-space:nowrap;"
+        data-tip-title="Quick Demo"
+        data-tip="One-click flavored seed: spins up an industry-themed hive (food processing / cement / power / oil & gas / manufacturing) at the chosen size (small / medium / large). Pre-populates assets, workers, PM, logbook, and inventory tuned to that industry's vocabulary."
+        data-tip-foot="Use when: demoing WorkHive to a prospect — pick their industry, click, you have a realistic hive in ~30s.">
         ⚡ Quick Demo
       </button>
     </div>
@@ -747,18 +1033,27 @@
     <div id="quick-demo-body"></div>
   </div>
 
+  <!-- ═══════════════════════ OVERVIEW PANE ═══════════════════════════════ -->
+  <section data-pane="overview" class="pane active">
+
   <!-- ── HEALTH PANEL (Phase 2) ───────────────────────────────────────── -->
   <div class="card" id="health-panel" style="display:none;">
     <div style="display:grid; grid-template-columns: 200px 180px 1fr; gap: 14px; align-items: stretch;">
       <!-- Score card -->
-      <div id="score-card" class="health-card-cell" style="text-align:center;">
+      <div id="score-card" class="health-card-cell" style="text-align:center;"
+        data-tip-title="Health Score (0-100)"
+        data-tip="Weighted composite score across all gate layers. Each layer (Static / Data / UI / Visual / AI / CRUD) contributes based on its own pass-rate. Stale runs (>24h old) get a -10 penalty so an old green score doesn't lie to you."
+        data-tip-foot="Tier badge underneath: Healthy ≥85 · Drift 70-84 · Concerning 50-69 · Critical <50.">
         <div id="score-num" style="font-size:3rem; font-weight:800; line-height:1; color:var(--gold);">--</div>
         <div style="font-size:0.7rem; color:var(--muted); margin-top:2px; letter-spacing:0.05em;">/ 100</div>
         <div id="score-tier" class="badge tier-NoRuns" style="margin-top:10px;">--</div>
       </div>
 
       <!-- Streak card -->
-      <div id="streak-card" class="health-card-cell" style="text-align:center;">
+      <div id="streak-card" class="health-card-cell" style="text-align:center;"
+        data-tip-title="Green-Day Streak"
+        data-tip="Consecutive days where the platform guardian (Release Gate) ran clean (0 FAIL). Resets to 0 on any FAIL. Best streak below is your personal record."
+        data-tip-foot="Use as a habit signal: a long streak means you're keeping the gate green; a broken streak flags 'today I shipped a regression — fix it'.">
         <div style="font-size:2rem; line-height:1;" id="streak-emoji">·</div>
         <div id="streak-num" style="font-size:1.6rem; font-weight:800; color:var(--text); margin-top:4px;">--</div>
         <div style="font-size:0.62rem; color:var(--muted); text-transform:uppercase; letter-spacing:0.08em; margin-top:2px;" id="streak-label">day streak</div>
@@ -766,7 +1061,11 @@
       </div>
 
       <!-- Backlog card -->
-      <div id="backlog-card" class="health-card-cell">
+      <div id="backlog-card" class="health-card-cell"
+        data-tip-title="Backlog (PRODUCTION_FIXES.md)"
+        data-tip="Live count from PRODUCTION_FIXES.md grouped by severity. Click any row to drill into the actual entries — title, status (OPEN / WIP / DEFERRED / FIXED), and the date if closed. Critical means production is at risk; nice-to-have is polish."
+        data-tip-foot="Click a row to see the entries inline.">
+
         <div style="font-size:0.65rem; color:var(--muted); text-transform:uppercase; letter-spacing:0.08em; margin-bottom:10px;">Backlog <span style="font-size:0.6rem; color:var(--muted); text-transform:none; letter-spacing:0; font-weight:400;">(click row)</span></div>
         <div id="backlog-rows" style="display:flex; flex-direction:column; gap:4px;">
           <div class="bl-row" data-cat="critical" role="button" tabindex="0"><span class="bl-dot" style="background:var(--red);"></span><strong id="bl-critical" style="color:var(--text);">--</strong><span class="bl-lbl">critical</span><span class="bl-caret">▸</span></div>
@@ -817,9 +1116,17 @@
     </div>
     {% if connected %}
     <div style="margin-top:14px; display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
-      <a href="/workhive/" target="_blank" class="top-link gold">▶ Open WorkHive (test mode) →</a>
-      <a href="/testing" target="_blank" class="top-link blue">✅ Testing Checklist</a>
-      <a href="/findings" target="_blank" class="top-link red">📋 Production Fixes</a>
+      <a href="/workhive/" target="_blank" class="top-link gold"
+        data-tip-title="Open WorkHive (test mode)"
+        data-tip="Opens the live WorkHive site but proxied through this Flask app so it talks to your LOCAL Supabase instead of production. Same UI, but every login, save, and read hits the seeded data on 127.0.0.1:54321."
+        data-tip-foot="Use when: testing any UI change against seeded data without affecting production users.">▶ Open WorkHive (test mode) →</a>
+      <a href="/testing" target="_blank" class="top-link blue"
+        data-tip-title="Testing Checklist"
+        data-tip="A structured manual checklist for the 'feature is working' tests that the automated gates can't easily cover: hive-isolation visual confirmation, mobile look-and-feel, role-based UI rendering, key flows end-to-end."
+        data-tip-foot="Use when: shipping a feature, run through the checklist for the affected page.">✅ Testing Checklist</a>
+      <a href="/findings" target="_blank" class="top-link red"
+        data-tip-title="Production Fixes Log"
+        data-tip="Same as the sidebar Findings link — opens PRODUCTION_FIXES.md as a clickable list, grouped by severity. Use to log a bug while you're testing, or to triage open ones.">📋 Production Fixes</a>
     </div>
     {% endif %}
   </div>
@@ -890,16 +1197,20 @@
       {% endfor %}
     </div>
   </div>
+  {% endif %}
 
-  <!-- ── ACTION PANEL (Phase 6 reorg) ──────────────────────────────────── -->
+  </section>  <!-- ═══ /OVERVIEW PANE ══════════════════════════════════════ -->
+
+  {% if connected %}
+  <!-- ═══════════════════════ RUN TESTS PANE ═══════════════════════════ -->
+  <section data-pane="run" class="pane">
+
   <div class="card">
-
-    <!-- "I made changes — what now?" cheat sheet (always visible at top) -->
     <div class="workflow-card">
       <h4>📍 I made changes — what now? (the standard workflow)</h4>
       <ol>
-        <li>If schema or seeders changed → <b>Reset</b> (Danger zone) then <b>Seed Everything</b>. Otherwise skip.</li>
-        <li>Open <b>Open pages</b> (panel above) → click the changed page (e.g. <code>analytics-report.html</code>) to test it against seeded data with one of the test logins.</li>
+        <li>If schema or seeders changed → <b>Reset</b> then <b>Seed Everything</b> (Seed pane). Otherwise skip.</li>
+        <li>Open <b>Open pages</b> panel → click the changed page (e.g. <code>analytics-report.html</code>) to test it against seeded data with one of the test logins.</li>
         <li>Run the gate that matches what you changed:<br>
           &nbsp;&nbsp;• Schema / seeders changed → <b>🧪 Data Tests</b><br>
           &nbsp;&nbsp;• Layout / rendering changed → <b>🎬 UI Tests</b> (or <b>📷 Visual Regression</b> for pixel-perfect)<br>
@@ -911,14 +1222,18 @@
         <li>All clean? → tell Claude to commit + push.</li>
       </ol>
     </div>
+  </div>
 
-    <!-- Section 1: Mega Gate (most prominent, top of panel) -->
+  <div class="card">
     <div class="section-head-row">
       <h3 class="action-section-title">Mega Gate</h3>
       <span class="action-section-hint">One-click full validation. Use before deploying to prod.</span>
     </div>
     <div class="button-grid">
-      <button class="seed-btn mega-btn" data-action="run-mega-gate">🚀 Mega Gate (gate + AI + visual + perf · ~7-10 min)</button>
+      <button class="seed-btn mega-btn" data-action="run-mega-gate"
+        data-tip-title="Mega Gate"
+        data-tip="The kitchen-sink validation: runs all 120 architectural validators + AI Full (live Groq prompt regression checks) + Visual Regression (pixel-diff screenshots) + Performance budgets. Catches everything the lighter gates can catch in one pass."
+        data-tip-foot="Use when: about to deploy to prod, finishing a multi-day feature, or want a confidence check before a break. AVOID for tiny changes — 7-10 min is too slow for inner-loop iteration.">🚀 Mega Gate (gate + AI + visual + perf · ~7-10 min)</button>
     </div>
     <details class="section-help">
       <summary>What does Mega Gate do, and when should I use it?</summary>
@@ -928,19 +1243,38 @@
         <b>Use it when:</b> you're about to deploy to production, finishing a multi-day feature, or want a confidence check before a long break. <b>Avoid for tiny changes</b> — it takes 7-10 minutes; the lighter gates below are usually enough during normal development.
       </div>
     </details>
+  </div>
 
-    <!-- Section 2: Lighter gates + test runners -->
-    <div class="section-head-row" style="margin-top:18px;">
+  <div class="card">
+    <div class="section-head-row">
       <h3 class="action-section-title">Gates &amp; tests</h3>
       <span class="action-section-hint">Faster checks for inner-loop development.</span>
     </div>
     <div class="button-grid">
-      <button class="seed-btn" data-action="run-gate">🚀 Release Gate (no AI · ~90s · GO/NO-GO)</button>
-      <button class="seed-btn" data-action="run-gate-ai">🤖 Release Gate + AI Full (Groq · ~5min · $0)</button>
-      <button class="seed-btn" data-action="run-gate-visual">📷 Release Gate + Visual Regression (~3 min)</button>
-      <button class="seed-btn" data-action="run-tests">🧪 Data Tests (~5s, 62 checks)</button>
-      <button class="seed-btn" data-action="run-flows">🎬 UI Tests (Playwright, ~30s)</button>
-      <button class="seed-btn" data-action="run-crud-tests" style="background:rgba(248,113,113,0.1);color:var(--red);border-color:rgba(248,113,113,0.3);">🔍 CRUD Tests (~2 min, DB-verified)</button>
+      <button class="seed-btn" data-action="run-gate"
+        data-tip-title="Release Gate"
+        data-tip="The default pre-commit gate. Runs all 120 architectural validators in parallel: registry coverage, schema drift, XSS, mobile UX, RLS symmetry, optimistic concurrency, cross-page consistency, AI gateway routing, etc. Returns a clean GO / NO-GO verdict at the end."
+        data-tip-foot="Use when: any code change that doesn't touch AI prompts. Should pass before you `git add`.">🚀 Release Gate (120 validators · no AI · ~90s)</button>
+      <button class="seed-btn" data-action="run-gate-ai"
+        data-tip-title="Release Gate + AI Full"
+        data-tip="The Release Gate plus ~10 live Groq calls that verify AI prompts still produce the expected shape and tone. Free because Groq is. Slower because of network round-trips."
+        data-tip-foot="Use when: you edited assistant.html, floating-ai.js, any edge function that calls Groq, or tweaked RAG context.">🤖 Release Gate + AI Full (Groq · ~5min · $0)</button>
+      <button class="seed-btn" data-action="run-gate-visual"
+        data-tip-title="Visual Regression"
+        data-tip="Screenshots every page at desktop viewport, diffs each one against the saved baseline. Fails on pixel drift. Catches CSS / layout regressions a human eye would miss until production."
+        data-tip-foot="Use when: after CSS / layout work. AVOID for data-only changes — false positives waste your time.">📷 Release Gate + Visual Regression (~3 min)</button>
+      <button class="seed-btn" data-action="run-tests"
+        data-tip-title="Data Tests"
+        data-tip="20 sections of deterministic checks against the seeded DB (no browser involved): hive isolation, logbook field population, inventory qty math, PM scope frequencies, skill levels, marketplace status enums, cross-page asset linkage, auth_uid coverage. Each section emits ~3 individual checks."
+        data-tip-foot="Use when: schema migrated, seeder logic changed, or any DB write path was touched.">🧪 Data Tests (20 sections · ~5s)</button>
+      <button class="seed-btn" data-action="run-flows"
+        data-tip-title="UI Tests"
+        data-tip="Playwright drives Chromium against the proxy and walks the smoke / interaction flows for every page: does it load, are there console errors, do the key buttons click, does the form submit. Doesn't write data — read-only walk."
+        data-tip-foot="Use when: after rendering / interaction code changes. Catches blank pages, JS errors, missing buttons.">🎬 UI Tests (Playwright, ~30s)</button>
+      <button class="seed-btn" data-action="run-crud-tests" style="background:rgba(248,113,113,0.1);color:var(--red);border-color:rgba(248,113,113,0.3);"
+        data-tip-title="CRUD Tests"
+        data-tip="Playwright actually writes rows then reads them back via Supabase to confirm the full round-trip. Slower than UI Tests because it waits for real DB writes. Catches the 'looks fine but the insert silently dropped fields' class of bug."
+        data-tip-foot="Use when: after changes to insert / update / delete flows, or after edits to forms that save data.">🔍 CRUD Tests (~2 min, DB-verified)</button>
     </div>
     <details class="section-help">
       <summary>What does each gate check, and when do I use which?</summary>
@@ -950,7 +1284,7 @@
           <tbody>
             <tr>
               <td>🚀 Release Gate</td>
-              <td>Runs all 57 static validators (registries, schema, XSS, mobile UX, etc.) — same as <code>run_platform_checks.py --fast</code>. Returns clean GO / NO-GO.</td>
+              <td>Runs all 120 architectural validators (registries, schema, XSS, mobile UX, RLS symmetry, optimistic concurrency, AI gateway, etc.) — same as <code>run_platform_checks.py --fast</code>. Returns clean GO / NO-GO.</td>
               <td>Default pre-commit gate. After any code change that doesn't touch AI prompts.</td>
             </tr>
             <tr>
@@ -965,7 +1299,7 @@
             </tr>
             <tr>
               <td>🧪 Data Tests</td>
-              <td>62 deterministic checks against the seeded DB (no browser): schema, FKs, hive isolation, soft-delete consistency, etc. Very fast.</td>
+              <td>20 sections of deterministic checks against the seeded DB (no browser): hive isolation, logbook field population, inventory math, PM scope frequencies, skill levels, marketplace status, cross-page linkage, auth_uid coverage. Very fast.</td>
               <td>After schema migration, seeder edits, or any change to DB writes.</td>
             </tr>
             <tr>
@@ -973,20 +1307,40 @@
               <td>Playwright-driven smoke + interaction checks across all pages: page loads, console errors, key flows.</td>
               <td>After rendering / interaction code changes. Catches blank pages, JS errors, missing buttons.</td>
             </tr>
+            <tr>
+              <td>🔍 CRUD Tests</td>
+              <td>Playwright actually writes rows then reads them back via Supabase to confirm the full DB round-trip. Slower than other tests.</td>
+              <td>After changes to insert / update / delete flows. Catches "looks fine but didn't actually save".</td>
+            </tr>
           </tbody>
         </table>
       </div>
     </details>
+  </div>
 
-    <!-- Section 2.5: Wizards (Phase 9 — scaffold new things with all registrations) -->
-    <div class="section-head-row" style="margin-top:18px;">
+  </section>  <!-- ═══ /RUN TESTS PANE ════════════════════════════════════ -->
+
+  <!-- ═══════════════════════ WIZARDS PANE ═══════════════════════════════ -->
+  <section data-pane="wizards" class="pane">
+
+  <div class="card">
+    <div class="section-head-row">
       <h3 class="action-section-title">Wizards</h3>
       <span class="action-section-hint">Scaffold a new thing with every registration the gate expects.</span>
     </div>
     <div class="button-grid">
-      <button class="seed-btn wizard-btn" onclick="openEdgeFunctionWizard()">🧙 New edge function (creates dir + index.ts + config.toml block)</button>
-      <button class="seed-btn wizard-btn" onclick="openHtmlPageWizard()">🧙 New HTML page (file + 9 registry updates for tools — true one-click)</button>
-      <button class="seed-btn wizard-btn" onclick="openSkillLessonWizard()">🧠 Add lesson to a skill (Phase 14)</button>
+      <button class="seed-btn wizard-btn" onclick="openEdgeFunctionWizard()"
+        data-tip-title="New Edge Function"
+        data-tip="Creates supabase/functions/<name>/index.ts from a starter template with CORS + handler stub, and appends the matching [functions.<name>] block to supabase/config.toml with verify_jwt explicit. After creation, auto-discovery confirms the registration."
+        data-tip-foot="Use when: need a new server-side endpoint (Groq call, webhook, secure DB write). Skip for UI-only changes.">🧙 New edge function (creates dir + index.ts + config.toml block)</button>
+      <button class="seed-btn wizard-btn" onclick="openHtmlPageWizard()"
+        data-tip-title="New HTML Page"
+        data-tip="Creates <name>.html at project root AND registers it in 9 places in one shot: LIVE_TOOL_PAGES, nav-hub TOOLS, floating-ai context + PLATFORM TOOLS, assistant system prompt, PUBLIC_PAGES in app.py, PAGES in flow files, LIVE_PAGES in validators. Re-runs auto-discovery + tester-coverage to confirm nothing's missing."
+        data-tip-foot="Use when: adding a brand-new tool page. True one-click — covers everything the release gate checks.">🧙 New HTML page (file + 9 registry updates for tools — true one-click)</button>
+      <button class="seed-btn wizard-btn" onclick="openSkillLessonWizard()"
+        data-tip-title="Add Lesson to a Skill"
+        data-tip="Appends a new lesson section to a SKILL.md file. Pick the skill, give the lesson a title, source (e.g. session date or fix #), and a body. Lessons accumulate over time so future sessions don't repeat the same mistakes."
+        data-tip-foot="Use when: just fixed a bug worth remembering, or learned something non-obvious that future-you would benefit from knowing.">🧠 Add lesson to a skill (Phase 14)</button>
     </div>
     <details class="section-help">
       <summary>What does each wizard create, and when do I use it?</summary>
@@ -1001,8 +1355,8 @@
             </tr>
             <tr>
               <td>🧙 New HTML page</td>
-              <td>Creates <code>&lt;name&gt;.html</code> at project root <i>and</i> registers it in <b>9 places</b> in one shot: (1) <code>LIVE_TOOL_PAGES</code> in validate_assistant.py, (2) <code>nav-hub.js</code> TOOLS array, (3) <code>floating-ai.js</code> page-context branch, (4) <code>floating-ai.js</code> PLATFORM TOOLS bullet, (5) <code>assistant.html</code> system prompt, (6) <code>PUBLIC_PAGES</code> in test-data-seeder/app.py, (7-9) <code>PAGES</code> in flows/smoke.py + visual.py + mobile.py + performance.py (counts as 4 but uses one helper), and <code>LIVE_PAGES</code> in validate_schema.py + validate_performance.py. Then re-runs <i>both</i> auto-discovery and tester-coverage validators to confirm.</td>
-              <td>Adding a brand-new tool page. True one-click registration — covers everything <code>run_platform_checks.py --fast</code> checks. Just provide the kebab-case name, classification, display name, hint, and a 1-2 sentence summary.</td>
+              <td>Creates <code>&lt;name&gt;.html</code> at project root <i>and</i> registers it in <b>9 places</b> in one shot: <code>LIVE_TOOL_PAGES</code>, <code>nav-hub.js</code> TOOLS, <code>floating-ai.js</code> context + PLATFORM TOOLS, <code>assistant.html</code> system prompt, <code>PUBLIC_PAGES</code> in app.py, <code>PAGES</code> in flow files, and <code>LIVE_PAGES</code> in validators. Re-runs auto-discovery + tester-coverage validators to confirm.</td>
+              <td>Adding a brand-new tool page. True one-click registration — covers everything <code>run_platform_checks.py --fast</code> checks.</td>
             </tr>
             <tr>
               <td>🧠 Add lesson to a skill</td>
@@ -1013,24 +1367,63 @@
         </table>
       </div>
     </details>
+  </div>
 
-    <!-- Section 3: Seeders -->
-    <div class="section-head-row" style="margin-top:18px;">
+  </section>  <!-- ═══ /WIZARDS PANE ════════════════════════════════════ -->
+
+  <!-- ═══════════════════════ SEED PANE ════════════════════════════════ -->
+  <section data-pane="seed" class="pane">
+
+  <div class="card">
+    <div class="section-head-row">
       <h3 class="action-section-title">Seed data</h3>
       <span class="action-section-hint">First time? Click "Seed Everything". Individual buttons need hives/workers/assets to already exist.</span>
     </div>
     <div class="button-grid">
-      <button class="seed-btn seed-all" data-action="all">▶ Seed Everything (full ~10k rows)</button>
-      <button class="seed-btn" data-action="hives_workers">1. Hives &amp; Workers</button>
-      <button class="seed-btn" data-action="assets">2. Assets/Equipment</button>
-      <button class="seed-btn" data-action="pm">3. PM (assets/scope/completions)</button>
-      <button class="seed-btn" data-action="logbook">4. Logbook (~3700)</button>
-      <button class="seed-btn" data-action="inventory">5. Inventory + Tx</button>
-      <button class="seed-btn" data-action="skill_matrix">6. Skill Matrix</button>
-      <button class="seed-btn" data-action="marketplace">7. Marketplace</button>
-      <button class="seed-btn" data-action="community">8. Community</button>
-      <button class="seed-btn" data-action="projects">9. Projects</button>
-      <button class="seed-btn" data-action="achievements">10. Achievements (rings)</button>
+      <button class="seed-btn seed-all" data-action="all"
+        data-tip-title="Seed Everything"
+        data-tip="Runs all 9 modules in dependency order: hives & workers → assets → PM → logbook → inventory → skill matrix → marketplace → community → projects. Generates ~10k rows total. Takes ~30-60s on a warm DB."
+        data-tip-foot="Use when: fresh DB or just after Reset. THE default starting point.">▶ Seed Everything (full ~10k rows)</button>
+      <button class="seed-btn" data-action="hives_workers"
+        data-tip-title="1. Hives & Workers"
+        data-tip="Creates fake industrial sites (cement plants, food factories, power stations) and worker profiles with realistic Filipino names + hive invite codes. Includes a mix of supervisors and rank-and-file workers per hive."
+        data-tip-foot="Required first — every other seeder depends on hives + workers existing.">1. Hives &amp; Workers</button>
+      <button class="seed-btn" data-action="assets"
+        data-tip-title="2. Assets / Equipment"
+        data-tip="Equipment archetypes per hive (pumps, compressors, motors, conveyors, switchgear, HVAC units) with realistic specs (make, model, capacity, install date). Distributed across hives based on the hive's industry."
+        data-tip-foot="Required for: PM, logbook, inventory, projects, asset-brain.">2. Assets/Equipment</button>
+      <button class="seed-btn" data-action="pm"
+        data-tip-title="3. Preventive Maintenance"
+        data-tip="PM assets (which equipment is on PM schedule), scope templates (what tasks to do at each frequency), and completion history with realistic gaps (~15% overdue baked in)."
+        data-tip-foot="Required for: PM-scheduler page, intelligence reports, alert hub.">3. PM (assets/scope/completions)</button>
+      <button class="seed-btn" data-action="logbook"
+        data-tip-title="4. Logbook"
+        data-tip="~3700 fault / breakdown entries across all assets with realistic downtime, root cause, problem description, parts used, status (Open / In Progress / Closed). Pulls from the 80+ fault catalog so the data isn't just noise."
+        data-tip-foot="Required for: analytics, predictive, failure-signature-scan, asset risk scores.">4. Logbook (~3700)</button>
+      <button class="seed-btn" data-action="inventory"
+        data-tip-title="5. Inventory + Transactions"
+        data-tip="Parts master list (bearings, gaskets, oils, filters, belts, etc.) per hive, with qty_on_hand, reorder points, and a transaction log of stock movements (in/out) so the inventory math is consistent end-to-end."
+        data-tip-foot="Required for: inventory page, parts-tracker, parts-staging recommendations.">5. Inventory + Tx</button>
+      <button class="seed-btn" data-action="skill_matrix"
+        data-tip-title="6. Skill Matrix"
+        data-tip="Worker skill profiles across disciplines (mechanical, electrical, HVAC, etc.) with levels and badges. Includes assessment attempts with pass/fail history so the skill matrix has something to display."
+        data-tip-foot="Required for: skill-matrix page, worker-drawer mini-profile, shift planning skill match.">6. Skill Matrix</button>
+      <button class="seed-btn" data-action="marketplace"
+        data-tip-title="7. Marketplace"
+        data-tip="Sample listings (used equipment, services, parts) with sellers, prices, conditions, and a mix of status states (Active / Sold / Pending). Includes some completed transactions so seller dashboards have data."
+        data-tip-foot="Required for: marketplace, marketplace-admin, marketplace-seller pages.">7. Marketplace</button>
+      <button class="seed-btn" data-action="community"
+        data-tip-title="8. Community"
+        data-tip="Posts, replies, reactions, hashtags across categories (safety, tips, win, question). Includes hive-internal and cross-hive posts so the community page has the realistic mix of activity."
+        data-tip-foot="Required for: community page, leaderboard, XP triggers.">8. Community</button>
+      <button class="seed-btn" data-action="projects"
+        data-tip-title="9. Projects"
+        data-tip="Project schedules with linked tasks, progress logs, item allocations. Each project ties back to assets + workers so the project manager page has plausible cross-references."
+        data-tip-foot="Required for: project-manager, project-report pages.">9. Projects</button>
+      <button class="seed-btn" data-action="achievements"
+        data-tip-title="10. Achievements (Rings)"
+        data-tip="Worker achievement rings (gamification). Awards based on logbook closures, PM completions, parts deductions, skill assessments. Drives the daily/weekly streak UI."
+        data-tip-foot="Required for: achievements page, profile sidebar rings.">10. Achievements (rings)</button>
     </div>
     <details class="section-help">
       <summary>When do I seed, and which buttons should I press?</summary>
@@ -1041,19 +1434,23 @@
         <br><br>
         <b>Re-seed just one module:</b> use the numbered buttons. They depend on earlier ones existing — e.g. you can't seed "4. Logbook" without "1. Hives &amp; Workers" + "2. Assets" already in the DB.
         <br><br>
-        <b>You probably don't need to re-seed when:</b> you're testing a UI/styling change, or a small data tweak that doesn't depend on existing rows being a specific shape. Just open the page and test.
+        <b>You probably don't need to re-seed when:</b> you're testing a UI/styling change, or a small data tweak. Just open the page and test.
         <br><br>
-        <b>You DO need to re-seed when:</b> the schema migrated, the seeder logic changed, or your previous test corrupted state (e.g. you deleted things while testing).
+        <b>You DO need to re-seed when:</b> the schema migrated, the seeder logic changed, or your previous test corrupted state.
       </div>
     </details>
+  </div>
 
-    <!-- Section 4: Danger zone -->
-    <div class="section-head-row" style="margin-top:18px;">
+  <div class="card">
+    <div class="section-head-row">
       <h3 class="action-section-title" style="color:var(--red);">Danger zone</h3>
       <span class="action-section-hint">Irreversible.</span>
     </div>
     <div class="button-grid">
-      <button class="seed-btn reset-btn" data-action="reset">⚠ Reset (wipe all seeded data)</button>
+      <button class="seed-btn reset-btn" data-action="reset"
+        data-tip-title="Reset (wipe all seeded data)"
+        data-tip="Truncates every seeded table in your LOCAL Supabase: hives, hive_members, assets, PM, logbook, inventory, skill matrix, marketplace, community, projects, achievements. Auth users + catalog tables (achievement_definitions, equipment_reading_templates) are preserved. Production is NEVER touched — this only hits 127.0.0.1:54321."
+        data-tip-foot="Use when: schema changed (stale columns), seeder logic changed (regenerate fresh), or your previous testing corrupted state. Always follow with Seed Everything.">⚠ Reset (wipe all seeded data)</button>
     </div>
     <details class="section-help">
       <summary>What does Reset wipe, and when should I use it?</summary>
@@ -1067,10 +1464,7 @@
     </details>
   </div>
 
-  <div class="card">
-    <h2>Live log</h2>
-    <div id="log-panel" class="log-panel"></div>
-  </div>
+  </section>  <!-- ═══ /SEED PANE ═════════════════════════════════════════ -->
   {% endif %}
 
   <!-- AI diagnose prompt modal (Phase 15) -->
@@ -1206,7 +1600,10 @@
     </div>
   </div>
 
-  <details>
+  <!-- ═══════════════════════ LIBRARY PANE ═══════════════════════════════ -->
+  <section data-pane="library" class="pane">
+
+  <details open>
     <summary>Show realism libraries (Phase 4b sample previews)</summary>
     <div class="card">
       <h2>Library size</h2>
@@ -1260,26 +1657,116 @@
     </div>
   </details>
 
+  </section>  <!-- ═══ /LIBRARY PANE ══════════════════════════════════════ -->
+
+<!-- ── LIVE LOG DRAWER (fixed bottom) ─────────────────────────────────── -->
+<!-- Placed before the main script so getElementById('log-panel') resolves
+     synchronously when the script runs. Drawer is fixed-positioned so its
+     DOM location does not affect rendering. -->
+<div class="log-drawer" id="log-drawer"
+  data-tip-title="Live Log Drawer"
+  data-tip="Streams every line from a running job in real time via Server-Sent Events (~10ms latency). Auto-expands when a job starts. Click the bar to toggle. The stream stays open across runs so the next job's first line appears the moment it's written."
+  data-tip-foot="Hover the pulsing green dot to see job state. Use Clear to empty the panel without affecting server-side history.">
+  <div class="drawer-bar" onclick="toggleLogDrawer()">
+    <span class="pulse-dot" id="drawer-pulse"
+      data-tip-title="Job indicator"
+      data-tip="Green + pulsing = a job is running right now. Gray = idle, no job."></span>
+    <span class="drawer-title">Live Log</span>
+    <span class="drawer-meta" id="drawer-meta">idle</span>
+    <div class="drawer-actions" onclick="event.stopPropagation()">
+      <button class="drawer-btn" onclick="document.getElementById('log-panel').textContent=''"
+        data-tip-title="Clear log panel"
+        data-tip="Empties the visible log panel. Server-side log history (~last 200 lines) is preserved — refreshing the page will replay them.">Clear</button>
+      <button class="drawer-btn" id="drawer-scroll-btn" onclick="toggleLogAutoscroll()"
+        data-tip-title="Auto-scroll"
+        data-tip="When ON, the panel jumps to the bottom as new lines arrive so you always see the latest output. Turn OFF when you want to read an older line without being yanked to the bottom."
+        data-tip-foot="Auto-scroll only triggers if you're already near the bottom — if you scroll up to read, the panel respects that.">Auto-scroll: on</button>
+    </div>
+    <span class="drawer-chevron">▲</span>
+  </div>
+  <div id="log-panel" class="log-panel"></div>
+</div>
+
 <script>
   const buttons = document.querySelectorAll('button.seed-btn');
   const logPanel = document.getElementById('log-panel');
   const jobBadge = document.getElementById('job-badge');
-  let polling = false;
-  // Cursor for incremental append. We track the last log line we've already
-  // rendered, then on each poll we only append what's new — preserves text
-  // selection (so you can copy) and scroll position (so reading isn't yanked).
-  let lastSeenLine = null;
+  const logDrawer = document.getElementById('log-drawer');
+  const drawerPulse = document.getElementById('drawer-pulse');
+  const drawerMeta = document.getElementById('drawer-meta');
+  let _autoScroll = true;
+  let _es = null;
 
   function setButtonsDisabled(disabled) {
     buttons.forEach(b => b.disabled = disabled);
   }
+
+  function setJobUI(running, name) {
+    if (running) {
+      jobBadge.style.display = 'inline-block';
+      jobBadge.className = 'badge badge-running';
+      jobBadge.textContent = 'RUNNING: ' + (name || 'job');
+      drawerPulse.classList.add('active');
+      drawerMeta.textContent = 'RUNNING · ' + (name || 'job');
+      logDrawer.classList.add('expanded');
+    } else {
+      jobBadge.style.display = 'none';
+      drawerPulse.classList.remove('active');
+      drawerMeta.textContent = name ? ('done · ' + name) : 'idle';
+    }
+  }
+
+  function appendLogLines(lines) {
+    if (!lines || !lines.length) return;
+    const wasAtBottom = (logPanel.scrollHeight - logPanel.scrollTop - logPanel.clientHeight) < 40;
+    const prefix = logPanel.textContent ? '\n' : '';
+    logPanel.appendChild(document.createTextNode(prefix + lines.join('\n')));
+    if (_autoScroll && wasAtBottom) logPanel.scrollTop = logPanel.scrollHeight;
+  }
+
+  // ── Real-time log stream (SSE) ───────────────────────────────────────────
+  // Single persistent EventSource. Server pushes every log line within
+  // ~10ms of write. Replaces the 1s polling loop.
+  function connectStream() {
+    if (_es) return;
+    _es = new EventSource('/api/log-stream');
+    _es.onmessage = (ev) => {
+      try {
+        const data = JSON.parse(ev.data);
+        if (data.lines && data.lines.length) appendLogLines(data.lines);
+        if (data.running) {
+          setButtonsDisabled(true);
+          setJobUI(true, data.name);
+        }
+      } catch (e) { /* heartbeat — ignore */ }
+    };
+    _es.addEventListener('done', (ev) => {
+      try {
+        const data = JSON.parse(ev.data);
+        setJobUI(false, data.name);
+        if (data.counts) updateCounts(data.counts);
+        if (data.error) appendLogLines(['── ERROR: ' + data.error + ' ──']);
+      } catch (e) {}
+      setButtonsDisabled(false);
+    });
+    _es.onerror = () => {
+      drawerMeta.textContent = 'stream offline — retrying…';
+    };
+  }
+  connectStream();
 
   async function trigger(action) {
     if (action === 'reset' && !confirm('This will WIPE all seeded data. Continue?')) return;
     if (action === 'run-mega-gate' && !confirm('Mega Gate runs the full release gate + AI Full + visual regression + performance budgets. This takes 7-10 minutes. Continue?')) return;
     setButtonsDisabled(true);
     logPanel.textContent = '';
-    lastSeenLine = null;
+    logDrawer.classList.add('expanded');
+    // Immediate UI feedback. Without this the badge stays 'idle' until the
+    // first SSE message arrives, so a stalled stream looks identical to a
+    // server that never received the POST.
+    setJobUI(true, action);
+    appendLogLines(['Starting ' + action + '...']);
+
     let url;
     if (action === 'all') url = '/api/seed/all';
     else if (action === 'reset') url = '/api/reset';
@@ -1292,76 +1779,29 @@
     else if (action === 'run-mega-gate') url = '/api/run-mega-gate';
     else url = '/api/seed/' + action;
 
-    const resp = await fetch(url, { method: 'POST' });
-    const data = await resp.json();
-    if (data.error) {
-      logPanel.textContent = 'ERROR: ' + data.error;
+    try {
+      const resp = await fetch(url, { method: 'POST' });
+      if (!resp.ok) {
+        appendLogLines(['ERROR: server returned HTTP ' + resp.status + ' for ' + url]);
+        setButtonsDisabled(false);
+        setJobUI(false, action);
+        return;
+      }
+      const data = await resp.json();
+      if (data.error) {
+        appendLogLines(['ERROR: ' + data.error]);
+        setButtonsDisabled(false);
+        setJobUI(false, action);
+        return;
+      }
+    } catch (e) {
+      appendLogLines(['ERROR: ' + e.message + ' (is the Flask seeder running?)']);
       setButtonsDisabled(false);
-      return;
+      setJobUI(false, action);
     }
-    if (!polling) startPolling();
   }
 
   buttons.forEach(b => b.addEventListener('click', () => trigger(b.dataset.action)));
-
-  async function poll() {
-    try {
-      const resp = await fetch('/api/status');
-      const data = await resp.json();
-
-      // Append only NEW lines instead of rebuilding textContent. This keeps
-      // text selection alive (you can copy mid-run) and preserves your scroll
-      // position when reading older lines. Server caps its log at the last
-      // 200 lines; we use lastSeenLine as a cursor into that window.
-      const lines = data.log || [];
-      let toAppend;
-      if (lastSeenLine === null) {
-        toAppend = lines;
-      } else {
-        const idx = lines.lastIndexOf(lastSeenLine);
-        if (idx === -1) {
-          // Server truncated past our cursor (>200 new lines since last
-          // poll). Fall back to full replace; selection in the dropped
-          // region is unrecoverable anyway.
-          logPanel.textContent = '';
-          toAppend = lines;
-        } else {
-          toAppend = lines.slice(idx + 1);
-        }
-      }
-
-      if (toAppend.length > 0) {
-        const wasAtBottom = (logPanel.scrollHeight - logPanel.scrollTop - logPanel.clientHeight) < 40;
-        const prefix = logPanel.textContent ? '\n' : '';
-        logPanel.appendChild(document.createTextNode(prefix + toAppend.join('\n')));
-        lastSeenLine = lines[lines.length - 1];
-        if (wasAtBottom) logPanel.scrollTop = logPanel.scrollHeight;
-      }
-
-      if (data.running) {
-        jobBadge.style.display = 'inline-block';
-        jobBadge.className = 'badge badge-running';
-        jobBadge.textContent = 'RUNNING: ' + data.name;
-      } else {
-        jobBadge.style.display = 'none';
-        setButtonsDisabled(false);
-        polling = false;
-        lastSeenLine = null;   // reset cursor so next run starts fresh
-        if (data.counts) updateCounts(data.counts);
-        return;
-      }
-      setTimeout(poll, 1000);
-    } catch (e) {
-      console.error(e);
-      polling = false;
-      setButtonsDisabled(false);
-    }
-  }
-
-  function startPolling() {
-    polling = true;
-    poll();
-  }
 
   function updateCounts(counts) {
     Object.entries(counts).forEach(([table, n]) => {
@@ -1370,13 +1810,135 @@
     });
   }
 
-  // Auto-resume polling on page load if a job was running
+  // Resume UI state if a job is running on page load (SSE will stream the rest)
   fetch('/api/status').then(r => r.json()).then(data => {
     if (data.running) {
       setButtonsDisabled(true);
-      startPolling();
+      setJobUI(true, data.name);
+      if (data.log && data.log.length) appendLogLines(data.log);
     }
   });
+
+  // ── Sidebar pane switching ───────────────────────────────────────────────
+  document.querySelectorAll('.sidebar-link').forEach(link => {
+    link.addEventListener('click', () => switchPane(link.dataset.pane));
+  });
+  function switchPane(name) {
+    document.querySelectorAll('.pane').forEach(p => {
+      p.classList.toggle('active', p.dataset.pane === name);
+    });
+    document.querySelectorAll('.sidebar-link').forEach(l => {
+      l.classList.toggle('active', l.dataset.pane === name);
+    });
+    try { localStorage.setItem('wh_tester_pane', name); } catch (e) {}
+    window.scrollTo({ top: 0 });
+  }
+  try {
+    const saved = localStorage.getItem('wh_tester_pane');
+    if (saved && document.querySelector(`section[data-pane="${saved}"]`)) {
+      switchPane(saved);
+    }
+  } catch (e) {}
+
+  // ── Log drawer toggle + autoscroll ───────────────────────────────────────
+  window.toggleLogDrawer = function() {
+    logDrawer.classList.toggle('expanded');
+  };
+  window.toggleLogAutoscroll = function() {
+    _autoScroll = !_autoScroll;
+    const btn = document.getElementById('drawer-scroll-btn');
+    if (btn) btn.textContent = 'Auto-scroll: ' + (_autoScroll ? 'on' : 'off');
+  };
+
+  // ── Hover-Tip Popover ──────────────────────────────────────────────────
+  // Any element with data-tip="..." shows a rich popover on hover. Pair
+  // with data-tip-title for a heading and data-tip-foot for a "Use when"
+  // footer. The popover stays visible if you hover into it, so long
+  // explanations can be scrolled at your own pace.
+  (function() {
+    const pop = document.createElement('div');
+    pop.className = 'tip-popover';
+    document.body.appendChild(pop);
+    let hideTimer = null;
+    let trigger = null;
+
+    function fillTip(el) {
+      pop.innerHTML = '';
+      const title = el.getAttribute('data-tip-title');
+      const body  = el.getAttribute('data-tip');
+      const foot  = el.getAttribute('data-tip-foot');
+      if (title) {
+        const t = document.createElement('span');
+        t.className = 'tip-title';
+        t.textContent = title;
+        pop.appendChild(t);
+      }
+      if (body) {
+        const b = document.createElement('span');
+        b.className = 'tip-body';
+        b.textContent = body;
+        pop.appendChild(b);
+      }
+      if (foot) {
+        const f = document.createElement('span');
+        f.className = 'tip-foot';
+        f.textContent = foot;
+        pop.appendChild(f);
+      }
+    }
+
+    function position(ev) {
+      const r = pop.getBoundingClientRect();
+      let x = ev.clientX + 16;
+      let y = ev.clientY + 16;
+      if (x + r.width  > innerWidth  - 12) x = ev.clientX - r.width  - 16;
+      if (y + r.height > innerHeight - 12) y = ev.clientY - r.height - 16;
+      if (x < 8) x = 8;
+      if (y < 8) y = 8;
+      pop.style.left = x + 'px';
+      pop.style.top  = y + 'px';
+    }
+
+    function show(el, ev) {
+      clearTimeout(hideTimer);
+      if (trigger === el && pop.classList.contains('show')) {
+        position(ev);
+        return;
+      }
+      trigger = el;
+      fillTip(el);
+      pop.classList.add('show');
+      position(ev);
+    }
+
+    function hide() {
+      clearTimeout(hideTimer);
+      hideTimer = setTimeout(() => {
+        pop.classList.remove('show');
+        trigger = null;
+      }, 180);
+    }
+
+    document.addEventListener('mouseover', (e) => {
+      const el = e.target.closest && e.target.closest('[data-tip]');
+      if (el) show(el, e);
+    });
+    document.addEventListener('mousemove', (e) => {
+      if (trigger && pop.classList.contains('show')) {
+        const el = e.target.closest && e.target.closest('[data-tip]');
+        if (el === trigger) position(e);
+      }
+    });
+    document.addEventListener('mouseout', (e) => {
+      const el = e.target.closest && e.target.closest('[data-tip]');
+      if (el && el === trigger) {
+        const dest = e.relatedTarget;
+        if (!el.contains(dest) && !pop.contains(dest)) hide();
+      }
+    });
+    pop.addEventListener('mouseenter', () => clearTimeout(hideTimer));
+    pop.addEventListener('mouseleave', hide);
+  })();
 
   // ── Health panel (Phase 2) ────────────────────────────────────────────
   const TIER_CLASSES = {
@@ -2309,8 +2871,10 @@
   wireBacklogRows();
 </script>
 
+<!-- ═══════════════════════ CMMS PANE ════════════════════════════════════ -->
+<section data-pane="cmms" class="pane">
 <!-- ── CMMS Integration Tester Panel ─────────────────────────────────────── -->
-<div class="card" id="cmms-panel" style="margin-top:24px;">
+<div class="card" id="cmms-panel" style="margin-top:0;">
   <div class="section-head-row">
     <h3 class="action-section-title">CMMS Integration Tester</h3>
     <span class="action-section-hint">Generate fake company CMMS data and download it as CSV. Phase 1 of the integration test harness.</span>
@@ -2663,6 +3227,8 @@
 
   <div id="cmms-error" style="display:none; color:var(--red); font-size:0.8rem; margin-top:8px;"></div>
 </div>
+
+</section>  <!-- ═══ /CMMS PANE ════════════════════════════════════════ -->
 
 <style>
   .cmms-dl-btn {
@@ -3349,27 +3915,30 @@
 </script>
 
 <script>
-  // Initial load + reload after every job finishes
+  // Initial load + reload after every job finishes.
+  // The SSE stream fires a `done` event when a job ends — piggy-back on that
+  // to refresh health/sparkline/trends and invalidate the backlog cache
+  // (fixes can land mid-session). Replaces the old poll() monkey-patch.
   loadHealth();
   loadSparkline();
   loadTrends();
-  const _origPoll = poll;
-  poll = async function() {
-    await _origPoll();
-    if (!polling) {
-      // Job finished: refresh health + invalidate backlog cache (fixes can land mid-session)
+  if (typeof _es !== 'undefined' && _es) {
+    _es.addEventListener('done', () => {
       _backlogCache = null;
       loadHealth();
       loadSparkline();
       loadTrends();
-      // If a backlog category was open, re-render it with fresh data (don't collapse)
       if (_backlogActiveCat) {
         const cat = _backlogActiveCat;
-        _backlogActiveCat = null;          // force toggleBacklogCat to treat it as new
+        _backlogActiveCat = null;
         toggleBacklogCat(cat);
       }
-    }
-  };
+    });
+  }
 </script>
+
+  </main>
+</div>  <!-- ═══ /tester-shell ══════════════════════════════════════════ -->
+
 </body>
 </html>

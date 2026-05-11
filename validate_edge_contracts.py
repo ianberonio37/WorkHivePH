@@ -73,6 +73,9 @@ ALL_FUNCTIONS = [
     "fmea-populator",
     "weibull-fitter",
     "pf-calculator",
+    "amc-orchestrator",
+    "visual-defect-capture",
+    "sensor-readings-ingest",
 ]
 
 REQUIRED_FIELDS = {

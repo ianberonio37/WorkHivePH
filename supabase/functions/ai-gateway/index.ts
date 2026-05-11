@@ -36,6 +36,21 @@ import {
   formatMemoryContext,
   type MemoryHandle,
 } from "../_shared/memory.ts";
+import {
+  loadJournalRecall,
+  persistJournalEntry,
+} from "../_shared/journal-recall.ts";
+
+// Agents that get semantic-recall enrichment in addition to short-term
+// agent_memory. Adding an agent here makes the gateway:
+//   1. Embed the user's message and pull top-K similar past journal entries
+//      from voice_journal_entries.
+//   2. Append that recall block to the memory_block forwarded to the specialist.
+//   3. Persist the completed exchange (transcript + reply + lang + embedding)
+//      into voice_journal_entries for future recall.
+// Only voice-journal currently uses this surface; other agents have their
+// own RAG layers (asset-brain has GraphRAG, analytics has its own pipeline).
+const SEMANTIC_RECALL_AGENTS: Set<string> = new Set(["voice-journal"]);
 
 // Warm module-scope Supabase client. Reused across request invocations
 // in the same warm container. Per-request createClient calls below are
@@ -76,6 +91,10 @@ const AGENT_ROUTES: Record<string, { fn: string; description: string }> = {
   "report-voice": {
     fn: "voice-report-intent",
     description: "Voice transcription + report-sender intent",
+  },
+  "voice-journal": {
+    fn: "voice-journal-agent",
+    description: "Multilingual voice journaling companion with rolling memory",
   },
 };
 
@@ -161,7 +180,26 @@ serve(async (req) => {
     hive_id, worker_name, auth_uid: user.id, agent_id: agent,
   };
   const loaded = await loadMemory(adminClient, handle);
-  const memory_block = formatMemoryContext(loaded);
+  let memory_block = formatMemoryContext(loaded);
+
+  // Semantic-recall enrichment for agents that opt in (voice-journal).
+  // The embedding is reused later when persisting the new entry, so we
+  // pay one embed call per turn instead of two. Failures here are
+  // non-fatal: the agent still gets short-term agent_memory.
+  let recallEmbedding: number[] = [];
+  if (SEMANTIC_RECALL_AGENTS.has(agent)) {
+    try {
+      const recall = await loadJournalRecall(adminClient, user.id, message);
+      recallEmbedding = recall.query_embedding;
+      if (recall.block) {
+        memory_block = memory_block
+          ? `${memory_block}\n\n${recall.block}`
+          : recall.block;
+      }
+    } catch (err) {
+      console.warn("[ai-gateway] recall failed (non-fatal):", err instanceof Error ? err.message : err);
+    }
+  }
 
   // PII redaction. Both the user message AND the context object pass
   // through the same redactor so a downstream agent never sees raw
@@ -227,10 +265,42 @@ serve(async (req) => {
   const hydratedAnswer = hydratePII(answer, hydrationMap);
 
   // Persist the turn (best-effort; failures don't block response).
-  await saveTurn(adminClient, handle, message, hydratedAnswer, {
+  // Forward selected context fields into meta so agent_memory can support
+  // per-language semantic recall (voice-journal) and similar future facets.
+  const metaExtra: Record<string, unknown> = {
     target_fn:   route.fn,
     latency_ms:  Date.now() - t0,
-  });
+  };
+  if (context && typeof context === "object") {
+    const langField = (context as Record<string, unknown>).lang;
+    if (typeof langField === "string" && langField.trim()) {
+      metaExtra.lang = langField.trim().toLowerCase();
+    }
+  }
+  await saveTurn(adminClient, handle, message, hydratedAnswer, metaExtra);
+
+  // Durable archive for semantic-recall agents. agent_memory has 90-day
+  // retention; voice_journal_entries is the permanent journal store and
+  // the source of truth for the history UI. Reuses the embedding we
+  // already generated during recall, so this is a single insert call.
+  if (SEMANTIC_RECALL_AGENTS.has(agent)) {
+    const langField = context && typeof context === "object"
+      ? (context as Record<string, unknown>).lang
+      : null;
+    const lang = typeof langField === "string" && langField.trim()
+      ? langField.trim().toLowerCase()
+      : null;
+    await persistJournalEntry(adminClient, {
+      auth_uid:    user.id,
+      worker_name,
+      hive_id,
+      transcript:  message,
+      reply:       hydratedAnswer,
+      lang,
+      embedding:   recallEmbedding,
+      meta:        { target_fn: route.fn, latency_ms: Date.now() - t0 },
+    });
+  }
 
   return jsonResponse(corsHeaders, 200, {
     answer: hydratedAnswer,

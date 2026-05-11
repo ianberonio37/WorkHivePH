@@ -170,6 +170,20 @@ BEGIN
   AND EXISTS (
     SELECT 1 FROM information_schema.columns
     WHERE table_name = 'assets' AND column_name = 'asset_id'
+  )
+  -- Guard: Postgres requires the FK target column to have a UNIQUE or PRIMARY KEY
+  -- constraint. Fresh-clone local stacks may not have that on assets.asset_id yet;
+  -- skip the FK in that case so `supabase start` does not fail. The check looks
+  -- for any unique/PK constraint that covers exactly the asset_id column.
+  AND EXISTS (
+    SELECT 1
+    FROM pg_constraint c
+    JOIN pg_class      t ON t.oid = c.conrelid
+    JOIN pg_attribute  a ON a.attrelid = c.conrelid AND a.attnum = ANY (c.conkey)
+    WHERE t.relname = 'assets'
+      AND a.attname = 'asset_id'
+      AND c.contype IN ('u', 'p')
+      AND array_length(c.conkey, 1) = 1
   ) THEN
     EXECUTE 'ALTER TABLE public.parts_records
              ADD CONSTRAINT parts_records_asset_ref_id_fkey

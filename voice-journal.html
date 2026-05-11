@@ -466,22 +466,20 @@
     }
 
     // ──────────────── History load + render ────────────────
+    // Reads from voice_journal_entries (the durable archive with embeddings).
+    // RLS scopes rows to the signed-in worker; auth_uid filter is enforced
+    // server-side, no client-side scoping needed.
     async function loadHistory() {
       const listEl  = $('history-list');
       const emptyEl = $('history-empty');
       listEl.innerHTML = '<div class="skeleton-row mb-2"></div><div class="skeleton-row mb-2"></div><div class="skeleton-row"></div>';
       emptyEl.style.display = 'none';
 
-      let query = db.from('agent_memory')
-        .select('id, turn_text, meta, created_at')
-        .eq('agent_id', AGENT_ID)
-        .eq('kind', 'turn')
+      const { data, error } = await db.from('voice_journal_entries')
+        .select('id, transcript, reply, lang, created_at')
         .order('created_at', { ascending: false })
-        .limit(HISTORY_LIMIT * 2); // each pair is 2 rows
-      if (HIVE_ID) query = query.eq('hive_id', HIVE_ID);
-      else         query = query.is('hive_id', null);
+        .limit(HISTORY_LIMIT);
 
-      const { data, error } = await query;
       if (error) {
         console.error('loadHistory:', error);
         listEl.innerHTML = '';
@@ -490,45 +488,14 @@
         return;
       }
 
-      // agent_memory stores 2 rows per exchange (user + agent), inserted back-to-back.
-      // Pair them up by walking the result in reverse-chronological order.
-      const rows = data || [];
-      const pairs = [];
-      for (let i = 0; i < rows.length; i++) {
-        const r = rows[i];
-        const role = (r.meta && r.meta.role) || 'user';
-        if (role === 'agent') {
-          const next = rows[i + 1];
-          if (next && (next.meta?.role || 'user') === 'user') {
-            pairs.push({
-              id:   next.id,
-              user: next.turn_text || '',
-              agent: r.turn_text || '',
-              lang: (r.meta && r.meta.lang) || (next.meta && next.meta.lang) || '',
-              ts:   next.created_at,
-            });
-            i++; // consume both
-          } else {
-            pairs.push({
-              id:   r.id,
-              user: '',
-              agent: r.turn_text || '',
-              lang: (r.meta && r.meta.lang) || '',
-              ts:   r.created_at,
-            });
-          }
-        } else {
-          pairs.push({
-            id:   r.id,
-            user: r.turn_text || '',
-            agent: '',
-            lang: (r.meta && r.meta.lang) || '',
-            ts:   r.created_at,
-          });
-        }
-      }
+      _entries = (data || []).map(r => ({
+        id:    r.id,
+        user:  r.transcript || '',
+        agent: r.reply      || '',
+        lang:  r.lang       || '',
+        ts:    r.created_at,
+      }));
 
-      _entries = pairs;
       renderFilters();
       renderHistory();
     }

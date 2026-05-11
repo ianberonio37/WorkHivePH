@@ -324,6 +324,10 @@
   <!-- Page-level controls: period selector + refresh.
        These are not role-specific so they live with the header, not inside
        each role view. -->
+  <p style="font-size:.62rem; color:rgba(255,255,255,0.4); margin:0 0 6px; line-height:1.35;">
+    Live recomputation each refresh · Source: <code style="background:rgba(255,255,255,0.06);padding:1px 5px;border-radius:3px;font-size:.95em;">v_logbook_truth</code> via Postgres RPCs ·
+    MTBF/MTTR/OEE scoped to the selected window
+  </p>
   <div class="period-row">
     <button class="period-btn" data-days="30" onclick="setPeriod(30, true)">30 days</button>
     <button class="period-btn active" data-days="90" onclick="setPeriod(90, true)">90 days</button>

@@ -494,6 +494,33 @@
                 <div id="vf-result" style="display:none; margin-top:10px; font-size:.75rem; border-top:1px solid rgba(255,255,255,0.06); padding-top:10px;"></div>
               </div>
 
+              <!-- Photo Defect Capture (Wave A2) - multimodal classify -->
+              <div id="vdc-card" style="background:linear-gradient(135deg,rgba(74,222,128,0.08),rgba(247,162,27,0.05)); border:1px solid rgba(74,222,128,0.25); border-radius:12px; padding:14px 16px; margin-bottom:4px;">
+                <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap;">
+                  <div>
+                    <p style="font-size:.82rem; font-weight:700; color:rgba(255,255,255,0.9);">Photo defect capture</p>
+                    <p style="font-size:.7rem; color:rgba(255,255,255,0.4); margin-top:2px;">Snap a photo of the defect (rust, leak, crack, burn). AI drafts the entry from the image.</p>
+                  </div>
+                  <button id="vdc-capture-btn" type="button" style="padding:10px 16px; min-height:44px; background:rgba(74,222,128,0.15); color:#4ade80; border:1px solid rgba(74,222,128,0.4); border-radius:9px; font-family:inherit; font-size:.82rem; font-weight:700; cursor:pointer; white-space:nowrap; display:flex; align-items:center; gap:6px;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                    Capture
+                  </button>
+                </div>
+                <input id="vdc-file-input" type="file" accept="image/*" capture="environment" style="display:none;" />
+                <div id="vdc-preview" style="display:none; margin-top:10px;">
+                  <img id="vdc-preview-img" alt="Captured defect preview" style="max-width:100%; max-height:220px; border-radius:8px; border:1px solid rgba(255,255,255,0.08);" />
+                  <div style="display:flex; gap:8px; margin-top:8px; flex-wrap:wrap;">
+                    <button id="vdc-analyze-btn" type="button" style="flex:1; min-width:120px; min-height:44px; padding:8px 14px; background:rgba(74,222,128,0.18); color:#4ade80; border:1px solid rgba(74,222,128,0.4); border-radius:8px; font-family:inherit; font-size:.78rem; font-weight:700; cursor:pointer;">Analyze with AI</button>
+                    <button id="vdc-retake-btn" type="button" style="min-height:44px; padding:8px 14px; background:rgba(255,255,255,0.04); color:rgba(255,255,255,0.6); border:1px solid rgba(255,255,255,0.08); border-radius:8px; font-family:inherit; font-size:.78rem; font-weight:700; cursor:pointer;">Retake</button>
+                  </div>
+                </div>
+                <div id="vdc-processing" style="display:none; margin-top:10px; font-size:.75rem; color:rgba(255,255,255,0.4);">
+                  <span>AI is analyzing the photo...</span>
+                </div>
+                <div id="vdc-result" style="display:none; margin-top:10px; font-size:.75rem; border-top:1px solid rgba(255,255,255,0.06); padding-top:10px;"></div>
+                <div id="vdc-status" style="display:none; margin-top:6px; font-size:.7rem; color:rgba(255,255,255,0.45);"></div>
+              </div>
+
               <div>
                 <label class="wh-label">Machine / Equipment <span style="color:#f87171;font-size:0.625rem;font-weight:600;text-transform:none;">required</span></label>
                 <div style="display:flex; gap:8px; align-items:stretch;">
@@ -3958,6 +3985,233 @@ function applySmartVoiceFill(e, transcript) {
   saveDraft();
   showToast('Form filled from voice — review and adjust before submitting.');
 }
+
+
+// ── PHOTO DEFECT CAPTURE (Wave A2) ───────────────────────────────────────────
+// Worker snaps a photo, multimodal AI classifies, form is pre-filled.
+// Skills: mobile-maestro (input type=file capture=environment, 16px+, preview
+// before submit, retake path), security (compress and MIME-cap before upload,
+// no PII in result render), frontend (reuse the add form, never duplicate it).
+
+const VDC_MAX_DIM_PX  = 1280;     // long edge cap — vision models do not benefit beyond this
+const VDC_JPEG_QUALITY = 0.82;
+let _vdcDataUrl = null;           // most recently captured image (compressed)
+
+function vdcReset() {
+  _vdcDataUrl = null;
+  const fileInput   = document.getElementById('vdc-file-input');
+  const previewWrap = document.getElementById('vdc-preview');
+  const resultDiv   = document.getElementById('vdc-result');
+  const statusDiv   = document.getElementById('vdc-status');
+  const procDiv     = document.getElementById('vdc-processing');
+  if (fileInput)   fileInput.value = '';
+  if (previewWrap) previewWrap.style.display = 'none';
+  if (resultDiv)   { resultDiv.innerHTML = ''; resultDiv.style.display = 'none'; }
+  if (statusDiv)   { statusDiv.textContent = ''; statusDiv.style.display = 'none'; }
+  if (procDiv)     procDiv.style.display = 'none';
+}
+
+function vdcShowStatus(msg) {
+  const el = document.getElementById('vdc-status');
+  if (!el) return;
+  el.textContent = msg || '';
+  el.style.display = msg ? 'block' : 'none';
+}
+
+async function vdcCompress(file) {
+  // Decode -> draw -> re-export as JPEG within max bounds. Reduces payload
+  // by 5-20x for typical phone photos.
+  const dataUrl = await new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload  = () => resolve(String(reader.result || ''));
+    reader.onerror = () => reject(reader.error || new Error('FileReader failed'));
+    reader.readAsDataURL(file);
+  });
+  const img = new Image();
+  await new Promise((resolve, reject) => {
+    img.onload = resolve;
+    img.onerror = () => reject(new Error('Image decode failed'));
+    img.src = dataUrl;
+  });
+  const longEdge = Math.max(img.naturalWidth, img.naturalHeight);
+  const scale = (longEdge > VDC_MAX_DIM_PX) ? (VDC_MAX_DIM_PX / longEdge) : 1;
+  const w = Math.round(img.naturalWidth  * scale);
+  const h = Math.round(img.naturalHeight * scale);
+  const canvas = document.createElement('canvas');
+  canvas.width = w; canvas.height = h;
+  const ctx = canvas.getContext('2d');
+  if (!ctx) throw new Error('Canvas 2D context unavailable');
+  ctx.drawImage(img, 0, 0, w, h);
+  return canvas.toDataURL('image/jpeg', VDC_JPEG_QUALITY);
+}
+
+function vdcWireOnce() {
+  const captureBtn = document.getElementById('vdc-capture-btn');
+  const fileInput  = document.getElementById('vdc-file-input');
+  const analyzeBtn = document.getElementById('vdc-analyze-btn');
+  const retakeBtn  = document.getElementById('vdc-retake-btn');
+  if (!captureBtn || !fileInput || !analyzeBtn || !retakeBtn) return;
+
+  captureBtn.addEventListener('click', () => fileInput.click());
+  retakeBtn.addEventListener('click', vdcReset);
+
+  fileInput.addEventListener('change', async () => {
+    const file = fileInput.files && fileInput.files[0];
+    if (!file) return;
+    if (file.size > 20_000_000) {
+      showToast('Photo too large (max 20 MB).');
+      fileInput.value = '';
+      return;
+    }
+    vdcShowStatus('Compressing photo...');
+    try {
+      const compressed = await vdcCompress(file);
+      _vdcDataUrl = compressed;
+      const img = document.getElementById('vdc-preview-img');
+      if (img) img.src = compressed;
+      const previewWrap = document.getElementById('vdc-preview');
+      if (previewWrap) previewWrap.style.display = 'block';
+      vdcShowStatus('');
+    } catch (err) {
+      _vdcDataUrl = null;
+      vdcShowStatus('');
+      showToast('Could not read the photo: ' + (err && err.message ? err.message : 'unknown error'));
+    }
+  });
+
+  analyzeBtn.addEventListener('click', vdcAnalyze);
+}
+
+async function vdcAnalyze() {
+  if (!_vdcDataUrl) { showToast('Capture a photo first.'); return; }
+  if (!HIVE_ID)    { showToast('Join a hive to analyze defects with AI.'); return; }
+
+  const analyzeBtn = document.getElementById('vdc-analyze-btn');
+  const procDiv    = document.getElementById('vdc-processing');
+  const resultDiv  = document.getElementById('vdc-result');
+  if (analyzeBtn) { analyzeBtn.disabled = true; analyzeBtn.textContent = 'Analyzing...'; }
+  if (procDiv)    procDiv.style.display = 'block';
+  if (resultDiv)  { resultDiv.innerHTML = ''; resultDiv.style.display = 'none'; }
+
+  // Worker may have already started typing in problem / action; include those
+  // as a voice_note so the AI can corroborate against the photo.
+  const existingProblem = (document.getElementById('f-problem')?.value || '').trim().slice(0, 240);
+  const existingAction  = (document.getElementById('f-action')?.value  || '').trim().slice(0, 240);
+  const voice_note = [existingProblem, existingAction].filter(Boolean).join(' | ').slice(0, 500) || undefined;
+
+  try {
+    const { data, error } = await db.functions.invoke('visual-defect-capture', {
+      body: {
+        hive_id:         HIVE_ID,
+        image_data_url:  _vdcDataUrl,
+        asset_id:        null,
+        voice_note,
+        worker_name:     WORKER_NAME || null,
+      },
+    });
+    if (procDiv) procDiv.style.display = 'none';
+    if (analyzeBtn) { analyzeBtn.disabled = false; analyzeBtn.textContent = 'Analyze with AI'; }
+
+    if (error) { showToast('AI analyze failed: ' + (error.message || 'unknown error')); return; }
+    if (data && data.error) { showToast(data.error); return; }
+    if (!data || !data.draft) { showToast('AI returned no draft.'); return; }
+
+    vdcApplyDraft(data);
+  } catch (err) {
+    if (procDiv) procDiv.style.display = 'none';
+    if (analyzeBtn) { analyzeBtn.disabled = false; analyzeBtn.textContent = 'Analyze with AI'; }
+    showToast('AI analyze failed: ' + (err && err.message ? err.message : 'network error'));
+  }
+}
+
+function vdcApplyDraft(payload) {
+  const e = escHtml;
+  const draft = payload.draft || {};
+  const matched = payload.matched_asset;
+  const filled = [];
+
+  const setVal = (id, v, label) => {
+    if (!v) return;
+    const el = document.getElementById(id);
+    if (!el) return;
+    if (el.value && el.value.trim()) return;   // do not overwrite existing input
+    el.value = v;
+    filled.push(label);
+  };
+
+  setVal('f-problem',    draft.problem,    'Problem');
+  setVal('f-action',     draft.action,     'Action');
+  setVal('f-knowledge',  draft.knowledge,  'Knowledge');
+
+  // Category select.
+  if (draft.category) {
+    const sel = document.getElementById('f-category');
+    if (sel) {
+      const want = String(draft.category).toLowerCase();
+      const opt = Array.from(sel.options).find(o => o.value.toLowerCase() === want);
+      if (opt && !sel.value) { sel.value = opt.value; filled.push('Category'); }
+    }
+  }
+
+  // Root cause: free-text select with text fallback; only set if matching option.
+  if (draft.root_cause) {
+    const sel = document.getElementById('f-root-cause');
+    if (sel) {
+      const opt = Array.from(sel.options).find(o =>
+        String(o.value).toLowerCase() === String(draft.root_cause).toLowerCase()
+      );
+      if (opt && !sel.value) { sel.value = opt.value; filled.push('Root Cause'); }
+    }
+  }
+
+  // Asset auto-link if AI matched a known tag.
+  if (matched && matched.asset_id) {
+    const hiddenM = document.getElementById('f-machine');
+    const labelM  = document.getElementById('asset-picker-label');
+    if (hiddenM && !hiddenM.value) {
+      hiddenM.value = matched.tag || matched.name || matched.asset_id;
+      if (labelM) {
+        labelM.textContent = matched.tag || matched.name;
+        labelM.style.color = 'rgba(255,255,255,0.6)';
+      }
+      filled.push('Machine');
+      try { loadMachineHistory(hiddenM.value); } catch (_) {}
+    }
+  }
+
+  // Result preview
+  const resultDiv = document.getElementById('vdc-result');
+  if (resultDiv) {
+    const confPct = Math.round((Number(draft.confidence) || 0) * 100);
+    const sev = String(draft.severity || 'medium');
+    const sevColor = sev === 'critical' ? '#f87171'
+                    : sev === 'high'    ? '#fb923c'
+                    : sev === 'medium'  ? '#facc15'
+                                        : 'rgba(255,255,255,0.5)';
+    const tagLine = draft.asset_tag_extracted
+      ? `<p style="color:rgba(255,255,255,0.55); font-size:.7rem; margin-top:4px;">Asset tag read from photo: <strong>${e(draft.asset_tag_extracted)}</strong>${matched ? ' (matched in hive)' : ' (no hive match)'}</p>`
+      : '';
+    resultDiv.innerHTML =
+      `<p style="color:rgba(74,222,128,0.9); font-weight:700; margin-bottom:6px;">` +
+        `${filled.length ? '✓ Filled ' + filled.length + ' field' + (filled.length === 1 ? '' : 's') + ': ' + e(filled.join(', ')) : 'No fields auto-filled (existing input preserved).'}` +
+      `</p>` +
+      `<p style="font-size:.75rem; color:rgba(255,255,255,0.7); margin-bottom:4px;">` +
+        `Failure mode: <strong>${e(draft.failure_mode || '?')}</strong> &middot; ` +
+        `Severity: <span style="color:${sevColor}; font-weight:700;">${e(sev)}</span> &middot; ` +
+        `Confidence: ${confPct}%` +
+      `</p>` +
+      tagLine +
+      `<button type="button" onclick="document.getElementById('vdc-result').style.display='none';" style="margin-top:8px; font-size:.68rem; color:rgba(255,255,255,0.3); background:none; border:none; cursor:pointer; font-family:inherit;">Dismiss</button>`;
+    resultDiv.style.display = 'block';
+  }
+
+  if (filled.length) saveDraft();
+  showToast(filled.length
+    ? 'Photo analyzed - review the filled fields before saving.'
+    : 'Photo analyzed - existing input preserved.');
+}
+
+vdcWireOnce();
 
 
 // ────────────────────────────────────────────
