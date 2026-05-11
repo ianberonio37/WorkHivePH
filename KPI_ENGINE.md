@@ -230,14 +230,64 @@ the asset nodes are created.
 
 sw.js v37 -> v38 to invalidate the PWA shell.
 
-### Long-term (deferred until forced)
+### Shipped 2026-05-12 (Wave 8 — Phase 5 complete)
 
-**Phase 5c -- Drop the `assets` table entirely**
-Once both column drops land, the legacy `assets` table only feeds the
-asset wizard. Migrating the wizard to write to `asset_nodes` directly
-(currently mediated by `populate_asset_node_bridges` trigger) is the last
-fuel-layer simplification. Trigger to start: a real bug where dual writes
-to `assets` + `asset_nodes` diverge. Today they don't.
+**Phase 5c -- Drop the legacy `assets` table** [DONE]
+The end of the fuel-layer cleanup. `asset_nodes` is now the single source
+of truth for asset records platform-wide; the `assets` table is gone.
+
+Migration `20260512000009_phase_5c_drop_assets.sql`:
+- `asset_nodes.hive_id` relaxed from NOT NULL to nullable so solo-mode
+  workers (no hive) can keep canonical asset records on the new path.
+  The UNIQUE (hive_id, tag) constraint uses NULLs-distinct semantics so
+  solo workers can share tags without conflict.
+- Dropped `asset_nodes_legacy_asset_id_fkey` (FK to assets.id).
+- Dropped `parts_records_asset_ref_id_fkey` (FK to assets.asset_id);
+  the column becomes free text since parts_records is keyed on its own id.
+- Backfilled every solo-mode `assets` row into asset_nodes with hive_id NULL,
+  mirroring the original asset_brain_backfill that only handled hive rows.
+- Dropped `populate_asset_node_bridges` trigger + its function (the bridge
+  read from `assets`; with that table gone the trigger is broken and
+  unnecessary; writers produce asset_nodes records directly).
+- DROP TABLE assets.
+
+Caller migrations:
+- `logbook.html`: asset wizard rewrites every insert/upsert/update/delete
+  to target `asset_nodes` via the `_assetToNode()` translator. Wizard
+  generates a `crypto.randomUUID()` id at insert time so the new row has
+  a valid uuid PK from the moment it lives in local state. Reads use
+  PostgREST aliases (`asset_id:tag`, `type:iso_class`) so downstream
+  render code keeps working unchanged.
+- `inventory.html`: `_assets` loads from asset_nodes with the same
+  aliases; `_buildAssetNodeMaps()` is now synchronous and O(n) (no
+  bridge lookup needed since `_assets` already carries the canonical
+  uuid). localStorage migration writes to asset_nodes with proper
+  column names.
+- `hive.html`, `pm-scheduler.html`, `parts-tracker.html`,
+  `project-manager.html`, `integrations.html`: all asset reads/writes
+  retargeted to asset_nodes; the CMMS import upsert uses
+  `onConflict: 'hive_id,tag'` instead of the old `asset_id,hive_id`.
+
+Test-data tooling:
+- `test-data-seeder/seeders/reset.py`: removed the dropped `assets`
+  table from RESET_TABLES.
+
+Validator updates:
+- `validate_canonical_sources.py` HTML_OWNERS expanded to include
+  `asset_nodes` for the six asset-CRUD pages (logbook, inventory,
+  pm-scheduler, parts-tracker, hive, project-manager). These pages
+  legitimately own the canonical asset rows; their reads are not drift.
+
+sw.js v38 -> v39 to invalidate the PWA shell after the wizard rewrite.
+
+### What's left in the roadmap
+
+Nothing. Every Fuel / Engine / Brain / Dashboard / Driver layer has its
+canonical contract, three CI gates ratchet against regression, and every
+text-keyed legacy bridge is gone. Future surfaces inherit the contract by
+default. The "feels off" failure mode that started this session is now
+structurally impossible without explicit allowlist documentation visible
+in code review.
 
 ### What's now architecturally impossible to regress (the ratchet)
 

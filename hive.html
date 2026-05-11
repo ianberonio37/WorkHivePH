@@ -1886,7 +1886,7 @@ async function checkTeamStockAlert() {
 async function loadApprovalQueue() {
   if (HIVE_ROLE !== 'supervisor') return;
   const [assetsRes, partsRes] = await Promise.all([
-    db.from('assets').select('*').eq('hive_id', HIVE_ID).eq('status', 'pending'),
+    db.from('asset_nodes').select('id, asset_id:tag, name, type:iso_class, location, criticality, hive_id, worker_name, status, submitted_by, created_at').eq('hive_id', HIVE_ID).eq('status', 'pending'),
     db.from('v_inventory_items_truth').select('*').eq('hive_id', HIVE_ID).eq('status', 'pending')
   ]);
   _pendingAssets = assetsRes.data || [];

@@ -560,10 +560,11 @@ let _assetRefId    = null; // UUID of the selected asset
 async function loadAssets() {
   const workerName = localStorage.getItem(WORKER_KEY) || '';
   if (!workerName) return;
-  const { data } = await db.from('assets')
-    .select('id, asset_id, name')
+  // Phase 5c: assets table dropped; load asset_nodes with column aliases.
+  const { data } = await db.from('asset_nodes')
+    .select('id, asset_id:tag, name')
     .eq('worker_name', workerName)
-    .order('asset_id');
+    .order('tag');
   _assets = data || [];
   const dl = document.getElementById('job-asset-datalist');
   if (!dl) return;

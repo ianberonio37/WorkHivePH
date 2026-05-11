@@ -1664,11 +1664,11 @@ async function loadRegisteredAssets() {
   loadingEl.classList.remove('hidden');
 
   const queries = [
-    db.from('assets').select('id, name, asset_id, type, location, criticality').eq('worker_name', WORKER_NAME),
+    db.from('asset_nodes').select('id, name, asset_id:tag, type:iso_class, location, criticality').eq('worker_name', WORKER_NAME).is('hive_id', null),
   ];
   if (HIVE_ID) {
     queries.push(
-      db.from('assets').select('id, name, asset_id, type, location, criticality').eq('hive_id', HIVE_ID).eq('status', 'approved')
+      db.from('asset_nodes').select('id, name, asset_id:tag, type:iso_class, location, criticality').eq('hive_id', HIVE_ID).eq('status', 'approved')
     );
   }
 

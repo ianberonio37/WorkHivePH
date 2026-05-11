@@ -125,10 +125,15 @@ WRITER_BASENAMES = {
 # the owning page are expected; the canonical view is for OTHER surfaces
 # that report on / aggregate the data, not for the editing page itself.
 HTML_OWNERS = {
-    "logbook.html":       {"logbook"},
-    "inventory.html":     {"inventory_items"},
-    "pm-scheduler.html":  {"pm_assets", "pm_scope_items"},
-    "parts-tracker.html": {"inventory_items", "logbook"},
+    # Phase 5c (2026-05-12): assets table dropped; the asset wizard + linker
+    # + supervisor approval flows live in these pages so they now own
+    # asset_nodes directly.
+    "logbook.html":       {"logbook", "asset_nodes"},
+    "inventory.html":     {"inventory_items", "asset_nodes"},
+    "pm-scheduler.html":  {"pm_assets", "pm_scope_items", "asset_nodes"},
+    "parts-tracker.html": {"inventory_items", "logbook", "asset_nodes"},
+    "hive.html":          {"asset_nodes"},      # supervisor approval queue
+    "project-manager.html": {"asset_nodes"},    # project asset linker
 }
 
 # Known pre-existing drift in non-owner consumers. Each entry documents an

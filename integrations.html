@@ -1068,21 +1068,22 @@
 
     // --- Assets -------------------------------------------------------------
     } else if (entityType === 'asset') {
+      // Phase 5c: CMMS import writes to asset_nodes (the legacy assets table
+      // was dropped). Column renames: asset_id -> tag, type -> iso_class.
       const assetRows = validRows.map(r => ({
         worker_name:  WORKER_NAME,
-        asset_id:     r.external_id,
+        tag:          r.external_id,
         name:         r.name || r.external_id,
-        type:         r.type || 'General',
+        iso_class:    r.type || 'General',
         location:     r.location || '',
-        criticality:  'Medium',
-        registered_at: r.install_date || now,
-        created_at:   r.install_date || now,
+        criticality:  'medium',
+        level:        'equipment',
         status:       'approved',
         hive_id:      HIVE_ID,
         submitted_by: WORKER_NAME,
         approved_by:  WORKER_NAME,
         approved_at:  now,
-        // assets table has no notes column — store manufacturer/model/serial in location field suffix
+        external_ids: { source_external_id: r.external_id },
       }));
 
       for (let i = 0; i < total; i += CHUNK) {
@@ -1093,7 +1094,7 @@
         const aBatch = assetRows.slice(i, i + CHUNK);
         try {
           await db.from('external_sync').upsert(sBatch, { onConflict: 'system_type,external_id,entity_type' });
-          await db.from('assets').upsert(aBatch, { onConflict: 'asset_id,hive_id' });
+          await db.from('asset_nodes').upsert(aBatch, { onConflict: 'hive_id,tag' });
           imported += sBatch.length;
         } catch (e) { console.error('batch error:', e); failed += sBatch.length; }
       }

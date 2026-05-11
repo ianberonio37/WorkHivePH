@@ -499,41 +499,29 @@ const INV_KEY    = 'wh_inventory_'  + WORKER_NAME;
 const TXN_KEY    = 'wh_inv_txns_'   + WORKER_NAME;
 const ASSETS_KEY = 'wh_assets_'     + WORKER_NAME;
 
-// Phase 5b.2: inventory_items.linked_asset_node_ids is uuid[], but the
-// asset picker still loads from the legacy `assets` table (text-keyed).
-// Build two maps so the picker UI can keep using asset.asset_id (human
-// code) while the DB column stores canonical asset_node uuids.
-//   _assetIdToNodeId[a.asset_id]  -> asset_nodes.id (uuid)   for SAVE
-//   _nodeIdToAssetId[asset_node_id] -> a.asset_id (text)     for LOAD + display
-// Populated by _buildAssetNodeMaps() after assets + asset_nodes load.
+// Phase 5c: the legacy `assets` table is gone; _assets loads directly
+// from asset_nodes (with column aliases asset_id:tag and type:iso_class
+// so the existing picker UI doesn't have to know). The Set still holds
+// asset_id text (the human code = asset_nodes.tag); these maps translate
+// to/from the canonical uuid for storage in linked_asset_node_ids.
+//   _assetIdToNodeId[a.asset_id]    -> asset_nodes.id (uuid)  for SAVE
+//   _nodeIdToAssetId[asset_node_id] -> a.asset_id (text)      for LOAD + display
+// Populated by _buildAssetNodeMaps() after _assets loads.
 let _assetIdToNodeId = {};
 let _nodeIdToAssetId = {};
 
-async function _buildAssetNodeMaps() {
+function _buildAssetNodeMaps() {
   _assetIdToNodeId = {};
   _nodeIdToAssetId = {};
-  if (!HIVE_ID) return;          // solo mode: asset_nodes is hive-scoped
   if (!_assets?.length) return;
-  // canonical-allow: linker bridge needs raw asset_nodes for tag + legacy_asset_id columns
-  const { data: nodes } = await db.from('asset_nodes')
-    .select('id, tag, legacy_asset_id')
-    .eq('hive_id', HIVE_ID);
-  if (!nodes?.length) return;
-  // Build reverse indexes keyed by tag (lower) AND legacy_asset_id so we
-  // catch both the human-code form (assets.asset_id) and the text-PK form
-  // (assets.id) the canonical view uses for its bridge.
-  const byTag = {};
-  const byLegacy = {};
-  for (const n of nodes) {
-    if (n.tag) byTag[String(n.tag).toLowerCase()] = n.id;
-    if (n.legacy_asset_id) byLegacy[String(n.legacy_asset_id)] = n.id;
-  }
+  // _assets already holds asset_nodes rows (Phase 5c migration), so
+  // a.id is the canonical uuid and a.asset_id is the aliased tag. No
+  // DB round-trip needed; map building is now synchronous + O(n).
   for (const a of _assets) {
     const code = a.asset_id;
-    const nodeId = byLegacy[a.id] || byTag[(code || '').toLowerCase()] || null;
-    if (nodeId && code) {
-      _assetIdToNodeId[code] = nodeId;
-      _nodeIdToAssetId[nodeId] = code;
+    if (a.id && code) {
+      _assetIdToNodeId[code] = a.id;
+      _nodeIdToAssetId[a.id] = code;
     }
   }
 }
@@ -1349,14 +1337,17 @@ async function initData() {
 
   // Load inventory: approved hive items + all my own (includes my pending) when in a hive
   let itemsFetches, assetsFetches;
+  // Phase 5c: assets table dropped; load asset_nodes with column aliases
+  // so downstream picker code keeps reading a.asset_id and a.type.
+  const ASSET_COLS = 'id, asset_id:tag, name, type:iso_class, location, criticality, hive_id, worker_name, status, created_at';
   if (HIVE_ID) {
     itemsFetches = Promise.all([
       db.from('inventory_items').select('*').eq('hive_id', HIVE_ID).eq('status', 'approved').order('created_at'),
       db.from('inventory_items').select('*').eq('hive_id', HIVE_ID).eq('worker_name', WORKER_NAME).order('created_at')
     ]);
     assetsFetches = Promise.all([
-      db.from('assets').select('*').eq('hive_id', HIVE_ID).eq('status', 'approved').order('created_at'),
-      db.from('assets').select('*').eq('worker_name', WORKER_NAME).order('created_at')
+      db.from('asset_nodes').select(ASSET_COLS).eq('hive_id', HIVE_ID).eq('status', 'approved').order('created_at'),
+      db.from('asset_nodes').select(ASSET_COLS).eq('worker_name', WORKER_NAME).order('created_at')
     ]);
   } else {
     itemsFetches  = Promise.resolve([{ data: null }, { data: null }]);
@@ -1366,7 +1357,7 @@ async function initData() {
   const [itemsRes, txnsRes, assetsRes, [hiveItemsRes, myItemsRes], [hiveAssetsRes, myAssetsRes]] = await Promise.all([
     HIVE_ID ? Promise.resolve({ data: null }) : db.from('inventory_items').select('*').eq('worker_name', WORKER_NAME).order('created_at'),
     db.from('inventory_transactions').select('*').eq('worker_name', WORKER_NAME).order('created_at'),
-    HIVE_ID ? Promise.resolve({ data: null }) : db.from('assets').select('*').eq('worker_name', WORKER_NAME).order('created_at'),
+    HIVE_ID ? Promise.resolve({ data: null }) : db.from('asset_nodes').select(ASSET_COLS).eq('worker_name', WORKER_NAME).is('hive_id', null).order('created_at'),
     itemsFetches,
     assetsFetches
   ]);
@@ -1423,23 +1414,37 @@ async function initData() {
     }
   }
 
-  // Migrate assets from localStorage if Supabase is empty
+  // Migrate assets from localStorage if Supabase is empty.
+  // Phase 5c: writes go directly to asset_nodes with the canonical column
+  // names. Local-only assets get the legacy text id as tag (the user-set
+  // human code) and a fresh uuid for id.
   if (mergedAssets.length === 0 && lsAssets.length > 0) {
     for (const a of lsAssets) {
-      await db.from('assets').upsert({ ...a, worker_name: WORKER_NAME, status: 'approved', auth_uid: _authUid || null });
+      const payload = {
+        id:           (typeof crypto !== 'undefined' && crypto.randomUUID) ? crypto.randomUUID() : (Date.now().toString() + '-' + Math.random().toString(36).slice(2, 10)),
+        tag:          a.asset_id || a.id,
+        name:         a.name || a.asset_id || a.id,
+        iso_class:    a.type || null,
+        location:     a.location || null,
+        criticality:  ['low','medium','high','critical'].includes((a.criticality || '').toLowerCase()) ? a.criticality.toLowerCase() : 'medium',
+        worker_name:  WORKER_NAME,
+        hive_id:      null,
+        status:       'approved',
+        auth_uid:     _authUid || null,
+      };
+      await db.from('asset_nodes').upsert(payload);
     }
     localStorage.removeItem(ASSETS_KEY);
-    const { data: migA } = await db.from('assets').select('*').eq('worker_name', WORKER_NAME).order('created_at');
+    const { data: migA } = await db.from('asset_nodes').select(ASSET_COLS)
+      .eq('worker_name', WORKER_NAME).is('hive_id', null).order('created_at');
     _assets = migA || [];
   } else {
     _assets = mergedAssets;
   }
 
-  // Phase 5b.2: build asset_id <-> asset_node_id maps so the picker UI keeps
-  // its text-code semantics while inventory_items.linked_asset_node_ids
-  // stores canonical uuids. Awaited before renderParts() so the first paint
-  // can map node ids back to display text.
-  await _buildAssetNodeMaps();
+  // Phase 5c: _assets now holds asset_nodes rows directly (with aliased
+  // a.asset_id = tag, a.type = iso_class). Map-building is synchronous.
+  _buildAssetNodeMaps();
 
   renderParts();
 }

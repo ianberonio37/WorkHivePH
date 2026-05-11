@@ -104,9 +104,9 @@ RESET_TABLES = [
     "pm_scope_items",
     "pm_assets",
     # equipment_reading_templates is a CATALOG table (migration-seeded), do NOT wipe.
-    # Logbook + assets
+    # Logbook (asset_nodes is wiped earlier in the canonical layer; the
+    # legacy `assets` table was dropped in Phase 5c 2026-05-12).
     "logbook",
-    "assets",
     # Standalone misc
     "early_access_emails",
     # Hive membership last (root)

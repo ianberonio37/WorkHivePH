@@ -1726,13 +1726,41 @@ let _assets = [];
 
 function loadAssets() { return _assets; }
 
+// Phase 5c: every CRUD goes to asset_nodes. We alias `tag` -> `asset_id`
+// and `iso_class` -> `type` in selects so existing render code (which reads
+// `a.asset_id` and `a.type`) keeps working without a rename. Writes use
+// asset_nodes column names directly via a helper.
+function _assetToNode(a) {
+  // Translate the wizard's local asset object to the asset_nodes column
+  // shape. Drops keys the new table doesn't carry; renames asset_id -> tag
+  // and type -> iso_class. registered_at maps to created_at (and is
+  // optional; the table has a default).
+  const out = {
+    id:           a.id,
+    tag:          a.asset_id,
+    name:         a.name,
+    iso_class:    a.type || null,
+    location:     a.location || null,
+    criticality:  (a.criticality || 'medium').toLowerCase(),
+    hive_id:      a.hive_id || null,
+    worker_name:  a.worker_name || WORKER_NAME,
+    status:       a.status || 'approved',
+    submitted_by: a.submitted_by || a.worker_name || WORKER_NAME,
+  };
+  // asset_nodes CHECK constraint accepts low/medium/high/critical.
+  if (!['low','medium','high','critical'].includes(out.criticality)) {
+    out.criticality = 'medium';
+  }
+  return out;
+}
+
 function saveAssets(arr) {
   const prev = _assets;
   _assets = arr;
   // Delete removed assets
   prev.forEach(a => {
     if (!arr.find(x => x.id === a.id)) {
-      db.from('assets').delete().eq('id', a.id)
+      db.from('asset_nodes').delete().eq('id', a.id)
         .then(({ error }) => { if (error) { console.error('asset delete:', error.message); showToast('Asset delete failed: ' + error.message); } });
     }
   });
@@ -1740,7 +1768,7 @@ function saveAssets(arr) {
   arr.forEach(asset => {
     const old = prev.find(o => o.id === asset.id);
     if (!old || JSON.stringify(old) !== JSON.stringify(asset)) {
-      db.from('assets').upsert({ ...asset, worker_name: WORKER_NAME })
+      db.from('asset_nodes').upsert(_assetToNode({ ...asset, worker_name: WORKER_NAME }))
         .then(({ error }) => { if (error) { console.error('asset sync:', error.message); showToast('Asset save failed: ' + error.message); } });
     }
   });
@@ -1749,32 +1777,36 @@ function saveAssets(arr) {
 async function initAssets() {
   const lsAssets = JSON.parse(localStorage.getItem(ASSETS_KEY) || '[]');
 
+  // Phase 5c: select aliases asset_nodes column names back to the legacy
+  // shape so downstream render code keeps reading a.asset_id and a.type.
+  const COLS = 'id, asset_id:tag, name, type:iso_class, location, criticality, hive_id, worker_name, status, submitted_by, approved_by, approved_at, created_at';
+
   let sbAssets = [];
   if (HIVE_ID) {
-    // Load approved hive assets (from all members) + all my own assets (includes pending)
     const [hiveRes, myRes] = await Promise.all([
-      db.from('assets').select('*').eq('hive_id', HIVE_ID).eq('status', 'approved'),
-      db.from('assets').select('*').eq('worker_name', WORKER_NAME)
+      db.from('asset_nodes').select(COLS).eq('hive_id', HIVE_ID).eq('status', 'approved'),
+      db.from('asset_nodes').select(COLS).eq('worker_name', WORKER_NAME),
     ]);
     if (hiveRes.error) { console.error('assets load (hive):', hiveRes.error.message); showToast('Could not load hive assets: ' + hiveRes.error.message); }
     if (myRes.error)  { console.error('assets load (personal):', myRes.error.message); showToast('Could not load your assets: ' + myRes.error.message); }
-    // Merge, deduplicate by id (my own assets take precedence so pending status is preserved)
     const seen = new Set();
     for (const a of [...(myRes.data || []), ...(hiveRes.data || [])]) {
       if (!seen.has(a.id)) { seen.add(a.id); sbAssets.push(a); }
     }
   } else {
-    const { data, error } = await db.from('assets').select('*').eq('worker_name', WORKER_NAME);
+    const { data, error } = await db.from('asset_nodes').select(COLS)
+      .eq('worker_name', WORKER_NAME).is('hive_id', null);
     if (error) { console.error('assets load:', error.message); showToast('Could not load assets: ' + error.message); }
     sbAssets = data || [];
   }
 
   if (sbAssets.length === 0 && lsAssets.length > 0) {
     for (const a of lsAssets) {
-      await db.from('assets').upsert({ ...a, worker_name: WORKER_NAME, status: 'approved' });
+      await db.from('asset_nodes').upsert(_assetToNode({ ...a, worker_name: WORKER_NAME, status: 'approved' }));
     }
     localStorage.removeItem(ASSETS_KEY);
-    const { data: migrated } = await db.from('assets').select('*').eq('worker_name', WORKER_NAME);
+    const { data: migrated } = await db.from('asset_nodes').select(COLS)
+      .eq('worker_name', WORKER_NAME).is('hive_id', null);
     _assets = migrated || [];
   } else {
     _assets = sbAssets;
@@ -1865,8 +1897,11 @@ async function submitAsset() {
     return;
   }
   const criticality = document.querySelector('input[name="a-criticality"]:checked');
+  // Phase 5c: asset_nodes uses uuid PKs; the wizard now generates a uuid
+  // client-side via crypto.randomUUID() so the new row has a valid id from
+  // the moment it lives in local _assets, before the DB write returns.
   const asset = {
-    id: Date.now().toString(),
+    id: (typeof crypto !== 'undefined' && crypto.randomUUID) ? crypto.randomUUID() : (Date.now().toString() + '-' + Math.random().toString(36).slice(2, 10)),
     asset_id: assetId,
     name: document.getElementById('a-name').value.trim(),
     type: document.getElementById('a-type').value,
@@ -1878,7 +1913,7 @@ async function submitAsset() {
     submitted_by: WORKER_NAME
   };
   // Save to Supabase first: only update memory on confirmed success
-  const { error } = await db.from('assets').upsert({ ...asset, worker_name: WORKER_NAME });
+  const { error } = await db.from('asset_nodes').upsert(_assetToNode({ ...asset, worker_name: WORKER_NAME }));
   if (error) {
     console.error('asset save:', error.message);
     showToast('Save failed: ' + error.message);
@@ -1909,7 +1944,7 @@ async function deleteAsset(id) {
 
   if (!confirm('Remove this asset from the registry?')) return;
 
-  const { error } = await db.from('assets').delete().eq('id', id);
+  const { error } = await db.from('asset_nodes').delete().eq('id', id);
   if (error) { showToast('Could not remove asset: ' + error.message); return; }
 
   writeAuditLog('delete_asset', 'assets', id, asset.asset_id || id, {
@@ -1967,13 +2002,21 @@ async function saveEditAsset() {
   // Workers editing approved assets must re-enter approval queue
   const asset = loadAssets().find(a => a.id === id);
   const needsReapproval = HIVE_ID && HIVE_ROLE !== 'supervisor' && asset?.status === 'approved';
+  // Phase 5c: update writes go to asset_nodes with the renamed columns.
   const updates = {
-    asset_id, name, type, location, criticality,
+    tag:         asset_id,      // asset_id -> tag
+    name,
+    iso_class:   type || null,  // type -> iso_class
+    location:    location || null,
+    criticality: (criticality || 'medium').toLowerCase(),
     ...(needsReapproval ? { status: 'pending' } : {})
   };
+  if (!['low','medium','high','critical'].includes(updates.criticality)) {
+    updates.criticality = 'medium';
+  }
 
   // Scope update to owner: prevents overwriting another member's asset
-  let q = db.from('assets').update(updates).eq('id', id);
+  let q = db.from('asset_nodes').update(updates).eq('id', id);
   if (HIVE_ID && HIVE_ROLE !== 'supervisor') q = q.eq('worker_name', WORKER_NAME);
 
   const { error } = await q;
@@ -1990,8 +2033,18 @@ async function saveEditAsset() {
     needs_reapproval: needsReapproval || false,
   });
 
-  // Update local cache
-  _assets = _assets.map(a => a.id === id ? { ...a, ...updates } : a);
+  // Update local cache. `updates` uses asset_nodes column names; the local
+  // _assets cache uses the legacy shape (asset_id, type) so render code
+  // keeps working. Translate back.
+  _assets = _assets.map(a => a.id === id ? {
+    ...a,
+    asset_id:    asset_id,
+    name:        updates.name,
+    type:        type || '',
+    location:    updates.location || '',
+    criticality: updates.criticality,
+    ...(needsReapproval ? { status: 'pending' } : {}),
+  } : a);
   updateAssetDatalist();
   renderAssetList();
   closeEditAsset();

@@ -1975,7 +1975,7 @@ async function loadLinkOptions() {
   $('l-picker-wrap').classList.toggle('hidden', t === 'contractor');
   if (t === 'contractor') return;
   const queries = {
-    asset:               () => db.from('assets').select('id, name').eq('hive_id', HIVE_ID).order('name').limit(200),
+    asset:               () => db.from('asset_nodes').select('id, name').eq('hive_id', HIVE_ID).order('name').limit(200),
     logbook:             () => db.from('v_logbook_truth').select('id, machine, problem, created_at').eq('hive_id', HIVE_ID).order('created_at', { ascending: false }).limit(50),
     pm_completion:       () => db.from('pm_completions').select('id, asset_id, completed_at').eq('hive_id', HIVE_ID).order('completed_at', { ascending: false }).limit(50),
     inventory_item:      () => db.from('v_inventory_items_truth').select('id, part_name, part_number').eq('hive_id', HIVE_ID).order('part_name').limit(200),
