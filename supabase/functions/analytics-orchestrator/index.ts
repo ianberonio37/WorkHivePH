@@ -5,6 +5,7 @@ import { logAICost, estimateTokens } from "../_shared/cost-log.ts";
 import { redactPII } from "../_shared/redactPII.ts";
 import { getCorsHeaders } from "../_shared/cors.ts";
 import { checkAIRateLimit, rateLimitedResponse } from "../_shared/rate-limit.ts";
+import { validateContract } from "../_shared/validate-contract.ts";
 
 // ── Canonical agent contracts produced by this orchestrator ─────────────────
 // All response shapes below are registered in canonical_agent_contracts
@@ -358,6 +359,7 @@ async function callGroqSynthesis(
   fullContext: Record<string, unknown>,
   hiveMembers: string[],
   canonicalRisk: Array<Record<string, unknown>>,
+  db: SupabaseClient,
 ): Promise<string> {
   const memberList = hiveMembers.length > 0
     ? `Your actual team members are: ${hiveMembers.join(", ")}. ONLY use these names — never invent names like John, Bob, or any other person not in this list.`
@@ -450,7 +452,32 @@ Format as JSON:
 
   try {
     const raw = await callAI(prompt, { systemPrompt, temperature: 0.3, maxTokens: 800, jsonMode: true });
-    if (raw && raw !== "{}") return JSON.stringify(JSON.parse(raw));
+    if (raw && raw !== "{}") {
+      const parsed = JSON.parse(raw);
+      // Tier C contract enforcement — refuse to ship action plan with the
+      // wrong shape rather than silently render wrong fields on the dashboard.
+      const v = await validateContract(db, "analytics_action_plan_v1", parsed);
+      if (!v.ok) {
+        console.error("[analytics-orchestrator] action_plan_v1 contract violation:", v.errors);
+        // One LLM retry with the error as a steering hint — cheap, often
+        // recovers from a single hallucinated key rename.
+        const fixPrompt =
+          `Previous response failed the analytics_action_plan_v1 contract: ${JSON.stringify(v.errors)}\n` +
+          `Re-emit valid JSON matching exactly: { "summary": string, "this_week": string[], "watch_list": string[] }\n` +
+          `Same data, corrected shape only.`;
+        try {
+          const retry = await callAI(fixPrompt, { systemPrompt, temperature: 0.1, maxTokens: 800, jsonMode: true });
+          const retryParsed = JSON.parse(retry);
+          const v2 = await validateContract(db, "analytics_action_plan_v1", retryParsed);
+          if (v2.ok) return JSON.stringify(retryParsed);
+          // Second strike — log and return empty so the dashboard tile
+          // shows "no action plan" instead of a malformed render.
+          console.error("[analytics-orchestrator] action_plan_v1 retry also failed:", v2.errors);
+          return "{}";
+        } catch { return "{}"; }
+      }
+      return JSON.stringify(parsed);
+    }
   } catch { /* fall through */ }
   return "{}";
 }
@@ -650,9 +677,41 @@ serve(async (req) => {
             { descriptive, diagnostic, predictive, prescriptive },
             hiveMembers,
             canonicalRisk,
+            db,
           );
           actionPlan = JSON.parse(raw);
         } catch (_e) { actionPlan = null; }
+      }
+
+      // Tier C contract enforcement on Python-sourced brain outputs.
+      // Each phase carries its own top-level contract; we validate the
+      // payload and log violations but do not fail the report so a single
+      // contract drift doesn't black out the whole 4-phase render.
+      // Map: phase key -> { sub_key -> contract_id }. Sub_keys are the
+      // exact field names the Python phase returns at top level.
+      const PHASE_CONTRACTS: Record<string, Record<string, string>> = {
+        predictive: {
+          next_failure_dates:        "next_failure_forecast_v1",
+          parts_stockout:            "parts_stockout_v1",
+          anomaly_baseline:          "anomaly_baseline_v1",
+          parts_consumption_spike:   "parts_spike_v1",
+        },
+        prescriptive: {
+          priority_ranking:          "priority_ranking_v1",
+        },
+      };
+      for (const [phaseKey, contracts] of Object.entries(PHASE_CONTRACTS)) {
+        const phaseObj = (phaseKey === "predictive" ? predictive : prescriptive) as Record<string, unknown> | null;
+        if (!phaseObj) continue;
+        for (const [subKey, contractId] of Object.entries(contracts)) {
+          const sub = phaseObj[subKey];
+          if (!sub) continue;
+          const v = await validateContract(db, contractId, sub);
+          if (!v.ok) {
+            console.error(`[analytics-orchestrator] ${contractId} contract violation on ${phaseKey}.${subKey}:`, v.errors);
+            (phaseObj[subKey] as Record<string, unknown>)._contract_violation = v.errors;
+          }
+        }
       }
 
       const bundled = {
@@ -726,8 +785,36 @@ serve(async (req) => {
       };
 
       const canonicalRisk = await fetchCanonicalRiskTop(db, hive_id || null, 5);
-      const raw = await callGroqSynthesis(fullContext, hiveMembers, canonicalRisk);
+      const raw = await callGroqSynthesis(fullContext, hiveMembers, canonicalRisk, db);
       try { groqSynthesis = JSON.parse(raw); } catch { groqSynthesis = null; }
+    }
+
+    // Tier C: validate Python-sourced contracts on the requested phase.
+    // Same map as the bundled report path; non-blocking — annotate the
+    // sub-payload with a _contract_violation key so consumers can detect
+    // and the dashboard can fall back to a safe render.
+    const PHASE_CONTRACT_MAP: Record<string, Record<string, string>> = {
+      predictive: {
+        next_failure_dates:      "next_failure_forecast_v1",
+        parts_stockout:          "parts_stockout_v1",
+        anomaly_baseline:        "anomaly_baseline_v1",
+        parts_consumption_spike: "parts_spike_v1",
+      },
+      prescriptive: {
+        priority_ranking:        "priority_ranking_v1",
+      },
+    };
+    const phaseContracts = PHASE_CONTRACT_MAP[phase];
+    if (phaseContracts) {
+      for (const [subKey, contractId] of Object.entries(phaseContracts)) {
+        const sub = (results as Record<string, unknown>)[subKey];
+        if (!sub) continue;
+        const v = await validateContract(db, contractId, sub);
+        if (!v.ok) {
+          console.error(`[analytics-orchestrator] ${contractId} violation on ${phase}.${subKey}:`, v.errors);
+          (sub as Record<string, unknown>)._contract_violation = v.errors;
+        }
+      }
     }
 
     // Attach metadata

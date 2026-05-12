@@ -204,6 +204,15 @@ VALIDATORS = [
         "skip_if_fast": False,
     },
     {
+        "id":      "tier-c-contracts",
+        "script":  "validate_tier_c_contracts.py",
+        "args":    [],
+        "label":   "Tier C Contract Regression Validator (good/bad fixtures per agent contract)",
+        "group":   "Platform",
+        "report":  "tier_c_contracts_report.json",
+        "skip_if_fast": False,
+    },
+    {
         "id":      "write-path-monitor",
         "script":  "validate_write_path_monitor.py",
         "args":    [],

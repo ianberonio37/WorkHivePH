@@ -79,6 +79,31 @@ ALLOWED_MULTI_COMMIT = {
         "do not halt on assets.asset_id missing UNIQUE constraint. Second commit "
         "landed same-day, no prod deploy in between (remote DB already had FK). "
         "Long-term fix: ensure assets.asset_id has UNIQUE in baseline migration.",
+    "20260512000003_sensor_readings.sql":
+        "2026-05-12 walkthrough fix: GENERATED column not IMMUTABLE; replaced "
+        "with BEFORE INSERT trigger. Never applied to remote (migration list "
+        "shows empty remote column for 20260512*). Local Docker re-applied "
+        "via `supabase migration up --local` after edit. Safe.",
+    "20260512000007_phase_5b1_drop_logbook_asset_ref.sql":
+        "2026-05-12 walkthrough fix: CREATE OR REPLACE VIEW couldn't drop "
+        "asset_ref_id column; added DROP VIEW IF EXISTS CASCADE for "
+        "v_logbook_truth + asset_brain_overview (latter retired, no live "
+        "consumers). Never applied to remote.",
+    "20260512000008_phase_5b2_drop_inventory_linked_asset_ids.sql":
+        "2026-05-12 walkthrough fix: same CREATE OR REPLACE column-rename "
+        "issue. DROP VIEW IF EXISTS CASCADE added. Never applied to remote.",
+    "20260512000012_canonical_anchor_batch.sql":
+        "2026-05-12 walkthrough fix: v_worker_assignment_truth referenced "
+        "logbook.asset_ref_id which Phase 5b.1 dropped; pm_completions.worker "
+        "column is worker_name not completed_by. Both fixed. Replaced the "
+        "asset_brain_overview_legacy registration (view retired in 5b.1) with "
+        "a retirement tombstone. Never applied to remote.",
+    "20260512000013_tier_bcde_foundation.sql":
+        "2026-05-12 walkthrough + Tier C realign: (a) v_project_truth used "
+        "wrong column names (type/budget_pesos/...) for actual projects table "
+        "shape; v_knowledge_truth assumed unified 'content' column; "
+        "v_audit_unified assumed worker_name+payload across all 4 audit "
+        "tables. All fixed. Never applied to remote.",
 }
 
 

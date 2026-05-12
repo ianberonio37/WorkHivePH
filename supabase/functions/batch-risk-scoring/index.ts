@@ -3,6 +3,7 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 // contract: health_score_v1 (canonical_agent_contracts; consumers: predictive.html, asset-hub.html, analytics.html, shift-brain.html)
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { getCorsHeaders } from "../_shared/cors.ts";
+import { validateContract } from "../_shared/validate-contract.ts";
 
 // Warm module-scope Supabase client. Reused across request invocations
 // in the same warm container. Per-request createClient calls below are
@@ -295,8 +296,30 @@ async function scoreHive(
     };
   });
 
+  // Tier C contract enforcement on per-row write. Filter out any row that
+  // violates health_score_v1 so a malformed score doesn't poison
+  // v_risk_truth (which feeds Predictive + Asset Hub + Analytics).
+  const validRows: typeof rows = [];
+  let violations = 0;
+  for (const row of rows) {
+    const v = await validateContract(db, "health_score_v1", row);
+    if (v.ok) {
+      validRows.push(row);
+    } else {
+      violations++;
+      console.error("[batch-risk-scoring] health_score_v1 violation, skipping row:",
+        row.asset_name, v.errors);
+    }
+  }
+  if (violations > 0) {
+    console.warn(`[batch-risk-scoring] Hive ${hiveId}: ${violations} rows rejected by Tier C contract.`);
+  }
+  if (!validRows.length) {
+    return { hive_id: hiveId, scored: 0, contract_violations: violations };
+  }
+
   // ── 5. Write to asset_risk_scores (insert, not upsert — keep history) ─────────
-  const { error: insertErr } = await db.from("asset_risk_scores").insert(rows);
+  const { error: insertErr } = await db.from("asset_risk_scores").insert(validRows);
   if (insertErr) throw new Error(`Insert failed for hive ${hiveId}: ${insertErr.message}`);
 
   return { hive_id: hiveId, scored: rows.length, model_version: modelVersion };
