@@ -987,6 +987,29 @@ async function submitPart() {
     if (idx === -1) return;
     const prev = items[idx];
     const updated = { ...prev, ...payload, photo: currentPhotoData || prev.photo || null };
+    // Optimistic concurrency guard (PRODUCTION_FIXES #43). Use the row's
+    // last-seen updated_at to detect a parallel edit. If conflict, abort
+    // and ask the user to refresh. inventory_items already auto-touches
+    // updated_at on every UPDATE so this works without a trigger change.
+    if (prev.updated_at && typeof ocUpdate === 'function') {
+      const ocRes = await ocUpdate(db, 'inventory_items', editingItemId, payload, prev.updated_at);
+      if (ocRes.conflict) {
+        showFormError(errEl, 'Another worker just edited this part. Refresh the list and try again.');
+        return;
+      }
+      if (!ocRes.ok && ocRes.error) {
+        showFormError(errEl, 'Save failed: ' + ocRes.error.message);
+        return;
+      }
+      // Update local cache from the canonical row + close modal.
+      items[idx] = { ...updated, updated_at: ocRes.row?.updated_at || now };
+      saveInventory(items);
+      writeAuditLog('edit_part', 'inventory_items', editingItemId, payload.part_name, payload);
+      closePartModal();
+      renderParts();
+      showToast('Part updated.');
+      return;
+    }
     items[idx] = updated;
 
     // Await the DB write: fire-and-forget causes silent revert on reload

@@ -79,7 +79,11 @@ def check_parts_deduction_guard(content, page):
     if not m:
         return [{"check": "parts_deduction_guard", "page": page,
                  "reason": "saveEdit() function not found — cannot verify parts deduction guard"}]
-    edit_block = content[m.start():m.start() + 3000]
+    # Phase Tier2.1 (2026-05-12): saveEdit gained ~600 chars of optimistic-
+    # concurrency wrapping, so the parts-deduction loop now lives further
+    # down. Widen the window from 3000 to 6000 chars (saveEdit is ~120 lines
+    # in total, well within that bound).
+    edit_block = content[m.start():m.start() + 6000]
     if not re.search(r"if\s*\(!p\.partId\s*\|\|\s*p\._existing\)\s*continue", edit_block):
         return [{"check": "parts_deduction_guard", "page": page,
                  "reason": "saveEdit() deducts parts without _existing guard — will double-deduct inventory on re-save"}]
@@ -196,15 +200,26 @@ def check_update_scoped_by_worker(content, page):
     if not m:
         return [{"check": "update_scoped_by_worker", "page": page,
                  "reason": "saveEdit() function not found"}]
-    body = content[m.start():m.start() + 3000]
+    # Phase Tier2.1 (2026-05-12): saveEdit grew with the optimistic-
+    # concurrency wrapper. Window widened to 6000 chars to span the OC
+    # branch + the fallback .update() path that still exists for rows
+    # without updated_at.
+    body = content[m.start():m.start() + 6000]
+    # Two acceptable patterns:
+    #   (a) Legacy: .from('logbook').update(...).eq('worker_name', WORKER_NAME)
+    #   (b) Phase Tier2.1: ocUpdate(db, 'logbook', id, updates, oldStamp)
+    #       -- OC guard is stronger isolation than worker_name (the stamp
+    #       moves on every UPDATE and is unique per writer).
+    if re.search(r"ocUpdate\s*\(\s*db\s*,\s*['\"]logbook['\"]", body):
+        return []
     update_m = re.search(r"from\(['\"]logbook['\"]\)\.update\(", body)
     if not update_m:
         return [{"check": "update_scoped_by_worker", "page": page,
-                 "reason": "saveEdit() logbook.update() call not found"}]
+                 "reason": "saveEdit() logbook.update() / ocUpdate call not found"}]
     after = body[update_m.start():update_m.start() + 200]
     if not re.search(r"\.eq\s*\(['\"]worker_name['\"],\s*WORKER_NAME\s*\)", after):
         return [{"check": "update_scoped_by_worker", "page": page,
-                 "reason": "saveEdit() logbook.update() not scoped by worker_name — users could overwrite other workers' entries"}]
+                 "reason": "saveEdit() logbook.update() not scoped by worker_name or ocUpdate — users could overwrite other workers' entries"}]
     return []
 
 

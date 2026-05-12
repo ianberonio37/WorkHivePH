@@ -1500,6 +1500,91 @@ function startPresence() {
     });
 }
 
+// Phase Tier1.3 (2026-05-12): Worker mini-profile drawer.
+// Clicking any presence chip opens a slide-in panel with the worker's
+// top discipline, Community XP, and 3 most recent activity items. The
+// drawer is created once on first open and reused. Closes the gap
+// flagged in PRODUCTION_FIXES #15.
+
+function _openWorkerProfileDrawer(workerName) {
+  if (!workerName || !HIVE_ID) return;
+  let drawer = document.getElementById('wh-worker-profile-drawer');
+  if (!drawer) {
+    drawer = document.createElement('div');
+    drawer.id = 'wh-worker-profile-drawer';
+    drawer.style.cssText =
+      'position:fixed; inset:0; z-index:60; display:none; align-items:flex-end; ' +
+      'justify-content:center; background:rgba(0,0,0,0.55); backdrop-filter:blur(4px);';
+    drawer.innerHTML =
+      '<div id="wh-wp-panel" style="background:#162032; border-top:1px solid rgba(255,255,255,0.08); border-radius:18px 18px 0 0; width:100%; max-width:520px; max-height:80vh; overflow-y:auto; padding:20px 22px 28px;"></div>';
+    drawer.addEventListener('click', e => { if (e.target === drawer) drawer.style.display = 'none'; });
+    document.body.appendChild(drawer);
+  }
+  const panel = document.getElementById('wh-wp-panel');
+  panel.innerHTML =
+    '<div style="display:flex; align-items:center; justify-content:space-between; gap:12px;">' +
+      '<p style="font-size:.92rem; font-weight:800; color:#F4F6FA; margin:0;">' + escHtml(workerName) + '</p>' +
+      '<button type="button" onclick="document.getElementById(\'wh-worker-profile-drawer\').style.display=\'none\'" ' +
+              'style="background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); color:rgba(255,255,255,0.55); border-radius:8px; min-height:44px; min-width:44px; cursor:pointer;">' +
+        '&times;' +
+      '</button>' +
+    '</div>' +
+    '<p style="font-size:.72rem; color:rgba(255,255,255,.4); margin:2px 0 16px;">Loading profile&hellip;</p>' +
+    '<div id="wh-wp-body" style="display:flex; flex-direction:column; gap:12px;"></div>';
+  drawer.style.display = 'flex';
+
+  // Parallel fetch: skill badges + community XP + recent activity.
+  Promise.all([
+    db.from('skill_badges').select('discipline, level').eq('worker_name', workerName).order('level', { ascending: false }).limit(5),
+    db.from('community_xp').select('xp_total').eq('worker_name', workerName).eq('hive_id', HIVE_ID).maybeSingle(),
+    db.from('hive_members').select('role, joined_at').eq('worker_name', workerName).eq('hive_id', HIVE_ID).maybeSingle(),
+    db.from('v_logbook_truth').select('machine, problem, created_at, status').eq('hive_id', HIVE_ID).eq('worker_name', workerName).order('created_at', { ascending: false }).limit(3),
+  ]).then(([bRes, xRes, mRes, lRes]) => {
+    const badges = (bRes.data || []).slice().sort((a, b) => (b.level || 0) - (a.level || 0));
+    const top    = badges[0];
+    const xp     = xRes.data?.xp_total || 0;
+    const role   = mRes.data?.role || 'member';
+    const joined = mRes.data?.joined_at ? new Date(mRes.data.joined_at).toLocaleDateString('en-PH', { month: 'short', day: 'numeric', year: 'numeric' }) : '-';
+    const recent = lRes.data || [];
+
+    const body = document.getElementById('wh-wp-body');
+    if (!body) return;
+    body.innerHTML =
+      '<div style="display:grid; grid-template-columns:repeat(2,1fr); gap:10px;">' +
+        '<div style="padding:10px 12px; background:rgba(247,162,27,0.08); border:1px solid rgba(247,162,27,0.2); border-radius:10px;">' +
+          '<p style="font-size:.55rem; font-weight:700; text-transform:uppercase; letter-spacing:.07em; color:#F7A21B; margin:0 0 2px;">Top discipline</p>' +
+          '<p style="font-size:.82rem; font-weight:700; color:#F4F6FA; margin:0;">' + (top ? escHtml(top.discipline) + ' L' + (top.level || 1) : 'No badges yet') + '</p>' +
+        '</div>' +
+        '<div style="padding:10px 12px; background:rgba(41,182,217,0.08); border:1px solid rgba(41,182,217,0.2); border-radius:10px;">' +
+          '<p style="font-size:.55rem; font-weight:700; text-transform:uppercase; letter-spacing:.07em; color:#29B6D9; margin:0 0 2px;">Community XP</p>' +
+          '<p style="font-size:.82rem; font-weight:700; color:#F4F6FA; margin:0;">' + xp + '</p>' +
+        '</div>' +
+        '<div style="padding:10px 12px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:10px;">' +
+          '<p style="font-size:.55rem; font-weight:700; text-transform:uppercase; letter-spacing:.07em; color:rgba(255,255,255,0.4); margin:0 0 2px;">Role</p>' +
+          '<p style="font-size:.82rem; font-weight:700; color:#F4F6FA; margin:0; text-transform:capitalize;">' + escHtml(role) + '</p>' +
+        '</div>' +
+        '<div style="padding:10px 12px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:10px;">' +
+          '<p style="font-size:.55rem; font-weight:700; text-transform:uppercase; letter-spacing:.07em; color:rgba(255,255,255,0.4); margin:0 0 2px;">Joined</p>' +
+          '<p style="font-size:.82rem; font-weight:700; color:#F4F6FA; margin:0;">' + escHtml(joined) + '</p>' +
+        '</div>' +
+      '</div>' +
+      '<div>' +
+        '<p style="font-size:.55rem; font-weight:700; text-transform:uppercase; letter-spacing:.07em; color:rgba(255,255,255,0.4); margin:14px 0 6px;">Recent activity</p>' +
+        (recent.length
+          ? recent.map(r =>
+              '<div style="padding:8px 10px; background:rgba(255,255,255,0.03); border-radius:8px; margin-bottom:6px;">' +
+                '<p style="font-size:.78rem; font-weight:600; color:#F4F6FA; margin:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">' + escHtml(r.machine || 'Unknown machine') + '</p>' +
+                '<p style="font-size:.66rem; color:rgba(255,255,255,0.5); margin:2px 0 0;">' + escHtml(r.problem || '(no problem note)') + '</p>' +
+                '<p style="font-size:.6rem; color:rgba(255,255,255,0.35); margin:2px 0 0;">' + (r.created_at ? new Date(r.created_at).toLocaleDateString() : '-') + ' &middot; ' + escHtml(r.status || 'Open') + '</p>' +
+              '</div>'
+            ).join('')
+          : '<p style="font-size:.72rem; color:rgba(255,255,255,0.35); margin:0;">No recent logbook entries.</p>') +
+      '</div>';
+    const sub = panel.querySelector('p:nth-of-type(1) + p');
+    if (sub) sub.style.display = 'none';
+  });
+}
+
 function renderPresenceFallback() {
   const bar = document.getElementById('presence-bar');
   if (!memberNames.length) {
@@ -1508,7 +1593,7 @@ function renderPresenceFallback() {
   }
   bar.innerHTML = memberNames.map(name => {
     const isMe = name === WORKER_NAME;
-    return `<div class="presence-chip">
+    return `<div class="presence-chip" role="button" tabindex="0" style="cursor:pointer; min-height:44px;" onclick="_openWorkerProfileDrawer('${escHtml(name).replace(/'/g,"\\'")}')">
       <span class="presence-dot offline"></span>
       ${escHtml(name)}${isMe ? '&nbsp;<span style="color:rgba(255,255,255,0.3);font-size:0.6rem">(you)</span>' : ''}
     </div>`;
@@ -1528,7 +1613,7 @@ function renderPresence() {
   bar.innerHTML = onlineKeys.map(key => {
     const name = escHtml(key);
     const isMe = key === WORKER_NAME;
-    return `<div class="presence-chip">
+    return `<div class="presence-chip" role="button" tabindex="0" style="cursor:pointer; min-height:44px;" onclick="_openWorkerProfileDrawer('${name.replace(/'/g,"\\'")}')">
       <span class="presence-dot online"></span>
       ${name}${isMe ? '&nbsp;<span style="color:rgba(255,255,255,0.3);font-size:0.6rem">(you)</span>' : ''}
     </div>`;

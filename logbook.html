@@ -134,8 +134,8 @@
     /* ── Root cause chips ── */
     .rc-chip {
       display: inline-flex; align-items: center; gap: 0.3rem;
-      padding: 0.3rem 0.75rem; border-radius: 999px; cursor: pointer;
-      font-size: 0.7rem; font-weight: 600; min-height: 36px;
+      padding: 0.5rem 0.85rem; border-radius: 999px; cursor: pointer;
+      font-size: 0.7rem; font-weight: 600; min-height: 44px;
       background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.12);
       color: rgba(255,255,255,0.55); transition: all 0.15s; user-select: none;
     }
@@ -868,7 +868,7 @@
             <!-- Clear button — always accessible -->
             <div class="mt-2">
               <button type="button" id="clear-form" class="w-full text-xs py-2 rounded-xl transition-colors"
-                style="background:transparent;border:none;color:rgba(255,255,255,0.2);cursor:pointer;min-height:36px;">
+                style="background:transparent;border:none;color:rgba(255,255,255,0.2);cursor:pointer;min-height:44px;">
                 Clear form
               </button>
             </div>
@@ -3266,8 +3266,23 @@ async function saveEdit(id) {
     production_output:      existing?.production_output ?? null,
   };
   _tasklistNote = ''; // clear so it doesn't bleed into the next edit session
-  const { error } = await db.from('logbook').update(updates).eq('id', id).eq('worker_name', WORKER_NAME);
-  if (error) { showToast('Could not update entry: ' + error.message); return; }
+  // Optimistic concurrency guard (PRODUCTION_FIXES #43). logbook.updated_at
+  // is auto-touched by trg_logbook_touch_updated_at on every UPDATE; we
+  // send the row's last-seen value back as a .eq guard so a parallel edit
+  // by another worker is detected and surfaced instead of silently
+  // overwritten.
+  if (existing?.updated_at && typeof ocUpdate === 'function') {
+    const ocRes = await ocUpdate(db, 'logbook', id, updates, existing.updated_at);
+    if (ocRes.conflict) {
+      showToast('Another worker just edited this entry. Refresh the list and try again.');
+      return;
+    }
+    if (!ocRes.ok && ocRes.error) { showToast('Could not update entry: ' + ocRes.error.message); return; }
+  } else {
+    // Fallback path for offline / pre-trigger rows without updated_at.
+    const { error } = await db.from('logbook').update(updates).eq('id', id).eq('worker_name', WORKER_NAME);
+    if (error) { showToast('Could not update entry: ' + error.message); return; }
+  }
   writeAuditLog('edit_logbook_entry', 'logbook', id, machine || '(no machine)', {
     new_status: newStatus, prev_status: existing?.status,
     new_category: updates.category, new_downtime_hours: updates.downtime_hours,
@@ -4799,11 +4814,11 @@ function renderSelectedParts() {
         <input type="number" min="1" value="${p.qty}" inputmode="numeric"
           onchange="_partsUsed[${idx}].qty = Math.max(1, parseInt(this.value)||1)"
           class="text-xs text-center rounded-lg px-1 font-semibold"
-          style="width:3rem; background:rgba(22,32,50,0.8); border:1px solid rgba(255,255,255,0.12); color:white; min-height:32px;" />
+          style="width:3rem; background:rgba(22,32,50,0.8); border:1px solid rgba(255,255,255,0.12); color:white; min-height:44px; font-size:16px;" />
         <span class="text-[10px]" style="color:rgba(255,255,255,0.4);">${escHtml(p.unit)}</span>
         <button type="button" onclick="_partsUsed.splice(${idx},1); renderSelectedParts();"
-          class="w-6 h-6 rounded-lg flex items-center justify-center ml-1"
-          style="background:rgba(239,68,68,0.1); color:#f87171; border:1px solid rgba(239,68,68,0.2); min-height:24px; cursor:pointer;">
+          class="w-11 h-11 rounded-lg flex items-center justify-center ml-1"
+          style="background:rgba(239,68,68,0.1); color:#f87171; border:1px solid rgba(239,68,68,0.2); min-height:44px; min-width:44px; cursor:pointer;">
           <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
         </button>
       </div>

@@ -2722,6 +2722,92 @@
       const role = (localStorage.getItem('wh_nav_mode') === 'supervisor' || HIVE_ROLE === 'supervisor') ? 'supervisor' : 'field';
 
       const candidates = [];
+      // Phase Tier2.3 (2026-05-12): richer Today's One Thing signals.
+      // The ranker now also considers:
+      //  95  AMC daily brief awaiting supervisor approval
+      //  85  Sensor anomaly detected within last 24h (asset_node has v_sensor_recent row with quality_flag='ANOMALY')
+      //  75  Critical-severity failure-signature alert open
+      // These are fetched once here (allSettled) and merged into the candidate
+      // list so the rank/sort below stays single-source-of-truth.
+      let amcPending = null, sensorAnomaly = null, sigAlert = null;
+      if (HIVE_ID) {
+        try {
+          const todayIso = new Date().toISOString().slice(0, 10);
+          const [amcRes, anomRes, sigRes] = await Promise.allSettled([
+            // Supervisor sees AMC brief; field workers don't. The brief
+            // narrative lives inside the brief jsonb column (brief->summary).
+            (HIVE_ROLE === 'supervisor')
+              ? db.from('amc_briefings')
+                  .select('id, shift_date, brief, status')
+                  .eq('hive_id', HIVE_ID)
+                  .eq('status', 'pending')
+                  .gte('shift_date', todayIso)
+                  .order('shift_date', { ascending: true })
+                  .limit(1)
+                  .maybeSingle()
+              : Promise.resolve({ data: null }),
+            // Anomaly flag on a sensor reading in the last 24h.
+            // sensor_readings.asset_id (uuid) references asset_nodes(id).
+            db.from('sensor_readings')
+              .select('asset_id, parameter, quality_flag, recorded_at')
+              .eq('hive_id', HIVE_ID)
+              .eq('quality_flag', 'ANOMALY')
+              .gte('recorded_at', new Date(Date.now() - 86400000).toISOString())
+              .order('recorded_at', { ascending: false })
+              .limit(1)
+              .maybeSingle(),
+            // Critical-severity failure-signature alert still pending.
+            db.from('failure_signature_alerts')
+              .select('id, machine, alert_title, severity, detected_at')
+              .eq('hive_id', HIVE_ID)
+              .eq('severity', 'critical')
+              .order('detected_at', { ascending: false })
+              .limit(1)
+              .maybeSingle(),
+          ]);
+          amcPending    = amcRes.status    === 'fulfilled' ? amcRes.value.data    : null;
+          sensorAnomaly = anomRes.status   === 'fulfilled' ? anomRes.value.data   : null;
+          sigAlert      = sigRes.status    === 'fulfilled' ? sigRes.value.data    : null;
+        } catch (_) { /* network failure: just skip these signals */ }
+      }
+
+      if (amcPending) {
+        const amcSummary = (amcPending.brief && (amcPending.brief.summary || amcPending.brief.composer_summary)) || '';
+        candidates.push({
+          rank: 95,
+          tone: 'critical', accent: '#a78bfa',
+          label: 'AMC Brief Awaiting Approval',
+          headline: 'Approve today\'s autonomous maintenance brief',
+          detail: (amcSummary || 'Open Alert Hub to review the day plan and sign off.').slice(0, 120),
+          cta: 'Open Alert Hub',
+          href: 'alert-hub.html#amc',
+        });
+      }
+
+      if (sensorAnomaly) {
+        candidates.push({
+          rank: 85,
+          tone: 'high', accent: '#fb923c',
+          label: 'Sensor Anomaly',
+          headline: `${sensorAnomaly.parameter || 'Reading'} flagged anomaly`,
+          detail: 'A live sensor reading is 3-sigma outside the recent baseline. Inspect.',
+          cta: 'Open Asset Hub',
+          href: `asset-hub.html${sensorAnomaly.asset_id ? '?id=' + encodeURIComponent(sensorAnomaly.asset_id) : ''}`,
+        });
+      }
+
+      if (sigAlert) {
+        candidates.push({
+          rank: 75,
+          tone: 'high', accent: '#fb923c',
+          label: 'Critical Failure Signature',
+          headline: `${sigAlert.machine || 'Asset'}: ${sigAlert.alert_title || 'failure signature detected'}`,
+          detail: 'A historical failure pattern just matched. Review before the shift ends.',
+          cta: 'Open Alert Hub',
+          href: 'alert-hub.html',
+        });
+      }
+
       // 1) Critical-risk asset (anyone, top priority).
       const critRisks = risks.filter(r => r.risk_level === 'critical');
       if (critRisks.length) {

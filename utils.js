@@ -106,6 +106,46 @@ async function resolveLegacyAssetId(db, assetNodeId) {
   }
 }
 
+// ─────────────────────────────────────────────
+// ocUpdate — optimistic-concurrency update helper (PRODUCTION_FIXES #43)
+// ─────────────────────────────────────────────
+// Adds an `.eq('updated_at', oldStamp)` guard so a multi-writer race is
+// detected at the SQL layer instead of silently overwriting. Returns
+// { ok, row, conflict, error }:
+//   - ok=true, row=updated row  -> write succeeded
+//   - ok=false, conflict=true   -> updated_at didn't match (someone else won)
+//   - ok=false, error=Error     -> network / permission failure
+//
+// Callers wrap their save flow:
+//   const { data: cur } = await db.from(t).select('id, updated_at').eq('id', id).single();
+//   const res = await ocUpdate(db, t, id, updates, cur.updated_at);
+//   if (res.conflict) showToast('Someone else just updated this. Refresh and try again.');
+//
+// Tables must have `updated_at timestamptz NOT NULL` + a touch trigger
+// (see logbook_updated_at migration for the canonical recipe).
+//
+// Skills consulted: architect (OC pattern), data-engineer (single-statement
+// guard, .select() return for conflict detection).
+async function ocUpdate(db, table, id, updates, oldStamp) {
+  if (!db || !table || !id) {
+    return { ok: false, error: new Error('ocUpdate: missing args') };
+  }
+  try {
+    const { data, error } = await db.from(table)
+      .update(updates)
+      .eq('id', id)
+      .eq('updated_at', oldStamp)
+      .select('id, updated_at');
+    if (error) return { ok: false, error };
+    if (!data || data.length === 0) {
+      return { ok: false, conflict: true };
+    }
+    return { ok: true, row: data[0] };
+  } catch (e) {
+    return { ok: false, error: e };
+  }
+}
+
 // Debounce — delay fn execution until after `wait` ms of silence
 function debounce(fn, wait) {
   let t;

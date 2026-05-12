@@ -418,6 +418,7 @@
       <div>
         <div class="page-title" id="page-title">Asset Hub</div>
         <div class="page-sub" id="page-sub">360 view of any equipment in your hive</div>
+        <p id="wh-page-source-chip"></p>
       </div>
     </div>
 
@@ -644,6 +645,23 @@
             <button id="pf-compute-btn" class="add-edge-btn" style="flex:1; min-height:44px; background:rgba(56,189,248,0.18); border-color:rgba(56,189,248,0.35); color:#7dd3fc;">Compute P-F interval</button>
           </div>
           <div id="pf-status" style="font-size:0.72rem; color:var(--muted); margin-top:0.45rem; min-height:1.1em;"></div>
+        </div>
+      </div>
+
+      <!-- Phase Tier4.4 (2026-05-12): sensor anomaly banner. Shown ONLY when
+           v_sensor_recent reports a quality_flag=ANOMALY reading in the
+           last 24h for the focused asset. The banner sits ABOVE the Live
+           Telemetry tile so a worker arriving at the page can't miss it.
+           Closes the "anomaly buried in the per-parameter Z-score chip"
+           gap from the post-Wave-B audit. -->
+      <div class="section-card" id="sensor-anomaly-banner" style="display:none; border-left:3px solid #f87171; background:rgba(248,113,113,0.06);">
+        <div style="display:flex; align-items:center; gap:12px;">
+          <div style="width:36px; height:36px; border-radius:50%; background:rgba(248,113,113,0.16); color:#f87171; display:flex; align-items:center; justify-content:center; font-size:1.1rem; font-weight:800; flex-shrink:0;">!</div>
+          <div style="flex:1; min-width:0;">
+            <p style="font-size:.6rem; font-weight:700; text-transform:uppercase; letter-spacing:.07em; color:#f87171; margin:0 0 2px;">Sensor Anomaly Detected</p>
+            <p id="sensor-anomaly-headline" style="font-size:.88rem; font-weight:700; color:var(--text); margin:0;"></p>
+            <p id="sensor-anomaly-detail" style="font-size:.72rem; color:rgba(255,255,255,0.55); margin:3px 0 0;"></p>
+          </div>
         </div>
       </div>
 
@@ -1682,6 +1700,39 @@
         try { db.removeChannel(_telemetryChannel); } catch (_) {}
         _telemetryChannel = null;
       }
+
+      // Phase Tier4.4 (2026-05-12): surface the most recent anomaly for THIS
+      // asset (if any) above the Live Telemetry tile. Runs alongside the
+      // recent-readings query; failure is silent so the page still loads.
+      (async () => {
+        const banner = document.getElementById('sensor-anomaly-banner');
+        if (!banner) return;
+        try {
+          const { data: anom } = await db.from('sensor_readings')
+            .select('parameter, value, recorded_at, quality_flag')
+            .eq('hive_id', HIVE_ID)
+            .eq('asset_id', nodeId)
+            .eq('quality_flag', 'ANOMALY')
+            .gte('recorded_at', new Date(Date.now() - 86400000).toISOString())
+            .order('recorded_at', { ascending: false })
+            .limit(1)
+            .maybeSingle();
+          if (anom) {
+            const headline = document.getElementById('sensor-anomaly-headline');
+            const detail   = document.getElementById('sensor-anomaly-detail');
+            if (headline) headline.textContent = `${anom.parameter || 'Reading'} reading 3-sigma off baseline`;
+            if (detail) {
+              const when = anom.recorded_at ? new Date(anom.recorded_at).toLocaleString('en-PH', { dateStyle: 'medium', timeStyle: 'short' }) : '-';
+              detail.textContent = `Latest anomaly at ${when}. Value: ${anom.value}. Check the Live Telemetry tile below for the parameter trend.`;
+            }
+            banner.style.display = 'block';
+          } else {
+            banner.style.display = 'none';
+          }
+        } catch (_) {
+          banner.style.display = 'none';
+        }
+      })();
 
       const { data, error } = await db.from('v_sensor_recent')
         .select('parameter, value, recorded_at, source')
@@ -3365,6 +3416,18 @@
           freshness: 'Daily snapshot at 13:00 PHT',
           source:    'v_risk_truth',
           window:    'MTBF computed over the 365-day failure window',
+        });
+      }
+      // Phase Tier2.4 (2026-05-12): page-level chip on Asset Hub. The page
+      // joins many canonical sources (asset_truth, risk_truth, logbook_truth,
+      // FMEA/RCM/Weibull/P-F truths); summarising at the header so deep-link
+      // arrivals see the contract before scrolling.
+      const _pageChip = document.getElementById('wh-page-source-chip');
+      if (_pageChip) {
+        _pageChip.innerHTML = renderSourceChip({
+          freshness: 'Live + daily snapshot',
+          source:    'v_asset_truth + v_risk_truth + v_logbook_truth + v_fmea_truth + v_weibull_truth',
+          notes:     ['Click any asset for its full 360 (timeline, neighbours, reliability)'],
         });
       }
       init();

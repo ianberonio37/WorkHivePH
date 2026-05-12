@@ -114,6 +114,14 @@
   // ─── State ────────────────────────────────────────────────────────────────────
   let isOpen    = false;
   let isTyping  = false;
+  // Phase Tier3.4 (2026-05-12): cross-page memory.
+  // The widget now loads a global history key by default so conversations
+  // started on one page carry forward to the next. Pages that call
+  // setContext() with a specific key still get scoped history (project:<id>,
+  // asset:<uuid>, etc.) -- the global default applies only when no context
+  // is set. This is the minimal-blast-radius half of #49 specialist-agent
+  // memory; the heavier route through ai-gateway agent_memory is a follow-up.
+  const GLOBAL_HISTORY_KEY = 'global';
   let history   = []; // { role: 'user'|'assistant', content: string }
   const ctx     = detectPageContext();
 
@@ -561,8 +569,12 @@
     if (!skipHistoryPush) {
       history.push({ role, content });
       if (history.length > config.maxHistory) history.shift();
-      // Phase 6.7: persist per-context history when context is bound
+      // Phase 6.7: persist per-context history when context is bound.
+      // Phase Tier3.4 (2026-05-12): also persist to GLOBAL_HISTORY_KEY when
+      // no specific context is set, so questions on one page carry forward
+      // to the next. The widget reads global on init when no _ragContext.
       if (_ragContext?.key) _saveHistoryFor(_ragContext.key, history);
+      else _saveHistoryFor(GLOBAL_HISTORY_KEY, history);
     }
   }
 
@@ -877,7 +889,19 @@ When answering, prefer these facts over general knowledge. If the user asks some
   function init() {
     // Don't show floating widget on the Work Assistant page — it has its own dedicated AI
     if (window.location.pathname.toLowerCase().includes('assistant')) return;
+    // Phase Tier3.4 (2026-05-12): load the cross-page global history before
+    // building the widget so the message list paints with the persisted
+    // turns. Pages that need scoped history call setContext() later, which
+    // swaps to a per-key history (project:<id>, asset:<uuid>, ...).
+    try {
+      const saved = JSON.parse(localStorage.getItem('wh_ai_history_' + GLOBAL_HISTORY_KEY) || '[]');
+      if (Array.isArray(saved) && saved.length) history = saved.slice(-config.maxHistory);
+    } catch (_) { /* fall back to empty history */ }
     buildWidget();
+    // Re-paint persisted messages now that the DOM exists.
+    if (history.length) {
+      history.forEach(m => addMessage(m.role, m.content, true));
+    }
     loadSavedPosition();
     wireEvents();
   }
