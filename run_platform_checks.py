@@ -249,6 +249,15 @@ VALIDATORS = [
         "skip_if_fast": False,  # static check, ~50ms
     },
     {
+        "id":      "seed-consumer-contract",
+        "script":  "validate_seed_consumer_contract.py",
+        "args":    [],
+        "label":   "Seed -> Consumer Contract (TZ-aware date columns + JSONB key contract for AMC-like blobs)",
+        "group":   "Platform",
+        "report":  "seed_consumer_contract_report.json",
+        "skip_if_fast": False,
+    },
+    {
         "id":      "playwright-smoke",
         "script":  "validate_playwright_smoke.py",
         "args":    [],

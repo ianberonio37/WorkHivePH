@@ -37,62 +37,87 @@ ISSUE_SAMPLES = [
 
 
 def _build_brief(assets: list, pms: list, parts: list, workers: list) -> dict:
-    """Compose one realistic brief JSONB. Inputs are already hive-filtered."""
+    """Compose one realistic brief JSONB.
+
+    Field names mirror what amc-orchestrator/index.ts writes in production
+    (and what alert-hub.html renderAmcCard() reads). Keep this in sync with
+    the orchestrator's TypeScript output schema:
+      top_assets[].asset_name + risk_level + risk_score + top_factors
+      pm_due[].asset_name + category + criticality + days_since_last_completion
+      parts_to_stage[].asset_name + parts[] + confidence + rationale
+      crew[].asset_name + suggested_worker + discipline + current_level
+
+    Inputs are already hive-filtered."""
     top_assets = []
     for a in assets[:3]:
         top_assets.append({
-            "asset_id":     a.get("id"),
-            "name":         a.get("name") or a.get("tag") or "unnamed",
-            "risk_score":   round(random.uniform(0.55, 0.95), 2),
-            "top_factor":   random.choice([
+            "asset_id":           a.get("id"),
+            "asset_name":         a.get("name") or a.get("tag") or "unnamed",
+            "risk_score":         round(random.uniform(0.55, 0.95), 2),
+            "risk_level":         random.choice(["high", "critical", "high"]),
+            "top_factors":        random.sample([
                 "MTBF declining", "vibration trend", "thermal anomaly",
                 "predictive model failure mode", "overdue PM",
-            ]),
+            ], k=2),
+            "mtbf_days":          random.randint(45, 120),
+            "days_until_failure": random.randint(5, 30),
         })
 
     pm_due = []
     for p in pms[:5]:
         pm_due.append({
-            "pm_scope_id": p.get("id"),
-            "asset_name":  p.get("asset_name") or "unknown",
-            "title":       p.get("title") or "monthly inspection",
-            "due_in_days": random.choice([-1, 0, 0, 1, 2]),
+            "pm_asset_id":                 p.get("id"),
+            "asset_name":                  random.choice(assets)["name"] if assets else "asset",
+            "category":                    random.choice(["Mechanical", "Electrical", "Instrumentation"]),
+            "criticality":                 random.choice(["critical", "high", "medium"]),
+            "days_since_last_completion":  random.randint(28, 60),
+            "is_due":                      True,
         })
 
     parts_to_stage = []
-    for pt in parts[:5]:
+    for i, pt in enumerate(parts[:3]):
         parts_to_stage.append({
-            "part_number": pt.get("part_number") or "P-XXX",
-            "qty_needed":  random.randint(1, 5),
-            "asset_name":  pt.get("asset_name") or "",
-            "reason":      random.choice(["PM-driven", "predictive-flagged", "low-stock"]),
+            "id":         f"rec-{i}",
+            "asset_name": random.choice(assets)["name"] if assets else "asset",
+            "parts":      [
+                {"part_number": pt.get("part_number") or "P-XXX", "qty": random.randint(1, 4)},
+            ],
+            "confidence": round(random.uniform(0.6, 0.95), 2),
+            "rationale":  random.choice([
+                "PM-driven, low stock detected, lead time risk",
+                "Predictive flag on V-belt, stock cushion thin",
+                "Critical asset, no spare on hand",
+            ]),
+            "risk_score": round(random.uniform(0.5, 0.9), 2),
         })
 
-    crew_match = []
+    crew = []
     for w in workers[:4]:
-        crew_match.append({
-            "worker_name":     w.get("display_name") or w.get("worker_name") or "Worker",
-            "discipline":      random.choice(["Mechanical", "Electrical", "Instrumentation"]),
-            "level":           random.choice([2, 3, 3, 4]),
-            "available_today": True,
+        crew.append({
+            "asset_name":       random.choice(assets)["name"] if assets else "asset",
+            "suggested_worker": w.get("display_name") or w.get("worker_name") or "Worker",
+            "discipline":       random.choice(["Mechanical", "Electrical", "Instrumentation"]),
+            "current_level":    random.choice([2, 3, 3, 4]),
         })
 
-    a1 = top_assets[0]["name"] if top_assets else "Asset A"
-    p1 = pm_due[0]["title"] if pm_due else "monthly inspection"
+    a1 = top_assets[0]["asset_name"] if top_assets else "Asset A"
+    p1 = pm_due[0]["asset_name"] if pm_due else "monthly inspection"
     narrative = random.choice(NARRATIVE_TEMPLATES).format(
         asset_count=len(top_assets),
         pm_count=len(pm_due),
         parts_count=len(parts_to_stage),
-        crew_count=len(crew_match),
+        crew_count=len(crew),
         asset1=a1, pm1=p1,
         issue1=random.choice(ISSUE_SAMPLES),
     )
 
     return {
+        "headline":       f"Today: focus on {a1}",
+        "summary":        narrative,
         "top_assets":     top_assets,
         "pm_due":         pm_due,
         "parts_to_stage": parts_to_stage,
-        "crew_match":     crew_match,
+        "crew":           crew,
         "narrative":      narrative,
     }
 
@@ -106,7 +131,12 @@ def seed_amc(client, log, ctx: dict) -> dict:
         return {"amc_briefings_count": 0}
 
     rows = []
-    today = datetime.now(timezone.utc).date()
+    # IMPORTANT: shift_date must match the page's todayPhtIso() output in
+    # alert-hub.html (timezone Asia/Manila). Using UTC date here can be a day
+    # behind PHT in the late-UTC / early-PHT hours, so today's brief never
+    # gets generated for the alert-hub AMC card. PHT is UTC+8 fixed offset.
+    PHT = timezone(timedelta(hours=8))
+    today = datetime.now(PHT).date()
 
     for h in hives:
         hive_id = h["id"]
