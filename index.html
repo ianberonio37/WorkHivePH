@@ -2716,7 +2716,7 @@
     // The card always deep-links to the dedicated surface; clicking it opens
     // the page where the action gets done. Empty state = "all clear, focus
     // on PMs / planner" (depends on role).
-    (function renderTodaysOneThing() {
+    (async function renderTodaysOneThing() {
       const el = document.getElementById('oh-today');
       if (!el) return;
       const role = (localStorage.getItem('wh_nav_mode') === 'supervisor' || HIVE_ROLE === 'supervisor') ? 'supervisor' : 'field';
