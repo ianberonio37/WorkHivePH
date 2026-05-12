@@ -93,6 +93,7 @@ ALLOW_PATTERNS = {
     "formula":   re.compile(r"(?://|#)\s*formula-allow:\s*(.+)"),
     "standard":  re.compile(r"(?://|#)\s*standard-allow:\s*(.+)"),
     "dashboard": re.compile(r"//\s*dashboard-allow:\s*(.+)"),
+    "capture":   re.compile(r"(?://|<!--)\s*capture-allow:\s*(.+)"),
 }
 
 
@@ -108,6 +109,7 @@ FUEL_ANCHOR_IGNORE_TABLES = {
     # The registry tables themselves
     "canonical_sources", "canonical_formulas",
     "canonical_standards", "canonical_agent_contracts",
+    "canonical_capture_contracts",
     # Cross-cutting infra
     "hive_audit_log", "cmms_audit_log", "automation_log",
     "ai_rate_limits", "ai_audit_log",
@@ -171,6 +173,83 @@ def line_is_allowed(line: str, layer_key: str) -> bool:
     if not pat:
         return False
     return bool(pat.search(line))
+
+
+def _extract_insert_pk_ids(sql: str, table_name: str) -> set[str]:
+    """For each INSERT INTO {table_name} block in `sql`, extract the
+    first quoted string of every VALUES tuple. This is the PK
+    (capture_id / contract_id / formula_id / standard_id etc.).
+
+    SQL-quote-aware: walks the text byte by byte tracking paren depth +
+    whether we're inside a single-quoted string. SQL doubles single
+    quotes inside strings ('' -> '). Semicolons / parens inside strings
+    are ignored (the previous regex-based parser was broken by exactly
+    this case).
+    """
+    out: set[str] = set()
+    # Strip SQL comments first — apostrophes inside `--` line comments
+    # (e.g. "doesn't") confuse the quote tracker downstream.
+    sql = re.sub(r"--[^\n]*", "", sql)
+    sql = re.sub(r"/\*[\s\S]*?\*/", "", sql)
+    # Find every INSERT INTO {table_name} ... VALUES start
+    start_re = re.compile(
+        rf"INSERT\s+INTO\s+(?:public\.)?{re.escape(table_name)}\b[^;]*?\bVALUES\b",
+        re.IGNORECASE,
+    )
+    for start_match in start_re.finditer(sql):
+        i = start_match.end()
+        n = len(sql)
+        in_str = False
+        # Walk forward, capturing the first '...' inside each top-level tuple.
+        while i < n:
+            ch = sql[i]
+            if in_str:
+                # Handle '' escape
+                if ch == "'" and i + 1 < n and sql[i + 1] == "'":
+                    i += 2; continue
+                if ch == "'":
+                    in_str = False
+                i += 1; continue
+            if ch == "'":
+                in_str = True; i += 1; continue
+            if ch == "(":
+                # Parse one tuple: skip whitespace, expect '...'
+                j = i + 1
+                while j < n and sql[j] in " \t\n\r":
+                    j += 1
+                if j < n and sql[j] == "'":
+                    k = j + 1
+                    while k < n:
+                        if sql[k] == "'" and k + 1 < n and sql[k + 1] == "'":
+                            k += 2; continue
+                        if sql[k] == "'": break
+                        k += 1
+                    pk = sql[j + 1:k]
+                    if re.match(r"^[a-z_][a-z0-9_]*$", pk):
+                        out.add(pk)
+                # Skip past this tuple's closing paren, respecting strings inside.
+                depth = 1
+                k = i + 1
+                in_s2 = False
+                while k < n and depth > 0:
+                    c2 = sql[k]
+                    if in_s2:
+                        if c2 == "'" and k + 1 < n and sql[k + 1] == "'":
+                            k += 2; continue
+                        if c2 == "'": in_s2 = False
+                        k += 1; continue
+                    if c2 == "'":  in_s2 = True;  k += 1; continue
+                    if c2 == "(": depth += 1
+                    elif c2 == ")": depth -= 1
+                    k += 1
+                i = k
+                continue
+            if ch == ";":
+                # End of statement reached — done with this INSERT
+                break
+            # ON CONFLICT or other terminator keyword? Continue scanning for ;.
+            i += 1
+    return out
 
 
 def has_allow_in_context(content: str, idx: int, layer_key: str, context_lines: int = 3) -> bool:
@@ -427,19 +506,12 @@ def check_tier_c_anchor() -> dict:
     `// contract:<id>` comment in the file.
     """
     registered_contracts: set[str] = set()
-    # Parse VALUES rows after the INSERT statement. The block may span many
-    # lines and contain multiple tuples; capture each contract_id (first col).
     has_table = False
     for path in list_migrations():
         sql = read_file(path) or ""
         if "canonical_agent_contracts" not in sql: continue
         has_table = True
-        m_insert = re.search(
-            r"INSERT\s+INTO\s+(?:public\.)?canonical_agent_contracts[^;]*?VALUES\s*([\s\S]*?);",
-            sql, re.IGNORECASE)
-        if m_insert:
-            for tup in re.finditer(r"\(\s*'([a-z_][a-z0-9_]*)'", m_insert.group(1)):
-                registered_contracts.add(tup.group(1).lower())
+        registered_contracts |= _extract_insert_pk_ids(sql, "canonical_agent_contracts")
     if not has_table:
         return {
             "layer":           "tier_c",
@@ -482,12 +554,7 @@ def check_formula_anchor() -> dict:
         sql = read_file(path) or ""
         if "canonical_formulas" not in sql: continue
         has_table = True
-        m_insert = re.search(
-            r"INSERT\s+INTO\s+(?:public\.)?canonical_formulas[^;]*?VALUES\s*([\s\S]*?);",
-            sql, re.IGNORECASE)
-        if m_insert:
-            for tup in re.finditer(r"\(\s*'([a-z_][a-z0-9_]*)'", m_insert.group(1)):
-                registered_formulas.add(tup.group(1).lower())
+        registered_formulas |= _extract_insert_pk_ids(sql, "canonical_formulas")
     # Always report the count of calc_* functions (whether tier D is shipped or not)
     CALC_RE = re.compile(r"^def\s+(calc_[a-z_0-9]+)\s*\(", re.MULTILINE)
     seen_funcs: list[tuple[str, str]] = []  # (fn_name, file_path)
@@ -549,12 +616,7 @@ def check_standard_anchor() -> dict:
         sql = read_file(path) or ""
         if "canonical_standards" not in sql: continue
         has_table = True
-        m_insert = re.search(
-            r"INSERT\s+INTO\s+(?:public\.)?canonical_standards[^;]*?VALUES\s*([\s\S]*?);",
-            sql, re.IGNORECASE)
-        if m_insert:
-            for tup in re.finditer(r"\(\s*'([a-z_0-9]+)'", m_insert.group(1)):
-                registered_standards.add(tup.group(1).lower())
+        registered_standards |= _extract_insert_pk_ids(sql, "canonical_standards")
 
     # Reference scan: any of {ISO , SMRP, SAE JA, NFPA, ASME, ASTM, ANSI, IEC,
     # IESNA, ASHRAE, NEC, OSHA} followed by a number/code.
@@ -648,6 +710,110 @@ def check_dashboard_anchor() -> dict:
     }
 
 
+# -- Layer 8: Capture anchor (Tier F / Layer 0) -------------------------------
+
+def check_capture_anchor() -> dict:
+    """Tier F introduces canonical_capture_contracts — the registry of every
+    input surface (form, voice, qr, import, upload, sensor, webhook, chat)
+    that produces data landing in a fuel table.
+
+    Until the migration lands, this layer SKIPs. Once registered, the
+    layer counts HTML capture surfaces that look like they capture data
+    but have no registered capture_id anchor in code.
+
+    Detection heuristic — a page has a "capture surface" if it contains
+    any of:
+      - <form id="..."> with at least one <input>/<select>/<textarea>
+      - getUserMedia / MediaRecorder (voice capture)
+      - <video autoplay> or BarcodeDetector (qr / camera scan)
+      - file upload <input type="file">
+      - large textarea bound to a fetch insert
+
+    A page is anchored if it carries any of:
+      - // capture: <capture_id> or <!-- capture: <capture_id> -->
+      - // capture-allow: <reason>
+      - The page is in CAPTURE_ALLOW_PAGES (read-only dashboards etc.)
+    """
+    # Check whether the registry table is shipped yet
+    registered_captures: set[str] = set()
+    has_table = False
+    for path in list_migrations():
+        sql = read_file(path) or ""
+        if "canonical_capture_contracts" not in sql: continue
+        has_table = True
+        registered_captures |= _extract_insert_pk_ids(sql, "canonical_capture_contracts")
+
+    # Pages that legitimately have no captures (read-only / display-only)
+    CAPTURE_ALLOW_PAGES = {
+        "predictive.html",     # display-only risk dashboard
+        "shift-brain.html",    # read-only top-of-shift summary
+        "alert-hub.html",      # alerts list, no inputs
+        "analytics-report.html",  # print-ready PDF
+        "ph-intelligence.html",   # PH report viewer
+        "platform-health.html",   # retired dev tooling
+        "architecture.html",      # static architecture doc
+        "symbol-gallery.html",    # static reference
+        "public-feed.html",       # read-only feed
+        "project-report.html",    # print-ready PDF
+        "audit-log.html",         # read-only audit trail viewer
+        "achievements.html",      # display badges, no captures
+    }
+
+    if not has_table:
+        return {
+            "layer":           "capture",
+            "label":           "L8  Capture anchor: canonical_capture_contracts (input surfaces)",
+            "status":          "registry_missing",
+            "note":            "Tier F capture registry not yet shipped. Layer is dormant until canonical_capture_contracts table lands.",
+            "n_unanchored":    None,
+            "unanchored":      [],
+        }
+
+    # Walk live HTML pages + voice/AI edge fns looking for capture surfaces
+    unanchored: list[dict] = []
+    for path in list_html_pages():
+        name = os.path.basename(path)
+        if name in CAPTURE_ALLOW_PAGES: continue
+
+        content = read_file(path) or ""
+
+        # Detect capture surfaces
+        has_form = bool(re.search(r'<form\b[^>]*>', content, re.IGNORECASE))
+        has_input = bool(re.search(r'<(input|select|textarea)\b', content, re.IGNORECASE))
+        has_voice = bool(re.search(r'getUserMedia|MediaRecorder', content))
+        has_qr = bool(re.search(r'BarcodeDetector|<video\s+[^>]*autoplay|jsqr|html5-qrcode', content, re.IGNORECASE))
+        has_upload = bool(re.search(r'type=["\']file["\']', content, re.IGNORECASE))
+        has_capture_surface = (has_form and has_input) or has_voice or has_qr or has_upload
+
+        if not has_capture_surface: continue
+
+        # Anchored if the page carries any capture-anchor marker
+        has_anchor = (
+            "// capture:" in content or
+            "<!-- capture:" in content or
+            "capture-allow:" in content
+        )
+        if has_anchor: continue
+
+        # Build short list of which surfaces this page has (so the issue
+        # message is actionable)
+        surfaces = []
+        if has_form and has_input: surfaces.append("form")
+        if has_voice:              surfaces.append("voice")
+        if has_qr:                 surfaces.append("qr")
+        if has_upload:             surfaces.append("upload")
+
+        unanchored.append({"page": name, "surfaces": surfaces})
+
+    return {
+        "layer":           "capture",
+        "label":           "L8  Capture anchor: every input surface anchored to a capture_id",
+        "n_registered":    len(registered_captures),
+        "n_unanchored":    len(unanchored),
+        "unanchored":      unanchored,
+    }
+
+
 # -- Baseline ratchet ---------------------------------------------------------
 
 def load_baseline() -> dict:
@@ -675,6 +841,7 @@ CHECK_NAMES = [
     "formula_anchor",
     "standard_anchor",
     "dashboard_anchor",
+    "capture_anchor",
 ]
 
 CHECK_LABELS = {
@@ -685,6 +852,7 @@ CHECK_LABELS = {
     "formula_anchor":   "L5  Tier D formula: canonical_formulas registry",
     "standard_anchor":  "L6  Tier D standard: canonical_standards registry",
     "dashboard_anchor": "L7  Dashboard: canonical-consuming pages render a source chip",
+    "capture_anchor":   "L8  Capture: every input surface anchored to canonical_capture_contracts",
 }
 
 
@@ -693,7 +861,7 @@ def main():
 
     def bold(s): return f"\033[1m{s}\033[0m"
 
-    print(bold("\nCanonical Anchor Gate (7-layer forward-anchor audit)"))
+    print(bold("\nCanonical Anchor Gate (8-layer forward-anchor audit)"))
     print("=" * 60)
 
     layers = [
@@ -704,6 +872,7 @@ def main():
         check_formula_anchor(),
         check_standard_anchor(),
         check_dashboard_anchor(),
+        check_capture_anchor(),
     ]
 
     baseline = load_baseline()
@@ -721,6 +890,7 @@ def main():
             "tier_c_anchor" if layer_key == "tier_c" else
             "formula_anchor" if layer_key == "tier_d_formula" else
             "standard_anchor" if layer_key == "tier_d_standard" else
+            "capture_anchor" if layer_key == "capture" else
             "dashboard_anchor"
         )
         if L.get("status") == "registry_missing":

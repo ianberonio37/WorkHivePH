@@ -7,12 +7,72 @@
     "tier_c_anchor": [],
     "formula_anchor": [],
     "standard_anchor": [],
-    "dashboard_anchor": []
+    "dashboard_anchor": [],
+    "capture_anchor": [
+      {
+        "page": "index.html",
+        "surfaces": [
+          "form"
+        ]
+      },
+      {
+        "page": "integrations.html",
+        "surfaces": [
+          "upload"
+        ]
+      },
+      {
+        "page": "inventory.html",
+        "surfaces": [
+          "upload"
+        ]
+      },
+      {
+        "page": "logbook.html",
+        "surfaces": [
+          "form",
+          "upload"
+        ]
+      },
+      {
+        "page": "marketplace-seller.html",
+        "surfaces": [
+          "form",
+          "upload"
+        ]
+      },
+      {
+        "page": "marketplace.html",
+        "surfaces": [
+          "form",
+          "upload"
+        ]
+      },
+      {
+        "page": "project-manager.html",
+        "surfaces": [
+          "form"
+        ]
+      },
+      {
+        "page": "report-sender.html",
+        "surfaces": [
+          "voice"
+        ]
+      },
+      {
+        "page": "voice-journal.html",
+        "surfaces": [
+          "voice"
+        ]
+      }
+    ]
   },
   "engine_anchor": 0,
   "tier_a_anchor": 0,
   "tier_c_anchor": 0,
   "formula_anchor": 0,
   "standard_anchor": 0,
-  "dashboard_anchor": 0
+  "dashboard_anchor": 0,
+  "capture_anchor": 9
 }

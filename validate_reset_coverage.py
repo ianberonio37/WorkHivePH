@@ -91,6 +91,7 @@ CATALOG_TABLES_IGNORED = {
     "canonical_standards",
     "canonical_formulas",
     "canonical_agent_contracts",
+    "canonical_capture_contracts",
 }
 
 

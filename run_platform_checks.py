@@ -198,7 +198,7 @@ VALIDATORS = [
         "id":      "canonical-anchor",
         "script":  "validate_canonical_anchor.py",
         "args":    [],
-        "label":   "Canonical Anchor Gate (7-layer forward-anchor: fuel/engine/Tier A/Tier C/formula/standard/dashboard)",
+        "label":   "Canonical Anchor Gate (8-layer forward-anchor: fuel/engine/Tier A/Tier C/formula/standard/dashboard/capture)",
         "group":   "Platform",
         "report":  "canonical_anchor_report.json",
         "skip_if_fast": False,
