@@ -213,6 +213,15 @@ VALIDATORS = [
         "skip_if_fast": False,
     },
     {
+        "id":      "capture-contracts",
+        "script":  "validate_capture_contracts.py",
+        "args":    [],
+        "label":   "Tier F Capture Contract Regression Validator (good/bad payload fixtures per input surface)",
+        "group":   "Platform",
+        "report":  "capture_contracts_report.json",
+        "skip_if_fast": False,
+    },
+    {
         "id":      "write-path-monitor",
         "script":  "validate_write_path_monitor.py",
         "args":    [],

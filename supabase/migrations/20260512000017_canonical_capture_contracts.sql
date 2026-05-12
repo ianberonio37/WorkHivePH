@@ -227,7 +227,7 @@ VALUES
    "type":"object",
    "required":["qr_payload","asset_tag"],
    "properties":{
-     "qr_payload":{"type":"string","pattern":"^wh-asset-v1:[a-z0-9_-]+:[a-z0-9_-]+$"},
+     "qr_payload":{"type":"string","pattern":"^wh-asset-v1:[A-Za-z0-9_-]+:[A-Za-z0-9_-]+$"},
      "asset_tag":{"type":"string","minLength":1,"maxLength":50},
      "hive_id":{"type":["string","null"]}
    }
