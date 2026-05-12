@@ -177,6 +177,15 @@ VALIDATORS = [
         "skip_if_fast": False,
     },
     {
+        "id":      "js-syntax-sanity",
+        "script":  "validate_js_syntax_sanity.py",
+        "args":    [],
+        "label":   "JS Syntax Sanity (no `await` inside non-async function/IIFE in inline scripts)",
+        "group":   "Platform",
+        "report":  "js_syntax_sanity_report.json",
+        "skip_if_fast": False,
+    },
+    {
         "id":      "silo-monitor",
         "script":  "validate_silo_monitor.py",
         "args":    [],
