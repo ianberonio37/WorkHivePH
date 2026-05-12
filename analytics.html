@@ -506,6 +506,9 @@
     document.querySelectorAll('.period-btn').forEach(b => {
       b.classList.toggle('active', Number(b.dataset.days) === days);
     });
+    // Source chip carries the live window value so the user can compare
+    // it against Predictive's 365d annual-decay snapshot.
+    if (typeof _refreshSourceChip === 'function') _refreshSourceChip();
     if (rerun) {
       // Clear cache when period changes — data is stale
       PHASES.forEach(p => { _cache[p] = null; _cacheTime[p] = null; });
@@ -2142,15 +2145,22 @@
 
   // ── Kick off on page load ─────────────────────────────────────────────────
   // Runs automatically — no button click needed
-  window.addEventListener('DOMContentLoaded', async () => {
-    // Source/window chip — Analytics is live recomputation each refresh,
-    // scoped to the user-selected period. Rendered before identity gate so
-    // the contract is visible even on the signin redirect path.
-    document.getElementById('wh-source-chip').innerHTML = renderSourceChip({
+  // Render (or re-render) the source chip with the LIVE selected window
+  // baked into the contract string. Predictive uses a separate annual-decay
+  // window (365d) for v_risk_truth; making the chip carry the actual numeric
+  // window resolves the "MTBF differs across pages" confusion at a glance.
+  function _refreshSourceChip() {
+    const el = document.getElementById('wh-source-chip');
+    if (!el) return;
+    el.innerHTML = renderSourceChip({
       freshness: 'Live recomputation each refresh',
       source:    'v_logbook_truth via Postgres RPCs',
-      window:    'MTBF / MTTR / OEE scoped to the selected window',
+      window:    `MTBF / MTTR / OEE @ ${_period}d window (selected period)`,
     });
+  }
+
+  window.addEventListener('DOMContentLoaded', async () => {
+    _refreshSourceChip();
 
     // C4: restore identity from auth session on new device
     if (!WORKER_NAME) { WORKER_NAME = await restoreIdentityFromSession(db); }

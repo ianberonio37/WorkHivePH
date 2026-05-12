@@ -57,6 +57,24 @@ if sys.platform == "win32":
 from validator_utils import format_result, read_file
 
 
+# Allowlist: formulas where argument drift across consumers is INTENTIONAL.
+# Each entry must include a one-line justification so a future maintainer
+# can decide whether the exception still holds. The validator still REPORTS
+# allowlisted drift in the JSON detail (so it's never invisible) but
+# excludes it from the L1 WARN summary so the gate stays informative
+# rather than perpetually nagging on a documented design choice.
+ALLOWED_FORMULA_DRIFT = {
+    "mtbf_iso_14224":
+        "Intentional. Analytics shows MTBF over a user-selectable window "
+        "(default 90d) for trend exploration; batch-risk-scoring uses a "
+        "fixed 365-day annual-decay window for the v_risk_truth nightly "
+        "snapshot consumed by Predictive. Both are correct; the surface "
+        "chip on each page declares the actual window. Promoting v_risk_truth "
+        "to expose mtbf_30d/90d/365d columns would resolve this fully "
+        "(see commit c5cf9ec for the deferred plan).",
+}
+
+
 # Pages/files we scan as consumers
 def list_consumer_files() -> list[str]:
     out = []
@@ -394,8 +412,13 @@ def main():
     invocations = scan_invocations(formulas, files)
     summary     = analyse_drift(invocations)
 
-    # Group by status
-    drift     = [s for s in summary if s["status"] == "DRIFT"]
+    # Group by status. Drift cases on ALLOWED_FORMULA_DRIFT keep their
+    # DRIFT label in the JSON detail (so the divergence stays visible to
+    # any reviewer reading the report) but are excluded from the L1 WARN
+    # to keep the gate focused on UNDOCUMENTED drift.
+    drift_all    = [s for s in summary if s["status"] == "DRIFT"]
+    drift        = [s for s in drift_all if s["formula_id"] not in ALLOWED_FORMULA_DRIFT]
+    drift_allow  = [s for s in drift_all if s["formula_id"] in ALLOWED_FORMULA_DRIFT]
     aligned   = [s for s in summary if s["status"] == "ALIGNED"]
     singleton = [s for s in summary if s["status"] == "SINGLETON"]
     no_param  = [s for s in summary if s["status"] == "NO_PARAM"]
@@ -433,10 +456,11 @@ def main():
     print("  " + "-" * 60)
     print("  status        n_formulas")
     print("  " + "-" * 60)
-    for status, items in [("DRIFT", drift), ("ALIGNED", aligned),
+    for status, items in [("DRIFT", drift), ("DRIFT (allowed)", drift_allow),
+                          ("ALIGNED", aligned),
                           ("SINGLETON", singleton), ("NO_PARAM", no_param),
                           ("ORPHAN", orphan)]:
-        print(f"  {status:<14} {len(items):>3}")
+        print(f"  {status:<16} {len(items):>3}")
 
     # Drift detail
     if drift:
@@ -453,10 +477,15 @@ def main():
         "n_formulas":       len(formulas),
         "n_files_scanned":  len(files),
         "n_drift":          len(drift),
+        "n_drift_allowed":  len(drift_allow),
         "n_aligned":        len(aligned),
         "n_singleton":      len(singleton),
         "n_orphan":         len(orphan),
         "drift_detail":     drift,
+        "drift_allowed_detail": [
+            {**s, "justification": ALLOWED_FORMULA_DRIFT[s["formula_id"]]}
+            for s in drift_allow
+        ],
         "aligned_detail":   aligned[:10],
         "singleton_detail": singleton[:10],
         "orphan_list":      [s["formula_id"] for s in orphan],

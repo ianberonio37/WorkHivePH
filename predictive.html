@@ -222,10 +222,14 @@
 
   // Source/window chip — single visual contract for "which gauge are you reading?".
   // Rendered immediately so the user knows the freshness/window before any data loads.
+  // NOTE: Predictive's MTBF uses the 365-day annual-decay window (computed by
+  // batch-risk-scoring and snapshotted into v_risk_truth). Analytics shows MTBF
+  // over the user-selected window (90/180/365). Same canonical formula, different
+  // windows -> numbers differ. Both are correct; chip declares which is which.
   document.getElementById('wh-source-chip').innerHTML = renderSourceChip({
     freshness: 'Daily snapshot at 13:00 PHT',
     source:    'v_risk_truth',
-    window:    '365-day failure window',
+    window:    'MTBF @ 365d annual decay (vs Analytics user-selectable window)',
   });
 
   // ── Identity + Hive gate ───────────────────────────────────────────────────
