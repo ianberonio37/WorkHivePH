@@ -227,3 +227,42 @@ def seed_logbook(client, log, ctx: dict) -> dict:
     log(f"  → discipline values: {sorted(set(r['category'] for r in rows))}")
     log(f"  → maintenance types: {sorted(set(r['maintenance_type'] for r in rows))}")
     return {"logbook_count": inserted}
+
+
+def link_logbook_to_asset_nodes(client, log, ctx: dict) -> dict:
+    """Post-seed bridge: backfill logbook.asset_node_id from the machine text
+    field using the (hive_id, tag) -> asset_nodes.id lookup.
+
+    Runs AFTER asset_brain.py inserts asset_nodes. Without this, the Asset Hub
+    detail panel shows "No history rows tied to this asset yet." because the
+    page joins logbook to asset_nodes via asset_node_id (Phase 5b.1 dropped the
+    legacy asset_ref_id text column).
+    """
+    log("Linking logbook entries to asset_nodes via (hive_id, machine -> tag)...")
+    nodes = client.table("asset_nodes").select("id, hive_id, tag").execute().data or []
+    by_hive_tag = {(n["hive_id"], n["tag"]): n["id"] for n in nodes}
+    if not by_hive_tag:
+        log("  no asset_nodes yet — link step skipped")
+        return {"logbook_linked": 0}
+
+    total = 0
+    # Loop because supabase-py defaults LIMIT to 1000
+    while True:
+        batch = (
+            client.table("logbook")
+            .select("id, hive_id, machine")
+            .is_("asset_node_id", "null")
+            .limit(1000)
+            .execute()
+            .data
+            or []
+        )
+        if not batch:
+            break
+        for r in batch:
+            nid = by_hive_tag.get((r["hive_id"], r["machine"]))
+            if nid:
+                client.table("logbook").update({"asset_node_id": nid}).eq("id", r["id"]).execute()
+                total += 1
+    log(f"  linked {total} logbook entries to asset_nodes")
+    return {"logbook_linked": total}

@@ -5,7 +5,7 @@ from .catalogs import seed_catalogs
 from .hives_workers import seed_hives_and_workers
 from .assets import seed_assets
 from .pm import seed_pm
-from .logbook import seed_logbook
+from .logbook import seed_logbook, link_logbook_to_asset_nodes
 from .inventory import seed_inventory
 from .skill_matrix import seed_skill_matrix
 from .marketplace import seed_marketplace
@@ -66,6 +66,10 @@ def seed_everything(client, log) -> dict:
     step12 = seed_fault_knowledge(client, log, ctx)  # depends on seeded logbook
     # Phase A onward: graph + intelligence layers (depend on assets being in ctx)
     step12a = seed_asset_brain(client, log, ctx)
+    # Phase 5b.1 bridge: backfill logbook.asset_node_id from the machine
+    # tag now that asset_nodes exists. Without this, Asset Hub timeline
+    # shows "No history rows tied to this asset yet."
+    step12a_link = link_logbook_to_asset_nodes(client, log, ctx)
     # Phase R: Reliability Workbench (FMEA / RCM / Weibull / P-F).
     # Depends on asset_nodes existing (asset_brain inserts them).
     step12a2 = seed_reliability(client, log, ctx)
@@ -103,6 +107,7 @@ def seed_everything(client, log) -> dict:
         **step11,
         **step12,
         **step12a,
+        **step12a_link,
         **{f"reliability_{k}": v for k, v in step12a2.items()},
         **step12b,
         **step12c,

@@ -28,6 +28,14 @@ This validator is generic. It scans:
         FAIL on consumer-side keys NOT seeded (broken render).
         WARN on seeded keys not consumed (dead-key drift, may be intended).
 
+  L3 -- FK-bridge coverage: tables with both a human-typeable tag column
+        (machine / asset_tag / part_number) AND a uuid FK column pointing
+        at the canonical row (asset_node_id, item_id) must either set the
+        uuid inline at insert time OR have a named post-seed bridge
+        function that backfills it. Catches the Phase 5b.1 regression where
+        logbook entries were seeded but no consumer could join them to
+        asset_nodes via the new uuid column.
+
 Usage:  python validate_seed_consumer_contract.py
 Output: seed_consumer_contract_report.json
 """
@@ -371,18 +379,138 @@ def check_jsonb_contract() -> list[dict]:
     return issues
 
 
+# ── Layer 3: FK-bridge coverage ─────────────────────────────────────────────────
+#
+# Regression class caught 2026-05-13: Phase 5b.1 dropped logbook.asset_ref_id
+# (text) and added logbook.asset_node_id (uuid). The seeder removed the
+# legacy column from its insert payload but never populated the new uuid
+# column, so 3,700 logbook entries existed but the Asset Hub timeline join
+# returned 0 rows -- the page showed "No history rows tied to this asset
+# yet" for every asset.
+#
+# Generic check: for every table with BOTH a text "human tag" column
+# (machine / asset_tag / part_number / etc.) AND a uuid foreign-key column
+# pointing at *_nodes / *_items / *_profiles, every seeder that inserts on
+# that table must EITHER set the uuid column OR call a post-seed linking
+# function that backfills the uuid from the tag.
+
+# (table, tag_col, uuid_fk_col, bridge_function_hint)
+# bridge_function_hint is a substring we expect to find in a seeder file
+# when the seeder declines to populate the uuid column directly. If neither
+# is present, FAIL.
+#
+# Known explicit pairs (hand-curated, override auto-discovery for the
+# bridge_function_hint). Tables not in this list still get auto-discovered
+# below — the only thing they lack is a known bridge function name, so the
+# validator suggests a placeholder.
+FK_BRIDGE_PAIRS = [
+    ("logbook",          "machine",     "asset_node_id",  "link_logbook_to_asset_nodes"),
+]
+
+# Heuristic discovery: any (table, text_col, uuid_fk_col) where the table
+# has BOTH a column named in TAG_COL_HINTS AND a column named *_node_id or
+# *_id pointing at a canonical row source.
+TAG_COL_HINTS = {"machine", "asset_tag", "tag", "part_number", "item_text"}
+UUID_FK_SUFFIXES = ("_node_id", "_item_id", "_profile_id")
+
+
+def check_fk_bridge(non_utc_cols: dict[str, list[dict]]) -> list[dict]:
+    """For each (table, tag_col, uuid_fk_col) pair, find seeders that
+    insert on that table. FAIL if the seeder writes tag_col but neither
+    writes uuid_fk_col nor calls the bridge function."""
+    issues: list[dict] = []
+    all_cols = find_all_columns_by_table()
+
+    # Build the effective pair set: hand-curated entries plus auto-discovered.
+    pairs: list[tuple[str, str, str, str]] = list(FK_BRIDGE_PAIRS)
+    explicit = {(t, tc, uc) for (t, tc, uc, _) in FK_BRIDGE_PAIRS}
+    for table, cols in all_cols.items():
+        for tag in TAG_COL_HINTS & cols:
+            for c in cols:
+                if any(c.endswith(s) for s in UUID_FK_SUFFIXES):
+                    if (table, tag, c) in explicit:
+                        continue
+                    # No known bridge function name; reporter will say <none>.
+                    pairs.append((table, tag, c, ""))
+
+    for table, tag_col, uuid_fk_col, bridge_hint in pairs:
+        cols = all_cols.get(table, set())
+        if uuid_fk_col not in cols:
+            # Column not in schema -- nothing to enforce yet.
+            continue
+
+        for path in sorted(glob.glob(os.path.join(SEEDERS_DIR, "*.py"))):
+            src = read_file(path) or ""
+            if not src.strip():
+                continue
+            # Does this seeder insert on the target table?
+            inserts_here = (
+                re.search(rf"\.table\s*\(\s*['\"]{re.escape(table)}['\"]\s*\)\s*\.\s*(?:insert|upsert)", src)
+                or re.search(rf"batch_insert\s*\(\s*\w+\s*,\s*['\"]{re.escape(table)}['\"]", src)
+            )
+            if not inserts_here:
+                continue
+            # Does it write tag_col?
+            writes_tag = bool(re.search(rf"['\"]({re.escape(tag_col)})['\"]\s*:", src))
+            if not writes_tag:
+                continue
+            # Does it write the uuid_fk_col directly?
+            writes_uuid = bool(re.search(rf"['\"]({re.escape(uuid_fk_col)})['\"]\s*:", src))
+            if writes_uuid:
+                continue
+            # Does any seeder file CALL the bridge function (not just define
+            # it)? A definition has `def ` before the name; a call doesn't.
+            calls_bridge = False
+            if bridge_hint:
+                call_re = re.compile(
+                    rf"(?<!def )(?<!def  )\b{re.escape(bridge_hint)}\s*\(",
+                )
+                for p2 in sorted(glob.glob(os.path.join(SEEDERS_DIR, "*.py"))):
+                    src2 = read_file(p2) or ""
+                    # Strip out the def line so a self-defining call doesn't
+                    # masquerade as an external call.
+                    src2_stripped = re.sub(
+                        rf"^\s*def\s+{re.escape(bridge_hint)}\s*\([^)]*\)[^:]*:",
+                        "", src2, flags=re.MULTILINE,
+                    )
+                    if call_re.search(src2_stripped):
+                        calls_bridge = True
+                        break
+            if calls_bridge:
+                continue
+            line = 1
+            m = re.search(rf"['\"]({re.escape(tag_col)})['\"]\s*:", src)
+            if m:
+                line = src.count("\n", 0, m.start()) + 1
+            issues.append({
+                "check":   "fk_bridge",
+                "skip":    False,
+                "reason": (
+                    f"{os.path.basename(path)}:{line} inserts on '{table}' "
+                    f"with '{tag_col}' (text) but never sets '{uuid_fk_col}' "
+                    f"(uuid FK) and no seeder calls the bridge function "
+                    f"'{bridge_hint or '<none configured>'}'. "
+                    f"Page-side joins via {uuid_fk_col} will return 0 rows. "
+                    f"Either set {uuid_fk_col} inline, or call {bridge_hint}() "
+                    f"from the orchestrator after the referenced rows are seeded."
+                ),
+            })
+    return issues
+
+
 # ── Runner -----------------------------------------------------------------------
 
-CHECK_NAMES = ["seeder_timezone", "jsonb_contract"]
+CHECK_NAMES = ["seeder_timezone", "jsonb_contract", "fk_bridge"]
 CHECK_LABELS = {
     "seeder_timezone": "L1  Seeders writing non-UTC date columns use matching TZ",
     "jsonb_contract":  "L2  Consumer pages can read every key the seeder writes for known JSONB blobs",
+    "fk_bridge":       "L3  Seeders writing a text tag have the matching uuid FK set or bridged",
 }
 
 
 def main():
     def bold(s): return f"\033[1m{s}\033[0m"
-    print(bold("\nSeed -> Consumer Contract Validator (2-layer)"))
+    print(bold("\nSeed -> Consumer Contract Validator (3-layer)"))
     print("=" * 60)
 
     non_utc_cols = find_non_utc_date_columns()
@@ -392,6 +520,7 @@ def main():
     issues = []
     issues += check_seeder_timezone(non_utc_cols)
     issues += check_jsonb_contract()
+    issues += check_fk_bridge(non_utc_cols)
 
     n_pass, n_warn, n_fail = format_result(CHECK_NAMES, CHECK_LABELS, issues)
 
