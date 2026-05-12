@@ -56,6 +56,7 @@ def _corrective_only(df: pd.DataFrame) -> pd.DataFrame:
 # MTBF = Mean Time Between Failures
 # Formula: sum of intervals between consecutive failures / (n_failures - 1)
 # Requires: ≥ 2 failures per machine to calculate an interval
+# formula: mtbf_iso_14224
 
 def calc_mtbf(logbook_entries: list[dict]) -> dict:
     df = _to_df(logbook_entries)
@@ -99,6 +100,7 @@ def calc_mtbf(logbook_entries: list[dict]) -> dict:
 # MTTR = Mean Time To Repair
 # Formula: sum(downtime_hours) / count(repairs)
 # Uses worker-logged downtime_hours (preferred over clock time per data-engineer skill)
+# formula: mttr_iso_14224
 
 def calc_mttr(logbook_entries: list[dict]) -> dict:
     df = _to_df(logbook_entries)
@@ -135,6 +137,7 @@ def calc_mttr(logbook_entries: list[dict]) -> dict:
 # ── 3. Availability % — ISO 14224 §9.2 ───────────────────────────────────────
 # Availability = MTBF / (MTBF + MTTR) × 100
 # Inherent availability — does not account for logistics or admin delays
+# formula: availability_iso_14224
 
 def calc_availability(logbook_entries: list[dict]) -> dict:
     mtbf_result = calc_mtbf(logbook_entries)
@@ -170,6 +173,7 @@ def calc_availability(logbook_entries: list[dict]) -> dict:
 # ── 4. PM Compliance Rate — SMRP Metric 2.1.1 ────────────────────────────────
 # PM Compliance = Completed PMs / Scheduled PMs × 100
 # Scheduled PMs = scope items whose due date has passed within the period
+# formula: pm_compliance_smrp
 
 def calc_pm_compliance(pm_completions: list[dict], pm_scope_items: list[dict], period_days: int = 90) -> dict:
     comps = _to_df(pm_completions)
@@ -379,6 +383,7 @@ def calc_repeat_failures(logbook_entries: list[dict]) -> dict:
 # Availability: from MTBF/MTTR already calculated
 # Quality: from production_output.quality_pct in logbook entries
 # Note: Performance remains flagged (needs planned production rate input)
+# formula: oee_iso_22400
 
 def calc_oee(logbook_entries: list[dict], period_days: int = 90) -> dict:
     df = _to_df(logbook_entries)

@@ -85,10 +85,12 @@ SYSTEM_TABLES_IGNORED = {
 CATALOG_TABLES_IGNORED = {
     "achievement_definitions",
     "equipment_reading_templates",
-    # Platform metadata: seeded only by migrations (canonical_sources
-    # foundation + per-truth registration migrations). Wiping it loses the
-    # registry that AI agents read to find canonical truth sources.
+    # Platform metadata: seeded only by migrations. Wiping these loses the
+    # registries that AI agents + validators read.
     "canonical_sources",
+    "canonical_standards",
+    "canonical_formulas",
+    "canonical_agent_contracts",
 }
 
 

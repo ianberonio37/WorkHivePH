@@ -168,26 +168,43 @@ async function knowledgeExtractionAgent(db: SupabaseClient, hiveId: string | nul
 }
 
 // ── AGENT 5: Workforce Match ──────────────────────────────────────────────────
-// Reads skill_profiles + skill_badges: best tech for the job
+// Reads v_worker_skill_truth (canonical Tier A) ⨝ v_worker_assignment_truth
+// (current capacity_signal): best tech for the job AND who can take it now.
 
-const WORKFORCE_SYSTEM = `You are a workforce scheduler. Given technician skill profiles and a maintenance question, identify:
-1. Best-matched technician(s) for the task (by discipline and level)
+const WORKFORCE_SYSTEM = `You are a workforce scheduler. Given technician skill profiles + current capacity (capacity_signal: overloaded/available/free/idle) and a maintenance question, identify:
+1. Best-matched technician(s) for the task (by discipline + current_level + capacity)
 2. Any skill gaps (task requires expertise no one has)
-3. Recommended assignment with reasoning
-Respond only in JSON: { "best_match": [{"worker_name","discipline","level","reason"}], "skill_gaps": ["missing_skill"], "recommendation": "one sentence" }`;
+3. Recommended assignment with reasoning (prefer 'available' or 'free' workers over 'overloaded')
+Respond only in JSON: { "best_match": [{"worker_name","discipline","current_level","capacity_signal","reason"}], "skill_gaps": ["missing_skill"], "recommendation": "one sentence" }`;
 
 async function workforceMatchAgent(db: SupabaseClient, hiveId: string | null, workerName: string | null, question: string) {
-  const query = db.from("skill_badges")
-    .select("worker_name, discipline, level")
-    .order("level", { ascending: false })
+  // Canonical Tier A reads — replaces direct skill_badges scatter.
+  const skillsQ = db.from("v_worker_skill_truth")  // canonical: worker_skill_truth
+    .select("worker_name, discipline, current_level, primary_skill, badge_count")
+    .not("discipline", "is", null)
+    .order("current_level", { ascending: false })
     .limit(100);
+  if (hiveId) skillsQ.eq("hive_id", hiveId);
 
-  if (hiveId) query.eq("hive_id", hiveId);
+  const capQ = db.from("v_worker_assignment_truth")  // canonical: worker_assignment_truth
+    .select("worker_name, capacity_signal, open_jobs, last_category");
+  if (hiveId) capQ.eq("hive_id", hiveId);
 
-  const { data: badges } = await query;
-  if (!badges?.length) return { agent: "workforce_match", result: null };
+  const [skillsRes, capRes] = await Promise.allSettled([skillsQ, capQ]);
+  const skills = (skillsRes.status === "fulfilled" ? skillsRes.value.data : null) || [];
+  const caps   = (capRes.status    === "fulfilled" ? capRes.value.data    : null) || [];
 
-  const summary = badges.map(b => `${b.worker_name}|${b.discipline}|Level ${b.level}`).join("\n");
+  if (!skills.length) return { agent: "workforce_match", result: null };
+
+  const capByWorker = new Map(caps.map((c: any) => [c.worker_name, c]));
+  const enriched = skills.map((s: any) => {
+    const c = capByWorker.get(s.worker_name) || {};
+    return { ...s, capacity_signal: c.capacity_signal || "unknown", open_jobs: c.open_jobs || 0 };
+  });
+
+  const summary = enriched
+    .map((b: any) => `${b.worker_name}|${b.discipline}|L${b.current_level}|cap:${b.capacity_signal}|open:${b.open_jobs}`)
+    .join("\n");
 
   const raw = await callGroq(
     `Question: ${question}\n\nTechnician skills (worker|discipline|level):\n${summary}`,

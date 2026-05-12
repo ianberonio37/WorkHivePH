@@ -6,6 +6,17 @@ import { redactPII } from "../_shared/redactPII.ts";
 import { getCorsHeaders } from "../_shared/cors.ts";
 import { checkAIRateLimit, rateLimitedResponse } from "../_shared/rate-limit.ts";
 
+// ── Canonical agent contracts produced by this orchestrator ─────────────────
+// All response shapes below are registered in canonical_agent_contracts
+// (Tier C). Consumers can read the JSON Schema from there.
+// contract: analytics_action_plan_v1     (Phase 4 action plan synthesis)
+// contract: next_failure_forecast_v1     (Phase 3 next failure dates)
+// contract: parts_stockout_v1            (Phase 3 parts stockout)
+// contract: anomaly_baseline_v1          (Phase 3 anomaly baseline)
+// contract: parts_spike_v1               (Phase 3 parts consumption spike)
+// contract: priority_ranking_v1          (Phase 4 priority ranking)
+// (health_score_v1 is produced by batch-risk-scoring, consumed here.)
+
 // Warm module-scope Supabase client. Reused across request invocations
 // in the same warm container. Per-request createClient calls below are
 // being phased out (PRODUCTION_FIXES #46). Falls back to an empty
@@ -193,6 +204,11 @@ async function fetchDiagnosticData(
   const base = await fetchDescriptiveData(db, hiveId, workerName, periodDays);
 
   // Skill badges — scales with team size (5 disciplines × 5 levels × N workers)
+  // tier-a-allow: Python diagnostic/prescriptive modules expect per-badge rows
+  // (one row per (worker, discipline, level)). v_worker_skill_truth aggregates
+  // to one row per (worker, discipline) with MAX(level). Adoption requires
+  // python-api/analytics/{diagnostic,prescriptive}.py contract change; tracked
+  // as Tier A.b adoption phase. Until then, raw skill_badges stays.
   const badgesQ = db.from("skill_badges")
     .select("worker_name, discipline, level")
     .limit(2000); // 5 disciplines × 5 levels × 80 workers = 2000 max
@@ -385,6 +401,7 @@ ${memberList}
 Only reference machines, parts, and workers that appear in the data. Never invent names or equipment not mentioned. Be specific: cite the machine codes (e.g. PMP-001, AC-002), KPI numbers, dates.
 
 Use bullet points. Maximum 250 words.
+// contract: analytics_action_plan_v1 (canonical_agent_contracts; consumers: analytics.html, shift-brain.html, hive.html)
 Format as JSON:
 {
   "summary": "one sentence overview tying together the most important phase signal",

@@ -454,6 +454,7 @@ def calc_engineering_validation(
 # ── 7. RCM Consequence Distribution — SAE JA1011 §5.4 ───────────────────────
 # Uses failure_consequence field from logbook to classify failures by impact.
 # Four consequence categories: Hidden / Running reduced / Safety risk / Stopped production
+# formula: rcm_consequence_saeja_1011
 
 def calc_rcm_consequence(logbook_entries: list[dict]) -> dict:
     df = _to_df(logbook_entries)

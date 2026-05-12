@@ -412,17 +412,19 @@ def check_tier_c_anchor() -> dict:
     `// contract:<id>` comment in the file.
     """
     registered_contracts: set[str] = set()
-    CONTRACT_RE = re.compile(
-        r"INSERT\s+INTO\s+canonical_agent_contracts[\s\S]*?VALUES\s*\(\s*'([a-z_][a-z0-9_]*)'",
-        re.IGNORECASE,
-    )
+    # Parse VALUES rows after the INSERT statement. The block may span many
+    # lines and contain multiple tuples; capture each contract_id (first col).
     has_table = False
     for path in list_migrations():
         sql = read_file(path) or ""
-        if "canonical_agent_contracts" in sql:
-            has_table = True
-            for m in CONTRACT_RE.finditer(sql):
-                registered_contracts.add(m.group(1).lower())
+        if "canonical_agent_contracts" not in sql: continue
+        has_table = True
+        m_insert = re.search(
+            r"INSERT\s+INTO\s+(?:public\.)?canonical_agent_contracts[^;]*?VALUES\s*([\s\S]*?);",
+            sql, re.IGNORECASE)
+        if m_insert:
+            for tup in re.finditer(r"\(\s*'([a-z_][a-z0-9_]*)'", m_insert.group(1)):
+                registered_contracts.add(tup.group(1).lower())
     if not has_table:
         return {
             "layer":           "tier_c",
@@ -460,17 +462,17 @@ def check_formula_anchor() -> dict:
     SKIPs. Once registered, counts every Python calc_* function that
     isn't tagged with a formula_id."""
     registered_formulas: set[str] = set()
-    FORMULA_RE = re.compile(
-        r"INSERT\s+INTO\s+canonical_formulas[\s\S]*?VALUES\s*\(\s*'([a-z_][a-z0-9_]*)'",
-        re.IGNORECASE,
-    )
     has_table = False
     for path in list_migrations():
         sql = read_file(path) or ""
-        if "canonical_formulas" in sql:
-            has_table = True
-            for m in FORMULA_RE.finditer(sql):
-                registered_formulas.add(m.group(1).lower())
+        if "canonical_formulas" not in sql: continue
+        has_table = True
+        m_insert = re.search(
+            r"INSERT\s+INTO\s+(?:public\.)?canonical_formulas[^;]*?VALUES\s*([\s\S]*?);",
+            sql, re.IGNORECASE)
+        if m_insert:
+            for tup in re.finditer(r"\(\s*'([a-z_][a-z0-9_]*)'", m_insert.group(1)):
+                registered_formulas.add(tup.group(1).lower())
     # Always report the count of calc_* functions (whether tier D is shipped or not)
     CALC_RE = re.compile(r"^def\s+(calc_[a-z_0-9]+)\s*\(", re.MULTILINE)
     seen_funcs: list[tuple[str, str]] = []  # (fn_name, file_path)
@@ -527,17 +529,17 @@ def check_standard_anchor() -> dict:
     SKIPs but reports the count of standards-string references the
     platform makes today, so we know how many will need anchors."""
     registered_standards: set[str] = set()
-    STD_RE = re.compile(
-        r"INSERT\s+INTO\s+canonical_standards[\s\S]*?VALUES\s*\(\s*'([a-z_0-9\-]+)'",
-        re.IGNORECASE,
-    )
     has_table = False
     for path in list_migrations():
         sql = read_file(path) or ""
-        if "canonical_standards" in sql:
-            has_table = True
-            for m in STD_RE.finditer(sql):
-                registered_standards.add(m.group(1).lower())
+        if "canonical_standards" not in sql: continue
+        has_table = True
+        m_insert = re.search(
+            r"INSERT\s+INTO\s+(?:public\.)?canonical_standards[^;]*?VALUES\s*([\s\S]*?);",
+            sql, re.IGNORECASE)
+        if m_insert:
+            for tup in re.finditer(r"\(\s*'([a-z_0-9]+)'", m_insert.group(1)):
+                registered_standards.add(tup.group(1).lower())
 
     # Reference scan: any of {ISO , SMRP, SAE JA, NFPA, ASME, ASTM, ANSI, IEC,
     # IESNA, ASHRAE, NEC, OSHA} followed by a number/code.
