@@ -28,6 +28,7 @@ MANNING_N: dict[str, float] = {
 }
 
 
+# formula: roof_drain
 def calculate(inputs: dict) -> dict:
     roof_area     = float(inputs.get("roof_area",       0))
     n_drains      = max(1, int(inputs.get("n_drains",   2)))

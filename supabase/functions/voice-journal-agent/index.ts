@@ -27,6 +27,8 @@
  */
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+
+// contract-allow: voice journal write + retrieval
 import { callAI } from "../_shared/ai-chain.ts";
 import { getCorsHeaders } from "../_shared/cors.ts";
 

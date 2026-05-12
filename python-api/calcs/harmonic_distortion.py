@@ -71,6 +71,7 @@ def _individual_limit_pct(order: int, isc_il: float, il_a: float) -> float:
     return base * scale  # % of IL
 
 
+# formula: harmonic_distortion_ieee_519_2022
 def calculate(inputs: dict) -> dict:
     fundamental_a   = float(inputs.get("fundamental_current_a", 100))
     max_demand_a    = float(inputs.get("max_demand_current_a", 0))   # I_L; if 0, use fundamental

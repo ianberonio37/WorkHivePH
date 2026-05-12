@@ -148,6 +148,7 @@ def _earth_rod_count(rho_soil: float, rod_len_m: float, R_target: float) -> int:
     return max(n, 1)
 
 
+# formula: lightning_protection_iec_62305_1
 def calculate(inputs: dict) -> dict:
     """Main entry point - compatible with TypeScript calcLightningProtection() keys."""
     # ── Structure parameters ──────────────────────────────────────────────────

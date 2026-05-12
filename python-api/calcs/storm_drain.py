@@ -47,6 +47,7 @@ def _kirpich_tc(length_m: float, slope_pct: float) -> float:
     return 0.0195 * (length_m ** 0.77) * (S ** (-0.385))
 
 
+# formula: storm_drain
 def calculate(inputs: dict) -> dict:
     area_mode      = str(inputs.get("area_mode",      "single"))
     intensity      = float(inputs.get("intensity_mmhr", 0))     # 0 = use PAGASA table

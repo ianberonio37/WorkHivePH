@@ -33,6 +33,7 @@ def _select_tank(resin_l: float) -> dict:
     return {"dia_in": d, "ht_in": h, "resin_L": r}
 
 
+# formula: water_softener_ansi_44
 def calculate(inputs: dict) -> dict:
     demand_source  = str(inputs.get("demand_source",    "direct"))
     n_people       = int(inputs.get("n_people",         0))

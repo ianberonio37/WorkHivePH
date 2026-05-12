@@ -53,6 +53,7 @@ def _cp_water(temp_c: float) -> float:
     return 4.186
 
 
+# formula: hot_water_demand
 def calculate(inputs: dict) -> dict:
     uses           = inputs.get("uses", [])
     T_supply       = float(inputs.get("supply_temp",    28))

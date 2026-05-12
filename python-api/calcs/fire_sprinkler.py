@@ -140,6 +140,7 @@ def _select_pipe(Q_lpm: float, C: float, L_m: float,
     }
 
 
+# formula: fire_sprinkler_nfpa_13_2022
 def calculate(inputs: dict) -> dict:
     """
     Main entry point - compatible with TypeScript calcFireSprinkler() keys.

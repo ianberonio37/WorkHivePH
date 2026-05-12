@@ -43,6 +43,7 @@ NUT_LABELS: dict[str, str] = {
 }
 
 
+# formula: bolt_torque_iso_898_1
 def calculate(inputs: dict) -> dict:
     bolt_size   = str(inputs.get("bolt_size",   "M16"))
     bolt_grade  = str(inputs.get("bolt_grade",  "8.8"))

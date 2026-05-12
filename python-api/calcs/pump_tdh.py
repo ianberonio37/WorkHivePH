@@ -96,6 +96,7 @@ def _friction_head(
     return hf, v, Re, f
 
 
+# formula: pump_tdh_iso_9906
 def calculate(inputs: dict) -> dict:
     """
     Main entry point - matches the same input keys used by the TypeScript

@@ -40,6 +40,7 @@ def _resistivity(material: str, temp_c: float = 75.0) -> float:
     return _RHO20_CU * (1.0 + _ALPHA_CU * (temp_c - 20.0))
 
 
+# formula: voltage_drop_iec_60364_5
 def calculate(inputs: dict) -> dict:
     circuit_type   = str(inputs.get("circuit_type",    "Branch Circuit"))
     phase          = str(inputs.get("phase",           "Single-phase"))

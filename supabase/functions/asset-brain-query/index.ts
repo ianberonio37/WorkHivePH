@@ -23,6 +23,8 @@
  */
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+
+// contract-allow: natural-language asset query; passthrough to AI
 import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { callAI } from "../_shared/ai-chain.ts";
 import { loadMemory, saveTurn, formatMemoryContext } from "../_shared/memory.ts";

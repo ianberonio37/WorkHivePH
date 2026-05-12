@@ -78,6 +78,7 @@ def _pump_curve_points(rated_flow: float, rated_pressure: float) -> list[dict]:
     ]
 
 
+# formula: fire_pump_nfpa_20_2022
 def calculate(inputs: dict) -> dict:
     """
     Main entry point - compatible with TypeScript calcFirePump() keys.

@@ -23,6 +23,7 @@ OCCUPANCY_TARGETS: dict[str, dict] = {
 }
 
 
+# formula: elevator_traffic_iso_4190_6
 def calculate(inputs: dict) -> dict:
     n_floors       = int(inputs.get("n_floors",     12))
     floor_height   = float(inputs.get("floor_height", 3.5))

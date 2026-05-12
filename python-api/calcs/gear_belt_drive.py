@@ -272,6 +272,7 @@ def _chain_drive(power_kW: float, n_driver_rpm: float, n_driven_rpm: float,
     }
 
 
+# formula: gear_belt_drive_iso_6336
 def calculate(inputs: dict) -> dict:
     """Main entry point - compatible with TypeScript calcGearBeltDrive() keys."""
     drive_type    = str  (inputs.get("drive_type",    "Spur Gear"))   # Spur Gear / V-Belt / Chain

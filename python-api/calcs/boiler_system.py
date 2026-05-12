@@ -83,6 +83,7 @@ def _water_density(temp_c: float) -> float:
     return 1.0184 - 0.000619 * temp_c   # linear fit, valid 40–95°C
 
 
+# formula: boiler_system
 def calculate(inputs: dict) -> dict:
     boiler_type  = str(inputs.get("boiler_type", "Steam"))
     num_boilers  = max(1, int(inputs.get("num_boilers",   1)))

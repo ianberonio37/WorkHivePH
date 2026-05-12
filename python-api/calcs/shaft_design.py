@@ -156,6 +156,7 @@ def _goodman(d_mm: float, Ma_Nm: float, Mm_Nm: float,
     }
 
 
+# formula: shaft_design
 def calculate(inputs: dict) -> dict:
     """Main entry point - compatible with TypeScript calcShaftDesign() keys."""
     # ── Loads ─────────────────────────────────────────────────────────────────

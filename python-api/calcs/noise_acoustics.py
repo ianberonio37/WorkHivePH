@@ -194,6 +194,7 @@ def _twa(exposures: list) -> dict:
     }
 
 
+# formula: noise_acoustics_iso_9613_2
 def calculate(inputs: dict) -> dict:
     """Main entry point - compatible with TypeScript calcNoiseAcoustics() keys."""
     calc_type    = str(inputs.get("calc_type", "Room"))   # Room / Barrier / Dose / NC / Source

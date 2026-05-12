@@ -42,6 +42,7 @@ def _air_density(altitude_m: float = 0.0, temp_c: float = 25.0) -> float:
     return P / (Rd * T)
 
 
+# formula: stairwell_pressurization_nfpa_92_2021
 def calculate(inputs: dict) -> dict:
     building_type   = str(inputs.get("building_type",      "Sprinklered"))
     n_stairwells    = int(inputs.get("n_stairwells",       1))

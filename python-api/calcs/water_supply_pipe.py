@@ -78,6 +78,7 @@ def _hw_hf_per_m(flow_m3s: float, dia_m: float, C: float) -> float:
     return (10.67 * flow_m3s ** 1.852) / (C ** 1.852 * dia_m ** 4.87)
 
 
+# formula: water_supply_pipe
 def calculate(inputs: dict) -> dict:
     fixtures      = inputs.get("fixtures", [])
     supply_type   = str(inputs.get("supply_type",          "Cold and Hot"))

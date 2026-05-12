@@ -251,6 +251,7 @@ def _rc_column(b_mm: float, h_mm: float,
     }
 
 
+# formula: beam_column
 def calculate(inputs: dict) -> dict:
     """Main entry point - compatible with TypeScript calcBeamColumn() keys."""
     member_type   = str(inputs.get("member_type",   "Steel Beam"))   # Steel Beam / RC Beam / Steel Column / RC Column

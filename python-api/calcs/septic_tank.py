@@ -38,6 +38,7 @@ SOIL_ABSORPTION: dict[str, float] = {
 }
 
 
+# formula: septic_tank
 def calculate(inputs: dict) -> dict:
     occ_type       = str(inputs.get("occupancy_type",  "Residential"))
     occupants      = int(inputs.get("occupants",        20))

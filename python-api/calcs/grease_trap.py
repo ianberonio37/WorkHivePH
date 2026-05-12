@@ -18,6 +18,7 @@ PDI_STD_GPM = [4, 6, 7, 10, 15, 20, 25, 35, 50, 75, 100]
 LPM_TO_GPM = 0.26417   # 1 L/min = 0.26417 US gal/min
 
 
+# formula: grease_trap
 def calculate(inputs: dict) -> dict:
     fixtures   = inputs.get("fixtures", [])   # [{fixture_type, flow_lpm, qty}]
     suf        = float(inputs.get("suf",          0.75))   # Simultaneous Use Factor

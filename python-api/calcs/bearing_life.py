@@ -30,6 +30,7 @@ BALL_XY: list[tuple[float, float, float]] = [
 ]
 
 
+# formula: bearing_life_iso_281_2007
 def calculate(inputs: dict) -> dict:
     bearing_type    = str(inputs.get("bearing_type",     "Ball"))
     C_kN            = float(inputs.get("C_kN",           25.5))

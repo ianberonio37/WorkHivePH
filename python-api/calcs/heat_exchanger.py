@@ -166,6 +166,7 @@ def _overall_U(h_i: float, h_o: float,
     return 1 / inv_U if inv_U > 0 else 0
 
 
+# formula: heat_exchanger
 def calculate(inputs: dict) -> dict:
     """Main entry point - compatible with TypeScript calcHeatExchanger() keys."""
     # ── Process conditions ────────────────────────────────────────────────────

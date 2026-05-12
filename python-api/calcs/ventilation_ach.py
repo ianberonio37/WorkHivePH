@@ -33,6 +33,7 @@ def _round_up_fan(cmh: float) -> int:
     return next((s for s in FAN_SIZES_CMH if s >= cmh), round(cmh / 500) * 500)
 
 
+# formula: ventilation_ach_ashrae_62
 def calculate(inputs: dict) -> dict:
     floor_area     = float(inputs.get("floor_area",     50))
     ceiling_height = float(inputs.get("ceiling_height", 3.0))

@@ -47,6 +47,8 @@
  */
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+
+// contract-allow: produces AMC briefing; future Tier C: amc_brief_v1
 import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { callAI } from "../_shared/ai-chain.ts";
 import { getCorsHeaders } from "../_shared/cors.ts";

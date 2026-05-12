@@ -240,6 +240,7 @@ def calc_pm_compliance(pm_completions: list[dict], pm_scope_items: list[dict], p
 # ── 5. Failure Frequency — ISO 14224 ─────────────────────────────────────────
 # Count of corrective failures per machine per period
 
+# formula: failure_frequency_smrp_5
 def calc_failure_frequency(logbook_entries: list[dict], period_days: int = 90) -> dict:
     df = _to_df(logbook_entries)
     if df.empty:
@@ -268,6 +269,7 @@ def calc_failure_frequency(logbook_entries: list[dict], period_days: int = 90) -
 # ── 6. Downtime Pareto — 80/20 Rule ──────────────────────────────────────────
 # Ranked downtime by machine — identifies the vital few causing most downtime
 
+# formula: downtime_pareto_iso_14224
 def calc_downtime_pareto(logbook_entries: list[dict]) -> dict:
     df = _to_df(logbook_entries)
     if df.empty or "downtime_hours" not in df.columns:
@@ -297,6 +299,7 @@ def calc_downtime_pareto(logbook_entries: list[dict]) -> dict:
 # ── 7. Parts Consumption Rate — SMRP ─────────────────────────────────────────
 # Units consumed per week/month per part — from inventory_transactions
 
+# formula: parts_consumption_smrp_4
 def calc_parts_consumption(inv_transactions: list[dict], period_days: int = 90) -> dict:
     df = _to_df(inv_transactions)
     if df.empty:
@@ -335,6 +338,7 @@ def calc_parts_consumption(inv_transactions: list[dict], period_days: int = 90) 
 # Same root_cause on same machine ≥ 2 times = repeat failure
 # Indicates ineffective repair or systemic issue
 
+# formula: consequence_distribution_saeja_1011
 def calc_consequence_distribution(logbook_entries: list[dict]) -> dict:
     """SAE JA1011 RCM Consequence Analysis — distribution across 4 failure consequence categories."""
     df = _to_df(logbook_entries)
@@ -356,6 +360,7 @@ def calc_consequence_distribution(logbook_entries: list[dict]) -> dict:
     }
 
 
+# formula: repeat_failures_iso_14224
 def calc_repeat_failures(logbook_entries: list[dict]) -> dict:
     df = _to_df(logbook_entries)
     if df.empty or "root_cause" not in df.columns:

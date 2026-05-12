@@ -129,6 +129,7 @@ def _select_pipe(Q_lpm: float, C: float, L_m: float) -> dict:
             "velocity_ms": round(v, 2), "dp_bar": round(dp, 4)}
 
 
+# formula: domestic_water_ashrae_2021
 def calculate(inputs: dict) -> dict:
     """Main entry point - compatible with TypeScript calcDomesticWater() keys."""
     # ── Building parameters ───────────────────────────────────────────────────

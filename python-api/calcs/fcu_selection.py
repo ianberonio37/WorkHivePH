@@ -104,6 +104,7 @@ def _calc_single_zone(inputs: dict) -> dict:
     return calculate(dict(inputs, _skip_multi=True))
 
 
+# formula: fcu_selection_ashrae_62
 def calculate(inputs: dict) -> dict:
     """
     Main entry point. Supports both single-zone and multi-room (rooms[]) inputs.

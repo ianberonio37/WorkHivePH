@@ -29,6 +29,7 @@ DEVICE_DEFAULTS: dict[str, dict[str, float]] = {
 }
 
 
+# formula: fire_alarm_battery_nfpa_72_2022
 def calculate(inputs: dict) -> dict:
     system_voltage   = int(inputs.get("system_voltage",   24))
     standby_hours    = float(inputs.get("standby_hours",  24))   # 24h standard, 60h supervising

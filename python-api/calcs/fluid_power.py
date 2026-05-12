@@ -203,6 +203,7 @@ def _select_pipe(Q_lpm: float, line_type: str, fluid: dict, P_bar: float) -> dic
             "velocity_m_s": round(v, 3), "line_type": line_type}
 
 
+# formula: fluid_power_iso_4413_2010
 def calculate(inputs: dict) -> dict:
     """Main entry point - compatible with TypeScript calcFluidPower() keys."""
     calc_type  = str(inputs.get("calc_type", "Cylinder"))   # Cylinder / Pump / Motor / Accumulator / System

@@ -121,6 +121,7 @@ def _ashrae_limits(capacity_kw: float, is_water: bool) -> dict:
     return table[-1]
 
 
+# formula: chiller_ashrae_90
 def calculate(inputs: dict) -> dict:
     """
     Main entry point - compatible with TypeScript calcChillerSystem() keys.

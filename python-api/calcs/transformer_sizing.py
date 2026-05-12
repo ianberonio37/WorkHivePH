@@ -41,6 +41,7 @@ def _loss_fracs(kva: float) -> tuple[float, float]:
     return 0.10 / 100.0, 0.90 / 100.0
 
 
+# formula: transformer_sizing_iec_60076_1
 def calculate(inputs: dict) -> dict:
     load_kva         = float(inputs.get("load_kva",           100))
     primary_v        = float(inputs.get("primary_voltage",    13800))

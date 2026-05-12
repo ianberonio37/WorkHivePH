@@ -158,6 +158,7 @@ def _select_pipe(
     }
 
 
+# formula: compressed_air_iso_1217
 def calculate(inputs: dict) -> dict:
     """
     Main entry point - compatible with TypeScript calcCompressedAir() input keys.

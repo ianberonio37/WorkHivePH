@@ -113,6 +113,7 @@ BOILER_SHELL_MATERIALS: dict[str, dict] = {
 }
 
 
+# formula: boiler_steam
 def calculate(inputs: dict) -> dict:
     """Main entry point - compatible with TypeScript calcBoilerSteam() keys."""
     # ── Operating conditions ──────────────────────────────────────────────────

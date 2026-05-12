@@ -245,6 +245,7 @@ def _make_line(name: str, line_type: str, equiv_length_m: float, sub: dict | Non
     }
 
 
+# formula: refrigerant_pipe_ashrae_2022
 def calculate(inputs: dict) -> dict:
     """
     Main entry point - compatible with TypeScript calcRefrigPipeSizing() keys.

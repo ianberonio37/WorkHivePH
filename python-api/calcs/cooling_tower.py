@@ -100,6 +100,7 @@ PUMP_MOTOR_SIZES_KW  = [0.37, 0.55, 0.75, 1.1, 1.5, 2.2, 3.0, 4.0, 5.5, 7.5,
                          11, 15, 18.5, 22, 30, 37, 45, 55, 75, 90]
 
 
+# formula: cooling_tower_ashrae_2021
 def calculate(inputs: dict) -> dict:
     """
     Main entry point - compatible with TypeScript calcCoolingTower() input keys.

@@ -53,6 +53,7 @@ MANNING_N: dict[str, float] = {
 }
 
 
+# formula: drainage_pipe_sizing
 def calculate(inputs: dict) -> dict:
     fixtures     = inputs.get("fixtures", [])
     system_type  = str(inputs.get("system_type",   "Horizontal Branch"))

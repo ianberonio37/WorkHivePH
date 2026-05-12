@@ -58,6 +58,7 @@ FREQ_DAYS = {"Monthly": 30, "Quarterly": 90, "Semi-Annual": 180, "Yearly": 365}
 # Risk Score = Criticality Weight × Failure Frequency × Avg Downtime
 # Ranks all assets so maintenance team knows where to focus first.
 
+# formula: priority_ranking_iso_55000
 def calc_priority_ranking(
     logbook_entries: list[dict],
     pm_assets: list[dict],
@@ -140,6 +141,7 @@ def calc_priority_ranking(
 # If MTBF < PM interval → PM is not frequent enough → recommend shortening
 # If MTBF >> PM interval → PM may be over-maintained → flag for review
 
+# formula: pm_interval_opt_saeja_1011
 def calc_pm_interval_optimization(
     logbook_entries: list[dict],
     pm_scope_items: list[dict],
@@ -265,6 +267,7 @@ def calc_pm_interval_optimization(
 # ── 3. Technician Assignment — SMRP workforce metrics ─────────────────────────
 # Matches open/recent jobs to best-qualified technician by discipline and level
 
+# formula: technician_assignment_smrp_5
 def calc_technician_assignment(
     logbook_entries: list[dict],
     skill_badges: list[dict]
@@ -381,6 +384,7 @@ def calc_technician_assignment(
 # ── 4. Parts Reorder Recommendation ──────────────────────────────────────────
 # Cross-references: parts below reorder point AND needed for upcoming PMs
 
+# formula: parts_reorder_smrp_4
 def calc_parts_reorder(
     inventory_items: list[dict],
     inv_transactions: list[dict],
@@ -458,6 +462,7 @@ def calc_parts_reorder(
 # ── 5. Training Gap Recommendation ────────────────────────────────────────────
 # High MTTR in a category + low skill level in that discipline = training target
 
+# formula: training_gaps_smrp_5
 def calc_training_gaps(
     logbook_entries: list[dict],
     skill_badges: list[dict]

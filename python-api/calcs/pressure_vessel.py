@@ -125,6 +125,7 @@ def _nozzle_reinforcement(t_shell_mm: float, d_nozzle_mm: float,
     }
 
 
+# formula: pressure_vessel
 def calculate(inputs: dict) -> dict:
     """Main entry point - compatible with TypeScript calcPressureVessel() keys."""
     # ── Design conditions ─────────────────────────────────────────────────────

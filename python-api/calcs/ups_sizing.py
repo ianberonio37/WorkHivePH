@@ -105,6 +105,7 @@ def _replacement_year(life_factor: float, rated_life_yr: float = 5.0) -> float:
     return rated_life_yr * life_factor
 
 
+# formula: ups_sizing_ieee_1184_2006
 def calculate(inputs: dict) -> dict:
     """
     Main entry point - compatible with TypeScript calcUPSSizing() input keys.

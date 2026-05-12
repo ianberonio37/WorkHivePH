@@ -179,6 +179,7 @@ def _select_wire(
     return AMPACITY_TABLE[-1], tf, ff   # largest available
 
 
+# formula: wire_sizing_nec_2020
 def calculate(inputs: dict) -> dict:
     """
     Main entry point - compatible with TypeScript calcWireSizing() input keys.

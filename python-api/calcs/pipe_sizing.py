@@ -161,6 +161,7 @@ def _select_pipe(flow_m3s: float, roughness_m: float, rho: float, mu: float,
     return results
 
 
+# formula: pipe_sizing_ashrae_2021
 def calculate(inputs: dict) -> dict:
     """
     Main entry point - compatible with TypeScript calcPipeSizing() input keys.

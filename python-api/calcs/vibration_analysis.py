@@ -131,6 +131,7 @@ def _rotating_imbalance(mass_kg: float, m_e_kg: float, e_mm: float,
             "V_rms_mm_s": round(V_rms_mm_s, 3), "Ft_N": round(Ft_N, 2)}
 
 
+# formula: vibration_analysis_iso_10816_3
 def calculate(inputs: dict) -> dict:
     """Main entry point - compatible with TypeScript calcVibrationAnalysis() keys."""
     # ── Machine parameters ────────────────────────────────────────────────────

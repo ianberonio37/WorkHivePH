@@ -105,6 +105,7 @@ def _starting_kva(
     return round(start_kva, 2), round(vdip_factor, 4)
 
 
+# formula: generator_sizing_iso_8528_1
 def calculate(inputs: dict) -> dict:
     """
     Main entry point - compatible with TypeScript calcGeneratorSizing() keys.

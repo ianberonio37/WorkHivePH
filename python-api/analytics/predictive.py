@@ -52,6 +52,7 @@ FREQ_DAYS = {"Monthly": 30, "Quarterly": 90, "Semi-Annual": 180, "Yearly": 365}
 # Risk level: HIGH if overdue, MEDIUM if due within 14 days, LOW otherwise
 # Requires: ≥ 2 failures per machine to compute MTBF
 
+# formula: next_failure_iso_13381
 def calc_next_failure_dates(logbook_entries: list[dict]) -> dict:
     df = _to_df(logbook_entries)
     if df.empty:
@@ -120,6 +121,7 @@ def calc_next_failure_dates(logbook_entries: list[dict]) -> dict:
 # Next PM due = last completion date + frequency interval
 # Overdue if due date has passed. Risk levels per days overdue.
 
+# formula: pm_due_calendar
 def calc_pm_due_calendar(
     pm_completions: list[dict],
     pm_scope_items: list[dict]
@@ -221,6 +223,7 @@ def calc_pm_due_calendar(
 # days_to_stockout = qty_on_hand / avg_daily_consumption_rate
 # Flags parts projected to stock out within 30 days
 
+# formula: parts_stockout_forecast
 def calc_parts_stockout(
     inventory_items: list[dict],
     inv_transactions: list[dict],
@@ -302,6 +305,7 @@ def calc_parts_stockout(
 # Uses rolling counts to show whether failures are increasing or decreasing.
 # Prophet is skipped if insufficient data — uses linear trend instead.
 
+# formula: failure_trend_smrp_5
 def calc_failure_trend(logbook_entries: list[dict], period_days: int = 90) -> dict:
     df = _to_df(logbook_entries)
     if df.empty:
@@ -368,6 +372,7 @@ def calc_failure_trend(logbook_entries: list[dict], period_days: int = 90) -> di
 #   30% — Recent failure frequency (lower = better)
 # Standard: SMRP-inspired weighted composite
 
+# formula: health_score_iso_13381
 def calc_health_scores(
     logbook_entries: list[dict],
     pm_completions: list[dict],
@@ -543,6 +548,7 @@ def calc_health_scores(
 # Calculates mean ± 2σ per reading type per machine.
 # Flags readings outside control limits as anomalies.
 
+# formula: anomaly_baseline_stddev
 def calc_anomaly_baseline(logbook_entries: list[dict]) -> dict:
     df = _to_df(logbook_entries)
     if df.empty or "readings_json" not in df.columns:
@@ -642,6 +648,7 @@ def calc_anomaly_baseline(logbook_entries: list[dict]) -> dict:
 # BEFORE a fault is logged — often the earliest predictive signal available.
 # Standard: Predictive Analytics skill — Stage 2 rule-based feature.
 
+# formula: parts_spike_zscore
 def calc_parts_consumption_spike(inv_transactions: list[dict], period_days: int = 90) -> dict:
     df = _to_df(inv_transactions)
     if df.empty or "created_at" not in df.columns or "part_name" not in df.columns:

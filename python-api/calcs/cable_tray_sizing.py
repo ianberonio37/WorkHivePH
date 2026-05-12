@@ -38,6 +38,7 @@ FILL_LIMITS: dict[str, float] = {
 }
 
 
+# formula: cable_tray_sizing_nec_2023
 def calculate(inputs: dict) -> dict:
     tray_type      = str(inputs.get("tray_type",       "Ladder"))
     depth_mm       = float(inputs.get("depth_mm",      75))

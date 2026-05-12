@@ -118,6 +118,7 @@ def _pmax_hot(pmax_w: float, temp_coeff_pct: float, t_cell_hot: float) -> float:
     return pmax_w * (1 + (temp_coeff_pct / 100) * (t_cell_hot - 25))
 
 
+# formula: solar_pv_iec_62548_2016
 def calculate(inputs: dict) -> dict:
     """
     Main entry point - compatible with TypeScript calcSolarPV() input keys.

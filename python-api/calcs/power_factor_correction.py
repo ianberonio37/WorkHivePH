@@ -20,6 +20,7 @@ import math
 STD_KVAR = [5, 10, 15, 20, 25, 30, 40, 50, 60, 75, 100, 150, 200, 300, 400, 500]
 
 
+# formula: power_factor_correction_ieee_18_2012
 def calculate(inputs: dict) -> dict:
     kw          = float(inputs.get("load_kw",      100))
     pf_existing = float(inputs.get("pf_existing",  0.75))

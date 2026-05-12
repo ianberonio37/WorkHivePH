@@ -50,6 +50,7 @@ def _corrective_only(df: pd.DataFrame) -> pd.DataFrame:
 # Groups failures by root_cause, ranks by frequency (Pareto).
 # Surfaces the vital few root causes driving most failures.
 
+# formula: failure_mode_dist_iso_14224
 def calc_failure_mode_distribution(logbook_entries: list[dict]) -> dict:
     df = _to_df(logbook_entries)
     if df.empty or "root_cause" not in df.columns:
@@ -96,6 +97,7 @@ def calc_failure_mode_distribution(logbook_entries: list[dict]) -> dict:
 # Method: Spearman rank (non-parametric, no distribution assumption)
 # Standard: Statistical methodology — Statsmodels / SciPy
 
+# formula: pm_failure_corr_spearman
 def calc_pm_failure_correlation(
     logbook_entries: list[dict],
     pm_completions: list[dict],
@@ -197,6 +199,7 @@ def calc_pm_failure_correlation(
 # Tests: do higher-skilled techs have lower MTTR on their repairs?
 # Groups by discipline, shows avg MTTR per skill level.
 
+# formula: skill_mttr_corr_spearman
 def calc_skill_mttr_correlation(
     logbook_entries: list[dict],
     skill_badges: list[dict]
@@ -278,6 +281,7 @@ def calc_skill_mttr_correlation(
 # Compares MTTR of jobs where parts were available vs. where parts ran out
 # during the same period. A gap suggests parts shortage extended repairs.
 
+# formula: parts_avail_impact
 def calc_parts_availability_impact(
     logbook_entries: list[dict],
     inv_transactions: list[dict]
@@ -334,6 +338,7 @@ def calc_parts_availability_impact(
 # Groups machines by their dominant failure mode.
 # Identical root causes across machines reveal systemic issues.
 
+# formula: repeat_failure_cluster
 def calc_repeat_failure_clustering(logbook_entries: list[dict]) -> dict:
     df = _to_df(logbook_entries)
     if df.empty or "root_cause" not in df.columns:
@@ -387,6 +392,7 @@ def calc_repeat_failure_clustering(logbook_entries: list[dict]) -> dict:
 # If a machine appears in both, flags it for potential design review.
 # WAT pattern: deterministic cross-reference, no LLM needed.
 
+# formula: engineering_validation
 def calc_engineering_validation(
     logbook_entries: list[dict],
     engineering_calcs: list[dict]

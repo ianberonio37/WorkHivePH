@@ -551,7 +551,11 @@ def check_standard_anchor() -> dict:
     for path in list_html_pages() + list_edge_functions() + list_python_api_files():
         content = read_file(path) or ""
         for m in STANDARD_REF_RE.finditer(content):
-            key = f"{m.group(1).upper().replace(' ', '')}_{m.group(2)}"
+            body = m.group(1).upper().replace(' ', '')
+            num  = m.group(2).replace(':', '-').rstrip('.')
+            # Normalise the same way canonical_standards.standard_id is built:
+            # lowercase body + number, dashes/dots -> underscores.
+            key = f"{body}_{num}".lower().replace('-', '_').replace('.', '_')
             if path not in refs[key]:
                 refs[key].append(path)
 
@@ -573,7 +577,7 @@ def check_standard_anchor() -> dict:
     # If registered: count refs that don't match a registered_standards key
     unanchored: list[dict] = []
     for key, files in refs.items():
-        if key.lower() in registered_standards: continue
+        if key in registered_standards: continue
         unanchored.append({"standard": key, "n_files": len(files), "sample_files": files[:3]})
     return {
         "layer":           "tier_d_standard",

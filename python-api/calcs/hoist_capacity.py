@@ -30,6 +30,7 @@ ROPE_SIZES: list[dict] = [
 STD_HP = [0.5, 1, 1.5, 2, 3, 5, 7.5, 10, 15, 20, 25, 30, 40, 50, 60, 75, 100, 125, 150, 200]
 
 
+# formula: hoist_capacity
 def calculate(inputs: dict) -> dict:
     rated_load_kg   = float(inputs.get("rated_load_kg",   2000))
     hook_weight_kg  = float(inputs.get("hook_weight_kg",  30))

@@ -78,6 +78,7 @@ def _altitude_correction(altitude_m: float) -> float:
     return (1.0 - 2.2558e-5 * altitude_m) ** 5.2559
 
 
+# formula: clean_agent_suppression_nfpa_2001_2022
 def calculate(inputs: dict) -> dict:
     hazard_vol_m3     = float(inputs.get("hazard_volume_m3",       100))
     agent_key         = str(inputs.get("agent_type",               "FK-5-1-12"))

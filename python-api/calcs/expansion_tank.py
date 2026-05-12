@@ -67,6 +67,7 @@ def _spec_vol_lkg(temp_c: float) -> float:
     return _FALLBACK_TABLE[-1][1]
 
 
+# formula: expansion_tank_ashrae_2023
 def calculate(inputs: dict) -> dict:
     system_type     = str(inputs.get("system_type",          "Chilled Water"))
     volume_method   = str(inputs.get("volume_method",        "Direct Entry"))

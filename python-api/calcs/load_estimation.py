@@ -34,6 +34,7 @@ LOAD_DEMAND_FACTOR: dict[str, float] = {
 STANDARD_BREAKER_A = [15,20,30,40,50,60,70,80,90,100,125,150,175,200,225,250,300,350,400,500,600]
 
 
+# formula: load_estimation_iec_60364
 def calculate(inputs: dict) -> dict:
     loads        = inputs.get("loads", [])
     phase_config = str(inputs.get("phase_config", "3-Phase 4-Wire (400V)"))

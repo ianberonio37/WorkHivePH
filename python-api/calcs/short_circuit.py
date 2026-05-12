@@ -134,6 +134,7 @@ def _source_impedance(
     return r_src, x_src, z_src
 
 
+# formula: short_circuit_iec_60909_0
 def calculate(inputs: dict) -> dict:
     """
     Main entry point - compatible with TypeScript calcShortCircuit() keys.

@@ -14,6 +14,7 @@ Method: Activated Sludge Process — SRT method (Metcalf & Eddy Eq. 8-20)
 import math
 
 
+# formula: wastewater_stp
 def calculate(inputs: dict) -> dict:
     flow_source    = str(inputs.get("flow_source",    "population"))
     population     = int(inputs.get("population",     200))

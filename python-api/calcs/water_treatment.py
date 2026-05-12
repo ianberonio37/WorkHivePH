@@ -14,6 +14,7 @@ import math
 STD_FILTER_DIA_MM = [400, 500, 600, 700, 800, 900, 1000, 1200, 1400, 1600, 1800, 2000, 2400]
 
 
+# formula: water_treatment_ansi_61
 def calculate(inputs: dict) -> dict:
     demand_source = str(inputs.get("demand_source",   "direct"))
     n_people      = int(inputs.get("n_people",        0))

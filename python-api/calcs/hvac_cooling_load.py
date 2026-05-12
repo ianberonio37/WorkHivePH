@@ -102,6 +102,7 @@ def _min_eer(kw: float) -> float:
     return 2.78
 
 
+# formula: hvac_cooling_load_ashrae_62
 def calculate(inputs: dict) -> dict:
     """
     Main entry point - compatible with TypeScript calcHVACCoolingLoad() keys.

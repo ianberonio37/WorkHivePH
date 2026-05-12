@@ -70,6 +70,7 @@ def _phase_label(phase_idx: int, phases: int) -> str:
     return labels[phase_idx % 3]
 
 
+# formula: load_schedule_nec_2020
 def calculate(inputs: dict) -> dict:
     """
     Main entry point - compatible with TypeScript calcLoadSchedule() input keys.

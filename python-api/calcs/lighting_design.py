@@ -148,6 +148,7 @@ def _llf(
     return lamp_lumen_depreciation * ldd
 
 
+# formula: lighting_design_ashrae_90
 def calculate(inputs: dict) -> dict:
     """Main entry point - compatible with TypeScript calcLightingDesign() keys."""
     # ── Room parameters (accept both Python-style and frontend field names) ───

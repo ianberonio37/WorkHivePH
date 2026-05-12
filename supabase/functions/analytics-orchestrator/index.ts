@@ -203,26 +203,16 @@ async function fetchDiagnosticData(
   // Reuse all descriptive data sources plus two new ones
   const base = await fetchDescriptiveData(db, hiveId, workerName, periodDays);
 
-  // Skill badges — scales with team size (5 disciplines × 5 levels × N workers)
-  // tier-a-allow: Python diagnostic/prescriptive modules expect per-badge rows
-  // (one row per (worker, discipline, level)). v_worker_skill_truth aggregates
-  // to one row per (worker, discipline) with MAX(level). Adoption requires
-  // python-api/analytics/{diagnostic,prescriptive}.py contract change; tracked
-  // as Tier A.b adoption phase. Until then, raw skill_badges stays.
-  const badgesQ = db.from("skill_badges")
-    .select("worker_name, discipline, level")
-    .limit(2000); // 5 disciplines × 5 levels × 80 workers = 2000 max
-  if (hiveId) {
-    // Get hive member names first, then fetch their badges
-    const { data: members } = await db.from("hive_members")
-      .select("worker_name")
-      .eq("hive_id", hiveId)
-      .eq("status", "active");
-    const memberNames = (members || []).map((m: Record<string, string>) => m.worker_name).filter(Boolean);
-    if (memberNames.length) badgesQ.in("worker_name", memberNames);
-  } else if (workerName) {
-    badgesQ.eq("worker_name", workerName);
-  }
+  // Worker skill canonical (Tier A) — one row per (worker, discipline) with
+  // MAX(level) aliased as `level` so the Python diagnostic/prescriptive
+  // contract stays unchanged. v_worker_skill_truth is hive-scoped, so the
+  // separate hive_members lookup is no longer needed.
+  const badgesQ = db.from("v_worker_skill_truth")    // canonical: worker_skill_truth
+    .select("worker_name, discipline, level:current_level")
+    .not("discipline", "is", null)
+    .limit(2000);
+  if (hiveId) badgesQ.eq("hive_id", hiveId);
+  else if (workerName) badgesQ.eq("worker_name", workerName);
 
   // Engineering calcs — enough to match against all machines (no period filter)
   const calcsQ = db.from("engineering_calcs")
@@ -306,18 +296,15 @@ async function fetchPrescriptiveData(
     return (data || []) as Array<Record<string, string>>;
   })();
 
-  // skill_badges -- scales with team (5 disciplines x 5 levels x N workers)
-  const badgesQ = db.from("skill_badges")
-    .select("worker_name, discipline, level")
-    .limit(2000); // was hardcoded 500
-  if (hiveId) {
-    const { data: members } = await db.from("hive_members")
-      .select("worker_name").eq("hive_id", hiveId).eq("status", "active");
-    const names = (members || []).map((m: Record<string, string>) => m.worker_name).filter(Boolean);
-    if (names.length) badgesQ.in("worker_name", names);
-  } else if (workerName) {
-    badgesQ.eq("worker_name", workerName);
-  }
+  // Worker skill canonical (Tier A) — same canonical as Phase 2.
+  // v_worker_skill_truth pre-aggregates per (worker, discipline) so
+  // calc_technician_assignment + calc_training_gaps see one row per pair.
+  const badgesQ = db.from("v_worker_skill_truth")    // canonical: worker_skill_truth
+    .select("worker_name, discipline, level:current_level")
+    .not("discipline", "is", null)
+    .limit(2000);
+  if (hiveId) badgesQ.eq("hive_id", hiveId);
+  else if (workerName) badgesQ.eq("worker_name", workerName);
 
   const [assetsRes, badgesRes] = await Promise.allSettled([assetsPromise, badgesQ]);
 

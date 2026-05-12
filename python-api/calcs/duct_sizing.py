@@ -246,6 +246,7 @@ def _size_section(
     }
 
 
+# formula: duct_sizing_ashrae_2021
 def calculate(inputs: dict) -> dict:
     """
     Main entry point - compatible with TypeScript calcDuctSizing() input keys.

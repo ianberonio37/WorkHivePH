@@ -244,6 +244,7 @@ def _stormwater_flow(roof_area_m2: float, C: float, i_mmhr: float) -> float:
 
 # ─── Main calculation ─────────────────────────────────────────────────────────
 
+# formula: sewer_drainage
 def calculate(inputs: dict) -> dict:
     """Main entry point - compatible with TypeScript calcSewerDrainage() keys."""
     # ── Building / system parameters ─────────────────────────────────────────

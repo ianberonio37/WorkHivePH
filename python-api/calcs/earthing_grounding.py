@@ -30,6 +30,7 @@ R_LIMITS: dict[str, float] = {
 }
 
 
+# formula: earthing_grounding_iec_60364_5
 def calculate(inputs: dict) -> dict:
     electrode_type = str(inputs.get("electrode_type",   "Rod"))
     soil_rho       = float(inputs.get("soil_resistivity", 100))   # Ohm·m
