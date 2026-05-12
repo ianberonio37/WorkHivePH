@@ -218,6 +218,52 @@ if (typeof window !== 'undefined' && !window.toggleKPI) {
 }
 
 
+// ─── Compact Stat (Tier G capability: display_compact_stat) ────────────────
+// Small inline label/value tile — the recurring "MTBF: 18d" pattern across
+// asset-hub risk panel, hive benchmark rows, predictive count chips, shift
+// brain top-of-shift stats. Distinct from renderKpiTile (which is the full
+// RAG hero card); this is the compact variant for stat strips.
+//
+// opts:
+//   - label    (required) "MTBF" | "Critical" | "Days to Failure"
+//   - value    (required) hero number / text
+//   - unit                "d" | "%" | "h" (optional, rendered small)
+//   - color               'red'|'orange'|'yellow'|'green'|'blue'|'grey' OR a CSS color
+//   - sublabel            small line under the value (optional)
+//   - icon                emoji or single char prefix (optional)
+//   - href                wrap whole tile in <a href> (optional)
+//
+// capability: display_compact_stat
+function renderCompactStat(opts) {
+  opts = opts || {};
+  const PALETTE = {
+    red:    '#f87171',
+    orange: '#fb923c',
+    yellow: '#facc15',
+    green:  '#4ade80',
+    blue:   '#60a5fa',
+    grey:   'rgba(255,255,255,0.55)',
+  };
+  const color = PALETTE[opts.color] || opts.color || 'rgba(255,255,255,0.85)';
+
+  const inner =
+    `<div style="display:flex;flex-direction:column;align-items:flex-start;gap:0.15rem;padding:0.5rem 0.85rem;min-width:84px;">` +
+      `<span style="font-size:0.6rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:rgba(255,255,255,0.4);">${escHtml(opts.label || '')}</span>` +
+      `<span style="display:flex;align-items:baseline;gap:0.25rem;">` +
+        (opts.icon ? `<span style="font-size:0.85rem;">${escHtml(opts.icon)}</span>` : '') +
+        `<span style="font-size:1.05rem;font-weight:800;line-height:1;color:${color};">${escHtml(String(opts.value === undefined || opts.value === null ? '—' : opts.value))}</span>` +
+        (opts.unit ? `<span style="font-size:0.7rem;color:rgba(255,255,255,0.45);">${escHtml(opts.unit)}</span>` : '') +
+      `</span>` +
+      (opts.sublabel ? `<span style="font-size:0.6rem;color:rgba(255,255,255,0.4);">${escHtml(opts.sublabel)}</span>` : '') +
+    `</div>`;
+
+  if (opts.href) {
+    return `<a href="${escHtml(opts.href)}" style="text-decoration:none;color:inherit;">${inner}</a>`;
+  }
+  return inner;
+}
+
+
 // ─── Alert Preview (Tier G capability: display_alert_preview) ──────────────
 // Shared alert-row renderer for cross-page previews of AMC briefings, failure
 // signature matches, sensor anomalies, parts staging recommendations.
