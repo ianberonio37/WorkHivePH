@@ -20,6 +20,7 @@
  * Defaults to the seeded "Pablo Aguilar" worker in the first seeded hive.
  */
 import { test as base, expect, Page, BrowserContext } from '@playwright/test';
+import { cleanupByMarker } from './_db-cleanup';
 
 const TEST_WORKER = process.env.WH_TEST_WORKER || 'Pablo Aguilar';
 const TEST_HIVE_ID = process.env.WH_TEST_HIVE_ID || '';
@@ -32,10 +33,24 @@ export type WhFixtures = {
 
 export const test = base.extend<WhFixtures>({
   /** Unique per-test marker — embedded in 'machine' / 'part_name' /
-   *  'title' fields so the cleanup step can find what THIS test created. */
+   *  'title' fields so the cleanup step can find what THIS test created.
+   *  After the test finishes (pass OR fail), an admin-client cleanup
+   *  sweeps every writable table for rows tagged with this marker. */
   testMarker: async ({}, use, testInfo) => {
     const marker = `WH-PW-${testInfo.workerIndex}-${Date.now().toString(36)}`;
     await use(marker);
+    // Best-effort cleanup. Never fail the test on cleanup error — the
+    // test already reported its own pass/fail.
+    try {
+      const result = await cleanupByMarker(marker);
+      const tables = Object.keys(result.deleted);
+      if (tables.length) {
+        console.log(`[cleanup] marker=${marker} deleted:`,
+          Object.entries(result.deleted).map(([t, n]) => `${t}=${n}`).join(' '));
+      }
+    } catch (e) {
+      console.warn(`[cleanup] marker=${marker} failed:`, (e as Error).message);
+    }
   },
 
   whPage: async ({ context, baseURL }, use) => {
