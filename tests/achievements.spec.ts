@@ -8,6 +8,6 @@ import { smokePage } from './_smoke-template';
 
 test.describe('achievements.html smoke', () => {
   test('loads and renders without page errors', async ({ whPage }) => {
-    await smokePage(whPage, '/achievements.html', {});
+    await smokePage(whPage, '/workhive/achievements.html', {});
   });
 });

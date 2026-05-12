@@ -8,6 +8,6 @@ import { smokePage } from './_smoke-template';
 
 test.describe('report-sender.html smoke', () => {
   test('loads and renders without page errors', async ({ whPage }) => {
-    await smokePage(whPage, '/report-sender.html', {});
+    await smokePage(whPage, '/workhive/report-sender.html', {});
   });
 });

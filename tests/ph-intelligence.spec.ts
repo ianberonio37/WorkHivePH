@@ -8,6 +8,6 @@ import { smokePage } from './_smoke-template';
 
 test.describe('ph-intelligence.html smoke', () => {
   test('loads and renders without page errors', async ({ whPage }) => {
-    await smokePage(whPage, '/ph-intelligence.html', {});
+    await smokePage(whPage, '/workhive/ph-intelligence.html', {});
   });
 });

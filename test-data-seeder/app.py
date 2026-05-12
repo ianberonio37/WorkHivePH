@@ -702,6 +702,75 @@ def api_run_flows():
     return jsonify({"started": True})
 
 
+def _run_playwright_node(log):
+    """Launch `npx playwright test` (the Node @playwright/test suite under tests/).
+
+    The Node suite is the silent-failure regression lock — each spec drives
+    Chromium through the real Supabase Auth signin then exercises the form
+    submit + asserts the toast/DB outcome (see tests/_helpers.ts). Sits
+    alongside the legacy Python sync_playwright suite (run_flows.py) which
+    covers smoke + visual + perf passes.
+
+    Path note: the project root has `&` in its folder name which breaks node's
+    module resolver. If a `Z:` substitution exists (created by deploy-functions.ps1)
+    we use it; otherwise fall back to the literal project root and hope npx
+    handles the quoting.
+    """
+    # Pick the working directory — prefer the Z: subst if it exists.
+    cwd = str(WORKHIVE_ROOT)
+    z_config = Path("Z:/playwright.config.ts")
+    if z_config.exists():
+        cwd = "Z:\\"
+        log("Using Z: drive subst to avoid '&' in project path")
+    else:
+        log(f"WARN: No Z: subst found. Running from {cwd!r} — if npx fails with MODULE_NOT_FOUND,")
+        log("      run `subst Z: \"<project-path>\"` once and re-trigger this button.")
+
+    # Use --reporter=line for streaming-friendly output. --reporter=json
+    # writes the machine-readable summary; we capture it for the validator.
+    cmd = ["npx", "playwright", "test", "--reporter=line"]
+    log(f"Launching: {' '.join(cmd)} (cwd={cwd})")
+    import re as _re
+    try:
+        proc = subprocess.Popen(
+            cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+            cwd=cwd, bufsize=1, text=True, encoding="utf-8", errors="replace",
+            shell=True,  # required on Windows so PATHEXT picks up npx.cmd
+        )
+    except Exception as e:
+        log(f"ERROR: failed to launch npx: {type(e).__name__}: {e}")
+        return {"summary": "", "exit_code": 1}
+
+    ansi = _re.compile(r"\x1b\[[0-9;]*m")
+    last_summary = ""
+    line_count = 0
+    for line in proc.stdout:
+        clean = ansi.sub("", line.rstrip())
+        if clean:
+            log(clean)
+            line_count += 1
+            # Capture the "N passed (Xs)" / "N failed (Xs)" summary line.
+            if " passed" in clean or " failed" in clean:
+                last_summary = clean
+    proc.wait()
+    log(f"npx playwright exit code={proc.returncode} after {line_count} lines")
+    return {"summary": last_summary, "exit_code": proc.returncode}
+
+
+@app.route("/api/run-playwright-node", methods=["POST"])
+def api_run_playwright_node():
+    """Runs the Node @playwright/test suite (tests/*.spec.ts).
+
+    This is the modern UI test surface — per-page interaction locks (form
+    submit + toast/DB assertion) that catch the silent-failure regression
+    class. Complements run_flows.py which still owns smoke/visual/perf.
+    """
+    if JOB_STATE["running"]:
+        return jsonify({"error": "another job is running"}), 409
+    _run_job("run_playwright_node", lambda c, log: _run_playwright_node(log))
+    return jsonify({"started": True})
+
+
 def _run_release_gate(extra_args: list = None):
     """Helper to launch release_gate.py with optional flags."""
     def _run(client, log):

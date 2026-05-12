@@ -31,15 +31,29 @@ export async function readToast(page: Page, timeoutMs = 4000): Promise<string | 
 export async function assertSubmitSucceeded(
   page: Page,
   successToastMatcher: RegExp | string,
-  consoleLog?: { stripeline: string },
+  _consoleLog?: { stripeline: string },
 ) {
-  const toast = await readToast(page);
-  expect(toast, `expected success toast but got: ${toast}`).not.toBeNull();
-  if (typeof successToastMatcher === 'string') {
-    expect(toast!).toContain(successToastMatcher);
-  } else {
-    expect(toast!).toMatch(successToastMatcher);
+  // The platform shows transient toasts (draft-restored, sync-success,
+  // etc.) that can briefly mask the save-success toast. Poll the toast
+  // text for up to 4s, returning as soon as a toast matching the success
+  // pattern appears. This is more robust than a single readToast() call.
+  const isMatch = (t: string | null) => {
+    if (!t) return false;
+    return typeof successToastMatcher === 'string'
+      ? t.includes(successToastMatcher)
+      : successToastMatcher.test(t);
+  };
+  const deadline = Date.now() + 5000;
+  let lastSeen: string | null = null;
+  while (Date.now() < deadline) {
+    const t = await readToast(page, 600);
+    if (t) lastSeen = t;
+    if (isMatch(t)) return;   // success — done
+    await page.waitForTimeout(150);
   }
+  throw new Error(
+    `expected success toast matching ${successToastMatcher} but last seen toast was: ${lastSeen}`,
+  );
 }
 
 /**

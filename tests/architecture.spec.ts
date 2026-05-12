@@ -8,6 +8,6 @@ import { smokePage } from './_smoke-template';
 
 test.describe('architecture.html smoke', () => {
   test('loads and renders without page errors', async ({ whPage }) => {
-    await smokePage(whPage, '/architecture.html', { minDomContent: false });
+    await smokePage(whPage, '/workhive/architecture.html', { minDomContent: false });
   });
 });

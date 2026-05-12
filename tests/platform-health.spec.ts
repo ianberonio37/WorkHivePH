@@ -8,6 +8,6 @@ import { smokePage } from './_smoke-template';
 
 test.describe('platform-health.html smoke', () => {
   test('loads and renders without page errors', async ({ whPage }) => {
-    await smokePage(whPage, '/platform-health.html', { minDomContent: false });
+    await smokePage(whPage, '/workhive/platform-health.html', { minDomContent: false });
   });
 });

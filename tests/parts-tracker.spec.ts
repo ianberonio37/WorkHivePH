@@ -8,6 +8,6 @@ import { smokePage } from './_smoke-template';
 
 test.describe('parts-tracker.html smoke', () => {
   test('loads and renders without page errors', async ({ whPage }) => {
-    await smokePage(whPage, '/parts-tracker.html', { minDomContent: false });
+    await smokePage(whPage, '/workhive/parts-tracker.html', { minDomContent: false });
   });
 });

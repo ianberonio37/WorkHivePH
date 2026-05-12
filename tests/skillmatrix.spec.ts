@@ -8,6 +8,6 @@ import { smokePage } from './_smoke-template';
 
 test.describe('skillmatrix.html smoke', () => {
   test('loads and renders without page errors', async ({ whPage }) => {
-    await smokePage(whPage, '/skillmatrix.html', {});
+    await smokePage(whPage, '/workhive/skillmatrix.html', {});
   });
 });

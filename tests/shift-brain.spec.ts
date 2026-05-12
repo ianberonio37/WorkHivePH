@@ -8,6 +8,6 @@ import { smokePage } from './_smoke-template';
 
 test.describe('shift-brain.html smoke', () => {
   test('loads and renders without page errors', async ({ whPage }) => {
-    await smokePage(whPage, '/shift-brain.html', {});
+    await smokePage(whPage, '/workhive/shift-brain.html', {});
   });
 });

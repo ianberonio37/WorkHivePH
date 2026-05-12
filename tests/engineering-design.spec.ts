@@ -8,6 +8,6 @@ import { smokePage } from './_smoke-template';
 
 test.describe('engineering-design.html smoke', () => {
   test('loads and renders without page errors', async ({ whPage }) => {
-    await smokePage(whPage, '/engineering-design.html', {});
+    await smokePage(whPage, '/workhive/engineering-design.html', {});
   });
 });

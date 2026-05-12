@@ -33,6 +33,8 @@ export default defineConfig({
   timeout: 30_000,
   expect: { timeout: 5_000 },
   use: {
+    // The Flask seeder serves WorkHive pages at /workhive/<file>.html, NOT
+    // at root. Tests use `page.goto('/workhive/<file>.html')` accordingly.
     baseURL: process.env.WH_TEST_BASE_URL || 'http://127.0.0.1:5000',
     headless: true,
     trace: 'retain-on-failure',

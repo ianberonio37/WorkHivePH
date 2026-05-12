@@ -240,6 +240,15 @@ VALIDATORS = [
         "skip_if_fast": False,
     },
     {
+        "id":      "playwright-coverage",
+        "script":  "validate_playwright_coverage.py",
+        "args":    [],
+        "label":   "Playwright Coverage (every LIVE_TOOL_PAGE has tests/<page>.spec.ts with a real goto)",
+        "group":   "Platform",
+        "report":  "playwright_coverage_report.json",
+        "skip_if_fast": False,  # static check, ~50ms
+    },
+    {
         "id":      "playwright-smoke",
         "script":  "validate_playwright_smoke.py",
         "args":    [],

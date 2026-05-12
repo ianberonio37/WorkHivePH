@@ -15,7 +15,7 @@ import {
 
 test.describe('inventory.html add-part flow', () => {
   test('blocks submit when part_number is empty (silent-fail regression lock)', async ({ whPage }) => {
-    await whPage.goto('/inventory.html');
+    await whPage.goto('/workhive/inventory.html');
     await waitForPageReady(whPage);
 
     await whPage.locator('#btn-add-part').click();
@@ -34,7 +34,7 @@ test.describe('inventory.html add-part flow', () => {
   });
 
   test('saves a valid part and the row appears in the list', async ({ whPage, testMarker }) => {
-    await whPage.goto('/inventory.html');
+    await whPage.goto('/workhive/inventory.html');
     await waitForPageReady(whPage);
 
     const partNumber = `PN-${testMarker}`;
@@ -59,7 +59,7 @@ test.describe('inventory.html add-part flow', () => {
   test('no page errors on load', async ({ whPage }) => {
     const errors: string[] = [];
     whPage.on('pageerror', e => errors.push(e.message));
-    await whPage.goto('/inventory.html');
+    await whPage.goto('/workhive/inventory.html');
     await waitForPageReady(whPage);
     await whPage.waitForTimeout(1500);
     expect(errors, `page errors: ${errors.join(' | ')}`).toEqual([]);

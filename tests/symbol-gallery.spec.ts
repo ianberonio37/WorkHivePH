@@ -8,6 +8,6 @@ import { smokePage } from './_smoke-template';
 
 test.describe('symbol-gallery.html smoke', () => {
   test('loads and renders without page errors', async ({ whPage }) => {
-    await smokePage(whPage, '/symbol-gallery.html', { minDomContent: false });
+    await smokePage(whPage, '/workhive/symbol-gallery.html', { minDomContent: false });
   });
 });

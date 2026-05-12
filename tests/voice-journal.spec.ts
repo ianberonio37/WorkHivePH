@@ -8,6 +8,6 @@ import { smokePage } from './_smoke-template';
 
 test.describe('voice-journal.html smoke', () => {
   test('loads and renders without page errors', async ({ whPage }) => {
-    await smokePage(whPage, '/voice-journal.html', {});
+    await smokePage(whPage, '/workhive/voice-journal.html', {});
   });
 });

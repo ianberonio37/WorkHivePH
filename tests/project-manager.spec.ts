@@ -8,6 +8,6 @@ import { smokePage } from './_smoke-template';
 
 test.describe('project-manager.html smoke', () => {
   test('loads and renders without page errors', async ({ whPage }) => {
-    await smokePage(whPage, '/project-manager.html', {});
+    await smokePage(whPage, '/workhive/project-manager.html', {});
   });
 });

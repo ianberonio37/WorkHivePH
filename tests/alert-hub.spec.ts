@@ -8,6 +8,6 @@ import { smokePage } from './_smoke-template';
 
 test.describe('alert-hub.html smoke', () => {
   test('loads and renders without page errors', async ({ whPage }) => {
-    await smokePage(whPage, '/alert-hub.html', { expectSourceChip: true });
+    await smokePage(whPage, '/workhive/alert-hub.html', { expectSourceChip: true });
   });
 });

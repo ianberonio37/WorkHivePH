@@ -8,6 +8,6 @@ import { smokePage } from './_smoke-template';
 
 test.describe('marketplace-seller.html smoke', () => {
   test('loads and renders without page errors', async ({ whPage }) => {
-    await smokePage(whPage, '/marketplace-seller.html', {});
+    await smokePage(whPage, '/workhive/marketplace-seller.html', {});
   });
 });
