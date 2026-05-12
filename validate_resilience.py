@@ -1,36 +1,32 @@
-"""validate_resilience.py - Phase 1.10 (reframe addition) of STRATEGIC_ROADMAP.md.
+"""validate_resilience.py - Phase 1.10 + Phase 2 of STRATEGIC_ROADMAP.md.
 
 The Philippine industrial reality: brownouts, intermittent 3G/4G, shared
 tablets, and 2G fallback in rural plants. WorkHive must be honest about
 which surfaces handle network loss gracefully and which silently break.
 
-This validator scans production pages and checks 4 resilience contracts:
+Phase 2 introduced 5 shared helpers that this validator enforces:
+  - offline-queue.js (IDB-backed queue helper, registry pattern)
+  - connectivity-widget.js (online/offline + queue-depth chip)
+  - form-autosave.js (brownout-safe state, silent restore on mount)
+  - session-timeout.js (shared-tablet hand-over: idle prompt + hard clear)
+  - device-fingerprint.js (new_device audit event when fingerprint changes)
 
-  L1  Offline queue contract
-      Pages that accept worker-authored writes (logbook, voice-journal,
-      schedule_items entries) must declare an offline queue OR explicitly
-      opt-out with a comment marker.
-
-  L2  Network-loss UI
-      Pages that depend on Supabase reads must show a 'You are offline'
-      affordance — either via OFFLINE_BANNER load, navigator.onLine check,
-      or a documented fallback. Without this, the worker sees an empty
-      screen during a brownout.
-
-  L3  fetchWithTimeout coverage
-      Every production HTML/JS fetch() call must use fetchWithTimeout.
-      Unbounded fetch hangs the UI when the cellular link drops.
-
-  L4  Shared-device safety
-      Pages that store credentials/identity in localStorage must clear them
-      on Sign Out (db.auth.signOut + localStorage.removeItem). Shared tablets
-      mean the next worker should not inherit the previous worker's identity.
+Layers:
+  L1  Offline queue contract — writer pages declare an offline queue
+      (logbook's local IDB queue OR offline-queue.js via whCreateQueue).
+  L2  Network-loss UI — read pages show 'offline' affordance (offline-banner.js,
+      connectivity-widget.js, navigator.onLine, or documented fallback).
+  L3  fetchWithTimeout coverage — every production fetch() is bounded.
+  L4  Shared-device sign-out — identity pages clear on signOut.
+  L5  Phase 2 connectivity widget loaded on production pages.
+  L6  Phase 2 session-timeout loaded on identity pages.
+  L7  Phase 2 device-fingerprint loaded on identity pages.
 
 Skills consulted:
   devops (network resilience patterns)
   mobile-maestro (shared-tablet shift-handover reality)
   realtime-engineer (offline-then-online reconnection)
-  security (next-worker-inherits-previous-identity is a real PH plant risk)
+  security (next-worker-inherits-previous-identity, detective controls)
 """
 from __future__ import annotations
 import json, re, sys
@@ -71,16 +67,36 @@ IDENTITY_PAGES = [
 ]
 
 # Resilience markers (any one of these counts as compliance for L1/L2).
-OFFLINE_QUEUE_MARKERS = ("offlineQueue", "indexedDB", "wh_offline_queue", "// offline-queue:")
+OFFLINE_QUEUE_MARKERS = ("offlineQueue", "indexedDB", "wh_offline_queue",
+                          "whCreateQueue", "offline-queue.js", "// offline-queue:")
 OFFLINE_UI_MARKERS    = ("navigator.onLine", "offline-banner", "OFFLINE_BANNER",
-                          "renderOfflineState", "wh-offline", "// offline-ui:")
-IDENTITY_CLEAR_MARKERS = ("signOut", "auth.signOut")
+                          "renderOfflineState", "wh-offline",
+                          "connectivity-widget.js", "// offline-ui:")
+IDENTITY_CLEAR_MARKERS = ("signOut", "auth.signOut", "session-timeout.js")
+
+# Phase 2 shared helpers — pages must opt in via <script> tag.
+CONNECTIVITY_WIDGET = "connectivity-widget.js"
+SESSION_TIMEOUT     = "session-timeout.js"
+DEVICE_FINGERPRINT  = "device-fingerprint.js"
+
+# Production pages that should load the connectivity widget (any user-facing
+# surface where a worker may be writing or reading during a brownout).
+CONNECTIVITY_WIDGET_PAGES = [
+    "hive.html", "logbook.html", "pm-scheduler.html", "inventory.html",
+    "asset-hub.html", "shift-brain.html", "dayplanner.html", "report-sender.html",
+]
+# Pages that hold identity → must load session-timeout + device-fingerprint
+SESSION_TIMEOUT_PAGES    = list(CONNECTIVITY_WIDGET_PAGES)
+DEVICE_FINGERPRINT_PAGES = list(CONNECTIVITY_WIDGET_PAGES)
 
 LAYERS = [
     {"layer": "L1", "label": f"Offline queue on {len(WRITE_PAGES)} writer pages"},
     {"layer": "L2", "label": f"Network-loss UI on {len(READ_PAGES)} read pages"},
     {"layer": "L3", "label": "fetchWithTimeout coverage on production fetch sites"},
     {"layer": "L4", "label": f"Sign-out clears identity on {len(IDENTITY_PAGES)} pages"},
+    {"layer": "L5", "label": f"connectivity-widget.js on {len(CONNECTIVITY_WIDGET_PAGES)} production pages"},
+    {"layer": "L6", "label": f"session-timeout.js on {len(SESSION_TIMEOUT_PAGES)} identity pages"},
+    {"layer": "L7", "label": f"device-fingerprint.js on {len(DEVICE_FINGERPRINT_PAGES)} identity pages"},
 ]
 
 # Pre-existing-debt allowlist. As resilience hardening lands page by page,
@@ -220,9 +236,43 @@ def check_identity_clear() -> list[dict]:
         if not _has_any(src, IDENTITY_CLEAR_MARKERS):
             issues.append({"check": "identity_clear", "layer": "L4", "page": name,
                            "reason": f"{name} stores identity but lacks an "
-                                     f"auth.signOut() call. Shared-tablet hand-over "
-                                     f"leaves the next worker logged in as the previous one."})
+                                     f"auth.signOut() call or session-timeout.js. "
+                                     f"Shared-tablet hand-over leaves the next worker "
+                                     f"logged in as the previous one."})
     return issues
+
+
+def _check_script_loaded(pages: list[str], script_name: str, layer: str, friendly: str) -> list[dict]:
+    issues: list[dict] = []
+    for name in pages:
+        p = ROOT / name
+        if not p.exists():
+            continue
+        src = _read(p)
+        if script_name not in src:
+            issues.append({"check": f"{layer.lower()}_{script_name.replace('.js','')}",
+                           "layer": layer, "page": name,
+                           "reason": f"{name} does not load <script src=\"{script_name}\">. "
+                                     f"{friendly}"})
+    return issues
+
+
+def check_connectivity_widget() -> list[dict]:
+    return _check_script_loaded(
+        CONNECTIVITY_WIDGET_PAGES, CONNECTIVITY_WIDGET, "L5",
+        "Without it, the worker has no visible indicator of offline state + queue depth.")
+
+
+def check_session_timeout() -> list[dict]:
+    return _check_script_loaded(
+        SESSION_TIMEOUT_PAGES, SESSION_TIMEOUT, "L6",
+        "Without it, an idle shared tablet stays signed in as the previous worker.")
+
+
+def check_device_fingerprint() -> list[dict]:
+    return _check_script_loaded(
+        DEVICE_FINGERPRINT_PAGES, DEVICE_FINGERPRINT, "L7",
+        "Without it, a sign-in from a new device produces no audit event for the supervisor.")
 
 
 def run() -> dict:
@@ -231,6 +281,9 @@ def run() -> dict:
     issues.extend(check_offline_ui())
     issues.extend(check_fetch_timeout())
     issues.extend(check_identity_clear())
+    issues.extend(check_connectivity_widget())
+    issues.extend(check_session_timeout())
+    issues.extend(check_device_fingerprint())
 
     failed_layers = {i.get("layer") for i in issues if i.get("layer")}
     failed = len(failed_layers)

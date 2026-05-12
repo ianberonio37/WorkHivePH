@@ -61,6 +61,11 @@ LIVE_PAGES = [
     "shift-brain.html",
     "alert-hub.html",
     "qr-scanner.js",
+    # Phase 2 resilience helpers — all use setInterval (heartbeat, idle check,
+    # cross-tab refresh). Register here so timer hygiene is enforced on them.
+    "connectivity-widget.js",
+    "form-autosave.js",
+    "session-timeout.js",
 ]
 
 # Event types where spawning intervals is dangerous (fires repeatedly)

@@ -1518,6 +1518,17 @@ async function removeFromQueue(id) {
   });
 }
 
+// Register with the shared connectivity widget so its queue badge reflects
+// logbook's pending count (Phase 2.5). The widget calls .getPending() across
+// every registered queue and surfaces a single aggregate badge in the chip.
+(function _registerLogbookQueue() {
+  if (typeof window === 'undefined' || !window.whRegisterQueue) {
+    setTimeout(_registerLogbookQueue, 800);
+    return;
+  }
+  window.whRegisterQueue('logbook', { getPending: getPendingEntries });
+})();
+
 // ── Offline UI helpers ──
 function updateOfflineUI(isOnline) {
   document.getElementById('offline-banner').classList.toggle('hidden', isOnline);
@@ -5106,5 +5117,10 @@ document.getElementById('f-category').addEventListener('change', updateTasklistS
   })();
   </script>
   <script src="offline-banner.js"></script>
+  <script defer src="offline-queue.js"></script>
+  <script defer src="connectivity-widget.js"></script>
+  <script defer src="session-timeout.js"></script>
+  <script defer src="form-autosave.js"></script>
+  <script defer src="device-fingerprint.js"></script>
 </body>
 </html>

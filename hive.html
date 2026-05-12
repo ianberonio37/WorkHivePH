@@ -2412,6 +2412,7 @@ async function loadAuditLog() {
     kick_member:  { icon: '⊘', color: '#f87171', label: 'Removed member' },
     member_joined:{ icon: '+', color: '#29B6D9', label: 'Joined' },
     member_left:  { icon: '↩', color: '#94a3b8', label: 'Left hive' },
+    new_device:   { icon: '⚠', color: '#F7A21B', label: 'New device' },
   };
 
   list.innerHTML = data.map(row => {
@@ -2997,6 +2998,10 @@ window.addEventListener('beforeunload', () => {
 });
 </script>
   <script src="offline-banner.js"></script>
+  <script defer src="offline-queue.js"></script>
+  <script defer src="connectivity-widget.js"></script>
+  <script defer src="session-timeout.js"></script>
+  <script defer src="device-fingerprint.js"></script>
   <!-- worker-drawer.js: click any [data-worker-name] node to open the mini-profile drawer.
        Closes PRODUCTION_FIXES #15. Auto-wires globally via event delegation. -->
   <script src="worker-drawer.js"></script>

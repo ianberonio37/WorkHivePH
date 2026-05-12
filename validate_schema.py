@@ -48,6 +48,7 @@ LIVE_PAGES = [
     "floating-ai.js",
     "utils.js",
     "maturity-gate.js",         # Phase 0.3 of STRATEGIC_ROADMAP — gated-page helper
+    "device-fingerprint.js",    # Phase 2.7 of STRATEGIC_ROADMAP — anomalous-login detective control
     "wh-capture-validate.js",
     "report-sender.html",
     "community.html",
