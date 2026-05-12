@@ -783,6 +783,15 @@ VALIDATORS = [
         "skip_if_fast": False,
     },
     {
+        "id":      "enterprise-unlock",
+        "script":  "validate_enterprise_unlock.py",
+        "args":    [],
+        "label":   "Enterprise Unlock Validator (Phase 5: retention + soft-delete cron + PDPA export + auth_session_events + MFA scaffold + SSO scaffold + Plant Connections Console)",
+        "group":   "Platform",
+        "report":  "enterprise_unlock_report.json",
+        "skip_if_fast": False,
+    },
+    {
         "id":      "realtime-publication",
         "script":  "validate_realtime_publication.py",
         "args":    [],

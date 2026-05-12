@@ -201,3 +201,8 @@ entrypoint = "./functions/visual-defect-capture/index.ts"
 enabled = true
 verify_jwt = false
 entrypoint = "./functions/sensor-readings-ingest/index.ts"
+
+[functions.export-hive-data]
+enabled = true
+verify_jwt = false
+entrypoint = "./functions/export-hive-data/index.ts"

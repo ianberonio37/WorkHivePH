@@ -22,6 +22,7 @@ PAGES = [
     ("ph-intelligence.html",   "PH Intelligence",     "body"),
     ("predictive.html",        "Predictive ML",       "body"),
     ("ai-quality.html",        "AI Quality + ROI",    "body"),
+    ("plant-connections.html", "Plant Connections",   "body"),
     ("achievements.html",      "Achievements",        "body"),
     ("asset-hub.html",         "Asset Hub",           "body"),
     ("shift-brain.html",       "Shift Brain",         "body"),

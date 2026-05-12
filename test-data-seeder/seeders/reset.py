@@ -92,6 +92,14 @@ RESET_TABLES = [
     "hive_readiness",
     "hive_adoption_score",
     "anomaly_signals",
+    "auth_session_events",
+    # Phase 5 enterprise scaffolding — config-class but listed here so re-seed
+    # against a fresh local stack is idempotent. Production operators
+    # provision these via the supervisor UI, not the seeder; the reset.py
+    # write is a no-op when nothing exists.
+    "hive_retention_config",
+    "mfa_enrollments",
+    "sso_configs",
     "sensor_readings",
     "sensor_topic_map",
     "hive_quotas",

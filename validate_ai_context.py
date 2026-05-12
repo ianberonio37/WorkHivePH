@@ -48,8 +48,10 @@ def get_platform_tools_block(content):
     # Bumped 3500 -> 6000 on 2026-05-05 after Project Manager was added.
     # Bumped 6000 -> 7500 on 2026-05-08 after Alert Hub + Asset Hub + Shift Brain
     # entries pushed PH Intelligence past the cutoff (only 5 words survived).
+    # Bumped 7500 -> 8500 on 2026-05-13 after Phase 4 AI Quality + ROI and
+    # Phase 5 Plant Connections entries pushed the cutoff again.
     # Same regression pattern as validate_assistant.py check_platform_tools_completeness.
-    return content[start:start + 7500] if start != -1 else ""
+    return content[start:start + 8500] if start != -1 else ""
 
 
 # ── Layer 1: Accuracy ─────────────────────────────────────────────────────────

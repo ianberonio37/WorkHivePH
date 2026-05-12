@@ -71,6 +71,7 @@ PUBLIC_PAGES = [
     ("project-report.html", "Project Report"),
     ("predictive.html", "Predictive Maintenance"),
     ("ai-quality.html", "AI Quality + ROI"),
+    ("plant-connections.html", "Plant Connections"),
     ("achievements.html", "Achievements"),
     ("asset-hub.html", "Asset Hub"),
     ("shift-brain.html", "Shift Brain"),

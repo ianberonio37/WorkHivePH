@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Plant Connections | WorkHive</title>
+  <meta name="theme-color" content="#162032" />
+  <meta name="description" content="Plant Connections Console — supervisor surface unifying CMMS integration configs, external sync activity, sensor topic mappings, and gateway audit. Phase 5 Track C." />
+  <link rel="manifest" href="manifest.json" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="utils.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0f1923; --surface: #162032; --card: #1d2e44;
+      --gold: #F7A21B; --blue: #29B6D9; --green: #4ade80;
+      --red: #f87171; --amber: #fb923c; --yellow: #facc15;
+      --text: #F4F6FA; --muted: rgba(255,255,255,0.4);
+      --border: rgba(255,255,255,0.07);
+    }
+    body { font-family: 'Poppins', system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding-bottom: 90px; }
+    .page { max-width: 980px; margin: 0 auto; padding: 1rem 1rem 0; padding-top: 68px; }
+    .page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; flex-wrap: wrap; gap: 10px; }
+    .page-title { font-size: 1.3rem; font-weight: 800; }
+    .page-sub { font-size: 0.72rem; color: var(--muted); margin-top: 2px; }
+    .role-pill { font-size: 0.6rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; padding: 0.25rem 0.7rem; border-radius: 999px; background: rgba(247,162,27,0.12); color: var(--gold); border: 1px solid rgba(247,162,27,0.25); }
+
+    .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px; margin-bottom: 16px; }
+    .card h3 { font-size: 0.92rem; font-weight: 800; margin-bottom: 4px; display: flex; align-items: center; gap: 8px; }
+    .card .meta { font-size: 0.62rem; color: var(--muted); margin-bottom: 12px; }
+    .empty { font-size: 0.72rem; color: var(--muted); padding: 12px 0; }
+
+    table.pc-table { width: 100%; border-collapse: collapse; font-size: 0.76rem; }
+    table.pc-table th { text-align: left; font-size: 0.58rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); padding: 7px 8px; border-bottom: 1px solid var(--border); }
+    table.pc-table td { padding: 9px 8px; border-bottom: 1px solid rgba(255,255,255,0.04); }
+    table.pc-table tr:hover td { background: rgba(255,255,255,0.02); }
+    .num-right { text-align: right; font-variant-numeric: tabular-nums; }
+    .pill { display: inline-block; font-size: 0.58rem; font-weight: 700; padding: 0.15rem 0.5rem; border-radius: 999px; }
+    .pill-green { background: rgba(74,222,128,0.12); color: var(--green); }
+    .pill-amber { background: rgba(247,162,27,0.12); color: var(--gold); }
+    .pill-red   { background: rgba(248,113,113,0.12); color: var(--red); }
+    .pill-grey  { background: rgba(255,255,255,0.06); color: var(--muted); }
+
+    .denied { padding: 1.25rem; border: 1px solid rgba(247,162,27,0.3); border-radius: 12px; background: rgba(247,162,27,0.06); text-align: center; }
+    .denied h2 { font-size: 1.05rem; margin-bottom: 0.4rem; }
+    .denied p { font-size: 0.78rem; color: rgba(255,255,255,0.7); }
+  </style>
+</head>
+<body>
+  <div id="nav-host"></div>
+
+  <main class="page">
+    <header class="page-header">
+      <div>
+        <h1 class="page-title">Plant Connections</h1>
+        <p class="page-sub">CMMS sync · sensor bridge · gateway audit — all in one supervisor surface.</p>
+      </div>
+      <span class="role-pill">Supervisor only</span>
+    </header>
+
+    <div id="content">
+      <div class="card"><div class="empty">Loading plant connections...</div></div>
+    </div>
+  </main>
+
+  <script>
+    const SUPABASE_URL = 'https://hzyvnjtisfgbksicrouu.supabase.co';
+    const SUPABASE_KEY = 'sb_publishable_ePj-suLMwkMRVDH6eM6S8g_R0rZVbMZ';
+    const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    // 3-key identity chain satisfies validate_nav_registry's L3 check.
+    let WORKER_NAME = localStorage.getItem('wh_last_worker')
+                    || localStorage.getItem('wh_worker_name')
+                    || localStorage.getItem('workerName') || '';
+    let HIVE_ID = '';
+    let HIVE_ROLE = '';
+
+    (async function init() {
+      if (!WORKER_NAME) WORKER_NAME = await restoreIdentityFromSession(db);
+      if (!WORKER_NAME) { window.location.href = 'index.html?signin=1'; return; }
+      HIVE_ID = localStorage.getItem('wh_active_hive_id')
+            || localStorage.getItem('wh_hive_id') || '';
+      if (!HIVE_ID) { window.location.href = 'hive.html'; return; }
+      HIVE_ROLE = localStorage.getItem('wh_hive_role') || '';
+      if (typeof logPageView === 'function') logPageView(db);
+
+      if (HIVE_ROLE !== 'supervisor') {
+        renderDenied();
+        return;
+      }
+      await renderAll();
+    })();
+
+    function renderDenied() {
+      document.getElementById('content').innerHTML = `
+        <div class="denied">
+          <h2>Supervisor access only</h2>
+          <p>Plant Connections is a supervisor surface for managing CMMS integrations, sensor topics, and gateway audits. Ask your hive supervisor to share the view if you need access.</p>
+        </div>
+      `;
+    }
+
+    async function renderAll() {
+      const host = document.getElementById('content');
+      const [cfgs, syncs, topics, audit, retention, sso] = await Promise.all([
+        loadIntegrationConfigs(),
+        loadRecentSync(),
+        loadSensorTopics(),
+        loadGatewayAudit(),
+        loadRetentionConfig(),
+        loadSsoConfig(),
+      ]);
+      host.innerHTML = [
+        renderRetentionCard(retention),
+        renderSsoCard(sso),
+        renderIntegrationsCard(cfgs),
+        renderSyncCard(syncs),
+        renderSensorTopicsCard(topics),
+        renderGatewayCard(audit),
+      ].join('');
+    }
+
+    async function loadIntegrationConfigs() {
+      try {
+        const { data } = await db.from('integration_configs')
+          .select('id, system_type, label, endpoint_url, auth_method, sync_freq, last_sync_at, enabled')
+          .eq('hive_id', HIVE_ID)
+          .order('last_sync_at', { ascending: false, nullsFirst: false });
+        return data || [];
+      } catch (_) { return []; }
+    }
+
+    async function loadRecentSync() {
+      try {
+        const sinceIso = new Date(Date.now() - 30 * 86400 * 1000).toISOString();
+        const { data } = await db.from('external_sync')
+          .select('id, system_type, entity_type, external_id, workhive_table, status, last_synced_at')
+          .eq('hive_id', HIVE_ID)
+          .gte('last_synced_at', sinceIso)
+          .order('last_synced_at', { ascending: false })
+          .limit(50);
+        return data || [];
+      } catch (_) { return []; }
+    }
+
+    async function loadSensorTopics() {
+      try {
+        const { data } = await db.from('sensor_topic_map')
+          .select('id, topic_pattern, parameter, unit, asset_id')
+          .eq('hive_id', HIVE_ID)
+          .order('topic_pattern');
+        return data || [];
+      } catch (_) { return []; }
+    }
+
+    async function loadGatewayAudit() {
+      try {
+        const sinceIso = new Date(Date.now() - 7 * 86400 * 1000).toISOString();
+        const { data } = await db.from('gateway_audit_log')
+          .select('id, route, method, status_code, latency_ms, created_at, worker_name')
+          .eq('hive_id', HIVE_ID)
+          .gte('created_at', sinceIso)
+          .order('created_at', { ascending: false })
+          .limit(50);
+        return data || [];
+      } catch (_) { return []; }
+    }
+
+    async function loadRetentionConfig() {
+      try {
+        const { data } = await db.from('hive_retention_config')
+          .select('soft_delete_retention_days, audit_retention_days, ai_telemetry_retention_days, updated_at, updated_by')
+          .eq('hive_id', HIVE_ID)
+          .maybeSingle();
+        return data || null;
+      } catch (_) { return null; }
+    }
+
+    async function loadSsoConfig() {
+      try {
+        const { data } = await db.from('sso_configs')
+          .select('provider, status, idp_entity_id, enforced, activated_at, notes')
+          .eq('hive_id', HIVE_ID)
+          .maybeSingle();
+        return data || null;
+      } catch (_) { return null; }
+    }
+
+    function renderRetentionCard(r) {
+      const soft = r && r.soft_delete_retention_days != null ? r.soft_delete_retention_days + ' days' : 'platform default (30 days)';
+      const audit = r && r.audit_retention_days != null ? r.audit_retention_days + ' days' : '1095 days';
+      const ai = r && r.ai_telemetry_retention_days != null ? r.ai_telemetry_retention_days + ' days' : '90 days';
+      return `
+        <div class="card">
+          <h3>Data retention</h3>
+          <p class="meta">PDPA evidence · daily cron at 12:00 PHT purges past retention</p>
+          <table class="pc-table">
+            <tbody>
+              <tr><td>Soft-deleted rows</td><td class="num-right">${escHtml(soft)}</td></tr>
+              <tr><td>Audit trail</td><td class="num-right">${escHtml(audit)}</td></tr>
+              <tr><td>AI telemetry (cost / quality)</td><td class="num-right">${escHtml(ai)}</td></tr>
+            </tbody>
+          </table>
+          ${renderSourceChip({ source: 'hive_retention_config', freshness: 'Live data', notes: ['Adjustable by supervisor; defaults applied when row missing.'] })}
+        </div>
+      `;
+    }
+
+    function renderSsoCard(s) {
+      if (!s) {
+        return `
+          <div class="card">
+            <h3>Single Sign-On</h3>
+            <p class="meta">SSO/SAML readiness — not configured yet</p>
+            <div class="empty">No SSO configuration on this hive. Operators provision SSO during enterprise onboarding.</div>
+          </div>
+        `;
+      }
+      const statusPill = s.status === 'active' ? 'pill-green' : s.status === 'disabled' ? 'pill-red' : 'pill-amber';
+      return `
+        <div class="card">
+          <h3>Single Sign-On</h3>
+          <p class="meta">Provider: ${escHtml(s.provider || '—')} · ${escHtml(s.enforced ? 'enforced for hive' : 'optional')}</p>
+          <table class="pc-table">
+            <tbody>
+              <tr><td>Status</td><td class="num-right"><span class="pill ${statusPill}">${escHtml(s.status || '?')}</span></td></tr>
+              <tr><td>IdP Entity ID</td><td class="num-right">${escHtml(s.idp_entity_id || '—')}</td></tr>
+              <tr><td>Activated</td><td class="num-right">${escHtml(s.activated_at ? new Date(s.activated_at).toLocaleString() : '—')}</td></tr>
+            </tbody>
+          </table>
+        </div>
+      `;
+    }
+
+    function renderIntegrationsCard(cfgs) {
+      if (!cfgs.length) {
+        return `
+          <div class="card">
+            <h3>CMMS integrations</h3>
+            <p class="meta">SAP PM / IBM Maximo / generic CSV</p>
+            <div class="empty">No CMMS integrations configured yet. Open <a href="integrations.html" style="color:var(--blue);">CMMS Integration</a> to add one.</div>
+          </div>
+        `;
+      }
+      const rows = cfgs.map(c => {
+        const stale = c.last_sync_at
+          ? (Date.now() - new Date(c.last_sync_at).getTime()) / 86400000
+          : null;
+        const statusPill = stale == null ? 'pill-grey'
+          : stale > 7 ? 'pill-red'
+          : stale > 1 ? 'pill-amber'
+          : 'pill-green';
+        const statusText = stale == null ? 'never synced'
+          : stale > 7 ? Math.round(stale) + 'd stale'
+          : stale > 1 ? Math.round(stale) + 'd ago'
+          : 'fresh';
+        return `
+          <tr>
+            <td><strong>${escHtml(c.label || c.system_type)}</strong> <span style="color:var(--muted); font-size:0.62rem;">${escHtml(c.system_type)}</span></td>
+            <td>${escHtml(c.sync_freq || '—')}</td>
+            <td>${escHtml(c.auth_method || '—')}</td>
+            <td><span class="pill ${statusPill}">${escHtml(statusText)}</span></td>
+          </tr>
+        `;
+      }).join('');
+      return `
+        <div class="card">
+          <h3>CMMS integrations <span class="pill pill-grey">${cfgs.length}</span></h3>
+          <p class="meta">Per-hive sync configs · staleness against last_sync_at</p>
+          <table class="pc-table">
+            <thead><tr><th>Integration</th><th>Frequency</th><th>Auth</th><th>Status</th></tr></thead>
+            <tbody>${rows}</tbody>
+          </table>
+          ${renderSourceChip({ source: 'integration_configs', freshness: 'Live data', window: 'All-time' })}
+        </div>
+      `;
+    }
+
+    function renderSyncCard(syncs) {
+      if (!syncs.length) {
+        return `
+          <div class="card">
+            <h3>External sync activity (last 30d)</h3>
+            <div class="empty">No external sync events in the last 30 days.</div>
+          </div>
+        `;
+      }
+      const counts = syncs.reduce((acc, s) => {
+        const k = (s.status || 'unknown').toLowerCase();
+        acc[k] = (acc[k] || 0) + 1;
+        return acc;
+      }, {});
+      const summary = Object.entries(counts).map(([k, n]) => `<span class="pill pill-grey">${escHtml(k)}: ${n}</span>`).join(' ');
+      const rows = syncs.slice(0, 10).map(s => `
+        <tr>
+          <td><strong>${escHtml(s.system_type)}</strong></td>
+          <td>${escHtml(s.entity_type)}</td>
+          <td>${escHtml(s.external_id)}</td>
+          <td>${escHtml(s.workhive_table || '—')}</td>
+          <td>${escHtml(s.status || '—')}</td>
+          <td class="num-right">${escHtml(s.last_synced_at ? new Date(s.last_synced_at).toLocaleString() : '—')}</td>
+        </tr>
+      `).join('');
+      return `
+        <div class="card">
+          <h3>External sync activity <span class="pill pill-grey">${syncs.length}</span></h3>
+          <p class="meta">Last 30 days · top 10 shown · ${summary}</p>
+          <table class="pc-table">
+            <thead><tr><th>System</th><th>Entity</th><th>External ID</th><th>WorkHive table</th><th>Status</th><th class="num-right">Synced</th></tr></thead>
+            <tbody>${rows}</tbody>
+          </table>
+        </div>
+      `;
+    }
+
+    function renderSensorTopicsCard(topics) {
+      if (!topics.length) {
+        return `
+          <div class="card">
+            <h3>Sensor topic map</h3>
+            <p class="meta">MQTT / OPC-UA topic → asset → parameter</p>
+            <div class="empty">No sensor topics mapped. Without a sensor bridge, the Anomaly Engine 2.0 sensor_zscore source contributes nothing.</div>
+          </div>
+        `;
+      }
+      const rows = topics.map(t => `
+        <tr>
+          <td><code style="font-family:'JetBrains Mono',monospace; font-size:0.7rem;">${escHtml(t.topic_pattern)}</code></td>
+          <td>${escHtml(t.parameter)}</td>
+          <td>${escHtml(t.unit || '—')}</td>
+        </tr>
+      `).join('');
+      return `
+        <div class="card">
+          <h3>Sensor topic map <span class="pill pill-grey">${topics.length}</span></h3>
+          <p class="meta">Live MQTT bridge feeds Anomaly Engine 2.0</p>
+          <table class="pc-table">
+            <thead><tr><th>Topic pattern</th><th>Parameter</th><th>Unit</th></tr></thead>
+            <tbody>${rows}</tbody>
+          </table>
+        </div>
+      `;
+    }
+
+    function renderGatewayCard(audit) {
+      if (!audit.length) {
+        return `
+          <div class="card">
+            <h3>Gateway audit (last 7d)</h3>
+            <div class="empty">No gateway calls recorded for this hive in the last week.</div>
+          </div>
+        `;
+      }
+      const errCount = audit.filter(a => Number(a.status_code) >= 400).length;
+      const rows = audit.slice(0, 10).map(a => {
+        const sc = Number(a.status_code) || 0;
+        const pill = sc >= 500 ? 'pill-red' : sc >= 400 ? 'pill-amber' : 'pill-green';
+        return `
+          <tr>
+            <td><strong>${escHtml(a.route)}</strong></td>
+            <td>${escHtml(a.method)}</td>
+            <td><span class="pill ${pill}">${escHtml(String(sc || '—'))}</span></td>
+            <td class="num-right">${escHtml(a.latency_ms != null ? a.latency_ms + ' ms' : '—')}</td>
+            <td>${escHtml(a.worker_name || '—')}</td>
+            <td class="num-right">${escHtml(new Date(a.created_at).toLocaleString())}</td>
+          </tr>
+        `;
+      }).join('');
+      return `
+        <div class="card">
+          <h3>Gateway audit <span class="pill ${errCount > 0 ? 'pill-amber' : 'pill-grey'}">${audit.length}</span></h3>
+          <p class="meta">Last 7 days · ${errCount} non-2xx · top 10 shown</p>
+          <table class="pc-table">
+            <thead><tr><th>Route</th><th>Method</th><th>Status</th><th class="num-right">Latency</th><th>Caller</th><th class="num-right">When</th></tr></thead>
+            <tbody>${rows}</tbody>
+          </table>
+        </div>
+      `;
+    }
+  </script>
+
+  <script src="floating-ai.js"></script>
+  <script src="offline-banner.js"></script>
+  <script defer src="offline-queue.js"></script>
+  <script defer src="connectivity-widget.js"></script>
+  <script defer src="session-timeout.js"></script>
+  <script defer src="device-fingerprint.js"></script>
+  <script src="nav-hub.js"></script>
+</body>
+</html>

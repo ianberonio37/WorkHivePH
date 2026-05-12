@@ -24,6 +24,7 @@ PAGES = [
     "ph-intelligence.html",
     "predictive.html",
     "ai-quality.html",
+    "plant-connections.html",
     "achievements.html",
     "asset-hub.html",
     "shift-brain.html",

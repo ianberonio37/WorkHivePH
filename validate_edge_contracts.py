@@ -76,6 +76,7 @@ ALL_FUNCTIONS = [
     "amc-orchestrator",
     "visual-defect-capture",
     "sensor-readings-ingest",
+    "export-hive-data",
 ]
 
 REQUIRED_FIELDS = {

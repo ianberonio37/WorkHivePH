@@ -51,6 +51,7 @@ LIVE_TOOL_PAGES = [
     "ph-intelligence",
     "predictive",
     "ai-quality",
+    "plant-connections",
     "achievements",
     "asset-hub",
     "shift-brain",

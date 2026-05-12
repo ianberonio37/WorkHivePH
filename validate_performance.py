@@ -56,6 +56,7 @@ LIVE_PAGES = [
     "project-report.html",
     "predictive.html",
     "ai-quality.html",          # Phase 4.1 — AI Quality + ROI dashboard
+    "plant-connections.html",   # Phase 5 Track C — Plant Connections Console
     "achievements.html",
     "asset-hub.html",
     "shift-brain.html",
