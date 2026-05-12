@@ -58,3 +58,11 @@ CLAUDE (1).md
 __pycache__/
 *.pyc
 *.pyo
+
+# Playwright runtime artifacts — re-generated on each `npx playwright test` run.
+# The committed test specs live under tests/*.spec.ts; everything below is
+# disposable per-run output (traces, screenshots, videos, json report).
+test-results/
+playwright-report/
+playwright/.cache/
+playwright-report.json

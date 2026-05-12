@@ -240,6 +240,15 @@ VALIDATORS = [
         "skip_if_fast": False,
     },
     {
+        "id":      "playwright-smoke",
+        "script":  "validate_playwright_smoke.py",
+        "args":    [],
+        "label":   "Playwright UI Smoke Suite (real browser, silent-failure regression locks per page)",
+        "group":   "Platform",
+        "report":  "playwright_smoke_report.json",
+        "skip_if_fast": True,   # ~3 min runtime; opt-in via full guardian
+    },
+    {
         "id":      "write-path-monitor",
         "script":  "validate_write_path_monitor.py",
         "args":    [],

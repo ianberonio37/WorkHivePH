@@ -1,0 +1,98 @@
+/**
+ * Shared helpers for WorkHive UI flow tests.
+ *
+ * The regression class that triggered this Playwright suite (2026-05-12
+ * walkthrough): a form submit was BLOCKED by wh-capture-validate.js, but
+ * the caller showed "Entry saved" anyway. The user thought their entry was
+ * logged when it wasn't. assertSubmitSucceeded / assertSubmitFailed below
+ * give every page-spec a one-liner to lock that pattern down forever.
+ */
+import { Page, expect } from '@playwright/test';
+
+/** Wait for a toast (any class) and return its text. */
+export async function readToast(page: Page, timeoutMs = 4000): Promise<string | null> {
+  try {
+    const toast = page.locator('#toast, .wh-toast, [role="status"]').first();
+    await toast.waitFor({ state: 'visible', timeout: timeoutMs });
+    return (await toast.innerText()).trim();
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Assert a form submit SUCCEEDED — i.e. the success toast appeared AND
+ * the silent-failure pattern did NOT happen.
+ *
+ * If the page shows a generic "Saved" toast even when the underlying
+ * write failed, this assertion alone isn't enough; pair with a follow-up
+ * DB query OR a `assertRowAppears` reading the just-written row back.
+ */
+export async function assertSubmitSucceeded(
+  page: Page,
+  successToastMatcher: RegExp | string,
+  consoleLog?: { stripeline: string },
+) {
+  const toast = await readToast(page);
+  expect(toast, `expected success toast but got: ${toast}`).not.toBeNull();
+  if (typeof successToastMatcher === 'string') {
+    expect(toast!).toContain(successToastMatcher);
+  } else {
+    expect(toast!).toMatch(successToastMatcher);
+  }
+}
+
+/**
+ * Assert a form submit was BLOCKED by validation — i.e. the page
+ * rejected the input AND did NOT show a success toast.
+ *
+ * Pass `errorPattern` to match the rejection toast/error message.
+ * Pass `forbiddenSuccessPattern` (defaults to /saved|added/i) to assert
+ * the success toast did NOT fire. This is the exact silent-failure
+ * regression the user hit.
+ */
+export async function assertSubmitBlocked(
+  page: Page,
+  errorPattern: RegExp,
+  forbiddenSuccessPattern: RegExp = /saved|added|recorded|sent/i,
+) {
+  const toast = await readToast(page);
+  expect(toast, 'no toast appeared after blocked submit — UX silent-fail').not.toBeNull();
+  expect(toast!, `toast didn't match expected error pattern: ${toast}`).toMatch(errorPattern);
+  // CRITICAL: the toast must NOT be a "saved" toast. If both fire, the
+  // user sees the success message and thinks the entry was saved.
+  expect(toast!, `forbidden success toast leaked through: ${toast}`)
+    .not.toMatch(forbiddenSuccessPattern);
+}
+
+/**
+ * After a successful submit, assert the row appears in a DB read.
+ * This catches the case where the page shows "saved" but the write
+ * was silently dropped (e.g. wrong hive_id, RLS rejection) so the row
+ * never appears in any read path.
+ */
+export async function assertRowAppears(
+  page: Page,
+  /** A locator that resolves to the row when it appears (e.g. the
+   *  team feed entry, the inventory list row) */
+  rowLocator: (page: Page) => ReturnType<Page['locator']>,
+  /** Optional: trigger that reloads the read path (e.g. click team
+   *  feed tab). If omitted, just waits on the locator. */
+  trigger?: () => Promise<void>,
+  timeoutMs = 6000,
+) {
+  if (trigger) await trigger();
+  await expect(rowLocator(page).first()).toBeVisible({ timeout: timeoutMs });
+}
+
+/** Wait for the page to finish its first canonical-source read. Pages
+ *  that gate UI on identity (localStorage worker + hive) need a beat
+ *  before forms are interactive. */
+export async function waitForPageReady(page: Page) {
+  // Wait until the wh-source-chip is rendered OR a form is interactive
+  await Promise.race([
+    page.locator('#wh-source-chip').waitFor({ state: 'visible', timeout: 5000 }).catch(() => {}),
+    page.locator('form').first().waitFor({ state: 'visible', timeout: 5000 }).catch(() => {}),
+    page.waitForLoadState('networkidle', { timeout: 5000 }).catch(() => {}),
+  ]);
+}
