@@ -1201,6 +1201,53 @@
       {% endfor %}
     </div>
   </div>
+
+  <!-- Quick-Seed strip: mirrors the Seed pane buttons so you can seed
+       without leaving Overview. Counts above + seed below = one place to
+       refill any module and watch the tile tick up. -->
+  <div class="card">
+    <div class="section-head-row">
+      <h3 class="action-section-title">Quick Seed</h3>
+      <span class="action-section-hint">Seed any module without leaving Overview &mdash; watch the counts above tick up.</span>
+    </div>
+    <div class="button-grid">
+      <button class="seed-btn seed-all" data-action="all"
+        data-tip-title="Seed Everything"
+        data-tip="Runs the full orchestrator: catalogs, hives, workers, assets, PMs, ~3700 logbook entries, inventory, skill matrix, marketplace, community, projects, day-planner, engineering calcs, fault knowledge, asset brain, reliability, risk, shift plans, parts staging, achievements, sensor readings, AMC briefings, voice journal. ~2 minutes on a warm DB.">Seed Everything (full)</button>
+      <button class="seed-btn" data-action="hives_workers"
+        data-tip-title="1. Hives + Workers">1. Hives + Workers</button>
+      <button class="seed-btn" data-action="assets"
+        data-tip-title="2. Assets">2. Assets</button>
+      <button class="seed-btn" data-action="pm"
+        data-tip-title="3. PM">3. PM</button>
+      <button class="seed-btn" data-action="logbook"
+        data-tip-title="4. Logbook (~3700)">4. Logbook (~3700)</button>
+      <button class="seed-btn" data-action="inventory"
+        data-tip-title="5. Inventory + Tx">5. Inventory + Tx</button>
+      <button class="seed-btn" data-action="skill_matrix"
+        data-tip-title="6. Skill Matrix">6. Skill Matrix</button>
+      <button class="seed-btn" data-action="marketplace"
+        data-tip-title="7. Marketplace">7. Marketplace</button>
+      <button class="seed-btn" data-action="community"
+        data-tip-title="8. Community">8. Community</button>
+      <button class="seed-btn" data-action="projects"
+        data-tip-title="9. Projects">9. Projects</button>
+      <button class="seed-btn" data-action="achievements"
+        data-tip-title="10. Achievements (rings)">10. Achievements (rings)</button>
+      <button class="seed-btn" data-action="sensor_readings"
+        data-tip-title="11. Sensor Readings (telemetry)"
+        data-tip="30 days of vibration + temperature + current_draw per asset (30-min intervals, anomaly bursts in last 10 days). Powers asset-hub Live Telemetry tile + Z-score anomaly chip.">11. Sensor Readings</button>
+      <button class="seed-btn" data-action="amc"
+        data-tip-title="12. AMC Briefings"
+        data-tip="14 days of Autonomous Maintenance Crew daily briefs per hive (mix of approved / pending / rejected / expired). Powers alert-hub AMC card.">12. AMC Briefings</button>
+      <button class="seed-btn" data-action="voice_journal"
+        data-tip-title="13. Voice Journal"
+        data-tip="5-10 entries per worker across the last 30 days (mix of English + Tagalog). Powers voice-journal.html history feed.">13. Voice Journal</button>
+      <button class="seed-btn reset-btn" data-action="reset"
+        data-tip-title="Reset All"
+        data-tip="Wipe every seeded table. Use before a fresh Seed Everything when you want a deterministic baseline.">Reset All</button>
+    </div>
+  </div>
   {% endif %}
 
   </section>  <!-- ═══ /OVERVIEW PANE ══════════════════════════════════════ -->

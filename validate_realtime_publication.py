@@ -97,6 +97,10 @@ EXPECTED_PUBLISHED_TABLES = {
     # subscribes per-asset for live sensor readings from MQTT/OPC-UA bridge.
     # Added via 20260512000003_sensor_readings.sql.
     "sensor_readings",
+    # Phase 0.2 of STRATEGIC_ROADMAP (2026-05-13): hive.html Maturity Stairway
+    # subscribes for live stair updates when the daily compute recomputes.
+    # Added via 20260513000001_hive_readiness.sql.
+    "hive_readiness",
 }
 
 CHECKS = {

@@ -350,6 +350,94 @@ async function restoreIdentityFromSession(db) {
 }
 
 // ─────────────────────────────────────────────
+// Founder Console — analytics event SDK (Phase 0)
+// ─────────────────────────────────────────────
+// Every page should call logPageView(db) once after identity restore. Feature
+// pages also emit feature-level events via logEvent(db, name, props).
+//
+// Writes are fire-and-forget — never block the user action. Append-only:
+// the analytics_events table has no UPDATE/DELETE policies. SELECT is
+// restricted to platform admins (marketplace_platform_admins allowlist).
+//
+// Skill alignment: analytics-engineer (KPI source events), architect
+// ("Audit Log Writes Must Be Fire-and-Forget"), security (no PII in props).
+let _wh_session_id = null;
+function _whSessionId() {
+  if (_wh_session_id) return _wh_session_id;
+  try {
+    let s = sessionStorage.getItem('wh_session_id');
+    if (!s) {
+      s = (window.crypto && crypto.randomUUID)
+        ? crypto.randomUUID()
+        : 'sess_' + Date.now() + '_' + Math.random().toString(36).slice(2);
+      sessionStorage.setItem('wh_session_id', s);
+    }
+    _wh_session_id = s;
+    return s;
+  } catch (_) { return null; }
+}
+
+function logEvent(db, eventName, props) {
+  if (!db || !eventName) return;
+  try {
+    const workerName = localStorage.getItem('wh_last_worker')
+                    || localStorage.getItem('wh_worker_name')
+                    || localStorage.getItem('workerName') || null;
+    const hiveId = localStorage.getItem('wh_active_hive_id')
+                || localStorage.getItem('wh_hive_id') || null;
+    const payload = {
+      event_name: eventName,
+      props: props || {},
+      page: (props && props.page) || null,
+      worker_name: workerName,
+      hive_id: hiveId,
+      session_id: _whSessionId(),
+      user_agent: (navigator.userAgent || '').slice(0, 200),
+    };
+    // Try to attach auth_uid if a session exists - non-blocking.
+    const insert = function () {
+      db.from('analytics_events').insert(payload).then(function (r) {
+        if (r && r.error) console.warn('logEvent:', r.error.message);
+      });
+    };
+    db.auth.getSession().then(function (res) {
+      if (res && res.data && res.data.session) {
+        payload.auth_uid = res.data.session.user.id;
+      }
+      insert();
+    }).catch(insert);
+  } catch (e) {
+    console.warn('logEvent err:', e && e.message);
+  }
+}
+
+// Convenience for the most common event - infers page name from URL.
+function logPageView(db, extraProps) {
+  const path = (location.pathname.split('/').pop() || 'index.html')
+    .replace(/\.html$/i, '') || 'index';
+  logEvent(db, 'page_view', Object.assign({ page: path }, extraProps || {}));
+}
+
+// ─────────────────────────────────────────────
+// isPlatformAdmin — gate util for founder-console.html (Phase 0)
+// ─────────────────────────────────────────────
+// Reuses marketplace_platform_admins so admin grants are a single source of
+// truth. Returns false on no session, no profile, or worker not on allowlist.
+async function isPlatformAdmin(db) {
+  if (!db) return false;
+  try {
+    const { data: { session } } = await db.auth.getSession();
+    if (!session) return false;
+    const { data: profile } = await db.from('worker_profiles')
+      .select('display_name').eq('auth_uid', session.user.id).maybeSingle();
+    if (!profile || !profile.display_name) return false;
+    const { data: admin } = await db.from('marketplace_platform_admins')
+      .select('worker_name').eq('worker_name', profile.display_name).maybeSingle();
+    return !!admin;
+  } catch (_) { return false; }
+}
+
+// ─────────────────────────────────────────────
 // Achievement tier system
 // ─────────────────────────────────────────────
 

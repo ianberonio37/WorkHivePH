@@ -47,6 +47,7 @@ LIVE_PAGES = [
     "nav-hub.html",
     "floating-ai.js",
     "utils.js",
+    "maturity-gate.js",         # Phase 0.3 of STRATEGIC_ROADMAP — gated-page helper
     "wh-capture-validate.js",
     "report-sender.html",
     "community.html",

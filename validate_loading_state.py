@@ -60,8 +60,8 @@ EXCLUDED_HTML_PATTERNS = ("-test.html", ".backup.html", "_backup.html", ".backup
 LOADING_OK = {
     "platform-health.html":   "read-only dashboard; no user-write paths",
     "audit-log.html":         "read-only audit viewer",
-    "architecture.html":      "static doc page",
-    "ARCHITECTURE.html":      "static doc page",
+    "architecture.html":      "RETIRED 2026-05-13 — archival doc, no active surface",
+    "ARCHITECTURE.html":      "RETIRED 2026-05-13 — archival doc, no active surface",
     "drawing-standards.html": "static doc",
     "PROJECT_MANAGER_ROADMAP.html": "static doc",
     "test-data-seeder":       "internal tool, not user-facing",

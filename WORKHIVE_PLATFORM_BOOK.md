@@ -106,8 +106,6 @@ Below is the live page roster, grouped by what the worker is trying to do. Every
 
 **Knowledge and design**
 - `engineering-design.html`: parametric calculator across six engineering disciplines
-- `architecture.html`: house-style overview of the platform's own architecture
-- `symbol-gallery.html`: every drawing symbol the calculator can emit, with standard refs
 
 **Communication**
 - `community.html`: forum, profiles, gamification, weekly digest (deferred until domain verified)
@@ -140,6 +138,8 @@ Below is the live page roster, grouped by what the worker is trying to do. Every
 Two pages are explicitly retired and must never re-appear in the nav registry: `checklist.html` and `parts-tracker.html`. They were earlier prototypes that got absorbed into `pm-scheduler.html` and `inventory.html` respectively. (Note: `parts-tracker.html` still exists on disk for a backwards-compatibility canonical URL but is not in the nav array.)
 
 A third page is now retired in favor of a stronger replacement: `platform-health.html` was the live Guardian dashboard from Phase 1 through Phase 6, but Phase 7 superseded it with the WorkHive Tester app. New dev-tooling features go into `test-data-seeder/`, not `platform-health.html`. The dashboard file remains for archival but is gated behind the `marketplace_platform_admins` check and is not the active surface.
+
+Two more pages retired 2026-05-13 alongside the Maturity Stack landing-page revamp: `architecture.html` (the platform self-overview) and `symbol-gallery.html` (the drawing-symbol catalog). Neither earned a slot in the new public-facing 4-stage maturity ladder — Architecture is admin-only reference content, Symbol Gallery is a helper that belongs inside the Engineering Design Calculator. Both files remain on disk for direct-URL archival but are absent from nav-hub, assistant context, floating-ai context, the Stage Popout cards, and the WorkHive Tester PUBLIC_PAGES. Per-validator allowlists are marked `RETIRED 2026-05-13` so the Guardian recognises them as intentionally non-active.
 
 ## 4. Anatomy of a Page
 

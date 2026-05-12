@@ -170,14 +170,31 @@
 </div>
 
 <script src="utils.js"></script>
+<script src="maturity-gate.js"></script>
 <script>
   const db = supabase.createClient(
     'https://hzyvnjtisfgbksicrouu.supabase.co',
     'sb_publishable_ePj-suLMwkMRVDH6eM6S8g_R0rZVbMZ'
   );
 
+  logPageView(db);
   let WORKER_NAME = localStorage.getItem('wh_last_worker') || localStorage.getItem('wh_worker_name') || localStorage.getItem('workerName') || '';
   let HIVE_ID     = localStorage.getItem('wh_active_hive_id') || localStorage.getItem('wh_hive_id') || null;
+
+  // Phase 0.3 of STRATEGIC_ROADMAP — PH Intelligence gates at Stair 3.
+  // Peer benchmarks need N>=5 hives in segment AND 30+ days of your own data.
+  (async function maturityGateCheck() {
+    if (!HIVE_ID || !window.checkMaturityGate || !window.renderMaturityHonestEmpty) return;
+    const gate = await window.checkMaturityGate(db, HIVE_ID, 3);
+    if (gate.blocked) {
+      const main = document.querySelector('main') || document.body;
+      window.renderMaturityHonestEmpty(main, gate, {
+        pageName: 'PH Intelligence',
+        why: 'Peer benchmarking requires both: at least 5 anonymous hives in your industry segment (the N>=5 privacy guard) AND 30+ days of your own logbook history. Showing benchmarks before either threshold is met would compare your plant to a sample too small to mean anything. WorkHive refuses to fake the comparison.',
+        alternateSuggestion: 'use the Analytics Engine descriptive phase (MTBF/MTTR/OEE on your own data) which works at any stair. Cross-hive benchmarking activates the moment both N>=5 + 30-day thresholds are crossed.',
+      });
+    }
+  })();
 
   async function loadReport() {
     const { data, error } = await db.from('ph_intelligence_reports')

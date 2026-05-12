@@ -202,14 +202,18 @@ def get_db_counts():
     """Quick count of seeded tables."""
     counts = {}
     client = get_client()
-    for t in ["hives", "hive_members", "assets", "logbook", "pm_assets",
+    # NOTE: legacy `assets` table dropped in Phase 5c (2026-05-12) — replaced
+    # by `asset_nodes` (already listed below). Do not re-add `assets` here.
+    for t in ["hives", "hive_members", "logbook", "pm_assets",
               "pm_completions", "inventory_items", "inventory_transactions",
               "skill_profiles", "skill_badges", "marketplace_listings",
               "community_posts",
               "projects", "project_items", "project_links", "project_progress_logs",
               "asset_nodes", "shift_plans", "failure_signature_alerts",
               "asset_risk_scores", "parts_staging_recommendations",
-              "parts_staged_reservations", "worker_achievements"]:
+              "parts_staged_reservations", "worker_achievements",
+              # Wave A+B (AMC orchestrator + Physical AI):
+              "amc_briefings", "sensor_readings", "voice_journal_entries"]:
         try:
             res = client.table(t).select("id", count="exact").limit(1).execute()
             counts[t] = res.count or 0

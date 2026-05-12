@@ -748,6 +748,8 @@ const db = supabase.createClient(
   'sb_publishable_ePj-suLMwkMRVDH6eM6S8g_R0rZVbMZ'
 );
 
+
+logPageView(db);
 /* ── State ─────────────────────────────────────────────────── */
 let _projects   = [];
 let _members    = [];                      // hive_members worker_name list

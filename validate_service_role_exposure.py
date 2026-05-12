@@ -62,8 +62,8 @@ DOC_TEXT_OK = {
     # text describing how the platform works, not as code that uses them.
     "platform-health.html":   "guide row text describes catalog approval / RLS architecture",
     "platform-health-test.html": "test copy of platform-health",
-    "ARCHITECTURE.html":      "architecture doc",
-    "architecture.html":      "architecture doc",
+    "ARCHITECTURE.html":      "RETIRED 2026-05-13 — archival doc",
+    "architecture.html":      "RETIRED 2026-05-13 — archival doc",
     "WORKHIVE_PLATFORM_BOOK.md": "platform book / docs",
 }
 

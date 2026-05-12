@@ -405,16 +405,7 @@ The most data-hungry page — should have rich content with seeded data.
 
 ---
 
-## 18. Symbol Gallery + Architecture (`symbol-gallery.html`, `architecture.html`)
-
-These are reference docs. Quick checks:
-
-- [ ] symbol-gallery.html — IEC/ISA symbols render as inline SVGs (no broken image icons)
-- [ ] architecture.html — diagrams render, sections collapsible
-
----
-
-## 19. Mobile-only checklist (run separately at 375px)
+## 18. Mobile-only checklist (run separately at 375px)
 
 - [ ] All pages at 375px — no horizontal scroll on any
 - [ ] Bottom nav-hub (FAB) doesn't overlap iOS home indicator (clears safe-area-inset-bottom)

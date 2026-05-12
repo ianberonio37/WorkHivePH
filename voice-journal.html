@@ -353,6 +353,8 @@
 
     const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
+
+    logPageView(db);
     // Identity chain: Supabase Auth is the source of truth (gateway requires it),
     // but the 3 canonical localStorage keys are read as a fallback display name
     // and to keep nav-hub identity consistent with the rest of the platform.

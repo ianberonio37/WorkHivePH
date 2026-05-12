@@ -74,8 +74,15 @@ def seed_assets(client, log, ctx: dict) -> dict:
                 "auth_uid": submitter.get("auth_uid"),
             })
 
-    client.table("assets").insert(rows).execute()
-    log(f"  inserted {len(rows)} assets")
+    # NOTE: legacy `assets` table was DROPPED in Phase 5c (2026-05-12).
+    # The canonical asset registry is `asset_nodes`, populated by
+    # asset_brain.py (which reads ctx["assets"] and inserts into asset_nodes).
+    # This seeder still builds the in-memory ctx["assets"] payload because
+    # downstream seeders (logbook, pm, inventory, fault_knowledge,
+    # reliability) reference ctx["assets"] for fields that asset_nodes
+    # doesn't carry (worker_name, submitted_by, approved_by, auth_uid).
+    # The DB write is intentionally suppressed here.
+    log(f"  built {len(rows)} asset rows in ctx (DB write delegated to asset_brain.py -> asset_nodes)")
 
     # Group by hive for downstream seeders
     by_hive = {}

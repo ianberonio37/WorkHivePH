@@ -8,6 +8,7 @@
   <link rel="manifest" href="manifest.json" />
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="utils.js"></script>
+  <script src="maturity-gate.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
@@ -238,6 +239,7 @@
   const SUPABASE_KEY = 'sb_publishable_ePj-suLMwkMRVDH6eM6S8g_R0rZVbMZ';
   const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
+  logPageView(db);
   let WORKER_NAME = localStorage.getItem('wh_last_worker')
                   || localStorage.getItem('wh_worker_name')
                   || localStorage.getItem('workerName') || '';
@@ -246,6 +248,23 @@
 
   const HIVE_ID = localStorage.getItem('wh_active_hive_id')
                || localStorage.getItem('wh_hive_id') || '';
+
+  // ── Honest empty state (Phase 0.3 of STRATEGIC_ROADMAP) ────────────────────
+  // Predictive Maintenance gates at Stair 3 (Predictive-Ready). If the hive
+  // is below that stair, we refuse to render risk scores that would mislead
+  // the worker. Doctrine: "predictive analytics on insufficient data lies."
+  if (HIVE_ID && window.checkMaturityGate && window.renderMaturityHonestEmpty) {
+    const gate = await window.checkMaturityGate(db, HIVE_ID, 3);
+    if (gate.blocked) {
+      const mainEl = document.querySelector('main') || document.body;
+      window.renderMaturityHonestEmpty(mainEl, gate, {
+        pageName: 'Predictive Maintenance',
+        why: 'Predictive analytics on insufficient data lies. WorkHive refuses to fabricate risk scores when your hive has not yet accumulated 90+ days of corrective history OR connected a live sensor feed. We surface the gap honestly instead of producing a chart of garbage.',
+        alternateSuggestion: 'use the Alert Hub for PM-due + stock alerts (those work at any stair), and grow your logbook discipline. The day you cross 90 days of history OR connect a sensor bridge, this page activates.',
+      });
+      return;
+    }
+  }
 
   // ── Module state ─────────────────────────────────────────────────────────────
   let _scores  = [];   // latest asset_risk_scores rows (one per asset, deduplicated)

@@ -847,6 +847,7 @@
     var SUPABASE_KEY = 'sb_publishable_ePj-suLMwkMRVDH6eM6S8g_R0rZVbMZ'; // anon key: safe in frontend
     var db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
+    logPageView(db);
     // Identity + hive context (read from localStorage with restore fallback per data-engineer skill)
     let WORKER_NAME = localStorage.getItem('wh_last_worker')
       || localStorage.getItem('wh_worker_name')

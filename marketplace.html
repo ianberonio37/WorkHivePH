@@ -990,6 +990,7 @@
   const SUPABASE_KEY = 'sb_publishable_ePj-suLMwkMRVDH6eM6S8g_R0rZVbMZ';
   const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
+  logPageView(db);
   /* ============================================================
      FEATURE FLAGS
      Set PAYMENTS_ENABLED = true to re-enable Stripe checkout, escrow,

@@ -209,7 +209,11 @@ def seed_logbook(client, log, ctx: dict) -> dict:
                 "root_cause": root_cause,
                 "downtime_hours": downtime,
                 "hive_id": w["hive_id"],
-                "asset_ref_id": asset["id"],
+                # asset_ref_id (text) was dropped in Phase 5b.1 (2026-05-12)
+                # in favour of asset_node_id (uuid). asset_node_id is left
+                # NULL here because asset_nodes is populated AFTER logbook in
+                # the orchestrator; the post-seed bridge resolves the linkage
+                # via the machine text -> asset_nodes.tag lookup.
                 "parts_used": parts,
                 "closed_at": closed_at,
                 "failure_consequence": failure_consequence,

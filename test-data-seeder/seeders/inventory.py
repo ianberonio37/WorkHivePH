@@ -83,7 +83,10 @@ def seed_inventory(client, log, ctx: dict) -> dict:
                 "qty_on_hand": max(0, qty),
                 "min_qty": min_qty,
                 "bin_location": f"Bin {random.randint(1, 12)}-{random.choice(['A', 'B', 'C'])}",
-                "linked_asset_ids": linked,
+                # linked_asset_ids was dropped in Phase 5b.2 (2026-05-12)
+                # in favour of the parts_records cross-table linkage. Asset
+                # association is now persisted on the transaction-row side,
+                # not on the inventory_items row.
                 "notes": "",
                 "status": "approved",
                 "hive_id": hive["id"],

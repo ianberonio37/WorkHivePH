@@ -10,6 +10,8 @@ The reset-coverage validator skips these via CATALOG_TABLES_IGNORED."""
 # Order matters -- children before parents. Tables with PK other than 'id'
 # go in RESET_TABLES_NON_ID below (uses a different sentinel filter).
 RESET_TABLES = [
+    # Founder Console analytics (Phase 0) - append-only, no FKs
+    "analytics_events",
     # Project Manager (child -> parent)
     "project_progress_logs",
     "project_change_orders",
@@ -86,6 +88,8 @@ RESET_TABLES = [
     "agent_memory",
     "voice_journal_entries",
     "amc_briefings",
+    "hive_readiness_audit",
+    "hive_readiness",
     "sensor_readings",
     "sensor_topic_map",
     "hive_quotas",

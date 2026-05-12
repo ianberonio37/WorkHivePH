@@ -1007,6 +1007,7 @@
     const SUPABASE_URL = 'https://hzyvnjtisfgbksicrouu.supabase.co';
     const SUPABASE_KEY = 'sb_publishable_ePj-suLMwkMRVDH6eM6S8g_R0rZVbMZ';
     const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    logPageView(db);
     const WORKER_NAME = localStorage.getItem('wh_last_worker') || localStorage.getItem('wh_worker_name') || localStorage.getItem('workerName') || '';
 
     const gate    = document.getElementById('pa-gate');

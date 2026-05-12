@@ -470,6 +470,68 @@
            the stats are read from. -->
       <p id="board-source-chip" style="margin-bottom:0.75rem;"></p>
 
+      <!-- ── Maturity Stairway (Phase 0.2 of STRATEGIC_ROADMAP) ──────────────
+           Always-visible readiness score. Anchored to the doctrine: every
+           hive sees its current stair + composite + dimension scores + the
+           honest blocker for the next stair. Renders at every page load,
+           updates live via supabase_realtime on hive_readiness. -->
+      <div id="maturity-stairway-card" class="mb-5 rounded-xl overflow-hidden" style="background: linear-gradient(145deg, rgba(42,61,88,0.55), rgba(22,32,50,0.85)); border:1px solid rgba(255,255,255,0.08);">
+        <div style="padding:14px 16px 8px;">
+          <div style="display:flex; align-items:center; justify-content:space-between; gap:8px; flex-wrap:wrap;">
+            <div style="display:flex; align-items:center; gap:10px;">
+              <span id="stair-badge" style="display:inline-flex; align-items:center; gap:6px; padding:4px 10px; border-radius:999px; font-size:10px; font-weight:800; letter-spacing:0.06em; text-transform:uppercase; background:rgba(74,159,212,0.18); color:#7DCFFF;">Stair 0 · Paper</span>
+              <span id="stair-composite" style="font-size:1.7rem; font-weight:900; color:#F4F6FA; line-height:1;">--</span>
+              <span style="font-size:11px; color:rgba(255,255,255,0.4); letter-spacing:0.04em;">/100 readiness</span>
+            </div>
+            <button id="stair-explain-btn" type="button" style="background:rgba(255,255,255,0.04); color:rgba(255,255,255,0.55); border:1px solid rgba(255,255,255,0.08); border-radius:8px; padding:10px 16px; font-family:inherit; font-size:11px; font-weight:600; cursor:pointer; min-height:44px; min-width:44px;">Why?</button>
+          </div>
+          <p id="stair-blocker" style="font-size:11.5px; color:rgba(255,255,255,0.65); margin-top:6px; line-height:1.45;">Computing your hive's readiness...</p>
+        </div>
+        <!-- 5 dimension bars (compact, always visible) -->
+        <div id="stair-dims" style="display:grid; grid-template-columns: repeat(5, minmax(0,1fr)); gap:6px; padding:0 16px 12px;">
+          <div data-dim="process" class="stair-dim-bar">
+            <p class="stair-dim-label">Process</p>
+            <div class="stair-dim-track"><div class="stair-dim-fill" style="background:#F7A21B;"></div></div>
+            <p class="stair-dim-value">--</p>
+          </div>
+          <div data-dim="data" class="stair-dim-bar">
+            <p class="stair-dim-label">Data</p>
+            <div class="stair-dim-track"><div class="stair-dim-fill" style="background:#29B6D9;"></div></div>
+            <p class="stair-dim-value">--</p>
+          </div>
+          <div data-dim="resilience" class="stair-dim-bar">
+            <p class="stair-dim-label">Resilience</p>
+            <div class="stair-dim-track"><div class="stair-dim-fill" style="background:#4ade80;"></div></div>
+            <p class="stair-dim-value">--</p>
+          </div>
+          <div data-dim="leadership" class="stair-dim-bar">
+            <p class="stair-dim-label">Leadership</p>
+            <div class="stair-dim-track"><div class="stair-dim-fill" style="background:#a78bfa;"></div></div>
+            <p class="stair-dim-value">--</p>
+          </div>
+          <div data-dim="cultural" class="stair-dim-bar">
+            <p class="stair-dim-label">Culture</p>
+            <div class="stair-dim-track"><div class="stair-dim-fill" style="background:#fb923c;"></div></div>
+            <p class="stair-dim-value">--</p>
+          </div>
+        </div>
+        <!-- Evidence drawer (hidden by default) -->
+        <div id="stair-evidence" style="display:none; padding:10px 16px 16px; border-top:1px solid rgba(255,255,255,0.06); background:rgba(0,0,0,0.18); font-size:11px; color:rgba(255,255,255,0.7); line-height:1.55;"></div>
+      </div>
+
+      <style>
+        .stair-dim-bar { text-align:center; }
+        .stair-dim-label { font-size:9px; font-weight:700; letter-spacing:0.04em; text-transform:uppercase; color:rgba(255,255,255,0.45); margin:0 0 4px; }
+        .stair-dim-track { width:100%; height:5px; background:rgba(255,255,255,0.06); border-radius:3px; overflow:hidden; }
+        .stair-dim-fill { width:0%; height:100%; border-radius:3px; transition:width 0.45s cubic-bezier(0.4,0,0.2,1); }
+        .stair-dim-value { font-size:10px; font-weight:800; color:rgba(255,255,255,0.7); margin:3px 0 0; line-height:1; }
+        @media (max-width: 480px) {
+          #stair-dims { grid-template-columns: repeat(5, minmax(0,1fr)); gap:4px; }
+          .stair-dim-label { font-size:8px; }
+          .stair-dim-value { font-size:9px; }
+        }
+      </style>
+
       <!-- Alerts -->
       <div id="pm-overdue-alert" class="hidden mb-3 rounded-xl p-4" style="background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.2);">
         <div class="flex items-start gap-3">
@@ -708,6 +770,7 @@
 const SUPABASE_URL = 'https://hzyvnjtisfgbksicrouu.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_ePj-suLMwkMRVDH6eM6S8g_R0rZVbMZ'; // anon key: safe in frontend
 const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+logPageView(db);
 let _authUid = null; // C3: populated at init from Supabase Auth session
 
 // ── IDENTITY ──
@@ -1319,7 +1382,7 @@ async function initBoard() {
 
   updateSwitchButton();
   // allSettled: never rejects, so startPresence() is always reached even if one data load fails
-  const _boardResults = await Promise.allSettled([checkStockAlert(), loadMembers(), loadFeed(), buildNotifications(), loadApprovalQueue(), loadPMHealth(), loadAuditLog(), loadTodaysBrief(), loadTeamPulse(), loadPatternAlerts(), loadBenchmarks()]);
+  const _boardResults = await Promise.allSettled([checkStockAlert(), loadMembers(), loadFeed(), buildNotifications(), loadApprovalQueue(), loadPMHealth(), loadAuditLog(), loadTodaysBrief(), loadTeamPulse(), loadPatternAlerts(), loadBenchmarks(), loadMaturityStairway()]);
   _boardResults.forEach((r, i) => { if (r.status === 'rejected') console.error('initBoard step', i, 'failed:', r.reason); });
   // Team stock alert needs memberNames populated by loadMembers first
   checkTeamStockAlert();
@@ -1332,6 +1395,142 @@ async function initBoard() {
   startInventoryRealtime();
   startApprovalRealtime();
   startWorkerApprovalListener();
+}
+
+// ── MATURITY STAIRWAY (Phase 0.2 of STRATEGIC_ROADMAP) ────────────────────
+// Anchor of the Operational Readiness reframe. Renders the hive's current
+// stair (0..4), composite score, 5-dimension bars, and the honest blocker
+// for the next stair. If no snapshot exists yet (fresh hive), trigger the
+// compute_hive_readiness RPC first then re-fetch.
+//
+// Doctrine surfaced here, not just in the AI prompt: the worker SEES the
+// score on every hive page load. That's the whole point.
+
+const STAIR_PALETTE = [
+  { label: 'Paper',            rgb: '74,159,212',  bg: 'rgba(74,159,212,0.18)',  fg: '#7DCFFF' },
+  { label: 'Digital Logbook',  rgb: '0,196,180',   bg: 'rgba(0,196,180,0.18)',   fg: '#4DEDE0' },
+  { label: 'Disciplined',      rgb: '155,89,232',  bg: 'rgba(155,89,232,0.18)',  fg: '#C4A0FF' },
+  { label: 'Predictive-Ready', rgb: '247,162,27',  bg: 'rgba(247,162,27,0.18)',  fg: '#FDB94A' },
+  { label: 'Industry Leader',  rgb: '255,184,0',   bg: 'rgba(255,184,0,0.22)',   fg: '#FFD166' },
+];
+
+let _readinessChannel = null;
+let _lastReadiness = null;
+
+async function loadMaturityStairway() {
+  if (!HIVE_ID) return;
+  // 1. Try to read today's (or yesterday's) snapshot.
+  let { data: row } = await db.rpc('get_hive_readiness_current', { p_hive_id: HIVE_ID });
+  // RPC returns a SETOF row; supabase-js may give array or null
+  if (Array.isArray(row)) row = row[0] || null;
+
+  // 2. If no snapshot OR it's stale (>24h), compute fresh. Service-role only;
+  //    if RPC errors (e.g. anon perms), the read above will still hydrate the UI.
+  const isStale = !row
+    || !row.computed_at
+    || (Date.now() - new Date(row.computed_at).getTime() > 24 * 3600 * 1000);
+  if (isStale) {
+    try {
+      await db.rpc('compute_hive_readiness', { p_hive_id: HIVE_ID });
+      const refetch = await db.rpc('get_hive_readiness_current', { p_hive_id: HIVE_ID });
+      row = Array.isArray(refetch.data) ? refetch.data[0] : refetch.data;
+    } catch (e) {
+      console.warn('compute_hive_readiness failed (using cached if any):', e?.message || e);
+    }
+  }
+  _lastReadiness = row || null;
+  renderMaturityStairway(row);
+  startReadinessRealtime();
+}
+
+function renderMaturityStairway(row) {
+  const e = escHtml;
+  const card = document.getElementById('maturity-stairway-card');
+  if (!card) return;
+
+  const stair = row && typeof row.current_stair === 'number' ? row.current_stair : 0;
+  const palette = STAIR_PALETTE[stair] || STAIR_PALETTE[0];
+
+  const badge = document.getElementById('stair-badge');
+  if (badge) {
+    badge.textContent = `Stair ${stair} · ${palette.label}`;
+    badge.style.background = palette.bg;
+    badge.style.color = palette.fg;
+  }
+
+  const composite = document.getElementById('stair-composite');
+  if (composite) composite.textContent = row ? String(row.composite_score) : '--';
+
+  const blocker = document.getElementById('stair-blocker');
+  if (blocker) {
+    blocker.textContent = row && row.blocker_summary
+      ? row.blocker_summary
+      : 'No readiness snapshot yet — sign in and add your first asset to begin.';
+  }
+
+  // Dimension bars
+  const dimMap = {
+    process:    row && row.process_maturity_score,
+    data:       row && row.data_quality_score,
+    resilience: row && row.infrastructure_resilience_score,
+    leadership: row && row.leadership_engagement_score,
+    cultural:   row && row.cultural_adoption_score,
+  };
+  Object.keys(dimMap).forEach(key => {
+    const el = card.querySelector(`[data-dim="${key}"]`);
+    if (!el) return;
+    const v = dimMap[key] == null ? 0 : Number(dimMap[key]);
+    const fill = el.querySelector('.stair-dim-fill');
+    const val  = el.querySelector('.stair-dim-value');
+    if (fill) fill.style.width = Math.max(0, Math.min(100, v)) + '%';
+    if (val)  val.textContent  = dimMap[key] == null ? '--' : String(v);
+  });
+}
+
+// Toggle the evidence drawer with raw inputs (transparency = doctrine)
+(function wireStairExplain() {
+  const btn = document.getElementById('stair-explain-btn');
+  if (!btn) return;
+  btn.addEventListener('click', () => {
+    const drawer = document.getElementById('stair-evidence');
+    if (!drawer) return;
+    const isOpen = drawer.style.display === 'block';
+    if (isOpen) { drawer.style.display = 'none'; btn.textContent = 'Why?'; return; }
+    const ev = _lastReadiness && _lastReadiness.evidence ? _lastReadiness.evidence : null;
+    if (!ev) {
+      drawer.textContent = 'No evidence captured yet. Refresh after the daily compute runs.';
+    } else {
+      const inp = ev.inputs || {};
+      const lines = [
+        `Asset registry: ${inp.asset_count ?? '?'} (target 10+)`,
+        `PM templates: ${inp.pm_template_count ?? '?'} (target 5+)`,
+        `SOPs documented: ${inp.logbook_with_knowledge ?? '?'}`,
+        `Active workers last 7 days: ${inp.active_workers_7d ?? '?'} of ${inp.total_members ?? '?'}`,
+        `Supervisor actions last 7 days: ${inp.supervisor_actions_7d ?? '?'} (target 5+)`,
+        `PM compliance (30d): ${inp.pm_compliance_30d_pct ?? '?'}%`,
+        `Logbook hygiene (30d): ${inp.logbook_hygiene_pct ?? '?'}%`,
+        `Logbook history: ${inp.history_days ?? '?'} days (predictive unlocks at 90+)`,
+        `Sensor pipeline: ${inp.has_sensor_readings ? 'live' : 'not connected'}`,
+        `RCM strategies approved: ${inp.rcm_strategies_approved ?? '?'}`,
+      ];
+      drawer.innerHTML = '<strong style="display:block;margin-bottom:6px;color:rgba(255,255,255,0.85);">Evidence behind this stair:</strong>'
+        + lines.map(l => `<div>· ${e(l)}</div>`).join('');
+    }
+    drawer.style.display = 'block';
+    btn.textContent = 'Hide';
+  });
+})();
+
+function startReadinessRealtime() {
+  if (_readinessChannel || !HIVE_ID) return;
+  _readinessChannel = db.channel('hive-readiness:' + HIVE_ID)
+    .on('postgres_changes', {
+      event: '*', schema: 'public', table: 'hive_readiness',
+      filter: 'hive_id=eq.' + HIVE_ID,
+    }, async () => { await loadMaturityStairway(); })
+    .subscribe();
+  // Cleanup wired into the main beforeunload listener below, not a separate
+  // listener — observability validator counts removes per-listener.
 }
 
 // ── MEMBERS ──
@@ -2782,6 +2981,7 @@ window.addEventListener('beforeunload', () => {
   if (inventoryChannel)  db.removeChannel(inventoryChannel);
   if (approvalChannel)   db.removeChannel(approvalChannel);
   if (workerApprovalCh)  db.removeChannel(workerApprovalCh);
+  if (_readinessChannel) db.removeChannel(_readinessChannel);
 });
 </script>
   <script src="offline-banner.js"></script>

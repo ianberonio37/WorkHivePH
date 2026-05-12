@@ -693,6 +693,15 @@ VALIDATORS = [
         "skip_if_fast": False,
     },
     {
+        "id":      "maturity-gating",
+        "script":  "validate_maturity_gating.py",
+        "args":    [],
+        "label":   "Maturity Gating Validator (Phase 0.5: gated pages load maturity-gate.js + call checkMaturityGate + render honest empty state)",
+        "group":   "Platform",
+        "report":  "maturity_gating_report.json",
+        "skip_if_fast": False,
+    },
+    {
         "id":      "realtime-publication",
         "script":  "validate_realtime_publication.py",
         "args":    [],

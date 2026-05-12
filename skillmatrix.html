@@ -451,6 +451,7 @@
 const SUPABASE_URL = 'https://hzyvnjtisfgbksicrouu.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_ePj-suLMwkMRVDH6eM6S8g_R0rZVbMZ';
 const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+logPageView(db);
 let _authUid = null; // C3b: populated at init from Supabase Auth session
 
 // ─── Identity ─────────────────────────────────────────────────────────────────

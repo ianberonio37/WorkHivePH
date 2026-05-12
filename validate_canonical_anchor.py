@@ -752,8 +752,8 @@ def check_capture_anchor() -> dict:
         "analytics-report.html",  # print-ready PDF
         "ph-intelligence.html",   # PH report viewer
         "platform-health.html",   # retired dev tooling
-        "architecture.html",      # static architecture doc
-        "symbol-gallery.html",    # static reference
+        "architecture.html",      # RETIRED 2026-05-13 — archival
+        "symbol-gallery.html",    # RETIRED 2026-05-13 — archival
         "public-feed.html",       # read-only feed
         "project-report.html",    # print-ready PDF
         "audit-log.html",         # read-only audit trail viewer

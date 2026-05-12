@@ -104,4 +104,4 @@ INSERT INTO public.canonical_sources (
   ),
   'Underlies internal dashboards + funnel analysis. Not yet a canonical view; raw reads OK for admin-only surfaces.'
 )
-ON CONFLICT (source_name) DO NOTHING;
+ON CONFLICT (domain) DO NOTHING;

@@ -63,7 +63,7 @@ EXCLUDED_HTML_PATTERNS = ("-test.html", ".backup.html", "_backup.html", ".backup
 AUTH_BOUNDARY_OK_PAGES: dict[str, str] = {
     "platform-health.html":  "read-only dashboard; no mutating writes",
     "audit-log.html":         "read-only audit viewer",
-    "architecture.html":      "static doc page",
+    "architecture.html":      "RETIRED 2026-05-13 — archival doc, no public surface",
     "drawing-standards.html": "static doc page",
     # Anonymous lead-capture flow is intentional
     "index.html":             "lead capture + signup land here; auth check happens after signup",

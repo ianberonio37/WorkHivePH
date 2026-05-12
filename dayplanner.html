@@ -1322,6 +1322,7 @@ document.addEventListener('keydown', e => {
     'https://hzyvnjtisfgbksicrouu.supabase.co',
     'sb_publishable_ePj-suLMwkMRVDH6eM6S8g_R0rZVbMZ' // anon/publishable key: safe to expose in frontend
   );
+  logPageView(db);
   (async () => {
     if (!WORKER_NAME) { WORKER_NAME = await restoreIdentityFromSession(db); }
     if (!WORKER_NAME) { window.location.href = 'index.html?signin=1'; return; }

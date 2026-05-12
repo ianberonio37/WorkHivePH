@@ -322,6 +322,7 @@
   const SUPABASE_KEY = 'sb_publishable_ePj-suLMwkMRVDH6eM6S8g_R0rZVbMZ';
   const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
+  logPageView(db);
   /* Set true to re-enable Disputes tab when payments are live.
      See MARKETPLACE_GO_LIVE_ROADMAP.md for the activation path. */
   const PAYMENTS_ENABLED = false;

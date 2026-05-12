@@ -115,9 +115,15 @@ def seed_amc(client, log, ctx: dict) -> dict:
         assets = client.table("asset_nodes").select("id, name, tag").eq(
             "hive_id", hive_id,
         ).limit(20).execute().data or []
-        pms = client.table("pm_scope").select(
-            "id, title, asset_name",
+        # PM scope is stored in pm_scope_items (Phase 5b rename was the
+        # other direction — items got promoted to the canonical name).
+        pms = client.table("pm_scope_items").select(
+            "id, item_text, asset_id",
         ).eq("hive_id", hive_id).limit(10).execute().data or []
+        # Surface a friendly title + asset_name fallback so the brief reads OK
+        for p in pms:
+            p["title"] = p.get("item_text") or "monthly inspection"
+            p["asset_name"] = ""
         parts = client.table("inventory_items").select(
             "id, part_number, name",
         ).eq("hive_id", hive_id).limit(10).execute().data or []

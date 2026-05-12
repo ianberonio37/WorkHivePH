@@ -43,12 +43,12 @@ ROOT = os.path.dirname(os.path.abspath(__file__))
 # Add a comment whenever you extend this list so the why doesn't get lost.
 NON_TOOL_PAGES = {
     "index.html",                    # landing page
-    "architecture.html",             # public architecture overview
+    "architecture.html",             # RETIRED 2026-05-13 — kept on disk for archival, never in nav
     "marketplace-admin.html",        # platform admin only, not a worker tool
     "marketplace-seller.html",       # seller dashboard, gated separately
     "marketplace-seller-profile.html",  # seller profile editor
     "public-feed.html",              # public community feed (no auth required)
-    "symbol-gallery.html",           # asset/symbol reference page
+    "symbol-gallery.html",           # RETIRED 2026-05-13 — kept on disk for archival, never in nav
     "platform-health.html",          # retired Phase 7, deprecated banner only
     "voice-journal.html",            # voice-journal companion (untracked WIP — not yet a full tool page)
 }

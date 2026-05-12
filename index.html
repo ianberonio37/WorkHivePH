@@ -902,10 +902,12 @@
             <!-- card header -->
             <div class="px-6 pt-6 pb-4 border-b border-white/[0.07]">
               <div class="flex items-center justify-between mb-1">
-                <p class="text-[10px] text-orange-wh font-bold uppercase tracking-[0.15em]">Free to Use. Start Today.</p>
+                <p class="text-[10px] text-orange-wh font-bold uppercase tracking-[0.15em]">Operational Readiness Layer</p>
                 <span class="text-[10px] text-orange-wh font-semibold uppercase tracking-wider px-2 py-1 rounded-lg border border-white/10" style="background: linear-gradient(135deg, rgba(247,162,27,0.2) 0%, rgba(31,46,69,0.95) 100%);">4 Stages</span>
               </div>
-              <h3 class="font-black text-white text-lg leading-snug">Choose your <span style="background: linear-gradient(135deg,#F7A21B,#FDB94A); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;">stage in the hive</span></h3>
+              <h3 class="font-black text-white text-lg leading-snug">Find your <span style="background: linear-gradient(135deg,#F7A21B,#FDB94A); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;">hive's stage</span></h3>
+              <p class="text-[11px] text-white/45 mt-1 leading-relaxed">We don't replace your ERP or CMMS. We make digital tools actually work in your plant.</p>
+              <p class="text-[10px] text-white/30 mt-2 leading-relaxed">No predictions on insufficient data. No rigid workflows. No enterprise infrastructure assumed. Free at the worker tier forever.</p>
             </div>
 
             <!-- Stage Cards Grid -->
@@ -937,45 +939,67 @@
               </style>
 
               <!-- Label above grid -->
-              <p style="font-size:9.5px;color:rgba(255,255,255,0.3);text-align:center;letter-spacing:0.1em;margin-bottom:12px;font-weight:600;">Every bee has a role · Every role has tools</p>
+              <p style="font-size:9.5px;color:rgba(255,255,255,0.3);text-align:center;letter-spacing:0.1em;margin-bottom:12px;font-weight:600;">Every hive grows in 4 stages · Every stage unlocks tools</p>
+
+              <style>
+                .stage-meta { font-size:9px; color:rgba(255,255,255,0.5); line-height:1.5; margin-top:8px; padding-top:8px; border-top:1px dotted rgba(255,255,255,0.08); }
+                .stage-meta-row { display:flex; gap:5px; align-items:flex-start; }
+                .stage-meta-tag { font-weight:800; letter-spacing:0.04em; text-transform:uppercase; font-size:8px; opacity:0.7; min-width:32px; padding-top:1px; }
+              </style>
 
               <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
 
-                <!-- Card 1: Basic Worker -->
+                <!-- Card 1: Paper-to-Digital -->
                 <div class="stage-card" onclick="openStagePopup(1)" style="border-radius:14px; border:1px solid rgba(74,159,212,0.25); border-top:3px solid #4A9FD4; background:linear-gradient(150deg,rgba(74,159,212,0.13) 0%,rgba(22,32,50,0.95) 100%); padding:14px 12px;">
                   <div class="stage-hex-num" style="background:#4A9FD4;">01</div>
-                  <p style="font-size:14px;font-weight:800;color:#E8F4FF;line-height:1.2;margin:0 0 6px;">Basic<br>Worker</p>
-                  <p style="font-size:10px;color:rgba(255,255,255,0.38);line-height:1.45;margin:0 0 10px;">Log jobs. Build your foundation.</p>
-                  <span style="font-size:9px;font-weight:800;color:#7DCFFF;background:rgba(74,159,212,0.18);border-radius:20px;padding:3px 9px;">Free</span>
+                  <p style="font-size:14px;font-weight:800;color:#E8F4FF;line-height:1.2;margin:0 0 6px;">Paper to<br>Digital</p>
+                  <p style="font-size:10px;color:rgba(255,255,255,0.42);line-height:1.45;margin:0 0 10px;">Get out of paper. Build the operating rhythm.</p>
+                  <span style="font-size:9px;font-weight:800;color:#7DCFFF;background:rgba(74,159,212,0.18);border-radius:20px;padding:3px 9px;">Free · Start Here</span>
+                  <div class="stage-meta">
+                    <div class="stage-meta-row"><span class="stage-meta-tag" style="color:#7DCFFF;">Now</span><span>Hive joined</span></div>
+                    <div class="stage-meta-row"><span class="stage-meta-tag" style="color:#7DCFFF;">Next</span><span>10 assets logged, 1 SOP documented</span></div>
+                  </div>
                   <div class="stage-hex-watermark" style="background:#4A9FD4;"></div>
                   <div class="stage-connector-h"></div>
                 </div>
 
-                <!-- Card 2: Advanced Worker -->
+                <!-- Card 2: Disciplined -->
                 <div class="stage-card" onclick="openStagePopup(2)" style="border-radius:14px; border:1px solid rgba(0,196,180,0.25); border-top:3px solid #00C4B4; background:linear-gradient(150deg,rgba(0,196,180,0.13) 0%,rgba(22,32,50,0.95) 100%); padding:14px 12px;">
                   <div class="stage-hex-num" style="background:#00C4B4;">02</div>
-                  <p style="font-size:14px;font-weight:800;color:#E0FFFC;line-height:1.2;margin:0 0 6px;">Advanced<br>Worker</p>
-                  <p style="font-size:10px;color:rgba(255,255,255,0.38);line-height:1.45;margin:0 0 10px;">See the hive. Prevent failures.</p>
+                  <p style="font-size:14px;font-weight:800;color:#E0FFFC;line-height:1.2;margin:0 0 6px;">Disciplined</p>
+                  <p style="font-size:10px;color:rgba(255,255,255,0.42);line-height:1.45;margin:0 0 10px;">PMs compliant. Logbook hygiene. Approvals routine.</p>
                   <span style="font-size:9px;font-weight:800;color:#4DEDE0;background:rgba(0,196,180,0.16);border-radius:20px;padding:3px 9px;">Free</span>
+                  <div class="stage-meta">
+                    <div class="stage-meta-row"><span class="stage-meta-tag" style="color:#4DEDE0;">Now</span><span>Stage 1 complete</span></div>
+                    <div class="stage-meta-row"><span class="stage-meta-tag" style="color:#4DEDE0;">Next</span><span>PM compliance ≥70% for 30 days</span></div>
+                  </div>
                   <div class="stage-hex-watermark" style="background:#00C4B4;"></div>
                 </div>
 
-                <!-- Card 3: Cyborg Worker -->
+                <!-- Card 3: Predictive-Ready -->
                 <div class="stage-card" onclick="openStagePopup(3)" style="border-radius:14px; border:1px solid rgba(155,89,232,0.25); border-top:3px solid #9B59E8; background:linear-gradient(150deg,rgba(155,89,232,0.13) 0%,rgba(22,32,50,0.95) 100%); padding:14px 12px;">
                   <div class="stage-hex-num" style="background:#9B59E8;">03</div>
-                  <p style="font-size:14px;font-weight:800;color:#EEE5FF;line-height:1.2;margin:0 0 6px;">Cyborg<br>Worker</p>
-                  <p style="font-size:10px;color:rgba(255,255,255,0.38);line-height:1.45;margin:0 0 10px;">AI and you, working as one.</p>
-                  <span style="font-size:9px;font-weight:800;color:#C4A0FF;background:rgba(155,89,232,0.18);border-radius:20px;padding:3px 9px;">⚡ AI</span>
+                  <p style="font-size:14px;font-weight:800;color:#EEE5FF;line-height:1.2;margin:0 0 6px;">Predictive<br>Ready</p>
+                  <p style="font-size:10px;color:rgba(255,255,255,0.42);line-height:1.45;margin:0 0 10px;">Move from reacting to predicting.</p>
+                  <span style="font-size:9px;font-weight:800;color:#C4A0FF;background:rgba(155,89,232,0.18);border-radius:20px;padding:3px 9px;">AI · Sensor</span>
+                  <div class="stage-meta">
+                    <div class="stage-meta-row"><span class="stage-meta-tag" style="color:#C4A0FF;">Now</span><span>Stage 2 complete</span></div>
+                    <div class="stage-meta-row"><span class="stage-meta-tag" style="color:#C4A0FF;">Next</span><span>90+ days history OR sensors live</span></div>
+                  </div>
                   <div class="stage-hex-watermark" style="background:#9B59E8;"></div>
                   <div class="stage-connector-h"></div>
                 </div>
 
-                <!-- Card 4: Superhuman -->
+                <!-- Card 4: Industry Leader -->
                 <div class="stage-card hc3-elite" onclick="openStagePopup(4)" style="border-radius:14px; border:1px solid rgba(255,184,0,0.35); border-top:3px solid #FFB800; background:linear-gradient(150deg,rgba(247,162,27,0.16) 0%,rgba(22,32,50,0.95) 100%); padding:14px 12px;">
                   <div class="stage-hex-num" style="background:#FFB800;">04</div>
-                  <p style="font-size:14px;font-weight:800;color:#FFF0C0;line-height:1.2;margin:0 0 6px;">Super-<br>human</p>
-                  <p style="font-size:10px;color:rgba(255,255,255,0.38);line-height:1.45;margin:0 0 10px;">Lead the hive. Shape the future.</p>
-                  <span style="font-size:9px;font-weight:800;color:#FFD166;background:rgba(247,162,27,0.2);border-radius:20px;padding:3px 9px;border:1px solid rgba(255,184,0,0.35);">Elite</span>
+                  <p style="font-size:14px;font-weight:800;color:#FFF0C0;line-height:1.2;margin:0 0 6px;">Industry<br>Leader</p>
+                  <p style="font-size:10px;color:rgba(255,255,255,0.42);line-height:1.45;margin:0 0 10px;">Become an industrial intelligence source.</p>
+                  <span style="font-size:9px;font-weight:800;color:#FFD166;background:rgba(247,162,27,0.2);border-radius:20px;padding:3px 9px;border:1px solid rgba(255,184,0,0.35);">Premium</span>
+                  <div class="stage-meta">
+                    <div class="stage-meta-row"><span class="stage-meta-tag" style="color:#FFD166;">Now</span><span>Stage 3 complete</span></div>
+                    <div class="stage-meta-row"><span class="stage-meta-tag" style="color:#FFD166;">Next</span><span>4-of-4: sensor + RCM + audit + benchmarks</span></div>
+                  </div>
                   <div class="stage-hex-watermark" style="background:#FFB800;"></div>
                 </div>
 
@@ -1605,19 +1629,19 @@
       <div id="popup-tabs-row" class="grid grid-cols-4 gap-1.5 mb-5">
         <button onclick="switchPopupStage(1)" id="ptab-1" class="popup-tab rounded-xl px-2 py-2.5 text-center transition-all duration-200 border border-transparent">
           <span class="text-[10px] font-bold block text-white/40 mb-0.5">01</span>
-          <span class="text-xs font-bold block text-white/60 leading-tight">Basic</span>
+          <span class="text-xs font-bold block text-white/60 leading-tight">Foundation</span>
         </button>
         <button onclick="switchPopupStage(2)" id="ptab-2" class="popup-tab rounded-xl px-2 py-2.5 text-center transition-all duration-200 border border-transparent">
           <span class="text-[10px] font-bold block text-white/40 mb-0.5">02</span>
-          <span class="text-xs font-bold block text-white/60 leading-tight">Advanced</span>
+          <span class="text-xs font-bold block text-white/60 leading-tight">Discipline</span>
         </button>
         <button onclick="switchPopupStage(3)" id="ptab-3" class="popup-tab rounded-xl px-2 py-2.5 text-center transition-all duration-200 border border-transparent">
           <span class="text-[10px] font-bold block text-white/40 mb-0.5">03</span>
-          <span class="text-xs font-bold block text-white/60 leading-tight">Cyborg</span>
+          <span class="text-xs font-bold block text-white/60 leading-tight">Predictive</span>
         </button>
         <button onclick="switchPopupStage(4)" id="ptab-4" class="popup-tab rounded-xl px-2 py-2.5 text-center transition-all duration-200 border border-transparent">
           <span class="text-[10px] font-bold block text-white/40 mb-0.5">04</span>
-          <span class="text-xs font-bold block text-white/60 leading-tight">Superhuman</span>
+          <span class="text-xs font-bold block text-white/60 leading-tight">Leader</span>
         </button>
       </div>
     </div>
@@ -1639,70 +1663,86 @@
   .popup-tab:hover { background: rgba(255,255,255,0.06); }
   .popup-tab.active { border-color: rgba(247,162,27,0.35) !important; background: rgba(247,162,27,0.08) !important; }
   .popup-tab.active span { color: white !important; }
-  .popup-tab.active-blue { border-color: rgba(41,182,217,0.35) !important; background: rgba(41,182,217,0.08) !important; }
+  .popup-tab.active-blue { border-color: rgba(74,159,212,0.35) !important; background: rgba(74,159,212,0.08) !important; }
   .popup-tab.active-blue span { color: white !important; }
+  .popup-tab.active-teal { border-color: rgba(0,196,180,0.35) !important; background: rgba(0,196,180,0.08) !important; }
+  .popup-tab.active-teal span { color: white !important; }
+  .popup-tab.active-purple { border-color: rgba(155,89,232,0.35) !important; background: rgba(155,89,232,0.08) !important; }
+  .popup-tab.active-purple span { color: white !important; }
+  .popup-tab.active-gold { border-color: rgba(255,184,0,0.35) !important; background: rgba(255,184,0,0.08) !important; }
+  .popup-tab.active-gold span { color: white !important; }
 </style>
 
 <script>
   const stageData = {
     1: {
-      label: 'Stage 1: Basic Worker',
-      name: 'Basic Worker',
-      quote: '"You show up. You do the job. You document it."',
-      color: '#F7A21B',
-      tabClass: 'active',
+      label: 'Stage 1: Paper-to-Digital',
+      name: 'Paper-to-Digital',
+      quote: '"Get out of paper. Replace spreadsheets. Build the operating rhythm."',
+      color: '#4A9FD4',
+      rgb:   '74,159,212',
+      tabClass: 'active-blue',
       tools: [
-        { name: 'Digital Logbook', desc: 'Record daily jobs, open/close status, and photos.', link: 'logbook.html', icon: 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z' },
-        { name: 'Day Planner', desc: 'DILO / WILO / MILO / YILO multi-resolution scheduler with logbook integration.', link: 'dayplanner.html', icon: 'M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z' },
-        { name: 'My Work Assistant', desc: 'Ask anything: technical questions or your own job history.', link: 'assistant.html', icon: 'M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z' },
-        { name: 'Skill Matrix', desc: 'Train, test, and earn level badges across 5 industrial disciplines. See your spider-chart skill profile.', link: 'skillmatrix.html', icon: 'M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z' },
-        { name: 'Achievements', desc: 'Track your mastery across 12 domains. Earn XP from real work, level up through Iron to Legend tier, and see your tier frame on every page.', link: 'achievements.html', icon: 'M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z' },
+        { name: 'Hive Live Board',     desc: 'Join or create a team. Hive is the unit of multi-tenancy: every worker, asset, and entry is scoped to one hive. Live activity feed + presence + role assignment.',                                                  link: 'hive.html',          icon: 'M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z' },
+        { name: 'Digital Logbook',     desc: 'Replace paper logs. Machine, problem, root cause, action, downtime, parts, photos, sign-off. Offline queue + edit-in-place + voice fill + photo-defect AI draft.',                                            link: 'logbook.html',       icon: 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z' },
+        { name: 'PM Scheduler',        desc: 'Replace spreadsheet PM trackers. Add assets, build PM scope by category, set Monthly/Quarterly/Semi-Annual/Yearly frequencies, track every due date.',                                                          link: 'pm-scheduler.html',  icon: 'M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z' },
+        { name: 'Inventory Monitor',   desc: 'Replace Excel parts lists. Stock ledger, reorder alerts, supervisor-approved restocks, transaction audit, qty_after running balance.',                                                                          link: 'inventory.html',     icon: 'M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4' },
+        { name: 'Day Planner',         desc: 'DILO / WILO / MILO / YILO multi-resolution personal scheduler. Pulls from your logbook entries and PM schedule.',                                                                                              link: 'dayplanner.html',    icon: 'M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z' },
+        { name: 'Voice Journal',       desc: 'Speak in any of 10 Philippine languages (Tagalog, Cebuano, Ilocano, Hiligaynon, Bikol, Waray, Kapampangan, Pangasinan). Semantic recall + private rolling memory.',                                            link: 'voice-journal.html', icon: 'M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3zM19 10v2a7 7 0 01-14 0v-2M12 19v4M8 23h8' },
+        { name: 'AI Assistant',        desc: 'Floating helper on every page. Knows your hive, your role, your context. Routes through ai-gateway with memory + PII redaction. Available across all 4 stages.',                                              link: 'assistant.html',     icon: 'M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z' },
       ]
     },
     2: {
-      label: 'Stage 2: Advanced Worker',
-      name: 'Advanced Worker',
-      quote: '"You don\'t wait for problems. You prevent them."',
-      color: '#29B6D9',
-      tabClass: 'active-blue',
+      label: 'Stage 2: Disciplined',
+      name: 'Disciplined',
+      quote: '"PMs compliant. Logbook hygiene. Supervisor approvals routine. Discipline compounds."',
+      color: '#00C4B4',
+      rgb:   '0,196,180',
+      tabClass: 'active-teal',
       tools: [
-        { name: 'Hive Live Board', desc: 'Join or create a team. See who is on shift, live activity feed, and open work count.', link: 'hive.html', icon: 'M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z' },
-        { name: 'Community Board', desc: 'Hive discussion board. Post tips, safety alerts, and technical questions. React, reply, and see who\'s online.', link: 'community.html', icon: 'M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z' },
-        { name: 'Engineering Design Calculator', desc: 'Multi-discipline design calc tool: HVAC, pump, pipe, electrical, fire protection, and more. Generates print-ready reports.', link: 'engineering-design.html', icon: 'M9 3H5a2 2 0 00-2 2v4m6-6h10a2 2 0 012 2v4M9 3v18m0 0h10a2 2 0 002-2V9M9 21H5a2 2 0 01-2-2V9m0 0h18' },
-        { name: 'PM Scheduler', desc: 'Add assets, build PM scope by category, set Monthly/Quarterly/Semi-Annual/Yearly frequencies, and track all due dates. Syncs to your Hive board.', link: 'pm-scheduler.html', icon: 'M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4' },
-        { name: 'Inventory Monitoring', desc: 'Stock ledger with reorder alerts and audit trail per job.', link: 'inventory.html', icon: 'M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4' },
-        { name: 'Skills Badge Tracker', desc: 'Record completed training and certifications.', link: null, icon: 'M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z' },
+        { name: 'Skill Matrix',            desc: 'Discipline-by-level matrix across 5 industrial disciplines. Timed assessments with cooldown logic. Badges gate PM eligibility and project task assignment.',                                                       link: 'skillmatrix.html',     icon: 'M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z' },
+        { name: 'Report Sender',           desc: 'Shift handover + end-of-day digest. a-f structure with LOTO detection regex. Multi-channel email + print-ready PDF.',                                                                                              link: 'report-sender.html',   icon: 'M12 19l9 2-9-18-9 18 9-2zm0 0v-8' },
+        { name: 'Alert Hub',               desc: 'One chronological inbox: risk, PM, stock, pattern, automation alerts. Plus the AMC Daily Brief at 06:00 PHT, a 5-sub-agent batched recommendation the supervisor approves with one tap.',                          link: 'alert-hub.html',       icon: 'M18 8a6 6 0 00-12 0c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0' },
+        { name: 'Asset Hub',               desc: 'Asset Brain 360 per equipment: live state, full timeline (logbook + PM + inventory + projects), parent and sister machines, parts that fit, AI Q+A grounded in this asset\'s own history. QR/barcode scan.',     link: 'asset-hub.html',       icon: 'M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16zM3.27 6.96L12 12.01l8.73-5.05M12 22.08V12' },
+        { name: 'Visual Defect Capture',   desc: 'Snap a photo of rust, leak, crack, burn. Multimodal LLM (Llama-4-Scout / Gemma-3) classifies, OCRs the asset tag, drafts the logbook entry. Inside the logbook flow.',                                            link: 'logbook.html',         icon: 'M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9zM15 13a3 3 0 11-6 0 3 3 0 016 0z' },
+        { name: 'Community Board',         desc: 'Hive forum: categories (general, safety, technical, announcement), reactions, threads, mentions, supervisor moderation, soft-delete with undo.',                                                                  link: 'community.html',       icon: 'M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z' },
+        { name: 'Public Feed',             desc: 'Cross-hive public posts, opt-in only. Workers gain visibility across plants while hive data stays isolated. Rate-limited at the DB level.',                                                                       link: 'public-feed.html',     icon: 'M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064' },
+        { name: 'Achievements',            desc: '12-domain XP system (Wrench Chronicle, Uptime Guardian, Safety Sentinel, etc.). Tier frames Iron to Legend. XP rewards real work, not clicks.',                                                                   link: 'achievements.html',    icon: 'M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z' },
       ]
     },
     3: {
-      label: 'Stage 3: Cyborg Worker',
-      name: 'Cyborg Worker',
-      quote: '"You and AI work as one. Your output exceeds what any human can do alone."',
-      color: '#F7A21B',
-      tabClass: 'active',
+      label: 'Stage 3: Predictive-Ready',
+      name: 'Predictive-Ready',
+      quote: '"Move from reacting to predicting. Anomaly detection. Sensor data. Reliability engineering."',
+      color: '#9B59E8',
+      rgb:   '155,89,232',
+      tabClass: 'active-purple',
       tools: [
-        { name: 'Analytics Engine', desc: 'MTBF, MTTR, Availability, PM Compliance, Pareto — ISO 14224 standards-based maintenance analytics.', link: 'analytics.html', icon: 'M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z' },
-        { name: 'Predictive Maintenance', desc: 'Risk rankings and health heatmap per asset. GBM ML model activates after 500+ corrective records; rules engine runs from Day 1.', link: 'predictive.html', icon: 'M13 7h8m0 0v8m0-8l-8 8-4-4-6 6' },
-        { name: 'Alert Hub', desc: 'One chronological inbox for risk, PM, stock, pattern, and system alerts across your hive. Auto-refreshes every minute.', link: 'alert-hub.html', icon: 'M18 8a6 6 0 00-12 0c0 7-3 9-3 9h18s-3-2-3-9 M13.73 21a2 2 0 01-3.46 0' },
-        { name: 'Asset Hub', desc: 'Asset Brain 360 view: pick any equipment in your hive, see its full timeline (logbook, PM, inventory, projects), risk score, parent and sister machines, and ask AI grounded in its own history. Connective tissue across the whole platform.', link: 'asset-hub.html', icon: 'M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z M3.27 6.96L12 12.01l8.73-5.05 M12 22.08V12' },
-        { name: 'Failure Predictor Feed', desc: 'AI-flagged equipment alerts for your area.', link: null, icon: 'M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z' },
-        { name: 'Smart Work Order Generator', desc: 'AI drafts work orders from your logbook patterns.', link: null, icon: 'M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z' },
-        { name: 'AI Copilot', desc: 'Ask questions from your plant\'s own history and manuals.', link: null, icon: 'M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z' },
-        { name: 'Learning Path Recommender', desc: 'AI suggests your next skill based on your gaps.', link: null, icon: 'M13 10V3L4 14h7v7l9-11h-7z' },
+        { name: 'Analytics Engine',        desc: 'MTBF, MTTR, Availability, OEE, PM Compliance, Pareto. 4 phases (descriptive, diagnostic, predictive, prescriptive). ISO 14224 + SMRP + ISA-101 anchored.',                                                          link: 'analytics.html',           icon: 'M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z' },
+        { name: 'Analytics Report PDF',    desc: 'Print-ready report compiled from all 4 phases. RAG-coloured tiles + AI action plan + sign-off block. Mirrors the maintenance audit format.',                                                                       link: 'analytics-report.html',    icon: 'M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z' },
+        { name: 'Predictive Maintenance',  desc: 'Risk Ranking, Health Heatmap, Failure Trend forecast. Rules engine from Day 1; GBM ML model activates after 500+ corrective records. Honest gating: we suppress predictions on insufficient data.',                link: 'predictive.html',          icon: 'M13 7h8m0 0v8m0-8l-8 8-4-4-6 6' },
+        { name: 'PH Intelligence',         desc: 'Monthly Philippine Industrial Maintenance Report. MTBF benchmarks by equipment type, top failure causes, seasonal patterns (typhoon, brownout, salt-air). N≥5 hive privacy guard.',                              link: 'ph-intelligence.html',     icon: 'M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9' },
+        { name: 'Shift Brain',             desc: 'Autonomous shift planner. 4 sub-agents (risk-ranking, PMs-due, carry-forward open work, parts pre-stage) plus AI briefing synthesis. Cron at 06:00, 14:00, 22:00 PHT. Supervisor publishes to crew.',                link: 'shift-brain.html',         icon: 'M12 6V4m0 16v-2M6 12H4m16 0h-2M7.05 7.05L5.64 5.64m12.72 12.72l-1.41-1.41M16.95 7.05l1.41-1.41M5.64 18.36l1.41-1.41 M12 12m-4 0a4 4 0 108 0 4 4 0 10-8 0' },
+        { name: 'Reliability Workbench',   desc: 'Per-asset FMEA (AIAG-VDA S/O/D) + RCM (SAE JA1011 decision tree) + Weibull MLE fit + P-F interval. AI auto-populates from logbook clusters; engineer approves before RPN counts.',                                  link: 'asset-hub.html',           icon: 'M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z' },
+        { name: 'Live Telemetry',          desc: 'MQTT / OPC-UA sensor readings per parameter with Z-score anomaly chip (OK / WATCH 2σ / ANOMALY 3σ). Plant-side bridge POSTs through sensor-readings-ingest. Realtime ticks per asset.',                       link: 'asset-hub.html',           icon: 'M8.111 16.404a5.5 5.5 0 017.778 0M12 20h.01m-7.08-7.071c3.904-3.905 10.236-3.905 14.141 0M1.394 9.393c5.857-5.857 15.355-5.857 21.213 0' },
+        { name: 'Parts Staging',           desc: 'Predictive parts pre-position. When risk crosses 0.7, the recommender suggests parts to stage and reserves inventory without consuming it. Surfaces in Inventory.',                                                  link: 'inventory.html',           icon: 'M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0zM13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1' },
+        { name: 'Audit Log',               desc: 'Supervisor-only review of every power action: approvals, rejections, member kicks, joins, edits, deletes. Filter by date/actor/verb. CSV export for compliance submission.',                                          link: 'audit-log.html',           icon: 'M9 12h6m-6 4h6m-6-8h6M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2' },
       ]
     },
     4: {
-      label: 'Stage 4: Superhuman Worker',
-      name: 'Superhuman Worker',
-      quote: '"You don\'t just work the system. You make the system smarter for everyone."',
-      color: '#FDB94A',
-      tabClass: 'active',
+      label: 'Stage 4: Industry Leader',
+      name: 'Industry Leader',
+      quote: '"Become an industrial intelligence source, not just a consumer. Engineering, projects, integrations, marketplace."',
+      color: '#FFB800',
+      rgb:   '255,184,0',
+      tabClass: 'active-gold',
       tools: [
-        { name: 'Shift Brain', desc: 'Autonomous shift planner. At each shift change the orchestrator runs four sub-agents (risk-ranking, PMs-due, carry-forward, parts pre-stage) plus AI briefing synthesis. Supervisor reviews the draft, edits, and publishes to crew. Cron-driven at 06:00, 14:00, and 22:00 PHT.', link: 'shift-brain.html', icon: 'M12 6V4m0 16v-2M6 12H4m16 0h-2M7.05 7.05L5.64 5.64m12.72 12.72l-1.41-1.41M16.95 7.05l1.41-1.41M5.64 18.36l1.41-1.41 M12 12m-4 0a4 4 0 108 0 4 4 0 10-8 0' },
-        { name: 'Knowledge Vault Contributor', desc: 'Feed your expertise into the org\'s AI memory.', link: null, icon: 'M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10' },
-        { name: 'Asset Intelligence Reviewer', desc: 'Validate or override AI predictions to train the model.', link: null, icon: 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z' },
-        { name: 'Mentorship Tracker', desc: 'Log coaching sessions and track who you\'ve leveled up.', link: null, icon: 'M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z' },
-        { name: 'Marketplace Profile', desc: 'Verified expert profile discoverable by other plants.', link: null, icon: 'M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064' },
+        { name: 'Engineering Design Calculator', desc: '51 calc types across 6 disciplines (electrical, mechanical, instrumentation, plumbing & fire, lighting, HVAC). Each emits BOM + SOW + diagram. PEC + ASHRAE + ISA + NFPA + IEC + PSME anchored.',                  link: 'engineering-design.html', icon: 'M9 3H5a2 2 0 00-2 2v4m6-6h10a2 2 0 012 2v4M9 3v18m0 0h10a2 2 0 002-2V9M9 21H5a2 2 0 01-2-2V9m0 0h18' },
+        { name: 'Project Manager',             desc: 'Capital projects + CPM scheduling (Python networkx) + risk register + change orders + lessons learned. 4 flavours: workorder, shutdown, capex, contractor. PMBOK + AACE + IDCON-anchored.',                          link: 'project-manager.html',    icon: 'M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z' },
+        { name: 'Project Report PDF',          desc: 'Print-ready single-project report. Executive cover, scope by phase, linked work tables, S-curve progress timeline, sign-off block, lessons learned. Contractor handover packet.',                                  link: 'project-report.html',     icon: 'M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z' },
+        { name: 'CMMS Integrations',           desc: 'SAP PM + IBM Maximo + generic CMMS bridge. Pull work orders, push completions, receive webhooks. WorkHive is the field-worker interface, not the ERP replacement. ISO 14224 field mapping.',                       link: 'integrations.html',       icon: 'M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1' },
+        { name: 'Marketplace',                 desc: 'Buyer-facing parts, training, jobs. PH-anchored: DTI-registered sellers, Messenger contact, verified badges, JSON-LD inquiry templates. Stripe escrow gated pending registration.',                              link: 'marketplace.html',        icon: 'M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z' },
+        { name: 'Marketplace Seller',          desc: 'Become a supplier on the platform. Seller dashboard, listings, inquiries, watchlist, analytics, multi-tier verification badges, public seller profile.',                                                         link: 'marketplace-seller.html', icon: 'M3 9l1-4h16l1 4M3 9h18M3 9v11a1 1 0 001 1h4v-7h4v7h8a1 1 0 001-1V9' },
       ]
     }
   };
@@ -1721,12 +1761,13 @@
     document.getElementById('ptab-' + n).classList.add(s.tabClass);
 
     const grid = document.getElementById('popup-tools');
+    const rgb = s.rgb || '247,162,27';
     grid.innerHTML = s.tools.map(t => {
       const isLink = t.link !== null;
       const tag = isLink ? `a href="${t.link}"` : 'div';
       const closeTag = isLink ? 'a' : 'div';
       return `<${tag} class="rounded-2xl p-4 border border-white/[0.07] ${isLink ? 'block hover:border-white/20 transition-colors' : ''}" style="background: linear-gradient(145deg, rgba(42,61,88,0.5) 0%, rgba(31,46,69,0.7) 100%);">
-        <div class="w-9 h-9 rounded-xl flex items-center justify-center mb-3" style="background: rgba(${s.color === '#29B6D9' ? '41,182,217' : '247,162,27'},0.12); border:1px solid rgba(${s.color === '#29B6D9' ? '41,182,217' : '247,162,27'},0.2);">
+        <div class="w-9 h-9 rounded-xl flex items-center justify-center mb-3" style="background: rgba(${rgb},0.12); border:1px solid rgba(${rgb},0.2);">
           <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="${s.color}" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="${t.icon}"/></svg>
         </div>
         <p class="font-bold text-white text-xs mb-1">${t.name}</p>
@@ -2469,6 +2510,7 @@
   const SUPABASE_URL = 'https://hzyvnjtisfgbksicrouu.supabase.co';
   const SUPABASE_KEY = 'sb_publishable_ePj-suLMwkMRVDH6eM6S8g_R0rZVbMZ';
   const _db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  logPageView(_db);
   window._supabaseSignup = async function(email) {
     const { error } = await _db.from('early_access_emails')
       .insert({ email: email.trim().toLowerCase(), source: 'landing_page' });

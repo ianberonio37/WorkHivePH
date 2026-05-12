@@ -756,6 +756,7 @@
     // ── Supabase client ───────────────────────────────────────────────────────────
     const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
+    logPageView(db);
     // ── State ────────────────────────────────────────────────────────────────────
     const _selected         = new Set();
     let   _cardState        = 'idle';
