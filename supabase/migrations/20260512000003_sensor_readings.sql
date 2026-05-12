@@ -58,11 +58,37 @@ CREATE TABLE IF NOT EXISTS public.sensor_readings (
   -- Deterministic dedup key. Two readings from the same source for the
   -- same (asset, parameter, recorded_at) are the same event. Used by the
   -- ingest endpoint's ON CONFLICT path.
-  external_key  text        GENERATED ALWAYS AS (
-                              source || ':' || asset_id::text || ':' || parameter || ':' || extract(epoch from recorded_at)::text
-                            ) STORED,
+  --
+  -- Filled by trg_sensor_readings_set_external_key BEFORE INSERT/UPDATE
+  -- (not a GENERATED column because Postgres considers the concatenation
+  -- of timestamptz-derived text values STABLE not IMMUTABLE, which
+  -- GENERATED requires).
+  external_key  text        NOT NULL,
   CONSTRAINT sensor_readings_dedup UNIQUE (external_key)
 );
+
+-- Trigger to compute external_key deterministically (immutable function
+-- body — the inputs are themselves immutable text/uuid casts, only the
+-- composition path is what Postgres can't prove without help).
+CREATE OR REPLACE FUNCTION public.sensor_readings_set_external_key()
+RETURNS trigger
+LANGUAGE plpgsql
+SECURITY INVOKER
+SET search_path = public, pg_temp
+AS $$
+BEGIN
+  NEW.external_key :=
+    NEW.source || ':' || NEW.asset_id::text || ':' || NEW.parameter || ':' ||
+    to_char(NEW.recorded_at AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.US');
+  RETURN NEW;
+END
+$$;
+
+DROP TRIGGER IF EXISTS trg_sensor_readings_set_external_key ON public.sensor_readings;
+CREATE TRIGGER trg_sensor_readings_set_external_key
+  BEFORE INSERT OR UPDATE OF source, asset_id, parameter, recorded_at
+  ON public.sensor_readings
+  FOR EACH ROW EXECUTE FUNCTION public.sensor_readings_set_external_key();
 
 COMMENT ON TABLE public.sensor_readings IS
   'Time-series sensor readings per asset. Ingested via the sensor-readings-ingest edge function from a plant-side MQTT bridge or OPC-UA gateway. Dedup via external_key (source + asset + parameter + recorded_at).';

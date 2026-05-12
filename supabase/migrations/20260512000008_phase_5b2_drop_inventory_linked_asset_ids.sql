@@ -32,8 +32,11 @@
 BEGIN;
 
 -- ── 1. v_inventory_items_truth: linked_asset_node_ids replaces linked_asset_ids ──
+-- DROP first because Postgres rejects CREATE OR REPLACE that renames a
+-- column (linked_asset_ids -> linked_asset_node_ids).
+DROP VIEW IF EXISTS public.v_inventory_items_truth CASCADE;
 
-CREATE OR REPLACE VIEW public.v_inventory_items_truth AS
+CREATE VIEW public.v_inventory_items_truth AS
 SELECT
   i.id, i.hive_id, i.worker_name,
   i.part_number, i.part_name, i.category, i.unit,

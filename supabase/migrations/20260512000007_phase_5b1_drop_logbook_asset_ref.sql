@@ -49,8 +49,18 @@
 BEGIN;
 
 -- ── 1. v_logbook_truth: join via asset_node_id ─────────────────────────────
+-- The new shape drops asset_ref_id from the SELECT list. Postgres rejects
+-- a CREATE OR REPLACE VIEW that removes columns, so we DROP first.
+--
+-- We also retire asset_brain_overview here. It was the May-8 precursor of
+-- v_asset_truth and is the only other view that referenced
+-- logbook.asset_ref_id. No live code reads it (CANONICAL_SOURCES_AUDIT.md
+-- marks it as deprecated wrapper); dropping it now is what allows the
+-- ALTER TABLE ... DROP COLUMN below to succeed.
+DROP VIEW IF EXISTS public.asset_brain_overview CASCADE;
+DROP VIEW IF EXISTS public.v_logbook_truth CASCADE;
 
-CREATE OR REPLACE VIEW public.v_logbook_truth AS
+CREATE VIEW public.v_logbook_truth AS
 SELECT
   -- Core columns (every existing reader's superset).
   l.id, l.hive_id, l.worker_name,
@@ -92,6 +102,8 @@ SET notes = 'Phase 5b.1 contract: join uses logbook.asset_node_id (uuid) directl
 WHERE domain = 'logbook_truth';
 
 -- ── 2. v_asset_truth: aggregate subqueries via asset_node_id ───────────────
+-- v_asset_truth keeps the same SELECT shape across phases (no columns
+-- removed) so REPLACE is safe here.
 
 CREATE OR REPLACE VIEW public.v_asset_truth AS
 SELECT

@@ -300,6 +300,20 @@ def check_engine_anchor() -> dict:
             if m.group(2).lower() in ("view", "rpc"):
                 registered_engine_names.add(m.group(3).lower())
 
+    # Build set of dropped views (retired engine objects) — same pattern as
+    # the fuel layer's dropped-tables exclusion.
+    dropped_engine: set[str] = set()
+    DROP_DEF_RE = re.compile(
+        r"DROP\s+(VIEW|FUNCTION)\s+(?:IF\s+EXISTS\s+)?(?:\"?public\"?\s*\.\s*)?\"?([a-z_][a-z0-9_]*)\"?",
+        re.IGNORECASE,
+    )
+    for path in list_migrations():
+        sql = read_file(path) or ""
+        sql_stripped = re.sub(r"--[^\n]*", "", sql)
+        sql_stripped = re.sub(r"/\*[\s\S]*?\*/", "", sql_stripped)
+        for m in DROP_DEF_RE.finditer(sql_stripped):
+            dropped_engine.add(f"{m.group(1).lower()}:{m.group(2).lower()}")
+
     # CREATE VIEW and CREATE FUNCTION
     DEF_RE = re.compile(
         r"CREATE\s+(?:OR\s+REPLACE\s+)?(VIEW|FUNCTION)\s+(?:\"?public\"?\s*\.\s*)?\"?([a-z_][a-z0-9_]*)\"?",
@@ -325,6 +339,7 @@ def check_engine_anchor() -> dict:
                         name.startswith("compute_") or name.startswith("v_")):
                     continue
             if name in registered_engine_names: continue
+            if key in dropped_engine: continue   # retired in a later migration
             # Trigger / internal-only views skipped via allowlist
             if has_allow_in_context(sql, m.start(), "engine", context_lines=4): continue
             unanchored.append({

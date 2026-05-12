@@ -377,30 +377,36 @@ CREATE OR REPLACE VIEW public.v_project_truth AS
 SELECT
   p.id                          AS project_id,
   p.hive_id,
+  p.project_code,
   p.name,
-  p.type,
+  p.project_type,
   p.status,
   p.priority,
-  p.budget_pesos,
+  p.owner_name,
+  p.budget_php,
   p.start_date,
-  p.target_end_date,
-  p.actual_end_date,
+  p.end_date                    AS target_end_date,
+  p.closed_at                   AS actual_end_at,
   p.created_at,
   p.updated_at,
   (SELECT count(*) FROM public.project_items pi
      WHERE pi.project_id = p.id) AS item_count,
   (SELECT count(*) FROM public.project_items pi
      WHERE pi.project_id = p.id AND pi.status = 'done') AS items_done,
-  (SELECT coalesce(sum(pi.estimated_cost_pesos), 0)::numeric FROM public.project_items pi
-     WHERE pi.project_id = p.id) AS estimated_total_pesos,
-  (SELECT max(ppl.logged_at) FROM public.project_progress_logs ppl
+  (SELECT coalesce(sum(pi.estimated_hours), 0)::numeric FROM public.project_items pi
+     WHERE pi.project_id = p.id) AS estimated_total_hours,
+  (SELECT coalesce(sum(pi.actual_hours), 0)::numeric FROM public.project_items pi
+     WHERE pi.project_id = p.id) AS actual_total_hours,
+  (SELECT max(ppl.created_at) FROM public.project_progress_logs ppl
      WHERE ppl.project_id = p.id) AS last_progress_at,
   (SELECT count(*) FROM public.project_change_orders pco
      WHERE pco.project_id = p.id AND pco.status = 'approved') AS approved_change_orders,
+  (SELECT coalesce(sum(pco.cost_impact_php), 0)::numeric FROM public.project_change_orders pco
+     WHERE pco.project_id = p.id AND pco.status = 'approved') AS approved_co_cost_php,
   (SELECT count(*) FROM public.project_links pl
      WHERE pl.project_id = p.id) AS link_count
 FROM public.projects p
-WHERE p.status != 'archived';
+WHERE p.deleted_at IS NULL AND p.status != 'archived';
 
 COMMENT ON VIEW public.v_project_truth IS
   'Tier B canonical project rollup. Per project: counts + cost + change-order summary. Replaces ad-hoc joins of projects + project_items + project_progress_logs + project_change_orders.';
@@ -408,17 +414,37 @@ GRANT SELECT ON public.v_project_truth TO anon, authenticated;
 
 
 CREATE OR REPLACE VIEW public.v_knowledge_truth AS
-  SELECT 'fault'::text AS source, id, hive_id, content, embedding, created_at FROM public.fault_knowledge
+  -- Each knowledge table has its own "primary text" column; the view
+  -- normalises them to (source, id, hive_id, content, embedding, created_at).
+  SELECT 'fault'::text  AS source, id, hive_id,
+         coalesce(knowledge, problem, action, '') AS content,
+         embedding, created_at
+    FROM public.fault_knowledge
   UNION ALL
-  SELECT 'skill',   id, hive_id, content, embedding, created_at FROM public.skill_knowledge
+  SELECT 'skill', id, hive_id,
+         coalesce(primary_skill, discipline, '') AS content,
+         embedding, coalesce(updated_at, now())  AS created_at
+    FROM public.skill_knowledge
   UNION ALL
-  SELECT 'pm',      id, hive_id, content, embedding, created_at FROM public.pm_knowledge
+  SELECT 'pm', id, hive_id,
+         coalesce(health_summary, asset_name, '') AS content,
+         embedding, coalesce(updated_at, now())   AS created_at
+    FROM public.pm_knowledge
   UNION ALL
-  SELECT 'bom',     id, hive_id, content, embedding, created_at FROM public.bom_knowledge
+  SELECT 'bom', id, hive_id,
+         coalesce(notes, project_name, '')        AS content,
+         embedding, created_at
+    FROM public.bom_knowledge
   UNION ALL
-  SELECT 'calc',    id, hive_id, content, embedding, created_at FROM public.calc_knowledge
+  SELECT 'calc', id, hive_id,
+         coalesce(notes, calc_type, '')           AS content,
+         embedding, created_at
+    FROM public.calc_knowledge
   UNION ALL
-  SELECT 'project', id, hive_id, content, embedding, created_at FROM public.project_knowledge;
+  SELECT 'project', id, hive_id,
+         text_chunk                               AS content,
+         embedding, created_at
+    FROM public.project_knowledge;
 
 COMMENT ON VIEW public.v_knowledge_truth IS
   'Tier B canonical RAG retrieval view. UNION ALL of all *_knowledge tables for unified pgvector semantic search.';
@@ -430,13 +456,63 @@ GRANT SELECT ON public.v_knowledge_truth TO anon, authenticated;
 -- =============================================================================
 
 CREATE OR REPLACE VIEW public.v_audit_unified AS
-  SELECT 'hive'::text AS audit_source, id, hive_id, worker_name, action, target_type, target_id, payload, created_at FROM public.hive_audit_log
+  -- Per-source column mapping documented inline since the underlying
+  -- tables grew with different conventions. Output shape is uniform.
+  SELECT 'hive'::text                                  AS audit_source,
+         id::text                                      AS audit_id,
+         hive_id,
+         actor                                         AS worker_name,
+         action,
+         target_type,
+         target_id::text                               AS target_id,
+         coalesce(meta, '{}'::jsonb)                   AS payload,
+         created_at
+    FROM public.hive_audit_log
   UNION ALL
-  SELECT 'cmms',       id, hive_id, worker_name, action, target_type, target_id, payload, created_at FROM public.cmms_audit_log
+  SELECT 'cmms',
+         id::text,
+         hive_id,
+         triggered_by                                  AS worker_name,
+         operation                                     AS action,
+         entity_type                                   AS target_type,
+         batch_id                                      AS target_id,
+         jsonb_build_object(
+           'rows_attempted', rows_attempted,
+           'rows_written',   rows_written,
+           'rows_failed',    rows_failed,
+           'system_type',    system_type,
+           'quality_score',  coalesce(quality_score, '{}'::jsonb)
+         )                                             AS payload,
+         created_at
+    FROM public.cmms_audit_log
   UNION ALL
-  SELECT 'automation', id, hive_id, NULL::text, event_type, NULL::text, NULL::uuid, payload, created_at FROM public.automation_log
+  SELECT 'automation',
+         id::text,
+         hive_id,
+         NULL::text                                    AS worker_name,
+         job_name                                      AS action,
+         'job'::text                                   AS target_type,
+         NULL::text                                    AS target_id,
+         jsonb_build_object('status', status, 'detail', coalesce(detail, ''))
+                                                       AS payload,
+         coalesce(triggered_at, now())                 AS created_at
+    FROM public.automation_log
   UNION ALL
-  SELECT 'gateway',    id, hive_id, NULL::text, route, 'edge_fn'::text, NULL::uuid, jsonb_build_object('status', status, 'latency_ms', latency_ms), created_at FROM public.gateway_audit_log;
+  SELECT 'gateway',
+         id::text,
+         hive_id,
+         worker_name,
+         route                                         AS action,
+         'edge_fn'::text                               AS target_type,
+         coalesce(request_id, '')                      AS target_id,
+         jsonb_build_object(
+           'method',      method,
+           'status_code', status_code,
+           'latency_ms',  latency_ms,
+           'error_class', coalesce(error_class, '')
+         )                                             AS payload,
+         created_at
+    FROM public.gateway_audit_log;
 
 COMMENT ON VIEW public.v_audit_unified IS
   'Tier E canonical audit trail. UNION ALL of hive_audit_log + cmms_audit_log + automation_log + gateway_audit_log.';
@@ -455,8 +531,8 @@ INSERT INTO public.canonical_sources (domain, source_kind, source_name, owner_sk
  'Tier B. Used by project-manager + project-report + analytics-orchestrator project rollup.'),
 ('knowledge_truth', 'view', 'v_knowledge_truth', 'ai-engineer', 'realtime',
  'UNION ALL of all 6 *_knowledge tables for unified pgvector RAG retrieval.',
- jsonb_build_object('sources', jsonb_build_array('fault','skill','pm','bom','calc','project'), 'dim', 1536, 'hive_scoped', true),
- 'Tier B. AMC + semantic-search edge fns read this single view.'),
+ jsonb_build_object('sources', jsonb_build_array('fault','skill','pm','bom','calc','project'), 'dim', 384, 'hive_scoped', true),
+ 'Tier B. AMC + semantic-search edge fns read this single view. Embeddings are vector(384) via nomic-embed-text-v1_5.'),
 ('audit_unified', 'view', 'v_audit_unified', 'security', 'realtime',
  'UNION ALL of hive_audit_log + cmms_audit_log + automation_log + gateway_audit_log.',
  jsonb_build_object('sources', jsonb_build_array('hive','cmms','automation','gateway'), 'hive_scoped', true, 'append_only', true),

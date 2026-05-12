@@ -101,16 +101,16 @@ INSERT INTO public.canonical_sources (
                     'append_only', true),
  'Phase A.2. Append-only audit trail; the canonical XP timeline.'),
 
--- Deprecated wrapper kept registered so the validator sees an explicit
--- declaration (rather than silently flagging it as un-anchored). New code
--- should read v_asset_truth instead.
-('asset_brain_overview_legacy', 'view', 'asset_brain_overview',
+-- (asset_brain_overview was retired in 20260512000007 — it had no live
+-- consumers and was blocking the logbook.asset_ref_id column drop.
+-- v_asset_truth is its canonical replacement.)
+('asset_brain_overview_retired', 'view', 'v_asset_truth',
  'architect', 'realtime',
- 'DEPRECATED — kept as backward-compat wrapper for the Asset Brain foundation (May 8 2026). Superseded by v_asset_truth (domain=asset_truth).',
- jsonb_build_object('deprecated', true,
+ 'Retirement marker: asset_brain_overview was dropped in Phase 5b.1 (migration 20260512000007). v_asset_truth is the canonical replacement.',
+ jsonb_build_object('retired', true,
                     'replaced_by', 'v_asset_truth',
-                    'replaced_on', '2026-05-09'),
- 'Listed for registry completeness. No live consumers — only matched by AI agents tracing legacy code paths.')
+                    'retired_in', '20260512000007'),
+ 'Tombstone entry — kept so AI agents tracing the old name find the canonical target.')
 
 ON CONFLICT (domain) DO UPDATE
   SET source_kind   = EXCLUDED.source_kind,
@@ -703,8 +703,9 @@ WITH recent_logbook AS (
     count(*)                                              AS jobs_30d,
     count(*) FILTER (WHERE status IN ('Open', 'In Progress')) AS open_jobs,
     max(created_at)                                       AS last_job_at,
-    -- Distinct assets touched (uses asset_node_id if present, else asset_ref_id)
-    count(DISTINCT coalesce(asset_node_id::text, asset_ref_id))  AS assets_touched_30d,
+    -- Distinct assets touched. Post Phase 5b.1 the legacy asset_ref_id
+    -- column is gone; logbook.asset_node_id is the canonical reference.
+    count(DISTINCT asset_node_id)  AS assets_touched_30d,
     sum(coalesce(downtime_hours, 0))                      AS total_downtime_hours_30d,
     -- Last category worked
     (array_agg(category ORDER BY created_at DESC))[1]     AS last_category
@@ -715,12 +716,12 @@ WITH recent_logbook AS (
 recent_pm AS (
   SELECT
     hive_id,
-    completed_by                                          AS worker_name,
+    worker_name,
     count(*)                                              AS pms_30d,
     max(completed_at)                                     AS last_pm_at
   FROM public.pm_completions
   WHERE completed_at >= now() - interval '30 days'
-  GROUP BY hive_id, completed_by
+  GROUP BY hive_id, worker_name
 )
 SELECT
   wih.hive_id,
