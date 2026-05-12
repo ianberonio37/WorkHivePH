@@ -149,7 +149,13 @@ def extract_payload_fields(content, anchor, table):
             if fields:
                 break
 
-    # Strategy B: inline .from('table').insert({ ... })
+    # Strategy B: inline .from('table').insert({ ... })  OR
+    # .from('table').insert(VARIABLE) where VARIABLE is a named object
+    # literal somewhere upstream in the same file. The previous version
+    # only handled the inline-literal case, which led to false-positive
+    # PASSES when a later `{...}` (e.g. an audit-log metadata object)
+    # happened to have the right keys. The variable-resolution path
+    # below is the architecturally correct match.
     for search_str in (f"from('{table}')", f'from("{table}")'):
         pos = 0
         while True:
@@ -159,11 +165,32 @@ def extract_payload_fields(content, anchor, table):
             insert_pos = content.find('.insert(', idx)
             if insert_pos == -1 or insert_pos > idx + 100:
                 pos = idx + 1; continue
-            brace_start = content.find('{', insert_pos)
-            if brace_start == -1:
-                pos = idx + 1; continue
-            body = extract_object_body(content, brace_start)
-            fields.update(_extract_and_clean_keys(body))
+            # Look at what's inside the insert(...)
+            after_insert = insert_pos + len('.insert(')
+            # Inline literal case: insert({ ... })
+            paren_content_start = after_insert
+            # Skip whitespace
+            while paren_content_start < len(content) and content[paren_content_start] in ' \t\n\r':
+                paren_content_start += 1
+            if paren_content_start < len(content) and content[paren_content_start] == '{':
+                body = extract_object_body(content, paren_content_start)
+                fields.update(_extract_and_clean_keys(body))
+                pos = idx + 1
+                continue
+            # Variable reference case: insert(VAR) — resolve VAR upstream
+            m_var = re.match(r"\s*([A-Za-z_][A-Za-z0-9_]*)", content[after_insert:after_insert + 80])
+            if m_var:
+                var_name = m_var.group(1)
+                # Find the most recent `(const|let|var) VAR = { ... }` BEFORE insert_pos
+                var_pat = re.compile(rf"(?:const|let|var)\s+{re.escape(var_name)}\s*=\s*\{{", re.MULTILINE)
+                best = None
+                for vm in var_pat.finditer(content[:insert_pos]):
+                    best = vm   # last match before insert
+                if best:
+                    var_brace = content.find('{', best.start())
+                    if var_brace != -1:
+                        body = extract_object_body(content, var_brace)
+                        fields.update(_extract_and_clean_keys(body))
             pos = idx + 1
 
     # Strategy C: const anchor = arr.map(x => ({ ... }))
