@@ -475,7 +475,7 @@ let _examQuestions     = [];
 // ─── Toast ────────────────────────────────────────────────────────────────────
 async function embedSkillEntry(entry) {
   try {
-    await fetch(`${SUPABASE_URL}/functions/v1/embed-entry`, {
+    await fetchWithTimeout(`${SUPABASE_URL}/functions/v1/embed-entry`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -488,7 +488,7 @@ async function embedSkillEntry(entry) {
           primary_skill: entry.primary_skill,
         }
       })
-    });
+    }, 8000);
   } catch (e) {
     console.warn('embed-entry (skill) skipped:', e.message);
   }

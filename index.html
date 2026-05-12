@@ -2075,6 +2075,16 @@
     localStorage.setItem('wh_last_worker', displayName);
     closeSignIn();
     updateNavbarName(displayName);
+    // Flip from marketing wrap to personal dashboard. The DOMContentLoaded
+    // handler that normally does this already fired before sign-in, so we
+    // mirror its behaviour here for an instant transition without a reload.
+    const mkt = document.getElementById('mkt-wrap');
+    const ops = document.getElementById('ops-home');
+    if (mkt && ops) {
+      mkt.style.display = 'none';
+      ops.style.display = 'block';
+      if (typeof _initDashboard === 'function') _initDashboard(displayName);
+    }
   }
 
   // ── Sign Up ────────────────────────────────────────────────────────────────
@@ -2144,6 +2154,16 @@
 
     localStorage.setItem('wh_last_worker', displayName);
     updateNavbarName(displayName);
+    // Mirror the signin success transition: flip from marketing wrap to
+    // personal dashboard. The DOMContentLoaded handler already fired before
+    // signup so we do it manually here.
+    const _mkt = document.getElementById('mkt-wrap');
+    const _ops = document.getElementById('ops-home');
+    if (_mkt && _ops) {
+      _mkt.style.display = 'none';
+      _ops.style.display = 'block';
+      if (typeof _initDashboard === 'function') _initDashboard(displayName);
+    }
 
     // C2: Check if display_name matches existing hive records
     const { count } = await db.from('hive_members')

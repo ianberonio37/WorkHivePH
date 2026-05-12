@@ -644,14 +644,28 @@ ${_ragContext.summary}
 
 When answering, prefer these facts over general knowledge. If the user asks something the context doesn't cover, say so plainly — do not invent values.` : ''}`;
 
+    // Phase 1.8: token-budget compressor. System prompt is ~2.2k tokens; on
+    // llama-4-scout's 8K context that leaves ~5k for history + output (we
+    // requested 500). The slice(-10) cap stays as a hard ceiling; the budget
+    // walker drops oldest turns earlier when an individual turn is large.
+    const sysTokens = Math.round(system.length / 4);
+    const baseHistory = history.slice(-10).map(m => ({ role: m.role, content: m.content }));
+    const trimmedHistory = (typeof window !== 'undefined' && window.trimChatToTokenBudget)
+      ? window.trimChatToTokenBudget(baseHistory, { budget: 7500, systemTokens: sysTokens, reserveOut: 600 })
+      : baseHistory;
+
     const messages = [
       { role: 'system', content: system },
-      ...history.slice(-10).map(m => ({ role: m.role, content: m.content })),
+      ...trimmedHistory,
       { role: 'user', content: userMessage }
     ];
 
-    // Routes through Cloudflare Worker — API key never exposed in browser
-    const response = await fetch(config.workerUrl, {
+    // Routes through Cloudflare Worker — API key never exposed in browser.
+    // 25s ceiling: floating-ai must not strand a user behind a hung Groq call.
+    const fetcher = (typeof window !== 'undefined' && window.fetchWithTimeout)
+      ? (u, o) => window.fetchWithTimeout(u, o, 25000)
+      : fetch;
+    const response = await fetcher(config.workerUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -661,6 +675,7 @@ When answering, prefer these facts over general knowledge. If the user asks some
       })
     });
 
+    if (!response) throw new Error('Assistant timed out. Try again on a faster network.');
     if (!response.ok) throw new Error(`Worker error ${response.status}`);
     const data = await response.json();
     return data.choices[0].message.content;

@@ -125,7 +125,7 @@ def seed_amc(client, log, ctx: dict) -> dict:
             p["title"] = p.get("item_text") or "monthly inspection"
             p["asset_name"] = ""
         parts = client.table("inventory_items").select(
-            "id, part_number, name",
+            "id, part_number, part_name",
         ).eq("hive_id", hive_id).limit(10).execute().data or []
         # asset_name passthrough for the parts brief
         for pt in parts:

@@ -286,6 +286,165 @@ def check_anonymous_writes(
     return [], rows
 
 
+# -- Layer 5: signin-completes-state-transition --------------------------
+#
+# Regression class caught 2026-05-13 walkthrough: index.html's submitSignIn()
+# successfully wrote `localStorage.setItem('wh_last_worker', name)` and called
+# updateNavbarName(), but the DOMContentLoaded handler that flips
+# `#mkt-wrap` -> `#ops-home` based on that same key had already fired before
+# the user signed in. Result: signed-in worker saw the marketing landing
+# page with their name in the navbar, no dashboard. The fix is to either
+# reload() the page or manually flip the gated region after the localStorage
+# write. This layer locks the pattern so future signin / signup / hive-switch
+# handlers don't drift.
+
+# Keys whose change should trigger a UI state transition after the function
+# writes them in a handler. Each implies a downstream view-gated region.
+STATE_TOGGLE_KEYS = (
+    "wh_last_worker",
+    "wh_active_hive_id",
+)
+
+# Allowed "recover the view" patterns. ANY of these inside the same function
+# body as the localStorage.setItem of a state-toggle key counts as recovery:
+#   - location.reload() / window.location.reload()
+#   - location.href = ... / window.location.href = ...
+#   - location.assign(...) / location.replace(...)
+#   - a manual call to _initDashboard / initDashboard / hydrate*
+#   - explicit display flip of a known gated region:
+#       document.getElementById('ops-home').style.display = 'block'
+RECOVER_PATTERNS = (
+    r"location\s*\.\s*reload\s*\(",
+    r"location\s*\.\s*href\s*=",
+    r"location\s*\.\s*assign\s*\(",
+    r"location\s*\.\s*replace\s*\(",
+    # init* / hydrate* / refresh* / load*View are the conventional names
+    # for "re-render the auth-gated region after state changed." Captures
+    # initDashboard, initBoard, initApp, initView, hydrateDashboard,
+    # refreshFeed, loadHomeView, etc. Lowercase `init(` alone is too loose
+    # so we require a CamelCase suffix.
+    r"\b_?(?:init|hydrate|refresh|reload)[A-Z]\w*\s*\(",
+    r"\bload[A-Z]\w*View\s*\(",
+    r"getElementById\s*\(\s*['\"`]ops-home['\"`]\s*\)\s*\.\s*style\s*\.\s*display\s*=\s*['\"`]block['\"`]",
+    # SPA view-switchers: hive.html's showView(...) is its equivalent of a
+    # full page reload after changing which hive is active. The view machine
+    # re-renders against the new wh_active_hive_id state synchronously.
+    r"\bshowView\s*\(",
+    r"\bswitchView\s*\(",
+    r"\brenderView\s*\(",
+)
+
+
+def _find_enclosing_function(src: str, idx: int) -> tuple[int, int]:
+    """Return (start, end) byte offsets of the function body that contains
+    offset `idx`. Walks backward to find the nearest function declaration,
+    then forward through matching braces.
+
+    Tolerates async/arrow/method shorthand. Returns (-1, -1) if no enclosing
+    function found (e.g. top-level setItem)."""
+    # Walk backward looking for the nearest line that opens a function.
+    head = src[:idx]
+    # Match real function declarations only. The previous "any \w+(...)\s*{"
+    # pattern caught `if (cond) {` and `for (...) {` as function starts —
+    # huge false-positive surface. Stick to the three actual declaration
+    # forms WorkHive uses: named function, var-assigned arrow, named
+    # method shorthand on an explicit `function`-keyword form.
+    func_open_re = re.compile(
+        r"(?:^|\n)\s*(?:async\s+)?function\s*\*?\s*\w*\s*\([^)]*\)\s*\{"
+        r"|(?:^|\n)\s*(?:const|let|var)\s+\w+\s*=\s*(?:async\s*)?(?:function\s*\([^)]*\)|\([^)]*\)\s*=>)\s*\{"
+    )
+    matches = list(func_open_re.finditer(head))
+    if not matches:
+        return -1, -1
+    start = matches[-1].end() - 1  # position of the opening "{"
+    # Walk forward counting braces (ignore strings + comments).
+    depth = 0
+    in_str = None
+    in_block_comment = False
+    in_line_comment = False
+    i = start
+    while i < len(src):
+        ch = src[i]
+        nxt = src[i + 1] if i + 1 < len(src) else ""
+        if in_line_comment:
+            if ch == "\n":
+                in_line_comment = False
+        elif in_block_comment:
+            if ch == "*" and nxt == "/":
+                in_block_comment = False
+                i += 1
+        elif in_str:
+            if ch == "\\":
+                i += 1   # skip escaped char
+            elif ch == in_str:
+                in_str = None
+        else:
+            if ch == "/" and nxt == "/":
+                in_line_comment = True; i += 1
+            elif ch == "/" and nxt == "*":
+                in_block_comment = True; i += 1
+            elif ch in ("'", '"', "`"):
+                in_str = ch
+            elif ch == "{":
+                depth += 1
+            elif ch == "}":
+                depth -= 1
+                if depth == 0:
+                    return start, i + 1
+        i += 1
+    return start, len(src)
+
+
+def check_signin_state_transition(pages: list[str]) -> tuple[list[dict], list[dict]]:
+    """For every function body that writes a STATE_TOGGLE_KEY to localStorage,
+    require at least one RECOVER pattern in the same body. Otherwise the
+    handler sets the key but the view that gates on it never re-evaluates."""
+    issues: list[dict] = []
+    rows: list[dict] = []
+    setitem_re = re.compile(
+        r"""localStorage\s*\.\s*setItem\s*\(\s*
+            ['"`](?P<key>[\w\-]+)['"`]\s*,""",
+        re.VERBOSE,
+    )
+    recover_re = re.compile("|".join(RECOVER_PATTERNS))
+    for path in pages:
+        src = read_file(path) or ""
+        for m in setitem_re.finditer(src):
+            if m.group("key") not in STATE_TOGGLE_KEYS:
+                continue
+            fs, fe = _find_enclosing_function(src, m.start())
+            if fs < 0:
+                # No enclosing function found. Skip.
+                continue
+            if not (fs <= m.start() < fe):
+                # The nearest backward function start ended BEFORE this
+                # setItem (e.g. arrow function passed to addEventListener
+                # without a name we can match). The setItem is in an outer
+                # scope we can't reason about cleanly. Skip rather than
+                # report a misleading line number.
+                continue
+            body = src[fs:fe]
+            if recover_re.search(body):
+                rows.append({"path": path, "key": m.group("key"), "ok": True})
+                continue
+            line = src.count("\n", 0, m.start()) + 1
+            issues.append({
+                "check":   "signin_state_transition",
+                "skip":    False,
+                "reason":  (
+                    f"{os.path.basename(path)}:{line} sets localStorage['{m.group('key')}'] in "
+                    f"a handler but the same function has no view-refresh "
+                    f"(location.reload / location.href / _initDashboard / "
+                    f"ops-home display flip). The dashboard gated on this key "
+                    f"was set up at DOMContentLoaded and won't re-evaluate. "
+                    f"Add `window.location.reload()` after the setItem, OR "
+                    f"manually call _initDashboard + flip the gated region's display."
+                ),
+            })
+            rows.append({"path": path, "key": m.group("key"), "ok": False, "line": line})
+    return issues, rows
+
+
 # -- Runner --------------------------------------------------------------
 
 CHECK_NAMES = [
@@ -293,12 +452,14 @@ CHECK_NAMES = [
     "edge_no_auth",
     "identity_distribution",
     "anonymous_writes",
+    "signin_state_transition",
 ]
 CHECK_LABELS = {
-    "html_no_identity":      "L1  Every HTML page with writes has an identity guard         [WARN]",
-    "edge_no_auth":          "L2  Every mutating edge fn checks JWT or accepts body identity [WARN]",
-    "identity_distribution": "L3  Per-page identity-source distribution (informational)     [INFO]",
-    "anonymous_writes":      "L4  Inserts to auth_uid tables set auth_uid (informational)   [INFO]",
+    "html_no_identity":         "L1  Every HTML page with writes has an identity guard           [WARN]",
+    "edge_no_auth":             "L2  Every mutating edge fn checks JWT or accepts body identity  [WARN]",
+    "identity_distribution":    "L3  Per-page identity-source distribution (informational)       [INFO]",
+    "anonymous_writes":         "L4  Inserts to auth_uid tables set auth_uid (informational)     [INFO]",
+    "signin_state_transition":  "L5  Handlers that set wh_last_worker / wh_active_hive_id refresh the view",
 }
 
 
@@ -318,8 +479,9 @@ def main():
     l2_issues, l2_report = check_edge_fns(fns)
     l3_issues, l3_report = check_identity_distribution(pages)
     l4_issues, l4_report = check_anonymous_writes(pages)
+    l5_issues, l5_report = check_signin_state_transition(pages)
 
-    all_issues = l1_issues + l2_issues + l3_issues + l4_issues
+    all_issues = l1_issues + l2_issues + l3_issues + l4_issues + l5_issues
     n_pass, n_warn, n_fail = format_result(CHECK_NAMES, CHECK_LABELS, all_issues)
 
     if l3_report:

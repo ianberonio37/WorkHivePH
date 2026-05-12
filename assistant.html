@@ -670,12 +670,14 @@ ${invText}
     async function getSemanticContext(query) {
       try {
         const hiveId = localStorage.getItem('wh_hive_id') || null;
-        const res = await fetch(`${SUPABASE_URL}/functions/v1/semantic-search`, {
+        // 6s ceiling: if semantic search is slow we proceed without RAG
+        // rather than block the user behind a hung embedding lookup.
+        const res = await fetchWithTimeout(`${SUPABASE_URL}/functions/v1/semantic-search`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ query, hive_id: hiveId, match_count: 3 }),
-        });
-        if (!res.ok) return '';
+        }, 6000);
+        if (!res || !res.ok) return '';
         const { context } = await res.json();
         return context || '';
       } catch {
@@ -712,7 +714,10 @@ ${invText}
 
         // ── Step 1: Try orchestrator (team intelligence, Groq free tier) ──
         try {
-          const orchRes = await fetch(`${SUPABASE_URL}/functions/v1/ai-orchestrator`, {
+          // 25s ceiling: orchestrator chain may hit Groq, Cerebras, OpenRouter
+          // in sequence; total budget is bounded so the user gets a fallback
+          // answer instead of an infinite spinner.
+          const orchRes = await fetchWithTimeout(`${SUPABASE_URL}/functions/v1/ai-orchestrator`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -720,8 +725,8 @@ ${invText}
               hive_id:     hiveId,
               worker_name: workerName,
             }),
-          });
-          if (orchRes.ok) {
+          }, 25000);
+          if (orchRes && orchRes.ok) {
             const orchData = await orchRes.json();
             if (orchData.answer && !orchData.error) reply = orchData.answer;
           }
@@ -734,7 +739,16 @@ ${invText}
             ? `${window._systemPrompt}\n\n--- KNOWLEDGE BASE CONTEXT (from your team's history) ---\n${semanticContext}\n--- END CONTEXT ---`
             : window._systemPrompt;
 
-          const response = await fetch(WORKER_URL, {
+          // Phase 1.8: token-budget compressor. The system prompt is ~2700
+          // tokens; on llama-4-scout's 8K context that leaves ~4500 for
+          // history + output. trimChatToTokenBudget keeps the latest turns
+          // and drops oldest until it fits, preserving the system prompt.
+          const sysTokens = Math.round(enrichedPrompt.length / 4);
+          const trimmedHistory = (window.trimChatToTokenBudget || ((m) => m.slice(-20)))(
+            sessionMessages,
+            { budget: 7500, systemTokens: sysTokens, reserveOut: 1024 }
+          );
+          const response = await fetchWithTimeout(WORKER_URL, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -742,11 +756,14 @@ ${invText}
               max_tokens: 1024,
               messages: [
                 { role: 'system', content: enrichedPrompt },
-                ...sessionMessages.slice(-20),
+                ...trimmedHistory,
               ],
             }),
-          });
+          }, 30000);
 
+          if (!response) {
+            throw new Error('Assistant timed out. Please retry on a faster connection.');
+          }
           if (!response.ok) {
             const err = await response.json().catch(() => ({}));
             throw new Error(err?.error?.message || `API error ${response.status}`);

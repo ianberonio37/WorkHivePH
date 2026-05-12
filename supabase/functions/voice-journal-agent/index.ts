@@ -30,9 +30,23 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
 // contract-allow: voice journal write + retrieval
+import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { callAI } from "../_shared/ai-chain.ts";
 import { getCorsHeaders } from "../_shared/cors.ts";
+import { logAICost, estimateTokens } from "../_shared/cost-log.ts";
+import { redactPII } from "../_shared/redactPII.ts";
 
+// Warm module-scope client (PRODUCTION_FIXES #46 pattern). Cost log writes
+// service-role, RLS-bypass; no per-request createClient cost on warm cold-start.
+const _WH_SUPABASE_URL = Deno.env.get("SUPABASE_URL") || "";
+const _WH_SERVICE_KEY  = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
+const _whWarmClient: SupabaseClient | null =
+  _WH_SUPABASE_URL && _WH_SERVICE_KEY
+    ? createClient(_WH_SUPABASE_URL, _WH_SERVICE_KEY)
+    : null;
+void _whWarmClient;
+
+const MODEL_VERSION     = "voice-journal-v1";
 const MAX_MESSAGE_CHARS = 500;        // matches gateway-side cap, prompt-injection safety
 const MAX_TOKENS_OUT    = 280;        // keep TTS-friendly: ~30s spoken reply max
 
@@ -109,16 +123,23 @@ serve(async (req) => {
   if (!rawMessage) {
     return json(corsHeaders, 400, { error: "Missing message" });
   }
-  const message = rawMessage.slice(0, MAX_MESSAGE_CHARS);
+  // Defence-in-depth: even when called via the gateway (which already redacts),
+  // run redactPII again so a direct-from-cron or test caller cannot leak emails
+  // or phone numbers to the LLM provider. The gateway-redacted "<redacted>"
+  // tokens pass through unchanged.
+  const message = redactPII(rawMessage.slice(0, MAX_MESSAGE_CHARS));
 
   const ctx = body.context && typeof body.context === "object" ? body.context : {};
   const rawLang = typeof ctx.lang === "string" ? ctx.lang.trim().toLowerCase() : "";
   const lang    = rawLang || "en";
   const langName = LANGUAGE_NAMES[lang] || lang || "English";
 
-  const memoryBlock = typeof body.memory === "string" && body.memory.trim()
+  // Memory block can contain raw worker_name slips if the gateway memory layer
+  // wrote them; redact again here at the LLM boundary.
+  const rawMemory = typeof body.memory === "string" && body.memory.trim()
     ? body.memory.trim()
-    : "(no prior journal entries yet)";
+    : "";
+  const memoryBlock = rawMemory ? redactPII(rawMemory) : "(no prior journal entries yet)";
 
   const userBlock = [
     `Detected language: ${langName} (code: ${lang})`,
@@ -129,6 +150,7 @@ serve(async (req) => {
     message,
   ].join("\n");
 
+  const t0 = Date.now();
   try {
     const answer = await callAI(userBlock, {
       systemPrompt: SYSTEM_PROMPT,
@@ -138,6 +160,24 @@ serve(async (req) => {
     });
 
     const trimmed = String(answer || "").trim();
+    const latency = Date.now() - t0;
+    const hiveIdForLog =
+      typeof body.hive_id === "string" && body.hive_id ? body.hive_id : null;
+
+    if (_whWarmClient) {
+      void logAICost(_whWarmClient, {
+        fn:            "voice-journal-agent",
+        hive_id:       hiveIdForLog,
+        worker_name:   null,                // redacted upstream
+        model:         MODEL_VERSION,
+        provider:      "chain",
+        prompt_tokens: estimateTokens(userBlock) + estimateTokens(SYSTEM_PROMPT),
+        output_tokens: estimateTokens(trimmed),
+        latency_ms:    latency,
+        status:        trimmed ? "success" : "fallback",
+      });
+    }
+
     if (!trimmed) {
       return json(corsHeaders, 502, { error: "Empty answer from AI chain" });
     }
@@ -145,6 +185,18 @@ serve(async (req) => {
     return json(corsHeaders, 200, { answer: trimmed, lang } satisfies AgentResponse);
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
+    if (_whWarmClient) {
+      void logAICost(_whWarmClient, {
+        fn:            "voice-journal-agent",
+        hive_id:       typeof body.hive_id === "string" ? body.hive_id : null,
+        worker_name:   null,
+        model:         MODEL_VERSION,
+        provider:      "chain",
+        prompt_tokens: estimateTokens(userBlock) + estimateTokens(SYSTEM_PROMPT),
+        latency_ms:    Date.now() - t0,
+        status:        "failed",
+      });
+    }
     console.error("voice-journal-agent error:", msg);
     return json(corsHeaders, 502, { error: `Journal agent failed: ${msg}` });
   }

@@ -54,6 +54,7 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { callAI } from "../_shared/ai-chain.ts";
 import { getCorsHeaders } from "../_shared/cors.ts";
+import { logAICost, estimateTokens } from "../_shared/cost-log.ts";
 
 // Warm module-scope client (PRODUCTION_FIXES #46 pattern).
 const _WH_SUPABASE_URL_M = Deno.env.get("SUPABASE_URL") || "";
@@ -384,6 +385,8 @@ async function crewBuilder(
 // ─── Sub-agent 5: Briefing-Composer (LLM) ────────────────────────────────────
 
 async function briefingComposer(
+  db: SupabaseClient,
+  hive_id: string,
   hive_name: string,
   risk: FailurePredictorOut,
   pm: PMPlannerOut,
@@ -413,10 +416,12 @@ async function briefingComposer(
     ),
   };
 
+  const promptStr = JSON.stringify(payload);
+  const t0 = Date.now();
   let raw: string;
   try {
     raw = await Promise.race([
-      callAI(JSON.stringify(payload), {
+      callAI(promptStr, {
         systemPrompt: SUMMARY_SYSTEM_PROMPT,
         temperature:  0.25,
         maxTokens:    MAX_TOKENS_SUMMARY,
@@ -427,6 +432,15 @@ async function briefingComposer(
       ),
     ]);
   } catch {
+    void logAICost(db, {
+      fn:            "amc-orchestrator",
+      hive_id,
+      model:         MODEL_VERSION,
+      provider:      "chain",
+      prompt_tokens: estimateTokens(promptStr) + estimateTokens(SUMMARY_SYSTEM_PROMPT),
+      latency_ms:    Date.now() - t0,
+      status:        "fallback",
+    });
     return fallback;
   }
 
@@ -434,9 +448,32 @@ async function briefingComposer(
     const parsed = JSON.parse(raw) as AnyRow;
     const summary  = String(parsed.summary  || "").trim();
     const headline = String(parsed.headline || "").trim();
-    if (!summary || !headline) return fallback;
+    const compliant = !!(summary && headline);
+    void logAICost(db, {
+      fn:                "amc-orchestrator",
+      hive_id,
+      model:             MODEL_VERSION,
+      provider:          "chain",
+      prompt_tokens:     estimateTokens(promptStr) + estimateTokens(SUMMARY_SYSTEM_PROMPT),
+      output_tokens:     estimateTokens(raw),
+      latency_ms:        Date.now() - t0,
+      status:            compliant ? "success" : "fallback",
+      schema_compliance: compliant,
+    });
+    if (!compliant) return fallback;
     return { summary, headline };
   } catch {
+    void logAICost(db, {
+      fn:                "amc-orchestrator",
+      hive_id,
+      model:             MODEL_VERSION,
+      provider:          "chain",
+      prompt_tokens:     estimateTokens(promptStr) + estimateTokens(SUMMARY_SYSTEM_PROMPT),
+      output_tokens:     estimateTokens(raw),
+      latency_ms:        Date.now() - t0,
+      status:            "fallback",
+      schema_compliance: false,
+    });
     return fallback;
   }
 }
@@ -526,7 +563,7 @@ async function buildBriefForHive(
   }
 
   // Briefing-Composer runs last (its inputs are everything else).
-  const summary = await briefingComposer(hive.name, risk, pm, parts, crew);
+  const summary = await briefingComposer(db, hive.id, hive.name, risk, pm, parts, crew);
 
   const brief = {
     top_assets:     risk.top_assets,

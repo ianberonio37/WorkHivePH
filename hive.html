@@ -1229,6 +1229,13 @@ async function submitJoin() {
   saveHiveList([..._existingJ, { id: hive.id, name: hive.name, role: joinRole, code: codeVal }]);
   HIVE_ID = hive.id; HIVE_NAME = hive.name; HIVE_ROLE = joinRole;
 
+  if (!existingRow) {
+    writeAuditLog('member_joined', 'hive_members', null, WORKER_NAME, {
+      role: 'worker',
+      auth_uid: _authUid || null
+    });
+  }
+
   await showWelcome(hive);
 }
 
@@ -1280,6 +1287,10 @@ document.getElementById('btn-sup-leave-cancel').addEventListener('click', () => 
 });
 
 async function performLeave() {
+  // Write audit before delete: once the member row is gone, RLS on
+  // hive_audit_log will reject the insert (auth.uid() no longer matches
+  // an active hive_members row).
+  writeAuditLog('member_left', 'hive_members', null, WORKER_NAME, { role: HIVE_ROLE });
   await db.from('hive_members').delete().eq('hive_id', HIVE_ID).eq('worker_name', WORKER_NAME);
 
   // Remove this hive from the list; switch to another if available
@@ -2400,6 +2411,7 @@ async function loadAuditLog() {
     reject_item:  { icon: '✗', color: '#f87171', label: 'Rejected' },
     kick_member:  { icon: '⊘', color: '#f87171', label: 'Removed member' },
     member_joined:{ icon: '+', color: '#29B6D9', label: 'Joined' },
+    member_left:  { icon: '↩', color: '#94a3b8', label: 'Left hive' },
   };
 
   list.innerHTML = data.map(row => {

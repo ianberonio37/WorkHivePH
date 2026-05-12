@@ -318,6 +318,102 @@ function renderAlertPreview(opts) {
 }
 
 
+// ─────────────────────────────────────────────
+// fetchWithTimeout — bounded fetch wrapper (Phase 1.5 of STRATEGIC_ROADMAP)
+// ─────────────────────────────────────────────
+// Every cross-network call in WorkHive must have an upper bound. On a 2G/3G
+// link in a Philippine plant, a missing timeout means a logbook entry,
+// embed-entry POST, or assistant turn can hang for minutes while the user
+// stares at a spinner and assumes the page is broken. AbortController gives us
+// a hard ceiling and a recognisable AbortError caller code can branch on.
+//
+// Defaults: 30s timeout (matches Supabase Edge Functions cold-start budget).
+// Callers can pass a smaller value for fire-and-forget telemetry (embed-entry
+// is 8s — if the embed pipeline is overwhelmed we silently skip rather than
+// block the user's save).
+//
+// Skills consulted: devops (network resilience), realtime-engineer (signal
+// propagation), architect ("every fetch must be bounded").
+//
+// Usage:
+//   const res = await fetchWithTimeout(url, { method: 'POST', body }, 20000);
+//   if (res === null) { /* timed out — caller decides UX */ }
+//   else if (!res.ok) { ... } else { const j = await res.json(); ... }
+//
+// Returns: a Response on success, or null on timeout/abort. Network errors
+// (DNS failure, offline) still throw — caller wraps in try/catch as today.
+async function fetchWithTimeout(url, options, timeoutMs) {
+  const ms = (typeof timeoutMs === 'number' && timeoutMs > 0) ? timeoutMs : 30000;
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), ms);
+  try {
+    const opts = Object.assign({}, options || {}, { signal: ctrl.signal });
+    return await fetch(url, opts);
+  } catch (e) {
+    if (e && (e.name === 'AbortError' || e.code === 20)) return null;
+    throw e;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+if (typeof window !== 'undefined') window.fetchWithTimeout = fetchWithTimeout;
+
+// ─────────────────────────────────────────────
+// trimChatToTokenBudget — context-window compressor (Phase 1.8 of STRATEGIC_ROADMAP)
+// ─────────────────────────────────────────────
+// floating-ai and assistant.html both stuff a long system prompt (2k-2.7k
+// tokens) into every turn, then append the conversation history. On the Groq
+// 8K-32K free-tier models this leaves a thin budget for the actual user
+// message. Without a compressor, a long voice transcription mid-thread can
+// silently overflow the model context and either error out or truncate the
+// system prompt (which is the LAST thing you want trimmed).
+//
+// Strategy: keep the most-recent turns and drop the oldest user/assistant
+// pairs first. The system prompt is the caller's responsibility — pass its
+// estimated token cost in `systemTokens` so the budget math is honest. We
+// never drop the most recent user message (that's the turn being asked).
+//
+// Token heuristic: 1 token ≈ 4 chars (English). Identical to the heuristic
+// used by _shared/cost-log.ts so observability and runtime agree.
+//
+// Args:
+//   messages       array of {role, content} — your sessionMessages so far
+//   opts.budget    total budget in tokens for the model context (default 7000
+//                  to match Groq llama-3.3-70b-versatile minus a safety pad)
+//   opts.systemTokens cost of the system prompt you'll prepend at send time
+//   opts.reserveOut tokens reserved for the model's response (default 800)
+//
+// Returns: a NEW array (does not mutate input) trimmed to fit.
+//
+// Skills consulted: ai-engineer (context budget = system + history + output),
+// performance (cheap O(n) walk, no expensive tokenizer).
+function trimChatToTokenBudget(messages, opts) {
+  opts = opts || {};
+  const budget       = typeof opts.budget       === 'number' ? opts.budget       : 7000;
+  const systemTokens = typeof opts.systemTokens === 'number' ? opts.systemTokens : 0;
+  const reserveOut   = typeof opts.reserveOut   === 'number' ? opts.reserveOut   : 800;
+  const limit = Math.max(200, budget - systemTokens - reserveOut);
+
+  const list = Array.isArray(messages) ? messages.slice() : [];
+  if (list.length <= 1) return list;
+
+  const cost = (m) => Math.round(String(m && m.content || '').length / 4);
+
+  // Walk from the end, keeping recent turns; drop the oldest once over budget.
+  let total = 0;
+  const kept = [];
+  for (let i = list.length - 1; i >= 0; i--) {
+    const c = cost(list[i]);
+    if (total + c > limit && kept.length > 0) break;
+    kept.unshift(list[i]);
+    total += c;
+  }
+  return kept;
+}
+
+if (typeof window !== 'undefined') window.trimChatToTokenBudget = trimChatToTokenBudget;
+
 // Debounce — delay fn execution until after `wait` ms of silence
 function debounce(fn, wait) {
   let t;

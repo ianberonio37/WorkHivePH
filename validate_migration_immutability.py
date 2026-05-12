@@ -79,6 +79,12 @@ ALLOWED_MULTI_COMMIT = {
         "do not halt on assets.asset_id missing UNIQUE constraint. Second commit "
         "landed same-day, no prod deploy in between (remote DB already had FK). "
         "Long-term fix: ensure assets.asset_id has UNIQUE in baseline migration.",
+    "20260513000000_analytics_events.sql":
+        "2026-05-13 same-day fix: ON CONFLICT clause referenced source_name "
+        "which is not the PK (domain is). Edited in Phase 0 commit 70314ba "
+        "before any prod deploy of this Phase 0 batch. No state divergence "
+        "possible: the table ships as part of Phase 0 and was never applied "
+        "with the broken ON CONFLICT.",
     "20260512000003_sensor_readings.sql":
         "2026-05-12 walkthrough fix: GENERATED column not IMMUTABLE; replaced "
         "with BEFORE INSERT trigger. Never applied to remote (migration list "

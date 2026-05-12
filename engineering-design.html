@@ -18873,11 +18873,15 @@ function _prepareReportHtml(reportEl) {
 }
 
 async function _tryServerPdf(html, fileName) {
-  const resp = await fetch(PDF_API, {
+  // 45s ceiling: PDF rendering on Render free tier wakes a cold container
+  // (~20s) then renders complex reports. Beyond 45s we fall back to client
+  // html2pdf rather than leave the user waiting indefinitely.
+  const resp = await fetchWithTimeout(PDF_API, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ html, filename: fileName }),
-  });
+  }, 45000);
+  if (!resp) throw new Error('PDF API timed out');
   if (!resp.ok) throw new Error(`PDF API ${resp.status}`);
   const blob = await resp.blob();
   const url  = URL.createObjectURL(blob);
@@ -18968,11 +18972,14 @@ const PYTHON_DIAGRAM_TYPES = new Set([
 const PYTHON_DIAGRAM_API = 'https://engineering-calc-api.onrender.com/diagram';
 
 async function _callPythonDiagram(calcType, inputs, results) {
-  const res = await fetch(PYTHON_DIAGRAM_API, {
+  // 30s ceiling: matplotlib SVG generation on Render free tier may cold-start;
+  // bounded so JS-side fallback diagram (or "not_implemented") surfaces fast.
+  const res = await fetchWithTimeout(PYTHON_DIAGRAM_API, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ diagram_type: calcType, inputs, results }),
-  });
+  }, 30000);
+  if (!res) throw new Error('Diagram API timed out');
   if (!res.ok) throw new Error(`Diagram API error ${res.status}`);
   const data = await res.json();
   if (data.not_implemented) throw new Error('not_implemented');

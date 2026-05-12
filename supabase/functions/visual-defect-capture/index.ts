@@ -55,10 +55,12 @@
  */
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+// contract-allow: produces visual defect draft; future Tier C: visual_defect_draft_v1
 import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { callAIMultimodal } from "../_shared/ai-chain.ts";
 import { generateEmbedding } from "../_shared/embedding-chain.ts";
 import { getCorsHeaders } from "../_shared/cors.ts";
+import { logAICost, estimateTokens } from "../_shared/cost-log.ts";
 
 // Warm module-scope Supabase client.
 const _WH_SUPABASE_URL_M = Deno.env.get("SUPABASE_URL") || "";
@@ -70,6 +72,7 @@ void _whWarmClient;
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
+const MODEL_VERSION         = "visual-defect-v1";
 const RATE_LIMIT_PER_HOUR   = 50;
 const MAX_IMAGE_BYTES       = 4_500_000;   // ~3.4 MB base64 = 2.5 MB binary
 const MAX_VOICE_NOTE_CHARS  = 500;
@@ -267,14 +270,33 @@ serve(async (req) => {
       ? `The worker described what they saw: "${voice_note}". Classify the photo.`
       : `Classify the photo. Identify the failure mode, category, severity, root cause, and recommended action.`;
 
+    const t0 = Date.now();
     const raw = await callAIMultimodal(userPrompt, image_data_url, {
       systemPrompt: SYSTEM_PROMPT,
       temperature:  0.2,
       maxTokens:    MAX_TOKENS_OUT,
       jsonMode:     true,
     });
+    const latencyMs = Date.now() - t0;
+
+    // Token heuristic: vision payloads are mostly the image (~1k tokens for
+    // a 1024-edge image at OpenAI rates), plus the textual prompt. Capture
+    // the textual side here; image cost is a known per-provider lump we
+    // tabulate downstream.
+    const promptTokens = estimateTokens(userPrompt) + estimateTokens(SYSTEM_PROMPT);
+    const outputTokens = estimateTokens(raw || "");
 
     if (!raw || raw === "{}") {
+      void logAICost(db, {
+        fn:            "visual-defect-capture",
+        hive_id,
+        worker_name,
+        model:         MODEL_VERSION,
+        provider:      "vision-chain",
+        prompt_tokens: promptTokens,
+        latency_ms:    latencyMs,
+        status:        "failed",
+      });
       return new Response(
         JSON.stringify({
           error: "All vision providers are at capacity. Try again in a few minutes.",
@@ -289,6 +311,18 @@ serve(async (req) => {
     try {
       parsed = JSON.parse(raw);
     } catch {
+      void logAICost(db, {
+        fn:                "visual-defect-capture",
+        hive_id,
+        worker_name,
+        model:             MODEL_VERSION,
+        provider:          "vision-chain",
+        prompt_tokens:     promptTokens,
+        output_tokens:     outputTokens,
+        latency_ms:        latencyMs,
+        status:            "fallback",
+        schema_compliance: false,
+      });
       return new Response(
         JSON.stringify({ error: "Vision model returned non-JSON; please retry the capture.", remaining: rl.remaining }),
         { status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" } },
@@ -296,6 +330,19 @@ serve(async (req) => {
     }
 
     const draft = coerceDraft(parsed);
+
+    void logAICost(db, {
+      fn:                "visual-defect-capture",
+      hive_id,
+      worker_name,
+      model:             MODEL_VERSION,
+      provider:          "vision-chain",
+      prompt_tokens:     promptTokens,
+      output_tokens:     outputTokens,
+      latency_ms:        latencyMs,
+      status:            "success",
+      schema_compliance: true,
+    });
 
     // Asset auto-link: prefer client-supplied asset_id; otherwise try OCR.
     let matched: { asset_id: string; tag: string; name: string } | null = null;

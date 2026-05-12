@@ -153,9 +153,11 @@ def check_api_routed_through_worker(content, page):
     if re.search(r"fetch\s*\(\s*['\"]https://api\.groq\.com", content):
         return [{"check": "api_routed_through_worker", "page": page,
                  "reason": "Direct fetch to api.groq.com found — API calls should route through the Cloudflare Worker to keep the key server-side"}]
-    if not re.search(r"fetch\s*\(\s*config\.workerUrl", content):
+    # Accept any fetch-like caller (fetch, fetchWithTimeout, fetcher wrapper)
+    # so long as it targets config.workerUrl as the first argument.
+    if not re.search(r"\b(?:fetch|fetcher|fetchWithTimeout)\s*\(\s*config\.workerUrl", content):
         return [{"check": "api_routed_through_worker", "page": page,
-                 "reason": "fetch(config.workerUrl) not found — API routing pattern may have changed"}]
+                 "reason": "config.workerUrl not used as the first arg of any fetch-like call — API routing pattern may have changed"}]
     return []
 
 

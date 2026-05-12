@@ -1721,7 +1721,9 @@ async function _autoLinkLogbookToProject(entry) {
 
 async function embedFaultEntry(entry) {
   try {
-    await fetch(`${SUPABASE_URL}/functions/v1/embed-entry`, {
+    // 8s ceiling: embed-entry is fire-and-forget telemetry — never block the
+    // user's save behind a slow RAG pipeline. Skip silently on timeout.
+    await fetchWithTimeout(`${SUPABASE_URL}/functions/v1/embed-entry`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -1738,7 +1740,7 @@ async function embedFaultEntry(entry) {
           worker_name: WORKER_NAME,
         }
       })
-    });
+    }, 8000);
   } catch (e) {
     console.warn('embed-entry skipped:', e.message);
   }
