@@ -756,6 +756,15 @@ VALIDATORS = [
         "skip_if_fast": False,
     },
     {
+        "id":      "adoption-observability",
+        "script":  "validate_adoption_observability.py",
+        "args":    [],
+        "label":   "Adoption Observability Validator (Phase 3.6: hive_adoption_score migration + supervisor card + onboarding stepper + intent capture + canonical anchors)",
+        "group":   "Platform",
+        "report":  "adoption_observability_report.json",
+        "skip_if_fast": False,
+    },
+    {
         "id":      "realtime-publication",
         "script":  "validate_realtime_publication.py",
         "args":    [],

@@ -101,6 +101,10 @@ EXPECTED_PUBLISHED_TABLES = {
     # subscribes for live stair updates when the daily compute recomputes.
     # Added via 20260513000001_hive_readiness.sql.
     "hive_readiness",
+    # Phase 3.2 of STRATEGIC_ROADMAP (2026-05-13): hive.html Supervisor
+    # Engagement Card subscribes so tier flips (healthy <-> at_risk <-> critical)
+    # appear without manual refresh. Added via 20260513000004_phase3_adoption_observability.sql.
+    "hive_adoption_score",
 }
 
 CHECKS = {

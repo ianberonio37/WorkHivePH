@@ -519,6 +519,72 @@
         <div id="stair-evidence" style="display:none; padding:10px 16px 16px; border-top:1px solid rgba(255,255,255,0.06); background:rgba(0,0,0,0.18); font-size:11px; color:rgba(255,255,255,0.7); line-height:1.55;"></div>
       </div>
 
+      <!-- ─────────────────────────────────────────────────────────────────
+           Intent-capture modal (Phase 3.5 of STRATEGIC_ROADMAP).
+           Supervisor-only, fires once per hive when hives.intent is {}.
+           Captures primary_goal + secondary checkboxes; writes the answer
+           back to hives.intent and dismisses. Hidden by default.
+           ───────────────────────────────────────────────────────────────── -->
+      <div id="intent-capture" class="hidden" style="position:fixed; inset:0; z-index:9999; display:flex; align-items:center; justify-content:center; background:rgba(11,15,26,0.78); backdrop-filter:blur(4px); padding:1rem; font-family:'Poppins',system-ui,sans-serif;">
+        <div style="background:#162032; border:1px solid rgba(255,255,255,0.12); border-radius:1rem; padding:1.5rem 1.25rem; max-width:420px; width:100%; box-shadow:0 14px 44px rgba(0,0,0,0.55); color:#F4F6FA;">
+          <h3 style="margin:0 0 0.5rem; font-size:1.05rem; font-weight:800; letter-spacing:0.02em;">Why are you here?</h3>
+          <p style="margin:0 0 1rem; font-size:0.78rem; color:rgba(255,255,255,0.65); line-height:1.5;">One quick question so WorkHive can prioritise the right tools for your hive. Pick the one that matters most.</p>
+          <div role="radiogroup" style="display:grid; gap:0.4rem; margin-bottom:0.8rem;">
+            <label class="ic-opt" style="display:flex; align-items:center; gap:0.5rem; padding:0.6rem 0.7rem; border:1px solid rgba(255,255,255,0.08); border-radius:0.5rem; cursor:pointer; font-size:0.78rem;">
+              <input type="radio" name="intent-primary" value="predictive" style="accent-color:#F7A21B;"> Predictive maintenance: stop failures before they happen
+            </label>
+            <label class="ic-opt" style="display:flex; align-items:center; gap:0.5rem; padding:0.6rem 0.7rem; border:1px solid rgba(255,255,255,0.08); border-radius:0.5rem; cursor:pointer; font-size:0.78rem;">
+              <input type="radio" name="intent-primary" value="downtime" style="accent-color:#F7A21B;"> Reduce downtime: get production running faster
+            </label>
+            <label class="ic-opt" style="display:flex; align-items:center; gap:0.5rem; padding:0.6rem 0.7rem; border:1px solid rgba(255,255,255,0.08); border-radius:0.5rem; cursor:pointer; font-size:0.78rem;">
+              <input type="radio" name="intent-primary" value="training" style="accent-color:#F7A21B;"> Train workers: skill matrix + knowledge capture
+            </label>
+            <label class="ic-opt" style="display:flex; align-items:center; gap:0.5rem; padding:0.6rem 0.7rem; border:1px solid rgba(255,255,255,0.08); border-radius:0.5rem; cursor:pointer; font-size:0.78rem;">
+              <input type="radio" name="intent-primary" value="compliance" style="accent-color:#F7A21B;"> Compliance: PSME, DOLE, ISO 14224 evidence
+            </label>
+            <label class="ic-opt" style="display:flex; align-items:center; gap:0.5rem; padding:0.6rem 0.7rem; border:1px solid rgba(255,255,255,0.08); border-radius:0.5rem; cursor:pointer; font-size:0.78rem;">
+              <input type="radio" name="intent-primary" value="cmms_replace" style="accent-color:#F7A21B;"> Replace our spreadsheets / CMMS
+            </label>
+            <label class="ic-opt" style="display:flex; align-items:center; gap:0.5rem; padding:0.6rem 0.7rem; border:1px solid rgba(255,255,255,0.08); border-radius:0.5rem; cursor:pointer; font-size:0.78rem;">
+              <input type="radio" name="intent-primary" value="other" style="accent-color:#F7A21B;"> Something else
+            </label>
+          </div>
+          <div style="display:flex; gap:0.5rem;">
+            <button id="intent-save" type="button" style="flex:1; padding:0.7rem; border-radius:0.6rem; font-weight:700; font-size:0.82rem; color:#162032; background:linear-gradient(135deg,#F7A21B,#FDB94A); border:0; cursor:pointer; min-height:44px;">Save</button>
+            <button id="intent-skip" type="button" style="padding:0.7rem 1rem; border-radius:0.6rem; font-weight:700; font-size:0.82rem; color:rgba(255,255,255,0.55); background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); cursor:pointer; min-height:44px;">Later</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─────────────────────────────────────────────────────────────────
+           Onboarding card (Phase 3.3 of STRATEGIC_ROADMAP).
+           Shows the role-specific path (worker 5-step / supervisor 7-step).
+           Hidden once every step is complete; populated by onboarding.js.
+           ───────────────────────────────────────────────────────────────── -->
+      <div id="onboarding-card" class="hidden mb-5 rounded-xl overflow-hidden" style="background: linear-gradient(145deg, rgba(40,30,15,0.55), rgba(22,32,50,0.85)); border:1px solid rgba(247,162,27,0.2);"></div>
+
+      <!-- ─────────────────────────────────────────────────────────────────
+           Supervisor Engagement Card (Phase 3.2 of STRATEGIC_ROADMAP).
+           Supervisor-only. Surfaces adoption risk + top reasons + dropping
+           workers + champion candidate. Updates live via supabase_realtime
+           on hive_adoption_score. Hidden when HIVE_ROLE !== 'supervisor'.
+           ───────────────────────────────────────────────────────────────── -->
+      <div id="adoption-card" class="hidden mb-5 rounded-xl overflow-hidden" style="background: linear-gradient(145deg, rgba(58,42,88,0.55), rgba(22,32,50,0.85)); border:1px solid rgba(255,255,255,0.08);">
+        <div style="padding:14px 16px 8px;">
+          <div style="display:flex; align-items:center; justify-content:space-between; gap:8px; flex-wrap:wrap;">
+            <div style="display:flex; align-items:center; gap:10px;">
+              <span id="adoption-tier-badge" style="display:inline-flex; align-items:center; gap:6px; padding:4px 10px; border-radius:999px; font-size:10px; font-weight:800; letter-spacing:0.06em; text-transform:uppercase; background:rgba(74,222,128,0.18); color:#4ade80;">Healthy</span>
+              <span id="adoption-risk-score" style="font-size:1.7rem; font-weight:900; color:#F4F6FA; line-height:1;">--</span>
+              <span style="font-size:11px; color:rgba(255,255,255,0.4); letter-spacing:0.04em;">/100 risk</span>
+            </div>
+            <button id="adoption-explain-btn" type="button" style="background:rgba(255,255,255,0.04); color:rgba(255,255,255,0.55); border:1px solid rgba(255,255,255,0.08); border-radius:8px; padding:10px 16px; font-family:inherit; font-size:11px; font-weight:600; cursor:pointer; min-height:44px; min-width:44px;">Why?</button>
+          </div>
+          <p id="adoption-summary" style="font-size:11.5px; color:rgba(255,255,255,0.65); margin-top:6px; line-height:1.45;">Computing your hive's adoption signals...</p>
+        </div>
+        <!-- Reasons + dropping workers drawer -->
+        <div id="adoption-detail" style="display:none; padding:10px 16px 16px; border-top:1px solid rgba(255,255,255,0.06); background:rgba(0,0,0,0.18); font-size:11px; color:rgba(255,255,255,0.7); line-height:1.55;"></div>
+      </div>
+
       <style>
         .stair-dim-bar { text-align:center; }
         .stair-dim-label { font-size:9px; font-weight:700; letter-spacing:0.04em; text-transform:uppercase; color:rgba(255,255,255,0.45); margin:0 0 4px; }
@@ -1393,7 +1459,7 @@ async function initBoard() {
 
   updateSwitchButton();
   // allSettled: never rejects, so startPresence() is always reached even if one data load fails
-  const _boardResults = await Promise.allSettled([checkStockAlert(), loadMembers(), loadFeed(), buildNotifications(), loadApprovalQueue(), loadPMHealth(), loadAuditLog(), loadTodaysBrief(), loadTeamPulse(), loadPatternAlerts(), loadBenchmarks(), loadMaturityStairway()]);
+  const _boardResults = await Promise.allSettled([checkStockAlert(), loadMembers(), loadFeed(), buildNotifications(), loadApprovalQueue(), loadPMHealth(), loadAuditLog(), loadTodaysBrief(), loadTeamPulse(), loadPatternAlerts(), loadBenchmarks(), loadMaturityStairway(), loadAdoptionCard(), loadOnboardingCard(), maybeShowIntentCapture()]);
   _boardResults.forEach((r, i) => { if (r.status === 'rejected') console.error('initBoard step', i, 'failed:', r.reason); });
   // Team stock alert needs memberNames populated by loadMembers first
   checkTeamStockAlert();
@@ -1427,6 +1493,8 @@ const STAIR_PALETTE = [
 
 let _readinessChannel = null;
 let _lastReadiness = null;
+let _adoptionChannel = null;
+let _lastAdoption = null;
 
 async function loadMaturityStairway() {
   if (!HIVE_ID) return;
@@ -1542,6 +1610,219 @@ function startReadinessRealtime() {
     .subscribe();
   // Cleanup wired into the main beforeunload listener below, not a separate
   // listener — observability validator counts removes per-listener.
+}
+
+// ─────────────────────────────────────────────────────────────────
+// Phase 3.2 — Supervisor Engagement Card
+// ─────────────────────────────────────────────────────────────────
+// Supervisor-only. Reads v_adoption_truth (latest snapshot per hive).
+// On first load OR when the snapshot is >24h stale, calls
+// compute_adoption_risk(hive_id) to refresh. Subscribes to live updates
+// on hive_adoption_score so the supervisor sees tier flips without a
+// manual refresh.
+
+const ADOPTION_TIER_STYLE = {
+  healthy:  { bg: 'rgba(74,222,128,0.18)',  fg: '#4ade80', label: 'Healthy'  },
+  at_risk:  { bg: 'rgba(247,162,27,0.18)',  fg: '#F7A21B', label: 'At Risk'  },
+  critical: { bg: 'rgba(248,113,113,0.18)', fg: '#f87171', label: 'Critical' },
+};
+
+async function loadAdoptionCard() {
+  // Hidden for non-supervisors; nothing to do.
+  if (!HIVE_ID || HIVE_ROLE !== 'supervisor') return;
+  const card = document.getElementById('adoption-card');
+  if (!card) return;
+  card.classList.remove('hidden');
+
+  let row = null;
+  try {
+    const res = await db.rpc('get_adoption_risk_current', { p_hive_id: HIVE_ID });
+    row = Array.isArray(res.data) ? res.data[0] : res.data;
+  } catch (_) {}
+
+  const isStale = !row
+    || !row.computed_at
+    || (Date.now() - new Date(row.computed_at).getTime() > 24 * 3600 * 1000);
+  if (isStale) {
+    try {
+      await db.rpc('compute_adoption_risk', { p_hive_id: HIVE_ID });
+      const refetch = await db.rpc('get_adoption_risk_current', { p_hive_id: HIVE_ID });
+      row = Array.isArray(refetch.data) ? refetch.data[0] : refetch.data;
+    } catch (e) {
+      console.warn('compute_adoption_risk failed:', e?.message || e);
+    }
+  }
+  _lastAdoption = row || null;
+  renderAdoptionCard(row);
+  startAdoptionRealtime();
+}
+
+function renderAdoptionCard(row) {
+  const card = document.getElementById('adoption-card');
+  if (!card) return;
+  const tier = (row && row.risk_tier) || 'healthy';
+  const style = ADOPTION_TIER_STYLE[tier] || ADOPTION_TIER_STYLE.healthy;
+
+  const badge = document.getElementById('adoption-tier-badge');
+  if (badge) {
+    badge.textContent = style.label;
+    badge.style.background = style.bg;
+    badge.style.color = style.fg;
+  }
+  const score = document.getElementById('adoption-risk-score');
+  if (score) score.textContent = row ? String(row.risk_score) : '--';
+
+  const summary = document.getElementById('adoption-summary');
+  if (summary) {
+    if (!row) {
+      summary.textContent = 'No adoption snapshot yet. Daily compute will populate this card.';
+    } else if (tier === 'healthy') {
+      summary.textContent = row.champion_candidate
+        ? `Adoption looking good. ${row.champion_candidate} is your most active worker this month.`
+        : 'Adoption looking good across the hive this week.';
+    } else {
+      // Surface the top reason in the summary line so even closed drawer reads honestly.
+      let top = 'Multiple signals trending down — open Why? for the breakdown.';
+      try {
+        const reasons = Array.isArray(row.top_reasons) ? row.top_reasons : [];
+        if (reasons.length && reasons[0].label) top = reasons[0].label;
+      } catch (_) {}
+      summary.textContent = top;
+    }
+  }
+}
+
+(function wireAdoptionExplain() {
+  const btn = document.getElementById('adoption-explain-btn');
+  if (!btn) return;
+  btn.addEventListener('click', () => {
+    const drawer = document.getElementById('adoption-detail');
+    if (!drawer) return;
+    const isOpen = drawer.style.display === 'block';
+    if (isOpen) { drawer.style.display = 'none'; btn.textContent = 'Why?'; return; }
+    const row = _lastAdoption;
+    const e = escHtml;
+    if (!row) {
+      drawer.textContent = 'No adoption snapshot captured yet.';
+    } else {
+      const reasons = Array.isArray(row.top_reasons) ? row.top_reasons : [];
+      const dropping = Array.isArray(row.dropping_workers) ? row.dropping_workers : [];
+      const blocks = [];
+      if (reasons.length) {
+        blocks.push('<strong style="display:block;margin-bottom:6px;color:rgba(255,255,255,0.85);">Top risk signals:</strong>'
+          + reasons.slice(0, 5).map(r => `<div>· ${e(r.label || r.signal)} <span style="color:rgba(255,255,255,0.45);">(${e(String(r.score))}/100)</span></div>`).join(''));
+      } else {
+        blocks.push('<div style="color:rgba(255,255,255,0.55);">No risk signals above threshold this week.</div>');
+      }
+      if (dropping.length) {
+        blocks.push('<strong style="display:block;margin:10px 0 6px;color:rgba(255,255,255,0.85);">Workers slowing down:</strong>'
+          + dropping.slice(0, 5).map(d => `<div>· ${e(d.worker_name)}: ${e(String(d.this_week))} this week vs ${e(String(d.last_week))} last week</div>`).join(''));
+      }
+      if (row.champion_candidate) {
+        blocks.push(`<strong style="display:block;margin:10px 0 6px;color:rgba(255,255,255,0.85);">Champion candidate:</strong>`
+          + `<div>· ${e(row.champion_candidate)} (engagement ${e(String(row.champion_engagement || 0))}/100)</div>`
+          + `<div style="font-size:10.5px;color:rgba(255,255,255,0.45);margin-top:4px;">Pair them with a new worker who has not written yet — that is how adoption compounds.</div>`);
+      }
+      drawer.innerHTML = blocks.join('');
+    }
+    drawer.style.display = 'block';
+    btn.textContent = 'Hide';
+  });
+})();
+
+function startAdoptionRealtime() {
+  if (_adoptionChannel || !HIVE_ID || HIVE_ROLE !== 'supervisor') return;
+  _adoptionChannel = db.channel('hive-adoption:' + HIVE_ID)
+    .on('postgres_changes', {
+      event: '*', schema: 'public', table: 'hive_adoption_score',
+      filter: 'hive_id=eq.' + HIVE_ID,
+    }, async () => { await loadAdoptionCard(); })
+    .subscribe();
+}
+
+// ─────────────────────────────────────────────────────────────────
+// Phase 3.3 — Onboarding stepper (role-specific path)
+// ─────────────────────────────────────────────────────────────────
+// Deterministic detectors: each step queries the DB for the first row
+// that proves the step is done (or reads a localStorage flag for
+// non-DB steps like "visited audit log"). Card hides itself once every
+// step is complete so it does not clutter the dashboard forever.
+
+async function loadOnboardingCard() {
+  if (!HIVE_ID || typeof window.whOnboardingProgress !== 'function') return;
+  try {
+    const progress = await window.whOnboardingProgress(db, {
+      hiveId:     HIVE_ID,
+      workerName: WORKER_NAME,
+      role:       HIVE_ROLE === 'supervisor' ? 'supervisor' : 'worker',
+    });
+    if (typeof window.whRenderOnboardingCard === 'function') {
+      window.whRenderOnboardingCard('#onboarding-card', progress);
+    }
+  } catch (e) {
+    console.warn('loadOnboardingCard failed:', e?.message || e);
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────
+// Phase 3.5 — Intent capture (Why are you here?)
+// ─────────────────────────────────────────────────────────────────
+// Fires once per hive when hives.intent is empty AND the current worker
+// is a supervisor. Writes the answer back to hives.intent and dismisses.
+// 'Later' sets a localStorage flag so we don't re-prompt this device this
+// session; the modal will surface again on next visit until answered.
+
+async function maybeShowIntentCapture() {
+  if (!HIVE_ID || HIVE_ROLE !== 'supervisor') return;
+  const sessionKey = 'wh_intent_dismissed_' + HIVE_ID;
+  try { if (sessionStorage.getItem(sessionKey)) return; } catch (_) {}
+
+  let intent = null;
+  try {
+    const { data } = await db.from('hives')
+      .select('intent')
+      .eq('id', HIVE_ID)
+      .maybeSingle();
+    intent = data ? data.intent : null;
+  } catch (_) { return; }
+
+  const isEmpty = !intent || (typeof intent === 'object' && Object.keys(intent).length === 0);
+  if (!isEmpty) return;
+
+  const modal = document.getElementById('intent-capture');
+  if (!modal) return;
+  modal.classList.remove('hidden');
+
+  const save = document.getElementById('intent-save');
+  const skip = document.getElementById('intent-skip');
+  if (save && !save._wired) {
+    save.addEventListener('click', async () => {
+      const checked = document.querySelector('input[name="intent-primary"]:checked');
+      const goal = checked ? checked.value : null;
+      if (!goal) { showToast('Pick one to save, or tap Later.'); return; }
+      const payload = {
+        primary_goal:  goal,
+        captured_at:   new Date().toISOString(),
+        captured_role: 'supervisor',
+        captured_by:   WORKER_NAME,
+      };
+      try {
+        await db.from('hives').update({ intent: payload }).eq('id', HIVE_ID);
+        modal.classList.add('hidden');
+        showToast('Thanks — we will tune your hive accordingly.');
+      } catch (e) {
+        showToast('Could not save: ' + (e?.message || e));
+      }
+    });
+    save._wired = true;
+  }
+  if (skip && !skip._wired) {
+    skip.addEventListener('click', () => {
+      try { sessionStorage.setItem(sessionKey, '1'); } catch (_) {}
+      modal.classList.add('hidden');
+    });
+    skip._wired = true;
+  }
 }
 
 // ── MEMBERS ──
@@ -2995,6 +3276,7 @@ window.addEventListener('beforeunload', () => {
   if (approvalChannel)   db.removeChannel(approvalChannel);
   if (workerApprovalCh)  db.removeChannel(workerApprovalCh);
   if (_readinessChannel) db.removeChannel(_readinessChannel);
+  if (_adoptionChannel)  db.removeChannel(_adoptionChannel);
 });
 </script>
   <script src="offline-banner.js"></script>
@@ -3002,6 +3284,7 @@ window.addEventListener('beforeunload', () => {
   <script defer src="connectivity-widget.js"></script>
   <script defer src="session-timeout.js"></script>
   <script defer src="device-fingerprint.js"></script>
+  <script defer src="onboarding.js"></script>
   <!-- worker-drawer.js: click any [data-worker-name] node to open the mini-profile drawer.
        Closes PRODUCTION_FIXES #15. Auto-wires globally via event delegation. -->
   <script src="worker-drawer.js"></script>

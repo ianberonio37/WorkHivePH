@@ -3,7 +3,7 @@
 // surfaces (logbook, inventory, pm-scheduler, hive, asset-hub, shift-brain).
 // Closes PRODUCTION_FIXES #54.
 
-const CACHE_NAME  = 'workhive-shell-v51';
+const CACHE_NAME  = 'workhive-shell-v52';
 const SHELL_FILES = [
   // Original report-sender shell
   '/report-sender.html',
@@ -19,6 +19,7 @@ const SHELL_FILES = [
   '/form-autosave.js',
   '/session-timeout.js',
   '/device-fingerprint.js',
+  '/onboarding.js',
   // Worker-critical pages (offline-capable on cached page-shell)
   '/logbook.html',
   '/inventory.html',

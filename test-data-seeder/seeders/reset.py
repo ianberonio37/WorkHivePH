@@ -90,6 +90,7 @@ RESET_TABLES = [
     "amc_briefings",
     "hive_readiness_audit",
     "hive_readiness",
+    "hive_adoption_score",
     "sensor_readings",
     "sensor_topic_map",
     "hive_quotas",
