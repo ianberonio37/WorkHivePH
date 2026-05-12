@@ -478,6 +478,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="utils.js"></script>
+<script src="wh-capture-validate.js"></script>
 <script>
 // ────────────────────────────────────────────
 // SUPABASE SETUP
@@ -1033,6 +1034,13 @@ async function submitPart() {
     showToast(editStatus === 'pending' ? `${partName} resubmitted for supervisor approval.` : `${partName} updated.`);
   } else {
     const item = { id: Date.now().toString(), ...payload, photo: currentPhotoData || null, created_at: now };
+
+    // Tier F capture contract — inventory_add_part_v1 runtime validation.
+    if (window.whValidateCapture) {
+      const vr = await window.whValidateCapture(db, 'inventory_add_part_v1', item);
+      if (!vr.ok) { showFormError(errEl, 'Cannot save: ' + (vr.errors[0]?.message || 'contract violation')); return; }
+    }
+
     items.push(item);
     _items = items; // update local cache immediately
 

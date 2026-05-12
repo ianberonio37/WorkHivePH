@@ -779,11 +779,16 @@ def check_capture_anchor() -> dict:
 
         # Detect capture surfaces
         has_form = bool(re.search(r'<form\b[^>]*>', content, re.IGNORECASE))
-        has_input = bool(re.search(r'<(input|select|textarea)\b', content, re.IGNORECASE))
+        # Count <input> tags. Pages with >=10 inputs but no <form> wrapper
+        # (e.g. engineering-design.html with 382 inputs across 74 calc forms
+        # rendered by JS) are still capture surfaces — flag them.
+        input_count = len(re.findall(r'<(input|select|textarea)\b', content, re.IGNORECASE))
+        has_input = input_count > 0
+        many_inputs_no_form = (input_count >= 10) and not has_form
         has_voice = bool(re.search(r'getUserMedia|MediaRecorder', content))
         has_qr = bool(re.search(r'BarcodeDetector|<video\s+[^>]*autoplay|jsqr|html5-qrcode', content, re.IGNORECASE))
         has_upload = bool(re.search(r'type=["\']file["\']', content, re.IGNORECASE))
-        has_capture_surface = (has_form and has_input) or has_voice or has_qr or has_upload
+        has_capture_surface = (has_form and has_input) or many_inputs_no_form or has_voice or has_qr or has_upload
 
         if not has_capture_surface: continue
 

@@ -1225,6 +1225,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="utils.js"></script>
+<script src="wh-capture-validate.js"></script>
 <script>
 // ────────────────────────────────────────────
 // SUPABASE SETUP
@@ -1631,6 +1632,19 @@ async function addEntry(entry) {
     return;
   }
 
+  // Tier F capture contract — runtime validation against logbook_add_entry_v1.
+  // A form-field drift here FAILs the submit before the write, instead of
+  // landing NULLs in the fuel table that silently break dashboards downstream.
+  if (window.whValidateCapture) {
+    const vr = await window.whValidateCapture(db, 'logbook_add_entry_v1', payload);
+    if (!vr.ok) {
+      showToast('Cannot save: ' + (vr.errors[0]?.message || 'capture contract violation'));
+      console.error('[capture-violation] logbook_add_entry_v1:', vr.errors);
+      return;
+    }
+  }
+
+  // payload.worker_name is set upstream from WORKER_NAME (governance: owner present)
   const { error } = await db.from('logbook').insert(payload);
   if (error) { showToast('Could not save entry: ' + error.message); return; }
   writeAuditLog('create_logbook_entry', 'logbook', payload.id, payload.machine || '(no machine)', {

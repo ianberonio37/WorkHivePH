@@ -701,6 +701,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="utils.js"></script>
+<script src="wh-capture-validate.js"></script>
 <script src="nav-hub.js"></script>
 <script>
 // ── SUPABASE SETUP ──
@@ -1121,6 +1122,15 @@ async function submitJoin() {
 
   if (!existingRow) {
     // New member: insert as worker
+    const joinPayload = { worker_name: WORKER_NAME, role: 'worker' };
+    // Tier F capture contract — hive_invite_v1 runtime validation.
+    if (window.whValidateCapture) {
+      const vr = await window.whValidateCapture(db, 'hive_invite_v1', joinPayload);
+      if (!vr.ok) {
+        showToast('Cannot join: ' + (vr.errors[0]?.message || 'contract violation'));
+        return;
+      }
+    }
     const { error: joinErr } = await db.from('hive_members').insert({
       hive_id: hive.id, worker_name: WORKER_NAME, role: 'worker', status: 'active',
       auth_uid: _authUid || null  // C3: link auth identity at join time

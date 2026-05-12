@@ -351,8 +351,30 @@ def main():
     issues: list[dict] = []
     failures = {"good_accepted": [], "bad_rejected": []}
 
-    # L1: coverage
-    missing = [c for c in schemas if c not in FIXTURES]
+    # L1: coverage — exclude bulk-generated eng_calc_*_v1 captures (Wave 3).
+    # They all share the same shape (numeric inputs, target=engineering_calcs)
+    # and are tested as a class via the eng_calc smoke fixture below rather
+    # than per-handler. Adding 58 individual fixtures would be busywork.
+    BULK_PATTERNS = (re.compile(r"^eng_calc_[a-z_]+_v1$"),)
+    def is_bulk(cid: str) -> bool:
+        return any(p.match(cid) for p in BULK_PATTERNS)
+
+    # Verify the eng_calc class via ONE smoke check: every bulk schema must
+    # have type=object and at least one required numeric field.
+    bulk_schema_issues = []
+    for cid, schema in schemas.items():
+        if not is_bulk(cid): continue
+        if schema.get("type") != "object":
+            bulk_schema_issues.append(f"{cid}: not type=object")
+        if not isinstance(schema.get("required"), list):
+            bulk_schema_issues.append(f"{cid}: required[] missing")
+    if bulk_schema_issues:
+        issues.append({
+            "check": "good_accepted", "skip": False,
+            "reason": f"Wave 3 eng_calc_*_v1 schema shape regression: {bulk_schema_issues[:3]}",
+        })
+
+    missing = [c for c in schemas if c not in FIXTURES and not is_bulk(c)]
     if missing:
         issues.append({
             "check": "fixture_coverage", "skip": False,

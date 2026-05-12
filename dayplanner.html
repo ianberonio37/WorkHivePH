@@ -518,7 +518,17 @@ async function loadSchedule() {
 
 async function syncItemToSupabase(item) {
   try {
-    const { error } = await db.from('schedule_items').upsert(toDBRow(item));
+    const row = toDBRow(item);
+    // Tier F capture contract — schedule_item_v1 runtime validation.
+    if (window.whValidateCapture) {
+      const vr = await window.whValidateCapture(db, 'schedule_item_v1', row);
+      if (!vr.ok) {
+        showToast('Cannot save: ' + (vr.errors[0]?.message || 'contract violation'), 'error');
+        console.error('[capture-violation] schedule_item_v1:', vr.errors);
+        return;
+      }
+    }
+    const { error } = await db.from('schedule_items').upsert(row);
     if (error) { console.warn('Schedule sync failed:', error.message); showToast('Save failed — check your connection', 'error'); }
   } catch(e) {
     console.warn('Schedule sync error:', e);
@@ -1305,6 +1315,7 @@ document.addEventListener('keydown', e => {
 </script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="utils.js"></script>
+<script src="wh-capture-validate.js"></script>
 <script>
   // supabase-js is now loaded: safe to init
   var db = supabase.createClient(

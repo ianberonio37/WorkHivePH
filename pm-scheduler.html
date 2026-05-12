@@ -5,6 +5,7 @@
   <meta name="theme-color" content="#F7A21B" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>PM Scheduler: WorkHive</title>
+  <!-- capture: pm_completion_v1 (form) — PM completion + scope-item add/edit writes to pm_completions + pm_scope_items -->
   <meta name="description" content="Plant Maintenance Scheduler. Add assets, assign PM scope by category, set frequencies, and track due dates. Syncs with your WorkHive hive board." />
   <meta name="robots" content="noindex, follow" />
   <link rel="canonical" href="https://workhiveph.com/pm-scheduler.html" />
@@ -724,6 +725,7 @@
 <!-- ══ SCRIPTS ══ -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="utils.js"></script>
+<script src="wh-capture-validate.js"></script>
 <script>
 // ─────────────────────────────────────
 // SUPABASE SETUP
