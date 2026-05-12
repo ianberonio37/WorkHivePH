@@ -1,0 +1,57 @@
+{
+  "fuel_anchor": 0,
+  "details": {
+    "fuel_anchor": [],
+    "engine_anchor": [],
+    "tier_a_anchor": [
+      {
+        "file": "supabase\\functions\\analytics-orchestrator\\index.ts"
+      }
+    ],
+    "dashboard_anchor": [
+      {
+        "page": "analytics-report.html",
+        "n_render_fns": 8
+      },
+      {
+        "page": "dayplanner.html",
+        "n_render_fns": 5
+      },
+      {
+        "page": "logbook.html",
+        "n_render_fns": 13
+      },
+      {
+        "page": "marketplace-admin.html",
+        "n_render_fns": 3
+      },
+      {
+        "page": "marketplace-seller-profile.html",
+        "n_render_fns": 4
+      },
+      {
+        "page": "marketplace-seller.html",
+        "n_render_fns": 3
+      },
+      {
+        "page": "marketplace.html",
+        "n_render_fns": 3
+      },
+      {
+        "page": "platform-health.html",
+        "n_render_fns": 3
+      },
+      {
+        "page": "project-manager.html",
+        "n_render_fns": 15
+      },
+      {
+        "page": "report-sender.html",
+        "n_render_fns": 5
+      }
+    ]
+  },
+  "engine_anchor": 0,
+  "tier_a_anchor": 1,
+  "dashboard_anchor": 10
+}

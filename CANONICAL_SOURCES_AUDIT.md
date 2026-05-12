@@ -454,4 +454,220 @@ validator is built first so each subsequent landing can prove correctness.
 
 ---
 
+## Appendix A — Analytics Engine display surfaces (added 2026-05-12)
+
+The user's directive: *"also everything in my analytics engine displays"*.
+The earlier sections of this audit cover platform-wide silos. This appendix
+zooms into a single page — `analytics.html` — and traces every tile rendered
+across all 4 phases (30 tiles + 2 role quick-views) to its source today, the
+proposed canonical, and the Tier (A–E) recommendation that closes the gap.
+
+**Why this matters.** Analytics is the platform's most-read intelligence
+surface. Each tile is a public claim. If the same number (MTBF for asset X,
+PM compliance for hive Y) renders differently here than in Predictive,
+Asset Hub, Shift Brain, or the AI assistant, the user loses trust in every
+surface. The Fuel/Engine/Brain/Dashboard model only holds if **every tile on
+this page can be traced to a registered canonical source by id**.
+
+### A.1 Architecture today
+
+```
+analytics.html
+   │  (one click) refreshAll() → fetch /functions/v1/analytics-orchestrator
+   ▼
+analytics-orchestrator (edge fn, 752 LOC)
+   │
+   ├── Postgres RPCs       (canonical, deterministic)
+   │     get_mtbf_by_machine, get_mttr_by_machine,
+   │     get_failure_frequency, get_downtime_pareto,
+   │     get_repeat_failures            ──► v_logbook_truth
+   │
+   ├── v_pm_compliance_truth read       ──► canonical
+   ├── v_logbook_truth read (OEE)       ──► canonical
+   ├── v_risk_truth read (Phase 3/4 ctx)──► canonical
+   │
+   └── python-api /analytics            (silo)
+         descriptive.py  → calc_oee / calc_parts_consumption /
+                           calc_consequence_distribution / calc_availability
+         diagnostic.py   → calc_failure_mode_distribution /
+                           calc_pm_failure_correlation /
+                           calc_skill_mttr_correlation /
+                           calc_parts_availability_impact /
+                           calc_repeat_failure_clustering /
+                           calc_engineering_validation /
+                           calc_rcm_consequence
+         predictive.py   → calc_next_failure_dates / calc_pm_due_calendar /
+                           calc_parts_stockout / calc_failure_trend /
+                           calc_health_scores / calc_anomaly_baseline /
+                           calc_parts_consumption_spike
+         prescriptive.py → calc_priority_ranking /
+                           calc_pm_interval_optimization /
+                           calc_technician_assignment /
+                           calc_parts_reorder /
+                           calc_training_gaps
+```
+
+Where the orchestrator already pulls a Postgres RPC or a `v_*_truth` view, the
+tile is **canonical**. Where the orchestrator hands raw rows to the Python
+API and lets it recompute, the tile is **silo** — Python sees a snapshot,
+applies its own logic, and Analytics is the only surface that ever sees the
+result. No other surface can read or audit that derivation.
+
+### A.2 Phase 1 — Descriptive (9 tiles)
+
+| # | Tile (function in analytics.html) | Source today | Canonical? | Tier (if not) | Recommended fix |
+|---|---|---|---|---|---|
+| 1 | OEE — `renderOEE` | `v_logbook_truth` read in orchestrator → Python `calc_oee` | **Partial** — fuel canonical, formula silo | Tier D | Register `oee_iso_22400` formula in `canonical_formulas`; have RPC return identical result so Asset Hub + Reliability Workbench can read OEE without Python. |
+| 2 | Availability — `renderAvailability` | Python `calc_availability` from raw logbook | Silo | Tier D | Add `get_availability_by_machine(hive_id, period_days)` RPC; replace Python call. Same window contract as MTBF/MTTR. |
+| 3 | MTBF — `renderMTBF` | `get_mtbf_by_machine` RPC | **Canonical** ✓ | — | — |
+| 4 | MTTR — `renderMTTR` | `get_mttr_by_machine` RPC | **Canonical** ✓ | — | — |
+| 5 | PM Compliance — `renderPMCompliance` | `v_pm_compliance_truth` (hive mode) / Python (solo) | **Canonical** ✓ (with solo-mode allowlist) | — | Long-term: collapse solo branch by relaxing `v_pm_compliance_truth.hive_id IS NOT NULL` to include solo via NULL. |
+| 6 | Downtime Pareto — `renderDowntimePareto` | `get_downtime_pareto` RPC | **Canonical** ✓ | — | — |
+| 7 | Failure Frequency — `renderFailureFrequency` | `get_failure_frequency` RPC | **Canonical** ✓ | — | — |
+| 8 | Repeat Failures — `renderRepeatFailures` | `get_repeat_failures` RPC | **Canonical** ✓ | — | — |
+| 9 | Parts Consumption — `renderPartsConsumption` | Python `calc_parts_consumption` from `inventory_transactions` | Silo | Tier D + Tier A | Add `get_parts_consumption(hive_id, period_days)` RPC reading `v_inventory_items_truth` joined to inventory_transactions. Cross-surface with parts-tracker.html which has its own consumption math today. |
+
+**Score**: 6 of 9 canonical. 3 silo tiles (OEE/Availability/Parts Consumption) are Tier D candidates.
+
+### A.3 Phase 2 — Diagnostic (7 tiles)
+
+| # | Tile | Source today | Canonical? | Tier (if not) | Recommended fix |
+|---|---|---|---|---|---|
+| 1 | RCM Consequence — `renderRCMConsequence` | Python `calc_rcm_consequence` from raw logbook | Silo | Tier D | This is a standards-mapped derivation (SAE JA1011 consequence categories). Belongs in `canonical_formulas` with the JA1011 cite. Add `get_rcm_consequence_distribution(...)` RPC. |
+| 2 | Failure Mode Distribution — `renderFailureModeDistribution` | Python `calc_failure_mode_distribution` | Silo | Tier D | ISO 14224 failure taxonomy. Same pattern — register formula, ship RPC. |
+| 3 | PM Failure Correlation — `renderPMFailureCorrelation` | Python `calc_pm_failure_correlation` (Spearman) | Silo | Tier D | Statistical method. Register `spearman_pm_failure` formula. RPC could call `corr()` in SQL or stay in Python but **versioned** behind `canonical_formulas.formula_id`. |
+| 4 | Skill MTTR Correlation — `renderSkillMTTRCorrelation` | Python `calc_skill_mttr_correlation` | Silo | Tier A + D | Joins MTTR (canonical) to worker skill (silo today). Tier A `v_worker_skill_truth` is the missing fuel; once it lands, this tile can be a SQL join, not a Python recompute. |
+| 5 | Parts Availability Impact — `renderPartsAvailabilityImpact` | Python `calc_parts_availability_impact` | Silo | Tier D + Tier A | Joins downtime to parts-out events. Both fuels exist (v_logbook_truth + inventory_transactions). Promote to SQL RPC. |
+| 6 | Repeat Failure Clustering — `renderRepeatFailureClustering` | Python `calc_repeat_failure_clustering` | Silo | Tier D | Different from `get_repeat_failures` RPC — this clusters by failure_mode within rolling window. Either rename for clarity or unify into the existing RPC with a `cluster: true` flag. |
+| 7 | Engineering Validation — `renderEngineeringValidation` | Python `calc_engineering_validation` | Silo | Tier D | Cross-checks logbook-reported root causes against engineering-design calculator history. Touches a second canonical (`engineering_calc_runs`). Worth its own dedicated RPC. |
+
+**Score**: 0 of 7 canonical. **Diagnostic is the single biggest silo on the platform.** Every Tier 2 tile is a Python-only derivation. This is where Tier D (formula + standards registry) pays off most.
+
+### A.4 Phase 3 — Predictive (7 tiles + 1 inline read)
+
+| # | Tile | Source today | Canonical? | Tier (if not) | Recommended fix |
+|---|---|---|---|---|---|
+| 0 | (inline) Risk snapshot — top-N at-risk assets injected into Phase 3 context | `v_risk_truth` read in orchestrator | **Canonical** ✓ | — | — |
+| 1 | Next Failure Dates — `renderNextFailureDates` | Python `calc_next_failure_dates` (Weibull-style projection) | Silo | Tier C | This is a **brain output**, not a fuel/engine read. Belongs in Tier C `canonical_agent_contracts` with a JSON Schema for the response. Same shape consumed by Predictive page must validate against the same schema. |
+| 2 | PM Due Calendar — `renderPMDueCalendar` | Python `calc_pm_due_calendar` reads pm_completions+pm_scope_items | Silo (orchestration), Canonical (fuels) | Tier D | Fuels canonical via `v_pm_compliance_truth`. Just needs `get_pm_due_window(hive_id, days_ahead)` RPC. |
+| 3 | Parts Stockout — `renderPartsStockout` | Python `calc_parts_stockout` (consumption rate × on_hand) | Silo | Tier C | Brain output. Schema with: `part_id, days_until_stockout, confidence, basis`. inventory.html consumes the same metric independently today. |
+| 4 | Failure Trend — `renderFailureTrend` | Python `calc_failure_trend` (rolling window) | Silo | Tier D | Time series derivation. Could be a SQL window function RPC. |
+| 5 | Health Scores — `renderHealthScores` | Python `calc_health_scores` (composite of MTBF/MTTR/PM compliance) | Silo (computed) but consumed by Predictive + Asset Hub | Tier C + Tier D | This is the **most-read derived metric in the platform** (Predictive heatmap reads it from `v_risk_truth`, Asset Hub reads `health_score` column, Analytics recomputes). Critical to register as a formula with a single SQL implementation. |
+| 6 | Anomaly Baseline — `renderAnomalyBaseline` | Python `calc_anomaly_baseline` (stddev band around historical) | Silo | Tier C + Tier D | Brain output (statistical baseline). Already partially consumed by `sensor-readings-ingest` quality_flag logic — those two should share the same baseline definition, not derive independently. |
+| 7 | Parts Spike — `renderPartsSpike` (calc_parts_consumption_spike) | Python | Silo | Tier C + Tier D | Anomaly-on-consumption. Same pattern as #6. |
+
+**Score**: 1 of 8 canonical (the inline risk snapshot). 7 silo tiles, of which 4 are statistical/predictive brain outputs that belong in Tier C, and 3 are time-series derivations that belong in Tier D.
+
+### A.5 Phase 4 — Prescriptive (6 tiles)
+
+| # | Tile | Source today | Canonical? | Tier (if not) | Recommended fix |
+|---|---|---|---|---|---|
+| 1 | Action Plan — `renderActionPlan` (AI synthesis) | LLM call inside orchestrator over Phase 1–3 results | **Brain output** — no canonical contract today | Tier C | `canonical_agent_contracts` schema for `analytics_action_plan_v1`: `{ summary, priorities: [{asset, action, why, urgency, eta}] }`. AI prompt is registered, JSON Schema-validated, versioned. Same contract reusable by Shift Brain handover, Hive feed, AMC briefings. |
+| 2 | Priority Ranking — `renderPriorityRanking` | Python `calc_priority_ranking` | Silo | Tier C + Tier D | Composite scoring formula. Register in Tier D, output schema in Tier C. |
+| 3 | PM Optimization — `renderPMOptimization` (calc_pm_interval_optimization) | Python | Silo | Tier D | RCM-3 interval optimization. Standards-mapped (SAE JA1011 §6) → Tier D registry. |
+| 4 | Tech Assignment — `renderTechAssignment` (calc_technician_assignment) | Python | Silo | **Tier A** | Best-tech-for-this-job depends on Tier A `v_worker_skill_truth` + new `v_worker_assignment_truth`. **This is the canonical use case for Tier A.** Without it, Analytics, hive.html, and pm-scheduler each pick "best tech" differently. |
+| 5 | Parts Reorder — `renderPartsReorder` (calc_parts_reorder) | Python (joins consumption rate + lead time + safety stock) | Silo | Tier D | Inventory-control formula. Standards: SMRP 4.2 (parts management). Register formula. |
+| 6 | Training Gaps — `renderTrainingGaps` (calc_training_gaps) | Python (joins MTTR by discipline to skill matrix) | Silo | **Tier A** | Depends on Tier A `v_worker_skill_truth`. Today reads skill_badges directly + recomputes coverage. Skill Matrix page renders gap from its own logic. Two surfaces, two answers. |
+
+**Score**: 0 of 6 canonical. 2 tiles depend on Tier A (worker_skill / worker_assignment), 4 depend on Tier D (formula registry), 2 also need Tier C (brain output contracts).
+
+### A.6 Role quick-view cards (top of page)
+
+| Card | Surface | Source today | Canonical? |
+|---|---|---|---|
+| 🔧 Field Tech | PM tasks needing attention + critical parts + next failure risk | Reuses Phase 3/4 tiles | **Inherits** canonicality of tiles above |
+| 👷 Supervisor | Worst MTBF/MTTR + PM% + overdue + training gap + AI summary | Reuses Phase 1/3/4 tiles | **Inherits** |
+
+These cards don't introduce new computations — they re-read the cached phase results. So whatever canonicality the underlying tiles achieve, the role views automatically inherit. **This is the right pattern** — additional surfaces should reuse, not recompute.
+
+### A.7 Aggregate scoreboard
+
+| Phase | Tiles | Canonical | Silo | % canonical |
+|---|---|---|---|---|
+| 1 — Descriptive | 9 | 6 | 3 | 67% |
+| 2 — Diagnostic | 7 | 0 | 7 | 0% |
+| 3 — Predictive | 8 | 1 | 7 | 13% |
+| 4 — Prescriptive | 6 | 0 | 6 | 0% |
+| **Total** | **30** | **7** | **23** | **23%** |
+
+**23%** of the platform's most-read intelligence surface is currently
+canonical. The other 77% is Python-recomputed each refresh, with no
+versioned formula contract and no shared output schema. Any other surface
+that wants the same number has to recompute it independently — which is
+exactly the "feels off" pattern that triggered this entire initiative.
+
+### A.8 Mapping the gaps to the Tier roadmap
+
+| Tier | Closes for Analytics | Tiles unlocked |
+|---|---|---|
+| **Tier A** — worker_truth + worker_skill_truth + worker_assignment_truth | Replaces Python skill+assignment recomputes | Skill MTTR Correlation (P2), Tech Assignment (P4), Training Gaps (P4) — **3 tiles** |
+| **Tier B** — project_truth + knowledge_truth | (Indirect — feeds AMC briefings card on home, not Analytics tiles directly) | 0 tiles directly |
+| **Tier C** — `canonical_agent_contracts` (JSON Schema registry for brain outputs) | Locks down LLM/statistical output shape: action_plan, next_failure_dates, parts_stockout, health_scores, anomaly_baseline, parts_spike, priority_ranking | **7 tiles** |
+| **Tier D** — `canonical_formulas` + `canonical_standards` registries | Versions every derivation: OEE, Availability, Parts Consumption, RCM Consequence, Failure Mode Distribution, PM Failure Correlation, Repeat Failure Clustering, Engineering Validation, Parts Availability Impact, PM Due Calendar, Failure Trend, Health Scores, Priority Ranking, PM Optimization, Parts Reorder | **15 tiles** (overlaps Tier C for some) |
+| **Tier E** — audit_unified + display_state | (Indirect — better audit trail of when each tile was computed) | 0 tiles directly |
+
+**Shipping all of Tier A + C + D would lift Analytics from 23% to ~95%
+canonical** — the only remaining non-canonical tile would be the AI Action
+Plan prose itself, which is correctly LLM-derived (not a deterministic
+metric) and whose canonicality is its **contract** (Tier C schema), not its
+computation.
+
+### A.9 Recommended sequencing
+
+1. **Tier A (worker truths)** — 4.5 h.
+   Lift 3 Analytics tiles + canonicalises every "who should do X" decision
+   across the platform.
+
+2. **Tier C scaffolding + 3 highest-value brain contracts** — 3 h.
+   Schema registry table + JSON Schema validator + the 3 contracts most
+   re-used outside Analytics:
+   - `analytics_action_plan_v1` (reused by Shift Brain handover, Hive feed)
+   - `next_failure_forecast_v1` (reused by Predictive page, Asset Hub trend)
+   - `health_score_v1` (reused by Predictive heatmap, Asset Hub, hive map)
+
+3. **Tier D scaffolding + register the 6 ISO 14224 / ISO 22400 / SMRP
+   formulas** — 4 h.
+   Registry table + the 6 standards-grade formulas (OEE, Availability,
+   MTBF, MTTR, PM Compliance, RCM Consequence). MTBF/MTTR/PM Compliance are
+   already canonical at the RPC level — registering them just adds the
+   `formula_id → standard_cite → SQL implementation` audit row.
+
+4. **Tier D backfill — remaining 9 formulas** — 6 h.
+   Lower-priority statistical formulas (Spearman correlations, repeat
+   failure clustering, parts reorder logic). Less reused outside Analytics
+   so the urgency is lower, but completes the ratchet.
+
+5. **Validator** — `validate_analytics_display_canonicality.py` (new, 67th
+   gate after Silo Monitor → 68th). FAILs CI if a new `render*` function in
+   analytics.html exists without either:
+   - An entry in the canonical_formulas registry (formula_id comment in
+     the renderer), or
+   - An entry in canonical_agent_contracts (schema_id comment), or
+   - An explicit `// canonical-allow: <reason>` comment.
+
+   The validator's existence guarantees that every future tile added to
+   Analytics either rides on a registered canonical, or carries an
+   allowlist note that's visible in code review.
+
+### A.10 The longer arc
+
+Analytics is the **dashboard layer** in the Fuel → Engine → Brain →
+Dashboard → Driver metaphor. By the end of Tiers A + C + D it becomes a
+**pure read surface** — every tile shows a registered canonical, no tile
+recomputes anything privately. At that point:
+
+- Adding a new analytics tile is a 3-line change: write the renderer,
+  reference the formula_id or contract_id, ship.
+- The AI assistant ("explain my MTBF") and Analytics ("MTBF chart") and
+  Predictive ("MTBF trend") all read the same row from the same RPC. No
+  divergence is structurally possible.
+- A new platform surface (next quarter's "Reliability Workbench v2") can
+  render any Analytics metric without owning any new derivation code.
+
+This is the end state the canonical layers study converges to. The
+Analytics Engine displays are both the most demanding and the most-public
+test of whether the architecture holds.
+
+---
+
 End of audit.

@@ -195,6 +195,15 @@ VALIDATORS = [
         "skip_if_fast": False,
     },
     {
+        "id":      "canonical-anchor",
+        "script":  "validate_canonical_anchor.py",
+        "args":    [],
+        "label":   "Canonical Anchor Gate (7-layer forward-anchor: fuel/engine/Tier A/Tier C/formula/standard/dashboard)",
+        "group":   "Platform",
+        "report":  "canonical_anchor_report.json",
+        "skip_if_fast": False,
+    },
+    {
         "id":      "write-path-monitor",
         "script":  "validate_write_path_monitor.py",
         "args":    [],

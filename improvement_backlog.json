@@ -6,22 +6,18 @@
     "priority": "HIGH",
     "business_value": "standard_currency",
     "check_frequency": "quarterly",
-    "score": 80,
-    "signals": [
-      "2025",
-      "edition",
-      "update"
-    ],
-    "assessment": "Strong signal \u2014 review immediately",
+    "score": 0,
+    "signals": [],
+    "assessment": "Weak signal \u2014 file for reference",
     "affects": "Fire Alarm Battery Standby calc",
     "validator_ids": [
       "calc-suite"
     ],
     "opportunity": "Update NFPA 72 \u00a710.6 battery standby formula if new edition published",
-    "snippet": "Documentation revisions in the 2025 NFPA 72 code | NFPA 72-2025 - National Fire Alarm and Signaling Code | NFPA 72, National Fire Alarm and Signaling Code | The  2025   edition  of  NFPA   72 : National  Fire   Alarm  and  Signaling   Code  introduces several distributed changes to documentation and",
+    "snippet": "",
     "url": "",
     "query": "NFPA 72 fire alarm signaling code latest edition 2025 amendment",
-    "checked_at": "2026-04-30 19:23"
+    "checked_at": "2026-05-12 09:24"
   },
   {
     "id": "nfpa92-update",
@@ -30,20 +26,18 @@
     "priority": "HIGH",
     "business_value": "standard_currency",
     "check_frequency": "quarterly",
-    "score": 40,
-    "signals": [
-      "2024"
-    ],
-    "assessment": "Moderate signal \u2014 check when relevant",
+    "score": 0,
+    "signals": [],
+    "assessment": "Weak signal \u2014 file for reference",
     "affects": "Stairwell Pressurization calc",
     "validator_ids": [
       "calc-suite"
     ],
     "opportunity": "Update 12.5 Pa differential pressure limits if revised",
-    "snippet": "NFPA 92:2024 Standard for Smoke Control Systems | PDF  NFPANORM.COM : Click to view the full PDF of NFPA 92-2024 | NFPA 92 Standard Development | Chapter 7  Smoke   Control  System Documentation 7.1 Documentation Required. 7.2 Detailed Design Report. 7.3 Operations and Maintenance Manual. | pment pr",
+    "snippet": "",
     "url": "",
     "query": "NFPA 92 smoke control stairwell pressurization standard 2024 2025",
-    "checked_at": "2026-04-30 19:23"
+    "checked_at": "2026-05-12 09:24"
   },
   {
     "id": "iso281-update",
@@ -60,10 +54,10 @@
       "calc-suite"
     ],
     "opportunity": "Verify L10 life adjustment factors match latest ISO 281 Annex B",
-    "snippet": "ISO 281 - Bearing Dynamic Load Ratings and Life | MLC UK | Bearing Life Calculation Explained (ISO 281 with Example) | Load carrying capacity and life | Schaeffler medias | Engineers use  ISO   281  to calculate the expected  life  of a  bearing  under given operating conditions by determining its  ",
+    "snippet": "",
     "url": "",
     "query": "ISO 281 rolling bearing dynamic load ratings life calculation 2024 2025",
-    "checked_at": "2026-04-30 19:23"
+    "checked_at": "2026-05-12 09:24"
   },
   {
     "id": "supabase-realtime",
@@ -90,20 +84,18 @@
     "priority": "HIGH",
     "business_value": "standard_currency",
     "check_frequency": "quarterly",
-    "score": 20,
-    "signals": [
-      "DOE"
-    ],
+    "score": 0,
+    "signals": [],
     "assessment": "Weak signal \u2014 file for reference",
     "affects": "All electrical calcs (Wire Sizing, Short Circuit, Load Schedule)",
     "validator_ids": [
       "calc-suite"
     ],
     "opportunity": "Update PEC voltage drop limits and conductor sizing tables",
-    "snippet": "Department of Energy Philippines | Harmonizing the Philippine Electrical Code (PEC) with IEC\u2011based Product ... | Philippine Electrical Code (PEC) - Philippine Energy Law Terms | The Department of Energy ( DOE ) ensures a continuous, adequate, and economic supply of energy to keep pace with the count",
+    "snippet": "",
     "url": "",
     "query": "Philippine Electrical Code PEC 2024 2025 latest edition DOE amendment",
-    "checked_at": "2026-04-30 19:23"
+    "checked_at": "2026-05-12 09:24"
   },
   {
     "id": "groq-model-updates",
@@ -112,22 +104,18 @@
     "priority": "HIGH",
     "business_value": "operational",
     "check_frequency": "monthly",
-    "score": 80,
-    "signals": [
-      "2025",
-      "rate limit",
-      "free tier"
-    ],
-    "assessment": "Strong signal \u2014 review immediately",
+    "score": 0,
+    "signals": [],
+    "assessment": "Weak signal \u2014 file for reference",
     "affects": "Groq fallback chain \u2014 new models should be added in TPM order",
     "validator_ids": [
       "groq-fallback"
     ],
     "opportunity": "Add new high-TPM Groq models to fallback chain, retire deprecated ones",
-    "snippet": "Rate Limits - GroqDocs | Groq Free Tier 2026 \u2014 Free Models, Credits &amp; Limits | Price Per Token | Top free-tier LLM API providers \u2014 November 2025 - Medium | Understand  Groq  API rate  limits , headers, and best practices for managing request and  token  quotas in your applications. | Groq  offer",
+    "snippet": "",
     "url": "",
     "query": "Groq AI new models 2025 free tier tokens per minute limits llama4",
-    "checked_at": "2026-04-30 19:23"
+    "checked_at": "2026-05-12 09:24"
   },
   {
     "id": "pgvector-updates",
@@ -147,7 +135,7 @@
     "snippet": "",
     "url": "",
     "query": "pgvector 0.7 0.8 HNSW index cosine similarity performance 2025",
-    "checked_at": "2026-04-30 19:23"
+    "checked_at": "2026-05-12 09:24"
   },
   {
     "id": "nomic-embed-updates",
@@ -156,20 +144,18 @@
     "priority": "HIGH",
     "business_value": "operational",
     "check_frequency": "monthly",
-    "score": 20,
-    "signals": [
-      "v2"
-    ],
+    "score": 0,
+    "signals": [],
     "assessment": "Weak signal \u2014 file for reference",
     "affects": "pgvector vector(384) dimension \u2014 must match embedding model",
     "validator_ids": [
       "vector-schema"
     ],
     "opportunity": "Migration plan: re-embed all knowledge tables if model dimensions change",
-    "snippet": "nomic-ai/nomic-embed-text-v2-moe \u00b7 Hugging Face | nomic-embed-text-v2-moe - ollama.com | Nomic Embed Text V2: An Open Source, Multilingual, Mixture-of-Experts ... | In this paper, we introduce  Nomic   Embed   v2 , the first general purpose MoE  text   embedding   model . Our  model  outperforms  mo",
+    "snippet": "",
     "url": "",
     "query": "nomic-embed-text v2 2025 new dimensions embedding model update Groq",
-    "checked_at": "2026-04-30 19:23"
+    "checked_at": "2026-05-12 09:24"
   },
   {
     "id": "supabase-edge-deno-updates",
@@ -178,23 +164,19 @@
     "priority": "HIGH",
     "business_value": "operational",
     "check_frequency": "monthly",
-    "score": 60,
-    "signals": [
-      "Deno 2",
-      "runtime",
-      "update"
-    ],
-    "assessment": "Strong signal \u2014 review immediately",
+    "score": 0,
+    "signals": [],
+    "assessment": "Weak signal \u2014 file for reference",
     "affects": "All 6 edge functions \u2014 Deno upgrades may break import URLs",
     "validator_ids": [
       "edge-contracts",
       "groq-fallback"
     ],
     "opportunity": "Update Deno import URLs in edge functions to new registry format",
-    "snippet": "Supabase Edge Functions Deno 2.0 support - GitHub | Edge Functions: Deploy from the Dashboard + Deno 2.1 | Supabase Edge Functions in Practice: Deno Runtime and TypeScript ... | Just wanted to ask if there are any plans if and when  Deno   2.0  will be supported for  Supabase   Edge   Functions . Th",
+    "snippet": "",
     "url": "",
     "query": "Supabase Edge Functions Deno 2.0 2025 breaking changes new APIs",
-    "checked_at": "2026-04-30 19:23"
+    "checked_at": "2026-05-12 09:24"
   },
   {
     "id": "supabase-realtime-v2",
@@ -203,23 +185,19 @@
     "priority": "MEDIUM",
     "business_value": "operational",
     "check_frequency": "monthly",
-    "score": 60,
-    "signals": [
-      "broadcast",
-      "performance",
-      "presence"
-    ],
-    "assessment": "Strong signal \u2014 review immediately",
+    "score": 0,
+    "signals": [],
+    "assessment": "Weak signal \u2014 file for reference",
     "affects": "hive.html realtime channels \u2014 filter server-side reduces bandwidth",
     "validator_ids": [
       "hive",
       "notifications"
     ],
     "opportunity": "Apply server-side channel filters to reduce hive board bandwidth",
-    "snippet": "Postgres Changes - Supabase Docs | GitHub - supabase/realtime: Broadcast, Presence, and Postgres Changes ... | Supabase Realtime Deep Dive \u2014 Postgres Changes, Broadcast, and Presence ... | We are making many improvements to  Realtime&#x27;s   Postgres   Changes . If you are uncertain about the  perf",
+    "snippet": "",
     "url": "",
     "query": "Supabase Realtime broadcast filtered postgres changes 2025 performance",
-    "checked_at": "2026-04-30 19:23"
+    "checked_at": "2026-05-12 09:24"
   },
   {
     "id": "owasp-top10-2025",
@@ -228,13 +206,9 @@
     "priority": "HIGH",
     "business_value": "enterprise_blocker",
     "check_frequency": "monthly",
-    "score": 80,
-    "signals": [
-      "2025",
-      "new",
-      "update"
-    ],
-    "assessment": "Strong signal \u2014 review immediately",
+    "score": 0,
+    "signals": [],
+    "assessment": "Weak signal \u2014 file for reference",
     "affects": "XSS/escHtml coverage, input guards, governance checks",
     "validator_ids": [
       "xss",
@@ -242,10 +216,10 @@
       "data-governance"
     ],
     "opportunity": "Verify new OWASP categories are covered by existing validators",
-    "snippet": "OWASP Top 10:2025 | OWASP Top 10 2025 - Revised Version Released With Two New Categories | OWASP Top 10 2025: The Main Web Vulnerabilities in 2025 | The  OWASP   Top   10  is a standard awareness document for developers and  web   application   security . It represents a broad consensus about the mo",
+    "snippet": "",
     "url": "",
     "query": "OWASP Top 10 web application security vulnerabilities 2025 update",
-    "checked_at": "2026-04-30 19:23"
+    "checked_at": "2026-05-12 09:24"
   },
   {
     "id": "saml-oidc-2025",
@@ -254,22 +228,19 @@
     "priority": "HIGH",
     "business_value": "enterprise_blocker",
     "check_frequency": "weekly",
-    "score": 60,
-    "signals": [
-      "2025",
-      "CVE"
-    ],
-    "assessment": "Strong signal \u2014 review immediately",
+    "score": 0,
+    "signals": [],
+    "assessment": "Weak signal \u2014 file for reference",
     "affects": "SSO readiness, Supabase Auth SAML integration",
     "validator_ids": [
       "sso-readiness",
       "compliance"
     ],
     "opportunity": "Review Supabase SSO config against any published SAML/OIDC CVEs",
-    "snippet": "Security Vulnerabilities in SAML, OAuth 2.0, OpenID Connect, and JWT | SSO Protocol Security: Critical Vulnerabilities in SAML, OAuth, OIDC ... | Critical Node-SAML Flaw (CVE-2025-54369) Exposes SAML 2.0 to ... | This report provides a data-rich overview of known  security  flaws in four major SSO t",
+    "snippet": "",
     "url": "",
     "query": "SAML 2.0 OpenID Connect OIDC security advisory 2024 2025 vulnerability",
-    "checked_at": "2026-04-30 19:23"
+    "checked_at": "2026-05-12 09:24"
   },
   {
     "id": "supabase-rls-auth",
@@ -278,23 +249,19 @@
     "priority": "HIGH",
     "business_value": "enterprise_blocker",
     "check_frequency": "monthly",
-    "score": 60,
-    "signals": [
-      "RLS",
-      "JWT",
-      "multi-tenant"
-    ],
-    "assessment": "Strong signal \u2014 review immediately",
+    "score": 0,
+    "signals": [],
+    "assessment": "Weak signal \u2014 file for reference",
     "affects": "SSO migration path \u2014 RLS is the next step after Supabase Auth",
     "validator_ids": [
       "sso-readiness",
       "tenant-boundary"
     ],
     "opportunity": "Design RLS policies for hive_id isolation before Supabase Auth migration",
-    "snippet": "Supabase RLS Best Practices: Production Patterns for Secure Multi ... | Supabase RLS Deep Dive \u2014 Multi-tenant Access Control | Supabase JWT Claims for RLS &amp; Access Control - PromptXL | Learn battle-tested  Supabase   Row   Level   Security   patterns  with performance optimizations,  multi-tenan",
+    "snippet": "",
     "url": "",
     "query": "Supabase Auth row level security RLS multi-tenant 2025 patterns JWT",
-    "checked_at": "2026-04-30 19:23"
+    "checked_at": "2026-05-12 09:24"
   },
   {
     "id": "nfpa13-update",
@@ -303,21 +270,18 @@
     "priority": "HIGH",
     "business_value": "standard_currency",
     "check_frequency": "quarterly",
-    "score": 40,
-    "signals": [
-      "2022",
-      "edition"
-    ],
-    "assessment": "Moderate signal \u2014 check when relevant",
+    "score": 0,
+    "signals": [],
+    "assessment": "Weak signal \u2014 file for reference",
     "affects": "Fire Sprinkler Hydraulic calc",
     "validator_ids": [
       "calc-suite"
     ],
     "opportunity": "Update K-factor and hose allowance tables if new edition",
-    "snippet": "NFPA 13, Standard for the Installation of Sprinkler Systems | PDF  Standard for the Installation of Sprinkler Systems | NFPA 13-2022 - Standard for the Installation of Sprinkler Systems | NFPA   13 ,  Standard  for the Installation of  Sprinkler   Systems , provides the latest requirements for  auto",
+    "snippet": "",
     "url": "",
     "query": "NFPA 13 automatic sprinkler systems standard 2022 2025 edition",
-    "checked_at": "2026-04-30 19:23"
+    "checked_at": "2026-05-12 09:24"
   },
   {
     "id": "iec62305-update",
@@ -326,21 +290,19 @@
     "priority": "HIGH",
     "business_value": "standard_currency",
     "check_frequency": "quarterly",
-    "score": 40,
-    "signals": [
-      "2024"
-    ],
-    "assessment": "Moderate signal \u2014 check when relevant",
+    "score": 0,
+    "signals": [],
+    "assessment": "Weak signal \u2014 file for reference",
     "affects": "Lightning Protection System calc + LPS zone diagram",
     "validator_ids": [
       "calc-suite",
       "drawings"
     ],
     "opportunity": "Update rolling sphere radii and mesh size tables if revised",
-    "snippet": "Iec 62305-1:2024 | Iec | PDF  IEC 62305-1:2024 - IEC 62305-1:2024 - cdn.standards.iteh.ai | Standards New Zealand | IEC  62305-1:2024 provides general principles for the  protection  of structures against  lightning , including their installations and contents, as well as persons. | This part of  IE",
+    "snippet": "",
     "url": "",
     "query": "IEC 62305 lightning protection standard 2024 2025 revision edition",
-    "checked_at": "2026-04-30 19:23"
+    "checked_at": "2026-05-12 09:24"
   },
   {
     "id": "ashrae901-update",
@@ -349,21 +311,18 @@
     "priority": "MEDIUM",
     "business_value": "standard_currency",
     "check_frequency": "quarterly",
-    "score": 40,
-    "signals": [
-      "2022",
-      "lighting power density"
-    ],
-    "assessment": "Moderate signal \u2014 check when relevant",
+    "score": 0,
+    "signals": [],
+    "assessment": "Weak signal \u2014 file for reference",
     "affects": "Lighting Design, AHU Sizing, Chiller calcs (LPD limits)",
     "validator_ids": [
       "calc-suite"
     ],
     "opportunity": "Update space-type LPD limits table in Lighting Design calc",
-    "snippet": "PDF  ANSI/ASHRAE/IES Addendum s to ANSI/ASHRAE/IES Standard 90.1-2022 | PDF  ANSI/ASHRAE/IES Standard 90.1-2022 (I-P) - NCLOSE | Indoor Lighting Power Density | Title 24 Stakeholders | In the new  LPD  table, values are revised. The modified  LPD  values result from refining the  Standard   90.1  li",
+    "snippet": "",
     "url": "",
     "query": "ASHRAE 90.1 energy standard buildings 2022 2025 update LPD",
-    "checked_at": "2026-04-30 19:23"
+    "checked_at": "2026-05-12 09:24"
   },
   {
     "id": "dole-oshs-update",
@@ -372,20 +331,18 @@
     "priority": "MEDIUM",
     "business_value": "standard_currency",
     "check_frequency": "quarterly",
-    "score": 40,
-    "signals": [
-      "2025"
-    ],
-    "assessment": "Moderate signal \u2014 check when relevant",
+    "score": 0,
+    "signals": [],
+    "assessment": "Weak signal \u2014 file for reference",
     "affects": "Noise/Acoustics calc (DOLE D.O. 13 TWA limits)",
     "validator_ids": [
       "calc-suite"
     ],
     "opportunity": "Update TWA exposure limits if DOLE D.O. 13 is revised",
-    "snippet": "Revised OSH Regulations Philippines 2025 | PDF | Occupational Safety ... | DOLE Issues Department Order No. 252-25: Revised ... - Lexology | Department Orders | Occupational Safety and Health Center | The Department of Labor and Employment of the  Philippines  has issued revised implementing rules a",
+    "snippet": "",
     "url": "",
     "query": "DOLE OSHS occupational safety health noise limits Philippines 2024 2025",
-    "checked_at": "2026-04-30 19:23"
+    "checked_at": "2026-05-12 09:24"
   },
   {
     "id": "asme-bpvc-update",
@@ -394,22 +351,18 @@
     "priority": "HIGH",
     "business_value": "standard_currency",
     "check_frequency": "quarterly",
-    "score": 80,
-    "signals": [
-      "2025",
-      "edition",
-      "revision"
-    ],
-    "assessment": "Strong signal \u2014 review immediately",
+    "score": 0,
+    "signals": [],
+    "assessment": "Weak signal \u2014 file for reference",
     "affects": "Pressure Vessel design calc",
     "validator_ids": [
       "calc-suite"
     ],
     "opportunity": "Update allowable stress values and joint efficiency tables",
-    "snippet": "2025 Asme Bpvc - Asme | MAJOR UPDATES IN ASME SECTION VIII (2025) - Universal Engineering Services | What&#x27;s New in ASME Section VIII 2025: Updated Methods, Materials, and ... | Discover new additions and the latest enhancements to the  2025   edition  of The  ASME  Boiler and  Pressure   Vessel",
+    "snippet": "",
     "url": "",
     "query": "ASME BPVC section VIII pressure vessel 2025 edition addenda update",
-    "checked_at": "2026-04-30 19:23"
+    "checked_at": "2026-05-12 09:24"
   },
   {
     "id": "iso10816-update",
@@ -418,10 +371,8 @@
     "priority": "MEDIUM",
     "business_value": "standard_currency",
     "check_frequency": "quarterly",
-    "score": 20,
-    "signals": [
-      "20816"
-    ],
+    "score": 0,
+    "signals": [],
     "assessment": "Weak signal \u2014 file for reference",
     "affects": "Vibration Analysis calc + Predictive Analytics MTBF thresholds",
     "validator_ids": [
@@ -429,10 +380,10 @@
       "predictive"
     ],
     "opportunity": "Update vibration severity zones A/B/C/D if ISO 20816 supersedes",
-    "snippet": "Understanding the change from ISO 10816 to ISO 20816 - Machine Building | Understanding the change from ISO 10816 to ISO 20816 | Understanding the change from ISO 10816 to ISO 20816: What do the new ... | Here, Beth Ragdale, software business manager at Beckhoff UK, examines how the updated  ISO   2",
+    "snippet": "",
     "url": "",
     "query": "ISO 10816 ISO 20816 machinery vibration limits 2024 2025 revision update",
-    "checked_at": "2026-04-30 19:23"
+    "checked_at": "2026-05-12 09:24"
   },
   {
     "id": "ieee80-update",
@@ -441,20 +392,18 @@
     "priority": "HIGH",
     "business_value": "standard_currency",
     "check_frequency": "quarterly",
-    "score": 20,
-    "signals": [
-      "update"
-    ],
+    "score": 0,
+    "signals": [],
     "assessment": "Weak signal \u2014 file for reference",
     "affects": "Earthing / Grounding System calc",
     "validator_ids": [
       "calc-suite"
     ],
     "opportunity": "Update touch and step voltage tolerable limit formulas",
-    "snippet": "Ieee Sa - P80 | Substation Components\u2014Part 8: Grounding/Earthing Systems | Standards - IEEE PES Substations Committee | This  guide  is primarily concerned with safe  grounding  practices for outdoor ac  substations , either air-insulated or gas-insulated, at power frequencies in the range of 50 Hz ",
+    "snippet": "",
     "url": "",
     "query": "IEEE 80 guide safety metal substations grounding 2025 revision edition",
-    "checked_at": "2026-04-30 19:23"
+    "checked_at": "2026-05-12 09:24"
   },
   {
     "id": "rag-architecture-2025",
@@ -463,12 +412,9 @@
     "priority": "MEDIUM",
     "business_value": "revenue_enabler",
     "check_frequency": "monthly",
-    "score": 40,
-    "signals": [
-      "agentic",
-      "graph RAG"
-    ],
-    "assessment": "Moderate signal \u2014 check when relevant",
+    "score": 0,
+    "signals": [],
+    "assessment": "Weak signal \u2014 file for reference",
     "affects": "RAG pipeline \u2014 graph RAG would connect fault/skill/PM knowledge",
     "validator_ids": [
       "vector-schema",
@@ -476,10 +422,10 @@
       "context-window"
     ],
     "opportunity": "Build entity relationship graph: asset \u2192 fault \u2192 skill \u2192 PM (Graph RAG)",
-    "snippet": "Agentic Retrieval-Augmented Generation: A Survey on Agentic RAG - arXiv.org | GitHub - asinghcsu/AgenticRAG-Survey: Agentic-RAG explores advanced ... | RAG, Graph RAG, and Agentic RAG - Let&#x27;s Not Mix Them Up! | This section examines the progression of  RAG  paradigms, presenting key stages of d",
+    "snippet": "",
     "url": "",
     "query": "agentic RAG graph RAG industrial maintenance AI patterns 2025",
-    "checked_at": "2026-04-30 19:23"
+    "checked_at": "2026-05-12 09:24"
   },
   {
     "id": "llm-context-patterns",
@@ -488,21 +434,18 @@
     "priority": "MEDIUM",
     "business_value": "operational",
     "check_frequency": "monthly",
-    "score": 40,
-    "signals": [
-      "compression",
-      "KV cache"
-    ],
-    "assessment": "Moderate signal \u2014 check when relevant",
+    "score": 0,
+    "signals": [],
+    "assessment": "Weak signal \u2014 file for reference",
     "affects": "assistant.html sessionMessages \u2014 unbounded growth over long sessions",
     "validator_ids": [
       "context-window"
     ],
     "opportunity": "Add session summary compression to assistant.html for long shifts",
-    "snippet": "[2502.00299] ChunkKV: Semantic-Preserving KV Cache Compression for ... | KV Cache Optimization Strategies for Scalable and Efficient LLM Inference | KV Cache Compression for Inference Efficiency in LLMs: A Review | These results confirm that semantic-aware  compression  significantly enhances both e",
+    "snippet": "",
     "url": "",
     "query": "LLM context window management compression KV cache reduction 2025 patterns",
-    "checked_at": "2026-04-30 19:23"
+    "checked_at": "2026-05-12 09:24"
   },
   {
     "id": "ai-governance-nist",
@@ -511,25 +454,19 @@
     "priority": "MEDIUM",
     "business_value": "enterprise_blocker",
     "check_frequency": "quarterly",
-    "score": 100,
-    "signals": [
-      "2025",
-      "NIST",
-      "RMF",
-      "AI risk",
-      "trustworthy"
-    ],
-    "assessment": "Strong signal \u2014 review immediately",
+    "score": 0,
+    "signals": [],
+    "assessment": "Weak signal \u2014 file for reference",
     "affects": "AI output attribution, enterprise compliance baseline",
     "validator_ids": [
       "ai-attribution",
       "compliance"
     ],
     "opportunity": "Add AI governance statement to enterprise compliance checklist",
-    "snippet": "AI Risk Management Framework | NIST | PDF  AI Risk Management Framework | NIST - data.aclum.org | NIST AI RMF 2025 Updates: What You Need to Know About the Latest ... | On April 7, 2026,  NIST  released a concept note for an  AI   RMF  Profile on Trustworthy  AI  in Critical Infrastructure. The prof",
+    "snippet": "",
     "url": "",
     "query": "NIST AI RMF artificial intelligence risk management framework 2025 update",
-    "checked_at": "2026-04-30 19:23"
+    "checked_at": "2026-05-12 09:24"
   },
   {
     "id": "owasp-mobile-2025",
@@ -538,24 +475,19 @@
     "priority": "MEDIUM",
     "business_value": "enterprise_blocker",
     "check_frequency": "monthly",
-    "score": 100,
-    "signals": [
-      "2024",
-      "2025",
-      "mobile",
-      "update"
-    ],
-    "assessment": "Strong signal \u2014 review immediately",
+    "score": 0,
+    "signals": [],
+    "assessment": "Weak signal \u2014 file for reference",
     "affects": "Mobile UX compliance, client-side security",
     "validator_ids": [
       "mobile",
       "xss"
     ],
     "opportunity": "Add OWASP Mobile checks to mobile validator (e.g. M9: insecure data storage)",
-    "snippet": "OWASP Mobile Top 10 | The Ultimate Guide to OWASP Mobile Top 10 2024/2025 - Medium | OWASP Mobile Top 10 2024 \u2014 Full Breakdown | RSEC Insights | This methodology report outlines the process we follow to  update  the  OWASP   Mobile   Top   10  list of  application   security  vulnerabilities using a",
+    "snippet": "",
     "url": "",
     "query": "OWASP Mobile Top 10 security 2024 2025 update mobile application",
-    "checked_at": "2026-04-30 19:23"
+    "checked_at": "2026-05-12 09:24"
   },
   {
     "id": "webhook-security-2025",
@@ -564,23 +496,19 @@
     "priority": "MEDIUM",
     "business_value": "enterprise_blocker",
     "check_frequency": "monthly",
-    "score": 60,
-    "signals": [
-      "HMAC",
-      "signature",
-      "replay attack"
-    ],
-    "assessment": "Strong signal \u2014 review immediately",
+    "score": 0,
+    "signals": [],
+    "assessment": "Weak signal \u2014 file for reference",
     "affects": "Webhook HMAC verification, idempotency table pattern",
     "validator_ids": [
       "idempotency",
       "integration-security"
     ],
     "opportunity": "Add timing-safe HMAC comparison to webhook handler pattern",
-    "snippet": "Webhook Security: HMAC Verification Guide \u2014 HookSense | Webhook Security Fundamentals: Verify Signatures, Prevent Replay ... | Webhook Signature Verification: Complete Security Guide | Protect your  webhook  endpoints with  HMAC   signature   verification . Covers Stripe, GitHub, and Shopify example",
+    "snippet": "",
     "url": "",
     "query": "webhook security HMAC signature verification idempotency best practices 2025",
-    "checked_at": "2026-04-30 19:23"
+    "checked_at": "2026-05-12 09:24"
   },
   {
     "id": "philippines-pdpa-update",
@@ -589,23 +517,19 @@
     "priority": "HIGH",
     "business_value": "enterprise_blocker",
     "check_frequency": "quarterly",
-    "score": 80,
-    "signals": [
-      "2024",
-      "NPC",
-      "circular"
-    ],
-    "assessment": "Strong signal \u2014 review immediately",
+    "score": 0,
+    "signals": [],
+    "assessment": "Weak signal \u2014 file for reference",
     "affects": "Enterprise compliance baseline, data governance",
     "validator_ids": [
       "compliance",
       "data-governance"
     ],
     "opportunity": "Review NPC circulars for new SaaS data handling requirements",
-    "snippet": "Advisories &amp; Circulars - National Privacy Commission | Philippines: National Privacy Commission amends certain ... - Lexology | NPC issues Circulars to strengthen personal data protection in PH | NPC  Advisory No. 2020-04: Guidelines on the Use of Closed-circuit Television (CCTV) Systems (This A",
+    "snippet": "",
     "url": "",
     "query": "Philippines Data Privacy Act NPC amendment circular 2024 2025 SaaS",
-    "checked_at": "2026-04-30 19:23"
+    "checked_at": "2026-05-12 09:24"
   },
   {
     "id": "iec62443-ot-security",
@@ -614,23 +538,19 @@
     "priority": "MEDIUM",
     "business_value": "enterprise_blocker",
     "check_frequency": "quarterly",
-    "score": 60,
-    "signals": [
-      "IEC 62443",
-      "OT",
-      "update"
-    ],
-    "assessment": "Strong signal \u2014 review immediately",
+    "score": 0,
+    "signals": [],
+    "assessment": "Weak signal \u2014 file for reference",
     "affects": "IoT/MQTT safety, digital twin schema security",
     "validator_ids": [
       "iot-protocols",
       "digital-twin"
     ],
     "opportunity": "Add IEC 62443 security level requirements to IoT validator checks",
-    "snippet": "Update to ISA/IEC 62443 Standards Addresses Organization-Wide ... | Update to ISA/IEC 62443 Series Includes Guidance on Security Protection ... | Update to ISA/IEC 62443 Standards Addresses Organization-Wide ... | It is the latest  update  to the ISA/ IEC   62443  series of standards, the widely use",
+    "snippet": "",
     "url": "",
     "query": "IEC 62443 industrial OT cybersecurity SCADA 2024 2025 update",
-    "checked_at": "2026-04-30 19:23"
+    "checked_at": "2026-05-12 09:24"
   },
   {
     "id": "webauthn-passkeys-2025",
@@ -639,22 +559,18 @@
     "priority": "LOW",
     "business_value": "revenue_enabler",
     "check_frequency": "quarterly",
-    "score": 60,
-    "signals": [
-      "passkey",
-      "Supabase",
-      "authentication"
-    ],
-    "assessment": "Strong signal \u2014 review immediately",
+    "score": 0,
+    "signals": [],
+    "assessment": "Weak signal \u2014 file for reference",
     "affects": "SSO readiness \u2014 passkeys could replace password-based worker login",
     "validator_ids": [
       "sso-readiness"
     ],
     "opportunity": "Add passkey support via Supabase Auth as enterprise login alternative",
-    "snippet": "Support for passkeys in Supabase Auth - GitHub | Supabase Passkeys: Add Passkeys for Your Supabase Users - Corbado | Auth - Supabase Docs | I am currently working on an open source  Supabase  Auth extension to add  Passkeys . There will be a  SaaS  option as well in January. If this is an option for",
+    "snippet": "",
     "url": "",
     "query": "WebAuthn passkeys SaaS industrial authentication 2025 Supabase",
-    "checked_at": "2026-04-30 19:23"
+    "checked_at": "2026-05-12 09:24"
   },
   {
     "id": "wcag22-criteria",
@@ -663,21 +579,18 @@
     "priority": "MEDIUM",
     "business_value": "enterprise_blocker",
     "check_frequency": "quarterly",
-    "score": 60,
-    "signals": [
-      "2.2",
-      "2025"
-    ],
-    "assessment": "Strong signal \u2014 review immediately",
+    "score": 0,
+    "signals": [],
+    "assessment": "Weak signal \u2014 file for reference",
     "affects": "Accessibility baseline \u2014 WCAG 2.2 added Focus Appearance, Target Size",
     "validator_ids": [
       "accessibility"
     ],
     "opportunity": "Add WCAG 2.2 Focus Appearance and Target Size checks to accessibility validator",
-    "snippet": "Web Content Accessibility Guidelines (WCAG) 2.2 | WCAG 2.2: Complete Compliance Guide 2025 - All 9 New Success Criteria | WCAG 2.2 New Success Criteria: Complete Implementation Guide | Success   Criteria  - For each guideline, testable  success   criteria  are provided to allow  WCAG   2.2  to be us",
+    "snippet": "",
     "url": "",
     "query": "WCAG 2.2 success criteria new 2024 2025 enterprise accessibility compliance",
-    "checked_at": "2026-04-30 19:23"
+    "checked_at": "2026-05-12 09:24"
   },
   {
     "id": "ios-safari-pwa-2025",
@@ -686,20 +599,18 @@
     "priority": "MEDIUM",
     "business_value": "revenue_enabler",
     "check_frequency": "monthly",
-    "score": 40,
-    "signals": [
-      "2025"
-    ],
-    "assessment": "Moderate signal \u2014 check when relevant",
+    "score": 0,
+    "signals": [],
+    "assessment": "Weak signal \u2014 file for reference",
     "affects": "PWA integrity \u2014 iOS Safari slowly adding PWA features",
     "validator_ids": [
       "pwa"
     ],
     "opportunity": "Add Web Push notifications when iOS Safari supports it for PWAs",
-    "snippet": "PWA on iOS - Current Status &amp; Limitations for Users [2025] | PWA iOS Limitations and Safari Support [2026] | PWAs in 2025: Build Faster, Smarter Progressive Web Apps | As of 2023-2024,  Progressive   Web   Apps  ( PWAs ) on  iOS  have evolved significantly, offering a more native  app -like expe",
+    "snippet": "",
     "url": "",
     "query": "iOS Safari PWA progressive web app improvements 2025 install offline",
-    "checked_at": "2026-04-30 19:23"
+    "checked_at": "2026-05-12 09:24"
   },
   {
     "id": "service-worker-2025",
@@ -708,22 +619,19 @@
     "priority": "MEDIUM",
     "business_value": "revenue_enabler",
     "check_frequency": "quarterly",
-    "score": 60,
-    "signals": [
-      "offline",
-      "2025"
-    ],
-    "assessment": "Strong signal \u2014 review immediately",
+    "score": 0,
+    "signals": [],
+    "assessment": "Weak signal \u2014 file for reference",
     "affects": "PWA offline capability \u2014 critical for field workers in low-signal areas",
     "validator_ids": [
       "pwa",
       "mobile"
     ],
     "opportunity": "Add offline logbook entry queue with background sync when connection returns",
-    "snippet": "Offline and background operation - Progressive web apps | MDN | Progressive Web Apps: Offline-First Architecture (2025) | Progressive Web App Tutorial 2025: Service Worker Setup and Offline ... | Background   sync , defined in the  Background  Synchronization API, is the solution to this problem for",
+    "snippet": "",
     "url": "",
     "query": "service worker offline first industrial PWA patterns 2025 background sync",
-    "checked_at": "2026-04-30 19:23"
+    "checked_at": "2026-05-12 09:24"
   },
   {
     "id": "sap-btp-api-2025",
@@ -732,25 +640,19 @@
     "priority": "HIGH",
     "business_value": "enterprise_blocker",
     "check_frequency": "quarterly",
-    "score": 100,
-    "signals": [
-      "2025",
-      "API",
-      "PM",
-      "plant maintenance",
-      "update"
-    ],
-    "assessment": "Strong signal \u2014 review immediately",
+    "score": 0,
+    "signals": [],
+    "assessment": "Weak signal \u2014 file for reference",
     "affects": "SAP PM integration \u2014 OData v4 may change field mappings",
     "validator_ids": [
       "idempotency",
       "integration-security"
     ],
     "opportunity": "Map SAP OData v4 PM fields to external_sync table schema",
-    "snippet": "OData API: Maintenance Plan | SAP Help Portal | SAP PM Module Overview 2025 | What&#x27;s New in Plant Maintenance? | Key ... | How SAP S/4HANA Transforms Plant Maintenance - nrx.com | Fix  Maintenance  Call: Using this operation, you can fix a  maintenance  call in an already scheduled  maintenance",
+    "snippet": "",
     "url": "",
     "query": "SAP S/4HANA Plant Maintenance PM API 2025 REST OData update change",
-    "checked_at": "2026-04-30 19:23"
+    "checked_at": "2026-05-12 09:24"
   },
   {
     "id": "mqtt5-features",
@@ -759,22 +661,18 @@
     "priority": "MEDIUM",
     "business_value": "enterprise_blocker",
     "check_frequency": "quarterly",
-    "score": 80,
-    "signals": [
-      "MQTT 5",
-      "shared subscription",
-      "2025"
-    ],
-    "assessment": "Strong signal \u2014 review immediately",
+    "score": 0,
+    "signals": [],
+    "assessment": "Weak signal \u2014 file for reference",
     "affects": "IoT/MQTT safety \u2014 MQTT 5.0 enables proper multi-tenant sensor routing",
     "validator_ids": [
       "iot-protocols"
     ],
     "opportunity": "Upgrade MQTT pattern to v5 with shared subscriptions for hive-scoped sensors",
-    "snippet": "MQTT Shared Subscriptions: Practical Guidelines and Use Cases - EMQX | MQTT Shared Subscriptions - MQTT 5 Essentials Part 7 - HiveMQ | MQTT 5.0 QoS: Deep Dive into Reliable IoT Message Delivery | Shared   subscriptions  bring not only excellent horizontal scalability to consumers, enabling us to han",
+    "snippet": "",
     "url": "",
     "query": "MQTT 5.0 shared subscriptions QoS 2 industrial IoT 2025 multi-tenant",
-    "checked_at": "2026-04-30 19:23"
+    "checked_at": "2026-05-12 09:24"
   },
   {
     "id": "iso23247-digital-twin",
@@ -783,22 +681,18 @@
     "priority": "MEDIUM",
     "business_value": "revenue_enabler",
     "check_frequency": "quarterly",
-    "score": 80,
-    "signals": [
-      "ISO 23247",
-      "2025",
-      "digital twin"
-    ],
-    "assessment": "Strong signal \u2014 review immediately",
+    "score": 0,
+    "signals": [],
+    "assessment": "Weak signal \u2014 file for reference",
     "affects": "Digital twin schema \u2014 ISO 23247 defines required asset representation",
     "validator_ids": [
       "digital-twin"
     ],
     "opportunity": "Extend assets table with ISO 23247 mandatory fields (install_date, serial_number)",
-    "snippet": "ISO/FDIS 23247-5 - Automation systems and integration \u2014 Digital twin ... | ISO 23247 Digital Twin Framework for Manufacturing - AP238 | PD ISO/TR 23247-100:2025 Automation systems and integration. Digital ... | This part of  ISO   23247  series specifies how the  digital  thread enables the creation",
+    "snippet": "",
     "url": "",
     "query": "ISO 23247 digital twin manufacturing framework 2024 2025 update",
-    "checked_at": "2026-04-30 19:23"
+    "checked_at": "2026-05-12 09:24"
   },
   {
     "id": "rest-idempotency-rfc",
@@ -807,22 +701,18 @@
     "priority": "LOW",
     "business_value": "operational",
     "check_frequency": "quarterly",
-    "score": 60,
-    "signals": [
-      "Idempotency-Key",
-      "header",
-      "draft"
-    ],
-    "assessment": "Strong signal \u2014 review immediately",
+    "score": 0,
+    "signals": [],
+    "assessment": "Weak signal \u2014 file for reference",
     "affects": "Webhook idempotency \u2014 HTTP standard for idempotency keys",
     "validator_ids": [
       "idempotency"
     ],
     "opportunity": "Add Idempotency-Key header support to outbound webhook framework",
-    "snippet": "draft-ietf-httpapi-idempotency-key-header-07 - The Idempotency-Key HTTP ... | Repository for &quot;The Idempotency-Key HTTP Header Field&quot; | Diff: draft-ietf-httpapi-idempotency-key-header-07.unpg.txt - draft ... | The  HTTP   Idempotency-Key  request  header  field can be used to make non-idemp",
+    "snippet": "",
     "url": "",
     "query": "IETF idempotency key HTTP header RFC draft 2025 standard",
-    "checked_at": "2026-04-30 19:23"
+    "checked_at": "2026-05-12 09:24"
   },
   {
     "id": "postgresql-17-features",
@@ -840,10 +730,10 @@
       "vector-schema"
     ],
     "opportunity": "Enable PostgreSQL 17 incremental sort for logbook analytics queries",
-    "snippet": "Release Notes - PostgreSQL | Forthcoming Postgres 17 Release Notes \u00b7 supabase - GitHub | Forthcoming Postgres 17 Release Notes \u00b7 Changelog - supabase.com | Below you will find a detailed account of the changes between  PostgreSQL   17  and the previous major release. | To address the capability gaps",
+    "snippet": "",
     "url": "",
     "query": "PostgreSQL 17 new features performance improvements 2025 Supabase",
-    "checked_at": "2026-04-30 19:23"
+    "checked_at": "2026-05-12 09:24"
   },
   {
     "id": "fastapi-pydantic-v2",
@@ -852,22 +742,18 @@
     "priority": "MEDIUM",
     "business_value": "operational",
     "check_frequency": "monthly",
-    "score": 80,
-    "signals": [
-      "pydantic v2",
-      "alias",
-      "2025"
-    ],
-    "assessment": "Strong signal \u2014 review immediately",
+    "score": 0,
+    "signals": [],
+    "assessment": "Weak signal \u2014 file for reference",
     "affects": "Python API field alias patterns (4 sync points per calc type)",
     "validator_ids": [
       "calc-suite"
     ],
     "opportunity": "Migrate Python calc API to Pydantic v2 alias_generator for consistent naming",
-    "snippet": "Pydantic V2 Data Validation: FastAPI Schema Evolution Best Practices 2025 | Fields | Pydantic Docs | FastAPI Custom Validations Using Pydantic | by Mojtaba (MJ) Michael ... | Pydantic   V2  delivers 4-6x validation speedups over V1 via Rust core, critical for high-throughput  FastAPI  services in  2",
+    "snippet": "",
     "url": "",
     "query": "FastAPI pydantic v2 field alias validator best practices 2025",
-    "checked_at": "2026-04-30 19:23"
+    "checked_at": "2026-05-12 09:24"
   },
   {
     "id": "iso13374-condition-monitoring",
@@ -876,22 +762,19 @@
     "priority": "MEDIUM",
     "business_value": "revenue_enabler",
     "check_frequency": "quarterly",
-    "score": 40,
-    "signals": [
-      "ISO 13374",
-      "condition monitoring"
-    ],
-    "assessment": "Moderate signal \u2014 check when relevant",
+    "score": 0,
+    "signals": [],
+    "assessment": "Weak signal \u2014 file for reference",
     "affects": "MTBF/MTTR calculations, digital twin health snapshots",
     "validator_ids": [
       "predictive",
       "digital-twin"
     ],
     "opportunity": "Align pm_knowledge health_summary fields with ISO 13374 data model",
-    "snippet": "ISO 13374-1:2003 - Condition monitoring and diagnostics of machines ... | ISO 13374: Condition Monitoring Data Standard Explained | ISO 13374-1:2003 - Genorma | ISO  13374-1:2003 establishes general guidelines for software specifications related to  data   processing , communication, and presentatio",
+    "snippet": "",
     "url": "",
     "query": "ISO 13374 machinery condition monitoring data processing 2025",
-    "checked_at": "2026-04-30 19:23"
+    "checked_at": "2026-05-12 09:24"
   },
   {
     "id": "ml-ops-patterns-2025",
@@ -900,13 +783,9 @@
     "priority": "MEDIUM",
     "business_value": "revenue_enabler",
     "check_frequency": "quarterly",
-    "score": 80,
-    "signals": [
-      "2025",
-      "monitoring",
-      "validation"
-    ],
-    "assessment": "Strong signal \u2014 review immediately",
+    "score": 0,
+    "signals": [],
+    "assessment": "Weak signal \u2014 file for reference",
     "affects": "Predictive analytics data quality, embedding freshness monitoring",
     "validator_ids": [
       "predictive",
@@ -914,9 +793,9 @@
       "knowledge-freshness"
     ],
     "opportunity": "Add embedding drift detection: flag assets not re-embedded in 30+ days",
-    "snippet": "MLOps Best Practices: Monitor &amp; Optimize AI in Production | MLOps: Continuous delivery and automation pipelines in machine learning | Actionable MLOps: Building Production\u2011Ready ML Pipelines in 2025 | MLOps  (Machine Learning Operations) is the practice of deploying,  monitoring , and maintainin",
+    "snippet": "",
     "url": "",
     "query": "MLOps data quality validation production AI monitoring 2025 patterns",
-    "checked_at": "2026-04-30 19:23"
+    "checked_at": "2026-05-12 09:24"
   }
 ]
