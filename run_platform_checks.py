@@ -774,6 +774,15 @@ VALIDATORS = [
         "skip_if_fast": False,
     },
     {
+        "id":      "revenue-surfaces",
+        "script":  "validate_revenue_surfaces.py",
+        "args":    [],
+        "label":   "Revenue Surfaces Validator (Phase 4: AI Quality Stair 2 gate + Anomaly Engine 2.0 Stair 3 gate + Knowledge Pipeline tile + canonical anchors)",
+        "group":   "Platform",
+        "report":  "revenue_surfaces_report.json",
+        "skip_if_fast": False,
+    },
+    {
         "id":      "realtime-publication",
         "script":  "validate_realtime_publication.py",
         "args":    [],

@@ -520,6 +520,21 @@
       </div>
 
       <!-- ─────────────────────────────────────────────────────────────────
+           Knowledge Pipeline Health tile (Phase 4.3 of STRATEGIC_ROADMAP).
+           Stair 2+ gated. Reads v_knowledge_freshness_truth (fault + skill +
+           pm corpora). Compact card; collapses to single line at Stair 0/1.
+           ───────────────────────────────────────────────────────────────── -->
+      <div id="kpipe-card" class="hidden mb-5 rounded-xl overflow-hidden" style="background: linear-gradient(145deg, rgba(40,50,80,0.45), rgba(22,32,50,0.85)); border:1px solid rgba(41,182,217,0.18);">
+        <div style="padding:12px 16px;">
+          <div style="display:flex; align-items:center; justify-content:space-between; gap:8px; flex-wrap:wrap;">
+            <span style="display:inline-flex; align-items:center; gap:6px; padding:4px 10px; border-radius:999px; font-size:10px; font-weight:800; letter-spacing:0.06em; text-transform:uppercase; background:rgba(41,182,217,0.18); color:#7DCFFF;">Knowledge Pipeline</span>
+            <span id="kpipe-overall" style="font-size:0.7rem; color:rgba(255,255,255,0.55);">--</span>
+          </div>
+          <div id="kpipe-rows" style="display:grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap:8px; margin-top:10px;"></div>
+        </div>
+      </div>
+
+      <!-- ─────────────────────────────────────────────────────────────────
            Intent-capture modal (Phase 3.5 of STRATEGIC_ROADMAP).
            Supervisor-only, fires once per hive when hives.intent is {}.
            Captures primary_goal + secondary checkboxes; writes the answer
@@ -1459,7 +1474,7 @@ async function initBoard() {
 
   updateSwitchButton();
   // allSettled: never rejects, so startPresence() is always reached even if one data load fails
-  const _boardResults = await Promise.allSettled([checkStockAlert(), loadMembers(), loadFeed(), buildNotifications(), loadApprovalQueue(), loadPMHealth(), loadAuditLog(), loadTodaysBrief(), loadTeamPulse(), loadPatternAlerts(), loadBenchmarks(), loadMaturityStairway(), loadAdoptionCard(), loadOnboardingCard(), maybeShowIntentCapture()]);
+  const _boardResults = await Promise.allSettled([checkStockAlert(), loadMembers(), loadFeed(), buildNotifications(), loadApprovalQueue(), loadPMHealth(), loadAuditLog(), loadTodaysBrief(), loadTeamPulse(), loadPatternAlerts(), loadBenchmarks(), loadMaturityStairway(), loadAdoptionCard(), loadOnboardingCard(), maybeShowIntentCapture(), loadKnowledgePipeline()]);
   _boardResults.forEach((r, i) => { if (r.status === 'rejected') console.error('initBoard step', i, 'failed:', r.reason); });
   // Team stock alert needs memberNames populated by loadMembers first
   checkTeamStockAlert();
@@ -1747,6 +1762,82 @@ function startAdoptionRealtime() {
 // that proves the step is done (or reads a localStorage flag for
 // non-DB steps like "visited audit log"). Card hides itself once every
 // step is complete so it does not clutter the dashboard forever.
+
+// ─────────────────────────────────────────────────────────────────
+// Phase 4.3 — Knowledge Pipeline Health tile (Stair 2+ gated)
+// ─────────────────────────────────────────────────────────────────
+// Reads v_knowledge_freshness_truth and surfaces per-kind embed coverage
+// and last-embed age so the supervisor catches stale RAG corpora before
+// they degrade AI answers. Doctrine: if the corpus is stale, AI answers
+// will lie; we surface the gap so the supervisor decides to embed more.
+
+async function loadKnowledgePipeline() {
+  if (!HIVE_ID) return;
+  const card = document.getElementById('kpipe-card');
+  if (!card) return;
+
+  // Maturity gate: Stair 2+. Below that the corpus is too thin to score.
+  if (window.checkMaturityGate) {
+    try {
+      const gate = await window.checkMaturityGate(db, HIVE_ID, 2);
+      if (gate.blocked) { card.classList.add('hidden'); return; }
+    } catch (_) { card.classList.add('hidden'); return; }
+  } else {
+    return;
+  }
+  card.classList.remove('hidden');
+
+  let rows = [];
+  try {
+    const { data } = await db.from('v_knowledge_freshness_truth')
+      .select('kind, total_rows, embedded_rows, pending_rows, last_embedded_at, days_since_last_embed, embedded_pct')
+      .eq('hive_id', HIVE_ID);
+    rows = data || [];
+  } catch (_) {}
+
+  const e = escHtml;
+  const KIND_LABEL = { fault: 'Fault history', skill: 'Skill profiles', pm: 'PM knowledge' };
+  // Ensure all three kinds render even when empty (so the supervisor sees zero state).
+  const map = new Map(rows.map(r => [r.kind, r]));
+  const ordered = ['fault', 'skill', 'pm'].map(k => map.get(k) || {
+    kind: k, total_rows: 0, embedded_rows: 0, pending_rows: 0,
+    embedded_pct: 0, last_embedded_at: null, days_since_last_embed: null,
+  });
+
+  const tiles = ordered.map(r => {
+    const pct = Number(r.embedded_pct || 0);
+    const color = pct >= 90 ? '#4ade80' : pct >= 60 ? '#F7A21B' : '#f87171';
+    const stale = r.days_since_last_embed != null && r.days_since_last_embed > 30;
+    return `
+      <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); border-radius:8px; padding:8px;">
+        <div style="font-size:0.58rem; font-weight:700; letter-spacing:0.05em; text-transform:uppercase; color:rgba(255,255,255,0.5); margin-bottom:4px;">${e(KIND_LABEL[r.kind] || r.kind)}</div>
+        <div style="display:flex; align-items:baseline; gap:4px;">
+          <span style="font-size:1.1rem; font-weight:800; color:${color};">${pct}%</span>
+          <span style="font-size:0.6rem; color:rgba(255,255,255,0.4);">embedded</span>
+        </div>
+        <div style="font-size:0.58rem; color:rgba(255,255,255,0.45); margin-top:3px;">
+          ${e(String(r.embedded_rows || 0))} / ${e(String(r.total_rows || 0))} rows
+        </div>
+        ${r.pending_rows > 0
+          ? `<div style="font-size:0.58rem; color:#F7A21B; margin-top:2px;">${e(String(r.pending_rows))} pending</div>`
+          : ''}
+        ${stale
+          ? `<div style="font-size:0.58rem; color:#f87171; margin-top:2px;">stale: ${e(String(r.days_since_last_embed))}d since last embed</div>`
+          : ''}
+      </div>
+    `;
+  }).join('');
+  document.getElementById('kpipe-rows').innerHTML = tiles;
+
+  // Overall summary: total pending across all kinds
+  const pendingTotal = ordered.reduce((a, r) => a + Number(r.pending_rows || 0), 0);
+  const overall = document.getElementById('kpipe-overall');
+  if (overall) {
+    overall.textContent = pendingTotal === 0
+      ? 'All corpora up to date'
+      : `${pendingTotal} pending across corpora — embed-entry will catch up`;
+  }
+}
 
 async function loadOnboardingCard() {
   if (!HIVE_ID || typeof window.whOnboardingProgress !== 'function') return;

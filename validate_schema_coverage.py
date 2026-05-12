@@ -147,6 +147,14 @@ RE_ALTER_ADD_COLUMN = re.compile(
     r'(?:"?(\w+)"?\.)?"?(\w+)"?\s+ADD\s+COLUMN\s+(?:IF\s+NOT\s+EXISTS\s+)?"?(\w+)"?',
     re.IGNORECASE,
 )
+# Comma-chained form: `ALTER TABLE t ADD COLUMN a ..., ADD COLUMN b ..., ...`
+# Captures every additional ADD COLUMN after the first; the leading ALTER
+# TABLE clause is consumed by RE_ALTER_ADD_COLUMN above so we only need to
+# extract the column names that follow each comma.
+RE_ALTER_ADD_CHAINED = re.compile(
+    r",\s*ADD\s+COLUMN\s+(?:IF\s+NOT\s+EXISTS\s+)?\"?(\w+)\"?",
+    re.IGNORECASE,
+)
 RE_ALTER_RENAME_COLUMN = re.compile(
     r"ALTER\s+TABLE\s+(?:ONLY\s+)?(?:IF\s+EXISTS\s+)?"
     r'(?:"?(\w+)"?\.)?"?(\w+)"?\s+RENAME\s+COLUMN\s+"?(\w+)"?\s+TO\s+"?(\w+)"?',
@@ -227,7 +235,16 @@ def build_schema() -> dict:
             schema.setdefault(view, set()).add(VIEW_SENTINEL_COL)
 
         for m in RE_ALTER_ADD_COLUMN.finditer(sql):
-            schema.setdefault(m.group(2), set()).add(m.group(3))
+            table = m.group(2)
+            schema.setdefault(table, set()).add(m.group(3))
+            # Walk forward to capture chained `, ADD COLUMN ...` until the
+            # statement terminates with `;`. The original regex only catches
+            # the first column in a comma-chained ALTER TABLE.
+            rest = sql[m.end():]
+            terminator = rest.find(";")
+            window = rest[:terminator] if terminator >= 0 else rest
+            for cm in RE_ALTER_ADD_CHAINED.finditer(window):
+                schema[table].add(cm.group(1))
 
         for m in RE_ALTER_RENAME_COLUMN.finditer(sql):
             cols = schema.setdefault(m.group(2), set())

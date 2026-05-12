@@ -50,6 +50,7 @@ LIVE_TOOL_PAGES = [
     "integrations",
     "ph-intelligence",
     "predictive",
+    "ai-quality",
     "achievements",
     "asset-hub",
     "shift-brain",

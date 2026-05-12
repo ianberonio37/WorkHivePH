@@ -8,6 +8,7 @@
   <link rel="manifest" href="manifest.json" />
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="utils.js"></script>
+  <script src="maturity-gate.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
@@ -198,6 +199,24 @@
         <span id="amc-readonly-note" class="amc-readonly-note" style="display:none;">Supervisor approval required.</span>
       </div>
       <div id="amc-status-msg" class="amc-status-msg"></div>
+    </div>
+
+    <!-- ─────────────────────────────────────────────────────────────────
+         Anomaly Engine 2.0 panel (Phase 4.2 of STRATEGIC_ROADMAP).
+         Stair 3+ gated. 5-source fusion: logbook clusters, sensor z-score,
+         PM drift, parts spend, failure signatures. Renders only when the
+         hive earns it. Supervisor can acknowledge / resolve.
+         ───────────────────────────────────────────────────────────────── -->
+    <div id="anomaly-engine-panel" class="amc-card" style="display:none; background:linear-gradient(145deg, rgba(58,42,88,0.55), rgba(22,32,50,0.85)); border:1px solid rgba(167,139,250,0.25);">
+      <div class="amc-head">
+        <div>
+          <span class="amc-badge" style="background:rgba(167,139,250,0.18); color:#a78bfa; border-color:rgba(167,139,250,0.3);">Anomaly Engine 2.0</span>
+          <span id="anomaly-engine-meta" style="font-size:.65rem; color:var(--muted); margin-left:6px;"></span>
+        </div>
+        <span id="anomaly-engine-count" class="alert-tag tag-info" style="font-weight:800;">0 signals</span>
+      </div>
+      <div id="anomaly-engine-empty" style="font-size:0.74rem; color:rgba(255,255,255,0.5); margin-top:6px; display:none;">No fused anomalies in your hive right now.</div>
+      <div id="anomaly-engine-list" style="margin-top:8px;"></div>
     </div>
 
     <div class="filter-row" id="filters" role="tablist" aria-label="Alert filters"></div>
@@ -517,9 +536,143 @@
         filter: 'hive_id=eq.' + HIVE_ID,
       }, () => { loadAll(); })
       .subscribe();
-    window.addEventListener('beforeunload', () => {
-      if (_amcChannel) { db.removeChannel(_amcChannel); _amcChannel = null; }
+  }
+
+  // Consolidated channel cleanup. Both amc and anomaly channels remove here so
+  // the observability validator sees one beforeunload that drains every
+  // subscription and avoids multiple-listener registration bugs.
+  window.addEventListener('beforeunload', () => {
+    if (_amcChannel)     { db.removeChannel(_amcChannel);     _amcChannel = null; }
+    if (_anomalyChannel) { db.removeChannel(_anomalyChannel); _anomalyChannel = null; }
+  });
+
+  // ─── Anomaly Engine 2.0 (Phase 4.2) ────────────────────────────────────────
+  // Stair 3+ gated. Reads v_anomaly_truth, ranks by composite, surfaces top 5.
+  // Supervisor can acknowledge or resolve. Subscribes to anomaly_signals for
+  // live updates so multiple supervisors see the same state in real-time.
+
+  const ANOMALY_SEVERITY = {
+    critical: { color: '#f87171', bg: 'rgba(248,113,113,0.15)', label: 'CRITICAL' },
+    warning:  { color: '#F7A21B', bg: 'rgba(247,162,27,0.15)',  label: 'WARNING'  },
+    watch:    { color: '#facc15', bg: 'rgba(250,204,21,0.12)',  label: 'WATCH'    },
+    info:     { color: '#94a3b8', bg: 'rgba(148,163,184,0.12)', label: 'INFO'     },
+  };
+  let _anomalyChannel = null;
+
+  async function loadAnomalyEngine() {
+    const panel = document.getElementById('anomaly-engine-panel');
+    if (!panel || !HIVE_ID) return;
+
+    // Stair 3+ gate. Below that, do NOT render the panel — doctrine: predictive
+    // on insufficient data lies. Silently hide; the maturity stairway on
+    // hive.html already tells the supervisor what's blocking this tool.
+    if (window.checkMaturityGate) {
+      try {
+        const gate = await window.checkMaturityGate(db, HIVE_ID, 3);
+        if (gate.blocked) { panel.style.display = 'none'; return; }
+      } catch (_) { /* on error, default to hidden */ panel.style.display = 'none'; return; }
+    } else {
+      panel.style.display = 'none';
+      return;
+    }
+
+    let rows = [];
+    try {
+      // Optimistic refresh: compute fresh signals if today's snapshot is missing.
+      try { await db.rpc('compute_anomaly_signals', { p_hive_id: HIVE_ID }); } catch (_) {}
+      const { data } = await db.from('v_anomaly_truth')
+        .select('id, machine, composite_score, severity, source_count, top_reasons, status, computed_at')
+        .eq('hive_id', HIVE_ID)
+        .order('composite_score', { ascending: false })
+        .limit(5);
+      rows = data || [];
+    } catch (e) {
+      console.warn('anomaly load failed:', e?.message || e);
+    }
+
+    panel.style.display = 'block';
+    renderAnomalyEngine(rows);
+    startAnomalyRealtime();
+  }
+
+  function renderAnomalyEngine(rows) {
+    const list = document.getElementById('anomaly-engine-list');
+    const empty = document.getElementById('anomaly-engine-empty');
+    const count = document.getElementById('anomaly-engine-count');
+    const meta  = document.getElementById('anomaly-engine-meta');
+    if (!list || !empty || !count) return;
+
+    if (meta) meta.textContent = '5-source fusion · daily';
+
+    const e = escHtml;
+    if (!rows || rows.length === 0) {
+      empty.style.display = 'block';
+      list.innerHTML = '';
+      count.textContent = '0 signals';
+      count.style.background = 'rgba(74,222,128,0.15)';
+      count.style.color = '#4ade80';
+      return;
+    }
+    empty.style.display = 'none';
+    count.textContent = rows.length + ' signal' + (rows.length === 1 ? '' : 's');
+    count.style.background = 'rgba(248,113,113,0.15)';
+    count.style.color = '#f87171';
+
+    const isSupervisor = HIVE_ROLE === 'supervisor';
+
+    list.innerHTML = rows.map(r => {
+      const sev = ANOMALY_SEVERITY[r.severity] || ANOMALY_SEVERITY.info;
+      const reasons = Array.isArray(r.top_reasons) ? r.top_reasons.slice(0, 3) : [];
+      const reasonStr = reasons.length
+        ? reasons.map(rr => e(rr.label || rr.signal)).join(' · ')
+        : 'Composite signal — open details for breakdown';
+      const ackBtn = isSupervisor && r.status === 'active'
+        ? `<button class="amc-btn amc-btn-toggle" data-anomaly-id="${e(r.id)}" data-action="acknowledge" type="button" style="font-size:0.7rem; padding:6px 12px;">Acknowledge</button>`
+        : '';
+      const resBtn = isSupervisor && r.status !== 'resolved'
+        ? `<button class="amc-btn amc-btn-approve" data-anomaly-id="${e(r.id)}" data-action="resolve" type="button" style="font-size:0.7rem; padding:6px 12px;">Resolve</button>`
+        : '';
+      return `
+        <div class="alert-card" style="margin-bottom:8px; border-left:3px solid ${sev.color};">
+          <div style="display:flex; align-items:baseline; justify-content:space-between; gap:8px;">
+            <div style="font-weight:800; font-size:0.85rem;">${e(r.machine)}</div>
+            <span class="alert-tag" style="background:${sev.bg}; color:${sev.color}; border:1px solid ${sev.color}33;">${e(sev.label)} · ${e(String(r.composite_score))}/100</span>
+          </div>
+          <div style="font-size:0.74rem; color:rgba(255,255,255,0.7); margin-top:6px;">${reasonStr}</div>
+          <div style="font-size:0.62rem; color:rgba(255,255,255,0.4); margin-top:4px;">${e(String(r.source_count))} source${r.source_count === 1 ? '' : 's'} fired · status ${e(r.status)}</div>
+          ${(ackBtn || resBtn) ? `<div style="margin-top:8px; display:flex; gap:6px;">${ackBtn}${resBtn}</div>` : ''}
+        </div>
+      `;
+    }).join('');
+
+    // Wire action buttons (delegation)
+    list.querySelectorAll('[data-anomaly-id]').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const id = btn.getAttribute('data-anomaly-id');
+        const action = btn.getAttribute('data-action');
+        const updates = action === 'acknowledge'
+          ? { status: 'acknowledged', acknowledged_by: WORKER_NAME, acknowledged_at: new Date().toISOString() }
+          : { status: 'resolved', resolved_by: WORKER_NAME, resolved_at: new Date().toISOString() };
+        try {
+          const { error } = await db.from('anomaly_signals').update(updates).eq('id', id);
+          if (error) { console.warn('anomaly update:', error.message); return; }
+          loadAnomalyEngine();
+        } catch (e) { console.warn('anomaly update threw:', e?.message || e); }
+      });
     });
+  }
+
+  function startAnomalyRealtime() {
+    if (_anomalyChannel || !HIVE_ID) return;
+    _anomalyChannel = db.channel('hive-anomaly:' + HIVE_ID)
+      .on('postgres_changes', {
+        event: '*', schema: 'public', table: 'anomaly_signals',
+        filter: 'hive_id=eq.' + HIVE_ID,
+      }, () => { loadAnomalyEngine(); })
+      .subscribe();
+    // Cleanup is folded into the consolidated beforeunload listener above
+    // (the one near startAmcRealtime) so we don't leak listeners by adding
+    // a new one on every subscribe.
   }
 
   // ── Data load ──────────────────────────────────────────────────────────────
@@ -699,6 +852,10 @@
     // Today's brief renders into the dedicated #amc-card above the feed.
     // Historic briefs (yesterday and back) feed into the alert list as
     // kind='amc' so the chip filter still shows past activity.
+    // Anomaly Engine 2.0 panel renders in parallel with the alert feed.
+    // Maturity-gated inside loadAnomalyEngine; below Stair 3 it stays hidden.
+    loadAnomalyEngine().catch(err => console.warn('anomaly engine failed:', err?.message || err));
+
     try {
       const amcRes = await fetchAmcBriefings();
       renderAmcCard(amcRes.todayBrief);

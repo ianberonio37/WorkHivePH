@@ -55,6 +55,7 @@ LIVE_PAGES = [
     "ph-intelligence.html",
     "project-report.html",
     "predictive.html",
+    "ai-quality.html",          # Phase 4.1 — AI Quality + ROI dashboard
     "achievements.html",
     "asset-hub.html",
     "shift-brain.html",

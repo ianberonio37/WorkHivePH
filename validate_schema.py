@@ -50,6 +50,7 @@ LIVE_PAGES = [
     "maturity-gate.js",         # Phase 0.3 of STRATEGIC_ROADMAP — gated-page helper
     "device-fingerprint.js",    # Phase 2.7 of STRATEGIC_ROADMAP — anomalous-login detective control
     "onboarding.js",            # Phase 3.3 of STRATEGIC_ROADMAP — role-specific onboarding stepper
+    "ai-quality.html",          # Phase 4.1 of STRATEGIC_ROADMAP — AI quality + ROI dashboard
     "wh-capture-validate.js",
     "report-sender.html",
     "community.html",

@@ -91,6 +91,7 @@ RESET_TABLES = [
     "hive_readiness_audit",
     "hive_readiness",
     "hive_adoption_score",
+    "anomaly_signals",
     "sensor_readings",
     "sensor_topic_map",
     "hive_quotas",

@@ -105,6 +105,10 @@ EXPECTED_PUBLISHED_TABLES = {
     # Engagement Card subscribes so tier flips (healthy <-> at_risk <-> critical)
     # appear without manual refresh. Added via 20260513000004_phase3_adoption_observability.sql.
     "hive_adoption_score",
+    # Phase 4.2 of STRATEGIC_ROADMAP (2026-05-13): alert-hub.html Anomaly
+    # Engine 2.0 panel subscribes so supervisors see ack/resolve state flips
+    # without manual refresh. Added via 20260513000005_phase4_revenue_surfaces.sql.
+    "anomaly_signals",
 }
 
 CHECKS = {

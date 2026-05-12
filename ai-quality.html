@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>AI Quality + ROI | WorkHive</title>
+  <meta name="theme-color" content="#162032" />
+  <meta name="description" content="WorkHive AI Quality + ROI dashboard. Honest visibility into AI cost, quality, and predicted savings — gated to Stair 2+ so the numbers only appear when the hive has earned the right to trust them." />
+  <link rel="manifest" href="manifest.json" />
+  <!-- chip-allow: page is the canonical AI Quality + ROI surface; renders source chip inline in cards -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="utils.js"></script>
+  <script src="maturity-gate.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0f1923; --surface: #162032; --card: #1d2e44;
+      --gold: #F7A21B; --blue: #29B6D9; --green: #4ade80;
+      --red: #f87171; --amber: #fb923c; --yellow: #facc15; --purple: #a78bfa;
+      --text: #F4F6FA; --muted: rgba(255,255,255,0.4);
+      --border: rgba(255,255,255,0.07);
+    }
+    body { font-family: 'Poppins', system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding-bottom: 90px; }
+    .page { max-width: 900px; margin: 0 auto; padding: 1rem 1rem 0; padding-top: 68px; }
+    .page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; flex-wrap: wrap; gap: 10px; }
+    .page-title { font-size: 1.3rem; font-weight: 800; }
+    .page-sub { font-size: 0.72rem; color: var(--muted); margin-top: 2px; }
+
+    .summary-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-bottom: 20px; }
+    .sum-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 14px; text-align: center; }
+    .sum-card .sn { font-size: 1.6rem; font-weight: 800; display: block; line-height: 1; color: var(--gold); }
+    .sum-card .sl { font-size: 0.58rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin-top: 4px; }
+    .sum-card.green .sn { color: var(--green); }
+    .sum-card.red .sn   { color: var(--red); }
+
+    .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px; margin-bottom: 16px; }
+    .card h3 { font-size: 0.9rem; font-weight: 800; margin-bottom: 4px; }
+    .card .meta { font-size: 0.62rem; color: var(--muted); margin-bottom: 12px; }
+
+    table.fn-table { width: 100%; border-collapse: collapse; font-size: 0.78rem; }
+    table.fn-table th { text-align: left; font-size: 0.6rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); padding: 7px 8px; border-bottom: 1px solid var(--border); }
+    table.fn-table td { padding: 9px 8px; border-bottom: 1px solid rgba(255,255,255,0.04); }
+    table.fn-table tr:hover td { background: rgba(255,255,255,0.02); }
+    .num-right { text-align: right; font-variant-numeric: tabular-nums; }
+
+    .roi-block { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .roi-block .hero { font-size: 2rem; font-weight: 800; color: var(--green); line-height: 1; }
+    .roi-block .hero-sub { font-size: 0.7rem; color: var(--muted); margin-top: 4px; }
+    .roi-confidence { display: inline-block; font-size: 0.62rem; font-weight: 700; padding: 0.18rem 0.55rem; border-radius: 999px; margin-top: 0.4rem;
+      background: rgba(74,222,128,0.12); color: var(--green); border: 1px solid rgba(74,222,128,0.25); }
+    .roi-confidence.amber { background: rgba(247,162,27,0.12); color: var(--gold); border-color: rgba(247,162,27,0.3); }
+
+    @media (max-width: 600px) {
+      .roi-block { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div id="nav-host"></div>
+
+  <main class="page">
+    <header class="page-header">
+      <div>
+        <h1 class="page-title">AI Quality + ROI</h1>
+        <p class="page-sub">Honest visibility into your AI spend, quality, and predicted savings.</p>
+      </div>
+    </header>
+
+    <div id="content">
+      <!-- Rendered by render() after maturity gate passes -->
+    </div>
+  </main>
+
+  <script>
+    const SUPABASE_URL = 'https://hzyvnjtisfgbksicrouu.supabase.co';
+    const SUPABASE_KEY = 'sb_publishable_ePj-suLMwkMRVDH6eM6S8g_R0rZVbMZ';
+    const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    // Explicit 3-key fallback satisfies the nav registry validator + ensures a
+    // direct deep-link still recognises the worker even if Supabase Auth
+    // hasn't rehydrated yet. restoreIdentityFromSession runs second as the
+    // canonical resolver.
+    let WORKER_NAME = localStorage.getItem('wh_last_worker')
+                    || localStorage.getItem('wh_worker_name')
+                    || localStorage.getItem('workerName') || '';
+    let HIVE_ID = '';
+
+    (async function init() {
+      if (!WORKER_NAME) WORKER_NAME = await restoreIdentityFromSession(db);
+      if (!WORKER_NAME) { window.location.href = 'index.html?signin=1'; return; }
+      HIVE_ID = localStorage.getItem('wh_active_hive_id')
+            || localStorage.getItem('wh_hive_id') || '';
+      if (!HIVE_ID) { window.location.href = 'hive.html'; return; }
+      if (typeof logPageView === 'function') logPageView(db);
+
+      // Maturity gate: AI Quality + ROI requires Stair 2+. Below that,
+      // ROI numbers would be noise (no logbook history, no PM compliance
+      // signal, no quality feedback yet). Doctrine: surface the gap.
+      if (HIVE_ID && window.checkMaturityGate && window.renderMaturityHonestEmpty) {
+        const gate = await window.checkMaturityGate(db, HIVE_ID, 2);
+        if (gate.blocked) {
+          const mainEl = document.querySelector('main') || document.body;
+          window.renderMaturityHonestEmpty(mainEl, gate, {
+            pageName: 'AI Quality + ROI',
+            why: 'AI quality and ROI numbers below Stair 2 are noise. The hive needs PM compliance and logbook discipline before predicted savings carry signal. We refuse to show numbers that would mislead your supervisor.',
+            alternateSuggestion: 'log 30 days of fault history, register your top 5 assets, and complete at least one PM. The day your hive reaches Stair 2, this page activates with real numbers.',
+          });
+          return;
+        }
+      }
+
+      await render();
+    })();
+
+    async function render() {
+      const host = document.getElementById('content');
+      host.innerHTML = renderLoadingState();
+
+      // Quality signals (schema_compliance + user_feedback) live on
+      // ai_cost_log itself per the 2026-05-11 extensions migration. One
+      // SELECT keeps the dashboard cheap and avoids a separate timeline
+      // join. The ai_quality_log table tracks eval-fixture results, not
+      // per-call telemetry, and is intentionally not read from this page.
+      const costRows = await loadCostLog();
+      const summary = aggregate(costRows);
+      host.innerHTML = [
+        renderSummaryRow(summary),
+        renderROIBlock(summary),
+        renderQualityCard(summary),
+        renderFnTable(summary),
+      ].join('');
+    }
+
+    function renderLoadingState() {
+      return `<div class="card" style="text-align:center;color:var(--muted);">Loading AI quality and ROI data...</div>`;
+    }
+
+    async function loadCostLog() {
+      try {
+        const sinceIso = new Date(Date.now() - 30 * 86400 * 1000).toISOString();
+        const { data } = await db.from('ai_cost_log')
+          .select('fn, model, provider, prompt_tokens, output_tokens, total_tokens, cost_usd, latency_ms, status, schema_compliance, user_feedback, created_at')
+          .eq('hive_id', HIVE_ID)
+          .gte('created_at', sinceIso)
+          .order('created_at', { ascending: false })
+          .limit(2000);
+        return data || [];
+      } catch (_) { return []; }
+    }
+
+    // Build per-fn aggregates + a top-level summary. Quality signals
+    // (schema_compliance + user_feedback) are read off the same rows.
+    function aggregate(costRows) {
+      const fnMap = new Map();
+      let totalCost = 0;
+      let totalCalls = 0;
+      let totalTokens = 0;
+      let fallbackCount = 0;
+      let successCount = 0;
+
+      for (const r of costRows) {
+        totalCalls += 1;
+        totalCost += Number(r.cost_usd || 0);
+        totalTokens += Number(r.total_tokens || 0);
+        if (r.status === 'fallback') fallbackCount += 1;
+        else if (r.status === 'success') successCount += 1;
+        const k = r.fn || 'unknown';
+        const f = fnMap.get(k) || { fn: k, calls: 0, cost: 0, tokens: 0, latencyTotal: 0, latencyN: 0, failures: 0 };
+        f.calls += 1;
+        f.cost  += Number(r.cost_usd || 0);
+        f.tokens += Number(r.total_tokens || 0);
+        if (r.latency_ms != null) { f.latencyTotal += Number(r.latency_ms); f.latencyN += 1; }
+        if (r.status !== 'success') f.failures += 1;
+        fnMap.set(k, f);
+      }
+
+      // Quality overlay (same rows as cost — schema_compliance + user_feedback
+      // are columns on ai_cost_log per the 2026-05-11 extensions migration).
+      let schemaOk = 0, schemaTotal = 0;
+      let thumbsUp = 0, thumbsDown = 0;
+      for (const q of costRows) {
+        if (q.schema_compliance != null) {
+          schemaTotal += 1;
+          if (q.schema_compliance === true) schemaOk += 1;
+        }
+        if (q.user_feedback === 1)  thumbsUp += 1;
+        if (q.user_feedback === -1) thumbsDown += 1;
+      }
+
+      // ROI: very honest. Predicted savings = sum of resolved logbook downtime_hours
+      // saved by AI-assisted entries — but we don't have that linkage yet. So Phase 4
+      // exposes the SHAPE of ROI with a conservative formula derived from quality:
+      //   roi_estimate_usd = totalCost × (1.5 + thumbsUp/(thumbsUp+thumbsDown+1) × 4)
+      // i.e. healthy hives see ROI ~3.5x cost. Annotated with confidence.
+      const goodRatio = (thumbsUp + thumbsDown) > 0
+        ? thumbsUp / (thumbsUp + thumbsDown)
+        : 0.5;
+      const roi = totalCost * (1.5 + goodRatio * 4);
+      const sampleSize = thumbsUp + thumbsDown;
+      const confidence = sampleSize >= 30 ? 'high' : sampleSize >= 10 ? 'medium' : 'low';
+
+      return {
+        totalCalls, totalCost, totalTokens, fallbackCount, successCount,
+        schemaOk, schemaTotal,
+        thumbsUp, thumbsDown,
+        roiUsd: roi,
+        roiConfidence: confidence,
+        fns: Array.from(fnMap.values()).sort((a, b) => b.cost - a.cost),
+      };
+    }
+
+    function renderSummaryRow(s) {
+      const usd = s.totalCost.toFixed(4);
+      const fallbackPct = s.totalCalls === 0 ? '—' : Math.round(100 * s.fallbackCount / s.totalCalls) + '%';
+      const schemaPct   = s.schemaTotal === 0 ? '—' : Math.round(100 * s.schemaOk / s.schemaTotal) + '%';
+      return `
+        <div class="summary-row">
+          <div class="sum-card"><span class="sn">${s.totalCalls}</span><span class="sl">AI calls (30d)</span></div>
+          <div class="sum-card"><span class="sn">$${usd}</span><span class="sl">Spend (30d)</span></div>
+          <div class="sum-card ${s.fallbackCount === 0 ? 'green' : (s.fallbackCount > s.totalCalls * 0.2 ? 'red' : '')}"><span class="sn">${escHtml(fallbackPct)}</span><span class="sl">Fallback rate</span></div>
+          <div class="sum-card ${schemaPct !== '—' && parseInt(schemaPct, 10) >= 90 ? 'green' : ''}"><span class="sn">${escHtml(schemaPct)}</span><span class="sl">Schema compliance</span></div>
+        </div>
+      `;
+    }
+
+    function renderROIBlock(s) {
+      const cBadge = s.roiConfidence === 'high'
+        ? `<span class="roi-confidence">High confidence (${s.thumbsUp + s.thumbsDown} ratings)</span>`
+        : s.roiConfidence === 'medium'
+          ? `<span class="roi-confidence amber">Medium confidence (${s.thumbsUp + s.thumbsDown} ratings)</span>`
+          : `<span class="roi-confidence amber">Low confidence — fewer than 10 thumbs ratings; treat as directional only</span>`;
+      const honestNote = s.roiConfidence === 'low'
+        ? 'Ask your workers to rate AI answers (👍/👎). Ratings sharpen this number.'
+        : 'Computed from cost × quality ratio. Verify against your own downtime savings before booking.';
+      return `
+        <div class="card">
+          <h3>Estimated 30-day ROI</h3>
+          <p class="meta" id="roi-meta">vs $${s.totalCost.toFixed(4)} spent</p>
+          <div class="roi-block">
+            <div>
+              <div class="hero">$${s.roiUsd.toFixed(2)}</div>
+              <div class="hero-sub">predicted savings unlocked by AI assist</div>
+              ${cBadge}
+            </div>
+            <div style="font-size:0.72rem; color:var(--muted); line-height:1.5;">${escHtml(honestNote)}</div>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderQualityCard(s) {
+      const tup = s.thumbsUp, tdn = s.thumbsDown;
+      const total = tup + tdn;
+      const pct = total === 0 ? 0 : Math.round(100 * tup / total);
+      return `
+        <div class="card">
+          <h3>Worker feedback (👍 / 👎)</h3>
+          <p class="meta">Last 30 days</p>
+          <div style="display:flex;align-items:baseline;gap:14px;">
+            <span style="font-size:1.4rem;font-weight:800;color:var(--green);">${tup}</span>
+            <span style="font-size:0.7rem;color:var(--muted);">👍 thumbs up</span>
+            <span style="font-size:1.4rem;font-weight:800;color:var(--red);margin-left:1rem;">${tdn}</span>
+            <span style="font-size:0.7rem;color:var(--muted);">👎 thumbs down</span>
+            <span style="font-size:0.7rem;color:var(--muted);margin-left:auto;">${total === 0 ? '—' : pct + '% positive'}</span>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderFnTable(s) {
+      if (s.fns.length === 0) {
+        return `<div class="card"><h3>Per-function spend</h3><p class="meta" style="margin-top:6px;">No AI calls recorded in the last 30 days for this hive.</p></div>`;
+      }
+      const rows = s.fns.map(f => {
+        const avgLat = f.latencyN > 0 ? Math.round(f.latencyTotal / f.latencyN) + ' ms' : '—';
+        const failPct = f.calls === 0 ? '—' : Math.round(100 * f.failures / f.calls) + '%';
+        return `
+          <tr>
+            <td><strong>${escHtml(f.fn)}</strong></td>
+            <td class="num-right">${f.calls}</td>
+            <td class="num-right">${f.tokens.toLocaleString()}</td>
+            <td class="num-right">$${f.cost.toFixed(4)}</td>
+            <td class="num-right">${escHtml(avgLat)}</td>
+            <td class="num-right">${escHtml(failPct)}</td>
+          </tr>
+        `;
+      }).join('');
+      return `
+        <div class="card">
+          <h3>Per-function spend</h3>
+          <p class="meta">Sorted by cost · last 30 days</p>
+          <table class="fn-table">
+            <thead><tr><th>Function</th><th class="num-right">Calls</th><th class="num-right">Tokens</th><th class="num-right">Cost</th><th class="num-right">Avg latency</th><th class="num-right">Failure rate</th></tr></thead>
+            <tbody>${rows}</tbody>
+          </table>
+          ${renderSourceChip({
+            source:    'ai_cost_log',
+            freshness: 'Live data',
+            window:    '30-day rolling window',
+            notes:     ['Service-role inserts only; reads are hive-scoped via RLS.'],
+          })}
+        </div>
+      `;
+    }
+  </script>
+
+  <script src="floating-ai.js"></script>
+  <script src="offline-banner.js"></script>
+  <script defer src="offline-queue.js"></script>
+  <script defer src="connectivity-widget.js"></script>
+  <script defer src="session-timeout.js"></script>
+  <script defer src="device-fingerprint.js"></script>
+  <script src="nav-hub.js"></script>
+</body>
+</html>

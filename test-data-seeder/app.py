@@ -70,6 +70,7 @@ PUBLIC_PAGES = [
     ("ph-intelligence.html", "PH Intelligence Report"),
     ("project-report.html", "Project Report"),
     ("predictive.html", "Predictive Maintenance"),
+    ("ai-quality.html", "AI Quality + ROI"),
     ("achievements.html", "Achievements"),
     ("asset-hub.html", "Asset Hub"),
     ("shift-brain.html", "Shift Brain"),

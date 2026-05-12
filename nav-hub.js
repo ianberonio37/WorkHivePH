@@ -72,6 +72,10 @@
     // reachable for direct URLs and existing deep-links.
     { label: 'Predictive ML', href: 'predictive.html',  match: ['predictive'],         section: 'Intelligence', hidden: true, roles: ['supervisor','engineer'],
       icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>` },
+    // Phase 4.1 — AI Quality + ROI dashboard. Stair 2+ gated inside the page;
+    // supervisor-only nav entry so workers don't see the link they can't act on.
+    { label: 'AI Quality + ROI', href: 'ai-quality.html', match: ['ai-quality'],       section: 'Intelligence', hidden: true, roles: ['supervisor'],
+      icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>` },
     { label: 'AI Assistant', href: 'assistant.html',    match: ['assistant'],          section: 'Intelligence', /* universal */
       icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/><line x1="9" y1="10" x2="9" y2="10" stroke-width="3" stroke-linecap="round"/><line x1="12" y1="10" x2="12" y2="10" stroke-width="3" stroke-linecap="round"/><line x1="15" y1="10" x2="15" y2="10" stroke-width="3" stroke-linecap="round"/></svg>`,
       accent: true },
