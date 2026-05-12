@@ -42,7 +42,7 @@ if sys.platform == "win32":
     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
 
 try:
-    from jsonschema import Draft7Validator
+    from jsonschema import Draft7Validator, FormatChecker
     JSONSCHEMA_AVAILABLE = True
 except ImportError:
     JSONSCHEMA_AVAILABLE = False
@@ -107,6 +107,128 @@ FIXTURES = {
         {"qr_payload": "https://example.com/random-url",
          "asset_tag": "PMP-001"},
         "qr_payload doesn't match wh-asset-v1: pattern — scanner accepting random URLs would break offline lookup",
+    ),
+    "marketplace_order_v1": (
+        {"listing_id": "00000000-0000-0000-0000-000000000abc",
+         "quantity": 2,
+         "shipping_address": "12 Industrial Park Rd, Cebu City",
+         "payment_method": "gcash"},
+        {"listing_id": "00000000-0000-0000-0000-000000000abc",
+         "quantity": 2,
+         "shipping_address": "12 Industrial Park Rd, Cebu City",
+         "payment_method": "bitcoin"},   # not in enum
+        "payment_method enum violation — only gcash/maya/bank_transfer/cod/credit_card supported; 'bitcoin' would hit Stripe with an invalid method and fail asymmetrically",
+    ),
+    "cmms_import_v1": (
+        {"system_type": "maximo",
+         "entity_type": "logbook",
+         "batch_id": "MAX-2026-05-12-001",
+         "source_payload": {"work_order_id": "WO-001", "asset_tag": "PMP-001"}},
+        {"system_type": "sap",            # not in enum
+         "entity_type": "logbook",
+         "batch_id": "SAP-001",
+         "source_payload": {}},
+        "system_type enum violation — SAP integration not supported; falls back to 'custom' rather than silently dropping",
+    ),
+    "ai_chat_input_v1": (
+        {"question": "Who's the best electrician to handle a chiller compressor failure?",
+         "worker_name": "Pablo Aguilar",
+         "context_page": "assistant.html"},
+        {"question": "x" * 3000},     # exceeds maxLength
+        "question maxLength violation — prevents prompt-injection-via-massive-payload + protects the token budget downstream",
+    ),
+    "early_access_signup_v1": (
+        {"email": "worker@example.com", "source": "landing-page-hero"},
+        {"email": "not-an-email", "source": "landing-page-hero"},
+        "email format violation — non-email string would break the waitlist + downstream B2 digest mailer",
+    ),
+    "hive_invite_v1": (
+        {"worker_name": "Maria Santos", "role": "supervisor"},
+        {"worker_name": "Maria Santos", "role": "admin"},   # not in enum
+        "role enum violation — only 'worker' or 'supervisor' allowed; 'admin' creep would bypass hive_audit_log permission gates",
+    ),
+    "project_create_v1": (
+        {"name": "Q3 Boiler Overhaul", "project_type": "shutdown", "priority": "high",
+         "owner_name": "Maria Santos", "budget_php": 250000},
+        {"name": "", "project_type": "shutdown", "priority": "high"},
+        "empty name fails minLength:1 — projects without identifiable name break v_project_truth lookups",
+    ),
+    "project_change_order_v1": (
+        {"project_id": "00000000-0000-0000-0000-000000000abc",
+         "title": "Add scope: replace gland packing",
+         "scope_change": "Replacing the original gland packing on PMP-001 with high-spec mechanical seal during the shutdown window.",
+         "cost_impact_php": 15000, "schedule_impact_days": 2,
+         "requested_by": "Pablo Aguilar"},
+        {"project_id": "00000000-0000-0000-0000-000000000abc",
+         "title": "Missing scope description"},
+        "missing required scope_change + requested_by — change orders without scope text are unreviewable",
+    ),
+    "project_progress_log_v1": (
+        {"project_id": "00000000-0000-0000-0000-000000000abc",
+         "log_date": "2026-05-12", "pct_complete": 60,
+         "hours_worked": 8.5, "reported_by": "Pablo Aguilar"},
+        {"project_id": "00000000-0000-0000-0000-000000000abc",
+         "log_date": "2026-05-12", "pct_complete": 150,
+         "reported_by": "Pablo Aguilar"},
+        "pct_complete=150 fails maximum:100 — percent overflow breaks burn-down charts",
+    ),
+    "marketplace_listing_v1": (
+        {"title": "Used SKF 6203 bearing pack (10 units)",
+         "category": "bearings",
+         "price_php": 3500,
+         "description": "Sealed original-pack SKF 6203 deep groove ball bearings. Surplus from cancelled project. Cebu pickup or delivery within Visayas."},
+        {"title": "ok", "category": "x", "price_php": -50, "description": "asdf"},
+        "price_php negative fails minimum:0 — negative-priced listings would corrupt marketplace search ranking",
+    ),
+    "marketplace_inquiry_v1": (
+        {"listing_id": "00000000-0000-0000-0000-000000000abc",
+         "buyer_name": "Roberto Cruz",
+         "message": "Is the lead time still 5 days? Need 4 units for a shutdown next week."},
+        {"listing_id": "00000000-0000-0000-0000-000000000abc",
+         "buyer_name": "Roberto Cruz",
+         "message": ""},
+        "empty message fails minLength:1 — empty inquiries spam sellers + bypass anti-bot heuristics",
+    ),
+    "skill_exam_attempt_v1": (
+        {"worker_name": "Maria Santos", "discipline": "Electrical", "level": 3,
+         "answers": {"q1": "B", "q2": "A", "q3": "D"}},
+        {"worker_name": "Maria Santos", "discipline": "Electrical", "level": 7,
+         "answers": {"q1": "B"}},
+        "level=7 fails maximum:5 — skill matrix only has L1-L5; L6+ would corrupt v_worker_skill_truth aggregations",
+    ),
+    "community_post_v1": (
+        {"worker_name": "Pablo Aguilar",
+         "body": "Found a way to extend the bearing life on PMP-001 by adjusting the alignment after every belt change. Sharing for the team.",
+         "is_public": False},
+        {"worker_name": "", "body": "test"},
+        "empty worker_name fails minLength:1 — anonymous posts would break community attribution + XP rewards",
+    ),
+    "schedule_item_v1": (
+        {"worker_name": "Maria Santos", "date": "2026-05-13",
+         "title": "PM walkdown on lines 1-3", "category": "execution",
+         "item_status": "pending"},
+        {"worker_name": "Maria Santos", "date": "2026-05-13",
+         "title": ""},
+        "empty title fails minLength:1 — empty schedule entries pollute the day planner without showing what to do",
+    ),
+    "asset_wizard_v1": (
+        {"tag": "PMP-002", "name": "Cooling water pump 2",
+         "criticality": "High", "location": "Pump room B",
+         "manufacturer": "Grundfos", "model": "NK150-400"},
+        {"tag": "PMP-002", "name": "Cooling water pump 2",
+         "criticality": "URGENT"},
+        "criticality enum violation — only Critical/High/Medium/Low; 'URGENT' would break Pareto analysis bucketing",
+    ),
+    "voice_report_intent_v1": (
+        {"worker_name": "Pablo Aguilar",
+         "transcript": "Send the weekly maintenance report to maria@example.com tomorrow at 8 AM.",
+         "intent": "schedule",
+         "recipients": ["maria@example.com"],
+         "schedule_iso": "2026-05-13T08:00:00Z"},
+        {"worker_name": "Pablo Aguilar",
+         "transcript": "noise",
+         "intent": "send_immediately"},   # not in enum
+        "intent enum violation — only send_now/schedule/add_recipient/cancel/unknown allowed; downstream dispatch routing would fall through",
     ),
 }
 
@@ -245,7 +367,10 @@ def main():
             print(f"  \033[93mSKIP\033[0m {capture_id} — not registered yet")
             continue
         try:
-            validator = Draft7Validator(schema)
+            # FormatChecker enables format=email, format=date, etc. — without
+            # it, the bad fixture for early_access_signup_v1 (email='not-an-email')
+            # would pass because format keywords are documentation-only by default.
+            validator = Draft7Validator(schema, format_checker=FormatChecker())
         except Exception as e:
             issues.append({
                 "check": "good_accepted", "skip": False,

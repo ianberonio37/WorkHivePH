@@ -98,6 +98,11 @@ ALLOWED_MULTI_COMMIT = {
         "column is worker_name not completed_by. Both fixed. Replaced the "
         "asset_brain_overview_legacy registration (view retired in 5b.1) with "
         "a retirement tombstone. Never applied to remote.",
+    "20260512000017_canonical_capture_contracts.sql":
+        "2026-05-12 Wave 1.5 fix: qr_asset_lookup_v1 regex widened from "
+        "[a-z0-9_-] to [A-Za-z0-9_-] to allow uppercase tags like 'PMP-001'. "
+        "Caught by validate_capture_contracts.py fixture L2 on first run. "
+        "Never applied to remote.",
     "20260512000013_tier_bcde_foundation.sql":
         "2026-05-12 walkthrough + Tier C realign: (a) v_project_truth used "
         "wrong column names (type/budget_pesos/...) for actual projects table "
