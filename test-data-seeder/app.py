@@ -64,8 +64,7 @@ PUBLIC_PAGES = [
     ("assistant.html", "AI assistant"),
     ("report-sender.html", "Report sender"),
     ("platform-health.html", "Platform health"),
-    ("architecture.html", "Architecture"),
-    ("symbol-gallery.html", "Symbol gallery"),
+    # architecture.html + symbol-gallery.html RETIRED 2026-05-13 — archival only, not tested
     ("project-manager.html", "Project Manager"),
     ("integrations.html", "CMMS Integration"),
     ("ph-intelligence.html", "PH Intelligence Report"),
@@ -415,6 +414,9 @@ def api_seed_module(module):
     from seeders.engineering import seed_engineering
     from seeders.fault_knowledge import seed_fault_knowledge
     from seeders.edge_post_seed import run_post_seed_edges
+    from seeders.amc import seed_amc
+    from seeders.sensor_readings import seed_sensor_readings
+    from seeders.voice_journal import seed_voice_journal
     needs_ctx_map = {
         "assets": seed_assets,
         "pm": seed_pm,
@@ -428,6 +430,9 @@ def api_seed_module(module):
         "engineering": seed_engineering,
         "fault_knowledge": seed_fault_knowledge,
         "post_seed_edges": run_post_seed_edges,
+        "amc": seed_amc,
+        "sensor_readings": seed_sensor_readings,
+        "voice_journal": seed_voice_journal,
     }
 
     if module in standalone_map:

@@ -22,6 +22,9 @@ from .failure_alerts import seed_failure_alerts
 from .parts_staging import seed_parts_staging
 from .parts_reservations import seed_parts_reservations
 from .achievements import seed_achievements
+from .amc import seed_amc
+from .sensor_readings import seed_sensor_readings
+from .voice_journal import seed_voice_journal
 from .edge_post_seed import run_post_seed_edges
 
 
@@ -73,6 +76,11 @@ def seed_everything(client, log) -> dict:
     step12e = seed_parts_staging(client, log, ctx)
     step12f = seed_parts_reservations(client, log, ctx)
     seed_achievements(client, log)   # reads hive_members; no ctx, no return dict
+    # Wave A+B features (AMC orchestrator + Physical AI). Run after assets +
+    # PMs + inventory + workers exist (these seeders read them for context).
+    step12g = seed_sensor_readings(client, log, ctx)
+    step12h = seed_amc(client, log, ctx)             # reads assets/pms/inventory/workers
+    step12i = seed_voice_journal(client, log, ctx)   # needs hive_members.auth_uid
     step13 = run_post_seed_edges(client, log, ctx)   # depends on logbook + assets
 
     log("=" * 50)
@@ -101,5 +109,8 @@ def seed_everything(client, log) -> dict:
         **step12d,
         **step12e,
         **step12f,
+        **step12g,
+        **step12h,
+        **step12i,
         **step13,
     }

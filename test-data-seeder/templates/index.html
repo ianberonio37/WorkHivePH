@@ -936,7 +936,11 @@
     <button class="sidebar-link" data-pane="seed"
       data-tip-title="Seed"
       data-tip="Generates fake industrial data into local Supabase: hives, workers, assets, PM templates, ~3700 logbook entries, inventory, skill matrix, marketplace listings, community posts, projects, achievements. Seed Everything = full run in dependency order. Individual numbered buttons seed one module (require earlier modules)."
-      data-tip-foot="Use when: fresh DB, after Reset, or schema/seeder code changed.">Seed <span class="pill">10</span></button>
+      data-tip-foot="Use when: fresh DB, after Reset, or schema/seeder code changed.">Seed <span class="pill">13</span></button>
+    <button class="sidebar-link" data-pane="playbook"
+      data-tip-title="Playbook"
+      data-tip="The 7-step ordered workflow for building any new feature: read skills → find canonical Engine view → write code on the right layer → register on every surface → seed it → run the right gate → decide on a new validator. Includes lookup tables for which v_*_truth view to read and which skills to consult, per feature type."
+      data-tip-foot="Read this BEFORE clicking any Wizard. Prevents the 'I built it but forgot to register it' regression class.">Playbook <span class="pill">7</span></button>
     <button class="sidebar-link" data-pane="wizards"
       data-tip-title="Wizards"
       data-tip="Scaffold new platform pieces with every registration the gate expects. New HTML page wires 9 registries in one shot (TOOLS, floating-ai, system prompt, validators, flow files). New edge function creates the dir + index.ts + adds the config.toml entry. Skill lesson appends an entry to a SKILL.md."
@@ -1329,6 +1333,113 @@
 
   </section>  <!-- ═══ /RUN TESTS PANE ════════════════════════════════════ -->
 
+  <!-- ═══════════════════════ PLAYBOOK PANE ═══════════════════════════════ -->
+  <section data-pane="playbook" class="pane">
+    <h2 style="margin:0 0 6px;">Playbook — How to Build Any New Feature</h2>
+    <p style="color:#9ca3af; margin:0 0 18px; font-size:.8rem;">
+      Read this before clicking any Wizard or asking Claude to build a feature.
+      Fuses the Skill-First rule, the Fuel/Engine/Brain wiring model, the registration
+      checklist, and the hardening loop into one 7-step ordered workflow.
+      Source-of-truth in memory:
+      <code style="color:var(--gold);">feedback_new_feature_playbook.md</code>.
+    </p>
+
+    <!-- The 7 steps -->
+    <div style="background:rgba(0,0,0,0.3); border:1px solid rgba(167,139,250,0.25); border-radius:10px; padding:16px 20px; margin-bottom:18px;">
+      <div style="font-size:.85rem; font-weight:700; color:var(--purple); margin-bottom:12px;">The 7-step ordered workflow</div>
+      <ol style="margin:0; padding-left:24px; color:#d1d5db; font-size:.78rem; line-height:1.6;">
+        <li><b style="color:#fff;">Read the matching skills.</b> Use the Skills Lookup table below. Read each <code>SKILL.md</code> before writing code. Scan for checklist items + anti-patterns.</li>
+        <li><b style="color:#fff;">Find the canonical Engine source(s).</b> Read from <code>v_*_truth</code> views, never raw Fuel tables. Use the Canonical-Source Lookup table below. If none fits, add a new view.</li>
+        <li><b style="color:#fff;">Write the code on the right layer.</b> Fuel = raw tables, Engine = canonical views + RPCs, Brain = orchestrators + AI, Dashboard = HTML, Driver = user. Never Dashboard&rarr;Fuel when an Engine view exists.</li>
+        <li><b style="color:#fff;">Register on every surface.</b> New page &rarr; <code>LIVE_TOOL_PAGES</code>, floating-ai, assistant prompt, nav-hub, 5 flow lists, Playwright spec. New edge fn &rarr; <code>config.toml</code>, deploy script, capability comment. New validator &rarr; <code>run_platform_checks.py</code>.</li>
+        <li><b style="color:#fff;">Seed it.</b> Add fixtures so the Tester can exercise it from a fresh reset. Run <code>Data Tests</code> (~5s) to confirm the seed is sane.</li>
+        <li><b style="color:#fff;">Run the right gate.</b> Default is NOT Mega Gate. Pick the lightest gate that covers what changed: Release Gate for architecture, +AI Full for prompts, UI Locks for forms, Visual for CSS, Mega Gate only pre-deploy.</li>
+        <li><b style="color:#fff;">Decide on a new validator.</b> Ask: "If this had broken silently, which gate would have caught it?" If none, extend an existing gate (preferred) or write a new one.</li>
+      </ol>
+    </div>
+
+    <!-- Canonical-source lookup -->
+    <details class="section-help" open>
+      <summary>Canonical-source lookup &mdash; which <code>v_*_truth</code> view to read</summary>
+      <div class="help-body">
+        <p style="margin:0 0 8px; color:#9ca3af; font-size:.72rem;">Step 2 uses this. Reads pull from Engine; writes target Fuel directly. If your feature needs something not covered, add a new <code>v_&lt;thing&gt;_truth</code> view in a migration.</p>
+        <table>
+          <thead><tr><th>You need&hellip;</th><th>Read from (Engine)</th><th>Backed by (Fuel)</th></tr></thead>
+          <tbody>
+            <tr><td>Asset metadata + criticality + tag</td><td><code>v_asset_truth</code></td><td>assets, asset_nodes</td></tr>
+            <tr><td>Risk ranking (highest-risk assets now)</td><td><code>v_risk_truth</code></td><td>logbook, predictive_*, sensor_readings</td></tr>
+            <tr><td>PM compliance (due / overdue / done)</td><td><code>v_pm_compliance_truth</code></td><td>pm_scope, pm_template, logbook</td></tr>
+            <tr><td>PM scope items (checklist contents)</td><td><code>v_pm_scope_items_truth</code></td><td>pm_scope_items</td></tr>
+            <tr><td>Logbook entries (canonical, with asset join)</td><td><code>v_logbook_truth</code></td><td>logbook</td></tr>
+            <tr><td>Worker skill levels + assignments</td><td><code>v_worker_skill_truth</code></td><td>skill_matrix_results, hive_members</td></tr>
+            <tr><td>Worker identity / display info</td><td><code>v_worker_truth</code></td><td>worker_profiles, hive_members</td></tr>
+            <tr><td>Inventory state (qty, threshold, links)</td><td><code>v_inventory_items_truth</code></td><td>inventory_items, inventory_transactions</td></tr>
+            <tr><td>Marketplace sellers (verified, with stats)</td><td><code>v_marketplace_sellers_truth</code></td><td>marketplace_seller_profiles, marketplace_listings</td></tr>
+            <tr><td>Recent sensor readings (last N per asset)</td><td><code>v_sensor_recent</code></td><td>sensor_readings</td></tr>
+            <tr><td>Project state + tasks</td><td><code>v_project_truth</code></td><td>projects, project_tasks</td></tr>
+            <tr><td>Knowledge base (for RAG, search)</td><td><code>v_knowledge_truth</code></td><td>fault_knowledge, knowledge_documents</td></tr>
+            <tr><td>Audit trail across surfaces</td><td><code>v_audit_unified</code></td><td>audit_log, cross_page_audit</td></tr>
+            <tr><td>FMEA / RCM / Weibull analyses</td><td><code>v_fmea_truth</code>, <code>v_rcm_truth</code>, <code>v_weibull_truth</code></td><td>fmea_items, rcm_decisions, weibull_fits</td></tr>
+            <tr><td>Worker achievements / XP / badges</td><td><code>v_worker_achievements</code>, <code>v_achievement_xp_log</code></td><td>community_posts, skill_badges</td></tr>
+            <tr><td>Asset Brain rollup (everything for one asset)</td><td><code>asset_brain_overview</code></td><td>composite of above</td></tr>
+            <tr><td>P-F curve / failure progression</td><td><code>v_pf_truth</code></td><td>logbook, predictive_*</td></tr>
+            <tr><td>Worker assignments to assets</td><td><code>v_worker_assignment_truth</code></td><td>worker_asset_assignments</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </details>
+
+    <!-- Skills lookup -->
+    <details class="section-help" open style="margin-top:14px;">
+      <summary>Skills lookup &mdash; which <code>SKILL.md</code> files to read first</summary>
+      <div class="help-body">
+        <p style="margin:0 0 8px; color:#9ca3af; font-size:.72rem;">Step 1 uses this. Read all listed skills from <code>C:/Users/ILBeronio/.claude/skills/&lt;skill&gt;/SKILL.md</code> before writing code. Always include qa-tester + performance for UI surfaces; always include security for anything that writes data or accepts external input.</p>
+        <table>
+          <thead><tr><th>Feature type</th><th>Skills to read first</th></tr></thead>
+          <tbody>
+            <tr><td>New tool page (HTML in LIVE_TOOL_PAGES)</td><td>frontend, qa-tester, mobile-maestro, performance, security, designer</td></tr>
+            <tr><td>New edge function (no AI)</td><td>devops, security, multitenant-engineer, integration-engineer</td></tr>
+            <tr><td>New edge function (with AI call)</td><td>ai-engineer, devops, security, multitenant-engineer</td></tr>
+            <tr><td>New AI agent / orchestrator</td><td>ai-engineer, predictive-analytics, maintenance-expert, multitenant-engineer</td></tr>
+            <tr><td>New ingest endpoint (MQTT / OPC-UA / webhook)</td><td>integration-engineer, security, data-engineer</td></tr>
+            <tr><td>New canonical view (v_*_truth)</td><td>architect, data-engineer, multitenant-engineer</td></tr>
+            <tr><td>New RPC / Postgres function</td><td>architect, data-engineer, security</td></tr>
+            <tr><td>New validator</td><td>platform-guardian, qa-tester + domain validator skill</td></tr>
+            <tr><td>New calc type (engineering-design)</td><td>frontend, qa-tester, standards-validator, drawing-standards, maintenance-expert</td></tr>
+            <tr><td>New realtime subscription</td><td>realtime-engineer, multitenant-engineer, performance</td></tr>
+            <tr><td>Skill matrix change</td><td>skillmatrix-validator, knowledge-manager</td></tr>
+            <tr><td>Community / social feature</td><td>community, notifications, security</td></tr>
+            <tr><td>Marketplace flow</td><td>marketplace, security, integration-engineer, enterprise-compliance</td></tr>
+            <tr><td>Notifications / alerts</td><td>notifications, realtime-engineer</td></tr>
+            <tr><td>Performance fix / cold-start / cache</td><td>performance, devops, architect</td></tr>
+            <tr><td>Visual / design pass</td><td>designer, frontend, mobile-maestro</td></tr>
+            <tr><td>SEO / public-facing copy</td><td>seo-content, frontend</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </details>
+
+    <!-- Worked example -->
+    <details class="section-help" style="margin-top:14px;">
+      <summary>Worked example &mdash; AMC orchestrator (commit 397389f)</summary>
+      <div class="help-body">
+        <table>
+          <thead><tr><th>Step</th><th>Decision</th></tr></thead>
+          <tbody>
+            <tr><td>1. Skills</td><td>ai-engineer, predictive-analytics, maintenance-expert, multitenant-engineer, architect</td></tr>
+            <tr><td>2. Canonical sources</td><td><code>v_risk_truth</code>, <code>v_pm_compliance_truth</code>, <code>parts_staging_recommendations</code>, <code>v_worker_skill_truth</code></td></tr>
+            <tr><td>3. Layer</td><td>Brain &mdash; reads Engine, writes Fuel (<code>amc_briefings</code>)</td></tr>
+            <tr><td>4. Registration</td><td><code>config.toml</code>, capability comment <code>// capability: ai_specialist_amc</code>, alert-hub.html consumer, ai-chain.ts registration</td></tr>
+            <tr><td>5. Seed</td><td>briefings fixture in <code>test-data-seeder/seeders/</code></td></tr>
+            <tr><td>6. Gate</td><td>Release Gate + AI Full (Groq calls)</td></tr>
+            <tr><td>7. Validator</td><td>Covered by existing <code>validate_function_security.py</code> + <code>validate_ai_eval_coverage.py</code>. No new validator needed.</td></tr>
+          </tbody>
+        </table>
+        <p style="margin:8px 0 0; color:#9ca3af; font-size:.72rem;">Every new feature should follow this shape: fill in seven rows, then build.</p>
+      </div>
+    </details>
+  </section>  <!-- ═══ /PLAYBOOK PANE ═════════════════════════════════════ -->
+
   <!-- ═══════════════════════ WIZARDS PANE ═══════════════════════════════ -->
   <section data-pane="wizards" class="pane">
 
@@ -1433,6 +1544,18 @@
         data-tip-title="10. Achievements (Rings)"
         data-tip="Worker achievement rings (gamification). Awards based on logbook closures, PM completions, parts deductions, skill assessments. Drives the daily/weekly streak UI."
         data-tip-foot="Required for: achievements page, profile sidebar rings.">10. Achievements (rings)</button>
+      <button class="seed-btn" data-action="sensor_readings"
+        data-tip-title="11. Sensor Readings (Telemetry)"
+        data-tip="30 days of plant telemetry per asset: vibration (mm/s) + temperature (degC) + current draw (A) at 30-min intervals, with anomaly bursts concentrated in the last 10 days. Source=sensor_test so production dashboards filter it out. Powers asset-hub Live Telemetry tile + Z-score anomaly chip."
+        data-tip-foot="Required for: asset-hub.html Live Telemetry, predictive scoring, IoT smoke tests.">11. Sensor Readings (telemetry)</button>
+      <button class="seed-btn" data-action="amc"
+        data-tip-title="12. AMC Briefings"
+        data-tip="14 days of Autonomous Maintenance Crew daily briefs per hive (mix of approved / pending / rejected / expired). Each brief carries top_assets + pm_due + parts_to_stage + crew_match + narrative drawn from real seeded rows. Powers alert-hub AMC card."
+        data-tip-foot="Required for: alert-hub.html AMC card, supervisor approval flow tests.">12. AMC Briefings</button>
+      <button class="seed-btn" data-action="voice_journal"
+        data-tip-title="13. Voice Journal"
+        data-tip="5-10 journal entries per worker (linked auth_uid required) across the last 30 days. Mix of English + Tagalog. Topics span bearing checks, lubrication PMs, inventory low-stock, safety toolbox talks, walkdowns. Powers voice-journal.html history feed."
+        data-tip-foot="Required for: voice-journal.html history feed, semantic recall RPC tests.">13. Voice Journal</button>
     </div>
     <details class="section-help">
       <summary>When do I seed, and which buttons should I press?</summary>

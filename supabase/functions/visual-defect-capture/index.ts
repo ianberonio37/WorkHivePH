@@ -1,4 +1,5 @@
 /**
+// capability: ai_specialist_visual_defect
  * visual-defect-capture - Multimodal defect classification + logbook draft.
  *
  * The worker snaps a photo of an industrial defect (rust, leak, crack, burn,

@@ -1,4 +1,5 @@
 /**
+// capability: sensor_ingest
  * sensor-readings-ingest - HTTP-side of the plant MQTT/OPC-UA bridge.
  *
  * The persistent subscriber runs at the plant (Pi, plant gateway, or any
