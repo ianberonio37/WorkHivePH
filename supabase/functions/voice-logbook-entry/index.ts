@@ -1,4 +1,5 @@
 /**
+// capability: voice_to_logbook
  * voice-logbook-entry — Phase 2.2: Voice-First Complete Work Order
  *
  * Takes a technician's spoken description of a maintenance situation and

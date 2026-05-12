@@ -1,4 +1,5 @@
 /**
+// capability: voice_to_journal
  * voice-journal-agent - Specialist behind the gateway's "voice-journal" route.
  *
  * The voice journal is the worker's private spoken log. Each turn:

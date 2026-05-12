@@ -231,6 +231,15 @@ VALIDATORS = [
         "skip_if_fast": False,
     },
     {
+        "id":      "capability-dedup",
+        "script":  "validate_capability_dedup.py",
+        "args":    [],
+        "label":   "Tier G / Layer 9 Capability Catalog & Dedup (every user-facing function pinned to one primary surface)",
+        "group":   "Platform",
+        "report":  "capability_dedup_report.json",
+        "skip_if_fast": False,
+    },
+    {
         "id":      "write-path-monitor",
         "script":  "validate_write_path_monitor.py",
         "args":    [],

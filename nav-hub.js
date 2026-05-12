@@ -1,4 +1,5 @@
 /**
+// capability: display_nav_hub
  * WorkHive Navigation Hub
  * ─────────────────────────────────────────────
  * Single draggable FAB that expands into a tool switcher panel.

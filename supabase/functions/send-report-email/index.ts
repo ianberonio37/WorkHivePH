@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+// capability: report_email_dispatch
 
 // contract-allow: email sender
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";

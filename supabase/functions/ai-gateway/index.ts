@@ -1,4 +1,5 @@
 /**
+// capability: ai_question_answer
  * ai-gateway -- single-entry-point AI routing layer.
  *
  * The frontend invokes this fn with `{ agent, message, context? }`. The

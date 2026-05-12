@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+// capability: ai_specialist_engineering
 
 // contract-allow: deterministic engineering calcs; not a brain output
 import { callAI } from "../_shared/ai-chain.ts";

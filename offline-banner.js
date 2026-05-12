@@ -1,4 +1,5 @@
 // offline-banner.js — shared offline / online banner.
+// capability: display_offline_banner
 //
 // Renders a small fixed banner at the top of the page when the device
 // loses network. Closes PRODUCTION_FIXES #54 (per-page offline-event

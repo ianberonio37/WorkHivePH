@@ -1,4 +1,5 @@
 /**
+// capability: report_pdf_render
  * pdf-ingest -- PDF -> chunks -> embeddings -> knowledge table.
  *
  * Closes Phase 1.1 of the RAG roadmap. The naive embedding seed (hand-

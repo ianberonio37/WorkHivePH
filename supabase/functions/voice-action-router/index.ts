@@ -1,4 +1,5 @@
 /**
+// capability: voice_to_action_router
  * voice-action-router - Phase B.1: cross-page voice orchestrator.
  *
  * Takes a maintenance worker's spoken sentence and returns structured intents

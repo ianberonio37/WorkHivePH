@@ -1,4 +1,5 @@
 /**
+// capability: alert_failure_signature
  * failure-signature-scan — Phase 1.2: Failure Signature Detection
  *
  * Scans logbook history for pre-failure patterns across all active hives.

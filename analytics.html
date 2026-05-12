@@ -777,41 +777,17 @@
   // Builds a card with a large RAG-colored hero number + standard label + detail below.
   let _kpiCardId = 0;
 
+  // capability: display_kpi_tile (Tier G consolidation 2026-05-12)
+  // Delegates to the shared utils.js#renderKpiTile so KPI rendering is
+  // canonical across analytics + hive + asset-hub + predictive. The local
+  // `kpiCard` wrapper is kept so the analytics call sites don't need to
+  // change. tileId carries the analytics-local _kpiCardId counter so
+  // toggleKPI() still resolves to elements rendered earlier in the page.
   function kpiCard({ title, standard, value, unit, sublabel, color, detail, legend }) {
-    const COLORS = {
-      green:  { bg: 'rgba(74,222,128,0.08)',   border: 'rgba(74,222,128,0.3)',   text: '#4ade80',  label: '✓ Healthy'  },
-      yellow: { bg: 'rgba(247,162,27,0.08)',   border: 'rgba(247,162,27,0.3)',   text: '#F7A21B',  label: '⚠ Watch'    },
-      red:    { bg: 'rgba(248,113,113,0.08)',  border: 'rgba(248,113,113,0.3)',  text: '#f87171',  label: '✗ Critical' },
-      grey:   { bg: 'rgba(255,255,255,0.03)',  border: 'rgba(255,255,255,0.08)', text: 'rgba(255,255,255,0.4)', label: '— No data' },
-    };
-    const c   = COLORS[color] || COLORS.grey;
-    const id  = `kpi-${_kpiCardId++}`;
-    // Red cards auto-expand — they need attention. Others collapsed by default.
-    const autoOpen = color === 'red';
-
-    return `<div class="card" style="border-left:3px solid ${c.border};margin-bottom:1rem;">
-      <button class="kpi-toggle" onclick="toggleKPI('${id}')" style="min-height:${detail ? '72px' : '0'};">
-        <div style="flex:1;text-align:left;">
-          <div style="font-size:0.68rem;font-weight:700;color:rgba(255,255,255,0.3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:0.25rem;">
-            ${escHtml(title)} <span style="font-size:0.58rem;font-weight:500;">${escHtml(standard)}</span>
-          </div>
-          <div style="display:flex;align-items:baseline;gap:0.4rem;margin-bottom:0.15rem;">
-            <span style="font-size:1.9rem;font-weight:800;line-height:1;color:${c.text};">${escHtml(String(value))}</span>
-            <span style="font-size:0.78rem;color:rgba(255,255,255,0.45);">${escHtml(unit)}</span>
-          </div>
-          ${sublabel ? `<div style="font-size:0.67rem;color:rgba(255,255,255,0.38);">${escHtml(sublabel)}</div>` : ''}
-        </div>
-        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:0.4rem;flex-shrink:0;margin-left:0.75rem;">
-          <span style="font-size:0.63rem;font-weight:700;padding:0.2rem 0.55rem;border-radius:999px;background:${c.bg};border:1px solid ${c.border};color:${c.text};white-space:nowrap;">${c.label}</span>
-          ${detail ? `<span class="kpi-chevron${autoOpen ? ' open' : ''}" id="${id}-chevron">▼</span>` : ''}
-        </div>
-      </button>
-      ${detail ? `
-        <div class="kpi-detail${autoOpen ? ' open' : ''}" id="${id}" style="border-top:1px solid rgba(255,255,255,0.06);">
-          ${detail}
-          ${legend ? `<p style="font-size:0.62rem;color:rgba(255,255,255,0.2);margin-top:0.5rem;">${escHtml(legend)}</p>` : ''}
-        </div>` : ''}
-    </div>`;
+    return renderKpiTile({
+      title, standard, value, unit, sublabel, color, detail, legend,
+      tileId: `kpi-${_kpiCardId++}`,
+    });
   }
 
   function toggleKPI(id) {

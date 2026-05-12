@@ -1,4 +1,5 @@
 /**
+// capability: ai_specialist_asset_brain
  * asset-brain-query - Phase 3: GraphRAG retrieval for Asset Hub.
  *
  * Receives a natural-language question about a specific asset and returns a

@@ -1,3 +1,5 @@
+// capability: alert_toast_inline
+// capability: display_source_chip
 // ─────────────────────────────────────────────
 // utils.js — Shared utilities for WorkHive platform
 // Loaded before page scripts on every page.
@@ -145,6 +147,130 @@ async function ocUpdate(db, table, id, updates, oldStamp) {
     return { ok: false, error: e };
   }
 }
+
+// ─── KPI Tile (Tier G capability: display_kpi_tile) ────────────────────────
+// Shared KPI card renderer. Single source of truth for the RAG-coloured
+// tile pattern across analytics.html, hive.html, asset-hub.html, predictive.
+// Replaces 4 parallel implementations during the Tier G consolidation pass.
+//
+// opts:
+//   - title    (required) "MTBF — Mean Time Between Failures"
+//   - standard            "ISO 14224:2016 §9.3"
+//   - value    (required) the hero number (string or number)
+//   - unit                "days" | "%" | "h" | ...
+//   - sublabel            small line under the hero number
+//   - color               'green'|'yellow'|'red'|'grey' — RAG state
+//   - detail              HTML string for the expandable section (optional)
+//   - legend              footer note shown inside expanded detail
+//   - autoOpen            override default-open behavior (red auto-opens)
+//   - tileId              optional caller-supplied id; else auto-generated
+//
+// capability: display_kpi_tile
+let _whKpiTileId = 0;
+function renderKpiTile(opts) {
+  opts = opts || {};
+  const COLORS = {
+    green:  { bg: 'rgba(74,222,128,0.08)',   border: 'rgba(74,222,128,0.3)',   text: '#4ade80',  label: '✓ Healthy'  },
+    yellow: { bg: 'rgba(247,162,27,0.08)',   border: 'rgba(247,162,27,0.3)',   text: '#F7A21B',  label: '⚠ Watch'    },
+    red:    { bg: 'rgba(248,113,113,0.08)',  border: 'rgba(248,113,113,0.3)',  text: '#f87171',  label: '✗ Critical' },
+    grey:   { bg: 'rgba(255,255,255,0.03)',  border: 'rgba(255,255,255,0.08)', text: 'rgba(255,255,255,0.4)', label: '— No data' },
+  };
+  const c   = COLORS[opts.color] || COLORS.grey;
+  const id  = opts.tileId || `kpi-${_whKpiTileId++}`;
+  const autoOpen = opts.autoOpen !== undefined ? opts.autoOpen : (opts.color === 'red');
+  const detail = opts.detail || '';
+  const legend = opts.legend || '';
+
+  return `<div class="card" style="border-left:3px solid ${c.border};margin-bottom:1rem;">
+    <button class="kpi-toggle" onclick="if(window.toggleKPI)toggleKPI('${id}')" style="min-height:${detail ? '72px' : '0'};">
+      <div style="flex:1;text-align:left;">
+        <div style="font-size:0.68rem;font-weight:700;color:rgba(255,255,255,0.3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:0.25rem;">
+          ${escHtml(opts.title || '')} <span style="font-size:0.58rem;font-weight:500;">${escHtml(opts.standard || '')}</span>
+        </div>
+        <div style="display:flex;align-items:baseline;gap:0.4rem;margin-bottom:0.15rem;">
+          <span style="font-size:1.9rem;font-weight:800;line-height:1;color:${c.text};">${escHtml(String(opts.value === undefined ? '—' : opts.value))}</span>
+          <span style="font-size:0.78rem;color:rgba(255,255,255,0.45);">${escHtml(opts.unit || '')}</span>
+        </div>
+        ${opts.sublabel ? `<div style="font-size:0.67rem;color:rgba(255,255,255,0.38);">${escHtml(opts.sublabel)}</div>` : ''}
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:0.4rem;flex-shrink:0;margin-left:0.75rem;">
+        <span style="font-size:0.63rem;font-weight:700;padding:0.2rem 0.55rem;border-radius:999px;background:${c.bg};border:1px solid ${c.border};color:${c.text};white-space:nowrap;">${c.label}</span>
+        ${detail ? `<span class="kpi-chevron${autoOpen ? ' open' : ''}" id="${id}-chevron">▼</span>` : ''}
+      </div>
+    </button>
+    ${detail ? `
+      <div class="kpi-detail${autoOpen ? ' open' : ''}" id="${id}" style="border-top:1px solid rgba(255,255,255,0.06);">
+        ${detail}
+        ${legend ? `<p style="font-size:0.62rem;color:rgba(255,255,255,0.2);margin-top:0.5rem;">${escHtml(legend)}</p>` : ''}
+      </div>` : ''}
+  </div>`;
+}
+
+// Default toggle handler — pages that already define toggleKPI keep their own.
+if (typeof window !== 'undefined' && !window.toggleKPI) {
+  window.toggleKPI = function (id) {
+    const detail  = document.getElementById(id);
+    const chevron = document.getElementById(id + '-chevron');
+    if (!detail) return;
+    const isOpen = detail.classList.toggle('open');
+    if (chevron) chevron.classList.toggle('open', isOpen);
+  };
+}
+
+
+// ─── Alert Preview (Tier G capability: display_alert_preview) ──────────────
+// Shared alert-row renderer for cross-page previews of AMC briefings, failure
+// signature matches, sensor anomalies, parts staging recommendations.
+// Each preview links to alert-hub.html for the full filterable view.
+//
+// opts:
+//   - kind:      'amc_briefing' | 'failure_signature' | 'sensor_anomaly' | 'parts_staging'
+//   - title      e.g. "PMP-001 bearing failure pattern detected"
+//   - severity   'critical' | 'high' | 'medium' | 'low'
+//   - asset      asset_tag or machine name (optional)
+//   - message    short body text (optional)
+//   - created_at ISO timestamp (renders as relative time)
+//   - href       link target (default: alert-hub.html)
+//
+// capability: display_alert_preview
+function renderAlertPreview(opts) {
+  opts = opts || {};
+  const SEV = {
+    critical: { bg: 'rgba(248,113,113,0.10)', border: '#f87171', label: '🔴 CRITICAL' },
+    high:     { bg: 'rgba(247,162,27,0.10)',  border: '#F7A21B', label: '🟠 HIGH' },
+    medium:   { bg: 'rgba(250,204,21,0.10)',  border: '#facc15', label: '🟡 MEDIUM' },
+    low:      { bg: 'rgba(74,222,128,0.10)',  border: '#4ade80', label: '🟢 LOW' },
+  };
+  const s = SEV[opts.severity] || SEV.medium;
+  const kindIcon = ({
+    amc_briefing:      '☀️',
+    failure_signature: '⚠',
+    sensor_anomaly:    '📡',
+    parts_staging:     '📦',
+  })[opts.kind] || '🔔';
+
+  let rel = '';
+  if (opts.created_at) {
+    try {
+      const secs = (Date.now() - new Date(opts.created_at).getTime()) / 1000;
+      if (secs < 60)        rel = 'just now';
+      else if (secs < 3600) rel = `${Math.round(secs / 60)}m ago`;
+      else if (secs < 86400) rel = `${Math.round(secs / 3600)}h ago`;
+      else                  rel = `${Math.round(secs / 86400)}d ago`;
+    } catch (_e) { rel = ''; }
+  }
+
+  const href = opts.href || 'alert-hub.html';
+  return `<a href="${escHtml(href)}" class="alert-preview" style="display:block;padding:0.6rem 0.8rem;margin-bottom:0.4rem;background:${s.bg};border-left:3px solid ${s.border};border-radius:0.5rem;text-decoration:none;color:inherit;">
+    <div style="display:flex;align-items:baseline;justify-content:space-between;gap:0.5rem;margin-bottom:0.15rem;">
+      <span style="font-size:0.7rem;font-weight:700;letter-spacing:0.04em;">${kindIcon} ${escHtml(opts.title || 'Alert')}</span>
+      <span style="font-size:0.6rem;color:rgba(255,255,255,0.4);white-space:nowrap;">${escHtml(s.label)}${rel ? ' · ' + escHtml(rel) : ''}</span>
+    </div>
+    ${opts.asset ? `<div style="font-size:0.62rem;color:rgba(255,255,255,0.5);">Asset: ${escHtml(opts.asset)}</div>` : ''}
+    ${opts.message ? `<div style="font-size:0.65rem;color:rgba(255,255,255,0.55);margin-top:0.15rem;">${escHtml(opts.message)}</div>` : ''}
+  </a>`;
+}
+
 
 // Debounce — delay fn execution until after `wait` ms of silence
 function debounce(fn, wait) {

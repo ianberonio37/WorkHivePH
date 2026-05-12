@@ -110,6 +110,7 @@ FUEL_ANCHOR_IGNORE_TABLES = {
     "canonical_sources", "canonical_formulas",
     "canonical_standards", "canonical_agent_contracts",
     "canonical_capture_contracts",
+    "canonical_capabilities",
     # Cross-cutting infra
     "hive_audit_log", "cmms_audit_log", "automation_log",
     "ai_rate_limits", "ai_audit_log",

@@ -1,4 +1,5 @@
 /* wh-capture-validate.js — runtime capture-contract validation (Tier F)
+// capability: input_form_capture
  *
  * Client-side companion to supabase/functions/_shared/validate-contract.ts.
  * Loads the JSON Schema from canonical_capture_contracts at first use and

@@ -1,4 +1,5 @@
 // worker-drawer.js — clickable worker-name mini-profile drawer.
+// capability: display_worker_drawer
 //
 // Closes PRODUCTION_FIXES #15. Pages just include this script + mark
 // worker-name nodes with `data-worker-name="<name>"`. Click opens a

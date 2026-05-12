@@ -1,4 +1,6 @@
 /**
+// capability: ai_specialist_amc
+// capability: alert_amc_briefing
  * amc-orchestrator - Autonomous Maintenance Crew daily briefing builder.
  *
  * Runs once per active hive every day at 06:00 PHT (via scheduled-agents

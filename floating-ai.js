@@ -1,4 +1,5 @@
 /**
+// capability: ai_question_answer
  * WorkHive Floating AI Assistant
  * ------------------------------------------------------------
  * Principles: Usable · Functional · Adaptable · Internal Control
