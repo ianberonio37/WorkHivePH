@@ -222,6 +222,15 @@ VALIDATORS = [
         "skip_if_fast": False,
     },
     {
+        "id":      "formula-invocation",
+        "script":  "validate_formula_invocation.py",
+        "args":    [],
+        "label":   "Formula Invocation Drift (Tier D-f refinement: same formula called with different period_days across consumers)",
+        "group":   "Platform",
+        "report":  "formula_invocation_report.json",
+        "skip_if_fast": False,
+    },
+    {
         "id":      "write-path-monitor",
         "script":  "validate_write_path_monitor.py",
         "args":    [],
