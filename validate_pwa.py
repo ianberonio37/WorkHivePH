@@ -287,6 +287,77 @@ def check_logbook_offline_queue():
     return []
 
 
+# L4 (extension, 2026-05-13): hidden-toggle vs inline-display footgun.
+#
+# Catches the bug class found in the 2026-05-13 walkthrough: an element
+# carrying class="hidden" AND inline style="display: flex|block|grid|..."
+# can never be hidden by classList.add('hidden') because inline style
+# beats class in CSS specificity. The class is dead; the element shows
+# whenever the inline style says so.
+#
+# Pattern: <... class="... hidden ..." style="... display: <value> ...">
+# Tailwind's .hidden = display:none. If the element also has an inline
+# display that is anything BUT 'none', the toggle is broken.
+# Match any opening tag; we then inspect its class + style attributes.
+# Avoid the regex `\b` word-boundary trap (which counts '-' as a boundary
+# and so matches `overflow-hidden`) by extracting the class value and
+# whitespace-tokenizing it, then checking for the exact `hidden` token.
+TAG_RE         = re.compile(r'<\w+\b[^>]*>')
+CLASS_ATTR_RE  = re.compile(r'\bclass\s*=\s*["\']([^"\']*)["\']', re.IGNORECASE)
+STYLE_ATTR_RE  = re.compile(r'\bstyle\s*=\s*["\']([^"\']*)["\']', re.IGNORECASE)
+STYLE_DISPLAY_RE = re.compile(
+    r'\bdisplay\s*:\s*(flex|block|grid|inline|inline-block|inline-flex|table)\b',
+    re.IGNORECASE,
+)
+
+
+def check_hidden_inline_display(pages):
+    """Flag elements that mix class='hidden' with inline display:non-none.
+
+    The toggle (classList.add('hidden')) cannot win against the inline
+    style. Surface every offender so the modal/banner/drawer can have its
+    close handler upgraded to set inline display:none directly.
+
+    Tokenisation matters: the class attribute is space-separated, so the
+    `hidden` token must equal `hidden` exactly. `overflow-hidden`,
+    `block-hidden`, etc. are Tailwind utilities and are NOT the hide-toggle.
+    """
+    issues = []
+    for page in pages:
+        content = read_file(page)
+        if not content:
+            continue
+        for m in TAG_RE.finditer(content):
+            tag = m.group(0)
+            cls_m = CLASS_ATTR_RE.search(tag)
+            if not cls_m:
+                continue
+            classes = cls_m.group(1).split()
+            if 'hidden' not in classes:
+                continue
+            style_m = STYLE_ATTR_RE.search(tag)
+            if not style_m:
+                continue
+            disp_m = STYLE_DISPLAY_RE.search(style_m.group(1))
+            if not disp_m:
+                continue
+            # We have both class=hidden and inline display:<non-none>.
+            line = content[:m.start()].count("\n") + 1
+            snippet = tag[:140]
+            issues.append({
+                "check": "hidden_inline_display_conflict",
+                "page":  page,
+                "reason": (
+                    f"{page}:{line} has class=\"hidden\" AND inline "
+                    f"style=\"display:{disp_m.group(1)}\" — inline style beats "
+                    f"class, so classList.add('hidden') silently fails. Use "
+                    f"element.style.display = 'none' in the close handler, "
+                    f"or drop the inline display. Element: {snippet}"
+                ),
+            })
+    return issues
+
+
 def check_install_prompt_scope(pages):
     """
     beforeinstallprompt must be captured on app pages, not just the landing page.
@@ -328,6 +399,7 @@ CHECK_NAMES = [
     "manifest_link",
     "theme_color",
     "localstorage_quota",
+    "hidden_inline_display_conflict",
     "sw_offline_capability",
     "install_prompt_scope",
     "sw_cache_staleness",
@@ -335,14 +407,15 @@ CHECK_NAMES = [
 ]
 
 CHECK_LABELS = {
-    "manifest_completeness":  "L1  manifest.json has required fields + valid display + icon sizes",
-    "manifest_link":          "L2  All live pages link to /manifest.json",
-    "theme_color":            "L3  All pages have matching theme-color meta tag  [WARN]",
-    "localstorage_quota":     "L4  localStorage.setItem(JSON.stringify) wrapped in try/catch",
-    "sw_offline_capability":  "L5  sw.js has fetch handler for offline mode  [WARN]",
-    "install_prompt_scope":   "L5  beforeinstallprompt captured on app pages or shared JS  [WARN]",
-    "sw_cache_staleness":     "L6  SHELL_FILES not committed after sw.js (cache is fresh)",
-    "logbook_offline_queue":  "L6  Logbook has IndexedDB offline entry queue",
+    "manifest_completeness":          "L1  manifest.json has required fields + valid display + icon sizes",
+    "manifest_link":                  "L2  All live pages link to /manifest.json",
+    "theme_color":                    "L3  All pages have matching theme-color meta tag  [WARN]",
+    "localstorage_quota":             "L4  localStorage.setItem(JSON.stringify) wrapped in try/catch",
+    "hidden_inline_display_conflict": "L4  No element mixes class=hidden with inline display:non-none",
+    "sw_offline_capability":          "L5  sw.js has fetch handler for offline mode  [WARN]",
+    "install_prompt_scope":           "L5  beforeinstallprompt captured on app pages or shared JS  [WARN]",
+    "sw_cache_staleness":             "L6  SHELL_FILES not committed after sw.js (cache is fresh)",
+    "logbook_offline_queue":          "L6  Logbook has IndexedDB offline entry queue",
 }
 
 
@@ -364,6 +437,7 @@ def main():
     all_issues += check_manifest_link(LIVE_PAGES)
     all_issues += check_theme_color(LIVE_PAGES, manifest_theme_color)
     all_issues += check_localstorage_quota(LIVE_PAGES)
+    all_issues += check_hidden_inline_display(LIVE_PAGES)
     all_issues += check_sw_offline_capability(SW_FILE)
     all_issues += check_install_prompt_scope(LIVE_PAGES)
     all_issues += check_sw_cache_staleness(SW_FILE)
