@@ -15,7 +15,7 @@
     "hive.html": 0,
     "index.html": 0,
     "integrations.html": 0,
-    "inventory.html": 2,
+    "inventory.html": 0,
     "logbook.html": 0,
     "marketplace-admin.html": 0,
     "marketplace-seller-profile.html": 0,
@@ -33,5 +33,5 @@
     "skillmatrix.html": 0,
     "voice-journal.html": 0
   },
-  "total": 2
+  "total": 0
 }

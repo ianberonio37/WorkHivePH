@@ -1177,7 +1177,10 @@ function addTransaction(itemId, type, qtyChange, qtyAfter, note) {
 function openDetailModal(id) {
   const item = loadInventory().find(i => i.id === id);
   if (!item) return;
-  const txns = loadTransactions().filter(t => t.item_id === id).reverse().slice(0, 20);
+  // _txns is now ordered newest-first (desc by created_at) so we slice
+  // directly — no .reverse() needed. See the .order('created_at', desc)
+  // change in the loadFromSupabase() fetch.
+  const txns = loadTransactions().filter(t => t.item_id === id).slice(0, 20);
   const st   = stockStatus(item);
   const sc   = STATUS_COLORS[st];
 
@@ -1389,7 +1392,10 @@ async function initData() {
 
   const [itemsRes, txnsRes, assetsRes, [hiveItemsRes, myItemsRes], [hiveAssetsRes, myAssetsRes]] = await Promise.all([
     HIVE_ID ? Promise.resolve({ data: null }) : db.from('inventory_items').select('*').eq('worker_name', WORKER_NAME).order('created_at'),
-    db.from('inventory_transactions').select('*').eq('worker_name', WORKER_NAME).order('created_at'),
+    // Architect skill Query-First pattern: cap inventory_transactions to
+    // the last 365 days, max 500 rows, newest-first. Workers very rarely
+    // need older context. Detail modal slices per-item from this window.
+    db.from('inventory_transactions').select('*').eq('worker_name', WORKER_NAME).gte('created_at', new Date(Date.now() - 365*24*60*60*1000).toISOString()).order('created_at', { ascending: false }).limit(500),
     HIVE_ID ? Promise.resolve({ data: null }) : db.from('asset_nodes').select(ASSET_COLS).eq('worker_name', WORKER_NAME).is('hive_id', null).order('created_at'),
     itemsFetches,
     assetsFetches
@@ -1420,7 +1426,8 @@ async function initData() {
     localStorage.removeItem(TXN_KEY);
     const [ir, tr] = await Promise.all([
       db.from('inventory_items').select('*').eq('worker_name', WORKER_NAME).order('created_at'),
-      db.from('inventory_transactions').select('*').eq('worker_name', WORKER_NAME).order('created_at')
+      // Same window/cap as the primary fetch above — keep the two paths consistent.
+      db.from('inventory_transactions').select('*').eq('worker_name', WORKER_NAME).gte('created_at', new Date(Date.now() - 365*24*60*60*1000).toISOString()).order('created_at', { ascending: false }).limit(500)
     ]);
     _items = ir.data || [];
     _txns  = tr.data || [];
