@@ -661,11 +661,7 @@ PLAIN_READ_EXEMPT = {
 # Each entry: page -> one-line note on what the streamline target is.
 PLAIN_READ_DEFERRED = {
     "index.html":           "Landing — needs platform-health verdict + 'next thing to do' action card.",
-    "inventory.html":       "Needs stock-health verdict + cards (low-stock / restock-pending / open-disputes).",
-    "asset-hub.html":       "Needs asset-fleet verdict (X assets registered / Y critical / Z drifting).",
     "predictive.html":      "ML forecast surface — needs forecast confidence verdict + plain cards.",
-    "shift-brain.html":     "Handover view — needs shift-readiness verdict + cards.",
-    "dayplanner.html":      "DILO/WILO/MILO/YILO — needs day-completion verdict + cards across horizons.",
     "skillmatrix.html":     "Needs skill-health verdict (% certified / overdue quizzes) + cards.",
     "achievements.html":    "Needs XP-progress verdict + cards (this-week / streak / next badge).",
     "ph-intelligence.html": "Regional view — needs network-health verdict + cards.",

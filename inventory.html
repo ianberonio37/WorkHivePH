@@ -177,6 +177,37 @@
     ::-webkit-scrollbar { width: 6px; }
     ::-webkit-scrollbar-track { background: transparent; }
     ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
+
+    /* Plain-Read summary (Layer D — UX Contract) */
+    .verdict { display:flex; align-items:center; gap:12px; padding:14px 16px; margin-bottom:14px; border-radius:12px; border:1px solid; }
+    .verdict-icon { font-size:1.5rem; line-height:1; font-weight:800; }
+    .verdict-text { font-size:0.9rem; font-weight:700; line-height:1.35; }
+    .verdict-text small { display:block; font-size:0.72rem; font-weight:500; color:rgba(255,255,255,0.65); margin-top:3px; }
+    .verdict.healthy { background:rgba(74,222,128,0.07);  border-color:rgba(74,222,128,0.3); }
+    .verdict.healthy .verdict-icon { color:#4ade80; }
+    .verdict.watch   { background:rgba(247,162,27,0.07);  border-color:rgba(247,162,27,0.3); }
+    .verdict.watch   .verdict-icon { color:#F7A21B; }
+    .verdict.attn    { background:rgba(248,113,113,0.07); border-color:rgba(248,113,113,0.3); }
+    .verdict.attn    .verdict-icon { color:#f87171; }
+    .verdict.empty   { background:rgba(255,255,255,0.03); border-color:rgba(255,255,255,0.08); }
+    .verdict.empty   .verdict-icon { color:rgba(255,255,255,0.55); }
+    .simple-row { display:grid; grid-template-columns:repeat(auto-fit, minmax(160px, 1fr)); gap:12px; margin-bottom:14px; }
+    .simple-card { background:#162032; border:1px solid rgba(255,255,255,0.07); border-radius:12px; padding:14px 16px; }
+    .simple-card .sc-label { font-size:0.65rem; font-weight:700; color:rgba(255,255,255,0.4); text-transform:uppercase; letter-spacing:0.06em; }
+    .simple-card .sc-hero  { font-size:1.5rem; font-weight:800; line-height:1.15; margin:4px 0 2px; color:#F4F6FA; }
+    .simple-card .sc-sub   { font-size:0.7rem; color:rgba(255,255,255,0.55); line-height:1.4; }
+    .simple-card .sc-tag   { display:inline-block; font-size:0.58rem; font-weight:800; letter-spacing:0.06em; text-transform:uppercase; padding:0.18rem 0.5rem; border-radius:999px; margin-top:7px; }
+    .simple-card.tag-green .sc-tag { background:rgba(74,222,128,0.16);  color:#4ade80; }
+    .simple-card.tag-amber .sc-tag { background:rgba(247,162,27,0.16);  color:#F7A21B; }
+    .simple-card.tag-red   .sc-tag { background:rgba(248,113,113,0.16); color:#f87171; }
+    .simple-card.tag-grey  .sc-tag { background:rgba(255,255,255,0.06); color:rgba(255,255,255,0.5); }
+    .action-card { background:rgba(41,182,217,0.06); border:1px solid rgba(41,182,217,0.25); border-radius:12px; padding:14px 16px; margin-bottom:14px; }
+    .action-card .ac-label { font-size:0.65rem; font-weight:800; color:#29B6D9; text-transform:uppercase; letter-spacing:0.07em; }
+    .action-card .ac-text { font-size:0.82rem; line-height:1.5; margin-top:6px; color:rgba(255,255,255,0.85); }
+    .details-toggle { display:inline-flex; align-items:center; gap:6px; background:transparent; border:1px solid rgba(255,255,255,0.07); color:rgba(255,255,255,0.6); padding:8px 14px; border-radius:8px; font-family:inherit; font-size:0.7rem; font-weight:600; cursor:pointer; min-height:44px; margin-bottom:14px; }
+    .details-toggle:hover { color:#F4F6FA; border-color:rgba(255,255,255,0.18); }
+    #inv-summary-details { display:none; padding:14px 16px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:12px; font-size:0.78rem; line-height:1.5; color:rgba(255,255,255,0.7); margin-bottom:14px; }
+    #inv-summary-details.open { display:block; }
   </style>
 </head>
 
@@ -224,6 +255,50 @@
           </button>
         </div>
       </div>
+    </div>
+
+    <!-- Plain-Read summary (Layer D — UX Contract).
+         Populated by renderInventorySummary() from _items. -->
+    <div id="inv-verdict" class="verdict empty">
+      <span id="inv-verdict-icon" class="verdict-icon">·</span>
+      <div class="verdict-text"><span id="inv-verdict-label">Computing stock health...</span><small id="inv-verdict-sub">Counting out-of-stock, low-stock, and pending-approval items.</small></div>
+    </div>
+    <div class="simple-row">
+      <div class="simple-card tag-grey" id="inv-card-out">
+        <div class="sc-label">Out of stock</div>
+        <div class="sc-hero" id="inv-out-hero">0</div>
+        <div class="sc-sub" id="inv-out-sub">Loading...</div>
+        <span class="sc-tag" id="inv-out-tag">—</span>
+      </div>
+      <div class="simple-card tag-grey" id="inv-card-low">
+        <div class="sc-label">Low stock</div>
+        <div class="sc-hero" id="inv-low-hero">0</div>
+        <div class="sc-sub" id="inv-low-sub">Loading...</div>
+        <span class="sc-tag" id="inv-low-tag">—</span>
+      </div>
+      <div class="simple-card tag-grey" id="inv-card-pending">
+        <div class="sc-label">Pending approval</div>
+        <div class="sc-hero" id="inv-pending-hero">0</div>
+        <div class="sc-sub" id="inv-pending-sub">Loading...</div>
+        <span class="sc-tag" id="inv-pending-tag">—</span>
+      </div>
+    </div>
+    <div class="action-card">
+      <div class="ac-label">What to do next</div>
+      <div class="ac-text" id="inv-action-text">Computing recommendation...</div>
+    </div>
+    <button id="details-toggle-btn" type="button" class="details-toggle" aria-expanded="false" aria-controls="inv-summary-details">
+      Show details
+    </button>
+    <div id="inv-summary-details" role="region" aria-label="Stock health explainer">
+      <strong style="display:block;margin-bottom:6px;color:rgba(255,255,255,0.85);">How these counts are computed</strong>
+      <ul style="margin:0;padding-left:20px;">
+        <li><strong>Out of stock</strong>: parts with <code>qty_on_hand &lt;= 0</code>.</li>
+        <li><strong>Low stock</strong>: parts with <code>0 &lt; qty_on_hand &lt;= min_qty</code> (the reorder threshold).</li>
+        <li><strong>Pending approval</strong>: parts a worker added in this hive that need a supervisor sign-off before Use / Restock unlocks.</li>
+        <li><strong>Verdict</strong>: red if any out-of-stock for critical parts; amber if any low-stock OR pending; green when fully stocked.</li>
+      </ul>
+      <p style="margin-top:8px;color:rgba(255,255,255,0.55);font-size:11px;">Use the search and category filter below for the part-by-part drill-down.</p>
     </div>
 
     <!-- Low stock alert banner -->
@@ -658,6 +733,86 @@ function txnIcon(type) {
 // ────────────────────────────────────────────
 // RENDER PARTS LIST
 // ────────────────────────────────────────────
+// Layer D — Plain-Read summary for Inventory. Same item-level data the
+// stat pills + low-stock banner read, just rolled up into the contract.
+function renderInventorySummary(items, lowCount, outCount) {
+  const pendingCount = items.filter(i => i.status === 'pending').length;
+  const total = items.length;
+  const setCard = (name, hero, sub, tag, tone) => {
+    const card = document.getElementById('inv-card-' + name);
+    if (card) {
+      card.classList.remove('tag-green', 'tag-amber', 'tag-red', 'tag-grey');
+      card.classList.add('tag-' + tone);
+    }
+    const h = document.getElementById('inv-' + name + '-hero'); if (h) h.textContent = hero;
+    const s = document.getElementById('inv-' + name + '-sub');  if (s) s.textContent = sub;
+    const t = document.getElementById('inv-' + name + '-tag');  if (t) t.textContent = tag;
+  };
+
+  setCard('out',
+    String(outCount),
+    outCount === 0 ? 'No parts at zero qty' : `${outCount} of ${total} parts at zero quantity`,
+    outCount === 0 ? 'CLEAR' : outCount > 3 ? 'BLOCKING WORK' : 'RESTOCK NOW',
+    outCount === 0 ? 'green' : outCount > 3 ? 'red' : 'red'
+  );
+  setCard('low',
+    String(lowCount),
+    lowCount === 0 ? 'Every part above its reorder point' : `${lowCount} of ${total} parts at or below min_qty`,
+    lowCount === 0 ? 'STOCKED' : lowCount > 5 ? 'WIDESPREAD' : 'PLAN RESTOCK',
+    lowCount === 0 ? 'green' : lowCount > 5 ? 'red' : 'amber'
+  );
+  setCard('pending',
+    String(pendingCount),
+    pendingCount === 0 ? 'Nothing awaiting supervisor sign-off' : `${pendingCount} part${pendingCount === 1 ? '' : 's'} awaiting supervisor approval`,
+    pendingCount === 0 ? 'CLEAR' : pendingCount > 5 ? 'BACKLOG' : 'REVIEW',
+    pendingCount === 0 ? 'green' : pendingCount > 5 ? 'red' : 'amber'
+  );
+
+  // Verdict
+  let tone, label, sub;
+  if (outCount > 0) {
+    tone = 'attn'; label = `${outCount} part${outCount === 1 ? '' : 's'} out of stock`;
+    sub  = 'Restock these before the next job — Use is locked at qty 0.';
+  } else if (lowCount > 0 || pendingCount > 0) {
+    tone = 'watch'; label = 'A few things to handle this week';
+    const parts = [];
+    if (lowCount > 0)     parts.push(`${lowCount} low-stock`);
+    if (pendingCount > 0) parts.push(`${pendingCount} pending approval`);
+    sub = parts.join(' · ') + '.';
+  } else if (total === 0) {
+    tone = 'empty'; label = 'No parts in inventory yet';
+    sub  = 'Click "Add Part" to register your first spare. Workers can submit; supervisor approves.';
+  } else {
+    tone = 'healthy'; label = 'Stock is healthy';
+    sub  = `${total} parts in inventory · all above reorder point.`;
+  }
+  const vBox = document.getElementById('inv-verdict');
+  if (vBox) { vBox.classList.remove('healthy','watch','attn','empty'); vBox.classList.add(tone); }
+  const vIcon = document.getElementById('inv-verdict-icon'); if (vIcon) vIcon.textContent = tone === 'healthy' ? '✓' : tone === 'watch' ? '!' : tone === 'attn' ? '⚠' : '·';
+  const vLbl = document.getElementById('inv-verdict-label'); if (vLbl) vLbl.textContent = label;
+  const vSb  = document.getElementById('inv-verdict-sub');   if (vSb)  vSb.textContent  = sub;
+
+  // Action
+  const actBox = document.getElementById('inv-action-text');
+  if (actBox) {
+    let text;
+    if (total === 0) {
+      text = 'No parts registered. Click "Add Part" to start your spare-parts inventory — even rough quantities are better than nothing for kicking off the reorder loop.';
+    } else if (outCount > 0) {
+      text = `Filter to "Out of stock" using the chip below and restock these ${outCount} part${outCount === 1 ? '' : 's'} first. Every job that needs them is blocked.`;
+    } else if (pendingCount > 5) {
+      text = `${pendingCount} parts are awaiting your approval. Filter to "Pending approval" and clear the backlog — Use and Restock are locked until you sign off.`;
+    } else if (lowCount > 0) {
+      text = `${lowCount} part${lowCount === 1 ? '' : 's'} at or below the reorder threshold. Order them before the next shift planning so they arrive before they hit zero.`;
+    } else if (pendingCount > 0) {
+      text = `${pendingCount} part${pendingCount === 1 ? '' : 's'} awaiting your approval. Filter to "Pending approval" below and sign off so workers can use them.`;
+    } else {
+      text = 'Inventory is healthy. Re-check after the next big job to confirm nothing dropped below its reorder point.';
+    }
+    actBox.textContent = text;
+  }
+}
+
 function renderParts() {
   const items   = loadInventory();
   const query   = document.getElementById('search-input').value.trim().toLowerCase();
@@ -670,6 +825,10 @@ function renderParts() {
   document.getElementById('stat-total').textContent = items.length;
   document.getElementById('stat-low').textContent   = lowCount;
   document.getElementById('stat-out').textContent   = outCount;
+
+  // Plain-Read summary (Layer D). Rolls up the same counts into the
+  // verdict + 3 cards above the engineering list.
+  renderInventorySummary(items, lowCount, outCount);
 
   // Alert banner
   const alertCount = lowCount + outCount;
@@ -1340,6 +1499,18 @@ document.getElementById('inv-scan-btn')?.addEventListener('click', function () {
 
 document.getElementById('btn-add-part').addEventListener('click',   () => openAddModal());
 document.getElementById('empty-add-btn').addEventListener('click',  () => openAddModal());
+
+// Plain-Read details toggle (Layer D — UX Contract)
+(function wireInvSummaryToggle() {
+  const btn  = document.getElementById('details-toggle-btn');
+  const pane = document.getElementById('inv-summary-details');
+  if (!btn || !pane) return;
+  btn.addEventListener('click', () => {
+    const open = pane.classList.toggle('open');
+    btn.setAttribute('aria-expanded', String(open));
+    btn.textContent = open ? 'Hide details' : 'Show details';
+  });
+})();
 
 document.getElementById('part-modal-close').addEventListener('click', closePartModal);
 document.getElementById('part-submit-btn').addEventListener('click',  submitPart);

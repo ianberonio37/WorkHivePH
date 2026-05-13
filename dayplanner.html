@@ -167,6 +167,36 @@
     /* Selected item glow */
     @keyframes pulse-border { 0%,100%{box-shadow:0 0 0 2px rgba(247,162,27,0.2)} 50%{box-shadow:0 0 0 4px rgba(247,162,27,0.35)} }
     .selected-pulse { animation: pulse-border 1.5s ease-in-out infinite; }
+    /* Plain-Read summary (Layer D — UX Contract) */
+    .verdict { display:flex; align-items:center; gap:12px; padding:14px 16px; margin-bottom:14px; border-radius:12px; border:1px solid; }
+    .verdict-icon { font-size:1.5rem; line-height:1; font-weight:800; }
+    .verdict-text { font-size:0.9rem; font-weight:700; line-height:1.35; }
+    .verdict-text small { display:block; font-size:0.72rem; font-weight:500; color:rgba(255,255,255,0.65); margin-top:3px; }
+    .verdict.healthy { background:rgba(74,222,128,0.07);  border-color:rgba(74,222,128,0.3); }
+    .verdict.healthy .verdict-icon { color:#4ade80; }
+    .verdict.watch   { background:rgba(247,162,27,0.07);  border-color:rgba(247,162,27,0.3); }
+    .verdict.watch   .verdict-icon { color:#F7A21B; }
+    .verdict.attn    { background:rgba(248,113,113,0.07); border-color:rgba(248,113,113,0.3); }
+    .verdict.attn    .verdict-icon { color:#f87171; }
+    .verdict.empty   { background:rgba(255,255,255,0.03); border-color:rgba(255,255,255,0.08); }
+    .verdict.empty   .verdict-icon { color:rgba(255,255,255,0.55); }
+    .simple-row { display:grid; grid-template-columns:repeat(auto-fit, minmax(160px, 1fr)); gap:12px; margin-bottom:14px; }
+    .simple-card { background:#162032; border:1px solid rgba(255,255,255,0.07); border-radius:12px; padding:14px 16px; }
+    .simple-card .sc-label { font-size:0.65rem; font-weight:700; color:rgba(255,255,255,0.4); text-transform:uppercase; letter-spacing:0.06em; }
+    .simple-card .sc-hero  { font-size:1.5rem; font-weight:800; line-height:1.15; margin:4px 0 2px; color:#F4F6FA; }
+    .simple-card .sc-sub   { font-size:0.7rem; color:rgba(255,255,255,0.55); line-height:1.4; }
+    .simple-card .sc-tag   { display:inline-block; font-size:0.58rem; font-weight:800; letter-spacing:0.06em; text-transform:uppercase; padding:0.18rem 0.5rem; border-radius:999px; margin-top:7px; }
+    .simple-card.tag-green .sc-tag { background:rgba(74,222,128,0.16);  color:#4ade80; }
+    .simple-card.tag-amber .sc-tag { background:rgba(247,162,27,0.16);  color:#F7A21B; }
+    .simple-card.tag-red   .sc-tag { background:rgba(248,113,113,0.16); color:#f87171; }
+    .simple-card.tag-grey  .sc-tag { background:rgba(255,255,255,0.06); color:rgba(255,255,255,0.5); }
+    .action-card { background:rgba(41,182,217,0.06); border:1px solid rgba(41,182,217,0.25); border-radius:12px; padding:14px 16px; margin-bottom:14px; }
+    .action-card .ac-label { font-size:0.65rem; font-weight:800; color:#29B6D9; text-transform:uppercase; letter-spacing:0.07em; }
+    .action-card .ac-text { font-size:0.82rem; line-height:1.5; margin-top:6px; color:rgba(255,255,255,0.85); }
+    .details-toggle { display:inline-flex; align-items:center; gap:6px; background:transparent; border:1px solid rgba(255,255,255,0.07); color:rgba(255,255,255,0.6); padding:8px 14px; border-radius:8px; font-family:inherit; font-size:0.7rem; font-weight:600; cursor:pointer; min-height:44px; margin-bottom:14px; }
+    .details-toggle:hover { color:#F4F6FA; border-color:rgba(255,255,255,0.18); }
+    #dp-summary-details { display:none; padding:14px 16px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:12px; font-size:0.78rem; line-height:1.5; color:rgba(255,255,255,0.7); margin-bottom:14px; }
+    #dp-summary-details.open { display:block; }
   </style>
 </head>
 <body>
@@ -255,6 +285,50 @@
       <button class="btn-primary" onclick="openAddModal()" style="white-space:nowrap">
         + Schedule
       </button>
+    </div>
+
+    <!-- Plain-Read summary (Layer D — UX Contract).
+         Populated by renderDayplannerSummary() from scheduleItems. -->
+    <div id="dp-verdict" class="verdict empty">
+      <span id="dp-verdict-icon" class="verdict-icon">·</span>
+      <div class="verdict-text"><span id="dp-verdict-label">Loading day plan...</span><small id="dp-verdict-sub">Counting today's items, this week's load, and overdue.</small></div>
+    </div>
+    <div class="simple-row">
+      <div class="simple-card tag-grey" id="dp-card-today">
+        <div class="sc-label">Today</div>
+        <div class="sc-hero" id="dp-today-hero">0</div>
+        <div class="sc-sub" id="dp-today-sub">Loading...</div>
+        <span class="sc-tag" id="dp-today-tag">—</span>
+      </div>
+      <div class="simple-card tag-grey" id="dp-card-week">
+        <div class="sc-label">This week</div>
+        <div class="sc-hero" id="dp-week-hero">0</div>
+        <div class="sc-sub" id="dp-week-sub">Loading...</div>
+        <span class="sc-tag" id="dp-week-tag">—</span>
+      </div>
+      <div class="simple-card tag-grey" id="dp-card-overdue">
+        <div class="sc-label">Overdue</div>
+        <div class="sc-hero" id="dp-overdue-hero">0</div>
+        <div class="sc-sub" id="dp-overdue-sub">Loading...</div>
+        <span class="sc-tag" id="dp-overdue-tag">—</span>
+      </div>
+    </div>
+    <div class="action-card">
+      <div class="ac-label">What to do next</div>
+      <div class="ac-text" id="dp-action-text">Computing recommendation...</div>
+    </div>
+    <button id="details-toggle-btn" type="button" class="details-toggle" aria-expanded="false" aria-controls="dp-summary-details">
+      Show details
+    </button>
+    <div id="dp-summary-details" role="region" aria-label="Day planner explainer">
+      <strong style="display:block;margin-bottom:6px;color:rgba(255,255,255,0.85);">How this is computed</strong>
+      <ul style="margin:0;padding-left:20px;">
+        <li><strong>Today</strong>: <code>schedule_items</code> with <code>date = today</code> (PHT).</li>
+        <li><strong>This week</strong>: items in the current Monday-Sunday window.</li>
+        <li><strong>Overdue</strong>: items with <code>date &lt; today</code> AND <code>item_status != 'Closed'</code> — open work that slipped.</li>
+        <li><strong>Verdict</strong>: red if 3+ overdue; amber if today &gt; 6 OR any overdue; green when the day is plannable.</li>
+      </ul>
+      <p style="margin-top:8px;color:rgba(255,255,255,0.55);font-size:11px;">Click into DILO / WILO / MILO / YILO tabs for the day / week / month / year drilldown.</p>
     </div>
 
     <!-- Calendar content -->
@@ -718,6 +792,97 @@ function render() {
   else if (currentView === 'wilo') renderWILO();
   else if (currentView === 'milo') renderMILO();
   else if (currentView === 'yilo') renderYILO();
+  // Plain-Read summary (Layer D) — rolls up scheduleItems[] for the
+  // verdict + cards above the calendar. Re-renders on every view switch
+  // so the "Today" card always reflects real-time state.
+  renderDayplannerSummary();
+}
+
+// Layer D — Plain-Read summary for Day Planner.
+function renderDayplannerSummary() {
+  const today = new Date();
+  const ymdToday = today.toISOString().slice(0, 10);
+  // Monday-start week boundaries (PHT shifts assume Mon-Sun)
+  const dow = today.getDay() || 7; // Sun=7 instead of 0
+  const monday = new Date(today); monday.setDate(today.getDate() - (dow - 1)); monday.setHours(0,0,0,0);
+  const sunday = new Date(monday); sunday.setDate(monday.getDate() + 6); sunday.setHours(23,59,59,999);
+  const ymdMon = monday.toISOString().slice(0, 10);
+  const ymdSun = sunday.toISOString().slice(0, 10);
+
+  const todayCount = scheduleItems.filter(i => i.date === ymdToday).length;
+  const weekCount  = scheduleItems.filter(i => i.date >= ymdMon && i.date <= ymdSun).length;
+  const overdueCount = scheduleItems.filter(i =>
+    i.date < ymdToday && (i.itemStatus || '').toLowerCase() !== 'closed'
+  ).length;
+
+  const setCard = (name, hero, sub, tag, tone) => {
+    const card = document.getElementById('dp-card-' + name);
+    if (card) {
+      card.classList.remove('tag-green', 'tag-amber', 'tag-red', 'tag-grey');
+      card.classList.add('tag-' + tone);
+    }
+    const h = document.getElementById('dp-' + name + '-hero'); if (h) h.textContent = hero;
+    const s = document.getElementById('dp-' + name + '-sub');  if (s) s.textContent = sub;
+    const t = document.getElementById('dp-' + name + '-tag');  if (t) t.textContent = tag;
+  };
+  setCard('today',
+    String(todayCount),
+    todayCount === 0 ? 'No items scheduled for today' : `${todayCount} item${todayCount === 1 ? '' : 's'} on today's plan`,
+    todayCount === 0 ? 'FREE' : todayCount > 6 ? 'BUSY' : 'PLANNED',
+    todayCount === 0 ? 'green' : todayCount > 6 ? 'amber' : 'green'
+  );
+  setCard('week',
+    String(weekCount),
+    weekCount === 0 ? 'No items scheduled this week' : `${weekCount} item${weekCount === 1 ? '' : 's'} between Mon-Sun`,
+    weekCount === 0 ? 'EMPTY' : weekCount > 30 ? 'PACKED' : weekCount > 10 ? 'NORMAL' : 'LIGHT',
+    weekCount === 0 ? 'grey' : weekCount > 30 ? 'amber' : 'green'
+  );
+  setCard('overdue',
+    String(overdueCount),
+    overdueCount === 0 ? 'No items past their date' : `${overdueCount} item${overdueCount === 1 ? '' : 's'} past their scheduled date`,
+    overdueCount === 0 ? 'CLEAR' : overdueCount >= 3 ? 'STACKING' : 'CLOSE OUT',
+    overdueCount === 0 ? 'green' : overdueCount >= 3 ? 'red' : 'amber'
+  );
+
+  let tone, label, sub;
+  if (overdueCount >= 3) {
+    tone = 'attn'; label = `${overdueCount} items overdue`;
+    sub  = 'Close them out (mark Closed) or re-schedule so the day plan reflects reality.';
+  } else if (overdueCount > 0 || todayCount > 6) {
+    tone = 'watch'; label = 'Day is shaping up — a couple of things to manage';
+    const parts = [];
+    if (overdueCount > 0) parts.push(`${overdueCount} overdue`);
+    if (todayCount > 6)   parts.push(`${todayCount} on today's plan`);
+    sub = parts.join(' · ') + '.';
+  } else if (todayCount === 0 && weekCount === 0) {
+    tone = 'empty'; label = 'No plan yet';
+    sub  = 'Tap + Schedule to add items. DILO / WILO / MILO / YILO views drill into day / week / month / year.';
+  } else {
+    tone = 'healthy'; label = 'Day plan looks manageable';
+    sub  = `${todayCount} today · ${weekCount} this week · no overdue.`;
+  }
+  const vBox = document.getElementById('dp-verdict');
+  if (vBox) { vBox.classList.remove('healthy','watch','attn','empty'); vBox.classList.add(tone); }
+  const vIcon = document.getElementById('dp-verdict-icon'); if (vIcon) vIcon.textContent = tone === 'healthy' ? '✓' : tone === 'watch' ? '!' : tone === 'attn' ? '⚠' : '·';
+  const vLbl = document.getElementById('dp-verdict-label'); if (vLbl) vLbl.textContent = label;
+  const vSb  = document.getElementById('dp-verdict-sub');   if (vSb)  vSb.textContent  = sub;
+
+  const actBox = document.getElementById('dp-action-text');
+  if (actBox) {
+    let text;
+    if (todayCount === 0 && weekCount === 0) {
+      text = 'No items scheduled. Use the + Schedule button to plan your week — even rough placeholders help cluster work by location and asset.';
+    } else if (overdueCount >= 3) {
+      text = `${overdueCount} items overdue. Quickest path: open WILO, drag the still-relevant ones to today/tomorrow, and close out the rest.`;
+    } else if (overdueCount > 0) {
+      text = `${overdueCount} overdue item${overdueCount === 1 ? '' : 's'}. Either close them out (if done) or push the date forward so the plan stays honest.`;
+    } else if (todayCount > 6) {
+      text = `${todayCount} items on today's plan — that's a heavy day. Open DILO to check the time grid for clashes, then defer anything non-urgent to tomorrow.`;
+    } else {
+      text = 'Day plan is healthy. Open DILO for the time-grid view of today, or WILO to balance the week ahead.';
+    }
+    actBox.textContent = text;
+  }
 }
 
 // ─────────────────────────────────────────────
@@ -1332,6 +1497,18 @@ document.addEventListener('keydown', e => {
     try { const { data: { session } } = await db.auth.getSession(); _authUid = session?.user?.id || null; } catch (_) {}
     if (!_authUid) { window.location.href = 'index.html?signin=1'; return; }
     await Promise.all([loadLogbook(), loadSchedule()]);
+
+    // Plain-Read details toggle (Layer D — UX Contract)
+    (function wireDpSummaryToggle() {
+      const btn  = document.getElementById('details-toggle-btn');
+      const pane = document.getElementById('dp-summary-details');
+      if (!btn || !pane) return;
+      btn.addEventListener('click', () => {
+        const open = pane.classList.toggle('open');
+        btn.setAttribute('aria-expanded', String(open));
+        btn.textContent = open ? 'Hide details' : 'Show details';
+      });
+    })();
   })();
 </script>
 <script src="nav-hub.js"></script>

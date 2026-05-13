@@ -396,6 +396,36 @@
     .edge-actions .cancel {
       background: rgba(255,255,255,0.06); color: #F4F6FA;
     }
+    /* Plain-Read summary (Layer D — UX Contract) */
+    .verdict { display:flex; align-items:center; gap:12px; padding:14px 16px; margin-bottom:14px; border-radius:12px; border:1px solid; }
+    .verdict-icon { font-size:1.5rem; line-height:1; font-weight:800; }
+    .verdict-text { font-size:0.9rem; font-weight:700; line-height:1.35; }
+    .verdict-text small { display:block; font-size:0.72rem; font-weight:500; color:rgba(255,255,255,0.65); margin-top:3px; }
+    .verdict.healthy { background:rgba(74,222,128,0.07);  border-color:rgba(74,222,128,0.3); }
+    .verdict.healthy .verdict-icon { color:#4ade80; }
+    .verdict.watch   { background:rgba(247,162,27,0.07);  border-color:rgba(247,162,27,0.3); }
+    .verdict.watch   .verdict-icon { color:#F7A21B; }
+    .verdict.attn    { background:rgba(248,113,113,0.07); border-color:rgba(248,113,113,0.3); }
+    .verdict.attn    .verdict-icon { color:#f87171; }
+    .verdict.empty   { background:rgba(255,255,255,0.03); border-color:rgba(255,255,255,0.08); }
+    .verdict.empty   .verdict-icon { color:rgba(255,255,255,0.55); }
+    .simple-row { display:grid; grid-template-columns:repeat(auto-fit, minmax(160px, 1fr)); gap:12px; margin-bottom:14px; }
+    .simple-card { background:#162032; border:1px solid rgba(255,255,255,0.07); border-radius:12px; padding:14px 16px; }
+    .simple-card .sc-label { font-size:0.65rem; font-weight:700; color:rgba(255,255,255,0.4); text-transform:uppercase; letter-spacing:0.06em; }
+    .simple-card .sc-hero  { font-size:1.5rem; font-weight:800; line-height:1.15; margin:4px 0 2px; color:#F4F6FA; }
+    .simple-card .sc-sub   { font-size:0.7rem; color:rgba(255,255,255,0.55); line-height:1.4; }
+    .simple-card .sc-tag   { display:inline-block; font-size:0.58rem; font-weight:800; letter-spacing:0.06em; text-transform:uppercase; padding:0.18rem 0.5rem; border-radius:999px; margin-top:7px; }
+    .simple-card.tag-green .sc-tag { background:rgba(74,222,128,0.16);  color:#4ade80; }
+    .simple-card.tag-amber .sc-tag { background:rgba(247,162,27,0.16);  color:#F7A21B; }
+    .simple-card.tag-red   .sc-tag { background:rgba(248,113,113,0.16); color:#f87171; }
+    .simple-card.tag-grey  .sc-tag { background:rgba(255,255,255,0.06); color:rgba(255,255,255,0.5); }
+    .action-card { background:rgba(41,182,217,0.06); border:1px solid rgba(41,182,217,0.25); border-radius:12px; padding:14px 16px; margin-bottom:14px; }
+    .action-card .ac-label { font-size:0.65rem; font-weight:800; color:#29B6D9; text-transform:uppercase; letter-spacing:0.07em; }
+    .action-card .ac-text { font-size:0.82rem; line-height:1.5; margin-top:6px; color:rgba(255,255,255,0.85); }
+    .details-toggle { display:inline-flex; align-items:center; gap:6px; background:transparent; border:1px solid rgba(255,255,255,0.07); color:rgba(255,255,255,0.6); padding:8px 14px; border-radius:8px; font-family:inherit; font-size:0.7rem; font-weight:600; cursor:pointer; min-height:44px; margin-bottom:14px; }
+    .details-toggle:hover { color:#F4F6FA; border-color:rgba(255,255,255,0.18); }
+    #ah-summary-details { display:none; padding:14px 16px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:12px; font-size:0.78rem; line-height:1.5; color:rgba(255,255,255,0.7); margin-bottom:14px; }
+    #ah-summary-details.open { display:block; }
   </style>
 </head>
 <body>
@@ -426,6 +456,51 @@
 
     <!-- LIST VIEW -->
     <div id="list-view">
+
+      <!-- Plain-Read summary (Layer D — UX Contract).
+           Populated by renderAssetSummary() from _allNodes + _pendingNodes. -->
+      <div id="ah-verdict" class="verdict empty">
+        <span id="ah-verdict-icon" class="verdict-icon">·</span>
+        <div class="verdict-text"><span id="ah-verdict-label">Loading asset fleet...</span><small id="ah-verdict-sub">Counting approved assets, critical equipment, and pending approvals.</small></div>
+      </div>
+      <div class="simple-row">
+        <div class="simple-card tag-grey" id="ah-card-total">
+          <div class="sc-label">Total assets</div>
+          <div class="sc-hero" id="ah-total-hero">0</div>
+          <div class="sc-sub" id="ah-total-sub">Loading...</div>
+          <span class="sc-tag" id="ah-total-tag">—</span>
+        </div>
+        <div class="simple-card tag-grey" id="ah-card-critical">
+          <div class="sc-label">Critical assets</div>
+          <div class="sc-hero" id="ah-critical-hero">0</div>
+          <div class="sc-sub" id="ah-critical-sub">Loading...</div>
+          <span class="sc-tag" id="ah-critical-tag">—</span>
+        </div>
+        <div class="simple-card tag-grey" id="ah-card-pending">
+          <div class="sc-label">Pending approval</div>
+          <div class="sc-hero" id="ah-pending-hero">0</div>
+          <div class="sc-sub" id="ah-pending-sub">Loading...</div>
+          <span class="sc-tag" id="ah-pending-tag">—</span>
+        </div>
+      </div>
+      <div class="action-card">
+        <div class="ac-label">What to do next</div>
+        <div class="ac-text" id="ah-action-text">Computing recommendation...</div>
+      </div>
+      <button id="details-toggle-btn" type="button" class="details-toggle" aria-expanded="false" aria-controls="ah-summary-details">
+        Show details
+      </button>
+      <div id="ah-summary-details" role="region" aria-label="Asset fleet explainer">
+        <strong style="display:block;margin-bottom:6px;color:rgba(255,255,255,0.85);">How this is computed</strong>
+        <ul style="margin:0;padding-left:20px;">
+          <li><strong>Total assets</strong>: <code>asset_nodes</code> rows where <code>status = 'approved'</code> in this hive.</li>
+          <li><strong>Critical assets</strong>: subset where <code>criticality = 'critical'</code> (case-insensitive). These should have full PM coverage.</li>
+          <li><strong>Pending approval</strong>: worker-submitted assets awaiting supervisor sign-off (<code>status IN ('pending','rejected')</code>).</li>
+          <li><strong>Verdict</strong>: red if 5+ pending; amber if any pending OR no critical assets registered; green when registry is complete.</li>
+        </ul>
+        <p style="margin-top:8px;color:rgba(255,255,255,0.55);font-size:11px;">Search and tap any asset card below for the 360° view.</p>
+      </div>
+
       <div class="search-row" style="display:flex; gap:8px; align-items:center;">
         <input aria-label="Search by tag, name, or location" id="asset-search" class="search-input" type="search" placeholder="Search by tag, name, or location" autocomplete="off" style="flex:1;" />
         <!-- Phase E.3a: scan a physical tag to jump straight to its 360 view -->
@@ -967,6 +1042,9 @@
         _allNodes = data || [];
       }
       renderList();
+      // Plain-Read summary renders from _allNodes immediately; pending count
+      // updates again after loadPendingAssets fires for supervisors.
+      renderAssetSummary();
       // Supervisor-only: load the pending/rejected approval queue alongside.
       // Workers see only the approved list above.
       if (HIVE_ROLE === 'supervisor') loadPendingAssets();
@@ -991,6 +1069,87 @@
         _pendingNodes = data || [];
       }
       renderPendingAssets();
+      // Re-render the Plain-Read summary so the Pending card reflects supervisor view.
+      renderAssetSummary();
+    }
+
+    // Layer D — Plain-Read summary for Asset Hub. Reads _allNodes + _pendingNodes.
+    function renderAssetSummary() {
+      const total = _allNodes.length;
+      const critical = _allNodes.filter(n => String(n.criticality || '').toLowerCase() === 'critical').length;
+      const pending = (_pendingNodes || []).filter(n => n.status === 'pending').length;
+
+      const setCard = (name, hero, sub, tag, tone) => {
+        const card = document.getElementById('ah-card-' + name);
+        if (card) {
+          card.classList.remove('tag-green', 'tag-amber', 'tag-red', 'tag-grey');
+          card.classList.add('tag-' + tone);
+        }
+        const h = document.getElementById('ah-' + name + '-hero'); if (h) h.textContent = hero;
+        const s = document.getElementById('ah-' + name + '-sub');  if (s) s.textContent = sub;
+        const t = document.getElementById('ah-' + name + '-tag');  if (t) t.textContent = tag;
+      };
+
+      setCard('total',
+        String(total),
+        total === 0 ? 'No equipment registered yet' : `${total} approved asset${total === 1 ? '' : 's'} in this hive`,
+        total === 0 ? 'EMPTY' : total >= 20 ? 'MATURE' : total >= 5 ? 'BUILDING' : 'EARLY',
+        total === 0 ? 'grey' : total >= 5 ? 'green' : 'amber'
+      );
+      setCard('critical',
+        String(critical),
+        critical === 0 ? 'No critical equipment flagged' : `${critical} critical asset${critical === 1 ? '' : 's'} — these drive every reliability KPI`,
+        critical === 0 ? (total > 0 ? 'NONE FLAGGED' : 'NO DATA') : 'TRACKED',
+        critical === 0 ? (total > 0 ? 'amber' : 'grey') : 'green'
+      );
+      setCard('pending',
+        String(pending),
+        pending === 0 ? 'No worker submissions awaiting review' : `${pending} asset${pending === 1 ? '' : 's'} awaiting supervisor sign-off`,
+        pending === 0 ? 'CLEAR' : pending > 5 ? 'BACKLOG' : 'REVIEW',
+        pending === 0 ? 'green' : pending > 5 ? 'red' : 'amber'
+      );
+
+      // Verdict
+      let tone, label, sub;
+      if (pending > 5) {
+        tone = 'attn'; label = `${pending} asset submissions awaiting your approval`;
+        sub  = 'Open the Pending Approvals card below — workers are blocked from logging entries against unapproved assets.';
+      } else if (pending > 0 || (total > 0 && critical === 0)) {
+        tone = 'watch'; label = 'Asset fleet mostly healthy — a couple of things to do';
+        const parts = [];
+        if (pending > 0) parts.push(`${pending} pending`);
+        if (critical === 0 && total > 0) parts.push('no critical assets flagged');
+        sub = parts.join(' · ') + '.';
+      } else if (total === 0) {
+        tone = 'empty'; label = 'No assets registered yet';
+        sub  = 'Workers add assets from PM Scheduler or Inventory; they appear here once you approve them.';
+      } else {
+        tone = 'healthy'; label = `${total} asset${total === 1 ? '' : 's'} tracked, ${critical} marked critical`;
+        sub  = 'Registry complete — proceed to PM Scheduler to ensure every critical asset has scope items.';
+      }
+      const vBox = document.getElementById('ah-verdict');
+      if (vBox) { vBox.classList.remove('healthy','watch','attn','empty'); vBox.classList.add(tone); }
+      const vIcon = document.getElementById('ah-verdict-icon'); if (vIcon) vIcon.textContent = tone === 'healthy' ? '✓' : tone === 'watch' ? '!' : tone === 'attn' ? '⚠' : '·';
+      const vLbl = document.getElementById('ah-verdict-label'); if (vLbl) vLbl.textContent = label;
+      const vSb  = document.getElementById('ah-verdict-sub');   if (vSb)  vSb.textContent  = sub;
+
+      // Action
+      const actBox = document.getElementById('ah-action-text');
+      if (actBox) {
+        let text;
+        if (total === 0) {
+          text = 'No assets yet. Workers can submit equipment from PM Scheduler or Inventory — when they do, the submission will land in your Pending Approvals card below.';
+        } else if (pending > 5) {
+          text = `${pending} pending asset submissions. Scroll to the Pending Approvals card and approve in bulk — workers can't log breakdowns or PMs against assets that aren't approved.`;
+        } else if (pending > 0) {
+          text = `${pending} asset${pending === 1 ? '' : 's'} awaiting your sign-off. Open the Pending Approvals card below and review each one — usually a quick yes/no.`;
+        } else if (critical === 0 && total > 0) {
+          text = 'No assets are flagged as critical. Walk through your list below and mark the top 5 production-blocking assets as Critical — this drives where AI focuses its attention.';
+        } else {
+          text = 'Asset registry looks complete. Tap any card for its 360° view (PMs, breakdowns, parts, risk score).';
+        }
+        actBox.textContent = text;
+      }
     }
 
     function renderPendingAssets() {
@@ -3367,6 +3526,18 @@
       }
 
       document.getElementById('page-wrap').style.display = 'block';
+
+      // Wire the Plain-Read details toggle once the page is visible.
+      (function wireAhSummaryToggle() {
+        const btn  = document.getElementById('details-toggle-btn');
+        const pane = document.getElementById('ah-summary-details');
+        if (!btn || !pane) return;
+        btn.addEventListener('click', () => {
+          const open = pane.classList.toggle('open');
+          btn.setAttribute('aria-expanded', String(open));
+          btn.textContent = open ? 'Hide details' : 'Show details';
+        });
+      })();
 
       await loadAssetNodes();
 

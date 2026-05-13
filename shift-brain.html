@@ -147,6 +147,36 @@
     .btn-ghost {
       background: rgba(255,255,255,0.06); border: 1px solid var(--border); color: #F4F6FA;
     }
+    /* Plain-Read summary (Layer D — UX Contract) */
+    .verdict { display:flex; align-items:center; gap:12px; padding:14px 16px; margin-bottom:14px; border-radius:12px; border:1px solid; }
+    .verdict-icon { font-size:1.5rem; line-height:1; font-weight:800; }
+    .verdict-text { font-size:0.9rem; font-weight:700; line-height:1.35; }
+    .verdict-text small { display:block; font-size:0.72rem; font-weight:500; color:rgba(255,255,255,0.65); margin-top:3px; }
+    .verdict.healthy { background:rgba(74,222,128,0.07);  border-color:rgba(74,222,128,0.3); }
+    .verdict.healthy .verdict-icon { color:#4ade80; }
+    .verdict.watch   { background:rgba(247,162,27,0.07);  border-color:rgba(247,162,27,0.3); }
+    .verdict.watch   .verdict-icon { color:#F7A21B; }
+    .verdict.attn    { background:rgba(248,113,113,0.07); border-color:rgba(248,113,113,0.3); }
+    .verdict.attn    .verdict-icon { color:#f87171; }
+    .verdict.empty   { background:rgba(255,255,255,0.03); border-color:rgba(255,255,255,0.08); }
+    .verdict.empty   .verdict-icon { color:rgba(255,255,255,0.55); }
+    .simple-row { display:grid; grid-template-columns:repeat(auto-fit, minmax(160px, 1fr)); gap:12px; margin-bottom:14px; }
+    .simple-card { background:#162032; border:1px solid rgba(255,255,255,0.07); border-radius:12px; padding:14px 16px; }
+    .simple-card .sc-label { font-size:0.65rem; font-weight:700; color:rgba(255,255,255,0.4); text-transform:uppercase; letter-spacing:0.06em; }
+    .simple-card .sc-hero  { font-size:1.5rem; font-weight:800; line-height:1.15; margin:4px 0 2px; color:#F4F6FA; }
+    .simple-card .sc-sub   { font-size:0.7rem; color:rgba(255,255,255,0.55); line-height:1.4; }
+    .simple-card .sc-tag   { display:inline-block; font-size:0.58rem; font-weight:800; letter-spacing:0.06em; text-transform:uppercase; padding:0.18rem 0.5rem; border-radius:999px; margin-top:7px; }
+    .simple-card.tag-green .sc-tag { background:rgba(74,222,128,0.16);  color:#4ade80; }
+    .simple-card.tag-amber .sc-tag { background:rgba(247,162,27,0.16);  color:#F7A21B; }
+    .simple-card.tag-red   .sc-tag { background:rgba(248,113,113,0.16); color:#f87171; }
+    .simple-card.tag-grey  .sc-tag { background:rgba(255,255,255,0.06); color:rgba(255,255,255,0.5); }
+    .action-card { background:rgba(41,182,217,0.06); border:1px solid rgba(41,182,217,0.25); border-radius:12px; padding:14px 16px; margin-bottom:14px; }
+    .action-card .ac-label { font-size:0.65rem; font-weight:800; color:#29B6D9; text-transform:uppercase; letter-spacing:0.07em; }
+    .action-card .ac-text { font-size:0.82rem; line-height:1.5; margin-top:6px; color:rgba(255,255,255,0.85); }
+    .details-toggle { display:inline-flex; align-items:center; gap:6px; background:transparent; border:1px solid rgba(255,255,255,0.07); color:rgba(255,255,255,0.6); padding:8px 14px; border-radius:8px; font-family:inherit; font-size:0.7rem; font-weight:600; cursor:pointer; min-height:44px; margin-bottom:14px; }
+    .details-toggle:hover { color:#F4F6FA; border-color:rgba(255,255,255,0.18); }
+    #sb-summary-details { display:none; padding:14px 16px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:12px; font-size:0.78rem; line-height:1.5; color:rgba(255,255,255,0.7); margin-bottom:14px; }
+    #sb-summary-details.open { display:block; }
   </style>
 </head>
 <body>
@@ -175,6 +205,50 @@
       <button class="shift-pill" data-window="06-14">06-14 Morning</button>
       <button class="shift-pill" data-window="14-22">14-22 Afternoon</button>
       <button class="shift-pill" data-window="22-06">22-06 Night</button>
+    </div>
+
+    <!-- Plain-Read summary (Layer D — UX Contract).
+         Populated by renderShiftSummary() after the active plan renders. -->
+    <div id="sb-verdict" class="verdict empty">
+      <span id="sb-verdict-icon" class="verdict-icon">·</span>
+      <div class="verdict-text"><span id="sb-verdict-label">Loading shift readiness...</span><small id="sb-verdict-sub">Counting top-risk assets, PMs due, and carry-forward items for this window.</small></div>
+    </div>
+    <div class="simple-row">
+      <div class="simple-card tag-grey" id="sb-card-risk">
+        <div class="sc-label">Top risk this shift</div>
+        <div class="sc-hero" id="sb-risk-hero">0</div>
+        <div class="sc-sub" id="sb-risk-sub">Loading...</div>
+        <span class="sc-tag" id="sb-risk-tag">—</span>
+      </div>
+      <div class="simple-card tag-grey" id="sb-card-pms">
+        <div class="sc-label">PMs due</div>
+        <div class="sc-hero" id="sb-pms-hero">0</div>
+        <div class="sc-sub" id="sb-pms-sub">Loading...</div>
+        <span class="sc-tag" id="sb-pms-tag">—</span>
+      </div>
+      <div class="simple-card tag-grey" id="sb-card-carry">
+        <div class="sc-label">Carry-forward</div>
+        <div class="sc-hero" id="sb-carry-hero">0</div>
+        <div class="sc-sub" id="sb-carry-sub">Loading...</div>
+        <span class="sc-tag" id="sb-carry-tag">—</span>
+      </div>
+    </div>
+    <div class="action-card">
+      <div class="ac-label">What to do next</div>
+      <div class="ac-text" id="sb-action-text">Computing shift plan...</div>
+    </div>
+    <button id="details-toggle-btn" type="button" class="details-toggle" aria-expanded="false" aria-controls="sb-summary-details">
+      Show details
+    </button>
+    <div id="sb-summary-details" role="region" aria-label="Shift plan explainer">
+      <strong style="display:block;margin-bottom:6px;color:rgba(255,255,255,0.85);">How this shift plan is built</strong>
+      <ul style="margin:0;padding-left:20px;">
+        <li><strong>Top risk this shift</strong>: assets ranked by latest <code>asset_risk_scores.risk_score</code>; threshold cuts off below 0.65.</li>
+        <li><strong>PMs due</strong>: scope items with <code>next_due_date</code> within the shift window.</li>
+        <li><strong>Carry-forward</strong>: breakdown / corrective entries left <code>Open</code> from the prior shift.</li>
+        <li><strong>Parts pre-stage</strong>: parts at or below <code>min_qty</code> that one of the prioritized jobs is likely to consume.</li>
+        <li><strong>Verdict</strong>: red if 3+ top-risk OR 5+ carry-forward; amber if PMs due or 1+ top-risk; green when all four lists are short.</li>
+      </ul>
     </div>
 
     <div id="briefing-card" class="briefing-card">
@@ -352,6 +426,9 @@
       renderRows('carry-list', p.carry_forward || [], 'carry-count', rowCarry, 'No carry-forward items from the prior shift.');
       renderRows('parts-list', p.parts_prestage|| [], 'parts-count', rowPart,  'No parts at or below reorder point.');
 
+      // Plain-Read summary (Layer D) — same counts in plain language.
+      renderShiftSummary(p);
+
       // Supervisor actions
       if (HIVE_ROLE === 'supervisor') {
         actions.style.display = 'flex';
@@ -365,6 +442,88 @@
         }
       } else {
         actions.style.display = 'none';
+      }
+    }
+
+    // Layer D — Plain-Read summary for Shift Brain. Cheap rollup of the
+    // same arrays renderRows reads, so cards + section counts never disagree.
+    function renderShiftSummary(p) {
+      const riskCount  = (p.risk_top      || []).length;
+      const pmsCount   = (p.pms_due       || []).length;
+      const carryCount = (p.carry_forward || []).length;
+      const partsCount = (p.parts_prestage|| []).length;
+      const setCard = (name, hero, sub, tag, tone) => {
+        const card = document.getElementById('sb-card-' + name);
+        if (card) {
+          card.classList.remove('tag-green', 'tag-amber', 'tag-red', 'tag-grey');
+          card.classList.add('tag-' + tone);
+        }
+        const h = document.getElementById('sb-' + name + '-hero'); if (h) h.textContent = hero;
+        const s = document.getElementById('sb-' + name + '-sub');  if (s) s.textContent = sub;
+        const t = document.getElementById('sb-' + name + '-tag');  if (t) t.textContent = tag;
+      };
+      setCard('risk',
+        String(riskCount),
+        riskCount === 0 ? 'No assets above the risk threshold' : `${riskCount} asset${riskCount === 1 ? '' : 's'} flagged for this window`,
+        riskCount === 0 ? 'CLEAR' : riskCount >= 3 ? 'HOT' : 'WATCH',
+        riskCount === 0 ? 'green' : riskCount >= 3 ? 'red' : 'amber'
+      );
+      setCard('pms',
+        String(pmsCount),
+        pmsCount === 0 ? 'No PMs land in this shift window' : `${pmsCount} preventive task${pmsCount === 1 ? '' : 's'} due this window`,
+        pmsCount === 0 ? 'NONE' : pmsCount >= 5 ? 'BUSY' : 'PLAN',
+        pmsCount === 0 ? 'green' : pmsCount >= 5 ? 'amber' : 'amber'
+      );
+      setCard('carry',
+        String(carryCount),
+        carryCount === 0 ? 'No open work from the prior shift' : `${carryCount} open item${carryCount === 1 ? '' : 's'} carried over`,
+        carryCount === 0 ? 'CLEAR' : carryCount >= 5 ? 'STACKING' : 'CLOSE OUT',
+        carryCount === 0 ? 'green' : carryCount >= 5 ? 'red' : 'amber'
+      );
+
+      let tone, label, sub;
+      if (riskCount >= 3 || carryCount >= 5) {
+        tone = 'attn'; label = 'Heavy shift — prioritize hot assets and carry-forward';
+        sub  = `${riskCount} high-risk · ${pmsCount} PMs · ${carryCount} carry-forward · ${partsCount} parts to stage.`;
+      } else if (riskCount > 0 || pmsCount > 0 || carryCount > 0) {
+        tone = 'watch'; label = 'Manageable shift with a few priorities';
+        const parts = [];
+        if (riskCount  > 0) parts.push(`${riskCount} risk asset${riskCount === 1 ? '' : 's'}`);
+        if (pmsCount   > 0) parts.push(`${pmsCount} PM${pmsCount === 1 ? '' : 's'}`);
+        if (carryCount > 0) parts.push(`${carryCount} carry-forward`);
+        sub = parts.join(' · ') + '.';
+      } else if (riskCount === 0 && pmsCount === 0 && carryCount === 0 && partsCount === 0) {
+        tone = 'healthy'; label = 'Clean shift — nothing demanding';
+        sub  = 'No high-risk assets, no PMs due, no carry-forward. Use the shift for inspections and asset hub walkarounds.';
+      } else {
+        tone = 'empty'; label = 'No briefing yet';
+        sub  = 'The shift planner runs on the hour. Click Re-run plan if you need it now.';
+      }
+      const vBox = document.getElementById('sb-verdict');
+      if (vBox) { vBox.classList.remove('healthy','watch','attn','empty'); vBox.classList.add(tone); }
+      const vIcon = document.getElementById('sb-verdict-icon'); if (vIcon) vIcon.textContent = tone === 'healthy' ? '✓' : tone === 'watch' ? '!' : tone === 'attn' ? '⚠' : '·';
+      const vLbl = document.getElementById('sb-verdict-label'); if (vLbl) vLbl.textContent = label;
+      const vSb  = document.getElementById('sb-verdict-sub');   if (vSb)  vSb.textContent  = sub;
+
+      const actBox = document.getElementById('sb-action-text');
+      if (actBox) {
+        let text;
+        if (riskCount >= 3) {
+          text = `${riskCount} assets are above the risk threshold. Start the shift with inspections of these — root cause one, fix the related parts pre-stage, and you'll knock the others down.`;
+        } else if (carryCount >= 5) {
+          text = `${carryCount} open items carried forward. Close out the simplest ones first to clear the queue, then attack the rest with the freed-up time.`;
+        } else if (riskCount > 0) {
+          text = `${riskCount} risk asset${riskCount === 1 ? '' : 's'} this window. Walk past those first thing — early eyes on a degrading asset usually beat a reactive call-out later.`;
+        } else if (pmsCount >= 5) {
+          text = `${pmsCount} PMs due this shift. Cluster them by location to minimise walking; the parts pre-stage card below tells you what to grab on the way out.`;
+        } else if (pmsCount > 0) {
+          text = `${pmsCount} PM${pmsCount === 1 ? '' : 's'} on the plan this shift. Knock them out early before any breakdown lands.`;
+        } else if (carryCount > 0) {
+          text = `${carryCount} carry-forward item${carryCount === 1 ? '' : 's'}. Use the open part of the shift to close out the loose ends from yesterday.`;
+        } else {
+          text = 'Light shift — use the open time for asset-hub walkarounds, condition checks on critical equipment, or knowledge-base contributions.';
+        }
+        actBox.textContent = text;
       }
     }
 
@@ -518,6 +677,18 @@
       document.querySelectorAll('.shift-pill').forEach(p => {
         p.addEventListener('click', () => setShiftWindow(p.getAttribute('data-window')));
       });
+
+      // Plain-Read details toggle (Layer D — UX Contract)
+      (function wireSbSummaryToggle() {
+        const btn  = document.getElementById('details-toggle-btn');
+        const pane = document.getElementById('sb-summary-details');
+        if (!btn || !pane) return;
+        btn.addEventListener('click', () => {
+          const open = pane.classList.toggle('open');
+          btn.setAttribute('aria-expanded', String(open));
+          btn.textContent = open ? 'Hide details' : 'Show details';
+        });
+      })();
       // Wire actions
       const rerun = document.getElementById('rerun-btn');
       const pub   = document.getElementById('publish-btn');
