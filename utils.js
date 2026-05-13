@@ -5,6 +5,29 @@
 // Loaded before page scripts on every page.
 // ─────────────────────────────────────────────
 
+// ─────────────────────────────────────────────
+// getDb() — shared Supabase client singleton
+// ─────────────────────────────────────────────
+// Calling `supabase.createClient()` more than once per page (or once per
+// IIFE) triggers the "Multiple GoTrueClient instances detected" warning
+// in the Supabase JS SDK. The clients race on the same localStorage auth
+// key and may produce undefined behavior under concurrent reads.
+//
+// The fix: every script that needs a Supabase client should call
+// `window.getDb(url, key)` instead. The first call creates the client;
+// subsequent calls return the same instance for the page's lifetime.
+//
+// Validator: validate_supabase_singleton.py flags any HTML page with >1
+// inline `supabase.createClient(...)` call.
+window.getDb = function(url, key) {
+  if (window._whSupabaseClient) return window._whSupabaseClient;
+  if (!window.supabase || typeof window.supabase.createClient !== 'function') {
+    throw new Error('getDb() called before @supabase/supabase-js loaded');
+  }
+  window._whSupabaseClient = window.supabase.createClient(url, key);
+  return window._whSupabaseClient;
+};
+
 // XSS escape — all 5 characters
 function escHtml(str) {
   return String(str || '')

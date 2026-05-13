@@ -267,6 +267,15 @@ VALIDATORS = [
         "skip_if_fast": False,
     },
     {
+        "id":      "supabase-singleton",
+        "script":  "validate_supabase_singleton.py",
+        "args":    [],
+        "label":   "Supabase Client Singleton (at-most-one createClient per page; shared JS uses singleton)",
+        "group":   "Platform",
+        "report":  "supabase_singleton_report.json",
+        "skip_if_fast": False,
+    },
+    {
         "id":      "playwright-smoke",
         "script":  "validate_playwright_smoke.py",
         "args":    [],
