@@ -819,6 +819,15 @@ VALIDATORS = [
         "skip_if_fast": False,
     },
     {
+        "id":      "audit-trail-coverage",
+        "script":  "validate_audit_trail_coverage.py",
+        "args":    [],
+        "label":   "Audit Trail Coverage (2-layer: lifecycle status updates write to hive_audit_log + every action name has ACTION_ICON entry)",
+        "group":   "Platform",
+        "report":  "audit_trail_coverage_report.json",
+        "skip_if_fast": False,
+    },
+    {
         "id":      "realtime-publication",
         "script":  "validate_realtime_publication.py",
         "args":    [],

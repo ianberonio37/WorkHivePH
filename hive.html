@@ -2800,13 +2800,56 @@ async function loadAuditLog() {
   }
   emptyEl.classList.add('hidden');
 
+  // Action vocabulary. Every writeAuditLog action across the platform
+  // must have an entry here so the audit log renders it with a meaningful
+  // icon + label instead of a generic dot. Enforced by
+  // validate_audit_trail_coverage.py L2 (walkthrough 2026-05-13 sweep).
   const ACTION_ICON = {
-    approve_item: { icon: '✓', color: '#4ade80', label: 'Approved' },
-    reject_item:  { icon: '✗', color: '#f87171', label: 'Rejected' },
-    kick_member:  { icon: '⊘', color: '#f87171', label: 'Removed member' },
-    member_joined:{ icon: '+', color: '#29B6D9', label: 'Joined' },
-    member_left:  { icon: '↩', color: '#94a3b8', label: 'Left hive' },
-    new_device:   { icon: '⚠', color: '#F7A21B', label: 'New device' },
+    // Membership lifecycle
+    member_joined:         { icon: '+',  color: '#29B6D9', label: 'Joined' },
+    member_left:           { icon: '↩',  color: '#94a3b8', label: 'Left hive' },
+    kick_member:           { icon: '⊘',  color: '#f87171', label: 'Removed member' },
+    new_device:            { icon: '⚠',  color: '#F7A21B', label: 'New device' },
+    // Generic approval queue (assets / inventory submitted by workers)
+    approve_item:          { icon: '✓',  color: '#4ade80', label: 'Approved' },
+    reject_item:           { icon: '✗',  color: '#f87171', label: 'Rejected' },
+    // Asset registry CRUD
+    register_asset:        { icon: '＋', color: '#4ade80', label: 'Registered asset' },
+    edit_asset:            { icon: '✎',  color: '#29B6D9', label: 'Edited asset' },
+    delete_asset:          { icon: '⊘',  color: '#f87171', label: 'Deleted asset' },
+    approve_asset_node:    { icon: '✓',  color: '#4ade80', label: 'Approved asset' },
+    reject_asset_node:     { icon: '✗',  color: '#f87171', label: 'Rejected asset' },
+    restore_asset_node:    { icon: '↺',  color: '#29B6D9', label: 'Restored asset' },
+    // Inventory CRUD
+    create_inventory_item: { icon: '＋', color: '#4ade80', label: 'Added inventory item' },
+    edit_inventory_item:   { icon: '✎',  color: '#29B6D9', label: 'Edited inventory item' },
+    delete_inventory_item: { icon: '⊘',  color: '#f87171', label: 'Deleted inventory item' },
+    edit_part:             { icon: '✎',  color: '#29B6D9', label: 'Edited part' },
+    // Logbook
+    create_logbook_entry:  { icon: '＋', color: '#4ade80', label: 'New logbook entry' },
+    edit_logbook_entry:    { icon: '✎',  color: '#29B6D9', label: 'Edited logbook entry' },
+    // PM lifecycle
+    complete_pm:           { icon: '✓',  color: '#4ade80', label: 'Completed PM' },
+    edit_pm_asset:         { icon: '✎',  color: '#29B6D9', label: 'Edited PM template' },
+    delete_pm_asset:       { icon: '⊘',  color: '#f87171', label: 'Deleted PM template' },
+    // Reliability workbench
+    approve_fmea_mode:     { icon: '✓',  color: '#4ade80', label: 'Approved FMEA mode' },
+    delete_fmea_mode:      { icon: '⊘',  color: '#f87171', label: 'Deleted FMEA mode' },
+    approve_rcm_strategy:  { icon: '✓',  color: '#4ade80', label: 'Approved RCM strategy' },
+    delete_rcm_strategy:   { icon: '⊘',  color: '#f87171', label: 'Deleted RCM strategy' },
+    // Anomaly Engine 2.0 lifecycle (Phase 4.2)
+    anomaly_acknowledged:  { icon: '👁',  color: '#F7A21B', label: 'Anomaly acknowledged' },
+    anomaly_resolved:      { icon: '✓',  color: '#4ade80', label: 'Anomaly resolved' },
+    // AMC daily brief lifecycle
+    approve_amc_brief:     { icon: '✓',  color: '#4ade80', label: 'Approved AMC brief' },
+    reject_amc_brief:      { icon: '✗',  color: '#f87171', label: 'Rejected AMC brief' },
+    // Marketplace
+    create_listing:        { icon: '＋', color: '#4ade80', label: 'Listed in marketplace' },
+    open_dispute:          { icon: '⚠',  color: '#f87171', label: 'Opened dispute' },
+    resolve_dispute_order: { icon: '✓',  color: '#4ade80', label: 'Resolved dispute' },
+    submit_review:         { icon: '★',  color: '#F7A21B', label: 'Submitted review' },
+    // PDPA right-to-access
+    export_hive_data:      { icon: '⤓',  color: '#a78bfa', label: 'Exported hive data' },
   };
 
   list.innerHTML = data.map(row => {

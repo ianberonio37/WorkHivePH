@@ -47,6 +47,7 @@ TARGET_PAGES = [
     "project-manager.html",
     "integrations.html",
     "ph-intelligence.html",
+    "alert-hub.html",       # walkthrough 2026-05-13: now writes audit_log + anomaly_signals updates
     "asset-hub.html",
     "shift-brain.html",
     # predictive.html is read-only (reads asset_risk_scores, no DB writes)

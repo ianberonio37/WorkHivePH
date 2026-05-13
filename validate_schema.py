@@ -52,6 +52,7 @@ LIVE_PAGES = [
     "onboarding.js",            # Phase 3.3 of STRATEGIC_ROADMAP — role-specific onboarding stepper
     "ai-quality.html",          # Phase 4.1 of STRATEGIC_ROADMAP — AI quality + ROI dashboard
     "plant-connections.html",   # Phase 5 Track C — Plant Connections Console
+    "wh-help.js",               # Walkthrough 2026-05-13 — canonical-sources-powered tooltips
     "wh-capture-validate.js",
     "report-sender.html",
     "community.html",

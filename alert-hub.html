@@ -210,7 +210,7 @@
     <div id="anomaly-engine-panel" class="amc-card" style="display:none; background:linear-gradient(145deg, rgba(58,42,88,0.55), rgba(22,32,50,0.85)); border:1px solid rgba(167,139,250,0.25);">
       <div class="amc-head">
         <div>
-          <span class="amc-badge" style="background:rgba(167,139,250,0.18); color:#a78bfa; border-color:rgba(167,139,250,0.3);">Anomaly Engine 2.0</span>
+          <span class="amc-badge" data-help="anomaly_signals" tabindex="0" style="background:rgba(167,139,250,0.18); color:#a78bfa; border-color:rgba(167,139,250,0.3);">Anomaly Engine 2.0</span>
           <span id="anomaly-engine-meta" style="font-size:.65rem; color:var(--muted); margin-left:6px;"></span>
         </div>
         <span id="anomaly-engine-count" class="alert-tag tag-info" style="font-weight:800;">0 signals</span>
@@ -234,6 +234,7 @@
 </div>
 
 <script src="nav-hub.js"></script>
+<script defer src="wh-help.js"></script>
 <script>
 (async function () {
   'use strict';
@@ -248,6 +249,8 @@
   const SUPABASE_URL = 'https://hzyvnjtisfgbksicrouu.supabase.co';
   const SUPABASE_KEY = 'sb_publishable_ePj-suLMwkMRVDH6eM6S8g_R0rZVbMZ';
   const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  // Expose the client for wh-help.js to read canonical_sources descriptions.
+  window.db = db;
 
   logPageView(db);
   // ── Identity / hive gate ───────────────────────────────────────────────────
@@ -525,6 +528,14 @@
       showAmcMsg('Could not save: ' + (error.message || 'unknown error'));
       return;
     }
+    // Record the supervisor decision in the canonical audit trail.
+    writeAuditLog(
+      newStatus === 'approved' ? 'approve_amc_brief' : 'reject_amc_brief',
+      'amc_briefings',
+      _amcBrief.id,
+      'AMC brief ' + (_amcBrief.shift_date || ''),
+      { shift_date: _amcBrief.shift_date }
+    );
     showAmcMsg(newStatus === 'approved' ? 'Brief approved.' : 'Brief rejected.');
     // Local refresh — realtime will also fire, but be fast for the actor.
     _amcBrief = { ..._amcBrief, status: newStatus, approved_by: WORKER_NAME, approved_at: new Date().toISOString() };
@@ -568,6 +579,40 @@
   // _anomalyChannel + _anomalyLoading + _anomalyDebounce are declared at
   // the top of the IIFE (next to _amcChannel) so the early `await loadAll()`
   // doesn't reach this loader before the lets initialize. TDZ trap fix.
+
+  // Minimal showToast for DB-error surfacing. validate_input_guards
+  // requires every DB-writing page to expose this so worker-visible errors
+  // don't get silently console.warn'd. Walkthrough 2026-05-13.
+  function showToast(msg) {
+    let host = document.getElementById('wh-toast');
+    if (!host) {
+      host = document.createElement('div');
+      host.id = 'wh-toast';
+      host.style.cssText = 'position:fixed;bottom:5rem;left:50%;transform:translateX(-50%);background:rgba(22,32,50,0.95);color:#F4F6FA;padding:0.6rem 1rem;border-radius:0.6rem;font-size:0.8rem;border:1px solid rgba(255,255,255,0.12);z-index:9999;box-shadow:0 6px 18px rgba(0,0,0,0.4);max-width:90vw;';
+      document.body.appendChild(host);
+    }
+    host.textContent = msg;
+    host.style.display = 'block';
+    clearTimeout(host._t);
+    host._t = setTimeout(() => { host.style.display = 'none'; }, 3500);
+  }
+
+  // Audit trail writer — same pattern as hive.html / logbook.html / etc.
+  // Mirrored here so alert-hub power actions (AMC approve/reject, anomaly
+  // ack/resolve) land in hive_audit_log. Walkthrough 2026-05-13 surfaced
+  // the gap; validate_audit_trail_coverage.py now enforces the pattern.
+  function writeAuditLog(action, targetType, targetId, targetName, meta) {
+    if (!HIVE_ID) return;
+    db.from('hive_audit_log').insert({
+      hive_id:     HIVE_ID,
+      actor:       WORKER_NAME,
+      action,
+      target_type: targetType,
+      target_id:   targetId,
+      target_name: targetName,
+      meta:        meta || {},
+    }).then(({ error }) => { if (error) console.warn('audit log:', error.message); });
+  }
 
   async function loadAnomalyEngine() {
     const panel = document.getElementById('anomaly-engine-panel');
@@ -669,16 +714,17 @@
         ? reasons.map(rr => e(rr.label || rr.signal)).join(' · ')
         : 'Composite signal — open details for breakdown';
       const ackBtn = isSupervisor && r.status === 'active'
-        ? `<button class="amc-btn amc-btn-toggle" data-anomaly-id="${e(r.id)}" data-action="acknowledge" type="button" style="font-size:0.7rem; padding:6px 12px;">Acknowledge</button>`
+        ? `<button class="amc-btn amc-btn-toggle" data-anomaly-id="${e(r.id)}" data-anomaly-machine="${e(r.machine)}" data-action="acknowledge" data-help="anomaly_acknowledged" type="button" style="font-size:0.7rem; padding:6px 12px;">Acknowledge</button>`
         : '';
       const resBtn = isSupervisor && r.status !== 'resolved'
-        ? `<button class="amc-btn amc-btn-approve" data-anomaly-id="${e(r.id)}" data-action="resolve" type="button" style="font-size:0.7rem; padding:6px 12px;">Resolve</button>`
+        ? `<button class="amc-btn amc-btn-approve" data-anomaly-id="${e(r.id)}" data-anomaly-machine="${e(r.machine)}" data-action="resolve" data-help="anomaly_resolved" type="button" style="font-size:0.7rem; padding:6px 12px;">Resolve</button>`
         : '';
+      const severityHelpKey = `severity_${r.severity}`;
       return `
         <div class="alert-card" style="margin-bottom:8px; border-left:3px solid ${sev.color};">
           <div style="display:flex; align-items:baseline; justify-content:space-between; gap:8px;">
             <div style="font-weight:800; font-size:0.85rem;">${e(r.machine)}</div>
-            <span class="alert-tag" style="background:${sev.bg}; color:${sev.color}; border:1px solid ${sev.color}33;">${e(sev.label)} · ${e(String(r.composite_score))}/100</span>
+            <span class="alert-tag" data-help="${e(severityHelpKey)}" tabindex="0" style="background:${sev.bg}; color:${sev.color}; border:1px solid ${sev.color}33;">${e(sev.label)} · ${e(String(r.composite_score))}/100</span>
           </div>
           <div style="font-size:0.74rem; color:rgba(255,255,255,0.7); margin-top:6px;">${reasonStr}</div>
           <div style="font-size:0.62rem; color:rgba(255,255,255,0.4); margin-top:4px;">${e(String(r.source_count))} source${r.source_count === 1 ? '' : 's'} fired · status ${e(r.status)}</div>
@@ -692,12 +738,22 @@
       btn.addEventListener('click', async () => {
         const id = btn.getAttribute('data-anomaly-id');
         const action = btn.getAttribute('data-action');
+        const machine = btn.getAttribute('data-anomaly-machine') || '(unknown machine)';
         const updates = action === 'acknowledge'
           ? { status: 'acknowledged', acknowledged_by: WORKER_NAME, acknowledged_at: new Date().toISOString() }
           : { status: 'resolved', resolved_by: WORKER_NAME, resolved_at: new Date().toISOString() };
         try {
           const { error } = await db.from('anomaly_signals').update(updates).eq('id', id);
           if (error) { console.warn('anomaly update:', error.message); return; }
+          // Audit trail: record the supervisor decision so compliance, the
+          // insurance bridge view, and multi-supervisor coordination see it.
+          writeAuditLog(
+            action === 'acknowledge' ? 'anomaly_acknowledged' : 'anomaly_resolved',
+            'anomaly_signals',
+            id,
+            machine,
+            { from_panel: 'alert-hub' }
+          );
           loadAnomalyEngine();
         } catch (e) { console.warn('anomaly update threw:', e?.message || e); }
       });
