@@ -633,7 +633,34 @@
   // every conversation lands in the worker's journal as expected.
   const WH_ASSISTANT_WORKER_URL = 'https://workhive-assistant.ian-beronio37.workers.dev';
 
-  function _buildVoiceSystemPrompt(persona, workerName, hiveName, pageLabel, routingHint) {
+  // Pull the worker's recent journal turns so the model has actual
+  // conversation continuity ("the downtime you started", "yung pump
+  // kanina") instead of asking generic clarifiers. Cheap (one indexed
+  // query, capped 5 rows / 240 chars per turn). Best-effort — empty
+  // memory is fine, missing schema is fine, RLS denial is fine.
+  async function _fetchRecentMemory(db, workerName) {
+    if (!db || !workerName) return '';
+    try {
+      const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+      const { data, error } = await db.from('voice_journal_entries')
+        .select('transcript, reply, created_at')
+        .eq('worker_name', workerName)
+        .gte('created_at', since)
+        .order('created_at', { ascending: false })
+        .limit(5);
+      if (error || !data || !data.length) return '';
+      // Oldest first so the model reads them as a real timeline.
+      const turns = data.slice().reverse().map(row => {
+        const u = String(row.transcript || '').slice(0, 240).trim();
+        const a = String(row.reply || '').slice(0, 240).trim();
+        return 'Worker: ' + u + '\n' + 'You said: ' + a;
+      }).filter(Boolean);
+      if (!turns.length) return '';
+      return turns.join('\n---\n');
+    } catch (_) { return ''; }
+  }
+
+  function _buildVoiceSystemPrompt(persona, workerName, hiveName, pageLabel, routingHint, memoryBlock) {
     const personaBlock = (typeof window.getCompanionBlock === 'function')
       ? window.getCompanionBlock() : '';
     // Internal-only grounding. These facts help the model pick the right
@@ -652,6 +679,13 @@
     const routingBlock = routingHint
       ? '\nIMPORTANT — the worker tried to speak a command this page can\'t execute: ' + routingHint + ' Keep the reply to ONE short sentence. Do NOT describe specific buttons / cards / menus you haven\'t been told about.\n'
       : '';
+    // Recent conversation context. Without this, "Help me find it" /
+    // "yung pump kanina" / "tapos?" have nothing to anchor to and the
+    // model has to ask generic clarifiers. With it, the model can say
+    // "the downtime you were logging earlier?" naturally.
+    const memorySection = memoryBlock
+      ? '\nPRIOR TURNS WITH THIS WORKER (most recent at the bottom — use these for continuity, but never quote them verbatim):\n' + memoryBlock + '\n'
+      : '';
 
     return personaBlock + '\n\n' +
       'You are answering a worker over voice. They will HEAR your reply, so:\n' +
@@ -660,6 +694,7 @@
       '- If they shared a feeling or vented, react first ("naks, mahirap yan" / "hala ka"), THEN one practical line.\n' +
       identBlock +
       routingBlock +
+      memorySection +
       '\nIf the worker mixes Filipino / Cebuano / Tagalog in, that\'s fine — understand it, reply in English.\n\n' +
       '═══════════════════════════════════════════════════════════════════\n' +
       'HARD RULES — read these last; they override everything above.\n' +
@@ -723,7 +758,11 @@
     _setRecRowVisible(false);
     _renderReplyBubble(null, persona);
 
-    const system = _buildVoiceSystemPrompt(persona, ctx.worker_name, hiveName, pageLabel, routingHint);
+    // Fetch recent turns BEFORE building the prompt so the model has the
+    // continuity context. Non-blocking on failure — empty memory falls
+    // through to a no-history reply.
+    const memoryBlock = await _fetchRecentMemory(db, ctx.worker_name);
+    const system = _buildVoiceSystemPrompt(persona, ctx.worker_name, hiveName, pageLabel, routingHint, memoryBlock);
     const messages = [
       { role: 'system', content: system },
       { role: 'user',   content: transcript },
