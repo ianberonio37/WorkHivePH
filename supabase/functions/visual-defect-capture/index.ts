@@ -61,6 +61,10 @@ import { callAIMultimodal } from "../_shared/ai-chain.ts";
 import { generateEmbedding } from "../_shared/embedding-chain.ts";
 import { getCorsHeaders } from "../_shared/cors.ts";
 import { logAICost, estimateTokens } from "../_shared/cost-log.ts";
+// Persona Contract: narrated-specialist mode — JSON output gains a
+// `narration` field with a 1-2 sentence prose summary in the persona's
+// voice. See WORKHIVE_PERSONA_CONTRACT.md.
+import { clampPersona, buildPersonaBlock } from "../_shared/persona.ts";
 
 // Warm module-scope Supabase client.
 const _WH_SUPABASE_URL_M = Deno.env.get("SUPABASE_URL") || "";
@@ -97,7 +101,8 @@ Output schema:
   "problem":               <string - 1-2 sentences describing what is visible>,
   "knowledge":             <string - one sentence of lesson learned a future tech should know>,
   "asset_tag_extracted":   <string OR null - an asset tag/label visible in the photo (e.g. "PUMP-201", "MTR-3B", "ATS-01")>,
-  "confidence":            <number 0..1>
+  "confidence":            <number 0..1>,
+  "narration":             <string - 1-2 sentence prose summary in your persona's voice; what the worker hears alongside the draft. Paraphrase only what's in the fields above; never invent.>
 }
 
 Rules:
@@ -122,6 +127,7 @@ interface DraftRow {
   knowledge:           string;
   asset_tag_extracted: string | null;
   confidence:          number;
+  narration:           string;
 }
 
 // ─── Rate-limit gate ─────────────────────────────────────────────────────────
@@ -217,6 +223,9 @@ function coerceDraft(parsed: Record<string, unknown>): DraftRow {
     knowledge:           clampStr(parsed.knowledge, 400),
     asset_tag_extracted: tag,
     confidence:          Math.max(0, Math.min(1, Number(parsed.confidence) || 0)),
+    // Persona narration (1-2 sentences in James/Rosa voice). Capped so a
+    // model that returns a paragraph doesn't bloat the response.
+    narration:           clampStr(parsed.narration, 280),
   };
 }
 
@@ -270,9 +279,16 @@ serve(async (req) => {
       ? `The worker described what they saw: "${voice_note}". Classify the photo.`
       : `Classify the photo. Identify the failure mode, category, severity, root cause, and recommended action.`;
 
+    // Persona Contract: prepend the narrated-specialist block so the
+    // model returns its normal structured draft AND a `narration` field
+    // in the persona's voice. One chain call, no extra cost.
+    const personaKey = clampPersona((body as Record<string, unknown>).persona);
+    const personaBlock = buildPersonaBlock(personaKey, "narrated-specialist");
+    const composedSystem = personaBlock + "\n\n" + SYSTEM_PROMPT;
+
     const t0 = Date.now();
     const raw = await callAIMultimodal(userPrompt, image_data_url, {
-      systemPrompt: SYSTEM_PROMPT,
+      systemPrompt: composedSystem,
       temperature:  0.2,
       maxTokens:    MAX_TOKENS_OUT,
       jsonMode:     true,
@@ -283,7 +299,7 @@ serve(async (req) => {
     // a 1024-edge image at OpenAI rates), plus the textual prompt. Capture
     // the textual side here; image cost is a known per-provider lump we
     // tabulate downstream.
-    const promptTokens = estimateTokens(userPrompt) + estimateTokens(SYSTEM_PROMPT);
+    const promptTokens = estimateTokens(userPrompt) + estimateTokens(composedSystem);
     const outputTokens = estimateTokens(raw || "");
 
     if (!raw || raw === "{}") {

@@ -39,10 +39,11 @@ Every agent that adopts the contract calls `buildPersonaBlock(key, mode)`. The M
 |---|---|---|
 | `'conversational'` | Voice Journal | Full persona character + tone rules + sample openings ("naks, mahirap yan"). Output is freeform prose. |
 | `'companion'` | Floating AI, Assistant | Same persona character but BRIEF tone (1-3 sentences max). Reply is helpful + warm but stays task-focused. |
-| `'briefing-signature'` | AMC orchestrator | Persona signs the briefing footer ("Posted by James, 06:00 PHT"). Brief body STAYS structured. No tone changes to the data. |
-| `'silent'` (default) | Specialists (visual-defect, voice-action-router, MTBF, FMEA) | No persona block emitted. Specialist tools shouldn't pretend to be a person. |
+| `'narrated-specialist'` | Visual Defect Capture, Voice Action Router, analytics/asset-brain/project/shift when called from a human surface | Specialist returns its normal structured JSON AND a `narration` field — 1-2 sentence prose summary in the persona's voice. ONE chain call, no extra cost. Frontend uses the data for behaviour; plays the narration as the friendly feedback. |
+| `'briefing-signature'` | AMC orchestrator | Persona signs the briefing footer ("Signed by James, your WorkHive daily companion"). Brief body STAYS structured. No tone changes to the data. |
+| `'silent'` (rare) | Pure machine-to-machine specialists, scheduled jobs, embedding generators | No persona block emitted. Output is never user-facing. |
 
-**Critical:** the mode tells the agent **how much** persona to wear. Specialists wear none. AMC wears a signature line. Floating AI wears the tone but stays brief. Voice Journal wears it fully.
+**Critical:** the mode tells the agent **how much** persona to wear. `'silent'` is rare — almost every user-facing AI surface gets SOME persona overlay. `'narrated-specialist'` is the workhorse: structured behaviour with a human voice attached, all in one call.
 
 ---
 
@@ -51,12 +52,13 @@ Every agent that adopts the contract calls `buildPersonaBlock(key, mode)`. The M
 | Surface | Edge fn | Mode | Persona owner |
 |---|---|---|---|
 | Voice Journal | `voice-journal-agent` | `conversational` | Account preference (settable per-page) |
-| Floating AI (every page) | `floating-ai` route via `ai-gateway` | `companion` | Account preference |
+| Floating AI (every page) | route via `ai-gateway` | `companion` | Account preference |
 | Assistant (assistant.html) | specialist routes via `ai-gateway` | `companion` | Account preference |
-| AMC Orchestrator | `amc-orchestrator` | `briefing-signature` | Account preference of the hive's supervisor at brief-generation time |
-| Visual Defect Capture | `visual-defect-capture` | `silent` | n/a |
-| Voice Action Router | `voice-action-router` | `silent` | n/a |
-| MTBF / FMEA / Risk specialists | various | `silent` | n/a |
+| Visual Defect Capture | `visual-defect-capture` | `narrated-specialist` | Account preference (via gateway hydration or explicit ctx.persona) |
+| Voice Action Router | `voice-action-router` | `narrated-specialist` | Account preference |
+| Analytics / Asset Brain / Project / Shift orchestrators | specialist routes via `ai-gateway` | `narrated-specialist` (when human-facing) | Account preference |
+| AMC Orchestrator | `amc-orchestrator` | `briefing-signature` | Hive default (today: platform DEFAULT_PERSONA) |
+| Scheduled / machine-only specialists | various | `silent` | n/a — never user-facing |
 
 ---
 

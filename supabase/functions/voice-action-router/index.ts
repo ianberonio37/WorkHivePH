@@ -34,6 +34,10 @@ import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-
 import { callAI } from "../_shared/ai-chain.ts";
 import { logAICost, estimateTokens } from "../_shared/cost-log.ts";
 import { getCorsHeaders } from "../_shared/cors.ts";
+// Persona Contract: narrated-specialist mode — router returns its route
+// JSON plus a `narration` field in the persona's voice.
+// See WORKHIVE_PERSONA_CONTRACT.md.
+import { clampPersona, buildPersonaBlock } from "../_shared/persona.ts";
 
 // Warm module-scope Supabase client. Reused across request invocations
 // in the same warm container. Per-request createClient calls below are
@@ -74,7 +78,8 @@ Output schema:
       "params": { ...kind-specific... }
     }
   ],
-  "mentioned_assets": [<string>...]
+  "mentioned_assets": [<string>...],
+  "narration": <string - 1-2 sentence prose acknowledgement in your persona's voice; what the worker hears alongside the route decision. Paraphrase only what's in the intents above; never invent.>
 }
 
 Kind contracts (params shape per kind):
@@ -141,6 +146,9 @@ interface RouterResponse {
   transcript:        string;
   intents:           VoiceIntent[];
   mentioned_assets:  string[];
+  // Persona narration (1-2 sentences in James/Rosa voice). The frontend
+  // plays / displays this alongside the structured route decision.
+  narration:         string;
   asset_resolution?: {
     primary?:    AssetCandidate;
     candidates:  AssetCandidate[];
@@ -325,10 +333,17 @@ serve(async (req) => {
       },
     });
 
+    // Persona Contract: prepend the narrated-specialist block so the
+    // model returns its route JSON AND a `narration` field in the
+    // chosen persona's voice. One chain call.
+    const personaKey = clampPersona((body as Record<string, unknown>).persona);
+    const personaBlock = buildPersonaBlock(personaKey, "narrated-specialist");
+    const composedSystem = personaBlock + "\n\n" + ROUTER_SYSTEM;
+
     let raw: string;
     try {
       raw = await callAI(userPrompt, {
-        systemPrompt: ROUTER_SYSTEM,
+        systemPrompt: composedSystem,
         temperature:  0.2,
         maxTokens:    MAX_TOKENS_OUT,
         jsonMode:     true,
@@ -359,10 +374,15 @@ serve(async (req) => {
     const candidates = await resolveAssetCandidates(db, hive_id, mentioned);
     const { primary, ambiguous } = pickPrimaryCandidate(candidates, context_asset_id, mentioned);
 
+    // Pull narration from the parsed JSON (capped to keep responses sane).
+    const narrationRaw = typeof parsed.narration === "string" ? parsed.narration.trim() : "";
+    const narration = narrationRaw.slice(0, 280);
+
     const response: RouterResponse = {
       transcript,
       intents,
       mentioned_assets: mentioned,
+      narration,
       remaining: rl.remaining,
     };
 
