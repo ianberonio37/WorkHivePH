@@ -176,6 +176,26 @@
       padding: 0.3rem 0.7rem; cursor: pointer;
       min-height: 32px;
     }
+
+    .persona-chip {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.10);
+      color: rgba(255,255,255,0.6);
+      border-radius: 999px;
+      font-family: inherit;
+      font-size: 0.78rem; font-weight: 600;
+      padding: 0.4rem 0.9rem;
+      cursor: pointer;
+      transition: background .15s, border-color .15s, color .15s;
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      min-height: 36px;
+    }
+    .persona-chip:hover { color: var(--text, #F4F6FA); border-color: rgba(255,255,255,0.22); }
+    .persona-chip.persona-chip-active {
+      background: rgba(247,162,27,0.15);
+      border-color: rgba(247,162,27,0.45);
+      color: #ffcc7a;
+    }
     .speak-btn:hover  { background: rgba(247,162,27,0.28); }
     .speak-btn:active { transform: scale(0.96); }
 
@@ -257,6 +277,22 @@
     <section id="capture-panel" class="wh-card p-5 mb-5">
       <div class="text-xs uppercase tracking-widest text-white/40 font-semibold mb-3 text-center">Today, your turn</div>
 
+      <!-- Persona picker: who is journaling with you today.
+           Choice persists in localStorage and travels to the agent as
+           ctx.persona. James + Rosa are PH English voices borrowed from
+           the Video Marketing app. -->
+      <div id="persona-row" class="flex items-center justify-center gap-2 mb-4" role="radiogroup" aria-label="Choose your journal companion">
+        <span class="text-[10px] uppercase tracking-widest text-white/40 font-semibold mr-1">Talking with</span>
+        <button id="persona-james" type="button" role="radio" aria-checked="true"
+                class="persona-chip persona-chip-active" data-persona="james">
+          <span aria-hidden="true">🧑‍🦱</span> James
+        </button>
+        <button id="persona-rosa" type="button" role="radio" aria-checked="false"
+                class="persona-chip" data-persona="rosa">
+          <span aria-hidden="true">👩‍🦰</span> Rosa
+        </button>
+      </div>
+
       <button id="mic-btn" class="mic-btn" aria-label="Hold to talk">
         <svg id="mic-icon" width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/>
@@ -325,6 +361,17 @@
     const MAX_TRANSCRIPT_CHARS = 500;       // matches edge fn cap, prompt-injection safety
     const HISTORY_LIMIT = 80;
     const TTS_STORAGE_KEY = 'wh_voice_journal_tts';
+    const PERSONA_STORAGE_KEY = 'wh_voice_journal_persona';
+    // Persona presets — must match keys in voice-journal-agent edge fn.
+    // gender biases the browser SpeechSynthesis voice picker toward a
+    // matching local voice when available; non-en-PH machines just get
+    // the default en voice and that's fine.
+    const PERSONAS = {
+      james: { label: 'James', gender: 'male' },
+      rosa:  { label: 'Rosa',  gender: 'female' },
+    };
+    let _persona = localStorage.getItem(PERSONA_STORAGE_KEY);
+    if (!PERSONAS[_persona]) _persona = 'james';
 
     const LANG_NAMES = {
       en:  'English',
@@ -423,15 +470,31 @@
         try { window.speechSynthesis.cancel(); } catch (_) {}
       }
     }
-    function pickVoice(bcp47) {
+    function pickVoice(bcp47, gender) {
       if (!window.speechSynthesis) return null;
       const voices = window.speechSynthesis.getVoices() || [];
       if (!voices.length) return null;
-      const exact = voices.find(v => v.lang && v.lang.toLowerCase() === bcp47.toLowerCase());
-      if (exact) return exact;
+      // Gender hint: browser voice names usually contain 'Male' / 'Female'
+      // (e.g. 'Microsoft Aria — Female', 'Google US English Male'). Bias
+      // toward matching gender within the right locale; fall back when
+      // the system has no gendered voices for that locale.
+      const lower = (s) => String(s || '').toLowerCase();
+      const matchGender = (v) => {
+        if (!gender) return true;
+        const n = lower(v.name);
+        if (gender === 'male')   return n.includes('male')   && !n.includes('female');
+        if (gender === 'female') return n.includes('female');
+        return true;
+      };
+      const inLocale = voices.filter(v => v.lang && v.lang.toLowerCase() === bcp47.toLowerCase());
+      const inLocaleGender = inLocale.find(matchGender);
+      if (inLocaleGender) return inLocaleGender;
+      if (inLocale[0]) return inLocale[0];
       const prefix = bcp47.split('-')[0].toLowerCase();
-      const prefixMatch = voices.find(v => v.lang && v.lang.toLowerCase().startsWith(prefix));
-      return prefixMatch || voices.find(v => v.default) || voices[0];
+      const inPrefix = voices.filter(v => v.lang && v.lang.toLowerCase().startsWith(prefix));
+      const inPrefixGender = inPrefix.find(matchGender);
+      if (inPrefixGender) return inPrefixGender;
+      return inPrefix[0] || voices.find(v => v.default) || voices[0];
     }
     function speak(text, langCode) {
       if (!_ttsOn || !text || !window.speechSynthesis) return;
@@ -440,7 +503,8 @@
         const u = new SpeechSynthesisUtterance(String(text));
         const bcp47 = LANG_TO_BCP47[langCode] || 'en-US';
         u.lang = bcp47;
-        const v = pickVoice(bcp47);
+        const personaGender = (PERSONAS[_persona] || PERSONAS.james).gender;
+        const v = pickVoice(bcp47, personaGender);
         if (v) u.voice = v;
         u.rate = 1.0;
         u.pitch = 1.0;
@@ -448,6 +512,28 @@
       } catch (e) {
         console.warn('speak failed:', e);
       }
+    }
+
+    // ──────────────── Persona picker wiring ────────────────
+    function setPersonaUI() {
+      ['james', 'rosa'].forEach(key => {
+        const btn = document.getElementById('persona-' + key);
+        if (!btn) return;
+        const active = key === _persona;
+        btn.classList.toggle('persona-chip-active', active);
+        btn.setAttribute('aria-checked', String(active));
+      });
+    }
+    function wirePersonaPicker() {
+      ['james', 'rosa'].forEach(key => {
+        const btn = document.getElementById('persona-' + key);
+        if (!btn) return;
+        btn.addEventListener('click', () => {
+          _persona = key;
+          localStorage.setItem(PERSONA_STORAGE_KEY, key);
+          setPersonaUI();
+        });
+      });
     }
 
     // ──────────────── Identity gate ────────────────
@@ -766,7 +852,9 @@
         body: {
           agent:   AGENT_ID,
           message: message,
-          context: { lang: lang || 'en' },
+          // persona drives the system prompt in voice-journal-agent so the
+          // reply tone matches whoever the worker picked (James / Rosa).
+          context: { lang: lang || 'en', persona: _persona },
           hive_id: HIVE_ID || null,
         },
       });
@@ -779,6 +867,8 @@
     // ──────────────── Bootstrap ────────────────
     document.addEventListener('DOMContentLoaded', async () => {
       setTtsButton();
+      setPersonaUI();
+      wirePersonaPicker();
       $('tts-toggle').addEventListener('click', toggleTts);
       $('mic-btn').addEventListener('click', toggleRecord);
       $('search-input').addEventListener('input', () => renderHistory());
