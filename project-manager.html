@@ -310,6 +310,36 @@
   .gantt-bar { position: absolute; top: 0; bottom: 0; background: var(--blue); border-radius: 4px; }
   .gantt-bar.critical { background: var(--red); }
   .gantt-bar.done { background: var(--green); }
+/* Plain-Read summary (Layer D — UX Contract) */
+.verdict { display:flex; align-items:center; gap:12px; padding:14px 16px; margin-bottom:14px; border-radius:12px; border:1px solid; }
+.verdict-icon { font-size:1.5rem; line-height:1; font-weight:800; }
+.verdict-text { font-size:0.9rem; font-weight:700; line-height:1.35; }
+.verdict-text small { display:block; font-size:0.72rem; font-weight:500; color:rgba(255,255,255,0.65); margin-top:3px; }
+.verdict.healthy { background:rgba(74,222,128,0.07);  border-color:rgba(74,222,128,0.3); }
+.verdict.healthy .verdict-icon { color:#4ade80; }
+.verdict.watch   { background:rgba(247,162,27,0.07);  border-color:rgba(247,162,27,0.3); }
+.verdict.watch   .verdict-icon { color:#F7A21B; }
+.verdict.attn    { background:rgba(248,113,113,0.07); border-color:rgba(248,113,113,0.3); }
+.verdict.attn    .verdict-icon { color:#f87171; }
+.verdict.empty   { background:rgba(255,255,255,0.03); border-color:rgba(255,255,255,0.08); }
+.verdict.empty   .verdict-icon { color:rgba(255,255,255,0.55); }
+.simple-row { display:grid; grid-template-columns:repeat(auto-fit, minmax(160px, 1fr)); gap:12px; margin-bottom:14px; }
+.simple-card { background:#162032; border:1px solid rgba(255,255,255,0.07); border-radius:12px; padding:14px 16px; }
+.simple-card .sc-label { font-size:0.65rem; font-weight:700; color:rgba(255,255,255,0.4); text-transform:uppercase; letter-spacing:0.06em; }
+.simple-card .sc-hero  { font-size:1.5rem; font-weight:800; line-height:1.15; margin:4px 0 2px; color:#F4F6FA; }
+.simple-card .sc-sub   { font-size:0.7rem; color:rgba(255,255,255,0.55); line-height:1.4; }
+.simple-card .sc-tag   { display:inline-block; font-size:0.58rem; font-weight:800; letter-spacing:0.06em; text-transform:uppercase; padding:0.18rem 0.5rem; border-radius:999px; margin-top:7px; }
+.simple-card.tag-green .sc-tag { background:rgba(74,222,128,0.16);  color:#4ade80; }
+.simple-card.tag-amber .sc-tag { background:rgba(247,162,27,0.16);  color:#F7A21B; }
+.simple-card.tag-red   .sc-tag { background:rgba(248,113,113,0.16); color:#f87171; }
+.simple-card.tag-grey  .sc-tag { background:rgba(255,255,255,0.06); color:rgba(255,255,255,0.5); }
+.action-card { background:rgba(41,182,217,0.06); border:1px solid rgba(41,182,217,0.25); border-radius:12px; padding:14px 16px; margin-bottom:14px; }
+.action-card .ac-label { font-size:0.65rem; font-weight:800; color:#29B6D9; text-transform:uppercase; letter-spacing:0.07em; }
+.action-card .ac-text { font-size:0.82rem; line-height:1.5; margin-top:6px; color:rgba(255,255,255,0.85); }
+.details-toggle { display:inline-flex; align-items:center; gap:6px; background:transparent; border:1px solid rgba(255,255,255,0.07); color:rgba(255,255,255,0.6); padding:8px 14px; border-radius:8px; font-family:inherit; font-size:0.7rem; font-weight:600; cursor:pointer; min-height:44px; margin-bottom:14px; }
+.details-toggle:hover { color:#F4F6FA; border-color:rgba(255,255,255,0.18); }
+#pm-summary-details { display:none; padding:14px 16px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:12px; font-size:0.78rem; line-height:1.5; color:rgba(255,255,255,0.7); margin-bottom:14px; }
+#pm-summary-details.open { display:block; }
 </style>
 </head>
 <body>
@@ -338,6 +368,50 @@
       </div>
     </div>
     <div class="sub">Plan, track and close out maintenance projects: work-order bundles, shutdowns, CAPEX, and contractor jobs.</div>
+
+    <!-- Plain-Read summary (Layer D — UX Contract).
+         Populated by renderProjectsSummary() from _projects. -->
+    <div id="pm-verdict" class="verdict empty">
+      <span id="pm-verdict-icon" class="verdict-icon">·</span>
+      <div class="verdict-text"><span id="pm-verdict-label">Computing project health...</span><small id="pm-verdict-sub">Counting active projects, overdue, and on-hold work.</small></div>
+    </div>
+    <div class="simple-row">
+      <div class="simple-card tag-grey" id="pm-card-active">
+        <div class="sc-label">Active projects</div>
+        <div class="sc-hero" id="pm-active-hero">0</div>
+        <div class="sc-sub" id="pm-active-sub">Loading...</div>
+        <span class="sc-tag" id="pm-active-tag">—</span>
+      </div>
+      <div class="simple-card tag-grey" id="pm-card-overdue">
+        <div class="sc-label">Past end date</div>
+        <div class="sc-hero" id="pm-overdue-hero">0</div>
+        <div class="sc-sub" id="pm-overdue-sub">Loading...</div>
+        <span class="sc-tag" id="pm-overdue-tag">—</span>
+      </div>
+      <div class="simple-card tag-grey" id="pm-card-blocked">
+        <div class="sc-label">On hold or planning</div>
+        <div class="sc-hero" id="pm-blocked-hero">0</div>
+        <div class="sc-sub" id="pm-blocked-sub">Loading...</div>
+        <span class="sc-tag" id="pm-blocked-tag">—</span>
+      </div>
+    </div>
+    <div class="action-card">
+      <div class="ac-label">What to do next</div>
+      <div class="ac-text" id="pm-action-text">Computing recommendation...</div>
+    </div>
+    <button id="details-toggle-btn" type="button" class="details-toggle" aria-expanded="false" aria-controls="pm-summary-details">
+      Show details
+    </button>
+    <div id="pm-summary-details" role="region" aria-label="Project health explainer">
+      <strong style="display:block;margin-bottom:6px;color:rgba(255,255,255,0.85);">How project health is computed</strong>
+      <ul style="margin:0;padding-left:20px;">
+        <li><strong>Active projects</strong>: <code>projects.status = 'active'</code>.</li>
+        <li><strong>Past end date</strong>: <code>end_date &lt; today AND status NOT IN ('complete','cancelled','archived')</code> — projects that should have closed but haven't.</li>
+        <li><strong>On hold or planning</strong>: <code>status IN ('on_hold','planning')</code> — work that's not moving yet.</li>
+        <li><strong>Verdict</strong>: red if 3+ past end date; amber if any past end OR blocked count exceeds active; green when active &gt; blocked and nothing overdue.</li>
+      </ul>
+      <p style="margin-top:8px;color:rgba(255,255,255,0.55);font-size:11px;">Use the status tabs below for the per-project drilldown.</p>
+    </div>
 
     <div class="recent-row" id="recent-strip"></div>
 
@@ -833,6 +907,19 @@ async function validateHiveMembership() {
   await loadProjects();
   bindFilters();
   subscribeRealtime();
+
+  // Plain-Read details toggle (Layer D — UX Contract)
+  (function wirePmSummaryToggle() {
+    const btn  = document.getElementById('details-toggle-btn');
+    const pane = document.getElementById('pm-summary-details');
+    if (!btn || !pane) return;
+    btn.addEventListener('click', () => {
+      const open = pane.classList.toggle('open');
+      btn.setAttribute('aria-expanded', String(open));
+      btn.textContent = open ? 'Hide details' : 'Show details';
+    });
+  })();
+
   console.log('[project-manager] booted as', WORKER_NAME, 'hive', HIVE_ID, 'role', HIVE_ROLE);
 })();
 
@@ -939,7 +1026,89 @@ function renderEmptyState(grid, totalProjects) {
   }
 }
 
+// Layer D — Plain-Read summary for Project Manager. Reads _projects.
+function renderProjectsSummary() {
+  const todayIso = new Date().toISOString().slice(0, 10);
+  const TERMINAL = new Set(['complete', 'cancelled', 'archived']);
+  const active   = _projects.filter(p => p.status === 'active').length;
+  const overdue  = _projects.filter(p => p.end_date && p.end_date < todayIso && !TERMINAL.has(p.status)).length;
+  const blocked  = _projects.filter(p => p.status === 'on_hold' || p.status === 'planning').length;
+  const total    = _projects.length;
+
+  const setCard = (name, hero, sub, tag, tone) => {
+    const card = document.getElementById('pm-card-' + name);
+    if (card) {
+      card.classList.remove('tag-green', 'tag-amber', 'tag-red', 'tag-grey');
+      card.classList.add('tag-' + tone);
+    }
+    const h = document.getElementById('pm-' + name + '-hero'); if (h) h.textContent = hero;
+    const s = document.getElementById('pm-' + name + '-sub');  if (s) s.textContent = sub;
+    const t = document.getElementById('pm-' + name + '-tag');  if (t) t.textContent = tag;
+  };
+
+  setCard('active',
+    String(active),
+    active === 0 ? 'No projects in active status' : `${active} of ${total} project${total === 1 ? '' : 's'} currently active`,
+    active === 0 ? 'IDLE' : active >= 5 ? 'BUSY' : 'RUNNING',
+    active === 0 ? 'grey' : active >= 5 ? 'amber' : 'green'
+  );
+  setCard('overdue',
+    String(overdue),
+    overdue === 0 ? 'No active projects past their end date' : `${overdue} project${overdue === 1 ? '' : 's'} past end_date without closing out`,
+    overdue === 0 ? 'CLEAR' : overdue >= 3 ? 'SLIPPING' : 'WATCH',
+    overdue === 0 ? 'green' : overdue >= 3 ? 'red' : 'amber'
+  );
+  setCard('blocked',
+    String(blocked),
+    blocked === 0 ? 'No projects waiting to start or on hold' : `${blocked} project${blocked === 1 ? '' : 's'} in planning or on hold`,
+    blocked === 0 ? 'NONE' : blocked > active ? 'BACKLOG' : 'PIPELINE',
+    blocked === 0 ? 'green' : blocked > active ? 'amber' : 'amber'
+  );
+
+  let tone, label, sub;
+  if (overdue >= 3) {
+    tone = 'attn'; label = `${overdue} projects past end date`;
+    sub  = 'These should have closed by now. Open each — either mark Complete (if done) or revise end_date to current reality.';
+  } else if (overdue > 0 || blocked > active) {
+    tone = 'watch'; label = 'Project portfolio is climbing — a few things to handle';
+    const parts = [];
+    if (overdue > 0)       parts.push(`${overdue} past end_date`);
+    if (blocked > active)  parts.push(`${blocked} blocked vs ${active} active`);
+    sub = parts.join(' · ') + '.';
+  } else if (total === 0) {
+    tone = 'empty'; label = 'No projects yet';
+    sub  = 'Click + New Project to start a work-order bundle, shutdown, CAPEX, or contractor job. Or use 🤖 AI: from text to bootstrap from a plain-language description.';
+  } else {
+    tone = 'healthy'; label = `${active} active project${active === 1 ? '' : 's'}, none overdue`;
+    sub  = `${blocked} in pipeline · ${total - active - blocked} closed. Portfolio is moving.`;
+  }
+  const vBox = document.getElementById('pm-verdict');
+  if (vBox) { vBox.classList.remove('healthy','watch','attn','empty'); vBox.classList.add(tone); }
+  const vIcon = document.getElementById('pm-verdict-icon'); if (vIcon) vIcon.textContent = tone === 'healthy' ? '✓' : tone === 'watch' ? '!' : tone === 'attn' ? '⚠' : '·';
+  const vLbl = document.getElementById('pm-verdict-label'); if (vLbl) vLbl.textContent = label;
+  const vSb  = document.getElementById('pm-verdict-sub');   if (vSb)  vSb.textContent  = sub;
+
+  const actBox = document.getElementById('pm-action-text');
+  if (actBox) {
+    let text;
+    if (total === 0) {
+      text = 'No projects yet. Easiest way to start: click 🤖 AI: from text and describe a project in plain language ("3-day pump overhaul next week, need 2 mechanics and 4 spare seals") — the AI builds the scope item list for you.';
+    } else if (overdue >= 3) {
+      text = `Filter to "Active" tab and walk down — every project past its end_date is dragging your portfolio health. Close out or push the date forward, one at a time.`;
+    } else if (overdue > 0) {
+      text = `${overdue} project${overdue === 1 ? ' is' : 's are'} past end_date. Open them via the Active tab and either mark Complete or revise end_date — both clear the verdict.`;
+    } else if (blocked > active) {
+      text = `${blocked} project${blocked === 1 ? '' : 's'} in planning or on-hold, only ${active} active. Either kick off the planning ones or close out the on-hold ones — a backlog of waiting work is a portfolio smell.`;
+    } else {
+      text = 'Portfolio is healthy. Use the recent strip below to jump back into the project you opened last, or filter the tabs to plan the next phase.';
+    }
+    actBox.textContent = text;
+  }
+}
+
 function renderList() {
+  // Plain-Read summary fires every render — keeps cards in sync with _projects.
+  renderProjectsSummary();
   const grid = $('card-grid');
   let list = _projects.filter(p => {
     if (_activeFilter.status && p.status !== _activeFilter.status) return false;

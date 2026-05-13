@@ -300,6 +300,36 @@
       color: rgba(255,255,255,0.35);
       white-space: nowrap;
     }
+    /* Plain-Read summary (Layer D — UX Contract) */
+    .verdict { display:flex; align-items:center; gap:12px; padding:14px 16px; margin-bottom:14px; border-radius:12px; border:1px solid; }
+    .verdict-icon { font-size:1.5rem; line-height:1; font-weight:800; }
+    .verdict-text { font-size:0.9rem; font-weight:700; line-height:1.35; }
+    .verdict-text small { display:block; font-size:0.72rem; font-weight:500; color:rgba(255,255,255,0.65); margin-top:3px; }
+    .verdict.healthy { background:rgba(74,222,128,0.07);  border-color:rgba(74,222,128,0.3); }
+    .verdict.healthy .verdict-icon { color:#4ade80; }
+    .verdict.watch   { background:rgba(247,162,27,0.07);  border-color:rgba(247,162,27,0.3); }
+    .verdict.watch   .verdict-icon { color:#F7A21B; }
+    .verdict.attn    { background:rgba(248,113,113,0.07); border-color:rgba(248,113,113,0.3); }
+    .verdict.attn    .verdict-icon { color:#f87171; }
+    .verdict.empty   { background:rgba(255,255,255,0.03); border-color:rgba(255,255,255,0.08); }
+    .verdict.empty   .verdict-icon { color:rgba(255,255,255,0.55); }
+    .simple-row { display:grid; grid-template-columns:repeat(auto-fit, minmax(160px, 1fr)); gap:12px; margin-bottom:14px; }
+    .simple-card { background:#162032; border:1px solid rgba(255,255,255,0.07); border-radius:12px; padding:14px 16px; }
+    .simple-card .sc-label { font-size:0.65rem; font-weight:700; color:rgba(255,255,255,0.4); text-transform:uppercase; letter-spacing:0.06em; }
+    .simple-card .sc-hero  { font-size:1.5rem; font-weight:800; line-height:1.15; margin:4px 0 2px; color:#F4F6FA; }
+    .simple-card .sc-sub   { font-size:0.7rem; color:rgba(255,255,255,0.55); line-height:1.4; }
+    .simple-card .sc-tag   { display:inline-block; font-size:0.58rem; font-weight:800; letter-spacing:0.06em; text-transform:uppercase; padding:0.18rem 0.5rem; border-radius:999px; margin-top:7px; }
+    .simple-card.tag-green .sc-tag { background:rgba(74,222,128,0.16);  color:#4ade80; }
+    .simple-card.tag-amber .sc-tag { background:rgba(247,162,27,0.16);  color:#F7A21B; }
+    .simple-card.tag-red   .sc-tag { background:rgba(248,113,113,0.16); color:#f87171; }
+    .simple-card.tag-grey  .sc-tag { background:rgba(255,255,255,0.06); color:rgba(255,255,255,0.5); }
+    .action-card { background:rgba(41,182,217,0.06); border:1px solid rgba(41,182,217,0.25); border-radius:12px; padding:14px 16px; margin-bottom:14px; }
+    .action-card .ac-label { font-size:0.65rem; font-weight:800; color:#29B6D9; text-transform:uppercase; letter-spacing:0.07em; }
+    .action-card .ac-text { font-size:0.82rem; line-height:1.5; margin-top:6px; color:rgba(255,255,255,0.85); }
+    .details-toggle { display:inline-flex; align-items:center; gap:6px; background:transparent; border:1px solid rgba(255,255,255,0.07); color:rgba(255,255,255,0.6); padding:8px 14px; border-radius:8px; font-family:inherit; font-size:0.7rem; font-weight:600; cursor:pointer; min-height:44px; margin-bottom:14px; }
+    .details-toggle:hover { color:#F4F6FA; border-color:rgba(255,255,255,0.18); }
+    #ac-summary-details { display:none; padding:14px 16px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:12px; font-size:0.78rem; line-height:1.5; color:rgba(255,255,255,0.7); margin-bottom:14px; }
+    #ac-summary-details.open { display:block; }
   </style>
 </head>
 <body>
@@ -328,6 +358,50 @@
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
     </a>
     <span class="page-title">Achievements</span>
+  </div>
+
+  <!-- Plain-Read summary (Layer D — UX Contract).
+       Populated by renderAchievementsSummary() from _achievements + _xpLog. -->
+  <div id="ac-verdict" class="verdict empty">
+    <span id="ac-verdict-icon" class="verdict-icon">·</span>
+    <div class="verdict-text"><span id="ac-verdict-label">Computing XP progress...</span><small id="ac-verdict-sub">Adding this week's XP and counting active domains.</small></div>
+  </div>
+  <div class="simple-row">
+    <div class="simple-card tag-grey" id="ac-card-week">
+      <div class="sc-label">XP this week</div>
+      <div class="sc-hero" id="ac-week-hero">0</div>
+      <div class="sc-sub" id="ac-week-sub">Loading...</div>
+      <span class="sc-tag" id="ac-week-tag">—</span>
+    </div>
+    <div class="simple-card tag-grey" id="ac-card-active">
+      <div class="sc-label">Active domains</div>
+      <div class="sc-hero" id="ac-active-hero">0</div>
+      <div class="sc-sub" id="ac-active-sub">Loading...</div>
+      <span class="sc-tag" id="ac-active-tag">—</span>
+    </div>
+    <div class="simple-card tag-grey" id="ac-card-level">
+      <div class="sc-label">Total level</div>
+      <div class="sc-hero" id="ac-level-hero">0</div>
+      <div class="sc-sub" id="ac-level-sub">Loading...</div>
+      <span class="sc-tag" id="ac-level-tag">—</span>
+    </div>
+  </div>
+  <div class="action-card">
+    <div class="ac-label">What to do next</div>
+    <div class="ac-text" id="ac-action-text">Computing recommendation...</div>
+  </div>
+  <button id="details-toggle-btn" type="button" class="details-toggle" aria-expanded="false" aria-controls="ac-summary-details">
+    Show details
+  </button>
+  <div id="ac-summary-details" role="region" aria-label="Achievements explainer">
+    <strong style="display:block;margin-bottom:6px;color:rgba(255,255,255,0.85);">How XP and tiers work</strong>
+    <ul style="margin:0;padding-left:20px;">
+      <li><strong>XP this week</strong>: <code>achievement_xp_log</code> entries from the past 7 days, summed.</li>
+      <li><strong>Active domains</strong>: domains where you've earned at least Level 1 (out of 12 total).</li>
+      <li><strong>Total level</strong>: sum of <code>current_level</code> across all 12 domains. Drives your worker tier.</li>
+      <li><strong>Verdict</strong>: green if 50+ XP this week; amber if 1-49 XP; empty if no XP yet; never red — Achievements is purely motivational.</li>
+    </ul>
+    <p style="margin-top:8px;color:rgba(255,255,255,0.55);font-size:11px;">Scroll for the Tier Guide and domain-by-domain breakdown.</p>
   </div>
 
   <!-- Hero -->
@@ -557,6 +631,84 @@
     wrap.innerHTML = html;
   }
 
+  // Layer D — Plain-Read summary for Achievements. Rolls up _achievements +
+  // _xpLog into verdict + 3 cards (this week's XP / active domains / total level).
+  function renderAchievementsSummary() {
+    const composite = _achievements.reduce((s, a) => s + (a.current_level || 0), 0);
+    const active    = _achievements.filter(a => (a.current_level || 0) > 0).length;
+    const weekAgo   = Date.now() - 7 * 86400 * 1000;
+    const weekXP    = (_xpLog || [])
+      .filter(r => r.earned_at && new Date(r.earned_at).getTime() >= weekAgo)
+      .reduce((s, r) => s + (Number(r.xp_earned) || 0), 0);
+
+    const setCard = (name, hero, sub, tag, tone) => {
+      const card = document.getElementById('ac-card-' + name);
+      if (card) {
+        card.classList.remove('tag-green', 'tag-amber', 'tag-red', 'tag-grey');
+        card.classList.add('tag-' + tone);
+      }
+      const h = document.getElementById('ac-' + name + '-hero'); if (h) h.textContent = hero;
+      const s = document.getElementById('ac-' + name + '-sub');  if (s) s.textContent = sub;
+      const t = document.getElementById('ac-' + name + '-tag');  if (t) t.textContent = tag;
+    };
+
+    setCard('week',
+      `+${weekXP}`,
+      weekXP === 0 ? 'No XP earned in the past 7 days' : `${weekXP} XP from logbook + PM + AI feedback this week`,
+      weekXP === 0 ? 'IDLE' : weekXP >= 100 ? 'GREAT WEEK' : weekXP >= 50 ? 'ON PACE' : 'KEEP GOING',
+      weekXP === 0 ? 'grey' : weekXP >= 50 ? 'green' : 'amber'
+    );
+    setCard('active',
+      `${active}/12`,
+      active === 0 ? 'No domains active yet' : `${active} of 12 domains touched at Level 1+`,
+      active === 0 ? 'START' : active >= 8 ? 'BROAD' : active >= 4 ? 'BUILDING' : 'NARROW',
+      active === 0 ? 'grey' : active >= 8 ? 'green' : 'amber'
+    );
+    setCard('level',
+      String(composite),
+      composite === 0 ? 'No levels gained yet' : `Sum of levels across all 12 domains (max 60)`,
+      composite === 0 ? 'START' : composite >= 30 ? 'EXPERT' : composite >= 15 ? 'MID' : 'BUILDING',
+      composite === 0 ? 'grey' : composite >= 30 ? 'green' : 'amber'
+    );
+
+    let tone, label, sub;
+    if (composite === 0) {
+      tone = 'empty'; label = 'No achievements yet';
+      sub  = 'Open Logbook, log your first breakdown or PM — XP starts flowing immediately.';
+    } else if (weekXP >= 50) {
+      tone = 'healthy'; label = `${weekXP} XP this week — solid pace`;
+      sub  = `${active}/12 domains active · total level ${composite}.`;
+    } else if (weekXP > 0) {
+      tone = 'watch'; label = `${weekXP} XP this week — keep going`;
+      sub  = `Push to 50+ XP for the weekly target. ${active}/12 domains active.`;
+    } else {
+      tone = 'watch'; label = 'No XP this week';
+      sub  = 'Logbook entries, PM completions, and AI feedback all earn XP. Pick one and you are back on the board.';
+    }
+    const vBox = document.getElementById('ac-verdict');
+    if (vBox) { vBox.classList.remove('healthy','watch','attn','empty'); vBox.classList.add(tone); }
+    const vIcon = document.getElementById('ac-verdict-icon'); if (vIcon) vIcon.textContent = tone === 'healthy' ? '✓' : tone === 'watch' ? '!' : tone === 'attn' ? '⚠' : '·';
+    const vLbl = document.getElementById('ac-verdict-label'); if (vLbl) vLbl.textContent = label;
+    const vSb  = document.getElementById('ac-verdict-sub');   if (vSb)  vSb.textContent  = sub;
+
+    const actBox = document.getElementById('ac-action-text');
+    if (actBox) {
+      let text;
+      if (composite === 0) {
+        text = 'You have no XP yet. Log a breakdown or complete a PM in Logbook / PM Scheduler — XP and badges land here automatically.';
+      } else if (weekXP === 0) {
+        text = 'No XP this week. The easiest source is logging a breakdown with problem + root_cause + action; that alone earns +5 XP in the Diagnostics domain.';
+      } else if (active < 4) {
+        text = `Only ${active}/12 domains active. Try a different kind of entry — a PM completion earns Maintenance XP, a knowledge contribution earns Knowledge XP, etc.`;
+      } else if (weekXP < 50) {
+        text = `${weekXP} XP this week. Push to 50 for the weekly target — a couple of logbook entries with a good knowledge field will get you there.`;
+      } else {
+        text = 'Great week! Keep the streak going — XP this week feeds your hive standing card below.';
+      }
+      actBox.textContent = text;
+    }
+  }
+
   function renderHero() {
     const topLevel = _achievements.reduce((m, a) => Math.max(m, a.current_level || 0), 0);
     const tier     = getWorkerTier(topLevel);
@@ -768,11 +920,23 @@
     _xpLog        = logRes.data  || [];
 
     renderHero();
+    renderAchievementsSummary();
     renderTierShowcase();
     renderAchievementsBody();
     renderRecentActivity();
     subscribeAchievements();
     loadHiveStandings();
+
+    // Plain-Read details toggle (Layer D — UX Contract)
+    const btn  = document.getElementById('details-toggle-btn');
+    const pane = document.getElementById('ac-summary-details');
+    if (btn && pane) {
+      btn.addEventListener('click', () => {
+        const open = pane.classList.toggle('open');
+        btn.setAttribute('aria-expanded', String(open));
+        btn.textContent = open ? 'Hide details' : 'Show details';
+      });
+    }
   }
 
   init();

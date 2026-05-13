@@ -292,6 +292,36 @@
     .text-green { color: #4ade80; }
     .text-amber { color: #F7A21B; }
     .text-red { color: #f87171; }
+    /* Plain-Read summary (Layer D — UX Contract) */
+    .verdict { display:flex; align-items:center; gap:12px; padding:14px 16px; margin-bottom:14px; border-radius:12px; border:1px solid; }
+    .verdict-icon { font-size:1.5rem; line-height:1; font-weight:800; }
+    .verdict-text { font-size:0.9rem; font-weight:700; line-height:1.35; }
+    .verdict-text small { display:block; font-size:0.72rem; font-weight:500; color:rgba(255,255,255,0.65); margin-top:3px; }
+    .verdict.healthy { background:rgba(74,222,128,0.07);  border-color:rgba(74,222,128,0.3); }
+    .verdict.healthy .verdict-icon { color:#4ade80; }
+    .verdict.watch   { background:rgba(247,162,27,0.07);  border-color:rgba(247,162,27,0.3); }
+    .verdict.watch   .verdict-icon { color:#F7A21B; }
+    .verdict.attn    { background:rgba(248,113,113,0.07); border-color:rgba(248,113,113,0.3); }
+    .verdict.attn    .verdict-icon { color:#f87171; }
+    .verdict.empty   { background:rgba(255,255,255,0.03); border-color:rgba(255,255,255,0.08); }
+    .verdict.empty   .verdict-icon { color:rgba(255,255,255,0.55); }
+    .simple-row { display:grid; grid-template-columns:repeat(auto-fit, minmax(160px, 1fr)); gap:12px; margin-bottom:14px; }
+    .simple-card { background:#162032; border:1px solid rgba(255,255,255,0.07); border-radius:12px; padding:14px 16px; }
+    .simple-card .sc-label { font-size:0.65rem; font-weight:700; color:rgba(255,255,255,0.4); text-transform:uppercase; letter-spacing:0.06em; }
+    .simple-card .sc-hero  { font-size:1.5rem; font-weight:800; line-height:1.15; margin:4px 0 2px; color:#F4F6FA; }
+    .simple-card .sc-sub   { font-size:0.7rem; color:rgba(255,255,255,0.55); line-height:1.4; }
+    .simple-card .sc-tag   { display:inline-block; font-size:0.58rem; font-weight:800; letter-spacing:0.06em; text-transform:uppercase; padding:0.18rem 0.5rem; border-radius:999px; margin-top:7px; }
+    .simple-card.tag-green .sc-tag { background:rgba(74,222,128,0.16);  color:#4ade80; }
+    .simple-card.tag-amber .sc-tag { background:rgba(247,162,27,0.16);  color:#F7A21B; }
+    .simple-card.tag-red   .sc-tag { background:rgba(248,113,113,0.16); color:#f87171; }
+    .simple-card.tag-grey  .sc-tag { background:rgba(255,255,255,0.06); color:rgba(255,255,255,0.5); }
+    .action-card { background:rgba(41,182,217,0.06); border:1px solid rgba(41,182,217,0.25); border-radius:12px; padding:14px 16px; margin-bottom:14px; }
+    .action-card .ac-label { font-size:0.65rem; font-weight:800; color:#29B6D9; text-transform:uppercase; letter-spacing:0.07em; }
+    .action-card .ac-text { font-size:0.82rem; line-height:1.5; margin-top:6px; color:rgba(255,255,255,0.85); }
+    .details-toggle { display:inline-flex; align-items:center; gap:6px; background:transparent; border:1px solid rgba(255,255,255,0.07); color:rgba(255,255,255,0.6); padding:8px 14px; border-radius:8px; font-family:inherit; font-size:0.7rem; font-weight:600; cursor:pointer; min-height:44px; margin-bottom:14px; }
+    .details-toggle:hover { color:#F4F6FA; border-color:rgba(255,255,255,0.18); }
+    #sm-summary-details { display:none; padding:14px 16px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:12px; font-size:0.78rem; line-height:1.5; color:rgba(255,255,255,0.7); margin-bottom:14px; }
+    #sm-summary-details.open { display:block; }
   </style>
   <link rel="canonical" href="https://workhiveph.com/skillmatrix.html" />
 </head>
@@ -340,6 +370,49 @@
 
   <!-- Main content (shown after load) -->
   <div id="main-content" class="hidden">
+
+    <!-- Plain-Read summary (Layer D — UX Contract).
+         Populated by renderSkillSummary() after _profile + _badges load. -->
+    <div id="sm-verdict" class="verdict empty">
+      <span id="sm-verdict-icon" class="verdict-icon">·</span>
+      <div class="verdict-text"><span id="sm-verdict-label">Computing skill progress...</span><small id="sm-verdict-sub">Counting disciplines on target, quizzes available, and total badges.</small></div>
+    </div>
+    <div class="simple-row">
+      <div class="simple-card tag-grey" id="sm-card-ontrack">
+        <div class="sc-label">On target</div>
+        <div class="sc-hero" id="sm-ontrack-hero">0</div>
+        <div class="sc-sub" id="sm-ontrack-sub">Loading...</div>
+        <span class="sc-tag" id="sm-ontrack-tag">—</span>
+      </div>
+      <div class="simple-card tag-grey" id="sm-card-quizzes">
+        <div class="sc-label">Quizzes available</div>
+        <div class="sc-hero" id="sm-quizzes-hero">0</div>
+        <div class="sc-sub" id="sm-quizzes-sub">Loading...</div>
+        <span class="sc-tag" id="sm-quizzes-tag">—</span>
+      </div>
+      <div class="simple-card tag-grey" id="sm-card-badges">
+        <div class="sc-label">Total badges</div>
+        <div class="sc-hero" id="sm-badges-hero">0</div>
+        <div class="sc-sub" id="sm-badges-sub">Loading...</div>
+        <span class="sc-tag" id="sm-badges-tag">—</span>
+      </div>
+    </div>
+    <div class="action-card">
+      <div class="ac-label">What to do next</div>
+      <div class="ac-text" id="sm-action-text">Computing recommendation...</div>
+    </div>
+    <button id="details-toggle-btn" type="button" class="details-toggle" aria-expanded="false" aria-controls="sm-summary-details">
+      Show details
+    </button>
+    <div id="sm-summary-details" role="region" aria-label="Skill progress explainer">
+      <strong style="display:block;margin-bottom:6px;color:rgba(255,255,255,0.85);">How this is computed</strong>
+      <ul style="margin:0;padding-left:20px;">
+        <li><strong>On target</strong>: disciplines where your actual level (highest consecutive badge from L1) meets or exceeds your target level.</li>
+        <li><strong>Quizzes available</strong>: disciplines where the next level is within reach (actual + 1 &lt;= target + 1) and not yet on cooldown.</li>
+        <li><strong>Total badges</strong>: count of <code>skill_badges</code> rows for you across all disciplines and levels (max 5 × 6 = 30).</li>
+        <li><strong>Verdict</strong>: red if primary discipline 2+ levels behind target; amber if any discipline behind; green when every discipline is on target.</li>
+      </ul>
+    </div>
 
     <!-- Radar Chart -->
     <section class="chart-section card" style="margin-bottom:1.5rem;">
@@ -599,6 +672,7 @@ function showMatrix() {
   renderTargetGrid();
   renderDisciplineCards();
   renderRadarChart();
+  renderSkillSummary();
 }
 
 // ─── Target Grid ──────────────────────────────────────────────────────────────
@@ -633,6 +707,7 @@ function renderTargetGrid() {
       renderTargetGrid(); // re-render to update disabled states
       renderDisciplineCards();
       renderRadarChart();
+      renderSkillSummary();
     });
   });
 }
@@ -735,6 +810,95 @@ function renderDisciplineCards() {
 }
 
 // ─── Radar Chart ──────────────────────────────────────────────────────────────
+// Layer D — Plain-Read summary for Skill Matrix. Rolls up _profile.targets
+// + _badges into verdict + 3 cards. Called from renderAll() so the cards
+// stay in sync with the radar + discipline cards below.
+function renderSkillSummary() {
+  if (!_profile) return;
+  const onTarget   = DISCIPLINES.filter(d => getActualLevel(d) >= (_profile.targets[d] ?? 2)).length;
+  const totalDisc  = DISCIPLINES.length;
+  const totalBadges = Object.values(_badges).reduce((s, lvls) => s + (Array.isArray(lvls) ? lvls.length : 0), 0);
+  const quizzesAvail = DISCIPLINES.filter(d => {
+    const actual = getActualLevel(d);
+    const target = _profile.targets[d] ?? 2;
+    const next   = actual + 1;
+    return next <= 5 && next <= (target + 1);
+  }).length;
+
+  const primaryDisc   = _profile.primary_skill;
+  const primaryGap    = primaryDisc ? Math.max(0, (_profile.targets[primaryDisc] ?? 5) - getActualLevel(primaryDisc)) : 0;
+  const anyBehind     = DISCIPLINES.some(d => getActualLevel(d) < (_profile.targets[d] ?? 2));
+
+  const setCard = (name, hero, sub, tag, tone) => {
+    const card = document.getElementById('sm-card-' + name);
+    if (card) {
+      card.classList.remove('tag-green', 'tag-amber', 'tag-red', 'tag-grey');
+      card.classList.add('tag-' + tone);
+    }
+    const h = document.getElementById('sm-' + name + '-hero'); if (h) h.textContent = hero;
+    const s = document.getElementById('sm-' + name + '-sub');  if (s) s.textContent = sub;
+    const t = document.getElementById('sm-' + name + '-tag');  if (t) t.textContent = tag;
+  };
+
+  setCard('ontrack',
+    `${onTarget}/${totalDisc}`,
+    onTarget === totalDisc ? 'Every discipline at or above target' : `${totalDisc - onTarget} discipline${(totalDisc - onTarget) === 1 ? '' : 's'} still behind target`,
+    onTarget === totalDisc ? 'COMPLETE' : onTarget >= totalDisc / 2 ? 'PROGRESSING' : 'EARLY',
+    onTarget === totalDisc ? 'green' : onTarget >= totalDisc / 2 ? 'amber' : 'amber'
+  );
+  setCard('quizzes',
+    String(quizzesAvail),
+    quizzesAvail === 0 ? 'All targets reached or quizzes on cooldown' : `${quizzesAvail} discipline${quizzesAvail === 1 ? '' : 's'} have a quiz you can take now`,
+    quizzesAvail === 0 ? 'NONE' : 'READY',
+    quizzesAvail === 0 ? 'grey' : 'green'
+  );
+  setCard('badges',
+    String(totalBadges),
+    totalBadges === 0 ? 'No badges earned yet' : `${totalBadges} of 30 possible (5 levels × 6 disciplines)`,
+    totalBadges === 0 ? 'START' : totalBadges >= 20 ? 'EXPERT' : totalBadges >= 10 ? 'MID' : 'BUILDING',
+    totalBadges === 0 ? 'grey' : totalBadges >= 20 ? 'green' : 'amber'
+  );
+
+  // Verdict
+  let tone, label, sub;
+  if (primaryGap >= 2) {
+    tone = 'attn'; label = `Primary discipline ${primaryGap} levels behind target`;
+    sub  = `${primaryDisc} is your declared primary skill. Quiz on it before anything else — every other discipline target depends on your primary momentum.`;
+  } else if (anyBehind || primaryGap > 0) {
+    tone = 'watch'; label = 'Skill matrix is climbing';
+    sub  = `${onTarget}/${totalDisc} disciplines on target · ${quizzesAvail} quiz${quizzesAvail === 1 ? '' : 'zes'} available right now.`;
+  } else if (totalBadges === 0) {
+    tone = 'empty'; label = 'No badges earned yet';
+    sub  = 'Pick the easiest discipline + the easiest level, take the quiz, and the radar chart will start filling in.';
+  } else {
+    tone = 'healthy'; label = `Every discipline at or above target (${totalBadges} badges)`;
+    sub  = 'Want to push further? Raise a target via the "Target Adjustment" controls below.';
+  }
+  const vBox = document.getElementById('sm-verdict');
+  if (vBox) { vBox.classList.remove('healthy','watch','attn','empty'); vBox.classList.add(tone); }
+  const vIcon = document.getElementById('sm-verdict-icon'); if (vIcon) vIcon.textContent = tone === 'healthy' ? '✓' : tone === 'watch' ? '!' : tone === 'attn' ? '⚠' : '·';
+  const vLbl = document.getElementById('sm-verdict-label'); if (vLbl) vLbl.textContent = label;
+  const vSb  = document.getElementById('sm-verdict-sub');   if (vSb)  vSb.textContent  = sub;
+
+  // Action
+  const actBox = document.getElementById('sm-action-text');
+  if (actBox) {
+    let text;
+    if (totalBadges === 0) {
+      text = 'Click the easiest discipline card below and take its Level 1 quiz. 5 questions, ~5 minutes. The radar above starts filling in immediately.';
+    } else if (primaryGap >= 2) {
+      text = `Take a ${primaryDisc} quiz first — your primary discipline is ${primaryGap} levels behind. The next level unlocks once you pass.`;
+    } else if (quizzesAvail > 0) {
+      text = `${quizzesAvail} discipline${quizzesAvail === 1 ? '' : 's'} have quizzes available right now. Tap a discipline card below and "Take quiz" to push one level.`;
+    } else if (!anyBehind) {
+      text = 'Every discipline is on target. Raise a target via the "Target Adjustment" section if you want to push higher, or wait for cooldowns to unlock more quizzes.';
+    } else {
+      text = 'Some quizzes are on cooldown right now. Check back later or work on disciplines that are still ready.';
+    }
+    actBox.textContent = text;
+  }
+}
+
 function renderRadarChart() {
   const targets = DISCIPLINES.map(d => _profile.targets[d] ?? 2);
   const actuals = DISCIPLINES.map(d => getActualLevel(d));
@@ -1130,6 +1294,7 @@ function refreshMatrix() {
   renderTargetGrid();
   renderDisciplineCards();
   renderRadarChart();
+  renderSkillSummary();
 }
 
 // ─── Modal helpers ────────────────────────────────────────────────────────────
@@ -1158,6 +1323,18 @@ function closeModal(id) {
     }
   });
 });
+
+// Plain-Read details toggle (Layer D — UX Contract)
+(function wireSmSummaryToggle() {
+  const btn  = document.getElementById('details-toggle-btn');
+  const pane = document.getElementById('sm-summary-details');
+  if (!btn || !pane) return;
+  btn.addEventListener('click', () => {
+    const open = pane.classList.toggle('open');
+    btn.setAttribute('aria-expanded', String(open));
+    btn.textContent = open ? 'Hide details' : 'Show details';
+  });
+})();
 
 // ─── Start ────────────────────────────────────────────────────────────────────
 init();

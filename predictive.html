@@ -108,6 +108,36 @@
       .risk-table th:nth-child(3), .risk-table td:nth-child(3),
       .risk-table th:nth-child(4), .risk-table td:nth-child(4) { display: none; }
     }
+    /* Plain-Read summary (Layer D — UX Contract) */
+    .verdict { display:flex; align-items:center; gap:12px; padding:14px 16px; margin-bottom:14px; border-radius:12px; border:1px solid; }
+    .verdict-icon { font-size:1.5rem; line-height:1; font-weight:800; }
+    .verdict-text { font-size:0.9rem; font-weight:700; line-height:1.35; }
+    .verdict-text small { display:block; font-size:0.72rem; font-weight:500; color:rgba(255,255,255,0.65); margin-top:3px; }
+    .verdict.healthy { background:rgba(74,222,128,0.07);  border-color:rgba(74,222,128,0.3); }
+    .verdict.healthy .verdict-icon { color:#4ade80; }
+    .verdict.watch   { background:rgba(247,162,27,0.07);  border-color:rgba(247,162,27,0.3); }
+    .verdict.watch   .verdict-icon { color:#F7A21B; }
+    .verdict.attn    { background:rgba(248,113,113,0.07); border-color:rgba(248,113,113,0.3); }
+    .verdict.attn    .verdict-icon { color:#f87171; }
+    .verdict.empty   { background:rgba(255,255,255,0.03); border-color:rgba(255,255,255,0.08); }
+    .verdict.empty   .verdict-icon { color:rgba(255,255,255,0.55); }
+    .simple-row { display:grid; grid-template-columns:repeat(auto-fit, minmax(160px, 1fr)); gap:12px; margin-bottom:14px; }
+    .simple-card { background:#162032; border:1px solid rgba(255,255,255,0.07); border-radius:12px; padding:14px 16px; }
+    .simple-card .sc-label { font-size:0.65rem; font-weight:700; color:rgba(255,255,255,0.4); text-transform:uppercase; letter-spacing:0.06em; }
+    .simple-card .sc-hero  { font-size:1.5rem; font-weight:800; line-height:1.15; margin:4px 0 2px; color:#F4F6FA; }
+    .simple-card .sc-sub   { font-size:0.7rem; color:rgba(255,255,255,0.55); line-height:1.4; }
+    .simple-card .sc-tag   { display:inline-block; font-size:0.58rem; font-weight:800; letter-spacing:0.06em; text-transform:uppercase; padding:0.18rem 0.5rem; border-radius:999px; margin-top:7px; }
+    .simple-card.tag-green .sc-tag { background:rgba(74,222,128,0.16);  color:#4ade80; }
+    .simple-card.tag-amber .sc-tag { background:rgba(247,162,27,0.16);  color:#F7A21B; }
+    .simple-card.tag-red   .sc-tag { background:rgba(248,113,113,0.16); color:#f87171; }
+    .simple-card.tag-grey  .sc-tag { background:rgba(255,255,255,0.06); color:rgba(255,255,255,0.5); }
+    .action-card { background:rgba(41,182,217,0.06); border:1px solid rgba(41,182,217,0.25); border-radius:12px; padding:14px 16px; margin-bottom:14px; }
+    .action-card .ac-label { font-size:0.65rem; font-weight:800; color:#29B6D9; text-transform:uppercase; letter-spacing:0.07em; }
+    .action-card .ac-text { font-size:0.82rem; line-height:1.5; margin-top:6px; color:rgba(255,255,255,0.85); }
+    .details-toggle { display:inline-flex; align-items:center; gap:6px; background:transparent; border:1px solid rgba(255,255,255,0.07); color:rgba(255,255,255,0.6); padding:8px 14px; border-radius:8px; font-family:inherit; font-size:0.7rem; font-weight:600; cursor:pointer; min-height:44px; margin-bottom:14px; }
+    .details-toggle:hover { color:#F4F6FA; border-color:rgba(255,255,255,0.18); }
+    #pr-summary-details { display:none; padding:14px 16px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:12px; font-size:0.78rem; line-height:1.5; color:rgba(255,255,255,0.7); margin-bottom:14px; }
+    #pr-summary-details.open { display:block; }
   </style>
 </head>
 <body>
@@ -133,6 +163,50 @@
       Click any asset name below to jump to its full 360 view.
     </div>
     <a href="asset-hub.html" style="background:rgba(167,139,250,0.15); color:#a78bfa; border:1px solid rgba(167,139,250,0.4); border-radius:8px; padding:6px 12px; font-size:0.7rem; font-weight:700; text-decoration:none; white-space:nowrap;">Open Asset Hub →</a>
+  </div>
+
+  <!-- Plain-Read summary (Layer D — UX Contract).
+       Populated by renderPredictiveSummary() from _scores. -->
+  <div id="pr-verdict" class="verdict empty">
+    <span id="pr-verdict-icon" class="verdict-icon">·</span>
+    <div class="verdict-text"><span id="pr-verdict-label">Computing risk forecast...</span><small id="pr-verdict-sub">Counting hot assets, healthy assets, and earliest forecast failure.</small></div>
+  </div>
+  <div class="simple-row">
+    <div class="simple-card tag-grey" id="pr-card-hot">
+      <div class="sc-label">Hot assets</div>
+      <div class="sc-hero" id="pr-hot-hero">0</div>
+      <div class="sc-sub" id="pr-hot-sub">Loading...</div>
+      <span class="sc-tag" id="pr-hot-tag">—</span>
+    </div>
+    <div class="simple-card tag-grey" id="pr-card-healthy">
+      <div class="sc-label">Healthy</div>
+      <div class="sc-hero" id="pr-healthy-hero">0</div>
+      <div class="sc-sub" id="pr-healthy-sub">Loading...</div>
+      <span class="sc-tag" id="pr-healthy-tag">—</span>
+    </div>
+    <div class="simple-card tag-grey" id="pr-card-soonest">
+      <div class="sc-label">Earliest forecast</div>
+      <div class="sc-hero" id="pr-soonest-hero">—</div>
+      <div class="sc-sub" id="pr-soonest-sub">Loading...</div>
+      <span class="sc-tag" id="pr-soonest-tag">—</span>
+    </div>
+  </div>
+  <div class="action-card">
+    <div class="ac-label">What to do next</div>
+    <div class="ac-text" id="pr-action-text">Computing recommendation...</div>
+  </div>
+  <button id="details-toggle-btn" type="button" class="details-toggle" aria-expanded="false" aria-controls="pr-summary-details">
+    Show details
+  </button>
+  <div id="pr-summary-details" role="region" aria-label="Predictive maintenance explainer">
+    <strong style="display:block;margin-bottom:6px;color:rgba(255,255,255,0.85);">How risk is forecast</strong>
+    <ul style="margin:0;padding-left:20px;">
+      <li><strong>Hot assets</strong>: <code>asset_risk_scores</code> rows with <code>risk_level IN ('critical','high')</code> (latest snapshot per asset).</li>
+      <li><strong>Healthy</strong>: rows with <code>risk_level = 'low'</code>.</li>
+      <li><strong>Earliest forecast</strong>: smallest <code>days_until_failure</code> across the fleet — the asset the model expects to fail first.</li>
+      <li><strong>Verdict</strong>: red if 3+ critical OR days_until_failure &lt; 14; amber if any critical/high OR forecast &lt; 30 days; green when fleet is mostly low-risk.</li>
+    </ul>
+    <p style="margin-top:8px;color:rgba(255,255,255,0.55);font-size:11px;">Scores recompute daily at 13:00 PHT. Switch tabs below for Risk Ranking, Health Heatmap, or Failure Trend drilldowns.</p>
   </div>
 
   <!-- Summary row -->
@@ -275,6 +349,18 @@
   await Promise.allSettled([loadScores(), loadTrend()]);
   setupTabs();
 
+  // Plain-Read details toggle (Layer D — UX Contract)
+  (function wirePrSummaryToggle() {
+    const btn  = document.getElementById('details-toggle-btn');
+    const pane = document.getElementById('pr-summary-details');
+    if (!btn || !pane) return;
+    btn.addEventListener('click', () => {
+      const open = pane.classList.toggle('open');
+      btn.setAttribute('aria-expanded', String(open));
+      btn.textContent = open ? 'Hide details' : 'Show details';
+    });
+  })();
+
   // ── Load risk scores from v_risk_truth (canonical risk view, Phase A.3) ─────
   // The view does DISTINCT ON (hive_id, asset_name) so each asset returns its
   // latest score directly; no client-side dedup needed.
@@ -324,6 +410,95 @@
     }
   }
 
+  // Layer D — Plain-Read summary for Predictive Maintenance. Reads _scores.
+  function renderPredictiveSummary(counts) {
+    const hot     = counts.critical + counts.high;
+    const total   = _scores.length;
+    const healthy = counts.low;
+
+    // Earliest forecast: smallest non-null days_until_failure
+    let soonest = null, soonestAsset = null;
+    for (const s of _scores) {
+      const d = s.days_until_failure;
+      if (d == null) continue;
+      if (soonest == null || d < soonest) { soonest = d; soonestAsset = s.asset_name; }
+    }
+
+    const setCard = (name, hero, sub, tag, tone) => {
+      const card = document.getElementById('pr-card-' + name);
+      if (card) {
+        card.classList.remove('tag-green', 'tag-amber', 'tag-red', 'tag-grey');
+        card.classList.add('tag-' + tone);
+      }
+      const h = document.getElementById('pr-' + name + '-hero'); if (h) h.textContent = hero;
+      const s = document.getElementById('pr-' + name + '-sub');  if (s) s.textContent = sub;
+      const t = document.getElementById('pr-' + name + '-tag');  if (t) t.textContent = tag;
+    };
+
+    setCard('hot',
+      String(hot),
+      hot === 0 ? 'No assets flagged Critical or High' : `${counts.critical} critical · ${counts.high} high (of ${total} assets)`,
+      hot === 0 ? 'CLEAR' : hot >= 3 ? 'HOT FLEET' : 'WATCH',
+      hot === 0 ? 'green' : hot >= 3 ? 'red' : 'amber'
+    );
+    setCard('healthy',
+      String(healthy),
+      healthy === 0 ? 'No assets at Low risk yet' : `${healthy} of ${total} assets at Low risk`,
+      healthy === 0 ? 'NO DATA' : healthy >= total * 0.6 ? 'MOSTLY HEALTHY' : 'MIXED',
+      healthy === 0 ? 'grey' : healthy >= total * 0.6 ? 'green' : 'amber'
+    );
+    if (soonest == null) {
+      setCard('soonest', '—', 'No failure forecast available yet', 'NO DATA', 'grey');
+    } else {
+      const sub = soonestAsset ? `${soonestAsset} forecast first` : 'Earliest predicted failure window';
+      setCard('soonest',
+        `${soonest}d`,
+        sub,
+        soonest < 14 ? 'IMMINENT' : soonest < 30 ? 'NEAR-TERM' : 'COMFORTABLE',
+        soonest < 14 ? 'red' : soonest < 30 ? 'amber' : 'green'
+      );
+    }
+
+    let tone, label, sub;
+    if (counts.critical >= 3 || (soonest != null && soonest < 14)) {
+      tone = 'attn'; label = 'Fleet risk is high';
+      sub  = counts.critical >= 3
+              ? `${counts.critical} critical-risk assets — start root-cause reviews immediately.`
+              : `${soonestAsset || 'One asset'} forecast to fail within ${soonest} days. Schedule intervention.`;
+    } else if (hot > 0 || (soonest != null && soonest < 30)) {
+      tone = 'watch'; label = 'Fleet is climbing — manageable';
+      sub  = `${hot} hot asset${hot === 1 ? '' : 's'} · ${total} total · earliest forecast ${soonest != null ? soonest + 'd' : 'n/a'}.`;
+    } else if (total === 0) {
+      tone = 'empty'; label = 'No risk scores yet';
+      sub  = 'Scores generate daily at 13:00 PHT once your hive has 30+ logbook entries.';
+    } else {
+      tone = 'healthy'; label = `Fleet is healthy (${healthy}/${total} low risk)`;
+      sub  = 'No critical assets. Use the Failure Trend tab to watch for early creep.';
+    }
+    const vBox = document.getElementById('pr-verdict');
+    if (vBox) { vBox.classList.remove('healthy','watch','attn','empty'); vBox.classList.add(tone); }
+    const vIcon = document.getElementById('pr-verdict-icon'); if (vIcon) vIcon.textContent = tone === 'healthy' ? '✓' : tone === 'watch' ? '!' : tone === 'attn' ? '⚠' : '·';
+    const vLbl = document.getElementById('pr-verdict-label'); if (vLbl) vLbl.textContent = label;
+    const vSb  = document.getElementById('pr-verdict-sub');   if (vSb)  vSb.textContent  = sub;
+
+    const actBox = document.getElementById('pr-action-text');
+    if (actBox) {
+      let text;
+      if (total === 0) {
+        text = 'No predictions yet. The risk engine needs at least 30 days of logbook entries — keep logging breakdowns, PMs, and inspections, and scores will appear after the next 13:00 PHT cron.';
+      } else if (counts.critical >= 3) {
+        text = `${counts.critical} critical assets. Open the Risk Ranking tab below, click each top-of-list asset, and start a root-cause review in its 360° view.`;
+      } else if (soonest != null && soonest < 14) {
+        text = `${soonestAsset || 'One asset'} is forecast to fail in ${soonest} days. Schedule a condition-based check or planned intervention before the next shift.`;
+      } else if (hot > 0) {
+        text = `${hot} asset${hot === 1 ? '' : 's'} above the High threshold. Filter Risk Ranking to "High+" and walk through the top 5 — usually a couple of shared parts or a common discipline driver.`;
+      } else {
+        text = 'Fleet looks healthy. Use the Health Heatmap tab to scan for early creep (yellow cells), or Failure Trend to spot a rising baseline.';
+      }
+      actBox.textContent = text;
+    }
+  }
+
   // ── Render: summary chips ────────────────────────────────────────────────────
   function renderSummary() {
     const counts = { critical: 0, high: 0, medium: 0, low: 0 };
@@ -333,6 +508,9 @@
     document.getElementById('count-high').textContent     = counts.high;
     document.getElementById('count-medium').textContent   = counts.medium;
     document.getElementById('count-low').textContent      = counts.low;
+
+    // Plain-Read summary (Layer D) — rolls up the same counts in plain English.
+    renderPredictiveSummary(counts);
 
     // Model chip
     const modelVersion = _scores[0]?.model_version || 'rules-v1';
