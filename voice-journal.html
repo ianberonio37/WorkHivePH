@@ -526,6 +526,33 @@
     // mirrors window.speechSynthesis.cancel() semantics.
     let _azureAudio = null;
 
+    // Edge-TTS via python-api — same Microsoft Neural voice path the
+    // Video Marketing app uses. Natural en-PH-JamesNeural /
+    // en-PH-RosaNeural that DO sound human (Azure Speech API's en-PH
+    // catalog is a different, smaller set). Free, no auth.
+    const EDGE_TTS_BASE = (window.WH_TTS_EDGE_URL || 'http://localhost:8000').replace(/\/+$/, '');
+
+    async function speakEdge(text, persona) {
+      if (!_ttsOn || !text) return false;
+      try {
+        const resp = await fetch(EDGE_TTS_BASE + '/tts/speak', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ text: String(text), persona: persona || 'james' }),
+        });
+        if (!resp.ok) return false;
+        const data = await resp.json();
+        if (!data || !data.url) return false;
+        if (_azureAudio) { try { _azureAudio.pause(); } catch (_) {} }
+        _azureAudio = new Audio(EDGE_TTS_BASE + data.url);
+        _azureAudio.play().catch(err => console.warn('Edge TTS play failed:', err));
+        return true;
+      } catch (err) {
+        console.warn('speakEdge failed, falling back:', err);
+        return false;
+      }
+    }
+
     async function speakAzure(text, persona) {
       if (!_ttsOn || !text) return false;
       try {
@@ -554,9 +581,13 @@
 
     async function speak(text, langCode) {
       if (!_ttsOn || !text) return;
-      // Phase 7: Azure neural voice is the primary path. The literal James /
-      // Rosa voices match the Video Marketing app for brand consistency, and
-      // free-tier + cache keeps cost at $0 for repeat narration.
+      // Tier 1: Edge-TTS via python-api. Same Microsoft Neural voices the
+      // Video Marketing app uses — natural, free, no auth. This is the
+      // path that makes James / Rosa actually sound human.
+      // Tier 2: Azure Speech API via tts-speak edge function (cloud
+      // fallback). Tier 3: browser SpeechSynthesis (last resort).
+      const edgeOk = await speakEdge(text, _persona);
+      if (edgeOk) return;
       const azureOk = await speakAzure(text, _persona);
       if (azureOk) return;
       // Fallback: browser SpeechSynthesis (works offline, no Azure key).

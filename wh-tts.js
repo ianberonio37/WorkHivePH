@@ -17,6 +17,15 @@
   const PERSONA_STORAGE_KEY = 'wh_voice_journal_persona';
   const TTS_STORAGE_KEY     = 'wh_voice_journal_tts';
 
+  // Edge-TTS via python-api. Same Microsoft Neural voices the Video
+  // Marketing app uses (en-PH-JamesNeural, en-PH-RosaNeural) — sounds
+  // far more natural than Azure Speech's en-PH catalog and is FREE
+  // (no auth, no quota). Falls back to Azure if python-api is offline,
+  // then to the browser SpeechSynthesis if both miss.
+  function getEdgeTtsBase() {
+    return (window.WH_TTS_EDGE_URL || 'http://localhost:8000').replace(/\/+$/, '');
+  }
+
   // Reused audio element so a new play cancels the previous, mirroring
   // window.speechSynthesis.cancel() semantics. One file plays at a time.
   let _audio = null;
@@ -51,6 +60,34 @@
     if (_audio) { try { _audio.pause(); } catch (_) {} }
     if (window.speechSynthesis) {
       try { window.speechSynthesis.cancel(); } catch (_) {}
+    }
+  }
+
+  // Primary path: Edge-TTS via python-api. Returns true on success,
+  // false on any failure so the caller can chain to Azure.
+  async function speakEdge(text, persona) {
+    const base = getEdgeTtsBase();
+    if (!base) return false;
+    try {
+      const fetcher = (typeof window.fetchWithTimeout === 'function')
+        ? window.fetchWithTimeout
+        : (u, o) => fetch(u, o);
+      const resp = await fetcher(base + '/tts/speak', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: String(text), persona }),
+      }, 15000);
+      if (!resp || !resp.ok) return false;
+      const data = await resp.json();
+      if (!data || !data.url) return false;
+      const audioUrl = base + data.url;
+      if (_audio) { try { _audio.pause(); } catch (_) {} }
+      _audio = new Audio(audioUrl);
+      _audio.play().catch(err => console.warn('wh-tts edge play failed:', err));
+      return true;
+    } catch (err) {
+      console.warn('wh-tts edge fetch failed:', err);
+      return false;
     }
   }
 
@@ -141,8 +178,11 @@
   async function speakPersona(text, opts) {
     if (!text || !isTtsOn()) return false;
     const persona = (opts && opts.persona) || getPersona();
-    const azureOk = await speakAzure(text, persona);
-    if (azureOk) return true;
+    // Tier 1: Edge-TTS via python-api (free, natural — matches Video
+    // Marketing). Tier 2: Azure Neural via tts-speak edge function
+    // (cloud fallback). Tier 3: browser SpeechSynthesis with gender bias.
+    if (await speakEdge(text, persona))  return true;
+    if (await speakAzure(text, persona)) return true;
     speakBrowser(text, persona);
     return false;
   }

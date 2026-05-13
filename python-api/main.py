@@ -681,3 +681,139 @@ def ml_status():
         return {**meta, "feature_cols": FEATURE_COLS}
     except Exception as e:
         return {"status": "error", "detail": str(e)}
+
+
+# ─── TTS — Edge TTS (free, natural Microsoft Neural voices) ───────────────────
+# Same pattern as video_marketing_app/app.py. The Edge TTS catalog includes
+# en-PH-JamesNeural + en-PH-RosaNeural (the actual "James" and "Rosa" voices,
+# which DO NOT exist in the Azure Speech API en-PH catalog). No auth, no
+# subscription, just a websocket call to Microsoft's Edge browser TTS.
+#
+# Cache: sha256(voice::text) keys a local MP3 file under .tmp/wh_tts_cache/.
+# Repeat narration hits the disk cache instantly. Cache survives across
+# python-api restarts.
+
+import hashlib
+import os
+import re as _re
+import shutil as _shutil
+import subprocess as _subprocess
+import sys as _sys
+from pathlib import Path as _Path
+
+from fastapi.responses import FileResponse
+
+_TTS_CACHE_DIR = _Path(__file__).parent.parent / ".tmp" / "wh_tts_cache"
+_TTS_VOICES = {
+    "james": "en-PH-JamesNeural",
+    "rosa":  "en-PH-RosaNeural",
+}
+_MAX_TTS_CHARS  = 1500
+_EDGE_TIMEOUT_S = 60
+
+def _find_edge_tts_exe() -> str | None:
+    """Locate the edge-tts CLI. Prefers the venv's Scripts dir, then PATH.
+    Mirrors tools/tts_engine.py without the cross-directory import."""
+    cli = _shutil.which("edge-tts")
+    if cli:
+        return cli
+    scripts_dir = _Path(_sys.executable).parent / "Scripts"
+    candidate = scripts_dir / "edge-tts.exe"
+    if candidate.exists():
+        return str(candidate)
+    return None
+
+def _generate_tts_edge(text: str, voice_id: str, out_path: _Path) -> None:
+    """One subprocess call to Microsoft Edge TTS. Raises on failure."""
+    edge_exe = _find_edge_tts_exe()
+    if not edge_exe:
+        raise RuntimeError("edge-tts CLI not installed (pip install edge-tts)")
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    if out_path.exists():
+        try: out_path.unlink()
+        except OSError: pass
+    cmd = [edge_exe, "--voice", voice_id, "--text", text, "--write-media", str(out_path)]
+    try:
+        result = _subprocess.run(cmd, capture_output=True, text=True, timeout=_EDGE_TIMEOUT_S)
+    except _subprocess.TimeoutExpired:
+        raise RuntimeError(f"edge-tts timed out after {_EDGE_TIMEOUT_S}s")
+    if result.returncode != 0:
+        raise RuntimeError(f"edge-tts rc={result.returncode}: {(result.stderr or '').strip()[-200:]}")
+    if not out_path.exists() or out_path.stat().st_size <= 1000:
+        raise RuntimeError("edge-tts produced empty / truncated MP3")
+
+
+class TtsRequest(BaseModel):
+    text:    str
+    persona: str = "james"
+
+
+@app.post("/tts/speak")
+def tts_speak(req: TtsRequest):
+    """Generate (or serve from cache) an Edge-TTS MP3 for the given text +
+    persona. Returns the cache key — the frontend then fetches the MP3
+    bytes from /tts/audio/{key}.mp3 (or pulls the JSON URL pattern that
+    tts-speak edge function expects)."""
+    text = (req.text or "").strip()
+    if not text:
+        raise HTTPException(status_code=400, detail="text required")
+    if len(text) > _MAX_TTS_CHARS:
+        raise HTTPException(
+            status_code=413,
+            detail=f"text too long (max {_MAX_TTS_CHARS} chars)",
+        )
+    persona_key = (req.persona or "james").strip().lower()
+    if persona_key not in _TTS_VOICES:
+        persona_key = "james"
+    voice_id = _TTS_VOICES[persona_key]
+
+    _TTS_CACHE_DIR.mkdir(parents=True, exist_ok=True)
+    cache_key = hashlib.sha256(f"{voice_id}::{text}".encode("utf-8")).hexdigest()
+    mp3_path  = _TTS_CACHE_DIR / f"{cache_key}.mp3"
+
+    cached = mp3_path.exists() and mp3_path.stat().st_size > 1000
+    if not cached:
+        try:
+            _generate_tts_edge(text, voice_id, mp3_path)
+        except Exception as exc:
+            raise HTTPException(status_code=502, detail=f"Edge TTS failed: {exc}")
+
+    return {
+        "cache_key": cache_key,
+        "voice":     voice_id,
+        "persona":   persona_key,
+        "cached":    cached,
+        "url":       f"/tts/audio/{cache_key}.mp3",
+    }
+
+
+@app.get("/tts/audio/{filename}")
+def tts_audio(filename: str):
+    """Serve a previously-generated MP3. Filename is the sha256 cache key
+    plus .mp3 — anything else 404s."""
+    # Defence-in-depth: reject filenames that don't look like our cache keys.
+    if not _re.fullmatch(r"[a-f0-9]{64}\.mp3", filename):
+        raise HTTPException(status_code=404, detail="not found")
+    mp3_path = _TTS_CACHE_DIR / filename
+    if not mp3_path.exists():
+        raise HTTPException(status_code=404, detail="not found")
+    return FileResponse(
+        path=str(mp3_path),
+        media_type="audio/mpeg",
+        headers={"Cache-Control": "public, max-age=31536000, immutable"},
+    )
+
+
+@app.get("/tts/health")
+def tts_health():
+    """Sanity check — confirms edge-tts CLI is installed and the cache dir
+    is writable. Frontend can poll this before showing 'Voice On' state."""
+    edge_exe = _find_edge_tts_exe()
+    _TTS_CACHE_DIR.mkdir(parents=True, exist_ok=True)
+    return {
+        "status":         "ok" if edge_exe else "degraded",
+        "edge_tts":       bool(edge_exe),
+        "cache_dir":      str(_TTS_CACHE_DIR),
+        "cached_files":   sum(1 for _ in _TTS_CACHE_DIR.glob("*.mp3")) if _TTS_CACHE_DIR.exists() else 0,
+        "voices":         _TTS_VOICES,
+    }
