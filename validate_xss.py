@@ -339,6 +339,120 @@ def check_utils_load_order():
 
 # ── Layer 6: LIKE injection guard ─────────────────────────────────────────────
 
+def check_esc_html_shorthand_undeclared():
+    r"""Catch the bug class found in the 2026-05-13 walkthrough:
+    a renderer references the `e(...)` shorthand without declaring
+    `const e = escHtml` in scope, producing ReferenceError at runtime.
+
+    Heuristic: for each `${e(` / `e(\`` callsite, walk back to find the
+    nearest preceding `function` keyword (function declaration OR arrow
+    function block start), then scan that function body forward for a
+    declaration of `e`. This handles long functions where the declaration
+    is many lines above the first use.
+
+    Acceptable declaration patterns:
+      const e = escHtml      |  let e = escHtml   |  var e = escHtml
+      catch (e) / catch(e)   (so we don't flag the error-variable case)
+
+    If no declaration found in the enclosing function, flag the line. The
+    fix at the call site is one line: add `const e = escHtml;` at the top.
+    """
+    issues = []
+    # Use of `e(...)` shorthand. Match `e(` not preceded by an identifier char
+    # (excludes `name(e)`, `else`, `delete`, etc.). Allow a template-literal
+    # `e(\`` or a paren-style call `e(foo`.
+    use_re = re.compile(r'(?<![a-zA-Z_$])e\(\s*[`a-zA-Z_$0-9.,\'\"]')
+    # Accept any declaration of `e` in scope. The QA preferred form is
+    # `const e = escHtml` but engineering-design uses a custom wrapper
+    # `const e = s => <editable span>${escHtml(s)}</span>` which still
+    # produces safe HTML. The runtime test is "is `e` defined", not "is
+    # `e` specifically the escHtml shorthand".
+    decl_re = re.compile(
+        r'(?:(?:const|let|var)\s+e\s*=|catch\s*\(\s*e\s*\))'
+    )
+    # Scope boundary: the `function` keyword only. Arrow function lambdas
+    # (`l => ...`) close over their parent scope's `e` declaration, so they
+    # are NOT scope boundaries for this check. Looking back to the nearest
+    # `function` (named or anonymous) catches the real enclosing function
+    # without false-positives on every `.map(... => ...)` callsite.
+    func_open_re = re.compile(r'\bfunction\b')
+
+    for page in LIVE_PAGES:
+        content = read_file(page)
+        if not content:
+            continue
+        lines = content.splitlines()
+        # Pre-scan: does the file have any top-level `const e =` declaration
+        # OUTSIDE every function body? If yes, accept all callsites in this
+        # file because JS closures will resolve `e` from the global scope.
+        # Heuristic: any `const e = ...` line whose preceding non-empty line
+        # is NOT inside a function (we approximate by checking that nesting
+        # depth at that line is zero via a balanced-brace counter from the
+        # start of the first `<script>` block).
+        has_global_e = _has_global_e_declaration(content, decl_re)
+
+        seen_lines = set()
+        for i, line in enumerate(lines):
+            if not use_re.search(line):
+                continue
+            if i in seen_lines:
+                continue
+            seen_lines.add(i)
+            if has_global_e:
+                continue
+            # Walk back to find the nearest preceding function-open line.
+            scope_start = 0
+            for j in range(i - 1, -1, -1):
+                if func_open_re.search(lines[j]):
+                    scope_start = j
+                    break
+            context = "\n".join(lines[scope_start:i + 1])
+            if decl_re.search(context):
+                continue
+            issues.append({
+                "check": "esc_html_shorthand_undeclared",
+                "page": page,
+                "line": i + 1,
+                "reason": (
+                    f"{page}:{i+1} uses `e(...)` shorthand for escHtml but "
+                    f"no `const e = escHtml` declaration in the enclosing "
+                    f"function (scope starts at line {scope_start+1}) and "
+                    f"no top-level declaration in the file. ReferenceError "
+                    f"at runtime. Fix: add `const e = escHtml;` at the top "
+                    f"of the function OR at the top of the script block."
+                )
+            })
+    return issues
+
+
+def _has_global_e_declaration(content, decl_re):
+    """Approximate scope analysis: find any `const|let|var e = ...` line whose
+    brace nesting depth (relative to the first <script> tag) is zero. That is
+    a script-tag-level declaration, visible to every inner function via
+    closure. Returns True if at least one is found.
+    """
+    script_start = content.find('<script')
+    if script_start < 0:
+        return False
+    # Skip past the opening <script ...> tag
+    open_close = content.find('>', script_start)
+    if open_close < 0:
+        return False
+    body = content[open_close + 1:]
+    depth = 0
+    pos = 0
+    for line in body.splitlines(keepends=True):
+        if depth == 0 and decl_re.search(line):
+            return True
+        for ch in line:
+            if ch == '{':
+                depth += 1
+            elif ch == '}':
+                depth = max(0, depth - 1)
+        pos += len(line)
+    return False
+
+
 def check_ilike_wildcard_escape():
     """
     Supabase `.ilike()` queries that interpolate user input with %${var}%
@@ -405,6 +519,8 @@ CHECK_NAMES = [
     "utils_load_order",
     # L6
     "ilike_wildcard_escape",
+    # L7 (walkthrough 2026-05-13)
+    "esc_html_shorthand_undeclared",
 ]
 
 CHECK_LABELS = {
@@ -423,6 +539,8 @@ CHECK_LABELS = {
     "utils_load_order":            "L5  utils.js loads before main <script> block on all pages",
     # L6
     "ilike_wildcard_escape":       "L6  .ilike('%${var}%') queries escape % and _ wildcards in user input",
+    # L7
+    "esc_html_shorthand_undeclared": "L7  Every `e(...)` shorthand callsite has `const e = escHtml` in scope",
 }
 
 
@@ -441,6 +559,7 @@ def main():
     all_issues += check_all_html_pages_in_scope()
     all_issues += check_utils_load_order()
     all_issues += check_ilike_wildcard_escape()
+    all_issues += check_esc_html_shorthand_undeclared()
 
     n_pass, n_skip, n_fail = format_result(CHECK_NAMES, CHECK_LABELS, all_issues)
 

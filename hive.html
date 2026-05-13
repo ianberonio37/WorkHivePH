@@ -1586,6 +1586,7 @@ function renderMaturityStairway(row) {
   const btn = document.getElementById('stair-explain-btn');
   if (!btn) return;
   btn.addEventListener('click', () => {
+    const e = escHtml;  // QA contract: every renderer declares the shorthand
     const drawer = document.getElementById('stair-evidence');
     if (!drawer) return;
     const isOpen = drawer.style.display === 'block';
