@@ -77,6 +77,7 @@ ALL_FUNCTIONS = [
     "visual-defect-capture",
     "sensor-readings-ingest",
     "export-hive-data",
+    "tts-speak",
 ]
 
 REQUIRED_FIELDS = {
@@ -118,6 +119,7 @@ REQUIRED_FIELDS = {
     "fmea-populator":               ["hive_id", "asset_id"],
     "weibull-fitter":               ["hive_id", "asset_id"],
     "pf-calculator":                ["hive_id", "asset_id", "parameter"],
+    "tts-speak":                    ["text"],   # persona optional, defaults to 'james'
 }
 
 

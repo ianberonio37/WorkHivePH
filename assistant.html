@@ -342,6 +342,7 @@
   <div id="toast" class="toast" role="alert" aria-live="polite"></div>
 
   <script src="utils.js"></script>
+  <script src="wh-persona.js"></script>
   <script>
     // ── Config ────────────────────────────────────────────────────
     const WORKER_URL    = 'https://workhive-assistant.ian-beronio37.workers.dev';
@@ -737,9 +738,15 @@ ${invText}
         // ── Step 2: Fall back to personal assistant if orchestrator has no answer ──
         if (!reply) {
           // semanticContext already fetched above — reuse it here
+          // Persona Contract: prepend James/Rosa companion block so the
+          // assistant inherits the worker's chosen voice + canonical anchor.
+          const personaBlock = (typeof window.getCompanionBlock === 'function')
+            ? window.getCompanionBlock() + '\n\n'
+            : '';
+          const basePrompt = personaBlock + window._systemPrompt;
           const enrichedPrompt = semanticContext
-            ? `${window._systemPrompt}\n\n--- KNOWLEDGE BASE CONTEXT (from your team's history) ---\n${semanticContext}\n--- END CONTEXT ---`
-            : window._systemPrompt;
+            ? `${basePrompt}\n\n--- KNOWLEDGE BASE CONTEXT (from your team's history) ---\n${semanticContext}\n--- END CONTEXT ---`
+            : basePrompt;
 
           // Phase 1.8: token-budget compressor. The system prompt is ~2700
           // tokens; on llama-4-scout's 8K context that leaves ~4500 for

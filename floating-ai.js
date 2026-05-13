@@ -603,7 +603,14 @@
 
   // ─── API Call via Cloudflare Worker (Functional) ─────────────────────────────
   async function callAPI(userMessage) {
-    const system = `You are WorkHive AI, a general-purpose assistant built into the WorkHive industrial maintenance platform. WorkHive is a free industrial intelligence platform for field workers and their teams.
+    // Persona Contract Phase 3: prepend the worker's chosen companion
+    // block (James or Rosa) so floating-AI wears the same persona as
+    // voice-journal + asset-brain. Defaults to James if wh-persona.js
+    // hasn't loaded yet (graceful no-op).
+    const personaBlock = (typeof window.getCompanionBlock === 'function')
+      ? window.getCompanionBlock() + '\n\n'
+      : '';
+    const system = personaBlock + `You are WorkHive AI, a general-purpose assistant built into the WorkHive industrial maintenance platform. WorkHive is a free industrial intelligence platform for field workers and their teams.
 
 PLATFORM TOOLS (so you can answer "where do I find X?" questions):
 - Asset Hub (asset-hub.html): The 360 view of any asset in your hive. Shows live state (current risk, open work orders), full timeline (logbook + PM + inventory + project events), parent and sister equipment, parts that fit, and Q and A grounded in that asset's own history. Asset Brain is the connective tissue across the whole platform; every other module feeds into the hub via the asset_nodes graph.

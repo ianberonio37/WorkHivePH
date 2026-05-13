@@ -204,6 +204,15 @@ VALIDATORS = [
         "skip_if_fast": False,
     },
     {
+        "id":      "persona-contract",
+        "script":  "validate_persona_contract.py",
+        "args":    [],
+        "label":   "Persona Contract Validator (7-layer: modules + server + client + gateway + hive + migrations + key parity)",
+        "group":   "Platform",
+        "report":  "persona_contract_report.json",
+        "skip_if_fast": False,
+    },
+    {
         "id":      "tier-c-contracts",
         "script":  "validate_tier_c_contracts.py",
         "args":    [],

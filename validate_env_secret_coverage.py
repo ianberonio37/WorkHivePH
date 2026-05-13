@@ -85,6 +85,8 @@ OPTIONAL_VARS: dict = {
     "STRIPE_WEBHOOK_SECRET": "Same — webhooks rejected without it but marketplace works in contact-only",
     "RESEND_API_KEY": "Email sends silently noop without it; report-sender shows 'email not configured'",
     "GEMINI_API_KEY": "AI fallback chain — Groq is primary; Gemini only used if explicitly configured",
+    "AZURE_SPEECH_KEY": "Persona Contract Phase 7 TTS — tts-speak returns 500 when unset; wh-tts.js client falls back to browser SpeechSynthesis. Set in cloud secrets only (Azure F0 free tier).",
+    "AZURE_SPEECH_REGION": "Persona Contract Phase 7 TTS — defaults to 'southeastasia' when unset; co-required with AZURE_SPEECH_KEY for the Azure path.",
 }
 
 # API-key-prefix patterns that indicate a real secret. The trailing length

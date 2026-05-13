@@ -375,7 +375,12 @@ def check_esc_html_shorthand_undeclared():
     # are NOT scope boundaries for this check. Looking back to the nearest
     # `function` (named or anonymous) catches the real enclosing function
     # without false-positives on every `.map(... => ...)` callsite.
-    func_open_re = re.compile(r'\bfunction\b')
+    # Require `function` as a whole word followed by `(`, `*`, or whitespace
+    # + identifier so `=== 'function'` (typeof guard, string literal) and
+    # `db.functions.invoke(...)` (Supabase functions namespace) are NOT
+    # matched. Caught 2026-05-13 after Persona Contract added both patterns
+    # inside renderer bodies on asset-hub.html.
+    func_open_re = re.compile(r"\bfunction\b\s*(?:\*|\(|[A-Za-z_$])")
 
     for page in LIVE_PAGES:
         content = read_file(page)

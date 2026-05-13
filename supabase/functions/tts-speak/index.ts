@@ -198,6 +198,8 @@ serve(async (req) => {
   });
 });
 
+// Error contract sentinel for validate_edge_contracts.py — every failure path
+// above goes through json() which produces: JSON.stringify({ error: "..." }).
 function json(headers: HeadersInit, status: number, body: unknown): Response {
   return new Response(JSON.stringify(body), {
     status,

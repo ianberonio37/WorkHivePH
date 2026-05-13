@@ -728,6 +728,16 @@
         <p id="oh-date" style="font-size:.72rem; color:rgba(255,255,255,.35); margin:0;"></p>
       </div>
       <div style="display:flex; gap:8px; align-items:center; flex-shrink:0;">
+        <!-- Persona Contract Phase 5: WorkHive companion picker. Persists
+             to localStorage (used by every surface) and syncs to
+             worker_profiles.preferred_persona so ai-gateway routes the
+             same persona to specialists on every device. -->
+        <button id="oh-persona-toggle" type="button" onclick="togglePersona()"
+                style="display:none; font-size:.7rem; font-weight:700; padding:6px 12px; background:rgba(247,162,27,.10); color:#F7A21B; border:1px solid rgba(247,162,27,.30); border-radius:8px; font-family:inherit; cursor:pointer;"
+                aria-label="Change AI companion (James or Rosa)">
+          <label for="oh-persona-toggle" class="sr-only">AI companion</label>
+          <span aria-hidden="true">Companion: </span><span id="oh-persona-name">James</span>
+        </button>
         <a href="hive.html" id="oh-hive-btn" style="display:none; font-size:.7rem; font-weight:700; padding:6px 14px; background:rgba(41,182,217,.12); color:#29B6D9; border:1px solid rgba(41,182,217,.25); border-radius:8px; text-decoration:none;" aria-label="Open hive board"></a>
         <button onclick="signOut()" style="font-size:.7rem; font-weight:600; padding:6px 14px; background:rgba(255,255,255,.05); color:rgba(255,255,255,.45); border:1px solid rgba(255,255,255,.1); border-radius:8px; font-family:inherit; cursor:pointer;">Sign Out</button>
       </div>
@@ -1845,6 +1855,7 @@
 </script>
 
   <script src="utils.js"></script>
+  <script src="wh-persona.js"></script>
   <script src="nav-hub.js"></script>
   <script src="qr-scanner.js"></script>
 
@@ -2246,6 +2257,48 @@
     _getDb().auth.signOut(); // best effort, fire-and-forget after clearing local state
   }
 
+  // ── Persona Contract Phase 5: companion picker (James <-> Rosa) ─────────
+  // The toggle on the home greeting flips between the two personas in one
+  // tap. State of truth: localStorage `wh_voice_journal_persona` (also read
+  // by voice-journal, floating-AI, assistant, wh-tts, wh-persona). On
+  // change we also push to worker_profiles.preferred_persona so the
+  // ai-gateway hydrates the same persona for downstream specialists on
+  // every device the worker uses. See WORKHIVE_PERSONA_CONTRACT.md.
+  function _personaLabel(key) { return key === 'rosa' ? 'Rosa' : 'James'; }
+
+  function _renderPersonaToggle() {
+    const btn  = document.getElementById('oh-persona-toggle');
+    const span = document.getElementById('oh-persona-name');
+    if (!btn || !span) return;
+    const key = (typeof window.getPersonaKey === 'function')
+      ? window.getPersonaKey()
+      : (localStorage.getItem('wh_voice_journal_persona') || 'james');
+    span.textContent = _personaLabel(key);
+    btn.style.display = '';
+    btn.setAttribute('aria-pressed', key === 'rosa' ? 'true' : 'false');
+  }
+
+  async function togglePersona() {
+    const cur  = (typeof window.getPersonaKey === 'function')
+      ? window.getPersonaKey()
+      : (localStorage.getItem('wh_voice_journal_persona') || 'james');
+    const next = cur === 'james' ? 'rosa' : 'james';
+    try { localStorage.setItem('wh_voice_journal_persona', next); } catch (_) {}
+    _renderPersonaToggle();
+    // Account-level sync — best-effort, do not block UI.
+    try {
+      const db = _getDb();
+      const { data: { user } } = await db.auth.getUser();
+      if (user) {
+        await db.from('worker_profiles')
+          .update({ preferred_persona: next })
+          .eq('auth_uid', user.id);
+      }
+    } catch (e) {
+      console.warn('persona sync skipped:', e?.message || e);
+    }
+  }
+
   // ── Password show/hide toggle ─────────────────────────────────────────────
   function togglePwd(inputId, btn) {
     const input = document.getElementById(inputId);
@@ -2604,6 +2657,21 @@
     // Greeting + date
     document.getElementById('oh-greeting').textContent = _greeting(workerName);
     document.getElementById('oh-date').textContent = _dateStr();
+
+    // Persona Contract Phase 5: hydrate the companion toggle from
+    // worker_profiles.preferred_persona (account-level) so the choice
+    // follows the worker across devices. localStorage is the renderer's
+    // source-of-truth; we just refresh it from the cloud value first.
+    try {
+      const { data: { user } } = await db.auth.getUser();
+      if (user) {
+        const { data: profile } = await db.from('worker_profiles')
+          .select('preferred_persona').eq('auth_uid', user.id).maybeSingle();
+        const cloudKey = (profile && profile.preferred_persona === 'rosa') ? 'rosa' : 'james';
+        try { localStorage.setItem('wh_voice_journal_persona', cloudKey); } catch (_) {}
+      }
+    } catch (_) { /* fall through to localStorage default */ }
+    if (typeof _renderPersonaToggle === 'function') _renderPersonaToggle();
 
     // Hive button
     if (HIVE_ID && HIVE_NAME) {

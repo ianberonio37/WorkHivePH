@@ -58,7 +58,12 @@
     const { url, key } = getEnv();
     if (!url || !key) return false;
     try {
-      const resp = await fetch(url + '/functions/v1/tts-speak', {
+      // 10s timeout — cache hit returns < 200ms, cold synth ~ 1-3s.
+      // Wrap so a hung edge doesn't strand the worker waiting for audio.
+      const fetcher = (typeof window.fetchWithTimeout === 'function')
+        ? window.fetchWithTimeout
+        : (u, o) => fetch(u, o);
+      const resp = await fetcher(url + '/functions/v1/tts-speak', {
         method: 'POST',
         headers: {
           'Authorization': 'Bearer ' + key,
@@ -66,8 +71,8 @@
           'Content-Type':  'application/json',
         },
         body: JSON.stringify({ text: String(text), persona }),
-      });
-      if (!resp.ok) return false;
+      }, 10000);
+      if (!resp || !resp.ok) return false;
       const data = await resp.json();
       if (!data || !data.url) return false;
       if (_audio) { try { _audio.pause(); } catch (_) {} }

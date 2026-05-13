@@ -46,6 +46,19 @@
     document.head.appendChild(t);
   }
 
+  // ─── Persona Contract Phase 3: client-side companion-block builder.
+  // Mirror of supabase/functions/_shared/persona.ts. Used by surfaces
+  // that call AI directly (floating-ai.js, assistant.html) and need to
+  // prepend the James/Rosa companion block without going through
+  // ai-gateway. See WORKHIVE_PERSONA_CONTRACT.md.
+  if (!document.querySelector('script[data-wh-persona]')) {
+    const p = document.createElement('script');
+    p.src = 'wh-persona.js';
+    p.async = false; // load before floating-ai.js consumes window.getCompanionBlock
+    p.setAttribute('data-wh-persona', '1');
+    document.head.appendChild(p);
+  }
+
   // ─── Tool Registry ────────────────────────────────────────────────────────────
   // section: null = no header (home only) | string = group label shown in All Tools grid
   // roles: undefined = universal (visible in every mode) | array = visible only in those modes

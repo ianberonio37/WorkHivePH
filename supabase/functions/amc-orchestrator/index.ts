@@ -57,7 +57,7 @@ import { callAI } from "../_shared/ai-chain.ts";
 // your WorkHive daily companion"). The brief BODY stays structured —
 // only the narrative footer wears the persona. See
 // WORKHIVE_PERSONA_CONTRACT.md, mode='briefing-signature'.
-import { buildPersonaBlock, DEFAULT_PERSONA } from "../_shared/persona.ts";
+import { buildPersonaBlock, clampPersona } from "../_shared/persona.ts";
 import { getCorsHeaders } from "../_shared/cors.ts";
 import { logAICost, estimateTokens } from "../_shared/cost-log.ts";
 
@@ -525,7 +525,8 @@ interface BriefForHive {
 }
 
 async function buildBriefForHive(
-  db: SupabaseClient, hive: { id: string; name: string },
+  db: SupabaseClient,
+  hive: { id: string; name: string; preferred_persona?: string | null },
 ): Promise<BriefForHive> {
   const today = new Date(
     new Date().toLocaleString("en-US", { timeZone: "Asia/Manila" }),
@@ -571,10 +572,12 @@ async function buildBriefForHive(
   const summary = await briefingComposer(db, hive.id, hive.name, risk, pm, parts, crew);
 
   // Persona signature for the briefing footer. AMC runs autonomously
-  // (pg_cron), so no per-worker context here — we hive-default to the
-  // platform DEFAULT_PERSONA. Future enhancement: per-hive
-  // hives.preferred_persona column.
-  const signedBy = buildPersonaBlock(DEFAULT_PERSONA, "briefing-signature");
+  // (pg_cron), so no per-worker context here — we read the hive-level
+  // hives.preferred_persona column (Phase 6 migration 20260513000022).
+  // clampPersona falls back to DEFAULT_PERSONA on null or unknown values
+  // so a hive that pre-dates the migration still gets a signed brief.
+  const hivePersona = clampPersona(hive.preferred_persona);
+  const signedBy = buildPersonaBlock(hivePersona, "briefing-signature");
 
   const brief = {
     top_assets:     risk.top_assets,
@@ -584,7 +587,7 @@ async function buildBriefForHive(
     summary:        summary.summary + (signedBy ? "\n\n" + signedBy : ""),
     headline:       summary.headline,
     model_version:  MODEL_VERSION,
-    signed_by:      DEFAULT_PERSONA,
+    signed_by:      hivePersona,
     sub_agent_status: {
       failure_predictor: riskRes.status,
       pm_planner:        pmRes.status,
@@ -646,22 +649,28 @@ serve(async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "",
     );
 
-    // Select hives to brief.
-    let hives: Array<{ id: string; name: string }> = [];
+    // Select hives to brief. Persona Contract Phase 6: pull the hive's
+    // preferred_persona alongside id+name so the briefing signature wears
+    // the right voice. New hives default to 'james' via the column DEFAULT.
+    let hives: Array<{ id: string; name: string; preferred_persona?: string | null }> = [];
     if (targetHive) {
       const { data: one, error: oneErr } = await db.from("hives")
-        .select("id, name").eq("id", targetHive).maybeSingle();
+        .select("id, name, preferred_persona").eq("id", targetHive).maybeSingle();
       if (oneErr || !one) {
         return new Response(
           JSON.stringify({ error: "Hive not found" }),
           { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } },
         );
       }
-      hives = [{ id: String(one.id), name: String(one.name || "") }];
+      hives = [{
+        id:                String(one.id),
+        name:              String(one.name || ""),
+        preferred_persona: (one as Record<string, unknown>).preferred_persona as string | null,
+      }];
     } else {
       // Drain mode: every hive with at least one active member.
       const { data: all, error: allErr } = await db.from("hives")
-        .select("id, name, hive_members!inner(status)")
+        .select("id, name, preferred_persona, hive_members!inner(status)")
         .eq("hive_members.status", "active");
       if (allErr) {
         return new Response(
@@ -675,7 +684,11 @@ serve(async (req) => {
         const id = String(h.id);
         if (seen.has(id)) continue;
         seen.add(id);
-        hives.push({ id, name: String(h.name || "") });
+        hives.push({
+          id,
+          name:              String(h.name || ""),
+          preferred_persona: (h as Record<string, unknown>).preferred_persona as string | null,
+        });
       }
     }
 
