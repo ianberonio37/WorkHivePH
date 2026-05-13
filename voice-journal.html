@@ -466,8 +466,12 @@
       _ttsOn = !_ttsOn;
       localStorage.setItem(TTS_STORAGE_KEY, _ttsOn ? 'on' : 'off');
       setTtsButton();
-      if (!_ttsOn && window.speechSynthesis) {
-        try { window.speechSynthesis.cancel(); } catch (_) {}
+      if (!_ttsOn) {
+        // Stop both playback paths.
+        if (window.speechSynthesis) {
+          try { window.speechSynthesis.cancel(); } catch (_) {}
+        }
+        if (_azureAudio) { try { _azureAudio.pause(); } catch (_) {} }
       }
     }
     function pickVoice(bcp47, gender) {
@@ -496,8 +500,45 @@
       if (inPrefixGender) return inPrefixGender;
       return inPrefix[0] || voices.find(v => v.default) || voices[0];
     }
-    function speak(text, langCode) {
-      if (!_ttsOn || !text || !window.speechSynthesis) return;
+    // Audio element reused across plays — one play cancels the previous,
+    // mirrors window.speechSynthesis.cancel() semantics.
+    let _azureAudio = null;
+
+    async function speakAzure(text, persona) {
+      if (!_ttsOn || !text) return false;
+      try {
+        const resp = await fetch(SUPABASE_URL + '/functions/v1/tts-speak', {
+          method: 'POST',
+          headers: {
+            'Authorization': 'Bearer ' + SUPABASE_KEY,
+            'apikey':        SUPABASE_KEY,
+            'Content-Type':  'application/json',
+          },
+          body: JSON.stringify({ text: String(text), persona: persona || 'james' }),
+        });
+        if (!resp.ok) return false;
+        const data = await resp.json();
+        if (!data || !data.url) return false;
+        // Stop any prior playback so a new entry doesn't overlap.
+        if (_azureAudio) { try { _azureAudio.pause(); } catch (_) {} }
+        _azureAudio = new Audio(data.url);
+        _azureAudio.play().catch(err => console.warn('Azure audio play failed:', err));
+        return true;
+      } catch (err) {
+        console.warn('speakAzure failed, falling back to browser TTS:', err);
+        return false;
+      }
+    }
+
+    async function speak(text, langCode) {
+      if (!_ttsOn || !text) return;
+      // Phase 7: Azure neural voice is the primary path. The literal James /
+      // Rosa voices match the Video Marketing app for brand consistency, and
+      // free-tier + cache keeps cost at $0 for repeat narration.
+      const azureOk = await speakAzure(text, _persona);
+      if (azureOk) return;
+      // Fallback: browser SpeechSynthesis (works offline, no Azure key).
+      if (!window.speechSynthesis) return;
       try {
         window.speechSynthesis.cancel();
         const u = new SpeechSynthesisUtterance(String(text));

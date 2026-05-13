@@ -206,3 +206,8 @@ entrypoint = "./functions/sensor-readings-ingest/index.ts"
 enabled = true
 verify_jwt = false
 entrypoint = "./functions/export-hive-data/index.ts"
+
+[functions.tts-speak]
+enabled = true
+verify_jwt = false
+entrypoint = "./functions/tts-speak/index.ts"

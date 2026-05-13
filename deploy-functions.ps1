@@ -40,3 +40,4 @@ npx supabase functions deploy pdf-ingest --no-verify-jwt
 npx supabase functions deploy amc-orchestrator --no-verify-jwt
 npx supabase functions deploy visual-defect-capture --no-verify-jwt
 npx supabase functions deploy sensor-readings-ingest --no-verify-jwt
+npx supabase functions deploy tts-speak --no-verify-jwt
