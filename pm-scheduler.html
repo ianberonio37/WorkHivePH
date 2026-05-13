@@ -389,7 +389,7 @@
       <!-- Pick from registered assets -->
       <div class="wh-card p-4 mb-5">
         <p class="text-xs font-semibold text-white/50 uppercase tracking-wide mb-2">Pick from Registered Assets</p>
-        <input id="asset-search" type="text" class="wh-input mb-2" placeholder="Search your registered assets..." oninput="filterRegisteredAssets()" style="font-size:0.875rem;" />
+        <input aria-label="Search your registered assets..." id="asset-search" type="text" class="wh-input mb-2" placeholder="Search your registered assets..." oninput="filterRegisteredAssets()" style="font-size:0.875rem;" />
         <div id="registered-asset-list" class="space-y-1.5 max-h-48 overflow-y-auto"></div>
         <p id="reg-assets-empty" class="hidden text-xs text-white/30 text-center py-3">No registered assets found. Fill in the form below manually.</p>
         <p id="reg-assets-loading" class="text-xs text-white/30 text-center py-3">Loading assets...</p>
@@ -399,21 +399,21 @@
 
       <div class="space-y-4">
         <div>
-          <label class="block text-xs font-semibold text-white/50 mb-1.5 uppercase tracking-wide">Asset / Equipment Name *</label>
+          <label for="w-name" class="block text-xs font-semibold text-white/50 mb-1.5 uppercase tracking-wide">Asset / Equipment Name *</label>
           <input id="w-name" type="text" class="wh-input" placeholder="e.g. Cooling Water Pump No. 1" />
         </div>
         <div class="grid grid-cols-2 gap-3">
           <div>
-            <label class="block text-xs font-semibold text-white/50 mb-1.5 uppercase tracking-wide">Tag / ID</label>
+            <label for="w-tag" class="block text-xs font-semibold text-white/50 mb-1.5 uppercase tracking-wide">Tag / ID</label>
             <input id="w-tag" type="text" class="wh-input" placeholder="e.g. CWP-001" />
           </div>
           <div>
-            <label class="block text-xs font-semibold text-white/50 mb-1.5 uppercase tracking-wide">Location</label>
+            <label for="w-location" class="block text-xs font-semibold text-white/50 mb-1.5 uppercase tracking-wide">Location</label>
             <input id="w-location" type="text" class="wh-input" placeholder="e.g. Pump Room A" />
           </div>
         </div>
         <div>
-          <label class="block text-xs font-semibold text-white/50 mb-1.5 uppercase tracking-wide">Category *</label>
+          <label for="w-category" class="block text-xs font-semibold text-white/50 mb-1.5 uppercase tracking-wide">Category *</label>
           <select id="w-category" class="wh-input" onchange="onCategoryChange()">
             <option value="">Select equipment category...</option>
             <option>Rotating Equipment</option>
@@ -452,7 +452,7 @@
       <div class="wh-card p-4 mt-3">
         <p class="text-xs font-semibold text-white/40 uppercase tracking-wide mb-2">Add Custom Task</p>
         <div class="flex gap-2">
-          <input id="custom-item-text" type="text" class="wh-input" placeholder="e.g. Inspect coupling guard" style="font-size:0.875rem;" />
+          <input aria-label="e.g. Inspect coupling guard" id="custom-item-text" type="text" class="wh-input" placeholder="e.g. Inspect coupling guard" style="font-size:0.875rem;" />
           <select id="custom-item-freq" class="wh-input" style="width:auto;min-width:130px;font-size:0.875rem;">
             <option value="Monthly">Monthly</option>
             <option value="Quarterly" selected>Quarterly</option>
@@ -474,7 +474,7 @@
       <p class="text-sm text-white/50 mb-5">When was this equipment last serviced? This is the starting point for all due date calculations.</p>
 
       <div class="wh-card p-5 mb-4">
-        <label class="block text-xs font-semibold text-white/50 mb-1.5 uppercase tracking-wide">Last PM Date</label>
+        <label for="w-anchor" class="block text-xs font-semibold text-white/50 mb-1.5 uppercase tracking-wide">Last PM Date</label>
         <input id="w-anchor" type="date" class="wh-input" />
         <p class="text-xs text-white/30 mt-2">If never serviced before, leave blank: all tasks will show as overdue immediately to prompt action.</p>
       </div>
@@ -629,19 +629,19 @@
     <h3 class="font-bold text-base text-white mb-4 pr-8">Edit Asset</h3>
 
     <div class="mb-3">
-      <label class="block text-xs text-white/40 mb-1">Asset Name</label>
+      <label for="pm-edit-name" class="block text-xs text-white/40 mb-1">Asset Name</label>
       <input id="pm-edit-name" type="text" class="wh-input" placeholder="e.g. Batten Staple Machine 2">
     </div>
     <div class="mb-3">
-      <label class="block text-xs text-white/40 mb-1">Tag / ID</label>
+      <label for="pm-edit-tag" class="block text-xs text-white/40 mb-1">Tag / ID</label>
       <input id="pm-edit-tag" type="text" class="wh-input" placeholder="e.g. Machine 2">
     </div>
     <div class="mb-3">
-      <label class="block text-xs text-white/40 mb-1">Location</label>
+      <label for="pm-edit-location" class="block text-xs text-white/40 mb-1">Location</label>
       <input id="pm-edit-location" type="text" class="wh-input" placeholder="e.g. Building A, Line 3">
     </div>
     <div class="mb-3">
-      <label class="block text-xs text-white/40 mb-1">Criticality</label>
+      <label for="pm-edit-criticality" class="block text-xs text-white/40 mb-1">Criticality</label>
       <select id="pm-edit-criticality" class="wh-input">
         <option value="">-- Select --</option>
         <option value="Critical">Critical</option>
@@ -684,13 +684,13 @@
 
     <!-- Findings textarea -->
     <div class="mb-3">
-      <label class="block text-xs font-semibold text-white/40 uppercase tracking-wide mb-1.5">Findings / Observations <span class="text-white/20 font-normal normal-case">(optional)</span></label>
-      <textarea id="sheet-findings" rows="3" class="wh-input" placeholder="e.g. Bearing temperature normal, no leaks observed, greased per schedule..." style="resize:none;"></textarea>
+      <label for="sheet-findings" class="block text-xs font-semibold text-white/40 uppercase tracking-wide mb-1.5">Findings / Observations <span class="text-white/20 font-normal normal-case">(optional)</span></label>
+      <textarea aria-label="e.g. Bearing temperature normal, no leaks observed, greased per schedule..." id="sheet-findings" rows="3" class="wh-input" placeholder="e.g. Bearing temperature normal, no leaks observed, greased per schedule..." style="resize:none;"></textarea>
     </div>
 
     <!-- Action taken -->
     <div class="mb-4">
-      <label class="block text-xs font-semibold text-white/40 uppercase tracking-wide mb-1.5">Action Taken</label>
+      <label for="sheet-action" class="block text-xs font-semibold text-white/40 uppercase tracking-wide mb-1.5">Action Taken</label>
       <input id="sheet-action" type="text" class="wh-input" placeholder="e.g. PM completed per schedule" />
     </div>
 
@@ -2290,13 +2290,13 @@ init();
 
     <!-- Description -->
     <div class="mb-3">
-      <label class="block text-xs font-semibold mb-1.5" style="color:rgba(255,255,255,0.4);">TASK DESCRIPTION</label>
+      <label for="add-task-text" class="block text-xs font-semibold mb-1.5" style="color:rgba(255,255,255,0.4);">TASK DESCRIPTION</label>
       <input id="add-task-text" type="text" class="wh-input" placeholder="Describe the PM task..." style="font-size:16px;" />
     </div>
 
     <!-- Frequency -->
     <div class="mb-4">
-      <label class="block text-xs font-semibold mb-1.5" style="color:rgba(255,255,255,0.4);">FREQUENCY</label>
+      <label for="add-task-freq" class="block text-xs font-semibold mb-1.5" style="color:rgba(255,255,255,0.4);">FREQUENCY</label>
       <select id="add-task-freq" class="wh-input">
         <option value="Monthly">Monthly</option>
         <option value="Quarterly">Quarterly</option>

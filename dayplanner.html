@@ -276,28 +276,28 @@
     </div>
     <div style="display:flex;flex-direction:column;gap:0.875rem">
       <div>
-        <label style="font-size:0.75rem;color:rgba(255,255,255,0.5);display:block;margin-bottom:0.375rem">Title *</label>
+        <label for="m-title" style="font-size:0.75rem;color:rgba(255,255,255,0.5);display:block;margin-bottom:0.375rem">Title *</label>
         <input class="wh-input" id="m-title" placeholder="What needs to be done?" oninput="document.getElementById('m-required-error').style.display='none'" />
         <div id="m-required-error" style="display:none;color:#f87171;font-size:0.7rem;margin-top:0.25rem">Title and date are required.</div>
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem">
         <div>
-          <label style="font-size:0.75rem;color:rgba(255,255,255,0.5);display:block;margin-bottom:0.375rem">Date *</label>
+          <label for="m-date" style="font-size:0.75rem;color:rgba(255,255,255,0.5);display:block;margin-bottom:0.375rem">Date *</label>
           <input class="wh-input" id="m-date" type="date" oninput="document.getElementById('m-required-error').style.display='none'" />
         </div>
         <div>
-          <label style="font-size:0.75rem;color:rgba(255,255,255,0.5);display:block;margin-bottom:0.375rem">Start Time</label>
+          <label for="m-start" style="font-size:0.75rem;color:rgba(255,255,255,0.5);display:block;margin-bottom:0.375rem">Start Time</label>
           <input class="wh-input" id="m-start" type="time" oninput="(function(){const s=document.getElementById('m-start').value,e=document.getElementById('m-end');e.min=s;if(e.value&&e.value<=s){const[h,m]=s.split(':').map(Number);const t=(h*60+m+60)%1440;e.value=(String(Math.floor(t/60)).padStart(2,'0')+':'+String(t%60).padStart(2,'0'))}})()" />
         </div>
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem">
         <div>
-          <label style="font-size:0.75rem;color:rgba(255,255,255,0.5);display:block;margin-bottom:0.375rem">End Time</label>
+          <label for="m-end" style="font-size:0.75rem;color:rgba(255,255,255,0.5);display:block;margin-bottom:0.375rem">End Time</label>
           <input class="wh-input" id="m-end" type="time" oninput="document.getElementById('m-end-error').style.display='none'" />
           <div id="m-end-error" style="display:none;color:#f87171;font-size:0.7rem;margin-top:0.25rem">Must be after Start Time</div>
         </div>
         <div>
-          <label style="font-size:0.75rem;color:rgba(255,255,255,0.5);display:block;margin-bottom:0.375rem">Category</label>
+          <label for="m-category" style="font-size:0.75rem;color:rgba(255,255,255,0.5);display:block;margin-bottom:0.375rem">Category</label>
           <select class="wh-input" id="m-category">
             <option value="PM">Preventive Maintenance</option>
             <option value="CM">Corrective Maintenance</option>
@@ -310,7 +310,7 @@
         </div>
       </div>
       <div>
-        <label style="font-size:0.75rem;color:rgba(255,255,255,0.5);display:block;margin-bottom:0.375rem">Notes</label>
+        <label for="m-notes" style="font-size:0.75rem;color:rgba(255,255,255,0.5);display:block;margin-bottom:0.375rem">Notes</label>
         <textarea class="wh-input" id="m-notes" rows="4" placeholder="Optional details..." style="resize:vertical"></textarea>
       </div>
       <!-- Status row (edit mode only) -->

@@ -568,7 +568,7 @@
               </div>
 
               <div>
-                <label class="wh-label">Maintenance Type</label>
+                <label for="f-maint-type" class="wh-label">Maintenance Type</label>
                 <select id="f-maint-type" class="wh-input">
                   <option value="">Select type...</option>
                   <option value="Breakdown / Corrective">Breakdown / Corrective</option>
@@ -579,7 +579,7 @@
               </div>
 
               <div>
-                <label class="wh-label">Status</label>
+                <label for="st-open" class="wh-label">Status</label>
                 <div class="status-toggle">
                   <input type="radio" name="f-status" id="st-open" value="Open" checked />
                   <label for="st-open">Open</label>
@@ -590,7 +590,7 @@
 
               <!-- Phase E.4: Work Order workflow state (opt-in; legacy NULL = use Status only) -->
               <div id="wo-state-wrap">
-                <label class="wh-label">Workflow State <span style="color:rgba(255,255,255,0.35);font-size:0.625rem;font-weight:600;text-transform:none;">optional</span></label>
+                <label for="f-wo-state" class="wh-label">Workflow State <span style="color:rgba(255,255,255,0.35);font-size:0.625rem;font-weight:600;text-transform:none;">optional</span></label>
                 <select id="f-wo-state" class="wh-input">
                   <option value="">— None (use Status only) —</option>
                   <option value="requested">Requested</option>
@@ -608,7 +608,7 @@
 
               <!-- Assigned-to (only meaningful when wo_state is approved/assigned/in_progress) -->
               <div id="wo-assigned-wrap" style="display:none;">
-                <label class="wh-label">Assigned To</label>
+                <label for="f-wo-assigned-to" class="wh-label">Assigned To</label>
                 <input id="f-wo-assigned-to" type="text" class="wh-input" placeholder="worker_name (e.g. ${''})" autocomplete="off" />
               </div>
 
@@ -621,7 +621,7 @@
             <div class="step-panel space-y-4" id="step-panel-2">
 
               <div>
-                <label class="wh-label">Discipline / Category</label>
+                <label for="f-category" class="wh-label">Discipline / Category</label>
                 <select id="f-category" class="wh-input">
                   <option value="">Select category...</option>
                   <option value="Mechanical">Mechanical</option>
@@ -635,7 +635,7 @@
               </div>
 
               <div>
-                <label class="wh-label">Symptom / What was wrong?</label>
+                <label for="f-problem" class="wh-label">Symptom / What was wrong?</label>
                 <div class="relative">
                   <textarea id="f-problem" class="wh-input pr-10" rows="3" placeholder="Describe what you observed: noise, leak, trip, error code..."></textarea>
                   <button type="button" id="voice-problem" title="Voice input"
@@ -647,7 +647,7 @@
               </div>
 
               <div>
-                <label class="wh-label">Root Cause</label>
+                <label for="f-root-cause" class="wh-label">Root Cause</label>
                 <!-- History chips — populated when a machine is selected -->
                 <div id="root-cause-chips" class="hidden mb-2">
                   <p class="text-[10px] text-white/30 mb-1.5 font-semibold uppercase tracking-widest">Common for this machine</p>
@@ -680,7 +680,7 @@
             <div class="step-panel space-y-4" id="step-panel-3">
 
               <div>
-                <label class="wh-label">What did you do?</label>
+                <label for="f-action" class="wh-label">What did you do?</label>
                 <div class="relative">
                   <textarea id="f-action" class="wh-input pr-10" rows="4" placeholder="Steps taken, parts replaced, settings changed..."></textarea>
                   <button type="button" id="voice-action" title="Voice input"
@@ -743,12 +743,12 @@
                 </div>
 
                 <div>
-                  <label class="wh-label flex items-center gap-1.5">
+                  <label for="f-knowledge" class="wh-label flex items-center gap-1.5">
                     What should the next person know?
                     <span class="text-orange-wh text-[10px] font-bold bg-orange-wh/10 px-1.5 py-0.5 rounded-full">Most Valuable</span>
                   </label>
                   <div class="relative">
-                    <textarea id="f-knowledge" class="wh-input pr-10" rows="3" placeholder="Tips, gotchas, torque specs, watch-outs..."></textarea>
+                    <textarea aria-label="Tips, gotchas, torque specs, watch-outs..." id="f-knowledge" class="wh-input pr-10" rows="3" placeholder="Tips, gotchas, torque specs, watch-outs..."></textarea>
                     <button type="button" id="voice-knowledge" title="Voice input"
                       class="absolute top-2.5 right-2.5 w-7 h-7 rounded-lg flex items-center justify-center transition-colors"
                       style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);">
@@ -758,25 +758,25 @@
                 </div>
 
                 <div>
-                  <label class="wh-label">Downtime Hours <span class="text-white/30 font-normal normal-case">(optional)</span></label>
-                  <input id="f-downtime" type="number" min="0" step="0.5" class="wh-input" placeholder="e.g. 2.5 — how long was the asset offline?" />
+                  <label for="f-downtime" class="wh-label">Downtime Hours <span class="text-white/30 font-normal normal-case">(optional)</span></label>
+                  <input aria-label="e.g. 2.5 — how long was the asset offline?" id="f-downtime" type="number" min="0" step="0.5" class="wh-input" placeholder="e.g. 2.5 — how long was the asset offline?" />
                 </div>
 
                 <!-- Production Output — Closed Breakdown entries (unlocks OEE Quality + Performance) -->
                 <div id="production-section" class="hidden">
-                  <label class="wh-label flex items-center gap-1.5">
+                  <label for="f-good-units" class="wh-label flex items-center gap-1.5">
                     Production this shift
                     <span style="font-size:0.6rem;color:rgba(255,255,255,0.3);font-weight:500;text-transform:none;letter-spacing:0;">optional — unlocks OEE</span>
                   </label>
                   <div class="grid grid-cols-2 gap-2">
                     <div>
-                      <label class="block text-[10px] text-white/35 font-semibold mb-1">Good units produced</label>
+                      <label for="f-good-units" class="block text-[10px] text-white/35 font-semibold mb-1">Good units produced</label>
                       <input type="number" id="f-good-units" min="0" step="1" class="wh-input"
                              placeholder="e.g. 1850" style="padding:0.6rem 0.75rem;font-size:0.875rem;"
                              oninput="updateQualityPct()" />
                     </div>
                     <div>
-                      <label class="block text-[10px] text-white/35 font-semibold mb-1">Total units attempted</label>
+                      <label for="f-total-units" class="block text-[10px] text-white/35 font-semibold mb-1">Total units attempted</label>
                       <input type="number" id="f-total-units" min="0" step="1" class="wh-input"
                              placeholder="e.g. 2000" style="padding:0.6rem 0.75rem;font-size:0.875rem;"
                              oninput="updateQualityPct()" />
@@ -790,7 +790,7 @@
                 </div>
 
                 <div>
-                  <label class="wh-label">Attach Photo (optional)</label>
+                  <label for="f-photo" class="wh-label">Attach Photo (optional)</label>
                   <input id="f-photo" type="file" accept="image/*" class="hidden" />
                   <label id="photo-dropzone" for="f-photo"
                     class="flex items-center gap-3 cursor-pointer rounded-xl px-4 py-3 border border-dashed border-white/15 hover:border-white/30 transition-colors"
@@ -905,7 +905,7 @@
               <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/25" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
               </svg>
-              <input id="search-input" type="text" class="wh-input pl-9" placeholder="Search machine, failure, keyword..." />
+              <input aria-label="Search machine, failure, keyword..." id="search-input" type="text" class="wh-input pl-9" placeholder="Search machine, failure, keyword..." />
             </div>
             <select id="filter-category" class="wh-input sm:w-44">
               <option value="">All categories</option>
@@ -1024,16 +1024,16 @@
     <div id="asset-register-view">
       <div class="space-y-4">
         <div>
-          <label class="wh-label">Asset ID <span class="text-orange-wh text-[10px] normal-case font-semibold">required</span></label>
-          <input id="a-asset-id" type="text" class="wh-input" placeholder="e.g. PUMP-001, CONV-A03, MOTOR-12" autocomplete="off" />
+          <label for="a-asset-id" class="wh-label">Asset ID <span class="text-orange-wh text-[10px] normal-case font-semibold">required</span></label>
+          <input aria-label="e.g. PUMP-001, CONV-A03, MOTOR-12" id="a-asset-id" type="text" class="wh-input" placeholder="e.g. PUMP-001, CONV-A03, MOTOR-12" autocomplete="off" />
           <p class="text-[10px] text-white/25 mt-1">Use a unique code you already use on the plant floor.</p>
         </div>
         <div>
-          <label class="wh-label">Asset Name <span class="text-white/25 font-normal normal-case">(optional)</span></label>
-          <input id="a-name" type="text" class="wh-input" placeholder="e.g. Cooling Water Pump, Line 3 Conveyor" autocomplete="off" />
+          <label for="a-name" class="wh-label">Asset Name <span class="text-white/25 font-normal normal-case">(optional)</span></label>
+          <input aria-label="e.g. Cooling Water Pump, Line 3 Conveyor" id="a-name" type="text" class="wh-input" placeholder="e.g. Cooling Water Pump, Line 3 Conveyor" autocomplete="off" />
         </div>
         <div>
-          <label class="wh-label">Asset Type</label>
+          <label for="a-type" class="wh-label">Asset Type</label>
           <select id="a-type" class="wh-input">
             <option value="">Select type...</option>
             <option value="Pump">Pump</option>
@@ -1050,8 +1050,8 @@
           </select>
         </div>
         <div>
-          <label class="wh-label">Location / Area <span class="text-white/25 font-normal normal-case">(optional)</span></label>
-          <input id="a-location" type="text" class="wh-input" placeholder="e.g. Line 1, Utility Room, Boiler Bay" autocomplete="off" />
+          <label for="a-location" class="wh-label">Location / Area <span class="text-white/25 font-normal normal-case">(optional)</span></label>
+          <input aria-label="e.g. Line 1, Utility Room, Boiler Bay" id="a-location" type="text" class="wh-input" placeholder="e.g. Line 1, Utility Room, Boiler Bay" autocomplete="off" />
         </div>
         <div>
           <label class="wh-label">Criticality <span class="text-white/25 font-normal normal-case">(if this asset fails, impact is...)</span></label>
@@ -1099,23 +1099,23 @@
     <input type="hidden" id="edit-asset-id">
 
     <div class="mb-3">
-      <label class="block text-xs text-white/40 mb-1">Asset ID / Tag</label>
+      <label for="edit-asset-asset-id" class="block text-xs text-white/40 mb-1">Asset ID / Tag</label>
       <input id="edit-asset-asset-id" type="text" class="wh-input w-full" placeholder="e.g. PUMP-001">
     </div>
     <div class="mb-3">
-      <label class="block text-xs text-white/40 mb-1">Asset Name</label>
+      <label for="edit-asset-name" class="block text-xs text-white/40 mb-1">Asset Name</label>
       <input id="edit-asset-name" type="text" class="wh-input w-full" placeholder="e.g. Cooling Water Pump">
     </div>
     <div class="mb-3">
-      <label class="block text-xs text-white/40 mb-1">Type</label>
+      <label for="edit-asset-type" class="block text-xs text-white/40 mb-1">Type</label>
       <input id="edit-asset-type" type="text" class="wh-input w-full" placeholder="e.g. Centrifugal Pump">
     </div>
     <div class="mb-3">
-      <label class="block text-xs text-white/40 mb-1">Location</label>
+      <label for="edit-asset-location" class="block text-xs text-white/40 mb-1">Location</label>
       <input id="edit-asset-location" type="text" class="wh-input w-full" placeholder="e.g. Building A, Level 2">
     </div>
     <div class="mb-4">
-      <label class="block text-xs text-white/40 mb-1">Criticality</label>
+      <label for="edit-asset-criticality" class="block text-xs text-white/40 mb-1">Criticality</label>
       <select id="edit-asset-criticality" class="wh-input w-full">
         <option value="">-- Select --</option>
         <option value="Critical">Critical</option>
@@ -1166,7 +1166,7 @@
           <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
         </button>
       </div>
-      <input id="asset-picker-search" type="text" class="wh-input" placeholder="Search by asset ID or name..." autocomplete="off" />
+      <input aria-label="Search by asset ID or name..." id="asset-picker-search" type="text" class="wh-input" placeholder="Search by asset ID or name..." autocomplete="off" />
     </div>
     <div id="asset-picker-list" class="overflow-y-auto p-3" style="max-height:45vh;"></div>
     <div class="p-3 border-t" style="border-color:rgba(255,255,255,0.07);">
@@ -1195,8 +1195,8 @@
     </div>
     <div id="tasklist-modal-items" class="overflow-y-auto p-4 flex-1 flex flex-col gap-2"></div>
     <div class="p-4 border-t flex-shrink-0" style="border-color:rgba(255,255,255,0.07);">
-      <label class="block text-[11px] font-semibold text-white/40 uppercase tracking-widest mb-2">Add Note <span class="normal-case font-normal">(optional)</span></label>
-      <textarea id="tasklist-modal-note" class="wh-input mb-3" rows="2" placeholder="Additional steps, observations, or deviations from procedure..."></textarea>
+      <label for="tasklist-modal-note" class="block text-[11px] font-semibold text-white/40 uppercase tracking-widest mb-2">Add Note <span class="normal-case font-normal">(optional)</span></label>
+      <textarea aria-label="Additional steps, observations, or deviations from procedure..." id="tasklist-modal-note" class="wh-input mb-3" rows="2" placeholder="Additional steps, observations, or deviations from procedure..."></textarea>
       <button id="tasklist-modal-done" class="btn-primary w-full">Done: Back to Logbook</button>
     </div>
   </div>
@@ -1211,7 +1211,7 @@
           <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
         </button>
       </div>
-      <input id="parts-picker-search" type="text" class="wh-input" placeholder="Search part name or number..." autocomplete="off" />
+      <input aria-label="Search part name or number..." id="parts-picker-search" type="text" class="wh-input" placeholder="Search part name or number..." autocomplete="off" />
     </div>
     <div id="parts-picker-list" class="overflow-y-auto p-3" style="max-height:45vh;"></div>
     <div class="p-3 border-t" style="border-color:rgba(255,255,255,0.07);">

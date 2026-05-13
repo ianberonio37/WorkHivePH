@@ -182,11 +182,14 @@ def check_reject_scoped(content):
     m = re.search(r"async function rejectItem\s*\(", content)
     if not m:
         return [{"check": "reject_scoped", "reason": "rejectItem() not found"}]
-    body = content[m.start():m.start() + 300]
+    # Window widened 2026-05-13 from 300 -> 800 after a confirm() prompt was
+    # added to the function body, pushing .update() past the old cutoff.
+    # The actual code was always correctly scoped; the validator was too tight.
+    body = content[m.start():m.start() + 800]
     update_m = re.search(r"\.update\s*\(", body)
     if not update_m:
         return [{"check": "reject_scoped", "reason": "rejectItem() .update() call not found"}]
-    after = body[update_m.start():update_m.start() + 150]
+    after = body[update_m.start():update_m.start() + 200]
     if not re.search(r"\.eq\s*\(['\"]hive_id['\"]", after):
         return [{"check": "reject_scoped",
                  "reason": "rejectItem() update not scoped by hive_id — supervisor of hive A can reject items in hive B via UUID"}]
