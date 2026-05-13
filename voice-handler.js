@@ -632,10 +632,14 @@
   function _buildVoiceSystemPrompt(persona, workerName, hiveName, pageLabel) {
     const personaBlock = (typeof window.getCompanionBlock === 'function')
       ? window.getCompanionBlock() : '';
+    // Internal-only grounding. These facts help the model pick the right
+    // tool to point to ("you're on the logbook page, just scroll down to
+    // the entry form") — but NEVER mention the page name verbatim in
+    // your reply. Workers don't think in page names; they think in tasks.
     const ident = [];
-    if (workerName) ident.push('The worker speaking is ' + workerName + '.');
-    if (hiveName)   ident.push('Their hive is ' + hiveName + '.');
-    if (pageLabel)  ident.push('They are on the ' + pageLabel + ' surface.');
+    if (workerName) ident.push("Worker speaking: " + workerName + ".");
+    if (hiveName)   ident.push("Their hive: " + hiveName + ".");
+    if (pageLabel)  ident.push("Internal context (DO NOT mention by name in your reply): the worker is on the " + pageLabel + " page.");
     const identBlock = ident.length ? ('\n' + ident.join(' ') + '\n') : '';
 
     return personaBlock + '\n\n' +
@@ -653,6 +657,7 @@
       '3. NEVER echo the worker\'s question back as the answer. "Priority checking ka na naman" is NOT an answer to "what\'s the priority PM today?"\n' +
       '4. NEVER treat a direct work question ("what is X", "how do I Y", "where can I find Z") as emotional. Just answer it or say honestly you can\'t see the data and point to the right tool.\n' +
       '5. If you find yourself starting with "Naiintindihan kita" or "I understand" on a factual question, STOP and rewrite — that opener is for emotional venting only.\n' +
+      '6. NEVER mention the page name (e.g. "index", "logbook", "hive", "asset-hub") in your reply. Workers don\'t think in page names. Say "this page" or "your dashboard" or just answer naturally without referencing where they are.\n' +
       'If unsure whether the question is factual or emotional: treat it as factual and answer it.';
   }
 
