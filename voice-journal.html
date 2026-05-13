@@ -528,15 +528,21 @@
 
     function renderFilters() {
       const root = $('filter-chips');
-      const seen = {};
+      // Group by DISPLAY name (clamped via langName), not raw lang code.
+      // Whisper sometimes mis-tags short phrases (en/fil/null all clamp to
+      // "English"); without this group-by-display, the chip row shows
+      // "English (3) English (3) English (1)" as 3 separate buttons.
+      const seenByDisplay = {};
       for (const p of _entries) {
-        if (p.lang) seen[p.lang] = (seen[p.lang] || 0) + 1;
+        if (!p.lang) continue;
+        const display = langName(p.lang);
+        seenByDisplay[display] = (seenByDisplay[display] || 0) + 1;
       }
-      const codes = Object.keys(seen).sort((a, b) => seen[b] - seen[a]);
+      const displays = Object.keys(seenByDisplay).sort((a, b) => seenByDisplay[b] - seenByDisplay[a]);
       const chips = [
         `<button class="filter-chip ${_activeFilter === 'all' ? 'active' : ''}" data-filter="all" type="button">All (${_entries.length})</button>`,
-      ].concat(codes.map(c =>
-        `<button class="filter-chip ${_activeFilter === c ? 'active' : ''}" data-filter="${escSafe(c)}" type="button">${escSafe(langName(c))} (${seen[c]})</button>`
+      ].concat(displays.map(d =>
+        `<button class="filter-chip ${_activeFilter === d ? 'active' : ''}" data-filter="${escSafe(d)}" type="button">${escSafe(d)} (${seenByDisplay[d]})</button>`
       ));
       root.innerHTML = chips.join('');
       root.querySelectorAll('.filter-chip').forEach(btn => {
@@ -554,7 +560,9 @@
       const search  = ($('search-input').value || '').trim().toLowerCase();
 
       const filtered = _entries.filter(p => {
-        if (_activeFilter !== 'all' && p.lang !== _activeFilter) return false;
+        // Filter now matches on the clamped DISPLAY name, not raw code,
+        // so the "English" chip catches en/fil/null/anything-clamped.
+        if (_activeFilter !== 'all' && langName(p.lang) !== _activeFilter) return false;
         if (!search) return true;
         return (p.user || '').toLowerCase().includes(search)
             || (p.agent || '').toLowerCase().includes(search);
