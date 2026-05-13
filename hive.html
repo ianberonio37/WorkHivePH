@@ -429,6 +429,15 @@
              title="View hive_audit_log: supervisor moderation actions + mod queue history">
             Audit Log &#8594;
           </a>
+          <!-- AI Quality + ROI is hidden in nav-hub.js (line 77). Surface it here
+               for supervisors so it's discoverable. Same hidden+display:none
+               pattern as Audit Log; revealed by the supervisor block below. -->
+          <a id="btn-ai-quality" href="ai-quality.html"
+             class="hidden text-xs font-semibold"
+             style="color:#a78bfa; background:none; border:none; cursor:pointer; min-height:44px; padding:0.5rem 0; text-decoration:none; display:none;"
+             title="AI Quality + ROI: 30-day spend, fallback rate, schema compliance, worker thumbs feedback, predicted ROI (Stair 2+ gated)">
+            AI Quality &#8594;
+          </a>
           <button id="btn-show-code" class="hidden text-xs font-semibold" style="color:#29B6D9; background:none; border:none; cursor:pointer; min-height:44px; padding:0.5rem 0;">
             Show Invite Code
           </button>
@@ -1468,6 +1477,10 @@ async function initBoard() {
     // Phase H.2: surface audit log here since it's no longer in primary nav.
     const _auditBtn = document.getElementById('btn-audit-log');
     if (_auditBtn) { _auditBtn.classList.remove('hidden'); _auditBtn.style.display = ''; }
+    // Phase 4.1: AI Quality + ROI also hidden in nav-hub — supervisor-only
+    // entry point lives here so it's actually discoverable.
+    const _aiqBtn = document.getElementById('btn-ai-quality');
+    if (_aiqBtn) { _aiqBtn.classList.remove('hidden'); _aiqBtn.style.display = ''; }
     const savedCode = localStorage.getItem('wh_hive_code') || '';
     if (savedCode) document.getElementById('code-strip-value').textContent = savedCode;
   }
