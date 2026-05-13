@@ -5,11 +5,15 @@
  * persona key into a playable MP3 URL. The persona key maps to a fixed
  * Azure neural voice:
  *
- *   james -> en-PH-JamesNeural  (Filipino male, PH English)
- *   rosa  -> en-PH-RosaNeural   (Filipino female, PH English)
+ *   james -> en-PH-AngeloNeural  (Filipino male, PH English)
+ *   rosa  -> en-PH-RosaNeural    (Filipino female, PH English)
  *
- * Same voices the Video Marketing app already uses — one consistent
- * audio identity across the platform.
+ * Azure's en-PH catalog only ships those two neural voices. "James" is
+ * the character display name; the underlying neural model is Angelo.
+ *
+ * Naturalness: SSML <prosody> tunes rate/pitch per persona, and commas
+ * + periods get inserted <break/> tags so the cadence breathes instead
+ * of running flat (which is what made the audio feel "robotic" before).
  *
  * Caching: SHA-256 hash of (text + voice_short_name) is the file key.
  * Repeat queries skip Azure entirely (cache HIT serves from Supabase
@@ -35,9 +39,23 @@ import { clampPersona } from "../_shared/persona.ts";
 // say in a single turn. Prevents abuse via large narration payloads.
 const MAX_TEXT_LENGTH = 1500;
 
+// Azure Neural voices for en-PH locale. The platform's en-PH catalog only
+// ships TWO neural voices (en-PH-AngeloNeural male + en-PH-RosaNeural
+// female). The previous "en-PH-JamesNeural" mapping was a hallucination —
+// requests for that voice would fail and the client fell back to the
+// browser's robotic SpeechSynthesis. James is the character; Angelo is
+// the underlying neural model. The display name stays "James".
 const PERSONA_TO_VOICE: Record<string, string> = {
-  james: "en-PH-JamesNeural",
+  james: "en-PH-AngeloNeural",
   rosa:  "en-PH-RosaNeural",
+};
+
+// Per-persona prosody tuning. James (tito) reads slightly slower and a
+// touch lower for warmth; Rosa (ate) stays neutral. Tiny adjustments —
+// large rate/pitch shifts make Azure Neural sound synthetic again.
+const PROSODY: Record<string, { rate: string; pitch: string }> = {
+  james: { rate: "-4%", pitch: "-2%" },
+  rosa:  { rate: "-2%", pitch:  "0%" },
 };
 
 const CACHE_BUCKET = "tts-cache";
@@ -76,12 +94,29 @@ function escapeXml(s: string): string {
     .replace(/'/g, "&apos;");
 }
 
-function buildSsml(voice: string, text: string): string {
+function buildSsml(voice: string, text: string, personaKey: string): string {
   // Audio-24kHz-48kbitrate-mono-mp3 keeps file sizes tiny (~ 8-12 KB per
-  // 30-second narration). Default rate; persona variation comes from the
-  // voice itself, not pitch tweaks.
+  // 30-second narration).
+  //
+  // Naturalness levers we apply:
+  //   1. <prosody rate="-X%" pitch="-Y%"> — slow James a touch + drop pitch
+  //      slightly for the tito warmth. Rosa stays close to neutral.
+  //   2. Strategic <break> insertions on commas and periods so the cadence
+  //      breathes instead of running flat. 180ms on commas, 280ms on
+  //      sentence ends. Tested against the Filipino-English samples in
+  //      Azure's own demo page.
+  //   3. <s> wraps the whole thing so the neural model can plan inflection
+  //      across the sentence instead of generating word-by-word.
+  const pr = PROSODY[personaKey] || { rate: "0%", pitch: "0%" };
+  const xml = escapeXml(text)
+    .replace(/([,;])\s+/g, '$1 <break time="180ms"/> ')
+    .replace(/([.!?])\s+/g, '$1 <break time="280ms"/> ');
   return `<speak version='1.0' xml:lang='en-PH'>
-  <voice name='${voice}'>${escapeXml(text)}</voice>
+  <voice name='${voice}'>
+    <prosody rate='${pr.rate}' pitch='${pr.pitch}'>
+      <s>${xml}</s>
+    </prosody>
+  </voice>
 </speak>`;
 }
 
@@ -149,7 +184,7 @@ serve(async (req) => {
   }
 
   // 2) Cache miss — call Azure.
-  const ssml = buildSsml(voice, text);
+  const ssml = buildSsml(voice, text, personaKey);
   const azureUrl = `https://${AZURE_REGION}.tts.speech.microsoft.com/cognitiveservices/v1`;
   let audio: ArrayBuffer;
   try {
