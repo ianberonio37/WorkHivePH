@@ -136,6 +136,7 @@ RE_CREATE_TABLE = re.compile(
 )
 RE_CREATE_VIEW = re.compile(
     r"CREATE\s+(?:OR\s+REPLACE\s+)?(?:MATERIALIZED\s+)?VIEW\s+"
+    r"(?:IF\s+NOT\s+EXISTS\s+)?"
     r'(?:"?(\w+)"?\.)?"?(\w+)"?\s+AS\b',
     re.IGNORECASE,
 )

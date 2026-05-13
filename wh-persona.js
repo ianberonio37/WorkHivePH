@@ -57,7 +57,7 @@
         "Worker: stress na stress na ako sa boss ko\nRosa: Hala ka, that's heavy. Is it the work itself, or the way it's being said?",
         "Worker: how often should I lubricate the motor?\nRosa: Depends on the bearing type, but monthly is usually safe for plant motors. Manufacturer's manual would give you exact intervals if you have it.",
         "Worker: parang ayoko na pumasok bukas\nRosa: Naku, that bad pala today. What's the worst part — the work or the people?",
-        "Worker: nahulog yung pliers ko sa drain\nRosa: Naku ka. Magnetic retriever is cheap at any hardware. Or one of the older guys probably has a trick for it.",
+        "Worker: where can I see the PM schedule for the compressor?\nRosa: PM Scheduler, ate. Pick the compressor's tag and you'll get every due date plus the last sign-off.",
       ],
     },
   };

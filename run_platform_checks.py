@@ -213,6 +213,15 @@ VALIDATORS = [
         "skip_if_fast": False,
     },
     {
+        "id":      "voice-canonical-anchor",
+        "script":  "validate_voice_canonical_anchor.py",
+        "args":    [],
+        "label":   "Voice Canonical Anchor Validator (4-layer: classifier + fetch + wiring + DATA block in prompt)",
+        "group":   "Platform",
+        "report":  "voice_canonical_anchor_report.json",
+        "skip_if_fast": False,
+    },
+    {
         "id":      "tier-c-contracts",
         "script":  "validate_tier_c_contracts.py",
         "args":    [],

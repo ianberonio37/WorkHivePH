@@ -653,6 +653,133 @@
     }
   }
 
+  // Canonical-data intent classifier. Detects when the worker is asking
+  // for a number that lives in v_*_truth so we can fetch it BEFORE the
+  // LLM call and inject it as DATA. Without this, the model knows the
+  // hard rule "never invent numbers" and falls back to the vaguest legal
+  // answer ("check Analytics") on every turn — even when the worker is
+  // clearly asking for the actual figure.
+  //
+  // Conservative on purpose: ONLY matches obvious canonical-data asks.
+  // Free-form chat ("how do I check bearings?", "ang init dito") falls
+  // through to the persona-only path unchanged.
+  function _classifyDataIntent(transcriptRaw) {
+    const t = String(transcriptRaw || '').toLowerCase();
+    if (!t.trim()) return null;
+    // MTBF — direct keyword + common Tagalog framings ("gaano katagal
+    // bago masira", "average time between failures").
+    if (/\bmtbf\b|mean time between fail|gaano katagal.*sira|average.*between.*fail/.test(t)) {
+      return { kind: 'mtbf', window_days: _extractWindow(t, 30) };
+    }
+    // MTTR
+    if (/\bmttr\b|mean time to repair|gaano katagal.*ayos|average.*repair time/.test(t)) {
+      return { kind: 'mttr', window_days: _extractWindow(t, 30) };
+    }
+    // Downtime / breakdown count
+    if (/\bdowntime\b|total downtime|how much downtime|gaano katagal.*off|ilang oras.*sira/.test(t)) {
+      return { kind: 'downtime', window_days: _extractWindow(t, 30) };
+    }
+    // Risk ranking — "what are the highest risk", "top risk assets",
+    // "anong pinaka-risky", "alin ang madaling masira".
+    if (/(top|highest|biggest|pinaka).{0,15}(risk|risky)|(risk|risky).{0,20}(asset|machine|equipment)|alin.*madaling.*sira/.test(t)) {
+      return { kind: 'risk_top', limit: 3 };
+    }
+    // Failures count — "how many breakdowns", "ilang beses nasira"
+    if (/how many.*(failure|breakdown|fail)|ilang beses.*sira|number of breakdowns/.test(t)) {
+      return { kind: 'failures_count', window_days: _extractWindow(t, 30) };
+    }
+    return null;
+  }
+
+  // Extract a window from natural language: "this month" / "30 days" /
+  // "last quarter". Returns a window in days, defaulting to fallback.
+  function _extractWindow(t, fallback) {
+    if (/\bthis month\b|\bngayong buwan\b|\bngayon this month\b|\blast 30\b|\b30 days\b/.test(t)) return 30;
+    if (/\blast 90\b|\b90 days\b|\bquarter\b|\bquarterly\b/.test(t)) return 90;
+    if (/\bthis year\b|\bngayong taon\b|\blast year\b|\b365 days\b|\bannual\b/.test(t)) return 365;
+    return fallback;
+  }
+
+  // Fetch canonical data for the classified intent. Returns a small
+  // string block to inject into the system prompt, or '' if anything
+  // fails. Reads v_kpi_truth (MTBF/MTTR/downtime/failures) and
+  // v_risk_truth (risk_top). Hive-scoped via the worker's active hive.
+  // Sub-second latency; no AI cost; uses the canonical source the rest
+  // of the platform reads from.
+  async function _fetchCanonicalData(db, hiveId, intent) {
+    if (!db || !intent || !hiveId) return '';
+    try {
+      if (intent.kind === 'risk_top') {
+        const { data, error } = await db.from('v_risk_truth')
+          .select('asset_name, risk_score, risk_level')
+          .eq('hive_id', hiveId)
+          .order('risk_score', { ascending: false })
+          .limit(intent.limit || 3);
+        if (error || !data || !data.length) return '';
+        const lines = data.map(r => '  - ' + r.asset_name + ': ' + r.risk_level + ' (score ' + Number(r.risk_score).toFixed(2) + ')');
+        return 'CANONICAL DATA from v_risk_truth — your hive\'s top at-risk assets right now:\n' + lines.join('\n');
+      }
+      // All MTBF / MTTR / downtime / failures live in v_kpi_truth.
+      const win = intent.window_days || 30;
+      const col = _kpiColumn(intent.kind, win);
+      if (!col) return '';
+      const { data, error } = await db.from('v_kpi_truth')
+        .select('machine, ' + col + ', generated_at')
+        .eq('hive_id', hiveId)
+        .not(col, 'is', null);
+      if (error || !data || !data.length) return '';
+      // Aggregate to a hive-level rollup the worker would actually expect.
+      // MTBF / MTTR average across machines; downtime / failures sum.
+      let value, unit, agg;
+      if (intent.kind === 'mtbf') {
+        const nums = data.map(r => Number(r[col])).filter(n => !isNaN(n) && n > 0);
+        if (!nums.length) return '';
+        value = (nums.reduce((a, b) => a + b, 0) / nums.length).toFixed(1);
+        unit = 'days'; agg = 'average across ' + nums.length + ' machines';
+      } else if (intent.kind === 'mttr') {
+        const nums = data.map(r => Number(r[col])).filter(n => !isNaN(n) && n > 0);
+        if (!nums.length) return '';
+        value = (nums.reduce((a, b) => a + b, 0) / nums.length).toFixed(1);
+        unit = 'hours'; agg = 'average across ' + nums.length + ' machines';
+      } else if (intent.kind === 'downtime') {
+        const nums = data.map(r => Number(r[col])).filter(n => !isNaN(n));
+        value = nums.reduce((a, b) => a + b, 0).toFixed(1);
+        unit = 'hours'; agg = 'sum across ' + nums.length + ' machines';
+      } else if (intent.kind === 'failures_count') {
+        const nums = data.map(r => Number(r[col])).filter(n => !isNaN(n));
+        value = nums.reduce((a, b) => a + b, 0);
+        unit = 'breakdowns'; agg = 'sum across ' + nums.length + ' machines';
+      } else {
+        return '';
+      }
+      const label = _kpiLabel(intent.kind);
+      const generated = data[0] && data[0].generated_at ? new Date(data[0].generated_at).toISOString().slice(0, 16).replace('T', ' ') : 'recent';
+      return 'CANONICAL DATA from v_kpi_truth — your hive\'s actual ' + label + ':\n' +
+             '  - ' + label + ' over the last ' + win + ' days: ' + value + ' ' + unit + ' (' + agg + ')\n' +
+             '  - Source snapshot: ' + generated + ' UTC, refreshed hourly';
+    } catch (err) {
+      console.warn('[WHVoice] canonical fetch failed (non-fatal):', err && err.message);
+      return '';
+    }
+  }
+
+  function _kpiColumn(kind, win) {
+    const w = (win === 90 || win === 365) ? win : 30;
+    if (kind === 'mtbf')           return 'mtbf_' + w + 'd';
+    if (kind === 'mttr')           return 'mttr_' + w + 'd';
+    if (kind === 'downtime')       return 'total_downtime_' + w + 'd';
+    if (kind === 'failures_count') return 'failures_' + w + 'd';
+    return null;
+  }
+
+  function _kpiLabel(kind) {
+    if (kind === 'mtbf')           return 'MTBF';
+    if (kind === 'mttr')           return 'MTTR';
+    if (kind === 'downtime')       return 'total downtime';
+    if (kind === 'failures_count') return 'breakdown count';
+    return kind;
+  }
+
   // Pull the worker's recent journal turns so the model has actual
   // conversation continuity ("the downtime you started", "yung pump
   // kanina") instead of asking generic clarifiers. Tries the DB first
@@ -697,7 +824,7 @@
     }).filter(Boolean).join('\n---\n');
   }
 
-  function _buildVoiceSystemPrompt(persona, workerName, hiveName, pageLabel, routingHint, memoryBlock) {
+  function _buildVoiceSystemPrompt(persona, workerName, hiveName, pageLabel, routingHint, memoryBlock, canonicalData) {
     const personaBlock = (typeof window.getCompanionBlock === 'function')
       ? window.getCompanionBlock() : '';
     // Internal-only grounding. These facts help the model pick the right
@@ -723,6 +850,19 @@
     const memorySection = memoryBlock
       ? '\nPRIOR TURNS WITH THIS WORKER (most recent at the bottom — use these for continuity, but never quote them verbatim):\n' + memoryBlock + '\n'
       : '';
+    // Canonical data — when the worker asks for a number that lives in a
+    // v_*_truth view, we fetch it BEFORE the LLM call and inject it here.
+    // Without this block, Hard Rule #2 (no inventing numbers) + Rule #9 (no
+    // inventing UI) leaves the model only one legal answer ("check
+    // Analytics"). With it, Rosa/James paraphrase the real figure.
+    const canonicalSection = canonicalData
+      ? '\n═══════════════════════════════════════════════════════════════════\n' +
+        'CANONICAL DATA — anchor verbatim on the figures below.\n' +
+        '═══════════════════════════════════════════════════════════════════\n' +
+        canonicalData + '\n' +
+        'You MUST anchor your reply on these figures. Paraphrase naturally (it is being heard, not read) but never change the digits, the unit, or the window. If the worker asked something the data above does NOT cover, say so plainly and point to Analytics for the full breakdown.\n' +
+        '═══════════════════════════════════════════════════════════════════\n'
+      : '';
 
     return personaBlock + '\n\n' +
       'You are answering a worker over voice. They will HEAR your reply, so:\n' +
@@ -732,10 +872,12 @@
       identBlock +
       routingBlock +
       memorySection +
+      canonicalSection +
       '\nIf the worker mixes Filipino / Cebuano / Tagalog in, that\'s fine — understand it, reply in English.\n\n' +
       '═══════════════════════════════════════════════════════════════════\n' +
       'HARD RULES — read these last; they override everything above.\n' +
       '═══════════════════════════════════════════════════════════════════\n' +
+      '0. PRONOUN ANCHORING. If the worker uses a pronoun ("it", "that", "this", "yan", "iyon", "ito", "yun") and PRIOR TURNS WITH THIS WORKER exists above, the pronoun refers to the most recent topic in those turns. Do NOT infer a different referent (lost physical object, missing tool, broken machine) when memory has a clear antecedent. "How can I find it?" after a data question is "how do I find the data?", not "I lost something."\n' +
       '1. NEVER ask "what changed?" or "what\'s changed today?" or "why are you asking again?" — these are clinical/therapy follow-ups and the worker hates them.\n' +
       '2. NEVER say "I see you\'ve been asking about X a lot lately" — you do NOT have conversation history in this turn; pretending you do is hallucination.\n' +
       '3. NEVER echo the worker\'s question back as the answer. "Priority checking ka na naman" is NOT an answer to "what\'s the priority PM today?"\n' +
@@ -746,6 +888,7 @@
       '8. If the worker\'s message is short or ambiguous ("what now?", "tapos?", "ok?", "what is the problem?"), do NOT assume emotion. Ask a SPECIFIC clarifier in one short sentence. No "draining your energy" / "tough one" framing.\n' +
       '9. NEVER invent specific UI elements ("the asset card", "the Log Downtime button", "the Save icon"). The only WorkHive nouns you may use verbatim are: Logbook, Inventory, PM Scheduler, Asset Hub, Alert Hub, Analytics, Day Planner, Shift Brain, Hive Board, Voice Journal, Work Assistant. To act on something, tell the worker which TOOL to open — never describe a specific button you weren\'t explicitly told about.\n' +
       '10. REPLY IN ENGLISH, ALWAYS. The worker can speak Tagalog / Cebuano / Filipino at you — UNDERSTAND it, but reply in PH-English. You may keep ONE short Tagalog warmth word per reply (naks / hala / pre / ate / ka), no more. If you find yourself writing a full Tagalog sentence ("Ano ba talaga hinahanap mo?", "Naiintindihan kita..."), STOP and rewrite in English. Pure-Tagalog replies are a hard fail.\n' +
+      '11. NO REPEAT REPLIES. If your prior reply in memory said exactly the same thing you are about to say, the worker is asking for MORE detail, not the same answer. Add a different facet: which tab inside the tool, when the data refreshes, what the number actually means, what to compare it against. If the only honest answer is still the same tool, name a fresh angle — never repeat the same sentence twice.\n' +
       'If unsure whether the question is factual or emotional: treat it as factual and answer it.';
   }
 
@@ -799,8 +942,16 @@
     // Fetch recent turns BEFORE building the prompt so the model has the
     // continuity context. Non-blocking on failure — empty memory falls
     // through to a no-history reply.
-    const memoryBlock = await _fetchRecentMemory(db, ctx.worker_name);
-    const system = _buildVoiceSystemPrompt(persona, ctx.worker_name, hiveName, pageLabel, routingHint, memoryBlock);
+    // Canonical-data classifier runs in parallel: if the transcript is a
+    // MTBF / MTTR / downtime / risk question we fetch the actual figure
+    // from v_*_truth and inject it as DATA so Rosa/James can paraphrase
+    // the real number instead of falling back to "check Analytics".
+    const dataIntent = _classifyDataIntent(transcript);
+    const [memoryBlock, canonicalData] = await Promise.all([
+      _fetchRecentMemory(db, ctx.worker_name),
+      dataIntent ? _fetchCanonicalData(db, ctx.hive_id, dataIntent) : Promise.resolve(''),
+    ]);
+    const system = _buildVoiceSystemPrompt(persona, ctx.worker_name, hiveName, pageLabel, routingHint, memoryBlock, canonicalData);
     const messages = [
       { role: 'system', content: system },
       { role: 'user',   content: transcript },
