@@ -258,9 +258,44 @@ def _check_script_loaded(pages: list[str], script_name: str, layer: str, friendl
 
 
 def check_connectivity_widget() -> list[dict]:
-    return _check_script_loaded(
+    issues = _check_script_loaded(
         CONNECTIVITY_WIDGET_PAGES, CONNECTIVITY_WIDGET, "L5",
         "Without it, the worker has no visible indicator of offline state + queue depth.")
+    # Layout contract: the chip MUST clear the nav-hub FAB stack at the
+    # bottom-right corner (FAB sits at bottom:24px, ~50px tall = ~74px
+    # footprint). Walkthrough 2026-05-13 caught the chip at bottom:0.75rem
+    # rendering hidden behind the FAB at the same z-index.
+    widget = ROOT / CONNECTIVITY_WIDGET
+    if widget.exists():
+        src = _read(widget)
+        # Strip C-style block comments first — a comment like
+        # `/* chip was at bottom:0.75rem */` inside the rule would otherwise
+        # be matched by the regex and produce a false positive.
+        src_stripped = re.sub(r"/\*[\s\S]*?\*/", "", src)
+        m = re.search(r"\.wh-conn-chip\s*\{[^}]*?bottom:\s*([\d.]+)\s*rem", src_stripped, re.DOTALL)
+        if m:
+            try:
+                bottom_rem = float(m.group(1))
+                if bottom_rem < 5.0:
+                    issues.append({
+                        "layer": "L5", "page": CONNECTIVITY_WIDGET, "check": "chip_position",
+                        "reason": (
+                            f"{CONNECTIVITY_WIDGET}: .wh-conn-chip bottom is {bottom_rem}rem; "
+                            f"must be >= 5rem to clear the nav-hub FAB at bottom:24px+50px. "
+                            f"Below 5rem the chip is hidden behind the FAB at the same z-index."
+                        ),
+                    })
+            except ValueError:
+                pass
+        else:
+            issues.append({
+                "layer": "L5", "page": CONNECTIVITY_WIDGET, "check": "chip_position",
+                "reason": (
+                    f"{CONNECTIVITY_WIDGET}: could not parse .wh-conn-chip `bottom:` value. "
+                    f"Expected `bottom: <N>rem` inside the chip CSS rule."
+                ),
+            })
+    return issues
 
 
 def check_session_timeout() -> list[dict]:

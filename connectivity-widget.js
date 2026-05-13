@@ -55,8 +55,11 @@
   const STYLE = `
     .wh-conn-chip {
       position: fixed;
-      right: 0.75rem;
-      bottom: 0.75rem;
+      right: 0.85rem;
+      /* sit ABOVE the nav-hub FAB (bottom:24px + ~50px FAB + 12px gap = ~88px).
+         Walkthrough 2026-05-13: chip was at bottom:0.75rem and overlapped the
+         FAB at same z-index, hiding the connectivity status behind the hub. */
+      bottom: 5.5rem;
       z-index: 9998;
       display: inline-flex;
       align-items: center;
@@ -97,8 +100,9 @@
     }
     .wh-conn-popover {
       position: fixed;
-      right: 0.75rem;
-      bottom: 3.25rem;
+      right: 0.85rem;
+      /* anchored above the chip (bottom:5.5rem + chip height ~1.6rem + 0.4rem gap). */
+      bottom: 8rem;
       z-index: 9999;
       width: min(280px, calc(100vw - 1.5rem));
       padding: 0.85rem;
