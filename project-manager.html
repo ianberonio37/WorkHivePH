@@ -350,17 +350,17 @@
     </div>
 
     <div class="filter-row">
-      <select id="filter-type">
+      <select id="filter-type" aria-label="Filter projects by type">
         <option value="">All types</option>
         <option value="workorder">Work Order</option>
         <option value="shutdown">Shutdown</option>
         <option value="capex">CAPEX</option>
         <option value="contractor">Contractor</option>
       </select>
-      <select id="filter-owner">
+      <select id="filter-owner" aria-label="Filter projects by owner">
         <option value="">All owners</option>
       </select>
-      <input type="search" id="filter-search" placeholder="Search by name or code…">
+      <input aria-label="Search by name or code…" type="search" id="filter-search" placeholder="Search by name or code…">
       <button class="btn primary new-btn" onclick="openNewProject()">+ New project</button>
       <button class="btn small" onclick="openAIIntentModal()" title="Describe your project in plain language">🤖 AI: from text</button>
     </div>
@@ -458,14 +458,14 @@
     <!-- Step 3: customise + create -->
     <div class="wizard-pane" data-pane="3">
       <h3>Customise &amp; create</h3>
-      <div class="field"><label>Project name *</label><input type="text" id="wiz-name" maxlength="120" placeholder="e.g. Pump 201 annual overhaul"></div>
+      <div class="field"><label for="wiz-name">Project name *</label><input type="text" id="wiz-name" maxlength="120" placeholder="e.g. Pump 201 annual overhaul"></div>
       <div class="grid-2">
         <div class="field">
-          <label>Owner</label>
+          <label for="wiz-owner">Owner</label>
           <select id="wiz-owner"><option value="">— unassigned —</option></select>
         </div>
         <div class="field">
-          <label>Priority</label>
+          <label for="wiz-priority">Priority</label>
           <select id="wiz-priority">
             <option value="low">Low</option><option value="medium" selected>Medium</option>
             <option value="high">High</option><option value="critical">Critical</option>
@@ -473,15 +473,15 @@
         </div>
       </div>
       <div class="grid-2">
-        <div class="field"><label>Start date</label><input type="date" id="wiz-start"><div class="field-hint">Auto-distributes scope item dates across duration.</div></div>
-        <div class="field"><label>End date</label><input type="date" id="wiz-end"></div>
+        <div class="field"><label for="wiz-start">Start date</label><input type="date" id="wiz-start"><div class="field-hint">Auto-distributes scope item dates across duration.</div></div>
+        <div class="field"><label for="wiz-end">End date</label><input type="date" id="wiz-end"></div>
       </div>
       <div class="field" id="wiz-budget-field">
-        <label>Budget (PHP)</label>
+        <label for="wiz-budget">Budget (PHP)</label>
         <input type="number" id="wiz-budget" min="0" step="100" placeholder="e.g. 250000">
         <div class="field-hint">Required for Earned Value tracking. Hidden for work-order and shutdown types unless you want it.</div>
       </div>
-      <div class="field"><label>Description</label><textarea id="wiz-desc" maxlength="2000" placeholder="Scope summary, drivers, success criteria…"></textarea></div>
+      <div class="field"><label for="wiz-desc">Description</label><textarea id="wiz-desc" maxlength="2000" placeholder="Scope summary, drivers, success criteria…"></textarea></div>
 
       <div style="margin: 16px 0 6px;">
         <strong style="font-size:0.92rem;">Scope items</strong>
@@ -503,10 +503,10 @@
   <div class="modal">
     <h3 id="m-project-title">New project</h3>
     <form id="form-project" onsubmit="event.preventDefault(); saveProject();">
-      <div class="field"><label>Name *</label><input type="text" id="f-name" required maxlength="120"></div>
+      <div class="field"><label for="f-name">Name *</label><input type="text" id="f-name" required maxlength="120"></div>
       <div class="grid-2">
         <div class="field">
-          <label>Type *</label>
+          <label for="f-type">Type *</label>
           <select id="f-type" required>
             <option value="workorder">Work Order Bundle</option>
             <option value="shutdown">Shutdown / Turnaround</option>
@@ -515,7 +515,7 @@
           </select>
         </div>
         <div class="field">
-          <label>Priority</label>
+          <label for="f-priority">Priority</label>
           <select id="f-priority">
             <option value="low">Low</option>
             <option value="medium" selected>Medium</option>
@@ -525,20 +525,20 @@
         </div>
       </div>
       <div class="grid-2">
-        <div class="field"><label>Start date</label><input type="date" id="f-start"></div>
-        <div class="field"><label>End date</label><input type="date" id="f-end"></div>
+        <div class="field"><label for="f-start">Start date</label><input type="date" id="f-start"></div>
+        <div class="field"><label for="f-end">End date</label><input type="date" id="f-end"></div>
       </div>
       <div class="grid-2">
         <div class="field">
-          <label>Owner</label>
+          <label for="f-owner">Owner</label>
           <select id="f-owner"><option value="">— unassigned —</option></select>
         </div>
         <div class="field" id="budget-field">
-          <label>Budget (PHP)</label>
+          <label for="f-budget">Budget (PHP)</label>
           <input type="number" id="f-budget" min="0" step="100" placeholder="e.g. 250000">
         </div>
       </div>
-      <div class="field"><label>Description</label><textarea id="f-desc" maxlength="2000" placeholder="Scope summary, drivers, success criteria…"></textarea></div>
+      <div class="field"><label for="f-desc">Description</label><textarea id="f-desc" maxlength="2000" placeholder="Scope summary, drivers, success criteria…"></textarea></div>
       <div class="modal-foot">
         <button type="button" class="btn ghost" onclick="closeModal('modal-project')">Cancel</button>
         <button type="submit" class="btn primary" id="f-submit">Create</button>
@@ -551,15 +551,15 @@
   <div class="modal">
     <h3 id="m-scope-title">Add scope item</h3>
     <form id="form-scope" onsubmit="event.preventDefault(); saveScopeItem();">
-      <div class="field"><label>Title *</label><input type="text" id="s-title" required maxlength="200"></div>
+      <div class="field"><label for="s-title">Title *</label><input type="text" id="s-title" required maxlength="200"></div>
       <div class="grid-3">
-        <div class="field"><label>WBS code</label><input type="text" id="s-wbs" placeholder="1.2.3" maxlength="40"></div>
+        <div class="field"><label for="s-wbs">WBS code</label><input type="text" id="s-wbs" placeholder="1.2.3" maxlength="40"></div>
         <div class="field">
-          <label>Owner</label>
+          <label for="s-owner">Owner</label>
           <select id="s-owner"><option value="">—</option></select>
         </div>
         <div class="field">
-          <label>Status</label>
+          <label for="s-status">Status</label>
           <select id="s-status">
             <option value="pending">Pending</option>
             <option value="in_progress">In progress</option>
@@ -570,13 +570,13 @@
         </div>
       </div>
       <div class="grid-3">
-        <div class="field"><label>Planned start</label><input type="date" id="s-pstart"></div>
-        <div class="field"><label>Planned end</label><input type="date" id="s-pend"></div>
-        <div class="field"><label>Est. hours</label><input type="number" id="s-est" min="0" step="0.5">
+        <div class="field"><label for="s-pstart">Planned start</label><input type="date" id="s-pstart"></div>
+        <div class="field"><label for="s-pend">Planned end</label><input type="date" id="s-pend"></div>
+        <div class="field"><label for="s-est">Est. hours</label><input type="number" id="s-est" min="0" step="0.5">
           <div class="field-hint">Rule of thumb: 8h × crew × days.</div></div>
       </div>
       <div class="field">
-        <label>Phase</label>
+        <label for="s-phase">Phase</label>
         <select id="s-phase">
           <option value="">— none —</option>
           <option value="pre">Pre (prep, isolation, PTW)</option>
@@ -591,11 +591,11 @@
         <div class="field-hint">Used to group scope items in the project view.</div>
       </div>
       <div class="field">
-        <label>Predecessors (depends on)</label>
+        <label for="s-preds">Predecessors (depends on)</label>
         <select id="s-preds" multiple style="min-height: 80px;"></select>
         <div class="field-hint">Hold Ctrl/Cmd to select multiple. Drives critical-path calculation. Defaults to the previous item.</div>
       </div>
-      <div class="field"><label>Notes</label><textarea id="s-notes" maxlength="1000" placeholder="Free-text notes — not the phase, that's above."></textarea></div>
+      <div class="field"><label for="s-notes">Notes</label><textarea id="s-notes" maxlength="1000" placeholder="Free-text notes — not the phase, that's above."></textarea></div>
       <div class="modal-foot">
         <button type="button" class="btn ghost" onclick="closeModal('modal-scope')">Cancel</button>
         <button type="submit" class="btn primary">Save</button>
@@ -608,7 +608,7 @@
   <div class="modal">
     <h3>Link existing work</h3>
     <div class="field">
-      <label>Type</label>
+      <label for="l-type">Type</label>
       <select id="l-type" onchange="loadLinkOptions()">
         <option value="asset">Asset</option>
         <option value="logbook">Logbook entry</option>
@@ -619,11 +619,11 @@
       </select>
     </div>
     <div class="field" id="l-picker-wrap">
-      <label>Pick</label>
+      <label for="l-picker">Pick</label>
       <select id="l-picker"></select>
     </div>
     <div class="field hidden" id="l-text-wrap">
-      <label>Contractor / vendor name</label>
+      <label for="l-text">Contractor / vendor name</label>
       <input type="text" id="l-text" maxlength="200" placeholder="e.g. Acme Industrial Services Inc.">
     </div>
     <div class="modal-foot">
@@ -639,7 +639,7 @@
     <h3>🤖 Describe your project</h3>
     <p class="sub" style="font-size: 0.85rem;">Type or paste a sentence describing what you want to plan. The AI will pick the type, template, dates, and asset, then drop you into the wizard for review.</p>
     <div class="field">
-      <label>What's the project?</label>
+      <label for="ai-intent-text">What's the project?</label>
       <textarea id="ai-intent-text" maxlength="600" rows="4" placeholder="e.g. Plan a 3-day pump overhaul on PUMP-201 starting Monday. Or: CAPEX project to replace compressor on Line 2, contractor scope, budget 850k, end by August."></textarea>
     </div>
     <div class="modal-foot">
@@ -656,11 +656,11 @@
     <form id="form-role" onsubmit="event.preventDefault(); saveRole();">
       <div class="grid-2">
         <div class="field">
-          <label>Worker *</label>
+          <label for="r-worker">Worker *</label>
           <select id="r-worker"><option value="">—</option></select>
         </div>
         <div class="field">
-          <label>Role *</label>
+          <label for="r-role">Role *</label>
           <select id="r-role" required>
             <option value="owner">Owner</option>
             <option value="planner">Planner</option>
@@ -670,7 +670,7 @@
           </select>
         </div>
       </div>
-      <div class="field"><label>Notes</label><textarea id="r-notes" maxlength="500" placeholder="Optional context (e.g. responsible for HSE permit-to-work)"></textarea></div>
+      <div class="field"><label for="r-notes">Notes</label><textarea id="r-notes" maxlength="500" placeholder="Optional context (e.g. responsible for HSE permit-to-work)"></textarea></div>
       <div class="modal-foot">
         <button type="button" class="btn ghost" onclick="closeModal('modal-role')">Cancel</button>
         <button type="submit" class="btn primary">Assign</button>
@@ -684,9 +684,9 @@
   <div class="modal">
     <h3>Raise change order</h3>
     <form id="form-co" onsubmit="event.preventDefault(); saveChangeOrder();">
-      <div class="field"><label>Title *</label><input type="text" id="co-title" required maxlength="200" placeholder="e.g. Add seismic anchor restraints"></div>
-      <div class="field"><label>Scope change *</label><textarea id="co-scope" required maxlength="2000" placeholder="What's changing in the scope. Be specific."></textarea></div>
-      <div class="field"><label>Reason</label>
+      <div class="field"><label for="co-title">Title *</label><input type="text" id="co-title" required maxlength="200" placeholder="e.g. Add seismic anchor restraints"></div>
+      <div class="field"><label for="co-scope">Scope change *</label><textarea id="co-scope" required maxlength="2000" placeholder="What's changing in the scope. Be specific."></textarea></div>
+      <div class="field"><label for="co-reason">Reason</label>
         <select id="co-reason">
           <option value="">—</option>
           <option value="cost">Cost reduction</option>
@@ -698,8 +698,8 @@
         </select>
       </div>
       <div class="grid-2">
-        <div class="field"><label>Cost impact (PHP)</label><input type="number" id="co-cost" step="100" placeholder="e.g. 25000 (positive = increase)"></div>
-        <div class="field"><label>Schedule impact (days)</label><input type="number" id="co-days" placeholder="e.g. 3 (positive = adds days)"></div>
+        <div class="field"><label for="co-cost">Cost impact (PHP)</label><input type="number" id="co-cost" step="100" placeholder="e.g. 25000 (positive = increase)"></div>
+        <div class="field"><label for="co-days">Schedule impact (days)</label><input type="number" id="co-days" placeholder="e.g. 3 (positive = adds days)"></div>
       </div>
       <div class="modal-foot">
         <button type="button" class="btn ghost" onclick="closeModal('modal-co')">Cancel</button>
@@ -714,12 +714,12 @@
     <h3>Daily progress log</h3>
     <form id="form-progress" onsubmit="event.preventDefault(); saveProgressLog();">
       <div class="grid-2">
-        <div class="field"><label>Date</label><input type="date" id="p-date" required></div>
-        <div class="field"><label>% complete (today)</label><input type="number" id="p-pct" min="0" max="100" step="1" required></div>
+        <div class="field"><label for="p-date">Date</label><input type="date" id="p-date" required></div>
+        <div class="field"><label for="p-pct">% complete (today)</label><input type="number" id="p-pct" min="0" max="100" step="1" required></div>
       </div>
-      <div class="field"><label>Hours worked</label><input type="number" id="p-hours" min="0" step="0.5"></div>
-      <div class="field"><label>Notes / accomplishments</label><textarea id="p-notes" maxlength="1500"></textarea></div>
-      <div class="field"><label>Blockers (red flag if filled)</label><textarea id="p-blockers" maxlength="600"></textarea></div>
+      <div class="field"><label for="p-hours">Hours worked</label><input type="number" id="p-hours" min="0" step="0.5"></div>
+      <div class="field"><label for="p-notes">Notes / accomplishments</label><textarea id="p-notes" maxlength="1500"></textarea></div>
+      <div class="field"><label for="p-blockers">Blockers (red flag if filled)</label><textarea id="p-blockers" maxlength="600"></textarea></div>
       <div class="modal-foot">
         <button type="button" class="btn ghost" onclick="closeModal('modal-progress')">Cancel</button>
         <button type="submit" class="btn primary">Save log</button>
@@ -2396,7 +2396,7 @@ function renderSignoff() {
     <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 14px;">
       <h3 style="font-size: 0.95rem; font-weight: 700; margin-bottom: 6px;">Lessons learned</h3>
       <div class="small" style="color: var(--muted); margin-bottom: 8px;">What went well, what to do differently next time. Feeds the Project Report appendix and the searchable lessons archive.</div>
-      <textarea id="lessons-text" maxlength="4000" style="min-height: 100px;" placeholder="• Mech alignment took 2x estimated — consider buffer hours for next pump overhaul\n• Parts staging was on point — keep weekly cadence\n• PTW issued late by 2h — pre-stage on the prior shift">${e(lessonsExisting)}</textarea>
+      <textarea aria-label="• Mech alignment took 2x estimated — consider buffer hours for next pump overhaul\n• Parts staging was on point — keep weekly cadence\n• PTW issued late by 2h — pre-stage on the prior shift" id="lessons-text" maxlength="4000" style="min-height: 100px;" placeholder="• Mech alignment took 2x estimated — consider buffer hours for next pump overhaul\n• Parts staging was on point — keep weekly cadence\n• PTW issued late by 2h — pre-stage on the prior shift">${e(lessonsExisting)}</textarea>
       ${(_detail.meta?._ai_generated_lessons) ? `<div class="small" style="color: var(--gold); margin-top: 6px;">🤖 AI-drafted on ${e(fmtDate(_detail.meta._ai_generated_at))} — supervisor edit before sign-off recommended.</div>` : ''}
       <div class="row" style="gap: 8px; margin-top: 8px; justify-content: flex-end;">
         <button class="btn small" onclick="aiDraftLessons()" title="Use AI to draft from progress logs">🤖 AI: Draft from logs</button>

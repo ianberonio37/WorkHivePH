@@ -7,7 +7,7 @@
     "analytics-report.html": 0,
     "analytics.html": 0,
     "asset-hub.html": 0,
-    "assistant.html": 3,
+    "assistant.html": 0,
     "audit-log.html": 0,
     "community.html": 0,
     "dayplanner.html": 0,
@@ -21,12 +21,12 @@
     "plant-connections.html": 0,
     "pm-scheduler.html": 0,
     "predictive.html": 0,
-    "project-manager.html": 46,
+    "project-manager.html": 0,
     "project-report.html": 0,
-    "report-sender.html": 3,
+    "report-sender.html": 0,
     "shift-brain.html": 0,
     "skillmatrix.html": 0,
-    "voice-journal.html": 1
+    "voice-journal.html": 0
   },
-  "total": 53
+  "total": 0
 }

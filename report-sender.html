@@ -529,7 +529,7 @@
 
         <!-- One-time email (fallback / extra recipient) -->
         <div class="one-time-label">Or type an email:</div>
-        <input
+        <input aria-label="someone@company.com"
           type="email" class="wh-input" id="email-input"
           placeholder="someone@company.com" autocomplete="email"
         />
@@ -621,11 +621,11 @@
       </div>
       <div class="sheet-body">
         <div class="sheet-field">
-          <label class="field-label">Name</label>
+          <label for="contact-name" class="field-label">Name</label>
           <input type="text" class="wh-input" id="contact-name" placeholder="Juan dela Cruz" autocomplete="off"/>
         </div>
         <div class="sheet-field">
-          <label class="field-label">Email</label>
+          <label for="contact-email" class="field-label">Email</label>
           <input type="email" class="wh-input" id="contact-email" placeholder="juan@company.com"/>
         </div>
         <div class="sheet-field">
