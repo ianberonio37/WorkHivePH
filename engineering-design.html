@@ -584,7 +584,7 @@
             <svg class="search-icon" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
               <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
             </svg>
-            <input id="calc-search" type="search" placeholder="Search all 53 calculations…" oninput="searchCalcs(this.value)" />
+            <input aria-label="Search all 53 calculations…" id="calc-search" type="search" placeholder="Search all 53 calculations…" oninput="searchCalcs(this.value)" />
           </div>
         </div>
 
@@ -3549,7 +3549,7 @@ function renderInputForm(calcType) {
       <!-- Project name -->
       <div class="mb-4">
         <div class="field-label">Project / Room Name</div>
-        <input id="f-project" class="wh-input" placeholder="e.g. Admin Office: 2nd Floor" />
+        <input aria-label="e.g. Admin Office: 2nd Floor" id="f-project" class="wh-input" placeholder="e.g. Admin Office: 2nd Floor" />
       </div>
 
       <!-- Building type toggle -->
@@ -3578,14 +3578,14 @@ function renderInputForm(calcType) {
         <div>
           <div class="field-label">Floor Area</div>
           <div class="input-group">
-            <input id="f-floor-area" class="wh-input" type="number" placeholder="0" min="0" />
+            <input aria-label="0" id="f-floor-area" class="wh-input" type="number" placeholder="0" min="0" />
             <span class="input-unit">m²</span>
           </div>
         </div>
         <div>
           <div class="field-label">Ceiling Height</div>
           <div class="input-group">
-            <input id="f-ceiling" class="wh-input" type="number" placeholder="3.0" value="3.0" min="0" step="0.1" />
+            <input aria-label="3.0" id="f-ceiling" class="wh-input" type="number" placeholder="3.0" value="3.0" min="0" step="0.1" />
             <span class="input-unit">m</span>
           </div>
         </div>
@@ -3595,14 +3595,14 @@ function renderInputForm(calcType) {
         <div>
           <div class="field-label">Wall Area <span style="color:rgba(255,255,255,0.25);font-size:0.7rem;">(leave blank = auto)</span></div>
           <div class="input-group">
-            <input id="f-wall-area" class="wh-input" type="number" placeholder="Auto" min="0" />
+            <input aria-label="Auto" id="f-wall-area" class="wh-input" type="number" placeholder="Auto" min="0" />
             <span class="input-unit">m²</span>
           </div>
         </div>
         <div>
           <div class="field-label">Glass / Window Area <span style="color:rgba(255,255,255,0.25);font-size:0.7rem;">(blank = 20%)</span></div>
           <div class="input-group">
-            <input id="f-glass-area" class="wh-input" type="number" placeholder="Auto" min="0" />
+            <input aria-label="Auto" id="f-glass-area" class="wh-input" type="number" placeholder="Auto" min="0" />
             <span class="input-unit">m²</span>
           </div>
         </div>
@@ -3613,14 +3613,14 @@ function renderInputForm(calcType) {
         <div>
           <div class="field-label">No. of Persons</div>
           <div class="input-group">
-            <input id="f-persons" class="wh-input" type="number" placeholder="0" min="0" value="10" />
+            <input aria-label="0" id="f-persons" class="wh-input" type="number" placeholder="0" min="0" value="10" />
             <span class="input-unit">pax</span>
           </div>
         </div>
         <div>
           <div class="field-label">Equipment Load</div>
           <div class="input-group">
-            <input id="f-equip" class="wh-input" type="number" placeholder="0" min="0" value="2" step="0.5" />
+            <input aria-label="0" id="f-equip" class="wh-input" type="number" placeholder="0" min="0" value="2" step="0.5" />
             <span class="input-unit">kW</span>
           </div>
         </div>
@@ -3663,14 +3663,14 @@ function renderInputForm(calcType) {
           <div>
             <div class="field-label">Outdoor Temp</div>
             <div class="input-group">
-              <input id="f-outdoor-temp" class="wh-input" type="number" value="35" min="0" />
+              <input aria-label="Outdoor Temp" id="f-outdoor-temp" class="wh-input" type="number" value="35" min="0" />
               <span class="input-unit">°C</span>
             </div>
           </div>
           <div>
             <div class="field-label">Indoor Temp (Target)</div>
             <div class="input-group">
-              <input id="f-indoor-temp" class="wh-input" type="number" value="24" min="0" />
+              <input aria-label="Indoor Temp" id="f-indoor-temp" class="wh-input" type="number" value="24" min="0" />
               <span class="input-unit">°C</span>
             </div>
           </div>
@@ -3686,7 +3686,7 @@ function renderInputForm(calcType) {
       <!-- Project name -->
       <div class="mb-4">
         <div class="field-label">Project / Room Name</div>
-        <input id="f-project" class="wh-input" placeholder="e.g. Production Area - Building A" />
+        <input aria-label="e.g. Production Area - Building A" id="f-project" class="wh-input" placeholder="e.g. Production Area - Building A" />
       </div>
 
       <!-- Room function -->
@@ -3714,14 +3714,14 @@ function renderInputForm(calcType) {
         <div>
           <div class="field-label">Floor Area</div>
           <div class="input-group">
-            <input id="f-floor-area" class="wh-input" type="number" placeholder="0" min="0" />
+            <input aria-label="0" id="f-floor-area" class="wh-input" type="number" placeholder="0" min="0" />
             <span class="input-unit">m²</span>
           </div>
         </div>
         <div>
           <div class="field-label">Ceiling Height</div>
           <div class="input-group">
-            <input id="f-ceiling" class="wh-input" type="number" placeholder="3.0" value="3.0" min="0" step="0.1" />
+            <input aria-label="3.0" id="f-ceiling" class="wh-input" type="number" placeholder="3.0" value="3.0" min="0" step="0.1" />
             <span class="input-unit">m</span>
           </div>
         </div>
@@ -3731,7 +3731,7 @@ function renderInputForm(calcType) {
       <div class="mb-4">
         <div class="field-label">No. of Persons <span style="color:rgba(255,255,255,0.25);font-size:0.7rem;">(0 for unoccupied / exhaust-only spaces)</span></div>
         <div class="input-group" style="max-width:160px;">
-          <input id="f-persons" class="wh-input" type="number" placeholder="0" min="0" value="10" />
+          <input aria-label="0" id="f-persons" class="wh-input" type="number" placeholder="0" min="0" value="10" />
           <span class="input-unit">pax</span>
         </div>
       </div>
@@ -3751,7 +3751,7 @@ function renderInputForm(calcType) {
       <!-- Project name -->
       <div class="mb-4">
         <div class="field-label">Project / System Name</div>
-        <input id="f-project" class="wh-input" placeholder="e.g. Cooling Water Pump - Building A" />
+        <input aria-label="e.g. Cooling Water Pump - Building A" id="f-project" class="wh-input" placeholder="e.g. Cooling Water Pump - Building A" />
       </div>
 
       <!-- Fluid type toggle -->
@@ -3769,14 +3769,14 @@ function renderInputForm(calcType) {
         <div>
           <div class="field-label">Flow Rate (Q)</div>
           <div class="input-group">
-            <input id="f-flow-rate" class="wh-input" type="number" placeholder="0" min="0" />
+            <input aria-label="0" id="f-flow-rate" class="wh-input" type="number" placeholder="0" min="0" />
             <span class="input-unit">L/min</span>
           </div>
         </div>
         <div>
           <div class="field-label">Static Head</div>
           <div class="input-group">
-            <input id="f-static-head" class="wh-input" type="number" placeholder="0" min="0" step="0.5" />
+            <input aria-label="0" id="f-static-head" class="wh-input" type="number" placeholder="0" min="0" step="0.5" />
             <span class="input-unit">m</span>
           </div>
         </div>
@@ -3787,14 +3787,14 @@ function renderInputForm(calcType) {
         <div>
           <div class="field-label">Total Pipe Length <span style="color:rgba(255,255,255,0.25);font-size:0.7rem;">(suction + discharge)</span></div>
           <div class="input-group">
-            <input id="f-pipe-length" class="wh-input" type="number" placeholder="0" min="0" />
+            <input aria-label="0" id="f-pipe-length" class="wh-input" type="number" placeholder="0" min="0" />
             <span class="input-unit">m</span>
           </div>
         </div>
         <div>
           <div class="field-label">Pipe Diameter <span style="color:rgba(255,255,255,0.25);font-size:0.7rem;">(0 = auto)</span></div>
           <div class="input-group">
-            <input id="f-pipe-dia" class="wh-input" type="number" placeholder="Auto" min="0" value="0" />
+            <input aria-label="Auto" id="f-pipe-dia" class="wh-input" type="number" placeholder="Auto" min="0" value="0" />
             <span class="input-unit">mm</span>
           </div>
         </div>
@@ -3815,14 +3815,14 @@ function renderInputForm(calcType) {
         <div>
           <div class="field-label">Suction Head <span style="color:rgba(255,255,255,0.25);font-size:0.7rem;">(+ flooded, - lift)</span></div>
           <div class="input-group">
-            <input id="f-suction-head" class="wh-input" type="number" placeholder="0" step="0.5" value="0" />
+            <input aria-label="0" id="f-suction-head" class="wh-input" type="number" placeholder="0" step="0.5" value="0" />
             <span class="input-unit">m</span>
           </div>
         </div>
         <div>
           <div class="field-label">Discharge Pressure Head <span style="color:rgba(255,255,255,0.25);font-size:0.7rem;">(system back-pressure)</span></div>
           <div class="input-group">
-            <input id="f-pressure-head" class="wh-input" type="number" placeholder="0" min="0" step="0.5" value="0" />
+            <input aria-label="0" id="f-pressure-head" class="wh-input" type="number" placeholder="0" min="0" step="0.5" value="0" />
             <span class="input-unit">m</span>
           </div>
         </div>
@@ -3833,21 +3833,21 @@ function renderInputForm(calcType) {
         <div>
           <div class="field-label">Pump Efficiency</div>
           <div class="input-group">
-            <input id="f-pump-eff" class="wh-input" type="number" value="70" min="1" max="100" />
+            <input aria-label="Pump Efficiency" id="f-pump-eff" class="wh-input" type="number" value="70" min="1" max="100" />
             <span class="input-unit">%</span>
           </div>
         </div>
         <div>
           <div class="field-label">Motor Efficiency</div>
           <div class="input-group">
-            <input id="f-motor-eff" class="wh-input" type="number" value="90" min="1" max="100" />
+            <input aria-label="Motor Efficiency" id="f-motor-eff" class="wh-input" type="number" value="90" min="1" max="100" />
             <span class="input-unit">%</span>
           </div>
         </div>
         <div>
           <div class="field-label">Fittings Allowance</div>
           <div class="input-group">
-            <input id="f-fittings" class="wh-input" type="number" value="20" min="0" max="100" />
+            <input aria-label="Fittings Allowance" id="f-fittings" class="wh-input" type="number" value="20" min="0" max="100" />
             <span class="input-unit">%</span>
           </div>
         </div>
@@ -3857,7 +3857,7 @@ function renderInputForm(calcType) {
       <div class="mb-4">
         <div class="field-label">Fluid Density <span style="color:rgba(255,255,255,0.25);font-size:0.7rem;">(auto-filled by fluid type)</span></div>
         <div class="input-group" style="max-width:160px;">
-          <input id="f-fluid-density" class="wh-input" type="number" value="1000" min="0" />
+          <input aria-label="Fluid Density" id="f-fluid-density" class="wh-input" type="number" value="1000" min="0" />
           <span class="input-unit">kg/m³</span>
         </div>
       </div>
@@ -3877,7 +3877,7 @@ function renderInputForm(calcType) {
       <!-- Project name -->
       <div class="mb-4">
         <div class="field-label">Project / System Name</div>
-        <input id="f-project" class="wh-input" placeholder="e.g. Steam Boiler: Laundry Building" />
+        <input aria-label="e.g. Steam Boiler: Laundry Building" id="f-project" class="wh-input" placeholder="e.g. Steam Boiler: Laundry Building" />
       </div>
 
       <!-- Boiler type -->
@@ -3908,14 +3908,14 @@ function renderInputForm(calcType) {
           <div>
             <div class="field-label">Steam Demand</div>
             <div class="input-group">
-              <input id="f-steam-demand" class="wh-input" type="number" placeholder="500" min="0" />
+              <input aria-label="500" id="f-steam-demand" class="wh-input" type="number" placeholder="500" min="0" />
               <span class="input-unit">kg/hr</span>
             </div>
           </div>
           <div>
             <div class="field-label">Number of Boilers</div>
             <div class="input-group">
-              <input id="f-num-boilers" class="wh-input" type="number" placeholder="1" min="1" value="1" />
+              <input aria-label="1" id="f-num-boilers" class="wh-input" type="number" placeholder="1" min="1" value="1" />
               <span class="input-unit">units</span>
             </div>
           </div>
@@ -3926,14 +3926,14 @@ function renderInputForm(calcType) {
           <div>
             <div class="field-label">Required Heat Load</div>
             <div class="input-group">
-              <input id="f-heat-load" class="wh-input" type="number" placeholder="300" min="0" />
+              <input aria-label="300" id="f-heat-load" class="wh-input" type="number" placeholder="300" min="0" />
               <span class="input-unit">kW</span>
             </div>
           </div>
           <div>
             <div class="field-label">Number of Boilers</div>
             <div class="input-group">
-              <input id="f-num-boilers-b" class="wh-input" type="number" placeholder="1" min="1" value="1" />
+              <input aria-label="1" id="f-num-boilers-b" class="wh-input" type="number" placeholder="1" min="1" value="1" />
               <span class="input-unit">units</span>
             </div>
           </div>
@@ -3944,14 +3944,14 @@ function renderInputForm(calcType) {
           <div>
             <div class="field-label">Steam Pressure (gauge)</div>
             <div class="input-group">
-              <input id="f-steam-pressure" class="wh-input" type="number" placeholder="7" min="0" max="40" step="0.5" />
+              <input aria-label="7" id="f-steam-pressure" class="wh-input" type="number" placeholder="7" min="0" max="40" step="0.5" />
               <span class="input-unit">bar g</span>
             </div>
           </div>
           <div>
             <div class="field-label">Feedwater Temperature</div>
             <div class="input-group">
-              <input id="f-fw-temp" class="wh-input" type="number" placeholder="80" min="0" max="150" />
+              <input aria-label="80" id="f-fw-temp" class="wh-input" type="number" placeholder="80" min="0" max="150" />
               <span class="input-unit">°C</span>
             </div>
           </div>
@@ -3962,14 +3962,14 @@ function renderInputForm(calcType) {
           <div>
             <div class="field-label">Makeup Water TDS</div>
             <div class="input-group">
-              <input id="f-tds-makeup" class="wh-input" type="number" placeholder="200" min="0" />
+              <input aria-label="200" id="f-tds-makeup" class="wh-input" type="number" placeholder="200" min="0" />
               <span class="input-unit">ppm</span>
             </div>
           </div>
           <div>
             <div class="field-label">Max Boiler Water TDS</div>
             <div class="input-group">
-              <input id="f-tds-max" class="wh-input" type="number" placeholder="3000" min="100" />
+              <input aria-label="3000" id="f-tds-max" class="wh-input" type="number" placeholder="3000" min="100" />
               <span class="input-unit">ppm</span>
             </div>
           </div>
@@ -3985,14 +3985,14 @@ function renderInputForm(calcType) {
           <div>
             <div class="field-label">Supply Temperature</div>
             <div class="input-group">
-              <input id="f-hw-supply" class="wh-input" type="number" placeholder="80" min="40" max="95" />
+              <input aria-label="80" id="f-hw-supply" class="wh-input" type="number" placeholder="80" min="40" max="95" />
               <span class="input-unit">°C</span>
             </div>
           </div>
           <div>
             <div class="field-label">Return Temperature</div>
             <div class="input-group">
-              <input id="f-hw-return" class="wh-input" type="number" placeholder="60" min="20" max="90" />
+              <input aria-label="60" id="f-hw-return" class="wh-input" type="number" placeholder="60" min="20" max="90" />
               <span class="input-unit">°C</span>
             </div>
           </div>
@@ -4002,14 +4002,14 @@ function renderInputForm(calcType) {
           <div>
             <div class="field-label">Hot Water Flow Rate</div>
             <div class="input-group">
-              <input id="f-hw-flow" class="wh-input" type="number" placeholder="5000" min="0" />
+              <input aria-label="5000" id="f-hw-flow" class="wh-input" type="number" placeholder="5000" min="0" />
               <span class="input-unit">L/hr</span>
             </div>
           </div>
           <div>
             <div class="field-label">Number of Boilers</div>
             <div class="input-group">
-              <input id="f-num-boilers-hw" class="wh-input" type="number" placeholder="1" min="1" value="1" />
+              <input aria-label="1" id="f-num-boilers-hw" class="wh-input" type="number" placeholder="1" min="1" value="1" />
               <span class="input-unit">units</span>
             </div>
           </div>
@@ -4020,14 +4020,14 @@ function renderInputForm(calcType) {
           <div>
             <div class="field-label">System Working Pressure</div>
             <div class="input-group">
-              <input id="f-hw-pressure" class="wh-input" type="number" placeholder="3" min="0.5" max="10" step="0.5" />
+              <input aria-label="3" id="f-hw-pressure" class="wh-input" type="number" placeholder="3" min="0.5" max="10" step="0.5" />
               <span class="input-unit">bar g</span>
             </div>
           </div>
           <div>
             <div class="field-label">Safety Factor</div>
             <div class="input-group">
-              <input id="f-safety-factor-hw" class="wh-input" type="number" placeholder="1.25" min="1.0" max="2.0" step="0.05" />
+              <input aria-label="1.25" id="f-safety-factor-hw" class="wh-input" type="number" placeholder="1.25" min="1.0" max="2.0" step="0.05" />
               <span class="input-unit">x</span>
             </div>
           </div>
@@ -4049,14 +4049,14 @@ function renderInputForm(calcType) {
         <div>
           <div class="field-label">Boiler Efficiency</div>
           <div class="input-group">
-            <input id="f-boiler-eff" class="wh-input" type="number" placeholder="82" min="50" max="98" />
+            <input aria-label="82" id="f-boiler-eff" class="wh-input" type="number" placeholder="82" min="50" max="98" />
             <span class="input-unit">%</span>
           </div>
         </div>
         <div id="blr-safety-steam-wrap">
           <div class="field-label">Safety Factor</div>
           <div class="input-group">
-            <input id="f-safety-factor" class="wh-input" type="number" placeholder="1.25" min="1.0" max="2.0" step="0.05" />
+            <input aria-label="1.25" id="f-safety-factor" class="wh-input" type="number" placeholder="1.25" min="1.0" max="2.0" step="0.05" />
             <span class="input-unit">x</span>
           </div>
         </div>
@@ -4079,7 +4079,7 @@ function renderInputForm(calcType) {
       <!-- Project name -->
       <div class="mb-4">
         <div class="field-label">Project / System Name</div>
-        <input id="f-project" class="wh-input" placeholder="e.g. Chilled Water Distribution - Level 2" />
+        <input aria-label="e.g. Chilled Water Distribution - Level 2" id="f-project" class="wh-input" placeholder="e.g. Chilled Water Distribution - Level 2" />
       </div>
 
       <!-- Service type -->
@@ -4097,14 +4097,14 @@ function renderInputForm(calcType) {
         <div>
           <div class="field-label">Flow Rate (Q)</div>
           <div class="input-group">
-            <input id="f-flow-rate" class="wh-input" type="number" placeholder="0" min="0" />
+            <input aria-label="0" id="f-flow-rate" class="wh-input" type="number" placeholder="0" min="0" />
             <span class="input-unit">L/min</span>
           </div>
         </div>
         <div>
           <div class="field-label">Pipe Length</div>
           <div class="input-group">
-            <input id="f-pipe-length" class="wh-input" type="number" placeholder="0" min="0" />
+            <input aria-label="0" id="f-pipe-length" class="wh-input" type="number" placeholder="0" min="0" />
             <span class="input-unit">m</span>
           </div>
         </div>
@@ -4125,14 +4125,14 @@ function renderInputForm(calcType) {
         <div>
           <div class="field-label">Fittings Allowance</div>
           <div class="input-group">
-            <input id="f-fittings" class="wh-input" type="number" value="20" min="0" max="100" />
+            <input aria-label="Fittings Allowance" id="f-fittings" class="wh-input" type="number" value="20" min="0" max="100" />
             <span class="input-unit">%</span>
           </div>
         </div>
         <div>
           <div class="field-label">Fluid Density <span style="color:rgba(255,255,255,0.25);font-size:0.7rem;">(auto by service)</span></div>
           <div class="input-group">
-            <input id="f-fluid-density" class="wh-input" type="number" value="1000" min="0" />
+            <input aria-label="Fluid Density" id="f-fluid-density" class="wh-input" type="number" value="1000" min="0" />
             <span class="input-unit">kg/m³</span>
           </div>
         </div>
@@ -4143,7 +4143,7 @@ function renderInputForm(calcType) {
         <div>
           <div class="field-label">Fluid Temperature <span style="color:rgba(255,255,255,0.25);font-size:0.7rem;">(auto by service)</span></div>
           <div class="input-group">
-            <input id="f-fluid-temp" class="wh-input" type="number" value="20" min="-10" max="150" />
+            <input aria-label="Fluid Temperature" id="f-fluid-temp" class="wh-input" type="number" value="20" min="-10" max="150" />
             <span class="input-unit">°C</span>
           </div>
         </div>
@@ -4164,7 +4164,7 @@ function renderInputForm(calcType) {
       <!-- Project name -->
       <div class="mb-4">
         <div class="field-label">Project / System Name</div>
-        <input id="f-project" class="wh-input" placeholder="e.g. Production Floor Compressed Air System" />
+        <input aria-label="e.g. Production Floor Compressed Air System" id="f-project" class="wh-input" placeholder="e.g. Production Floor Compressed Air System" />
       </div>
 
       <!-- System parameters -->
@@ -4172,21 +4172,21 @@ function renderInputForm(calcType) {
         <div>
           <div class="field-label">Working Pressure</div>
           <div class="input-group">
-            <input id="f-working-pressure" class="wh-input" type="number" value="7" min="1" max="20" step="0.5" />
+            <input aria-label="Working Pressure" id="f-working-pressure" class="wh-input" type="number" value="7" min="1" max="20" step="0.5" />
             <span class="input-unit">bar(g)</span>
           </div>
         </div>
         <div>
           <div class="field-label">Diversity Factor</div>
           <div class="input-group">
-            <input id="f-diversity" class="wh-input" type="number" value="0.70" min="0.1" max="1" step="0.05" />
+            <input aria-label="Diversity Factor" id="f-diversity" class="wh-input" type="number" value="0.70" min="0.1" max="1" step="0.05" />
             <span class="input-unit">ratio</span>
           </div>
         </div>
         <div>
           <div class="field-label">Safety Factor</div>
           <div class="input-group">
-            <input id="f-safety" class="wh-input" type="number" value="1.25" min="1" max="2" step="0.05" />
+            <input aria-label="Safety Factor" id="f-safety" class="wh-input" type="number" value="1.25" min="1" max="2" step="0.05" />
             <span class="input-unit">ratio</span>
           </div>
         </div>
@@ -4196,14 +4196,14 @@ function renderInputForm(calcType) {
         <div>
           <div class="field-label">Distribution Pipe Length</div>
           <div class="input-group">
-            <input id="f-pipe-length" class="wh-input" type="number" value="0" min="0" />
+            <input aria-label="Distribution Pipe Length" id="f-pipe-length" class="wh-input" type="number" value="0" min="0" />
             <span class="input-unit">m</span>
           </div>
         </div>
         <div>
           <div class="field-label">Leakage Allowance</div>
           <div class="input-group">
-            <input id="f-leakage" class="wh-input" type="number" value="10" min="0" max="50" />
+            <input aria-label="Leakage Allowance" id="f-leakage" class="wh-input" type="number" value="10" min="0" max="50" />
             <span class="input-unit">%</span>
           </div>
         </div>
@@ -4235,7 +4235,7 @@ function renderInputForm(calcType) {
     area.innerHTML = `
       <div class="mb-4">
         <div class="field-label">Project / System Name</div>
-        <input id="f-project" class="wh-input" placeholder="e.g. Office Building - Domestic Water Supply" />
+        <input aria-label="e.g. Office Building - Domestic Water Supply" id="f-project" class="wh-input" placeholder="e.g. Office Building - Domestic Water Supply" />
       </div>
 
       <div class="mb-4">
@@ -4260,14 +4260,14 @@ function renderInputForm(calcType) {
         <div>
           <div class="field-label">Total Pipe Length</div>
           <div class="input-group">
-            <input id="f-pipe-length" class="wh-input" type="number" value="0" min="0" />
+            <input aria-label="Total Pipe Length" id="f-pipe-length" class="wh-input" type="number" value="0" min="0" />
             <span class="input-unit">m</span>
           </div>
         </div>
         <div>
           <div class="field-label">Fittings Allowance</div>
           <div class="input-group">
-            <input id="f-fittings" class="wh-input" type="number" value="20" min="0" max="100" />
+            <input aria-label="Fittings Allowance" id="f-fittings" class="wh-input" type="number" value="20" min="0" max="100" />
             <span class="input-unit">%</span>
           </div>
         </div>
@@ -4277,14 +4277,14 @@ function renderInputForm(calcType) {
         <div>
           <div class="field-label">Supply Pressure (at meter)</div>
           <div class="input-group">
-            <input id="f-supply-press" class="wh-input" type="number" value="350" min="0" />
+            <input aria-label="Supply Pressure" id="f-supply-press" class="wh-input" type="number" value="350" min="0" />
             <span class="input-unit">kPa</span>
           </div>
         </div>
         <div>
           <div class="field-label">Min. Residual Pressure</div>
           <div class="input-group">
-            <input id="f-min-press" class="wh-input" type="number" value="70" min="0" />
+            <input aria-label="Min. Residual Pressure" id="f-min-press" class="wh-input" type="number" value="70" min="0" />
             <span class="input-unit">kPa</span>
           </div>
         </div>
@@ -4311,21 +4311,21 @@ function renderInputForm(calcType) {
     area.innerHTML = `
       <div class="mb-4">
         <div class="field-label">Project / System Name</div>
-        <input id="f-project" class="wh-input" placeholder="e.g. Hotel ABC: Domestic Hot Water System" />
+        <input aria-label="e.g. Hotel ABC: Domestic Hot Water System" id="f-project" class="wh-input" placeholder="e.g. Hotel ABC: Domestic Hot Water System" />
       </div>
 
       <div class="grid grid-cols-2 gap-3 mb-4">
         <div>
           <div class="field-label">Supply Water Temp (cold inlet)</div>
           <div class="input-group">
-            <input id="f-supply-temp" class="wh-input" type="number" value="28" min="10" max="40" />
+            <input aria-label="Supply Water Temp" id="f-supply-temp" class="wh-input" type="number" value="28" min="10" max="40" />
             <span class="input-unit">°C</span>
           </div>
         </div>
         <div>
           <div class="field-label">Hot Water Setpoint</div>
           <div class="input-group">
-            <input id="f-hot-temp" class="wh-input" type="number" value="60" min="45" max="85" />
+            <input aria-label="Hot Water Setpoint" id="f-hot-temp" class="wh-input" type="number" value="60" min="45" max="85" />
             <span class="input-unit">°C</span>
           </div>
         </div>
@@ -4335,14 +4335,14 @@ function renderInputForm(calcType) {
         <div>
           <div class="field-label">Recovery Time</div>
           <div class="input-group">
-            <input id="f-recovery-hrs" class="wh-input" type="number" value="2" min="0.5" max="12" step="0.5" />
+            <input aria-label="Recovery Time" id="f-recovery-hrs" class="wh-input" type="number" value="2" min="0.5" max="12" step="0.5" />
             <span class="input-unit">hrs</span>
           </div>
         </div>
         <div>
           <div class="field-label">Peak Hour Fraction</div>
           <div class="input-group">
-            <input id="f-peak-fraction" class="wh-input" type="number" value="0.25" min="0.10" max="0.50" step="0.05" />
+            <input aria-label="Peak Hour Fraction" id="f-peak-fraction" class="wh-input" type="number" value="0.25" min="0.10" max="0.50" step="0.05" />
             <span class="input-unit">ratio</span>
           </div>
         </div>
@@ -4352,14 +4352,14 @@ function renderInputForm(calcType) {
         <div>
           <div class="field-label">Storage Safety Factor</div>
           <div class="input-group">
-            <input id="f-storage-factor" class="wh-input" type="number" value="1.25" min="1.0" max="2.0" step="0.05" />
+            <input aria-label="Storage Safety Factor" id="f-storage-factor" class="wh-input" type="number" value="1.25" min="1.0" max="2.0" step="0.05" />
             <span class="input-unit">ratio</span>
           </div>
         </div>
         <div>
           <div class="field-label">Pipe Heat Loss</div>
           <div class="input-group">
-            <input id="f-pipe-loss" class="wh-input" type="number" value="10" min="0" max="30" />
+            <input aria-label="Pipe Heat Loss" id="f-pipe-loss" class="wh-input" type="number" value="10" min="0" max="30" />
             <span class="input-unit">%</span>
           </div>
         </div>
@@ -4392,7 +4392,7 @@ function renderInputForm(calcType) {
     area.innerHTML = `
       <div class="mb-4">
         <div class="field-label">Project / System Name</div>
-        <input id="f-project" class="wh-input" placeholder="e.g. Office Building: Floor 2 Drainage Branch" />
+        <input aria-label="e.g. Office Building: Floor 2 Drainage Branch" id="f-project" class="wh-input" placeholder="e.g. Office Building: Floor 2 Drainage Branch" />
       </div>
 
       <div class="mb-4">
@@ -4451,7 +4451,7 @@ function renderInputForm(calcType) {
     area.innerHTML = `
       <div class="mb-4">
         <div class="field-label">Project / System Name</div>
-        <input id="f-project" class="wh-input" placeholder="e.g. Barangay Hall: Septic Tank" />
+        <input aria-label="e.g. Barangay Hall: Septic Tank" id="f-project" class="wh-input" placeholder="e.g. Barangay Hall: Septic Tank" />
       </div>
 
       <div class="mb-4">
@@ -4467,14 +4467,14 @@ function renderInputForm(calcType) {
         <div>
           <div class="field-label">Number of Occupants</div>
           <div class="input-group">
-            <input id="f-occupants" class="wh-input" type="number" value="20" min="1" />
+            <input aria-label="Number of Occupants" id="f-occupants" class="wh-input" type="number" value="20" min="1" />
             <span class="input-unit">persons</span>
           </div>
         </div>
         <div>
           <div class="field-label">Wastewater Rate</div>
           <div class="input-group">
-            <input id="f-ww-rate" class="wh-input" type="number" value="150" min="10" />
+            <input aria-label="Wastewater Rate" id="f-ww-rate" class="wh-input" type="number" value="150" min="10" />
             <span class="input-unit">L/p/day</span>
           </div>
         </div>
@@ -4484,14 +4484,14 @@ function renderInputForm(calcType) {
         <div>
           <div class="field-label">Retention Time</div>
           <div class="input-group">
-            <input id="f-retention" class="wh-input" type="number" value="1" min="1" max="5" step="0.5" />
+            <input aria-label="Retention Time" id="f-retention" class="wh-input" type="number" value="1" min="1" max="5" step="0.5" />
             <span class="input-unit">days</span>
           </div>
         </div>
         <div>
           <div class="field-label">Desludging Interval</div>
           <div class="input-group">
-            <input id="f-desludge" class="wh-input" type="number" value="3" min="1" max="10" />
+            <input aria-label="Desludging Interval" id="f-desludge" class="wh-input" type="number" value="3" min="1" max="10" />
             <span class="input-unit">years</span>
           </div>
         </div>
@@ -4501,14 +4501,14 @@ function renderInputForm(calcType) {
         <div>
           <div class="field-label">Liquid Depth</div>
           <div class="input-group">
-            <input id="f-liq-depth" class="wh-input" type="number" value="1.5" min="1.2" max="2.4" step="0.1" />
+            <input aria-label="Liquid Depth" id="f-liq-depth" class="wh-input" type="number" value="1.5" min="1.2" max="2.4" step="0.1" />
             <span class="input-unit">m</span>
           </div>
         </div>
         <div>
           <div class="field-label">L:W Ratio</div>
           <div class="input-group">
-            <input id="f-lw-ratio" class="wh-input" type="number" value="3" min="2" max="4" step="0.5" />
+            <input aria-label="L:W Ratio" id="f-lw-ratio" class="wh-input" type="number" value="3" min="2" max="4" step="0.5" />
             <span class="input-unit">ratio</span>
           </div>
         </div>
@@ -4535,7 +4535,7 @@ function renderInputForm(calcType) {
     area.innerHTML = `
       <div class="mb-4">
         <div class="field-label">Project / System Name</div>
-        <input id="f-project" class="wh-input" placeholder="e.g. Hotel Boiler Room: Water Softener" />
+        <input aria-label="e.g. Hotel Boiler Room: Water Softener" id="f-project" class="wh-input" placeholder="e.g. Hotel Boiler Room: Water Softener" />
       </div>
 
       <div class="mb-4">
@@ -4549,7 +4549,7 @@ function renderInputForm(calcType) {
       <div id="ws-direct-row" class="mb-4">
         <div class="field-label">Daily Water Demand</div>
         <div class="input-group">
-          <input id="f-demand-lpd" class="wh-input" type="number" value="5000" min="1" />
+          <input aria-label="Daily Water Demand" id="f-demand-lpd" class="wh-input" type="number" value="5000" min="1" />
           <span class="input-unit">L/day</span>
         </div>
       </div>
@@ -4559,14 +4559,14 @@ function renderInputForm(calcType) {
           <div>
             <div class="field-label">Number of People</div>
             <div class="input-group">
-              <input id="f-n-people" class="wh-input" type="number" value="50" min="1" />
+              <input aria-label="Number of People" id="f-n-people" class="wh-input" type="number" value="50" min="1" />
               <span class="input-unit">persons</span>
             </div>
           </div>
           <div>
             <div class="field-label">Per Capita Use</div>
             <div class="input-group">
-              <input id="f-per-capita" class="wh-input" type="number" value="200" min="10" />
+              <input aria-label="Per Capita Use" id="f-per-capita" class="wh-input" type="number" value="200" min="10" />
               <span class="input-unit">L/p/day</span>
             </div>
           </div>
@@ -4583,7 +4583,7 @@ function renderInputForm(calcType) {
             <button class="toggle-btn" data-val="300" onclick="toggle('tg-ws-inlet','300');document.getElementById('f-inlet-hardness').value=300">300</button>
           </div>
           <div class="input-group">
-            <input id="f-inlet-hardness" class="wh-input" type="number" value="200" min="1" />
+            <input aria-label="Inlet Hardness" id="f-inlet-hardness" class="wh-input" type="number" value="200" min="1" />
             <span class="input-unit">mg/L CaCO₃</span>
           </div>
         </div>
@@ -4596,7 +4596,7 @@ function renderInputForm(calcType) {
             <button class="toggle-btn" data-val="85" onclick="toggle('tg-ws-target','85');document.getElementById('f-target-hardness').value=85">85</button>
           </div>
           <div class="input-group">
-            <input id="f-target-hardness" class="wh-input" type="number" value="17" min="0" />
+            <input aria-label="Target Hardness" id="f-target-hardness" class="wh-input" type="number" value="17" min="0" />
             <span class="input-unit">mg/L CaCO₃</span>
           </div>
         </div>
@@ -4613,7 +4613,7 @@ function renderInputForm(calcType) {
             <button class="toggle-btn" data-val="7" onclick="toggle('tg-ws-regen','7');document.getElementById('f-regen-interval').value=7">7 days</button>
           </div>
           <div class="input-group">
-            <input id="f-regen-interval" class="wh-input" type="number" value="3" min="1" max="7" />
+            <input aria-label="Regeneration Interval" id="f-regen-interval" class="wh-input" type="number" value="3" min="1" max="7" />
             <span class="input-unit">days</span>
           </div>
         </div>
@@ -4626,7 +4626,7 @@ function renderInputForm(calcType) {
             <button class="toggle-btn" data-val="120" onclick="toggle('tg-ws-salt','120');document.getElementById('f-salt-dose').value=120">120 g/L</button>
           </div>
           <div class="input-group">
-            <input id="f-salt-dose" class="wh-input" type="number" value="80" min="40" max="150" />
+            <input aria-label="Salt Dosage" id="f-salt-dose" class="wh-input" type="number" value="80" min="40" max="150" />
             <span class="input-unit">g NaCl/L resin</span>
           </div>
         </div>
@@ -4653,7 +4653,7 @@ function renderInputForm(calcType) {
     area.innerHTML = `
       <div class="mb-4">
         <div class="field-label">Project / System Name</div>
-        <input id="f-project" class="wh-input" placeholder="e.g. Hotel Deep Well Treatment Plant" />
+        <input aria-label="e.g. Hotel Deep Well Treatment Plant" id="f-project" class="wh-input" placeholder="e.g. Hotel Deep Well Treatment Plant" />
       </div>
 
       <div class="mb-4">
@@ -4677,7 +4677,7 @@ function renderInputForm(calcType) {
       <div id="wt-direct-row" class="mb-4">
         <div class="field-label">Daily Water Demand</div>
         <div class="input-group">
-          <input id="f-wt-demand" class="wh-input" type="number" value="10000" min="1" />
+          <input aria-label="Daily Water Demand" id="f-wt-demand" class="wh-input" type="number" value="10000" min="1" />
           <span class="input-unit">L/day</span>
         </div>
       </div>
@@ -4687,14 +4687,14 @@ function renderInputForm(calcType) {
           <div>
             <div class="field-label">Number of People</div>
             <div class="input-group">
-              <input id="f-wt-n-people" class="wh-input" type="number" value="50" min="1" />
+              <input aria-label="Number of People" id="f-wt-n-people" class="wh-input" type="number" value="50" min="1" />
               <span class="input-unit">persons</span>
             </div>
           </div>
           <div>
             <div class="field-label">Per Capita Use</div>
             <div class="input-group">
-              <input id="f-wt-per-capita" class="wh-input" type="number" value="200" min="10" />
+              <input aria-label="Per Capita Use" id="f-wt-per-capita" class="wh-input" type="number" value="200" min="10" />
               <span class="input-unit">L/p/day</span>
             </div>
           </div>
@@ -4711,7 +4711,7 @@ function renderInputForm(calcType) {
             <button class="toggle-btn" data-val="150" onclick="toggle('tg-wt-turb','150');document.getElementById('f-wt-turb').value=150">150 NTU</button>
           </div>
           <div class="input-group">
-            <input id="f-wt-turb" class="wh-input" type="number" value="10" min="0" step="0.5" />
+            <input aria-label="Raw Water Turbidity" id="f-wt-turb" class="wh-input" type="number" value="10" min="0" step="0.5" />
             <span class="input-unit">NTU</span>
           </div>
         </div>
@@ -4724,7 +4724,7 @@ function renderInputForm(calcType) {
             <button class="toggle-btn" data-val="5" onclick="toggle('tg-wt-iron','5');document.getElementById('f-wt-iron').value=5">5.0</button>
           </div>
           <div class="input-group">
-            <input id="f-wt-iron" class="wh-input" type="number" value="0.5" min="0" step="0.1" />
+            <input aria-label="Iron Content" id="f-wt-iron" class="wh-input" type="number" value="0.5" min="0" step="0.1" />
             <span class="input-unit">mg/L Fe</span>
           </div>
         </div>
@@ -4756,7 +4756,7 @@ function renderInputForm(calcType) {
           <button class="toggle-btn" data-val="2.0" onclick="toggle('tg-wt-peak','2.0');document.getElementById('f-wt-peak').value=2.0">2.0× Residential</button>
         </div>
         <div class="input-group">
-          <input id="f-wt-peak" class="wh-input" type="number" value="1.5" min="1.1" max="3.0" step="0.1" />
+          <input id="f-wt-peak" aria-label="Peak flow factor" class="wh-input" type="number" value="1.5" min="1.1" max="3.0" step="0.1" />
           <span class="input-unit">×</span>
         </div>
       </div>
@@ -4773,7 +4773,7 @@ function renderInputForm(calcType) {
     area.innerHTML = `
       <div class="mb-4">
         <div class="field-label">Project / System Name</div>
-        <input id="f-project" class="wh-input" placeholder="e.g. Condominium STP: 500 persons" />
+        <input aria-label="e.g. Condominium STP: 500 persons" id="f-project" class="wh-input" placeholder="e.g. Condominium STP: 500 persons" />
       </div>
 
       <div class="mb-4">
@@ -4789,7 +4789,7 @@ function renderInputForm(calcType) {
           <div>
             <div class="field-label">Design Population</div>
             <div class="input-group">
-              <input id="f-stp-population" class="wh-input" type="number" value="200" min="1" />
+              <input aria-label="Design Population" id="f-stp-population" class="wh-input" type="number" value="200" min="1" />
               <span class="input-unit">persons</span>
             </div>
           </div>
@@ -4801,7 +4801,7 @@ function renderInputForm(calcType) {
               <button class="toggle-btn" data-val="200" onclick="toggle('tg-stp-percapita','200');document.getElementById('f-stp-percapita').value=200">200 Mixed</button>
             </div>
             <div class="input-group">
-              <input id="f-stp-percapita" class="wh-input" type="number" value="150" min="30" />
+              <input aria-label="Per Capita Wastewater" id="f-stp-percapita" class="wh-input" type="number" value="150" min="30" />
               <span class="input-unit">L/p/day</span>
             </div>
           </div>
@@ -4811,7 +4811,7 @@ function renderInputForm(calcType) {
       <div id="stp-direct-row" class="mb-4 hidden">
         <div class="field-label">Average Daily Wastewater Flow</div>
         <div class="input-group">
-          <input id="f-stp-flow-direct" class="wh-input" type="number" value="30" min="0.5" step="0.5" />
+          <input aria-label="Average Daily Wastewater Flow" id="f-stp-flow-direct" class="wh-input" type="number" value="30" min="0.5" step="0.5" />
           <span class="input-unit">m³/day</span>
         </div>
       </div>
@@ -4825,7 +4825,7 @@ function renderInputForm(calcType) {
             <button class="toggle-btn" data-val="300" onclick="toggle('tg-stp-bod-in','300');document.getElementById('f-stp-bod-in').value=300">300 Strong</button>
           </div>
           <div class="input-group">
-            <input id="f-stp-bod-in" class="wh-input" type="number" value="220" min="50" />
+            <input aria-label="BOD Influent" id="f-stp-bod-in" class="wh-input" type="number" value="220" min="50" />
             <span class="input-unit">mg/L BOD</span>
           </div>
         </div>
@@ -4836,7 +4836,7 @@ function renderInputForm(calcType) {
             <button class="toggle-btn" data-val="10" onclick="toggle('tg-stp-bod-out','10');document.getElementById('f-stp-bod-out').value=10">10 DENR A/B</button>
           </div>
           <div class="input-group">
-            <input id="f-stp-bod-out" class="wh-input" type="number" value="30" min="5" max="50" />
+            <input aria-label="BOD Effluent Target" id="f-stp-bod-out" class="wh-input" type="number" value="30" min="5" max="50" />
             <span class="input-unit">mg/L BOD</span>
           </div>
         </div>
@@ -4851,7 +4851,7 @@ function renderInputForm(calcType) {
             <button class="toggle-btn" data-val="15" onclick="toggle('tg-stp-srt','15');document.getElementById('f-stp-srt').value=15">15d Nitrify</button>
           </div>
           <div class="input-group">
-            <input id="f-stp-srt" class="wh-input" type="number" value="8" min="3" max="30" />
+            <input aria-label="SRT" id="f-stp-srt" class="wh-input" type="number" value="8" min="3" max="30" />
             <span class="input-unit">days</span>
           </div>
         </div>
@@ -4863,7 +4863,7 @@ function renderInputForm(calcType) {
             <button class="toggle-btn" data-val="4000" onclick="toggle('tg-stp-mlss','4000');document.getElementById('f-stp-mlss').value=4000">4000</button>
           </div>
           <div class="input-group">
-            <input id="f-stp-mlss" class="wh-input" type="number" value="3000" min="1000" max="6000" step="100" />
+            <input aria-label="MLSS" id="f-stp-mlss" class="wh-input" type="number" value="3000" min="1000" max="6000" step="100" />
             <span class="input-unit">mg/L MLSS</span>
           </div>
         </div>
@@ -4890,7 +4890,7 @@ function renderInputForm(calcType) {
     area.innerHTML = `
       <div class="mb-4">
         <div class="field-label">Project / Drain Reference</div>
-        <input id="f-project" class="wh-input" placeholder="e.g. Building A: Parking Lot Storm Drain" />
+        <input aria-label="e.g. Building A: Parking Lot Storm Drain" id="f-project" class="wh-input" placeholder="e.g. Building A: Parking Lot Storm Drain" />
       </div>
 
       <div class="mb-4">
@@ -4907,7 +4907,7 @@ function renderInputForm(calcType) {
           <div>
             <div class="field-label">Catchment Area</div>
             <div class="input-group">
-              <input id="f-sd-area" class="wh-input" type="number" value="0.5" min="0.001" step="0.01" />
+              <input aria-label="Catchment Area" id="f-sd-area" class="wh-input" type="number" value="0.5" min="0.001" step="0.01" />
               <span class="input-unit">ha</span>
             </div>
           </div>
@@ -4920,7 +4920,7 @@ function renderInputForm(calcType) {
               <button class="toggle-btn" data-val="0.92" onclick="toggle('tg-sd-c','0.92');document.getElementById('f-sd-c').value=0.92">0.92 Paved</button>
             </div>
             <div class="input-group">
-              <input id="f-sd-c" class="wh-input" type="number" value="0.80" min="0.05" max="1.0" step="0.01" />
+              <input aria-label="Runoff Coefficient" id="f-sd-c" class="wh-input" type="number" value="0.80" min="0.05" max="1.0" step="0.01" />
               <span class="input-unit">C value</span>
             </div>
           </div>
@@ -4935,18 +4935,18 @@ function renderInputForm(calcType) {
         </div>
         <div class="grid grid-cols-3 gap-2 mb-2">
           <div style="font-size:0.78rem;color:rgba(255,255,255,0.7);display:flex;align-items:center;">Paved / Roof</div>
-          <div><input id="f-sd-z1-area" class="wh-input" type="number" value="0.2" min="0" step="0.01" /></div>
-          <div><input id="f-sd-z1-c" class="wh-input" type="number" value="0.90" min="0.05" max="1.0" step="0.01" /></div>
+          <div><input id="f-sd-z1-area" aria-label="Paved / Roof area in hectares" class="wh-input" type="number" value="0.2" min="0" step="0.01" /></div>
+          <div><input id="f-sd-z1-c" aria-label="Paved / Roof runoff coefficient" class="wh-input" type="number" value="0.90" min="0.05" max="1.0" step="0.01" /></div>
         </div>
         <div class="grid grid-cols-3 gap-2 mb-2">
           <div style="font-size:0.78rem;color:rgba(255,255,255,0.7);display:flex;align-items:center;">Landscaped</div>
-          <div><input id="f-sd-z2-area" class="wh-input" type="number" value="0.2" min="0" step="0.01" /></div>
-          <div><input id="f-sd-z2-c" class="wh-input" type="number" value="0.35" min="0.05" max="1.0" step="0.01" /></div>
+          <div><input id="f-sd-z2-area" aria-label="Landscaped area in hectares" class="wh-input" type="number" value="0.2" min="0" step="0.01" /></div>
+          <div><input id="f-sd-z2-c" aria-label="Landscaped runoff coefficient" class="wh-input" type="number" value="0.35" min="0.05" max="1.0" step="0.01" /></div>
         </div>
         <div class="grid grid-cols-3 gap-2 mb-2">
           <div style="font-size:0.78rem;color:rgba(255,255,255,0.7);display:flex;align-items:center;">Other</div>
-          <div><input id="f-sd-z3-area" class="wh-input" type="number" value="0.1" min="0" step="0.01" /></div>
-          <div><input id="f-sd-z3-c" class="wh-input" type="number" value="0.60" min="0.05" max="1.0" step="0.01" /></div>
+          <div><input id="f-sd-z3-area" aria-label="Other zone area in hectares" class="wh-input" type="number" value="0.1" min="0" step="0.01" /></div>
+          <div><input id="f-sd-z3-c" aria-label="Other zone runoff coefficient" class="wh-input" type="number" value="0.60" min="0.05" max="1.0" step="0.01" /></div>
         </div>
       </div>
 
@@ -4965,7 +4965,7 @@ function renderInputForm(calcType) {
           <div class="field-label">Rainfall Intensity</div>
           <div style="font-size:0.72rem;color:rgba(255,255,255,0.4);margin-bottom:0.3rem;">Auto-filled from PAGASA Metro Manila IDF. Override for other locations.</div>
           <div class="input-group">
-            <input id="f-sd-intensity" class="wh-input" type="number" value="75" min="10" step="1" />
+            <input aria-label="Rainfall Intensity" id="f-sd-intensity" class="wh-input" type="number" value="75" min="10" step="1" />
             <span class="input-unit">mm/hr</span>
           </div>
         </div>
@@ -4978,7 +4978,7 @@ function renderInputForm(calcType) {
             <button class="toggle-btn" data-val="30" onclick="toggle('tg-sd-tc','30');document.getElementById('f-sd-tc').value=30">30 min</button>
           </div>
           <div class="input-group">
-            <input id="f-sd-tc" class="wh-input" type="number" value="15" min="5" max="120" />
+            <input aria-label="Time of Concentration" id="f-sd-tc" class="wh-input" type="number" value="15" min="5" max="120" />
             <span class="input-unit">min</span>
           </div>
         </div>
@@ -4994,7 +4994,7 @@ function renderInputForm(calcType) {
             <button class="toggle-btn" data-val="2.0" onclick="toggle('tg-sd-slope','2.0');document.getElementById('f-sd-slope').value=2.0">2.0%</button>
           </div>
           <div class="input-group">
-            <input id="f-sd-slope" class="wh-input" type="number" value="0.5" min="0.1" max="20" step="0.1" />
+            <input aria-label="Pipe Slope" id="f-sd-slope" class="wh-input" type="number" value="0.5" min="0.1" max="20" step="0.1" />
             <span class="input-unit">% slope</span>
           </div>
         </div>
@@ -5006,7 +5006,7 @@ function renderInputForm(calcType) {
             <button class="toggle-btn" data-val="HDPE" onclick="toggle('tg-sd-material','HDPE');setSDManning()">HDPE</button>
           </div>
           <div class="input-group">
-            <input id="f-sd-n" class="wh-input" type="number" value="0.011" min="0.008" max="0.030" step="0.001" />
+            <input aria-label="Pipe Material" id="f-sd-n" class="wh-input" type="number" value="0.011" min="0.008" max="0.030" step="0.001" />
             <span class="input-unit">Manning's n</span>
           </div>
         </div>
@@ -5026,7 +5026,7 @@ function renderInputForm(calcType) {
     area.innerHTML = `
       <div class="mb-4">
         <div class="field-label">Project / System Name</div>
-        <input id="f-project" class="wh-input" placeholder="e.g. Restaurant XYZ: Grease Interceptor" />
+        <input aria-label="e.g. Restaurant XYZ: Grease Interceptor" id="f-project" class="wh-input" placeholder="e.g. Restaurant XYZ: Grease Interceptor" />
       </div>
       <div class="mb-4">
         <div class="field-label">Facility Type</div>
@@ -5041,7 +5041,7 @@ function renderInputForm(calcType) {
           <div class="field-label">Meals per Day</div>
           <div style="font-size:0.72rem;color:rgba(255,255,255,0.4);margin-bottom:0.3rem;">Used to estimate daily grease load and cleaning interval.</div>
           <div class="input-group">
-            <input id="f-gt-meals" class="wh-input" type="number" value="200" min="1" step="1" />
+            <input aria-label="Meals per Day" id="f-gt-meals" class="wh-input" type="number" value="200" min="1" step="1" />
             <span class="input-unit">meals/day</span>
           </div>
         </div>
@@ -5049,7 +5049,7 @@ function renderInputForm(calcType) {
           <div class="field-label">Simultaneous Use Factor</div>
           <div style="font-size:0.72rem;color:rgba(255,255,255,0.4);margin-bottom:0.3rem;">PDI BH-201 default: 0.75</div>
           <div class="input-group">
-            <input id="f-gt-suf" class="wh-input" type="number" value="0.75" min="0.50" max="1.0" step="0.01" />
+            <input aria-label="Simultaneous Use Factor" id="f-gt-suf" class="wh-input" type="number" value="0.75" min="0.50" max="1.0" step="0.01" />
             <span class="input-unit">SUF</span>
           </div>
         </div>
@@ -5078,7 +5078,7 @@ function renderInputForm(calcType) {
     area.innerHTML = `
       <div class="mb-4">
         <div class="field-label">Project / Roof Reference</div>
-        <input id="f-project" class="wh-input" placeholder="e.g. Building A: 3rd Floor Roof Deck" />
+        <input aria-label="e.g. Building A: 3rd Floor Roof Deck" id="f-project" class="wh-input" placeholder="e.g. Building A: 3rd Floor Roof Deck" />
       </div>
 
       <!-- Rainfall intensity preset -->
@@ -5090,7 +5090,7 @@ function renderInputForm(calcType) {
           ).join('')}
         </div>
         <div class="input-group">
-          <input id="f-intensity" class="wh-input" type="number" value="100" min="1" step="1" />
+          <input aria-label="Design Rainfall Intensity" id="f-intensity" class="wh-input" type="number" value="100" min="1" step="1" />
           <span class="input-unit">mm/hr</span>
         </div>
       </div>
@@ -5100,14 +5100,14 @@ function renderInputForm(calcType) {
         <div>
           <div class="field-label">Roof Drainage Area</div>
           <div class="input-group">
-            <input id="f-roof-area" class="wh-input" type="number" placeholder="0" min="0" step="1" />
+            <input aria-label="0" id="f-roof-area" class="wh-input" type="number" placeholder="0" min="0" step="1" />
             <span class="input-unit">m²</span>
           </div>
         </div>
         <div>
           <div class="field-label">No. of Primary Drains <span style="color:#F7A21B;font-size:0.7rem;">min 2</span></div>
           <div class="input-group">
-            <input id="f-n-drains" class="wh-input" type="number" value="2" min="1" step="1" />
+            <input aria-label="No. of Primary Drains min 2" id="f-n-drains" class="wh-input" type="number" value="2" min="1" step="1" />
             <span class="input-unit">drains</span>
           </div>
         </div>
@@ -5128,7 +5128,7 @@ function renderInputForm(calcType) {
         <div>
           <div class="field-label">Horizontal Leader Slope <span style="color:rgba(255,255,255,0.35);font-size:0.7rem;font-weight:400;">(min 1%)</span></div>
           <div class="input-group">
-            <input id="f-leader-slope" class="wh-input" type="number" value="1.0" min="0.5" max="10" step="0.5" />
+            <input aria-label="Horizontal Leader Slope" id="f-leader-slope" class="wh-input" type="number" value="1.0" min="0.5" max="10" step="0.5" />
             <span class="input-unit">%</span>
           </div>
         </div>
@@ -5157,7 +5157,7 @@ function renderInputForm(calcType) {
     area.innerHTML = `
       <div class="mb-4">
         <div class="field-label">Project / Panel Name</div>
-        <input id="f-project" class="wh-input" placeholder="e.g. MDP-1: Main Distribution Panel, Floor 3" />
+        <input aria-label="e.g. MDP-1: Main Distribution Panel, Floor 3" id="f-project" class="wh-input" placeholder="e.g. MDP-1: Main Distribution Panel, Floor 3" />
       </div>
 
       <div class="mb-4">
@@ -5197,7 +5197,7 @@ function renderInputForm(calcType) {
     area.innerHTML = `
       <div class="mb-4">
         <div class="field-label">Project / Generator Tag</div>
-        <input id="f-project" class="wh-input" placeholder="e.g. GEN-1: 200 kVA Standby Diesel Generator" />
+        <input aria-label="e.g. GEN-1: 200 kVA Standby Diesel Generator" id="f-project" class="wh-input" placeholder="e.g. GEN-1: 200 kVA Standby Diesel Generator" />
       </div>
 
       <div class="mb-4">
@@ -5237,13 +5237,13 @@ function renderInputForm(calcType) {
           <div>
             <div style="font-size:0.78rem;color:rgba(255,255,255,0.45);margin-bottom:0.3rem;">Motor Size</div>
             <div class="input-group">
-              <input id="f-gen-motor-hp" class="wh-input" type="number" value="0" min="0" step="1" placeholder="0 = no large motor" />
+              <input aria-label="0 = no large motor" id="f-gen-motor-hp" class="wh-input" type="number" value="0" min="0" step="1" placeholder="0 = no large motor" />
               <span class="input-unit">HP</span>
             </div>
           </div>
           <div>
             <div style="font-size:0.78rem;color:rgba(255,255,255,0.45);margin-bottom:0.3rem;">Starting Method</div>
-            <select id="f-gen-start-method" class="wh-input">
+            <select id="f-gen-start-method" aria-label="Motor starting method" class="wh-input">
               <option value="DOL">DOL (Direct Online)</option>
               <option value="Soft Starter">Soft Starter</option>
               <option value="VFD">VFD (Variable Frequency Drive)</option>
@@ -5256,14 +5256,14 @@ function renderInputForm(calcType) {
         <div>
           <div class="field-label">Overall Power Factor</div>
           <div class="input-group">
-            <input id="f-gen-pf" class="wh-input" type="number" value="0.85" min="0.5" max="1.0" step="0.05" />
+            <input aria-label="Overall Power Factor" id="f-gen-pf" class="wh-input" type="number" value="0.85" min="0.5" max="1.0" step="0.05" />
             <span class="input-unit">PF</span>
           </div>
         </div>
         <div>
           <div class="field-label">Safety Factor</div>
           <div class="input-group">
-            <input id="f-gen-sf" class="wh-input" type="number" value="1.25" min="1.0" max="2.0" step="0.05" />
+            <input aria-label="Safety Factor" id="f-gen-sf" class="wh-input" type="number" value="1.25" min="1.0" max="2.0" step="0.05" />
             <span class="input-unit">×</span>
           </div>
         </div>
@@ -5284,7 +5284,7 @@ function renderInputForm(calcType) {
     area.innerHTML = `
       <div class="mb-4">
         <div class="field-label">Project / System Name</div>
-        <input id="f-project" class="wh-input" placeholder="e.g. Rooftop Solar: Building A, 50 kWp Grid-Tied" />
+        <input aria-label="e.g. Rooftop Solar: Building A, 50 kWp Grid-Tied" id="f-project" class="wh-input" placeholder="e.g. Rooftop Solar: Building A, 50 kWp Grid-Tied" />
       </div>
 
       <div class="mb-4">
@@ -5309,14 +5309,14 @@ function renderInputForm(calcType) {
         <div>
           <div class="field-label">Peak Sun Hours (PSH)</div>
           <div class="input-group">
-            <input id="f-pv-psh" class="wh-input" type="number" value="4.5" min="2.0" max="8.0" step="0.1" />
+            <input aria-label="Peak Sun Hours" id="f-pv-psh" class="wh-input" type="number" value="4.5" min="2.0" max="8.0" step="0.1" />
             <span class="input-unit">h/day</span>
           </div>
         </div>
         <div>
           <div class="field-label">Daily Energy Demand</div>
           <div class="input-group">
-            <input id="f-pv-energy" class="wh-input" type="number" value="50" min="1" step="0.5" />
+            <input aria-label="Daily Energy Demand" id="f-pv-energy" class="wh-input" type="number" value="50" min="1" step="0.5" />
             <span class="input-unit">kWh/day</span>
           </div>
         </div>
@@ -5334,7 +5334,7 @@ function renderInputForm(calcType) {
         <div>
           <div class="field-label">Panel Voc (open-circuit)</div>
           <div class="input-group">
-            <input id="f-pv-voc" class="wh-input" type="number" value="49.5" min="20" max="120" step="0.5" />
+            <input aria-label="Panel Voc" id="f-pv-voc" class="wh-input" type="number" value="49.5" min="20" max="120" step="0.5" />
             <span class="input-unit">V</span>
           </div>
         </div>
@@ -5344,14 +5344,14 @@ function renderInputForm(calcType) {
         <div>
           <div class="field-label">Voc Temp. Coefficient <span style="color:rgba(255,255,255,0.25);font-size:0.7rem;">(negative for mono/poly)</span></div>
           <div class="input-group">
-            <input id="f-pv-temp-coeff" class="wh-input" type="number" value="-0.29" min="-0.50" max="0" step="0.01" />
+            <input aria-label="Voc Temp. Coefficient" id="f-pv-temp-coeff" class="wh-input" type="number" value="-0.29" min="-0.50" max="0" step="0.01" />
             <span class="input-unit">%/°C</span>
           </div>
         </div>
         <div>
           <div class="field-label">Min. Site Temp. <span style="color:rgba(255,255,255,0.25);font-size:0.7rem;">(auto from location)</span></div>
           <div class="input-group">
-            <input id="f-pv-tmin" class="wh-input" type="number" value="18" min="-10" max="30" step="1" />
+            <input aria-label="Min. Site Temp." id="f-pv-tmin" class="wh-input" type="number" value="18" min="-10" max="30" step="1" />
             <span class="input-unit">°C</span>
           </div>
         </div>
@@ -5361,21 +5361,21 @@ function renderInputForm(calcType) {
         <div>
           <div class="field-label">Panel Area</div>
           <div class="input-group">
-            <input id="f-pv-panel-area" class="wh-input" type="number" value="1.7" min="1.0" max="3.0" step="0.1" />
+            <input aria-label="Panel Area" id="f-pv-panel-area" class="wh-input" type="number" value="1.7" min="1.0" max="3.0" step="0.1" />
             <span class="input-unit">m²</span>
           </div>
         </div>
         <div>
           <div class="field-label">System Derating</div>
           <div class="input-group">
-            <input id="f-pv-derating" class="wh-input" type="number" value="80" min="60" max="100" />
+            <input aria-label="System Derating" id="f-pv-derating" class="wh-input" type="number" value="80" min="60" max="100" />
             <span class="input-unit">%</span>
           </div>
         </div>
         <div>
           <div class="field-label">Inverter Efficiency</div>
           <div class="input-group">
-            <input id="f-pv-inv-eff" class="wh-input" type="number" value="96" min="80" max="100" />
+            <input aria-label="Inverter Efficiency" id="f-pv-inv-eff" class="wh-input" type="number" value="96" min="80" max="100" />
             <span class="input-unit">%</span>
           </div>
         </div>
@@ -5387,14 +5387,14 @@ function renderInputForm(calcType) {
           <div>
             <div class="field-label">Autonomy Days</div>
             <div class="input-group">
-              <input id="f-pv-autonomy" class="wh-input" type="number" value="1" min="0.5" max="7" step="0.5" />
+              <input aria-label="Autonomy Days" id="f-pv-autonomy" class="wh-input" type="number" value="1" min="0.5" max="7" step="0.5" />
               <span class="input-unit">days</span>
             </div>
           </div>
           <div>
             <div class="field-label">Depth of Discharge</div>
             <div class="input-group">
-              <input id="f-pv-dod" class="wh-input" type="number" value="80" min="40" max="100" />
+              <input aria-label="Depth of Discharge" id="f-pv-dod" class="wh-input" type="number" value="80" min="40" max="100" />
               <span class="input-unit">%</span>
             </div>
           </div>
@@ -5422,13 +5422,13 @@ function renderInputForm(calcType) {
     area.innerHTML = `
       <div class="mb-4">
         <div class="field-label">Project / Panel Name</div>
-        <input id="f-project" class="wh-input" placeholder="e.g. Main Distribution Board: Factory 1" />
+        <input aria-label="e.g. Main Distribution Board: Factory 1" id="f-project" class="wh-input" placeholder="e.g. Main Distribution Board: Factory 1" />
       </div>
 
       <div class="mb-4">
         <div class="field-label">Load <span style="color:rgba(255,255,255,0.25);font-size:0.7rem;">(active power at time of peak demand)</span></div>
         <div class="input-group">
-          <input id="f-pfc-kw" class="wh-input" type="number" value="100" min="1" step="1" />
+          <input aria-label="Load" id="f-pfc-kw" class="wh-input" type="number" value="100" min="1" step="1" />
           <span class="input-unit">kW</span>
         </div>
       </div>
@@ -5473,14 +5473,14 @@ function renderInputForm(calcType) {
         <div>
           <div class="field-label">Monthly kWh <span style="color:rgba(255,255,255,0.25);font-size:0.7rem;">(optional: for savings est.)</span></div>
           <div class="input-group">
-            <input id="f-pfc-kwh" class="wh-input" type="number" value="" placeholder="e.g. 15000" min="0" step="100" />
+            <input aria-label="e.g. 15000" id="f-pfc-kwh" class="wh-input" type="number" value="" placeholder="e.g. 15000" min="0" step="100" />
             <span class="input-unit">kWh/mo</span>
           </div>
         </div>
         <div>
           <div class="field-label">Meralco Rate <span style="color:rgba(255,255,255,0.25);font-size:0.7rem;">(optional)</span></div>
           <div class="input-group">
-            <input id="f-pfc-rate" class="wh-input" type="number" value="" placeholder="e.g. 11.50" min="0" step="0.10" />
+            <input aria-label="e.g. 11.50" id="f-pfc-rate" class="wh-input" type="number" value="" placeholder="e.g. 11.50" min="0" step="0.10" />
             <span class="input-unit">₱/kWh</span>
           </div>
         </div>
@@ -5499,7 +5499,7 @@ function renderInputForm(calcType) {
     area.innerHTML = `
       <div class="mb-4">
         <div class="field-label">Project / Cable Route Name</div>
-        <input id="f-project" class="wh-input" placeholder="e.g. Main Cable Tray Route: Substation to MDB Level 1" />
+        <input aria-label="e.g. Main Cable Tray Route: Substation to MDB Level 1" id="f-project" class="wh-input" placeholder="e.g. Main Cable Tray Route: Substation to MDB Level 1" />
       </div>
 
       <div class="grid grid-cols-2 gap-3 mb-4">
@@ -5545,7 +5545,7 @@ function renderInputForm(calcType) {
       <div class="mb-4">
         <div class="field-label">Tray Run Length <span style="color:rgba(255,255,255,0.25);font-size:0.7rem;">(for BOM quantity estimate)</span></div>
         <div class="input-group">
-          <input id="f-ct-run" class="wh-input" type="number" value="30" min="1" step="1" />
+          <input aria-label="Tray Run Length" id="f-ct-run" class="wh-input" type="number" value="30" min="1" step="1" />
           <span class="input-unit">m</span>
         </div>
       </div>
@@ -5574,7 +5574,7 @@ function renderInputForm(calcType) {
     area.innerHTML = `
       <div class="mb-4">
         <div class="field-label">Project / UPS Name</div>
-        <input id="f-project" class="wh-input" placeholder="e.g. Server Room UPS: IT Load Protection" />
+        <input aria-label="e.g. Server Room UPS: IT Load Protection" id="f-project" class="wh-input" placeholder="e.g. Server Room UPS: IT Load Protection" />
       </div>
 
       <div class="grid grid-cols-2 gap-3 mb-4">
@@ -5654,27 +5654,27 @@ function renderInputForm(calcType) {
     area.innerHTML = `
       <div class="mb-4">
         <div class="field-label">Project / Building Name</div>
-        <input id="f-project" class="wh-input" placeholder="e.g. Main Office Building: LPS Design" />
+        <input aria-label="e.g. Main Office Building: LPS Design" id="f-project" class="wh-input" placeholder="e.g. Main Office Building: LPS Design" />
       </div>
 
       <div class="grid grid-cols-3 gap-3 mb-4">
         <div>
           <div class="field-label">Building Length L (m)</div>
-          <input id="f-lps-len" class="wh-input" type="number" value="30" min="1" />
+          <input aria-label="Building Length L" id="f-lps-len" class="wh-input" type="number" value="30" min="1" />
         </div>
         <div>
           <div class="field-label">Building Width W (m)</div>
-          <input id="f-lps-wid" class="wh-input" type="number" value="20" min="1" />
+          <input aria-label="Building Width W" id="f-lps-wid" class="wh-input" type="number" value="20" min="1" />
         </div>
         <div>
           <div class="field-label">Building Height H (m)</div>
-          <input id="f-lps-ht" class="wh-input" type="number" value="12" min="1" />
+          <input aria-label="Building Height H" id="f-lps-ht" class="wh-input" type="number" value="12" min="1" />
         </div>
       </div>
 
       <div class="mb-4">
         <div class="field-label">Location / Flash Density (Ng)</div>
-        <select id="f-lps-loc" class="wh-input" onchange="toggleLPSCustomNg()">
+        <select aria-label="Location / Flash Density" id="f-lps-loc" class="wh-input" onchange="toggleLPSCustomNg()">
           <option value="Metro Manila / NCR">Metro Manila / NCR: 10 fl/km²/yr</option>
           <option value="Baguio / Cordillera">Baguio / Cordillera: 12 fl/km²/yr</option>
           <option value="Ilocos Region">Ilocos Region: 8 fl/km²/yr</option>
@@ -5697,7 +5697,7 @@ function renderInputForm(calcType) {
 
       <div id="lps-custom-ng-row" style="display:none;" class="mb-4">
         <div class="field-label">Custom Ng (flashes/km²/yr)</div>
-        <input id="f-lps-ng" class="wh-input" type="number" value="10" min="1" max="50" />
+        <input aria-label="Custom Ng" id="f-lps-ng" class="wh-input" type="number" value="10" min="1" max="50" />
       </div>
 
       <div class="mb-4">
@@ -5763,7 +5763,7 @@ function renderInputForm(calcType) {
     area.innerHTML = `
       <div class="mb-4">
         <div class="field-label">Project / System Name</div>
-        <input id="f-project" class="wh-input" placeholder="e.g. Building A Earthing System" />
+        <input aria-label="e.g. Building A Earthing System" id="f-project" class="wh-input" placeholder="e.g. Building A Earthing System" />
       </div>
 
       <div class="grid grid-cols-2 gap-3 mb-4">
@@ -5796,7 +5796,7 @@ function renderInputForm(calcType) {
             <button class="toggle-btn" data-val="1000"  onclick="toggle('tg-eg-soil','1000');document.getElementById('f-eg-rho').value='1000'">1000 (gravel)</button>
             <button class="toggle-btn" data-val="custom" onclick="toggle('tg-eg-soil','custom')">Custom</button>
           </div>
-          <input id="f-eg-rho" class="wh-input mt-2" type="number" value="100" min="1" placeholder="Soil resistivity (Ohm*m)" />
+          <input aria-label="Soil resistivity (Ohm*m)" id="f-eg-rho" class="wh-input mt-2" type="number" value="100" min="1" placeholder="Soil resistivity (Ohm*m)" />
         </div>
         <div>
           <div class="field-label">Number of Parallel Electrodes</div>
@@ -5841,11 +5841,11 @@ function renderInputForm(calcType) {
         <div class="grid grid-cols-2 gap-3 mb-4">
           <div>
             <div class="field-label">Plate Width <span style="color:rgba(255,255,255,0.25);font-size:0.7rem;">(m)</span></div>
-            <input id="f-eg-pw" class="wh-input" type="number" value="0.6" min="0.1" step="0.1" placeholder="e.g. 0.6" />
+            <input aria-label="e.g. 0.6" id="f-eg-pw" class="wh-input" type="number" value="0.6" min="0.1" step="0.1" placeholder="e.g. 0.6" />
           </div>
           <div>
             <div class="field-label">Plate Height <span style="color:rgba(255,255,255,0.25);font-size:0.7rem;">(m)</span></div>
-            <input id="f-eg-ph" class="wh-input" type="number" value="0.6" min="0.1" step="0.1" placeholder="e.g. 0.6" />
+            <input aria-label="e.g. 0.6" id="f-eg-ph" class="wh-input" type="number" value="0.6" min="0.1" step="0.1" placeholder="e.g. 0.6" />
           </div>
         </div>
       </div>
@@ -5855,7 +5855,7 @@ function renderInputForm(calcType) {
         <div class="grid grid-cols-2 gap-3 mb-4">
           <div>
             <div class="field-label">Ring Mean Diameter <span style="color:rgba(255,255,255,0.25);font-size:0.7rem;">(m)</span></div>
-            <input id="f-eg-ringd" class="wh-input" type="number" value="10" min="0.5" step="0.5" placeholder="e.g. 10 m" />
+            <input aria-label="e.g. 10 m" id="f-eg-ringd" class="wh-input" type="number" value="10" min="0.5" step="0.5" placeholder="e.g. 10 m" />
           </div>
           <div>
             <div class="field-label">Conductor Diameter <span style="color:rgba(255,255,255,0.25);font-size:0.7rem;">(mm)</span></div>
@@ -5909,7 +5909,7 @@ function renderInputForm(calcType) {
     area.innerHTML = `
       <div class="mb-4">
         <div class="field-label">Project / System Name</div>
-        <input id="f-project" class="wh-input" placeholder="e.g. Office Floor 3: Supply Air Distribution" />
+        <input aria-label="e.g. Office Floor 3: Supply Air Distribution" id="f-project" class="wh-input" placeholder="e.g. Office Floor 3: Supply Air Distribution" />
       </div>
 
       <div class="grid grid-cols-2 gap-3 mb-4">
@@ -5985,7 +5985,7 @@ function renderInputForm(calcType) {
     area.innerHTML = `
       <div class="mb-4">
         <div class="field-label">Project / System Name</div>
-        <input id="f-et-project" class="wh-input" placeholder="e.g. CHW Expansion Tank: 3rd Floor Plant Room" />
+        <input aria-label="e.g. CHW Expansion Tank: 3rd Floor Plant Room" id="f-et-project" class="wh-input" placeholder="e.g. CHW Expansion Tank: 3rd Floor Plant Room" />
       </div>
 
       <div class="mb-4">
@@ -6008,7 +6008,7 @@ function renderInputForm(calcType) {
       <div id="et-direct-section" class="mb-4">
         <div class="field-label">System Water Volume <span style="color:rgba(255,255,255,0.25);font-size:0.7rem;">(all pipes + equipment)</span></div>
         <div class="input-group">
-          <input id="f-et-vol" class="wh-input" type="number" value="500" min="1" step="10" />
+          <input aria-label="System Water Volume" id="f-et-vol" class="wh-input" type="number" value="500" min="1" step="10" />
           <span class="input-unit">L</span>
         </div>
       </div>
@@ -6016,7 +6016,7 @@ function renderInputForm(calcType) {
       <div id="et-estimate-section" class="mb-4" style="display:none;">
         <div class="field-label">System Capacity <span style="color:rgba(255,255,255,0.25);font-size:0.7rem;">(for volume estimate)</span></div>
         <div class="input-group">
-          <input id="f-et-kw" class="wh-input" type="number" value="100" min="1" step="10" />
+          <input aria-label="System Capacity" id="f-et-kw" class="wh-input" type="number" value="100" min="1" step="10" />
           <span class="input-unit">kW</span>
         </div>
         <div style="font-size:0.75rem;color:rgba(255,255,255,0.35);margin-top:0.4rem;">Rule of thumb: CHW 8 L/kW · HHW 10 L/kW · CW 6 L/kW (ASHRAE preliminary)</div>
@@ -6026,14 +6026,14 @@ function renderInputForm(calcType) {
         <div>
           <div class="field-label">Fill Temperature <span style="color:rgba(255,255,255,0.25);font-size:0.7rem;">(ambient at fill)</span></div>
           <div class="input-group">
-            <input id="f-et-fill-temp" class="wh-input" type="number" value="20" min="0" max="50" step="1" />
+            <input aria-label="Fill Temperature" id="f-et-fill-temp" class="wh-input" type="number" value="20" min="0" max="50" step="1" />
             <span class="input-unit">°C</span>
           </div>
         </div>
         <div>
           <div id="et-max-temp-label" class="field-label">Min Operating Temperature <span style="color:rgba(255,255,255,0.25);font-size:0.7rem;">(CHW supply temp: lower than fill)</span></div>
           <div class="input-group">
-            <input id="f-et-max-temp" class="wh-input" type="number" value="7" min="1" max="99" step="1" />
+            <input aria-label="Min Operating Temperature" id="f-et-max-temp" class="wh-input" type="number" value="7" min="1" max="99" step="1" />
             <span class="input-unit">°C</span>
           </div>
         </div>
@@ -6043,14 +6043,14 @@ function renderInputForm(calcType) {
         <div>
           <div class="field-label">Static Head <span style="color:rgba(255,255,255,0.25);font-size:0.7rem;">(height above tank)</span></div>
           <div class="input-group">
-            <input id="f-et-head" class="wh-input" type="number" value="10" min="0" step="0.5" />
+            <input aria-label="Static Head" id="f-et-head" class="wh-input" type="number" value="10" min="0" step="0.5" />
             <span class="input-unit">m</span>
           </div>
         </div>
         <div>
           <div class="field-label">Max System Pressure <span style="color:rgba(255,255,255,0.25);font-size:0.7rem;">(relief valve − 10%)</span></div>
           <div class="input-group">
-            <input id="f-et-maxpress" class="wh-input" type="number" value="400" min="100" step="25" />
+            <input aria-label="Max System Pressure" id="f-et-maxpress" class="wh-input" type="number" value="400" min="100" step="25" />
             <span class="input-unit">kPa g</span>
           </div>
         </div>
@@ -6069,7 +6069,7 @@ function renderInputForm(calcType) {
     area.innerHTML = `
       <div class="mb-4">
         <div class="field-label">Project / System Name</div>
-        <input id="f-fcu-project" class="wh-input" placeholder="e.g. FCU System: 3rd Floor Office Block" />
+        <input aria-label="e.g. FCU System: 3rd Floor Office Block" id="f-fcu-project" class="wh-input" placeholder="e.g. FCU System: 3rd Floor Office Block" />
       </div>
 
       <div class="grid grid-cols-2 gap-3 mb-4">
@@ -6095,20 +6095,20 @@ function renderInputForm(calcType) {
         <div>
           <div class="field-label">CHW Supply Temp</div>
           <div class="input-group">
-            <input id="f-chw-supply" class="wh-input" type="number" value="7" min="3" max="15" step="0.5" />
+            <input aria-label="CHW Supply Temp" id="f-chw-supply" class="wh-input" type="number" value="7" min="3" max="15" step="0.5" />
             <span class="input-unit">°C</span>
           </div>
         </div>
         <div>
           <div class="field-label">CHW Return Temp</div>
           <div class="input-group">
-            <input id="f-chw-return" class="wh-input" type="number" value="12" min="8" max="20" step="0.5" />
+            <input aria-label="CHW Return Temp" id="f-chw-return" class="wh-input" type="number" value="12" min="8" max="20" step="0.5" />
             <span class="input-unit">°C</span>
           </div>
         </div>
         <div>
           <div class="field-label">Diversity Factor</div>
-          <input id="f-diversity" class="wh-input" type="number" value="0.85" min="0.50" max="1.00" step="0.01" />
+          <input aria-label="Diversity Factor" id="f-diversity" class="wh-input" type="number" value="0.85" min="0.50" max="1.00" step="0.01" />
         </div>
       </div>
 
@@ -6137,7 +6137,7 @@ function renderInputForm(calcType) {
     area.innerHTML = `
       <div class="mb-4">
         <div class="field-label">Project / System Name</div>
-        <input id="f-project" class="wh-input" placeholder="e.g. Split AC System: 3rd Floor Office" />
+        <input aria-label="e.g. Split AC System: 3rd Floor Office" id="f-project" class="wh-input" placeholder="e.g. Split AC System: 3rd Floor Office" />
       </div>
 
       <div class="grid grid-cols-2 gap-3 mb-4">
@@ -6154,7 +6154,7 @@ function renderInputForm(calcType) {
         <div>
           <div class="field-label">System Capacity <span style="color:rgba(255,255,255,0.25);font-size:0.7rem;">(kW)</span></div>
           <div class="input-group">
-            <input id="f-capacity" class="wh-input" type="number" value="10" min="0.5" step="0.5" />
+            <input aria-label="System Capacity" id="f-capacity" class="wh-input" type="number" value="10" min="0.5" step="0.5" />
             <span class="input-unit">kW</span>
           </div>
         </div>
@@ -6204,7 +6204,7 @@ function renderInputForm(calcType) {
     area.innerHTML = `
       <div class="mb-4">
         <div class="field-label">Project / Circuit Name</div>
-        <input id="f-project" class="wh-input" placeholder="e.g. Panel LP-1 to Motor Panel MP-3, 3rd Floor" />
+        <input aria-label="e.g. Panel LP-1 to Motor Panel MP-3, 3rd Floor" id="f-project" class="wh-input" placeholder="e.g. Panel LP-1 to Motor Panel MP-3, 3rd Floor" />
       </div>
 
       <div class="mb-4">
@@ -6227,14 +6227,14 @@ function renderInputForm(calcType) {
         <div>
           <div class="field-label">System Voltage</div>
           <div class="input-group">
-            <input id="f-vd-voltage" class="wh-input" type="number" value="230" min="100" />
+            <input aria-label="System Voltage" id="f-vd-voltage" class="wh-input" type="number" value="230" min="100" />
             <span class="input-unit">V</span>
           </div>
         </div>
         <div>
           <div class="field-label">VD Limit</div>
           <div class="input-group">
-            <input id="f-vd-limit" class="wh-input" type="number" value="3" min="1" max="5" step="0.5" />
+            <input aria-label="VD Limit" id="f-vd-limit" class="wh-input" type="number" value="3" min="1" max="5" step="0.5" />
             <span class="input-unit">%</span>
           </div>
         </div>
@@ -6244,14 +6244,14 @@ function renderInputForm(calcType) {
         <div>
           <div class="field-label">Load Current</div>
           <div class="input-group">
-            <input id="f-vd-current" class="wh-input" type="number" value="20" min="0.1" step="0.1" />
+            <input aria-label="Load Current" id="f-vd-current" class="wh-input" type="number" value="20" min="0.1" step="0.1" />
             <span class="input-unit">A</span>
           </div>
         </div>
         <div>
           <div class="field-label">One-Way Wire Length</div>
           <div class="input-group">
-            <input id="f-vd-length" class="wh-input" type="number" value="30" min="1" />
+            <input aria-label="One-Way Wire Length" id="f-vd-length" class="wh-input" type="number" value="30" min="1" />
             <span class="input-unit">m</span>
           </div>
         </div>
@@ -6286,7 +6286,7 @@ function renderInputForm(calcType) {
     area.innerHTML = `
       <div class="mb-4">
         <div class="field-label">Project / Circuit Name</div>
-        <input id="f-project" class="wh-input" placeholder="e.g. Branch Circuit: 2nd Floor Lighting Panel" />
+        <input aria-label="e.g. Branch Circuit: 2nd Floor Lighting Panel" id="f-project" class="wh-input" placeholder="e.g. Branch Circuit: 2nd Floor Lighting Panel" />
       </div>
 
       <div class="mb-4">
@@ -6310,14 +6310,14 @@ function renderInputForm(calcType) {
         <div>
           <div class="field-label">System Voltage</div>
           <div class="input-group">
-            <input id="f-ws-voltage" class="wh-input" type="number" value="230" min="100" />
+            <input aria-label="System Voltage" id="f-ws-voltage" class="wh-input" type="number" value="230" min="100" />
             <span class="input-unit">V</span>
           </div>
         </div>
         <div>
           <div class="field-label">Load Power</div>
           <div class="input-group">
-            <input id="f-ws-power" class="wh-input" type="number" value="1000" min="1" />
+            <input aria-label="Load Power" id="f-ws-power" class="wh-input" type="number" value="1000" min="1" />
             <span class="input-unit">W</span>
           </div>
         </div>
@@ -6327,14 +6327,14 @@ function renderInputForm(calcType) {
         <div>
           <div class="field-label">Power Factor</div>
           <div class="input-group">
-            <input id="f-ws-pf" class="wh-input" type="number" value="0.85" min="0.5" max="1.0" step="0.05" />
+            <input aria-label="Power Factor" id="f-ws-pf" class="wh-input" type="number" value="0.85" min="0.5" max="1.0" step="0.05" />
             <span class="input-unit">ratio</span>
           </div>
         </div>
         <div>
           <div class="field-label">Ambient Temperature</div>
           <div class="input-group">
-            <input id="f-ws-temp" class="wh-input" type="number" value="30" min="15" max="75" />
+            <input aria-label="Ambient Temperature" id="f-ws-temp" class="wh-input" type="number" value="30" min="15" max="75" />
             <span class="input-unit">°C</span>
           </div>
         </div>
@@ -6362,7 +6362,7 @@ function renderInputForm(calcType) {
     area.innerHTML = `
       <div class="mb-4">
         <div class="field-label">Project / Panel Name</div>
-        <input id="f-project" class="wh-input" placeholder="e.g. MDP: Ground Floor Distribution Panel" />
+        <input aria-label="e.g. MDP: Ground Floor Distribution Panel" id="f-project" class="wh-input" placeholder="e.g. MDP: Ground Floor Distribution Panel" />
       </div>
 
       <div class="mb-4">
@@ -6378,7 +6378,7 @@ function renderInputForm(calcType) {
         <div>
           <div class="field-label">Transformer Impedance (%Z)</div>
           <div class="input-group">
-            <input id="f-sc-z" class="wh-input" type="number" value="4.5" min="1" max="15" step="0.5" />
+            <input aria-label="Transformer Impedance" id="f-sc-z" class="wh-input" type="number" value="4.5" min="1" max="15" step="0.5" />
             <span class="input-unit">%</span>
           </div>
         </div>
@@ -6404,7 +6404,7 @@ function renderInputForm(calcType) {
         <div>
           <div class="field-label">Cable Length (one-way)</div>
           <div class="input-group">
-            <input id="f-sc-len" class="wh-input" type="number" value="30" min="1" max="500" />
+            <input aria-label="Cable Length" id="f-sc-len" class="wh-input" type="number" value="30" min="1" max="500" />
             <span class="input-unit">m</span>
           </div>
         </div>
@@ -6433,7 +6433,7 @@ function renderInputForm(calcType) {
     area.innerHTML = `
       <div class="mb-4">
         <div class="field-label">Project / Room Name</div>
-        <input id="f-project" class="wh-input" placeholder="e.g. Office Area: 2nd Floor" />
+        <input aria-label="e.g. Office Area: 2nd Floor" id="f-project" class="wh-input" placeholder="e.g. Office Area: 2nd Floor" />
       </div>
 
       <div class="mb-4">
@@ -6449,14 +6449,14 @@ function renderInputForm(calcType) {
         <div>
           <div class="field-label">Room Length</div>
           <div class="input-group">
-            <input id="f-ld-len" class="wh-input" type="number" value="10" min="1" oninput="updateLDArea()" />
+            <input aria-label="Room Length" id="f-ld-len" class="wh-input" type="number" value="10" min="1" oninput="updateLDArea()" />
             <span class="input-unit">m</span>
           </div>
         </div>
         <div>
           <div class="field-label">Room Width</div>
           <div class="input-group">
-            <input id="f-ld-wid" class="wh-input" type="number" value="8" min="1" oninput="updateLDArea()" />
+            <input aria-label="Room Width" id="f-ld-wid" class="wh-input" type="number" value="8" min="1" oninput="updateLDArea()" />
             <span class="input-unit">m</span>
           </div>
         </div>
@@ -6466,14 +6466,14 @@ function renderInputForm(calcType) {
         <div>
           <div class="field-label">Ceiling Height</div>
           <div class="input-group">
-            <input id="f-ld-ceil" class="wh-input" type="number" value="3.0" min="2.0" step="0.1" />
+            <input aria-label="Ceiling Height" id="f-ld-ceil" class="wh-input" type="number" value="3.0" min="2.0" step="0.1" />
             <span class="input-unit">m</span>
           </div>
         </div>
         <div>
           <div class="field-label">Required Illuminance</div>
           <div class="input-group">
-            <input id="f-ld-lux" class="wh-input" type="number" value="500" min="50" />
+            <input aria-label="Required Illuminance" id="f-ld-lux" class="wh-input" type="number" value="500" min="50" />
             <span class="input-unit">lux</span>
           </div>
         </div>
@@ -6494,14 +6494,14 @@ function renderInputForm(calcType) {
         <div>
           <div class="field-label">Lumens per Fixture</div>
           <div class="input-group">
-            <input id="f-ld-lumens" class="wh-input" type="number" value="3200" min="100" />
+            <input aria-label="Lumens per Fixture" id="f-ld-lumens" class="wh-input" type="number" value="3200" min="100" />
             <span class="input-unit">lm</span>
           </div>
         </div>
         <div>
           <div class="field-label">Wattage per Fixture</div>
           <div class="input-group">
-            <input id="f-ld-watt" class="wh-input" type="number" value="36" min="5" />
+            <input aria-label="Wattage per Fixture" id="f-ld-watt" class="wh-input" type="number" value="36" min="5" />
             <span class="input-unit">W</span>
           </div>
         </div>
@@ -6532,7 +6532,7 @@ function renderInputForm(calcType) {
     area.innerHTML = `
       <div class="mb-4">
         <div class="field-label">Project / Panel Name</div>
-        <input id="f-project" class="wh-input" placeholder="e.g. Bldg A: FACP Battery Sizing" />
+        <input aria-label="e.g. Bldg A: FACP Battery Sizing" id="f-project" class="wh-input" placeholder="e.g. Bldg A: FACP Battery Sizing" />
       </div>
 
       <div class="grid grid-cols-2 gap-3 mb-4">
@@ -6556,14 +6556,14 @@ function renderInputForm(calcType) {
         <div>
           <div class="field-label">Panel Standby Current</div>
           <div class="input-group">
-            <input id="f-panel-standby" class="wh-input" type="number" value="50" min="1" />
+            <input aria-label="Panel Standby Current" id="f-panel-standby" class="wh-input" type="number" value="50" min="1" />
             <span class="input-unit">mA</span>
           </div>
         </div>
         <div>
           <div class="field-label">Panel Alarm Current</div>
           <div class="input-group">
-            <input id="f-panel-alarm" class="wh-input" type="number" value="200" min="1" />
+            <input aria-label="Panel Alarm Current" id="f-panel-alarm" class="wh-input" type="number" value="200" min="1" />
             <span class="input-unit">mA</span>
           </div>
         </div>
@@ -6607,7 +6607,7 @@ function renderInputForm(calcType) {
     area.innerHTML = `
       <div class="mb-4">
         <div class="field-label">Project Name</div>
-        <input id="f-project" class="wh-input" placeholder="e.g. Bldg A: Stairwell Pressurization System" />
+        <input aria-label="e.g. Bldg A: Stairwell Pressurization System" id="f-project" class="wh-input" placeholder="e.g. Bldg A: Stairwell Pressurization System" />
       </div>
 
       <div class="mb-4">
@@ -6621,15 +6621,15 @@ function renderInputForm(calcType) {
       <div class="grid grid-cols-3 gap-3 mb-4">
         <div>
           <div class="field-label">No. of Stairwells</div>
-          <input id="f-n-stairwells" class="wh-input" type="number" value="2" min="1" />
+          <input aria-label="No. of Stairwells" id="f-n-stairwells" class="wh-input" type="number" value="2" min="1" />
         </div>
         <div>
           <div class="field-label">No. of Floors Served</div>
-          <input id="f-n-floors" class="wh-input" type="number" value="10" min="1" />
+          <input aria-label="No. of Floors Served" id="f-n-floors" class="wh-input" type="number" value="10" min="1" />
         </div>
         <div>
           <div class="field-label">Doors per Floor</div>
-          <input id="f-doors-per-floor" class="wh-input" type="number" value="1" min="1" max="4" />
+          <input aria-label="Doors per Floor" id="f-doors-per-floor" class="wh-input" type="number" value="1" min="1" max="4" />
         </div>
       </div>
 
@@ -6646,14 +6646,14 @@ function renderInputForm(calcType) {
         <div>
           <div class="field-label">Design Pressure Differential <span style="color:rgba(255,255,255,0.3);font-size:0.7rem;">(max 87 Pa)</span></div>
           <div class="input-group">
-            <input id="f-delta-p" class="wh-input" type="number" value="25" min="12" max="87" />
+            <input aria-label="Design Pressure Differential" id="f-delta-p" class="wh-input" type="number" value="25" min="12" max="87" />
             <span class="input-unit">Pa</span>
           </div>
         </div>
         <div>
           <div class="field-label">Fan Static Pressure</div>
           <div class="input-group">
-            <input id="f-fan-static" class="wh-input" type="number" value="400" min="100" />
+            <input aria-label="Fan Static Pressure" id="f-fan-static" class="wh-input" type="number" value="400" min="100" />
             <span class="input-unit">Pa</span>
           </div>
         </div>
@@ -6663,21 +6663,21 @@ function renderInputForm(calcType) {
         <div>
           <div class="field-label">Door Width</div>
           <div class="input-group">
-            <input id="f-door-w" class="wh-input" type="number" value="0.90" min="0.6" step="0.05" />
+            <input aria-label="Door Width" id="f-door-w" class="wh-input" type="number" value="0.90" min="0.6" step="0.05" />
             <span class="input-unit">m</span>
           </div>
         </div>
         <div>
           <div class="field-label">Door Height</div>
           <div class="input-group">
-            <input id="f-door-h" class="wh-input" type="number" value="2.10" min="1.8" step="0.05" />
+            <input aria-label="Door Height" id="f-door-h" class="wh-input" type="number" value="2.10" min="1.8" step="0.05" />
             <span class="input-unit">m</span>
           </div>
         </div>
         <div>
           <div class="field-label">Fan Efficiency</div>
           <div class="input-group">
-            <input id="f-fan-eff" class="wh-input" type="number" value="60" min="40" max="90" />
+            <input aria-label="Fan Efficiency" id="f-fan-eff" class="wh-input" type="number" value="60" min="40" max="90" />
             <span class="input-unit">%</span>
           </div>
         </div>
@@ -6696,13 +6696,13 @@ function renderInputForm(calcType) {
     area.innerHTML = `
       <div class="mb-4">
         <div class="field-label">Project Name</div>
-        <input id="f-project" class="wh-input" placeholder="e.g. Bldg A: Main Transformer" />
+        <input aria-label="e.g. Bldg A: Main Transformer" id="f-project" class="wh-input" placeholder="e.g. Bldg A: Main Transformer" />
       </div>
       <div class="grid grid-cols-2 gap-3 mb-4">
         <div>
           <div class="field-label">Load (kVA)</div>
           <div class="input-group">
-            <input id="f-xfmr-load-kva" class="wh-input" type="number" value="80" min="1" />
+            <input aria-label="Load" id="f-xfmr-load-kva" class="wh-input" type="number" value="80" min="1" />
             <span class="input-unit">kVA</span>
           </div>
         </div>
@@ -6718,14 +6718,14 @@ function renderInputForm(calcType) {
         <div>
           <div class="field-label">Primary Voltage</div>
           <div class="input-group">
-            <input id="f-xfmr-v1" class="wh-input" type="number" value="13800" min="100" />
+            <input aria-label="Primary Voltage" id="f-xfmr-v1" class="wh-input" type="number" value="13800" min="100" />
             <span class="input-unit">V</span>
           </div>
         </div>
         <div>
           <div class="field-label">Secondary Voltage</div>
           <div class="input-group">
-            <input id="f-xfmr-v2" class="wh-input" type="number" value="400" min="100" />
+            <input aria-label="Secondary Voltage" id="f-xfmr-v2" class="wh-input" type="number" value="400" min="100" />
             <span class="input-unit">V</span>
           </div>
         </div>
@@ -6734,14 +6734,14 @@ function renderInputForm(calcType) {
         <div>
           <div class="field-label">Impedance (%)</div>
           <div class="input-group">
-            <input id="f-xfmr-imp" class="wh-input" type="number" value="5.0" min="1" max="15" step="0.5" />
+            <input aria-label="Impedance" id="f-xfmr-imp" class="wh-input" type="number" value="5.0" min="1" max="15" step="0.5" />
             <span class="input-unit">%</span>
           </div>
         </div>
         <div>
           <div class="field-label">Spare Capacity</div>
           <div class="input-group">
-            <input id="f-xfmr-spare" class="wh-input" type="number" value="25" min="0" max="50" />
+            <input aria-label="Spare Capacity" id="f-xfmr-spare" class="wh-input" type="number" value="25" min="0" max="50" />
             <span class="input-unit">%</span>
           </div>
         </div>
@@ -6750,14 +6750,14 @@ function renderInputForm(calcType) {
         <div>
           <div class="field-label">Load Power Factor</div>
           <div class="input-group">
-            <input id="f-xfmr-pf" class="wh-input" type="number" value="0.85" min="0.5" max="1" step="0.01" />
+            <input aria-label="Load Power Factor" id="f-xfmr-pf" class="wh-input" type="number" value="0.85" min="0.5" max="1" step="0.01" />
             <span class="input-unit">p.u.</span>
           </div>
         </div>
         <div>
           <div class="field-label">Number of Units</div>
           <div class="input-group">
-            <input id="f-xfmr-units" class="wh-input" type="number" value="1" min="1" max="4" />
+            <input aria-label="Number of Units" id="f-xfmr-units" class="wh-input" type="number" value="1" min="1" max="4" />
             <span class="input-unit">units</span>
           </div>
         </div>
@@ -6782,20 +6782,20 @@ function renderInputForm(calcType) {
     area.innerHTML = `
       <div class="mb-4">
         <div class="field-label">Project / System Name</div>
-        <input id="f-project" class="wh-input" placeholder="e.g. Bldg A: VFD Harmonic Analysis" />
+        <input aria-label="e.g. Bldg A: VFD Harmonic Analysis" id="f-project" class="wh-input" placeholder="e.g. Bldg A: VFD Harmonic Analysis" />
       </div>
       <div class="grid grid-cols-2 gap-3 mb-4">
         <div>
           <div class="field-label">Fundamental Current (I₁)</div>
           <div class="input-group">
-            <input id="f-harm-i1" class="wh-input" type="number" value="100" min="1" />
+            <input aria-label="Fundamental Current" id="f-harm-i1" class="wh-input" type="number" value="100" min="1" />
             <span class="input-unit">A</span>
           </div>
         </div>
         <div>
           <div class="field-label">Max Demand Current (I_L)</div>
           <div class="input-group">
-            <input id="f-harm-il" class="wh-input" type="number" value="100" min="1" />
+            <input aria-label="Max Demand Current" id="f-harm-il" class="wh-input" type="number" value="100" min="1" />
             <span class="input-unit">A</span>
           </div>
         </div>
@@ -6811,7 +6811,7 @@ function renderInputForm(calcType) {
         <div>
           <div class="field-label">Short-Circuit Current (I_SC)</div>
           <div class="input-group">
-            <input id="f-harm-isc" class="wh-input" type="number" value="2000" min="100" />
+            <input aria-label="Short-Circuit Current" id="f-harm-isc" class="wh-input" type="number" value="2000" min="100" />
             <span class="input-unit">A</span>
           </div>
         </div>
@@ -6847,7 +6847,7 @@ function renderInputForm(calcType) {
     area.innerHTML = `
       <div class="mb-4">
         <div class="field-label">Project Name</div>
-        <input id="f-project" class="wh-input" placeholder="e.g. Bldg A Ground Floor: Sprinkler System" />
+        <input aria-label="e.g. Bldg A Ground Floor: Sprinkler System" id="f-project" class="wh-input" placeholder="e.g. Bldg A Ground Floor: Sprinkler System" />
       </div>
 
       <div class="mb-4">
@@ -6869,14 +6869,14 @@ function renderInputForm(calcType) {
         <div>
           <div class="field-label">Design Area <span style="color:rgba(255,255,255,0.3);font-size:0.7rem;">(auto-filled)</span></div>
           <div class="input-group">
-            <input id="f-design-area" class="wh-input" type="number" value="139" min="1" />
+            <input aria-label="Design Area" id="f-design-area" class="wh-input" type="number" value="139" min="1" />
             <span class="input-unit">m²</span>
           </div>
         </div>
         <div>
           <div class="field-label">Design Density <span style="color:rgba(255,255,255,0.3);font-size:0.7rem;">(auto-filled)</span></div>
           <div class="input-group">
-            <input id="f-density" class="wh-input" type="number" value="6.1" min="0.1" step="0.1" />
+            <input aria-label="Design Density" id="f-density" class="wh-input" type="number" value="6.1" min="0.1" step="0.1" />
             <span class="input-unit">mm/min</span>
           </div>
         </div>
@@ -6886,14 +6886,14 @@ function renderInputForm(calcType) {
         <div>
           <div class="field-label">Coverage per Sprinkler Head <span style="color:rgba(255,255,255,0.3);font-size:0.7rem;">(auto-filled)</span></div>
           <div class="input-group">
-            <input id="f-coverage" class="wh-input" type="number" value="12.1" min="1" step="0.1" />
+            <input aria-label="Coverage per Sprinkler Head" id="f-coverage" class="wh-input" type="number" value="12.1" min="1" step="0.1" />
             <span class="input-unit">m²/head</span>
           </div>
         </div>
         <div>
           <div class="field-label">Hose Stream Allowance <span style="color:rgba(255,255,255,0.3);font-size:0.7rem;">(auto-filled)</span></div>
           <div class="input-group">
-            <input id="f-hose" class="wh-input" type="number" value="500" min="0" />
+            <input aria-label="Hose Stream Allowance" id="f-hose" class="wh-input" type="number" value="500" min="0" />
             <span class="input-unit">L/min</span>
           </div>
         </div>
@@ -6912,14 +6912,14 @@ function renderInputForm(calcType) {
         <div>
           <div class="field-label">Min. Operating Pressure at Remote Head</div>
           <div class="input-group">
-            <input id="f-op-pressure" class="wh-input" type="number" value="0.7" min="0.3" step="0.1" />
+            <input aria-label="Min. Operating Pressure at Remote Head" id="f-op-pressure" class="wh-input" type="number" value="0.7" min="0.3" step="0.1" />
             <span class="input-unit">bar</span>
           </div>
         </div>
         <div>
           <div class="field-label">Pipe Length (riser to remote head)</div>
           <div class="input-group">
-            <input id="f-pipe-length" class="wh-input" type="number" placeholder="30" min="1" />
+            <input aria-label="30" id="f-pipe-length" class="wh-input" type="number" placeholder="30" min="1" />
             <span class="input-unit">m</span>
           </div>
         </div>
@@ -6948,7 +6948,7 @@ function renderInputForm(calcType) {
     area.innerHTML = `
       <div class="mb-4">
         <div class="field-label">Project Name</div>
-        <input id="f-project" class="wh-input" placeholder="e.g. Bldg A: Fire Pump System" />
+        <input aria-label="e.g. Bldg A: Fire Pump System" id="f-project" class="wh-input" placeholder="e.g. Bldg A: Fire Pump System" />
       </div>
 
       <div style="background:rgba(247,162,27,0.08);border:1px solid rgba(247,162,27,0.25);border-radius:0.75rem;padding:0.65rem 1rem;font-size:0.78rem;color:rgba(255,255,255,0.6);margin-bottom:1rem;">
@@ -6959,14 +6959,14 @@ function renderInputForm(calcType) {
         <div>
           <div class="field-label">Required System Flow</div>
           <div class="input-group">
-            <input id="f-req-flow" class="wh-input" type="number" placeholder="e.g. 1250" min="1" />
+            <input aria-label="e.g. 1250" id="f-req-flow" class="wh-input" type="number" placeholder="e.g. 1250" min="1" />
             <span class="input-unit">L/min</span>
           </div>
         </div>
         <div>
           <div class="field-label">Required Pressure at System Connection</div>
           <div class="input-group">
-            <input id="f-req-pressure" class="wh-input" type="number" placeholder="e.g. 7.5" min="0.1" step="0.1" />
+            <input aria-label="e.g. 7.5" id="f-req-pressure" class="wh-input" type="number" placeholder="e.g. 7.5" min="0.1" step="0.1" />
             <span class="input-unit">bar</span>
           </div>
         </div>
@@ -6976,14 +6976,14 @@ function renderInputForm(calcType) {
         <div>
           <div class="field-label">Static Elevation (pump to highest outlet)</div>
           <div class="input-group">
-            <input id="f-elevation" class="wh-input" type="number" placeholder="0" min="0" step="0.5" value="0" />
+            <input aria-label="0" id="f-elevation" class="wh-input" type="number" placeholder="0" min="0" step="0.5" value="0" />
             <span class="input-unit">m</span>
           </div>
         </div>
         <div>
           <div class="field-label">Pipe Length (suction + discharge)</div>
           <div class="input-group">
-            <input id="f-fp-pipe-length" class="wh-input" type="number" placeholder="20" min="1" value="20" />
+            <input aria-label="20" id="f-fp-pipe-length" class="wh-input" type="number" placeholder="20" min="1" value="20" />
             <span class="input-unit">m</span>
           </div>
         </div>
@@ -7001,14 +7001,14 @@ function renderInputForm(calcType) {
         <div>
           <div class="field-label" id="suction-head-label">Suction Head (flooded depth)</div>
           <div class="input-group">
-            <input id="f-suction-head" class="wh-input" type="number" placeholder="1.5" min="0" step="0.5" value="1.5" />
+            <input aria-label="1.5" id="f-suction-head" class="wh-input" type="number" placeholder="1.5" min="0" step="0.5" value="1.5" />
             <span class="input-unit">m</span>
           </div>
         </div>
         <div>
           <div class="field-label">Pipe Diameter <span style="color:rgba(255,255,255,0.3);font-size:0.7rem;">(0 = auto)</span></div>
           <div class="input-group">
-            <input id="f-fp-pipe-dia" class="wh-input" type="number" placeholder="0" min="0" value="0" />
+            <input aria-label="0" id="f-fp-pipe-dia" class="wh-input" type="number" placeholder="0" min="0" value="0" />
             <span class="input-unit">mm</span>
           </div>
         </div>
@@ -7035,14 +7035,14 @@ function renderInputForm(calcType) {
         <div>
           <div class="field-label">Pump Efficiency</div>
           <div class="input-group">
-            <input id="f-fp-pump-eff" class="wh-input" type="number" value="70" min="40" max="95" />
+            <input aria-label="Pump Efficiency" id="f-fp-pump-eff" class="wh-input" type="number" value="70" min="40" max="95" />
             <span class="input-unit">%</span>
           </div>
         </div>
         <div>
           <div class="field-label">Motor Efficiency</div>
           <div class="input-group">
-            <input id="f-fp-motor-eff" class="wh-input" type="number" value="90" min="70" max="98" />
+            <input aria-label="Motor Efficiency" id="f-fp-motor-eff" class="wh-input" type="number" value="90" min="70" max="98" />
             <span class="input-unit">%</span>
           </div>
         </div>
@@ -7060,7 +7060,7 @@ function renderInputForm(calcType) {
     area.innerHTML = `
       <div class="mb-4">
         <div class="field-label">Project / Hazard Name</div>
-        <input id="f-project" class="wh-input" placeholder="e.g. Server Room A: Clean Agent System" />
+        <input aria-label="e.g. Server Room A: Clean Agent System" id="f-project" class="wh-input" placeholder="e.g. Server Room A: Clean Agent System" />
       </div>
       <div class="mb-4">
         <div class="field-label">Clean Agent Type</div>
@@ -7075,14 +7075,14 @@ function renderInputForm(calcType) {
         <div>
           <div class="field-label">Hazard Volume</div>
           <div class="input-group">
-            <input id="f-ca-vol" class="wh-input" type="number" value="100" min="1" />
+            <input aria-label="Hazard Volume" id="f-ca-vol" class="wh-input" type="number" value="100" min="1" />
             <span class="input-unit">m³</span>
           </div>
         </div>
         <div>
           <div class="field-label">Number of Zones</div>
           <div class="input-group">
-            <input id="f-ca-zones" class="wh-input" type="number" value="1" min="1" max="20" />
+            <input aria-label="Number of Zones" id="f-ca-zones" class="wh-input" type="number" value="1" min="1" max="20" />
             <span class="input-unit">zones</span>
           </div>
         </div>
@@ -7091,14 +7091,14 @@ function renderInputForm(calcType) {
         <div>
           <div class="field-label">Design Temperature</div>
           <div class="input-group">
-            <input id="f-ca-temp" class="wh-input" type="number" value="20" min="-20" max="50" />
+            <input aria-label="Design Temperature" id="f-ca-temp" class="wh-input" type="number" value="20" min="-20" max="50" />
             <span class="input-unit">°C</span>
           </div>
         </div>
         <div>
           <div class="field-label">Altitude</div>
           <div class="input-group">
-            <input id="f-ca-alt" class="wh-input" type="number" value="15" min="0" max="3000" />
+            <input aria-label="Altitude" id="f-ca-alt" class="wh-input" type="number" value="15" min="0" max="3000" />
             <span class="input-unit">m ASL</span>
           </div>
         </div>
@@ -7107,14 +7107,14 @@ function renderInputForm(calcType) {
         <div>
           <div class="field-label">Design Concentration</div>
           <div class="input-group">
-            <input id="f-ca-conc" class="wh-input" type="number" value="0" min="0" max="50" step="0.5" placeholder="0 = use default" />
+            <input aria-label="0 = use default" id="f-ca-conc" class="wh-input" type="number" value="0" min="0" max="50" step="0.5" placeholder="0 = use default" />
             <span class="input-unit">%</span>
           </div>
         </div>
         <div>
           <div class="field-label">Safety Factor</div>
           <div class="input-group">
-            <input id="f-ca-sf" class="wh-input" type="number" value="1.10" min="1.05" max="1.30" step="0.05" />
+            <input aria-label="Safety Factor" id="f-ca-sf" class="wh-input" type="number" value="1.10" min="1.05" max="1.30" step="0.05" />
             <span class="input-unit">×</span>
           </div>
         </div>
@@ -7131,7 +7131,7 @@ function renderInputForm(calcType) {
     area.innerHTML = `
       <div class="mb-4">
         <div class="field-label">Project / Building Name</div>
-        <input id="f-project" class="wh-input" placeholder="e.g. Bldg A: Elevator Traffic Study" />
+        <input aria-label="e.g. Bldg A: Elevator Traffic Study" id="f-project" class="wh-input" placeholder="e.g. Bldg A: Elevator Traffic Study" />
       </div>
 
       <div class="mb-4">
@@ -7147,12 +7147,12 @@ function renderInputForm(calcType) {
       <div class="grid grid-cols-2 gap-3 mb-4">
         <div>
           <div class="field-label">Number of Floors Served</div>
-          <input id="f-n-floors" class="wh-input" type="number" value="12" min="2" max="100" />
+          <input aria-label="Number of Floors Served" id="f-n-floors" class="wh-input" type="number" value="12" min="2" max="100" />
         </div>
         <div>
           <div class="field-label">Floor-to-Floor Height</div>
           <div class="input-group">
-            <input id="f-floor-height" class="wh-input" type="number" value="3.5" min="2.5" max="10" step="0.1" />
+            <input aria-label="Floor-to-Floor Height" id="f-floor-height" class="wh-input" type="number" value="3.5" min="2.5" max="10" step="0.1" />
             <span class="input-unit">m</span>
           </div>
         </div>
@@ -7162,13 +7162,13 @@ function renderInputForm(calcType) {
         <div>
           <div class="field-label">Building Population</div>
           <div class="input-group">
-            <input id="f-population" class="wh-input" type="number" value="500" min="10" />
+            <input aria-label="Building Population" id="f-population" class="wh-input" type="number" value="500" min="10" />
             <span class="input-unit">persons</span>
           </div>
         </div>
         <div>
           <div class="field-label">Number of Elevators</div>
-          <input id="f-n-elevators" class="wh-input" type="number" value="3" min="1" max="20" />
+          <input aria-label="Number of Elevators" id="f-n-elevators" class="wh-input" type="number" value="3" min="1" max="20" />
         </div>
       </div>
 
@@ -7197,21 +7197,21 @@ function renderInputForm(calcType) {
         <div>
           <div class="field-label">Door Open Time</div>
           <div class="input-group">
-            <input id="f-t-door-open" class="wh-input" type="number" value="2.5" min="1" max="5" step="0.5" />
+            <input aria-label="Door Open Time" id="f-t-door-open" class="wh-input" type="number" value="2.5" min="1" max="5" step="0.5" />
             <span class="input-unit">s</span>
           </div>
         </div>
         <div>
           <div class="field-label">Door Close Time</div>
           <div class="input-group">
-            <input id="f-t-door-close" class="wh-input" type="number" value="3.0" min="1" max="5" step="0.5" />
+            <input aria-label="Door Close Time" id="f-t-door-close" class="wh-input" type="number" value="3.0" min="1" max="5" step="0.5" />
             <span class="input-unit">s</span>
           </div>
         </div>
         <div>
           <div class="field-label">Dwell Time / Stop</div>
           <div class="input-group">
-            <input id="f-t-dwell" class="wh-input" type="number" value="2.0" min="1" max="8" step="0.5" />
+            <input aria-label="Dwell Time / Stop" id="f-t-dwell" class="wh-input" type="number" value="2.0" min="1" max="8" step="0.5" />
             <span class="input-unit">s</span>
           </div>
         </div>
@@ -7229,7 +7229,7 @@ function renderInputForm(calcType) {
     area.innerHTML = `
       <div class="mb-4">
         <div class="field-label">Project / Equipment Tag</div>
-        <input id="f-project" class="wh-input" placeholder="e.g. Bldg A: Overhead Crane 5T" />
+        <input aria-label="e.g. Bldg A: Overhead Crane 5T" id="f-project" class="wh-input" placeholder="e.g. Bldg A: Overhead Crane 5T" />
       </div>
 
       <div class="mb-4">
@@ -7245,14 +7245,14 @@ function renderInputForm(calcType) {
         <div>
           <div class="field-label">Rated Load (SWL)</div>
           <div class="input-group">
-            <input id="f-rated-load" class="wh-input" type="number" value="2000" min="50" />
+            <input aria-label="Rated Load" id="f-rated-load" class="wh-input" type="number" value="2000" min="50" />
             <span class="input-unit">kg</span>
           </div>
         </div>
         <div>
           <div class="field-label">Hook / Block Weight</div>
           <div class="input-group">
-            <input id="f-hook-weight" class="wh-input" type="number" value="30" min="0" />
+            <input aria-label="Hook / Block Weight" id="f-hook-weight" class="wh-input" type="number" value="30" min="0" />
             <span class="input-unit">kg</span>
           </div>
         </div>
@@ -7262,14 +7262,14 @@ function renderInputForm(calcType) {
         <div>
           <div class="field-label">Sling / Rigging Weight</div>
           <div class="input-group">
-            <input id="f-sling-weight" class="wh-input" type="number" value="15" min="0" />
+            <input aria-label="Sling / Rigging Weight" id="f-sling-weight" class="wh-input" type="number" value="15" min="0" />
             <span class="input-unit">kg</span>
           </div>
         </div>
         <div>
           <div class="field-label">Lift Height</div>
           <div class="input-group">
-            <input id="f-lift-height" class="wh-input" type="number" value="6" min="1" />
+            <input aria-label="Lift Height" id="f-lift-height" class="wh-input" type="number" value="6" min="1" />
             <span class="input-unit">m</span>
           </div>
         </div>
@@ -7326,13 +7326,13 @@ function renderInputForm(calcType) {
     area.innerHTML = `
       <div class="mb-4">
         <div class="field-label">Project / System Name</div>
-        <input id="f-project" class="wh-input" placeholder="e.g. Office Tower: Central Water-Cooled Chiller Plant" />
+        <input aria-label="e.g. Office Tower: Central Water-Cooled Chiller Plant" id="f-project" class="wh-input" placeholder="e.g. Office Tower: Central Water-Cooled Chiller Plant" />
       </div>
 
       <div class="mb-4">
         <div class="field-label">Total Cooling Load (kW) <span style="color:#F7A21B;font-size:0.75rem;">— from HVAC Cooling Load calc or measured demand</span></div>
         <div class="input-group">
-          <input id="f-cooling-load" class="wh-input" type="number" value="0" min="1" step="1" />
+          <input aria-label="Total Cooling Load (kW) — from HVAC Cooling Load calc or measured demand" id="f-cooling-load" class="wh-input" type="number" value="0" min="1" step="1" />
           <span class="input-unit">kW</span>
         </div>
       </div>
@@ -7389,7 +7389,7 @@ function renderInputForm(calcType) {
         <div>
           <div class="field-label">COP <span style="color:rgba(255,255,255,0.4);font-size:0.75rem;">water-cooled is higher than air-cooled</span></div>
           <div class="input-group">
-            <input id="f-cop" class="wh-input" type="number" value="5.5" min="2.0" max="9.0" step="0.1" />
+            <input aria-label="COP water-cooled is higher than air-cooled" id="f-cop" class="wh-input" type="number" value="5.5" min="2.0" max="9.0" step="0.1" />
             <span class="input-unit">—</span>
           </div>
         </div>
@@ -7415,7 +7415,7 @@ function renderInputForm(calcType) {
       <div class="mb-4">
         <div class="field-label">IPLV / NPLV <span style="color:rgba(255,255,255,0.4);font-size:0.75rem;">from AHRI 550/590 chiller datasheet: leave blank if not yet available</span></div>
         <div class="input-group">
-          <input id="f-iplv" class="wh-input" type="number" placeholder="e.g. 6.5" min="1.0" max="15.0" step="0.01" />
+          <input aria-label="e.g. 6.5" id="f-iplv" class="wh-input" type="number" placeholder="e.g. 6.5" min="1.0" max="15.0" step="0.01" />
           <span class="input-unit">—</span>
         </div>
         <div style="font-size:0.72rem;color:rgba(255,255,255,0.35);margin-top:0.25rem;">ASHRAE 90.1-2019 min IPLV: Centrifugal 6.28 / 7.19 / 8.27 (by size) · Screw 5.32 / 5.86 · Scroll 5.32 · Recip 4.32</div>
@@ -7434,13 +7434,13 @@ function renderInputForm(calcType) {
     area.innerHTML = `
       <div class="mb-4">
         <div class="field-label">Project / System Name</div>
-        <input id="f-project" class="wh-input" placeholder="e.g. Office Tower: Central Chilled Water Plant" />
+        <input aria-label="e.g. Office Tower: Central Chilled Water Plant" id="f-project" class="wh-input" placeholder="e.g. Office Tower: Central Chilled Water Plant" />
       </div>
 
       <div class="mb-4">
         <div class="field-label">Total Cooling Load (kW) <span style="color:#F7A21B;font-size:0.75rem;">— from HVAC Cooling Load calc or measured demand</span></div>
         <div class="input-group">
-          <input id="f-cooling-load" class="wh-input" type="number" value="0" min="1" step="1" />
+          <input aria-label="Total Cooling Load (kW) — from HVAC Cooling Load calc or measured demand" id="f-cooling-load" class="wh-input" type="number" value="0" min="1" step="1" />
           <span class="input-unit">kW</span>
         </div>
       </div>
@@ -7478,7 +7478,7 @@ function renderInputForm(calcType) {
         <div>
           <div class="field-label">COP (Coefficient of Performance) <span style="color:rgba(255,255,255,0.4);font-size:0.75rem;">ASHRAE min: 2.84</span></div>
           <div class="input-group">
-            <input id="f-cop" class="wh-input" type="number" value="3.0" min="1.5" max="6.0" step="0.1" />
+            <input aria-label="COP (Coefficient of Performance) ASHRAE min: 2.84" id="f-cop" class="wh-input" type="number" value="3.0" min="1.5" max="6.0" step="0.1" />
             <span class="input-unit">—</span>
           </div>
         </div>
@@ -7504,7 +7504,7 @@ function renderInputForm(calcType) {
       <div class="mb-4">
         <div class="field-label">IPLV / NPLV <span style="color:rgba(255,255,255,0.4);font-size:0.75rem;">from AHRI 550/590 chiller datasheet: leave blank if not yet available</span></div>
         <div class="input-group">
-          <input id="f-iplv" class="wh-input" type="number" placeholder="e.g. 3.6" min="1.0" max="10.0" step="0.01" />
+          <input aria-label="e.g. 3.6" id="f-iplv" class="wh-input" type="number" placeholder="e.g. 3.6" min="1.0" max="10.0" step="0.01" />
           <span class="input-unit">—</span>
         </div>
         <div style="font-size:0.72rem;color:rgba(255,255,255,0.35);margin-top:0.25rem;">ASHRAE 90.1-2019 min IPLV: 3.50 (&lt;150 TR) · 3.45 (≥150 TR)</div>
@@ -7523,7 +7523,7 @@ function renderInputForm(calcType) {
     area.innerHTML = `
       <div class="mb-4">
         <div class="field-label">Project / System Name</div>
-        <input id="f-project" class="wh-input" placeholder="e.g. 3F Office: AHU-301" />
+        <input aria-label="e.g. 3F Office: AHU-301" id="f-project" class="wh-input" placeholder="e.g. 3F Office: AHU-301" />
       </div>
 
       <div class="mb-4">
@@ -7541,7 +7541,7 @@ function renderInputForm(calcType) {
       <div class="mb-4">
         <div class="field-label">Total Cooling Load (kW) <span style="color:#F7A21B;font-size:0.75rem;">— zone/AHU served area, from HVAC Cooling Load calc</span></div>
         <div class="input-group">
-          <input id="f-cooling-load" class="wh-input" type="number" value="0" min="1" step="1" />
+          <input aria-label="Total Cooling Load (kW) — zone/AHU served area, from HVAC Cooling Load calc" id="f-cooling-load" class="wh-input" type="number" value="0" min="1" step="1" />
           <span class="input-unit">kW</span>
         </div>
       </div>
@@ -7550,7 +7550,7 @@ function renderInputForm(calcType) {
         <div>
           <div class="field-label">Sensible Heat Ratio (SHR)</div>
           <div class="input-group">
-            <input id="f-shr" class="wh-input" type="number" value="0.75" min="0.50" max="1.00" step="0.01" />
+            <input aria-label="Sensible Heat Ratio" id="f-shr" class="wh-input" type="number" value="0.75" min="0.50" max="1.00" step="0.01" />
             <span class="input-unit">—</span>
           </div>
         </div>
@@ -7646,7 +7646,7 @@ function renderInputForm(calcType) {
         <div>
           <div class="field-label">Floor Area <span style="color:rgba(255,255,255,0.4);font-size:0.75rem;">for ACH check</span></div>
           <div class="input-group">
-            <input id="f-floor-area" class="wh-input" type="number" value="0" min="0" step="1" />
+            <input aria-label="Floor Area for ACH check" id="f-floor-area" class="wh-input" type="number" value="0" min="0" step="1" />
             <span class="input-unit">m²</span>
           </div>
         </div>
@@ -7663,7 +7663,7 @@ function renderInputForm(calcType) {
       <div class="mb-4">
         <div class="field-label">Number of Occupants <span style="color:rgba(255,255,255,0.4);font-size:0.75rem;">for ASHRAE 62.1 OA check (0 = skip)</span></div>
         <div class="input-group">
-          <input id="f-persons" class="wh-input" type="number" value="0" min="0" step="1" />
+          <input aria-label="Number of Occupants for ASHRAE 62.1 OA check" id="f-persons" class="wh-input" type="number" value="0" min="0" step="1" />
           <span class="input-unit">persons</span>
         </div>
       </div>
@@ -7681,7 +7681,7 @@ function renderInputForm(calcType) {
     area.innerHTML = `
       <div class="mb-4">
         <div class="field-label">Project / System Name</div>
-        <input id="f-project" class="wh-input" placeholder="e.g. CT-1: Chiller Plant Heat Rejection" />
+        <input aria-label="e.g. CT-1: Chiller Plant Heat Rejection" id="f-project" class="wh-input" placeholder="e.g. CT-1: Chiller Plant Heat Rejection" />
       </div>
 
       <div class="mb-4">
@@ -7695,7 +7695,7 @@ function renderInputForm(calcType) {
       <div id="ct-direct-row" class="mb-4">
         <div class="field-label">Heat Rejection Load <span style="color:#F7A21B;font-size:0.75rem;">— total heat rejected by tower</span></div>
         <div class="input-group">
-          <input id="f-q-rejection" class="wh-input" type="number" value="0" min="1" step="10" />
+          <input aria-label="Heat Rejection Load — total heat rejected by tower" id="f-q-rejection" class="wh-input" type="number" value="0" min="1" step="10" />
           <span class="input-unit">kW</span>
         </div>
       </div>
@@ -7705,7 +7705,7 @@ function renderInputForm(calcType) {
           <div>
             <div class="field-label">Chiller Capacity</div>
             <div class="input-group">
-              <input id="f-chiller-tr" class="wh-input" type="number" value="500" min="10" step="10" />
+              <input aria-label="Chiller Capacity" id="f-chiller-tr" class="wh-input" type="number" value="500" min="10" step="10" />
               <span class="input-unit">TR</span>
             </div>
           </div>
@@ -7789,7 +7789,7 @@ function renderInputForm(calcType) {
     area.innerHTML = `
       <div class="mb-4">
         <div class="field-label">Project / Drive Tag</div>
-        <input id="f-project" class="wh-input" placeholder="e.g. Cooling Tower Fan: Belt Drive" />
+        <input aria-label="e.g. Cooling Tower Fan: Belt Drive" id="f-project" class="wh-input" placeholder="e.g. Cooling Tower Fan: Belt Drive" />
       </div>
 
       <div class="grid grid-cols-2 gap-3 mb-4">
@@ -7800,7 +7800,7 @@ function renderInputForm(calcType) {
             <button class="toggle-btn" data-val="HP" onclick="toggle('tg-power-unit','HP')">HP</button>
           </div>
           <div class="input-group" style="margin-top:0.5rem;">
-            <input id="f-motor-power" class="wh-input" type="number" value="7.5" min="0.1" step="0.1" />
+            <input aria-label="Motor Power" id="f-motor-power" class="wh-input" type="number" value="7.5" min="0.1" step="0.1" />
             <span class="input-unit" id="power-unit-label">kW</span>
           </div>
         </div>
@@ -7827,7 +7827,7 @@ function renderInputForm(calcType) {
         <div>
           <div class="field-label">Driven Speed (Equipment)</div>
           <div class="input-group">
-            <input id="f-driven-rpm" class="wh-input" type="number" value="720" min="10" />
+            <input aria-label="Driven Speed" id="f-driven-rpm" class="wh-input" type="number" value="720" min="10" />
             <span class="input-unit">RPM</span>
           </div>
         </div>
@@ -7846,7 +7846,7 @@ function renderInputForm(calcType) {
         <div>
           <div class="field-label">Driver Sheave Pitch Dia.</div>
           <div class="input-group">
-            <input id="f-driver-dia" class="wh-input" type="number" value="125" min="50" step="5" />
+            <input aria-label="Driver Sheave Pitch Dia." id="f-driver-dia" class="wh-input" type="number" value="125" min="50" step="5" />
             <span class="input-unit">mm</span>
           </div>
         </div>
@@ -7855,7 +7855,7 @@ function renderInputForm(calcType) {
       <div class="mb-4">
         <div class="field-label">Center Distance <span style="color:rgba(255,255,255,0.3);font-size:0.7rem;">(shaft to shaft)</span></div>
         <div class="input-group">
-          <input id="f-center-dist" class="wh-input" type="number" value="500" min="100" step="10" />
+          <input aria-label="Center Distance" id="f-center-dist" class="wh-input" type="number" value="500" min="100" step="10" />
           <span class="input-unit">mm</span>
         </div>
       </div>
@@ -7873,7 +7873,7 @@ function renderInputForm(calcType) {
     area.innerHTML = `
       <div class="mb-4">
         <div class="field-label">Project / Equipment Tag</div>
-        <input id="f-project" class="wh-input" placeholder="e.g. Pump P-101: Drive End Bearing" />
+        <input aria-label="e.g. Pump P-101: Drive End Bearing" id="f-project" class="wh-input" placeholder="e.g. Pump P-101: Drive End Bearing" />
       </div>
 
       <div class="mb-4">
@@ -7888,14 +7888,14 @@ function renderInputForm(calcType) {
         <div>
           <div class="field-label">Dynamic Load Rating (C) <span style="color:rgba(255,255,255,0.3);font-size:0.7rem;">from catalog</span></div>
           <div class="input-group">
-            <input id="f-C-rating" class="wh-input" type="number" value="25.5" min="0.1" step="0.1" />
+            <input aria-label="Dynamic Load Rating (C) from catalog" id="f-C-rating" class="wh-input" type="number" value="25.5" min="0.1" step="0.1" />
             <span class="input-unit">kN</span>
           </div>
         </div>
         <div>
           <div class="field-label">Operating Speed</div>
           <div class="input-group">
-            <input id="f-speed-rpm" class="wh-input" type="number" value="1450" min="1" />
+            <input aria-label="Operating Speed" id="f-speed-rpm" class="wh-input" type="number" value="1450" min="1" />
             <span class="input-unit">RPM</span>
           </div>
         </div>
@@ -7905,14 +7905,14 @@ function renderInputForm(calcType) {
         <div>
           <div class="field-label">Radial Load (Fr)</div>
           <div class="input-group">
-            <input id="f-Fr" class="wh-input" type="number" value="5.0" min="0" step="0.1" />
+            <input aria-label="Radial Load" id="f-Fr" class="wh-input" type="number" value="5.0" min="0" step="0.1" />
             <span class="input-unit">kN</span>
           </div>
         </div>
         <div>
           <div class="field-label">Axial Load (Fa) <span style="color:rgba(255,255,255,0.3);font-size:0.7rem;">(0 if none)</span></div>
           <div class="input-group">
-            <input id="f-Fa" class="wh-input" type="number" value="0" min="0" step="0.1" />
+            <input aria-label="Axial Load (Fa)" id="f-Fa" class="wh-input" type="number" value="0" min="0" step="0.1" />
             <span class="input-unit">kN</span>
           </div>
         </div>
@@ -7930,7 +7930,7 @@ function renderInputForm(calcType) {
         <div>
           <div class="field-label">Required Life (target)</div>
           <div class="input-group">
-            <input id="f-required-life" class="wh-input" type="number" value="25000" min="100" />
+            <input aria-label="Required Life" id="f-required-life" class="wh-input" type="number" value="25000" min="100" />
             <span class="input-unit">hours</span>
           </div>
         </div>
@@ -7938,7 +7938,7 @@ function renderInputForm(calcType) {
 
       <div class="mb-4">
         <div class="field-label">Bearing Number <span style="color:rgba(255,255,255,0.3);font-size:0.7rem;">(optional: for report reference)</span></div>
-        <input id="f-bearing-no" class="wh-input" placeholder="e.g. SKF 6308, FAG 22216, NSK 6210" />
+        <input aria-label="e.g. SKF 6308, FAG 22216, NSK 6210" id="f-bearing-no" class="wh-input" placeholder="e.g. SKF 6308, FAG 22216, NSK 6210" />
       </div>
 
       <div style="background:rgba(247,162,27,0.08);border:1px solid rgba(247,162,27,0.2);border-radius:0.75rem;padding:0.75rem 1rem;font-size:0.78rem;color:rgba(255,255,255,0.5);margin-top:0.25rem;">
@@ -7953,7 +7953,7 @@ function renderInputForm(calcType) {
     area.innerHTML = `
       <div class="mb-4">
         <div class="field-label">Project / Shaft Tag</div>
-        <input id="f-project" class="wh-input" placeholder="e.g. Pump P-101: Drive Shaft" />
+        <input aria-label="e.g. Pump P-101: Drive Shaft" id="f-project" class="wh-input" placeholder="e.g. Pump P-101: Drive Shaft" />
       </div>
 
       <div class="grid grid-cols-2 gap-3 mb-4">
@@ -7964,14 +7964,14 @@ function renderInputForm(calcType) {
             <button class="toggle-btn" data-val="HP" onclick="toggle('tg-shaft-power-unit','HP')">HP</button>
           </div>
           <div class="input-group" style="margin-top:0.5rem;">
-            <input id="f-shaft-power" class="wh-input" type="number" value="7.5" min="0.1" step="0.1" />
+            <input aria-label="Power Transmitted" id="f-shaft-power" class="wh-input" type="number" value="7.5" min="0.1" step="0.1" />
             <span class="input-unit">kW / HP</span>
           </div>
         </div>
         <div>
           <div class="field-label">Shaft Speed</div>
           <div class="input-group">
-            <input id="f-shaft-rpm" class="wh-input" type="number" value="1450" min="1" />
+            <input aria-label="Shaft Speed" id="f-shaft-rpm" class="wh-input" type="number" value="1450" min="1" />
             <span class="input-unit">RPM</span>
           </div>
         </div>
@@ -7981,14 +7981,14 @@ function renderInputForm(calcType) {
         <div>
           <div class="field-label">Transverse Load (F) <span style="color:rgba(255,255,255,0.3);font-size:0.7rem;">belt / gear force</span></div>
           <div class="input-group">
-            <input id="f-transverse-load" class="wh-input" type="number" value="2000" min="0" />
+            <input aria-label="Transverse Load (F) belt / gear force" id="f-transverse-load" class="wh-input" type="number" value="2000" min="0" />
             <span class="input-unit">N</span>
           </div>
         </div>
         <div>
           <div class="field-label">Support Span (L)</div>
           <div class="input-group">
-            <input id="f-span" class="wh-input" type="number" value="300" min="10" />
+            <input aria-label="Support Span" id="f-span" class="wh-input" type="number" value="300" min="10" />
             <span class="input-unit">mm</span>
           </div>
         </div>
@@ -8035,7 +8035,7 @@ function renderInputForm(calcType) {
     area.innerHTML = `
       <div class="mb-4">
         <div class="field-label">Project / Joint Tag</div>
-        <input id="f-project" class="wh-input" placeholder="e.g. Pump P-101: Discharge Flange Bolting" />
+        <input aria-label="e.g. Pump P-101: Discharge Flange Bolting" id="f-project" class="wh-input" placeholder="e.g. Pump P-101: Discharge Flange Bolting" />
       </div>
 
       <div class="grid grid-cols-2 gap-3 mb-4">
@@ -8085,13 +8085,13 @@ function renderInputForm(calcType) {
         <div>
           <div class="field-label">External Joint Load</div>
           <div class="input-group">
-            <input id="f-ext-load" class="wh-input" type="number" value="50" min="0" step="1" />
+            <input aria-label="External Joint Load" id="f-ext-load" class="wh-input" type="number" value="50" min="0" step="1" />
             <span class="input-unit">kN</span>
           </div>
         </div>
         <div>
           <div class="field-label">Number of Bolts in Joint</div>
-          <input id="f-n-bolts" class="wh-input" type="number" value="8" min="1" max="100" />
+          <input aria-label="Number of Bolts in Joint" id="f-n-bolts" class="wh-input" type="number" value="8" min="1" max="100" />
         </div>
       </div>
 
@@ -8112,7 +8112,7 @@ function renderInputForm(calcType) {
     area.innerHTML = `
       <div class="mb-4">
         <div class="field-label">Project / Member Tag</div>
-        <input id="f-project" class="wh-input" placeholder="e.g. 2nd Floor Beam B-201" />
+        <input aria-label="e.g. 2nd Floor Beam B-201" id="f-project" class="wh-input" placeholder="e.g. 2nd Floor Beam B-201" />
       </div>
       <div class="mb-4">
         <div class="field-label">Member Type</div>
@@ -8126,17 +8126,17 @@ function renderInputForm(calcType) {
       <div class="grid grid-cols-2 gap-3 mb-4">
         <div>
           <div class="field-label">Span / Length (m)</div>
-          <div class="input-group"><input id="f-span-m" class="wh-input" type="number" value="6" min="0.5" step="0.1"/><span class="input-unit">m</span></div>
+          <div class="input-group"><input aria-label="Span / Length" id="f-span-m" class="wh-input" type="number" value="6" min="0.5" step="0.1"/><span class="input-unit">m</span></div>
         </div>
         <div>
           <div class="field-label">UDL w (kN/m) <span style="color:rgba(255,255,255,0.3);font-size:0.7rem;">for deflection</span></div>
-          <div class="input-group"><input id="f-w-udl" class="wh-input" type="number" value="30" min="0"/><span class="input-unit">kN/m</span></div>
+          <div class="input-group"><input aria-label="UDL w (kN/m) for deflection" id="f-w-udl" class="wh-input" type="number" value="30" min="0"/><span class="input-unit">kN/m</span></div>
         </div>
       </div>
       <div class="grid grid-cols-3 gap-3 mb-4">
-        <div><div class="field-label">M<sub>u</sub> (kN·m)</div><div class="input-group"><input id="f-Mu" class="wh-input" type="number" value="180" min="0"/><span class="input-unit">kN·m</span></div></div>
-        <div><div class="field-label">V<sub>u</sub> (kN)</div><div class="input-group"><input id="f-Vu" class="wh-input" type="number" value="90" min="0"/><span class="input-unit">kN</span></div></div>
-        <div><div class="field-label">P<sub>u</sub> (kN) <span style="color:rgba(255,255,255,0.3);font-size:0.7rem;">columns</span></div><div class="input-group"><input id="f-Pu" class="wh-input" type="number" value="500" min="0"/><span class="input-unit">kN</span></div></div>
+        <div><div class="field-label">M<sub>u</sub> (kN·m)</div><div class="input-group"><input aria-label="M u" id="f-Mu" class="wh-input" type="number" value="180" min="0"/><span class="input-unit">kN·m</span></div></div>
+        <div><div class="field-label">V<sub>u</sub> (kN)</div><div class="input-group"><input aria-label="V u" id="f-Vu" class="wh-input" type="number" value="90" min="0"/><span class="input-unit">kN</span></div></div>
+        <div><div class="field-label">P<sub>u</sub> (kN) <span style="color:rgba(255,255,255,0.3);font-size:0.7rem;">columns</span></div><div class="input-group"><input aria-label="P u (kN) columns" id="f-Pu" class="wh-input" type="number" value="500" min="0"/><span class="input-unit">kN</span></div></div>
       </div>
       <div class="mb-4">
         <div class="field-label">Steel Grade</div>
@@ -8148,7 +8148,7 @@ function renderInputForm(calcType) {
       </div>
       <div class="mb-4">
         <div class="field-label">W-Section (Steel members)</div>
-        <select id="f-section" class="wh-input">
+        <select aria-label="W-Section" id="f-section" class="wh-input">
           <option>W200x27</option><option>W200x36</option><option>W250x33</option><option selected>W310x45</option>
           <option>W310x60</option><option>W360x51</option><option>W360x79</option><option>W410x54</option>
           <option>W460x74</option><option>W530x66</option><option>W610x82</option>
@@ -8181,9 +8181,9 @@ function renderInputForm(calcType) {
         </div>
       </div>
       <div class="grid grid-cols-3 gap-3 mb-4">
-        <div><div class="field-label">b (mm) RC</div><input id="f-b-mm" class="wh-input" type="number" value="300" min="100"/></div>
-        <div><div class="field-label">h (mm) RC</div><input id="f-h-mm" class="wh-input" type="number" value="500" min="150"/></div>
-        <div><div class="field-label">No. of Bars</div><input id="f-n-bars" class="wh-input" type="number" value="4" min="2"/></div>
+        <div><div class="field-label">b (mm) RC</div><input aria-label="b (mm) RC" id="f-b-mm" class="wh-input" type="number" value="300" min="100"/></div>
+        <div><div class="field-label">h (mm) RC</div><input aria-label="h (mm) RC" id="f-h-mm" class="wh-input" type="number" value="500" min="150"/></div>
+        <div><div class="field-label">No. of Bars</div><input aria-label="No. of Bars" id="f-n-bars" class="wh-input" type="number" value="4" min="2"/></div>
       </div>
       <div style="background:rgba(247,162,27,0.08);border:1px solid rgba(247,162,27,0.2);border-radius:0.75rem;padding:0.75rem 1rem;font-size:0.78rem;color:rgba(255,255,255,0.5);">
         Standards: NSCP 2015 Vol.1 | AISC 360-22 LRFD (steel) | ACI 318-19 (concrete) | ASCE 7-22
@@ -8197,26 +8197,26 @@ function renderInputForm(calcType) {
     area.innerHTML = `
       <div class="mb-4">
         <div class="field-label">Project / Vessel Tag</div>
-        <input id="f-project" class="wh-input" placeholder="e.g. V-101: Compressed Air Receiver" />
+        <input aria-label="e.g. V-101: Compressed Air Receiver" id="f-project" class="wh-input" placeholder="e.g. V-101: Compressed Air Receiver" />
       </div>
       <div class="grid grid-cols-2 gap-3 mb-4">
         <div>
           <div class="field-label">Design Pressure</div>
-          <div class="input-group"><input id="f-design-pressure" class="wh-input" type="number" value="10" min="0.1" step="0.1"/><span class="input-unit">bar</span></div>
+          <div class="input-group"><input aria-label="Design Pressure" id="f-design-pressure" class="wh-input" type="number" value="10" min="0.1" step="0.1"/><span class="input-unit">bar</span></div>
         </div>
         <div>
           <div class="field-label">Design Temperature</div>
-          <div class="input-group"><input id="f-design-temp" class="wh-input" type="number" value="150" min="-50"/><span class="input-unit">°C</span></div>
+          <div class="input-group"><input aria-label="Design Temperature" id="f-design-temp" class="wh-input" type="number" value="150" min="-50"/><span class="input-unit">°C</span></div>
         </div>
       </div>
       <div class="grid grid-cols-2 gap-3 mb-4">
         <div>
           <div class="field-label">Inner Diameter (ID)</div>
-          <div class="input-group"><input id="f-inner-dia" class="wh-input" type="number" value="800" min="100"/><span class="input-unit">mm</span></div>
+          <div class="input-group"><input aria-label="Inner Diameter" id="f-inner-dia" class="wh-input" type="number" value="800" min="100"/><span class="input-unit">mm</span></div>
         </div>
         <div>
           <div class="field-label">Shell Length</div>
-          <div class="input-group"><input id="f-shell-length" class="wh-input" type="number" value="2000" min="100"/><span class="input-unit">mm</span></div>
+          <div class="input-group"><input aria-label="Shell Length" id="f-shell-length" class="wh-input" type="number" value="2000" min="100"/><span class="input-unit">mm</span></div>
         </div>
       </div>
       <div class="mb-4">
@@ -8245,9 +8245,9 @@ function renderInputForm(calcType) {
         </div>
       </div>
       <div class="grid grid-cols-3 gap-3 mb-4">
-        <div><div class="field-label">Corrosion Allowance</div><div class="input-group"><input id="f-corrosion-mm" class="wh-input" type="number" value="1.6" min="0" step="0.1"/><span class="input-unit">mm</span></div></div>
-        <div><div class="field-label">Nozzle Dia.</div><div class="input-group"><input id="f-nozzle-dia" class="wh-input" type="number" value="100" min="25"/><span class="input-unit">mm</span></div></div>
-        <div><div class="field-label">No. Nozzles</div><input id="f-n-nozzles" class="wh-input" type="number" value="2" min="0"/></div>
+        <div><div class="field-label">Corrosion Allowance</div><div class="input-group"><input aria-label="Corrosion Allowance" id="f-corrosion-mm" class="wh-input" type="number" value="1.6" min="0" step="0.1"/><span class="input-unit">mm</span></div></div>
+        <div><div class="field-label">Nozzle Dia.</div><div class="input-group"><input aria-label="Nozzle Dia." id="f-nozzle-dia" class="wh-input" type="number" value="100" min="25"/><span class="input-unit">mm</span></div></div>
+        <div><div class="field-label">No. Nozzles</div><input aria-label="No. Nozzles" id="f-n-nozzles" class="wh-input" type="number" value="2" min="0"/></div>
       </div>
       <div style="background:rgba(247,162,27,0.08);border:1px solid rgba(247,162,27,0.2);border-radius:0.75rem;padding:0.75rem 1rem;font-size:0.78rem;color:rgba(255,255,255,0.5);">
         Standards: ASME BPVC Section VIII Div.1 (UG-27/32/34/37/99) | DOLE OSHS PD 856 (PH registration)
@@ -8261,28 +8261,28 @@ function renderInputForm(calcType) {
     area.innerHTML = `
       <div class="mb-4">
         <div class="field-label">Project / HX Tag</div>
-        <input id="f-project" class="wh-input" placeholder="e.g. HX-101: Chilled Water Cooler" />
+        <input aria-label="e.g. HX-101: Chilled Water Cooler" id="f-project" class="wh-input" placeholder="e.g. HX-101: Chilled Water Cooler" />
       </div>
       <div class="mb-4">
         <div class="field-label">Heat Duty</div>
-        <div class="input-group"><input id="f-hx-duty" class="wh-input" type="number" value="500" min="1"/><span class="input-unit">kW</span></div>
+        <div class="input-group"><input aria-label="Heat Duty" id="f-hx-duty" class="wh-input" type="number" value="500" min="1"/><span class="input-unit">kW</span></div>
       </div>
       <div class="grid grid-cols-2 gap-3 mb-4">
         <div>
           <div class="field-label">Hot Side: Inlet / Outlet</div>
           <div style="display:flex;gap:0.5rem;">
-            <div class="input-group" style="flex:1;"><input id="f-hot-in" class="wh-input" type="number" value="90"/><span class="input-unit">°C in</span></div>
-            <div class="input-group" style="flex:1;"><input id="f-hot-out" class="wh-input" type="number" value="60"/><span class="input-unit">°C out</span></div>
+            <div class="input-group" style="flex:1;"><input aria-label="Hot Side: Inlet / Outlet" id="f-hot-in" class="wh-input" type="number" value="90"/><span class="input-unit">°C in</span></div>
+            <div class="input-group" style="flex:1;"><input aria-label="Hot Side: Inlet / Outlet" id="f-hot-out" class="wh-input" type="number" value="60"/><span class="input-unit">°C out</span></div>
           </div>
-          <div class="input-group" style="margin-top:0.4rem;"><input id="f-hot-flow" class="wh-input" type="number" value="10" step="0.1"/><span class="input-unit">kg/s</span></div>
+          <div class="input-group" style="margin-top:0.4rem;"><input id="f-hot-flow" aria-label="Hot side mass flow rate" class="wh-input" type="number" value="10" step="0.1"/><span class="input-unit">kg/s</span></div>
         </div>
         <div>
           <div class="field-label">Cold Side: Inlet / Outlet</div>
           <div style="display:flex;gap:0.5rem;">
-            <div class="input-group" style="flex:1;"><input id="f-cold-in" class="wh-input" type="number" value="25"/><span class="input-unit">°C in</span></div>
-            <div class="input-group" style="flex:1;"><input id="f-cold-out" class="wh-input" type="number" value="55"/><span class="input-unit">°C out</span></div>
+            <div class="input-group" style="flex:1;"><input aria-label="Cold Side: Inlet / Outlet" id="f-cold-in" class="wh-input" type="number" value="25"/><span class="input-unit">°C in</span></div>
+            <div class="input-group" style="flex:1;"><input aria-label="Cold Side: Inlet / Outlet" id="f-cold-out" class="wh-input" type="number" value="55"/><span class="input-unit">°C out</span></div>
           </div>
-          <div class="input-group" style="margin-top:0.4rem;"><input id="f-cold-flow" class="wh-input" type="number" value="8" step="0.1"/><span class="input-unit">kg/s</span></div>
+          <div class="input-group" style="margin-top:0.4rem;"><input id="f-cold-flow" aria-label="Cold side mass flow rate" class="wh-input" type="number" value="8" step="0.1"/><span class="input-unit">kg/s</span></div>
         </div>
       </div>
       <div class="mb-4">
@@ -8320,7 +8320,7 @@ function renderInputForm(calcType) {
         </div>
       </div>
       <div class="grid grid-cols-2 gap-3 mb-4">
-        <div><div class="field-label">Tube Length (m)</div><div class="input-group"><input id="f-tube-length" class="wh-input" type="number" value="3" min="0.5" step="0.5"/><span class="input-unit">m</span></div></div>
+        <div><div class="field-label">Tube Length (m)</div><div class="input-group"><input aria-label="Tube Length" id="f-tube-length" class="wh-input" type="number" value="3" min="0.5" step="0.5"/><span class="input-unit">m</span></div></div>
         <div>
           <div class="field-label">Tube Material</div>
           <div class="toggle-group" id="tg-tube-mat">
@@ -8343,15 +8343,15 @@ function renderInputForm(calcType) {
     area.innerHTML = `
       <div class="mb-4">
         <div class="field-label">Project / Machine Tag</div>
-        <input id="f-project" class="wh-input" placeholder="e.g. P-101: 15 kW Centrifugal Pump" />
+        <input aria-label="e.g. P-101: 15 kW Centrifugal Pump" id="f-project" class="wh-input" placeholder="e.g. P-101: 15 kW Centrifugal Pump" />
       </div>
       <div class="grid grid-cols-2 gap-3 mb-4">
-        <div><div class="field-label">Machine Mass</div><div class="input-group"><input id="f-vib-mass" class="wh-input" type="number" value="500" min="1"/><span class="input-unit">kg</span></div></div>
-        <div><div class="field-label">Operating Speed</div><div class="input-group"><input id="f-vib-speed" class="wh-input" type="number" value="1450" min="100"/><span class="input-unit">RPM</span></div></div>
+        <div><div class="field-label">Machine Mass</div><div class="input-group"><input aria-label="Machine Mass" id="f-vib-mass" class="wh-input" type="number" value="500" min="1"/><span class="input-unit">kg</span></div></div>
+        <div><div class="field-label">Operating Speed</div><div class="input-group"><input aria-label="Operating Speed" id="f-vib-speed" class="wh-input" type="number" value="1450" min="100"/><span class="input-unit">RPM</span></div></div>
       </div>
       <div class="grid grid-cols-2 gap-3 mb-4">
-        <div><div class="field-label">Power Rating</div><div class="input-group"><input id="f-vib-power" class="wh-input" type="number" value="15" min="0.1" step="0.1"/><span class="input-unit">kW</span></div></div>
-        <div><div class="field-label">Measured Velocity (0 = compute)</div><div class="input-group"><input id="f-vib-measured" class="wh-input" type="number" value="0" min="0" step="0.1"/><span class="input-unit">mm/s RMS</span></div></div>
+        <div><div class="field-label">Power Rating</div><div class="input-group"><input aria-label="Power Rating" id="f-vib-power" class="wh-input" type="number" value="15" min="0.1" step="0.1"/><span class="input-unit">kW</span></div></div>
+        <div><div class="field-label">Measured Velocity (0 = compute)</div><div class="input-group"><input aria-label="Measured Velocity" id="f-vib-measured" class="wh-input" type="number" value="0" min="0" step="0.1"/><span class="input-unit">mm/s RMS</span></div></div>
       </div>
       <div class="mb-4">
         <div class="field-label">ISO 10816-3 Machine Class</div>
@@ -8373,8 +8373,8 @@ function renderInputForm(calcType) {
         </div>
       </div>
       <div class="grid grid-cols-2 gap-3 mb-4">
-        <div><div class="field-label">Unbalance Mass</div><div class="input-group"><input id="f-imbalance-mass" class="wh-input" type="number" value="0.1" min="0" step="0.01"/><span class="input-unit">kg</span></div></div>
-        <div><div class="field-label">Eccentricity</div><div class="input-group"><input id="f-eccentricity" class="wh-input" type="number" value="5" min="0" step="0.1"/><span class="input-unit">mm</span></div></div>
+        <div><div class="field-label">Unbalance Mass</div><div class="input-group"><input aria-label="Unbalance Mass" id="f-imbalance-mass" class="wh-input" type="number" value="0.1" min="0" step="0.01"/><span class="input-unit">kg</span></div></div>
+        <div><div class="field-label">Eccentricity</div><div class="input-group"><input aria-label="Eccentricity" id="f-eccentricity" class="wh-input" type="number" value="5" min="0" step="0.1"/><span class="input-unit">mm</span></div></div>
       </div>
       <div style="background:rgba(247,162,27,0.08);border:1px solid rgba(247,162,27,0.2);border-radius:0.75rem;padding:0.75rem 1rem;font-size:0.78rem;color:rgba(255,255,255,0.5);">
         Standards: ISO 10816-3 | ISO 20816-1 | ISO 21940-11 (balancing) | ANSI S2.19
@@ -8388,7 +8388,7 @@ function renderInputForm(calcType) {
     area.innerHTML = `
       <div class="mb-4">
         <div class="field-label">Project / System Tag</div>
-        <input id="f-project" class="wh-input" placeholder="e.g. Hydraulic Press HYD-201" />
+        <input aria-label="e.g. Hydraulic Press HYD-201" id="f-project" class="wh-input" placeholder="e.g. Hydraulic Press HYD-201" />
       </div>
       <div class="mb-4">
         <div class="field-label">Calculation Mode</div>
@@ -8400,8 +8400,8 @@ function renderInputForm(calcType) {
         </div>
       </div>
       <div class="grid grid-cols-2 gap-3 mb-4">
-        <div><div class="field-label">System Pressure</div><div class="input-group"><input id="f-sys-pressure" class="wh-input" type="number" value="200" min="1"/><span class="input-unit">bar</span></div></div>
-        <div><div class="field-label">System Flow</div><div class="input-group"><input id="f-sys-flow" class="wh-input" type="number" value="40" min="0.1" step="0.1"/><span class="input-unit">L/min</span></div></div>
+        <div><div class="field-label">System Pressure</div><div class="input-group"><input aria-label="System Pressure" id="f-sys-pressure" class="wh-input" type="number" value="200" min="1"/><span class="input-unit">bar</span></div></div>
+        <div><div class="field-label">System Flow</div><div class="input-group"><input aria-label="System Flow" id="f-sys-flow" class="wh-input" type="number" value="40" min="0.1" step="0.1"/><span class="input-unit">L/min</span></div></div>
       </div>
       <div class="mb-4">
         <div class="field-label">Hydraulic Fluid</div>
@@ -8413,17 +8413,17 @@ function renderInputForm(calcType) {
         </div>
       </div>
       <div class="grid grid-cols-2 gap-3 mb-4">
-        <div><div class="field-label">Cylinder Force Required</div><div class="input-group"><input id="f-cyl-force" class="wh-input" type="number" value="50" min="0.1" step="0.1"/><span class="input-unit">kN</span></div></div>
-        <div><div class="field-label">Cylinder Stroke</div><div class="input-group"><input id="f-stroke-mm" class="wh-input" type="number" value="200" min="10"/><span class="input-unit">mm</span></div></div>
+        <div><div class="field-label">Cylinder Force Required</div><div class="input-group"><input aria-label="Cylinder Force Required" id="f-cyl-force" class="wh-input" type="number" value="50" min="0.1" step="0.1"/><span class="input-unit">kN</span></div></div>
+        <div><div class="field-label">Cylinder Stroke</div><div class="input-group"><input aria-label="Cylinder Stroke" id="f-stroke-mm" class="wh-input" type="number" value="200" min="10"/><span class="input-unit">mm</span></div></div>
       </div>
       <div class="grid grid-cols-2 gap-3 mb-4">
-        <div><div class="field-label">Bore (0 = auto-select)</div><div class="input-group"><input id="f-bore-mm" class="wh-input" type="number" value="0" min="0"/><span class="input-unit">mm</span></div></div>
-        <div><div class="field-label">Pump Speed</div><div class="input-group"><input id="f-pump-rpm" class="wh-input" type="number" value="1450" min="300"/><span class="input-unit">RPM</span></div></div>
+        <div><div class="field-label">Bore (0 = auto-select)</div><div class="input-group"><input aria-label="Bore" id="f-bore-mm" class="wh-input" type="number" value="0" min="0"/><span class="input-unit">mm</span></div></div>
+        <div><div class="field-label">Pump Speed</div><div class="input-group"><input aria-label="Pump Speed" id="f-pump-rpm" class="wh-input" type="number" value="1450" min="300"/><span class="input-unit">RPM</span></div></div>
       </div>
       <div class="grid grid-cols-3 gap-3 mb-4">
-        <div><div class="field-label">Acc. P-min</div><div class="input-group"><input id="f-acc-pmin" class="wh-input" type="number" value="150" min="1"/><span class="input-unit">bar</span></div></div>
-        <div><div class="field-label">Acc. P-max (0=sys)</div><div class="input-group"><input id="f-acc-pmax" class="wh-input" type="number" value="0" min="0"/><span class="input-unit">bar</span></div></div>
-        <div><div class="field-label">Fluid Vol. (acc.)</div><div class="input-group"><input id="f-acc-vol" class="wh-input" type="number" value="5" min="0.1" step="0.1"/><span class="input-unit">L</span></div></div>
+        <div><div class="field-label">Acc. P-min</div><div class="input-group"><input aria-label="Acc. P-min" id="f-acc-pmin" class="wh-input" type="number" value="150" min="1"/><span class="input-unit">bar</span></div></div>
+        <div><div class="field-label">Acc. P-max (0=sys)</div><div class="input-group"><input aria-label="Acc. P-max" id="f-acc-pmax" class="wh-input" type="number" value="0" min="0"/><span class="input-unit">bar</span></div></div>
+        <div><div class="field-label">Fluid Vol. (acc.)</div><div class="input-group"><input aria-label="Fluid Vol." id="f-acc-vol" class="wh-input" type="number" value="5" min="0.1" step="0.1"/><span class="input-unit">L</span></div></div>
       </div>
       <div style="background:rgba(247,162,27,0.08);border:1px solid rgba(247,162,27,0.2);border-radius:0.75rem;padding:0.75rem 1rem;font-size:0.78rem;color:rgba(255,255,255,0.5);">
         Standards: ISO 4413:2010 | NFPA T2.12.10 | Bosch Rexroth Hydraulic Trainer
@@ -8437,7 +8437,7 @@ function renderInputForm(calcType) {
     area.innerHTML = `
       <div class="mb-4">
         <div class="field-label">Project / Assessment Tag</div>
-        <input id="f-project" class="wh-input" placeholder="e.g. Pump Room PR-01: Noise Assessment" />
+        <input aria-label="e.g. Pump Room PR-01: Noise Assessment" id="f-project" class="wh-input" placeholder="e.g. Pump Room PR-01: Noise Assessment" />
       </div>
       <div class="mb-4">
         <div class="field-label">Calculation Mode</div>
@@ -8448,8 +8448,8 @@ function renderInputForm(calcType) {
         </div>
       </div>
       <div class="grid grid-cols-2 gap-3 mb-4">
-        <div><div class="field-label">Sound Power Level Lw</div><div class="input-group"><input id="f-lw" class="wh-input" type="number" value="90" min="0"/><span class="input-unit">dB</span></div></div>
-        <div><div class="field-label">Distance to Receiver</div><div class="input-group"><input id="f-noise-dist" class="wh-input" type="number" value="5" min="0.1" step="0.5"/><span class="input-unit">m</span></div></div>
+        <div><div class="field-label">Sound Power Level Lw</div><div class="input-group"><input aria-label="Sound Power Level Lw" id="f-lw" class="wh-input" type="number" value="90" min="0"/><span class="input-unit">dB</span></div></div>
+        <div><div class="field-label">Distance to Receiver</div><div class="input-group"><input aria-label="Distance to Receiver" id="f-noise-dist" class="wh-input" type="number" value="5" min="0.1" step="0.5"/><span class="input-unit">m</span></div></div>
       </div>
       <div class="mb-4">
         <div class="field-label">Directivity Factor Q</div>
@@ -8470,17 +8470,17 @@ function renderInputForm(calcType) {
         </div>
       </div>
       <div class="grid grid-cols-2 gap-3 mb-4">
-        <div><div class="field-label">Avg. Absorption Coeff α</div><div class="input-group"><input id="f-alpha" class="wh-input" type="number" value="0.15" min="0.01" max="0.99" step="0.01"/><span class="input-unit">—</span></div></div>
-        <div><div class="field-label">Total Room Surface Area</div><div class="input-group"><input id="f-room-surface" class="wh-input" type="number" value="200" min="10"/><span class="input-unit">m²</span></div></div>
+        <div><div class="field-label">Avg. Absorption Coeff α</div><div class="input-group"><input aria-label="Avg. Absorption Coeff α" id="f-alpha" class="wh-input" type="number" value="0.15" min="0.01" max="0.99" step="0.01"/><span class="input-unit">—</span></div></div>
+        <div><div class="field-label">Total Room Surface Area</div><div class="input-group"><input aria-label="Total Room Surface Area" id="f-room-surface" class="wh-input" type="number" value="200" min="10"/><span class="input-unit">m²</span></div></div>
       </div>
       <div class="grid grid-cols-3 gap-3 mb-4">
-        <div><div class="field-label">Source→Barrier (m)</div><input id="f-d-source" class="wh-input" type="number" value="10" min="0.5"/></div>
-        <div><div class="field-label">Barrier→Recv (m)</div><input id="f-d-recv" class="wh-input" type="number" value="10" min="0.5"/></div>
-        <div><div class="field-label">Barrier Height (m)</div><input id="f-barrier-h" class="wh-input" type="number" value="3" min="0.5" step="0.5"/></div>
+        <div><div class="field-label">Source→Barrier (m)</div><input aria-label="Source→Barrier" id="f-d-source" class="wh-input" type="number" value="10" min="0.5"/></div>
+        <div><div class="field-label">Barrier→Recv (m)</div><input aria-label="Barrier→Recv" id="f-d-recv" class="wh-input" type="number" value="10" min="0.5"/></div>
+        <div><div class="field-label">Barrier Height (m)</div><input aria-label="Barrier Height" id="f-barrier-h" class="wh-input" type="number" value="3" min="0.5" step="0.5"/></div>
       </div>
       <div class="grid grid-cols-2 gap-3 mb-4">
-        <div><div class="field-label">Noise Level (Dose mode)</div><div class="input-group"><input id="f-dose-level" class="wh-input" type="number" value="90" min="70" max="140"/><span class="input-unit">dBA</span></div></div>
-        <div><div class="field-label">Exposure Duration</div><div class="input-group"><input id="f-dose-hours" class="wh-input" type="number" value="8" min="0.1" max="24" step="0.5"/><span class="input-unit">hr</span></div></div>
+        <div><div class="field-label">Noise Level (Dose mode)</div><div class="input-group"><input aria-label="Noise Level" id="f-dose-level" class="wh-input" type="number" value="90" min="70" max="140"/><span class="input-unit">dBA</span></div></div>
+        <div><div class="field-label">Exposure Duration</div><div class="input-group"><input aria-label="Exposure Duration" id="f-dose-hours" class="wh-input" type="number" value="8" min="0.1" max="24" step="0.5"/><span class="input-unit">hr</span></div></div>
       </div>
       <div style="background:rgba(247,162,27,0.08);border:1px solid rgba(247,162,27,0.2);border-radius:0.75rem;padding:0.75rem 1rem;font-size:0.78rem;color:rgba(255,255,255,0.5);">
         Standards: ISO 9613-2 | OSHA 29 CFR 1910.95 | DOLE D.O. 13 | ASHRAE 2019 Ch.8 | IEC 61672
