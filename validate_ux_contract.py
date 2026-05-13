@@ -141,11 +141,17 @@ def check_input_labels(pages: list[str]) -> tuple[list[dict], dict[str, int]]:
             if input_type in {"hidden", "submit", "button"}:
                 continue
             input_id = _attr(attrs, "id")
-            # Skip generated/templated inputs without a static id — those
-            # are usually role-specific renderers and harder to assess.
-            if input_id is None and tag == "input":
+            # Skip generated/templated ids (e.g. `reading-${escHtml(d.key)}`).
+            # Runtime expansion creates a real id; the matching <label for>
+            # is also templated and the static-source check can't see it.
+            if input_id and ("${" in input_id or "{{" in input_id):
                 continue
-            if input_id and input_id in label_for:
+            # Skip inputs without ANY id (any tag, not just <input>) —
+            # they're usually role-specific renderers or dynamic widgets
+            # where a static check can't assess labelling reliably.
+            if not input_id:
+                continue
+            if input_id in label_for:
                 continue
             if _attr(attrs, "aria-label") or _attr(attrs, "aria-labelledby"):
                 continue

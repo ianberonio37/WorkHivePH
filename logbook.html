@@ -521,7 +521,7 @@
                     Capture
                   </button>
                 </div>
-                <input id="vdc-file-input" type="file" accept="image/*" capture="environment" style="display:none;" />
+                <input id="vdc-file-input" aria-label="Photo of equipment defect" type="file" accept="image/*" capture="environment" style="display:none;" />
                 <div id="vdc-preview" style="display:none; margin-top:10px;">
                   <img id="vdc-preview-img" alt="Captured defect preview" style="max-width:100%; max-height:220px; border-radius:8px; border:1px solid rgba(255,255,255,0.08);" />
                   <div style="display:flex; gap:8px; margin-top:8px; flex-wrap:wrap;">
@@ -907,7 +907,7 @@
               </svg>
               <input aria-label="Search machine, failure, keyword..." id="search-input" type="text" class="wh-input pl-9" placeholder="Search machine, failure, keyword..." />
             </div>
-            <select id="filter-category" class="wh-input sm:w-44">
+            <select id="filter-category" aria-label="Filter by category" class="wh-input sm:w-44">
               <option value="">All categories</option>
               <option value="Mechanical">Mechanical</option>
               <option value="Electrical">Electrical</option>
@@ -917,7 +917,7 @@
               <option value="Lubrication">Lubrication</option>
               <option value="Other">Other</option>
             </select>
-            <select id="filter-status" class="wh-input sm:w-36">
+            <select id="filter-status" aria-label="Filter by status" class="wh-input sm:w-36">
               <option value="">All status</option>
               <option value="Open">Open</option>
               <option value="Closed">Closed</option>
@@ -929,11 +929,11 @@
           </div>
           <!-- Team-specific filters: visible only in team mode -->
           <div id="team-filter-row" class="hidden mt-3 flex flex-col sm:flex-row gap-3 items-center flex-wrap">
-            <select id="filter-worker" class="wh-input sm:w-44">
+            <select id="filter-worker" aria-label="Filter by worker" class="wh-input sm:w-44">
               <option value="">All workers</option>
             </select>
-            <input id="filter-date-from" type="date" class="wh-input sm:w-36" />
-            <input id="filter-date-to" type="date" class="wh-input sm:w-36" />
+            <input id="filter-date-from" aria-label="Filter from date" type="date" class="wh-input sm:w-36" />
+            <input id="filter-date-to" aria-label="Filter to date" type="date" class="wh-input sm:w-36" />
             <button id="btn-search-team" onclick="searchTeam()" style="min-height:44px;background:rgba(41,182,217,0.15);color:#29B6D9;border:1px solid rgba(41,182,217,0.3);border-radius:0.75rem;padding:0 1.25rem;font-size:0.75rem;font-weight:700;cursor:pointer;white-space:nowrap;flex-shrink:0;transition:background 0.2s;" onmouseover="this.style.background='rgba(41,182,217,0.25)'" onmouseout="this.style.background='rgba(41,182,217,0.15)'">Search Team</button>
           </div>
         </div>
