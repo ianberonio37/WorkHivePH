@@ -54,7 +54,7 @@
   const SUPERVISOR_STEPS = [
     { id: 'signed_in',        label: 'Sign in',                    check: ctx => !!ctx.workerName },
     { id: 'created_hive',     label: 'Lead a hive',                check: ctx => !!ctx.hiveId && ctx.role === 'supervisor' },
-    { id: 'approved_member',  label: 'Approve a member',           check: async ctx => await _has(ctx.db, 'hive_audit_log', { hive_id: ctx.hiveId, action: 'approve_item' }) },
+    { id: 'approved_member',  label: 'Approve or reject a submission', check: async ctx => await _has(ctx.db, 'hive_audit_log', { hive_id: ctx.hiveId, action: 'approve_item' }) },
     { id: 'registered_asset', label: 'Register an asset',          check: async ctx => await _has(ctx.db, 'asset_nodes', { hive_id: ctx.hiveId, status: 'approved' }) },
     { id: 'set_pm',           label: 'Set a PM template',          check: async ctx => await _has(ctx.db, 'pm_assets', { hive_id: ctx.hiveId }) },
     { id: 'reviewed_audit',   label: 'Review the audit log',       check: ctx => _flag('wh_onb_audit_visited') },

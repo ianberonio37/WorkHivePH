@@ -241,6 +241,33 @@ def check_audit_log_on_power_actions(content):
     return issues
 
 
+def check_audit_log_refreshed_after_write(content):
+    """Walkthrough 2026-05-13: kickMember wrote to hive_audit_log but never
+    called loadAuditLog(), so the Supervisor Action Log card on hive.html
+    stayed empty until manual refresh. Every supervisor power action that
+    calls writeAuditLog() must also re-trigger loadAuditLog() so the card
+    reflects the new row in the same tab.
+    """
+    issues = []
+    for func in ("kickMember", "approveItem", "rejectItem"):
+        body = extract_function_body(content, func, window=1500)
+        if body is None:
+            continue
+        if "writeAuditLog" not in body:
+            continue   # already flagged by check_audit_log_on_power_actions
+        if "loadAuditLog" not in body:
+            issues.append({
+                "check": "audit_log_refreshed", "function": func,
+                "reason": (
+                    f"{func}() calls writeAuditLog but never calls "
+                    f"loadAuditLog() — the Supervisor Action Log card on "
+                    f"hive.html stays stale until the page is reloaded. "
+                    f"Add `loadAuditLog();` after the writeAuditLog call."
+                )
+            })
+    return issues
+
+
 def check_eschtml_in_render(content):
     if "escHtml" not in content:
         return [{"check": "eschtml_render",
@@ -263,7 +290,7 @@ CHECK_NAMES = [
     "auth_gate",
     "supervisor_gate_kick", "supervisor_gate_approve", "supervisor_gate_reject",
     # L4
-    "audit_log_power_actions", "eschtml_render",
+    "audit_log_power_actions", "audit_log_refreshed", "eschtml_render",
 ]
 
 CHECK_LABELS = {
@@ -283,6 +310,7 @@ CHECK_LABELS = {
     "supervisor_gate_reject":  "L3  rejectItem checks HIVE_ROLE supervisor",
     # L4
     "audit_log_power_actions": "L4  writeAuditLog called on kick/approve/reject",
+    "audit_log_refreshed":     "L4  loadAuditLog() refreshed after every writeAuditLog write",
     "eschtml_render":          "L4  escHtml applied to worker_name in render",
 }
 
@@ -318,6 +346,7 @@ def main():
 
     # L4
     all_issues += check_audit_log_on_power_actions(content)
+    all_issues += check_audit_log_refreshed_after_write(content)
     all_issues += check_eschtml_in_render(content)
 
     n_pass, n_skip, n_fail = format_result(CHECK_NAMES, CHECK_LABELS, all_issues)

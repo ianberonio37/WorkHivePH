@@ -98,6 +98,37 @@ def run() -> dict:
         issues.append({"check": "l3_helper", "layer": "L3",
                        "reason": "onboarding.js missing or does not expose whOnboardingProgress + whRenderOnboardingCard."})
 
+    # L3 — Walkthrough 2026-05-13: every localStorage flag the onboarding
+    # stepper detects must have a setter somewhere in the platform. The
+    # "Review the audit log" step relied on 'wh_onb_audit_visited' but the
+    # flag was never set anywhere, so the step could never tick.
+    if onboard_src:
+        import re as _re
+        # Pull every flag the stepper checks via _flag('wh_onb_*').
+        flag_refs = set(_re.findall(r"_flag\(['\"]([\w_]+)['\"]\)", onboard_src))
+        # Search every HTML / JS file in the repo for a matching setItem.
+        all_pages = sorted(ROOT.glob("*.html")) + sorted(ROOT.glob("*.js"))
+        for flag in flag_refs:
+            setter_found = False
+            setter_re = _re.compile(
+                rf"localStorage\.setItem\(\s*['\"]{_re.escape(flag)}['\"]"
+            )
+            for p in all_pages:
+                src = _read(p)
+                if src and setter_re.search(src):
+                    setter_found = True
+                    break
+            if not setter_found:
+                issues.append({
+                    "check": "l3_flag_setter", "layer": "L3",
+                    "reason": (
+                        f"onboarding.js stepper checks localStorage flag "
+                        f"'{flag}' but no page sets it via localStorage.setItem. "
+                        f"The step can never tick. Add the setter on the "
+                        f"surface that should mark this step done."
+                    )
+                })
+
     # L4: intent capture
     if "id=\"intent-capture\"" not in hive_src and "id='intent-capture'" not in hive_src:
         issues.append({"check": "l4_modal", "layer": "L4",

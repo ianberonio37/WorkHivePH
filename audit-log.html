@@ -227,6 +227,11 @@
   const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
   logPageView(db);
+  // Phase 3.3 onboarding: mark the "Review the audit log" step as done.
+  // Walkthrough 2026-05-13: opening the page never ticked this step because
+  // nothing wrote the flag. One-liner here is the canonical setter.
+  try { localStorage.setItem('wh_onb_audit_visited', '1'); } catch (_) {}
+
   // ── Identity / hive / role gate ────────────────────────────────────────────
   let WORKER_NAME = localStorage.getItem('wh_last_worker')
                   || localStorage.getItem('wh_worker_name')

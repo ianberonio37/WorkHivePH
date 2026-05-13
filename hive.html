@@ -1991,6 +1991,7 @@ async function kickMember(workerName) {
   writeAuditLog('kick_member', 'hive_members', null, workerName, {});
   await loadMembers();
   await loadFeed();
+  loadAuditLog();  // refresh the Supervisor Action Log card so the kick shows
 }
 
 document.getElementById('btn-toggle-members').addEventListener('click', () => {
@@ -2687,6 +2688,7 @@ async function approveItem(table, id, submittedBy, label) {
   showToast(escHtml(label) + ' approved and published to hive.');
   pushNotif('approval', 'Item Approved', `${label} submitted by ${submittedBy} was approved.`, null);
   writeAuditLog('approve_item', table, id, label, { submitted_by: submittedBy });
+  loadAuditLog();
 }
 
 async function rejectItem(table, id, submittedBy, label) {
@@ -2700,6 +2702,7 @@ async function rejectItem(table, id, submittedBy, label) {
   renderApprovalQueue();
   showToast(escHtml(label) + ' rejected.');
   writeAuditLog('reject_item', table, id, label, { submitted_by: submittedBy });
+  loadAuditLog();
 }
 
 function startApprovalRealtime() {
