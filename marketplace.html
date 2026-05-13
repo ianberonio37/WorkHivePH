@@ -492,6 +492,36 @@
     @media (max-width: 767px) {
       .skel-pulse { animation: none; }
     }
+    /* Plain-Read summary (Layer D — UX Contract) */
+    .verdict { display:flex; align-items:center; gap:12px; padding:14px 16px; margin-bottom:14px; border-radius:12px; border:1px solid; }
+    .verdict-icon { font-size:1.5rem; line-height:1; font-weight:800; }
+    .verdict-text { font-size:0.9rem; font-weight:700; line-height:1.35; }
+    .verdict-text small { display:block; font-size:0.72rem; font-weight:500; color:rgba(255,255,255,0.65); margin-top:3px; }
+    .verdict.healthy { background:rgba(74,222,128,0.07);  border-color:rgba(74,222,128,0.3); }
+    .verdict.healthy .verdict-icon { color:#4ade80; }
+    .verdict.watch   { background:rgba(247,162,27,0.07);  border-color:rgba(247,162,27,0.3); }
+    .verdict.watch   .verdict-icon { color:#F7A21B; }
+    .verdict.attn    { background:rgba(248,113,113,0.07); border-color:rgba(248,113,113,0.3); }
+    .verdict.attn    .verdict-icon { color:#f87171; }
+    .verdict.empty   { background:rgba(255,255,255,0.03); border-color:rgba(255,255,255,0.08); }
+    .verdict.empty   .verdict-icon { color:rgba(255,255,255,0.55); }
+    .simple-row { display:grid; grid-template-columns:repeat(auto-fit, minmax(160px, 1fr)); gap:12px; margin-bottom:14px; }
+    .simple-card { background:#162032; border:1px solid rgba(255,255,255,0.07); border-radius:12px; padding:14px 16px; }
+    .simple-card .sc-label { font-size:0.65rem; font-weight:700; color:rgba(255,255,255,0.4); text-transform:uppercase; letter-spacing:0.06em; }
+    .simple-card .sc-hero  { font-size:1.5rem; font-weight:800; line-height:1.15; margin:4px 0 2px; color:#F4F6FA; }
+    .simple-card .sc-sub   { font-size:0.7rem; color:rgba(255,255,255,0.55); line-height:1.4; }
+    .simple-card .sc-tag   { display:inline-block; font-size:0.58rem; font-weight:800; letter-spacing:0.06em; text-transform:uppercase; padding:0.18rem 0.5rem; border-radius:999px; margin-top:7px; }
+    .simple-card.tag-green .sc-tag { background:rgba(74,222,128,0.16);  color:#4ade80; }
+    .simple-card.tag-amber .sc-tag { background:rgba(247,162,27,0.16);  color:#F7A21B; }
+    .simple-card.tag-red   .sc-tag { background:rgba(248,113,113,0.16); color:#f87171; }
+    .simple-card.tag-grey  .sc-tag { background:rgba(255,255,255,0.06); color:rgba(255,255,255,0.5); }
+    .action-card { background:rgba(41,182,217,0.06); border:1px solid rgba(41,182,217,0.25); border-radius:12px; padding:14px 16px; margin-bottom:14px; }
+    .action-card .ac-label { font-size:0.65rem; font-weight:800; color:#29B6D9; text-transform:uppercase; letter-spacing:0.07em; }
+    .action-card .ac-text { font-size:0.82rem; line-height:1.5; margin-top:6px; color:rgba(255,255,255,0.85); }
+    .details-toggle { display:inline-flex; align-items:center; gap:6px; background:transparent; border:1px solid rgba(255,255,255,0.07); color:rgba(255,255,255,0.6); padding:8px 14px; border-radius:8px; font-family:inherit; font-size:0.7rem; font-weight:600; cursor:pointer; min-height:44px; margin-bottom:14px; }
+    .details-toggle:hover { color:#F4F6FA; border-color:rgba(255,255,255,0.18); }
+    #mk-summary-details { display:none; padding:14px 16px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:12px; font-size:0.78rem; line-height:1.5; color:rgba(255,255,255,0.7); margin-bottom:14px; }
+    #mk-summary-details.open { display:block; }
   </style>
 </head>
 <body>
@@ -508,6 +538,50 @@
   <div class="page-header">
     <h1>Marketplace</h1>
     <p>Parts, training and services for Philippine industrial plants</p>
+  </div>
+
+  <!-- Plain-Read summary (Layer D — UX Contract).
+       Populated by renderMarketplaceSummary() from _listings + my activity. -->
+  <div id="mk-verdict" class="verdict empty">
+    <span id="mk-verdict-icon" class="verdict-icon">·</span>
+    <div class="verdict-text"><span id="mk-verdict-label">Loading marketplace...</span><small id="mk-verdict-sub">Counting listings, your activity, and open inquiries.</small></div>
+  </div>
+  <div class="simple-row">
+    <div class="simple-card tag-grey" id="mk-card-total">
+      <div class="sc-label">Listings in view</div>
+      <div class="sc-hero" id="mk-total-hero">0</div>
+      <div class="sc-sub" id="mk-total-sub">Loading...</div>
+      <span class="sc-tag" id="mk-total-tag">—</span>
+    </div>
+    <div class="simple-card tag-grey" id="mk-card-mine">
+      <div class="sc-label">My listings</div>
+      <div class="sc-hero" id="mk-mine-hero">0</div>
+      <div class="sc-sub" id="mk-mine-sub">Loading...</div>
+      <span class="sc-tag" id="mk-mine-tag">—</span>
+    </div>
+    <div class="simple-card tag-grey" id="mk-card-section">
+      <div class="sc-label">Current tab</div>
+      <div class="sc-hero" id="mk-section-hero">—</div>
+      <div class="sc-sub" id="mk-section-sub">Loading...</div>
+      <span class="sc-tag" id="mk-section-tag">—</span>
+    </div>
+  </div>
+  <div class="action-card">
+    <div class="ac-label">What to do next</div>
+    <div class="ac-text" id="mk-action-text">Computing recommendation...</div>
+  </div>
+  <button id="details-toggle-btn" type="button" class="details-toggle" aria-expanded="false" aria-controls="mk-summary-details">
+    Show details
+  </button>
+  <div id="mk-summary-details" role="region" aria-label="Marketplace explainer">
+    <strong style="display:block;margin-bottom:6px;color:rgba(255,255,255,0.85);">How counts are derived</strong>
+    <ul style="margin:0;padding-left:20px;">
+      <li><strong>Listings in view</strong>: <code>marketplace_listings</code> rows for the current section (parts / training / jobs) within your search + filter.</li>
+      <li><strong>My listings</strong>: rows where <code>seller_name</code> matches your worker_name across all sections.</li>
+      <li><strong>Current tab</strong>: count of listings in the active section, with average price for orientation.</li>
+      <li><strong>Verdict</strong>: green when listings &gt; 0; empty when no listings exist in the current section yet.</li>
+    </ul>
+    <p style="margin-top:8px;color:rgba(255,255,255,0.55);font-size:11px;">Use the trust bar buttons (Watchlist, Searches) to track listings you care about. Open inquiries land in your inbox.</p>
   </div>
 
   <!-- Section tabs -->
@@ -1671,10 +1745,90 @@
   /* ============================================================
      RENDER LISTINGS
   ============================================================ */
+  // Layer D — Plain-Read summary for Marketplace. Reads _listings + active section.
+  function renderMarketplaceSummary() {
+    const total   = _listings.length;
+    const mine    = _listings.filter(l => l.seller_name === WORKER_NAME).length;
+    const section = (_currentSection || 'parts');
+    const sectionLabel = section.charAt(0).toUpperCase() + section.slice(1);
+
+    // Average price for orientation (skip nulls/zeros for sanity)
+    const priced = _listings.filter(l => Number(l.price) > 0);
+    const avgPrice = priced.length ? Math.round(priced.reduce((s, l) => s + Number(l.price), 0) / priced.length) : 0;
+
+    const setCard = (name, hero, sub, tag, tone) => {
+      const card = document.getElementById('mk-card-' + name);
+      if (card) {
+        card.classList.remove('tag-green', 'tag-amber', 'tag-red', 'tag-grey');
+        card.classList.add('tag-' + tone);
+      }
+      const h = document.getElementById('mk-' + name + '-hero'); if (h) h.textContent = hero;
+      const s = document.getElementById('mk-' + name + '-sub');  if (s) s.textContent = sub;
+      const t = document.getElementById('mk-' + name + '-tag');  if (t) t.textContent = tag;
+    };
+
+    setCard('total',
+      String(total),
+      total === 0 ? `No ${section} listings match your filter` : `${total} ${section} listing${total === 1 ? '' : 's'} after filter`,
+      total === 0 ? 'EMPTY' : total >= 10 ? 'BROWSE' : 'NARROW',
+      total === 0 ? 'grey' : 'green'
+    );
+    setCard('mine',
+      String(mine),
+      mine === 0 ? 'You have no live listings yet' : `${mine} of your listings live in marketplace`,
+      mine === 0 ? 'NONE' : 'LISTED',
+      mine === 0 ? 'grey' : 'green'
+    );
+    setCard('section',
+      sectionLabel,
+      total === 0 ? `Currently viewing ${section}, no results` : `${total} live · avg ₱${avgPrice.toLocaleString()}`,
+      'ACTIVE',
+      'green'
+    );
+
+    let tone, label, sub;
+    if (total === 0 && mine === 0) {
+      tone = 'empty'; label = `No ${section} listings yet`;
+      sub  = `Be the first to post in this section — buyers across the Philippines are looking.`;
+    } else if (total === 0) {
+      tone = 'watch'; label = `No matches in ${section} for your filter`;
+      sub  = 'Try clearing the search box or pick a different section tab.';
+    } else if (mine === 0) {
+      tone = 'healthy'; label = `${total} ${section} listing${total === 1 ? '' : 's'} live`;
+      sub  = 'Click any listing for details, or post your own from the + Post button.';
+    } else {
+      tone = 'healthy'; label = `${total} listings · ${mine} of them yours`;
+      sub  = 'Check inquiries on your listings via the seller inbox.';
+    }
+    const vBox = document.getElementById('mk-verdict');
+    if (vBox) { vBox.classList.remove('healthy','watch','attn','empty'); vBox.classList.add(tone); }
+    const vIcon = document.getElementById('mk-verdict-icon'); if (vIcon) vIcon.textContent = tone === 'healthy' ? '✓' : tone === 'watch' ? '!' : tone === 'attn' ? '⚠' : '·';
+    const vLbl = document.getElementById('mk-verdict-label'); if (vLbl) vLbl.textContent = label;
+    const vSb  = document.getElementById('mk-verdict-sub');   if (vSb)  vSb.textContent  = sub;
+
+    const actBox = document.getElementById('mk-action-text');
+    if (actBox) {
+      let text;
+      if (total === 0 && mine === 0) {
+        text = `No ${section} listings yet. Click + Post to add the first one — listings are free, and the trust bar above shows what buyers care about (KYB, escrow, secure inquiries).`;
+      } else if (total === 0) {
+        text = 'No listings match your current filter. Clear the search box, switch section tab, or expand your price/location range.';
+      } else if (mine === 0) {
+        text = `Browse the ${total} listing${total === 1 ? '' : 's'} below, or click + Post to add your own ${section} listing. Sellers with photos + KYB verification get 3× more inquiries.`;
+      } else {
+        text = `You have ${mine} live listing${mine === 1 ? '' : 's'} in the marketplace. Check your inbox for buyer inquiries — the faster you respond, the higher your seller rank climbs.`;
+      }
+      actBox.textContent = text;
+    }
+  }
+
   function renderListings() {
     const grid = document.getElementById('listing-grid');
     const info = document.getElementById('listings-info');
     if (!grid) return;
+
+    // Plain-Read summary fires on every render so cards stay in sync with the grid.
+    renderMarketplaceSummary();
 
     if (info) {
       info.innerHTML = _listings.length
@@ -2888,6 +3042,18 @@
 
     /* Load data */
     await Promise.all([loadListings(), loadCounts()]);
+
+    /* Plain-Read details toggle (Layer D — UX Contract) */
+    (function wireMkSummaryToggle() {
+      const btn  = document.getElementById('details-toggle-btn');
+      const pane = document.getElementById('mk-summary-details');
+      if (!btn || !pane) return;
+      btn.addEventListener('click', () => {
+        const open = pane.classList.toggle('open');
+        btn.setAttribute('aria-expanded', String(open));
+        btn.textContent = open ? 'Hide details' : 'Show details';
+      });
+    })();
 
     /* Realtime channel cleanup on navigation */
     window.addEventListener('beforeunload', () => { if (_realtimeChannel) db.removeChannel(_realtimeChannel); });

@@ -131,6 +131,36 @@
 
     /* Hidden */
     .hidden { display: none !important; }
+    /* Plain-Read summary (Layer D — UX Contract) */
+    .verdict { display:flex; align-items:center; gap:12px; padding:14px 16px; margin-bottom:14px; border-radius:12px; border:1px solid; }
+    .verdict-icon { font-size:1.5rem; line-height:1; font-weight:800; }
+    .verdict-text { font-size:0.9rem; font-weight:700; line-height:1.35; }
+    .verdict-text small { display:block; font-size:0.72rem; font-weight:500; color:rgba(255,255,255,0.65); margin-top:3px; }
+    .verdict.healthy { background:rgba(74,222,128,0.07);  border-color:rgba(74,222,128,0.3); }
+    .verdict.healthy .verdict-icon { color:#4ade80; }
+    .verdict.watch   { background:rgba(247,162,27,0.07);  border-color:rgba(247,162,27,0.3); }
+    .verdict.watch   .verdict-icon { color:#F7A21B; }
+    .verdict.attn    { background:rgba(248,113,113,0.07); border-color:rgba(248,113,113,0.3); }
+    .verdict.attn    .verdict-icon { color:#f87171; }
+    .verdict.empty   { background:rgba(255,255,255,0.03); border-color:rgba(255,255,255,0.08); }
+    .verdict.empty   .verdict-icon { color:rgba(255,255,255,0.55); }
+    .simple-row { display:grid; grid-template-columns:repeat(auto-fit, minmax(160px, 1fr)); gap:12px; margin-bottom:14px; }
+    .simple-card { background:#162032; border:1px solid rgba(255,255,255,0.07); border-radius:12px; padding:14px 16px; }
+    .simple-card .sc-label { font-size:0.65rem; font-weight:700; color:rgba(255,255,255,0.4); text-transform:uppercase; letter-spacing:0.06em; }
+    .simple-card .sc-hero  { font-size:1.5rem; font-weight:800; line-height:1.15; margin:4px 0 2px; color:#F4F6FA; }
+    .simple-card .sc-sub   { font-size:0.7rem; color:rgba(255,255,255,0.55); line-height:1.4; }
+    .simple-card .sc-tag   { display:inline-block; font-size:0.58rem; font-weight:800; letter-spacing:0.06em; text-transform:uppercase; padding:0.18rem 0.5rem; border-radius:999px; margin-top:7px; }
+    .simple-card.tag-green .sc-tag { background:rgba(74,222,128,0.16);  color:#4ade80; }
+    .simple-card.tag-amber .sc-tag { background:rgba(247,162,27,0.16);  color:#F7A21B; }
+    .simple-card.tag-red   .sc-tag { background:rgba(248,113,113,0.16); color:#f87171; }
+    .simple-card.tag-grey  .sc-tag { background:rgba(255,255,255,0.06); color:rgba(255,255,255,0.5); }
+    .action-card { background:rgba(41,182,217,0.06); border:1px solid rgba(41,182,217,0.25); border-radius:12px; padding:14px 16px; margin-bottom:14px; }
+    .action-card .ac-label { font-size:0.65rem; font-weight:800; color:#29B6D9; text-transform:uppercase; letter-spacing:0.07em; }
+    .action-card .ac-text { font-size:0.82rem; line-height:1.5; margin-top:6px; color:rgba(255,255,255,0.85); }
+    .details-toggle { display:inline-flex; align-items:center; gap:6px; background:transparent; border:1px solid rgba(255,255,255,0.07); color:rgba(255,255,255,0.6); padding:8px 14px; border-radius:8px; font-family:inherit; font-size:0.7rem; font-weight:600; cursor:pointer; min-height:44px; margin-bottom:14px; }
+    .details-toggle:hover { color:#F4F6FA; border-color:rgba(255,255,255,0.18); }
+    #it-summary-details { display:none; padding:14px 16px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:12px; font-size:0.78rem; line-height:1.5; color:rgba(255,255,255,0.7); margin-bottom:14px; }
+    #it-summary-details.open { display:block; }
   </style>
 </head>
 <body>
@@ -138,6 +168,50 @@
 <div id="toast" role="status" aria-live="polite"></div>
 
 <div class="page" style="padding-top: 70px;">
+
+  <!-- Plain-Read summary (Layer D — UX Contract).
+       Populated by renderIntegrationsSummary() from the live integration_configs fetch. -->
+  <div id="it-verdict" class="verdict empty">
+    <span id="it-verdict-icon" class="verdict-icon">·</span>
+    <div class="verdict-text"><span id="it-verdict-label">Loading integrations...</span><small id="it-verdict-sub">Counting active CMMS connections, imports, and API keys.</small></div>
+  </div>
+  <div class="simple-row">
+    <div class="simple-card tag-grey" id="it-card-active">
+      <div class="sc-label">Active integrations</div>
+      <div class="sc-hero" id="it-active-hero">0</div>
+      <div class="sc-sub" id="it-active-sub">Loading...</div>
+      <span class="sc-tag" id="it-active-tag">—</span>
+    </div>
+    <div class="simple-card tag-grey" id="it-card-stale">
+      <div class="sc-label">Stale syncs</div>
+      <div class="sc-hero" id="it-stale-hero">0</div>
+      <div class="sc-sub" id="it-stale-sub">Loading...</div>
+      <span class="sc-tag" id="it-stale-tag">—</span>
+    </div>
+    <div class="simple-card tag-grey" id="it-card-disabled">
+      <div class="sc-label">Disabled</div>
+      <div class="sc-hero" id="it-disabled-hero">0</div>
+      <div class="sc-sub" id="it-disabled-sub">Loading...</div>
+      <span class="sc-tag" id="it-disabled-tag">—</span>
+    </div>
+  </div>
+  <div class="action-card">
+    <div class="ac-label">What to do next</div>
+    <div class="ac-text" id="it-action-text">Computing recommendation...</div>
+  </div>
+  <button id="details-toggle-btn" type="button" class="details-toggle" aria-expanded="false" aria-controls="it-summary-details">
+    Show details
+  </button>
+  <div id="it-summary-details" role="region" aria-label="Integrations explainer">
+    <strong style="display:block;margin-bottom:6px;color:rgba(255,255,255,0.85);">How integrations are categorised</strong>
+    <ul style="margin:0;padding-left:20px;">
+      <li><strong>Active integrations</strong>: <code>integration_configs</code> rows with <code>enabled = true</code> and a sync in the last 7 days.</li>
+      <li><strong>Stale syncs</strong>: enabled integrations whose <code>last_sync_at</code> is older than 7 days — usually an auth or endpoint issue.</li>
+      <li><strong>Disabled</strong>: integrations turned off but still in the config table.</li>
+      <li><strong>Verdict</strong>: red if any stale; amber if any disabled OR no integrations at all; green when all active integrations are fresh.</li>
+    </ul>
+    <p style="margin-top:8px;color:rgba(255,255,255,0.55);font-size:11px;">The 3 tabs below (Import File / Live Sync / API Keys) let you configure each integration type.</p>
+  </div>
 
   <!-- Getting Started workflow guide (dismissible) -->
   <div id="cmms-guide" style="margin-bottom:1.25rem; display:none;">
@@ -593,6 +667,29 @@
     // Show Getting Started guide unless explicitly dismissed via the Dismiss link
     if (!localStorage.getItem('wh_cmms_guide_dismissed')) {
       document.getElementById('cmms-guide').style.display = 'block';
+    }
+
+    // Plain-Read summary fires once on load to populate the verdict + cards
+    // even when the default tab is "Import File" (loadSyncConfigs runs only
+    // when the user clicks Live Sync).
+    if (HIVE_ID) {
+      try {
+        const { data } = await db.from('integration_configs').select('*').eq('hive_id', HIVE_ID);
+        renderIntegrationsSummary(data || []);
+      } catch (_) { renderIntegrationsSummary([]); }
+    } else {
+      renderIntegrationsSummary([]);
+    }
+
+    // Plain-Read details toggle (Layer D — UX Contract)
+    const btn  = document.getElementById('details-toggle-btn');
+    const pane = document.getElementById('it-summary-details');
+    if (btn && pane) {
+      btn.addEventListener('click', () => {
+        const open = pane.classList.toggle('open');
+        btn.setAttribute('aria-expanded', String(open));
+        btn.textContent = open ? 'Hide details' : 'Show details';
+      });
     }
   })();
 
@@ -1369,10 +1466,87 @@
   // ── Live Sync ─────────────────────────────────────────────────────────────
   let _editingConfigId = null;
 
+  // Layer D — Plain-Read summary for Integrations.
+  function renderIntegrationsSummary(configs) {
+    const now = Date.now();
+    const stale_cutoff = 7 * 86400 * 1000;
+    const enabled  = configs.filter(c => c.enabled !== false);
+    const stale    = enabled.filter(c => !c.last_sync_at || (now - new Date(c.last_sync_at).getTime()) > stale_cutoff);
+    const active   = enabled.filter(c => c.last_sync_at && (now - new Date(c.last_sync_at).getTime()) <= stale_cutoff);
+    const disabled = configs.filter(c => c.enabled === false);
+
+    const setCard = (name, hero, sub, tag, tone) => {
+      const card = document.getElementById('it-card-' + name);
+      if (card) {
+        card.classList.remove('tag-green', 'tag-amber', 'tag-red', 'tag-grey');
+        card.classList.add('tag-' + tone);
+      }
+      const h = document.getElementById('it-' + name + '-hero'); if (h) h.textContent = hero;
+      const s = document.getElementById('it-' + name + '-sub');  if (s) s.textContent = sub;
+      const t = document.getElementById('it-' + name + '-tag');  if (t) t.textContent = tag;
+    };
+
+    setCard('active',
+      String(active.length),
+      active.length === 0 ? 'No CMMS integrations syncing yet' : `${active.length} CMMS integration${active.length === 1 ? '' : 's'} syncing within last 7 days`,
+      active.length === 0 ? 'NONE' : 'CONNECTED',
+      active.length === 0 ? 'grey' : 'green'
+    );
+    setCard('stale',
+      String(stale.length),
+      stale.length === 0 ? 'All enabled integrations fresh' : `${stale.length} enabled integration${stale.length === 1 ? '' : 's'} haven't synced in 7+ days`,
+      stale.length === 0 ? 'CLEAR' : stale.length >= 2 ? 'FAILING' : 'WATCH',
+      stale.length === 0 ? 'green' : stale.length >= 2 ? 'red' : 'amber'
+    );
+    setCard('disabled',
+      String(disabled.length),
+      disabled.length === 0 ? 'No disabled integrations' : `${disabled.length} integration${disabled.length === 1 ? '' : 's'} switched off but kept in config`,
+      disabled.length === 0 ? 'CLEAR' : 'OFF',
+      disabled.length === 0 ? 'green' : 'grey'
+    );
+
+    let tone, label, sub;
+    if (stale.length > 0) {
+      tone = 'attn'; label = `${stale.length} integration${stale.length === 1 ? '' : 's'} stale`;
+      sub  = 'Open the Live Sync tab and click into each stale row — usually an expired API key or a changed endpoint URL.';
+    } else if (configs.length === 0) {
+      tone = 'empty'; label = 'No integrations configured yet';
+      sub  = 'Start with Import File (one-time history backfill from your existing CMMS) then Live Sync (daily delta).';
+    } else if (active.length === 0 && configs.length > 0) {
+      tone = 'watch'; label = 'No integrations syncing right now';
+      sub  = 'All your configs are either disabled or never-synced. Re-enable or run a manual sync from the Live Sync tab.';
+    } else {
+      tone = 'healthy'; label = `${active.length} CMMS integration${active.length === 1 ? '' : 's'} healthy`;
+      sub  = `${active.length} fresh · ${disabled.length} off · 0 stale. SAP / Maximo / generic CSV all syncing as expected.`;
+    }
+    const vBox = document.getElementById('it-verdict');
+    if (vBox) { vBox.classList.remove('healthy','watch','attn','empty'); vBox.classList.add(tone); }
+    const vIcon = document.getElementById('it-verdict-icon'); if (vIcon) vIcon.textContent = tone === 'healthy' ? '✓' : tone === 'watch' ? '!' : tone === 'attn' ? '⚠' : '·';
+    const vLbl = document.getElementById('it-verdict-label'); if (vLbl) vLbl.textContent = label;
+    const vSb  = document.getElementById('it-verdict-sub');   if (vSb)  vSb.textContent  = sub;
+
+    const actBox = document.getElementById('it-action-text');
+    if (actBox) {
+      let text;
+      if (configs.length === 0) {
+        text = 'No integrations yet. Easiest path: click the "Import File" tab below, drop a CSV from your existing CMMS, and you have history on day one. Then set up Live Sync for daily deltas.';
+      } else if (stale.length > 0) {
+        text = `${stale.length} stale integration${stale.length === 1 ? '' : 's'}. Open the Live Sync tab below, click the row, and check (1) API key not expired, (2) endpoint URL still reachable, (3) auth method still matches the CMMS side.`;
+      } else if (disabled.length > 0 && active.length > 0) {
+        text = 'Some integrations are disabled. If you no longer need them, delete the config row to keep this page clean. If they are paused, re-enable from the Live Sync tab.';
+      } else {
+        text = 'Everything is syncing. Use the API Keys tab if you need to give Power BI or a custom app read access to your benchmark data.';
+      }
+      actBox.textContent = text;
+    }
+  }
+
   async function loadSyncConfigs() {
     if (!HIVE_ID) return;
     const { data } = await db.from('integration_configs')
       .select('*').eq('hive_id', HIVE_ID).order('created_at', { ascending: false });
+    // Plain-Read summary (Layer D) — runs even when there are no configs.
+    renderIntegrationsSummary(data || []);
     const list = document.getElementById('sync-active-list');
     if (!data?.length) { list.innerHTML = '<p style="font-size:.75rem; color:var(--muted);">No live sync configs yet. Add one above.</p>'; return; }
     const supabaseUrl = 'https://hzyvnjtisfgbksicrouu.supabase.co';

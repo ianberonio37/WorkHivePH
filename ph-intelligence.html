@@ -72,6 +72,36 @@
     /* API section */
     .api-endpoint { font-family: ui-monospace, monospace; font-size: .72rem; background: rgba(0,0,0,0.3); padding: 10px 14px; border-radius: 8px; color: var(--blue); margin-bottom: 8px; word-break: break-all; }
     .hidden { display: none !important; }
+    /* Plain-Read summary (Layer D — UX Contract) */
+    .verdict { display:flex; align-items:center; gap:12px; padding:14px 16px; margin-bottom:14px; border-radius:12px; border:1px solid; }
+    .verdict-icon { font-size:1.5rem; line-height:1; font-weight:800; }
+    .verdict-text { font-size:0.9rem; font-weight:700; line-height:1.35; }
+    .verdict-text small { display:block; font-size:0.72rem; font-weight:500; color:rgba(255,255,255,0.65); margin-top:3px; }
+    .verdict.healthy { background:rgba(74,222,128,0.07);  border-color:rgba(74,222,128,0.3); }
+    .verdict.healthy .verdict-icon { color:#4ade80; }
+    .verdict.watch   { background:rgba(247,162,27,0.07);  border-color:rgba(247,162,27,0.3); }
+    .verdict.watch   .verdict-icon { color:#F7A21B; }
+    .verdict.attn    { background:rgba(248,113,113,0.07); border-color:rgba(248,113,113,0.3); }
+    .verdict.attn    .verdict-icon { color:#f87171; }
+    .verdict.empty   { background:rgba(255,255,255,0.03); border-color:rgba(255,255,255,0.08); }
+    .verdict.empty   .verdict-icon { color:rgba(255,255,255,0.55); }
+    .simple-row { display:grid; grid-template-columns:repeat(auto-fit, minmax(160px, 1fr)); gap:12px; margin-bottom:14px; }
+    .simple-card { background:#162032; border:1px solid rgba(255,255,255,0.07); border-radius:12px; padding:14px 16px; }
+    .simple-card .sc-label { font-size:0.65rem; font-weight:700; color:rgba(255,255,255,0.4); text-transform:uppercase; letter-spacing:0.06em; }
+    .simple-card .sc-hero  { font-size:1.5rem; font-weight:800; line-height:1.15; margin:4px 0 2px; color:#F4F6FA; }
+    .simple-card .sc-sub   { font-size:0.7rem; color:rgba(255,255,255,0.55); line-height:1.4; }
+    .simple-card .sc-tag   { display:inline-block; font-size:0.58rem; font-weight:800; letter-spacing:0.06em; text-transform:uppercase; padding:0.18rem 0.5rem; border-radius:999px; margin-top:7px; }
+    .simple-card.tag-green .sc-tag { background:rgba(74,222,128,0.16);  color:#4ade80; }
+    .simple-card.tag-amber .sc-tag { background:rgba(247,162,27,0.16);  color:#F7A21B; }
+    .simple-card.tag-red   .sc-tag { background:rgba(248,113,113,0.16); color:#f87171; }
+    .simple-card.tag-grey  .sc-tag { background:rgba(255,255,255,0.06); color:rgba(255,255,255,0.5); }
+    .action-card { background:rgba(41,182,217,0.06); border:1px solid rgba(41,182,217,0.25); border-radius:12px; padding:14px 16px; margin-bottom:14px; }
+    .action-card .ac-label { font-size:0.65rem; font-weight:800; color:#29B6D9; text-transform:uppercase; letter-spacing:0.07em; }
+    .action-card .ac-text { font-size:0.82rem; line-height:1.5; margin-top:6px; color:rgba(255,255,255,0.85); }
+    .details-toggle { display:inline-flex; align-items:center; gap:6px; background:transparent; border:1px solid rgba(255,255,255,0.07); color:rgba(255,255,255,0.6); padding:8px 14px; border-radius:8px; font-family:inherit; font-size:0.7rem; font-weight:600; cursor:pointer; min-height:44px; margin-bottom:14px; }
+    .details-toggle:hover { color:#F4F6FA; border-color:rgba(255,255,255,0.18); }
+    #ph-summary-details { display:none; padding:14px 16px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:12px; font-size:0.78rem; line-height:1.5; color:rgba(255,255,255,0.7); margin-bottom:14px; }
+    #ph-summary-details.open { display:block; }
   </style>
 </head>
 <body>
@@ -92,6 +122,50 @@
 
   <!-- Report content -->
   <div id="report-content" class="hidden">
+
+    <!-- Plain-Read summary (Layer D — UX Contract).
+         Populated by renderPhSummary() from the report payload. -->
+    <div id="ph-verdict" class="verdict empty">
+      <span id="ph-verdict-icon" class="verdict-icon">·</span>
+      <div class="verdict-text"><span id="ph-verdict-label">Loading regional intelligence...</span><small id="ph-verdict-sub">Reading the latest anonymised report from the PH network.</small></div>
+    </div>
+    <div class="simple-row">
+      <div class="simple-card tag-grey" id="ph-card-plants">
+        <div class="sc-label">Plants in network</div>
+        <div class="sc-hero" id="ph-plants-hero">0</div>
+        <div class="sc-sub" id="ph-plants-sub">Loading...</div>
+        <span class="sc-tag" id="ph-plants-tag">—</span>
+      </div>
+      <div class="simple-card tag-grey" id="ph-card-cause">
+        <div class="sc-label">Top failure cause</div>
+        <div class="sc-hero" id="ph-cause-hero">—</div>
+        <div class="sc-sub" id="ph-cause-sub">Loading...</div>
+        <span class="sc-tag" id="ph-cause-tag">—</span>
+      </div>
+      <div class="simple-card tag-grey" id="ph-card-fresh">
+        <div class="sc-label">Report freshness</div>
+        <div class="sc-hero" id="ph-fresh-hero">—</div>
+        <div class="sc-sub" id="ph-fresh-sub">Loading...</div>
+        <span class="sc-tag" id="ph-fresh-tag">—</span>
+      </div>
+    </div>
+    <div class="action-card">
+      <div class="ac-label">What to do next</div>
+      <div class="ac-text" id="ph-action-text">Computing recommendation...</div>
+    </div>
+    <button id="details-toggle-btn" type="button" class="details-toggle" aria-expanded="false" aria-controls="ph-summary-details">
+      Show details
+    </button>
+    <div id="ph-summary-details" role="region" aria-label="Regional intelligence explainer">
+      <strong style="display:block;margin-bottom:6px;color:rgba(255,255,255,0.85);">How this report is built</strong>
+      <ul style="margin:0;padding-left:20px;">
+        <li><strong>Plants in network</strong>: number of distinct hives contributing anonymised data to this report.</li>
+        <li><strong>Top failure cause</strong>: the most-common <code>root_cause</code> across all hives in the period.</li>
+        <li><strong>Report freshness</strong>: days since the report was generated (refreshes monthly).</li>
+        <li><strong>Verdict</strong>: green when report has 3+ plants and was generated in last 45 days; empty otherwise.</li>
+      </ul>
+      <p style="margin-top:8px;color:rgba(255,255,255,0.55);font-size:11px;">Only members of a hive that opted into anonymised contributions see "Your Plant vs Network" below.</p>
+    </div>
 
     <!-- Key stats -->
     <div class="stats-row" id="stats-row"></div>
@@ -213,6 +287,87 @@
     renderReport(data);
   }
 
+  // Layer D — Plain-Read summary for PH Intelligence.
+  function renderPhSummary(data) {
+    const r        = data.report_json || {};
+    const plants   = data.hive_count || 0;
+    const modes    = r.failure_modes || [];
+    const topCause = modes.length ? modes[0].cause : null;
+    const topCount = modes.length ? modes[0].count : 0;
+    const days     = data.generated_at
+                       ? Math.floor((Date.now() - new Date(data.generated_at).getTime()) / 86400000)
+                       : null;
+
+    const setCard = (name, hero, sub, tag, tone) => {
+      const card = document.getElementById('ph-card-' + name);
+      if (card) {
+        card.classList.remove('tag-green', 'tag-amber', 'tag-red', 'tag-grey');
+        card.classList.add('tag-' + tone);
+      }
+      const h = document.getElementById('ph-' + name + '-hero'); if (h) h.textContent = hero;
+      const s = document.getElementById('ph-' + name + '-sub');  if (s) s.textContent = sub;
+      const t = document.getElementById('ph-' + name + '-tag');  if (t) t.textContent = tag;
+    };
+
+    setCard('plants',
+      String(plants),
+      plants === 0 ? 'No plants contributing yet' : `${plants} hive${plants === 1 ? '' : 's'} sharing anonymised data`,
+      plants === 0 ? 'EMPTY' : plants >= 5 ? 'NETWORK' : 'EARLY',
+      plants === 0 ? 'grey' : plants >= 5 ? 'green' : 'amber'
+    );
+    if (!topCause) {
+      setCard('cause', '—', 'No failure cause data this period', 'NO DATA', 'grey');
+    } else {
+      const short = topCause.length > 32 ? topCause.slice(0, 30) + '…' : topCause;
+      setCard('cause', short, `${topCount} occurrences across the network`, 'TOP RANK', 'amber');
+    }
+    if (days == null) {
+      setCard('fresh', '—', 'No report generated yet', 'NO DATA', 'grey');
+    } else {
+      setCard('fresh',
+        `${days}d`,
+        days <= 45 ? 'Report from this month or last' : `Report ${days} days old (refreshes monthly)`,
+        days <= 45 ? 'FRESH' : days <= 90 ? 'AGEING' : 'STALE',
+        days <= 45 ? 'green' : days <= 90 ? 'amber' : 'red'
+      );
+    }
+
+    let tone, label, sub;
+    if (plants === 0) {
+      tone = 'empty'; label = 'No regional data yet';
+      sub  = 'Reports generate monthly once 3+ plants have opted into anonymised data sharing.';
+    } else if (plants < 3 || (days != null && days > 90)) {
+      tone = 'watch'; label = 'Report is thin or aging';
+      sub  = plants < 3 ? `Only ${plants} plant${plants === 1 ? '' : 's'} contributing — patterns are noisy at this scale.`
+                        : `Report is ${days} days old — next monthly refresh due soon.`;
+    } else {
+      tone = 'healthy'; label = `${plants}-plant report${days != null ? ', ' + days + 'd old' : ''}`;
+      sub  = topCause ? `Top failure cause across the network: ${topCause}.` : 'Network in healthy state — explore by category below.';
+    }
+    const vBox = document.getElementById('ph-verdict');
+    if (vBox) { vBox.classList.remove('healthy','watch','attn','empty'); vBox.classList.add(tone); }
+    const vIcon = document.getElementById('ph-verdict-icon'); if (vIcon) vIcon.textContent = tone === 'healthy' ? '✓' : tone === 'watch' ? '!' : tone === 'attn' ? '⚠' : '·';
+    const vLbl = document.getElementById('ph-verdict-label'); if (vLbl) vLbl.textContent = label;
+    const vSb  = document.getElementById('ph-verdict-sub');   if (vSb)  vSb.textContent  = sub;
+
+    const actBox = document.getElementById('ph-action-text');
+    if (actBox) {
+      let text;
+      if (plants === 0) {
+        text = 'No regional report yet. Encourage other supervisors in your industry to opt into anonymised data sharing — once 3+ plants contribute, monthly benchmarks unlock.';
+      } else if (plants < 3) {
+        text = `Only ${plants} plant${plants === 1 ? '' : 's'} contributing. Benchmark numbers below are directional only — wait for the network to grow before using them in decisions.`;
+      } else if (days != null && days > 90) {
+        text = `Report is ${days} days old. Either the cron has stopped or the network is dormant — flag the platform admin if this persists.`;
+      } else if (topCause) {
+        text = `Top failure cause this period is "${topCause}". Cross-check against your own logbook — if your plant shows the same pattern, that\'s where to focus your next PM cycle.`;
+      } else {
+        text = 'Network is healthy. Scroll the rankings + failure modes below for category-level comparisons against your plant.';
+      }
+      actBox.textContent = text;
+    }
+  }
+
   function renderReport(data) {
     const r  = data.report_json  || {};
     const n  = data.narrative    || {};
@@ -220,6 +375,9 @@
 
     document.getElementById('report-period-badge').textContent = periodLabel;
     document.getElementById('report-content').classList.remove('hidden');
+
+    // Plain-Read summary fires before the rest so cards are populated first.
+    renderPhSummary(data);
 
     // Stats
     document.getElementById('stats-row').innerHTML = [
@@ -326,6 +484,18 @@
       .replace(/&/g, '&amp;').replace(/</g, '&lt;')
       .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   }
+
+  // Plain-Read details toggle (Layer D — UX Contract)
+  (function wirePhSummaryToggle() {
+    const btn  = document.getElementById('details-toggle-btn');
+    const pane = document.getElementById('ph-summary-details');
+    if (!btn || !pane) return;
+    btn.addEventListener('click', () => {
+      const open = pane.classList.toggle('open');
+      btn.setAttribute('aria-expanded', String(open));
+      btn.textContent = open ? 'Hide details' : 'Show details';
+    });
+  })();
 
   loadReport();
 

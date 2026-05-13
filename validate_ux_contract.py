@@ -654,18 +654,14 @@ PLAIN_READ_EXEMPT = {
     "audit-log.html":          "Append-only log — the table IS the point; verdict would be misleading.",
     "engineering-design.html": "Calculator tool — page is the calc itself, not a dashboard.",
     "analytics-report.html":   "PDF render surface — generates printable report, not interactive.",
+    "index.html":              "Public marketing landing — signed-in dashboard is hive.html. Mixed unauth/auth content makes verdict misleading.",
+    "project-report.html":     "Per-project print-ready view (single project drilldown, not portfolio). Portfolio verdict lives on project-manager.html.",
 }
 
 # IN_SCOPE pages currently NOT compliant — allowlisted as deferred debt.
 # Remove an entry once that page ships verdict + cards + action + toggle.
 # Each entry: page -> one-line note on what the streamline target is.
 PLAIN_READ_DEFERRED = {
-    "index.html":           "Landing — needs platform-health verdict + 'next thing to do' action card.",
-    "ph-intelligence.html": "Regional view — needs network-health verdict + cards.",
-    "marketplace.html":     "Needs marketplace-activity verdict + cards (listings / orders / disputes).",
-    "project-report.html":  "Needs project-summary verdict + cards (scope-done / risk).",
-    "integrations.html":    "Overlaps with plant-connections; consider consolidating or applying same streamline.",
-    "report-sender.html":   "Needs send-health verdict + cards (sent-today / failed / scheduled).",
 }
 
 
