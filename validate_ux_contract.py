@@ -599,6 +599,143 @@ ROLE_GATE_RE = re.compile(
 )
 
 
+# ── Layer D — Supervisor / Worker Plain-Read contract ─────────────────────
+#
+# Every analytical / dashboard page (where the user comes to read a state,
+# not to enter data) must lead with a plain-language summary so a busy
+# Filipino plant supervisor or field worker can answer "is this good /
+# bad, and what do I do?" in 5 seconds. Engineering detail (raw tables,
+# IDs, status codes) is fine — but COLLAPSED behind a "Show details"
+# toggle, not the default view.
+#
+# The four contract elements (all required for IN_SCOPE pages):
+#   D1  .verdict block                — one-sentence health read
+#   D2  ≥3 .simple-card blocks        — plain hero number + label + tag
+#   D3  .action-card block            — "What to do next" recommendation
+#   D4  details-toggle button         — collapses the engineering view
+#
+# Scope policy (ratchet pattern, per feedback_validator_design_patterns#12):
+#   IN_SCOPE      — must have all 4 elements; new pages FAIL on miss
+#   EXEMPT        — write surfaces / chat / logs / calc tools; verdict
+#                   doesn't apply (the data IS the point)
+#   DEFERRED      — IN_SCOPE pages currently failing; allowlisted so the
+#                   gate stays green, removed as each page is streamlined
+
+PLAIN_READ_VERDICT_RE      = re.compile(r'class="verdict[ "]')
+# Cards detected via the .simple-row container + at least one literal
+# .simple-card inline. Some pages render N cards via a JS helper that
+# produces a single template literal, so counting `class="simple-card"`
+# occurrences would penalise that pattern; the container + 1 inline pair
+# is the reliable signal.
+PLAIN_READ_SIMPLE_ROW_RE   = re.compile(r'class="simple-row"')
+PLAIN_READ_SIMPLE_CARD_RE  = re.compile(r'class="simple-card[ "]')
+PLAIN_READ_ACTION_CARD_RE  = re.compile(r'class="action-card"')
+PLAIN_READ_TOGGLE_RE       = re.compile(r'(id="details-toggle-btn"|class="details-toggle")')
+
+# Analytical / dashboard pages where the Plain-Read contract applies.
+# This list is the full set; subtract EXEMPT to get IN_SCOPE.
+PLAIN_READ_ALL = {
+    "index.html", "hive.html", "pm-scheduler.html", "inventory.html",
+    "asset-hub.html", "alert-hub.html", "analytics.html", "predictive.html",
+    "shift-brain.html", "dayplanner.html", "skillmatrix.html",
+    "achievements.html", "ph-intelligence.html", "marketplace.html",
+    "project-manager.html", "project-report.html", "integrations.html",
+    "report-sender.html", "ai-quality.html", "plant-connections.html",
+}
+
+# Write surfaces / chat / logs / calc tools — verdict + cards don't fit
+# (the page is for entering data or running a tool, not for reading state).
+# Each entry needs a one-line justification.
+PLAIN_READ_EXEMPT = {
+    "logbook.html":            "Write surface — workers come here to log work, not to read a dashboard.",
+    "voice-journal.html":      "Write surface — voice-to-text capture, not a read view.",
+    "assistant.html":          "Chat surface — AI conversation, no analytical state to summarise.",
+    "community.html":          "Feed/chat — peer posts, no platform health to verdict.",
+    "audit-log.html":          "Append-only log — the table IS the point; verdict would be misleading.",
+    "engineering-design.html": "Calculator tool — page is the calc itself, not a dashboard.",
+    "analytics-report.html":   "PDF render surface — generates printable report, not interactive.",
+}
+
+# IN_SCOPE pages currently NOT compliant — allowlisted as deferred debt.
+# Remove an entry once that page ships verdict + cards + action + toggle.
+# Each entry: page -> one-line note on what the streamline target is.
+PLAIN_READ_DEFERRED = {
+    "index.html":           "Landing — needs platform-health verdict + 'next thing to do' action card.",
+    "hive.html":            "Supervisor home — Engagement Card plays partial verdict role; needs explicit hive-health summary at top.",
+    "pm-scheduler.html":    "Needs PM-compliance verdict (X% complete) + plain cards (overdue / due-this-week / drift).",
+    "inventory.html":       "Needs stock-health verdict + cards (low-stock / restock-pending / open-disputes).",
+    "asset-hub.html":       "Needs asset-fleet verdict (X assets registered / Y critical / Z drifting).",
+    "alert-hub.html":       "Has Anomaly Engine severity tags; needs roll-up verdict + 3 plain cards.",
+    "analytics.html":       "Tab-based KPI dashboard; needs verdict + cards above the tab strip.",
+    "predictive.html":      "ML forecast surface — needs forecast confidence verdict + plain cards.",
+    "shift-brain.html":     "Handover view — needs shift-readiness verdict + cards.",
+    "dayplanner.html":      "DILO/WILO/MILO/YILO — needs day-completion verdict + cards across horizons.",
+    "skillmatrix.html":     "Needs skill-health verdict (% certified / overdue quizzes) + cards.",
+    "achievements.html":    "Needs XP-progress verdict + cards (this-week / streak / next badge).",
+    "ph-intelligence.html": "Regional view — needs network-health verdict + cards.",
+    "marketplace.html":     "Needs marketplace-activity verdict + cards (listings / orders / disputes).",
+    "project-manager.html": "Needs project-health verdict + cards (on-track / blocked / overdue).",
+    "project-report.html":  "Needs project-summary verdict + cards (scope-done / risk).",
+    "integrations.html":    "Overlaps with plant-connections; consider consolidating or applying same streamline.",
+    "report-sender.html":   "Needs send-health verdict + cards (sent-today / failed / scheduled).",
+}
+
+
+def _plain_read_elements(src: str) -> dict:
+    """Returns which of the 4 Plain-Read elements are present in a page."""
+    has_row  = bool(PLAIN_READ_SIMPLE_ROW_RE.search(src))
+    has_card = bool(PLAIN_READ_SIMPLE_CARD_RE.search(src))
+    return {
+        "verdict":      bool(PLAIN_READ_VERDICT_RE.search(src)),
+        "cards":        has_row and has_card,
+        "action":       bool(PLAIN_READ_ACTION_CARD_RE.search(src)),
+        "toggle":       bool(PLAIN_READ_TOGGLE_RE.search(src)),
+    }
+
+
+def check_plain_read(pages: list[str]) -> list[dict]:
+    """Layer D — verdict + cards + action + toggle on analytical pages."""
+    issues: list[dict] = []
+    for page in PLAIN_READ_ALL:
+        if page in PLAIN_READ_EXEMPT:
+            continue
+        if page in PLAIN_READ_DEFERRED:
+            continue
+        path = os.path.join(ROOT, page)
+        src = read_file(path) or ""
+        if not src:
+            continue
+        el = _plain_read_elements(src)
+        missing = [k for k in ("verdict", "cards", "action", "toggle") if not el[k]]
+        if missing:
+            issues.append({
+                "check": "plain_read_contract",
+                "skip":  False,
+                "reason": (
+                    f"{page} is in scope for the Supervisor Plain-Read contract "
+                    f"but is missing: {', '.join(missing)}. Add a `class=\"verdict ...\"` "
+                    f"summary, at least 3 `class=\"simple-card ...\"` cards, an "
+                    f"`class=\"action-card\"` next-action block, and a "
+                    f"`id=\"details-toggle-btn\"` that hides/shows engineering details. "
+                    f"See ai-quality.html or plant-connections.html for the canonical pattern. "
+                    f"OR add {page} to PLAIN_READ_DEFERRED with a justification, OR to "
+                    f"PLAIN_READ_EXEMPT if it's truly a write/log/chat/calc surface."
+                ),
+            })
+    # Advisory: surface the deferred backlog so it stays visible (not silent debt).
+    if PLAIN_READ_DEFERRED:
+        issues.append({
+            "check": "plain_read_deferred_backlog",
+            "skip":  True,  # advisory only
+            "reason": (
+                f"{len(PLAIN_READ_DEFERRED)} page(s) deferred from the Plain-Read "
+                f"contract. Each is a streamline candidate: " +
+                ", ".join(sorted(PLAIN_READ_DEFERRED.keys()))
+            ),
+        })
+    return issues
+
+
 def check_role_gate_hides(pages: list[str]) -> list[dict]:
     issues: list[dict] = []
     for page in pages:
@@ -627,6 +764,7 @@ CHECK_NAMES = [
     "input_label", "destructive_confirm", "page_title",
     "empty_state_recovery", "loading_skeleton",
     "role_gate_hides",
+    "plain_read_contract", "plain_read_deferred_backlog",
 ]
 CHECK_LABELS = {
     "input_label":           "A2  Every form input has a visible <label for> or aria-label",
@@ -635,12 +773,14 @@ CHECK_LABELS = {
     "empty_state_recovery":  "B1  Empty-state strings include a verb or CTA  [WARN]",
     "loading_skeleton":      "B3  Pages with 'Loading…' also declare a skeleton / aria-busy  [WARN]",
     "role_gate_hides":       "C3  Role-gated controls are hidden, not just disabled",
+    "plain_read_contract":   "D1  Analytical pages have verdict + 3+ cards + action + details toggle",
+    "plain_read_deferred_backlog": "D2  Deferred Plain-Read backlog  [WARN]",
 }
 
 
 def main():
     def bold(s): return f"\033[1m{s}\033[0m"
-    print(bold("\nWorkHive UX Contract Validator (6 checks)"))
+    print(bold("\nWorkHive UX Contract Validator (8 checks)"))
     print("=" * 60)
 
     pages = _live_tool_pages()
@@ -668,6 +808,7 @@ def main():
     issues += check_empty_state_recovery(pages)
     issues += check_loading_skeleton(pages)
     issues += check_role_gate_hides(pages)
+    issues += check_plain_read(pages)
 
     n_pass, n_warn, n_fail = format_result(CHECK_NAMES, CHECK_LABELS, issues)
 
