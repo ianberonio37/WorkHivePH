@@ -3,7 +3,7 @@
 // surfaces (logbook, inventory, pm-scheduler, hive, asset-hub, shift-brain).
 // Closes PRODUCTION_FIXES #54.
 
-const CACHE_NAME  = 'workhive-shell-v61';
+const CACHE_NAME  = 'workhive-shell-v63';
 const SHELL_FILES = [
   // Original report-sender shell
   '/report-sender.html',
@@ -21,6 +21,9 @@ const SHELL_FILES = [
   '/device-fingerprint.js',
   '/onboarding.js',
   '/wh-help.js',
+  // Persona Contract Phase 3+4 shared helpers
+  '/wh-persona.js',
+  '/wh-tts.js',
   // Worker-critical pages (offline-capable on cached page-shell)
   '/logbook.html',
   '/inventory.html',
