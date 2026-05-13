@@ -83,7 +83,13 @@
       const audioUrl = base + data.url;
       if (_audio) { try { _audio.pause(); } catch (_) {} }
       _audio = new Audio(audioUrl);
-      _audio.play().catch(err => console.warn('wh-tts edge play failed:', err));
+      _audio.play().catch(err => {
+        // AbortError is expected when a new narration interrupts an old
+        // one mid-load (pause() rejects the pending play() promise).
+        // Silently ignore — the new audio will play on its own promise.
+        if (err && err.name === 'AbortError') return;
+        console.warn('wh-tts edge play failed:', err);
+      });
       return true;
     } catch (err) {
       console.warn('wh-tts edge fetch failed:', err);
@@ -114,7 +120,10 @@
       if (!data || !data.url) return false;
       if (_audio) { try { _audio.pause(); } catch (_) {} }
       _audio = new Audio(data.url);
-      _audio.play().catch(err => console.warn('wh-tts azure play failed:', err));
+      _audio.play().catch(err => {
+        if (err && err.name === 'AbortError') return;
+        console.warn('wh-tts azure play failed:', err);
+      });
       return true;
     } catch (err) {
       console.warn('wh-tts azure fetch failed:', err);

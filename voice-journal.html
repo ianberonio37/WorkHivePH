@@ -545,7 +545,10 @@
         if (!data || !data.url) return false;
         if (_azureAudio) { try { _azureAudio.pause(); } catch (_) {} }
         _azureAudio = new Audio(EDGE_TTS_BASE + data.url);
-        _azureAudio.play().catch(err => console.warn('Edge TTS play failed:', err));
+        _azureAudio.play().catch(err => {
+          if (err && err.name === 'AbortError') return;
+          console.warn('Edge TTS play failed:', err);
+        });
         return true;
       } catch (err) {
         console.warn('speakEdge failed, falling back:', err);
@@ -571,7 +574,10 @@
         // Stop any prior playback so a new entry doesn't overlap.
         if (_azureAudio) { try { _azureAudio.pause(); } catch (_) {} }
         _azureAudio = new Audio(data.url);
-        _azureAudio.play().catch(err => console.warn('Azure audio play failed:', err));
+        _azureAudio.play().catch(err => {
+          if (err && err.name === 'AbortError') return;
+          console.warn('Azure audio play failed:', err);
+        });
         return true;
       } catch (err) {
         console.warn('speakAzure failed, falling back to browser TTS:', err);

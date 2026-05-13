@@ -534,9 +534,16 @@
       if (!routerData) throw new Error('Empty router response');
       if (routerData.error) throw new Error(routerData.error);
 
-      const hasActionable = (routerData.intents || []).some(
+      // hasActionable = there's a structured intent we COULD dispatch
+      // (logbook.create, inventory.use, etc.) — but only useful if the
+      // current page has a handler registered for it. A page without
+      // handlers (e.g. index.html, voice-journal in iframe) would just
+      // tell the worker "no handler registered" which is useless.
+      const structured = (routerData.intents || []).filter(
         it => it.kind !== 'unknown' && it.kind !== 'query.ask',
       );
+      const handlableHere = structured.some(it => handlers[it.kind]);
+      const hasActionable = structured.length > 0 && handlableHere;
 
       const confirmBtn = document.getElementById('wh-voice-confirm');
 
