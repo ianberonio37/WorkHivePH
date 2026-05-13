@@ -494,6 +494,7 @@
   async function actOnAmcBrief(newStatus) {
     if (HIVE_ROLE !== 'supervisor') { showAmcMsg('Supervisor approval required.'); return; }
     if (!_amcBrief || _amcBrief.status !== 'pending') return;
+    if (newStatus === 'rejected' && !confirm('Reject today\'s AMC brief? The crew will not act on it.')) return;
 
     const approveBtn = document.getElementById('amc-approve-btn');
     const rejectBtn  = document.getElementById('amc-reject-btn');

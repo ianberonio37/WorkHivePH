@@ -1897,13 +1897,22 @@ async function maybeShowIntentCapture() {
         captured_role: 'supervisor',
         captured_by:   WORKER_NAME,
       };
+      // supabase-js does NOT throw on HTTP error — it returns { data, error }.
+      // Check error explicitly so a real 400/403 surfaces a toast instead of
+      // silently hiding the modal. Walkthrough 2026-05-13.
+      let res;
       try {
-        await db.from('hives').update({ intent: payload }).eq('id', HIVE_ID);
-        modal.classList.add('hidden');
-        showToast('Thanks — we will tune your hive accordingly.');
+        res = await db.from('hives').update({ intent: payload }).eq('id', HIVE_ID);
       } catch (e) {
         showToast('Could not save: ' + (e?.message || e));
+        return;
       }
+      if (res && res.error) {
+        showToast('Could not save: ' + (res.error.message || JSON.stringify(res.error)));
+        return;
+      }
+      modal.classList.add('hidden');
+      showToast('Thanks — we will tune your hive accordingly.');
     });
     save._wired = true;
   }
@@ -2673,6 +2682,7 @@ async function approveItem(table, id, submittedBy, label) {
 
 async function rejectItem(table, id, submittedBy, label) {
   if (HIVE_ROLE !== 'supervisor') { showToast('Supervisors only.'); return; }
+  if (!confirm(`Reject "${label}" submitted by ${submittedBy}? They will need to resubmit.`)) return;
   const { error } = await db.from(table).update({ status: 'rejected' }).eq('id', id).eq('hive_id', HIVE_ID);
   if (error) { showToast('Reject failed: ' + error.message); return; }
 

@@ -28987,6 +28987,9 @@ function toggleBomItem(i) {
 }
 
 function deleteBomRow(i) {
+  const item = _bomItems[i];
+  const label = (item && item.description) ? item.description : 'this item';
+  if (!confirm(`Remove ${label} from the BOM?`)) return;
   _bomItems.splice(i, 1);
   renderBomChecklist();
 }

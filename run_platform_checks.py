@@ -258,6 +258,15 @@ VALIDATORS = [
         "skip_if_fast": False,
     },
     {
+        "id":      "ux-contract",
+        "script":  "validate_ux_contract.py",
+        "args":    [],
+        "label":   "WorkHive UX Contract (input labels [ratchet] + destructive confirm + page title + role-gate)",
+        "group":   "Platform",
+        "report":  "ux_contract_report.json",
+        "skip_if_fast": False,
+    },
+    {
         "id":      "playwright-smoke",
         "script":  "validate_playwright_smoke.py",
         "args":    [],

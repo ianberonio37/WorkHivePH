@@ -1,0 +1,32 @@
+{
+  "_doc": "Per-page baseline counts of inputs without <label for> / aria-label. New violations FAIL the gate; existing ones are accepted. Regenerate with: python validate_ux_contract.py --update-baseline",
+  "per_page": {
+    "achievements.html": 0,
+    "ai-quality.html": 0,
+    "alert-hub.html": 0,
+    "analytics-report.html": 0,
+    "analytics.html": 1,
+    "asset-hub.html": 8,
+    "assistant.html": 3,
+    "audit-log.html": 0,
+    "community.html": 0,
+    "dayplanner.html": 6,
+    "engineering-design.html": 386,
+    "hive.html": 5,
+    "integrations.html": 8,
+    "inventory.html": 15,
+    "logbook.html": 31,
+    "marketplace.html": 5,
+    "ph-intelligence.html": 0,
+    "plant-connections.html": 0,
+    "pm-scheduler.html": 18,
+    "predictive.html": 0,
+    "project-manager.html": 46,
+    "project-report.html": 0,
+    "report-sender.html": 3,
+    "shift-brain.html": 0,
+    "skillmatrix.html": 0,
+    "voice-journal.html": 1
+  },
+  "total": 536
+}
