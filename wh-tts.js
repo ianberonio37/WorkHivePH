@@ -85,14 +85,42 @@
     }
   }
 
-  function speakBrowser(text) {
+  // Persona-gender map for the browser-TTS fallback path. James (male)
+  // and Rosa (female) sound identical via the system default voice
+  // unless we bias the choice. We pick the first installed voice whose
+  // name OR locale tag matches the gender heuristic.
+  const PERSONA_GENDER = { james: 'male', rosa: 'female' };
+  const MALE_HINTS   = /(male|man|guy|david|mark|alex|james|angelo|paolo|daniel)/i;
+  const FEMALE_HINTS = /(female|woman|girl|samantha|victoria|sara|rosa|maria|isabella|tessa)/i;
+
+  function pickBrowserVoice(persona) {
+    if (!window.speechSynthesis) return null;
+    const voices = window.speechSynthesis.getVoices() || [];
+    if (!voices.length) return null;
+    const wantMale = PERSONA_GENDER[persona] === 'male';
+    const matchGender = (v) => wantMale
+      ? (MALE_HINTS.test(v.name)   && !FEMALE_HINTS.test(v.name))
+      : (FEMALE_HINTS.test(v.name) && !MALE_HINTS.test(v.name));
+    // Prefer en-PH voices first, then en-* voices, then any.
+    const phMatches = voices.filter(v => /en-PH/i.test(v.lang));
+    const enMatches = voices.filter(v => /^en[-_]/i.test(v.lang));
+    return phMatches.find(matchGender) ||
+           enMatches.find(matchGender) ||
+           voices.find(matchGender) ||
+           phMatches[0] || enMatches[0] || voices[0];
+  }
+
+  function speakBrowser(text, persona) {
     if (!window.speechSynthesis) return;
     try {
       window.speechSynthesis.cancel();
       const u = new SpeechSynthesisUtterance(String(text));
-      // Pick whatever en-PH voice the system has. Persona-gender bias
-      // could go here but the Azure path is already preferred.
       u.lang  = 'en-PH';
+      const v = pickBrowserVoice(persona);
+      if (v) {
+        u.voice = v;
+        u.lang  = v.lang || u.lang;
+      }
       u.rate  = 1.0;
       u.pitch = 1.0;
       window.speechSynthesis.speak(u);
@@ -115,7 +143,7 @@
     const persona = (opts && opts.persona) || getPersona();
     const azureOk = await speakAzure(text, persona);
     if (azureOk) return true;
-    speakBrowser(text);
+    speakBrowser(text, persona);
     return false;
   }
 
