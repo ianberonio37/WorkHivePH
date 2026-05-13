@@ -844,7 +844,10 @@ When answering, prefer these facts over general knowledge. If the user asks some
       const dx = touch.clientX - startX;
       const dy = touch.clientY - startY;
 
-      if (Math.abs(dx) > 4 || Math.abs(dy) > 4) didDrag = true;
+      // 8px threshold (was 4) — small mouse drift during a click on a
+      // 56px avatar should NOT tip into drag mode; users found the old
+      // value too sensitive after the portraits landed.
+      if (Math.abs(dx) > 8 || Math.abs(dy) > 8) didDrag = true;
       if (!didDrag) return;
 
       const widget = document.getElementById('wh-ai-widget');

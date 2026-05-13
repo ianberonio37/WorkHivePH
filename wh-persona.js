@@ -155,16 +155,21 @@
     const key = clampPersona(personaKey || getPersonaKey());
     const url = PORTRAIT_URLS[key] || '';
     const emo = PORTRAIT_EMOJI[key] || PORTRAIT_EMOJI.james;
+    // draggable="false" + pointer-events:none on the inner content stops
+    // the browser's native image-drag (the "ghost follows cursor" bug)
+    // and lets the parent button receive every mousedown/mouseup cleanly.
     const inner = url
-      ? '<img src="' + url + '" alt="' + (PERSONAS[key].name) + '" '
-        + 'style="width:100%;height:100%;object-fit:cover;border-radius:50%;" />'
+      ? '<img src="' + url + '" alt="' + (PERSONAS[key].name) + '" draggable="false" '
+        + 'style="width:100%;height:100%;object-fit:cover;border-radius:50%;'
+        + 'pointer-events:none;-webkit-user-drag:none;user-select:none;" />'
       : '<span aria-hidden="true" style="font-size:' + Math.round(px * 0.62)
-        + 'px;line-height:1;">' + emo + '</span>';
+        + 'px;line-height:1;pointer-events:none;user-select:none;">' + emo + '</span>';
     return '<span class="wh-persona-avatar" role="img" '
       + 'aria-label="Companion ' + (PERSONAS[key].name) + '" '
       + 'style="display:inline-flex;width:' + px + 'px;height:' + px
       + 'px;border-radius:50%;background:linear-gradient(135deg,#F7A21B,#FDB94A);'
-      + 'align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;">'
+      + 'align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;'
+      + 'pointer-events:none;-webkit-user-drag:none;user-select:none;">'
       + inner + '</span>';
   }
 
