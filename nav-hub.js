@@ -59,6 +59,21 @@
     document.head.appendChild(p);
   }
 
+  // ─── Companion Streamline Step A: floating-ai.js carries the persona
+  // avatar + chat panel + inline mic on every nav-enabled page. Without
+  // this lazy-load, pages that don't include floating-ai.js directly
+  // (e.g. index.html) leave the blue voice button visible and never
+  // mount the avatar. assistant.html is the only page that opts out
+  // (its inline init short-circuits when path includes /assistant).
+  if (!document.querySelector('script[data-wh-floating-ai]') &&
+      !document.querySelector('script[src*="floating-ai.js"]')) {
+    const f = document.createElement('script');
+    f.src = 'floating-ai.js';
+    f.async = false; // depends on wh-persona.js (loaded above) for the avatar
+    f.setAttribute('data-wh-floating-ai', '1');
+    document.head.appendChild(f);
+  }
+
   // ─── Tool Registry ────────────────────────────────────────────────────────────
   // section: null = no header (home only) | string = group label shown in All Tools grid
   // roles: undefined = universal (visible in every mode) | array = visible only in those modes

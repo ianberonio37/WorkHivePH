@@ -246,6 +246,10 @@
     </div>`;
 
   // ─── Mount ────────────────────────────────────────────────────────────────
+  // Companion Streamline Step A: the standalone blue button is no
+  // longer mounted. The single voice entry point is the mic icon inside
+  // floating-ai's panel, which delegates here via WHVoice.open(). Only
+  // the overlay (recording UI + intent confirmation) is mounted.
   function _mount() {
     if (document.getElementById('wh-voice-overlay')) return;
     const style = document.createElement('style');
@@ -253,17 +257,11 @@
     style.textContent = STYLE;
     document.head.appendChild(style);
 
-    const btnDiv = document.createElement('div');
-    btnDiv.innerHTML = VOICE_BTN_HTML.trim();
-    document.body.appendChild(btnDiv.firstElementChild);
-
     const ovDiv = document.createElement('div');
     ovDiv.innerHTML = OVERLAY_HTML.trim();
     document.body.appendChild(ovDiv.firstElementChild);
 
-    const btn     = document.getElementById('wh-voice-btn');
     const cancel  = document.getElementById('wh-voice-cancel');
-    if (btn)    btn.addEventListener('click', () => _toggle());
     if (cancel) cancel.addEventListener('click', () => close());
 
     document.addEventListener('keydown', (ev) => {
