@@ -573,7 +573,7 @@
   <div class="search-row">
     <div class="search-wrap">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-      <input class="search-input" id="search-input" type="search" placeholder="Search listings..." autocomplete="off" />
+      <input aria-label="Search listings..." class="search-input" id="search-input" type="search" placeholder="Search listings..." autocomplete="off" />
     </div>
     <button class="btn-filter" id="btn-price-filter">
       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="11" y1="18" x2="13" y2="18"/></svg>
@@ -587,11 +587,11 @@
 
   <!-- Price range panel -->
   <div class="price-filter" id="price-filter-panel">
-    <label>Price Range (PHP)</label>
+    <label for="price-min">Price Range (PHP)</label>
     <div class="price-range-row">
       <input class="wh-input" type="number" id="price-min" placeholder="Min" min="0" />
       <span class="price-range-sep">to</span>
-      <input class="wh-input" type="number" id="price-max" placeholder="Max" min="0" />
+      <input aria-label="Max" class="wh-input" type="number" id="price-max" placeholder="Max" min="0" />
     </div>
   </div>
 
@@ -646,7 +646,7 @@
   </div>
   <form id="form-post" novalidate>
     <div class="form-group">
-      <label class="form-label">What are you listing?</label>
+      <label for="post-section" class="form-label">What are you listing?</label>
       <div class="section-toggle">
         <button type="button" class="section-toggle-btn active" data-post-sec="parts">Parts</button>
         <button type="button" class="section-toggle-btn" data-post-sec="training">Training</button>
@@ -693,7 +693,7 @@
 
     <!-- Image picker — single photo, compressed client-side before upload -->
     <div class="form-group">
-      <label class="form-label">Photo (recommended)</label>
+      <label for="post-image-file" class="form-label">Photo (recommended)</label>
       <div id="post-image-zone" style="position:relative;border:2px dashed rgba(255,255,255,0.15);border-radius:0.625rem;padding:1.25rem;text-align:center;cursor:pointer;transition:border-color 0.15s;">
         <input type="file" id="post-image-file" accept="image/jpeg,image/jpg,image/png,image/webp" style="position:absolute;inset:0;opacity:0;cursor:pointer;" aria-label="Choose listing photo" />
         <div id="post-image-empty" style="color:#7B8794;">
@@ -762,7 +762,7 @@
   <form id="form-inquiry" novalidate>
     <input type="hidden" id="inq-listing-id" value="" />
     <div class="form-group">
-      <label class="form-label">Listing</label>
+      <label for="inq-name" class="form-label">Listing</label>
       <div id="inq-listing-title" style="font-size:0.82rem;font-weight:600;padding:0.4rem 0;"></div>
     </div>
     <div class="form-group">
@@ -823,10 +823,10 @@
     <div style="font-size:0.78rem;font-weight:700;margin-bottom:0.5rem;color:#29B6D9;">Save current search</div>
     <div id="save-current-summary" style="font-size:0.72rem;color:#7B8794;margin-bottom:0.625rem;line-height:1.5;"></div>
     <div class="form-group" style="margin-bottom:0.625rem;">
-      <input class="wh-input" type="text" id="save-search-name" placeholder="Name this search (e.g. HVAC Manila)" maxlength="60" style="font-size:1rem;" />
+      <input aria-label="Name this search (e.g. HVAC Manila)" class="wh-input" type="text" id="save-search-name" placeholder="Name this search (e.g. HVAC Manila)" maxlength="60" style="font-size:1rem;" />
     </div>
     <div class="form-group" style="margin-bottom:0.625rem;">
-      <input class="wh-input" type="email" id="save-search-email" placeholder="Email for future alerts (optional)" style="font-size:1rem;" />
+      <input aria-label="Email for future alerts (optional)" class="wh-input" type="email" id="save-search-email" placeholder="Email for future alerts (optional)" style="font-size:1rem;" />
     </div>
     <button id="btn-save-current-search" class="btn-primary" style="font-size:0.85rem;">Save Search</button>
   </div>
@@ -853,7 +853,7 @@
   </div>
   <form id="form-rfq" novalidate>
     <div class="form-group">
-      <label class="form-label">Sending to <span id="rfq-count">0</span> seller<span id="rfq-count-plural">s</span></label>
+      <label for="rfq-name" class="form-label">Sending to <span id="rfq-count">0</span> seller<span id="rfq-count-plural">s</span></label>
       <div id="rfq-listings" style="display:flex;flex-direction:column;gap:0.4rem;max-height:200px;overflow-y:auto;padding:0.5rem;background:rgba(0,0,0,0.2);border-radius:0.5rem;"></div>
     </div>
     <div class="form-group">

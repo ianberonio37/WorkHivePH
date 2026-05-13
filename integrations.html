@@ -314,7 +314,7 @@
       <p style="font-size:.72rem; color:var(--muted); margin-bottom:16px;">Accepts CSV or Excel (.xlsx). Export your work orders from SAP (via SE16 or SM30) or any CMMS report.</p>
 
       <div class="drop-zone" id="drop-zone" onclick="document.getElementById('file-input').click()">
-        <input type="file" id="file-input" accept=".csv,.xlsx,.xls" style="display:none;" />
+        <input type="file" id="file-input" aria-label="Upload CMMS export file (CSV or Excel)" accept=".csv,.xlsx,.xls" style="display:none;" />
         <div id="drop-icon" style="font-size:2rem; margin-bottom:10px;">📂</div>
         <p id="drop-label" style="font-size:.85rem; font-weight:600; margin-bottom:4px;">Drop file here or click to browse</p>
         <p style="font-size:.7rem; color:var(--muted);">CSV or Excel · Work orders, assets, or PM schedules</p>
@@ -457,7 +457,7 @@
     <div class="card">
       <p style="font-size:.8rem; font-weight:700; margin-bottom:12px;">Generate a New API Key</p>
       <div style="display:flex; gap:10px; margin-bottom:10px;">
-        <input id="api-key-label" class="wh-input" type="text" placeholder="Label (e.g. SAP Integration, Analytics Dashboard)" style="flex:1;" />
+        <input aria-label="Label (e.g. SAP Integration, Analytics Dashboard)" id="api-key-label" class="wh-input" type="text" placeholder="Label (e.g. SAP Integration, Analytics Dashboard)" style="flex:1;" />
         <button class="btn btn-gold" onclick="generateApiKey()" style="white-space:nowrap;">Generate Key</button>
       </div>
       <div id="new-key-result" style="display:none;"></div>
@@ -499,11 +499,11 @@
 
       <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px;">
         <div>
-          <label class="wh-label">Label</label>
+          <label for="sc-label" class="wh-label">Label</label>
           <input id="sc-label" class="wh-input" type="text" placeholder="e.g. SAP Plant PH01" />
         </div>
         <div>
-          <label class="wh-label">CMMS Type</label>
+          <label for="sc-type" class="wh-label">CMMS Type</label>
           <select id="sc-type" class="wh-input">
             <option value="sap_pm">SAP PM (OData)</option>
             <option value="maximo">IBM Maximo (OSLC)</option>
@@ -513,18 +513,18 @@
       </div>
 
       <div style="margin-bottom:12px;">
-        <label class="wh-label">API Endpoint URL</label>
+        <label for="sc-url" class="wh-label">API Endpoint URL</label>
         <input id="sc-url" class="wh-input" type="url" placeholder="https://your-system.example.com/odata/v4/WorkOrders" />
         <p style="font-size:.68rem; color:var(--muted); margin-top:4px;">SAP: your BTP OData URL · Maximo: https://host/oslc/os/mxwo · Generic: any REST endpoint returning JSON</p>
       </div>
 
       <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px;">
         <div>
-          <label class="wh-label">API Key / Bearer Token</label>
+          <label for="sc-token" class="wh-label">API Key / Bearer Token</label>
           <input id="sc-token" class="wh-input" type="password" placeholder="sk-... or Bearer token" />
         </div>
         <div>
-          <label class="wh-label">Sync Schedule</label>
+          <label for="sc-freq" class="wh-label">Sync Schedule</label>
           <select id="sc-freq" class="wh-input">
             <option value="manual">Manual only</option>
             <option value="daily" selected>Daily</option>

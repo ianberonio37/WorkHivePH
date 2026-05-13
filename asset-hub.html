@@ -427,7 +427,7 @@
     <!-- LIST VIEW -->
     <div id="list-view">
       <div class="search-row" style="display:flex; gap:8px; align-items:center;">
-        <input id="asset-search" class="search-input" type="search" placeholder="Search by tag, name, or location" autocomplete="off" style="flex:1;" />
+        <input aria-label="Search by tag, name, or location" id="asset-search" class="search-input" type="search" placeholder="Search by tag, name, or location" autocomplete="off" style="flex:1;" />
         <!-- Phase E.3a: scan a physical tag to jump straight to its 360 view -->
         <button id="scan-btn" type="button" aria-label="Scan equipment tag with camera"
                 style="min-width:44px; min-height:44px; padding:0 12px; display:flex; align-items:center; justify-content:center; gap:6px; background:rgba(247,162,27,0.12); color:#F7A21B; border:1px solid rgba(247,162,27,0.3); border-radius:10px; font-family:inherit; font-size:13px; font-weight:700; cursor:pointer;">
@@ -598,20 +598,20 @@
         <!-- Phase R.6: P-F interval panel -->
         <div id="rel-panel-pf" style="display:none;">
           <div id="pf-form" style="display:flex; flex-direction:column; gap:8px; padding:0.6rem; background:rgba(255,255,255,0.02); border:1px solid var(--border); border-radius:0.55rem;">
-            <label style="font-size:.65rem; color:var(--muted); text-transform:uppercase; letter-spacing:.05em;">Parameter</label>
+            <label for="pf-parameter" style="font-size:.65rem; color:var(--muted); text-transform:uppercase; letter-spacing:.05em;">Parameter</label>
             <select id="pf-parameter" style="height:42px; border-radius:0.45rem; background:rgba(255,255,255,0.04); border:1px solid var(--border); color:#F4F6FA; padding:0 0.6rem; font-size:16px;"></select>
             <div style="display:flex; gap:8px;">
               <div style="flex:1;">
-                <label style="font-size:.65rem; color:var(--muted); text-transform:uppercase; letter-spacing:.05em;">P (warning)</label>
+                <label for="pf-p-threshold" style="font-size:.65rem; color:var(--muted); text-transform:uppercase; letter-spacing:.05em;">P (warning)</label>
                 <input id="pf-p-threshold" type="number" step="0.01" placeholder="e.g. 4.5" style="width:100%; height:42px; border-radius:0.45rem; background:rgba(255,255,255,0.04); border:1px solid var(--border); color:#F4F6FA; padding:0 0.6rem; font-size:16px;" />
               </div>
               <div style="flex:1;">
-                <label style="font-size:.65rem; color:var(--muted); text-transform:uppercase; letter-spacing:.05em;">F (failure)</label>
+                <label for="pf-f-threshold" style="font-size:.65rem; color:var(--muted); text-transform:uppercase; letter-spacing:.05em;">F (failure)</label>
                 <input id="pf-f-threshold" type="number" step="0.01" placeholder="e.g. 7.1" style="width:100%; height:42px; border-radius:0.45rem; background:rgba(255,255,255,0.04); border:1px solid var(--border); color:#F4F6FA; padding:0 0.6rem; font-size:16px;" />
               </div>
             </div>
             <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
-              <label style="font-size:.65rem; color:var(--muted); text-transform:uppercase; letter-spacing:.05em;">Direction</label>
+              <label for="pf-direction" style="font-size:.65rem; color:var(--muted); text-transform:uppercase; letter-spacing:.05em;">Direction</label>
               <select id="pf-direction" style="height:36px; border-radius:0.45rem; background:rgba(255,255,255,0.04); border:1px solid var(--border); color:#F4F6FA; padding:0 0.55rem; font-size:14px;">
                 <option value="above">above (rising = bad)</option>
                 <option value="below">below (falling = bad)</option>
@@ -713,7 +713,7 @@
           Grounded in this asset's logbook, PMs, neighbors, and peers in the same equipment class.
         </div>
         <div style="display:flex;gap:0.5rem;">
-          <input id="ask-input" class="search-input" type="text" placeholder="When did this asset last fail? Why?" maxlength="500" />
+          <input aria-label="When did this asset last fail? Why?" id="ask-input" class="search-input" type="text" placeholder="When did this asset last fail? Why?" maxlength="500" />
           <button id="ask-send" class="add-edge-btn" style="background:linear-gradient(135deg,var(--orange-wh),#FDB94A);color:var(--navy-wh);border:none;font-weight:700;padding:0 14px;">Ask</button>
         </div>
         <div id="ask-output" style="margin-top:0.85rem;display:none;">
@@ -800,7 +800,7 @@
       <h3 id="rcm-modal-title">Set RCM strategy</h3>
       <div id="rcm-fmea-context" style="font-size:0.72rem; color:var(--muted); margin-bottom:0.85rem;"></div>
 
-      <label>1. JA1011 decision (what task type does this failure deserve?)</label>
+      <label for="rcm-decision">1. JA1011 decision (what task type does this failure deserve?)</label>
       <select id="rcm-decision">
         <option value="">(select)</option>
         <option value="scheduled_on_condition">scheduled_on_condition — predictive (CBM, vibration, temp, oil)</option>
@@ -823,7 +823,7 @@
         <option value="365">Yearly (365 d)</option>
         <option value="custom">Custom days</option>
       </select>
-      <input id="rcm-interval-custom" type="number" min="1" max="3650" step="1" placeholder="Custom interval days" style="display:none;" />
+      <input aria-label="Custom interval days" id="rcm-interval-custom" type="number" min="1" max="3650" step="1" placeholder="Custom interval days" style="display:none;" />
 
       <label for="rcm-rationale">Rationale (why this decision?)</label>
       <input id="rcm-rationale" type="text" placeholder="e.g. P-F = 14 d from vibration trend, half = 7 d safe interval" />

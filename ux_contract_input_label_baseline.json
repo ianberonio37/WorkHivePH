@@ -6,17 +6,17 @@
     "alert-hub.html": 0,
     "analytics-report.html": 0,
     "analytics.html": 0,
-    "asset-hub.html": 8,
+    "asset-hub.html": 0,
     "assistant.html": 3,
     "audit-log.html": 0,
     "community.html": 0,
     "dayplanner.html": 0,
     "engineering-design.html": 337,
-    "hive.html": 5,
-    "integrations.html": 7,
-    "inventory.html": 15,
+    "hive.html": 0,
+    "integrations.html": 0,
+    "inventory.html": 0,
     "logbook.html": 0,
-    "marketplace.html": 5,
+    "marketplace.html": 0,
     "ph-intelligence.html": 0,
     "plant-connections.html": 0,
     "pm-scheduler.html": 0,
@@ -28,5 +28,5 @@
     "skillmatrix.html": 0,
     "voice-journal.html": 1
   },
-  "total": 430
+  "total": 390
 }
