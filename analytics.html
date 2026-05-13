@@ -875,7 +875,14 @@
                      ? Math.round(oeeAssets.reduce((s, r) => s + Number(r.oee_pct), 0) / oeeAssets.length)
                      : null;
     if (oeeAvg == null) {
-      setCard('oee', '—', 'Not enough downtime data yet', 'NO DATA', 'grey');
+      // The Python API returns a `note` string on the OEE payload when
+      // there's no production_output data — surface that verbatim so
+      // the supervisor knows what to add (Quick Readings + production
+      // units in breakdown entries).
+      const oeeNote = (data && data.oee && data.oee.note)
+                        ? data.oee.note
+                        : 'Not enough downtime data yet';
+      setCard('oee', '—', oeeNote, 'NO DATA', 'grey');
     } else {
       const tag  = oeeAvg >= 85 ? 'WORLD CLASS' : oeeAvg >= 65 ? 'TYPICAL' : 'NEEDS WORK';
       const tone = oeeAvg >= 85 ? 'green' : oeeAvg >= 65 ? 'amber' : 'red';
@@ -895,19 +902,33 @@
       const d   = Number(worstMTBF.mtbf_days);
       const tag  = d < 14 ? 'FREQUENT' : d < 30 ? 'CONCERN' : 'OK';
       const tone = d < 14 ? 'red' : d < 30 ? 'amber' : 'green';
-      setCard('mtbf', d + 'd', (worstMTBF.asset_name || 'Worst asset') + ' between failures', tag, tone);
+      // MTBF row uses the `machine` field (matches renderMTBF + renderOEE).
+      const assetLabel = worstMTBF.machine || worstMTBF.asset_name || 'Worst asset';
+      setCard('mtbf', d + 'd', assetLabel + ' between failures', tag, tone);
     }
 
     // ── PM compliance ────────────────────────────────────────────────
+    // The Python API returns d.overall_pct + d.compliance_by_asset[]
+    // (each row: asset_name, completed, scheduled, compliance_pct).
     let pmPct = null;
     let pmSub = 'No PM data this period';
     if (data && data.pm_compliance) {
-      if (typeof data.pm_compliance.compliance_pct === 'number') {
-        pmPct = Math.round(data.pm_compliance.compliance_pct);
-      } else if (data.pm_compliance.total_scope_items && data.pm_compliance.completed_on_time != null) {
-        pmPct = Math.round(100 * data.pm_compliance.completed_on_time / data.pm_compliance.total_scope_items);
+      if (typeof data.pm_compliance.overall_pct === 'number') {
+        pmPct = Math.round(data.pm_compliance.overall_pct);
+      } else if (Array.isArray(data.pm_compliance.compliance_by_asset) && data.pm_compliance.compliance_by_asset.length) {
+        // Fallback: roll up from the per-asset rows.
+        const rows = data.pm_compliance.compliance_by_asset;
+        const totalDone  = rows.reduce((s, r) => s + (Number(r.completed)  || 0), 0);
+        const totalSched = rows.reduce((s, r) => s + (Number(r.scheduled) || 0), 0);
+        if (totalSched > 0) pmPct = Math.round(100 * totalDone / totalSched);
       }
-      if (pmPct != null) pmSub = `${data.pm_compliance.completed_on_time || 0} of ${data.pm_compliance.total_scope_items || '?'} on time`;
+      if (pmPct != null && Array.isArray(data.pm_compliance.compliance_by_asset)) {
+        const rows = data.pm_compliance.compliance_by_asset;
+        const totalDone  = rows.reduce((s, r) => s + (Number(r.completed)  || 0), 0);
+        const totalSched = rows.reduce((s, r) => s + (Number(r.scheduled) || 0), 0);
+        const failing = rows.filter(r => Number(r.compliance_pct) < 85).length;
+        pmSub = `${totalDone} of ${totalSched} PMs on time${failing ? ' · ' + failing + ' asset' + (failing === 1 ? '' : 's') + ' under 85%' : ''}`;
+      }
     }
     if (pmPct == null) {
       setCard('pm', '—', pmSub, 'NO DATA', 'grey');
@@ -953,13 +974,15 @@
     if (actBox) {
       let text;
       if (mtbfBad) {
-        text = `${worstMTBF.asset_name || 'One asset'} is failing every ${worstMTBF.mtbf_days} days. Open the Predictive tab to see if its risk score is climbing — likely time for a root-cause review or replacement.`;
+        const a = (worstMTBF.machine || worstMTBF.asset_name || 'One asset');
+        text = `${a} is failing every ${worstMTBF.mtbf_days} days. Open the Predictive tab to see if its risk score is climbing — likely time for a root-cause review or replacement.`;
       } else if (pmBad) {
         text = `PM compliance at ${pmPct}% — this drags every other KPI. Open PM Scheduler and bulk-assign overdue items across the next two weeks.`;
       } else if (oeeBad) {
         text = `OEE at ${oeeAvg}%. Open the Downtime Pareto and Repeat Failures cards below — they pinpoint which assets are consuming the most uptime.`;
       } else if (mtbfWatch) {
-        text = `Worst MTBF (${worstMTBF.asset_name || 'asset'}, ${worstMTBF.mtbf_days}d) is in the warning band. Schedule a PRO PM cycle or condition-based check before it slips under 14 days.`;
+        const a = (worstMTBF.machine || worstMTBF.asset_name || 'asset');
+        text = `Worst MTBF (${a}, ${worstMTBF.mtbf_days}d) is in the warning band. Schedule a PRO PM cycle or condition-based check before it slips under 14 days.`;
       } else if (pmWatch) {
         text = `PM compliance ${pmPct}%. Bring it above 80% to clear the Reliability dimension on the Maturity Stairway.`;
       } else if (oeeAvg == null) {
