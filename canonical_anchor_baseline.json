@@ -8,7 +8,8 @@
     "formula_anchor": [],
     "standard_anchor": [],
     "dashboard_anchor": [],
-    "capture_anchor": []
+    "capture_anchor": [],
+    "seed_render_anchor": []
   },
   "engine_anchor": 0,
   "tier_a_anchor": 0,
@@ -16,5 +17,6 @@
   "formula_anchor": 0,
   "standard_anchor": 0,
   "dashboard_anchor": 0,
-  "capture_anchor": 0
+  "capture_anchor": 0,
+  "seed_render_anchor": 0
 }

@@ -187,11 +187,18 @@ def calc_pm_compliance(pm_completions: list[dict], pm_scope_items: list[dict], p
     now    = pd.Timestamp.now(tz="UTC")
     cutoff = now - pd.Timedelta(days=period_days)  # only count completions within the period
 
-    # Frequency string → days mapping
-    freq_days = {
-        "Monthly": 30, "Quarterly": 90,
-        "Semi-Annual": 180, "Yearly": 365,
+    # Frequency string → days mapping. Accept the case variants the seeder
+    # produces (Weekly / Annual / Semi-annual) — walkthrough 2026-05-13
+    # caught these falling through to the 30-day default, which compresses
+    # the compliance percentage. Lowercased lookup below.
+    freq_days_canonical = {
+        "weekly": 7, "monthly": 30, "quarterly": 90,
+        "semi-annual": 180, "semiannual": 180,
+        "annual": 365, "yearly": 365,
     }
+    def days_for(freq: str) -> int:
+        if not freq: return 30
+        return freq_days_canonical.get(str(freq).strip().lower(), 30)
 
     results = []
     for asset_id, s_group in scope.groupby("asset_id"):
@@ -207,7 +214,7 @@ def calc_pm_compliance(pm_completions: list[dict], pm_scope_items: list[dict], p
 
         for _, item in s_group.iterrows():
             freq   = item.get("frequency", "Monthly")
-            days   = freq_days.get(freq, 30)
+            days   = days_for(freq)
             comp_for_item = c_group[c_group["scope_item_id"] == item.get("id")] if not c_group.empty and "scope_item_id" in c_group.columns else pd.DataFrame()
 
             # How many times was this task due in the period?
@@ -408,7 +415,13 @@ def calc_oee(logbook_entries: list[dict], period_days: int = 90) -> dict:
         dh["downtime_hours"] = pd.to_numeric(dh["downtime_hours"], errors="coerce").fillna(0)
         downtime_by_machine = dh.groupby("machine")["downtime_hours"].sum().to_dict()
 
-    # Quality component — from production_output field
+    # Quality component — from production_output field.
+    # The canonical shape is {"quality_pct": <0-100>}; seeders + UI sometimes
+    # write {"good_units": N, "total_units": M} instead, so derive from that
+    # shape too. Walkthrough 2026-05-13 caught the OEE panel reading empty
+    # for ~6 months because seeder wrote good/total but calc only read
+    # quality_pct. Both shapes are now supported; the Seed-Render contract
+    # gate (validate_canonical_anchor L9) prevents this regression class.
     quality_data: dict[str, list] = {}
     if "production_output" in df.columns:
         for _, row in df.iterrows():
@@ -416,7 +429,13 @@ def calc_oee(logbook_entries: list[dict], period_days: int = 90) -> dict:
             if not po or not isinstance(po, dict):
                 continue
             machine = row.get("machine", "Unknown")
-            q_pct   = po.get("quality_pct")
+            q_pct = po.get("quality_pct")
+            if q_pct is None:
+                # Derive from good/total when explicit quality_pct missing.
+                good  = po.get("good_units")
+                total = po.get("total_units")
+                if good is not None and total and float(total) > 0:
+                    q_pct = round(float(good) / float(total) * 100.0, 1)
             if q_pct is not None:
                 quality_data.setdefault(machine, []).append(float(q_pct))
 

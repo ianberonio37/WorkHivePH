@@ -820,6 +820,134 @@ def check_capture_anchor() -> dict:
     }
 
 
+# ─────────────────────────────────────────────────────────────────────
+# L9 — Seed-to-Render Contract
+# ─────────────────────────────────────────────────────────────────────
+# Canonical anchoring (L1-L8) verifies that every formula has a registered
+# standard + formula_id, every page has a source chip, etc. It does NOT
+# verify the inputs the formula consumes are actually populated by any
+# seeder. Walkthrough 2026-05-13 caught the OEE panel rendering empty for
+# 6 months because:
+#   - calc_oee reads production_output.quality_pct
+#   - seeders/logbook.py writes production_output.{good_units, total_units}
+#   - panel showed "No data" forever; canonical-anchor gate was green.
+#
+# L9 closes the loop. For each (KPI render fn ↔ formula ↔ seeder file),
+# declare the inner-key paths the calc actually reads and the seeder must
+# write. Static check: every required path string appears as a dict key
+# inside the seeder file. Catches both top-level fields and nested JSONB
+# keys (since calc fns access them by literal string).
+
+SEED_RENDER_CONTRACT = [
+    {
+        "kpi":       "OEE",
+        "formula":   "oee_iso_22400",
+        "render_fn": "renderOEE",
+        "seeder":    "test-data-seeder/seeders/logbook.py",
+        # Each entry: a string the seeder MUST write SOMEWHERE as a dict key.
+        # For nested JSONB shapes (production_output → {quality_pct OR
+        # good_units/total_units}), use alt-groups: any key in the tuple
+        # satisfies the contract (the calc has fallback derivation logic).
+        "required": [
+            ("downtime_hours",),
+            ("quality_pct", "good_units"),  # quality OR raw counts
+        ],
+    },
+    {
+        "kpi":       "MTBF",
+        "formula":   "mtbf_iso_14224",
+        "render_fn": "renderMTBF",
+        "seeder":    "test-data-seeder/seeders/logbook.py",
+        "required": [
+            ("maintenance_type",),
+            ("created_at",),
+            ("machine",),
+        ],
+    },
+    {
+        "kpi":       "MTTR",
+        "formula":   "mttr_iso_14224",
+        "render_fn": "renderMTTR",
+        "seeder":    "test-data-seeder/seeders/logbook.py",
+        "required": [
+            ("downtime_hours",),
+            ("closed_at",),
+        ],
+    },
+    {
+        "kpi":       "PM Compliance",
+        "formula":   "pm_compliance_smrp",
+        "render_fn": "renderPMCompliance",
+        "seeder":    "test-data-seeder/seeders/pm.py",
+        "required": [
+            ("scope_item_id",),
+            ("frequency",),
+            ("completed_at",),
+        ],
+    },
+    {
+        "kpi":       "Parts consumption",
+        "formula":   "parts_consumption_smrp",
+        "render_fn": "renderPartsConsumption",
+        "seeder":    "test-data-seeder/seeders/inventory.py",
+        "required": [
+            ("qty_change",),
+        ],
+    },
+]
+
+
+def check_seed_render_contract() -> dict:
+    """L9 — every KPI render path's required inputs are actually written
+    by the named seeder file. Catches the bug class where the calc and
+    seeder disagree on field names (e.g. quality_pct vs good_units)."""
+    unanchored: list[dict] = []
+    for entry in SEED_RENDER_CONTRACT:
+        # Relative path off the repo root (cwd convention used elsewhere
+        # in this file — see MIGRATIONS_DIR / FUNCTIONS_DIR).
+        seeder_src = read_file(entry["seeder"]) or ""
+        if not seeder_src:
+            unanchored.append({
+                "kpi":    entry["kpi"],
+                "seeder": entry["seeder"],
+                "reason": "Seeder file not found.",
+            })
+            continue
+        missing_paths: list[str] = []
+        for alt_group in entry["required"]:
+            # alt_group is a tuple of strings — any one of them in the seeder
+            # source as a dict key (quoted) satisfies the requirement.
+            satisfied = False
+            for key in alt_group:
+                if (f'"{key}"' in seeder_src) or (f"'{key}'" in seeder_src):
+                    satisfied = True
+                    break
+            if not satisfied:
+                missing_paths.append(" OR ".join(alt_group))
+        if missing_paths:
+            unanchored.append({
+                "kpi":     entry["kpi"],
+                "formula": entry["formula"],
+                "seeder":  entry["seeder"],
+                "missing": missing_paths,
+                "reason":  (
+                    f"`{entry['kpi']}` panel renders formula `{entry['formula']}` "
+                    f"but `{entry['seeder']}` does not write required field(s): "
+                    f"{', '.join(missing_paths)}. The panel will render an empty "
+                    f"state forever even though the formula is anchored. Update the "
+                    f"seeder OR update the SEED_RENDER_CONTRACT alt-group if the "
+                    f"calc has a fallback shape."
+                ),
+            })
+    return {
+        "layer":         "seed_render",
+        "label":         "L9  Seed-Render: every KPI's required inputs are seeded",
+        "n_contracts":   len(SEED_RENDER_CONTRACT),
+        "n_unanchored":  len(unanchored),
+        "unanchored":    unanchored,
+    }
+
+
 # -- Baseline ratchet ---------------------------------------------------------
 
 def load_baseline() -> dict:
@@ -848,6 +976,7 @@ CHECK_NAMES = [
     "standard_anchor",
     "dashboard_anchor",
     "capture_anchor",
+    "seed_render_anchor",
 ]
 
 CHECK_LABELS = {
@@ -859,6 +988,7 @@ CHECK_LABELS = {
     "standard_anchor":  "L6  Tier D standard: canonical_standards registry",
     "dashboard_anchor": "L7  Dashboard: canonical-consuming pages render a source chip",
     "capture_anchor":   "L8  Capture: every input surface anchored to canonical_capture_contracts",
+    "seed_render_anchor": "L9  Seed-Render: every KPI's required inputs are seeded",
 }
 
 
@@ -879,6 +1009,7 @@ def main():
         check_standard_anchor(),
         check_dashboard_anchor(),
         check_capture_anchor(),
+        check_seed_render_contract(),
     ]
 
     baseline = load_baseline()
@@ -897,6 +1028,7 @@ def main():
             "formula_anchor" if layer_key == "tier_d_formula" else
             "standard_anchor" if layer_key == "tier_d_standard" else
             "capture_anchor" if layer_key == "capture" else
+            "seed_render_anchor" if layer_key == "seed_render" else
             "dashboard_anchor"
         )
         if L.get("status") == "registry_missing":
