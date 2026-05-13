@@ -611,36 +611,96 @@
   }
 
   // ─── Conversational path ─────────────────────────────────────────────────
-  // Calls voice-journal-agent through ai-gateway with agent='voice-journal'.
-  // The gateway saves the turn to voice_journal_entries + agent_memory, so
-  // every casual chat with James / Rosa lands in the worker's journal
-  // automatically. No extra DB write needed here.
+  // Calls the same Cloudflare Worker assistant.html / floating-ai uses, with
+  // a focused work+empathy system prompt. The journal agent was the wrong
+  // target here — its conversational mode is for emotional reflection only
+  // ("I'm tired" / "stress na ako") and explicitly tells the model NOT to
+  // diagnose, plan, or answer work questions. Sending "what is the priority
+  // PM?" to it produced a feelings-check answer instead of guidance.
+  //
+  // After the reply, we still save the turn to voice_journal_entries so
+  // every conversation lands in the worker's journal as expected.
+  const WH_ASSISTANT_WORKER_URL = 'https://workhive-assistant.ian-beronio37.workers.dev';
+
+  function _buildVoiceSystemPrompt(persona, workerName, hiveName, pageLabel) {
+    const personaBlock = (typeof window.getCompanionBlock === 'function')
+      ? window.getCompanionBlock() : '';
+    const ident = [];
+    if (workerName) ident.push('The worker speaking is ' + workerName + '.');
+    if (hiveName)   ident.push('Their hive is ' + hiveName + '.');
+    if (pageLabel)  ident.push('They are on the ' + pageLabel + ' surface.');
+    const identBlock = ident.length ? ('\n' + ident.join(' ') + '\n') : '';
+
+    return personaBlock + '\n\n' +
+      'You are answering a worker over voice. They will HEAR your reply, so:\n' +
+      '- Keep it 2-3 short sentences. Long answers are tiring spoken aloud.\n' +
+      '- If they asked a maintenance / work question, ANSWER IT directly with practical maintenance knowledge. If you don\'t have the data they\'re asking about (e.g. their specific PM schedule, their hive\'s OEE), say so plainly and point them to the right WorkHive tool: PM Scheduler for due tasks, Alert Hub for risk + low stock, Asset Hub for asset history, Analytics for MTBF/OEE.\n' +
+      '- If they shared a feeling or vented, react first ("naks, mahirap yan" / "hala ka"), THEN one practical line.\n' +
+      '- Do NOT echo their question back as the answer. Do NOT ask "what changed?" or other clinical follow-ups.\n' +
+      '- Never invent numbers. If the worker asks "what\'s overdue?" and you don\'t know, say "I can\'t pull your live PM list from here, open the PM Scheduler — it\'ll show overdue first."\n' +
+      identBlock +
+      '\nIf the worker mixes Filipino / Cebuano / Tagalog in, that\'s fine — understand it, reply in English.';
+  }
+
+  async function _saveJournalTurn(db, ctx, transcript, reply, persona) {
+    if (!db) return;
+    try {
+      const { data: { user } = { user: null } } = await db.auth.getUser();
+      const auth_uid = user ? user.id : null;
+      await db.from('voice_journal_entries').insert({
+        auth_uid,
+        worker_name: ctx.worker_name || null,
+        hive_id:     ctx.hive_id || null,
+        transcript:  String(transcript || ''),
+        reply:       String(reply || ''),
+        lang:        'en',
+        meta:        { source: 'voice-handler', persona },
+      });
+    } catch (err) {
+      console.warn('[WHVoice] journal save failed (non-fatal):', err && err.message);
+    }
+  }
+
   async function _converseInline(transcript) {
     const db = _getDb();
     const ctx = _ctx();
     const persona = (typeof window.getPersona === 'function')
       ? window.getPersona() : 'james';
     const personaName = persona === 'rosa' ? 'Rosa' : 'James';
+    const hiveName = (function () {
+      try { return localStorage.getItem('wh_hive_name') || ''; } catch (_) { return ''; }
+    })();
+    const pageLabel = _currentPage();
 
-    // Repaint the overlay status + reply slot.
     _setStatus(personaName + ' is thinking…');
     _setRecRowVisible(false);
-    _renderReplyBubble(null, persona); // placeholder while we wait
+    _renderReplyBubble(null, persona);
+
+    const system = _buildVoiceSystemPrompt(persona, ctx.worker_name, hiveName, pageLabel);
+    const messages = [
+      { role: 'system', content: system },
+      { role: 'user',   content: transcript },
+    ];
 
     try {
-      const { data, error } = await db.functions.invoke('ai-gateway', {
-        body: {
-          agent:   'voice-journal',
-          message: transcript,
-          context: { lang: 'en', persona },
-          hive_id: ctx.hive_id || null,
-        },
-      });
-      if (error) throw new Error(error.message || 'Gateway failed');
-      if (!data)  throw new Error('Empty gateway response');
-      if (data.error) throw new Error(data.error);
-
-      const answer = String(data.answer || '').trim();
+      const fetcher = (typeof window.fetchWithTimeout === 'function')
+        ? window.fetchWithTimeout
+        : (u, o) => fetch(u, o);
+      const resp = await fetcher(WH_ASSISTANT_WORKER_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model:      'meta-llama/llama-4-scout-17b-16e-instruct',
+          max_tokens: 280,
+          messages,
+        }),
+      }, 25000);
+      if (!resp)        throw new Error('Network timeout');
+      if (!resp.ok)     throw new Error('Worker error ' + resp.status);
+      const data = await resp.json();
+      const answer = String(
+        (data && data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content) || ''
+      ).trim();
       if (!answer) {
         _setStatus('No reply came back. Tap to try again.');
         _renderReplyBubble('(no reply)', persona);
@@ -652,11 +712,16 @@
       if (typeof window.speakPersona === 'function') {
         window.speakPersona(answer, { persona });
       }
+      // Background save — never blocks the UI.
+      _saveJournalTurn(db, ctx, transcript, answer, persona);
       _showTalkAgainButton();
     } catch (err) {
       console.warn('[WHVoice] conversational call failed:', err);
       _setStatus('Could not reach ' + personaName + '. Tap to try again.');
-      _renderReplyBubble('Sorry, the chat is offline right now. Your message was saved as a transcript above.', persona);
+      _renderReplyBubble('Sorry, the chat is offline right now. Your transcript above is still saved as a journal entry.', persona);
+      // Best-effort save even on failure — capture the transcript so it
+      // doesn't get lost.
+      _saveJournalTurn(db, ctx, transcript, '', persona);
       _showTalkAgainButton();
     }
   }
