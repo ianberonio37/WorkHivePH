@@ -559,41 +559,75 @@
     info:     { color: '#94a3b8', bg: 'rgba(148,163,184,0.12)', label: 'INFO'     },
   };
   let _anomalyChannel = null;
+  let _anomalyLoading = false;
+  let _anomalyDebounce = null;
 
   async function loadAnomalyEngine() {
     const panel = document.getElementById('anomaly-engine-panel');
     if (!panel || !HIVE_ID) return;
+    // Re-entry guard: a single in-flight load. Prevents a feedback loop
+    // where realtime UPDATE events on anomaly_signals re-trigger this
+    // function while it is mid-compute. Walkthrough 2026-05-13: without
+    // this guard, the page exhausts browser HTTP connections.
+    if (_anomalyLoading) return;
+    _anomalyLoading = true;
 
-    // Stair 3+ gate. Below that, do NOT render the panel — doctrine: predictive
-    // on insufficient data lies. Silently hide; the maturity stairway on
-    // hive.html already tells the supervisor what's blocking this tool.
-    if (window.checkMaturityGate) {
-      try {
-        const gate = await window.checkMaturityGate(db, HIVE_ID, 3);
-        if (gate.blocked) { panel.style.display = 'none'; return; }
-      } catch (_) { /* on error, default to hidden */ panel.style.display = 'none'; return; }
-    } else {
-      panel.style.display = 'none';
-      return;
-    }
-
-    let rows = [];
     try {
-      // Optimistic refresh: compute fresh signals if today's snapshot is missing.
-      try { await db.rpc('compute_anomaly_signals', { p_hive_id: HIVE_ID }); } catch (_) {}
-      const { data } = await db.from('v_anomaly_truth')
-        .select('id, machine, composite_score, severity, source_count, top_reasons, status, computed_at')
-        .eq('hive_id', HIVE_ID)
-        .order('composite_score', { ascending: false })
-        .limit(5);
-      rows = data || [];
-    } catch (e) {
-      console.warn('anomaly load failed:', e?.message || e);
-    }
+      // Stair 3+ gate. Below that, do NOT render the panel — doctrine:
+      // predictive on insufficient data lies. Silently hide; the maturity
+      // stairway on hive.html already tells the supervisor what's blocking
+      // this tool.
+      if (window.checkMaturityGate) {
+        try {
+          const gate = await window.checkMaturityGate(db, HIVE_ID, 3);
+          if (gate.blocked) { panel.style.display = 'none'; return; }
+        } catch (_) { panel.style.display = 'none'; return; }
+      } else {
+        panel.style.display = 'none';
+        return;
+      }
 
-    panel.style.display = 'block';
-    renderAnomalyEngine(rows);
-    startAnomalyRealtime();
+      let rows = [];
+      try {
+        // Staleness check: only invoke compute_anomaly_signals when no row
+        // exists for this hive OR the newest row is > 1 hour old. Without
+        // this, each call UPSERTs `computed_at = now()` which fires
+        // realtime UPDATE events that re-trigger the loader — an infinite
+        // self-feeding loop. Walkthrough 2026-05-13 (alert-hub blinking).
+        const { data: latest } = await db.from('v_anomaly_truth')
+          .select('computed_at')
+          .eq('hive_id', HIVE_ID)
+          .order('computed_at', { ascending: false })
+          .limit(1);
+        const newest = latest && latest[0] ? new Date(latest[0].computed_at).getTime() : 0;
+        const stale  = !newest || (Date.now() - newest > 3600 * 1000);
+        if (stale) {
+          try { await db.rpc('compute_anomaly_signals', { p_hive_id: HIVE_ID }); } catch (_) {}
+        }
+        const { data } = await db.from('v_anomaly_truth')
+          .select('id, machine, composite_score, severity, source_count, top_reasons, status, computed_at')
+          .eq('hive_id', HIVE_ID)
+          .order('composite_score', { ascending: false })
+          .limit(5);
+        rows = data || [];
+      } catch (e) {
+        console.warn('anomaly load failed:', e?.message || e);
+      }
+
+      panel.style.display = 'block';
+      renderAnomalyEngine(rows);
+      startAnomalyRealtime();
+    } finally {
+      _anomalyLoading = false;
+    }
+  }
+
+  // Debounced wrapper for realtime triggers. A single ack/resolve can land
+  // multiple UPDATE events on one row (touch + status flip) and a daily
+  // compute can land 30+ UPSERTs in a burst — coalesce them into one load.
+  function _scheduleAnomalyReload() {
+    clearTimeout(_anomalyDebounce);
+    _anomalyDebounce = setTimeout(() => { loadAnomalyEngine(); }, 600);
   }
 
   function renderAnomalyEngine(rows) {
@@ -669,7 +703,7 @@
       .on('postgres_changes', {
         event: '*', schema: 'public', table: 'anomaly_signals',
         filter: 'hive_id=eq.' + HIVE_ID,
-      }, () => { loadAnomalyEngine(); })
+      }, _scheduleAnomalyReload)   // debounced; one load per 600ms burst
       .subscribe();
     // Cleanup is folded into the consolidated beforeunload listener above
     // (the one near startAmcRealtime) so we don't leak listeners by adding
