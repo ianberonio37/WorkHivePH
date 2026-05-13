@@ -3,7 +3,7 @@
 // surfaces (logbook, inventory, pm-scheduler, hive, asset-hub, shift-brain).
 // Closes PRODUCTION_FIXES #54.
 
-const CACHE_NAME  = 'workhive-shell-v68';
+const CACHE_NAME  = 'workhive-shell-v69';
 const SHELL_FILES = [
   // Original report-sender shell
   '/report-sender.html',
