@@ -2285,6 +2285,11 @@
     const next = cur === 'james' ? 'rosa' : 'james';
     try { localStorage.setItem('wh_voice_journal_persona', next); } catch (_) {}
     _renderPersonaToggle();
+    // Companion Streamline: ping the floating widget so its avatar
+    // re-paints without a page reload.
+    if (window.WHAssistant && typeof window.WHAssistant.refreshPersona === 'function') {
+      window.WHAssistant.refreshPersona();
+    }
     // Account-level sync — best-effort, do not block UI.
     try {
       const db = _getDb();

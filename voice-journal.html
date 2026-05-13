@@ -243,9 +243,31 @@
 
     #signin-gate { display: none; }
     #signin-gate.show { display: block; }
+
+    /* Companion Streamline Step C: when this page is embedded inside
+       assistant.html via ?embedded=1, hide its own page chrome (header,
+       lazy-loaded nav-hub) and tighten the top padding. The body of the
+       journal stays exactly as-is. */
+    body.wh-embedded { padding: 0 !important; background: transparent !important; }
+    body.wh-embedded header,
+    body.wh-embedded #wh-navhub,
+    body.wh-embedded #wh-nav-hub-fab,
+    body.wh-embedded #wh-search-fab,
+    body.wh-embedded #wh-voice-btn,
+    body.wh-embedded #wh-ai-widget { display: none !important; }
+    body.wh-embedded .max-w-2xl { padding-top: 1rem !important; }
   </style>
 </head>
 <body>
+<script>
+  // Companion Streamline Step C: detect embedded mode early so the
+  // page renders without flashing its standalone chrome.
+  try {
+    if (new URLSearchParams(location.search).get('embedded') === '1') {
+      document.body.classList.add('wh-embedded');
+    }
+  } catch (_) {}
+</script>
 
   <div class="max-w-2xl mx-auto px-4 pt-5 pb-24" style="padding-bottom: max(6rem, calc(6rem + env(safe-area-inset-bottom)));">
 

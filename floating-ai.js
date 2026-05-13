@@ -200,12 +200,13 @@
           pointer-events: all;
         }
 
-        /* ── Trigger Button ── */
+        /* ── Trigger Button (persona avatar) ── */
         #wh-ai-trigger {
           width: 56px;
           height: 56px;
           border-radius: 50%;
-          background: linear-gradient(135deg, #F7A21B, #FDB94A);
+          background: transparent;
+          padding: 0;
           border: none;
           cursor: pointer;
           display: flex;
@@ -215,6 +216,11 @@
           transition: transform 0.2s, box-shadow 0.2s;
           animation: wh-pulse 3s ease-in-out infinite;
           position: relative;
+          overflow: visible;
+        }
+        #wh-ai-trigger-avatar .wh-persona-avatar {
+          width: 100% !important;
+          height: 100% !important;
         }
         #wh-ai-trigger:hover {
           transform: scale(1.08);
@@ -430,6 +436,28 @@
         #wh-ai-send:active  { transform: scale(0.96); }
         #wh-ai-send:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
 
+        /* ── Mic button (Step A: unified entry point to voice-router) ── */
+        #wh-ai-mic {
+          width: 36px; height: 36px;
+          background: linear-gradient(135deg, #29B6D9, #1f8aab);
+          border: none;
+          border-radius: 10px;
+          cursor: pointer;
+          display: flex; align-items: center; justify-content: center;
+          flex-shrink: 0;
+          align-self: flex-end;
+          transition: transform 0.15s, box-shadow 0.15s;
+        }
+        #wh-ai-mic:hover  { transform: scale(1.06); box-shadow: 0 4px 14px rgba(31,138,171,0.45); }
+        #wh-ai-mic:active { transform: scale(0.96); }
+        #wh-ai-mic svg path, #wh-ai-mic svg line { stroke: #162032; }
+
+        /* Companion Streamline Step A: hide the standalone blue voice
+           button from voice-handler.js — the in-panel mic is now the
+           single entry point. Voice overlay still opens for command
+           confirmations (router safety preserved). */
+        .wh-voice-btn { display: none !important; }
+
         /* ── Demo Banner ── */
         #wh-ai-demo-banner {
           text-align: center;
@@ -447,15 +475,10 @@
         }
       </style>
 
-      <!-- Trigger Button -->
-      <button id="wh-ai-trigger" aria-label="Open AI Assistant">
-        <span id="wh-ai-tooltip">Quick Help</span>
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-          <path d="M12 2C6.477 2 2 6.477 2 12c0 1.89.525 3.66 1.438 5.168L2 22l4.832-1.438A9.96 9.96 0 0012 22c5.523 0 10-4.477 10-10S17.523 2 12 2z" fill="rgba(22,32,50,0.9)"/>
-          <circle cx="8.5"  cy="12" r="1.2" fill="#162032"/>
-          <circle cx="12"   cy="12" r="1.2" fill="#162032"/>
-          <circle cx="15.5" cy="12" r="1.2" fill="#162032"/>
-        </svg>
+      <!-- Trigger Button: persona avatar (Companion Streamline Step A+B) -->
+      <button id="wh-ai-trigger" aria-label="Open companion">
+        <span id="wh-ai-tooltip">Talk to your companion</span>
+        <span id="wh-ai-trigger-avatar" style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;"></span>
       </button>
 
       <!-- Chat Panel -->
@@ -463,16 +486,9 @@
 
         <!-- Header -->
         <div id="wh-ai-header">
-          <div class="wh-ai-avatar">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-              <path d="M12 2C6.477 2 2 6.477 2 12c0 5.523 4.477 10 10 10s10-4.477 10-10S17.523 2 12 2z" fill="rgba(22,32,50,0.8)"/>
-              <circle cx="8.5"  cy="12" r="1.5" fill="#fff"/>
-              <circle cx="12"   cy="12" r="1.5" fill="#fff"/>
-              <circle cx="15.5" cy="12" r="1.5" fill="#fff"/>
-            </svg>
-          </div>
+          <span id="wh-ai-header-avatar" class="wh-ai-avatar"></span>
           <div class="wh-ai-header-text">
-            <strong>WorkHive AI</strong>
+            <strong id="wh-ai-header-name">WorkHive AI</strong>
             <span id="wh-ai-page-label">${ctx.label}</span>
           </div>
           <button id="wh-ai-close" aria-label="Close">✕</button>
@@ -492,6 +508,14 @@
 
         <!-- Input -->
         <div id="wh-ai-input-row">
+          <button id="wh-ai-mic" aria-label="Voice command" title="Voice command">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#162032" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/>
+              <path d="M19 10v2a7 7 0 01-14 0v-2"/>
+              <line x1="12" y1="19" x2="12" y2="23"/>
+              <line x1="8" y1="23" x2="16" y2="23"/>
+            </svg>
+          </button>
           <textarea id="wh-ai-input" rows="1" placeholder="Ask anything…" aria-label="Message"></textarea>
           <button id="wh-ai-send" aria-label="Send">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
@@ -865,11 +889,52 @@ When answering, prefer these facts over general knowledge. If the user asks some
     });
   }
 
+  // ─── Companion Streamline: persona-avatar render ─────────────────────────────
+  // Paints both the floating trigger and the in-panel header with the
+  // worker's current James/Rosa avatar. Called on init, on persona toggle,
+  // and on storage events from other tabs.
+  function renderPersonaAvatars() {
+    if (typeof window.personaAvatarHTML !== 'function') return;
+    const triggerSlot = document.getElementById('wh-ai-trigger-avatar');
+    const headerSlot  = document.getElementById('wh-ai-header-avatar');
+    const nameEl      = document.getElementById('wh-ai-header-name');
+    const key = (typeof window.getPersonaKey === 'function')
+      ? window.getPersonaKey() : 'james';
+    if (triggerSlot) triggerSlot.innerHTML = window.personaAvatarHTML(key, 52);
+    if (headerSlot)  headerSlot.innerHTML  = window.personaAvatarHTML(key, 32);
+    if (nameEl && typeof window.personaName === 'function') {
+      nameEl.textContent = window.personaName(key);
+    }
+  }
+  window.addEventListener('storage', function (ev) {
+    if (ev && ev.key === 'wh_voice_journal_persona') renderPersonaAvatars();
+  });
+
+  // ─── Companion Streamline: mic button -> voice-router ────────────────────────
+  // Single voice entry point now lives inside the floating panel. We call
+  // WHVoice.open() which opens the existing voice overlay (recording +
+  // transcript + intent confirmation). The standalone blue button is
+  // hidden via CSS above.
+  function openVoiceOverlay() {
+    if (window.WHVoice && typeof window.WHVoice.open === 'function') {
+      window.WHVoice.open();
+    } else {
+      // voice-handler.js not loaded yet (lazy via nav-hub.js). Wait one tick.
+      setTimeout(function () {
+        if (window.WHVoice && typeof window.WHVoice.open === 'function') {
+          window.WHVoice.open();
+        }
+      }, 250);
+    }
+  }
+
   // ─── Event Wiring ─────────────────────────────────────────────────────────────
   function wireEvents() {
     makeDraggable();
     document.getElementById('wh-ai-close').addEventListener('click', closePanel);
     document.getElementById('wh-ai-send').addEventListener('click', handleSend);
+    const micBtn = document.getElementById('wh-ai-mic');
+    if (micBtn) micBtn.addEventListener('click', openVoiceOverlay);
 
     const input = document.getElementById('wh-ai-input');
 
@@ -910,6 +975,9 @@ When answering, prefer these facts over general knowledge. If the user asks some
     setContext:  _setContext,
     clearContext: _clearContext,
     getContext:  function () { return _ragContext; },
+    // Companion Streamline: repaint the persona avatar after a same-tab
+    // persona flip (the storage event only fires for OTHER tabs).
+    refreshPersona: renderPersonaAvatars,
   };
 
   // ─── Init ─────────────────────────────────────────────────────────────────────
@@ -925,6 +993,9 @@ When answering, prefer these facts over general knowledge. If the user asks some
       if (Array.isArray(saved) && saved.length) history = saved.slice(-config.maxHistory);
     } catch (_) { /* fall back to empty history */ }
     buildWidget();
+    // Companion Streamline: paint the avatar before wiring so the first
+    // frame already shows James/Rosa, not a flash of default.
+    renderPersonaAvatars();
     // Re-paint persisted messages now that the DOM exists.
     if (history.length) {
       history.forEach(m => addMessage(m.role, m.content, true));

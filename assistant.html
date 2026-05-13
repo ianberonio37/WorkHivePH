@@ -311,13 +311,43 @@
       <button onclick="clearChat()" class="text-xs text-white/30 hover:text-white/60 transition-colors font-medium">New Chat</button>
     </div>
 
-    <!-- Messages area -->
+    <!-- Companion Streamline Step C: tab strip [Chat | Journal].
+         Journal tab body is an iframe to voice-journal.html?embedded=1,
+         which preserves all existing journal code while presenting the
+         worker with one unified surface. Both tabs share localStorage so
+         persona changes propagate either way. -->
+    <div class="flex-shrink-0 flex items-center gap-1 px-4 py-2"
+         style="background:rgba(22,32,50,0.6); border-bottom:1px solid rgba(255,255,255,0.05);"
+         role="tablist" aria-label="Companion surface">
+      <button id="tab-chat" type="button" role="tab" aria-selected="true"
+              onclick="switchAssistantTab('chat')"
+              class="px-3 py-1.5 rounded-lg text-xs font-bold transition-colors"
+              style="background:rgba(247,162,27,0.15); color:#F7A21B; border:1px solid rgba(247,162,27,0.30);">
+        Chat
+      </button>
+      <button id="tab-journal" type="button" role="tab" aria-selected="false"
+              onclick="switchAssistantTab('journal')"
+              class="px-3 py-1.5 rounded-lg text-xs font-bold transition-colors"
+              style="background:transparent; color:rgba(255,255,255,0.55); border:1px solid rgba(255,255,255,0.10);">
+        Journal
+      </button>
+    </div>
+
+    <!-- Messages area (Chat tab) -->
     <div id="chat-messages" class="flex-1 overflow-y-auto px-4 py-5 space-y-4">
       <!-- messages rendered here -->
     </div>
 
+    <!-- Journal tab body — embedded voice-journal.html.
+         allow="microphone" preserves recording permission inside the iframe.
+         Lazy-loaded: src is set only when the worker first clicks Journal. -->
+    <iframe id="journal-frame"
+            title="Voice Journal"
+            style="display:none; flex:1; width:100%; height:100%; border:0; background:transparent;"
+            allow="microphone; autoplay"></iframe>
+
     <!-- Input area -->
-    <div class="chat-input-area flex-shrink-0">
+    <div id="chat-input-area" class="chat-input-area flex-shrink-0">
       <div class="flex items-end gap-2 max-w-lg mx-auto">
         <textarea aria-label="Ask anything…"
           id="chat-input"
@@ -381,6 +411,34 @@
       currentScreen = id;
     }
 
+    // ── Companion Streamline Step C: tab switcher (Chat | Journal) ───
+    // Chat tab shows the existing assistant chat; Journal tab embeds
+    // voice-journal.html?embedded=1 so the worker stays in one surface.
+    // Persona changes propagate via localStorage so flipping James/Rosa
+    // on either tab refreshes both.
+    let _journalLoaded = false;
+    function switchAssistantTab(name) {
+      const isJournal = name === 'journal';
+      const tabChat   = document.getElementById('tab-chat');
+      const tabJourn  = document.getElementById('tab-journal');
+      const msgs      = document.getElementById('chat-messages');
+      const inputArea = document.getElementById('chat-input-area');
+      const frame     = document.getElementById('journal-frame');
+      if (msgs)      msgs.style.display      = isJournal ? 'none' : '';
+      if (inputArea) inputArea.style.display = isJournal ? 'none' : '';
+      if (frame)     frame.style.display     = isJournal ? 'block' : 'none';
+      // Lazy-load the iframe the first time Journal is opened.
+      if (isJournal && frame && !_journalLoaded) {
+        frame.src = 'voice-journal.html?embedded=1';
+        _journalLoaded = true;
+      }
+      const onStyle  = 'background:rgba(247,162,27,0.15); color:#F7A21B; border:1px solid rgba(247,162,27,0.30);';
+      const offStyle = 'background:transparent; color:rgba(255,255,255,0.55); border:1px solid rgba(255,255,255,0.10);';
+      if (tabChat)  { tabChat.setAttribute('style',  isJournal ? offStyle : onStyle);  tabChat.setAttribute('aria-selected',  isJournal ? 'false' : 'true'); }
+      if (tabJourn) { tabJourn.setAttribute('style', isJournal ? onStyle  : offStyle); tabJourn.setAttribute('aria-selected', isJournal ? 'true' : 'false'); }
+    }
+    window.switchAssistantTab = switchAssistantTab;
+
     // ── Toast ─────────────────────────────────────────────────────
     function showToast(msg) {
       const t = document.getElementById('toast');
@@ -420,7 +478,14 @@
       const pastDate   = new Date(Date.now() - 3  * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
       const futureDate = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
       const hiveIdCtx = localStorage.getItem('wh_active_hive_id') || localStorage.getItem('wh_hive_id') || null;
-      const [lRes, sRes, skillRes, invRes, pmRes] = await Promise.all([
+      // Companion Streamline Step D: pull the last 7 days of voice
+      // journal entries so the assistant can reference "yesterday's
+      // shift" and "what you wrote on Monday" instead of feeling
+      // amnesiac across surfaces. Capped at 5 rows, 200 chars each
+      // so the system prompt does not balloon past the model's
+      // context budget.
+      const journalSince = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+      const [lRes, sRes, skillRes, invRes, pmRes, jRes] = await Promise.all([
         db.from('v_logbook_truth').select('date,machine,maintenance_type,category,status,problem,root_cause,downtime_hours,action,parts_used').eq('worker_name', name).order('date', { ascending: false }).limit(10),
         db.from('schedule_items').select('date,start_time,end_time,title,category,item_status,notes').eq('worker_name', name).gte('date', pastDate).lte('date', futureDate).order('date', { ascending: true }).order('start_time', { ascending: true }),
         db.from('skill_badges').select('discipline,level,badge_key').eq('worker_name', name).order('level', { ascending: false }).limit(6),
@@ -430,12 +495,14 @@
         hiveIdCtx
           ? db.from('v_pm_compliance_truth').select('asset_name,category').eq('hive_id', hiveIdCtx).order('asset_name', { ascending: true }).limit(8)
           : Promise.resolve({ data: [] }),
+        db.from('voice_journal_entries').select('created_at,transcript,reply,lang').eq('worker_name', name).gte('created_at', journalSince).order('created_at', { ascending: false }).limit(5),
       ]);
       const logbook  = lRes.data || [];
       const schedule = sRes.data || [];
       const skills   = skillRes.data || [];
       const invItems = invRes.data || [];
       const pmAssets = pmRes.data || [];
+      const journals = jRes.data || [];
 
       const fmtDate = iso => {
         try { return new Date(iso).toLocaleDateString('en-PH', { year:'numeric', month:'short', day:'numeric' }); }
@@ -481,6 +548,17 @@
       const invText = lowStock.length
         ? lowStock.slice(0, 5).map(i => `${i.part_name}: ${i.qty_on_hand} ${i.unit || 'units'}${i.min_qty != null ? ' (reorder at ' + i.min_qty + ')' : ' (LOW)'}`).join(' | ')
         : hiveIdCtx ? 'All inventory items are adequately stocked.' : 'Not in a hive — no shared inventory visible.';
+
+      // Companion Streamline Step D: condensed journal context so the
+      // assistant can answer "what did I write about yesterday?" without
+      // a tool call. Trim hard — voice journals can be long.
+      const journalText = journals.length
+        ? journals.map(j => {
+            const dt = (j.created_at || '').slice(0, 10);
+            const tr = (j.transcript || '').slice(0, 200);
+            return '[' + dt + ' • ' + (j.lang || 'en') + '] ' + tr;
+          }).join('\n')
+        : 'No recent journal entries.';
 
       const todayISO = new Date().toLocaleDateString('en-CA'); // YYYY-MM-DD
       const todayReadable = new Date().toLocaleDateString('en-PH', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
@@ -576,6 +654,9 @@ ${pmText}
 
 INVENTORY ALERTS (low-stock items in hive):
 ${invText}
+
+RECENT JOURNAL (last 7 days, ${journals.length} entries — what the worker wrote/spoke privately):
+${journalText}
 --- END OF RECORDS ---`;
     }
 

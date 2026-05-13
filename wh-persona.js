@@ -102,6 +102,68 @@
     return PERSONAS[clampPersona(personaKey || getPersonaKey())].name;
   }
 
+  // ─────────────────────────────────────────────
+  // Companion Streamline — avatar slot.
+  // ─────────────────────────────────────────────
+  // Each persona has a portrait image URL slot. When the slot is empty (the
+  // default until brand assets are commissioned), we fall back to an emoji
+  // placeholder that already feels human-shaped on every OS. The slot is
+  // the single swap point for real portraits later.
+  //
+  // To install real portraits later: drop `/brand_assets/james.png` and
+  // `/brand_assets/rosa.png` and set PORTRAIT_URLS[key] to that path.
+  //
+  // Chosen style (locked 2026-05-13): "Field-warm illustration" — Pixar-soft
+  // illustrated portrait, NOT photorealistic. Filipino features, warm brown
+  // skin, gentle expression.
+  //   James — 40s, soft beard stubble, kind eyes, navy shirt with WorkHive
+  //           orange accent (#F7A21B) on the collar or strap. Background
+  //           soft warm gradient.
+  //   Rosa  — 35s, hair tied back practically, kind expression, navy/blue
+  //           blouse with WorkHive orange accent. Same gradient background.
+  // Both head-and-shoulders framing. Must read at 32px (floating button)
+  // AND 100px (hero). Square 512x512 PNG, transparent margins OK.
+  const PORTRAIT_URLS = {
+    james: '',   // drop '/brand_assets/james.png' here when illustration ready
+    rosa:  '',   // drop '/brand_assets/rosa.png'  here when illustration ready
+  };
+  const PORTRAIT_EMOJI = {
+    james: '🧔',  // matches the existing voice-journal chip
+    rosa:  '👩',
+  };
+
+  function personaAvatarUrl(personaKey) {
+    const key = clampPersona(personaKey || getPersonaKey());
+    return PORTRAIT_URLS[key] || '';
+  }
+
+  function personaEmoji(personaKey) {
+    const key = clampPersona(personaKey || getPersonaKey());
+    return PORTRAIT_EMOJI[key] || PORTRAIT_EMOJI.james;
+  }
+
+  // Render-helper: returns a self-contained HTML string for a circular
+  // avatar at the requested pixel size. Uses the image when set; else the
+  // emoji on a warm gradient. Inline styles so the snippet works inside
+  // any host (floating-ai, assistant, voice-journal, index.html toggle).
+  function personaAvatarHTML(personaKey, size) {
+    const px  = Number(size) > 0 ? Number(size) : 32;
+    const key = clampPersona(personaKey || getPersonaKey());
+    const url = PORTRAIT_URLS[key] || '';
+    const emo = PORTRAIT_EMOJI[key] || PORTRAIT_EMOJI.james;
+    const inner = url
+      ? '<img src="' + url + '" alt="' + (PERSONAS[key].name) + '" '
+        + 'style="width:100%;height:100%;object-fit:cover;border-radius:50%;" />'
+      : '<span aria-hidden="true" style="font-size:' + Math.round(px * 0.62)
+        + 'px;line-height:1;">' + emo + '</span>';
+    return '<span class="wh-persona-avatar" role="img" '
+      + 'aria-label="Companion ' + (PERSONAS[key].name) + '" '
+      + 'style="display:inline-flex;width:' + px + 'px;height:' + px
+      + 'px;border-radius:50%;background:linear-gradient(135deg,#F7A21B,#FDB94A);'
+      + 'align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;">'
+      + inner + '</span>';
+  }
+
   // Expose globally for inline scripts.
   window.PERSONAS              = PERSONAS;
   window.DEFAULT_PERSONA       = DEFAULT_PERSONA;
@@ -110,4 +172,7 @@
   window.getCompanionBlock     = getCompanionBlock;
   window.buildCompanionBlock   = buildCompanionBlock;
   window.personaName           = personaName;
+  window.personaAvatarUrl      = personaAvatarUrl;
+  window.personaEmoji          = personaEmoji;
+  window.personaAvatarHTML     = personaAvatarHTML;
 })();
