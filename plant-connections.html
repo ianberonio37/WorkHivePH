@@ -44,6 +44,62 @@
     .denied { padding: 1.25rem; border: 1px solid rgba(247,162,27,0.3); border-radius: 12px; background: rgba(247,162,27,0.06); text-align: center; }
     .denied h2 { font-size: 1.05rem; margin-bottom: 0.4rem; }
     .denied p { font-size: 0.78rem; color: rgba(255,255,255,0.7); }
+
+    /* ── Simple supervisor view (2026-05-13 streamline) ──────────────
+       4 plain-language cards above the engineering details. Same
+       pattern as ai-quality.html. */
+    .verdict {
+      display: flex; align-items: center; gap: 12px;
+      padding: 14px 16px; margin-bottom: 14px;
+      border-radius: 12px; border: 1px solid;
+    }
+    .verdict-icon { font-size: 1.5rem; line-height: 1; font-weight: 800; }
+    .verdict-text { font-size: 0.85rem; font-weight: 700; line-height: 1.35; }
+    .verdict-text small { display: block; font-size: 0.7rem; font-weight: 500; color: rgba(255,255,255,0.65); margin-top: 3px; }
+    .verdict.healthy { background: rgba(74,222,128,0.07);  border-color: rgba(74,222,128,0.3); }
+    .verdict.healthy .verdict-icon { color: var(--green); }
+    .verdict.watch   { background: rgba(247,162,27,0.07);  border-color: rgba(247,162,27,0.3); }
+    .verdict.watch   .verdict-icon { color: var(--gold); }
+    .verdict.attn    { background: rgba(248,113,113,0.07); border-color: rgba(248,113,113,0.3); }
+    .verdict.attn    .verdict-icon { color: var(--red); }
+    .verdict.empty   { background: rgba(255,255,255,0.03); border-color: rgba(255,255,255,0.08); }
+    .verdict.empty   .verdict-icon { color: rgba(255,255,255,0.55); }
+
+    .simple-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 16px; }
+    .simple-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; }
+    .simple-card .sc-label { font-size: 0.65rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+    .simple-card .sc-hero  { font-size: 1.4rem; font-weight: 800; line-height: 1.15; margin: 4px 0 2px; color: var(--text); }
+    .simple-card .sc-sub   { font-size: 0.7rem; color: rgba(255,255,255,0.55); line-height: 1.4; }
+    .simple-card .sc-tag   { display: inline-block; font-size: 0.58rem; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; padding: 0.18rem 0.5rem; border-radius: 999px; margin-top: 7px; }
+    .simple-card.tag-green .sc-tag { background: rgba(74,222,128,0.16);  color: var(--green); }
+    .simple-card.tag-amber .sc-tag { background: rgba(247,162,27,0.16);  color: var(--gold); }
+    .simple-card.tag-red   .sc-tag { background: rgba(248,113,113,0.16); color: var(--red); }
+    .simple-card.tag-grey  .sc-tag { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.5); }
+
+    .action-card {
+      background: rgba(41,182,217,0.06);
+      border: 1px solid rgba(41,182,217,0.25);
+      border-radius: 12px;
+      padding: 14px 16px;
+      margin-bottom: 16px;
+    }
+    .action-card .ac-label {
+      font-size: 0.65rem; font-weight: 800; color: var(--blue);
+      text-transform: uppercase; letter-spacing: 0.07em;
+    }
+    .action-card .ac-text { font-size: 0.82rem; line-height: 1.5; margin-top: 6px; color: rgba(255,255,255,0.85); }
+
+    .details-toggle {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: transparent; border: 1px solid var(--border);
+      color: rgba(255,255,255,0.6);
+      padding: 8px 14px; border-radius: 8px;
+      font-family: inherit; font-size: 0.7rem; font-weight: 600;
+      cursor: pointer; min-height: 44px;
+    }
+    .details-toggle:hover { color: var(--text); border-color: rgba(255,255,255,0.18); }
+    #details-pane { display: none; margin-top: 14px; }
+    #details-pane.open { display: block; }
   </style>
 </head>
 <body>
@@ -109,14 +165,220 @@
         loadRetentionConfig(),
         loadSsoConfig(),
       ]);
+      // Simple-by-default 2026-05-13: 4 plain cards + verdict + recommendation
+      // up top; original 6 engineering panels collapsed behind "Show details".
+      const state = { cfgs, syncs, topics, audit, retention, sso };
       host.innerHTML = [
-        renderRetentionCard(retention),
-        renderSsoCard(sso),
-        renderIntegrationsCard(cfgs),
-        renderSyncCard(syncs),
-        renderSensorTopicsCard(topics),
-        renderGatewayCard(audit),
+        renderVerdict(state),
+        renderSimpleCards(state),
+        renderRecommendation(state),
+        renderDetailsToggle(state),
       ].join('');
+      wireDetailsToggle();
+    }
+
+    // ── Streamline helpers ─────────────────────────────────────────
+    function freshness(lastIso) {
+      if (!lastIso) return { days: null, label: 'never synced' };
+      const days = (Date.now() - new Date(lastIso).getTime()) / 86400000;
+      let label;
+      if (days < 1)   label = Math.max(1, Math.round(days * 24)) + 'h ago';
+      else if (days < 7) label = Math.round(days) + 'd ago';
+      else            label = Math.round(days) + 'd stale';
+      return { days, label };
+    }
+
+    function computeCardStates(s) {
+      // Card 1 — CMMS Sync
+      let cmms;
+      if (!s.cfgs.length) {
+        cmms = { hero: 'Not connected', sub: 'No CMMS systems linked yet', tag: 'NO LINK', tone: 'grey' };
+      } else {
+        // Use the freshest integration as the headline.
+        const sorted = s.cfgs.slice().sort((a, b) => {
+          const ad = a.last_sync_at ? new Date(a.last_sync_at).getTime() : 0;
+          const bd = b.last_sync_at ? new Date(b.last_sync_at).getTime() : 0;
+          return bd - ad;
+        });
+        const top = sorted[0];
+        const f = freshness(top.last_sync_at);
+        const tone = f.days == null ? 'grey' : f.days > 7 ? 'red' : f.days > 1 ? 'amber' : 'green';
+        const tag  = f.days == null ? 'NEVER SYNCED' : f.days > 7 ? 'STALE' : f.days > 1 ? 'CATCH UP' : 'FRESH';
+        const others = s.cfgs.length - 1;
+        cmms = {
+          hero: top.label || top.system_type,
+          sub: `${s.cfgs.length} system${s.cfgs.length === 1 ? '' : 's'} · synced ${f.label}` + (others > 0 ? '' : ''),
+          tag, tone,
+        };
+      }
+
+      // Card 2 — Sensor feed
+      let sensors;
+      if (!s.topics.length) {
+        sensors = { hero: '0 sensors', sub: 'No MQTT/OPC-UA topics mapped — Anomaly Engine sensor source is dark', tag: 'NOT WIRED', tone: 'grey' };
+      } else {
+        sensors = {
+          hero: `${s.topics.length} sensors`,
+          sub: 'Mapped to assets · feeds Anomaly Engine 2.0',
+          tag: 'LIVE',
+          tone: 'green',
+        };
+      }
+
+      // Card 3 — API health (gateway audit)
+      let api;
+      if (!s.audit.length) {
+        api = { hero: 'No traffic', sub: 'No gateway calls in last 7 days', tag: 'IDLE', tone: 'grey' };
+      } else {
+        const errors = s.audit.filter(a => Number(a.status_code) >= 400).length;
+        const errPct = errors / s.audit.length;
+        const okPct  = Math.round((1 - errPct) * 100);
+        const tone = errPct >= 0.2 ? 'red' : errPct >= 0.1 ? 'amber' : 'green';
+        const tag  = errPct >= 0.2 ? 'FAILING' : errPct >= 0.1 ? 'WATCH' : 'HEALTHY';
+        api = {
+          hero: `${okPct}% success`,
+          sub: `${s.audit.length} calls · ${errors} error${errors === 1 ? '' : 's'} in 7 days`,
+          tag, tone,
+        };
+      }
+
+      // Card 4 — Compliance (retention + SSO rolled together)
+      let comp;
+      const hasRet = !!s.retention;
+      const ssoStatus = s.sso && s.sso.status;
+      if (!hasRet && !s.sso) {
+        comp = { hero: 'Defaults only', sub: 'Using platform defaults · SSO not configured', tag: 'BASIC', tone: 'amber' };
+      } else if (ssoStatus === 'active') {
+        comp = { hero: 'Set + SSO active', sub: 'Custom retention + SSO enforced', tag: 'PDPA READY', tone: 'green' };
+      } else if (ssoStatus === 'pending_review') {
+        comp = { hero: 'SSO pending', sub: hasRet ? 'Retention set · IT submitting SAML metadata' : 'Defaults only · IT submitting SAML metadata', tag: 'IN PROGRESS', tone: 'amber' };
+      } else if (hasRet) {
+        comp = { hero: 'Retention set', sub: 'Custom retention windows · SSO not configured', tag: 'SET', tone: 'amber' };
+      } else {
+        comp = { hero: 'Defaults only', sub: 'Using platform defaults', tag: 'BASIC', tone: 'amber' };
+      }
+
+      return { cmms, sensors, api, comp };
+    }
+
+    function computeVerdict(s, cards) {
+      // Heuristic: red if any card is red, amber if any amber, green only when
+      // CMMS + API + sensors are healthy AND compliance is set or active.
+      const tones = [cards.cmms.tone, cards.sensors.tone, cards.api.tone, cards.comp.tone];
+      if (tones.includes('red'))   return { tone: 'attn',    label: 'Plant connections need attention' };
+      if (tones.includes('amber')) return { tone: 'watch',   label: 'Plant connections mostly healthy' };
+      if (tones.every(t => t === 'green')) return { tone: 'healthy', label: 'Plant connections are healthy' };
+      return { tone: 'empty', label: 'Plant connections not yet configured' };
+    }
+
+    function renderVerdict(s) {
+      const cards = computeCardStates(s);
+      const v = computeVerdict(s, cards);
+      const icon = v.tone === 'healthy' ? '✓' : v.tone === 'watch' ? '!' : v.tone === 'attn' ? '⚠' : '·';
+      let line2;
+      if (v.tone === 'empty') {
+        line2 = 'Most hives start by linking a CMMS (SAP PM, Maximo, or a generic CSV drop) and mapping a few sensor topics. The page fills in from there.';
+      } else if (v.tone === 'healthy') {
+        line2 = `CMMS sync fresh · ${s.topics.length} sensors live · ${cards.api.hero.toLowerCase()} API · compliance configured.`;
+      } else if (v.tone === 'watch') {
+        const issues = [];
+        if (cards.cmms.tone === 'amber') issues.push('CMMS sync catching up');
+        if (cards.sensors.tone === 'grey') issues.push('no sensors mapped');
+        if (cards.api.tone === 'amber') issues.push('a few API errors');
+        if (cards.comp.tone === 'amber') issues.push('compliance defaults');
+        line2 = issues.length ? `Watch list: ${issues.join(' · ')}.` : 'Some panels still on platform defaults.';
+      } else {
+        const issues = [];
+        if (cards.cmms.tone === 'red') issues.push('CMMS sync stale > 7 days');
+        if (cards.api.tone  === 'red') issues.push('API failure rate above 20%');
+        line2 = issues.length ? `Hot spots: ${issues.join(' · ')}.` : 'One or more panels in the red.';
+      }
+      return `
+        <div class="verdict ${v.tone}">
+          <span class="verdict-icon">${icon}</span>
+          <div class="verdict-text">${escHtml(v.label)}<small>${escHtml(line2)}</small></div>
+        </div>
+      `;
+    }
+
+    function renderSimpleCards(s) {
+      const { cmms, sensors, api, comp } = computeCardStates(s);
+      const row = (label, c) => `
+        <div class="simple-card tag-${c.tone}">
+          <div class="sc-label">${escHtml(label)}</div>
+          <div class="sc-hero">${escHtml(c.hero)}</div>
+          <div class="sc-sub">${escHtml(c.sub)}</div>
+          <span class="sc-tag">${escHtml(c.tag)}</span>
+        </div>
+      `;
+      return `
+        <div class="simple-row">
+          ${row('CMMS sync', cmms)}
+          ${row('Sensor feed', sensors)}
+          ${row('API health (7d)', api)}
+          ${row('Compliance', comp)}
+        </div>
+      `;
+    }
+
+    function renderRecommendation(s) {
+      // Pick the single most-actionable next step. Order matters: real
+      // breakage (red) > missing wiring (grey) > nudges (amber) > steady.
+      const cards = computeCardStates(s);
+      let text;
+      if (!s.cfgs.length) {
+        text = 'No CMMS systems are linked yet. Most hives start by connecting SAP PM (if you have it) or by configuring a weekly spare-parts CSV drop. Open the CMMS Integration page from the Operations section.';
+      } else if (cards.cmms.tone === 'red') {
+        text = 'A CMMS integration has not synced in over a week. Open Show details below, then click into the stale row to check API credentials and the endpoint URL.';
+      } else if (cards.api.tone === 'red') {
+        const errors = s.audit.filter(a => Number(a.status_code) >= 400).length;
+        text = `${errors} API calls failed in the last 7 days. Open Show details and check the Gateway audit panel — most failures are 401 (auth) or 429 (rate limit).`;
+      } else if (!s.topics.length) {
+        text = 'No sensors are mapped. Anomaly Engine 2.0 still works without sensors — it just relies on logbook + PM signals. Add MQTT/OPC-UA topics from the Sensor bridge page when you have telemetry available.';
+      } else if (cards.comp.tone === 'amber' && s.sso && s.sso.status === 'pending_review') {
+        text = 'SSO is pending IT review. Send your SAML certificate thumbprint to the platform admin to move it from pending_review to active.';
+      } else if (cards.comp.tone === 'amber' && !s.retention) {
+        text = 'You are using the platform default retention windows (30 days soft-delete, 1095 days audit, 90 days AI telemetry). If PDPA review requires custom windows, configure them below.';
+      } else if (cards.api.tone === 'amber') {
+        text = 'API error rate is creeping up. Open Show details to see which routes are failing — voice-journal-agent and visual-defect-capture are the usual heavy hitters.';
+      } else {
+        text = 'Everything looks good. Re-check this page after a known integration event (a SAP release or a sensor add) to confirm freshness stays green.';
+      }
+      return `
+        <div class="action-card">
+          <div class="ac-label">What to do next</div>
+          <div class="ac-text">${escHtml(text)}</div>
+        </div>
+      `;
+    }
+
+    function renderDetailsToggle(s) {
+      // The original 6-panel engineering view, hidden by default.
+      const inner = [
+        renderRetentionCard(s.retention),
+        renderSsoCard(s.sso),
+        renderIntegrationsCard(s.cfgs),
+        renderSyncCard(s.syncs),
+        renderSensorTopicsCard(s.topics),
+        renderGatewayCard(s.audit),
+      ].join('');
+      return `
+        <button id="details-toggle-btn" type="button" class="details-toggle" aria-expanded="false" aria-controls="details-pane">
+          Show details
+        </button>
+        <div id="details-pane" role="region" aria-label="Engineering details">${inner}</div>
+      `;
+    }
+
+    function wireDetailsToggle() {
+      const btn = document.getElementById('details-toggle-btn');
+      const pane = document.getElementById('details-pane');
+      if (!btn || !pane) return;
+      btn.addEventListener('click', () => {
+        const open = pane.classList.toggle('open');
+        btn.setAttribute('aria-expanded', String(open));
+        btn.textContent = open ? 'Hide details' : 'Show details';
+      });
     }
 
     async function loadIntegrationConfigs() {
