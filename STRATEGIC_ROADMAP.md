@@ -241,15 +241,15 @@ Imported ERPs solve for the C-suite. WorkHive solves for the plant floor. Import
 
 ## Status
 
-| Phase | Status | Started | Notes |
+| Phase | Status | Shipped | Notes |
 |---|---|---|---|
-| Phase 0 | **In flight (2026-05-13)** | 2026-05-13 | Doctrine + HRS schema + Maturity Stairway shipping in this session |
-| Phase 1 | Queued | — | Starts the day Phase 0 lands clean Guardian |
-| Phase 2 | Queued | — | Begins after Phase 1 |
-| Phase 3 | Queued | — | Builds on Phases 1-2 |
-| Phase 4 | Maturity-gated to Stair 2+ | — | Builds after Phase 3 |
-| Phase 5 | Queued (audit-window-driven) | — | Start SOC 2 audit window the day Phase 1 lands |
-| Phase 6 | Long-horizon | — | 6-24 month bets |
+| Phase 0 | **Closed (scaffolded)** | 2026-05-13 `70314ba` | Doctrine + HRS schema + Maturity Stairway. 138 PASS |
+| Phase 1 | **Closed** | 2026-05-13 `e899baa` | Knowledge-base RLS + lifecycle + audit log + fetchWithTimeout + cost log + PII + compressor + 6 validators. 144 PASS |
+| Phase 2 | **Closed** | 2026-05-13 `2324f07` | 5 resilience helpers (offline-queue + connectivity + autosave + session-timeout + device-fingerprint) + validate_resilience grew 4→7 layers. 144 PASS |
+| Phase 3 | **Closed** | 2026-05-13 `679d921` | Adoption risk score + supervisor engagement card + onboarding stepper + intent capture + validate_adoption_observability. 145 PASS |
+| Phase 4 | **Closed (maturity-gated)** | 2026-05-13 `20e8d61` | ai-quality.html (Stair 2+) + Anomaly Engine 2.0 on alert-hub (Stair 3+) + Knowledge Pipeline tile (Stair 2+) + validate_revenue_surfaces. 147 PASS |
+| Phase 5 | **Closed (scaffolding)** | 2026-05-13 `b738240` | hive_retention + soft-delete cron + PDPA export + auth_session_events + MFA scaffold + SSO scaffold + Plant Connections Console + validate_enterprise_unlock. 148 PASS. Audits + DPAs + MFA UI + SSO IdP intentionally out-of-scope |
+| Phase 6 | **Closed (scaffolding)** | 2026-05-13 *(this batch)* | knowledge_graph_facts + drone_inspections + industry_standards seed + federated opt-in + v_insurance_bridge_truth + consulting_engagements + validate_industry_defining. ML pipelines + drone hardware + insurer integrations + edge AI runtime intentionally out-of-scope |
 
 ---
 

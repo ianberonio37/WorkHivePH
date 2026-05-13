@@ -100,6 +100,12 @@ RESET_TABLES = [
     "hive_retention_config",
     "mfa_enrollments",
     "sso_configs",
+    # Phase 6 industry-defining scaffolding. industry_standards is a catalog
+    # table (migration-seeded) — do NOT wipe in normal flow. The other three
+    # are hive-scoped runtime tables and reset cleanly.
+    "knowledge_graph_facts",
+    "drone_inspections",
+    "consulting_engagements",
     "sensor_readings",
     "sensor_topic_map",
     "hive_quotas",

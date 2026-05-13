@@ -93,6 +93,11 @@ CATALOG_TABLES_IGNORED = {
     "canonical_agent_contracts",
     "canonical_capture_contracts",
     "canonical_capabilities",
+    # Phase 6F (2026-05-13): industry_standards is a migration-seeded catalog
+    # of PSME / PEC / ISO / NFPA / ASHRAE / SAE / AIAG-VDA standards the
+    # platform aligns to. Wiping it removes the registry that the Standards
+    # Auto-Update Agent reads.
+    "industry_standards",
 }
 
 

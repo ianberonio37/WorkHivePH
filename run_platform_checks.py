@@ -792,6 +792,15 @@ VALIDATORS = [
         "skip_if_fast": False,
     },
     {
+        "id":      "industry-defining",
+        "script":  "validate_industry_defining.py",
+        "args":    [],
+        "label":   "Industry-Defining Validator (Phase 6: knowledge graph + drone inspections + standards registry + federated opt-in + insurance bridge view + MaaS consulting engagements)",
+        "group":   "Platform",
+        "report":  "industry_defining_report.json",
+        "skip_if_fast": False,
+    },
+    {
         "id":      "realtime-publication",
         "script":  "validate_realtime_publication.py",
         "args":    [],
