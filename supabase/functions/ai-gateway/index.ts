@@ -167,10 +167,18 @@ serve(async (req) => {
     return jsonResponse(corsHeaders, 401, { error: "Sign-in required" });
   }
 
-  // Resolve worker_name from worker_profiles.
+  // Resolve worker_name + persona preference from worker_profiles.
+  // Persona Contract: every conversational specialist that adopts the
+  // contract reads ctx.persona; if the client didn't supply one in the
+  // call's context, default to the account-level preference here so the
+  // worker hears the same companion across pages.
   const { data: profile } = await adminClient.from("worker_profiles")
-    .select("display_name").eq("auth_uid", user.id).maybeSingle();
+    .select("display_name, preferred_persona").eq("auth_uid", user.id).maybeSingle();
   const worker_name = profile?.display_name || user.email || "anonymous";
+  const accountPersona = (profile?.preferred_persona as string | undefined) || "james";
+  if (context && typeof context === "object" && !("persona" in context)) {
+    (context as Record<string, unknown>).persona = accountPersona;
+  }
 
   // Rate gate ONCE per request (vs every orchestrator gating independently).
   const rl = await checkAIRateLimit(adminClient, hive_id || "");

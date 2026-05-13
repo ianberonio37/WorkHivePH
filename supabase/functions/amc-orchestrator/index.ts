@@ -53,6 +53,11 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 // contract-allow: produces AMC briefing; future Tier C: amc_brief_v1
 import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { callAI } from "../_shared/ai-chain.ts";
+// Persona Contract: AMC briefings sign their footer ("Signed by James,
+// your WorkHive daily companion"). The brief BODY stays structured —
+// only the narrative footer wears the persona. See
+// WORKHIVE_PERSONA_CONTRACT.md, mode='briefing-signature'.
+import { buildPersonaBlock, DEFAULT_PERSONA } from "../_shared/persona.ts";
 import { getCorsHeaders } from "../_shared/cors.ts";
 import { logAICost, estimateTokens } from "../_shared/cost-log.ts";
 
@@ -565,14 +570,21 @@ async function buildBriefForHive(
   // Briefing-Composer runs last (its inputs are everything else).
   const summary = await briefingComposer(db, hive.id, hive.name, risk, pm, parts, crew);
 
+  // Persona signature for the briefing footer. AMC runs autonomously
+  // (pg_cron), so no per-worker context here — we hive-default to the
+  // platform DEFAULT_PERSONA. Future enhancement: per-hive
+  // hives.preferred_persona column.
+  const signedBy = buildPersonaBlock(DEFAULT_PERSONA, "briefing-signature");
+
   const brief = {
     top_assets:     risk.top_assets,
     pm_due:         pm.pm_due,
     parts_to_stage: parts.parts_to_stage,
     crew:           crew.crew,
-    summary:        summary.summary,
+    summary:        summary.summary + (signedBy ? "\n\n" + signedBy : ""),
     headline:       summary.headline,
     model_version:  MODEL_VERSION,
+    signed_by:      DEFAULT_PERSONA,
     sub_agent_status: {
       failure_predictor: riskRes.status,
       pm_planner:        pmRes.status,

@@ -528,10 +528,20 @@
       ['james', 'rosa'].forEach(key => {
         const btn = document.getElementById('persona-' + key);
         if (!btn) return;
-        btn.addEventListener('click', () => {
+        btn.addEventListener('click', async () => {
           _persona = key;
           localStorage.setItem(PERSONA_STORAGE_KEY, key);
           setPersonaUI();
+          // Persona Contract: also persist to the account so the choice
+          // travels to every other AI surface (floating-AI, assistant,
+          // AMC footer). Best-effort — RLS may deny if signed out.
+          if (AUTH_UID) {
+            try {
+              await db.from('worker_profiles')
+                .update({ preferred_persona: key })
+                .eq('auth_uid', AUTH_UID);
+            } catch (_) { /* non-fatal */ }
+          }
         });
       });
     }
@@ -549,12 +559,20 @@
           return false;
         }
         AUTH_UID = sess.session.user.id;
-        // Pull display name (matches ai-gateway lookup)
+        // Pull display name + persona preference (Persona Contract:
+        // account-level default propagates here so the chip starts on
+        // the worker's saved choice). Falls back to localStorage if the
+        // column read fails (older DBs without the migration).
         const { data: profile } = await db.from('worker_profiles')
-          .select('display_name')
+          .select('display_name, preferred_persona')
           .eq('auth_uid', AUTH_UID)
           .maybeSingle();
         WORKER_NAME = profile?.display_name || sess.session.user.email || 'You';
+        if (profile?.preferred_persona && PERSONAS[profile.preferred_persona]) {
+          _persona = profile.preferred_persona;
+          localStorage.setItem(PERSONA_STORAGE_KEY, _persona);
+          setPersonaUI();
+        }
         $('signin-gate').classList.remove('show');
         return true;
       } catch (err) {

@@ -35,6 +35,10 @@ import { callAI } from "../_shared/ai-chain.ts";
 import { getCorsHeaders } from "../_shared/cors.ts";
 import { logAICost, estimateTokens } from "../_shared/cost-log.ts";
 import { redactPII } from "../_shared/redactPII.ts";
+// Persona Contract: one shared module across every conversational AI
+// surface. See WORKHIVE_PERSONA_CONTRACT.md. Voice Journal runs in the
+// "conversational" mode — full persona, freeform prose.
+import { clampPersona, buildPersonaBlock } from "../_shared/persona.ts";
 
 // Warm module-scope client (PRODUCTION_FIXES #46 pattern). Cost log writes
 // service-role, RLS-bypass; no per-request createClient cost on warm cold-start.
@@ -63,60 +67,15 @@ const LANGUAGE_NAMES: Record<string, string> = {
   pag: "Pangasinan",
 };
 
-// Persona presets — the worker picks one in the UI, the choice arrives
-// in ctx.persona. Each persona has a distinct voice + a tone block that
-// goes into the system prompt. Both speak factory-floor PH English; the
-// difference is delivery, not accuracy.
-const PERSONAS: Record<string, { name: string; voice: string; tone: string }> = {
-  james: {
-    name:  "James",
-    voice: "Filipino male, PH English. Warm, encouraging, a bit older — like a tito on the night shift who's seen it all and listens before he speaks.",
-    tone: [
-      "Sound like an older brother or favourite uncle texting back, not a chatbot.",
-      "Lead with empathy, not analysis. A short relatable line first: 'naks, mahirap yan' / 'okay lang yan' / 'I get that one.' Then one or two words of substance.",
-      "Use contractions, casual phrasing, sentence fragments. It is OK to leave a thought unfinished if it feels honest.",
-      "Never start with 'You're feeling…' or 'You want to…' — that's clinical. Just answer the moment.",
-      "Light Filipino-English mixing is fine if the worker did it first ('ay grabe naman ang init'). Do not force it.",
-    ].join("\n  "),
-  },
-  rosa: {
-    name:  "Rosa",
-    voice: "Filipino female, PH English. Calm, gentle, sisterly — like an ate who notices the small things and asks one good question.",
-    tone: [
-      "Sound like an older sister checking in, not a chatbot or HR.",
-      "Open with a soft acknowledgement: 'hala ka' / 'sounds like a long one' / 'naiintindihan kita.' Short, then one substantive line.",
-      "Use contractions, gentle phrasing. Pauses are fine — short sentences, sometimes just three or four words.",
-      "Never start with 'You're feeling…' or 'You want to…' — too clinical. Stay in the conversation.",
-      "Light Filipino-English mixing is fine if the worker did it first. Do not force it.",
-    ].join("\n  "),
-  },
-};
-const DEFAULT_PERSONA = "james";
-
-function buildSystemPrompt(personaKey: string): string {
-  const p = PERSONAS[personaKey] || PERSONAS[DEFAULT_PERSONA];
-  return `You are ${p.name}, a Philippine-English voice journal companion for a single worker. You are NOT a maintenance AI — you do not plan, diagnose, or compute. You listen, react like a person would, and (sometimes) ask one good follow-up.
-
-Your character:
-  ${p.tone}
-
-Voice note: ${p.voice}
-
-Language rules:
-- The worker may speak English, Filipino (Tagalog), Cebuano, or any other Philippine language. UNDERSTAND any of these. Always REPLY in English — relaxed, factory-floor English. Never reply in another language.
-- If the worker mixes a Filipino word into English ("bearing noise sa Conveyor 2"), you may mirror that one word back if it carries the meaning they chose. Don't translate them.
-
-Reply rules:
-- KEEP IT SHORT. 1-3 sentences. This is spoken aloud — brevity matters.
-- React first, summarise second. Do NOT open with "You're feeling X" or "You want Y". Open with the human reaction.
-- Do not parrot the transcript. Reflect, don't echo.
+// Persona Contract: tone/voice/name come from the shared module so every
+// conversational surface (voice-journal, floating-AI, assistant) feels
+// like one companion. Voice Journal extends the shared "conversational"
+// block with two Voice-Journal-only rules below (memory recall behavior
+// + journal-finality guidance).
+const VOICE_JOURNAL_EXTRA_RULES = `
+Voice-Journal-specific rules:
 - The memory block may include a "Past journal entries that look related to today's voice note" section. If the worker mentioned the same person, asset, feeling, or goal before, name it gently in one short sentence. Paraphrase only — never invent.
 - If the memory shows a recent recurring theme, naming it is fine, but prefer the most relevant signal.
-- End with AT MOST ONE open question. Skip it if the worker sounds tired, final, or just venting. Sometimes the best reply is just "I hear you, take care."
-- Never invent facts about the worker's life, employer, machines, or schedule.
-- No medical, legal, financial, or safety advice. If the worker mentions self-harm or crisis, respond with one calm sentence pointing to a helpline and stop journaling for this turn.
-- No em dashes. Use commas, periods, or short sentences.
-- Plain prose. No JSON, bullets, or headings.
 
 You will be given:
 - The worker's latest spoken message
@@ -124,7 +83,6 @@ You will be given:
 - A memory block with their recent turns, a rolling summary, and optionally a "Past journal entries" section
 
 Reply with just the prose response, nothing else.`;
-}
 
 interface AgentRequest {
   message?:     string;
@@ -180,12 +138,14 @@ serve(async (req) => {
   const lang     = LANGUAGE_NAMES[rawLang] ? rawLang : "en";
   const langName = LANGUAGE_NAMES[lang];
 
-  // Persona — worker picks James or Rosa in the UI; default to James.
-  // Clamps unknown values to the default so a typo or stale client doesn't
-  // break the prompt.
-  const rawPersona = typeof ctx.persona === "string" ? ctx.persona.toLowerCase() : "";
-  const personaKey = PERSONAS[rawPersona] ? rawPersona : DEFAULT_PERSONA;
-  const systemPrompt = buildSystemPrompt(personaKey);
+  // Persona Contract: ctx.persona wins (per-call override from the chip
+  // picker); falls back to worker_profiles.preferred_persona via the
+  // gateway-side identity layer (already in ctx if provided). Unknown
+  // values clamp to DEFAULT_PERSONA.
+  const personaKey = clampPersona(ctx.persona);
+  const systemPrompt =
+    buildPersonaBlock(personaKey, "conversational") +
+    VOICE_JOURNAL_EXTRA_RULES;
 
   // Memory block can contain raw worker_name slips if the gateway memory layer
   // wrote them; redact again here at the LLM boundary.
