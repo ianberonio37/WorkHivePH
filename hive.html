@@ -2810,6 +2810,10 @@ async function loadAuditLog() {
     member_left:           { icon: '↩',  color: '#94a3b8', label: 'Left hive' },
     kick_member:           { icon: '⊘',  color: '#f87171', label: 'Removed member' },
     new_device:            { icon: '⚠',  color: '#F7A21B', label: 'New device' },
+    // Workforce assignment + verification (used by AMC crew suggestions
+    // + supervisor PM workflow). Also seeded by walkthrough scripts.
+    assign:                { icon: '→',  color: '#29B6D9', label: 'Assigned' },
+    verify:                { icon: '✓',  color: '#29B6D9', label: 'Verified' },
     // Generic approval queue (assets / inventory submitted by workers)
     approve_item:          { icon: '✓',  color: '#4ade80', label: 'Approved' },
     reject_item:           { icon: '✗',  color: '#f87171', label: 'Rejected' },
@@ -2848,8 +2852,9 @@ async function loadAuditLog() {
     open_dispute:          { icon: '⚠',  color: '#f87171', label: 'Opened dispute' },
     resolve_dispute_order: { icon: '✓',  color: '#4ade80', label: 'Resolved dispute' },
     submit_review:         { icon: '★',  color: '#F7A21B', label: 'Submitted review' },
-    // PDPA right-to-access
+    // PDPA right-to-access + right-to-erasure (data_retention cron)
     export_hive_data:      { icon: '⤓',  color: '#a78bfa', label: 'Exported hive data' },
+    right_to_erasure:      { icon: '✗',  color: '#a78bfa', label: 'Erased worker data (PDPA)' },
   };
 
   list.innerHTML = data.map(row => {

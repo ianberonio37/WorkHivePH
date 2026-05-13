@@ -136,38 +136,120 @@ def check_lifecycle_audit_coverage() -> list[dict]:
     return issues
 
 
+def _harvest_actions_from_js(src: str) -> set:
+    """Pull action names from writeAuditLog(FIRST_ARG, ...) calls in JS."""
+    out = set()
+    for call_m in WRITE_AUDIT_CALL_RE.finditer(src):
+        args_window = call_m.group(1)
+        first_arg = ''
+        depth = 0
+        for i, ch in enumerate(args_window):
+            if ch in '([{': depth += 1
+            elif ch in ')]}': depth -= 1
+            elif ch == ',' and depth == 0:
+                first_arg = args_window[:i]
+                break
+        else:
+            first_arg = args_window
+        for n in WRITE_AUDIT_NAMES_RE.findall(first_arg):
+            out.add(n)
+    return out
+
+
+# SQL: INSERT INTO hive_audit_log (..., action, ...) VALUES (..., 'action_name', ...)
+# OR  : INSERT INTO hive_audit_log (..., action, ...) SELECT ..., 'action_name', ...
+# OR  : INSERT INTO hive_audit_log (..., action, ...) SELECT (ARRAY['a','b'])[floor(...)]
+# We walk the column list, find the position of `action`, then harvest
+# every literal string at that position across VALUES tuples + ARRAY[...]
+# constructs. False-positive risk is low because we lock to the action
+# column index.
+SQL_INSERT_AUDIT_RE = re.compile(
+    r"INSERT\s+INTO\s+(?:public\.)?hive_audit_log\s*\(([^)]+)\)([\s\S]{0,4000}?);",
+    re.IGNORECASE,
+)
+PY_AUDIT_INSERT_RE = re.compile(
+    # client.table('hive_audit_log').insert({...})  OR  table("hive_audit_log").upsert({...})
+    r"\.table\(\s*['\"]hive_audit_log['\"]\s*\)[\s\S]{0,400}?(?:insert|upsert)\s*\(\s*(\{[\s\S]{0,1500}?\})",
+    re.IGNORECASE,
+)
+PY_AUDIT_ACTION_RE = re.compile(
+    r"['\"]action['\"]\s*:\s*['\"]([a-z][a-z0-9_]*_[a-z0-9_]{1,40}|[a-z][a-z0-9_]{2,40})['\"]",
+)
+
+
+def _harvest_actions_from_sql(src: str) -> set:
+    out = set()
+    for m in SQL_INSERT_AUDIT_RE.finditer(src):
+        col_list = [c.strip() for c in m.group(1).split(',')]
+        try:
+            action_idx = col_list.index('action')
+        except ValueError:
+            continue
+        body = m.group(2)
+        # ARRAY['a','b','c'] picker: harvest every literal inside ARRAY[...]
+        for arr in re.finditer(r"ARRAY\s*\[([^\]]+)\]", body, re.IGNORECASE):
+            for lit in re.findall(r"'([a-z][a-z0-9_]*)'", arr.group(1)):
+                out.add(lit)
+        # Plain VALUES (... 'action_name' ...): pick column at action_idx.
+        # Crude positional scan: split VALUES rows on `(...)` and walk each.
+        for row_m in re.finditer(r"\(([^)]{1,2000})\)", body):
+            row = row_m.group(1)
+            # Tokenise on commas at depth 0 (won't split inside nested parens)
+            parts, depth, buf = [], 0, []
+            for ch in row:
+                if ch in '([': depth += 1
+                elif ch in ')]': depth -= 1
+                if ch == ',' and depth == 0:
+                    parts.append(''.join(buf).strip()); buf = []
+                else:
+                    buf.append(ch)
+            parts.append(''.join(buf).strip())
+            if action_idx < len(parts):
+                tok = parts[action_idx]
+                lit = re.search(r"^'([a-z][a-z0-9_]*)'$", tok)
+                if lit:
+                    out.add(lit.group(1))
+    return out
+
+
+def _harvest_actions_from_py(src: str) -> set:
+    out = set()
+    for m in PY_AUDIT_INSERT_RE.finditer(src):
+        payload = m.group(1)
+        for am in PY_AUDIT_ACTION_RE.finditer(payload):
+            out.add(am.group(1))
+    return out
+
+
 def check_action_icon_completeness() -> list[dict]:
-    """Every action string written by writeAuditLog across all pages should
-    have an ACTION_ICON entry in hive.html so the audit log renders it
-    with a meaningful icon + label, not the generic dot.
+    """Every action string written to hive_audit_log — whether by JS
+    writeAuditLog, SQL INSERT in a migration, or Python seeder — should
+    have an ACTION_ICON entry in hive.html so the audit log renders the
+    action with a meaningful icon + label, not the generic dot.
+
+    The original validator only scanned JS writeAuditLog calls. Walkthrough
+    2026-05-13 surfaced an `assign` row rendered as a generic dot — the
+    row was inserted by a seed SQL statement that bypassed the JS helper.
+    This extension scans migration SQL + seeder Python so seed-side action
+    names are also covered.
     """
     issues = []
     actions_written = set()
+    # JS surface (HTML pages)
     for page in LIVE_PAGES:
         p = ROOT / page
-        if not p.exists():
-            continue
-        src = _read(p)
-        # Scan every writeAuditLog call; harvest action names from the
-        # FIRST argument only (the second arg is target_type, often a
-        # table name like 'inventory_items' that would false-positive).
-        # Stop at the first comma not inside a ternary's ? branch.
-        for call_m in WRITE_AUDIT_CALL_RE.finditer(src):
-            args_window = call_m.group(1)
-            # Split on the first ',' that's at paren depth 0. Ternaries
-            # `cond ? 'a' : 'b'` stay together because they have no comma.
-            first_arg = ''
-            depth = 0
-            for i, ch in enumerate(args_window):
-                if ch in '([{': depth += 1
-                elif ch in ')]}': depth -= 1
-                elif ch == ',' and depth == 0:
-                    first_arg = args_window[:i]
-                    break
-            else:
-                first_arg = args_window
-            for n in WRITE_AUDIT_NAMES_RE.findall(first_arg):
-                actions_written.add(n)
+        if p.exists():
+            actions_written |= _harvest_actions_from_js(_read(p))
+    # SQL migrations
+    migrations_dir = ROOT / "supabase" / "migrations"
+    if migrations_dir.exists():
+        for sql_path in sorted(migrations_dir.glob("*.sql")):
+            actions_written |= _harvest_actions_from_sql(_read(sql_path))
+    # Python seeders
+    seeders_dir = ROOT / "test-data-seeder" / "seeders"
+    if seeders_dir.exists():
+        for py_path in sorted(seeders_dir.glob("*.py")):
+            actions_written |= _harvest_actions_from_py(_read(py_path))
 
     hive_src = _read(ROOT / ACTION_ICON_PAGE)
     # ACTION_ICON entries look like:  member_joined: { icon: '+', ... }
