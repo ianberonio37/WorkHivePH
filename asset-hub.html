@@ -3263,7 +3263,13 @@
 
       try {
         const { data, error } = await db.functions.invoke('asset-brain-query', {
-          body: { question, asset_id: nodeId, hive_id: HIVE_ID },
+          body: {
+            question,
+            asset_id: nodeId,
+            hive_id: HIVE_ID,
+            // Persona Contract: persona drives the narration field.
+            persona: (typeof window.getPersona === 'function') ? window.getPersona() : undefined,
+          },
         });
 
         if (error) {
@@ -3276,6 +3282,12 @@
         }
 
         ansEl.innerHTML = e(data.answer || '(no answer)').replace(/\n/g, '<br>');
+
+        // Persona Contract Phase 4: play the narration in James/Rosa's
+        // voice while the worker reads the full answer.
+        if (data.narration && typeof window.speakPersona === 'function') {
+          window.speakPersona(data.narration);
+        }
 
         if (citEl && Array.isArray(data.cited) && data.cited.length) {
           const summary = data.cited.map(c => e(c.kind || 'src') + ' #' + e(String(c.index ?? '?'))).join(', ');

@@ -28,6 +28,10 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 // contract-allow: natural-language asset query; passthrough to AI
 import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { callAI } from "../_shared/ai-chain.ts";
+// Persona Contract: narrated-specialist mode — answer JSON gains a
+// `narration` field with 1-2 sentence prose in the persona's voice.
+// See WORKHIVE_PERSONA_CONTRACT.md.
+import { clampPersona, buildPersonaBlock } from "../_shared/persona.ts";
 import { loadMemory, saveTurn, formatMemoryContext } from "../_shared/memory.ts";
 import { logAICost, estimateTokens } from "../_shared/cost-log.ts";
 import { redactPII } from "../_shared/redactPII.ts";
@@ -72,7 +76,9 @@ Your job is to answer the question using ONLY the provided context. Rules:
 7. Use Filipino industrial vocabulary (PEC 2017, PSME, ISO 14224) when appropriate.
 8. No em dashes in the response. Use colons, commas, parentheses, or restructure.
 
-Output JSON: { "answer": string, "cited": [ { "kind": "logbook"|"pm"|"neighbor"|"stat"|"fmea"|"rcm"|"weibull"|"pf"|"risk"|"risk-factor", "index": number } ] }`;
+Output JSON: { "answer": string, "cited": [ { "kind": "logbook"|"pm"|"neighbor"|"stat"|"fmea"|"rcm"|"weibull"|"pf"|"risk"|"risk-factor", "index": number } ], "narration": string }
+
+narration is a 1-2 sentence prose summary of the answer in your persona's voice (Phase 7 TTS picks the voice). Paraphrase only what's in the answer; quote any number or asset name verbatim.`;
 
 // ---------------------------------------------------------------------------
 // Rate limit gate
@@ -528,10 +534,16 @@ serve(async (req) => {
     // sees worker identity. Closes PRODUCTION_FIXES #44 for this fn.
     const prompt  = JSON.stringify(redactPII(context));
 
+    // Persona Contract: narrated-specialist block prepended so the
+    // model returns its normal answer JSON AND a `narration` field in
+    // the chosen persona's voice. One chain call.
+    const personaKey = clampPersona((body as Record<string, unknown>).persona);
+    const composedSystem = buildPersonaBlock(personaKey, "narrated-specialist") + "\n\n" + SYSTEM_PROMPT;
+
     let raw: string;
     try {
       raw = await callAI(prompt, {
-        systemPrompt: SYSTEM_PROMPT,
+        systemPrompt: composedSystem,
         temperature:  0.2,
         maxTokens:    MAX_TOKENS_OUT,
         jsonMode:     true,
@@ -556,6 +568,9 @@ serve(async (req) => {
     return jsonResponse({
       answer:    String(parsed.answer || "").trim(),
       cited:     Array.isArray(parsed.cited) ? parsed.cited : [],
+      // Persona narration (1-2 sentences in James/Rosa voice). Capped to
+      // keep responses sane if the model overruns.
+      narration: String(parsed.narration || "").trim().slice(0, 280),
       remaining: rl.remaining,
       asset:     { tag: graphRes.node.tag, name: graphRes.node.name },
     }, 200, corsHeaders);

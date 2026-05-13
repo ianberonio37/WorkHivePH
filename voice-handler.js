@@ -466,6 +466,9 @@
           hive_id: ctx.hive_id,
           context_page: _currentPage(),
           context_asset_id: _currentAssetId(),
+          // Persona Contract: ctx.persona drives the narration field's
+          // voice. Gateway-hydrated default is used if absent.
+          persona: (typeof window.getPersona === 'function') ? window.getPersona() : undefined,
         },
       });
       if (routerErr) throw new Error(routerErr.message || 'Router failed');
@@ -473,6 +476,13 @@
       if (routerData.error) throw new Error(routerData.error);
 
       _renderIntents(routerData.intents || [], routerData.asset_resolution);
+
+      // Persona Contract Phase 4: play the narration in James/Rosa's voice
+      // alongside the route decision. wh-tts.js handles Azure -> browser
+      // fallback. Non-blocking.
+      if (routerData.narration && typeof window.speakPersona === 'function') {
+        window.speakPersona(routerData.narration);
+      }
 
       const hasActionable = (routerData.intents || []).some(
         it => it.kind !== 'unknown' && it.kind !== 'query.ask',

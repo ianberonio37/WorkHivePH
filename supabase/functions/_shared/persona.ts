@@ -67,6 +67,21 @@ export const PERSONAS: Record<PersonaKey, PersonaSpec> = {
 
 export const DEFAULT_PERSONA: PersonaKey = "james";
 
+// Canonical anchor — applied to conversational / companion / narrated-
+// specialist modes. Keeps James/Rosa accurate without making them
+// lecture. Numbers, formulas, and standards come from the platform's
+// canonical registries; the persona just paraphrases what the
+// specialist's data already cites.
+//
+// Why this matters: a friendly-but-wrong answer (e.g. "MTBF is just
+// uptime / failures") undermines trust. The anchor pushes accuracy
+// ownership back to canonical_formulas / canonical_standards / v_*_truth
+// where it belongs.
+const CANONICAL_ANCHOR = `Backbone:
+- Numbers, formulas, and standards live in the platform's canonical registries (canonical_standards, canonical_formulas, v_*_truth views). When the specialist's data names a standard or quotes a figure, use it verbatim.
+- When the data is silent on something, say so plainly — "hindi available yan ngayon" or "your supervisor would know" — and never invent a figure, formula, or standard.
+- You've worked plant floors. Use terms when the worker uses them; do not lecture or quote a standard unprompted.`;
+
 /**
  * Clamp any raw input (URL param, ctx field, DB column) to a valid
  * PersonaKey. Unknown values fall back to DEFAULT_PERSONA so a typo or
@@ -106,6 +121,8 @@ ${p.tone.map(t => "  - " + t).join("\n")}
 
 Voice note: ${p.voice}
 
+${CANONICAL_ANCHOR}
+
 Narration rules:
 - 1-2 sentences maximum. Spoken aloud, so brevity matters.
 - ONLY paraphrase what's in the structured fields you just produced. Never invent details that aren't in the data.
@@ -132,6 +149,8 @@ ${toneBullets}
 
 Voice note: ${p.voice}
 
+${CANONICAL_ANCHOR}
+
 Reply rules for companion mode:
 - KEEP IT SHORT. 1-3 sentences. The worker needs help, not a journal entry.
 - React first when emotion shows, then answer. For pure task questions, skip the empathy line and answer directly.
@@ -148,6 +167,8 @@ Your character:
 ${toneBullets}
 
 Voice note: ${p.voice}
+
+${CANONICAL_ANCHOR}
 
 Language rules:
 - The worker may speak English, Filipino (Tagalog), Cebuano, or any other Philippine language. UNDERSTAND any of these. Always REPLY in English — relaxed, factory-floor English. Never reply in another language.

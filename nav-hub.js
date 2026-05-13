@@ -35,6 +35,17 @@
     document.head.appendChild(v);
   }
 
+  // ─── Persona Contract Phase 4: shared TTS helper (speakPersona).
+  // Lazy-loaded alongside voice-handler so any page with nav-hub.js gets
+  // the audio playback path for free.
+  if (!document.querySelector('script[data-wh-tts]')) {
+    const t = document.createElement('script');
+    t.src = 'wh-tts.js';
+    t.async = true;
+    t.setAttribute('data-wh-tts', '1');
+    document.head.appendChild(t);
+  }
+
   // ─── Tool Registry ────────────────────────────────────────────────────────────
   // section: null = no header (home only) | string = group label shown in All Tools grid
   // roles: undefined = universal (visible in every mode) | array = visible only in those modes
@@ -74,6 +85,7 @@
       icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>` },
     // Phase 4.1 — AI Quality + ROI dashboard. Stair 2+ gated inside the page;
     // supervisor-only nav entry so workers don't see the link they can't act on.
+    // Hidden from primary nav, surfaced via the "AI Quality" button on hive.html.
     { label: 'AI Quality + ROI', href: 'ai-quality.html', match: ['ai-quality'],       section: 'Intelligence', hidden: true, roles: ['supervisor'],
       icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>` },
     // Phase 5 Track C — Plant Connections Console. Supervisor-only operations

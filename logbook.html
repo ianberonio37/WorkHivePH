@@ -1226,6 +1226,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="utils.js"></script>
 <script src="wh-capture-validate.js"></script>
+<script src="wh-tts.js"></script>
 <script>
 // ────────────────────────────────────────────
 // SUPABASE SETUP
@@ -4272,6 +4273,14 @@ async function vdcAnalyze() {
     if (!data || !data.draft) { showToast('AI returned no draft.'); return; }
 
     vdcApplyDraft(data);
+
+    // Persona Contract Phase 4: play the narration in James/Rosa's voice
+    // while the worker reviews the auto-filled draft. wh-tts.js handles
+    // the Azure -> browser-TTS fallback chain.
+    const narration = data && data.draft && data.draft.narration;
+    if (narration && typeof window.speakPersona === 'function') {
+      window.speakPersona(narration);
+    }
   } catch (err) {
     if (procDiv) procDiv.style.display = 'none';
     if (analyzeBtn) { analyzeBtn.disabled = false; analyzeBtn.textContent = 'Analyze with AI'; }
