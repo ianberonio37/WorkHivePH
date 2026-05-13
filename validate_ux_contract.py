@@ -627,7 +627,7 @@ PLAIN_READ_VERDICT_RE      = re.compile(r'class="verdict[ "]')
 # produces a single template literal, so counting `class="simple-card"`
 # occurrences would penalise that pattern; the container + 1 inline pair
 # is the reliable signal.
-PLAIN_READ_SIMPLE_ROW_RE   = re.compile(r'class="simple-row"')
+PLAIN_READ_SIMPLE_ROW_RE   = re.compile(r'class="simple-row[ "]')
 PLAIN_READ_SIMPLE_CARD_RE  = re.compile(r'class="simple-card[ "]')
 PLAIN_READ_ACTION_CARD_RE  = re.compile(r'class="action-card"')
 PLAIN_READ_TOGGLE_RE       = re.compile(r'(id="details-toggle-btn"|class="details-toggle")')
@@ -661,12 +661,8 @@ PLAIN_READ_EXEMPT = {
 # Each entry: page -> one-line note on what the streamline target is.
 PLAIN_READ_DEFERRED = {
     "index.html":           "Landing — needs platform-health verdict + 'next thing to do' action card.",
-    "hive.html":            "Supervisor home — Engagement Card plays partial verdict role; needs explicit hive-health summary at top.",
-    "pm-scheduler.html":    "Needs PM-compliance verdict (X% complete) + plain cards (overdue / due-this-week / drift).",
     "inventory.html":       "Needs stock-health verdict + cards (low-stock / restock-pending / open-disputes).",
     "asset-hub.html":       "Needs asset-fleet verdict (X assets registered / Y critical / Z drifting).",
-    "alert-hub.html":       "Has Anomaly Engine severity tags; needs roll-up verdict + 3 plain cards.",
-    "analytics.html":       "Tab-based KPI dashboard; needs verdict + cards above the tab strip.",
     "predictive.html":      "ML forecast surface — needs forecast confidence verdict + plain cards.",
     "shift-brain.html":     "Handover view — needs shift-readiness verdict + cards.",
     "dayplanner.html":      "DILO/WILO/MILO/YILO — needs day-completion verdict + cards across horizons.",

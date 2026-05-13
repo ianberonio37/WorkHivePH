@@ -301,6 +301,36 @@
       color: #fff; z-index: 9999; transition: transform 0.25s ease-out;
     }
     #toast.show { transform: translateX(-50%) translateY(0); }
+    /* Plain-Read summary (Layer D — UX Contract) */
+    .verdict { display:flex; align-items:center; gap:12px; padding:14px 16px; margin-bottom:14px; border-radius:12px; border:1px solid; }
+    .verdict-icon { font-size:1.5rem; line-height:1; font-weight:800; }
+    .verdict-text { font-size:0.9rem; font-weight:700; line-height:1.35; }
+    .verdict-text small { display:block; font-size:0.72rem; font-weight:500; color:rgba(255,255,255,0.65); margin-top:3px; }
+    .verdict.healthy { background:rgba(74,222,128,0.07);  border-color:rgba(74,222,128,0.3); }
+    .verdict.healthy .verdict-icon { color:#4ade80; }
+    .verdict.watch   { background:rgba(247,162,27,0.07);  border-color:rgba(247,162,27,0.3); }
+    .verdict.watch   .verdict-icon { color:#F7A21B; }
+    .verdict.attn    { background:rgba(248,113,113,0.07); border-color:rgba(248,113,113,0.3); }
+    .verdict.attn    .verdict-icon { color:#f87171; }
+    .verdict.empty   { background:rgba(255,255,255,0.03); border-color:rgba(255,255,255,0.08); }
+    .verdict.empty   .verdict-icon { color:rgba(255,255,255,0.55); }
+    .simple-row { display:grid; grid-template-columns:repeat(auto-fit, minmax(170px, 1fr)); gap:12px; margin-bottom:14px; }
+    .simple-card { background:rgba(22,32,50,0.7); border:1px solid rgba(255,255,255,0.07); border-radius:12px; padding:14px 16px; }
+    .simple-card .sc-label { font-size:0.65rem; font-weight:700; color:rgba(255,255,255,0.4); text-transform:uppercase; letter-spacing:0.06em; }
+    .simple-card .sc-hero  { font-size:1.5rem; font-weight:800; line-height:1.15; margin:4px 0 2px; color:#F4F6FA; }
+    .simple-card .sc-sub   { font-size:0.7rem; color:rgba(255,255,255,0.55); line-height:1.4; }
+    .simple-card .sc-tag   { display:inline-block; font-size:0.58rem; font-weight:800; letter-spacing:0.06em; text-transform:uppercase; padding:0.18rem 0.5rem; border-radius:999px; margin-top:7px; }
+    .simple-card.tag-green .sc-tag { background:rgba(74,222,128,0.16);  color:#4ade80; }
+    .simple-card.tag-amber .sc-tag { background:rgba(247,162,27,0.16);  color:#F7A21B; }
+    .simple-card.tag-red   .sc-tag { background:rgba(248,113,113,0.16); color:#f87171; }
+    .simple-card.tag-grey  .sc-tag { background:rgba(255,255,255,0.06); color:rgba(255,255,255,0.5); }
+    .action-card { background:rgba(41,182,217,0.06); border:1px solid rgba(41,182,217,0.25); border-radius:12px; padding:14px 16px; margin-bottom:14px; }
+    .action-card .ac-label { font-size:0.65rem; font-weight:800; color:#29B6D9; text-transform:uppercase; letter-spacing:0.07em; }
+    .action-card .ac-text { font-size:0.82rem; line-height:1.5; margin-top:6px; color:rgba(255,255,255,0.85); }
+    .details-toggle { display:inline-flex; align-items:center; gap:6px; background:transparent; border:1px solid rgba(255,255,255,0.07); color:rgba(255,255,255,0.6); padding:8px 14px; border-radius:8px; font-family:inherit; font-size:0.7rem; font-weight:600; cursor:pointer; min-height:44px; margin-bottom:14px; }
+    .details-toggle:hover { color:#F4F6FA; border-color:rgba(255,255,255,0.18); }
+    #an-summary-details { display:none; padding:14px 16px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:12px; font-size:0.78rem; line-height:1.5; color:rgba(255,255,255,0.7); margin-bottom:14px; }
+    #an-summary-details.open { display:block; }
   </style>
 </head>
 <body>
@@ -360,6 +390,53 @@
     <a href="ph-intelligence.html" class="refresh-btn" title="Cross-hive network view: how this hive compares to the platform's anonymised aggregates" style="text-decoration:none;">
       🌏 <span style="margin-left:4px;">Network View</span>
     </a>
+  </div>
+
+  <!-- Plain-Read summary (Layer D — UX Contract).
+       Populated by renderAnalyticsSummary() after each phase loads.
+       Rolls up: OEE / worst MTBF / PM compliance. -->
+  <div id="an-summary">
+    <div id="an-verdict" class="verdict empty">
+      <span id="an-verdict-icon" class="verdict-icon">·</span>
+      <div class="verdict-text"><span id="an-verdict-label">Rolling up reliability KPIs...</span><small id="an-verdict-sub">Loading OEE, MTBF, and PM compliance from the descriptive phase.</small></div>
+    </div>
+    <div class="simple-row">
+      <div class="simple-card tag-grey" id="an-card-oee">
+        <div class="sc-label">OEE (avg)</div>
+        <div class="sc-hero" id="an-oee-hero">—</div>
+        <div class="sc-sub" id="an-oee-sub">Loading...</div>
+        <span class="sc-tag" id="an-oee-tag">—</span>
+      </div>
+      <div class="simple-card tag-grey" id="an-card-mtbf">
+        <div class="sc-label">Worst MTBF</div>
+        <div class="sc-hero" id="an-mtbf-hero">—</div>
+        <div class="sc-sub" id="an-mtbf-sub">Loading...</div>
+        <span class="sc-tag" id="an-mtbf-tag">—</span>
+      </div>
+      <div class="simple-card tag-grey" id="an-card-pm">
+        <div class="sc-label">PM compliance</div>
+        <div class="sc-hero" id="an-pm-hero">—</div>
+        <div class="sc-sub" id="an-pm-sub">Loading...</div>
+        <span class="sc-tag" id="an-pm-tag">—</span>
+      </div>
+    </div>
+    <div class="action-card">
+      <div class="ac-label">What to do next</div>
+      <div class="ac-text" id="an-action-text">Computing recommendation...</div>
+    </div>
+    <button id="details-toggle-btn" type="button" class="details-toggle" aria-expanded="false" aria-controls="an-summary-details">
+      Show details
+    </button>
+    <div id="an-summary-details" role="region" aria-label="Analytics methodology">
+      <strong style="display:block;margin-bottom:6px;color:rgba(255,255,255,0.85);">How these KPIs are computed</strong>
+      <ul style="margin:0;padding-left:20px;">
+        <li><strong>OEE</strong>: average of <code>oee_pct</code> across all assets returned by the descriptive phase. Availability × Performance × Quality (the OEE formula).</li>
+        <li><strong>Worst MTBF</strong>: lowest <code>mtbf_days</code> across all assets with at least one corrective failure in the window. Mean Time Between Failures.</li>
+        <li><strong>PM compliance</strong>: scope items completed within frequency window / total scope items in the period.</li>
+        <li><strong>Verdict</strong>: red if OEE &lt; 60% OR worst MTBF &lt; 14 days OR compliance &lt; 50%; amber if any KPI under its healthy threshold; green when all three clear.</li>
+      </ul>
+      <p style="margin-top:8px;color:rgba(255,255,255,0.55);font-size:11px;">Use the phase tabs below (Descriptive / Diagnostic / Predictive / Prescriptive) for the full per-asset breakdown.</p>
+    </div>
   </div>
 
   <!-- Role selector — only Worker / Supervisor exist as actual hive_members.role values
@@ -772,6 +849,126 @@
 
     panel.innerHTML = html;
     flushCharts();
+
+    // Plain-Read summary (Layer D — UX Contract). Rolls up OEE / MTBF /
+    // PM compliance from the same descriptive payload.
+    renderAnalyticsSummary(data);
+  }
+
+  // Layer D — analytics summary. Cheap roll-up of the descriptive phase.
+  function renderAnalyticsSummary(data) {
+    const setCard = (name, hero, sub, tag, tone) => {
+      const card = document.getElementById('an-card-' + name);
+      if (card) {
+        card.classList.remove('tag-green', 'tag-amber', 'tag-red', 'tag-grey');
+        card.classList.add('tag-' + tone);
+      }
+      const h = document.getElementById('an-' + name + '-hero'); if (h) h.textContent = hero;
+      const s = document.getElementById('an-' + name + '-sub');  if (s) s.textContent = sub;
+      const t = document.getElementById('an-' + name + '-tag');  if (t) t.textContent = tag;
+    };
+
+    // ── OEE — average of oee_pct across all assets ────────────────────
+    const oeeAssets = (data && data.oee && Array.isArray(data.oee.oee_by_asset))
+                        ? data.oee.oee_by_asset.filter(r => r.oee_pct != null) : [];
+    const oeeAvg = oeeAssets.length
+                     ? Math.round(oeeAssets.reduce((s, r) => s + Number(r.oee_pct), 0) / oeeAssets.length)
+                     : null;
+    if (oeeAvg == null) {
+      setCard('oee', '—', 'Not enough downtime data yet', 'NO DATA', 'grey');
+    } else {
+      const tag  = oeeAvg >= 85 ? 'WORLD CLASS' : oeeAvg >= 65 ? 'TYPICAL' : 'NEEDS WORK';
+      const tone = oeeAvg >= 85 ? 'green' : oeeAvg >= 65 ? 'amber' : 'red';
+      setCard('oee', oeeAvg + '%', `Avg across ${oeeAssets.length} asset${oeeAssets.length === 1 ? '' : 's'}`, tag, tone);
+    }
+
+    // ── Worst MTBF (lowest mtbf_days across assets with failures) ─────
+    const mtbfAssets = (data && data.mtbf && Array.isArray(data.mtbf.mtbf_by_asset))
+                         ? data.mtbf.mtbf_by_asset.filter(r => r.mtbf_days != null) : [];
+    let worstMTBF = null;
+    for (const r of mtbfAssets) {
+      if (worstMTBF == null || r.mtbf_days < worstMTBF.mtbf_days) worstMTBF = r;
+    }
+    if (!worstMTBF) {
+      setCard('mtbf', '—', 'No corrective failures in this window', 'CLEAN', 'green');
+    } else {
+      const d   = Number(worstMTBF.mtbf_days);
+      const tag  = d < 14 ? 'FREQUENT' : d < 30 ? 'CONCERN' : 'OK';
+      const tone = d < 14 ? 'red' : d < 30 ? 'amber' : 'green';
+      setCard('mtbf', d + 'd', (worstMTBF.asset_name || 'Worst asset') + ' between failures', tag, tone);
+    }
+
+    // ── PM compliance ────────────────────────────────────────────────
+    let pmPct = null;
+    let pmSub = 'No PM data this period';
+    if (data && data.pm_compliance) {
+      if (typeof data.pm_compliance.compliance_pct === 'number') {
+        pmPct = Math.round(data.pm_compliance.compliance_pct);
+      } else if (data.pm_compliance.total_scope_items && data.pm_compliance.completed_on_time != null) {
+        pmPct = Math.round(100 * data.pm_compliance.completed_on_time / data.pm_compliance.total_scope_items);
+      }
+      if (pmPct != null) pmSub = `${data.pm_compliance.completed_on_time || 0} of ${data.pm_compliance.total_scope_items || '?'} on time`;
+    }
+    if (pmPct == null) {
+      setCard('pm', '—', pmSub, 'NO DATA', 'grey');
+    } else {
+      const tag  = pmPct >= 80 ? 'STAIR-READY' : pmPct >= 60 ? 'BUILDING' : 'LOW';
+      const tone = pmPct >= 80 ? 'green' : pmPct >= 60 ? 'amber' : 'red';
+      setCard('pm', pmPct + '%', pmSub, tag, tone);
+    }
+
+    // ── Verdict ──────────────────────────────────────────────────────
+    const oeeBad  = oeeAvg != null && oeeAvg < 60;
+    const mtbfBad = worstMTBF && Number(worstMTBF.mtbf_days) < 14;
+    const pmBad   = pmPct != null && pmPct < 50;
+    const oeeWatch  = oeeAvg != null && oeeAvg < 85;
+    const mtbfWatch = worstMTBF && Number(worstMTBF.mtbf_days) < 30;
+    const pmWatch   = pmPct != null && pmPct < 80;
+    let tone, label, sub;
+    if (oeeBad || mtbfBad || pmBad) {
+      tone = 'attn'; label = 'Reliability KPIs need action';
+      const flags = [];
+      if (oeeBad)  flags.push(`OEE ${oeeAvg}%`);
+      if (mtbfBad) flags.push(`worst MTBF ${worstMTBF.mtbf_days}d`);
+      if (pmBad)   flags.push(`PM compliance ${pmPct}%`);
+      sub = 'Below floor: ' + flags.join(' · ') + '.';
+    } else if (oeeWatch || mtbfWatch || pmWatch) {
+      tone = 'watch'; label = 'Reliability KPIs are climbing';
+      sub  = `OEE ${oeeAvg != null ? oeeAvg + '%' : '—'} · worst MTBF ${worstMTBF ? worstMTBF.mtbf_days + 'd' : '—'} · PM compliance ${pmPct != null ? pmPct + '%' : '—'}.`;
+    } else if (oeeAvg == null && !worstMTBF && pmPct == null) {
+      tone = 'empty'; label = 'Not enough data yet';
+      sub  = 'Log corrective failures + run a few PM completions, then come back. Analytics needs 30+ days of activity to find patterns.';
+    } else {
+      tone = 'healthy'; label = 'Reliability KPIs are healthy';
+      sub  = `OEE ${oeeAvg != null ? oeeAvg + '%' : '—'} · MTBF ${worstMTBF ? worstMTBF.mtbf_days + 'd' : 'clean'} · PM ${pmPct != null ? pmPct + '%' : '—'}.`;
+    }
+    const vBox = document.getElementById('an-verdict');
+    if (vBox) { vBox.classList.remove('healthy','watch','attn','empty'); vBox.classList.add(tone); }
+    const vIcon = document.getElementById('an-verdict-icon'); if (vIcon) vIcon.textContent = tone === 'healthy' ? '✓' : tone === 'watch' ? '!' : tone === 'attn' ? '⚠' : '·';
+    const vLbl = document.getElementById('an-verdict-label'); if (vLbl) vLbl.textContent = label;
+    const vSb  = document.getElementById('an-verdict-sub');   if (vSb)  vSb.textContent  = sub;
+
+    // ── Action ───────────────────────────────────────────────────────
+    const actBox = document.getElementById('an-action-text');
+    if (actBox) {
+      let text;
+      if (mtbfBad) {
+        text = `${worstMTBF.asset_name || 'One asset'} is failing every ${worstMTBF.mtbf_days} days. Open the Predictive tab to see if its risk score is climbing — likely time for a root-cause review or replacement.`;
+      } else if (pmBad) {
+        text = `PM compliance at ${pmPct}% — this drags every other KPI. Open PM Scheduler and bulk-assign overdue items across the next two weeks.`;
+      } else if (oeeBad) {
+        text = `OEE at ${oeeAvg}%. Open the Downtime Pareto and Repeat Failures cards below — they pinpoint which assets are consuming the most uptime.`;
+      } else if (mtbfWatch) {
+        text = `Worst MTBF (${worstMTBF.asset_name || 'asset'}, ${worstMTBF.mtbf_days}d) is in the warning band. Schedule a PRO PM cycle or condition-based check before it slips under 14 days.`;
+      } else if (pmWatch) {
+        text = `PM compliance ${pmPct}%. Bring it above 80% to clear the Reliability dimension on the Maturity Stairway.`;
+      } else if (oeeAvg == null) {
+        text = 'No analytics yet. Log corrective failures + a few PM completions, then refresh this page in a day or two.';
+      } else {
+        text = 'KPIs are healthy. Use the Predictive tab to see which assets are trending up in risk, and the Prescriptive tab for the recommended next interventions.';
+      }
+      actBox.textContent = text;
+    }
   }
 
   // ── Traffic Light Card Helper ─────────────────────────────────────────────
@@ -2145,6 +2342,18 @@
     // Set default role based on HIVE_ROLE
     setRole(_role);
     autoLoad();
+
+    // Plain-Read summary details toggle (Layer D — UX Contract).
+    (function wireAnSummaryToggle() {
+      const btn  = document.getElementById('details-toggle-btn');
+      const pane = document.getElementById('an-summary-details');
+      if (!btn || !pane) return;
+      btn.addEventListener('click', () => {
+        const open = pane.classList.toggle('open');
+        btn.setAttribute('aria-expanded', String(open));
+        btn.textContent = open ? 'Hide details' : 'Show details';
+      });
+    })();
 
     // Refresh status bar every minute so "Updated X min ago" stays current
     const _statusBarTimer = setInterval(() => updateStatusBar(_phase), 60000);

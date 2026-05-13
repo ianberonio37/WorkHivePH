@@ -271,6 +271,37 @@
       width: 40px; height: 4px; border-radius: 2px;
       background: rgba(255,255,255,0.15); margin: 0 auto 1.25rem;
     }
+
+    /* Plain-Read summary (Layer D — UX Contract) */
+    .verdict { display:flex; align-items:center; gap:12px; padding:14px 16px; margin-bottom:14px; border-radius:12px; border:1px solid; }
+    .verdict-icon { font-size:1.5rem; line-height:1; font-weight:800; }
+    .verdict-text { font-size:0.9rem; font-weight:700; line-height:1.35; }
+    .verdict-text small { display:block; font-size:0.72rem; font-weight:500; color:rgba(255,255,255,0.65); margin-top:3px; }
+    .verdict.healthy { background:rgba(74,222,128,0.07);  border-color:rgba(74,222,128,0.3); }
+    .verdict.healthy .verdict-icon { color:#4ade80; }
+    .verdict.watch   { background:rgba(247,162,27,0.07);  border-color:rgba(247,162,27,0.3); }
+    .verdict.watch   .verdict-icon { color:#F7A21B; }
+    .verdict.attn    { background:rgba(248,113,113,0.07); border-color:rgba(248,113,113,0.3); }
+    .verdict.attn    .verdict-icon { color:#f87171; }
+    .verdict.empty   { background:rgba(255,255,255,0.03); border-color:rgba(255,255,255,0.08); }
+    .verdict.empty   .verdict-icon { color:rgba(255,255,255,0.55); }
+    .simple-row { display:grid; grid-template-columns:repeat(auto-fit, minmax(150px, 1fr)); gap:12px; margin-bottom:14px; }
+    .simple-card { background:#162032; border:1px solid rgba(255,255,255,0.07); border-radius:12px; padding:14px 16px; }
+    .simple-card .sc-label { font-size:0.65rem; font-weight:700; color:rgba(255,255,255,0.4); text-transform:uppercase; letter-spacing:0.06em; }
+    .simple-card .sc-hero  { font-size:1.5rem; font-weight:800; line-height:1.15; margin:4px 0 2px; color:#F4F6FA; }
+    .simple-card .sc-sub   { font-size:0.7rem; color:rgba(255,255,255,0.55); line-height:1.4; }
+    .simple-card .sc-tag   { display:inline-block; font-size:0.58rem; font-weight:800; letter-spacing:0.06em; text-transform:uppercase; padding:0.18rem 0.5rem; border-radius:999px; margin-top:7px; }
+    .simple-card.tag-green .sc-tag { background:rgba(74,222,128,0.16);  color:#4ade80; }
+    .simple-card.tag-amber .sc-tag { background:rgba(247,162,27,0.16);  color:#F7A21B; }
+    .simple-card.tag-red   .sc-tag { background:rgba(248,113,113,0.16); color:#f87171; }
+    .simple-card.tag-grey  .sc-tag { background:rgba(255,255,255,0.06); color:rgba(255,255,255,0.5); }
+    .action-card { background:rgba(41,182,217,0.06); border:1px solid rgba(41,182,217,0.25); border-radius:12px; padding:14px 16px; margin-bottom:14px; }
+    .action-card .ac-label { font-size:0.65rem; font-weight:800; color:#29B6D9; text-transform:uppercase; letter-spacing:0.07em; }
+    .action-card .ac-text { font-size:0.82rem; line-height:1.5; margin-top:6px; color:rgba(255,255,255,0.85); }
+    .details-toggle { display:inline-flex; align-items:center; gap:6px; background:transparent; border:1px solid rgba(255,255,255,0.07); color:rgba(255,255,255,0.6); padding:8px 14px; border-radius:8px; font-family:inherit; font-size:0.7rem; font-weight:600; cursor:pointer; min-height:44px; margin-bottom:14px; }
+    .details-toggle:hover { color:#F4F6FA; border-color:rgba(255,255,255,0.18); }
+    #pm-summary-details { display:none; padding:14px 16px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:12px; font-size:0.78rem; line-height:1.5; color:rgba(255,255,255,0.7); margin-bottom:14px; }
+    #pm-summary-details.open { display:block; }
   </style>
 </head>
 <body class="text-white">
@@ -305,20 +336,53 @@
       <p id="dash-subtitle" class="text-sm text-white/40 mt-0.5">Track all your equipment PM tasks in one place.</p>
     </div>
 
-    <!-- Summary stat row -->
-    <div class="grid grid-cols-3 gap-3 mb-5">
-      <div class="wh-card p-3 text-center">
-        <div id="stat-overdue" class="text-2xl font-bold text-red-400">0</div>
-        <div class="text-xs text-white/40 mt-0.5">Overdue</div>
+    <!-- Plain-Read summary (Layer D — UX Contract).
+         Populated by renderPMSummary() after assets+scopeItems+completions
+         finish loading. Verdict + 3 cards + recommendation + toggle. -->
+    <div id="pm-verdict" class="verdict empty">
+      <span id="pm-verdict-icon" class="verdict-icon">·</span>
+      <div class="verdict-text"><span id="pm-verdict-label">Computing PM compliance...</span><small id="pm-verdict-sub">Counting overdue, due-this-week, and on-track scope items.</small></div>
+    </div>
+
+    <!-- Summary stat row — repurposed into Plain-Read .simple-card layout. -->
+    <div class="simple-row mb-5">
+      <div class="simple-card tag-grey" id="pm-card-overdue">
+        <div class="sc-label">Overdue</div>
+        <div class="sc-hero" id="stat-overdue">0</div>
+        <div class="sc-sub" id="pm-overdue-sub">Past due date</div>
+        <span class="sc-tag" id="pm-overdue-tag">—</span>
       </div>
-      <div class="wh-card p-3 text-center">
-        <div id="stat-duesoon" class="text-2xl font-bold text-yellow-400">0</div>
-        <div class="text-xs text-white/40 mt-0.5">Due Soon</div>
+      <div class="simple-card tag-grey" id="pm-card-duesoon">
+        <div class="sc-label">Due this week</div>
+        <div class="sc-hero" id="stat-duesoon">0</div>
+        <div class="sc-sub" id="pm-duesoon-sub">Next 14 days</div>
+        <span class="sc-tag" id="pm-duesoon-tag">—</span>
       </div>
-      <div class="wh-card p-3 text-center">
-        <div id="stat-ontrack" class="text-2xl font-bold text-green-400">0</div>
-        <div class="text-xs text-white/40 mt-0.5">On Track</div>
+      <div class="simple-card tag-grey" id="pm-card-ontrack">
+        <div class="sc-label">On track</div>
+        <div class="sc-hero" id="stat-ontrack">0</div>
+        <div class="sc-sub" id="pm-ontrack-sub">Compliance %</div>
+        <span class="sc-tag" id="pm-ontrack-tag">—</span>
       </div>
+    </div>
+
+    <div class="action-card">
+      <div class="ac-label">What to do next</div>
+      <div class="ac-text" id="pm-action-text">Computing recommendation...</div>
+    </div>
+
+    <button id="details-toggle-btn" type="button" class="details-toggle" aria-expanded="false" aria-controls="pm-summary-details">
+      Show details
+    </button>
+    <div id="pm-summary-details" role="region" aria-label="PM compliance explainer">
+      <strong style="display:block;margin-bottom:6px;color:rgba(255,255,255,0.85);">How PM compliance is computed</strong>
+      <ul style="margin:0;padding-left:20px;">
+        <li><strong>Overdue</strong>: scope items where today &gt; last completion + frequency (Monthly=30, Quarterly=90, Semi-Annual=180, Yearly=365 days).</li>
+        <li><strong>Due this week</strong>: scope items whose next due date falls within the next 14 days.</li>
+        <li><strong>On track</strong>: everything else, including items with no completion history yet.</li>
+        <li><strong>Compliance %</strong>: on-track / total scope items across your hive's assets.</li>
+      </ul>
+      <p style="margin-top:8px;color:rgba(255,255,255,0.55);font-size:11px;">PM compliance feeds the Reliability dimension of your Maturity Stairway. Two consecutive weeks &gt; 80% is the gate to Stair 2.</p>
     </div>
 
     <!-- Filter chips -->
@@ -1089,6 +1153,18 @@ async function init() {
   // Category filter
   document.getElementById('cat-filter').addEventListener('change', () => { _pmDisplayCount = 10; renderDashboard(); });
 
+  // Plain-Read summary details toggle (Layer D — UX Contract)
+  (function wirePMSummaryToggle() {
+    const btn  = document.getElementById('details-toggle-btn');
+    const pane = document.getElementById('pm-summary-details');
+    if (!btn || !pane) return;
+    btn.addEventListener('click', () => {
+      const open = pane.classList.toggle('open');
+      btn.setAttribute('aria-expanded', String(open));
+      btn.textContent = open ? 'Hide details' : 'Show details';
+    });
+  })();
+
   // Subscribe to realtime PM completions (for cross-device sync)
   if (HIVE_ID) subscribeRealtime();
 }
@@ -1171,6 +1247,91 @@ function getEnrichedItems(assetId) {
 // ─────────────────────────────────────
 // DASHBOARD RENDER
 // ─────────────────────────────────────
+// Layer D — Plain-Read summary for PM Scheduler.
+// Rolls up enriched asset states (already computed by renderDashboard) into
+// verdict + 3 cards + recommendation. Asset-level rollup, not scope-item.
+function renderPMSummary(enriched, overdue, duesoon, ontrack) {
+  const total = enriched.length;
+  const compliance = total === 0 ? null : Math.round((ontrack / total) * 100);
+
+  // Hero numbers are already set on #stat-{name} above; this helper only
+  // touches the sub-line, tag pill, and tone class on the card wrapper.
+  const setCard = (name, sub, tag, tone) => {
+    const card = document.getElementById('pm-card-' + name);
+    if (card) {
+      card.classList.remove('tag-green', 'tag-amber', 'tag-red', 'tag-grey');
+      card.classList.add('tag-' + tone);
+    }
+    const sub_ = document.getElementById('pm-' + name + '-sub'); if (sub_) sub_.textContent = sub;
+    const tag_ = document.getElementById('pm-' + name + '-tag'); if (tag_) tag_.textContent = tag;
+  };
+
+  // Card 1 — Overdue
+  setCard('overdue',
+    overdue === 0 ? 'No overdue PMs' : `${overdue} of ${total} assets past due`,
+    overdue === 0 ? 'CLEAR' : overdue > 5 ? 'STACKING UP' : 'WATCH',
+    overdue === 0 ? 'green' : overdue > 5 ? 'red' : 'amber'
+  );
+
+  // Card 2 — Due this week
+  setCard('duesoon',
+    duesoon === 0 ? 'Nothing due in the next 14 days' : `${duesoon} asset${duesoon === 1 ? '' : 's'} need PM this week`,
+    duesoon === 0 ? 'NONE' : duesoon > 10 ? 'BUSY WEEK' : 'PLAN AHEAD',
+    duesoon === 0 ? 'green' : duesoon > 10 ? 'amber' : 'amber'
+  );
+
+  // Card 3 — On track (compliance %)
+  const subText = total === 0 ? 'No assets in scope yet'
+                : `${ontrack} of ${total} assets on track · ${compliance}% compliance`;
+  const tag = total === 0 ? 'NO DATA' : compliance >= 80 ? 'STAIR-READY' : compliance >= 60 ? 'BUILDING' : 'LOW';
+  const tone = total === 0 ? 'grey' : compliance >= 80 ? 'green' : compliance >= 60 ? 'amber' : 'red';
+  setCard('ontrack', subText, tag, tone);
+
+  // Verdict — red if > 5 overdue OR compliance < 50%; amber if any overdue
+  // or compliance < 80%; green when overdue == 0 AND compliance >= 80%.
+  let vTone, vLabel, vSub;
+  if (total === 0) {
+    vTone = 'empty'; vLabel = 'No PM scope items yet';
+    vSub = 'Add assets and PM scope items to start tracking compliance — the dashboard fills in from there.';
+  } else if (overdue > 5 || compliance < 50) {
+    vTone = 'attn'; vLabel = 'PM compliance is in the red';
+    vSub  = overdue > 5
+              ? `${overdue} overdue assets — Reliability dimension is taking a hit on the Maturity Stairway.`
+              : `Compliance ${compliance}% — needs work before this hive clears Stair 2.`;
+  } else if (overdue > 0 || compliance < 80) {
+    vTone = 'watch'; vLabel = 'PM compliance is on watch';
+    vSub  = `${compliance}% compliance · ${overdue} overdue · ${duesoon} due this week — knock the overdue ones out first.`;
+  } else {
+    vTone = 'healthy'; vLabel = `PM compliance is healthy (${compliance}%)`;
+    vSub  = `${ontrack} of ${total} assets on track${duesoon > 0 ? ' · ' + duesoon + ' to schedule this week' : ''}.`;
+  }
+  const vBox = document.getElementById('pm-verdict');
+  if (vBox) { vBox.classList.remove('healthy','watch','attn','empty'); vBox.classList.add(vTone); }
+  const vIcon = document.getElementById('pm-verdict-icon'); if (vIcon) vIcon.textContent = vTone === 'healthy' ? '✓' : vTone === 'watch' ? '!' : vTone === 'attn' ? '⚠' : '·';
+  const vLbl = document.getElementById('pm-verdict-label'); if (vLbl) vLbl.textContent = vLabel;
+  const vSb  = document.getElementById('pm-verdict-sub');   if (vSb)  vSb.textContent  = vSub;
+
+  // Action — single most-actionable next step.
+  const actBox = document.getElementById('pm-action-text');
+  if (actBox) {
+    let text;
+    if (total === 0) {
+      text = 'Open the asset list below and click "Add asset" to register your first equipment. Once you add a PM scope item, this dashboard tracks compliance automatically.';
+    } else if (overdue > 5) {
+      text = `Filter to "Overdue" using the chips below and bulk-assign these PMs across the week. Every overdue PM is a penalty on your Reliability dimension.`;
+    } else if (overdue > 0) {
+      text = `Filter to "Overdue" and clear the ${overdue} past-due asset${overdue === 1 ? '' : 's'} this week. Bring compliance back above 80% to keep Stair 2.`;
+    } else if (duesoon > 0) {
+      text = `${duesoon} asset${duesoon === 1 ? ' has' : 's have'} PMs due in the next 14 days. Slot them into the next two weekly shift plans before they become overdue.`;
+    } else if (compliance < 80) {
+      text = `Compliance is at ${compliance}%. Walk through the list below — assets with no completion history yet show as on-track but contribute zero signal. Run an initial PM to lock in the timer.`;
+    } else {
+      text = 'PM compliance is healthy. Check the asset list below to confirm criticals (red border) are still being prioritized in your team plan.';
+    }
+    actBox.textContent = text;
+  }
+}
+
 function renderDashboard() {
   const loading = document.getElementById('dash-loading');
   const empty   = document.getElementById('dash-empty');
@@ -1189,9 +1350,16 @@ function renderDashboard() {
   });
 
   // Stats
-  document.getElementById('stat-overdue').textContent = enriched.filter(a => a.overall === 'overdue').length;
-  document.getElementById('stat-duesoon').textContent = enriched.filter(a => a.overall === 'duesoon').length;
-  document.getElementById('stat-ontrack').textContent = enriched.filter(a => a.overall === 'ontrack').length;
+  const overdueCount = enriched.filter(a => a.overall === 'overdue').length;
+  const dueSoonCount = enriched.filter(a => a.overall === 'duesoon').length;
+  const onTrackCount = enriched.filter(a => a.overall === 'ontrack').length;
+  document.getElementById('stat-overdue').textContent = overdueCount;
+  document.getElementById('stat-duesoon').textContent = dueSoonCount;
+  document.getElementById('stat-ontrack').textContent = onTrackCount;
+
+  // Plain-Read summary (Layer D) — uses the same enriched data so the cards
+  // and the verdict line never disagree with the asset list below.
+  renderPMSummary(enriched, overdueCount, dueSoonCount, onTrackCount);
 
   // Filter
   let filtered = enriched;

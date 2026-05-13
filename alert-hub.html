@@ -147,6 +147,37 @@
       .amc-stats { grid-template-columns: repeat(2, minmax(0,1fr)); }
       .amc-card { padding: 14px; }
     }
+
+    /* Plain-Read summary (Layer D — UX Contract) */
+    .verdict { display:flex; align-items:center; gap:12px; padding:14px 16px; margin-bottom:14px; border-radius:12px; border:1px solid; }
+    .verdict-icon { font-size:1.5rem; line-height:1; font-weight:800; }
+    .verdict-text { font-size:0.9rem; font-weight:700; line-height:1.35; }
+    .verdict-text small { display:block; font-size:0.72rem; font-weight:500; color:rgba(255,255,255,0.65); margin-top:3px; }
+    .verdict.healthy { background:rgba(74,222,128,0.07);  border-color:rgba(74,222,128,0.3); }
+    .verdict.healthy .verdict-icon { color:#4ade80; }
+    .verdict.watch   { background:rgba(247,162,27,0.07);  border-color:rgba(247,162,27,0.3); }
+    .verdict.watch   .verdict-icon { color:#F7A21B; }
+    .verdict.attn    { background:rgba(248,113,113,0.07); border-color:rgba(248,113,113,0.3); }
+    .verdict.attn    .verdict-icon { color:#f87171; }
+    .verdict.empty   { background:rgba(255,255,255,0.03); border-color:rgba(255,255,255,0.08); }
+    .verdict.empty   .verdict-icon { color:rgba(255,255,255,0.55); }
+    .simple-row { display:grid; grid-template-columns:repeat(auto-fit, minmax(170px, 1fr)); gap:12px; margin-bottom:14px; }
+    .simple-card { background:#162032; border:1px solid rgba(255,255,255,0.07); border-radius:12px; padding:14px 16px; }
+    .simple-card .sc-label { font-size:0.65rem; font-weight:700; color:rgba(255,255,255,0.4); text-transform:uppercase; letter-spacing:0.06em; }
+    .simple-card .sc-hero  { font-size:1.5rem; font-weight:800; line-height:1.15; margin:4px 0 2px; color:#F4F6FA; }
+    .simple-card .sc-sub   { font-size:0.7rem; color:rgba(255,255,255,0.55); line-height:1.4; }
+    .simple-card .sc-tag   { display:inline-block; font-size:0.58rem; font-weight:800; letter-spacing:0.06em; text-transform:uppercase; padding:0.18rem 0.5rem; border-radius:999px; margin-top:7px; }
+    .simple-card.tag-green .sc-tag { background:rgba(74,222,128,0.16);  color:#4ade80; }
+    .simple-card.tag-amber .sc-tag { background:rgba(247,162,27,0.16);  color:#F7A21B; }
+    .simple-card.tag-red   .sc-tag { background:rgba(248,113,113,0.16); color:#f87171; }
+    .simple-card.tag-grey  .sc-tag { background:rgba(255,255,255,0.06); color:rgba(255,255,255,0.5); }
+    .action-card { background:rgba(41,182,217,0.06); border:1px solid rgba(41,182,217,0.25); border-radius:12px; padding:14px 16px; margin-bottom:14px; }
+    .action-card .ac-label { font-size:0.65rem; font-weight:800; color:#29B6D9; text-transform:uppercase; letter-spacing:0.07em; }
+    .action-card .ac-text { font-size:0.82rem; line-height:1.5; margin-top:6px; color:rgba(255,255,255,0.85); }
+    .details-toggle { display:inline-flex; align-items:center; gap:6px; background:transparent; border:1px solid rgba(255,255,255,0.07); color:rgba(255,255,255,0.6); padding:8px 14px; border-radius:8px; font-family:inherit; font-size:0.7rem; font-weight:600; cursor:pointer; min-height:44px; margin-bottom:14px; }
+    .details-toggle:hover { color:#F4F6FA; border-color:rgba(255,255,255,0.18); }
+    #ah-summary-details { display:none; padding:14px 16px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:12px; font-size:0.78rem; line-height:1.5; color:rgba(255,255,255,0.7); margin-bottom:14px; }
+    #ah-summary-details.open { display:block; }
   </style>
 </head>
 <body>
@@ -172,6 +203,53 @@
 
   <!-- Main content -->
   <div id="main-content" style="display:none;">
+
+    <!-- Plain-Read Summary (Layer D — UX Contract).
+         Populated by renderAlertSummary() after _alerts is loaded.
+         Rolls up: critical count, anomaly count, AMC brief status. -->
+    <div id="ah-summary">
+      <div id="ah-verdict" class="verdict empty">
+        <span id="ah-verdict-icon" class="verdict-icon">·</span>
+        <div class="verdict-text"><span id="ah-verdict-label">Rolling up alert state...</span><small id="ah-verdict-sub">Loading from v_risk_truth + anomaly_signals + AMC briefing.</small></div>
+      </div>
+      <div class="simple-row">
+        <div class="simple-card tag-grey" id="ah-card-critical">
+          <div class="sc-label">High-severity alerts</div>
+          <div class="sc-hero" id="ah-critical-hero">—</div>
+          <div class="sc-sub" id="ah-critical-sub">Loading...</div>
+          <span class="sc-tag" id="ah-critical-tag">—</span>
+        </div>
+        <div class="simple-card tag-grey" id="ah-card-anomaly">
+          <div class="sc-label">Anomaly signals</div>
+          <div class="sc-hero" id="ah-anomaly-hero">—</div>
+          <div class="sc-sub" id="ah-anomaly-sub">Loading...</div>
+          <span class="sc-tag" id="ah-anomaly-tag">—</span>
+        </div>
+        <div class="simple-card tag-grey" id="ah-card-amc">
+          <div class="sc-label">AMC daily brief</div>
+          <div class="sc-hero" id="ah-amc-hero">—</div>
+          <div class="sc-sub" id="ah-amc-sub">Loading...</div>
+          <span class="sc-tag" id="ah-amc-tag">—</span>
+        </div>
+      </div>
+      <div class="action-card">
+        <div class="ac-label">What to do next</div>
+        <div class="ac-text" id="ah-action-text">Computing recommendation...</div>
+      </div>
+      <button id="details-toggle-btn" type="button" class="details-toggle" aria-expanded="false" aria-controls="ah-summary-details">
+        Show details
+      </button>
+      <div id="ah-summary-details" role="region" aria-label="Alert breakdown">
+        <strong style="display:block;margin-bottom:6px;color:rgba(255,255,255,0.85);">How this is computed</strong>
+        <ul style="margin:0;padding-left:20px;">
+          <li><strong>High-severity alerts</strong>: count of alerts in the feed with severity = critical or high.</li>
+          <li><strong>Anomaly signals</strong>: count of <code>anomaly_signals</code> rows in attention status (Stair 3+ hives only).</li>
+          <li><strong>AMC daily brief</strong>: today's brief status — pending / approved / rejected / none.</li>
+          <li><strong>Verdict</strong>: red if any critical alerts OR anomalies in attention; amber if AMC pending OR high alerts; green when clear.</li>
+        </ul>
+      </div>
+    </div>
+
     <!-- Autonomous Maintenance Crew (AMC) daily brief — populated only when
          a pending brief exists for today. Renders above the alert feed because
          it is a batch supervisor decision, not a single event. -->
@@ -329,6 +407,18 @@
   // Wire the AMC card buttons (idempotent — only runs once, the handlers
   // read from the live _amcBrief module-level).
   wireAmcCardOnce();
+
+  // Wire the Plain-Read details toggle (Layer D — UX Contract).
+  (function wireSummaryToggle() {
+    const btn  = document.getElementById('details-toggle-btn');
+    const pane = document.getElementById('ah-summary-details');
+    if (!btn || !pane) return;
+    btn.addEventListener('click', () => {
+      const open = pane.classList.toggle('open');
+      btn.setAttribute('aria-expanded', String(open));
+      btn.textContent = open ? 'Hide details' : 'Show details';
+    });
+  })();
 
   await loadAll();
   startRefresh();
@@ -982,6 +1072,9 @@
     _alerts = all;
     renderFilters();
     renderFeed();
+    // Plain-Read roll-up runs after the feed renders so the cards reflect
+    // the same state shown below.
+    renderAlertSummary();
     document.getElementById('footer-meta').textContent =
       `Last refreshed ${fmtTime(new Date())} · Auto-refresh every minute`;
   }
@@ -1008,6 +1101,129 @@
         renderFeed();
       });
     });
+  }
+
+  // Layer D Plain-Read summary — rolls up _alerts + _anomalySignals + AMC.
+  // Called from renderFeed so it refreshes whenever the alert pipeline runs.
+  function renderAlertSummary() {
+    const critical = _alerts.filter(a => a.severity === 'critical' || a.severity === 'high').length;
+    const total = _alerts.length;
+
+    // Anomaly signals: pull from the panel's count badge (already populated
+    // by loadAnomalyEngine). Defaults to 0 if Stair 3 gate is closed.
+    let anomalyCount = 0;
+    try {
+      const badge = document.getElementById('anomaly-engine-count');
+      if (badge) {
+        const m = (badge.textContent || '').match(/(\d+)/);
+        if (m) anomalyCount = parseInt(m[1], 10);
+      }
+    } catch (_) {}
+
+    // AMC brief status: read from the AMC card visible state + status pill.
+    let amcStatus = 'none';
+    let amcHero = 'None today';
+    try {
+      const amcCard = document.getElementById('amc-card');
+      if (amcCard && amcCard.style.display !== 'none') {
+        const pill = document.getElementById('amc-status-pill');
+        const txt = pill ? (pill.textContent || '').trim().toLowerCase() : '';
+        if (txt.includes('pending'))  { amcStatus = 'pending';  amcHero = 'Pending'; }
+        else if (txt.includes('approved')) { amcStatus = 'approved'; amcHero = 'Approved'; }
+        else if (txt.includes('rejected')) { amcStatus = 'rejected'; amcHero = 'Rejected'; }
+        else { amcStatus = 'active'; amcHero = 'Brief ready'; }
+      }
+    } catch (_) {}
+
+    const setCard = (name, hero, sub, tag, tone) => {
+      const card = document.getElementById('ah-card-' + name);
+      if (card) {
+        card.classList.remove('tag-green', 'tag-amber', 'tag-red', 'tag-grey');
+        card.classList.add('tag-' + tone);
+      }
+      const h = document.getElementById('ah-' + name + '-hero'); if (h) h.textContent = hero;
+      const s = document.getElementById('ah-' + name + '-sub');  if (s) s.textContent = sub;
+      const t = document.getElementById('ah-' + name + '-tag');  if (t) t.textContent = tag;
+    };
+
+    // Card 1 — High-severity alerts
+    setCard('critical',
+      String(critical),
+      critical === 0 ? `${total} total alerts · none critical or high` : `${critical} of ${total} alerts need eyes now`,
+      critical === 0 ? 'CLEAR' : critical > 3 ? 'STACKING UP' : 'WATCH',
+      critical === 0 ? 'green' : critical > 3 ? 'red' : 'amber'
+    );
+
+    // Card 2 — Anomaly signals
+    setCard('anomaly',
+      String(anomalyCount),
+      anomalyCount === 0 ? 'No fused anomalies in your hive right now' : `${anomalyCount} multi-source anomalies in attention`,
+      anomalyCount === 0 ? 'CLEAR' : anomalyCount > 3 ? 'STACKING UP' : 'WATCH',
+      anomalyCount === 0 ? 'green' : anomalyCount > 3 ? 'red' : 'amber'
+    );
+
+    // Card 3 — AMC brief
+    const amcTone = amcStatus === 'pending'  ? 'amber'
+                  : amcStatus === 'approved' ? 'green'
+                  : amcStatus === 'rejected' ? 'red'
+                  : amcStatus === 'active'   ? 'amber'
+                  : 'grey';
+    const amcTag  = amcStatus === 'pending'  ? 'AWAITING APPROVAL'
+                  : amcStatus === 'approved' ? 'APPROVED'
+                  : amcStatus === 'rejected' ? 'REJECTED'
+                  : amcStatus === 'active'   ? 'READY'
+                  : 'NO BRIEF';
+    const amcSub  = amcStatus === 'pending'  ? 'Supervisor approval blocks AMC dispatch'
+                  : amcStatus === 'approved' ? "Today's brief is live; crew is dispatched"
+                  : amcStatus === 'rejected' ? "Today's brief rejected — see status message on card"
+                  : amcStatus === 'active'   ? 'Brief loaded for this shift'
+                  : "No AMC brief for today's shift";
+    setCard('amc', amcHero, amcSub, amcTag, amcTone);
+
+    // Verdict — red if any critical alerts OR anomalies in attention; amber
+    // if AMC pending OR high-severity alerts > 0; green when clear.
+    let tone, label, sub;
+    if (critical > 3 || anomalyCount > 3) {
+      tone = 'attn'; label = 'Alert Hub needs immediate attention';
+      sub  = critical > 3 ? `${critical} high-severity alerts pile up — start with the top of the feed below.`
+                          : `${anomalyCount} multi-source anomalies firing — open the Anomaly Engine panel below.`;
+    } else if (critical > 0 || anomalyCount > 0 || amcStatus === 'pending') {
+      tone = 'watch'; label = 'A few things to triage';
+      const parts = [];
+      if (critical > 0)   parts.push(`${critical} high-severity alert${critical === 1 ? '' : 's'}`);
+      if (anomalyCount > 0) parts.push(`${anomalyCount} anomaly signal${anomalyCount === 1 ? '' : 's'}`);
+      if (amcStatus === 'pending') parts.push('AMC brief awaiting approval');
+      sub = parts.join(' · ') + '.';
+    } else if (total === 0 && amcStatus === 'none') {
+      tone = 'empty'; label = 'No alerts on this hive right now';
+      sub  = 'Either everything is genuinely calm, or the alert sources have not surfaced anything this shift.';
+    } else {
+      tone = 'healthy'; label = 'Alert Hub looks clear';
+      sub  = `${total} open alert${total === 1 ? '' : 's'}, none critical · ${anomalyCount === 0 ? 'no anomalies' : anomalyCount + ' anomalies (low priority)'}.`;
+    }
+    const vBox = document.getElementById('ah-verdict');
+    if (vBox) { vBox.classList.remove('healthy','watch','attn','empty'); vBox.classList.add(tone); }
+    const vIcon = document.getElementById('ah-verdict-icon'); if (vIcon) vIcon.textContent = tone === 'healthy' ? '✓' : tone === 'watch' ? '!' : tone === 'attn' ? '⚠' : '·';
+    const vLbl  = document.getElementById('ah-verdict-label'); if (vLbl) vLbl.textContent = label;
+    const vSub  = document.getElementById('ah-verdict-sub');   if (vSub) vSub.textContent = sub;
+
+    // Action — pick the single most-urgent next step.
+    const actBox = document.getElementById('ah-action-text');
+    if (actBox) {
+      let text;
+      if (critical > 0) {
+        text = `Filter to "Critical/High" using the chips below and clear the top of the feed first. Bookmark anything that needs a follow-up via the logbook.`;
+      } else if (anomalyCount > 0) {
+        text = `Open the Anomaly Engine 2.0 panel below — multi-source signals mean a fault is brewing across logbook + sensors + PM drift, not just one signal.`;
+      } else if (amcStatus === 'pending') {
+        text = `Today's AMC brief is awaiting your approval. Click "Approve brief" in the AMC card below to dispatch crew suggestions to your workers.`;
+      } else if (total > 0) {
+        text = `${total} open alerts, none critical. Work through them as time permits during your next walkaround.`;
+      } else {
+        text = `Alert Hub is clear. Check back after the next shift change or sensor reading window.`;
+      }
+      actBox.textContent = text;
+    }
   }
 
   function renderFeed() {

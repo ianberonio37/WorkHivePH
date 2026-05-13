@@ -587,6 +587,58 @@
       </div>
 
       <!-- ─────────────────────────────────────────────────────────────────
+           Supervisor Plain-Read Summary (Layer D of UX Contract).
+           Hidden for workers. For supervisors, surfaces a 5-second read:
+           verdict line + 3 plain cards (Stair / Adoption / Open Issues)
+           + recommended next action + toggle for the explainer panel.
+           Populated by loadSupervisorSummary() from data already loaded
+           by loadAdoptionCard() + loadMaturityStairway() + loadPMHealth.
+           ───────────────────────────────────────────────────────────────── -->
+      <div id="supervisor-summary" class="hidden mb-5">
+        <div id="ss-verdict" class="verdict empty">
+          <span id="ss-verdict-icon" class="verdict-icon">·</span>
+          <div class="verdict-text"><span id="ss-verdict-label">Computing hive health...</span><small id="ss-verdict-sub">Rolling up adoption + PM compliance + open alerts.</small></div>
+        </div>
+        <div class="simple-row" id="ss-cards">
+          <div class="simple-card tag-grey" id="ss-card-stair">
+            <div class="sc-label">Maturity stair</div>
+            <div class="sc-hero" id="ss-stair-hero">—</div>
+            <div class="sc-sub" id="ss-stair-sub">Loading...</div>
+            <span class="sc-tag" id="ss-stair-tag">—</span>
+          </div>
+          <div class="simple-card tag-grey" id="ss-card-adoption">
+            <div class="sc-label">Adoption health</div>
+            <div class="sc-hero" id="ss-adoption-hero">—</div>
+            <div class="sc-sub" id="ss-adoption-sub">Loading...</div>
+            <span class="sc-tag" id="ss-adoption-tag">—</span>
+          </div>
+          <div class="simple-card tag-grey" id="ss-card-issues">
+            <div class="sc-label">Open issues</div>
+            <div class="sc-hero" id="ss-issues-hero">—</div>
+            <div class="sc-sub" id="ss-issues-sub">Loading...</div>
+            <span class="sc-tag" id="ss-issues-tag">—</span>
+          </div>
+        </div>
+        <div class="action-card" id="ss-action">
+          <div class="ac-label">What to do next</div>
+          <div class="ac-text" id="ss-action-text">Computing recommendation...</div>
+        </div>
+        <button id="details-toggle-btn" type="button" class="details-toggle" aria-expanded="false" aria-controls="supervisor-summary-details">
+          Show details
+        </button>
+        <div id="supervisor-summary-details" role="region" aria-label="Hive health explainer">
+          <strong style="display:block;margin-bottom:6px;color:rgba(255,255,255,0.85);">How this is computed</strong>
+          <ul style="margin:0;padding-left:20px;">
+            <li><strong>Maturity stair</strong>: latest snapshot from <code>v_maturity_truth</code>. Hive must clear 5 dimension gates per stair (Reliability / Operations / Safety / People / Cost).</li>
+            <li><strong>Adoption health</strong>: <code>compute_adoption_risk</code> RPC. Healthy &lt; 35, At Risk 35-65, Critical &gt; 65.</li>
+            <li><strong>Open issues</strong>: PM overdue count + anomaly signals in attention status (last 30 days).</li>
+            <li><strong>Verdict</strong>: red if Adoption is Critical OR &gt; 5 PMs overdue; amber if Adoption is At Risk OR 1-5 PMs overdue; green when both clear.</li>
+          </ul>
+          <p style="margin-top:8px;color:rgba(255,255,255,0.55);font-size:11px;">Full breakdown (top risk reasons, champion candidate, stair dimensions) is in the Engagement Card below.</p>
+        </div>
+      </div>
+
+      <!-- ─────────────────────────────────────────────────────────────────
            Onboarding card (Phase 3.3 of STRATEGIC_ROADMAP).
            Shows the role-specific path (worker 5-step / supervisor 7-step).
            Hidden once every step is complete; populated by onboarding.js.
@@ -626,6 +678,37 @@
           .stair-dim-label { font-size:8px; }
           .stair-dim-value { font-size:9px; }
         }
+
+        /* Supervisor Plain-Read Summary (Layer D — UX Contract) */
+        .verdict { display:flex; align-items:center; gap:12px; padding:14px 16px; margin-bottom:14px; border-radius:12px; border:1px solid; }
+        .verdict-icon { font-size:1.5rem; line-height:1; font-weight:800; }
+        .verdict-text { font-size:0.9rem; font-weight:700; line-height:1.35; }
+        .verdict-text small { display:block; font-size:0.72rem; font-weight:500; color:rgba(255,255,255,0.65); margin-top:3px; }
+        .verdict.healthy { background:rgba(74,222,128,0.07);  border-color:rgba(74,222,128,0.3); }
+        .verdict.healthy .verdict-icon { color:#4ade80; }
+        .verdict.watch   { background:rgba(247,162,27,0.07);  border-color:rgba(247,162,27,0.3); }
+        .verdict.watch   .verdict-icon { color:#F7A21B; }
+        .verdict.attn    { background:rgba(248,113,113,0.07); border-color:rgba(248,113,113,0.3); }
+        .verdict.attn    .verdict-icon { color:#f87171; }
+        .verdict.empty   { background:rgba(255,255,255,0.03); border-color:rgba(255,255,255,0.08); }
+        .verdict.empty   .verdict-icon { color:rgba(255,255,255,0.55); }
+        .simple-row { display:grid; grid-template-columns:repeat(auto-fit, minmax(170px, 1fr)); gap:12px; margin-bottom:14px; }
+        .simple-card { background:#162032; border:1px solid rgba(255,255,255,0.07); border-radius:12px; padding:14px 16px; }
+        .simple-card .sc-label { font-size:0.65rem; font-weight:700; color:rgba(255,255,255,0.4); text-transform:uppercase; letter-spacing:0.06em; }
+        .simple-card .sc-hero  { font-size:1.5rem; font-weight:800; line-height:1.15; margin:4px 0 2px; color:#F4F6FA; }
+        .simple-card .sc-sub   { font-size:0.7rem; color:rgba(255,255,255,0.55); line-height:1.4; }
+        .simple-card .sc-tag   { display:inline-block; font-size:0.58rem; font-weight:800; letter-spacing:0.06em; text-transform:uppercase; padding:0.18rem 0.5rem; border-radius:999px; margin-top:7px; }
+        .simple-card.tag-green .sc-tag { background:rgba(74,222,128,0.16);  color:#4ade80; }
+        .simple-card.tag-amber .sc-tag { background:rgba(247,162,27,0.16);  color:#F7A21B; }
+        .simple-card.tag-red   .sc-tag { background:rgba(248,113,113,0.16); color:#f87171; }
+        .simple-card.tag-grey  .sc-tag { background:rgba(255,255,255,0.06); color:rgba(255,255,255,0.5); }
+        .action-card { background:rgba(41,182,217,0.06); border:1px solid rgba(41,182,217,0.25); border-radius:12px; padding:14px 16px; margin-bottom:14px; }
+        .action-card .ac-label { font-size:0.65rem; font-weight:800; color:#29B6D9; text-transform:uppercase; letter-spacing:0.07em; }
+        .action-card .ac-text { font-size:0.82rem; line-height:1.5; margin-top:6px; color:rgba(255,255,255,0.85); }
+        .details-toggle { display:inline-flex; align-items:center; gap:6px; background:transparent; border:1px solid rgba(255,255,255,0.07); color:rgba(255,255,255,0.6); padding:8px 14px; border-radius:8px; font-family:inherit; font-size:0.7rem; font-weight:600; cursor:pointer; min-height:44px; }
+        .details-toggle:hover { color:#F4F6FA; border-color:rgba(255,255,255,0.18); }
+        #supervisor-summary-details { display:none; margin-top:10px; margin-bottom:14px; padding:14px 16px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:12px; font-size:0.78rem; line-height:1.5; color:rgba(255,255,255,0.7); }
+        #supervisor-summary-details.open { display:block; }
       </style>
 
       <!-- Alerts -->
@@ -1498,6 +1581,10 @@ async function initBoard() {
   // allSettled: never rejects, so startPresence() is always reached even if one data load fails
   const _boardResults = await Promise.allSettled([checkStockAlert(), loadMembers(), loadFeed(), buildNotifications(), loadApprovalQueue(), loadPMHealth(), loadAuditLog(), loadTodaysBrief(), loadTeamPulse(), loadPatternAlerts(), loadBenchmarks(), loadMaturityStairway(), loadAdoptionCard(), loadOnboardingCard(), maybeShowIntentCapture(), loadKnowledgePipeline()]);
   _boardResults.forEach((r, i) => { if (r.status === 'rejected') console.error('initBoard step', i, 'failed:', r.reason); });
+  // Layer D Plain-Read summary — rolls up loaded data into verdict + 3 cards.
+  // Runs AFTER the allSettled so all source state (_lastReadiness, _lastAdoption,
+  // _pmOverdueCount) is populated. Cheap; just a render.
+  loadSupervisorSummary();
   // Team stock alert needs memberNames populated by loadMembers first
   checkTeamStockAlert();
 
@@ -1692,6 +1779,8 @@ async function loadAdoptionCard() {
   }
   _lastAdoption = row || null;
   renderAdoptionCard(row);
+  // Cheap re-render of the Plain-Read summary — adoption tier is one of its 3 cards.
+  if (typeof loadSupervisorSummary === 'function') loadSupervisorSummary();
   startAdoptionRealtime();
 }
 
@@ -1777,6 +1866,134 @@ function startAdoptionRealtime() {
     }, async () => { await loadAdoptionCard(); })
     .subscribe();
 }
+
+// ─────────────────────────────────────────────────────────────────
+// Layer D — Supervisor Plain-Read Summary
+// ─────────────────────────────────────────────────────────────────
+// Rolls up loaded state into a 5-second read: verdict + 3 cards +
+// action. Uses _lastReadiness (maturity stair), _lastAdoption (risk),
+// and _pmOverdueCount (open issues). Re-renders whenever any of those
+// sources change — cheap; no extra queries.
+
+function loadSupervisorSummary() {
+  if (!HIVE_ID || HIVE_ROLE !== 'supervisor') return;
+  const host = document.getElementById('supervisor-summary');
+  if (!host) return;
+  host.classList.remove('hidden');
+
+  // Set the 4 text slots on a card by its name prefix (stair / adoption / issues).
+  const setCard = (name, hero, sub, tag, tone) => {
+    const card = document.getElementById(`ss-card-${name}`);
+    if (card) {
+      card.classList.remove('tag-green', 'tag-amber', 'tag-red', 'tag-grey');
+      card.classList.add(`tag-${tone}`);
+    }
+    const h = document.getElementById(`ss-${name}-hero`); if (h) h.textContent = hero;
+    const s = document.getElementById(`ss-${name}-sub`);  if (s) s.textContent = sub;
+    const t = document.getElementById(`ss-${name}-tag`);  if (t) t.textContent = tag;
+  };
+
+  const stair    = _lastReadiness && typeof _lastReadiness.current_stair === 'number'
+                     ? _lastReadiness.current_stair : null;
+  const stairLbl = stair != null && (STAIR_PALETTE && STAIR_PALETTE[stair])
+                     ? STAIR_PALETTE[stair].label : null;
+  const composite = _lastReadiness && _lastReadiness.composite_score;
+  const tier     = (_lastAdoption && _lastAdoption.risk_tier) || null;
+  const riskScore = _lastAdoption && _lastAdoption.risk_score;
+  const overdue   = _pmOverdueCount || 0;
+
+  // Card 1 — Maturity Stair
+  setCard('stair',
+    stair != null ? `Stair ${stair}` : '—',
+    stair != null ? (stairLbl || `Composite ${composite || '—'}/100`) : 'No snapshot yet',
+    stair == null ? 'NO DATA' : stair >= 3 ? 'PREDICTIVE-READY' : stair >= 2 ? 'PROACTIVE' : 'BUILDING',
+    stair == null ? 'grey' : stair >= 3 ? 'green' : stair >= 2 ? 'amber' : 'amber'
+  );
+
+  // Card 2 — Adoption Health
+  const tierLabel = tier === 'healthy' ? 'Healthy' : tier === 'at_risk' ? 'At Risk' : tier === 'critical' ? 'Critical' : '—';
+  setCard('adoption',
+    tier ? tierLabel : '—',
+    tier ? `Risk score ${riskScore}/100${_lastAdoption.champion_candidate ? ' · champion: ' + _lastAdoption.champion_candidate : ''}` : 'No adoption snapshot yet',
+    tier === 'healthy' ? 'HEALTHY' : tier === 'at_risk' ? 'AT RISK' : tier === 'critical' ? 'CRITICAL' : 'NO DATA',
+    tier === 'healthy' ? 'green' : tier === 'at_risk' ? 'amber' : tier === 'critical' ? 'red' : 'grey'
+  );
+
+  // Card 3 — Open Issues (PM overdue)
+  setCard('issues',
+    overdue === 0 ? '0' : String(overdue),
+    overdue === 0 ? 'No PMs overdue across hive assets' : `${overdue} PM task${overdue === 1 ? '' : 's'} overdue across hive assets`,
+    overdue === 0 ? 'CLEAR' : overdue > 5 ? 'STACKING UP' : 'WATCH',
+    overdue === 0 ? 'green' : overdue > 5 ? 'red' : 'amber'
+  );
+
+  // Verdict — red if critical adoption OR > 5 PMs overdue; amber if at_risk
+  // OR 1-5 PMs overdue; green when both clear.
+  let tone, label, sub;
+  if (tier === 'critical' || overdue > 5) {
+    tone = 'attn'; label = 'Hive needs your attention';
+    sub  = tier === 'critical'
+             ? 'Adoption signals are critical — open the Engagement Card breakdown below.'
+             : `${overdue} PMs are overdue — open PM Scheduler to triage.`;
+  } else if (tier === 'at_risk' || overdue > 0) {
+    tone = 'watch'; label = 'Hive is mostly healthy — one thing to watch';
+    sub  = tier === 'at_risk'
+             ? 'Adoption tier is at risk — see top risk signals in the explainer below.'
+             : `${overdue} PM task${overdue === 1 ? '' : 's'} overdue — schedule them this week.`;
+  } else if (!tier && !stair) {
+    tone = 'empty'; label = 'Hive health is being computed';
+    sub  = 'First snapshot will land within a day. Encourage workers to log entries to populate the picture.';
+  } else {
+    tone = 'healthy'; label = 'Hive looks healthy';
+    sub  = `Stair ${stair || '—'} · Adoption ${tierLabel.toLowerCase()} · ${overdue === 0 ? 'no overdue PMs' : overdue + ' overdue PM'}.`;
+  }
+  const vBox = document.getElementById('ss-verdict');
+  if (vBox) {
+    vBox.classList.remove('healthy', 'watch', 'attn', 'empty');
+    vBox.classList.add(tone);
+  }
+  const vIcon = document.getElementById('ss-verdict-icon');
+  if (vIcon) vIcon.textContent = tone === 'healthy' ? '✓' : tone === 'watch' ? '!' : tone === 'attn' ? '⚠' : '·';
+  const vLbl  = document.getElementById('ss-verdict-label');
+  if (vLbl) vLbl.textContent = label;
+  const vSub  = document.getElementById('ss-verdict-sub');
+  if (vSub) vSub.textContent = sub;
+
+  // Action — pick the single most-actionable next step from the data.
+  const actBox = document.getElementById('ss-action-text');
+  if (actBox) {
+    let text;
+    if (tier === 'critical') {
+      text = 'Adoption is in the critical tier. Open the Engagement Card "Why?" drawer below to see which signals are dropping; pair your champion (' + (_lastAdoption.champion_candidate || 'top worker') + ') with whoever is slipping.';
+    } else if (overdue > 5) {
+      text = `${overdue} PMs are overdue. Open PM Scheduler and bulk-assign them across this week's shifts — every overdue PM is a Stair Reliability dimension penalty.`;
+    } else if (tier === 'at_risk') {
+      const r0 = _lastAdoption.top_reasons && _lastAdoption.top_reasons[0];
+      text = r0 ? `Adoption at risk — top signal: ${r0.label || r0.signal} (${r0.score}/100). Tackle this one first.`
+                : 'Adoption is at risk. Open the Engagement Card explainer for the top risk signal.';
+    } else if (overdue > 0) {
+      text = `${overdue} PM task${overdue === 1 ? '' : 's'} overdue. Knock these out this week to keep your Reliability dimension green.`;
+    } else if (stair != null && stair < 3) {
+      text = `You're on Stair ${stair} (${stairLbl}). Open the Maturity Stairway card below — your weakest dimension is the next stair gate to clear.`;
+    } else {
+      text = 'Hive is in good shape. Use the Maturity Stairway card below to plan the next stair, or click into the Engagement Card to pair your champion with a quieter worker.';
+    }
+    actBox.textContent = text;
+  }
+}
+
+(function wireSupervisorSummaryToggle() {
+  document.addEventListener('DOMContentLoaded', () => {
+    const btn  = document.getElementById('details-toggle-btn');
+    const pane = document.getElementById('supervisor-summary-details');
+    if (!btn || !pane) return;
+    btn.addEventListener('click', () => {
+      const open = pane.classList.toggle('open');
+      btn.setAttribute('aria-expanded', String(open));
+      btn.textContent = open ? 'Hide details' : 'Show details';
+    });
+  });
+})();
 
 // ─────────────────────────────────────────────────────────────────
 // Phase 3.3 — Onboarding stepper (role-specific path)
