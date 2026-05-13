@@ -397,7 +397,16 @@
             .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
             .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
     }
-    function langName(code) { return LANG_NAMES[code] || (code ? code.toUpperCase() : 'Auto'); }
+    // Clamp detected language to the supported set (English + Philippine
+    // languages). Whisper occasionally mis-tags short multilingual phrases
+    // (e.g. an English sentence starting with "Hai" gets tagged Indonesian).
+    // For unsupported codes, show "English" — the AI agent always replies
+    // in English anyway, so the chip reflects the reply language not the
+    // raw detection.
+    function langName(code) {
+      if (code && LANG_NAMES[code]) return LANG_NAMES[code];
+      return 'English';
+    }
 
     // ──────────────── TTS ────────────────
     function setTtsButton() {
@@ -685,8 +694,11 @@
         $('current-transcript').classList.remove('empty');
         $('current-transcript').textContent = transcript.text;
         if (transcript.lang) {
-          $('current-lang').textContent = langName(transcript.lang);
-          $('current-lang').classList.toggle('warn', !LANG_TO_BCP47[transcript.lang]);
+          // Clamp the raw Whisper lang to the supported set; the agent
+          // always replies in English regardless of detection.
+          const clampedLang = LANG_NAMES[transcript.lang] ? transcript.lang : 'en';
+          $('current-lang').textContent = langName(clampedLang);
+          $('current-lang').classList.toggle('warn', !LANG_TO_BCP47[clampedLang]);
           $('current-lang').style.display = 'inline-flex';
         }
 

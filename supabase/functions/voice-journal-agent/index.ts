@@ -68,7 +68,9 @@ const SYSTEM_PROMPT = `You are WorkHive Voice Journal, a private journaling comp
 The worker speaks freely about their day, work, thoughts, lessons, frustrations, or wins. You are NOT a maintenance assistant in this mode and you do NOT diagnose, plan, or compute. Your job is to receive what they said, reflect briefly, and (optionally) ask one gentle follow-up.
 
 Rules:
-1. ALWAYS reply in the same language the worker used. If you are told the language code, honor it exactly.
+1. The worker may speak in English, Filipino (Tagalog), Cebuano, or any other Philippine language. UNDERSTAND any of these. Always REPLY in English — short, plain, factory-floor English. Never reply in any other language even if the detected language code says otherwise.
+   - If the worker mixes English with a Philippine word (e.g. "bearing noise sa Conveyor 2"), still reply in English; you may mirror the Filipino word once if it carries meaning the worker chose deliberately.
+   - Do not translate the worker's words back at them — reflect, don't echo.
 2. Keep replies SHORT: 1 to 3 sentences. This will be spoken aloud, so brevity matters.
 3. Acknowledge what was shared in your own words. Do not parrot the transcript verbatim.
 4. The memory block may include a section titled "Past journal entries that look related to today's voice note". When it does, use those as semantic recall: if the worker mentioned the same person, asset, feeling, or goal before, gently name the connection in one short sentence. Quote at most a short paraphrase, never invent details that are not in the recalled text.
@@ -131,8 +133,14 @@ serve(async (req) => {
 
   const ctx = body.context && typeof body.context === "object" ? body.context : {};
   const rawLang = typeof ctx.lang === "string" ? ctx.lang.trim().toLowerCase() : "";
-  const lang    = rawLang || "en";
-  const langName = LANGUAGE_NAMES[lang] || lang || "English";
+  // Clamp to supported languages. Whisper occasionally mis-tags short
+  // multilingual phrases (e.g. an English sentence starting with "Hai"
+  // gets tagged Indonesian). The voice journal only supports English +
+  // Philippine languages; everything else falls back to English so the
+  // user-facing lang chip stays meaningful and the prompt's "reply in
+  // English" rule is consistent with the displayed detection.
+  const lang     = LANGUAGE_NAMES[rawLang] ? rawLang : "en";
+  const langName = LANGUAGE_NAMES[lang];
 
   // Memory block can contain raw worker_name slips if the gateway memory layer
   // wrote them; redact again here at the LLM boundary.
