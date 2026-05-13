@@ -53,6 +53,63 @@
     @media (max-width: 600px) {
       .roi-block { grid-template-columns: 1fr; }
     }
+
+    /* ── Simple supervisor view (2026-05-13 streamline) ──────────────
+       Manager dashboard: one verdict + 3 plain cards + 1 recommended
+       action. Engineering details (4 cards + ROI + worker feedback +
+       per-fn table) are collapsed behind a toggle. */
+    .verdict {
+      display: flex; align-items: center; gap: 12px;
+      padding: 14px 16px; margin-bottom: 14px;
+      border-radius: 12px; border: 1px solid;
+    }
+    .verdict-icon { font-size: 1.5rem; line-height: 1; font-weight: 800; }
+    .verdict-text { font-size: 0.85rem; font-weight: 700; line-height: 1.35; }
+    .verdict-text small { display: block; font-size: 0.7rem; font-weight: 500; color: rgba(255,255,255,0.65); margin-top: 3px; }
+    .verdict.healthy { background: rgba(74,222,128,0.07); border-color: rgba(74,222,128,0.3); }
+    .verdict.healthy .verdict-icon { color: var(--green); }
+    .verdict.watch   { background: rgba(247,162,27,0.07); border-color: rgba(247,162,27,0.3); }
+    .verdict.watch   .verdict-icon { color: var(--gold); }
+    .verdict.attn    { background: rgba(248,113,113,0.07); border-color: rgba(248,113,113,0.3); }
+    .verdict.attn    .verdict-icon { color: var(--red); }
+    .verdict.empty   { background: rgba(255,255,255,0.03); border-color: rgba(255,255,255,0.08); }
+    .verdict.empty   .verdict-icon { color: rgba(255,255,255,0.55); }
+
+    .simple-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 16px; }
+    .simple-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; }
+    .simple-card .sc-label { font-size: 0.65rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+    .simple-card .sc-hero  { font-size: 1.8rem; font-weight: 800; line-height: 1.1; margin: 4px 0 2px; color: var(--text); }
+    .simple-card .sc-sub   { font-size: 0.7rem; color: rgba(255,255,255,0.55); line-height: 1.4; }
+    .simple-card .sc-tag   { display: inline-block; font-size: 0.58rem; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; padding: 0.18rem 0.5rem; border-radius: 999px; margin-top: 7px; }
+    .simple-card.tag-green .sc-tag { background: rgba(74,222,128,0.16);  color: var(--green); }
+    .simple-card.tag-amber .sc-tag { background: rgba(247,162,27,0.16);  color: var(--gold); }
+    .simple-card.tag-red   .sc-tag { background: rgba(248,113,113,0.16); color: var(--red); }
+    .simple-card.tag-grey  .sc-tag { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.5); }
+
+    .action-card {
+      background: rgba(41,182,217,0.06);
+      border: 1px solid rgba(41,182,217,0.25);
+      border-radius: 12px;
+      padding: 14px 16px;
+      margin-bottom: 16px;
+    }
+    .action-card .ac-label {
+      font-size: 0.65rem; font-weight: 800; color: var(--blue);
+      text-transform: uppercase; letter-spacing: 0.07em;
+    }
+    .action-card .ac-text { font-size: 0.82rem; line-height: 1.5; margin-top: 6px; color: rgba(255,255,255,0.85); }
+
+    .details-toggle {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: transparent; border: 1px solid var(--border);
+      color: rgba(255,255,255,0.6);
+      padding: 8px 14px; border-radius: 8px;
+      font-family: inherit; font-size: 0.7rem; font-weight: 600;
+      cursor: pointer; min-height: 44px;
+    }
+    .details-toggle:hover { color: var(--text); border-color: rgba(255,255,255,0.18); }
+    #details-pane { display: none; margin-top: 14px; }
+    #details-pane.open { display: block; }
   </style>
 </head>
 <body>
@@ -122,12 +179,193 @@
       // per-call telemetry, and is intentionally not read from this page.
       const costRows = await loadCostLog();
       const summary = aggregate(costRows);
+      // Simple-by-default 2026-05-13: manager dashboard up top, engineering
+      // details collapsed behind a toggle. Tradeoff: the page now answers
+      // "is AI helping?" in one glance instead of forcing the supervisor
+      // to translate fallback rate + schema compliance + token counts.
       host.innerHTML = [
-        renderSummaryRow(summary),
-        renderROIBlock(summary),
-        renderQualityCard(summary),
-        renderFnTable(summary),
+        renderVerdict(summary),
+        renderSimpleCards(summary),
+        renderRecommendation(summary),
+        renderDetailsToggle(summary),
       ].join('');
+      wireDetailsToggle();
+    }
+
+    // ── Plain-language helpers ────────────────────────────────────────
+    // FX rate is a UI-only convenience (peso feels real to a Filipino
+    // supervisor; USD does not). Sourced as a constant intentionally so
+    // we don't depend on a network call from this page; the underlying
+    // cost in ai_cost_log stays in USD for auditability.
+    const PHP_PER_USD = 56;
+    // Time-saved heuristic: each useful AI answer (thumbs up) saves ~5 min
+    // of diagnosis vs no AI assist. Honest, defensible, easy to explain to
+    // a supervisor: "26 useful answers × 5 min = ~2 hours saved this month."
+    const MIN_SAVED_PER_THUMBS_UP = 5;
+
+    function computeVerdict(s) {
+      if (s.totalCalls === 0) return { tone: 'empty', label: 'No AI activity yet', detail: 'Your workers have not used AI tools this month.' };
+      const thumbsTotal = s.thumbsUp + s.thumbsDown;
+      const thumbsPct = thumbsTotal > 0 ? s.thumbsUp / thumbsTotal : null;
+      const fallbackPct = s.totalCalls > 0 ? s.fallbackCount / s.totalCalls : 0;
+      const schemaPct = s.schemaTotal > 0 ? s.schemaOk / s.schemaTotal : null;
+
+      const bad = (thumbsPct !== null && thumbsPct < 0.5) || fallbackPct > 0.3;
+      const watch = (thumbsPct !== null && thumbsPct < 0.7)
+                 || fallbackPct > 0.15
+                 || (schemaPct !== null && schemaPct < 0.8);
+      if (bad)   return { tone: 'attn',    label: 'AI is struggling for your hive' };
+      if (watch) return { tone: 'watch',   label: 'AI is working but needs attention' };
+      return     { tone: 'healthy', label: 'AI is helping your hive' };
+    }
+
+    function renderVerdict(s) {
+      const v = computeVerdict(s);
+      const icon = v.tone === 'healthy' ? '✓' : v.tone === 'watch' ? '!' : v.tone === 'attn' ? '⚠' : '·';
+      let line2 = '';
+      if (s.totalCalls === 0) {
+        line2 = 'Once workers start using AI for logbook drafts, voice journals or visual defect capture, this page will fill in.';
+      } else {
+        const thumbsTotal = s.thumbsUp + s.thumbsDown;
+        if (thumbsTotal > 0) {
+          const pct = Math.round(100 * s.thumbsUp / thumbsTotal);
+          line2 = `Workers used AI ${s.totalCalls} times this month and rated it ${pct}% useful (${s.thumbsUp} thumbs up / ${s.thumbsDown} down).`;
+        } else {
+          line2 = `Workers used AI ${s.totalCalls} times this month. No thumbs ratings yet — encourage workers to rate answers so this page gets sharper.`;
+        }
+      }
+      return `
+        <div class="verdict ${v.tone}">
+          <span class="verdict-icon">${icon}</span>
+          <div class="verdict-text">${escHtml(v.label)}<small>${escHtml(line2)}</small></div>
+        </div>
+      `;
+    }
+
+    function renderSimpleCards(s) {
+      // Card 1 — Worker Trust
+      const thumbsTotal = s.thumbsUp + s.thumbsDown;
+      let trust;
+      if (thumbsTotal === 0) {
+        trust = { hero: '—', sub: 'No thumbs ratings yet', tag: 'NO DATA', tone: 'grey' };
+      } else {
+        const pct = Math.round(100 * s.thumbsUp / thumbsTotal);
+        const tag = pct >= 70 ? 'HEALTHY' : pct >= 50 ? 'WATCH' : 'LOW TRUST';
+        const tone = pct >= 70 ? 'green' : pct >= 50 ? 'amber' : 'red';
+        trust = { hero: pct + '%', sub: `${s.thumbsUp} thumbs up · ${s.thumbsDown} down`, tag, tone };
+      }
+
+      // Card 2 — Cost this month (in pesos)
+      const php = s.totalCost * PHP_PER_USD;
+      // Soft budget signal: anything under ₱500/month is "modest", ₱500-2000
+      // is "typical for active hive", over ₱2000 is "heavy use".
+      const costTag = php < 500 ? 'MODEST' : php < 2000 ? 'TYPICAL' : 'HEAVY USE';
+      const costTone = php < 2000 ? 'green' : 'amber';
+      const cost = {
+        hero: '₱' + php.toFixed(2),
+        sub: `${s.totalCalls} AI calls × avg ₱${(php / Math.max(s.totalCalls, 1)).toFixed(2)} each`,
+        tag: costTag,
+        tone: costTone,
+      };
+
+      // Card 3 — Time saved (estimate based on thumbs up)
+      const minsSaved = s.thumbsUp * MIN_SAVED_PER_THUMBS_UP;
+      let timeSaved;
+      if (s.thumbsUp === 0) {
+        timeSaved = { hero: '—', sub: 'Needs thumbs ratings to estimate', tag: 'NO DATA', tone: 'grey' };
+      } else {
+        const hrs = minsSaved / 60;
+        const heroStr = hrs >= 1 ? `~${hrs.toFixed(1)} hrs` : `~${minsSaved} min`;
+        timeSaved = {
+          hero: heroStr,
+          sub: `${s.thumbsUp} useful answers × ${MIN_SAVED_PER_THUMBS_UP} min each`,
+          tag: 'DIAGNOSIS',
+          tone: 'green',
+        };
+      }
+
+      return `
+        <div class="simple-row">
+          <div class="simple-card tag-${trust.tone}">
+            <div class="sc-label">Worker trust</div>
+            <div class="sc-hero">${escHtml(trust.hero)}</div>
+            <div class="sc-sub">${escHtml(trust.sub)}</div>
+            <span class="sc-tag">${escHtml(trust.tag)}</span>
+          </div>
+          <div class="simple-card tag-${cost.tone}">
+            <div class="sc-label">Cost this month</div>
+            <div class="sc-hero">${escHtml(cost.hero)}</div>
+            <div class="sc-sub">${escHtml(cost.sub)}</div>
+            <span class="sc-tag">${escHtml(cost.tag)}</span>
+          </div>
+          <div class="simple-card tag-${timeSaved.tone}">
+            <div class="sc-label">Time saved (est.)</div>
+            <div class="sc-hero">${escHtml(timeSaved.hero)}</div>
+            <div class="sc-sub">${escHtml(timeSaved.sub)}</div>
+            <span class="sc-tag">${escHtml(timeSaved.tag)}</span>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderRecommendation(s) {
+      // Pick the single most actionable next step based on the data shape.
+      // Order matters: bad signals trump nudges; nudges trump steady-state.
+      const thumbsTotal = s.thumbsUp + s.thumbsDown;
+      const fallbackPct = s.totalCalls > 0 ? s.fallbackCount / s.totalCalls : 0;
+      const schemaPct = s.schemaTotal > 0 ? s.schemaOk / s.schemaTotal : null;
+      const php = s.totalCost * PHP_PER_USD;
+
+      let text;
+      if (s.totalCalls === 0) {
+        text = 'No AI activity yet. Open Logbook and try the AI draft button on any entry, or ask the floating AI assistant a question. The dashboard will populate from there.';
+      } else if (thumbsTotal < 10) {
+        text = `Only ${thumbsTotal} thumbs rating${thumbsTotal === 1 ? '' : 's'} so far. Ask workers to rate AI answers (👍 / 👎). Each rating sharpens the cost-vs-value picture above.`;
+      } else if (thumbsTotal > 0 && (s.thumbsUp / thumbsTotal) < 0.5) {
+        text = 'AI answers are getting more thumbs down than up. Open the AI Assistant page and ask your workers what is confusing them — the prompts may need tuning.';
+      } else if (schemaPct !== null && schemaPct < 0.7) {
+        text = `AI is returning malformed answers ${Math.round(100 - schemaPct * 100)}% of the time. This is a platform issue, not a hive one — report it via the assistant page so it reaches the platform admin.`;
+      } else if (fallbackPct > 0.25) {
+        text = `AI fell back to a backup provider ${Math.round(fallbackPct * 100)}% of calls. Open Plant Connections → Gateway audit to see which routes are failing.`;
+      } else if (php > 2000) {
+        text = 'AI spend is on the high side this month. Open the Show details table below to see which AI function is consuming the most — voice journal and visual defect capture are usually the heaviest.';
+      } else {
+        text = 'Keep encouraging workers to rate AI answers (👍 / 👎). Each thumbs-up sharpens future suggestions and tightens the time-saved estimate above.';
+      }
+      return `
+        <div class="action-card">
+          <div class="ac-label">What to do next</div>
+          <div class="ac-text">${escHtml(text)}</div>
+        </div>
+      `;
+    }
+
+    function renderDetailsToggle(s) {
+      // Engineering view: the original 4-card summary + ROI block + worker
+      // feedback + per-fn table. Hidden by default; revealed by the toggle.
+      const inner = [
+        renderSummaryRow(s),
+        renderROIBlock(s),
+        renderQualityCard(s),
+        renderFnTable(s),
+      ].join('');
+      return `
+        <button id="details-toggle-btn" type="button" class="details-toggle" aria-expanded="false" aria-controls="details-pane">
+          Show details
+        </button>
+        <div id="details-pane" role="region" aria-label="Engineering details">${inner}</div>
+      `;
+    }
+
+    function wireDetailsToggle() {
+      const btn = document.getElementById('details-toggle-btn');
+      const pane = document.getElementById('details-pane');
+      if (!btn || !pane) return;
+      btn.addEventListener('click', () => {
+        const open = pane.classList.toggle('open');
+        btn.setAttribute('aria-expanded', String(open));
+        btn.textContent = open ? 'Hide details' : 'Show details';
+      });
     }
 
     function renderLoadingState() {
