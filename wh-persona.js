@@ -123,9 +123,13 @@
   //           blouse with WorkHive orange accent. Same gradient background.
   // Both head-and-shoulders framing. Must read at 32px (floating button)
   // AND 100px (hero). Square 512x512 PNG, transparent margins OK.
+  // PWA-conscious: 256x256 progressive JPEGs (12KB each) generated from
+  // the 2.2MB source PNGs at brand_assets/James.png + Rosa.png. The
+  // avatar never renders larger than 56px so 256px is overkill on
+  // retina but keeps the bandwidth honest on PH 2G connections.
   const PORTRAIT_URLS = {
-    james: '',   // drop '/brand_assets/james.png' here when illustration ready
-    rosa:  '',   // drop '/brand_assets/rosa.png'  here when illustration ready
+    james: 'brand_assets/james-256.jpg',  // shipped 2026-05-13
+    rosa:  'brand_assets/rosa-256.jpg',   // shipped 2026-05-13
   };
   const PORTRAIT_EMOJI = {
     james: '🧔',  // matches the existing voice-journal chip
