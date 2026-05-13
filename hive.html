@@ -327,7 +327,7 @@
         </button>
         <h2 class="text-xl font-black text-white mb-1">Create Your Hive</h2>
         <p class="text-xs text-white/40 mb-6 leading-relaxed">Name your team. You'll get a 6-character code to share with your crew at briefing.</p>
-        <label class="block text-xs font-semibold text-white/50 uppercase tracking-widest mb-2">Hive Name</label>
+        <label for="hive-name-input" class="block text-xs font-semibold text-white/50 uppercase tracking-widest mb-2">Hive Name</label>
         <input id="hive-name-input" type="text" placeholder="e.g. Electrical Team A" maxlength="40" class="wh-input mb-2" autocomplete="off" />
         <p id="create-error" class="text-xs text-red-400 mb-3 hidden">Please enter a hive name.</p>
         <button id="btn-submit-create" class="btn-primary mt-2">Create Hive</button>
@@ -358,7 +358,7 @@
         </button>
         <h2 class="text-xl font-black text-white mb-1">Join a Hive</h2>
         <p class="text-xs text-white/40 mb-6 leading-relaxed">Enter the 6-character code your supervisor gave you.</p>
-        <label class="block text-xs font-semibold text-white/50 uppercase tracking-widest mb-2">Invite Code</label>
+        <label for="join-code-input" class="block text-xs font-semibold text-white/50 uppercase tracking-widest mb-2">Invite Code</label>
         <input id="join-code-input" type="text" placeholder="ABC123" maxlength="6" autocomplete="off" autocapitalize="characters"
           class="wh-input mb-2 text-center font-black tracking-widest uppercase"
           style="font-size:1.5rem; letter-spacing:0.35em;" />
@@ -673,7 +673,7 @@
         <div class="wh-card p-4">
           <p class="text-[11px] text-white/40 mb-3">Ask about your plant's maintenance priorities. The coach analyzes failure history, PM status, inventory, and predictions to give you 3 specific actions.</p>
           <div class="flex gap-2">
-            <input id="coach-input" type="text" placeholder="e.g. Why are we having so many pump failures?" class="wh-input flex-1" style="min-height:40px; font-size:16px;" />
+            <input aria-label="e.g. Why are we having so many pump failures?" id="coach-input" type="text" placeholder="e.g. Why are we having so many pump failures?" class="wh-input flex-1" style="min-height:40px; font-size:16px;" />
             <button id="coach-submit" onclick="askCoach()" style="padding:0 16px; background:rgba(167,139,250,0.15); color:#a78bfa; border:1px solid rgba(167,139,250,0.4); border-radius:10px; font-family:inherit; font-size:0.82rem; font-weight:700; cursor:pointer; white-space:nowrap; min-height:44px;">Ask</button>
           </div>
           <div id="coach-result" style="display:none; margin-top:12px;"></div>
@@ -742,7 +742,7 @@
           </div>
           <div id="handover-body"></div>
           <div class="p-4" style="border-top:1px solid rgba(255,255,255,0.07);">
-            <input id="ho-handover-to" type="text" class="ho-input" placeholder="Handover to&#8230; (incoming technician name)" />
+            <input aria-label="Handover to&#8230; (incoming technician name)" id="ho-handover-to" type="text" class="ho-input" placeholder="Handover to&#8230; (incoming technician name)" />
             <div class="flex gap-3">
               <button onclick="copyHandover()" class="flex-1 py-3 rounded-xl text-sm font-semibold" style="background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.7);">&#128203; Copy</button>
               <button onclick="printHandover()" class="flex-1 py-3 rounded-xl text-sm font-semibold" style="background:rgba(41,182,217,0.12);border:1px solid rgba(41,182,217,0.3);color:#29B6D9;">&#128424; Print</button>
@@ -834,7 +834,7 @@
   <div class="wh-card w-full max-w-lg p-6 mx-4 mb-6">
     <h3 class="text-lg font-black text-white mb-1">You're the Supervisor</h3>
     <p class="text-xs text-white/50 mb-5 leading-relaxed">Before you leave, you can transfer the supervisor role. Without a supervisor, no one can manage the hive or remove members.</p>
-    <label class="block text-xs font-semibold text-white/50 uppercase tracking-widest mb-2">Transfer role to</label>
+    <label for="sup-transfer-select" class="block text-xs font-semibold text-white/50 uppercase tracking-widest mb-2">Transfer role to</label>
     <select id="sup-transfer-select" class="wh-input mb-4"></select>
     <button id="btn-sup-transfer-leave" class="btn-primary mb-3">Transfer &amp; Leave</button>
     <button id="btn-sup-leave-anyway" class="btn-ghost mb-3">Leave Without Transferring</button>
@@ -1882,7 +1882,10 @@ async function maybeShowIntentCapture() {
 
   const modal = document.getElementById('intent-capture');
   if (!modal) return;
+  // Reset both class and inline display so the modal actually shows even if
+  // a prior close set display:none. Inline style beats the class everywhere.
   modal.classList.remove('hidden');
+  modal.style.display = 'flex';
 
   const save = document.getElementById('intent-save');
   const skip = document.getElementById('intent-skip');
@@ -1911,6 +1914,10 @@ async function maybeShowIntentCapture() {
         showToast('Could not save: ' + (res.error.message || JSON.stringify(res.error)));
         return;
       }
+      // Inline `display:flex` on the modal markup beats Tailwind's .hidden
+      // class in specificity, so setting the style directly is the only
+      // way to actually close the modal. Walkthrough 2026-05-13.
+      modal.style.display = 'none';
       modal.classList.add('hidden');
       showToast('Thanks — we will tune your hive accordingly.');
     });
@@ -1919,6 +1926,7 @@ async function maybeShowIntentCapture() {
   if (skip && !skip._wired) {
     skip.addEventListener('click', () => {
       try { sessionStorage.setItem(sessionKey, '1'); } catch (_) {}
+      modal.style.display = 'none';
       modal.classList.add('hidden');
     });
     skip._wired = true;
