@@ -65,33 +65,174 @@ LIVE_PAGES = [
     "voice-journal.html",
 ]
 
-HIGH_GROWTH_TABLES = ["logbook", "inventory_transactions"]
+# Tables that grow row-by-row over time (one row per event, hour, or
+# write). A `.select()` on these without `.limit()` / `.range()` / a row
+# filter pulls every historical row and chokes the page once data grows.
+# Per the performance skill: "Enforce .limit(50) on every list query.
+# Never allow unbounded fetches."
+HIGH_GROWTH_TABLES = [
+    # Workforce write paths (one row per event)
+    "logbook",                    # 3,700+ rows in seed; grows per shift
+    "inventory_transactions",     # one row per stock move
+    "schedule_items",             # one row per Day Planner task
+    "pm_completions",             # one row per PM done
+    "engineering_calcs",          # one row per calc saved
+    "voice_journal_entries",      # one row per voice note
+    # Community / social
+    "community_posts",
+    "community_replies",
+    "community_reactions",
+    "community_xp",
+    # Achievements XP
+    "achievement_xp_log",
+    "worker_achievements",        # bounded by definitions but log grows
+    # AI / observability
+    "ai_cost_log",                # every AI call appends a row
+    "ai_quality_log",
+    "gateway_audit_log",
+    "automation_log",
+    "hive_route_calls",
+    # Domain append-only
+    "amc_briefings",              # one per hive per shift_date
+    "failure_signature_alerts",
+    "asset_risk_scores",          # one per asset per scoring run
+    "parts_records",              # parts usage history
+    "parts_staged_reservations",
+    "parts_staging_recommendations",
+    # Audit / safety
+    "audit_log",
+    "hive_audit_log",
+    "cmms_audit_log",
+    # Plant telemetry (highest growth — every sensor reading)
+    "sensor_readings",
+    # External integrations
+    "external_sync",
+    # Misc
+    "pdf_jobs",
+    "agent_memory",               # one per agent turn
+    "asset_embeddings",           # one per asset, but multiplied per re-embed
+    "fault_knowledge",            # paraphrased from logbook breakdowns
+]
 WIDE_TABLES        = ["logbook", "inventory_items", "inventory_transactions",
                       "pm_scope_items", "pm_completions"]
 SEQUENTIAL_AWAIT_THRESHOLD = 2
 
+# Baseline ratchet for unbounded_queries. Pre-existing platform debt is
+# locked in as a baseline; FAIL only on per-page count INCREASES.
+# Same pattern proven on UX Contract A2 (input_label baseline).
+UNBOUNDED_BASELINE_FILE = "performance_unbounded_baseline.json"
+
 
 # ── Layer 1: Query anti-patterns ──────────────────────────────────────────────
 
+def _load_unbounded_baseline() -> dict:
+    if not os.path.exists(UNBOUNDED_BASELINE_FILE):
+        return {}
+    try:
+        with open(UNBOUNDED_BASELINE_FILE, encoding="utf-8") as f:
+            data = json.load(f)
+            return data.get("per_page", {})
+    except Exception:
+        return {}
+
+
+def _save_unbounded_baseline(per_page: dict) -> None:
+    payload = {
+        "_doc": (
+            "Per-page baseline of unbounded queries on HIGH_GROWTH_TABLES. "
+            "New violations FAIL the gate; existing ones are accepted. "
+            "Regenerate (count can only go DOWN) with: "
+            "python validate_performance.py --update-unbounded-baseline"
+        ),
+        "total":    sum(per_page.values()),
+        "per_page": per_page,
+    }
+    with open(UNBOUNDED_BASELINE_FILE, "w", encoding="utf-8") as f:
+        json.dump(payload, f, indent=2, sort_keys=True)
+
+
 def check_unbounded_queries():
-    issues = []
+    """Returns issues only when a page exceeds its baseline count. The first
+    run with no baseline file writes one and reports nothing. The advisory-
+    style raw findings (every violation, even at-or-under baseline) are
+    persisted in the report JSON for visibility, but only over-baseline
+    pages are FAIL-emitted."""
+    baseline = _load_unbounded_baseline()
+    raw_per_page: dict = {}
+    all_findings: list[dict] = []
+
     for page in LIVE_PAGES:
         content = read_file(page)
         if not content:
             continue
         lines = content.splitlines()
+        page_count = 0
         for i, line in enumerate(lines):
             table = next((t for t in HIGH_GROWTH_TABLES
                           if f"from('{t}')" in line or f'from("{t}")' in line), None)
             if not table or ".select(" not in line:
                 continue
+            # Skip the `.insert(...).select()` pattern — that's a write
+            # operation returning the inserted row, not a list query.
+            if re.search(r"\.(?:insert|upsert|update|delete)\s*\(", line):
+                continue
             if "head: true" in line or "count: 'exact'" in line or 'count: "exact"' in line:
                 continue
             window = "\n".join(lines[i:min(len(lines), i + 15)])
-            if ".limit(" not in window and ".range(" not in window:
-                issues.append({"check": "unbounded_queries", "page": page, "line": i + 1,
-                               "skip": True,   # WARN — degrades with scale, not broken now
-                               "reason": f"{page}:{i+1} query on '{table}' has no .limit() — fetches ALL rows as table grows: `{line.strip()[:70]}`"})
+            if ".limit(" in window or ".range(" in window:
+                continue
+            # Bounded filters accepted as "not unbounded":
+            #   .single() / .maybeSingle()   — single row fetch
+            #   .eq('id', ...)               — single row by id
+            #   .in('<col>', [list])         — bounded set of rows
+            #   .gte('<time-col>', ...)      — time window
+            if re.search(r"\.maybeSingle\s*\(|\.single\s*\(", window):
+                continue
+            if re.search(r"\.eq\s*\(\s*['\"]id['\"]", line):
+                continue
+            if re.search(r"\.in\s*\(\s*['\"]", line):
+                continue
+            if re.search(r"\.gte\s*\(\s*['\"](?:created_at|recorded_at|generated_at|date|logged_at|completed_at|ts|timestamp)['\"]", window):
+                continue
+            page_count += 1
+            all_findings.append({
+                "page":   page,
+                "line":   i + 1,
+                "table":  table,
+                "snippet": line.strip()[:80],
+            })
+        raw_per_page[page] = page_count
+
+    # First run: write baseline, emit nothing.
+    if not os.path.exists(UNBOUNDED_BASELINE_FILE) and raw_per_page:
+        _save_unbounded_baseline(raw_per_page)
+        return []
+
+    # Ratchet: FAIL only on per-page increases.
+    issues = []
+    for page, count in raw_per_page.items():
+        base = baseline.get(page, 0)
+        if count > base:
+            new = count - base
+            issues.append({
+                "check": "unbounded_queries",
+                "page":  page,
+                "skip":  False,
+                "reason": (
+                    f"{page}: {count} unbounded queries on HIGH_GROWTH_TABLES "
+                    f"but baseline is {base}. +{new} new violation(s). "
+                    f"Add .limit(50) within 15 lines of the .select() call "
+                    f"(see performance skill: Query-First pattern + keyset "
+                    f"pagination). If legitimately new debt, regenerate the "
+                    f"baseline via --update-unbounded-baseline."
+                ),
+            })
+    # Stash raw_per_page on the issue list for the runner to expose.
+    issues.append({
+        "_raw_per_page": raw_per_page,
+        "_findings":     all_findings,
+        "_skip_render":  True,
+    })
     return issues
 
 
@@ -289,7 +430,7 @@ CHECK_NAMES = [
 
 CHECK_LABELS = {
     # L1
-    "unbounded_queries":    "L1  No unbounded queries on logbook/inv_transactions  [WARN]",
+    "unbounded_queries":    "L1  No NEW unbounded queries on append-only tables (ratcheted)",
     "select_star":          "L1  No select('*') on wide tables  [WARN]",
     "db_in_loop":           "L1  No db.from() inside loops (N+1)  [WARN]",
     "sequential_awaits":    "L1  No consecutive sequential await DB calls  [WARN]",
@@ -309,7 +450,24 @@ def main():
     print("=" * 55)
 
     all_issues = []
-    all_issues += check_unbounded_queries()
+    unbounded_issues = check_unbounded_queries()
+    # Handle --update-unbounded-baseline write-op: extract raw_per_page
+    # from the sentinel and persist as the new baseline. Useful when
+    # closing legitimate debt and ratcheting the floor down.
+    raw_findings = []
+    raw_per_page = {}
+    for it in unbounded_issues:
+        if it.get("_skip_render"):
+            raw_per_page = it.get("_raw_per_page", {})
+            raw_findings = it.get("_findings", [])
+            break
+    unbounded_issues = [i for i in unbounded_issues if not i.get("_skip_render")]
+    if "--update-unbounded-baseline" in sys.argv:
+        _save_unbounded_baseline(raw_per_page)
+        print(f"\n  Baseline updated: {sum(raw_per_page.values())} unbounded "
+              f"queries across {len([k for k,v in raw_per_page.items() if v])} page(s).")
+        sys.exit(0)
+    all_issues += unbounded_issues
     all_issues += check_select_star()
     all_issues += check_db_in_loop()
     all_issues += check_sequential_awaits()
