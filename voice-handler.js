@@ -205,6 +205,43 @@
       font-weight: 700;
     }
     .wh-voice-stop:hover { box-shadow: 0 4px 14px rgba(247,162,27,0.45); }
+
+    /* Conversational bubble — when voice-router classifies as query.ask
+       we drop the intent card and render the journal-agent reply here. */
+    .wh-voice-bubble {
+      display: flex; align-items: flex-start; gap: 0.6rem;
+      background: rgba(247,162,27,0.06);
+      border: 1px solid rgba(247,162,27,0.22);
+      border-radius: 0.95rem;
+      padding: 0.7rem 0.85rem 0.75rem;
+      margin: 0.4rem 0 0.55rem;
+      animation: wh-bubble-in 0.22s ease forwards;
+    }
+    @keyframes wh-bubble-in {
+      from { opacity: 0; transform: translateY(4px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .wh-voice-bubble-text {
+      flex: 1;
+      font-size: 0.94rem;
+      line-height: 1.5;
+      color: #F4F6FA;
+      word-break: break-word;
+      white-space: pre-wrap;
+    }
+    /* Thinking dots while we wait for the model. */
+    .wh-voice-dots { display: inline-flex; gap: 4px; }
+    .wh-voice-dots i {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: #F7A21B; opacity: 0.4;
+      animation: wh-dot 1.2s ease-in-out infinite;
+    }
+    .wh-voice-dots i:nth-child(2) { animation-delay: 0.15s; }
+    .wh-voice-dots i:nth-child(3) { animation-delay: 0.30s; }
+    @keyframes wh-dot {
+      0%, 80%, 100% { opacity: 0.2; transform: scale(0.85); }
+      40%           { opacity: 1;   transform: scale(1.10); }
+    }
     .wh-voice-result {
       margin-top: 0.65rem; font-size: 0.82rem; line-height: 1.45;
       color: rgba(255,255,255,0.85);
@@ -497,33 +534,34 @@
       if (!routerData) throw new Error('Empty router response');
       if (routerData.error) throw new Error(routerData.error);
 
-      _renderIntents(routerData.intents || [], routerData.asset_resolution);
-
-      // Persona Contract Phase 4: play the narration in James/Rosa's voice
-      // alongside the route decision. wh-tts.js handles Azure -> browser
-      // fallback. Non-blocking.
-      if (routerData.narration && typeof window.speakPersona === 'function') {
-        window.speakPersona(routerData.narration);
-      }
-
       const hasActionable = (routerData.intents || []).some(
         it => it.kind !== 'unknown' && it.kind !== 'query.ask',
       );
-      const confirmBtn = document.getElementById('wh-voice-confirm');
-      if (confirmBtn) {
-        confirmBtn.style.display = hasActionable ? 'block' : 'none';
-        confirmBtn.disabled = !hasActionable;
-        confirmBtn.onclick = () => _confirm(routerData);
-      }
 
-      // For unknown / query.ask, fall through to assistant chat directly.
-      if (!hasActionable) {
-        _setStatus('Forwarded to AI Assistant.');
-        const q = (routerData.intents || []).find(i => i.kind === 'query.ask')?.params?.question
-                || transcript;
-        _fallthroughToChat(q);
-      } else {
+      const confirmBtn = document.getElementById('wh-voice-confirm');
+
+      if (hasActionable) {
+        // STRUCTURED INTENT PATH — logbook.create, inventory.use, etc.
+        // Render intent cards, play router narration, wait for Confirm.
+        _renderIntents(routerData.intents || [], routerData.asset_resolution);
+        if (routerData.narration && typeof window.speakPersona === 'function') {
+          window.speakPersona(routerData.narration);
+        }
+        if (confirmBtn) {
+          confirmBtn.style.display = 'block';
+          confirmBtn.disabled = false;
+          confirmBtn.onclick = () => _confirm(routerData);
+        }
         _setStatus('Review and confirm.');
+      } else {
+        // CONVERSATIONAL PATH — query.ask / unknown.
+        // Auto-call voice-journal-agent through ai-gateway. The gateway
+        // both replies in James/Rosa's voice AND saves the turn to
+        // voice_journal_entries + agent_memory (durable + recallable).
+        // Hide the intent cards and the standard Confirm button.
+        document.getElementById('wh-voice-intents').innerHTML = '';
+        if (confirmBtn) confirmBtn.style.display = 'none';
+        await _converseInline(transcript);
       }
     } catch (err) {
       console.error('[WHVoice]', err);
@@ -572,6 +610,107 @@
     return await handler(intent, assetResolution || {});
   }
 
+  // ─── Conversational path ─────────────────────────────────────────────────
+  // Calls voice-journal-agent through ai-gateway with agent='voice-journal'.
+  // The gateway saves the turn to voice_journal_entries + agent_memory, so
+  // every casual chat with James / Rosa lands in the worker's journal
+  // automatically. No extra DB write needed here.
+  async function _converseInline(transcript) {
+    const db = _getDb();
+    const ctx = _ctx();
+    const persona = (typeof window.getPersona === 'function')
+      ? window.getPersona() : 'james';
+    const personaName = persona === 'rosa' ? 'Rosa' : 'James';
+
+    // Repaint the overlay status + reply slot.
+    _setStatus(personaName + ' is thinking…');
+    _setRecRowVisible(false);
+    _renderReplyBubble(null, persona); // placeholder while we wait
+
+    try {
+      const { data, error } = await db.functions.invoke('ai-gateway', {
+        body: {
+          agent:   'voice-journal',
+          message: transcript,
+          context: { lang: 'en', persona },
+          hive_id: ctx.hive_id || null,
+        },
+      });
+      if (error) throw new Error(error.message || 'Gateway failed');
+      if (!data)  throw new Error('Empty gateway response');
+      if (data.error) throw new Error(data.error);
+
+      const answer = String(data.answer || '').trim();
+      if (!answer) {
+        _setStatus('No reply came back. Tap to try again.');
+        _renderReplyBubble('(no reply)', persona);
+        _showTalkAgainButton();
+        return;
+      }
+      _setStatus(personaName + ' says:');
+      _renderReplyBubble(answer, persona);
+      if (typeof window.speakPersona === 'function') {
+        window.speakPersona(answer, { persona });
+      }
+      _showTalkAgainButton();
+    } catch (err) {
+      console.warn('[WHVoice] conversational call failed:', err);
+      _setStatus('Could not reach ' + personaName + '. Tap to try again.');
+      _renderReplyBubble('Sorry, the chat is offline right now. Your message was saved as a transcript above.', persona);
+      _showTalkAgainButton();
+    }
+  }
+
+  function _renderReplyBubble(text, persona) {
+    const slot = document.getElementById('wh-voice-intents');
+    if (!slot) return;
+    const avatarHTML = (typeof window.personaAvatarHTML === 'function')
+      ? window.personaAvatarHTML(persona, 28)
+      : '<span style="display:inline-block;width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#F7A21B,#FDB94A);"></span>';
+    const safe = String(text == null ? '' : text)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    if (text === null) {
+      // Thinking dots — a known visual cue while the model warms up.
+      slot.innerHTML =
+        '<div class="wh-voice-bubble wh-voice-bubble-assistant">' +
+          avatarHTML +
+          '<span class="wh-voice-bubble-text"><span class="wh-voice-dots"><i></i><i></i><i></i></span></span>' +
+        '</div>';
+    } else {
+      slot.innerHTML =
+        '<div class="wh-voice-bubble wh-voice-bubble-assistant">' +
+          avatarHTML +
+          '<span class="wh-voice-bubble-text">' + safe + '</span>' +
+        '</div>';
+    }
+  }
+
+  function _showTalkAgainButton() {
+    const actions = document.querySelector('.wh-voice-actions');
+    if (!actions) return;
+    // Reuse / repurpose the Confirm slot — relabel as "Tap to talk again".
+    let again = document.getElementById('wh-voice-again');
+    if (!again) {
+      again = document.createElement('button');
+      again.id = 'wh-voice-again';
+      again.type = 'button';
+      again.className = 'wh-voice-btn-action wh-voice-confirm';
+      again.textContent = '🎙  Tap to talk again';
+      again.addEventListener('click', () => {
+        // Reset the overlay to a fresh recording state in place.
+        _setResult('');
+        _setTranscript('');
+        document.getElementById('wh-voice-intents').innerHTML = '';
+        again.style.display = 'none';
+        _startRecording();
+      });
+      actions.appendChild(again);
+    }
+    again.style.display = 'block';
+    const stopBtn = document.getElementById('wh-voice-stop');
+    if (stopBtn) stopBtn.style.display = 'none';
+  }
+
   function _fallthroughToChat(q) {
     // Best-effort: open floating-ai chat with the question prefilled.
     try {
@@ -600,6 +739,8 @@
     document.getElementById('wh-voice-intents').innerHTML = '';
     const confirmBtn = document.getElementById('wh-voice-confirm');
     if (confirmBtn) { confirmBtn.style.display = 'none'; confirmBtn.disabled = false; confirmBtn.textContent = 'Confirm'; }
+    const again = document.getElementById('wh-voice-again');
+    if (again) again.style.display = 'none';
     _startRecording();
   }
 
