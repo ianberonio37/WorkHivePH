@@ -633,31 +633,68 @@
   // every conversation lands in the worker's journal as expected.
   const WH_ASSISTANT_WORKER_URL = 'https://workhive-assistant.ian-beronio37.workers.dev';
 
+  // Session-only fallback memory. voice_journal_entries requires auth
+  // (RLS: auth.uid() = auth_uid for both read and insert), so anon
+  // workers in the Tester walkthrough have no persistent memory. We
+  // keep the last few turns in a module-local array so within one page
+  // session James / Rosa still has continuity. Lost on page reload —
+  // signed-in workers get durable history from the table.
+  const _sessionTurns = [];   // [{ user, assistant, ts }]
+  const _SESSION_TURN_LIMIT = 5;
+
+  function _appendSessionTurn(transcript, reply) {
+    _sessionTurns.push({
+      user:      String(transcript || '').slice(0, 240),
+      assistant: String(reply || '').slice(0, 240),
+      ts:        Date.now(),
+    });
+    if (_sessionTurns.length > _SESSION_TURN_LIMIT) {
+      _sessionTurns.splice(0, _sessionTurns.length - _SESSION_TURN_LIMIT);
+    }
+  }
+
   // Pull the worker's recent journal turns so the model has actual
   // conversation continuity ("the downtime you started", "yung pump
-  // kanina") instead of asking generic clarifiers. Cheap (one indexed
-  // query, capped 5 rows / 240 chars per turn). Best-effort — empty
-  // memory is fine, missing schema is fine, RLS denial is fine.
+  // kanina") instead of asking generic clarifiers. Tries the DB first
+  // (signed-in workers), then falls back to the session-only array
+  // (anon workers in the Tester). Cheap on both paths, best-effort.
   async function _fetchRecentMemory(db, workerName) {
-    if (!db || !workerName) return '';
-    try {
-      const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
-      const { data, error } = await db.from('voice_journal_entries')
-        .select('transcript, reply, created_at')
-        .eq('worker_name', workerName)
-        .gte('created_at', since)
-        .order('created_at', { ascending: false })
-        .limit(5);
-      if (error || !data || !data.length) return '';
-      // Oldest first so the model reads them as a real timeline.
-      const turns = data.slice().reverse().map(row => {
-        const u = String(row.transcript || '').slice(0, 240).trim();
-        const a = String(row.reply || '').slice(0, 240).trim();
-        return 'Worker: ' + u + '\n' + 'You said: ' + a;
-      }).filter(Boolean);
-      if (!turns.length) return '';
-      return turns.join('\n---\n');
-    } catch (_) { return ''; }
+    let dbTurns = [];
+    if (db && workerName) {
+      try {
+        const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+        const { data, error } = await db.from('voice_journal_entries')
+          .select('transcript, reply, created_at')
+          .eq('worker_name', workerName)
+          .gte('created_at', since)
+          .order('created_at', { ascending: false })
+          .limit(5);
+        if (!error && data && data.length) {
+          dbTurns = data.slice().reverse().map(row => ({
+            user:      String(row.transcript || ''),
+            assistant: String(row.reply || ''),
+          }));
+        }
+      } catch (_) { /* RLS denial / network — fall through */ }
+    }
+    const sessionTurns = _sessionTurns.map(t => ({ user: t.user, assistant: t.assistant }));
+    // Merge: DB turns first (older), then session turns (newer). Dedupe
+    // by user message — if the same transcript appears in both, prefer
+    // the session entry (it's more recent and verbatim).
+    const seen = new Set();
+    const merged = [];
+    for (const turn of dbTurns.concat(sessionTurns)) {
+      const key = turn.user.slice(0, 80);
+      if (seen.has(key)) continue;
+      seen.add(key);
+      merged.push(turn);
+    }
+    if (!merged.length) return '';
+    return merged.map(t => {
+      const u = t.user.slice(0, 240).trim();
+      const a = t.assistant.slice(0, 240).trim();
+      return 'Worker: ' + u + '\n' + 'You said: ' + a;
+    }).filter(Boolean).join('\n---\n');
   }
 
   function _buildVoiceSystemPrompt(persona, workerName, hiveName, pageLabel, routingHint, memoryBlock) {
@@ -708,6 +745,7 @@
       '7. NEVER invent details the worker did not mention. If they say "what is the problem?" — you do NOT know what problem. Do NOT make up "the production line" or "the pump" or "your machine". Ask back: "which one, pre?" — or if it\'s totally vague, say "tell me a bit more, what\'s going on?"\n' +
       '8. If the worker\'s message is short or ambiguous ("what now?", "tapos?", "ok?", "what is the problem?"), do NOT assume emotion. Ask a SPECIFIC clarifier in one short sentence. No "draining your energy" / "tough one" framing.\n' +
       '9. NEVER invent specific UI elements ("the asset card", "the Log Downtime button", "the Save icon"). The only WorkHive nouns you may use verbatim are: Logbook, Inventory, PM Scheduler, Asset Hub, Alert Hub, Analytics, Day Planner, Shift Brain, Hive Board, Voice Journal, Work Assistant. To act on something, tell the worker which TOOL to open — never describe a specific button you weren\'t explicitly told about.\n' +
+      '10. REPLY IN ENGLISH, ALWAYS. The worker can speak Tagalog / Cebuano / Filipino at you — UNDERSTAND it, but reply in PH-English. You may keep ONE short Tagalog warmth word per reply (naks / hala / pre / ate / ka), no more. If you find yourself writing a full Tagalog sentence ("Ano ba talaga hinahanap mo?", "Naiintindihan kita..."), STOP and rewrite in English. Pure-Tagalog replies are a hard fail.\n' +
       'If unsure whether the question is factual or emotional: treat it as factual and answer it.';
   }
 
@@ -798,7 +836,9 @@
       if (typeof window.speakPersona === 'function') {
         window.speakPersona(answer, { persona });
       }
-      // Background save — never blocks the UI.
+      // Session-memory turn (always — works for anon walkthrough).
+      _appendSessionTurn(transcript, answer);
+      // Durable save — silently no-ops if RLS denies (anon workers).
       _saveJournalTurn(db, ctx, transcript, answer, persona);
       _showTalkAgainButton();
     } catch (err) {
