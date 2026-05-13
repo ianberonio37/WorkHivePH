@@ -200,6 +200,11 @@
       background: rgba(255,255,255,0.06); color: #F4F6FA;
       border-color: rgba(255,255,255,0.14);
     }
+    .wh-voice-stop {
+      background: linear-gradient(135deg, #F7A21B, #FDB94A); color: #162032; border-color: transparent;
+      font-weight: 700;
+    }
+    .wh-voice-stop:hover { box-shadow: 0 4px 14px rgba(247,162,27,0.45); }
     .wh-voice-result {
       margin-top: 0.65rem; font-size: 0.82rem; line-height: 1.45;
       color: rgba(255,255,255,0.85);
@@ -233,13 +238,14 @@
         <div id="wh-voice-rec-row" class="wh-voice-rec-row">
           <span class="wh-voice-dot"></span>
           <span class="wh-voice-elapsed" id="wh-voice-elapsed">0:00</span>
-          <span style="margin-left:auto;font-size:0.7rem;color:rgba(255,255,255,0.4);">Tap mic to stop</span>
+          <span style="margin-left:auto;font-size:0.7rem;color:rgba(255,255,255,0.4);">Tap Stop when done</span>
         </div>
         <div id="wh-voice-transcript" class="wh-voice-transcript" style="display:none;"></div>
         <div id="wh-voice-intents"></div>
         <div id="wh-voice-result" style="display:none;"></div>
         <div class="wh-voice-actions">
           <button id="wh-voice-cancel" class="wh-voice-btn-action wh-voice-cancel" type="button">Cancel</button>
+          <button id="wh-voice-stop" class="wh-voice-btn-action wh-voice-stop" type="button">Stop</button>
           <button id="wh-voice-confirm" class="wh-voice-btn-action wh-voice-confirm" type="button" style="display:none;">Confirm</button>
         </div>
       </div>
@@ -262,7 +268,9 @@
     document.body.appendChild(ovDiv.firstElementChild);
 
     const cancel  = document.getElementById('wh-voice-cancel');
+    const stop    = document.getElementById('wh-voice-stop');
     if (cancel) cancel.addEventListener('click', () => close());
+    if (stop)   stop.addEventListener('click', () => _stopRecording());
 
     document.addEventListener('keydown', (ev) => {
       if (ev.key === 'Escape' && _isOpen()) close();
@@ -400,6 +408,10 @@
     document.getElementById('wh-voice-btn')?.classList.add('recording');
     _setStatus('Listening...');
     _setRecRowVisible(true);
+    // Show the in-overlay Stop button so the worker has a tap-to-stop
+    // affordance now that the standalone blue mic is gone.
+    const stopBtn = document.getElementById('wh-voice-stop');
+    if (stopBtn) stopBtn.style.display = '';
 
     const startedAt = Date.now();
     const elTimer = document.getElementById('wh-voice-elapsed');
@@ -420,6 +432,10 @@
     if (_stopTimer) { clearTimeout(_stopTimer); _stopTimer = null; }
     if (_recorder && _recorder.state === 'recording') _recorder.stop();
     document.getElementById('wh-voice-btn')?.classList.remove('recording');
+    // Hide the Stop button — the recording loop is finished. Confirm
+    // appears after transcription + intent classification land.
+    const stopBtn = document.getElementById('wh-voice-stop');
+    if (stopBtn) stopBtn.style.display = 'none';
   }
 
   async function _onStopRecording() {
@@ -438,8 +454,16 @@
     }
     try {
       // Step 1: voice-transcribe (multipart/form-data)
+      // Force English transcription. Whisper's auto-detect was hallucinating
+      // Russian / Indonesian on short PH-English clips because the audio
+      // budget per frame is too small to disambiguate. WorkHive workers
+      // speak English, Tagalog, or Cebuano — for command intent
+      // (voice-router) we want English text we can parse, so we lock the
+      // hint to "en" and let Whisper do best-effort translation for the
+      // few Filipino words.
       const fd = new FormData();
       fd.append('audio', blob, 'voice.webm');
+      fd.append('language', 'en');
       const tResp = await fetch(SUPABASE_URL + '/functions/v1/voice-transcribe', {
         method: 'POST',
         headers: { 'Authorization': 'Bearer ' + SUPABASE_KEY, 'apikey': SUPABASE_KEY },
