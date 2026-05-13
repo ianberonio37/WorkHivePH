@@ -561,14 +561,18 @@
         }
         _setStatus('Review and confirm.');
       } else {
-        // CONVERSATIONAL PATH — query.ask / unknown.
-        // Auto-call voice-journal-agent through ai-gateway. The gateway
-        // both replies in James/Rosa's voice AND saves the turn to
-        // voice_journal_entries + agent_memory (durable + recallable).
-        // Hide the intent cards and the standard Confirm button.
+        // CONVERSATIONAL PATH — query.ask / unknown / unhandled-structured.
+        // If the router classified a structured intent that THIS PAGE
+        // can't dispatch (e.g. "log 30 mins downtime" on index.html),
+        // pass the intent kind to _converseInline so the model can give
+        // an accurate routing tip ("open the Logbook page") instead of
+        // hallucinating UI like "click the asset card's Log Downtime
+        // button" (no such thing).
         document.getElementById('wh-voice-intents').innerHTML = '';
         if (confirmBtn) confirmBtn.style.display = 'none';
-        await _converseInline(transcript);
+        const unhandledKind = structured.length && !handlableHere
+          ? structured[0].kind : null;
+        await _converseInline(transcript, { unhandledKind });
       }
     } catch (err) {
       console.error('[WHVoice]', err);
@@ -629,7 +633,7 @@
   // every conversation lands in the worker's journal as expected.
   const WH_ASSISTANT_WORKER_URL = 'https://workhive-assistant.ian-beronio37.workers.dev';
 
-  function _buildVoiceSystemPrompt(persona, workerName, hiveName, pageLabel) {
+  function _buildVoiceSystemPrompt(persona, workerName, hiveName, pageLabel, routingHint) {
     const personaBlock = (typeof window.getCompanionBlock === 'function')
       ? window.getCompanionBlock() : '';
     // Internal-only grounding. These facts help the model pick the right
@@ -641,6 +645,13 @@
     if (hiveName)   ident.push("Their hive: " + hiveName + ".");
     if (pageLabel)  ident.push("Internal context (DO NOT mention by name in your reply): the worker is on the " + pageLabel + " page.");
     const identBlock = ident.length ? ('\n' + ident.join(' ') + '\n') : '';
+    // When the worker spoke a command we can't dispatch from this page,
+    // inject the canonical routing tip so the model gives accurate
+    // guidance instead of inventing UI ("click the asset card's Log
+    // Downtime button" — no such thing).
+    const routingBlock = routingHint
+      ? '\nIMPORTANT — the worker tried to speak a command this page can\'t execute: ' + routingHint + ' Keep the reply to ONE short sentence. Do NOT describe specific buttons / cards / menus you haven\'t been told about.\n'
+      : '';
 
     return personaBlock + '\n\n' +
       'You are answering a worker over voice. They will HEAR your reply, so:\n' +
@@ -648,6 +659,7 @@
       '- If they asked a maintenance / work question, ANSWER IT directly with practical maintenance knowledge. If you don\'t have the data they\'re asking about (e.g. their specific PM schedule, their hive\'s OEE), say so plainly and point them to the right WorkHive tool: PM Scheduler for due tasks, Alert Hub for risk + low stock, Asset Hub for asset history, Analytics for MTBF/OEE.\n' +
       '- If they shared a feeling or vented, react first ("naks, mahirap yan" / "hala ka"), THEN one practical line.\n' +
       identBlock +
+      routingBlock +
       '\nIf the worker mixes Filipino / Cebuano / Tagalog in, that\'s fine — understand it, reply in English.\n\n' +
       '═══════════════════════════════════════════════════════════════════\n' +
       'HARD RULES — read these last; they override everything above.\n' +
@@ -660,6 +672,7 @@
       '6. NEVER mention the page name (e.g. "index", "logbook", "hive", "asset-hub") in your reply. Workers don\'t think in page names. Say "this page" or "your dashboard" or just answer naturally without referencing where they are.\n' +
       '7. NEVER invent details the worker did not mention. If they say "what is the problem?" — you do NOT know what problem. Do NOT make up "the production line" or "the pump" or "your machine". Ask back: "which one, pre?" — or if it\'s totally vague, say "tell me a bit more, what\'s going on?"\n' +
       '8. If the worker\'s message is short or ambiguous ("what now?", "tapos?", "ok?", "what is the problem?"), do NOT assume emotion. Ask a SPECIFIC clarifier in one short sentence. No "draining your energy" / "tough one" framing.\n' +
+      '9. NEVER invent specific UI elements ("the asset card", "the Log Downtime button", "the Save icon"). The only WorkHive nouns you may use verbatim are: Logbook, Inventory, PM Scheduler, Asset Hub, Alert Hub, Analytics, Day Planner, Shift Brain, Hive Board, Voice Journal, Work Assistant. To act on something, tell the worker which TOOL to open — never describe a specific button you weren\'t explicitly told about.\n' +
       'If unsure whether the question is factual or emotional: treat it as factual and answer it.';
   }
 
@@ -682,7 +695,18 @@
     }
   }
 
-  async function _converseInline(transcript) {
+  // Map of "the worker said a command we can't dispatch here" to the
+  // canonical guidance for that command. Keeps routing hints accurate
+  // and stops the model from inventing UI elements.
+  const UNHANDLED_INTENT_GUIDANCE = {
+    'logbook.create':  "they want to log a maintenance entry — tell them to open the Logbook from the menu and tap +Add (or use Speak-to-Fill there). Don't describe specific buttons.",
+    'inventory.use':   "they want to record a parts pull — tell them to open Inventory and select the part.",
+    'inventory.restock': "they want to restock a part — tell them to open Inventory and use the Restock action on that item.",
+    'asset.lookup':    "they want details on an asset — tell them to open Asset Hub and tap the asset card.",
+    'pm.complete':     "they want to close a PM — tell them to open PM Scheduler and tap the asset's PM card.",
+  };
+
+  async function _converseInline(transcript, opts) {
     const db = _getDb();
     const ctx = _ctx();
     const persona = (typeof window.getPersona === 'function')
@@ -692,12 +716,14 @@
       try { return localStorage.getItem('wh_hive_name') || ''; } catch (_) { return ''; }
     })();
     const pageLabel = _currentPage();
+    const unhandledKind = opts && opts.unhandledKind;
+    const routingHint = unhandledKind ? UNHANDLED_INTENT_GUIDANCE[unhandledKind] : null;
 
     _setStatus(personaName + ' is thinking…');
     _setRecRowVisible(false);
     _renderReplyBubble(null, persona);
 
-    const system = _buildVoiceSystemPrompt(persona, ctx.worker_name, hiveName, pageLabel);
+    const system = _buildVoiceSystemPrompt(persona, ctx.worker_name, hiveName, pageLabel, routingHint);
     const messages = [
       { role: 'system', content: system },
       { role: 'user',   content: transcript },
