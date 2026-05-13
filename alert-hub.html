@@ -292,6 +292,13 @@
   let _alerts = [];
   let _activeKind = 'all';
   let _refreshTimer = null;
+  // Anomaly Engine 2.0 state lets — declared HERE (not next to the panel
+  // code at ~line 555) because `await loadAll()` runs early at the bottom
+  // of the IIFE init and reaches loadAnomalyEngine before the panel's
+  // own let declarations would execute. TDZ trap, walkthrough 2026-05-13.
+  let _anomalyChannel = null;
+  let _anomalyLoading = false;
+  let _anomalyDebounce = null;
 
   // Timer helpers — kept OUTSIDE any event handler so the timer validator
   // can see the named-variable assignment cleanly.
@@ -558,9 +565,9 @@
     watch:    { color: '#facc15', bg: 'rgba(250,204,21,0.12)',  label: 'WATCH'    },
     info:     { color: '#94a3b8', bg: 'rgba(148,163,184,0.12)', label: 'INFO'     },
   };
-  let _anomalyChannel = null;
-  let _anomalyLoading = false;
-  let _anomalyDebounce = null;
+  // _anomalyChannel + _anomalyLoading + _anomalyDebounce are declared at
+  // the top of the IIFE (next to _amcChannel) so the early `await loadAll()`
+  // doesn't reach this loader before the lets initialize. TDZ trap fix.
 
   async function loadAnomalyEngine() {
     const panel = document.getElementById('anomaly-engine-panel');
