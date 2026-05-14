@@ -21,7 +21,29 @@
         "reason": "`hive.html` source chip declares fuel(s) ['v_logbook_truth', 'v_inventory_items_truth'] but renderer `loadSupervisorSummary()` does not reference them (directly or via a registered alt). The verdict and Plain-Read cards will silently ignore those fuels \u2014 same bug class as L9 but on the render side. Either roll the fuel into the renderer, drop it from the source chip, or register an alt in HEADER_STRIP_CONTRACT['alts']."
       }
     ],
-    "insight_panel_anchor": []
+    "insight_panel_anchor": [],
+    "journey_coverage": [
+      {
+        "page": "community.html",
+        "spec": "tests\\journey-community.spec.ts",
+        "reason": "No journey test for 'community.html' \u2014 add tests/tests\\journey-community.spec.ts covering the main user flow. Smoke tests only catch load errors; journey tests catch silent-fail regressions in the write / read path."
+      },
+      {
+        "page": "ai-quality.html",
+        "spec": "tests\\journey-ai-quality.spec.ts",
+        "reason": "No journey test for 'ai-quality.html' \u2014 add tests/tests\\journey-ai-quality.spec.ts covering the main user flow. Smoke tests only catch load errors; journey tests catch silent-fail regressions in the write / read path."
+      },
+      {
+        "page": "plant-connections.html",
+        "spec": "tests\\journey-plant-connections.spec.ts",
+        "reason": "No journey test for 'plant-connections.html' \u2014 add tests/tests\\journey-plant-connections.spec.ts covering the main user flow. Smoke tests only catch load errors; journey tests catch silent-fail regressions in the write / read path."
+      },
+      {
+        "page": "audit-log.html",
+        "spec": "tests\\journey-audit-log.spec.ts",
+        "reason": "No journey test for 'audit-log.html' \u2014 add tests/tests\\journey-audit-log.spec.ts covering the main user flow. Smoke tests only catch load errors; journey tests catch silent-fail regressions in the write / read path."
+      }
+    ]
   },
   "engine_anchor": 2,
   "tier_a_anchor": 0,
@@ -32,5 +54,6 @@
   "capture_anchor": 0,
   "seed_render_anchor": 0,
   "header_strip_anchor": 1,
-  "insight_panel_anchor": 0
+  "insight_panel_anchor": 0,
+  "journey_coverage": 4
 }

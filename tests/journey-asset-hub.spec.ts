@@ -101,10 +101,10 @@ test.describe('asset-hub.html — 360-view journey', () => {
     await waitForAssetHubReady(whPage);
 
     const firstCard = whPage.locator('#asset-list .wh-card, #asset-list [data-asset-id]').first();
-    if (await firstCard.count() === 0) {
-      console.log('[journey-asset-hub] no asset cards — skipping 360 view test');
-      return;
-    }
+    // Lucena seeded hive has 30 registered assets — this should NEVER be zero.
+    // A zero count means the seeder hasn't run or asset data was wiped.
+    const count = await firstCard.count();
+    expect(count, 'asset list should have at least 1 card — run test-data-seeder if empty').toBeGreaterThan(0);
 
     await firstCard.click();
     await whPage.waitForTimeout(1000);
@@ -120,7 +120,7 @@ test.describe('asset-hub.html — 360-view journey', () => {
     await waitForAssetHubReady(whPage);
 
     const firstCard = whPage.locator('#asset-list .wh-card, #asset-list [data-asset-id]').first();
-    if (await firstCard.count() === 0) return;
+    if (await firstCard.count() === 0) { expect.fail('asset list is empty — run seeder first'); return; }
 
     await firstCard.click();
     await whPage.waitForTimeout(2000);
@@ -139,7 +139,7 @@ test.describe('asset-hub.html — 360-view journey', () => {
     await waitForAssetHubReady(whPage);
 
     const firstCard = whPage.locator('#asset-list .wh-card, #asset-list [data-asset-id]').first();
-    if (await firstCard.count() === 0) return;
+    if (await firstCard.count() === 0) { expect.fail('asset list is empty — run seeder first'); return; }
 
     await firstCard.click();
     await whPage.waitForTimeout(2000);

@@ -59,13 +59,12 @@ const PAGES: Array<{ slug: string; file: string; flow: string }> = [
 
 const OUT_DIR = path.resolve(__dirname, '..', '.tmp', 'walkthrough');
 
-// Ensure the output directory exists; clear stale screenshots so each
-// run produces a clean set (no orphaned files from a previous order).
+// Ensure the output directory exists. Do NOT clear existing PNGs here —
+// with retries:1, beforeAll re-runs before the retry group and would wipe
+// screenshots captured by the passing first-run tests. Each test overwrites
+// its own file, so stale-from-prior-run and in-run captures coexist safely.
 test.beforeAll(() => {
   fs.mkdirSync(OUT_DIR, { recursive: true });
-  for (const f of fs.readdirSync(OUT_DIR)) {
-    if (f.endsWith('.png')) fs.unlinkSync(path.join(OUT_DIR, f));
-  }
 });
 
 test.describe('Plain-Read walkthrough — visual capture', () => {
@@ -83,10 +82,15 @@ test.describe('Plain-Read walkthrough — visual capture', () => {
       // capture caught "Computing..." / "Loading..." rather than real
       // values.
       //
-      // Strategy: poll for the verdict label OR any hero card text to
-      // settle (no longer "Computing..." / "Loading..."). Bail after 7s
-      // so a genuinely slow page still captures (better mid-load shot
-      // than a hang).
+      // Strategy: poll for:
+      //   (a) verdict label leaves "Computing..." / "Loading..." / "Rolling up"
+      //   (b) OR at least one hero card has a non-placeholder value
+      //   (c) AND at least one .wh-source-chip is populated (non-empty text)
+      //       — catches L11-type regressions where a chip slot exists but
+      //         renderSourceChip() was never called (runtime complement of the
+      //         static L11 validator which checks at code level).
+      // Bail after 20s so slow pages (analytics Python API, marketplace
+      // listing aggregator) still capture rather than hang.
       await whPage.waitForFunction(() => {
         const labelEl = document.querySelector(
           '[id$="verdict-label"], #ss-verdict-label, #pm-verdict-label, #sm-verdict-label'
@@ -98,18 +102,26 @@ test.describe('Plain-Read walkthrough — visual capture', () => {
           labelText.startsWith('Rolling up')
         );
         const labelSettled = !!labelText && !stillComputing;
-        // Also check that at least one hero card has a non-placeholder
-        // value — guards against pages where the verdict has no element.
+
+        // Hero cards settled
         const heroes = Array.from(document.querySelectorAll('.sc-hero, .ac-text'));
         const anyHeroSettled = heroes.some(h => {
           const t = (h.textContent || '').trim();
           return t && t !== '—' && t !== '--' &&
             !t.startsWith('Loading') && !t.startsWith('Computing');
         });
-        return labelSettled || anyHeroSettled;
-      }, { timeout: 20000 }).catch(() => { /* mid-load capture is acceptable */ });
 
-      // Small post-settle buffer for paint.
+        // Source chip populated (at least one .wh-source-chip with content)
+        const chips = Array.from(document.querySelectorAll('.wh-source-chip'));
+        const anyChipPopulated = chips.some(c => (c.textContent || '').trim().length > 10);
+
+        return (labelSettled || anyHeroSettled) && anyChipPopulated;
+      }, { timeout: 20000 }).catch(() => {
+        // Mid-load or no-chip pages: capture anyway, console.warn for review
+        console.warn(`[walkthrough] page may not be fully settled before capture`);
+      });
+
+      // Small post-settle buffer for final paint.
       await whPage.waitForTimeout(400);
 
       const topPath  = path.join(OUT_DIR, `page-${n}-${entry.slug}-top.png`);

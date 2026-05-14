@@ -1311,6 +1311,111 @@ def check_insight_panel_contract() -> dict:
     }
 
 
+# ─────────────────────────────────────────────────────────────────────
+# L12 — Journey Test Coverage
+# ─────────────────────────────────────────────────────────────────────
+# Every interactive tool page in LIVE_TOOL_PAGES should have a
+# corresponding tests/journey-<slug>.spec.ts. Without it, a full
+# end-to-end regression can go undetected — the smoke test only checks
+# that the page loads; the journey test checks the actual user flow.
+#
+# Coverage audit 2026-05-14 found 7 of 21 LIVE_TOOL_PAGES with no
+# journey test. This layer gates that gap going forward:
+#   NEW pages added to LIVE_TOOL_PAGES → FAIL until a journey spec lands
+#   EXEMPT list covers pages where a separate spec IS the journey test
+#   (e.g. alert-hub is covered by journey-alerts.spec.ts).
+#
+# Mapping: some page slugs differ from the spec file name (pm-scheduler
+# → journey-pm.spec.ts). JOURNEY_TEST_MAP resolves the alias.
+
+JOURNEY_SLUG_MAP = {
+    # page-slug (from LIVE_TOOL_PAGES) → journey spec stem
+    "logbook":            "journey-logbook",
+    "dayplanner":         "journey-dayplanner",
+    "pm-scheduler":       "journey-pm",
+    "hive":               "journey-hive",
+    "inventory":          "journey-inventory",
+    "skillmatrix":        "journey-skillmatrix",
+    "engineering-design": "journey-engineering-design",
+    "analytics":          "journey-analytics",
+    "report-sender":      "journey-report-sender",
+    "community":          "journey-community",
+    "marketplace":        "journey-marketplace",
+    "project-manager":    "journey-project-manager",
+    "integrations":       "journey-marketplace",  # integrated in marketplace flow
+    "ph-intelligence":    "journey-predictive",    # covered by predictive flow
+    "predictive":         "journey-predictive",
+    "ai-quality":         "journey-ai-quality",
+    "plant-connections":  "journey-plant-connections",
+    "achievements":       "journey-achievements",
+    "asset-hub":          "journey-asset-hub",
+    "shift-brain":        "journey-shift-brain",
+    "alert-hub":          "journey-alerts",
+    "voice-journal":      "journey-voice-journal",
+    # Print/static views — journey not required (no interactive user flow)
+    "analytics-report":   "__exempt__",
+    "project-report":     "__exempt__",
+    "assistant":          "__exempt__",  # AI chat covered by voice-journal pattern
+    "audit-log":          "journey-audit-log",
+}
+
+TESTS_DIR = "tests"
+
+
+def check_journey_coverage() -> dict:
+    """L12 — every LIVE_TOOL_PAGE has a journey test spec. Catches the
+    coverage gap where only smoke tests exist. New pages added to
+    LIVE_TOOL_PAGES FAIL until a journey-<slug>.spec.ts lands."""
+    # Load LIVE_TOOL_PAGES from validate_assistant.py dynamically so
+    # the two registries stay in sync.
+    assistant_src = read_file("validate_assistant.py") or ""
+    m = re.search(r"LIVE_TOOL_PAGES\s*=\s*\[([^\]]*)\]", assistant_src, re.DOTALL)
+    live_pages: list[str] = []
+    if m:
+        live_pages = re.findall(r"[\"']([\w-]+)[\"']", m.group(1))
+
+    unanchored: list[dict] = []
+    for slug in live_pages:
+        spec_stem = JOURNEY_SLUG_MAP.get(slug)
+        if spec_stem == "__exempt__":
+            continue   # print/static view — no journey required
+
+        if spec_stem is None:
+            # Known TODO — flag as un-anchored (forces a decision)
+            spec_path = os.path.join(TESTS_DIR, f"journey-{slug}.spec.ts")
+            unanchored.append({
+                "page":  f"{slug}.html",
+                "spec":  spec_path,
+                "reason": (
+                    f"No journey test for '{slug}.html' — "
+                    f"add tests/{spec_path} covering the main user flow. "
+                    f"Smoke tests only catch load errors; journey tests catch "
+                    f"silent-fail regressions in the write / read path."
+                ),
+            })
+            continue
+
+        spec_path = os.path.join(TESTS_DIR, f"{spec_stem}.spec.ts")
+        if not os.path.isfile(spec_path):
+            unanchored.append({
+                "page":  f"{slug}.html",
+                "spec":  spec_path,
+                "reason": (
+                    f"Journey spec '{spec_path}' registered but file not found. "
+                    f"Create the spec or update JOURNEY_SLUG_MAP."
+                ),
+            })
+
+    return {
+        "layer":        "journey_coverage",
+        "label":        "L12 Journey: every LIVE_TOOL_PAGE has a journey-*.spec.ts",
+        "n_pages":      len(live_pages),
+        "n_unanchored": len(unanchored),
+        "n_registered": len(live_pages) - len(unanchored),
+        "unanchored":   unanchored,
+    }
+
+
 def check_header_strip_contract() -> dict:
     """L10 — every fuel declared in a page's source chip is referenced
     by the page's Plain-Read renderer function. Catches "anchored but
@@ -1453,6 +1558,7 @@ CHECK_NAMES = [
     "seed_render_anchor",
     "header_strip_anchor",
     "insight_panel_anchor",
+    "journey_coverage",
 ]
 
 CHECK_LABELS = {
@@ -1467,6 +1573,7 @@ CHECK_LABELS = {
     "seed_render_anchor":   "L9  Seed-Render: every KPI's required inputs are seeded",
     "header_strip_anchor":  "L10 Header-strip: every source-chip fuel rolled up by Plain-Read renderer",
     "insight_panel_anchor": "L11 Insight panel: every registered panel renders an anchor chip",
+    "journey_coverage":     "L12 Journey: every LIVE_TOOL_PAGE has a journey-*.spec.ts",
 }
 
 
@@ -1475,7 +1582,7 @@ def main():
 
     def bold(s): return f"\033[1m{s}\033[0m"
 
-    print(bold("\nCanonical Anchor Gate (11-layer forward-anchor audit)"))
+    print(bold("\nCanonical Anchor Gate (12-layer forward-anchor audit)"))
     print("=" * 60)
 
     layers = [
@@ -1490,6 +1597,7 @@ def main():
         check_seed_render_contract(),
         check_header_strip_contract(),
         check_insight_panel_contract(),
+        check_journey_coverage(),
     ]
 
     baseline = load_baseline()
@@ -1511,6 +1619,7 @@ def main():
             "seed_render_anchor" if layer_key == "seed_render" else
             "header_strip_anchor" if layer_key == "header_strip" else
             "insight_panel_anchor" if layer_key == "insight_panel" else
+            "journey_coverage"     if layer_key == "journey_coverage" else
             "dashboard_anchor"
         )
         if L.get("status") == "registry_missing":
