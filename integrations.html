@@ -274,6 +274,7 @@
     <span style="display:inline-block; font-size:.6rem; font-weight:700; letter-spacing:.06em; text-transform:uppercase; padding:.2rem .6rem; border-radius:999px; background:rgba(247,162,27,0.14); color:var(--gold); border:1px solid rgba(247,162,27,0.28); margin-bottom:.5rem;">Phase 2 · Cold Start Solver</span>
     <h1 style="font-size:1.4rem; font-weight:800; line-height:1.2;">CMMS Integration</h1>
     <p style="font-size:.75rem; color:var(--muted); margin-top:.25rem;">Import your existing SAP PM, Maximo, or CMMS data. WorkHive's intelligence activates on day one.</p>
+    <p id="integrations-source-chip" style="margin-top:3px;"></p>
   </div>
 
   <!-- Supervisor gate message (shown if no HIVE_ID) -->
@@ -1543,6 +1544,18 @@
 
   async function loadSyncConfigs() {
     if (!HIVE_ID) return;
+    const _intChip = document.getElementById('integrations-source-chip');
+    if (_intChip && typeof renderSourceChip === 'function') {
+      _intChip.innerHTML = renderSourceChip({
+        freshness: 'Live · refreshed on load',
+        source:    'integration_configs + external_sync',
+        notes:     [
+          'Active: enabled = true AND last_sync_at within 7 days',
+          'Stale: last_sync_at > 7 days ago OR sync error state',
+          'Supported: SAP PM, IBM Maximo, generic CSV (Phase 2)',
+        ],
+      });
+    }
     const { data } = await db.from('integration_configs')
       .select('*').eq('hive_id', HIVE_ID).order('created_at', { ascending: false });
     // Plain-Read summary (Layer D) — runs even when there are no configs.

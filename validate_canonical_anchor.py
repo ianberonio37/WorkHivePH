@@ -897,6 +897,480 @@ SEED_RENDER_CONTRACT = [
 ]
 
 
+# ─────────────────────────────────────────────────────────────────────
+# L10 — Header-strip ↔ Plain-Read Coverage Contract
+# ─────────────────────────────────────────────────────────────────────
+# Some pages declare a multi-fuel source chip at the top of the page
+# (e.g. hive.html: "Open Work / PM overdue / Low stock" anchored to
+# v_logbook_truth + v_pm_compliance_truth + v_inventory_items_truth)
+# but their Plain-Read renderer only reads ONE of the declared fuels —
+# so the verdict and the open-issues card silently ignore the others.
+#
+# Walkthrough 2026-05-13 caught the hive.html case: Card 3 "Open Issues"
+# said "0" even though 18 work orders were open and another stat block
+# on the same page showed them. The renderer was reading PM overdue
+# only.  L9 catches "anchored but never seeded" — this is the sibling
+# class: "anchored but never rolled up into the renderer."
+#
+# Registry-driven, same shape as L9: per-page, declare the canonical
+# fuel names the source chip exposes and the Plain-Read renderer is
+# expected to consume. Static check: every declared fuel name appears
+# inside the renderer function's body (brace-balanced extraction).
+
+HEADER_STRIP_CONTRACT = [
+    {
+        "page":      "hive.html",
+        "renderer":  "loadSupervisorSummary",
+        "fuels":     [
+            "v_logbook_truth",          # open work orders
+            "v_pm_compliance_truth",    # PM overdue   (via _pmOverdueCount, written by loadPMHealth from v_pm_compliance_truth → pm_scope_items_truth)
+            "v_inventory_items_truth",  # low stock
+        ],
+        # An alternate fuel name accepted in lieu of the canonical view
+        # (e.g. the page reads from a derived module-scope variable that
+        # was filled by another fn that itself reads the canonical view).
+        "alts": {
+            "v_pm_compliance_truth": ["_pmOverdueCount"],
+            "v_logbook_truth":       ["stat-open"],
+        },
+    },
+]
+
+
+def _extract_fn_body(src: str, fn_name: str) -> str:
+    """Return the brace-balanced body of a JS function named fn_name.
+
+    Handles `function NAME(`, `async function NAME(`, and
+    `const NAME = (` declarations. Returns "" if not found.
+    """
+    patterns = [
+        re.compile(rf"\basync\s+function\s+{re.escape(fn_name)}\s*\("),
+        re.compile(rf"\bfunction\s+{re.escape(fn_name)}\s*\("),
+        re.compile(rf"\bconst\s+{re.escape(fn_name)}\s*=\s*(?:async\s*)?\("),
+    ]
+    for pat in patterns:
+        m = pat.search(src)
+        if not m:
+            continue
+        idx = src.find("{", m.end())
+        if idx < 0:
+            continue
+        depth = 0
+        i = idx
+        while i < len(src):
+            c = src[i]
+            if c == "{":
+                depth += 1
+            elif c == "}":
+                depth -= 1
+                if depth == 0:
+                    return src[idx:i+1]
+            i += 1
+    return ""
+
+
+# ─────────────────────────────────────────────────────────────────────
+# L11 — Insight Panel Anchor Coverage Contract
+# ─────────────────────────────────────────────────────────────────────
+# Sibling of L10. L10 catches "the page's top-level source chip declares
+# a fuel that the Plain-Read renderer never reads." L11 catches the
+# inverse: "a panel renders confident derived output (AI alerts,
+# patterns, rollups) but the panel itself has no source chip, so the
+# supervisor can't trace what triggered it."
+#
+# Walkthrough 2026-05-13 caught the Pattern Alerts panel on hive.html
+# rendering cards labelled "4× repeat failure on MILL-001" with
+# thresholds the supervisor couldn't see. The cards came from
+# failure_signature_alerts (registered fuel ✓) but the panel had no
+# source chip linking the rendered text to the 4 detection-rule
+# formulas. Three of the four rules were also missing from
+# canonical_formulas — fixed in migration 20260513000030.
+#
+# Registry-driven, same shape as L9 and L10. Each entry declares:
+#   - page          : the HTML file
+#   - panel_id      : the DOM id of the panel container
+#   - chip_target_id: where the source chip is rendered (may equal
+#                     panel_id when the chip is inline in the panel)
+#   - required_chip_tokens: literal substrings that MUST appear in either
+#                     the HTML around the chip element OR inside the
+#                     populator JS function that fills it. Typically the
+#                     canonical fuel name + a rule/standard label.
+#   - populator     : (optional) JS fn name that fills the chip; checked
+#                     for the chip tokens via brace-balanced extraction.
+
+INSIGHT_PANEL_CONTRACT = [
+    {
+        "page":             "hive.html",
+        "panel_id":         "pattern-alerts-panel",
+        "chip_target_id":   "pattern-alerts-source-chip",
+        "populator":        "loadPatternAlerts",
+        "required_chip_tokens": [
+            "failure_signature_alerts",   # canonical fuel
+            "repeat_failure",              # rule formula
+            "escalating_frequency",        # rule formula
+            "multi_symptom",               # rule formula
+            "missed_pm",                   # rule formula
+            "ISO 14224",                   # standard
+        ],
+    },
+    {
+        "page":             "hive.html",
+        "panel_id":         "maturity-stairway-card",
+        "chip_target_id":   "stair-source-chip",
+        "populator":        "renderMaturityStairway",
+        "required_chip_tokens": [
+            "v_maturity_truth",            # canonical view
+            "compute_hive_readiness",      # RPC
+            "Process",                     # one of the 5 dimensions
+            "Resilience",                  # one of the 5 dimensions
+        ],
+    },
+    {
+        "page":             "hive.html",
+        "panel_id":         "adoption-card",
+        "chip_target_id":   "adoption-source-chip",
+        "populator":        "loadAdoptionCard",
+        "required_chip_tokens": [
+            "hive_adoption_score",         # canonical fuel
+            "compute_adoption_risk",       # RPC
+            "healthy",                     # tier label
+            "at_risk",                     # tier label
+            "critical",                    # tier label
+        ],
+    },
+    {
+        "page":             "hive.html",
+        "panel_id":         "benchmark-panel",
+        "chip_target_id":   "benchmark-source-chip",
+        "populator":        "loadBenchmarks",
+        "required_chip_tokens": [
+            "hive_benchmarks",             # own-hive feed
+            "network_benchmarks",          # cross-hive feed
+            "benchmark-compute",           # edge fn that recomputes
+            "MTBF",                        # metric label
+        ],
+    },
+    {
+        "page":             "hive.html",
+        "panel_id":         "kpipe-card",
+        "chip_target_id":   "kpipe-source-chip",
+        "populator":        "loadKnowledgePipeline",
+        "required_chip_tokens": [
+            "v_knowledge_freshness_truth", # canonical view
+            "fault_knowledge",             # corpus
+            "skill_knowledge",             # corpus
+            "pm_knowledge",                # corpus
+        ],
+    },
+    {
+        "page":             "hive.html",
+        "panel_id":         "todays-brief-panel",
+        "chip_target_id":   "todays-brief-source-chip",
+        "populator":        "loadTodaysBrief",
+        "required_chip_tokens": [
+            "ai_reports",                  # canonical fuel
+            "failure_digest",              # report type
+            "predictive",                  # report type
+            "pm_overdue",                  # report type
+        ],
+    },
+    {
+        "page":             "hive.html",
+        "panel_id":         "reliability-coach-panel",
+        "chip_target_id":   "coach-source-chip",
+        "populator":        "askCoach",
+        "required_chip_tokens": [
+            "ai-orchestrator",             # edge fn
+            "v_logbook_truth",             # data slice
+            "v_pm_compliance_truth",       # data slice
+            "v_inventory_items_truth",     # data slice
+            "canonical_agent_contracts",   # schema registry
+        ],
+    },
+    {
+        "page":             "hive.html",
+        "panel_id":         "team-pulse-panel",
+        "chip_target_id":   "team-pulse-source-chip",
+        "populator":        "loadTeamPulse",
+        "required_chip_tokens": [
+            "v_logbook_truth",             # jobs today
+            "v_pm_compliance_truth",       # PMs overdue (via _pmOverdueCount)
+            "v_inventory_items_truth",     # stock issues
+        ],
+    },
+    {
+        "page":             "hive.html",
+        "panel_id":         "handover-panel",
+        "chip_target_id":   "handover-source-chip",
+        "populator":        "generateHandover",
+        "required_chip_tokens": [
+            "v_logbook_truth",             # primary feed
+            "v_pm_compliance_truth",       # PM context
+            "since8h",                     # window literal
+            "LOTO",                        # scan rule
+        ],
+    },
+    # ── Page-level source chips (10-page sweep, 2026-05-14) ─────────────────
+    # These gate the top-of-page source chip that the walkthrough found
+    # missing on 10 of 16 pages. Same contract shape as insight panels —
+    # the only difference is the chip_target_id is a page-level element
+    # rather than a panel-level element.
+    {
+        "page":             "pm-scheduler.html",
+        "panel_id":         "pm-source-chip",
+        "chip_target_id":   "pm-source-chip",
+        "populator":        "init",
+        "required_chip_tokens": [
+            "pm_assets", "pm_scope_items", "pm_completions",
+            "Stair 2",
+        ],
+    },
+    {
+        "page":             "inventory.html",
+        "panel_id":         "inventory-source-chip",
+        "chip_target_id":   "inventory-source-chip",
+        "populator":        "initData",
+        "required_chip_tokens": [
+            "inventory_items", "inventory_transactions",
+            "qty_on_hand", "min_qty",
+        ],
+    },
+    {
+        "page":             "shift-brain.html",
+        "panel_id":         "shift-source-chip",
+        "chip_target_id":   "shift-source-chip",
+        "populator":        "init",
+        "required_chip_tokens": [
+            "shift_plans", "v_risk_truth", "pm_scope_items",
+        ],
+    },
+    {
+        "page":             "dayplanner.html",
+        "panel_id":         "dayplanner-source-chip",
+        "chip_target_id":   "dayplanner-source-chip",
+        "populator":        None,   # chip call is in anonymous DOMContentLoaded block
+        "required_chip_tokens": [
+            "schedule_items", "v_logbook_truth",
+            "DILO",
+        ],
+    },
+    {
+        "page":             "skillmatrix.html",
+        "panel_id":         "skillmatrix-source-chip",
+        "chip_target_id":   "skillmatrix-source-chip",
+        "populator":        "init",
+        "required_chip_tokens": [
+            "skill_profiles", "skill_badges",
+            "Level 1-5",
+        ],
+    },
+    {
+        "page":             "achievements.html",
+        "panel_id":         "achievements-source-chip",
+        "chip_target_id":   "achievements-source-chip",
+        "populator":        "init",
+        "required_chip_tokens": [
+            "worker_achievements", "achievement_xp_log",
+            "XP this week",
+        ],
+    },
+    {
+        "page":             "project-manager.html",
+        "panel_id":         "pm-mgr-source-chip",
+        "chip_target_id":   "pm-mgr-source-chip",
+        "populator":        None,   # chip call is in anonymous boot block before loadProjects
+        "required_chip_tokens": [
+            "projects", "project_items",
+            "Active", "On Hold",
+        ],
+    },
+    {
+        "page":             "integrations.html",
+        "panel_id":         "integrations-source-chip",
+        "chip_target_id":   "integrations-source-chip",
+        "populator":        "loadSyncConfigs",
+        "required_chip_tokens": [
+            "integration_configs", "external_sync",
+            "SAP", "Maximo",
+        ],
+    },
+    {
+        "page":             "marketplace.html",
+        "panel_id":         "marketplace-source-chip",
+        "chip_target_id":   "marketplace-source-chip",
+        "populator":        None,   # chip call is in anonymous DOMContentLoaded block
+        "required_chip_tokens": [
+            "marketplace_listings", "v_marketplace_sellers_truth",
+            "KYB",
+        ],
+    },
+    {
+        "page":             "report-sender.html",
+        "panel_id":         "report-sender-source-chip",
+        "chip_target_id":   "report-sender-source-chip",
+        "populator":        None,   # chip call is in anonymous DOMContentLoaded boot block
+        "required_chip_tokens": [
+            "ai_reports", "report_contacts",
+            "Resend",
+        ],
+    },
+]
+
+
+def check_insight_panel_contract() -> dict:
+    """L11 — every registered insight panel renders a source chip whose
+    contents reference the panel's anchored fuel + rule/standard names.
+    Catches "rendered confidently but unanchored" — the user-trust
+    sibling of L9/L10."""
+    unanchored: list[dict] = []
+    for entry in INSIGHT_PANEL_CONTRACT:
+        page = entry["page"]
+        src  = read_file(page) or ""
+        if not src:
+            unanchored.append({
+                "page":     page,
+                "panel_id": entry["panel_id"],
+                "reason":   f"Page file not found: {page}",
+            })
+            continue
+        # 1. The panel container must exist.
+        if f'id="{entry["panel_id"]}"' not in src:
+            unanchored.append({
+                "page":     page,
+                "panel_id": entry["panel_id"],
+                "reason":   f"Panel container `#{entry['panel_id']}` not found in {page}.",
+            })
+            continue
+        # 2. The chip target slot must exist.
+        if f'id="{entry["chip_target_id"]}"' not in src:
+            unanchored.append({
+                "page":     page,
+                "panel_id": entry["panel_id"],
+                "reason":   (
+                    f"Source-chip slot `#{entry['chip_target_id']}` not found in "
+                    f"{page}. Add a `<p id=\"{entry['chip_target_id']}\">` inside "
+                    f"the panel and call renderSourceChip() in the populator."
+                ),
+            })
+            continue
+        # 3. The required chip tokens must appear inside the populator
+        #    function (where renderSourceChip is called) or in the HTML
+        #    if the chip is rendered inline. When populator is None the
+        #    whole page source is searched (for chips wired in anonymous
+        #    DOMContentLoaded blocks with no extractable function name).
+        populator = entry.get("populator")
+        haystack  = src
+        if populator is not None:
+            body = _extract_fn_body(src, populator)
+            if not body:
+                unanchored.append({
+                    "page":      page,
+                    "panel_id":  entry["panel_id"],
+                    "populator": populator,
+                    "reason":    f"Populator function `{populator}` not found in {page}.",
+                })
+                continue
+            haystack = body
+        # 4. renderSourceChip must actually be called.
+        if "renderSourceChip" not in haystack:
+            unanchored.append({
+                "page":      page,
+                "panel_id":  entry["panel_id"],
+                "populator": populator,
+                "reason":    (
+                    f"`{populator or '(page-wide search of ' + page + ')'}` does not call renderSourceChip(). The "
+                    f"panel container exists and the chip slot exists, but nothing "
+                    f"populates the slot — supervisors see derived output with no "
+                    f"trace to its fuel or rules."
+                ),
+            })
+            continue
+        # 5. Every required token must appear in the populator/HTML.
+        missing = [t for t in entry["required_chip_tokens"] if t not in haystack]
+        if missing:
+            unanchored.append({
+                "page":      page,
+                "panel_id":  entry["panel_id"],
+                "populator": populator,
+                "missing":   missing,
+                "reason":    (
+                    f"Panel `#{entry['panel_id']}` chip on {page} is missing "
+                    f"required anchor token(s): {missing}. The supervisor cannot "
+                    f"trace rendered cards back to the fuel + rules that "
+                    f"produced them. Add the missing tokens to the renderSourceChip "
+                    f"call inside `{populator}` (notes/source/freshness fields)."
+                ),
+            })
+    return {
+        "layer":         "insight_panel",
+        "label":         "L11 Insight panel: every registered panel renders an anchor chip",
+        "n_contracts":   len(INSIGHT_PANEL_CONTRACT),
+        "n_unanchored":  len(unanchored),
+        "n_registered":  sum(len(e["required_chip_tokens"]) for e in INSIGHT_PANEL_CONTRACT),
+        "unanchored":    unanchored,
+    }
+
+
+def check_header_strip_contract() -> dict:
+    """L10 — every fuel declared in a page's source chip is referenced
+    by the page's Plain-Read renderer function. Catches "anchored but
+    not rolled up" — the verdict/card sibling of the L9 bug class."""
+    unanchored: list[dict] = []
+    for entry in HEADER_STRIP_CONTRACT:
+        page    = entry["page"]
+        rfn     = entry["renderer"]
+        fuels   = entry["fuels"]
+        alts    = entry.get("alts", {})
+        src     = read_file(page) or ""
+        if not src:
+            unanchored.append({
+                "page":     page,
+                "renderer": rfn,
+                "reason":   f"Page file not found: {page}",
+            })
+            continue
+        body = _extract_fn_body(src, rfn)
+        if not body:
+            unanchored.append({
+                "page":     page,
+                "renderer": rfn,
+                "reason":   f"Renderer function `{rfn}` not found in {page}",
+            })
+            continue
+        missing: list[str] = []
+        for fuel in fuels:
+            if fuel in body:
+                continue
+            # Alt names (derived state) — accept any one of them.
+            alt_list = alts.get(fuel, [])
+            if any(a in body for a in alt_list):
+                continue
+            missing.append(fuel)
+        if missing:
+            unanchored.append({
+                "page":     page,
+                "renderer": rfn,
+                "missing":  missing,
+                "reason":   (
+                    f"`{page}` source chip declares fuel(s) {missing} but "
+                    f"renderer `{rfn}()` does not reference them (directly or "
+                    f"via a registered alt). The verdict and Plain-Read cards "
+                    f"will silently ignore those fuels — same bug class as "
+                    f"L9 but on the render side. Either roll the fuel into "
+                    f"the renderer, drop it from the source chip, or "
+                    f"register an alt in HEADER_STRIP_CONTRACT['alts']."
+                ),
+            })
+    return {
+        "layer":         "header_strip",
+        "label":         "L10 Header-strip: every source-chip fuel referenced by Plain-Read renderer",
+        "n_contracts":   len(HEADER_STRIP_CONTRACT),
+        "n_unanchored":  len(unanchored),
+        "n_registered":  sum(len(e["fuels"]) for e in HEADER_STRIP_CONTRACT),
+        "unanchored":    unanchored,
+    }
+
+
 def check_seed_render_contract() -> dict:
     """L9 — every KPI render path's required inputs are actually written
     by the named seeder file. Catches the bug class where the calc and
@@ -977,6 +1451,8 @@ CHECK_NAMES = [
     "dashboard_anchor",
     "capture_anchor",
     "seed_render_anchor",
+    "header_strip_anchor",
+    "insight_panel_anchor",
 ]
 
 CHECK_LABELS = {
@@ -988,7 +1464,9 @@ CHECK_LABELS = {
     "standard_anchor":  "L6  Tier D standard: canonical_standards registry",
     "dashboard_anchor": "L7  Dashboard: canonical-consuming pages render a source chip",
     "capture_anchor":   "L8  Capture: every input surface anchored to canonical_capture_contracts",
-    "seed_render_anchor": "L9  Seed-Render: every KPI's required inputs are seeded",
+    "seed_render_anchor":   "L9  Seed-Render: every KPI's required inputs are seeded",
+    "header_strip_anchor":  "L10 Header-strip: every source-chip fuel rolled up by Plain-Read renderer",
+    "insight_panel_anchor": "L11 Insight panel: every registered panel renders an anchor chip",
 }
 
 
@@ -997,7 +1475,7 @@ def main():
 
     def bold(s): return f"\033[1m{s}\033[0m"
 
-    print(bold("\nCanonical Anchor Gate (8-layer forward-anchor audit)"))
+    print(bold("\nCanonical Anchor Gate (11-layer forward-anchor audit)"))
     print("=" * 60)
 
     layers = [
@@ -1010,6 +1488,8 @@ def main():
         check_dashboard_anchor(),
         check_capture_anchor(),
         check_seed_render_contract(),
+        check_header_strip_contract(),
+        check_insight_panel_contract(),
     ]
 
     baseline = load_baseline()
@@ -1029,6 +1509,8 @@ def main():
             "standard_anchor" if layer_key == "tier_d_standard" else
             "capture_anchor" if layer_key == "capture" else
             "seed_render_anchor" if layer_key == "seed_render" else
+            "header_strip_anchor" if layer_key == "header_strip" else
+            "insight_panel_anchor" if layer_key == "insight_panel" else
             "dashboard_anchor"
         )
         if L.get("status") == "registry_missing":

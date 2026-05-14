@@ -6,9 +6,10 @@
 // defect draft, voice action route, analytics narration, etc.) calls
 // window.speakPersona(text) to play the audio.
 //
-// Path: Azure Neural TTS primary -> browser SpeechSynthesis fallback.
-// Caching is server-side (tts-speak edge fn + Supabase Storage), so the
-// frontend just hands over the text and gets back an MP3 URL.
+// Production path: Browser SpeechSynthesis (free, no keys).
+// Local dev path (optional): Edge-TTS via python-api if WH_TTS_EDGE_URL is set
+// (set it to http://localhost:8000 when running uvicorn locally for better
+// quality TTS while iterating on companion behavior).
 //
 // See: WORKHIVE_PERSONA_CONTRACT.md, supabase/functions/tts-speak/
 (function () {
@@ -17,13 +18,17 @@
   const PERSONA_STORAGE_KEY = 'wh_voice_journal_persona';
   const TTS_STORAGE_KEY     = 'wh_voice_journal_tts';
 
-  // Edge-TTS via python-api. Same Microsoft Neural voices the Video
-  // Marketing app uses (en-PH-JamesNeural, en-PH-RosaNeural) — sounds
-  // far more natural than Azure Speech's en-PH catalog and is FREE
-  // (no auth, no quota). Falls back to Azure if python-api is offline,
-  // then to the browser SpeechSynthesis if both miss.
+  // Edge-TTS via python-api (optional, local dev only).
+  // Set window.WH_TTS_EDGE_URL = 'http://localhost:8000' when running
+  // uvicorn locally to get higher-quality TTS during iteration. If not set
+  // or if Edge-TTS is offline, falls back to browser SpeechSynthesis.
+  // Production uses browser TTS only (no external keys needed).
   function getEdgeTtsBase() {
-    return (window.WH_TTS_EDGE_URL || 'http://localhost:8000').replace(/\/+$/, '');
+    // Only use Edge-TTS if explicitly configured (local dev mode).
+    // In production, WH_TTS_EDGE_URL is undefined and we skip to browser.
+    const explicit = window.WH_TTS_EDGE_URL;
+    if (!explicit) return null;
+    return explicit.replace(/\/+$/, '');
   }
 
   // Reused audio element so a new play cancels the previous, mirroring
@@ -63,11 +68,11 @@
     }
   }
 
-  // Primary path: Edge-TTS via python-api. Returns true on success,
-  // false on any failure so the caller can chain to Azure.
+  // Optional local dev path: Edge-TTS via python-api (only if WH_TTS_EDGE_URL is set).
+  // Returns true on success, false if not configured or on any failure.
   async function speakEdge(text, persona) {
     const base = getEdgeTtsBase();
-    if (!base) return false;
+    if (!base) return false;  // Not in dev mode, skip to browser
     try {
       const fetcher = (typeof window.fetchWithTimeout === 'function')
         ? window.fetchWithTimeout
@@ -177,9 +182,8 @@
 
   /**
    * Play `text` in the worker's persona voice.
-   * Returns a promise that resolves to true on Azure success, false on
-   * fallback (browser TTS or silence). Non-blocking — callers don't
-   * usually need to await it.
+   * Production: browser SpeechSynthesis with gender-biased voice selection.
+   * Local dev: optional Edge-TTS via python-api if WH_TTS_EDGE_URL is set.
    *
    * Respects the global TTS toggle (wh_voice_journal_tts). If TTS is
    * off, returns false immediately without playing anything.
@@ -187,11 +191,14 @@
   async function speakPersona(text, opts) {
     if (!text || !isTtsOn()) return false;
     const persona = (opts && opts.persona) || getPersona();
-    // Tier 1: Edge-TTS via python-api (free, natural — matches Video
-    // Marketing). Tier 2: Azure Neural via tts-speak edge function
-    // (cloud fallback). Tier 3: browser SpeechSynthesis with gender bias.
-    if (await speakEdge(text, persona))  return true;
-    if (await speakAzure(text, persona)) return true;
+
+    // Local dev mode: if WH_TTS_EDGE_URL is set, try Edge-TTS first (better quality).
+    if (window.WH_TTS_EDGE_URL && await speakEdge(text, persona)) {
+      return true;
+    }
+
+    // Production mode: browser SpeechSynthesis with gender bias.
+    // Always available, free, no external keys required.
     speakBrowser(text, persona);
     return false;
   }

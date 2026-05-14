@@ -35,6 +35,7 @@ supabase/.branches/
 # Edge function secrets — never commit
 .env
 .env.local
+.env.azure
 supabase/functions/.env
 supabase/.env.local
 

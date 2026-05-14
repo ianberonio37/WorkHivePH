@@ -244,6 +244,7 @@
         <div>
           <h1 class="text-2xl sm:text-3xl font-black tracking-tight">Inventory Monitor</h1>
           <p class="text-sm text-white/45 mt-1">Track spare parts stock, link parts to assets, and know before you run out.</p>
+          <p id="inventory-source-chip" style="margin-top:3px;"></p>
         </div>
         <div class="flex items-center gap-2 flex-wrap">
           <span class="stat-pill"><span id="stat-total" class="text-orange-wh font-bold">0</span> <span class="text-white/40">parts</span></span>
@@ -1538,6 +1539,18 @@ document.getElementById('filter-status').addEventListener('change',   () => { _i
 // DATA INIT: migrate from localStorage then load from Supabase
 // ────────────────────────────────────────────
 async function initData() {
+  const _invChip = document.getElementById('inventory-source-chip');
+  if (_invChip && typeof renderSourceChip === 'function') {
+    _invChip.innerHTML = renderSourceChip({
+      freshness: 'Live · refreshed on load',
+      source:    'inventory_items + inventory_transactions',
+      notes:     [
+        'Low stock: qty_on_hand <= min_qty',
+        'Out of stock: qty_on_hand <= 0',
+        'Approval gate: status = approved (hive-scoped)',
+      ],
+    });
+  }
   const lsItems  = JSON.parse(localStorage.getItem(INV_KEY)    || '[]');
   const lsTxns   = JSON.parse(localStorage.getItem(TXN_KEY)    || '[]');
   const lsAssets = JSON.parse(localStorage.getItem(ASSETS_KEY) || '[]');

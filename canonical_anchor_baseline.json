@@ -9,7 +9,19 @@
     "standard_anchor": [],
     "dashboard_anchor": [],
     "capture_anchor": [],
-    "seed_render_anchor": []
+    "seed_render_anchor": [],
+    "header_strip_anchor": [
+      {
+        "page": "hive.html",
+        "renderer": "loadSupervisorSummary",
+        "missing": [
+          "v_logbook_truth",
+          "v_inventory_items_truth"
+        ],
+        "reason": "`hive.html` source chip declares fuel(s) ['v_logbook_truth', 'v_inventory_items_truth'] but renderer `loadSupervisorSummary()` does not reference them (directly or via a registered alt). The verdict and Plain-Read cards will silently ignore those fuels \u2014 same bug class as L9 but on the render side. Either roll the fuel into the renderer, drop it from the source chip, or register an alt in HEADER_STRIP_CONTRACT['alts']."
+      }
+    ],
+    "insight_panel_anchor": []
   },
   "engine_anchor": 0,
   "tier_a_anchor": 0,
@@ -18,5 +30,7 @@
   "standard_anchor": 0,
   "dashboard_anchor": 0,
   "capture_anchor": 0,
-  "seed_render_anchor": 0
+  "seed_render_anchor": 0,
+  "header_strip_anchor": 1,
+  "insight_panel_anchor": 0
 }

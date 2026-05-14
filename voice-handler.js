@@ -562,17 +562,18 @@
         _setStatus('Review and confirm.');
       } else {
         // CONVERSATIONAL PATH — query.ask / unknown / unhandled-structured.
-        // If the router classified a structured intent that THIS PAGE
-        // can't dispatch (e.g. "log 30 mins downtime" on index.html),
-        // pass the intent kind to _converseInline so the model can give
-        // an accurate routing tip ("open the Logbook page") instead of
-        // hallucinating UI like "click the asset card's Log Downtime
-        // button" (no such thing).
+        // Pass full router output so _converseInline can use router's intent
+        // classification instead of re-parsing with duplicate regex classifier.
         document.getElementById('wh-voice-intents').innerHTML = '';
         if (confirmBtn) confirmBtn.style.display = 'none';
         const unhandledKind = structured.length && !handlableHere
           ? structured[0].kind : null;
-        await _converseInline(transcript, { unhandledKind });
+        await _converseInline(transcript, {
+          routerIntents: routerData.intents,
+          routerNarration: routerData.narration,
+          assetResolution: routerData.asset_resolution,
+          unhandledKind,
+        });
       }
     } catch (err) {
       console.error('[WHVoice]', err);
@@ -824,7 +825,265 @@
     }).filter(Boolean).join('\n---\n');
   }
 
-  function _buildVoiceSystemPrompt(persona, workerName, hiveName, pageLabel, routingHint, memoryBlock, canonicalData) {
+  // Phase 1: Semantic Router — classify whether question needs platform data, semantic depth, or simple reply
+  async function _classifySemanticRoute(transcript, routerIntents) {
+    try {
+      const fetcher = (typeof window.fetchWithTimeout === 'function')
+        ? window.fetchWithTimeout
+        : (u, o) => fetch(u, o);
+
+      const systemMsg = 'You are a lightweight intent router for an industrial maintenance voice assistant. Output ONLY a JSON object with fields: "route" ("platform"|"semantic"|"simple"), "confidence" (0.0-1.0), "reasoning" (string). Platform: real-time KPI status queries. Semantic: analysis/patterns/why questions. Simple: greetings or no-data-needed.';
+      const resp = await fetcher(WH_ASSISTANT_WORKER_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: 'meta-llama/llama-4-scout-17b-16e-instruct',
+          max_tokens: 80,
+          messages: [
+            { role: 'system', content: systemMsg },
+            { role: 'user', content: transcript },
+          ],
+        }),
+      }, 5000);
+
+      if (resp && resp.ok) {
+        const data = await resp.json();
+        const answer = (data && data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content) || '';
+        try {
+          const parsed = JSON.parse(answer);
+          if (parsed.route && (parsed.route === 'platform' || parsed.route === 'semantic' || parsed.route === 'simple')) {
+            return parsed;
+          }
+        } catch (_) {}
+      }
+    } catch (_) {}
+    // Fallback heuristic if LLM call fails
+    return _heuristicRoute(transcript);
+  }
+
+  // Heuristic fallback for semantic router (keywords-based)
+  function _heuristicRoute(transcript) {
+    const t = String(transcript || '').toLowerCase();
+    if (/(how many|count|overdue|down|running|risk|alert|stock|status|equipment)/.test(t)) {
+      return { route: 'platform', confidence: 0.7, reasoning: 'Platform keywords detected' };
+    } else if (/(why|how can|prevent|improve|trend|pattern|analysis|cause)/.test(t)) {
+      return { route: 'semantic', confidence: 0.7, reasoning: 'Analysis keywords detected' };
+    } else if (/(thanks|thank|hi|hello|bye)/.test(t)) {
+      return { route: 'simple', confidence: 0.8, reasoning: 'Greeting or closing' };
+    } else {
+      return { route: 'semantic', confidence: 0.5, reasoning: 'Ambiguous; defaulting to semantic' };
+    }
+  }
+
+  // Phase 1: Platform Scraper Agent — fetch real-time KPI data for status queries
+  async function _invokePlatformScraper(db, hiveId, workerName) {
+    if (!hiveId) return '';
+    try {
+      // Call platform-scraper edge function for KPI aggregation
+      const fetcher = (typeof window.fetchWithTimeout === 'function')
+        ? window.fetchWithTimeout
+        : (u, o) => fetch(u, o);
+
+      const resp = await fetcher(SUPABASE_URL + '/functions/v1/platform-scraper', {
+        method: 'POST',
+        headers: {
+          'Authorization': 'Bearer ' + SUPABASE_KEY,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          hive_id: hiveId,
+          worker_name: workerName,
+        }),
+      }, 5000);
+
+      if (resp && resp.ok) {
+        const data = await resp.json();
+        return data.summary || '';
+      }
+    } catch (err) {
+      console.warn('[WHVoice] platform scraper edge function failed (non-fatal):', err && err.message);
+    }
+
+    // Fallback: direct DB queries if edge function unavailable
+    try {
+      if (!db) return '';
+      const [eqStatus, riskAssets, pmStatus, invAlerts, adoptionMetrics] = await Promise.all([
+        _fetchEquipmentStatus(db, hiveId),
+        _fetchRiskAssets(db, hiveId, 2),
+        _fetchPMStatus(db, hiveId),
+        _fetchInventoryAlerts(db, hiveId),
+        _fetchAdoptionMetrics(db, hiveId),
+      ]);
+
+      const parts = [];
+      if (eqStatus) parts.push(eqStatus);
+      if (riskAssets) parts.push('At-risk assets: ' + riskAssets);
+      if (pmStatus) parts.push(pmStatus);
+      if (invAlerts) parts.push('Inventory: ' + invAlerts);
+      if (adoptionMetrics) parts.push(adoptionMetrics);
+
+      return parts.length ? parts.join(' ') : '';
+    } catch (err2) {
+      console.warn('[WHVoice] platform scraper fallback failed:', err2 && err2.message);
+      return '';
+    }
+  }
+
+  // Helper: fetch equipment status from v_asset_truth (running / idle / maintenance / down)
+  async function _fetchEquipmentStatus(db, hiveId) {
+    try {
+      const { data, error } = await db.from('v_asset_truth')
+        .select('state, COUNT(*)')
+        .eq('hive_id', hiveId)
+        .not('state', 'is', null)
+        .group_by('state')
+        .execute();
+      if (error || !data) return '';
+      const parts = data.map(r => r.count + ' ' + (r.state || 'unknown')).filter(Boolean);
+      return parts.length ? 'Equipment: ' + parts.join(', ') + '.' : '';
+    } catch (_) { return ''; }
+  }
+
+  // Helper: fetch top N assets by risk score
+  async function _fetchRiskAssets(db, hiveId, limit) {
+    try {
+      const { data, error } = await db.from('v_risk_truth')
+        .select('asset_name, risk_level')
+        .eq('hive_id', hiveId)
+        .order('risk_score', { ascending: false })
+        .limit(limit);
+      if (error || !data || !data.length) return '';
+      return data.map(r => r.asset_name + ' (' + r.risk_level + ')').join(', ');
+    } catch (_) { return ''; }
+  }
+
+  // Helper: fetch PM status (due this week / overdue)
+  async function _fetchPMStatus(db, hiveId) {
+    try {
+      const today = new Date().toISOString().slice(0, 10);
+      const weekEnd = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
+      const dueSoon = await db.from('v_pm_truth').select('COUNT').eq('hive_id', hiveId).eq('status', 'due').gte('next_due_date', today).lt('next_due_date', weekEnd).execute();
+      const overdue = await db.from('v_pm_truth').select('COUNT').eq('hive_id', hiveId).eq('status', 'overdue').execute();
+      const due = (dueSoon.data && dueSoon.data[0] && dueSoon.data[0].count) || 0;
+      const overdueCount = (overdue.data && overdue.data[0] && overdue.data[0].count) || 0;
+      if (due + overdueCount === 0) return '';
+      return 'PMs: ' + due + ' due this week' + (overdueCount ? ', ' + overdueCount + ' overdue' : '') + '.';
+    } catch (_) { return ''; }
+  }
+
+  // Helper: fetch inventory alerts (low stock / out of stock)
+  async function _fetchInventoryAlerts(db, hiveId) {
+    try {
+      const low = await db.from('v_inventory_truth').select('COUNT').eq('hive_id', hiveId).eq('stock_level', 'low').execute();
+      const out = await db.from('v_inventory_truth').select('COUNT').eq('hive_id', hiveId).eq('stock_level', 'out').execute();
+      const lowCount = (low.data && low.data[0] && low.data[0].count) || 0;
+      const outCount = (out.data && out.data[0] && out.data[0].count) || 0;
+      if (lowCount + outCount === 0) return '';
+      return (lowCount ? lowCount + ' low' : '') + (outCount ? (lowCount ? ' + ' : '') + outCount + ' out of stock' : '');
+    } catch (_) { return ''; }
+  }
+
+  // Helper: fetch adoption metrics (active workers, adoption score)
+  async function _fetchAdoptionMetrics(db, hiveId) {
+    try {
+      const { data, error } = await db.from('v_adoption_truth').select('active_workers_week, adoption_score').eq('hive_id', hiveId).single().execute();
+      if (error || !data) return '';
+      const workers = data.active_workers_week || 0;
+      if (workers === 0) return '';
+      return 'Active workers: ' + workers + '.';
+    } catch (_) { return ''; }
+  }
+
+  // Phase 1: RAG Agent — fetch semantic context from voice journal (Phase 1.5: optional semantic search)
+  async function _invokeRAGAgent(db, workerName, firstIntent, transcript) {
+    if (!db || !workerName) return '';
+    try {
+      const ctx = _ctx();
+      const auth_uid = ctx && ctx.user && ctx.user.id;
+      if (!auth_uid) return ''; // Anon users have no voice journal
+
+      // Phase 1.5: Try semantic search via edge function (falls back to recency)
+      const fetcher = (typeof window.fetchWithTimeout === 'function')
+        ? window.fetchWithTimeout
+        : (u, o) => fetch(u, o);
+
+      const ragResp = await fetcher(SUPABASE_URL + '/functions/v1/voice-semantic-rag', {
+        method: 'POST',
+        headers: {
+          'Authorization': 'Bearer ' + SUPABASE_KEY,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          auth_uid,
+          query_text: transcript,
+          limit: 5,
+        }),
+      }, 5000);
+
+      if (ragResp && ragResp.ok) {
+        const ragData = await ragResp.json();
+        const results = ragData.results || [];
+        const method = ragData.method || 'fallback';
+
+        if (!results.length) return '';
+
+        // Format turns for semantic context: older turns first
+        const turns = results.map((row, idx) => {
+          const ts = new Date(row.created_at).toLocaleTimeString();
+          const sim = row.similarity ? ' (match: ' + Math.round(row.similarity * 100) + '%)' : '';
+          return 'At ' + ts + sim + ':\nYou: ' + String(row.transcript || '').slice(0, 100) + '\nAssistant: ' + String(row.reply || '').slice(0, 100);
+        });
+
+        const methodLabel = method === 'semantic' ? ' (semantic match)' : ' (recent entries)';
+        return turns.length ? 'Your voice history' + methodLabel + ':\n' + turns.join('\n---\n') : '';
+      }
+    } catch (err) {
+      console.warn('[WHVoice] RAG agent failed (non-fatal):', err && err.message);
+    }
+
+    // Fallback: fetch recent turns directly from DB (Phase 1 style)
+    try {
+      const since = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+      const { data, error } = await db.from('voice_journal_entries')
+        .select('transcript, reply, created_at')
+        .eq('worker_name', workerName)
+        .gt('created_at', since)
+        .order('created_at', { ascending: false })
+        .limit(5)
+        .execute();
+
+      if (error || !data || !data.length) return '';
+
+      const turns = data.reverse().map(row => {
+        const ts = new Date(row.created_at).toLocaleTimeString();
+        return 'At ' + ts + ':\nYou: ' + String(row.transcript || '').slice(0, 100) + '\nAssistant: ' + String(row.reply || '').slice(0, 100);
+      });
+
+      return turns.length ? 'Recent context from your voice history:\n' + turns.join('\n---\n') : '';
+    } catch (_) {
+      return '';
+    }
+  }
+
+  // Phase 3: Error Recovery — generate intelligent fallback reply when AI is offline
+  function _generateFallbackReply(transcript, routerIntents, persona) {
+    const intent = routerIntents && routerIntents[0];
+    const kind = intent && intent.kind;
+    const personaName = persona === 'rosa' ? 'Rosa' : 'James';
+
+    // Match against known intent patterns for better fallback text
+    if (kind === 'mtbf' || kind === 'mttr' || kind === 'downtime' || kind === 'risk_top' || kind === 'failures_count') {
+      return 'I\'m offline right now, but check Analytics for the exact ' + (kind === 'mtbf' ? 'MTBF' : kind === 'mttr' ? 'MTTR' : 'numbers') + ' you need. Your voice transcript is saved.';
+    } else if (kind === 'logbook.create' || kind === 'inventory.use' || kind === 'pm.complete') {
+      return 'I can\'t connect right now, but your question is saved. Open ' + (kind === 'logbook.create' ? 'Logbook' : kind === 'inventory.use' ? 'Inventory' : 'PM Scheduler') + ' to continue.';
+    } else if (kind === 'asset.lookup') {
+      return 'I\'m offline right now. Open Asset Hub to find the details you need. Your transcript is saved.';
+    } else {
+      return 'Sorry, I\'m offline. Your question is saved and I\'ll be back soon.';
+    }
+  }
+
+  function _buildVoiceSystemPrompt(persona, workerName, hiveName, pageLabel, routingHint, memoryBlock, canonicalData, routerContext, platformData, ragContext) {
     const personaBlock = (typeof window.getCompanionBlock === 'function')
       ? window.getCompanionBlock() : '';
     // Internal-only grounding. These facts help the model pick the right
@@ -836,6 +1095,12 @@
     if (hiveName)   ident.push("Their hive: " + hiveName + ".");
     if (pageLabel)  ident.push("Internal context (DO NOT mention by name in your reply): the worker is on the " + pageLabel + " page.");
     const identBlock = ident.length ? ('\n' + ident.join(' ') + '\n') : '';
+    // Router pre-classification. The voice-action-router already ran intent
+    // classification (Groq LLM, high confidence). This context tells the model
+    // what was already classified so it doesn't re-parse from scratch.
+    const routerBlock = routerContext
+      ? '\nROUTER PRE-CLASSIFIED: ' + routerContext + ' — use this context in your reply. If the worker is asking about a data point, that classification tells you they want numbers, not emotional support.\n'
+      : '';
     // When the worker spoke a command we can't dispatch from this page,
     // inject the canonical routing tip so the model gives accurate
     // guidance instead of inventing UI ("click the asset card's Log
@@ -864,15 +1129,28 @@
         '═══════════════════════════════════════════════════════════════════\n'
       : '';
 
+    // Phase 1: Platform data (real-time KPI snapshots for status queries)
+    const platformSection = platformData
+      ? '\nPLATFORM DATA — Real-time status snapshot:\n' + platformData + '\n'
+      : '';
+
+    // Phase 1: RAG context (semantic depth for analysis questions)
+    const ragSection = ragContext
+      ? '\nSEMANTIC CONTEXT — Historical patterns & analysis:\n' + ragContext + '\n'
+      : '';
+
     return personaBlock + '\n\n' +
       'You are answering a worker over voice. They will HEAR your reply, so:\n' +
       '- Keep it 2-3 short sentences. Long answers are tiring spoken aloud.\n' +
       '- If they asked a maintenance / work question, ANSWER IT directly with practical maintenance knowledge. If you don\'t have the data they\'re asking about (e.g. their specific PM schedule, their hive\'s OEE), say so plainly and point them to the right WorkHive tool: PM Scheduler for due tasks, Alert Hub for risk + low stock, Asset Hub for asset history, Analytics for MTBF/OEE.\n' +
       '- If they shared a feeling or vented, react first ("naks, mahirap yan" / "hala ka"), THEN one practical line.\n' +
       identBlock +
+      routerBlock +
       routingBlock +
       memorySection +
       canonicalSection +
+      platformSection +
+      ragSection +
       '\nIf the worker mixes Filipino / Cebuano / Tagalog in, that\'s fine — understand it, reply in English.\n\n' +
       '═══════════════════════════════════════════════════════════════════\n' +
       'HARD RULES — read these last; they override everything above.\n' +
@@ -933,25 +1211,43 @@
     })();
     const pageLabel = _currentPage();
     const unhandledKind = opts && opts.unhandledKind;
+    const routerIntents = opts && opts.routerIntents;
+    const routerNarration = opts && opts.routerNarration;
     const routingHint = unhandledKind ? UNHANDLED_INTENT_GUIDANCE[unhandledKind] : null;
+    const routerContext = routerIntents && routerIntents.length
+      ? `Router classified: ${routerIntents[0].kind} (${Math.round((routerIntents[0].confidence || 0) * 100)}%)`
+      : '';
 
     _setStatus(personaName + ' is thinking…');
     _setRecRowVisible(false);
     _renderReplyBubble(null, persona);
 
-    // Fetch recent turns BEFORE building the prompt so the model has the
-    // continuity context. Non-blocking on failure — empty memory falls
-    // through to a no-history reply.
-    // Canonical-data classifier runs in parallel: if the transcript is a
-    // MTBF / MTTR / downtime / risk question we fetch the actual figure
-    // from v_*_truth and inject it as DATA so Rosa/James can paraphrase
-    // the real number instead of falling back to "check Analytics".
-    const dataIntent = _classifyDataIntent(transcript);
-    const [memoryBlock, canonicalData] = await Promise.all([
+    // Phase 1: Semantic Router + Multi-Agent Orchestration
+    // Classify whether the question needs platform data, semantic depth, or simple reply.
+    // This is a lightweight classifier (20 tokens via Groq Scout) that runs in parallel
+    // with memory/canonical-data fetches.
+    const firstIntent = routerIntents && routerIntents[0];
+    const dataIntentKind = firstIntent && ['mtbf', 'mttr', 'downtime', 'risk_top', 'failures_count'].includes(firstIntent.kind)
+      ? firstIntent.kind : null;
+
+    // Orchestrate agents in parallel: semantic router classification + memory/canonical fetch
+    const [routeDecision, memoryBlock, canonicalData] = await Promise.all([
+      _classifySemanticRoute(transcript, routerIntents),
       _fetchRecentMemory(db, ctx.worker_name),
-      dataIntent ? _fetchCanonicalData(db, ctx.hive_id, dataIntent) : Promise.resolve(''),
+      dataIntentKind ? _fetchCanonicalData(db, ctx.hive_id, { kind: dataIntentKind, window_days: 30 }) : Promise.resolve(''),
     ]);
-    const system = _buildVoiceSystemPrompt(persona, ctx.worker_name, hiveName, pageLabel, routingHint, memoryBlock, canonicalData);
+
+    // Based on route decision, optionally invoke platform scraper or RAG agent
+    let platformData = '';
+    let ragContext = '';
+    if (routeDecision.route === 'platform') {
+      platformData = await _invokePlatformScraper(db, ctx.hive_id, ctx.worker_name).catch(() => '');
+    } else if (routeDecision.route === 'semantic') {
+      ragContext = await _invokeRAGAgent(db, ctx.worker_name, firstIntent, transcript).catch(() => '');
+    }
+    // route === 'simple' uses memory context only (no extra agents)
+
+    const system = _buildVoiceSystemPrompt(persona, ctx.worker_name, hiveName, pageLabel, routingHint, memoryBlock, canonicalData, routerContext, platformData, ragContext);
     const messages = [
       { role: 'system', content: system },
       { role: 'user',   content: transcript },
@@ -994,11 +1290,19 @@
       _showTalkAgainButton();
     } catch (err) {
       console.warn('[WHVoice] conversational call failed:', err);
-      _setStatus('Could not reach ' + personaName + '. Tap to try again.');
-      _renderReplyBubble('Sorry, the chat is offline right now. Your transcript above is still saved as a journal entry.', persona);
+
+      // Phase 3: Error recovery with graceful fallback
+      const fallbackReply = _generateFallbackReply(transcript, routerIntents, persona);
+      _setStatus(personaName + ' (offline):');
+      _renderReplyBubble(fallbackReply, persona);
+      if (typeof window.speakPersona === 'function') {
+        window.speakPersona(fallbackReply, { persona });
+      }
+      // Session-memory turn (capture both success and fallback responses).
+      _appendSessionTurn(transcript, fallbackReply);
       // Best-effort save even on failure — capture the transcript so it
       // doesn't get lost.
-      _saveJournalTurn(db, ctx, transcript, '', persona);
+      _saveJournalTurn(db, ctx, transcript, fallbackReply, persona);
       _showTalkAgainButton();
     }
   }

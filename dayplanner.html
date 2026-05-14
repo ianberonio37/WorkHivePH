@@ -287,6 +287,9 @@
       </button>
     </div>
 
+    <!-- Source chip — anchors the day planner verdict + cards to the
+         canonical views they read. Populated by loadBoard(). -->
+    <p id="dayplanner-source-chip" style="margin:0 0 8px;"></p>
     <!-- Plain-Read summary (Layer D — UX Contract).
          Populated by renderDayplannerSummary() from scheduleItems. -->
     <div id="dp-verdict" class="verdict empty">
@@ -1496,6 +1499,17 @@ document.addEventListener('keydown', e => {
     // session promise was still pending. See PRODUCTION_FIXES.md #37.
     try { const { data: { session } } = await db.auth.getSession(); _authUid = session?.user?.id || null; } catch (_) {}
     if (!_authUid) { window.location.href = 'index.html?signin=1'; return; }
+    const _dpChip = document.getElementById('dayplanner-source-chip');
+    if (_dpChip && typeof renderSourceChip === 'function') {
+      _dpChip.innerHTML = renderSourceChip({
+        freshness: 'Live · refreshed on each view switch',
+        source:    'schedule_items + v_logbook_truth',
+        notes:     [
+          'Schedule: DILO / WILO / MILO / YILO views (day / week / month / year)',
+          'Logbook context: recent job history cross-referenced with schedule',
+        ],
+      });
+    }
     await Promise.all([loadLogbook(), loadSchedule()]);
 
     // Plain-Read details toggle (Layer D — UX Contract)

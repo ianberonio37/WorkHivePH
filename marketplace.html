@@ -538,6 +538,7 @@
   <div class="page-header">
     <h1>Marketplace</h1>
     <p>Parts, training and services for Philippine industrial plants</p>
+    <p id="marketplace-source-chip" style="margin-top:3px;"></p>
   </div>
 
   <!-- Plain-Read summary (Layer D — UX Contract).
@@ -1749,7 +1750,7 @@
   function renderMarketplaceSummary() {
     const total   = _listings.length;
     const mine    = _listings.filter(l => l.seller_name === WORKER_NAME).length;
-    const section = (_currentSection || 'parts');
+    const section = (_section || 'parts');
     const sectionLabel = section.charAt(0).toUpperCase() + section.slice(1);
 
     // Average price for orientation (skip nulls/zeros for sanity)
@@ -2904,6 +2905,18 @@
     // their writes (post/inquire/dispute) would 401 once Phase E flips
     // policies. Redirect them to re-signin. See PRODUCTION_FIXES.md #37.
     if (WORKER_NAME && !_authUid) { window.location.href = 'index.html?signin=1'; return; }
+    const _mkChip = document.getElementById('marketplace-source-chip');
+    if (_mkChip && typeof renderSourceChip === 'function') {
+      _mkChip.innerHTML = renderSourceChip({
+        freshness: 'Live · refreshed on each tab switch',
+        source:    'marketplace_listings + v_marketplace_sellers_truth',
+        notes:     [
+          'Tabs: Parts / Training / Jobs',
+          'KYB-verified sellers only in results by default',
+          'Inquiry flow: secure escrow via marketplace_inquiries',
+        ],
+      });
+    }
 
     /* Section tabs */
     document.querySelectorAll('.section-tab').forEach(btn => {

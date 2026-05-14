@@ -359,6 +359,7 @@
     </a>
     <span class="page-title">Achievements</span>
   </div>
+  <p id="achievements-source-chip" style="margin:0 0 8px;padding:0 1rem;"></p>
 
   <!-- Plain-Read summary (Layer D — UX Contract).
        Populated by renderAchievementsSummary() from _achievements + _xpLog. -->
@@ -905,6 +906,18 @@
 
   // ── Main init ────────────────────────────────────────────────
   async function init() {
+    const _acChip = document.getElementById('achievements-source-chip');
+    if (_acChip && typeof renderSourceChip === 'function') {
+      _acChip.innerHTML = renderSourceChip({
+        freshness: 'Live · refreshed on load',
+        source:    'worker_achievements + achievement_xp_log',
+        notes:     [
+          'XP this week: achievement_xp_log entries within 7-day window',
+          'Total level: sum of current_level across all achievements (max 30)',
+          'Active domains: distinct achievements with current_level >= 1',
+        ],
+      });
+    }
     const [achRes, logRes] = await Promise.all([
       db.from('worker_achievements')
         .select('achievement_id, current_level, xp_total, last_action_at')

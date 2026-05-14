@@ -198,6 +198,7 @@
       <div>
         <div class="page-title">Shift Brain</div>
         <div class="page-sub" id="page-sub">Autonomous shift planner for your hive</div>
+        <p id="shift-source-chip" style="margin-top:3px;"></p>
       </div>
     </div>
 
@@ -667,6 +668,19 @@
       }
       if (!WORKER_NAME) { window.location.href = 'index.html?signin=1'; return; }
       if (!HIVE_ID) { document.getElementById('hive-gate').style.display = 'flex'; return; }
+
+      const _sbChip = document.getElementById('shift-source-chip');
+      if (_sbChip && typeof renderSourceChip === 'function') {
+        _sbChip.innerHTML = renderSourceChip({
+          freshness: 'Live · shift plan generated on load',
+          source:    'shift_plans + v_risk_truth + pm_scope_items',
+          notes:     [
+            'Risk threshold: assets above the hive\'s risk score cutoff',
+            'PM window: scope items due within the 8-hour shift block',
+            'Carry-forward: open items from prior shift that weren\'t closed',
+          ],
+        });
+      }
 
       const ok = await validateHiveMembership();
       if (!ok) { document.getElementById('hive-gate').style.display = 'flex'; return; }

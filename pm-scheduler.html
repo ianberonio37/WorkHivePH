@@ -334,6 +334,7 @@
     <div class="mb-5">
       <h1 class="text-xl font-bold">PM Scheduler</h1>
       <p id="dash-subtitle" class="text-sm text-white/40 mt-0.5">Track all your equipment PM tasks in one place.</p>
+      <p id="pm-source-chip" style="margin-top:3px;"></p>
     </div>
 
     <!-- Plain-Read summary (Layer D — UX Contract).
@@ -1137,6 +1138,18 @@ async function init() {
     document.getElementById('hive-chip-name').textContent = HIVE_NAME;
   }
 
+  const _pmChip = document.getElementById('pm-source-chip');
+  if (_pmChip && typeof renderSourceChip === 'function') {
+    _pmChip.innerHTML = renderSourceChip({
+      freshness: 'Live · refreshed on load',
+      source:    'pm_assets + pm_scope_items + pm_completions',
+      notes:     [
+        'Overdue: last completion > interval days ago',
+        'Compliance = completions / scope in window',
+        'Stair 2 gate: 2 consecutive weeks >= 80% compliance (SMRP)',
+      ],
+    });
+  }
   await loadData();
   renderDashboard();
 
@@ -1280,10 +1293,12 @@ function renderPMSummary(enriched, overdue, duesoon, ontrack) {
     duesoon === 0 ? 'green' : duesoon > 10 ? 'amber' : 'amber'
   );
 
-  // Card 3 — On track (compliance %)
+  // Card 3 — On track (compliance %). Tag forms a Stair-readiness
+  // ladder: STAIR-READY / BUILDING / BELOW STAIR. "LOW" by itself read
+  // as ambiguous (low what?) — walkthrough 2026-05-14.
   const subText = total === 0 ? 'No assets in scope yet'
                 : `${ontrack} of ${total} assets on track · ${compliance}% compliance`;
-  const tag = total === 0 ? 'NO DATA' : compliance >= 80 ? 'STAIR-READY' : compliance >= 60 ? 'BUILDING' : 'LOW';
+  const tag = total === 0 ? 'NO DATA' : compliance >= 80 ? 'STAIR-READY' : compliance >= 60 ? 'BUILDING' : 'BELOW STAIR';
   const tone = total === 0 ? 'grey' : compliance >= 80 ? 'green' : compliance >= 60 ? 'amber' : 'red';
   setCard('ontrack', subText, tag, tone);
 

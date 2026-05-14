@@ -344,6 +344,7 @@
   <header class="page-header">
     <h1>Skill Matrix</h1>
     <p id="header-sub">Track your industrial competency across all disciplines</p>
+    <p id="skillmatrix-source-chip" style="margin-top:3px;"></p>
   </header>
 
   <!-- Onboarding (first-time setup) -->
@@ -582,6 +583,18 @@ async function init() {
   if (!WORKER_NAME) { window.location.href = 'index.html'; return; }
   // Phase B (auth migration): require authenticated session — see PRODUCTION_FIXES.md #37.
   if (!_authUid) { window.location.href = 'index.html?signin=1'; return; }
+  const _smChip = document.getElementById('skillmatrix-source-chip');
+  if (_smChip && typeof renderSourceChip === 'function') {
+    _smChip.innerHTML = renderSourceChip({
+      freshness: 'Live · refreshed on load',
+      source:    'skill_profiles + skill_badges',
+      notes:     [
+        'Disciplines: ' + (typeof DISCIPLINES !== 'undefined' ? DISCIPLINES.join(', ') : 'Mechanical, Electrical, Instrumentation, Facilities Management, Production Lines'),
+        'Level 1-5 per discipline; target configurable per worker',
+        'Primary skill target defaults to 5; others default to 2',
+      ],
+    });
+  }
   // Load profile and badges in parallel
   const [profileRes, badgesRes] = await Promise.all([
     db.from('skill_profiles').select('*').eq('worker_name', WORKER_NAME).maybeSingle(),
@@ -826,7 +839,15 @@ function renderSkillSummary() {
   }).length;
 
   const primaryDisc   = _profile.primary_skill;
-  const primaryGap    = primaryDisc ? Math.max(0, (_profile.targets[primaryDisc] ?? 5) - getActualLevel(primaryDisc)) : 0;
+  // Only treat primary_skill as load-bearing for the gap calc when it's
+  // one of the standard DISCIPLINES the badge system recognises. Free-text
+  // primaries (e.g. "PLC Programming") were producing a phantom red
+  // verdict ("Primary 5 levels behind") that contradicted Card 1 which
+  // counts only DISCIPLINES — walkthrough 2026-05-14.
+  const primaryIsTracked = !!primaryDisc && DISCIPLINES.includes(primaryDisc);
+  const primaryGap    = primaryIsTracked
+                          ? Math.max(0, (_profile.targets[primaryDisc] ?? 5) - getActualLevel(primaryDisc))
+                          : 0;
   const anyBehind     = DISCIPLINES.some(d => getActualLevel(d) < (_profile.targets[d] ?? 2));
 
   const setCard = (name, hero, sub, tag, tone) => {
@@ -867,6 +888,12 @@ function renderSkillSummary() {
   } else if (anyBehind || primaryGap > 0) {
     tone = 'watch'; label = 'Skill matrix is climbing';
     sub  = `${onTarget}/${totalDisc} disciplines on target · ${quizzesAvail} quiz${quizzesAvail === 1 ? '' : 'zes'} available right now.`;
+  } else if (primaryDisc && !primaryIsTracked) {
+    // Primary skill is set but isn't one of the 5 trackable disciplines —
+    // verdict was previously firing red against a phantom gap. Now we
+    // surface the data mismatch instead of a contradiction.
+    tone = 'watch'; label = 'Primary skill not yet trackable';
+    sub  = `Your declared primary "${primaryDisc}" isn't one of the standard disciplines (${DISCIPLINES.join(', ')}). All ${onTarget}/${totalDisc} tracked disciplines are at or above target — set primary to one of those to enable per-skill goal tracking.`;
   } else if (totalBadges === 0) {
     tone = 'empty'; label = 'No badges earned yet';
     sub  = 'Pick the easiest discipline + the easiest level, take the quiz, and the radar chart will start filling in.';

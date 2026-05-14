@@ -368,6 +368,7 @@
       </div>
     </div>
     <div class="sub">Plan, track and close out maintenance projects: work-order bundles, shutdowns, CAPEX, and contractor jobs.</div>
+    <p id="pm-mgr-source-chip" style="margin:4px 0 0;"></p>
 
     <!-- Plain-Read summary (Layer D — UX Contract).
          Populated by renderProjectsSummary() from _projects. -->
@@ -901,6 +902,18 @@ async function validateHiveMembership() {
   if (!isMember) { $('hive-gate').style.display = 'flex'; return; }
 
   $('hive-tag').textContent = HIVE_NAME ? '🐝 ' + HIVE_NAME : '';
+  const _pmMgrChip = document.getElementById('pm-mgr-source-chip');
+  if (_pmMgrChip && typeof renderSourceChip === 'function') {
+    _pmMgrChip.innerHTML = renderSourceChip({
+      freshness: 'Live · refreshed on load + realtime on projects table',
+      source:    'projects + project_items',
+      notes:     [
+        'Status buckets: Active / Planning / On Hold / Complete',
+        'Past end date: active projects where end_date < today',
+        'Completion %: project_items pct_complete, avg per project',
+      ],
+    });
+  }
   loadRecents();
   loadGroupState();
   await loadHiveMembers();

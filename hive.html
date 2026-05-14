@@ -468,6 +468,58 @@
         </div>
       </div>
 
+      <!-- ─────────────────────────────────────────────────────────────────
+           Supervisor Plain-Read Summary (Layer D of UX Contract).
+           Verdict-first — anchors the page for supervisors before any
+           engineering card. Hidden for workers; populated by
+           loadSupervisorSummary() from data already loaded by
+           loadAdoptionCard() + loadMaturityStairway() + loadPMHealth +
+           the Open Work / Low Stock counters.
+           ───────────────────────────────────────────────────────────────── -->
+      <div id="supervisor-summary" class="hidden mb-5">
+        <div id="ss-verdict" class="verdict empty">
+          <span id="ss-verdict-icon" class="verdict-icon">·</span>
+          <div class="verdict-text"><span id="ss-verdict-label">Computing hive health...</span><small id="ss-verdict-sub">Rolling up adoption + PM compliance + open work + low stock.</small></div>
+        </div>
+        <div class="simple-row" id="ss-cards">
+          <div class="simple-card tag-grey" id="ss-card-stair">
+            <div class="sc-label">Maturity stair</div>
+            <div class="sc-hero" id="ss-stair-hero">&#8212;</div>
+            <div class="sc-sub" id="ss-stair-sub">Loading...</div>
+            <span class="sc-tag" id="ss-stair-tag">&#8212;</span>
+          </div>
+          <div class="simple-card tag-grey" id="ss-card-adoption">
+            <div class="sc-label">Adoption health</div>
+            <div class="sc-hero" id="ss-adoption-hero">&#8212;</div>
+            <div class="sc-sub" id="ss-adoption-sub">Loading...</div>
+            <span class="sc-tag" id="ss-adoption-tag">&#8212;</span>
+          </div>
+          <div class="simple-card tag-grey" id="ss-card-issues">
+            <div class="sc-label">Open issues</div>
+            <div class="sc-hero" id="ss-issues-hero">&#8212;</div>
+            <div class="sc-sub" id="ss-issues-sub">Loading...</div>
+            <span class="sc-tag" id="ss-issues-tag">&#8212;</span>
+          </div>
+        </div>
+        <div class="action-card" id="ss-action">
+          <div class="ac-label">What to do next</div>
+          <div class="ac-text" id="ss-action-text">Computing recommendation...</div>
+        </div>
+        <button id="details-toggle-btn" type="button" class="details-toggle" aria-expanded="false" aria-controls="supervisor-summary-details">
+          Show details
+        </button>
+        <div id="supervisor-summary-details" role="region" aria-label="Hive health explainer">
+          <strong style="display:block;margin-bottom:6px;color:rgba(255,255,255,0.85);">How this is computed</strong>
+          <ul style="margin:0;padding-left:20px;">
+            <li><strong>Maturity stair</strong>: latest snapshot from <code>v_maturity_truth</code>. Hive must clear 5 dimension gates per stair (Reliability / Operations / Safety / People / Cost).</li>
+            <li><strong>Adoption health</strong>: <code>compute_adoption_risk</code> RPC. Healthy &lt; 35, At Risk 35-65, Critical &gt; 65.</li>
+            <li><strong>Open issues</strong>: sum of open work orders (<code>v_logbook_truth</code>, status = Open) + PM overdue (<code>v_pm_compliance_truth</code>, 30d) + low stock (<code>v_inventory_items_truth</code>, qty_on_hand &le; reorder_point).</li>
+            <li><strong>Verdict</strong>: red if Adoption is Critical OR &gt; 5 PMs overdue; amber if Adoption is At Risk OR any of (1-5 PMs overdue, &ge;10 open WOs, &ge;1 low-stock item); green when all clear.</li>
+          </ul>
+          <p style="margin-top:8px;color:rgba(255,255,255,0.55);font-size:11px;">Full breakdown (top risk reasons, champion candidate, stair dimensions) is in the Maturity Stairway + Engagement Cards below.</p>
+        </div>
+      </div>
+
       <!-- Stats row -->
       <div class="grid grid-cols-2 gap-3 mb-4">
         <div class="wh-card p-4 text-center">
@@ -502,6 +554,11 @@
           </div>
           <p id="stair-blocker" style="font-size:11.5px; color:rgba(255,255,255,0.65); margin-top:6px; line-height:1.45;">Computing your hive's readiness...</p>
         </div>
+        <!-- Source chip — anchors the readiness composite + dimension
+             scores to v_maturity_truth so supervisors can trace each
+             dimension value back to its canonical fuel. Populated by
+             renderMaturityStairway(). -->
+        <p id="stair-source-chip" style="margin:0 16px 8px;"></p>
         <!-- 5 dimension bars (compact, always visible) -->
         <div id="stair-dims" style="display:grid; grid-template-columns: repeat(5, minmax(0,1fr)); gap:6px; padding:0 16px 12px;">
           <div data-dim="process" class="stair-dim-bar">
@@ -546,6 +603,9 @@
             <span id="kpipe-overall" style="font-size:0.7rem; color:rgba(255,255,255,0.55);">--</span>
           </div>
           <div id="kpipe-rows" style="display:grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap:8px; margin-top:10px;"></div>
+          <!-- Source chip — anchors freshness ratios to
+               v_knowledge_freshness_truth. Populated by loadKnowledgePipeline(). -->
+          <p id="kpipe-source-chip" style="margin:8px 0 0;"></p>
         </div>
       </div>
 
@@ -587,58 +647,6 @@
       </div>
 
       <!-- ─────────────────────────────────────────────────────────────────
-           Supervisor Plain-Read Summary (Layer D of UX Contract).
-           Hidden for workers. For supervisors, surfaces a 5-second read:
-           verdict line + 3 plain cards (Stair / Adoption / Open Issues)
-           + recommended next action + toggle for the explainer panel.
-           Populated by loadSupervisorSummary() from data already loaded
-           by loadAdoptionCard() + loadMaturityStairway() + loadPMHealth.
-           ───────────────────────────────────────────────────────────────── -->
-      <div id="supervisor-summary" class="hidden mb-5">
-        <div id="ss-verdict" class="verdict empty">
-          <span id="ss-verdict-icon" class="verdict-icon">·</span>
-          <div class="verdict-text"><span id="ss-verdict-label">Computing hive health...</span><small id="ss-verdict-sub">Rolling up adoption + PM compliance + open alerts.</small></div>
-        </div>
-        <div class="simple-row" id="ss-cards">
-          <div class="simple-card tag-grey" id="ss-card-stair">
-            <div class="sc-label">Maturity stair</div>
-            <div class="sc-hero" id="ss-stair-hero">—</div>
-            <div class="sc-sub" id="ss-stair-sub">Loading...</div>
-            <span class="sc-tag" id="ss-stair-tag">—</span>
-          </div>
-          <div class="simple-card tag-grey" id="ss-card-adoption">
-            <div class="sc-label">Adoption health</div>
-            <div class="sc-hero" id="ss-adoption-hero">—</div>
-            <div class="sc-sub" id="ss-adoption-sub">Loading...</div>
-            <span class="sc-tag" id="ss-adoption-tag">—</span>
-          </div>
-          <div class="simple-card tag-grey" id="ss-card-issues">
-            <div class="sc-label">Open issues</div>
-            <div class="sc-hero" id="ss-issues-hero">—</div>
-            <div class="sc-sub" id="ss-issues-sub">Loading...</div>
-            <span class="sc-tag" id="ss-issues-tag">—</span>
-          </div>
-        </div>
-        <div class="action-card" id="ss-action">
-          <div class="ac-label">What to do next</div>
-          <div class="ac-text" id="ss-action-text">Computing recommendation...</div>
-        </div>
-        <button id="details-toggle-btn" type="button" class="details-toggle" aria-expanded="false" aria-controls="supervisor-summary-details">
-          Show details
-        </button>
-        <div id="supervisor-summary-details" role="region" aria-label="Hive health explainer">
-          <strong style="display:block;margin-bottom:6px;color:rgba(255,255,255,0.85);">How this is computed</strong>
-          <ul style="margin:0;padding-left:20px;">
-            <li><strong>Maturity stair</strong>: latest snapshot from <code>v_maturity_truth</code>. Hive must clear 5 dimension gates per stair (Reliability / Operations / Safety / People / Cost).</li>
-            <li><strong>Adoption health</strong>: <code>compute_adoption_risk</code> RPC. Healthy &lt; 35, At Risk 35-65, Critical &gt; 65.</li>
-            <li><strong>Open issues</strong>: PM overdue count + anomaly signals in attention status (last 30 days).</li>
-            <li><strong>Verdict</strong>: red if Adoption is Critical OR &gt; 5 PMs overdue; amber if Adoption is At Risk OR 1-5 PMs overdue; green when both clear.</li>
-          </ul>
-          <p style="margin-top:8px;color:rgba(255,255,255,0.55);font-size:11px;">Full breakdown (top risk reasons, champion candidate, stair dimensions) is in the Engagement Card below.</p>
-        </div>
-      </div>
-
-      <!-- ─────────────────────────────────────────────────────────────────
            Onboarding card (Phase 3.3 of STRATEGIC_ROADMAP).
            Shows the role-specific path (worker 5-step / supervisor 7-step).
            Hidden once every step is complete; populated by onboarding.js.
@@ -662,6 +670,10 @@
             <button id="adoption-explain-btn" type="button" style="background:rgba(255,255,255,0.04); color:rgba(255,255,255,0.55); border:1px solid rgba(255,255,255,0.08); border-radius:8px; padding:10px 16px; font-family:inherit; font-size:11px; font-weight:600; cursor:pointer; min-height:44px; min-width:44px;">Why?</button>
           </div>
           <p id="adoption-summary" style="font-size:11.5px; color:rgba(255,255,255,0.65); margin-top:6px; line-height:1.45;">Computing your hive's adoption signals...</p>
+          <!-- Source chip — anchors risk score + champion + reasons to
+               hive_adoption_score + compute_adoption_risk. Populated by
+               loadAdoptionCard(). -->
+          <p id="adoption-source-chip" style="margin:8px 0 0;"></p>
         </div>
         <!-- Reasons + dropping workers drawer -->
         <div id="adoption-detail" style="display:none; padding:10px 16px 16px; border-top:1px solid rgba(255,255,255,0.06); background:rgba(0,0,0,0.18); font-size:11px; color:rgba(255,255,255,0.7); line-height:1.55;"></div>
@@ -749,27 +761,40 @@
         <a href="inventory.html" class="text-[11px] font-semibold mt-2 inline-block" style="color:#f87171;">View your inventory &#8594;</a>
       </div>
 
-      <!-- Today's Brief (AI, auto-loaded, 8h cache) -->
+      <!-- Today's Brief (AI, auto-loaded, 8h cache). Source chip anchors
+           the bulleted claims to the ai_reports table + the 3 report
+           types that produce them. Populated by loadTodaysBrief(). -->
       <div id="todays-brief-panel" class="hidden mb-5">
         <div class="flex items-center justify-between mb-2">
           <p class="text-[11px] font-semibold text-white/30 uppercase tracking-widest">Today's Brief</p>
           <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full" style="background:rgba(248,113,113,0.12);color:#f87171;">AI</span>
         </div>
         <div class="wh-card p-4">
+          <p id="todays-brief-source-chip" style="margin:0 0 8px;"></p>
           <div id="todays-brief-content">
             <p class="text-xs text-white/30">Loading...</p>
           </div>
         </div>
       </div>
 
-      <!-- Reliability Coach (AI — Phase 1.3) -->
+      <!-- Reliability Coach (AI - Phase 1.3). Collapsed by default so a
+           healthy hive's dashboard isn't dominated by an unused input;
+           the supervisor expands it on demand. -->
       <div id="reliability-coach-panel" class="mb-5">
-        <div class="flex items-center justify-between mb-2">
-          <p class="text-[11px] font-semibold text-white/30 uppercase tracking-widest">Reliability Coach</p>
-          <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full" style="background:rgba(167,139,250,0.12);color:#a78bfa;">AI</span>
-        </div>
-        <div class="wh-card p-4">
+        <button id="coach-toggle-btn" type="button" aria-expanded="false" aria-controls="coach-body"
+          style="width:100%; display:flex; align-items:center; justify-content:space-between; gap:8px; padding:12px 16px; background:rgba(167,139,250,0.06); color:#a78bfa; border:1px solid rgba(167,139,250,0.25); border-radius:12px; font-family:inherit; font-size:0.82rem; font-weight:700; cursor:pointer; min-height:44px;">
+          <span style="display:flex; align-items:center; gap:8px;">
+            <span style="font-size:10px; font-weight:800; letter-spacing:0.06em; text-transform:uppercase; opacity:0.6;">AI</span>
+            Ask the Reliability Coach
+          </span>
+          <span id="coach-toggle-icon" style="font-size:0.7rem; opacity:0.7;">&#9656;</span>
+        </button>
+        <div id="coach-body" class="wh-card p-4 mt-2" style="display:none;">
           <p class="text-[11px] text-white/40 mb-3">Ask about your plant's maintenance priorities. The coach analyzes failure history, PM status, inventory, and predictions to give you 3 specific actions.</p>
+          <!-- Source chip — anchors the coach's actions to the edge fn
+               + data slices it reads, so the supervisor can audit the
+               recommendations. Populated by askCoach() on each invocation. -->
+          <p id="coach-source-chip" style="margin:0 0 8px;"></p>
           <div class="flex gap-2">
             <input aria-label="e.g. Why are we having so many pump failures?" id="coach-input" type="text" placeholder="e.g. Why are we having so many pump failures?" class="wh-input flex-1" style="min-height:40px; font-size:16px;" />
             <button id="coach-submit" onclick="askCoach()" style="padding:0 16px; background:rgba(167,139,250,0.15); color:#a78bfa; border:1px solid rgba(167,139,250,0.4); border-radius:10px; font-family:inherit; font-size:0.82rem; font-weight:700; cursor:pointer; white-space:nowrap; min-height:44px;">Ask</button>
@@ -778,7 +803,9 @@
         </div>
       </div>
 
-      <!-- Network Benchmark (Phase 3.2) -->
+      <!-- Network Benchmark (Phase 3.2). Source chip anchors the two
+           feeds (own hive + cross-hive aggregate) so the comparison is
+           auditable. Populated by loadBenchmarks(). -->
       <div id="benchmark-panel" class="hidden mb-5">
         <div class="flex items-center justify-between mb-2">
           <p class="text-[11px] font-semibold text-white/30 uppercase tracking-widest">Network Benchmark</p>
@@ -786,18 +813,23 @@
         </div>
         <div class="wh-card p-4">
           <p class="text-[11px] text-white/40 mb-3">How your plant compares to similar plants on WorkHive. Anonymized — no individual plants are identified.</p>
+          <p id="benchmark-source-chip" style="margin:0 0 8px;"></p>
           <div id="benchmark-content">
             <p class="text-xs text-white/30">Loading benchmarks...</p>
           </div>
         </div>
       </div>
 
-      <!-- Pattern Alerts (Failure Signature Detection — Phase 1.2) -->
+      <!-- Pattern Alerts (Failure Signature Detection — Phase 1.2).
+           Source chip below the header anchors the panel to its canonical
+           fuel + rule formulas so supervisors can audit what triggered an
+           alert; populated in loadPatternAlerts(). -->
       <div id="pattern-alerts-panel" class="hidden mb-5">
         <div class="flex items-center justify-between mb-2">
           <p class="text-[11px] font-semibold text-white/30 uppercase tracking-widest">Pattern Alerts</p>
           <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full" style="background:rgba(248,113,113,0.12);color:#f87171;">Pre-failure</span>
         </div>
+        <p id="pattern-alerts-source-chip" style="margin:0 0 8px;"></p>
         <div id="pattern-alerts-content"></div>
       </div>
 
@@ -816,12 +848,16 @@
         <button onclick="loadMoreFeed()" class="w-full py-3 rounded-xl text-sm font-semibold" style="background:rgba(41,182,217,0.08);color:#29B6D9;border:1px solid rgba(41,182,217,0.25);">Load More</button>
       </div>
 
-      <!-- Shift Handover -->
+      <!-- Shift Handover. Source chip anchors the auto-generated summary
+           to the canonical feeds it reads (logbook + PM + LOTO scan),
+           so the incoming technician knows what window + sources the
+           handover covered. Populated by generateHandover(). -->
       <div id="handover-panel" class="hidden mt-5 mb-5">
         <div class="flex items-center justify-between mb-2">
           <p class="text-[11px] font-semibold text-white/30 uppercase tracking-widest">Shift Handover</p>
         </div>
         <p class="text-xs mb-3" style="color:rgba(255,255,255,0.35);">Auto-generates a summary of this shift — completed jobs, open items, LOTO alerts, and watch list — ready to share with the next team.</p>
+        <p id="handover-source-chip" style="margin:0 0 8px;"></p>
         <button class="handover-btn" onclick="generateHandover()">
           <svg class="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
           Generate Shift Handover Report
@@ -851,7 +887,9 @@
 
       <!-- Supervisor section -->
 
-      <!-- Team Pulse (supervisor only) -->
+      <!-- Team Pulse (supervisor only). 3 tiles roll up today's jobs +
+           PM overdue + stock issues from the canonical truth views;
+           source chip anchors them so the supervisor can reconcile. -->
       <div id="team-pulse-panel" class="hidden mb-5">
         <p class="text-[11px] font-semibold text-white/30 uppercase tracking-widest mb-2">Team Pulse</p>
         <div class="grid grid-cols-3 gap-2">
@@ -868,6 +906,7 @@
             <p class="text-[10px] text-white/35 mt-0.5 leading-tight">Stock Issues</p>
           </div>
         </div>
+        <p id="team-pulse-source-chip" style="margin:8px 0 0;"></p>
       </div>
 
       <!-- Approval Queue (supervisor only, always open) -->
@@ -1651,6 +1690,21 @@ function renderMaturityStairway(row) {
   const card = document.getElementById('maturity-stairway-card');
   if (!card) return;
 
+  // Source chip — anchors composite + 5-dim breakdown to v_maturity_truth.
+  // Doctrine: every readiness number on the page is reproducible by
+  // querying this view.
+  const chipEl = document.getElementById('stair-source-chip');
+  if (chipEl && typeof renderSourceChip === 'function') {
+    chipEl.innerHTML = renderSourceChip({
+      freshness: 'Live · refreshes via supabase_realtime on hive_readiness',
+      source:    'v_maturity_truth',
+      notes:     [
+        'Dimensions: Process / Data / Resilience / Leadership / Culture',
+        'RPC: compute_hive_readiness',
+      ],
+    });
+  }
+
   const stair = row && typeof row.current_stair === 'number' ? row.current_stair : 0;
   const palette = STAIR_PALETTE[stair] || STAIR_PALETTE[0];
 
@@ -1758,6 +1812,21 @@ async function loadAdoptionCard() {
   const card = document.getElementById('adoption-card');
   if (!card) return;
   card.classList.remove('hidden');
+
+  // Source chip — anchors risk score + tier + champion candidate to the
+  // RPC + table they come from. Renders once; the values inside refresh
+  // via the realtime subscription below.
+  const chipEl = document.getElementById('adoption-source-chip');
+  if (chipEl && typeof renderSourceChip === 'function') {
+    chipEl.innerHTML = renderSourceChip({
+      freshness: 'Live · refreshes via supabase_realtime on hive_adoption_score',
+      source:    'hive_adoption_score',
+      notes:     [
+        'RPC: compute_adoption_risk · view: get_adoption_risk_current',
+        'Tiers: healthy < 35 · at_risk 35-65 · critical > 65',
+      ],
+    });
+  }
 
   let row = null;
   try {
@@ -1875,7 +1944,7 @@ function startAdoptionRealtime() {
 // and _pmOverdueCount (open issues). Re-renders whenever any of those
 // sources change — cheap; no extra queries.
 
-function loadSupervisorSummary() {
+async function loadSupervisorSummary() {
   if (!HIVE_ID || HIVE_ROLE !== 'supervisor') return;
   const host = document.getElementById('supervisor-summary');
   if (!host) return;
@@ -1902,6 +1971,47 @@ function loadSupervisorSummary() {
   const riskScore = _lastAdoption && _lastAdoption.risk_score;
   const overdue   = _pmOverdueCount || 0;
 
+  // Open work order count — read from the KPI strip cell that loadFeed()
+  // populates (canonical fuel: v_logbook_truth, status = Open). The
+  // Promise.allSettled inside initBoard awaits loadFeed before invoking
+  // loadSupervisorSummary, so the value is already painted by the time
+  // we read it.
+  const openWO = parseInt((document.getElementById('stat-open') || {}).textContent, 10) || 0;
+
+  // Hive-wide low-stock count (canonical fuel: v_inventory_items_truth).
+  // One cheap supervisor-only query, rolled into Card 3 + the verdict.
+  let lowStock = 0;
+  try {
+    const { data: invRows } = await db.from('v_inventory_items_truth')
+      .select('qty_on_hand, min_qty')
+      .eq('hive_id', HIVE_ID)
+      .eq('status', 'approved');
+    (invRows || []).forEach(i => {
+      const q  = Number(i.qty_on_hand) || 0;
+      const mn = Number(i.min_qty)     || 0;
+      if (q <= 0 || (mn > 0 && q <= mn)) lowStock++;
+    });
+  } catch (e) { console.warn('low-stock count:', e); }
+
+  // Weakest stair dimension — surface its name in the verdict + action so
+  // a healthy hive still gets a concrete next move instead of a generic
+  // "use the card below."
+  const dims = _lastReadiness ? {
+    Process:    _lastReadiness.process_maturity_score,
+    Data:       _lastReadiness.data_quality_score,
+    Resilience: _lastReadiness.infrastructure_resilience_score,
+    Leadership: _lastReadiness.leadership_engagement_score,
+    Culture:    _lastReadiness.cultural_adoption_score,
+  } : null;
+  let weakDim = null, weakVal = null;
+  if (dims) {
+    Object.keys(dims).forEach(k => {
+      const v = Number(dims[k]);
+      if (!Number.isFinite(v)) return;
+      if (weakVal == null || v < weakVal) { weakVal = v; weakDim = k; }
+    });
+  }
+
   // Card 1 — Maturity Stair
   setCard('stair',
     stair != null ? `Stair ${stair}` : '—',
@@ -1919,33 +2029,60 @@ function loadSupervisorSummary() {
     tier === 'healthy' ? 'green' : tier === 'at_risk' ? 'amber' : tier === 'critical' ? 'red' : 'grey'
   );
 
-  // Card 3 — Open Issues (PM overdue)
+  // Card 3 — Open Issues. True rollup of the three canonical fuels the
+  // source chip declares (v_logbook_truth + v_pm_compliance_truth +
+  // v_inventory_items_truth). Closes the bug where the page advertised 3
+  // anchored fuels but the card only consumed 1. Canonical Anchor L10
+  // enforces this contract going forward.
+  const totalIssues = openWO + overdue + lowStock;
+  const issueParts = [];
+  if (openWO   > 0) issueParts.push(`${openWO} open WO${openWO === 1 ? '' : 's'}`);
+  if (overdue  > 0) issueParts.push(`${overdue} PM overdue`);
+  if (lowStock > 0) issueParts.push(`${lowStock} low stock`);
+  const issueSub = issueParts.length
+                   ? issueParts.join(' · ')
+                   : 'No open work, overdue PMs, or low stock';
+  let issueTone, issueTag;
+  if (overdue > 5 || openWO >= 10)       { issueTone = 'red';   issueTag = 'STACKING UP'; }
+  else if (totalIssues > 0)              { issueTone = 'amber'; issueTag = 'WATCH'; }
+  else                                   { issueTone = 'green'; issueTag = 'CLEAR'; }
   setCard('issues',
-    overdue === 0 ? '0' : String(overdue),
-    overdue === 0 ? 'No PMs overdue across hive assets' : `${overdue} PM task${overdue === 1 ? '' : 's'} overdue across hive assets`,
-    overdue === 0 ? 'CLEAR' : overdue > 5 ? 'STACKING UP' : 'WATCH',
-    overdue === 0 ? 'green' : overdue > 5 ? 'red' : 'amber'
+    String(totalIssues),
+    issueSub,
+    issueTag,
+    issueTone
   );
 
-  // Verdict — red if critical adoption OR > 5 PMs overdue; amber if at_risk
-  // OR 1-5 PMs overdue; green when both clear.
+  // Verdict — red if critical adoption OR > 5 PMs overdue OR >= 10 open
+  // WOs; amber if at_risk OR any non-zero issue signal; green when all
+  // clear. Sub-line reconciles to the actual numbers shown above the
+  // verdict so the supervisor never reads a green verdict next to 18
+  // open work orders.
   let tone, label, sub;
-  if (tier === 'critical' || overdue > 5) {
+  const anyIssue = totalIssues > 0;
+  const dimNote  = (weakDim && weakVal != null && weakVal < 80) ? ` · ${weakDim} ${weakVal} is your soft spot` : '';
+  if (tier === 'critical' || overdue > 5 || openWO >= 10) {
     tone = 'attn'; label = 'Hive needs your attention';
-    sub  = tier === 'critical'
-             ? 'Adoption signals are critical — open the Engagement Card breakdown below.'
-             : `${overdue} PMs are overdue — open PM Scheduler to triage.`;
-  } else if (tier === 'at_risk' || overdue > 0) {
-    tone = 'watch'; label = 'Hive is mostly healthy — one thing to watch';
-    sub  = tier === 'at_risk'
-             ? 'Adoption tier is at risk — see top risk signals in the explainer below.'
-             : `${overdue} PM task${overdue === 1 ? '' : 's'} overdue — schedule them this week.`;
+    if (tier === 'critical') {
+      sub = 'Adoption signals are critical — open the Engagement Card breakdown below.';
+    } else if (overdue > 5) {
+      sub = `${overdue} PMs are overdue — open PM Scheduler to triage.`;
+    } else {
+      sub = `${openWO} open work orders piling up — open Logbook to clear them.`;
+    }
+  } else if (tier === 'at_risk' || anyIssue) {
+    tone = 'watch'; label = anyIssue ? 'Hive is mostly healthy — a few things to watch' : 'Hive is mostly healthy — one thing to watch';
+    if (tier === 'at_risk') {
+      sub = `Adoption at risk · ${issueParts.length ? issueParts.join(' · ') : 'no other open issues'}.`;
+    } else {
+      sub = `${issueParts.join(' · ')}${dimNote}.`;
+    }
   } else if (!tier && !stair) {
     tone = 'empty'; label = 'Hive health is being computed';
     sub  = 'First snapshot will land within a day. Encourage workers to log entries to populate the picture.';
   } else {
     tone = 'healthy'; label = 'Hive looks healthy';
-    sub  = `Stair ${stair || '—'} · Adoption ${tierLabel.toLowerCase()} · ${overdue === 0 ? 'no overdue PMs' : overdue + ' overdue PM'}.`;
+    sub  = `Stair ${stair || '—'} · Adoption ${tierLabel.toLowerCase()} · 0 open issues${dimNote}.`;
   }
   const vBox = document.getElementById('ss-verdict');
   if (vBox) {
@@ -1959,7 +2096,11 @@ function loadSupervisorSummary() {
   const vSub  = document.getElementById('ss-verdict-sub');
   if (vSub) vSub.textContent = sub;
 
-  // Action — pick the single most-actionable next step from the data.
+  // Action — single most-actionable next step from the data. Priority:
+  // critical adoption > stacking PMs > stacking WOs > at-risk adoption >
+  // 1-5 overdue PMs > 1-9 open WOs > low stock > weak stair dim > all-
+  // clear maintenance message. Each branch names the surface to open so
+  // the supervisor doesn't have to guess.
   const actBox = document.getElementById('ss-action-text');
   if (actBox) {
     let text;
@@ -1967,12 +2108,20 @@ function loadSupervisorSummary() {
       text = 'Adoption is in the critical tier. Open the Engagement Card "Why?" drawer below to see which signals are dropping; pair your champion (' + (_lastAdoption.champion_candidate || 'top worker') + ') with whoever is slipping.';
     } else if (overdue > 5) {
       text = `${overdue} PMs are overdue. Open PM Scheduler and bulk-assign them across this week's shifts — every overdue PM is a Stair Reliability dimension penalty.`;
+    } else if (openWO >= 10) {
+      text = `${openWO} work orders are open. Open Logbook → filter by status = Open and triage; anything > 48 hours old needs a status update or assignee.`;
     } else if (tier === 'at_risk') {
       const r0 = _lastAdoption.top_reasons && _lastAdoption.top_reasons[0];
       text = r0 ? `Adoption at risk — top signal: ${r0.label || r0.signal} (${r0.score}/100). Tackle this one first.`
                 : 'Adoption is at risk. Open the Engagement Card explainer for the top risk signal.';
     } else if (overdue > 0) {
       text = `${overdue} PM task${overdue === 1 ? '' : 's'} overdue. Knock these out this week to keep your Reliability dimension green.`;
+    } else if (openWO > 0) {
+      text = `${openWO} open work order${openWO === 1 ? '' : 's'} to triage. Open Logbook → filter by status = Open and close out the oldest first.`;
+    } else if (lowStock > 0) {
+      text = `${lowStock} part${lowStock === 1 ? '' : 's'} at or below reorder point. Open Inventory to restock before the next PM cycle runs them out.`;
+    } else if (weakDim && weakVal != null && weakVal < 80) {
+      text = `All open work is clear. Your weakest Stair dimension is ${weakDim} (${weakVal}/100) — open the Maturity Stairway card below; the blocker line tells you the smallest move that lifts it.`;
     } else if (stair != null && stair < 3) {
       text = `You're on Stair ${stair} (${stairLbl}). Open the Maturity Stairway card below — your weakest dimension is the next stair gate to clear.`;
     } else {
@@ -1991,6 +2140,28 @@ function loadSupervisorSummary() {
       const open = pane.classList.toggle('open');
       btn.setAttribute('aria-expanded', String(open));
       btn.textContent = open ? 'Hide details' : 'Show details';
+    });
+  });
+})();
+
+// Reliability Coach - collapsed by default; click the header button to
+// expand. Auto-focuses the input on expand so the supervisor can type
+// straight away.
+(function wireCoachToggle() {
+  document.addEventListener('DOMContentLoaded', () => {
+    const btn  = document.getElementById('coach-toggle-btn');
+    const body = document.getElementById('coach-body');
+    const icon = document.getElementById('coach-toggle-icon');
+    if (!btn || !body) return;
+    btn.addEventListener('click', () => {
+      const open = body.style.display === 'none' || body.style.display === '';
+      body.style.display = open ? 'block' : 'none';
+      btn.setAttribute('aria-expanded', String(open));
+      if (icon) icon.innerHTML = open ? '&#9662;' : '&#9656;';
+      if (open) {
+        const input = document.getElementById('coach-input');
+        if (input) setTimeout(() => input.focus(), 60);
+      }
     });
   });
 })();
@@ -2026,6 +2197,21 @@ async function loadKnowledgePipeline() {
     return;
   }
   card.classList.remove('hidden');
+
+  // Source chip — anchors embed coverage + freshness ratios to the
+  // canonical view. Supervisors can drill into v_knowledge_freshness_truth
+  // to reconcile the rendered "fault N% / skill M% / pm K%" labels.
+  const chipEl = document.getElementById('kpipe-source-chip');
+  if (chipEl && typeof renderSourceChip === 'function') {
+    chipEl.innerHTML = renderSourceChip({
+      freshness: 'Live · refreshed on each page load (Stair 2+ gated)',
+      source:    'v_knowledge_freshness_truth',
+      notes:     [
+        'Corpora: fault_knowledge + skill_knowledge + pm_knowledge',
+        'Metric: embedded_rows / total_rows + days_since_last_embed',
+      ],
+    });
+  }
 
   let rows = [];
   try {
@@ -3159,9 +3345,13 @@ async function loadTodaysBrief() {
     const cached = sessionStorage.getItem(cacheKey);
     if (cached) {
       const { html, ts } = JSON.parse(cached);
-      if (Date.now() - ts < 8 * 60 * 60 * 1000) {
+      // Defensive: an older build cached the "No AI analysis yet" placeholder.
+      // Evict it so we re-fetch and apply the empty-hide rule below.
+      const looksLikePlaceholder = html && html.indexOf('No AI analysis yet') !== -1;
+      if (!looksLikePlaceholder && Date.now() - ts < 8 * 60 * 60 * 1000) {
         el.innerHTML = html; panel.classList.remove('hidden'); return;
       }
+      if (looksLikePlaceholder) sessionStorage.removeItem(cacheKey);
     }
   } catch {}
 
@@ -3191,20 +3381,40 @@ async function loadTodaysBrief() {
     }
   });
 
-  let html;
+  // No bullets means no AI report has been generated yet. Stay hidden
+  // entirely — a placeholder block ("No AI analysis yet...") makes the
+  // panel look broken and wastes vertical space. When the first report
+  // lands, the panel appears with real content. Also evict any prior
+  // cache so a poisoned entry from an earlier build can't resurrect.
   if (!bullets.length) {
-    html = '<p class="text-xs text-white/30">No AI analysis yet. Reports generate automatically on schedule.</p>';
-  } else {
-    const latest = results.find(r => r.status === 'fulfilled' && r.value.data)?.value.data;
-    const ageText = latest ? timeAgo(latest.generated_at) : '';
-    html = bullets.slice(0, 3).map(b =>
-      `<div class="flex items-start gap-2 py-1.5 border-b border-white/5 last:border-0">
-        <div class="w-1.5 h-1.5 rounded-full mt-1.5 flex-shrink-0" style="background:${b.color};"></div>
-        <p class="text-xs text-white/70 leading-relaxed">${b.text}</p>
-      </div>`
-    ).join('');
-    if (ageText) html += `<p class="text-[10px] text-white/20 mt-2">Updated ${escHtml(ageText)}</p>`;
+    try { sessionStorage.removeItem(cacheKey); } catch {}
+    panel.classList.add('hidden');
+    return;
   }
+
+  // Source chip — anchors the bullets to ai_reports + the 3 report
+   // types whose latest rows feed this panel.
+  const chipEl = document.getElementById('todays-brief-source-chip');
+  if (chipEl && typeof renderSourceChip === 'function') {
+    chipEl.innerHTML = renderSourceChip({
+      freshness: 'AI brief · regenerated daily · 8h client cache',
+      source:    'ai_reports',
+      notes:     [
+        'Types: failure_digest / predictive / pm_overdue',
+        'Ordered by generated_at DESC; latest of each type wins',
+      ],
+    });
+  }
+
+  const latest = results.find(r => r.status === 'fulfilled' && r.value.data)?.value.data;
+  const ageText = latest ? timeAgo(latest.generated_at) : '';
+  let html = bullets.slice(0, 3).map(b =>
+    `<div class="flex items-start gap-2 py-1.5 border-b border-white/5 last:border-0">
+      <div class="w-1.5 h-1.5 rounded-full mt-1.5 flex-shrink-0" style="background:${b.color};"></div>
+      <p class="text-xs text-white/70 leading-relaxed">${b.text}</p>
+    </div>`
+  ).join('');
+  if (ageText) html += `<p class="text-[10px] text-white/20 mt-2">Updated ${escHtml(ageText)}</p>`;
 
   el.innerHTML = html;
   try { sessionStorage.setItem(cacheKey, JSON.stringify({ html, ts: Date.now() })); } catch {}
@@ -3217,6 +3427,22 @@ async function loadPatternAlerts() {
   const panel   = document.getElementById('pattern-alerts-panel');
   const content = document.getElementById('pattern-alerts-content');
   if (!panel || !content) return;
+
+  // Source chip — anchors the rendered cards to their canonical fuel
+  // (failure_signature_alerts) + the 4 rule formulas registered in
+  // canonical_formulas. Supervisors can trace any alert label here back
+  // to its trigger condition (see migration 20260513000030).
+  const chipEl = document.getElementById('pattern-alerts-source-chip');
+  if (chipEl && typeof renderSourceChip === 'function') {
+    chipEl.innerHTML = renderSourceChip({
+      freshness: 'Scan: failure-signature-scan edge fn (cron-triggered)',
+      source:    'failure_signature_alerts',
+      notes:     [
+        'Rules: repeat_failure / escalating_frequency / multi_symptom / missed_pm',
+        'Standard: ISO 14224',
+      ],
+    });
+  }
 
   try {
     const { data: alerts } = await db
@@ -3271,6 +3497,20 @@ async function loadBenchmarks() {
   const content = document.getElementById('benchmark-content');
   if (!panel || !content) return;
 
+  // Source chip — anchors the comparison to its two feeds so the
+  // supervisor can audit what "Network avg" actually averages over.
+  const chipEl = document.getElementById('benchmark-source-chip');
+  if (chipEl && typeof renderSourceChip === 'function') {
+    chipEl.innerHTML = renderSourceChip({
+      freshness: 'Weekly recompute · run via benchmark-compute edge fn',
+      source:    'hive_benchmarks + network_benchmarks',
+      notes:     [
+        'Metric: MTBF in days, by equipment_category',
+        'Rows shown only when both own + network counts have data (ISO 14224 reliability)',
+      ],
+    });
+  }
+
   try {
     // Fetch this hive's metrics and the network aggregate in parallel
     const [hiveRes, networkRes] = await Promise.all([
@@ -3288,40 +3528,48 @@ async function loadBenchmarks() {
     const hiveData    = hiveRes.data || [];
     const networkData = networkRes.data || [];
 
-    if (!hiveData.length) {
-      // No benchmarks computed yet — show a prompt
-      content.innerHTML = '<p style="font-size:.75rem; color:rgba(255,255,255,0.3);">Benchmarks are computed weekly. Check back after your first week of data, or <button onclick="computeBenchmarkNow()" style="color:#29B6D9; background:none; border:none; cursor:pointer; font-family:inherit; font-size:.75rem;">compute now</button>.</p>';
-      panel.classList.remove('hidden');
-      return;
-    }
-
-    // Build a lookup of network benchmarks by category
+    // Build a lookup of network benchmarks by category.
     const netByCategory = {};
     networkData.forEach(n => { netByCategory[n.equipment_category] = n; });
 
-    let html = '';
-    hiveData.forEach(h => {
+    // Only rows where BOTH the hive and the network have data are real
+    // benchmarks. Showing the hive's own MTBF under a "Network Benchmark"
+    // header with "Not enough data for network comparison yet" is a lie —
+    // hide those rows entirely. If nothing comparable remains, hide the
+    // whole panel; no benchmark without a benchmark.
+    const comparable = hiveData.filter(h => {
       const net = netByCategory[h.equipment_category];
-      const myMTBF  = h.mtbf_days ? h.mtbf_days + 'd' : '—';
-      const netAvg  = net?.avg_mtbf_days ? net.avg_mtbf_days + 'd' : null;
-      const netTop  = net?.p75_mtbf_days ? net.p75_mtbf_days + 'd' : null;
-      const ratio   = (h.mtbf_days && net?.avg_mtbf_days) ? h.mtbf_days / net.avg_mtbf_days : null;
-      const color   = ratio === null ? 'var(--muted)' : ratio >= 0.9 ? 'var(--green)' : ratio >= 0.6 ? 'var(--yellow)' : 'var(--red)';
-      const label   = ratio === null ? '' : ratio >= 0.9 ? '✓ On par' : ratio >= 0.6 ? '↓ Below avg' : '⚠ Well below';
+      return h.mtbf_days && net && net.avg_mtbf_days;
+    });
+
+    if (!comparable.length) {
+      panel.classList.add('hidden');
+      return;
+    }
+
+    let html = '';
+    comparable.forEach(h => {
+      const net = netByCategory[h.equipment_category];
+      const myMTBF = h.mtbf_days + 'd';
+      const netAvg = net.avg_mtbf_days + 'd';
+      const netTop = net.p75_mtbf_days ? net.p75_mtbf_days + 'd' : null;
+      const ratio  = h.mtbf_days / net.avg_mtbf_days;
+      const color  = ratio >= 0.9 ? 'var(--green)' : ratio >= 0.6 ? 'var(--yellow)' : 'var(--red)';
+      const label  = ratio >= 0.9 ? '✓ On par' : ratio >= 0.6 ? '↓ Below avg' : '⚠ Well below';
 
       html += '<div style="display:grid; grid-template-columns:1fr auto; gap:8px; padding:8px 0; border-bottom:1px solid rgba(255,255,255,0.05); align-items:center;">'
         + '<div>'
         + '<p style="font-size:.78rem; font-weight:600; color:rgba(255,255,255,0.85);">' + escHtml(h.equipment_category) + '</p>'
-        + (net ? '<p style="font-size:.67rem; color:rgba(255,255,255,0.35); margin-top:1px;">Network avg: ' + netAvg + (netTop ? ' · Top 25%: ' + netTop : '') + (net.sample_hives ? ' · ' + net.sample_hives + ' plants' : '') + '</p>' : '<p style="font-size:.67rem; color:rgba(255,255,255,0.2); margin-top:1px;">Not enough data for network comparison yet</p>')
+        + '<p style="font-size:.67rem; color:rgba(255,255,255,0.35); margin-top:1px;">Network avg: ' + escHtml(netAvg) + (netTop ? ' · Top 25%: ' + escHtml(netTop) : '') + (net.sample_hives ? ' · ' + net.sample_hives + ' plants' : '') + '</p>'
         + '</div>'
         + '<div style="text-align:right;">'
         + '<p style="font-size:.88rem; font-weight:800; color:' + color + ';">' + escHtml(myMTBF) + '</p>'
-        + (label ? '<p style="font-size:.62rem; color:' + color + '; font-weight:600;">' + label + '</p>' : '')
+        + '<p style="font-size:.62rem; color:' + color + '; font-weight:600;">' + label + '</p>'
         + '</div>'
         + '</div>';
     });
 
-    content.innerHTML = html || '<p style="font-size:.75rem; color:rgba(255,255,255,0.3);">No equipment failure data yet.</p>';
+    content.innerHTML = html;
     panel.classList.remove('hidden');
 
   } catch (e) {
@@ -3345,6 +3593,21 @@ async function askCoach() {
   const result = document.getElementById('coach-result');
   const btn    = document.getElementById('coach-submit');
   if (!input || !result || !btn) return;
+
+  // Source chip — anchors the coach's actions to the edge fn + slices.
+  // Rendered once on first invocation so the supervisor sees the
+  // provenance before reading any action.
+  const chipEl = document.getElementById('coach-source-chip');
+  if (chipEl && typeof renderSourceChip === 'function' && !chipEl.innerHTML) {
+    chipEl.innerHTML = renderSourceChip({
+      freshness: 'On-demand · ai-orchestrator edge fn (mode: coach)',
+      source:    'v_logbook_truth + v_pm_compliance_truth + v_inventory_items_truth + ai_reports',
+      notes:     [
+        'Output: ranked actions with urgency (TODAY / THIS WEEK / MONITOR)',
+        'Model: see canonical_agent_contracts for the coach schema',
+      ],
+    });
+  }
 
   const question = (input.value || '').trim();
   if (!question) { input.focus(); return; }
@@ -3401,6 +3664,20 @@ async function loadTeamPulse() {
   if (!HIVE_ID || HIVE_ROLE !== 'supervisor') return;
   const panel = document.getElementById('team-pulse-panel');
   if (!panel) return;
+
+  // Source chip — anchors the 3 tiles to their canonical views.
+  const chipEl = document.getElementById('team-pulse-source-chip');
+  if (chipEl && typeof renderSourceChip === 'function') {
+    chipEl.innerHTML = renderSourceChip({
+      freshness: 'Live · refreshed on each page load',
+      source:    'v_logbook_truth + v_pm_compliance_truth + v_inventory_items_truth',
+      notes:     [
+        'Jobs Today: logbook rows where created_at >= midnight (hive scope)',
+        'PMs Overdue: shared _pmOverdueCount (from loadPMHealth)',
+        'Stock Issues: qty_on_hand <= 0 OR qty_on_hand <= min_qty',
+      ],
+    });
+  }
 
   const todayStart = new Date(); todayStart.setHours(0, 0, 0, 0);
 
@@ -3512,6 +3789,22 @@ function generateHandover() {
   const body    = document.getElementById('handover-body');
   const meta    = document.getElementById('ho-meta');
   const titleEl = document.getElementById('ho-title');
+
+  // Source chip — anchors the handover summary to the feeds and the
+  // 8-hour window it covers. Rendered on the panel above the button so
+  // the supervisor sees the provenance before clicking generate.
+  const chipEl = document.getElementById('handover-source-chip');
+  if (chipEl && typeof renderSourceChip === 'function' && !chipEl.innerHTML) {
+    chipEl.innerHTML = renderSourceChip({
+      freshness: 'On-demand · client-side rollup of the in-memory feed',
+      source:    'v_logbook_truth + v_pm_compliance_truth',
+      notes:     [
+        'Window: last 8 hours (since8h)',
+        'Sections: completed · open this shift · carry-forward · LOTO/PTW · watch list',
+        'LOTO scan: regex on problem/category fields (loto|lock.?out|tag.?out|isolat|permit.?to.?work|ptw)',
+      ],
+    });
+  }
 
   const now     = new Date();
   const since8h = new Date(now - 8 * 3600000);
