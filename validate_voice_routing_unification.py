@@ -132,7 +132,7 @@ def check_phase_0_unification():
     print("\n[Bonus] System prompt builder wiring")
 
     # Check if _buildVoiceSystemPrompt signature includes routerContext
-    if "function _buildVoiceSystemPrompt(persona, workerName, hiveName, pageLabel, routingHint, memoryBlock, canonicalData, routerContext)" in content:
+    if re.search(r"function _buildVoiceSystemPrompt\([^)]*routerContext[^)]*\)", content):
         print(f"  {GREEN}PASS{RESET} _buildVoiceSystemPrompt signature accepts routerContext")
         results["pass"] += 1
     else:
