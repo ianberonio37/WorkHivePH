@@ -211,3 +211,23 @@ entrypoint = "./functions/export-hive-data/index.ts"
 enabled = true
 verify_jwt = false
 entrypoint = "./functions/tts-speak/index.ts"
+
+[functions.platform-scraper]
+enabled = true
+verify_jwt = false
+entrypoint = "./functions/platform-scraper/index.ts"
+
+[functions.voice-embeddings]
+enabled = true
+verify_jwt = false
+entrypoint = "./functions/voice-embeddings/index.ts"
+
+[functions.voice-semantic-rag]
+enabled = true
+verify_jwt = false
+entrypoint = "./functions/voice-semantic-rag/index.ts"
+
+[functions.voice-model-call]
+enabled = true
+verify_jwt = false
+entrypoint = "./functions/voice-model-call/index.ts"

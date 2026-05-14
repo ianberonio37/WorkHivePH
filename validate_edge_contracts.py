@@ -78,6 +78,10 @@ ALL_FUNCTIONS = [
     "sensor-readings-ingest",
     "export-hive-data",
     "tts-speak",
+    "platform-scraper",
+    "voice-embeddings",
+    "voice-semantic-rag",
+    "voice-model-call",
 ]
 
 REQUIRED_FIELDS = {
@@ -120,6 +124,10 @@ REQUIRED_FIELDS = {
     "weibull-fitter":               ["hive_id", "asset_id"],
     "pf-calculator":                ["hive_id", "asset_id", "parameter"],
     "tts-speak":                    ["text"],   # persona optional, defaults to 'james'
+    "platform-scraper":             ["hive_id", "worker_name"],   # Phase 1 voice companion
+    "voice-embeddings":             ["texts"],                     # Phase 1.5 RAG embeddings
+    "voice-semantic-rag":           ["auth_uid", "query_text"],    # Phase 1.5 semantic search
+    "voice-model-call":             ["messages", "model_strategy"], # Phase 2 model orchestrator
 }
 
 
