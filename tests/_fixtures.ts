@@ -111,6 +111,7 @@ async function signIn(page: Page) {
 
 export type WhFixtures = {
   whPage: Page;
+  rawPage: Page;   // unauthenticated — for auth-flow tests
   testMarker: string;
 };
 
@@ -159,6 +160,18 @@ export const test = base.extend<WhFixtures>({
       console.log(`[browser pageerror] ${err.message}`);
     });
     await use(page);
+  },
+
+  /** Raw unauthenticated page — localStorage empty, no sign-in.
+   *  Use for testing auth flows (sign-in modal, redirects, etc.). */
+  rawPage: async ({ browser }, use) => {
+    const ctx  = await browser.newContext();
+    const page = await ctx.newPage();
+    page.on('console', msg => {
+      if (msg.type() === 'error') console.log(`[raw ${msg.type()}] ${msg.text()}`);
+    });
+    await use(page);
+    await ctx.close();
   },
 });
 

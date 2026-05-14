@@ -107,7 +107,7 @@ test.describe('Plain-Read walkthrough — visual capture', () => {
             !t.startsWith('Loading') && !t.startsWith('Computing');
         });
         return labelSettled || anyHeroSettled;
-      }, { timeout: 7000 }).catch(() => { /* mid-load capture is acceptable */ });
+      }, { timeout: 20000 }).catch(() => { /* mid-load capture is acceptable */ });
 
       // Small post-settle buffer for paint.
       await whPage.waitForTimeout(400);

@@ -851,9 +851,7 @@
     let   _selectedLabel    = 'Team';
 
     // ── Utils ────────────────────────────────────────────────────────────────────
-    const escHtml = s => String(s || '')
-      .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
-      .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+    // escHtml provided by utils.js (loaded in <head>); no inline redefinition.
 
     function showToast(msg) {
       const t = document.getElementById('toast');
