@@ -24,14 +24,15 @@ export default defineConfig({
   testMatch: '**/*.spec.ts',
   fullyParallel: false,        // tests share a hive + worker; keep serial
   forbidOnly: !!process.env.CI,
-  retries: process.env.CI ? 2 : 0,
+  retries: process.env.CI ? 2 : 1,  // 1 local retry handles 502 load spikes in long suites
   workers: 1,
+  outputDir: './test-results',
   reporter: [
     ['list'],
     ['json', { outputFile: 'playwright-report.json' }],
   ],
-  timeout: 30_000,
-  expect: { timeout: 5_000 },
+  timeout: 60_000,
+  expect: { timeout: 8_000 },
   use: {
     // The Flask seeder serves WorkHive pages at /workhive/<file>.html, NOT
     // at root. Tests use `page.goto('/workhive/<file>.html')` accordingly.

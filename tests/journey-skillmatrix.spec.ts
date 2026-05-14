@@ -55,7 +55,7 @@ test.describe('skillmatrix.html — user journey', () => {
     expect(text, 'chip should declare skill_badges').toContain('skill_badges');
   });
 
-  test('verdict settles from "Computing..." within 12 seconds', async ({ whPage }) => {
+  test('verdict settles from Computing state within 12 seconds', async ({ whPage }) => {
     await whPage.goto(PAGE);
     await waitForSMVerdictSettled(whPage);
 
@@ -84,7 +84,7 @@ test.describe('skillmatrix.html — user journey', () => {
     ).toBe(false);
   });
 
-  test('Pablo: primary skill "PLC Programming" not in DISCIPLINES → "not yet trackable" verdict', async ({ whPage }) => {
+  test('Pablo: primary skill PLC Programming not in DISCIPLINES → "not yet trackable" verdict', async ({ whPage }) => {
     await whPage.goto(PAGE);
     await waitForSMVerdictSettled(whPage);
 

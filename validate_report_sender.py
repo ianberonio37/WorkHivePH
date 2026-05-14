@@ -155,10 +155,14 @@ def run():
         issues.append({"check": "auth_gate",
                        "reason": "Auth gate pattern missing — unauthenticated users can access the page"})
 
-    # 5. escHtml
-    if "function escHtml" not in page and "const escHtml" not in page:
+    # 5. escHtml — either inline definition OR loaded via utils.js (which
+    # provides it globally). The inline const was removed 2026-05-14 to
+    # prevent duplicate-declaration errors when utils.js is also loaded.
+    has_inline_esc  = "function escHtml" in page or "const escHtml" in page
+    has_utils_js    = 'src="utils.js"' in page or "src='utils.js'" in page
+    if not has_inline_esc and not has_utils_js:
         issues.append({"check": "esc_html",
-                       "reason": "escHtml not defined — contact names/summaries rendered without XSS protection"})
+                       "reason": "escHtml not defined — neither inline definition nor utils.js found; contact names/summaries rendered without XSS protection"})
 
     # 6. toast aria
     if 'role="alert"' not in page or 'aria-live' not in page:
