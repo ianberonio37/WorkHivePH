@@ -57,33 +57,47 @@ const SENTINEL_DOMAINS = `
 // ── System prompts ────────────────────────────────────────────────────────────
 
 const VISUAL_SYSTEM = `You are a UI quality inspector for WorkHive, an industrial maintenance platform.
-You are given a screenshot of a page and metadata about its render state.
-Your job is to identify surface-level issues a supervisor or field worker would notice.
+You receive a screenshot, render state metadata, and context about what data is present.
 
-Focus on:
-- Plain-Read contract: is the verdict at the top? Do the 3 cards show real numbers (not — or Loading)?
-- Source chips: is there a "Source: ..." chip below the page title or below each AI/derived panel?
-- Contradiction: does the verdict tone (red/amber/green) match what the cards show?
-- Empty states: are there placeholders showing that should be hidden when data exists?
-- Console errors: do any JS errors indicate a crash that would break the page?
+IMPORTANT CONTEXT RULES:
+- has_data=false means the seeder likely produced no data for this page (empty state is EXPECTED).
+  Do NOT flag "cards show zero" or "verdict shows empty" when has_data=false.
+- has_journey_spec=true means this page already has end-to-end Playwright coverage.
+  Only flag issues that the journey spec would NOT catch (visual layout, copy, alignment).
+- journey_covers_chip=true means chip presence is already tested. Don't flag missing chips.
+- failing_validators list tells you which Sentinel Agent domains are currently broken.
+  If a finding maps to a failing domain, note it as "already tracked by gate" not a new issue.
 
-Respond ONLY in this JSON shape — no other text:
+Focus ONLY on:
+- Plain-Read contract: verdict at top? Cards show real numbers (not — or Loading)?
+  SKIP if has_data=false — empty state is correct.
+- Source chips: "Source: ..." chip visible? SKIP if journey_covers_chip=true.
+- Contradiction: verdict tone vs cards. ONLY flag if has_data=true.
+- JS crash signals (blank page, "Error:" text visible, obviously broken layout).
+- Copy / alignment issues the journey spec cannot catch.
+
+Respond ONLY in this JSON shape:
 {
   "issues": [
     {
-      "description": "one sentence describing exactly what is wrong",
+      "description": "one sentence: exactly what is wrong and why it matters to the user",
       "severity": "critical | high | medium | low",
       "domain": "which of the 9 Sentinel Agent domains owns this",
-      "sentinel_agent": "specific agent name, e.g. 'Frontend Fidelity (UX contract)'",
-      "proposed_gate": "one sentence describing what test or validator layer would catch this"
+      "sentinel_agent": "e.g. 'Frontend Fidelity (UX contract)'",
+      "validator_decision": {
+        "action": "improve_existing | add_new | journey_test | accept",
+        "target_file": "validate_X.py or tests/journey-X.spec.ts",
+        "target_layer": "e.g. L11 INSIGHT_PANEL_CONTRACT or 'new describe block'",
+        "reason": "one sentence: why this action closes the gap"
+      }
     }
   ],
   "overall": "clean | has_issues",
-  "model_notes": "brief note on image quality or confidence"
+  "model_notes": "brief note on confidence"
 }
 
-If the page looks correct and has no issues, return { "issues": [], "overall": "clean", "model_notes": "" }.
-Do not fabricate issues. Only report what you can observe.`;
+Return { "issues": [], "overall": "clean", "model_notes": "" } if the page is correct.
+Do not fabricate. Only report observable issues.`;
 
 const TEXT_SYSTEM = `You are a platform quality analyst for WorkHive.
 You are given console errors from a Playwright test run and render state metadata.
@@ -143,8 +157,16 @@ serve(async (req: Request): Promise<Response> => {
       screenshot_b64,
       console_errors = [],
       verdict_text,
+      card_heroes      = [],       // Pattern 1: actual hero values from DOM
+      chip_texts       = [],       // Pattern 1: chip content from DOM
+      has_data         = true,     // Pattern 1: false = seeder produced no data
       cards_settled,
       chip_populated,
+      failing_validators = [],     // Pattern 3: currently-failing gate validators
+      has_journey_spec  = false,   // Pattern 2: journey spec exists for this page
+      journey_covers_chip    = false,
+      journey_covers_verdict = false,
+      journey_covers_cards   = false,
     } = body;
 
     // ── Phase 3: Proposal mode ────────────────────────────────────────────────
@@ -198,13 +220,28 @@ Write the code to gate this finding permanently.`;
 
     // ── 1. Visual analysis (if screenshot provided) ───────────────────────────
     if (screenshot_b64) {
+      // Build enriched context for Patterns 1, 2, 3
+      const gateCtx = failing_validators.length > 0
+        ? `Currently-failing gate validators (findings in these domains may already be tracked): ${failing_validators.join(", ")}`
+        : "All gate validators passing.";
+      const journeyCtx = has_journey_spec
+        ? `Journey spec exists. Covers: chip=${journey_covers_chip}, verdict=${journey_covers_verdict}, cards=${journey_covers_cards}.`
+        : "No journey spec for this page yet.";
+      const dataCtx = has_data
+        ? `Seeder data present. Card heroes: [${card_heroes.join(", ")}]. Chips: [${chip_texts.slice(0,2).join(" | ")}].`
+        : "NO SEEDER DATA — empty states are EXPECTED. Do not flag zero cards or missing verdicts.";
+
       const visualPrompt = `Page: ${page_slug} (${page_file})
+
 Render state:
 - verdict_text: ${verdict_text ?? "not found"}
 - cards_settled: ${cards_settled}
 - chip_populated: ${chip_populated}
+- ${dataCtx}
+- ${journeyCtx}
+- ${gateCtx}
 
-Analyze this screenshot for surface-level issues.`;
+Analyze this screenshot for surface-level issues, respecting the context rules in your instructions.`;
 
       const imageDataUrl = screenshot_b64.startsWith("data:")
         ? screenshot_b64
@@ -227,8 +264,11 @@ Analyze this screenshot for surface-level issues.`;
       }
     }
 
-    // ── 2. Implicit render-state issues (no AI needed — pure logic) ───────────
-    if (!chip_populated && page_slug !== "logbook" && page_slug !== "voice-journal") {
+    // ── 2. Implicit render-state issues (no AI — pure logic, respects Pattern 1+2)
+    // Only fire chip finding if: chip is absent AND journey spec doesn't already
+    // cover it (Pattern 2) AND the page is not a known no-chip write surface.
+    const noChipPages = new Set(["logbook","voice-journal","community","audit-log","engineering-design"]);
+    if (!chip_populated && !noChipPages.has(page_slug) && !journey_covers_chip) {
       findings.push({
         source:         "render_state",
         page:           page_slug,
@@ -236,19 +276,32 @@ Analyze this screenshot for surface-level issues.`;
         severity:       "medium",
         domain:         "Platform Registrar",
         sentinel_agent: "Platform Registrar (L11 insight panel anchor)",
-        proposed_gate:  `Add renderSourceChip() call to the page's init function and register in L11 INSIGHT_PANEL_CONTRACT`,
+        validator_decision: {
+          action:       "improve_existing",
+          target_file:  `${page_slug}.html`,
+          target_layer: "L11 INSIGHT_PANEL_CONTRACT entry",
+          reason:       `Add renderSourceChip() call to ${page_slug} init and register chip_target_id in INSIGHT_PANEL_CONTRACT`,
+        },
       });
     }
 
-    if (!cards_settled && verdict_text && (verdict_text.startsWith("Computing") || verdict_text.startsWith("Loading"))) {
+    // Only flag unsettled state if has_data=true (Pattern 1) — if no data,
+    // "Loading" verdict is the correct empty state.
+    if (!cards_settled && has_data && verdict_text &&
+        (verdict_text.startsWith("Computing") || verdict_text.startsWith("Loading"))) {
       findings.push({
         source:         "render_state",
         page:           page_slug,
-        description:    `Cards did not settle before screenshot — verdict still shows "${verdict_text}"`,
+        description:    `Cards did not settle before screenshot — verdict still shows "${verdict_text}" despite seeder data being present`,
         severity:       "medium",
-        domain:         "Frontend Fidelity",
-        sentinel_agent: "Frontend Fidelity (loading state)",
-        proposed_gate:  `Increase waitForFunction timeout or add a page-specific settled condition in the walkthrough spec`,
+        domain:         "Performance Guardian",
+        sentinel_agent: "Performance Guardian (loading state)",
+        validator_decision: {
+          action:       "improve_existing",
+          target_file:  "tests/plain-read-walkthrough.spec.ts",
+          target_layer: "waitForFunction settle condition",
+          reason:       `${page_slug} has seeder data but cards don't settle — add page-specific condition`,
+        },
       });
     }
 

@@ -87,13 +87,10 @@ test.describe('Plain-Read walkthrough — visual capture', () => {
       await whPage.goto(url, { waitUntil: 'domcontentloaded' });
       await waitForPageReady(whPage);
 
-      // Wait for the Plain-Read region to leave its "Loading..." state
-      // before snapping. Analytics, marketplace, and report-sender all
-      // have slow loaders (Python-API roundtrip, listing aggregator,
-      // contact resolver) that the previous 2.2s fixed wait missed —
-      // capture caught "Computing..." / "Loading..." rather than real
-      // values.
-      //
+      // Track settlement warnings for Pattern 4 (settlement timeout detection).
+      // The analyzer reads these to skip AI calls on mid-load pages.
+      let settlementTimedOut = false;
+
       // Strategy: poll for:
       //   (a) verdict label leaves "Computing..." / "Loading..." / "Rolling up"
       //   (b) OR at least one hero card has a non-placeholder value
@@ -114,40 +111,77 @@ test.describe('Plain-Read walkthrough — visual capture', () => {
           labelText.startsWith('Rolling up')
         );
         const labelSettled = !!labelText && !stillComputing;
-
-        // Hero cards settled
         const heroes = Array.from(document.querySelectorAll('.sc-hero, .ac-text'));
         const anyHeroSettled = heroes.some(h => {
           const t = (h.textContent || '').trim();
           return t && t !== '—' && t !== '--' &&
             !t.startsWith('Loading') && !t.startsWith('Computing');
         });
-
-        // Source chip populated (at least one .wh-source-chip with content)
         const chips = Array.from(document.querySelectorAll('.wh-source-chip'));
         const anyChipPopulated = chips.some(c => (c.textContent || '').trim().length > 10);
-
         return (labelSettled || anyHeroSettled) && anyChipPopulated;
       }, { timeout: 20000 }).catch(() => {
-        // Mid-load or no-chip pages: capture anyway, console.warn for review
+        settlementTimedOut = true;
+        // eslint-disable-next-line no-console
         console.warn(`[walkthrough] page may not be fully settled before capture`);
       });
 
       // Small post-settle buffer for final paint.
       await whPage.waitForTimeout(400);
 
+      // ── Capture metadata from live DOM (Patterns 1, 3, 4) ──────────────────
+      // Written as page-NN-<slug>-meta.json alongside the PNGs.
+      // The analyzer reads this to avoid false positives from seeder state
+      // (Pattern 1), detect partial captures (Pattern 4), and cross-reference
+      // journey coverage (Pattern 2 uses it indirectly).
+      const meta = await whPage.evaluate((slug: string) => {
+        const labelEl = document.querySelector('[id$="verdict-label"]');
+        const verdictText = labelEl ? (labelEl.textContent || '').trim() : null;
+
+        const heroEls = Array.from(document.querySelectorAll('.sc-hero'));
+        const cardHeroes = heroEls.slice(0, 5).map(h => (h.textContent || '').trim());
+
+        const chipEls = Array.from(document.querySelectorAll('.wh-source-chip'));
+        const chipTexts = chipEls.slice(0, 3).map(c => (c.textContent || '').trim().slice(0, 80));
+
+        // has_data = at least one card has a real number (not 0, — or Loading)
+        const hasData = cardHeroes.some(h =>
+          h && h !== '—' && h !== '--' && h !== '0' &&
+          !h.startsWith('Loading') && !h.startsWith('Computing')
+        );
+
+        const chipPopulated = chipTexts.some(t => t.length > 10);
+
+        const consoleErrors: string[] = [];  // populated externally
+
+        return {
+          slug,
+          verdict_text:      verdictText,
+          card_heroes:       cardHeroes,
+          chip_texts:        chipTexts,
+          has_data:          hasData,
+          chip_populated:    chipPopulated,
+          // Filled in below after evaluate() returns
+          settlement_timed_out: false,
+          console_errors:    consoleErrors,
+        };
+      }, entry.slug);
+
+      meta.settlement_timed_out = settlementTimedOut;
+
       const topPath  = path.join(OUT_DIR, `page-${n}-${entry.slug}-top.png`);
       const fullPath = path.join(OUT_DIR, `page-${n}-${entry.slug}-full.png`);
+      const metaPath = path.join(OUT_DIR, `page-${n}-${entry.slug}-meta.json`);
 
       // Hero region (viewport-sized) — the 5-second read.
       await whPage.screenshot({ path: topPath, fullPage: false });
       // Full scroll — for deeper review (insight panels below the fold).
       await whPage.screenshot({ path: fullPath, fullPage: true });
+      // Metadata sidecar — read by analyze_walkthrough.py.
+      fs.writeFileSync(metaPath, JSON.stringify(meta, null, 2));
 
-      // No assertions — capture-only. The agent reads the PNGs and
-      // produces the punch list.
       // eslint-disable-next-line no-console
-      console.log(`[walkthrough] ${n}. ${entry.slug}: top + full captured`);
+      console.log(`[walkthrough] ${n}. ${entry.slug}: top + full + meta captured${settlementTimedOut ? ' (PARTIAL)' : ''}`);
     });
   });
 });
