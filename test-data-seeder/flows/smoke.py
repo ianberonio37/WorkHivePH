@@ -86,6 +86,14 @@ def is_ignored(text: str) -> bool:
     return any(p.lower() in text.lower() for p in IGNORED_ERROR_PATTERNS)
 
 
+# Pages that rely on cloud Supabase features (benchmarking, AI reports, etc.)
+# requiring real auth/deployment. Headless errors on these pages are WARN, not FAIL.
+CLOUD_ONLY_PAGES = {
+    "ph-intelligence.html",   # peer benchmarking — cloud DB + intelligence-report fn
+    "analytics-report.html",  # analytics orchestrator — cloud edge fn
+}
+
+
 def run(page, errors, warnings, log) -> dict:
     log("Smoke test — opening 12 pages, checking console errors...")
     results = []
@@ -100,9 +108,13 @@ def run(page, errors, warnings, log) -> dict:
             page.wait_for_timeout(1500)
             new_errors = [e for e in errors[page_errors_before:] if not is_ignored(e)]
             if new_errors:
-                results.append(("FAIL", filename, label, new_errors))
-                fail_count += 1
-                log(f"  ✗ {label} ({filename}) — {len(new_errors)} errors:")
+                is_cloud_only = filename in CLOUD_ONLY_PAGES
+                status = "WARN" if is_cloud_only else "FAIL"
+                results.append((status, filename, label, new_errors))
+                if not is_cloud_only:
+                    fail_count += 1
+                tag = " [cloud-only WARN]" if is_cloud_only else ""
+                log(f"  {'⚠' if is_cloud_only else '✗'} {label} ({filename}){tag} — {len(new_errors)} errors:")
                 for e in new_errors[:3]:
                     log(f"      • {e[:200]}")
             else:
