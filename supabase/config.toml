@@ -231,3 +231,8 @@ entrypoint = "./functions/voice-semantic-rag/index.ts"
 enabled = true
 verify_jwt = false
 entrypoint = "./functions/voice-model-call/index.ts"
+
+[functions.walkthrough-analyzer]
+enabled = true
+verify_jwt = false
+entrypoint = "./functions/walkthrough-analyzer/index.ts"

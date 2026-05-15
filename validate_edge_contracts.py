@@ -82,11 +82,13 @@ ALL_FUNCTIONS = [
     "voice-embeddings",
     "voice-semantic-rag",
     "voice-model-call",
+    "walkthrough-analyzer",
 ]
 
 REQUIRED_FIELDS = {
     "ai-orchestrator":          ["question"],
     "analytics-orchestrator":   ["phase"],
+    "walkthrough-analyzer":     ["page_slug"],
     "engineering-calc-agent":   ["calc_type", "inputs"],
     "engineering-bom-sow":      ["discipline", "calc_type"],
     "scheduled-agents":         ["report_type"],

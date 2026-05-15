@@ -1428,6 +1428,15 @@ VALIDATORS = [
         "report":  None,
         "skip_if_fast": True,   # skip with --fast
     },
+    {
+        "id":      "playwright-staleness",
+        "script":  "validate_playwright_staleness.py",
+        "args":    [],
+        "label":   "Playwright Staleness Gate (L13 — walkthrough coverage + finding closure + chip assertions)",
+        "group":   "Platform",
+        "report":  "playwright_staleness_report.json",
+        "skip_if_fast": False,
+    },
 ]
 
 PYTHON_API_URL  = "https://engineering-calc-api.onrender.com/calculate"

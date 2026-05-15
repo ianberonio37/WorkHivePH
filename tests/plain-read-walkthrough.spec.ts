@@ -33,28 +33,40 @@ import { waitForPageReady } from './_helpers';
 import * as path from 'path';
 import * as fs from 'fs';
 
-// Walkthrough order matches project_plain_read_contract.md exactly.
+// Walkthrough order: Plain-Read analytical pages first (16),
+// then write/specialist surfaces added to close L13a gap.
 const PAGES: Array<{ slug: string; file: string; flow: string }> = [
+  // ── Plain-Read analytical pages (verdict + cards + chip contract) ──────────
   // Day-1 supervisor flow
-  { slug: 'hive',             file: 'hive.html',             flow: 'supervisor' },
-  { slug: 'alert-hub',        file: 'alert-hub.html',        flow: 'supervisor' },
-  { slug: 'pm-scheduler',     file: 'pm-scheduler.html',     flow: 'supervisor' },
-  { slug: 'analytics',        file: 'analytics.html',        flow: 'supervisor' },
-  { slug: 'predictive',       file: 'predictive.html',       flow: 'supervisor' },
+  { slug: 'hive',               file: 'hive.html',               flow: 'supervisor' },
+  { slug: 'alert-hub',          file: 'alert-hub.html',          flow: 'supervisor' },
+  { slug: 'pm-scheduler',       file: 'pm-scheduler.html',       flow: 'supervisor' },
+  { slug: 'analytics',          file: 'analytics.html',          flow: 'supervisor' },
+  { slug: 'predictive',         file: 'predictive.html',         flow: 'supervisor' },
   // Day-1 worker flow
-  { slug: 'inventory',        file: 'inventory.html',        flow: 'worker' },
-  { slug: 'asset-hub',        file: 'asset-hub.html',        flow: 'worker' },
-  { slug: 'shift-brain',      file: 'shift-brain.html',      flow: 'worker' },
-  { slug: 'dayplanner',       file: 'dayplanner.html',       flow: 'worker' },
+  { slug: 'inventory',          file: 'inventory.html',          flow: 'worker' },
+  { slug: 'asset-hub',          file: 'asset-hub.html',          flow: 'worker' },
+  { slug: 'shift-brain',        file: 'shift-brain.html',        flow: 'worker' },
+  { slug: 'dayplanner',         file: 'dayplanner.html',         flow: 'worker' },
   // Growth / community
-  { slug: 'skillmatrix',      file: 'skillmatrix.html',      flow: 'growth' },
-  { slug: 'achievements',     file: 'achievements.html',     flow: 'growth' },
+  { slug: 'skillmatrix',        file: 'skillmatrix.html',        flow: 'growth' },
+  { slug: 'achievements',       file: 'achievements.html',       flow: 'growth' },
   // Admin / specialist
-  { slug: 'project-manager',  file: 'project-manager.html',  flow: 'admin' },
-  { slug: 'integrations',     file: 'integrations.html',     flow: 'admin' },
-  { slug: 'marketplace',      file: 'marketplace.html',      flow: 'admin' },
-  { slug: 'ph-intelligence',  file: 'ph-intelligence.html',  flow: 'admin' },
-  { slug: 'report-sender',    file: 'report-sender.html',    flow: 'admin' },
+  { slug: 'project-manager',    file: 'project-manager.html',    flow: 'admin' },
+  { slug: 'integrations',       file: 'integrations.html',       flow: 'admin' },
+  { slug: 'marketplace',        file: 'marketplace.html',        flow: 'admin' },
+  { slug: 'ph-intelligence',    file: 'ph-intelligence.html',    flow: 'admin' },
+  { slug: 'report-sender',      file: 'report-sender.html',      flow: 'admin' },
+
+  // ── Write / specialist surfaces (visual regression capture — L13a gap) ─────
+  // No Plain-Read contract; chip wait may timeout gracefully (acceptable).
+  { slug: 'logbook',            file: 'logbook.html',            flow: 'worker' },
+  { slug: 'community',          file: 'community.html',          flow: 'worker' },
+  { slug: 'audit-log',          file: 'audit-log.html',          flow: 'supervisor' },
+  { slug: 'ai-quality',         file: 'ai-quality.html',         flow: 'supervisor' },
+  { slug: 'plant-connections',  file: 'plant-connections.html',  flow: 'supervisor' },
+  { slug: 'engineering-design', file: 'engineering-design.html', flow: 'specialist' },
+  { slug: 'voice-journal',      file: 'voice-journal.html',      flow: 'worker' },
 ];
 
 const OUT_DIR = path.resolve(__dirname, '..', '.tmp', 'walkthrough');
