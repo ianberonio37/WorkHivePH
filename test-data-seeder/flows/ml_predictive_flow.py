@@ -20,7 +20,7 @@ What this flow verifies:
 Coverage: predictive.html
 """
 
-import json, datetime, random, urllib.request, urllib.error
+import json, datetime, random, uuid, urllib.request, urllib.error
 
 SUPABASE_URL = "http://127.0.0.1:54321"
 ANON_KEY = "sb_publishable_ACJWlzQHlZjBrEguHvfOxg_3BJgxAaH"
@@ -110,6 +110,7 @@ def run(page, errors, warnings, log) -> dict:
             days_ago = int(interval_days * (n_faults - i) + random.randint(-3, 3))
             fault_dt = now - datetime.timedelta(days=days_ago)
             entries.append({
+                "id":               str(uuid.uuid4()),
                 "hive_id":          hive_id,
                 "worker_name":      worker_name,
                 "machine":          asset_name,
@@ -120,7 +121,7 @@ def run(page, errors, warnings, log) -> dict:
                 "action":           "Replaced worn component and tested system",
                 "downtime_hours":   round(random.uniform(1.5, 6.0), 1),
                 "status":           "Closed",
-                "date":             fault_dt.strftime("%Y-%m-%d"),
+                "date":             fault_dt.isoformat() + "Z",
                 "closed_at":        fault_dt.isoformat() + "Z",
                 "created_at":       fault_dt.isoformat() + "Z",
                 "knowledge":        f"Recurring {failure_mode.lower()} on {asset_name}",

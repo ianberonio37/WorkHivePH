@@ -20,7 +20,7 @@ from .harness import BASE_URL
 
 def run(page, errors, warnings, log) -> dict:
     results = []
-    base = BASE_URL.rstrip('/')
+    base = BASE_URL.rstrip('/') + '/workhive'
 
     # ── 1. qr-scanner.js loads ───────────────────────────────────────────────
     log("QR Scanner Flow: fetching qr-scanner.js...")

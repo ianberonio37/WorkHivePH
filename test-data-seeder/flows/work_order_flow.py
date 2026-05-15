@@ -44,7 +44,7 @@ def run(page, errors, warnings, log) -> dict:
     # ── Step 1: Seed one entry per WO state ──────────────────────────────────
     log("Step 1: Seeding one logbook entry per work-order state...")
     rows = []
-    today = now.strftime("%Y-%m-%d")
+    today = now.isoformat() + "Z"
     for i, state in enumerate(WO_STATES):
         rows.append({
             "id":             f"wo-{state}-{int(now.timestamp())}-{i}",

@@ -48,6 +48,7 @@ def run(page, errors, warnings, log) -> dict:
     log("Step 1: Seeding open logbook jobs...")
     open_jobs = [
         {
+            "id":               f"hd-cp01-{int(now.timestamp())}",
             "hive_id":          hive_id,
             "worker_name":      worker_name,
             "machine":          "Centrifugal Pump CP-01",
@@ -55,11 +56,11 @@ def run(page, errors, warnings, log) -> dict:
             "category":         "Mechanical",
             "problem":          "Unusual vibration and temperature rise (bearing failure)",
             "status":           "Open",
-            "date":             (now - datetime.timedelta(hours=2)).strftime("%Y-%m-%d"),
-            "logged_at":        (now - datetime.timedelta(hours=2)).isoformat() + "Z",
+            "date":             (now - datetime.timedelta(hours=2)).isoformat() + "Z",
             "created_at":       (now - datetime.timedelta(hours=2)).isoformat() + "Z",
         },
         {
+            "id":               f"hd-ac02-{int(now.timestamp())}",
             "hive_id":          hive_id,
             "worker_name":      worker_name,
             "machine":          "Air Compressor AC-02",
@@ -67,11 +68,11 @@ def run(page, errors, warnings, log) -> dict:
             "category":         "Mechanical",
             "problem":          "Temperature alarm triggered at 85 degrees C (overheating)",
             "status":           "Open",
-            "date":             (now - datetime.timedelta(hours=5)).strftime("%Y-%m-%d"),
-            "logged_at":        (now - datetime.timedelta(hours=5)).isoformat() + "Z",
+            "date":             (now - datetime.timedelta(hours=5)).isoformat() + "Z",
             "created_at":       (now - datetime.timedelta(hours=5)).isoformat() + "Z",
         },
         {
+            "id":               f"hd-ahu01-{int(now.timestamp())}",
             "hive_id":          hive_id,
             "worker_name":      worker_name,
             "machine":          "HVAC Unit AHU-01",
@@ -79,8 +80,7 @@ def run(page, errors, warnings, log) -> dict:
             "category":         "HVAC",
             "problem":          "Quarterly filter replacement due",
             "status":           "Open",
-            "date":             (now - datetime.timedelta(hours=1)).strftime("%Y-%m-%d"),
-            "logged_at":        (now - datetime.timedelta(hours=1)).isoformat() + "Z",
+            "date":             (now - datetime.timedelta(hours=1)).isoformat() + "Z",
             "created_at":       (now - datetime.timedelta(hours=1)).isoformat() + "Z",
         },
     ]
