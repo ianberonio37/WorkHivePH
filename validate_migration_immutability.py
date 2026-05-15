@@ -115,6 +115,10 @@ ALLOWED_MULTI_COMMIT = {
         "shape; v_knowledge_truth assumed unified 'content' column; "
         "v_audit_unified assumed worker_name+payload across all 4 audit "
         "tables. All fixed. Never applied to remote.",
+    "20260514000002_canonical_agent_contracts.sql":
+        "2026-05-15 one-time idempotency fix: added DROP POLICY IF EXISTS "
+        "before each CREATE POLICY so re-running the migration does not fail "
+        "on an existing policy. Same-session edit, not yet applied to remote.",
 }
 
 
