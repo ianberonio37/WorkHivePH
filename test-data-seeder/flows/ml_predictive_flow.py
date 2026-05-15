@@ -141,33 +141,41 @@ def run(page, errors, warnings, log) -> dict:
 
     # ── Step 2: Seed inventory spike (bearing seals, last 30 days) ───────────
     log("Step 2: Seeding bearing seal consumption spike...")
-    spike_entries = []
-    for i in range(9):  # 9 uses in last 30d vs 1 in prior period = spike
-        days_ago = random.randint(1, 29)
+    # Use an existing approved inventory item as the transaction target
+    inv_item = db.table("inventory_items").select("id, qty_on_hand").eq("hive_id", hive_id).eq("status", "approved").limit(1).execute().data
+    if not inv_item:
+        results.append(("WARN", "No approved inventory item found for transaction spike — skipped"))
+    else:
+        item_id = inv_item[0]["id"]
+        qty = inv_item[0].get("qty_on_hand", 10)
+        spike_entries = []
+        for i in range(9):
+            days_ago = random.randint(1, 29)
+            spike_entries.append({
+                "id":          str(uuid.uuid4()),
+                "hive_id":     hive_id,
+                "worker_name": worker_name,
+                "item_id":     item_id,
+                "qty_change":  -2,
+                "qty_after":   max(0, qty - 2 * (i + 1)),
+                "type":        "use",
+                "created_at":  (now - datetime.timedelta(days=days_ago)).isoformat() + "Z",
+            })
         spike_entries.append({
+            "id":          str(uuid.uuid4()),
             "hive_id":     hive_id,
             "worker_name": worker_name,
-            "part_name":   "Bearing Seal Kit",
+            "item_id":     item_id,
             "qty_change":  -2,
+            "qty_after":   max(0, qty - 20),
             "type":        "use",
-            "created_at":  (now - datetime.timedelta(days=days_ago)).isoformat() + "Z",
+            "created_at":  (now - datetime.timedelta(days=95)).isoformat() + "Z",
         })
-    # Previous period: only 1 use
-    spike_entries.append({
-        "hive_id":     hive_id,
-        "worker_name": worker_name,
-        "part_name":   "Bearing Seal Kit",
-        "qty_change":  -2,
-        "type":        "use",
-        "created_at":  (now - datetime.timedelta(days=95)).isoformat() + "Z",
-    })
-    inv_resp = db.table("inventory_transactions").insert(spike_entries).execute()
-    n_inv = len(inv_resp.data or []) if hasattr(inv_resp, "data") else 0
-    log(f"  Seeded {n_inv} inventory transactions (bearing seal spike)")
-    if n_inv >= 5:
-        results.append(("PASS", f"Inventory spike seeded ({n_inv} transactions)"))
-    else:
-        results.append(("WARN", f"Only {n_inv} inventory transactions seeded"))
+        inv_resp = db.table("inventory_transactions").insert(spike_entries).execute()
+        n_inv = len(inv_resp.data or []) if hasattr(inv_resp, "data") else 0
+        log(f"  Seeded {n_inv} inventory transactions (bearing seal spike)")
+        results.append(("PASS" if n_inv >= 5 else "WARN",
+                         f"Inventory spike seeded ({n_inv} transactions)"))
 
     # ── Step 3: Trigger batch-risk-scoring edge function ──────────────────────
     log("Step 3: Triggering batch-risk-scoring edge function...")

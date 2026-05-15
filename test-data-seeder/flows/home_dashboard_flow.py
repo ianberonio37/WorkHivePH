@@ -95,24 +95,26 @@ def run(page, errors, warnings, log) -> dict:
     log("Step 2: Seeding low-stock inventory items...")
     low_stock = [
         {
+            "id":            f"hd-bsk-{int(now.timestamp())}",
             "hive_id":       hive_id,
             "worker_name":   worker_name,
             "part_name":     "Bearing Seal Kit 6205",
             "part_number":   "BSK-6205",
             "category":      "Mechanical",
             "qty_on_hand":   2,
-            "reorder_point": 5,
+            "min_qty":       5,
             "unit":          "pcs",
             "status":        "approved",
         },
         {
+            "id":            f"hd-vba-{int(now.timestamp())}",
             "hive_id":       hive_id,
             "worker_name":   worker_name,
             "part_name":     "V-Belt Type A-54",
             "part_number":   "VB-A54",
             "category":      "Mechanical",
             "qty_on_hand":   0,
-            "reorder_point": 3,
+            "min_qty":       3,
             "unit":          "pcs",
             "status":        "approved",
         },

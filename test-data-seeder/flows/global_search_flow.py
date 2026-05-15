@@ -35,7 +35,7 @@ def run(page, errors, warnings, log) -> dict:
         ("close() exported",              "close: closeOverlay" in js_text or "close: function" in js_text),
         ("Cmd+K / Ctrl+K shortcut",       "ev.ctrlKey"        in js_text and "ev.metaKey" in js_text and "'k'" in js_text),
         ("queries asset_nodes",           "asset_nodes"       in js_text),
-        ("queries logbook",               "from('logbook')"   in js_text or 'from("logbook")' in js_text),
+        ("queries logbook (via v_logbook_truth)", "v_logbook_truth" in js_text or "from('logbook')" in js_text or 'from("logbook")' in js_text),
         ("queries inventory_items",       "inventory_items"   in js_text),
         ("queries pm_assets",             "pm_assets"         in js_text),
         (".limit() on each source",       js_text.count(".limit(") >= 4),

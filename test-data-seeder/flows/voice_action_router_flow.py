@@ -193,7 +193,7 @@ def _static_file_checks(base_url):
     """Verify voice-handler.js + nav-hub.js wiring + per-page handler
     registrations. Independent of edge-function deployment state."""
     out = []
-    base = (base_url or BASE_URL).rstrip("/")
+    base = (base_url if isinstance(base_url, str) else BASE_URL).rstrip("/")
 
     # voice-handler.js content
     try:

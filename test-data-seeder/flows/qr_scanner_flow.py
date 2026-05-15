@@ -64,7 +64,7 @@ def run(page, errors, warnings, log) -> dict:
     log("Verifying asset-hub.html integration...")
     try:
         with urllib.request.urlopen(f"{base}/asset-hub.html", timeout=10) as r:
-            hub = r.read(80000).decode("utf-8", errors="replace")
+            hub = r.read(300000).decode("utf-8", errors="replace")
         hub_checks = [
             ("asset-hub loads qr-scanner.js",   'src="qr-scanner.js"' in hub),
             ("Scan button id=scan-btn present", 'id="scan-btn"'       in hub),
