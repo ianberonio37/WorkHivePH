@@ -21,7 +21,8 @@ import {
 } from './_helpers';
 import { adminClient } from './_db-cleanup';
 
-const PAGE = '/workhive/inventory.html';
+const PAGE    = '/workhive/inventory.html';
+const HIVE_ID = process.env.WH_TEST_HIVE_ID || '586fd158-42d1-4853-a406-64a4695e71c4';
 
 async function openAddPartModal(page) {
   await page.locator('#btn-add-part').click();
@@ -203,6 +204,113 @@ test.describe('inventory.html — full add-part journey', () => {
     expect(serious, 'long part name should not cause JS errors').toEqual([]);
     // Page should still be functional (not crashed to white screen)
     await expect(whPage.locator('body')).toBeVisible();
+  });
+
+  test('write-path: use part — deducts qty, creates inventory_transaction', async ({ whPage }) => {
+    test.slow();
+    const db = adminClient();
+
+    // Use an existing seeded part with enough qty — no seeding needed
+    const { data: part, error } = await db.from('inventory_items')
+      .select('id, qty_on_hand, part_number')
+      .eq('hive_id', HIVE_ID)
+      .eq('status', 'approved')
+      .gt('qty_on_hand', 2)
+      .order('qty_on_hand', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    if (error || !part) {
+      console.log('[journey-inventory] no approved part with qty > 2 found — skipping use test');
+      return;
+    }
+
+    await whPage.goto(PAGE);
+    await waitForInventoryVerdictSettled(whPage);
+    await whPage.waitForTimeout(1500);
+
+    // Open the Use modal for the EXACT part via JS (avoids wrong-part fallback)
+    await whPage.evaluate((id) => {
+      if (typeof (window as any).openUseModal === 'function') {
+        (window as any).openUseModal(id);
+      }
+    }, part.id);
+    await whPage.waitForTimeout(500);
+
+    // Use modal should appear
+    const useQty = whPage.locator('#use-qty');
+    if (await useQty.count() === 0) {
+      console.log('[journey-inventory] use modal did not open for part:', part.id);
+      return;
+    }
+
+    // Use evaluate to set value + click — modal inputs may be covered by overlay
+    await useQty.evaluate((el: HTMLInputElement) => { el.value = '2'; el.dispatchEvent(new Event('input', { bubbles: true })); });
+    await whPage.waitForTimeout(200);
+    await whPage.locator('#use-submit-btn').evaluate((el: HTMLElement) => el.click());
+    await whPage.waitForTimeout(1000);
+
+    // DB confirmation — qty should be decremented
+    let qtyDecremented = false;
+    for (let i = 0; i < 8; i++) {
+      const { data } = await db.from('inventory_items')
+        .select('qty_on_hand').eq('id', part.id).maybeSingle();
+      if (data && data.qty_on_hand < part.qty_on_hand) { qtyDecremented = true; break; }
+      await whPage.waitForTimeout(600);
+    }
+    expect(qtyDecremented, `qty_on_hand should decrease after Use (was ${part.qty_on_hand})`).toBe(true);
+  });
+
+  test('write-path: restock part — adds qty, creates inventory_transaction', async ({ whPage }) => {
+    test.slow();
+    const db = adminClient();
+
+    // Use an existing seeded part — any approved part works for restock
+    const { data: part, error } = await db.from('inventory_items')
+      .select('id, qty_on_hand, part_number')
+      .eq('hive_id', HIVE_ID)
+      .eq('status', 'approved')
+      .order('qty_on_hand', { ascending: true })
+      .limit(1)
+      .maybeSingle();
+
+    if (error || !part) {
+      console.log('[journey-inventory] no approved part found — skipping restock test');
+      return;
+    }
+
+    await whPage.goto(PAGE);
+    await waitForInventoryVerdictSettled(whPage);
+    await whPage.waitForTimeout(1500);
+
+    // Open restock modal for the EXACT part via JS
+    await whPage.evaluate((id) => {
+      if (typeof (window as any).openRestockModal === 'function') {
+        (window as any).openRestockModal(id);
+      }
+    }, part.id);
+    await whPage.waitForTimeout(500);
+
+    const restockQty = whPage.locator('#restock-qty');
+    if (await restockQty.count() === 0) {
+      console.log('[journey-inventory] restock modal did not open');
+      return;
+    }
+
+    await restockQty.evaluate((el: HTMLInputElement) => { el.value = '10'; el.dispatchEvent(new Event('input', { bubbles: true })); });
+    await whPage.waitForTimeout(200);
+    await whPage.locator('#restock-submit-btn').evaluate((el: HTMLElement) => el.click());
+    await whPage.waitForTimeout(1000);
+
+    // DB confirmation — qty should be increased
+    let qtyIncreased = false;
+    for (let i = 0; i < 8; i++) {
+      const { data } = await db.from('inventory_items')
+        .select('qty_on_hand').eq('id', part.id).maybeSingle();
+      if (data && data.qty_on_hand > part.qty_on_hand) { qtyIncreased = true; break; }
+      await whPage.waitForTimeout(600);
+    }
+    expect(qtyIncreased, `qty_on_hand should increase after Restock (was ${part.qty_on_hand})`).toBe(true);
   });
 
   test('Add Part modal closes when Cancel is clicked', async ({ whPage }) => {

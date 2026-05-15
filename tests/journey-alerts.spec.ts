@@ -11,7 +11,10 @@
  *   network error — page gracefully handles missing data
  */
 import { test, expect } from './_fixtures';
-import { waitForPageReady } from './_helpers';
+import { waitForPageReady, readToast } from './_helpers';
+import { adminClient } from './_db-cleanup';
+
+const HIVE_ID = process.env.WH_TEST_HIVE_ID || '586fd158-42d1-4853-a406-64a4695e71c4';
 
 const PAGE = '/workhive/alert-hub.html';
 
@@ -115,6 +118,99 @@ test.describe('alert-hub.html — user journey', () => {
       hasAlerts > 0 || hasEmpty > 0 || hasFeed > 0,
       'alert hub should show alerts OR an empty state — neither found',
     ).toBe(true);
+  });
+
+  test('write-path: acknowledge anomaly signal — seeds signal, clicks Acknowledge, DB confirms', async ({ whPage, testMarker }) => {
+    test.slow();
+    const db = adminClient();
+
+    // Seed an anomaly signal for this hive
+    const { data: signal, error } = await db.from('anomaly_signals').insert({
+      hive_id:         HIVE_ID,
+      machine:         `TEST-MACHINE-${testMarker}`,
+      status:          'active',
+      severity:        'warning',
+      composite_score: 75,
+      source_count:    2,
+      snapshot_date:   new Date().toISOString().slice(0, 10),
+    }).select('id').single();
+
+    if (error || !signal) {
+      console.log('[journey-alerts] could not seed anomaly signal:', error?.message);
+      return;
+    }
+
+    await whPage.goto(PAGE);
+    await waitForAlertVerdictSettled(whPage);
+    await whPage.waitForTimeout(2000);
+
+    // Find the Acknowledge button for our seeded signal
+    const ackBtn = whPage.locator(`[data-anomaly-id="${signal.id}"][data-action="acknowledge"]`);
+    const fallback = whPage.locator('[data-action="acknowledge"]').first();
+    const btn = (await ackBtn.count()) > 0 ? ackBtn : fallback;
+
+    if (await btn.count() === 0) {
+      console.log('[journey-alerts] no Acknowledge button visible — anomaly may not be rendered');
+      return;
+    }
+
+    await btn.click();
+    await whPage.waitForTimeout(1000);
+
+    // DB confirmation — signal status should be 'acknowledged'
+    let found = false;
+    for (let i = 0; i < 8; i++) {
+      const { data } = await db.from('anomaly_signals')
+        .select('status').eq('id', signal.id).maybeSingle();
+      if (data?.status === 'acknowledged') { found = true; break; }
+      await whPage.waitForTimeout(600);
+    }
+    expect(found, `anomaly_signals row ${signal.id} should be acknowledged in DB`).toBe(true);
+  });
+
+  test('write-path: resolve anomaly signal — seeds signal, clicks Resolve, DB confirms', async ({ whPage, testMarker }) => {
+    test.slow();
+    const db = adminClient();
+
+    const { data: signal, error } = await db.from('anomaly_signals').insert({
+      hive_id:         HIVE_ID,
+      machine:         `TEST-RESOLVE-${testMarker}`,
+      status:          'active',
+      severity:        'warning',
+      composite_score: 80,
+      source_count:    2,
+      snapshot_date:   new Date().toISOString().slice(0, 10),
+    }).select('id').single();
+
+    if (error || !signal) {
+      console.log('[journey-alerts] could not seed signal for resolve:', error?.message);
+      return;
+    }
+
+    await whPage.goto(PAGE);
+    await waitForAlertVerdictSettled(whPage);
+    await whPage.waitForTimeout(2000);
+
+    const resolveBtn = whPage.locator(`[data-anomaly-id="${signal.id}"][data-action="resolve"]`);
+    const fallback   = whPage.locator('[data-action="resolve"]').first();
+    const btn = (await resolveBtn.count()) > 0 ? resolveBtn : fallback;
+
+    if (await btn.count() === 0) {
+      console.log('[journey-alerts] no Resolve button visible');
+      return;
+    }
+
+    await btn.click();
+    await whPage.waitForTimeout(1000);
+
+    let found = false;
+    for (let i = 0; i < 8; i++) {
+      const { data } = await db.from('anomaly_signals')
+        .select('status').eq('id', signal.id).maybeSingle();
+      if (data?.status === 'resolved') { found = true; break; }
+      await whPage.waitForTimeout(600);
+    }
+    expect(found, `anomaly_signals row ${signal.id} should be resolved in DB`).toBe(true);
   });
 
   test('details toggle opens engineering explainer', async ({ whPage }) => {

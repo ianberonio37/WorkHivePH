@@ -164,6 +164,68 @@ test.describe('logbook.html — full write journey', () => {
     void feedRows;
   });
 
+  test('write-path: update entry status Open to Closed — closed_at set in DB', async ({ whPage, testMarker }) => {
+    test.slow();
+
+    // Create an Open entry to work with
+    await whPage.goto(PAGE);
+    await waitForPageReady(whPage);
+    await flattenSteps(whPage);
+
+    const machine = `CLOSE-${testMarker}`;
+    await setMachineHidden(whPage, machine);
+    await whPage.selectOption('#f-maint-type', { label: 'Inspection' }).catch(() => {});
+    await whPage.selectOption('#f-category',   { label: 'Mechanical' }).catch(() => {});
+    await whPage.fill('#f-problem', `Entry to close [${testMarker}]`);
+    await whPage.locator('#save-entry-btn').click();
+    await assertSubmitSucceeded(whPage, /(saved|logged|entry)/i);
+
+    // Find the entry in DB
+    const db = adminClient();
+    let entryId: string | null = null;
+    for (let i = 0; i < 10; i++) {
+      const { data } = await db.from('logbook').select('id').eq('machine', machine).maybeSingle();
+      if (data) { entryId = data.id; break; }
+      await whPage.waitForTimeout(500);
+    }
+    if (!entryId) {
+      console.log('[journey-logbook] entry not in DB — skipping close test');
+      return;
+    }
+
+    // Reload and open edit modal via JS
+    await whPage.reload();
+    await waitForPageReady(whPage);
+    await whPage.waitForTimeout(2000);
+
+    await whPage.evaluate((id) => {
+      if (typeof (window as any).openEditModal === 'function') {
+        (window as any).openEditModal(id);
+      }
+    }, entryId);
+    await whPage.waitForTimeout(1500);
+
+    // Select Closed radio in edit form
+    const closedRadio = whPage.locator('#st-closed').first();
+    if (await closedRadio.count() > 0) {
+      await closedRadio.evaluate((el: HTMLElement) => (el as HTMLInputElement).click());
+      await whPage.waitForTimeout(300);
+    }
+
+    await whPage.locator('#save-entry-btn').click();
+    await assertSubmitSucceeded(whPage, /(saved|logged|updated|entry)/i);
+
+    // DB confirmation: status=Closed AND closed_at is set
+    let verified = false;
+    for (let i = 0; i < 10; i++) {
+      const { data } = await db.from('logbook')
+        .select('status, closed_at').eq('id', entryId).maybeSingle();
+      if (data?.status === 'Closed' && data?.closed_at) { verified = true; break; }
+      await whPage.waitForTimeout(600);
+    }
+    expect(verified, `entry ${entryId} should have status=Closed and closed_at in DB`).toBe(true);
+  });
+
   test('no page errors during logbook load', async ({ whPage }) => {
     const errors: string[] = [];
     whPage.on('pageerror', e => errors.push(e.message));

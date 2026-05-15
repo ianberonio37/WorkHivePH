@@ -13,6 +13,9 @@
  */
 import { test, expect } from './_fixtures';
 import { waitForPageReady, readToast } from './_helpers';
+import { adminClient } from './_db-cleanup';
+
+const HIVE_ID = process.env.WH_TEST_HIVE_ID || '586fd158-42d1-4853-a406-64a4695e71c4';
 
 const PAGE = '/workhive/pm-scheduler.html';
 const SETTLE = 12000;
@@ -104,31 +107,62 @@ test.describe('pm-scheduler.html — PM user journey', () => {
     }
   });
 
-  test('complete-btn on a scope item fires toast and turns green', async ({ whPage }) => {
+  test('write-path: complete PM — seeds uncompleted item, marks done, DB confirms', async ({ whPage, testMarker }) => {
+    test.slow();
+    // Seed an uncompleted scope item so the test is self-contained
+    const db = adminClient();
+    const { data: asset } = await db.from('pm_assets')
+      .select('id').eq('hive_id', HIVE_ID).limit(1).maybeSingle();
+
+    if (!asset) {
+      console.log('[journey-pm] no pm_assets in hive — skipping write-path test');
+      return;
+    }
+
+    const { data: item, error: insertErr } = await db.from('pm_scope_items').insert({
+      asset_id:    asset.id,
+      hive_id:     HIVE_ID,
+      item_text:   `Test PM task [${testMarker}]`,
+      frequency:   'Monthly',
+      anchor_date: new Date().toISOString().slice(0, 10),
+    }).select('id').single();
+
+    if (insertErr || !item) {
+      console.log('[journey-pm] could not seed scope item:', insertErr?.message);
+      return;
+    }
+
     await whPage.goto(PAGE);
     await waitForPMVerdictSettled(whPage);
     await whPage.waitForTimeout(2000);
 
-    // Find a non-completed scope item's complete button
-    const completeBtn = whPage.locator('.complete-btn:not(.done)').first();
-    const hasPM = await completeBtn.count();
+    // Find the seeded item's complete button by data-id
+    const seedBtn = whPage.locator(`.complete-btn[onclick*="${item.id}"]`);
+    const fallbackBtn = whPage.locator('.complete-btn:not(.done)').first();
+    const btn = (await seedBtn.count()) > 0 ? seedBtn : fallbackBtn;
 
-    if (hasPM === 0) {
-      console.log('[journey-pm] no uncompleted scope items — skipping complete test');
+    if (await btn.count() === 0) {
+      console.log('[journey-pm] complete button not visible — scope item may not be in current filter');
       return;
     }
 
-    await completeBtn.click();
+    await btn.click();
 
-    // Expect success toast
     const toast = await readToast(whPage, 6000);
     expect(toast, 'completing a PM should show a success toast').toMatch(/done|complete|marked/i);
 
-    // Button or row should now reflect completed state
-    await whPage.waitForTimeout(500);
-    const btnDone = whPage.locator('.complete-btn.done');
-    const hasDone = await btnDone.count();
-    expect(hasDone, 'at least one complete-btn should be .done after marking').toBeGreaterThan(0);
+    // DB confirmation — pm_completions row should exist
+    let found = false;
+    for (let i = 0; i < 8; i++) {
+      const { data } = await db.from('pm_completions')
+        .select('id').eq('scope_item_id', item.id).maybeSingle();
+      if (data) { found = true; break; }
+      await whPage.waitForTimeout(600);
+    }
+    expect(found, `pm_completions row for scope_item_id=${item.id} should exist after marking done`).toBe(true);
+
+    // UI: button should be .done
+    await expect(whPage.locator('.complete-btn.done').first()).toBeVisible({ timeout: 3000 });
   });
 
   test('add-asset wizard step-1: empty asset name should not reach step 2', async ({ whPage }) => {

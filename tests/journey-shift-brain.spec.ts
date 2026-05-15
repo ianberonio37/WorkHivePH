@@ -12,6 +12,9 @@
  */
 import { test, expect } from './_fixtures';
 import { waitForPageReady, readToast } from './_helpers';
+import { adminClient } from './_db-cleanup';
+
+const HIVE_ID = process.env.WH_TEST_HIVE_ID || '586fd158-42d1-4853-a406-64a4695e71c4';
 
 const PAGE = '/workhive/shift-brain.html';
 
@@ -103,28 +106,87 @@ test.describe('shift-brain.html — shift planner journey', () => {
     // If plan already exists, publish-btn may be visible instead — both are valid
   });
 
-  test('generate plan: clicking Generate now triggers async plan creation', async ({ whPage }) => {
+  test('write-path: generate plan — archives any existing plan first, then generates + DB confirms', async ({ whPage, testMarker }) => {
+    test.slow();
+    const db = adminClient();
+
+    // Archive any existing draft plan so the Generate button appears
+    await db.from('shift_plans')
+      .update({ status: 'archived' })
+      .eq('hive_id', HIVE_ID)
+      .in('status', ['draft', 'published']);
+
     await whPage.goto(PAGE);
     await waitForSBVerdictSettled(whPage);
-    await whPage.waitForTimeout(1500);
+    await whPage.waitForTimeout(2000);
 
     const genBtn = whPage.locator('#generate-btn');
+    const isVisible = await genBtn.isVisible().catch(() => false);
+    if (!isVisible) {
+      // Plan may have reloaded after archive — try one more time
+      await whPage.reload();
+      await waitForSBVerdictSettled(whPage);
+      await whPage.waitForTimeout(2000);
+    }
+
     if (!(await genBtn.isVisible().catch(() => false))) {
-      console.log('[journey-shift-brain] plan already exists — skipping generate test');
+      console.log('[journey-shift-brain] generate button still not visible after archive — skipping');
       return;
     }
 
     await genBtn.click();
-    // After clicking, should show progress or a plan card
-    await whPage.waitForTimeout(3000);
+    await whPage.waitForTimeout(4000);
 
-    const toast = await readToast(whPage, 8000);
-    const hasPlan = await whPage.locator('.shift-plan, #shift-plan-card, [id*="plan"]').count();
-    const btnGone = !(await genBtn.isVisible().catch(() => false));
+    // DB confirmation — a new shift_plans row should exist as draft
+    let found = false;
+    for (let i = 0; i < 10; i++) {
+      const { data } = await db.from('shift_plans')
+        .select('id, status').eq('hive_id', HIVE_ID).eq('status', 'draft').maybeSingle();
+      if (data) { found = true; break; }
+      await whPage.waitForTimeout(800);
+    }
+    expect(found, 'shift_plans draft row should exist in DB after Generate').toBe(true);
 
-    expect(
-      toast || hasPlan > 0 || btnGone,
-      'clicking Generate should produce some feedback (toast, plan card, or button removed)',
-    ).toBeTruthy();
+    // Publish button should now be visible
+    const pubBtn = whPage.locator('#publish-btn');
+    await expect(pubBtn).toBeVisible({ timeout: 5000 });
+  });
+
+  test('write-path: publish plan — clicks Publish, DB status becomes published', async ({ whPage }) => {
+    test.slow();
+    const db = adminClient();
+
+    // Ensure a draft plan exists to publish
+    const { data: existing } = await db.from('shift_plans')
+      .select('id').eq('hive_id', HIVE_ID).eq('status', 'draft').maybeSingle();
+
+    if (!existing) {
+      console.log('[journey-shift-brain] no draft plan to publish — skipping publish test');
+      return;
+    }
+
+    await whPage.goto(PAGE);
+    await waitForSBVerdictSettled(whPage);
+    await whPage.waitForTimeout(2000);
+
+    const pubBtn = whPage.locator('#publish-btn');
+    if (!(await pubBtn.isVisible().catch(() => false))) {
+      console.log('[journey-shift-brain] publish button not visible');
+      return;
+    }
+
+    await pubBtn.click();
+    const toast = await readToast(whPage, 6000);
+    expect(toast, 'publishing should show a toast').toMatch(/publish/i);
+
+    // DB confirmation
+    let found = false;
+    for (let i = 0; i < 8; i++) {
+      const { data } = await db.from('shift_plans')
+        .select('status').eq('id', existing.id).maybeSingle();
+      if (data?.status === 'published') { found = true; break; }
+      await whPage.waitForTimeout(600);
+    }
+    expect(found, `shift_plans row ${existing.id} should be published`).toBe(true);
   });
 });
