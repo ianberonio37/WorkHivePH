@@ -149,7 +149,7 @@ def check_finding_closure() -> dict:
         has_test      = bool(f.get("has_test"))
         has_validator = bool(f.get("has_validator"))
         status        = f.get("status", "open")
-        if status == "resolved":
+        if status in ("resolved", "acknowledged"):   # acknowledged = triaged false positive
             continue
         if not has_test and not has_validator:
             open_items.append({

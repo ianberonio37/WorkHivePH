@@ -159,6 +159,7 @@
     <div>
       <div class="page-title">Audit Log</div>
       <p class="page-sub">Every supervisor and worker action recorded for your hive — for compliance review and team transparency.</p>
+      <p id="audit-source-chip" style="margin-top:3px;"></p>
     </div>
     <span id="hive-pill" class="hive-pill" style="display:none;"></span>
   </div>
@@ -323,6 +324,14 @@
     renderFeed();
   });
 
+  const _auditChip = document.getElementById('audit-source-chip');
+  if (_auditChip && typeof renderSourceChip === 'function') {
+    _auditChip.innerHTML = renderSourceChip({
+      freshness: 'Live via supabase_realtime on hive_audit_log',
+      source:    'hive_audit_log',
+      notes:     ['Supervisor-only · hive-scoped', 'Filters: actor / action / target-type / date range'],
+    });
+  }
   await loadEntries();
   subscribeRealtime();
 

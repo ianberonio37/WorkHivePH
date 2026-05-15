@@ -335,6 +335,7 @@
     <div style="margin-bottom:1.25rem;">
       <h1 style="font-size:1.5rem; font-weight:800; margin:0 0 2px;">Community</h1>
       <p id="hive-name-label" style="font-size:0.8rem; color:rgba(255,255,255,0.4); margin:0;">Your hive's discussion board</p>
+      <p id="community-source-chip" style="margin-top:3px;"></p>
     </div>
 
     <!-- Presence bar -->
@@ -640,6 +641,14 @@
     startPresence();
     startFeedChannel();
     startGlobalFeedChannel();
+    const _commChip = document.getElementById('community-source-chip');
+    if (_commChip && typeof renderSourceChip === 'function') {
+      _commChip.innerHTML = renderSourceChip({
+        freshness: 'Live via supabase_realtime',
+        source:    'community_posts + community_replies + community_reactions',
+        notes:     ['Scoped to hive_id · public posts visible cross-hive', 'Real-time: INSERT/UPDATE/DELETE via postgres_changes'],
+      });
+    }
     await Promise.all([loadPosts(), loadLeaderboard(), loadProfileStats(), loadHiveMembers()]);
 
     // Deep-link: open the thread for ?post=<uuid> after the feed is rendered

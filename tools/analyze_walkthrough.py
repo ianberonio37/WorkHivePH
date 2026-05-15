@@ -268,7 +268,7 @@ def main():
     findings_data["findings"] = merged
     save_json(FINDINGS_FILE, findings_data)
 
-    print(f"\n{'─' * 62}")
+    print(f"\n{'-' * 62}")
     print(f"  Pages analyzed:   {len(top_pngs)}")
     print(f"  New findings:     {total_added}")
     print(f"  Total in registry: {len(merged)}")
