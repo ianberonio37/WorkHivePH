@@ -1,4 +1,7 @@
 import { serve } from "https://deno.land/std@0.208.0/http/server.ts";
+import { getCorsHeaders } from "../_shared/cors.ts";
+
+// contract: voice-model-call (registered in canonical_agent_contracts migration)
 
 /**
  * Voice Model Call Edge Function (Phase 2)
@@ -25,6 +28,8 @@ import { serve } from "https://deno.land/std@0.208.0/http/server.ts";
  */
 
 serve(async (req) => {
+  const corsHeaders = getCorsHeaders(req);
+  if (req.method === "OPTIONS") return new Response(null, { status: 204, headers: corsHeaders });
   if (req.method !== "POST") {
     return new Response("Method not allowed", { status: 405 });
   }

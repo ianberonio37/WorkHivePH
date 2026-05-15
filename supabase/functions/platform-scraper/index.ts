@@ -1,5 +1,8 @@
 import { serve } from "https://deno.land/std@0.208.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.38.4";
+import { getCorsHeaders } from "../_shared/cors.ts";
+
+// contract: platform-scraper (registered in canonical_agent_contracts migration)
 
 /**
  * Platform Scraper Agent Edge Function (Phase 1)
@@ -24,12 +27,20 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2.38.4";
  */
 
 serve(async (req) => {
+  const corsHeaders = getCorsHeaders(req);
+  if (req.method === "OPTIONS") return new Response(null, { status: 204, headers: corsHeaders });
   if (req.method !== "POST") {
     return new Response("Method not allowed", { status: 405 });
   }
 
   try {
     const { hive_id, worker_name } = await req.json();
+    if (!worker_name) {
+      return new Response(
+        JSON.stringify({ error: "Missing required field: worker_name" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
 
     if (!hive_id) {
       return new Response(

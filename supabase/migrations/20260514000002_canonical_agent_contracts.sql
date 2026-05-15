@@ -17,11 +17,13 @@ CREATE TABLE IF NOT EXISTS public.canonical_agent_contracts (
 ALTER TABLE public.canonical_agent_contracts ENABLE ROW LEVEL SECURITY;
 
 -- Public read access (schema registry is public)
+DROP POLICY IF EXISTS "canonical_agent_contracts_read" ON public.canonical_agent_contracts;
 CREATE POLICY "canonical_agent_contracts_read" ON public.canonical_agent_contracts
   FOR SELECT
   USING (true);
 
 -- Service role write (only internal code)
+DROP POLICY IF EXISTS "canonical_agent_contracts_write" ON public.canonical_agent_contracts;
 CREATE POLICY "canonical_agent_contracts_write" ON public.canonical_agent_contracts
   FOR ALL
   USING (auth.role() = 'service_role');

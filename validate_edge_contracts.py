@@ -129,7 +129,7 @@ REQUIRED_FIELDS = {
     "platform-scraper":             ["hive_id", "worker_name"],   # Phase 1 voice companion
     "voice-embeddings":             ["texts"],                     # Phase 1.5 RAG embeddings
     "voice-semantic-rag":           ["auth_uid", "query_text"],    # Phase 1.5 semantic search
-    "voice-model-call":             ["messages", "model_strategy"], # Phase 2 model orchestrator
+    "voice-model-call":             ["messages"], # Phase 2 model orchestrator; model_strategy has default "scout"
 }
 
 

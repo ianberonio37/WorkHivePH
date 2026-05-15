@@ -1,5 +1,8 @@
 import { serve } from "https://deno.land/std@0.208.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.38.4";
+import { getCorsHeaders } from "../_shared/cors.ts";
+
+// contract-allow: RAG retrieval fn, not a brain output producer
 
 /**
  * Voice Semantic RAG Edge Function (Phase 1 + Phase 1.5)
@@ -22,6 +25,8 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2.38.4";
  */
 
 serve(async (req) => {
+  const corsHeaders = getCorsHeaders(req);
+  if (req.method === "OPTIONS") return new Response(null, { status: 204, headers: corsHeaders });
   if (req.method !== "POST") {
     return new Response("Method not allowed", { status: 405 });
   }
