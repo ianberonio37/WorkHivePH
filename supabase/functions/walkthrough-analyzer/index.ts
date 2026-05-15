@@ -155,18 +155,18 @@ serve(async (req: Request): Promise<Response> => {
       page_slug,
       page_file,
       screenshot_b64,
-      console_errors = [],
+      console_errors    = [],
       verdict_text,
-      card_heroes      = [],       // Pattern 1: actual hero values from DOM
-      chip_texts       = [],       // Pattern 1: chip content from DOM
-      has_data         = true,     // Pattern 1: false = seeder produced no data
+      card_heroes        = [],
+      chip_texts         = [],
+      has_data           = true,
       cards_settled,
       chip_populated,
-      failing_validators = [],     // Pattern 3: currently-failing gate validators
-      has_journey_spec  = false,   // Pattern 2: journey spec exists for this page
-      journey_covers_chip    = false,
-      journey_covers_verdict = false,
-      journey_covers_cards   = false,
+      partial_capture    = false,
+      partial_note       = "",
+      data_note          = "",
+      gate_note          = "",
+      failing_validators = [],
     } = body;
 
     // ── Phase 3: Proposal mode ────────────────────────────────────────────────
@@ -219,29 +219,20 @@ Write the code to gate this finding permanently.`;
     let modelUsed = "none";
 
     // ── 1. Visual analysis (if screenshot provided) ───────────────────────────
+    // ANALYZE ALL PAGES. partial_capture and has_data are context, not filters.
+    // The AI uses these notes to focus on structural issues when data is absent.
     if (screenshot_b64) {
-      // Build enriched context for Patterns 1, 2, 3
-      const gateCtx = failing_validators.length > 0
-        ? `Currently-failing gate validators (findings in these domains may already be tracked): ${failing_validators.join(", ")}`
-        : "All gate validators passing.";
-      const journeyCtx = has_journey_spec
-        ? `Journey spec exists. Covers: chip=${journey_covers_chip}, verdict=${journey_covers_verdict}, cards=${journey_covers_cards}.`
-        : "No journey spec for this page yet.";
-      const dataCtx = has_data
-        ? `Seeder data present. Card heroes: [${card_heroes.join(", ")}]. Chips: [${chip_texts.slice(0,2).join(" | ")}].`
-        : "NO SEEDER DATA — empty states are EXPECTED. Do not flag zero cards or missing verdicts.";
-
       const visualPrompt = `Page: ${page_slug} (${page_file})
 
 Render state:
 - verdict_text: ${verdict_text ?? "not found"}
 - cards_settled: ${cards_settled}
 - chip_populated: ${chip_populated}
-- ${dataCtx}
-- ${journeyCtx}
-- ${gateCtx}
 
-Analyze this screenshot for surface-level issues, respecting the context rules in your instructions.`;
+${partial_note ? partial_note + "\n" : ""}${data_note ? data_note + "\n" : ""}${gate_note ? gate_note : ""}
+
+Analyze this screenshot. Use the context notes above to determine what is
+expected vs what is a real issue.`;
 
       const imageDataUrl = screenshot_b64.startsWith("data:")
         ? screenshot_b64
@@ -264,15 +255,14 @@ Analyze this screenshot for surface-level issues, respecting the context rules i
       }
     }
 
-    // ── 2. Implicit render-state issues (no AI — pure logic, respects Pattern 1+2)
-    // Only fire chip finding if: chip is absent AND journey spec doesn't already
-    // cover it (Pattern 2) AND the page is not a known no-chip write surface.
-    const noChipPages = new Set(["logbook","voice-journal","community","audit-log","engineering-design"]);
-    if (!chip_populated && !noChipPages.has(page_slug) && !journey_covers_chip) {
+    // ── 2. Implicit render-state issues (pure logic, uses context from payload)
+    // chip check: only fire if chip absent AND has_data=true AND not partial_capture.
+    // partial_capture and has_data=false are structural states — AI already knows.
+    if (!chip_populated && has_data && !partial_capture) {
       findings.push({
         source:         "render_state",
         page:           page_slug,
-        description:    `No .wh-source-chip was populated on ${page_slug}.html — supervisor cannot trace data provenance`,
+        description:    `No .wh-source-chip populated on ${page_slug}.html with seeder data present — supervisor cannot trace data provenance`,
         severity:       "medium",
         domain:         "Platform Registrar",
         sentinel_agent: "Platform Registrar (L11 insight panel anchor)",
@@ -280,19 +270,18 @@ Analyze this screenshot for surface-level issues, respecting the context rules i
           action:       "improve_existing",
           target_file:  `${page_slug}.html`,
           target_layer: "L11 INSIGHT_PANEL_CONTRACT entry",
-          reason:       `Add renderSourceChip() call to ${page_slug} init and register chip_target_id in INSIGHT_PANEL_CONTRACT`,
+          reason:       `Add renderSourceChip() to ${page_slug} init and register in INSIGHT_PANEL_CONTRACT`,
         },
       });
     }
 
-    // Only flag unsettled state if has_data=true (Pattern 1) — if no data,
-    // "Loading" verdict is the correct empty state.
-    if (!cards_settled && has_data && verdict_text &&
+    // Cards unsettled + data present + not partial = performance/render issue
+    if (!cards_settled && has_data && !partial_capture && verdict_text &&
         (verdict_text.startsWith("Computing") || verdict_text.startsWith("Loading"))) {
       findings.push({
         source:         "render_state",
         page:           page_slug,
-        description:    `Cards did not settle before screenshot — verdict still shows "${verdict_text}" despite seeder data being present`,
+        description:    `Cards did not settle — verdict shows "${verdict_text}" despite seeder data present`,
         severity:       "medium",
         domain:         "Performance Guardian",
         sentinel_agent: "Performance Guardian (loading state)",
@@ -300,7 +289,7 @@ Analyze this screenshot for surface-level issues, respecting the context rules i
           action:       "improve_existing",
           target_file:  "tests/plain-read-walkthrough.spec.ts",
           target_layer: "waitForFunction settle condition",
-          reason:       `${page_slug} has seeder data but cards don't settle — add page-specific condition`,
+          reason:       `${page_slug} has data but cards don't settle — add page-specific settled signal`,
         },
       });
     }

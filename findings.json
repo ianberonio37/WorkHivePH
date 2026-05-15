@@ -908,6 +908,75 @@
       },
       "_source": "render_state",
       "_auto_gated": false
+    },
+    {
+      "id": "hive.spec-journey-test-failed-on-hive-spec-page-loads-without-console",
+      "page": "hive.spec",
+      "session": "2026-05-15",
+      "severity": "high",
+      "issue": "Journey test FAILED on hive.spec: page loads without console errors -- TimeoutError: page.waitForFunction: Timeout 8000ms exceeded.",
+      "domain": "Frontend Fidelity",
+      "sentinel_agent": "Frontend Fidelity (journey test)",
+      "root_cause": "Test 'page loads without console errors' failed: TimeoutError: page.waitForFunction: Timeout 8000ms exceeded.",
+      "has_test": true,
+      "test_file": "journey-hive.spec.ts",
+      "has_validator": false,
+      "validator_layer": null,
+      "status": "open",
+      "fix_commit": null,
+      "_validator_decision": {
+        "action": "improve_existing",
+        "target_file": "journey-hive.spec.ts",
+        "target_layer": "fix failing test: page loads without console errors",
+        "reason": "Test failure regression -- fix root cause"
+      },
+      "_source": "test_failure"
+    },
+    {
+      "id": "pm.spec-soft-skip-in-pm-spec-journey-journey-pm-no-uncompleted-scope",
+      "page": "pm.spec",
+      "session": "2026-05-15",
+      "severity": "medium",
+      "issue": "Soft-skip in pm.spec journey: [journey-pm] no uncompleted scope items — skipping complete test",
+      "domain": "Data Guardian",
+      "sentinel_agent": "Data Guardian (seeder fill)",
+      "root_cause": "Seeder does not guarantee required data for this scenario",
+      "has_test": true,
+      "test_file": "journey-pm.spec.ts",
+      "has_validator": false,
+      "validator_layer": null,
+      "status": "open",
+      "fix_commit": null,
+      "_validator_decision": {
+        "action": "improve_existing",
+        "target_file": "test-data-seeder/seeders/*.py",
+        "target_layer": "ensure test data for this scenario",
+        "reason": "Soft-skip prevents scenario from asserting: [journey-pm] no uncompleted scope items — skipping complete test"
+      },
+      "_source": "soft_skip"
+    },
+    {
+      "id": "shift-brain.spec-soft-skip-in-shift-brain-spec-journey-journey-shift-brain-pl",
+      "page": "shift-brain.spec",
+      "session": "2026-05-15",
+      "severity": "medium",
+      "issue": "Soft-skip in shift-brain.spec journey: [journey-shift-brain] plan already exists — skipping generate test",
+      "domain": "Frontend Fidelity",
+      "sentinel_agent": "Frontend Fidelity (DOM)",
+      "root_cause": "DOM element or condition missing in test env",
+      "has_test": true,
+      "test_file": "journey-shift-brain.spec.ts",
+      "has_validator": false,
+      "validator_layer": null,
+      "status": "open",
+      "fix_commit": null,
+      "_validator_decision": {
+        "action": "improve_existing",
+        "target_file": "journey-shift-brain.spec.ts",
+        "target_layer": "fix element selector",
+        "reason": "Soft-skip prevents scenario from asserting: [journey-shift-brain] plan already exists — skipping generate test"
+      },
+      "_source": "soft_skip"
     }
   ]
 }
