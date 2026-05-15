@@ -44,6 +44,7 @@ def run(page, errors, warnings, log) -> dict:
     # ── Step 1: Seed one entry per WO state ──────────────────────────────────
     log("Step 1: Seeding one logbook entry per work-order state...")
     rows = []
+    today = now.strftime("%Y-%m-%d")
     for i, state in enumerate(WO_STATES):
         rows.append({
             "id":             f"wo-{state}-{int(now.timestamp())}-{i}",
@@ -54,6 +55,7 @@ def run(page, errors, warnings, log) -> dict:
             "category":       "Mechanical",
             "problem":        f"Phase E.4 test entry in state '{state}'",
             "status":         "Open" if state != "verified" else "Closed",
+            "date":           today,
             "closed_at":      (now.isoformat() + "Z") if state == "verified" else None,
             "created_at":     (now - datetime.timedelta(minutes=i)).isoformat() + "Z",
             "wo_state":       state,
@@ -68,8 +70,9 @@ def run(page, errors, warnings, log) -> dict:
         "machine":        "WO Test Machine LEGACY",
         "maintenance_type": "Breakdown / Corrective",
         "category":       "Mechanical",
-        "problem":        "Phase E.4 control row — wo_state stays NULL",
+        "problem":        "Phase E.4 control row - wo_state stays NULL",
         "status":         "Open",
+        "date":           today,
         "created_at":     now.isoformat() + "Z",
         "wo_state":       None,
         "wo_assigned_to": None,
@@ -94,7 +97,8 @@ def run(page, errors, warnings, log) -> dict:
             "maintenance_type": "Breakdown / Corrective",
             "category":    "Mechanical",
             "status":      "Open",
-            "wo_state":    "invalid_phase",   # not in the CHECK list
+            "date":        today,
+            "wo_state":    "invalid_phase",
         }).execute()
         results.append(("FAIL", "CHECK constraint did not reject 'invalid_phase' — schema not enforcing state set"))
     except Exception as ex:

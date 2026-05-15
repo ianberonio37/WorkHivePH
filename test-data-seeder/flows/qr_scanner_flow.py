@@ -15,11 +15,12 @@ Coverage: qr-scanner.js (shared module) and the asset-hub.html integration.
 """
 
 import urllib.request, urllib.error
+from .harness import BASE_URL
 
 
 def run(page, errors, warnings, log) -> dict:
     results = []
-    base = page.rstrip('/')
+    base = BASE_URL.rstrip('/')
 
     # ── 1. qr-scanner.js loads ───────────────────────────────────────────────
     log("QR Scanner Flow: fetching qr-scanner.js...")

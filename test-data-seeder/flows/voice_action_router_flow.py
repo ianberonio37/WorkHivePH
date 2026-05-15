@@ -23,6 +23,7 @@ creation), those checks WARN rather than FAIL.
 import json
 import urllib.request
 import urllib.error
+from .harness import BASE_URL
 
 
 SUPABASE_URL = "https://hzyvnjtisfgbksicrouu.supabase.co"
@@ -192,7 +193,7 @@ def _static_file_checks(base_url):
     """Verify voice-handler.js + nav-hub.js wiring + per-page handler
     registrations. Independent of edge-function deployment state."""
     out = []
-    base = (base_url or "").rstrip("/")
+    base = (base_url or BASE_URL).rstrip("/")
 
     # voice-handler.js content
     try:

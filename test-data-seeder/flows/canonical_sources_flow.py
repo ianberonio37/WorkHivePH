@@ -34,6 +34,7 @@ not be pushed to Supabase at any given moment; checks 5-7 graceful WARN
 when the view does not yet exist in the live DB.
 """
 import urllib.request
+from .harness import BASE_URL
 
 
 # Truths seeded by Phase A.1 (already aligned, tables only).
@@ -181,7 +182,7 @@ def run(page, errors, warnings, log) -> dict:
 
     # ── Layer 3: Reader compliance (static-file checks) ──────────────────────
     log("Step 8: Verifying canonical readers point at the right view names...")
-    base = (page or "").rstrip("/")
+    base = BASE_URL.rstrip("/")
     reader_checks = [
         # path, must_contain
         ("/asset-hub.html",    ["v_asset_truth"]),

@@ -33,6 +33,7 @@ What this verifies:
 """
 
 import json, datetime, urllib.request, urllib.error
+from .harness import BASE_URL
 
 
 def _seed_legacy_asset(db, hive_id: str, worker_name: str, name: str, category: str) -> str | None:
@@ -260,7 +261,7 @@ def run(page, errors, warnings, log) -> dict:
     # ── Step 6: Verify asset-hub.html structure ──────────────────────────────────
     log("Step 6: Verifying asset-hub.html structure...")
     try:
-        req = urllib.request.Request(f"{page.rstrip('/')}/asset-hub.html", method="GET")
+        req = urllib.request.Request(f"{BASE_URL.rstrip('/')}/asset-hub.html", method="GET")
         with urllib.request.urlopen(req, timeout=15) as r:
             html = r.read(220000).decode("utf-8", errors="replace")
         checks = [
@@ -480,7 +481,7 @@ def run(page, errors, warnings, log) -> dict:
     # WARNs (does not FAIL) when the local functions runtime is unreachable —
     # this lets the flow run useful in pure-DB scenarios too.
     log("Step 9: Edge function contract smoke (fmea-populator, weibull-fitter, pf-calculator)...")
-    fn_base = (page.rstrip('/').replace(':5000', ':54321')) + "/functions/v1"
+    fn_base = (BASE_URL.rstrip('/').replace(':5000', ':54321')) + "/functions/v1"
     edge_cases = [
         ("fmea-populator",  {"hive_id": hive_id}),                                   # missing asset_id
         ("weibull-fitter",  {"hive_id": hive_id}),                                   # missing asset_id

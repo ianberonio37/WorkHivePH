@@ -10,11 +10,12 @@ Coverage: search-overlay.js (shared module), nav-hub.js wiring.
 """
 
 import urllib.request
+from .harness import BASE_URL
 
 
 def run(page, errors, warnings, log) -> dict:
     results = []
-    base = page.rstrip('/')
+    base = BASE_URL.rstrip('/')
 
     # ── 1. search-overlay.js loads ───────────────────────────────────────────
     log("Global Search Flow: fetching search-overlay.js...")
