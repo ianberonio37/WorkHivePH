@@ -138,16 +138,110 @@ def main():
                 elif r[0] == "FAIL": total_fail += 1
                 elif r[0] == "WARN": total_warn += 1
 
-        # 4b. Visual regression — separate browser at 1280x900, pixel-diff baselines
+        # 4b. Visual regression — pixel-diff baselines
         if WITH_VISUAL:
             print("\n[Visual regression]")
             try:
                 out = visual.run_in_visual_browser(pw, log=print)
             except Exception as e:
-                print(f"  ✗ flow crashed: {type(e).__name__}: {e}")
+                print(f"  flow crashed: {type(e).__name__}: {e}")
                 out = {"results": [("FAIL", f"crashed: {e}")]}
             section_results.append(("Visual", out))
             for r in out.get("results", []):
+                if r[0] == "PASS": total_pass += 1
+                elif r[0] == "FAIL": total_fail += 1
+                elif r[0] == "WARN": total_warn += 1
+
+        # 4c. Platform Quality Loop — walkthrough capture + AI analyzer + L13 gate
+        # Runs after pixel-diff so both visual signals are in the same gate pass.
+        if WITH_VISUAL:
+            print("\n[Platform Quality Loop — walkthrough + analyzer + L13]")
+            import subprocess as _sp, os as _os, sys as _sys
+            _root = _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__)))
+            _py   = _sys.executable
+            _cwd  = "Z:\\" if _os.path.exists("Z:/playwright.config.ts") else _root
+            _ansi = __import__("re").compile(r"\x1b\[[0-9;]*m")
+
+            def _node_run(cmd, cwd):
+                try:
+                    proc = _sp.Popen(cmd, stdout=_sp.PIPE, stderr=_sp.STDOUT,
+                                     cwd=cwd, bufsize=1,
+                                     text=True, encoding="utf-8", errors="replace",
+                                     shell=True)
+                    last = ""
+                    for line in proc.stdout:
+                        clean = _ansi.sub("", line.rstrip())
+                        if clean:
+                            print(f"  {clean}")
+                            last = clean
+                    proc.wait()
+                    return proc.returncode, last
+                except Exception as e:
+                    print(f"  ERROR: {e}")
+                    return 1, str(e)
+
+            def _py_run(script):
+                try:
+                    proc = _sp.Popen([_py, "-u", script],
+                                     stdout=_sp.PIPE, stderr=_sp.STDOUT,
+                                     cwd=_root, bufsize=1,
+                                     text=True, encoding="utf-8", errors="replace")
+                    last = ""
+                    for line in proc.stdout:
+                        clean = _ansi.sub("", line.rstrip())
+                        if clean:
+                            print(f"  {clean}")
+                            last = clean
+                    proc.wait()
+                    return proc.returncode, last
+                except Exception as e:
+                    print(f"  ERROR: {e}")
+                    return 1, str(e)
+
+            pql_results = []
+
+            # Step 1: Walkthrough spec (capture screenshots + metadata)
+            print("  [1/3] Running walkthrough spec (23 pages)...")
+            rc1, _ = _node_run(
+                ["npx", "playwright", "test",
+                 "tests/plain-read-walkthrough.spec.ts",
+                 "--reporter=line"],
+                _cwd,
+            )
+            pql_results.append(("PASS" if rc1 == 0 else "WARN", f"Walkthrough capture rc={rc1}"))
+
+            # Step 2: Analyzer (AI classifies findings + updates findings.json)
+            print("  [2/3] Running walkthrough analyzer...")
+            import os as _os2
+            env = {**_os2.environ,
+                   "SUPABASE_URL":      _os2.getenv("SUPABASE_URL", ""),
+                   "SUPABASE_ANON_KEY": _os2.getenv("SUPABASE_ANON_KEY", "")}
+            try:
+                proc2 = _sp.Popen([_py, "-u", _os.path.join(_root, "tools", "analyze_walkthrough.py")],
+                                   stdout=_sp.PIPE, stderr=_sp.STDOUT,
+                                   cwd=_root, bufsize=1,
+                                   text=True, encoding="utf-8", errors="replace",
+                                   env=env)
+                last2 = ""
+                for line in proc2.stdout:
+                    clean = _ansi.sub("", line.rstrip())
+                    if clean:
+                        print(f"  {clean}")
+                        last2 = clean
+                proc2.wait()
+                pql_results.append(("PASS" if proc2.returncode == 0 else "WARN",
+                                    f"Analyzer rc={proc2.returncode}: {last2[:60]}"))
+            except Exception as e:
+                pql_results.append(("WARN", f"Analyzer error: {e}"))
+
+            # Step 3: L13 gate (findings closure check)
+            print("  [3/3] Checking L13 staleness gate...")
+            rc3, last3 = _py_run(_os.path.join(_root, "validate_playwright_staleness.py"))
+            pql_results.append(("PASS" if rc3 == 0 else "FAIL", f"L13: {last3[:80]}"))
+
+            pql_out = {"results": pql_results}
+            section_results.append(("Platform Quality Loop", pql_out))
+            for r in pql_results:
                 if r[0] == "PASS": total_pass += 1
                 elif r[0] == "FAIL": total_fail += 1
                 elif r[0] == "WARN": total_warn += 1

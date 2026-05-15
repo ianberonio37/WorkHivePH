@@ -655,49 +655,103 @@ def api_run_crud_tests():
         return jsonify({"error": "another job is running"}), 409
 
     def run_crud(client, log):
-        # Validators live in WORKHIVE_ROOT, not in the seeder subfolder.
-        # Use the seeder venv's python but point at the correct script path.
         results = {}
         seeder_dir = Path(__file__).parent
         py = seeder_dir / "venv" / "Scripts" / "python.exe"
         if not py.exists():
             py = Path("python")
+        import re as _re
+        ansi = _re.compile(r"\x1b\[[0-9;]*m")
 
-        for script_name in [
-            "validate_logbook_consistency.py",
-            "validate_pattern_alerts.py",
-            "validate_inventory_integrity.py",
-        ]:
-            script_path = WORKHIVE_ROOT / script_name
-            log(f"  Running {script_name}...")
+        def _run_script(script_path, cwd):
             try:
                 proc = subprocess.Popen(
                     [str(py), str(script_path)],
                     stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
-                    cwd=str(seeder_dir), bufsize=1,
+                    cwd=str(cwd), bufsize=1,
                     text=True, encoding="utf-8", errors="replace",
                 )
-                import re as _re
-                ansi = _re.compile(r"\x1b\[[0-9;]*m")
                 last_summary = ""
                 for line in proc.stdout:
                     clean = ansi.sub("", line.rstrip())
                     if clean:
                         log(clean)
-                        if "Summary" in clean or "pass" in clean.lower():
+                        if "Summary" in clean or "pass" in clean.lower() or "PASS" in clean:
                             last_summary = clean
                 proc.wait()
-                results[script_name] = {"summary": last_summary, "exit_code": proc.returncode}
+                return {"summary": last_summary, "exit_code": proc.returncode}
             except Exception as e:
-                log(f"  ERROR running {script_name}: {e}")
-                results[script_name] = {"summary": str(e), "exit_code": 1}
+                log(f"  ERROR: {e}")
+                return {"summary": str(e), "exit_code": 1}
+
+        # -- Python data validators --
+        for script_name in [
+            "validate_logbook_consistency.py",
+            "validate_pattern_alerts.py",
+            "validate_inventory_integrity.py",
+            "validate_playwright_staleness.py",   # L13: findings.json gate
+        ]:
+            log(f"  Running {script_name}...")
+            results[script_name] = _run_script(WORKHIVE_ROOT / script_name, seeder_dir)
+
+        # -- Playwright write-path specs (DB-confirmed writes) --
+        # These exercise the actual user write flows and confirm DB state.
+        # Requires Flask seeder running on :5000.
+        import socket as _sock
+        flask_up = False
+        try:
+            s = _sock.create_connection(("127.0.0.1", 5000), timeout=1)
+            s.close()
+            flask_up = True
+        except OSError:
+            pass
+
+        if flask_up:
+            log("\n  Running write-path journey specs (DB-confirmed)...")
+            cwd = "Z:\\" if Path("Z:/playwright.config.ts").exists() else str(WORKHIVE_ROOT)
+            write_path_specs = [
+                "tests/journey-pm.spec.ts",
+                "tests/journey-alerts.spec.ts",
+                "tests/journey-shift-brain.spec.ts",
+                "tests/journey-inventory.spec.ts",
+                "tests/journey-logbook.spec.ts",
+            ]
+            try:
+                proc = subprocess.Popen(
+                    ["npx", "playwright", "test",
+                     *write_path_specs,
+                     "--grep", "write-path",
+                     "--reporter=line"],
+                    stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+                    cwd=cwd, bufsize=1,
+                    text=True, encoding="utf-8", errors="replace",
+                    shell=True,
+                )
+                last = ""
+                for line in proc.stdout:
+                    clean = ansi.sub("", line.rstrip())
+                    if clean:
+                        log(clean)
+                        last = clean
+                proc.wait()
+                results["write-path-specs"] = {
+                    "summary": last,
+                    "exit_code": proc.returncode,
+                }
+            except Exception as e:
+                log(f"  ERROR running write-path specs: {e}")
+                results["write-path-specs"] = {"summary": str(e), "exit_code": 1}
+        else:
+            log("  SKIP write-path specs: Flask not running on :5000")
+            results["write-path-specs"] = {"summary": "skipped (Flask not running)", "exit_code": 0}
+
         summary_passes = sum(1 for r in results.values() if r.get("exit_code") == 0)
         summary_fails  = len(results) - summary_passes
         return {
             "validators": results,
-            "passed": summary_passes,
-            "failed": summary_fails,
-            "summary": f"{summary_passes}/{len(results)} validators passed",
+            "passed":  summary_passes,
+            "failed":  summary_fails,
+            "summary": f"{summary_passes}/{len(results)} checks passed",
         }
 
     _run_job("crud_tests", run_crud)
