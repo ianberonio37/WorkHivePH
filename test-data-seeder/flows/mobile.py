@@ -70,6 +70,14 @@ def run_in_mobile_browser(playwright, log) -> dict:
         page.goto(f"{BASE_URL}/workhive/{filename}", wait_until=wait_until, timeout=timeout)
         page.wait_for_timeout(800)
 
+        # Skip checks if the page redirected to the sign-in page (auth required, mobile
+        # context can't do a real Supabase auth flow in headless mode).
+        current_url = page.url
+        if "index.html" in current_url and filename not in ("index.html",):
+            results.append(("WARN", f"{filename}: redirected to sign-in (auth required) — mobile checks skipped"))
+            log(f"  ⚠ {filename}: redirected to sign-in — skipping mobile checks")
+            continue
+
         # Horizontal scroll check — body scrollWidth shouldn't exceed innerWidth
         h_overflow = page.evaluate("""() => {
             return document.documentElement.scrollWidth > window.innerWidth + 4;

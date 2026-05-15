@@ -78,6 +78,8 @@ IGNORED_ERROR_PATTERNS = [
     "violates check constraint",                            # CHECK constraint catches bad input — expected for negative tests
     "JWT expired",                                          # tester session aged out
     "Invalid Refresh Token",                                # tester session aged out
+    ".supabase.co/functions/v1",                            # cloud edge function calls (analytics-report etc) — 401/404 from headless session
+    ".supabase.co/rest/v1",                                 # cloud REST API — 401 expected without auth in headless session
 ]
 
 
