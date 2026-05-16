@@ -21,14 +21,17 @@ create index if not exists idx_dialog_state_worker_hive on dialog_state(worker_i
 
 alter table dialog_state enable row level security;
 
+drop policy if exists "dialog_state_worker_access" on dialog_state;
 create policy "dialog_state_worker_access" on dialog_state
   for select
   using (auth.uid() = worker_id);
 
+drop policy if exists "dialog_state_insert_own" on dialog_state;
 create policy "dialog_state_insert_own" on dialog_state
   for insert
   with check (auth.uid() = worker_id);
 
+drop policy if exists "dialog_state_update_own" on dialog_state;
 create policy "dialog_state_update_own" on dialog_state
   for update
   using (auth.uid() = worker_id);
@@ -71,7 +74,7 @@ begin
   order by ds.updated_at desc
   limit 1;
 end;
-$$ language plpgsql security definer;
+$$ language plpgsql security definer set search_path = public;
 
 -- RPC: update dialog state with new intent + slots
 create or replace function update_dialog_state(
@@ -122,7 +125,7 @@ begin
     'confidence', p_confidence
   );
 end;
-$$ language plpgsql security definer;
+$$ language plpgsql security definer set search_path = public;
 
 -- Intent definitions (enumeration for clarity)
 create type intent_kind as enum (

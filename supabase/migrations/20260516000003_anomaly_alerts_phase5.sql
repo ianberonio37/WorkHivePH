@@ -25,6 +25,7 @@ create index if not exists idx_anomaly_alerts_asset on anomaly_alerts(asset_id);
 
 alter table anomaly_alerts enable row level security;
 
+drop policy if exists "anomaly_alerts_hive_access" on anomaly_alerts;
 create policy "anomaly_alerts_hive_access" on anomaly_alerts
   for select
   using (auth.uid() in (
@@ -75,7 +76,7 @@ begin
     aa.detected_at desc
   limit 10;
 end;
-$$ language plpgsql security definer;
+$$ language plpgsql security definer set search_path = public;
 
 -- RPC: acknowledge an alert (worker closed it)
 create or replace function acknowledge_alert(p_alert_id bigint)
@@ -87,7 +88,7 @@ begin
 
   return json_build_object('ok', true, 'alert_id', p_alert_id);
 end;
-$$ language plpgsql security definer;
+$$ language plpgsql security definer set search_path = public;
 
 -- RPC: suppress alert for 24h (user mutes low-severity)
 create or replace function suppress_alert(p_alert_id bigint, p_hours int default 24)

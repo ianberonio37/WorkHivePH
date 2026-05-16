@@ -25,10 +25,12 @@ create index if not exists idx_agent_memory_expires on agent_memory(expires_at);
 -- RLS: workers can only read their own memory
 alter table agent_memory enable row level security;
 
+drop policy if exists "agent_memory_worker_access" on agent_memory;
 create policy "agent_memory_worker_access" on agent_memory
   for select
   using (auth.uid() = worker_id);
 
+drop policy if exists "agent_memory_insert_own" on agent_memory;
 create policy "agent_memory_insert_own" on agent_memory
   for insert
   with check (auth.uid() = worker_id);
@@ -76,7 +78,7 @@ begin
   order by am.turn_num asc
   limit p_limit;
 end;
-$$ language plpgsql security definer;
+$$ language plpgsql security definer set search_path = public;
 
 -- RPC: store a turn (session, user input, response, intent)
 create or replace function store_memory_turn(
@@ -114,7 +116,7 @@ begin
     'session_id', p_session_id
   );
 end;
-$$ language plpgsql security definer;
+$$ language plpgsql security definer set search_path = public;
 
 -- Cron job: cleanup expired sessions (runs daily)
 -- This will be registered in edge-functions config, not here

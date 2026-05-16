@@ -86,6 +86,8 @@ RESET_TABLES = [
     "hive_audit_log",
     "hive_analytics_cache",
     "agent_memory",
+    "dialog_state",
+    "anomaly_alerts",
     "voice_journal_entries",
     "amc_briefings",
     "hive_readiness_audit",
