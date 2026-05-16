@@ -896,6 +896,71 @@
     }
   }
 
+  // Phase 4: Fetch dialog state for multi-turn intent refinement
+  async function _fetchDialogState(db, sessionId) {
+    if (!db || !sessionId) return null;
+    try {
+      const { data, error } = await db.rpc('fetch_dialog_state', { p_session_id: sessionId });
+      if (error || !data || data.length === 0) return null;
+      return data[0];
+    } catch (err) {
+      console.warn('[WHVoice] Dialog state fetch failed:', err && err.message);
+      return null;
+    }
+  }
+
+  // Phase 4: Update dialog state (intent + slots) after each turn
+  async function _updateDialogState(db, hiveId, sessionId, intentKind, confidence, contextSlots, clarificationPending, clarificationPrompt) {
+    if (!db || !hiveId || !sessionId) return;
+    try {
+      const result = await db.rpc('update_dialog_state', {
+        p_hive_id: hiveId,
+        p_session_id: sessionId,
+        p_turn_num: _turnNum,
+        p_intent: intentKind || 'unknown',
+        p_confidence: Number(confidence || 0),
+        p_context_slots: contextSlots || {},
+        p_clarification_pending: clarificationPending || false,
+        p_clarification_prompt: clarificationPrompt || null,
+      });
+      if (result.error) {
+        console.warn('[WHVoice] Dialog state update failed:', result.error);
+      }
+    } catch (err) {
+      console.warn('[WHVoice] Dialog state update exception:', err && err.message);
+    }
+  }
+
+  // Phase 4: Clarification logic — if confidence too low, ask instead of guessing
+  function _shouldClarify(confidence, priorIntent, newIntent) {
+    // If confidence < 0.65 and intent flipped, ask for clarification
+    if (confidence < 0.65 && priorIntent && newIntent && priorIntent !== newIntent) {
+      return true;
+    }
+    return false;
+  }
+
+  // Phase 4: Generate clarification question
+  function _generateClarification(transcript, newIntent, priorIntent) {
+    const intentNames = {
+      'mtbf': 'equipment reliability',
+      'mttr': 'repair time',
+      'oee': 'overall efficiency',
+      'risk_assessment': 'risk analysis',
+      'pm_scheduling': 'preventive maintenance',
+      'inventory_check': 'parts availability',
+      'troubleshooting': 'troubleshooting',
+    };
+
+    const newName = intentNames[newIntent] || newIntent;
+    const priorName = priorIntent ? (intentNames[priorIntent] || priorIntent) : '';
+
+    if (priorName) {
+      return `I think you\'re asking about ${newName}, but we were just discussing ${priorName}. Did you mean to keep talking about ${priorName}, or switch to ${newName}?`;
+    }
+    return `I think you\'re asking about ${newName}. Is that right?`;
+  }
+
   // Phase 1: Semantic Router — classify whether question needs platform data, semantic depth, or simple reply
   async function _classifySemanticRoute(transcript, routerIntents) {
     // Short-circuit: if voice-action-router already classified as a data intent,
@@ -1333,7 +1398,7 @@
     }
   }
 
-  function _buildVoiceSystemPrompt(persona, workerName, hiveName, pageLabel, routingHint, memoryBlock, canonicalData, routerContext, platformData, ragContext) {
+  function _buildVoiceSystemPrompt(persona, workerName, hiveName, pageLabel, routingHint, memoryBlock, canonicalData, routerContext, platformData, ragContext, dialogState) {
     const personaBlock = (typeof window.getCompanionBlock === 'function')
       ? window.getCompanionBlock() : '';
     // Internal-only grounding. These facts help the model pick the right
@@ -1358,6 +1423,18 @@
     const routingBlock = routingHint
       ? '\nIMPORTANT — the worker tried to speak a command this page can\'t execute: ' + routingHint + ' Keep the reply to ONE short sentence. Do NOT describe specific buttons / cards / menus you haven\'t been told about.\n'
       : '';
+    // Phase 4: Dialog state (intent + slots + clarification status)
+    const dialogSection = dialogState
+      ? '\nDIALOG STATE:\n' +
+        'Current intent: ' + (dialogState.current_intent || 'unknown') + '\n' +
+        'Confidence: ' + Math.round((dialogState.intent_confidence || 0) * 100) + '%\n' +
+        (dialogState.context_slots && Object.keys(dialogState.context_slots).length
+          ? 'Context: ' + JSON.stringify(dialogState.context_slots) + '\n'
+          : '') +
+        (dialogState.clarification_pending ? 'Awaiting clarification from worker\n' : '') +
+        '\n'
+      : '';
+
     // Recent conversation context. Without this, "Help me find it" /
     // "yung pump kanina" / "tapos?" have nothing to anchor to and the
     // model has to ask generic clarifiers. With it, the model can say
@@ -1402,6 +1479,7 @@
       identBlock +
       routerBlock +
       routingBlock +
+      dialogSection +
       memorySection +
       canonicalSection +
       platformSection +
@@ -1479,6 +1557,12 @@
     _setRecRowVisible(false);
     _renderReplyBubble(null, persona);
 
+    // Phase 4: Fetch dialog state (intent evolution + context slots)
+    const sessionId = _getSessionId();
+    const priorDialogState = await _fetchDialogState(db, sessionId).catch(() => null);
+    const priorIntent = priorDialogState && priorDialogState.current_intent;
+    const priorSlots = priorDialogState && priorDialogState.context_slots;
+
     // FULL PLATFORM SCAN: pull everything from every truth view in parallel, hand to LLM.
     // No routing decisions, no intent classification — the LLM gets the complete platform
     // snapshot every turn and picks what's relevant. This eliminates "I don't have that info"
@@ -1502,7 +1586,7 @@
       console.warn('[WHVoice] No platform snapshot returned; check DB connection or query errors');
     }
 
-    const system = _buildVoiceSystemPrompt(persona, ctx.worker_name, hiveName, pageLabel, routingHint, memoryBlock, canonicalData, routerContext, platformData, ragContext);
+    const system = _buildVoiceSystemPrompt(persona, ctx.worker_name, hiveName, pageLabel, routingHint, memoryBlock, canonicalData, routerContext, platformData, ragContext, priorDialogState);
     const messages = [
       { role: 'system', content: system },
       { role: 'user',   content: transcript },
@@ -1533,6 +1617,26 @@
         _showTalkAgainButton();
         return;
       }
+      // Phase 4: Intent refinement + clarification logic
+      const newIntentKind = (firstIntent && firstIntent.kind) || 'unknown';
+      const newConfidence = (firstIntent && firstIntent.confidence) || 0;
+
+      // If intent flipped and confidence low, ask clarification instead
+      if (_shouldClarify(newConfidence, priorIntent, newIntentKind)) {
+        const clarifyAnswer = _generateClarification(transcript, newIntentKind, priorIntent);
+        _setStatus(personaName + ' is clarifying:');
+        _renderReplyBubble(clarifyAnswer, persona);
+        if (typeof window.speakPersona === 'function') {
+          window.speakPersona(clarifyAnswer, { persona });
+        }
+        _appendSessionTurn(transcript, clarifyAnswer);
+        _saveJournalTurn(db, ctx, transcript, clarifyAnswer, persona);
+        _storeTurn(db, ctx.hive_id, ctx.worker_name, transcript, clarifyAnswer, newIntentKind, newConfidence, 0);
+        _updateDialogState(db, ctx.hive_id, sessionId, priorIntent, (priorDialogState && priorDialogState.intent_confidence) || newConfidence, priorSlots || {}, true, clarifyAnswer);
+        _showTalkAgainButton();
+        return;
+      }
+
       _setStatus(personaName + ' says:');
       _renderReplyBubble(answer, persona);
       if (typeof window.speakPersona === 'function') {
@@ -1543,9 +1647,9 @@
       // Durable save — silently no-ops if RLS denies (anon workers).
       _saveJournalTurn(db, ctx, transcript, answer, persona);
       // Phase 2: Store in agent_memory table (session-scoped, enable recall + dedup)
-      const intentKind = (firstIntent && firstIntent.kind) || 'unknown';
-      const confidence = (firstIntent && firstIntent.confidence) || 0;
-      _storeTurn(db, ctx.hive_id, ctx.worker_name, transcript, answer, intentKind, confidence, 0);
+      _storeTurn(db, ctx.hive_id, ctx.worker_name, transcript, answer, newIntentKind, newConfidence, 0);
+      // Phase 4: Update dialog state with new intent + context (enable multi-turn slot carryover)
+      _updateDialogState(db, ctx.hive_id, sessionId, newIntentKind, newConfidence, {}, false, null);
       _showTalkAgainButton();
     } catch (err) {
       console.warn('[WHVoice] conversational call failed:', err);
