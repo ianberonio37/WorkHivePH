@@ -23,6 +23,7 @@ What this verifies:
 """
 
 import json, datetime, random, urllib.request, urllib.error
+from .harness import BASE_URL
 
 
 SUPABASE_URL = "http://127.0.0.1:54321"
@@ -76,7 +77,7 @@ def run(page, errors, warnings, log) -> dict:
             "hive_id":          hive_id,
             "worker_name":      worker_name,
             "machine":          "HVAC Unit AHU-01",
-            "maintenance_type": "Preventive",
+            "maintenance_type": "Preventive Maintenance",
             "category":         "HVAC",
             "problem":          "Quarterly filter replacement due",
             "status":           "Open",
@@ -160,7 +161,7 @@ def run(page, errors, warnings, log) -> dict:
     # ── Step 4: Verify index.html structure contains dashboard elements ───────
     log("Step 4: Verifying index.html dashboard structure...")
     try:
-        req = urllib.request.Request(f"{page.rstrip('/')}/index.html", method="GET")
+        req = urllib.request.Request(f"{BASE_URL.rstrip('/')}/workhive/index.html", method="GET")
         with urllib.request.urlopen(req, timeout=15) as r:
             html = r.read(50000).decode("utf-8", errors="replace")
 

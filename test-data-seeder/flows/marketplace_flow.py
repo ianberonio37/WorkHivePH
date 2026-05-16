@@ -178,9 +178,16 @@ def run(page, errors, warnings, log) -> dict:
     log("  [F] Inquiry button opens contact form without JS error...")
     try:
         errors_before = len(errors)
+        # Contact Seller is inside the listing detail panel — open a listing first
+        first_card = page.locator("[data-listing-id], .listing-card, .marketplace-item").first
+        if first_card.count():
+            first_card.click()
+            page.wait_for_timeout(1000)
+
         contact_btn = page.locator(
-            "button:has-text('Contact'), button:has-text('Inquire'), "
-            "button:has-text('Message Seller'), a:has-text('Contact')"
+            "button:has-text('Contact Seller'), button:has-text('Contact'), "
+            "button:has-text('Inquire'), button:has-text('Message Seller'), "
+            "#btn-detail-contact, a:has-text('Contact')"
         ).first
 
         if contact_btn.count():
@@ -256,10 +263,15 @@ def run(page, errors, warnings, log) -> dict:
     # ── Scenario I: Create listing → DB row inserted ──────────────────────────
     log("  [I] Create listing → marketplace_listings row in DB...")
     try:
+        # Navigate to marketplace.html where the + Post FAB lives
+        page.goto(f"{BASE_URL}/workhive/marketplace.html", wait_until="networkidle", timeout=15000)
+        page.wait_for_timeout(2000)
+
         db_before = db.table("marketplace_listings").select("id", count="exact") \
             .eq("seller_name", worker_name).limit(1).execute().count or 0
 
         create_btn = page.locator(
+            "#fab-post, button[title*='Post'], button[aria-label*='Post'], "
             "button:has-text('New Listing'), button:has-text('Create Listing'), "
             "button:has-text('Add Listing'), button:has-text('List an Item')"
         ).first
