@@ -154,7 +154,6 @@ def test_additional(page: Page) -> dict:
 
 def run(page: Page, errors: list, warnings: list, log=print) -> dict:
     log("\n[INVENTORY E2E]")
-    r = {**test_read(page)["read"], **test_write(page)["write"], **test_additional(page)["additional"]}
     all_r = [*test_read(page)["read"], *test_write(page)["write"], *test_additional(page)["additional"]]
     p = sum(1 for x in all_r if x.get("result") == "PASS")
     f = sum(1 for x in all_r if x.get("result") == "FAIL")

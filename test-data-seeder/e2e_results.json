@@ -1,83 +1,134 @@
 {
-  "timestamp": "2026-05-16T21:45:42.711160",
-  "tiers": {},
-  "total_pass": 6,
-  "total_fail": 0,
-  "total_warn": 5,
-  "page": {
-    "page": "logbook",
-    "paths": {
-      "all": {
-        "results": [
-          {
-            "scenario": "happy",
-            "result": "WARN",
-            "error": "Page loads OK but 0 entries \u2014 seeder may not have logbook data for this hive",
-            "root_cause": "Data gap: seed logbook entries for test hive"
+  "timestamp": "2026-05-16T21:49:10.380626",
+  "tiers": {
+    "1": {
+      "tier": 1,
+      "pages": {
+        "logbook": {
+          "page": "logbook",
+          "paths": {},
+          "total_pass": 0,
+          "total_fail": 1,
+          "total_warn": 0
+        },
+        "inventory": {
+          "page": "inventory",
+          "paths": {},
+          "total_pass": 0,
+          "total_fail": 1,
+          "total_warn": 0
+        },
+        "pm-scheduler": {
+          "page": "pm-scheduler",
+          "paths": {},
+          "total_pass": 0,
+          "total_fail": 1,
+          "total_warn": 0
+        },
+        "hive": {
+          "page": "hive",
+          "paths": {},
+          "total_pass": 0,
+          "total_fail": 1,
+          "total_warn": 0
+        },
+        "community": {
+          "page": "community",
+          "paths": {},
+          "total_pass": 0,
+          "total_fail": 1,
+          "total_warn": 0
+        },
+        "marketplace": {
+          "page": "marketplace",
+          "paths": {
+            "all": {
+              "results": [
+                {
+                  "scenario": "happy_listings",
+                  "result": "PASS",
+                  "actual": "12 listings, no_undef=True"
+                },
+                {
+                  "scenario": "empty_state",
+                  "result": "PASS",
+                  "actual": "empty_or_items=True"
+                },
+                {
+                  "scenario": "loading",
+                  "result": "PASS",
+                  "actual": "page settled"
+                },
+                {
+                  "scenario": "happy_create",
+                  "result": "WARN",
+                  "actual": "no create button"
+                },
+                {
+                  "scenario": "happy_publish",
+                  "result": "WARN",
+                  "actual": "no publish button"
+                },
+                {
+                  "scenario": "validation_required",
+                  "result": "WARN",
+                  "actual": "no create button"
+                },
+                {
+                  "scenario": "api_error",
+                  "result": "WARN",
+                  "actual": "no publish btn"
+                },
+                {
+                  "scenario": "permission_approval",
+                  "result": "WARN",
+                  "actual": "role=supervisor, approval_visible=False"
+                },
+                {
+                  "scenario": "offline_browse",
+                  "result": "PASS",
+                  "actual": "renders=True"
+                },
+                {
+                  "scenario": "edge_decimal_price",
+                  "result": "WARN",
+                  "actual": "no create button"
+                },
+                {
+                  "scenario": "mobile",
+                  "result": "WARN",
+                  "actual": "overflow=False, tap=True"
+                },
+                {
+                  "scenario": "console",
+                  "result": "PASS",
+                  "actual": "0 errors"
+                }
+              ],
+              "pass_count": 5,
+              "fail_count": 0,
+              "warn_count": 7
+            }
           },
-          {
-            "scenario": "empty",
-            "result": "PASS",
-            "actual": "Empty state handled"
-          },
-          {
-            "scenario": "loading",
-            "result": "PASS",
-            "actual": "Page loaded successfully"
-          },
-          {
-            "scenario": "happy",
-            "result": "PASS",
-            "actual": "submit=True, entries_shown=False"
-          },
-          {
-            "scenario": "validation",
-            "result": "WARN",
-            "actual": "validation_error=False"
-          },
-          {
-            "scenario": "api_error",
-            "result": "WARN",
-            "actual": "retry=False, err_shown=False"
-          },
-          {
-            "scenario": "permission",
-            "result": "WARN",
-            "error": "Role=supervisor, field visible=False"
-          },
-          {
-            "scenario": "concurrent",
-            "result": "SKIP",
-            "reason": "Requires two concurrent sessions (TODO: implement)"
-          },
-          {
-            "scenario": "offline",
-            "result": "PASS",
-            "actual": "Entry queued offline"
-          },
-          {
-            "scenario": "edge_cases",
-            "result": "PASS",
-            "actual": "All edge cases handled"
-          },
-          {
-            "scenario": "mobile",
-            "result": "WARN",
-            "error": "overflow=False, taps=True, console=False"
-          },
-          {
-            "scenario": "console",
-            "result": "PASS",
-            "actual": "No critical errors"
-          }
-        ],
-        "pass_count": 6,
-        "fail_count": 0,
-        "warn_count": 5
-      }
-    },
-    "total_pass": 6,
-    "total_fail": 0,
-    "total_warn": 5
-  }
+          "total_pass": 5,
+          "total_fail": 0,
+          "total_warn": 7
+        },
+        "project-manager": {
+          "page": "project-manager",
+          "paths": {},
+          "total_pass": 0,
+          "total_fail": 1,
+          "total_warn": 0
+        }
+      },
+      "total_pass": 5,
+      "total_fail": 6,
+      "total_warn": 7,
+      "duration_ms": 287024.4
+    }
+  },
+  "total_pass": 5,
+  "total_fail": 6,
+  "total_warn": 7
 }

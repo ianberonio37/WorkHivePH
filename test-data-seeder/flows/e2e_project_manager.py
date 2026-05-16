@@ -49,6 +49,14 @@ def test_write(page: Page) -> dict:
 
     # Happy: create workorder
     h.clear()
+    # Dismiss any open modal/wizard before clicking New
+    h.page.evaluate("""() => {
+        const m = document.getElementById('modal-wizard');
+        if (m) m.classList.remove('open');
+        const m2 = document.getElementById('modal');
+        if (m2) m2.classList.add('hidden');
+    }""")
+    h.page.wait_for_timeout(300)
     new_btn = h.page.locator("button:has-text('New'), button:has-text('Create'), button:has-text('Add'), [data-action='create']").first
     if new_btn.is_visible(timeout=3000):
         new_btn.click()

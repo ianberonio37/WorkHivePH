@@ -129,8 +129,8 @@ def _logbook_fill_all_steps(helper, machine="TEST-001", problem="E2E test proble
             if (gate) gate.style.display = 'none';
         }""")
 
-        # Wait for step 1 to be in DOM
-        helper.page.wait_for_selector("#step-panel-1", timeout=8000)
+        # Wait for step 1 to be in DOM (attached = present in DOM, not necessarily visible)
+        helper.page.wait_for_selector("#step-panel-1", timeout=8000, state="attached")
         helper.page.wait_for_timeout(300)
 
         # Inject machine into hidden field
@@ -237,7 +237,7 @@ def test_logbook_write_path(page: Page, base_url: str) -> dict:
     print("  [WRITE] API error: DB fails → show retry button...")
 
     helper.page.route("**/functions/v1/logbook*", lambda route: route.abort("failed"))
-    ready2 = _logbook_fill_all_steps(helper, machine="API-ERR-TEST")
+    ready2 = _logbook_fill_all_steps(helper, machine="API-ERR-TEST", already_on_page=False)
     if ready2:
         helper.page.locator("#save-entry-btn").click()
         helper.page.wait_for_timeout(2000)
@@ -252,11 +252,20 @@ def test_logbook_write_path(page: Page, base_url: str) -> dict:
     else:
         results["write"].append({"scenario": "api_error", "result": "WARN", "error": "Could not reach submit"})
 
+    # Unroute after api_error test to prevent blocking subsequent requests
+    try:
+        helper.page.unroute("**/functions/v1/logbook*")
+    except:
+        pass
+
     # ─── Scenario 4: Permission Denied ────────────────────────────────
 
     helper.clear()
     print("  [WRITE] Permission: Worker cannot edit supervisor-only field...")
 
+    # Navigate to clean page before reading auth context (avoids SecurityError on error pages)
+    helper.goto("logbook")
+    helper.page.wait_for_timeout(500)
     current_role = helper.get_auth_context()["hive_role"]
     can_edit_supervisor = helper.verify_element_visible_for_role(
         "[data-field='supervisor-approval']",

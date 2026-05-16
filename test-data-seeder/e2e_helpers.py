@@ -109,12 +109,15 @@ class E2ETestHelper:
 
     def get_auth_context(self) -> Dict[str, str]:
         """Get current auth context (hive_id, worker_name, hive_role)."""
-        return {
-            "hive_id": self.page.evaluate("localStorage.getItem('wh_active_hive_id')"),
-            "worker_name": self.page.evaluate("localStorage.getItem('wh_last_worker')"),
-            "hive_role": self.page.evaluate("localStorage.getItem('wh_hive_role')"),
-            "hive_name": self.page.evaluate("localStorage.getItem('wh_hive_name')"),
-        }
+        try:
+            return {
+                "hive_id": self.page.evaluate("localStorage.getItem('wh_active_hive_id')"),
+                "worker_name": self.page.evaluate("localStorage.getItem('wh_last_worker')"),
+                "hive_role": self.page.evaluate("localStorage.getItem('wh_hive_role')"),
+                "hive_name": self.page.evaluate("localStorage.getItem('wh_hive_name')"),
+            }
+        except Exception:
+            return {"hive_id": None, "worker_name": None, "hive_role": None, "hive_name": None}
 
     # ─── Navigation ───────────────────────────────────────────────────────
 
