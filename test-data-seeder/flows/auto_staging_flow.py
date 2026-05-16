@@ -18,6 +18,7 @@ What this verifies:
 """
 
 import datetime, json, urllib.request, urllib.error
+from .harness import BASE_URL
 
 
 def _post_edge(base_url, fn_name, body, log):
@@ -175,7 +176,7 @@ def run(page, errors, warnings, log) -> dict:
     # ── Step 6: Verify asset-hub.html ships staging UI ───────────────────────
     log("Step 6: Verifying asset-hub.html staging UI...")
     try:
-        with urllib.request.urlopen(f"{page.rstrip('/')}/asset-hub.html", timeout=15) as r:
+        with urllib.request.urlopen(f"{BASE_URL.rstrip('/')}/workhive/asset-hub.html", timeout=15) as r:
             html = r.read(80000).decode("utf-8", errors="replace")
         checks = [
             ("staging-card div present",     'id="staging-card"'    in html),
@@ -195,7 +196,7 @@ def run(page, errors, warnings, log) -> dict:
     # ── Step 7: Verify alert-hub.html ships staging filter ───────────────────
     log("Step 7: Verifying alert-hub.html staging filter...")
     try:
-        with urllib.request.urlopen(f"{page.rstrip('/')}/alert-hub.html", timeout=15) as r:
+        with urllib.request.urlopen(f"{BASE_URL.rstrip('/')}/workhive/alert-hub.html", timeout=15) as r:
             html = r.read(60000).decode("utf-8", errors="replace")
         checks = [
             ("staging filter chip in KINDS", "id: 'staging'" in html),

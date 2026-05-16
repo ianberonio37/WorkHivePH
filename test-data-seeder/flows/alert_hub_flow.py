@@ -69,13 +69,14 @@ def run(page, errors, warnings, log) -> dict:
     log("Step 2: Seeding low-stock part (alert-test)...")
     try:
         db.table("inventory_items").insert({
+            "id":            f"at-ms32-{int(__import__('time').time())}",
             "hive_id":       hive_id,
             "worker_name":   worker_name,
             "part_name":     "Mechanical Seal MS-32 (alert-test)",
             "part_number":   "MS-32-AT",
             "category":      "Mechanical",
             "qty_on_hand":   0,
-            "reorder_point": 4,
+            "min_qty":       4,
             "unit":          "pcs",
             "status":        "approved",
         }).execute()
@@ -92,7 +93,6 @@ def run(page, errors, warnings, log) -> dict:
             "asset_name":    "Cooling Tower CT-99 (alert-test)",
             "category":      "Mechanical",
             "criticality":   "high",
-            "status":        "approved",
         }).execute()
         # No pm_completions inserted, so the alert-hub query will flag it as overdue
         results.append(("PASS", "PM overdue alert seeded (Cooling Tower CT-99)"))

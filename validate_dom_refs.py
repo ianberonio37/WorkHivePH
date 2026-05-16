@@ -37,10 +37,16 @@ LIVE_PAGES = [
     "analytics.html", "marketplace.html", "marketplace-admin.html", "marketplace-seller.html", "marketplace-seller-profile.html",
 ]
 
-CHECK_NAMES = ["getelementbyid_null_trap"]
+CHECK_NAMES = ["getelementbyid_null_trap", "undefined_canonical_globals"]
 CHECK_LABELS = {
-    "getelementbyid_null_trap": "L1  No bare getElementById chain on a missing HTML element  [FAIL]",
+    "getelementbyid_null_trap":    "L1  No bare getElementById chain on a missing HTML element  [FAIL]",
+    "undefined_canonical_globals": "L2  Canonical ops variables declared before use (WORKER_NAME/HIVE_ID/HIVE_ROLE)  [FAIL]",
 }
+
+# Variables that ops-home pages must declare (let/var/const X = ...) before using.
+# Scripts loaded from utils.js or nav-hub.js do NOT define these — each page owns
+# them, typically from a localStorage read at the top of its main <script> block.
+CANONICAL_GLOBALS = ["WORKER_NAME", "HIVE_ID", "HIVE_ROLE", "HIVE_NAME"]
 
 
 def check_getelementbyid_null_trap(pages):
@@ -97,6 +103,58 @@ def check_getelementbyid_null_trap(pages):
     return issues
 
 
+def check_undefined_canonical_globals(pages):
+    """Any page that USES WORKER_NAME / HIVE_ID / HIVE_ROLE / HIVE_NAME must also
+    DECLARE it (let/var/const X = ... or X = ...).  A use-without-declaration
+    throws ReferenceError at runtime, crashing the entire script block.
+
+    Detection: checks each inline <script> block independently — externally
+    loaded scripts (utils.js, nav-hub.js) do not declare these.
+    """
+    issues = []
+    decl_re = re.compile(
+        r'(?:let|var|const)\s+({vars})\s*=|({vars})\s*=\s*[^=]'
+        .format(vars="|".join(CANONICAL_GLOBALS))
+    )
+    use_re_map = {v: re.compile(rf'\b{v}\b') for v in CANONICAL_GLOBALS}
+
+    for page in pages:
+        content = read_file(page)
+        if content is None:
+            continue
+        # Extract inline script blocks only (skip <script src="...">)
+        script_blocks = re.findall(r'<script(?:\s(?!src)[^>]*)?>(.+?)</script>',
+                                   content, re.DOTALL | re.IGNORECASE)
+        combined_script = "\n".join(script_blocks)
+        if not combined_script.strip():
+            continue
+
+        # Which canonical variables are declared anywhere in the page's inline scripts?
+        declared = set()
+        for m in decl_re.finditer(combined_script):
+            for g in m.groups():
+                if g and g in CANONICAL_GLOBALS:
+                    declared.add(g)
+
+        for var in CANONICAL_GLOBALS:
+            if var in declared:
+                continue
+            if not use_re_map[var].search(combined_script):
+                continue
+            issues.append({
+                "check": "undefined_canonical_globals",
+                "page": page,
+                "line": 0,
+                "reason": (
+                    f"{page} uses '{var}' but never declares it — "
+                    f"add `const {var} = localStorage.getItem('wh_{var.lower()}') || '';` "
+                    f"near the top of the main script block; "
+                    f"missing declaration causes ReferenceError that aborts the script"
+                ),
+            })
+    return issues
+
+
 # ── Runner ────────────────────────────────────────────────────────────────────
 
 def main():
@@ -105,6 +163,7 @@ def main():
     print("=" * 40)
 
     all_issues = check_getelementbyid_null_trap(LIVE_PAGES)
+    all_issues += check_undefined_canonical_globals(LIVE_PAGES)
 
     n_pass, n_warn, n_fail = format_result(CHECK_NAMES, CHECK_LABELS, all_issues)
 

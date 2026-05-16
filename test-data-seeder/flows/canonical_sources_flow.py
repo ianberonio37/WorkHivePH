@@ -182,7 +182,7 @@ def run(page, errors, warnings, log) -> dict:
 
     # ── Layer 3: Reader compliance (static-file checks) ──────────────────────
     log("Step 8: Verifying canonical readers point at the right view names...")
-    base = BASE_URL.rstrip("/")
+    base = BASE_URL.rstrip("/") + '/workhive'
     reader_checks = [
         # path, must_contain
         ("/asset-hub.html",    ["v_asset_truth"]),

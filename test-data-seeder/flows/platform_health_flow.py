@@ -140,23 +140,34 @@ def run(page, errors, warnings, log) -> dict:
         results.append(("WARN", f"E skipped: {e}"))
         log(f"    → WARN: {e}")
 
-    # ── Scenario F: No undefined or null in score display ────────────────────
-    log("  [F] No 'undefined' or literal 'null' in score display...")
+    # ── Scenario F: No undefined or null in data display (not doc text) ────────
+    log("  [F] No 'undefined' or literal 'null' in score/data display...")
     try:
-        page_text    = page.locator("body").inner_text()
-        has_undef    = "undefined" in page_text
-        has_null_str = bool(re.search(r"\bnull\b", page_text))
+        # Scope to data containers, not documentation text (guide-row sections
+        # legitimately use the word 'null' in descriptions of what they check).
+        data_text = ""
+        for sel in ["#ph-summary", "#ph-score", "#health-score", "[data-score]",
+                    "#pass-count", "#fail-count", "#warn-count"]:
+            el = page.locator(sel)
+            if el.count():
+                data_text += el.first.inner_text() + " "
+        # Fall back to body if no data containers found
+        if not data_text.strip():
+            data_text = page.locator("body").inner_text()
+
+        has_undef    = "undefined" in data_text
+        has_null_str = bool(re.search(r"\bnull\b", data_text))
 
         if has_undef:
-            results.append(("FAIL", "F: 'undefined' found on platform health page"))
+            results.append(("FAIL", "F: 'undefined' found in score display"))
         elif has_null_str:
-            results.append(("WARN", "F: literal 'null' found in page text"))
+            results.append(("WARN", "F: literal 'null' in score/data display"))
         else:
-            results.append(("PASS", "F: no 'undefined' or literal 'null' on platform health"))
-        log(f"    → {results[-1]}")
+            results.append(("PASS", "F: no 'undefined' or literal 'null' in data display"))
+        log(f"    => {results[-1]}")
     except Exception as e:
         results.append(("FAIL", f"F crashed: {e}"))
-        log(f"    → FAIL: {e}")
+        log(f"    => FAIL: {e}")
 
     # ── Scenario G: Last run timestamp is valid ───────────────────────────────
     log("  [G] Last run timestamp is plausible (not 1970 or future)...")
