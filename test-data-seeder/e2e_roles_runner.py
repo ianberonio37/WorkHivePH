@@ -125,15 +125,12 @@ def run_page_roles(factory: RoleContextFactory, page_name: str) -> Dict:
             gate_visible = gate_results.get(role, False)
 
             # Check if solo was redirected away (window.location changed)
+            redirected = False
             try:
-                current_url = sessions.get(role, {})
-                # Get page URL from session if available
                 sess_solo = factory._sessions.get("solo")
                 if sess_solo:
                     current_url = sess_solo.page.url
                     redirected = page_name not in current_url
-                else:
-                    redirected = False
             except:
                 redirected = False
 

@@ -112,12 +112,33 @@ class RoleSession:
         """
         if self.role == "solo":
             try:
+                # Clear hive context IMMEDIATELY before each navigation.
+                # hive.html auto-restores HIVE_ID from Supabase when community
+                # redirects there, so clearing once at login is not enough.
+                try:
+                    self.page.evaluate("""() => {
+                        ['wh_active_hive_id','wh_hive_id','wh_hive_role','wh_hive_name']
+                            .forEach(k => localStorage.removeItem(k));
+                    }""")
+                except:
+                    pass
+
                 self.page.goto(
                     f"{BASE_URL}/{page_name}.html",
                     wait_until="networkidle", timeout=15000,
                 )
-                # Wait for async init() to fire and complete any JS redirects
+                # Wait for async init() and any JS redirects to settle
                 self.page.wait_for_timeout(4000)
+
+                # Clear again — hive.html may have restored context during redirect
+                try:
+                    self.page.evaluate("""() => {
+                        ['wh_active_hive_id','wh_hive_id','wh_hive_role','wh_hive_name']
+                            .forEach(k => localStorage.removeItem(k));
+                    }""")
+                except:
+                    pass
+
                 return True
             except:
                 return False
