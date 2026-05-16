@@ -65,6 +65,7 @@
       align-items: center;
       gap: 0.4rem;
       padding: 0.35rem 0.65rem;
+      min-height: 44px;
       border-radius: 999px;
       font-family: 'Poppins', system-ui, sans-serif;
       font-size: 0.66rem;

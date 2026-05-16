@@ -197,26 +197,22 @@ def test_logbook_write_path(page: Page, base_url: str) -> dict:
         helper.page.evaluate("() => { const g = document.getElementById('hive-gate'); if(g) g.style.display='none'; }")
         helper.page.wait_for_selector("#step-panel-1", timeout=8000)
 
-        # Advance through steps without filling required fields
-        try:
-            helper.page.locator("button.btn-next").first.click(timeout=3000)
-        except:
-            helper.page.evaluate("if(typeof stepGo === 'function') stepGo(2);")
-        helper.page.wait_for_timeout(400)
-        try:
-            helper.page.locator("button.btn-next").first.click(timeout=3000)
-        except:
-            helper.page.evaluate("if(typeof stepGo === 'function') stepGo(3);")
-        helper.page.wait_for_timeout(400)
+        # Force-advance to step 3 bypassing stepGo() validation (to test submit guard)
+        helper.page.evaluate("""() => {
+            document.querySelectorAll('.step-panel').forEach(p => p.classList.remove('active'));
+            const s3 = document.getElementById('step-panel-3');
+            if (s3) s3.classList.add('active');
+            try { _currentStep = 3; } catch(e) {}
+        }""")
+        helper.page.wait_for_timeout(300)
 
-        # Try to submit without filling required fields
+        # Submit without filling machine — should show toast "Please select an asset"
         submit_btn = helper.page.locator("#save-entry-btn")
         if submit_btn.is_visible(timeout=2000):
             submit_btn.click()
-            helper.page.wait_for_timeout(1000)
 
-        has_err = helper.check_validation_error("required") or helper.check_validation_error("asset") or \
-                  helper.check_validation_error("machine") or helper.verify_data_rendered("required")
+        has_err = helper.check_validation_error("asset") or helper.check_validation_error("select") or \
+                  helper.check_validation_error("machine") or helper.check_validation_error("required")
         results["write"].append({
             "scenario": "validation",
             "result": "PASS" if has_err else "WARN",

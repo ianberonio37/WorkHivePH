@@ -47,10 +47,11 @@ def test_write(page: Page) -> dict:
     results.append({"scenario": "happy_signin", "result": "PASS" if login_ok else "FAIL", "actual": f"login={login_ok}"})
 
     # Validation: open modal and submit empty credentials
+    # If user is already signed in the modal auto-dismisses — treat as WARN not FAIL
     h.clear()
     try:
         h.page.goto(f"{BASE_URL}/index.html?signin=1", wait_until="domcontentloaded")
-        h.page.wait_for_selector("#si-username", state="visible", timeout=8000)
+        h.page.wait_for_selector("#si-username", state="visible", timeout=4000)
         h.page.fill("#si-username", "")
         h.page.fill("#si-password", "")
         h.page.click("#si-btn")
