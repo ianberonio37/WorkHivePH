@@ -330,6 +330,15 @@ VALIDATORS = [
         "skip_if_fast": False,
     },
     {
+        "id":      "voice-data-flow",
+        "script":  "validate_voice_data_flow.py",
+        "args":    [],
+        "label":   "Voice Data Flow Audit (Phase 3/5/8: KB RAG, proactive alerts, analytics)",
+        "group":   "Platform",
+        "report":  "voice_data_flow_report.json",
+        "skip_if_fast": False,
+    },
+    {
         "id":      "rag-integrity",
         "script":  "validate_rag_integrity.py",
         "args":    [],

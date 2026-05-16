@@ -78,6 +78,7 @@ PUBLIC_PAGES = [
     ("alert-hub.html", "Alert Hub"),
     ("audit-log.html", "Audit Log"),
     ("voice-journal.html", "Voice Journal"),
+    ("founder-console.html", "Founder Console"),
 ]
 PUBLIC_PAGE_SET = {p[0] for p in PUBLIC_PAGES}
 
@@ -423,6 +424,8 @@ def api_seed_module(module):
     from seeders.amc import seed_amc
     from seeders.sensor_readings import seed_sensor_readings
     from seeders.voice_journal import seed_voice_journal
+    from seeders.voice_companion_phase3_rag import run as seed_voice_rag
+    from seeders.voice_companion_phase5_alerts import run as seed_voice_alerts
     needs_ctx_map = {
         "assets": seed_assets,
         "pm": seed_pm,
@@ -439,6 +442,8 @@ def api_seed_module(module):
         "amc": seed_amc,
         "sensor_readings": seed_sensor_readings,
         "voice_journal": seed_voice_journal,
+        "voice_rag": seed_voice_rag,
+        "voice_alerts": seed_voice_alerts,
     }
 
     if module in standalone_map:
