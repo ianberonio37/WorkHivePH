@@ -1,0 +1,529 @@
+#!/usr/bin/env python3
+"""
+Permission Matrix — WorkHive Platform
+======================================
+Defines expected UI elements per page for each of the 3 roles:
+  solo        — authenticated, no hive context
+  worker      — hive member, role = 'worker'
+  supervisor  — hive member, role = 'supervisor'
+
+Each page entry has:
+  elements    : {name: selector} — what to check visibility for
+  expected    : per-role visibility expectations
+  solo_gate   : True if solo should see #hive-gate (most pages)
+
+Run via e2e_roles_runner.py.
+"""
+
+PERMISSION_MATRIX = {
+
+    # ── TIER 1: Core Workflows ─────────────────────────────────────────────────
+
+    "logbook": {
+        "solo_gate": True,
+        "elements": {
+            # Form is always in static HTML (behind gate); check step-1 btn instead
+            "step1_next_btn":       "button.btn-next",
+            "view_team_tab":        "#btn-view-team",
+            "view_mine_tab":        "#btn-view-mine",
+            "search_input":         "#search-input",
+            "asset_picker":         "#asset-picker-btn",
+        },
+        "expected": {
+            # Solo: hive-gate is a CSS overlay (not DOM removal) so Playwright sees elements
+            # as "visible" even for solo. Gate check in gate_results handles the solo test.
+            # Only check elements that are JS-removed (not just covered by the overlay).
+            "solo":       {"view_team_tab": None, "view_mine_tab": None},  # None = no assertion
+            # Worker: can add entries and switch views
+            "worker":     {"step1_next_btn": True, "view_team_tab": True, "view_mine_tab": True},
+            # Supervisor: same as worker + richer team access at runtime
+            "supervisor": {"step1_next_btn": True, "view_team_tab": True, "view_mine_tab": True},
+        },
+        "supervisor_extras": "Supervisor defaults to team view; can see all workers' entries",
+    },
+
+    "inventory": {
+        "solo_gate": True,
+        "elements": {
+            "inventory_list":       "[data-item-id], .inventory-card, .item-row",
+            "restock_btn":          "button:has-text('Restock'), button:has-text('Add Stock')",
+            "approval_queue":       "[data-approval], .approval-btn, button:has-text('Approve')",
+        },
+        "expected": {
+            "solo":       {"inventory_list": False},
+            "worker":     {"inventory_list": True,  "restock_btn": True},
+            "supervisor": {"inventory_list": True,  "restock_btn": True, "approval_queue": True},
+        },
+        "supervisor_extras": "Supervisor sees pending approval queue for restock/deduct requests",
+    },
+
+    "pm-scheduler": {
+        "solo_gate": True,
+        "elements": {
+            "task_list":            "[data-task-id], .pm-card, .task-row",
+            "complete_btn":         "button:has-text('Complete'), button:has-text('Done')",
+            "reassign_btn":         "button:has-text('Reassign'), [data-action='reassign']",
+            "create_template_btn":  "button:has-text('New Template'), [data-action='create-template']",
+        },
+        "expected": {
+            "solo":       {"task_list": False},
+            "worker":     {"task_list": True, "complete_btn": True},
+            "supervisor": {"task_list": True, "complete_btn": True},
+        },
+        "supervisor_extras": "Supervisor can reassign and create PM templates",
+    },
+
+    "hive": {
+        "solo_gate": True,
+        "elements": {
+            "kpi_cards":            ".kpi-card, .dashboard-card, [data-kpi]",
+            "onboarding_stepper":   "#onboarding-stepper, .onboarding-card",
+            "intent_btn":           "[data-action='set-intent'], .intent-btn",
+            "manage_members_btn":   "button:has-text('Members'), [data-action='manage-members']",
+        },
+        "expected": {
+            "solo":       {"kpi_cards": False},
+            "worker":     {"kpi_cards": True},
+            "supervisor": {"kpi_cards": True},
+        },
+        "supervisor_extras": "Supervisor sees member management, intent capture, supervisor engagement card",
+    },
+
+    "community": {
+        "solo_gate": True,
+        "elements": {
+            "post_feed":            "[data-post-id], .post-card, .community-post",
+            "create_post_input":    "textarea, #post_content",
+            "post_submit_btn":      "button:has-text('Post'), button:has-text('Share')",
+            "supervisor_edit_btn":  "[data-action='supervisor-edit'], .supervisor-edit-btn",
+        },
+        "expected": {
+            "solo":       {"post_feed": False},
+            "worker":     {"post_feed": True, "create_post_input": True},
+            "supervisor": {"post_feed": True, "create_post_input": True},
+        },
+        "supervisor_extras": "Supervisor can edit/delete any post (supervisor-edit button on others' posts)",
+    },
+
+    "marketplace": {
+        "solo_gate": False,  # marketplace is semi-public
+        "elements": {
+            "listings":             "[data-listing-id], .listing-card",
+            "create_listing_btn":   "button:has-text('New'), button:has-text('Create'), button:has-text('List Item')",
+            "approval_queue":       "[data-approval], .approval-queue, button:has-text('Approve')",
+        },
+        "expected": {
+            "solo":       {"listings": True, "create_listing_btn": False},
+            "worker":     {"listings": True, "create_listing_btn": True},
+            "supervisor": {"listings": True, "create_listing_btn": True},
+        },
+        "supervisor_extras": "Supervisor sees seller verification and approval queue",
+    },
+
+    "project-manager": {
+        "solo_gate": True,
+        "elements": {
+            "project_list":         "[data-project-id], .project-card",
+            "new_project_btn":      "button:has-text('New'), button:has-text('Create')",
+            "approve_btn":          "button:has-text('Approve'), [data-action='approve']",
+            "assign_btn":           "button:has-text('Assign'), [data-action='assign']",
+        },
+        "expected": {
+            "solo":       {"project_list": False},
+            "worker":     {"project_list": True, "new_project_btn": True},
+            "supervisor": {"project_list": True, "new_project_btn": True},
+        },
+        "supervisor_extras": "Supervisor can approve workorders and assign to workers",
+    },
+
+    # ── TIER 2: Analytics ─────────────────────────────────────────────────────
+
+    "analytics": {
+        "solo_gate": True,
+        "elements": {
+            "kpi_cards":            ".kpi-card, .metric-card, [data-kpi]",
+            "period_selector":      "select#period, [data-period]",
+            "export_btn":           "button:has-text('Export')",
+        },
+        "expected": {
+            "solo":       {"kpi_cards": False},
+            "worker":     {"kpi_cards": True},
+            "supervisor": {"kpi_cards": True},
+        },
+        "supervisor_extras": "Supervisor sees OEE/MTBF across all workers (not just own)",
+    },
+
+    "analytics-report": {
+        "solo_gate": True,
+        "elements": {
+            "report_sections":      ".report-section, [data-section]",
+            "generate_btn":         "button:has-text('Generate')",
+        },
+        "expected": {
+            "solo":       {"report_sections": False},
+            "worker":     {"report_sections": True},
+            "supervisor": {"report_sections": True},
+        },
+        "supervisor_extras": "Supervisor can generate reports for all workers",
+    },
+
+    "shift-brain": {
+        "solo_gate": True,
+        "elements": {
+            "handover_entries":     ".handover-card, [data-shift-id]",
+            "submit_handover_btn":  "button:has-text('Submit'), button:has-text('Save Handover')",
+        },
+        "expected": {
+            "solo":       {"handover_entries": False},
+            "worker":     {"handover_entries": True, "submit_handover_btn": True},
+            "supervisor": {"handover_entries": True, "submit_handover_btn": True},
+        },
+        "supervisor_extras": "Supervisor sees all shifts, can view team handovers",
+    },
+
+    "asset-hub": {
+        "solo_gate": True,
+        "elements": {
+            "asset_list":           "[data-asset-id], .asset-card",
+            "edit_btn":             "button:has-text('Edit'), [data-action='edit']",
+            "risk_edit_btn":        "[data-action='edit-risk'], .risk-edit-btn",
+        },
+        "expected": {
+            "solo":       {"asset_list": False},
+            "worker":     {"asset_list": True},
+            "supervisor": {"asset_list": True},
+        },
+        "supervisor_extras": "Supervisor can edit asset metadata and risk scores",
+    },
+
+    "alert-hub": {
+        "solo_gate": True,
+        "elements": {
+            "alert_list":           "[data-alert-id], .alert-card",
+            "acknowledge_btn":      "button:has-text('Acknowledge')",
+            "resolve_btn":          "button:has-text('Resolve')",
+            "severity_filter":      "select#severity-filter, [data-filter='severity']",
+        },
+        "expected": {
+            "solo":       {"alert_list": False},
+            "worker":     {"alert_list": True, "acknowledge_btn": True},
+            "supervisor": {"alert_list": True, "acknowledge_btn": True, "resolve_btn": True},
+        },
+        "supervisor_extras": "Supervisor can resolve alerts and configure alert thresholds",
+    },
+
+    "predictive": {
+        "solo_gate": True,
+        "elements": {
+            "prediction_cards":     "[data-prediction-id], .prediction-card",
+            "score_btn":            "button:has-text('Score'), button:has-text('Analyze')",
+        },
+        "expected": {
+            "solo":       {"prediction_cards": False},
+            "worker":     {"prediction_cards": True},
+            "supervisor": {"prediction_cards": True, "score_btn": True},
+        },
+        "supervisor_extras": "Supervisor can trigger ML scoring runs",
+    },
+
+    "ai-quality": {
+        "solo_gate": True,
+        "elements": {
+            "quality_metrics":      ".quality-card, [data-eval-id]",
+            "evaluate_btn":         "button:has-text('Evaluate')",
+        },
+        "expected": {
+            "solo":       {"quality_metrics": False},
+            "worker":     {"quality_metrics": True},
+            "supervisor": {"quality_metrics": True, "evaluate_btn": True},
+        },
+        "supervisor_extras": "Supervisor can trigger AI evaluations",
+    },
+
+    # ── TIER 3: Admin ─────────────────────────────────────────────────────────
+
+    "skillmatrix": {
+        "solo_gate": True,
+        "elements": {
+            "skill_rows":           ".skill-row, [data-skill-id]",
+            "update_target_btn":    "button:has-text('Update'), button:has-text('Set Target')",
+        },
+        "expected": {
+            "solo":       {"skill_rows": False},
+            "worker":     {"skill_rows": True},
+            "supervisor": {"skill_rows": True, "update_target_btn": True},
+        },
+        "supervisor_extras": "Supervisor can set skill targets and award badges manually",
+    },
+
+    "report-sender": {
+        "solo_gate": True,
+        "elements": {
+            "report_template":      ".report-template, [data-template-id]",
+            "send_btn":             "button:has-text('Send')",
+            "recipients_input":     "#recipients",
+        },
+        "expected": {
+            "solo":       {"report_template": False},
+            "worker":     {"report_template": False},  # worker may not access report-sender
+            "supervisor": {"report_template": True, "send_btn": True},
+        },
+        "supervisor_extras": "Report-sender is supervisor-only",
+    },
+
+    "plant-connections": {
+        "solo_gate": True,
+        "elements": {
+            "plant_list":           ".plant-card, [data-plant-id]",
+            "edit_config_btn":      "button:has-text('Edit'), button:has-text('Configure')",
+            "add_plant_btn":        "button:has-text('Add Plant')",
+        },
+        "expected": {
+            "solo":       {"plant_list": False},
+            "worker":     {"plant_list": False},  # admin/supervisor only
+            "supervisor": {"plant_list": True},
+        },
+        "supervisor_extras": "Plant connections is supervisor-only enterprise config",
+    },
+
+    "audit-log": {
+        "solo_gate": True,
+        "elements": {
+            "audit_entries":        "[data-audit-id], .audit-row",
+            "action_filter":        "select#action-filter, [data-filter='action']",
+        },
+        "expected": {
+            "solo":       {"audit_entries": False},
+            "worker":     {"audit_entries": False},  # supervisor only
+            "supervisor": {"audit_entries": True},
+        },
+        "supervisor_extras": "Audit log is supervisor-only",
+    },
+
+    "platform-health": {
+        "solo_gate": True,
+        "elements": {
+            "health_cards":         ".health-card, [data-validator]",
+            "refresh_btn":          "button:has-text('Refresh')",
+        },
+        "expected": {
+            "solo":       {"health_cards": False},
+            "worker":     {"health_cards": False},  # admin only
+            "supervisor": {"health_cards": True},
+        },
+        "supervisor_extras": "Platform health is admin-only",
+    },
+
+    "achievements": {
+        "solo_gate": True,
+        "elements": {
+            "badge_cards":          ".badge-card, [data-badge-id]",
+            "award_btn":            "button:has-text('Award'), [data-action='award']",
+        },
+        "expected": {
+            "solo":       {"badge_cards": False},
+            "worker":     {"badge_cards": True},
+            "supervisor": {"badge_cards": True, "award_btn": True},
+        },
+        "supervisor_extras": "Supervisor can manually award badges",
+    },
+
+    "voice-journal": {
+        "solo_gate": True,
+        "elements": {
+            "voice_logs":           "[data-log-id], .voice-entry",
+            "record_btn":           "button:has-text('Record'), button:has-text('Start')",
+        },
+        "expected": {
+            "solo":       {"voice_logs": False},
+            "worker":     {"voice_logs": True, "record_btn": True},
+            "supervisor": {"voice_logs": True, "record_btn": True},
+        },
+        "supervisor_extras": "Supervisor can see all workers' voice logs",
+    },
+
+    "integrations": {
+        "solo_gate": True,
+        "elements": {
+            "integration_cards":    ".integration-card, [data-integration-id]",
+            "configure_btn":        "button:has-text('Configure')",
+        },
+        "expected": {
+            "solo":       {"integration_cards": False},
+            "worker":     {"integration_cards": False},  # supervisor only
+            "supervisor": {"integration_cards": True, "configure_btn": True},
+        },
+        "supervisor_extras": "Integrations is supervisor/admin only",
+    },
+
+    # ── TIER 4: Landing ───────────────────────────────────────────────────────
+
+    "index": {
+        "solo_gate": False,  # public page
+        "elements": {
+            "signin_modal_trigger": ".signin-btn, a:has-text('Sign In')",
+            "hero_section":         "body",
+        },
+        "expected": {
+            "solo":       {"hero_section": True},
+            "worker":     {"hero_section": True},
+            "supervisor": {"hero_section": True},
+        },
+        "supervisor_extras": "N/A — public landing page",
+    },
+
+    "public-feed": {
+        "solo_gate": False,
+        "elements": {
+            "post_feed":            "[data-post-id], .feed-post",
+            "search_input":         "input[type='search'], input#search",
+        },
+        "expected": {
+            "solo":       {"post_feed": True},
+            "worker":     {"post_feed": True},
+            "supervisor": {"post_feed": True},
+        },
+        "supervisor_extras": "N/A — public feed",
+    },
+
+    "assistant": {
+        "solo_gate": True,
+        "elements": {
+            "chat_input":           "#chat-input, textarea",
+            "send_btn":             "button:has-text('Send')",
+        },
+        "expected": {
+            "solo":       {"chat_input": False},
+            "worker":     {"chat_input": True},
+            "supervisor": {"chat_input": True},
+        },
+        "supervisor_extras": "Supervisor gets richer context in AI responses",
+    },
+
+    "ph-intelligence": {
+        "solo_gate": True,
+        "elements": {
+            "insight_cards":        ".insight-card, .kpi-card",
+        },
+        "expected": {
+            "solo":       {"insight_cards": False},
+            "worker":     {"insight_cards": True},
+            "supervisor": {"insight_cards": True},
+        },
+        "supervisor_extras": "Supervisor sees platform-wide intelligence",
+    },
+
+    "marketplace-admin": {
+        "solo_gate": True,
+        "elements": {
+            "listing_queue":        "[data-listing-id], .pending-listing",
+            "approve_btn":          "button:has-text('Approve')",
+            "reject_btn":           "button:has-text('Reject')",
+        },
+        "expected": {
+            "solo":       {"listing_queue": False},
+            "worker":     {"listing_queue": False},  # admin only
+            "supervisor": {"listing_queue": True, "approve_btn": True},
+        },
+        "supervisor_extras": "Marketplace admin is supervisor/admin only",
+    },
+
+    # ── TIER 5: Specialized ───────────────────────────────────────────────────
+
+    "dayplanner": {
+        "solo_gate": True,
+        "elements": {
+            "schedule_entries":     "[data-entry-id], .schedule-entry",
+            "add_btn":              "button:has-text('Add'), button:has-text('New')",
+        },
+        "expected": {
+            "solo":       {"schedule_entries": False},
+            "worker":     {"schedule_entries": True, "add_btn": True},
+            "supervisor": {"schedule_entries": True, "add_btn": True},
+        },
+        "supervisor_extras": "Supervisor can see team's day plans",
+    },
+
+    "engineering-design": {
+        "solo_gate": True,
+        "elements": {
+            "calc_cards":           ".calc-card, [data-calc-id], .discipline-card",
+        },
+        "expected": {
+            "solo":       {"calc_cards": False},
+            "worker":     {"calc_cards": True},
+            "supervisor": {"calc_cards": True},
+        },
+        "supervisor_extras": "All roles can run engineering calcs",
+    },
+
+    "project-report": {
+        "solo_gate": True,
+        "elements": {
+            "report_sections":      ".report-section, [data-section]",
+            "generate_btn":         "button:has-text('Generate')",
+        },
+        "expected": {
+            "solo":       {"report_sections": False},
+            "worker":     {"report_sections": True},
+            "supervisor": {"report_sections": True, "generate_btn": True},
+        },
+        "supervisor_extras": "Supervisor can generate stakeholder reports",
+    },
+
+    "marketplace-seller": {
+        "solo_gate": True,
+        "elements": {
+            "product_list":         "[data-product-id], .product-card",
+            "add_product_btn":      "button:has-text('List'), button:has-text('Add Product')",
+        },
+        "expected": {
+            "solo":       {"product_list": False},
+            "worker":     {"product_list": True, "add_product_btn": True},
+            "supervisor": {"product_list": True, "add_product_btn": True},
+        },
+        "supervisor_extras": "Supervisor sees sales analytics across all sellers",
+    },
+
+    "marketplace-seller-profile": {
+        "solo_gate": False,
+        "elements": {
+            "profile_content":      ".profile-card, body",
+            "edit_profile_btn":     "button:has-text('Edit Profile'), button:has-text('Edit')",
+        },
+        "expected": {
+            "solo":       {"profile_content": True},
+            "worker":     {"profile_content": True, "edit_profile_btn": True},
+            "supervisor": {"profile_content": True, "edit_profile_btn": True},
+        },
+        "supervisor_extras": "Supervisors can edit seller profiles for their team",
+    },
+
+    "symbol-gallery": {
+        "solo_gate": False,  # browsable by all
+        "elements": {
+            "symbol_cards":         ".symbol-card, [data-symbol-id]",
+            "standard_filter":      "select#standard, button:has-text('IEC')",
+        },
+        "expected": {
+            "solo":       {"symbol_cards": True},
+            "worker":     {"symbol_cards": True},
+            "supervisor": {"symbol_cards": True},
+        },
+        "supervisor_extras": "N/A — read-only gallery for all",
+    },
+
+    "founder-console": {
+        "solo_gate": True,
+        "elements": {
+            "console_panels":       ".panel, [data-panel], .console-card",
+            "refresh_all_btn":      "button:has-text('Refresh All')",
+        },
+        "expected": {
+            "solo":       {"console_panels": False},
+            "worker":     {"console_panels": False},  # founder/admin only
+            "supervisor": {"console_panels": True},   # accessible in test env
+        },
+        "supervisor_extras": "Founder console requires founder/admin role in production",
+    },
+}
