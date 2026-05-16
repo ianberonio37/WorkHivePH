@@ -150,8 +150,8 @@ def check_voice_data_flow():
                 print(f"  {RED}FAIL{RESET} fetch_active_alerts RPC not called")
                 results["fail"] += 1
 
-            # Check if alerts are in system prompt
-            if "proactiveAlerts" in js_content and "ACTIVE ALERTS" in js_content:
+            # Check if alerts are in system prompt (look for new mandatory alert format)
+            if "proactiveAlerts" in js_content and ("CRITICAL PRIORITY" in js_content or "ACTIVE ALERTS" in js_content):
                 print(f"  {GREEN}PASS{RESET} Alerts section in system prompt")
                 results["pass"] += 1
             else:
