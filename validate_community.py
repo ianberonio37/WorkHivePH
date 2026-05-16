@@ -86,6 +86,7 @@ CHECKS = {
     "soft_delete_uses_undo":  "L6  deletePost uses showUndoToast (soft-delete recovery window)",
     "mention_parser_wired":   "L6  parseMentions defined and called in submitPost when @mention UI exists",
     "badge_trigger_column_match": "L7  handle_community_post_xp INSERT columns all exist in skill_badges schema",
+    "supervisor_edit_additive":   "L7  Supervisor action panel includes isMine edit button (not replacing it)",
 }
 
 
@@ -459,6 +460,38 @@ def check_badge_trigger_column_match():
     return issues
 
 
+def check_supervisor_edit_additive(content):
+    """Supervisor action panel must include the isMine edit button, not replace it.
+
+    Pattern: HIVE_ROLE === 'supervisor' ? `...` : (isMine ? `...edit...` : ...)
+    Bug: if the supervisor branch completely replaces isMine edit actions, supervisors
+    cannot edit their own posts.  Fix: add isMine check inside the supervisor branch.
+
+    Detection: find the supervisor ternary block and verify 'openEditor' appears
+    inside the supervisor branch (before the ternary fallback).
+    """
+    issues = []
+    # Find supervisor ternary block
+    sup_match = re.search(
+        r"HIVE_ROLE\s*===\s*['\"]supervisor['\"].*?\?(.+?):\s*\(isMine",
+        content, re.DOTALL
+    )
+    if not sup_match:
+        return issues  # pattern not found — community.html may use different structure
+
+    supervisor_branch = sup_match.group(1)
+    if "openEditor" not in supervisor_branch:
+        issues.append({
+            "check": "supervisor_edit_additive",
+            "reason": (
+                "community.html supervisor action panel does not include openEditor — "
+                "supervisors cannot edit their own posts; "
+                "add isMine-conditional edit button inside the supervisor branch"
+            ),
+        })
+    return issues
+
+
 # Ordered list of check keys (drives print order)
 CHECK_NAMES = list(CHECKS.keys())
 CHECK_LABELS = CHECKS
@@ -502,6 +535,7 @@ def main():
     all_issues += check_soft_delete_uses_undo(content)
     all_issues += check_mention_parser_wired(content)
     all_issues += check_badge_trigger_column_match()
+    all_issues += check_supervisor_edit_additive(content)
 
     n_pass, n_skip, n_fail = format_result(CHECK_NAMES, CHECK_LABELS, all_issues)
 
