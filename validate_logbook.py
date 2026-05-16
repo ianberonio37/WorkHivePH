@@ -414,6 +414,26 @@ def check_team_query_first(content, page):
     return issues
 
 
+def check_machine_validation_toast(content, page):
+    """
+    Layer 2 → Layer 1 feedback (2026-05-16): the machine-empty guard in the
+    submit handler must call showToast() so the user sees a clear message.
+    A border-highlight alone is too subtle — consistent with category and
+    problem guards that both show a toast.
+    """
+    # Find the submit handler's machine guard
+    m = re.search(r"if\s*\(!machine\)", content)
+    if not m:
+        return []  # No guard at all — caught by other checks
+    window = content[m.start():m.start() + 400]
+    if "showToast" not in window:
+        return [{"check": "machine_validation_toast", "page": page,
+                 "reason": ("Submit handler machine-empty guard does not call showToast(). "
+                            "User only sees border highlight (too subtle). "
+                            "Fix: add showToast('Please select an asset before saving.') inside the if(!machine) block.")}]
+    return []
+
+
 def check_edit_in_place(content, page):
     """
     Edit must reuse the main add form (edit-in-place) not a parallel mc.innerHTML modal.
@@ -449,6 +469,8 @@ CHECK_NAMES = [
     "highlight_escapes", "await_in_non_async",
     # L4 — feature completeness
     "offline_queue", "team_query_first", "edit_in_place",
+    # L3 — Layer 2 E2E feedback
+    "machine_validation_toast",
 ]
 
 CHECK_LABELS = {
@@ -479,6 +501,8 @@ CHECK_LABELS = {
     "offline_queue":                "L4  Offline queue present (IndexedDB + online drain + banner)",
     "team_query_first":             "L4  Team feed uses query-first UX (not auto-load)",
     "edit_in_place":                "L4  Edit uses main form in-place (not parallel mc.innerHTML)",
+    # L3 — Layer 2 E2E feedback (2026-05-16)
+    "machine_validation_toast":     "L3  Machine-empty guard shows showToast() not just border highlight",
 }
 
 
@@ -526,6 +550,9 @@ def main():
     all_issues += check_offline_queue(logbook, LOGBOOK_PAGE)
     all_issues += check_team_query_first(logbook, LOGBOOK_PAGE)
     all_issues += check_edit_in_place(logbook, LOGBOOK_PAGE)
+
+    # L3 — Layer 2 E2E feedback
+    all_issues += check_machine_validation_toast(logbook, LOGBOOK_PAGE)
 
     n_pass, n_skip, n_fail = format_result(CHECK_NAMES, CHECK_LABELS, all_issues)
 

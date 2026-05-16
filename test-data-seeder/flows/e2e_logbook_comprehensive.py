@@ -38,9 +38,8 @@ def test_logbook_read_path(page: Page, base_url: str) -> dict:
 
     helper.wait_for_page_load()
 
-    # Dismiss hive-gate so data can load
-    helper.page.evaluate("() => { const g = document.getElementById('hive-gate'); if(g) g.style.display='none'; }")
-    helper.page.wait_for_timeout(1500)  # allow data fetches to complete
+    # Gate dismissal + data reload is now handled inside goto() automatically.
+    helper.page.wait_for_timeout(500)
 
     # Verify data rendered — entries use .entry-card class
     item_count = helper.count_rendered_items(".entry-card")
@@ -121,13 +120,8 @@ def _logbook_fill_all_steps(helper, machine="TEST-001", problem="E2E test proble
         if not already_on_page:
             helper.goto("logbook")
 
-        helper.page.wait_for_timeout(1000)  # let page JS settle
-
-        # Force-dismiss hive-gate overlay (test environment bypass)
-        helper.page.evaluate("""() => {
-            const gate = document.getElementById('hive-gate');
-            if (gate) gate.style.display = 'none';
-        }""")
+        # goto() already dismissed hive-gate and loaded data; just settle
+        helper.page.wait_for_timeout(500)
 
         # Wait for step 1 to be in DOM (attached = present in DOM, not necessarily visible)
         helper.page.wait_for_selector("#step-panel-1", timeout=8000, state="attached")

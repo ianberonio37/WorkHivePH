@@ -29,6 +29,10 @@ class E2ETestHelper:
         self.errors = []
         self.warnings = []
         self.api_calls = []
+        # Cached after login — survives validateHiveMembership() clearing localStorage
+        self._cached_hive_id: Optional[str] = None
+        self._cached_worker_name: Optional[str] = None
+        self._cached_hive_role: Optional[str] = None
 
     # ─── Authentication ───────────────────────────────────────────────────
 
@@ -99,6 +103,10 @@ class E2ETestHelper:
                         localStorage.setItem('wh_hive_role',      '{role}');
                         localStorage.setItem('wh_hive_name',      {hive_name!r});
                     }}""")
+                    # Cache for restoring after validateHiveMembership() clears context
+                    self._cached_hive_id = hive_id
+                    self._cached_worker_name = last_worker
+                    self._cached_hive_role = role
             except:
                 pass
 
@@ -121,11 +129,76 @@ class E2ETestHelper:
 
     # ─── Navigation ───────────────────────────────────────────────────────
 
-    def goto(self, page_name: str) -> bool:
-        """Navigate to a page (e.g. 'logbook', 'inventory')."""
+    def dismiss_hive_gate_and_load(self, wait_ms: int = 2500):
+        """Dismiss hive-gate overlay and trigger data reload.
+
+        Pages call validateHiveMembership() on load. When it returns false
+        (membership check fails in test env), it clears HIVE_ID from both
+        localStorage and JS module scope. We:
+          1. Re-inject the hive context (from cached login values)
+          2. Dismiss the gate
+          3. Trigger a page-level render cycle
+        """
+        try:
+            hive_id = self._cached_hive_id or ''
+            worker  = self._cached_worker_name or ''
+            role    = self._cached_hive_role or 'worker'
+
+            self.page.evaluate(f"""async () => {{
+                const hiveId = '{hive_id}';
+                const worker = '{worker}';
+                const role   = '{role}';
+
+                // 1. Restore localStorage (validateHiveMembership may have cleared it)
+                if (hiveId) {{
+                    localStorage.setItem('wh_active_hive_id', hiveId);
+                    localStorage.setItem('wh_hive_id',        hiveId);
+                    localStorage.setItem('wh_hive_role',      role);
+                    localStorage.setItem('wh_last_worker',    worker);
+                }}
+
+                // 2. Restore JS module-level variables (page init already ran).
+                // Direct assignment (not window.XXX) is needed for let-scoped globals.
+                try {{ if (typeof HIVE_ID !== 'undefined') HIVE_ID = hiveId; }} catch(e) {{}}
+                try {{ if (typeof HIVE_ROLE !== 'undefined') HIVE_ROLE = role; }} catch(e) {{}}
+                try {{ if (typeof WORKER_NAME !== 'undefined') WORKER_NAME = worker; }} catch(e) {{}}
+
+                // 3. Dismiss gate
+                const g = document.getElementById('hive-gate');
+                if (g) g.style.display = 'none';
+
+                // 4. Trigger data load + render in 'mine' mode (both awaited)
+                try {{ if (typeof _viewMode !== 'undefined') _viewMode = 'mine'; }} catch(e) {{}}
+                if (typeof loadEntries   === 'function') await loadEntries();
+                if (typeof renderEntries === 'function') await renderEntries(false);
+
+                // Fallback loaders for non-logbook pages (fire-and-forget ok)
+                const extras = [
+                    'loadItems', 'loadDashboard', 'loadAlerts', 'loadProjects',
+                    'loadFeed', 'loadListings', 'loadSkills',
+                ];
+                for (const fn of extras) {{
+                    if (typeof window[fn] === 'function') {{
+                        try {{ window[fn](); }} catch(e) {{}}
+                    }}
+                }}
+            }}""")
+            self.page.wait_for_timeout(wait_ms)
+        except:
+            pass
+
+    def goto(self, page_name: str, dismiss_gate: bool = True) -> bool:
+        """Navigate to a page (e.g. 'logbook', 'inventory').
+
+        dismiss_gate=True (default): after load, hides hive-gate overlay and
+        calls the page's data-loading function so entries render even when
+        Supabase membership validation fails in the local test environment.
+        """
         try:
             self.page.goto(f"{self.base_url}/{page_name}.html", wait_until="networkidle", timeout=15000)
-            self.page.wait_for_timeout(1000)  # Let page settle
+            self.page.wait_for_timeout(800)  # Let page JS initialise
+            if dismiss_gate:
+                self.dismiss_hive_gate_and_load(wait_ms=2000)
             return True
         except Exception as e:
             self.errors.append(f"Navigation to {page_name} failed: {str(e)}")

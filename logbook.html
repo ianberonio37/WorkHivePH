@@ -3707,9 +3707,12 @@ document.getElementById('log-form').addEventListener('submit', async function(e)
   const status             = document.querySelector('input[name="f-status"]:checked').value;
 
   if (!machine) {
-    document.getElementById('f-machine').focus();
-    document.getElementById('f-machine').style.borderColor = 'rgba(239,68,68,0.6)';
-    setTimeout(() => document.getElementById('f-machine').style.borderColor = '', 2000);
+    const pickerBtn = document.getElementById('asset-picker-btn');
+    if (pickerBtn) {
+      pickerBtn.style.borderColor = 'rgba(239,68,68,0.6)';
+      setTimeout(() => pickerBtn.style.borderColor = '', 2000);
+    }
+    showToast('Please select an asset before saving.', '⚠️');
     saveBtn.disabled = false;
     saveBtn.textContent = 'Save Entry';
     return;
