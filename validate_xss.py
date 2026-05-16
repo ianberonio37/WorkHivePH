@@ -74,6 +74,8 @@ LIVE_PAGES = [
     "voice-handler.js",
     # Shared helper that uses innerHTML with interpolation (PRODUCTION_FIXES #15)
     "worker-drawer.js",
+    # Founder Console — admin-only platform-wide dashboard (Phase 1+)
+    "founder-console.html",
 ]
 
 # Pages that define escHtml themselves (don't load utils.js)

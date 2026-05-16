@@ -170,7 +170,7 @@ def run(page, errors, warnings, log) -> dict:
                 "worker_name":      worker_name,
                 "machine":          "Centrifugal Pump CP-100",
                 "asset_ref_id":     legacy_id,
-                "maintenance_type": "Preventive",
+                "maintenance_type": "Preventive Maintenance",
                 "category":         "Mechanical",
                 "problem":          "Quarterly lubrication and inspection",
                 "action":           "Greased bearings, checked alignment",

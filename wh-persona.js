@@ -194,6 +194,7 @@
   window.DEFAULT_PERSONA       = DEFAULT_PERSONA;
   window.clampPersona          = clampPersona;
   window.getPersonaKey         = getPersonaKey;
+  window.getPersona            = getPersonaKey;  // Alias for voice-handler compatibility
   window.getCompanionBlock     = getCompanionBlock;
   window.buildCompanionBlock   = buildCompanionBlock;
   window.personaName           = personaName;

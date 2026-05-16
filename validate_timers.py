@@ -66,6 +66,8 @@ LIVE_PAGES = [
     "connectivity-widget.js",
     "form-autosave.js",
     "session-timeout.js",
+    # Founder Console — uses setInterval for the Auto-Refresh dropdown
+    "founder-console.html",
 ]
 
 # Event types where spawning intervals is dangerous (fires repeatedly)

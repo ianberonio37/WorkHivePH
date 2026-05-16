@@ -1,0 +1,83 @@
+{
+  "timestamp": "2026-05-16T21:45:42.711160",
+  "tiers": {},
+  "total_pass": 6,
+  "total_fail": 0,
+  "total_warn": 5,
+  "page": {
+    "page": "logbook",
+    "paths": {
+      "all": {
+        "results": [
+          {
+            "scenario": "happy",
+            "result": "WARN",
+            "error": "Page loads OK but 0 entries \u2014 seeder may not have logbook data for this hive",
+            "root_cause": "Data gap: seed logbook entries for test hive"
+          },
+          {
+            "scenario": "empty",
+            "result": "PASS",
+            "actual": "Empty state handled"
+          },
+          {
+            "scenario": "loading",
+            "result": "PASS",
+            "actual": "Page loaded successfully"
+          },
+          {
+            "scenario": "happy",
+            "result": "PASS",
+            "actual": "submit=True, entries_shown=False"
+          },
+          {
+            "scenario": "validation",
+            "result": "WARN",
+            "actual": "validation_error=False"
+          },
+          {
+            "scenario": "api_error",
+            "result": "WARN",
+            "actual": "retry=False, err_shown=False"
+          },
+          {
+            "scenario": "permission",
+            "result": "WARN",
+            "error": "Role=supervisor, field visible=False"
+          },
+          {
+            "scenario": "concurrent",
+            "result": "SKIP",
+            "reason": "Requires two concurrent sessions (TODO: implement)"
+          },
+          {
+            "scenario": "offline",
+            "result": "PASS",
+            "actual": "Entry queued offline"
+          },
+          {
+            "scenario": "edge_cases",
+            "result": "PASS",
+            "actual": "All edge cases handled"
+          },
+          {
+            "scenario": "mobile",
+            "result": "WARN",
+            "error": "overflow=False, taps=True, console=False"
+          },
+          {
+            "scenario": "console",
+            "result": "PASS",
+            "actual": "No critical errors"
+          }
+        ],
+        "pass_count": 6,
+        "fail_count": 0,
+        "warn_count": 5
+      }
+    },
+    "total_pass": 6,
+    "total_fail": 0,
+    "total_warn": 5
+  }
+}

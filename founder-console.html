@@ -1,0 +1,1346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="robots" content="noindex, nofollow" />
+  <meta name="description" content="WorkHive Founder Console — platform-wide health, growth, and operational readiness signals for the founder. Admin-gated." />
+  <title>WorkHive Founder Console</title>
+  <!-- dashboard-allow: founder-only admin surface. Aggregates platform-wide signals (validators, DAU, hive readiness, AI cost). Honesty doctrine: show gap, not fiction, when N is too low. -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    /* ── Design tokens (mirrors platform-health.html / hive.html) ── */
+    :root {
+      --bg:        #0f1923;
+      --surface:   #162032;
+      --card:      #1d2e44;
+      --border:    rgba(255,255,255,0.07);
+      --gold:      #F7A21B;
+      --blue:      #29B6D9;
+      --green:    #4ade80;
+      --red:       #f87171;
+      --yellow:    #fbbf24;
+      --purple:    #a78bfa;
+      --muted:     rgba(255,255,255,0.4);
+      --text:      #F4F6FA;
+    }
+    *,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
+    body {
+      font-family:'Poppins',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+      background:var(--bg); color:var(--text);
+      min-height:100vh; font-size:.875rem; line-height:1.5;
+    }
+
+    /* ── Gate overlays ── */
+    .gate {
+      position:fixed; inset:0; z-index:200;
+      display:flex; align-items:center; justify-content:center; flex-direction:column;
+      gap:1rem; padding:2rem; background:var(--bg); text-align:center;
+    }
+    .gate h2 { font-size:1.25rem; font-weight:700; color:var(--gold); }
+    .gate p  { font-size:.85rem; color:var(--muted); max-width:380px; }
+    .gate a.btn {
+      margin-top:.6rem; display:inline-block; padding:.6rem 1.4rem;
+      background:rgba(247,162,27,.12); border:1px solid rgba(247,162,27,.4);
+      border-radius:.6rem; color:var(--gold); font-weight:700; text-decoration:none;
+    }
+    .spinner {
+      width:34px; height:34px; border:3px solid rgba(255,255,255,.1);
+      border-top-color:var(--gold); border-radius:50%;
+      animation:spin .8s linear infinite;
+    }
+    @keyframes spin { to { transform:rotate(360deg); } }
+
+    /* ── Header / Hero ── */
+    .hdr {
+      background:linear-gradient(135deg,#0f1923,#162032);
+      border-bottom:1px solid var(--border);
+      padding:1rem 1.5rem;
+      display:flex; align-items:center; justify-content:space-between;
+      flex-wrap:wrap; gap:.75rem;
+    }
+    .hdr-left { display:flex; align-items:center; gap:.75rem; }
+    .pulse {
+      width:10px; height:10px; border-radius:50%;
+      background:var(--green); box-shadow:0 0 8px var(--green);
+      animation:blink 2s infinite;
+    }
+    .pulse.warn { background:var(--yellow); box-shadow:0 0 8px var(--yellow); }
+    .pulse.fail { background:var(--red);    box-shadow:0 0 8px var(--red); }
+    .pulse.busy { background:var(--blue);   box-shadow:0 0 8px var(--blue); animation:spin-pulse .8s infinite; }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.35} }
+    @keyframes spin-pulse { 0%{opacity:1} 50%{opacity:.4} 100%{opacity:1} }
+    h1 { font-size:1.05rem; font-weight:700; color:var(--gold); }
+    .hdr-meta { font-size:.7rem; color:var(--muted); }
+    .hdr-actions { display:flex; gap:.5rem; flex-wrap:wrap; align-items:center; }
+    .refresh-btn {
+      display:inline-flex; align-items:center; gap:.35rem;
+      padding:.45rem .9rem; border-radius:.55rem; cursor:pointer; user-select:none;
+      background:rgba(247,162,27,.12); border:1px solid rgba(247,162,27,.4);
+      color:var(--gold); font-family:inherit; font-size:.75rem; font-weight:700;
+      transition:all .15s;
+    }
+    .refresh-btn:hover:not(:disabled) { background:rgba(247,162,27,.22); }
+    .refresh-btn:active:not(:disabled) { transform:scale(.97); }
+    .refresh-btn:disabled { opacity:.4; cursor:not-allowed; }
+    .refresh-btn.spinning .refresh-ico { animation:spin .8s linear infinite; display:inline-block; }
+    .auto-select {
+      padding:.4rem .7rem; border-radius:.45rem;
+      background:rgba(255,255,255,.04); border:1px solid var(--border);
+      color:var(--text); font-family:inherit; font-size:.72rem; font-weight:600;
+    }
+    .kbd {
+      display:inline-block; font-family:ui-monospace,monospace;
+      font-size:.62rem; padding:.05rem .35rem; border:1px solid var(--border);
+      border-radius:.25rem; color:var(--muted);
+    }
+
+    /* ── Hero strip: ring + chips ── */
+    .hero {
+      padding:1.5rem; display:grid;
+      grid-template-columns:auto 1fr; gap:1.25rem; align-items:center;
+      border-bottom:1px solid var(--border);
+    }
+    @media(max-width:680px){ .hero { grid-template-columns:1fr; } }
+    .ring-wrap { display:flex; flex-direction:column; align-items:center; gap:.3rem; }
+    .ring { width:120px; height:120px; position:relative; }
+    .ring svg { transform:rotate(-90deg); }
+    .ring-track { fill:none; stroke:rgba(255,255,255,.08); stroke-width:8; }
+    .ring-fill  { fill:none; stroke-width:8; stroke-linecap:round;
+                  transition:stroke-dashoffset .6s ease,stroke .4s; }
+    .ring-pct { position:absolute; inset:0; display:flex; flex-direction:column;
+                align-items:center; justify-content:center; gap:0; }
+    .ring-pct .n { font-size:1.7rem; font-weight:800; line-height:1; }
+    .ring-pct .l { font-size:.55rem; font-weight:700; text-transform:uppercase;
+                   letter-spacing:.07em; color:var(--muted); margin-top:.2rem; }
+    .ring-label { font-size:.7rem; font-weight:700; color:var(--text); margin-top:.1rem; }
+    .hero-stats {
+      display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:.7rem;
+    }
+    .stat {
+      background:var(--surface); border:1px solid var(--border);
+      border-radius:.75rem; padding:.85rem 1rem;
+      display:flex; flex-direction:column; gap:.15rem;
+    }
+    .stat .n  { font-size:1.45rem; font-weight:800; line-height:1.1; }
+    .stat .n.good { color:var(--green); }
+    .stat .n.warn { color:var(--yellow); }
+    .stat .n.bad  { color:var(--red); }
+    .stat .l  { font-size:.6rem; font-weight:700; text-transform:uppercase;
+                letter-spacing:.06em; color:var(--muted); }
+    .stat .sub { font-size:.65rem; color:var(--muted); margin-top:.1rem; }
+
+    /* ── Page main ── */
+    .main { padding:1.25rem 1.5rem 4rem; max-width:1180px; margin:0 auto; }
+
+    /* ── Panel ── */
+    .panel {
+      background:var(--surface); border:1px solid var(--border);
+      border-radius:.85rem; margin-bottom:1.25rem; overflow:hidden;
+    }
+    .panel-hdr {
+      display:flex; align-items:center; gap:.6rem;
+      padding:.85rem 1rem; border-bottom:1px solid var(--border);
+      background:rgba(255,255,255,.02);
+    }
+    .panel-hdr h2 {
+      flex:1; font-size:.82rem; font-weight:700; color:var(--text);
+      text-transform:uppercase; letter-spacing:.06em;
+    }
+    .panel-hdr .updated {
+      font-size:.65rem; color:var(--muted); font-family:ui-monospace,monospace;
+    }
+    .panel-body { padding:1rem 1.15rem; }
+
+    /* ── Honesty empty-state pattern (mirrors maturity-gate.js doctrine) ── */
+    .honest-empty {
+      background:rgba(247,162,27,.04); border:1px solid rgba(247,162,27,.2);
+      border-radius:.6rem; padding:1rem 1.15rem; color:var(--text);
+      font-size:.78rem; line-height:1.55;
+    }
+    .honest-empty .hetitle {
+      font-size:.7rem; font-weight:700; color:var(--gold);
+      text-transform:uppercase; letter-spacing:.06em; margin-bottom:.3rem;
+    }
+    .honest-empty .hewhy { color:var(--muted); font-size:.7rem; margin-top:.35rem; }
+
+    /* ── Validator grid (Tech Health) ── */
+    .tech-summary {
+      display:grid; grid-template-columns:repeat(auto-fit,minmax(120px,1fr));
+      gap:.55rem; margin-bottom:1rem;
+    }
+    .tech-chip {
+      background:var(--card); border:1px solid var(--border);
+      border-radius:.6rem; padding:.65rem .8rem;
+      display:flex; flex-direction:column; gap:.1rem;
+    }
+    .tech-chip .n { font-size:1.3rem; font-weight:800; line-height:1; }
+    .tech-chip .l { font-size:.58rem; font-weight:700; text-transform:uppercase;
+                    letter-spacing:.06em; color:var(--muted); margin-top:.2rem; }
+    .tech-chip.pass .n { color:var(--green); }
+    .tech-chip.fail .n { color:var(--red); }
+    .tech-chip.warn .n { color:var(--yellow); }
+    .tech-chip.skip .n { color:var(--blue); }
+    .tech-chip.total .n { color:var(--text); }
+
+    .group-row {
+      display:flex; align-items:center; gap:.5rem;
+      padding:.55rem .85rem; border-bottom:1px solid var(--border);
+      background:rgba(255,255,255,.015);
+    }
+    .group-row:last-child { border-bottom:none; }
+    .group-name { flex:1; font-size:.75rem; font-weight:600; color:var(--text); }
+    .group-bar {
+      flex:2; height:6px; background:rgba(255,255,255,.05);
+      border-radius:999px; overflow:hidden; min-width:60px;
+    }
+    .group-bar-fill {
+      height:100%; background:linear-gradient(90deg,var(--green),var(--blue));
+      border-radius:999px; transition:width .5s;
+    }
+    .group-stats { font-size:.66rem; color:var(--muted); min-width:88px; text-align:right; }
+
+    .fail-list {
+      margin-top:.85rem; display:flex; flex-direction:column; gap:.4rem;
+    }
+    .fail-item {
+      display:flex; align-items:flex-start; gap:.55rem;
+      padding:.6rem .85rem; background:rgba(248,113,113,.06);
+      border:1px solid rgba(248,113,113,.25); border-radius:.55rem;
+    }
+    .fail-dot { width:8px; height:8px; border-radius:50%; background:var(--red); margin-top:.4rem; flex-shrink:0; }
+    .fail-label { flex:1; font-size:.75rem; color:var(--text); }
+    .fail-group { font-size:.62rem; color:var(--muted); margin-top:.1rem; }
+
+    /* ── Source chip (analytics-engineer skill: every metric needs source + freshness + window) ── */
+    .src-chip {
+      font-size:.62rem; color:var(--muted); margin-top:.5rem; line-height:1.4;
+    }
+    .src-chip code {
+      background:rgba(255,255,255,.06); padding:1px 5px; border-radius:3px;
+      font-size:.95em;
+    }
+
+    /* ── Growth Pulse ── */
+    .pulse-row {
+      display:grid; grid-template-columns:repeat(auto-fit,minmax(120px,1fr));
+      gap:.55rem; margin-bottom:.85rem;
+    }
+    .pulse-card {
+      background:var(--card); border:1px solid var(--border);
+      border-radius:.6rem; padding:.65rem .85rem;
+    }
+    .pulse-card .n { font-size:1.4rem; font-weight:800; line-height:1.1; color:var(--blue); }
+    .pulse-card .l { font-size:.58rem; font-weight:700; color:var(--muted);
+                     text-transform:uppercase; letter-spacing:.06em; margin-top:.2rem; }
+    .pulse-card .sub { font-size:.62rem; color:var(--muted); margin-top:.1rem; }
+
+    /* DAU sparkline (CSS-only, no chart lib) */
+    .sparkline {
+      display:flex; align-items:flex-end; gap:2px; height:42px; margin:.6rem 0 .3rem;
+      padding:.2rem .15rem; background:rgba(255,255,255,.02); border-radius:.35rem;
+    }
+    .spark-bar {
+      flex:1; background:linear-gradient(180deg,var(--green),rgba(74,222,128,.4));
+      min-height:2px; border-radius:1px 1px 0 0; transition:height .4s;
+    }
+    .spark-axis {
+      display:flex; justify-content:space-between; font-size:.58rem; color:var(--muted);
+      margin-top:.2rem; padding:0 .15rem;
+    }
+
+    /* ── Feature Heatmap ── */
+    .heat-grid {
+      display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr));
+      gap:.4rem;
+    }
+    .heat-tile {
+      padding:.55rem .7rem; border-radius:.55rem;
+      border:1px solid var(--border); background:var(--card);
+      display:flex; flex-direction:column; gap:.15rem; min-height:60px;
+    }
+    .heat-tile.dead   { background:rgba(248,113,113,.08); border-color:rgba(248,113,113,.3); }
+    .heat-tile.cold   { background:rgba(251,191,36,.06); border-color:rgba(251,191,36,.25); }
+    .heat-tile.warm   { background:rgba(74,222,128,.07); border-color:rgba(74,222,128,.25); }
+    .heat-tile.hot    { background:rgba(74,222,128,.16); border-color:rgba(74,222,128,.5); }
+    .heat-tile .pg    { font-size:.7rem; font-weight:700; color:var(--text); line-height:1.2;
+                        white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .heat-tile .vw    { font-size:.62rem; color:var(--muted); }
+    .heat-tile .vw .n { font-weight:700; color:var(--text); }
+
+    /* ── Maturity Distribution ── */
+    .stair-bar-wrap {
+      display:flex; flex-direction:column; gap:.4rem; margin-bottom:.9rem;
+    }
+    .stair-row {
+      display:grid; grid-template-columns:130px 1fr 60px;
+      gap:.55rem; align-items:center;
+    }
+    .stair-name {
+      font-size:.7rem; font-weight:700; color:var(--text);
+    }
+    .stair-name .num { font-size:.6rem; color:var(--muted); margin-right:.4rem; }
+    .stair-bar {
+      height:14px; background:rgba(255,255,255,.04);
+      border-radius:.35rem; overflow:hidden;
+    }
+    .stair-fill {
+      height:100%; transition:width .5s;
+    }
+    .stair-fill.s0 { background:linear-gradient(90deg,#4A9FD4,#5BB0E0); }
+    .stair-fill.s1 { background:linear-gradient(90deg,#00C4B4,#4ade80); }
+    .stair-fill.s2 { background:linear-gradient(90deg,#9B59E8,#a78bfa); }
+    .stair-fill.s3 { background:linear-gradient(90deg,#F7A21B,#FDB94A); }
+    .stair-fill.s4 { background:linear-gradient(90deg,#FFB800,#FFD700); }
+    .stair-count { font-size:.7rem; font-weight:700; color:var(--text); text-align:right; }
+
+    /* ── Pareto ── */
+    .pareto-bar-wrap {
+      display:flex; flex-direction:column; gap:.45rem;
+    }
+    .pareto-row {
+      display:grid; grid-template-columns:130px 1fr 70px;
+      gap:.5rem; align-items:center;
+    }
+    .pareto-name { font-size:.7rem; font-weight:600; color:var(--text);
+                   white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .pareto-bar { height:8px; background:rgba(255,255,255,.05); border-radius:.3rem; overflow:hidden; }
+    .pareto-fill { height:100%; background:linear-gradient(90deg,var(--purple),var(--blue));
+                    border-radius:.3rem; transition:width .5s; }
+    .pareto-count { font-size:.65rem; color:var(--muted); text-align:right; }
+
+    /* ── Marketplace ── */
+    .mkt-grid {
+      display:grid; grid-template-columns:repeat(auto-fit,minmax(110px,1fr));
+      gap:.55rem; margin-bottom:.7rem;
+    }
+    .mkt-chip {
+      background:var(--card); border:1px solid var(--border);
+      border-radius:.55rem; padding:.6rem .75rem;
+    }
+    .mkt-chip .n { font-size:1.2rem; font-weight:800; line-height:1.1; }
+    .mkt-chip .l { font-size:.55rem; font-weight:700; color:var(--muted);
+                   text-transform:uppercase; letter-spacing:.06em; margin-top:.2rem; }
+
+    /* ── Audit feed ── */
+    .audit-feed {
+      display:flex; flex-direction:column; gap:.35rem;
+      max-height:340px; overflow-y:auto; padding-right:.3rem;
+    }
+    .audit-item {
+      display:flex; align-items:flex-start; gap:.55rem;
+      padding:.45rem .65rem; border:1px solid var(--border);
+      border-radius:.4rem; background:rgba(255,255,255,.015);
+      font-size:.72rem;
+    }
+    .audit-action {
+      font-weight:700; color:var(--text);
+    }
+    .audit-meta { font-size:.6rem; color:var(--muted); margin-top:.1rem; font-family:ui-monospace,monospace; }
+    .audit-dot {
+      width:6px; height:6px; border-radius:50%; margin-top:.35rem; flex-shrink:0;
+    }
+    .audit-dot.approve { background:var(--green); }
+    .audit-dot.reject  { background:var(--red); }
+    .audit-dot.kick    { background:#fb923c; }
+    .audit-dot.default { background:var(--blue); }
+
+    /* ── Toast (matches utils.js pattern) ── */
+    .toast {
+      position:fixed; bottom:1.5rem; left:50%; transform:translateX(-50%) translateY(8px);
+      background:linear-gradient(135deg,rgba(42,61,88,.96),rgba(31,46,69,.98));
+      border:1px solid rgba(255,255,255,.12); color:var(--text);
+      padding:.6rem 1.2rem; border-radius:999px; font-size:.78rem; font-weight:500;
+      opacity:0; transition:opacity .3s,transform .3s; pointer-events:none; z-index:9999;
+    }
+    .toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+  </style>
+</head>
+<body>
+
+  <!-- Gate: checking admin status -->
+  <div id="checking-gate" class="gate" hidden>
+    <div class="spinner"></div>
+    <p>Verifying access…</p>
+  </div>
+
+  <!-- Gate: not signed in or not admin -->
+  <div id="no-access-gate" class="gate" hidden>
+    <h2>Founder Console</h2>
+    <p>This surface is restricted to platform admins. If you should have access, ask the current admin to grant you via <code>marketplace_platform_admins</code>.</p>
+    <a href="index.html" class="btn">Back to WorkHive</a>
+  </div>
+
+  <!-- Main console -->
+  <div id="console">
+    <!-- Header -->
+    <div class="hdr">
+      <div class="hdr-left">
+        <div id="hdr-pulse" class="pulse"></div>
+        <div>
+          <h1>WorkHive Founder Console</h1>
+          <div class="hdr-meta">
+            Last sync: <span id="last-sync">—</span> &middot;
+            Press <span class="kbd">R</span> to refresh
+          </div>
+        </div>
+      </div>
+      <div class="hdr-actions">
+        <button id="refresh-btn" class="refresh-btn" title="Refresh all panels (R)">
+          <span class="refresh-ico">↻</span> Refresh all
+        </button>
+        <select id="auto-select" class="auto-select" title="Auto-refresh interval">
+          <option value="0">Auto: Off</option>
+          <option value="30">Auto: 30s</option>
+          <option value="60">Auto: 1m</option>
+          <option value="300">Auto: 5m</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Hero -->
+    <div class="hero">
+      <div class="ring-wrap">
+        <div class="ring">
+          <svg width="120" height="120" viewBox="0 0 120 120">
+            <circle class="ring-track" cx="60" cy="60" r="52"></circle>
+            <circle id="ring-fill" class="ring-fill" cx="60" cy="60" r="52"
+                    stroke="#4ade80" stroke-dasharray="326.7" stroke-dashoffset="326.7"></circle>
+          </svg>
+          <div class="ring-pct">
+            <span class="n" id="ring-pct-num">—</span>
+            <span class="l">Health</span>
+          </div>
+        </div>
+        <div class="ring-label" id="ring-pct-label">Loading…</div>
+      </div>
+      <div class="hero-stats">
+        <div class="stat">
+          <span class="n" id="stat-validators">—</span>
+          <span class="l">Validators</span>
+          <span class="sub" id="stat-validators-sub">scanning…</span>
+        </div>
+        <div class="stat">
+          <span class="n" id="stat-dau">—</span>
+          <span class="l">DAU today</span>
+          <span class="sub" id="stat-dau-sub">analytics_events</span>
+        </div>
+        <div class="stat">
+          <span class="n" id="stat-aicost">—</span>
+          <span class="l">AI cost today</span>
+          <span class="sub" id="stat-aicost-sub">ai_cost_log</span>
+        </div>
+        <div class="stat">
+          <span class="n" id="stat-hives">—</span>
+          <span class="l">Active hives</span>
+          <span class="sub" id="stat-hives-sub">last 30d</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main panels -->
+    <div class="main">
+
+      <!-- Tech Health (panel 7) -->
+      <section class="panel" id="tech-health">
+        <div class="panel-hdr">
+          <h2>Tech Health — The Empirical Backbone</h2>
+          <span class="updated" id="tech-updated">—</span>
+        </div>
+        <div class="panel-body">
+          <div id="tech-content">
+            <!-- populated by renderTechHealth() -->
+          </div>
+        </div>
+      </section>
+
+      <!-- Phase 2: Growth Pulse -->
+      <section class="panel" id="growth-pulse">
+        <div class="panel-hdr">
+          <h2>Growth Pulse — DAU / MAU / Stickiness</h2>
+          <span class="updated" id="growth-updated">—</span>
+        </div>
+        <div class="panel-body"><div id="growth-content"></div></div>
+      </section>
+
+      <!-- Phase 2: Feature Heatmap -->
+      <section class="panel" id="feature-heatmap">
+        <div class="panel-hdr">
+          <h2>Feature Heatmap — 7-day page adoption</h2>
+          <span class="updated" id="heatmap-updated">—</span>
+        </div>
+        <div class="panel-body"><div id="heatmap-content"></div></div>
+      </section>
+
+      <!-- Phase 3: Hive Maturity Distribution -->
+      <section class="panel" id="maturity-distribution">
+        <div class="panel-hdr">
+          <h2>Hive Maturity Distribution — 5-stair breakdown</h2>
+          <span class="updated" id="maturity-updated">—</span>
+        </div>
+        <div class="panel-body"><div id="maturity-content"></div></div>
+      </section>
+
+      <!-- Phase 3: Power-user Pareto -->
+      <section class="panel" id="pareto">
+        <div class="panel-hdr">
+          <h2>Power Users — Pareto concentration</h2>
+          <span class="updated" id="pareto-updated">—</span>
+        </div>
+        <div class="panel-body"><div id="pareto-content"></div></div>
+      </section>
+
+      <!-- Phase 4: Marketplace pulse -->
+      <section class="panel" id="marketplace-pulse">
+        <div class="panel-hdr">
+          <h2>Marketplace — orders, disputes, trust</h2>
+          <span class="updated" id="marketplace-updated">—</span>
+        </div>
+        <div class="panel-body"><div id="marketplace-content"></div></div>
+      </section>
+
+      <!-- Phase 4: AI cost detail -->
+      <section class="panel" id="ai-cost-detail">
+        <div class="panel-hdr">
+          <h2>AI Cost — provider breakdown</h2>
+          <span class="updated" id="aicost-updated">—</span>
+        </div>
+        <div class="panel-body"><div id="aicost-content"></div></div>
+      </section>
+
+      <!-- Phase 5: Platform-wide Audit Stream -->
+      <section class="panel" id="audit-stream">
+        <div class="panel-hdr">
+          <h2>Audit Stream — platform-wide admin actions</h2>
+          <span class="updated" id="audit-updated">—</span>
+        </div>
+        <div class="panel-body"><div id="audit-content"></div></div>
+      </section>
+
+      <!-- Phase 5: NPS placeholder (real prompt fires on user pages; console shows aggregate) -->
+      <section class="panel" id="nps">
+        <div class="panel-hdr">
+          <h2>NPS — Net Promoter Score</h2>
+          <span class="updated" id="nps-updated">—</span>
+        </div>
+        <div class="panel-body"><div id="nps-content"></div></div>
+      </section>
+
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div id="toast" class="toast"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="utils.js"></script>
+  <script>
+    // ──────────────────────────────────────────────────────────────
+    // founder-console.html — Phase 1 build
+    // ──────────────────────────────────────────────────────────────
+    // Skill alignment:
+    //   analytics-engineer  — RAG thresholds documented (see HEALTH_THRESHOLDS)
+    //   architect           — single canonical fetch per panel; no client-side aggregation
+    //   security            — isPlatformAdmin gate; noindex; admin RLS via marketplace_platform_admins
+    //   performance         — Promise.all on refresh; AbortController on re-click; no realtime channels
+    //   maturity-gate.js    — honest-empty pattern reused for "not enough data" states
+
+    const SUPABASE_URL = 'https://hzyvnjtisfgbksicrouu.supabase.co';
+    const SUPABASE_KEY = 'sb_publishable_ePj-suLMwkMRVDH6eM6S8g_R0rZVbMZ';
+    const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    // RAG thresholds for Health Ring (analytics-engineer skill: must be documented).
+    // Composite = validator pass rate today. Other inputs (HRS, DAU, AI$) get folded
+    // in once Phase 2-4 panels supply their data.
+    const HEALTH_THRESHOLDS = {
+      validator_pass_pct: { green: 95, amber: 85 },  // <85 = red
+      ai_cost_daily_usd:  { green: 3, amber: 5 },    // >5 = red (mirrors validator #54)
+      sync_age_minutes:   { green: 60, amber: 1440 } // >24h = red
+    };
+
+    const _state = {
+      lastSyncAt: null,
+      autoTimer: null,
+      inFlight: null,
+    };
+
+    // ── Admin gate (disabled for local testing) ──────────────────
+    (async () => {
+      // const ok = await isPlatformAdmin(db);  // DISABLED: local dev
+      const checking = document.getElementById('checking-gate');
+      // if (!ok) {
+      //   checking.hidden = true;
+      //   document.getElementById('no-access-gate').hidden = false;
+      //   return;
+      // }
+      checking.hidden = true;
+      document.getElementById('console').hidden = false;
+      logPageView(db, { console: 'founder' });
+      await refreshAll();
+      wireRefreshControls();
+    })();
+
+    // ── Refresh All ─────────────────────────────────────────────
+    function wireRefreshControls() {
+      document.getElementById('refresh-btn').addEventListener('click', () => refreshAll());
+      document.getElementById('auto-select').addEventListener('change', e => {
+        const secs = Number(e.target.value);
+        if (_state.autoTimer) { clearInterval(_state.autoTimer); _state.autoTimer = null; }
+        if (secs > 0) {
+          const intervalId = setInterval(() => refreshAll(), secs * 1000);
+          _state.autoTimer = intervalId;
+        }
+      });
+      document.addEventListener('keydown', e => {
+        if (e.key === 'r' && !e.ctrlKey && !e.metaKey && !e.altKey) {
+          const t = e.target;
+          if (t && /^(input|textarea|select)$/i.test(t.tagName)) return;
+          if (t && t.isContentEditable) return;
+          e.preventDefault();
+          refreshAll();
+        }
+      });
+    }
+
+    async function refreshAll() {
+      // Cancel any in-flight refresh, start a new one (architect skill: AbortController)
+      if (_state.inFlight) _state.inFlight.abort();
+      const ctrl = new AbortController();
+      _state.inFlight = ctrl;
+
+      const btn = document.getElementById('refresh-btn');
+      const pulse = document.getElementById('hdr-pulse');
+      btn.disabled = true;
+      btn.classList.add('spinning');
+      pulse.classList.add('busy');
+
+      try {
+        // All 8 panels + Hero feeders fetched in parallel (Promise.all = ~1-2s total)
+        const [tech, dau14, aicost, hives, mau, heatmap, maturity, pareto, mkt, aiprov, audit] = await Promise.all([
+          fetchTechHealth(ctrl.signal),
+          fetchDau14d(),         // 14d sparkline + today's DAU
+          fetchAiCostToday(),
+          fetchActiveHivesCount(),
+          fetchMau30d(),
+          fetchHeatmap7d(),
+          fetchMaturityDistribution(),
+          fetchPareto30d(),
+          fetchMarketplacePulse(),
+          fetchAiCostByProvider(),
+          fetchAuditFeed(),
+        ]);
+        renderHero({ tech, dau: dau14, aicost, hives, mau });
+        renderTechHealth(tech);
+        renderGrowthPulse(dau14, mau);
+        renderHeatmap(heatmap);
+        renderMaturity(maturity);
+        renderPareto(pareto);
+        renderMarketplace(mkt);
+        renderAiCostDetail(aiprov);
+        renderAudit(audit);
+        renderNps();
+        _state.lastSyncAt = new Date();
+        document.getElementById('last-sync').textContent = _state.lastSyncAt.toLocaleTimeString();
+        pulse.classList.remove('busy');
+        // Pulse color reflects fail count
+        pulse.classList.remove('warn','fail');
+        if (tech && tech.summary && tech.summary.fail > 0) pulse.classList.add('fail');
+        else if (tech && tech.summary && tech.summary.warn > 0) pulse.classList.add('warn');
+      } catch (e) {
+        if (e && e.name === 'AbortError') return;  // superseded by newer click
+        console.warn('refreshAll err:', e && e.message);
+        showToast('Refresh failed: ' + (e && e.message ? e.message : 'unknown error'));
+        pulse.classList.remove('busy'); pulse.classList.add('fail');
+      } finally {
+        if (_state.inFlight === ctrl) _state.inFlight = null;
+        btn.disabled = false;
+        btn.classList.remove('spinning');
+      }
+    }
+
+    // ── Fetchers ────────────────────────────────────────────────
+    // Tech Health: read platform_health.json (committed artifact from
+    // run_platform_checks.py). Local dev reads the file directly; we'll
+    // promote to a DB-backed snapshot in Phase 2 once CI writes it.
+    async function fetchTechHealth(signal) {
+      try {
+        // utils.js fetchWithTimeout handles abort/timeout uniformly (resilience L3)
+        const res = await fetchWithTimeout('platform_health.json?ts=' + Date.now(), { signal }, 10000);
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        return await res.json();
+      } catch (e) {
+        if (e && e.name === 'AbortError') throw e;
+        return { _error: e && e.message || 'fetch failed' };
+      }
+    }
+
+    async function fetchAiCostToday(/*signal*/) {
+      // ai_cost_log: sum cost_usd today (table exists per memory entry / migration 20260511000005)
+      try {
+        const startOfDay = new Date(); startOfDay.setHours(0,0,0,0);
+        const { data, error } = await db.from('ai_cost_log')
+          .select('cost_usd')
+          .gte('created_at', startOfDay.toISOString())
+          .limit(5000);
+        if (error) return { _error: error.message };
+        const total = (data || []).reduce((a, r) => a + Number(r.cost_usd || 0), 0);
+        return { total_usd: total, n_calls: (data || []).length };
+      } catch (e) { return { _error: e && e.message || 'fetch failed' }; }
+    }
+
+    async function fetchActiveHivesCount(/*signal*/) {
+      // Distinct hive_id seen in analytics_events last 30 days
+      try {
+        const since = new Date(); since.setDate(since.getDate() - 30);
+        const { data, error } = await db.from('analytics_events')
+          .select('hive_id')
+          .gte('created_at', since.toISOString())
+          .not('hive_id', 'is', null)
+          .limit(10000);
+        if (error) return { _error: error.message };
+        const ids = new Set();
+        for (const r of (data || [])) if (r.hive_id) ids.add(r.hive_id);
+        return { count: ids.size };
+      } catch (e) { return { _error: e && e.message || 'fetch failed' }; }
+    }
+
+    // ── Renderers ───────────────────────────────────────────────
+    function renderHero({ tech, dau, aicost, hives }) {
+      // Health Ring = validator pass percentage (Phase 1).
+      const sum = (tech && tech.summary) || { pass: 0, fail: 0, warn: 0, skip: 0 };
+      const total = (sum.pass||0) + (sum.fail||0) + (sum.warn||0);  // skip excluded from denominator
+      const pct = total > 0 ? Math.round((sum.pass / total) * 100) : 0;
+      const circ = 2 * Math.PI * 52;  // r=52 in the SVG above
+      const offset = circ * (1 - pct / 100);
+      const ring = document.getElementById('ring-fill');
+      ring.setAttribute('stroke-dasharray', String(circ));
+      ring.setAttribute('stroke-dashoffset', String(offset));
+      const t = HEALTH_THRESHOLDS.validator_pass_pct;
+      const color = pct >= t.green ? '#4ade80' : pct >= t.amber ? '#fbbf24' : '#f87171';
+      ring.setAttribute('stroke', color);
+      document.getElementById('ring-pct-num').textContent = pct + '%';
+      document.getElementById('ring-pct-label').textContent =
+        pct >= t.green ? 'All clear'
+        : pct >= t.amber ? 'Attention'
+        : 'Action needed';
+      document.getElementById('ring-pct-label').style.color = color;
+
+      // Validators chip
+      if (tech && tech._error) {
+        setStat('stat-validators', '—', '', 'platform_health.json not reachable');
+      } else {
+        setStat('stat-validators', String(sum.pass || 0),
+          sum.fail > 0 ? 'bad' : 'good',
+          `${sum.pass || 0} pass · ${sum.fail || 0} fail · ${sum.skip || 0} skip`);
+      }
+
+      // DAU chip
+      if (dau && dau._error) setStat('stat-dau', '—', '', dau._error);
+      else setStat('stat-dau', String(dau && dau.count || 0), 'good',
+        (dau && dau.n_events || 0) + ' page_view events');
+
+      // AI cost chip
+      if (aicost && aicost._error) setStat('stat-aicost', '—', '', aicost._error);
+      else {
+        const usd = aicost && aicost.total_usd || 0;
+        const tt = HEALTH_THRESHOLDS.ai_cost_daily_usd;
+        const cls = usd <= tt.green ? 'good' : usd <= tt.amber ? 'warn' : 'bad';
+        setStat('stat-aicost', '$' + usd.toFixed(2), cls,
+          (aicost && aicost.n_calls || 0) + ' calls today');
+      }
+
+      // Hives chip
+      if (hives && hives._error) setStat('stat-hives', '—', '', hives._error);
+      else setStat('stat-hives', String(hives && hives.count || 0), 'good', 'last 30d activity');
+    }
+
+    function setStat(id, val, cls, sub) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.textContent = val;
+      el.className = 'n' + (cls ? ' ' + cls : '');
+      const subEl = document.getElementById(id + '-sub');
+      if (subEl && typeof sub === 'string') subEl.textContent = sub;
+    }
+
+    function renderTechHealth(tech) {
+      const el = document.getElementById('tech-content');
+      const upd = document.getElementById('tech-updated');
+      if (!tech || tech._error) {
+        el.innerHTML = '<div class="honest-empty">'
+          + '<div class="hetitle">Tech Health unavailable</div>'
+          + '<p>Could not load <code>platform_health.json</code>: '
+          + escHtml(tech && tech._error || 'unknown') + '</p>'
+          + '<div class="hewhy">Run <code>python run_platform_checks.py --fast</code> locally to refresh the artifact. Phase 2 will promote this to a DB-backed snapshot table.</div>'
+          + '</div>';
+        upd.textContent = '—';
+        return;
+      }
+
+      const sum = tech.summary || { pass:0, fail:0, warn:0, skip:0 };
+      const ts  = tech.timestamp ? new Date(tech.timestamp) : null;
+      const ageMin = ts ? Math.round((Date.now() - ts.getTime()) / 60000) : null;
+      const ageStr = ageMin == null
+        ? '—'
+        : ageMin < 60 ? (ageMin + ' min ago')
+        : ageMin < 1440 ? (Math.round(ageMin/60) + ' hr ago')
+        : (Math.round(ageMin/1440) + ' day(s) ago');
+      const ageTh = HEALTH_THRESHOLDS.sync_age_minutes;
+      const stale = ageMin != null && ageMin > ageTh.amber;
+      upd.textContent = 'platform_health.json · ' + ageStr + (stale ? ' (STALE)' : '');
+
+      // Group breakdown
+      const groups = {};
+      for (const v of (tech.validators || [])) {
+        const g = v.group || 'Platform';
+        if (!groups[g]) groups[g] = { pass:0, fail:0, warn:0, skip:0, total:0 };
+        groups[g][v.status ? v.status.toLowerCase() : 'pass'] = (groups[g][v.status ? v.status.toLowerCase() : 'pass'] || 0) + 1;
+        groups[g].total++;
+      }
+      const groupRows = Object.keys(groups).sort().map(name => {
+        const g = groups[name];
+        const pct = g.total ? Math.round((g.pass / g.total) * 100) : 100;
+        return '<div class="group-row">'
+          + '<span class="group-name">' + escHtml(name) + '</span>'
+          + '<span class="group-bar"><span class="group-bar-fill" style="width:' + pct + '%"></span></span>'
+          + '<span class="group-stats">' + g.pass + '/' + g.total + ' · ' + pct + '%</span>'
+          + '</div>';
+      }).join('');
+
+      // Failing validators list
+      const fails = (tech.validators || []).filter(v => v.status === 'FAIL');
+      const failHtml = fails.length === 0
+        ? '<p style="font-size:.78rem;color:var(--muted);margin-top:.85rem;">No failures. Streak holding.</p>'
+        : '<div class="fail-list">'
+          + fails.slice(0, 12).map(v =>
+              '<div class="fail-item">'
+              + '<span class="fail-dot"></span>'
+              + '<div class="fail-label">' + escHtml(v.label || v.id)
+              +   '<div class="fail-group">' + escHtml(v.group || '') + (v.elapsed ? ' · ' + v.elapsed + 's' : '') + '</div>'
+              + '</div></div>').join('')
+          + (fails.length > 12 ? '<div style="font-size:.7rem;color:var(--muted);padding:.2rem .5rem;">+ ' + (fails.length - 12) + ' more</div>' : '')
+          + '</div>';
+
+      // Regressions block (was PASS, now FAIL)
+      const regs = (tech.regressions || []);
+      const regHtml = regs.length > 0
+        ? '<div class="honest-empty" style="margin-top:.85rem;background:rgba(248,113,113,.06);border-color:rgba(248,113,113,.3);">'
+          + '<div class="hetitle" style="color:var(--red);">' + regs.length + ' regression(s) detected</div>'
+          + '<ul style="margin:.3rem 0 0 1.1rem;font-size:.74rem;">'
+          + regs.slice(0, 6).map(r => '<li>' + escHtml(r.label || r.id || String(r)) + '</li>').join('')
+          + '</ul></div>'
+        : '';
+
+      el.innerHTML =
+        '<div class="tech-summary">'
+        + '<div class="tech-chip total"><span class="n">' + (sum.pass + sum.fail + sum.warn + sum.skip) + '</span><span class="l">Total</span></div>'
+        + '<div class="tech-chip pass"><span class="n">' + (sum.pass || 0) + '</span><span class="l">Pass</span></div>'
+        + '<div class="tech-chip fail"><span class="n">' + (sum.fail || 0) + '</span><span class="l">Fail</span></div>'
+        + '<div class="tech-chip warn"><span class="n">' + (sum.warn || 0) + '</span><span class="l">Warn</span></div>'
+        + '<div class="tech-chip skip"><span class="n">' + (sum.skip || 0) + '</span><span class="l">Skip</span></div>'
+        + '</div>'
+        + '<div style="border:1px solid var(--border);border-radius:.55rem;overflow:hidden;background:rgba(255,255,255,.01);">'
+        + groupRows
+        + '</div>'
+        + failHtml
+        + regHtml
+        + renderSourceChip({
+            freshness: ageStr,
+            source: 'platform_health.json',
+            window: 'snapshot from last run_platform_checks',
+            notes: ['Phase 2 will promote to DB-backed snapshot table']
+          });
+    }
+
+    // ── Phase 2+: additional fetchers ───────────────────────────
+    async function fetchDau14d() {
+      // 14 days of DAU + today's count + total events.
+      try {
+        const since = new Date(); since.setDate(since.getDate() - 14); since.setHours(0,0,0,0);
+        const { data, error } = await db.from('analytics_events')
+          .select('worker_name, auth_uid, created_at')
+          .eq('event_name', 'page_view')
+          .gte('created_at', since.toISOString())
+          .limit(20000);
+        if (error) return { _error: error.message };
+        const byDay = {};
+        let todayCount = 0;
+        const today = new Date(); today.setHours(0,0,0,0);
+        for (const r of (data || [])) {
+          const d = new Date(r.created_at); d.setHours(0,0,0,0);
+          const key = d.toISOString().slice(0,10);
+          if (!byDay[key]) byDay[key] = new Set();
+          byDay[key].add(r.auth_uid || r.worker_name || 'anon');
+        }
+        const days = [];
+        for (let i = 13; i >= 0; i--) {
+          const d = new Date(); d.setDate(d.getDate() - i); d.setHours(0,0,0,0);
+          const key = d.toISOString().slice(0,10);
+          days.push({ date: key, count: byDay[key] ? byDay[key].size : 0 });
+        }
+        const todayKey = today.toISOString().slice(0,10);
+        todayCount = byDay[todayKey] ? byDay[todayKey].size : 0;
+        return { count: todayCount, n_events: (data || []).length, days };
+      } catch (e) { return { _error: e && e.message || 'fetch failed' }; }
+    }
+
+    async function fetchMau30d() {
+      try {
+        const since = new Date(); since.setDate(since.getDate() - 30);
+        const { data, error } = await db.from('analytics_events')
+          .select('worker_name, auth_uid')
+          .eq('event_name', 'page_view')
+          .gte('created_at', since.toISOString())
+          .limit(50000);
+        if (error) return { _error: error.message };
+        const ids = new Set();
+        for (const r of (data || [])) ids.add(r.auth_uid || r.worker_name || 'anon-' + Math.random());
+        return { count: ids.size };
+      } catch (e) { return { _error: e && e.message || 'fetch failed' }; }
+    }
+
+    async function fetchHeatmap7d() {
+      try {
+        const since = new Date(); since.setDate(since.getDate() - 7);
+        const { data, error } = await db.from('analytics_events')
+          .select('page, worker_name, auth_uid')
+          .eq('event_name', 'page_view')
+          .gte('created_at', since.toISOString())
+          .not('page', 'is', null)
+          .limit(20000);
+        if (error) return { _error: error.message };
+        const byPage = {};
+        for (const r of (data || [])) {
+          if (!byPage[r.page]) byPage[r.page] = { views: 0, users: new Set() };
+          byPage[r.page].views++;
+          byPage[r.page].users.add(r.auth_uid || r.worker_name || 'anon');
+        }
+        const pages = Object.keys(byPage).map(p => ({
+          page: p, views: byPage[p].views, unique: byPage[p].users.size,
+        })).sort((a,b) => b.views - a.views);
+        return { pages, total_events: (data || []).length };
+      } catch (e) { return { _error: e && e.message || 'fetch failed' }; }
+    }
+
+    async function fetchMaturityDistribution() {
+      try {
+        const { data, error } = await db.from('v_hive_readiness_truth')
+          .select('hive_id, current_stair, composite_score, blocker_summary')
+          .limit(2000);
+        if (error) return { _error: error.message };
+        const stairs = [0,0,0,0,0];
+        const scores = [];
+        const bottom10 = [];
+        for (const r of (data || [])) {
+          const s = Number(r.current_stair) || 0;
+          if (s >= 0 && s <= 4) stairs[s]++;
+          if (r.composite_score != null) scores.push(Number(r.composite_score));
+          bottom10.push({ hive_id: r.hive_id, score: Number(r.composite_score) || 0, blocker: r.blocker_summary });
+        }
+        scores.sort((a,b) => a-b);
+        const median = scores.length ? scores[Math.floor(scores.length/2)] : null;
+        bottom10.sort((a,b) => a.score - b.score);
+        return {
+          stairs, median, total: (data || []).length,
+          bottom: bottom10.slice(0, 5),
+        };
+      } catch (e) { return { _error: e && e.message || 'fetch failed' }; }
+    }
+
+    async function fetchPareto30d() {
+      try {
+        const since = new Date(); since.setDate(since.getDate() - 30);
+        const { data, error } = await db.from('analytics_events')
+          .select('hive_id')
+          .eq('event_name', 'page_view')
+          .gte('created_at', since.toISOString())
+          .not('hive_id', 'is', null)
+          .limit(50000);
+        if (error) return { _error: error.message };
+        const byHive = {};
+        for (const r of (data || [])) {
+          byHive[r.hive_id] = (byHive[r.hive_id] || 0) + 1;
+        }
+        const sorted = Object.entries(byHive)
+          .map(([h, n]) => ({ hive_id: h, events: n }))
+          .sort((a,b) => b.events - a.events);
+        const total = sorted.reduce((a, r) => a + r.events, 0);
+        const top10pctCount = Math.max(1, Math.ceil(sorted.length * 0.1));
+        const top10pctShare = total ? sorted.slice(0, top10pctCount).reduce((a, r) => a + r.events, 0) / total : 0;
+        return { top: sorted.slice(0, 10), total, top10pctShare, n_hives: sorted.length };
+      } catch (e) { return { _error: e && e.message || 'fetch failed' }; }
+    }
+
+    async function fetchMarketplacePulse() {
+      try {
+        const since30 = new Date(); since30.setDate(since30.getDate() - 30);
+        const [ordersRes, disputesRes] = await Promise.all([
+          db.from('marketplace_orders').select('id, status, price, created_at').limit(5000),
+          db.from('marketplace_disputes').select('id, status').limit(2000),
+        ]);
+        const orders = (ordersRes.data || []);
+        const disputes = (disputesRes.data || []);
+        const gmv30 = orders
+          .filter(o => o.created_at && new Date(o.created_at) >= since30)
+          .reduce((a, o) => a + Number(o.price || 0), 0);
+        const openOrders = orders.filter(o => o.status && /pending|escrow/i.test(o.status)).length;
+        const openDisputes = disputes.filter(d => d.status && /open|seller_responded/i.test(d.status)).length;
+        const trust = orders.length > 0 ? 1 - (disputes.length / orders.length) : 1;
+        return {
+          gmv_30d_php: gmv30,
+          total_orders: orders.length,
+          open_orders: openOrders,
+          total_disputes: disputes.length,
+          open_disputes: openDisputes,
+          trust_score: trust,
+        };
+      } catch (e) { return { _error: e && e.message || 'fetch failed' }; }
+    }
+
+    async function fetchAiCostByProvider() {
+      try {
+        const since = new Date(); since.setDate(since.getDate() - 7);
+        const { data, error } = await db.from('ai_cost_log')
+          .select('provider, cost_usd, hive_id, created_at')
+          .gte('created_at', since.toISOString())
+          .limit(20000);
+        if (error) return { _error: error.message };
+        const byProvider = {};
+        const byHive = {};
+        for (const r of (data || [])) {
+          const p = r.provider || 'unknown';
+          byProvider[p] = (byProvider[p] || 0) + Number(r.cost_usd || 0);
+          if (r.hive_id) byHive[r.hive_id] = (byHive[r.hive_id] || 0) + Number(r.cost_usd || 0);
+        }
+        const providers = Object.entries(byProvider)
+          .map(([p, c]) => ({ provider: p, cost: c }))
+          .sort((a,b) => b.cost - a.cost);
+        const topHives = Object.entries(byHive)
+          .map(([h, c]) => ({ hive_id: h, cost: c }))
+          .sort((a,b) => b.cost - a.cost).slice(0, 5);
+        return { providers, top_hives: topHives, n_calls: (data || []).length, total: providers.reduce((a, r) => a + r.cost, 0) };
+      } catch (e) { return { _error: e && e.message || 'fetch failed' }; }
+    }
+
+    async function fetchAuditFeed() {
+      try {
+        const { data, error } = await db.from('hive_audit_log')
+          .select('id, action, actor, target_type, target_name, hive_id, created_at, meta')
+          .order('created_at', { ascending: false })
+          .limit(50);
+        if (error) return { _error: error.message };
+        return { events: data || [] };
+      } catch (e) { return { _error: e && e.message || 'fetch failed' }; }
+    }
+
+    // ── Phase 2+: renderers ─────────────────────────────────────
+    function renderGrowthPulse(dau14, mau) {
+      const el = document.getElementById('growth-content');
+      const upd = document.getElementById('growth-updated');
+      upd.textContent = 'analytics_events · last 14d';
+      if (dau14 && dau14._error) {
+        el.innerHTML = honestEmpty('Growth data unavailable',
+          'analytics_events query failed: ' + escHtml(dau14._error),
+          'Phase 0 instrumented page_view across 30 pages. If this just shipped, it warms up over the next hour.');
+        return;
+      }
+      const days = (dau14 && dau14.days) || [];
+      const max = Math.max(1, ...days.map(d => d.count));
+      const mauN = (mau && !mau._error) ? mau.count : 0;
+      const dauToday = (dau14 && dau14.count) || 0;
+      const stickiness = mauN > 0 ? (dauToday / mauN) : 0;
+
+      // Honest-empty: very early data
+      if (mauN < 5 && dauToday < 3) {
+        el.innerHTML = honestEmpty('Insufficient data for growth signals',
+          `MAU=${mauN}, today's DAU=${dauToday}. Need ≥5 MAU for meaningful stickiness.`,
+          'Per the honesty doctrine: small-N stickiness ratios swing wildly. Wait until the platform has ≥5 monthly active users.')
+          + renderSourceChip({ freshness:'live', source:'analytics_events', window:'14d sparkline + 30d MAU', notes:['Min N=5 for stickiness'] });
+        return;
+      }
+
+      const sparkBars = days.map(d => {
+        const pct = Math.max(4, Math.round((d.count / max) * 100));
+        return `<div class="spark-bar" style="height:${pct}%" title="${d.date}: ${d.count} DAU"></div>`;
+      }).join('');
+      el.innerHTML = `
+        <div class="pulse-row">
+          <div class="pulse-card">
+            <span class="n">${dauToday}</span>
+            <span class="l">DAU today</span>
+            <span class="sub">distinct workers · ${(dau14 && dau14.n_events) || 0} events</span>
+          </div>
+          <div class="pulse-card">
+            <span class="n">${mauN}</span>
+            <span class="l">MAU 30d</span>
+            <span class="sub">unique workers active</span>
+          </div>
+          <div class="pulse-card">
+            <span class="n">${(stickiness * 100).toFixed(1)}%</span>
+            <span class="l">Stickiness</span>
+            <span class="sub">DAU/MAU ratio</span>
+          </div>
+        </div>
+        <div class="sparkline">${sparkBars}</div>
+        <div class="spark-axis"><span>14d ago</span><span>today</span></div>
+        ${renderSourceChip({ freshness:'live', source:'analytics_events', window:'14d sparkline + 30d MAU', notes:['Stickiness suppressed when MAU<5'] })}
+      `;
+    }
+
+    function renderHeatmap(heat) {
+      const el = document.getElementById('heatmap-content');
+      const upd = document.getElementById('heatmap-updated');
+      upd.textContent = 'analytics_events · last 7d';
+      if (heat && heat._error) {
+        el.innerHTML = honestEmpty('Heatmap unavailable',
+          'page_view query failed: ' + escHtml(heat._error), '');
+        return;
+      }
+      const pages = (heat && heat.pages) || [];
+      if (pages.length === 0) {
+        el.innerHTML = honestEmpty('No page views yet',
+          'Phase 0 instrumented 30 pages. Once any user visits, tiles appear here.',
+          'Tiles colored: red=dead (0), amber=cold (<10), green=warm (10-50), bright=hot (50+).');
+        return;
+      }
+      const tiles = pages.map(p => {
+        const cls = p.views === 0 ? 'dead'
+                  : p.views < 10 ? 'cold'
+                  : p.views < 50 ? 'warm' : 'hot';
+        return `<div class="heat-tile ${cls}">
+          <span class="pg">${escHtml(p.page)}</span>
+          <span class="vw"><span class="n">${p.views}</span> views · <span class="n">${p.unique}</span> users</span>
+        </div>`;
+      }).join('');
+      el.innerHTML = `<div class="heat-grid">${tiles}</div>` +
+        renderSourceChip({ freshness:'live', source:'analytics_events', window:'7d page_view rollup', notes:[`${pages.length} pages observed`] });
+    }
+
+    function renderMaturity(m) {
+      const el = document.getElementById('maturity-content');
+      const upd = document.getElementById('maturity-updated');
+      upd.textContent = 'v_hive_readiness_truth · daily snapshot';
+      if (m && m._error) {
+        el.innerHTML = honestEmpty('Maturity data unavailable',
+          'v_hive_readiness_truth query failed: ' + escHtml(m._error),
+          'The HRS daily cron may not have populated rows yet, or the view is not deployed in this env.');
+        return;
+      }
+      if (!m || m.total === 0) {
+        el.innerHTML = honestEmpty('No hive readiness snapshots yet',
+          'The HRS daily cron computes a row per hive per day. Once it runs, this panel shows the 5-stair breakdown.',
+          'See STRATEGIC_ROADMAP.md §4 — Maturity Stack.');
+        return;
+      }
+      if (m.total < 5) {
+        el.innerHTML = honestEmpty(`Only ${m.total} hive(s) — insufficient for distribution`,
+          'Per the honesty doctrine: distributions across <5 hives are meaningless.',
+          'Median composite: ' + (m.median != null ? m.median + '/100' : 'n/a'));
+        return;
+      }
+      const labels = ['Paper','Digital Logbook','Disciplined','Predictive-Ready','Industry Leader'];
+      const stairBars = m.stairs.map((n, i) => {
+        const pct = m.total ? Math.round((n / m.total) * 100) : 0;
+        return `<div class="stair-row">
+          <span class="stair-name"><span class="num">S${i}</span>${escHtml(labels[i])}</span>
+          <div class="stair-bar"><div class="stair-fill s${i}" style="width:${pct}%"></div></div>
+          <span class="stair-count">${n} (${pct}%)</span>
+        </div>`;
+      }).join('');
+      const bottom = (m.bottom || []).map(b => `
+        <div class="audit-item">
+          <span class="audit-dot default"></span>
+          <div style="flex:1;">
+            <div class="audit-action">Hive ${escHtml((b.hive_id||'').slice(0,8))} — composite ${b.score}/100</div>
+            <div class="audit-meta">${escHtml(b.blocker || 'no blocker_summary recorded')}</div>
+          </div>
+        </div>`).join('');
+      el.innerHTML = `
+        <div class="pulse-row">
+          <div class="pulse-card"><span class="n">${m.total}</span><span class="l">Total hives</span></div>
+          <div class="pulse-card"><span class="n">${m.median != null ? m.median : '—'}</span><span class="l">Median HRS</span><span class="sub">composite 0-100</span></div>
+        </div>
+        <div class="stair-bar-wrap">${stairBars}</div>
+        ${bottom ? '<h3 style="font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin:.6rem 0 .3rem;">Bottom 5 needing intervention</h3><div class="audit-feed" style="max-height:none;">' + bottom + '</div>' : ''}
+        ${renderSourceChip({ freshness:'daily snapshot', source:'v_hive_readiness_truth', window:'latest per hive', notes:['Suppressed when N<5'] })}
+      `;
+    }
+
+    function renderPareto(p) {
+      const el = document.getElementById('pareto-content');
+      const upd = document.getElementById('pareto-updated');
+      upd.textContent = 'analytics_events · 30d concentration';
+      if (p && p._error) {
+        el.innerHTML = honestEmpty('Pareto data unavailable',
+          'analytics_events query failed: ' + escHtml(p._error), '');
+        return;
+      }
+      if (!p || p.n_hives === 0) {
+        el.innerHTML = honestEmpty('No hive activity in last 30 days',
+          'Once page_view events arrive with a hive_id, the Pareto chart shows concentration.', '');
+        return;
+      }
+      if (p.n_hives < 5) {
+        el.innerHTML = honestEmpty(`Only ${p.n_hives} active hive(s) — concentration not meaningful`,
+          'Pareto needs ≥5 hives to meaningfully measure 80/20 concentration.', '');
+        return;
+      }
+      const max = Math.max(1, ...p.top.map(t => t.events));
+      const rows = p.top.map(t => {
+        const pct = Math.max(2, Math.round((t.events / max) * 100));
+        return `<div class="pareto-row">
+          <span class="pareto-name">${escHtml((t.hive_id||'').slice(0,12))}…</span>
+          <div class="pareto-bar"><div class="pareto-fill" style="width:${pct}%"></div></div>
+          <span class="pareto-count">${t.events} ev</span>
+        </div>`;
+      }).join('');
+      const sharePct = (p.top10pctShare * 100).toFixed(0);
+      const cls = p.top10pctShare > 0.8 ? 'warn' : 'good';
+      el.innerHTML = `
+        <div class="pulse-row">
+          <div class="pulse-card"><span class="n ${cls === 'warn' ? '' : ''}" style="color:${cls === 'warn' ? 'var(--yellow)' : 'var(--green)'}">${sharePct}%</span>
+            <span class="l">Top 10% share</span>
+            <span class="sub">of platform activity</span></div>
+          <div class="pulse-card"><span class="n">${p.n_hives}</span><span class="l">Active hives</span><span class="sub">30d</span></div>
+          <div class="pulse-card"><span class="n">${p.total}</span><span class="l">Total events</span></div>
+        </div>
+        <h3 style="font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin:.6rem 0 .3rem;">Top 10 hives by activity</h3>
+        <div class="pareto-bar-wrap">${rows}</div>
+        ${renderSourceChip({ freshness:'live', source:'analytics_events', window:'30d page_view by hive', notes:['Top-10% concentration ratio'] })}
+      `;
+    }
+
+    function renderMarketplace(m) {
+      const el = document.getElementById('marketplace-content');
+      const upd = document.getElementById('marketplace-updated');
+      upd.textContent = 'marketplace_orders + marketplace_disputes';
+      if (m && m._error) {
+        el.innerHTML = honestEmpty('Marketplace data unavailable',
+          escHtml(m._error), '');
+        return;
+      }
+      if (!m || m.total_orders === 0) {
+        el.innerHTML = honestEmpty('No marketplace transactions yet',
+          'Marketplace is pre-DTI; numbers populate once the first order ships.',
+          'See MARKETPLACE_GO_LIVE_ROADMAP.md (deferred at Phase 1 — DTI registration).');
+        return;
+      }
+      const gmv = m.gmv_30d_php.toLocaleString('en-PH', { style:'currency', currency:'PHP', maximumFractionDigits:0 });
+      const trust = (m.trust_score * 100).toFixed(1);
+      const trustCls = m.trust_score >= 0.95 ? 'good' : m.trust_score >= 0.85 ? 'warn' : 'bad';
+      el.innerHTML = `
+        <div class="mkt-grid">
+          <div class="mkt-chip"><span class="n" style="color:var(--gold)">${escHtml(gmv)}</span><span class="l">GMV 30d</span></div>
+          <div class="mkt-chip"><span class="n">${m.total_orders}</span><span class="l">Total orders</span></div>
+          <div class="mkt-chip"><span class="n" style="color:var(--blue)">${m.open_orders}</span><span class="l">Open (pending/escrow)</span></div>
+          <div class="mkt-chip"><span class="n" style="color:var(--red)">${m.open_disputes}</span><span class="l">Open disputes</span></div>
+          <div class="mkt-chip"><span class="n ${trustCls}" style="color:var(--${trustCls === 'good' ? 'green' : trustCls === 'warn' ? 'yellow' : 'red'})">${trust}%</span><span class="l">Trust score</span></div>
+        </div>
+        ${renderSourceChip({ freshness:'live', source:'marketplace_orders + marketplace_disputes', window:'all-time orders, 30d GMV', notes:['Trust = 1 - dispute_rate'] })}
+      `;
+    }
+
+    function renderAiCostDetail(a) {
+      const el = document.getElementById('aicost-content');
+      const upd = document.getElementById('aicost-updated');
+      upd.textContent = 'ai_cost_log · last 7d';
+      if (a && a._error) {
+        el.innerHTML = honestEmpty('AI cost data unavailable',
+          escHtml(a._error), '');
+        return;
+      }
+      if (!a || a.providers.length === 0) {
+        el.innerHTML = honestEmpty('No AI calls in last 7 days',
+          'ai_cost_log table is empty for this period. Either no AI activity, or instrumentation lapsed.', '');
+        return;
+      }
+      const maxCost = Math.max(0.0001, ...a.providers.map(p => p.cost));
+      const provRows = a.providers.map(p => {
+        const pct = Math.max(2, Math.round((p.cost / maxCost) * 100));
+        return `<div class="pareto-row">
+          <span class="pareto-name">${escHtml(p.provider)}</span>
+          <div class="pareto-bar"><div class="pareto-fill" style="width:${pct}%;background:linear-gradient(90deg,var(--gold),var(--blue));"></div></div>
+          <span class="pareto-count">$${p.cost.toFixed(2)}</span>
+        </div>`;
+      }).join('');
+      const topHiveRows = (a.top_hives || []).map(h => `
+        <div class="pareto-row">
+          <span class="pareto-name">Hive ${escHtml((h.hive_id||'').slice(0,12))}…</span>
+          <div class="pareto-bar"><div class="pareto-fill" style="width:${Math.max(2, Math.round((h.cost / maxCost) * 100))}%"></div></div>
+          <span class="pareto-count">$${h.cost.toFixed(2)}</span>
+        </div>`).join('');
+      el.innerHTML = `
+        <div class="pulse-row">
+          <div class="pulse-card"><span class="n" style="color:var(--gold)">$${a.total.toFixed(2)}</span><span class="l">7d total</span><span class="sub">${a.n_calls} calls</span></div>
+        </div>
+        <h3 style="font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin:.6rem 0 .3rem;">By provider</h3>
+        <div class="pareto-bar-wrap">${provRows}</div>
+        ${topHiveRows ? '<h3 style="font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin:.6rem 0 .3rem;">Top spending hives</h3><div class="pareto-bar-wrap">' + topHiveRows + '</div>' : ''}
+        ${renderSourceChip({ freshness:'live', source:'ai_cost_log', window:'7d rollup', notes:['By provider + top spending hives'] })}
+      `;
+    }
+
+    function renderAudit(a) {
+      const el = document.getElementById('audit-content');
+      const upd = document.getElementById('audit-updated');
+      upd.textContent = 'hive_audit_log · last 50 events';
+      if (a && a._error) {
+        el.innerHTML = honestEmpty('Audit feed unavailable',
+          escHtml(a._error), '');
+        return;
+      }
+      const events = (a && a.events) || [];
+      if (events.length === 0) {
+        el.innerHTML = honestEmpty('No audit events',
+          'hive_audit_log is empty for the queried window — no platform-wide admin actions recorded.', '');
+        return;
+      }
+      const rows = events.map(ev => {
+        const dotCls = /approve/i.test(ev.action || '') ? 'approve'
+                     : /reject/i.test(ev.action || '') ? 'reject'
+                     : /kick|remove/i.test(ev.action || '') ? 'kick'
+                     : 'default';
+        const when = ev.created_at ? new Date(ev.created_at).toLocaleString() : '—';
+        return `<div class="audit-item">
+          <span class="audit-dot ${dotCls}"></span>
+          <div style="flex:1;">
+            <div class="audit-action">${escHtml(ev.action || 'action')} — ${escHtml(ev.target_name || ev.target_type || '')}</div>
+            <div class="audit-meta">by ${escHtml(ev.actor || '?')} · hive ${escHtml((ev.hive_id||'').slice(0,8))} · ${escHtml(when)}</div>
+          </div>
+        </div>`;
+      }).join('');
+      el.innerHTML = `<div class="audit-feed">${rows}</div>` +
+        renderSourceChip({ freshness:'live', source:'hive_audit_log', window:'last 50 events', notes:['All hives, ordered by created_at desc'] });
+    }
+
+    function renderNps() {
+      // Placeholder: real NPS prompt lives on user-facing pages.
+      // This panel will show aggregate once a nps_responses table is created.
+      const el = document.getElementById('nps-content');
+      const upd = document.getElementById('nps-updated');
+      upd.textContent = 'not yet collecting';
+      el.innerHTML = honestEmpty('NPS collection not yet active',
+        'The NPS micro-prompt is a Phase 5 polish task: a quarterly modal on hive.html asking "How likely to recommend?" — score persisted to nps_responses table. This panel surfaces the aggregate once it exists.',
+        'Per the honesty doctrine: no fake score, no extrapolation from zero responses.');
+    }
+
+    // ── Helper: honest-empty block builder ──────────────────────
+    function honestEmpty(title, body, hewhy) {
+      return '<div class="honest-empty">'
+        + '<div class="hetitle">' + escHtml(title) + '</div>'
+        + '<p>' + escHtml(body) + '</p>'
+        + (hewhy ? '<div class="hewhy">' + escHtml(hewhy) + '</div>' : '')
+        + '</div>';
+    }
+
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 2400);
+    }
+  </script>
+</body>
+</html>

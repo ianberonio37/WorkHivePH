@@ -77,6 +77,8 @@ LIVE_PAGES = [
     # Shared helpers that touch db.from() (PRODUCTION_FIXES #15 / #43)
     "worker-drawer.js",
     "oc-helper.js",
+    # Founder Console (Phase 1 of admin/dev surface)
+    "founder-console.html",
 ]
 
 RETIRED_TABLES = {"parts_records", "checklist_records"}

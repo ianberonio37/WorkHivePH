@@ -142,6 +142,8 @@ def _heuristic_classify(transcript: str) -> Dict:
         "how many", "count", "how much", "overdue", "due", "down", "running",
         "risk", "high risk", "alert", "alert", "low stock", "out of stock",
         "active workers", "adoption", "status", "inventory", "equipment",
+        "mtbf", "mttr", "oee", "availability", "reliability", "mean time",
+        "uptime", "downtime", "performance", "efficiency", "today", "this week",
     ]
 
     # Semantic route keywords

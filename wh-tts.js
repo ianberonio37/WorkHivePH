@@ -44,8 +44,8 @@
 
   function isTtsOn() {
     try {
-      return localStorage.getItem(TTS_STORAGE_KEY) !== 'off';
-    } catch (_) { return true; }
+      return localStorage.getItem(TTS_STORAGE_KEY) === 'on';  // OFF by default
+    } catch (_) { return false; }
   }
 
   function getEnv() {
@@ -141,24 +141,61 @@
   // unless we bias the choice. We pick the first installed voice whose
   // name OR locale tag matches the gender heuristic.
   const PERSONA_GENDER = { james: 'male', rosa: 'female' };
-  const MALE_HINTS   = /(male|man|guy|david|mark|alex|james|angelo|paolo|daniel)/i;
-  const FEMALE_HINTS = /(female|woman|girl|samantha|victoria|sara|rosa|maria|isabella|tessa)/i;
+  const MALE_HINTS   = /(male|man|guy|david|mark|alex|james|angelo|paolo|daniel|guy|ravi|brandon)/i;
+  const FEMALE_HINTS = /(female|woman|girl|samantha|victoria|sara|rosa|maria|isabella|tessa|zira|hazel|eva|aria|jenny|nova|emma|libby|sonia|natasha|tracy|catherine|rosa)/i;
+
+  // Pre-load voices on page load (browsers populate this async)
+  let _voicesCache = null;
+  function _loadVoices() {
+    if (!window.speechSynthesis) return [];
+    const v = window.speechSynthesis.getVoices() || [];
+    if (v.length) _voicesCache = v;
+    return v;
+  }
+  if (window.speechSynthesis) {
+    _loadVoices();
+    if (window.speechSynthesis.onvoiceschanged !== undefined) {
+      window.speechSynthesis.addEventListener('voiceschanged', _loadVoices);
+    }
+  }
+
+  // Neural/Online voices sound DRAMATICALLY better than default voices.
+  // Chrome's "Google" voices and Edge's "Natural"/"Online" voices use neural TTS.
+  const NEURAL_HINTS = /(natural|online|google|neural|premium|enhanced)/i;
 
   function pickBrowserVoice(persona) {
     if (!window.speechSynthesis) return null;
-    const voices = window.speechSynthesis.getVoices() || [];
+    const voices = _loadVoices().length ? _loadVoices() : (_voicesCache || []);
     if (!voices.length) return null;
     const wantMale = PERSONA_GENDER[persona] === 'male';
     const matchGender = (v) => wantMale
       ? (MALE_HINTS.test(v.name)   && !FEMALE_HINTS.test(v.name))
       : (FEMALE_HINTS.test(v.name) && !MALE_HINTS.test(v.name));
+    const isNeural = (v) => NEURAL_HINTS.test(v.name);
+    // Strong NEGATIVE match — explicitly avoid wrong-gender voices
+    const avoidWrongGender = (v) => wantMale
+      ? !FEMALE_HINTS.test(v.name)
+      : !MALE_HINTS.test(v.name);
     // Prefer en-PH voices first, then en-* voices, then any.
     const phMatches = voices.filter(v => /en-PH/i.test(v.lang));
     const enMatches = voices.filter(v => /^en[-_]/i.test(v.lang));
-    return phMatches.find(matchGender) ||
+    // PRIORITY ORDER:
+    // 1. Neural en-* voice matching gender (e.g., "Microsoft Aria Online (Natural)")
+    // 2. Any en-PH voice matching gender (warmer accent for PH workers)
+    // 3. Any en-* voice matching gender
+    // 4. Any voice matching gender
+    // 5. Any voice NOT matching wrong gender (better than wrong-gender default)
+    const picked = enMatches.find(v => matchGender(v) && isNeural(v)) ||
+           phMatches.find(matchGender) ||
            enMatches.find(matchGender) ||
            voices.find(matchGender) ||
+           enMatches.find(avoidWrongGender) ||
+           voices.find(avoidWrongGender) ||
            phMatches[0] || enMatches[0] || voices[0];
+    if (picked) {
+      console.log('[wh-tts] persona=' + persona + ' picked voice:', picked.name, picked.lang, isNeural(picked) ? '(NEURAL)' : '(default)');
+    }
+    return picked;
   }
 
   function speakBrowser(text, persona) {
@@ -172,8 +209,8 @@
         u.voice = v;
         u.lang  = v.lang || u.lang;
       }
-      u.rate  = 1.0;
-      u.pitch = 1.0;
+      u.rate  = 0.85;  // Slower = more natural (1.0 = robotic)
+      u.pitch = 0.95;  // Slightly lower pitch = warmer tone
       window.speechSynthesis.speak(u);
     } catch (e) {
       console.warn('wh-tts browser speak failed:', e);
@@ -203,8 +240,21 @@
     return false;
   }
 
+  function toggleTts() {
+    try {
+      const current = localStorage.getItem(TTS_STORAGE_KEY);
+      const newValue = current === 'on' ? 'off' : 'on';
+      localStorage.setItem(TTS_STORAGE_KEY, newValue);
+      return newValue === 'on';
+    } catch (_) {
+      return false;
+    }
+  }
+
   // Expose globally so any inline script can use it.
   window.speakPersona     = speakPersona;
   window.stopPersonaSpeak = stop;
   window.getPersona       = getPersona;
+  window.toggleTts        = toggleTts;
+  window.isTtsOn          = isTtsOn;
 })();

@@ -56,3 +56,7 @@ autograd==1.6.2
 # The /pdf endpoint returns 503 when weasyprint is absent; frontend falls back to html2pdf.js.
 # Re-enable after verifying Dockerfile system deps on Bookworm (libgdk-pixbuf-2.0-0 rename).
 # weasyprint==62.3
+
+# Voice Companion Phase 7 — Edge-TTS for natural-sounding free-tier TTS
+# Used by /tts/speak endpoint for Rosa/James voice synthesis
+edge-tts>=7.2.0

@@ -51,6 +51,7 @@ NON_TOOL_PAGES = {
     "symbol-gallery.html",           # RETIRED 2026-05-13 — kept on disk for archival, never in nav
     "platform-health.html",          # retired Phase 7, deprecated banner only
     "voice-journal.html",            # voice-journal companion (untracked WIP — not yet a full tool page)
+    "founder-console.html",          # Founder Console: admin-only platform-wide dashboard, not a worker tool
 }
 
 # ── Suffix patterns for test/scratch variants (skipped without complaint) ─────

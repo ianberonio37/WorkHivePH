@@ -63,6 +63,8 @@ LIVE_PAGES = [
     "alert-hub.html",
     "audit-log.html",
     "voice-journal.html",
+    # Founder Console — admin-only platform-wide dashboard (Phase 1)
+    "founder-console.html",
 ]
 
 # Tables that grow row-by-row over time (one row per event, hour, or
