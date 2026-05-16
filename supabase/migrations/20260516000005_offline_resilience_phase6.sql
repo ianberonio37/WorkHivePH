@@ -37,3 +37,10 @@ create table if not exists fallback_model_faq (
 );
 
 create index if not exists idx_faq_embedding on fallback_model_faq using ivfflat (question_embedding vector_cosine_ops);
+
+-- RLS: fallback FAQ is read-only for all authenticated workers
+alter table fallback_model_faq enable row level security;
+drop policy if exists "fallback_faq_read" on fallback_model_faq;
+create policy "fallback_faq_read" on fallback_model_faq
+  for select
+  using (auth.role() = 'authenticated');

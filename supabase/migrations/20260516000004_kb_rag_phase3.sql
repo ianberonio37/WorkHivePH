@@ -24,7 +24,7 @@ create table if not exists kb_chunks (
   doc_id bigint not null references kb_documents(id) on delete cascade,
   chunk_num int not null,
   text text not null,
-  embedding vector(1536),  -- Voyage embedding dimension
+  embedding vector(384),  -- 384-dim: Voyage (512 truncated) or Jina (native)
   relevance_score real,  -- cached from last rerank
   created_at timestamptz default now()
 );

@@ -100,7 +100,7 @@ begin
 
   return json_build_object('ok', true, 'alert_id', p_alert_id, 'suppressed_hours', p_hours);
 end;
-$$ language plpgsql security definer;
+$$ language plpgsql security definer set search_path = public;
 
 -- Edge function will call: detect_kpi_spikes(), detect_risk_escalation(), detect_maintenance_overdue()
 -- and insert into anomaly_alerts table via trigger
