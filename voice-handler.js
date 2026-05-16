@@ -1611,7 +1611,22 @@
     handlers[kind] = handler;
   }
 
-  window.WHVoice = { open, close, register, dispatch, _handlers: handlers };
+  // Debug helper: log current context for troubleshooting voice issues
+  window._debugVoiceContext = function() {
+    const ctx = _ctx();
+    const db = _getDb();
+    const lsKeys = Object.keys(localStorage).filter(k => k.includes('wh_') || k.includes('hive') || k.includes('worker') || k.includes('auth'));
+    console.log('[WHVoice Debug] Current Context:', {
+      db_available: !!db,
+      worker_name: ctx.worker_name || '(empty)',
+      hive_id: ctx.hive_id || '(empty)',
+      hive_role: ctx.hive_role || '(empty)',
+      all_relevant_localStorage_keys: lsKeys.map(k => k + '=' + (localStorage.getItem(k) ? '✓' : '✗')).join(' | '),
+    });
+    return { ctx, db_available: !!db };
+  };
+
+  window.WHVoice = { open, close, register, dispatch, _handlers: handlers, _debugContext: window._debugVoiceContext };
 
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', _mount);
