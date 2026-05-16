@@ -5,10 +5,17 @@ Populates kb_documents and kb_chunks with sample maintenance documentation.
 Used for semantic search and citation in Rosa/James responses.
 """
 
-def seed_kb_documents_and_chunks(client, hive_id, log):
+def seed_kb_documents_and_chunks(client, log, ctx):
     """Seed knowledge base documents and chunks for semantic RAG."""
 
     log("\n[Voice Companion Phase 3] Seeding KB documents and chunks...")
+
+    # Get first hive for seeding
+    hives = ctx.get("hives", [])
+    if not hives:
+        log("  SKIP: No hives found, cannot seed KB")
+        return 0
+    hive_id = hives[0]["id"]
 
     # Sample documents (realistic maintenance manuals)
     documents = [
@@ -172,9 +179,9 @@ ASSET LIFECYCLE:
 
 
 # Hook for test-data-seeder orchestrator
-def run(client, hive_id, log):
+def run(client, log, ctx):
     """
     Entry point for test-data-seeder.
-    Expected signature: run(client, hive_id, log) -> int (rows inserted)
+    Expected signature: run(client, log, ctx) -> int (rows inserted)
     """
-    return seed_kb_documents_and_chunks(client, hive_id, log)
+    return seed_kb_documents_and_chunks(client, log, ctx)

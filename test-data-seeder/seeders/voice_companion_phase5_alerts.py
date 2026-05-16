@@ -5,10 +5,17 @@ Populates anomaly_alerts table with realistic KPI spikes, risk escalations, and 
 Used to test Rosa/James alert surfacing logic (Hard Rule: surface critical alerts FIRST).
 """
 
-def seed_anomaly_alerts(client, hive_id, log):
+def seed_anomaly_alerts(client, log, ctx):
     """Seed anomaly alerts for proactive alert testing."""
 
     log("\n[Voice Companion Phase 5] Seeding proactive alerts...")
+
+    # Get first hive for seeding
+    hives = ctx.get("hives", [])
+    if not hives:
+        log("  SKIP: No hives found, cannot seed alerts")
+        return 0
+    hive_id = hives[0]["id"]
 
     # Query for assets to reference in alerts
     try:
@@ -115,9 +122,9 @@ def seed_anomaly_alerts(client, hive_id, log):
 
 
 # Hook for test-data-seeder orchestrator
-def run(client, hive_id, log):
+def run(client, log, ctx):
     """
     Entry point for test-data-seeder.
-    Expected signature: run(client, hive_id, log) -> int (rows inserted)
+    Expected signature: run(client, log, ctx) -> int (rows inserted)
     """
-    return seed_anomaly_alerts(client, hive_id, log)
+    return seed_anomaly_alerts(client, log, ctx)
