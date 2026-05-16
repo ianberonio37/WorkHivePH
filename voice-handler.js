@@ -909,6 +909,19 @@
     }
   }
 
+  // Phase 5: Fetch active proactive alerts (KPI spikes, risk escalation, overdue PM)
+  async function _fetchProactiveAlerts(db, hiveId) {
+    if (!db || !hiveId) return [];
+    try {
+      const { data, error } = await db.rpc('fetch_active_alerts', { p_hive_id: hiveId });
+      if (error || !data) return [];
+      return data.slice(0, 5); // Top 5 critical alerts only
+    } catch (err) {
+      console.warn('[WHVoice] Proactive alerts fetch failed:', err && err.message);
+      return [];
+    }
+  }
+
   // Phase 4: Update dialog state (intent + slots) after each turn
   async function _updateDialogState(db, hiveId, sessionId, intentKind, confidence, contextSlots, clarificationPending, clarificationPrompt) {
     if (!db || !hiveId || !sessionId) return;
@@ -1398,7 +1411,7 @@
     }
   }
 
-  function _buildVoiceSystemPrompt(persona, workerName, hiveName, pageLabel, routingHint, memoryBlock, canonicalData, routerContext, platformData, ragContext, dialogState) {
+  function _buildVoiceSystemPrompt(persona, workerName, hiveName, pageLabel, routingHint, memoryBlock, canonicalData, routerContext, platformData, ragContext, dialogState, proactiveAlerts) {
     const personaBlock = (typeof window.getCompanionBlock === 'function')
       ? window.getCompanionBlock() : '';
     // Internal-only grounding. These facts help the model pick the right
@@ -1423,6 +1436,18 @@
     const routingBlock = routingHint
       ? '\nIMPORTANT — the worker tried to speak a command this page can\'t execute: ' + routingHint + ' Keep the reply to ONE short sentence. Do NOT describe specific buttons / cards / menus you haven\'t been told about.\n'
       : '';
+    // Phase 5: Proactive alerts (KPI spikes, risk, overdue PM)
+    const alertsSection = (proactiveAlerts && proactiveAlerts.length)
+      ? '\nACTIVE ALERTS — Surface these FIRST before answering the worker\'s question:\n' +
+        proactiveAlerts.map((a, idx) => {
+          const severity = (a.severity || 'info').toUpperCase();
+          const desc = (a.description || '').slice(0, 200);
+          const action = (a.action_suggested || 'Investigate.').slice(0, 150);
+          return `[${severity}] ${a.alert_type}: ${desc}\nAction: ${action}`;
+        }).join('\n') +
+        '\n\nOPENING RULE FOR ALERTS: If there are critical/high alerts above, your reply should start with "Before you ask, I need to flag something:" followed by the alert summary. Then answer the worker\'s question if appropriate. NEVER skip mentioning critical alerts.\n'
+      : '';
+
     // Phase 4: Dialog state (intent + slots + clarification status)
     const dialogSection = dialogState
       ? '\nDIALOG STATE:\n' +
@@ -1479,6 +1504,7 @@
       identBlock +
       routerBlock +
       routingBlock +
+      alertsSection +
       dialogSection +
       memorySection +
       canonicalSection +
@@ -1563,6 +1589,9 @@
     const priorIntent = priorDialogState && priorDialogState.current_intent;
     const priorSlots = priorDialogState && priorDialogState.context_slots;
 
+    // Phase 5: Fetch proactive alerts (KPI spikes, risk escalation, overdue PM)
+    const proactiveAlerts = await _fetchProactiveAlerts(db, ctx.hive_id).catch(() => []);
+
     // FULL PLATFORM SCAN: pull everything from every truth view in parallel, hand to LLM.
     // No routing decisions, no intent classification — the LLM gets the complete platform
     // snapshot every turn and picks what's relevant. This eliminates "I don't have that info"
@@ -1586,7 +1615,7 @@
       console.warn('[WHVoice] No platform snapshot returned; check DB connection or query errors');
     }
 
-    const system = _buildVoiceSystemPrompt(persona, ctx.worker_name, hiveName, pageLabel, routingHint, memoryBlock, canonicalData, routerContext, platformData, ragContext, priorDialogState);
+    const system = _buildVoiceSystemPrompt(persona, ctx.worker_name, hiveName, pageLabel, routingHint, memoryBlock, canonicalData, routerContext, platformData, ragContext, priorDialogState, proactiveAlerts);
     const messages = [
       { role: 'system', content: system },
       { role: 'user',   content: transcript },
