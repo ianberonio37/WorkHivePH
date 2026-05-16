@@ -946,9 +946,21 @@
   // Returns one comprehensive block that gives the LLM complete platform awareness.
   // The LLM picks what's relevant to the user's question from this snapshot.
   async function _fetchFullPlatformSnapshot(db, hiveId, workerName) {
-    if (!db || !hiveId) {
-      console.warn('[WHVoice] Snapshot: missing db or hiveId', { db: !!db, hiveId });
+    if (!db) {
+      console.warn('[WHVoice] Snapshot: missing db');
       return '';
+    }
+    if (!hiveId) {
+      console.warn('[WHVoice] Snapshot: hiveId not set in context, checking localStorage fallback');
+      // Fallback: if hive_id not in context, try all common localStorage keys
+      hiveId = localStorage.getItem('wh_active_hive_id') ||
+               localStorage.getItem('wh_hive_id') ||
+               localStorage.getItem('hive_id') || '';
+      if (!hiveId) {
+        console.warn('[WHVoice] Snapshot: no hiveId found in localStorage either');
+        return '';
+      }
+      console.log('[WHVoice] Snapshot: recovered hiveId from localStorage:', hiveId);
     }
     const today = new Date().toISOString().slice(0, 10);
 
@@ -981,6 +993,7 @@
     const [kpi, risk, pm, openLogbook, inventory, assets, adoption, knowledge, schedule, skills, anomalies, projects, recentClosed] = data;
     const logbook = openLogbook; // alias for backward compat with formatting below
 
+    console.log('[WHVoice] Snapshot context:', { hiveId, workerName });
     console.log('[WHVoice] Snapshot data counts:', {
       kpi: kpi.length, risk: risk.length, pm: pm.length, openLogbook: openLogbook.length,
       inventory: inventory.length, assets: assets.length, adoption: adoption.length,
