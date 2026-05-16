@@ -92,6 +92,19 @@
   let _recorder = null;
   let _chunks = [];
   let _stopTimer = null;
+  let _sessionId = null;          // Phase 2: session-scoped memory tracking
+  let _turnNum = 0;               // Phase 2: turn counter per session
+
+  // Phase 2: Initialize session ID (per-tab or per-conversation window)
+  function _getSessionId() {
+    if (!_sessionId) {
+      _sessionId = 'voice_session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+      if (typeof sessionStorage !== 'undefined') {
+        sessionStorage.setItem('wh_voice_session_id', _sessionId);
+      }
+    }
+    return _sessionId;
+  }
 
   // ─── Styles + DOM ────────────────────────────────────────────────────────
   const STYLE = `
@@ -787,8 +800,34 @@
   // (signed-in workers), then falls back to the session-only array
   // (anon workers in the Tester). Cheap on both paths, best-effort.
   async function _fetchRecentMemory(db, workerName) {
-    let dbTurns = [];
+    let agentMemoryTurns = [];
+    let voiceJournalTurns = [];
+
+    // Phase 2: Try agent_memory table first (current session + recent history)
     if (db && workerName) {
+      const sessionId = _getSessionId();
+      try {
+        // Fetch current session memory (most recent, highest fidelity)
+        const { data: sessionData, error: sessionErr } = await db.from('agent_memory')
+          .select('turn_num, user_input, assistant_response')
+          .eq('session_id', sessionId)
+          .order('turn_num', { ascending: true })
+          .limit(10);
+
+        if (!sessionErr && sessionData && sessionData.length) {
+          agentMemoryTurns = sessionData.map(row => ({
+            user: String(row.user_input || ''),
+            assistant: String(row.assistant_response || ''),
+            turn_num: row.turn_num,
+          }));
+        }
+      } catch (err) {
+        console.warn('[WHVoice] agent_memory fetch failed (Phase 2):', err && err.message);
+      }
+    }
+
+    // Fallback: voice_journal_entries (older history, broader context)
+    if (db && workerName && agentMemoryTurns.length < 5) {
       try {
         const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
         const { data, error } = await db.from('voice_journal_entries')
@@ -798,31 +837,63 @@
           .order('created_at', { ascending: false })
           .limit(5);
         if (!error && data && data.length) {
-          dbTurns = data.slice().reverse().map(row => ({
+          voiceJournalTurns = data.slice().reverse().map(row => ({
             user:      String(row.transcript || ''),
             assistant: String(row.reply || ''),
           }));
         }
       } catch (_) { /* RLS denial / network — fall through */ }
     }
+
+    // Merge: session turns (fresh), then journal turns (older). Dedupe by user message.
     const sessionTurns = _sessionTurns.map(t => ({ user: t.user, assistant: t.assistant }));
-    // Merge: DB turns first (older), then session turns (newer). Dedupe
-    // by user message — if the same transcript appears in both, prefer
-    // the session entry (it's more recent and verbatim).
+    const allTurns = agentMemoryTurns.concat(voiceJournalTurns).concat(sessionTurns);
+
     const seen = new Set();
     const merged = [];
-    for (const turn of dbTurns.concat(sessionTurns)) {
+    for (const turn of allTurns) {
       const key = turn.user.slice(0, 80);
       if (seen.has(key)) continue;
       seen.add(key);
       merged.push(turn);
     }
+
     if (!merged.length) return '';
-    return merged.map(t => {
+
+    // Format memory block with turn numbers for clarity
+    return 'RECENT SESSION MEMORY:\n' + merged.map((t, idx) => {
       const u = t.user.slice(0, 240).trim();
       const a = t.assistant.slice(0, 240).trim();
-      return 'Worker: ' + u + '\n' + 'You said: ' + a;
-    }).filter(Boolean).join('\n---\n');
+      return `Turn ${idx + 1}:\nWorker asked: ${u}\nYou replied: ${a}`;
+    }).filter(Boolean).join('\n\n---\n\n');
+  }
+
+  // Phase 2: Store turn in agent_memory table (session-scoped, durable memory)
+  async function _storeTurn(db, hiveId, workerName, transcript, response, intentKind, confidence, responseTimeMs) {
+    if (!db || !hiveId || !workerName) return; // silent no-op for anon
+    const sessionId = _getSessionId();
+    _turnNum++;
+
+    try {
+      const result = await db.rpc('store_memory_turn', {
+        p_hive_id: hiveId,
+        p_session_id: sessionId,
+        p_turn_num: _turnNum,
+        p_user_input: String(transcript || '').slice(0, 2000),
+        p_assistant_response: String(response || '').slice(0, 2000),
+        p_intent: intentKind || 'unknown',
+        p_confidence: Number(confidence || 0),
+        p_response_time_ms: Number(responseTimeMs || 0),
+      });
+
+      if (result.error) {
+        console.warn('[WHVoice] store_memory_turn RPC failed:', result.error);
+      } else {
+        console.log('[WHVoice] Turn ' + _turnNum + ' stored to agent_memory');
+      }
+    } catch (err) {
+      console.warn('[WHVoice] Memory store exception:', err && err.message);
+    }
   }
 
   // Phase 1: Semantic Router — classify whether question needs platform data, semantic depth, or simple reply
@@ -1471,6 +1542,10 @@
       _appendSessionTurn(transcript, answer);
       // Durable save — silently no-ops if RLS denies (anon workers).
       _saveJournalTurn(db, ctx, transcript, answer, persona);
+      // Phase 2: Store in agent_memory table (session-scoped, enable recall + dedup)
+      const intentKind = (firstIntent && firstIntent.kind) || 'unknown';
+      const confidence = (firstIntent && firstIntent.confidence) || 0;
+      _storeTurn(db, ctx.hive_id, ctx.worker_name, transcript, answer, intentKind, confidence, 0);
       _showTalkAgainButton();
     } catch (err) {
       console.warn('[WHVoice] conversational call failed:', err);
