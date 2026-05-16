@@ -1008,6 +1008,96 @@
       "status": "resolved",
       "fix_commit": "672ef4a",
       "_source": "playwright_ui_flow"
+    },
+    {
+      "id": "logbook-no-validation-empty-machine",
+      "page": "logbook.html",
+      "session": "2026-05-16",
+      "severity": "medium",
+      "issue": "Logbook form submits without a machine selected (hidden #f-machine field is empty). No client-side validation fires. Entry reaches server with null machine.",
+      "domain": "Frontend Fidelity",
+      "sentinel_agent": "Frontend Fidelity (write-path validation)",
+      "root_cause": "Layer 2 E2E write-path test found: form advances through all 3 steps and hits Save Entry with no machine — no alert or inline error shown. Capture contract logbook_add_entry_v1 does validate server-side, so insert is blocked — but user sees no error feedback.",
+      "has_test": true,
+      "test_file": "test-data-seeder/flows/e2e_logbook_comprehensive.py — validation scenario",
+      "has_validator": false,
+      "validator_layer": null,
+      "status": "open",
+      "fix_commit": null,
+      "_validator_decision": {
+        "action": "add_new",
+        "target_file": "validators/validate_logbook.py",
+        "target_layer": "client-side validation: machine required before step advance",
+        "reason": "Layer 2 → Layer 1 feedback: write-path validation gap not caught by Layer 0"
+      },
+      "_source": "layer2_e2e"
+    },
+    {
+      "id": "logbook-no-error-ui-on-api-fail",
+      "page": "logbook.html",
+      "session": "2026-05-16",
+      "severity": "medium",
+      "issue": "When the Supabase logbook edge function fails (aborted/500), the logbook shows no error message, no retry button. User sees silent failure.",
+      "domain": "Frontend Fidelity",
+      "sentinel_agent": "Frontend Fidelity (API error handling)",
+      "root_cause": "Layer 2 E2E api_error scenario: route to logbook function aborted, form submitted — no toast/alert/retry rendered. The addEntry() function may swallow errors without updating UI.",
+      "has_test": true,
+      "test_file": "test-data-seeder/flows/e2e_logbook_comprehensive.py — api_error scenario",
+      "has_validator": false,
+      "validator_layer": null,
+      "status": "open",
+      "fix_commit": null,
+      "_validator_decision": {
+        "action": "add_new",
+        "target_file": "validators/validate_logbook.py",
+        "target_layer": "error UI: addEntry() must show toast or inline error on catch",
+        "reason": "Layer 2 → Layer 1 feedback: API error handling gap not caught by Layer 0"
+      },
+      "_source": "layer2_e2e"
+    },
+    {
+      "id": "logbook-no-seeded-entries-test-hive",
+      "page": "logbook.html",
+      "session": "2026-05-16",
+      "severity": "low",
+      "issue": "Layer 2 E2E read-path found 0 logbook entries for the test hive after auth and hive-gate dismissal. Data load succeeded but no .entry-card elements rendered.",
+      "domain": "Data Guardian",
+      "sentinel_agent": "Data Guardian (seeder fill)",
+      "root_cause": "Test seeder does not create logbook entries for the default test hive. Layer 2 happy-path passes (WARN not FAIL) but real regression coverage requires at least 1 seeded entry.",
+      "has_test": true,
+      "test_file": "test-data-seeder/flows/e2e_logbook_comprehensive.py — happy read scenario",
+      "has_validator": false,
+      "validator_layer": null,
+      "status": "open",
+      "fix_commit": null,
+      "_validator_decision": {
+        "action": "improve_existing",
+        "target_file": "test-data-seeder/seeders/data.py",
+        "target_layer": "seed 3+ logbook entries per test hive",
+        "reason": "Layer 2 → Layer 1 feedback: seeding gap prevents read-path happy test from asserting actual data"
+      },
+      "_source": "layer2_e2e"
+    },
+    {
+      "id": "project-manager-wizard-modal-auto-opens",
+      "page": "project-manager.html",
+      "session": "2026-05-16",
+      "severity": "low",
+      "issue": "project-manager.html auto-opens #modal-wizard on page load, blocking all other button interactions including the New project button. E2E tests must force-close it via JS.",
+      "domain": "Frontend Fidelity",
+      "sentinel_agent": "Frontend Fidelity (modal state management)",
+      "root_cause": "openModal('modal-wizard') is called on DOMContentLoaded or shortly after load. If the user has no projects yet, the wizard auto-launches. This is intentional UX but breaks automation and may confuse return visits.",
+      "has_test": true,
+      "test_file": "test-data-seeder/flows/e2e_project_manager.py — write path",
+      "has_validator": false,
+      "validator_layer": null,
+      "status": "acknowledged",
+      "fix_commit": null,
+      "_validator_decision": {
+        "action": "no_action",
+        "reason": "Intentional UX for first-time users. Test harness dismisses via closeModal(). Acceptable WARN."
+      },
+      "_source": "layer2_e2e"
     }
   ]
 }
