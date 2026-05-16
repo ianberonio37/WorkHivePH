@@ -1,0 +1,215 @@
+{
+  "timestamp": "2026-05-17T11:14:04.081116",
+  "pages": {
+    "logbook": {
+      "scenarios": [
+        {
+          "scenario": "last_write_wins",
+          "result": "WARN",
+          "steps": [
+            {
+              "step": "both_in_edit_mode"
+            },
+            {
+              "step": "concurrent_save",
+              "a_saved": true,
+              "b_saved": true,
+              "conflict_detected": false
+            }
+          ],
+          "note": "Both saves succeeded silently (last-write-wins, no conflict warning). B overwrote A's changes without notification. Consider adding optimistic locking via updated_at comparison."
+        },
+        {
+          "scenario": "simultaneous_create",
+          "result": "PASS",
+          "steps": [
+            {
+              "step": "simultaneous_create",
+              "A": {
+                "submitted": true,
+                "error": false
+              },
+              "B": {
+                "submitted": true,
+                "error": false
+              }
+            }
+          ],
+          "note": "Both entries created without conflict"
+        }
+      ],
+      "total_pass": 1,
+      "total_fail": 0,
+      "total_warn": 1,
+      "total_skip": 0
+    },
+    "community": {
+      "scenarios": [
+        {
+          "scenario": "simultaneous_create",
+          "result": "PASS",
+          "steps": [
+            {
+              "step": "simultaneous_create",
+              "A": {
+                "submitted": true,
+                "error": false
+              },
+              "B": {
+                "submitted": true,
+                "error": false
+              }
+            }
+          ],
+          "note": "Both entries created without conflict"
+        }
+      ],
+      "total_pass": 1,
+      "total_fail": 0,
+      "total_warn": 0,
+      "total_skip": 0
+    },
+    "inventory": {
+      "scenarios": [
+        {
+          "scenario": "last_write_wins",
+          "result": "WARN",
+          "steps": [
+            {
+              "step": "both_in_edit_mode"
+            },
+            {
+              "step": "concurrent_save",
+              "a_saved": true,
+              "b_saved": true,
+              "conflict_detected": false
+            }
+          ],
+          "note": "Both saves succeeded silently (last-write-wins, no conflict warning). B overwrote A's changes without notification. Consider adding optimistic locking via updated_at comparison."
+        }
+      ],
+      "total_pass": 0,
+      "total_fail": 0,
+      "total_warn": 1,
+      "total_skip": 0
+    },
+    "project-manager": {
+      "scenarios": [
+        {
+          "scenario": "last_write_wins",
+          "result": "WARN",
+          "steps": [
+            {
+              "step": "both_in_edit_mode"
+            },
+            {
+              "step": "concurrent_save",
+              "a_saved": true,
+              "b_saved": true,
+              "conflict_detected": false
+            }
+          ],
+          "note": "Both saves succeeded silently (last-write-wins, no conflict warning). B overwrote A's changes without notification. Consider adding optimistic locking via updated_at comparison."
+        },
+        {
+          "scenario": "simultaneous_create",
+          "result": "PASS",
+          "steps": [
+            {
+              "step": "simultaneous_create",
+              "A": {
+                "submitted": true,
+                "error": false
+              },
+              "B": {
+                "submitted": true,
+                "error": false
+              }
+            }
+          ],
+          "note": "Both entries created without conflict"
+        }
+      ],
+      "total_pass": 1,
+      "total_fail": 0,
+      "total_warn": 1,
+      "total_skip": 0
+    },
+    "marketplace": {
+      "scenarios": [
+        {
+          "scenario": "last_write_wins",
+          "result": "WARN",
+          "steps": [
+            {
+              "step": "both_in_edit_mode"
+            },
+            {
+              "step": "concurrent_save",
+              "a_saved": true,
+              "b_saved": true,
+              "conflict_detected": false
+            }
+          ],
+          "note": "Both saves succeeded silently (last-write-wins, no conflict warning). B overwrote A's changes without notification. Consider adding optimistic locking via updated_at comparison."
+        }
+      ],
+      "total_pass": 0,
+      "total_fail": 0,
+      "total_warn": 1,
+      "total_skip": 0
+    },
+    "pm-scheduler": {
+      "scenarios": [
+        {
+          "scenario": "last_write_wins",
+          "result": "WARN",
+          "steps": [
+            {
+              "step": "both_in_edit_mode"
+            },
+            {
+              "step": "concurrent_save",
+              "a_saved": true,
+              "b_saved": true,
+              "conflict_detected": false
+            }
+          ],
+          "note": "Both saves succeeded silently (last-write-wins, no conflict warning). B overwrote A's changes without notification. Consider adding optimistic locking via updated_at comparison."
+        }
+      ],
+      "total_pass": 0,
+      "total_fail": 0,
+      "total_warn": 1,
+      "total_skip": 0
+    },
+    "asset-hub": {
+      "scenarios": [
+        {
+          "scenario": "last_write_wins",
+          "result": "WARN",
+          "steps": [
+            {
+              "step": "both_in_edit_mode"
+            },
+            {
+              "step": "concurrent_save",
+              "a_saved": true,
+              "b_saved": true,
+              "conflict_detected": false
+            }
+          ],
+          "note": "Both saves succeeded silently (last-write-wins, no conflict warning). B overwrote A's changes without notification. Consider adding optimistic locking via updated_at comparison."
+        }
+      ],
+      "total_pass": 0,
+      "total_fail": 0,
+      "total_warn": 1,
+      "total_skip": 0
+    }
+  },
+  "total_pass": 3,
+  "total_fail": 0,
+  "total_warn": 6,
+  "total_skip": 0
+}

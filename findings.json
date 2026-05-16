@@ -1090,6 +1090,50 @@
         "reason": "Intentional UX for first-time users. Test harness dismisses via closeModal(). Acceptable WARN."
       },
       "_source": "layer2_e2e"
+    },
+    {
+      "id": "platform-wide-no-optimistic-locking",
+      "page": "logbook.html, inventory.html, project-manager.html, marketplace.html, pm-scheduler.html, asset-hub.html",
+      "session": "2026-05-17",
+      "severity": "medium",
+      "issue": "6 of 7 write-heavy pages have last-write-wins with no conflict detection. User B overwrites User A's concurrent edit silently — no stale-data warning, no conflict message, no updated_at optimistic lock check.",
+      "domain": "Data Guardian",
+      "sentinel_agent": "Data Guardian (concurrent write safety)",
+      "root_cause": "Concurrent edit runner (e2e_concurrent_runner.py) ran last_write_wins scenario on 6 pages. All 6 returned WARN: both A and B saves succeeded, B silently overwrote A. No platform-level optimistic locking exists. Only simultaneous_create PASSES (DB generates unique IDs).",
+      "has_test": true,
+      "test_file": "test-data-seeder/e2e_concurrent_runner.py — last_write_wins scenario",
+      "has_validator": false,
+      "validator_layer": null,
+      "status": "open",
+      "fix_commit": null,
+      "_validator_decision": {
+        "action": "add_new",
+        "target_file": "validators/validate_logbook.py + similar per-page validators",
+        "target_layer": "optimistic lock: check updated_at before .update() call in saveEdit/updateEntry",
+        "reason": "Layer 2 concurrent runner found platform-wide gap: no conflict detection on any write-heavy page. Fix: add updated_at comparison before each update; show 'Entry changed by someone else — reload before saving' if mismatch."
+      },
+      "_source": "layer2_concurrent"
+    },
+    {
+      "id": "hive-show-invite-code-supervisor-only",
+      "page": "hive.html",
+      "session": "2026-05-17",
+      "severity": "low",
+      "issue": "#btn-show-code (Show Invite Code button) is visible to supervisor but NOT to worker — confirmed by e2e_roles_runner.py differential snapshot on hive page.",
+      "domain": "Multitenant Engineer",
+      "sentinel_agent": "Multitenant Engineer (role-based UI visibility)",
+      "root_cause": "Role permission runner confirmed: supervisor sees #btn-show-code, worker does not. This IS the intended behavior. Finding documents that the permission is correctly enforced and discoverable via automated testing.",
+      "has_test": true,
+      "test_file": "test-data-seeder/e2e_roles_runner.py — hive page, show_invite_code_btn check",
+      "has_validator": false,
+      "validator_layer": null,
+      "status": "acknowledged",
+      "fix_commit": null,
+      "_validator_decision": {
+        "action": "no_action",
+        "reason": "Permission correctly enforced. Finding confirms test coverage, not a bug."
+      },
+      "_source": "layer2_roles"
     }
   ]
 }
