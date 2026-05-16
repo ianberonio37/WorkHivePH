@@ -177,7 +177,7 @@ def run(page, errors, warnings, log) -> dict:
     log("Step 6: Verifying asset-hub.html staging UI...")
     try:
         with urllib.request.urlopen(f"{BASE_URL.rstrip('/')}/workhive/asset-hub.html", timeout=15) as r:
-            html = r.read(80000).decode("utf-8", errors="replace")
+            html = r.read(300000).decode("utf-8", errors="replace")
         checks = [
             ("staging-card div present",     'id="staging-card"'    in html),
             ("loadDetailStaging defined",    'function loadDetailStaging' in html),
@@ -197,7 +197,7 @@ def run(page, errors, warnings, log) -> dict:
     log("Step 7: Verifying alert-hub.html staging filter...")
     try:
         with urllib.request.urlopen(f"{BASE_URL.rstrip('/')}/workhive/alert-hub.html", timeout=15) as r:
-            html = r.read(60000).decode("utf-8", errors="replace")
+            html = r.read(300000).decode("utf-8", errors="replace")
         checks = [
             ("staging filter chip in KINDS", "id: 'staging'" in html),
             ("queries parts_staging_recommendations",

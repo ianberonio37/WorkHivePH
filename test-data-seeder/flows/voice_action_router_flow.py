@@ -198,7 +198,7 @@ def _static_file_checks(base_url):
     # voice-handler.js content
     try:
         with urllib.request.urlopen(f"{base}/voice-handler.js", timeout=10) as r:
-            vh = r.read(80000).decode("utf-8", errors="replace")
+            vh = r.read(200000).decode("utf-8", errors="replace")
         for label, ok in [
             ("WHVoice global defined",       "window.WHVoice" in vh),
             ("register API exposes handlers", "register" in vh and "handlers" in vh),
@@ -214,7 +214,7 @@ def _static_file_checks(base_url):
     # nav-hub.js lazy-loads voice-handler
     try:
         with urllib.request.urlopen(f"{base}/nav-hub.js", timeout=10) as r:
-            nh = r.read(120000).decode("utf-8", errors="replace")
+            nh = r.read(200000).decode("utf-8", errors="replace")
         out.append((
             "PASS" if "voice-handler.js" in nh else "FAIL",
             "nav-hub.js lazy-loads voice-handler.js",
@@ -231,7 +231,7 @@ def _static_file_checks(base_url):
     ]:
         try:
             with urllib.request.urlopen(f"{base}/{page_name}", timeout=15) as r:
-                html = r.read(250000).decode("utf-8", errors="replace")
+                html = r.read(400000).decode("utf-8", errors="replace")
             registered = (f"WHVoice.register('{kind}'" in html
                           or f'WHVoice.register("{kind}"' in html)
             out.append((
