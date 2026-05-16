@@ -228,7 +228,7 @@ def main(surface_filter=None, fast=False) -> int:
         print("Start Flask seeder and local Supabase, then retry.")
         return 1
 
-    # Layer 0: Playwright Scenarios
+    # Layer 0: Playwright Scenarios (UI)
     args_0 = ["--fast"] if fast else []
     if surface_filter:
         args_0.extend([f"--surface={surface_filter}"])
@@ -241,6 +241,17 @@ def main(surface_filter=None, fast=False) -> int:
     failed = scenario_results.get("summary", {}).get("failed", 0)
 
     print(f"\n  Results: {passed} PASS | {failed} FAIL")
+
+    # Layer 0.5: Cron Job Testing (skip if surface filtered or fast mode)
+    if not surface_filter and not fast:
+        step("Layer 0.5: Cron Job Testing")
+        rc0b, res0b = run_layer(0.5, "Cron Job Validation", "test_cron_jobs.py", [])
+        loop_results["layers"]["0.5"] = res0b
+
+        cron_results = load_layer_results("CRON_JOB_RESULTS.json")
+        cron_passed = cron_results.get("summary", {}).get("passed", 0)
+        cron_failed = cron_results.get("summary", {}).get("failed", 0)
+        print(f"\n  Cron Jobs: {cron_passed} PASS | {cron_failed} FAIL")
 
     if failed == 0:
         print(f"  {GREEN}All scenarios passing!{RESET} Skipping to meta-validator.")

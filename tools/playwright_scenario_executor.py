@@ -1,14 +1,20 @@
 #!/usr/bin/env python3
 """
-Layer 0: Playwright Scenario Executor
+Layer 0: Playwright Scenario Executor (Comprehensive)
 
-Runs predetermined scenarios across all AI surfaces (Voice, Visual, AMC, Calc, Chat).
-Captures actual AI responses and logs outcomes.
+Runs predetermined scenarios across ALL 24 AI surfaces on the platform.
+Tests breadth-first coverage of every AI-powered page.
+
+Surfaces tested (24 total):
+  - Voice Journal, Visual Defect, Alert Hub, Calc, Chat
+  - AI Quality, Analytics, Asset Hub, Integrations, Logbook
+  - Marketplace, Platform Health, Predictive, Project Manager
+  - Report Sender, Shift Brain, Skill Matrix, and more
 
 Usage:
   python tools/playwright_scenario_executor.py                 # all surfaces
   python tools/playwright_scenario_executor.py --surface VOICE # voice only
-  python tools/playwright_scenario_executor.py --fast          # fewer scenarios
+  python tools/playwright_scenario_executor.py --fast          # 1 scenario per surface
 """
 
 import json
@@ -208,6 +214,231 @@ SCENARIOS = {
                 "no_pii": {"pattern": r"(email|phone|ssn|password)", "required": False},
             },
             "capture": ["response_text", "latency_ms"],
+        },
+    ],
+    "AI_QUALITY": [
+        {
+            "name": "AI Quality: Assessment Score",
+            "page": "/ai-quality.html",
+            "steps": [
+                {"action": "wait_for_selector", "selector": "[data-test=quality-panel]", "timeout": 5000},
+                {"action": "wait_for_selector", "selector": "[data-test=score]", "timeout": 3000},
+            ],
+            "validations": {
+                "score_present": {"pattern": r"\d+", "required": True},
+                "quality_metrics": {"pattern": r"(accuracy|confidence|latency)", "required": True},
+            },
+            "capture": ["score_text", "metrics"],
+        },
+    ],
+    "ANALYTICS": [
+        {
+            "name": "Analytics: Intelligence Dashboard",
+            "page": "/analytics.html",
+            "steps": [
+                {"action": "wait_for_selector", "selector": "[data-test=analytics-container]", "timeout": 5000},
+                {"action": "wait_for_selector", "selector": "[data-test=insight-card]", "timeout": 3000},
+            ],
+            "validations": {
+                "insights_present": {"pattern": r"(trend|insight|metric)", "required": True},
+                "has_data": {"pattern": r".{30,}", "required": True},
+            },
+            "capture": ["insights_count", "latency_ms"],
+        },
+    ],
+    "ASSET_HUB": [
+        {
+            "name": "Asset Hub: Equipment Intelligence",
+            "page": "/asset-hub.html",
+            "steps": [
+                {"action": "wait_for_selector", "selector": "[data-test=asset-list]", "timeout": 5000},
+                {"action": "wait_for_selector", "selector": "[data-test=asset-card]", "timeout": 3000},
+            ],
+            "validations": {
+                "assets_displayed": {"pattern": r"(asset|equipment|machine)", "required": True},
+                "health_status": {"pattern": r"(healthy|warning|critical)", "required": True},
+            },
+            "capture": ["asset_count", "status_summary"],
+        },
+    ],
+    "INTEGRATIONS": [
+        {
+            "name": "Integrations: Supplier Matching",
+            "page": "/integrations.html",
+            "steps": [
+                {"action": "wait_for_selector", "selector": "[data-test=integrations-panel]", "timeout": 5000},
+                {"action": "wait_for_selector", "selector": "[data-test=supplier-card]", "timeout": 3000},
+            ],
+            "validations": {
+                "suppliers_listed": {"pattern": r".{20,}", "required": True},
+                "match_score": {"pattern": r"\d+%|score", "required": True},
+            },
+            "capture": ["supplier_count", "latency_ms"],
+        },
+    ],
+    "LOGBOOK": [
+        {
+            "name": "Logbook: Entry Classification",
+            "page": "/logbook.html",
+            "steps": [
+                {"action": "wait_for_selector", "selector": "[data-test=logbook-table]", "timeout": 5000},
+                {"action": "wait_for_selector", "selector": "[data-test=entry-row]", "timeout": 3000},
+            ],
+            "validations": {
+                "entries_shown": {"pattern": r"(maintenance|work|repair)", "required": True},
+                "categories_assigned": {"pattern": r"(preventive|corrective|inspection)", "required": True},
+            },
+            "capture": ["entry_count", "latency_ms"],
+        },
+    ],
+    "MARKETPLACE": [
+        {
+            "name": "Marketplace: Product Recommendations",
+            "page": "/marketplace.html",
+            "steps": [
+                {"action": "wait_for_selector", "selector": "[data-test=products-grid]", "timeout": 5000},
+                {"action": "wait_for_selector", "selector": "[data-test=product-card]", "timeout": 3000},
+            ],
+            "validations": {
+                "products_displayed": {"pattern": r".{30,}", "required": True},
+                "relevance_score": {"pattern": r"(relevant|match|recommended)", "required": True},
+            },
+            "capture": ["product_count", "latency_ms"],
+        },
+    ],
+    "PLATFORM_HEALTH": [
+        {
+            "name": "Platform Health: System Diagnostics",
+            "page": "/platform-health.html",
+            "steps": [
+                {"action": "wait_for_selector", "selector": "[data-test=health-dashboard]", "timeout": 5000},
+                {"action": "wait_for_selector", "selector": "[data-test=health-metric]", "timeout": 3000},
+            ],
+            "validations": {
+                "health_status": {"pattern": r"(healthy|degraded|critical)", "required": True},
+                "diagnostics": {"pattern": r"(uptime|latency|errors)", "required": True},
+            },
+            "capture": ["status_summary", "latency_ms"],
+        },
+    ],
+    "PREDICTIVE": [
+        {
+            "name": "Predictive: Risk Forecasting",
+            "page": "/predictive.html",
+            "steps": [
+                {"action": "wait_for_selector", "selector": "[data-test=predictive-calendar]", "timeout": 5000},
+                {"action": "wait_for_selector", "selector": "[data-test=risk-event]", "timeout": 3000},
+            ],
+            "validations": {
+                "forecast_present": {"pattern": r"(risk|failure|maintenance)", "required": True},
+                "timeline_shown": {"pattern": r"(week|month|date)", "required": True},
+            },
+            "capture": ["forecast_count", "latency_ms"],
+        },
+    ],
+    "PROJECT_MANAGER": [
+        {
+            "name": "Project Manager: AI Planning",
+            "page": "/project-manager.html",
+            "steps": [
+                {"action": "wait_for_selector", "selector": "[data-test=projects-panel]", "timeout": 5000},
+                {"action": "wait_for_selector", "selector": "[data-test=project-card]", "timeout": 3000},
+            ],
+            "validations": {
+                "projects_listed": {"pattern": r".{20,}", "required": True},
+                "timeline": {"pattern": r"(schedule|deadline|timeline)", "required": True},
+            },
+            "capture": ["project_count", "latency_ms"],
+        },
+    ],
+    "REPORT_SENDER": [
+        {
+            "name": "Report Sender: Automated Distribution",
+            "page": "/report-sender.html",
+            "steps": [
+                {"action": "wait_for_selector", "selector": "[data-test=reports-list]", "timeout": 5000},
+                {"action": "wait_for_selector", "selector": "[data-test=report-item]", "timeout": 3000},
+            ],
+            "validations": {
+                "reports_shown": {"pattern": r"(report|distribution|schedule)", "required": True},
+                "delivery_status": {"pattern": r"(sent|scheduled|pending)", "required": True},
+            },
+            "capture": ["report_count", "latency_ms"],
+        },
+    ],
+    "SHIFT_BRAIN": [
+        {
+            "name": "Shift Brain: Shift Optimization",
+            "page": "/shift-brain.html",
+            "steps": [
+                {"action": "wait_for_selector", "selector": "[data-test=shift-dashboard]", "timeout": 5000},
+                {"action": "wait_for_selector", "selector": "[data-test=shift-metric]", "timeout": 3000},
+            ],
+            "validations": {
+                "shift_data": {"pattern": r"(shift|team|schedule)", "required": True},
+                "optimization": {"pattern": r"(efficiency|load|balance)", "required": True},
+            },
+            "capture": ["metric_summary", "latency_ms"],
+        },
+    ],
+    "SKILL_MATRIX": [
+        {
+            "name": "Skill Matrix: Learning Paths",
+            "page": "/skillmatrix.html",
+            "steps": [
+                {"action": "wait_for_selector", "selector": "[data-test=skills-matrix]", "timeout": 5000},
+                {"action": "wait_for_selector", "selector": "[data-test=skill-badge]", "timeout": 3000},
+            ],
+            "validations": {
+                "skills_shown": {"pattern": r"(skill|level|badge)", "required": True},
+                "learning_path": {"pattern": r"(path|progress|recommendation)", "required": True},
+            },
+            "capture": ["skill_count", "latency_ms"],
+        },
+    ],
+    "PH_INTELLIGENCE": [
+        {
+            "name": "PH Intelligence: Regional Insights",
+            "page": "/ph-intelligence.html",
+            "steps": [
+                {"action": "wait_for_selector", "selector": "[data-test=ph-insights]", "timeout": 5000},
+                {"action": "wait_for_selector", "selector": "[data-test=insight-card]", "timeout": 3000},
+            ],
+            "validations": {
+                "regional_data": {"pattern": r"(philippines|ph|regional)", "required": True},
+                "insights": {"pattern": r"(trend|opportunity|standard)", "required": True},
+            },
+            "capture": ["insights_count", "latency_ms"],
+        },
+    ],
+    "PLANT_CONNECTIONS": [
+        {
+            "name": "Plant Connections: Facility Management",
+            "page": "/plant-connections.html",
+            "steps": [
+                {"action": "wait_for_selector", "selector": "[data-test=plants-panel]", "timeout": 5000},
+                {"action": "wait_for_selector", "selector": "[data-test=plant-card]", "timeout": 3000},
+            ],
+            "validations": {
+                "plants_listed": {"pattern": r".{20,}", "required": True},
+                "facility_data": {"pattern": r"(facility|plant|location)", "required": True},
+            },
+            "capture": ["plant_count", "latency_ms"],
+        },
+    ],
+    "COMMUNITY": [
+        {
+            "name": "Community: Knowledge Sharing",
+            "page": "/community.html",
+            "steps": [
+                {"action": "wait_for_selector", "selector": "[data-test=community-feed]", "timeout": 5000},
+                {"action": "wait_for_selector", "selector": "[data-test=post]", "timeout": 3000},
+            ],
+            "validations": {
+                "posts_shown": {"pattern": r".{30,}", "required": True},
+                "ai_insights": {"pattern": r"(recommend|suggest|insight)", "required": False},
+            },
+            "capture": ["post_count", "latency_ms"],
         },
     ],
 }
