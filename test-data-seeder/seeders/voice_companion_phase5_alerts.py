@@ -17,17 +17,14 @@ def seed_anomaly_alerts(client, log, ctx):
         return 0
     hive_id = hives[0]["id"]
 
-    # Query for assets to reference in alerts
-    try:
-        assets_res = client.from_('v_asset_truth').select('name, tag').eq('hive_id', hive_id).limit(5).execute()
-        assets = assets_res.data if assets_res.data else []
-    except Exception as e:
-        log(f"  WARN: Could not fetch assets for alert seeding: {e}")
-        assets = []
-
-    if not assets:
-        log("  SKIP: No assets found in hive, cannot seed alerts")
-        return 0
+    # Use generic asset names (no need to query assets table)
+    assets = [
+        {"name": "Pump A", "tag": "PUMP-001"},
+        {"name": "Motor B", "tag": "MOTOR-002"},
+        {"name": "Compressor C", "tag": "COMP-003"},
+        {"name": "Bearing D", "tag": "BRG-004"},
+        {"name": "Valve E", "tag": "VLV-005"},
+    ]
 
     # Create realistic alert scenarios
     alert_scenarios = [

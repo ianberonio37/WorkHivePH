@@ -16,6 +16,7 @@ def seed_kb_documents_and_chunks(client, log, ctx):
         log("  SKIP: No hives found, cannot seed KB")
         return 0
     hive_id = hives[0]["id"]
+    log(f"  Seeding KB for hive: {hive_id}")
 
     # Sample documents (realistic maintenance manuals)
     documents = [
