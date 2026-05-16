@@ -47,35 +47,46 @@ def check_phase_1_orchestration():
             print(f"  {RED}FAIL{RESET} {func_name} not found")
             results["fail"] += 1
 
-    # L2: Semantic router is called in _converseInline
-    print("\n[L2] Agent orchestration in _converseInline")
+    # L2: All agents are called unconditionally in parallel (no routing gates)
+    # Simpler design: always scan everything, hand to LLM, let it pick what's relevant.
+    print("\n[L2] Agent orchestration in _converseInline (always-scan model)")
 
-    route_classification_match = re.search(
-        r"const\s+\[routeDecision,\s*memoryBlock,\s*canonicalData\]\s*=\s*await\s+Promise\.all\(\s*\[\s*_classifySemanticRoute",
+    # Platform scraper must be called unconditionally inside Promise.all
+    # More robust check: look for Promise.all with both agents
+    scraper_in_promise = re.search(
+        r"Promise\.all\(\[\s*(?:[^,]*,)*\s*_invokePlatformScraper\(",
         content,
         re.DOTALL
     )
-
-    if route_classification_match:
-        print(f"  {GREEN}PASS{RESET} routeDecision classification called in Promise.all")
+    if scraper_in_promise:
+        print(f"  {GREEN}PASS{RESET} Platform scraper always called in Promise.all")
         results["pass"] += 1
     else:
-        print(f"  {RED}FAIL{RESET} routeDecision classification not found in _converseInline")
+        print(f"  {RED}FAIL{RESET} Platform scraper not in Promise.all (must be unconditional)")
         results["fail"] += 1
 
-    # Check if route decision is used to invoke agents
-    if "if (routeDecision.route === 'platform')" in content and "_invokePlatformScraper" in content:
-        print(f"  {GREEN}PASS{RESET} Platform scraper invoked on 'platform' route")
+    # RAG agent must also be unconditional
+    # More robust check: look for Promise.all with both agents
+    rag_in_promise = re.search(
+        r"Promise\.all\(\[\s*(?:[^,]*,)*\s*_invokeRAGAgent\(",
+        content,
+        re.DOTALL
+    )
+    if rag_in_promise:
+        print(f"  {GREEN}PASS{RESET} RAG agent always called in Promise.all")
         results["pass"] += 1
     else:
-        print(f"  {RED}FAIL{RESET} Platform scraper invocation not found")
+        print(f"  {RED}FAIL{RESET} RAG agent not in Promise.all (must be unconditional)")
         results["fail"] += 1
 
-    if "else if (routeDecision.route === 'semantic')" in content and "_invokeRAGAgent" in content:
-        print(f"  {GREEN}PASS{RESET} RAG agent invoked on 'semantic' route")
+    # Canonical data fetch must cover all KPI types
+    kpi_kinds = ["'mtbf'", "'mttr'", "'downtime'", "'risk_top'", "'failures_count'"]
+    missing_kpis = [k for k in kpi_kinds if f"kind: {k}" not in content]
+    if not missing_kpis:
+        print(f"  {GREEN}PASS{RESET} All 5 KPI kinds fetched (mtbf/mttr/downtime/risk_top/failures_count)")
         results["pass"] += 1
     else:
-        print(f"  {RED}FAIL{RESET} RAG agent invocation not found")
+        print(f"  {RED}FAIL{RESET} Missing KPI kinds in canonical fetch: {missing_kpis}")
         results["fail"] += 1
 
     # L3: Agent results passed to _buildVoiceSystemPrompt
