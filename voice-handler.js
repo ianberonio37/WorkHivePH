@@ -922,6 +922,101 @@
     }
   }
 
+  // Phase 6: Offline resilience — cache snapshot + response queue
+  async function _cacheOfflineSnapshot(db, hiveId, snapshot) {
+    if (!db) return;
+    try {
+      const hash = String(snapshot).slice(0, 100);
+      await db.from('offline_snapshot_cache').insert({
+        worker_id: (await db.auth.getUser())?.data?.user?.id,
+        hive_id: hiveId,
+        snapshot_data: JSON.parse(snapshot || '{}'),
+        snapshot_hash: hash,
+        expires_at: new Date(Date.now() + 24*60*60*1000).toISOString(),
+      });
+    } catch (err) {
+      console.warn('[WHVoice] Offline cache failed:', err && err.message);
+    }
+  }
+
+  // Phase 7: TTS quality metrics + caching
+  async function _logTTSMetrics(db, hiveId, latencyMs, error) {
+    if (!db) return;
+    try {
+      await db.from('tts_quality_log').insert({
+        worker_id: (await db.auth.getUser())?.data?.user?.id,
+        hive_id: hiveId,
+        persona: 'rosa',
+        latency_ms: latencyMs,
+        error_message: error || null,
+      });
+    } catch (err) {
+      console.warn('[WHVoice] TTS metrics log failed:', err && err.message);
+    }
+  }
+
+  // Phase 8: Capture response quality for learning loop
+  async function _captureAnalytics(db, sessionId, turnNum, category, quality, confidence) {
+    if (!db) return;
+    try {
+      await db.from('conversation_analytics').insert({
+        session_id: sessionId,
+        turn_num: turnNum,
+        question_category: category,
+        answer_quality_rating: quality,  // -1, 0, or 1
+        model_confidence: confidence,
+        response_time_ms: 0,  // filled by caller if needed
+      });
+    } catch (err) {
+      console.warn('[WHVoice] Analytics capture failed:', err && err.message);
+    }
+  }
+
+  // Phase 9: Cross-hive context awareness
+  async function _fetchCrossHiveContext(db) {
+    if (!db) return '';
+    try {
+      const { data, error } = await db.from('cross_hive_alerts')
+        .select('alert_reason, severity')
+        .eq('severity', 'critical')
+        .limit(3);
+      if (error || !data || data.length === 0) return '';
+      return 'CROSS-HIVE CONTEXT: ' + data.map(a => a.alert_reason).join('; ');
+    } catch (err) {
+      return '';
+    }
+  }
+
+  // Phase 10: Avatar state tracking
+  async function _updateAvatarState(db, sessionId, state, emotion) {
+    if (!db) return;
+    try {
+      await db.from('avatar_state').upsert({
+        session_id: sessionId,
+        current_state: state,
+        emotion: emotion || 'neutral',
+        updated_at: new Date().toISOString(),
+      });
+    } catch (err) {
+      console.warn('[WHVoice] Avatar state update failed:', err && err.message);
+    }
+  }
+
+  // Phase 11: Multilingual term lookup
+  async function _lookupMultilingualTerm(db, englishTerm, targetLanguage) {
+    if (!db || !targetLanguage || targetLanguage === 'en') return englishTerm;
+    try {
+      const { data, error } = await db.from('multilingual_terms')
+        .select(targetLanguage === 'tl' ? 'tagalog_term' : 'visayan_term')
+        .eq('english_term', englishTerm)
+        .limit(1);
+      if (error || !data || !data[0]) return englishTerm;
+      return targetLanguage === 'tl' ? (data[0].tagalog_term || englishTerm) : (data[0].visayan_term || englishTerm);
+    } catch (err) {
+      return englishTerm;
+    }
+  }
+
   // Phase 3: Semantic RAG — embed query and search knowledge base
   async function _fetchRAGContext(db, hiveId, transcript) {
     if (!db || !hiveId || !transcript) return '';
@@ -1452,7 +1547,7 @@
     }
   }
 
-  function _buildVoiceSystemPrompt(persona, workerName, hiveName, pageLabel, routingHint, memoryBlock, canonicalData, routerContext, platformData, ragContext, dialogState, proactiveAlerts) {
+  function _buildVoiceSystemPrompt(persona, workerName, hiveName, pageLabel, routingHint, memoryBlock, canonicalData, routerContext, platformData, ragContext, dialogState, proactiveAlerts, crossHiveContext) {
     const personaBlock = (typeof window.getCompanionBlock === 'function')
       ? window.getCompanionBlock() : '';
     // Internal-only grounding. These facts help the model pick the right
@@ -1532,6 +1627,11 @@
       ? '\nSEMANTIC CONTEXT — Historical patterns & analysis:\n' + ragContext + '\n'
       : '';
 
+    // Phase 9: Cross-hive context (multi-site awareness)
+    const crossHiveSection = crossHiveContext
+      ? '\nCROSS-HIVE ALERTS — From other sites in the group:\n' + crossHiveContext + '\n'
+      : '';
+
     const hasData = platformData || canonicalData || ragContext;
     const directAnswerInstruction = hasData
       ? '- ANSWER FROM THE PLATFORM SNAPSHOT above. The ENTIRE platform has been scanned: KPIs (MTBF, MTTR, downtime, failures), equipment status, risk assets, PM compliance, inventory levels, recent logbook entries, anomalies, projects, your Day Planner today, your skill levels, hive activity, knowledge entries — all of it is in your context. SCAN the snapshot for the relevant section before answering. NEVER say "check [tool]" or "open Day Planner" or "your dashboard should have that" when the answer is sitting in the snapshot above. ONLY say "I don\'t have that data right now" if you scanned the snapshot and the specific thing is genuinely absent.\n'
@@ -1551,6 +1651,7 @@
       canonicalSection +
       platformSection +
       ragSection +
+      crossHiveSection +
       '\nIf the worker mixes Filipino / Cebuano / Tagalog in, that\'s fine — understand it, reply in English.\n\n' +
       '═══════════════════════════════════════════════════════════════════\n' +
       'HARD RULES — read these last; they override everything above.\n' +
@@ -1639,7 +1740,7 @@
     // for any data that exists on the platform (KPIs, PM, inventory, logbook, schedule,
     // skills, projects, anomalies, knowledge, adoption — all in one shot).
     const firstIntent = routerIntents && routerIntents[0];
-    const [platformSnapshot, platformData, memoryBlock, ragContext] = await Promise.all([
+    const [platformSnapshot, platformData, memoryBlock, ragContext, crossHiveContext] = await Promise.all([
       _fetchFullPlatformSnapshot(db, ctx.hive_id, ctx.worker_name).catch((err) => {
         console.warn('[WHVoice] Platform snapshot failed:', err);
         return '';
@@ -1647,6 +1748,7 @@
       _invokePlatformScraper(db, ctx.hive_id, ctx.worker_name).catch(() => ''),
       _fetchRecentMemory(db, ctx.worker_name),
       _fetchRAGContext(db, ctx.hive_id, transcript).catch(() => ''),
+      _fetchCrossHiveContext(db).catch(() => ''),  // Phase 9: Cross-hive awareness
     ]);
 
     // canonicalData carries the full snapshot — every truth view in one block.
@@ -1656,7 +1758,7 @@
       console.warn('[WHVoice] No platform snapshot returned; check DB connection or query errors');
     }
 
-    const system = _buildVoiceSystemPrompt(persona, ctx.worker_name, hiveName, pageLabel, routingHint, memoryBlock, canonicalData, routerContext, platformData, ragContext, priorDialogState, proactiveAlerts);
+    const system = _buildVoiceSystemPrompt(persona, ctx.worker_name, hiveName, pageLabel, routingHint, memoryBlock, canonicalData, routerContext, platformData, ragContext, priorDialogState, proactiveAlerts, crossHiveContext);
     const messages = [
       { role: 'system', content: system },
       { role: 'user',   content: transcript },
@@ -1709,9 +1811,11 @@
 
       _setStatus(personaName + ' says:');
       _renderReplyBubble(answer, persona);
+      const ttsStartMs = Date.now();
       if (typeof window.speakPersona === 'function') {
         window.speakPersona(answer, { persona });
       }
+      const ttsLatencyMs = Date.now() - ttsStartMs;
       // Session-memory turn (always — works for anon walkthrough).
       _appendSessionTurn(transcript, answer);
       // Durable save — silently no-ops if RLS denies (anon workers).
@@ -1720,6 +1824,14 @@
       _storeTurn(db, ctx.hive_id, ctx.worker_name, transcript, answer, newIntentKind, newConfidence, 0);
       // Phase 4: Update dialog state with new intent + context (enable multi-turn slot carryover)
       _updateDialogState(db, ctx.hive_id, sessionId, newIntentKind, newConfidence, {}, false, null);
+      // Phase 6: Cache snapshot for offline resilience
+      _cacheOfflineSnapshot(db, ctx.hive_id, canonicalData);
+      // Phase 7: Log TTS metrics (latency + success)
+      _logTTSMetrics(db, ctx.hive_id, ttsLatencyMs, null);
+      // Phase 8: Capture conversation analytics
+      _captureAnalytics(db, sessionId, _turnNum, newIntentKind || 'unknown', 1, newConfidence);
+      // Phase 10: Update avatar state (response generated, neutral emotion by default)
+      _updateAvatarState(db, sessionId, 'responding', 'helpful');
       _showTalkAgainButton();
     } catch (err) {
       console.warn('[WHVoice] conversational call failed:', err);
@@ -1728,14 +1840,24 @@
       const fallbackReply = _generateFallbackReply(transcript, routerIntents, persona);
       _setStatus(personaName + ' (offline):');
       _renderReplyBubble(fallbackReply, persona);
+      const ttsStartMs = Date.now();
       if (typeof window.speakPersona === 'function') {
         window.speakPersona(fallbackReply, { persona });
       }
+      const ttsLatencyMs = Date.now() - ttsStartMs;
       // Session-memory turn (capture both success and fallback responses).
       _appendSessionTurn(transcript, fallbackReply);
       // Best-effort save even on failure — capture the transcript so it
       // doesn't get lost.
       _saveJournalTurn(db, ctx, transcript, fallbackReply, persona);
+      // Phase 6: Cache snapshot even on failure
+      _cacheOfflineSnapshot(db, ctx.hive_id, canonicalData);
+      // Phase 7: Log TTS metrics with error marker
+      _logTTSMetrics(db, ctx.hive_id, ttsLatencyMs, String(err && err.message || 'Unknown error'));
+      // Phase 8: Capture analytics (quality=-1 for failed responses)
+      _captureAnalytics(db, sessionId, _turnNum, 'fallback', -1, 0);
+      // Phase 10: Update avatar state (fallback state)
+      _updateAvatarState(db, sessionId, 'offline', 'concerned');
       _showTalkAgainButton();
     }
   }

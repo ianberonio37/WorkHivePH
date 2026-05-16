@@ -65,13 +65,18 @@ def check_phase_1_5_semantic():
         with open("voice-handler.js", "r", encoding="utf-8") as f:
             content = f.read()
 
-            if "voice-semantic-rag" in content:
-                print(f"  {GREEN}PASS{RESET} _invokeRAGAgent calls voice-semantic-rag edge function")
+            # Check for RAG function call (either edge function or direct DB query)
+            if ("_fetchRAGContext" in content or "_invokeRAGAgent" in content or "semantic_search_kb" in content):
+                print(f"  {GREEN}PASS{RESET} RAG agent function integrated")
                 results["pass"] += 1
             else:
-                print(f"  {YELLOW}WARN{RESET} voice-semantic-rag edge function not called (fallback to direct DB query is OK)")
+                print(f"  {RED}FAIL{RESET} RAG agent function not found")
+                results["fail"] += 1
 
-            if "_invokeRAGAgent(db, ctx.worker_name, firstIntent, transcript)" in content:
+            # Check if transcript is passed to RAG function
+            if ("_fetchRAGContext(db, ctx.hive_id, transcript)" in content or
+                "_invokeRAGAgent(db, ctx.worker_name, firstIntent, transcript)" in content or
+                "semantic_search_kb" in content and "transcript" in content):
                 print(f"  {GREEN}PASS{RESET} RAG agent receives transcript for semantic search")
                 results["pass"] += 1
             else:

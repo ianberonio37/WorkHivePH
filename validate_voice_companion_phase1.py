@@ -66,9 +66,9 @@ def check_phase_1_orchestration():
         results["fail"] += 1
 
     # RAG agent must also be unconditional
-    # More robust check: look for Promise.all with both agents
+    # More robust check: look for Promise.all with RAG context fetch (either _invokeRAGAgent or _fetchRAGContext)
     rag_in_promise = re.search(
-        r"Promise\.all\(\[\s*(?:[^,]*,)*\s*_invokeRAGAgent\(",
+        r"Promise\.all\(\[\s*(?:[^,]*,)*\s*(?:_invokeRAGAgent|_fetchRAGContext)\(",
         content,
         re.DOTALL
     )
