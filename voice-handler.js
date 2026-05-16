@@ -827,12 +827,25 @@
 
   // Phase 1: Semantic Router — classify whether question needs platform data, semantic depth, or simple reply
   async function _classifySemanticRoute(transcript, routerIntents) {
+    // Short-circuit: if voice-action-router already classified as a data intent,
+    // skip the LLM call and route straight to platform (saves ~500ms + cost).
+    const firstIntent = routerIntents && routerIntents[0];
+    if (firstIntent && ['mtbf', 'mttr', 'downtime', 'risk_top', 'failures_count', 'oee', 'availability'].includes(firstIntent.kind)) {
+      return { route: 'platform', confidence: 0.95, reasoning: 'Router pre-classified as data intent: ' + firstIntent.kind };
+    }
+
+    // Pre-check: heuristic catches KPI keywords before the LLM call (faster + cheaper)
+    const tLower = String(transcript || '').toLowerCase();
+    if (/\b(mtbf|mttr|oee|availability|reliability|uptime|downtime|how many|overdue|risk|low stock|out of stock)\b/.test(tLower)) {
+      return { route: 'platform', confidence: 0.9, reasoning: 'KPI keywords detected: ' + tLower };
+    }
+
     try {
       const fetcher = (typeof window.fetchWithTimeout === 'function')
         ? window.fetchWithTimeout
         : (u, o) => fetch(u, o);
 
-      const systemMsg = 'You are a lightweight intent router for an industrial maintenance voice assistant. Output ONLY a JSON object with fields: "route" ("platform"|"semantic"|"simple"), "confidence" (0.0-1.0), "reasoning" (string). Platform: real-time KPI status queries. Semantic: analysis/patterns/why questions. Simple: greetings or no-data-needed.';
+      const systemMsg = 'You are a lightweight intent router for an industrial maintenance voice assistant. Output ONLY a JSON object with fields: "route" ("platform"|"semantic"|"simple"), "confidence" (0.0-1.0), "reasoning" (string).\n\nROUTE RULES:\n- "platform" = real-time KPI/metric queries. ALWAYS use this for: MTBF, MTTR, OEE, availability, reliability, uptime, downtime, equipment counts, PM status, inventory levels, risk scores. Examples: "MTBF today", "what is our OEE", "how many overdue PMs", "compressor MTTR this week".\n- "semantic" = pattern/analysis/why questions. Use for: "why does X fail", "what changed", "is this trend normal".\n- "simple" = greetings, thanks, no-data-needed. Use for: "thanks", "hi", "what time is it".\n\nWhen in doubt between platform vs semantic, prefer platform — we have real-time data to answer with.';
       const resp = await fetcher(WH_ASSISTANT_WORKER_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -864,14 +877,14 @@
   // Heuristic fallback for semantic router (keywords-based)
   function _heuristicRoute(transcript) {
     const t = String(transcript || '').toLowerCase();
-    if (/(how many|count|overdue|down|running|risk|alert|stock|status|equipment)/.test(t)) {
-      return { route: 'platform', confidence: 0.7, reasoning: 'Platform keywords detected' };
+    if (/(mtbf|mttr|oee|availability|reliability|uptime|downtime|how many|count|overdue|down|running|risk|alert|stock|status|equipment|today|this week|this month)/.test(t)) {
+      return { route: 'platform', confidence: 0.8, reasoning: 'Platform/KPI keywords detected' };
     } else if (/(why|how can|prevent|improve|trend|pattern|analysis|cause)/.test(t)) {
       return { route: 'semantic', confidence: 0.7, reasoning: 'Analysis keywords detected' };
     } else if (/(thanks|thank|hi|hello|bye)/.test(t)) {
       return { route: 'simple', confidence: 0.8, reasoning: 'Greeting or closing' };
     } else {
-      return { route: 'semantic', confidence: 0.5, reasoning: 'Ambiguous; defaulting to semantic' };
+      return { route: 'platform', confidence: 0.5, reasoning: 'Ambiguous; defaulting to platform (data first)' };
     }
   }
 
@@ -927,6 +940,159 @@
       console.warn('[WHVoice] platform scraper fallback failed:', err2 && err2.message);
       return '';
     }
+  }
+
+  // Full platform snapshot — scans every canonical truth view + worker-scoped tables in parallel.
+  // Returns one comprehensive block that gives the LLM complete platform awareness.
+  // The LLM picks what's relevant to the user's question from this snapshot.
+  async function _fetchFullPlatformSnapshot(db, hiveId, workerName) {
+    if (!db || !hiveId) {
+      console.warn('[WHVoice] Snapshot: missing db or hiveId', { db: !!db, hiveId });
+      return '';
+    }
+    const today = new Date().toISOString().slice(0, 10);
+
+    const fetches = await Promise.allSettled([
+      db.from('v_kpi_truth').select('machine,mtbf_30d,mttr_30d,total_downtime_30d,failures_30d').eq('hive_id', hiveId).limit(50),
+      db.from('v_risk_truth').select('asset_name,risk_score,risk_level,mtbf_days,days_until_failure').eq('hive_id', hiveId).order('risk_score', { ascending: false }).limit(5),
+      db.from('v_pm_compliance_truth').select('asset_name,category,criticality,last_anchor_date,days_since_last_completion,completions_30d').eq('hive_id', hiveId).limit(20),
+      // Open logbook items (the "open work" backlog — what Day Planner shows in its sidebar)
+      db.from('v_logbook_truth').select('machine,category,problem,action,status,date,created_at,worker_name').eq('hive_id', hiveId).eq('status', 'Open').order('created_at', { ascending: false }).limit(30),
+      db.from('v_inventory_items_truth').select('part_name,part_number,qty_on_hand,min_qty,reorder_point').eq('hive_id', hiveId).limit(50),
+      db.from('v_asset_truth').select('name,tag,iso_class,criticality,last_failure_at,lifetime_logbook_entries').eq('hive_id', hiveId).limit(100),
+      db.from('v_adoption_truth').select('risk_tier,risk_score,active_ratio_risk,momentum_risk,snapshot_date').eq('hive_id', hiveId).order('snapshot_date', { ascending: false }).limit(1),
+      db.from('v_knowledge_truth').select('source,content,created_at').eq('hive_id', hiveId).order('created_at', { ascending: false }).limit(5),
+      // Schedule items for the worker — broaden to recent + upcoming so we never say "nothing" when items exist
+      workerName ? db.from('schedule_items').select('title,start_time,end_time,category,item_status,date,worker_name').eq('worker_name', workerName).order('date', { ascending: false }).limit(30) : Promise.resolve({ data: [] }),
+      workerName ? db.from('v_worker_skill_truth').select('discipline,primary_skill,role').eq('worker_name', workerName).limit(10) : Promise.resolve({ data: [] }),
+      db.from('v_anomaly_truth').select('machine,composite_score,logbook_cluster_score,snapshot_date').eq('hive_id', hiveId).order('snapshot_date', { ascending: false }).limit(5),
+      db.from('v_project_truth').select('name,project_code,project_type,status,priority').eq('hive_id', hiveId).limit(10),
+      // Recent CLOSED logbook (so Rosa can answer "what did we fix recently?")
+      db.from('v_logbook_truth').select('machine,category,problem,action,date,created_at,worker_name').eq('hive_id', hiveId).eq('status', 'Closed').order('created_at', { ascending: false }).limit(10),
+    ]);
+
+    const data = fetches.map((r, i) => {
+      const result = r.status === 'fulfilled' && r.value && r.value.data ? r.value.data : [];
+      if (r.status === 'rejected') {
+        console.warn('[WHVoice] Query', i, 'rejected:', r.reason);
+      }
+      return result;
+    });
+    const [kpi, risk, pm, openLogbook, inventory, assets, adoption, knowledge, schedule, skills, anomalies, projects, recentClosed] = data;
+    const logbook = openLogbook; // alias for backward compat with formatting below
+
+    console.log('[WHVoice] Snapshot data counts:', {
+      kpi: kpi.length, risk: risk.length, pm: pm.length, openLogbook: openLogbook.length,
+      inventory: inventory.length, assets: assets.length, adoption: adoption.length,
+      knowledge: knowledge.length, schedule: schedule.length, skills: skills.length,
+      anomalies: anomalies.length, projects: projects.length, recentClosed: recentClosed.length
+    });
+
+    const parts = ['═══ FULL PLATFORM SNAPSHOT (live, scanned just now) ═══'];
+
+    // KPI summary (MTBF/MTTR averages, downtime totals)
+    if (kpi.length) {
+      const mtbfs = kpi.map(r => Number(r.mtbf_30d)).filter(n => n > 0);
+      const mttrs = kpi.map(r => Number(r.mttr_30d)).filter(n => n > 0);
+      const dts = kpi.map(r => Number(r.total_downtime_30d)).filter(n => !isNaN(n));
+      const fails = kpi.map(r => Number(r.failures_30d)).filter(n => !isNaN(n));
+      const avg = (arr) => arr.length ? (arr.reduce((a,b)=>a+b,0)/arr.length).toFixed(1) : 'n/a';
+      const sum = (arr) => arr.length ? arr.reduce((a,b)=>a+b,0).toFixed(1) : 'n/a';
+      parts.push(`KPIs (last 30d, ${kpi.length} machines):\n  MTBF avg=${avg(mtbfs)} days | MTTR avg=${avg(mttrs)} hours | Total downtime=${sum(dts)} hours | Failures=${sum(fails)}`);
+    }
+
+    // Equipment breakdown by criticality
+    if (assets.length) {
+      const byCrit = {};
+      assets.forEach(a => { byCrit[a.criticality || 'unknown'] = (byCrit[a.criticality || 'unknown'] || 0) + 1; });
+      const recentFails = assets.filter(a => a.last_failure_at).length;
+      parts.push(`Equipment (${assets.length} assets): ${Object.entries(byCrit).map(([s,c])=>`${c} ${s}`).join(', ')}. ${recentFails} have failure history.`);
+    }
+
+    // Top risk assets
+    if (risk.length) {
+      parts.push(`Top risk assets:\n  ` + risk.map(r => `${r.asset_name} (${r.risk_level}, score ${Number(r.risk_score).toFixed(2)}, MTBF ${r.mtbf_days || 'n/a'}d, days until failure ${r.days_until_failure || 'n/a'})`).join('\n  '));
+    }
+
+    // PM compliance — recently completed vs stale
+    if (pm.length) {
+      const stale = pm.filter(p => p.days_since_last_completion && p.days_since_last_completion > 30).length;
+      const recent = pm.filter(p => p.completions_30d && p.completions_30d > 0).length;
+      parts.push(`PM compliance: ${recent} completed in last 30d, ${stale} stale (no PM in 30+ days) of ${pm.length} tracked assets`);
+      if (stale > 0) {
+        parts.push(`  Stale PMs:\n    ` + pm.filter(p => p.days_since_last_completion && p.days_since_last_completion > 30).slice(0, 5).map(p => `${p.asset_name} (${p.criticality}): ${p.days_since_last_completion} days since last PM`).join('\n    '));
+      }
+    }
+
+    // OPEN logbook items — these are what Day Planner shows as "open work"
+    if (openLogbook.length) {
+      parts.push(`OPEN WORK ITEMS from logbook (${openLogbook.length} unresolved, what Day Planner shows in sidebar):\n  ` + openLogbook.slice(0, 15).map(l => `${(l.created_at || l.date || '').slice(0,10)} ${l.machine || ''} [${l.category || ''}]: ${(l.problem || l.action || '').slice(0, 80)} (by ${l.worker_name || '?'})`).join('\n  '));
+    }
+
+    // Recently CLOSED logbook
+    if (recentClosed && recentClosed.length) {
+      parts.push(`Recently CLOSED logbook (last ${recentClosed.length}):\n  ` + recentClosed.slice(0, 5).map(l => `${(l.created_at || l.date || '').slice(0,10)} ${l.machine || ''} [${l.category || ''}]: ${(l.problem || l.action || '').slice(0, 80)}`).join('\n  '));
+    }
+
+    // Inventory — low stock
+    if (inventory.length) {
+      const lowStock = inventory.filter(i => i.reorder_point && Number(i.qty_on_hand) < Number(i.reorder_point));
+      const outOfStock = inventory.filter(i => Number(i.qty_on_hand) === 0);
+      parts.push(`Inventory (${inventory.length} items): ${outOfStock.length} out of stock, ${lowStock.length} low stock${lowStock.length ? '\n  Low: ' + lowStock.slice(0,5).map(i => `${i.part_name} (${i.qty_on_hand}/${i.reorder_point})`).join(', ') : ''}`);
+    }
+
+    // Anomalies
+    if (anomalies.length) {
+      parts.push(`Active anomalies (${anomalies.length}):\n  ` + anomalies.map(a => `${a.machine}: composite score ${a.composite_score}, logbook cluster ${a.logbook_cluster_score}`).join('\n  '));
+    }
+
+    // Projects
+    if (projects.length) {
+      parts.push(`Active projects:\n  ` + projects.map(p => `${p.name} (${p.project_type || 'n/a'}) — ${p.status} [${p.priority || 'normal'}]`).join('\n  '));
+    }
+
+    // Day Planner breakdown — match the UI's TODAY / THIS WEEK / OVERDUE counters
+    const weekStart = new Date(Date.now() - 7 * 86400000).toISOString().slice(0, 10);
+    const weekEnd = new Date(Date.now() + 7 * 86400000).toISOString().slice(0, 10);
+    const todayItems = schedule.filter(s => s.date === today);
+    const thisWeekItems = schedule.filter(s => s.date >= weekStart && s.date <= weekEnd);
+    const overdueItems = schedule.filter(s => s.date && s.date < today && s.item_status !== 'closed' && s.item_status !== 'done');
+    const totalOpenWork = openLogbook.length;
+
+    if (schedule.length || totalOpenWork) {
+      const dpLines = [`Your Day Planner status:`];
+      dpLines.push(`  TODAY (${today}): ${todayItems.length} scheduled items`);
+      dpLines.push(`  THIS WEEK (${weekStart} to ${weekEnd}): ${thisWeekItems.length} scheduled items`);
+      dpLines.push(`  OVERDUE scheduled: ${overdueItems.length} past their date and not yet closed`);
+      dpLines.push(`  OPEN WORK from logbook (sidebar): ${totalOpenWork} unresolved items`);
+      if (todayItems.length) {
+        dpLines.push(`  Today's items:\n    ` + todayItems.map(s => `${s.start_time || ''}-${s.end_time || ''} ${s.title || ''} [${s.category || 'task'}] (${s.item_status || 'pending'})`).join('\n    '));
+      }
+      if (overdueItems.length) {
+        dpLines.push(`  Overdue items:\n    ` + overdueItems.slice(0, 5).map(s => `${s.date}: ${s.title || ''} [${s.category || 'task'}]`).join('\n    '));
+      }
+      parts.push(dpLines.join('\n'));
+    } else if (workerName) {
+      parts.push(`Your Day Planner: no schedule items found for "${workerName}". (Open Work items above may still be relevant — they're what shows in the planner sidebar.)`);
+    }
+
+    // Worker skills / role
+    if (skills.length) {
+      parts.push(`Your skills: ` + skills.map(s => `${s.discipline}${s.primary_skill ? ' (' + s.primary_skill + ')' : ''}${s.role ? ' role=' + s.role : ''}`).join(', '));
+    }
+
+    // Adoption / activity risk
+    if (adoption.length && adoption[0]) {
+      const a = adoption[0];
+      parts.push(`Hive adoption health: tier=${a.risk_tier || 'n/a'}, risk_score=${a.risk_score}, active_ratio_risk=${a.active_ratio_risk}, momentum_risk=${a.momentum_risk} (snapshot ${a.snapshot_date})`);
+    }
+
+    // Knowledge base
+    if (knowledge.length) {
+      parts.push(`Recent knowledge entries (${knowledge.length}):\n  ` + knowledge.map(k => `[${k.source}] "${(k.content || '').slice(0, 100)}..."`).join('\n  '));
+    }
+
+    return parts.length > 1 ? parts.join('\n\n') : '';
   }
 
   // Helper: fetch equipment status from v_asset_truth (running / idle / maintenance / down)
@@ -1139,10 +1305,15 @@
       ? '\nSEMANTIC CONTEXT — Historical patterns & analysis:\n' + ragContext + '\n'
       : '';
 
+    const hasData = platformData || canonicalData || ragContext;
+    const directAnswerInstruction = hasData
+      ? '- ANSWER FROM THE PLATFORM SNAPSHOT above. The ENTIRE platform has been scanned: KPIs (MTBF, MTTR, downtime, failures), equipment status, risk assets, PM compliance, inventory levels, recent logbook entries, anomalies, projects, your Day Planner today, your skill levels, hive activity, knowledge entries — all of it is in your context. SCAN the snapshot for the relevant section before answering. NEVER say "check [tool]" or "open Day Planner" or "your dashboard should have that" when the answer is sitting in the snapshot above. ONLY say "I don\'t have that data right now" if you scanned the snapshot and the specific thing is genuinely absent.\n'
+      : '- If they asked a maintenance / work question, ANSWER IT directly with practical maintenance knowledge. If you don\'t have the data they\'re asking about, say so plainly.\n';
+
     return personaBlock + '\n\n' +
       'You are answering a worker over voice. They will HEAR your reply, so:\n' +
       '- Keep it 2-3 short sentences. Long answers are tiring spoken aloud.\n' +
-      '- If they asked a maintenance / work question, ANSWER IT directly with practical maintenance knowledge. If you don\'t have the data they\'re asking about (e.g. their specific PM schedule, their hive\'s OEE), say so plainly and point them to the right WorkHive tool: PM Scheduler for due tasks, Alert Hub for risk + low stock, Asset Hub for asset history, Analytics for MTBF/OEE.\n' +
+      directAnswerInstruction +
       '- If they shared a feeling or vented, react first ("naks, mahirap yan" / "hala ka"), THEN one practical line.\n' +
       identBlock +
       routerBlock +
@@ -1160,6 +1331,7 @@
       '2. NEVER say "I see you\'ve been asking about X a lot lately" — you do NOT have conversation history in this turn; pretending you do is hallucination.\n' +
       '3. NEVER echo the worker\'s question back as the answer. "Priority checking ka na naman" is NOT an answer to "what\'s the priority PM today?"\n' +
       '4. NEVER treat a direct work question ("what is X", "how do I Y", "where can I find Z") as emotional. Just answer it or say honestly you can\'t see the data and point to the right tool.\n' +
+      '4a. NEVER say "check Analytics" or "open Day Planner" or "your dashboard should have that" or "you can find that in [tool]" UNLESS you have first scanned the FULL PLATFORM SNAPSHOT above for the answer. The snapshot contains: KPIs, equipment, risk, PM, inventory, logbook, anomalies, projects, schedule, skills, knowledge, adoption — all current values. The phrases "check X" / "open X" / "find that in X" are BANNED when X\'s data is in the snapshot. If the worker asks about Day Planner and your schedule appears in the snapshot, READ IT and tell them. Same for inventory, PMs, MTBF, projects — read first, punt only if truly absent.\n' +
       '5. If you find yourself starting with "Naiintindihan kita" or "I understand" on a factual question, STOP and rewrite — that opener is for emotional venting only.\n' +
       '6. NEVER mention the page name (e.g. "index", "logbook", "hive", "asset-hub") in your reply. Workers don\'t think in page names. Say "this page" or "your dashboard" or just answer naturally without referencing where they are.\n' +
       '7. NEVER invent details the worker did not mention. If they say "what is the problem?" — you do NOT know what problem. Do NOT make up "the production line" or "the pump" or "your machine". Ask back: "which one, pre?" — or if it\'s totally vague, say "tell me a bit more, what\'s going on?"\n' +
@@ -1222,30 +1394,28 @@
     _setRecRowVisible(false);
     _renderReplyBubble(null, persona);
 
-    // Phase 1: Semantic Router + Multi-Agent Orchestration
-    // Classify whether the question needs platform data, semantic depth, or simple reply.
-    // This is a lightweight classifier (20 tokens via Groq Scout) that runs in parallel
-    // with memory/canonical-data fetches.
+    // FULL PLATFORM SCAN: pull everything from every truth view in parallel, hand to LLM.
+    // No routing decisions, no intent classification — the LLM gets the complete platform
+    // snapshot every turn and picks what's relevant. This eliminates "I don't have that info"
+    // for any data that exists on the platform (KPIs, PM, inventory, logbook, schedule,
+    // skills, projects, anomalies, knowledge, adoption — all in one shot).
     const firstIntent = routerIntents && routerIntents[0];
-    const dataIntentKind = firstIntent && ['mtbf', 'mttr', 'downtime', 'risk_top', 'failures_count'].includes(firstIntent.kind)
-      ? firstIntent.kind : null;
-
-    // Orchestrate agents in parallel: semantic router classification + memory/canonical fetch
-    const [routeDecision, memoryBlock, canonicalData] = await Promise.all([
-      _classifySemanticRoute(transcript, routerIntents),
+    const [platformSnapshot, platformData, memoryBlock, ragContext] = await Promise.all([
+      _fetchFullPlatformSnapshot(db, ctx.hive_id, ctx.worker_name).catch((err) => {
+        console.warn('[WHVoice] Platform snapshot failed:', err);
+        return '';
+      }),
+      _invokePlatformScraper(db, ctx.hive_id, ctx.worker_name).catch(() => ''),
       _fetchRecentMemory(db, ctx.worker_name),
-      dataIntentKind ? _fetchCanonicalData(db, ctx.hive_id, { kind: dataIntentKind, window_days: 30 }) : Promise.resolve(''),
+      _invokeRAGAgent(db, ctx.worker_name, firstIntent, transcript).catch(() => ''),
     ]);
 
-    // Based on route decision, optionally invoke platform scraper or RAG agent
-    let platformData = '';
-    let ragContext = '';
-    if (routeDecision.route === 'platform') {
-      platformData = await _invokePlatformScraper(db, ctx.hive_id, ctx.worker_name).catch(() => '');
-    } else if (routeDecision.route === 'semantic') {
-      ragContext = await _invokeRAGAgent(db, ctx.worker_name, firstIntent, transcript).catch(() => '');
+    // canonicalData carries the full snapshot — every truth view in one block.
+    // platformData (legacy scraper) and ragContext stay separate for now.
+    const canonicalData = platformSnapshot || '';
+    if (!canonicalData && db && ctx.hive_id && ctx.worker_name) {
+      console.warn('[WHVoice] No platform snapshot returned; check DB connection or query errors');
     }
-    // route === 'simple' uses memory context only (no extra agents)
 
     const system = _buildVoiceSystemPrompt(persona, ctx.worker_name, hiveName, pageLabel, routingHint, memoryBlock, canonicalData, routerContext, platformData, ragContext);
     const messages = [
@@ -1355,6 +1525,32 @@
     again.style.display = 'block';
     const stopBtn = document.getElementById('wh-voice-stop');
     if (stopBtn) stopBtn.style.display = 'none';
+
+    // Show TTS toggle button
+    _showTtsToggle();
+  }
+
+  function _showTtsToggle() {
+    const actions = document.querySelector('.wh-voice-actions');
+    if (!actions) return;
+    let ttsBtn = document.getElementById('wh-voice-tts-toggle');
+    if (!ttsBtn) {
+      ttsBtn = document.createElement('button');
+      ttsBtn.id = 'wh-voice-tts-toggle';
+      ttsBtn.type = 'button';
+      ttsBtn.className = 'wh-voice-btn-action wh-voice-secondary';
+      ttsBtn.style.cssText = 'background-color:#666;font-size:0.9em;';
+      ttsBtn.addEventListener('click', () => {
+        const isOn = typeof window.toggleTts === 'function' ? window.toggleTts() : false;
+        ttsBtn.textContent = isOn ? '🔊 Voice on' : '🔇 Voice off';
+        ttsBtn.style.backgroundColor = isOn ? '#4CAF50' : '#666';
+      });
+      actions.appendChild(ttsBtn);
+    }
+    ttsBtn.style.display = 'block';
+    const isOn = typeof window.isTtsOn === 'function' ? window.isTtsOn() : false;
+    ttsBtn.textContent = isOn ? '🔊 Voice on' : '🔇 Voice off';
+    ttsBtn.style.backgroundColor = isOn ? '#4CAF50' : '#666';
   }
 
   function _fallthroughToChat(q) {
