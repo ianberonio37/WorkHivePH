@@ -10,12 +10,13 @@ def seed_anomaly_alerts(client, log, ctx):
 
     log("\n[Voice Companion Phase 5] Seeding proactive alerts...")
 
-    # Get first hive for seeding
+    # Get all hives for seeding
     hives = ctx.get("hives", [])
     if not hives:
         log("  SKIP: No hives found, cannot seed alerts")
         return 0
-    hive_id = hives[0]["id"]
+
+    log(f"  Seeding alerts into {len(hives)} hive(s)")
 
     # Use generic asset names (no need to query assets table)
     assets = [
@@ -87,34 +88,40 @@ def seed_anomaly_alerts(client, log, ctx):
 
     alerts_inserted = 0
 
-    for scenario in alert_scenarios:
-        try:
-            asset = assets[scenario['asset_idx']] if scenario['asset_idx'] < len(assets) else assets[0]
+    # Seed alerts into each hive
+    for hive in hives:
+        hive_id = hive["id"]
+        hive_name = hive.get("name", hive_id[:8])
+        log(f"  Seeding alerts for hive: {hive_name}")
 
-            res = client.from_('anomaly_alerts').insert({
-                'hive_id': hive_id,
-                'asset_id': None,  # Asset ID lookup would happen in production
-                'alert_type': scenario['alert_type'],
-                'severity': scenario['severity'],
-                'metric_name': scenario['metric_name'],
-                'metric_value': scenario['metric_value'],
-                'metric_threshold': scenario['metric_threshold'],
-                'deviation_percent': scenario['deviation_percent'],
-                'description': scenario['description'],
-                'action_suggested': scenario['action_suggested'],
-                'detected_at': 'now()',
-                'suppressed_until': None,
-                'acknowledged_at': None,
-            }).execute()
+        for scenario in alert_scenarios:
+            try:
+                asset = assets[scenario['asset_idx']] if scenario['asset_idx'] < len(assets) else assets[0]
 
-            if res.data:
-                alerts_inserted += 1
-                severity_emoji = "🔴" if scenario['severity'] == 'critical' else "🟠"
-                log(f"  {severity_emoji} [{scenario['alert_type'].upper()}] {scenario['description'][:60]}...")
-        except Exception as e:
-            log(f"  WARN: Could not insert alert: {e}")
+                res = client.from_('anomaly_alerts').insert({
+                    'hive_id': hive_id,
+                    'asset_id': None,  # Asset ID lookup would happen in production
+                    'alert_type': scenario['alert_type'],
+                    'severity': scenario['severity'],
+                    'metric_name': scenario['metric_name'],
+                    'metric_value': scenario['metric_value'],
+                    'metric_threshold': scenario['metric_threshold'],
+                    'deviation_percent': scenario['deviation_percent'],
+                    'description': scenario['description'],
+                    'action_suggested': scenario['action_suggested'],
+                    'detected_at': 'now()',
+                    'suppressed_until': None,
+                    'acknowledged_at': None,
+                }).execute()
 
-    log(f"  Phase 5 seeding complete: {alerts_inserted} proactive alerts created")
+                if res.data:
+                    alerts_inserted += 1
+                    severity_emoji = "[CRIT]" if scenario['severity'] == 'critical' else "[HIGH]"
+                    log(f"    {severity_emoji} {scenario['alert_type'].upper()}: {scenario['description'][:60]}...")
+            except Exception as e:
+                log(f"    WARN: Could not insert alert: {e}")
+
+    log(f"  Phase 5 seeding complete: {alerts_inserted} proactive alerts created across {len(hives)} hive(s)")
     return alerts_inserted
 
 

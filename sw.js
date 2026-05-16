@@ -3,7 +3,7 @@
 // surfaces (logbook, inventory, pm-scheduler, hive, asset-hub, shift-brain).
 // Closes PRODUCTION_FIXES #54.
 
-const CACHE_NAME  = 'workhive-shell-v76';
+const CACHE_NAME  = 'workhive-shell-v81';
 const SHELL_FILES = [
   // Original report-sender shell
   '/report-sender.html',
@@ -24,6 +24,8 @@ const SHELL_FILES = [
   // Persona Contract Phase 3+4 shared helpers
   '/wh-persona.js',
   '/wh-tts.js',
+  // Voice Companion handler (Phase 1-11 orchestrator)
+  '/voice-handler.js',
   // Companion Streamline Step B: persona portraits (compressed JPEGs;
   // 12KB each; full-res source PNGs are at /brand_assets/{James,Rosa}.png)
   '/brand_assets/james-256.jpg',

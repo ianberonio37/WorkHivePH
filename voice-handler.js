@@ -911,13 +911,33 @@
 
   // Phase 5: Fetch active proactive alerts (KPI spikes, risk escalation, overdue PM)
   async function _fetchProactiveAlerts(db, hiveId) {
-    if (!db || !hiveId) return [];
+    if (!db || !hiveId) {
+      console.warn('[WHVoice] Fetch alerts: missing db or hiveId', { hasDb: !!db, hiveId });
+      return [];
+    }
     try {
+      console.log('[WHVoice] Calling fetch_active_alerts RPC with hiveId:', hiveId);
       const { data, error } = await db.rpc('fetch_active_alerts', { p_hive_id: hiveId });
-      if (error || !data) return [];
-      return data.slice(0, 5); // Top 5 critical alerts only
+      console.log('[WHVoice] RPC response:', { data, error });
+      if (error) {
+        console.warn('[WHVoice] Fetch alerts RPC error:', JSON.stringify(error));
+        return [];
+      }
+      if (!data || !Array.isArray(data)) {
+        console.warn('[WHVoice] Fetch alerts returned invalid data:', data, 'type:', typeof data);
+        return [];
+      }
+      // Validate alert structure — ensure description & action_suggested exist
+      const validated = data.slice(0, 5).map((a) => {
+        if (!a.description || !a.action_suggested) {
+          console.warn('[WHVoice] Alert missing description or action:', a);
+        }
+        return a;
+      });
+      console.log('[WHVoice] Fetched alerts:', validated.length, 'alerts');
+      return validated;
     } catch (err) {
-      console.warn('[WHVoice] Proactive alerts fetch failed:', err && err.message);
+      console.warn('[WHVoice] Proactive alerts fetch exception:', err && err.message);
       return [];
     }
   }
@@ -1573,15 +1593,30 @@
       ? '\nIMPORTANT — the worker tried to speak a command this page can\'t execute: ' + routingHint + ' Keep the reply to ONE short sentence. Do NOT describe specific buttons / cards / menus you haven\'t been told about.\n'
       : '';
     // Phase 5: Proactive alerts (KPI spikes, risk, overdue PM)
+    if (proactiveAlerts && proactiveAlerts.length) {
+      console.log('[WHVoice] DEBUG: alertsSection building with', proactiveAlerts.length, 'alerts:', JSON.stringify(proactiveAlerts.slice(0, 2)));
+    } else {
+      console.log('[WHVoice] DEBUG: NO ALERTS FOUND - proactiveAlerts empty or null:', proactiveAlerts);
+    }
     const alertsSection = (proactiveAlerts && proactiveAlerts.length)
-      ? '\nACTIVE ALERTS — Surface these FIRST before answering the worker\'s question:\n' +
+      ? '\n═══ CRITICAL PRIORITY: ACTIVE EQUIPMENT ALERTS ═══\n' +
+        'MANDATORY RULE: You MUST surface the alerts below FIRST in your reply, using the exact descriptions provided. Do NOT summarize, paraphrase, or ignore them.\n' +
+        'If ANY alert has severity=critical, start your reply with: "Before you ask, I need to flag something critical:"\n' +
+        'Then list each alert with its description and suggested action.\n' +
+        'ONLY after fully addressing alerts should you answer the worker\'s question.\n' +
+        'Alerts:\n' +
         proactiveAlerts.map((a, idx) => {
-          const severity = (a.severity || 'info').toUpperCase();
-          const desc = (a.description || '').slice(0, 200);
-          const action = (a.action_suggested || 'Investigate.').slice(0, 150);
-          return `[${severity}] ${a.alert_type}: ${desc}\nAction: ${action}`;
-        }).join('\n') +
-        '\n\nOPENING RULE FOR ALERTS: If there are critical/high alerts above, your reply should start with "Before you ask, I need to flag something:" followed by the alert summary. Then answer the worker\'s question if appropriate. NEVER skip mentioning critical alerts.\n'
+          if (!a || typeof a !== 'object') {
+            console.warn('[WHVoice] Invalid alert object at index', idx, ':', a);
+            return '';
+          }
+          const severity = String(a.severity || 'info').toUpperCase();
+          const alertType = String(a.alert_type || 'unknown');
+          const desc = String(a.description || 'No description provided').slice(0, 250);
+          const action = String(a.action_suggested || 'Investigate.').slice(0, 200);
+          return `${idx + 1}. [${severity}] ${alertType}: ${desc}\n   Action: ${action}`;
+        }).filter((s) => s).join('\n') +
+        '\n═══ END ALERTS (MANDATORY TO ADDRESS ABOVE) ═══\n'
       : '';
 
     // Phase 4: Dialog state (intent + slots + clarification status)

@@ -294,6 +294,15 @@ VALIDATORS = [
         "skip_if_fast": False,
     },
     {
+        "id":      "voice-alert-formatting",
+        "script":  "validate_voice_alert_formatting.py",
+        "args":    [],
+        "label":   "Voice Alert Formatting (Phase 5: alerts render with descriptions, not IDs)",
+        "group":   "Platform",
+        "report":  "voice_alert_formatting_report.json",
+        "skip_if_fast": False,
+    },
+    {
         "id":      "offline-resilience",
         "script":  "validate_offline_resilience_phase6.py",
         "args":    [],
