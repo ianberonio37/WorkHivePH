@@ -155,7 +155,7 @@ def _ctx_required():
     client = get_client()
     hives = client.table("hives").select("*").execute().data
     members = client.table("hive_members").select("*").execute().data
-    assets = client.table("assets").select("*").execute().data
+    assets = client.table("asset_nodes").select("*").execute().data
 
     workers = []
     for m in members:
