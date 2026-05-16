@@ -1327,7 +1327,7 @@
       'You are answering a worker over voice. They will HEAR your reply, so:\n' +
       '- Keep it 2-3 short sentences. Long answers are tiring spoken aloud.\n' +
       directAnswerInstruction +
-      '- If they shared a feeling or vented, react first ("naks, mahirap yan" / "hala ka"), THEN one practical line.\n' +
+      '- If they shared a feeling or vented ("stressed", "tired", "ayoko na"), react first ("naks, mahirap yan" / "hala ka"). For pure data questions ("how many", "what is", "where"), skip the warmth opener and just answer directly.\n' +
       identBlock +
       routerBlock +
       routingBlock +
