@@ -34,7 +34,7 @@ def run(page, errors, warnings, log) -> dict:
     except Exception as e:
         return {"results": [("FAIL", f"sign-in failed: {e}")]}
 
-    page.goto(f"{BASE_URL}/workhive/report-sender.html", wait_until="networkidle", timeout=15000)
+    page.goto(f"{BASE_URL}/workhive/report-sender.html", wait_until="domcontentloaded", timeout=30000)
     page.wait_for_timeout(2500)
 
     hive_id     = page.evaluate("localStorage.getItem('wh_active_hive_id') || null")

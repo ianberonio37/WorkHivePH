@@ -11109,6 +11109,7 @@ function showReport() {
 
 // ─── Render report HTML ───────────────────────────────────────────────────────
 function renderReport(inputs, results, narrative) {
+  if (!results || !results.components) return '';
   const now     = new Date();
   const dateStr = now.toLocaleDateString('en-PH', { year:'numeric', month:'long', day:'numeric' });
   const c       = results.components;

@@ -163,7 +163,7 @@ def run(page, errors, warnings, log) -> dict:
     try:
         req = urllib.request.Request(f"{BASE_URL.rstrip('/')}/workhive/index.html", method="GET")
         with urllib.request.urlopen(req, timeout=15) as r:
-            html = r.read(50000).decode("utf-8", errors="replace")
+            html = r.read(250000).decode("utf-8", errors="replace")
 
         checks = [
             ("ops-home div present",        'id="ops-home"'         in html),
