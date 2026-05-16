@@ -922,6 +922,47 @@
     }
   }
 
+  // Phase 3: Semantic RAG — embed query and search knowledge base
+  async function _fetchRAGContext(db, hiveId, transcript) {
+    if (!db || !hiveId || !transcript) return '';
+    try {
+      // Embed the query using free-tier chain (Voyage)
+      const embedResp = await fetch(WH_ASSISTANT_WORKER_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: 'voyage-3',  // Free-tier embeddings
+          input: transcript,
+        }),
+      });
+
+      if (!embedResp || !embedResp.ok) return '';
+      const embedData = await embedResp.json();
+      const embedding = embedData.data && embedData.data[0] && embedData.data[0].embedding;
+      if (!embedding) return '';
+
+      // Semantic search in kb_chunks via RPC
+      const { data: chunks, error } = await db.rpc('semantic_search_kb', {
+        p_hive_id: hiveId,
+        p_query_embedding: embedding,
+        p_similarity_threshold: 0.7,
+        p_limit: 5,
+      });
+
+      if (error || !chunks || chunks.length === 0) return '';
+
+      // Format RAG context with citations
+      return chunks.map(c => {
+        const doc = (c.doc_title || '').slice(0, 50);
+        const text = (c.chunk_text || '').slice(0, 300);
+        return `[${doc}] ${text}`;
+      }).join('\n\n');
+    } catch (err) {
+      console.warn('[WHVoice] RAG context fetch failed:', err && err.message);
+      return '';
+    }
+  }
+
   // Phase 4: Update dialog state (intent + slots) after each turn
   async function _updateDialogState(db, hiveId, sessionId, intentKind, confidence, contextSlots, clarificationPending, clarificationPrompt) {
     if (!db || !hiveId || !sessionId) return;
@@ -1605,7 +1646,7 @@
       }),
       _invokePlatformScraper(db, ctx.hive_id, ctx.worker_name).catch(() => ''),
       _fetchRecentMemory(db, ctx.worker_name),
-      _invokeRAGAgent(db, ctx.worker_name, firstIntent, transcript).catch(() => ''),
+      _fetchRAGContext(db, ctx.hive_id, transcript).catch(() => ''),
     ]);
 
     // canonicalData carries the full snapshot — every truth view in one block.
