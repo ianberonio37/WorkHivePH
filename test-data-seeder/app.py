@@ -216,7 +216,9 @@ def get_db_counts():
               "asset_risk_scores", "parts_staging_recommendations",
               "parts_staged_reservations", "worker_achievements",
               # Wave A+B (AMC orchestrator + Physical AI):
-              "amc_briefings", "sensor_readings", "voice_journal_entries"]:
+              "amc_briefings", "sensor_readings", "voice_journal_entries",
+              # Voice Companion (Phase 3/5/8):
+              "kb_documents", "kb_chunks", "anomaly_alerts", "conversation_analytics"]:
         try:
             res = client.table(t).select("id", count="exact").limit(1).execute()
             counts[t] = res.count or 0
