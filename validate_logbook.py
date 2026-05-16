@@ -414,6 +414,28 @@ def check_team_query_first(content, page):
     return issues
 
 
+def check_optimistic_lock_on_edit(content, page):
+    """
+    Layer 2 concurrent runner (2026-05-17): saveEditFromForm() must include
+    an updated_at equality filter before the .update() call so concurrent
+    edits are detected and the user is warned rather than silently overwritten.
+    """
+    if "saveEditFromForm" not in content:
+        return []
+    # OC guard requires: module-level variable AND usage inside the save function.
+    # The function can be 100+ lines so search the whole file, not a window.
+    has_oc_var  = "_editingUpdatedAt" in content
+    has_oc_use  = re.search(r"eq\(['\"]updated_at['\"].*_editingUpdatedAt", content) is not None
+    if not (has_oc_var and has_oc_use):
+        return [{"check": "optimistic_lock_on_edit", "page": page,
+                 "reason": (
+                     "saveEditFromForm() online update path has no optimistic lock. "
+                     "Concurrent edit by another user will silently overwrite. "
+                     "Fix: add .eq('updated_at', _editingUpdatedAt) to the update query."
+                 )}]
+    return []
+
+
 def check_machine_validation_toast(content, page):
     """
     Layer 2 → Layer 1 feedback (2026-05-16): the machine-empty guard in the
@@ -471,6 +493,8 @@ CHECK_NAMES = [
     "offline_queue", "team_query_first", "edit_in_place",
     # L3 — Layer 2 E2E feedback
     "machine_validation_toast",
+    # L3 — Layer 2 concurrent runner
+    "optimistic_lock_on_edit",
 ]
 
 CHECK_LABELS = {
@@ -503,6 +527,8 @@ CHECK_LABELS = {
     "edit_in_place":                "L4  Edit uses main form in-place (not parallel mc.innerHTML)",
     # L3 — Layer 2 E2E feedback (2026-05-16)
     "machine_validation_toast":     "L3  Machine-empty guard shows showToast() not just border highlight",
+    # L3 — Layer 2 concurrent runner (2026-05-17)
+    "optimistic_lock_on_edit":      "L3  saveEditFromForm has updated_at OC guard (no silent last-write-wins)",
 }
 
 
@@ -551,8 +577,9 @@ def main():
     all_issues += check_team_query_first(logbook, LOGBOOK_PAGE)
     all_issues += check_edit_in_place(logbook, LOGBOOK_PAGE)
 
-    # L3 — Layer 2 E2E feedback
+    # L3 — Layer 2 E2E + concurrent runner feedback
     all_issues += check_machine_validation_toast(logbook, LOGBOOK_PAGE)
+    all_issues += check_optimistic_lock_on_edit(logbook, LOGBOOK_PAGE)
 
     n_pass, n_skip, n_fail = format_result(CHECK_NAMES, CHECK_LABELS, all_issues)
 

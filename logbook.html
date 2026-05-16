@@ -1422,7 +1422,7 @@ async function searchTeam(append = false) {
   const dateTo    = document.getElementById('filter-date-to').value;
 
   let query = db.from('logbook')
-    .select('id, date, machine, category, maintenance_type, root_cause, problem, action, knowledge, downtime_hours, photo, status, asset_node_id, parts_used, closed_at, created_at, tasklist_acknowledged, tasklist_note, failure_consequence, readings_json, production_output, worker_name')
+    .select('id, date, machine, category, maintenance_type, root_cause, problem, action, knowledge, downtime_hours, photo, status, asset_node_id, parts_used, closed_at, created_at, updated_at, tasklist_acknowledged, tasklist_note, failure_consequence, readings_json, production_output, worker_name')
     .eq('hive_id', HIVE_ID)
     .order('date', { ascending: false })
     .limit(TEAM_PAGE);
@@ -1578,7 +1578,7 @@ async function syncOfflineQueue() {
 async function loadEntries() {
   // Mine-mode only. Team mode uses searchTeam().
   let query = db.from('logbook')
-    .select('id, date, machine, category, maintenance_type, root_cause, problem, action, knowledge, downtime_hours, photo, status, asset_node_id, parts_used, closed_at, created_at, tasklist_acknowledged, tasklist_note, failure_consequence, readings_json, production_output, worker_name')
+    .select('id, date, machine, category, maintenance_type, root_cause, problem, action, knowledge, downtime_hours, photo, status, asset_node_id, parts_used, closed_at, created_at, updated_at, tasklist_acknowledged, tasklist_note, failure_consequence, readings_json, production_output, worker_name')
     .eq('worker_name', WORKER_NAME);
   if (HIVE_ID) query = query.or(`hive_id.eq.${HIVE_ID},hive_id.is.null`);
   query = query.order('date', { ascending: false }).limit(200);
@@ -3126,10 +3126,11 @@ async function openModal(id) {
 // ────────────────────────────────────────────
 // MODAL: EDIT
 // ────────────────────────────────────────────
-let _editPartsUsed = []; // tracks parts added during edit session
-let _editingEntry  = null; // cached entry being edited
-let _editingId     = null; // null = new entry, string id = edit-in-place mode
-let _editPhotoData = null; // current photo for the edit modal (null = remove, string = keep/replace)
+let _editPartsUsed    = []; // tracks parts added during edit session
+let _editingEntry     = null; // cached entry being edited
+let _editingId        = null; // null = new entry, string id = edit-in-place mode
+let _editPhotoData    = null; // current photo for the edit modal (null = remove, string = keep/replace)
+let _editingUpdatedAt = null; // updated_at snapshot at edit-open time (optimistic lock sentinel)
 
 function renderEditParts() {
   const el = document.getElementById('e-parts-display');
@@ -3248,8 +3249,9 @@ async function openEditModal(id) {
   if (entry.tasklist_note) _tasklistNote = entry.tasklist_note;
 
   // ── Cache and mode state ──
-  _editingEntry = entry;
-  _editingId    = entry.id;
+  _editingEntry     = entry;
+  _editingId        = entry.id;
+  _editingUpdatedAt = entry.updated_at || null; // snapshot for optimistic lock
 
   // ── Show edit banner ──
   document.getElementById('edit-mode-machine').textContent = entry.machine || 'Entry';
@@ -3443,11 +3445,19 @@ async function saveEditFromForm() {
     return;
   }
   // ── Online path ─────────────────────────────────────────────────────
-  const { data: updatedRows, error } = await db.from('logbook')
-    .update(updates)
+  let updateQuery = db.from('logbook')
+    .update({ ...updates, updated_at: new Date().toISOString() })
     .eq('id', id)
-    .eq('worker_name', WORKER_NAME)
-    .select('id');
+    .eq('worker_name', WORKER_NAME);
+
+  // Optimistic lock: if we captured updated_at when the entry was opened,
+  // add it to the filter. A concurrent edit by another session would change
+  // updated_at, making this filter return 0 rows → conflict detected.
+  if (_editingUpdatedAt) {
+    updateQuery = updateQuery.eq('updated_at', _editingUpdatedAt);
+  }
+
+  const { data: updatedRows, error } = await updateQuery.select('id');
   if (error) {
     console.error('logbook edit-save failed:', { error, id, worker_name: WORKER_NAME, updates });
     showToast('Could not update: ' + error.message);
@@ -3455,12 +3465,10 @@ async function saveEditFromForm() {
     saveBtn.textContent = 'Update Entry';
     return;
   }
-  // Guard: if 0 rows updated, the entry belongs to another worker or id mismatch.
-  // Do NOT deduct parts — the status change didn't land.
-  // NOTE: null data (not []) means PostgREST returned success without row body —
-  // treat as success. Only [] (empty array) means genuinely 0 rows matched.
+  // Guard: 0 rows updated means either worker mismatch OR stale data (concurrent edit).
+  // Do NOT deduct parts — the update didn't land.
   if (updatedRows !== null && updatedRows !== undefined && updatedRows.length === 0) {
-    showToast('Could not update: you can only edit your own entries.');
+    showToast('Entry was modified by someone else — reload to see the latest version.', '⚠️');
     saveBtn.disabled = false;
     saveBtn.textContent = 'Update Entry';
     return;

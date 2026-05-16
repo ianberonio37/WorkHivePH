@@ -1,11 +1,11 @@
 {
-  "timestamp": "2026-05-17T11:14:04.081116",
+  "timestamp": "2026-05-17T11:29:39.126459",
   "pages": {
     "logbook": {
       "scenarios": [
         {
           "scenario": "last_write_wins",
-          "result": "WARN",
+          "result": "PASS",
           "steps": [
             {
               "step": "both_in_edit_mode"
@@ -14,10 +14,10 @@
               "step": "concurrent_save",
               "a_saved": true,
               "b_saved": true,
-              "conflict_detected": false
+              "conflict_detected": true
             }
           ],
-          "note": "Both saves succeeded silently (last-write-wins, no conflict warning). B overwrote A's changes without notification. Consider adding optimistic locking via updated_at comparison."
+          "note": "Conflict detection working \u2014 B warned about stale data"
         },
         {
           "scenario": "simultaneous_create",
@@ -38,9 +38,9 @@
           "note": "Both entries created without conflict"
         }
       ],
-      "total_pass": 1,
+      "total_pass": 2,
       "total_fail": 0,
-      "total_warn": 1,
+      "total_warn": 0,
       "total_skip": 0
     },
     "community": {
@@ -73,7 +73,7 @@
       "scenarios": [
         {
           "scenario": "last_write_wins",
-          "result": "WARN",
+          "result": "PASS",
           "steps": [
             {
               "step": "both_in_edit_mode"
@@ -82,22 +82,22 @@
               "step": "concurrent_save",
               "a_saved": true,
               "b_saved": true,
-              "conflict_detected": false
+              "conflict_detected": true
             }
           ],
-          "note": "Both saves succeeded silently (last-write-wins, no conflict warning). B overwrote A's changes without notification. Consider adding optimistic locking via updated_at comparison."
+          "note": "Conflict detection working \u2014 B warned about stale data"
         }
       ],
-      "total_pass": 0,
+      "total_pass": 1,
       "total_fail": 0,
-      "total_warn": 1,
+      "total_warn": 0,
       "total_skip": 0
     },
     "project-manager": {
       "scenarios": [
         {
           "scenario": "last_write_wins",
-          "result": "WARN",
+          "result": "PASS",
           "steps": [
             {
               "step": "both_in_edit_mode"
@@ -106,10 +106,10 @@
               "step": "concurrent_save",
               "a_saved": true,
               "b_saved": true,
-              "conflict_detected": false
+              "conflict_detected": true
             }
           ],
-          "note": "Both saves succeeded silently (last-write-wins, no conflict warning). B overwrote A's changes without notification. Consider adding optimistic locking via updated_at comparison."
+          "note": "Conflict detection working \u2014 B warned about stale data"
         },
         {
           "scenario": "simultaneous_create",
@@ -130,16 +130,16 @@
           "note": "Both entries created without conflict"
         }
       ],
-      "total_pass": 1,
+      "total_pass": 2,
       "total_fail": 0,
-      "total_warn": 1,
+      "total_warn": 0,
       "total_skip": 0
     },
     "marketplace": {
       "scenarios": [
         {
           "scenario": "last_write_wins",
-          "result": "WARN",
+          "result": "PASS",
           "steps": [
             {
               "step": "both_in_edit_mode"
@@ -148,22 +148,22 @@
               "step": "concurrent_save",
               "a_saved": true,
               "b_saved": true,
-              "conflict_detected": false
+              "conflict_detected": true
             }
           ],
-          "note": "Both saves succeeded silently (last-write-wins, no conflict warning). B overwrote A's changes without notification. Consider adding optimistic locking via updated_at comparison."
+          "note": "Conflict detection working \u2014 B warned about stale data"
         }
       ],
-      "total_pass": 0,
+      "total_pass": 1,
       "total_fail": 0,
-      "total_warn": 1,
+      "total_warn": 0,
       "total_skip": 0
     },
     "pm-scheduler": {
       "scenarios": [
         {
           "scenario": "last_write_wins",
-          "result": "WARN",
+          "result": "PASS",
           "steps": [
             {
               "step": "both_in_edit_mode"
@@ -172,22 +172,22 @@
               "step": "concurrent_save",
               "a_saved": true,
               "b_saved": true,
-              "conflict_detected": false
+              "conflict_detected": true
             }
           ],
-          "note": "Both saves succeeded silently (last-write-wins, no conflict warning). B overwrote A's changes without notification. Consider adding optimistic locking via updated_at comparison."
+          "note": "Conflict detection working \u2014 B warned about stale data"
         }
       ],
-      "total_pass": 0,
+      "total_pass": 1,
       "total_fail": 0,
-      "total_warn": 1,
+      "total_warn": 0,
       "total_skip": 0
     },
     "asset-hub": {
       "scenarios": [
         {
           "scenario": "last_write_wins",
-          "result": "WARN",
+          "result": "PASS",
           "steps": [
             {
               "step": "both_in_edit_mode"
@@ -196,20 +196,20 @@
               "step": "concurrent_save",
               "a_saved": true,
               "b_saved": true,
-              "conflict_detected": false
+              "conflict_detected": true
             }
           ],
-          "note": "Both saves succeeded silently (last-write-wins, no conflict warning). B overwrote A's changes without notification. Consider adding optimistic locking via updated_at comparison."
+          "note": "Conflict detection working \u2014 B warned about stale data"
         }
       ],
-      "total_pass": 0,
+      "total_pass": 1,
       "total_fail": 0,
-      "total_warn": 1,
+      "total_warn": 0,
       "total_skip": 0
     }
   },
-  "total_pass": 3,
+  "total_pass": 9,
   "total_fail": 0,
-  "total_warn": 6,
+  "total_warn": 0,
   "total_skip": 0
 }

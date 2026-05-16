@@ -839,8 +839,10 @@ let _logs       = [];                      // progress logs for opened project
 let _progress   = null;                    // edge-fn rollup result
 let _roles      = [];                      // project_roles rows (Phase 5B)
 let _changeOrders = [];                    // project_change_orders rows (Phase 5D)
-let _editingId  = null;                    // null = new project, uuid = edit
-let _editingScopeId = null;
+let _editingId          = null;  // null = new project, uuid = edit
+let _editingScopeId     = null;
+let _editingUpdatedAt   = null;  // updated_at snapshot for project optimistic lock
+let _editingScopeUpdAt  = null;  // updated_at snapshot for scope item optimistic lock
 let _rtChannel  = null;
 
 /* ── Helpers ───────────────────────────────────────────────── */
@@ -1712,7 +1714,8 @@ async function runAIIntent() {
 
 function openEditProject() {
   if (!_detail) return;
-  _editingId = _detail.id;
+  _editingId        = _detail.id;
+  _editingUpdatedAt = _detail.updated_at || null; // snapshot for optimistic lock
   $('m-project-title').textContent = 'Edit project';
   $('f-submit').textContent = 'Save changes';
   $('f-name').value = _detail.name;
@@ -1745,8 +1748,16 @@ async function saveProject() {
     description: $('f-desc').value.trim() || null,
   };
   if (_editingId) {
-    const { error } = await db.from('projects').update(payload).eq('id', _editingId).eq('hive_id', HIVE_ID);
+    let projQuery = db.from('projects')
+      .update({ ...payload, updated_at: new Date().toISOString() })
+      .eq('id', _editingId).eq('hive_id', HIVE_ID);
+    if (_editingUpdatedAt) projQuery = projQuery.eq('updated_at', _editingUpdatedAt);
+    const { data: projRows, error } = await projQuery.select('id');
     if (error) { showToast('Save failed: ' + error.message, 'error'); return; }
+    if (projRows !== null && projRows !== undefined && projRows.length === 0) {
+      showToast('Project was modified by someone else — reload to see the latest.', 'error');
+      return;
+    }
     showToast('Saved.', 'success');
     closeModal('modal-project');
     await loadProjects();
@@ -2040,7 +2051,8 @@ function openNewScope() {
 }
 function openEditScope(id) {
   const it = _items.find(x => x.id === id); if (!it) return;
-  _editingScopeId = id;
+  _editingScopeId    = id;
+  _editingScopeUpdAt = it.updated_at || null; // snapshot for optimistic lock
   $('m-scope-title').textContent = 'Edit scope item';
   $('s-title').value = it.title;
   $('s-wbs').value = it.wbs_code || '';
@@ -2079,7 +2091,16 @@ async function saveScopeItem() {
   };
   let err;
   if (_editingScopeId) {
-    ({ error: err } = await db.from('project_items').update(payload).eq('id', _editingScopeId));
+    let scopeQuery = db.from('project_items')
+      .update({ ...payload, updated_at: new Date().toISOString() })
+      .eq('id', _editingScopeId);
+    if (_editingScopeUpdAt) scopeQuery = scopeQuery.eq('updated_at', _editingScopeUpdAt);
+    const { data: scopeRows, error: scopeErr } = await scopeQuery.select('id');
+    err = scopeErr;
+    if (!err && scopeRows !== null && scopeRows !== undefined && scopeRows.length === 0) {
+      showToast('Scope item was modified by someone else — reload to see the latest.', 'error');
+      return;
+    }
   } else {
     ({ error: err } = await db.from('project_items').insert(payload));
   }

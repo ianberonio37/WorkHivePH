@@ -1018,7 +1018,8 @@ let assets           = [];
 let scopeItems       = [];
 let completions      = [];
 let registeredAssets = []; // from the shared 'assets' table (logbook)
-let currentAsset     = null;
+let currentAsset          = null;
+let _pmAssetUpdatedAt     = null; // updated_at snapshot for optimistic lock
 let currentScreen    = 'dashboard';
 let pmRealtimeChannel = null;
 let _pmDisplayCount  = 10;
@@ -1629,6 +1630,7 @@ function sheetBackdropClick(e) { if (e.target === e.currentTarget) closeSheet();
 function openEditPMAsset() {
   if (HIVE_ID && HIVE_ROLE !== 'supervisor') { showToast('Supervisors only.'); return; }
   if (!currentAsset) return;
+  _pmAssetUpdatedAt = currentAsset.updated_at || null; // snapshot for optimistic lock
   document.getElementById('pm-edit-name').value        = currentAsset.asset_name || '';
   document.getElementById('pm-edit-tag').value         = currentAsset.tag_id || '';
   document.getElementById('pm-edit-location').value    = currentAsset.location || '';
@@ -1663,10 +1665,21 @@ async function saveEditPMAsset() {
 
   const updates = { asset_name: name, tag_id: tag_id || null, location: location || null, criticality: criticality || null };
 
-  const { error } = await db.from('pm_assets').update(updates).eq('id', currentAsset.id);
+  let pmQuery = db.from('pm_assets')
+    .update({ ...updates, updated_at: new Date().toISOString() })
+    .eq('id', currentAsset.id);
+  if (_pmAssetUpdatedAt) pmQuery = pmQuery.eq('updated_at', _pmAssetUpdatedAt);
+  const { data: pmRows, error } = await pmQuery.select('id');
 
   if (error) {
     errEl.textContent = 'Could not save: ' + error.message;
+    errEl.classList.remove('hidden');
+    saveBtn.disabled = false;
+    saveBtn.textContent = 'Save Changes';
+    return;
+  }
+  if (pmRows !== null && pmRows !== undefined && pmRows.length === 0) {
+    errEl.textContent = 'Asset was modified by someone else — reload to see the latest version.';
     errEl.classList.remove('hidden');
     saveBtn.disabled = false;
     saveBtn.textContent = 'Save Changes';
