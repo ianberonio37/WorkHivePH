@@ -296,4 +296,40 @@ if calcref_fails:
     print(f"\n  {len(calcref_fails)} calcRef wiring issue(s) found.")
     sys.exit(1)
 
+# ── Layer 2c: Render function null guard check ────────────────────────────────
+# Any render*Report() / render*() function that accesses c.* (where c = results.components
+# or c = results.calcs) without a null guard crashes at runtime when the discipline
+# is switched before a calculation is run.  Detect: function reads c.* but does NOT
+# have an early return on !results or !c.
+print("\n  Layer 2c — Null guard on render functions (c = results.components|calcs)")
+null_guard_issues = []
+render_fn_re = re.compile(r"function\s+(render\w+)\s*\(", re.MULTILINE)
+for m in render_fn_re.finditer(html):
+    fn_name = m.group(1)
+    # Extract the function body (up to 250 lines)
+    fn_start = m.start()
+    fn_body  = html[fn_start:fn_start + 8000]
+
+    # Must access c.something (c.q_walls, c.total_load, etc.)
+    if not re.search(r"\bc\.[a-z_]\w+", fn_body):
+        continue
+    # Where c comes from results.components or results.calcs
+    if not re.search(r"\bc\s*=\s*results\.\w+", fn_body):
+        continue
+    # Check for a null guard: if (!results... or if (!c return
+    has_guard = bool(re.search(
+        r"if\s*\(!results|if\s*\(!c\b|if\s*\(!\w+\s*\|\|\s*!\w+\.comp|return.*''.*;",
+        fn_body[:300]
+    ))
+    if not has_guard:
+        null_guard_issues.append(
+            f"WARN  {fn_name}(): accesses c.* without null guard on results.components/calcs — "
+            f"crashes on discipline switch before calc runs; add: if (!results || !results.components) return '';"
+        )
+
+for msg in null_guard_issues:
+    print(f"  {msg}")
+if not null_guard_issues:
+    print("  PASS  all render functions with c.* access have null guards")
+
 print("\nNext: python validate_bom_sow.py")
