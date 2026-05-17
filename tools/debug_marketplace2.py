@@ -1,0 +1,51 @@
+#!/usr/bin/env python3
+"""Debug marketplace.html - simpler check"""
+
+from playwright.sync_api import sync_playwright
+
+BASE_URL = "http://127.0.0.1:5000/workhive"
+TEST_WORKER_NAME = "Leandro Marquez"
+TEST_HIVE_ID = "586fd158-42d1-4853-a406-64a4695e71c4"
+
+with sync_playwright() as p:
+    browser = p.chromium.launch()
+    page = browser.new_page()
+
+    console_messages = []
+    page.on("console", lambda msg: console_messages.append(f"[{msg.type}] {msg.text[:200]}"))
+    page.on("pageerror", lambda err: console_messages.append(f"[ERROR] {str(err)[:200]}"))
+
+    page.goto(BASE_URL + "/index.html", wait_until="domcontentloaded")
+    page.evaluate(f"""() => {{
+        localStorage.setItem('wh_last_worker', '{TEST_WORKER_NAME}');
+        localStorage.setItem('wh_active_hive_id', '{TEST_HIVE_ID}');
+        localStorage.setItem('wh_hive_id', '{TEST_HIVE_ID}');
+        localStorage.setItem('workerName', '{TEST_WORKER_NAME}');
+    }}""")
+
+    page.goto(BASE_URL + "/marketplace.html", wait_until="domcontentloaded")
+    page.wait_for_timeout(15000)
+
+    # Use evaluate to bypass timeout
+    state = page.evaluate("""() => {
+        return {
+            url: window.location.href,
+            mk_verdict_label_exists: !!document.getElementById('mk-verdict-label'),
+            mk_verdict_label_text: document.getElementById('mk-verdict-label')?.textContent || 'NULL',
+            mk_total_hero_text: document.getElementById('mk-total-hero')?.textContent || 'NULL',
+            mk_verdict_exists: !!document.getElementById('mk-verdict'),
+            all_mk_ids: Array.from(document.querySelectorAll('[id^="mk-"]')).map(e => e.id),
+            all_ids_count: document.querySelectorAll('[id]').length,
+            body_text_first_500: (document.body.innerText || '').slice(0, 500),
+        };
+    }""")
+
+    print("=== Page State ===")
+    for k, v in state.items():
+        print(f"  {k}: {v}")
+
+    print("\n=== Console (last 15) ===")
+    for msg in console_messages[-15:]:
+        print(f"  {msg}")
+
+    browser.close()
