@@ -119,6 +119,25 @@ ALLOWED_MULTI_COMMIT = {
         "2026-05-15 one-time idempotency fix: added DROP POLICY IF EXISTS "
         "before each CREATE POLICY so re-running the migration does not fail "
         "on an existing policy. Same-session edit, not yet applied to remote.",
+    "20260516000001_agent_memory_phase2.sql":
+        "2026-05-16 same-day regression fixes batch (commit 6c3e094): "
+        "validator registration + migration policies + search_path lockdown. "
+        "Phase 2 Session Memory Layer migration, never applied to remote prod.",
+    "20260516000002_dialog_state_phase4.sql":
+        "2026-05-16 same-day regression fixes batch (commit 6c3e094): "
+        "validator registration + migration policies + search_path lockdown. "
+        "Phase 4 Multi-Turn Dialog Flow migration, never applied to remote prod.",
+    "20260516000003_anomaly_alerts_phase5.sql":
+        "2026-05-16 two same-day fix passes (commits 6c3e094, 0c8408f): "
+        "validator failures fix (pgvector dims, search_path, RLS policies). "
+        "Phase 5 Proactive Alerts migration, never applied to remote prod.",
+    "20260516000004_kb_rag_phase3.sql":
+        "2026-05-16 same-day fix pass (commit 0c8408f): pgvector dims fix "
+        "and RLS policies. Phase 3 KB RAG migration, never applied to remote.",
+    "20260516000005_offline_resilience_phase6.sql":
+        "2026-05-16 same-day fix pass (commit 0c8408f): validator registration "
+        "and RLS policies. Phase 6 Offline Resilience migration, never applied "
+        "to remote prod.",
 }
 
 

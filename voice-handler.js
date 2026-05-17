@@ -1444,10 +1444,8 @@
   // Helper: fetch PM status (due this week / overdue)
   async function _fetchPMStatus(db, hiveId) {
     try {
-      const today = new Date().toISOString().slice(0, 10);
-      const weekEnd = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
-      const dueSoon = await db.from('v_pm_truth').select('COUNT').eq('hive_id', hiveId).eq('status', 'due').gte('next_due_date', today).lt('next_due_date', weekEnd).execute();
-      const overdue = await db.from('v_pm_truth').select('COUNT').eq('hive_id', hiveId).eq('status', 'overdue').execute();
+      const dueSoon = await db.from('v_pm_scope_items_truth').select('COUNT').eq('hive_id', hiveId).eq('is_due_soon', true).execute();
+      const overdue = await db.from('v_pm_scope_items_truth').select('COUNT').eq('hive_id', hiveId).eq('is_overdue', true).execute();
       const due = (dueSoon.data && dueSoon.data[0] && dueSoon.data[0].count) || 0;
       const overdueCount = (overdue.data && overdue.data[0] && overdue.data[0].count) || 0;
       if (due + overdueCount === 0) return '';
@@ -1458,8 +1456,8 @@
   // Helper: fetch inventory alerts (low stock / out of stock)
   async function _fetchInventoryAlerts(db, hiveId) {
     try {
-      const low = await db.from('v_inventory_truth').select('COUNT').eq('hive_id', hiveId).eq('stock_level', 'low').execute();
-      const out = await db.from('v_inventory_truth').select('COUNT').eq('hive_id', hiveId).eq('stock_level', 'out').execute();
+      const low = await db.from('v_inventory_items_truth').select('COUNT').eq('hive_id', hiveId).eq('is_low_stock', true).execute();
+      const out = await db.from('v_inventory_items_truth').select('COUNT').eq('hive_id', hiveId).eq('is_out_of_stock', true).execute();
       const lowCount = (low.data && low.data[0] && low.data[0].count) || 0;
       const outCount = (out.data && out.data[0] && out.data[0].count) || 0;
       if (lowCount + outCount === 0) return '';

@@ -34,16 +34,22 @@ create index if not exists idx_kb_chunks_embedding on kb_chunks using ivfflat (e
 
 -- RLS policies
 alter table kb_documents enable row level security;
+drop policy if exists "kb_documents_hive_access" on kb_documents;
 create policy "kb_documents_hive_access" on kb_documents
   for select
   using (auth.uid() in (select worker_id from worker_hives where hive_id = kb_documents.hive_id));
 
 alter table kb_chunks enable row level security;
+drop policy if exists "kb_chunks_hive_access" on kb_chunks;
 create policy "kb_chunks_hive_access" on kb_chunks
   for select
   using (doc_id in (select id from kb_documents where hive_id in (
     select hive_id from worker_hives where worker_id = auth.uid()
   )));
+
+-- GRANTs required for anon/authenticated roles
+grant select, insert, update, delete on kb_documents to anon, authenticated;
+grant select, insert, update, delete on kb_chunks to anon, authenticated;
 
 -- View: kb freshness
 create or replace view v_kb_freshness_truth as
