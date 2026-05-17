@@ -1134,6 +1134,50 @@
         "reason": "Permission correctly enforced. Finding confirms test coverage, not a bug."
       },
       "_source": "layer2_roles"
+    },
+    {
+      "id": "founder-console-admin-gate-disabled-test-env",
+      "page": "founder-console.html",
+      "session": "2026-05-17",
+      "severity": "high",
+      "issue": "founder-console is accessible to ALL roles (solo, worker, supervisor) in test env — admin gate is intentionally DISABLED for local testing. Role permission runner confirms console_panels visible to all roles.",
+      "domain": "Security",
+      "sentinel_agent": "Security (admin gate enforcement)",
+      "root_cause": "Memory entry [[project_founder_console]] notes admin gate disabled for local testing. Layer 2 role runner confirms: solo + worker + supervisor ALL see console panels. Production deploy MUST re-enable admin gate (server-side, not just client-side localStorage check).",
+      "has_test": true,
+      "test_file": "test-data-seeder/e2e_roles_runner.py — founder-console page",
+      "has_validator": false,
+      "validator_layer": null,
+      "status": "open",
+      "fix_commit": null,
+      "_validator_decision": {
+        "action": "add_new",
+        "target_file": "validators/validate_release_gate.py or new admin_gate validator",
+        "target_layer": "Pre-deploy check: founder-console.html must call admin verification before render",
+        "reason": "Layer 2 → Release Gate: prevent shipping with admin gate disabled"
+      },
+      "_source": "layer2_roles"
+    },
+    {
+      "id": "engineering-design-public-tool-confirmed",
+      "page": "engineering-design.html",
+      "session": "2026-05-17",
+      "severity": "low",
+      "issue": "engineering-design is accessible to ALL roles including solo — no hive context required. Role runner confirms calc_cards visible to all roles.",
+      "domain": "Multitenant Engineer",
+      "sentinel_agent": "Multitenant Engineer (intentionally public surfaces)",
+      "root_cause": "Engineering calculations are a public tool — Filipinos studying for PRC exams should access without signing in. This is intentional UX, not a permission gap.",
+      "has_test": true,
+      "test_file": "test-data-seeder/e2e_roles_runner.py — engineering-design page",
+      "has_validator": false,
+      "validator_layer": null,
+      "status": "acknowledged",
+      "fix_commit": null,
+      "_validator_decision": {
+        "action": "no_action",
+        "reason": "Intentional public access. Documented in permission matrix."
+      },
+      "_source": "layer2_roles"
     }
   ]
 }

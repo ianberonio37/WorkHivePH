@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-05-17T11:11:07.305534",
+  "timestamp": "2026-05-17T12:06:37.846552",
   "pages": {
     "logbook": {
       "page": "logbook",
@@ -83,13 +83,13 @@
       "diff": {
         "supervisor_only": [],
         "worker_and_above": [
-          "view_mine_tab",
-          "view_team_tab"
+          "view_team_tab",
+          "view_mine_tab"
         ],
         "shared": [
+          "view_team_tab",
           "search_input",
-          "view_mine_tab",
-          "view_team_tab"
+          "view_mine_tab"
         ],
         "supervisor": {
           "view_team_tab": true,
@@ -197,8 +197,8 @@
         "worker_and_above": [],
         "shared": [
           "use_btn",
-          "add_part_btn",
-          "restock_btn"
+          "restock_btn",
+          "add_part_btn"
         ],
         "supervisor": {
           "add_part_btn": true,
