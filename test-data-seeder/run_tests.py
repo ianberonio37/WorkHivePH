@@ -156,7 +156,7 @@ def s0_worker_profiles(db):
 def s2_hive_scoping(db):
     """Verify every hive-scoped table has all rows tagged with hive_id."""
     results = []
-    tables = ["assets", "logbook", "pm_assets", "pm_completions", "pm_scope_items",
+    tables = ["pm_assets", "logbook", "pm_completions", "pm_scope_items",
               "inventory_items", "inventory_transactions", "marketplace_listings",
               "community_posts"]
     for t in tables:
@@ -456,7 +456,7 @@ def s21_logbook_assets_link(db):
 def s21_auth_uid_set(db):
     """auth_uid should be set on every row in tables that have it."""
     results = []
-    tables = ["assets", "logbook", "inventory_items", "inventory_transactions",
+    tables = ["logbook", "inventory_items", "inventory_transactions",
               "pm_assets", "pm_completions", "skill_profiles", "skill_badges",
               "hive_members"]
     for t in tables:

@@ -229,8 +229,22 @@ def phase_ai_deep() -> tuple[bool, dict]:
         warn("Skipping AI loop: Flask not running on :5000")
         return (True, {"summary": "skipped (no Flask)", "lines": []})
 
-    step("Phase 4b: AI Self-Improvement Loop (Playwright + Claude)")
-    rc, summary, lines = run_subprocess([sys.executable, "tools/ai_self_improvement_loop.py"], cwd=ROOT)
+    # Pre-flight check: groq must be importable for the loop's analyze layer
+    try:
+        check = subprocess.run(
+            [sys.executable, "-c", "from groq import Groq"],
+            capture_output=True, timeout=10
+        )
+        if check.returncode != 0:
+            warn("Skipping AI loop: groq not importable in {}".format(sys.executable))
+            warn("Install with: {} -m pip install groq".format(sys.executable))
+            return (True, {"summary": "skipped (no groq)", "lines": []})
+    except Exception as e:
+        warn(f"Skipping AI loop: groq preflight error: {e}")
+        return (True, {"summary": "skipped (preflight failed)", "lines": []})
+
+    step("Phase 4b: AI Self-Improvement Loop (Playwright + Groq)")
+    rc, summary, lines = run_subprocess([sys.executable, "tools/ai_self_improvement_loop.py", "--fast"], cwd=ROOT)
     return (rc == 0, {"summary": summary, "lines": lines})
 
 
