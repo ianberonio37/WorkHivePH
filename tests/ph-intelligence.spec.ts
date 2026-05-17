@@ -5,9 +5,48 @@
  */
 import { test, expect } from './_fixtures';
 import { smokePage } from './_smoke-template';
+import { waitForPageReady } from './_helpers';
 
 test.describe('ph-intelligence.html smoke', () => {
   test('loads and renders without page errors', async ({ whPage }) => {
     await smokePage(whPage, '/workhive/ph-intelligence.html', {});
   });
+});
+
+/* === Sentinel-proposed scenarios (maturity_gating) === */
+test.describe('ph-intelligence.html - sentinel scenarios', () => {
+  const PAGE = '/workhive/ph-intelligence.html';
+
+  test('pages_exist: ph-intelligence.html is reachable', async ({ whPage }) => {
+    const r = await whPage.goto(PAGE);
+    expect(r?.status() ?? 0, 'ph-intelligence.html must return 200').toBe(200);
+  });
+
+  test('script_tag_loaded: maturity-gating script is loaded', async ({ whPage }) => {
+    await whPage.goto(PAGE);
+    await waitForPageReady(whPage);
+    const __sentSrc = await pageSrcWithExternals(whPage);
+    const has = /maturity|maturity_level|maturity_gate|hive_maturity/i.test(__sentSrc);
+    expect(has, 'page should load maturity-gating script').toBeTruthy();
+  });
+
+  test('gate_call_present: maturity gate is actually invoked', async ({ whPage }) => {
+    await whPage.goto(PAGE);
+    await waitForPageReady(whPage);
+    const __sentSrc_2 = await pageSrcWithExternals(whPage);
+    const has = /maturity/i.test(__sentSrc_2);
+    expect(has, 'maturity gate must be referenced').toBeTruthy();
+  });
+
+  test('honest_empty_render: low-maturity hives see an honest empty state', async ({ whPage }) => {
+    await whPage.goto(PAGE);
+    await waitForPageReady(whPage);
+    await whPage.waitForTimeout(2000);
+    const text = await whPage.content();
+    const hasContent = /panel|metric|data/i.test(text);
+    const hasEmpty = /not\s*yet|unlock|maturity|tier|level.*\d/i.test(text);
+    expect(hasContent || hasEmpty,
+      'page should show either content or an honest empty state').toBeTruthy();
+  });
+
 });

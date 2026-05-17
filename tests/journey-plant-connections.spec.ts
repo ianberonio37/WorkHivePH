@@ -176,3 +176,23 @@ test.describe('plant-connections.html — plant connections journey', () => {
     await expect(whPage.locator('body')).toBeVisible();
   });
 });
+
+/* === Sentinel-proposed scenarios (Layer 0 -> Layer 2 bridge) ===
+ * Drafts from /sentinel-review. See sentinel_drafts.md for context.
+ */
+test.describe('plant-connections.html - sentinel scenarios', () => {
+
+  test('enterprise_unlock: supervisor sees the multi-panel plant view (Phase 5)', async ({ whPage }) => {
+    await whPage.goto(PAGE);
+    await waitForPageReady(whPage);
+    await waitForPCContent(whPage);
+    const panels = whPage.locator(
+      '.plant-panel, [data-plant-panel], .sc-card, [class*="card"]'
+    );
+    await expect.poll(
+      async () => await panels.count(),
+      { timeout: 8000, message: 'plant-connections did not render any panels for supervisor' },
+    ).toBeGreaterThanOrEqual(3);
+  });
+
+});

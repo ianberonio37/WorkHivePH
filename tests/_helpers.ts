@@ -99,6 +99,44 @@ export async function assertRowAppears(
   await expect(rowLocator(page).first()).toBeVisible({ timeout: timeoutMs });
 }
 
+/**
+ * Sentinel test helper: return the combined page source INCLUDING the
+ * contents of every external <script src=...> file.
+ *
+ * Background: many Layer 0 validators check for symbols (function names,
+ * constants, regex patterns) in .ts/.js source files. The sentinel test
+ * suite mirrors those checks at runtime - but a browser's
+ * `document.documentElement.outerHTML` only contains INLINE script bodies.
+ * External `<script src=...>` references show up as URLs, not as code.
+ *
+ * This helper fetches each external script the page loads, then concatenates
+ * everything into one string. A test that does `/AbortSignal\.timeout/.test(src)`
+ * will now match whether the symbol lives in inline code or in utils.js.
+ *
+ * Implementation note: fetches use `cache: 'force-cache'` so repeated calls
+ * within one spec hit the browser cache. CDN scripts (jsdelivr etc.) are
+ * skipped to keep runs fast - they're rarely what Layer 0 rules target.
+ */
+export async function pageSrcWithExternals(page: Page): Promise<string> {
+  return await page.evaluate(async () => {
+    const scriptEls = Array.from(document.querySelectorAll('script[src]')) as HTMLScriptElement[];
+    const sameOrigin = (url: string) => {
+      try { return new URL(url, location.href).origin === location.origin; }
+      catch { return false; }
+    };
+    const fetched: string[] = [];
+    for (const s of scriptEls) {
+      const url = s.src;
+      if (!url || !sameOrigin(url)) continue;
+      try {
+        const r = await fetch(url, { cache: 'force-cache' as RequestCache });
+        if (r.ok) fetched.push(await r.text());
+      } catch (_) { /* ignore */ }
+    }
+    return document.documentElement.outerHTML + '\n' + fetched.join('\n');
+  });
+}
+
 /** Wait for the page to finish its first canonical-source read. Pages
  *  that gate UI on identity (localStorage worker + hive) need a beat
  *  before forms are interactive. */

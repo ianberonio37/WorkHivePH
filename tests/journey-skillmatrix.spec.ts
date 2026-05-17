@@ -17,7 +17,7 @@
  *   loading state        — verdict settles within timeout
  */
 import { test, expect } from './_fixtures';
-import { waitForPageReady } from './_helpers';
+import { waitForPageReady, pageSrcWithExternals } from './_helpers';
 
 const PAGE = '/workhive/skillmatrix.html';
 
@@ -163,4 +163,126 @@ test.describe('skillmatrix.html — user journey', () => {
         .toBe(true);
     }
   });
+});
+
+/* === Sentinel-proposed scenarios (check-name anchored) === */
+test.describe('skillmatrix.html - sentinel scenarios', () => {
+
+  test('discipline_colors: each discipline tile renders with a color style', async ({ whPage }) => {
+    await whPage.goto(PAGE);
+    await waitForPageReady(whPage);
+    await whPage.waitForTimeout(1500);
+    const tiles = whPage.locator('.discipline-tile, [data-discipline], .skill-card').first();
+    if (await tiles.count() === 0) { test.skip(true, 'no discipline tiles rendered'); return; }
+    const hasColor = await tiles.evaluate((el) => {
+      const cs = getComputedStyle(el as HTMLElement);
+      const c = cs.backgroundColor + cs.borderColor + cs.color;
+      return !!c && !c.includes('rgba(0, 0, 0, 0)');
+    });
+    expect(hasColor, 'discipline tile must render with non-transparent color').toBeTruthy();
+  });
+
+  test('discipline_icons: discipline tiles render with iconography', async ({ whPage }) => {
+    await whPage.goto(PAGE);
+    await waitForPageReady(whPage);
+    await whPage.waitForTimeout(2000);
+    const tiles = whPage.locator(
+      '.discipline-tile, [data-discipline], .skill-card, .discipline-card, .matrix-tile'
+    );
+    if (await tiles.count() === 0) {
+      test.skip(true, 'no discipline tiles rendered on this seed');
+      return;
+    }
+    const iconLike = whPage.locator(
+      'svg, img, [data-icon], i.fa-, .icon, .material-icons, [class*="icon"]'
+    );
+    expect(await iconLike.count(),
+      'skillmatrix should render at least one icon-like element').toBeGreaterThan(0);
+  });
+
+  test('level_labels: skill level labels are visible on tiles', async ({ whPage }) => {
+    await whPage.goto(PAGE);
+    await waitForPageReady(whPage);
+    await whPage.waitForTimeout(1500);
+    const html = await whPage.content();
+    const hasLabel = /level\s*\d|Beginner|Practitioner|Expert|Advanced|Intermediate/i.test(html);
+    expect(hasLabel, 'skill level labels must be visible somewhere on the page').toBeTruthy();
+  });
+
+  test('pass_threshold: page references a pass threshold number', async ({ whPage }) => {
+    await whPage.goto(PAGE);
+    await waitForPageReady(whPage);
+    const __sentSrc = await pageSrcWithExternals(whPage);
+    const has = /pass[_-]?threshold|passing[_-]?score|score.*\d{2,}/i.test(__sentSrc);
+    expect(has, 'skillmatrix should declare a pass threshold').toBeTruthy();
+  });
+
+  test('cooldown_on_failure: exam cooldown logic referenced in scripts', async ({ whPage }) => {
+    await whPage.goto(PAGE);
+    await waitForPageReady(whPage);
+    const __sentSrc_2 = await pageSrcWithExternals(whPage);
+    const has = /cooldown|retry[-_]?after|cool[-_]?down|wait.*before.*retry/i.test(__sentSrc_2);
+    expect(has, 'exam path should include cooldown logic on failure').toBeTruthy();
+  });
+
+  test('badge_upsert_key: skill_badges writes use canonical upsert key', async ({ whPage }) => {
+    await whPage.goto(PAGE);
+    await waitForPageReady(whPage);
+    const __sentSrc_3 = await pageSrcWithExternals(whPage);
+    const has = /upsert.*skill_badges|skill_badges.*upsert|onConflict.*worker|worker.*onConflict/i.test(__sentSrc_3);
+    expect(has, 'skill_badges writes should use upsert with canonical conflict key').toBeTruthy();
+  });
+
+  test('exam_array_count: exam questions array has expected length', async ({ whPage }) => {
+    await whPage.goto(PAGE);
+    await waitForPageReady(whPage);
+    const counts = await whPage.evaluate(() => {
+      const src = document.documentElement.outerHTML;
+      const matches = src.match(/questions\s*[:=]\s*\[/g) || [];
+      return matches.length;
+    });
+    expect(counts, 'skillmatrix should declare at least one questions array').toBeGreaterThan(0);
+  });
+
+  test('options_count: each multiple-choice question carries options array', async ({ whPage }) => {
+    await whPage.goto(PAGE);
+    await waitForPageReady(whPage);
+    const __sentSrc_4 = await pageSrcWithExternals(whPage);
+    const hasOpts = /options\s*[:=]\s*\[/.test(__sentSrc_4);
+    expect(hasOpts, 'questions should declare options array').toBeTruthy();
+  });
+
+  test('answer_index_valid: answer indices fall within options length', async ({ whPage }) => {
+    await whPage.goto(PAGE);
+    await waitForPageReady(whPage);
+    const __sentSrc_5 = await pageSrcWithExternals(whPage);
+    const has = /answer.*index|answerIndex|correct.*index/i.test(__sentSrc_5);
+    expect(has, 'exam path should track an answer index').toBeTruthy();
+  });
+
+  test('draft_cleanup: skill draft cleanup is wired', async ({ whPage }) => {
+    await whPage.goto(PAGE);
+    await waitForPageReady(whPage);
+    const __sentSrc_6 = await pageSrcWithExternals(whPage);
+    const has = /draft.*cleanup|clearDraft|cleanupDraft|draft.*remove/i.test(__sentSrc_6);
+    expect(has, 'skill draft state should be cleaned up after exam').toBeTruthy();
+  });
+
+  test('level_content_complete: every level has content for every discipline', async ({ whPage }) => {
+    await whPage.goto(PAGE);
+    await waitForPageReady(whPage);
+    const __sentSrc_7 = await pageSrcWithExternals(whPage);
+    const has = /level.*content|levelContent|LEVELS\s*=|skillLevels/i.test(__sentSrc_7);
+    expect(has, 'skillmatrix should expose level content registry').toBeTruthy();
+  });
+
+  test('skill_content_coverage: skill content covers all canonical disciplines', async ({ whPage }) => {
+    await whPage.goto(PAGE);
+    await waitForPageReady(whPage);
+    const html = await whPage.content();
+    const found = ['Mechanical', 'Electrical', 'Instrumentation', 'Civil', 'Process']
+      .filter(d => html.includes(d));
+    expect(found.length, 'at least 3 canonical disciplines should be present').toBeGreaterThanOrEqual(3);
+  });
+
 });

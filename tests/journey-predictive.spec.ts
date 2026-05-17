@@ -12,7 +12,7 @@
  *   console errors  — no JS errors
  */
 import { test, expect } from './_fixtures';
-import { waitForPageReady } from './_helpers';
+import { waitForPageReady, pageSrcWithExternals } from './_helpers';
 
 const PAGE = '/workhive/predictive.html';
 
@@ -131,4 +131,65 @@ test.describe('predictive.html — predictive maintenance journey', () => {
       expect(detailOpen + (onAssetHub ? 1 : 0), 'asset link should navigate or open detail').toBeGreaterThan(0);
     }
   });
+});
+
+/* === Sentinel-proposed scenarios (check-name anchored) === */
+test.describe('predictive.html - sentinel scenarios', () => {
+
+  test('mtbf_filters: page references MTBF filter logic', async ({ whPage }) => {
+    await whPage.goto(PAGE);
+    await waitForPageReady(whPage);
+    const __sentSrc = await pageSrcWithExternals(whPage);
+    const has = /MTBF|mean[_-]?time[_-]?between/i.test(__sentSrc);
+    expect(has, 'predictive should reference MTBF').toBeTruthy();
+  });
+
+  test('mtbf_min_count: MTBF computation guards against low sample size', async ({ whPage }) => {
+    await whPage.goto(PAGE);
+    await waitForPageReady(whPage);
+    const __sentSrc_2 = await pageSrcWithExternals(whPage);
+    const has = /min[_-]?count|min[_-]?samples|sample[_-]?size|n\s*<\s*\d+/i.test(__sentSrc_2);
+    expect(has, 'MTBF path should guard against tiny sample sizes').toBeTruthy();
+  });
+
+  test('mttr_positive_filter: MTTR filters non-positive durations', async ({ whPage }) => {
+    await whPage.goto(PAGE);
+    await waitForPageReady(whPage);
+    const __sentSrc_3 = await pageSrcWithExternals(whPage);
+    const has = /MTTR|mean[_-]?time[_-]?to[_-]?repair|positive[_-]?duration/i.test(__sentSrc_3);
+    expect(has, 'predictive should reference MTTR with positive-duration guard').toBeTruthy();
+  });
+
+  test('downtime_cap: downtime computation caps outliers', async ({ whPage }) => {
+    await whPage.goto(PAGE);
+    await waitForPageReady(whPage);
+    const __sentSrc_4 = await pageSrcWithExternals(whPage);
+    const has = /downtime[_-]?cap|cap[_-]?downtime|Math\.min.*downtime|clamp.*downtime/i.test(__sentSrc_4);
+    expect(has, 'downtime computation should be capped against outliers').toBeTruthy();
+  });
+
+  test('failure_consequence_adoption: failure consequence field is used', async ({ whPage }) => {
+    await whPage.goto(PAGE);
+    await waitForPageReady(whPage);
+    const __sentSrc_5 = await pageSrcWithExternals(whPage);
+    const has = /consequence|failure[_-]?mode|risk[_-]?ranking/i.test(__sentSrc_5);
+    expect(has, 'predictive should reference failure consequence').toBeTruthy();
+  });
+
+  test('cache_ttl: predictive UI references a cache TTL', async ({ whPage }) => {
+    await whPage.goto(PAGE);
+    await waitForPageReady(whPage);
+    const __sentSrc_6 = await pageSrcWithExternals(whPage);
+    const has = /cache.*ttl|ttl.*cache|cacheTimeout|CACHE_TTL/i.test(__sentSrc_6);
+    expect(has, 'predictive should declare cache TTL').toBeTruthy();
+  });
+
+  test('python_corrective_filter: predictive uses corrective filter on logbook', async ({ whPage }) => {
+    await whPage.goto(PAGE);
+    await waitForPageReady(whPage);
+    const __sentSrc_7 = await pageSrcWithExternals(whPage);
+    const has = /corrective|Breakdown.*Corrective|maintenance_type.*Breakdown/i.test(__sentSrc_7);
+    expect(has, 'predictive should filter to corrective entries').toBeTruthy();
+  });
+
 });

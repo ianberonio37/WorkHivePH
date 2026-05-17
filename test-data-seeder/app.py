@@ -2359,6 +2359,112 @@ def api_lineage_scan():
         return jsonify({"ok": False, "error": f"{type(e).__name__}: {e}"}), 500
 
 
+@app.route("/sentinel/coverage")
+def sentinel_coverage_endpoint():
+    """Serve sentinel_coverage_report.json for the Tester UI bridge card.
+
+    The Sentinel Review card on the index page fetches this and surfaces the
+    raw / effective coverage numbers, per-page gaps, and Layer-0-owned count.
+    Falls back to a stale-but-readable response if the report is missing.
+    """
+    from flask import jsonify
+    report_path = WORKHIVE_ROOT / "sentinel_coverage_report.json"
+    if not report_path.exists():
+        return jsonify({
+            "available": False,
+            "message": "Run `python run_sentinel_review.py` to generate the report.",
+        }), 200
+    try:
+        data = json.loads(report_path.read_text(encoding="utf-8"))
+        return jsonify(data), 200
+    except (OSError, json.JSONDecodeError) as e:
+        return jsonify({"available": False, "error": str(e)}), 200
+
+
+@app.route("/sentinel/history")
+def sentinel_history_endpoint():
+    """Serve recent sentinel coverage history (last N runs) for the climb chart.
+
+    Reads sentinel_history.jsonl (one JSON object per line). Returns the most
+    recent 50 entries to keep the chart tight. The Tester UI renders an inline
+    SVG sparkline from this data so progress is visible at a glance.
+    """
+    from flask import jsonify, request
+    history_path = WORKHIVE_ROOT / "sentinel_history.jsonl"
+    limit = int(request.args.get("limit", "50"))
+    if not history_path.exists():
+        return jsonify({"available": False, "entries": []}), 200
+    try:
+        lines = history_path.read_text(encoding="utf-8").strip().splitlines()
+        entries = []
+        for line in lines[-limit:]:
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                entries.append(json.loads(line))
+            except json.JSONDecodeError:
+                continue
+        return jsonify({"available": True, "entries": entries}), 200
+    except OSError as e:
+        return jsonify({"available": False, "error": str(e)}), 200
+
+
+@app.route("/sentinel/baseline")
+def sentinel_baseline_endpoint():
+    """Serve sentinel_baseline.json for the Overview pane KPI strip.
+    Returns the locked baseline numbers so the dashboard can show
+    'current % vs baseline %' at a glance."""
+    from flask import jsonify
+    bp = WORKHIVE_ROOT / "sentinel_baseline.json"
+    if not bp.exists():
+        return jsonify({"available": False, "message": "no baseline locked yet"}), 200
+    try:
+        return jsonify(json.loads(bp.read_text(encoding="utf-8"))), 200
+    except (OSError, json.JSONDecodeError) as e:
+        return jsonify({"available": False, "error": str(e)}), 200
+
+
+@app.route("/sentinel/run", methods=["POST"])
+def sentinel_run_endpoint():
+    """Kick off `python run_sentinel_review.py` from the Tester UI button.
+
+    Runs synchronously (the full sentinel sweep is ~1-15s deterministic, plus
+    Playwright spec discovery). Returns the regenerated coverage summary so
+    the card can refresh its numbers immediately. The history file gets a
+    new entry as a side effect, so the climb chart also updates.
+    """
+    from flask import jsonify
+    import subprocess
+    script = WORKHIVE_ROOT / "run_sentinel_review.py"
+    if not script.exists():
+        return jsonify({"ok": False, "error": "run_sentinel_review.py not found"}), 200
+    try:
+        result = subprocess.run(
+            [sys.executable, "-u", str(script)],
+            cwd=str(WORKHIVE_ROOT),
+            capture_output=True, text=True, timeout=300,
+            encoding="utf-8", errors="replace",
+        )
+        cov_path = WORKHIVE_ROOT / "sentinel_coverage_report.json"
+        summary = None
+        if cov_path.exists():
+            try:
+                summary = json.loads(cov_path.read_text(encoding="utf-8")).get("summary")
+            except (OSError, json.JSONDecodeError):
+                summary = None
+        return jsonify({
+            "ok": result.returncode == 0,
+            "exit_code": result.returncode,
+            "summary": summary,
+            "stderr": result.stderr[-500:] if result.returncode != 0 else "",
+        }), 200
+    except subprocess.TimeoutExpired:
+        return jsonify({"ok": False, "error": "timeout after 300s"}), 200
+    except OSError as e:
+        return jsonify({"ok": False, "error": str(e)}), 200
+
+
 @app.route("/findings")
 def findings_view():
     """Render PRODUCTION_FIXES.md as styled HTML using marked.js."""

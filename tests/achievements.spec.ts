@@ -5,9 +5,73 @@
  */
 import { test, expect } from './_fixtures';
 import { smokePage } from './_smoke-template';
+import { waitForPageReady, pageSrcWithExternals } from './_helpers';
+import { adminClient } from './_db-cleanup';
 
 test.describe('achievements.html smoke', () => {
   test('loads and renders without page errors', async ({ whPage }) => {
     await smokePage(whPage, '/workhive/achievements.html', {});
   });
+});
+
+/* === Sentinel-proposed scenarios (check-name anchored) === */
+test.describe('achievements.html - sentinel scenarios', () => {
+  const PAGE = '/workhive/achievements.html';
+
+  test('l1: layer-1 (achievement_definitions table) is populated', async () => {
+    const db = adminClient();
+    const { count } = await db.from('achievement_definitions')
+      .select('id', { count: 'exact', head: true });
+    expect((count ?? 0), 'achievement_definitions table must have rows').toBeGreaterThan(0);
+  });
+
+  test('l2: layer-2 (worker_achievements writes wired in scripts)', async ({ whPage }) => {
+    await whPage.goto(PAGE);
+    await waitForPageReady(whPage);
+    const __sentSrc = await pageSrcWithExternals(whPage);
+    const has = /worker_achievements/i.test(__sentSrc);
+    expect(has, 'achievements.html should reference worker_achievements').toBeTruthy();
+  });
+
+  test('l3_worker_ach: at least one worker achievement card renders', async ({ whPage }) => {
+    await whPage.goto(PAGE);
+    await waitForPageReady(whPage);
+    await whPage.waitForTimeout(1500);
+    const card = whPage.locator('.ach-card, .achievement-card, [data-achievement]').first();
+    if (await card.count() === 0) { test.skip(true, 'no achievement cards rendered'); return; }
+    await expect(card).toBeAttached();
+  });
+
+  test('l3_xp_log: xp_log table is referenced and active', async ({ whPage }) => {
+    await whPage.goto(PAGE);
+    await waitForPageReady(whPage);
+    const __sentSrc_2 = await pageSrcWithExternals(whPage);
+    const has = /xp_log|xp[_-]?event|XP[\s_-]?log|xpLog/i.test(__sentSrc_2);
+    expect(has, 'achievements page should reference xp_log mechanism').toBeTruthy();
+    try {
+      const db = adminClient();
+      const { count } = await db.from('xp_log').select('id', { count: 'exact', head: true });
+      expect((count ?? 0) >= 0, 'xp_log table queryable').toBeTruthy();
+    } catch (_) {
+      // table may not exist in all seeds; the script-reference check above is the primary signal
+    }
+  });
+
+  test('l4: layer-4 (badges/progress) renders', async ({ whPage }) => {
+    await whPage.goto(PAGE);
+    await waitForPageReady(whPage);
+    await whPage.waitForTimeout(1500);
+    const text = await whPage.content();
+    expect(text, 'achievements should display badges/progress markers')
+      .toMatch(/badge|progress|level|XP|points/i);
+  });
+
+  test('l5: layer-5 (leaderboard or ranking) surface exists', async ({ whPage }) => {
+    await whPage.goto(PAGE);
+    await waitForPageReady(whPage);
+    const text = await whPage.content();
+    expect(text, 'achievements should expose a ranking surface')
+      .toMatch(/leader|rank|top|standing|streak/i);
+  });
+
 });

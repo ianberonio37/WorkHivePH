@@ -12,7 +12,7 @@
  *   console errors  — no JS errors on load
  */
 import { test, expect } from './_fixtures';
-import { waitForPageReady } from './_helpers';
+import { waitForPageReady, pageSrcWithExternals } from './_helpers';
 
 const PAGE = '/workhive/engineering-design.html';
 
@@ -149,4 +149,97 @@ test.describe('engineering-design.html — calculator journey', () => {
       await expect(whPage.locator('body')).toBeVisible();
     }
   });
+});
+
+/* === Sentinel-proposed scenarios (check-name anchored) === */
+test.describe('engineering-design.html - sentinel scenarios', () => {
+
+  test('canvas_ratio: SVG diagram canvas uses canonical aspect ratio', async ({ whPage }) => {
+    await whPage.goto(PAGE);
+    await waitForPageReady(whPage);
+    await whPage.waitForTimeout(1500);
+    const svg = whPage.locator('svg.calc-diagram, svg[viewBox]').first();
+    if (await svg.count() === 0) { test.skip(true, 'no diagram rendered yet'); return; }
+    const viewBox = await svg.getAttribute('viewBox');
+    expect(viewBox, 'SVG must declare a viewBox').toBeTruthy();
+    const parts = (viewBox || '').split(/\s+/).map(Number);
+    expect(parts.length, 'viewBox should have 4 numbers').toBe(4);
+    const ratio = parts[2] / parts[3];
+    expect(ratio > 0.4 && ratio < 5,
+      'canvas aspect ratio within drawing-standards range').toBeTruthy();
+  });
+
+  test('canvas_width: SVG diagram width is a positive integer', async ({ whPage }) => {
+    await whPage.goto(PAGE);
+    await waitForPageReady(whPage);
+    await whPage.waitForTimeout(1500);
+    const svg = whPage.locator('svg.calc-diagram, svg[viewBox]').first();
+    if (await svg.count() === 0) { test.skip(true, 'no diagram'); return; }
+    const viewBox = await svg.getAttribute('viewBox');
+    const parts = (viewBox || '').split(/\s+/).map(Number);
+    expect(parts[2], 'canvas width > 0').toBeGreaterThan(0);
+  });
+
+  test('viewbox_uses_wh: SVG viewBox has 4 components (x y w h)', async ({ whPage }) => {
+    await whPage.goto(PAGE);
+    await waitForPageReady(whPage);
+    await whPage.waitForTimeout(1500);
+    const svg = whPage.locator('svg[viewBox]').first();
+    if (await svg.count() === 0) { test.skip(true, 'no diagram'); return; }
+    const vb = await svg.getAttribute('viewBox');
+    expect((vb || '').split(/\s+/).length, 'viewBox = 4 components').toBe(4);
+  });
+
+  test('outer_border_thickness: SVG diagrams render an outer border', async ({ whPage }) => {
+    await whPage.goto(PAGE);
+    await waitForPageReady(whPage);
+    await whPage.waitForTimeout(1500);
+    const border = whPage.locator('svg rect.outer-border, svg rect[stroke-width]').first();
+    if (await border.count() === 0) { test.skip(true, 'no rendered diagram'); return; }
+    const sw = await border.getAttribute('stroke-width');
+    expect(parseFloat(sw || '0'), 'positive stroke-width').toBeGreaterThan(0);
+  });
+
+  test('header_separator_line: title block has a header separator', async ({ whPage }) => {
+    await whPage.goto(PAGE);
+    await waitForPageReady(whPage);
+    await whPage.waitForTimeout(1500);
+    const sep = whPage.locator('svg line.header-sep, svg .title-block line, svg line[y1][y2]').first();
+    if (await sep.count() === 0) { test.skip(true, 'no title block'); return; }
+    await expect(sep).toBeAttached();
+  });
+
+  test('title_block_ef: title block has E/F-format fields', async ({ whPage }) => {
+    await whPage.goto(PAGE);
+    await waitForPageReady(whPage);
+    await whPage.waitForTimeout(1500);
+    const has = await whPage.evaluate(() => {
+      const svg = document.querySelector('svg.calc-diagram, svg[viewBox]');
+      if (!svg) return false;
+      const t = svg.textContent || '';
+      return /Project|Drawing\s*No|Date|Drawn|Rev/i.test(t);
+    });
+    if (!has) { test.skip(true, 'no rendered title-block fields'); return; }
+    expect(has, 'title block E/F-format fields').toBeTruthy();
+  });
+
+  test('arc_safety: SVG arc commands are well-formed', async ({ whPage }) => {
+    await whPage.goto(PAGE);
+    await waitForPageReady(whPage);
+    await whPage.waitForTimeout(1500);
+    const malformed = await whPage.evaluate(() => {
+      const paths = Array.from(document.querySelectorAll('svg path[d]'));
+      return paths.some(p => /[Aa]\s*[^\d.\-\s,]/.test(p.getAttribute('d') || ''));
+    });
+    expect(malformed, 'no malformed arc commands').toBe(false);
+  });
+
+  test('all_builders_covered: page declares a diagram builder reference', async ({ whPage }) => {
+    await whPage.goto(PAGE);
+    await waitForPageReady(whPage);
+    const __sentSrc = await pageSrcWithExternals(whPage);
+    const has = /buildDiagram|drawDiagram|renderDiagram|builderFor|DIAGRAM_BUILDERS/i.test(__sentSrc);
+    expect(has, 'engineering-design should declare diagram builders').toBeTruthy();
+  });
+
 });

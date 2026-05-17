@@ -1122,6 +1122,78 @@
     <!-- Layer breakdown bars -->
     <div id="layer-bars" style="margin-top:18px; display:flex; flex-direction:column; gap:8px;"></div>
 
+    <!-- Sentinel coverage strip (Layer 0 -> Layer 2 bridge KPIs) -->
+    <div id="sentinel-overview-strip" style="margin-top:18px; padding:12px 14px; background:rgba(74,222,128,0.04); border:1px solid rgba(74,222,128,0.18); border-radius:8px;"
+         data-tip-title="🛰️ Sentinel Coverage (L0 → L2)"
+         data-tip="For every Layer 0 validator, the sentinel asks: is there a Playwright spec that exercises the rule? The behavioral % is the honest number — UI-observable rules with a passing test() block."
+         data-tip-foot="Click → jumps to the Run Tests pane where the Sentinel Review card lives. Drops below baseline fail the Mega Gate via validate_sentinel_baseline.py.">
+      <div style="display:flex; align-items:baseline; justify-content:space-between; margin-bottom:8px;">
+        <div style="font-size:0.7rem; color:rgba(255,255,255,0.55); text-transform:uppercase; letter-spacing:0.06em;">🛰️ Sentinel Coverage <span style="margin-left:6px; padding:1px 6px; background:rgba(74,222,128,0.18); border:1px solid rgba(74,222,128,0.3); border-radius:99px; font-size:0.55rem; color:#4ade80; font-weight:600;">L0 → L2</span></div>
+        <a href="#" id="sentinel-overview-jump" style="font-size:0.65rem; color:#4ade80; text-decoration:none;">open the bridge card →</a>
+      </div>
+      <div style="display:flex; gap:14px; flex-wrap:wrap;">
+        <div style="flex:1; min-width:120px;">
+          <div id="ov-sentinel-behavioral" style="font-size:1.4rem; font-weight:700; color:#4ade80; line-height:1;">—</div>
+          <div style="font-size:0.65rem; color:rgba(255,255,255,0.4); margin-top:3px;">behavioral coverage</div>
+        </div>
+        <div style="flex:1; min-width:120px;">
+          <div id="ov-sentinel-baseline" style="font-size:1rem; font-weight:600; color:rgba(255,255,255,0.85); line-height:1;">—</div>
+          <div style="font-size:0.65rem; color:rgba(255,255,255,0.4); margin-top:3px;">baseline (locked)</div>
+        </div>
+        <div style="flex:1; min-width:120px;">
+          <div id="ov-sentinel-gaps" style="font-size:1rem; font-weight:600; color:#F7A21B; line-height:1;">—</div>
+          <div style="font-size:0.65rem; color:rgba(255,255,255,0.4); margin-top:3px;">uncovered behavioral rules</div>
+        </div>
+        <div style="flex:1; min-width:160px;">
+          <div id="ov-sentinel-trend" style="font-size:0.9rem; font-weight:600; color:rgba(255,255,255,0.85); line-height:1;">—</div>
+          <div style="font-size:0.65rem; color:rgba(255,255,255,0.4); margin-top:3px;">trend (last 5 runs)</div>
+        </div>
+      </div>
+    </div>
+    <script>
+    (function loadSentinelOverview() {
+      const set = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+      Promise.all([
+        fetch('/sentinel/coverage', { cache: 'no-store' }).then(r => r.ok ? r.json() : null).catch(() => null),
+        fetch('/sentinel/history?limit=5', { cache: 'no-store' }).then(r => r.ok ? r.json() : null).catch(() => null),
+      ]).then(([cov, hist]) => {
+        if (cov && cov.summary) {
+          const s = cov.summary;
+          set('ov-sentinel-behavioral', (s.behavioral_coverage_pct ?? '?') + '%');
+          const uncov = (s.total_per_page_behavioral_checks ?? 0) - (s.covered_per_page_behavioral_checks ?? 0);
+          set('ov-sentinel-gaps', String(uncov));
+        }
+        if (hist && hist.entries && hist.entries.length) {
+          const pts = hist.entries.map(e => e.behavioral_pct ?? 0);
+          const first = pts[0], last = pts[pts.length - 1];
+          const arrow = last > first ? '↑' : last < first ? '↓' : '→';
+          const color = last > first ? '#4ade80' : last < first ? '#F87171' : 'rgba(255,255,255,0.6)';
+          const el = document.getElementById('ov-sentinel-trend');
+          if (el) {
+            el.innerHTML = `<span style="color:${color}">${arrow}</span> ${first}% → ${last}%`;
+          }
+        }
+      });
+      fetch('/sentinel/baseline', { cache: 'no-store' }).then(r => r.ok ? r.json() : null).catch(() => null).then(b => {
+        if (b && b.metrics) {
+          set('ov-sentinel-baseline', (b.metrics.behavioral_coverage_pct ?? '?') + '%');
+        }
+      });
+      const jumpLink = document.getElementById('sentinel-overview-jump');
+      if (jumpLink) {
+        jumpLink.addEventListener('click', (e) => {
+          e.preventDefault();
+          const runBtn = document.querySelector('.sidebar-link[data-pane="run"]');
+          if (runBtn) runBtn.click();
+          setTimeout(() => {
+            const card = document.querySelector('.hardening-loop-card[data-tip-title*="Sentinel"]');
+            if (card) card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }, 100);
+        });
+      }
+    })();
+    </script>
+
     <!-- Trend alerts (Phase 13) — only renders when alerts exist -->
     <div id="trends-card" style="margin-top:14px; display:none; flex-direction:column; gap:6px;"></div>
 
@@ -1412,6 +1484,290 @@
       </details>
     </div>
   </div>
+
+  <!-- ═══ SENTINEL REVIEW (the bridge from Layer 0 back to Layer 2) ═══ -->
+  <div class="card hardening-loop-card"
+       style="border-style: dashed; border-color: rgba(74,222,128,0.35);"
+       data-tip-title="🛰️ Sentinel Review"
+       data-tip="The second bridge - opposite direction. The Hardening Loop carries lessons UP (L2 -> L0). The Sentinel Review carries lessons DOWN (L0 -> L2): for each validator with no behavioral test, the sentinels propose a Playwright scenario."
+       data-tip-foot="✅ TO INVOKE: type `/sentinel-review` in Claude Code.&#10;💡 Standing rule: invoke after any `/harden` run to flow the new validator into Layer 2.">
+    <div class="section-head-row" style="border-bottom: 1px dashed rgba(74,222,128,0.3);">
+      <h3 class="action-section-title" style="color: #4ade80;">🛰️ Sentinel Review <span style="font-size:0.65rem; font-weight:600; padding:2px 8px; background:rgba(74,222,128,0.15); border:1px solid rgba(74,222,128,0.3); border-radius:99px; vertical-align:middle; margin-left:6px; letter-spacing:0.02em;">BRIDGE</span></h3>
+      <span class="action-section-hint">The other-direction bridge: Layer 0 → Layer 2.</span>
+    </div>
+    <div class="hardening-body" style="padding: 14px 4px 4px; font-size: 0.78rem; color: rgba(255,255,255,0.7); line-height: 1.55;">
+      For every new validator, the sentinels ask: <i>does a Playwright spec actually exercise this rule?</i> If not, propose one.
+      <div class="loop-flow" style="display:flex; flex-wrap:wrap; gap:8px; margin: 12px 0; align-items:center;">
+        <span class="loop-step" style="padding:5px 10px; background:rgba(74,222,128,0.1); border:1px solid rgba(74,222,128,0.3); border-radius:6px; font-size:0.72rem; color:#4ade80;">1. New validator</span>
+        <span style="color:rgba(255,255,255,0.3); font-size:0.85rem;">→</span>
+        <span class="loop-step" style="padding:5px 10px; background:rgba(74,222,128,0.08); border:1px solid rgba(74,222,128,0.25); border-radius:6px; font-size:0.72rem; color:#4ade80;">2. Classify (per-page / platform-wide / infra)</span>
+        <span style="color:rgba(255,255,255,0.3); font-size:0.85rem;">→</span>
+        <span class="loop-step" style="padding:5px 10px; background:rgba(74,222,128,0.08); border:1px solid rgba(74,222,128,0.25); border-radius:6px; font-size:0.72rem; color:#4ade80;">3. Propose scenario</span>
+        <span style="color:rgba(255,255,255,0.3); font-size:0.85rem;">→</span>
+        <span class="loop-step" style="padding:5px 10px; background:rgba(74,222,128,0.08); border:1px solid rgba(74,222,128,0.25); border-radius:6px; font-size:0.72rem; color:#4ade80;">4. Human review</span>
+        <span style="color:rgba(255,255,255,0.3); font-size:0.85rem;">→</span>
+        <span class="loop-step" style="padding:5px 10px; background:rgba(41,182,217,0.1); border:1px solid rgba(41,182,217,0.3); border-radius:6px; font-size:0.72rem; color:#29B6D9;">5. Land in tests/ (Layer 2 smarter)</span>
+      </div>
+      <div id="sentinel-stats" style="display:flex; gap:14px; flex-wrap:wrap; margin-top:14px; padding-top:12px; border-top: 1px solid rgba(255,255,255,0.06);">
+        <div style="flex:1; min-width:160px; padding:8px 10px; background:rgba(74,222,128,0.04); border:1px solid rgba(74,222,128,0.18); border-radius:6px;">
+          <div style="font-size:0.7rem; color:#4ade80; text-transform:uppercase; letter-spacing:0.05em; margin-bottom:4px; font-weight:600;">Behavioral coverage <span style="font-size:0.6rem; padding:1px 5px; background:rgba(74,222,128,0.2); border-radius:3px; vertical-align:middle;">100% TARGET</span></div>
+          <div id="sentinel-behavioral" style="font-size:1.25rem; color:#4ade80; font-weight:700;">—</div>
+          <div id="sentinel-behavioral-detail" style="font-size:0.65rem; color:rgba(255,255,255,0.5);">UI-observable rules tested</div>
+        </div>
+        <div style="flex:1; min-width:140px;">
+          <div style="font-size:0.7rem; color:rgba(255,255,255,0.45); text-transform:uppercase; letter-spacing:0.05em; margin-bottom:4px;">All checks</div>
+          <div id="sentinel-check" style="font-size:1.1rem; color:rgba(255,255,255,0.85); font-weight:600;">—</div>
+          <div id="sentinel-check-detail" style="font-size:0.65rem; color:rgba(255,255,255,0.4);">includes structural (Layer 0 also owns)</div>
+        </div>
+        <div style="flex:1; min-width:140px;">
+          <div style="font-size:0.7rem; color:rgba(255,255,255,0.45); text-transform:uppercase; letter-spacing:0.05em; margin-bottom:4px;">Topic coverage</div>
+          <div id="sentinel-eff" style="font-size:1.1rem; color:rgba(255,255,255,0.85); font-weight:600;">—</div>
+          <div style="font-size:0.65rem; color:rgba(255,255,255,0.4);">validators with >=1 test (loose)</div>
+        </div>
+        <div style="flex:1; min-width:140px;">
+          <div style="font-size:0.7rem; color:rgba(255,255,255,0.45); text-transform:uppercase; letter-spacing:0.05em; margin-bottom:4px;">Raw coverage</div>
+          <div id="sentinel-raw" style="font-size:1.1rem; color:rgba(255,255,255,0.65); font-weight:600;">—</div>
+          <div style="font-size:0.65rem; color:rgba(255,255,255,0.4);">all 178 validators</div>
+        </div>
+        <div style="flex:1; min-width:140px;">
+          <div style="font-size:0.7rem; color:rgba(255,255,255,0.45); text-transform:uppercase; letter-spacing:0.05em; margin-bottom:4px;">Uncovered checks</div>
+          <div id="sentinel-gaps" style="font-size:1.1rem; color:#F7A21B; font-weight:600;">—</div>
+          <div id="sentinel-gaps-detail" style="font-size:0.65rem; color:rgba(255,255,255,0.4);">individual rules to test</div>
+        </div>
+        <div style="flex:1; min-width:140px;">
+          <div style="font-size:0.7rem; color:rgba(255,255,255,0.45); text-transform:uppercase; letter-spacing:0.05em; margin-bottom:4px;">Layer 0 owned</div>
+          <div id="sentinel-owned" style="font-size:1.1rem; color:rgba(255,255,255,0.65); font-weight:600;">—</div>
+          <div style="font-size:0.65rem; color:rgba(255,255,255,0.4);">platform-wide + infra</div>
+        </div>
+      </div>
+      <div style="display:flex; gap:14px; flex-wrap:wrap; margin-top:14px; padding-top:12px; border-top: 1px solid rgba(255,255,255,0.06); align-items:flex-start;">
+        <div style="flex:1; min-width:280px;">
+          <div style="font-size:0.7rem; color:rgba(255,255,255,0.45); text-transform:uppercase; letter-spacing:0.05em; margin-bottom:6px;">Climb (behavioral % over recent runs)</div>
+          <div id="sentinel-chart-host" style="background:rgba(0,0,0,0.25); border:1px solid rgba(74,222,128,0.12); border-radius:6px; padding:8px;">
+            <svg id="sentinel-sparkline" width="100%" height="50" viewBox="0 0 200 50" preserveAspectRatio="none" style="display:block;">
+              <text x="100" y="28" text-anchor="middle" font-size="9" fill="rgba(255,255,255,0.4)">loading history...</text>
+            </svg>
+          </div>
+          <div id="sentinel-chart-meta" style="font-size:0.65rem; color:rgba(255,255,255,0.4); margin-top:4px;"></div>
+        </div>
+        <div style="flex:0 0 200px; display:flex; flex-direction:column; gap:6px;">
+          <button id="sentinel-run-btn" style="background:rgba(74,222,128,0.12); border:1px solid rgba(74,222,128,0.35); color:#4ade80; padding:8px 12px; border-radius:6px; cursor:pointer; font-weight:600; font-size:0.78rem;">
+            🛰️ Run Sentinel Now
+          </button>
+          <div id="sentinel-run-status" style="font-size:0.65rem; color:rgba(255,255,255,0.5); min-height:14px;"></div>
+        </div>
+      </div>
+      <div style="display:flex; gap:14px; flex-wrap:wrap; margin-top:14px; padding-top:12px; border-top: 1px solid rgba(255,255,255,0.06);">
+        <div style="flex:1; min-width:200px;">
+          <div style="font-size:0.7rem; color:rgba(255,255,255,0.45); text-transform:uppercase; letter-spacing:0.05em; margin-bottom:4px;">How to invoke</div>
+          <div style="font-size:0.75rem;">In Claude Code, type <code style="background:rgba(74,222,128,0.12); padding:1px 6px; border-radius:4px; color:#4ade80;">/sentinel-review</code>, run <code>python run_sentinel_review.py</code>, or click "Run Sentinel Now".</div>
+        </div>
+        <div style="flex:1; min-width:200px;">
+          <div style="font-size:0.7rem; color:rgba(255,255,255,0.45); text-transform:uppercase; letter-spacing:0.05em; margin-bottom:4px;">When to invoke</div>
+          <div style="font-size:0.75rem;">After any <code>/harden</code> run, OR after a new page ships, OR when effective coverage drops.</div>
+        </div>
+      </div>
+      <details class="section-help" style="margin-top:14px;">
+        <summary style="font-size:0.75rem;">Why two bridges instead of one?</summary>
+        <div class="help-body" style="font-size:0.75rem; padding:10px; background:rgba(255,255,255,0.02); border-radius:6px; margin-top:6px;">
+          The Hardening Loop is <b>reactive</b> — a bug surfaced, so write a validator. The Sentinel Review is <b>proactive</b> — a validator exists, so a scenario should too.
+          <br><br>
+          Together they form a flywheel: every Layer 2 bug becomes a validator (Hardening Loop), every validator becomes a scenario (Sentinel), and every scenario catches the next bug. Both layers compound.
+          <br><br>
+          Three buckets the Sentinel uses:
+          <ul style="margin:6px 0 0; padding-left:18px;">
+            <li><b>Per-page</b> — one validator targets one page. Layer 2 owns these.</li>
+            <li><b>Platform-wide</b> — validator scans ALL pages (accessibility, mobile, XSS). Layer 0 is the right enforcement layer.</li>
+            <li><b>Infrastructure</b> — backend / schema / edge fn rules. Layer 0 alone.</li>
+          </ul>
+          The Effective coverage % reflects only Per-page validators - the slice Layer 2 should own.
+        </div>
+      </details>
+    </div>
+  </div>
+  <script>
+  (function loadSentinelStats() {
+    const setText = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+    const showStatus = (msg, isError) => {
+      const host = document.getElementById('sentinel-stats');
+      if (!host) return;
+      let note = document.getElementById('sentinel-status');
+      if (!note) {
+        note = document.createElement('div');
+        note.id = 'sentinel-status';
+        note.style.cssText = 'flex-basis:100%;font-size:0.7rem;margin-top:8px;padding-top:8px;border-top:1px dashed rgba(255,255,255,0.06);';
+        host.appendChild(note);
+      }
+      note.style.color = isError ? '#F7A21B' : 'rgba(74,222,128,0.7)';
+      note.innerHTML = msg;
+    };
+
+    fetch('/sentinel/coverage', { cache: 'no-store' })
+      .then(r => {
+        if (!r.ok) throw new Error('HTTP ' + r.status + ' (Flask probably needs restart so the /sentinel/coverage route registers)');
+        return r.json();
+      })
+      .then(data => {
+        if (!data) throw new Error('empty response');
+        if (data.available === false) {
+          showStatus('Report not generated yet. Run <code>python run_sentinel_review.py</code> then reload.', true);
+          return;
+        }
+        if (!data.summary) throw new Error('missing summary field in response');
+        const s = data.summary;
+        setText('sentinel-raw',  (s.validator_coverage_pct ?? '?') + '%');
+        setText('sentinel-eff',  (s.effective_coverage_pct ?? '?') + '%');
+        setText('sentinel-check', (s.check_coverage_pct ?? '?') + '%');
+        setText('sentinel-behavioral', (s.behavioral_coverage_pct ?? '?') + '%');
+        if (s.covered_per_page_behavioral_checks != null && s.total_per_page_behavioral_checks != null) {
+          setText('sentinel-behavioral-detail',
+            s.covered_per_page_behavioral_checks + ' of ' + s.total_per_page_behavioral_checks + ' behavioral rules');
+        }
+        if (s.covered_per_page_checks != null && s.total_per_page_checks != null) {
+          setText('sentinel-check-detail',
+            s.covered_per_page_checks + ' of ' + s.total_per_page_checks + ' total checks');
+        }
+        const uncovered = (s.total_per_page_behavioral_checks ?? 0) - (s.covered_per_page_behavioral_checks ?? 0);
+        setText('sentinel-gaps', String(uncovered));
+        setText('sentinel-gaps-detail',
+          'behavioral rules to test (the path to 100%)');
+        setText('sentinel-owned', String((s.platform_wide_validators ?? 0) + (s.infrastructure_validators ?? 0)));
+        const ts = data.timestamp ? new Date(data.timestamp).toLocaleString() : 'unknown';
+        showStatus('Live from sentinel_coverage_report.json &middot; last run: ' + ts, false);
+      })
+      .catch(e => {
+        showStatus('Stats unavailable: ' + e.message, true);
+      });
+  })();
+
+  // Sparkline: render recent behavioral_pct history as an SVG polyline.
+  // Sized for ~50 data points; uses viewBox so it scales with the card width.
+  function renderSentinelSparkline(entries) {
+    const svg = document.getElementById('sentinel-sparkline');
+    const meta = document.getElementById('sentinel-chart-meta');
+    if (!svg) return;
+    svg.innerHTML = '';
+    if (!entries || entries.length === 0) {
+      svg.innerHTML = '<text x="100" y="28" text-anchor="middle" font-size="9" fill="rgba(255,255,255,0.4)">no history yet - run the sentinel to capture the first point</text>';
+      if (meta) meta.textContent = '';
+      return;
+    }
+    const W = 200, H = 50, pad = 4;
+    const pts = entries.map(e => Number(e.behavioral_pct ?? 0));
+    const lo = Math.min(...pts, 0);
+    const hi = Math.max(...pts, 100);
+    const range = (hi - lo) || 1;
+    const stepX = pts.length === 1 ? 0 : (W - 2 * pad) / (pts.length - 1);
+    const coords = pts.map((v, i) => {
+      const x = pad + i * stepX;
+      const y = H - pad - ((v - lo) / range) * (H - 2 * pad);
+      return [x, y];
+    });
+    const NS = 'http://www.w3.org/2000/svg';
+    // Filled area under the line
+    const areaPath = coords.length
+      ? `M ${coords[0][0]} ${H - pad} L ${coords.map(p => p.join(' ')).join(' L ')} L ${coords[coords.length-1][0]} ${H - pad} Z`
+      : '';
+    if (areaPath) {
+      const area = document.createElementNS(NS, 'path');
+      area.setAttribute('d', areaPath);
+      area.setAttribute('fill', 'rgba(74,222,128,0.18)');
+      area.setAttribute('stroke', 'none');
+      svg.appendChild(area);
+    }
+    // Stroke line
+    if (coords.length >= 2) {
+      const poly = document.createElementNS(NS, 'polyline');
+      poly.setAttribute('points', coords.map(p => p.join(',')).join(' '));
+      poly.setAttribute('fill', 'none');
+      poly.setAttribute('stroke', '#4ade80');
+      poly.setAttribute('stroke-width', '1.6');
+      poly.setAttribute('vector-effect', 'non-scaling-stroke');
+      svg.appendChild(poly);
+    }
+    // Latest point marker
+    if (coords.length) {
+      const last = coords[coords.length - 1];
+      const dot = document.createElementNS(NS, 'circle');
+      dot.setAttribute('cx', last[0]);
+      dot.setAttribute('cy', last[1]);
+      dot.setAttribute('r', '2.2');
+      dot.setAttribute('fill', '#4ade80');
+      svg.appendChild(dot);
+    }
+    if (meta) {
+      const first = pts[0], latest = pts[pts.length - 1];
+      const delta = (latest - first).toFixed(1);
+      const sign = delta > 0 ? '+' : '';
+      meta.textContent = `${entries.length} runs · first ${first}% → latest ${latest}% (${sign}${delta} pp)`;
+    }
+  }
+  function loadSentinelHistory() {
+    fetch('/sentinel/history?limit=50', { cache: 'no-store' })
+      .then(r => r.ok ? r.json() : null)
+      .then(data => {
+        if (!data) return;
+        renderSentinelSparkline(data.entries || []);
+      })
+      .catch(() => {
+        renderSentinelSparkline([]);
+      });
+  }
+  loadSentinelHistory();
+
+  // Run Sentinel Now button
+  (function wireSentinelRunBtn() {
+    const btn = document.getElementById('sentinel-run-btn');
+    const status = document.getElementById('sentinel-run-status');
+    if (!btn || !status) return;
+    btn.addEventListener('click', async () => {
+      btn.disabled = true;
+      const oldText = btn.textContent;
+      btn.textContent = '⏳ Running...';
+      status.style.color = 'rgba(255,255,255,0.6)';
+      status.textContent = 'running sentinel pipeline (~5-15s)...';
+      try {
+        const r = await fetch('/sentinel/run', { method: 'POST', cache: 'no-store' });
+        const data = await r.json();
+        if (data.ok) {
+          status.style.color = '#4ade80';
+          status.textContent = '✓ done · refreshing numbers';
+          // Refresh both panels
+          loadSentinelHistory();
+          if (typeof window.__refreshSentinelStats === 'function') {
+            window.__refreshSentinelStats();
+          } else {
+            // Easiest is a soft reload of the stat card by re-invoking the IIFE.
+            // We trigger the same fetch the page does on load.
+            fetch('/sentinel/coverage', { cache: 'no-store' })
+              .then(rr => rr.json())
+              .then(d => {
+                if (!d || !d.summary) return;
+                const s = d.summary;
+                const set = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+                set('sentinel-raw',         (s.validator_coverage_pct ?? '?') + '%');
+                set('sentinel-eff',         (s.effective_coverage_pct ?? '?') + '%');
+                set('sentinel-check',       (s.check_coverage_pct ?? '?') + '%');
+                set('sentinel-behavioral',  (s.behavioral_coverage_pct ?? '?') + '%');
+                const uncovered = (s.total_per_page_behavioral_checks ?? 0) - (s.covered_per_page_behavioral_checks ?? 0);
+                set('sentinel-gaps', String(uncovered));
+                set('sentinel-owned', String((s.platform_wide_validators ?? 0) + (s.infrastructure_validators ?? 0)));
+              }).catch(() => {});
+          }
+        } else {
+          status.style.color = '#F7A21B';
+          status.textContent = '✗ ' + (data.error || ('exit ' + data.exit_code));
+        }
+      } catch (e) {
+        status.style.color = '#F7A21B';
+        status.textContent = '✗ ' + e.message;
+      } finally {
+        btn.disabled = false;
+        btn.textContent = oldText;
+      }
+    });
+  })();
+  </script>
 
   <!-- ═══ LAYER 2 — END-TO-END TESTS (Playwright) ═══ -->
   <div class="card">

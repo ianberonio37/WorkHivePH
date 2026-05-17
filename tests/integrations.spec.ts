@@ -5,9 +5,36 @@
  */
 import { test, expect } from './_fixtures';
 import { smokePage } from './_smoke-template';
+import { waitForPageReady } from './_helpers';
 
 test.describe('integrations.html smoke', () => {
   test('loads and renders without page errors', async ({ whPage }) => {
     await smokePage(whPage, '/workhive/integrations.html', {});
   });
+});
+
+/* === Sentinel-proposed scenarios (Layer 0 -> Layer 2 bridge) ===
+ * Drafts from /sentinel-review. See sentinel_drafts.md for context.
+ */
+test.describe('integrations.html - sentinel scenarios', () => {
+
+  test('cmms_contracts: connector selection UI exposes SAP / Maximo / CSV options', async ({ whPage }) => {
+    await whPage.goto('/workhive/integrations.html');
+    await waitForPageReady(whPage);
+    const selector = whPage.locator(
+      '#cmms-connector, select[name="connector"], [data-connector], [data-cmms]'
+    ).first();
+    if (await selector.count() === 0) {
+      const pageText = await whPage.content();
+      expect(pageText, 'integrations.html should mention CMMS connectors (SAP / Maximo / CSV)')
+        .toMatch(/SAP|Maximo|CSV/i);
+      return;
+    }
+    await expect(selector).toBeAttached({ timeout: 5000 });
+    const text = await selector.innerText().catch(() => '');
+    const pageText = await whPage.content();
+    expect(text + ' ' + pageText, 'CMMS connectors missing from integrations.html')
+      .toMatch(/SAP|Maximo|CSV/i);
+  });
+
 });

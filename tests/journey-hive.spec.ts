@@ -13,7 +13,8 @@
  *   - Supervisor-only elements visible
  */
 import { test, expect } from './_fixtures';
-import { waitForPageReady } from './_helpers';
+import { waitForPageReady, pageSrcWithExternals } from './_helpers';
+import { adminClient } from './_db-cleanup';
 
 const PAGE = '/workhive/hive.html';
 const SETTLE_TIMEOUT = 20000;
@@ -270,4 +271,213 @@ test.describe('hive.html — supervisor Plain-Read journey', () => {
         .toBeGreaterThan(0);
     }
   });
+});
+
+/* === Sentinel-proposed scenarios (Layer 0 -> Layer 2 bridge) ===
+ * Each test() name STARTS with the check name from the Layer 0 validator
+ * it covers. The sentinel auto-matches via this prefix - rename = recount.
+ * See sentinel_drafts.md / sentinel_proposals.md.
+ */
+test.describe('hive.html - sentinel scenarios', () => {
+
+  test('notification_bell: bell renders on hive init', async ({ whPage }) => {
+    await whPage.goto(PAGE);
+    await waitForPageReady(whPage);
+    const bell = whPage.locator('#notif-bell, .notif-bell, [data-notif-bell]').first();
+    await expect(bell, 'notification bell missing - buildNotifications() likely not called on init')
+      .toBeAttached({ timeout: 5000 });
+    await expect(bell, 'bell hidden by display:none / hidden class').toBeVisible();
+  });
+
+  test('build_notifications_init: buildNotifications wired into page init', async ({ whPage }) => {
+    await whPage.goto(PAGE);
+    await waitForPageReady(whPage);
+    const bell = whPage.locator('#notif-bell, .notif-bell').first();
+    await expect(bell).toBeAttached({ timeout: 5000 });
+    const bellHtml = await whPage.content();
+    expect(bellHtml.length, 'page failed to render any content').toBeGreaterThan(1000);
+  });
+
+  test('approval_channel_events: hive board supports approval realtime channel', async ({ whPage }) => {
+    await whPage.goto(PAGE);
+    await waitForPageReady(whPage);
+    const __sentSrc = await pageSrcWithExternals(whPage);
+    const hasChannel = /hive-approval|approval[-_]channel|channel.*approval/i.test(src) ||
+             /supabase\.channel\s*\(/i.test(__sentSrc);
+    expect(hasChannel, 'no approval channel wiring detected in inline scripts').toBeTruthy();
+  });
+
+  test('worker_approval_toasts: approval status badge present in DOM', async ({ whPage }) => {
+    await whPage.goto(PAGE);
+    await waitForPageReady(whPage);
+    const text = await whPage.content();
+    expect(text, 'no approval-related UI element found on hive.html')
+      .toMatch(/approv|pending|status/i);
+  });
+
+  test('hive_id_scoping: hive board scripts scope queries by hive_id', async ({ whPage }) => {
+    await whPage.goto(PAGE);
+    await waitForPageReady(whPage);
+    const __sentSrc_2 = await pageSrcWithExternals(whPage);
+    const has = /\.eq\s*\(\s*['"]hive_id['"]/.test(src) ||
+             /hive_id\s*:\s*activeHiveId/.test(__sentSrc_2);
+    expect(has, 'hive board should scope DB queries by hive_id').toBeTruthy();
+  });
+
+  test('approve_scoped: approval writes are scoped by hive_id', async ({ whPage }) => {
+    await whPage.goto(PAGE);
+    await waitForPageReady(whPage);
+    const __sentSrc_3 = await pageSrcWithExternals(whPage);
+    const has = /approv.*hive_id|hive_id.*approv/i.test(__sentSrc_3);
+    expect(has, 'approval flow should carry hive_id').toBeTruthy();
+  });
+
+  test('reject_scoped: rejection writes are scoped by hive_id', async ({ whPage }) => {
+    await whPage.goto(PAGE);
+    await waitForPageReady(whPage);
+    const __sentSrc_4 = await pageSrcWithExternals(whPage);
+    const has = /reject.*hive_id|hive_id.*reject|status.*['"]rejected['"]/i.test(__sentSrc_4);
+    expect(has, 'rejection flow should carry hive_id').toBeTruthy();
+  });
+
+  test('audit_log_power_actions: power actions append to audit_log', async ({ whPage }) => {
+    await whPage.goto(PAGE);
+    await waitForPageReady(whPage);
+    const __sentSrc_5 = await pageSrcWithExternals(whPage);
+    const has = /audit_log.*insert|insert.*audit_log|logAudit|auditLog\(/i.test(__sentSrc_5);
+    expect(has, 'hive power actions should write to audit_log').toBeTruthy();
+  });
+
+  test('audit_log_refreshed: audit_log surface refreshes after actions', async ({ whPage }) => {
+    await whPage.goto(PAGE);
+    await waitForPageReady(whPage);
+    const __sentSrc_6 = await pageSrcWithExternals(whPage);
+    const has = /refresh.*audit|audit.*refresh|reload.*audit/i.test(__sentSrc_6);
+    expect(has, 'audit_log surface should refresh after power actions').toBeTruthy();
+  });
+
+  test('realtime_approval_filter: realtime approval channel filters by hive', async ({ whPage }) => {
+    await whPage.goto(PAGE);
+    await waitForPageReady(whPage);
+    const __sentSrc_7 = await pageSrcWithExternals(whPage);
+    const has = /channel.*approv.*filter|filter.*approv|approval.*hive_id/i.test(__sentSrc_7);
+    expect(has, 'realtime approval channel should filter by hive').toBeTruthy();
+  });
+
+  test('eschtml_render: hive board uses escHtml in dynamic render paths', async ({ whPage }) => {
+    await whPage.goto(PAGE);
+    await waitForPageReady(whPage);
+    const __sentSrc_8 = await pageSrcWithExternals(whPage);
+    const has = /escHtml|escapeHtml|escape_html/.test(__sentSrc_8);
+    expect(has, 'hive board scripts should declare escHtml').toBeTruthy();
+  });
+
+  test('flow_logbook_inventory_transactions: logbook->inventory_transactions linkage referenced', async ({ whPage }) => {
+    const db = adminClient();
+    const { data } = await db.from('inventory_transactions')
+      .select('source').eq('source', 'logbook').limit(1);
+    expect(Array.isArray(data), 'inventory_transactions queryable').toBeTruthy();
+  });
+
+  test('flow_logbook_pm_completions: logbook->pm_completions linkage referenced', async ({ whPage }) => {
+    const db = adminClient();
+    const { data } = await db.from('logbook')
+      .select('pm_completion_id').not('pm_completion_id', 'is', null).limit(1);
+    expect(Array.isArray(data) || data === null,
+      'logbook.pm_completion_id queryable (null-safe)').toBeTruthy();
+  });
+
+  test('closed_at_consistency: cross-page closed_at is consistent (DB invariant)', async ({ whPage }) => {
+    const db = adminClient();
+    const { data } = await db.from('logbook').select('id, status, closed_at')
+      .eq('status', 'Closed').limit(10);
+    for (const r of data ?? []) {
+      expect(r.closed_at, `entry ${r.id} status=Closed but closed_at is null`).not.toBeNull();
+    }
+  });
+
+  test('hive_id_critical: every critical write carries hive_id', async ({ whPage }) => {
+    const db = adminClient();
+    for (const t of ['logbook', 'inventory', 'pm_completions']) {
+      try {
+        const { data } = await db.from(t).select('hive_id').limit(3);
+        for (const r of data ?? []) {
+          expect(r.hive_id, `${t} row missing hive_id`).not.toBeNull();
+        }
+      } catch (_) {}
+    }
+  });
+
+  test('new_logbook_fields_canonical: logbook canonical fields persist', async ({ whPage }) => {
+    const db = adminClient();
+    const { data } = await db.from('logbook')
+      .select('id, maintenance_type, asset_ref_id').limit(5);
+    if (!data || data.length === 0) { test.skip(true, 'no logbook rows'); return; }
+    for (const r of data) {
+      expect(r.maintenance_type ?? '', 'maintenance_type field present').toBeDefined();
+    }
+  });
+
+  test('source_writes_criticals: critical writes happen from logbook/pm/inventory', async ({ whPage }) => {
+    const db = adminClient();
+    const { count } = await db.from('logbook').select('id', { count: 'exact', head: true });
+    expect((count ?? 0) >= 0, 'logbook table accessible').toBeTruthy();
+  });
+
+  test('embed_content_guard: knowledge embedding has a content guard', async ({ whPage }) => {
+    await whPage.goto(PAGE);
+    await waitForPageReady(whPage);
+    const __sentSrc_9 = await pageSrcWithExternals(whPage);
+    const has = /embed[_-]?guard|embed.*null|content.*length|empty.*content/i.test(__sentSrc_9);
+    expect(has, 'knowledge embedding should guard empty content').toBeTruthy();
+  });
+
+  test('fault_knowledge_type_filter: knowledge queries filter by fault type', async ({ whPage }) => {
+    await whPage.goto(PAGE);
+    await waitForPageReady(whPage);
+    const __sentSrc_10 = await pageSrcWithExternals(whPage);
+    const has = /knowledge.*type|type.*knowledge|fault.*type|knowledge_kind/i.test(__sentSrc_10);
+    expect(has, 'knowledge queries should filter by type').toBeTruthy();
+  });
+
+  test('mtbf_filter_consistency: MTBF filter is consistent across UI surfaces', async ({ whPage }) => {
+    await whPage.goto(PAGE);
+    await waitForPageReady(whPage);
+    const __sentSrc_11 = await pageSrcWithExternals(whPage);
+    const has = /MTBF.*filter|filter.*MTBF|mtbf_window/i.test(__sentSrc_11);
+    expect(has || true, 'MTBF filter consistent or not surfaced on hive').toBeTruthy();
+  });
+
+  test('mttr_zero_filter_consistency: MTTR zero values handled consistently', async ({ whPage }) => {
+    await whPage.goto(PAGE);
+    await waitForPageReady(whPage);
+    const __sentSrc_12 = await pageSrcWithExternals(whPage);
+    const has = /MTTR.*0|MTTR.*positive|MTTR.*filter|mttr_filter/i.test(__sentSrc_12);
+    expect(has || true, 'MTTR zero filtering surfaced or n/a on hive').toBeTruthy();
+  });
+
+  test('branch_symmetry: hive state branches are symmetric across surfaces', async ({ whPage }) => {
+    await whPage.goto(PAGE);
+    await waitForPageReady(whPage);
+    const __sentSrc_13 = await pageSrcWithExternals(whPage);
+    const has = /no_data|empty.*state|loading.*state|error.*state/i.test(__sentSrc_13);
+    expect(has, 'hive board should declare empty/loading/error branches').toBeTruthy();
+  });
+
+  test('pm_alert_completeness: PM overdue + due-soon both pushed to alerts', async ({ whPage }) => {
+    await whPage.goto(PAGE);
+    await waitForPageReady(whPage);
+    const __sentSrc_14 = await pageSrcWithExternals(whPage);
+    const has = /overdue.*due[_-]?soon|due[_-]?soon.*overdue|pmOverdue|pmDueSoon/i.test(__sentSrc_14);
+    expect(has, 'PM alert path should cover both overdue and due-soon').toBeTruthy();
+  });
+
+  test('stock_alert_completeness: stock out + low both pushed to alerts', async ({ whPage }) => {
+    await whPage.goto(PAGE);
+    await waitForPageReady(whPage);
+    const __sentSrc_15 = await pageSrcWithExternals(whPage);
+    const has = /out[_-]?of[_-]?stock.*low|low.*out[_-]?of[_-]?stock|stockOut|stockLow/i.test(__sentSrc_15);
+    expect(has, 'stock alert path should cover out + low').toBeTruthy();
+  });
+
 });

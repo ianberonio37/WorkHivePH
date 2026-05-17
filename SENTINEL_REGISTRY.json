@@ -1,0 +1,62 @@
+{
+  "version": "v3",
+  "updated": "2026-05-17",
+  "description": "Sentinel registry - Layer 0 -> Layer 2 bridge. Each entry runs as a subprocess via run_sentinel_review.py. See SENTINEL_ARCHITECTURE.md for the full roadmap.",
+  "sentinels": [
+    {
+      "id": "coverage-map",
+      "script": "sentinels/sentinel_coverage_map.py",
+      "label": "Layer 0 -> Layer 2 Coverage Map",
+      "axis": "coverage",
+      "tier": "deterministic",
+      "version": "v0",
+      "outputs": ["sentinel_coverage_report.json"],
+      "trigger": "always",
+      "depends_on": []
+    },
+    {
+      "id": "gap-proposer",
+      "script": "sentinels/sentinel_gap_proposer.py",
+      "label": "Gap Proposer (context bundler for LLM)",
+      "axis": "coverage",
+      "tier": "deterministic",
+      "version": "v1",
+      "outputs": ["sentinel_proposals.md"],
+      "trigger": "after-coverage-map",
+      "depends_on": ["coverage-map"]
+    },
+    {
+      "id": "pattern-consistency",
+      "script": "sentinels/sentinel_pattern_consistency.py",
+      "label": "Pattern Consistency (canonical Layer 2 fixture usage)",
+      "axis": "pattern",
+      "tier": "deterministic",
+      "version": "v3",
+      "outputs": ["sentinel_pattern_report.json"],
+      "trigger": "always",
+      "depends_on": []
+    },
+    {
+      "id": "depth",
+      "script": "sentinels/sentinel_depth.py",
+      "label": "Test Depth (assertion depth scoring)",
+      "axis": "depth",
+      "tier": "deterministic",
+      "version": "v3",
+      "outputs": ["sentinel_depth_report.json"],
+      "trigger": "always",
+      "depends_on": []
+    },
+    {
+      "id": "freshness",
+      "script": "sentinels/sentinel_freshness.py",
+      "label": "Freshness (stale routes / dead selectors)",
+      "axis": "freshness",
+      "tier": "deterministic",
+      "version": "v3",
+      "outputs": ["sentinel_freshness_report.json"],
+      "trigger": "always",
+      "depends_on": []
+    }
+  ]
+}

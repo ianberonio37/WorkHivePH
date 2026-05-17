@@ -170,3 +170,22 @@ test.describe('ai-quality.html — AI quality journey', () => {
     await expect(whPage.locator('body')).toBeVisible();
   });
 });
+
+/* === Sentinel-proposed scenarios (Layer 0 -> Layer 2 bridge) ===
+ * Drafts from /sentinel-review. See sentinel_drafts.md for context.
+ */
+test.describe('ai-quality.html - sentinel scenarios', () => {
+
+  test('revenue surfaces: ai-quality panel binds to v_ai_quality_truth (Stair 2+)', async ({ whPage }) => {
+    await whPage.goto(PAGE);
+    await waitForPageReady(whPage);
+    await waitForAQContent(whPage);
+    const panel = whPage.locator('#ai-quality, #ai-quality-panel, [data-ai-quality], #content').first();
+    await expect(panel, 'ai-quality content host missing').toBeAttached({ timeout: 5000 });
+    await expect.poll(
+      async () => (await panel.innerText()).trim().length,
+      { timeout: 8000, message: 'ai-quality panel empty - v_ai_quality_truth binding likely missing' },
+    ).toBeGreaterThan(0);
+  });
+
+});

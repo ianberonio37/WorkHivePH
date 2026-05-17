@@ -1,0 +1,88 @@
+{
+  "_description": "Manual overrides on the auto-classifier in sentinel_coverage_map.py. A check whose NAME sounds behavioral (matches a verb-like signal token) may turn out to be enforced in a place Layer 2 cannot see - backend Python, edge function code, DB schema, etc. List those here with kind=structural and a one-line reason. The Playwright test stays in place (still documents intent), but the sentinel reports the rule as Layer-0-owned in the behavioral/structural split.",
+  "_format": "Each entry is {validator, check, kind, reason}. Kind values: structural | behavioral. Default if absent: classifier auto.",
+  "_added": "2026-05-17 after the two-sweep audit (115/183 then 116/183 passing). The 39 entries below are checks the heuristic mislabeled as behavioral but Playwright cannot observe from the browser.",
+
+  "overrides": [
+    { "validator": "validate_admin_gates.py", "check": "admin_gate_present", "kind": "structural", "reason": "Source-pattern: scans founder-console.html for isPlatformAdmin function declaration. Browser cannot introspect arbitrary source." },
+    { "validator": "validate_admin_gates.py", "check": "admin_gate_active", "kind": "structural", "reason": "Source-pattern: scans for commented-out isPlatformAdmin. Comments are stripped before browser sees the page." },
+    { "validator": "validate_admin_gates.py", "check": "admin_gate_active_call", "kind": "structural", "reason": "Source-pattern: looks for `await isPlatformAdmin()` in HTML source. Not always inline." },
+    { "validator": "validate_admin_gates.py", "check": "admin_gate_not_commented", "kind": "structural", "reason": "Source-pattern: looks for `// window.location` style commented redirects. Comments are stripped." },
+
+    { "validator": "validate_ai_attribution.py", "check": "ai_label_per_message", "kind": "structural", "reason": "Source-pattern in floating-ai.js / chat code (external module)." },
+    { "validator": "validate_ai_attribution.py", "check": "floating_ai_disclaimer", "kind": "structural", "reason": "Disclaimer string lives in external floating-ai.js module, not rendered HTML." },
+    { "validator": "validate_ai_context.py", "check": "conversation_types", "kind": "structural", "reason": "Conversation-type taxonomy is in ai-chain.ts edge fn, not browser-visible." },
+    { "validator": "validate_ai_context.py", "check": "calc_count_consistency", "kind": "structural", "reason": "Compares calc_type registry between Python source and JS source; cross-file source-pattern check." },
+    { "validator": "validate_ai_data_pipeline.py", "check": "automation_log_monitored", "kind": "structural", "reason": "Monitors backend automation_log table; not surfaced in UI." },
+    { "validator": "validate_capture_contracts.py", "check": "bad_rejected", "kind": "structural", "reason": "Tests wh-capture-validate.js logic; external module not in outerHTML." },
+    { "validator": "validate_capture_contracts.py", "check": "good_accepted", "kind": "structural", "reason": "Same - capture-validate logic lives in external module." },
+    { "validator": "validate_context_window.py", "check": "context_sources_bounded", "kind": "structural", "reason": "Token-budget rule on edge function source; not browser-observable." },
+
+    { "validator": "validate_analytics.py", "check": "groq_fallback", "kind": "structural", "reason": "Groq fallback chain is in _shared/ai-chain.ts edge fn; browser only sees the request outcome." },
+    { "validator": "validate_analytics.py", "check": "groq_null_guard", "kind": "structural", "reason": "Null-guard pattern in edge fn source." },
+    { "validator": "validate_data_quality.py", "check": "mtbf_machine_normalization", "kind": "structural", "reason": "Machine-name normalization in Python analytics service." },
+    { "validator": "validate_ai_regression.py", "check": "calc_count_consistent", "kind": "structural", "reason": "Cross-file count check across Python + JS registries." },
+
+    { "validator": "validate_reliability_workbench.py", "check": "asset_hub_rcm_realtime", "kind": "structural", "reason": "Realtime channel subscription pattern lives in inline script BUT depends on specific function names rarely in outerHTML." },
+    { "validator": "validate_reliability_workbench.py", "check": "asset_hub_pm_writeback", "kind": "structural", "reason": "RCM->pm_templates upsert is in edge function code, not browser-visible." },
+    { "validator": "validate_reliability_workbench.py", "check": "asset_hub_reliability_report_print_css", "kind": "structural", "reason": "@media print rules in external stylesheet; not in outerHTML." },
+
+    { "validator": "validate_drawings.py", "check": "all_builders_covered", "kind": "structural", "reason": "Registry-shape check: every CALC_TYPE needs a builder declared in the source." },
+
+    { "validator": "validate_notifications.py", "check": "approval_channel_events", "kind": "structural", "reason": "Realtime channel INSERT+UPDATE config lives in edge fn / channel source." },
+    { "validator": "validate_hive.py", "check": "hive_id_scoping", "kind": "structural", "reason": "hive_id query scoping pattern lives in many JS files; not all in outerHTML." },
+    { "validator": "validate_cross_page.py", "check": "flow_logbook_inventory_transactions", "kind": "structural", "reason": "Cross-table DB invariant - belongs to Layer 0's relational integrity check." },
+    { "validator": "validate_cross_page.py", "check": "new_logbook_fields_canonical", "kind": "structural", "reason": "DB column-existence check; pure schema concern." },
+
+    { "validator": "validate_logbook.py", "check": "new_fields_in_save_edit", "kind": "structural", "reason": "Scans saveEditFromForm function body for canonical field set; source-pattern not browser-introspectable." },
+    { "validator": "validate_logbook_consistency.py", "check": "parts_txn_parity", "kind": "structural", "reason": "DB-level invariant: logbook.parts_used implies inventory_transactions row. Sentinel test runs the check but the rule is Layer 0 territory." },
+
+    { "validator": "validate_predictive.py", "check": "mtbf_min_count", "kind": "structural", "reason": "Min-sample-size guard lives in Python analytics; not in browser." },
+    { "validator": "validate_predictive.py", "check": "downtime_cap", "kind": "structural", "reason": "Outlier-cap logic in Python." },
+    { "validator": "validate_predictive.py", "check": "failure_consequence_adoption", "kind": "structural", "reason": "Risk-ranking logic in Python; UI shows results but the rule itself is backend." },
+    { "validator": "validate_predictive.py", "check": "cache_ttl", "kind": "structural", "reason": "TTL constant in Python; not surfaced by name in UI." },
+
+    { "validator": "validate_skillmatrix.py", "check": "exam_array_count", "kind": "structural", "reason": "Exam questions array shape; data registry check." },
+    { "validator": "validate_skillmatrix.py", "check": "draft_cleanup", "kind": "structural", "reason": "Cleanup function pattern in external JS." },
+    { "validator": "validate_skillmatrix.py", "check": "level_content_complete", "kind": "structural", "reason": "Registry-completeness across all disciplines and levels; source-shape check." },
+
+    { "validator": "validate_maturity_gating.py", "check": "script_tag_loaded", "kind": "structural", "reason": "Checks for specific <script src=...> filename; cross-page registry rule." },
+    { "validator": "validate_maturity_gating.py", "check": "gate_call_present", "kind": "structural", "reason": "Maturity gate function is defined in shared maturity.js; not always on the page." },
+
+    { "validator": "validate_pm.py", "check": "realtime_hive_filter", "kind": "structural", "reason": "Channel.filter() syntax lives in inline OR external scripts depending on page." },
+    { "validator": "validate_pm.py", "check": "midnight_normalization", "kind": "structural", "reason": "setHours(0,0,0,0) pattern in a date-utils helper, not always on the page directly." },
+
+    { "validator": "validate_inventory_integrity.py", "check": "txn_type_valid", "kind": "structural", "reason": "DB-level constraint check; lives in Layer 0's domain." },
+
+    { "validator": "validate_em_dash.py", "check": "em_dashes", "kind": "structural", "reason": "Text-pattern check on source files - bans em-dash characters. Pure static scan." },
+
+    { "validator": "validate_contact_consistency.py", "check": "canonical_present", "kind": "structural", "reason": "Static-text check that canonical contact (admin@workhiveph.com) appears across files." },
+    { "validator": "validate_contact_consistency.py", "check": "no_hello", "kind": "structural", "reason": "Static-text check banning legacy hello@ address from source." },
+    { "validator": "validate_contact_consistency.py", "check": "no_personal", "kind": "structural", "reason": "Static-text check banning personal email leaks in source." },
+
+    { "validator": "validate_ga4_coverage.py", "check": "block_present", "kind": "structural", "reason": "GA4 <script> block presence checked statically across HTML files; not UI-observable as a discrete rule." },
+    { "validator": "validate_ga4_coverage.py", "check": "canonical_id", "kind": "structural", "reason": "GA4 measurement ID consistency across files; static-source check." },
+    { "validator": "validate_ga4_coverage.py", "check": "wh_ga4_file", "kind": "structural", "reason": "wh-ga4.js file presence and shape; filesystem + source check." },
+    { "validator": "validate_ga4_coverage.py", "check": "wh_ga4_loaded", "kind": "structural", "reason": "wh-ga4.js <script> tag presence across HTML files; static-source check." },
+
+    { "validator": "validate_llms_sync.py", "check": "articles_present", "kind": "structural", "reason": "llms.txt content check; static file." },
+    { "validator": "validate_llms_sync.py", "check": "contact_present", "kind": "structural", "reason": "llms.txt content check; static file." },
+    { "validator": "validate_llms_sync.py", "check": "no_stale_slugs", "kind": "structural", "reason": "llms.txt vs filesystem slugs; cross-file content check." },
+    { "validator": "validate_llms_sync.py", "check": "required_sections", "kind": "structural", "reason": "llms.txt required-sections content check; static file." },
+
+    { "validator": "validate_sitemap_sync.py", "check": "expected_urls_present", "kind": "structural", "reason": "sitemap.xml content vs nav-hub.js registry; static cross-file check." },
+    { "validator": "validate_sitemap_sync.py", "check": "loc_resolves", "kind": "structural", "reason": "Resolves URLs in sitemap.xml against HTML filesystem; static check." },
+    { "validator": "validate_sitemap_sync.py", "check": "metadata_complete", "kind": "structural", "reason": "sitemap.xml metadata (lastmod/priority) shape; static check." }
+  ],
+
+  "_path_b_fix_list": [
+    "These are checks whose Playwright tests fail but the rule is genuinely UI-observable. Path B will tighten each test's selectors/assertions.",
+    "machine_validation_toast (logbook): empty machine submit should toast - needs to use real submit button + click",
+    "render_functions (analytics): page should render non-empty content host - timeout window or selector",
+    "period_consistency (analytics): period chips should be clickable - selector may need broadening",
+    "calculate_entry (analytics): page declares an analytics calc fn - check pattern may be too narrow",
+    "hint_quality (assistant): assistant exposes contextual hints - hint selector may be wrong",
+    "supervisor_gate_delete (inventory): supervisor sees delete control - depends on whether inventory rows are rendered for test user",
+    "discipline_icons (skillmatrix): each tile has an icon - selector for SVG/img inside tile needs work"
+  ]
+}

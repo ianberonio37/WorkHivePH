@@ -1,0 +1,13 @@
+{
+  "_description": "Sentinel coverage baseline. Forward-only ratchet enforced by validate_sentinel_baseline.py. Delete this file to re-baseline after an approved coverage drop.",
+  "_locked_at": "2026-05-17T21:11:03.609156",
+  "metrics": {
+    "validator_coverage_pct": 51.1,
+    "effective_coverage_pct": 96.7,
+    "check_coverage_pct": 88.2,
+    "behavioral_coverage_pct": 100.0,
+    "covered_validators": 91,
+    "covered_per_page_checks": 210,
+    "covered_per_page_behavioral_checks": 167
+  }
+}

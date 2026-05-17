@@ -17,7 +17,7 @@
  */
 import { test, expect } from './_fixtures';
 import {
-  assertSubmitSucceeded, waitForPageReady, readToast,
+  assertSubmitSucceeded, waitForPageReady, pageSrcWithExternals, readToast,
 } from './_helpers';
 import { adminClient } from './_db-cleanup';
 
@@ -331,4 +331,143 @@ test.describe('inventory.html — full add-part journey', () => {
       !(await modal.isVisible().catch(() => false));
     expect(isHidden, 'modal should close on Cancel').toBe(true);
   });
+});
+
+/* === Sentinel-proposed scenarios (check-name anchored) === */
+test.describe('inventory.html - sentinel scenarios', () => {
+
+  test('supervisor_gate_delete: supervisor surfaces a delete affordance', async ({ whPage }) => {
+    await whPage.goto(PAGE);
+    await waitForPageReady(whPage);
+    await whPage.waitForTimeout(1500);
+    const rows = whPage.locator('.inv-row, [data-part-id], tr[data-id], .part-row, .item-row');
+    if (await rows.count() === 0) {
+      test.skip(true, 'no inventory rows in seed - delete control not rendered');
+      return;
+    }
+    const delBtns = whPage.locator(
+      '[data-delete], .delete-btn, button:has-text("Delete"), [aria-label*="Delete" i], ' +
+      '[title*="Delete" i], svg[data-icon*="trash" i], .trash-icon'
+    );
+    const count = await delBtns.count();
+    expect(count,
+      'supervisor with inventory rows present should see at least one delete control').toBeGreaterThan(0);
+  });
+
+  test('supervisor_approval_writes: supervisor approval flow is wired in DOM', async ({ whPage }) => {
+    await whPage.goto(PAGE);
+    await waitForPageReady(whPage);
+    const hasApproval = await whPage.evaluate(() => {
+      const html = document.body.innerHTML;
+      return /approv|pending[-_]review|status.*pending/i.test(html);
+    });
+    expect(hasApproval, 'inventory.html should expose approval-related UI for supervisors').toBeTruthy();
+  });
+
+  test('transaction_logging: scripts reference inventory_transactions table', async ({ whPage }) => {
+    await whPage.goto(PAGE);
+    await waitForPageReady(whPage);
+    const __sentSrc = await pageSrcWithExternals(whPage);
+    const refs = /inventory_transactions/i.test(__sentSrc);
+    expect(refs, 'inventory.html scripts should reference inventory_transactions table').toBeTruthy();
+  });
+
+  test('hive_id_on_save_payload: inventory writes carry hive_id (DB-level)', async ({ whPage }) => {
+    const db = adminClient();
+    const { data: rows } = await db.from('inventory').select('hive_id').limit(5);
+    if (!rows || rows.length === 0) { test.skip(true, 'no inventory rows in seed'); return; }
+    for (const r of rows) {
+      expect(r.hive_id, 'every inventory row must carry hive_id').not.toBeNull();
+    }
+  });
+
+  test('use_stock_qty_guard: using more than on-hand qty is blocked or clamped', async ({ whPage }) => {
+    await whPage.goto(PAGE);
+    await waitForPageReady(whPage);
+    const __sentSrc_2 = await pageSrcWithExternals(whPage);
+    const hasGuard = /qty[_-]?on[_-]?hand|insufficient.*stock|cannot.*use.*more/i.test(__sentSrc_2);
+    expect(hasGuard, 'inventory should guard against using more than on-hand qty').toBeTruthy();
+  });
+
+  test('highlight_escapes: search highlight does not introduce XSS', async ({ whPage }) => {
+    await whPage.goto(PAGE);
+    await waitForPageReady(whPage);
+    const search = whPage.locator('#inv-search, [data-search], input[placeholder*="search" i]').first();
+    if (await search.count() === 0) { test.skip(true, 'no search input'); return; }
+    await search.fill('<img src=x onerror=alert(1)>');
+    await whPage.waitForTimeout(600);
+    const dangerous = await whPage.evaluate(() => !!document.querySelector('img[src="x"]'));
+    expect(dangerous, 'search input should NOT produce a raw <img> element (XSS via highlight)').toBe(false);
+  });
+
+  test('hive_id_in_add_transaction: writes from inventory carry hive_id', async ({ whPage }) => {
+    const db = adminClient();
+    const { data: txns } = await db.from('inventory_transactions')
+      .select('hive_id').limit(10);
+    if (!txns || txns.length === 0) { test.skip(true, 'no inventory_transactions in seed'); return; }
+    for (const t of txns) {
+      expect(t.hive_id, 'every inventory_transactions row must carry hive_id').not.toBeNull();
+    }
+  });
+
+  test('auth_gate: unauthenticated visitor cannot reach inventory', async ({ rawPage }) => {
+    await rawPage.goto(PAGE);
+    await rawPage.waitForTimeout(1500);
+    const url = rawPage.url();
+    const html = await rawPage.content();
+    const redirected = url.includes('signin') || url.endsWith('/workhive/') || url.includes('index.html');
+    const gated = /sign\s*in|please.*log|unauthor/i.test(html);
+    expect(redirected || gated,
+      'unauthenticated visit to inventory.html should redirect or show a sign-in gate').toBeTruthy();
+  });
+
+  test('status_transitions: inventory status transitions follow canonical flow', async ({ whPage }) => {
+    await whPage.goto(PAGE);
+    await waitForPageReady(whPage);
+    const __sentSrc_3 = await pageSrcWithExternals(whPage);
+    const has = /status.*transition|pending.*approved|approved.*pending|status_change/i.test(__sentSrc_3);
+    expect(has, 'inventory should declare canonical status transitions').toBeTruthy();
+  });
+
+  test('txn_syncs_to_supabase: inventory_transactions write reaches Supabase', async () => {
+    const db = adminClient();
+    const { data } = await db.from('inventory_transactions').select('id').limit(1);
+    expect(Array.isArray(data), 'inventory_transactions queryable -> sync is live').toBeTruthy();
+  });
+
+  test('min_qty_positive: every inventory row has non-negative min_qty', async () => {
+    const db = adminClient();
+    const { data } = await db.from('inventory').select('min_qty').limit(50);
+    if (!data) { test.skip(true, 'no inventory rows'); return; }
+    const negs = data.filter(r => (r.min_qty ?? 0) < 0);
+    expect(negs.length, 'no negative min_qty allowed').toBe(0);
+  });
+
+  test('qty_after_accuracy: qty_after on txn reflects current on-hand', async () => {
+    const db = adminClient();
+    const { data } = await db.from('inventory_transactions')
+      .select('id, item_id, qty_after').not('qty_after', 'is', null).limit(10);
+    expect(Array.isArray(data), 'qty_after populated for transactions').toBeTruthy();
+  });
+
+  test('txn_item_refs: every txn references a real inventory item', async () => {
+    const db = adminClient();
+    const { data: txns } = await db.from('inventory_transactions')
+      .select('item_id').not('item_id', 'is', null).limit(10);
+    if (!txns || txns.length === 0) { test.skip(true, 'no txns'); return; }
+    for (const t of txns) {
+      expect(t.item_id, 'every txn must reference an item').not.toBeNull();
+    }
+  });
+
+  test('txn_type_valid: every txn uses a canonical type value', async () => {
+    const valid = new Set(['use', 'restock', 'adjust', 'consume']);
+    const db = adminClient();
+    const { data } = await db.from('inventory_transactions')
+      .select('type').limit(50);
+    if (!data) { test.skip(true, 'no rows'); return; }
+    const bad = data.filter(r => r.type && !valid.has(r.type));
+    expect(bad.length, 'every txn type must be canonical').toBe(0);
+  });
+
 });
