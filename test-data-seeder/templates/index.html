@@ -907,9 +907,10 @@
     margin-top: 8px;
     padding-top: 6px;
     border-top: 1px solid rgba(255,255,255,0.07);
-    font-size: 0.7rem;
+    font-size: 0.72rem;
     color: var(--muted-2);
-    font-style: italic;
+    line-height: 1.55;
+    white-space: pre-line; /* render \n (or &#10;) as a real line break */
   }
   @keyframes tip-fade {
     from { opacity: 0; transform: translateY(3px); }
@@ -1289,9 +1290,9 @@
     </div>
     <div class="button-grid">
       <button class="seed-btn mega-btn" data-action="run-mega-gate"
-        data-tip-title="Mega Gate (Layer 0 + Layer 1 + Layer 2)"
-        data-tip="Runs the full Unified Mega Gate: Layer 0 (all static validators incl. admin gates + logbook checks), Layer 1 (data tests against seeded DB), Layer 2 (Playwright smoke + visual regression + AI prompt regression). One verdict at the end."
-        data-tip-foot="Use when: deploying to prod, finishing a multi-day feature, or want a full confidence check. AVOID for tiny inner-loop changes — too slow.">🚀 Mega Gate · ~10-15 min</button>
+        data-tip-title="🚀 Mega Gate"
+        data-tip="Runs every check: validators + AI + visual + UI tests + DB tests. Returns one GO / NO-GO verdict."
+        data-tip-foot="✅ CLICK BEFORE: deploying to prod, ending a multi-day feature, taking a long break.&#10;❌ SKIP FOR: tiny code tweaks — too slow for inner-loop work.">🚀 Mega Gate · ~10-15 min</button>
     </div>
     <details class="section-help">
       <summary>What is the Mega Gate exactly?</summary>
@@ -1313,17 +1314,17 @@
     </div>
     <div class="button-grid">
       <button class="seed-btn" data-action="run-gate"
-        data-tip-title="Fast Guardian — all static validators"
-        data-tip="Runs every Layer 0 validator: schema integrity, RLS symmetry, XSS escaping, admin gates, logbook integrity (incl. machine_validation_toast + optimistic_lock_on_edit), capability catalog, AI gateway routing, mobile UX, function security, etc."
-        data-tip-foot="Use when: any code change that doesn't touch AI prompts. Default pre-commit gate.">🛡️ Fast Guardian (all validators · ~90s)</button>
+        data-tip-title="🛡️ Fast Guardian"
+        data-tip="Static code checks: schema, RLS, XSS, admin gates, logbook integrity, AI gateway, mobile UX, function security."
+        data-tip-foot="✅ CLICK AFTER: any code change (HTML / JS / migrations).&#10;👉 This is your DEFAULT pre-commit gate. Should pass before `git add`.">🛡️ Fast Guardian (all validators · ~90s)</button>
       <button class="seed-btn" data-action="run-gate-ai"
-        data-tip-title="Fast Guardian + AI Prompt Regression"
-        data-tip="Fast Guardian plus ~10 live Groq calls that verify AI prompts still produce the expected shape and tone. Free because Groq is."
-        data-tip-foot="Use when: you edited assistant.html, floating-ai.js, any edge function that calls Groq, or tweaked RAG context.">🤖 + AI Prompt Regression (Groq · ~5min · $0)</button>
+        data-tip-title="🤖 + AI Prompt Regression"
+        data-tip="Fast Guardian plus ~10 live Groq calls to verify AI prompts still produce the expected shape and tone. Free."
+        data-tip-foot="✅ CLICK AFTER: editing AI prompts — assistant.html, floating-ai.js, any edge function calling Groq, or RAG context tweaks.">🤖 + AI Prompt Regression (Groq · ~5min · $0)</button>
       <button class="seed-btn" data-action="run-tests"
-        data-tip-title="Data Tests — DB integrity"
-        data-tip="20 sections of deterministic checks against the seeded DB (no browser): hive isolation, logbook field population, inventory qty math, PM scope frequencies, skill levels, marketplace status enums, cross-page asset linkage, auth_uid coverage."
-        data-tip-foot="Use when: after schema migration, seeder logic change, or any DB write path edit.">🧪 Data Tests (DB · ~5s)</button>
+        data-tip-title="🧪 Data Tests"
+        data-tip="DB integrity checks (no browser): hive isolation, logbook fields, inventory math, PM frequencies, skill levels, asset linkage."
+        data-tip-foot="✅ CLICK AFTER: schema migration, seeder edit, or any DB write-path change.">🧪 Data Tests (DB · ~5s)</button>
     </div>
   </div>
 
@@ -1335,29 +1336,29 @@
     </div>
     <div class="button-grid">
       <button class="seed-btn" data-action="run-flows"
-        data-tip-title="Smoke Tests — page-load walk"
-        data-tip="Playwright walks every page: does it load, console errors, key buttons clickable, form fields present. Read-only — no DB writes."
-        data-tip-foot="Use when: after rendering / interaction code changes. Catches blank pages, JS errors, missing buttons.">🎬 Smoke Tests (~30s)</button>
+        data-tip-title="🎬 Smoke Tests"
+        data-tip="Playwright walks every page: does it load, console errors, buttons clickable, forms present. Read-only — no DB writes."
+        data-tip-foot="✅ CLICK AFTER: rendering or interaction code changes.&#10;👉 Catches blank pages, JS errors, missing buttons.">🎬 Smoke Tests (~30s)</button>
       <button class="seed-btn" data-action="run-roles"
-        data-tip-title="Role Permission Tests (NEW)"
-        data-tip="Tests every page with 3 roles: solo (no hive), worker (hive member), supervisor. Compares snapshots and asserts permission contracts. Found founder-console admin gate was disabled."
-        data-tip-foot="Use when: after touching auth, admin gates, role-gated UI, or hive_members RLS. Run per-tier: --tier 1, --tier 2, etc.">👥 Role Permission Tests (~3 min)</button>
+        data-tip-title="👥 Role Permission Tests (NEW)"
+        data-tip="Tests every page with 3 roles: solo / worker / supervisor. Confirms each role sees only what they should."
+        data-tip-foot="✅ CLICK AFTER: touching auth, admin gates, role-gated UI, or hive_members.&#10;💡 Already found founder-console admin gate disabled (fixed).">👥 Role Permission Tests (~3 min)</button>
       <button class="seed-btn" data-action="run-concurrent"
-        data-tip-title="Concurrent Edit Tests (NEW)"
-        data-tip="Async Playwright tests with 2 simultaneous sessions. Tests last-write-wins (B saves stale data after A) and simultaneous-create (no duplicate key errors). Found 6 pages had no optimistic locking — 3 fixed."
-        data-tip-foot="Use when: after touching any save/update flow. Verifies updated_at OC guards detect concurrent edits.">⚡ Concurrent Edit Tests (~2 min)</button>
+        data-tip-title="⚡ Concurrent Edit Tests (NEW)"
+        data-tip="2 sessions edit the same record at once. Verifies updated_at conflict detection so B can't silently overwrite A."
+        data-tip-foot="✅ CLICK AFTER: any save/update flow change or new updated_at OC guard.&#10;💡 Already found 6 pages with no OC — 3 fixed (logbook, pm-scheduler, project-manager).">⚡ Concurrent Edit Tests (~2 min)</button>
       <button class="seed-btn" data-action="run-crud-tests" style="background:rgba(248,113,113,0.1);color:var(--red);border-color:rgba(248,113,113,0.3);"
-        data-tip-title="CRUD Tests — full DB round-trip"
-        data-tip="Playwright actually writes rows then reads them back via Supabase. Slower because it waits for real DB writes. Catches 'looks fine but the insert silently dropped fields'."
-        data-tip-foot="Use when: after changes to insert / update / delete flows or forms that save data.">🔍 CRUD Tests (~2 min, DB-verified)</button>
+        data-tip-title="🔍 CRUD Tests"
+        data-tip="Playwright writes rows then reads them back via Supabase. Catches 'looks fine but the insert silently dropped fields'."
+        data-tip-foot="✅ CLICK AFTER: insert / update / delete flow changes, or form-that-saves edits.">🔍 CRUD Tests (~2 min, DB-verified)</button>
       <button class="seed-btn" data-action="run-playwright-node"
-        data-tip-title="UI Locks (Node Playwright)"
-        data-tip="Node @playwright/test suite (tests/*.spec.ts). Per-page interaction locks: real Supabase Auth sign-in, fills form, asserts success toast AND verifies the row landed in the DB. Catches silent-failure regressions."
-        data-tip-foot="Use when: after touching capture-validate.js, any form, toast handler, or addEntry/save flow. Requires `subst Z:` once.">🛡️ UI Locks (Node · ~6 min)</button>
+        data-tip-title="🛡️ UI Locks"
+        data-tip="Per-page interaction locks: real Supabase Auth sign-in, fills form, asserts toast AND verifies row in DB."
+        data-tip-foot="✅ CLICK AFTER: capture-validate.js, any form, toast handler, or addEntry/save flow.&#10;⚠️ First time only: run `subst Z: &lt;project-path&gt;`.">🛡️ UI Locks (Node · ~6 min)</button>
       <button class="seed-btn" data-action="run-gate-visual"
-        data-tip-title="Visual Regression"
-        data-tip="Screenshots every page at desktop viewport, diffs each against the saved baseline. Fails on pixel drift."
-        data-tip-foot="Use when: after CSS / layout work. AVOID for data-only changes — false positives waste your time.">📷 Visual Regression (~3 min)</button>
+        data-tip-title="📷 Visual Regression"
+        data-tip="Screenshots every page at desktop viewport, diffs against the saved baseline. Fails on pixel drift."
+        data-tip-foot="✅ CLICK AFTER: CSS / layout work.&#10;❌ SKIP FOR: data-only changes — false positives waste time.">📷 Visual Regression (~3 min)</button>
     </div>
     <details class="section-help">
       <summary>Which gate when? — quick decision guide</summary>

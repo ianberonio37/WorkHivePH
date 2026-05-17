@@ -8,14 +8,16 @@ Phases:
   Phase 2     - Static validators (run_platform_checks.py --fast)
   Phase 3     - Data tests (test-data-seeder/run_tests.py)
   Phase 4     - UI tests (test-data-seeder/run_flows.py)
+  Phase 4b    - AI Self-Improvement Loop (Playwright-driven, optional: --with-ai-deep)
 
 PASS  -> writes .last-gate-pass with current commit SHA. Safe to push.
 FAIL  -> exits 1. The git pre-push hook aborts the push.
 
 Usage:
-  python release_gate.py            # full gate
-  python release_gate.py --skip-ui  # skip Playwright (e.g., on a server without Chromium)
-  python release_gate.py --no-seed  # use existing seeded data (faster iteration)
+  python release_gate.py                  # full gate
+  python release_gate.py --skip-ui        # skip Playwright (e.g., on a server without Chromium)
+  python release_gate.py --no-seed        # use existing seeded data (faster iteration)
+  python release_gate.py --with-ai-deep   # include AI self-improvement loop (all surfaces)
 """
 import io
 import json
@@ -55,6 +57,7 @@ NO_SESEED = "--no-seed" in sys.argv
 WITH_AI = "--with-ai" in sys.argv
 WITH_VISUAL = "--with-visual" in sys.argv
 WITH_PERF = "--with-perf" in sys.argv
+WITH_AI_DEEP = "--with-ai-deep" in sys.argv
 
 
 def py_for(path: Path) -> str:
@@ -218,6 +221,19 @@ def phase_ui() -> tuple[bool, dict]:
     return (rc == 0, {"summary": summary, "lines": lines})
 
 
+def phase_ai_deep() -> tuple[bool, dict]:
+    """Phase 4b: AI Self-Improvement Loop (Playwright-driven)."""
+    if not WITH_AI_DEEP:
+        return (True, {"summary": "skipped (no --with-ai-deep)", "lines": []})
+    if not can_reach("127.0.0.1:5000"):
+        warn("Skipping AI loop: Flask not running on :5000")
+        return (True, {"summary": "skipped (no Flask)", "lines": []})
+
+    step("Phase 4b: AI Self-Improvement Loop (Playwright + Claude)")
+    rc, summary, lines = run_subprocess([sys.executable, "tools/ai_self_improvement_loop.py"], cwd=ROOT)
+    return (rc == 0, {"summary": summary, "lines": lines})
+
+
 # ── Verdict ───────────────────────────────────────────────────────────────
 
 def get_head_sha() -> str:
@@ -316,11 +332,13 @@ def main() -> int:
     data_ok, data_res = phase_data()
     print()
     ui_ok, ui_res = phase_ui()
+    print()
+    ai_deep_ok, ai_deep_res = phase_ai_deep()
 
-    results = {"static": static_res, "data": data_res, "ui": ui_res}
-    all_pass = static_ok and data_ok and ui_ok
+    results = {"static": static_res, "data": data_res, "ui": ui_res, "ai_deep": ai_deep_res}
+    all_pass = static_ok and data_ok and ui_ok and ai_deep_ok
 
-    layer_results = {"static": static_res, "data": data_res, "ui": ui_res}
+    layer_results = {"static": static_res, "data": data_res, "ui": ui_res, "ai_deep": ai_deep_res}
 
     if all_pass:
         banner("GATE PASS — safe to deploy", "green")
@@ -335,6 +353,7 @@ def main() -> int:
             ("static", static_res, static_ok),
             ("data", data_res, data_ok),
             ("ui", ui_res, ui_ok),
+            ("ai_deep", ai_deep_res, ai_deep_ok),
         ]:
             mark = "PASS" if passed else "FAIL"
             print(f"  {label}: {mark} — {res['summary'] or '(no summary)'}")

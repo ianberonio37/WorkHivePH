@@ -1599,6 +1599,15 @@ VALIDATORS = [
         "report":  None,
         "skip_if_fast": False,
     },
+    {
+        "id":      "calc_formula_accuracy",
+        "script":  "tools/validate_calc_formula_accuracy.py",
+        "args":    [],
+        "label":   "AI Self-Improvement: Calc Formula Accuracy",
+        "group":   "AI Validation",
+        "report":  None,
+        "skip_if_fast": False,
+    },
 ]
 
 PYTHON_API_URL  = "https://engineering-calc-api.onrender.com/calculate"

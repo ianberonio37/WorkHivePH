@@ -1,133 +1,218 @@
 {
-  "timestamp": "2026-05-16T22:48:46.646326",
+  "timestamp": "2026-05-17T11:34:32.216766",
   "tiers": {
-    "4": {
-      "tier": 4,
+    "1": {
+      "tier": 1,
       "pages": {
-        "index": {
-          "page": "index",
+        "logbook": {
+          "page": "logbook",
           "paths": {
             "all": {
               "results": [
                 {
-                  "scenario": "happy_landing",
+                  "scenario": "happy",
                   "result": "PASS",
-                  "actual": "hero=True"
+                  "actual": "20 entries rendered, no undefined values"
                 },
                 {
-                  "scenario": "auth_form_visible",
+                  "scenario": "empty",
                   "result": "PASS",
-                  "actual": "form_fields=True"
+                  "actual": "Empty state handled"
                 },
                 {
                   "scenario": "loading",
                   "result": "PASS",
-                  "actual": "settled"
+                  "actual": "Page loaded successfully"
                 },
                 {
-                  "scenario": "happy_signin",
+                  "scenario": "happy",
                   "result": "PASS",
-                  "actual": "login=True"
+                  "actual": "submit=True, entries_shown=False"
                 },
                 {
-                  "scenario": "validation_empty_creds",
-                  "result": "WARN",
-                  "actual": "Page.wait_for_selector: Timeout 8000ms exceeded.\nCall log:\n "
+                  "scenario": "validation",
+                  "result": "PASS",
+                  "actual": "validation_error=True"
                 },
                 {
-                  "scenario": "api_error_bad_creds",
+                  "scenario": "api_error",
                   "result": "WARN",
-                  "actual": "Page.wait_for_selector: Timeout 8000ms exceeded.\nCall log:\n "
+                  "actual": "retry=False, err_shown=False"
                 },
                 {
                   "scenario": "permission",
-                  "result": "SKIP",
-                  "reason": "public page, no permission check"
+                  "result": "WARN",
+                  "error": "Role=supervisor, field visible=False"
                 },
                 {
                   "scenario": "concurrent",
                   "result": "SKIP",
-                  "reason": "deferred"
+                  "reason": "Requires two concurrent sessions (TODO: implement)"
                 },
                 {
-                  "scenario": "remember_hive",
+                  "scenario": "offline",
                   "result": "PASS",
-                  "actual": "hive_remembered=True"
+                  "actual": "Entry queued offline"
+                },
+                {
+                  "scenario": "edge_cases",
+                  "result": "PASS",
+                  "actual": "All edge cases handled"
                 },
                 {
                   "scenario": "mobile",
-                  "result": "PASS",
-                  "actual": "mobile"
+                  "result": "WARN",
+                  "error": "overflow=False, taps=True, console=False"
                 },
                 {
                   "scenario": "console",
                   "result": "PASS",
-                  "actual": "0 errors"
+                  "actual": "No critical errors"
                 }
               ],
-              "pass_count": 7,
+              "pass_count": 8,
               "fail_count": 0,
-              "warn_count": 2
+              "warn_count": 3
             }
           },
-          "total_pass": 7,
+          "total_pass": 8,
           "total_fail": 0,
-          "total_warn": 2
+          "total_warn": 3
         },
-        "public-feed": {
-          "page": "public-feed",
+        "inventory": {
+          "page": "inventory",
           "paths": {
             "all": {
               "results": [
                 {
-                  "scenario": "happy_feed",
+                  "scenario": "happy",
                   "result": "PASS",
-                  "actual": "0 posts"
+                  "actual": "0 items, no_undefined=True"
                 },
                 {
                   "scenario": "empty_state",
                   "result": "PASS",
-                  "actual": "posts or empty"
+                  "actual": "empty state or items rendered"
                 },
                 {
                   "scenario": "loading",
                   "result": "PASS",
-                  "actual": "settled"
+                  "actual": "page settled"
                 },
                 {
-                  "scenario": "happy_search",
+                  "scenario": "happy_restock",
                   "result": "PASS",
-                  "actual": "search submitted"
+                  "actual": "form=True, submit=True"
                 },
                 {
-                  "scenario": "happy_filter_hive",
+                  "scenario": "happy_deduct",
                   "result": "WARN",
-                  "actual": "no hive filter"
+                  "actual": "No inventory items to deduct from"
                 },
                 {
-                  "scenario": "validation",
-                  "result": "SKIP",
-                  "reason": "read-only public feed"
+                  "scenario": "validation_negative",
+                  "result": "WARN",
+                  "actual": "validation_error=False"
                 },
                 {
                   "scenario": "api_error",
-                  "result": "SKIP",
-                  "reason": "deferred"
+                  "result": "WARN",
+                  "actual": "error_ui=False"
                 },
                 {
                   "scenario": "permission",
-                  "result": "SKIP",
-                  "reason": "public page"
+                  "result": "WARN",
+                  "actual": "role=supervisor, approve_btn=False"
                 },
                 {
-                  "scenario": "concurrent",
-                  "result": "SKIP",
-                  "reason": "read-only"
+                  "scenario": "offline",
+                  "result": "PASS",
+                  "actual": "queued=True"
+                },
+                {
+                  "scenario": "edge_zero_qty",
+                  "result": "PASS",
+                  "actual": "zero handled"
                 },
                 {
                   "scenario": "mobile",
+                  "result": "WARN",
+                  "actual": "overflow=False, tap=True"
+                },
+                {
+                  "scenario": "console",
                   "result": "PASS",
-                  "actual": "mobile"
+                  "actual": "0 console errors"
+                }
+              ],
+              "pass_count": 7,
+              "fail_count": 0,
+              "warn_count": 5
+            }
+          },
+          "total_pass": 7,
+          "total_fail": 0,
+          "total_warn": 5
+        },
+        "pm-scheduler": {
+          "page": "pm-scheduler",
+          "paths": {
+            "all": {
+              "results": [
+                {
+                  "scenario": "happy",
+                  "result": "PASS",
+                  "actual": "0 tasks, no_undefined=True"
+                },
+                {
+                  "scenario": "overdue_tasks_flagged",
+                  "result": "PASS",
+                  "actual": "overdue_flag=True"
+                },
+                {
+                  "scenario": "loading",
+                  "result": "PASS",
+                  "actual": "page settled"
+                },
+                {
+                  "scenario": "happy_complete",
+                  "result": "WARN",
+                  "actual": "no complete button visible"
+                },
+                {
+                  "scenario": "happy_skip",
+                  "result": "WARN",
+                  "actual": "no skip button visible"
+                },
+                {
+                  "scenario": "validation_notes",
+                  "result": "WARN",
+                  "actual": "no complete button"
+                },
+                {
+                  "scenario": "api_error",
+                  "result": "WARN",
+                  "actual": "no complete button to test"
+                },
+                {
+                  "scenario": "permission_reassign",
+                  "result": "WARN",
+                  "actual": "role=supervisor, reassign_visible=False"
+                },
+                {
+                  "scenario": "offline",
+                  "result": "PASS",
+                  "actual": "queued=True"
+                },
+                {
+                  "scenario": "edge_freq_display",
+                  "result": "PASS",
+                  "actual": "freq_display=True"
+                },
+                {
+                  "scenario": "mobile",
+                  "result": "WARN",
+                  "actual": "overflow=False, tap=True"
                 },
                 {
                   "scenario": "console",
@@ -137,62 +222,222 @@
               ],
               "pass_count": 6,
               "fail_count": 0,
-              "warn_count": 1
+              "warn_count": 6
             }
           },
           "total_pass": 6,
           "total_fail": 0,
-          "total_warn": 1
+          "total_warn": 6
         },
-        "assistant": {
-          "page": "assistant",
+        "hive": {
+          "page": "hive",
           "paths": {
             "all": {
               "results": [
                 {
-                  "scenario": "happy_chat_ui",
+                  "scenario": "happy_kpis",
                   "result": "PASS",
-                  "actual": "chat_input=True"
+                  "actual": "0 KPI cards, kpi_text=True, no_undef=True"
                 },
                 {
-                  "scenario": "empty_state",
+                  "scenario": "hive_context_displayed",
                   "result": "PASS",
-                  "actual": "chat starts empty by design"
+                  "actual": "hive_name=Baguio Textile Mills, shown=True"
                 },
                 {
                   "scenario": "loading",
                   "result": "PASS",
-                  "actual": "settled"
+                  "actual": "page settled"
                 },
                 {
-                  "scenario": "happy_send_message",
+                  "scenario": "happy_switch_hive",
                   "result": "WARN",
-                  "actual": "no chat input"
+                  "actual": "no hive switcher visible"
                 },
                 {
-                  "scenario": "validation_empty_message",
+                  "scenario": "permission_intent",
                   "result": "WARN",
-                  "actual": "no input"
+                  "actual": "role=supervisor, intent_visible=False"
                 },
                 {
-                  "scenario": "api_error_ai_down",
+                  "scenario": "api_error_kpis",
                   "result": "WARN",
-                  "actual": "no input"
+                  "actual": "fallback=False"
                 },
                 {
-                  "scenario": "permission",
+                  "scenario": "validation",
                   "result": "SKIP",
-                  "reason": "all workers can use assistant"
+                  "reason": "hive dashboard is read-only"
                 },
                 {
                   "scenario": "concurrent",
                   "result": "SKIP",
-                  "reason": "per-user session"
+                  "reason": "KPIs are aggregated, no concurrent edit conflict"
+                },
+                {
+                  "scenario": "offline_degrade",
+                  "result": "PASS",
+                  "actual": "graceful=True"
+                },
+                {
+                  "scenario": "edge_kph_tile",
+                  "result": "PASS",
+                  "actual": "kph_tile=True"
                 },
                 {
                   "scenario": "mobile",
+                  "result": "WARN",
+                  "actual": "overflow=False, tap=True"
+                },
+                {
+                  "scenario": "console",
                   "result": "PASS",
-                  "actual": "mobile"
+                  "actual": "0 errors"
+                }
+              ],
+              "pass_count": 6,
+              "fail_count": 0,
+              "warn_count": 4
+            }
+          },
+          "total_pass": 6,
+          "total_fail": 0,
+          "total_warn": 4
+        },
+        "community": {
+          "page": "community",
+          "paths": {
+            "all": {
+              "results": [
+                {
+                  "scenario": "happy_feed",
+                  "result": "PASS",
+                  "actual": "21 posts, no_undef=True"
+                },
+                {
+                  "scenario": "empty_state",
+                  "result": "PASS",
+                  "actual": "empty_or_items=True"
+                },
+                {
+                  "scenario": "loading",
+                  "result": "PASS",
+                  "actual": "page settled"
+                },
+                {
+                  "scenario": "happy_create_post",
+                  "result": "WARN",
+                  "actual": "submit=True, visible=False"
+                },
+                {
+                  "scenario": "happy_reaction",
+                  "result": "PASS",
+                  "actual": "reaction clicked"
+                },
+                {
+                  "scenario": "validation_empty",
+                  "result": "WARN",
+                  "actual": "error=False"
+                },
+                {
+                  "scenario": "api_error",
+                  "result": "WARN",
+                  "actual": "error_ui=False"
+                },
+                {
+                  "scenario": "permission_supervisor_edit",
+                  "result": "WARN",
+                  "actual": "role=supervisor, edit_visible=False"
+                },
+                {
+                  "scenario": "offline",
+                  "result": "WARN",
+                  "actual": "queued=False"
+                },
+                {
+                  "scenario": "edge_xp_display",
+                  "result": "PASS",
+                  "actual": "xp=True"
+                },
+                {
+                  "scenario": "mobile",
+                  "result": "WARN",
+                  "actual": "overflow=False, tap=True"
+                },
+                {
+                  "scenario": "console",
+                  "result": "PASS",
+                  "actual": "0 errors"
+                }
+              ],
+              "pass_count": 6,
+              "fail_count": 0,
+              "warn_count": 6
+            }
+          },
+          "total_pass": 6,
+          "total_fail": 0,
+          "total_warn": 6
+        },
+        "marketplace": {
+          "page": "marketplace",
+          "paths": {
+            "all": {
+              "results": [
+                {
+                  "scenario": "happy_listings",
+                  "result": "PASS",
+                  "actual": "13 listings, no_undef=True"
+                },
+                {
+                  "scenario": "empty_state",
+                  "result": "PASS",
+                  "actual": "empty_or_items=True"
+                },
+                {
+                  "scenario": "loading",
+                  "result": "PASS",
+                  "actual": "page settled"
+                },
+                {
+                  "scenario": "happy_create",
+                  "result": "WARN",
+                  "actual": "no create button"
+                },
+                {
+                  "scenario": "happy_publish",
+                  "result": "WARN",
+                  "actual": "no publish button"
+                },
+                {
+                  "scenario": "validation_required",
+                  "result": "WARN",
+                  "actual": "no create button"
+                },
+                {
+                  "scenario": "api_error",
+                  "result": "WARN",
+                  "actual": "no publish btn"
+                },
+                {
+                  "scenario": "permission_approval",
+                  "result": "WARN",
+                  "actual": "role=supervisor, approval_visible=False"
+                },
+                {
+                  "scenario": "offline_browse",
+                  "result": "PASS",
+                  "actual": "renders=True"
+                },
+                {
+                  "scenario": "edge_decimal_price",
+                  "result": "WARN",
+                  "actual": "no create button"
+                },
+                {
+                  "scenario": "mobile",
+                  "result": "WARN",
+                  "actual": "overflow=False, tap=True"
                 },
                 {
                   "scenario": "console",
@@ -202,137 +447,72 @@
               ],
               "pass_count": 5,
               "fail_count": 0,
-              "warn_count": 3
+              "warn_count": 7
             }
           },
           "total_pass": 5,
           "total_fail": 0,
-          "total_warn": 3
+          "total_warn": 7
         },
-        "ph-intelligence": {
-          "page": "ph-intelligence",
+        "project-manager": {
+          "page": "project-manager",
           "paths": {
             "all": {
               "results": [
                 {
-                  "scenario": "happy",
+                  "scenario": "happy_projects",
                   "result": "PASS",
-                  "actual": "0 insights"
+                  "actual": "0 items, no_undef=True"
                 },
                 {
-                  "scenario": "empty_state",
+                  "scenario": "status_labels",
                   "result": "PASS",
-                  "actual": "insights or empty"
+                  "actual": "status_shown=True"
                 },
                 {
                   "scenario": "loading",
                   "result": "PASS",
-                  "actual": "settled"
+                  "actual": "page settled"
                 },
                 {
-                  "scenario": "happy",
-                  "result": "SKIP",
-                  "reason": "read-only intelligence page"
+                  "scenario": "happy_create",
+                  "result": "WARN",
+                  "actual": "submit=False, visible=False"
                 },
                 {
-                  "scenario": "validation",
-                  "result": "SKIP",
-                  "reason": "read-only"
+                  "scenario": "happy_status_transition",
+                  "result": "WARN",
+                  "actual": "no status button"
+                },
+                {
+                  "scenario": "validation_required",
+                  "result": "WARN",
+                  "actual": "error=False"
                 },
                 {
                   "scenario": "api_error",
-                  "result": "SKIP",
-                  "reason": "deferred"
-                },
-                {
-                  "scenario": "permission",
-                  "result": "SKIP",
-                  "reason": "supervisor+ gated"
-                },
-                {
-                  "scenario": "concurrent",
-                  "result": "SKIP",
-                  "reason": "read-only"
-                },
-                {
-                  "scenario": "data_freshness",
                   "result": "WARN",
-                  "actual": "freshness_shown=False"
+                  "actual": "error_ui=False"
                 },
                 {
-                  "scenario": "mobile",
-                  "result": "PASS",
-                  "actual": "mobile"
-                },
-                {
-                  "scenario": "console",
-                  "result": "PASS",
-                  "actual": "0 errors"
-                }
-              ],
-              "pass_count": 5,
-              "fail_count": 0,
-              "warn_count": 1
-            }
-          },
-          "total_pass": 5,
-          "total_fail": 0,
-          "total_warn": 1
-        },
-        "marketplace-admin": {
-          "page": "marketplace-admin",
-          "paths": {
-            "all": {
-              "results": [
-                {
-                  "scenario": "happy",
-                  "result": "PASS",
-                  "actual": "0 listings"
-                },
-                {
-                  "scenario": "empty_state",
-                  "result": "PASS",
-                  "actual": "listings or empty"
-                },
-                {
-                  "scenario": "loading",
-                  "result": "PASS",
-                  "actual": "settled"
-                },
-                {
-                  "scenario": "happy_approve",
+                  "scenario": "permission_approve",
                   "result": "WARN",
-                  "actual": "no approve button (no pending listings)"
+                  "actual": "role=supervisor, approve=False"
                 },
                 {
-                  "scenario": "happy_reject",
+                  "scenario": "offline",
                   "result": "WARN",
-                  "actual": "no reject button"
+                  "actual": "queued=False"
                 },
                 {
-                  "scenario": "validation",
-                  "result": "SKIP",
-                  "reason": "deferred"
-                },
-                {
-                  "scenario": "api_error",
-                  "result": "SKIP",
-                  "reason": "deferred"
-                },
-                {
-                  "scenario": "permission",
-                  "result": "SKIP",
-                  "reason": "admin-only page"
-                },
-                {
-                  "scenario": "concurrent",
-                  "result": "SKIP",
-                  "reason": "deferred"
+                  "scenario": "edge_filter_status",
+                  "result": "WARN",
+                  "actual": "no filter control"
                 },
                 {
                   "scenario": "mobile",
                   "result": "WARN",
-                  "actual": "mobile"
+                  "actual": "overflow=False, tap=True"
                 },
                 {
                   "scenario": "console",
@@ -342,505 +522,21 @@
               ],
               "pass_count": 4,
               "fail_count": 0,
-              "warn_count": 3
+              "warn_count": 8
             }
           },
           "total_pass": 4,
           "total_fail": 0,
-          "total_warn": 3
+          "total_warn": 8
         }
       },
-      "total_pass": 27,
+      "total_pass": 42,
       "total_fail": 0,
-      "total_warn": 10,
-      "duration_ms": 86936.4
-    },
-    "5": {
-      "tier": 5,
-      "pages": {
-        "dayplanner": {
-          "page": "dayplanner",
-          "paths": {
-            "all": {
-              "results": [
-                {
-                  "scenario": "happy",
-                  "result": "PASS",
-                  "actual": "0 entries, mode_shown=True"
-                },
-                {
-                  "scenario": "empty_state",
-                  "result": "PASS",
-                  "actual": "entries or empty"
-                },
-                {
-                  "scenario": "loading",
-                  "result": "PASS",
-                  "actual": "settled"
-                },
-                {
-                  "scenario": "happy_create_entry",
-                  "result": "PASS",
-                  "actual": "entry added"
-                },
-                {
-                  "scenario": "validation",
-                  "result": "SKIP",
-                  "reason": "deferred"
-                },
-                {
-                  "scenario": "api_error",
-                  "result": "SKIP",
-                  "reason": "deferred"
-                },
-                {
-                  "scenario": "permission",
-                  "result": "SKIP",
-                  "reason": "all workers have personal planners"
-                },
-                {
-                  "scenario": "concurrent",
-                  "result": "SKIP",
-                  "reason": "personal schedule, no conflict"
-                },
-                {
-                  "scenario": "mobile",
-                  "result": "PASS",
-                  "actual": "mobile"
-                },
-                {
-                  "scenario": "console",
-                  "result": "PASS",
-                  "actual": "0 errors"
-                }
-              ],
-              "pass_count": 6,
-              "fail_count": 0,
-              "warn_count": 0
-            }
-          },
-          "total_pass": 6,
-          "total_fail": 0,
-          "total_warn": 0
-        },
-        "engineering-design": {
-          "page": "engineering-design",
-          "paths": {
-            "all": {
-              "results": [
-                {
-                  "scenario": "happy",
-                  "result": "PASS",
-                  "actual": "10 calcs"
-                },
-                {
-                  "scenario": "empty_state",
-                  "result": "PASS",
-                  "actual": "calcs or empty"
-                },
-                {
-                  "scenario": "loading",
-                  "result": "PASS",
-                  "actual": "settled"
-                },
-                {
-                  "scenario": "happy_run_calc",
-                  "result": "PASS",
-                  "actual": "result=True"
-                },
-                {
-                  "scenario": "validation_missing_input",
-                  "result": "SKIP",
-                  "reason": "deferred - depends on specific calc"
-                },
-                {
-                  "scenario": "api_error",
-                  "result": "SKIP",
-                  "reason": "deferred"
-                },
-                {
-                  "scenario": "permission",
-                  "result": "SKIP",
-                  "reason": "all workers can run calcs"
-                },
-                {
-                  "scenario": "concurrent",
-                  "result": "SKIP",
-                  "reason": "client-side computation"
-                },
-                {
-                  "scenario": "mobile",
-                  "result": "PASS",
-                  "actual": "mobile"
-                },
-                {
-                  "scenario": "console",
-                  "result": "PASS",
-                  "actual": "0 errors"
-                }
-              ],
-              "pass_count": 6,
-              "fail_count": 0,
-              "warn_count": 0
-            }
-          },
-          "total_pass": 6,
-          "total_fail": 0,
-          "total_warn": 0
-        },
-        "project-report": {
-          "page": "project-report",
-          "paths": {
-            "all": {
-              "results": [
-                {
-                  "scenario": "happy",
-                  "result": "PASS",
-                  "actual": "0 sections"
-                },
-                {
-                  "scenario": "empty_state",
-                  "result": "PASS",
-                  "actual": "sections or empty"
-                },
-                {
-                  "scenario": "loading",
-                  "result": "PASS",
-                  "actual": "settled"
-                },
-                {
-                  "scenario": "happy_generate",
-                  "result": "WARN",
-                  "actual": "no generate button"
-                },
-                {
-                  "scenario": "happy_export",
-                  "result": "WARN",
-                  "actual": "no export button"
-                },
-                {
-                  "scenario": "validation",
-                  "result": "SKIP",
-                  "reason": "deferred"
-                },
-                {
-                  "scenario": "api_error",
-                  "result": "SKIP",
-                  "reason": "deferred"
-                },
-                {
-                  "scenario": "permission",
-                  "result": "SKIP",
-                  "reason": "supervisor+ gated"
-                },
-                {
-                  "scenario": "concurrent",
-                  "result": "SKIP",
-                  "reason": "deferred"
-                },
-                {
-                  "scenario": "mobile",
-                  "result": "PASS",
-                  "actual": "mobile"
-                },
-                {
-                  "scenario": "console",
-                  "result": "PASS",
-                  "actual": "0 errors"
-                }
-              ],
-              "pass_count": 5,
-              "fail_count": 0,
-              "warn_count": 2
-            }
-          },
-          "total_pass": 5,
-          "total_fail": 0,
-          "total_warn": 2
-        },
-        "marketplace-seller": {
-          "page": "marketplace-seller",
-          "paths": {
-            "all": {
-              "results": [
-                {
-                  "scenario": "happy",
-                  "result": "PASS",
-                  "actual": "0 products"
-                },
-                {
-                  "scenario": "empty_state",
-                  "result": "PASS",
-                  "actual": "products or empty"
-                },
-                {
-                  "scenario": "loading",
-                  "result": "PASS",
-                  "actual": "settled"
-                },
-                {
-                  "scenario": "happy_list_product",
-                  "result": "WARN",
-                  "actual": "visible=False"
-                },
-                {
-                  "scenario": "validation",
-                  "result": "SKIP",
-                  "reason": "deferred"
-                },
-                {
-                  "scenario": "api_error",
-                  "result": "SKIP",
-                  "reason": "deferred"
-                },
-                {
-                  "scenario": "permission",
-                  "result": "SKIP",
-                  "reason": "seller-role required"
-                },
-                {
-                  "scenario": "concurrent",
-                  "result": "SKIP",
-                  "reason": "deferred"
-                },
-                {
-                  "scenario": "mobile",
-                  "result": "PASS",
-                  "actual": "mobile"
-                },
-                {
-                  "scenario": "console",
-                  "result": "PASS",
-                  "actual": "0 errors"
-                }
-              ],
-              "pass_count": 5,
-              "fail_count": 0,
-              "warn_count": 1
-            }
-          },
-          "total_pass": 5,
-          "total_fail": 0,
-          "total_warn": 1
-        },
-        "marketplace-seller-profile": {
-          "page": "marketplace-seller-profile",
-          "paths": {
-            "all": {
-              "results": [
-                {
-                  "scenario": "happy",
-                  "result": "PASS",
-                  "actual": "0 items"
-                },
-                {
-                  "scenario": "empty_state",
-                  "result": "PASS",
-                  "actual": "profile or empty"
-                },
-                {
-                  "scenario": "loading",
-                  "result": "PASS",
-                  "actual": "settled"
-                },
-                {
-                  "scenario": "happy_edit_profile",
-                  "result": "WARN",
-                  "actual": "no edit button"
-                },
-                {
-                  "scenario": "validation",
-                  "result": "SKIP",
-                  "reason": "deferred"
-                },
-                {
-                  "scenario": "api_error",
-                  "result": "SKIP",
-                  "reason": "deferred"
-                },
-                {
-                  "scenario": "permission",
-                  "result": "SKIP",
-                  "reason": "own profile only"
-                },
-                {
-                  "scenario": "concurrent",
-                  "result": "SKIP",
-                  "reason": "deferred"
-                },
-                {
-                  "scenario": "mobile",
-                  "result": "PASS",
-                  "actual": "mobile"
-                },
-                {
-                  "scenario": "console",
-                  "result": "PASS",
-                  "actual": "0 errors"
-                }
-              ],
-              "pass_count": 5,
-              "fail_count": 0,
-              "warn_count": 1
-            }
-          },
-          "total_pass": 5,
-          "total_fail": 0,
-          "total_warn": 1
-        },
-        "symbol-gallery": {
-          "page": "symbol-gallery",
-          "paths": {
-            "all": {
-              "results": [
-                {
-                  "scenario": "happy",
-                  "result": "PASS",
-                  "actual": "28 symbols, std=True"
-                },
-                {
-                  "scenario": "empty_state",
-                  "result": "PASS",
-                  "actual": "symbols or empty"
-                },
-                {
-                  "scenario": "loading",
-                  "result": "PASS",
-                  "actual": "settled"
-                },
-                {
-                  "scenario": "happy_filter_standard",
-                  "result": "WARN",
-                  "actual": "no standard filter"
-                },
-                {
-                  "scenario": "happy_search",
-                  "result": "WARN",
-                  "actual": "no search"
-                },
-                {
-                  "scenario": "validation",
-                  "result": "SKIP",
-                  "reason": "read/design-time only"
-                },
-                {
-                  "scenario": "api_error",
-                  "result": "SKIP",
-                  "reason": "static gallery"
-                },
-                {
-                  "scenario": "permission",
-                  "result": "SKIP",
-                  "reason": "all workers can browse"
-                },
-                {
-                  "scenario": "concurrent",
-                  "result": "SKIP",
-                  "reason": "read-only"
-                },
-                {
-                  "scenario": "mobile",
-                  "result": "PASS",
-                  "actual": "mobile"
-                },
-                {
-                  "scenario": "console",
-                  "result": "PASS",
-                  "actual": "0 errors"
-                }
-              ],
-              "pass_count": 5,
-              "fail_count": 0,
-              "warn_count": 2
-            }
-          },
-          "total_pass": 5,
-          "total_fail": 0,
-          "total_warn": 2
-        },
-        "founder-console": {
-          "page": "founder-console",
-          "paths": {
-            "all": {
-              "results": [
-                {
-                  "scenario": "happy_all_panels",
-                  "result": "PASS",
-                  "actual": "9 panels"
-                },
-                {
-                  "scenario": "empty_state",
-                  "result": "PASS",
-                  "actual": "panels or empty"
-                },
-                {
-                  "scenario": "loading",
-                  "result": "PASS",
-                  "actual": "settled"
-                },
-                {
-                  "scenario": "happy_refresh_all",
-                  "result": "PASS",
-                  "actual": "refresh-all clicked"
-                },
-                {
-                  "scenario": "happy_auto_refresh",
-                  "result": "WARN",
-                  "actual": "no auto-refresh dropdown"
-                },
-                {
-                  "scenario": "validation",
-                  "result": "SKIP",
-                  "reason": "read-only dashboard"
-                },
-                {
-                  "scenario": "api_error",
-                  "result": "SKIP",
-                  "reason": "deferred"
-                },
-                {
-                  "scenario": "permission_founder_only",
-                  "result": "WARN",
-                  "actual": "role=supervisor"
-                },
-                {
-                  "scenario": "concurrent",
-                  "result": "SKIP",
-                  "reason": "read-only"
-                },
-                {
-                  "scenario": "edge_8_panels_present",
-                  "result": "PASS",
-                  "actual": "growth=True, heatmap=True"
-                },
-                {
-                  "scenario": "mobile",
-                  "result": "PASS",
-                  "actual": "mobile"
-                },
-                {
-                  "scenario": "console",
-                  "result": "PASS",
-                  "actual": "0 errors"
-                }
-              ],
-              "pass_count": 7,
-              "fail_count": 0,
-              "warn_count": 2
-            }
-          },
-          "total_pass": 7,
-          "total_fail": 0,
-          "total_warn": 2
-        }
-      },
-      "total_pass": 39,
-      "total_fail": 0,
-      "total_warn": 8,
-      "duration_ms": 88699.1
+      "total_warn": 39,
+      "duration_ms": 485628.2
     }
   },
-  "total_pass": 66,
+  "total_pass": 42,
   "total_fail": 0,
-  "total_warn": 18
+  "total_warn": 39
 }

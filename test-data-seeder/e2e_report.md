@@ -1,21 +1,36 @@
 # Layer 2 E2E Test Report
-Generated: 2026-05-16T22:51:44.539028
+Generated: 2026-05-17T00:11:48.587841
 
 ## Summary
-- **Total PASS:** 66
-- **Total FAIL:** 0
-- **Total WARN:** 18
+- **Total PASS:** 184
+- **Total FAIL:** 1
+- **Total WARN:** 85
 - **Duration:** 0ms
 
 ## Results by Tier
 
-### Tier 4
-- PASS: 27
+### Tier 1
+- PASS: 41
 - FAIL: 0
-- Duration: 86936.4ms
+- Duration: 716781.4ms
+
+### Tier 2
+- PASS: 36
+- FAIL: 0
+- Duration: 237412.4ms
+
+### Tier 3
+- PASS: 42
+- FAIL: 0
+- Duration: 283416.1ms
+
+### Tier 4
+- PASS: 26
+- FAIL: 1
+- Duration: 108851.6ms
 
 ### Tier 5
 - PASS: 39
 - FAIL: 0
-- Duration: 88699.1ms
+- Duration: 141481.6ms
 

@@ -78,7 +78,7 @@ def warn(text):
     """Print warning."""
     print(f"  {YELLOW}[WARN]{RESET} {text}")
 
-def run_layer(layer_num, name, script, args=None) -> tuple[int, dict]:
+def run_layer(layer_num, name, script, args=None, timeout=300) -> tuple[int, dict]:
     """
     Run a layer script and capture output.
     Returns: (exit_code, output_data)
@@ -92,7 +92,7 @@ def run_layer(layer_num, name, script, args=None) -> tuple[int, dict]:
             cmd,
             capture_output=True,
             text=True,
-            timeout=300,  # 5 minute timeout per layer
+            timeout=timeout,
             env=os.environ.copy(),  # Pass environment variables to subprocess
         )
 
@@ -256,8 +256,8 @@ def main(surface_filter=None, fast=False) -> int:
     if failed == 0:
         print(f"  {GREEN}All scenarios passing!{RESET} Skipping to meta-validator.")
     else:
-        # Layer 1: Failure Analysis
-        rc1, res1 = run_layer(1, "Failure Analysis", "analyze_scenario_findings.py", [])
+        # Layer 1: Failure Analysis (needs longer timeout for many findings)
+        rc1, res1 = run_layer(1, "Failure Analysis", "analyze_scenario_findings.py", [], timeout=900)
         loop_results["layers"][1] = res1
 
         if rc1 != 0:
