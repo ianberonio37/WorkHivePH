@@ -25,6 +25,7 @@ from .achievements import seed_achievements
 from .amc import seed_amc
 from .sensor_readings import seed_sensor_readings
 from .voice_journal import seed_voice_journal
+from .industry_standards import seed_industry_standards
 from .edge_post_seed import run_post_seed_edges
 
 
@@ -85,6 +86,8 @@ def seed_everything(client, log) -> dict:
     step12g = seed_sensor_readings(client, log, ctx)
     step12h = seed_amc(client, log, ctx)             # reads assets/pms/inventory/workers
     step12i = seed_voice_journal(client, log, ctx)   # needs hive_members.auth_uid
+    # Day 2 Azure sprint: extend industry_standards beyond the 10 migration-seeded rows
+    step12j = seed_industry_standards(client, log)   # hive-agnostic catalog, no ctx needed
     step13 = run_post_seed_edges(client, log, ctx)   # depends on logbook + assets
 
     log("=" * 50)
@@ -117,5 +120,6 @@ def seed_everything(client, log) -> dict:
         **step12g,
         **step12h,
         **step12i,
+        **step12j,
         **step13,
     }

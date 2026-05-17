@@ -36,6 +36,7 @@ supabase/.branches/
 .env
 .env.local
 .env.azure
+.env.roboflow
 supabase/functions/.env
 supabase/.env.local
 
