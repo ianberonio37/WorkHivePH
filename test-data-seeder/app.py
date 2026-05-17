@@ -79,6 +79,34 @@ PUBLIC_PAGES = [
     ("audit-log.html", "Audit Log"),
     ("voice-journal.html", "Voice Journal"),
     ("founder-console.html", "Founder Console"),
+    ("about/index.html", "About (public /about/)"),
+    ("privacy-policy/index.html", "Privacy Policy (public)"),
+    ("terms-of-service/index.html", "Terms of Service (public)"),
+    ("learn/index.html", "Learn hub (public /learn/)"),
+    ("learn/start-digital-logbook-philippine-factory/index.html", "Learn: Digital logbook PH rollout"),
+    ("learn/what-is-oee-how-to-calculate/index.html", "Learn: OEE calculation"),
+    ("learn/mtbf-vs-mttr-for-supervisors/index.html", "Learn: MTBF vs MTTR"),
+    ("learn/maintenance-shift-handover-template/index.html", "Learn: Shift handover template"),
+    ("learn/spare-parts-inventory-philippine-plants/index.html", "Learn: Spare parts inventory"),
+    ("learn/free-pm-checklist-templates/index.html", "Learn: PM checklist templates"),
+    ("learn/skill-matrix-for-maintenance-technicians/index.html", "Learn: Skill matrix"),
+    ("learn/dilo-wilo-day-planner-supervisors/index.html", "Learn: Day Planner (DILO/WILO)"),
+    ("learn/free-engineering-calculators-philippine-plants/index.html", "Learn: Engineering calculators"),
+    ("learn/ai-work-assistant-maintenance-technicians/index.html", "Learn: AI Work Assistant"),
+    ("learn/predictive-maintenance-on-a-budget-philippines/index.html", "Learn: Predictive Maintenance"),
+    ("learn/connecting-workhive-to-sap-maximo-cmms/index.html", "Learn: CMMS Integration (SAP/Maximo)"),
+    ("learn/voice-to-text-maintenance-philippine-plant-floor/index.html", "Learn: Voice Journal"),
+    ("learn/building-asset-register-zero-budget/index.html", "Learn: Asset register"),
+    ("learn/maintenance-project-planning-template/index.html", "Learn: Project planning"),
+    ("learn/joining-and-growing-your-hive/index.html", "Learn: Hive (multi-tenant)"),
+    ("learn/industrial-community-of-practice-philippines/index.html", "Learn: Community of practice"),
+    ("learn/gamifying-maintenance-for-engagement/index.html", "Learn: Achievements (gamification)"),
+    ("learn/industrial-marketplace-philippine-specialists/index.html", "Learn: Marketplace"),
+    ("learn/predictive-alert-thresholds-plants/index.html", "Learn: Alert Hub thresholds"),
+    ("learn/dole-iso-audit-trail-from-logbook/index.html", "Learn: Audit Log (DOLE/ISO)"),
+    ("learn/ai-quality-and-roi-stage-2-plants/index.html", "Learn: AI Quality + ROI"),
+    ("learn/sensor-cmms-gateway-operations/index.html", "Learn: Plant Connections gateway"),
+    ("learn/ph-industrial-benchmarks-intelligence/index.html", "Learn: PH Intelligence benchmarks"),
 ]
 PUBLIC_PAGE_SET = {p[0] for p in PUBLIC_PAGES}
 
@@ -912,6 +940,84 @@ def api_run_mega_gate():
         "mega_gate",
         _run_release_gate(["--with-ai", "--with-visual", "--with-perf"]),
     )
+    return jsonify({"started": True})
+
+
+@app.route("/api/run-roles", methods=["POST"])
+def api_run_roles():
+    """Role Permission Tests — solo / worker / supervisor differential snapshots.
+
+    Tests each page with 3 isolated browser contexts, compares element visibility
+    per role, asserts the permission matrix. Found founder-console admin gate
+    disabled (2026-05-17).
+    """
+    if JOB_STATE["running"]:
+        return jsonify({"error": "another job is running"}), 409
+
+    def run_roles(client, log):
+        seeder_dir = Path(__file__).parent
+        py = seeder_dir / "venv" / "Scripts" / "python.exe"
+        if not py.exists():
+            py = Path("python")
+        import re as _re
+        ansi = _re.compile(r"\x1b\[[0-9;]*m")
+        # Run per-tier to avoid session-state cascade (known limitation)
+        all_results = {}
+        for tier in (1, 2, 3, 4, 5):
+            log(f"--- Tier {tier} ---")
+            try:
+                proc = subprocess.Popen(
+                    [str(py), "-u", "e2e_roles_runner.py", "--tier", str(tier)],
+                    stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+                    cwd=str(seeder_dir), bufsize=1,
+                    text=True, encoding="utf-8", errors="replace",
+                )
+                for line in proc.stdout:
+                    log(ansi.sub("", line.rstrip()))
+                proc.wait()
+                all_results[f"tier_{tier}"] = proc.returncode
+            except Exception as e:
+                log(f"Tier {tier} error: {e}")
+                all_results[f"tier_{tier}"] = -1
+        return all_results
+
+    _run_job("roles_tests", run_roles)
+    return jsonify({"started": True})
+
+
+@app.route("/api/run-concurrent", methods=["POST"])
+def api_run_concurrent():
+    """Concurrent Edit Tests — async Playwright with 2 simultaneous sessions.
+
+    Tests last-write-wins and simultaneous-create on write-heavy pages.
+    Found platform-wide no-optimistic-locking gap (2026-05-17); 3 pages fixed.
+    """
+    if JOB_STATE["running"]:
+        return jsonify({"error": "another job is running"}), 409
+
+    def run_concurrent(client, log):
+        seeder_dir = Path(__file__).parent
+        py = seeder_dir / "venv" / "Scripts" / "python.exe"
+        if not py.exists():
+            py = Path("python")
+        import re as _re
+        ansi = _re.compile(r"\x1b\[[0-9;]*m")
+        try:
+            proc = subprocess.Popen(
+                [str(py), "-u", "e2e_concurrent_runner.py"],
+                stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+                cwd=str(seeder_dir), bufsize=1,
+                text=True, encoding="utf-8", errors="replace",
+            )
+            for line in proc.stdout:
+                log(ansi.sub("", line.rstrip()))
+            proc.wait()
+            return {"exit_code": proc.returncode}
+        except Exception as e:
+            log(f"Concurrent runner error: {e}")
+            return {"error": str(e)}
+
+    _run_job("concurrent_tests", run_concurrent)
     return jsonify({"started": True})
 
 
@@ -2397,6 +2503,41 @@ def brand_assets(filename):
     return send_from_directory(folder, filename)
 
 
+# ---------- Root-absolute URL aliases for production parity ----------
+# WorkHive HTML uses root-absolute URLs (href="/learn/", href="/logbook.html")
+# because those are correct for production (workhiveph.com/learn/). In local
+# dev where everything sits under /workhive/, those root paths 404 unless we
+# alias them. Each alias internally delegates to workhive_file() so the same
+# rewrite + offline-shell logic applies.
+
+@app.route("/learn/", defaults={"rest": ""})
+@app.route("/learn/<path:rest>")
+def learn_alias(rest):
+    """Alias /learn/* to /workhive/learn/* for production-URL parity."""
+    return workhive_file(f"learn/{rest}" if rest else "learn/")
+
+
+@app.route("/about/", defaults={"rest": ""})
+@app.route("/about/<path:rest>")
+def about_alias(rest):
+    """Alias /about/* to /workhive/about/* for production-URL parity."""
+    return workhive_file(f"about/{rest}" if rest else "about/")
+
+
+@app.route("/privacy-policy/", defaults={"rest": ""})
+@app.route("/privacy-policy/<path:rest>")
+def privacy_alias(rest):
+    """Alias /privacy-policy/* to /workhive/privacy-policy/* for production-URL parity."""
+    return workhive_file(f"privacy-policy/{rest}" if rest else "privacy-policy/")
+
+
+@app.route("/terms-of-service/", defaults={"rest": ""})
+@app.route("/terms-of-service/<path:rest>")
+def terms_alias(rest):
+    """Alias /terms-of-service/* to /workhive/terms-of-service/* for production-URL parity."""
+    return workhive_file(f"terms-of-service/{rest}" if rest else "terms-of-service/")
+
+
 # ---------- WorkHive proxy routes ----------
 
 def _rewrite(content: str) -> str:
@@ -2420,6 +2561,14 @@ def workhive_file(filename):
         full.relative_to(WORKHIVE_ROOT)
     except ValueError:
         abort(404)
+
+    # Directory-index resolution: serve /workhive/learn/ as /workhive/learn/index.html
+    # so the production canonical URL pattern (clean directory URLs) works locally too.
+    if full.exists() and full.is_dir():
+        candidate = full / "index.html"
+        if candidate.exists() and candidate.is_file():
+            full = candidate
+            filename = (filename.rstrip('/') + '/index.html').lstrip('/')
 
     if not full.exists() or not full.is_file():
         abort(404)

@@ -1281,105 +1281,102 @@
     </div>
   </div>
 
+  <!-- ═══ MEGA GATE (run everything before prod) ═══ -->
   <div class="card">
     <div class="section-head-row">
-      <h3 class="action-section-title">Mega Gate</h3>
-      <span class="action-section-hint">One-click full validation. Use before deploying to prod.</span>
+      <h3 class="action-section-title">🚀 Mega Gate — Run Everything</h3>
+      <span class="action-section-hint">All 3 layers in one click. Use before deploying to prod.</span>
     </div>
     <div class="button-grid">
       <button class="seed-btn mega-btn" data-action="run-mega-gate"
-        data-tip-title="Mega Gate"
-        data-tip="The kitchen-sink validation: runs all 137 architectural validators + AI Full (live Groq prompt regression checks) + Visual Regression (pixel-diff screenshots) + Performance budgets. Catches everything the lighter gates can catch in one pass."
-        data-tip-foot="Use when: about to deploy to prod, finishing a multi-day feature, or want a confidence check before a break. AVOID for tiny changes — 7-10 min is too slow for inner-loop iteration.">🚀 Mega Gate (gate + AI + visual + perf · ~7-10 min)</button>
+        data-tip-title="Mega Gate (Layer 0 + Layer 1 + Layer 2)"
+        data-tip="Runs the full Unified Mega Gate: Layer 0 (all static validators incl. admin gates + logbook checks), Layer 1 (data tests against seeded DB), Layer 2 (Playwright smoke + visual regression + AI prompt regression). One verdict at the end."
+        data-tip-foot="Use when: deploying to prod, finishing a multi-day feature, or want a full confidence check. AVOID for tiny inner-loop changes — too slow.">🚀 Mega Gate · ~10-15 min</button>
     </div>
     <details class="section-help">
-      <summary>What does Mega Gate do, and when should I use it?</summary>
+      <summary>What is the Mega Gate exactly?</summary>
       <div class="help-body">
-        Runs the full Release Gate <i>plus</i> AI Full <i>plus</i> Visual Regression <i>plus</i> Performance budgets — basically every check in one go.
-        <br><br>
-        <b>Use it when:</b> you're about to deploy to production, finishing a multi-day feature, or want a confidence check before a long break. <b>Avoid for tiny changes</b> — it takes 7-10 minutes; the lighter gates below are usually enough during normal development.
+        The Mega Gate is the <b>Unified Mega Gate</b> architecture — three independent quality layers in one command:<br><br>
+        <b>Layer 0 — Static Validators</b> (no browser, fast). All architectural checks: schema, RLS, XSS, admin gates, logbook integrity, optimistic concurrency, etc.<br>
+        <b>Layer 1 — Data Tests</b> (no browser, DB only). Deterministic checks against the seeded database: hive isolation, field population, math.<br>
+        <b>Layer 2 — Live UI Tests</b> (Playwright browser). End-to-end flows: smoke walk, role permissions, concurrent edits, visual regression, CRUD round-trips, AI prompt regression.<br><br>
+        <b>Use it when:</b> shipping to prod or wrapping up a multi-day feature. <b>For inner-loop work</b>, run the lighter layer-specific buttons below.
       </div>
     </details>
   </div>
 
+  <!-- ═══ LAYER 0 — STATIC VALIDATORS (no browser) ═══ -->
   <div class="card">
     <div class="section-head-row">
-      <h3 class="action-section-title">Gates &amp; tests</h3>
-      <span class="action-section-hint">Faster checks for inner-loop development.</span>
+      <h3 class="action-section-title">🛡️ Layer 0 — Static Validators</h3>
+      <span class="action-section-hint">Code + schema checks. No browser. Fastest layer.</span>
     </div>
     <div class="button-grid">
       <button class="seed-btn" data-action="run-gate"
-        data-tip-title="Release Gate"
-        data-tip="The default pre-commit gate. Runs all 137 architectural validators in parallel: registry coverage, schema drift, XSS, mobile UX, RLS symmetry, optimistic concurrency, cross-page consistency, AI gateway routing, etc. Returns a clean GO / NO-GO verdict at the end."
-        data-tip-foot="Use when: any code change that doesn't touch AI prompts. Should pass before you `git add`.">🚀 Release Gate (120 validators · no AI · ~90s)</button>
+        data-tip-title="Fast Guardian — all static validators"
+        data-tip="Runs every Layer 0 validator: schema integrity, RLS symmetry, XSS escaping, admin gates, logbook integrity (incl. machine_validation_toast + optimistic_lock_on_edit), capability catalog, AI gateway routing, mobile UX, function security, etc."
+        data-tip-foot="Use when: any code change that doesn't touch AI prompts. Default pre-commit gate.">🛡️ Fast Guardian (all validators · ~90s)</button>
       <button class="seed-btn" data-action="run-gate-ai"
-        data-tip-title="Release Gate + AI Full"
-        data-tip="The Release Gate plus ~10 live Groq calls that verify AI prompts still produce the expected shape and tone. Free because Groq is. Slower because of network round-trips."
-        data-tip-foot="Use when: you edited assistant.html, floating-ai.js, any edge function that calls Groq, or tweaked RAG context.">🤖 Release Gate + AI Full (Groq · ~5min · $0)</button>
-      <button class="seed-btn" data-action="run-gate-visual"
-        data-tip-title="Visual Regression"
-        data-tip="Screenshots every page at desktop viewport, diffs each one against the saved baseline. Fails on pixel drift. Catches CSS / layout regressions a human eye would miss until production."
-        data-tip-foot="Use when: after CSS / layout work. AVOID for data-only changes — false positives waste your time.">📷 Release Gate + Visual Regression (~3 min)</button>
+        data-tip-title="Fast Guardian + AI Prompt Regression"
+        data-tip="Fast Guardian plus ~10 live Groq calls that verify AI prompts still produce the expected shape and tone. Free because Groq is."
+        data-tip-foot="Use when: you edited assistant.html, floating-ai.js, any edge function that calls Groq, or tweaked RAG context.">🤖 + AI Prompt Regression (Groq · ~5min · $0)</button>
       <button class="seed-btn" data-action="run-tests"
-        data-tip-title="Data Tests"
-        data-tip="20 sections of deterministic checks against the seeded DB (no browser involved): hive isolation, logbook field population, inventory qty math, PM scope frequencies, skill levels, marketplace status enums, cross-page asset linkage, auth_uid coverage. Each section emits ~3 individual checks."
-        data-tip-foot="Use when: schema migrated, seeder logic changed, or any DB write path was touched.">🧪 Data Tests (20 sections · ~5s)</button>
+        data-tip-title="Data Tests — DB integrity"
+        data-tip="20 sections of deterministic checks against the seeded DB (no browser): hive isolation, logbook field population, inventory qty math, PM scope frequencies, skill levels, marketplace status enums, cross-page asset linkage, auth_uid coverage."
+        data-tip-foot="Use when: after schema migration, seeder logic change, or any DB write path edit.">🧪 Data Tests (DB · ~5s)</button>
+    </div>
+  </div>
+
+  <!-- ═══ LAYER 2 — END-TO-END TESTS (Playwright) ═══ -->
+  <div class="card">
+    <div class="section-head-row">
+      <h3 class="action-section-title">🎬 Layer 2 — End-to-End Tests</h3>
+      <span class="action-section-hint">Playwright browser. Live UI + DB round-trips.</span>
+    </div>
+    <div class="button-grid">
       <button class="seed-btn" data-action="run-flows"
-        data-tip-title="UI Tests"
-        data-tip="Playwright drives Chromium against the proxy and walks the smoke / interaction flows for every page: does it load, are there console errors, do the key buttons click, does the form submit. Doesn't write data — read-only walk."
-        data-tip-foot="Use when: after rendering / interaction code changes. Catches blank pages, JS errors, missing buttons.">🎬 UI Tests (Playwright, ~30s)</button>
+        data-tip-title="Smoke Tests — page-load walk"
+        data-tip="Playwright walks every page: does it load, console errors, key buttons clickable, form fields present. Read-only — no DB writes."
+        data-tip-foot="Use when: after rendering / interaction code changes. Catches blank pages, JS errors, missing buttons.">🎬 Smoke Tests (~30s)</button>
+      <button class="seed-btn" data-action="run-roles"
+        data-tip-title="Role Permission Tests (NEW)"
+        data-tip="Tests every page with 3 roles: solo (no hive), worker (hive member), supervisor. Compares snapshots and asserts permission contracts. Found founder-console admin gate was disabled."
+        data-tip-foot="Use when: after touching auth, admin gates, role-gated UI, or hive_members RLS. Run per-tier: --tier 1, --tier 2, etc.">👥 Role Permission Tests (~3 min)</button>
+      <button class="seed-btn" data-action="run-concurrent"
+        data-tip-title="Concurrent Edit Tests (NEW)"
+        data-tip="Async Playwright tests with 2 simultaneous sessions. Tests last-write-wins (B saves stale data after A) and simultaneous-create (no duplicate key errors). Found 6 pages had no optimistic locking — 3 fixed."
+        data-tip-foot="Use when: after touching any save/update flow. Verifies updated_at OC guards detect concurrent edits.">⚡ Concurrent Edit Tests (~2 min)</button>
+      <button class="seed-btn" data-action="run-crud-tests" style="background:rgba(248,113,113,0.1);color:var(--red);border-color:rgba(248,113,113,0.3);"
+        data-tip-title="CRUD Tests — full DB round-trip"
+        data-tip="Playwright actually writes rows then reads them back via Supabase. Slower because it waits for real DB writes. Catches 'looks fine but the insert silently dropped fields'."
+        data-tip-foot="Use when: after changes to insert / update / delete flows or forms that save data.">🔍 CRUD Tests (~2 min, DB-verified)</button>
       <button class="seed-btn" data-action="run-playwright-node"
         data-tip-title="UI Locks (Node Playwright)"
-        data-tip="The new Node @playwright/test suite under tests/*.spec.ts. Per-page interaction locks: signs in via the real Supabase Auth modal, fills the form, asserts the success toast AND verifies the row landed in the DB. Catches the silent-failure regression class (toast says 'Saved' but the insert was actually blocked)."
-        data-tip-foot="Use when: after touching capture-validate.js, any form, any toast handler, or any addEntry/save flow. Requires `subst Z: <project-path>` for the '&' in folder name. ~6 min for full 40-test suite.">🛡️ UI Locks (Node Playwright, ~6 min)</button>
-      <button class="seed-btn" data-action="run-crud-tests" style="background:rgba(248,113,113,0.1);color:var(--red);border-color:rgba(248,113,113,0.3);"
-        data-tip-title="CRUD Tests"
-        data-tip="Playwright actually writes rows then reads them back via Supabase to confirm the full round-trip. Slower than UI Tests because it waits for real DB writes. Catches the 'looks fine but the insert silently dropped fields' class of bug."
-        data-tip-foot="Use when: after changes to insert / update / delete flows, or after edits to forms that save data.">🔍 CRUD Tests (~2 min, DB-verified)</button>
+        data-tip="Node @playwright/test suite (tests/*.spec.ts). Per-page interaction locks: real Supabase Auth sign-in, fills form, asserts success toast AND verifies the row landed in the DB. Catches silent-failure regressions."
+        data-tip-foot="Use when: after touching capture-validate.js, any form, toast handler, or addEntry/save flow. Requires `subst Z:` once.">🛡️ UI Locks (Node · ~6 min)</button>
+      <button class="seed-btn" data-action="run-gate-visual"
+        data-tip-title="Visual Regression"
+        data-tip="Screenshots every page at desktop viewport, diffs each against the saved baseline. Fails on pixel drift."
+        data-tip-foot="Use when: after CSS / layout work. AVOID for data-only changes — false positives waste your time.">📷 Visual Regression (~3 min)</button>
     </div>
     <details class="section-help">
-      <summary>What does each gate check, and when do I use which?</summary>
+      <summary>Which gate when? — quick decision guide</summary>
       <div class="help-body">
         <table>
-          <thead><tr><th>Button</th><th>What it does</th><th>Use when</th></tr></thead>
+          <thead><tr><th>I changed…</th><th>Run this</th></tr></thead>
           <tbody>
-            <tr>
-              <td>🚀 Release Gate</td>
-              <td>Runs all 137 architectural validators (registries, schema, XSS, mobile UX, RLS symmetry, optimistic concurrency, AI gateway, etc.) — same as <code>run_platform_checks.py --fast</code>. Returns clean GO / NO-GO.</td>
-              <td>Default pre-commit gate. After any code change that doesn't touch AI prompts.</td>
-            </tr>
-            <tr>
-              <td>🤖 Release Gate + AI Full</td>
-              <td>Release Gate <i>plus</i> ~10 live Groq calls to verify AI prompts haven't regressed. Free (~$0) but slower.</td>
-              <td>After editing any AI prompt (assistant.html, floating-ai.js, edge functions that call Groq) or tweaking RAG context.</td>
-            </tr>
-            <tr>
-              <td>📷 Visual Regression</td>
-              <td>Screenshots every page at desktop viewport, diffs against the saved baseline, fails on pixel drift.</td>
-              <td>After CSS / layout work. <b>Don't run on data-only changes</b> — false positives waste time.</td>
-            </tr>
-            <tr>
-              <td>🧪 Data Tests</td>
-              <td>20 sections of deterministic checks against the seeded DB (no browser): hive isolation, logbook field population, inventory math, PM scope frequencies, skill levels, marketplace status, cross-page linkage, auth_uid coverage. Very fast.</td>
-              <td>After schema migration, seeder edits, or any change to DB writes.</td>
-            </tr>
-            <tr>
-              <td>🎬 UI Tests</td>
-              <td>Playwright-driven smoke + interaction checks across all pages: page loads, console errors, key flows.</td>
-              <td>After rendering / interaction code changes. Catches blank pages, JS errors, missing buttons.</td>
-            </tr>
-            <tr>
-              <td>🛡️ UI Locks</td>
-              <td>Node @playwright/test suite (tests/*.spec.ts). Per-page interaction locks: real Supabase Auth sign-in, fill form, assert success toast <i>and</i> DB row exists. Catches the silent-failure regression (toast says "Saved" but the insert was blocked).</td>
-              <td>After capture-validate / form / addEntry / toast changes. ~6 min for the full 40-test suite. Requires `subst Z: &lt;project-path&gt;` once.</td>
-            </tr>
-            <tr>
-              <td>🔍 CRUD Tests</td>
-              <td>Playwright actually writes rows then reads them back via Supabase to confirm the full DB round-trip. Slower than other tests.</td>
-              <td>After changes to insert / update / delete flows. Catches "looks fine but didn't actually save".</td>
-            </tr>
+            <tr><td>Schema / migration / seeder</td>          <td>🧪 Data Tests + 🛡️ Fast Guardian</td></tr>
+            <tr><td>HTML / JS / inline render code</td>      <td>🛡️ Fast Guardian + 🎬 Smoke Tests</td></tr>
+            <tr><td>AI prompt or RAG context</td>            <td>🤖 + AI Prompt Regression</td></tr>
+            <tr><td>CSS / layout</td>                        <td>📷 Visual Regression</td></tr>
+            <tr><td>Form / save / addEntry flow</td>         <td>🔍 CRUD Tests + 🛡️ UI Locks</td></tr>
+            <tr><td>Auth / admin gate / role UI</td>         <td>👥 Role Permission Tests</td></tr>
+            <tr><td>updated_at / OC guard / save logic</td>  <td>⚡ Concurrent Edit Tests</td></tr>
+            <tr><td>About to deploy to prod</td>             <td>🚀 Mega Gate (everything)</td></tr>
           </tbody>
         </table>
+        <br>
+        <b>Rule of thumb:</b> the smallest gate that covers what you changed. Skip the big ones during inner-loop iteration.
       </div>
     </details>
   </div>
@@ -1963,6 +1960,8 @@
     else if (action === 'run-gate-ai') url = '/api/run-gate-ai';
     else if (action === 'run-gate-visual') url = '/api/run-gate-visual';
     else if (action === 'run-mega-gate') url = '/api/run-mega-gate';
+    else if (action === 'run-roles') url = '/api/run-roles';
+    else if (action === 'run-concurrent') url = '/api/run-concurrent';
     else url = '/api/seed/' + action;
 
     try {
