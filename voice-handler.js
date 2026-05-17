@@ -1078,6 +1078,49 @@
     }
   }
 
+  // Day 4: Platform-wide standards retrieval (industry_standards_chunks).
+  // Mirrors _fetchRAGContext but is HIVE-AGNOSTIC — standards are global.
+  // Use when worker asks about ISO/IEC/ASHRAE/NFPA/PSME/DOLE regulations or
+  // best practice canon. Returned chunks carry the standard_code as citation.
+  async function _fetchStandardsContext(db, transcript) {
+    if (!db || !transcript) return '';
+    try {
+      const embedResp = await fetch(WH_ASSISTANT_WORKER_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: 'voyage-3',  // Free-tier embeddings (same as kb RAG path)
+          input: transcript,
+        }),
+      });
+      if (!embedResp || !embedResp.ok) return '';
+      const embedData = await embedResp.json();
+      const embedding = embedData.data && embedData.data[0] && embedData.data[0].embedding;
+      if (!embedding) return '';
+
+      // Platform-wide semantic search — no hive_id param.
+      // Lower threshold (0.5) since standards corpus is narrower than per-hive KB.
+      const { data: chunks, error } = await db.rpc('semantic_search_industry_standards', {
+        p_query_embedding:       embedding,
+        p_similarity_threshold:  0.5,
+        p_limit:                 3,
+        p_family:                null,  // all families
+      });
+
+      if (error || !chunks || chunks.length === 0) return '';
+
+      return chunks.map(c => {
+        const code = (c.standard_code || 'standard').slice(0, 40);
+        const section = c.section ? ` §${c.section}` : '';
+        const text = (c.chunk_text || '').slice(0, 300);
+        return `[${code}${section}] ${text}`;
+      }).join('\n\n');
+    } catch (err) {
+      console.warn('[WHVoice] Standards context fetch failed:', err && err.message);
+      return '';
+    }
+  }
+
   // Phase 4: Update dialog state (intent + slots) after each turn
   async function _updateDialogState(db, hiveId, sessionId, intentKind, confidence, contextSlots, clarificationPending, clarificationPrompt) {
     if (!db || !hiveId || !sessionId) return;
@@ -1565,7 +1608,7 @@
     }
   }
 
-  function _buildVoiceSystemPrompt(persona, workerName, hiveName, pageLabel, routingHint, memoryBlock, canonicalData, routerContext, platformData, ragContext, dialogState, proactiveAlerts, crossHiveContext) {
+  function _buildVoiceSystemPrompt(persona, workerName, hiveName, pageLabel, routingHint, memoryBlock, canonicalData, routerContext, platformData, ragContext, dialogState, proactiveAlerts, crossHiveContext, standardsContext) {
     const personaBlock = (typeof window.getCompanionBlock === 'function')
       ? window.getCompanionBlock() : '';
     // Internal-only grounding. These facts help the model pick the right
@@ -1665,7 +1708,15 @@
       ? '\nCROSS-HIVE ALERTS — From other sites in the group:\n' + crossHiveContext + '\n'
       : '';
 
-    const hasData = platformData || canonicalData || ragContext;
+    // Day 4: Industry standards retrieval (platform-wide, ISO/IEC/ASHRAE/NFPA/PSME/DOLE).
+    // Use these citations when answering regulatory or best-practice questions.
+    const standardsSection = standardsContext
+      ? '\nINDUSTRY STANDARDS — Regulatory and best-practice canon:\n' + standardsContext +
+        '\nWhen citing, name the standard code (e.g. "ISO 14224 says..." or "per NFPA 70E..."). ' +
+        'Standards are authoritative; prefer them over generic advice.\n'
+      : '';
+
+    const hasData = platformData || canonicalData || ragContext || standardsContext;
     const directAnswerInstruction = hasData
       ? '- ANSWER FROM THE PLATFORM SNAPSHOT above. The ENTIRE platform has been scanned: KPIs (MTBF, MTTR, downtime, failures), equipment status, risk assets, PM compliance, inventory levels, recent logbook entries, anomalies, projects, your Day Planner today, your skill levels, hive activity, knowledge entries — all of it is in your context. SCAN the snapshot for the relevant section before answering. NEVER say "check [tool]" or "open Day Planner" or "your dashboard should have that" when the answer is sitting in the snapshot above. ONLY say "I don\'t have that data right now" if you scanned the snapshot and the specific thing is genuinely absent.\n'
       : '- If they asked a maintenance / work question, ANSWER IT directly with practical maintenance knowledge. If you don\'t have the data they\'re asking about, say so plainly.\n';
@@ -1685,6 +1736,7 @@
       platformSection +
       ragSection +
       crossHiveSection +
+      standardsSection +
       '\nIf the worker mixes Filipino / Cebuano / Tagalog in, that\'s fine — understand it, reply in English.\n\n' +
       '═══════════════════════════════════════════════════════════════════\n' +
       'HARD RULES — read these last; they override everything above.\n' +
@@ -1773,7 +1825,7 @@
     // for any data that exists on the platform (KPIs, PM, inventory, logbook, schedule,
     // skills, projects, anomalies, knowledge, adoption — all in one shot).
     const firstIntent = routerIntents && routerIntents[0];
-    const [platformSnapshot, platformData, memoryBlock, ragContext, crossHiveContext] = await Promise.all([
+    const [platformSnapshot, platformData, memoryBlock, ragContext, crossHiveContext, standardsContext] = await Promise.all([
       _fetchFullPlatformSnapshot(db, ctx.hive_id, ctx.worker_name).catch((err) => {
         console.warn('[WHVoice] Platform snapshot failed:', err);
         return '';
@@ -1782,6 +1834,7 @@
       _fetchRecentMemory(db, ctx.worker_name),
       _fetchRAGContext(db, ctx.hive_id, transcript).catch(() => ''),
       _fetchCrossHiveContext(db).catch(() => ''),  // Phase 9: Cross-hive awareness
+      _fetchStandardsContext(db, transcript).catch(() => ''),  // Day 4: platform-wide standards RAG
     ]);
 
     // canonicalData carries the full snapshot — every truth view in one block.
@@ -1791,7 +1844,7 @@
       console.warn('[WHVoice] No platform snapshot returned; check DB connection or query errors');
     }
 
-    const system = _buildVoiceSystemPrompt(persona, ctx.worker_name, hiveName, pageLabel, routingHint, memoryBlock, canonicalData, routerContext, platformData, ragContext, priorDialogState, proactiveAlerts, crossHiveContext);
+    const system = _buildVoiceSystemPrompt(persona, ctx.worker_name, hiveName, pageLabel, routingHint, memoryBlock, canonicalData, routerContext, platformData, ragContext, priorDialogState, proactiveAlerts, crossHiveContext, standardsContext);
     const messages = [
       { role: 'system', content: system },
       { role: 'user',   content: transcript },

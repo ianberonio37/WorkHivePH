@@ -84,6 +84,23 @@ CRON_JOBS = [
 ]
 
 
+def _read_seeder_env_key() -> str:
+    """Fallback: read SUPABASE_SECRET_KEY from test-data-seeder/.env so this
+    script works without exporting env vars first."""
+    try:
+        from pathlib import Path
+        env_path = Path(__file__).resolve().parent.parent / "test-data-seeder" / ".env"
+        if not env_path.exists():
+            return ""
+        for line in env_path.read_text(encoding="utf-8").splitlines():
+            line = line.strip()
+            if line.startswith("SUPABASE_SECRET_KEY="):
+                return line.split("=", 1)[1].strip().strip('"').strip("'")
+    except Exception:
+        pass
+    return ""
+
+
 def trigger_cron_job(report_type: str) -> dict:
     """
     Trigger a cron job by calling the scheduled-agents edge function directly.
@@ -104,8 +121,17 @@ def trigger_cron_job(report_type: str) -> dict:
         import os
 
         # Connect to local Supabase
+        # Prefer the seeder's secret key (matches the rest of the test harness).
+        # Fall back to env vars in case the script is run outside the local dev box.
         supabase_url = os.getenv("SUPABASE_URL", "http://127.0.0.1:54321")
-        supabase_key = os.getenv("SUPABASE_ANON_KEY", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9")
+        supabase_key = (
+            os.getenv("SUPABASE_SECRET_KEY")
+            or os.getenv("SUPABASE_ANON_KEY")
+            or _read_seeder_env_key()
+        )
+        if not supabase_key:
+            result["error"] = "No SUPABASE_SECRET_KEY or SUPABASE_ANON_KEY available"
+            return result
 
         client = create_client(supabase_url, supabase_key)
 
