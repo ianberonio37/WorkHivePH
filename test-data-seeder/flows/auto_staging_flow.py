@@ -111,7 +111,9 @@ def run(page, errors, warnings, log) -> dict:
     ]
     log_seeded = 0
     for i in range(5):
-        d = (now - datetime.timedelta(days=30 * (i + 1))).isoformat() + "Z"
+        dt = now - datetime.timedelta(days=30 * (i + 1))
+        d = dt.isoformat() + "Z"
+        d_only = dt.date().isoformat()
         try:
             db.table("logbook").insert({
                 "id":               f"AS-LOG-{i}-{int(now.timestamp())}",
@@ -126,6 +128,7 @@ def run(page, errors, warnings, log) -> dict:
                 "parts_used":       parts_used_pattern,
                 "downtime_hours":   2.5,
                 "status":           "closed",
+                "date":             d_only,
                 "closed_at":        d,
                 "created_at":       d,
             }).execute()
