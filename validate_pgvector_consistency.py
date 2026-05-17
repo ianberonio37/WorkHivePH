@@ -56,6 +56,7 @@ DIM_OK = {
 # Tables exempt from L2 hive filter (legitimate global, e.g. catalog).
 HIVE_FILTER_OK = {
     "calc_knowledge":  "Engineering calc knowledge is platform-wide, not hive-scoped",
+    "industry_standards_chunks":  "Industry standards (ISO/ASHRAE/NFPA) are platform-wide reference corpus, mirrors kb_chunks pattern but not hive-scoped",
 }
 
 # Tables exempt from L3 RLS check.
@@ -202,7 +203,8 @@ def check_hive_filter(search_fns) -> tuple[list[dict], list[dict]]:
         })
         if not has_hive:
             # Check if it's exempt by looking at the tables it references.
-            referenced = re.findall(r"\bFROM\s+(\w+)", fn["body"], re.IGNORECASE)
+            # Match either bare 'tablename' or schema-prefixed 'public.tablename'.
+            referenced = re.findall(r"\bFROM\s+(?:\w+\.)?(\w+)", fn["body"], re.IGNORECASE)
             exempt = any(t in HIVE_FILTER_OK for t in referenced)
             if exempt:
                 continue

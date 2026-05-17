@@ -90,6 +90,7 @@ RESET_TABLES = [
     "anomaly_alerts",
     "kb_documents",
     "kb_chunks",
+    "industry_standards_chunks",
     "offline_snapshot_cache",
     "voice_response_queue",
     "fallback_model_faq",

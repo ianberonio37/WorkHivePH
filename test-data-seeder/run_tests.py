@@ -44,7 +44,7 @@ def header(text):
 
 def s0_counts(db):
     expected = {
-        "hives": 3, "hive_members": 15, "assets": 90, "logbook": 3700,
+        "hives": 3, "hive_members": 15, "logbook": 3700,
         "pm_assets": 90, "pm_completions": 1500, "inventory_items": 81,
         "inventory_transactions": 440, "skill_profiles": 15, "skill_badges": 30,
         "marketplace_listings": 27, "community_posts": 145,
@@ -444,7 +444,7 @@ def s10_marketplace_sections(db):
 
 def s21_logbook_assets_link(db):
     """Every logbook entry should reference an existing asset (asset_ref_id)."""
-    assets = db.table("assets").select("id").execute().data
+    assets = db.table("pm_assets").select("id").execute().data
     asset_ids = {a["id"] for a in assets}
     sample = db.table("logbook").select("asset_ref_id").limit(500).execute().data
     orphans = sum(1 for s in sample if s["asset_ref_id"] not in asset_ids)
