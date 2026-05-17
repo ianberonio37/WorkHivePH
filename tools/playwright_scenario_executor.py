@@ -83,7 +83,7 @@ SCENARIOS = {
             "page": "/visual-defect.html",
             "steps": [
                 {"action": "wait_for_selector", "selector": "body", "timeout": 8000},
-                {"action": "wait", "ms": 2000},
+                {"action": "wait", "ms": 8000},
             ],
             "validations": {
                 "page_loaded": {"selector": "body", "type": "exists", "required": True},
@@ -99,7 +99,7 @@ SCENARIOS = {
             "page": "/alert-hub.html",
             "steps": [
                 {"action": "wait_for_selector", "selector": "#ah-verdict, #main-content", "timeout": 8000},
-                {"action": "wait", "ms": 2000},
+                {"action": "wait", "ms": 8000},
             ],
             "validations": {
                 "verdict_loaded": {"selector": "#ah-verdict-label, #ah-summary", "type": "has_text", "required": True},
@@ -133,7 +133,7 @@ SCENARIOS = {
             "page": "/hive.html",
             "steps": [
                 {"action": "wait_for_selector", "selector": "body", "timeout": 8000},
-                {"action": "wait", "ms": 2000},
+                {"action": "wait", "ms": 8000},
             ],
             "validations": {
                 "page_loaded": {"selector": "body", "type": "exists", "required": True},
@@ -149,7 +149,7 @@ SCENARIOS = {
             "page": "/ai-quality.html",
             "steps": [
                 {"action": "wait_for_selector", "selector": "#roi-meta, #content", "timeout": 8000},
-                {"action": "wait", "ms": 2000},
+                {"action": "wait", "ms": 8000},
             ],
             "validations": {
                 "content_loaded": {"selector": "#content", "type": "exists", "required": True},
@@ -167,7 +167,7 @@ SCENARIOS = {
             "page": "/analytics.html",
             "steps": [
                 {"action": "wait_for_selector", "selector": "#an-verdict, #an-summary", "timeout": 8000},
-                {"action": "wait", "ms": 2000},
+                {"action": "wait", "ms": 10000},
             ],
             "validations": {
                 "verdict_loaded": {"selector": "#an-verdict, #an-summary", "type": "has_text", "required": True},
@@ -185,7 +185,7 @@ SCENARIOS = {
             "page": "/asset-hub.html",
             "steps": [
                 {"action": "wait_for_selector", "selector": "#ah-verdict, #page-wrap", "timeout": 8000},
-                {"action": "wait", "ms": 2000},
+                {"action": "wait", "ms": 8000},
             ],
             "validations": {
                 "verdict_loaded": {"selector": "#ah-verdict", "type": "exists", "required": True},
@@ -203,7 +203,7 @@ SCENARIOS = {
             "page": "/integrations.html",
             "steps": [
                 {"action": "wait_for_selector", "selector": "body", "timeout": 8000},
-                {"action": "wait", "ms": 2000},
+                {"action": "wait", "ms": 8000},
             ],
             "validations": {
                 "page_loaded": {"selector": "body", "type": "exists", "required": True},
@@ -219,7 +219,7 @@ SCENARIOS = {
             "page": "/logbook.html",
             "steps": [
                 {"action": "wait_for_selector", "selector": "body", "timeout": 8000},
-                {"action": "wait", "ms": 2000},
+                {"action": "wait", "ms": 8000},
             ],
             "validations": {
                 "page_loaded": {"selector": "body", "type": "exists", "required": True},
@@ -235,7 +235,7 @@ SCENARIOS = {
             "page": "/marketplace.html",
             "steps": [
                 {"action": "wait_for_selector", "selector": "#mk-verdict, #mk-card-total", "timeout": 8000},
-                {"action": "wait", "ms": 2000},
+                {"action": "wait", "ms": 8000},
             ],
             "validations": {
                 "verdict_loaded": {"selector": "#mk-verdict", "type": "exists", "required": True},
@@ -255,7 +255,7 @@ SCENARIOS = {
             "page": "/platform-health.html",
             "steps": [
                 {"action": "wait_for_selector", "selector": "body", "timeout": 8000},
-                {"action": "wait", "ms": 2000},
+                {"action": "wait", "ms": 8000},
             ],
             "validations": {
                 "page_loaded": {"selector": "body", "type": "exists", "required": True},
@@ -271,7 +271,7 @@ SCENARIOS = {
             "page": "/predictive.html",
             "steps": [
                 {"action": "wait_for_selector", "selector": "#pr-verdict, #pr-card-hot", "timeout": 8000},
-                {"action": "wait", "ms": 2000},
+                {"action": "wait", "ms": 8000},
             ],
             "validations": {
                 "verdict_loaded": {"selector": "#pr-verdict", "type": "exists", "required": True},
@@ -292,7 +292,7 @@ SCENARIOS = {
             "page": "/project-manager.html",
             "steps": [
                 {"action": "wait_for_selector", "selector": "#pm-verdict, #list-view", "timeout": 8000},
-                {"action": "wait", "ms": 2000},
+                {"action": "wait", "ms": 8000},
             ],
             "validations": {
                 "verdict_loaded": {"selector": "#pm-verdict", "type": "exists", "required": True},
@@ -310,7 +310,7 @@ SCENARIOS = {
             "page": "/report-sender.html",
             "steps": [
                 {"action": "wait_for_selector", "selector": "body", "timeout": 8000},
-                {"action": "wait", "ms": 2000},
+                {"action": "wait", "ms": 8000},
             ],
             "validations": {
                 "page_loaded": {"selector": "body", "type": "exists", "required": True},
@@ -326,7 +326,7 @@ SCENARIOS = {
             "page": "/shift-brain.html",
             "steps": [
                 {"action": "wait_for_selector", "selector": "#sb-verdict, #page-wrap", "timeout": 8000},
-                {"action": "wait", "ms": 2000},
+                {"action": "wait", "ms": 8000},
             ],
             "validations": {
                 "verdict_loaded": {"selector": "#sb-verdict", "type": "exists", "required": True},
@@ -344,7 +344,7 @@ SCENARIOS = {
             "page": "/skillmatrix.html",
             "steps": [
                 {"action": "wait_for_selector", "selector": "#onboarding-section, #header-sub", "timeout": 8000},
-                {"action": "wait", "ms": 2000},
+                {"action": "wait", "ms": 8000},
             ],
             "validations": {
                 "page_loaded": {"selector": "#header-sub", "type": "exists", "required": True},
@@ -361,7 +361,7 @@ SCENARIOS = {
             "page": "/ph-intelligence.html",
             "steps": [
                 {"action": "wait_for_selector", "selector": "body", "timeout": 8000},
-                {"action": "wait", "ms": 2000},
+                {"action": "wait", "ms": 8000},
             ],
             "validations": {
                 "page_loaded": {"selector": "body", "type": "exists", "required": True},
@@ -377,7 +377,7 @@ SCENARIOS = {
             "page": "/plant-connections.html",
             "steps": [
                 {"action": "wait_for_selector", "selector": "body", "timeout": 8000},
-                {"action": "wait", "ms": 2000},
+                {"action": "wait", "ms": 8000},
             ],
             "validations": {
                 "page_loaded": {"selector": "body", "type": "exists", "required": True},
@@ -393,7 +393,7 @@ SCENARIOS = {
             "page": "/community.html",
             "steps": [
                 {"action": "wait_for_selector", "selector": "body", "timeout": 8000},
-                {"action": "wait", "ms": 2000},
+                {"action": "wait", "ms": 8000},
             ],
             "validations": {
                 "page_loaded": {"selector": "body", "type": "exists", "required": True},
