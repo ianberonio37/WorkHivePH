@@ -1608,6 +1608,107 @@ VALIDATORS = [
         "report":  None,
         "skip_if_fast": False,
     },
+    # ── Sentinel Architecture (Layer 0 -> Layer 2 bridge) ────────────────────
+    # Runs the sentinel pipeline: coverage map (per-check), gap proposer,
+    # pattern consistency, depth, freshness. Produces sentinel_health.json
+    # for the Platform Guardian to surface alongside validator results.
+    # See SENTINEL_ARCHITECTURE.md and feedback_hardening_loop for the
+    # two-bridge model. Cheap (~1-2s deterministic) so always runs.
+    {
+        "id":      "sentinel-review",
+        "script":  "run_sentinel_review.py",
+        "args":    [],
+        "label":   "Sentinel Review (L0->L2 bridge: coverage + pattern + depth + freshness)",
+        "group":   "Sentinel",
+        "report":  "sentinel_health.json",
+        "skip_if_fast": False,
+    },
+    {
+        "id":      "sentinel-baseline",
+        "script":  "validate_sentinel_baseline.py",
+        "args":    [],
+        "label":   "Sentinel Baseline Ratchet (forward-only behavioral coverage; locks at first run)",
+        "group":   "Sentinel",
+        "report":  "sentinel_baseline_report.json",
+        "skip_if_fast": False,
+    },
+    # ── SEO / Marketing Closed Loop (2026-05-17) ──────────────────────────────
+    # 8 validators that enforce every promise the SEO + marketing work made:
+    # no em-dashes, contact consistency, GA4 coverage, audience block per article,
+    # tool-aligned CTA per article, sitemap sync, llms.txt sync, AI chain mirror.
+    # Without these, today's wins regress silently. Each runs in <1 sec, no DB.
+    {
+        "id":      "em-dash",
+        "script":  "validate_em_dash.py",
+        "args":    [],
+        "label":   "Em-Dash Validator (no em or en dashes in public body text)",
+        "group":   "SEO Closed Loop",
+        "report":  "em_dash_report.json",
+        "skip_if_fast": False,
+    },
+    {
+        "id":      "contact-consistency",
+        "script":  "validate_contact_consistency.py",
+        "args":    [],
+        "label":   "Contact Consistency Validator (3-layer: no stale hello@/ian.beronio37@ + canonical admin@ present)",
+        "group":   "SEO Closed Loop",
+        "report":  "contact_consistency_report.json",
+        "skip_if_fast": False,
+    },
+    {
+        "id":      "ga4-coverage",
+        "script":  "validate_ga4_coverage.py",
+        "args":    [],
+        "label":   "GA4 Coverage Validator (4-layer: GA4 block + wh-ga4.js load + canonical ID + custom-events file)",
+        "group":   "SEO Closed Loop",
+        "report":  "ga4_coverage_report.json",
+        "skip_if_fast": False,
+    },
+    {
+        "id":      "audience-block",
+        "script":  "validate_audience_block.py",
+        "args":    [],
+        "label":   "Audience Block Validator (3-layer: every /learn/ article has Who-this-is-for + 4+ roles + beyond-technicians)",
+        "group":   "SEO Closed Loop",
+        "report":  "audience_block_report.json",
+        "skip_if_fast": False,
+    },
+    {
+        "id":      "tool-aligned-cta",
+        "script":  "validate_tool_aligned_cta.py",
+        "args":    [],
+        "label":   "Tool-Aligned CTA Validator (3-layer: every /learn/ article anchors to a /<tool>.html + names the tool)",
+        "group":   "SEO Closed Loop",
+        "report":  "tool_aligned_cta_report.json",
+        "skip_if_fast": False,
+    },
+    {
+        "id":      "sitemap-sync",
+        "script":  "validate_sitemap_sync.py",
+        "args":    [],
+        "label":   "Sitemap Sync Validator (3-layer: sitemap URLs <-> filesystem in sync + metadata complete)",
+        "group":   "SEO Closed Loop",
+        "report":  "sitemap_sync_report.json",
+        "skip_if_fast": False,
+    },
+    {
+        "id":      "llms-sync",
+        "script":  "validate_llms_sync.py",
+        "args":    [],
+        "label":   "llms.txt Sync Validator (4-layer: every article in llms.txt + no stale slugs + sections + contact)",
+        "group":   "SEO Closed Loop",
+        "report":  "llms_sync_report.json",
+        "skip_if_fast": False,
+    },
+    {
+        "id":      "ai-chain-mirror",
+        "script":  "validate_ai_chain_mirror.py",
+        "args":    [],
+        "label":   "AI Chain Mirror Validator (4-layer: Python ai_chain.py mirrors TS _shared/ai-chain.ts PROVIDER_CHAIN)",
+        "group":   "SEO Closed Loop",
+        "report":  "ai_chain_mirror_report.json",
+        "skip_if_fast": False,
+    },
 ]
 
 PYTHON_API_URL  = "https://engineering-calc-api.onrender.com/calculate"
