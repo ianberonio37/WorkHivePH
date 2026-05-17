@@ -1,0 +1,548 @@
+{
+  "version": 1,
+  "last_scan": "2026-05-17T22:15:24.415918",
+  "surfaces": {
+    "achievements.html": {
+      "verdict_labels": [
+        "ac-verdict-label"
+      ],
+      "verdict_boxes": [
+        "ac-verdict"
+      ],
+      "summary_blocks": [],
+      "source_chips": [
+        "achievements-source-chip"
+      ],
+      "edge_functions": [],
+      "ai_rpcs": [],
+      "ai_calls": [],
+      "interactive": false,
+      "ai_score": 6
+    },
+    "alert-hub.html": {
+      "verdict_labels": [
+        "ah-verdict-label"
+      ],
+      "verdict_boxes": [
+        "ah-verdict"
+      ],
+      "summary_blocks": [
+        "ah-summary",
+        "amc-summary"
+      ],
+      "source_chips": [
+        "wh-source-chip"
+      ],
+      "edge_functions": [],
+      "ai_rpcs": [],
+      "ai_calls": [],
+      "interactive": false,
+      "ai_score": 8
+    },
+    "analytics-report.html": {
+      "verdict_labels": [],
+      "verdict_boxes": [],
+      "summary_blocks": [],
+      "source_chips": [],
+      "edge_functions": [
+        "analytics-orchestrator"
+      ],
+      "ai_rpcs": [],
+      "ai_calls": [],
+      "interactive": false,
+      "ai_score": 4
+    },
+    "analytics.html": {
+      "verdict_labels": [
+        "an-verdict-label"
+      ],
+      "verdict_boxes": [
+        "an-verdict"
+      ],
+      "summary_blocks": [
+        "an-summary"
+      ],
+      "source_chips": [
+        "wh-source-chip"
+      ],
+      "edge_functions": [
+        "analytics-orchestrator"
+      ],
+      "ai_rpcs": [],
+      "ai_calls": [],
+      "interactive": false,
+      "ai_score": 11
+    },
+    "asset-hub.html": {
+      "verdict_labels": [
+        "ah-verdict-label"
+      ],
+      "verdict_boxes": [
+        "ah-verdict"
+      ],
+      "summary_blocks": [
+        "weibull-summary",
+        "pf-summary"
+      ],
+      "source_chips": [
+        "wh-page-source-chip",
+        "risk-source-chip"
+      ],
+      "edge_functions": [],
+      "ai_rpcs": [],
+      "ai_calls": [],
+      "interactive": false,
+      "ai_score": 9
+    },
+    "assistant.html": {
+      "verdict_labels": [],
+      "verdict_boxes": [],
+      "summary_blocks": [
+        "records-summary"
+      ],
+      "source_chips": [],
+      "edge_functions": [
+        "semantic-search",
+        "ai-orchestrator"
+      ],
+      "ai_rpcs": [],
+      "ai_calls": [
+        "callAI/gateway"
+      ],
+      "interactive": true,
+      "ai_score": 14
+    },
+    "dayplanner.html": {
+      "verdict_labels": [
+        "dp-verdict-label"
+      ],
+      "verdict_boxes": [
+        "dp-verdict"
+      ],
+      "summary_blocks": [],
+      "source_chips": [
+        "dayplanner-source-chip"
+      ],
+      "edge_functions": [],
+      "ai_rpcs": [],
+      "ai_calls": [],
+      "interactive": false,
+      "ai_score": 6
+    },
+    "hive.html": {
+      "verdict_labels": [
+        "ss-verdict-label"
+      ],
+      "verdict_boxes": [
+        "ss-verdict"
+      ],
+      "summary_blocks": [
+        "supervisor-summary",
+        "adoption-summary"
+      ],
+      "source_chips": [
+        "board-source-chip",
+        "stair-source-chip",
+        "kpipe-source-chip",
+        "adoption-source-chip",
+        "todays-brief-source-chip",
+        "coach-source-chip",
+        "benchmark-source-chip",
+        "pattern-alerts-source-chip",
+        "handover-source-chip",
+        "team-pulse-source-chip"
+      ],
+      "edge_functions": [],
+      "ai_rpcs": [],
+      "ai_calls": [],
+      "interactive": false,
+      "ai_score": 17
+    },
+    "integrations.html": {
+      "verdict_labels": [
+        "it-verdict-label"
+      ],
+      "verdict_boxes": [
+        "it-verdict"
+      ],
+      "summary_blocks": [],
+      "source_chips": [
+        "integrations-source-chip"
+      ],
+      "edge_functions": [
+        "intelligence-api",
+        "cmms-webhook-receiver"
+      ],
+      "ai_rpcs": [],
+      "ai_calls": [],
+      "interactive": false,
+      "ai_score": 14
+    },
+    "inventory.html": {
+      "verdict_labels": [
+        "inv-verdict-label"
+      ],
+      "verdict_boxes": [
+        "inv-verdict"
+      ],
+      "summary_blocks": [],
+      "source_chips": [
+        "inventory-source-chip"
+      ],
+      "edge_functions": [],
+      "ai_rpcs": [],
+      "ai_calls": [],
+      "interactive": false,
+      "ai_score": 6
+    },
+    "logbook.html": {
+      "verdict_labels": [],
+      "verdict_boxes": [],
+      "summary_blocks": [],
+      "source_chips": [],
+      "edge_functions": [
+        "embed-entry"
+      ],
+      "ai_rpcs": [],
+      "ai_calls": [],
+      "interactive": false,
+      "ai_score": 4
+    },
+    "marketplace-seller.html": {
+      "verdict_labels": [],
+      "verdict_boxes": [],
+      "summary_blocks": [],
+      "source_chips": [],
+      "edge_functions": [
+        "marketplace-connect-status",
+        "marketplace-connect-onboard"
+      ],
+      "ai_rpcs": [],
+      "ai_calls": [],
+      "interactive": false,
+      "ai_score": 8
+    },
+    "marketplace.html": {
+      "verdict_labels": [
+        "mk-verdict-label"
+      ],
+      "verdict_boxes": [
+        "mk-verdict"
+      ],
+      "summary_blocks": [
+        "save-current-summary"
+      ],
+      "source_chips": [
+        "marketplace-source-chip"
+      ],
+      "edge_functions": [
+        "marketplace-checkout",
+        "marketplace-connect-onboard",
+        "marketplace-release"
+      ],
+      "ai_rpcs": [],
+      "ai_calls": [],
+      "interactive": false,
+      "ai_score": 19
+    },
+    "ph-intelligence.html": {
+      "verdict_labels": [
+        "ph-verdict-label"
+      ],
+      "verdict_boxes": [
+        "ph-verdict"
+      ],
+      "summary_blocks": [],
+      "source_chips": [],
+      "edge_functions": [
+        "intelligence-api"
+      ],
+      "ai_rpcs": [],
+      "ai_calls": [],
+      "interactive": false,
+      "ai_score": 9
+    },
+    "pm-scheduler.html": {
+      "verdict_labels": [
+        "pm-verdict-label"
+      ],
+      "verdict_boxes": [
+        "pm-verdict"
+      ],
+      "summary_blocks": [],
+      "source_chips": [
+        "pm-source-chip"
+      ],
+      "edge_functions": [
+        "embed-entry"
+      ],
+      "ai_rpcs": [],
+      "ai_calls": [],
+      "interactive": false,
+      "ai_score": 10
+    },
+    "predictive.html": {
+      "verdict_labels": [
+        "pr-verdict-label"
+      ],
+      "verdict_boxes": [
+        "pr-verdict"
+      ],
+      "summary_blocks": [],
+      "source_chips": [
+        "wh-source-chip"
+      ],
+      "edge_functions": [],
+      "ai_rpcs": [],
+      "ai_calls": [],
+      "interactive": false,
+      "ai_score": 6
+    },
+    "project-manager.html": {
+      "verdict_labels": [
+        "pm-verdict-label"
+      ],
+      "verdict_boxes": [
+        "pm-verdict"
+      ],
+      "summary_blocks": [],
+      "source_chips": [
+        "pm-mgr-source-chip"
+      ],
+      "edge_functions": [],
+      "ai_rpcs": [],
+      "ai_calls": [],
+      "interactive": false,
+      "ai_score": 6
+    },
+    "report-sender.html": {
+      "verdict_labels": [
+        "rs-verdict-label"
+      ],
+      "verdict_boxes": [
+        "rs-verdict"
+      ],
+      "summary_blocks": [],
+      "source_chips": [
+        "report-sender-source-chip"
+      ],
+      "edge_functions": [
+        "send-report-email",
+        "voice-transcribe",
+        "scheduled-agents",
+        "voice-report-intent"
+      ],
+      "ai_rpcs": [],
+      "ai_calls": [],
+      "interactive": true,
+      "ai_score": 25
+    },
+    "shift-brain.html": {
+      "verdict_labels": [
+        "sb-verdict-label"
+      ],
+      "verdict_boxes": [
+        "sb-verdict"
+      ],
+      "summary_blocks": [],
+      "source_chips": [
+        "shift-source-chip"
+      ],
+      "edge_functions": [],
+      "ai_rpcs": [],
+      "ai_calls": [],
+      "interactive": false,
+      "ai_score": 6
+    },
+    "skillmatrix.html": {
+      "verdict_labels": [
+        "sm-verdict-label"
+      ],
+      "verdict_boxes": [
+        "sm-verdict"
+      ],
+      "summary_blocks": [],
+      "source_chips": [
+        "skillmatrix-source-chip"
+      ],
+      "edge_functions": [
+        "embed-entry"
+      ],
+      "ai_rpcs": [],
+      "ai_calls": [],
+      "interactive": false,
+      "ai_score": 10
+    },
+    "voice-journal.html": {
+      "verdict_labels": [],
+      "verdict_boxes": [],
+      "summary_blocks": [],
+      "source_chips": [],
+      "edge_functions": [
+        "tts-speak",
+        "voice-transcribe"
+      ],
+      "ai_rpcs": [],
+      "ai_calls": [],
+      "interactive": true,
+      "ai_score": 11
+    }
+  },
+  "edge_functions": [
+    "ai-eval-runner",
+    "ai-gateway",
+    "ai-orchestrator",
+    "amc-orchestrator",
+    "analytics-orchestrator",
+    "asset-brain-query",
+    "batch-risk-scoring",
+    "benchmark-compute",
+    "cmms-push-completion",
+    "cmms-sync",
+    "cmms-webhook-receiver",
+    "embed-entry",
+    "engineering-bom-sow",
+    "engineering-calc-agent",
+    "export-hive-data",
+    "failure-signature-scan",
+    "fmea-populator",
+    "intelligence-api",
+    "intelligence-report",
+    "marketplace-checkout",
+    "marketplace-connect-onboard",
+    "marketplace-connect-status",
+    "marketplace-release",
+    "marketplace-webhook",
+    "parts-staging-recommender",
+    "pdf-ingest",
+    "pf-calculator",
+    "platform-gateway",
+    "platform-scraper",
+    "project-orchestrator",
+    "project-progress",
+    "scheduled-agents",
+    "semantic-search",
+    "send-report-email",
+    "sensor-readings-ingest",
+    "shift-planner-orchestrator",
+    "trigger-ml-retrain",
+    "tts-speak",
+    "visual-defect-capture",
+    "voice-action-router",
+    "voice-embeddings",
+    "voice-journal-agent",
+    "voice-logbook-entry",
+    "voice-model-call",
+    "voice-report-intent",
+    "voice-semantic-rag",
+    "voice-transcribe",
+    "walkthrough-analyzer",
+    "weibull-fitter"
+  ],
+  "cron_jobs": [
+    {
+      "job": "nightly-analytics-cache",
+      "migration": "20260425000001_analytics_indexes_cache.sql"
+    },
+    {
+      "job": "pm-overdue-daily",
+      "migration": "20260425000003_scheduled_agents.sql"
+    },
+    {
+      "job": "failure-digest-weekly",
+      "migration": "20260425000003_scheduled_agents.sql"
+    },
+    {
+      "job": "shift-handover-morning",
+      "migration": "20260425000003_scheduled_agents.sql"
+    },
+    {
+      "job": "shift-handover-afternoon",
+      "migration": "20260425000003_scheduled_agents.sql"
+    },
+    {
+      "job": "shift-handover-night",
+      "migration": "20260425000003_scheduled_agents.sql"
+    },
+    {
+      "job": "predictive-weekly",
+      "migration": "20260425000003_scheduled_agents.sql"
+    },
+    {
+      "job": "project-suggestions-weekly",
+      "migration": "20260505000002_project_knowledge.sql"
+    },
+    {
+      "job": "project-risk-weekly",
+      "migration": "20260505000002_project_knowledge.sql"
+    },
+    {
+      "job": "batch-risk-scoring-daily",
+      "migration": "20260508000001_risk_scoring_cron.sql"
+    },
+    {
+      "job": "ml-retrain-weekly",
+      "migration": "20260508000001_risk_scoring_cron.sql"
+    },
+    {
+      "job": "achievement-xp-log-purge",
+      "migration": "20260508000002_achievements.sql"
+    },
+    {
+      "job": "pm-overdue-daily",
+      "migration": "20260510000008_cron_portable_urls.sql"
+    },
+    {
+      "job": "failure-digest-weekly",
+      "migration": "20260510000008_cron_portable_urls.sql"
+    },
+    {
+      "job": "shift-handover-morning",
+      "migration": "20260510000008_cron_portable_urls.sql"
+    },
+    {
+      "job": "shift-handover-afternoon",
+      "migration": "20260510000008_cron_portable_urls.sql"
+    },
+    {
+      "job": "shift-handover-night",
+      "migration": "20260510000008_cron_portable_urls.sql"
+    },
+    {
+      "job": "predictive-weekly",
+      "migration": "20260510000008_cron_portable_urls.sql"
+    },
+    {
+      "job": "batch-risk-scoring-daily",
+      "migration": "20260510000008_cron_portable_urls.sql"
+    },
+    {
+      "job": "ml-retrain-weekly",
+      "migration": "20260510000008_cron_portable_urls.sql"
+    },
+    {
+      "job": "ai-eval-daily",
+      "migration": "20260511000006_ai_quality_log.sql"
+    },
+    {
+      "job": "agent-memory-retention",
+      "migration": "20260511000010_agent_memory_retention_cron.sql"
+    },
+    {
+      "job": "gateway-audit-retention",
+      "migration": "20260511000012_gateway_audit_log.sql"
+    },
+    {
+      "job": "hive-route-calls-retention",
+      "migration": "20260511000013_hive_route_quotas.sql"
+    },
+    {
+      "job": "hard-delete-soft-expired",
+      "migration": "20260513000006_phase5_enterprise_unlock.sql"
+    },
+    {
+      "job": "cleanup_expired_memory",
+      "migration": "20260516000001_agent_memory_phase2.sql"
+    }
+  ]
+}

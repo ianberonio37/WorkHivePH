@@ -26,6 +26,12 @@ except ImportError:
     print("ERROR: playwright not installed. Run: pip install playwright")
     sys.exit(1)
 
+# Auto-generated scenarios from Layer -1 (optional — only exists after discovery runs)
+try:
+    from auto_scenarios import AUTO_SCENARIOS
+except ImportError:
+    AUTO_SCENARIOS = {}
+
 BASE_URL = "http://127.0.0.1:5000/workhive"
 
 # Test identity for hive-gated pages (most mature hive + actual member)
@@ -556,22 +562,33 @@ def run_scenario(page: Page, scenario: dict, base_url: str) -> dict:
 
 
 def run_all_scenarios(surface_filter=None, fast=False) -> dict:
-    """Execute all scenarios across all surfaces."""
+    """Execute all scenarios across all surfaces (manual + auto-discovered)."""
     print("\n" + "=" * 70)
     print("LAYER 0: PLAYWRIGHT SCENARIO EXECUTOR (CALIBRATED)")
     print("=" * 70)
+
+    # Merge manual + auto-generated scenarios
+    merged_scenarios = dict(SCENARIOS)
+    auto_count = 0
+    for surface, scs in AUTO_SCENARIOS.items():
+        if surface not in merged_scenarios:
+            merged_scenarios[surface] = scs
+            auto_count += 1
+    if auto_count:
+        print(f"  [+] Including {auto_count} auto-generated surface(s) from Layer -1")
 
     results = {
         "timestamp": datetime.now().isoformat(),
         "surfaces": {},
         "summary": {"total": 0, "passed": 0, "failed": 0},
+        "auto_generated_count": auto_count,
     }
 
     with sync_playwright() as p:
         browser = p.chromium.launch()
         page = browser.new_page()
 
-        for surface_name, scenarios in SCENARIOS.items():
+        for surface_name, scenarios in merged_scenarios.items():
             if surface_filter and surface_filter.upper() != surface_name:
                 continue
 

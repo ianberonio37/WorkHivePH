@@ -915,6 +915,53 @@ def api_run_gate_ai():
     return jsonify({"started": True})
 
 
+def _run_ai_loop():
+    """Helper to launch ai_self_improvement_loop.py with live streaming."""
+    def _run(client, log):
+        loop = WORKHIVE_ROOT / "tools" / "ai_self_improvement_loop.py"
+        if not loop.exists():
+            log(f"ERROR: tools/ai_self_improvement_loop.py not found at {loop}")
+            return {"exit_code": 1}
+        cmd = [sys.executable, "-u", str(loop), "--fast"]
+        proc = subprocess.Popen(
+            cmd,
+            stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+            cwd=str(WORKHIVE_ROOT), bufsize=1,
+            text=True, encoding="utf-8", errors="replace",
+        )
+        import re as _re
+        ansi = _re.compile(r"\x1b\[[0-9;]*m")
+        for line in proc.stdout:
+            clean = ansi.sub("", line.rstrip())
+            if clean:
+                log(clean)
+        proc.wait()
+        return {"exit_code": proc.returncode}
+    return _run
+
+
+@app.route("/api/run-ai-loop", methods=["POST"])
+def api_run_ai_loop():
+    """AI Self-Improvement Loop — automated Hardening Loop via Groq + Playwright.
+
+    Runs ALL 6 layers proactively:
+    - Layer -1: Discover new AI surfaces (HTML pages, edge fns, cron jobs)
+    - Layer -0.5: Auto-generate Playwright scenarios for new surfaces
+    - Layer 0: Run 21+ scenarios across all AI surfaces
+    - Layer 1: Groq analyzes failures, extracts findings
+    - Layer 2: Auto-remediation routing
+    - Layer 3: Validator generation + registration
+    - Layer 4: Meta-validator (loop integrity)
+
+    Replaces 5 manual Hardening Loop steps with one button.
+    ~10 min, $0 (free-tier Groq), proactive about new AI functions.
+    """
+    if JOB_STATE["running"]:
+        return jsonify({"error": "another job is running"}), 409
+    _run_job("ai_self_improvement_loop", _run_ai_loop())
+    return jsonify({"started": True})
+
+
 @app.route("/api/run-gate-visual", methods=["POST"])
 def api_run_gate_visual():
     """Gate + visual regression only (no AI, no perf). Faster than Mega Gate.

@@ -228,6 +228,17 @@ def main(surface_filter=None, fast=False) -> int:
         print("Start Flask seeder and local Supabase, then retry.")
         return 1
 
+    # Layer -1: AI Surface Discovery (proactive — catches new pages/edge fns/crons)
+    if not surface_filter:
+        rc_disc, res_disc = run_layer(-1, "AI Surface Discovery", "discover_ai_surfaces.py", [])
+        loop_results["layers"]["-1"] = res_disc
+
+        # Layer -0.5: Auto-generate scenarios for any newly discovered surfaces
+        if rc_disc == 1:  # exit code 1 = new surfaces detected
+            print(f"\n  {YELLOW}New AI surfaces detected — auto-generating scenarios...{RESET}")
+            rc_gen, res_gen = run_layer(-0.5, "Auto-Generate Scenarios", "auto_generate_scenarios.py", [])
+            loop_results["layers"]["-0.5"] = res_gen
+
     # Layer 0: Playwright Scenarios (UI)
     args_0 = ["--fast"] if fast else []
     if surface_filter:

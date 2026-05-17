@@ -1457,14 +1457,22 @@
         <span style="color:rgba(255,255,255,0.3); font-size:0.85rem;">→</span>
         <span class="loop-step" style="padding:5px 10px; background:rgba(74,222,128,0.1); border:1px solid rgba(74,222,128,0.3); border-radius:6px; font-size:0.72rem; color:#4ade80;">5. Verify + commit (Layer 0 smarter)</span>
       </div>
+      <div style="margin-top:18px; padding-top:14px; border-top: 1px solid rgba(255,255,255,0.06);">
+        <div style="font-size:0.7rem; color:rgba(255,255,255,0.55); text-transform:uppercase; letter-spacing:0.06em; margin-bottom:8px;">🤖 Run the entire loop automatically <span style="margin-left:6px; padding:1px 6px; background:rgba(167,139,250,0.18); border:1px solid rgba(167,139,250,0.3); border-radius:99px; font-size:0.55rem; color:#a78bfa; font-weight:600;">AI-DRIVEN</span></div>
+        <button class="seed-btn" data-action="run-ai-loop"
+          data-tip-title="🤖 AI Self-Improvement Loop"
+          data-tip="Automates ALL 5 Hardening Loop steps via Groq + Playwright. Runs 6 layers: discover new AI surfaces (Layer -1), auto-generate scenarios for them, run 21+ scenarios, AI diagnoses failures, auto-fix, generate validators, meta-validate. Proactive — catches new AI pages, edge fns, and cron jobs automatically."
+          data-tip-foot="✅ CLICK AFTER: any AI feature work (new edge fn, new dashboard, prompt change, cron job). ~10 min, $0 (free Groq).">🤖 Run AI Self-Improvement Loop (auto-Hardening · ~10min · $0)</button>
+      </div>
+
       <div style="display:flex; gap:14px; flex-wrap:wrap; margin-top:14px; padding-top:12px; border-top: 1px solid rgba(255,255,255,0.06);">
         <div style="flex:1; min-width:200px;">
           <div style="font-size:0.7rem; color:rgba(255,255,255,0.45); text-transform:uppercase; letter-spacing:0.05em; margin-bottom:4px;">How to invoke</div>
-          <div style="font-size:0.75rem;">In Claude Code, type <code style="background:rgba(247,162,27,0.12); padding:1px 6px; border-radius:4px; color:#F7A21B;">/harden</code> or just ask: <i>"run the hardening loop"</i></div>
+          <div style="font-size:0.75rem;">In Claude Code, type <code style="background:rgba(247,162,27,0.12); padding:1px 6px; border-radius:4px; color:#F7A21B;">/harden</code>, click the 🤖 button above, or ask: <i>"run the hardening loop"</i></div>
         </div>
         <div style="flex:1; min-width:200px;">
           <div style="font-size:0.7rem; color:rgba(255,255,255,0.45); text-transform:uppercase; letter-spacing:0.05em; margin-bottom:4px;">When to invoke</div>
-          <div style="font-size:0.75rem;">After Layer 2 surfaces a FAIL or WARN you want to permanently prevent.</div>
+          <div style="font-size:0.75rem;">After Layer 2 surfaces a FAIL or WARN you want to permanently prevent — or after any new AI feature.</div>
         </div>
       </div>
       <details class="section-help" style="margin-top:14px;">
@@ -2400,6 +2408,7 @@
     else if (action === 'run-crud-tests') url = '/api/run-crud-tests';
     else if (action === 'run-gate') url = '/api/run-gate';
     else if (action === 'run-gate-ai') url = '/api/run-gate-ai';
+    else if (action === 'run-ai-loop') url = '/api/run-ai-loop';
     else if (action === 'run-gate-visual') url = '/api/run-gate-visual';
     else if (action === 'run-mega-gate') url = '/api/run-mega-gate';
     else if (action === 'run-roles') url = '/api/run-roles';
