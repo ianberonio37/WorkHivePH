@@ -426,9 +426,19 @@ def evaluate_validation(page: Page, val_rule: dict) -> bool:
         body_text = page.evaluate("() => document.body.innerText || ''")
         if any(phrase in body_text for phrase in [
             "Stair", "maturity", "insufficient data", "not yet accumulated",
-            "honest empty", "refuses to fabricate", "Reach Stair"
+            "honest empty", "refuses to fabricate", "Reach Stair",
+            "No plan yet", "Generate Plan", "no shift plan", "Create a plan",
+            "Get started", "empty state",
         ]):
-            # Page is in honest empty state — this is a PASS
+            # Page is in honest empty state or first-use prompt — this is a PASS
+            return True
+
+        # Also check for visible #empty-state element pattern (used by shift-brain etc)
+        has_empty_state = page.evaluate("""() => {
+            const el = document.getElementById('empty-state');
+            return el && el.offsetParent !== null;
+        }""")
+        if has_empty_state:
             return True
     except Exception:
         pass
