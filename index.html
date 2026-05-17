@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <meta name="google-site-verification" content="0R0cbzF4Ks6d28b_uWAH3kDotNTYQ64uQfdcuMNhb_c" />
   <title>WorkHive | Free Industrial Tools for Every Filipino Worker</title>
-  <!-- capture: early_access_signup_v1 (form) — landing-page waitlist -->
+  <!-- capture: early_access_signup_v1 (form): landing-page waitlist -->
   <meta name="description" content="Free industrial tools for Filipino workers at every level. Digital logbook, PM scheduler, inventory, skill matrix, and AI assistant. Built for the plant floor." />
   <meta name="keywords" content="industrial tools Philippines, maintenance logbook, PM scheduler, inventory management, plant supervisor, maintenance engineer, plant manager, free industrial tools, predictive maintenance Philippines" />
   <meta name="robots" content="index, follow" />
@@ -15,7 +15,11 @@
   <!-- Open Graph -->
   <meta property="og:title" content="WorkHive | Free Industrial Tools for Every Worker" />
   <meta property="og:description" content="Free industrial tools for Filipino workers at every level. Digital logbook, PM scheduler, inventory, skill matrix, and AI assistant. Built for the plant floor." />
-  <meta property="og:image" content="https://workhiveph.com/brand_assets/workhive-logo-transparent.png" />
+  <meta property="og:image" content="https://workhiveph.com/brand_assets/og-social.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:type" content="image/png" />
+  <meta property="og:image:alt" content="WorkHive: Free industrial tools for every Filipino worker" />
   <meta property="og:url" content="https://workhiveph.com/" />
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content="WorkHive" />
@@ -23,26 +27,198 @@
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="WorkHive | Free Industrial Tools for Every Worker" />
   <meta name="twitter:description" content="Free industrial tools for Filipino workers at every level. Digital logbook, PM scheduler, inventory, skill matrix, and AI assistant. Built for the plant floor." />
-  <meta name="twitter:image" content="https://workhiveph.com/brand_assets/workhive-logo-transparent.png" />
-  <!-- Structured Data -->
+  <meta name="twitter:image" content="https://workhiveph.com/brand_assets/og-social.png" />
+  <meta name="twitter:image:alt" content="WorkHive: Free industrial tools for every Filipino worker" />
+  <!-- Structured Data: Organization + SoftwareApplication + WebSite (entity SEO for Google Knowledge Graph + AI engine citations) -->
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
-    "@type": "SoftwareApplication",
-    "name": "WorkHive",
-    "url": "https://workhiveph.com",
-    "applicationCategory": "BusinessApplication",
-    "operatingSystem": "Web",
-    "description": "Free industrial intelligence tools for every worker, from field to management: logbook, PM checklist, inventory management, and AI work assistant.",
-    "offers": {
-      "@type": "Offer",
-      "price": "0",
-      "priceCurrency": "PHP"
-    },
-    "creator": {
-      "@type": "Organization",
-      "name": "WorkHive"
-    }
+    "@graph": [
+      {
+        "@type": "Organization",
+        "@id": "https://workhiveph.com/#organization",
+        "name": "WorkHive",
+        "legalName": "WorkHive Engineering Services",
+        "alternateName": ["WorkHive PH", "WorkHive Engineering Services"],
+        "url": "https://workhiveph.com",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "https://workhiveph.com/brand_assets/workhive-logo-transparent.png",
+          "width": 512,
+          "height": 512
+        },
+        "description": "WorkHive is a free industrial intelligence platform built for every Filipino industrial worker, from field to management: field technicians and operators, reliability and design engineers, supervisors and planners, plant and operations managers, suppliers, contractors, new graduates entering the labor market, and existing workers expanding capabilities with AI. It bundles a digital logbook, PM scheduler, inventory management, skill matrix, engineering design calculators, and an AI work assistant. Operated by WorkHive Engineering Services (DTI Business Name Registration No. 8080496), registered to Ian Lumayno Beronio, valid 6 April 2026 to 6 April 2031, with National scope across the Philippines.",
+        "foundingDate": "2026-04-06",
+        "founder": {
+          "@type": "Person",
+          "name": "Ian Lumayno Beronio"
+        },
+        "identifier": [
+          {
+            "@type": "PropertyValue",
+            "name": "DTI Business Name Registration",
+            "value": "8080496",
+            "propertyID": "https://www.dti.gov.ph"
+          }
+        ],
+        "contactPoint": [
+          {
+            "@type": "ContactPoint",
+            "contactType": "customer support",
+            "email": "admin@workhiveph.com",
+            "areaServed": "PH",
+            "availableLanguage": ["English", "Filipino", "Tagalog"]
+          }
+        ],
+        "email": "admin@workhiveph.com",
+        "areaServed": {
+          "@type": "Country",
+          "name": "Philippines"
+        },
+        "knowsAbout": [
+          "Industrial maintenance",
+          "Preventive maintenance",
+          "Predictive maintenance",
+          "Reliability-centered maintenance",
+          "Overall Equipment Effectiveness",
+          "Mean Time Between Failures",
+          "Mean Time To Repair",
+          "Failure Mode and Effects Analysis",
+          "Permit to work",
+          "Shift handover",
+          "Plant operations",
+          "Digital logbook",
+          "Spare parts inventory",
+          "Skill matrix",
+          "Engineering design calculations",
+          "ISO 14224 reliability data",
+          "Philippine industrial standards"
+        ],
+        "sameAs": []
+      },
+      {
+        "@type": "WebSite",
+        "@id": "https://workhiveph.com/#website",
+        "url": "https://workhiveph.com",
+        "name": "WorkHive",
+        "publisher": { "@id": "https://workhiveph.com/#organization" },
+        "inLanguage": "en-PH",
+        "datePublished": "2026-04-10",
+        "dateModified": "2026-05-16"
+      },
+      {
+        "@type": "SoftwareApplication",
+        "@id": "https://workhiveph.com/#software",
+        "name": "WorkHive",
+        "url": "https://workhiveph.com",
+        "applicationCategory": "BusinessApplication",
+        "applicationSubCategory": "Industrial Maintenance Software",
+        "operatingSystem": "Web",
+        "description": "Free industrial intelligence tools for every worker, from field to management: logbook, PM checklist, inventory management, skill matrix, and AI work assistant.",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "PHP",
+          "availability": "https://schema.org/InStock"
+        },
+        "publisher": { "@id": "https://workhiveph.com/#organization" },
+        "audience": {
+          "@type": "Audience",
+          "audienceType": "Field workers, maintenance technicians, operators, reliability engineers, design engineers, project engineers, supervisors, planners, plant managers, operations managers, suppliers, contractors, engineering students, new graduates, workers upskilling with AI"
+        },
+        "datePublished": "2026-04-10",
+        "dateModified": "2026-05-16"
+      },
+      {
+        "@type": "FAQPage",
+        "@id": "https://workhiveph.com/#faq",
+        "url": "https://workhiveph.com/#faq",
+        "inLanguage": "en-PH",
+        "dateModified": "2026-05-16",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "What is WorkHive?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "WorkHive is a free industrial intelligence platform for every Filipino industrial worker, from field to management: field technicians and operators, engineers, supervisors and planners, plant and operations managers, suppliers, contractors, new graduates, and existing workers expanding capabilities with AI. It bundles a digital logbook, preventive maintenance scheduler, spare-parts inventory, skill matrix, engineering design calculators, and an AI work assistant in one browser-based hive."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Is WorkHive really free?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes. WorkHive is free at the worker tier forever. There is no credit card, no trial, and no per-user license. Plants advance through 4 free stages (Paper-to-Digital, Disciplined, Predictive-Ready, Industry Leader) before optional premium add-ons appear at the Industry Leader stage."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Who is WorkHive for?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "WorkHive serves every role on the industrial floor: field technicians logging faults, supervisors approving shift handovers, planners scheduling PM, reliability engineers tracking MTBF, and plant managers reviewing OEE. It is built for Philippine factories, food and beverage facilities, power plants, water utilities, and any operation that runs industrial equipment."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "What tools does WorkHive include?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "The hive bundles a digital logbook, PM scheduler with overdue alerts, spare-parts inventory with FIFO and reorder points, skill matrix for technician competencies, engineering design calculators (electrical, mechanical, HVAC, civil, instrumentation) referenced to ISO 14224 and Philippine standards, a day planner, and a Filipino/English AI work assistant."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Does WorkHive work offline?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes. WorkHive is a progressive web app (PWA). Once the page is loaded, the logbook, PM checklist, and inventory pages continue working offline. Entries are queued in browser IndexedDB and synced automatically when connectivity returns. This is critical for Philippine plants with intermittent network coverage."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Does WorkHive replace SAP, IBM Maximo, or my CMMS?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "No. WorkHive does not replace your ERP or CMMS. It runs alongside them as the worker-facing layer your technicians actually use day to day. Plants with SAP or Maximo keep them for procurement and finance; WorkHive handles the shift handover, fault history, and PM execution that those systems are too heavy to do well."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "How is my plant's data kept private?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Each plant gets an isolated hive with row-level security in Supabase. Workers can only see data from hives they have joined. Supervisors approve every new join request before access is granted. Data is hosted on Supabase infrastructure with industry-standard encryption at rest and in transit."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Does WorkHive work on mobile?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes. WorkHive is mobile-first and installable as a PWA on Android and iPhone. The interface adapts from older Android phones with small screens up to desktop monitors in the control room. Touch targets, bottom navigation, and safe-area handling are tuned for industrial use with gloves and dirty screens."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "What languages does WorkHive support?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "English by default, with Filipino (Tagalog) support in the AI work assistant. Workers can ask questions in either language and receive responses appropriate to their role and stage. Future regional languages (Cebuano, Hiligaynon, Ilocano) are on the roadmap once the Philippine user base reaches scale."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "How do I sign up?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Enter your work email in the Join the Hive form on this page. You will be added to the early-access list and contacted with a hive-join link once your facility is provisioned. Sign-up is free and takes about 30 seconds."
+            }
+          }
+        ]
+      }
+    ]
   }
   </script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -497,13 +673,13 @@
     @keyframes page-enter { from{opacity:0} to{opacity:1} }
     body { animation: page-enter .65s ease forwards; }
     @media (prefers-reduced-motion: reduce) { body { animation: none; } }
-    /* Prevent GPU memory pressure on mobile — kills WebKit on iOS with too many concurrent animations */
+    /* Prevent GPU memory pressure on mobile: kills WebKit on iOS with too many concurrent animations */
     @media (max-width: 767px) {
       .logo-glow-img { will-change: auto; animation: none; }
       .main-column, .floor { animation: none; }
       .cta-pulse { animation: none; }
       .badge { animation: none; }
-      /* Additional kills — discovered April 2026 (iOS "A problem repeatedly occurred") */
+      /* Additional kills: discovered April 2026 (iOS "A problem repeatedly occurred") */
       #scroll-progress { animation: none; }
       .light-beam { animation: none !important; }
       .hc3-elite  { animation: none !important; } /* !important: overrides inline <style> declared later in DOM */
@@ -588,7 +764,93 @@
       .before-after-row.in  { opacity: 1; transform: none; }
       .rpl                  { display: none !important; }
     }
+
+    /* ---- FAQ accordion (AEO Phase 1) ---- */
+    .faq-item {
+      background: rgba(31,46,69,0.55);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 14px;
+      transition: border-color .2s ease, background .2s ease;
+    }
+    .faq-item[open] {
+      border-color: rgba(247,162,27,0.35);
+      background: rgba(31,46,69,0.85);
+    }
+    .faq-item summary {
+      cursor: pointer;
+      list-style: none;
+      padding: 18px 22px;
+      font-weight: 600;
+      font-size: 1rem;
+      color: #F4F6FA;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+    }
+    .faq-item summary::-webkit-details-marker { display: none; }
+    .faq-item summary::after {
+      content: '+';
+      font-size: 1.5rem;
+      font-weight: 300;
+      color: #F7A21B;
+      flex-shrink: 0;
+    }
+    .faq-item[open] summary::after { content: '\2212'; }
+    .faq-item .faq-answer {
+      padding: 0 22px 20px;
+      color: rgba(244,246,250,0.7);
+      line-height: 1.7;
+      font-size: 0.95rem;
+    }
   </style>
+  <script>
+    // Local dev URL bridge v2: production uses /learn/, /logbook.html etc.
+    // as root-absolute URLs. Locally everything serves under /workhive/.
+    // This script rewrites root-absolute links to /workhive/<path>/index.html
+    // (explicit file path) so clicks work even if Flask directory-index
+    // resolution is not active. Zero production impact.
+    (function(){
+      if (!location.pathname.startsWith('/workhive/')) return;
+      var ROOT_PATHS = ['/learn/', '/logbook.html', '/inventory.html',
+        '/pm-scheduler.html', '/skillmatrix.html', '/dayplanner.html',
+        '/hive.html', '/assistant.html', '/analytics.html', '/shift-brain.html',
+        '/asset-hub.html', '/alert-hub.html', '/audit-log.html', '/voice-journal.html',
+        '/engineering-design.html', '/project-manager.html', '/integrations.html',
+        '/marketplace.html', '/community.html', '/achievements.html',
+        '/ph-intelligence.html', '/predictive.html', '/ai-quality.html',
+        '/plant-connections.html'];
+      function rewrite(){
+        document.querySelectorAll('a[href]').forEach(function(a){
+          var h = a.getAttribute('href');
+          if (!h || h[0] !== '/') return;
+          if (h.indexOf('/workhive/') === 0 || h.indexOf('/brand_assets/') === 0 ||
+              h.indexOf('/api/') === 0 || h === '/manifest.json' || h === '/sw.js') return;
+          var matched = false;
+          for (var i = 0; i < ROOT_PATHS.length; i++) {
+            if (h === ROOT_PATHS[i] || h.indexOf(ROOT_PATHS[i]) === 0) {
+              matched = true; break;
+            }
+          }
+          if (!matched && h !== '/' && h.indexOf('/#') !== 0) return;
+          var newHref = '/workhive' + h;
+          // Append index.html for trailing-slash directory URLs
+          // (Flask explicit-file serving works without dir-index)
+          if (newHref.endsWith('/')) newHref += 'index.html';
+          // Special case bare "/" -> "/workhive/index.html"
+          else if (h === '/') newHref = '/workhive/index.html';
+          // /#fragment -> /workhive/index.html#fragment
+          else if (h.indexOf('/#') === 0) newHref = '/workhive/index.html' + h.substring(1);
+          a.setAttribute('href', newHref);
+        });
+      }
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', rewrite);
+      } else {
+        rewrite();
+      }
+    })();
+  </script>
 </head>
 <body class="bg-navy-wh text-white antialiased overflow-x-hidden">
 
@@ -618,6 +880,7 @@
       <a href="#platform"  class="nav-link">The Hive</a>
       <a href="#impact"    class="nav-link">Impact</a>
       <a href="#community" class="nav-link">Community</a>
+      <a href="/learn/" id="nav-learn-desktop" class="nav-link">Learn</a>
     </div>
 
     <div class="hidden md:flex items-center gap-3">
@@ -671,6 +934,7 @@
     <a href="#platform"  class="block py-3 text-white/80 font-medium hover:text-white transition-colors">The Hive</a>
     <a href="#impact"    class="block py-3 text-white/80 font-medium hover:text-white transition-colors">Impact</a>
     <a href="#community" class="block py-3 text-white/80 font-medium hover:text-white transition-colors">Community</a>
+    <a href="/learn/"    class="block py-3 text-white/80 font-medium hover:text-white transition-colors">Learn</a>
     <div class="pt-4 flex flex-col gap-3">
       <button id="pwa-install-btn-mobile" onclick="triggerInstall()"
               class="hidden items-center justify-center gap-2 text-sm text-center font-bold"
@@ -706,7 +970,7 @@
     #ops-home .oh-badge-high { background:rgba(251,146,60,.15); color:#fb923c; }
     #ops-home .oh-qa-btn { display:flex; align-items:center; gap:9px; padding:14px 16px; border-radius:12px; text-decoration:none; font-size:.82rem; font-weight:700; border:1px solid; transition:opacity .15s; }
     #ops-home .oh-qa-btn:hover { opacity:.8; }
-    /* Stat cards become clickable links — hover lift + accent ring */
+    /* Stat cards become clickable links: hover lift + accent ring */
     #ops-home .oh-stat-card { display:block; text-decoration:none; cursor:pointer; transition:transform .15s ease, border-color .15s ease, background .15s ease; }
     #ops-home .oh-stat-card:hover { transform:translateY(-2px); border-color:rgba(255,255,255,0.18); background:rgba(22,32,50,0.95); }
     /* Skeleton shimmer for loading stat values */
@@ -765,7 +1029,7 @@
          (logbook, risk, inventory, PM compliance). -->
     <p id="oh-source-chip" style="margin-bottom:20px;"></p>
 
-    <!-- Alert strip (critical/high risk assets — shown only if present) -->
+    <!-- Alert strip (critical/high risk assets: shown only if present) -->
     <div id="oh-alerts" style="display:none; margin-bottom:20px;"></div>
 
     <!-- Top 3 At-Risk Assets (links to Asset Hub) -->
@@ -821,7 +1085,7 @@
   </div>
 </div>
 
-<!-- Marketing page wrapper — hidden when user is logged in -->
+<!-- Marketing page wrapper: hidden when user is logged in -->
 <div id="mkt-wrap">
 
 <!-- ═══════════════════════════════════════════════
@@ -873,15 +1137,12 @@
           </a>
         </div>
 
-        <!-- social proof under CTA -->
-        <div style="display:flex;align-items:center;gap:10px;margin-top:14px;margin-bottom:40px;">
-          <div class="flex -space-x-2 flex-shrink-0">
-            <div class="w-7 h-7 rounded-full border-2 border-navy-wh flex items-center justify-center text-[9px] font-bold text-navy-wh" style="background:linear-gradient(135deg,#F7A21B,#FDB94A);">JR</div>
-            <div class="w-7 h-7 rounded-full border-2 border-navy-wh flex items-center justify-center text-[9px] font-bold text-navy-wh" style="background:linear-gradient(135deg,#29B6D9,#5FCCE8);">MA</div>
-            <div class="w-7 h-7 rounded-full border-2 border-navy-wh flex items-center justify-center text-[9px] font-bold text-navy-wh" style="background:linear-gradient(135deg,#F7A21B,#FDB94A);">RL</div>
-            <div class="w-7 h-7 rounded-full border-2 border-navy-wh flex items-center justify-center text-[9px] font-bold text-white/50" style="background:rgba(42,61,88,.9);">+2K</div>
+        <!-- DTI legitimacy badge (replaces fabricated user count) -->
+        <div style="display:flex;align-items:center;gap:12px;margin-top:14px;margin-bottom:40px;">
+          <div class="w-10 h-10 rounded-full flex-shrink-0 flex items-center justify-center" style="background:linear-gradient(135deg,#F7A21B,#FDB94A);">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#162032" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg>
           </div>
-          <p class="text-xs text-white/45 leading-snug">2,500 workers already in the hive<br/><span class="text-white/25">Philippines-first · Free to join</span></p>
+          <p class="text-xs text-white/55 leading-snug">DTI Registered Business <br/><span class="text-white/30">No. 8080496 · Free at the worker tier, forever</span></p>
         </div>
 
         <!-- micro stats -->
@@ -1032,6 +1293,20 @@
   <!-- bottom fade -->
   <div class="absolute bottom-0 left-0 right-0 h-24 pointer-events-none"
        style="background: linear-gradient(to bottom, transparent, #162032);"></div>
+</section>
+
+<!-- ═══════════════════════════════════════════════
+     AEO: Answer-First Block (direct 40-60 word answer for AI engines)
+═══════════════════════════════════════════════ -->
+<section id="what-is-workhive" class="py-16 reveal" style="background: rgba(22,32,50,0.5); position: relative; z-index: 1;">
+  <div class="max-w-4xl mx-auto px-5 sm:px-8 text-center">
+    <p class="text-xs text-orange-wh font-bold uppercase tracking-[0.15em] mb-4">In one paragraph</p>
+    <h2 class="text-3xl sm:text-4xl font-black leading-[1.15] tracking-[-0.02em] mb-6 text-white">What is WorkHive?</h2>
+    <p class="text-base sm:text-lg text-white/75 leading-[1.75] font-light max-w-3xl mx-auto">
+      WorkHive is a <strong class="text-white font-semibold">free industrial intelligence platform</strong> for every Filipino industrial worker, from field to management: field technicians and operators, engineers, supervisors and planners, plant and operations managers, suppliers, contractors, new graduates entering the labor market, and existing workers expanding their capabilities with AI. It bundles a digital logbook, preventive maintenance scheduler, spare-parts inventory, skill matrix, engineering design calculators, and an AI work assistant in one browser-based hive.
+    </p>
+    <p class="text-sm text-white/45 mt-6 font-medium">Free · Philippines-first · Works offline · Mobile and desktop</p>
+  </div>
 </section>
 
 <!-- ═══════════════════════════════════════════════
@@ -1400,6 +1675,159 @@
 </section>
 
 <!-- ═══════════════════════════════════════════════
+     AEO: FAQ (visible Q&A; mirrored in FAQPage JSON-LD @graph)
+═══════════════════════════════════════════════ -->
+<section id="faq" class="py-24 lg:py-32 reveal" style="background: rgba(22,32,50,0.75); position: relative; z-index: 1;">
+  <div class="max-w-3xl mx-auto px-5 sm:px-8">
+    <div class="hex-divider"><span></span><span></span><span></span></div>
+    <h2 class="text-4xl sm:text-5xl font-black leading-[1.1] tracking-[-0.025em] mb-6 text-white">Frequently asked questions</h2>
+    <p class="text-white/55 mb-12 text-lg leading-relaxed font-light">Quick answers about WorkHive, pricing, privacy, and what works offline.</p>
+
+    <div class="space-y-4">
+
+      <details class="faq-item">
+        <summary>What is WorkHive?</summary>
+        <div class="faq-answer">WorkHive is a free industrial intelligence platform for Filipino industrial workers at every level: field technicians, supervisors, engineers, planners, and plant managers. It bundles a digital logbook, preventive maintenance scheduler, spare-parts inventory, skill matrix, engineering design calculators, and an AI work assistant in one browser-based hive.</div>
+      </details>
+
+      <details class="faq-item">
+        <summary>Is WorkHive really free?</summary>
+        <div class="faq-answer">Yes. WorkHive is free at the worker tier forever. There is no credit card, no trial, and no per-user license. Plants advance through 4 free stages (Paper-to-Digital, Disciplined, Predictive-Ready, Industry Leader) before optional premium add-ons appear at the Industry Leader stage.</div>
+      </details>
+
+      <details class="faq-item">
+        <summary>Who is WorkHive for?</summary>
+        <div class="faq-answer">WorkHive serves every role on the industrial floor: field technicians logging faults, supervisors approving shift handovers, planners scheduling PM, reliability engineers tracking MTBF, and plant managers reviewing OEE. It is built for Philippine factories, food and beverage facilities, power plants, water utilities, and any operation that runs industrial equipment.</div>
+      </details>
+
+      <details class="faq-item">
+        <summary>What tools does WorkHive include?</summary>
+        <div class="faq-answer">The hive bundles a digital logbook, PM scheduler with overdue alerts, spare-parts inventory with FIFO and reorder points, skill matrix for technician competencies, engineering design calculators (electrical, mechanical, HVAC, civil, instrumentation) referenced to ISO 14224 and Philippine standards, a day planner, and a Filipino/English AI work assistant.</div>
+      </details>
+
+      <details class="faq-item">
+        <summary>Does WorkHive work offline?</summary>
+        <div class="faq-answer">Yes. WorkHive is a progressive web app (PWA). Once the page is loaded, the logbook, PM checklist, and inventory pages continue working offline. Entries are queued in browser IndexedDB and synced automatically when connectivity returns. This is critical for Philippine plants with intermittent network coverage.</div>
+      </details>
+
+      <details class="faq-item">
+        <summary>Does WorkHive replace SAP, IBM Maximo, or my CMMS?</summary>
+        <div class="faq-answer">No. WorkHive does not replace your ERP or CMMS. It runs alongside them as the worker-facing layer your technicians actually use day to day. Plants with SAP or Maximo keep them for procurement and finance; WorkHive handles the shift handover, fault history, and PM execution that those systems are too heavy to do well.</div>
+      </details>
+
+      <details class="faq-item">
+        <summary>How is my plant's data kept private?</summary>
+        <div class="faq-answer">Each plant gets an isolated hive with row-level security in Supabase. Workers can only see data from hives they have joined. Supervisors approve every new join request before access is granted. Data is hosted on Supabase infrastructure with industry-standard encryption at rest and in transit.</div>
+      </details>
+
+      <details class="faq-item">
+        <summary>Does WorkHive work on mobile?</summary>
+        <div class="faq-answer">Yes. WorkHive is mobile-first and installable as a PWA on Android and iPhone. The interface adapts from older Android phones with small screens up to desktop monitors in the control room. Touch targets, bottom navigation, and safe-area handling are tuned for industrial use with gloves and dirty screens.</div>
+      </details>
+
+      <details class="faq-item">
+        <summary>What languages does WorkHive support?</summary>
+        <div class="faq-answer">English by default, with Filipino (Tagalog) support in the AI work assistant. Workers can ask questions in either language and receive responses appropriate to their role and stage. Future regional languages (Cebuano, Hiligaynon, Ilocano) are on the roadmap once the Philippine user base reaches scale.</div>
+      </details>
+
+      <details class="faq-item">
+        <summary>How do I sign up?</summary>
+        <div class="faq-answer">Enter your work email in the Join the Hive form on this page. You will be added to the early-access list and contacted with a hive-join link once your facility is provisioned. Sign-up is free and takes about 30 seconds.</div>
+      </details>
+
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════
+     LEARN TEASER (drives traffic to /learn/ hub)
+═══════════════════════════════════════════════ -->
+<section id="learn-teaser" class="py-20 lg:py-28 reveal" style="background: rgba(22,32,50,0.55); position: relative; z-index: 1;">
+  <div class="max-w-6xl mx-auto px-5 sm:px-8">
+    <div class="text-center max-w-2xl mx-auto mb-12">
+      <p class="text-xs font-bold uppercase tracking-[0.15em] text-orange-wh mb-4">Free guides</p>
+      <h2 class="text-3xl sm:text-4xl lg:text-5xl font-black leading-[1.1] tracking-[-0.025em] mb-5">
+        Practical writing for the Philippine plant floor
+      </h2>
+      <p class="text-white/55 leading-relaxed font-light">
+        24 in-depth guides covering OEE, MTBF, PM checklists, skill matrix, shift handover, AI assistants, CMMS integrations, and more. Every guide is tool-aligned with WorkHive and free to read.
+      </p>
+    </div>
+
+    <div class="grid sm:grid-cols-3 gap-5 mb-10">
+
+      <a href="/learn/start-digital-logbook-philippine-factory/" class="learn-teaser-card">
+        <div class="learn-teaser-pill">Logbook</div>
+        <h3 class="learn-teaser-title">How to start a digital logbook in a Philippine factory</h3>
+        <p class="learn-teaser-meta">11 min · zero-budget rollout · 7 FAQs</p>
+      </a>
+
+      <a href="/learn/what-is-oee-how-to-calculate/" class="learn-teaser-card">
+        <div class="learn-teaser-pill">OEE</div>
+        <h3 class="learn-teaser-title">What is OEE and how do I calculate it?</h3>
+        <p class="learn-teaser-meta">10 min · worked PH example · 6 FAQs</p>
+      </a>
+
+      <a href="/learn/ai-work-assistant-maintenance-technicians/" class="learn-teaser-card">
+        <div class="learn-teaser-pill">AI Assistant</div>
+        <h3 class="learn-teaser-title">AI work assistant for every industrial worker</h3>
+        <p class="learn-teaser-meta">10 min · career-protection guide · 6 FAQs</p>
+      </a>
+
+    </div>
+
+    <div class="text-center">
+      <a href="/learn/" class="inline-flex items-center gap-2 text-orange-wh hover:text-orange-light transition-colors font-semibold">
+        See all 24 guides
+        <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+      </a>
+    </div>
+  </div>
+
+  <style>
+    .learn-teaser-card {
+      display: block;
+      background: rgba(31,46,69,0.55);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 16px;
+      padding: 22px 24px;
+      transition: border-color .2s ease, background .2s ease, transform .2s ease;
+      text-decoration: none;
+      color: inherit;
+    }
+    .learn-teaser-card:hover {
+      border-color: rgba(247,162,27,0.45);
+      background: rgba(31,46,69,0.85);
+      transform: translateY(-3px);
+    }
+    .learn-teaser-pill {
+      display: inline-block;
+      font-size: 0.65rem;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 100px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      background: rgba(247,162,27,0.18);
+      color: #F7A21B;
+      border: 1px solid rgba(247,162,27,0.35);
+      margin-bottom: 14px;
+    }
+    .learn-teaser-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      line-height: 1.3;
+      color: #F4F6FA;
+      margin-bottom: 10px;
+    }
+    .learn-teaser-meta {
+      font-size: 0.78rem;
+      color: rgba(244,246,250,0.45);
+    }
+  </style>
+</section>
+
+<!-- ═══════════════════════════════════════════════
      CTA: JOIN
 ═══════════════════════════════════════════════ -->
 <section id="join" class="py-24 lg:py-32 hex-pattern grain relative overflow-hidden" style="background: linear-gradient(135deg, rgba(13,24,36,0.72) 0%, rgba(22,32,50,0.68) 100%); z-index: 1;">
@@ -1440,17 +1868,14 @@
 
     <div class="flex flex-wrap items-center justify-center gap-8 pt-8 border-t border-white/[0.07]">
       <div class="flex items-center gap-3">
-        <div class="flex -space-x-2">
-          <div class="w-8 h-8 rounded-full border-2 border-navy-wh flex items-center justify-center text-xs font-bold text-navy-wh" style="background: linear-gradient(135deg, #F7A21B, #FDB94A);">JR</div>
-          <div class="w-8 h-8 rounded-full border-2 border-navy-wh flex items-center justify-center text-xs font-bold text-navy-wh" style="background: linear-gradient(135deg, #29B6D9, #5FCCE8);">MA</div>
-          <div class="w-8 h-8 rounded-full border-2 border-navy-wh flex items-center justify-center text-xs font-bold text-navy-wh" style="background: linear-gradient(135deg, #F7A21B, #FDB94A);">RL</div>
-          <div class="w-8 h-8 rounded-full border-2 border-navy-wh flex items-center justify-center text-[10px] font-bold text-white/60" style="background: rgba(42,61,88,0.9);">+2K</div>
+        <div class="w-10 h-10 rounded-full flex-shrink-0 flex items-center justify-center" style="background:linear-gradient(135deg,#F7A21B,#FDB94A);">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#162032" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg>
         </div>
-        <p class="text-sm text-white/45">2,500 workers already in the hive</p>
+        <p class="text-sm text-white/55 leading-snug">DTI Registered Business <span class="text-white/35">No. 8080496</span></p>
       </div>
       <div class="flex items-center gap-2 text-white/45">
         <svg class="w-4 h-4 text-orange-wh" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
-        <span class="text-sm">Philippines-first hive</span>
+        <span class="text-sm">Free at the worker tier, forever</span>
       </div>
     </div>
   </div>
@@ -1479,24 +1904,24 @@
           <li><a href="#platform"  class="text-sm text-white/40 hover:text-white/70 transition-colors">Right Person, Right Job</a></li>
           <li><a href="#platform"  class="text-sm text-white/40 hover:text-white/70 transition-colors">The Hive Remembers</a></li>
           <li><a href="#community" class="text-sm text-white/40 hover:text-white/70 transition-colors">Find a Specialist</a></li>
+          <li><a href="/learn/" class="text-sm text-white/40 hover:text-white/70 transition-colors">Learn (free guides)</a></li>
         </ul>
       </div>
       <div>
         <p class="text-xs font-semibold text-white/60 uppercase tracking-[0.12em] mb-4">Company</p>
         <ul class="space-y-3">
-          <li><a href="#" class="text-sm text-white/40 hover:text-white/70 transition-colors">About</a></li>
-          <li><a href="#" class="text-sm text-white/40 hover:text-white/70 transition-colors">The Book</a></li>
-          <li><a href="#" class="text-sm text-white/40 hover:text-white/70 transition-colors">Careers</a></li>
-          <li><a href="#" class="text-sm text-white/40 hover:text-white/70 transition-colors">Contact</a></li>
+          <li><a href="/about/" class="text-sm text-white/40 hover:text-white/70 transition-colors">About</a></li>
+          <li><a href="mailto:admin@workhiveph.com" class="text-sm text-white/40 hover:text-white/70 transition-colors">Contact</a></li>
         </ul>
+        <p class="text-xs text-white/30 mt-6">DTI Registered<br/>Business Name 8080496</p>
       </div>
     </div>
 
     <div class="pt-8 border-t border-white/[0.06] flex flex-col sm:flex-row items-center justify-between gap-4">
-      <p class="text-xs text-white/25">© 2026 WorkHive Platform. All rights reserved. · workhiveph.com</p>
+      <p class="text-xs text-white/25">© 2026 WorkHive Engineering Services. · workhiveph.com · Last updated <time datetime="2026-05-17">17 May 2026</time></p>
       <div class="flex items-center gap-6">
-        <a href="#" class="text-xs text-white/25 hover:text-white/50 transition-colors">Privacy Policy</a>
-        <a href="#" class="text-xs text-white/25 hover:text-white/50 transition-colors">Terms of Service</a>
+        <a href="/privacy-policy/" class="text-xs text-white/25 hover:text-white/50 transition-colors">Privacy Policy</a>
+        <a href="/terms-of-service/" class="text-xs text-white/25 hover:text-white/50 transition-colors">Terms of Service</a>
       </div>
     </div>
   </div>
@@ -1594,7 +2019,7 @@
   // AURORA BEAM GENERATOR
   // ════════════════════════════════
   (function initAuroraBeams() {
-    // Skip beams on mobile — 120 concurrent infinite CSS animations crash WebKit on iOS
+    // Skip beams on mobile: 120 concurrent infinite CSS animations crash WebKit on iOS
     if (window.innerWidth < 768) return;
     const BEAM_COUNT = 40;
     const container = document.getElementById('beam-container');
@@ -1865,7 +2290,7 @@
 </div>
 
 <!-- ── SIGN IN MODAL ── -->
-<!-- C2: Guest worker upgrade banner — shown when user has a name but no auth session -->
+<!-- C2: Guest worker upgrade banner: shown when user has a name but no auth session -->
 <div id="upgrade-banner" style="display:none; position:fixed; bottom:96px; left:50%; transform:translateX(-50%); z-index:40; white-space:nowrap; max-width:calc(100vw - 2rem);"
      role="status" aria-live="polite">
   <div style="background:rgba(22,32,50,0.97); border:1px solid rgba(247,162,27,0.3); border-radius:999px; padding:10px 18px; display:flex; align-items:center; gap:10px; box-shadow:0 8px 32px rgba(0,0,0,0.4); font-size:0.78rem;">
@@ -1969,7 +2394,7 @@
       <div style="text-align:center; padding:1rem 0;">
         <p style="color:rgba(255,255,255,0.6); font-size:0.875rem; margin-bottom:0.5rem;">Account required</p>
         <p style="color:rgba(255,255,255,0.35); font-size:0.75rem; line-height:1.5; margin-bottom:1.25rem;">
-          WorkHive now requires an account to protect your data. Sign up — it takes 30 seconds.
+          WorkHive now requires an account to protect your data. Sign up: it takes 30 seconds.
         </p>
         <button onclick="switchAuthTab('signup')" style="background:#F7A21B;color:#162032;border:none;border-radius:0.75rem;padding:0.75rem 2rem;font-size:0.875rem;font-weight:700;cursor:pointer;">
           Create Account →
@@ -1982,7 +2407,7 @@
 <script>
   // ── WorkHive Auth (C1) ────────────────────────────────────────────────────
   // Supabase Auth with username + password.
-  // Synthetic email = username@auth.workhiveph.com — workers never see it.
+  // Synthetic email = username@auth.workhiveph.com: workers never see it.
   // PREREQUISITE: Supabase Dashboard → Auth → Settings → Disable email confirmation.
   const _AUTH_URL    = 'https://hzyvnjtisfgbksicrouu.supabase.co';
   const _AUTH_KEY    = 'sb_publishable_ePj-suLMwkMRVDH6eM6S8g_R0rZVbMZ';
@@ -2120,11 +2545,11 @@
       errEl.classList.remove('hidden'); return;
     }
     if (password !== confirm) {
-      errEl.textContent = 'Passwords do not match — please re-enter.';
+      errEl.textContent = 'Passwords do not match: please re-enter.';
       errEl.classList.remove('hidden'); return;
     }
     if (!displayName) {
-      errEl.textContent = 'Display name is required — this is what teammates see.';
+      errEl.textContent = 'Display name is required: this is what teammates see.';
       errEl.classList.remove('hidden'); return;
     }
 
@@ -2136,7 +2561,7 @@
     const { data: existing } = await db.from('worker_profiles')
       .select('id').eq('username', username).maybeSingle();
     if (existing) {
-      errEl.textContent = 'Username already taken — try a different one.';
+      errEl.textContent = 'Username already taken: try a different one.';
       errEl.classList.remove('hidden');
       btn.textContent = 'Create Account'; btn.disabled = false; return;
     }
@@ -2162,7 +2587,7 @@
     btn.textContent = 'Create Account'; btn.disabled = false;
 
     if (profileErr) {
-      errEl.textContent = 'Account created but profile setup failed — try signing in.';
+      errEl.textContent = 'Account created but profile setup failed: try signing in.';
       errEl.classList.remove('hidden'); return;
     }
 
@@ -2185,7 +2610,7 @@
       .eq('worker_name', displayName);
 
     if (count > 0) {
-      // Existing worker — show records-linked confirmation before closing
+      // Existing worker: show records-linked confirmation before closing
       document.getElementById('panel-signup').innerHTML = `
         <div style="text-align:center; padding:0.5rem 0 1rem;">
           <div style="font-size:2.5rem; margin-bottom:0.75rem;">&#10003;</div>
@@ -2203,9 +2628,9 @@
     }
   }
 
-  // ── Guest (C4: redirects to Sign Up — no account-less access) ────────────
+  // ── Guest (C4: redirects to Sign Up: no account-less access) ────────────
   function submitGuest() {
-    switchAuthTab('signup'); // C4: guest access removed — redirect to signup
+    switchAuthTab('signup'); // C4: guest access removed: redirect to signup
   }
 
   // ── Username availability check ────────────────────────────────────────────
@@ -2290,7 +2715,7 @@
     if (window.WHAssistant && typeof window.WHAssistant.refreshPersona === 'function') {
       window.WHAssistant.refreshPersona();
     }
-    // Account-level sync — best-effort, do not block UI.
+    // Account-level sync: best-effort, do not block UI.
     try {
       const db = _getDb();
       const { data: { user } } = await db.auth.getUser();
@@ -2336,7 +2761,7 @@
       dispEl.value = existingName;
       dispEl.readOnly = true;
       dispEl.style.opacity = '0.6';
-      dispEl.title = 'Locked — matches your existing records';
+      dispEl.title = 'Locked: matches your existing records';
     }
     document.getElementById('signin-modal').classList.remove('hidden');
     switchAuthTab('signup');
@@ -2377,7 +2802,7 @@
       const db = _getDb();
       const { data: { session } } = await db.auth.getSession();
       if (session) {
-        // Auth session present — restore display_name if needed
+        // Auth session present: restore display_name if needed
         if (!localStorage.getItem('wh_last_worker')) {
           const { data: profile } = await db.from('worker_profiles')
             .select('display_name').eq('auth_uid', session.user.id).maybeSingle();
@@ -2387,7 +2812,7 @@
           }
         }
       } else if (name && !sessionStorage.getItem('upgrade_banner_dismissed')) {
-        // Guest worker (has name, no auth session) — show upgrade nudge after 3s
+        // Guest worker (has name, no auth session): show upgrade nudge after 3s
         setTimeout(() => _showUpgradeBanner(name), 3000);
       }
     } catch (_) {}
@@ -2447,7 +2872,7 @@
   }
 
   /* ── Card 3D tilt (desktop fine-pointer only) ── */
-  /* Tracking has no transition — instant follow feels like native UI.
+  /* Tracking has no transition: instant follow feels like native UI.
      Return uses the viscous spring so it settles like liquid. */
   if (!reducedMotion && window.matchMedia('(pointer: fine)').matches) {
     document.querySelectorAll('.card-glow, .card-orange, .stage-card').forEach(function(card) {
@@ -2590,7 +3015,7 @@
 (function() {
   const SUPABASE_URL = 'https://hzyvnjtisfgbksicrouu.supabase.co';
   const SUPABASE_KEY = 'sb_publishable_ePj-suLMwkMRVDH6eM6S8g_R0rZVbMZ';
-  // Shared singleton (utils.js) — was creating a separate GoTrueClient.
+  // Shared singleton (utils.js): was creating a separate GoTrueClient.
   const _db = window.getDb(SUPABASE_URL, SUPABASE_KEY);
   logPageView(_db);
   window._supabaseSignup = async function(email) {
@@ -2614,7 +3039,7 @@
   const _OH_KEY = 'sb_publishable_ePj-suLMwkMRVDH6eM6S8g_R0rZVbMZ';
   let _ohDb = null;
   function _getOhDb() {
-    // Shared singleton (utils.js) — was creating a separate GoTrueClient.
+    // Shared singleton (utils.js): was creating a separate GoTrueClient.
     if (!_ohDb) _ohDb = window.getDb(_OH_URL, _OH_KEY);
     return _ohDb;
   }
@@ -2688,7 +3113,7 @@
       }
     }
 
-    // Render stat card shells immediately — each is a clickable link to its tool
+    // Render stat card shells immediately: each is a clickable link to its tool
     const statsEl = document.getElementById('oh-stats');
     if (statsEl) {
       statsEl.innerHTML =
@@ -2714,7 +3139,7 @@
       });
     }
 
-    // Phase E.3d: Scan an Asset quick action — opens scanner, lands on Asset Hub for the matched tag
+    // Phase E.3d: Scan an Asset quick action: opens scanner, lands on Asset Hub for the matched tag
     const scanBtn = document.getElementById('oh-scan-btn');
     if (scanBtn) {
       scanBtn.addEventListener('click', function () {
@@ -2736,7 +3161,7 @@
 
     const [logRes, riskRes, invRes, pmRes, closedTodayRes, pmDoneTodayRes] = await Promise.allSettled([
 
-      // Open jobs (mine + hive). v_logbook_truth has no logged_at column —
+      // Open jobs (mine + hive). v_logbook_truth has no logged_at column :
       // the underlying logbook table only has `created_at` and `date`.
       db.from('v_logbook_truth')
         .select('id, machine, category, maintenance_type, status, created_at, date')
@@ -2757,7 +3182,7 @@
         : Promise.resolve({ data: [] }),
 
       // Inventory items (to find low-stock client-side). v_inventory_items_truth
-      // exposes reorder_point as an alias for min_qty — the underlying table
+      // exposes reorder_point as an alias for min_qty: the underlying table
       // has no reorder_point column, so this read returned nulls silently
       // before the canonical view landed. Low-stock counts now actually fire.
       db.from('v_inventory_items_truth')
@@ -2963,7 +3388,7 @@
           href: `asset-hub.html?tag=${encodeURIComponent(r.asset_name || '')}`,
         });
       }
-      // 2) PM overdue on a critical asset (supervisor only — workers act on
+      // 2) PM overdue on a critical asset (supervisor only: workers act on
       //    their stack, supervisor acts on the next overdue critical).
       if (role === 'supervisor' && HIVE_ID && pmAssets.length) {
         const critPM = pmAssets.find(a => a.is_due && (a.criticality === 'critical'));

@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="theme-color" content="#F7A21B" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>DOLE OSHS and ISO Audit Trail from Your Logbook | WorkHive</title>
+  <meta name="description" content="A practical guide to building a DOLE OSHS and ISO 9001/14001/45001 audit trail from your WorkHive Logbook. Covers the records auditors actually sample, immutability guarantees, retention rules, and PDF export patterns." />
+  <meta name="keywords" content="DOLE OSHS audit, ISO 9001 audit trail, ISO 45001, audit log industrial, Philippine plant audit, immutable log Philippines, compliance maintenance records" />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://workhiveph.com/learn/dole-iso-audit-trail-from-logbook/" />
+  <link rel="manifest" href="/manifest.json" />
+  <meta property="og:title" content="DOLE OSHS and ISO Audit Trail from Your Logbook" />
+  <meta property="og:description" content="Records auditors sample, immutability, retention, PDF export patterns for Philippine plants." />
+  <meta property="og:image" content="https://workhiveph.com/brand_assets/og-social.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:type" content="image/png" />
+  <meta property="og:image:alt" content="WorkHive: Free industrial tools for every Filipino worker" />
+  <meta property="og:url" content="https://workhiveph.com/learn/dole-iso-audit-trail-from-logbook/" />
+  <meta property="og:type" content="article" />
+  <meta property="og:site_name" content="WorkHive" />
+  <meta property="article:published_time" content="2026-05-17T00:00:00+08:00" />
+  <meta property="article:modified_time" content="2026-05-17T00:00:00+08:00" />
+  <meta property="article:author" content="WorkHive Editorial Team" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="DOLE OSHS and ISO Audit Trail from Your Logbook" />
+  <meta name="twitter:description" content="Records auditors sample, immutability, retention, PDF export patterns for Philippine plants." />
+  <meta name="twitter:image" content="https://workhiveph.com/brand_assets/og-social.png" />
+  <meta name="twitter:image:alt" content="WorkHive: Free industrial tools for every Filipino worker" />
+  <script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Article",
+      "@id": "https://workhiveph.com/learn/dole-iso-audit-trail-from-logbook/#article",
+      "headline": "DOLE OSHS and ISO Audit Trail from Your Logbook",
+      "description": "A practical guide to building a DOLE OSHS and ISO 9001/14001/45001 audit trail from your WorkHive Logbook. Covers the records auditors actually sample, immutability guarantees, retention rules, and PDF export patterns.",
+      "image": "https://workhiveph.com/brand_assets/workhive-logo-transparent.png",
+      "author": {
+        "@type": "Organization",
+        "name": "WorkHive Editorial Team",
+        "url": "https://workhiveph.com/"
+      },
+      "publisher": {
+        "@id": "https://workhiveph.com/#organization"
+      },
+      "datePublished": "2026-05-17",
+      "dateModified": "2026-05-17",
+      "mainEntityOfPage": "https://workhiveph.com/learn/dole-iso-audit-trail-from-logbook/",
+      "inLanguage": "en-PH",
+      "articleSection": "Maintenance",
+      "wordCount": 1800,
+      "keywords": "DOLE OSHS audit, ISO 9001 audit trail, ISO 45001, audit log industrial, Philippine plant audit, immutable log Philippines, compliance maintenance records"
+    },
+    {
+      "@type": "FAQPage",
+      "@id": "https://workhiveph.com/learn/dole-iso-audit-trail-from-logbook/#faq",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Does DOLE accept digital logbooks for OSHS Rule 1063?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes, when the digital record satisfies time-of-event recording, worker identification, and non-editability after submission. DOLE OSHS Rule 1063 on Safety and Health Records does not require paper; it requires a record an inspector can sample. WorkHive Audit Log satisfies all three properties and produces PDF exports inspectors accept."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "What are the immutability guarantees?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Three: (1) server-side timestamp (worker cannot backdate by adjusting phone clock), (2) authenticated authorship (entry tied to the worker's account, not anonymous), (3) append-only edits (original stays in the audit log with corrections appended, including who, when, what changed, and why). Auditors see the full history, not just the current state."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How long should I retain records?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "DOLE minimums vary by record type: 5 years for safety observations, 10 years for incident investigations, 3 years for PM and general logbook entries, employment duration plus 3 years for training. WorkHive defaults exceed the minimums (10 years for most record types, 15 years for incident investigations) because storage is cheap and the worker may need the history years after leaving the plant."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "What PDF export does an ISO auditor want?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Three patterns work: (1) date-range PDF for sampling a window (typically 30 days), (2) asset-history PDF for investigating a specific failure, (3) compliance-mapping PDF for management review meetings showing entries grouped by ISO clause or DOLE rule. All three include WorkHive entry IDs so the auditor can request live verification if needed."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Can a worker request their own audit log if they leave the plant?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes. WorkHive Audit Log lets a worker export their personal contribution history (entries they authored, PMs they completed, training records, achievements earned) at any time. This is the portable career record that supports OFW applications and salary disputes. The plant's broader audit log stays scoped to the hive."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How does this map to ISO 9001 / 14001 / 45001?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "ISO 9001 Clause 10.2 corrective action: logbook entries with corrective-action tags. ISO 9001 Clause 7.1.5 monitoring resources: PM compliance dashboard. ISO 14001 Clause 9.1.1 environmental monitoring: logbook entries with environmental-aspect tags. ISO 45001 Clause 9.1.1 OH&S monitoring + Clause 10.2 incident investigation: safety observations and incident logs. WorkHive Audit Log exports group entries by these clauses for management review meetings."
+          }
+        }
+      ]
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "https://workhiveph.com/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Learn",
+          "item": "https://workhiveph.com/learn/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "DOLE / ISO audit trail",
+          "item": "https://workhiveph.com/learn/dole-iso-audit-trail-from-logbook/"
+        }
+      ]
+    }
+  ]
+}</script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { theme: { extend: { colors: {
+      orange: { wh: '#F7A21B', dark: '#D88A0E', light: '#FDB94A' },
+      blue:   { wh: '#29B6D9', dark: '#1A9ABF', light: '#5FCCE8' },
+      navy:   { wh: '#162032', mid: '#1F2E45', light: '#2A3D58' },
+      steel: '#7B8794', cloud: '#F4F6FA',
+    } } } };
+  </script>
+  <style>
+    * { font-family: 'Poppins', sans-serif; } body { background: #162032; color: #F4F6FA; }
+    .hex-pattern { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='92' viewBox='0 0 80 92'%3E%3Cpath d='M40 0 L80 23 L80 69 L40 92 L0 69 L0 23 Z' fill='none' stroke='%23ffffff08' stroke-width='1.5'/%3E%3C/svg%3E"); background-size: 80px 92px; }
+    .prose-wh { color: rgba(244,246,250,0.78); font-size: 1.05rem; line-height: 1.8; }
+    .prose-wh h2 { color: #F4F6FA; font-size: 1.75rem; font-weight: 800; line-height: 1.25; letter-spacing: -0.015em; margin-top: 3rem; margin-bottom: 1rem; scroll-margin-top: 80px; }
+    .prose-wh h3 { color: #F4F6FA; font-size: 1.2rem; font-weight: 700; margin-top: 2rem; margin-bottom: 0.5rem; }
+    .prose-wh p { margin-bottom: 1.25rem; }
+    .prose-wh ul, .prose-wh ol { padding-left: 1.5rem; margin-bottom: 1.25rem; }
+    .prose-wh li { margin-bottom: 0.5rem; }
+    .prose-wh ul li { list-style: disc; } .prose-wh ol li { list-style: decimal; }
+    .prose-wh strong { color: #F4F6FA; font-weight: 700; }
+    .prose-wh a { color: #5FCCE8; text-decoration: underline; text-underline-offset: 3px; } .prose-wh a:hover { color: #29B6D9; }
+    .prose-wh table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 0.95rem; }
+    .prose-wh th, .prose-wh td { padding: 12px 14px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.08); vertical-align: top; }
+    .prose-wh th { background: rgba(31,46,69,0.6); font-weight: 700; color: #F4F6FA; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; }
+    .pill { display: inline-block; font-size: 0.65rem; font-weight: 700; padding: 3px 10px; border-radius: 100px; letter-spacing: 0.05em; text-transform: uppercase; }
+    .pill-orange { background: rgba(247,162,27,0.18); color: #F7A21B; border: 1px solid rgba(247,162,27,0.35); }
+    .toc { background: rgba(31,46,69,0.55); border: 1px solid rgba(255,255,255,0.07); border-radius: 14px; padding: 22px 26px; margin: 2rem 0 3rem; }
+    .toc h4 { color: rgba(244,246,250,0.55); font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 12px; }
+    .toc ol { padding-left: 1.5rem; margin: 0; } .toc li { margin-bottom: 6px; font-size: 0.92rem; }
+    .toc a { color: rgba(244,246,250,0.75); text-decoration: none; } .toc a:hover { color: #F7A21B; }
+    .answer-first { background: rgba(247,162,27,0.08); border-left: 3px solid #F7A21B; border-radius: 8px; padding: 18px 22px; margin-bottom: 2rem; font-size: 1.05rem; line-height: 1.75; color: rgba(244,246,250,0.85); }
+    .audience-block { background: rgba(41,182,217,0.05); border: 1px solid rgba(41,182,217,0.18); border-radius: 12px; padding: 16px 20px; margin: 0 0 2rem; }
+    .audience-block .audience-label { font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; color: #5FCCE8; margin-bottom: 10px; }
+    .audience-block ul { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 6px 18px; font-size: 0.9rem; color: rgba(244,246,250,0.78); }
+    .audience-block ul li { list-style: none !important; position: relative; padding-left: 16px; margin: 0; }
+    .audience-block ul li::before { content: '\B7'; position: absolute; left: 4px; color: #29B6D9; font-weight: 800; font-size: 1.2rem; line-height: 1; top: 0; }
+    @media (max-width: 640px) { .audience-block ul { grid-template-columns: 1fr; } }
+    .callout { background: rgba(41,182,217,0.06); border-left: 3px solid #29B6D9; border-radius: 8px; padding: 18px 22px; margin: 2rem 0; font-size: 0.98rem; line-height: 1.7; color: rgba(244,246,250,0.78); }
+    .callout strong { color: #5FCCE8; }
+    .cta-box { background: linear-gradient(135deg, rgba(247,162,27,0.12) 0%, rgba(31,46,69,0.85) 100%); border: 1px solid rgba(247,162,27,0.35); border-radius: 16px; padding: 28px 30px; margin: 3rem 0; }
+    .cta-box .cta-eyebrow { color: #F7A21B; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px; }
+    .cta-box h4 { font-size: 1.35rem; font-weight: 800; color: #F4F6FA; margin-bottom: 8px; }
+    .cta-box p { color: rgba(244,246,250,0.7); margin-bottom: 18px; line-height: 1.65; }
+    .cta-btn { display: inline-block; background: linear-gradient(135deg, #F7A21B 0%, #D88A0E 100%); color: #162032; font-weight: 700; padding: 12px 28px; border-radius: 10px; text-decoration: none; transition: transform .18s, box-shadow .18s; }
+    .cta-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px -4px rgba(247,162,27,0.45); }
+    .cta-secondary { font-size: 0.82rem; color: rgba(244,246,250,0.45); margin-top: 14px; margin-bottom: 0; }
+    .cta-secondary a { color: #5FCCE8; text-decoration: underline; text-underline-offset: 2px; }
+    .faq-item { background: rgba(31,46,69,0.55); border: 1px solid rgba(255,255,255,0.07); border-radius: 14px; margin-bottom: 12px; }
+    .faq-item[open] { border-color: rgba(247,162,27,0.35); background: rgba(31,46,69,0.85); }
+    .faq-item summary { cursor: pointer; list-style: none; padding: 16px 20px; font-weight: 600; color: #F4F6FA; display: flex; justify-content: space-between; gap: 14px; }
+    .faq-item summary::-webkit-details-marker { display: none; }
+    .faq-item summary::after { content: '+'; font-size: 1.4rem; color: #F7A21B; } .faq-item[open] summary::after { content: '\2212'; }
+    .faq-item .faq-answer { padding: 0 20px 18px; color: rgba(244,246,250,0.7); line-height: 1.7; font-size: 0.95rem; }
+    .author-card { background: rgba(31,46,69,0.5); border: 1px solid rgba(255,255,255,0.07); border-radius: 14px; padding: 20px 24px; margin: 2rem 0; display: flex; gap: 16px; align-items: center; }
+    .author-card .avatar { width: 52px; height: 52px; border-radius: 50%; background: linear-gradient(135deg, #F7A21B, #FDB94A); display: flex; align-items: center; justify-content: center; font-weight: 800; color: #162032; font-size: 1.1rem; flex-shrink: 0; }
+    .author-card .meta p:first-child { font-weight: 700; color: #F4F6FA; font-size: 0.95rem; margin-bottom: 2px; }
+    .author-card .meta p:last-child { font-size: 0.82rem; color: rgba(244,246,250,0.5); }
+    nav a.nav-link { font-size: 0.9rem; color: rgba(244,246,250,0.65); font-weight: 500; } nav a.nav-link:hover { color: #F4F6FA; }
+    .breadcrumb { font-size: 0.85rem; color: rgba(244,246,250,0.45); margin-bottom: 1.5rem; }
+    .breadcrumb a { color: rgba(244,246,250,0.55); text-decoration: none; } .breadcrumb a:hover { color: #F7A21B; }
+    .breadcrumb span { margin: 0 8px; opacity: 0.4; }
+  </style>
+  <script>
+    // Local dev URL bridge v2: production uses /learn/, /logbook.html etc.
+    // as root-absolute URLs. Locally everything serves under /workhive/.
+    // This script rewrites root-absolute links to /workhive/<path>/index.html
+    // (explicit file path) so clicks work even if Flask directory-index
+    // resolution is not active. Zero production impact.
+    (function(){
+      if (!location.pathname.startsWith('/workhive/')) return;
+      var ROOT_PATHS = ['/learn/', '/logbook.html', '/inventory.html',
+        '/pm-scheduler.html', '/skillmatrix.html', '/dayplanner.html',
+        '/hive.html', '/assistant.html', '/analytics.html', '/shift-brain.html',
+        '/asset-hub.html', '/alert-hub.html', '/audit-log.html', '/voice-journal.html',
+        '/engineering-design.html', '/project-manager.html', '/integrations.html',
+        '/marketplace.html', '/community.html', '/achievements.html',
+        '/ph-intelligence.html', '/predictive.html', '/ai-quality.html',
+        '/plant-connections.html'];
+      function rewrite(){
+        document.querySelectorAll('a[href]').forEach(function(a){
+          var h = a.getAttribute('href');
+          if (!h || h[0] !== '/') return;
+          if (h.indexOf('/workhive/') === 0 || h.indexOf('/brand_assets/') === 0 ||
+              h.indexOf('/api/') === 0 || h === '/manifest.json' || h === '/sw.js') return;
+          var matched = false;
+          for (var i = 0; i < ROOT_PATHS.length; i++) {
+            if (h === ROOT_PATHS[i] || h.indexOf(ROOT_PATHS[i]) === 0) {
+              matched = true; break;
+            }
+          }
+          if (!matched && h !== '/' && h.indexOf('/#') !== 0) return;
+          var newHref = '/workhive' + h;
+          // Append index.html for trailing-slash directory URLs
+          // (Flask explicit-file serving works without dir-index)
+          if (newHref.endsWith('/')) newHref += 'index.html';
+          // Special case bare "/" -> "/workhive/index.html"
+          else if (h === '/') newHref = '/workhive/index.html';
+          // /#fragment -> /workhive/index.html#fragment
+          else if (h.indexOf('/#') === 0) newHref = '/workhive/index.html' + h.substring(1);
+          a.setAttribute('href', newHref);
+        });
+      }
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', rewrite);
+      } else {
+        rewrite();
+      }
+    })();
+  </script>
+</head>
+<body class="bg-navy-wh text-white antialiased">
+<header class="border-b border-white/[0.06]" style="background: rgba(13,24,36,0.85);">
+  <div class="max-w-6xl mx-auto px-5 sm:px-8 py-4 flex items-center justify-between">
+    <a href="/" class="flex items-center gap-3">
+      <img src="/brand_assets/workhive-logo-transparent.png" alt="WorkHive" style="height: 36px; width: auto;" />
+      <span class="font-black text-lg tracking-tight">WorkHive</span>
+    </a>
+    <nav class="flex items-center gap-6">
+      <a href="/" class="nav-link">Home</a>
+      <a href="/learn/" class="nav-link">Learn</a>
+      <a href="/#join" class="nav-link">Join the Hive</a>
+    </nav>
+  </div>
+</header>
+<article class="hex-pattern">
+  <div class="max-w-3xl mx-auto px-5 sm:px-8 py-14 lg:py-20">
+    <div class="breadcrumb">
+      <a href="/">Home</a><span>/</span><a href="/learn/">Learn</a><span>/</span><span>DOLE / ISO audit trail</span>
+    </div>
+    <p class="pill pill-orange mb-4">Audit Log · DOLE OSHS · ISO</p>
+    <h1 class="text-3xl sm:text-4xl lg:text-[2.7rem] font-black leading-[1.15] tracking-[-0.02em] mb-5">DOLE OSHS and ISO audit trail <span class="text-white/55 font-bold">(from your WorkHive Logbook)</span></h1>
+    <div class="flex items-center gap-4 text-sm text-white/45 mb-8 flex-wrap">
+      <span>By <strong class="text-white/75">WorkHive Editorial Team</strong></span>
+      <span class="opacity-40">·</span>
+      <span>Published <time datetime="2026-05-17">17 May 2026</time></span>
+      <span class="opacity-40">·</span>
+      <span>Updated <time datetime="2026-05-17">17 May 2026</time></span>
+      <span class="opacity-40">·</span>
+      <span>7 min read</span>
+    </div>
+    <div class="answer-first"><strong>Short answer:</strong> A DOLE OSHS inspector or ISO 9001/14001/45001 auditor wants to sample three things from your maintenance records: that the entry was made at the time of the event (not backdated), that the worker who made it is identified, and that the entry has not been edited after the fact. WorkHive Audit Log makes all three queryable in seconds. The supervisor exports a PDF per requested date range, the inspector marks it sampled, and the audit closes hours instead of days.</div>
+    <div class="audience-block">
+      <p class="audience-label">Who this is for</p>
+      <ul><li>Plant safety officers</li>
+        <li>QA / EHS managers</li>
+        <li>Plant managers facing inspection</li>
+        <li>ISO compliance coordinators</li>
+        <li>DOLE inspectors using the tool</li>
+        <li>Auditors from certification bodies</li>
+        <li>Contractors providing audit support</li></ul>
+    </div>
+    <div class="toc"><h4>What's in this guide</h4><ol><li><a href="#what-auditors-want">What DOLE and ISO auditors actually sample</a></li>
+        <li><a href="#three-guarantees">The 3 immutability guarantees</a></li>
+        <li><a href="#retention">Retention rules per record type</a></li>
+        <li><a href="#export">PDF export patterns auditors accept</a></li>
+        <li><a href="#per-standard">Mapping to ISO 9001, 14001, 45001</a></li>
+        <li><a href="#faq">Frequently asked questions</a></li>
+        <li><a href="#sources">Sources</a></li></ol></div>
+    <div class="prose-wh"><h2 id="what-auditors-want">What DOLE and ISO auditors actually sample</h2>
+      <p>The first time a Philippine plant moves from paper to digital, the safety officer worries: will the auditor accept this? The honest answer is yes, easily, when the digital system satisfies three properties that paper never quite did. The auditor wants:</p>
+      <ol><li><strong>Time-of-event recording.</strong> The entry was made when the event happened, not constructed weeks later to satisfy the audit. A server-side timestamp settles this.</li><li><strong>Worker identification.</strong> The person who made the entry is named (not initials). Paper has signatures that may be illegible; digital has authenticated user IDs.</li><li><strong>Non-editability after submission.</strong> Once submitted, the entry cannot be silently rewritten. Edits are version-tracked with the editor and reason.</li></ol>
+      <p>WorkHive Audit Log surfaces all three for any record the auditor requests. Most audits close in hours rather than days because the documentation is already there.</p>
+      <h2 id="three-guarantees">The 3 immutability guarantees</h2>
+      <ul><li><strong>Server-side timestamp.</strong> Every entry is stamped at the moment it hits the server, not the client. A worker cannot backdate by adjusting their phone clock.</li><li><strong>Authenticated authorship.</strong> Entries are tied to the worker's account (which is tied to their DOLE-acceptable identity). No anonymous edits.</li><li><strong>Append-only edits.</strong> If an entry needs correction, the original stays in the audit log with the correction appended (who, when, what changed, why). Auditors see the full history, not just the current state.</li></ul>
+      <h2 id="retention">Retention rules per record type</h2>
+      <table><thead><tr><th>Record type</th><th>DOLE OSHS minimum</th><th>ISO recommendation</th><th>WorkHive default</th></tr></thead><tbody>
+      <tr><td>Safety observations</td><td>5 years</td><td>3+ years</td><td>10 years</td></tr>
+      <tr><td>Incident investigations</td><td>10 years</td><td>5+ years</td><td>15 years</td></tr>
+      <tr><td>PM completion records</td><td>3 years</td><td>3 years per cycle</td><td>10 years</td></tr>
+      <tr><td>Logbook entries (general)</td><td>3 years</td><td>3 years</td><td>10 years</td></tr>
+      <tr><td>Permit to work records</td><td>3 years</td><td>3 years</td><td>10 years</td></tr>
+      <tr><td>Training records</td><td>For employment duration + 3 years</td><td>For employment duration + 3 years</td><td>For employment duration + 10 years</td></tr>
+      </tbody></table>
+      <p>WorkHive defaults exceed the minimum because storage is cheap and the worker may need the history years after leaving the plant (for OFW applications, promotion cases, regulatory disputes).</p>
+      <h2 id="export">PDF export patterns auditors accept</h2>
+      <p>Three export patterns that satisfy DOLE OSHS and ISO auditors:</p>
+      <ul><li><strong>Date-range PDF:</strong> all entries in a window (typically 30 days for a sample). Includes timestamp, author, asset, category, and entry text. Auditor marks sampled pages.</li><li><strong>Asset-history PDF:</strong> all entries for a specific asset over its lifecycle. Used when the auditor is investigating a specific failure or compliance gap.</li><li><strong>Compliance-mapping PDF:</strong> entries grouped by ISO clause or DOLE rule. Used for management review meetings and surveillance audits.</li></ul>
+      <p>All three include a footer with the WorkHive entry IDs so the auditor can request live verification of any specific entry if they wish.</p>
+      <h2 id="per-standard">Mapping to ISO 9001, 14001, 45001</h2>
+      <ul><li><strong>ISO 9001 (Quality):</strong> WorkHive Logbook entries with corrective-action tags satisfy Clause 10.2 nonconformity and corrective action. PM compliance dashboard satisfies Clause 7.1.5 monitoring and measuring resources.</li><li><strong>ISO 14001 (Environment):</strong> Logbook entries with environmental-aspect tags (spill, leak, emission) satisfy Clause 9.1.1 monitoring of environmental performance.</li><li><strong>ISO 45001 (OH&amp;S):</strong> Safety observations, near-miss logs, and incident investigations satisfy Clause 9.1.1 monitoring, measurement, analysis, and performance evaluation, and Clause 10.2 incident investigation.</li></ul>
+      <div class="cta-box">
+        <p class="cta-eyebrow">The tool this guide is about</p>
+        <h4>WorkHive Audit Log makes DOLE and ISO audits a 1-hour exercise</h4>
+        <p>Server-side timestamps, authenticated authorship, append-only edits, 10-year default retention. Date-range, asset-history, and compliance-mapping PDF exports. Direct mapping to ISO 9001 / 14001 / 45001 clauses and DOLE OSHS rules. Free at the worker tier; advanced compliance reporting unlocks at Stage 4 enterprise tier.</p>
+        <a href="/audit-log.html" class="cta-btn">Open Audit Log</a>
+        <p class="cta-secondary">No hive yet? <a href="/#join">Join WorkHive</a> first (free, takes 30 seconds).</p>
+      </div>
+      <h2 id="faq">Frequently asked questions</h2>
+      <details class="faq-item"><summary>Does DOLE accept digital logbooks for OSHS Rule 1063?</summary><div class="faq-answer">Yes, when the digital record satisfies time-of-event recording, worker identification, and non-editability after submission. DOLE OSHS Rule 1063 on Safety and Health Records does not require paper; it requires a record an inspector can sample. WorkHive Audit Log satisfies all three properties and produces PDF exports inspectors accept.</div></details>
+      <details class="faq-item"><summary>What are the immutability guarantees?</summary><div class="faq-answer">Three: (1) server-side timestamp (worker cannot backdate by adjusting phone clock), (2) authenticated authorship (entry tied to the worker's account, not anonymous), (3) append-only edits (original stays in the audit log with corrections appended, including who, when, what changed, and why). Auditors see the full history, not just the current state.</div></details>
+      <details class="faq-item"><summary>How long should I retain records?</summary><div class="faq-answer">DOLE minimums vary by record type: 5 years for safety observations, 10 years for incident investigations, 3 years for PM and general logbook entries, employment duration plus 3 years for training. WorkHive defaults exceed the minimums (10 years for most record types, 15 years for incident investigations) because storage is cheap and the worker may need the history years after leaving the plant.</div></details>
+      <details class="faq-item"><summary>What PDF export does an ISO auditor want?</summary><div class="faq-answer">Three patterns work: (1) date-range PDF for sampling a window (typically 30 days), (2) asset-history PDF for investigating a specific failure, (3) compliance-mapping PDF for management review meetings showing entries grouped by ISO clause or DOLE rule. All three include WorkHive entry IDs so the auditor can request live verification if needed.</div></details>
+      <details class="faq-item"><summary>Can a worker request their own audit log if they leave the plant?</summary><div class="faq-answer">Yes. WorkHive Audit Log lets a worker export their personal contribution history (entries they authored, PMs they completed, training records, achievements earned) at any time. This is the portable career record that supports OFW applications and salary disputes. The plant's broader audit log stays scoped to the hive.</div></details>
+      <details class="faq-item"><summary>How does this map to ISO 9001 / 14001 / 45001?</summary><div class="faq-answer">ISO 9001 Clause 10.2 corrective action: logbook entries with corrective-action tags. ISO 9001 Clause 7.1.5 monitoring resources: PM compliance dashboard. ISO 14001 Clause 9.1.1 environmental monitoring: logbook entries with environmental-aspect tags. ISO 45001 Clause 9.1.1 OH&S monitoring + Clause 10.2 incident investigation: safety observations and incident logs. WorkHive Audit Log exports group entries by these clauses for management review meetings.</div></details>
+      <h2 id="sources">Sources</h2>
+      <ul><li>Department of Labor and Employment (DOLE), <strong>Occupational Safety and Health Standards (OSHS) Rule 1063</strong>: Safety and Health Records.</li>
+        <li>ISO 9001:2015, <strong>Quality management systems: Requirements</strong>, Clauses 7.1.5 and 10.2.</li>
+        <li>ISO 14001:2015, <strong>Environmental management systems: Requirements with guidance for use</strong>, Clause 9.1.1.</li>
+        <li>ISO 45001:2018, <strong>Occupational health and safety management systems: Requirements with guidance for use</strong>, Clauses 9.1.1 and 10.2.</li>
+        <li>WorkHive platform positioning, "Four Gaps One Hive" with Audit Log as the compliance accelerator. <a href="/">workhiveph.com</a></li>
+        <li>Related WorkHive guides: <a href="/learn/start-digital-logbook-philippine-factory/">Digital logbook rollout</a> · <a href="/learn/voice-to-text-maintenance-philippine-plant-floor/">Voice journal</a></li></ul>
+      <div class="author-card">
+        <div class="avatar">WH</div>
+        <div class="meta">
+          <p>WorkHive Editorial Team</p>
+          <p>Practical writing for the Philippine plant floor. Email <a href="mailto:admin@workhiveph.com" style="color:#5FCCE8;">admin@workhiveph.com</a> with corrections or contributions.</p>
+        </div>
+      </div>
+    </div>
+    <div class="pt-8 border-t border-white/[0.06] mt-12">
+      <a href="/learn/" class="text-sm text-white/55 hover:text-orange-wh transition-colors">&larr; Back to all guides</a>
+    </div>
+  </div>
+</article>
+<footer class="py-10 border-t border-white/[0.06]" style="background: rgba(13,24,36,0.85);">
+  <div class="max-w-4xl mx-auto px-5 sm:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-white/35">
+    <p>© 2026 WorkHive Platform · workhiveph.com · Last updated <time datetime="2026-05-17">17 May 2026</time></p>
+    <div class="flex items-center gap-6">
+      <a href="/" class="hover:text-white/60 transition-colors">Home</a>
+      <a href="/#faq" class="hover:text-white/60 transition-colors">FAQ</a>
+      <a href="/#join" class="hover:text-white/60 transition-colors">Join the Hive</a>
+    </div>
+  </div>
+</footer>
+</body>
+</html>

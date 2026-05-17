@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="theme-color" content="#F7A21B" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Measuring AI Quality and ROI for Stage 2+ Industrial Plants | WorkHive</title>
+  <meta name="description" content="How to measure the actual value of an AI work assistant in an industrial plant: accuracy tracking, cost per query, time-saved estimates, and the dashboard that catches AI drift before it hurts operations." />
+  <meta name="keywords" content="AI quality measurement, AI ROI maintenance, AI accuracy plant, AI cost tracking, Philippine AI ROI industrial, AI drift detection" />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://workhiveph.com/learn/ai-quality-and-roi-stage-2-plants/" />
+  <link rel="manifest" href="/manifest.json" />
+  <meta property="og:title" content="Measuring AI Quality and ROI for Stage 2+ Industrial Plants" />
+  <meta property="og:description" content="AI accuracy tracking, cost per query, time-saved estimates, drift detection for industrial plants." />
+  <meta property="og:image" content="https://workhiveph.com/brand_assets/og-social.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:type" content="image/png" />
+  <meta property="og:image:alt" content="WorkHive: Free industrial tools for every Filipino worker" />
+  <meta property="og:url" content="https://workhiveph.com/learn/ai-quality-and-roi-stage-2-plants/" />
+  <meta property="og:type" content="article" />
+  <meta property="og:site_name" content="WorkHive" />
+  <meta property="article:published_time" content="2026-05-17T00:00:00+08:00" />
+  <meta property="article:modified_time" content="2026-05-17T00:00:00+08:00" />
+  <meta property="article:author" content="WorkHive Editorial Team" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Measuring AI Quality and ROI for Stage 2+ Industrial Plants" />
+  <meta name="twitter:description" content="AI accuracy tracking, cost per query, time-saved estimates, drift detection for industrial plants." />
+  <meta name="twitter:image" content="https://workhiveph.com/brand_assets/og-social.png" />
+  <meta name="twitter:image:alt" content="WorkHive: Free industrial tools for every Filipino worker" />
+  <script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Article",
+      "@id": "https://workhiveph.com/learn/ai-quality-and-roi-stage-2-plants/#article",
+      "headline": "Measuring AI Quality and ROI for Stage 2+ Industrial Plants",
+      "description": "How to measure the actual value of an AI work assistant in an industrial plant: accuracy tracking, cost per query, time-saved estimates, and the dashboard that catches AI drift before it hurts operations.",
+      "image": "https://workhiveph.com/brand_assets/workhive-logo-transparent.png",
+      "author": {
+        "@type": "Organization",
+        "name": "WorkHive Editorial Team",
+        "url": "https://workhiveph.com/"
+      },
+      "publisher": {
+        "@id": "https://workhiveph.com/#organization"
+      },
+      "datePublished": "2026-05-17",
+      "dateModified": "2026-05-17",
+      "mainEntityOfPage": "https://workhiveph.com/learn/ai-quality-and-roi-stage-2-plants/",
+      "inLanguage": "en-PH",
+      "articleSection": "Maintenance",
+      "wordCount": 1800,
+      "keywords": "AI quality measurement, AI ROI maintenance, AI accuracy plant, AI cost tracking, Philippine AI ROI industrial, AI drift detection"
+    },
+    {
+      "@type": "FAQPage",
+      "@id": "https://workhiveph.com/learn/ai-quality-and-roi-stage-2-plants/#faq",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Why do I need to measure AI quality if the vendor says 95 percent accuracy?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Vendor accuracy is on their benchmark dataset, not your plant's reality. Your plant has specific assets, fault patterns, and language conventions that the vendor benchmark cannot capture. The only honest accuracy number is what your technicians verify after acting on the AI suggestions in your hive. Plants that rely on vendor numbers over-trust the AI; plants that measure their own catch problems early."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "What is a reasonable AI accuracy target?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Month 1 to 3: 3.5 to 4.0 out of 5 (worker-rated, after verification). Month 4 to 6: 4.0 to 4.5. Month 7 to 12: 4.3 to 4.7 as the AI learns the plant's specifics. Plants below 3.5 at month 6 have a real problem: likely the knowledge base is incomplete, the prompts are not tuned, or the model needs upgrade. Above 4.7 average usually means workers are rating generously; spot-check the verification process."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How do I measure cost per useful answer?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Total monthly AI cost (from the token-billing report) divided by number of queries rated 4+ accuracy AND saved 15+ minutes. Indicative ranges: PHP 50 to 200 per useful answer in months 1 to 3, PHP 5 to 30 per useful answer at maturity. Compare against the value of an hour of technician time (PHP 200 to 600 fully loaded for a Philippine plant) to see the ROI multiple."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "What is AI drift and how do I catch it?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "AI drift is the silent failure mode where the AI gets gradually worse without anybody noticing because each individual answer looks plausible. Three signals catch it: falling accuracy trend per asset type or fault category, rising query-escalation rate (workers escalating to a human after the AI answer), and rising cost-per-useful-answer. Weekly 5-minute review by the reliability engineer catches drift 2 to 3 months earlier than waiting for worker complaints."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "When should I upgrade the AI model?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Three triggers: (1) accuracy below 4.0 for 60+ days despite prompt tuning and knowledge-base updates (the underlying model may be the limit); (2) cost per useful answer rising for 90+ days (newer models often deliver better cost-per-quality); (3) a class of queries the current model consistently fails on (e.g., engineering-grade calculations). WorkHive AI Assistant abstracts the model so upgrade is configuration, not migration."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Can I compare my AI ROI against other plants?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "At Stage 4 enterprise tier, yes (anonymous benchmarking against the cohort of WorkHive plants by industry sector and size). Free worker tier shows only your own hive's metrics. Cross-hive benchmarking requires opt-in from both parties and respects the data-isolation rules in the multi-tenant guide."
+          }
+        }
+      ]
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "https://workhiveph.com/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Learn",
+          "item": "https://workhiveph.com/learn/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "AI quality + ROI",
+          "item": "https://workhiveph.com/learn/ai-quality-and-roi-stage-2-plants/"
+        }
+      ]
+    }
+  ]
+}</script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { theme: { extend: { colors: {
+      orange: { wh: '#F7A21B', dark: '#D88A0E', light: '#FDB94A' },
+      blue:   { wh: '#29B6D9', dark: '#1A9ABF', light: '#5FCCE8' },
+      navy:   { wh: '#162032', mid: '#1F2E45', light: '#2A3D58' },
+      steel: '#7B8794', cloud: '#F4F6FA',
+    } } } };
+  </script>
+  <style>
+    * { font-family: 'Poppins', sans-serif; } body { background: #162032; color: #F4F6FA; }
+    .hex-pattern { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='92' viewBox='0 0 80 92'%3E%3Cpath d='M40 0 L80 23 L80 69 L40 92 L0 69 L0 23 Z' fill='none' stroke='%23ffffff08' stroke-width='1.5'/%3E%3C/svg%3E"); background-size: 80px 92px; }
+    .prose-wh { color: rgba(244,246,250,0.78); font-size: 1.05rem; line-height: 1.8; }
+    .prose-wh h2 { color: #F4F6FA; font-size: 1.75rem; font-weight: 800; line-height: 1.25; letter-spacing: -0.015em; margin-top: 3rem; margin-bottom: 1rem; scroll-margin-top: 80px; }
+    .prose-wh h3 { color: #F4F6FA; font-size: 1.2rem; font-weight: 700; margin-top: 2rem; margin-bottom: 0.5rem; }
+    .prose-wh p { margin-bottom: 1.25rem; }
+    .prose-wh ul, .prose-wh ol { padding-left: 1.5rem; margin-bottom: 1.25rem; }
+    .prose-wh li { margin-bottom: 0.5rem; }
+    .prose-wh ul li { list-style: disc; } .prose-wh ol li { list-style: decimal; }
+    .prose-wh strong { color: #F4F6FA; font-weight: 700; }
+    .prose-wh a { color: #5FCCE8; text-decoration: underline; text-underline-offset: 3px; } .prose-wh a:hover { color: #29B6D9; }
+    .prose-wh table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 0.95rem; }
+    .prose-wh th, .prose-wh td { padding: 12px 14px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.08); vertical-align: top; }
+    .prose-wh th { background: rgba(31,46,69,0.6); font-weight: 700; color: #F4F6FA; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; }
+    .pill { display: inline-block; font-size: 0.65rem; font-weight: 700; padding: 3px 10px; border-radius: 100px; letter-spacing: 0.05em; text-transform: uppercase; }
+    .pill-orange { background: rgba(247,162,27,0.18); color: #F7A21B; border: 1px solid rgba(247,162,27,0.35); }
+    .toc { background: rgba(31,46,69,0.55); border: 1px solid rgba(255,255,255,0.07); border-radius: 14px; padding: 22px 26px; margin: 2rem 0 3rem; }
+    .toc h4 { color: rgba(244,246,250,0.55); font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 12px; }
+    .toc ol { padding-left: 1.5rem; margin: 0; } .toc li { margin-bottom: 6px; font-size: 0.92rem; }
+    .toc a { color: rgba(244,246,250,0.75); text-decoration: none; } .toc a:hover { color: #F7A21B; }
+    .answer-first { background: rgba(247,162,27,0.08); border-left: 3px solid #F7A21B; border-radius: 8px; padding: 18px 22px; margin-bottom: 2rem; font-size: 1.05rem; line-height: 1.75; color: rgba(244,246,250,0.85); }
+    .audience-block { background: rgba(41,182,217,0.05); border: 1px solid rgba(41,182,217,0.18); border-radius: 12px; padding: 16px 20px; margin: 0 0 2rem; }
+    .audience-block .audience-label { font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; color: #5FCCE8; margin-bottom: 10px; }
+    .audience-block ul { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 6px 18px; font-size: 0.9rem; color: rgba(244,246,250,0.78); }
+    .audience-block ul li { list-style: none !important; position: relative; padding-left: 16px; margin: 0; }
+    .audience-block ul li::before { content: '\B7'; position: absolute; left: 4px; color: #29B6D9; font-weight: 800; font-size: 1.2rem; line-height: 1; top: 0; }
+    @media (max-width: 640px) { .audience-block ul { grid-template-columns: 1fr; } }
+    .callout { background: rgba(41,182,217,0.06); border-left: 3px solid #29B6D9; border-radius: 8px; padding: 18px 22px; margin: 2rem 0; font-size: 0.98rem; line-height: 1.7; color: rgba(244,246,250,0.78); }
+    .callout strong { color: #5FCCE8; }
+    .cta-box { background: linear-gradient(135deg, rgba(247,162,27,0.12) 0%, rgba(31,46,69,0.85) 100%); border: 1px solid rgba(247,162,27,0.35); border-radius: 16px; padding: 28px 30px; margin: 3rem 0; }
+    .cta-box .cta-eyebrow { color: #F7A21B; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px; }
+    .cta-box h4 { font-size: 1.35rem; font-weight: 800; color: #F4F6FA; margin-bottom: 8px; }
+    .cta-box p { color: rgba(244,246,250,0.7); margin-bottom: 18px; line-height: 1.65; }
+    .cta-btn { display: inline-block; background: linear-gradient(135deg, #F7A21B 0%, #D88A0E 100%); color: #162032; font-weight: 700; padding: 12px 28px; border-radius: 10px; text-decoration: none; transition: transform .18s, box-shadow .18s; }
+    .cta-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px -4px rgba(247,162,27,0.45); }
+    .cta-secondary { font-size: 0.82rem; color: rgba(244,246,250,0.45); margin-top: 14px; margin-bottom: 0; }
+    .cta-secondary a { color: #5FCCE8; text-decoration: underline; text-underline-offset: 2px; }
+    .faq-item { background: rgba(31,46,69,0.55); border: 1px solid rgba(255,255,255,0.07); border-radius: 14px; margin-bottom: 12px; }
+    .faq-item[open] { border-color: rgba(247,162,27,0.35); background: rgba(31,46,69,0.85); }
+    .faq-item summary { cursor: pointer; list-style: none; padding: 16px 20px; font-weight: 600; color: #F4F6FA; display: flex; justify-content: space-between; gap: 14px; }
+    .faq-item summary::-webkit-details-marker { display: none; }
+    .faq-item summary::after { content: '+'; font-size: 1.4rem; color: #F7A21B; } .faq-item[open] summary::after { content: '\2212'; }
+    .faq-item .faq-answer { padding: 0 20px 18px; color: rgba(244,246,250,0.7); line-height: 1.7; font-size: 0.95rem; }
+    .author-card { background: rgba(31,46,69,0.5); border: 1px solid rgba(255,255,255,0.07); border-radius: 14px; padding: 20px 24px; margin: 2rem 0; display: flex; gap: 16px; align-items: center; }
+    .author-card .avatar { width: 52px; height: 52px; border-radius: 50%; background: linear-gradient(135deg, #F7A21B, #FDB94A); display: flex; align-items: center; justify-content: center; font-weight: 800; color: #162032; font-size: 1.1rem; flex-shrink: 0; }
+    .author-card .meta p:first-child { font-weight: 700; color: #F4F6FA; font-size: 0.95rem; margin-bottom: 2px; }
+    .author-card .meta p:last-child { font-size: 0.82rem; color: rgba(244,246,250,0.5); }
+    nav a.nav-link { font-size: 0.9rem; color: rgba(244,246,250,0.65); font-weight: 500; } nav a.nav-link:hover { color: #F4F6FA; }
+    .breadcrumb { font-size: 0.85rem; color: rgba(244,246,250,0.45); margin-bottom: 1.5rem; }
+    .breadcrumb a { color: rgba(244,246,250,0.55); text-decoration: none; } .breadcrumb a:hover { color: #F7A21B; }
+    .breadcrumb span { margin: 0 8px; opacity: 0.4; }
+  </style>
+  <script>
+    // Local dev URL bridge v2: production uses /learn/, /logbook.html etc.
+    // as root-absolute URLs. Locally everything serves under /workhive/.
+    // This script rewrites root-absolute links to /workhive/<path>/index.html
+    // (explicit file path) so clicks work even if Flask directory-index
+    // resolution is not active. Zero production impact.
+    (function(){
+      if (!location.pathname.startsWith('/workhive/')) return;
+      var ROOT_PATHS = ['/learn/', '/logbook.html', '/inventory.html',
+        '/pm-scheduler.html', '/skillmatrix.html', '/dayplanner.html',
+        '/hive.html', '/assistant.html', '/analytics.html', '/shift-brain.html',
+        '/asset-hub.html', '/alert-hub.html', '/audit-log.html', '/voice-journal.html',
+        '/engineering-design.html', '/project-manager.html', '/integrations.html',
+        '/marketplace.html', '/community.html', '/achievements.html',
+        '/ph-intelligence.html', '/predictive.html', '/ai-quality.html',
+        '/plant-connections.html'];
+      function rewrite(){
+        document.querySelectorAll('a[href]').forEach(function(a){
+          var h = a.getAttribute('href');
+          if (!h || h[0] !== '/') return;
+          if (h.indexOf('/workhive/') === 0 || h.indexOf('/brand_assets/') === 0 ||
+              h.indexOf('/api/') === 0 || h === '/manifest.json' || h === '/sw.js') return;
+          var matched = false;
+          for (var i = 0; i < ROOT_PATHS.length; i++) {
+            if (h === ROOT_PATHS[i] || h.indexOf(ROOT_PATHS[i]) === 0) {
+              matched = true; break;
+            }
+          }
+          if (!matched && h !== '/' && h.indexOf('/#') !== 0) return;
+          var newHref = '/workhive' + h;
+          // Append index.html for trailing-slash directory URLs
+          // (Flask explicit-file serving works without dir-index)
+          if (newHref.endsWith('/')) newHref += 'index.html';
+          // Special case bare "/" -> "/workhive/index.html"
+          else if (h === '/') newHref = '/workhive/index.html';
+          // /#fragment -> /workhive/index.html#fragment
+          else if (h.indexOf('/#') === 0) newHref = '/workhive/index.html' + h.substring(1);
+          a.setAttribute('href', newHref);
+        });
+      }
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', rewrite);
+      } else {
+        rewrite();
+      }
+    })();
+  </script>
+</head>
+<body class="bg-navy-wh text-white antialiased">
+<header class="border-b border-white/[0.06]" style="background: rgba(13,24,36,0.85);">
+  <div class="max-w-6xl mx-auto px-5 sm:px-8 py-4 flex items-center justify-between">
+    <a href="/" class="flex items-center gap-3">
+      <img src="/brand_assets/workhive-logo-transparent.png" alt="WorkHive" style="height: 36px; width: auto;" />
+      <span class="font-black text-lg tracking-tight">WorkHive</span>
+    </a>
+    <nav class="flex items-center gap-6">
+      <a href="/" class="nav-link">Home</a>
+      <a href="/learn/" class="nav-link">Learn</a>
+      <a href="/#join" class="nav-link">Join the Hive</a>
+    </nav>
+  </div>
+</header>
+<article class="hex-pattern">
+  <div class="max-w-3xl mx-auto px-5 sm:px-8 py-14 lg:py-20">
+    <div class="breadcrumb">
+      <a href="/">Home</a><span>/</span><a href="/learn/">Learn</a><span>/</span><span>AI quality + ROI</span>
+    </div>
+    <p class="pill pill-orange mb-4">AI Quality + ROI · Stage 2+</p>
+    <h1 class="text-3xl sm:text-4xl lg:text-[2.7rem] font-black leading-[1.15] tracking-[-0.02em] mb-5">Measuring AI quality and ROI <span class="text-white/55 font-bold">(for Stage 2+ industrial plants)</span></h1>
+    <div class="flex items-center gap-4 text-sm text-white/45 mb-8 flex-wrap">
+      <span>By <strong class="text-white/75">WorkHive Editorial Team</strong></span>
+      <span class="opacity-40">·</span>
+      <span>Published <time datetime="2026-05-17">17 May 2026</time></span>
+      <span class="opacity-40">·</span>
+      <span>Updated <time datetime="2026-05-17">17 May 2026</time></span>
+      <span class="opacity-40">·</span>
+      <span>7 min read</span>
+    </div>
+    <div class="answer-first"><strong>Short answer:</strong> AI assistants in industrial plants need explicit quality measurement; without it, drift goes undetected and trust erodes. Three metrics matter: accuracy (verified by the technician after acting on the advice), time saved (estimated by the worker per query), and cost per useful answer (the total AI cost divided by queries the worker rated useful). Plants that measure these monthly see AI ROI climb from negative in month 3 to 5 to 10x by month 12; plants that do not measure either over-trust or abandon the AI within 6 months.</div>
+    <div class="audience-block">
+      <p class="audience-label">Who this is for</p>
+      <ul><li>Plant managers evaluating AI ROI</li>
+        <li>Reliability and maintenance engineers</li>
+        <li>IT and CFO teams reviewing AI spend</li>
+        <li>Consultants advising on AI adoption</li>
+        <li>Vendors comparing AI products</li>
+        <li>Workers verifying AI suggestions</li>
+        <li>New engineering graduates exploring AI</li></ul>
+    </div>
+    <div class="toc"><h4>What's in this guide</h4><ol><li><a href="#why-measure">Why AI quality needs explicit measurement</a></li>
+        <li><a href="#three-metrics">The 3 metrics that matter</a></li>
+        <li><a href="#accuracy">Accuracy: technician-verified, not vendor-claimed</a></li>
+        <li><a href="#time-saved">Time saved: estimate per query</a></li>
+        <li><a href="#cost-per-useful">Cost per useful answer</a></li>
+        <li><a href="#drift">Catching AI drift before it hurts operations</a></li>
+        <li><a href="#faq">Frequently asked questions</a></li>
+        <li><a href="#sources">Sources</a></li></ol></div>
+    <div class="prose-wh"><h2 id="why-measure">Why AI quality needs explicit measurement</h2>
+      <p>An AI work assistant is the only WorkHive surface where the value is opaque without measurement. A Logbook entry is obviously logged or not. A PM is obviously completed or not. An AI answer is harder: it sounds right, the worker acts on it, but did it actually help? Without explicit measurement, two failure patterns emerge: over-trust (workers stop verifying because the AI feels reliable) and under-use (workers stop asking because they cannot tell if the answer is good).</p>
+      <p>The AI Quality + ROI dashboard exists to make AI value measurable. Plants that measure trust the AI appropriately; plants that do not either swing into over-trust or abandon the AI.</p>
+      <h2 id="three-metrics">The 3 metrics that matter</h2>
+      <table><thead><tr><th>Metric</th><th>What it measures</th><th>How to capture</th></tr></thead><tbody>
+      <tr><td>Accuracy</td><td>Did the AI suggestion match what fixed the problem?</td><td>Worker rates after the fix is verified</td></tr>
+      <tr><td>Time saved</td><td>How much faster did this query make the work?</td><td>Worker estimate in 5-second tap</td></tr>
+      <tr><td>Cost per useful answer</td><td>Total AI spend divided by queries rated useful</td><td>Automated from token billing + ratings</td></tr>
+      </tbody></table>
+      <h2 id="accuracy">Accuracy: technician-verified, not vendor-claimed</h2>
+      <p>Vendor accuracy numbers (95 percent on benchmark X) are not your plant's reality. Your plant's AI accuracy is what your technicians verify after acting on the advice. The pattern that works:</p>
+      <ul><li>After every fix where the worker used an AI suggestion, the Logbook entry includes an AI-accuracy rating (1 to 5)</li><li>Ratings aggregate per asset type, fault category, and query type</li><li>Monthly review surfaces where the AI is below 4.0 average (likely needs prompt tuning, knowledge-base update, or model upgrade)</li></ul>
+      <p>Most Philippine plants find their AI starts at 3.5 to 4.0 average in month 1 and climbs to 4.3 to 4.7 by month 6 as the AI learns the plant's specifics. Plants below 3.5 at month 6 have a real problem and should investigate root cause.</p>
+      <h2 id="time-saved">Time saved: estimate per query</h2>
+      <p>After every AI query, the worker taps one of 4 buttons:</p>
+      <ul><li>Saved 5 minutes or less</li><li>Saved 15 to 30 minutes</li><li>Saved 1 to 2 hours</li><li>Saved 4+ hours (caught something I would have missed)</li></ul>
+      <p>Aggregate weekly. A typical Philippine plant with 20 active AI users sees 200 to 400 queries per week, averaging 15 to 25 hours of self-reported saved time. Worker estimates are imperfect but consistent enough to track trend.</p>
+      <h2 id="cost-per-useful">Cost per useful answer</h2>
+      <p>The honest ROI number is cost per useful answer, not cost per query. Calculation:</p>
+      <pre>Total monthly AI cost (token billing) / Number of queries rated 4+ accuracy and saved 15+ min</pre>
+      <p>Indicative ranges:</p>
+      <ul><li>Month 1 to 3: PHP 50 to 200 per useful answer (high cost, learning phase)</li><li>Month 4 to 6: PHP 20 to 80 per useful answer (improving)</li><li>Month 7 to 12: PHP 5 to 30 per useful answer (mature)</li><li>Year 2+: PHP 2 to 10 per useful answer for plants that mature the system</li></ul>
+      <p>Compare against the value of an hour of technician time (typically PHP 200 to 600 fully loaded) to see the ROI multiple.</p>
+      <h2 id="drift">Catching AI drift before it hurts operations</h2>
+      <p>AI drift is the silent failure mode where the AI gets gradually worse without anybody noticing because each individual answer looks plausible. The AI Quality dashboard catches drift with three signals:</p>
+      <ul><li><strong>Accuracy trend.</strong> Falling average rating per asset type or fault category is the first signal. Investigate.</li><li><strong>Query escalation rate.</strong> Rising percentage of queries that the worker then escalated to a human expert (instead of acting on the AI answer) signals declining trust.</li><li><strong>Cost-per-useful trending up.</strong> If total AI cost stays flat but useful-answer count drops, the cost per useful answer rises. This is the cleanest single-number indicator.</li></ul>
+      <p>Weekly 5-minute review by the reliability engineer catches drift early. Plants that skip this review notice problems 2 to 3 months late, by which time worker trust has eroded.</p>
+      <div class="cta-box">
+        <p class="cta-eyebrow">The tool this guide is about</p>
+        <h4>WorkHive AI Quality + ROI dashboard makes AI value measurable</h4>
+        <p>Accuracy tracking from technician-rated outcomes, time-saved estimates per query, cost per useful answer, drift detection across asset types and fault categories. Stair 2+ (plants with 90+ days of Logbook history). Free at the worker tier; full enterprise reporting (per-shift accuracy, cross-hive benchmarks) unlocks at Stage 4.</p>
+        <a href="/ai-quality.html" class="cta-btn">Open AI Quality + ROI</a>
+        <p class="cta-secondary">No hive yet? <a href="/#join">Join WorkHive</a> first (free, takes 30 seconds).</p>
+      </div>
+      <h2 id="faq">Frequently asked questions</h2>
+      <details class="faq-item"><summary>Why do I need to measure AI quality if the vendor says 95 percent accuracy?</summary><div class="faq-answer">Vendor accuracy is on their benchmark dataset, not your plant's reality. Your plant has specific assets, fault patterns, and language conventions that the vendor benchmark cannot capture. The only honest accuracy number is what your technicians verify after acting on the AI suggestions in your hive. Plants that rely on vendor numbers over-trust the AI; plants that measure their own catch problems early.</div></details>
+      <details class="faq-item"><summary>What is a reasonable AI accuracy target?</summary><div class="faq-answer">Month 1 to 3: 3.5 to 4.0 out of 5 (worker-rated, after verification). Month 4 to 6: 4.0 to 4.5. Month 7 to 12: 4.3 to 4.7 as the AI learns the plant's specifics. Plants below 3.5 at month 6 have a real problem: likely the knowledge base is incomplete, the prompts are not tuned, or the model needs upgrade. Above 4.7 average usually means workers are rating generously; spot-check the verification process.</div></details>
+      <details class="faq-item"><summary>How do I measure cost per useful answer?</summary><div class="faq-answer">Total monthly AI cost (from the token-billing report) divided by number of queries rated 4+ accuracy AND saved 15+ minutes. Indicative ranges: PHP 50 to 200 per useful answer in months 1 to 3, PHP 5 to 30 per useful answer at maturity. Compare against the value of an hour of technician time (PHP 200 to 600 fully loaded for a Philippine plant) to see the ROI multiple.</div></details>
+      <details class="faq-item"><summary>What is AI drift and how do I catch it?</summary><div class="faq-answer">AI drift is the silent failure mode where the AI gets gradually worse without anybody noticing because each individual answer looks plausible. Three signals catch it: falling accuracy trend per asset type or fault category, rising query-escalation rate (workers escalating to a human after the AI answer), and rising cost-per-useful-answer. Weekly 5-minute review by the reliability engineer catches drift 2 to 3 months earlier than waiting for worker complaints.</div></details>
+      <details class="faq-item"><summary>When should I upgrade the AI model?</summary><div class="faq-answer">Three triggers: (1) accuracy below 4.0 for 60+ days despite prompt tuning and knowledge-base updates (the underlying model may be the limit); (2) cost per useful answer rising for 90+ days (newer models often deliver better cost-per-quality); (3) a class of queries the current model consistently fails on (e.g., engineering-grade calculations). WorkHive AI Assistant abstracts the model so upgrade is configuration, not migration.</div></details>
+      <details class="faq-item"><summary>Can I compare my AI ROI against other plants?</summary><div class="faq-answer">At Stage 4 enterprise tier, yes (anonymous benchmarking against the cohort of WorkHive plants by industry sector and size). Free worker tier shows only your own hive's metrics. Cross-hive benchmarking requires opt-in from both parties and respects the data-isolation rules in the multi-tenant guide.</div></details>
+      <h2 id="sources">Sources</h2>
+      <ul><li>Society for Maintenance and Reliability Professionals (SMRP), <strong>AI and analytics adoption benchmarks</strong>. Indicative ROI ranges for industrial AI deployments.</li>
+        <li>Stanford HAI, <strong>AI Index Report 2024-2025</strong>. Macro context for AI cost-per-query trends.</li>
+        <li>WorkHive platform positioning, "Four Gaps One Hive" with AI Quality + ROI as the Stage 2+ measurement layer. <a href="/">workhiveph.com</a></li>
+        <li>Related WorkHive guides: <a href="/learn/ai-work-assistant-maintenance-technicians/">AI work assistant</a> · <a href="/learn/predictive-maintenance-on-a-budget-philippines/">Predictive on a budget</a></li></ul>
+      <div class="author-card">
+        <div class="avatar">WH</div>
+        <div class="meta">
+          <p>WorkHive Editorial Team</p>
+          <p>Practical writing for the Philippine plant floor. Email <a href="mailto:admin@workhiveph.com" style="color:#5FCCE8;">admin@workhiveph.com</a> with corrections or contributions.</p>
+        </div>
+      </div>
+    </div>
+    <div class="pt-8 border-t border-white/[0.06] mt-12">
+      <a href="/learn/" class="text-sm text-white/55 hover:text-orange-wh transition-colors">&larr; Back to all guides</a>
+    </div>
+  </div>
+</article>
+<footer class="py-10 border-t border-white/[0.06]" style="background: rgba(13,24,36,0.85);">
+  <div class="max-w-4xl mx-auto px-5 sm:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-white/35">
+    <p>© 2026 WorkHive Platform · workhiveph.com · Last updated <time datetime="2026-05-17">17 May 2026</time></p>
+    <div class="flex items-center gap-6">
+      <a href="/" class="hover:text-white/60 transition-colors">Home</a>
+      <a href="/#faq" class="hover:text-white/60 transition-colors">FAQ</a>
+      <a href="/#join" class="hover:text-white/60 transition-colors">Join the Hive</a>
+    </div>
+  </div>
+</footer>
+</body>
+</html>

@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="theme-color" content="#F7A21B" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Sensor and CMMS Gateway Operations for Industrial Plants | WorkHive</title>
+  <meta name="description" content="How to operate the edge gateway that bridges OT sensors (OPC-UA, MQTT) and your existing CMMS (SAP, Maximo) to WorkHive. Covers daily health checks, sensor inventory, cybersecurity boundaries, and the OT/IT operating model." />
+  <meta name="keywords" content="edge gateway industrial, OPC-UA Philippines, MQTT sensor gateway, OT IT boundary, SCADA WorkHive, plant connections operations, cybersecurity OT Philippines" />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://workhiveph.com/learn/sensor-cmms-gateway-operations/" />
+  <link rel="manifest" href="/manifest.json" />
+  <meta property="og:title" content="Sensor and CMMS Gateway Operations for Industrial Plants" />
+  <meta property="og:description" content="Operating the OPC-UA / MQTT / CMMS gateway that bridges OT and WorkHive. Daily health, sensor inventory, OT/IT." />
+  <meta property="og:image" content="https://workhiveph.com/brand_assets/og-social.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:type" content="image/png" />
+  <meta property="og:image:alt" content="WorkHive: Free industrial tools for every Filipino worker" />
+  <meta property="og:url" content="https://workhiveph.com/learn/sensor-cmms-gateway-operations/" />
+  <meta property="og:type" content="article" />
+  <meta property="og:site_name" content="WorkHive" />
+  <meta property="article:published_time" content="2026-05-17T00:00:00+08:00" />
+  <meta property="article:modified_time" content="2026-05-17T00:00:00+08:00" />
+  <meta property="article:author" content="WorkHive Editorial Team" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Sensor and CMMS Gateway Operations for Industrial Plants" />
+  <meta name="twitter:description" content="Operating the OPC-UA / MQTT / CMMS gateway that bridges OT and WorkHive. Daily health, sensor inventory, OT/IT." />
+  <meta name="twitter:image" content="https://workhiveph.com/brand_assets/og-social.png" />
+  <meta name="twitter:image:alt" content="WorkHive: Free industrial tools for every Filipino worker" />
+  <script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Article",
+      "@id": "https://workhiveph.com/learn/sensor-cmms-gateway-operations/#article",
+      "headline": "Sensor and CMMS Gateway Operations for Industrial Plants",
+      "description": "How to operate the edge gateway that bridges OT sensors (OPC-UA, MQTT) and your existing CMMS (SAP, Maximo) to WorkHive. Covers daily health checks, sensor inventory, cybersecurity boundaries, and the OT/IT operating model.",
+      "image": "https://workhiveph.com/brand_assets/workhive-logo-transparent.png",
+      "author": {
+        "@type": "Organization",
+        "name": "WorkHive Editorial Team",
+        "url": "https://workhiveph.com/"
+      },
+      "publisher": {
+        "@id": "https://workhiveph.com/#organization"
+      },
+      "datePublished": "2026-05-17",
+      "dateModified": "2026-05-17",
+      "mainEntityOfPage": "https://workhiveph.com/learn/sensor-cmms-gateway-operations/",
+      "inLanguage": "en-PH",
+      "articleSection": "Maintenance",
+      "wordCount": 1900,
+      "keywords": "edge gateway industrial, OPC-UA Philippines, MQTT sensor gateway, OT IT boundary, SCADA WorkHive, plant connections operations, cybersecurity OT Philippines"
+    },
+    {
+      "@type": "FAQPage",
+      "@id": "https://workhiveph.com/learn/sensor-cmms-gateway-operations/#faq",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "What is the Plant Connections gateway?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "A small server (physical or virtual) running on the plant network that bridges OT (PLCs, SCADA via OPC-UA; IoT sensors via MQTT) and IT (CMMS via API; WorkHive cloud via HTTPS). It runs on-premise so sensitive plant data never leaves the plant unencrypted; only condition summaries get pushed to WorkHive cloud. This matters for plants with cybersecurity policies that restrict direct OT-to-cloud access."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How often should I check gateway health?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Daily, 5 minutes, at start of shift. Verify gateway uptime, OPC-UA connection, MQTT broker, CMMS API sync, and WorkHive cloud push. Plants that skip this check find out about problems when alerts stop firing, typically 6 to 18 hours late. Daily check catches the same problems within 8 hours."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Who owns the gateway in the plant organisation?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Split ownership that works: OT team owns operational health (daily check, restarts, sensor inventory), IT cybersecurity owns the boundary (firewall, TLS, audit log), reliability engineer owns data quality (calibration, threshold tuning, alert acting), plant manager owns cross-team coordination via monthly 30-min review. Single-owner models (all to OT or all to IT) tend to fail because the skills do not overlap."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "What are the cybersecurity rules for the gateway?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Three rules: (1) OT-initiated outbound only (no inbound from internet to OT network); (2) TLS everywhere (OPC-UA SignAndEncrypt, MQTT over TLS, HTTPS to WorkHive); (3) air-gap optionality for strict-policy plants (batched upload from DMZ host during scheduled windows). IT cybersecurity and reliability teams both sign off during commissioning and review annually."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "What sensors and protocols are supported?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "OPC-UA for traditional industrial automation (Siemens, Rockwell, Schneider PLCs and SCADA). MQTT for newer IoT sensors (wireless vibration, temperature, ultrasonic, energy meters). Edge gateway runtime options include AVEVA Edge, Ignition Edge, and Node-RED depending on stack preference. REST/SOAP for CMMS systems (SAP PM OData, IBM Maximo MIF, Hippo, Fiix, others). Custom integrations via the generic REST connector."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "What happens when the gateway loses internet?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "The gateway continues reading sensor and CMMS data locally and buffers it. Buffer size depends on disk space (typically 7 to 30 days). When internet is restored, the gateway pushes the backlog to WorkHive cloud in time order; the cloud accepts the late timestamps. This matters for plants with intermittent Globe/Smart/PLDT connectivity at remote sites."
+          }
+        }
+      ]
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "https://workhiveph.com/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Learn",
+          "item": "https://workhiveph.com/learn/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "Sensor + CMMS gateway operations",
+          "item": "https://workhiveph.com/learn/sensor-cmms-gateway-operations/"
+        }
+      ]
+    }
+  ]
+}</script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { theme: { extend: { colors: {
+      orange: { wh: '#F7A21B', dark: '#D88A0E', light: '#FDB94A' },
+      blue:   { wh: '#29B6D9', dark: '#1A9ABF', light: '#5FCCE8' },
+      navy:   { wh: '#162032', mid: '#1F2E45', light: '#2A3D58' },
+      steel: '#7B8794', cloud: '#F4F6FA',
+    } } } };
+  </script>
+  <style>
+    * { font-family: 'Poppins', sans-serif; } body { background: #162032; color: #F4F6FA; }
+    .hex-pattern { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='92' viewBox='0 0 80 92'%3E%3Cpath d='M40 0 L80 23 L80 69 L40 92 L0 69 L0 23 Z' fill='none' stroke='%23ffffff08' stroke-width='1.5'/%3E%3C/svg%3E"); background-size: 80px 92px; }
+    .prose-wh { color: rgba(244,246,250,0.78); font-size: 1.05rem; line-height: 1.8; }
+    .prose-wh h2 { color: #F4F6FA; font-size: 1.75rem; font-weight: 800; line-height: 1.25; letter-spacing: -0.015em; margin-top: 3rem; margin-bottom: 1rem; scroll-margin-top: 80px; }
+    .prose-wh h3 { color: #F4F6FA; font-size: 1.2rem; font-weight: 700; margin-top: 2rem; margin-bottom: 0.5rem; }
+    .prose-wh p { margin-bottom: 1.25rem; }
+    .prose-wh ul, .prose-wh ol { padding-left: 1.5rem; margin-bottom: 1.25rem; }
+    .prose-wh li { margin-bottom: 0.5rem; }
+    .prose-wh ul li { list-style: disc; } .prose-wh ol li { list-style: decimal; }
+    .prose-wh strong { color: #F4F6FA; font-weight: 700; }
+    .prose-wh a { color: #5FCCE8; text-decoration: underline; text-underline-offset: 3px; } .prose-wh a:hover { color: #29B6D9; }
+    .prose-wh table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 0.95rem; }
+    .prose-wh th, .prose-wh td { padding: 12px 14px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.08); vertical-align: top; }
+    .prose-wh th { background: rgba(31,46,69,0.6); font-weight: 700; color: #F4F6FA; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; }
+    .pill { display: inline-block; font-size: 0.65rem; font-weight: 700; padding: 3px 10px; border-radius: 100px; letter-spacing: 0.05em; text-transform: uppercase; }
+    .pill-orange { background: rgba(247,162,27,0.18); color: #F7A21B; border: 1px solid rgba(247,162,27,0.35); }
+    .toc { background: rgba(31,46,69,0.55); border: 1px solid rgba(255,255,255,0.07); border-radius: 14px; padding: 22px 26px; margin: 2rem 0 3rem; }
+    .toc h4 { color: rgba(244,246,250,0.55); font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 12px; }
+    .toc ol { padding-left: 1.5rem; margin: 0; } .toc li { margin-bottom: 6px; font-size: 0.92rem; }
+    .toc a { color: rgba(244,246,250,0.75); text-decoration: none; } .toc a:hover { color: #F7A21B; }
+    .answer-first { background: rgba(247,162,27,0.08); border-left: 3px solid #F7A21B; border-radius: 8px; padding: 18px 22px; margin-bottom: 2rem; font-size: 1.05rem; line-height: 1.75; color: rgba(244,246,250,0.85); }
+    .audience-block { background: rgba(41,182,217,0.05); border: 1px solid rgba(41,182,217,0.18); border-radius: 12px; padding: 16px 20px; margin: 0 0 2rem; }
+    .audience-block .audience-label { font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; color: #5FCCE8; margin-bottom: 10px; }
+    .audience-block ul { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 6px 18px; font-size: 0.9rem; color: rgba(244,246,250,0.78); }
+    .audience-block ul li { list-style: none !important; position: relative; padding-left: 16px; margin: 0; }
+    .audience-block ul li::before { content: '\B7'; position: absolute; left: 4px; color: #29B6D9; font-weight: 800; font-size: 1.2rem; line-height: 1; top: 0; }
+    @media (max-width: 640px) { .audience-block ul { grid-template-columns: 1fr; } }
+    .callout { background: rgba(41,182,217,0.06); border-left: 3px solid #29B6D9; border-radius: 8px; padding: 18px 22px; margin: 2rem 0; font-size: 0.98rem; line-height: 1.7; color: rgba(244,246,250,0.78); }
+    .callout strong { color: #5FCCE8; }
+    .cta-box { background: linear-gradient(135deg, rgba(247,162,27,0.12) 0%, rgba(31,46,69,0.85) 100%); border: 1px solid rgba(247,162,27,0.35); border-radius: 16px; padding: 28px 30px; margin: 3rem 0; }
+    .cta-box .cta-eyebrow { color: #F7A21B; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px; }
+    .cta-box h4 { font-size: 1.35rem; font-weight: 800; color: #F4F6FA; margin-bottom: 8px; }
+    .cta-box p { color: rgba(244,246,250,0.7); margin-bottom: 18px; line-height: 1.65; }
+    .cta-btn { display: inline-block; background: linear-gradient(135deg, #F7A21B 0%, #D88A0E 100%); color: #162032; font-weight: 700; padding: 12px 28px; border-radius: 10px; text-decoration: none; transition: transform .18s, box-shadow .18s; }
+    .cta-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px -4px rgba(247,162,27,0.45); }
+    .cta-secondary { font-size: 0.82rem; color: rgba(244,246,250,0.45); margin-top: 14px; margin-bottom: 0; }
+    .cta-secondary a { color: #5FCCE8; text-decoration: underline; text-underline-offset: 2px; }
+    .faq-item { background: rgba(31,46,69,0.55); border: 1px solid rgba(255,255,255,0.07); border-radius: 14px; margin-bottom: 12px; }
+    .faq-item[open] { border-color: rgba(247,162,27,0.35); background: rgba(31,46,69,0.85); }
+    .faq-item summary { cursor: pointer; list-style: none; padding: 16px 20px; font-weight: 600; color: #F4F6FA; display: flex; justify-content: space-between; gap: 14px; }
+    .faq-item summary::-webkit-details-marker { display: none; }
+    .faq-item summary::after { content: '+'; font-size: 1.4rem; color: #F7A21B; } .faq-item[open] summary::after { content: '\2212'; }
+    .faq-item .faq-answer { padding: 0 20px 18px; color: rgba(244,246,250,0.7); line-height: 1.7; font-size: 0.95rem; }
+    .author-card { background: rgba(31,46,69,0.5); border: 1px solid rgba(255,255,255,0.07); border-radius: 14px; padding: 20px 24px; margin: 2rem 0; display: flex; gap: 16px; align-items: center; }
+    .author-card .avatar { width: 52px; height: 52px; border-radius: 50%; background: linear-gradient(135deg, #F7A21B, #FDB94A); display: flex; align-items: center; justify-content: center; font-weight: 800; color: #162032; font-size: 1.1rem; flex-shrink: 0; }
+    .author-card .meta p:first-child { font-weight: 700; color: #F4F6FA; font-size: 0.95rem; margin-bottom: 2px; }
+    .author-card .meta p:last-child { font-size: 0.82rem; color: rgba(244,246,250,0.5); }
+    nav a.nav-link { font-size: 0.9rem; color: rgba(244,246,250,0.65); font-weight: 500; } nav a.nav-link:hover { color: #F4F6FA; }
+    .breadcrumb { font-size: 0.85rem; color: rgba(244,246,250,0.45); margin-bottom: 1.5rem; }
+    .breadcrumb a { color: rgba(244,246,250,0.55); text-decoration: none; } .breadcrumb a:hover { color: #F7A21B; }
+    .breadcrumb span { margin: 0 8px; opacity: 0.4; }
+  </style>
+  <script>
+    // Local dev URL bridge v2: production uses /learn/, /logbook.html etc.
+    // as root-absolute URLs. Locally everything serves under /workhive/.
+    // This script rewrites root-absolute links to /workhive/<path>/index.html
+    // (explicit file path) so clicks work even if Flask directory-index
+    // resolution is not active. Zero production impact.
+    (function(){
+      if (!location.pathname.startsWith('/workhive/')) return;
+      var ROOT_PATHS = ['/learn/', '/logbook.html', '/inventory.html',
+        '/pm-scheduler.html', '/skillmatrix.html', '/dayplanner.html',
+        '/hive.html', '/assistant.html', '/analytics.html', '/shift-brain.html',
+        '/asset-hub.html', '/alert-hub.html', '/audit-log.html', '/voice-journal.html',
+        '/engineering-design.html', '/project-manager.html', '/integrations.html',
+        '/marketplace.html', '/community.html', '/achievements.html',
+        '/ph-intelligence.html', '/predictive.html', '/ai-quality.html',
+        '/plant-connections.html'];
+      function rewrite(){
+        document.querySelectorAll('a[href]').forEach(function(a){
+          var h = a.getAttribute('href');
+          if (!h || h[0] !== '/') return;
+          if (h.indexOf('/workhive/') === 0 || h.indexOf('/brand_assets/') === 0 ||
+              h.indexOf('/api/') === 0 || h === '/manifest.json' || h === '/sw.js') return;
+          var matched = false;
+          for (var i = 0; i < ROOT_PATHS.length; i++) {
+            if (h === ROOT_PATHS[i] || h.indexOf(ROOT_PATHS[i]) === 0) {
+              matched = true; break;
+            }
+          }
+          if (!matched && h !== '/' && h.indexOf('/#') !== 0) return;
+          var newHref = '/workhive' + h;
+          // Append index.html for trailing-slash directory URLs
+          // (Flask explicit-file serving works without dir-index)
+          if (newHref.endsWith('/')) newHref += 'index.html';
+          // Special case bare "/" -> "/workhive/index.html"
+          else if (h === '/') newHref = '/workhive/index.html';
+          // /#fragment -> /workhive/index.html#fragment
+          else if (h.indexOf('/#') === 0) newHref = '/workhive/index.html' + h.substring(1);
+          a.setAttribute('href', newHref);
+        });
+      }
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', rewrite);
+      } else {
+        rewrite();
+      }
+    })();
+  </script>
+</head>
+<body class="bg-navy-wh text-white antialiased">
+<header class="border-b border-white/[0.06]" style="background: rgba(13,24,36,0.85);">
+  <div class="max-w-6xl mx-auto px-5 sm:px-8 py-4 flex items-center justify-between">
+    <a href="/" class="flex items-center gap-3">
+      <img src="/brand_assets/workhive-logo-transparent.png" alt="WorkHive" style="height: 36px; width: auto;" />
+      <span class="font-black text-lg tracking-tight">WorkHive</span>
+    </a>
+    <nav class="flex items-center gap-6">
+      <a href="/" class="nav-link">Home</a>
+      <a href="/learn/" class="nav-link">Learn</a>
+      <a href="/#join" class="nav-link">Join the Hive</a>
+    </nav>
+  </div>
+</header>
+<article class="hex-pattern">
+  <div class="max-w-3xl mx-auto px-5 sm:px-8 py-14 lg:py-20">
+    <div class="breadcrumb">
+      <a href="/">Home</a><span>/</span><a href="/learn/">Learn</a><span>/</span><span>Sensor + CMMS gateway operations</span>
+    </div>
+    <p class="pill pill-orange mb-4">Plant Connections · OT/IT bridge</p>
+    <h1 class="text-3xl sm:text-4xl lg:text-[2.7rem] font-black leading-[1.15] tracking-[-0.02em] mb-5">Sensor and CMMS gateway operations <span class="text-white/55 font-bold">(for industrial plants)</span></h1>
+    <div class="flex items-center gap-4 text-sm text-white/45 mb-8 flex-wrap">
+      <span>By <strong class="text-white/75">WorkHive Editorial Team</strong></span>
+      <span class="opacity-40">·</span>
+      <span>Published <time datetime="2026-05-17">17 May 2026</time></span>
+      <span class="opacity-40">·</span>
+      <span>Updated <time datetime="2026-05-17">17 May 2026</time></span>
+      <span class="opacity-40">·</span>
+      <span>8 min read</span>
+    </div>
+    <div class="answer-first"><strong>Short answer:</strong> The Plant Connections gateway is the operational layer that bridges your plant's OT network (PLCs, SCADA, IoT sensors via OPC-UA or MQTT) and your IT network (WorkHive, SAP, Maximo). Daily operations need three things: a 5-minute health check on the edge gateway, a current sensor inventory with health status, and a documented OT/IT cybersecurity boundary that the IT and reliability teams both signed off on. Plants that operate the gateway well get reliable Stage 3 PdM; plants that treat it as an install-and-forget device get silent data outages that show up as missing alerts.</div>
+    <div class="audience-block">
+      <p class="audience-label">Who this is for</p>
+      <ul><li>OT and automation engineers</li>
+        <li>IT cybersecurity teams</li>
+        <li>Plant managers overseeing PdM</li>
+        <li>Reliability engineers consuming sensor data</li>
+        <li>Integration consultants and SIs</li>
+        <li>Sensor vendors and edge platform providers</li>
+        <li>New OT/IT graduates joining plants</li></ul>
+    </div>
+    <div class="toc"><h4>What's in this guide</h4><ol><li><a href="#what-gateway">What the Plant Connections gateway does</a></li>
+        <li><a href="#daily-health">Daily 5-minute gateway health check</a></li>
+        <li><a href="#sensor-inventory">Sensor inventory and health rotation</a></li>
+        <li><a href="#cybersecurity">OT/IT cybersecurity boundary</a></li>
+        <li><a href="#operating-model">OT/IT operating model that works</a></li>
+        <li><a href="#faq">Frequently asked questions</a></li>
+        <li><a href="#sources">Sources</a></li></ol></div>
+    <div class="prose-wh"><h2 id="what-gateway">What the Plant Connections gateway does</h2>
+      <p>The edge gateway is a small server (physical or virtual) running on the plant network that:</p>
+      <ul><li>Reads sensor data from your OT systems via OPC-UA (for PLCs and SCADA) or MQTT (for IoT sensors)</li><li>Reads work orders, asset master, and PM schedule from your CMMS (SAP PM, IBM Maximo, others) via REST or SOAP API</li><li>Pushes condition summaries and operational data to WorkHive cloud over secure HTTPS</li><li>Pushes WorkHive completion data back to the CMMS for finance and asset register sync</li></ul>
+      <p>The gateway runs on-premise so sensitive plant data never leaves your network unencrypted. Only the condition-data summaries WorkHive needs are transmitted. This matters for Philippine plants with cybersecurity policies that restrict direct cloud access from the OT network.</p>
+      <h2 id="daily-health">Daily 5-minute gateway health check</h2>
+      <p>The OT engineer opens the Plant Connections console at start of shift and verifies five things:</p>
+      <ol><li><strong>Gateway uptime.</strong> Has the edge process been running continuously since last reboot? Restart events are logged.</li><li><strong>OPC-UA connection.</strong> Are all subscribed nodes responding within their expected sample period?</li><li><strong>MQTT broker.</strong> Are all subscribed topics receiving messages at the expected cadence?</li><li><strong>CMMS API connection.</strong> Last successful sync timestamp; any failed sync attempts in the last 24 hours?</li><li><strong>WorkHive cloud push.</strong> Last successful push timestamp; any backlogged messages waiting?</li></ol>
+      <p>5 minutes per shift, end of story. Plants that skip this check find out about gateway problems when alerts stop firing, which is usually 6 to 18 hours late.</p>
+      <h2 id="sensor-inventory">Sensor inventory and health rotation</h2>
+      <p>Every sensor in the plant goes in the Plant Connections sensor inventory with:</p>
+      <ul><li>Tag (OPC-UA node ID or MQTT topic)</li><li>Asset link (which Asset Hub asset this sensor belongs to)</li><li>Measurement type (vibration, temperature, pressure, etc.)</li><li>Expected sample period and value range</li><li>Last reading received timestamp</li><li>Calibration due date</li><li>Battery status (for wireless sensors)</li></ul>
+      <p>The dashboard surfaces sensors that have not reported within the expected period (likely failed or batteries dying), sensors reporting outside expected range (likely miscalibrated or environmental change), and sensors due for calibration in the next 30 days. The OT engineer rotates through the action list weekly.</p>
+      <h2 id="cybersecurity">OT/IT cybersecurity boundary</h2>
+      <p>The gateway sits on the OT/IT boundary. Three rules that work in Philippine plants:</p>
+      <ul><li><strong>OT-initiated outbound only.</strong> The gateway pushes to WorkHive cloud; WorkHive cloud does not push to the gateway. No inbound connection from the internet to the OT network.</li><li><strong>TLS everywhere.</strong> OPC-UA security mode SignAndEncrypt, MQTT over TLS, HTTPS to WorkHive. No plaintext on any leg.</li><li><strong>Air-gap optionality.</strong> Plants with strict policies can run the gateway in offline mode that batches data and uploads during scheduled windows from a DMZ host. Latency goes up; security goes up.</li></ul>
+      <p>The IT cybersecurity team and the reliability team both sign off on the boundary architecture during commissioning. Annual review keeps it current as threats and standards evolve.</p>
+      <h2 id="operating-model">OT/IT operating model that works</h2>
+      <p>The most common failure pattern in Philippine plants is unclear ownership of the gateway. The reliability engineer thinks IT owns it because it talks to the cloud; IT thinks the OT team owns it because it sits on the OT network. After 3 months, nobody runs the daily health check and the gateway silently fails.</p>
+      <p>The model that works:</p>
+      <ul><li><strong>OT team owns operational health</strong> of the gateway (daily check, restart procedures, sensor inventory updates)</li><li><strong>IT cybersecurity team owns the boundary</strong> (firewall rules, TLS certificates, audit log review)</li><li><strong>Reliability engineer owns the data quality</strong> (are sensors calibrated, are thresholds tuned, are alerts being acted on)</li><li><strong>Plant manager owns the cross-team coordination</strong> via a monthly 30-minute review with all three</li></ul>
+      <div class="cta-box">
+        <p class="cta-eyebrow">The tool this guide is about</p>
+        <h4>WorkHive Plant Connections is the OT/IT operations console</h4>
+        <p>Daily health dashboard for the edge gateway, current sensor inventory with status, OPC-UA and MQTT subscription management, CMMS sync log, secure outbound-only architecture. Supervisor-only access by default; OT and IT teams get scoped views. Free at the worker tier; multi-site gateway fleet management unlocks at Stage 4.</p>
+        <a href="/plant-connections.html" class="cta-btn">Open Plant Connections</a>
+        <p class="cta-secondary">No hive yet? <a href="/#join">Join WorkHive</a> first (free, takes 30 seconds).</p>
+      </div>
+      <h2 id="faq">Frequently asked questions</h2>
+      <details class="faq-item"><summary>What is the Plant Connections gateway?</summary><div class="faq-answer">A small server (physical or virtual) running on the plant network that bridges OT (PLCs, SCADA via OPC-UA; IoT sensors via MQTT) and IT (CMMS via API; WorkHive cloud via HTTPS). It runs on-premise so sensitive plant data never leaves the plant unencrypted; only condition summaries get pushed to WorkHive cloud. This matters for plants with cybersecurity policies that restrict direct OT-to-cloud access.</div></details>
+      <details class="faq-item"><summary>How often should I check gateway health?</summary><div class="faq-answer">Daily, 5 minutes, at start of shift. Verify gateway uptime, OPC-UA connection, MQTT broker, CMMS API sync, and WorkHive cloud push. Plants that skip this check find out about problems when alerts stop firing, typically 6 to 18 hours late. Daily check catches the same problems within 8 hours.</div></details>
+      <details class="faq-item"><summary>Who owns the gateway in the plant organisation?</summary><div class="faq-answer">Split ownership that works: OT team owns operational health (daily check, restarts, sensor inventory), IT cybersecurity owns the boundary (firewall, TLS, audit log), reliability engineer owns data quality (calibration, threshold tuning, alert acting), plant manager owns cross-team coordination via monthly 30-min review. Single-owner models (all to OT or all to IT) tend to fail because the skills do not overlap.</div></details>
+      <details class="faq-item"><summary>What are the cybersecurity rules for the gateway?</summary><div class="faq-answer">Three rules: (1) OT-initiated outbound only (no inbound from internet to OT network); (2) TLS everywhere (OPC-UA SignAndEncrypt, MQTT over TLS, HTTPS to WorkHive); (3) air-gap optionality for strict-policy plants (batched upload from DMZ host during scheduled windows). IT cybersecurity and reliability teams both sign off during commissioning and review annually.</div></details>
+      <details class="faq-item"><summary>What sensors and protocols are supported?</summary><div class="faq-answer">OPC-UA for traditional industrial automation (Siemens, Rockwell, Schneider PLCs and SCADA). MQTT for newer IoT sensors (wireless vibration, temperature, ultrasonic, energy meters). Edge gateway runtime options include AVEVA Edge, Ignition Edge, and Node-RED depending on stack preference. REST/SOAP for CMMS systems (SAP PM OData, IBM Maximo MIF, Hippo, Fiix, others). Custom integrations via the generic REST connector.</div></details>
+      <details class="faq-item"><summary>What happens when the gateway loses internet?</summary><div class="faq-answer">The gateway continues reading sensor and CMMS data locally and buffers it. Buffer size depends on disk space (typically 7 to 30 days). When internet is restored, the gateway pushes the backlog to WorkHive cloud in time order; the cloud accepts the late timestamps. This matters for plants with intermittent Globe/Smart/PLDT connectivity at remote sites.</div></details>
+      <h2 id="sources">Sources</h2>
+      <ul><li>OPC Foundation, <strong>OPC Unified Architecture Specification</strong>, Parts 1 through 14.</li>
+        <li>OASIS, <strong>MQTT Version 5.0</strong> specification.</li>
+        <li>ISA / IEC 62443, <strong>Industrial Automation and Control Systems Security</strong>. Reference for OT cybersecurity architecture.</li>
+        <li>WorkHive platform positioning, "Four Gaps One Hive" with Plant Connections as the Stage 3 OT/IT bridge. <a href="/">workhiveph.com</a></li>
+        <li>Related WorkHive guides: <a href="/learn/connecting-workhive-to-sap-maximo-cmms/">CMMS Integration</a> · <a href="/learn/predictive-maintenance-on-a-budget-philippines/">Predictive on a budget</a></li></ul>
+      <div class="author-card">
+        <div class="avatar">WH</div>
+        <div class="meta">
+          <p>WorkHive Editorial Team</p>
+          <p>Practical writing for the Philippine plant floor. Email <a href="mailto:admin@workhiveph.com" style="color:#5FCCE8;">admin@workhiveph.com</a> with corrections or contributions.</p>
+        </div>
+      </div>
+    </div>
+    <div class="pt-8 border-t border-white/[0.06] mt-12">
+      <a href="/learn/" class="text-sm text-white/55 hover:text-orange-wh transition-colors">&larr; Back to all guides</a>
+    </div>
+  </div>
+</article>
+<footer class="py-10 border-t border-white/[0.06]" style="background: rgba(13,24,36,0.85);">
+  <div class="max-w-4xl mx-auto px-5 sm:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-white/35">
+    <p>© 2026 WorkHive Platform · workhiveph.com · Last updated <time datetime="2026-05-17">17 May 2026</time></p>
+    <div class="flex items-center gap-6">
+      <a href="/" class="hover:text-white/60 transition-colors">Home</a>
+      <a href="/#faq" class="hover:text-white/60 transition-colors">FAQ</a>
+      <a href="/#join" class="hover:text-white/60 transition-colors">Join the Hive</a>
+    </div>
+  </div>
+</footer>
+</body>
+</html>

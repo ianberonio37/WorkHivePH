@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="theme-color" content="#F7A21B" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Connecting WorkHive to SAP, IBM Maximo, and Other CMMS | WorkHive</title>
+  <meta name="description" content="How to connect a free worker-facing logbook layer to your existing SAP, IBM Maximo, or other paid CMMS. Integration patterns, data mapping, OPC-UA and MQTT for sensors, and the common gotchas." />
+  <meta name="keywords" content="WorkHive SAP integration, IBM Maximo integration Philippines, CMMS connector, OPC-UA Philippines, MQTT industrial, ERP connector, webhook industrial integration" />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://workhiveph.com/learn/connecting-workhive-to-sap-maximo-cmms/" />
+  <link rel="manifest" href="/manifest.json" />
+
+  <meta property="og:title" content="Connecting WorkHive to SAP, IBM Maximo, and Other CMMS" />
+  <meta property="og:description" content="How a free worker-facing logbook layer connects to your existing SAP / Maximo / CMMS. Patterns, mapping, OPC-UA, MQTT, and gotchas." />
+  <meta property="og:image" content="https://workhiveph.com/brand_assets/og-social.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:type" content="image/png" />
+  <meta property="og:image:alt" content="WorkHive: Free industrial tools for every Filipino worker" />
+  <meta property="og:url" content="https://workhiveph.com/learn/connecting-workhive-to-sap-maximo-cmms/" />
+  <meta property="og:type" content="article" />
+  <meta property="og:site_name" content="WorkHive" />
+  <meta property="article:published_time" content="2026-05-17T00:00:00+08:00" />
+  <meta property="article:modified_time" content="2026-05-17T00:00:00+08:00" />
+  <meta property="article:author" content="WorkHive Editorial Team" />
+  <meta property="article:section" content="Integrations" />
+
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Connecting WorkHive to SAP, IBM Maximo, and Other CMMS" />
+  <meta name="twitter:description" content="How a free worker-facing logbook layer connects to your existing SAP/Maximo/CMMS." />
+  <meta name="twitter:image" content="https://workhiveph.com/brand_assets/og-social.png" />
+  <meta name="twitter:image:alt" content="WorkHive: Free industrial tools for every Filipino worker" />
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Article",
+        "@id": "https://workhiveph.com/learn/connecting-workhive-to-sap-maximo-cmms/#article",
+        "headline": "Connecting WorkHive to SAP, IBM Maximo, and Other CMMS",
+        "description": "How to connect a free worker-facing logbook layer to your existing SAP, IBM Maximo, or other paid CMMS. Integration patterns, data mapping, OPC-UA and MQTT for sensors, and the common gotchas.",
+        "image": "https://workhiveph.com/brand_assets/workhive-logo-transparent.png",
+        "author": { "@type": "Organization", "name": "WorkHive Editorial Team", "url": "https://workhiveph.com/" },
+        "publisher": { "@id": "https://workhiveph.com/#organization" },
+        "datePublished": "2026-05-17",
+        "dateModified": "2026-05-17",
+        "mainEntityOfPage": "https://workhiveph.com/learn/connecting-workhive-to-sap-maximo-cmms/",
+        "inLanguage": "en-PH",
+        "articleSection": "Integrations",
+        "wordCount": 2300,
+        "keywords": "SAP integration, IBM Maximo, CMMS connector, OPC-UA, MQTT, ERP integration, webhook, Philippine industrial"
+      },
+      {
+        "@type": "FAQPage",
+        "@id": "https://workhiveph.com/learn/connecting-workhive-to-sap-maximo-cmms/#faq",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "Does WorkHive replace SAP PM or IBM Maximo?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "No. WorkHive runs underneath them as the worker-facing capture layer. SAP and Maximo handle procurement, finance, master data, and formal work orders. Your technicians do not actually use them on the floor in real time because the UI is slow and was designed for office desktops. WorkHive captures the daily floor reality (logbook entries, PM completion, parts use, fault history) and pushes it back to SAP or Maximo so the finance team and asset register stay current. You keep the ERP investment; the workers get a tool they will actually use."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "What integration patterns does WorkHive support?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Four patterns: (1) one-way push from WorkHive to ERP (work-order completion, parts consumed, fault entries); (2) one-way pull from ERP to WorkHive (asset master data, planned PM schedules, open work orders); (3) two-way sync (work orders flow both ways, status updates round-trip); (4) batch CSV export and import for plants without API access. Most plants start with pattern 1 or 2 and graduate to pattern 3 after 6 months of stable data flow."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "What about sensor data from PLCs and SCADA?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "WorkHive Integrations supports OPC-UA (the industry standard for PLC and SCADA data) and MQTT (the industry standard for IoT sensor data). A local edge gateway at the plant reads from your OPC-UA or MQTT source and pushes condition data to WorkHive via secure HTTPS. The edge gateway is open-source; vendors include AVEVA Edge, Ignition Edge, and Node-RED depending on stack preference. No expensive proprietary historian required for Stage 3 PdM."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "How long does a typical SAP integration take?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Realistic timeline for a Philippine plant: 4 to 8 weeks for a one-way work-order completion push (Phase 1). 3 to 6 months for full two-way sync including asset master data pull (Phase 2). The bottleneck is usually the SAP team's availability and the data-mapping spreadsheet, not WorkHive's connector. Plants that have a clean SAP asset register integrate fast; plants with messy master data spend most of the project cleaning up SAP before connecting anything."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Can contractors and suppliers use WorkHive through the integration?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes, with role-based access. Contractors get a limited-scope login that lets them log their work on the assigned assets and submit completion proof. The work-order flows from your SAP to WorkHive, the contractor completes it on WorkHive, and the completion flows back to SAP for invoicing. Suppliers can view consumption forecasts for the parts they supply (consignment stock model) without seeing other hive data. This is one of the highest-value use cases for plants with heavy contractor or consignment operations."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "What is the most common integration mistake?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Trying to integrate everything before the WorkHive side has 90 days of stable data. The result is that bad WorkHive data corrupts the SAP asset register, and the SAP team blames the integration. The correct sequence: 90 days of clean WorkHive Logbook operation first, then enable one-way push, then verify data quality for 30 days, then enable the next pattern. Plants that follow this sequence have stable integrations; plants that go fast usually have to roll back and restart."
+            }
+          }
+        ]
+      },
+      {
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://workhiveph.com/" },
+          { "@type": "ListItem", "position": 2, "name": "Learn", "item": "https://workhiveph.com/learn/" },
+          { "@type": "ListItem", "position": 3, "name": "Connecting to SAP, Maximo, CMMS", "item": "https://workhiveph.com/learn/connecting-workhive-to-sap-maximo-cmms/" }
+        ]
+      }
+    ]
+  }
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { theme: { extend: { colors: {
+      orange: { wh: '#F7A21B', dark: '#D88A0E', light: '#FDB94A' },
+      blue:   { wh: '#29B6D9', dark: '#1A9ABF', light: '#5FCCE8' },
+      navy:   { wh: '#162032', mid: '#1F2E45', light: '#2A3D58' },
+      steel: '#7B8794', cloud: '#F4F6FA',
+    } } } };
+  </script>
+  <style>
+    * { font-family: 'Poppins', sans-serif; } body { background: #162032; color: #F4F6FA; }
+    .hex-pattern { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='92' viewBox='0 0 80 92'%3E%3Cpath d='M40 0 L80 23 L80 69 L40 92 L0 69 L0 23 Z' fill='none' stroke='%23ffffff08' stroke-width='1.5'/%3E%3C/svg%3E"); background-size: 80px 92px; }
+    .prose-wh { color: rgba(244,246,250,0.78); font-size: 1.05rem; line-height: 1.8; }
+    .prose-wh h2 { color: #F4F6FA; font-size: 1.75rem; font-weight: 800; line-height: 1.25; letter-spacing: -0.015em; margin-top: 3rem; margin-bottom: 1rem; scroll-margin-top: 80px; }
+    .prose-wh h3 { color: #F4F6FA; font-size: 1.2rem; font-weight: 700; margin-top: 2rem; margin-bottom: 0.5rem; }
+    .prose-wh p  { margin-bottom: 1.25rem; }
+    .prose-wh ul, .prose-wh ol { padding-left: 1.5rem; margin-bottom: 1.25rem; }
+    .prose-wh li { margin-bottom: 0.5rem; }
+    .prose-wh ul li { list-style: disc; } .prose-wh ol li { list-style: decimal; }
+    .prose-wh strong { color: #F4F6FA; font-weight: 700; }
+    .prose-wh a { color: #5FCCE8; text-decoration: underline; text-underline-offset: 3px; } .prose-wh a:hover { color: #29B6D9; }
+    .prose-wh blockquote { border-left: 3px solid #F7A21B; padding: 0.5rem 0 0.5rem 1.25rem; margin: 1.5rem 0; color: rgba(244,246,250,0.7); font-style: italic; background: rgba(247,162,27,0.04); }
+    .prose-wh table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 0.95rem; }
+    .prose-wh th, .prose-wh td { padding: 12px 14px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.08); vertical-align: top; }
+    .prose-wh th { background: rgba(31,46,69,0.6); font-weight: 700; color: #F4F6FA; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; }
+    .prose-wh tr:hover { background: rgba(31,46,69,0.3); }
+    .prose-wh code { background: rgba(31,46,69,0.7); border: 1px solid rgba(255,255,255,0.08); padding: 2px 8px; border-radius: 6px; font-family: 'Consolas','Courier New',monospace; font-size: 0.92rem; color: #FDB94A; }
+    .prose-wh pre { background: rgba(13,24,36,0.85); border: 1px solid rgba(255,255,255,0.08); padding: 18px 22px; border-radius: 12px; overflow-x: auto; margin: 1.5rem 0; font-family: 'Consolas','Courier New',monospace; font-size: 0.9rem; color: #E8F4FF; line-height: 1.65; white-space: pre-wrap; }
+    .pill { display: inline-block; font-size: 0.65rem; font-weight: 700; padding: 3px 10px; border-radius: 100px; letter-spacing: 0.05em; text-transform: uppercase; }
+    .pill-orange { background: rgba(247,162,27,0.18); color: #F7A21B; border: 1px solid rgba(247,162,27,0.35); }
+    .toc { background: rgba(31,46,69,0.55); border: 1px solid rgba(255,255,255,0.07); border-radius: 14px; padding: 22px 26px; margin: 2rem 0 3rem; }
+    .toc h4 { color: rgba(244,246,250,0.55); font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 12px; }
+    .toc ol { padding-left: 1.5rem; margin: 0; } .toc li { margin-bottom: 6px; font-size: 0.92rem; }
+    .toc a { color: rgba(244,246,250,0.75); text-decoration: none; } .toc a:hover { color: #F7A21B; }
+    .answer-first { background: rgba(247,162,27,0.08); border-left: 3px solid #F7A21B; border-radius: 8px; padding: 18px 22px; margin-bottom: 2rem; font-size: 1.05rem; line-height: 1.75; color: rgba(244,246,250,0.85); }
+    .audience-block { background: rgba(41,182,217,0.05); border: 1px solid rgba(41,182,217,0.18); border-radius: 12px; padding: 16px 20px; margin: 0 0 2rem; }
+    .audience-block .audience-label { font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; color: #5FCCE8; margin-bottom: 10px; }
+    .audience-block ul { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 6px 18px; font-size: 0.9rem; color: rgba(244,246,250,0.78); }
+    .audience-block ul li { list-style: none !important; position: relative; padding-left: 16px; margin: 0; }
+    .audience-block ul li::before { content: '·'; position: absolute; left: 4px; color: #29B6D9; font-weight: 800; font-size: 1.2rem; line-height: 1; top: 0; }
+    @media (max-width: 640px) { .audience-block ul { grid-template-columns: 1fr; } }
+    .callout { background: rgba(41,182,217,0.06); border-left: 3px solid #29B6D9; border-radius: 8px; padding: 18px 22px; margin: 2rem 0; font-size: 0.98rem; line-height: 1.7; color: rgba(244,246,250,0.78); }
+    .callout strong { color: #5FCCE8; }
+    .cta-box { background: linear-gradient(135deg, rgba(247,162,27,0.12) 0%, rgba(31,46,69,0.85) 100%); border: 1px solid rgba(247,162,27,0.35); border-radius: 16px; padding: 28px 30px; margin: 3rem 0; }
+    .cta-box .cta-eyebrow { color: #F7A21B; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px; }
+    .cta-box h4 { font-size: 1.35rem; font-weight: 800; color: #F4F6FA; margin-bottom: 8px; }
+    .cta-box p { color: rgba(244,246,250,0.7); margin-bottom: 18px; line-height: 1.65; }
+    .cta-btn { display: inline-block; background: linear-gradient(135deg, #F7A21B 0%, #D88A0E 100%); color: #162032; font-weight: 700; padding: 12px 28px; border-radius: 10px; text-decoration: none; transition: transform .18s, box-shadow .18s; }
+    .cta-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px -4px rgba(247,162,27,0.45); }
+    .cta-secondary { font-size: 0.82rem; color: rgba(244,246,250,0.45); margin-top: 14px; margin-bottom: 0; }
+    .cta-secondary a { color: #5FCCE8; text-decoration: underline; text-underline-offset: 2px; }
+    .cta-secondary a:hover { color: #29B6D9; }
+    .faq-item { background: rgba(31,46,69,0.55); border: 1px solid rgba(255,255,255,0.07); border-radius: 14px; margin-bottom: 12px; }
+    .faq-item[open] { border-color: rgba(247,162,27,0.35); background: rgba(31,46,69,0.85); }
+    .faq-item summary { cursor: pointer; list-style: none; padding: 16px 20px; font-weight: 600; color: #F4F6FA; display: flex; justify-content: space-between; gap: 14px; }
+    .faq-item summary::-webkit-details-marker { display: none; }
+    .faq-item summary::after { content: '+'; font-size: 1.4rem; color: #F7A21B; } .faq-item[open] summary::after { content: '\2212'; }
+    .faq-item .faq-answer { padding: 0 20px 18px; color: rgba(244,246,250,0.7); line-height: 1.7; font-size: 0.95rem; }
+    .author-card { background: rgba(31,46,69,0.5); border: 1px solid rgba(255,255,255,0.07); border-radius: 14px; padding: 20px 24px; margin: 2rem 0; display: flex; gap: 16px; align-items: center; }
+    .author-card .avatar { width: 52px; height: 52px; border-radius: 50%; background: linear-gradient(135deg, #F7A21B, #FDB94A); display: flex; align-items: center; justify-content: center; font-weight: 800; color: #162032; font-size: 1.1rem; flex-shrink: 0; }
+    .author-card .meta p:first-child { font-weight: 700; color: #F4F6FA; font-size: 0.95rem; margin-bottom: 2px; }
+    .author-card .meta p:last-child { font-size: 0.82rem; color: rgba(244,246,250,0.5); }
+    nav a.nav-link { font-size: 0.9rem; color: rgba(244,246,250,0.65); font-weight: 500; } nav a.nav-link:hover { color: #F4F6FA; }
+    .breadcrumb { font-size: 0.85rem; color: rgba(244,246,250,0.45); margin-bottom: 1.5rem; }
+    .breadcrumb a { color: rgba(244,246,250,0.55); text-decoration: none; } .breadcrumb a:hover { color: #F7A21B; }
+    .breadcrumb span { margin: 0 8px; opacity: 0.4; }
+  </style>
+  <script>
+    // Local dev URL bridge v2: production uses /learn/, /logbook.html etc.
+    // as root-absolute URLs. Locally everything serves under /workhive/.
+    // This script rewrites root-absolute links to /workhive/<path>/index.html
+    // (explicit file path) so clicks work even if Flask directory-index
+    // resolution is not active. Zero production impact.
+    (function(){
+      if (!location.pathname.startsWith('/workhive/')) return;
+      var ROOT_PATHS = ['/learn/', '/logbook.html', '/inventory.html',
+        '/pm-scheduler.html', '/skillmatrix.html', '/dayplanner.html',
+        '/hive.html', '/assistant.html', '/analytics.html', '/shift-brain.html',
+        '/asset-hub.html', '/alert-hub.html', '/audit-log.html', '/voice-journal.html',
+        '/engineering-design.html', '/project-manager.html', '/integrations.html',
+        '/marketplace.html', '/community.html', '/achievements.html',
+        '/ph-intelligence.html', '/predictive.html', '/ai-quality.html',
+        '/plant-connections.html'];
+      function rewrite(){
+        document.querySelectorAll('a[href]').forEach(function(a){
+          var h = a.getAttribute('href');
+          if (!h || h[0] !== '/') return;
+          if (h.indexOf('/workhive/') === 0 || h.indexOf('/brand_assets/') === 0 ||
+              h.indexOf('/api/') === 0 || h === '/manifest.json' || h === '/sw.js') return;
+          var matched = false;
+          for (var i = 0; i < ROOT_PATHS.length; i++) {
+            if (h === ROOT_PATHS[i] || h.indexOf(ROOT_PATHS[i]) === 0) {
+              matched = true; break;
+            }
+          }
+          if (!matched && h !== '/' && h.indexOf('/#') !== 0) return;
+          var newHref = '/workhive' + h;
+          // Append index.html for trailing-slash directory URLs
+          // (Flask explicit-file serving works without dir-index)
+          if (newHref.endsWith('/')) newHref += 'index.html';
+          // Special case bare "/" -> "/workhive/index.html"
+          else if (h === '/') newHref = '/workhive/index.html';
+          // /#fragment -> /workhive/index.html#fragment
+          else if (h.indexOf('/#') === 0) newHref = '/workhive/index.html' + h.substring(1);
+          a.setAttribute('href', newHref);
+        });
+      }
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', rewrite);
+      } else {
+        rewrite();
+      }
+    })();
+  </script>
+</head>
+<body class="bg-navy-wh text-white antialiased">
+
+<header class="border-b border-white/[0.06]" style="background: rgba(13,24,36,0.85);">
+  <div class="max-w-6xl mx-auto px-5 sm:px-8 py-4 flex items-center justify-between">
+    <a href="/" class="flex items-center gap-3">
+      <img src="/brand_assets/workhive-logo-transparent.png" alt="WorkHive" style="height: 36px; width: auto;" />
+      <span class="font-black text-lg tracking-tight">WorkHive</span>
+    </a>
+    <nav class="flex items-center gap-6">
+      <a href="/" class="nav-link">Home</a>
+      <a href="/learn/" class="nav-link">Learn</a>
+      <a href="/#join" class="nav-link">Join the Hive</a>
+    </nav>
+  </div>
+</header>
+
+<article class="hex-pattern">
+  <div class="max-w-3xl mx-auto px-5 sm:px-8 py-14 lg:py-20">
+
+    <div class="breadcrumb">
+      <a href="/">Home</a><span>/</span><a href="/learn/">Learn</a><span>/</span><span>Connecting to SAP, Maximo, CMMS</span>
+    </div>
+
+    <p class="pill pill-orange mb-4">Integrations · SAP, Maximo, OPC-UA, MQTT</p>
+    <h1 class="text-3xl sm:text-4xl lg:text-[2.7rem] font-black leading-[1.15] tracking-[-0.02em] mb-5">
+      Connecting WorkHive to SAP, IBM Maximo, and other CMMS
+    </h1>
+
+    <div class="flex items-center gap-4 text-sm text-white/45 mb-8 flex-wrap">
+      <span>By <strong class="text-white/75">WorkHive Editorial Team</strong></span>
+      <span class="opacity-40">·</span>
+      <span>Published <time datetime="2026-05-17">17 May 2026</time></span>
+      <span class="opacity-40">·</span>
+      <span>Updated <time datetime="2026-05-17">17 May 2026</time></span>
+      <span class="opacity-40">·</span>
+      <span>9 min read</span>
+    </div>
+
+    <div class="answer-first">
+      <strong>Short answer:</strong> WorkHive runs underneath your existing SAP PM, IBM Maximo, or other paid CMMS as the worker-facing capture layer. Four integration patterns are supported: one-way push (work-order completion to ERP), one-way pull (asset master from ERP), two-way sync, and batch CSV. Sensor data flows in via OPC-UA or MQTT through a local edge gateway. The most common mistake is integrating before you have 90 days of stable WorkHive Logbook data; the second most common is treating it as an IT project instead of a maintenance operations change.
+    </div>
+
+    <div class="audience-block">
+      <p class="audience-label">Who this is for</p>
+      <ul>
+        <li>Maintenance and reliability engineers</li>
+        <li>IT and OT systems teams</li>
+        <li>Plant managers planning ERP modernization</li>
+        <li>SAP / Maximo administrators</li>
+        <li>Integration consultants and SI partners</li>
+        <li>Contractors needing work-order access</li>
+        <li>Suppliers on consignment-stock models</li>
+      </ul>
+    </div>
+
+    <div class="toc">
+      <h4>What's in this guide</h4>
+      <ol>
+        <li><a href="#under-not-replace">WorkHive runs under your CMMS, not against it</a></li>
+        <li><a href="#four-patterns">The 4 integration patterns</a></li>
+        <li><a href="#sap-maximo">SAP PM and IBM Maximo specifics</a></li>
+        <li><a href="#opc-ua-mqtt">Sensor data via OPC-UA and MQTT</a></li>
+        <li><a href="#data-mapping">Data mapping: where most integrations break</a></li>
+        <li><a href="#contractors-suppliers">Contractors and suppliers as integration users</a></li>
+        <li><a href="#sequence">90-day stable data, then connect</a></li>
+        <li><a href="#faq">Frequently asked questions</a></li>
+        <li><a href="#sources">Sources</a></li>
+      </ol>
+    </div>
+
+    <div class="prose-wh">
+
+      <h2 id="under-not-replace">WorkHive runs under your CMMS, not against it</h2>
+      <p>Most Philippine plants that have SAP PM or IBM Maximo did not get the floor adoption they paid for. The reason is consistent: the ERP UI was designed for office desktops, the technicians work on the floor, and after 6 months of frustration the floor goes back to paper. The plant now has both the ERP cost and the paper problem.</p>
+      <p>WorkHive does not try to replace SAP or Maximo. Those systems do procurement, finance, master data, and formal work-order accounting better than a free tool ever will. What WorkHive replaces is the paper that the floor went back to. The architecture:</p>
+      <ul>
+        <li><strong>SAP / Maximo:</strong> the system of record for assets, work orders, parts catalogue, and finance.</li>
+        <li><strong>WorkHive:</strong> the system of engagement for technicians, supervisors, engineers, contractors. Logbook entries, PM completion, fault history, shift handovers, skill matrix, AI assistant.</li>
+        <li><strong>Integration layer:</strong> moves the data between them so finance has what it needs and the floor has what they will actually use.</li>
+      </ul>
+      <p>This is the pattern the <a href="https://thechronicle.com.ph/why-many-imported-erp-systems-fail-in-the-philippines/" rel="noopener" target="_blank">Chronicle's May 2026 analysis of ERP failures</a> recommends: "prioritize localized, appropriately-scaled solutions" that respect the operating reality, not the marketing slide.</p>
+
+      <h2 id="four-patterns">The 4 integration patterns</h2>
+      <table>
+        <thead><tr><th>Pattern</th><th>Direction</th><th>Typical use</th><th>Complexity</th></tr></thead>
+        <tbody>
+          <tr><td><strong>1. One-way push</strong></td><td>WorkHive → ERP</td><td>Work-order completion, parts consumed, fault entries</td><td>Low (1 month)</td></tr>
+          <tr><td><strong>2. One-way pull</strong></td><td>ERP → WorkHive</td><td>Asset master, planned PM schedule, open work orders</td><td>Low to Medium (1 to 2 months)</td></tr>
+          <tr><td><strong>3. Two-way sync</strong></td><td>Bidirectional</td><td>Full work-order lifecycle, status round-trip, parts inventory</td><td>High (3 to 6 months)</td></tr>
+          <tr><td><strong>4. Batch CSV</strong></td><td>Manual / scheduled</td><td>Plants without API access, monthly reconciliation only</td><td>Very Low (days)</td></tr>
+        </tbody>
+      </table>
+      <p>Most Philippine plants start with Pattern 1 or 2 because they get value fast: the technicians close work orders in WorkHive and the completion appears in SAP without anyone retyping. Pattern 3 is the long-term goal but takes 6 months of stable Pattern 1 + 2 operation first.</p>
+
+      <h2 id="sap-maximo">SAP PM and IBM Maximo specifics</h2>
+
+      <h3>SAP PM</h3>
+      <p>WorkHive integrates with SAP PM via the OData service layer (SAP S/4HANA and ECC 6.0 EHP 7+). The connector authenticates via OAuth 2.0 or basic auth depending on your SAP gateway configuration. Standard SAP objects mapped:</p>
+      <ul>
+        <li><code>I_TechnicalObject</code> for asset master (FunctionalLocation, Equipment)</li>
+        <li><code>I_MaintenanceOrder</code> for work orders</li>
+        <li><code>I_MaintenanceNotification</code> for fault/breakdown notifications</li>
+        <li><code>I_MaintenanceItem</code> for PM plan items</li>
+        <li><code>I_MaterialDocument</code> for parts consumption</li>
+      </ul>
+      <p>Typical setup: SAP team enables the OData services and creates a service user. WorkHive Plant Connections console maps the SAP fields to WorkHive entities. First sync takes 2 to 4 weeks of testing.</p>
+
+      <h3>IBM Maximo</h3>
+      <p>WorkHive integrates with IBM Maximo Application Suite (MAS) via the Maximo Integration Framework (MIF) REST API or via the older Maximo Enterprise Adapter (MEA) for plants still on Maximo 7.6. Authentication is typically maxauth basic or OIDC. Standard Maximo objects mapped:</p>
+      <ul>
+        <li><code>MXASSET</code> for asset master</li>
+        <li><code>MXWO</code> for work orders</li>
+        <li><code>MXSR</code> for service requests</li>
+        <li><code>MXPM</code> for preventive maintenance schedules</li>
+        <li><code>MXINVBAL</code> for inventory balance</li>
+      </ul>
+
+      <h3>Other CMMS</h3>
+      <p>WorkHive ships REST API connectors for Hippo CMMS, Fiix, UpKeep, and eMaint out of the box. For other systems, a generic REST or SOAP connector plus a custom mapping handles most cases.</p>
+
+      <h2 id="opc-ua-mqtt">Sensor data via OPC-UA and MQTT</h2>
+      <p>For Stage 3 (Predictive-Ready), WorkHive consumes sensor data from PLCs, SCADA, and IoT sensors through two industry-standard protocols:</p>
+      <ul>
+        <li><strong>OPC-UA</strong> for traditional industrial automation (Siemens, Rockwell, Schneider PLCs and SCADA). A local edge gateway (open-source options: AVEVA Edge, Ignition Edge, Node-RED with industrial nodes) reads from your OPC-UA server and pushes condition data to WorkHive via secure HTTPS.</li>
+        <li><strong>MQTT</strong> for newer IoT sensor networks (wireless vibration, temperature, ultrasonic, energy meters). Same edge gateway pattern; the gateway subscribes to MQTT topics and forwards to WorkHive.</li>
+      </ul>
+      <p>The edge gateway runs on-premise so sensitive plant data never leaves your network unencrypted. Only the condition-data summaries WorkHive needs are transmitted. This matters for plants with cybersecurity policies that restrict direct cloud access from the OT network.</p>
+
+      <div class="cta-box">
+        <p class="cta-eyebrow">The tool this guide is about</p>
+        <h4>WorkHive CMMS Integration is the connector layer</h4>
+        <p>The CMMS Integration surface in WorkHive includes connectors for SAP PM, IBM Maximo, Hippo, Fiix, UpKeep, eMaint, plus generic REST/SOAP, plus OPC-UA and MQTT for sensor data. Mapping is done in a visual editor; no developer needed for standard fields. The Plant Connections operations console (supervisor-only) shows live integration health, sync status, and any data-quality issues. Free at the worker tier; enterprise SSO and audit features unlock at Stage 4.</p>
+        <a href="/integrations.html" class="cta-btn">Open CMMS Integration</a>
+        <p class="cta-secondary">No hive yet? <a href="/#join">Join WorkHive</a> first (free, takes 30 seconds).</p>
+      </div>
+
+      <h2 id="data-mapping">Data mapping: where most integrations break</h2>
+      <p>The technical connector is the easy part. The data mapping is the hard part. The pattern that breaks Philippine plant integrations:</p>
+      <ul>
+        <li><strong>Inconsistent asset codes.</strong> SAP knows it as "PMP-101-A". The maintenance team calls it "Pump 1 ng Line 1". The supervisor's spreadsheet has "P1L1A". Without a single canonical code, the integration cannot match work orders to assets.</li>
+        <li><strong>Stale SAP master data.</strong> The asset was decommissioned in 2022 but is still active in SAP. Integration pushes work-order completion for a non-existent asset and the data corrupts the SAP register.</li>
+        <li><strong>Missing functional locations.</strong> SAP requires every work order to belong to a FunctionalLocation. If WorkHive does not have that field captured, the SAP integration fails on every push.</li>
+        <li><strong>Different status enumerations.</strong> WorkHive has 5 work-order states (OPEN, ASSIGNED, IN_PROGRESS, COMPLETED, CANCELLED). SAP has 12. Without a mapping table, status updates round-trip to unexpected values.</li>
+      </ul>
+      <p>The fix is upfront: 1 to 2 weeks of asset-master cleanup before any integration, plus a documented mapping spreadsheet that both teams sign off on.</p>
+
+      <h2 id="contractors-suppliers">Contractors and suppliers as integration users</h2>
+      <p>One of the highest-ROI use cases of the integration layer is enabling contractors and suppliers to participate without giving them broad ERP access.</p>
+      <p><strong>Contractors:</strong> a third-party PM service team gets a limited WorkHive login that lets them see only the work orders assigned to them, complete the work, attach photos, and submit. The completion flows through the integration to SAP for invoicing. The contractor never touches SAP; the plant never has to copy contractor reports into SAP manually.</p>
+      <p><strong>Suppliers:</strong> a parts supplier on consignment stock gets a limited view of usage forecasts for the SKUs they supply. They can plan deliveries against actual consumption rather than monthly POs. Replenishment becomes pull-based; inventory holding costs drop. The supplier never sees other hive data.</p>
+      <p>This is the multi-tenant integration pattern that makes WorkHive valuable for plants with heavy external participation. The same pattern serves the user's stated goal of helping Filipino contractors and suppliers build verifiable work histories without exposing client data.</p>
+
+      <h2 id="sequence">90-day stable data, then connect</h2>
+      <p>The single most important rule: do not integrate until WorkHive has 90 days of clean Logbook operation. The reason is that integration amplifies data quality, in both directions. Clean WorkHive data improves SAP. Messy WorkHive data corrupts SAP. The SAP team blames the integration; the maintenance team blames the SAP team; the integration project gets cancelled.</p>
+      <p>The recommended sequence:</p>
+      <ol>
+        <li><strong>Months 1 to 3:</strong> WorkHive Logbook + PM Scheduler only. No integration. Validate data quality.</li>
+        <li><strong>Month 4:</strong> Enable one-way push of work-order completion only. Monitor SAP register for 30 days.</li>
+        <li><strong>Month 5:</strong> Add one-way pull of asset master from SAP. Verify mapping for 30 days.</li>
+        <li><strong>Months 6 to 9:</strong> Add fault notification push, parts consumption push, PM schedule pull.</li>
+        <li><strong>Months 10+:</strong> Two-way sync where the value justifies the complexity.</li>
+      </ol>
+
+      <div class="callout">
+        <strong>The bigger picture:</strong> CMMS integration is not a technology project. It is a maintenance operations change wrapped in a technical layer. Plants that respect that order get stable integrations; plants that treat it as an IT project ship a connector that nobody uses. Build the floor habit in WorkHive first, then connect it to the systems of record. Never the other way around.
+      </div>
+
+      <h2 id="faq">Frequently asked questions</h2>
+
+      <details class="faq-item">
+        <summary>Does WorkHive replace SAP PM or IBM Maximo?</summary>
+        <div class="faq-answer">No. WorkHive runs underneath them as the worker-facing capture layer. SAP and Maximo handle procurement, finance, master data, and formal work orders. Your technicians do not actually use them on the floor in real time because the UI is slow and was designed for office desktops. WorkHive captures the daily floor reality (logbook entries, PM completion, parts use, fault history) and pushes it back to SAP or Maximo so the finance team and asset register stay current. You keep the ERP investment; the workers get a tool they will actually use.</div>
+      </details>
+
+      <details class="faq-item">
+        <summary>What integration patterns does WorkHive support?</summary>
+        <div class="faq-answer">Four patterns: (1) one-way push from WorkHive to ERP (work-order completion, parts consumed, fault entries); (2) one-way pull from ERP to WorkHive (asset master data, planned PM schedules, open work orders); (3) two-way sync (work orders flow both ways, status updates round-trip); (4) batch CSV export and import for plants without API access. Most plants start with pattern 1 or 2 and graduate to pattern 3 after 6 months of stable data flow.</div>
+      </details>
+
+      <details class="faq-item">
+        <summary>What about sensor data from PLCs and SCADA?</summary>
+        <div class="faq-answer">WorkHive Integrations supports OPC-UA (the industry standard for PLC and SCADA data) and MQTT (the industry standard for IoT sensor data). A local edge gateway at the plant reads from your OPC-UA or MQTT source and pushes condition data to WorkHive via secure HTTPS. The edge gateway is open-source; vendors include AVEVA Edge, Ignition Edge, and Node-RED depending on stack preference. No expensive proprietary historian required for Stage 3 PdM.</div>
+      </details>
+
+      <details class="faq-item">
+        <summary>How long does a typical SAP integration take?</summary>
+        <div class="faq-answer">Realistic timeline for a Philippine plant: 4 to 8 weeks for a one-way work-order completion push (Phase 1). 3 to 6 months for full two-way sync including asset master data pull (Phase 2). The bottleneck is usually the SAP team's availability and the data-mapping spreadsheet, not WorkHive's connector. Plants that have a clean SAP asset register integrate fast; plants with messy master data spend most of the project cleaning up SAP before connecting anything.</div>
+      </details>
+
+      <details class="faq-item">
+        <summary>Can contractors and suppliers use WorkHive through the integration?</summary>
+        <div class="faq-answer">Yes, with role-based access. Contractors get a limited-scope login that lets them log their work on the assigned assets and submit completion proof. The work-order flows from your SAP to WorkHive, the contractor completes it on WorkHive, and the completion flows back to SAP for invoicing. Suppliers can view consumption forecasts for the parts they supply (consignment stock model) without seeing other hive data. This is one of the highest-value use cases for plants with heavy contractor or consignment operations.</div>
+      </details>
+
+      <details class="faq-item">
+        <summary>What is the most common integration mistake?</summary>
+        <div class="faq-answer">Trying to integrate everything before the WorkHive side has 90 days of stable data. The result is that bad WorkHive data corrupts the SAP asset register, and the SAP team blames the integration. The correct sequence: 90 days of clean WorkHive Logbook operation first, then enable one-way push, then verify data quality for 30 days, then enable the next pattern. Plants that follow this sequence have stable integrations; plants that go fast usually have to roll back and restart.</div>
+      </details>
+
+      <h2 id="sources">Sources</h2>
+      <ul>
+        <li>Jenni Munar, <strong>"Why Many Imported ERP Systems Fail in the Philippines"</strong>, The Daily Chronicle, 7 May 2026. <a href="https://thechronicle.com.ph/why-many-imported-erp-systems-fail-in-the-philippines/" rel="noopener" target="_blank">thechronicle.com.ph</a></li>
+        <li>SAP, <strong>SAP S/4HANA Asset Management OData Services</strong>. Reference for the integration objects listed above.</li>
+        <li>IBM, <strong>Maximo Integration Framework REST API Guide</strong>.</li>
+        <li>OPC Foundation, <strong>OPC Unified Architecture Specification</strong>, Parts 1 through 14.</li>
+        <li>OASIS, <strong>MQTT Version 5.0</strong> specification.</li>
+        <li>WorkHive platform positioning, "Four Gaps One Hive" with Integration as a Stage 3+ accelerator. <a href="/">workhiveph.com</a></li>
+        <li>Related WorkHive guides: <a href="/learn/start-digital-logbook-philippine-factory/">Digital logbook rollout</a> · <a href="/learn/predictive-maintenance-on-a-budget-philippines/">PdM on a budget</a></li>
+      </ul>
+
+      <div class="author-card">
+        <div class="avatar">WH</div>
+        <div class="meta">
+          <p>WorkHive Editorial Team</p>
+          <p>Practical writing for the Philippine plant floor. Email <a href="mailto:admin@workhiveph.com" style="color:#5FCCE8;">admin@workhiveph.com</a> with corrections or contributions.</p>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="pt-8 border-t border-white/[0.06] mt-12">
+      <a href="/learn/" class="text-sm text-white/55 hover:text-orange-wh transition-colors">&larr; Back to all guides</a>
+    </div>
+
+  </div>
+</article>
+
+<footer class="py-10 border-t border-white/[0.06]" style="background: rgba(13,24,36,0.85);">
+  <div class="max-w-4xl mx-auto px-5 sm:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-white/35">
+    <p>© 2026 WorkHive Platform · workhiveph.com · Last updated <time datetime="2026-05-17">17 May 2026</time></p>
+    <div class="flex items-center gap-6">
+      <a href="/" class="hover:text-white/60 transition-colors">Home</a>
+      <a href="/#faq" class="hover:text-white/60 transition-colors">FAQ</a>
+      <a href="/#join" class="hover:text-white/60 transition-colors">Join the Hive</a>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

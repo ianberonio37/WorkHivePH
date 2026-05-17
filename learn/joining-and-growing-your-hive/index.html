@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="theme-color" content="#F7A21B" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Joining and Growing Your WorkHive Hive (Multi-Tenant Guide) | WorkHive</title>
+  <meta name="description" content="How a WorkHive hive works: solo mode for individual workers, joining an existing plant hive, supervisor approval, role-based access, multi-site hive groups, and data isolation guarantees." />
+  <meta name="keywords" content="WorkHive hive, multi-tenant industrial platform, plant team workspace, supervisor approval, role-based access Philippines, hive data isolation" />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://workhiveph.com/learn/joining-and-growing-your-hive/" />
+  <link rel="manifest" href="/manifest.json" />
+  <meta property="og:title" content="Joining and Growing Your WorkHive Hive (Multi-Tenant Guide)" />
+  <meta property="og:description" content="How a hive works: solo, joining, approval, role-based access, multi-site groups, data isolation." />
+  <meta property="og:image" content="https://workhiveph.com/brand_assets/og-social.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:type" content="image/png" />
+  <meta property="og:image:alt" content="WorkHive: Free industrial tools for every Filipino worker" />
+  <meta property="og:url" content="https://workhiveph.com/learn/joining-and-growing-your-hive/" />
+  <meta property="og:type" content="article" />
+  <meta property="og:site_name" content="WorkHive" />
+  <meta property="article:published_time" content="2026-05-17T00:00:00+08:00" />
+  <meta property="article:modified_time" content="2026-05-17T00:00:00+08:00" />
+  <meta property="article:author" content="WorkHive Editorial Team" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Joining and Growing Your WorkHive Hive" />
+  <meta name="twitter:description" content="Solo, joining, approval, roles, multi-site groups, data isolation." />
+  <meta name="twitter:image" content="https://workhiveph.com/brand_assets/og-social.png" />
+  <meta name="twitter:image:alt" content="WorkHive: Free industrial tools for every Filipino worker" />
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Article",
+        "@id": "https://workhiveph.com/learn/joining-and-growing-your-hive/#article",
+        "headline": "Joining and Growing Your WorkHive Hive (Multi-Tenant Guide)",
+        "description": "How a WorkHive hive works: solo mode, joining an existing plant hive, supervisor approval, role-based access, multi-site hive groups, data isolation.",
+        "image": "https://workhiveph.com/brand_assets/workhive-logo-transparent.png",
+        "author": { "@type": "Organization", "name": "WorkHive Editorial Team", "url": "https://workhiveph.com/" },
+        "publisher": { "@id": "https://workhiveph.com/#organization" },
+        "datePublished": "2026-05-17",
+        "dateModified": "2026-05-17",
+        "mainEntityOfPage": "https://workhiveph.com/learn/joining-and-growing-your-hive/",
+        "inLanguage": "en-PH",
+        "articleSection": "Maintenance",
+        "wordCount": 1800,
+        "keywords": "hive, multi-tenant, plant team, data isolation, role-based access, Philippine plants"
+      },
+      {
+        "@type": "FAQPage",
+        "@id": "https://workhiveph.com/learn/joining-and-growing-your-hive/#faq",
+        "mainEntity": [
+          { "@type": "Question", "name": "What is a WorkHive hive?", "acceptedAnswer": { "@type": "Answer", "text": "A hive is your plant's isolated workspace in WorkHive. Each hive contains its own assets, logbook entries, PM schedules, skill matrix, and people. Workers from one hive cannot see another hive's data without explicit cross-hive permission. The hive is the unit of multi-tenancy: one plant equals one hive (or a group of hives for multi-site operations)." } },
+          { "@type": "Question", "name": "Can I use WorkHive solo, without a plant hive?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. Solo mode lets an individual worker (a freelance maintenance engineer, an OFW-track new graduate building a portfolio, a contractor between gigs) use the full WorkHive toolset (Logbook, Engineering Design, Skill Matrix, AI Assistant, Day Planner) without joining any plant. Solo data stays private to that worker. When the worker joins a hive later, they can choose what solo history to import or keep separate." } },
+          { "@type": "Question", "name": "How does joining a plant hive work?", "acceptedAnswer": { "@type": "Answer", "text": "Three steps: (1) the worker creates an account or signs in; (2) the worker enters the plant's hive code or search the directory and request to join; (3) the plant's supervisor approves the request. Approval typically takes minutes; the supervisor sees who is requesting and assigns the appropriate role (field, supervisor, engineer). The new joiner gets immediate access to the hive's data and tools." } },
+          { "@type": "Question", "name": "What roles exist within a hive?", "acceptedAnswer": { "@type": "Answer", "text": "Four primary roles: field (technician or operator with logbook + asset access), supervisor (everything plus PM approval, skill matrix edits, work assignment), engineer (everything plus engineering design, analytics deep-dives, integration config), and plant manager (everything plus AI quality dashboard, full audit log, financial views). Roles control what each worker sees and can do; nobody sees a tool they cannot act on." } },
+          { "@type": "Question", "name": "How is plant data kept private from other hives?", "acceptedAnswer": { "@type": "Answer", "text": "Data isolation is enforced at the database row level using Supabase Row-Level Security (RLS). Every query the WorkHive UI makes is automatically scoped to the joined hive's data. There is no path through the UI or the API for a worker in Hive A to see Hive B's data. Contractors and suppliers who need cross-hive access get explicit scoped permissions; nothing else crosses the boundary." } },
+          { "@type": "Question", "name": "What about multi-site operations (a company with several plants)?", "acceptedAnswer": { "@type": "Answer", "text": "Each site is its own hive. The parent company can create a hive group that lets the corporate maintenance director see roll-up KPIs across all child hives without seeing operational detail. Each child hive remains independent for day-to-day operations. This is the pattern for Filipino conglomerates running 3 to 20 plants across the country who want benchmarking without violating per-site autonomy." } }
+        ]
+      },
+      {
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://workhiveph.com/" },
+          { "@type": "ListItem", "position": 2, "name": "Learn", "item": "https://workhiveph.com/learn/" },
+          { "@type": "ListItem", "position": 3, "name": "Joining and growing your hive", "item": "https://workhiveph.com/learn/joining-and-growing-your-hive/" }
+        ]
+      }
+    ]
+  }
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { theme: { extend: { colors: {
+      orange: { wh: '#F7A21B', dark: '#D88A0E', light: '#FDB94A' },
+      blue:   { wh: '#29B6D9', dark: '#1A9ABF', light: '#5FCCE8' },
+      navy:   { wh: '#162032', mid: '#1F2E45', light: '#2A3D58' },
+      steel: '#7B8794', cloud: '#F4F6FA',
+    } } } };
+  </script>
+  <style>
+    * { font-family: 'Poppins', sans-serif; } body { background: #162032; color: #F4F6FA; }
+    .hex-pattern { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='92' viewBox='0 0 80 92'%3E%3Cpath d='M40 0 L80 23 L80 69 L40 92 L0 69 L0 23 Z' fill='none' stroke='%23ffffff08' stroke-width='1.5'/%3E%3C/svg%3E"); background-size: 80px 92px; }
+    .prose-wh { color: rgba(244,246,250,0.78); font-size: 1.05rem; line-height: 1.8; }
+    .prose-wh h2 { color: #F4F6FA; font-size: 1.75rem; font-weight: 800; line-height: 1.25; letter-spacing: -0.015em; margin-top: 3rem; margin-bottom: 1rem; scroll-margin-top: 80px; }
+    .prose-wh h3 { color: #F4F6FA; font-size: 1.2rem; font-weight: 700; margin-top: 2rem; margin-bottom: 0.5rem; }
+    .prose-wh p { margin-bottom: 1.25rem; }
+    .prose-wh ul, .prose-wh ol { padding-left: 1.5rem; margin-bottom: 1.25rem; }
+    .prose-wh li { margin-bottom: 0.5rem; }
+    .prose-wh ul li { list-style: disc; } .prose-wh ol li { list-style: decimal; }
+    .prose-wh strong { color: #F4F6FA; font-weight: 700; }
+    .prose-wh a { color: #5FCCE8; text-decoration: underline; text-underline-offset: 3px; } .prose-wh a:hover { color: #29B6D9; }
+    .prose-wh table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 0.95rem; }
+    .prose-wh th, .prose-wh td { padding: 12px 14px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.08); vertical-align: top; }
+    .prose-wh th { background: rgba(31,46,69,0.6); font-weight: 700; color: #F4F6FA; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; }
+    .pill { display: inline-block; font-size: 0.65rem; font-weight: 700; padding: 3px 10px; border-radius: 100px; letter-spacing: 0.05em; text-transform: uppercase; }
+    .pill-orange { background: rgba(247,162,27,0.18); color: #F7A21B; border: 1px solid rgba(247,162,27,0.35); }
+    .toc { background: rgba(31,46,69,0.55); border: 1px solid rgba(255,255,255,0.07); border-radius: 14px; padding: 22px 26px; margin: 2rem 0 3rem; }
+    .toc h4 { color: rgba(244,246,250,0.55); font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 12px; }
+    .toc ol { padding-left: 1.5rem; margin: 0; } .toc li { margin-bottom: 6px; font-size: 0.92rem; }
+    .toc a { color: rgba(244,246,250,0.75); text-decoration: none; } .toc a:hover { color: #F7A21B; }
+    .answer-first { background: rgba(247,162,27,0.08); border-left: 3px solid #F7A21B; border-radius: 8px; padding: 18px 22px; margin-bottom: 2rem; font-size: 1.05rem; line-height: 1.75; color: rgba(244,246,250,0.85); }
+    .audience-block { background: rgba(41,182,217,0.05); border: 1px solid rgba(41,182,217,0.18); border-radius: 12px; padding: 16px 20px; margin: 0 0 2rem; }
+    .audience-block .audience-label { font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; color: #5FCCE8; margin-bottom: 10px; }
+    .audience-block ul { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 6px 18px; font-size: 0.9rem; color: rgba(244,246,250,0.78); }
+    .audience-block ul li { list-style: none !important; position: relative; padding-left: 16px; margin: 0; }
+    .audience-block ul li::before { content: '·'; position: absolute; left: 4px; color: #29B6D9; font-weight: 800; font-size: 1.2rem; line-height: 1; top: 0; }
+    @media (max-width: 640px) { .audience-block ul { grid-template-columns: 1fr; } }
+    .callout { background: rgba(41,182,217,0.06); border-left: 3px solid #29B6D9; border-radius: 8px; padding: 18px 22px; margin: 2rem 0; font-size: 0.98rem; line-height: 1.7; color: rgba(244,246,250,0.78); }
+    .callout strong { color: #5FCCE8; }
+    .cta-box { background: linear-gradient(135deg, rgba(247,162,27,0.12) 0%, rgba(31,46,69,0.85) 100%); border: 1px solid rgba(247,162,27,0.35); border-radius: 16px; padding: 28px 30px; margin: 3rem 0; }
+    .cta-box .cta-eyebrow { color: #F7A21B; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px; }
+    .cta-box h4 { font-size: 1.35rem; font-weight: 800; color: #F4F6FA; margin-bottom: 8px; }
+    .cta-box p { color: rgba(244,246,250,0.7); margin-bottom: 18px; line-height: 1.65; }
+    .cta-btn { display: inline-block; background: linear-gradient(135deg, #F7A21B 0%, #D88A0E 100%); color: #162032; font-weight: 700; padding: 12px 28px; border-radius: 10px; text-decoration: none; transition: transform .18s, box-shadow .18s; }
+    .cta-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px -4px rgba(247,162,27,0.45); }
+    .cta-secondary { font-size: 0.82rem; color: rgba(244,246,250,0.45); margin-top: 14px; margin-bottom: 0; }
+    .cta-secondary a { color: #5FCCE8; text-decoration: underline; text-underline-offset: 2px; }
+    .faq-item { background: rgba(31,46,69,0.55); border: 1px solid rgba(255,255,255,0.07); border-radius: 14px; margin-bottom: 12px; }
+    .faq-item[open] { border-color: rgba(247,162,27,0.35); background: rgba(31,46,69,0.85); }
+    .faq-item summary { cursor: pointer; list-style: none; padding: 16px 20px; font-weight: 600; color: #F4F6FA; display: flex; justify-content: space-between; gap: 14px; }
+    .faq-item summary::-webkit-details-marker { display: none; }
+    .faq-item summary::after { content: '+'; font-size: 1.4rem; color: #F7A21B; } .faq-item[open] summary::after { content: '\2212'; }
+    .faq-item .faq-answer { padding: 0 20px 18px; color: rgba(244,246,250,0.7); line-height: 1.7; font-size: 0.95rem; }
+    .author-card { background: rgba(31,46,69,0.5); border: 1px solid rgba(255,255,255,0.07); border-radius: 14px; padding: 20px 24px; margin: 2rem 0; display: flex; gap: 16px; align-items: center; }
+    .author-card .avatar { width: 52px; height: 52px; border-radius: 50%; background: linear-gradient(135deg, #F7A21B, #FDB94A); display: flex; align-items: center; justify-content: center; font-weight: 800; color: #162032; font-size: 1.1rem; flex-shrink: 0; }
+    .author-card .meta p:first-child { font-weight: 700; color: #F4F6FA; font-size: 0.95rem; margin-bottom: 2px; }
+    .author-card .meta p:last-child { font-size: 0.82rem; color: rgba(244,246,250,0.5); }
+    nav a.nav-link { font-size: 0.9rem; color: rgba(244,246,250,0.65); font-weight: 500; } nav a.nav-link:hover { color: #F4F6FA; }
+    .breadcrumb { font-size: 0.85rem; color: rgba(244,246,250,0.45); margin-bottom: 1.5rem; }
+    .breadcrumb a { color: rgba(244,246,250,0.55); text-decoration: none; } .breadcrumb a:hover { color: #F7A21B; }
+    .breadcrumb span { margin: 0 8px; opacity: 0.4; }
+  </style>
+  <script>
+    // Local dev URL bridge v2: production uses /learn/, /logbook.html etc.
+    // as root-absolute URLs. Locally everything serves under /workhive/.
+    // This script rewrites root-absolute links to /workhive/<path>/index.html
+    // (explicit file path) so clicks work even if Flask directory-index
+    // resolution is not active. Zero production impact.
+    (function(){
+      if (!location.pathname.startsWith('/workhive/')) return;
+      var ROOT_PATHS = ['/learn/', '/logbook.html', '/inventory.html',
+        '/pm-scheduler.html', '/skillmatrix.html', '/dayplanner.html',
+        '/hive.html', '/assistant.html', '/analytics.html', '/shift-brain.html',
+        '/asset-hub.html', '/alert-hub.html', '/audit-log.html', '/voice-journal.html',
+        '/engineering-design.html', '/project-manager.html', '/integrations.html',
+        '/marketplace.html', '/community.html', '/achievements.html',
+        '/ph-intelligence.html', '/predictive.html', '/ai-quality.html',
+        '/plant-connections.html'];
+      function rewrite(){
+        document.querySelectorAll('a[href]').forEach(function(a){
+          var h = a.getAttribute('href');
+          if (!h || h[0] !== '/') return;
+          if (h.indexOf('/workhive/') === 0 || h.indexOf('/brand_assets/') === 0 ||
+              h.indexOf('/api/') === 0 || h === '/manifest.json' || h === '/sw.js') return;
+          var matched = false;
+          for (var i = 0; i < ROOT_PATHS.length; i++) {
+            if (h === ROOT_PATHS[i] || h.indexOf(ROOT_PATHS[i]) === 0) {
+              matched = true; break;
+            }
+          }
+          if (!matched && h !== '/' && h.indexOf('/#') !== 0) return;
+          var newHref = '/workhive' + h;
+          // Append index.html for trailing-slash directory URLs
+          // (Flask explicit-file serving works without dir-index)
+          if (newHref.endsWith('/')) newHref += 'index.html';
+          // Special case bare "/" -> "/workhive/index.html"
+          else if (h === '/') newHref = '/workhive/index.html';
+          // /#fragment -> /workhive/index.html#fragment
+          else if (h.indexOf('/#') === 0) newHref = '/workhive/index.html' + h.substring(1);
+          a.setAttribute('href', newHref);
+        });
+      }
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', rewrite);
+      } else {
+        rewrite();
+      }
+    })();
+  </script>
+</head>
+<body class="bg-navy-wh text-white antialiased">
+
+<header class="border-b border-white/[0.06]" style="background: rgba(13,24,36,0.85);">
+  <div class="max-w-6xl mx-auto px-5 sm:px-8 py-4 flex items-center justify-between">
+    <a href="/" class="flex items-center gap-3">
+      <img src="/brand_assets/workhive-logo-transparent.png" alt="WorkHive" style="height: 36px; width: auto;" />
+      <span class="font-black text-lg tracking-tight">WorkHive</span>
+    </a>
+    <nav class="flex items-center gap-6">
+      <a href="/" class="nav-link">Home</a>
+      <a href="/learn/" class="nav-link">Learn</a>
+      <a href="/#join" class="nav-link">Join the Hive</a>
+    </nav>
+  </div>
+</header>
+
+<article class="hex-pattern">
+  <div class="max-w-3xl mx-auto px-5 sm:px-8 py-14 lg:py-20">
+
+    <div class="breadcrumb">
+      <a href="/">Home</a><span>/</span><a href="/learn/">Learn</a><span>/</span><span>Joining and growing your hive</span>
+    </div>
+
+    <p class="pill pill-orange mb-4">Hive · Multi-tenant guide</p>
+    <h1 class="text-3xl sm:text-4xl lg:text-[2.7rem] font-black leading-[1.15] tracking-[-0.02em] mb-5">
+      Joining and growing your WorkHive hive <span class="text-white/55 font-bold">(multi-tenant guide)</span>
+    </h1>
+
+    <div class="flex items-center gap-4 text-sm text-white/45 mb-8 flex-wrap">
+      <span>By <strong class="text-white/75">WorkHive Editorial Team</strong></span>
+      <span class="opacity-40">·</span>
+      <span>Published <time datetime="2026-05-17">17 May 2026</time></span>
+      <span class="opacity-40">·</span>
+      <span>Updated <time datetime="2026-05-17">17 May 2026</time></span>
+      <span class="opacity-40">·</span>
+      <span>7 min read</span>
+    </div>
+
+    <div class="answer-first">
+      <strong>Short answer:</strong> A WorkHive hive is your plant's isolated workspace containing assets, logbook, PM schedules, people, and history. Workers can use WorkHive in solo mode (private to them) or join a plant hive (supervisor-approved). Each hive has 4 role levels (field, supervisor, engineer, plant manager) with role-based access control. Data isolation is enforced at the database row level; nothing leaks between hives. Multi-site operations use hive groups for corporate roll-up while keeping each plant autonomous day-to-day.
+    </div>
+
+    <div class="audience-block">
+      <p class="audience-label">Who this is for</p>
+      <ul>
+        <li>New workers signing up to WorkHive</li>
+        <li>Plant managers setting up a hive</li>
+        <li>Supervisors approving new members</li>
+        <li>Engineers joining multiple sites</li>
+        <li>Contractors with scoped access needs</li>
+        <li>OFW-track workers in solo mode</li>
+        <li>New graduates building portfolios</li>
+      </ul>
+    </div>
+
+    <div class="toc">
+      <h4>What's in this guide</h4>
+      <ol>
+        <li><a href="#what-is-hive">What a hive is, in concrete terms</a></li>
+        <li><a href="#solo">Solo mode: WorkHive without a plant</a></li>
+        <li><a href="#joining">How to join an existing plant hive</a></li>
+        <li><a href="#roles">The 4 role levels and what each can do</a></li>
+        <li><a href="#data-isolation">Data isolation between hives</a></li>
+        <li><a href="#multi-site">Multi-site operations and hive groups</a></li>
+        <li><a href="#faq">Frequently asked questions</a></li>
+        <li><a href="#sources">Sources</a></li>
+      </ol>
+    </div>
+
+    <div class="prose-wh">
+
+      <h2 id="what-is-hive">What a hive is, in concrete terms</h2>
+      <p>The hive is WorkHive's multi-tenant container. One plant equals one hive. Inside the hive:</p>
+      <ul>
+        <li><strong>People:</strong> every worker who has joined this hive with their role and skill matrix</li>
+        <li><strong>Assets:</strong> the canonical asset register in Asset Hub</li>
+        <li><strong>History:</strong> all logbook entries, PM completions, fault notifications, parts consumption</li>
+        <li><strong>Schedules:</strong> PM plans, shift handovers, day planner blocks</li>
+        <li><strong>Knowledge:</strong> AI Assistant context trained on this hive's data</li>
+      </ul>
+      <p>Workers in Hive A cannot see Hive B's data. Period. No path through the UI, no path through the API, no path through the AI assistant. This is the foundation that lets a Cabuyao chocolate factory and a Cebu food plant both use the same WorkHive platform without ever leaking data to each other.</p>
+
+      <h2 id="solo">Solo mode: WorkHive without a plant</h2>
+      <p>Many workers do not have a plant hive yet. They might be:</p>
+      <ul>
+        <li>A freelance maintenance engineer between contracts</li>
+        <li>An OFW-track new graduate building a portfolio for the Saudi or UAE market</li>
+        <li>A contractor whose client has not adopted WorkHive yet</li>
+        <li>A student learning industrial maintenance during practicum</li>
+        <li>A worker whose plant is still on paper and they want to start digital personally</li>
+      </ul>
+      <p>Solo mode is for them. Sign up with email, get the full WorkHive toolset (Logbook, Engineering Design, Skill Matrix, AI Assistant, Day Planner) scoped to a personal hive of one. Solo data stays private; nobody else sees it. When the worker later joins a plant hive, they choose what solo history to import (skill matrix evidence usually comes with them; logbook entries from a previous employer usually stay private).</p>
+      <p>This is one of the under-told values of WorkHive: it works as a personal professional toolkit, not only as a plant tool.</p>
+
+      <h2 id="joining">How to join an existing plant hive</h2>
+      <p>Three steps:</p>
+      <ol>
+        <li><strong>Sign in or create an account.</strong> Email plus password; takes about 30 seconds.</li>
+        <li><strong>Find the hive.</strong> Either enter the hive code your supervisor gave you, or search the directory for your plant by name.</li>
+        <li><strong>Request to join.</strong> Pick your role (field, supervisor, engineer). Supervisor sees the request and approves within minutes.</li>
+      </ol>
+      <p>After approval, the worker gets immediate access to the hive's tools. Existing logbook entries become searchable; PM assignments start appearing in their queue.</p>
+
+      <h2 id="roles">The 4 role levels and what each can do</h2>
+      <table>
+        <thead><tr><th>Role</th><th>Can do</th><th>Cannot do</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Field</strong></td><td>Log entries, view assets, complete assigned PMs, use AI assistant, voice journal</td><td>Approve PMs, assign work, edit skill matrix, see financial views</td></tr>
+          <tr><td><strong>Supervisor</strong></td><td>Everything in Field plus assign work, approve PMs, edit skill matrix, draft handovers, view team analytics</td><td>Edit engineering calculations, change integration config, see AI Quality dashboard</td></tr>
+          <tr><td><strong>Engineer</strong></td><td>Everything in Supervisor plus engineering design tool, deep analytics, integration setup, asset register edits</td><td>Approve plant-level budgets, change hive roles</td></tr>
+          <tr><td><strong>Plant Manager</strong></td><td>Everything in Engineer plus AI Quality dashboard, full audit log, financial views, hive role changes, founder console access</td><td>Nothing within their hive; everything is available</td></tr>
+        </tbody>
+      </table>
+      <p>Roles are additive (Plant Manager can do everything a Field worker can). Workers do not see tools they cannot act on; the nav adapts based on role.</p>
+
+      <div class="cta-box">
+        <p class="cta-eyebrow">The tool this guide is about</p>
+        <h4>WorkHive Hive is your plant's workspace</h4>
+        <p>The Hive dashboard is the supervisor's home for the plant team: who is in the hive, who is requesting to join, current PM compliance, open issues, and adoption score. Set up your hive once and every other WorkHive tool inherits the membership and roles. Free at the worker tier; multi-site hive groups and corporate roll-up unlock at Stage 4.</p>
+        <a href="/hive.html" class="cta-btn">Open the Hive Dashboard</a>
+        <p class="cta-secondary">No hive yet? <a href="/#join">Join WorkHive</a> first (free, takes 30 seconds).</p>
+      </div>
+
+      <h2 id="data-isolation">Data isolation between hives</h2>
+      <p>Multi-tenancy in industrial software is hard because the consequences of leakage are severe. A competitor seeing your fault history, a supplier seeing your consumption forecast, a contractor seeing your cost data: any of these is grounds for losing the platform's trust.</p>
+      <p>WorkHive enforces isolation at three layers:</p>
+      <ul>
+        <li><strong>Database row-level security (RLS):</strong> every query the UI makes is automatically scoped to the joined hive's ID via Supabase RLS policies. There is no "view all" backdoor.</li>
+        <li><strong>API token scope:</strong> integration tokens are bound to a single hive. A leaked token for Hive A cannot retrieve Hive B's data.</li>
+        <li><strong>AI assistant context:</strong> the AI's vector store and retrieval index are partitioned per hive. The AI literally cannot answer a question with another hive's data because it cannot read it.</li>
+      </ul>
+      <p>Cross-hive access exists but only via explicit, scoped, named permissions: a contractor whose work spans multiple plants, a supplier on consignment stock across a network. Default is total isolation.</p>
+
+      <h2 id="multi-site">Multi-site operations and hive groups</h2>
+      <p>Filipino conglomerates often run 3 to 20 plants across the country. The pattern that works:</p>
+      <ul>
+        <li><strong>Each plant is its own hive.</strong> Day-to-day operations stay autonomous; each plant's supervisor manages their own membership and PM schedule.</li>
+        <li><strong>A hive group ties them together.</strong> The corporate maintenance director gets a roll-up dashboard showing PM compliance, MTBF, MTTR, and OEE across all child hives without seeing operational detail.</li>
+        <li><strong>Per-plant benchmarking</strong> becomes natural. Plant A's PM compliance is 87 percent; Plant B's is 62 percent. The corporate team can see the gap and dispatch help.</li>
+      </ul>
+
+      <div class="callout">
+        <strong>The bigger picture:</strong> The hive is not just a workspace; it is the trust boundary. Plants adopt WorkHive because the boundary is real and enforced at the database. Workers join hives because their data goes with them when they leave (skill matrix history, work portfolio). Both halves of the trust equation are needed for a free industrial platform to work in the Philippines, where data sensitivity is high and trust in cloud SaaS is still being earned.
+      </div>
+
+      <h2 id="faq">Frequently asked questions</h2>
+
+      <details class="faq-item"><summary>What is a WorkHive hive?</summary><div class="faq-answer">A hive is your plant's isolated workspace in WorkHive. Each hive contains its own assets, logbook entries, PM schedules, skill matrix, and people. Workers from one hive cannot see another hive's data without explicit cross-hive permission. The hive is the unit of multi-tenancy: one plant equals one hive (or a group of hives for multi-site operations).</div></details>
+
+      <details class="faq-item"><summary>Can I use WorkHive solo, without a plant hive?</summary><div class="faq-answer">Yes. Solo mode lets an individual worker (a freelance maintenance engineer, an OFW-track new graduate building a portfolio, a contractor between gigs) use the full WorkHive toolset (Logbook, Engineering Design, Skill Matrix, AI Assistant, Day Planner) without joining any plant. Solo data stays private to that worker. When the worker joins a hive later, they can choose what solo history to import or keep separate.</div></details>
+
+      <details class="faq-item"><summary>How does joining a plant hive work?</summary><div class="faq-answer">Three steps: (1) the worker creates an account or signs in; (2) the worker enters the plant's hive code or search the directory and request to join; (3) the plant's supervisor approves the request. Approval typically takes minutes; the supervisor sees who is requesting and assigns the appropriate role (field, supervisor, engineer). The new joiner gets immediate access to the hive's data and tools.</div></details>
+
+      <details class="faq-item"><summary>What roles exist within a hive?</summary><div class="faq-answer">Four primary roles: field (technician or operator with logbook + asset access), supervisor (everything plus PM approval, skill matrix edits, work assignment), engineer (everything plus engineering design, analytics deep-dives, integration config), and plant manager (everything plus AI quality dashboard, full audit log, financial views). Roles control what each worker sees and can do; nobody sees a tool they cannot act on.</div></details>
+
+      <details class="faq-item"><summary>How is plant data kept private from other hives?</summary><div class="faq-answer">Data isolation is enforced at the database row level using Supabase Row-Level Security (RLS). Every query the WorkHive UI makes is automatically scoped to the joined hive's data. There is no path through the UI or the API for a worker in Hive A to see Hive B's data. Contractors and suppliers who need cross-hive access get explicit scoped permissions; nothing else crosses the boundary.</div></details>
+
+      <details class="faq-item"><summary>What about multi-site operations (a company with several plants)?</summary><div class="faq-answer">Each site is its own hive. The parent company can create a hive group that lets the corporate maintenance director see roll-up KPIs across all child hives without seeing operational detail. Each child hive remains independent for day-to-day operations. This is the pattern for Filipino conglomerates running 3 to 20 plants across the country who want benchmarking without violating per-site autonomy.</div></details>
+
+      <h2 id="sources">Sources</h2>
+      <ul>
+        <li>Supabase, <strong>Row Level Security documentation</strong>. The PostgreSQL feature WorkHive uses to enforce hive isolation at the database layer.</li>
+        <li>WorkHive platform positioning, "Four Gaps One Hive" with the hive as the multi-tenant boundary. <a href="/">workhiveph.com</a></li>
+        <li>Related WorkHive guides: <a href="/learn/start-digital-logbook-philippine-factory/">Digital logbook rollout</a> · <a href="/learn/skill-matrix-for-maintenance-technicians/">Skill matrix</a></li>
+      </ul>
+
+      <div class="author-card">
+        <div class="avatar">WH</div>
+        <div class="meta">
+          <p>WorkHive Editorial Team</p>
+          <p>Practical writing for the Philippine plant floor. Email <a href="mailto:admin@workhiveph.com" style="color:#5FCCE8;">admin@workhiveph.com</a> with corrections or contributions.</p>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="pt-8 border-t border-white/[0.06] mt-12">
+      <a href="/learn/" class="text-sm text-white/55 hover:text-orange-wh transition-colors">&larr; Back to all guides</a>
+    </div>
+
+  </div>
+</article>
+
+<footer class="py-10 border-t border-white/[0.06]" style="background: rgba(13,24,36,0.85);">
+  <div class="max-w-4xl mx-auto px-5 sm:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-white/35">
+    <p>© 2026 WorkHive Platform · workhiveph.com · Last updated <time datetime="2026-05-17">17 May 2026</time></p>
+    <div class="flex items-center gap-6">
+      <a href="/" class="hover:text-white/60 transition-colors">Home</a>
+      <a href="/#faq" class="hover:text-white/60 transition-colors">FAQ</a>
+      <a href="/#join" class="hover:text-white/60 transition-colors">Join the Hive</a>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

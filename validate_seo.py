@@ -46,7 +46,40 @@ APP_PAGES = [
     "platform-health.html",
 ]
 
-ALL_PAGES      = [LANDING_PAGE] + APP_PAGES
+# Public /learn/ content hub pages: must be indexable (no noindex), must have
+# title + canonical + meta description + Article/CollectionPage JSON-LD.
+LEARN_PAGES = [
+    "about/index.html",
+    "privacy-policy/index.html",
+    "terms-of-service/index.html",
+    "learn/index.html",
+    "learn/start-digital-logbook-philippine-factory/index.html",
+    "learn/what-is-oee-how-to-calculate/index.html",
+    "learn/mtbf-vs-mttr-for-supervisors/index.html",
+    "learn/maintenance-shift-handover-template/index.html",
+    "learn/spare-parts-inventory-philippine-plants/index.html",
+    "learn/free-pm-checklist-templates/index.html",
+    "learn/skill-matrix-for-maintenance-technicians/index.html",
+    "learn/dilo-wilo-day-planner-supervisors/index.html",
+    "learn/free-engineering-calculators-philippine-plants/index.html",
+    "learn/ai-work-assistant-maintenance-technicians/index.html",
+    "learn/predictive-maintenance-on-a-budget-philippines/index.html",
+    "learn/connecting-workhive-to-sap-maximo-cmms/index.html",
+    "learn/voice-to-text-maintenance-philippine-plant-floor/index.html",
+    "learn/building-asset-register-zero-budget/index.html",
+    "learn/maintenance-project-planning-template/index.html",
+    "learn/joining-and-growing-your-hive/index.html",
+    "learn/industrial-community-of-practice-philippines/index.html",
+    "learn/gamifying-maintenance-for-engagement/index.html",
+    "learn/industrial-marketplace-philippine-specialists/index.html",
+    "learn/predictive-alert-thresholds-plants/index.html",
+    "learn/dole-iso-audit-trail-from-logbook/index.html",
+    "learn/ai-quality-and-roi-stage-2-plants/index.html",
+    "learn/sensor-cmms-gateway-operations/index.html",
+    "learn/ph-industrial-benchmarks-intelligence/index.html",
+]
+
+ALL_PAGES      = [LANDING_PAGE] + APP_PAGES + LEARN_PAGES
 MIN_TITLE_LEN  = 15
 REQUIRED_OG    = ["og:title", "og:description", "og:image", "og:url"]
 

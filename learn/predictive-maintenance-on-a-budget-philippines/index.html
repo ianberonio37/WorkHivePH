@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="theme-color" content="#F7A21B" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Predictive Maintenance on a Budget (Philippines) | WorkHive</title>
+  <meta name="description" content="A budget-realistic predictive maintenance guide for Philippine plants: what you can do with a phone, what needs a sensor, the data discipline that must come first, and why most PdM projects fail." />
+  <meta name="keywords" content="predictive maintenance Philippines, PdM budget, condition-based maintenance, vibration analysis phone, free predictive maintenance, ML maintenance Philippines, sensor-free PdM" />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://workhiveph.com/learn/predictive-maintenance-on-a-budget-philippines/" />
+  <link rel="manifest" href="/manifest.json" />
+
+  <meta property="og:title" content="Predictive Maintenance on a Budget (Philippines)" />
+  <meta property="og:description" content="What predictive maintenance actually costs in a Philippine plant, what works with just a phone, and why the data discipline matters more than the sensor." />
+  <meta property="og:image" content="https://workhiveph.com/brand_assets/og-social.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:type" content="image/png" />
+  <meta property="og:image:alt" content="WorkHive: Free industrial tools for every Filipino worker" />
+  <meta property="og:url" content="https://workhiveph.com/learn/predictive-maintenance-on-a-budget-philippines/" />
+  <meta property="og:type" content="article" />
+  <meta property="og:site_name" content="WorkHive" />
+  <meta property="article:published_time" content="2026-05-17T00:00:00+08:00" />
+  <meta property="article:modified_time" content="2026-05-17T00:00:00+08:00" />
+  <meta property="article:author" content="WorkHive Editorial Team" />
+  <meta property="article:section" content="Maintenance" />
+
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Predictive Maintenance on a Budget (Philippines)" />
+  <meta name="twitter:description" content="What predictive maintenance actually costs in a Philippine plant and what works with just a phone." />
+  <meta name="twitter:image" content="https://workhiveph.com/brand_assets/og-social.png" />
+  <meta name="twitter:image:alt" content="WorkHive: Free industrial tools for every Filipino worker" />
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Article",
+        "@id": "https://workhiveph.com/learn/predictive-maintenance-on-a-budget-philippines/#article",
+        "headline": "Predictive Maintenance on a Budget (Philippines)",
+        "description": "A budget-realistic predictive maintenance guide for Philippine plants: what you can do with a phone, what needs a sensor, the data discipline that must come first, and why most PdM projects fail.",
+        "image": "https://workhiveph.com/brand_assets/workhive-logo-transparent.png",
+        "author": { "@type": "Organization", "name": "WorkHive Editorial Team", "url": "https://workhiveph.com/" },
+        "publisher": { "@id": "https://workhiveph.com/#organization" },
+        "datePublished": "2026-05-17",
+        "dateModified": "2026-05-17",
+        "mainEntityOfPage": "https://workhiveph.com/learn/predictive-maintenance-on-a-budget-philippines/",
+        "inLanguage": "en-PH",
+        "articleSection": "Maintenance",
+        "wordCount": 2400,
+        "keywords": "predictive maintenance, condition-based maintenance, vibration, thermography, oil analysis, Philippine plants, budget PdM"
+      },
+      {
+        "@type": "FAQPage",
+        "@id": "https://workhiveph.com/learn/predictive-maintenance-on-a-budget-philippines/#faq",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "What is predictive maintenance and how does it differ from preventive?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Preventive maintenance (PM) replaces parts on a schedule (every 3 months, every 5,000 hours) regardless of asset condition. Predictive maintenance (PdM) measures the actual condition (vibration, temperature, oil cleanliness, ultrasonic noise) and replaces only when the data shows the part is degrading. PdM saves money by not replacing healthy parts and prevents failures by catching them earlier. PdM is Stage 3 of the WorkHive 4-stage path; Stages 1 and 2 (logbook + PM discipline) must come first."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "How much does predictive maintenance cost in a Philippine plant?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Budget range: PHP 0 for phone-based vibration and basic thermography, PHP 25,000 to PHP 80,000 for a starter handheld vibration analyzer, PHP 150,000 to PHP 500,000 for a thermal camera plus oil-analysis subscription, and PHP 1M+ for permanently mounted wireless sensors with cloud dashboards. The honest first step is the phone, not the sensor: most plants get 70 percent of PdM value from phone-based vibration and operator route inspections before any sensor purchase."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Can I really do vibration analysis with a phone?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes, for screening purposes. Apps that use the phone's accelerometer (typically 0 to 100 Hz range) can detect imbalance, looseness, and developing bearing faults on equipment running below 30 Hz (most pumps, fans, motors under 1800 RPM). They cannot replace a professional analyzer for diagnosing root cause or high-frequency bearing defects. The right use: monthly screening route by the operator; escalate to a professional analyzer when the screening flags an issue."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Why do most predictive maintenance programs fail?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Three reasons, in order of frequency: (1) plants buy sensors before they have the data discipline (logbook + PM compliance) to act on what sensors find; (2) nobody owns reviewing the data, so alerts pile up and get ignored; (3) the team treats PdM as a technology project instead of a maintenance strategy change. Plants that succeed long-term spend the first 12 months on Stages 1 and 2 of the WorkHive path before adding any sensor."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "What is the right order to roll out PdM?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Phase A (months 1 to 3): operator route with phone vibration app on 20 critical assets, monthly thermal scan of electrical panels with a borrowed camera. Phase B (months 4 to 6): handheld vibration analyzer, quarterly oil sampling on top 5 oil-filled assets, train one technician as the analyst. Phase C (months 7 to 12): expand to 50 assets, add ultrasonic leak detection. Phase D (year 2): selective wireless sensors on the 3 to 5 highest-criticality assets that justified ROI from earlier phases."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Will PdM eliminate breakdowns completely?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "No. PdM reduces unplanned downtime by 35 to 50 percent in mature programs (SMRP benchmark), not 100 percent. Some failures are sudden (electronic, structural, foreign object damage) and no condition monitoring catches them. Some failures are caught but the plant cannot schedule the fix before they progress. PdM shifts the balance from reactive to planned; it does not eliminate the reactive bucket. Realistic target for a Philippine plant transitioning from reactive: 30 percent reduction in unplanned hours by month 18."
+            }
+          }
+        ]
+      },
+      {
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://workhiveph.com/" },
+          { "@type": "ListItem", "position": 2, "name": "Learn", "item": "https://workhiveph.com/learn/" },
+          { "@type": "ListItem", "position": 3, "name": "Predictive maintenance on a budget", "item": "https://workhiveph.com/learn/predictive-maintenance-on-a-budget-philippines/" }
+        ]
+      }
+    ]
+  }
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { theme: { extend: { colors: {
+      orange: { wh: '#F7A21B', dark: '#D88A0E', light: '#FDB94A' },
+      blue:   { wh: '#29B6D9', dark: '#1A9ABF', light: '#5FCCE8' },
+      navy:   { wh: '#162032', mid: '#1F2E45', light: '#2A3D58' },
+      steel: '#7B8794', cloud: '#F4F6FA',
+    } } } };
+  </script>
+  <style>
+    * { font-family: 'Poppins', sans-serif; } body { background: #162032; color: #F4F6FA; }
+    .hex-pattern { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='92' viewBox='0 0 80 92'%3E%3Cpath d='M40 0 L80 23 L80 69 L40 92 L0 69 L0 23 Z' fill='none' stroke='%23ffffff08' stroke-width='1.5'/%3E%3C/svg%3E"); background-size: 80px 92px; }
+    .prose-wh { color: rgba(244,246,250,0.78); font-size: 1.05rem; line-height: 1.8; }
+    .prose-wh h2 { color: #F4F6FA; font-size: 1.75rem; font-weight: 800; line-height: 1.25; letter-spacing: -0.015em; margin-top: 3rem; margin-bottom: 1rem; scroll-margin-top: 80px; }
+    .prose-wh h3 { color: #F4F6FA; font-size: 1.2rem; font-weight: 700; margin-top: 2rem; margin-bottom: 0.5rem; }
+    .prose-wh p  { margin-bottom: 1.25rem; }
+    .prose-wh ul, .prose-wh ol { padding-left: 1.5rem; margin-bottom: 1.25rem; }
+    .prose-wh li { margin-bottom: 0.5rem; }
+    .prose-wh ul li { list-style: disc; } .prose-wh ol li { list-style: decimal; }
+    .prose-wh strong { color: #F4F6FA; font-weight: 700; }
+    .prose-wh a { color: #5FCCE8; text-decoration: underline; text-underline-offset: 3px; } .prose-wh a:hover { color: #29B6D9; }
+    .prose-wh blockquote { border-left: 3px solid #F7A21B; padding: 0.5rem 0 0.5rem 1.25rem; margin: 1.5rem 0; color: rgba(244,246,250,0.7); font-style: italic; background: rgba(247,162,27,0.04); }
+    .prose-wh table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 0.95rem; }
+    .prose-wh th, .prose-wh td { padding: 12px 14px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.08); vertical-align: top; }
+    .prose-wh th { background: rgba(31,46,69,0.6); font-weight: 700; color: #F4F6FA; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; }
+    .prose-wh tr:hover { background: rgba(31,46,69,0.3); }
+    .prose-wh code { background: rgba(31,46,69,0.7); border: 1px solid rgba(255,255,255,0.08); padding: 2px 8px; border-radius: 6px; font-family: 'Consolas','Courier New',monospace; font-size: 0.92rem; color: #FDB94A; }
+    .pill { display: inline-block; font-size: 0.65rem; font-weight: 700; padding: 3px 10px; border-radius: 100px; letter-spacing: 0.05em; text-transform: uppercase; }
+    .pill-orange { background: rgba(247,162,27,0.18); color: #F7A21B; border: 1px solid rgba(247,162,27,0.35); }
+    .toc { background: rgba(31,46,69,0.55); border: 1px solid rgba(255,255,255,0.07); border-radius: 14px; padding: 22px 26px; margin: 2rem 0 3rem; }
+    .toc h4 { color: rgba(244,246,250,0.55); font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 12px; }
+    .toc ol { padding-left: 1.5rem; margin: 0; } .toc li { margin-bottom: 6px; font-size: 0.92rem; }
+    .toc a { color: rgba(244,246,250,0.75); text-decoration: none; } .toc a:hover { color: #F7A21B; }
+    .answer-first { background: rgba(247,162,27,0.08); border-left: 3px solid #F7A21B; border-radius: 8px; padding: 18px 22px; margin-bottom: 2rem; font-size: 1.05rem; line-height: 1.75; color: rgba(244,246,250,0.85); }
+    .audience-block { background: rgba(41,182,217,0.05); border: 1px solid rgba(41,182,217,0.18); border-radius: 12px; padding: 16px 20px; margin: 0 0 2rem; }
+    .audience-block .audience-label { font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; color: #5FCCE8; margin-bottom: 10px; }
+    .audience-block ul { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 6px 18px; font-size: 0.9rem; color: rgba(244,246,250,0.78); }
+    .audience-block ul li { list-style: none !important; position: relative; padding-left: 16px; margin: 0; }
+    .audience-block ul li::before { content: '·'; position: absolute; left: 4px; color: #29B6D9; font-weight: 800; font-size: 1.2rem; line-height: 1; top: 0; }
+    @media (max-width: 640px) { .audience-block ul { grid-template-columns: 1fr; } }
+    .callout { background: rgba(41,182,217,0.06); border-left: 3px solid #29B6D9; border-radius: 8px; padding: 18px 22px; margin: 2rem 0; font-size: 0.98rem; line-height: 1.7; color: rgba(244,246,250,0.78); }
+    .callout strong { color: #5FCCE8; }
+    .cta-box { background: linear-gradient(135deg, rgba(247,162,27,0.12) 0%, rgba(31,46,69,0.85) 100%); border: 1px solid rgba(247,162,27,0.35); border-radius: 16px; padding: 28px 30px; margin: 3rem 0; }
+    .cta-box .cta-eyebrow { color: #F7A21B; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px; }
+    .cta-box h4 { font-size: 1.35rem; font-weight: 800; color: #F4F6FA; margin-bottom: 8px; }
+    .cta-box p { color: rgba(244,246,250,0.7); margin-bottom: 18px; line-height: 1.65; }
+    .cta-btn { display: inline-block; background: linear-gradient(135deg, #F7A21B 0%, #D88A0E 100%); color: #162032; font-weight: 700; padding: 12px 28px; border-radius: 10px; text-decoration: none; transition: transform .18s, box-shadow .18s; }
+    .cta-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px -4px rgba(247,162,27,0.45); }
+    .cta-secondary { font-size: 0.82rem; color: rgba(244,246,250,0.45); margin-top: 14px; margin-bottom: 0; }
+    .cta-secondary a { color: #5FCCE8; text-decoration: underline; text-underline-offset: 2px; }
+    .cta-secondary a:hover { color: #29B6D9; }
+    .faq-item { background: rgba(31,46,69,0.55); border: 1px solid rgba(255,255,255,0.07); border-radius: 14px; margin-bottom: 12px; }
+    .faq-item[open] { border-color: rgba(247,162,27,0.35); background: rgba(31,46,69,0.85); }
+    .faq-item summary { cursor: pointer; list-style: none; padding: 16px 20px; font-weight: 600; color: #F4F6FA; display: flex; justify-content: space-between; gap: 14px; }
+    .faq-item summary::-webkit-details-marker { display: none; }
+    .faq-item summary::after { content: '+'; font-size: 1.4rem; color: #F7A21B; } .faq-item[open] summary::after { content: '\2212'; }
+    .faq-item .faq-answer { padding: 0 20px 18px; color: rgba(244,246,250,0.7); line-height: 1.7; font-size: 0.95rem; }
+    .author-card { background: rgba(31,46,69,0.5); border: 1px solid rgba(255,255,255,0.07); border-radius: 14px; padding: 20px 24px; margin: 2rem 0; display: flex; gap: 16px; align-items: center; }
+    .author-card .avatar { width: 52px; height: 52px; border-radius: 50%; background: linear-gradient(135deg, #F7A21B, #FDB94A); display: flex; align-items: center; justify-content: center; font-weight: 800; color: #162032; font-size: 1.1rem; flex-shrink: 0; }
+    .author-card .meta p:first-child { font-weight: 700; color: #F4F6FA; font-size: 0.95rem; margin-bottom: 2px; }
+    .author-card .meta p:last-child { font-size: 0.82rem; color: rgba(244,246,250,0.5); }
+    nav a.nav-link { font-size: 0.9rem; color: rgba(244,246,250,0.65); font-weight: 500; } nav a.nav-link:hover { color: #F4F6FA; }
+    .breadcrumb { font-size: 0.85rem; color: rgba(244,246,250,0.45); margin-bottom: 1.5rem; }
+    .breadcrumb a { color: rgba(244,246,250,0.55); text-decoration: none; } .breadcrumb a:hover { color: #F7A21B; }
+    .breadcrumb span { margin: 0 8px; opacity: 0.4; }
+  </style>
+  <script>
+    // Local dev URL bridge v2: production uses /learn/, /logbook.html etc.
+    // as root-absolute URLs. Locally everything serves under /workhive/.
+    // This script rewrites root-absolute links to /workhive/<path>/index.html
+    // (explicit file path) so clicks work even if Flask directory-index
+    // resolution is not active. Zero production impact.
+    (function(){
+      if (!location.pathname.startsWith('/workhive/')) return;
+      var ROOT_PATHS = ['/learn/', '/logbook.html', '/inventory.html',
+        '/pm-scheduler.html', '/skillmatrix.html', '/dayplanner.html',
+        '/hive.html', '/assistant.html', '/analytics.html', '/shift-brain.html',
+        '/asset-hub.html', '/alert-hub.html', '/audit-log.html', '/voice-journal.html',
+        '/engineering-design.html', '/project-manager.html', '/integrations.html',
+        '/marketplace.html', '/community.html', '/achievements.html',
+        '/ph-intelligence.html', '/predictive.html', '/ai-quality.html',
+        '/plant-connections.html'];
+      function rewrite(){
+        document.querySelectorAll('a[href]').forEach(function(a){
+          var h = a.getAttribute('href');
+          if (!h || h[0] !== '/') return;
+          if (h.indexOf('/workhive/') === 0 || h.indexOf('/brand_assets/') === 0 ||
+              h.indexOf('/api/') === 0 || h === '/manifest.json' || h === '/sw.js') return;
+          var matched = false;
+          for (var i = 0; i < ROOT_PATHS.length; i++) {
+            if (h === ROOT_PATHS[i] || h.indexOf(ROOT_PATHS[i]) === 0) {
+              matched = true; break;
+            }
+          }
+          if (!matched && h !== '/' && h.indexOf('/#') !== 0) return;
+          var newHref = '/workhive' + h;
+          // Append index.html for trailing-slash directory URLs
+          // (Flask explicit-file serving works without dir-index)
+          if (newHref.endsWith('/')) newHref += 'index.html';
+          // Special case bare "/" -> "/workhive/index.html"
+          else if (h === '/') newHref = '/workhive/index.html';
+          // /#fragment -> /workhive/index.html#fragment
+          else if (h.indexOf('/#') === 0) newHref = '/workhive/index.html' + h.substring(1);
+          a.setAttribute('href', newHref);
+        });
+      }
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', rewrite);
+      } else {
+        rewrite();
+      }
+    })();
+  </script>
+</head>
+<body class="bg-navy-wh text-white antialiased">
+
+<header class="border-b border-white/[0.06]" style="background: rgba(13,24,36,0.85);">
+  <div class="max-w-6xl mx-auto px-5 sm:px-8 py-4 flex items-center justify-between">
+    <a href="/" class="flex items-center gap-3">
+      <img src="/brand_assets/workhive-logo-transparent.png" alt="WorkHive" style="height: 36px; width: auto;" />
+      <span class="font-black text-lg tracking-tight">WorkHive</span>
+    </a>
+    <nav class="flex items-center gap-6">
+      <a href="/" class="nav-link">Home</a>
+      <a href="/learn/" class="nav-link">Learn</a>
+      <a href="/#join" class="nav-link">Join the Hive</a>
+    </nav>
+  </div>
+</header>
+
+<article class="hex-pattern">
+  <div class="max-w-3xl mx-auto px-5 sm:px-8 py-14 lg:py-20">
+
+    <div class="breadcrumb">
+      <a href="/">Home</a><span>/</span><a href="/learn/">Learn</a><span>/</span><span>Predictive maintenance on a budget</span>
+    </div>
+
+    <p class="pill pill-orange mb-4">PdM · Budget-realistic playbook</p>
+    <h1 class="text-3xl sm:text-4xl lg:text-[2.7rem] font-black leading-[1.15] tracking-[-0.02em] mb-5">
+      Predictive maintenance on a budget <span class="text-white/55 font-bold">(Philippines)</span>
+    </h1>
+
+    <div class="flex items-center gap-4 text-sm text-white/45 mb-8 flex-wrap">
+      <span>By <strong class="text-white/75">WorkHive Editorial Team</strong></span>
+      <span class="opacity-40">·</span>
+      <span>Published <time datetime="2026-05-17">17 May 2026</time></span>
+      <span class="opacity-40">·</span>
+      <span>Updated <time datetime="2026-05-17">17 May 2026</time></span>
+      <span class="opacity-40">·</span>
+      <span>9 min read</span>
+    </div>
+
+    <div class="answer-first">
+      <strong>Short answer:</strong> Predictive maintenance does not require expensive sensors to start. A phone-based vibration app, a borrowed thermal camera, and a quarterly oil sample cover the top failure modes on most Philippine plant assets for under PHP 50,000. The data discipline (operator route, monthly review, escalation rules) matters more than the sensor. Plants that buy sensors before they have logbook discipline get expensive shelf decoration. Plants that build discipline first and add sensors selectively get the SMRP benchmark 35 to 50 percent reduction in unplanned downtime.
+    </div>
+
+    <div class="audience-block">
+      <p class="audience-label">Who this is for</p>
+      <ul>
+        <li>Maintenance and reliability engineers</li>
+        <li>Plant managers evaluating PdM ROI</li>
+        <li>Field technicians starting condition monitoring</li>
+        <li>Supervisors planning operator routes</li>
+        <li>Sensor and analyzer suppliers</li>
+        <li>PdM service contractors</li>
+        <li>New engineering graduates learning PdM</li>
+      </ul>
+    </div>
+
+    <div class="toc">
+      <h4>What's in this guide</h4>
+      <ol>
+        <li><a href="#what-is-pdm">PdM explained: condition-based, not calendar-based</a></li>
+        <li><a href="#why-fails">Why most PdM programs fail in Philippine plants</a></li>
+        <li><a href="#stages-first">Stages 1 and 2 must come first</a></li>
+        <li><a href="#budget-tiers">Budget tiers: what each level buys you</a></li>
+        <li><a href="#phone-vibration">Phone-based vibration: real or theatre?</a></li>
+        <li><a href="#rollout">12-month rollout sequence</a></li>
+        <li><a href="#roi">Realistic ROI expectations</a></li>
+        <li><a href="#faq">Frequently asked questions</a></li>
+        <li><a href="#sources">Sources</a></li>
+      </ol>
+    </div>
+
+    <div class="prose-wh">
+
+      <h2 id="what-is-pdm">PdM explained: condition-based, not calendar-based</h2>
+      <p>Preventive maintenance (PM) replaces parts on a schedule regardless of condition. Predictive maintenance (PdM) measures actual condition and replaces only when degradation is detected. The two are not competitors; they are different stages of maturity.</p>
+      <table>
+        <thead><tr><th></th><th>PM (Stage 2)</th><th>PdM (Stage 3)</th></tr></thead>
+        <tbody>
+          <tr><td>Decision rule</td><td>Calendar or hours</td><td>Measured condition</td></tr>
+          <tr><td>Data needed</td><td>None (just schedule)</td><td>Vibration, temp, oil, ultrasonic</td></tr>
+          <tr><td>Cost per asset</td><td>Low</td><td>Medium to high</td></tr>
+          <tr><td>Catches sudden failures</td><td>No</td><td>Sometimes (electrical via thermal)</td></tr>
+          <tr><td>Catches gradual failures</td><td>Sometimes (timing-dependent)</td><td>Yes (bearings, alignment, lube)</td></tr>
+          <tr><td>Right when</td><td>Plant is reactive or first-time digital</td><td>Plant has 12+ months of logbook history</td></tr>
+        </tbody>
+      </table>
+
+      <h2 id="why-fails">Why most PdM programs fail in Philippine plants</h2>
+      <p>Three failure patterns repeat in every Philippine plant that bought PdM before they were ready:</p>
+      <ul>
+        <li><strong>Sensors before discipline.</strong> The plant buys wireless vibration sensors and a SaaS dashboard, the dashboard sends 200 alerts in month 1, nobody triages them, by month 3 the alerts are silenced. The plant paid PHP 500,000 for a system nobody uses.</li>
+        <li><strong>No owner.</strong> The PdM data has no single accountable person. The reliability engineer thinks the maintenance supervisor reviews it; the supervisor thinks the engineer does. After 6 months of mutual assumption, nobody is reviewing.</li>
+        <li><strong>Treated as a tech project.</strong> The plant manager signs off on a "digital transformation initiative" with a vendor; the vendor installs and trains; the team treats it as the vendor's problem. PdM dies the day the vendor leaves.</li>
+      </ul>
+      <p>The fix is not better sensors. It is starting at the right stage.</p>
+
+      <h2 id="stages-first">Stages 1 and 2 must come first</h2>
+      <p>The WorkHive 4-stage path puts PdM at Stage 3 for a reason. The two earlier stages are non-negotiable prerequisites:</p>
+      <ul>
+        <li><strong>Stage 1 (Paper to Digital):</strong> 6 months of clean logbook entries with fault categories. Without this, the PdM system has no historical context to compare current measurements against.</li>
+        <li><strong>Stage 2 (Disciplined):</strong> PM compliance above 70 percent for at least 60 days. Without this, you cannot tell if a vibration spike is a real degradation or just the bearing PM was missed.</li>
+      </ul>
+      <p>If your plant is not at Stage 2, do not buy sensors yet. Start with the <a href="/learn/start-digital-logbook-philippine-factory/">digital logbook rollout</a> and the <a href="/learn/free-pm-checklist-templates/">PM templates</a>. The PdM investment compounds when those foundations are solid; it evaporates when they are not.</p>
+
+      <h2 id="budget-tiers">Budget tiers: what each level buys you</h2>
+      <table>
+        <thead><tr><th>Tier</th><th>Budget (PHP)</th><th>What you get</th><th>Covers</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Tier 0</strong></td><td>0</td><td>Phone vibration app + operator route via WorkHive PM Scheduler</td><td>Imbalance, looseness, gross bearing faults on slow-running assets</td></tr>
+          <tr><td><strong>Tier 1</strong></td><td>25K to 80K</td><td>Handheld vibration analyzer (entry-level)</td><td>Adds spectrum analysis, envelope demodulation for early bearing defects</td></tr>
+          <tr><td><strong>Tier 2</strong></td><td>150K to 500K</td><td>Thermal camera + quarterly oil analysis subscription</td><td>Adds electrical hotspot detection, lube degradation, contamination tracking</td></tr>
+          <tr><td><strong>Tier 3</strong></td><td>500K to 2M</td><td>Ultrasonic leak detector + portable alignment laser</td><td>Adds compressed air loss, steam trap audit, alignment-driven failures</td></tr>
+          <tr><td><strong>Tier 4</strong></td><td>2M+</td><td>Permanent wireless sensors on top critical assets + cloud dashboard</td><td>Continuous monitoring, AI anomaly detection, automatic alerts</td></tr>
+        </tbody>
+      </table>
+      <p>Most Philippine plants we benchmark plateau at Tier 2 because the ROI of Tier 3 and Tier 4 requires PM compliance and skill matrix maturity that the plant has not yet built. Stop at the tier where your discipline runs out, not where your budget runs out.</p>
+
+      <h2 id="phone-vibration">Phone-based vibration: real or theatre?</h2>
+      <p>The fair answer: real for screening, theatre for diagnosis. Modern phone accelerometers sample at 100 to 400 Hz and resolve down to about 0.01 g. This is enough to detect imbalance (1x running speed), looseness (1x and harmonics), and developing bearing defects on equipment that runs below 30 Hz (1800 RPM and slower, which covers most pumps, fans, and motors in industrial plants).</p>
+      <p>What it cannot do:</p>
+      <ul>
+        <li>High-frequency bearing defect signatures (typically 4 to 10 kHz): needs a real analyzer</li>
+        <li>Orbit plots, phase analysis, modal testing: needs professional kit</li>
+        <li>Repeatable measurement without a proper mount (phone in hand vs phone in magnetic mount changes the data)</li>
+      </ul>
+      <p>The right use of phone vibration: monthly operator route on 15 to 30 critical assets, trend the overall velocity reading, escalate to a Tier 1 handheld analyzer when a phone reading crosses a threshold. The phone is a smoke detector; the analyzer is the fire truck.</p>
+
+      <div class="cta-box">
+        <p class="cta-eyebrow">The tool this guide is about</p>
+        <h4>WorkHive Predictive Maintenance starts at Tier 0 and scales with you</h4>
+        <p>The Predictive Maintenance surface in WorkHive sits inside Analytics. It reads your Logbook history, your PM compliance, and (when added) sensor data from any source: phone app, handheld analyzer export, wireless sensor API. AI anomaly detection unlocks at Stage 3 once your data has 90+ days of history. Free at the worker tier; sensor integrations roll on as you mature.</p>
+        <a href="/predictive.html" class="cta-btn">Open Predictive Maintenance</a>
+        <p class="cta-secondary">No hive yet? <a href="/#join">Join WorkHive</a> first (free, takes 30 seconds).</p>
+      </div>
+
+      <h2 id="rollout">12-month rollout sequence</h2>
+      <p>The rollout pattern that has worked for the Philippine plants we have advised:</p>
+      <ul>
+        <li><strong>Months 1 to 3 (Tier 0):</strong> pick 20 critical assets. Install a phone vibration app. Operator does a monthly route via WorkHive PM Scheduler with the route as a recurring PM. Borrow a thermal camera for one electrical panel scan per quarter. Total cost: under PHP 5,000 for the borrowed camera rental.</li>
+        <li><strong>Months 4 to 6 (Tier 1):</strong> buy a handheld vibration analyzer (PHP 60K range). Train one technician as the analyst. Add quarterly oil sampling on the top 5 oil-filled assets via a third-party lab (typically PHP 800 per sample). Define escalation rules: phone reading above X triggers analyzer follow-up.</li>
+        <li><strong>Months 7 to 9 (Tier 2):</strong> buy a thermal camera (PHP 150K to 300K depending on resolution needed). Add ultrasonic leak detection on compressed air. Expand operator route to 50 assets.</li>
+        <li><strong>Months 10 to 12 (consolidate):</strong> review what worked. Calculate ROI on each tier. Document the patterns the team has found (which assets degrade in which way) so the AI assistant has training data.</li>
+        <li><strong>Year 2 (selective Tier 4):</strong> only for the 3 to 5 highest-criticality assets where the year-1 data showed real predictive value. Wireless sensors on a steam turbine bearing or a critical compressor make sense. Wireless sensors on a non-critical conveyor motor are theatre.</li>
+      </ul>
+
+      <h2 id="roi">Realistic ROI expectations</h2>
+      <p>SMRP benchmark: mature PdM programs achieve 35 to 50 percent reduction in unplanned downtime. Most Philippine plants in their first 18 months of PdM (Tier 0 to Tier 2) achieve 15 to 25 percent. The pattern is consistent:</p>
+      <ul>
+        <li><strong>Months 1 to 6:</strong> almost no measurable improvement. The program is building data, not yet acting on it.</li>
+        <li><strong>Months 7 to 12:</strong> 5 to 15 percent reduction in unplanned downtime as the first caught faults get prevented.</li>
+        <li><strong>Months 13 to 24:</strong> 15 to 25 percent reduction as routine catches become embedded in the operating habit.</li>
+        <li><strong>Year 3+:</strong> 30 percent and above is possible for plants that combine PdM with strong skill matrix coverage and PM discipline.</li>
+      </ul>
+      <p>The plants that underperform are the ones that bought too much sensor too fast. The plants that overperform are the ones that built discipline first.</p>
+
+      <div class="callout">
+        <strong>The bigger picture:</strong> Predictive maintenance is not a technology purchase; it is a maturity stage. WorkHive's 4-stage path treats it as Stage 3 for that reason. Plants that respect the stages compound benefits; plants that skip stages waste capital. The cheapest PdM you can buy is a phone app plus operator discipline.
+      </div>
+
+      <h2 id="faq">Frequently asked questions</h2>
+
+      <details class="faq-item">
+        <summary>What is predictive maintenance and how does it differ from preventive?</summary>
+        <div class="faq-answer">Preventive maintenance (PM) replaces parts on a schedule (every 3 months, every 5,000 hours) regardless of asset condition. Predictive maintenance (PdM) measures the actual condition (vibration, temperature, oil cleanliness, ultrasonic noise) and replaces only when the data shows the part is degrading. PdM saves money by not replacing healthy parts and prevents failures by catching them earlier. PdM is Stage 3 of the WorkHive 4-stage path; Stages 1 and 2 (logbook + PM discipline) must come first.</div>
+      </details>
+
+      <details class="faq-item">
+        <summary>How much does predictive maintenance cost in a Philippine plant?</summary>
+        <div class="faq-answer">Budget range: PHP 0 for phone-based vibration and basic thermography, PHP 25,000 to PHP 80,000 for a starter handheld vibration analyzer, PHP 150,000 to PHP 500,000 for a thermal camera plus oil-analysis subscription, and PHP 1M+ for permanently mounted wireless sensors with cloud dashboards. The honest first step is the phone, not the sensor: most plants get 70 percent of PdM value from phone-based vibration and operator route inspections before any sensor purchase.</div>
+      </details>
+
+      <details class="faq-item">
+        <summary>Can I really do vibration analysis with a phone?</summary>
+        <div class="faq-answer">Yes, for screening purposes. Apps that use the phone's accelerometer (typically 0 to 100 Hz range) can detect imbalance, looseness, and developing bearing faults on equipment running below 30 Hz (most pumps, fans, motors under 1800 RPM). They cannot replace a professional analyzer for diagnosing root cause or high-frequency bearing defects. The right use: monthly screening route by the operator; escalate to a professional analyzer when the screening flags an issue.</div>
+      </details>
+
+      <details class="faq-item">
+        <summary>Why do most predictive maintenance programs fail?</summary>
+        <div class="faq-answer">Three reasons, in order of frequency: (1) plants buy sensors before they have the data discipline (logbook + PM compliance) to act on what sensors find; (2) nobody owns reviewing the data, so alerts pile up and get ignored; (3) the team treats PdM as a technology project instead of a maintenance strategy change. Plants that succeed long-term spend the first 12 months on Stages 1 and 2 of the WorkHive path before adding any sensor.</div>
+      </details>
+
+      <details class="faq-item">
+        <summary>What is the right order to roll out PdM?</summary>
+        <div class="faq-answer">Phase A (months 1 to 3): operator route with phone vibration app on 20 critical assets, monthly thermal scan of electrical panels with a borrowed camera. Phase B (months 4 to 6): handheld vibration analyzer, quarterly oil sampling on top 5 oil-filled assets, train one technician as the analyst. Phase C (months 7 to 12): expand to 50 assets, add ultrasonic leak detection. Phase D (year 2): selective wireless sensors on the 3 to 5 highest-criticality assets that justified ROI from earlier phases.</div>
+      </details>
+
+      <details class="faq-item">
+        <summary>Will PdM eliminate breakdowns completely?</summary>
+        <div class="faq-answer">No. PdM reduces unplanned downtime by 35 to 50 percent in mature programs (SMRP benchmark), not 100 percent. Some failures are sudden (electronic, structural, foreign object damage) and no condition monitoring catches them. Some failures are caught but the plant cannot schedule the fix before they progress. PdM shifts the balance from reactive to planned; it does not eliminate the reactive bucket. Realistic target for a Philippine plant transitioning from reactive: 30 percent reduction in unplanned hours by month 18.</div>
+      </details>
+
+      <h2 id="sources">Sources</h2>
+      <ul>
+        <li>Society for Maintenance and Reliability Professionals (SMRP), <strong>Best Practices, 5th Edition</strong>, 2017. PdM maturity model and ROI benchmarks.</li>
+        <li>ISO 13374, <strong>Condition monitoring and diagnostics of machines</strong>: data processing, communication, and presentation. Source for condition-monitoring data architecture.</li>
+        <li>ISO 17359, <strong>Condition monitoring and diagnostics of machines</strong>: general guidelines. Source for the PdM decision tree.</li>
+        <li>API 670, <strong>Machinery Protection Systems</strong>. Source for vibration thresholds on rotating equipment.</li>
+        <li>WorkHive platform positioning, "Four Gaps One Hive" with PdM at Stage 3 of the 4-stage path. <a href="/">workhiveph.com</a></li>
+        <li>Related WorkHive guides: <a href="/learn/start-digital-logbook-philippine-factory/">Digital logbook (Stage 1 foundation)</a> · <a href="/learn/free-pm-checklist-templates/">PM templates (Stage 2)</a> · <a href="/learn/mtbf-vs-mttr-for-supervisors/">MTBF vs MTTR</a></li>
+      </ul>
+
+      <div class="author-card">
+        <div class="avatar">WH</div>
+        <div class="meta">
+          <p>WorkHive Editorial Team</p>
+          <p>Practical writing for the Philippine plant floor. Email <a href="mailto:admin@workhiveph.com" style="color:#5FCCE8;">admin@workhiveph.com</a> with corrections or contributions.</p>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="pt-8 border-t border-white/[0.06] mt-12">
+      <a href="/learn/" class="text-sm text-white/55 hover:text-orange-wh transition-colors">&larr; Back to all guides</a>
+    </div>
+
+  </div>
+</article>
+
+<footer class="py-10 border-t border-white/[0.06]" style="background: rgba(13,24,36,0.85);">
+  <div class="max-w-4xl mx-auto px-5 sm:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-white/35">
+    <p>© 2026 WorkHive Platform · workhiveph.com · Last updated <time datetime="2026-05-17">17 May 2026</time></p>
+    <div class="flex items-center gap-6">
+      <a href="/" class="hover:text-white/60 transition-colors">Home</a>
+      <a href="/#faq" class="hover:text-white/60 transition-colors">FAQ</a>
+      <a href="/#join" class="hover:text-white/60 transition-colors">Join the Hive</a>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

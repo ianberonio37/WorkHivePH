@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="theme-color" content="#F7A21B" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Learn | WorkHive</title>
+  <meta name="description" content="Free guides on industrial maintenance for Philippine plants: OEE, MTBF, shift handover, digital logbook rollout, PM strategy, and more. Written for the plant floor." />
+  <meta name="keywords" content="industrial maintenance guides Philippines, free OEE calculator, MTBF guide, shift handover template, digital logbook, PM strategy, maintenance learning hub" />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://workhiveph.com/learn/" />
+  <link rel="manifest" href="/manifest.json" />
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="Learn | WorkHive" />
+  <meta property="og:description" content="Free guides on industrial maintenance for Philippine plants: OEE, MTBF, shift handover, digital logbook, PM strategy." />
+  <meta property="og:image" content="https://workhiveph.com/brand_assets/og-social.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:type" content="image/png" />
+  <meta property="og:image:alt" content="WorkHive: Free industrial tools for every Filipino worker" />
+  <meta property="og:url" content="https://workhiveph.com/learn/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="WorkHive" />
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Learn | WorkHive" />
+  <meta name="twitter:description" content="Free guides on industrial maintenance for Philippine plants." />
+  <meta name="twitter:image" content="https://workhiveph.com/brand_assets/og-social.png" />
+  <meta name="twitter:image:alt" content="WorkHive: Free industrial tools for every Filipino worker" />
+
+  <!-- Structured Data: CollectionPage + BreadcrumbList -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "CollectionPage",
+        "@id": "https://workhiveph.com/learn/#page",
+        "url": "https://workhiveph.com/learn/",
+        "name": "WorkHive Learn",
+        "description": "Free guides on industrial maintenance for Philippine plants: OEE, MTBF, shift handover, digital logbook rollout, PM strategy, and more.",
+        "isPartOf": { "@id": "https://workhiveph.com/#website" },
+        "inLanguage": "en-PH",
+        "datePublished": "2026-05-16",
+        "dateModified": "2026-05-16"
+      },
+      {
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://workhiveph.com/" },
+          { "@type": "ListItem", "position": 2, "name": "Learn", "item": "https://workhiveph.com/learn/" }
+        ]
+      }
+    ]
+  }
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: { extend: { colors: {
+        orange: { wh: '#F7A21B', dark: '#D88A0E', light: '#FDB94A' },
+        blue:   { wh: '#29B6D9', dark: '#1A9ABF', light: '#5FCCE8' },
+        navy:   { wh: '#162032', mid: '#1F2E45', light: '#2A3D58' },
+        steel: '#7B8794', cloud: '#F4F6FA',
+      } } }
+    };
+  </script>
+  <style>
+    * { font-family: 'Poppins', sans-serif; }
+    body { background: #162032; color: #F4F6FA; }
+    a { color: inherit; }
+    .hex-pattern {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='92' viewBox='0 0 80 92'%3E%3Cpath d='M40 0 L80 23 L80 69 L40 92 L0 69 L0 23 Z' fill='none' stroke='%23ffffff08' stroke-width='1.5'/%3E%3C/svg%3E");
+      background-size: 80px 92px;
+    }
+    .article-card {
+      background: rgba(31,46,69,0.55);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 16px;
+      padding: 24px 26px;
+      transition: border-color .2s ease, background .2s ease, transform .2s ease;
+      display: block;
+    }
+    .article-card:hover {
+      border-color: rgba(247,162,27,0.45);
+      background: rgba(31,46,69,0.85);
+      transform: translateY(-3px);
+    }
+    .article-card.coming-soon {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+    .article-card.coming-soon:hover {
+      transform: none;
+      border-color: rgba(255,255,255,0.07);
+      background: rgba(31,46,69,0.55);
+    }
+    .pill {
+      display: inline-block;
+      font-size: 0.65rem;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 100px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+    .pill-orange { background: rgba(247,162,27,0.18); color: #F7A21B; border: 1px solid rgba(247,162,27,0.35); }
+    .pill-steel  { background: rgba(123,135,148,0.18); color: #9CA8B5; border: 1px solid rgba(123,135,148,0.35); }
+    nav a.nav-link { font-size: 0.9rem; color: rgba(244,246,250,0.65); font-weight: 500; }
+    nav a.nav-link:hover { color: #F4F6FA; }
+  </style>
+  <script>
+    // Local dev URL bridge v2: production uses /learn/, /logbook.html etc.
+    // as root-absolute URLs. Locally everything serves under /workhive/.
+    // This script rewrites root-absolute links to /workhive/<path>/index.html
+    // (explicit file path) so clicks work even if Flask directory-index
+    // resolution is not active. Zero production impact.
+    (function(){
+      if (!location.pathname.startsWith('/workhive/')) return;
+      var ROOT_PATHS = ['/learn/', '/logbook.html', '/inventory.html',
+        '/pm-scheduler.html', '/skillmatrix.html', '/dayplanner.html',
+        '/hive.html', '/assistant.html', '/analytics.html', '/shift-brain.html',
+        '/asset-hub.html', '/alert-hub.html', '/audit-log.html', '/voice-journal.html',
+        '/engineering-design.html', '/project-manager.html', '/integrations.html',
+        '/marketplace.html', '/community.html', '/achievements.html',
+        '/ph-intelligence.html', '/predictive.html', '/ai-quality.html',
+        '/plant-connections.html'];
+      function rewrite(){
+        document.querySelectorAll('a[href]').forEach(function(a){
+          var h = a.getAttribute('href');
+          if (!h || h[0] !== '/') return;
+          if (h.indexOf('/workhive/') === 0 || h.indexOf('/brand_assets/') === 0 ||
+              h.indexOf('/api/') === 0 || h === '/manifest.json' || h === '/sw.js') return;
+          var matched = false;
+          for (var i = 0; i < ROOT_PATHS.length; i++) {
+            if (h === ROOT_PATHS[i] || h.indexOf(ROOT_PATHS[i]) === 0) {
+              matched = true; break;
+            }
+          }
+          if (!matched && h !== '/' && h.indexOf('/#') !== 0) return;
+          var newHref = '/workhive' + h;
+          // Append index.html for trailing-slash directory URLs
+          // (Flask explicit-file serving works without dir-index)
+          if (newHref.endsWith('/')) newHref += 'index.html';
+          // Special case bare "/" -> "/workhive/index.html"
+          else if (h === '/') newHref = '/workhive/index.html';
+          // /#fragment -> /workhive/index.html#fragment
+          else if (h.indexOf('/#') === 0) newHref = '/workhive/index.html' + h.substring(1);
+          a.setAttribute('href', newHref);
+        });
+      }
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', rewrite);
+      } else {
+        rewrite();
+      }
+    })();
+  </script>
+</head>
+<body class="bg-navy-wh text-white antialiased">
+
+<!-- ── Nav ── -->
+<header class="border-b border-white/[0.06]" style="background: rgba(13,24,36,0.85);">
+  <div class="max-w-6xl mx-auto px-5 sm:px-8 py-4 flex items-center justify-between">
+    <a href="/" class="flex items-center gap-3">
+      <img src="/brand_assets/workhive-logo-transparent.png" alt="WorkHive" style="height: 36px; width: auto;" />
+      <span class="font-black text-lg tracking-tight">WorkHive</span>
+    </a>
+    <nav class="flex items-center gap-6">
+      <a href="/" class="nav-link">Home</a>
+      <a href="/learn/" class="nav-link" style="color:#F4F6FA;">Learn</a>
+      <a href="/#join" class="nav-link">Join the Hive</a>
+    </nav>
+  </div>
+</header>
+
+<!-- ── Hero ── -->
+<section class="hex-pattern py-20 lg:py-28 border-b border-white/[0.06]">
+  <div class="max-w-4xl mx-auto px-5 sm:px-8 text-center">
+    <p class="pill pill-orange mb-5">WorkHive Learn</p>
+    <h1 class="text-4xl sm:text-5xl lg:text-6xl font-black leading-[1.1] tracking-[-0.025em] mb-6">
+      Free guides for the
+      <span style="background: linear-gradient(135deg, #F7A21B 30%, #FDB94A 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">Philippine plant floor</span>
+    </h1>
+    <p class="text-lg text-white/70 leading-[1.7] max-w-2xl mx-auto font-light">
+      Practical writing on industrial maintenance, reliability, and operations. Built for every industrial worker, from field to management: technicians, engineers, supervisors, planners, plant managers, suppliers, contractors, and the new graduates and upskilling workers building careers in the AI era. No theory dumps; every guide has worked examples and a download you can use on Monday morning.
+    </p>
+  </div>
+</section>
+
+<!-- ── Articles ── -->
+<section class="py-16 lg:py-24">
+  <div class="max-w-4xl mx-auto px-5 sm:px-8">
+
+    <h2 class="text-xs font-bold uppercase tracking-[0.15em] text-white/45 mb-6">Latest guides</h2>
+
+    <div class="grid sm:grid-cols-1 gap-5">
+
+      <a href="/learn/start-digital-logbook-philippine-factory/" class="article-card">
+        <div class="flex items-center justify-between mb-3">
+          <span class="pill pill-orange">Logbook</span>
+          <span class="text-xs text-white/40">11 min read · 17 May 2026</span>
+        </div>
+        <h3 class="text-xl sm:text-2xl font-black leading-[1.25] mb-2">How to start a digital logbook in a Philippine factory (zero-budget guide)</h3>
+        <p class="text-white/55 text-sm leading-relaxed">The 3-step rollout that sticks past month two, why imported ERPs keep failing in PH (citing the Chronicle's May 2026 analysis), and the AI question every Filipino worker is quietly asking.</p>
+      </a>
+
+      <a href="/learn/what-is-oee-how-to-calculate/" class="article-card">
+        <div class="flex items-center justify-between mb-3">
+          <span class="pill pill-orange">OEE</span>
+          <span class="text-xs text-white/40">10 min read · 17 May 2026</span>
+        </div>
+        <h3 class="text-xl sm:text-2xl font-black leading-[1.25] mb-2">What is OEE and how do I calculate it? (worked Philippine factory example)</h3>
+        <p class="text-white/55 text-sm leading-relaxed">The OEE formula in plain language, a chocolate-bar-line worked example, the 6 big losses, world-class vs Philippine benchmarks, and a 12-18 month path from 50 to 75 percent.</p>
+      </a>
+
+      <a href="/learn/mtbf-vs-mttr-for-supervisors/" class="article-card">
+        <div class="flex items-center justify-between mb-3">
+          <span class="pill pill-orange">Reliability</span>
+          <span class="text-xs text-white/40">9 min read · 17 May 2026</span>
+        </div>
+        <h3 class="text-xl sm:text-2xl font-black leading-[1.25] mb-2">MTBF vs MTTR explained for plant supervisors</h3>
+        <p class="text-white/55 text-sm leading-relaxed">Both formulas with worked examples (Cabuyao pump, Pampanga conveyor), what each metric tells you about the plant, and how to track them with zero CMMS budget.</p>
+      </a>
+
+      <a href="/learn/maintenance-shift-handover-template/" class="article-card">
+        <div class="flex items-center justify-between mb-3">
+          <span class="pill pill-orange">Handover</span>
+          <span class="text-xs text-white/40">9 min read · 17 May 2026</span>
+        </div>
+        <h3 class="text-xl sm:text-2xl font-black leading-[1.25] mb-2">How to write a maintenance shift handover (template included)</h3>
+        <p class="text-white/55 text-sm leading-relaxed">The 5-section one-screen template, a worked bottling-line example, and the case story of a handover that prevented a ₱180,000 loss.</p>
+      </a>
+
+      <a href="/learn/spare-parts-inventory-philippine-plants/" class="article-card">
+        <div class="flex items-center justify-between mb-3">
+          <span class="pill pill-orange">Inventory</span>
+          <span class="text-xs text-white/40">10 min read · 17 May 2026</span>
+        </div>
+        <h3 class="text-xl sm:text-2xl font-black leading-[1.25] mb-2">Spare parts inventory for Philippine plants (ABC, FIFO, reorder points)</h3>
+        <p class="text-white/55 text-sm leading-relaxed">The 4 storeroom failures that cause 40 percent of MTTR, the ABC tier control rules, the reorder-point formula, and a worked Cabuyao bearing example.</p>
+      </a>
+
+      <a href="/learn/free-pm-checklist-templates/" class="article-card">
+        <div class="flex items-center justify-between mb-3">
+          <span class="pill pill-orange">PM</span>
+          <span class="text-xs text-white/40">9 min read · 17 May 2026</span>
+        </div>
+        <h3 class="text-xl sm:text-2xl font-black leading-[1.25] mb-2">Free PM checklist templates for industrial maintenance</h3>
+        <p class="text-white/55 text-sm leading-relaxed">Ready-to-use templates for pumps, motors, compressors, HVAC, and electrical panels. Plus frequency rules and the 4-step path from 50 to 90 percent PM compliance.</p>
+      </a>
+
+      <a href="/learn/skill-matrix-for-maintenance-technicians/" class="article-card">
+        <div class="flex items-center justify-between mb-3">
+          <span class="pill pill-orange">Skill Matrix</span>
+          <span class="text-xs text-white/40">9 min read · 17 May 2026</span>
+        </div>
+        <h3 class="text-xl sm:text-2xl font-black leading-[1.25] mb-2">How to build a skill matrix for maintenance technicians</h3>
+        <p class="text-white/55 text-sm leading-relaxed">The 4-level competency scale, the 3-input fair-assessment rule, an example matrix for 6 technicians, and why the skill matrix is your team's career insurance in the AI era.</p>
+      </a>
+
+      <a href="/learn/dilo-wilo-day-planner-supervisors/" class="article-card">
+        <div class="flex items-center justify-between mb-3">
+          <span class="pill pill-orange">Day Planner</span>
+          <span class="text-xs text-white/40">9 min read · 17 May 2026</span>
+        </div>
+        <h3 class="text-xl sm:text-2xl font-black leading-[1.25] mb-2">DILO, WILO, MILO, YILO: the day planner method for plant supervisors</h3>
+        <p class="text-white/55 text-sm leading-relaxed">The cascading planning method (Year, Month, Week, Day In the Life Of) for plant supervisors. Protects 2 to 3 hours of strategic work daily from the reactive flood.</p>
+      </a>
+
+      <a href="/learn/free-engineering-calculators-philippine-plants/" class="article-card">
+        <div class="flex items-center justify-between mb-3">
+          <span class="pill pill-orange">Eng. Design</span>
+          <span class="text-xs text-white/40">10 min read · 17 May 2026</span>
+        </div>
+        <h3 class="text-xl sm:text-2xl font-black leading-[1.25] mb-2">Free engineering design calculators for Philippine plants</h3>
+        <p class="text-white/55 text-sm leading-relaxed">Standards-referenced calculators across 6 disciplines (ASHRAE 2021, IEC 62305, NFPA 13, NSCP 2015). Includes tropical-climate constants and a worked HVAC duct sizing example.</p>
+      </a>
+
+      <a href="/learn/ai-work-assistant-maintenance-technicians/" class="article-card">
+        <div class="flex items-center justify-between mb-3">
+          <span class="pill pill-orange">AI Assistant</span>
+          <span class="text-xs text-white/40">10 min read · 17 May 2026</span>
+        </div>
+        <h3 class="text-xl sm:text-2xl font-black leading-[1.25] mb-2">AI work assistant for every industrial worker (plain-English guide)</h3>
+        <p class="text-white/55 text-sm leading-relaxed">The 6 jobs an AI assistant is good at, the 4 it is not, Filipino/Taglish prompting, a worked plant-floor diagnostic prompt, and the career-protection truth Filipino workers need to hear.</p>
+      </a>
+
+      <a href="/learn/predictive-maintenance-on-a-budget-philippines/" class="article-card">
+        <div class="flex items-center justify-between mb-3">
+          <span class="pill pill-orange">Predictive</span>
+          <span class="text-xs text-white/40">9 min read · 17 May 2026</span>
+        </div>
+        <h3 class="text-xl sm:text-2xl font-black leading-[1.25] mb-2">Predictive maintenance on a budget (Philippines)</h3>
+        <p class="text-white/55 text-sm leading-relaxed">Budget tiers from PHP 0 to PHP 2M, what a phone vibration app actually catches, why most PdM projects fail, and the 12-month rollout sequence that works.</p>
+      </a>
+
+      <a href="/learn/connecting-workhive-to-sap-maximo-cmms/" class="article-card">
+        <div class="flex items-center justify-between mb-3">
+          <span class="pill pill-orange">Integrations</span>
+          <span class="text-xs text-white/40">9 min read · 17 May 2026</span>
+        </div>
+        <h3 class="text-xl sm:text-2xl font-black leading-[1.25] mb-2">Connecting WorkHive to SAP, IBM Maximo, and other CMMS</h3>
+        <p class="text-white/55 text-sm leading-relaxed">Four integration patterns, SAP and Maximo specifics, OPC-UA and MQTT for sensor data, the data-mapping gotchas, and how contractors and suppliers participate.</p>
+      </a>
+
+      <a href="/learn/voice-to-text-maintenance-philippine-plant-floor/" class="article-card">
+        <div class="flex items-center justify-between mb-3">
+          <span class="pill pill-orange">Voice Journal</span>
+          <span class="text-xs text-white/40">8 min read · 17 May 2026</span>
+        </div>
+        <h3 class="text-xl sm:text-2xl font-black leading-[1.25] mb-2">Voice-to-text on the Philippine plant floor (Filipino, English, Taglish)</h3>
+        <p class="text-white/55 text-sm leading-relaxed">Hands-free logging when gloves and oil make typing impossible. Filipino/Taglish recognition, plant-noise handling, and the 5 use cases that drive 80 percent of the value.</p>
+      </a>
+
+      <a href="/learn/building-asset-register-zero-budget/" class="article-card">
+        <div class="flex items-center justify-between mb-3">
+          <span class="pill pill-orange">Asset Hub</span>
+          <span class="text-xs text-white/40">9 min read · 17 May 2026</span>
+        </div>
+        <h3 class="text-xl sm:text-2xl font-black leading-[1.25] mb-2">Building an asset register from scratch (zero-budget, ISO 14224)</h3>
+        <p class="text-white/55 text-sm leading-relaxed">The 5-step 30-day rollout, simplified ISO 14224 5-level hierarchy, naming conventions that survive 5 years, 4-point criticality ranking, and scoped contractor access.</p>
+      </a>
+
+      <a href="/learn/maintenance-project-planning-template/" class="article-card">
+        <div class="flex items-center justify-between mb-3">
+          <span class="pill pill-orange">Project Mgr</span>
+          <span class="text-xs text-white/40">9 min read · 17 May 2026</span>
+        </div>
+        <h3 class="text-xl sm:text-2xl font-black leading-[1.25] mb-2">Maintenance project planning (free template for Philippine plants)</h3>
+        <p class="text-white/55 text-sm leading-relaxed">The 6-step planning workflow, the 6 reasons turnarounds blow over budget, critical-path explained, multi-contractor coordination, and per-asset cost discipline.</p>
+      </a>
+
+      <a href="/learn/joining-and-growing-your-hive/" class="article-card">
+        <div class="flex items-center justify-between mb-3">
+          <span class="pill pill-orange">Hive</span>
+          <span class="text-xs text-white/40">7 min read · 17 May 2026</span>
+        </div>
+        <h3 class="text-xl sm:text-2xl font-black leading-[1.25] mb-2">Joining and growing your WorkHive hive (multi-tenant guide)</h3>
+        <p class="text-white/55 text-sm leading-relaxed">Solo mode, joining a plant hive, 4-role access, database-level data isolation, multi-site hive groups for Filipino conglomerates.</p>
+      </a>
+
+      <a href="/learn/industrial-community-of-practice-philippines/" class="article-card">
+        <div class="flex items-center justify-between mb-3">
+          <span class="pill pill-orange">Community</span>
+          <span class="text-xs text-white/40">7 min read · 17 May 2026</span>
+        </div>
+        <h3 class="text-xl sm:text-2xl font-black leading-[1.25] mb-2">Industrial community of practice for Philippine plant teams</h3>
+        <p class="text-white/55 text-sm leading-relaxed">Cross-plant knowledge sharing, 3 anonymity modes, Filipino moderation, the 5 high-value use cases. AI Assistant indexes Community answers.</p>
+      </a>
+
+      <a href="/learn/gamifying-maintenance-for-engagement/" class="article-card">
+        <div class="flex items-center justify-between mb-3">
+          <span class="pill pill-orange">Achievements</span>
+          <span class="text-xs text-white/40">7 min read · 17 May 2026</span>
+        </div>
+        <h3 class="text-xl sm:text-2xl font-black leading-[1.25] mb-2">Gamifying maintenance for technician engagement</h3>
+        <p class="text-white/55 text-sm leading-relaxed">XP and badges that drive what compounds, what backfires, badge design that survives 12 months, and worker-portable career insurance.</p>
+      </a>
+
+      <a href="/learn/industrial-marketplace-philippine-specialists/" class="article-card">
+        <div class="flex items-center justify-between mb-3">
+          <span class="pill pill-orange">Marketplace</span>
+          <span class="text-xs text-white/40">8 min read · 17 May 2026</span>
+        </div>
+        <h3 class="text-xl sm:text-2xl font-black leading-[1.25] mb-2">Industrial marketplace for Philippine specialists, parts, and services</h3>
+        <p class="text-white/55 text-sm leading-relaxed">Verified work history, Philippine-compliant escrow with BIR receipts, dispute resolution, the 3 patterns that drive 90 percent of value.</p>
+      </a>
+
+      <a href="/learn/predictive-alert-thresholds-plants/" class="article-card">
+        <div class="flex items-center justify-between mb-3">
+          <span class="pill pill-orange">Alert Hub</span>
+          <span class="text-xs text-white/40">7 min read · 17 May 2026</span>
+        </div>
+        <h3 class="text-xl sm:text-2xl font-black leading-[1.25] mb-2">Predictive alert thresholds for industrial plants</h3>
+        <p class="text-white/55 text-sm leading-relaxed">3-tier architecture (Notice/Warning/Action), ISO 10816 vibration thresholds by asset class, escalation rules, the weekly alert-fatigue review.</p>
+      </a>
+
+      <a href="/learn/dole-iso-audit-trail-from-logbook/" class="article-card">
+        <div class="flex items-center justify-between mb-3">
+          <span class="pill pill-orange">Audit Log</span>
+          <span class="text-xs text-white/40">7 min read · 17 May 2026</span>
+        </div>
+        <h3 class="text-xl sm:text-2xl font-black leading-[1.25] mb-2">DOLE OSHS and ISO audit trail from your logbook</h3>
+        <p class="text-white/55 text-sm leading-relaxed">What DOLE / ISO 9001 / 14001 / 45001 auditors actually sample, 3 immutability guarantees, retention rules, PDF export patterns that work.</p>
+      </a>
+
+      <a href="/learn/ai-quality-and-roi-stage-2-plants/" class="article-card">
+        <div class="flex items-center justify-between mb-3">
+          <span class="pill pill-orange">AI Quality</span>
+          <span class="text-xs text-white/40">7 min read · 17 May 2026</span>
+        </div>
+        <h3 class="text-xl sm:text-2xl font-black leading-[1.25] mb-2">Measuring AI quality and ROI for Stage 2+ industrial plants</h3>
+        <p class="text-white/55 text-sm leading-relaxed">Accuracy verified by technicians (not vendor claims), time saved per query, cost per useful answer, drift detection across asset types.</p>
+      </a>
+
+      <a href="/learn/sensor-cmms-gateway-operations/" class="article-card">
+        <div class="flex items-center justify-between mb-3">
+          <span class="pill pill-orange">Plant Connections</span>
+          <span class="text-xs text-white/40">8 min read · 17 May 2026</span>
+        </div>
+        <h3 class="text-xl sm:text-2xl font-black leading-[1.25] mb-2">Sensor and CMMS gateway operations for industrial plants</h3>
+        <p class="text-white/55 text-sm leading-relaxed">Daily 5-minute health check, sensor inventory rotation, OT/IT cybersecurity boundary, the operating model that prevents silent gateway failures.</p>
+      </a>
+
+      <a href="/learn/ph-industrial-benchmarks-intelligence/" class="article-card">
+        <div class="flex items-center justify-between mb-3">
+          <span class="pill pill-orange">PH Intelligence</span>
+          <span class="text-xs text-white/40">7 min read · 17 May 2026</span>
+        </div>
+        <h3 class="text-xl sm:text-2xl font-black leading-[1.25] mb-2">PH industrial benchmarks and intelligence reports (free)</h3>
+        <p class="text-white/55 text-sm leading-relaxed">Quarterly Philippine-specific OEE / MTBF / MTTR / PM compliance benchmarks by sector. Anonymous aggregation with 8-plant threshold. Free to read.</p>
+      </a>
+
+    </div>
+
+  </div>
+</section>
+
+<!-- ── Footer ── -->
+<footer class="py-10 border-t border-white/[0.06]" style="background: rgba(13,24,36,0.85);">
+  <div class="max-w-4xl mx-auto px-5 sm:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-white/35">
+    <p>© 2026 WorkHive Platform · workhiveph.com · Last updated <time datetime="2026-05-16">16 May 2026</time></p>
+    <div class="flex items-center gap-6">
+      <a href="/" class="hover:text-white/60 transition-colors">Home</a>
+      <a href="/#faq" class="hover:text-white/60 transition-colors">FAQ</a>
+      <a href="/#join" class="hover:text-white/60 transition-colors">Join the Hive</a>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

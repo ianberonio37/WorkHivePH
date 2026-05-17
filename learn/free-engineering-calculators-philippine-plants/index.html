@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="theme-color" content="#F7A21B" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Free Engineering Design Calculators for Philippine Plants | WorkHive</title>
+  <meta name="description" content="Free, standards-referenced engineering design calculators covering electrical, mechanical, HVAC, civil, and instrumentation. Built for Philippine plants and tropical-climate constants." />
+  <meta name="keywords" content="free engineering calculator Philippines, HVAC duct sizing, transformer sizing, pump sizing, ASHRAE 2021, IEC 62305, free design tool, Philippine industrial standards" />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://workhiveph.com/learn/free-engineering-calculators-philippine-plants/" />
+  <link rel="manifest" href="/manifest.json" />
+
+  <meta property="og:title" content="Free Engineering Design Calculators for Philippine Plants" />
+  <meta property="og:description" content="Free, standards-referenced calculators for electrical, mechanical, HVAC, civil, and instrumentation design work in Philippine plants." />
+  <meta property="og:image" content="https://workhiveph.com/brand_assets/og-social.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:type" content="image/png" />
+  <meta property="og:image:alt" content="WorkHive: Free industrial tools for every Filipino worker" />
+  <meta property="og:url" content="https://workhiveph.com/learn/free-engineering-calculators-philippine-plants/" />
+  <meta property="og:type" content="article" />
+  <meta property="og:site_name" content="WorkHive" />
+  <meta property="article:published_time" content="2026-05-17T00:00:00+08:00" />
+  <meta property="article:modified_time" content="2026-05-17T00:00:00+08:00" />
+  <meta property="article:author" content="WorkHive Editorial Team" />
+  <meta property="article:section" content="Engineering" />
+
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Free Engineering Design Calculators for Philippine Plants" />
+  <meta name="twitter:description" content="Free, standards-referenced calculators built for Philippine plants and tropical-climate constants." />
+  <meta name="twitter:image" content="https://workhiveph.com/brand_assets/og-social.png" />
+  <meta name="twitter:image:alt" content="WorkHive: Free industrial tools for every Filipino worker" />
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Article",
+        "@id": "https://workhiveph.com/learn/free-engineering-calculators-philippine-plants/#article",
+        "headline": "Free Engineering Design Calculators for Philippine Plants",
+        "description": "Free, standards-referenced engineering design calculators covering electrical, mechanical, HVAC, civil, and instrumentation. Built for Philippine plants and tropical-climate constants.",
+        "image": "https://workhiveph.com/brand_assets/workhive-logo-transparent.png",
+        "author": { "@type": "Organization", "name": "WorkHive Editorial Team", "url": "https://workhiveph.com/" },
+        "publisher": { "@id": "https://workhiveph.com/#organization" },
+        "datePublished": "2026-05-17",
+        "dateModified": "2026-05-17",
+        "mainEntityOfPage": "https://workhiveph.com/learn/free-engineering-calculators-philippine-plants/",
+        "inLanguage": "en-PH",
+        "articleSection": "Engineering",
+        "wordCount": 2500,
+        "keywords": "engineering calculator, design, ASHRAE, IEC, transformer sizing, HVAC duct sizing, pump sizing, Philippine standards"
+      },
+      {
+        "@type": "HowTo",
+        "@id": "https://workhiveph.com/learn/free-engineering-calculators-philippine-plants/#howto",
+        "name": "How to size an HVAC duct using the equal-friction method for Philippine tropical conditions",
+        "description": "Five-step duct sizing procedure following ASHRAE 2021 Fundamentals Chapter 21, adapted for Philippine 35 degree C ambient.",
+        "step": [
+          { "@type": "HowToStep", "position": 1, "name": "Calculate volume flow per branch", "text": "From the cooling load and supply air temperature, calculate volume flow Q in m3/s per branch. Q = Heat Load / (1.2 times Cp times Delta T). For typical Philippine office cooling, Delta T equals 11 degree C." },
+          { "@type": "HowToStep", "position": 2, "name": "Pick a design friction rate", "text": "1.0 Pa/m for offices, hospitals, hotels. 1.2 Pa/m for retail. 1.5 Pa/m for industrial. Lower for libraries and recording studios (0.8 Pa/m)." },
+          { "@type": "HowToStep", "position": 3, "name": "Apply the equal-friction formula", "text": "D = (K times Q^1.75 divided by fr)^(1 divided by 4.75). For Philippine tropical air (35 degree C, 1 atm), use K = 0.01740 in the formula. Yields equivalent round duct diameter." },
+          { "@type": "HowToStep", "position": 4, "name": "Convert to rectangular at target aspect ratio", "text": "Use the ASHRAE De equation: De = 1.30 times (a times b)^0.625 divided by (a + b)^0.25. Solve for a and b. Round both up to nearest 50 mm standard size." },
+          { "@type": "HowToStep", "position": 5, "name": "Recompute hydraulic diameter D_h for pressure-drop calc", "text": "After rounding, recompute D_h = 2 times a times b divided by (a + b) from the actual rounded dimensions. Use D_h in Darcy-Weisbach for the final pressure-drop calculation. Do not use De in pressure-drop; that gives a 7 to 15 percent error." }
+        ]
+      },
+      {
+        "@type": "FAQPage",
+        "@id": "https://workhiveph.com/learn/free-engineering-calculators-philippine-plants/#faq",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "What engineering disciplines do the WorkHive calculators cover?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Six disciplines: electrical (transformer sizing, cable sizing, lightning protection per IEC 62305, motor selection, panel calculations), mechanical (pump sizing, fan sizing, bearing life, belt tension, alignment), HVAC (duct sizing per ASHRAE 2021, fan static, refrigerant load, cooling tower sizing), civil (foundation sizing, drainage, structural beam, lighting fixture spacing), instrumentation (control valve sizing, loop tuning, transmitter range, P and ID), and safety (NFPA 13 sprinkler, ISO 8528-1 generator sizing, IESNA illumination). All calculators reference the relevant international standard and apply Philippine tropical constants where they matter."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Why use tropical-climate constants instead of standard ASHRAE values?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Standard ASHRAE constants assume 20 degree C ambient at sea level (rho = 1.204 kg/m3). Philippine ambient averages 30 to 35 degree C with high humidity (rho = 1.15 kg/m3). The 4 percent density difference matters for fan sizing, duct pressure-drop, and refrigerant capacity. Using temperate constants in a tropical design gives undersized fans and unmet cooling load. The WorkHive HVAC calculator uses K = 0.01740 (35 degree C tropical) by default, not the temperate 0.01811."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Are the calculators a substitute for a licensed PME or PEE sign-off?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "No. The calculators give you the engineering-grade answer that a junior engineer would produce in 30 minutes of careful work. A licensed Professional Mechanical Engineer (PME) or Professional Electrical Engineer (PEE) still signs the final design for code compliance and professional liability. The calculators reduce the junior engineer's time from 30 minutes to 30 seconds and give the licensed engineer a sanity-check baseline before sign-off."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "What standards do the calculators reference?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "The WorkHive Engineering Design tool tags every output with its standard authority. Common references: ASHRAE 2021 Fundamentals (HVAC), IEC 62305 (lightning), IEC 60364 (LV electrical installations), IEEE 80 (substation grounding), NFPA 13 (sprinkler systems), ISO 8528-1 (generator sets), ISO 14224 (reliability data), SMACNA HVAC Duct Construction, ASHRAE 62.1 (ventilation), IESNA Lighting Handbook, API 610 (pumps), DOLE OSHS for Philippine safety, NSCP 2015 (structural). Each output cites the chapter and clause used."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Can I export the calculation report as a PDF for sign-off?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes. Every calculation in the WorkHive Engineering Design tool produces a structured report with input values, intermediate steps, applied standards, and final answer. The PDF export is formatted for licensed engineer review and inclusion in project bid documents or as-built records. The format follows the typical Philippine government and DOLE submission style."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "What happens to my designs if I leave the plant?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Your saved calculations stay in your hive's project history and can be exported with you (subject to your employment IP terms). For Filipino engineers building a portfolio for overseas work or OFW positions, the WorkHive design history is a verifiable record of work done, complete with date stamps and applied standards. This is the Engineering equivalent of the career-protection argument we make for technicians in the Skill Matrix guide: documented work compounds; undocumented work disappears."
+            }
+          }
+        ]
+      },
+      {
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://workhiveph.com/" },
+          { "@type": "ListItem", "position": 2, "name": "Learn", "item": "https://workhiveph.com/learn/" },
+          { "@type": "ListItem", "position": 3, "name": "Free engineering calculators", "item": "https://workhiveph.com/learn/free-engineering-calculators-philippine-plants/" }
+        ]
+      }
+    ]
+  }
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { theme: { extend: { colors: {
+      orange: { wh: '#F7A21B', dark: '#D88A0E', light: '#FDB94A' },
+      blue:   { wh: '#29B6D9', dark: '#1A9ABF', light: '#5FCCE8' },
+      navy:   { wh: '#162032', mid: '#1F2E45', light: '#2A3D58' },
+      steel: '#7B8794', cloud: '#F4F6FA',
+    } } } };
+  </script>
+  <style>
+    * { font-family: 'Poppins', sans-serif; } body { background: #162032; color: #F4F6FA; }
+    .hex-pattern { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='92' viewBox='0 0 80 92'%3E%3Cpath d='M40 0 L80 23 L80 69 L40 92 L0 69 L0 23 Z' fill='none' stroke='%23ffffff08' stroke-width='1.5'/%3E%3C/svg%3E"); background-size: 80px 92px; }
+    .prose-wh { color: rgba(244,246,250,0.78); font-size: 1.05rem; line-height: 1.8; }
+    .prose-wh h2 { color: #F4F6FA; font-size: 1.75rem; font-weight: 800; line-height: 1.25; letter-spacing: -0.015em; margin-top: 3rem; margin-bottom: 1rem; scroll-margin-top: 80px; }
+    .prose-wh h3 { color: #F4F6FA; font-size: 1.2rem; font-weight: 700; margin-top: 2rem; margin-bottom: 0.5rem; }
+    .prose-wh p  { margin-bottom: 1.25rem; }
+    .prose-wh ul, .prose-wh ol { padding-left: 1.5rem; margin-bottom: 1.25rem; }
+    .prose-wh li { margin-bottom: 0.5rem; }
+    .prose-wh ul li { list-style: disc; } .prose-wh ol li { list-style: decimal; }
+    .prose-wh strong { color: #F4F6FA; font-weight: 700; }
+    .prose-wh a { color: #5FCCE8; text-decoration: underline; text-underline-offset: 3px; } .prose-wh a:hover { color: #29B6D9; }
+    .prose-wh blockquote { border-left: 3px solid #F7A21B; padding: 0.5rem 0 0.5rem 1.25rem; margin: 1.5rem 0; color: rgba(244,246,250,0.7); font-style: italic; background: rgba(247,162,27,0.04); }
+    .prose-wh table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 0.95rem; }
+    .prose-wh th, .prose-wh td { padding: 12px 14px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.08); vertical-align: top; }
+    .prose-wh th { background: rgba(31,46,69,0.6); font-weight: 700; color: #F4F6FA; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; }
+    .prose-wh tr:hover { background: rgba(31,46,69,0.3); }
+    .prose-wh code { background: rgba(31,46,69,0.7); border: 1px solid rgba(255,255,255,0.08); padding: 2px 8px; border-radius: 6px; font-family: 'Consolas','Courier New',monospace; font-size: 0.92rem; color: #FDB94A; }
+    .prose-wh pre { background: rgba(13,24,36,0.85); border: 1px solid rgba(255,255,255,0.08); padding: 18px 22px; border-radius: 12px; overflow-x: auto; margin: 1.5rem 0; font-family: 'Consolas','Courier New',monospace; font-size: 0.9rem; color: #E8F4FF; line-height: 1.65; white-space: pre-wrap; }
+    .pill { display: inline-block; font-size: 0.65rem; font-weight: 700; padding: 3px 10px; border-radius: 100px; letter-spacing: 0.05em; text-transform: uppercase; }
+    .pill-orange { background: rgba(247,162,27,0.18); color: #F7A21B; border: 1px solid rgba(247,162,27,0.35); }
+    .toc { background: rgba(31,46,69,0.55); border: 1px solid rgba(255,255,255,0.07); border-radius: 14px; padding: 22px 26px; margin: 2rem 0 3rem; }
+    .toc h4 { color: rgba(244,246,250,0.55); font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 12px; }
+    .toc ol { padding-left: 1.5rem; margin: 0; } .toc li { margin-bottom: 6px; font-size: 0.92rem; }
+    .toc a { color: rgba(244,246,250,0.75); text-decoration: none; } .toc a:hover { color: #F7A21B; }
+    .answer-first { background: rgba(247,162,27,0.08); border-left: 3px solid #F7A21B; border-radius: 8px; padding: 18px 22px; margin-bottom: 2rem; font-size: 1.05rem; line-height: 1.75; color: rgba(244,246,250,0.85); }
+    .callout { background: rgba(41,182,217,0.06); border-left: 3px solid #29B6D9; border-radius: 8px; padding: 18px 22px; margin: 2rem 0; font-size: 0.98rem; line-height: 1.7; color: rgba(244,246,250,0.78); }
+    .callout strong { color: #5FCCE8; }
+    .cta-box { background: linear-gradient(135deg, rgba(247,162,27,0.12) 0%, rgba(31,46,69,0.85) 100%); border: 1px solid rgba(247,162,27,0.35); border-radius: 16px; padding: 28px 30px; margin: 3rem 0; }
+    .cta-box .cta-eyebrow { color: #F7A21B; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px; }
+    .cta-box h4 { font-size: 1.35rem; font-weight: 800; color: #F4F6FA; margin-bottom: 8px; }
+    .cta-box p { color: rgba(244,246,250,0.7); margin-bottom: 18px; line-height: 1.65; }
+    .cta-btn { display: inline-block; background: linear-gradient(135deg, #F7A21B 0%, #D88A0E 100%); color: #162032; font-weight: 700; padding: 12px 28px; border-radius: 10px; text-decoration: none; transition: transform .18s, box-shadow .18s; }
+    .cta-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px -4px rgba(247,162,27,0.45); }
+    .cta-secondary { font-size: 0.82rem; color: rgba(244,246,250,0.45); margin-top: 14px; margin-bottom: 0; }
+    .cta-secondary a { color: #5FCCE8; text-decoration: underline; text-underline-offset: 2px; }
+    .cta-secondary a:hover { color: #29B6D9; }
+    .audience-block { background: rgba(41,182,217,0.05); border: 1px solid rgba(41,182,217,0.18); border-radius: 12px; padding: 16px 20px; margin: 0 0 2rem; }
+    .audience-block .audience-label { font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; color: #5FCCE8; margin-bottom: 10px; }
+    .audience-block ul { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 6px 18px; font-size: 0.9rem; color: rgba(244,246,250,0.78); }
+    .audience-block ul li { list-style: none !important; position: relative; padding-left: 16px; margin: 0; }
+    .audience-block ul li::before { content: '·'; position: absolute; left: 4px; color: #29B6D9; font-weight: 800; font-size: 1.2rem; line-height: 1; top: 0; }
+    @media (max-width: 640px) { .audience-block ul { grid-template-columns: 1fr; } }
+    .faq-item { background: rgba(31,46,69,0.55); border: 1px solid rgba(255,255,255,0.07); border-radius: 14px; margin-bottom: 12px; }
+    .faq-item[open] { border-color: rgba(247,162,27,0.35); background: rgba(31,46,69,0.85); }
+    .faq-item summary { cursor: pointer; list-style: none; padding: 16px 20px; font-weight: 600; color: #F4F6FA; display: flex; justify-content: space-between; gap: 14px; }
+    .faq-item summary::-webkit-details-marker { display: none; }
+    .faq-item summary::after { content: '+'; font-size: 1.4rem; color: #F7A21B; } .faq-item[open] summary::after { content: '\2212'; }
+    .faq-item .faq-answer { padding: 0 20px 18px; color: rgba(244,246,250,0.7); line-height: 1.7; font-size: 0.95rem; }
+    .author-card { background: rgba(31,46,69,0.5); border: 1px solid rgba(255,255,255,0.07); border-radius: 14px; padding: 20px 24px; margin: 2rem 0; display: flex; gap: 16px; align-items: center; }
+    .author-card .avatar { width: 52px; height: 52px; border-radius: 50%; background: linear-gradient(135deg, #F7A21B, #FDB94A); display: flex; align-items: center; justify-content: center; font-weight: 800; color: #162032; font-size: 1.1rem; flex-shrink: 0; }
+    .author-card .meta p:first-child { font-weight: 700; color: #F4F6FA; font-size: 0.95rem; margin-bottom: 2px; }
+    .author-card .meta p:last-child { font-size: 0.82rem; color: rgba(244,246,250,0.5); }
+    nav a.nav-link { font-size: 0.9rem; color: rgba(244,246,250,0.65); font-weight: 500; } nav a.nav-link:hover { color: #F4F6FA; }
+    .breadcrumb { font-size: 0.85rem; color: rgba(244,246,250,0.45); margin-bottom: 1.5rem; }
+    .breadcrumb a { color: rgba(244,246,250,0.55); text-decoration: none; } .breadcrumb a:hover { color: #F7A21B; }
+    .breadcrumb span { margin: 0 8px; opacity: 0.4; }
+  </style>
+  <script>
+    // Local dev URL bridge v2: production uses /learn/, /logbook.html etc.
+    // as root-absolute URLs. Locally everything serves under /workhive/.
+    // This script rewrites root-absolute links to /workhive/<path>/index.html
+    // (explicit file path) so clicks work even if Flask directory-index
+    // resolution is not active. Zero production impact.
+    (function(){
+      if (!location.pathname.startsWith('/workhive/')) return;
+      var ROOT_PATHS = ['/learn/', '/logbook.html', '/inventory.html',
+        '/pm-scheduler.html', '/skillmatrix.html', '/dayplanner.html',
+        '/hive.html', '/assistant.html', '/analytics.html', '/shift-brain.html',
+        '/asset-hub.html', '/alert-hub.html', '/audit-log.html', '/voice-journal.html',
+        '/engineering-design.html', '/project-manager.html', '/integrations.html',
+        '/marketplace.html', '/community.html', '/achievements.html',
+        '/ph-intelligence.html', '/predictive.html', '/ai-quality.html',
+        '/plant-connections.html'];
+      function rewrite(){
+        document.querySelectorAll('a[href]').forEach(function(a){
+          var h = a.getAttribute('href');
+          if (!h || h[0] !== '/') return;
+          if (h.indexOf('/workhive/') === 0 || h.indexOf('/brand_assets/') === 0 ||
+              h.indexOf('/api/') === 0 || h === '/manifest.json' || h === '/sw.js') return;
+          var matched = false;
+          for (var i = 0; i < ROOT_PATHS.length; i++) {
+            if (h === ROOT_PATHS[i] || h.indexOf(ROOT_PATHS[i]) === 0) {
+              matched = true; break;
+            }
+          }
+          if (!matched && h !== '/' && h.indexOf('/#') !== 0) return;
+          var newHref = '/workhive' + h;
+          // Append index.html for trailing-slash directory URLs
+          // (Flask explicit-file serving works without dir-index)
+          if (newHref.endsWith('/')) newHref += 'index.html';
+          // Special case bare "/" -> "/workhive/index.html"
+          else if (h === '/') newHref = '/workhive/index.html';
+          // /#fragment -> /workhive/index.html#fragment
+          else if (h.indexOf('/#') === 0) newHref = '/workhive/index.html' + h.substring(1);
+          a.setAttribute('href', newHref);
+        });
+      }
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', rewrite);
+      } else {
+        rewrite();
+      }
+    })();
+  </script>
+</head>
+<body class="bg-navy-wh text-white antialiased">
+
+<header class="border-b border-white/[0.06]" style="background: rgba(13,24,36,0.85);">
+  <div class="max-w-6xl mx-auto px-5 sm:px-8 py-4 flex items-center justify-between">
+    <a href="/" class="flex items-center gap-3">
+      <img src="/brand_assets/workhive-logo-transparent.png" alt="WorkHive" style="height: 36px; width: auto;" />
+      <span class="font-black text-lg tracking-tight">WorkHive</span>
+    </a>
+    <nav class="flex items-center gap-6">
+      <a href="/" class="nav-link">Home</a>
+      <a href="/learn/" class="nav-link">Learn</a>
+      <a href="/#join" class="nav-link">Join the Hive</a>
+    </nav>
+  </div>
+</header>
+
+<article class="hex-pattern">
+  <div class="max-w-3xl mx-auto px-5 sm:px-8 py-14 lg:py-20">
+
+    <div class="breadcrumb">
+      <a href="/">Home</a><span>/</span><a href="/learn/">Learn</a><span>/</span><span>Free engineering calculators</span>
+    </div>
+
+    <p class="pill pill-orange mb-4">Engineering Design · Standards-referenced</p>
+    <h1 class="text-3xl sm:text-4xl lg:text-[2.7rem] font-black leading-[1.15] tracking-[-0.02em] mb-5">
+      Free engineering design calculators <span class="text-white/55 font-bold">for Philippine plants</span>
+    </h1>
+
+    <div class="flex items-center gap-4 text-sm text-white/45 mb-8 flex-wrap">
+      <span>By <strong class="text-white/75">WorkHive Editorial Team</strong></span>
+      <span class="opacity-40">·</span>
+      <span>Published <time datetime="2026-05-17">17 May 2026</time></span>
+      <span class="opacity-40">·</span>
+      <span>Updated <time datetime="2026-05-17">17 May 2026</time></span>
+      <span class="opacity-40">·</span>
+      <span>10 min read</span>
+    </div>
+
+    <div class="answer-first">
+      <strong>Short answer:</strong> WorkHive Engineering Design is a free set of standards-referenced calculators covering electrical, mechanical, HVAC, civil, instrumentation, and safety design. Each calculator is built on the relevant international standard (ASHRAE 2021, IEC 62305, NFPA 13, IEEE 80, ISO 8528-1) and applies Philippine tropical-climate constants where they matter. It replaces 30 minutes of careful spreadsheet work with 30 seconds of structured input, and produces a PDF report a licensed PME or PEE can sign off. Built for the full engineering team: junior engineers, design and project engineers, licensed engineers, consultants, contractors, and engineering students building a portfolio.
+    </div>
+
+    <div class="audience-block">
+      <p class="audience-label">Who this is for</p>
+      <ul>
+        <li>Maintenance and reliability engineers</li>
+        <li>Design and project engineers</li>
+        <li>Junior engineers verifying senior work</li>
+        <li>Licensed PMEs and PEEs (sanity check)</li>
+        <li>Consulting engineers and contractors</li>
+        <li>Engineering students learning standards</li>
+        <li>New graduates building OFW-track portfolio</li>
+      </ul>
+    </div>
+
+    <div class="toc">
+      <h4>What's in this guide</h4>
+      <ol>
+        <li><a href="#why-calcs">Why every Philippine plant engineer needs design calculators</a></li>
+        <li><a href="#disciplines">The 6 disciplines covered</a></li>
+        <li><a href="#tropical-constants">Tropical constants: why the temperate defaults are wrong here</a></li>
+        <li><a href="#worked-hvac">Worked example: HVAC duct sizing for a 100 kW office cooling load</a></li>
+        <li><a href="#standards-table">Standards referenced by each calculator</a></li>
+        <li><a href="#sign-off">Calculator versus licensed engineer sign-off</a></li>
+        <li><a href="#portfolio">Your design history as a career portfolio</a></li>
+        <li><a href="#mistakes">Common mistakes when using design calculators</a></li>
+        <li><a href="#faq">Frequently asked questions</a></li>
+        <li><a href="#sources">Sources</a></li>
+      </ol>
+    </div>
+
+    <div class="prose-wh">
+
+      <h2 id="why-calcs">Why every Philippine plant engineer needs design calculators</h2>
+      <p>Walk into any Philippine engineering office and you will see the same workflow: open a 5-year-old Excel sheet inherited from a senior engineer, change three numbers, hope the formula still works, manually look up a coefficient in a printed ASHRAE handbook, type it in, get an answer, doubt the answer, redo it differently, get a different answer, pick one, send it off.</p>
+      <p>This pattern wastes 2 to 4 hours per design and produces inconsistent answers because:</p>
+      <ul>
+        <li>The spreadsheet was written by someone who left in 2021 and nobody has reviewed the formula since</li>
+        <li>The coefficient table is the 2012 edition; ASHRAE 2021 has different values</li>
+        <li>The standard temperate constants do not match Philippine 35 degree C ambient</li>
+        <li>The licensed PME or PEE doing final sign-off has no time to redo the calculation, so they sign what they get</li>
+      </ul>
+      <p>A standards-referenced calculator fixes all four. It uses the current standard, the right tropical constants, the same formula for every junior engineer in the team, and produces a structured report the senior engineer can verify in 60 seconds. This is the same productivity case that the digital logbook makes for technicians at <a href="/learn/start-digital-logbook-philippine-factory/">Stage 1</a>: replace ad-hoc memory with structured records.</p>
+
+      <h2 id="disciplines">The 6 disciplines covered</h2>
+      <table>
+        <thead><tr><th>Discipline</th><th>Calculators included</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Electrical</strong></td><td>Transformer sizing, cable sizing (LV and MV), lightning protection (IEC 62305), motor selection, panel calculations, harmonic distortion, power factor correction</td></tr>
+          <tr><td><strong>Mechanical</strong></td><td>Pump sizing and NPSH, fan sizing, bearing life, V-belt tension, coupling alignment tolerance, gear ratio, hydraulic pressure</td></tr>
+          <tr><td><strong>HVAC</strong></td><td>Duct sizing (ASHRAE equal-friction), fan static pressure, refrigerant load, cooling tower sizing, chiller capacity, FCU and AHU selection</td></tr>
+          <tr><td><strong>Civil and Structural</strong></td><td>Foundation sizing, drainage capacity, structural beam (NSCP 2015), lighting fixture spacing (IESNA), retaining wall</td></tr>
+          <tr><td><strong>Instrumentation</strong></td><td>Control valve sizing (ISA-75), loop tuning (Ziegler-Nichols), transmitter range, P and ID symbols, intrinsic safety calculations</td></tr>
+          <tr><td><strong>Safety and Utilities</strong></td><td>NFPA 13 sprinkler hydraulics, ISO 8528-1 generator sizing, IEEE 80 substation grounding, fire pump selection, UPS sizing</td></tr>
+        </tbody>
+      </table>
+      <p>Total: 30+ specific calculators, each tagged with its applied standard.</p>
+
+      <h2 id="tropical-constants">Tropical constants: why the temperate defaults are wrong here</h2>
+      <p>Most engineering design software ships with default constants from temperate climates (20 degree C, sea level). The Philippines runs at 30 to 35 degree C with humidity well above the temperate default. The difference matters for any calculation that depends on air density, viscosity, or saturation pressure.</p>
+      <table>
+        <thead><tr><th>Property</th><th>Temperate (20 degree C)</th><th>Tropical (35 degree C, PH)</th><th>Affects</th></tr></thead>
+        <tbody>
+          <tr><td>Air density rho</td><td>1.204 kg/m3</td><td>1.15 kg/m3 (4% lower)</td><td>Fan sizing, duct pressure</td></tr>
+          <tr><td>Air viscosity mu</td><td>1.81e-5 Pa s</td><td>1.90e-5 Pa s (5% higher)</td><td>Reynolds number, friction</td></tr>
+          <tr><td>Kinematic viscosity nu</td><td>1.505e-5 m2/s</td><td>1.652e-5 m2/s (10% higher)</td><td>Duct sizing K constant</td></tr>
+          <tr><td>Saturation pressure</td><td>~2.3 kPa</td><td>~5.6 kPa</td><td>Cooling load, condensate</td></tr>
+        </tbody>
+      </table>
+      <p>The duct-sizing K constant in the equal-friction formula is K = 0.01811 for temperate, K = 0.01740 for tropical. Using the temperate K in a Philippine project gives undersized duct, 5 to 10 percent low fan static, and a fan motor that struggles in real ambient. The WorkHive HVAC calculator uses tropical K by default.</p>
+
+      <h2 id="worked-hvac">Worked example: HVAC duct sizing for a 100 kW office cooling load</h2>
+      <p>A real Philippine project: a 1,200 m2 BPO office in BGC needs HVAC duct sizing for a 100 kW total cooling load split across 4 zones.</p>
+
+      <h3>Step 1: Calculate volume flow per branch</h3>
+      <pre>Q_total = 100 kW / (1.2 x 1.005 x 11 deg C delta T) = 7.5 m3/s
+Q per zone = 7.5 / 4 = 1.875 m3/s per branch</pre>
+
+      <h3>Step 2: Pick a design friction rate</h3>
+      <p>Office cooling, low-noise requirement: <code>fr = 1.0 Pa/m</code></p>
+
+      <h3>Step 3: Apply the equal-friction formula</h3>
+      <pre>D = (K * Q^1.75 / fr)^(1/4.75)
+With Philippine K = 0.01740:
+D = (0.01740 * 1.875^1.75 / 1.0)^(1/4.75)
+D = (0.01740 * 3.072 / 1.0)^0.2105
+D = (0.0535)^0.2105
+D = 0.541 m (541 mm equivalent round)</pre>
+
+      <h3>Step 4: Convert to rectangular at 2:1 aspect ratio</h3>
+      <p>Using ASHRAE De equation, target a:b = 2:1:</p>
+      <pre>De = 1.30 * (a*b)^0.625 / (a+b)^0.25
+With a = 2b and De = 541 mm:
+541 = 1.30 * (2b^2)^0.625 / (3b)^0.25
+Solving: b ≈ 340 mm, a ≈ 680 mm
+Round up to standard: 350 mm x 700 mm</pre>
+
+      <h3>Step 5: Recompute D_h for pressure-drop calc</h3>
+      <pre>D_h = 2 * 0.35 * 0.70 / (0.35 + 0.70) = 0.467 m (467 mm)
+NOT 541 mm. Use 467 mm in Darcy-Weisbach.</pre>
+      <p>If a junior engineer uses De (541 mm) instead of D_h (467 mm) in the pressure-drop calculation, the result is 15 percent low. The fan gets undersized. The plant runs the fan flat-out and still gets warm zones in Manila humidity. The WorkHive HVAC calculator catches this distinction automatically.</p>
+
+      <div class="cta-box">
+        <p class="cta-eyebrow">The tool this guide is about</p>
+        <h4>WorkHive Engineering Design replaces 30 minutes of spreadsheet work with 30 seconds</h4>
+        <p>30+ standards-referenced calculators across 6 disciplines. Each output is tagged with its applied standard (ASHRAE 2021, IEC 62305, NFPA 13, NSCP 2015, etc.) and Philippine tropical constants where they matter. PDF report ready for licensed PME or PEE sign-off. Saved designs build your engineering portfolio. Free at the worker tier forever.</p>
+        <a href="/engineering-design.html" class="cta-btn">Open Engineering Design</a>
+        <p class="cta-secondary">No hive yet? <a href="/#join">Join WorkHive</a> first (free, takes 30 seconds).</p>
+      </div>
+
+      <h2 id="standards-table">Standards referenced by each calculator</h2>
+      <table>
+        <thead><tr><th>Calculator</th><th>Primary standard</th></tr></thead>
+        <tbody>
+          <tr><td>HVAC duct sizing</td><td>ASHRAE 2021 Fundamentals Ch 21, SMACNA HVAC Duct Construction</td></tr>
+          <tr><td>HVAC fan static</td><td>ASHRAE 62.1, AMCA 210</td></tr>
+          <tr><td>Cooling tower sizing</td><td>ASHRAE Handbook HVAC Systems Ch 39</td></tr>
+          <tr><td>Transformer sizing</td><td>IEC 60076, NEMA TR-1</td></tr>
+          <tr><td>Cable sizing (LV)</td><td>IEC 60364-5-52, PEC 2017</td></tr>
+          <tr><td>Cable sizing (MV)</td><td>IEC 60502</td></tr>
+          <tr><td>Lightning protection</td><td>IEC 62305, NFPA 780</td></tr>
+          <tr><td>Substation grounding</td><td>IEEE 80, IEEE 81</td></tr>
+          <tr><td>Pump sizing</td><td>API 610, ANSI HI 1.3</td></tr>
+          <tr><td>Bearing life</td><td>ISO 281, ISO 76</td></tr>
+          <tr><td>Sprinkler hydraulics</td><td>NFPA 13, NFPA 20</td></tr>
+          <tr><td>Generator sizing</td><td>ISO 8528-1, NFPA 110</td></tr>
+          <tr><td>Lighting design</td><td>IESNA Lighting Handbook, PEC 2017</td></tr>
+          <tr><td>Structural beam</td><td>NSCP 2015 (Philippine), AISC 360</td></tr>
+          <tr><td>Control valve sizing</td><td>ISA-75.01, IEC 60534</td></tr>
+        </tbody>
+      </table>
+
+      <h2 id="sign-off">Calculator versus licensed engineer sign-off</h2>
+      <p>A common question: "If the calculator gives me the answer, do I still need a PME or PEE to sign?"</p>
+      <p>Yes. The calculator gives you an engineering-grade answer that a junior engineer would produce in 30 minutes of careful work. The licensed engineer is responsible for:</p>
+      <ul>
+        <li><strong>Code compliance</strong> (NSCP 2015 for structural, PEC 2017 for electrical, NFPA for fire) and Philippine regulatory submissions</li>
+        <li><strong>Site-specific judgment</strong> (the calculator does not know that this BGC site has limited overhead clearance, or that this plant has 5 percent extra voltage drop on the upstream feeder)</li>
+        <li><strong>Professional liability</strong> for the design under the Philippine Mechanical Engineering Act, Electrical Engineering Law, or Civil Engineering Law</li>
+        <li><strong>Coordination across disciplines</strong> (the electrical engineer's design must respect the HVAC engineer's load and the structural engineer's space)</li>
+      </ul>
+      <p>What changes: the licensed engineer's review time drops from "redo the calculation from scratch" (3 hours per design) to "verify the inputs and sanity-check the output" (15 minutes). That capacity gain is the real value of standards-referenced calculators.</p>
+
+      <h2 id="portfolio">Your design history as a career portfolio</h2>
+      <p>This is the part most Filipino engineers underuse: the design history saved in WorkHive Engineering Design is a verifiable professional portfolio.</p>
+      <p>When a Filipino engineer applies for:</p>
+      <ul>
+        <li>An OFW position in Saudi, UAE, Qatar, or Singapore</li>
+        <li>An internal promotion from junior to senior engineer</li>
+        <li>A consulting engagement with a new client</li>
+        <li>A PRC licensure interview</li>
+      </ul>
+      <p>The hiring manager or reviewer wants to see verifiable work. A folder of saved WorkHive calculations with dates, applied standards, and PDF reports is exactly that. It is the engineering equivalent of the documented logbook history we make the worker-protection case for in the <a href="/learn/skill-matrix-for-maintenance-technicians/">Skill Matrix guide</a>.</p>
+      <p>In the AI era, engineers whose work is documented get promoted. Engineers whose work lives only in PDFs scattered on local drives get bypassed. Document your designs.</p>
+
+      <h2 id="mistakes">Common mistakes when using design calculators</h2>
+      <ul>
+        <li><strong>Skipping the standard check.</strong> If the calculator does not tell you which standard it applied, do not use it. Anonymous calculators on random websites give wrong answers with confidence.</li>
+        <li><strong>Using temperate constants in a Philippine design.</strong> Always verify the calculator is using tropical defaults for air, water, and humidity properties.</li>
+        <li><strong>Treating the output as final without coordination.</strong> A 100 kW HVAC design that ignores the electrical room load and the structural ceiling height will fail in installation regardless of how correct the HVAC math is.</li>
+        <li><strong>Not saving the calculation report.</strong> Six months later when the owner asks "why is this fan 30 kW and not 25 kW?", you need the dated calculation. Save every design.</li>
+        <li><strong>Letting the senior engineer skip review.</strong> The calculator removes the redo burden, not the review burden. The PME or PEE still owns the design.</li>
+      </ul>
+
+      <div class="callout">
+        <strong>The bigger picture:</strong> Standards-referenced calculators do for engineering what the digital logbook does for maintenance. They replace ad-hoc tribal knowledge with structured, verifiable, portable records. Plants and engineers that adopt them compound their work over years. Plants and engineers that resist them stay dependent on the senior engineer's memory.
+      </div>
+
+      <h2 id="faq">Frequently asked questions</h2>
+
+      <details class="faq-item">
+        <summary>What engineering disciplines do the WorkHive calculators cover?</summary>
+        <div class="faq-answer">Six disciplines: electrical (transformer sizing, cable sizing, lightning protection per IEC 62305, motor selection, panel calculations), mechanical (pump sizing, fan sizing, bearing life, belt tension, alignment), HVAC (duct sizing per ASHRAE 2021, fan static, refrigerant load, cooling tower sizing), civil (foundation sizing, drainage, structural beam, lighting fixture spacing), instrumentation (control valve sizing, loop tuning, transmitter range, P and ID), and safety (NFPA 13 sprinkler, ISO 8528-1 generator sizing, IESNA illumination). All calculators reference the relevant international standard and apply Philippine tropical constants where they matter.</div>
+      </details>
+
+      <details class="faq-item">
+        <summary>Why use tropical-climate constants instead of standard ASHRAE values?</summary>
+        <div class="faq-answer">Standard ASHRAE constants assume 20 degree C ambient at sea level (rho = 1.204 kg/m3). Philippine ambient averages 30 to 35 degree C with high humidity (rho = 1.15 kg/m3). The 4 percent density difference matters for fan sizing, duct pressure-drop, and refrigerant capacity. Using temperate constants in a tropical design gives undersized fans and unmet cooling load. The WorkHive HVAC calculator uses K = 0.01740 (35 degree C tropical) by default, not the temperate 0.01811.</div>
+      </details>
+
+      <details class="faq-item">
+        <summary>Are the calculators a substitute for a licensed PME or PEE sign-off?</summary>
+        <div class="faq-answer">No. The calculators give you the engineering-grade answer that a junior engineer would produce in 30 minutes of careful work. A licensed Professional Mechanical Engineer (PME) or Professional Electrical Engineer (PEE) still signs the final design for code compliance and professional liability. The calculators reduce the junior engineer's time from 30 minutes to 30 seconds and give the licensed engineer a sanity-check baseline before sign-off.</div>
+      </details>
+
+      <details class="faq-item">
+        <summary>What standards do the calculators reference?</summary>
+        <div class="faq-answer">The WorkHive Engineering Design tool tags every output with its standard authority. Common references: ASHRAE 2021 Fundamentals (HVAC), IEC 62305 (lightning), IEC 60364 (LV electrical installations), IEEE 80 (substation grounding), NFPA 13 (sprinkler systems), ISO 8528-1 (generator sets), ISO 14224 (reliability data), SMACNA HVAC Duct Construction, ASHRAE 62.1 (ventilation), IESNA Lighting Handbook, API 610 (pumps), DOLE OSHS for Philippine safety, NSCP 2015 (structural). Each output cites the chapter and clause used.</div>
+      </details>
+
+      <details class="faq-item">
+        <summary>Can I export the calculation report as a PDF for sign-off?</summary>
+        <div class="faq-answer">Yes. Every calculation in the WorkHive Engineering Design tool produces a structured report with input values, intermediate steps, applied standards, and final answer. The PDF export is formatted for licensed engineer review and inclusion in project bid documents or as-built records. The format follows the typical Philippine government and DOLE submission style.</div>
+      </details>
+
+      <details class="faq-item">
+        <summary>What happens to my designs if I leave the plant?</summary>
+        <div class="faq-answer">Your saved calculations stay in your hive's project history and can be exported with you (subject to your employment IP terms). For Filipino engineers building a portfolio for overseas work or OFW positions, the WorkHive design history is a verifiable record of work done, complete with date stamps and applied standards. This is the Engineering equivalent of the career-protection argument we make for technicians in the Skill Matrix guide: documented work compounds; undocumented work disappears.</div>
+      </details>
+
+      <h2 id="sources">Sources</h2>
+      <ul>
+        <li>ASHRAE, <strong>2021 Fundamentals Handbook, Chapter 21 (Duct Design)</strong>.</li>
+        <li>SMACNA, <strong>HVAC Duct Construction Standards, 3rd Edition</strong>.</li>
+        <li>IEC 62305, <strong>Protection against lightning</strong>, all parts.</li>
+        <li>IEEE 80, <strong>Guide for Safety in AC Substation Grounding</strong>.</li>
+        <li>NFPA 13, <strong>Installation of Sprinkler Systems</strong>.</li>
+        <li>ISO 8528-1, <strong>Reciprocating internal combustion engine driven alternating current generating sets</strong>.</li>
+        <li>NSCP 2015, <strong>National Structural Code of the Philippines</strong>.</li>
+        <li>PEC 2017, <strong>Philippine Electrical Code</strong>.</li>
+        <li>WorkHive platform positioning, "Four Gaps One Hive": Execution, Skills, Intelligence, Marketplace. <a href="/">workhiveph.com</a></li>
+        <li>Related WorkHive guides: <a href="/learn/skill-matrix-for-maintenance-technicians/">Skill matrix</a> · <a href="/learn/start-digital-logbook-philippine-factory/">Digital logbook rollout</a></li>
+      </ul>
+
+      <div class="author-card">
+        <div class="avatar">WH</div>
+        <div class="meta">
+          <p>WorkHive Editorial Team</p>
+          <p>Practical writing for the Philippine plant floor. Email <a href="mailto:admin@workhiveph.com" style="color:#5FCCE8;">admin@workhiveph.com</a> with corrections or contributions.</p>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="pt-8 border-t border-white/[0.06] mt-12">
+      <a href="/learn/" class="text-sm text-white/55 hover:text-orange-wh transition-colors">&larr; Back to all guides</a>
+    </div>
+
+  </div>
+</article>
+
+<footer class="py-10 border-t border-white/[0.06]" style="background: rgba(13,24,36,0.85);">
+  <div class="max-w-4xl mx-auto px-5 sm:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-white/35">
+    <p>© 2026 WorkHive Platform · workhiveph.com · Last updated <time datetime="2026-05-17">17 May 2026</time></p>
+    <div class="flex items-center gap-6">
+      <a href="/" class="hover:text-white/60 transition-colors">Home</a>
+      <a href="/#faq" class="hover:text-white/60 transition-colors">FAQ</a>
+      <a href="/#join" class="hover:text-white/60 transition-colors">Join the Hive</a>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

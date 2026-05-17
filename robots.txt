@@ -1,3 +1,6 @@
+# WorkHive robots.txt
+# Default: allow all crawlers, block backup/test files
+
 User-agent: *
 Allow: /
 Disallow: /index.backup.html
@@ -5,5 +8,44 @@ Disallow: /index.backup2.html
 Disallow: /checklist.backup.html
 Disallow: /logbook.backup.html
 Disallow: /index-v3-test.html
+
+# Explicit allow for known AI crawlers (signals intent, helps with AEO/GEO citation eligibility)
+# Sources: OpenAI, Anthropic, Google, Perplexity, Common Crawl public crawler docs (2026)
+
+User-agent: GPTBot
+Allow: /
+
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: Claude-Web
+Allow: /
+
+User-agent: anthropic-ai
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Perplexity-User
+Allow: /
+
+User-agent: CCBot
+Allow: /
+
+User-agent: Bytespider
+Allow: /
+
+User-agent: Applebot-Extended
+Allow: /
 
 Sitemap: https://workhiveph.com/sitemap.xml
