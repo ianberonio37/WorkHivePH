@@ -28,8 +28,8 @@ except ImportError:
 
 BASE_URL = "http://127.0.0.1:5000/workhive"
 
-# Test identity for hive-gated pages (most mature hive available)
-TEST_WORKER_NAME = "Leandro Marquez"
+# Test identity for hive-gated pages (most mature hive + actual member)
+TEST_WORKER_NAME = "Pablo Aguilar"  # supervisor in test hive (validated against hive_members)
 TEST_HIVE_ID = "586fd158-42d1-4853-a406-64a4695e71c4"  # Stair 2, composite 87 (highest)
 
 # ─────────────────────────────────────────────────────────────────────
@@ -167,7 +167,7 @@ SCENARIOS = {
             "page": "/analytics.html",
             "steps": [
                 {"action": "wait_for_selector", "selector": "#an-verdict, #an-summary", "timeout": 8000},
-                {"action": "wait", "ms": 10000},
+                {"action": "wait", "ms": 15000},
             ],
             "validations": {
                 "verdict_loaded": {"selector": "#an-verdict, #an-summary", "type": "has_text", "required": True},

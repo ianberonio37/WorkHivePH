@@ -404,6 +404,17 @@
         });
         document.getElementById('empty-supervisor').style.display = HIVE_ROLE === 'supervisor' ? 'block' : 'none';
         document.getElementById('empty-worker').style.display     = HIVE_ROLE !== 'supervisor' ? 'block' : 'none';
+
+        const vLbl  = document.getElementById('sb-verdict-label');
+        const vSub  = document.getElementById('sb-verdict-sub');
+        const vIcon = document.getElementById('sb-verdict-icon');
+        const vBox  = document.getElementById('sb-verdict');
+        if (vLbl)  vLbl.textContent  = 'No plan yet for this window';
+        if (vSub)  vSub.textContent  = HIVE_ROLE === 'supervisor'
+          ? 'Tap Generate Plan to build a briefing from current logbook + risk + PM data.'
+          : 'Your supervisor has not published a briefing yet. Check back at shift start.';
+        if (vIcon) vIcon.textContent = '·';
+        if (vBox)  { vBox.classList.remove('healthy','watch','attn'); vBox.classList.add('empty'); }
         return;
       }
 
