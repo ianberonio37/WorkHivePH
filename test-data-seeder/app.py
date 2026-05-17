@@ -977,15 +977,18 @@ def api_run_gate_visual():
 
 @app.route("/api/run-mega-gate", methods=["POST"])
 def api_run_mega_gate():
-    """Mega Gate: release gate + AI Full + visual regression + performance budgets.
+    """Mega Gate: release gate + AI Full + visual + perf + AI self-improvement loop.
 
-    The most thorough single-click validation. ~7-10 min on a warm cache.
+    The most thorough single-click validation. ~17-25 min on a warm cache.
+    Includes the AI Self-Improvement Loop (--with-ai-deep) which auto-discovers
+    new AI surfaces, generates scenarios for them, runs 21+ scenarios, and
+    auto-generates validators for any new findings.
     """
     if JOB_STATE["running"]:
         return jsonify({"error": "another job is running"}), 409
     _run_job(
         "mega_gate",
-        _run_release_gate(["--with-ai", "--with-visual", "--with-perf"]),
+        _run_release_gate(["--with-ai", "--with-visual", "--with-perf", "--with-ai-deep"]),
     )
     return jsonify({"started": True})
 
