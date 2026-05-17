@@ -134,7 +134,7 @@
         "@id": "https://workhiveph.com/#faq",
         "url": "https://workhiveph.com/#faq",
         "inLanguage": "en-PH",
-        "dateModified": "2026-05-16",
+        "dateModified": "2026-05-18",
         "mainEntity": [
           {
             "@type": "Question",
@@ -214,6 +214,46 @@
             "acceptedAnswer": {
               "@type": "Answer",
               "text": "Enter your work email in the Join the Hive form on this page. You will be added to the early-access list and contacted with a hive-join link once your facility is provisioned. Sign-up is free and takes about 30 seconds."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "How do I start today, before my plant is provisioned?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Open any tool right now. The Logbook, PM Scheduler, Engineering Calculators, and AI Assistant all run in Solo Mode without a hive: type entries, run calculations, ask the assistant. When your plant joins, your Solo Mode entries migrate into your hive automatically. You do not have to wait for anyone to approve anything before getting value."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "What if my plant still uses pen and paper logbooks?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "That is the most common starting point in Philippine plants and the case WorkHive was built for. The Paper-to-Digital stage assumes nothing about your existing systems: no CMMS, no ERP, no sensors, no IT department. Start by digitizing one machine's logbook for one shift. We have a free guide at /learn/start-digital-logbook-philippine-factory/ that walks through a 12-week zero-budget rollout."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Can I use WorkHive on my own without my supervisor knowing?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes. Solo Mode is built specifically for workers who want to upskill quietly: OFW-track engineers building portable proof of work, new graduates learning industrial standards, technicians documenting their own repair history. Your Solo Mode data is private to you and never shared with any hive until you join one and explicitly migrate it. This is intentional. The platform exists to protect Filipino workers' careers, not to surveil them."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "How long until my plant sees results?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Honest answer: 2 weeks for first signal, 90 days for measurable change, 12 months for compound returns. Week 1-2 the team builds the habit. Day 30 your first PM compliance number is real. Day 90 you can show a downtime trend. Month 6 the AI assistant gets useful because your logbook has enough entries to learn from. Month 12 you are at Disciplined stage and ready for Predictive-Ready features. No tool delivers results faster honestly; anyone claiming overnight transformation is selling you a dashboard, not a system."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Will WorkHive run on my old Android phone with patchy data?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes. WorkHive targets the realistic Philippine plant-floor device: a 5-year-old Android phone with 3G data and a cracked screen, used with gloves. The app installs as a PWA in under 5 MB, the logbook works offline with IndexedDB queueing, touch targets are sized for gloved hands, the interface still loads on Chrome 90+. We test against the slowest devices on purpose because that is the real audience."
             }
           }
         ]
@@ -1123,8 +1163,8 @@
 
     <div class="grid lg:grid-cols-2 gap-16 items-center">
 
-      <!-- Left copy (visually second on desktop) -->
-      <div class="order-2">
+      <!-- Left copy (mobile-first; desktop puts the worker-evolution card on the right) -->
+      <div class="order-1 lg:order-2">
         <div class="badge mb-6">
           <svg width="8" height="8" viewBox="0 0 8 8" fill="currentColor"><circle cx="4" cy="4" r="4"/></svg>
           The Hive is Open · Philippines
@@ -1135,11 +1175,16 @@
           <span style="background: linear-gradient(135deg, #F7A21B 30%, #FDB94A 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">Memory</span>
         </h1>
 
-        <p class="text-lg text-white/65 leading-[1.75] max-w-lg mb-10 font-light">
+        <!-- Clear-as-day positioning sentence: tools above the fold for humans + AEO -->
+        <p class="text-lg sm:text-xl text-white/80 leading-[1.55] max-w-xl mb-4 font-medium">
+          Free industrial tools for every Filipino worker: digital logbook, PM scheduler, spare-parts inventory, skill matrix, engineering calculators, and an AI work assistant.
+        </p>
+
+        <p class="text-base text-white/55 leading-[1.7] max-w-lg mb-8 font-light italic">
           The beehive has shown us how for 80 million years: every worker valued, every lesson kept. WorkHive brings that to Philippine industry.
         </p>
 
-        <div class="flex flex-wrap items-center gap-4 mb-4">
+        <div class="flex flex-wrap items-center gap-4 mb-5">
           <a href="#join" class="btn-primary text-base cta-pulse">Join the Hive</a>
           <a href="#platform" class="cta-text-link">
             See How It Works
@@ -1147,30 +1192,52 @@
           </a>
         </div>
 
-        <!-- DTI legitimacy badge (replaces fabricated user count) -->
-        <div style="display:flex;align-items:center;gap:12px;margin-top:14px;margin-bottom:40px;">
-          <div class="w-10 h-10 rounded-full flex-shrink-0 flex items-center justify-center" style="background:linear-gradient(135deg,#F7A21B,#FDB94A);">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#162032" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg>
-          </div>
-          <p class="text-xs text-white/55 leading-snug">DTI Registered Business <br/><span class="text-white/30">No. 8080496 · Free at the worker tier, forever</span></p>
+        <!-- Try-a-tool-now row: zero-friction conversion path. Visitors play with a real tool before signing up. -->
+        <div class="flex flex-wrap items-center gap-x-3 gap-y-2 mb-7 text-xs">
+          <span class="text-white/40 font-medium uppercase tracking-wider">Or try free:</span>
+          <a href="/logbook.html" class="text-orange-wh hover:text-white transition-colors font-semibold">Logbook</a>
+          <span class="text-white/15">·</span>
+          <a href="/pm-scheduler.html" class="text-orange-wh hover:text-white transition-colors font-semibold">PM Scheduler</a>
+          <span class="text-white/15">·</span>
+          <a href="/engineering-design.html" class="text-orange-wh hover:text-white transition-colors font-semibold">Eng. Calculators</a>
+          <span class="text-white/15">·</span>
+          <a href="/assistant.html" class="text-orange-wh hover:text-white transition-colors font-semibold">AI Assistant</a>
         </div>
 
-        <!-- micro stats -->
+        <!-- Trust chip row: 3 short proof points. DTI = authority, Free = pricing clincher, PDPA = data trust. -->
+        <div class="flex flex-wrap gap-2 mb-6">
+          <div class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-orange-wh/30" style="background: rgba(247,162,27,0.08);">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#F7A21B" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg>
+            <span class="text-xs font-semibold text-white/85">DTI Registered <span class="text-white/45 font-normal">· 8080496</span></span>
+          </div>
+          <div class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-orange-wh/30" style="background: rgba(247,162,27,0.08);">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#F7A21B" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 12l3 3 5-6"/></svg>
+            <span class="text-xs font-semibold text-white/85">Free Forever <span class="text-white/45 font-normal">· worker tier</span></span>
+          </div>
+          <div class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-blue-wh/30" style="background: rgba(41,182,217,0.08);">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#29B6D9" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            <span class="text-xs font-semibold text-white/85">PDPA Compliant <span class="text-white/45 font-normal">· data isolated per hive</span></span>
+          </div>
+        </div>
+
+        <!-- micro stats with cited sources so they read as evidence, not aspiration -->
         <div class="flex flex-wrap gap-x-10 gap-y-5">
           <div>
             <p class="text-3xl font-black stat-orange leading-none">40-60%</p>
             <p class="text-xs text-white/45 font-medium mt-1 tracking-wide">Less Unplanned Downtime</p>
+            <p class="text-[10px] text-white/30 mt-0.5 tracking-wide">SMRP world-class benchmarks</p>
           </div>
           <div class="w-px bg-white/10"></div>
           <div>
             <p class="text-3xl font-black stat-blue leading-none">4 Gaps</p>
-            <p class="text-xs text-white/45 font-medium mt-1 tracking-wide">Closed by One Hive</p>
+            <p class="text-xs text-white/45 font-medium mt-1 tracking-wide">Execution · Skills · Intelligence · Marketplace</p>
+            <p class="text-[10px] text-white/30 mt-0.5 tracking-wide">closed by one hive</p>
           </div>
         </div>
       </div>
 
-      <!-- Right visual: Worker Evolution Preview (visually first on desktop) -->
-      <div class="relative flex justify-center lg:justify-start order-1">
+      <!-- Right visual: Worker Evolution Preview (mobile second, desktop first) -->
+      <div class="relative flex justify-center lg:justify-start order-2 lg:order-1">
         <div class="relative w-full max-w-sm lg:max-w-md">
 
           <!-- glow ring -->
@@ -1745,6 +1812,31 @@
         <div class="faq-answer">Enter your work email in the Join the Hive form on this page. You will be added to the early-access list and contacted with a hive-join link once your facility is provisioned. Sign-up is free and takes about 30 seconds.</div>
       </details>
 
+      <details class="faq-item">
+        <summary>How do I start today, before my plant is provisioned?</summary>
+        <div class="faq-answer">Open any tool right now. The Logbook, PM Scheduler, Engineering Calculators, and AI Assistant all run in Solo Mode without a hive: type entries, run calculations, ask the assistant. When your plant joins, your Solo Mode entries migrate into your hive automatically. You do not have to wait for anyone to approve anything before getting value.</div>
+      </details>
+
+      <details class="faq-item">
+        <summary>What if my plant still uses pen and paper logbooks?</summary>
+        <div class="faq-answer">That is the most common starting point in Philippine plants and the case WorkHive was built for. The Paper-to-Digital stage assumes nothing about your existing systems: no CMMS, no ERP, no sensors, no IT department. Start by digitizing one machine's logbook for one shift. We have a free guide at /learn/start-digital-logbook-philippine-factory/ that walks through a 12-week zero-budget rollout.</div>
+      </details>
+
+      <details class="faq-item">
+        <summary>Can I use WorkHive on my own without my supervisor knowing?</summary>
+        <div class="faq-answer">Yes. Solo Mode is built specifically for workers who want to upskill quietly: OFW-track engineers building portable proof of work, new graduates learning industrial standards, technicians documenting their own repair history. Your Solo Mode data is private to you and never shared with any hive until you join one and explicitly migrate it. This is intentional. The platform exists to protect Filipino workers' careers, not to surveil them.</div>
+      </details>
+
+      <details class="faq-item">
+        <summary>How long until my plant sees results?</summary>
+        <div class="faq-answer">Honest answer: 2 weeks for first signal, 90 days for measurable change, 12 months for compound returns. Week 1-2 the team builds the habit. Day 30 your first PM compliance number is real. Day 90 you can show a downtime trend. Month 6 the AI assistant gets useful because your logbook has enough entries to learn from. Month 12 you are at Disciplined stage and ready for Predictive-Ready features. No tool delivers results faster honestly; anyone claiming overnight transformation is selling you a dashboard, not a system.</div>
+      </details>
+
+      <details class="faq-item">
+        <summary>Will WorkHive run on my old Android phone with patchy data?</summary>
+        <div class="faq-answer">Yes. WorkHive targets the realistic Philippine plant-floor device: a 5-year-old Android phone with 3G data and a cracked screen, used with gloves. The app installs as a PWA in under 5 MB, the logbook works offline with IndexedDB queueing, touch targets are sized for gloved hands, the interface still loads on Chrome 90+. We test against the slowest devices on purpose because that is the real audience.</div>
+      </details>
+
     </div>
   </div>
 </section>
@@ -1861,17 +1953,44 @@
       has been missing. Be among the first to build it.
     </p>
 
-    <!-- email signup -->
-    <form class="flex flex-col sm:flex-row gap-3 max-w-md mx-auto mb-8" onsubmit="handleSignup(event)">
-      <input
-        type="email"
-        name="email"
-        placeholder="Enter your work email"
-        required
-        class="flex-1 px-5 py-3.5 rounded-xl text-white placeholder-white/30 text-sm font-medium border border-white/[0.12] focus:outline-none focus:border-orange-wh/60 focus:ring-2 focus:ring-orange-wh/20 transition-colors"
-        style="background: rgba(42,61,88,0.7);"
-      />
-      <button type="submit" class="btn-primary text-sm whitespace-nowrap">Join the Hive</button>
+    <!-- email signup. Role dropdown is OPTIONAL (never required) so the form
+         stays one-tap-to-submit for the visitor in a hurry. The role lets us
+         segment Phase 3 outreach by audience (field worker copy lands very
+         differently from plant manager copy). -->
+    <form id="joinForm" data-ga4-signup class="max-w-md mx-auto mb-3" onsubmit="handleSignup(event)">
+      <div class="flex flex-col sm:flex-row gap-3 mb-3">
+        <input
+          type="email"
+          name="email"
+          placeholder="Enter your work email"
+          required
+          autocomplete="email"
+          class="flex-1 px-5 py-3.5 rounded-xl text-white placeholder-white/30 text-sm font-medium border border-white/[0.12] focus:outline-none focus:border-orange-wh/60 focus:ring-2 focus:ring-orange-wh/20 transition-colors"
+          style="background: rgba(42,61,88,0.7);"
+        />
+        <button type="submit" class="btn-primary text-sm whitespace-nowrap">Join the Hive</button>
+      </div>
+      <label for="join-role" class="sr-only">Your role (optional)</label>
+      <select
+        id="join-role"
+        name="role"
+        aria-label="Your role (optional)"
+        class="w-full px-5 py-3 rounded-xl text-white text-sm font-medium border border-white/[0.10] focus:outline-none focus:border-orange-wh/60 focus:ring-2 focus:ring-orange-wh/20 transition-colors appearance-none"
+        style="background: rgba(42,61,88,0.5); background-image: url('data:image/svg+xml;utf8,<svg xmlns=&quot;http://www.w3.org/2000/svg&quot; width=&quot;12&quot; height=&quot;8&quot; viewBox=&quot;0 0 12 8&quot;><path fill=&quot;%23F7A21B&quot; d=&quot;M6 8 0 0h12z&quot;/></svg>'); background-position: right 1rem center; background-repeat: no-repeat; padding-right: 2.5rem;"
+      >
+        <option value="">Your role (optional): helps us send the right starter pack</option>
+        <option value="field_worker">Field worker / Operator</option>
+        <option value="technician">Maintenance Technician</option>
+        <option value="supervisor">Supervisor / Shift Lead</option>
+        <option value="engineer">Engineer (Reliability / Design / Process)</option>
+        <option value="planner">Planner / Maintenance Planner</option>
+        <option value="manager">Plant Manager / Operations Manager</option>
+        <option value="supplier">Supplier / Vendor</option>
+        <option value="contractor">Contractor / Specialist</option>
+        <option value="graduate">New Graduate / Student</option>
+        <option value="upskiller">Upskilling worker (career switch)</option>
+        <option value="other">Other</option>
+      </select>
     </form>
 
     <p class="text-xs text-white/30 mb-12">Free to join · Philippines-first · No spam, ever</p>
@@ -1908,13 +2027,15 @@
         <p class="text-xs text-white/25 mt-4 font-medium">workhiveph.com · 2026</p>
       </div>
       <div>
-        <p class="text-xs font-semibold text-white/60 uppercase tracking-[0.12em] mb-4">The Hive</p>
+        <p class="text-xs font-semibold text-white/60 uppercase tracking-[0.12em] mb-4">Tools (Free)</p>
         <ul class="space-y-3">
-          <li><a href="#platform"  class="text-sm text-white/40 hover:text-white/70 transition-colors">Fix It Fast</a></li>
-          <li><a href="#platform"  class="text-sm text-white/40 hover:text-white/70 transition-colors">Right Person, Right Job</a></li>
-          <li><a href="#platform"  class="text-sm text-white/40 hover:text-white/70 transition-colors">The Hive Remembers</a></li>
-          <li><a href="#community" class="text-sm text-white/40 hover:text-white/70 transition-colors">Find a Specialist</a></li>
-          <li><a href="/learn/" class="text-sm text-white/40 hover:text-white/70 transition-colors">Learn (free guides)</a></li>
+          <li><a href="/logbook.html"            class="text-sm text-white/40 hover:text-white/70 transition-colors">Maintenance Logbook</a></li>
+          <li><a href="/pm-scheduler.html"       class="text-sm text-white/40 hover:text-white/70 transition-colors">PM Scheduler</a></li>
+          <li><a href="/inventory.html"          class="text-sm text-white/40 hover:text-white/70 transition-colors">Spare-Parts Inventory</a></li>
+          <li><a href="/skillmatrix.html"        class="text-sm text-white/40 hover:text-white/70 transition-colors">Skill Matrix</a></li>
+          <li><a href="/engineering-design.html" class="text-sm text-white/40 hover:text-white/70 transition-colors">Engineering Calculators</a></li>
+          <li><a href="/assistant.html"          class="text-sm text-white/40 hover:text-white/70 transition-colors">AI Work Assistant</a></li>
+          <li><a href="/learn/"                  class="text-sm text-white/40 hover:text-white/70 transition-colors">Learn (24 free guides)</a></li>
         </ul>
       </div>
       <div>
@@ -1995,15 +2116,36 @@
   // ---- Email signup (via Formspree, no API key exposed) ----
   async function handleSignup(e) {
     e.preventDefault();
-    const btn = e.target.querySelector('button[type="submit"]');
+    const btn   = e.target.querySelector('button[type="submit"]');
     const input = e.target.querySelector('input[type="email"]');
+    const roleSelect = e.target.querySelector('select[name="role"]');
+    const role = roleSelect ? (roleSelect.value || '') : '';
 
     btn.textContent = 'Joining...';
     btn.disabled = true;
     input.disabled = true;
+    if (roleSelect) roleSelect.disabled = true;
+
+    // Persist role locally so we can attribute the signup even if the backend
+    // helper signature does not yet accept it. _supabaseSignup is called with
+    // (email, role) so future updates pick it up; older versions ignore the
+    // extra arg gracefully.
+    if (role) {
+      try { localStorage.setItem('wh.signup_role', role); } catch (_) {}
+    }
+
+    // Fire the GA4 conversion event with role as a custom param. The
+    // signup_form_submit event in wh-ga4.js auto-fires on any joinForm
+    // submission; this adds the optional role for richer segmentation.
+    if (window.gtag && role) {
+      window.gtag('event', 'signup_role_captured', {
+        event_category: 'conversion',
+        role: role,
+      });
+    }
 
     try {
-      await window._supabaseSignup(input.value);
+      await window._supabaseSignup(input.value, role);
 
       btn.textContent = "You're on the list!";
       btn.style.background = 'linear-gradient(135deg, #29B6D9 0%, #1A9ABF 100%)';
@@ -2012,6 +2154,7 @@
       btn.textContent = 'Try again';
       btn.disabled = false;
       input.disabled = false;
+      if (roleSelect) roleSelect.disabled = false;
     }
   }
 
