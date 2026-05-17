@@ -1007,7 +1007,9 @@
 
       '<div id="kitZone"><div class="empty-msg" style="padding:1rem">Loading toolkit...</div></div>' +
 
-      '<div id="scriptZone"></div>';
+      '<div id="scriptZone"></div>' +
+
+      '<div id="packZone"></div>';
 
     // Always render the kit immediately (doesn't need script to show tool links)
     renderProductionKit(idea.id, '').then(kitHtml => {
@@ -1128,6 +1130,9 @@
       const kz = document.getElementById('kitZone');
       if (kz) kz.innerHTML = kitHtml;
     });
+
+    // Load Platform Pack section (shows "Generate" button if not yet generated)
+    renderPlatformPack(selectedId);
   }
 
   function showScriptError(msg) {
@@ -2116,6 +2121,208 @@
   }
 
   // ── Stream voice audio (for browser playback) ─────────────────────────────
+
+  // ── Platform Pack (8-platform social copy from one idea) ──────────────────
+
+  // Cache the latest fetched pack per idea so tab switches do not re-fetch.
+  const PACK_CACHE = {};
+
+  const PACK_TABS = [
+    { key: 'facebook_page',       label: 'FB Page' },
+    { key: 'facebook_group',      label: 'FB Group' },
+    { key: 'linkedin_company',    label: 'LinkedIn' },
+    { key: 'linkedin_founder',    label: 'LinkedIn Founder' },
+    { key: 'youtube',             label: 'YouTube' },
+    { key: 'shorts_reels_tiktok', label: 'Shorts/Reels/TikTok' },
+    { key: 'reddit',              label: 'Reddit' },
+    { key: 'x_thread',            label: 'X / Twitter' },
+    { key: '_extras',             label: 'Extras' },
+    { key: '_calendar',           label: '30-day Calendar' },
+  ];
+
+  async function renderPlatformPack(ideaId) {
+    const z = document.getElementById('packZone');
+    if (!z) return;
+    z.innerHTML =
+      '<div class="script-panel" style="margin-top:1rem">' +
+        '<div class="script-top">' +
+          '<span class="script-top-label">Platform Pack &mdash; 8 platforms, 1 click</span>' +
+          '<button class="btn-ghost" style="font-size:.7rem;padding:.3rem .7rem" id="packGenBtn-' + ideaId + '" onclick="generatePlatformPack(\'' + ideaId + '\', false)">Generate Platform Pack</button>' +
+        '</div>' +
+        '<div class="script-body" id="packBody-' + ideaId + '" style="padding:.8rem 1rem;font-size:.78rem;color:var(--steel)">Click Generate above to produce ready-to-paste copy for 8 platforms (Facebook, LinkedIn, YouTube, TikTok, Reddit, X, plus extras). Uses the free AI fallback chain. Takes ~20 seconds. Re-runs reuse the cached pack unless you regenerate.</div>' +
+      '</div>';
+
+    // Try cached fetch (no AI call) so existing packs render automatically.
+    try {
+      const r    = await fetch('/api/ideas/' + ideaId + '/platform-pack');
+      if (!r.ok) return;
+      const data = await r.json();
+      if (data && data.success && data.pack) {
+        PACK_CACHE[ideaId] = data;
+        renderPackTabs(ideaId, data);
+      }
+    } catch (_) { /* not generated yet — leave the placeholder */ }
+  }
+
+  async function generatePlatformPack(ideaId, force) {
+    const btn  = document.getElementById('packGenBtn-' + ideaId);
+    const body = document.getElementById('packBody-' + ideaId);
+    if (btn) { btn.disabled = true; btn.textContent = force ? 'Regenerating... (~20s)' : 'Generating... (~20s)'; }
+    if (body) body.innerHTML = '<div style="font-size:.72rem;color:var(--steel)">Calling AI (Groq &rarr; Cerebras &rarr; OpenRouter)... typically 15&ndash;25 seconds.</div>';
+
+    try {
+      const r    = await fetch('/api/ideas/' + ideaId + '/platform-pack', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ force: !!force }),
+      });
+      const data = await r.json();
+      if (!data.success) throw new Error(data.error || 'Generation failed');
+
+      PACK_CACHE[ideaId] = data;
+      renderPackTabs(ideaId, data);
+
+      if (btn) {
+        btn.textContent = 'Regenerate Platform Pack';
+        btn.disabled    = false;
+        btn.onclick     = () => generatePlatformPack(ideaId, true);
+      }
+      toast(data.cached ? 'Platform Pack loaded from cache' : 'Platform Pack generated', 'ok');
+
+    } catch (err) {
+      if (body) body.innerHTML = '<div style="font-size:.72rem;color:var(--red)">' + esc(err.message) + '</div>';
+      if (btn)  { btn.disabled = false; btn.textContent = 'Retry Generate'; }
+      toast('Platform Pack failed: ' + err.message, 'err');
+    }
+  }
+
+  function renderPackTabs(ideaId, data) {
+    const body = document.getElementById('packBody-' + ideaId);
+    if (!body) return;
+
+    const tabsHtml = PACK_TABS.map((t, i) =>
+      '<button class="pack-tab' + (i === 0 ? ' active' : '') + '" data-idx="' + i + '" ' +
+      'style="border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);color:var(--cloud);' +
+      'padding:.32rem .65rem;border-radius:.35rem;font-size:.66rem;font-family:Poppins,sans-serif;cursor:pointer;" ' +
+      'onclick="switchPackTab(\'' + ideaId + '\', ' + i + ')">' + esc(t.label) + '</button>'
+    ).join('');
+
+    body.innerHTML =
+      '<div style="display:flex;flex-wrap:wrap;gap:.35rem;margin-bottom:.7rem">' + tabsHtml + '</div>' +
+      '<div id="packContent-' + ideaId + '" style="background:rgba(22,32,50,.6);border-radius:.5rem;padding:.7rem .8rem;font-size:.72rem;line-height:1.55;color:var(--cloud);min-height:120px"></div>' +
+      '<div style="margin-top:.6rem;display:flex;gap:.4rem;flex-wrap:wrap">' +
+        '<a class="btn-ghost" style="font-size:.65rem;padding:.3rem .6rem" href="' + data.md_download + '" download>Download .md</a>' +
+        '<button class="btn-ghost" style="font-size:.65rem;padding:.3rem .6rem" onclick="generatePlatformPack(\'' + ideaId + '\', true)">Regenerate</button>' +
+      '</div>';
+
+    switchPackTab(ideaId, 0);
+  }
+
+  function switchPackTab(ideaId, idx) {
+    const data = PACK_CACHE[ideaId];
+    if (!data || !data.pack) return;
+    // Update active state on tab buttons
+    document.querySelectorAll('#packBody-' + ideaId + ' .pack-tab').forEach((b, i) => {
+      b.classList.toggle('active', i === idx);
+      b.style.background = (i === idx) ? 'rgba(247,162,27,.18)' : 'rgba(255,255,255,.04)';
+      b.style.borderColor = (i === idx) ? 'rgba(247,162,27,.5)' : 'rgba(255,255,255,.1)';
+    });
+
+    const target = PACK_TABS[idx];
+    const out    = document.getElementById('packContent-' + ideaId);
+    if (!target || !out) return;
+
+    out.innerHTML = renderPackTabContent(target.key, data);
+  }
+
+  function _copyBlock(text, label) {
+    return '<div style="display:flex;justify-content:space-between;align-items:center;margin-top:.4rem">' +
+             '<span style="font-size:.62rem;color:var(--steel);text-transform:uppercase;letter-spacing:.05em">' + esc(label) + '</span>' +
+             '<button class="btn-ghost" style="font-size:.6rem;padding:.2rem .5rem" onclick="copyText(' + JSON.stringify(text) + ',\'' + esc(label) + ' copied\')">Copy</button>' +
+           '</div>' +
+           '<div style="white-space:pre-wrap;font-size:.7rem;color:var(--cloud);background:rgba(0,0,0,.2);padding:.55rem .7rem;border-radius:.35rem;margin-top:.25rem;line-height:1.55">' + esc(text) + '</div>';
+  }
+
+  function renderPackTabContent(key, data) {
+    const pack  = data.pack || {};
+    const links = data.links || {};
+
+    if (key === 'facebook_page') {
+      const fb = pack.facebook_page || {};
+      return _copyBlock(fb.body || '', 'Body (paste in post)') +
+             _copyBlock(fb.first_comment || '', 'First comment (paste right after posting)') +
+             '<div style="font-size:.62rem;color:var(--steel);margin-top:.5rem">Reason link is in first comment: FB algo penalises external links in post body.</div>';
+    }
+    if (key === 'facebook_group') {
+      const fg = pack.facebook_group || {};
+      const groups = (fg.target_groups || []).map(g => '<span style="display:inline-block;background:rgba(41,182,217,.15);color:var(--blue);padding:.15rem .5rem;border-radius:.3rem;font-size:.62rem;margin-right:.3rem;margin-bottom:.2rem">' + esc(g) + '</span>').join('');
+      return '<div style="font-size:.62rem;color:var(--steel);margin-bottom:.4rem">Target groups: ' + groups + '</div>' +
+             _copyBlock(fg.body || '', 'Body (NO link)') +
+             _copyBlock(fg.first_comment || '', 'First comment (only if admin allows links)');
+    }
+    if (key === 'linkedin_company') {
+      const li = pack.linkedin_company || {};
+      return _copyBlock(li.body || '', 'LinkedIn Company post (link inline OK)');
+    }
+    if (key === 'linkedin_founder') {
+      const lif = pack.linkedin_founder || {};
+      return _copyBlock(lif.body || '', 'Founder voice (edit before posting)') +
+             '<div style="font-size:.66rem;color:var(--orange);margin-top:.5rem;line-height:1.6">' +
+               '<strong>Edit before posting:</strong> ' + esc(lif.edit_notes || '') +
+             '</div>';
+    }
+    if (key === 'youtube') {
+      const yt = pack.youtube || {};
+      return _copyBlock(yt.title || '', 'Title (<= 60 chars)') +
+             _copyBlock(yt.thumbnail_text || '', 'Thumbnail text (<= 5 words)') +
+             _copyBlock((yt.tags || []).join(', '), 'Tags (10-15)') +
+             _copyBlock(yt.description || '', 'Description (paste in YouTube)');
+    }
+    if (key === 'shorts_reels_tiktok') {
+      const sh = pack.shorts_reels_tiktok || {};
+      return _copyBlock(sh.caption || '', 'Caption (<150 chars)') +
+             _copyBlock((sh.hashtags || []).join(' '), 'Hashtags') +
+             _copyBlock(sh.hook_visual || '', 'Hook visual (first 2 seconds)');
+    }
+    if (key === 'reddit') {
+      const rd = pack.reddit || {};
+      return _copyBlock(rd.r_maintenance || '', 'r/maintenance') +
+             _copyBlock(rd.r_PLC          || '', 'r/PLC') +
+             _copyBlock(rd.r_Philippines  || '', 'r/Philippines') +
+             '<div style="font-size:.62rem;color:var(--steel);margin-top:.5rem;line-height:1.6">Reddit hates marketing copy. Treat these as starting drafts, rewrite in your voice, and only post when the link is genuinely relevant.</div>';
+    }
+    if (key === 'x_thread') {
+      const xt = pack.x_thread || [];
+      return xt.map((t, i) => _copyBlock(t || '', 'Tweet ' + (i + 1))).join('');
+    }
+    if (key === '_extras') {
+      return _copyBlock(pack.ad_15s_caption || '', '15-second ad caption') +
+             _copyBlock(pack.whatsapp_share || '', 'WhatsApp / Viber share') +
+             '<div style="margin-top:.8rem"><div style="font-size:.66rem;color:var(--steel);text-transform:uppercase;letter-spacing:.05em;margin-bottom:.3rem">All UTM-tagged links</div>' +
+             Object.entries(links).filter(([k]) => !k.endsWith('_path')).map(([k, v]) =>
+               '<div style="display:flex;justify-content:space-between;align-items:center;background:rgba(0,0,0,.2);padding:.35rem .6rem;border-radius:.3rem;margin-bottom:.25rem">' +
+                 '<span style="font-size:.65rem;color:var(--steel)">' + esc(k) + '</span>' +
+                 '<button class="btn-ghost" style="font-size:.6rem;padding:.15rem .45rem" onclick="copyText(' + JSON.stringify(v) + ',\'Link copied\')">Copy</button>' +
+               '</div>'
+             ).join('') +
+             '</div>';
+    }
+    if (key === '_calendar') {
+      const cal = pack.content_calendar || {};
+      const rows = ['day_1','day_3','day_7','day_14','day_30'].map(d => {
+        const e = cal[d] || {};
+        return '<tr><td style="padding:.3rem .5rem;border-bottom:1px solid rgba(255,255,255,.05)">' + d.replace('day_','Day ') + '</td>' +
+               '<td style="padding:.3rem .5rem;border-bottom:1px solid rgba(255,255,255,.05);color:var(--blue)">' + esc(e.platform || '') + '</td>' +
+               '<td style="padding:.3rem .5rem;border-bottom:1px solid rgba(255,255,255,.05)">' + esc(e.activity || '') + '</td></tr>';
+      }).join('');
+      return '<table style="width:100%;border-collapse:collapse;font-size:.7rem">' +
+               '<thead><tr><th style="text-align:left;padding:.3rem .5rem;color:var(--steel);font-weight:600">When</th>' +
+                 '<th style="text-align:left;padding:.3rem .5rem;color:var(--steel);font-weight:600">Platform</th>' +
+                 '<th style="text-align:left;padding:.3rem .5rem;color:var(--steel);font-weight:600">Activity</th></tr></thead>' +
+               '<tbody>' + rows + '</tbody></table>';
+    }
+    return '<div style="color:var(--steel);font-size:.7rem">No content for this tab.</div>';
+  }
 
   // ── Init ──────────────────────────────────────────────────────────────────
 

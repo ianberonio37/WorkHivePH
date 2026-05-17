@@ -39,6 +39,9 @@ from tools.platform_intel import (
     build_prompt_context, compute_coverage, uncovered_features,
     all_features, get_feature_info, FEATURE_ECOSYSTEM, WORKHIVE_LOOP,
 )
+from tools.platform_pack import (
+    generate_platform_pack, load_existing_pack, OUT_DIR as PACK_DIR,
+)
 
 BACKLOG = ROOT / ".tmp/video_ideas_backlog.json"
 SCRIPTS = ROOT / ".tmp/video_scripts"
@@ -973,7 +976,7 @@ def serve_recording(filename):
 
 PIPELINE_JOBS  = {}   # job_id -> dict
 PIPELINE_LOCK  = threading.Lock()
-PIPELINE_STAGES = ["script", "voice", "recording", "scene", "music", "assemble"]
+PIPELINE_STAGES = ["script", "voice", "recording", "scene", "music", "assemble", "platform_pack"]
 
 
 def _job_set(job_id, **kwargs):
@@ -1099,6 +1102,22 @@ def _stage_assemble(idea, voice_key, recording_path, scene_path, music_path):
     )
 
 
+def _stage_platform_pack(idea):
+    """Generate 8-platform social copy from the script. Reuses if pack already
+    exists on disk so re-runs do not burn AI calls."""
+    cached = load_existing_pack(idea["id"])
+    if cached and cached.get("pack"):
+        return PACK_DIR / f"{idea['id']}.md"
+
+    script_path = Path(idea["script_file"])
+    if not script_path.exists():
+        raise RuntimeError("Script file missing — generate script before platform pack")
+    script_content = script_path.read_text(encoding="utf-8")
+
+    result = generate_platform_pack(idea, script_content)
+    return result["md_file"]
+
+
 def _run_pipeline(job_id, idea_id, voice_key):
     """Background worker — runs the full pipeline and updates job state."""
     try:
@@ -1147,14 +1166,26 @@ def _run_pipeline(job_id, idea_id, voice_key):
         out_path = _stage_assemble(idea, voice_key, recording_path, scene_path, music_path)
         _job_log(job_id, f"assembled: {out_path.name}")
 
+        # ── 7. Platform pack (8-platform social copy) ────────────────────
+        _job_set(job_id, stage="platform_pack",
+                 message="Generating 8-platform distribution pack (FB / LinkedIn / YouTube / TikTok / Reddit / X)...")
+        try:
+            pack_path = _stage_platform_pack(idea)
+            _job_log(job_id, f"platform_pack: {pack_path.name}")
+        except Exception as exc:
+            # Non-fatal: the video is already produced. Log and continue.
+            _job_log(job_id, f"platform_pack skipped: {exc}")
+            pack_path = None
+
         size_mb = round(out_path.stat().st_size / 1_000_000, 1)
         _job_set(job_id,
-                 stage    = "done",
-                 status   = "complete",
-                 message  = "Production complete!",
-                 output   = str(out_path),
-                 download = f"/api/assembled/{out_path.name}",
-                 size_mb  = size_mb)
+                 stage         = "done",
+                 status        = "complete",
+                 message       = "Production complete!",
+                 output        = str(out_path),
+                 download      = f"/api/assembled/{out_path.name}",
+                 size_mb       = size_mb,
+                 platform_pack = f"/api/ideas/{idea['id']}/platform-pack" if pack_path else None)
 
     except Exception as exc:
         import traceback
@@ -1306,6 +1337,75 @@ def produce_status(job_id):
         if not job:
             return jsonify({"success": False, "error": "Job not found"}), 404
         return jsonify({"success": True, **job})
+
+
+# ── Platform Pack (8-platform social copy from one idea) ─────────────────────
+
+@app.route("/api/ideas/<idea_id>/platform-pack", methods=["GET"])
+def get_platform_pack(idea_id):
+    """Return cached pack if it exists, else 404 (caller should POST to generate)."""
+    cached = load_existing_pack(idea_id)
+    if not cached:
+        return jsonify({"success": False, "error": "Not generated yet"}), 404
+    return jsonify({
+        "success":      True,
+        "pack":         cached.get("pack", {}),
+        "links":        cached.get("links", {}),
+        "md_download":  f"/api/ideas/{idea_id}/platform-pack/markdown",
+    })
+
+
+@app.route("/api/ideas/<idea_id>/platform-pack", methods=["POST"])
+def post_platform_pack(idea_id):
+    """Generate (or regenerate) the platform pack for an idea. Requires that a
+    script already exists. Pass {force: true} to overwrite cached pack."""
+    body  = request.get_json(silent=True) or {}
+    force = bool(body.get("force"))
+
+    data = load_backlog()
+    idea = next((i for i in data["ideas"] if i["id"] == idea_id), None)
+    if not idea:
+        return jsonify({"success": False, "error": "Idea not found"}), 404
+    if not idea.get("script_file"):
+        return jsonify({"success": False, "error": "Generate a script first"}), 400
+
+    script_path = Path(idea["script_file"])
+    if not script_path.exists():
+        return jsonify({"success": False, "error": "Script file missing from disk"}), 400
+
+    if not force:
+        cached = load_existing_pack(idea_id)
+        if cached and cached.get("pack"):
+            return jsonify({
+                "success":     True,
+                "cached":      True,
+                "pack":        cached["pack"],
+                "links":       cached.get("links", {}),
+                "md_download": f"/api/ideas/{idea_id}/platform-pack/markdown",
+            })
+
+    try:
+        script_content = script_path.read_text(encoding="utf-8")
+        result = generate_platform_pack(idea, script_content)
+        return jsonify({
+            "success":     True,
+            "cached":      False,
+            "pack":        result["pack"],
+            "links":       result["links"],
+            "md_download": f"/api/ideas/{idea_id}/platform-pack/markdown",
+        })
+    except Exception as exc:
+        import traceback; traceback.print_exc()
+        return jsonify({"success": False, "error": str(exc)}), 500
+
+
+@app.route("/api/ideas/<idea_id>/platform-pack/markdown")
+def download_platform_pack_md(idea_id):
+    md_file = PACK_DIR / f"{idea_id}.md"
+    if not md_file.exists():
+        return jsonify({"error": "Not generated yet"}), 404
+    return send_file(str(md_file), mimetype="text/markdown",
+                     as_attachment=True, download_name=f"{idea_id}_platform_pack.md")
 
 
 # ── Free tool stack info ───────────────────────────────────────────────────────
