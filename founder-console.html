@@ -136,6 +136,94 @@
     /* ── Page main ── */
     .main { padding:1.25rem 1.5rem 4rem; max-width:1180px; margin:0 auto; }
 
+    /* ── TL;DR strip (one-line "what to know in 5 sec") ── */
+    .tldr {
+      margin:0 1.5rem 1rem;
+      background:linear-gradient(135deg,rgba(74,222,128,.08),rgba(41,182,217,.04));
+      border:1px solid rgba(74,222,128,.25); border-radius:.75rem;
+      padding:.75rem 1.1rem;
+      display:flex; flex-direction:column; gap:.3rem;
+    }
+    .tldr.warn { background:linear-gradient(135deg,rgba(251,191,36,.08),rgba(247,162,27,.04));
+                  border-color:rgba(251,191,36,.35); }
+    .tldr.fail { background:linear-gradient(135deg,rgba(248,113,113,.1),rgba(247,162,27,.04));
+                  border-color:rgba(248,113,113,.4); }
+    .tldr-line { font-size:.82rem; font-weight:600; color:var(--text); display:flex; gap:.5rem; flex-wrap:wrap; }
+    .tldr-line .ok   { color:var(--green); }
+    .tldr-line .amb  { color:var(--yellow); }
+    .tldr-line .bad  { color:var(--red); }
+    .tldr-line .sep  { color:var(--muted); }
+    .tldr-watch {
+      font-size:.72rem; color:var(--muted); margin-top:.05rem;
+    }
+    .tldr-watch.has-watch { color:var(--yellow); }
+    .tldr-watch.has-watch::before { content:"⚠ "; }
+
+    /* ── Section dividers (4 question-driven sections) ── */
+    .section {
+      margin-bottom:1.5rem;
+    }
+    .section-hdr {
+      display:flex; align-items:center; gap:.6rem;
+      padding:.2rem .25rem .55rem;
+      border-bottom:1px solid rgba(255,255,255,.05);
+      margin-bottom:1rem;
+    }
+    .section-hdr h2 {
+      font-size:.78rem; font-weight:800; color:var(--gold);
+      text-transform:uppercase; letter-spacing:.08em; flex:1;
+    }
+    .section-hdr .section-tag {
+      font-size:.62rem; font-weight:700; color:var(--muted);
+      background:rgba(255,255,255,.04); border:1px solid var(--border);
+      padding:.15rem .5rem; border-radius:999px; letter-spacing:.05em;
+    }
+    .section-grid {
+      display:grid; grid-template-columns:repeat(2, 1fr); gap:1rem;
+    }
+    .section-grid.full { grid-template-columns:1fr; }
+    @media(max-width:880px){ .section-grid { grid-template-columns:1fr; } }
+
+    /* ── RAG dot on panel header ── */
+    .rag-dot {
+      width:9px; height:9px; border-radius:50%; flex-shrink:0;
+      background:var(--muted);
+    }
+    .rag-dot.good { background:var(--green); box-shadow:0 0 6px rgba(74,222,128,.6); }
+    .rag-dot.warn { background:var(--yellow); box-shadow:0 0 6px rgba(251,191,36,.6); }
+    .rag-dot.fail { background:var(--red); box-shadow:0 0 6px rgba(248,113,113,.6); }
+
+    /* ── Panel header subtitle (plain-language "what this tells you") ── */
+    .panel-sub {
+      font-size:.7rem; color:var(--muted); font-weight:400;
+      margin-top:.1rem; text-transform:none; letter-spacing:0;
+    }
+
+    /* ── Trend arrow on hero KPI tiles ── */
+    .stat .trend {
+      display:inline-flex; align-items:center; gap:.15rem;
+      font-size:.7rem; font-weight:700; margin-left:.4rem;
+      vertical-align:.15em;
+    }
+    .stat .trend.up   { color:var(--green); }
+    .stat .trend.down { color:var(--red); }
+    .stat .trend.flat { color:var(--muted); }
+
+    /* ── Section quick-jump pill nav (sticky) ── */
+    .section-nav {
+      position:sticky; top:0; z-index:50;
+      background:var(--bg); padding:.5rem 1.5rem;
+      border-bottom:1px solid var(--border);
+      display:flex; gap:.4rem; overflow-x:auto;
+    }
+    .section-nav a {
+      flex-shrink:0; padding:.35rem .75rem; border-radius:999px;
+      font-size:.7rem; font-weight:700; text-decoration:none; color:var(--muted);
+      background:rgba(255,255,255,.04); border:1px solid var(--border);
+      transition:all .15s;
+    }
+    .section-nav a:hover { color:var(--text); border-color:rgba(247,162,27,.35); }
+
     /* ── Panel ── */
     .panel {
       background:var(--surface); border:1px solid var(--border);
@@ -419,115 +507,200 @@
       </div>
       <div class="hero-stats">
         <div class="stat">
-          <span class="n" id="stat-validators">—</span>
-          <span class="l">Validators</span>
+          <span><span class="n" id="stat-validators">—</span><span class="trend" id="stat-validators-trend"></span></span>
+          <span class="l">Tech checks</span>
           <span class="sub" id="stat-validators-sub">scanning…</span>
         </div>
         <div class="stat">
-          <span class="n" id="stat-dau">—</span>
-          <span class="l">DAU today</span>
-          <span class="sub" id="stat-dau-sub">analytics_events</span>
+          <span><span class="n" id="stat-dau">—</span><span class="trend" id="stat-dau-trend"></span></span>
+          <span class="l">Active today</span>
+          <span class="sub" id="stat-dau-sub">unique users</span>
         </div>
         <div class="stat">
-          <span class="n" id="stat-aicost">—</span>
-          <span class="l">AI cost today</span>
-          <span class="sub" id="stat-aicost-sub">ai_cost_log</span>
+          <span><span class="n" id="stat-aicost">—</span><span class="trend" id="stat-aicost-trend"></span></span>
+          <span class="l">AI spend today</span>
+          <span class="sub" id="stat-aicost-sub">all providers</span>
         </div>
         <div class="stat">
-          <span class="n" id="stat-hives">—</span>
+          <span><span class="n" id="stat-hives">—</span><span class="trend" id="stat-hives-trend"></span></span>
           <span class="l">Active hives</span>
           <span class="sub" id="stat-hives-sub">last 30d</span>
         </div>
       </div>
     </div>
 
+    <!-- TL;DR strip (5-second read of the whole platform) -->
+    <div id="tldr" class="tldr">
+      <div class="tldr-line" id="tldr-line">
+        <span class="sep">Loading platform snapshot…</span>
+      </div>
+      <div class="tldr-watch" id="tldr-watch"></div>
+    </div>
+
+    <!-- Section quick-jump nav -->
+    <nav class="section-nav">
+      <a href="#sec-alive">Is it alive?</a>
+      <a href="#sec-users">Who's using it?</a>
+      <a href="#sec-money">Money flow</a>
+      <a href="#sec-feel">User feel</a>
+    </nav>
+
     <!-- Main panels -->
     <div class="main">
 
-      <!-- Tech Health (panel 7) -->
-      <section class="panel" id="tech-health">
-        <div class="panel-hdr">
-          <h2>Tech Health — The Empirical Backbone</h2>
-          <span class="updated" id="tech-updated">—</span>
+      <!-- ═══ §1 IS THE PLATFORM ALIVE? — operational signals ═══ -->
+      <div class="section" id="sec-alive">
+        <div class="section-hdr">
+          <h2>Is the platform alive?</h2>
+          <span class="section-tag">Operations</span>
         </div>
-        <div class="panel-body">
-          <div id="tech-content">
-            <!-- populated by renderTechHealth() -->
-          </div>
-        </div>
-      </section>
+        <div class="section-grid">
 
-      <!-- Phase 2: Growth Pulse -->
-      <section class="panel" id="growth-pulse">
-        <div class="panel-hdr">
-          <h2>Growth Pulse — DAU / MAU / Stickiness</h2>
-          <span class="updated" id="growth-updated">—</span>
-        </div>
-        <div class="panel-body"><div id="growth-content"></div></div>
-      </section>
+          <section class="panel" id="tech-health">
+            <div class="panel-hdr">
+              <span class="rag-dot" id="rag-tech"></span>
+              <div style="flex:1">
+                <h2>Tech Health</h2>
+                <div class="panel-sub">Are all platform checks passing right now?</div>
+              </div>
+              <span class="updated" id="tech-updated">—</span>
+            </div>
+            <div class="panel-body">
+              <div id="tech-content"><!-- populated by renderTechHealth() --></div>
+            </div>
+          </section>
 
-      <!-- Phase 2: Feature Heatmap -->
-      <section class="panel" id="feature-heatmap">
-        <div class="panel-hdr">
-          <h2>Feature Heatmap — 7-day page adoption</h2>
-          <span class="updated" id="heatmap-updated">—</span>
-        </div>
-        <div class="panel-body"><div id="heatmap-content"></div></div>
-      </section>
+          <section class="panel" id="audit-stream">
+            <div class="panel-hdr">
+              <span class="rag-dot" id="rag-audit"></span>
+              <div style="flex:1">
+                <h2>Recent admin activity</h2>
+                <div class="panel-sub">What got approved, rejected, or kicked lately?</div>
+              </div>
+              <span class="updated" id="audit-updated">—</span>
+            </div>
+            <div class="panel-body"><div id="audit-content"></div></div>
+          </section>
 
-      <!-- Phase 3: Hive Maturity Distribution -->
-      <section class="panel" id="maturity-distribution">
-        <div class="panel-hdr">
-          <h2>Hive Maturity Distribution — 5-stair breakdown</h2>
-          <span class="updated" id="maturity-updated">—</span>
         </div>
-        <div class="panel-body"><div id="maturity-content"></div></div>
-      </section>
+      </div>
 
-      <!-- Phase 3: Power-user Pareto -->
-      <section class="panel" id="pareto">
-        <div class="panel-hdr">
-          <h2>Power Users — Pareto concentration</h2>
-          <span class="updated" id="pareto-updated">—</span>
+      <!-- ═══ §2 WHO'S USING IT? — growth & adoption ═══ -->
+      <div class="section" id="sec-users">
+        <div class="section-hdr">
+          <h2>Who's using it?</h2>
+          <span class="section-tag">Growth</span>
         </div>
-        <div class="panel-body"><div id="pareto-content"></div></div>
-      </section>
+        <div class="section-grid">
 
-      <!-- Phase 4: Marketplace pulse -->
-      <section class="panel" id="marketplace-pulse">
-        <div class="panel-hdr">
-          <h2>Marketplace — orders, disputes, trust</h2>
-          <span class="updated" id="marketplace-updated">—</span>
-        </div>
-        <div class="panel-body"><div id="marketplace-content"></div></div>
-      </section>
+          <section class="panel" id="growth-pulse">
+            <div class="panel-hdr">
+              <span class="rag-dot" id="rag-growth"></span>
+              <div style="flex:1">
+                <h2>Growth Pulse</h2>
+                <div class="panel-sub">Daily / monthly active, plus stickiness ratio</div>
+              </div>
+              <span class="updated" id="growth-updated">—</span>
+            </div>
+            <div class="panel-body"><div id="growth-content"></div></div>
+          </section>
 
-      <!-- Phase 4: AI cost detail -->
-      <section class="panel" id="ai-cost-detail">
-        <div class="panel-hdr">
-          <h2>AI Cost — provider breakdown</h2>
-          <span class="updated" id="aicost-updated">—</span>
-        </div>
-        <div class="panel-body"><div id="aicost-content"></div></div>
-      </section>
+          <section class="panel" id="feature-heatmap">
+            <div class="panel-hdr">
+              <span class="rag-dot" id="rag-heatmap"></span>
+              <div style="flex:1">
+                <h2>Feature heatmap</h2>
+                <div class="panel-sub">Which pages got used in the last 7 days?</div>
+              </div>
+              <span class="updated" id="heatmap-updated">—</span>
+            </div>
+            <div class="panel-body"><div id="heatmap-content"></div></div>
+          </section>
 
-      <!-- Phase 5: Platform-wide Audit Stream -->
-      <section class="panel" id="audit-stream">
-        <div class="panel-hdr">
-          <h2>Audit Stream — platform-wide admin actions</h2>
-          <span class="updated" id="audit-updated">—</span>
-        </div>
-        <div class="panel-body"><div id="audit-content"></div></div>
-      </section>
+          <section class="panel" id="maturity-distribution">
+            <div class="panel-hdr">
+              <span class="rag-dot" id="rag-maturity"></span>
+              <div style="flex:1">
+                <h2>Hive maturity</h2>
+                <div class="panel-sub">How many hives are stuck on Stair 0–4?</div>
+              </div>
+              <span class="updated" id="maturity-updated">—</span>
+            </div>
+            <div class="panel-body"><div id="maturity-content"></div></div>
+          </section>
 
-      <!-- Phase 5: NPS placeholder (real prompt fires on user pages; console shows aggregate) -->
-      <section class="panel" id="nps">
-        <div class="panel-hdr">
-          <h2>NPS — Net Promoter Score</h2>
-          <span class="updated" id="nps-updated">—</span>
+          <section class="panel" id="pareto">
+            <div class="panel-hdr">
+              <span class="rag-dot" id="rag-pareto"></span>
+              <div style="flex:1">
+                <h2>Power users</h2>
+                <div class="panel-sub">Which hives drive most of the activity?</div>
+              </div>
+              <span class="updated" id="pareto-updated">—</span>
+            </div>
+            <div class="panel-body"><div id="pareto-content"></div></div>
+          </section>
+
         </div>
-        <div class="panel-body"><div id="nps-content"></div></div>
-      </section>
+      </div>
+
+      <!-- ═══ §3 MONEY FLOW — marketplace + AI spend ═══ -->
+      <div class="section" id="sec-money">
+        <div class="section-hdr">
+          <h2>Money flow</h2>
+          <span class="section-tag">Revenue &amp; cost</span>
+        </div>
+        <div class="section-grid">
+
+          <section class="panel" id="marketplace-pulse">
+            <div class="panel-hdr">
+              <span class="rag-dot" id="rag-marketplace"></span>
+              <div style="flex:1">
+                <h2>Marketplace pulse</h2>
+                <div class="panel-sub">GMV, orders, disputes, trust score</div>
+              </div>
+              <span class="updated" id="marketplace-updated">—</span>
+            </div>
+            <div class="panel-body"><div id="marketplace-content"></div></div>
+          </section>
+
+          <section class="panel" id="ai-cost-detail">
+            <div class="panel-hdr">
+              <span class="rag-dot" id="rag-aicost"></span>
+              <div style="flex:1">
+                <h2>AI cost detail</h2>
+                <div class="panel-sub">7-day spend by provider + top spending hives</div>
+              </div>
+              <span class="updated" id="aicost-updated">—</span>
+            </div>
+            <div class="panel-body"><div id="aicost-content"></div></div>
+          </section>
+
+        </div>
+      </div>
+
+      <!-- ═══ §4 USER FEEL — sentiment ═══ -->
+      <div class="section" id="sec-feel">
+        <div class="section-hdr">
+          <h2>User feel</h2>
+          <span class="section-tag">Sentiment</span>
+        </div>
+        <div class="section-grid full">
+
+          <section class="panel" id="nps">
+            <div class="panel-hdr">
+              <span class="rag-dot" id="rag-nps"></span>
+              <div style="flex:1">
+                <h2>Net Promoter Score</h2>
+                <div class="panel-sub">How likely are users to recommend WorkHive?</div>
+              </div>
+              <span class="updated" id="nps-updated">—</span>
+            </div>
+            <div class="panel-body"><div id="nps-content"></div></div>
+          </section>
+
+        </div>
+      </div>
 
     </div>
   </div>
@@ -567,15 +740,15 @@
       inFlight: null,
     };
 
-    // ── Admin gate (disabled for local testing) ──────────────────
+    // ── Admin gate (Layer 2 finding 2026-05-17: must be enabled in prod) ──
     (async () => {
-      // const ok = await isPlatformAdmin(db);  // DISABLED: local dev
       const checking = document.getElementById('checking-gate');
-      // if (!ok) {
-      //   checking.hidden = true;
-      //   document.getElementById('no-access-gate').hidden = false;
-      //   return;
-      // }
+      const ok = await isPlatformAdmin(db);
+      if (!ok) {
+        checking.hidden = true;
+        document.getElementById('no-access-gate').hidden = false;
+        return;
+      }
       checking.hidden = true;
       document.getElementById('console').hidden = false;
       logPageView(db, { console: 'founder' });
@@ -642,6 +815,9 @@
         renderAiCostDetail(aiprov);
         renderAudit(audit);
         renderNps();
+        // New: solo-founder TL;DR strip + per-panel RAG dots
+        setRagDots({ tech, dau14, mau, aicost, hives, mkt, audit, maturity, pareto, heatmap });
+        renderTLDR({ tech, dau14, mau, aicost, hives, mkt });
         _state.lastSyncAt = new Date();
         document.getElementById('last-sync').textContent = _state.lastSyncAt.toLocaleTimeString();
         pulse.classList.remove('busy');
@@ -764,6 +940,142 @@
       el.className = 'n' + (cls ? ' ' + cls : '');
       const subEl = document.getElementById(id + '-sub');
       if (subEl && typeof sub === 'string') subEl.textContent = sub;
+    }
+
+    // ── RAG dot helper: paint each panel header dot from its data ──
+    function setRagDot(id, status) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.className = 'rag-dot ' + (status || '');
+    }
+
+    function setRagDots(d) {
+      const tech = d.tech, sum = (tech && tech.summary) || {};
+      // Tech health: red on any fail, amber on warn, green otherwise
+      if (!tech || tech._error)            setRagDot('rag-tech', '');
+      else if ((sum.fail || 0) > 0)        setRagDot('rag-tech', 'fail');
+      else if ((sum.warn || 0) > 0)        setRagDot('rag-tech', 'warn');
+      else                                  setRagDot('rag-tech', 'good');
+
+      // Audit: green if we have a stream, neutral if empty/error
+      const audit = d.audit;
+      setRagDot('rag-audit', (audit && !audit._error && (audit.events || []).length > 0) ? 'good' : '');
+
+      // Growth: green if DAU > 0, neutral if no data
+      const dauN = d.dau14 && (d.dau14.count || 0);
+      setRagDot('rag-growth', dauN > 0 ? 'good' : '');
+
+      // Heatmap: green if anything is being used, amber if mostly cold, neutral on no data
+      const heat = d.heatmap;
+      if (!heat || heat._error || !(heat.pages || []).length) setRagDot('rag-heatmap', '');
+      else {
+        const hot = (heat.pages || []).filter(p => (p.views || 0) > 0).length;
+        const pct = hot / (heat.pages.length || 1);
+        setRagDot('rag-heatmap', pct >= 0.5 ? 'good' : pct >= 0.2 ? 'warn' : 'fail');
+      }
+
+      // Maturity: green if any hive is past Stair 1 (basic adoption), neutral on no data
+      const mat = d.maturity;
+      if (!mat || mat._error) setRagDot('rag-maturity', '');
+      else {
+        const past = ((mat.stairs && mat.stairs[2]) || 0) +
+                     ((mat.stairs && mat.stairs[3]) || 0) +
+                     ((mat.stairs && mat.stairs[4]) || 0);
+        setRagDot('rag-maturity', past > 0 ? 'good' : 'warn');
+      }
+
+      // Pareto: green if we have hives ranked, neutral otherwise
+      const par = d.pareto;
+      setRagDot('rag-pareto', par && !par._error && (par.top || []).length > 0 ? 'good' : '');
+
+      // Marketplace: green on activity, neutral on quiet, red on open disputes > 0
+      const mkt = d.mkt;
+      if (!mkt || mkt._error) setRagDot('rag-marketplace', '');
+      else if ((mkt.open_disputes || 0) > 0) setRagDot('rag-marketplace', 'fail');
+      else if ((mkt.total_orders || 0) > 0) setRagDot('rag-marketplace', 'good');
+      else setRagDot('rag-marketplace', '');
+
+      // AI cost: green under threshold, amber under amber, red over
+      const ai = d.aicost;
+      if (!ai || ai._error) setRagDot('rag-aicost', '');
+      else {
+        const usd = ai.total_usd || 0;
+        const t = HEALTH_THRESHOLDS.ai_cost_daily_usd;
+        setRagDot('rag-aicost', usd <= t.green ? 'good' : usd <= t.amber ? 'warn' : 'fail');
+      }
+
+      // NPS: placeholder (no data yet)
+      setRagDot('rag-nps', '');
+    }
+
+    // ── TL;DR strip: one-line state of the union + "1 thing to watch" ──
+    function renderTLDR(d) {
+      const tldr = document.getElementById('tldr');
+      const line = document.getElementById('tldr-line');
+      const watch = document.getElementById('tldr-watch');
+      tldr.classList.remove('warn', 'fail');
+
+      const parts = [];
+      const watches = [];
+
+      // Tech checks
+      const sum = (d.tech && d.tech.summary) || {};
+      if (d.tech && !d.tech._error) {
+        const total = (sum.pass || 0) + (sum.fail || 0) + (sum.warn || 0);
+        if ((sum.fail || 0) > 0) {
+          parts.push(`<span class="bad">✕ ${sum.fail} check${sum.fail > 1 ? 's' : ''} failing</span>`);
+          watches.push(`${sum.fail} validator failure${sum.fail > 1 ? 's' : ''} — run \`python run_platform_checks.py --fast\``);
+        } else if ((sum.warn || 0) > 0) {
+          parts.push(`<span class="amb">⚠ ${sum.warn} warning${sum.warn > 1 ? 's' : ''}</span>`);
+        } else if (total > 0) {
+          parts.push(`<span class="ok">✓ ${sum.pass}/${total} checks healthy</span>`);
+        }
+      }
+
+      // Hives active
+      const hivesN = d.hives && d.hives.count;
+      if (typeof hivesN === 'number') {
+        parts.push(`<span class="sep">·</span>`);
+        parts.push(`<span>${hivesN} hive${hivesN === 1 ? '' : 's'} active</span>`);
+        if (hivesN === 0) watches.push('No hives active in last 30 days');
+      }
+
+      // DAU
+      const dauN = d.dau14 && d.dau14.count;
+      if (typeof dauN === 'number') {
+        parts.push(`<span class="sep">·</span>`);
+        parts.push(`<span>${dauN} DAU</span>`);
+      }
+
+      // AI spend
+      const usd = d.aicost && d.aicost.total_usd;
+      if (typeof usd === 'number') {
+        parts.push(`<span class="sep">·</span>`);
+        parts.push(`<span>$${usd.toFixed(2)} AI today</span>`);
+        const t = HEALTH_THRESHOLDS.ai_cost_daily_usd;
+        if (usd > t.amber) watches.push(`AI spend $${usd.toFixed(2)} is above the $${t.amber} guardrail`);
+        else if (usd > t.green) watches.push(`AI spend $${usd.toFixed(2)} crossed the warn threshold`);
+      }
+
+      // Marketplace disputes
+      const disp = d.mkt && d.mkt.open_disputes;
+      if (typeof disp === 'number' && disp > 0) {
+        watches.push(`${disp} open marketplace dispute${disp > 1 ? 's' : ''} — review on marketplace-admin`);
+      }
+
+      // Maturity stuck
+      // (left out by default — too noisy until we have >5 hives)
+
+      line.innerHTML = parts.join(' ') || '<span class="sep">Snapshot loading…</span>';
+
+      if (watches.length) {
+        watch.textContent = watches[0];  // surface the top one only — keep TL;DR a true 5-sec read
+        watch.className = 'tldr-watch has-watch';
+        tldr.classList.add(sum.fail > 0 || (d.mkt && d.mkt.open_disputes > 0) ? 'fail' : 'warn');
+      } else {
+        watch.textContent = 'Nothing on fire. Skim sections below for trends.';
+        watch.className = 'tldr-watch';
+      }
     }
 
     function renderTechHealth(tech) {
