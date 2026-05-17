@@ -128,40 +128,30 @@ def _call_groq(prompt: str, model: str = "llama-3.3-70b-versatile") -> str:
 
 def ai_call(prompt: str, high_quality: bool = False) -> str:
     """
-    Mirrors the platform's AI fallback chain: Groq -> Cerebras -> OpenRouter.
-    Same chain used by the ai-orchestrator edge function.
+    Delegates to tools.ai_chain.call_ai_chain — the canonical 14-model
+    fallback chain that mirrors supabase/functions/_shared/ai-chain.ts.
+
+    Backward-compatible signature. high_quality=True buys a larger token
+    budget (4096 vs 2048) but does NOT pick a "premium" model — the chain
+    picks whichever free model is first to respond healthy.
+
+    Returns empty JSON "{}" instead of raising if every provider in the
+    chain is unkeyed / rate-limited / errors. Callers parse that as empty
+    JSON and handle gracefully (matches TS callAI behaviour).
     """
-    # 1. Groq — primary (30 req/min free tier)
-    if GROQ_KEY:
-        model = "llama-3.3-70b-versatile" if high_quality else "llama-3.1-8b-instant"
-        try:
-            return _call_groq(prompt, model)
-        except Exception as exc:
-            print(f"  [Groq failed: {exc}] Trying Cerebras...")
-
-    # 2. Cerebras — first fallback (free tier)
-    if CEREBRAS_KEY:
-        model = "llama-3.3-70b" if high_quality else "llama3.1-8b"
-        try:
-            return _call_cerebras(prompt, model)
-        except Exception as exc:
-            print(f"  [Cerebras failed: {exc}] Trying OpenRouter...")
-
-    # 3. OpenRouter — second fallback
-    if OPENROUTER_KEY:
-        model = (
-            "anthropic/claude-sonnet-4-6"
-            if high_quality
-            else "anthropic/claude-haiku-4-5-20251001"
+    from tools.ai_chain import call_ai_chain
+    max_tokens = 4096 if high_quality else 2048
+    out = call_ai_chain(prompt, max_tokens=max_tokens, json_mode=False)
+    if out == "{}":
+        # Preserve previous raise behaviour for callers that explicitly
+        # check for failures (e.g. video idea generator). Platform pack
+        # wraps this in its own try/except so it surfaces as a soft warning.
+        raise RuntimeError(
+            "All providers in the 14-model chain returned empty. "
+            "Check GROQ_API_KEY, CEREBRAS_API_KEY, OPENROUTER_API_KEY "
+            "in supabase/functions/.env (or pass them via tester env)."
         )
-        try:
-            return _call_openrouter(prompt, model)
-        except Exception as exc:
-            print(f"  [OpenRouter failed: {exc}]")
-
-    raise RuntimeError(
-        "All providers failed. Check GROQ_API_KEY, CEREBRAS_API_KEY, OPENROUTER_API_KEY in supabase/functions/.env"
-    )
+    return out
 
 # ── Backlog helpers ───────────────────────────────────────────────────────────
 

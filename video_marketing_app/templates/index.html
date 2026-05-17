@@ -2143,13 +2143,16 @@
   async function renderPlatformPack(ideaId) {
     const z = document.getElementById('packZone');
     if (!z) return;
+
+    // First render: show "Generate" button (force=false so we don't burn AI
+    // calls on the user's first visit if no pack exists yet).
     z.innerHTML =
       '<div class="script-panel" style="margin-top:1rem">' +
         '<div class="script-top">' +
           '<span class="script-top-label">Platform Pack &mdash; 8 platforms, 1 click</span>' +
           '<button class="btn-ghost" style="font-size:.7rem;padding:.3rem .7rem" id="packGenBtn-' + ideaId + '" onclick="generatePlatformPack(\'' + ideaId + '\', false)">Generate Platform Pack</button>' +
         '</div>' +
-        '<div class="script-body" id="packBody-' + ideaId + '" style="padding:.8rem 1rem;font-size:.78rem;color:var(--steel)">Click Generate above to produce ready-to-paste copy for 8 platforms (Facebook, LinkedIn, YouTube, TikTok, Reddit, X, plus extras). Uses the free AI fallback chain. Takes ~20 seconds. Re-runs reuse the cached pack unless you regenerate.</div>' +
+        '<div class="script-body" id="packBody-' + ideaId + '" style="padding:.8rem 1rem;font-size:.78rem;color:var(--steel)">Click Generate above to produce ready-to-paste copy for 8 platforms (Facebook, LinkedIn, YouTube, TikTok, Reddit, X, plus extras). Uses the free AI fallback chain. Takes ~60-90 seconds. Re-runs reuse the cached pack unless you regenerate.</div>' +
       '</div>';
 
     // Try cached fetch (no AI call) so existing packs render automatically.
@@ -2160,6 +2163,14 @@
       if (data && data.success && data.pack) {
         PACK_CACHE[ideaId] = data;
         renderPackTabs(ideaId, data);
+        // Cached pack rendered. Flip the top button to "Regenerate" mode
+        // (always force=true) so the next click produces a fresh pack
+        // instead of returning the same cached one.
+        const btn = document.getElementById('packGenBtn-' + ideaId);
+        if (btn) {
+          btn.textContent = 'Regenerate Platform Pack';
+          btn.onclick     = () => generatePlatformPack(ideaId, true);
+        }
       }
     } catch (_) { /* not generated yet — leave the placeholder */ }
   }
@@ -2207,7 +2218,27 @@
       'onclick="switchPackTab(\'' + ideaId + '\', ' + i + ')">' + esc(t.label) + '</button>'
     ).join('');
 
+    // Quality badge: green if zero warnings, orange if any
+    const warnings  = Array.isArray(data.warnings) ? data.warnings : [];
+    const ver       = data.prompt_version || 'v1';
+    let qualityBar  = '';
+    if (warnings.length === 0) {
+      qualityBar =
+        '<div style="background:rgba(34,197,94,.12);border:1px solid rgba(34,197,94,.3);border-radius:.4rem;padding:.4rem .65rem;margin-bottom:.65rem;font-size:.66rem;color:var(--green)">' +
+          'Quality: passed all validators (prompt ' + esc(ver) + '). All platforms hit word counts, PH-specificity, and banned-phrase rules.' +
+        '</div>';
+    } else {
+      const list = warnings.slice(0, 8).map(w => '<li style="margin-bottom:.18rem">' + esc(w) + '</li>').join('');
+      const more = warnings.length > 8 ? '<li style="color:var(--steel)">+' + (warnings.length - 8) + ' more</li>' : '';
+      qualityBar =
+        '<div style="background:rgba(247,162,27,.10);border:1px solid rgba(247,162,27,.35);border-radius:.4rem;padding:.5rem .7rem;margin-bottom:.65rem;font-size:.66rem;color:var(--orange)">' +
+          '<div style="font-weight:600;margin-bottom:.3rem">Quality: ' + warnings.length + ' warning(s) (prompt ' + esc(ver) + '). Click Regenerate to retry.</div>' +
+          '<ul style="margin:.2rem 0 0 1rem;padding:0;color:var(--cloud);font-size:.64rem;line-height:1.5">' + list + more + '</ul>' +
+        '</div>';
+    }
+
     body.innerHTML =
+      qualityBar +
       '<div style="display:flex;flex-wrap:wrap;gap:.35rem;margin-bottom:.7rem">' + tabsHtml + '</div>' +
       '<div id="packContent-' + ideaId + '" style="background:rgba(22,32,50,.6);border-radius:.5rem;padding:.7rem .8rem;font-size:.72rem;line-height:1.55;color:var(--cloud);min-height:120px"></div>' +
       '<div style="margin-top:.6rem;display:flex;gap:.4rem;flex-wrap:wrap">' +

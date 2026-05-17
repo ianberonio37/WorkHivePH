@@ -1351,6 +1351,8 @@ def get_platform_pack(idea_id):
         "success":      True,
         "pack":         cached.get("pack", {}),
         "links":        cached.get("links", {}),
+        "warnings":     cached.get("warnings", []),
+        "prompt_version": cached.get("prompt_version", "v1"),
         "md_download":  f"/api/ideas/{idea_id}/platform-pack/markdown",
     })
 
@@ -1381,18 +1383,25 @@ def post_platform_pack(idea_id):
                 "cached":      True,
                 "pack":        cached["pack"],
                 "links":       cached.get("links", {}),
+                "warnings":    cached.get("warnings", []),
+                "prompt_version": cached.get("prompt_version", "v1"),
                 "md_download": f"/api/ideas/{idea_id}/platform-pack/markdown",
             })
 
     try:
         script_content = script_path.read_text(encoding="utf-8")
         result = generate_platform_pack(idea, script_content)
+        # Read the prompt_version we just wrote to disk so the UI badge
+        # always matches the actual saved pack.
+        cached_after = load_existing_pack(idea_id) or {}
         return jsonify({
-            "success":     True,
-            "cached":      False,
-            "pack":        result["pack"],
-            "links":       result["links"],
-            "md_download": f"/api/ideas/{idea_id}/platform-pack/markdown",
+            "success":        True,
+            "cached":         False,
+            "pack":           result["pack"],
+            "links":          result["links"],
+            "warnings":       result.get("warnings", []),
+            "prompt_version": cached_after.get("prompt_version", "v3-multicall"),
+            "md_download":    f"/api/ideas/{idea_id}/platform-pack/markdown",
         })
     except Exception as exc:
         import traceback; traceback.print_exc()
