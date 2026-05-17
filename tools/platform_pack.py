@@ -329,11 +329,17 @@ def _prompt_linkedin_company(idea, script, links, feedback=""):
 TASK: Write ONE LinkedIn Company Page post for WorkHive.
 
 PLATFORM RULES (mandatory):
-- "body" must be {MIN_WORDS['linkedin_company']}+ words
-- Structure: 1-line hook / 2-sentence context / 3-sentence insight / 1-sentence CTA + link / 3-5 hashtags
+- "body" must be {MIN_WORDS['linkedin_company']}+ words. AIM FOR 220-260.
+  If your draft hits 180 words you are NOT done — add one more concrete
+  example or one more sentence of insight before the CTA.
+- Structure: 1-line hook / 2-3 sentence context / 4-5 sentence insight
+  (use SPECIFIC numbers, equipment names, or PH plant scenarios) /
+  1-sentence CTA + link / 3-5 hashtags
 - Link inline is OK on LinkedIn
 - B2B tone, professional but not corporate
-- Must include one specific PH anchor
+- Must include at least TWO specific PH anchors (e.g., one PH plant
+  location + one PHP cost figure, or one Filipino role title + one
+  specific equipment ID)
 
 GOOD EXAMPLE (study structure; do NOT copy):
 {{
@@ -388,11 +394,17 @@ PLATFORM RULES (mandatory):
 - "title": <=60 chars, includes the feature keyword AND a benefit word
 - "thumbnail_text": <=5 words, big-text overlay (e.g., "3 Patterns. 80% Downtime.")
 - "tags": exactly 12 strings, mix of single words and 2-3 word phrases
-- "description": {MIN_WORDS['youtube_desc']}+ words. STRUCTURE must include all of:
-    (a) 3-sentence hook (with PH anchor)
-    (b) "What you will learn:" - 3 bullet points
-    (c) "Chapters:" - 4-6 timestamped entries like "0:00 Intro", "1:30 Pattern 1"
-    (d) "About WorkHive" paragraph (3-4 sentences, includes the founder + DTI 8080496 line)
+- "description": {MIN_WORDS['youtube_desc']}+ words. AIM FOR 340-400.
+  If your draft hits 250 words you are NOT done — flesh out the "About
+  WorkHive" paragraph and the "What you will learn" bullets with one more
+  sentence each. STRUCTURE must include ALL of:
+    (a) 4-sentence hook (with PH anchor + specific number)
+    (b) "What you will learn:" - 3 bullet points, EACH 1-2 sentences (not
+        single phrases)
+    (c) "Chapters:" - 5-7 timestamped entries like "0:00 The October 38-hour
+        story", "1:30 Pattern 1: ..." (full descriptive titles, not just "Intro")
+    (d) "About WorkHive" paragraph (4-5 sentences, includes the founder +
+        DTI 8080496 line + Philippine free-tier mission)
     (e) "Tool used in this video:" - paste the Tool (FB tag) link
     (f) "Article version:" - paste the YouTube link
     (g) "Follow:" - "https://workhiveph.com" + "Page on Facebook" + "Page on LinkedIn"
