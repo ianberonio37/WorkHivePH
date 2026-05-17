@@ -241,6 +241,41 @@
   .workflow-card ol li { margin: 2px 0; }
   .workflow-card ol li b { color: var(--gold); }
 
+  /* Hardening Loop card (visual bridge between Layer 0 and Layer 2) */
+  .card.hardening-loop-card {
+    background: linear-gradient(135deg, rgba(41,182,217,0.04), rgba(247,162,27,0.04), rgba(74,222,128,0.04));
+    border: 1px dashed rgba(247,162,27,0.35);
+    position: relative;
+    padding: 18px 20px;
+    cursor: help;
+  }
+  .card.hardening-loop-card::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: -10px;
+    width: 2px;
+    height: 10px;
+    background: rgba(247,162,27,0.45);
+    transform: translateX(-50%);
+  }
+  .card.hardening-loop-card::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    bottom: -10px;
+    width: 2px;
+    height: 10px;
+    background: rgba(247,162,27,0.45);
+    transform: translateX(-50%);
+  }
+  .card.hardening-loop-card .loop-step {
+    transition: transform 0.18s ease, box-shadow 0.18s ease;
+  }
+  .card.hardening-loop-card .loop-step:hover {
+    transform: translateY(-1px);
+  }
+
   /* Mega Gate (top-of-panel hero button) */
   button.seed-btn.mega-btn {
     grid-column: 1 / -1;
@@ -1325,6 +1360,56 @@
         data-tip-title="🧪 Data Tests"
         data-tip="DB integrity checks (no browser): hive isolation, logbook fields, inventory math, PM frequencies, skill levels, asset linkage."
         data-tip-foot="✅ CLICK AFTER: schema migration, seeder edit, or any DB write-path change.">🧪 Data Tests (DB · ~5s)</button>
+    </div>
+  </div>
+
+  <!-- ═══ HARDENING LOOP (the bridge between Layer 0 and Layer 2) ═══ -->
+  <div class="card hardening-loop-card"
+       data-tip-title="⟲ Hardening Loop"
+       data-tip="The proactive feedback loop between Layer 2 (discovery) and Layer 0 (prevention). When Layer 2 finds a bug, this loop makes Layer 0 smarter so the same bug class can never ship again."
+       data-tip-foot="✅ TO INVOKE: type `/harden` in Claude Code, or ask: &quot;run the hardening loop&quot;.&#10;💡 Has run 3 times this session: machine validation, optimistic locking, admin gates.">
+    <div class="section-head-row" style="border-bottom: 1px dashed rgba(247,162,27,0.3);">
+      <h3 class="action-section-title" style="color: var(--gold);">⟲ Hardening Loop <span style="font-size:0.65rem; font-weight:600; padding:2px 8px; background:rgba(247,162,27,0.15); border:1px solid rgba(247,162,27,0.3); border-radius:99px; vertical-align:middle; margin-left:6px; letter-spacing:0.02em;">BRIDGE</span></h3>
+      <span class="action-section-hint">The feedback loop that connects the two layers.</span>
+    </div>
+    <div class="hardening-body" style="padding: 14px 4px 4px; font-size: 0.78rem; color: rgba(255,255,255,0.7); line-height: 1.55;">
+      When Layer 2 finds a bug, this loop walks 5 steps to make sure the same bug class can <i>never</i> ship again.
+      <div class="loop-flow" style="display:flex; flex-wrap:wrap; gap:8px; margin: 12px 0; align-items:center;">
+        <span class="loop-step" style="padding:5px 10px; background:rgba(41,182,217,0.1); border:1px solid rgba(41,182,217,0.3); border-radius:6px; font-size:0.72rem; color:#29B6D9;">1. Layer 2 finds bug</span>
+        <span style="color:rgba(255,255,255,0.3); font-size:0.85rem;">→</span>
+        <span class="loop-step" style="padding:5px 10px; background:rgba(247,162,27,0.08); border:1px solid rgba(247,162,27,0.25); border-radius:6px; font-size:0.72rem; color:#F7A21B;">2. Fix code</span>
+        <span style="color:rgba(255,255,255,0.3); font-size:0.85rem;">→</span>
+        <span class="loop-step" style="padding:5px 10px; background:rgba(247,162,27,0.08); border:1px solid rgba(247,162,27,0.25); border-radius:6px; font-size:0.72rem; color:#F7A21B;">3. Update seeder</span>
+        <span style="color:rgba(255,255,255,0.3); font-size:0.85rem;">→</span>
+        <span class="loop-step" style="padding:5px 10px; background:rgba(247,162,27,0.08); border:1px solid rgba(247,162,27,0.25); border-radius:6px; font-size:0.72rem; color:#F7A21B;">4. Add/extend validator</span>
+        <span style="color:rgba(255,255,255,0.3); font-size:0.85rem;">→</span>
+        <span class="loop-step" style="padding:5px 10px; background:rgba(74,222,128,0.1); border:1px solid rgba(74,222,128,0.3); border-radius:6px; font-size:0.72rem; color:#4ade80;">5. Verify + commit (Layer 0 smarter)</span>
+      </div>
+      <div style="display:flex; gap:14px; flex-wrap:wrap; margin-top:14px; padding-top:12px; border-top: 1px solid rgba(255,255,255,0.06);">
+        <div style="flex:1; min-width:200px;">
+          <div style="font-size:0.7rem; color:rgba(255,255,255,0.45); text-transform:uppercase; letter-spacing:0.05em; margin-bottom:4px;">How to invoke</div>
+          <div style="font-size:0.75rem;">In Claude Code, type <code style="background:rgba(247,162,27,0.12); padding:1px 6px; border-radius:4px; color:#F7A21B;">/harden</code> or just ask: <i>"run the hardening loop"</i></div>
+        </div>
+        <div style="flex:1; min-width:200px;">
+          <div style="font-size:0.7rem; color:rgba(255,255,255,0.45); text-transform:uppercase; letter-spacing:0.05em; margin-bottom:4px;">When to invoke</div>
+          <div style="font-size:0.75rem;">After Layer 2 surfaces a FAIL or WARN you want to permanently prevent.</div>
+        </div>
+      </div>
+      <details class="section-help" style="margin-top:14px;">
+        <summary style="font-size:0.75rem;">Why is this between Layer 0 and Layer 2?</summary>
+        <div class="help-body" style="font-size:0.75rem; padding:10px; background:rgba(255,255,255,0.02); border-radius:6px; margin-top:6px;">
+          Without this loop, every Layer 2 finding would be a one-time fix — the next regression would slip through again.
+          <br><br>
+          With this loop, every finding becomes a permanent validator in Layer 0. The Mega Gate gets <b>strictly smarter</b> every time it catches something — the searchlight teaches the net new shapes to filter.
+          <br><br>
+          This is the <b>Standing Rule</b> documented in <code>UNIFIED_MEGA_GATE.md</code>. It has run 3 times in this session alone:
+          <ul style="margin:6px 0 0; padding-left:18px;">
+            <li>Logbook machine validation toast — <code>validate_logbook.py</code> check #22</li>
+            <li>Platform-wide optimistic locking — <code>validate_logbook.py</code> check #23</li>
+            <li>Admin gate enforcement — new <code>validate_admin_gates.py</code></li>
+          </ul>
+        </div>
+      </details>
     </div>
   </div>
 
