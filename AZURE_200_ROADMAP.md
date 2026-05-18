@@ -3,7 +3,7 @@
 > **Living document.** Update the `%` and `Last changed` cells in place each session. Do not branch. The narrative below the table doesn't need to be rewritten every day — only the progress block.
 
 **Started:** 2026-05-14
-**Last updated:** 2026-05-18 (Day 5 power-push: L7 100%, L1 35%, voice cache wired)
+**Last updated:** 2026-05-18 (Day 5 power-push + L5 chain-rewire: 750 KG facts)
 **Budget:** $200 (free Azure trial)
 **Spent so far:** $0.0015 (one Day 1 test page)
 **Doctrine:** Azure produces one-shot artifacts (ONNX models, DB rows). Never runtime calls. Free-tier providers (Voyage / Jina / Groq) handle anything that runs every request.
@@ -27,13 +27,15 @@ The platform is already a working maintenance toolkit. What it lacks is **AI com
 | **L3.3** | Smoke / steam / leak detector | ONNX model in Supabase Storage | **0%** | Roboflow project picks (industrial smoke + oil leak) |
 | **L3.4** | Equipment-label OCR → asset_nodes | UI on hive.html links photo → asset | **~60%** | UI wrapper — CLI tool works; needs camera capture + drawer on hive.html |
 | **L4** | Audio anomaly classifier | YAMNet-based ONNX | **0%** | MIMII dataset — got 2.6 GB of 10.4 GB, retry failed |
-| **L5** | Knowledge-graph entity extraction | Triples in `knowledge_graph_facts` from mined corpus | **~5%** | Extractor written + tested; per-row-rollback bug (savepoint needed) AND Groq TPM ceiling — see Day 5 log |
+| **L5** | Knowledge-graph entity extraction | Triples in `knowledge_graph_facts` from mined corpus | **~35%** | 750 triples from full 150-chunk standards corpus; hive-scoped to demo hive only — needs broadcast helper for other hives |
 | **L6** | Industrial noise suppression | ONNX denoiser, browser-side via onnxruntime-web | **0%** | Microsoft DNS + MIMII datasets |
 | **L7** | Filipino phrase cache | Lookup table of top 500–1000 PH industrial phrases (Tagalog + Visayan) + voice-handler integration | **100%** ✓ | **DONE** — 207 phrases, Tagalog via Translator F0, Visayan via Groq llama-3.3-70b, glossary loaded into voice-handler system prompt |
 
-**Overall AI substance:** ~22% of planned outputs live (was 12% start of Day 5). **Scaffolding** (Azure resources, schema, RPCs, embedding chain, CLI tools): ~85% in place.
+**Overall AI substance:** ~30% of planned outputs live (was 12% start of Day 5). **Scaffolding** (Azure resources, schema, RPCs, embedding chain, CLI tools): ~85% in place.
 
 **First layer hit 100%:** L7 (Filipino phrase cache) — proves the playbook end-to-end (seed → embed/translate → wire into voice prompt → validators pass). Same pattern applies to remaining layers once data unblocks.
+
+**L5 unlock note:** When the first KG run hit Groq's TPM ceiling, the fix wasn't engineering retry logic — it was using the platform's existing 14-model chain (`_shared/ai-chain.ts`). Built `tools/lib/ai_chain.py` as a Python replica so one-shot tools rotate through Groq's 6 models → Cerebras' 2 → OpenRouter's 6 just like the edge functions do. The chain handled 150 chunks without throttling.
 
 ---
 
@@ -141,12 +143,13 @@ Once datasets land, training is mostly Custom Vision portal clicks + Azure ML co
 - Extended `tools/day4_chunk_standards_pdfs.py` PDF_MAP and ran with `--max-chunks 50` → 50 more chunks (6 voyage + 44 jina)
 - Standards corpus now: 22 rows + 150 full-text chunks (NIST 100 + US Army 50)
 
-**L5: 0% → ~5% (infrastructure only)**
-- `tools/day5_extract_kg_facts.py` — Groq-driven triple extractor with subject_type/predicate/object_type CHECK-constraint sanitizer, schema-aligned source_type='standard'
-- 25-chunk test run produced **0 facts inserted.** Two issues uncovered:
-  1. Per-chunk `conn.rollback()` poisoned successful triples — needs SAVEPOINT-per-insert
-  2. Hit Groq TPM ceiling (12,000 tokens/min) after Visayan fill consumed budget — chunks 15-25 returned 429
-- Fix on the docket; not blocking other layers
+**L5: 0% → ~35% (after chain rewire)**
+- First pass (Groq-only): hit two problems — `conn.rollback()` poisoned good rows inside a chunk, AND a single-model lock hit TPM ceiling after the Visayan fill consumed budget.
+- Rewire: built `tools/lib/ai_chain.py` (Python replica of `_shared/ai-chain.ts` 14-model chain), switched `day5_extract_kg_facts.py` to use it, switched DB connection to `autocommit=True` so each INSERT is its own transaction.
+- Bug found and fixed: hardcoded TEST_HIVE_ID was stale — full reseed mints new hive UUIDs every run. Now looks up hive by name at runtime.
+- Result: full 150-chunk corpus (NIST 100 + US Army 50) → **750 triples inserted, 0 chunks failed.** Chain rotated through multiple Groq models as TPM limits hit per-model.
+- Top predicates: requires (124), applies_to (93), uses (84), related_to (59), mitigates (54), causes (17).
+- Limitation: triples are hive-scoped to one demo hive. Broadcasting to all hives needs a small follow-up.
 
 ### Day 6+ — Planned
 - Pivot decision: Custom Vision (needs datasets) vs. OCR UI on hive.html vs. more PDFs in standards corpus
