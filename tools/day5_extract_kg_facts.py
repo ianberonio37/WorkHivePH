@@ -41,7 +41,7 @@ from tools.lib.ai_chain import call_ai, AIChainError   # noqa: E402
 
 # Hive IDs change on every full reseed — look it up at runtime by name.
 DEMO_HIVE_NAME = "Baguio Textile Mills"
-CHUNKS_TO_PROCESS = 150   # full standards corpus (NIST 100 + US Army 50)
+CHUNKS_TO_PROCESS = 500   # full corpus cap; runtime SQL filters out chunks already extracted
 
 # Schema allowlist (mirrors CHECK constraints + common-sense subset)
 ALLOWED_SUBJECT_TYPES = {
@@ -136,11 +136,17 @@ def main() -> int:
     print(f"Hive id: {hive_id}")
     print()
 
-    # Pull a spread of chunks across all standards we have full text for
+    # Pull chunks that haven't been extracted yet (idempotent re-runs).
+    # source_ref convention from this script: "<standard_code> chunk_<n>".
     cur.execute("""
         SELECT isc.id, isc.chunk_num, isc.section, isc.text, s.standard_code, s.id
           FROM industry_standards_chunks isc
           JOIN industry_standards s ON isc.standard_id = s.id
+         WHERE NOT EXISTS (
+                SELECT 1 FROM knowledge_graph_facts f
+                 WHERE f.created_by = 'day5_extractor'
+                   AND f.source_ref = s.standard_code || ' chunk_' || isc.chunk_num
+         )
          ORDER BY s.standard_code, isc.chunk_num
          LIMIT %s
     """, (CHUNKS_TO_PROCESS,))

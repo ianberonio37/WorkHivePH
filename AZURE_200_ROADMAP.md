@@ -3,7 +3,7 @@
 > **Living document.** Update the `%` and `Last changed` cells in place each session. Do not branch. The narrative below the table doesn't need to be rewritten every day — only the progress block.
 
 **Started:** 2026-05-14
-**Last updated:** 2026-05-18 (L5 fully wired: 2,250 facts embedded, broadcast, voice queries them)
+**Last updated:** 2026-05-18 (L1 expansion: 5 OSHA/NIST/DOE PDFs → 302 chunks → 4,605 KG facts)
 **Budget:** $200 (free Azure trial)
 **Spent so far:** $0.0015 (one Day 1 test page)
 **Doctrine:** Azure produces one-shot artifacts (ONNX models, DB rows). Never runtime calls. Free-tier providers (Voyage / Jina / Groq) handle anything that runs every request.
@@ -20,18 +20,18 @@ The platform is already a working maintenance toolkit. What it lacks is **AI com
 
 | # | Layer | Outcome at 100% | Now | What's blocking the next jump |
 |---|---|---|---|---|
-| **L1** | Semantic / RAG embeddings | Every standard + manual searchable from voice/AMC | **~35%** | More PDFs to chunk (NIST 800-82r3 ✓, US Army TM 5-698 ✓, rest paywalled / OEM-pending) |
+| **L1** | Semantic / RAG embeddings | Every standard + manual searchable from voice/AMC | **~55%** | 27 standards rows + 302 chunks across 7 PDFs (NIST 800-82r3, US Army TM 5-698, OSHA 3120/3071/3080, NIST IR 8183, DOE Motor Tip). OEM-specific manuals still pending. |
 | **L2** | Doc mining (Azure Doc Intelligence Read) | ~20K pages mined into `pm_knowledge` + `industry_standards` | **<5%** | Source PDFs (ISO/SAE/ASHRAE paywalled; need OEM manuals from user) |
 | **L3.1** | Surface defect detector | ONNX model in Supabase Storage | **0%** | MVTec AD dataset — email form download stuck |
 | **L3.2** | Arc / spark detector | ONNX model in Supabase Storage | **0%** | Roboflow project pick (arc flash search) |
 | **L3.3** | Smoke / steam / leak detector | ONNX model in Supabase Storage | **0%** | Roboflow project picks (industrial smoke + oil leak) |
 | **L3.4** | Equipment-label OCR → asset_nodes | UI on hive.html links photo → asset | **~60%** | UI wrapper — CLI tool works; needs camera capture + drawer on hive.html |
 | **L4** | Audio anomaly classifier | YAMNet-based ONNX | **0%** | MIMII dataset — got 2.6 GB of 10.4 GB, retry failed |
-| **L5** | Knowledge-graph entity extraction | Triples in `knowledge_graph_facts` from mined corpus, embedded, searchable, used by voice | **~80%** | 2,250 triples (750 × 3 hives), all embedded, `semantic_search_kg_facts` RPC live, voice-handler queries them in parallel with kb + standards |
+| **L5** | Knowledge-graph entity extraction | Triples in `knowledge_graph_facts` from mined corpus, embedded, searchable, used by voice | **~85%** | **4,605 triples** (1,535 × 3 hives), 100% embedded. `semantic_search_kg_facts` RPC live. Voice-handler queries them in parallel with kb + standards. Idempotent re-extraction (`NOT EXISTS` filter on source_ref) so future PDFs add to it. |
 | **L6** | Industrial noise suppression | ONNX denoiser, browser-side via onnxruntime-web | **0%** | Microsoft DNS + MIMII datasets |
 | **L7** | Filipino phrase cache | Lookup table of top 500–1000 PH industrial phrases (Tagalog + Visayan) + voice-handler integration | **100%** ✓ | **DONE** — 207 phrases, Tagalog via Translator F0, Visayan via Groq llama-3.3-70b, glossary loaded into voice-handler system prompt |
 
-**Overall AI substance:** ~38% of planned outputs live (was 12% start of Day 5). **Scaffolding** (Azure resources, schema, RPCs, embedding chain, CLI tools): ~85% in place.
+**Overall AI substance:** ~45% of planned outputs live (was 12% start of Day 5). **Scaffolding** (Azure resources, schema, RPCs, embedding chain, CLI tools): ~85% in place.
 
 **First layer hit 100%:** L7 (Filipino phrase cache) — proves the playbook end-to-end (seed → embed/translate → wire into voice prompt → validators pass). Same pattern applies to remaining layers once data unblocks.
 
@@ -163,7 +163,42 @@ Smoke test: query embedding seeded from a KG row returns top-3 cosine-near tripl
 
 Worker chat now retrieves three complementary stores in parallel: `kb_chunks` (hive docs) + `industry_standards_chunks` (platform canon) + `knowledge_graph_facts` (atomic triples). All converge into one prompt.
 
-### Day 6+ — Planned
+### Day 6 — 2026-05-18 (late: L1 corpus expansion)
+
+User pointed out the previous KG run was pinned to a single Groq model.
+Fixed via [[feedback-use-ai-chain-always]]. With the chain in place, the
+extractor finally scales — so expanded the corpus aggressively.
+
+**`tools/day6_more_free_standards.py`** — downloaded 5 free public-domain
+PDFs (no email forms, no paywalls; US gov works are public domain):
+
+| File | Code | Topic | Size |
+|---|---|---|---|
+| osha-3120-loto.pdf | OSHA 3120 | Control of Hazardous Energy (LOTO) | 0.5 MB |
+| osha-3071-jha.pdf | OSHA 3071 | Job Hazard Analysis | 0.5 MB |
+| osha-3088-hand-power-tools.pdf | OSHA 3080 | Hand and Power Tools | 1.6 MB |
+| nist-ir-8183.pdf | NIST IR 8183 | Cybersecurity Framework Manufacturing Profile | 1.6 MB |
+| doe-motor-tip.pdf | DOE-AMO Motor Tip | DOE motor systems efficiency tip sheet | 0.5 MB |
+
+Pipeline ran end-to-end on the new PDFs using established tools:
+1. Inserted 5 new `industry_standards` rows (27 total).
+2. Embedded the 5 new rows via `day3_embed_industry_standards.py`.
+3. Extended `day4_chunk_standards_pdfs.py` PDF_MAP and ran with
+   `--max-chunks 50` → 152 new chunks (302 chunks total in corpus).
+4. Ran `day5_extract_kg_facts.py` (with idempotent NOT EXISTS filter on
+   source_ref so it only processes new chunks) → 785 new facts.
+5. Embedded the 785 via the resilient `day5_embed_kg_facts.py`
+   (auto-reconnect every 50 rows). 100% embedded.
+6. Broadcast new facts to other hives → 4,605 total KG facts (1,535
+   per hive × 3 hives), all embedded.
+
+Corpus state at end of session:
+- 27 `industry_standards` rows (all embedded)
+- 302 chunks in `industry_standards_chunks` (all embedded)
+- 4,605 `knowledge_graph_facts` rows across 3 hives (all embedded)
+- Voice handler queries all three stores in parallel per turn
+
+### Day 7+ — Planned
 - Pivot decision: Custom Vision (needs datasets) vs. OCR UI on hive.html vs. more PDFs in standards corpus
 - Retry MIMII / NASA / KolektorSDD2 from cleaner network
 - If MVTec arrives: Custom Vision detector #1 (surface defect) — Azure portal training run

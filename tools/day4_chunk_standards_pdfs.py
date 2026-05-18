@@ -48,8 +48,13 @@ TARGET_WORDS_PER_CHUNK = 300
 
 # ── PDF -> industry_standards mapping ────────────────────────────────────
 PDF_MAP = {
-    "nist-800-82.pdf":      "NIST SP 800-82r3",
-    "us-army-tm-5-698.pdf": "US Army TM 5-698-1",
+    "nist-800-82.pdf":             "NIST SP 800-82r3",
+    "us-army-tm-5-698.pdf":        "US Army TM 5-698-1",
+    "osha-3120-loto.pdf":          "OSHA 3120",
+    "osha-3071-jha.pdf":           "OSHA 3071",
+    "osha-3088-hand-power-tools.pdf": "OSHA 3080",
+    "nist-ir-8183.pdf":            "NIST IR 8183",
+    "doe-motor-tip.pdf":           "DOE-AMO Motor Tip",
     # "epri-pdm-handbook.pdf": None,  # zero-byte (was a redirect)
 }
 
