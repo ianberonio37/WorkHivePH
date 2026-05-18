@@ -516,6 +516,59 @@ Validator scaffolding (`validate_rls_readiness.py` + `validate_auth_migration_re
 
 ## 🟡 Important — degrades UX or data quality
 
+### 61. Mega Gate baseline 2026-05-18: 5 auto-generated AI validator stubs + 1 calc-suite timeout
+
+**Severity:** low-medium (none break user flows; all block Mega Gate cosmetically)
+**Location:** `tools/validate_voice_alert_order.py`, `tools/validate_voice_response_latency.py`, `tools/validate_response_format_validation.py`, `tools/validate_data_completeness.py`, `tools/validate_calc_formula_accuracy.py`, `run_all_checks.py`
+**Discovered:** Mega Gate run 2026-05-18 (sentinel-flywheel session)
+
+**Part A - 5 AI Self-Improvement validator stubs:**
+The Hardening Loop's "Run AI Self-Improvement Loop" button auto-generates Layer 0 validators from L2 findings. Five of them were generated in a prior run and never calibrated. Each prints `[<name>] DEFERRED - needs calibration` and exits 0, but the platform-checks orchestrator marks them FAIL because they're not actually enforcing anything yet. Sample stderr:
+
+```
+[Alert Ordering] DEFERRED - needs calibration against real code
+[WARN] Auto-generated validator: hard-coded selectors don't match voice-handler.js
+[WARN] Refine the checks() list before enabling enforcement
+```
+
+**Fix options (one of):**
+(a) Calibrate each: open the stub, replace placeholder checks with real assertions against actual voice-handler.js / analytics / calc code. ~30 min per validator.
+(b) Have the orchestrator treat `DEFERRED` output as SKIP (not FAIL) until calibrated. One-line change in `run_platform_checks.py` parser. ~2 min.
+(c) Remove the 5 entries from `VALIDATORS` until they're refined. ~1 min.
+
+**Recommended:** (b) for the immediate Mega Gate unblock, then (a) over time as a backlog item.
+
+**Part B - Engineering Calc Suite timeout (300s):**
+`run_all_checks.py` (the engineering calc validator suite, L1+L2a+L2b internally) is hitting the per-validator 300s hard cap in `run_platform_checks.py`. Either the suite has grown past the budget, or its `--fast` mode isn't honored, or the Python analytics API on port 8000 isn't running and the suite waits on it.
+
+**Fix options (one of):**
+(a) Confirm Python API on :8000 is up; rerun. Per memory `cad5342`, the API needs to be started separately.
+(b) Bump `VALIDATOR_TIMEOUT_SECONDS = 300` to 600 if the suite legitimately needs more time.
+(c) Split the calc suite into smaller chunks so each fits the budget.
+
+**Recommended:** (a) first - environmental. (b) if calibrated runtime exceeds 300s consistently.
+
+**Sentinel impact:** none. These are Layer 0 validator-orchestration issues, not behavioral coverage gaps. Sentinel baseline ratchet PASSed.
+
+**Status:** OPEN. Mega Gate would unblock if (b) is applied to Part A and Python API is up for Part B. Not blocking sentinel or shared infrastructure work.
+
+### 60. Mega Gate baseline 2026-05-18: 4 Layer 0 fails rooted in 20260516* migrations
+
+**Severity:** medium (each is a single-validator FAIL, not a user-facing bug, but Mega Gate is BLOCKED until they ship)
+**Location:** validators at project root + supabase/migrations/20260516*
+**Discovered:** Mega Gate run 2026-05-18 (sentinel-flywheel session)
+
+The Mega Gate flagged 4 pre-existing Layer 0 failures rooted in migrations added during the voice/persona Phase 4-10 work (2026-05-16 series). Each has a detailed JSON report at project root:
+
+- `validate_schema_coverage.py` FAIL — `voice-handler.js` queries `v_inventory_truth` and `v_pm_truth` but neither view is defined in any migration. See `schema_coverage_report.json`. Fix: add a migration defining both views, OR change voice-handler.js to query existing canonical views.
+- `validate_canonical_anchor.py` FAIL — 17 new tables in `20260516*` migrations are not registered in `canonical_sources`: `dialog_state`, `anomaly_alerts`, `kb_documents`, `kb_chunks`, `offline_snapshot_cache`, `voice_response_queue`, `fallback_model_faq`, `tts_cache`, `tts_quality_log`, `conversation_analytics`, `cross_hive_alerts`, `best_practices`, `avatar_state`, `avatar_animations`, plus more. See `canonical_anchor_report.json`. Fix: add `INSERT INTO canonical_sources` rows for each new table in a new migration.
+- `validate_migration_immutability.py` FAIL — 3 migrations edited after first commit: `20260516000001_agent_memory_phase2.sql`, `20260516000002_dialog_state_phase4.sql`, `20260516000003_anomaly_alerts_phase5.sql`. Supabase tracks applied migrations by filename, so production keeps the FIRST version while fresh clones get the EDITED one. Fix: revert each edit and add a NEW migration with a fresh timestamp for the additional change. See `migration_immutability_report.json`.
+- `validate_idempotency.py` FAIL — `20260516000004_kb_rag_phase3.sql` has 2 CREATE POLICY but no DROP POLICY IF EXISTS (`supabase db push` will fail on re-run); `anomaly_alerts` and `dialog_state` have RLS enabled in migrations but no GRANT statement (anon/authenticated roles will get 401). See `idempotency_report.json`. Fix: edit the migration to add `DROP POLICY IF EXISTS` before each `CREATE POLICY`, and `GRANT SELECT,INSERT,UPDATE,DELETE ON <table> TO anon,authenticated` for the two RLS-enabled tables.
+
+**Sentinel impact:** Behavioral coverage stays at 100.0% (167/167) — the sentinel's hard-fail metrics (behavioral_coverage_pct + absolute covered counts) are unaffected because these are all structural rules Layer 0 owns. The validator-level percentages dip informationally (denominator grew from new validators arriving) but `validate_sentinel_baseline.py` correctly distinguishes that from real regression.
+
+**Status:** OPEN. Mega Gate BLOCKED until the 4 fixes ship. Not blocking sentinel work or other shared infrastructure.
+
 ### 8. AI orchestrator returns object instead of string for some queries — FIXED 2026-05-04
 
 (See "Fixed" section.)
