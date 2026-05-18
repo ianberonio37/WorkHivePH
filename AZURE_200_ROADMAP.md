@@ -3,7 +3,7 @@
 > **Living document.** Update the `%` and `Last changed` cells in place each session. Do not branch. The narrative below the table doesn't need to be rewritten every day — only the progress block.
 
 **Started:** 2026-05-14
-**Last updated:** 2026-05-18
+**Last updated:** 2026-05-18 (L7 Tagalog seed)
 **Budget:** $200 (free Azure trial)
 **Spent so far:** $0.0015 (one Day 1 test page)
 **Doctrine:** Azure produces one-shot artifacts (ONNX models, DB rows). Never runtime calls. Free-tier providers (Voyage / Jina / Groq) handle anything that runs every request.
@@ -29,9 +29,9 @@ The platform is already a working maintenance toolkit. What it lacks is **AI com
 | **L4** | Audio anomaly classifier | YAMNet-based ONNX | **0%** | MIMII dataset — got 2.6 GB of 10.4 GB, retry failed |
 | **L5** | Knowledge-graph entity extraction | Triples in `knowledge_graph_facts` from mined corpus | **0%** | Needs L2 to produce corpus first |
 | **L6** | Industrial noise suppression | ONNX denoiser, browser-side via onnxruntime-web | **0%** | Microsoft DNS + MIMII datasets |
-| **L7** | Filipino phrase cache | Lookup table of top 500–1000 PH industrial phrases | **0%** | Translator F0 provisioned ✓ but no batch job yet |
+| **L7** | Filipino phrase cache | Lookup table of top 500–1000 PH industrial phrases (Tagalog + Visayan) | **~50%** | Visayan side still empty (Translator F0 has no `ceb`); fill via Groq llama-3.3-70b later |
 
-**Overall AI substance:** ~12% of planned outputs live. **Scaffolding** (Azure resources, schema, RPCs, embedding chain, CLI tools): ~85% in place.
+**Overall AI substance:** ~18% of planned outputs live (was 12% before L7). **Scaffolding** (Azure resources, schema, RPCs, embedding chain, CLI tools): ~85% in place.
 
 ---
 
@@ -116,7 +116,14 @@ Once datasets land, training is mostly Custom Vision portal clicks + Azure ML co
 - ✓ Validators: 4/4 embed-integrity + 8/8 industry-defining PASS
 - **Memory:** `project_azure_day4_completion.md`
 
-### Day 5+ — Planned
+### Day 5 — 2026-05-18 (afternoon)
+- ✓ L7: applied Phase 11 multilingual migration (`multilingual_terms` table) — wasn't in local DB
+- ✓ `tools/day5_seed_filipino_phrases.py` — 207 curated industrial phrases across 9 domains (equipment, problem, action, safety, measurement, documentation, role, status, time)
+- ✓ Azure Translator F0 batch (5 calls, 50 phrases each) → 207/207 Tagalog translations inserted
+- ⚠ Translator F0 does NOT support Cebuano (`ceb`) — Visayan column stays empty. Will fill later via Groq llama-3.3-70b (free chain) or PH worker corrections via `terminology_gaps`.
+- **Cost impact:** ~3000 chars used of 2,000,000/month free tier (0.15%)
+
+### Day 6+ — Planned
 - Pivot decision: Custom Vision (needs datasets) vs. OCR UI on hive.html vs. more PDFs in standards corpus
 - Retry MIMII / NASA / KolektorSDD2 from cleaner network
 - If MVTec arrives: Custom Vision detector #1 (surface defect) — Azure portal training run
