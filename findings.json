@@ -22,6 +22,11 @@
         "date": "2026-05-18",
         "session": "sentinel-flywheel",
         "action": "bulk triage of 14 historical findings: 9 resolved (8 obsolete + 1 fixed by OC adoption), 4 acknowledged (environmental / soft-skip / seed-dependent), 1 kept OPEN (community-sticky-nav real UX gap)"
+      },
+      {
+        "date": "2026-05-18",
+        "session": "sentinel-followup",
+        "action": "closed community-sticky-nav-blocks-clicks as works-as-intended after investigating current CSS state"
       }
     ]
   },
@@ -234,8 +239,11 @@
       "test_file": "tests/journey-community.spec.ts \u00e2\u20ac\u201d scrollIntoViewIfNeeded + el.click() pattern",
       "has_validator": false,
       "validator_layer": null,
-      "status": "open",
-      "fix_commit": null
+      "status": "resolved",
+      "fix_commit": null,
+      "resolution": "works-as-intended",
+      "closed_at": "2026-05-18",
+      "close_reason": "Investigated 2026-05-18: real mobile users not affected \u2014 community.html main and sheet-inner both apply env(safe-area-inset-bottom) padding. The original Playwright failure was a desktop-viewport test artifact, resolved at the TEST layer with scrollIntoViewIfNeeded + el.click() in tests/journey-community.spec.ts. No page-level CSS change needed."
     },
     {
       "id": "audit-log-entry-selector-mismatch",

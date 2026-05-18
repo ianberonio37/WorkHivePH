@@ -516,7 +516,15 @@ Validator scaffolding (`validate_rls_readiness.py` + `validate_auth_migration_re
 
 ## 🟡 Important — degrades UX or data quality
 
-### 61. Mega Gate baseline 2026-05-18: 5 auto-generated AI validator stubs + 1 calc-suite timeout
+### 61. Mega Gate baseline 2026-05-18: 5 AI validator stubs + 1 calc-suite timeout — RESOLVED by parallel-stream calibration 2026-05-18
+
+**Status update 2026-05-18 (post-`cf0b74a`):** Re-running shows all 6 of these now PASS. Parallel stream calibrated the AI stubs and the calc suite finished within budget on a fresh run. `platform_health.json` from 2026-05-18 06:52 UTC shows 189 PASS / 1 FAIL — the remaining FAIL is the PWA cache (already addressed in this session by `6a8a0c3` + parallel stream's subsequent v92→v94 bumps; `pwa_report.json` now shows 0 issues, so the stale FAIL in platform_health will clear on the next Mega Gate run).
+
+Original entry preserved below for history.
+
+---
+
+### 61. Mega Gate baseline 2026-05-18: 5 auto-generated AI validator stubs + 1 calc-suite timeout (ORIGINAL)
 
 **Severity:** low-medium (none break user flows; all block Mega Gate cosmetically)
 **Location:** `tools/validate_voice_alert_order.py`, `tools/validate_voice_response_latency.py`, `tools/validate_response_format_validation.py`, `tools/validate_data_completeness.py`, `tools/validate_calc_formula_accuracy.py`, `run_all_checks.py`
