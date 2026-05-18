@@ -1023,6 +1023,20 @@
     <!-- Register view -->
     <div id="asset-register-view">
       <div class="space-y-4">
+        <!-- Scan nameplate: prefills manufacturer/model/serial_no via Azure Doc Intelligence OCR. -->
+        <div class="rounded-lg p-3" style="background: rgba(247,162,27,0.06); border: 1px solid rgba(247,162,27,0.18);">
+          <div class="flex items-start gap-2">
+            <input id="a-scan-input" type="file" accept="image/*" capture="environment" class="hidden" />
+            <button id="a-scan-btn" type="button" class="btn-secondary text-xs py-1.5 px-3 flex items-center gap-1.5 min-h-[44px]" style="background: rgba(247,162,27,0.12); border-color: rgba(247,162,27,0.35); color: #F7A21B;">
+              <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+              <span>Scan nameplate</span>
+            </button>
+            <div class="text-[10px] flex-1 leading-snug" style="color: rgba(255,255,255,0.45);">
+              Photograph the equipment nameplate. We will auto-fill manufacturer, model, and serial below.
+              <span id="a-scan-status" class="block mt-0.5" style="color:#F7A21B;"></span>
+            </div>
+          </div>
+        </div>
         <div>
           <label for="a-asset-id" class="wh-label">Asset ID <span class="text-orange-wh text-[10px] normal-case font-semibold">required</span></label>
           <input aria-label="e.g. PUMP-001, CONV-A03, MOTOR-12" id="a-asset-id" type="text" class="wh-input" placeholder="e.g. PUMP-001, CONV-A03, MOTOR-12" autocomplete="off" />
@@ -1031,6 +1045,20 @@
         <div>
           <label for="a-name" class="wh-label">Asset Name <span class="text-white/25 font-normal normal-case">(optional)</span></label>
           <input aria-label="e.g. Cooling Water Pump, Line 3 Conveyor" id="a-name" type="text" class="wh-input" placeholder="e.g. Cooling Water Pump, Line 3 Conveyor" autocomplete="off" />
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label for="a-manufacturer" class="wh-label">Manufacturer <span class="text-white/25 font-normal normal-case">(optional)</span></label>
+            <input aria-label="e.g. ABB, Mitsubishi, Siemens" id="a-manufacturer" type="text" class="wh-input" placeholder="e.g. ABB, Mitsubishi" autocomplete="off" />
+          </div>
+          <div>
+            <label for="a-model" class="wh-label">Model <span class="text-white/25 font-normal normal-case">(optional)</span></label>
+            <input aria-label="e.g. ACS580-01-046A-4" id="a-model" type="text" class="wh-input" placeholder="e.g. ACS580-01-046A-4" autocomplete="off" />
+          </div>
+        </div>
+        <div>
+          <label for="a-serial-no" class="wh-label">Serial Number <span class="text-white/25 font-normal normal-case">(optional)</span></label>
+          <input aria-label="Serial number printed on the equipment nameplate" id="a-serial-no" type="text" class="wh-input" placeholder="e.g. AB22-987654" autocomplete="off" />
         </div>
         <div>
           <label for="a-type" class="wh-label">Asset Type</label>
@@ -1800,6 +1828,11 @@ function _assetToNode(a) {
     name:         a.name,
     iso_class:    a.type || null,
     location:     a.location || null,
+    // Day 5 / L3.4: nameplate fields. Only set when non-empty so upsert
+    // doesn't clobber existing values on re-save.
+    manufacturer: a.manufacturer || null,
+    model:        a.model        || null,
+    serial_no:    a.serial_no    || null,
     criticality:  (a.criticality || 'medium').toLowerCase(),
     hive_id:      a.hive_id || null,
     worker_name:  a.worker_name || WORKER_NAME,
@@ -1935,6 +1968,11 @@ function clearAssetForm() {
   document.getElementById('a-name').value = '';
   document.getElementById('a-type').value = '';
   document.getElementById('a-location').value = '';
+  // Day 5 / L3.4: nameplate fields (manufacturer/model/serial_no)
+  const mfr  = document.getElementById('a-manufacturer'); if (mfr)  mfr.value  = '';
+  const mod  = document.getElementById('a-model');        if (mod)  mod.value  = '';
+  const sn   = document.getElementById('a-serial-no');    if (sn)   sn.value   = '';
+  const stat = document.getElementById('a-scan-status');  if (stat) stat.textContent = '';
   document.querySelectorAll('input[name="a-criticality"]').forEach(r => { r.checked = false; });
   ['Critical','Major','Minor'].forEach(v => {
     document.getElementById('crit-btn-' + v).classList.remove('sel-Critical','sel-Major','sel-Minor');
@@ -1959,12 +1997,18 @@ async function submitAsset() {
   // Phase 5c: asset_nodes uses uuid PKs; the wizard now generates a uuid
   // client-side via crypto.randomUUID() so the new row has a valid id from
   // the moment it lives in local _assets, before the DB write returns.
+  // Day 5 / L3.4: read nameplate fields if they're on the form. Defensive
+  // lookup so older cached HTML without these inputs still works.
+  const _val = (id) => { const el = document.getElementById(id); return el ? el.value.trim() : ''; };
   const asset = {
     id: (typeof crypto !== 'undefined' && crypto.randomUUID) ? crypto.randomUUID() : (Date.now().toString() + '-' + Math.random().toString(36).slice(2, 10)),
     asset_id: assetId,
     name: document.getElementById('a-name').value.trim(),
     type: document.getElementById('a-type').value,
     location: document.getElementById('a-location').value.trim(),
+    manufacturer: _val('a-manufacturer'),
+    model:        _val('a-model'),
+    serial_no:    _val('a-serial-no'),
     criticality: criticality ? criticality.value : '',
     registered_at: new Date().toISOString(),
     status: HIVE_ID ? 'pending' : 'approved',
@@ -2677,7 +2721,7 @@ async function renderReadingsFields(category) {
   fields.innerHTML = defs.map(d => `
     <div>
       <label class="block text-[10px] text-white/35 font-semibold mb-1">${escHtml(d.label)} <span class="text-white/20">(${escHtml(d.unit)})</span></label>
-      <input type="number" step="any" class="wh-input text-sm py-2"
+      <input type="number" step="any" class="wh-input py-2"
              id="reading-${escHtml(d.key)}"
              data-key="${escHtml(d.key)}" data-unit="${escHtml(d.unit)}"
              placeholder="${escHtml(d.placeholder)}"
@@ -2828,6 +2872,55 @@ document.getElementById('asset-modal').addEventListener('click', function(e) {
   if (e.target === this) closeAssetModal();
 });
 document.getElementById('open-asset-modal-btn').addEventListener('click', () => openAssetModal('register'));
+
+// Day 5 / L3.4: Scan nameplate. Worker takes a photo of the equipment label;
+// equipment-label-ocr edge fn runs Azure Doc Intelligence + regex parse,
+// returns {manufacturer, model, serial_no}; auto-fill the form fields.
+(function wireAssetScan() {
+  const btn   = document.getElementById('a-scan-btn');
+  const file  = document.getElementById('a-scan-input');
+  const stat  = document.getElementById('a-scan-status');
+  if (!btn || !file) return;
+  btn.addEventListener('click', () => file.click());
+  file.addEventListener('change', async (e) => {
+    const f = e.target.files && e.target.files[0];
+    if (!f) return;
+    if (f.size > 5_000_000) { stat.textContent = 'Image too large (max 5 MB).'; return; }
+    stat.textContent = 'Scanning nameplate...';
+    btn.disabled = true;
+    try {
+      // Read as base64 data URL
+      const dataUrl = await new Promise((res, rej) => {
+        const r = new FileReader();
+        r.onload = () => res(r.result);
+        r.onerror = () => rej(r.error);
+        r.readAsDataURL(f);
+      });
+      const { data, error } = await db.functions.invoke('equipment-label-ocr', {
+        body: { image_data_url: dataUrl, hive_id: HIVE_ID || null },
+      });
+      if (error) throw error;
+      const parsed = (data && data.parsed) || {};
+      let filled = 0;
+      const setField = (id, val) => {
+        const el = document.getElementById(id);
+        if (el && val && !el.value.trim()) { el.value = val; filled++; }
+      };
+      setField('a-manufacturer', parsed.manufacturer);
+      setField('a-model',        parsed.model);
+      setField('a-serial-no',    parsed.serial_no);
+      stat.textContent = filled > 0
+        ? `Filled ${filled} field${filled === 1 ? '' : 's'} from nameplate. Confirm and continue.`
+        : 'Could not read a nameplate from the photo. Try again or type fields manually.';
+    } catch (err) {
+      console.warn('[asset-scan] OCR failed:', err && err.message);
+      stat.textContent = 'OCR unavailable right now. Type fields manually.';
+    } finally {
+      btn.disabled = false;
+      file.value = '';
+    }
+  });
+})();
 document.getElementById('asset-tab-register').addEventListener('click', () => switchAssetTab('register'));
 document.getElementById('asset-tab-manage').addEventListener('click', () => switchAssetTab('manage'));
 document.getElementById('asset-submit-btn').addEventListener('click', submitAsset);
@@ -3027,7 +3120,7 @@ async function renderEntries(reload = true) {
         <p class="text-xs text-white/60 mt-1 leading-relaxed line-clamp-2">${knowledge}</p>
       </div>` : ''}
 
-      ${e.photo && (e.photo.startsWith('data:image/') || e.photo.startsWith('https://')) ? `<div class="mt-3"><img src="${e.photo}" class="photo-thumb" /></div>` : ''}
+      ${e.photo && (e.photo.startsWith('data:image/') || e.photo.startsWith('https://')) ? `<div class="mt-3"><img src="${e.photo}" alt="Logbook entry photo" class="photo-thumb" /></div>` : ''}
     </div>`;
   }).join('');
 }
@@ -3087,7 +3180,7 @@ async function openModal(id) {
     ${entry.photo && (entry.photo.startsWith('data:image/') || entry.photo.startsWith('https://')) ? `
     <div class="mb-5">
       <p class="text-[10px] text-white/35 uppercase tracking-widest font-semibold mb-2">Photo</p>
-      <img src="${entry.photo}" class="w-full rounded-xl border border-white/10 object-cover max-h-64" />
+      <img src="${entry.photo}" alt="Logbook entry photo (full size)" class="w-full rounded-xl border border-white/10 object-cover max-h-64" />
     </div>` : ''}
 
     ${entry.parts_used && entry.parts_used.length ? `
@@ -4943,6 +5036,9 @@ function renderOpenJobs(entries) {
   badge.textContent = openEntries.length + (openEntries.length === 1 ? ' open job' : ' open jobs');
 
   const displayed = openEntries.slice(0, 3);
+  const overflowMsg = openEntries.length > 3
+    ? `<p class="text-[11px] text-center mt-1" style="color:rgba(255,255,255,0.3);">+${openEntries.length - 3} more: use the "Open" filter below</p>`
+    : '';
   list.innerHTML = displayed.map(e => `
     <div class="rounded-xl p-3 mb-2 cursor-pointer" style="background:rgba(239,68,68,0.06); border:1px solid rgba(239,68,68,0.15);"
       onclick="openModal('${e.id}')"
@@ -4957,11 +5053,7 @@ function renderOpenJobs(entries) {
           <p class="text-[10px] font-bold mt-0.5" style="color:#f87171;">Open</p>
         </div>
       </div>
-    </div>`).join('');
-
-  if (openEntries.length > 3) {
-    list.innerHTML += `<p class="text-[11px] text-center mt-1" style="color:rgba(255,255,255,0.3);">+${openEntries.length - 3} more: use the "Open" filter below</p>`;
-  }
+    </div>`).join('') + overflowMsg;
 }
 
 // ────────────────────────────────────────────

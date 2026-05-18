@@ -75,6 +75,7 @@ ALL_FUNCTIONS = [
     "pf-calculator",
     "amc-orchestrator",
     "visual-defect-capture",
+    "equipment-label-ocr",
     "sensor-readings-ingest",
     "export-hive-data",
     "tts-speak",
@@ -120,6 +121,7 @@ REQUIRED_FIELDS = {
     "platform-gateway":             ["fn"],   # routed call: { fn, payload?, hive_id?, request_id? }
     "pdf-ingest":                   [],   # accepts { job_id? } OR empty body (drain mode)
     "voice-journal-agent":          [],   # invoked by ai-gateway with { message, context }; gateway handles validation
+    "equipment-label-ocr":          [],   # accepts {image_data_url} OR {image_url}; validated inline (one-of)
     "shift-planner-orchestrator":   ["shift_window"],
     "voice-action-router":          ["transcript", "hive_id"],
     "fmea-populator":               ["hive_id", "asset_id"],

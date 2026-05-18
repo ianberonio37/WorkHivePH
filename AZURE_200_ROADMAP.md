@@ -3,7 +3,7 @@
 > **Living document.** Update the `%` and `Last changed` cells in place each session. Do not branch. The narrative below the table doesn't need to be rewritten every day — only the progress block.
 
 **Started:** 2026-05-14
-**Last updated:** 2026-05-18 (L1 expansion: 5 OSHA/NIST/DOE PDFs → 302 chunks → 4,605 KG facts)
+**Last updated:** 2026-05-19 (L3.4 wired correctly via canonical audit; asset_embeddings filled)
 **Budget:** $200 (free Azure trial)
 **Spent so far:** $0.0015 (one Day 1 test page)
 **Doctrine:** Azure produces one-shot artifacts (ONNX models, DB rows). Never runtime calls. Free-tier providers (Voyage / Jina / Groq) handle anything that runs every request.
@@ -25,13 +25,13 @@ The platform is already a working maintenance toolkit. What it lacks is **AI com
 | **L3.1** | Surface defect detector | ONNX model in Supabase Storage | **0%** | MVTec AD dataset — email form download stuck |
 | **L3.2** | Arc / spark detector | ONNX model in Supabase Storage | **0%** | Roboflow project pick (arc flash search) |
 | **L3.3** | Smoke / steam / leak detector | ONNX model in Supabase Storage | **0%** | Roboflow project picks (industrial smoke + oil leak) |
-| **L3.4** | Equipment-label OCR → asset_nodes | UI on hive.html links photo → asset | **~60%** | UI wrapper — CLI tool works; needs camera capture + drawer on hive.html |
+| **L3.4** | Equipment-label OCR → asset_nodes | Worker photographs a nameplate; the existing `logbook.html` asset register form auto-fills manufacturer/model/serial_no | **~90%** | Form fields + Scan button + `equipment-label-ocr` edge fn (4-place sync done) shipped 2026-05-19. Pending: edge fn deploy + browser smoke test on a real nameplate. |
 | **L4** | Audio anomaly classifier | YAMNet-based ONNX | **0%** | MIMII dataset — got 2.6 GB of 10.4 GB, retry failed |
 | **L5** | Knowledge-graph entity extraction | Triples in `knowledge_graph_facts` from mined corpus, embedded, searchable, used by voice | **~85%** | **4,605 triples** (1,535 × 3 hives), 100% embedded. `semantic_search_kg_facts` RPC live. Voice-handler queries them in parallel with kb + standards. Idempotent re-extraction (`NOT EXISTS` filter on source_ref) so future PDFs add to it. |
 | **L6** | Industrial noise suppression | ONNX denoiser, browser-side via onnxruntime-web | **0%** | Microsoft DNS + MIMII datasets |
 | **L7** | Filipino phrase cache | Lookup table of top 500–1000 PH industrial phrases (Tagalog + Visayan) + voice-handler integration | **100%** ✓ | **DONE** — 207 phrases, Tagalog via Translator F0, Visayan via Groq llama-3.3-70b, glossary loaded into voice-handler system prompt |
 
-**Overall AI substance:** ~45% of planned outputs live (was 12% start of Day 5). **Scaffolding** (Azure resources, schema, RPCs, embedding chain, CLI tools): ~85% in place.
+**Overall AI substance:** ~50% of planned outputs live (was 12% start of Day 5). **Scaffolding** (Azure resources, schema, RPCs, embedding chain, CLI tools): ~90% in place.
 
 **First layer hit 100%:** L7 (Filipino phrase cache) — proves the playbook end-to-end (seed → embed/translate → wire into voice prompt → validators pass). Same pattern applies to remaining layers once data unblocks.
 
@@ -198,7 +198,28 @@ Corpus state at end of session:
 - 4,605 `knowledge_graph_facts` rows across 3 hives (all embedded)
 - Voice handler queries all three stores in parallel per turn
 
-### Day 7+ — Planned
+### Day 7 — 2026-05-19 (canonical audit reflex + L3.4 wired correctly)
+
+User caught me about to "wire OCR UI into hive.html (camera capture + drawer + asset register)" without first auditing what already exists. The 30-second audit revealed:
+
+- `logbook.html` already owns the worker asset register modal (`#asset-modal`)
+- `asset-hub.html` is supervisor approval queue, no register surface
+- `asset_nodes` schema already has manufacturer / model / serial_no columns — but the existing form doesn't surface them
+- `asset_embeddings` table existed with 0 rows for weeks
+- `visual-defect-capture` edge fn does adjacent (but not the same) OCR work — sibling, not duplicate
+
+Captured the pattern as [[feedback-canonical-audit-reflex]] so future "build/add/create/wire" requests dump a 30-second canonical audit table BEFORE proposing.
+
+**Ship list (correct architecture):**
+
+- **B (asset_embeddings)** — `tools/day7_embed_asset_nodes.py` filled the empty `asset_embeddings` table. 95/95 asset_nodes embedded (9 voyage + 86 jina). Enables semantic asset search.
+- **A.1 (logbook form fields)** — added `manufacturer`, `model`, `serial_no` text inputs to `#asset-register-view`. Updated `clearAssetForm`, `submitAsset`, and `_assetToNode` to pass them through to `asset_nodes`. Defensive `_val()` lookup keeps older cached HTML working.
+- **A.2 (edge fn)** — `supabase/functions/equipment-label-ocr/index.ts`. Accepts base64 data URL or https URL, calls Azure Doc Intelligence prebuilt-read, regex-parses fields (mirrors `tools/day3_equipment_label_ocr.py`), optionally matches against `asset_nodes` for the given hive. Graceful `azure_unavailable: true` fallback when Azure keys are missing.
+- **A.3 (4-place sync)** — `supabase/config.toml`, `deploy-functions.ps1`, `validate_edge_contracts.py` (ALL_FUNCTIONS + REQUIRED_FIELDS) all updated. `python validate_edge_contracts.py` returns 5 PASS / 1 WARN / 0 FAIL.
+- **A.4 (UI wire)** — "Scan nameplate" button in the register form. Worker taps → camera/file picker (uses `accept="image/*" capture="environment"` so Android/iOS opens camera) → POST to edge fn → auto-fills the three form fields → worker confirms.
+- **C** — DROPPED. asset-hub.html has no register surface, only approval queue. Building one there would duplicate the logbook flow.
+
+### Day 8+ — Planned
 - Pivot decision: Custom Vision (needs datasets) vs. OCR UI on hive.html vs. more PDFs in standards corpus
 - Retry MIMII / NASA / KolektorSDD2 from cleaner network
 - If MVTec arrives: Custom Vision detector #1 (surface defect) — Azure portal training run

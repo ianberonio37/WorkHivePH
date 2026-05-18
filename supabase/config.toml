@@ -197,6 +197,11 @@ enabled = true
 verify_jwt = false
 entrypoint = "./functions/visual-defect-capture/index.ts"
 
+[functions.equipment-label-ocr]
+enabled = true
+verify_jwt = false
+entrypoint = "./functions/equipment-label-ocr/index.ts"
+
 [functions.sensor-readings-ingest]
 enabled = true
 verify_jwt = false
