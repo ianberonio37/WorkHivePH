@@ -5,11 +5,12 @@
  * persona key into a playable MP3 URL. The persona key maps to a fixed
  * Azure neural voice:
  *
- *   james -> en-PH-AngeloNeural  (Filipino male, PH English)
+ *   james -> en-PH-JamesNeural   (Filipino male, PH English)
  *   rosa  -> en-PH-RosaNeural    (Filipino female, PH English)
  *
- * Azure's en-PH catalog only ships those two neural voices. "James" is
- * the character display name; the underlying neural model is Angelo.
+ * Both en-PH neural voices ship in southeastasia. fil-PH-AngeloNeural +
+ * fil-PH-BlessicaNeural are also available but we stay in the en-PH pair
+ * because the companion answers in PH-English.
  *
  * Naturalness: SSML <prosody> tunes rate/pitch per persona, and commas
  * + periods get inserted <break/> tags so the cadence breathes instead
@@ -39,14 +40,19 @@ import { clampPersona } from "../_shared/persona.ts";
 // say in a single turn. Prevents abuse via large narration payloads.
 const MAX_TEXT_LENGTH = 1500;
 
-// Azure Neural voices for en-PH locale. The platform's en-PH catalog only
-// ships TWO neural voices (en-PH-AngeloNeural male + en-PH-RosaNeural
-// female). The previous "en-PH-JamesNeural" mapping was a hallucination —
-// requests for that voice would fail and the client fell back to the
-// browser's robotic SpeechSynthesis. James is the character; Angelo is
-// the underlying neural model. The display name stays "James".
+// Azure Neural voices for en-PH locale. Confirmed against the live voice
+// catalog at /cognitiveservices/voices/list (southeastasia region, 2026-05-18):
+//   en-PH-JamesNeural (Male)   — display name "James" — used for james persona
+//   en-PH-RosaNeural  (Female) — display name "Rosa"  — used for rosa persona
+// (fil-PH-AngeloNeural + fil-PH-BlessicaNeural also exist for pure-Tagalog
+//  output, but the conversational companion replies in en-PH so we stick to
+//  the English-Philippine pair.)
+//
+// Earlier the comment here claimed "en-PH-JamesNeural was a hallucination"
+// and routed to AngeloNeural — that was wrong. Angelo only exists under the
+// fil-PH locale; en-PH-AngeloNeural returns 400 Unsupported voice from Azure.
 const PERSONA_TO_VOICE: Record<string, string> = {
-  james: "en-PH-AngeloNeural",
+  james: "en-PH-JamesNeural",
   rosa:  "en-PH-RosaNeural",
 };
 
@@ -82,7 +88,16 @@ async function sha256Hex(input: string): Promise<string> {
 function publicUrl(filename: string): string {
   // Public bucket — no signing needed. URL pattern is the Supabase Storage
   // public path.
-  return `${SB_URL}/storage/v1/object/public/${CACHE_BUCKET}/${filename}`;
+  //
+  // Local-dev URL rewrite: inside the Supabase Docker stack, SB_URL is
+  // `http://kong:8000` (internal DNS) which the browser cannot resolve.
+  // Rewrite to the host-accessible address `http://127.0.0.1:54321`. In
+  // cloud deploys, SB_URL is `https://<ref>.supabase.co` which the
+  // browser CAN reach, so the rewrite is a no-op.
+  const externalBase = SB_URL.startsWith("http://kong:")
+    ? "http://127.0.0.1:54321"
+    : SB_URL;
+  return `${externalBase}/storage/v1/object/public/${CACHE_BUCKET}/${filename}`;
 }
 
 function escapeXml(s: string): string {
