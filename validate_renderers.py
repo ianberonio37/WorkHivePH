@@ -10,6 +10,23 @@ Usage:  python validate_renderers.py
 """
 import json, re, sys
 
+if sys.platform == "win32":
+    import io
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+
+# Sentinel matcher uses CHECK_NAMES to bind Layer 2 Playwright tests to
+# this validator's logical checks. Three sweeps run below:
+#   renderer_field_contract — Layer 2a, r.field exists in API response
+#   calcref_completeness    — Layer 2a-EXT, BOM/SOW is* booleans wired
+#                              into the calcRef ternary chain
+#   render_null_guard       — Layer 2c, render fns reading c.* = results
+#                              .components|calcs have an early-return guard
+CHECK_NAMES = [
+    "renderer_field_contract",
+    "calcref_completeness",
+    "render_null_guard",
+]
+
 with open("results_keys.json") as f:
     api_keys = json.load(f)
 

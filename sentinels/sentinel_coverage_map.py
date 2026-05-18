@@ -91,9 +91,15 @@ def discover_validators(root: Path) -> list:
             src = path.read_text(encoding="utf-8", errors="ignore")
         except Exception:
             continue
-        checks = sorted(set(re.findall(
+        checks = set(re.findall(
             r'["\']check["\']\s*:\s*["\']([^"\']+)["\']', src
-        )))
+        ))
+        check_names_match = re.search(
+            r"CHECK_NAMES\s*=\s*\[([^\]]*)\]", src, re.DOTALL
+        )
+        if check_names_match:
+            checks.update(re.findall(r'["\']([^"\']+)["\']', check_names_match.group(1)))
+        checks = sorted(checks)
         doc_match = re.search(r'^"""([^\n]+)', src)
         label = doc_match.group(1).strip() if doc_match else path.stem
         all_html_matches = re.findall(
