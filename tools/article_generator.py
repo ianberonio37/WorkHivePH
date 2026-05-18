@@ -45,6 +45,75 @@ BANNED_PHRASES = [
     "make informed decisions", "optimize your plant's performance",
 ]
 
+# Post-process scrubber: when the AI sneaks a banned phrase past the prompt
+# rules and the per-section retry doesn't catch it, this last-line-of-defense
+# replaces the phrase with a neutral alternative. Logged so we can see when
+# the AI is drifting and tighten prompts upstream. Each replacement is a
+# regex with case-preserving substitution.
+#
+# IMPORTANT: alternatives must NOT themselves contain another banned phrase,
+# and must read naturally in context. Conservative substitutions only —
+# when in doubt, the scrubber preserves AI output and just warns.
+BANNED_PHRASE_REPLACEMENTS = [
+    # (regex, replacement, label)
+    (re.compile(r"\bdata-driven decisions\b", re.IGNORECASE),
+     "evidence-backed choices",
+     "data-driven decisions"),
+    # game-changer / game changer / game-changers / game changers — explicit
+    (re.compile(r"\bgame[\s-]changers\b", re.IGNORECASE),
+     "meaningful improvements", "game-changers"),
+    (re.compile(r"\bgame[\s-]changer\b",  re.IGNORECASE),
+     "meaningful improvement",  "game-changer"),
+    # revolutionize family — explicit per-form to avoid stem-suffix mismatch
+    # (the previous capture-group approach produced "transforme" from
+    #  "revolutionize" because the e in the suffix doubled with stem)
+    (re.compile(r"\brevolutionizing\b", re.IGNORECASE), "transforming", "revolutionizing"),
+    (re.compile(r"\brevolutionized\b",  re.IGNORECASE), "transformed",  "revolutionized"),
+    (re.compile(r"\brevolutionizes\b",  re.IGNORECASE), "transforms",   "revolutionizes"),
+    (re.compile(r"\brevolutionize\b",   re.IGNORECASE), "transform",    "revolutionize"),
+    # leverage family — same fix
+    (re.compile(r"\bleveraging\b", re.IGNORECASE), "using", "leveraging"),
+    (re.compile(r"\bleveraged\b",  re.IGNORECASE), "used",  "leveraged"),
+    (re.compile(r"\bleverages\b",  re.IGNORECASE), "uses",  "leverages"),
+    (re.compile(r"\bleverage\b",   re.IGNORECASE), "use",   "leverage"),
+    (re.compile(r"\bunlock real insights\b", re.IGNORECASE),
+     "see clear patterns",
+     "unlock real insights"),
+    (re.compile(r"\bunlock insights\b", re.IGNORECASE),
+     "see patterns",
+     "unlock insights"),
+    (re.compile(r"\bdiscover how\b", re.IGNORECASE),
+     "see how",
+     "discover how"),
+    (re.compile(r"\blearn more about\b", re.IGNORECASE),
+     "read about",
+     "learn more about"),
+    (re.compile(r"\bsign up now\b", re.IGNORECASE),
+     "join the hive",
+     "sign up now"),
+    (re.compile(r"\bin today['’]s\b", re.IGNORECASE),
+     "in the current",
+     "in today's"),
+    (re.compile(r"\bin this article,? we[' ]?ll explore\b", re.IGNORECASE),
+     "this guide covers",
+     "in this article, we'll explore"),
+    (re.compile(r"\bmake informed decisions\b", re.IGNORECASE),
+     "decide with evidence",
+     "make informed decisions"),
+    (re.compile(r"\boptimize your plant['’]s performance\b", re.IGNORECASE),
+     "improve plant performance",
+     "optimize your plant's performance"),
+    (re.compile(r"\bare you tired of\b", re.IGNORECASE),
+     "instead of",
+     "are you tired of"),
+    (re.compile(r"\bour tool helps you\b", re.IGNORECASE),
+     "the tool lets you",
+     "our tool helps you"),
+    (re.compile(r"\bhave you ever struggled\b", re.IGNORECASE),
+     "if you've dealt",
+     "have you ever struggled"),
+]
+
 # Tagalog markers that violate "plain simple English only" rule.
 TAGALOG_RE = re.compile(
     r"\b(kumusta|mga|ka-\w+|pwede|naman|talaga|sila|nila|sya|nya|"
@@ -354,6 +423,70 @@ def _ai_array(prompt):
         return json.loads(m2.group())
 
 
+def _apply_replacements(text: str) -> tuple:
+    """Return (scrubbed_text, {phrase_label: count}) for one text blob."""
+    if not text:
+        return text, {}
+    counts = {}
+    for pattern, replacement, label in BANNED_PHRASE_REPLACEMENTS:
+        new_text, n = pattern.subn(replacement, text)
+        if n > 0:
+            counts[label] = counts.get(label, 0) + n
+            text = new_text
+    return text, counts
+
+
+def _scrub_banned_phrases(article: dict) -> dict:
+    """Mutate article dict in place: scrub banned phrases from every text
+    field with the BANNED_PHRASE_REPLACEMENTS table. Returns aggregate
+    {phrase_label: count} of all replacements made across the article."""
+    aggregate = {}
+
+    def _merge(c):
+        for k, v in c.items():
+            aggregate[k] = aggregate.get(k, 0) + v
+
+    # intro + description (simple strings)
+    for key in ("intro", "description"):
+        new, c = _apply_replacements(article.get(key, ""))
+        article[key] = new
+        _merge(c)
+
+    # audience (list of strings)
+    new_audience = []
+    for item in article.get("audience", []):
+        new, c = _apply_replacements(item)
+        new_audience.append(new)
+        _merge(c)
+    article["audience"] = new_audience
+
+    # sections (list of dicts with paragraphs)
+    for s in article.get("sections", []):
+        new_paragraphs = []
+        for p in s.get("paragraphs", []):
+            new, c = _apply_replacements(p)
+            new_paragraphs.append(new)
+            _merge(c)
+        s["paragraphs"] = new_paragraphs
+
+    # faq (list of dicts with q + a)
+    for item in article.get("faq", []):
+        for key in ("q", "a"):
+            new, c = _apply_replacements(item.get(key, ""))
+            item[key] = new
+            _merge(c)
+
+    # sources (list of strings — usually safe but scrub anyway for consistency)
+    new_sources = []
+    for s in article.get("sources", []):
+        new, c = _apply_replacements(s)
+        new_sources.append(new)
+        _merge(c)
+    article["sources"] = new_sources
+
+    return aggregate
+
+
 def _validate_section_paragraphs(paragraphs, tool_name):
     """Validate one section's paragraphs. Returns list of issue strings."""
     issues = []
@@ -442,10 +575,21 @@ def generate_article(slug: str, title: str, tool_name: str, brief: str) -> dict:
         "description": skeleton.get("description", ""),
     }
 
-    # Final whole-article validation
+    # Post-process banned-phrase scrubber: last-line defense against AI
+    # sneaking corporate-speak past the prompt rules. Logs every replacement
+    # so we can see when the generator is drifting and tighten prompts.
+    scrubbed = _scrub_banned_phrases(article)
+    if scrubbed:
+        print(f"  [scrub] {sum(scrubbed.values())} replacement(s):")
+        for phrase, count in scrubbed.items():
+            print(f"     - '{phrase}' x{count}")
+
+    # Final whole-article validation (runs AFTER scrub so retroactive fixes
+    # bring the article to a passing state)
     issues = _validate(article, tool_name)
     issues.extend(section_warnings)
     article["_remaining_warnings"] = issues
+    article["_scrubbed_phrases"]   = scrubbed
 
     body_words = sum(
         _word_count(p) for s in drafted_sections for p in s.get("paragraphs", [])
