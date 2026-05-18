@@ -1117,6 +1117,44 @@
     }
   }
 
+  // Day 5 (L5): Knowledge-graph triples retrieval (knowledge_graph_facts).
+  // Hive-scoped subject/predicate/object triples extracted from the standards
+  // corpus by Groq llama-4-scout via tools/day5_extract_kg_facts.py. Adds
+  // cross-cited atomic claims ("OT system requires ongoing assessments") to
+  // worker chat — complements the chunks already returned by RAG + standards.
+  async function _fetchKGContext(db, hiveId, transcript) {
+    if (!db || !hiveId || !transcript) return '';
+    try {
+      const embedResp = await fetch(WH_ASSISTANT_WORKER_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ model: 'voyage-3', input: transcript }),
+      });
+      if (!embedResp || !embedResp.ok) return '';
+      const embedData = await embedResp.json();
+      const embedding = embedData.data && embedData.data[0] && embedData.data[0].embedding;
+      if (!embedding) return '';
+
+      const { data: facts, error } = await db.rpc('semantic_search_kg_facts', {
+        p_hive_id:              hiveId,
+        p_query_embedding:      embedding,
+        p_similarity_threshold: 0.5,
+        p_limit:                4,
+        p_min_confidence:       0.6,
+      });
+      if (error || !facts || facts.length === 0) return '';
+
+      return facts.map(f => {
+        const claim = (f.claim_text || `${f.subject_ref} ${f.predicate} ${f.object_ref}`).slice(0, 220);
+        const src   = (f.source_ref || f.source_type || '').slice(0, 40);
+        return src ? `[${src}] ${claim}` : claim;
+      }).join('\n');
+    } catch (err) {
+      console.warn('[WHVoice] KG context fetch failed:', err && err.message);
+      return '';
+    }
+  }
+
   // Day 4: Platform-wide standards retrieval (industry_standards_chunks).
   // Mirrors _fetchRAGContext but is HIVE-AGNOSTIC — standards are global.
   // Use when worker asks about ISO/IEC/ASHRAE/NFPA/PSME/DOLE regulations or
@@ -1647,7 +1685,7 @@
     }
   }
 
-  function _buildVoiceSystemPrompt(persona, workerName, hiveName, pageLabel, routingHint, memoryBlock, canonicalData, routerContext, platformData, ragContext, dialogState, proactiveAlerts, crossHiveContext, standardsContext, filipinoGlossary) {
+  function _buildVoiceSystemPrompt(persona, workerName, hiveName, pageLabel, routingHint, memoryBlock, canonicalData, routerContext, platformData, ragContext, dialogState, proactiveAlerts, crossHiveContext, standardsContext, filipinoGlossary, kgContext) {
     const personaBlock = (typeof window.getCompanionBlock === 'function')
       ? window.getCompanionBlock() : '';
     // Internal-only grounding. These facts help the model pick the right
@@ -1763,7 +1801,15 @@
       ? '\nPH INDUSTRIAL GLOSSARY — Use to interpret worker Tagalog/Cebuano:\n' + filipinoGlossary + '\n'
       : '';
 
-    const hasData = platformData || canonicalData || ragContext || standardsContext;
+    // Day 5 (L5): Knowledge-graph triples — atomic subject/predicate/object
+    // claims extracted from standards corpus. Surfaces specific facts that
+    // would be buried in larger chunks (e.g. "RMF requires cybersecurity roles").
+    const kgSection = kgContext
+      ? '\nKNOWLEDGE GRAPH — Atomic claims relevant to the worker question:\n' + kgContext +
+        '\nUse these as authoritative one-line facts. When you cite, prefer the source bracketed before the claim.\n'
+      : '';
+
+    const hasData = platformData || canonicalData || ragContext || standardsContext || kgContext;
     const directAnswerInstruction = hasData
       ? '- ANSWER FROM THE PLATFORM SNAPSHOT above. The ENTIRE platform has been scanned: KPIs (MTBF, MTTR, downtime, failures), equipment status, risk assets, PM compliance, inventory levels, recent logbook entries, anomalies, projects, your Day Planner today, your skill levels, hive activity, knowledge entries — all of it is in your context. SCAN the snapshot for the relevant section before answering. NEVER say "check [tool]" or "open Day Planner" or "your dashboard should have that" when the answer is sitting in the snapshot above. ONLY say "I don\'t have that data right now" if you scanned the snapshot and the specific thing is genuinely absent.\n'
       : '- If they asked a maintenance / work question, ANSWER IT directly with practical maintenance knowledge. If you don\'t have the data they\'re asking about, say so plainly.\n';
@@ -1784,6 +1830,7 @@
       ragSection +
       crossHiveSection +
       standardsSection +
+      kgSection +
       filipinoSection +
       '\nIf the worker mixes Filipino / Cebuano / Tagalog in, that\'s fine — understand it, reply in English.\n\n' +
       '═══════════════════════════════════════════════════════════════════\n' +
@@ -1873,7 +1920,7 @@
     // for any data that exists on the platform (KPIs, PM, inventory, logbook, schedule,
     // skills, projects, anomalies, knowledge, adoption — all in one shot).
     const firstIntent = routerIntents && routerIntents[0];
-    const [platformSnapshot, platformData, memoryBlock, ragContext, crossHiveContext, standardsContext, filipinoGlossary] = await Promise.all([
+    const [platformSnapshot, platformData, memoryBlock, ragContext, crossHiveContext, standardsContext, filipinoGlossary, kgContext] = await Promise.all([
       _fetchFullPlatformSnapshot(db, ctx.hive_id, ctx.worker_name).catch((err) => {
         console.warn('[WHVoice] Platform snapshot failed:', err);
         return '';
@@ -1884,6 +1931,7 @@
       _fetchCrossHiveContext(db).catch(() => ''),  // Phase 9: Cross-hive awareness
       _fetchStandardsContext(db, transcript).catch(() => ''),  // Day 4: platform-wide standards RAG
       _fetchFilipinoGlossary(db).catch(() => ''),  // Day 5 (L7): PH industrial phrase glossary (memoized)
+      _fetchKGContext(db, ctx.hive_id, transcript).catch(() => ''),  // Day 5 (L5): KG triples retrieval
     ]);
 
     // canonicalData carries the full snapshot — every truth view in one block.
@@ -1893,7 +1941,7 @@
       console.warn('[WHVoice] No platform snapshot returned; check DB connection or query errors');
     }
 
-    const system = _buildVoiceSystemPrompt(persona, ctx.worker_name, hiveName, pageLabel, routingHint, memoryBlock, canonicalData, routerContext, platformData, ragContext, priorDialogState, proactiveAlerts, crossHiveContext, standardsContext, filipinoGlossary);
+    const system = _buildVoiceSystemPrompt(persona, ctx.worker_name, hiveName, pageLabel, routingHint, memoryBlock, canonicalData, routerContext, platformData, ragContext, priorDialogState, proactiveAlerts, crossHiveContext, standardsContext, filipinoGlossary, kgContext);
     const messages = [
       { role: 'system', content: system },
       { role: 'user',   content: transcript },

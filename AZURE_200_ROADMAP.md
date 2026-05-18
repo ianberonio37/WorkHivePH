@@ -3,7 +3,7 @@
 > **Living document.** Update the `%` and `Last changed` cells in place each session. Do not branch. The narrative below the table doesn't need to be rewritten every day — only the progress block.
 
 **Started:** 2026-05-14
-**Last updated:** 2026-05-18 (Day 5 power-push + L5 chain-rewire: 750 KG facts)
+**Last updated:** 2026-05-18 (L5 fully wired: 2,250 facts embedded, broadcast, voice queries them)
 **Budget:** $200 (free Azure trial)
 **Spent so far:** $0.0015 (one Day 1 test page)
 **Doctrine:** Azure produces one-shot artifacts (ONNX models, DB rows). Never runtime calls. Free-tier providers (Voyage / Jina / Groq) handle anything that runs every request.
@@ -27,11 +27,11 @@ The platform is already a working maintenance toolkit. What it lacks is **AI com
 | **L3.3** | Smoke / steam / leak detector | ONNX model in Supabase Storage | **0%** | Roboflow project picks (industrial smoke + oil leak) |
 | **L3.4** | Equipment-label OCR → asset_nodes | UI on hive.html links photo → asset | **~60%** | UI wrapper — CLI tool works; needs camera capture + drawer on hive.html |
 | **L4** | Audio anomaly classifier | YAMNet-based ONNX | **0%** | MIMII dataset — got 2.6 GB of 10.4 GB, retry failed |
-| **L5** | Knowledge-graph entity extraction | Triples in `knowledge_graph_facts` from mined corpus | **~35%** | 750 triples from full 150-chunk standards corpus; hive-scoped to demo hive only — needs broadcast helper for other hives |
+| **L5** | Knowledge-graph entity extraction | Triples in `knowledge_graph_facts` from mined corpus, embedded, searchable, used by voice | **~80%** | 2,250 triples (750 × 3 hives), all embedded, `semantic_search_kg_facts` RPC live, voice-handler queries them in parallel with kb + standards |
 | **L6** | Industrial noise suppression | ONNX denoiser, browser-side via onnxruntime-web | **0%** | Microsoft DNS + MIMII datasets |
 | **L7** | Filipino phrase cache | Lookup table of top 500–1000 PH industrial phrases (Tagalog + Visayan) + voice-handler integration | **100%** ✓ | **DONE** — 207 phrases, Tagalog via Translator F0, Visayan via Groq llama-3.3-70b, glossary loaded into voice-handler system prompt |
 
-**Overall AI substance:** ~30% of planned outputs live (was 12% start of Day 5). **Scaffolding** (Azure resources, schema, RPCs, embedding chain, CLI tools): ~85% in place.
+**Overall AI substance:** ~38% of planned outputs live (was 12% start of Day 5). **Scaffolding** (Azure resources, schema, RPCs, embedding chain, CLI tools): ~85% in place.
 
 **First layer hit 100%:** L7 (Filipino phrase cache) — proves the playbook end-to-end (seed → embed/translate → wire into voice prompt → validators pass). Same pattern applies to remaining layers once data unblocks.
 
@@ -150,6 +150,18 @@ Once datasets land, training is mostly Custom Vision portal clicks + Azure ML co
 - Result: full 150-chunk corpus (NIST 100 + US Army 50) → **750 triples inserted, 0 chunks failed.** Chain rotated through multiple Groq models as TPM limits hit per-model.
 - Top predicates: requires (124), applies_to (93), uses (84), related_to (59), mitigates (54), causes (17).
 - Limitation: triples are hive-scoped to one demo hive. Broadcasting to all hives needs a small follow-up.
+
+### Day 5 — 2026-05-18 (late evening — L5 fully wired)
+
+After the chain rewire shipped 750 triples, three remaining gaps closed in sequence:
+
+1. **Embed 750 KG facts** — `tools/day5_embed_kg_facts.py` ran the same Voyage→Jina chain over `claim_text` for every row. Local Postgres dropped the connection at row 333; added reconnect-every-50-rows logic + autocommit so resume picks up cleanly. Final: 750/750 embedded (42 voyage + ~708 jina).
+2. **Broadcast to all 3 hives** — single SQL INSERT cross-joining hives with the source hive's facts, NOT EXISTS guard for idempotency. 1,500 new rows. Final distribution: 750 per hive × 3 hives = 2,250 total facts.
+3. **`semantic_search_kg_facts` RPC + voice integration** — new migration `20260518000003` adds the hive-scoped retrieval RPC (mirrors `semantic_search_kb` shape, adds `p_min_confidence` filter). voice-handler.js: new `_fetchKGContext()` function, Promise.all expanded from 7 to 8 fetches, new "KNOWLEDGE GRAPH" prompt section instructing the LLM to use one-line atomic claims with source attribution. `node --check` clean.
+
+Smoke test: query embedding seeded from a KG row returns top-3 cosine-near triples with similarity 0.000–0.170 — RPC works.
+
+Worker chat now retrieves three complementary stores in parallel: `kb_chunks` (hive docs) + `industry_standards_chunks` (platform canon) + `knowledge_graph_facts` (atomic triples). All converge into one prompt.
 
 ### Day 6+ — Planned
 - Pivot decision: Custom Vision (needs datasets) vs. OCR UI on hive.html vs. more PDFs in standards corpus
