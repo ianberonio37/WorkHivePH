@@ -463,6 +463,27 @@ def classify_validator(tokens: list, html_refs: list, html_surfaces: dict) -> tu
     return True, None
 
 
+_CONTENT_SYNC_IMPORT_RE = re.compile(
+    r"from\s+wh_pages\s+import\s+("
+    r"all_public_surfaces|learn_slugs|sitemap_urls|public_surfaces"
+    r")"
+)
+
+
+def is_content_sync_validator(src: str) -> bool:
+    """v0.5 — Detect file-consistency scanners that target text artifacts
+    (llms.txt, sitemap.xml, robots.txt, static HTML for stale string refs).
+
+    Signal: validator imports a page-list helper from wh_pages. These
+    scan files at rest — the failure mode is file drift, not user-observable
+    behavior. A Playwright test would just re-do the static scan.
+
+    Any True here forces the validator to category=infrastructure with
+    subtype=content-sync, regardless of token/HTML matching. Drops these
+    out of the per-page gap list."""
+    return bool(_CONTENT_SYNC_IMPORT_RE.search(src or ""))
+
+
 def classify_validator_strict(tokens: list, active_html_refs: list,
                               html_refs_all: list, html_surfaces: dict,
                               src: str = "") -> tuple:
@@ -533,6 +554,7 @@ def main():
     total_per_page_behavioral_checks = 0
     covered_per_page_behavioral_checks = 0
 
+    content_sync_count = 0
     for v in validators:
         matches = match_validator_to_specs(v, specs)
         is_infra, matched_html = classify_validator_strict(
@@ -542,6 +564,11 @@ def main():
             html_surfaces,
             v.get("_src", ""),
         )
+        is_content_sync = is_content_sync_validator(v.get("_src", ""))
+        if is_content_sync:
+            is_infra = True
+            matched_html = None
+            content_sync_count += 1
         scope = v.get("scope", "per-page")
         if is_infra:
             category = "infrastructure"
@@ -577,6 +604,7 @@ def main():
             total_per_page_behavioral_checks += len(behavioral_covered) + len(behavioral_uncovered)
             covered_per_page_behavioral_checks += len(behavioral_covered)
 
+        has_check_names = bool(v.get("checks"))
         coverage.append({
             "file": v["file"],
             "label": v["label"],
@@ -587,6 +615,8 @@ def main():
             "scope": v.get("scope", "per-page"),
             "matched_specs": matches,
             "category": category,
+            "subtype": "content-sync" if is_content_sync else None,
+            "actionable": has_check_names,
             "is_infrastructure": is_infra,
             "matched_html": matched_html,
             "status": "COVERED" if matches else "GAP",
@@ -601,7 +631,9 @@ def main():
         })
 
     gaps = [c for c in coverage if c["status"] == "GAP"]
-    per_page_gaps = [c for c in gaps if c["category"] == "per-page"]
+    per_page_gaps_all = [c for c in gaps if c["category"] == "per-page"]
+    per_page_gaps = [c for c in per_page_gaps_all if c.get("actionable")]
+    needs_refactor_gaps = [c for c in per_page_gaps_all if not c.get("actionable")]
     platform_wide_gaps = [c for c in gaps if c["category"] == "platform-wide"]
     infra_gaps = [c for c in gaps if c["category"] == "infrastructure"]
     raw_pct = round(100 * covered_validators / len(validators), 1) if validators else 0.0
@@ -630,6 +662,10 @@ def main():
           f"{color_for(behavioral_pct)}{behavioral_pct}%{RESET}  (BEHAVIORAL checks only - the 100% target)")
     print(f"  {BOLD}Per-page gaps:{RESET}      {len(per_page_gaps)} validators "
           f"({total_per_page_behavioral_checks - covered_per_page_behavioral_checks} uncovered behavioral checks)")
+    print(f"  {BOLD}Needs refactor:{RESET}     {len(needs_refactor_gaps)} validators "
+          f"(no CHECK_NAMES list - sentinel matcher cannot bind tests)")
+    print(f"  {BOLD}Content-sync (infra):{RESET} {content_sync_count} validators "
+          f"(wh_pages-driven file scans, auto-tagged as infra)")
     print(f"  {BOLD}Platform-wide gaps:{RESET} {len(platform_wide_gaps)} (Layer 0 owns these)")
     print(f"  {BOLD}Infra gaps:{RESET}         {len(infra_gaps)} (Layer 0 owns these)")
     print()
@@ -644,10 +680,20 @@ def main():
             print(f"    ... and {len(per_page_gaps) - 30} more (see {REPORT_FILE.name})")
         print()
 
+    if needs_refactor_gaps:
+        print(f"  {BOLD}Needs refactor (no CHECK_NAMES - not actionable):{RESET}")
+        for g in needs_refactor_gaps[:10]:
+            label_short = g["label"][:40] + ("..." if len(g["label"]) > 40 else "")
+            html = g.get("matched_html") or "?"
+            print(f"    {YELLOW}REFACTOR{RESET}  {g['file']:<38}  ->  {html:<25}  {label_short}")
+        if len(needs_refactor_gaps) > 10:
+            print(f"    ... and {len(needs_refactor_gaps) - 10} more (see {REPORT_FILE.name})")
+        print()
+
     report = {
         "timestamp": datetime.datetime.now().isoformat(),
         "sentinel": "sentinel_coverage_map",
-        "version": "v0.4",
+        "version": "v0.5",
         "summary": {
             "total_validators": len(validators),
             "covered_validators": covered_validators,
@@ -663,9 +709,11 @@ def main():
             "behavioral_coverage_pct": behavioral_pct,
             "platform_wide_validators": platform_wide_count,
             "infrastructure_validators": infra_count,
+            "content_sync_validators": content_sync_count,
             "total_specs": len(specs),
             "gap_count": len(gaps),
             "per_page_gap_count": len(per_page_gaps),
+            "needs_refactor_gap_count": len(needs_refactor_gaps),
             "platform_wide_gap_count": len(platform_wide_gaps),
             "infra_gap_count": len(infra_gaps),
         },
@@ -673,9 +721,17 @@ def main():
         "gaps": [
             {"file": g["file"], "label": g["label"], "checks": g["checks"],
              "tokens": g["tokens"], "category": g["category"],
+             "subtype": g.get("subtype"),
+             "actionable": g.get("actionable"),
              "is_infrastructure": g["is_infrastructure"],
              "matched_html": g.get("matched_html")}
             for g in gaps
+        ],
+        "needs_refactor": [
+            {"file": g["file"], "label": g["label"], "tokens": g["tokens"],
+             "matched_html": g.get("matched_html"),
+             "reason": "no CHECK_NAMES list — sentinel matcher cannot bind tests"}
+            for g in needs_refactor_gaps
         ],
     }
     REPORT_FILE.write_text(json.dumps(report, indent=2), encoding="utf-8")
