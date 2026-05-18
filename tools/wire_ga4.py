@@ -19,38 +19,13 @@ import re
 import sys
 from pathlib import Path
 
-ROOT  = Path(__file__).parent.parent
-PAGES = [
-    "index.html",
-    "about/index.html",
-    "privacy-policy/index.html",
-    "terms-of-service/index.html",
-    "learn/index.html",
-    "learn/what-is-oee-how-to-calculate/index.html",
-    "learn/voice-to-text-maintenance-philippine-plant-floor/index.html",
-    "learn/start-digital-logbook-philippine-factory/index.html",
-    "learn/spare-parts-inventory-philippine-plants/index.html",
-    "learn/skill-matrix-for-maintenance-technicians/index.html",
-    "learn/sensor-cmms-gateway-operations/index.html",
-    "learn/predictive-maintenance-on-a-budget-philippines/index.html",
-    "learn/predictive-alert-thresholds-plants/index.html",
-    "learn/ph-industrial-benchmarks-intelligence/index.html",
-    "learn/mtbf-vs-mttr-for-supervisors/index.html",
-    "learn/maintenance-shift-handover-template/index.html",
-    "learn/maintenance-project-planning-template/index.html",
-    "learn/joining-and-growing-your-hive/index.html",
-    "learn/industrial-marketplace-philippine-specialists/index.html",
-    "learn/industrial-community-of-practice-philippines/index.html",
-    "learn/gamifying-maintenance-for-engagement/index.html",
-    "learn/free-pm-checklist-templates/index.html",
-    "learn/free-engineering-calculators-philippine-plants/index.html",
-    "learn/dole-iso-audit-trail-from-logbook/index.html",
-    "learn/dilo-wilo-day-planner-supervisors/index.html",
-    "learn/connecting-workhive-to-sap-maximo-cmms/index.html",
-    "learn/building-asset-register-zero-budget/index.html",
-    "learn/ai-work-assistant-maintenance-technicians/index.html",
-    "learn/ai-quality-and-roi-stage-2-plants/index.html",
-]
+ROOT = Path(__file__).parent.parent
+sys.path.insert(0, str(ROOT))
+from wh_pages import all_public_pages
+
+# Page list sourced from wh_pages so the GA4 wiring scope auto-grows when
+# a new article is added to the catalog.
+PAGES = all_public_pages()
 
 GA4_BLOCK_START = "<!-- WorkHive GA4 -->"
 GA4_BLOCK_END   = "<!-- /WorkHive GA4 -->"

@@ -22,38 +22,11 @@ if sys.platform == "win32":
     import io
     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
 from validator_utils import read_file, format_result
+from wh_pages import all_public_pages
 
 CANONICAL_GA4_ID = "G-ENMGLTFR2J"
 
-PUBLIC_PAGES = [
-    "index.html", "about/index.html", "privacy-policy/index.html",
-    "terms-of-service/index.html", "learn/index.html",
-] + [f"learn/{slug}/index.html" for slug in [
-    "start-digital-logbook-philippine-factory",
-    "what-is-oee-how-to-calculate",
-    "mtbf-vs-mttr-for-supervisors",
-    "maintenance-shift-handover-template",
-    "spare-parts-inventory-philippine-plants",
-    "free-pm-checklist-templates",
-    "skill-matrix-for-maintenance-technicians",
-    "dilo-wilo-day-planner-supervisors",
-    "free-engineering-calculators-philippine-plants",
-    "ai-work-assistant-maintenance-technicians",
-    "predictive-maintenance-on-a-budget-philippines",
-    "connecting-workhive-to-sap-maximo-cmms",
-    "voice-to-text-maintenance-philippine-plant-floor",
-    "building-asset-register-zero-budget",
-    "maintenance-project-planning-template",
-    "joining-and-growing-your-hive",
-    "industrial-community-of-practice-philippines",
-    "gamifying-maintenance-for-engagement",
-    "industrial-marketplace-philippine-specialists",
-    "predictive-alert-thresholds-plants",
-    "dole-iso-audit-trail-from-logbook",
-    "ai-quality-and-roi-stage-2-plants",
-    "sensor-cmms-gateway-operations",
-    "ph-industrial-benchmarks-intelligence",
-]]
+PUBLIC_PAGES = all_public_pages()
 
 GA4_BLOCK_RE  = re.compile(r"<!--\s*WorkHive GA4\s*-->.*?<!--\s*/WorkHive GA4\s*-->", re.DOTALL)
 WH_GA4_LOAD   = re.compile(r'<script[^>]+src=["\']/wh-ga4\.js["\']', re.IGNORECASE)

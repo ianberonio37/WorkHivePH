@@ -30,7 +30,7 @@ before they cause silent failures in production.
     14. predictive.html in validate_schema.py LIVE_PAGES
     15. predictive in validate_assistant.py LIVE_TOOL_PAGES
     16. predictive in nav-hub.js TOOLS
-    17. predictive context entry in floating-ai.js
+    17. predictive context entry in companion-launcher.js
 
 Usage:  python validate_ml.py
 Output: ml_report.json
@@ -67,7 +67,7 @@ CHECKS = {
     "predictive_in_schema_pages":    "L5  predictive.html in validate_schema.py LIVE_PAGES",
     "predictive_in_assistant_tools": "L5  predictive in validate_assistant.py LIVE_TOOL_PAGES",
     "predictive_in_nav_hub":         "L5  predictive in nav-hub.js TOOLS",
-    "predictive_in_floating_ai":     "L5  predictive context entry in floating-ai.js",
+    "predictive_in_floating_ai":     "L5  predictive context entry in companion-launcher.js",
 }
 
 
@@ -152,11 +152,11 @@ def run():
     if not results["predictive_in_nav_hub"]:
         issues.append({"check": "predictive_in_nav_hub", "reason": "'predictive.html' not in nav-hub.js TOOLS array"})
 
-    # ── floating-ai.js ────────────────────────────────────────────────────────
-    fai = read_file("floating-ai.js")
+    # ── companion-launcher.js ────────────────────────────────────────────────────────
+    fai = read_file("companion-launcher.js")
     results["predictive_in_floating_ai"] = bool(fai and "path.includes('predictive')" in fai)
     if not results["predictive_in_floating_ai"]:
-        issues.append({"check": "predictive_in_floating_ai", "reason": "path.includes('predictive') context entry missing in floating-ai.js"})
+        issues.append({"check": "predictive_in_floating_ai", "reason": "path.includes('predictive') context entry missing in companion-launcher.js"})
 
     # ── Summary ───────────────────────────────────────────────────────────────
     passed = sum(1 for v in results.values() if v)

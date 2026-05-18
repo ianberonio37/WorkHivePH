@@ -7,7 +7,7 @@ to workers — silently, with no error.
 
   Layer 1 — Accuracy
     1.  Stale numeric facts        — detectPageContext hint has correct calc count (46)
-    2.  Calc count consistency     — floating-ai.js and assistant.html agree on calc count
+    2.  Calc count consistency     — companion-launcher.js and assistant.html agree on calc count
     3.  System prompt types        — all 3 conversation types defined (WORK/PLATFORM/PERSONAL)
 
   Layer 2 — Richness
@@ -32,7 +32,7 @@ if sys.platform == "win32":
 
 from validator_utils import read_file, format_result
 
-FLOAT_JS        = "floating-ai.js"
+FLOAT_JS        = "companion-launcher.js"
 ASSISTANT_HTML  = "assistant.html"
 MIN_WORDS       = 15
 MIN_HINT        = 12
@@ -78,11 +78,11 @@ def check_stale_hints(content, page):
 
 
 def check_calc_count_consistency(float_content, assistant_content):
-    """Both floating-ai.js and assistant.html must agree on the calc count."""
+    """Both companion-launcher.js and assistant.html must agree on the calc count."""
     if not float_content or not assistant_content:
         return []
     counts = {}
-    for name, content in [("floating-ai.js", float_content), ("assistant.html", assistant_content)]:
+    for name, content in [("companion-launcher.js", float_content), ("assistant.html", assistant_content)]:
         m = re.search(r"(\d+)\s*calc(?:ulation)?\s*type", content, re.IGNORECASE)
         if m:
             counts[name] = int(m.group(1))
@@ -90,7 +90,7 @@ def check_calc_count_consistency(float_content, assistant_content):
         vals = list(counts.values())
         if vals[0] != vals[1]:
             return [{"check": "calc_count_consistency",
-                     "reason": f"Calc count mismatch: floating-ai.js says {counts.get('floating-ai.js')}, assistant.html says {counts.get('assistant.html')} — workers get contradictory information"}]
+                     "reason": f"Calc count mismatch: companion-launcher.js says {counts.get('companion-launcher.js')}, assistant.html says {counts.get('assistant.html')} — workers get contradictory information"}]
     return []
 
 

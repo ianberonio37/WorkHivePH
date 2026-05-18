@@ -36,7 +36,7 @@ LIVE_PAGES = [
     "logbook.html", "inventory.html", "pm-scheduler.html",
     "hive.html", "assistant.html", "skillmatrix.html",
     "dayplanner.html", "engineering-design.html", "index.html",
-    "platform-health.html", "floating-ai.js", "nav-hub.js",
+    "platform-health.html", "companion-launcher.js", "nav-hub.js",
     "community.html",
     "marketplace.html",
     "public-feed.html",

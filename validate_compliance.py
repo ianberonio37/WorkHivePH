@@ -40,7 +40,7 @@ CLIENT_PAGES = [
     "assistant.html", "skillmatrix.html", "dayplanner.html",
     "engineering-design.html", "analytics.html",
     "index.html", "platform-health.html",
-    "floating-ai.js", "nav-hub.js", "utils.js",
+    "companion-launcher.js", "nav-hub.js", "utils.js",
 ]
 
 REQUIRED_AUDIT_ACTIONS = ["approve_item", "reject_item", "kick_member"]

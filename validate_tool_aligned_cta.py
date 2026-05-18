@@ -26,36 +26,11 @@ if sys.platform == "win32":
     import io
     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
 from validator_utils import read_file, format_result
+from wh_pages import article_tool_map
 
-# Article -> (primary tool URL, tool name to mention in body)
-# Mirror of FEATURE_TOOL_URL + a body-text name expected to appear at least
-# once. Names chosen to match how each tool is consistently referred to.
-ARTICLE_TOOL_MAP = {
-    "start-digital-logbook-philippine-factory":        ("/logbook.html",            "Logbook"),
-    "what-is-oee-how-to-calculate":                    ("/analytics-report.html",   "Analytics"),
-    "mtbf-vs-mttr-for-supervisors":                    ("/logbook.html",            "Logbook"),
-    "maintenance-shift-handover-template":             ("/shift-brain.html",        "Shift Brain"),
-    "spare-parts-inventory-philippine-plants":         ("/inventory.html",          "Inventory"),
-    "free-pm-checklist-templates":                     ("/pm-scheduler.html",       "PM Scheduler"),
-    "skill-matrix-for-maintenance-technicians":        ("/skillmatrix.html",        "Skill Matrix"),
-    "dilo-wilo-day-planner-supervisors":               ("/dayplanner.html",         "Day Planner"),
-    "free-engineering-calculators-philippine-plants":  ("/engineering-design.html", "Engineering Design"),
-    "ai-work-assistant-maintenance-technicians":       ("/assistant.html",          "AI Assistant"),
-    "predictive-maintenance-on-a-budget-philippines":  ("/analytics-report.html",   "Analytics"),
-    "connecting-workhive-to-sap-maximo-cmms":          ("/hive.html",               "Hive"),
-    "voice-to-text-maintenance-philippine-plant-floor":("/voice-journal.html",      "Voice Journal"),
-    "building-asset-register-zero-budget":             ("/asset-hub.html",          "Asset Hub"),
-    "maintenance-project-planning-template":           ("/hive.html",               "Hive"),
-    "joining-and-growing-your-hive":                   ("/hive.html",               "Hive"),
-    "industrial-community-of-practice-philippines":    ("/community.html",          "Community"),
-    "gamifying-maintenance-for-engagement":            ("/hive.html",               "Hive"),
-    "industrial-marketplace-philippine-specialists":   ("/marketplace.html",        "Marketplace"),
-    "predictive-alert-thresholds-plants":              ("/hive.html",               "Hive"),
-    "dole-iso-audit-trail-from-logbook":               ("/platform-health.html",    "Audit"),
-    "ai-quality-and-roi-stage-2-plants":               ("/analytics-report.html",   "Analytics"),
-    "sensor-cmms-gateway-operations":                  ("/hive.html",               "Hive"),
-    "ph-industrial-benchmarks-intelligence":           ("/analytics-report.html",   "Analytics"),
-}
+# slug -> (tool_url, tool_name) sourced from wh_pages.LEARN_ARTICLES so the
+# article catalog and CTA validation never drift apart.
+ARTICLE_TOOL_MAP = article_tool_map()
 
 # Any /<tool>.html anchor counts as tool-aligned (we don't require it to be
 # the EXACT tool from the map — switching tool focus over time is fine).

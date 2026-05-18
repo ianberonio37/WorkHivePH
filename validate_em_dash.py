@@ -21,38 +21,9 @@ if sys.platform == "win32":
     import io
     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
 from validator_utils import read_file, format_result
+from wh_pages import all_public_pages
 
-LANDING_PAGE = "index.html"
-STUB_PAGES   = ["about/index.html", "privacy-policy/index.html",
-                "terms-of-service/index.html"]
-LEARN_HUB    = "learn/index.html"
-LEARN_ARTICLES = [
-    "learn/start-digital-logbook-philippine-factory/index.html",
-    "learn/what-is-oee-how-to-calculate/index.html",
-    "learn/mtbf-vs-mttr-for-supervisors/index.html",
-    "learn/maintenance-shift-handover-template/index.html",
-    "learn/spare-parts-inventory-philippine-plants/index.html",
-    "learn/free-pm-checklist-templates/index.html",
-    "learn/skill-matrix-for-maintenance-technicians/index.html",
-    "learn/dilo-wilo-day-planner-supervisors/index.html",
-    "learn/free-engineering-calculators-philippine-plants/index.html",
-    "learn/ai-work-assistant-maintenance-technicians/index.html",
-    "learn/predictive-maintenance-on-a-budget-philippines/index.html",
-    "learn/connecting-workhive-to-sap-maximo-cmms/index.html",
-    "learn/voice-to-text-maintenance-philippine-plant-floor/index.html",
-    "learn/building-asset-register-zero-budget/index.html",
-    "learn/maintenance-project-planning-template/index.html",
-    "learn/joining-and-growing-your-hive/index.html",
-    "learn/industrial-community-of-practice-philippines/index.html",
-    "learn/gamifying-maintenance-for-engagement/index.html",
-    "learn/industrial-marketplace-philippine-specialists/index.html",
-    "learn/predictive-alert-thresholds-plants/index.html",
-    "learn/dole-iso-audit-trail-from-logbook/index.html",
-    "learn/ai-quality-and-roi-stage-2-plants/index.html",
-    "learn/sensor-cmms-gateway-operations/index.html",
-    "learn/ph-industrial-benchmarks-intelligence/index.html",
-]
-ALL_PUBLIC = [LANDING_PAGE] + STUB_PAGES + [LEARN_HUB] + LEARN_ARTICLES
+ALL_PUBLIC = all_public_pages()
 
 # Em-dash characters: U+2014 and the rarer U+2013 (en-dash) when surrounded
 # by spaces (the visible " – " pattern). We DO NOT flag bare hyphens.

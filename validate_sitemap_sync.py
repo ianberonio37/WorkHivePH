@@ -21,44 +21,14 @@ if sys.platform == "win32":
     import io
     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
 from validator_utils import read_file, format_result
+from wh_pages import sitemap_urls
 
 SITEMAP_PATH = "sitemap.xml"
 SITE_PREFIX  = "https://workhiveph.com"
 
-# Public files that should appear in sitemap.xml (sans the site prefix).
-# Auto-derived to avoid drift: index, all /learn/, all stubs, the learn hub.
-EXPECTED_SITEMAP_URLS = [
-    "/",
-    "/learn/",
-    "/about/",
-    "/privacy-policy/",
-    "/terms-of-service/",
-] + [f"/learn/{slug}/" for slug in [
-    "start-digital-logbook-philippine-factory",
-    "what-is-oee-how-to-calculate",
-    "mtbf-vs-mttr-for-supervisors",
-    "maintenance-shift-handover-template",
-    "spare-parts-inventory-philippine-plants",
-    "free-pm-checklist-templates",
-    "skill-matrix-for-maintenance-technicians",
-    "dilo-wilo-day-planner-supervisors",
-    "free-engineering-calculators-philippine-plants",
-    "ai-work-assistant-maintenance-technicians",
-    "predictive-maintenance-on-a-budget-philippines",
-    "connecting-workhive-to-sap-maximo-cmms",
-    "voice-to-text-maintenance-philippine-plant-floor",
-    "building-asset-register-zero-budget",
-    "maintenance-project-planning-template",
-    "joining-and-growing-your-hive",
-    "industrial-community-of-practice-philippines",
-    "gamifying-maintenance-for-engagement",
-    "industrial-marketplace-philippine-specialists",
-    "predictive-alert-thresholds-plants",
-    "dole-iso-audit-trail-from-logbook",
-    "ai-quality-and-roi-stage-2-plants",
-    "sensor-cmms-gateway-operations",
-    "ph-industrial-benchmarks-intelligence",
-]]
+# URLs (sans site prefix) expected in sitemap.xml. Sourced from wh_pages
+# so new articles auto-extend the expected list.
+EXPECTED_SITEMAP_URLS = sitemap_urls()
 
 LOC_RE        = re.compile(r"<loc>([^<]+)</loc>", re.IGNORECASE)
 LASTMOD_RE    = re.compile(r"<lastmod>([^<]+)</lastmod>", re.IGNORECASE)

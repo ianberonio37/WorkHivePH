@@ -1,0 +1,187 @@
+﻿
+Running 8 tests using 1 worker
+
+[1A[2K[1/8] [chromium] › tests\assistant.spec.ts:90:7 › assistant.html - sentinel scenarios › hint_quality: assistant exposes contextual hint or suggestion UI
+[1A[2K[2/8] (retries) [chromium] › tests\assistant.spec.ts:90:7 › assistant.html - sentinel scenarios › hint_quality: assistant exposes contextual hint or suggestion UI (retry #1)
+[1A[2K[chromium] › tests\assistant.spec.ts:90:7 › assistant.html - sentinel scenarios › hint_quality: assistant exposes contextual hint or suggestion UI
+[browser error] TypeError: Failed to fetch
+    at https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:103683
+    at https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:108644
+    at Tr (https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:108812)
+    at https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:158749
+    at ps._useSession (https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:156297)
+    at async ps._getUser (https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:158608)
+    at async https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:158411
+
+[1A[2K  1) [chromium] › tests\assistant.spec.ts:90:7 › assistant.html - sentinel scenarios › hint_quality: assistant exposes contextual hint or suggestion UI 
+
+    TimeoutError: page.waitForFunction: Timeout 8000ms exceeded.
+
+       at _fixtures.ts:90
+
+      88 |
+      89 |   // Wait for either success (localStorage set) or visible error
+    > 90 |   await page.waitForFunction(
+         |              ^
+      91 |     () => localStorage.getItem('wh_last_worker') ||
+      92 |           (document.getElementById('si-error') &&
+      93 |            !document.getElementById('si-error')!.classList.contains('hidden')),
+        at signIn (Z:\tests\_fixtures.ts:90:14)
+        at Object.whPage (Z:\tests\_fixtures.ts:152:5)
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\assistant-assistant-html---5333a-xtual-hint-or-suggestion-UI-chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results\assistant-assistant-html---5333a-xtual-hint-or-suggestion-UI-chromium\video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\assistant-assistant-html---5333a-xtual-hint-or-suggestion-UI-chromium\error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\assistant-assistant-html---5333a-xtual-hint-or-suggestion-UI-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\assistant-assistant-html---5333a-xtual-hint-or-suggestion-UI-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: assistant should expose hints, suggestions, or prompt-starter language
+
+    [2mexpect([22m[31mreceived[39m[2m).[22mtoBeTruthy[2m()[22m
+
+    Received: [31mfalse[39m
+
+      104 |     const hasHintLanguage = /try|ask|suggest|hint|example|prompt|start with/.test(bodyText);
+      105 |     expect(hasHintLanguage,
+    > 106 |       'assistant should expose hints, suggestions, or prompt-starter language').toBeTruthy();
+          |                                                                                 ^
+      107 |   });
+      108 |
+      109 |   test('tools_richness: assistant exposes tool/action shortcuts', async ({ whPage }) => {
+        at Z:\tests\assistant.spec.ts:106:81
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\assistant-assistant-html---5333a-xtual-hint-or-suggestion-UI-chromium-retry1\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results\assistant-assistant-html---5333a-xtual-hint-or-suggestion-UI-chromium-retry1\video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\assistant-assistant-html---5333a-xtual-hint-or-suggestion-UI-chromium-retry1\error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\assistant-assistant-html---5333a-xtual-hint-or-suggestion-UI-chromium-retry1\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\assistant-assistant-html---5333a-xtual-hint-or-suggestion-UI-chromium-retry1\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[1A[2K[3/8] [chromium] › tests\journey-analytics.spec.ts:146:7 › analytics.html - sentinel scenarios › render_functions: analytics page renders meaningful content
+[1A[2K[4/8] (retries) [chromium] › tests\journey-analytics.spec.ts:146:7 › analytics.html - sentinel scenarios › render_functions: analytics page renders meaningful content (retry #1)
+[1A[2K  2) [chromium] › tests\journey-analytics.spec.ts:146:7 › analytics.html - sentinel scenarios › render_functions: analytics page renders meaningful content 
+
+    TimeoutError: page.waitForFunction: Timeout 8000ms exceeded.
+
+       at _fixtures.ts:90
+
+      88 |
+      89 |   // Wait for either success (localStorage set) or visible error
+    > 90 |   await page.waitForFunction(
+         |              ^
+      91 |     () => localStorage.getItem('wh_last_worker') ||
+      92 |           (document.getElementById('si-error') &&
+      93 |            !document.getElementById('si-error')!.classList.contains('hidden')),
+        at signIn (Z:\tests\_fixtures.ts:90:14)
+        at Object.whPage (Z:\tests\_fixtures.ts:152:5)
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\journey-analytics-analytic-e6369--renders-meaningful-content-chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results\journey-analytics-analytic-e6369--renders-meaningful-content-chromium\video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\journey-analytics-analytic-e6369--renders-meaningful-content-chromium\error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\journey-analytics-analytic-e6369--renders-meaningful-content-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\journey-analytics-analytic-e6369--renders-meaningful-content-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    TimeoutError: page.waitForFunction: Timeout 8000ms exceeded.
+
+       at _fixtures.ts:90
+
+      88 |
+      89 |   // Wait for either success (localStorage set) or visible error
+    > 90 |   await page.waitForFunction(
+         |              ^
+      91 |     () => localStorage.getItem('wh_last_worker') ||
+      92 |           (document.getElementById('si-error') &&
+      93 |            !document.getElementById('si-error')!.classList.contains('hidden')),
+        at signIn (Z:\tests\_fixtures.ts:90:14)
+        at Object.whPage (Z:\tests\_fixtures.ts:152:5)
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\journey-analytics-analytic-e6369--renders-meaningful-content-chromium-retry1\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results\journey-analytics-analytic-e6369--renders-meaningful-content-chromium-retry1\video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\journey-analytics-analytic-e6369--renders-meaningful-content-chromium-retry1\error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\journey-analytics-analytic-e6369--renders-meaningful-content-chromium-retry1\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\journey-analytics-analytic-e6369--renders-meaningful-content-chromium-retry1\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[1A[2K[5/8] [chromium] › tests\journey-analytics.spec.ts:175:7 › analytics.html - sentinel scenarios › period_consistency: analytics surfaces a time-period or tab selector
+[1A[2K[6/8] [chromium] › tests\journey-analytics.spec.ts:208:7 › analytics.html - sentinel scenarios › calculate_entry: analytics declares a top-level compute entry
+[1A[2K[chromium] › tests\journey-analytics.spec.ts:208:7 › analytics.html - sentinel scenarios › calculate_entry: analytics declares a top-level compute entry
+[browser error] TypeError: Failed to fetch
+    at https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:103683
+    at https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:108644
+    at Tr (https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:108812)
+    at https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:158749
+    at ps._useSession (https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:156297)
+    at async ps._getUser (https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:158608)
+    at async https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:158411
+
+[1A[2K[7/8] [chromium] › tests\journey-analytics.spec.ts:292:7 › analytics.html - sentinel scenarios › new_render_functions: page exposes at least one render function
+[1A[2K[chromium] › tests\journey-analytics.spec.ts:292:7 › analytics.html - sentinel scenarios › new_render_functions: page exposes at least one render function
+[browser error] TypeError: Failed to fetch
+    at https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:103683
+    at https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:108644
+    at Tr (https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:108812)
+    at https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:158749
+    at ps._useSession (https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:156297)
+    at async ps._getUser (https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:158608)
+    at async https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:158411
+
+[1A[2K[8/8] [chromium] › tests\journey-inventory.spec.ts:339:7 › inventory.html - sentinel scenarios › supervisor_gate_delete: supervisor surfaces a delete affordance
+[1A[2K[9/8] [chromium] › tests\journey-logbook.spec.ts:242:7 › logbook.html - sentinel scenarios › machine_validation_toast: empty machine field shows validation toast
+[1A[2K[10/8] [chromium] › tests\journey-skillmatrix.spec.ts:185:7 › skillmatrix.html - sentinel scenarios › discipline_icons: discipline tiles render with iconography
+[1A[2K  2 failed
+    [chromium] › tests\assistant.spec.ts:90:7 › assistant.html - sentinel scenarios › hint_quality: assistant exposes contextual hint or suggestion UI 
+    [chromium] › tests\journey-analytics.spec.ts:146:7 › analytics.html - sentinel scenarios › render_functions: analytics page renders meaningful content 
+  2 skipped
+  4 passed (3.2m)

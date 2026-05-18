@@ -29,6 +29,28 @@ import os
 import json
 import time
 import requests
+from pathlib import Path
+
+
+def _load_env():
+    """Mirror the loader pattern used by video_idea_generator.py +
+    platform_intel.py so standalone CLI calls (e.g.,
+    `python tools/scaffold_article.py`) pick up API keys from .env without
+    needing the Flask app to be running. Idempotent: never overrides
+    already-set env vars (setdefault). Safe to call at module import time."""
+    root = Path(__file__).parent.parent
+    for p in [root / ".env", root / "supabase/functions/.env",
+              root / "test-data-seeder/.env"]:
+        if p.exists():
+            for line in p.read_text(encoding="utf-8").splitlines():
+                line = line.strip()
+                if line and not line.startswith("#") and "=" in line:
+                    k, v = line.split("=", 1)
+                    os.environ.setdefault(k.strip(), v.strip())
+
+
+_load_env()
+
 
 # ── Provider chain (mirror of PROVIDER_CHAIN in ai-chain.ts) ─────────────────
 

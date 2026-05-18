@@ -1,0 +1,38 @@
+{
+  "loop_start": "2026-05-18T08:09:17.951534",
+  "loop_end": "2026-05-18T08:15:21.176834",
+  "duration_seconds": 363.2253,
+  "surface_filter": null,
+  "layer_results": {
+    "-1": {
+      "script": "discover_ai_surfaces.py",
+      "returncode": 0
+    },
+    "0": {
+      "script": "playwright_scenario_executor.py",
+      "returncode": 1
+    },
+    "1": {
+      "script": "analyze_scenario_findings.py",
+      "returncode": 0
+    },
+    "2": {
+      "script": "auto_fix_findings.py",
+      "returncode": 1
+    },
+    "3": {
+      "script": "generate_and_register_validator.py",
+      "returncode": 0
+    },
+    "4": {
+      "script": "validate_improvement_loop_integrity.py",
+      "returncode": 0
+    }
+  },
+  "final_gate_result": "FAIL",
+  "scenarios_run": 21,
+  "scenarios_passed": 20,
+  "findings_extracted": 8,
+  "validators_generated": 8,
+  "validators_registered": 8
+}

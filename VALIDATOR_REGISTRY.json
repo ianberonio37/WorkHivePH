@@ -1,0 +1,48 @@
+{
+  "timestamp": "2026-05-18T08:13:20.864183",
+  "total_findings": 8,
+  "validators_generated": 8,
+  "validators_registered": 8,
+  "findings": [
+    {
+      "finding_id": "FINDING-20260517212005-M-00",
+      "finding_type": "incomplete_data",
+      "surface": "MARKETPLACE"
+    },
+    {
+      "finding_id": "FINDING-20260517212005-M-01",
+      "finding_type": "schema_mismatch",
+      "surface": "MARKETPLACE"
+    },
+    {
+      "finding_id": "FINDING-20260517212007-P-00",
+      "finding_type": "incomplete_data",
+      "surface": "PROJECT_MANAGER"
+    },
+    {
+      "finding_id": "FINDING-20260517212007-P-01",
+      "finding_type": "schema_mismatch",
+      "surface": "PROJECT_MANAGER"
+    },
+    {
+      "finding_id": "FINDING-20260517212009-S-00",
+      "finding_type": "format_error",
+      "surface": "SHIFT_BRAIN"
+    },
+    {
+      "finding_id": "FINDING-20260517212009-S-01",
+      "finding_type": "incomplete_data",
+      "surface": "SHIFT_BRAIN"
+    },
+    {
+      "finding_id": "FINDING-20260518081320-S-00",
+      "finding_type": "incomplete_data",
+      "surface": "SHIFT_BRAIN"
+    },
+    {
+      "finding_id": "FINDING-20260518081320-S-01",
+      "finding_type": "format_error",
+      "surface": "SHIFT_BRAIN"
+    }
+  ]
+}

@@ -9,7 +9,7 @@ touch it, and nothing sensitive leaks where it shouldn't.
     2.  Delete scope               — deletes filter by worker_name or hive_id  [WARN]
 
   Layer 2 — Sensitive data
-    3.  AI widget prompt clean     — floating-ai.js system prompt free of PII/secrets
+    3.  AI widget prompt clean     — companion-launcher.js system prompt free of PII/secrets
     4.  Assistant prompt clean     — assistant.html system prompt free of PII/secrets
 
   Layer 3 — Access control
@@ -30,7 +30,7 @@ if sys.platform == "win32":
 
 from validator_utils import read_file, format_result
 
-FLOAT_JS       = "floating-ai.js"
+FLOAT_JS       = "companion-launcher.js"
 ASSISTANT_HTML = "assistant.html"
 
 WORKER_OWNED_TABLES = ["logbook", "inventory_items", "assets", "pm_assets",
@@ -212,7 +212,7 @@ CHECK_LABELS = {
     "owner_tag":             "L1  worker_name in all worker-owned inserts",
     "delete_scope":          "L1  Deletes filter by worker_name or hive_id  [WARN]",
     # L2
-    "widget_prompt_clean":   "L2  floating-ai.js prompt free of PII/secrets",
+    "widget_prompt_clean":   "L2  companion-launcher.js prompt free of PII/secrets",
     "assistant_prompt_clean":"L2  assistant.html prompt free of PII/secrets",
     # L3
     "role_gates":            "L3  Privileged ops (hive + pm-scheduler) gated by HIVE_ROLE",

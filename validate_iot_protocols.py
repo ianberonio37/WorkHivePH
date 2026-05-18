@@ -37,7 +37,7 @@ FUNCTIONS_DIR = os.path.join("supabase", "functions")
 LIVE_PAGES = [
     "logbook.html", "inventory.html", "pm-scheduler.html", "hive.html",
     "assistant.html", "skillmatrix.html", "dayplanner.html",
-    "engineering-design.html", "floating-ai.js", "nav-hub.js",
+    "engineering-design.html", "companion-launcher.js", "nav-hub.js",
 ]
 
 ALL_SCAN_PATHS = list(LIVE_PAGES)

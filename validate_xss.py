@@ -51,7 +51,7 @@ LIVE_PAGES = [
     "platform-health.html",
     "nav-hub.html",
     "index.html",
-    "floating-ai.js",
+    "companion-launcher.js",
     "nav-hub.js",
     "report-sender.html",
     "community.html",

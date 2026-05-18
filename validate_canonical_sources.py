@@ -230,7 +230,7 @@ def _drift_list_consumer_files():
         if any(path.endswith(ex) for ex in DRIFT_EXCLUDED_HTML):
             continue
         out.append((path, "html"))
-    for fname in ("utils.js", "nav-hub.js", "floating-ai.js", "search-overlay.js"):
+    for fname in ("utils.js", "nav-hub.js", "companion-launcher.js", "search-overlay.js"):
         if os.path.exists(fname):
             out.append((fname, "shared_js"))
     for path in sorted(glob.glob(os.path.join(FUNCTIONS_DIR, "**", "*.ts"), recursive=True)):

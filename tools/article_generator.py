@@ -1,0 +1,456 @@
+"""
+WorkHive /learn/ article generator.
+
+Mirrors the platform_pack.py architecture: focused prompt -> 14-model AI chain
+(tools/ai_chain.call_ai_chain) -> validators -> retry-once -> structured dict.
+
+Produces ONE article's content sections (NOT the full HTML). The scaffold
+script (tools/scaffold_article.py) then renders these sections into the
+canonical /learn/<slug>/index.html template.
+
+Why split generator from scaffold:
+- The scaffold owns HTML structure (head, JSON-LD scaffolds, footer) — boring
+  and identical across articles.
+- The generator owns CONTENT (intro, body sections, FAQ, sources) — varies
+  per article and needs AI assistance.
+
+Returns a dict with keys:
+  intro:         opening 2-3 sentences (the "Short answer" callout)
+  audience:      list of 6-8 audience role descriptions (validator wants 4+)
+  toc:           list of (anchor_id, label) tuples for the article TOC
+  sections:      list of (anchor_id, h2_text, html_paragraphs) for the body
+  faq:           list of (question, answer) tuples (validator wants 6+)
+  sources:       list of citation strings
+  keywords:      string for meta-keywords + JSON-LD
+  description:   1-sentence meta description (~150 chars)
+  word_count:    int (validator wants 1800+ for credible long-form)
+"""
+
+import json
+import re
+import time
+from pathlib import Path
+
+from tools.ai_chain import call_ai_chain
+from wh_pages import article_tool_map
+
+# Banned phrases shared with platform_pack — corporate-speak that degrades AEO
+# answer-extraction quality.
+BANNED_PHRASES = [
+    "are you tired of", "discover how", "unlock real insights",
+    "unlock insights", "sign up now", "learn more about",
+    "our tool helps you", "introducing", "data-driven decisions",
+    "game-changer", "game changer", "revolutionize", "leverage",
+    "in today's", "in this article, we'll explore",
+    "make informed decisions", "optimize your plant's performance",
+]
+
+# Tagalog markers that violate "plain simple English only" rule.
+TAGALOG_RE = re.compile(
+    r"\b(kumusta|mga|ka-\w+|pwede|naman|talaga|sila|nila|sya|nya|"
+    r"din|rin|tayo|natin|kayo|ninyo|ito|iyan|ganito|ganyan|"
+    r"grabe|sobra|saglit|sandali|hindi|sige|baka)\b",
+    re.IGNORECASE,
+)
+
+# Minimum word count for the BODY (excluding intro, audience, FAQ, sources).
+# Below this the article reads as thin and underperforms on dwell time.
+MIN_BODY_WORDS = 1500
+MIN_TOTAL_WORDS = 1800
+MIN_FAQ_COUNT = 6
+MIN_AUDIENCE_ROLES = 6
+
+
+def _build_prompt(slug: str, title: str, tool_name: str, brief: str,
+                  retry_feedback: str = "") -> str:
+    tool_url = article_tool_map().get(slug, ("/", ""))[0]
+    return f"""You are the senior maintenance reliability writer for WorkHive, a free industrial intelligence platform for every Filipino industrial worker. Your job: write ONE article for the /learn/ catalog with the same quality bar as the existing 24 articles.
+
+ARTICLE BRIEF:
+- Slug:    {slug}
+- Title:   {title}
+- Tool:    {tool_name} (CTA link: {tool_url})
+- Brief:   {brief}
+
+HARD RULES (article gets rejected and you rewrite if any rule is broken):
+
+R1. LANGUAGE — Plain simple English only. NO Tagalog (kumusta, mga, ka-, pwede,
+    naman, etc.), NO Taglish, NO code-switching. Short sentences. Common words.
+
+R2. BANNED PHRASES — do not use, ever:
+    {", ".join(BANNED_PHRASES)}
+
+R3. PHILIPPINE SPECIFICITY — every body section must include at least one PH
+    anchor. Examples: real plant locations (Calabarzon, Cabuyao, PEZA, Mindanao,
+    Batangas, Bulacan, Subic, Davao), Filipino role titles (plant supervisor,
+    shift in-charge, maintenance planner), PHP cost figures (PHP 180,000
+    downtime), 24-hour shift times (02:30, 14:45, 23:00), specific equipment
+    IDs (Pump P-204B, Boiler B-1, Conveyor #2, AHU-3, Compressor C-301).
+
+R4. AUDIENCE SPECTRUM — the article's audience block must enumerate AT LEAST 6
+    distinct role types from the WorkHive full audience: field workers,
+    field operators, technicians, supervisors, planners, reliability engineers,
+    design engineers, plant managers, operations managers, suppliers,
+    contractors, auditors, inspectors, officers, coordinators, directors,
+    analysts, consultants, new graduates, OFW-track engineers, upskillers.
+    Choose the 6+ most relevant to this article's topic.
+
+R5. TOOL ALIGNMENT — the article body MUST mention "{tool_name}" by name at
+    least twice in the section text (validator checks). The mid-article CTA
+    section will link to {tool_url} (the scaffold renders that automatically).
+
+R6. WORD COUNT — sum of section paragraph words must be {MIN_BODY_WORDS}+.
+    If your draft hits {MIN_BODY_WORDS - 200} words you are NOT done — add
+    another section, another worked example, another sub-point.
+
+R7. FAQ — exactly 6+ Q&A pairs. Each question is one a real Filipino plant
+    person would actually ask. Each answer is 2-4 sentences, plain English,
+    includes a PH-specific element where natural.
+
+R8. STRUCTURE — the article must have:
+    - intro (2-3 sentences: the "short answer" callout)
+    - audience (6-8 distinct role descriptions, one sentence each)
+    - toc: 5-8 section anchors mirroring the body H2s
+    - sections: 5-8 body sections, each with anchor_id + h2_text + 3-5
+      paragraphs of plain HTML (<p> tags only, no other markup)
+    - faq: 6+ Q&A pairs
+    - sources: 3-6 citation strings (PH standards, international standards,
+      named studies — be specific: "ISO 14224:2016 §6.3", "DOLE OSHS 1064",
+      "SMRP CMRP Body of Knowledge §3.2", "PSME journal Q3 2025", etc.)
+    - keywords: 8-12 comma-separated keywords for meta + JSON-LD
+    - description: ONE sentence, ~150 chars, for meta description and OG tag
+
+R9. JSON ONLY — return one JSON object matching the schema below. No markdown
+    fence. No preamble. No trailing commentary.{retry_feedback}
+
+OUTPUT SCHEMA (return JSON exactly like this):
+
+{{
+  "intro":       "2-3 sentence opening — the short-answer callout.",
+  "audience":    ["Plant supervisors who own daily PM execution", "Reliability engineers tracking MTBF trends", ...6-8 items],
+  "toc":         [["anchor-1", "Section 1 label"], ["anchor-2", "Section 2 label"], ...5-8 items],
+  "sections": [
+    {{
+      "id":         "anchor-1",
+      "h2":         "Section 1 heading",
+      "paragraphs": ["<p>First paragraph of section 1 with PH anchor and {tool_name} mention.</p>", "<p>Second paragraph.</p>", "<p>Third paragraph.</p>"]
+    }},
+    ... 5-8 sections
+  ],
+  "faq": [
+    {{ "q": "What is X?", "a": "Plain answer 2-4 sentences with PH anchor." }},
+    ... 6+ items
+  ],
+  "sources":     ["ISO 14224:2016 §6.3", "DOLE OSHS 1064 (2020)", "SMRP CMRP BoK §3.2"],
+  "keywords":    "keyword 1, keyword 2, keyword 3, keyword 4, ...",
+  "description": "One-sentence meta description, around 150 characters."
+}}
+"""
+
+
+def _word_count(text: str) -> int:
+    return len(re.findall(r"\b\w+\b", text or ""))
+
+
+def _has_banned(text: str) -> list:
+    low = (text or "").lower()
+    return [b for b in BANNED_PHRASES if b in low]
+
+
+def _has_tagalog(text: str) -> list:
+    if not text:
+        return []
+    return list({m.group(0).lower() for m in TAGALOG_RE.finditer(text)})
+
+
+def _validate(article: dict, tool_name: str) -> list:
+    """Return list of remaining issues. Empty list = clean."""
+    issues = []
+
+    # Required keys
+    for key in ["intro", "audience", "toc", "sections", "faq",
+                "sources", "keywords", "description"]:
+        if key not in article:
+            issues.append(f"missing key '{key}'")
+
+    if issues:
+        return issues   # bail early if shape is broken
+
+    # Audience
+    if not isinstance(article["audience"], list) or len(article["audience"]) < MIN_AUDIENCE_ROLES:
+        issues.append(f"audience must have {MIN_AUDIENCE_ROLES}+ role descriptions, "
+                      f"got {len(article['audience']) if isinstance(article['audience'], list) else 0}")
+
+    # FAQ
+    if not isinstance(article["faq"], list) or len(article["faq"]) < MIN_FAQ_COUNT:
+        issues.append(f"faq must have {MIN_FAQ_COUNT}+ Q&A pairs, "
+                      f"got {len(article['faq']) if isinstance(article['faq'], list) else 0}")
+
+    # Body word count + tool name mention + banned phrases + tagalog
+    body_words = 0
+    body_text  = ""
+    tool_mentions = 0
+    for s in article.get("sections", []):
+        for p in s.get("paragraphs", []):
+            body_words += _word_count(p)
+            body_text  += " " + p
+            tool_mentions += p.lower().count(tool_name.lower())
+
+    if body_words < MIN_BODY_WORDS:
+        issues.append(f"body word count {body_words} below {MIN_BODY_WORDS}+. "
+                      f"Add another section or expand existing ones.")
+
+    if tool_mentions < 2:
+        issues.append(f"body mentions '{tool_name}' only {tool_mentions} time(s); "
+                      f"needs 2+ for tool-alignment validator.")
+
+    banned = _has_banned(body_text)
+    if banned:
+        issues.append(f"body uses banned phrase(s): {banned}. Rewrite.")
+
+    tag = _has_tagalog(body_text)
+    if tag:
+        issues.append(f"body contains Tagalog word(s): {tag}. Plain English only.")
+
+    # Sources
+    if not isinstance(article.get("sources"), list) or len(article["sources"]) < 3:
+        issues.append("sources must have 3+ citations (PH standards or studies).")
+
+    return issues
+
+
+def _ai_json(prompt: str):
+    raw = call_ai_chain(prompt, max_tokens=8192, json_mode=False)
+    if raw == "{}":
+        raise RuntimeError("AI chain returned empty (all providers exhausted).")
+    raw = re.sub(r"^```(?:json)?\s*", "", raw.strip())
+    raw = re.sub(r"\s*```$", "", raw.strip())
+    m = re.search(r"\{.*\}", raw, re.DOTALL)
+    if not m:
+        raise RuntimeError(f"AI did not return JSON. Raw start: {raw[:240]}")
+    try:
+        return json.loads(m.group())
+    except json.JSONDecodeError as exc:
+        # One repair attempt
+        repair = call_ai_chain(
+            "Fix this malformed JSON. Return ONLY valid JSON, no fence, no preamble:\n\n"
+            + m.group(),
+            max_tokens=8192, json_mode=False,
+        )
+        repair = re.sub(r"^```(?:json)?\s*", "", repair.strip())
+        repair = re.sub(r"\s*```$", "", repair.strip())
+        m2 = re.search(r"\{.*\}", repair, re.DOTALL)
+        if not m2:
+            raise RuntimeError(f"JSON unrepairable: {exc}")
+        return json.loads(m2.group())
+
+
+# ── Multi-call architecture ───────────────────────────────────────────────────
+# Single-call generation reliably hits ~600-1000 words because Groq packs the
+# whole article into one JSON output and biases toward brevity. We need 1500+.
+# Solution: generate the SKELETON (intro, audience, TOC, section headings,
+# FAQ, sources) in one call, then make ONE FOCUSED CALL per section to draft
+# its paragraphs. Each per-section call has its own token budget so total
+# body length scales linearly with section count.
+#
+# Total AI calls per article: 1 (skeleton) + N (sections, typically 5-7) = 6-8.
+# At Groq's 6K TPM (Llama 3.3 70B) we use ~2.5s pacing between calls to stay
+# comfortably under rate limits.
+
+
+def _build_skeleton_prompt(slug, title, tool_name, brief):
+    return f"""You are the senior maintenance reliability writer for WorkHive (a free industrial intelligence platform for Filipino industrial workers).
+
+TASK: Draft the SKELETON of a /learn/ article. Skeleton = intro + audience list + TOC + section headings (NOT paragraphs yet) + FAQ + sources + meta. The body paragraphs come in a separate call per section.
+
+ARTICLE:
+- Slug:  {slug}
+- Title: {title}
+- Tool:  {tool_name}
+- Brief: {brief}
+
+HARD RULES:
+- Language: plain simple English ONLY. NO Tagalog (kumusta, mga, ka-, pwede, naman, talaga, etc.).
+- NO banned phrases: are you tired of, discover how, unlock real insights, sign up now, learn more about, game-changer, revolutionize, leverage, in today's, in this article we'll explore, optimize your plant's performance, have you ever struggled.
+- Audience block: 6-8 distinct role descriptions, one sentence each, spanning the full WorkHive audience (field workers, technicians, supervisors, engineers, planners, managers, suppliers, contractors, auditors, officers, directors, analysts, OFW-track, graduates, upskillers).
+- TOC: 5-7 entries that mirror the section headings exactly.
+- FAQ: 6+ questions a Filipino plant worker would actually ask. Each answer 2-4 sentences with at least one PH-specific element.
+- Sources: 3-6 real-looking citations (PH standards: DOLE OSHS, IIEE Code; international: ISO 14224, SMRP CMRP BoK; named studies). Be specific with section numbers where appropriate.
+- Keywords: 8-12 comma-separated terms.
+- Description: ONE sentence ~150 chars for meta description + OG tag.
+
+Return ONLY this JSON, no markdown fence, no preamble:
+
+{{
+  "intro":       "2-3 sentences. The short-answer callout.",
+  "audience":    ["role description 1", "role description 2", ...],
+  "toc":         [["anchor-1", "Section 1 label"], ...],
+  "sections":    [
+    {{ "id": "anchor-1", "h2": "Section 1 heading", "brief": "1-2 sentence brief on what this section will cover when drafted" }},
+    ...
+  ],
+  "faq":         [{{ "q": "...", "a": "..." }}, ...],
+  "sources":     ["citation 1", ...],
+  "keywords":    "kw1, kw2, ...",
+  "description": "one-sentence ~150-char meta description"
+}}
+"""
+
+
+def _build_section_prompt(slug, title, tool_name, brief,
+                           section_id, section_h2, section_brief,
+                           prev_section_summary=""):
+    return f"""You are drafting ONE section of the WorkHive /learn/ article "{title}".
+
+CONTEXT:
+- Article tool: {tool_name}
+- Article brief: {brief}
+- This section: {section_h2} (anchor #{section_id})
+- Section angle: {section_brief}
+{prev_section_summary}
+
+HARD RULES for this section's paragraphs:
+- Plain simple English only. NO Tagalog. NO banned phrases (are you tired of, discover how, unlock real insights, sign up now, learn more about, game-changer, revolutionize, leverage, in today's, optimize your plant's performance).
+- MUST include at least ONE concrete Philippine anchor: a real PH plant location (Calabarzon, Cabuyao, PEZA, Mindanao, Batangas, Bulacan, Subic, Davao, Pampanga), a PHP cost figure (PHP 180,000), a 24-hour shift time (02:30, 14:45), a Filipino role title (plant supervisor, shift in-charge, maintenance planner), or a specific equipment ID (Pump P-204B, Boiler B-1, Conveyor #2, AHU-3).
+- Length: 4-6 paragraphs, each 70-130 words. Total section body should be 350-600 words.
+- Mention "{tool_name}" by name at least once where naturally relevant.
+- Style: HTML <p> tags only. No <ul>, no <ol>, no <strong>. Just paragraphs.
+- Tone: peer-to-peer engineer-to-engineer, like writing for the SMRP magazine but rooted in Philippine plant-floor reality.
+
+Return ONLY a JSON array of HTML paragraph strings, no markdown fence, no preamble:
+
+[
+  "<p>First paragraph with PH anchor and tool mention.</p>",
+  "<p>Second paragraph.</p>",
+  "<p>Third paragraph.</p>",
+  "<p>Fourth paragraph.</p>"
+]
+"""
+
+
+def _ai_array(prompt):
+    """AI call expecting a JSON array (not object)."""
+    raw = call_ai_chain(prompt, max_tokens=4096, json_mode=False)
+    if raw == "{}":
+        raise RuntimeError("AI chain returned empty (all providers exhausted).")
+    raw = re.sub(r"^```(?:json)?\s*", "", raw.strip())
+    raw = re.sub(r"\s*```$", "", raw.strip())
+    m = re.search(r"\[.*\]", raw, re.DOTALL)
+    if not m:
+        raise RuntimeError(f"AI did not return JSON array. Raw start: {raw[:240]}")
+    try:
+        return json.loads(m.group())
+    except json.JSONDecodeError as exc:
+        repair = call_ai_chain(
+            "Fix this malformed JSON array. Return ONLY valid JSON, no fence, no preamble:\n\n"
+            + m.group(),
+            max_tokens=4096, json_mode=False,
+        )
+        repair = re.sub(r"^```(?:json)?\s*", "", repair.strip())
+        repair = re.sub(r"\s*```$", "", repair.strip())
+        m2 = re.search(r"\[.*\]", repair, re.DOTALL)
+        if not m2:
+            raise RuntimeError(f"JSON array unrepairable: {exc}")
+        return json.loads(m2.group())
+
+
+def _validate_section_paragraphs(paragraphs, tool_name):
+    """Validate one section's paragraphs. Returns list of issue strings."""
+    issues = []
+    if not isinstance(paragraphs, list) or len(paragraphs) < 3:
+        return [f"section returned {len(paragraphs) if isinstance(paragraphs, list) else 0} paragraphs, need 4+"]
+    text = " ".join(paragraphs)
+    word_count = _word_count(text)
+    if word_count < 280:
+        issues.append(f"section body {word_count} words, need 350+")
+    banned = _has_banned(text)
+    if banned:
+        issues.append(f"section uses banned phrase(s) {banned}")
+    if _has_tagalog(text):
+        issues.append(f"section contains Tagalog: {_has_tagalog(text)}")
+    return issues
+
+
+def generate_article(slug: str, title: str, tool_name: str, brief: str) -> dict:
+    """Multi-call generation: skeleton (1 AI call) + N section drafts (N AI calls).
+    Each call is focused, ~5-10 sec, with ~2.5s pacing between calls to stay
+    under Groq's per-minute rate ceiling."""
+    print(f"  [article_gen] {slug} — skeleton call...")
+    skeleton = _ai_json(_build_skeleton_prompt(slug, title, tool_name, brief))
+
+    sections = skeleton.get("sections", [])
+    if not sections:
+        raise RuntimeError("Skeleton returned no sections")
+
+    print(f"  [article_gen] {slug} — drafting {len(sections)} sections...")
+    drafted_sections = []
+    section_warnings = []
+    prev_summary = ""
+
+    for i, s in enumerate(sections, 1):
+        time.sleep(2.5)   # pace under Groq rate ceiling
+        sid, sh2, sbrief = s.get("id", f"sec-{i}"), s.get("h2", "?"), s.get("brief", "")
+        print(f"    [{i}/{len(sections)}] {sh2[:60]}")
+        try:
+            paragraphs = _ai_array(_build_section_prompt(
+                slug, title, tool_name, brief,
+                sid, sh2, sbrief, prev_summary,
+            ))
+        except Exception as exc:
+            print(f"       FAIL: {exc}; using brief as fallback paragraph")
+            paragraphs = [f"<p>{sbrief}</p>"]
+            section_warnings.append(f"section '{sh2}' generation failed: {exc}")
+
+        issues = _validate_section_paragraphs(paragraphs, tool_name)
+        if issues:
+            # One retry per section with stricter feedback
+            time.sleep(2.5)
+            print(f"       retry ({len(issues)} issues)")
+            try:
+                fb = ("\n\nPREVIOUS ATTEMPT FAILED:\n  - "
+                      + "\n  - ".join(issues)
+                      + "\n\nFix every issue. Write LONGER paragraphs. "
+                        "Use PH anchors. Strip banned phrases.")
+                paragraphs_v2 = _ai_array(_build_section_prompt(
+                    slug, title, tool_name, brief,
+                    sid, sh2, sbrief, prev_summary + fb,
+                ))
+                issues_v2 = _validate_section_paragraphs(paragraphs_v2, tool_name)
+                if len(issues_v2) < len(issues):
+                    paragraphs = paragraphs_v2
+                    issues = issues_v2
+            except Exception:
+                pass
+            if issues:
+                section_warnings.extend([f"'{sh2}': {i}" for i in issues])
+
+        drafted_sections.append({"id": sid, "h2": sh2, "paragraphs": paragraphs})
+        prev_summary = (
+            f"\nPREVIOUS SECTIONS (just for continuity, do not repeat): "
+            + ", ".join(s["h2"] for s in drafted_sections)
+        )
+
+    # Assemble the final article dict
+    article = {
+        "intro":       skeleton.get("intro", ""),
+        "audience":    skeleton.get("audience", []),
+        "toc":         skeleton.get("toc", []),
+        "sections":    drafted_sections,
+        "faq":         skeleton.get("faq", []),
+        "sources":     skeleton.get("sources", []),
+        "keywords":    skeleton.get("keywords", ""),
+        "description": skeleton.get("description", ""),
+    }
+
+    # Final whole-article validation
+    issues = _validate(article, tool_name)
+    issues.extend(section_warnings)
+    article["_remaining_warnings"] = issues
+
+    body_words = sum(
+        _word_count(p) for s in drafted_sections for p in s.get("paragraphs", [])
+    )
+    print(f"  [article_gen] {slug} DONE: {body_words} body words, "
+          f"{len(drafted_sections)} sections, {len(issues)} warnings")
+
+    return article

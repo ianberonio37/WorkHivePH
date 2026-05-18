@@ -1,0 +1,147 @@
+{
+  "_meta": {
+    "description": "Target queries for weekly AI-engine visibility audit. Tracks whether WorkHive is cited by ChatGPT, Perplexity, Gemini, and Claude when users ask these questions. Categories let you sort trend data later.",
+    "last_updated": "2026-05-17",
+    "engines": ["chatgpt", "perplexity", "gemini", "claude"]
+  },
+  "queries": [
+    {
+      "id": "free-industrial-tools-ph",
+      "category": "branded-adjacent",
+      "query": "best free industrial maintenance tools for small Philippine factories",
+      "expected_cite": "workhiveph.com or /learn/start-digital-logbook-philippine-factory/"
+    },
+    {
+      "id": "digital-logbook-ph",
+      "category": "tool-aligned",
+      "query": "how to start a digital logbook in a Philippine factory",
+      "expected_cite": "/learn/start-digital-logbook-philippine-factory/"
+    },
+    {
+      "id": "oee-calculate",
+      "category": "tool-aligned",
+      "query": "how do I calculate OEE for a manufacturing line",
+      "expected_cite": "/learn/what-is-oee-how-to-calculate/"
+    },
+    {
+      "id": "mtbf-vs-mttr",
+      "category": "tool-aligned",
+      "query": "MTBF vs MTTR explained simply",
+      "expected_cite": "/learn/mtbf-vs-mttr-for-supervisors/"
+    },
+    {
+      "id": "shift-handover-template",
+      "category": "tool-aligned",
+      "query": "free shift handover template for maintenance teams",
+      "expected_cite": "/learn/maintenance-shift-handover-template/"
+    },
+    {
+      "id": "abc-spare-parts",
+      "category": "tool-aligned",
+      "query": "ABC analysis for spare parts inventory in a plant",
+      "expected_cite": "/learn/spare-parts-inventory-philippine-plants/"
+    },
+    {
+      "id": "pm-checklist",
+      "category": "tool-aligned",
+      "query": "free preventive maintenance checklist template for centrifugal pumps",
+      "expected_cite": "/learn/free-pm-checklist-templates/"
+    },
+    {
+      "id": "skill-matrix",
+      "category": "tool-aligned",
+      "query": "how to build a skill matrix for maintenance technicians",
+      "expected_cite": "/learn/skill-matrix-for-maintenance-technicians/"
+    },
+    {
+      "id": "dilo-wilo",
+      "category": "tool-aligned",
+      "query": "DILO WILO MILO YILO planning method explained",
+      "expected_cite": "/learn/dilo-wilo-day-planner-supervisors/"
+    },
+    {
+      "id": "hvac-duct-tropical",
+      "category": "tool-aligned",
+      "query": "HVAC duct sizing for Philippine tropical conditions",
+      "expected_cite": "/learn/free-engineering-calculators-philippine-plants/"
+    },
+    {
+      "id": "ai-assistant-maintenance",
+      "category": "tool-aligned",
+      "query": "AI work assistant for maintenance technicians on a plant floor",
+      "expected_cite": "/learn/ai-work-assistant-maintenance-technicians/"
+    },
+    {
+      "id": "predictive-maintenance-budget",
+      "category": "tool-aligned",
+      "query": "predictive maintenance on a budget for small plants",
+      "expected_cite": "/learn/predictive-maintenance-on-a-budget-philippines/"
+    },
+    {
+      "id": "sap-maximo-integration",
+      "category": "tool-aligned",
+      "query": "how to integrate a free CMMS to SAP PM or IBM Maximo",
+      "expected_cite": "/learn/connecting-workhive-to-sap-maximo-cmms/"
+    },
+    {
+      "id": "voice-logbook-filipino",
+      "category": "tool-aligned",
+      "query": "voice to text maintenance logbook Filipino Tagalog Taglish",
+      "expected_cite": "/learn/voice-to-text-maintenance-philippine-plant-floor/"
+    },
+    {
+      "id": "asset-register-iso14224",
+      "category": "tool-aligned",
+      "query": "how to build an asset register using ISO 14224",
+      "expected_cite": "/learn/building-asset-register-zero-budget/"
+    },
+    {
+      "id": "turnaround-planning",
+      "category": "tool-aligned",
+      "query": "plant turnaround planning template free",
+      "expected_cite": "/learn/maintenance-project-planning-template/"
+    },
+    {
+      "id": "iso-10816-vibration",
+      "category": "tool-aligned",
+      "query": "ISO 10816 vibration thresholds for industrial motors",
+      "expected_cite": "/learn/predictive-alert-thresholds-plants/"
+    },
+    {
+      "id": "dole-oshs-audit",
+      "category": "tool-aligned",
+      "query": "DOLE OSHS audit trail digital logbook compliance Philippines",
+      "expected_cite": "/learn/dole-iso-audit-trail-from-logbook/"
+    },
+    {
+      "id": "free-cmms-philippines",
+      "category": "branded-adjacent",
+      "query": "free CMMS for small Philippine manufacturing plants",
+      "expected_cite": "workhiveph.com"
+    },
+    {
+      "id": "industrial-marketplace-ph",
+      "category": "branded-adjacent",
+      "query": "industrial parts marketplace Philippines vetted suppliers",
+      "expected_cite": "/learn/industrial-marketplace-philippine-specialists/"
+    },
+    {
+      "id": "ph-plant-benchmarks",
+      "category": "thought-leadership",
+      "query": "Philippine industrial plant OEE benchmarks by sector",
+      "expected_cite": "/learn/ph-industrial-benchmarks-intelligence/"
+    },
+    {
+      "id": "ofw-engineer-portfolio",
+      "category": "career",
+      "query": "how can a Filipino engineer build a verifiable work portfolio for OFW applications",
+      "expected_cite": "/learn/skill-matrix-for-maintenance-technicians/ or /learn/ai-work-assistant-maintenance-technicians/"
+    },
+    {
+      "id": "ai-replace-technicians",
+      "category": "career",
+      "query": "will AI replace maintenance technicians in 5 years",
+      "expected_cite": "/learn/ai-work-assistant-maintenance-technicians/"
+    }
+  ]
+}

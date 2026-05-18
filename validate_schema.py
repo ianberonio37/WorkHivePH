@@ -45,7 +45,7 @@ LIVE_PAGES = [
     "analytics.html",
     "analytics-report.html",
     "nav-hub.html",
-    "floating-ai.js",
+    "companion-launcher.js",
     "voice-handler.js",         # Voice companion — queries v_kpi_truth + v_risk_truth for canonical anchoring (2026-05-13).
     "utils.js",
     "maturity-gate.js",         # Phase 0.3 of STRATEGIC_ROADMAP — gated-page helper

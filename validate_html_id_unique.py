@@ -168,7 +168,7 @@ def check_cross_page_drift(pages: list[str]) -> tuple[list[dict], list[dict]]:
             id_to_pages[id_val].add(path)
     THRESH = 5
     # IDs we know are intentionally shared via shared scripts (nav-hub.js,
-    # floating-ai.js etc.). Filter these out -- they are by design.
+    # companion-launcher.js etc.). Filter these out -- they are by design.
     SHARED_OK = {
         # Nav hub injected on every page
         "wh-nav-hub-root", "wh-nav-hub", "wh-nav-hub-toggle",

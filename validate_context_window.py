@@ -6,8 +6,8 @@ reasoning context into dense summaries. WorkHive's approach is simpler
 but follows the same principle: send LESS context per request, not MORE.
 
   Layer 1 — History bounds
-    1.  floating-ai.js maxHistory declared   — history array must be bounded
-    2.  floating-ai.js history.slice(-N)     — only a window of messages sent per request
+    1.  companion-launcher.js maxHistory declared   — history array must be bounded
+    2.  companion-launcher.js history.slice(-N)     — only a window of messages sent per request
 
   Layer 2 — Session bounds
     3.  assistant sessionMessages bounded    — no full-session spread into messages  [WARN]
@@ -30,7 +30,7 @@ if sys.platform == "win32":
 
 from validator_utils import read_file, format_result
 
-FLOATING_AI    = "floating-ai.js"
+FLOATING_AI    = "companion-launcher.js"
 ASSISTANT_PAGE = "assistant.html"
 
 MAX_HISTORY_LIMIT   = 30
@@ -153,7 +153,7 @@ def check_system_prompt_size(pages):
     """
     issues = []
     prompt_patterns = {
-        "floating-ai.js":  r"const system\s*=\s*`",
+        "companion-launcher.js":  r"const system\s*=\s*`",
         "assistant.html":  r"return\s*`You are",
     }
     for page in pages:
@@ -222,8 +222,8 @@ CHECK_NAMES = [
 ]
 
 CHECK_LABELS = {
-    "max_history":              "L1  floating-ai.js maxHistory declared and bounded",
-    "history_slice":            "L1  floating-ai.js sends bounded history.slice(-N) per request",
+    "max_history":              "L1  companion-launcher.js maxHistory declared and bounded",
+    "history_slice":            "L1  companion-launcher.js sends bounded history.slice(-N) per request",
     "session_messages_bound":   "L2  assistant.html sessionMessages bounded before sending  [WARN]",
     "semantic_match_count":     "L2  Semantic search match_count explicit and bounded",
     "system_prompt_size":       "L3  Static system prompts <= 5000 chars (1250 tokens)  [WARN]",

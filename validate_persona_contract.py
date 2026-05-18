@@ -99,10 +99,10 @@ SERVER_PERSONA_ADOPTION = {
 # Each entry: client surface => evidence that it consumes the companion
 # block. value is the substring that must appear in the file. For inline
 # script surfaces (assistant.html) we look for window.getCompanionBlock().
-# For shared client modules (floating-ai.js) we look for the same call.
+# For shared client modules (companion-launcher.js) we look for the same call.
 
 CLIENT_PERSONA_ADOPTION = {
-    "floating-ai.js":  "getCompanionBlock",
+    "companion-launcher.js":  "getCompanionBlock",
     "assistant.html":  "getCompanionBlock",
 }
 

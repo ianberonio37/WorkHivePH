@@ -1,0 +1,106 @@
+{
+  "timestamp": "2026-05-18T07:31:03.251923",
+  "jobs": [
+    {
+      "job_id": "pm-overdue-daily",
+      "name": "PM Overdue Analysis (Daily)",
+      "status": "PASS",
+      "latency_ms": 12822,
+      "error": null,
+      "validation": {
+        "job_name": "PM Overdue Analysis (Daily)",
+        "checks": {
+          "overdue_count": true,
+          "critical_pm": true,
+          "hive_id": true
+        },
+        "all_pass": true
+      }
+    },
+    {
+      "job_id": "failure-digest-weekly",
+      "name": "Failure Digest (Weekly)",
+      "status": "PASS",
+      "latency_ms": 3476,
+      "error": null,
+      "validation": {
+        "job_name": "Failure Digest (Weekly)",
+        "checks": {
+          "failure_summary": true,
+          "top_failures": true,
+          "trend": true
+        },
+        "all_pass": true
+      }
+    },
+    {
+      "job_id": "shift-handover-morning",
+      "name": "Shift Handover (Morning)",
+      "status": "PASS",
+      "latency_ms": 3663,
+      "error": null,
+      "validation": {
+        "job_name": "Shift Handover (Morning)",
+        "checks": {
+          "shift_id": true,
+          "critical_items": true,
+          "handover_notes": true
+        },
+        "all_pass": true
+      }
+    },
+    {
+      "job_id": "shift-handover-afternoon",
+      "name": "Shift Handover (Afternoon)",
+      "status": "PASS",
+      "latency_ms": 1422,
+      "error": null,
+      "validation": {
+        "job_name": "Shift Handover (Afternoon)",
+        "checks": {
+          "shift_id": true,
+          "critical_items": true,
+          "handover_notes": true
+        },
+        "all_pass": true
+      }
+    },
+    {
+      "job_id": "shift-handover-night",
+      "name": "Shift Handover (Night)",
+      "status": "PASS",
+      "latency_ms": 1426,
+      "error": null,
+      "validation": {
+        "job_name": "Shift Handover (Night)",
+        "checks": {
+          "shift_id": true,
+          "critical_items": true,
+          "handover_notes": true
+        },
+        "all_pass": true
+      }
+    },
+    {
+      "job_id": "predictive-weekly",
+      "name": "Predictive Risk Calendar (Weekly)",
+      "status": "PASS",
+      "latency_ms": 2171,
+      "error": null,
+      "validation": {
+        "job_name": "Predictive Risk Calendar (Weekly)",
+        "checks": {
+          "risk_score": true,
+          "forecast_items": true,
+          "risk_level": true
+        },
+        "all_pass": true
+      }
+    }
+  ],
+  "summary": {
+    "total": 6,
+    "passed": 6,
+    "failed": 0
+  }
+}

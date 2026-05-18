@@ -18,14 +18,17 @@
   'use strict';
 
   // ─── Config (Internal Control) ───────────────────────────────────────────────
+  // 2026-05-18 Companion Streamline Step C: backend re-wired from the
+  // Cloudflare Worker to the platform ai-gateway edge function (agent:
+  // "voice-journal"). One companion (James/Rosa), one backend, three
+  // entry points (floating launcher / voice-journal.html / assistant.html).
+  // The Cloudflare Worker is decommissioned — see PRODUCTION_FIXES.
   const config = {
-    enabled:    true,          // master switch — set false to hide widget everywhere
-    apiEnabled: true,          // false = mock mode (no real API calls yet)
-    apiKey:     '',            // not needed — key is secured inside the Cloudflare Worker
-    workerUrl:  'https://workhive-assistant.ian-beronio37.workers.dev',
-    model:      'meta-llama/llama-4-scout-17b-16e-instruct', // Groq model — Llama 4, fast & free tier
-    maxHistory: 20,            // max messages kept in history array; half (10) are sent to model per request
-    position:   'bottom-right' // future: 'bottom-left'
+    enabled:    true,           // master switch — set false to hide widget everywhere
+    apiEnabled: true,           // false = mock mode (no real API calls yet)
+    agent:      'voice-journal',// ai-gateway agent route — same as voice-journal.html
+    maxHistory: 20,             // max messages kept in history array
+    position:   'bottom-right'  // future: 'bottom-left'
   };
 
   if (!config.enabled) return;
@@ -704,31 +707,70 @@ happens to know maintenance, not a manual.`;
       ? window.trimChatToTokenBudget(baseHistory, { budget: 7500, systemTokens: sysTokens, reserveOut: 600 })
       : baseHistory;
 
-    const messages = [
-      { role: 'system', content: system },
-      ...trimmedHistory,
-      { role: 'user', content: userMessage }
-    ];
+    // 2026-05-18 Companion Streamline Step C: routes through ai-gateway
+    // (agent: "voice-journal") instead of the legacy Cloudflare Worker.
+    // Same backend as voice-journal.html — one companion, one infra path,
+    // free-tier Groq chain. PII redaction, rate-limit, agent memory, and
+    // cost logging all handled inside the gateway/specialist.
+    //
+    // voice-journal-agent already calls buildPersonaBlock(persona) itself,
+    // so we just send the persona NAME, not the full block. The agent
+    // ignores `history` and `platform_brief` (it runs its own memory layer
+    // via agent_memory and the system prompt is built from the persona
+    // name + a voice-journal-specific rules block).
+    const personaName = (typeof window.getCurrentPersona === 'function')
+      ? window.getCurrentPersona()
+      : (localStorage.getItem('wh_persona') || 'james');
+    const hiveId = (typeof window !== 'undefined' && window.localStorage)
+      ? (localStorage.getItem('wh_active_hive_id') || localStorage.getItem('wh_hive_id') || null)
+      : null;
+    const gatewayBody = {
+      agent:   config.agent,
+      message: userMessage,
+      hive_id: hiveId,
+      context: {
+        persona: personaName,
+        // page kept for future agent variants that want page-aware replies
+        page:    (ctx && ctx.page) || null,
+        source:  'floating-launcher',
+      },
+    };
 
-    // Routes through Cloudflare Worker — API key never exposed in browser.
-    // 25s ceiling: floating-ai must not strand a user behind a hung Groq call.
+    // Prefer the page's Supabase JS client (handles session auth) when
+    // available; fall back to direct fetch using anon key from globals.
+    if (typeof window !== 'undefined' && window.supabase && window.WH_DB) {
+      const { data, error } = await window.WH_DB.functions.invoke('ai-gateway', { body: gatewayBody });
+      if (error) throw new Error(error.message || 'Gateway failed');
+      if (!data)  throw new Error('Empty gateway response');
+      if (data.error) throw new Error(data.error);
+      return String(data.answer || '').trim();
+    }
+
+    const SUPABASE_URL = (typeof window !== 'undefined' && window.WH_SUPABASE_URL)
+      ? window.WH_SUPABASE_URL
+      : 'https://hzyvnjtisfgbksicrouu.supabase.co';
+    const SUPABASE_ANON_KEY = (typeof window !== 'undefined' && window.WH_SUPABASE_ANON_KEY)
+      ? window.WH_SUPABASE_ANON_KEY
+      : 'sb_publishable_ePj-suLMwkMRVDH6eM6S8g_R0rZVbMZ';
+
     const fetcher = (typeof window !== 'undefined' && window.fetchWithTimeout)
       ? (u, o) => window.fetchWithTimeout(u, o, 25000)
       : fetch;
-    const response = await fetcher(config.workerUrl, {
+    const response = await fetcher(`${SUPABASE_URL}/functions/v1/ai-gateway`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model:      config.model,
-        max_tokens: 500,
-        messages
-      })
+      headers: {
+        'Content-Type':  'application/json',
+        'apikey':        SUPABASE_ANON_KEY,
+        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+      },
+      body: JSON.stringify(gatewayBody),
     });
 
-    if (!response) throw new Error('Assistant timed out. Try again on a faster network.');
-    if (!response.ok) throw new Error(`Worker error ${response.status}`);
+    if (!response) throw new Error('Companion timed out. Try again on a faster network.');
+    if (!response.ok) throw new Error(`Gateway error ${response.status}`);
     const data = await response.json();
-    return data.choices[0].message.content;
+    if (data.error) throw new Error(data.error);
+    return String(data.answer || '').trim();
   }
 
   // ─── Send Handler ─────────────────────────────────────────────────────────────
@@ -746,7 +788,7 @@ happens to know maintenance, not a manual.`;
 
     try {
       let reply;
-      if (config.apiEnabled && config.workerUrl) {
+      if (config.apiEnabled && config.agent) {
         reply = await callAPI(message);
       } else {
         // Demo mode — simulate delay

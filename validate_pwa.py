@@ -366,7 +366,7 @@ def check_install_prompt_scope(pages):
     index.html. Either handle beforeinstallprompt in a shared JS (nav-hub.js,
     utils.js) or on every app page.
     """
-    shared_js_files = ["nav-hub.js", "utils.js", "floating-ai.js"]
+    shared_js_files = ["nav-hub.js", "utils.js", "companion-launcher.js"]
     for js_file in shared_js_files:
         content = read_file(js_file)
         if content and "beforeinstallprompt" in content:

@@ -2,7 +2,7 @@
 AI Prompt Regression Validator — WorkHive Platform
 ===================================================
 WorkHive has two AI surfaces that both describe the platform:
-  1. floating-ai.js  — the floating widget on every page
+  1. companion-launcher.js  — the floating widget on every page
   2. assistant.html  — the full work assistant page
 
 As the platform grows, these prompts drift apart. A worker on the logbook
@@ -11,7 +11,7 @@ the full assistant. This validator catches that drift before it reaches users.
 
   Layer 1 — Structural consistency
     1.  Discipline names match          — DISCIPLINES in skill-content.js == both prompts
-    2.  Tool list consistent            — all active tools in floating-ai.js in assistant.html too
+    2.  Tool list consistent            — all active tools in companion-launcher.js in assistant.html too
     3.  Calc count consistent           — both surfaces agree on engineering calc count (46)
 
   Layer 2 — Content quality
@@ -32,7 +32,7 @@ if sys.platform == "win32":
 
 from validator_utils import read_file, extract_js_array, format_result
 
-FLOAT_JS       = "floating-ai.js"
+FLOAT_JS       = "companion-launcher.js"
 ASSISTANT_HTML = "assistant.html"
 SKILL_CONTENT  = "skill-content.js"
 
@@ -62,7 +62,7 @@ FEATURE_PARITY_CHECKS = [
 
 
 def get_platform_tools_block(content):
-    # Support both "PLATFORM TOOLS" (floating-ai.js) and "PLATFORM CONTEXT" (assistant.html)
+    # Support both "PLATFORM TOOLS" (companion-launcher.js) and "PLATFORM CONTEXT" (assistant.html)
     for marker in ("PLATFORM TOOLS", "PLATFORM CONTEXT"):
         start = content.find(marker)
         if start != -1:
@@ -126,7 +126,7 @@ def check_tool_consistency(float_content, assistant_content):
         if filename not in assistant_content:
             issues.append({"check": "tool_consistency", "page": ASSISTANT_HTML,
                            "tool": filename,
-                           "reason": f"{ASSISTANT_HTML} missing '{filename}' — tool is in floating-ai.js PLATFORM TOOLS but not in full assistant context"})
+                           "reason": f"{ASSISTANT_HTML} missing '{filename}' — tool is in companion-launcher.js PLATFORM TOOLS but not in full assistant context"})
     return issues
 
 
@@ -171,13 +171,13 @@ def check_draft_artifacts(float_content, assistant_content):
 
 def check_feature_parity(float_content, assistant_content):
     """
-    When a new feature is added to a tool description in floating-ai.js,
+    When a new feature is added to a tool description in companion-launcher.js,
     the same feature must appear in assistant.html's description of that tool.
     Otherwise workers get contradictory answers depending on which AI surface
     they use.
 
     Strategy: for each tool, extract its entry from both surfaces and compare
-    the presence of key feature terms. If floating-ai.js mentions a term but
+    the presence of key feature terms. If companion-launcher.js mentions a term but
     assistant.html does not, flag it.
     """
     issues = []
@@ -217,7 +217,7 @@ CHECK_NAMES = [
 CHECK_LABELS = {
     # L1
     "discipline_names":         "L1  Skill Matrix disciplines match across both AI surfaces",
-    "tool_consistency":         "L1  All active tools in floating-ai.js also in assistant.html",
+    "tool_consistency":         "L1  All active tools in companion-launcher.js also in assistant.html",
     "calc_count_consistent":    "L1  Calc count consistent across both surfaces (46)",
     # L2
     "draft_artifacts":          "L2  No TODO/FIXME/placeholder in either prompt",

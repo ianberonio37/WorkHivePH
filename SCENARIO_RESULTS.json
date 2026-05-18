@@ -1,0 +1,352 @@
+{
+  "timestamp": "2026-05-18T08:09:19.244490",
+  "surfaces": {
+    "VOICE": [
+      {
+        "name": "Voice Journal: Page Load & Mic Available",
+        "surface": "VOICE",
+        "status": "PASS",
+        "validations": {
+          "mic_button_present": true,
+          "capture_panel_loaded": true,
+          "mic_state_visible": true
+        },
+        "captures": {
+          "mic_state_text": "Tap to start. Tap again to stop.",
+          "persona_active": "\ud83e\uddd1\u200d\ud83e\uddb1 James"
+        },
+        "error": null,
+        "latency_ms": 2935
+      }
+    ],
+    "ASSISTANT": [
+      {
+        "name": "Assistant: Chat Input Ready",
+        "surface": "ASSISTANT",
+        "status": "PASS",
+        "validations": {
+          "page_loaded": true
+        },
+        "captures": {
+          "page_state": "Basic Worker\n        \n        \n          \n          Stage 1\n        \n      \n\n      \n      \n        \n          \n            \n          \n        \n        My Work Assistant\n        Ask anything: technical, operational, planning, safety, or your own job history.\n      \n\n      \n      \n\n        \n        \n          Your Name\n          \n          Please enter your name.\n        \n\n        \n        \n          \n            Today's Context\n            (optional)\n          \n          \n        \n\n        \n    "
+        },
+        "error": null,
+        "latency_ms": 9018
+      }
+    ],
+    "VISUAL": [
+      {
+        "name": "Visual Defect: Upload Surface Available",
+        "surface": "VISUAL",
+        "status": "PASS",
+        "validations": {
+          "page_loaded": true
+        },
+        "captures": {
+          "page_state": "Not Found\nThe requested URL was not found on the server. If you entered the URL manually please check your spelling and try again."
+        },
+        "error": null,
+        "latency_ms": 8800
+      }
+    ],
+    "AMC": [
+      {
+        "name": "Alert Hub: Verdict Loaded",
+        "surface": "AMC",
+        "status": "PASS",
+        "validations": {
+          "verdict_loaded": true,
+          "source_chip_visible": true
+        },
+        "captures": {
+          "verdict_text": "\u00b7\n        No alerts on this hive right nowEither everything is genuinely calm, or the alert sources have not surfaced anything this shift.\n      \n      \n        \n          High-severity alerts\n          0\n          0 total alerts \u00b7 none critical or high\n          CLEAR\n        \n        \n          Anomaly signals\n          0\n          No fused anomalies in your hive right now\n          CLEAR\n        \n        \n          AMC daily brief\n          None today\n          No AMC brief for today's shift\n",
+          "source_chip": "Live data \u00b7 Source: v_risk_truth \u00b7 PM overdue threshold: 30 days since last anchor"
+        },
+        "error": null,
+        "latency_ms": 11439
+      }
+    ],
+    "CALC": [
+      {
+        "name": "Engineering Design: Calc Selector Ready",
+        "surface": "CALC",
+        "status": "PASS",
+        "validations": {
+          "calc_grid_loaded": true,
+          "source_chip_visible": true
+        },
+        "captures": {
+          "page_state": "\ud83d\udd12\n    Hive Required\n    The Engineering Design Calculator is a team feature. Join or create a Hive to access it.\n    Go to Hive Setup\n  \n\n\n\n\n\n\n\n  \n  \n    \n      \n        \u2190 Back\n        \n          Engineering Design\n          Design Calculation Tool\n          On-demand via engineering-calc-agent edge fn \u00b7 Source: engineering_calcs + canonical_formulas + canonical_standards \u00b7 6 disciplines: HVAC / Mechanical / Electrical / Plumbing / Fire / Machine \u00b7 Formulas anchored to PEC 2017, ASHRAE, PSME, NF"
+        },
+        "error": null,
+        "latency_ms": 1849
+      }
+    ],
+    "CHAT": [
+      {
+        "name": "Hive Page: Loaded",
+        "surface": "CHAT",
+        "status": "PASS",
+        "validations": {
+          "page_loaded": true
+        },
+        "captures": {
+          "page_state": "The Hive\n      Impact\n      Community\n      Learn\n    \n\n    \n      \n      \n        \n          \n          \n          \n          \n        \n        Install WorkHive\n      \n      \n        Pablo\n        \n          Signed in as\n          Pablo Aguilar\n          \n            Sign out\n          \n        \n      \n      Join WorkHive\n    \n\n    \n    \n      \n        Pablo\n        \n          Signed in as\n          Pablo Aguilar\n          \n            Sign out\n          \n        \n      \n      \n      \n        \n"
+        },
+        "error": null,
+        "latency_ms": 10250
+      }
+    ],
+    "AI_QUALITY": [
+      {
+        "name": "AI Quality: ROI Meta Loaded",
+        "surface": "AI_QUALITY",
+        "status": "PASS",
+        "validations": {
+          "content_loaded": true,
+          "roi_meta_visible": true
+        },
+        "captures": {
+          "roi_text": "(unable to capture)",
+          "content_text": "(unable to capture)"
+        },
+        "error": null,
+        "latency_ms": 16551
+      }
+    ],
+    "ANALYTICS": [
+      {
+        "name": "Analytics: Verdict & Summary Generated",
+        "surface": "ANALYTICS",
+        "status": "PASS",
+        "validations": {
+          "verdict_loaded": true,
+          "source_chip_visible": true
+        },
+        "captures": {
+          "verdict_text": "\u26a0\n      Reliability KPIs need actionBelow floor: PM compliance 11%.",
+          "summary_text": "\u26a0\n      Reliability KPIs need actionBelow floor: PM compliance 11%.\n    \n    \n      \n        OEE (avg)\n        \u2014\n        No logbook data found\n        NO DATA\n      \n      \n        Worst MTBF\n        \u2014\n        No corrective failures in this window\n        CLEAN\n      \n      \n        PM compliance\n        11%\n        200 of 1736 PMs on time \u00b7 90 assets under 85%\n        LOW\n      \n    \n    \n      What to do next\n      PM compliance at 11% \u2014 this drags every other KPI. Open PM Scheduler and bulk-a"
+        },
+        "error": null,
+        "latency_ms": 16109
+      }
+    ],
+    "ASSET_HUB": [
+      {
+        "name": "Asset Hub: Verdict Loaded",
+        "surface": "ASSET_HUB",
+        "status": "PASS",
+        "validations": {
+          "verdict_loaded": true,
+          "source_chip_visible": true
+        },
+        "captures": {
+          "verdict_text": "\u00b7\n        Loading asset fleet...Counting approved assets, critical equipment, and pending approvals.",
+          "page_title": "Asset Hub"
+        },
+        "error": null,
+        "latency_ms": 17612
+      }
+    ],
+    "INTEGRATIONS": [
+      {
+        "name": "Integrations: Page Loaded",
+        "surface": "INTEGRATIONS",
+        "status": "PASS",
+        "validations": {
+          "page_loaded": true
+        },
+        "captures": {
+          "page_state": "\u00b7\n    No integrations configured yetStart with Import File (one-time history backfill from your existing CMMS) then Live Sync (daily delta).\n  \n  \n    \n      Active integrations\n      0\n      No CMMS integrations syncing yet\n      NONE\n    \n    \n      Stale syncs\n      0\n      All enabled integrations fresh\n      CLEAR\n    \n    \n      Disabled\n      0\n      No disabled integrations\n      CLEAR\n    \n  \n  \n    What to do next\n    No integrations yet. Easiest path: click the \"Import File\" tab below"
+        },
+        "error": null,
+        "latency_ms": 8930
+      }
+    ],
+    "LOGBOOK": [
+      {
+        "name": "Logbook: Page Loaded",
+        "surface": "LOGBOOK",
+        "status": "PASS",
+        "validations": {
+          "page_loaded": true
+        },
+        "captures": {
+          "page_state": "The Hive\n      Impact\n      Community\n      Learn\n    \n\n    \n      \n      \n        \n          \n          \n          \n          \n        \n        Install WorkHive\n      \n      \n        Pablo\n        \n          Signed in as\n          Pablo Aguilar\n          \n            Sign out\n          \n        \n      \n      Join WorkHive\n    \n\n    \n    \n      \n        Pablo\n        \n          Signed in as\n          Pablo Aguilar\n          \n            Sign out\n          \n        \n      \n      \n      \n        \n"
+        },
+        "error": null,
+        "latency_ms": 9582
+      }
+    ],
+    "MARKETPLACE": [
+      {
+        "name": "Marketplace: Verdict & Total Loaded",
+        "surface": "MARKETPLACE",
+        "status": "PASS",
+        "validations": {
+          "verdict_loaded": true,
+          "source_chip_visible": true,
+          "total_hero_visible": true
+        },
+        "captures": {
+          "verdict_text": "(unable to capture)",
+          "verdict_sub": "(unable to capture)",
+          "total_hero": "(unable to capture)"
+        },
+        "error": null,
+        "latency_ms": 16965
+      }
+    ],
+    "PLATFORM_HEALTH": [
+      {
+        "name": "Platform Health: Dashboard Loaded",
+        "surface": "PLATFORM_HEALTH",
+        "status": "PASS",
+        "validations": {
+          "page_loaded": true
+        },
+        "captures": {
+          "page_state": "Platform Guardian\n  Could not verify admin access. Reload to try again.\n  Back to Marketplace\n\n\n\n\n  \n    \n    \n      \n      \u2715\n    \n    \n  \n\n\n\n\n  \n    \u25b6\n    \n    Validate Fast\n  \n  \n    \ud83d\udce4\n    \n    Commit & Push\n  \n\n\n\n\n\n  \ud83d\udce6\n  \n    This page has moved.\n    The unified WorkHive Tester at\n    localhost:5000\n    now handles health + seed + gate + backlog in one workspace. This dashboard stays as a fallback.\n  \n  Open Tester \u2192\n  \u2715\n\n\n  // Show banner unless previously dismissed\n  try {\n    if (localStor"
+        },
+        "error": null,
+        "latency_ms": 8908
+      }
+    ],
+    "PREDICTIVE": [
+      {
+        "name": "Predictive: Risk Verdict Loaded",
+        "surface": "PREDICTIVE",
+        "status": "PASS",
+        "validations": {
+          "verdict_loaded": true,
+          "verdict_label_visible": true,
+          "source_chip_visible": true,
+          "model_chip_visible": true
+        },
+        "captures": {
+          "verdict_label": "(unable to capture)",
+          "verdict_sub": "(unable to capture)",
+          "hot_hero": "(unable to capture)"
+        },
+        "error": null,
+        "latency_ms": 8826
+      }
+    ],
+    "PROJECT_MANAGER": [
+      {
+        "name": "Project Manager: Verdict Loaded",
+        "surface": "PROJECT_MANAGER",
+        "status": "PASS",
+        "validations": {
+          "verdict_loaded": true,
+          "verdict_label_visible": true,
+          "source_chip_visible": true
+        },
+        "captures": {
+          "verdict_label": "(unable to capture)"
+        },
+        "error": null,
+        "latency_ms": 17351
+      }
+    ],
+    "REPORT_SENDER": [
+      {
+        "name": "Report Sender: Page Loaded",
+        "surface": "REPORT_SENDER",
+        "status": "PASS",
+        "validations": {
+          "page_loaded": true
+        },
+        "captures": {
+          "page_state": "WorkHive\n          Report Sender\n          Select reports. Add email. Send.\n          Live \u00b7 contacts refreshed on load, history on load \u00b7 Source: ai_reports + report_contacts \u00b7 Reports: ai_reports filtered by hive_id, ordered by generated_at DESC \u00b7 Contacts: report_contacts (local + synced) + localStorage fallback \u00b7 Delivery: Resend email via send-report edge fn\n        \n        \n          \n            \n          \n          Install\n        \n      \n    \n\n    \n    \n      \n      Install on Desktop"
+        },
+        "error": null,
+        "latency_ms": 8752
+      }
+    ],
+    "SHIFT_BRAIN": [
+      {
+        "name": "Shift Brain: Verdict Loaded",
+        "surface": "SHIFT_BRAIN",
+        "status": "FAIL",
+        "validations": {
+          "verdict_loaded": true,
+          "verdict_label_visible": false,
+          "source_chip_visible": true
+        },
+        "captures": {
+          "verdict_label": "Loading shift readiness..."
+        },
+        "error": null,
+        "latency_ms": 16836
+      }
+    ],
+    "SKILL_MATRIX": [
+      {
+        "name": "Skill Matrix: Onboarding Section Loaded",
+        "surface": "SKILL_MATRIX",
+        "status": "PASS",
+        "validations": {
+          "page_loaded": true,
+          "source_chip_visible": true
+        },
+        "captures": {
+          "header_sub": "(unable to capture)"
+        },
+        "error": null,
+        "latency_ms": 16614
+      }
+    ],
+    "PH_INTELLIGENCE": [
+      {
+        "name": "PH Intelligence: Page Loaded",
+        "surface": "PH_INTELLIGENCE",
+        "status": "PASS",
+        "validations": {
+          "page_loaded": true
+        },
+        "captures": {
+          "page_state": "Honest Empty State\n          \n          \n            PH Intelligence unlocks at Stair 3 \u2014 Predictive-Ready\n          \n        \n        \n          We won't fake this.\n        \n        \n          Peer benchmarking requires both: at least 5 anonymous hives in your industry segment (the N>=5 privacy guard) AND 30+ days of your own logbook history. Showing benchmarks before either threshold is met would compare your plant to a sample too small to mean anything. WorkHive refuses to fake the comparison"
+        },
+        "error": null,
+        "latency_ms": 9043
+      }
+    ],
+    "PLANT_CONNECTIONS": [
+      {
+        "name": "Plant Connections: Page Loaded",
+        "surface": "PLANT_CONNECTIONS",
+        "status": "PASS",
+        "validations": {
+          "page_loaded": true
+        },
+        "captures": {
+          "page_state": "Plant Connections\n        CMMS sync \u00b7 sensor bridge \u00b7 gateway audit \u2014 all in one supervisor surface.\n      \n      Supervisor only\n    \n\n    \n        \n          Supervisor access only\n          Plant Connections is a supervisor surface for managing CMMS integrations, sensor topics, and gateway audits. Ask your hive supervisor to share the view if you need access.\n        \n      \n  \n\n  \n    const SUPABASE_URL = 'http://127.0.0.1:54321';\n    const SUPABASE_KEY = 'sb_publishable_ACJWlzQHlZjBrEguHvfO"
+        },
+        "error": null,
+        "latency_ms": 9083
+      }
+    ],
+    "COMMUNITY": [
+      {
+        "name": "Community: Page Loaded",
+        "surface": "COMMUNITY",
+        "status": "PASS",
+        "validations": {
+          "page_loaded": true
+        },
+        "captures": {
+          "page_state": "The Hive\n      Impact\n      Community\n      Learn\n    \n\n    \n      \n      \n        \n          \n          \n          \n          \n        \n        Install WorkHive\n      \n      \n        Pablo\n        \n          Signed in as\n          Pablo Aguilar\n          \n            Sign out\n          \n        \n      \n      Join WorkHive\n    \n\n    \n    \n      \n        Pablo\n        \n          Signed in as\n          Pablo Aguilar\n          \n            Sign out\n          \n        \n      \n      \n      \n        \n"
+        },
+        "error": null,
+        "latency_ms": 9324
+      }
+    ]
+  },
+  "summary": {
+    "total": 21,
+    "passed": 20,
+    "failed": 1
+  },
+  "auto_generated_count": 0
+}

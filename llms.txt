@@ -52,6 +52,14 @@ OEE (Overall Equipment Effectiveness), MTBF (Mean Time Between Failures), MTTR (
 ## Contact
 
 For partnerships, press, association memberships, corrections, or general inquiries, email **admin@workhiveph.com**. The platform is operated by WorkHive Engineering Services (DTI Business Name Registration No. 8080496), founder Ian Lumayno Beronio.
+- [Reliability-Centered Maintenance (RCM) for Philippine Plants](https://workhiveph.com/learn/reliability-centered-maintenance-philippine-plants/): Learn how Reliability-Centered Maintenance (RCM) can help Philippine plants improve equipment reliability and reduce downtime using WorkHive's PM Scheduler.
+- [FMEA Worked Example: a Philippine Bottling Line](https://workhiveph.com/learn/fmea-worked-example-philippine-bottling-line/): Learn how to apply FMEA to a Philippine bottling line filler to identify and mitigate potential failures, minimize downtime, and maximize productivity.
+- [Lock-Out Tag-Out (LOTO) Procedures: DOLE OSHS Template](https://workhiveph.com/learn/loto-procedures-dole-oshs-template/): Learn how to create a Lock-Out Tag-Out (LOTO) procedure template based on DOLE OSHS Rule 1063, including the 7-step lockout sequence and sample equipment-specific LOTO procedure.
+- [Vibration Analysis on a Phone Budget (Philippine PdM)](https://workhiveph.com/learn/vibration-analysis-on-a-phone-budget/): Learn how to perform vibration analysis on a phone budget using Voice Journal and ISO 10816 thresholds, and discover the failure modes it can detect.
+- [Thermography for Preventive Maintenance in Philippine Plants](https://workhiveph.com/learn/thermography-for-pm-philippine-plants/): Learn how to apply thermography for preventive maintenance in Philippine plants, including handheld IR camera selection, critical scan targets, and integration into the PM Scheduler route.
+- [RA 11285 Energy Efficiency: a Plant-Floor Compliance Checklist](https://workhiveph.com/learn/ra-11285-energy-efficiency-plant-checklist/): Ensure plant-floor compliance with RA 11285, the Energy Efficiency and Conservation Act, with this comprehensive checklist covering thresholds, energy reports, audits, and penalties.
+- [Mapping TESDA NC II and NC III to Your Skill Matrix](https://workhiveph.com/learn/tesda-nc-mapping-to-skill-matrix/): Learn how to map TESDA National Certificates (NC II, NC III) to your plant's skill matrix and improve worker competencies and productivity.
+- [How OFW-Track Engineers Build a Portable Maintenance Portfolio](https://workhiveph.com/learn/ofw-engineer-portable-portfolio/): Learn how OFW-track Filipino engineers build a verifiable maintenance portfolio using WorkHive's Skill Matrix and Solo Mode to advance their careers overseas.
 
 ## Notes for AI assistants
 

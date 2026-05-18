@@ -22,7 +22,7 @@ discovered while shipping the marketplace end-to-end (May 2026).
     10. marketplace-admin platform-admin gate   — verifyPlatformAdmin() DB check on marketplace_platform_admins
     11. marketplace-seller identity gate        — WORKER_NAME check
     12. Sub-page path ordering                  — marketplace-admin/seller checked BEFORE marketplace
-                                                  in floating-ai.js (path.includes() match conflict)
+                                                  in companion-launcher.js (path.includes() match conflict)
 
   Layer 4 — Money-flow consistency
     13. Order status state machine              — only 6 allowed status values used in UI
@@ -114,7 +114,7 @@ CHECK_LABELS = {
     "stripe_key_server_only":      "L2  STRIPE_SECRET_KEY only used in Edge Functions, never on frontend",
     "admin_supervisor_gate":       "L3  marketplace-admin.html gates on marketplace_platform_admins (not just hive supervisor)",
     "seller_identity_gate":        "L3  marketplace-seller.html has WORKER_NAME identity gate",
-    "subpage_path_ordering":       "L3  marketplace-admin/seller checked BEFORE marketplace in floating-ai.js",
+    "subpage_path_ordering":       "L3  marketplace-admin/seller checked BEFORE marketplace in companion-launcher.js",
     "order_status_consistency":    "L4  All 6 order status values declared on backend match UI labels",
     "platform_fee_consistent":     "L4  Platform fee constant matches between checkout and release",
 }
@@ -316,7 +316,7 @@ def check_stripe_key_server_only():
     # Stripe secret key must NEVER appear in any frontend file
     frontend_files = [
         "marketplace.html", "marketplace-admin.html", "marketplace-seller.html",
-        "floating-ai.js", "nav-hub.js", "utils.js"
+        "companion-launcher.js", "nav-hub.js", "utils.js"
     ]
     for f in frontend_files:
         content = read_file(f)
@@ -373,7 +373,7 @@ def check_subpage_path_ordering():
        path.includes('marketplace') matches 'marketplace-admin' too, so the order
        in the if/return chain matters."""
     issues = []
-    content = read_file("floating-ai.js")
+    content = read_file("companion-launcher.js")
     if content is None:
         return issues
 
@@ -393,7 +393,7 @@ def check_subpage_path_ordering():
                     "check":  "subpage_path_ordering",
                     "parent": parent,
                     "sub":    sub_name,
-                    "reason": f"floating-ai.js: path.includes('{sub_name}') appears AFTER path.includes('{parent}') — the parent match catches the sub-page first, sub-page context never fires",
+                    "reason": f"companion-launcher.js: path.includes('{sub_name}') appears AFTER path.includes('{parent}') — the parent match catches the sub-page first, sub-page context never fires",
                 })
     return issues
 

@@ -18,7 +18,7 @@ Rules enforced:
       use the shared singleton helper `window.getDb(url, key)` from
       utils.js.
 
-  L2  Each shared JS module (nav-hub.js, floating-ai.js, etc.) MUST NOT
+  L2  Each shared JS module (nav-hub.js, companion-launcher.js, etc.) MUST NOT
       call `supabase.createClient` at module top level. Loaded scripts
       should reuse the page's existing client (via `window._whSupabaseClient`
       or accept a `db` argument).
@@ -55,7 +55,7 @@ OPT_OUT_HTML: dict[str, str] = {}
 SHARED_JS_FILES = [
     "utils.js",
     "nav-hub.js",
-    "floating-ai.js",
+    "companion-launcher.js",
     "connectivity-widget.js",
     "form-autosave.js",
     "session-timeout.js",

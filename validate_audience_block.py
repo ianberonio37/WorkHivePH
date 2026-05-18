@@ -27,33 +27,9 @@ if sys.platform == "win32":
     import io
     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
 from validator_utils import read_file, format_result
+from wh_pages import learn_paths
 
-LEARN_ARTICLES = [f"learn/{slug}/index.html" for slug in [
-    "start-digital-logbook-philippine-factory",
-    "what-is-oee-how-to-calculate",
-    "mtbf-vs-mttr-for-supervisors",
-    "maintenance-shift-handover-template",
-    "spare-parts-inventory-philippine-plants",
-    "free-pm-checklist-templates",
-    "skill-matrix-for-maintenance-technicians",
-    "dilo-wilo-day-planner-supervisors",
-    "free-engineering-calculators-philippine-plants",
-    "ai-work-assistant-maintenance-technicians",
-    "predictive-maintenance-on-a-budget-philippines",
-    "connecting-workhive-to-sap-maximo-cmms",
-    "voice-to-text-maintenance-philippine-plant-floor",
-    "building-asset-register-zero-budget",
-    "maintenance-project-planning-template",
-    "joining-and-growing-your-hive",
-    "industrial-community-of-practice-philippines",
-    "gamifying-maintenance-for-engagement",
-    "industrial-marketplace-philippine-specialists",
-    "predictive-alert-thresholds-plants",
-    "dole-iso-audit-trail-from-logbook",
-    "ai-quality-and-roi-stage-2-plants",
-    "sensor-cmms-gateway-operations",
-    "ph-industrial-benchmarks-intelligence",
-]]
+LEARN_ARTICLES = learn_paths()
 
 # Match the "Who this is for" heading in any common form (h2/h3/strong/b)
 # with optional trailing colon.

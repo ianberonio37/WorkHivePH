@@ -1,10 +1,10 @@
 """
 Assistant Validator — WorkHive Platform
 ========================================
-Four-layer validation of floating-ai.js + assistant.html:
+Four-layer validation of companion-launcher.js + assistant.html:
 
   Layer 1 — Page coverage
-    1.  Page context entries          — every live tool has path.includes() in floating-ai.js
+    1.  Page context entries          — every live tool has path.includes() in companion-launcher.js
     2.  PLATFORM TOOLS completeness   — every live tool mentioned in system prompt
     3.  assistant.html completeness   — assistant.html system prompt covers all live tools
     4.  Retired pages not active      — parts-tracker/checklist not listed as active tools
@@ -35,11 +35,11 @@ if sys.platform == "win32":
 
 from validator_utils import read_file, extract_js_array, format_result
 
-FLOAT_JS       = "floating-ai.js"
+FLOAT_JS       = "companion-launcher.js"
 ASSISTANT_PAGE = "assistant.html"
 CONTENT_FILE   = "skill-content.js"
 
-# All live tool pages — must be covered in both floating-ai.js and assistant.html
+# All live tool pages — must be covered in both companion-launcher.js and assistant.html
 LIVE_TOOL_PAGES = [
     "logbook", "assistant", "dayplanner", "pm-scheduler",
     "hive", "inventory", "skillmatrix", "engineering-design", "analytics",
@@ -149,17 +149,25 @@ def check_api_key_not_exposed(content, page):
 
 
 def check_api_routed_through_worker(content, page):
+    """2026-05-18 Companion Streamline Step C: the companion launcher now
+    routes through the platform ai-gateway edge function instead of the
+    legacy Cloudflare Worker. Accept either pattern so this check stays
+    useful as a "no direct Groq fetch" guard.
+    """
     if not content:
         return []
-    # API call must use workerUrl, not a direct Groq/OpenAI endpoint
-    if re.search(r"fetch\s*\(\s*['\"]https://api\.groq\.com", content):
+    # Direct Groq/OpenAI fetch is still forbidden (would expose the API key).
+    if re.search(r"fetch\s*\(\s*['\"]https://api\.(groq|openai)\.com", content):
         return [{"check": "api_routed_through_worker", "page": page,
-                 "reason": "Direct fetch to api.groq.com found — API calls should route through the Cloudflare Worker to keep the key server-side"}]
-    # Accept any fetch-like caller (fetch, fetchWithTimeout, fetcher wrapper)
-    # so long as it targets config.workerUrl as the first argument.
-    if not re.search(r"\b(?:fetch|fetcher|fetchWithTimeout)\s*\(\s*config\.workerUrl", content):
+                 "reason": "Direct fetch to api.groq.com / api.openai.com found — API calls must route through the gateway/worker to keep the key server-side"}]
+    # Accept either routing pattern:
+    #   (a) Cloudflare Worker (legacy): fetch(config.workerUrl, ...)
+    #   (b) ai-gateway edge fn (new):   /functions/v1/ai-gateway OR db.functions.invoke('ai-gateway')
+    routed_via_worker  = re.search(r"\b(?:fetch|fetcher|fetchWithTimeout)\s*\(\s*config\.workerUrl", content)
+    routed_via_gateway = re.search(r"/functions/v1/ai-gateway|functions\.invoke\(\s*['\"]ai-gateway['\"]", content)
+    if not (routed_via_worker or routed_via_gateway):
         return [{"check": "api_routed_through_worker", "page": page,
-                 "reason": "config.workerUrl not used as the first arg of any fetch-like call — API routing pattern may have changed"}]
+                 "reason": "No call to ai-gateway or config.workerUrl detected — API routing pattern may have changed"}]
     return []
 
 

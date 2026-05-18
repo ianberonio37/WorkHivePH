@@ -36,7 +36,7 @@ if sys.platform == "win32":
 from validator_utils import read_file, format_result
 
 ENGINEERING_PAGE = "engineering-design.html"
-FLOATING_AI      = "floating-ai.js"
+FLOATING_AI      = "companion-launcher.js"
 ASSISTANT_PAGE   = "assistant.html"
 CALC_AGENT       = os.path.join("supabase", "functions", "engineering-calc-agent", "index.ts")
 
@@ -184,7 +184,7 @@ def check_ai_label_per_message(page):
     a worker scrolling through a long conversation history cannot easily identify
     which messages are AI-generated without reading the color context.
 
-    The floating-ai.js correctly shows 'WorkHive AI' in the persistent panel header.
+    The companion-launcher.js correctly shows 'WorkHive AI' in the persistent panel header.
     The full assistant.html should similarly include a persistent AI attribution
     label near or inside the chat message area, not only in the sidebar footer.
     Reported as WARN — visual styling provides partial attribution.

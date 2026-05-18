@@ -48,29 +48,31 @@
 
   // ─── Persona Contract Phase 3: client-side companion-block builder.
   // Mirror of supabase/functions/_shared/persona.ts. Used by surfaces
-  // that call AI directly (floating-ai.js, assistant.html) and need to
-  // prepend the James/Rosa companion block without going through
-  // ai-gateway. See WORKHIVE_PERSONA_CONTRACT.md.
+  // that need the persona name on the client side (assistant.html,
+  // and the companion launcher's persona-toggle UI). The launcher itself
+  // sends just the persona NAME to ai-gateway; the agent then calls
+  // buildPersonaBlock() server-side. See WORKHIVE_PERSONA_CONTRACT.md.
   if (!document.querySelector('script[data-wh-persona]')) {
     const p = document.createElement('script');
     p.src = 'wh-persona.js';
-    p.async = false; // load before floating-ai.js consumes window.getCompanionBlock
+    p.async = false; // load before companion-launcher.js consumes window.getCompanionBlock
     p.setAttribute('data-wh-persona', '1');
     document.head.appendChild(p);
   }
 
-  // ─── Companion Streamline Step A: floating-ai.js carries the persona
-  // avatar + chat panel + inline mic on every nav-enabled page. Without
-  // this lazy-load, pages that don't include floating-ai.js directly
-  // (e.g. index.html) leave the blue voice button visible and never
-  // mount the avatar. assistant.html is the only page that opts out
+  // ─── Companion Streamline Steps A+C: companion-launcher.js (formerly
+  // floating-ai.js) carries the James/Rosa avatar + chat panel + inline
+  // mic on every nav-enabled page. Routes through ai-gateway with
+  // agent="voice-journal" — same backend as voice-journal.html and
+  // assistant.html, so the worker experiences ONE companion across
+  // three entry points. assistant.html is the only page that opts out
   // (its inline init short-circuits when path includes /assistant).
-  if (!document.querySelector('script[data-wh-floating-ai]') &&
-      !document.querySelector('script[src*="floating-ai.js"]')) {
+  if (!document.querySelector('script[data-wh-companion-launcher]') &&
+      !document.querySelector('script[src*="companion-launcher.js"]')) {
     const f = document.createElement('script');
-    f.src = 'floating-ai.js';
+    f.src = 'companion-launcher.js';
     f.async = false; // depends on wh-persona.js (loaded above) for the avatar
-    f.setAttribute('data-wh-floating-ai', '1');
+    f.setAttribute('data-wh-companion-launcher', '1');
     document.head.appendChild(f);
   }
 
