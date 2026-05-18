@@ -1022,7 +1022,7 @@
     }
   }
 
-  // Phase 11: Multilingual term lookup
+  // Phase 11: Multilingual term lookup (per-term — for UI rendering)
   async function _lookupMultilingualTerm(db, englishTerm, targetLanguage) {
     if (!db || !targetLanguage || targetLanguage === 'en') return englishTerm;
     try {
@@ -1034,6 +1034,45 @@
       return targetLanguage === 'tl' ? (data[0].tagalog_term || englishTerm) : (data[0].visayan_term || englishTerm);
     } catch (err) {
       return englishTerm;
+    }
+  }
+
+  // Day 5 (L7): Load PH industrial phrase glossary for the LLM system prompt.
+  // The 207 Tagalog/Visayan terms seeded by tools/day5_seed_filipino_phrases.py
+  // act as a context cache so the LLM correctly understands worker code-switching
+  // ("may oil leak sa motor" -> oil leak + motor). Module-scope memoized; the
+  // table is small (~207 rows) so one fetch per page load is plenty.
+  let _filipinoGlossaryCache = null;
+  async function _fetchFilipinoGlossary(db) {
+    if (_filipinoGlossaryCache !== null) return _filipinoGlossaryCache;
+    if (!db) { _filipinoGlossaryCache = ''; return ''; }
+    try {
+      const { data, error } = await db.from('multilingual_terms')
+        .select('english_term, tagalog_term, visayan_term, domain')
+        .order('domain', { ascending: true });
+      if (error || !data || !data.length) { _filipinoGlossaryCache = ''; return ''; }
+
+      // Format: one line per term, grouped by domain header. Skip rows with no
+      // translations at all (no point spending tokens on bare English).
+      const byDomain = {};
+      for (const row of data) {
+        if (!row.tagalog_term && !row.visayan_term) continue;
+        if (!byDomain[row.domain]) byDomain[row.domain] = [];
+        const parts = [row.english_term];
+        if (row.tagalog_term) parts.push('tl: ' + row.tagalog_term);
+        if (row.visayan_term) parts.push('ceb: ' + row.visayan_term);
+        byDomain[row.domain].push(parts.join(' / '));
+      }
+      const lines = [];
+      for (const dom of Object.keys(byDomain).sort()) {
+        lines.push('[' + dom + '] ' + byDomain[dom].join('; '));
+      }
+      _filipinoGlossaryCache = lines.join('\n');
+      return _filipinoGlossaryCache;
+    } catch (err) {
+      console.warn('[WHVoice] Filipino glossary fetch failed:', err && err.message);
+      _filipinoGlossaryCache = '';
+      return '';
     }
   }
 
@@ -1608,7 +1647,7 @@
     }
   }
 
-  function _buildVoiceSystemPrompt(persona, workerName, hiveName, pageLabel, routingHint, memoryBlock, canonicalData, routerContext, platformData, ragContext, dialogState, proactiveAlerts, crossHiveContext, standardsContext) {
+  function _buildVoiceSystemPrompt(persona, workerName, hiveName, pageLabel, routingHint, memoryBlock, canonicalData, routerContext, platformData, ragContext, dialogState, proactiveAlerts, crossHiveContext, standardsContext, filipinoGlossary) {
     const personaBlock = (typeof window.getCompanionBlock === 'function')
       ? window.getCompanionBlock() : '';
     // Internal-only grounding. These facts help the model pick the right
@@ -1716,6 +1755,14 @@
         'Standards are authoritative; prefer them over generic advice.\n'
       : '';
 
+    // Day 5 (L7): PH industrial phrase glossary. Helps the LLM correctly
+    // interpret worker code-switching (e.g. "may oil leak sa motor", "panganib
+    // sa breaker"). Reply still in English (Hard Rule 10) — this is for
+    // understanding, not generation.
+    const filipinoSection = filipinoGlossary
+      ? '\nPH INDUSTRIAL GLOSSARY — Use to interpret worker Tagalog/Cebuano:\n' + filipinoGlossary + '\n'
+      : '';
+
     const hasData = platformData || canonicalData || ragContext || standardsContext;
     const directAnswerInstruction = hasData
       ? '- ANSWER FROM THE PLATFORM SNAPSHOT above. The ENTIRE platform has been scanned: KPIs (MTBF, MTTR, downtime, failures), equipment status, risk assets, PM compliance, inventory levels, recent logbook entries, anomalies, projects, your Day Planner today, your skill levels, hive activity, knowledge entries — all of it is in your context. SCAN the snapshot for the relevant section before answering. NEVER say "check [tool]" or "open Day Planner" or "your dashboard should have that" when the answer is sitting in the snapshot above. ONLY say "I don\'t have that data right now" if you scanned the snapshot and the specific thing is genuinely absent.\n'
@@ -1737,6 +1784,7 @@
       ragSection +
       crossHiveSection +
       standardsSection +
+      filipinoSection +
       '\nIf the worker mixes Filipino / Cebuano / Tagalog in, that\'s fine — understand it, reply in English.\n\n' +
       '═══════════════════════════════════════════════════════════════════\n' +
       'HARD RULES — read these last; they override everything above.\n' +
@@ -1825,7 +1873,7 @@
     // for any data that exists on the platform (KPIs, PM, inventory, logbook, schedule,
     // skills, projects, anomalies, knowledge, adoption — all in one shot).
     const firstIntent = routerIntents && routerIntents[0];
-    const [platformSnapshot, platformData, memoryBlock, ragContext, crossHiveContext, standardsContext] = await Promise.all([
+    const [platformSnapshot, platformData, memoryBlock, ragContext, crossHiveContext, standardsContext, filipinoGlossary] = await Promise.all([
       _fetchFullPlatformSnapshot(db, ctx.hive_id, ctx.worker_name).catch((err) => {
         console.warn('[WHVoice] Platform snapshot failed:', err);
         return '';
@@ -1835,6 +1883,7 @@
       _fetchRAGContext(db, ctx.hive_id, transcript).catch(() => ''),
       _fetchCrossHiveContext(db).catch(() => ''),  // Phase 9: Cross-hive awareness
       _fetchStandardsContext(db, transcript).catch(() => ''),  // Day 4: platform-wide standards RAG
+      _fetchFilipinoGlossary(db).catch(() => ''),  // Day 5 (L7): PH industrial phrase glossary (memoized)
     ]);
 
     // canonicalData carries the full snapshot — every truth view in one block.
@@ -1844,7 +1893,7 @@
       console.warn('[WHVoice] No platform snapshot returned; check DB connection or query errors');
     }
 
-    const system = _buildVoiceSystemPrompt(persona, ctx.worker_name, hiveName, pageLabel, routingHint, memoryBlock, canonicalData, routerContext, platformData, ragContext, priorDialogState, proactiveAlerts, crossHiveContext, standardsContext);
+    const system = _buildVoiceSystemPrompt(persona, ctx.worker_name, hiveName, pageLabel, routingHint, memoryBlock, canonicalData, routerContext, platformData, ragContext, priorDialogState, proactiveAlerts, crossHiveContext, standardsContext, filipinoGlossary);
     const messages = [
       { role: 'system', content: system },
       { role: 'user',   content: transcript },

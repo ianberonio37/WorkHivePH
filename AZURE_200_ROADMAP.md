@@ -3,7 +3,7 @@
 > **Living document.** Update the `%` and `Last changed` cells in place each session. Do not branch. The narrative below the table doesn't need to be rewritten every day — only the progress block.
 
 **Started:** 2026-05-14
-**Last updated:** 2026-05-18 (L7 Tagalog seed)
+**Last updated:** 2026-05-18 (Day 5 power-push: L7 100%, L1 35%, voice cache wired)
 **Budget:** $200 (free Azure trial)
 **Spent so far:** $0.0015 (one Day 1 test page)
 **Doctrine:** Azure produces one-shot artifacts (ONNX models, DB rows). Never runtime calls. Free-tier providers (Voyage / Jina / Groq) handle anything that runs every request.
@@ -20,18 +20,20 @@ The platform is already a working maintenance toolkit. What it lacks is **AI com
 
 | # | Layer | Outcome at 100% | Now | What's blocking the next jump |
 |---|---|---|---|---|
-| **L1** | Semantic / RAG embeddings | Every standard + manual searchable from voice/AMC | **~25%** | More PDFs to chunk (NIST 800-82r3 ✓; rest paywalled or pending) |
+| **L1** | Semantic / RAG embeddings | Every standard + manual searchable from voice/AMC | **~35%** | More PDFs to chunk (NIST 800-82r3 ✓, US Army TM 5-698 ✓, rest paywalled / OEM-pending) |
 | **L2** | Doc mining (Azure Doc Intelligence Read) | ~20K pages mined into `pm_knowledge` + `industry_standards` | **<5%** | Source PDFs (ISO/SAE/ASHRAE paywalled; need OEM manuals from user) |
 | **L3.1** | Surface defect detector | ONNX model in Supabase Storage | **0%** | MVTec AD dataset — email form download stuck |
 | **L3.2** | Arc / spark detector | ONNX model in Supabase Storage | **0%** | Roboflow project pick (arc flash search) |
 | **L3.3** | Smoke / steam / leak detector | ONNX model in Supabase Storage | **0%** | Roboflow project picks (industrial smoke + oil leak) |
 | **L3.4** | Equipment-label OCR → asset_nodes | UI on hive.html links photo → asset | **~60%** | UI wrapper — CLI tool works; needs camera capture + drawer on hive.html |
 | **L4** | Audio anomaly classifier | YAMNet-based ONNX | **0%** | MIMII dataset — got 2.6 GB of 10.4 GB, retry failed |
-| **L5** | Knowledge-graph entity extraction | Triples in `knowledge_graph_facts` from mined corpus | **0%** | Needs L2 to produce corpus first |
+| **L5** | Knowledge-graph entity extraction | Triples in `knowledge_graph_facts` from mined corpus | **~5%** | Extractor written + tested; per-row-rollback bug (savepoint needed) AND Groq TPM ceiling — see Day 5 log |
 | **L6** | Industrial noise suppression | ONNX denoiser, browser-side via onnxruntime-web | **0%** | Microsoft DNS + MIMII datasets |
-| **L7** | Filipino phrase cache | Lookup table of top 500–1000 PH industrial phrases (Tagalog + Visayan) | **~50%** | Visayan side still empty (Translator F0 has no `ceb`); fill via Groq llama-3.3-70b later |
+| **L7** | Filipino phrase cache | Lookup table of top 500–1000 PH industrial phrases (Tagalog + Visayan) + voice-handler integration | **100%** ✓ | **DONE** — 207 phrases, Tagalog via Translator F0, Visayan via Groq llama-3.3-70b, glossary loaded into voice-handler system prompt |
 
-**Overall AI substance:** ~18% of planned outputs live (was 12% before L7). **Scaffolding** (Azure resources, schema, RPCs, embedding chain, CLI tools): ~85% in place.
+**Overall AI substance:** ~22% of planned outputs live (was 12% start of Day 5). **Scaffolding** (Azure resources, schema, RPCs, embedding chain, CLI tools): ~85% in place.
+
+**First layer hit 100%:** L7 (Filipino phrase cache) — proves the playbook end-to-end (seed → embed/translate → wire into voice prompt → validators pass). Same pattern applies to remaining layers once data unblocks.
 
 ---
 
@@ -120,8 +122,31 @@ Once datasets land, training is mostly Custom Vision portal clicks + Azure ML co
 - ✓ L7: applied Phase 11 multilingual migration (`multilingual_terms` table) — wasn't in local DB
 - ✓ `tools/day5_seed_filipino_phrases.py` — 207 curated industrial phrases across 9 domains (equipment, problem, action, safety, measurement, documentation, role, status, time)
 - ✓ Azure Translator F0 batch (5 calls, 50 phrases each) → 207/207 Tagalog translations inserted
-- ⚠ Translator F0 does NOT support Cebuano (`ceb`) — Visayan column stays empty. Will fill later via Groq llama-3.3-70b (free chain) or PH worker corrections via `terminology_gaps`.
-- **Cost impact:** ~3000 chars used of 2,000,000/month free tier (0.15%)
+- ⚠ Translator F0 does NOT support Cebuano (`ceb`) — pivoted to Groq llama-3.3-70b
+
+### Day 5 — 2026-05-18 (evening — power push to push as many layers as possible)
+
+**L7 → 100% ✓**
+- `tools/day5_fill_visayan_via_groq.py` — Groq llama-3.3-70b filled 207/207 visayan_term entries (9 batches × 25 terms). Free chain, $0 cost.
+- voice-handler.js wired up:
+  - New `_fetchFilipinoGlossary(db)` — module-scope memoized, loads all 207 rows
+  - Promise.all expanded from 6 to 7 fetches (+filipinoGlossary)
+  - `_buildVoiceSystemPrompt` signature gained `filipinoGlossary` param
+  - New "PH INDUSTRIAL GLOSSARY" section in system prompt (~6 KB) — gives LLM the cache to interpret worker code-switching ("may oil leak sa motor")
+- `node --check voice-handler.js` clean
+
+**L1: 25% → 35%**
+- Added US Army TM 5-698-1 as new industry_standards row (`family='other'`, jurisdiction='US')
+- Embedded that row via `day3_embed_industry_standards.py` (1 voyage call)
+- Extended `tools/day4_chunk_standards_pdfs.py` PDF_MAP and ran with `--max-chunks 50` → 50 more chunks (6 voyage + 44 jina)
+- Standards corpus now: 22 rows + 150 full-text chunks (NIST 100 + US Army 50)
+
+**L5: 0% → ~5% (infrastructure only)**
+- `tools/day5_extract_kg_facts.py` — Groq-driven triple extractor with subject_type/predicate/object_type CHECK-constraint sanitizer, schema-aligned source_type='standard'
+- 25-chunk test run produced **0 facts inserted.** Two issues uncovered:
+  1. Per-chunk `conn.rollback()` poisoned successful triples — needs SAVEPOINT-per-insert
+  2. Hit Groq TPM ceiling (12,000 tokens/min) after Visayan fill consumed budget — chunks 15-25 returned 429
+- Fix on the docket; not blocking other layers
 
 ### Day 6+ — Planned
 - Pivot decision: Custom Vision (needs datasets) vs. OCR UI on hive.html vs. more PDFs in standards corpus

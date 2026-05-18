@@ -49,7 +49,7 @@ TARGET_WORDS_PER_CHUNK = 300
 # ── PDF -> industry_standards mapping ────────────────────────────────────
 PDF_MAP = {
     "nist-800-82.pdf":      "NIST SP 800-82r3",
-    # "us-army-tm-5-698.pdf": None,   # would need a new industry_standards row
+    "us-army-tm-5-698.pdf": "US Army TM 5-698-1",
     # "epri-pdm-handbook.pdf": None,  # zero-byte (was a redirect)
 }
 
