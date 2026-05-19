@@ -214,3 +214,24 @@ COMMENT ON FUNCTION public.check_platform_feedback_rate_limit() IS
   'BEFORE INSERT trigger. Caps 5 submissions/hour per identity bucket
    (auth_uid > worker_name > contact_email > "anonymous"). Raises 23P01
    so the widget can show a friendly retry toast.';
+
+
+-- ── Realtime publication ───────────────────────────────────────────────────
+-- Founder Console subscribes to platform_feedback INSERT via
+-- db.channel('platform_feedback_inserts').on('postgres_changes', ...) so
+-- new submissions surface live without polling. The supabase_realtime
+-- publication must include this table or the channel never fires.
+--
+-- DO block makes the ALTER idempotent (re-running the migration shouldn't
+-- error if the table is already in the publication).
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_publication_tables
+    WHERE pubname = 'supabase_realtime'
+      AND schemaname = 'public'
+      AND tablename = 'platform_feedback'
+  ) THEN
+    EXECUTE 'ALTER PUBLICATION supabase_realtime ADD TABLE public.platform_feedback';
+  END IF;
+END $$;
