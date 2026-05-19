@@ -49,6 +49,7 @@ LIVE_PAGES = [
     "asset-hub.html",
     "shift-brain.html",
     "alert-hub.html",
+    "founder-console.html",  # 2026-05-19: subscribes to platform_feedback INSERTs
 ]
 
 CRITICAL_SAVES = [
