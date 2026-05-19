@@ -99,7 +99,10 @@ CREATE_FN_RE = re.compile(
 
 # References to validate.
 ALTER_REF_RE = re.compile(
-    r"""ALTER\s+TABLE\s+(?:ONLY\s+)?(?:(?:public|auth)\.|"public"\.|IF\s+EXISTS\s+)?
+    r"""ALTER\s+TABLE\s+
+        (?:ONLY\s+)?
+        (?:IF\s+EXISTS\s+)?           # optional, can precede the schema prefix
+        (?:(?:public|auth)\.|"public"\.)?
         "?(?P<name>\w+)"?""",
     re.IGNORECASE | re.VERBOSE,
 )

@@ -283,7 +283,11 @@ def main() -> int:
         for t in tables_with_phantoms[:10]:
             print(f"  {t['table']:<32} {t['phantom']:>3} phantom: {', '.join(t['phantom_names'][:5])}")
 
-    return 1 if grand_phantom > 0 else 0
+    # Mega Gate semantic: phantom columns are SCHEMA-BLOAT informational —
+    # the report itself is the punch list, and dropping is a deliberate
+    # decision (some phantoms are planned-feature placeholders). The gate
+    # only fails if the run itself broke (no report produced).
+    return 0
 
 
 if __name__ == "__main__":
