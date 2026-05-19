@@ -246,6 +246,47 @@ def main():
                 elif r[0] == "FAIL": total_fail += 1
                 elif r[0] == "WARN": total_warn += 1
 
+        # 4d. Journey specs — behavioral end-to-end tests that exercise
+        # actual user paths through the live browser + ai-gateway. Added
+        # 2026-05-19 after the Rosa-offline regression: static validators
+        # kept being added (ANON_OK_AGENTS, legacy-worker-decommission, ...)
+        # but the bug only surfaces when a real fetch reaches the gateway.
+        # The journey-voice-journal.spec.ts file owns the Sentinel Review
+        # for that bug class (rosa-default-persona, ai-gateway anon-allow,
+        # rosa-strategist-lens, james-technical-lens).
+        try:
+            import subprocess as _jsp, os as _jos, sys as _jsys, re as _jre
+            _jroot = _jos.path.dirname(_jos.path.dirname(_jos.path.abspath(__file__)))
+            _jcwd  = "Z:\\" if _jos.path.exists("Z:/playwright.config.ts") else _jroot
+            _jansi = _jre.compile(r"\x1b\[[0-9;]*m")
+            print("\n[Journey specs — Rosa/James end-to-end sentinel]")
+            jproc = _jsp.Popen(
+                ["npx", "playwright", "test",
+                 "tests/journey-voice-journal.spec.ts",
+                 "--reporter=line"],
+                stdout=_jsp.PIPE, stderr=_jsp.STDOUT,
+                cwd=_jcwd, bufsize=1,
+                text=True, encoding="utf-8", errors="replace",
+                shell=True,
+            )
+            jlast = ""
+            for line in jproc.stdout:
+                clean = _jansi.sub("", line.rstrip())
+                if clean:
+                    print(f"  {clean}")
+                    jlast = clean
+            jproc.wait()
+            journey_status = "PASS" if jproc.returncode == 0 else "FAIL"
+            journey_out = {"results": [(journey_status, f"journey-voice-journal rc={jproc.returncode}: {jlast[:80]}")]}
+        except Exception as e:
+            print(f"  ERROR: {e}")
+            journey_out = {"results": [("FAIL", f"journey runner crashed: {e}")]}
+        section_results.append(("Journey Specs", journey_out))
+        for r in journey_out.get("results", []):
+            if r[0] == "PASS": total_pass += 1
+            elif r[0] == "FAIL": total_fail += 1
+            elif r[0] == "WARN": total_warn += 1
+
         # 5. Mobile viewport — separate browser context (375x667, mobile UA)
         print("\n[Mobile viewport (375x667)]")
         try:
