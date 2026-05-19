@@ -259,6 +259,8 @@
   </style>
 </head>
 <body>
+<main>
+
 <script>
   // Companion Streamline Step C: detect embedded mode early so the
   // page renders without flashing its standalone chrome.
@@ -301,17 +303,19 @@
 
       <!-- Persona picker: who is journaling with you today.
            Choice persists in localStorage and travels to the agent as
-           ctx.persona. James + Rosa are PH English voices borrowed from
-           the Video Marketing app. -->
-      <div id="persona-row" class="flex items-center justify-center gap-2 mb-4" role="radiogroup" aria-label="Choose your journal companion">
+           ctx.persona. 2026-05-19 Step D: Rosa = default (Strategist),
+           James = Technical. Labels signal the LENS, not just the name. -->
+      <div id="persona-row" class="flex items-center justify-center gap-2 mb-4" role="radiogroup" aria-label="Choose your companion lens">
         <span class="text-[10px] uppercase tracking-widest text-white/40 font-semibold mr-1">Talking with</span>
-        <button id="persona-james" type="button" role="radio" aria-checked="true"
-                class="persona-chip persona-chip-active" data-persona="james">
-          <span aria-hidden="true">🧑‍🦱</span> James
+        <button id="persona-rosa" type="button" role="radio" aria-checked="true"
+                class="persona-chip persona-chip-active" data-persona="rosa"
+                title="Strategist — patterns, priorities, this-week thinking">
+          <span aria-hidden="true">🧭</span> Rosa <span class="text-[9px] opacity-70">· Strategy</span>
         </button>
-        <button id="persona-rosa" type="button" role="radio" aria-checked="false"
-                class="persona-chip" data-persona="rosa">
-          <span aria-hidden="true">👩‍🦰</span> Rosa
+        <button id="persona-james" type="button" role="radio" aria-checked="false"
+                class="persona-chip" data-persona="james"
+                title="Technical Expert — torque, SOPs, this-asset thinking">
+          <span aria-hidden="true">🛠️</span> James <span class="text-[9px] opacity-70">· Technical</span>
         </button>
       </div>
 
@@ -431,6 +435,12 @@
                    || localStorage.getItem('wh_worker_name')
                    || localStorage.getItem('workerName')
                    || '';
+      // Auth C4: refresh WORKER_NAME from Supabase Auth session if localStorage was
+      // empty or stale. Fire-and-forget -- the sync auth-check redirect still runs
+      // first; session identity overrides asynchronously.
+      if (typeof restoreIdentityFromSession === 'function' && typeof db !== 'undefined') {
+        restoreIdentityFromSession(db).then(_n => { if (_n) WORKER_NAME = _n; });
+      }
     let AUTH_UID    = '';
     let HIVE_ID     = localStorage.getItem('wh_active_hive_id') || localStorage.getItem('wh_hive_id') || null;
 
@@ -1007,5 +1017,6 @@
   })();
   </script>
 
+</main>
 </body>
 </html>

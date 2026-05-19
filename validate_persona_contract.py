@@ -395,6 +395,208 @@ def check_key_parity() -> list[dict]:
     return issues
 
 
+# -- Layer 8: domain differentiation -----------------------------------------
+
+# 2026-05-19 Companion Streamline Step D guardrail. The persona toggle is
+# only meaningful if James (technical) and Rosa (strategist) actually
+# DIFFER in lens. This check fails the build if:
+#   - either persona drops its DOMAIN_LENS entry,
+#   - tone bullets become identical / nearly identical (>50% lexical
+#     overlap signals the differentiation was undone),
+#   - example replies stop using lane-specific vocabulary,
+#   - DEFAULT_PERSONA stops being "rosa" (first-time-visitor default).
+
+JAMES_KEYWORDS = (
+    "torque", "sop", "iso 14224", "loto", "ir gun", "ppe",
+    "regrease", "lube", "manual", "failure mode",
+)
+ROSA_KEYWORDS = (
+    "oee", "backlog", "planned-vs-reactive", "planned vs reactive",
+    "recurrence", "mtbf", "kpi", "weekly", "escalation", "pattern",
+)
+
+
+def _extract_persona_field(content: str, persona_key: str, field: str) -> str:
+    """Pull a `tone: [ ... ]` or `examples: [ ... ]` array body out of the
+    persona record. Returns the joined string for keyword scanning."""
+    if not content:
+        return ""
+    # Anchor on the persona key declaration: `james: {` or `rosa: {`.
+    open_match = re.search(
+        rf"\b{re.escape(persona_key)}\s*:\s*\{{",
+        content,
+    )
+    if not open_match:
+        return ""
+    # Walk inside the persona block, find the field name, take everything
+    # between the next `[` and matching `]`.
+    persona_body_start = open_match.end()
+    depth = 1
+    i = persona_body_start
+    while i < len(content) and depth > 0:
+        if content[i] == "{":
+            depth += 1
+        elif content[i] == "}":
+            depth -= 1
+        i += 1
+    persona_body = content[persona_body_start:i - 1]
+    field_match = re.search(rf"\b{re.escape(field)}\s*:\s*\[", persona_body)
+    if not field_match:
+        return ""
+    arr_start = field_match.end()
+    bracket_depth = 1
+    j = arr_start
+    while j < len(persona_body) and bracket_depth > 0:
+        if persona_body[j] == "[":
+            bracket_depth += 1
+        elif persona_body[j] == "]":
+            bracket_depth -= 1
+        j += 1
+    return persona_body[arr_start:j - 1].lower()
+
+
+def _bullet_overlap_ratio(a_text: str, b_text: str) -> float:
+    """Crude lexical overlap on a set of significant words. Stop-words
+    stripped. Returns share of A's tokens also present in B."""
+    stop = {
+        "the", "a", "an", "and", "or", "but", "of", "to", "in", "on", "for",
+        "is", "are", "was", "were", "be", "been", "with", "by", "from", "as",
+        "you", "your", "yours", "i", "me", "my", "we", "us", "our", "they",
+        "them", "their", "this", "that", "these", "those", "it", "its",
+        "do", "don't", "doesn't", "not", "no", "yes", "if", "then", "so",
+        "when", "what", "which", "who", "how", "why", "where",
+        "would", "could", "should", "can", "will", "may", "might", "must",
+        "one", "two", "three", "more", "less", "some", "any", "every",
+        "worker", "filipino", "english",
+    }
+    def _tokens(s: str) -> set[str]:
+        return {
+            t for t in re.findall(r"[a-z0-9-]{3,}", s.lower())
+            if t not in stop
+        }
+    a = _tokens(a_text)
+    b = _tokens(b_text)
+    if not a:
+        return 0.0
+    return len(a & b) / len(a)
+
+
+def check_domain_differentiation() -> list[dict]:
+    issues = []
+    server = read_file(SHARED_PERSONA_TS)
+    client = read_file(CLIENT_PERSONA_JS)
+
+    # 8a. DOMAIN_LENS exists in both, with both persona entries.
+    # Accept either TS-style identifier keys (`james:`) or JS-style
+    # string keys (`'james':` / `"james":`) inside the LENS object.
+    for path, content in (("server", server), ("client", client)):
+        if not content:
+            continue
+        if "DOMAIN_LENS" not in content:
+            issues.append({
+                "check": "domain_differentiation",
+                "reason": f"{path} persona module is missing the DOMAIN_LENS const — Step D persona differentiation is undone.",
+            })
+            continue
+        # Look at the whole DOMAIN_LENS object body (not a fixed slice).
+        # Strategy: locate `DOMAIN_LENS` then walk braces to find the
+        # matching close — same trick as _extract_persona_keys.
+        lens_open = re.search(r"DOMAIN_LENS\b[^=]{0,200}=\s*\{", content)
+        lens_body = ""
+        if lens_open:
+            start = lens_open.end()
+            depth = 1
+            j = start
+            while j < len(content) and depth > 0:
+                if content[j] == "{":
+                    depth += 1
+                elif content[j] == "}":
+                    depth -= 1
+                j += 1
+            lens_body = content[start:j - 1]
+        if not re.search(r"['\"]?james['\"]?\s*:", lens_body):
+            issues.append({
+                "check": "domain_differentiation",
+                "reason": f"{path} DOMAIN_LENS does not have a james entry.",
+            })
+        if not re.search(r"['\"]?rosa['\"]?\s*:", lens_body):
+            issues.append({
+                "check": "domain_differentiation",
+                "reason": f"{path} DOMAIN_LENS does not have a rosa entry.",
+            })
+
+    # 8b. DEFAULT_PERSONA must be 'rosa' (Step D decision: strategist for
+    # first-time visitors). Skip optional TS type annotation between the
+    # identifier and the `=`.
+    for path, content in (
+        (SHARED_PERSONA_TS, server),
+        (CLIENT_PERSONA_JS, client),
+    ):
+        if not content:
+            continue
+        m = re.search(
+            r"DEFAULT_PERSONA(?:\s*:\s*\w+)?\s*=\s*['\"]([^'\"]+)['\"]",
+            content,
+        )
+        if not m:
+            issues.append({
+                "check": "domain_differentiation",
+                "reason": f"{path}: DEFAULT_PERSONA not found.",
+            })
+            continue
+        if m.group(1) != "rosa":
+            issues.append({
+                "check": "domain_differentiation",
+                "reason": (
+                    f"{path}: DEFAULT_PERSONA is '{m.group(1)}' but Step D "
+                    "set it to 'rosa' so first-time visitors land on the "
+                    "strategist lens. Update or document the override."
+                ),
+            })
+
+    # 8c. tone bullets must be differentiated (no >50% lexical overlap).
+    if server:
+        james_tone = _extract_persona_field(server, "james", "tone")
+        rosa_tone  = _extract_persona_field(server, "rosa",  "tone")
+        if james_tone and rosa_tone:
+            overlap = _bullet_overlap_ratio(james_tone, rosa_tone)
+            if overlap > 0.5:
+                issues.append({
+                    "check": "domain_differentiation",
+                    "reason": (
+                        f"James and Rosa tone bullets share {overlap:.0%} of "
+                        "significant tokens — the differentiation has eroded. "
+                        "Step D requires distinct technical-vs-strategist "
+                        "voicing. Re-divide the tone[] lists."
+                    ),
+                })
+
+    # 8d. examples must use lane-specific keywords.
+    if server:
+        james_ex = _extract_persona_field(server, "james", "examples")
+        rosa_ex  = _extract_persona_field(server, "rosa",  "examples")
+        james_hits = [k for k in JAMES_KEYWORDS if k in james_ex]
+        rosa_hits  = [k for k in ROSA_KEYWORDS  if k in rosa_ex]
+        if len(james_hits) < 3:
+            issues.append({
+                "check": "domain_differentiation",
+                "reason": (
+                    "James's examples must reference at least 3 technical-lane "
+                    f"keywords (torque/SOP/ISO/LOTO/IR gun/etc). Found: {james_hits}."
+                ),
+            })
+        if len(rosa_hits) < 3:
+            issues.append({
+                "check": "domain_differentiation",
+                "reason": (
+                    "Rosa's examples must reference at least 3 strategist-lane "
+                    f"keywords (OEE/backlog/planned-vs-reactive/recurrence/MTBF/etc). Found: {rosa_hits}."
+                ),
+            })
+
+    return issues
+
+
 # -- Driver -------------------------------------------------------------------
 
 CHECK_NAMES = [
@@ -405,21 +607,23 @@ CHECK_NAMES = [
     "amc_hive_persona",
     "migrations_present",
     "key_parity",
+    "domain_differentiation",
 ]
 
 CHECK_LABELS = {
-    "canonical_modules":  "L1  Shared persona modules exist + export required symbols",
-    "server_adoption":    "L2  Every declared server surface imports persona.ts and uses its mode",
-    "client_adoption":    "L3  Every declared client surface loads wh-persona.js and uses getCompanionBlock",
-    "gateway_hydration":  "L4  ai-gateway hydrates ctx.persona from worker_profiles.preferred_persona",
-    "amc_hive_persona":   "L5  amc-orchestrator reads hives.preferred_persona for brief signature",
-    "migrations_present": "L6  Persona migrations (worker + hive column) present",
-    "key_parity":         "L7  Server and client persona key sets are identical",
+    "canonical_modules":      "L1  Shared persona modules exist + export required symbols",
+    "server_adoption":        "L2  Every declared server surface imports persona.ts and uses its mode",
+    "client_adoption":        "L3  Every declared client surface loads wh-persona.js and uses getCompanionBlock",
+    "gateway_hydration":      "L4  ai-gateway hydrates ctx.persona from worker_profiles.preferred_persona",
+    "amc_hive_persona":       "L5  amc-orchestrator reads hives.preferred_persona for brief signature",
+    "migrations_present":     "L6  Persona migrations (worker + hive column) present",
+    "key_parity":             "L7  Server and client persona key sets are identical",
+    "domain_differentiation": "L8  Step D: James=Technical / Rosa=Strategist lens preserved (DOMAIN_LENS, tone, examples)",
 }
 
 
 def main() -> int:
-    print("\033[1m\nPersona Contract Validator (7-layer)\033[0m")
+    print("\033[1m\nPersona Contract Validator (8-layer)\033[0m")
     print("=" * 60)
     print(f"  Tracking {len(SERVER_PERSONA_ADOPTION)} server surface(s) + "
           f"{len(CLIENT_PERSONA_ADOPTION)} client surface(s).")
@@ -432,6 +636,7 @@ def main() -> int:
     issues += check_amc_hive_persona()
     issues += check_migrations_present()
     issues += check_key_parity()
+    issues += check_domain_differentiation()
 
     n_pass, n_skip, n_fail = format_result(CHECK_NAMES, CHECK_LABELS, issues)
 
