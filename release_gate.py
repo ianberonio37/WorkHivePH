@@ -125,8 +125,12 @@ def preflight() -> bool:
     all_good = True
 
     # Docker
+    # 2026-05-19: bumped timeout 5s → 15s. On a loaded Windows box with
+    # many running containers, `docker ps` can take 6-10s — the old 5s
+    # ceiling produced false-negative pre-flight FAILs even when Docker
+    # was healthy (Supabase containers reachable in the very next check).
     try:
-        r = subprocess.run(["docker", "ps"], capture_output=True, timeout=5)
+        r = subprocess.run(["docker", "ps"], capture_output=True, timeout=15)
         if r.returncode == 0:
             ok("Docker running")
         else:
