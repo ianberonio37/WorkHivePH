@@ -3,7 +3,7 @@
 > **Living document.** Update the `%` and `Last changed` cells in place each session. Do not branch. The narrative below the table doesn't need to be rewritten every day — only the progress block.
 
 **Started:** 2026-05-14
-**Last updated:** 2026-05-19 (L3.4 wired correctly via canonical audit; asset_embeddings filled)
+**Last updated:** 2026-05-19 (L5 architecture corrected: HIVE vs PLATFORM split, 4,605 → 1,533 rows)
 **Budget:** $200 (free Azure trial)
 **Spent so far:** $0.0015 (one Day 1 test page)
 **Doctrine:** Azure produces one-shot artifacts (ONNX models, DB rows). Never runtime calls. Free-tier providers (Voyage / Jina / Groq) handle anything that runs every request.
@@ -27,7 +27,7 @@ The platform is already a working maintenance toolkit. What it lacks is **AI com
 | **L3.3** | Smoke / steam / leak detector | ONNX model in Supabase Storage | **0%** | Roboflow project picks (industrial smoke + oil leak) |
 | **L3.4** | Equipment-label OCR → asset_nodes | Worker photographs a nameplate; the existing `logbook.html` asset register form auto-fills manufacturer/model/serial_no | **~90%** | Form fields + Scan button + `equipment-label-ocr` edge fn (4-place sync done) shipped 2026-05-19. Pending: edge fn deploy + browser smoke test on a real nameplate. |
 | **L4** | Audio anomaly classifier | YAMNet-based ONNX | **0%** | MIMII dataset — got 2.6 GB of 10.4 GB, retry failed |
-| **L5** | Knowledge-graph entity extraction | Triples in `knowledge_graph_facts` from mined corpus, embedded, searchable, used by voice | **~85%** | **4,605 triples** (1,535 × 3 hives), 100% embedded. `semantic_search_kg_facts` RPC live. Voice-handler queries them in parallel with kb + standards. Idempotent re-extraction (`NOT EXISTS` filter on source_ref) so future PDFs add to it. |
+| **L5** | Knowledge-graph entity extraction | Triples — HIVE-scoped store + PLATFORM-scoped store, both embedded, both queried by voice | **~90%** | **1,533 platform_knowledge_graph_facts** (single source of truth, was broadcast ×3 = 4,605 — corrected 2026-05-19). Two RPCs: `semantic_search_kg_facts` (hive) + `semantic_search_platform_kg_facts` (platform). Voice-handler merges results from both. Mirrors the kb_chunks ↔ industry_standards_chunks split precedent. |
 | **L6** | Industrial noise suppression | ONNX denoiser, browser-side via onnxruntime-web | **0%** | Microsoft DNS + MIMII datasets |
 | **L7** | Filipino phrase cache | Lookup table of top 500–1000 PH industrial phrases (Tagalog + Visayan) + voice-handler integration | **100%** ✓ | **DONE** — 207 phrases, Tagalog via Translator F0, Visayan via Groq llama-3.3-70b, glossary loaded into voice-handler system prompt |
 
@@ -219,7 +219,30 @@ Captured the pattern as [[feedback-canonical-audit-reflex]] so future "build/add
 - **A.4 (UI wire)** — "Scan nameplate" button in the register form. Worker taps → camera/file picker (uses `accept="image/*" capture="environment"` so Android/iOS opens camera) → POST to edge fn → auto-fills the three form fields → worker confirms.
 - **C** — DROPPED. asset-hub.html has no register surface, only approval queue. Building one there would duplicate the logbook flow.
 
-### Day 8+ — Planned
+### Day 8 — 2026-05-19 (L5 architectural correction)
+
+User asked "why did you seed all 3 hives with the same standards facts?" — caught a real shortcut. The broadcasted 4,605 rows (1,535 × 3 hives) were a workaround for `knowledge_graph_facts.hive_id NOT NULL`, not the right architecture.
+
+The correct split matches the kb_chunks ↔ industry_standards_chunks precedent set 2026-05-18:
+
+| Scope | Chunks (full text) | Triples (atomic claims) |
+|---|---|---|
+| HIVE  | `kb_chunks` | `knowledge_graph_facts` |
+| PLATFORM | `industry_standards_chunks` | `platform_knowledge_graph_facts` ← **new today** |
+
+**Shipped:**
+- Migration `20260519000001`: new `platform_knowledge_graph_facts` table (no `hive_id`, write-locked RLS, HNSW cosine index, unique on the semantic key `(subject_ref, predicate, object_ref, source_ref)`).
+- New RPC `semantic_search_platform_kg_facts` — mirror of the hive RPC shape but no hive filter.
+- One-shot data move: `INSERT INTO platform_kgf SELECT DISTINCT ON ... FROM knowledge_graph_facts WHERE created_by='day5_extractor' AND source_type='standard'` → 1,533 unique facts.
+- `DELETE FROM knowledge_graph_facts WHERE created_by='day5_extractor' AND source_type='standard'` → removed the 4,605 broadcast rows.
+- voice-handler.js `_fetchKGContext` now fans out to BOTH RPCs in `Promise.all`, merges by `similarity_score` (cosine distance, lower=closer), returns top 6.
+- Smoke test: worker question "how do I safely de-energize a motor before replacing a contactor?" returned 5 OSHA 3120 (LOTO) chunks with similarity 0.459–0.571 — single source of truth, correct citations.
+
+Storage: 4,605 → 1,533 (-66.7%). Update cost: 1× (was 3×). Drift risk: gone.
+
+Pattern strengthened: the canonical audit reflex memory entry now has a concrete violation/correction example showing how the kb_chunks split precedent should have driven this architecture day 1, not been an afterthought.
+
+### Day 9+ — Planned
 - Pivot decision: Custom Vision (needs datasets) vs. OCR UI on hive.html vs. more PDFs in standards corpus
 - Retry MIMII / NASA / KolektorSDD2 from cleaner network
 - If MVTec arrives: Custom Vision detector #1 (surface defect) — Azure portal training run

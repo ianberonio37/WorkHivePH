@@ -1117,13 +1117,16 @@
     }
   }
 
-  // Day 5 (L5): Knowledge-graph triples retrieval (knowledge_graph_facts).
-  // Hive-scoped subject/predicate/object triples extracted from the standards
-  // corpus by Groq llama-4-scout via tools/day5_extract_kg_facts.py. Adds
-  // cross-cited atomic claims ("OT system requires ongoing assessments") to
-  // worker chat — complements the chunks already returned by RAG + standards.
+  // Day 5 / Day 8 (L5): Knowledge-graph triples retrieval — TWO STORES.
+  // - knowledge_graph_facts            = HIVE-scoped     (this hive's claims)
+  // - platform_knowledge_graph_facts   = PLATFORM-scoped (regulatory canon)
+  // Mirrors the kb_chunks vs. industry_standards_chunks split. One query
+  // embedding fans out to both RPCs; results merged by similarity score.
+  // The 2026-05-19 migration moved 1,533 standards-derived triples out of
+  // the hive table (where they had been broadcast x3 = 4,605 rows) into
+  // the platform table — single source of truth per canonical-audit reflex.
   async function _fetchKGContext(db, hiveId, transcript) {
-    if (!db || !hiveId || !transcript) return '';
+    if (!db || !transcript) return '';
     try {
       const embedResp = await fetch(WH_ASSISTANT_WORKER_URL, {
         method: 'POST',
@@ -1135,16 +1138,36 @@
       const embedding = embedData.data && embedData.data[0] && embedData.data[0].embedding;
       if (!embedding) return '';
 
-      const { data: facts, error } = await db.rpc('semantic_search_kg_facts', {
-        p_hive_id:              hiveId,
+      // Fan out: hive-scoped only if we have a hive_id, platform always.
+      const hivePromise = hiveId
+        ? db.rpc('semantic_search_kg_facts', {
+            p_hive_id:              hiveId,
+            p_query_embedding:      embedding,
+            p_similarity_threshold: 0.5,
+            p_limit:                4,
+            p_min_confidence:       0.6,
+          })
+        : Promise.resolve({ data: [], error: null });
+
+      const platformPromise = db.rpc('semantic_search_platform_kg_facts', {
         p_query_embedding:      embedding,
         p_similarity_threshold: 0.5,
         p_limit:                4,
         p_min_confidence:       0.6,
       });
-      if (error || !facts || facts.length === 0) return '';
 
-      return facts.map(f => {
+      const [hiveRes, platformRes] = await Promise.all([hivePromise, platformPromise]);
+
+      const hiveFacts     = (hiveRes && !hiveRes.error && Array.isArray(hiveRes.data))     ? hiveRes.data     : [];
+      const platformFacts = (platformRes && !platformRes.error && Array.isArray(platformRes.data)) ? platformRes.data : [];
+      const combined = [...hiveFacts, ...platformFacts];
+      if (combined.length === 0) return '';
+
+      // Lower similarity_score = closer in cosine distance (matches RPC convention).
+      combined.sort((a, b) => (a.similarity_score || 1) - (b.similarity_score || 1));
+      const top = combined.slice(0, 6);
+
+      return top.map(f => {
         const claim = (f.claim_text || `${f.subject_ref} ${f.predicate} ${f.object_ref}`).slice(0, 220);
         const src   = (f.source_ref || f.source_type || '').slice(0, 40);
         return src ? `[${src}] ${claim}` : claim;
