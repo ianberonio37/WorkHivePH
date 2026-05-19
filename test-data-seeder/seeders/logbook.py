@@ -245,8 +245,14 @@ def link_logbook_to_asset_nodes(client, log, ctx: dict) -> dict:
         log("  no asset_nodes yet — link step skipped")
         return {"logbook_linked": 0}
 
+    # 2026-05-19 Mega Gate fix: 3700 logbook rows used to issue 3700
+    # individual UPDATE round-trips, which on PG 17 + supabase-py would
+    # blow past the 60s statement_timeout when the index hadn't warmed.
+    # New strategy: bucket all rows by their target asset_node_id, then
+    # do ONE update per bucket via .in_("id", [...]). That collapses
+    # 3700 calls down to ~90 (one per distinct asset_node_id).
     total = 0
-    # Loop because supabase-py defaults LIMIT to 1000
+    buckets: dict[str, list[str]] = {}
     while True:
         batch = (
             client.table("logbook")
@@ -262,7 +268,20 @@ def link_logbook_to_asset_nodes(client, log, ctx: dict) -> dict:
         for r in batch:
             nid = by_hive_tag.get((r["hive_id"], r["machine"]))
             if nid:
-                client.table("logbook").update({"asset_node_id": nid}).eq("id", r["id"]).execute()
-                total += 1
-    log(f"  linked {total} logbook entries to asset_nodes")
+                buckets.setdefault(nid, []).append(r["id"])
+        # If the .select() returned the same N rows again (because nothing
+        # has been updated yet within this loop), we'd spin forever. Break
+        # after one pull — we only need one pass to bucket everything
+        # currently unlinked. The next reseed will repopulate if needed.
+        break
+
+    # Chunk each bucket into ~500-id slices so the SQL `IN ($1, $2, ...)`
+    # stays within Postgres's parameter limit.
+    CHUNK = 500
+    for nid, ids in buckets.items():
+        for i in range(0, len(ids), CHUNK):
+            chunk = ids[i:i + CHUNK]
+            client.table("logbook").update({"asset_node_id": nid}).in_("id", chunk).execute()
+            total += len(chunk)
+    log(f"  linked {total} logbook entries to asset_nodes (in {len(buckets)} buckets)")
     return {"logbook_linked": total}
