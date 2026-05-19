@@ -3,6 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <!-- Layer -1.5 Calm Dashboard Contract opt-in (frontend_calm_dashboard_*). -->
+  <meta name="calm-dashboard" content="1" />
   <title>Shift Brain | WorkHive</title>
   <meta name="description" content="The autonomous shift planner. AI-generated risk-prioritized plan for the incoming shift, draft for supervisor review and crew publication." />
   <meta name="robots" content="noindex, follow" />
@@ -180,8 +182,10 @@
   </style>
 </head>
 <body>
+<main>
 
-  <div id="toast" class="hidden">Saved.</div>
+
+  <div id="toast" class="hidden" role="alert" aria-live="polite">Saved.</div>
 
   <div id="hive-gate">
     <h2>Shift Brain needs a hive</h2>
@@ -382,6 +386,10 @@
           console.error('shift_plans load:', error.message);
           showToast('Could not load plan: ' + error.message);
         }
+        // Fall through to renderPlan(null) so the verdict label updates to
+        // the empty/degraded state instead of staying stuck on "Loading...".
+        _activePlan = null;
+        renderPlan();
         return;
       }
 
@@ -673,12 +681,30 @@
       loadPlan();
     }
 
+    // Helper: update the verdict label out-of-band so any early-exit branch
+    // (hive-gate, missing membership) doesn't leave the label stuck on the
+    // initial "Loading shift readiness..." text. The hardening loop on
+    // 2026-05-19 flagged this as verdict_label_visible=false when the test
+    // session hit hive-gate.
+    function _setShiftVerdict(label, sub, tone) {
+      const vLbl = document.getElementById('sb-verdict-label');
+      const vSub = document.getElementById('sb-verdict-sub');
+      const vBox = document.getElementById('sb-verdict');
+      if (vLbl) vLbl.textContent = label;
+      if (vSub) vSub.textContent = sub;
+      if (vBox) { vBox.classList.remove('healthy','watch','attn','empty'); vBox.classList.add(tone || 'empty'); }
+    }
+
     async function init() {
       if (!WORKER_NAME && typeof restoreIdentityFromSession === 'function') {
         WORKER_NAME = await restoreIdentityFromSession(db);
       }
       if (!WORKER_NAME) { window.location.href = 'index.html?signin=1'; return; }
-      if (!HIVE_ID) { document.getElementById('hive-gate').style.display = 'flex'; return; }
+      if (!HIVE_ID) {
+        document.getElementById('hive-gate').style.display = 'flex';
+        _setShiftVerdict('No active hive', 'Join or activate a hive to see shift readiness.');
+        return;
+      }
 
       const _sbChip = document.getElementById('shift-source-chip');
       if (_sbChip && typeof renderSourceChip === 'function') {
@@ -694,7 +720,11 @@
       }
 
       const ok = await validateHiveMembership();
-      if (!ok) { document.getElementById('hive-gate').style.display = 'flex'; return; }
+      if (!ok) {
+        document.getElementById('hive-gate').style.display = 'flex';
+        _setShiftVerdict('Hive access required', 'Sign in to your hive to view shift readiness.');
+        return;
+      }
 
       document.getElementById('page-wrap').style.display = 'block';
 
@@ -735,5 +765,6 @@
   <script defer src="connectivity-widget.js"></script>
   <script defer src="session-timeout.js"></script>
   <script defer src="device-fingerprint.js"></script>
+</main>
 </body>
 </html>

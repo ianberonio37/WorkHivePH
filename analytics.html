@@ -3,6 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <!-- Layer -1.5 Calm Dashboard Contract opt-in (frontend_calm_dashboard_*). -->
+  <meta name="calm-dashboard" content="1" />
   <title>Analytics Engine | WorkHive</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
@@ -334,6 +336,8 @@
   </style>
 </head>
 <body>
+<main>
+
 
 <div class="aurora">
   <div class="aurora-blob aurora-blob-1"></div>
@@ -505,7 +509,7 @@
 
 </div>
 
-<div id="toast"></div>
+<div id="toast" role="alert" aria-live="polite"></div>
 
 <script src="utils.js"></script>
 <script>
@@ -575,9 +579,7 @@
     setTimeout(() => t.classList.remove('show'), 2800);
   }
 
-  function escHtml(s) {
-    return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
-  }
+  // escHtml() is loaded from utils.js -- never redefined inline (security skill rule).
 
   function setPeriod(days, rerun = false) {
     _period = days;
@@ -735,6 +737,15 @@
           <div class="card"><div class="empty" style="color:#f87171;">
             ${escHtml(err.message.includes('not yet available') ? 'Analytics engine warming up — try Refresh in a moment.' : err.message)}
           </div></div>`;
+        // Verdict label must leave the "Rolling up reliability KPIs..." state
+        // even when the orchestrator fails — otherwise the page sits on the
+        // Loading text and the hardening loop flags verdict_loaded=false.
+        const vLbl = document.getElementById('an-verdict-label');
+        const vSub = document.getElementById('an-verdict-sub');
+        if (vLbl) vLbl.textContent = err.message.includes('not yet available')
+          ? 'Analytics engine warming up'
+          : 'Analytics unavailable';
+        if (vSub) vSub.textContent = 'Tap Refresh once the engine is ready.';
       }
     }
   }
@@ -2384,5 +2395,6 @@
 </script>
 
 <script src="nav-hub.js"></script>
+</main>
 </body>
 </html>

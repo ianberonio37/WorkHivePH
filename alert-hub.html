@@ -3,6 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <!-- Layer -1.5 Calm Dashboard Contract opt-in (frontend_calm_dashboard_*). -->
+  <meta name="calm-dashboard" content="1" />
   <title>Alert Hub | WorkHive</title>
   <!-- capability: alert_dashboard -->
   <link rel="manifest" href="manifest.json" />
@@ -181,6 +183,8 @@
   </style>
 </head>
 <body>
+<main>
+
 
 <div class="page">
 
@@ -1070,13 +1074,24 @@
     all.sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime());
 
     _alerts = all;
-    renderFilters();
-    renderFeed();
-    // Plain-Read roll-up runs after the feed renders so the cards reflect
-    // the same state shown below.
-    renderAlertSummary();
-    document.getElementById('footer-meta').textContent =
-      `Last refreshed ${fmtTime(new Date())} · Auto-refresh every minute`;
+    // Wrap the render path in try/finally so a runtime error in any of the
+    // 3 renderers below does NOT leave the verdict label stuck at the initial
+    // "Rolling up alert state..." text. Caught by the hardening loop on
+    // 2026-05-19: scenario captured verdict_loaded=false because an error
+    // mid-render skipped renderAlertSummary().
+    try {
+      renderFilters();
+      renderFeed();
+    } catch (err) {
+      console.warn('alert-hub render path threw:', err && err.message ? err.message : err);
+    } finally {
+      // Plain-Read roll-up runs after the feed renders so the cards reflect
+      // the same state shown below. Always runs — even on render error — so
+      // the verdict label leaves the "Loading..." initial state.
+      try { renderAlertSummary(); } catch (e) { console.warn('renderAlertSummary threw:', e?.message || e); }
+      const fm = document.getElementById('footer-meta');
+      if (fm) fm.textContent = `Last refreshed ${fmtTime(new Date())} · Auto-refresh every minute`;
+    }
   }
 
   // ── Render ─────────────────────────────────────────────────────────────────
@@ -1277,5 +1292,6 @@
 
 })();
 </script>
+</main>
 </body>
 </html>
