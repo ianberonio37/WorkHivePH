@@ -905,3 +905,23 @@ is the right enforcement layer — Playwright would just re-do the regex.
   (home_stack_coverage, loads_utils_js, optimistic_reconciliation, ml,
   nav_registry, performance) — mix of infra-leaning and behavioral; warrant
   a separate review pass to classify cleanly.
+
+---
+
+## Batch 2 LANDING NOTES (2026-05-19)
+
+After the proposal batch ran in commit a6d7ea7, two specs landed; three
+deferred for a seeded-data environment. Landing notes per draft:
+
+| # | Validator | Spec | Status |
+|---|---|---|---|
+| 6 | validate_renderers.py | (deferred) | engineering-design.html uses dynamic grid cards + dynamic form fields — original draft's `<select>`-based selectors don't match. Layer 0 validator already enforces field contract; defer until selector reverse-engineering bandwidth. |
+| 7 | validate_loading_state.py | (deferred) | submit_without_preventdefault test needs to fill the logbook form which requires whPage (authenticated). Fixture fails in unseeded environments. Land when test-data-seeder is reliably available. |
+| 8 | validate_mobile.py | **tests/mobile-ux.spec.ts (LANDED)** | Adapted to use rawPage on /about/ (public page) — works in any environment, no seeder dependency. PASS in 5s. |
+| 9 | validate_observability.py | (deferred) | success_feedback test needs whPage to fill logbook form + verify save toast. Same auth gap as #7. |
+| 10 | validate_sw_offline.py | **tests/sw-offline.spec.ts (LANDED)** | Adapted to use report-sender.html (in SHELL_FILES + publicly reachable). Test gracefully skips when SW can't activate in env; passes when SW activates. |
+
+Bonus harden output: a3rd Layer 0 → Layer 2 lesson surfaced from this batch
+— founder-console.html now uses Realtime channels (commit d0c592c) but was
+missing from validate_observability.py LIVE_PAGES. Caught + fixed in
+commit cffafdd via the proactive harden sweep.
