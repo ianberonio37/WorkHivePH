@@ -483,6 +483,15 @@ VALIDATORS = [
         "skip_if_fast": False,
     },
     {
+        "id":      "kg-scope-split",
+        "script":  "validate_kg_scope_split.py",
+        "args":    [],
+        "label":   "KG Facts Scope Split (4-layer: platform table + RPC + voice-handler fan-out + no broadcast pattern)",
+        "group":   "Platform",
+        "report":  "kg_scope_split_report.json",
+        "skip_if_fast": False,
+    },
+    {
         "id":      "service-role-exposure",
         "script":  "validate_service_role_exposure.py",
         "args":    [],
@@ -561,6 +570,162 @@ VALIDATORS = [
         "label":   "Cold-Start Memoization (4-layer: createClient-in-handler + multiple-calls + adoption + budget)",
         "group":   "Platform",
         "report":  "cold_start_memoization_report.json",
+        "skip_if_fast": False,
+    },
+    {
+        # Layer -1 Convention Mining -- discovers emergent edge-fn patterns
+        # and flags outliers. Always exits 0 (informational). Promotion
+        # candidates are surfaced in edge_pattern_mining_report.md for
+        # human review; real rules then graduate to their own validators.
+        "id":      "edge-pattern-mining",
+        "script":  os.path.join("tools", "mine_edge_patterns.py"),
+        "args":    [],
+        "label":   "Edge-Fn Pattern Miner (L-1 Convention Mining -- informational, surfaces drift)",
+        "group":   "Platform",
+        "report":  "edge_pattern_mining_report.json",
+        "skip_if_fast": True,
+    },
+    {
+        # Layer -1 Convention Mining -- HTML page cluster. Companion to the
+        # edge-fn miner; proves L-1 generalises across heterogeneous file
+        # types. Static-HTML scan only: cannot see runtime-injected scripts.
+        "id":      "html-pattern-mining",
+        "script":  os.path.join("tools", "mine_html_patterns.py"),
+        "args":    [],
+        "label":   "HTML Page Pattern Miner (L-1 Convention Mining -- informational, surfaces drift)",
+        "group":   "Platform",
+        "report":  "html_pattern_mining_report.json",
+        "skip_if_fast": True,
+    },
+    {
+        # L-1 cluster A: JS shared modules (utils, nav-hub, wh-*, etc.).
+        # Tighter threshold (>=85% / <=3 outliers) because the cluster is
+        # small (24 files).
+        "id":      "js-module-pattern-mining",
+        "script":  os.path.join("tools", "mine_js_module_patterns.py"),
+        "args":    [],
+        "label":   "JS Shared Module Pattern Miner (L-1 Convention Mining -- informational)",
+        "group":   "Platform",
+        "report":  "js_module_pattern_mining_report.json",
+        "skip_if_fast": True,
+    },
+    {
+        # L-1 cluster B: SQL migrations. Largest cluster (~145 files).
+        # Lesson #14 applied: SQL-specific comment-strip (-- + /* */).
+        "id":      "migration-pattern-mining",
+        "script":  os.path.join("tools", "mine_migration_patterns.py"),
+        "args":    [],
+        "label":   "SQL Migration Pattern Miner (L-1 Convention Mining -- informational)",
+        "group":   "Platform",
+        "report":  "migration_pattern_mining_report.json",
+        "skip_if_fast": True,
+    },
+    {
+        # L-1 cluster C: Python tools (tools/*.py).
+        "id":      "python-tool-pattern-mining",
+        "script":  os.path.join("tools", "mine_python_tool_patterns.py"),
+        "args":    [],
+        "label":   "Python Tool Pattern Miner (L-1 Convention Mining -- informational)",
+        "group":   "Platform",
+        "report":  "python_tool_pattern_mining_report.json",
+        "skip_if_fast": True,
+    },
+    {
+        # L-1 cluster D: Validators themselves (meta). Homogeneous cluster
+        # -> threshold raised to >=90%. Most useful for surfacing validators
+        # that diverge from the established skeleton (missing cp1252 guard,
+        # missing format_result, missing main guard).
+        "id":      "validator-pattern-mining",
+        "script":  os.path.join("tools", "mine_validator_patterns.py"),
+        "args":    [],
+        "label":   "Validator Pattern Miner [META] (L-1 Convention Mining -- informational)",
+        "group":   "Platform",
+        "report":  "validator_pattern_mining_report.json",
+        "skip_if_fast": True,
+    },
+    {
+        # L-1 cluster E: Seeders (test-data-seeder/seeders/*.py).
+        "id":      "seeder-pattern-mining",
+        "script":  os.path.join("tools", "mine_seeder_patterns.py"),
+        "args":    [],
+        "label":   "Seeder Pattern Miner (L-1 Convention Mining -- informational)",
+        "group":   "Platform",
+        "report":  "seeder_pattern_mining_report.json",
+        "skip_if_fast": True,
+    },
+    {
+        # L-1.5 Skill-Rule Mining -- documented rules from SKILL.md files
+        # enforced via skill_rules_manifest.json. Surfaces violations of
+        # rules the user has written but never had automatically checked.
+        # First run on 2026-05-18 found 8 critical + 6 high-severity
+        # violations across 23 rules from 5 skills.
+        "id":      "skill-rule-mining",
+        "script":  os.path.join("tools", "mine_skill_rules.py"),
+        "args":    [],
+        "label":   "Skill-Rule Miner [L-1.5] (documented rules from SKILL.md -- informational)",
+        "group":   "Platform",
+        "report":  "skill_rules_mining_report.json",
+        "skip_if_fast": True,
+    },
+    {
+        # L-1 Foundation: Canonical Source Registry. Walks migrations +
+        # HTML surfaces + edge fns to build an inventory of every table,
+        # RPC, view, and who reads/writes each. Output is the
+        # "what's already on the platform" reference -- consulted before
+        # proposing any new surface/column/RPC. Also surfaces duplicate
+        # signals: surface-pair table-overlap, near-duplicate columns,
+        # dead tables, phantom tables. Informational; never blocks.
+        "id":      "canonical-registry",
+        "script":  os.path.join("tools", "mine_canonical_registry.py"),
+        "args":    [],
+        "label":   "Canonical Source Registry [L-1 Foundation] (tables/RPCs/views/surfaces inventory + duplicate signals)",
+        "group":   "Platform",
+        "report":  "canonical_registry.json",
+        "skip_if_fast": True,
+    },
+    {
+        # L-1 Layer 2: Canonical Overlap Validator. Reads the registry +
+        # an allowlist (canonical_overlap_allowlist.json) and FAILs the
+        # gate on (a) phantom tables -- refs in code, no migration def --
+        # and (b) NEW surface-pair overlaps not in the allowlist. New
+        # duplicate-creation gets blocked; legit role-views must be
+        # explicitly documented. Adding to the allowlist is the
+        # "this is intentional" switch.
+        "id":      "canonical-overlap",
+        "script":  "validate_canonical_overlap.py",
+        "args":    [],
+        "label":   "Canonical Overlap (L-1 Layer 2 -- blocks phantom tables + undocumented surface overlaps)",
+        "group":   "Platform",
+        "report":  "canonical_overlap_report.json",
+        "skip_if_fast": False,
+    },
+    {
+        # First validator graduated from L-1 Convention Mining (86%
+        # conformance candidate from mine_html_patterns.py, now an
+        # enforced Layer 0 rule). escHtml() XSS defence + Supabase
+        # singleton both live in utils.js -- pages that skip it are
+        # either pure brochure (allowlisted) or accidental XSS holes.
+        "id":      "loads-utils-js",
+        "script":  "validate_loads_utils_js.py",
+        "args":    [],
+        "label":   "Loads-Utils-JS (3-layer: required + allowlist-freshness + census)",
+        "group":   "Platform",
+        "report":  "loads_utils_js_report.json",
+        "skip_if_fast": False,
+    },
+    {
+        # Second validator graduated from L-1 Convention Mining
+        # (mine_validator_patterns.py surfaced 33 outliers at 82%
+        # conformance; all patched on 2026-05-18, now 100%). Locks the
+        # rule so a new validator authored without the cp1252 stdout
+        # guard fails Mega Gate immediately rather than crashing on
+        # Windows when its output hits a Unicode character.
+        "id":      "validator-cp1252-guard",
+        "script":  "validate_validator_cp1252_guard.py",
+        "args":    [],
+        "label":   "Validator cp1252-Guard (3-layer: required + allowlist + placement)",
+        "group":   "Platform",
+        "report":  "validator_cp1252_guard_report.json",
         "skip_if_fast": False,
     },
     {
