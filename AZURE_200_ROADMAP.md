@@ -26,12 +26,12 @@ The platform is already a working maintenance toolkit. What it lacks is **AI com
 | **L3.2** | Arc / spark detector | ONNX model in Supabase Storage | **0%** | Roboflow project pick (arc flash search) |
 | **L3.3** | Smoke / steam / leak detector | ONNX model in Supabase Storage | **0%** | Roboflow project picks (industrial smoke + oil leak) |
 | **L3.4** | Equipment-label OCR → asset_nodes | Worker photographs a nameplate; the existing `logbook.html` asset register form auto-fills manufacturer/model/serial_no | **~90%** | Form fields + Scan button + `equipment-label-ocr` edge fn (4-place sync done) shipped 2026-05-19. Pending: edge fn deploy + browser smoke test on a real nameplate. |
-| **L4** | Audio anomaly classifier | YAMNet-based ONNX | **0%** | MIMII dataset — got 2.6 GB of 10.4 GB, retry failed |
+| **L4** | Audio anomaly classifier | YAMNet-based ONNX | **~10%** | **MIMII unblocked 2026-05-19 evening.** Full -6dB fan subset on disk: 10.13 GB, 5,563 .wav files across 6 fan IDs (normal + abnormal). Curl resume quirk caught + Frankenfile recovered via byte-offset slice. Next: Azure ML training run on the dataset → ONNX classifier. |
 | **L5** | Knowledge-graph entity extraction | Triples — HIVE-scoped store + PLATFORM-scoped store, both embedded, both queried by voice | **~95%** | **3,912 platform_knowledge_graph_facts** (single source of truth, all embedded). Extractor + embedder both now write to the platform table directly (no broadcast pattern). Two RPCs (hive + platform), voice-handler merges. Regression locked at L-1.5 + L0 + L2. |
 | **L6** | Industrial noise suppression | ONNX denoiser, browser-side via onnxruntime-web | **0%** | Microsoft DNS + MIMII datasets |
 | **L7** | Filipino phrase cache | Lookup table of top 500–1000 PH industrial phrases (Tagalog + Visayan) + voice-handler integration | **100%** ✓ | **DONE** — 207 phrases, Tagalog via Translator F0, Visayan via Groq llama-3.3-70b, glossary loaded into voice-handler system prompt |
 
-**Overall AI substance:** ~58% of planned outputs live (was 12% start of Day 5). **Scaffolding** (Azure resources, schema, RPCs, embedding chain, CLI tools): ~90% in place.
+**Overall AI substance:** ~60% of planned outputs live (was 12% start of Day 5). **Scaffolding** (Azure resources, schema, RPCs, embedding chain, CLI tools): ~92% in place.
 
 **First layer hit 100%:** L7 (Filipino phrase cache) — proves the playbook end-to-end (seed → embed/translate → wire into voice prompt → validators pass). Same pattern applies to remaining layers once data unblocks.
 
@@ -312,6 +312,16 @@ URL-driven downloaders.
 **Naming**: `cummins-genset.pdf` → `standard_code = USER-CUMMINS-GENSET`, `source_url = user_upload:cummins-genset.pdf`. Family/jurisdiction default to `other` / `global` but override via `--family` / `--jurisdiction` flags. Title taken from PDF metadata first, fallback to first non-blank line, fallback to filename.
 
 A `README.txt` lives in the drop folder so the workflow is self-documenting when you open the folder months later.
+
+### Day 9 (late evening) — MIMII unblocked + curl-resume quirk caught
+
+The background MIMII curl finished at 17.63 GB — bigger than the expected 10.13 GB target. Investigation: `curl --continue-at -` silently APPENDED a full re-download onto the Day 1 partial when Zenodo returned 200 OK instead of 206 Partial Content. Exit code 0, no error signal.
+
+Recovery: zip's central directory lives at the END of the file, so unzip still listed the full directory tree even with prepended garbage. Sliced off the first 7.49 GB via a Python `seek(offset)` + stream-copy. Final clean file: 10.13 GB, 5,563 .wav files (normal + abnormal across 6 fan IDs).
+
+**L4 dataset blocker REMOVED.** The remaining path to ~80%: train YAMNet on this corpus via Azure ML Workspace (already provisioned Day 1) → export ONNX → upload to Supabase Storage. Multi-hour compute job; not in this session.
+
+New memory entry: `feedback_curl_resume_quirk.md` — captures the rule (verify size before extracting) + the recovery recipe so the next big-download resume doesn't repeat the mistake.
 
 ### Day 10+ — Planned
 - Pivot decision: Custom Vision (needs datasets) vs. OCR UI on hive.html vs. more PDFs in standards corpus
