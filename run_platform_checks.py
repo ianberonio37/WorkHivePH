@@ -227,6 +227,19 @@ VALIDATORS = [
         "skip_if_fast": False,
     },
     {
+        # 2026-05-19 Hardening Loop for the Rosa-offline incident (f5a8d99):
+        # locks in ANON_OK_AGENTS Set + auth-gate skip + persistence guard +
+        # AGENT_ROUTES registration so the voice-journal anon path can't
+        # silently regress to 401 -> "Sorry, I'm offline" again.
+        "id":      "gateway-anon-voice-journal",
+        "script":  "validate_gateway_anon_voice_journal.py",
+        "args":    [],
+        "label":   "ai-gateway Anon Voice-Journal Contract (4-layer: ANON_OK_AGENTS set + auth-gate skip + authUid persistence guard + AGENT_ROUTES entry)",
+        "group":   "Platform",
+        "report":  None,
+        "skip_if_fast": False,
+    },
+    {
         "id":      "voice-canonical-anchor",
         "script":  "validate_voice_canonical_anchor.py",
         "args":    [],
