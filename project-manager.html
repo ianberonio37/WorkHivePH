@@ -446,6 +446,9 @@
     </div>
 
     <div id="card-grid" class="card-grid"></div>
+    <div id="pm-load-more-wrap" class="hidden" style="margin-top:0.25rem;padding-bottom:1rem;">
+      <button onclick="loadMorePm()" style="width:100%;padding:0.75rem;border-radius:0.75rem;font-size:0.875rem;font-weight:600;background:rgba(247,162,27,0.1);color:#F7A21B;border:1px solid rgba(247,162,27,0.3);cursor:pointer;">Load More</button>
+    </div>
   </div>
 
   <!-- DETAIL VIEW -->
@@ -834,6 +837,7 @@ logPageView(db);
 let _projects   = [];
 let _members    = [];                      // hive_members worker_name list
 let _activeFilter = { status: 'active', type: '', owner: '', search: '' };
+let _pmDisplayCount = 30;  // List View Contract: client-side slice pagination (flat-grid view only)
 let _recents    = [];                      // last-5 opened {id, code, name, type}
 let _groupOpen  = {};                      // status -> bool, persisted
 let _detailId   = null;
@@ -1140,16 +1144,26 @@ function renderList() {
     }
     return true;
   });
-  if (!list.length) { renderEmptyState(grid, _projects.length); return; }
+  const lmWrap = document.getElementById('pm-load-more-wrap');
+  if (!list.length) {
+    renderEmptyState(grid, _projects.length);
+    if (lmWrap) lmWrap.classList.add('hidden');
+    return;
+  }
 
-  // Status filter set → flat grid (current behaviour)
+  // Status filter set → flat grid (current behaviour). List View Contract:
+  // paginate the flat view via client-side slice. Grouped "All" view skips
+  // pagination because groups themselves are the navigation primitive.
   if (_activeFilter.status) {
     grid.style.display = 'grid';
-    grid.innerHTML = list.map(pcardHtml).join('');
+    const visible = list.slice(0, _pmDisplayCount);
+    if (lmWrap) lmWrap.classList.toggle('hidden', visible.length >= list.length);
+    grid.innerHTML = visible.map(pcardHtml).join('');
     return;
   }
 
   // "All" tab → group by status, auto-expand active, collapse others (user-toggleable)
+  if (lmWrap) lmWrap.classList.add('hidden');
   grid.style.display = 'block';
   const order = ['active', 'planning', 'on_hold', 'complete', 'cancelled', 'archived'];
   const labels = { active: 'Active', planning: 'Planning', on_hold: 'On hold', complete: 'Complete', cancelled: 'Cancelled', archived: 'Archived' };
@@ -1235,12 +1249,15 @@ function bindFilters() {
       b.setAttribute('aria-selected', on ? 'true' : 'false');
     });
     _activeFilter.status = btn.dataset.status;
+    _pmDisplayCount = 30;  // reset slice on tab/filter change
     renderList();
   });
-  $('filter-type').addEventListener('change', ev => { _activeFilter.type = ev.target.value; renderList(); });
-  $('filter-owner').addEventListener('change', ev => { _activeFilter.owner = ev.target.value; renderList(); });
-  $('filter-search').addEventListener('input', ev => { _activeFilter.search = ev.target.value.trim(); renderList(); });
+  $('filter-type').addEventListener('change', ev => { _activeFilter.type = ev.target.value; _pmDisplayCount = 30; renderList(); });
+  $('filter-owner').addEventListener('change', ev => { _activeFilter.owner = ev.target.value; _pmDisplayCount = 30; renderList(); });
+  $('filter-search').addEventListener('input', ev => { _activeFilter.search = ev.target.value.trim(); _pmDisplayCount = 30; renderList(); });
 }
+
+window.loadMorePm = () => { _pmDisplayCount += 30; renderList(); };
 
 /* ── PROJECT_TEMPLATES — industry-standard starter packs ───────────────────
    Standards: PMBOK 7th, AACE 17R-97 (FEL stages), IDCON 6-Phase Shutdown,

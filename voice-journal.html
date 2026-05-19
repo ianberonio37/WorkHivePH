@@ -365,6 +365,9 @@
       </div>
       <div id="history-empty"      class="empty-state text-center text-xs text-white/40 py-6" style="display:none;">No entries yet. Tap the mic above and say something.</div>
       <div id="history-no-results" class="empty-state text-center text-xs text-white/40 py-6" style="display:none;">No entries match those filters.</div>
+      <div id="voice-load-more-wrap" class="hidden mt-1 pb-4">
+        <button onclick="loadMoreVoice()" class="w-full py-3 rounded-xl text-sm font-semibold" style="background:rgba(247,162,27,0.1);color:#F7A21B;border:1px solid rgba(247,162,27,0.3);">Load More</button>
+      </div>
     </section>
 
   </div>
@@ -456,6 +459,7 @@
     // History state
     let _entries      = [];       // pairs of { user, agent, lang, ts }
     let _activeFilter = 'all';
+    let _voiceDisplayCount = 30;  // List View Contract: client-side slice pagination
 
     // TTS state
     let _ttsOn = localStorage.getItem(TTS_STORAGE_KEY) !== 'off';
@@ -763,6 +767,7 @@
       root.querySelectorAll('.filter-chip').forEach(btn => {
         btn.addEventListener('click', () => {
           _activeFilter = btn.getAttribute('data-filter');
+          _voiceDisplayCount = 30;  // reset slice when filter changes
           renderFilters();
           renderHistory();
         });
@@ -795,13 +800,19 @@
         const filtersActive = !!search || _activeFilter !== 'all';
         emptyEl.style.display    = filtersActive ? 'none'  : 'block';
         noResultEl.style.display = filtersActive ? 'block' : 'none';
+        document.getElementById('voice-load-more-wrap').classList.add('hidden');
         return;
       }
       emptyEl.style.display    = 'none';
       noResultEl.style.display = 'none';
 
+      // List View Contract: client-side slice pagination.
+      const visible = filtered.slice(0, _voiceDisplayCount);
+      const wrap = document.getElementById('voice-load-more-wrap');
+      wrap.classList.toggle('hidden', visible.length >= filtered.length);
+
       let lastDay = '';
-      const html = filtered.map(p => {
+      const html = visible.map(p => {
         const dl = dayLabel(p.ts);
         const dayHeader = dl !== lastDay ? `<div class="history-day">${escSafe(dl)}</div>` : '';
         lastDay = dl;
@@ -1003,7 +1014,8 @@
       wirePersonaPicker();
       $('tts-toggle').addEventListener('click', toggleTts);
       $('mic-btn').addEventListener('click', toggleRecord);
-      $('search-input').addEventListener('input', () => renderHistory());
+      $('search-input').addEventListener('input', () => { _voiceDisplayCount = 30; renderHistory(); });
+      window.loadMoreVoice = () => { _voiceDisplayCount += 30; renderHistory(); };
 
       // Prime the voice list on browsers that load it asynchronously.
       if (window.speechSynthesis && typeof window.speechSynthesis.onvoiceschanged !== 'undefined') {

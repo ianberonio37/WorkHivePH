@@ -15,7 +15,7 @@ mined against the codebase. Source manifest: `skill_rules_manifest.json`.
 | architect | 2 | 100% | 0 |
 | data-engineer | 1 | 100% | 0 |
 | designer | 7 | 83% | 25 |
-| frontend | 13 | 86% | 49 |
+| frontend | 13 | 91% | 39 |
 | mobile-maestro | 7 | 85% | 1 |
 | qa-tester | 6 | 98% | 4 |
 | security | 14 | 97% | 13 |
@@ -38,7 +38,6 @@ mined against the codebase. Source manifest: `skill_rules_manifest.json`.
 | Rule | Skill | Conformance | Scope | Polarity |
 |---|---|---:|---|---|
 | `mobile_pdf_pagebreak_covers_p` | mobile-maestro | 0% (0/1) | html_pages | convention |
-| `frontend_list_view_has_load_more` | frontend | 33% (5/15) | html_pages | convention |
 | `frontend_classlist_over_classname` | frontend | 44% (16/36) | html_pages | anti_pattern |
 | `designer_dialog_has_aria_modal_true` | designer | 50% (4/8) | html_pages | convention |
 | `frontend_no_innerhtml_in_foreach` | frontend | 55% (20/36) | html_pages | anti_pattern |
@@ -82,11 +81,12 @@ mined against the codebase. Source manifest: `skill_rules_manifest.json`.
 | `kg_migrations_no_broadcast_across_hives` | architect | 100% (151/151) | migrations | anti_pattern |
 | `frontend_list_view_has_empty_state` | frontend | 100% (27/27) | html_pages | convention |
 | `frontend_list_view_has_no_results_state` | frontend | 100% (11/11) | html_pages | convention |
+| `frontend_list_view_has_load_more` | frontend | 100% (12/12) | html_pages | convention |
 | `frontend_filter_tabs_have_aria_roles` | frontend | 100% (6/6) | html_pages | convention |
 | `frontend_calm_dashboard_has_verdict` | frontend | 100% (14/14) | html_pages | convention |
 | `frontend_calm_dashboard_uses_details_disclosure` | frontend | 100% (14/14) | html_pages | convention |
 | `frontend_calm_dashboard_filters_zero_kpis` | frontend | 100% (14/14) | html_pages | convention |
-| `frontend_search_resets_pagination` | frontend | 100% (3/3) | html_pages | convention |
+| `frontend_search_resets_pagination` | frontend | 100% (8/8) | html_pages | convention |
 
 ## Allowlisted suppressions (documented-legit divergences)
 
@@ -99,6 +99,9 @@ mined against the codebase. Source manifest: `skill_rules_manifest.json`.
 | `frontend_list_view_has_empty_state` | `index.html` | Marketing landing + operational-home dashboard. The .map() renders dashboard tiles from a fixed set; this is not a filterable list view. Calm Dashboard Contract already governs the page (see [[project-calm-dashboard-contract]]). |
 | `frontend_list_view_has_empty_state` | `integrations.html` | Multi-step CSV import wizard with its own state (upload -> preview -> map -> import). The .map() renders preview rows of in-progress import data, not a queryable list. |
 | `frontend_list_view_has_empty_state` | `report-sender.html` | Report-builder form, not a list view. The .map() renders recipient chips; the empty state is the form itself. |
+| `frontend_list_view_has_load_more` | `engineering-design.html` | Report list rarely exceeds 10-15 saved designs per worker; pagination is overkill. The page is a calculator surface, not a feed. |
+| `frontend_list_view_has_load_more` | `founder-console.html` | Admin-only platform-wide tables; row counts are bounded by 'number of platform hives/users' (currently <100). Adding Load More now would gate behind a control that always shows everything anyway. Revisit when row counts exceed ~200. |
+| `frontend_list_view_has_load_more` | `marketplace-seller-profile.html` | Single seller's full listing set; cap is naturally small (a seller with 50+ listings is rare). Already has filter-tab UI for parts/training/jobs. |
 
 ## How to extend
 

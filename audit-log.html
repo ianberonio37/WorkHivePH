@@ -220,6 +220,9 @@
       <div class="empty-title">No entries match those filters</div>
       <div class="empty-sub">Use the "Clear filters" button above to see all entries.</div>
     </div>
+    <div id="audit-load-more-wrap" class="hidden" style="margin-top:0.25rem;padding-bottom:1rem;">
+      <button onclick="loadMoreAudit()" style="width:100%;padding:0.75rem;border-radius:0.75rem;font-size:0.875rem;font-weight:600;background:rgba(247,162,27,0.1);color:#F7A21B;border:1px solid rgba(247,162,27,0.3);cursor:pointer;">Load More</button>
+    </div>
     <div id="footer-meta" class="footer-meta"></div>
   </div>
 
@@ -283,6 +286,7 @@
   let _searchTerm  = '';
   let _expanded    = new Set();
   let _realtimeSub = null;
+  let _auditDisplayCount = 30;  // List View Contract: client-side slice pagination
 
   // ── Realtime subscription — auto-refresh on insert ─────────────────────────
   function subscribeRealtime() {
@@ -310,16 +314,18 @@
 
   // ── Wire filter controls ───────────────────────────────────────────────────
   document.getElementById('actor-filter').addEventListener('change', (e) => {
-    _activeActor = e.target.value; renderFeed();
+    _activeActor = e.target.value; _auditDisplayCount = 30; renderFeed();
   });
   document.getElementById('action-filter').addEventListener('change', (e) => {
-    _activeAction = e.target.value; renderFeed();
+    _activeAction = e.target.value; _auditDisplayCount = 30; renderFeed();
   });
   document.getElementById('target-filter').addEventListener('change', (e) => {
-    _activeTarget = e.target.value; renderFeed();
+    _activeTarget = e.target.value; _auditDisplayCount = 30; renderFeed();
   });
   document.getElementById('search-input').addEventListener('input', (e) => {
-    _searchTerm = (e.target.value || '').toLowerCase().trim(); renderFeed();
+    _searchTerm = (e.target.value || '').toLowerCase().trim();
+    _auditDisplayCount = 30;
+    renderFeed();
   });
   document.getElementById('btn-export').addEventListener('click', exportCsv);
   document.getElementById('btn-clear').addEventListener('click', () => {
@@ -328,8 +334,10 @@
     document.getElementById('action-filter').value = '';
     document.getElementById('target-filter').value = '';
     document.getElementById('search-input').value  = '';
+    _auditDisplayCount = 30;
     renderFeed();
   });
+  window.loadMoreAudit = () => { _auditDisplayCount += 30; renderFeed(); };
 
   const _auditChip = document.getElementById('audit-source-chip');
   if (_auditChip && typeof renderSourceChip === 'function') {
@@ -436,13 +444,19 @@
       const filteredToZero = _entries.length > 0;
       empty.style.display     = filteredToZero ? 'none' : 'block';
       noResults.style.display = filteredToZero ? 'block' : 'none';
+      document.getElementById('audit-load-more-wrap').classList.add('hidden');
       return;
     }
     empty.style.display     = 'none';
     noResults.style.display = 'none';
 
+    // List View Contract: client-side slice pagination.
+    const visible = items.slice(0, _auditDisplayCount);
+    const lmWrap = document.getElementById('audit-load-more-wrap');
+    lmWrap.classList.toggle('hidden', visible.length >= items.length);
+
     const e = escHtml;
-    feed.innerHTML = items.map(en => {
+    feed.innerHTML = visible.map(en => {
       const actionClass = classifyAction(en.action);
       const icon  = iconForAction(en.action);
       const meta  = (en.meta && typeof en.meta === 'object') ? en.meta : null;

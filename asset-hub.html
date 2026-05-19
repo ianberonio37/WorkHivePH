@@ -521,8 +521,11 @@
         </button>
       </div>
       <div id="asset-list" class="asset-list"></div>
-      <div id="list-empty" class="empty" style="display:none;">
+      <div id="list-empty" class="empty empty-state" style="display:none;">
         No approved assets in this hive yet. Add equipment via PM Scheduler or Inventory and they will surface here once approved.
+      </div>
+      <div id="asset-load-more-wrap" class="hidden" style="margin-top:0.25rem;padding-bottom:1rem;">
+        <button onclick="loadMoreAssets()" style="width:100%;padding:0.75rem;border-radius:0.75rem;font-size:0.875rem;font-weight:600;background:rgba(247,162,27,0.1);color:#F7A21B;border:1px solid rgba(247,162,27,0.3);cursor:pointer;">Load More</button>
       </div>
 
       <!-- Supervisor-only: pending asset_nodes approval queue. Hidden when there are
@@ -938,6 +941,7 @@
 
     // Cached state
     let _allNodes = [];
+    let _assetDisplayCount = 30;  // List View Contract: client-side slice pagination
     let _selectedNodeId = null;
     let _hubChannel = null;       // realtime channel for the active asset
     let _connTimeout = null;      // realtime connection timeout
@@ -1258,6 +1262,8 @@
             || (n.iso_class || '').toLowerCase().includes(q);
       });
 
+      const lmWrap = document.getElementById('asset-load-more-wrap');
+
       if (!filtered.length) {
         list.innerHTML = '';
         empty.style.display = 'block';
@@ -1266,11 +1272,17 @@
         } else {
           empty.textContent = 'No approved assets in this hive yet. Add equipment via PM Scheduler or Inventory and they will surface here once approved.';
         }
+        if (lmWrap) lmWrap.classList.add('hidden');
         return;
       }
       empty.style.display = 'none';
 
-      list.innerHTML = filtered.slice(0, 100).map(n => `
+      // List View Contract: client-side slice pagination (replaces the previous
+      // hard cap of 100 with a progressive 30-per-click reveal).
+      const visible = filtered.slice(0, _assetDisplayCount);
+      if (lmWrap) lmWrap.classList.toggle('hidden', visible.length >= filtered.length);
+
+      list.innerHTML = visible.map(n => `
         <div class="asset-card" data-node-id="${e(n.id)}">
           <div class="asset-card-main">
             <div class="asset-card-tag">${e(n.tag || n.name || 'Untitled')}</div>
@@ -3572,9 +3584,11 @@
         let timer = null;
         search.addEventListener('input', () => {
           clearTimeout(timer);
+          _assetDisplayCount = 30;  // reset slice on search change
           timer = setTimeout(() => renderList(false), 180);
         });
       }
+      window.loadMoreAssets = () => { _assetDisplayCount += 30; renderList(false); };
 
       // Phase E.3a: Scan button — opens camera modal, matches decoded tag
       // against the loaded _allNodes list and opens the detail view if found.

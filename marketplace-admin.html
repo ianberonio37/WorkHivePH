@@ -309,6 +309,9 @@
 
   <!-- Content area -->
   <div id="content-area" class="listing-list"></div>
+  <div id="admin-load-more-wrap" class="hidden" style="margin-top:0.25rem;padding-bottom:1rem;">
+    <button onclick="loadMoreAdmin()" style="width:100%;padding:0.75rem;border-radius:0.75rem;font-size:0.875rem;font-weight:600;background:rgba(247,162,27,0.1);color:#F7A21B;border:1px solid rgba(247,162,27,0.3);cursor:pointer;">Load More</button>
+  </div>
 </main>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
@@ -421,6 +424,7 @@
   let _sellers  = [];
   let _query    = '';
   let _stats    = { draft: 0, published: 0, removed: 0, sellers: 0, unverified: 0 };
+  let _adminDisplayCount = 30;  // List View Contract: client-side slice pagination
 
   /* ============================================================
      LOAD LISTINGS
@@ -511,16 +515,23 @@
       return ((item.title || '') + ' ' + (item.seller_name || '') + ' ' + (item.description || '')).toLowerCase().includes(q);
     });
 
+    const lmWrap = document.getElementById('admin-load-more-wrap');
+
     if (!filtered.length) {
       area.innerHTML = `<div class="empty-state">
         <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
         <h3>${_tab === 'draft' ? 'No pending listings' : 'Nothing here'}</h3>
         <p>${_tab === 'draft' ? 'All listings have been reviewed.' : 'No listings with this status.'}</p>
       </div>`;
+      if (lmWrap) lmWrap.classList.add('hidden');
       return;
     }
 
-    area.innerHTML = filtered.map(item => {
+    // List View Contract: client-side slice pagination.
+    const visible = filtered.slice(0, _adminDisplayCount);
+    if (lmWrap) lmWrap.classList.toggle('hidden', visible.length >= filtered.length);
+
+    area.innerHTML = visible.map(item => {
       const isDraft    = item.status === 'draft';
       const isPublished = item.status === 'published';
       const hasImg     = !!item.image_url;
@@ -880,6 +891,7 @@
   function switchTab(tab) {
     _tab   = tab;
     _query = '';
+    _adminDisplayCount = 30;  // reset slice on tab change
     const srch = document.getElementById('search-input');
     if (srch) srch.value = '';
 
@@ -921,6 +933,7 @@
     let _searchTimer;
     document.getElementById('search-input')?.addEventListener('input', ev => {
       _query = ev.target.value.trim();
+      _adminDisplayCount = 30;  // reset slice on search change
       clearTimeout(_searchTimer);
       _searchTimer = setTimeout(() => {
         if (_tab === 'sellers')   renderSellers();
@@ -928,6 +941,13 @@
         else renderListings();
       }, 250);
     });
+
+    window.loadMoreAdmin = () => {
+      _adminDisplayCount += 30;
+      if (_tab === 'sellers')   renderSellers();
+      else if (_tab === 'disputes') renderDisputes();
+      else renderListings();
+    };
 
     await Promise.all([loadListings('draft'), loadStats()]);
   });

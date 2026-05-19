@@ -471,7 +471,12 @@
       "pattern": "id=[\"'][^\"']*-load-more-wrap[\"']|class=[\"'][^\"']*\\bbtn-load-more\\b|\\bloadMore[A-Z]\\w*\\s*\\(",
       "triggered_by": "(?:placeholder=[\"'][^\"']*[Ss]earch|class=[\"'][^\"']*\\b(?:filter-row|filter-tabs?|section-tabs?|chip-row|tab-row|tab-strip)\\b)[\\s\\S]{0,300000}innerHTML\\s*[+]?=\\s*[^;]+\\.(?:map|join)\\s*\\(",
       "rationale": "Frontend SKILL.md:1003 documents the Client-Side Slice Pagination pattern (loadMoreX + _displayCount). Lists that grow past ~20 rows without pagination dump the entire DOM at once -- slow render, no progressive scan. Trigger narrowed 2026-05-19 to FILTERABLE lists only: page must have either a search input OR a filter-tab UI, AND render a list dynamically. Dashboards, calculators, and forms that map small fixed lists are correctly excluded. Canonical wrappers: logbook-load-more-wrap, inv-load-more-wrap, pm-load-more-wrap.",
-      "severity": "medium"
+      "severity": "medium",
+      "excluded_files": [
+        {"file": "engineering-design.html",        "reason": "Report list rarely exceeds 10-15 saved designs per worker; pagination is overkill. The page is a calculator surface, not a feed."},
+        {"file": "founder-console.html",           "reason": "Admin-only platform-wide tables; row counts are bounded by 'number of platform hives/users' (currently <100). Adding Load More now would gate behind a control that always shows everything anyway. Revisit when row counts exceed ~200."},
+        {"file": "marketplace-seller-profile.html","reason": "Single seller's full listing set; cap is naturally small (a seller with 50+ listings is rare). Already has filter-tab UI for parts/training/jobs."}
+      ]
     },
     {
       "id": "frontend_filter_tabs_have_aria_roles",

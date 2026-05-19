@@ -305,10 +305,13 @@
     <div id="feed" class="feed">
       <div class="loading">Loading alerts...</div>
     </div>
-    <div id="empty" class="empty" style="display:none;">
+    <div id="empty" class="empty empty-state" style="display:none;">
       <div class="empty-icon">✓</div>
       <div class="empty-title">All clear</div>
       <div class="empty-sub">No active alerts in your hive right now.</div>
+    </div>
+    <div id="alert-load-more-wrap" class="hidden" style="margin-top:0.25rem;padding-bottom:1rem;">
+      <button onclick="loadMoreAlerts()" style="width:100%;padding:0.75rem;border-radius:0.75rem;font-size:0.875rem;font-weight:600;background:rgba(247,162,27,0.1);color:#F7A21B;border:1px solid rgba(247,162,27,0.3);cursor:pointer;">Load More</button>
     </div>
     <div id="footer-meta" class="footer-meta"></div>
   </div>
@@ -376,6 +379,7 @@
   let _amcChannel = null;
   let _alerts = [];
   let _activeKind = 'all';
+  let _alertDisplayCount = 30;  // List View Contract: client-side slice pagination
   let _refreshTimer = null;
   // Anomaly Engine 2.0 state lets — declared HERE (not next to the panel
   // code at ~line 555) because `await loadAll()` runs early at the bottom
@@ -500,7 +504,14 @@
     if (headlineEl) headlineEl.textContent = String(b.headline || '(no headline)');
     if (summaryEl)  summaryEl.textContent  = String(b.summary  || '');
 
-    const setStat = (id, n) => { const el = document.getElementById(id); if (el) el.textContent = String(n); };
+    const setStat = (id, n) => {
+      const el = document.getElementById(id);
+      if (el) {
+        el.textContent = String(n);
+        // Calm Dashboard Contract: dim zero stats so empty briefs read as calm.
+        if (window.hideZeroStat) hideZeroStat(el, n);
+      }
+    };
     setStat('amc-stat-assets', brief.asset_count ?? (Array.isArray(b.top_assets) ? b.top_assets.length : 0));
     setStat('amc-stat-pms',    brief.pm_count    ?? (Array.isArray(b.pm_due) ? b.pm_due.length : 0));
     setStat('amc-stat-parts',  brief.parts_count ?? (Array.isArray(b.parts_to_stage) ? b.parts_to_stage.length : 0));
@@ -1112,11 +1123,14 @@
     document.querySelectorAll('#filters .chip').forEach(btn => {
       btn.addEventListener('click', () => {
         _activeKind = btn.getAttribute('data-kind');
+        _alertDisplayCount = 30;  // reset slice on filter change
         renderFilters();
         renderFeed();
       });
     });
   }
+
+  window.loadMoreAlerts = () => { _alertDisplayCount += 30; renderFeed(); };
 
   // Layer D Plain-Read summary — rolls up _alerts + _anomalySignals + AMC.
   // Called from renderFeed so it refreshes whenever the alert pipeline runs.
@@ -1244,6 +1258,7 @@
   function renderFeed() {
     const feed   = document.getElementById('feed');
     const empty  = document.getElementById('empty');
+    const lmWrap = document.getElementById('alert-load-more-wrap');
     const items = _activeKind === 'all'
       ? _alerts
       : _alerts.filter(a => a.kind === _activeKind);
@@ -1251,12 +1266,17 @@
     if (!items.length) {
       feed.innerHTML = '';
       empty.style.display = 'block';
+      lmWrap.classList.add('hidden');
       return;
     }
     empty.style.display = 'none';
 
+    // List View Contract: client-side slice pagination.
+    const visible = items.slice(0, _alertDisplayCount);
+    lmWrap.classList.toggle('hidden', visible.length >= items.length);
+
     const e = escHtml;
-    feed.innerHTML = items.map(a => {
+    feed.innerHTML = visible.map(a => {
       const sev = a.severity || 'medium';
       const tagClass = ({ critical: 'tag-critical', high: 'tag-high', medium: 'tag-medium', info: 'tag-info' })[sev] || 'tag-medium';
       const icon = ({ risk: '🔴', pm: '⚠️', stock: '📦', pattern: '🧬', system: '⚙️' })[a.kind] || '•';
@@ -1293,5 +1313,18 @@
 })();
 </script>
 </main>
+
+<!-- Calm Dashboard Contract footer: data-sources disclosure + hideZeroStat helper -->
+<details data-calm-disclosure="data-sources" style="max-width:680px; margin:1rem auto 2rem; padding:0 1rem;">
+  <summary style="cursor:pointer; font-size:.78rem; color:rgba(255,255,255,0.5); list-style:none;">▸ About this dashboard's data sources</summary>
+  <p style="font-size:.78rem; color:rgba(255,255,255,0.55); padding:.5rem 0; line-height:1.5;">Numbers come from WorkHive canonical truth views (see <code>KPI_ENGINE.md</code>). They refresh live unless a tile chip says otherwise. Empty or zero values are dimmed via <code>hideZeroStat()</code> so you can tell at a glance which signals have data.</p>
+</details>
+<script>
+  window.hideZeroStat = window.hideZeroStat || function(el, val) {
+    if (!el) return;
+    const live = [val].filter(v => v != null && Number(v) > 0);
+    el.style.opacity = (live.length > 0) ? '1' : '0.55';
+  };
+</script>
 </body>
 </html>

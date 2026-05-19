@@ -155,7 +155,7 @@
     .empty-state svg { opacity: 0.25; margin-bottom: 0.75rem; }
     .empty-state h3 { font-size: 0.95rem; font-weight: 700; color: #F4F6FA; margin-bottom: 0.35rem; }
     .empty-state p { font-size: 0.78rem; }
-    .btn-post-now { margin-top: 1rem; display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.6rem 1.25rem; background: linear-gradient(135deg, #F7A21B, #e8920a); border: none; border-radius: 0.625rem; color: #0f1923; font-size: 0.82rem; font-weight: 700; font-family: 'Poppins', sans-serif; cursor: pointer; text-decoration: none; }
+    .btn-post-now { margin-top: 1rem; display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.6rem 1.25rem; background: linear-gradient(135deg, #F7A21B, #FDB94A); border: none; border-radius: 0.625rem; color: #0f1923; font-size: 0.82rem; font-weight: 700; font-family: 'Poppins', sans-serif; cursor: pointer; text-decoration: none; }
 
     /* Skeleton */
     .skel { background: rgba(255,255,255,0.04); border-radius: 0.5rem; }
@@ -192,7 +192,7 @@
     .wh-textarea:focus { outline: none; border-color: rgba(247,162,27,0.4); }
     .wh-textarea::placeholder { color: #7B8794; }
     .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
-    .btn-primary { width: 100%; padding: 0.75rem; background: linear-gradient(135deg, #F7A21B, #e8920a); border: none; border-radius: 0.625rem; color: #0f1923; font-family: 'Poppins', sans-serif; font-size: 0.9rem; font-weight: 700; cursor: pointer; transition: opacity 0.2s; }
+    .btn-primary { width: 100%; padding: 0.75rem; background: linear-gradient(135deg, #F7A21B, #FDB94A); border: none; border-radius: 0.625rem; color: #0f1923; font-family: 'Poppins', sans-serif; font-size: 0.9rem; font-weight: 700; cursor: pointer; transition: opacity 0.2s; }
     .btn-primary:hover { opacity: 0.92; }
     .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
 
@@ -313,6 +313,9 @@
 
   <!-- Content -->
   <div id="content-area" class="item-list"></div>
+  <div id="seller-load-more-wrap" class="hidden" style="margin-top:0.25rem;padding-bottom:1rem;">
+    <button onclick="loadMoreSeller()" style="width:100%;padding:0.75rem;border-radius:0.75rem;font-size:0.875rem;font-weight:600;background:rgba(247,162,27,0.1);color:#F7A21B;border:1px solid rgba(247,162,27,0.3);cursor:pointer;">Load More</button>
+  </div>
 </main>
 
 <!-- Edit listing sheet -->
@@ -402,7 +405,13 @@
      See MARKETPLACE_GO_LIVE_ROADMAP.md for the activation path. */
   const PAYMENTS_ENABLED = false;
 
-  const WORKER_NAME = localStorage.getItem('wh_last_worker') || localStorage.getItem('wh_worker_name') || localStorage.getItem('workerName') || '';
+  let WORKER_NAME = localStorage.getItem('wh_last_worker') || localStorage.getItem('wh_worker_name') || localStorage.getItem('workerName') || '';
+    // Auth C4: refresh WORKER_NAME from Supabase Auth session if localStorage was
+    // empty or stale. Fire-and-forget -- the sync auth-check redirect still runs
+    // first; session identity overrides asynchronously.
+    if (typeof restoreIdentityFromSession === 'function' && typeof db !== 'undefined') {
+      restoreIdentityFromSession(db).then(_n => { if (_n) WORKER_NAME = _n; });
+    }
   const HIVE_ID     = localStorage.getItem('wh_active_hive_id') || null;
 
   // ── AUDIT LOG ──
@@ -445,10 +454,7 @@
   }
 
   /* ── Utilities ──────────────────────────────────────────────────────────── */
-  function escHtml(s) {
-    if (s == null) return '';
-    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
-  }
+  // escHtml() is loaded from utils.js -- never redefined inline (security skill rule).
 
   let _toastTimer;
   function showToast(msg, type) {
@@ -481,6 +487,7 @@
   /* ── State ──────────────────────────────────────────────────────────────── */
   let _tab        = 'listings';
   let _listings   = [];
+  let _sellerDisplayCount = 30;  // List View Contract: client-side slice pagination
   let _inquiries  = [];
   let _orders     = [];
   let _seller     = null;
@@ -632,6 +639,7 @@
     if (!area) return;
 
     const filtered = _statusFilter === 'all' ? _listings : _listings.filter(l => l.status === _statusFilter);
+    const lmWrap = document.getElementById('seller-load-more-wrap');
 
     if (!filtered.length) {
       area.innerHTML = `<div class="empty-state">
@@ -643,8 +651,13 @@
           Post a Listing
         </a>
       </div>`;
+      if (lmWrap) lmWrap.classList.add('hidden');
       return;
     }
+
+    // List View Contract: client-side slice pagination.
+    const visible = filtered.slice(0, _sellerDisplayCount);
+    if (lmWrap) lmWrap.classList.toggle('hidden', visible.length >= filtered.length);
 
     const statusChip = {
       draft:     `<span class="meta-chip yellow">Draft — Pending Review</span>`,
@@ -653,7 +666,7 @@
       sold:      `<span class="meta-chip blue">Sold</span>`,
     };
 
-    area.innerHTML = filtered.map(item => `
+    area.innerHTML = visible.map(item => `
       <div class="listing-item ${e(item.status)}" data-id="${e(item.id)}">
         <div class="li-body">
           <div class="li-thumb">
@@ -1433,10 +1446,13 @@
     document.querySelectorAll('[data-status]').forEach(chip => {
       chip.addEventListener('click', () => {
         _statusFilter = chip.dataset.status;
+        _sellerDisplayCount = 30;  // reset slice on status-chip change
         document.querySelectorAll('[data-status]').forEach(c => c.classList.toggle('active', c === chip));
         renderListings();
       });
     });
+
+    window.loadMoreSeller = () => { _sellerDisplayCount += 30; renderListings(); };
 
     document.getElementById('overlay-edit')?.addEventListener('click', () => { document.getElementById('overlay-edit')?.classList.remove('open'); document.getElementById('sheet-edit')?.classList.remove('open'); document.body.style.overflow = ''; });
     document.getElementById('btn-close-edit')?.addEventListener('click', () => { document.getElementById('overlay-edit')?.classList.remove('open'); document.getElementById('sheet-edit')?.classList.remove('open'); document.body.style.overflow = ''; });
