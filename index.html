@@ -2787,9 +2787,10 @@
       if (typeof _initDashboard === 'function') _initDashboard(displayName);
     }
 
-    // C2: Check if display_name matches existing hive records
-    const { count } = await db.from('hive_members')
-      .select('id', { count: 'exact', head: true })
+    // C2: Check if display_name matches existing hive records.
+    // Canonical: v_worker_truth wraps hive_members + worker_profiles.
+    const { count } = await db.from('v_worker_truth')
+      .select('worker_name', { count: 'exact', head: true })
       .eq('worker_name', displayName);
 
     if (count > 0) {
@@ -3396,6 +3397,7 @@
             .select('pm_asset_id, asset_name, category, is_due')
             .eq('hive_id', HIVE_ID)
             .limit(200)
+        // canonical-allow: solo-mode fallback — v_pm_compliance_truth is hive-scoped only
         : db.from('pm_assets')
             .select('id, asset_name, category')
             .eq(scopeFilter.col, scopeFilter.val)
@@ -3410,7 +3412,9 @@
             .gte('closed_at', startOfDay.toISOString())
         : Promise.resolve({ count: 0 }),
 
-      // Hive Activity Today: PM completed today (count only)
+      // Hive Activity Today: PM completed today (count only).
+      // canonical-allow: pm_completions is the canonical fuel for the
+      // count; v_pm_compliance_truth aggregates is_due, not raw completions.
       HIVE_ID
         ? db.from('pm_completions')
             .select('id', { count: 'exact', head: true })

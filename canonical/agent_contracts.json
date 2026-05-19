@@ -1,0 +1,193 @@
+{
+  "_doc": [
+    "Tier-B (Brain) canonical contracts.",
+    "",
+    "FILE MIRROR of the Postgres canonical_agent_contracts table.",
+    "Single source of truth in code; seeded into Postgres by migration",
+    "20260512000013_tier_bcde_foundation.sql. The DB-backed validator at",
+    "supabase/functions/_shared/validate-contract.ts reads from Postgres at",
+    "request time (used by analytics-orchestrator + batch-risk-scoring).",
+    "The file mirror serves the tier auditor + offline static analysis.",
+    "",
+    "If you add a contract here, mirror it in a follow-up migration so the",
+    "DB stays in sync. The tier auditor surfaces drift between this file",
+    "and the live runtime expectations.",
+    "",
+    "Fields:",
+    "  agent_id        stable identifier (matches contract_id in DB)",
+    "  edge_fn         producing edge function",
+    "  consumers       HTML surfaces that read this contract",
+    "  output_schema   JSON-schema-lite spec",
+    "  hive_scope      'hive' | 'platform' | 'solo'",
+    "  description     plain-language explanation",
+    "  added_in        migration + commit reference"
+  ],
+  "agents": [
+    {
+      "agent_id":  "analytics_action_plan_v1",
+      "edge_fn":   "analytics-orchestrator",
+      "consumers": ["analytics.html", "shift-brain.html", "hive.html"],
+      "output_schema": {
+        "type": "object",
+        "required": ["summary", "priorities"],
+        "properties": {
+          "summary":    { "type": "string" },
+          "priorities": { "type": "array", "items": {
+            "type": "object",
+            "required": ["asset", "action", "urgency"],
+            "properties": {
+              "asset":   { "type": "string" },
+              "action":  { "type": "string" },
+              "why":     { "type": "string" },
+              "urgency": { "type": "string", "enum": ["CRITICAL", "HIGH", "MEDIUM", "LOW"] },
+              "eta":     { "type": "string" }
+            }
+          }}
+        }
+      },
+      "hive_scope":  "hive",
+      "description": "Phase 4 action plan synthesis. Reusable by Shift Brain + Hive feed.",
+      "added_in":    "migration 20260512000013_tier_bcde_foundation.sql"
+    },
+    {
+      "agent_id":  "next_failure_forecast_v1",
+      "edge_fn":   "analytics-orchestrator",
+      "consumers": ["analytics.html", "predictive.html", "asset-hub.html"],
+      "output_schema": {
+        "type": "object",
+        "required": ["predictions"],
+        "properties": {
+          "predictions": { "type": "array", "items": {
+            "type": "object",
+            "required": ["machine", "predicted_next", "risk"],
+            "properties": {
+              "machine":        { "type": "string" },
+              "predicted_next": { "type": "string", "format": "date" },
+              "risk":           { "type": "string", "enum": ["HIGH", "MEDIUM", "LOW"] },
+              "basis":          { "type": "string" }
+            }
+          }}
+        }
+      },
+      "hive_scope":  "hive",
+      "description": "Per-machine next-failure projection.",
+      "added_in":    "migration 20260512000013"
+    },
+    {
+      "agent_id":  "parts_stockout_v1",
+      "edge_fn":   "analytics-orchestrator",
+      "consumers": ["analytics.html", "inventory.html", "parts-tracker.html"],
+      "output_schema": {
+        "type": "object",
+        "required": ["reorder"],
+        "properties": {
+          "reorder": { "type": "array", "items": {
+            "type": "object",
+            "required": ["part_name", "urgency", "suggested_order"],
+            "properties": {
+              "part_name":           { "type": "string" },
+              "urgency":             { "type": "string", "enum": ["CRITICAL", "HIGH", "MEDIUM"] },
+              "suggested_order":     { "type": "integer" },
+              "days_until_stockout": { "type": "integer" },
+              "basis":               { "type": "string" }
+            }
+          }}
+        }
+      },
+      "hive_scope":  "hive",
+      "description": "Parts-stockout reorder recommendations.",
+      "added_in":    "migration 20260512000013"
+    },
+    {
+      "agent_id":  "health_score_v1",
+      "edge_fn":   "batch-risk-scoring",
+      "consumers": ["predictive.html", "asset-hub.html", "analytics.html", "shift-brain.html"],
+      "output_schema": {
+        "type": "object",
+        "required": ["asset", "health_score", "mtbf_days"],
+        "properties": {
+          "asset":        { "type": "string" },
+          "health_score": { "type": "number", "minimum": 0, "maximum": 1 },
+          "mtbf_days":    { "type": ["number", "null"] },
+          "risk_level":   { "type": "string", "enum": ["low", "medium", "high", "critical"] },
+          "top_factors":  { "type": "array", "items": { "type": "object" } }
+        }
+      },
+      "hive_scope":  "hive",
+      "description": "Per-asset composite health score with risk-level + top contributing factors.",
+      "added_in":    "migration 20260512000013"
+    },
+    {
+      "agent_id":  "anomaly_baseline_v1",
+      "edge_fn":   "analytics-orchestrator",
+      "consumers": ["analytics.html", "asset-hub.html"],
+      "output_schema": {
+        "type": "object",
+        "required": ["assets"],
+        "properties": {
+          "assets": { "type": "array", "items": {
+            "type": "object",
+            "required": ["machine", "quality_flag"],
+            "properties": {
+              "machine":         { "type": "string" },
+              "quality_flag":    { "type": "string", "enum": ["OK", "STALE", "ANOMALY"] },
+              "baseline_mean":   { "type": "number" },
+              "baseline_std":    { "type": "number" },
+              "deviation_sigma": { "type": "number" }
+            }
+          }}
+        }
+      },
+      "hive_scope":  "hive",
+      "description": "Sensor-anomaly baseline per machine. Powers the Phase 3 anomaly card + per-asset ANOMALY flag.",
+      "added_in":    "migration 20260512000013"
+    },
+    {
+      "agent_id":  "parts_spike_v1",
+      "edge_fn":   "analytics-orchestrator",
+      "consumers": ["analytics.html", "inventory.html"],
+      "output_schema": {
+        "type": "object",
+        "required": ["spikes"],
+        "properties": {
+          "spikes": { "type": "array", "items": {
+            "type": "object",
+            "required": ["part_name", "spike_factor"],
+            "properties": {
+              "part_name":            { "type": "string" },
+              "spike_factor":         { "type": "number" },
+              "recent_consumption":   { "type": "integer" },
+              "baseline_consumption": { "type": "integer" }
+            }
+          }}
+        }
+      },
+      "hive_scope":  "hive",
+      "description": "Parts-consumption spike detector. Surfaces parts whose recent usage exceeded baseline.",
+      "added_in":    "migration 20260512000013"
+    },
+    {
+      "agent_id":  "priority_ranking_v1",
+      "edge_fn":   "analytics-orchestrator",
+      "consumers": ["analytics.html", "shift-brain.html", "asset-hub.html"],
+      "output_schema": {
+        "type": "object",
+        "required": ["ranking"],
+        "properties": {
+          "ranking": { "type": "array", "items": {
+            "type": "object",
+            "required": ["asset", "priority_score"],
+            "properties": {
+              "asset":                { "type": "string" },
+              "priority_score":       { "type": "number", "minimum": 0, "maximum": 1 },
+              "contributing_factors": { "type": "array", "items": { "type": "string" } }
+            }
+          }}
+        }
+      },
+      "hive_scope":  "hive",
+      "description": "Composite priority ranking for shift planning + cross-surface action queue.",
+      "added_in":    "migration 20260512000013"
+    }
+  ]
+}

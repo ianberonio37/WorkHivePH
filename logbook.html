@@ -1061,6 +1061,14 @@
           <input aria-label="Serial number printed on the equipment nameplate" id="a-serial-no" type="text" class="wh-input" placeholder="e.g. AB22-987654" autocomplete="off" />
         </div>
         <div>
+          <!-- capture_id: asset_ideal_cycle_time. The Performance-factor fuel
+               field that unlocks full OEE (Availability × Performance × Quality).
+               When NULL the platform reports the partial form (A × Q). Unit:
+               seconds per unit produced (ISO 22400-2 §3.4.18). -->
+          <label for="a-ideal-cycle-time" class="wh-label">Ideal Cycle Time <span class="text-white/25 font-normal normal-case">(seconds per unit — unlocks full OEE)</span></label>
+          <input aria-label="Seconds per unit at planned ideal cycle. Leave blank if no planned rate." id="a-ideal-cycle-time" name="ideal_cycle_time_seconds" type="number" step="0.01" min="0" class="wh-input" placeholder="e.g. 6 (600 units/hour line)" autocomplete="off" />
+        </div>
+        <div>
           <label for="a-type" class="wh-label">Asset Type</label>
           <select id="a-type" class="wh-input">
             <option value="">Select type...</option>
@@ -1972,6 +1980,7 @@ function clearAssetForm() {
   const mfr  = document.getElementById('a-manufacturer'); if (mfr)  mfr.value  = '';
   const mod  = document.getElementById('a-model');        if (mod)  mod.value  = '';
   const sn   = document.getElementById('a-serial-no');    if (sn)   sn.value   = '';
+  const ict  = document.getElementById('a-ideal-cycle-time'); if (ict) ict.value = '';
   const stat = document.getElementById('a-scan-status');  if (stat) stat.textContent = '';
   document.querySelectorAll('input[name="a-criticality"]').forEach(r => { r.checked = false; });
   ['Critical','Major','Minor'].forEach(v => {
@@ -2009,6 +2018,13 @@ async function submitAsset() {
     manufacturer: _val('a-manufacturer'),
     model:        _val('a-model'),
     serial_no:    _val('a-serial-no'),
+    // capture_id: asset_ideal_cycle_time. Seconds per unit at planned cycle;
+    // unlocks full OEE = A × P × Q. Blank/0 falls back to partial OEE.
+    ideal_cycle_time_seconds: (() => {
+      const v = _val('a-ideal-cycle-time');
+      const n = v === '' ? null : Number(v);
+      return (Number.isFinite(n) && n > 0) ? n : null;
+    })(),
     criticality: criticality ? criticality.value : '',
     registered_at: new Date().toISOString(),
     status: HIVE_ID ? 'pending' : 'approved',

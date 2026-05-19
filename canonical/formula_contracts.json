@@ -1,0 +1,95 @@
+{
+  "_doc": [
+    "Tier-E (Engine) canonical contracts.",
+    "",
+    "Each entry registers ONE deterministic computation: a metric formula,",
+    "a Postgres RPC, a Python pure function. The contract makes the math",
+    "auditable: any downstream dashboard or AI agent can cite the formula_id",
+    "and the standards reference (ISO 14224, SAE JA1011, etc.), and",
+    "regression tests can pin the math.",
+    "",
+    "Fields:",
+    "  formula_id      stable identifier, snake_case (e.g. 'mtbf_iso_14224')",
+    "  name            human-readable name ('MTBF — Mean Time Between Failures')",
+    "  standard_cite   standards reference (e.g. 'ISO 14224:2016 §6.2')",
+    "  inputs          list of capture_ids / column refs the formula reads",
+    "  implemented_in  RPC name OR Python function OR migration filename",
+    "  freshness       'realtime' | 'daily_13_pht' | '1h_cache' | ...",
+    "  unit            output unit ('days', 'pct', 'count')",
+    "  description     one-paragraph plain-language explanation",
+    "  added_in        migration / SKILL.md citation",
+    "",
+    "Auditor: tools/audit_formula_contracts.py — surfaces RPCs that look",
+    "like deterministic metrics but aren't yet registered.",
+    "",
+    "Seed entries below are the formulas already documented in KPI_ENGINE.md."
+  ],
+  "formulas": [
+    {
+      "formula_id":     "mtbf_iso_14224",
+      "name":           "MTBF — Mean Time Between Failures",
+      "standard_cite":  "ISO 14224:2016 §6.2",
+      "inputs":         ["logbook.created_at", "logbook.maintenance_type"],
+      "implemented_in": "RPC: get_mtbf_by_machine + view: v_kpi_truth",
+      "freshness":      "realtime / 1h_materialized",
+      "unit":           "days",
+      "description":    "Mean of inter-arrival intervals of corrective entries within a window. Same algorithm shared by the interactive RPC (user-selected window) and the materialised view (snapshot at 30/90/365 days).",
+      "added_in":       "KPI_ENGINE.md Phase 1.1 + migration 20260512000005_v_kpi_truth.sql"
+    },
+    {
+      "formula_id":     "mttr_iso_14224",
+      "name":           "MTTR — Mean Time To Repair",
+      "standard_cite":  "ISO 14224:2016 §6.3",
+      "inputs":         ["logbook.downtime_hours", "logbook.status"],
+      "implemented_in": "RPC: get_mttr_by_machine",
+      "freshness":      "realtime",
+      "unit":           "hours",
+      "description":    "Mean downtime_hours of corrective entries whose status = Closed within the window.",
+      "added_in":       "KPI_ENGINE.md Phase 1.1"
+    },
+    {
+      "formula_id":     "pm_compliance_30d",
+      "name":           "PM Compliance — 30-day floor",
+      "standard_cite":  "SMRP 4.4",
+      "inputs":         ["pm_assets.last_anchor_date"],
+      "implemented_in": "view: v_pm_compliance_truth (is_due column)",
+      "freshness":      "realtime",
+      "unit":           "boolean",
+      "description":    "is_due = (last_anchor_date IS NULL) OR (last_anchor_date < now - 30 days). Used by every PM-overdue tile across the platform; period-scoped variants for 30/90/365 day windows are derived from the same anchor.",
+      "added_in":       "migration 20260509000004_v_pm_compliance_truth.sql"
+    },
+    {
+      "formula_id":     "risk_score_v2_composite",
+      "name":           "Risk Score (composite, 6-factor)",
+      "standard_cite":  "SAE JA1011 + Weibull wear-out",
+      "inputs":         ["pm_overdue_rate", "fault_frequency", "time_to_mtbf", "repeat_fault", "weibull_wearout", "fmea_top_rpn"],
+      "implemented_in": "edge fn: batch-risk-scoring (writes asset_risk_scores) + view: v_risk_truth",
+      "freshness":      "daily_13_pht",
+      "unit":           "pct (0..1)",
+      "description":    "Weighted composite — PM overdue 0.30, fault frequency 0.30, time-to-MTBF 0.20, repeat fault 0.20, Weibull wear-out 0.15, FMEA top RPN 0.10 — clamped to [0, 1]. Daily snapshot.",
+      "added_in":       "KPI_ENGINE.md Phase 1 + migration 20260509000003_v_risk_truth.sql"
+    },
+    {
+      "formula_id":     "oee_iso_22400",
+      "name":           "OEE — Overall Equipment Effectiveness (full)",
+      "standard_cite":  "ISO 22400-2:2014 §5.5; Nakajima TPM (1988)",
+      "inputs":         ["availability_pct", "performance_pct", "quality_pct"],
+      "implemented_in": "RPC: get_oee_by_machine (migration 20260520000002) — falls back to partial when performance_pct is NULL",
+      "freshness":      "live (each refresh)",
+      "unit":           "pct (0..100)",
+      "description":    "Full OEE = Availability × Performance × Quality. The canonical Nakajima formula. Requires three independent factors; if any factor is null/unavailable the RPC returns the partial form (see oee_iso_22400_partial) and tags the result accordingly.",
+      "added_in":       "CANONICAL_SOURCES_AUDIT.md A.2 (Phase 1 Tile #1) — formal contract 2026-05-20"
+    },
+    {
+      "formula_id":     "oee_iso_22400_partial",
+      "name":           "OEE — partial (Availability × Quality)",
+      "standard_cite":  "ISO 22400-2:2014 §5.5 (partial — Performance excluded)",
+      "inputs":         ["availability_pct", "quality_pct"],
+      "implemented_in": "python-api: descriptive.calc_oee + RPC get_oee_by_machine (partial branch)",
+      "freshness":      "live",
+      "unit":           "pct (0..100)",
+      "description":    "Partial OEE = Availability × Quality. Used when per-asset ideal cycle time (the Performance factor input) is not yet captured. Always declared 'partial' in the source chip so users don't conflate with full OEE. Closing this gap requires capture contract asset_ideal_cycle_time (Tier F next-build).",
+      "added_in":       "formal contract 2026-05-20 (captures existing platform reality + flags the gap)"
+    }
+  ]
+}

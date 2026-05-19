@@ -1052,8 +1052,9 @@
   // ── OEE (Descriptive) ──────────────────────────────────────────────────────
   function renderOEE(d) {
     if (!d?.oee_by_asset?.length) return `<div class="card">
-      <div class="card-title">OEE — Overall Equipment Effectiveness <span class="card-standard">ISO 22400-2:2014 · Availability × Quality</span></div>
+      <div class="card-title">OEE — Overall Equipment Effectiveness <span class="card-standard">ISO 22400-2:2014 · partial (Availability × Quality)</span></div>
       <div class="empty" style="padding:1rem 0;">${escHtml(d?.note || 'No production_output data yet. Fill Quick Readings and production units in Breakdown entries.')}</div>
+      <p style="font-size:0.62rem;color:rgba(255,255,255,0.35);margin-top:0.5rem;">Full OEE = Availability × Performance × Quality. Performance requires per-asset ideal cycle time (not yet captured). Until then the platform reports the partial form.</p>
     </div>`;
     const rows = d.oee_by_asset.map(r => {
       const oee = r.oee_pct;
@@ -1066,12 +1067,12 @@
       </tr>`;
     }).join('');
     return `<div class="card">
-      <div class="card-title">OEE — Overall Equipment Effectiveness <span class="card-standard">ISO 22400-2:2014 · ${d.assets_tracked} asset(s)</span></div>
+      <div class="card-title">OEE — Overall Equipment Effectiveness <span class="card-standard">ISO 22400-2:2014 · partial (A × Q) · ${d.assets_tracked} asset(s)</span></div>
       <table class="data-table">
-        <thead><tr><th>Machine</th><th class="num">Availability</th><th class="num">Quality</th><th class="num">OEE</th></tr></thead>
+        <thead><tr><th>Machine</th><th class="num">Availability</th><th class="num">Quality</th><th class="num">OEE (partial)</th></tr></thead>
         <tbody>${rows}</tbody>
       </table>
-      <p style="font-size:0.62rem;color:rgba(255,255,255,0.2);margin-top:0.5rem;">🟢 ≥85% World class · 🟡 ≥65% Typical · 🔴 &lt;65% Needs attention. Performance dimension pending planned rate data.</p>
+      <p style="font-size:0.62rem;color:rgba(255,255,255,0.35);margin-top:0.5rem;">Full OEE = <strong>Availability × Performance × Quality</strong>. Performance dimension pending per-asset ideal cycle time capture; this card shows the partial (A × Q) until that fuel field lands. 🟢 ≥85% World class · 🟡 ≥65% Typical · 🔴 &lt;65% Needs attention.</p>
     </div>`;
   }
 
@@ -2405,5 +2406,16 @@
 
 <script src="nav-hub.js"></script>
 </main>
+
+<!-- Calm Dashboard Contract footer: global hideZeroStat helper. Analytics
+     already filters zero data via Plotly series; the helper is shipped
+     here so any future stat tiles inherit the contract uniformly. -->
+<script>
+  window.hideZeroStat = window.hideZeroStat || function(el, val) {
+    if (!el) return;
+    const live = [val].filter(v => v != null && Number(v) > 0);
+    el.style.opacity = (live.length > 0) ? '1' : '0.55';
+  };
+</script>
 </body>
 </html>

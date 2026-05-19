@@ -1,0 +1,328 @@
+{
+  "pages": [
+    {
+      "page": "index.html",
+      "canonical": [
+        "v_inventory_items_truth",
+        "v_logbook_truth",
+        "v_pm_compliance_truth",
+        "v_risk_truth"
+      ],
+      "drift": [
+        [
+          "hive_members",
+          "v_worker_truth"
+        ],
+        [
+          "pm_assets",
+          "v_pm_compliance_truth"
+        ],
+        [
+          "pm_completions",
+          "v_pm_compliance_truth"
+        ],
+        [
+          "worker_profiles",
+          "v_worker_truth"
+        ]
+      ],
+      "gap": [
+        "amc_briefings",
+        "early_access_emails",
+        "failure_signature_alerts",
+        "sensor_readings"
+      ],
+      "unknown": [],
+      "allow_present": false
+    },
+    {
+      "page": "hive.html",
+      "canonical": [
+        "v_inventory_items_truth",
+        "v_knowledge_freshness_truth",
+        "v_logbook_truth",
+        "v_pm_compliance_truth",
+        "v_pm_scope_items_truth"
+      ],
+      "drift": [
+        [
+          "asset_nodes",
+          "v_asset_truth"
+        ],
+        [
+          "hive_members",
+          "v_worker_truth"
+        ],
+        [
+          "logbook",
+          "v_logbook_truth"
+        ],
+        [
+          "pm_completions",
+          "v_pm_compliance_truth"
+        ]
+      ],
+      "gap": [
+        "ai_reports",
+        "community_xp",
+        "failure_signature_alerts",
+        "hive_audit_log",
+        "hive_benchmarks",
+        "hives",
+        "network_benchmarks",
+        "skill_badges"
+      ],
+      "unknown": [],
+      "allow_present": false
+    },
+    {
+      "page": "alert-hub.html",
+      "canonical": [
+        "v_anomaly_truth",
+        "v_inventory_items_truth",
+        "v_pm_compliance_truth",
+        "v_risk_truth"
+      ],
+      "drift": [],
+      "gap": [
+        "amc_briefings",
+        "anomaly_signals",
+        "automation_log",
+        "failure_signature_alerts",
+        "hive_audit_log",
+        "parts_staging_recommendations"
+      ],
+      "unknown": [],
+      "allow_present": false
+    },
+    {
+      "page": "asset-hub.html",
+      "canonical": [
+        "v_asset_truth",
+        "v_fmea_truth",
+        "v_logbook_truth",
+        "v_pf_truth",
+        "v_rcm_truth",
+        "v_risk_truth",
+        "v_weibull_truth"
+      ],
+      "drift": [
+        [
+          "asset_nodes",
+          "v_asset_truth"
+        ],
+        [
+          "hive_members",
+          "v_worker_truth"
+        ],
+        [
+          "pm_assets",
+          "v_pm_compliance_truth"
+        ],
+        [
+          "pm_completions",
+          "v_pm_compliance_truth"
+        ],
+        [
+          "pm_scope_items",
+          "v_pm_scope_items_truth"
+        ]
+      ],
+      "gap": [
+        "asset_edges",
+        "equipment_reading_templates",
+        "external_sync",
+        "hive_audit_log",
+        "marketplace_listings",
+        "parts_staged_reservations",
+        "parts_staging_recommendations",
+        "rcm_fmea_modes",
+        "rcm_strategies",
+        "sensor_readings"
+      ],
+      "unknown": [
+        "v_sensor_recent"
+      ],
+      "allow_present": false
+    },
+    {
+      "page": "analytics.html",
+      "canonical": [],
+      "drift": [],
+      "gap": [],
+      "unknown": [],
+      "allow_present": false
+    },
+    {
+      "page": "predictive.html",
+      "canonical": [
+        "v_risk_truth"
+      ],
+      "drift": [],
+      "gap": [],
+      "unknown": [],
+      "allow_present": false
+    },
+    {
+      "page": "achievements.html",
+      "canonical": [],
+      "drift": [
+        [
+          "hive_members",
+          "v_worker_truth"
+        ]
+      ],
+      "gap": [
+        "achievement_xp_log",
+        "worker_achievements"
+      ],
+      "unknown": [],
+      "allow_present": false
+    },
+    {
+      "page": "shift-brain.html",
+      "canonical": [],
+      "drift": [
+        [
+          "hive_members",
+          "v_worker_truth"
+        ]
+      ],
+      "gap": [
+        "shift_plans"
+      ],
+      "unknown": [],
+      "allow_present": false
+    },
+    {
+      "page": "dayplanner.html",
+      "canonical": [
+        "v_logbook_truth"
+      ],
+      "drift": [
+        [
+          "logbook",
+          "v_logbook_truth"
+        ]
+      ],
+      "gap": [
+        "schedule_items"
+      ],
+      "unknown": [],
+      "allow_present": false
+    },
+    {
+      "page": "ai-quality.html",
+      "canonical": [],
+      "drift": [],
+      "gap": [
+        "ai_cost_log"
+      ],
+      "unknown": [],
+      "allow_present": false
+    },
+    {
+      "page": "ph-intelligence.html",
+      "canonical": [],
+      "drift": [],
+      "gap": [
+        "hive_benchmarks",
+        "ph_intelligence_reports"
+      ],
+      "unknown": [],
+      "allow_present": false
+    },
+    {
+      "page": "plant-connections.html",
+      "canonical": [],
+      "drift": [],
+      "gap": [
+        "external_sync",
+        "gateway_audit_log",
+        "hive_retention_config",
+        "integration_configs",
+        "sensor_topic_map",
+        "sso_configs"
+      ],
+      "unknown": [],
+      "allow_present": false
+    },
+    {
+      "page": "founder-console.html",
+      "canonical": [
+        "v_hive_readiness_truth"
+      ],
+      "drift": [],
+      "gap": [
+        "ai_cost_log",
+        "analytics_events",
+        "hive_audit_log",
+        "marketplace_disputes",
+        "marketplace_orders"
+      ],
+      "unknown": [
+        "platform_feedback"
+      ],
+      "allow_present": false
+    },
+    {
+      "page": "platform-health.html",
+      "canonical": [],
+      "drift": [],
+      "gap": [
+        "marketplace_platform_admins"
+      ],
+      "unknown": [
+        "X"
+      ],
+      "allow_present": false
+    }
+  ],
+  "gap_counts": {
+    "amc_briefings": 2,
+    "early_access_emails": 1,
+    "failure_signature_alerts": 3,
+    "sensor_readings": 2,
+    "ai_reports": 1,
+    "community_xp": 1,
+    "hive_audit_log": 4,
+    "hive_benchmarks": 2,
+    "hives": 1,
+    "network_benchmarks": 1,
+    "skill_badges": 1,
+    "anomaly_signals": 1,
+    "automation_log": 1,
+    "parts_staging_recommendations": 2,
+    "asset_edges": 1,
+    "equipment_reading_templates": 1,
+    "external_sync": 2,
+    "marketplace_listings": 1,
+    "parts_staged_reservations": 1,
+    "rcm_fmea_modes": 1,
+    "rcm_strategies": 1,
+    "achievement_xp_log": 1,
+    "worker_achievements": 1,
+    "shift_plans": 1,
+    "schedule_items": 1,
+    "ai_cost_log": 2,
+    "ph_intelligence_reports": 1,
+    "gateway_audit_log": 1,
+    "hive_retention_config": 1,
+    "integration_configs": 1,
+    "sensor_topic_map": 1,
+    "sso_configs": 1,
+    "analytics_events": 1,
+    "marketplace_disputes": 1,
+    "marketplace_orders": 1,
+    "marketplace_platform_admins": 1
+  },
+  "drift_counts": {
+    "hive_members": 5,
+    "pm_assets": 2,
+    "pm_completions": 3,
+    "worker_profiles": 1,
+    "asset_nodes": 2,
+    "logbook": 2,
+    "pm_scope_items": 1
+  }
+}

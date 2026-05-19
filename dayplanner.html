@@ -1446,6 +1446,8 @@ function saveScheduleItem() {
 
   // Sync Done → Closed in Logbook (Supabase)
   if (payload.itemStatus === 'done' && payload.logbookRef) {
+    // canonical-allow: write site (logbook.status update) — truth views
+    // are read-only; writes must target the underlying table.
     db.from('logbook')
       .update({ status: 'Closed' })
       .eq('id', payload.logbookRef)

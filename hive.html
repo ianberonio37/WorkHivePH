@@ -4,6 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="theme-color" content="#F7A21B" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <!-- Layer -1.5 Calm Dashboard Contract opt-in. Enforced by
+       tools/mine_skill_rules.py (frontend_calm_dashboard_*). -->
+  <meta name="calm-dashboard" content="1" />
   <title>Hive Live Board: WorkHive</title>
   <!-- capture: hive_invite_v1 (form) -->
 
@@ -1203,15 +1206,15 @@ document.getElementById('nav-worker').textContent = WORKER_NAME;
   if (!_authUid) { window.location.href = 'index.html?signin=1'; return; }
 
   if (HIVE_ID) {
-    // Re-validate against DB: HIVE_ID in localStorage is not trusted alone
+    // Re-validate against DB. Canonical: v_worker_truth wraps hive_members.
     const { data: membership, error: valErr } = await db
-      .from('hive_members')
-      .select('role, status')
+      .from('v_worker_truth')
+      .select('role, hive_status')
       .eq('hive_id', HIVE_ID)
       .eq('worker_name', WORKER_NAME)
       .maybeSingle();
 
-    if (!valErr && (!membership || membership.status === 'kicked')) {
+    if (!valErr && (!membership || membership.hive_status === 'kicked')) {
       // Kicked or removed: clear all hive state and show onboard
       ['wh_active_hive_id','wh_hive_id','wh_hive_role','wh_hive_name','wh_hive_code'].forEach(k => localStorage.removeItem(k));
       HIVE_ID = ''; HIVE_NAME = ''; HIVE_ROLE = '';
@@ -1230,11 +1233,12 @@ document.getElementById('nav-worker').textContent = WORKER_NAME;
 
   // No local hive: check if user already has membership in Supabase (e.g. after sign-out, device switch)
   (async function recoverHiveMembership() {
+    // Canonical: v_worker_truth wraps hive_members.
     const { data: memberships, error: recErr } = await db
-      .from('hive_members')
+      .from('v_worker_truth')
       .select('hive_id, role')
       .eq('worker_name', WORKER_NAME)
-      .neq('status', 'kicked');
+      .neq('hive_status', 'kicked');
 
     if (recErr) {
       // Query failed (network/server issue): show onboard with a helpful hint
@@ -1465,8 +1469,15 @@ async function showWelcome(hive) {
     db.from('v_logbook_truth').select('*', { count: 'exact', head: true }).eq('worker_name', WORKER_NAME).eq('status', 'Closed')
   ]);
 
-  document.getElementById('welcome-log-count').textContent   = logRes.count    || 0;
-  document.getElementById('welcome-parts-count').textContent = closedRes.count || 0;
+  const _wlc = logRes.count    || 0;
+  const _wpc = closedRes.count || 0;
+  const _wlcEl = document.getElementById('welcome-log-count');
+  const _wpcEl = document.getElementById('welcome-parts-count');
+  _wlcEl.textContent = _wlc;
+  _wpcEl.textContent = _wpc;
+  // Calm Dashboard Contract: dim zero counts so the welcome view doesn't
+  // read as broken on a brand-new worker's first sign-in.
+  if (window.hideZeroStat) { hideZeroStat(_wlcEl, _wlc); hideZeroStat(_wpcEl, _wpc); }
 
   showView('welcome');
 }
@@ -2375,7 +2386,9 @@ async function loadMembers() {
 
   if (membersRes.error) { console.error('loadMembers:', membersRes.error.message); showToast('Could not load members. Check your connection.'); }
   memberNames = (membersRes.data || []).map(m => m.worker_name);
-  document.getElementById('stat-members').textContent = memberNames.length;
+  const _smEl = document.getElementById('stat-members');
+  _smEl.textContent = memberNames.length;
+  if (window.hideZeroStat) hideZeroStat(_smEl, memberNames.length);
 
   const memberTiers = await loadWorkerTiers(db, memberNames);
 
@@ -3697,9 +3710,19 @@ async function loadTeamPulse() {
     ).length;
   }
 
-  document.getElementById('pulse-jobs-today').textContent   = jobsToday;
-  document.getElementById('pulse-pm-overdue').textContent   = _pmOverdueCount;
-  document.getElementById('pulse-stock-issues').textContent = stockIssues;
+  const _pjEl = document.getElementById('pulse-jobs-today');
+  const _ppEl = document.getElementById('pulse-pm-overdue');
+  const _psEl = document.getElementById('pulse-stock-issues');
+  _pjEl.textContent = jobsToday;
+  _ppEl.textContent = _pmOverdueCount;
+  _psEl.textContent = stockIssues;
+  // Calm Dashboard Contract: dim zero pulse stats so a quiet shift reads as
+  // calm, not broken.
+  if (window.hideZeroStat) {
+    hideZeroStat(_pjEl, jobsToday);
+    hideZeroStat(_ppEl, _pmOverdueCount);
+    hideZeroStat(_psEl, stockIssues);
+  }
   panel.classList.remove('hidden');
 }
 
@@ -3981,5 +4004,18 @@ window.addEventListener('beforeunload', () => {
   <!-- worker-drawer.js: click any [data-worker-name] node to open the mini-profile drawer.
        Closes PRODUCTION_FIXES #15. Auto-wires globally via event delegation. -->
   <script src="worker-drawer.js"></script>
+
+<!-- Calm Dashboard Contract footer: data-sources disclosure + hideZeroStat helper -->
+<details data-calm-disclosure="data-sources" style="max-width:680px; margin:1rem auto 2rem; padding:0 1rem;">
+  <summary style="cursor:pointer; font-size:.78rem; color:rgba(255,255,255,0.5); list-style:none;">▸ About this dashboard's data sources</summary>
+  <p style="font-size:.78rem; color:rgba(255,255,255,0.55); padding:.5rem 0; line-height:1.5;">Numbers come from WorkHive canonical truth views (see <code>KPI_ENGINE.md</code>). They refresh live unless a tile chip says otherwise. Empty or zero values are dimmed via <code>hideZeroStat()</code> so you can tell at a glance which signals have data.</p>
+</details>
+<script>
+  window.hideZeroStat = window.hideZeroStat || function(el, val) {
+    if (!el) return;
+    const live = [val].filter(v => v != null && Number(v) > 0);
+    el.style.opacity = (live.length > 0) ? '1' : '0.55';
+  };
+</script>
 </body>
 </html>

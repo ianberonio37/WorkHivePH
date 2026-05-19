@@ -541,6 +541,29 @@
       "severity": "medium"
     },
     {
+      "id": "frontend_phantom_capture_allow_has_reason",
+      "skill": "frontend",
+      "section": "Reverse-Lineage Contract -- Phantom Allow Justification",
+      "summary": "Any `phantom-allow:` comment must include both a capture key and a reason (e.g. `phantom-allow: customer_po external CMMS push`)",
+      "scope": "html_pages",
+      "polarity": "anti_pattern",
+      "pattern": "phantom-allow\\s*:\\s*[a-zA-Z_][\\w\\-]*\\s*-->",
+      "rationale": "Phantom-allow lines without a reason decay into 'forgotten exceptions'. Every allowlist line should explain WHY the field exists despite having no in-platform consumer (external system, regulatory archival, planned feature). The anti-pattern catches the bare `phantom-allow: <key>` form with no reason text.",
+      "severity": "low"
+    },
+    {
+      "id": "frontend_calm_dashboard_declares_source_chip",
+      "skill": "frontend",
+      "section": "Calm Dashboard Contract -- Declare Canonical Sources",
+      "summary": "Calm-opted-in pages that read data must call renderSourceChip() so users can see which v_*_truth views back the tiles",
+      "scope": "html_pages",
+      "polarity": "convention",
+      "pattern": "renderSourceChip\\s*\\(",
+      "triggered_by": "name=[\"']calm-dashboard[\"'][\\s\\S]{0,500000}\\.from\\s*\\(",
+      "rationale": "Calm Dashboard Contract: pages that read canonical data must declare the lineage via the renderSourceChip helper. Without the chip the page is a black-box (user can't tell which v_*_truth backs which tile, and the dashboard auditor `tools/audit_calm_dashboard_canonical.py` can't bind tile -> source). Trigger requires both the calm-dashboard opt-in AND at least one .from() read; pages with no reads are excluded. Pair with the standalone auditor for the deep tile-by-tile gap survey.",
+      "severity": "medium"
+    },
+    {
       "id": "frontend_calm_dashboard_filters_zero_kpis",
       "skill": "frontend",
       "section": "Calm Dashboard Contract -- Hide Zero Stat Tiles",

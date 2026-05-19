@@ -2120,6 +2120,15 @@
       t.classList.add('show');
       setTimeout(() => t.classList.remove('show'), 2400);
     }
+
+    // Calm Dashboard Contract: global hideZeroStat helper. Founder
+    // console's setStat already implements the dim logic inline; this
+    // exposes the helper globally so future surfaces can call it.
+    window.hideZeroStat = window.hideZeroStat || function(el, val) {
+      if (!el) return;
+      const live = [val].filter(v => v != null && Number(v) > 0);
+      el.style.opacity = (live.length > 0) ? '1' : '0.55';
+    };
   </script>
 </main>
 </body>

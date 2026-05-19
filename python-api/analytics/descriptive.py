@@ -391,11 +391,18 @@ def calc_repeat_failures(logbook_entries: list[dict]) -> dict:
 
 
 # ── 9. OEE — Overall Equipment Effectiveness — ISO 22400-2 ───────────────────
-# OEE = Availability × Quality (Performance requires planned rate — excluded)
-# Availability: from MTBF/MTTR already calculated
-# Quality: from production_output.quality_pct in logbook entries
-# Note: Performance remains flagged (needs planned production rate input)
-# formula: oee_iso_22400
+# Canonical formula: oee_iso_22400 (full) = Availability × Performance × Quality
+# Partial formula:   oee_iso_22400_partial = Availability × Quality
+#
+# This implementation returns the PARTIAL form. Performance dimension is
+# excluded because it requires per-asset ideal cycle time (planned rate) —
+# fuel field not yet captured on any form. The capture_contracts.json gap
+# is tracked as `asset_ideal_cycle_time`; once a per-asset planned rate
+# ships, this function should branch:
+#   if planned_rate available: return full OEE (A × P × Q)
+#   else:                      return partial OEE (A × Q) tagged as such
+# The card on analytics.html now explicitly labels the result as partial.
+# formula: oee_iso_22400_partial
 
 def calc_oee(logbook_entries: list[dict], period_days: int = 90) -> dict:
     df = _to_df(logbook_entries)

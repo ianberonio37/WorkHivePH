@@ -1,0 +1,44 @@
+{
+  "_doc": [
+    "File mirror of the canonical_lineage_edges Postgres table.",
+    "Edges are seeded here so the contract ships in source; the migration",
+    "(supabase/migrations/20260520000001_canonical_lineage_edges.sql) creates",
+    "the queryable mirror table. A future tool can sync file->table on each",
+    "deploy.",
+    "",
+    "Edge shape:",
+    "  source_kind  one of: capture | column | table | view | formula | agent | tile | dashboard",
+    "  source_id    stable identifier of the source node",
+    "  target_kind  same enum",
+    "  target_id    stable identifier of the target node",
+    "  notes        optional human note",
+    "",
+    "Forward chain example for the Open Jobs tile on hive.html:",
+    "  capture(logbook_status_select) -> column(logbook.status)",
+    "  column(logbook.status)         -> view(v_logbook_truth)",
+    "  view(v_logbook_truth)          -> tile(hive.stat-open)",
+    "  tile(hive.stat-open)           -> dashboard(hive.html)"
+  ],
+  "edges": [
+    { "source_kind": "capture", "source_id": "logbook_status_select",  "target_kind": "column",    "target_id": "logbook.status",     "notes": "status dropdown on logbook form" },
+    { "source_kind": "column",  "source_id": "logbook.status",         "target_kind": "view",      "target_id": "v_logbook_truth",    "notes": "view exposes status verbatim" },
+    { "source_kind": "view",    "source_id": "v_logbook_truth",        "target_kind": "tile",      "target_id": "hive.stat-open",     "notes": "Open Jobs count filter status=Open" },
+    { "source_kind": "view",    "source_id": "v_logbook_truth",        "target_kind": "tile",      "target_id": "ops-home.oh-stat-jobs", "notes": "Open Jobs tile on ops-home" },
+    { "source_kind": "tile",    "source_id": "hive.stat-open",         "target_kind": "dashboard", "target_id": "hive.html" },
+    { "source_kind": "tile",    "source_id": "ops-home.oh-stat-jobs",  "target_kind": "dashboard", "target_id": "index.html" },
+
+    { "source_kind": "view",    "source_id": "v_risk_truth",           "target_kind": "tile",      "target_id": "ops-home.oh-stat-risk", "notes": "Risk Alerts tile on ops-home" },
+    { "source_kind": "view",    "source_id": "v_risk_truth",           "target_kind": "tile",      "target_id": "predictive.count-critical" },
+    { "source_kind": "view",    "source_id": "v_risk_truth",           "target_kind": "tile",      "target_id": "predictive.count-high" },
+    { "source_kind": "view",    "source_id": "v_risk_truth",           "target_kind": "tile",      "target_id": "predictive.count-medium" },
+    { "source_kind": "view",    "source_id": "v_risk_truth",           "target_kind": "tile",      "target_id": "predictive.count-low" },
+
+    { "source_kind": "formula", "source_id": "risk_score_v2_composite", "target_kind": "view",     "target_id": "v_risk_truth" },
+    { "source_kind": "formula", "source_id": "mtbf_iso_14224",          "target_kind": "view",     "target_id": "v_logbook_truth" },
+    { "source_kind": "formula", "source_id": "mttr_iso_14224",          "target_kind": "view",     "target_id": "v_logbook_truth" },
+    { "source_kind": "formula", "source_id": "pm_compliance_30d",       "target_kind": "view",     "target_id": "v_pm_compliance_truth" },
+
+    { "source_kind": "agent",   "source_id": "analytics_action_plan_v1", "target_kind": "tile",    "target_id": "analytics.action-plan", "notes": "Phase 4 action plan card on analytics.html" },
+    { "source_kind": "agent",   "source_id": "next_failure_forecast_v1", "target_kind": "tile",    "target_id": "predictive.next-failure-dates" }
+  ]
+}

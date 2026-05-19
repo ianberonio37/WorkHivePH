@@ -813,10 +813,13 @@
   async function loadHiveStandings() {
     if (!HIVE_ID) return;
     const { data: members } = await db
-      .from('hive_members')
+      // Canonical: v_worker_truth (wraps hive_members + worker_profiles).
+      // hive_members.status -> v_worker_truth.hive_status (rename to avoid
+      // column collision with worker_profiles).
+      .from('v_worker_truth')
       .select('worker_name')
       .eq('hive_id', HIVE_ID)
-      .neq('status', 'kicked');
+      .neq('hive_status', 'kicked');
 
     const names = (members || []).map(m => m.worker_name);
     if (!names.length) return;

@@ -1,0 +1,6472 @@
+{
+  "_doc": [
+    "Tier-F (Fuel) canonical contracts.",
+    "",
+    "Each entry registers ONE capture key (an HTML <input>/<select> name,",
+    "a data-capture attribute, a sensor topic, etc.) as a stable canonical",
+    "identifier the platform commits to. Once registered, downstream",
+    "engine / brain / dashboard surfaces can rely on the capture_id",
+    "shape; renames go through a migration with a deprecation note.",
+    "",
+    "Fields:",
+    "  capture_id     stable identifier, snake_case; never reused",
+    "  surfaces       HTML pages that declare this capture",
+    "  field_kind     'form' | 'sensor' | 'voice' | 'upload' | 'import'",
+    "  written_to     DB columns the capture is persisted to (e.g. 'logbook.status')",
+    "  contract       JSON-schema-ish description of the captured value",
+    "  description    plain-language sentence (shows up in tooltips, audit reports)",
+    "  added_in       migration / commit / SKILL.md citation",
+    "",
+    "The auditor `tools/audit_capture_contracts.py` cross-references the",
+    "phantom_captures_report against this file. Captures not yet registered",
+    "are surfaced as 'pending registration' (informational, not blocking)."
+  ],
+  "captures": [
+    {
+      "capture_id": "a-asset-id",
+      "surfaces": [
+        "logbook.html"
+      ],
+      "field_kind": "form (text)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "e.g. PUMP-001, CONV-A03, MOTOR-12",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "a-criticality",
+      "surfaces": [
+        "logbook.html"
+      ],
+      "field_kind": "form (radio)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "a criticality",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "a-location",
+      "surfaces": [
+        "logbook.html"
+      ],
+      "field_kind": "form (text)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "e.g. Line 1, Utility Room, Boiler Bay",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "a-manufacturer",
+      "surfaces": [
+        "logbook.html"
+      ],
+      "field_kind": "form (text)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "e.g. ABB, Mitsubishi, Siemens \u2014 placeholder: \"e.g. ABB, Mitsubishi\"",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "a-model",
+      "surfaces": [
+        "logbook.html"
+      ],
+      "field_kind": "form (text)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "e.g. ACS580-01-046A-4",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "a-name",
+      "surfaces": [
+        "logbook.html"
+      ],
+      "field_kind": "form (text)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "e.g. Cooling Water Pump, Line 3 Conveyor",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "a-scan-input",
+      "surfaces": [
+        "logbook.html"
+      ],
+      "field_kind": "form (upload)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "a scan input",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "a-serial-no",
+      "surfaces": [
+        "logbook.html"
+      ],
+      "field_kind": "form (text)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "Serial number printed on the equipment nameplate \u2014 placeholder: \"e.g. AB22-987654\"",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "a-type",
+      "surfaces": [
+        "logbook.html"
+      ],
+      "field_kind": "form (select)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "Asset Type",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "action-filter",
+      "surfaces": [
+        "audit-log.html"
+      ],
+      "field_kind": "form (select)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "Filter by action",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "actor-filter",
+      "surfaces": [
+        "audit-log.html"
+      ],
+      "field_kind": "form (select)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "Filter by actor",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "add-task-freq",
+      "surfaces": [
+        "pm-scheduler.html"
+      ],
+      "field_kind": "form (select)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "FREQUENCY",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "add-task-text",
+      "surfaces": [
+        "pm-scheduler.html"
+      ],
+      "field_kind": "form (text)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "TASK DESCRIPTION \u2014 placeholder: \"Describe the PM task...\"",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "ai-intent-text",
+      "surfaces": [
+        "project-manager.html"
+      ],
+      "field_kind": "form (textarea)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "What's the project? \u2014 placeholder: \"e.g. Plan a 3-day pump overhaul on PUMP-201 starting Monday. Or: CAPEX project to replace compressor on Line 2, contractor scope, budget 850k, end by August.\"",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "api-key-label",
+      "surfaces": [
+        "integrations.html"
+      ],
+      "field_kind": "form (text)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "Label (e.g. SAP Integration, Analytics Dashboard)",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "ask-input",
+      "surfaces": [
+        "asset-hub.html"
+      ],
+      "field_kind": "form (text)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "When did this asset last fail? Why?",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "asset-picker-search",
+      "surfaces": [
+        "logbook.html"
+      ],
+      "field_kind": "form (text)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "Search by asset ID or name...",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "asset-search",
+      "surfaces": [
+        "asset-hub.html",
+        "pm-scheduler.html"
+      ],
+      "field_kind": "form (search)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "Search by tag, name, or location",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "auto-select",
+      "surfaces": [
+        "founder-console.html"
+      ],
+      "field_kind": "form (select)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "auto select",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "calc-search",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (search)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "Search all 53 calculations\u2026",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "cat-filter",
+      "surfaces": [
+        "pm-scheduler.html"
+      ],
+      "field_kind": "form (select)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "Filter assets by category",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "cert-input",
+      "surfaces": [
+        "marketplace-seller.html"
+      ],
+      "field_kind": "form (textarea)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "PRC Master Electrician License&#10;TESDA Welder NC II&#10;HVAC Technician Certification",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "chat-input",
+      "surfaces": [
+        "assistant.html"
+      ],
+      "field_kind": "form (textarea)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "Ask anything\u2026",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "co-cost",
+      "surfaces": [
+        "project-manager.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Cost impact (PHP) \u2014 placeholder: \"e.g. 25000 (positive = increase)\"",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "co-days",
+      "surfaces": [
+        "project-manager.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Schedule impact (days) \u2014 placeholder: \"e.g. 3 (positive = adds days)\"",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "co-reason",
+      "surfaces": [
+        "project-manager.html"
+      ],
+      "field_kind": "form (select)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "Reason",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "co-scope",
+      "surfaces": [
+        "project-manager.html"
+      ],
+      "field_kind": "form (textarea)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "Scope change * \u2014 placeholder: \"What\"",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "co-title",
+      "surfaces": [
+        "project-manager.html"
+      ],
+      "field_kind": "form (text)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "Title * \u2014 placeholder: \"e.g. Add seismic anchor restraints\"",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "coach-input",
+      "surfaces": [
+        "hive.html"
+      ],
+      "field_kind": "form (text)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "e.g. Why are we having so many pump failures?",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "contact-email",
+      "surfaces": [
+        "report-sender.html"
+      ],
+      "field_kind": "form (text)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "Email \u2014 placeholder: \"juan@company.com\"",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "contact-name",
+      "surfaces": [
+        "report-sender.html"
+      ],
+      "field_kind": "form (text)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "Name \u2014 placeholder: \"Juan dela Cruz\"",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "custom-item-freq",
+      "surfaces": [
+        "pm-scheduler.html"
+      ],
+      "field_kind": "form (select)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "Custom task frequency",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "custom-item-text",
+      "surfaces": [
+        "pm-scheduler.html"
+      ],
+      "field_kind": "form (text)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "e.g. Inspect coupling guard",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "dispute-description",
+      "surfaces": [
+        "marketplace.html"
+      ],
+      "field_kind": "form (textarea)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "Describe the issue \u2014 placeholder: \"Provide details \u2014 what you ordered, what happened, what resolution you expect\u2026\"",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "dispute-listing-id",
+      "surfaces": [
+        "marketplace.html"
+      ],
+      "field_kind": "form (text)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "dispute listing id",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "dispute-order-id",
+      "surfaces": [
+        "marketplace.html"
+      ],
+      "field_kind": "form (text)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "dispute order id",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "dispute-reason",
+      "surfaces": [
+        "marketplace.html"
+      ],
+      "field_kind": "form (select)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "Reason for dispute",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "dispute-seller-name",
+      "surfaces": [
+        "marketplace.html"
+      ],
+      "field_kind": "form (text)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "dispute seller name",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "edge-target",
+      "surfaces": [
+        "asset-hub.html"
+      ],
+      "field_kind": "form (select)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "Target asset",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "edge-type",
+      "surfaces": [
+        "asset-hub.html"
+      ],
+      "field_kind": "form (select)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "Relationship",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "edit-asset-asset-id",
+      "surfaces": [
+        "logbook.html"
+      ],
+      "field_kind": "form (text)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "Asset ID / Tag \u2014 placeholder: \"e.g. PUMP-001\"",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "edit-asset-criticality",
+      "surfaces": [
+        "logbook.html"
+      ],
+      "field_kind": "form (select)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "Criticality",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "edit-asset-id",
+      "surfaces": [
+        "logbook.html"
+      ],
+      "field_kind": "form (text)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "edit asset id",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "edit-asset-location",
+      "surfaces": [
+        "logbook.html"
+      ],
+      "field_kind": "form (text)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "Location \u2014 placeholder: \"e.g. Building A, Level 2\"",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "edit-asset-name",
+      "surfaces": [
+        "logbook.html"
+      ],
+      "field_kind": "form (text)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "Asset Name \u2014 placeholder: \"e.g. Cooling Water Pump\"",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "edit-asset-type",
+      "surfaces": [
+        "logbook.html"
+      ],
+      "field_kind": "form (text)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "Type \u2014 placeholder: \"e.g. Centrifugal Pump\"",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "edit-category",
+      "surfaces": [
+        "marketplace-seller.html"
+      ],
+      "field_kind": "form (select)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "Category",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "edit-condition",
+      "surfaces": [
+        "marketplace-seller.html"
+      ],
+      "field_kind": "form (select)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "Condition",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "edit-contact",
+      "surfaces": [
+        "marketplace-seller.html"
+      ],
+      "field_kind": "form (text)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "Contact \u2014 placeholder: \"Phone or email\"",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "edit-desc",
+      "surfaces": [
+        "marketplace-seller.html"
+      ],
+      "field_kind": "form (textarea)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "Description",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "edit-id",
+      "surfaces": [
+        "marketplace-seller.html"
+      ],
+      "field_kind": "form (text)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "edit id",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "edit-image-file",
+      "surfaces": [
+        "marketplace-seller.html"
+      ],
+      "field_kind": "form (upload)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "Choose listing photo",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "edit-image-url",
+      "surfaces": [
+        "marketplace-seller.html"
+      ],
+      "field_kind": "form (text)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "edit image url",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "edit-location",
+      "surfaces": [
+        "marketplace-seller.html"
+      ],
+      "field_kind": "form (text)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "Location \u2014 placeholder: \"City, Province\"",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "edit-price",
+      "surfaces": [
+        "marketplace-seller.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Price (PHP) \u2014 placeholder: \"Leave blank if negotiable\"",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "edit-title",
+      "surfaces": [
+        "marketplace-seller.html"
+      ],
+      "field_kind": "form (text)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "Title",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "email-input",
+      "surfaces": [
+        "report-sender.html"
+      ],
+      "field_kind": "form (text)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "someone@company.com",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-C-rating",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Dynamic Load Rating (C) from catalog",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-Fa",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Axial Load (Fa)",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-Fr",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Radial Load",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-Mu",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "M u",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-Pu",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "P u (kN) columns",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-Vu",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "V u",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-acc-pmax",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Acc. P-max",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-acc-pmin",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Acc. P-min",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-acc-vol",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Fluid Vol.",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-action",
+      "surfaces": [
+        "logbook.html"
+      ],
+      "field_kind": "form (textarea)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "What did you do? \u2014 placeholder: \"Steps taken, parts replaced, settings changed...\"",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-alpha",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Avg. Absorption Coeff \u03b1",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-b-mm",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "b (mm) RC",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-barrier-h",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Barrier Height",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-bearing-no",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (text)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "e.g. SKF 6308, FAG 22216, NSK 6210",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-boiler-eff",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "82",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-bore-mm",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Bore",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-budget",
+      "surfaces": [
+        "project-manager.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Budget (PHP) \u2014 placeholder: \"e.g. 250000\"",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-ca-alt",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Altitude",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-ca-conc",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "0 = use default",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-ca-sf",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Safety Factor",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-ca-temp",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Design Temperature",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-ca-vol",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Hazard Volume",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-ca-zones",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Number of Zones",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-capacity",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "System Capacity",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-category",
+      "surfaces": [
+        "inventory.html",
+        "logbook.html"
+      ],
+      "field_kind": "form (select)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "Category",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-ceiling",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "3.0",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-center-dist",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Center Distance",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-chiller-tr",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Chiller Capacity",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-chw-return",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "CHW Return Temp",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-chw-supply",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "CHW Supply Temp",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-cold-flow",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Cold side mass flow rate",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-cold-in",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Cold Side: Inlet / Outlet",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-cold-out",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Cold Side: Inlet / Outlet",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-consequence",
+      "surfaces": [
+        "logbook.html"
+      ],
+      "field_kind": "form (text)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "f consequence",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-cooling-load",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Total Cooling Load (kW) \u2014 from HVAC Cooling Load calc or measured demand",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-cop",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "COP water-cooled is higher than air-cooled",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-corrosion-mm",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Corrosion Allowance",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-coverage",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Coverage per Sprinkler Head",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-ct-run",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Tray Run Length",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-cyl-force",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Cylinder Force Required",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-d-recv",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Barrier\u2192Recv",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-d-source",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Source\u2192Barrier",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-delta-p",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Design Pressure Differential",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-demand-lpd",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Daily Water Demand",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-density",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Design Density",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-desc",
+      "surfaces": [
+        "project-manager.html"
+      ],
+      "field_kind": "form (textarea)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "Description \u2014 placeholder: \"Scope summary, drivers, success criteria\u2026\"",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-design-area",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Design Area",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-design-pressure",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Design Pressure",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-design-temp",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Design Temperature",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-desludge",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Desludging Interval",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-diversity",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Diversity Factor",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-door-h",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Door Height",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-door-w",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Door Width",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-doors-per-floor",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Doors per Floor",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-dose-hours",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Exposure Duration",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-dose-level",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Noise Level",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-downtime",
+      "surfaces": [
+        "logbook.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "e.g. 2.5 \u2014 how long was the asset offline?",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-driven-rpm",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Driven Speed",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-driver-dia",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Driver Sheave Pitch Dia.",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-eccentricity",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Eccentricity",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-eg-ph",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "e.g. 0.6",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-eg-pw",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "e.g. 0.6",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-eg-rho",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Soil resistivity (Ohm*m)",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-eg-ringd",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "e.g. 10 m",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-elevation",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "0",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-end",
+      "surfaces": [
+        "project-manager.html"
+      ],
+      "field_kind": "form (date)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "End date",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-equip",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "0",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-et-fill-temp",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Fill Temperature",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-et-head",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Static Head",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-et-kw",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "System Capacity",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-et-max-temp",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Min Operating Temperature",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-et-maxpress",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Max System Pressure",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-et-project",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (text)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "e.g. CHW Expansion Tank: 3rd Floor Plant Room",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-et-vol",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "System Water Volume",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-ext-load",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "External Joint Load",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-fan-eff",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Fan Efficiency",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-fan-static",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Fan Static Pressure",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-fcu-project",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (text)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "e.g. FCU System: 3rd Floor Office Block",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-fittings",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Fittings Allowance",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-floor-area",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "0",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-floor-height",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Floor-to-Floor Height",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-flow-rate",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "0",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-fluid-density",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Fluid Density",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-fluid-temp",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Fluid Temperature",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-fp-motor-eff",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Motor Efficiency",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-fp-pipe-dia",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "0",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-fp-pipe-length",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "20",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-fp-pump-eff",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Pump Efficiency",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-fw-temp",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "80",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-gen-motor-hp",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "0 = no large motor",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-gen-pf",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Overall Power Factor",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-gen-sf",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Safety Factor",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-gen-start-method",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (select)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "Motor starting method",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-glass-area",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Auto",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-good-units",
+      "surfaces": [
+        "logbook.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Good units produced \u2014 placeholder: \"e.g. 1850\"",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-gt-meals",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Meals per Day",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-gt-suf",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Simultaneous Use Factor",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-h-mm",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "h (mm) RC",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-harm-i1",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Fundamental Current",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-harm-il",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Max Demand Current",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-harm-isc",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Short-Circuit Current",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-heat-load",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "300",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-hook-weight",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Hook / Block Weight",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-hose",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Hose Stream Allowance",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-hot-flow",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Hot side mass flow rate",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-hot-in",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Hot Side: Inlet / Outlet",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-hot-out",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Hot Side: Inlet / Outlet",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-hot-temp",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Hot Water Setpoint",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-hw-flow",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "5000",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-hw-pressure",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "3",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-hw-return",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "60",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-hw-supply",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "80",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-hx-duty",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Heat Duty",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-imbalance-mass",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Unbalance Mass",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-indoor-temp",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Indoor Temp",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-inlet-hardness",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Inlet Hardness",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-inner-dia",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Inner Diameter",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-intensity",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Design Rainfall Intensity",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-iplv",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "e.g. 6.5",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-knowledge",
+      "surfaces": [
+        "logbook.html"
+      ],
+      "field_kind": "form (textarea)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "Tips, gotchas, torque specs, watch-outs...",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-ld-ceil",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Ceiling Height",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-ld-len",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Room Length",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-ld-lumens",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Lumens per Fixture",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-ld-lux",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Required Illuminance",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-ld-watt",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Wattage per Fixture",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-ld-wid",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Room Width",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-leader-slope",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Horizontal Leader Slope",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-leakage",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Leakage Allowance",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-lift-height",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Lift Height",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-liq-depth",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Liquid Depth",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-location",
+      "surfaces": [
+        "inventory.html"
+      ],
+      "field_kind": "form (text)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "e.g. Bin A3, Shelf 2, Cabinet B",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-lps-ht",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Building Height H",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-lps-len",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Building Length L",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-lps-loc",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (select)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "Location / Flash Density",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-lps-ng",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Custom Ng",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-lps-wid",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Building Width W",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-lw",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Sound Power Level Lw",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-lw-ratio",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "L:W Ratio",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-machine",
+      "surfaces": [
+        "logbook.html"
+      ],
+      "field_kind": "form (text)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "f machine",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-maint-type",
+      "surfaces": [
+        "logbook.html"
+      ],
+      "field_kind": "form (select)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "Maintenance Type",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-min-press",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Min. Residual Pressure",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-min-qty",
+      "surfaces": [
+        "inventory.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "2",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-motor-eff",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Motor Efficiency",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-motor-power",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Motor Power",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-n-bars",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "No. of Bars",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-n-bolts",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Number of Bolts in Joint",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-n-drains",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "No. of Primary Drains min 2",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-n-elevators",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Number of Elevators",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-n-floors",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "No. of Floors Served",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-n-nozzles",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "No. Nozzles",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-n-people",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Number of People",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-n-stairwells",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "No. of Stairwells",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-name",
+      "surfaces": [
+        "project-manager.html"
+      ],
+      "field_kind": "form (text)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "Name *",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-noise-dist",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Distance to Receiver",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-notes",
+      "surfaces": [
+        "inventory.html"
+      ],
+      "field_kind": "form (textarea)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "e.g. Torque seal bolts to 25 Nm. Always replace bearing pairs together.",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-nozzle-dia",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Nozzle Dia.",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-num-boilers",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "1",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-num-boilers-b",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "1",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-num-boilers-hw",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "1",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-occupants",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Number of Occupants",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-op-pressure",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Min. Operating Pressure at Remote Head",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-outdoor-temp",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Outdoor Temp",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-owner",
+      "surfaces": [
+        "project-manager.html"
+      ],
+      "field_kind": "form (select)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "Owner",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-panel-alarm",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Panel Alarm Current",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-panel-standby",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Panel Standby Current",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-part-name",
+      "surfaces": [
+        "inventory.html"
+      ],
+      "field_kind": "form (text)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "e.g. Deep Groove Ball Bearing",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-part-number",
+      "surfaces": [
+        "inventory.html"
+      ],
+      "field_kind": "form (text)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "e.g. 6205-2RS",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-peak-fraction",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Peak Hour Fraction",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-per-capita",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Per Capita Use",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-persons",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "0",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-pfc-kw",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Load",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-pfc-kwh",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "e.g. 15000",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-pfc-rate",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "e.g. 11.50",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-photo",
+      "surfaces": [
+        "logbook.html"
+      ],
+      "field_kind": "form (upload)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "Attach Photo (optional)",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-photo-input",
+      "surfaces": [
+        "inventory.html"
+      ],
+      "field_kind": "form (upload)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "f photo input",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-pipe-dia",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Auto",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-pipe-length",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "0",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-pipe-loss",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Pipe Heat Loss",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-population",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Building Population",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-pressure-head",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "0",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-priority",
+      "surfaces": [
+        "project-manager.html"
+      ],
+      "field_kind": "form (select)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "Priority",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-problem",
+      "surfaces": [
+        "logbook.html"
+      ],
+      "field_kind": "form (textarea)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "Symptom / What was wrong? \u2014 placeholder: \"Describe what you observed: noise, leak, trip, error code...\"",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-project",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (text)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "e.g. Admin Office: 2nd Floor",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-pump-eff",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Pump Efficiency",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-pump-rpm",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Pump Speed",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-pv-autonomy",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Autonomy Days",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-pv-derating",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "System Derating",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-pv-dod",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Depth of Discharge",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-pv-energy",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Daily Energy Demand",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-pv-inv-eff",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Inverter Efficiency",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-pv-panel-area",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Panel Area",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-pv-psh",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Peak Sun Hours",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-pv-temp-coeff",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Voc Temp. Coefficient",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-pv-tmin",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Min. Site Temp.",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-pv-voc",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Panel Voc",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-q-rejection",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Heat Rejection Load \u2014 total heat rejected by tower",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-qty",
+      "surfaces": [
+        "inventory.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Qty on Hand \u2014 placeholder: \"0\"",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-rated-load",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Rated Load",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-recovery-hrs",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Recovery Time",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-regen-interval",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Regeneration Interval",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-req-flow",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "e.g. 1250",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-req-pressure",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "e.g. 7.5",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-required-life",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Required Life",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-retention",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Retention Time",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-roof-area",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "0",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-room-surface",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Total Room Surface Area",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-root-cause",
+      "surfaces": [
+        "logbook.html"
+      ],
+      "field_kind": "form (select)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "Root Cause",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-safety",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Safety Factor",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-safety-factor",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "1.25",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-safety-factor-hw",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "1.25",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-salt-dose",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Salt Dosage",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-sc-len",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Cable Length",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-sc-z",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Transformer Impedance",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-sd-area",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Catchment Area",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-sd-c",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Runoff Coefficient",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-sd-intensity",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Rainfall Intensity",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-sd-n",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Pipe Material",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-sd-slope",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Pipe Slope",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-sd-tc",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Time of Concentration",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-sd-z1-area",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Paved / Roof area in hectares",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-sd-z1-c",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Paved / Roof runoff coefficient",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-sd-z2-area",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Landscaped area in hectares",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-sd-z2-c",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Landscaped runoff coefficient",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-sd-z3-area",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Other zone area in hectares",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-sd-z3-c",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Other zone runoff coefficient",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-section",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (select)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "W-Section",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-shaft-power",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Power Transmitted",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-shaft-rpm",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Shaft Speed",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-shell-length",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Shell Length",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-shr",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Sensible Heat Ratio",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-sling-weight",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Sling / Rigging Weight",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-span",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Support Span",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-span-m",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Span / Length",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-speed-rpm",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Operating Speed",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-start",
+      "surfaces": [
+        "project-manager.html"
+      ],
+      "field_kind": "form (date)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "Start date",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-static-head",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "0",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-status",
+      "surfaces": [
+        "logbook.html"
+      ],
+      "field_kind": "form (radio)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "f status",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-steam-demand",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "500",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-steam-pressure",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "7",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-storage-factor",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Storage Safety Factor",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-stp-bod-in",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "BOD Influent",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-stp-bod-out",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "BOD Effluent Target",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-stp-flow-direct",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Average Daily Wastewater Flow",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-stp-mlss",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "MLSS",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-stp-percapita",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Per Capita Wastewater",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-stp-population",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Design Population",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-stp-srt",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "SRT",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-stroke-mm",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Cylinder Stroke",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-suction-head",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "0",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-supply-press",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Supply Pressure",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-supply-temp",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Supply Water Temp",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-sys-flow",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "System Flow",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-sys-pressure",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "System Pressure",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-t-door-close",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Door Close Time",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-t-door-open",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Door Open Time",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-t-dwell",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Dwell Time / Stop",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-target-hardness",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Target Hardness",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-tds-makeup",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "200",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-tds-max",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "3000",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-total-units",
+      "surfaces": [
+        "logbook.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Total units attempted \u2014 placeholder: \"e.g. 2000\"",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-transverse-load",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Transverse Load (F) belt / gear force",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-tube-length",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Tube Length",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-type",
+      "surfaces": [
+        "project-manager.html"
+      ],
+      "field_kind": "form (select)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "Type *",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-unit",
+      "surfaces": [
+        "inventory.html"
+      ],
+      "field_kind": "form (select)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "Unit",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-vd-current",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Load Current",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-vd-length",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "One-Way Wire Length",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-vd-limit",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "VD Limit",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-vd-voltage",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "System Voltage",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-vib-mass",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Machine Mass",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-vib-measured",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Measured Velocity",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-vib-power",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Power Rating",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-vib-speed",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Operating Speed",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-w-udl",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "UDL w (kN/m) for deflection",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-wall-area",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Auto",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-wo-assigned-to",
+      "surfaces": [
+        "logbook.html"
+      ],
+      "field_kind": "form (text)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "Assigned To \u2014 placeholder: \"worker_name (e.g. ${\"",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-wo-state",
+      "surfaces": [
+        "logbook.html"
+      ],
+      "field_kind": "form (select)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "f wo state",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-working-pressure",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Working Pressure",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-ws-pf",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Power Factor",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-ws-power",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Load Power",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-ws-temp",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Ambient Temperature",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-ws-voltage",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "System Voltage",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-wt-demand",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Daily Water Demand",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-wt-iron",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Iron Content",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-wt-n-people",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Number of People",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-wt-peak",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Peak flow factor",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-wt-per-capita",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Per Capita Use",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-wt-turb",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Raw Water Turbidity",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-ww-rate",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Wastewater Rate",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-xfmr-imp",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Impedance",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-xfmr-load-kva",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Load",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-xfmr-pf",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Load Power Factor",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-xfmr-spare",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Spare Capacity",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-xfmr-units",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Number of Units",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-xfmr-v1",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Primary Voltage",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "f-xfmr-v2",
+      "surfaces": [
+        "engineering-design.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Secondary Voltage",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "fb-d-note",
+      "surfaces": [
+        "founder-console.html"
+      ],
+      "field_kind": "form (textarea)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "Admin note (internal) \u2014 placeholder: \"Triage notes for yourself\u2026\"",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "fb-d-priority",
+      "surfaces": [
+        "founder-console.html"
+      ],
+      "field_kind": "form (select)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "Priority",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "fb-d-public",
+      "surfaces": [
+        "founder-console.html"
+      ],
+      "field_kind": "form (checkbox)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "fb d public",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "fb-d-status",
+      "surfaces": [
+        "founder-console.html"
+      ],
+      "field_kind": "form (select)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "Status",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "fb-filter-kind",
+      "surfaces": [
+        "founder-console.html"
+      ],
+      "field_kind": "form (select)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "Filter by kind",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "fb-filter-search",
+      "surfaces": [
+        "founder-console.html"
+      ],
+      "field_kind": "form (search)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "Search feedback \u2014 placeholder: \"Search subject or body\u2026\"",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "file-input",
+      "surfaces": [
+        "integrations.html"
+      ],
+      "field_kind": "form (upload)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "Upload CMMS export file (CSV or Excel)",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "filter-category",
+      "surfaces": [
+        "inventory.html",
+        "logbook.html"
+      ],
+      "field_kind": "form (select)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "Filter parts by category",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "filter-date-from",
+      "surfaces": [
+        "logbook.html"
+      ],
+      "field_kind": "form (date)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "Filter from date",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "filter-date-to",
+      "surfaces": [
+        "logbook.html"
+      ],
+      "field_kind": "form (date)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "Filter to date",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "filter-owner",
+      "surfaces": [
+        "project-manager.html"
+      ],
+      "field_kind": "form (select)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "Filter projects by owner",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "filter-search",
+      "surfaces": [
+        "project-manager.html"
+      ],
+      "field_kind": "form (search)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "Search by name or code\u2026",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "filter-status",
+      "surfaces": [
+        "inventory.html",
+        "logbook.html"
+      ],
+      "field_kind": "form (select)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "Filter parts by stock level",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "filter-type",
+      "surfaces": [
+        "project-manager.html"
+      ],
+      "field_kind": "form (select)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "Filter projects by type",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "filter-worker",
+      "surfaces": [
+        "logbook.html"
+      ],
+      "field_kind": "form (select)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "Filter by worker",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "fmea-cause",
+      "surfaces": [
+        "asset-hub.html"
+      ],
+      "field_kind": "form (text)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "Cause (why does it fail?) \u2014 placeholder: \"e.g. Worn belt or misalignment\"",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "fmea-consequence",
+      "surfaces": [
+        "asset-hub.html"
+      ],
+      "field_kind": "form (select)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "Consequence class",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "fmea-detection",
+      "surfaces": [
+        "asset-hub.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Detection (1-10)",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "fmea-effect",
+      "surfaces": [
+        "asset-hub.html"
+      ],
+      "field_kind": "form (text)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "Effect (what happens when it fails?) \u2014 placeholder: \"e.g. Loss of pressure, no flow\"",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "fmea-failure-mode",
+      "surfaces": [
+        "asset-hub.html"
+      ],
+      "field_kind": "form (text)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "Failure mode \u2014 placeholder: \"e.g. V-belt slipping under load\"",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "fmea-function",
+      "surfaces": [
+        "asset-hub.html"
+      ],
+      "field_kind": "form (text)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "Function (what should this asset do?) \u2014 placeholder: \"e.g. Maintain 2.5 bar discharge pressure\"",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "fmea-occurrence",
+      "surfaces": [
+        "asset-hub.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Occurrence (1-10)",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "fmea-severity",
+      "surfaces": [
+        "asset-hub.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Severity (1-10)",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "hive-name-input",
+      "surfaces": [
+        "hive.html"
+      ],
+      "field_kind": "form (text)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "Hive Name \u2014 placeholder: \"e.g. Electrical Team A\"",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "ho-handover-to",
+      "surfaces": [
+        "hive.html"
+      ],
+      "field_kind": "form (text)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "Handover to&#8230; (incoming technician name)",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "inq-contact",
+      "surfaces": [
+        "marketplace.html"
+      ],
+      "field_kind": "form (text)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "Your Contact (phone or email) \u2014 placeholder: \"09XX-XXX-XXXX or email@domain.com\"",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "inq-listing-id",
+      "surfaces": [
+        "marketplace.html"
+      ],
+      "field_kind": "form (text)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "inq listing id",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "inq-message",
+      "surfaces": [
+        "marketplace.html"
+      ],
+      "field_kind": "form (textarea)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "Message \u2014 placeholder: \"A template will appear here. Edit any line you want, then send.\"",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "inq-name",
+      "surfaces": [
+        "marketplace.html"
+      ],
+      "field_kind": "form (text)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "Listing \u2014 placeholder: \"Full name\"",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "intent-primary",
+      "surfaces": [
+        "hive.html"
+      ],
+      "field_kind": "form (radio)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "intent primary",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "join-code-input",
+      "surfaces": [
+        "hive.html"
+      ],
+      "field_kind": "form (text)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "Invite Code \u2014 placeholder: \"ABC123\"",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "l-picker",
+      "surfaces": [
+        "project-manager.html"
+      ],
+      "field_kind": "form (select)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "Pick",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "l-text",
+      "surfaces": [
+        "project-manager.html"
+      ],
+      "field_kind": "form (text)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "Contractor / vendor name \u2014 placeholder: \"e.g. Acme Industrial Services Inc.\"",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "l-type",
+      "surfaces": [
+        "project-manager.html"
+      ],
+      "field_kind": "form (select)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "Type",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "lessons-text",
+      "surfaces": [
+        "project-manager.html"
+      ],
+      "field_kind": "form (textarea)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "\u2022 Mech alignment took 2x estimated \u2014 consider buffer hours for next pump overhaul\\n\u2022 Parts staging was on point \u2014 keep weekly cadence\\n\u2022 PTW issued late by 2h \u2014 pre-stage on the prior shift",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "logbook_status_select",
+      "surfaces": [
+        "logbook.html",
+        "hive.html"
+      ],
+      "field_kind": "form",
+      "written_to": [
+        "logbook.status"
+      ],
+      "contract": {
+        "enum": [
+          "Open",
+          "Closed",
+          "Closed - Permit Required",
+          "Closed - Awaiting Parts"
+        ]
+      },
+      "description": "Maintenance entry status. Open = work outstanding; Closed = completed; Closed - X = closed with a downstream blocker noted.",
+      "added_in": "seed 2026-05-20 (canonical lineage edges migration)"
+    },
+    {
+      "capture_id": "asset_ideal_cycle_time",
+      "surfaces": [
+        "logbook.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [
+        "asset_nodes.ideal_cycle_time_seconds"
+      ],
+      "contract": {
+        "type": "number",
+        "minimum": 0,
+        "exclusiveMinimum": true,
+        "unit": "seconds per unit"
+      },
+      "description": "Planned (ideal) cycle time in seconds per unit produced. Unlocks the Performance factor for full OEE (Availability x Performance x Quality, ISO 22400-2:2014). NULL = no planned rate; OEE falls back to partial (A x Q). Captured on the asset wizard in logbook.html; consumed by get_oee_by_machine RPC.",
+      "added_in": "migration 20260520000005 + logbook.html wizard input (2026-05-20)"
+    },
+    {
+      "capture_id": "m-category",
+      "surfaces": [
+        "dayplanner.html"
+      ],
+      "field_kind": "form (select)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "Category",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "m-date",
+      "surfaces": [
+        "dayplanner.html"
+      ],
+      "field_kind": "form (date)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "Date *",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "m-end",
+      "surfaces": [
+        "dayplanner.html"
+      ],
+      "field_kind": "form (text)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "End Time",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "m-notes",
+      "surfaces": [
+        "dayplanner.html"
+      ],
+      "field_kind": "form (textarea)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "Notes \u2014 placeholder: \"Optional details...\"",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "m-start",
+      "surfaces": [
+        "dayplanner.html"
+      ],
+      "field_kind": "form (text)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "Start Time",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "m-title",
+      "surfaces": [
+        "dayplanner.html"
+      ],
+      "field_kind": "form (text)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "Title * \u2014 placeholder: \"What needs to be done?\"",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "messenger-input",
+      "surfaces": [
+        "marketplace-seller.html"
+      ],
+      "field_kind": "form (text)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "your.handle (without m.me/)",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "p-blockers",
+      "surfaces": [
+        "project-manager.html"
+      ],
+      "field_kind": "form (textarea)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "Blockers (red flag if filled)",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "p-date",
+      "surfaces": [
+        "project-manager.html"
+      ],
+      "field_kind": "form (date)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "Date",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "p-hours",
+      "surfaces": [
+        "project-manager.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Hours worked",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "p-notes",
+      "surfaces": [
+        "project-manager.html"
+      ],
+      "field_kind": "form (textarea)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "Notes / accomplishments",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "p-pct",
+      "surfaces": [
+        "project-manager.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "% complete (today)",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "parts-picker-search",
+      "surfaces": [
+        "logbook.html"
+      ],
+      "field_kind": "form (text)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "Search part name or number...",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "pf-direction",
+      "surfaces": [
+        "asset-hub.html"
+      ],
+      "field_kind": "form (select)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "Direction",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "pf-f-threshold",
+      "surfaces": [
+        "asset-hub.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "F (failure) \u2014 placeholder: \"e.g. 7.1\"",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "pf-p-threshold",
+      "surfaces": [
+        "asset-hub.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "P (warning) \u2014 placeholder: \"e.g. 4.5\"",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "pf-parameter",
+      "surfaces": [
+        "asset-hub.html"
+      ],
+      "field_kind": "form (select)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "Parameter",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "pf-safety-critical",
+      "surfaces": [
+        "asset-hub.html"
+      ],
+      "field_kind": "form (checkbox)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "pf safety critical",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "pm-edit-criticality",
+      "surfaces": [
+        "pm-scheduler.html"
+      ],
+      "field_kind": "form (select)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "Criticality",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "pm-edit-location",
+      "surfaces": [
+        "pm-scheduler.html"
+      ],
+      "field_kind": "form (text)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "Location \u2014 placeholder: \"e.g. Building A, Line 3\"",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "pm-edit-name",
+      "surfaces": [
+        "pm-scheduler.html"
+      ],
+      "field_kind": "form (text)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "Asset Name \u2014 placeholder: \"e.g. Batten Staple Machine 2\"",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "pm-edit-tag",
+      "surfaces": [
+        "pm-scheduler.html"
+      ],
+      "field_kind": "form (text)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "Tag / ID \u2014 placeholder: \"e.g. Machine 2\"",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "post-category",
+      "surfaces": [
+        "community.html",
+        "marketplace.html"
+      ],
+      "field_kind": "form (select)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "Post category",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "post-condition",
+      "surfaces": [
+        "marketplace.html"
+      ],
+      "field_kind": "form (select)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "Condition",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "post-contact",
+      "surfaces": [
+        "marketplace.html"
+      ],
+      "field_kind": "form (text)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "Contact (phone or email) \u2014 placeholder: \"09XX-XXX-XXXX or email@domain.com\"",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "post-content",
+      "surfaces": [
+        "community.html"
+      ],
+      "field_kind": "form (textarea)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "Post content \u2014 placeholder: \"What\"",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "post-desc",
+      "surfaces": [
+        "marketplace.html"
+      ],
+      "field_kind": "form (textarea)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "Description \u2014 placeholder: \"Specs, compatibility, dimensions, quantity available...\"",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "post-image-file",
+      "surfaces": [
+        "marketplace.html"
+      ],
+      "field_kind": "form (upload)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "Photo (recommended) \u2014 aria: \"Choose listing photo\"",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "post-image-url",
+      "surfaces": [
+        "marketplace.html"
+      ],
+      "field_kind": "form (text)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "post image url",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "post-location",
+      "surfaces": [
+        "marketplace.html"
+      ],
+      "field_kind": "form (text)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "Location \u2014 placeholder: \"City, Province\"",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "post-price",
+      "surfaces": [
+        "marketplace.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Price (PHP) \u2014 placeholder: \"Leave blank if negotiable\"",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "post-public",
+      "surfaces": [
+        "community.html"
+      ],
+      "field_kind": "form (checkbox)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "Share publicly with all WorkHive teams",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "post-section",
+      "surfaces": [
+        "marketplace.html"
+      ],
+      "field_kind": "form (text)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "What are you listing?",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "post-title",
+      "surfaces": [
+        "marketplace.html"
+      ],
+      "field_kind": "form (text)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "Title \u2014 placeholder: \"e.g. SKF 6205 Deep Groove Ball Bearing\"",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "price-max",
+      "surfaces": [
+        "marketplace.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Max",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "price-min",
+      "surfaces": [
+        "marketplace.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Price Range (PHP) \u2014 placeholder: \"Min\"",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "r-notes",
+      "surfaces": [
+        "project-manager.html"
+      ],
+      "field_kind": "form (textarea)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "Notes \u2014 placeholder: \"Optional context (e.g. responsible for HSE permit-to-work)\"",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "r-role",
+      "surfaces": [
+        "project-manager.html"
+      ],
+      "field_kind": "form (select)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "Role *",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "r-worker",
+      "surfaces": [
+        "project-manager.html"
+      ],
+      "field_kind": "form (select)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "Worker *",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "rcm-decision",
+      "surfaces": [
+        "asset-hub.html"
+      ],
+      "field_kind": "form (select)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "1. JA1011 decision (what task type does this failure deserve?)",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "rcm-interval",
+      "surfaces": [
+        "asset-hub.html"
+      ],
+      "field_kind": "form (select)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "Interval",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "rcm-interval-custom",
+      "surfaces": [
+        "asset-hub.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Custom interval days",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "rcm-rationale",
+      "surfaces": [
+        "asset-hub.html"
+      ],
+      "field_kind": "form (text)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "Rationale (why this decision?) \u2014 placeholder: \"e.g. P-F = 14 d from vibration trend, half = 7 d safe interval\"",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "rcm-task",
+      "surfaces": [
+        "asset-hub.html"
+      ],
+      "field_kind": "form (text)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "Task text (what does the technician do?) \u2014 placeholder: \"e.g. Vibration trend at bearing housing, alert at 4.5 mm/s RMS\"",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "reply-content",
+      "surfaces": [
+        "community.html"
+      ],
+      "field_kind": "form (textarea)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "Reply content \u2014 placeholder: \"Write a reply\u2026\"",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "report-details",
+      "surfaces": [
+        "community.html"
+      ],
+      "field_kind": "form (textarea)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "Report details \u2014 placeholder: \"Any extra context for your supervisor\u2026\"",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "report-reason",
+      "surfaces": [
+        "community.html"
+      ],
+      "field_kind": "form (select)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "Reason for report",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "restock-note",
+      "surfaces": [
+        "inventory.html"
+      ],
+      "field_kind": "form (text)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "e.g. From supplier, Emergency purchase",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "restock-qty",
+      "surfaces": [
+        "inventory.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Quantity Added",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "review-comment",
+      "surfaces": [
+        "marketplace.html"
+      ],
+      "field_kind": "form (textarea)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "Your review (optional) \u2014 placeholder: \"Describe the item quality, seller communication, delivery speed\u2026\"",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "review-listing-id",
+      "surfaces": [
+        "marketplace.html"
+      ],
+      "field_kind": "form (text)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "review listing id",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "review-order-id",
+      "surfaces": [
+        "marketplace.html"
+      ],
+      "field_kind": "form (text)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "review order id",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "review-rating",
+      "surfaces": [
+        "marketplace.html"
+      ],
+      "field_kind": "form (text)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "review rating",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "rfq-contact",
+      "surfaces": [
+        "marketplace.html"
+      ],
+      "field_kind": "form (text)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "Your Contact (phone or email) \u2014 placeholder: \"09XX-XXX-XXXX or email@domain.com\"",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "rfq-message",
+      "surfaces": [
+        "marketplace.html"
+      ],
+      "field_kind": "form (textarea)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "Quote Request \u2014 placeholder: \"Specs, quantity, delivery location, timeline\u2026\"",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "rfq-name",
+      "surfaces": [
+        "marketplace.html"
+      ],
+      "field_kind": "form (text)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "Your Name \u2014 placeholder: \"Full name\"",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "role",
+      "surfaces": [
+        "index.html"
+      ],
+      "field_kind": "form (select)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "Your role (optional)",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "s-est",
+      "surfaces": [
+        "project-manager.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Est. hours",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "s-notes",
+      "surfaces": [
+        "project-manager.html"
+      ],
+      "field_kind": "form (textarea)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "Notes \u2014 placeholder: \"Free-text notes \u2014 not the phase, that\"",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "s-owner",
+      "surfaces": [
+        "project-manager.html"
+      ],
+      "field_kind": "form (select)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "Owner",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "s-pend",
+      "surfaces": [
+        "project-manager.html"
+      ],
+      "field_kind": "form (date)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "Planned end",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "s-phase",
+      "surfaces": [
+        "project-manager.html"
+      ],
+      "field_kind": "form (select)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "Phase",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "s-preds",
+      "surfaces": [
+        "project-manager.html"
+      ],
+      "field_kind": "form (select)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "Predecessors (depends on)",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "s-pstart",
+      "surfaces": [
+        "project-manager.html"
+      ],
+      "field_kind": "form (date)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "Planned start",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "s-status",
+      "surfaces": [
+        "project-manager.html"
+      ],
+      "field_kind": "form (select)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "Status",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "s-title",
+      "surfaces": [
+        "project-manager.html"
+      ],
+      "field_kind": "form (text)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "Title *",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "s-wbs",
+      "surfaces": [
+        "project-manager.html"
+      ],
+      "field_kind": "form (text)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "WBS code \u2014 placeholder: \"1.2.3\"",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "save-search-email",
+      "surfaces": [
+        "marketplace.html"
+      ],
+      "field_kind": "form (text)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "Email for future alerts (optional)",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "save-search-name",
+      "surfaces": [
+        "marketplace.html"
+      ],
+      "field_kind": "form (text)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "Name this search (e.g. HVAC Manila)",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "sc-freq",
+      "surfaces": [
+        "integrations.html"
+      ],
+      "field_kind": "form (select)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "Sync Schedule",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "sc-label",
+      "surfaces": [
+        "integrations.html"
+      ],
+      "field_kind": "form (text)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "Label \u2014 placeholder: \"e.g. SAP Plant PH01\"",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "sc-token",
+      "surfaces": [
+        "integrations.html"
+      ],
+      "field_kind": "form (text)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "API Key / Bearer Token \u2014 placeholder: \"sk-... or Bearer token\"",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "sc-type",
+      "surfaces": [
+        "integrations.html"
+      ],
+      "field_kind": "form (select)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "CMMS Type",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "sc-url",
+      "surfaces": [
+        "integrations.html"
+      ],
+      "field_kind": "form (text)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "API Endpoint URL \u2014 placeholder: \"https://your-system.example.com/odata/v4/WorkOrders\"",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "search-input",
+      "surfaces": [
+        "audit-log.html",
+        "community.html",
+        "inventory.html",
+        "logbook.html",
+        "marketplace-admin.html",
+        "marketplace.html",
+        "voice-journal.html"
+      ],
+      "field_kind": "form (search)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "Search audit entries \u2014 placeholder: \"Search target name or actor...\"",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "sheet-action",
+      "surfaces": [
+        "pm-scheduler.html"
+      ],
+      "field_kind": "form (text)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "Action Taken \u2014 placeholder: \"e.g. PM completed per schedule\"",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "sheet-findings",
+      "surfaces": [
+        "pm-scheduler.html"
+      ],
+      "field_kind": "form (textarea)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "e.g. Bearing temperature normal, no leaks observed, greased per schedule...",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "sheet-log-toggle",
+      "surfaces": [
+        "pm-scheduler.html"
+      ],
+      "field_kind": "form (checkbox)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "sheet log toggle",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "si-password",
+      "surfaces": [
+        "index.html"
+      ],
+      "field_kind": "form (text)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "Password",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "si-username",
+      "surfaces": [
+        "index.html"
+      ],
+      "field_kind": "form (text)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "Username",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "su-confirm",
+      "surfaces": [
+        "index.html"
+      ],
+      "field_kind": "form (text)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "Repeat password",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "su-displayname",
+      "surfaces": [
+        "index.html"
+      ],
+      "field_kind": "form (text)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "Display name (shown to teammates)",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "su-password",
+      "surfaces": [
+        "index.html"
+      ],
+      "field_kind": "form (text)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "Password (min 6 characters)",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "su-username",
+      "surfaces": [
+        "index.html"
+      ],
+      "field_kind": "form (text)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "Username (letters, numbers, underscores)",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "sup-transfer-select",
+      "surfaces": [
+        "hive.html"
+      ],
+      "field_kind": "form (select)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "Transfer role to",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "target-filter",
+      "surfaces": [
+        "audit-log.html"
+      ],
+      "field_kind": "form (select)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "Filter by target type",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "tasklist-ack-check",
+      "surfaces": [
+        "logbook.html"
+      ],
+      "field_kind": "form (checkbox)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "tasklist ack check",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "tasklist-modal-note",
+      "surfaces": [
+        "logbook.html"
+      ],
+      "field_kind": "form (textarea)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "Additional steps, observations, or deviations from procedure...",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "today-context",
+      "surfaces": [
+        "assistant.html"
+      ],
+      "field_kind": "form (textarea)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "e.g. Working on Line 3 pumps, PM schedule for Compressor C-01...",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "use-job-ref",
+      "surfaces": [
+        "inventory.html"
+      ],
+      "field_kind": "form (text)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "e.g. WO-2042, PM April Batch",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "use-qty",
+      "surfaces": [
+        "inventory.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Quantity Used",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "vdc-file-input",
+      "surfaces": [
+        "logbook.html"
+      ],
+      "field_kind": "form (upload)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "Photo of equipment defect",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "w-anchor",
+      "surfaces": [
+        "pm-scheduler.html"
+      ],
+      "field_kind": "form (date)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "Last PM Date",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "w-category",
+      "surfaces": [
+        "pm-scheduler.html"
+      ],
+      "field_kind": "form (select)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "Category *",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "w-location",
+      "surfaces": [
+        "pm-scheduler.html"
+      ],
+      "field_kind": "form (text)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "Location \u2014 placeholder: \"e.g. Pump Room A\"",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "w-name",
+      "surfaces": [
+        "pm-scheduler.html"
+      ],
+      "field_kind": "form (text)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "Asset / Equipment Name * \u2014 placeholder: \"e.g. Cooling Water Pump No. 1\"",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "w-tag",
+      "surfaces": [
+        "pm-scheduler.html"
+      ],
+      "field_kind": "form (text)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "Tag / ID \u2014 placeholder: \"e.g. CWP-001\"",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "wiz-budget",
+      "surfaces": [
+        "project-manager.html"
+      ],
+      "field_kind": "form (number)",
+      "written_to": [],
+      "contract": {
+        "type": "number"
+      },
+      "description": "Budget (PHP) \u2014 placeholder: \"e.g. 250000\"",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "wiz-desc",
+      "surfaces": [
+        "project-manager.html"
+      ],
+      "field_kind": "form (textarea)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "Description \u2014 placeholder: \"Scope summary, drivers, success criteria\u2026\"",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "wiz-end",
+      "surfaces": [
+        "project-manager.html"
+      ],
+      "field_kind": "form (date)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "End date",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "wiz-name",
+      "surfaces": [
+        "project-manager.html"
+      ],
+      "field_kind": "form (text)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "Project name * \u2014 placeholder: \"e.g. Pump 201 annual overhaul\"",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "wiz-owner",
+      "surfaces": [
+        "project-manager.html"
+      ],
+      "field_kind": "form (select)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "Owner",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "wiz-priority",
+      "surfaces": [
+        "project-manager.html"
+      ],
+      "field_kind": "form (select)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "Priority",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "wiz-start",
+      "surfaces": [
+        "project-manager.html"
+      ],
+      "field_kind": "form (date)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "Start date",
+      "added_in": "auto-generated baseline 2026-05-20"
+    },
+    {
+      "capture_id": "worker-name",
+      "surfaces": [
+        "assistant.html"
+      ],
+      "field_kind": "form (text)",
+      "written_to": [],
+      "contract": {
+        "type": "string"
+      },
+      "description": "Your Name \u2014 placeholder: \"e.g. Juan dela Cruz\"",
+      "added_in": "auto-generated baseline 2026-05-20"
+    }
+  ]
+}
