@@ -33,14 +33,11 @@
   if (window._whFeedbackFabMounted) return;
   window._whFeedbackFabMounted = true;
 
-  // Mount only after DOM is ready, so body exists.
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', mount, { once: true });
-  } else {
-    mount();
-  }
-
   // ── Config ─────────────────────────────────────────────────────────────────
+  // NOTE: these `const`s MUST be declared before the readyState-based mount()
+  // call below. When loaded with `defer`, the script runs after parsing — so
+  // readyState is already 'interactive' and mount() fires synchronously. If
+  // KINDS lived below the conditional, injectPanel() hit a Temporal Dead Zone.
   const SUPABASE_URL = 'https://hzyvnjtisfgbksicrouu.supabase.co';
   const SUPABASE_KEY = 'sb_publishable_ePj-suLMwkMRVDH6eM6S8g_R0rZVbMZ';
   const TABLE        = 'platform_feedback';
@@ -61,6 +58,13 @@
   // PostgREST response surfaces this as code "23P01".
   const RATE_LIMIT_MSG =
     "You've already sent 5 messages this hour — please try again later.";
+
+  // Mount only after DOM is ready, so body exists.
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', mount, { once: true });
+  } else {
+    mount();
+  }
 
   // ── Mount ──────────────────────────────────────────────────────────────────
   function mount() {

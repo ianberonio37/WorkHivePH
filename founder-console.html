@@ -445,9 +445,154 @@
       opacity:0; transition:opacity .3s,transform .3s; pointer-events:none; z-index:9999;
     }
     .toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+
+    /* ── Feedback inbox (sec-feel) ─────────────────────────────────── */
+    .fb-tabs {
+      display:flex; flex-wrap:wrap; gap:.4rem; margin-bottom:.75rem;
+      border-bottom:1px solid rgba(255,255,255,.06); padding-bottom:.5rem;
+    }
+    .fb-tab {
+      background:transparent; color:var(--muted);
+      border:1px solid transparent; border-radius:999px;
+      padding:.35rem .75rem; font-size:.75rem; font-weight:500;
+      cursor:pointer; transition:all .15s;
+    }
+    .fb-tab:hover { color:var(--text); background:rgba(255,255,255,.04); }
+    .fb-tab.active {
+      color:var(--text); background:rgba(247,162,27,.12);
+      border-color:rgba(247,162,27,.35);
+    }
+    .fb-tab-count {
+      display:inline-block; min-width:1.4em; padding:0 .35em;
+      margin-left:.3em; background:rgba(255,255,255,.08); border-radius:999px;
+      font-size:.65rem; font-weight:600; color:var(--text);
+    }
+    .fb-tab.active .fb-tab-count { background:rgba(247,162,27,.3); }
+
+    .fb-filters { display:flex; gap:.5rem; margin-bottom:.75rem; flex-wrap:wrap; }
+    .fb-filter {
+      background:rgba(22,32,50,.6); border:1px solid rgba(255,255,255,.1);
+      border-radius:.5rem; color:var(--text); padding:.4rem .65rem;
+      font-size:.75rem; outline:none; font-family:inherit;
+    }
+    .fb-filter:focus { border-color:rgba(247,162,27,.5); }
+    #fb-filter-search { flex:1; min-width:140px; }
+
+    .fb-card {
+      background:rgba(22,32,50,.4); border:1px solid rgba(255,255,255,.06);
+      border-radius:.65rem; padding:.65rem .8rem; margin-bottom:.5rem;
+      cursor:pointer; transition:border-color .15s, background .15s;
+    }
+    .fb-card:hover { border-color:rgba(247,162,27,.35); background:rgba(22,32,50,.55); }
+    .fb-card:focus-visible { outline:2px solid #29B6D9; outline-offset:2px; }
+    .fb-card-top {
+      display:flex; align-items:center; gap:.5rem; font-size:.7rem;
+      color:var(--muted); margin-bottom:.25rem; flex-wrap:wrap;
+    }
+    .fb-card-kind {
+      font-weight:600; padding:.05rem .45rem; border-radius:999px;
+      background:rgba(255,255,255,.06); font-size:.65rem;
+    }
+    .fb-card-kind.bug      { background:rgba(255,99,99,.18); color:#ffb0b0; }
+    .fb-card-kind.idea     { background:rgba(252,211,77,.18); color:#fef3c7; }
+    .fb-card-kind.question { background:rgba(96,165,250,.18); color:#bfdbfe; }
+    .fb-card-kind.review   { background:rgba(247,162,27,.18); color:#fed7aa; }
+    .fb-card-kind.praise   { background:rgba(134,239,172,.18); color:#bbf7d0; }
+    .fb-card-kind.other    { background:rgba(255,255,255,.08); color:var(--muted); }
+    .fb-status-pill {
+      font-size:.6rem; padding:.05rem .45rem; border-radius:999px;
+      font-weight:600; text-transform:uppercase; letter-spacing:.04em;
+    }
+    .fb-status-pill.new          { background:rgba(252,211,77,.18); color:#fef3c7; }
+    .fb-status-pill.triaged      { background:rgba(96,165,250,.18); color:#bfdbfe; }
+    .fb-status-pill.in_progress  { background:rgba(96,165,250,.25); color:#dbeafe; }
+    .fb-status-pill.resolved     { background:rgba(134,239,172,.22); color:#bbf7d0; }
+    .fb-status-pill.wontfix      { background:rgba(255,255,255,.08); color:var(--muted); }
+    .fb-status-pill.duplicate    { background:rgba(255,255,255,.08); color:var(--muted); }
+    .fb-card-subject { font-weight:600; color:var(--text); font-size:.85rem; margin-bottom:.15rem; }
+    .fb-card-snippet { font-size:.72rem; color:var(--muted); line-height:1.35;
+      overflow:hidden; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; }
+
+    /* ── Feedback drawer ───────────────────────────────────────────── */
+    .fb-drawer-backdrop {
+      position:fixed; inset:0; background:rgba(0,0,0,.55);
+      z-index:9990; opacity:0; transition:opacity .2s; pointer-events:none;
+    }
+    .fb-drawer-backdrop.open { opacity:1; pointer-events:auto; }
+    .fb-drawer {
+      position:fixed; top:0; right:0; bottom:0;
+      width:480px; max-width:100vw;
+      background:linear-gradient(180deg,#1F2E45,#162032);
+      color:var(--text); z-index:9991;
+      transform:translateX(100%); transition:transform .25s ease;
+      display:flex; flex-direction:column;
+      box-shadow:-8px 0 32px rgba(0,0,0,.55);
+      visibility:hidden;
+    }
+    .fb-drawer.open { transform:translateX(0); visibility:visible; }
+    .fb-drawer-hdr {
+      display:flex; align-items:center; justify-content:space-between;
+      padding:1rem 1.25rem; border-bottom:1px solid rgba(255,255,255,.07);
+    }
+    .fb-drawer-hdr h3 { margin:0; font-size:1.05rem; font-weight:600; }
+    .fb-drawer-close {
+      background:none; border:none; color:var(--text);
+      font-size:1.5rem; line-height:1; cursor:pointer;
+      padding:.25rem .5rem; border-radius:.5rem;
+    }
+    .fb-drawer-close:hover { background:rgba(255,255,255,.08); }
+    .fb-drawer-body { padding:1rem 1.25rem; overflow-y:auto; flex:1; font-size:.85rem; }
+    .fb-drawer-body .meta {
+      font-size:.7rem; color:var(--muted); margin-bottom:.5rem;
+      font-family:ui-monospace,monospace;
+    }
+    .fb-drawer-body .subj { font-weight:600; font-size:1.05rem; margin-bottom:.5rem; }
+    .fb-drawer-body .body {
+      white-space:pre-wrap; word-break:break-word;
+      background:rgba(22,32,50,.5); padding:.75rem;
+      border-radius:.5rem; margin-bottom:1rem;
+      border:1px solid rgba(255,255,255,.05);
+    }
+    .fb-drawer-body label {
+      display:block; font-size:.75rem; color:var(--muted);
+      text-transform:uppercase; letter-spacing:.04em;
+      margin-top:.75rem; margin-bottom:.35rem;
+    }
+    .fb-drawer-body select, .fb-drawer-body textarea {
+      width:100%; background:rgba(22,32,50,.6);
+      border:1px solid rgba(255,255,255,.1); border-radius:.5rem;
+      color:var(--text); padding:.5rem .75rem;
+      font-size:.85rem; font-family:inherit; outline:none; box-sizing:border-box;
+    }
+    .fb-drawer-body select:focus, .fb-drawer-body textarea:focus { border-color:rgba(247,162,27,.5); }
+    .fb-drawer-body textarea { min-height:80px; resize:vertical; }
+    .fb-drawer-actions {
+      display:flex; gap:.5rem; margin-top:1rem; flex-wrap:wrap;
+    }
+    .fb-drawer-actions .btn {
+      flex:1; padding:.6rem 1rem; border:none; border-radius:.5rem;
+      font-size:.8rem; font-weight:600; cursor:pointer;
+      transition:all .15s; font-family:inherit;
+    }
+    .fb-drawer-actions .btn.primary {
+      background:linear-gradient(135deg,#F7A21B,#FDB94A); color:#162032;
+    }
+    .fb-drawer-actions .btn.primary:hover { transform:translateY(-1px); }
+    .fb-drawer-actions .btn.secondary {
+      background:rgba(255,255,255,.06); color:var(--text);
+      border:1px solid rgba(255,255,255,.1);
+    }
+    .fb-drawer-actions .btn.secondary:hover { background:rgba(255,255,255,.1); }
+    .fb-rating { color:#F7A21B; letter-spacing:.1em; font-size:.95rem; }
+
+    @media (max-width:520px) {
+      .fb-drawer { width:100vw; }
+    }
   </style>
 </head>
 <body>
+<main>
+
 
   <!-- Gate: checking admin status -->
   <div id="checking-gate" class="gate" hidden>
@@ -687,16 +832,37 @@
         </div>
         <div class="section-grid full">
 
-          <section class="panel" id="nps">
+          <section class="panel" id="feedback-inbox">
             <div class="panel-hdr">
-              <span class="rag-dot" id="rag-nps"></span>
+              <span class="rag-dot" id="rag-feedback"></span>
               <div style="flex:1">
-                <h2>Net Promoter Score</h2>
-                <div class="panel-sub">How likely are users to recommend WorkHive?</div>
+                <h2>Feedback inbox</h2>
+                <div class="panel-sub">Reviews, bugs, ideas, questions, praise — straight to you</div>
               </div>
-              <span class="updated" id="nps-updated">—</span>
+              <span class="updated" id="feedback-updated">—</span>
             </div>
-            <div class="panel-body"><div id="nps-content"></div></div>
+            <div class="panel-body">
+              <div class="fb-tabs" role="tablist" aria-label="Filter by status">
+                <button class="fb-tab active" type="button" data-status="new"        role="tab" aria-selected="true">New <span class="fb-tab-count" id="fb-count-new">0</span></button>
+                <button class="fb-tab"        type="button" data-status="triaged"    role="tab" aria-selected="false">Triaged <span class="fb-tab-count" id="fb-count-triaged">0</span></button>
+                <button class="fb-tab"        type="button" data-status="in_progress" role="tab" aria-selected="false">In progress <span class="fb-tab-count" id="fb-count-in_progress">0</span></button>
+                <button class="fb-tab"        type="button" data-status="resolved"   role="tab" aria-selected="false">Resolved <span class="fb-tab-count" id="fb-count-resolved">0</span></button>
+                <button class="fb-tab"        type="button" data-status="*"          role="tab" aria-selected="false">All <span class="fb-tab-count" id="fb-count-all">0</span></button>
+              </div>
+              <div class="fb-filters">
+                <select class="fb-filter" id="fb-filter-kind" aria-label="Filter by kind">
+                  <option value="*">All kinds</option>
+                  <option value="bug">🐞 Bug</option>
+                  <option value="idea">💡 Idea</option>
+                  <option value="question">❓ Question</option>
+                  <option value="review">⭐ Review</option>
+                  <option value="praise">💛 Praise</option>
+                  <option value="other">Other</option>
+                </select>
+                <input class="fb-filter" id="fb-filter-search" type="search" placeholder="Search subject or body…" aria-label="Search feedback" />
+              </div>
+              <div id="fb-list" aria-live="polite"></div>
+            </div>
           </section>
 
         </div>
@@ -705,8 +871,18 @@
     </div>
   </div>
 
+  <!-- Feedback drawer (admin triage view) -->
+  <div id="fb-drawer-backdrop" class="fb-drawer-backdrop" hidden></div>
+  <aside id="fb-drawer" class="fb-drawer" hidden role="dialog" aria-labelledby="fb-drawer-title" aria-modal="true">
+    <header class="fb-drawer-hdr">
+      <h3 id="fb-drawer-title">Feedback detail</h3>
+      <button type="button" id="fb-drawer-close" class="fb-drawer-close" aria-label="Close drawer">×</button>
+    </header>
+    <div id="fb-drawer-body" class="fb-drawer-body"></div>
+  </aside>
+
   <!-- Toast -->
-  <div id="toast" class="toast"></div>
+  <div id="toast" class="toast" role="alert" aria-live="polite"></div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="utils.js"></script>
@@ -814,7 +990,7 @@
         renderMarketplace(mkt);
         renderAiCostDetail(aiprov);
         renderAudit(audit);
-        renderNps();
+        renderFeedbackInbox();
         // New: solo-founder TL;DR strip + per-panel RAG dots
         setRagDots({ tech, dau14, mau, aicost, hives, mkt, audit, maturity, pareto, heatmap });
         renderTLDR({ tech, dau14, mau, aicost, hives, mkt });
@@ -1004,8 +1180,14 @@
         setRagDot('rag-aicost', usd <= t.green ? 'good' : usd <= t.amber ? 'warn' : 'fail');
       }
 
-      // NPS: placeholder (no data yet)
-      setRagDot('rag-nps', '');
+      // Feedback inbox: red on any 'new' rows, amber on triaged/in_progress, green when all clear.
+      // Falls back to neutral if the inbox hasn't loaded yet.
+      const newCount = (_fb.rows || []).filter(r => r.status === 'new').length;
+      const openCnt  = (_fb.rows || []).filter(r => r.status === 'triaged' || r.status === 'in_progress').length;
+      if (_fb.rows && _fb.rows.length === 0)        setRagDot('rag-feedback', 'good');
+      else if (newCount > 0)                         setRagDot('rag-feedback', 'fail');
+      else if (openCnt > 0)                          setRagDot('rag-feedback', 'warn');
+      else                                            setRagDot('rag-feedback', 'good');
     }
 
     // ── TL;DR strip: one-line state of the union + "1 thing to watch" ──
@@ -1628,16 +1810,263 @@
         renderSourceChip({ freshness:'live', source:'hive_audit_log', window:'last 50 events', notes:['All hives, ordered by created_at desc'] });
     }
 
-    function renderNps() {
-      // Placeholder: real NPS prompt lives on user-facing pages.
-      // This panel will show aggregate once a nps_responses table is created.
-      const el = document.getElementById('nps-content');
-      const upd = document.getElementById('nps-updated');
-      upd.textContent = 'not yet collecting';
-      el.innerHTML = honestEmpty('NPS collection not yet active',
-        'The NPS micro-prompt is a Phase 5 polish task: a quarterly modal on hive.html asking "How likely to recommend?" — score persisted to nps_responses table. This panel surfaces the aggregate once it exists.',
-        'Per the honesty doctrine: no fake score, no extrapolation from zero responses.');
+    // ── Feedback inbox (replaces NPS placeholder 2026-05-19) ─────────────
+    // All user-to-founder messaging lands here via wh-feedback-fab.js.
+    // Realtime subscription pushes new rows live so the admin sees toast +
+    // updated count without manually refreshing. Click any card -> drawer
+    // with full body + status changer + admin-note field + mailto reply.
+    const _fb = {
+      rows:        [],
+      activeTab:   'new',
+      kindFilter:  '*',
+      searchTerm:  '',
+      drawerId:    null,
+      channel:     null,
+    };
+
+    async function renderFeedbackInbox() {
+      const list = document.getElementById('fb-list');
+      const upd  = document.getElementById('feedback-updated');
+      list.textContent = '';
+      list.innerHTML = '<div class="muted-line" style="padding:.75rem;text-align:center;color:var(--muted);font-size:.75rem">Loading…</div>';
+
+      try {
+        const { data, error } = await db.from('platform_feedback')
+          .select('id,created_at,kind,rating,subject,body,status,priority,hive_id,worker_name,contact_email,page_url,admin_note,resolved_at')
+          .order('created_at', { ascending: false })
+          .limit(500);
+        if (error) throw error;
+        _fb.rows = data || [];
+        upd.textContent = new Date().toLocaleTimeString();
+        applyFeedbackView();
+        subscribeFeedbackRealtime();   // idempotent
+      } catch (e) {
+        console.error('[feedback-inbox] load failed', e);
+        list.innerHTML = honestEmpty('Could not load feedback',
+          'The platform_feedback table query failed. Check that migration 20260519000002_platform_feedback.sql has been applied.',
+          'Error: ' + escHtml(e.message || String(e)));
+      }
     }
+
+    function applyFeedbackView() {
+      // Counts per status (always over the full rows, regardless of search)
+      const counts = { new:0, triaged:0, in_progress:0, resolved:0, all:_fb.rows.length };
+      _fb.rows.forEach(r => { if (counts[r.status] !== undefined) counts[r.status]++; });
+      Object.entries(counts).forEach(([k, v]) => {
+        const el = document.getElementById('fb-count-' + k);
+        if (el) el.textContent = v;
+      });
+
+      // Filter
+      let view = _fb.rows;
+      if (_fb.activeTab !== '*') view = view.filter(r => r.status === _fb.activeTab);
+      if (_fb.kindFilter !== '*') view = view.filter(r => r.kind === _fb.kindFilter);
+      if (_fb.searchTerm) {
+        const s = _fb.searchTerm.toLowerCase();
+        view = view.filter(r =>
+          (r.subject||'').toLowerCase().includes(s) ||
+          (r.body||'').toLowerCase().includes(s)
+        );
+      }
+
+      const list = document.getElementById('fb-list');
+      if (!view.length) {
+        list.innerHTML = honestEmpty(
+          'No feedback here yet',
+          _fb.activeTab === 'new'
+            ? 'When users send feedback via the floating widget on any page, new items land in this tab in real time.'
+            : 'Nothing matches the current filters.',
+          ''
+        );
+        return;
+      }
+
+      list.innerHTML = view.slice(0, 100).map(r => {
+        const when    = timeAgo(r.created_at);
+        const hiveTag = r.hive_id ? r.hive_id.slice(0, 8) : (r.worker_name ? escHtml(r.worker_name) : 'anonymous');
+        const snippet = (r.body || '').slice(0, 220);
+        const stars   = r.kind === 'review' && r.rating
+          ? `<span class="fb-rating" aria-label="${r.rating} stars">${'★'.repeat(r.rating)}${'☆'.repeat(5 - r.rating)}</span>` : '';
+        return `<button class="fb-card" type="button" data-fb-id="${escHtml(r.id)}"
+                    aria-label="Open feedback: ${escHtml(r.subject || '(no subject)').slice(0,60)}">
+          <div class="fb-card-top">
+            <span class="fb-card-kind ${escHtml(r.kind)}">${escHtml(r.kind)}</span>
+            <span class="fb-status-pill ${escHtml(r.status)}">${escHtml(r.status.replace('_',' '))}</span>
+            <span>${escHtml(when)} · ${hiveTag}</span>
+            ${stars}
+          </div>
+          <div class="fb-card-subject">${escHtml(r.subject || '(no subject)')}</div>
+          <div class="fb-card-snippet">${escHtml(snippet)}</div>
+        </button>`;
+      }).join('') + (view.length > 100
+        ? `<div style="padding:.5rem;text-align:center;color:var(--muted);font-size:.7rem">
+             Showing first 100 of ${view.length}. Narrow the filters to see more.
+           </div>` : '');
+
+      list.querySelectorAll('.fb-card').forEach(btn => {
+        btn.addEventListener('click', () => openFeedbackDrawer(btn.dataset.fbId));
+      });
+    }
+
+    function timeAgo(iso) {
+      const t = new Date(iso).getTime();
+      if (isNaN(t)) return '';
+      const diff = (Date.now() - t) / 1000;
+      if (diff < 60)        return Math.floor(diff) + 's ago';
+      if (diff < 3600)      return Math.floor(diff / 60) + 'm ago';
+      if (diff < 86400)     return Math.floor(diff / 3600) + 'h ago';
+      if (diff < 86400 * 7) return Math.floor(diff / 86400) + 'd ago';
+      return new Date(iso).toLocaleDateString();
+    }
+
+    // ── Drawer ──────────────────────────────────────────────────────────
+    function openFeedbackDrawer(id) {
+      const row = _fb.rows.find(r => r.id === id);
+      if (!row) return;
+      _fb.drawerId = id;
+      const backdrop = document.getElementById('fb-drawer-backdrop');
+      const drawer   = document.getElementById('fb-drawer');
+      const body     = document.getElementById('fb-drawer-body');
+
+      const stars = row.kind === 'review' && row.rating
+        ? `<div class="fb-rating" style="margin-bottom:.5rem">${'★'.repeat(row.rating)}${'☆'.repeat(5 - row.rating)}</div>` : '';
+
+      body.innerHTML = `
+        <div class="meta">
+          ${escHtml(new Date(row.created_at).toLocaleString())}
+          · ${escHtml(row.kind)}
+          · status: <strong>${escHtml(row.status)}</strong>
+          ${row.priority ? ' · ' + escHtml(row.priority).toUpperCase() : ''}
+        </div>
+        <div class="subj">${escHtml(row.subject || '(no subject)')}</div>
+        ${stars}
+        <div class="body">${escHtml(row.body || '')}</div>
+
+        <div class="meta">
+          ${row.contact_email ? 'From: <strong>' + escHtml(row.contact_email) + '</strong>' : 'Anonymous'}
+          ${row.worker_name ? ' · worker: ' + escHtml(row.worker_name) : ''}
+          ${row.hive_id ? ' · hive: ' + escHtml(row.hive_id.slice(0,8)) : ''}
+          ${row.page_url ? '<br/>Sent from: ' + escHtml(row.page_url) : ''}
+        </div>
+
+        <label for="fb-d-status">Status</label>
+        <select id="fb-d-status">
+          ${['new','triaged','in_progress','resolved','wontfix','duplicate']
+              .map(s => `<option value="${s}" ${s === row.status ? 'selected' : ''}>${s}</option>`).join('')}
+        </select>
+
+        <label for="fb-d-priority">Priority</label>
+        <select id="fb-d-priority">
+          <option value="">(none)</option>
+          ${['p0','p1','p2','p3']
+              .map(p => `<option value="${p}" ${p === row.priority ? 'selected' : ''}>${p.toUpperCase()}</option>`).join('')}
+        </select>
+
+        <label for="fb-d-note">Admin note (internal)</label>
+        <textarea id="fb-d-note" placeholder="Triage notes for yourself…">${escHtml(row.admin_note || '')}</textarea>
+
+        <div class="fb-drawer-actions">
+          <button type="button" class="btn primary" id="fb-d-save">Save changes</button>
+          ${row.contact_email
+            ? `<a class="btn secondary" href="mailto:${encodeURIComponent(row.contact_email)}?subject=${encodeURIComponent('Re: ' + (row.subject || 'your WorkHive feedback'))}" style="text-align:center;text-decoration:none;line-height:1.6">Reply via email</a>`
+            : `<button type="button" class="btn secondary" disabled title="No email provided">No email to reply to</button>`}
+        </div>
+      `;
+
+      drawer.hidden = false;
+      backdrop.hidden = false;
+      requestAnimationFrame(() => {
+        drawer.classList.add('open');
+        backdrop.classList.add('open');
+      });
+      setTimeout(() => document.getElementById('fb-d-status')?.focus(), 50);
+
+      document.getElementById('fb-d-save').onclick = () => saveDrawerChanges(id);
+    }
+
+    async function saveDrawerChanges(id) {
+      const status   = document.getElementById('fb-d-status').value;
+      const priority = document.getElementById('fb-d-priority').value || null;
+      const note     = document.getElementById('fb-d-note').value.trim() || null;
+      const btn      = document.getElementById('fb-d-save');
+      btn.disabled = true; btn.textContent = 'Saving…';
+      try {
+        const { error } = await db.from('platform_feedback')
+          .update({ status, priority, admin_note: note })
+          .eq('id', id);
+        if (error) throw error;
+        // Patch local cache, re-render, close drawer
+        const row = _fb.rows.find(r => r.id === id);
+        if (row) Object.assign(row, { status, priority, admin_note: note,
+          resolved_at: ['resolved','wontfix','duplicate'].includes(status)
+            ? (row.resolved_at || new Date().toISOString()) : row.resolved_at });
+        applyFeedbackView();
+        closeFeedbackDrawer();
+        showToast('Saved');
+      } catch (e) {
+        console.error('[feedback-inbox] save failed', e);
+        btn.textContent = 'Save changes'; btn.disabled = false;
+        showToast('Save failed — ' + (e.message || 'check console'));
+      }
+    }
+
+    function closeFeedbackDrawer() {
+      const backdrop = document.getElementById('fb-drawer-backdrop');
+      const drawer   = document.getElementById('fb-drawer');
+      drawer.classList.remove('open');
+      backdrop.classList.remove('open');
+      setTimeout(() => { drawer.hidden = true; backdrop.hidden = true; _fb.drawerId = null; }, 250);
+    }
+
+    // ── Realtime subscription ──────────────────────────────────────────
+    // Idempotent: if already subscribed, no-op. Channel listens for new
+    // INSERTs only — updates flow through saveDrawerChanges() local cache.
+    function subscribeFeedbackRealtime() {
+      if (_fb.channel) return;
+      _fb.channel = db.channel('platform_feedback_inserts')
+        .on('postgres_changes',
+            { event: 'INSERT', schema: 'public', table: 'platform_feedback' },
+            payload => {
+              const row = payload.new;
+              if (!row || !row.id) return;
+              if (_fb.rows.some(r => r.id === row.id)) return;
+              _fb.rows.unshift(row);
+              applyFeedbackView();
+              showToast('New ' + row.kind + ' from ' + (row.worker_name || row.contact_email || 'anonymous'));
+              setRagDot('rag-feedback', 'warn');
+            })
+        .subscribe();
+      window.addEventListener('beforeunload', () => {
+        if (_fb.channel) { db.removeChannel(_fb.channel); _fb.channel = null; }
+      });
+    }
+
+    // ── Wire tabs + filters ────────────────────────────────────────────
+    document.addEventListener('DOMContentLoaded', () => {
+      document.querySelectorAll('.fb-tab').forEach(btn => {
+        btn.addEventListener('click', () => {
+          _fb.activeTab = btn.dataset.status;
+          document.querySelectorAll('.fb-tab').forEach(b => {
+            const active = b === btn;
+            b.classList.toggle('active', active);
+            b.setAttribute('aria-selected', active ? 'true' : 'false');
+          });
+          applyFeedbackView();
+        });
+      });
+      document.getElementById('fb-filter-kind')?.addEventListener('change', e => {
+        _fb.kindFilter = e.target.value; applyFeedbackView();
+      });
+      document.getElementById('fb-filter-search')?.addEventListener('input', e => {
+        _fb.searchTerm = e.target.value.trim(); applyFeedbackView();
+      });
+      // Drawer close handlers
+      document.getElementById('fb-drawer-close')?.addEventListener('click', closeFeedbackDrawer);
+      document.getElementById('fb-drawer-backdrop')?.addEventListener('click', closeFeedbackDrawer);
+      document.addEventListener('keydown', e => {
+        if (e.key === 'Escape' && _fb.drawerId) closeFeedbackDrawer();
+      });
+    });
 
     // ── Helper: honest-empty block builder ──────────────────────
     function honestEmpty(title, body, hewhy) {
@@ -1655,5 +2084,6 @@
       setTimeout(() => t.classList.remove('show'), 2400);
     }
   </script>
+</main>
 </body>
 </html>
