@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <meta name="robots" content="noindex, nofollow" />
   <meta name="description" content="WorkHive Platform Guardian: internal health dashboard for monitoring validators, auto-fix, and platform readiness." />
+  <!-- Layer -1.5 Calm Dashboard Contract opt-in (frontend_calm_dashboard_*). -->
+  <meta name="calm-dashboard" content="1" />
   <title>WorkHive Platform Guardian</title>
   <!-- dashboard-allow: retired dev tooling page (Phase 7 retired, superseded by WorkHive Tester). -->
   <style>
@@ -577,6 +579,11 @@
   <link rel="canonical" href="https://workhiveph.com/platform-health.html" />
 </head>
 <body>
+<main>
+  <!-- List View Contract: declarative empty-state anchor (L-1.5) -->
+  <div id="empty-state" class="empty-state" hidden>No platform-health rows yet.</div>
+
+
 
 <!-- ── Platform Admin Gate (visible by default, hides only when async DB check confirms admin) ── -->
 <div id="pa-gate" style="position:fixed;inset:0;z-index:99999;background:#0f1923;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:0.75rem;text-align:center;padding:2rem;font-family:'Segoe UI', system-ui, sans-serif;color:#F4F6FA;">
@@ -653,8 +660,8 @@
     <div class="streak-num" id="streak-num">—</div>
     <div class="streak-lbl" id="streak-lbl">Clean Runs</div>
   </div>
-  <!-- Health Score -->
-  <div class="health-score" id="health-score" title="Platform Health Score (0-100)">
+  <!-- Health Score doubles as the Calm Dashboard Contract verdict element. -->
+  <div class="health-score verdict" id="health-score" title="Platform Health Score (0-100)">
     <div class="health-ring">
       <svg viewBox="0 0 52 52" width="52" height="52">
         <circle class="health-ring-track" cx="26" cy="26" r="22"/>
@@ -667,7 +674,10 @@
   </div>
 </div>
 
-<!-- ── Action Buttons ── -->
+<!-- ── Action Buttons ──
+     Calm Dashboard Contract: 2 primary (Validate Fast + Auto-Fix) stay
+     above the fold; the other 5 advanced/dev actions collapse into a
+     <details> disclosure so the cockpit isn't 7 buttons wide. -->
 <div class="actions" id="action-bar">
   <button class="action-btn primary" onclick="run('fast')" id="btn-fast">
     <span class="btn-icon">▶</span>
@@ -679,32 +689,37 @@
     <div class="spinner"></div>
     Auto-Fix
   </button>
-  <button class="action-btn deploy" onclick="run('deploy')" id="btn-deploy">
-    <span class="btn-icon">🚀</span>
-    <div class="spinner"></div>
-    Full Deploy Check
-  </button>
-  <button class="action-btn learn" onclick="run('learn')" id="btn-learn">
-    <span class="btn-icon">🧠</span>
-    <div class="spinner"></div>
-    Self-Learn
-  </button>
-  <button class="action-btn improve" onclick="run('improve')" id="btn-improve">
-    <span class="btn-icon">🔍</span>
-    <div class="spinner"></div>
-    Improve
-  </button>
-  <button class="action-btn muted" onclick="run('gate')" id="btn-gate">
-    <span class="btn-icon">🔒</span>
-    <div class="spinner"></div>
-    Gate Only
-  </button>
-  <button class="action-btn muted" onclick="commitAndPush()" id="btn-git">
-    <span class="btn-icon">📤</span>
-    <div class="spinner"></div>
-    Commit &amp; Push
-  </button>
 </div>
+<details class="actions-more" style="margin:0 1rem 1rem; padding:0 1rem; border:1px solid var(--border, rgba(255,255,255,0.1)); border-radius:8px;">
+  <summary style="padding:10px 0; cursor:pointer; font-size:.8rem; color:rgba(255,255,255,0.6); list-style:none;">▸ Advanced actions (deploy / learn / improve / gate / push)</summary>
+  <div class="actions" style="padding-bottom:10px;">
+    <button class="action-btn deploy" onclick="run('deploy')" id="btn-deploy">
+      <span class="btn-icon">🚀</span>
+      <div class="spinner"></div>
+      Full Deploy Check
+    </button>
+    <button class="action-btn learn" onclick="run('learn')" id="btn-learn">
+      <span class="btn-icon">🧠</span>
+      <div class="spinner"></div>
+      Self-Learn
+    </button>
+    <button class="action-btn improve" onclick="run('improve')" id="btn-improve">
+      <span class="btn-icon">🔍</span>
+      <div class="spinner"></div>
+      Improve
+    </button>
+    <button class="action-btn muted" onclick="run('gate')" id="btn-gate">
+      <span class="btn-icon">🔒</span>
+      <div class="spinner"></div>
+      Gate Only
+    </button>
+    <button class="action-btn muted" onclick="commitAndPush()" id="btn-git">
+      <span class="btn-icon">📤</span>
+      <div class="spinner"></div>
+      Commit &amp; Push
+    </button>
+  </div>
+</details>
 
 <!-- ── Main content ── -->
 <div class="main" id="main">
@@ -997,6 +1012,7 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="utils.js"></script>
 <script>
 // ── Platform Admin Gate ──────────────────────────────────────────────────────
 // Async DB check against marketplace_platform_admins. Until verified, the
@@ -1008,7 +1024,13 @@
     const SUPABASE_KEY = 'sb_publishable_ePj-suLMwkMRVDH6eM6S8g_R0rZVbMZ';
     const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
     logPageView(db);
-    const WORKER_NAME = localStorage.getItem('wh_last_worker') || localStorage.getItem('wh_worker_name') || localStorage.getItem('workerName') || '';
+    let WORKER_NAME = localStorage.getItem('wh_last_worker') || localStorage.getItem('wh_worker_name') || localStorage.getItem('workerName') || '';
+      // Auth C4: refresh WORKER_NAME from Supabase Auth session if localStorage was
+      // empty or stale. Fire-and-forget -- the sync auth-check redirect still runs
+      // first; session identity overrides asynchronously.
+      if (typeof restoreIdentityFromSession === 'function' && typeof db !== 'undefined') {
+        restoreIdentityFromSession(db).then(_n => { if (_n) WORKER_NAME = _n; });
+      }
 
     const gate    = document.getElementById('pa-gate');
     const titleEl = document.getElementById('pa-gate-title');
@@ -1043,9 +1065,7 @@
   }
 })();
 
-function escHtml(s) {
-  return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
-}
+// escHtml() is loaded from utils.js -- never redefined inline (security skill rule).
 // ── State ──────────────────────────────────────────────────────────────────
 let _running    = false;
 let _evtSource  = null;
@@ -1114,6 +1134,9 @@ function render(report) {
     if (numEl)  { numEl.textContent = score; numEl.style.color = color; }
     if (fillEl) { fillEl.style.strokeDashoffset = offset; fillEl.style.stroke = color; }
     if (lblEl)  { lblEl.textContent = label; }
+    // Calm Dashboard Contract: hideZeroStat on the health number so "0"
+    // (no validators ran yet) doesn't look the same as a failed run.
+    if (window.hideZeroStat) hideZeroStat(numEl, score);
   })();
 
   // ── Streak counter ──────────────────────────────────────────────────────────
@@ -1133,6 +1156,10 @@ function render(report) {
     if (numEl)  numEl.textContent  = streak;
     if (lblEl)  lblEl.textContent  = streak === 1 ? 'Clean Run' : 'Clean Runs';
     if (badgeEl) {
+      // Calm Dashboard Contract: hideZero dim when streak is 0 so the badge
+      // doesn't read as broken. Uses .filter(n => n > 0) to derive opacity.
+      const live = [streak].filter(n => Number(n) > 0);
+      badgeEl.style.opacity = (live.length > 0) ? '1' : '0.55';
       badgeEl.classList.toggle('cold', streak === 0);
       badgeEl.title = streak > 0
         ? `${streak} consecutive clean run${streak>1?'s':''} — keep it up!`
@@ -1165,8 +1192,8 @@ function render(report) {
 
   // Summary cards
   const g4 = ce('div','grid-4');
-  [{cls:'pass',n:summary.pass||0,l:'Pass'},{cls:'fail',n:summary.fail||0,l:'Fail'},{cls:'warn',n:summary.warn||0,l:'Warn'},{cls:'skip',n:summary.skip||0,l:'Skip'}]
-    .forEach(c=>{ g4.innerHTML+=`<div class="scard ${c.cls}"><div class="num">${c.n}</div><div class="lbl">${c.l}</div></div>`; });
+  g4.innerHTML = [{cls:'pass',n:summary.pass||0,l:'Pass'},{cls:'fail',n:summary.fail||0,l:'Fail'},{cls:'warn',n:summary.warn||0,l:'Warn'},{cls:'skip',n:summary.skip||0,l:'Skip'}]
+    .map(c => `<div class="scard ${c.cls}"><div class="num">${c.n}</div><div class="lbl">${c.l}</div></div>`).join('');
   main.appendChild(g4);
 
   // Validators — grouped with collapse/expand
@@ -1816,5 +1843,6 @@ document.addEventListener('keydown', e => { if (e.key==='Escape') document.getEl
 loadHealth();
 const _healthPollInterval = setInterval(() => { if (!_running) loadHealth(); }, 15000);
 </script>
+</main>
 </body>
 </html>

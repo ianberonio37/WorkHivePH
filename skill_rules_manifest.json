@@ -441,7 +441,13 @@
       "pattern": "id=[\"'](?:empty|empty-state|[a-z][\\w-]*-empty(?:-state)?)[\"']|class=[\"'][^\"']*\\bempty-state\\b",
       "triggered_by": "innerHTML\\s*[+]?=\\s*[^;]+\\.(?:map|join)\\s*\\(",
       "rationale": "Canonical from logbook.html / inventory.html: every list page declares an empty-state anchor for the zero-data state. The pattern accepts the canonical id=\"empty-state\" AND locally-scoped variants like id=\"anomaly-engine-empty\", id=\"fmea-empty\", id=\"history-empty\" so feature-prefixed empty states (panel-by-panel) still pass. Without an anchor, users see a blank panel with no explanation. Identified 2026-05-19 during list-display uniformity audit; pattern widened same day after surveying live pages.",
-      "severity": "medium"
+      "severity": "medium",
+      "excluded_files": [
+        {"file": "assistant.html",    "reason": "Chat interface, not a list view. The .map() that triggers the rule renders chat-message rows incrementally; the conversation IS the content (an empty conversation = the welcome screen, which is already custom-designed)."},
+        {"file": "index.html",        "reason": "Marketing landing + operational-home dashboard. The .map() renders dashboard tiles from a fixed set; this is not a filterable list view. Calm Dashboard Contract already governs the page (see [[project-calm-dashboard-contract]])."},
+        {"file": "integrations.html", "reason": "Multi-step CSV import wizard with its own state (upload -> preview -> map -> import). The .map() renders preview rows of in-progress import data, not a queryable list."},
+        {"file": "report-sender.html","reason": "Report-builder form, not a list view. The .map() renders recipient chips; the empty state is the form itself."}
+      ]
     },
     {
       "id": "frontend_list_view_has_no_results_state",
@@ -478,6 +484,42 @@
       "triggered_by": "class=[\"'][^\"']*\\b(?:section-tabs?|filter-row|filter-tabs?|chip-row|tab-row)\\b",
       "rationale": "Canonical from marketplace.html:589 (section-tabs) and audit-log.html:188 (filter-row + chip + aria-selected). Screen readers cannot navigate tab UIs without tablist/tab role + aria-selected. A visual tab without these roles is a keyboard-trap regression. Identified 2026-05-19 during list-display uniformity audit.",
       "severity": "high"
+    },
+    {
+      "id": "frontend_calm_dashboard_has_verdict",
+      "skill": "frontend",
+      "section": "Calm Dashboard Contract -- Verdict First",
+      "summary": "Dashboard-style pages must surface ONE verdict element (id ending in -today, -verdict, -hero, -focus, -now, or class=verdict/today-card/focus-card/hero-card)",
+      "scope": "html_pages",
+      "polarity": "convention",
+      "pattern": "id=[\"'][^\"']*-(?:today|verdict|hero|focus|now)[\"']|class=[\"'][^\"']*\\b(?:verdict|today-card|focus-card|hero-card)\\b",
+      "triggered_by": "name=[\"']calm-dashboard[\"']",
+      "rationale": "Calm Dashboard Contract (codified 2026-05-19 after index.html ops-home cleanup): every dashboard surface must lead with ONE verdict line telling the user what to do RIGHT NOW. A raw KPI grid with 4+ tiles forces the user to scan and synthesize. Verdict-first reduces cognitive load. Pages opt into the contract by declaring `<!-- calm-dashboard: 1 -->` near the top of the page.",
+      "severity": "medium"
+    },
+    {
+      "id": "frontend_calm_dashboard_uses_details_disclosure",
+      "skill": "frontend",
+      "section": "Calm Dashboard Contract -- Disclosure for Secondary",
+      "summary": "Dashboard pages must wrap secondary panels in a <details> disclosure (collapsible) to keep the above-the-fold view calm",
+      "scope": "html_pages",
+      "polarity": "convention",
+      "pattern": "<details\\b",
+      "triggered_by": "name=[\"']calm-dashboard[\"']",
+      "rationale": "Calm Dashboard Contract: above-the-fold = greeting + verdict + 3 stats + 2 actions. Everything else (open jobs list, activity, all-tools grid, source chip) collapses into <details>. Rendering 10 panels at once is the overwhelm pattern that was cleaned up on index.html ops-home (10 sections -> 4 above the fold + 1 disclosure).",
+      "severity": "medium"
+    },
+    {
+      "id": "frontend_calm_dashboard_filters_zero_kpis",
+      "skill": "frontend",
+      "section": "Calm Dashboard Contract -- Hide Zero Stat Tiles",
+      "summary": "Dashboard pages with dynamic stat tiles must filter zero counts (`.filter(... > 0)` or `tiles.length === 0` short-circuit)",
+      "scope": "html_pages",
+      "polarity": "convention",
+      "pattern": "\\.filter\\s*\\(\\s*[^)]*=>\\s*[^)]*>\\s*0\\s*\\)|tiles?\\.length\\s*===\\s*0|stats?\\.length\\s*===\\s*0|hideZero|hide_zero",
+      "triggered_by": "name=[\"']calm-dashboard[\"']",
+      "rationale": "Calm Dashboard Contract: a column of '0 / 0 / 0 / 0' reads as 'broken/unwired' even when the numbers are canonically correct. Either hide zero tiles entirely or replace 0 with an all-clear caption. The conditional renderer pattern from index.html ops-home is the canonical fix (`tiles.filter(t => Number(t.num) > 0)`).",
+      "severity": "medium"
     },
     {
       "id": "frontend_search_resets_pagination",

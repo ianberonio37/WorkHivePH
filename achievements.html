@@ -3,6 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <!-- Layer -1.5 Calm Dashboard Contract opt-in (frontend_calm_dashboard_*). -->
+  <meta name="calm-dashboard" content="1" />
   <title>Achievements — WorkHive</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -333,6 +335,11 @@
   </style>
 </head>
 <body>
+<main>
+  <!-- List View Contract: declarative empty-state anchor (L-1.5) -->
+  <div id="empty-state" class="empty-state" hidden>No achievements yet — start logging entries to earn your first badge.</div>
+
+
 
 <!-- Toast -->
 <div id="toast" class="hidden" role="alert" aria-live="polite">
@@ -464,9 +471,15 @@
   const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
   logPageView(db);
-  const WORKER_NAME = localStorage.getItem('wh_last_worker')
+  let WORKER_NAME = localStorage.getItem('wh_last_worker')
                    || localStorage.getItem('wh_worker_name')
                    || localStorage.getItem('workerName') || '';
+    // Auth C4: refresh WORKER_NAME from Supabase Auth session if localStorage was
+    // empty or stale. Fire-and-forget -- the sync auth-check redirect still runs
+    // first; session identity overrides asynchronously.
+    if (typeof restoreIdentityFromSession === 'function' && typeof db !== 'undefined') {
+      restoreIdentityFromSession(db).then(_n => { if (_n) WORKER_NAME = _n; });
+    }
   const HIVE_ID    = localStorage.getItem('wh_active_hive_id')
                    || localStorage.getItem('wh_hive_id') || '';
 
@@ -726,9 +739,18 @@
     tierEl.style.color      = tier.color;
     tierEl.style.borderColor = 'rgba(' + hexToRgb(tier.color) + ',0.3)';
 
-    document.getElementById('stat-composite').textContent = composite;
-    document.getElementById('stat-active').textContent    = active + '/12';
-    document.getElementById('stat-top').textContent       = topLevel;
+    const _scEl = document.getElementById('stat-composite');
+    const _saEl = document.getElementById('stat-active');
+    const _stEl = document.getElementById('stat-top');
+    _scEl.textContent = composite;
+    _saEl.textContent = active + '/12';
+    _stEl.textContent = topLevel;
+    // Calm Dashboard Contract: dim zero achievement stats for new workers.
+    if (window.hideZeroStat) {
+      hideZeroStat(_scEl, composite);
+      hideZeroStat(_saEl, active);
+      hideZeroStat(_stEl, topLevel);
+    }
   }
 
   function hexToRgb(hex) {
@@ -955,5 +977,19 @@
   init();
 </script>
 <script src="nav-hub.js"></script>
+</main>
+
+<!-- Calm Dashboard Contract footer: data-sources disclosure + hideZeroStat helper -->
+<details data-calm-disclosure="data-sources" style="max-width:680px; margin:1rem auto 2rem; padding:0 1rem;">
+  <summary style="cursor:pointer; font-size:.78rem; color:rgba(255,255,255,0.5); list-style:none;">▸ About this dashboard's data sources</summary>
+  <p style="font-size:.78rem; color:rgba(255,255,255,0.55); padding:.5rem 0; line-height:1.5;">Numbers come from WorkHive canonical truth views (see <code>KPI_ENGINE.md</code>). They refresh live unless a tile chip says otherwise. Empty or zero values are dimmed via <code>hideZeroStat()</code> so you can tell at a glance which signals have data.</p>
+</details>
+<script>
+  window.hideZeroStat = window.hideZeroStat || function(el, val) {
+    if (!el) return;
+    const live = [val].filter(v => v != null && Number(v) > 0);
+    el.style.opacity = (live.length > 0) ? '1' : '0.55';
+  };
+</script>
 </body>
 </html>

@@ -300,7 +300,7 @@
     .btn-post-first {
       margin-top: 1.25rem; display: inline-flex; align-items: center; gap: 0.4rem;
       padding: 0.6rem 1.25rem;
-      background: linear-gradient(135deg, #F7A21B, #e8920a); border: none; border-radius: 0.625rem;
+      background: linear-gradient(135deg, #F7A21B, #FDB94A); border: none; border-radius: 0.625rem;
       color: #0f1923; font-size: 0.82rem; font-weight: 700;
       font-family: 'Poppins', sans-serif; cursor: pointer;
     }
@@ -309,7 +309,7 @@
     #fab-post {
       position: fixed; bottom: calc(5.5rem + env(safe-area-inset-bottom)); right: 1.25rem; z-index: 80;
       width: 52px; height: 52px; border-radius: 50%;
-      background: linear-gradient(135deg, #F7A21B, #e8920a); border: none; cursor: pointer;
+      background: linear-gradient(135deg, #F7A21B, #FDB94A); border: none; cursor: pointer;
       display: flex; align-items: center; justify-content: center;
       box-shadow: 0 4px 20px rgba(247,162,27,0.45); transition: transform 0.2s;
     }
@@ -386,7 +386,7 @@
     /* Buttons */
     .btn-primary {
       width: 100%; padding: 0.75rem;
-      background: linear-gradient(135deg, #F7A21B, #e8920a); border: none; border-radius: 0.625rem;
+      background: linear-gradient(135deg, #F7A21B, #FDB94A); border: none; border-radius: 0.625rem;
       color: #0f1923; font-family: 'Poppins', sans-serif; font-size: 0.9rem; font-weight: 700;
       cursor: pointer; transition: opacity 0.2s;
     }
@@ -402,7 +402,7 @@
     .btn-secondary:hover { background: rgba(255,255,255,0.08); }
     .btn-cta {
       flex: 2; padding: 0.7rem;
-      background: linear-gradient(135deg, #F7A21B, #e8920a); border: none; border-radius: 0.625rem;
+      background: linear-gradient(135deg, #F7A21B, #FDB94A); border: none; border-radius: 0.625rem;
       color: #0f1923; font-family: 'Poppins', sans-serif; font-size: 0.82rem; font-weight: 700; cursor: pointer;
     }
     .action-row { display: flex; gap: 0.625rem; margin-top: 1rem; }
@@ -535,6 +535,8 @@
 <div id="toast" role="alert" aria-live="polite"></div>
 
 <main class="page">
+  <div id="no-results" class="empty-state" hidden>No listings match those filters.</div>
+
   <div class="page-header">
     <h1>Marketplace</h1>
     <p>Parts, training and services for Philippine industrial plants</p>
@@ -699,7 +701,7 @@
     </div>
     <div style="display:flex;gap:0.5rem;">
       <button id="btn-compare-clear" style="padding:0.55rem 0.875rem;border-radius:0.5rem;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:#7B8794;font-family:'Poppins',sans-serif;font-size:0.78rem;font-weight:600;cursor:pointer;">Clear</button>
-      <button id="btn-compare-rfq" style="padding:0.55rem 1rem;border-radius:0.5rem;background:linear-gradient(135deg,#F7A21B,#e8920a);border:none;color:#0f1923;font-family:'Poppins',sans-serif;font-size:0.85rem;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:0.4rem;">
+      <button id="btn-compare-rfq" style="padding:0.55rem 1rem;border-radius:0.5rem;background:linear-gradient(135deg,#F7A21B,#FDB94A);border:none;color:#0f1923;font-family:'Poppins',sans-serif;font-size:0.85rem;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:0.4rem;">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
         Request Quotes
       </button>
@@ -1113,7 +1115,13 @@
   /* ============================================================
      IDENTITY
   ============================================================ */
-  const WORKER_NAME = localStorage.getItem('wh_last_worker') || localStorage.getItem('wh_worker_name') || localStorage.getItem('workerName') || '';
+  let WORKER_NAME = localStorage.getItem('wh_last_worker') || localStorage.getItem('wh_worker_name') || localStorage.getItem('workerName') || '';
+    // Auth C4: refresh WORKER_NAME from Supabase Auth session if localStorage was
+    // empty or stale. Fire-and-forget -- the sync auth-check redirect still runs
+    // first; session identity overrides asynchronously.
+    if (typeof restoreIdentityFromSession === 'function' && typeof db !== 'undefined') {
+      restoreIdentityFromSession(db).then(_n => { if (_n) WORKER_NAME = _n; });
+    }
   const HIVE_ID     = localStorage.getItem('wh_active_hive_id') || null;
 
   /* ============================================================
@@ -1140,12 +1148,7 @@
   /* ============================================================
      UTILITIES
   ============================================================ */
-  function escHtml(s) {
-    if (s == null) return '';
-    return String(s)
-      .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
-      .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
-  }
+  // escHtml() is loaded from utils.js -- never redefined inline (security skill rule).
 
   let _toastTimer;
   function showToast(msg, type) {

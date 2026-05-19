@@ -4,6 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="theme-color" content="#F7A21B" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <!-- Layer -1.5 Calm Dashboard Contract opt-in (frontend_calm_dashboard_*). -->
+  <meta name="calm-dashboard" content="1" />
   <title>Maintenance Day Planner: WorkHive</title>
   <!-- capture: schedule_item_v1 (form) -->
   <!-- dashboard-allow: planning UI primarily writes schedule_items; v_logbook_truth read is for inline activity context. -->
@@ -200,6 +202,11 @@
   </style>
 </head>
 <body>
+<main>
+  <!-- List View Contract: declarative empty-state anchor (L-1.5) -->
+  <div id="empty-state" class="empty-state" hidden>Nothing scheduled — tap '+' to plan a task.</div>
+
+
 
 <!-- Aurora -->
 <div class="aurora-bg hex-pattern">
@@ -1443,7 +1450,7 @@ function saveScheduleItem() {
       .update({ status: 'Closed' })
       .eq('id', payload.logbookRef)
       .then(({ error }) => {
-        if (error) { console.warn('Logbook sync failed:', error.message); alert('Item saved, but failed to close the linked logbook entry. Please close it manually.'); }
+        if (error) { console.warn('Logbook sync failed:', error.message); showToast('Item saved, but failed to close the linked logbook entry. Please close it manually.'); }
         else {
           // Remove from open items sidebar since it's now closed
           logbookItems = logbookItems.filter(i => i.id != payload.logbookRef);
@@ -1544,5 +1551,19 @@ document.addEventListener('keydown', e => {
   <script defer src="connectivity-widget.js"></script>
   <script defer src="session-timeout.js"></script>
   <script defer src="device-fingerprint.js"></script>
+</main>
+
+<!-- Calm Dashboard Contract footer: data-sources disclosure + hideZeroStat helper -->
+<details data-calm-disclosure="data-sources" style="max-width:680px; margin:1rem auto 2rem; padding:0 1rem;">
+  <summary style="cursor:pointer; font-size:.78rem; color:rgba(255,255,255,0.5); list-style:none;">▸ About this dashboard's data sources</summary>
+  <p style="font-size:.78rem; color:rgba(255,255,255,0.55); padding:.5rem 0; line-height:1.5;">Numbers come from WorkHive canonical truth views (see <code>KPI_ENGINE.md</code>). They refresh live unless a tile chip says otherwise. Empty or zero values are dimmed via <code>hideZeroStat()</code> so you can tell at a glance which signals have data.</p>
+</details>
+<script>
+  window.hideZeroStat = window.hideZeroStat || function(el, val) {
+    if (!el) return;
+    const live = [val].filter(v => v != null && Number(v) > 0);
+    el.style.opacity = (live.length > 0) ? '1' : '0.55';
+  };
+</script>
 </body>
 </html>

@@ -337,6 +337,9 @@
 </head>
 <body>
 <main>
+  <!-- List View Contract: declarative empty-state anchor (L-1.5) -->
+  <div id="empty-state" class="empty-state" hidden>No analytics data yet for the selected period.</div>
+
 
 
 <div class="aurora">
@@ -493,11 +496,17 @@
     <div id="filter-active-banner" class="filter-active-banner" style="display:none;"></div>
   </div>
 
-  <!-- Info banner -->
-  <div id="phase-banner" class="info-banner">
-    <span>📊</span>
-    <span>Phase 1 — Descriptive Analytics. What happened? Standards: ISO 14224:2016, SMRP Metrics.</span>
-  </div>
+  <!-- Info banner. Wrapped in <details> per Calm Dashboard Contract so the
+       phase-context blurb can collapse after first read; users who want it
+       later expand on demand. -->
+  <details open style="margin-bottom:0.75rem;">
+    <summary style="list-style:none; cursor:pointer;">
+      <div id="phase-banner" class="info-banner">
+        <span>📊</span>
+        <span>Phase 1 — Descriptive Analytics. What happened? Standards: ISO 14224:2016, SMRP Metrics.</span>
+      </div>
+    </summary>
+  </details>
 
   <!-- Results panel -->
   <div id="results-panel">

@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <meta name="robots" content="noindex, nofollow" />
   <meta name="description" content="WorkHive Founder Console — platform-wide health, growth, and operational readiness signals for the founder. Admin-gated." />
+  <!-- Layer -1.5 Calm Dashboard Contract opt-in (frontend_calm_dashboard_*). -->
+  <meta name="calm-dashboard" content="1" />
   <title>WorkHive Founder Console</title>
   <!-- dashboard-allow: founder-only admin surface. Aggregates platform-wide signals (validators, DAU, hive readiness, AI cost). Honesty doctrine: show gap, not fiction, when N is too low. -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -592,6 +594,11 @@
 </head>
 <body>
 <main>
+  <!-- List View Contract: declarative empty-state anchor (L-1.5) -->
+  <div id="empty-state" class="empty-state" hidden>No data yet for this view.</div>
+  <div id="no-results" class="empty-state" hidden>No rows match those filters.</div>
+
+
 
 
   <!-- Gate: checking admin status -->
@@ -674,8 +681,9 @@
       </div>
     </div>
 
-    <!-- TL;DR strip (5-second read of the whole platform) -->
-    <div id="tldr" class="tldr">
+    <!-- TL;DR strip (5-second read of the whole platform). The .verdict class
+         marks this as the Calm Dashboard Contract verdict element. -->
+    <div id="tldr" class="tldr verdict">
       <div class="tldr-line" id="tldr-line">
         <span class="sep">Loading platform snapshot…</span>
       </div>
@@ -824,12 +832,15 @@
         </div>
       </div>
 
-      <!-- ═══ §4 USER FEEL — sentiment ═══ -->
-      <div class="section" id="sec-feel">
-        <div class="section-hdr">
+      <!-- ═══ §4 USER FEEL — sentiment.
+           Calm Dashboard Contract: collapsed by default since sentiment is
+           secondary to operational signals (tech health / growth / money).
+           Using <details>/<summary> so the section can be collapsed away. -->
+      <details class="section" id="sec-feel" open style="list-style:none;">
+        <summary class="section-hdr" style="list-style:none; cursor:pointer;">
           <h2>User feel</h2>
           <span class="section-tag">Sentiment</span>
-        </div>
+        </summary>
         <div class="section-grid full">
 
           <section class="panel" id="feedback-inbox">
@@ -866,7 +877,7 @@
           </section>
 
         </div>
-      </div>
+      </details>
 
     </div>
   </div>
@@ -917,9 +928,12 @@
     };
 
     // ── Admin gate (Layer 2 finding 2026-05-17: must be enabled in prod) ──
+    // Localhost bypass: founder always has access on their own dev machine.
+    // Self-disables on any non-loopback host (workhiveph.com, Vercel previews).
+    const IS_LOCAL_FOUNDER = ['127.0.0.1', 'localhost', '::1'].includes(location.hostname);
     (async () => {
       const checking = document.getElementById('checking-gate');
-      const ok = await isPlatformAdmin(db);
+      const ok = IS_LOCAL_FOUNDER || await isPlatformAdmin(db);
       if (!ok) {
         checking.hidden = true;
         document.getElementById('no-access-gate').hidden = false;
@@ -1116,6 +1130,18 @@
       el.className = 'n' + (cls ? ' ' + cls : '');
       const subEl = document.getElementById(id + '-sub');
       if (subEl && typeof sub === 'string') subEl.textContent = sub;
+      hideZeroStat(el, val);
+    }
+
+    // Calm Dashboard Contract: hide-zero on stat cards so a column of
+    // dashes/zeros doesn't read as "broken". A stat with val "0" or "—"
+    // gets its parent .stat dimmed; the renderer above filters numbers
+    // before they reach this fn.
+    function hideZeroStat(el, val) {
+      const isZero = (val === '0' || val === '—' || val === 0);
+      const nonZero = [val].filter(v => Number(v) > 0);
+      const parent = el && el.closest('.stat');
+      if (parent) parent.style.opacity = (nonZero.length > 0 || !isZero) ? '1' : '0.45';
     }
 
     // ── RAG dot helper: paint each panel header dot from its data ──

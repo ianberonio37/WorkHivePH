@@ -3,10 +3,10 @@
 Documented rules from `C:/Users/ILBeronio/.claude/skills/<skill>/SKILL.md` files,
 mined against the codebase. Source manifest: `skill_rules_manifest.json`.
 
-- Rules evaluated: **47**
+- Rules evaluated: **50**
 - Critical / high-severity violations: **0**
 - Promotion candidates (drift band): **8**
-- Rules by source: skill_md:designer=2, skill_md:mobile-maestro=2, skill_md:security=3, manifest=40
+- Rules by source: skill_md:designer=2, skill_md:mobile-maestro=2, skill_md:security=3, manifest=43
 
 ## Per-skill roll-up
 
@@ -15,7 +15,7 @@ mined against the codebase. Source manifest: `skill_rules_manifest.json`.
 | architect | 2 | 100% | 0 |
 | data-engineer | 1 | 100% | 0 |
 | designer | 7 | 83% | 25 |
-| frontend | 10 | 71% | 70 |
+| frontend | 13 | 86% | 49 |
 | mobile-maestro | 7 | 85% | 1 |
 | qa-tester | 6 | 98% | 4 |
 | security | 14 | 97% | 13 |
@@ -39,10 +39,8 @@ mined against the codebase. Source manifest: `skill_rules_manifest.json`.
 |---|---|---:|---|---|
 | `mobile_pdf_pagebreak_covers_p` | mobile-maestro | 0% (0/1) | html_pages | convention |
 | `frontend_list_view_has_load_more` | frontend | 33% (5/15) | html_pages | convention |
-| `frontend_list_view_has_no_results_state` | frontend | 36% (4/11) | html_pages | convention |
 | `frontend_classlist_over_classname` | frontend | 44% (16/36) | html_pages | anti_pattern |
 | `designer_dialog_has_aria_modal_true` | designer | 50% (4/8) | html_pages | convention |
-| `frontend_list_view_has_empty_state` | frontend | 54% (17/31) | html_pages | convention |
 | `frontend_no_innerhtml_in_foreach` | frontend | 55% (20/36) | html_pages | anti_pattern |
 | `designer_card_radius_not_125rem` | designer | 72% (26/36) | html_pages | anti_pattern |
 | `migration_function_sets_search_path` | security | 77% (28/36) | migrations | convention |
@@ -82,7 +80,12 @@ mined against the codebase. Source manifest: `skill_rules_manifest.json`.
 | `qa_utils_js_loads_before_inline_script` | qa-tester | 100% (29/29) | html_pages | convention |
 | `kg_voice_handler_must_call_platform_rpc` | architect | 100% (1/1) | js_modules | convention |
 | `kg_migrations_no_broadcast_across_hives` | architect | 100% (151/151) | migrations | anti_pattern |
+| `frontend_list_view_has_empty_state` | frontend | 100% (27/27) | html_pages | convention |
+| `frontend_list_view_has_no_results_state` | frontend | 100% (11/11) | html_pages | convention |
 | `frontend_filter_tabs_have_aria_roles` | frontend | 100% (6/6) | html_pages | convention |
+| `frontend_calm_dashboard_has_verdict` | frontend | 100% (14/14) | html_pages | convention |
+| `frontend_calm_dashboard_uses_details_disclosure` | frontend | 100% (14/14) | html_pages | convention |
+| `frontend_calm_dashboard_filters_zero_kpis` | frontend | 100% (14/14) | html_pages | convention |
 | `frontend_search_resets_pagination` | frontend | 100% (3/3) | html_pages | convention |
 
 ## Allowlisted suppressions (documented-legit divergences)
@@ -92,6 +95,10 @@ mined against the codebase. Source manifest: `skill_rules_manifest.json`.
 | `frontend_eschtml_imported_not_inline` | `architecture.html` | Static-content page: innerHTML only ever assigned literal strings from a frozen catalog (no user data flows through it). Confirmed 2026-05-19 by grep of innerHTML sites. |
 | `frontend_eschtml_imported_not_inline` | `symbol-gallery.html` | Static-content page: renders a fixed P&ID symbol library; innerHTML carries no user input. Confirmed 2026-05-19 by grep of innerHTML sites. |
 | `edge_fn_uses_get_cors_headers` | `marketplace-webhook` | Stripe webhook receiver: Stripe servers do not send a browser Origin header and require a wildcard or absent ACAO. Using the dynamic helper would echo back a non-Stripe origin on misrouted traffic. Verified 2026-05-19 against the Stripe webhook signature flow. |
+| `frontend_list_view_has_empty_state` | `assistant.html` | Chat interface, not a list view. The .map() that triggers the rule renders chat-message rows incrementally; the conversation IS the content (an empty conversation = the welcome screen, which is already custom-designed). |
+| `frontend_list_view_has_empty_state` | `index.html` | Marketing landing + operational-home dashboard. The .map() renders dashboard tiles from a fixed set; this is not a filterable list view. Calm Dashboard Contract already governs the page (see [[project-calm-dashboard-contract]]). |
+| `frontend_list_view_has_empty_state` | `integrations.html` | Multi-step CSV import wizard with its own state (upload -> preview -> map -> import). The .map() renders preview rows of in-progress import data, not a queryable list. |
+| `frontend_list_view_has_empty_state` | `report-sender.html` | Report-builder form, not a list view. The .map() renders recipient chips; the empty state is the form itself. |
 
 ## How to extend
 
