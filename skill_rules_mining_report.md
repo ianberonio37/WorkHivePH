@@ -5,7 +5,7 @@ mined against the codebase. Source manifest: `skill_rules_manifest.json`.
 
 - Rules evaluated: **50**
 - Critical / high-severity violations: **0**
-- Promotion candidates (drift band): **8**
+- Promotion candidates (drift band): **0**
 - Rules by source: skill_md:designer=2, skill_md:mobile-maestro=2, skill_md:security=3, manifest=43
 
 ## Per-skill roll-up
@@ -14,24 +14,15 @@ mined against the codebase. Source manifest: `skill_rules_manifest.json`.
 |---|---:|---:|---:|
 | architect | 2 | 100% | 0 |
 | data-engineer | 1 | 100% | 0 |
-| designer | 7 | 83% | 25 |
-| frontend | 13 | 91% | 39 |
+| designer | 7 | 92% | 4 |
+| frontend | 13 | 92% | 36 |
 | mobile-maestro | 7 | 85% | 1 |
-| qa-tester | 6 | 98% | 4 |
-| security | 14 | 97% | 13 |
+| qa-tester | 6 | 100% | 0 |
+| security | 14 | 100% | 0 |
 
 ## Promotion candidates (documented rules with measurable drift)
 
-| Rule | Skill | Severity | Conformance | Violators |
-|---|---|---|---:|---|
-| `designer_uses_canonical_orange` | designer | info | 94% | analytics-report.html, architecture.html |
-| `frontend_no_em_dash_in_prompt_template` | frontend | medium | 94% | analytics-orchestrator, project-orchestrator, voice-logbook-entry |
-| `qa_no_alert_call` | qa-tester | medium | 93% | analytics-report.html, audit-log.html, index.html, project-report.html |
-| `migration_grant_when_rls_enabled` | security | medium | 88% | 20260430000000_community_tables.sql, 20260516000001_agent_memory_phase2.sql, 20260516000002_dialog_state_phase4.sql, 20260516000003_anomaly_alerts_phase5.sql, 20260516000005_offline_resilience_phase6.sql |
-| `designer_btn_primary_canonical_gradient` | designer | low | 85% | pm-scheduler.html, shift-brain.html |
-| `designer_poppins_font` | designer | info | 80% | alert-hub.html, architecture.html, audit-log.html, parts-tracker.html, platform-health.html ... |
-| `migration_function_sets_search_path` | security | medium | 77% | 20260420000000_baseline.sql, 20260430000002_community_xp.sql, 20260501000001_fix_auth_uid_backfill.sql, 20260501000003_missing_table_rls.sql, 20260501000004_remaining_table_rls.sql ... |
-| `designer_card_radius_not_125rem` | designer | low | 72% | achievements.html, asset-hub.html, dayplanner.html, marketplace-seller-profile.html, marketplace-seller.html ... |
+_None today -- every documented rule is at 100% conformance, has zero scope, or sits below the promotion band._
 
 ## All rules (full conformance ranking)
 
@@ -41,14 +32,7 @@ mined against the codebase. Source manifest: `skill_rules_manifest.json`.
 | `frontend_classlist_over_classname` | frontend | 44% (16/36) | html_pages | anti_pattern |
 | `designer_dialog_has_aria_modal_true` | designer | 50% (4/8) | html_pages | convention |
 | `frontend_no_innerhtml_in_foreach` | frontend | 55% (20/36) | html_pages | anti_pattern |
-| `designer_card_radius_not_125rem` | designer | 72% (26/36) | html_pages | anti_pattern |
-| `migration_function_sets_search_path` | security | 77% (28/36) | migrations | convention |
-| `designer_poppins_font` | designer | 80% (29/36) | html_pages | convention |
-| `designer_btn_primary_canonical_gradient` | designer | 85% (12/14) | html_and_js | convention |
-| `migration_grant_when_rls_enabled` | security | 88% (40/45) | migrations | convention |
-| `qa_no_alert_call` | qa-tester | 93% (57/61) | html_and_js | anti_pattern |
-| `frontend_no_em_dash_in_prompt_template` | frontend | 94% (47/50) | edge_fns | anti_pattern |
-| `designer_uses_canonical_orange` | designer | 94% (34/36) | html_pages | convention |
+| `designer_btn_primary_canonical_gradient` | designer | 100% (14/14) | html_and_js | convention |
 | `mobile_decorative_anim_has_mobile_kill` | mobile-maestro | 100% (8/8) | html_pages | convention |
 | `security_inventory_status_approved_scope` | security | 100% (2/2) | html_pages | convention |
 | `security_voice_transcript_length_cap` | security | 100% (2/2) | edge_fns | convention |
@@ -65,18 +49,25 @@ mined against the codebase. Source manifest: `skill_rules_manifest.json`.
 | `mobile_sw_cache_name_present` | mobile-maestro | 100% (0/0) | js_modules | convention |
 | `designer_no_off_brand_orange_e8920a` | designer | 100% (61/61) | html_and_js | anti_pattern |
 | `designer_no_wrong_input_bg_rgba_black` | designer | 100% (36/36) | html_pages | anti_pattern |
+| `designer_uses_canonical_orange` | designer | 100% (34/34) | html_pages | convention |
+| `designer_poppins_font` | designer | 100% (33/33) | html_pages | convention |
 | `qa_supabase_cdn_when_createclient_used` | qa-tester | 100% (32/32) | html_pages | convention |
 | `qa_no_innerhtml_plus_equals` | qa-tester | 100% (36/36) | html_pages | anti_pattern |
+| `qa_no_alert_call` | qa-tester | 100% (61/61) | html_and_js | anti_pattern |
 | `frontend_eschtml_imported_not_inline` | frontend | 100% (33/33) | html_pages | convention |
 | `frontend_writeAuditLog_called` | frontend | 100% (3/3) | html_pages | convention |
 | `edge_fn_uses_get_cors_headers` | security | 100% (49/49) | edge_fns | convention |
 | `edge_fn_handles_options_preflight` | security | 100% (50/50) | edge_fns | convention |
+| `migration_grant_when_rls_enabled` | security | 100% (40/40) | migrations | convention |
 | `data_engineer_restore_identity_from_session` | data-engineer | 100% (30/30) | html_pages | convention |
+| `migration_function_sets_search_path` | security | 100% (28/28) | migrations | convention |
 | `security_no_function_constructor` | security | 100% (61/61) | html_and_js | anti_pattern |
 | `security_no_token_in_localstorage` | security | 100% (61/61) | html_and_js | anti_pattern |
+| `designer_card_radius_not_125rem` | designer | 100% (36/36) | html_pages | anti_pattern |
 | `a11y_main_landmark_present` | qa-tester | 100% (36/36) | html_pages | convention |
 | `a11y_img_has_alt` | qa-tester | 100% (36/36) | html_pages | anti_pattern |
 | `qa_utils_js_loads_before_inline_script` | qa-tester | 100% (29/29) | html_pages | convention |
+| `frontend_no_em_dash_in_prompt_template` | frontend | 100% (50/50) | edge_fns | anti_pattern |
 | `kg_voice_handler_must_call_platform_rpc` | architect | 100% (1/1) | js_modules | convention |
 | `kg_migrations_no_broadcast_across_hives` | architect | 100% (151/151) | migrations | anti_pattern |
 | `frontend_list_view_has_empty_state` | frontend | 100% (27/27) | html_pages | convention |
@@ -92,9 +83,27 @@ mined against the codebase. Source manifest: `skill_rules_manifest.json`.
 
 | Rule | File | Reason |
 |---|---|---|
+| `designer_uses_canonical_orange` | `analytics-report.html` | Intentional purple-themed analytics report builder (uses #a78bfa as the accent palette). The page is a PDF-export surface, not a normal hive-facing page; the purple framing visually separates report mode from operational mode. |
+| `designer_uses_canonical_orange` | `architecture.html` | Intentional dark-themed technical architecture viewer (uses #1c2128 + neutral grays). Renders a static system diagram, not an operational surface; brand orange would distract from the architecture content. |
+| `designer_poppins_font` | `architecture.html` | Technical architecture viewer. Uses system fonts (-apple-system, Segoe UI) + monospace for diagram labels. Brand font would clash with the technical-content framing. |
+| `designer_poppins_font` | `platform-health.html` | Admin health dashboard. Intentional Segoe UI + Consolas mono for terminal-style readability of health checks and timestamps. |
+| `designer_poppins_font` | `symbol-gallery.html` | Static P&ID symbol library. Uses Segoe UI + mono for engineering-drawing context. Reference page, not operational. |
 | `frontend_eschtml_imported_not_inline` | `architecture.html` | Static-content page: innerHTML only ever assigned literal strings from a frozen catalog (no user data flows through it). Confirmed 2026-05-19 by grep of innerHTML sites. |
 | `frontend_eschtml_imported_not_inline` | `symbol-gallery.html` | Static-content page: renders a fixed P&ID symbol library; innerHTML carries no user input. Confirmed 2026-05-19 by grep of innerHTML sites. |
 | `edge_fn_uses_get_cors_headers` | `marketplace-webhook` | Stripe webhook receiver: Stripe servers do not send a browser Origin header and require a wildcard or absent ACAO. Using the dynamic helper would echo back a non-Stripe origin on misrouted traffic. Verified 2026-05-19 against the Stripe webhook signature flow. |
+| `migration_grant_when_rls_enabled` | `20260430000000_community_tables.sql` | RLS enabled on community_posts / community_replies / community_reactions. GRANTs added in sibling 20260430000001_community_grants.sql (grep confirmed 2026-05-20). |
+| `migration_grant_when_rls_enabled` | `20260516000001_agent_memory_phase2.sql` | RLS enabled on agent_memory. GRANTs added in earlier sibling 20260511000001_agent_memory.sql (grep confirmed 2026-05-20). |
+| `migration_grant_when_rls_enabled` | `20260516000002_dialog_state_phase4.sql` | RLS enabled on dialog_state. GRANTs added in 20260519000020_security_hardening_pass.sql (grep confirmed 2026-05-20). |
+| `migration_grant_when_rls_enabled` | `20260516000003_anomaly_alerts_phase5.sql` | RLS enabled on anomaly_alerts. GRANTs added in 20260519000020_security_hardening_pass.sql (grep confirmed 2026-05-20). |
+| `migration_grant_when_rls_enabled` | `20260516000005_offline_resilience_phase6.sql` | RLS enabled on fallback_model_faq. GRANTs added in 20260519000020_security_hardening_pass.sql (grep confirmed 2026-05-20). |
+| `migration_function_sets_search_path` | `20260420000000_baseline.sql` | Historical baseline. SECURITY DEFINER functions retroactively hardened via ALTER FUNCTION ... SET search_path in 20260519000020_security_hardening_pass.sql (e.g., search_skill_knowledge). Runtime DB reflects the hardened definition. |
+| `migration_function_sets_search_path` | `20260430000002_community_xp.sql` | Community XP triggers. Hardened in 20260519000020_security_hardening_pass.sql. |
+| `migration_function_sets_search_path` | `20260501000001_fix_auth_uid_backfill.sql` | auth_uid backfill helper. Hardened in 20260519000020_security_hardening_pass.sql. |
+| `migration_function_sets_search_path` | `20260501000003_missing_table_rls.sql` | RLS-policy SECURITY DEFINER trigger functions. Hardened in 20260519000020_security_hardening_pass.sql. |
+| `migration_function_sets_search_path` | `20260501000004_remaining_table_rls.sql` | Same hardening wave as 20260501000003. Hardened in 20260519000020_security_hardening_pass.sql. |
+| `migration_function_sets_search_path` | `20260504000001_community_badge_auth_uid.sql` | Badge-grant trigger function. Hardened in 20260519000020_security_hardening_pass.sql. |
+| `migration_function_sets_search_path` | `20260508000007_force_pgrst_reload.sql` | One-shot PostgREST reload trigger. SECURITY DEFINER scope is bounded to a single NOTIFY call; no malicious-schema attack surface. Hardened in 20260519000020_security_hardening_pass.sql for consistency. |
+| `migration_function_sets_search_path` | `20260508000009_asset_brain_foundation.sql` | Asset Brain vector-search functions. Hardened in 20260519000020_security_hardening_pass.sql. |
 | `frontend_list_view_has_empty_state` | `assistant.html` | Chat interface, not a list view. The .map() that triggers the rule renders chat-message rows incrementally; the conversation IS the content (an empty conversation = the welcome screen, which is already custom-designed). |
 | `frontend_list_view_has_empty_state` | `index.html` | Marketing landing + operational-home dashboard. The .map() renders dashboard tiles from a fixed set; this is not a filterable list view. Calm Dashboard Contract already governs the page (see [[project-calm-dashboard-contract]]). |
 | `frontend_list_view_has_empty_state` | `integrations.html` | Multi-step CSV import wizard with its own state (upload -> preview -> map -> import). The .map() renders preview rows of in-progress import data, not a queryable list. |

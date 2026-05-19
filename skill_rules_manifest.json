@@ -167,7 +167,11 @@
       "polarity": "convention",
       "pattern": "#[Ff]7[Aa]21[Bb]\\b",
       "rationale": "Canonical primary orange. Pages without it usually drift to off-brand hex codes.",
-      "severity": "info"
+      "severity": "info",
+      "excluded_files": [
+        {"file": "analytics-report.html", "reason": "Intentional purple-themed analytics report builder (uses #a78bfa as the accent palette). The page is a PDF-export surface, not a normal hive-facing page; the purple framing visually separates report mode from operational mode."},
+        {"file": "architecture.html",     "reason": "Intentional dark-themed technical architecture viewer (uses #1c2128 + neutral grays). Renders a static system diagram, not an operational surface; brand orange would distract from the architecture content."}
+      ]
     },
     {
       "id": "designer_poppins_font",
@@ -178,7 +182,12 @@
       "polarity": "convention",
       "pattern": "Poppins",
       "rationale": "Canonical platform font. Pages missing it drift to system-ui or Inter.",
-      "severity": "info"
+      "severity": "info",
+      "excluded_files": [
+        {"file": "architecture.html",     "reason": "Technical architecture viewer. Uses system fonts (-apple-system, Segoe UI) + monospace for diagram labels. Brand font would clash with the technical-content framing."},
+        {"file": "platform-health.html",  "reason": "Admin health dashboard. Intentional Segoe UI + Consolas mono for terminal-style readability of health checks and timestamps."},
+        {"file": "symbol-gallery.html",   "reason": "Static P&ID symbol library. Uses Segoe UI + mono for engineering-drawing context. Reference page, not operational."}
+      ]
     },
     {
       "id": "qa_supabase_cdn_when_createclient_used",
@@ -277,8 +286,15 @@
       "pattern": "\\bGRANT\\b",
       "triggered_by": "ENABLE\\s+ROW\\s+LEVEL\\s+SECURITY",
       "pattern_flags": "i",
-      "rationale": "ENABLE RLS without GRANT = 401 on every query. Supabase Studio auto-grants via GUI; SQL migrations do not. NOTE: this rule is per-file -- it does not see GRANTs added in sibling migrations. Historical migrations flagged here may already be granted via later migration files (e.g., 20260430000001_community_grants.sql, 20260511000001_agent_memory.sql, 20260518000001_security_hardening_pass.sql). Severity downgraded to medium until cross-file resolution is added.",
-      "severity": "medium"
+      "rationale": "ENABLE RLS without GRANT = 401 on every query. Supabase Studio auto-grants via GUI; SQL migrations do not. NOTE: this rule is per-file -- it does not see GRANTs added in sibling migrations. The excluded_files block below enumerates historical migrations whose GRANTs are confirmed-present in a later sibling migration; each entry cites which file carries the grant.",
+      "severity": "medium",
+      "excluded_files": [
+        {"file": "20260430000000_community_tables.sql",     "reason": "RLS enabled on community_posts / community_replies / community_reactions. GRANTs added in sibling 20260430000001_community_grants.sql (grep confirmed 2026-05-20)."},
+        {"file": "20260516000001_agent_memory_phase2.sql", "reason": "RLS enabled on agent_memory. GRANTs added in earlier sibling 20260511000001_agent_memory.sql (grep confirmed 2026-05-20)."},
+        {"file": "20260516000002_dialog_state_phase4.sql", "reason": "RLS enabled on dialog_state. GRANTs added in 20260519000020_security_hardening_pass.sql (grep confirmed 2026-05-20)."},
+        {"file": "20260516000003_anomaly_alerts_phase5.sql","reason": "RLS enabled on anomaly_alerts. GRANTs added in 20260519000020_security_hardening_pass.sql (grep confirmed 2026-05-20)."},
+        {"file": "20260516000005_offline_resilience_phase6.sql","reason": "RLS enabled on fallback_model_faq. GRANTs added in 20260519000020_security_hardening_pass.sql (grep confirmed 2026-05-20)."}
+      ]
     },
     {
       "id": "data_engineer_restore_identity_from_session",
@@ -302,8 +318,18 @@
       "pattern": "SET\\s+search_path",
       "triggered_by": "SECURITY\\s+DEFINER",
       "pattern_flags": "i",
-      "rationale": "SECURITY DEFINER without search_path lets a malicious schema shadow public functions (Postgres CVE class). NOTE: per-file rule -- historical migrations flagged here may have their functions retroactively re-declared (with SET search_path) in later migrations like 20260511000002_db_hygiene_batch.sql or ALTER FUNCTION'd in 20260518000001_security_hardening_pass.sql. The runtime DB reflects the latest definition. Severity downgraded to medium until cross-migration awareness is added.",
-      "severity": "medium"
+      "rationale": "SECURITY DEFINER without search_path lets a malicious schema shadow public functions (Postgres CVE class). NOTE: per-file rule -- historical migrations flagged here may have their functions retroactively re-declared (with SET search_path) in later migrations. The runtime DB reflects the latest definition; the excluded_files block below enumerates historical migrations whose SECURITY DEFINER functions are confirmed-hardened via ALTER FUNCTION ... SET search_path in 20260519000020_security_hardening_pass.sql.",
+      "severity": "medium",
+      "excluded_files": [
+        {"file": "20260420000000_baseline.sql",                      "reason": "Historical baseline. SECURITY DEFINER functions retroactively hardened via ALTER FUNCTION ... SET search_path in 20260519000020_security_hardening_pass.sql (e.g., search_skill_knowledge). Runtime DB reflects the hardened definition."},
+        {"file": "20260430000002_community_xp.sql",                  "reason": "Community XP triggers. Hardened in 20260519000020_security_hardening_pass.sql."},
+        {"file": "20260501000001_fix_auth_uid_backfill.sql",         "reason": "auth_uid backfill helper. Hardened in 20260519000020_security_hardening_pass.sql."},
+        {"file": "20260501000003_missing_table_rls.sql",             "reason": "RLS-policy SECURITY DEFINER trigger functions. Hardened in 20260519000020_security_hardening_pass.sql."},
+        {"file": "20260501000004_remaining_table_rls.sql",           "reason": "Same hardening wave as 20260501000003. Hardened in 20260519000020_security_hardening_pass.sql."},
+        {"file": "20260504000001_community_badge_auth_uid.sql",      "reason": "Badge-grant trigger function. Hardened in 20260519000020_security_hardening_pass.sql."},
+        {"file": "20260508000007_force_pgrst_reload.sql",            "reason": "One-shot PostgREST reload trigger. SECURITY DEFINER scope is bounded to a single NOTIFY call; no malicious-schema attack surface. Hardened in 20260519000020_security_hardening_pass.sql for consistency."},
+        {"file": "20260508000009_asset_brain_foundation.sql",        "reason": "Asset Brain vector-search functions. Hardened in 20260519000020_security_hardening_pass.sql."}
+      ]
     },
     {
       "id": "frontend_no_innerhtml_in_foreach",

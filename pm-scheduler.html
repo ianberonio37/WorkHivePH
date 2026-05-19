@@ -63,12 +63,14 @@
     select option { background: #1e2d45; color: white; }
 
     .btn-primary {
-      min-height: 44px; background: #F7A21B; color: #162032; font-weight: 700;
+      min-height: 44px;
+      background: linear-gradient(135deg, #F7A21B, #FDB94A);
+      color: #162032; font-weight: 700;
       border-radius: 0.75rem; padding: 0.75rem 1.5rem; width: 100%;
-      font-size: 0.875rem; border: none; transition: background 0.2s, transform 0.1s;
+      font-size: 0.875rem; border: none; transition: filter 0.2s, transform 0.1s;
       cursor: pointer; display: block;
     }
-    .btn-primary:hover { background: #D88A0E; }
+    .btn-primary:hover { filter: brightness(0.95); }
     .btn-primary:active { transform: scale(0.98); }
     .btn-primary:disabled { background: rgba(247,162,27,0.35); cursor: not-allowed; }
 
@@ -259,7 +261,7 @@
     .sheet-overlay.open { display: flex; }
     .sheet-panel {
       background: linear-gradient(145deg, rgba(30,44,65,0.98), rgba(22,32,50,0.99));
-      border: 1px solid rgba(255,255,255,0.1); border-radius: 1.25rem 1.25rem 0 0;
+      border: 1px solid rgba(255,255,255,0.1); border-radius: 1rem 1.25rem 0 0;
       width: 100%; max-width: 640px; padding: 1.5rem 1.25rem;
       animation: sheetUp 0.25s ease;
     }

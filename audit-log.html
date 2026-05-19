@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>Audit Log | WorkHive</title>
   <link rel="manifest" href="manifest.json" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="utils.js"></script>
   <style>
@@ -493,10 +496,23 @@
     });
   }
 
+  // Inline showToast (qa_no_alert_call): non-blocking, mobile-friendly,
+  // keyboard-accessible replacement for alert(). Self-contained so no
+  // dependency on a pre-existing toast container.
+  window.showToast = window.showToast || function (msg, kind) {
+    const t = document.createElement('div');
+    t.textContent = msg;
+    t.setAttribute('role', 'alert');
+    t.setAttribute('aria-live', 'polite');
+    t.style.cssText = 'position:fixed;top:1rem;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.88);color:#fff;padding:0.75rem 1.25rem;border-radius:0.5rem;font-size:0.875rem;z-index:9999;max-width:90vw;text-align:center;' + (kind === 'error' ? 'border-left:3px solid #ef4444;' : '');
+    document.body.appendChild(t);
+    setTimeout(() => t.remove(), 3500);
+  };
+
   // ── CSV export — supervisor-friendly compliance artifact ────────────────────
   function exportCsv() {
     const items = applyFilters();
-    if (!items.length) { alert('No entries to export.'); return; }
+    if (!items.length) { showToast('No entries to export.'); return; }
     const headers = ['created_at', 'actor', 'action', 'target_type', 'target_id', 'target_name', 'meta'];
     const lines = [headers.join(',')];
     for (const en of items) {

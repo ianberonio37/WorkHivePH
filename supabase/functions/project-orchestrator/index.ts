@@ -120,7 +120,7 @@ async function runNarrative(
 
   const systemPrompt = `You write strict-only project narratives for industrial maintenance handover packets in the Philippines. You receive a JSON fact pack and MUST produce three short sections that quote SPECIFIC facts. Never invent values, never reference data not present in the facts. Generic boilerplate is REJECTED.
 
-Mandatory content rules — your narrative will be considered FAILED if missing any of these:
+Mandatory content rules. Your narrative will be considered FAILED if missing any of these:
 1. hero_finding MUST quote the percentage AND the items_done/items_total fraction (e.g. "61% complete with 4 of 7 scope items closed").
 2. executive_summary MUST mention progress %, hours_actual vs hours_estimated if both are non-zero, AND name a specific blocker verbatim if recent_blocker_count > 0. If next_pending_item is set, end with "Next: <next_pending_item>".
 3. If status_inconsistency is non-null, mention it as a sign-off readiness flag in the executive_summary.
@@ -128,15 +128,15 @@ Mandatory content rules — your narrative will be considered FAILED if missing 
 
 Format rules:
 1. Third person, present tense, plain industrial English. No emojis. No marketing language. No hedging ("might", "perhaps", "suggests").
-2. If a fact is null or missing, OMIT that sentence — do not say "unknown" or "TBD".
+2. If a fact is null or missing, OMIT that sentence. Do not say "unknown" or "TBD".
 3. Philippine peso ₱ for any currency. Round to whole pesos.
-4. Output STRICT JSON only — no prose outside the JSON.
+4. Output STRICT JSON only. No prose outside the JSON.
 
 Output schema:
 {
-  "hero_finding":        "string — one sentence — must include % and items_done/total",
-  "executive_summary":   "string — 2-4 sentences — must include progress %, blocker quote if any, next item",
-  "lessons_synthesis":   "string — 1-2 sentence pattern from blockers; null if no blockers"
+  "hero_finding":        "string. One sentence. Must include % and items_done/total",
+  "executive_summary":   "string. 2-4 sentences. Must include progress %, blocker quote if any, next item",
+  "lessons_synthesis":   "string. 1-2 sentence pattern from blockers; null if no blockers"
 }`;
 
   const userPrompt = `FACT PACK (the only source of truth):
@@ -255,7 +255,7 @@ async function runLessonsDraft(
   const blockers = logs.filter(l => ((l as Record<string, string>).blockers || '').trim()).map((l: Record<string, string>) => l.blockers);
   const notes    = logs.filter(l => ((l as Record<string, string>).notes || '').trim()).map((l: Record<string, string>) => l.notes);
 
-  const systemPrompt = `You draft "lessons learned" entries for an industrial maintenance project handover packet, written in plain Philippine industrial English. Output 3-6 bullet points using the format below — never invent details.
+  const systemPrompt = `You draft "lessons learned" entries for an industrial maintenance project handover packet, written in plain Philippine industrial English. Output 3-6 bullet points using the format below. Never invent details.
 
 Rules:
 1. Each bullet starts with one of: "What went well:" / "What to fix:" / "Watch next time:".

@@ -3,9 +3,14 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <!-- Layer -1.5 Calm Dashboard Contract opt-in (frontend_calm_dashboard_*). -->
+  <meta name="calm-dashboard" content="1" />
   <title>Predictive Maintenance | WorkHive</title>
   <!-- capability: display_count_chip — 4-tile risk-level summary (.sum-card pattern). Registered Tier G; visual primitive distinct from renderKpiTile + renderCompactStat. -->
   <link rel="manifest" href="manifest.json" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="utils.js"></script>
   <script src="maturity-gate.js"></script>
@@ -141,6 +146,8 @@
   </style>
 </head>
 <body>
+<main>
+
 
 <div class="page">
 
@@ -504,10 +511,22 @@
     const counts = { critical: 0, high: 0, medium: 0, low: 0 };
     for (const s of _scores) counts[s.risk_level] = (counts[s.risk_level] || 0) + 1;
 
-    document.getElementById('count-critical').textContent = counts.critical;
-    document.getElementById('count-high').textContent     = counts.high;
-    document.getElementById('count-medium').textContent   = counts.medium;
-    document.getElementById('count-low').textContent      = counts.low;
+    const _cc = document.getElementById('count-critical');
+    const _ch = document.getElementById('count-high');
+    const _cm = document.getElementById('count-medium');
+    const _cl = document.getElementById('count-low');
+    _cc.textContent = counts.critical;
+    _ch.textContent = counts.high;
+    _cm.textContent = counts.medium;
+    _cl.textContent = counts.low;
+    // Calm Dashboard Contract: dim zero risk-level tiles so a quiet hive
+    // doesn't render as a row of bare zeros.
+    if (window.hideZeroStat) {
+      hideZeroStat(_cc, counts.critical);
+      hideZeroStat(_ch, counts.high);
+      hideZeroStat(_cm, counts.medium);
+      hideZeroStat(_cl, counts.low);
+    }
 
     // Plain-Read summary (Layer D) — rolls up the same counts in plain English.
     renderPredictiveSummary(counts);
@@ -652,6 +671,20 @@
   }
 
 })();
+</script>
+</main>
+
+<!-- Calm Dashboard Contract footer: data-sources disclosure + hideZeroStat helper -->
+<details data-calm-disclosure="data-sources" style="max-width:680px; margin:1rem auto 2rem; padding:0 1rem;">
+  <summary style="cursor:pointer; font-size:.78rem; color:rgba(255,255,255,0.5); list-style:none;">▸ About this dashboard's data sources</summary>
+  <p style="font-size:.78rem; color:rgba(255,255,255,0.55); padding:.5rem 0; line-height:1.5;">Numbers come from WorkHive canonical truth views (see <code>KPI_ENGINE.md</code>). They refresh live unless a tile chip says otherwise. Empty or zero values are dimmed via <code>hideZeroStat()</code> so you can tell at a glance which signals have data.</p>
+</details>
+<script>
+  window.hideZeroStat = window.hideZeroStat || function(el, val) {
+    if (!el) return;
+    const live = [val].filter(v => v != null && Number(v) > 0);
+    el.style.opacity = (live.length > 0) ? '1' : '0.55';
+  };
 </script>
 </body>
 </html>

@@ -4,6 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>Parts Tracker (retired) → Inventory · WorkHive</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <!-- capability: display_nav_hub (retired surface — see canonical_capabilities.retired_surfaces) -->
   <!-- capture-allow: retired stub; functionality folded into inventory.html (Usage History view). -->
   <meta name="description" content="Parts Tracker has been retired. Parts usage is now logged via the Inventory page (Usage History view)." />
@@ -22,6 +25,8 @@
   </style>
 </head>
 <body>
+<main>
+
   <div class="card">
     <h1>Parts Tracker has been retired</h1>
     <p>Parts usage logging is now consolidated into the
@@ -34,5 +39,6 @@
     // Hard redirect after a short delay so the user sees the explanation
     setTimeout(function(){ window.location.replace('inventory.html#usage-history'); }, 3000);
   </script>
+</main>
 </body>
 </html>

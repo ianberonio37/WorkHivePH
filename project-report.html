@@ -200,6 +200,12 @@
 <script src="utils.js"></script>
 <script>
 let WORKER_NAME = localStorage.getItem('wh_last_worker') || localStorage.getItem('wh_worker_name') || localStorage.getItem('workerName') || '';
+  // Auth C4: refresh WORKER_NAME from Supabase Auth session if localStorage was
+  // empty or stale. Fire-and-forget -- the sync auth-check redirect still runs
+  // first; session identity overrides asynchronously.
+  if (typeof restoreIdentityFromSession === 'function' && typeof db !== 'undefined') {
+    restoreIdentityFromSession(db).then(_n => { if (_n) WORKER_NAME = _n; });
+  }
 let HIVE_ID     = localStorage.getItem('wh_active_hive_id') || localStorage.getItem('wh_hive_id') || '';
 let HIVE_NAME   = localStorage.getItem('wh_hive_name') || '';
 
@@ -281,17 +287,28 @@ async function loadAndRender(projectId) {
 }
 let _projectCache = null;
 
+// Inline showToast (qa_no_alert_call): non-blocking, mobile-friendly.
+window.showToast = window.showToast || function (msg, kind) {
+  const t = document.createElement('div');
+  t.textContent = msg;
+  t.setAttribute('role', 'alert');
+  t.setAttribute('aria-live', 'polite');
+  t.style.cssText = 'position:fixed;top:1rem;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.88);color:#fff;padding:0.75rem 1.25rem;border-radius:0.5rem;font-size:0.875rem;z-index:9999;max-width:90vw;text-align:center;' + (kind === 'error' ? 'border-left:3px solid #ef4444;' : '');
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 4000);
+};
+
 // Phase 6.2 (6D) — AI-generated handover narrative
 async function aiGenerateNarrative() {
-  if (!_projectCache?.project) { alert('Project not loaded yet'); return; }
+  if (!_projectCache?.project) { showToast('Project not loaded yet'); return; }
   const btn = $('ai-narrative-btn');
   btn.disabled = true; btn.textContent = '🤖 Drafting…';
   try {
     const { data, error } = await db.functions.invoke('project-orchestrator', {
       body: { phase: 'narrative', project_id: _projectCache.project.id, hive_id: _projectCache.project.hive_id },
     });
-    if (error) { alert('AI failed: ' + error.message); return; }
-    if (data?._unavailable) { alert('AI: ' + (data.reason || 'unavailable')); return; }
+    if (error) { showToast('AI failed: ' + error.message, 'error'); return; }
+    if (data?._unavailable) { showToast('AI: ' + (data.reason || 'unavailable'), 'error'); return; }
     // Replace the rule-based hero finding + exec summary with AI versions, tagged
     const insightCard = $('exec-summary').querySelector('.insight-card .text');
     if (insightCard && data.hero_finding) insightCard.textContent = data.hero_finding;

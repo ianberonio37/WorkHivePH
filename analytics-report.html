@@ -1570,10 +1570,23 @@
     // rule above hides the dark UI and renders only #ar-print-wrapper, so the
     // PDF contains only the .doc-panel report. We swap document.title around
     // the print() call so the saved file gets a meaningful default name.
+    // Inline showToast (qa_no_alert_call): non-blocking, mobile-friendly,
+    // keyboard-accessible replacement for alert(). Self-contained so no
+    // dependency on a pre-existing toast container.
+    window.showToast = window.showToast || function (msg, kind) {
+      var t = document.createElement('div');
+      t.textContent = msg;
+      t.setAttribute('role', 'alert');
+      t.setAttribute('aria-live', 'polite');
+      t.style.cssText = 'position:fixed;top:1rem;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.88);color:#fff;padding:0.75rem 1.25rem;border-radius:0.5rem;font-size:0.875rem;z-index:9999;max-width:90vw;text-align:center;' + (kind === 'error' ? 'border-left:3px solid #ef4444;' : '');
+      document.body.appendChild(t);
+      setTimeout(function () { t.remove(); }, 3500);
+    };
+
     window.saveAsPdf = function(){
       var doc = document.getElementById('ar-doc');
       if (!doc) {
-        alert('Generate the report first, then save as PDF.');
+        showToast('Generate the report first, then save as PDF.');
         return;
       }
       // Inject explicit page breaks before each top-level section so the PDF

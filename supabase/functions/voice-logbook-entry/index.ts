@@ -131,12 +131,12 @@ serve(async (req) => {
       parsed = JSON.parse(raw);
     } catch {
       return new Response(
-        JSON.stringify({ error: "AI parsing failed — try again", raw }),
+        JSON.stringify({ error: "AI parsing failed. Try again.", raw }),
         { status: 500, headers: { ...cors, "Content-Type": "application/json" } },
       );
     }
 
-    // Sanitize output — guarantee expected keys exist with safe defaults
+    // Sanitize output: guarantee expected keys exist with safe defaults
     const result = {
       machine:          parsed.machine          ?? null,
       problem:          parsed.problem          ?? safe,

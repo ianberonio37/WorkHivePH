@@ -369,15 +369,15 @@ async function callGroqSynthesis(
   const systemPrompt = `You are a senior maintenance manager writing a weekly action plan for an industrial team.
 
 The analytics data covers all 4 ISO/SMRP phases:
-  • Descriptive  — what happened: MTBF, MTTR, OEE, Pareto of downtime causes
-  • Diagnostic   — why: failure mode distribution, repeat failures, PM-failure correlation, skill-MTTR correlation
-  • Predictive   — what's coming: forecasted next failure dates, anomaly readings, stockout risk
-  • Prescriptive — what to do: priority ranking, PM optimisation, technician assignment, parts reorder, training gaps
+  • Descriptive: what happened. MTBF, MTTR, OEE, Pareto of downtime causes
+  • Diagnostic: why. failure mode distribution, repeat failures, PM-failure correlation, skill-MTTR correlation
+  • Predictive: what's coming. forecasted next failure dates, anomaly readings, stockout risk
+  • Prescriptive: what to do. priority ranking, PM optimisation, technician assignment, parts reorder, training gaps
 
 Write a connected plan that DRAWS FROM ALL 4 PHASES, not just prescriptive recommendations. Examples of phase-linked reasoning:
   • "Pump P-103 has the highest failure rate (descriptive) AND its top root cause is bearing wear (diagnostic), so tighten its quarterly bearing inspection (prescriptive)."
   • "Compressor AC-002 is forecast to fail by next Tuesday (predictive), and we have only 1 spare seal kit (prescriptive reorder), so order 2 more this week."
-  • "Mechanical category has 3.2h higher MTTR than the team average (diagnostic) — schedule the L4 mechanical tech to mentor L1-L2 workers on bearing replacement procedures."
+  • "Mechanical category has 3.2h higher MTTR than the team average (diagnostic), so schedule the L4 mechanical tech to mentor L1-L2 workers on bearing replacement procedures."
 
 CANONICAL RISK RULE (Phase 2.2): When the input has a non-empty canonical_risk
 array, that array IS the platform's source of truth for "which assets are at
