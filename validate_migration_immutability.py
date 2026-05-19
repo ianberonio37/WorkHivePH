@@ -64,6 +64,20 @@ TIMESTAMP_RE = re.compile(r"^\d{14}_[a-z0-9_]+\.sql$")
 # (verify the second commit landed BEFORE the migration was deployed; if
 # yes, the entry is permanently safe; if not, it's prod/clone drift).
 ALLOWED_MULTI_COMMIT = {
+    "20260520000001_canonical_lineage_edges.sql":
+        "2026-05-20 same-day amendment: original commit b528865 created the "
+        "table; follow-up commit 1b1a203 added the canonical_sources INSERT "
+        "registration (a coherent extension of the migration's purpose). "
+        "Local Supabase re-applied via psql; no prod deploy between commits. "
+        "Migration ships as one logical unit (table + self-registration).",
+    "20260520000010_v_alert_truth.sql":
+        "2026-05-20 same-day amendment + revert: original commit 1b1a203 "
+        "created the view; 7ac65f1 extended with rule_id+category in-place "
+        "(audit caught the rule); 015ce87 reverted to the original content + "
+        "shipped the rule_id+category extension as new migration 20260520000013. "
+        "L3 (whitespace_only_edits) confirms the diff between 1b1a203 and "
+        "015ce87 is whitespace-only (CRLF normalization). File is effectively "
+        "pristine at its first-commit semantics.",
     "20260519000002_platform_feedback.sql":
         "2026-05-19 same-day fix: rate-limit + resolved_at trigger landed in "
         "follow-up commit (5f5d4dc0) right after the schema commit (023d9d99). "

@@ -3,8 +3,8 @@
 // surfaces (logbook, inventory, pm-scheduler, hive, asset-hub, shift-brain).
 // Closes PRODUCTION_FIXES #54.
 
-const CACHE_NAME  = 'workhive-shell-v101';  // bump 2026-05-20: 3 truth-view wrappers (v_alert/amc/sensor) + OEE RPC wired into analytics-orchestrator + lineage_edges registered. Re-prime cache so PWA users get the latest renderers.
-// (Prior bump comment kept inline below for trail.)
+const CACHE_NAME  = 'workhive-shell-v102';  // bump 2026-05-20: drift wiring — index.html ops-home Today's One Thing now reads v_amc_truth + v_sensor_truth + v_alert_truth; hive.html pattern-alerts panel + asset-hub anomaly banner now read truth views. Re-prime cache so PWA users see the canonical-wired renderers.
+// const CACHE_NAME  = 'workhive-shell-v101';  // 3 truth-view wrappers + OEE RPC
 // const CACHE_NAME  = 'workhive-shell-v100';  // bump 2026-05-19: Calm Dashboard hideZeroStat wiring pass — stat-update sites now dim 0/— values across hive (welcome + members + pulse), alert-hub (AMC briefing setStat), asset-hub (asset-360 strip), predictive (4 risk-tier counts), achievements (3 XP stats), founder-console (setStat), platform-health (health-num + streak)
 const SHELL_FILES = [
   // Original report-sender shell
