@@ -1,21 +1,29 @@
-"""Day 5 (BONUS L5): Extract knowledge_graph_facts triples from standards corpus.
+"""Day 5/Day 9: Extract triples from standards chunks into platform_knowledge_graph_facts.
 
 Reads chunks from industry_standards_chunks, runs them through the 14-model
 fallback chain (tools/lib/ai_chain.py — mirrors _shared/ai-chain.ts) to extract
-subject/predicate/object triples in JSON, inserts into knowledge_graph_facts
-(hive-scoped; uses the test hive).
+subject/predicate/object triples in JSON, inserts into the PLATFORM-scoped
+sibling table (single source of truth, no hive_id, no broadcasting).
+
+Why platform table: standards-derived facts are platform canon (NIST 800-82r3
+saying "OT system requires ongoing assessments" is identically true at every
+hive). Writing them into knowledge_graph_facts requires picking a hive then
+broadcasting — the audit reflex caught that as a duplicate-build mistake
+2026-05-19 and the architecture was corrected in migration 20260519000001.
+This script now writes directly to the correct shelf.
 
 Schema constraints enforced:
   subject_type / predicate / object_type: lowercase + underscores, max 31 chars
-  source_type: must be 'standard' for this batch
+  source_type: 'standard' for this batch (whitelisted on platform table)
   confidence: 0-1
+  Unique key: (subject_ref, predicate, object_ref, source_ref) -- idempotent
 
-Why the chain (not just Groq): the previous version pinned to one Groq model
-and died at the 12K TPM ceiling. The chain rolls Groq -> Cerebras -> OpenRouter
+Why the chain (not just Groq): pinning to one Groq model hits the per-model
+TPM ceiling and stalls. The chain rolls Groq -> Cerebras -> OpenRouter
 automatically on 429.
 
-Per-row SAVEPOINT insert: any one bad triple rolls back ONLY that row, not the
-whole chunk's good triples.
+autocommit=True: each INSERT is its own transaction, so one bad row can't
+poison the chunk's other inserts. No SAVEPOINT bookkeeping needed.
 """
 from __future__ import annotations
 
@@ -39,8 +47,7 @@ load_dotenv(ROOT / ".env")
 
 from tools.lib.ai_chain import call_ai, AIChainError   # noqa: E402
 
-# Hive IDs change on every full reseed — look it up at runtime by name.
-DEMO_HIVE_NAME = "Baguio Textile Mills"
+# platform_knowledge_graph_facts is hive-agnostic — no hive lookup needed.
 CHUNKS_TO_PROCESS = 500   # full corpus cap; runtime SQL filters out chunks already extracted
 
 # Schema allowlist (mirrors CHECK constraints + common-sense subset)
@@ -112,7 +119,7 @@ def extract_triples(chunk_text: str, standard_code: str) -> tuple[list[dict], st
 
 def main() -> int:
     print("=" * 72)
-    print("DAY 5 (L5): EXTRACT knowledge_graph_facts FROM standards corpus")
+    print("L5 EXTRACTOR -> platform_knowledge_graph_facts (hive-agnostic)")
     print("Provider chain: Groq -> Cerebras -> OpenRouter (tools/lib/ai_chain.py)")
     print("=" * 72)
 
@@ -123,27 +130,14 @@ def main() -> int:
     conn.autocommit = True
     cur = conn.cursor()
 
-    cur.execute("SELECT id FROM hives WHERE name = %s LIMIT 1", (DEMO_HIVE_NAME,))
-    row = cur.fetchone()
-    if not row:
-        cur.execute("SELECT id, name FROM hives LIMIT 1")
-        row = cur.fetchone()
-        if not row:
-            print("[FAIL] No hives in DB. Run the seeder first.")
-            return 1
-        print(f"[INFO] '{DEMO_HIVE_NAME}' not found; using fallback hive '{row[1]}'")
-    hive_id = str(row[0])
-    print(f"Hive id: {hive_id}")
-    print()
-
     # Pull chunks that haven't been extracted yet (idempotent re-runs).
-    # source_ref convention from this script: "<standard_code> chunk_<n>".
+    # source_ref convention: "<standard_code> chunk_<n>".
     cur.execute("""
         SELECT isc.id, isc.chunk_num, isc.section, isc.text, s.standard_code, s.id
           FROM industry_standards_chunks isc
           JOIN industry_standards s ON isc.standard_id = s.id
          WHERE NOT EXISTS (
-                SELECT 1 FROM knowledge_graph_facts f
+                SELECT 1 FROM platform_knowledge_graph_facts f
                  WHERE f.created_by = 'day5_extractor'
                    AND f.source_ref = s.standard_code || ' chunk_' || isc.chunk_num
          )
@@ -198,15 +192,21 @@ def main() -> int:
 
             # autocommit=True means each INSERT is its own transaction — a bad
             # row can't poison the others. No SAVEPOINT bookkeeping needed.
+            # ON CONFLICT DO NOTHING on the dedupe key — same triple from the
+            # same chunk only lands once.
             try:
                 cur.execute("""
-                    INSERT INTO knowledge_graph_facts
-                      (hive_id, subject_type, subject_ref, predicate, object_type, object_ref,
+                    INSERT INTO platform_knowledge_graph_facts
+                      (subject_type, subject_ref, predicate, object_type, object_ref,
                        claim_text, confidence, source_type, source_ref, created_by)
-                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, 'standard', %s, 'day5_extractor')
-                """, (hive_id, st, sub_ref, pr, ot, obj_ref, claim, conf,
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, 'standard', %s, 'day5_extractor')
+                    ON CONFLICT (subject_ref, predicate, object_ref, source_ref) DO NOTHING
+                """, (st, sub_ref, pr, ot, obj_ref, claim, conf,
                       f"{std_code} chunk_{chunk_num}"))
-                inserted += 1
+                if cur.rowcount > 0:
+                    inserted += 1
+                else:
+                    skipped += 1
             except psycopg2.Error as e:
                 errored += 1
                 if errored <= 1:   # log the first error per chunk to diagnose
@@ -221,7 +221,7 @@ def main() -> int:
         print(f"        +{inserted} triples ({', '.join(notes) or 'clean'}) [{provider_label}]   running total: {total_facts}")
         time.sleep(0.4)
 
-    cur.execute("SELECT COUNT(*) FROM knowledge_graph_facts WHERE created_by='day5_extractor'")
+    cur.execute("SELECT COUNT(*) FROM platform_knowledge_graph_facts WHERE created_by='day5_extractor'")
     total_in_table = cur.fetchone()[0]
 
     print(f"\n{'='*72}\nRESULT\n{'='*72}")
@@ -236,7 +236,7 @@ def main() -> int:
 
     # Breakdown by predicate
     cur.execute("""
-        SELECT predicate, COUNT(*) FROM knowledge_graph_facts
+        SELECT predicate, COUNT(*) FROM platform_knowledge_graph_facts
          WHERE created_by='day5_extractor'
          GROUP BY predicate ORDER BY 2 DESC LIMIT 10
     """)
@@ -246,7 +246,7 @@ def main() -> int:
 
     cur.execute("""
         SELECT subject_ref, predicate, object_ref, claim_text
-          FROM knowledge_graph_facts
+          FROM platform_knowledge_graph_facts
          WHERE created_by='day5_extractor'
          ORDER BY random() LIMIT 5
     """)

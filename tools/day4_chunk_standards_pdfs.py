@@ -55,6 +55,19 @@ PDF_MAP = {
     "osha-3088-hand-power-tools.pdf": "OSHA 3080",
     "nist-ir-8183.pdf":            "NIST IR 8183",
     "doe-motor-tip.pdf":           "DOE-AMO Motor Tip",
+    # Day 9 (L1 expansion 2026-05-19): 12 more free public-domain PDFs.
+    "osha-3132-process-safety.pdf":    "OSHA 3132",
+    "osha-3133-process-safety.pdf":    "OSHA 3133",
+    "osha-3138-permit-confined-space.pdf": "OSHA 3138",
+    "osha-2236-fall-protection.pdf":   "OSHA 3146",
+    "osha-3151-ppe.pdf":               "OSHA 3151",
+    "osha-3162-machine-guarding.pdf":  "OSHA 3170",
+    "osha-3158-young-workers.pdf":     "OSHA 3158-HazCom",
+    "nist-sp-800-30r1.pdf":            "NIST SP 800-30r1",
+    "nist-sp-800-37r2.pdf":            "NIST SP 800-37r2",
+    "nist-sp-800-53r5.pdf":            "NIST SP 800-53r5",
+    "nist-ir-8259.pdf":                "NIST IR 8259",
+    "nist-ir-8473.pdf":                "NIST IR 8473",
     # "epri-pdm-handbook.pdf": None,  # zero-byte (was a redirect)
 }
 

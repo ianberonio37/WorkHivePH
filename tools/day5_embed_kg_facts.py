@@ -1,4 +1,4 @@
-"""Day 5: Embed knowledge_graph_facts.embedding via Voyage->Jina chain.
+"""Day 5: Embed platform_knowledge_graph_facts.embedding via Voyage->Jina chain.
 
 The L5 extractor inserted 750 triples but left their embedding column NULL.
 This script fills them so the platform can semantic-search the KG (mirrors
@@ -88,7 +88,7 @@ def main(argv: Optional[list[str]] = None) -> int:
     args = parser.parse_args(argv)
 
     print("=" * 72)
-    print("EMBED knowledge_graph_facts (Voyage -> Jina chain)")
+    print("EMBED platform_knowledge_graph_facts (Voyage -> Jina chain)")
     print("=" * 72)
 
     if not (os.getenv("VOYAGE_API_KEY") or os.getenv("JINA_API_KEY")):
@@ -112,7 +112,7 @@ def main(argv: Optional[list[str]] = None) -> int:
     where = "" if args.reembed else "WHERE embedding IS NULL AND active = true"
     cur.execute(f"""
         SELECT id, subject_ref, predicate, object_ref, claim_text
-          FROM knowledge_graph_facts
+          FROM platform_knowledge_graph_facts
           {where}
           ORDER BY created_at
     """)
@@ -153,7 +153,7 @@ def main(argv: Optional[list[str]] = None) -> int:
             by_provider[provider] = by_provider.get(provider, 0) + 1
             vec_literal = "[" + ",".join(f"{x:.6f}" for x in vec) + "]"
             cur.execute(
-                "UPDATE knowledge_graph_facts SET embedding = %s::vector, updated_at = NOW() WHERE id = %s",
+                "UPDATE platform_knowledge_graph_facts SET embedding = %s::vector, updated_at = NOW() WHERE id = %s",
                 (vec_literal, id_),
             )
             embedded += 1
@@ -170,7 +170,7 @@ def main(argv: Optional[list[str]] = None) -> int:
                 conn = open_conn()
                 cur = conn.cursor()
                 cur.execute(
-                    "UPDATE knowledge_graph_facts SET embedding = %s::vector, updated_at = NOW() WHERE id = %s",
+                    "UPDATE platform_knowledge_graph_facts SET embedding = %s::vector, updated_at = NOW() WHERE id = %s",
                     (vec_literal, id_),
                 )
                 embedded += 1

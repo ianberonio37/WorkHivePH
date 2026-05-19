@@ -3,7 +3,7 @@
 > **Living document.** Update the `%` and `Last changed` cells in place each session. Do not branch. The narrative below the table doesn't need to be rewritten every day — only the progress block.
 
 **Started:** 2026-05-14
-**Last updated:** 2026-05-19 (L5 architecture corrected: HIVE vs PLATFORM split, 4,605 → 1,533 rows)
+**Last updated:** 2026-05-19 (L1+L5 expansion: 39 standards, 727 chunks, 3,912 platform facts)
 **Budget:** $200 (free Azure trial)
 **Spent so far:** $0.0015 (one Day 1 test page)
 **Doctrine:** Azure produces one-shot artifacts (ONNX models, DB rows). Never runtime calls. Free-tier providers (Voyage / Jina / Groq) handle anything that runs every request.
@@ -20,18 +20,18 @@ The platform is already a working maintenance toolkit. What it lacks is **AI com
 
 | # | Layer | Outcome at 100% | Now | What's blocking the next jump |
 |---|---|---|---|---|
-| **L1** | Semantic / RAG embeddings | Every standard + manual searchable from voice/AMC | **~55%** | 27 standards rows + 302 chunks across 7 PDFs (NIST 800-82r3, US Army TM 5-698, OSHA 3120/3071/3080, NIST IR 8183, DOE Motor Tip). OEM-specific manuals still pending. |
+| **L1** | Semantic / RAG embeddings | Every standard + manual searchable from voice/AMC | **~75%** | **39 standards rows + 727 chunks across 19 PDFs.** Added 2026-05-19: OSHA 3132/3133/3138/3146/3151/3170/3158-HazCom, NIST SP 800-30r1/800-37r2/800-53r5, NIST IR 8259/8473. OEM-specific manuals still pending. |
 | **L2** | Doc mining (Azure Doc Intelligence Read) | ~20K pages mined into `pm_knowledge` + `industry_standards` | **<5%** | Source PDFs (ISO/SAE/ASHRAE paywalled; need OEM manuals from user) |
 | **L3.1** | Surface defect detector | ONNX model in Supabase Storage | **0%** | MVTec AD dataset — email form download stuck |
 | **L3.2** | Arc / spark detector | ONNX model in Supabase Storage | **0%** | Roboflow project pick (arc flash search) |
 | **L3.3** | Smoke / steam / leak detector | ONNX model in Supabase Storage | **0%** | Roboflow project picks (industrial smoke + oil leak) |
 | **L3.4** | Equipment-label OCR → asset_nodes | Worker photographs a nameplate; the existing `logbook.html` asset register form auto-fills manufacturer/model/serial_no | **~90%** | Form fields + Scan button + `equipment-label-ocr` edge fn (4-place sync done) shipped 2026-05-19. Pending: edge fn deploy + browser smoke test on a real nameplate. |
 | **L4** | Audio anomaly classifier | YAMNet-based ONNX | **0%** | MIMII dataset — got 2.6 GB of 10.4 GB, retry failed |
-| **L5** | Knowledge-graph entity extraction | Triples — HIVE-scoped store + PLATFORM-scoped store, both embedded, both queried by voice | **~90%** | **1,533 platform_knowledge_graph_facts** (single source of truth, was broadcast ×3 = 4,605 — corrected 2026-05-19). Two RPCs: `semantic_search_kg_facts` (hive) + `semantic_search_platform_kg_facts` (platform). Voice-handler merges results from both. Mirrors the kb_chunks ↔ industry_standards_chunks split precedent. |
+| **L5** | Knowledge-graph entity extraction | Triples — HIVE-scoped store + PLATFORM-scoped store, both embedded, both queried by voice | **~95%** | **3,912 platform_knowledge_graph_facts** (single source of truth, all embedded). Extractor + embedder both now write to the platform table directly (no broadcast pattern). Two RPCs (hive + platform), voice-handler merges. Regression locked at L-1.5 + L0 + L2. |
 | **L6** | Industrial noise suppression | ONNX denoiser, browser-side via onnxruntime-web | **0%** | Microsoft DNS + MIMII datasets |
 | **L7** | Filipino phrase cache | Lookup table of top 500–1000 PH industrial phrases (Tagalog + Visayan) + voice-handler integration | **100%** ✓ | **DONE** — 207 phrases, Tagalog via Translator F0, Visayan via Groq llama-3.3-70b, glossary loaded into voice-handler system prompt |
 
-**Overall AI substance:** ~50% of planned outputs live (was 12% start of Day 5). **Scaffolding** (Azure resources, schema, RPCs, embedding chain, CLI tools): ~90% in place.
+**Overall AI substance:** ~58% of planned outputs live (was 12% start of Day 5). **Scaffolding** (Azure resources, schema, RPCs, embedding chain, CLI tools): ~90% in place.
 
 **First layer hit 100%:** L7 (Filipino phrase cache) — proves the playbook end-to-end (seed → embed/translate → wire into voice prompt → validators pass). Same pattern applies to remaining layers once data unblocks.
 
@@ -242,7 +242,30 @@ Storage: 4,605 → 1,533 (-66.7%). Update cost: 1× (was 3×). Drift risk: gone.
 
 Pattern strengthened: the canonical audit reflex memory entry now has a concrete violation/correction example showing how the kb_chunks split precedent should have driven this architecture day 1, not been an afterthought.
 
-### Day 9+ — Planned
+### Day 9 — 2026-05-19 (L1 expansion + extractor architectural fix)
+
+User picked "option 1: push L1 to 75%". First applied the canonical-audit reflex to the extractor itself: `tools/day5_extract_kg_facts.py` and `tools/day5_embed_kg_facts.py` had still been writing to / reading from `knowledge_graph_facts` even though the architectural correction shipped yesterday. Pointed both at `platform_knowledge_graph_facts` so future runs write to the correct shelf directly (no more "extract then move").
+
+Pipeline run end-to-end:
+
+| Step | Tool | Result |
+|---|---|---|
+| Download free PDFs | `day7_massive_free_corpus.py` | 3 new + 9 already on disk (prior run partial); 4 broken URLs skipped |
+| Discover 12 PDFs were on disk but never registered | manual audit | gap closed |
+| Register 12 new `industry_standards` rows | inline SQL | 27 → 39 rows |
+| Embed the 12 new rows | `day3_embed_industry_standards.py` | 12/12 (3 voyage + 9 jina) |
+| Extend `day4_chunk_standards_pdfs.py` PDF_MAP | edit | 7 → 19 PDFs in the map |
+| Chunk all 12 new PDFs | `day4_chunk_standards_pdfs.py --max-chunks 50` | 425 new chunks (62 voyage + 363 jina). Total chunks corpus: 302 → 727 |
+| Extract triples from new chunks | `day5_extract_kg_facts.py` (writes directly to platform table now) | 2,379 new triples landed via the 14-model chain (Groq → Cerebras → OpenRouter rotation). |
+| Embed the 2,379 new triples | `day5_embed_kg_facts.py` (auto-reconnect every 50) | 2,379/2,379 (224 voyage + 2,155 jina). |
+| Regression validators | `validate_kg_scope_split.py` | 4/4 PASS — single source of truth holds. |
+
+**Top predicates across the 3,912 platform facts:**
+requires (674), applies_to (538), uses (355), related_to (255), mitigates (237), causes (167), documents (165), prevents (99).
+
+**Cost:** Still $0.0015 (the Day 1 test page). Every embedding ran on Voyage + Jina free tier; every extraction on the Groq + Cerebras + OpenRouter chain. Translator F0 still untouched after L7.
+
+### Day 10+ — Planned
 - Pivot decision: Custom Vision (needs datasets) vs. OCR UI on hive.html vs. more PDFs in standards corpus
 - Retry MIMII / NASA / KolektorSDD2 from cleaner network
 - If MVTec arrives: Custom Vision detector #1 (surface defect) — Azure portal training run
