@@ -23,7 +23,9 @@
 
 BEGIN;
 
-CREATE OR REPLACE VIEW public.v_alert_truth AS
+DROP VIEW IF EXISTS public.v_alert_truth;
+
+CREATE VIEW public.v_alert_truth AS
 SELECT
   fsa.id                          AS alert_id,
   fsa.hive_id,
@@ -38,6 +40,8 @@ SELECT
   END                             AS severity,
   fsa.alert_title                 AS title,
   fsa.alert_detail                AS detail,
+  fsa.rule_id                     AS rule_id,        -- signature rule slug (consumers like hive.html label by this)
+  fsa.category                    AS category,
   fsa.detected_at,
   fsa.status,
   fsa.evidence
@@ -58,6 +62,8 @@ SELECT
     SELECT string_agg(reason::text, ' · ')
     FROM jsonb_array_elements_text(ans.top_reasons) reason
   )                               AS detail,
+  NULL::text                      AS rule_id,        -- anomaly_signals have no rule_id; composite-score driven
+  NULL::text                      AS category,
   ans.computed_at                 AS detected_at,
   ans.status,
   ans.evidence
@@ -76,7 +82,7 @@ VALUES (
   'v_alert_truth',
   'notifications',
   'realtime',
-  '{"columns":["alert_id","hive_id","asset_id","machine","alert_kind","severity","title","detail","detected_at","status","evidence"]}'::jsonb,
+  '{"columns":["alert_id","hive_id","asset_id","machine","alert_kind","severity","title","detail","rule_id","category","detected_at","status","evidence"]}'::jsonb,
   'Unified active-alerts canonical view over failure_signature_alerts + anomaly_signals. Closes 3 gap reads on ops-home / alert-hub / hive.',
   now()
 )

@@ -1897,11 +1897,14 @@
         const banner = document.getElementById('sensor-anomaly-banner');
         if (!banner) return;
         try {
-          const { data: anom } = await db.from('sensor_readings')
-            .select('parameter, value, recorded_at, quality_flag')
+          // Canonical: v_sensor_truth (latest per hive/asset/parameter) carries
+          // is_anomaly boolean. DISTINCT ON means we don't need .order/.limit;
+          // the view already returns the latest per parameter.
+          const { data: anom } = await db.from('v_sensor_truth')
+            .select('parameter, value, recorded_at, quality_flag, is_anomaly')
             .eq('hive_id', HIVE_ID)
             .eq('asset_id', nodeId)
-            .eq('quality_flag', 'ANOMALY')
+            .eq('is_anomaly', true)
             .gte('recorded_at', new Date(Date.now() - 86400000).toISOString())
             .order('recorded_at', { ascending: false })
             .limit(1)

@@ -3458,10 +3458,14 @@ async function loadPatternAlerts() {
   }
 
   try {
+    // Canonical: v_alert_truth (UNION of failure_signature_alerts + anomaly_signals).
+    // Filter to signature kind so this pattern-alerts panel stays distinct from
+    // anomaly entries. View renames: alert_title -> title, alert_detail -> detail.
     const { data: alerts } = await db
-      .from('failure_signature_alerts')
-      .select('machine, category, alert_title, alert_detail, severity, rule_id, detected_at')
+      .from('v_alert_truth')
+      .select('machine, category, title, detail, severity, rule_id, detected_at')
       .eq('hive_id', HIVE_ID)
+      .eq('alert_kind', 'signature')
       .eq('status', 'active')
       .order('severity', { ascending: false })
       .order('detected_at', { ascending: false })
@@ -3489,8 +3493,8 @@ async function loadPatternAlerts() {
               <span class="text-[10px] text-white/30">${escHtml(a.machine)}</span>
               <span class="text-[10px] text-white/20">${dt}</span>
             </div>
-            <p class="text-[12px] font-semibold text-white/90 mb-1">${escHtml(a.alert_title)}</p>
-            ${a.alert_detail ? `<p class="text-[11px] text-white/55 leading-snug">${escHtml(a.alert_detail)}</p>` : ''}
+            <p class="text-[12px] font-semibold text-white/90 mb-1">${escHtml(a.title)}</p>
+            ${a.detail ? `<p class="text-[11px] text-white/55 leading-snug">${escHtml(a.detail)}</p>` : ''}
           </div>
         </div>
       </div>`;

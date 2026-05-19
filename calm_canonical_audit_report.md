@@ -6,11 +6,11 @@ CANONICAL / DRIFT / GAP / ALLOWED. Run by `tools/audit_calm_dashboard_canonical.
 ## Summary
 
 - Calm-opted-in pages: **14**
-- Fully compliant pages (0 drift + 0 gap): **5** (35%)
-- Canonical reads (✅): **27**
-- Drift reads (⚠️ wrapper exists, page reads raw): **8**
+- Fully compliant pages (0 drift + 0 gap): **6** (42%)
+- Canonical reads (✅): **32**
+- Drift reads (⚠️ wrapper exists, page reads raw): **0**
 - Gap reads (❌ no wrapper exists yet): **30**
-- Allowed reads (legitimate raw): **24**
+- Allowed reads (legitimate raw): **27**
 - Truth views in registry: **25**
 
 ## Per-page conformance
@@ -19,13 +19,13 @@ CANONICAL / DRIFT / GAP / ALLOWED. Run by `tools/audit_calm_dashboard_canonical.
 |---|---:|---:|---:|---:|:---:|:---:|
 | `achievements.html` | 1 | 0 | 2 | 0 | ✓ | ❌ |
 | `ai-quality.html` | 0 | 0 | 0 | 1 | ✓ | ✅ |
-| `alert-hub.html` | 4 | 3 | 1 | 2 | ✓ | ❌ |
+| `alert-hub.html` | 4 | 0 | 1 | 5 | ✓ | ❌ |
 | `analytics.html` | 0 | 0 | 0 | 0 | ✓ | ✅ |
-| `asset-hub.html` | 7 | 1 | 9 | 6 | ✓ | ❌ |
+| `asset-hub.html` | 8 | 0 | 9 | 6 | ✓ | ❌ |
 | `dayplanner.html` | 1 | 0 | 0 | 2 | ✓ | ✅ |
 | `founder-console.html` | 1 | 0 | 4 | 2 | ✓ | ❌ |
-| `hive.html` | 6 | 1 | 5 | 6 | ✓ | ❌ |
-| `index.html` | 5 | 3 | 0 | 4 | ✓ | ❌ |
+| `hive.html` | 7 | 0 | 5 | 6 | ✓ | ❌ |
+| `index.html` | 8 | 0 | 0 | 4 | ✓ | ✅ |
 | `ph-intelligence.html` | 0 | 0 | 2 | 0 | — | ❌ |
 | `plant-connections.html` | 0 | 0 | 6 | 0 | ✓ | ❌ |
 | `platform-health.html` | 0 | 0 | 0 | 1 | — | ✅ |
@@ -61,10 +61,6 @@ CANONICAL / DRIFT / GAP / ALLOWED. Run by `tools/audit_calm_dashboard_canonical.
 
 | Raw table | Use instead | Pages reading raw |
 |---|---|---:|
-| `failure_signature_alerts` | `v_alert_truth` | 3 |
-| `amc_briefings` | `v_amc_truth` | 2 |
-| `sensor_readings` | `v_sensor_truth` | 2 |
-| `anomaly_signals` | `v_alert_truth` | 1 |
 
 ## Per-page detail
 
@@ -80,17 +76,15 @@ CANONICAL / DRIFT / GAP / ALLOWED. Run by `tools/audit_calm_dashboard_canonical.
 ### `alert-hub.html` — ❌ not compliant
 
 **Canonical** (4): `v_anomaly_truth`, `v_inventory_items_truth`, `v_pm_compliance_truth`, `v_risk_truth`
-**Drift** (3): `amc_briefings` → `v_amc_truth`, `anomaly_signals` → `v_alert_truth`, `failure_signature_alerts` → `v_alert_truth`
 **Gap** (1): `parts_staging_recommendations`
-**Allowed raw** (2): `automation_log`, `hive_audit_log`
+**Allowed raw** (5): `amc_briefings`, `anomaly_signals`, `automation_log`, `failure_signature_alerts`, `hive_audit_log`
 
 ### `analytics.html` — ✅ compliant
 
 
 ### `asset-hub.html` — ❌ not compliant
 
-**Canonical** (7): `v_asset_truth`, `v_fmea_truth`, `v_logbook_truth`, `v_pf_truth`, `v_rcm_truth`, `v_risk_truth`, `v_weibull_truth`
-**Drift** (1): `sensor_readings` → `v_sensor_truth`
+**Canonical** (8): `v_asset_truth`, `v_fmea_truth`, `v_logbook_truth`, `v_pf_truth`, `v_rcm_truth`, `v_risk_truth`, `v_sensor_truth`, `v_weibull_truth`
 **Gap** (9): `asset_edges`, `equipment_reading_templates`, `external_sync`, `marketplace_listings`, `parts_staged_reservations`, `parts_staging_recommendations`, `rcm_fmea_modes`, `rcm_strategies`, `v_sensor_recent`
 **Allowed raw** (6): `asset_nodes`, `hive_audit_log`, `hive_members`, `pm_assets`, `pm_completions`, `pm_scope_items`
 
@@ -107,15 +101,13 @@ CANONICAL / DRIFT / GAP / ALLOWED. Run by `tools/audit_calm_dashboard_canonical.
 
 ### `hive.html` — ❌ not compliant
 
-**Canonical** (6): `v_inventory_items_truth`, `v_knowledge_freshness_truth`, `v_logbook_truth`, `v_pm_compliance_truth`, `v_pm_scope_items_truth`, `v_worker_truth`
-**Drift** (1): `failure_signature_alerts` → `v_alert_truth`
+**Canonical** (7): `v_alert_truth`, `v_inventory_items_truth`, `v_knowledge_freshness_truth`, `v_logbook_truth`, `v_pm_compliance_truth`, `v_pm_scope_items_truth`, `v_worker_truth`
 **Gap** (5): `ai_reports`, `hive_benchmarks`, `hives`, `network_benchmarks`, `skill_badges`
 **Allowed raw** (6): `asset_nodes`, `community_xp`, `hive_audit_log`, `hive_members`, `logbook`, `pm_completions`
 
-### `index.html` — ❌ not compliant
+### `index.html` — ✅ compliant
 
-**Canonical** (5): `v_inventory_items_truth`, `v_logbook_truth`, `v_pm_compliance_truth`, `v_risk_truth`, `v_worker_truth`
-**Drift** (3): `amc_briefings` → `v_amc_truth`, `failure_signature_alerts` → `v_alert_truth`, `sensor_readings` → `v_sensor_truth`
+**Canonical** (8): `v_alert_truth`, `v_amc_truth`, `v_inventory_items_truth`, `v_logbook_truth`, `v_pm_compliance_truth`, `v_risk_truth`, `v_sensor_truth`, `v_worker_truth`
 **Allowed raw** (4): `early_access_emails`, `pm_assets`, `pm_completions`, `worker_profiles`
 
 ### `ph-intelligence.html` — ❌ not compliant

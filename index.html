@@ -3517,11 +3517,11 @@
         try {
           const todayIso = new Date().toISOString().slice(0, 10);
           const [amcRes, anomRes, sigRes] = await Promise.allSettled([
-            // Supervisor sees AMC brief; field workers don't. The brief
-            // narrative lives inside the brief jsonb column (brief->summary).
+            // Supervisor sees AMC brief. Canonical: v_amc_truth (latest-per-shift).
+            // summary + headline are extracted from the JSONB brief into top-level cols.
             (HIVE_ROLE === 'supervisor')
-              ? db.from('amc_briefings')
-                  .select('id, shift_date, brief, status')
+              ? db.from('v_amc_truth')
+                  .select('amc_id, shift_date, summary, headline, status')
                   .eq('hive_id', HIVE_ID)
                   .eq('status', 'pending')
                   .gte('shift_date', todayIso)
@@ -3529,20 +3529,24 @@
                   .limit(1)
                   .maybeSingle()
               : Promise.resolve({ data: null }),
-            // Anomaly flag on a sensor reading in the last 24h.
-            // sensor_readings.asset_id (uuid) references asset_nodes(id).
-            db.from('sensor_readings')
-              .select('asset_id, parameter, quality_flag, recorded_at')
+            // Anomaly flag on the latest sensor reading. Canonical: v_sensor_truth
+            // (latest per (hive, asset, parameter)) carries is_anomaly boolean.
+            db.from('v_sensor_truth')
+              .select('asset_id, parameter, quality_flag, recorded_at, is_anomaly')
               .eq('hive_id', HIVE_ID)
-              .eq('quality_flag', 'ANOMALY')
+              .eq('is_anomaly', true)
               .gte('recorded_at', new Date(Date.now() - 86400000).toISOString())
               .order('recorded_at', { ascending: false })
               .limit(1)
               .maybeSingle(),
-            // Critical-severity failure-signature alert still pending.
-            db.from('failure_signature_alerts')
-              .select('id, machine, alert_title, severity, detected_at')
+            // Critical-severity failure-signature alert. Canonical: v_alert_truth
+            // (UNION of failure_signature_alerts + anomaly_signals). Filter to
+            // signature kind so this ranker entry stays distinct from the anomaly
+            // probe above. Note column renames: id->alert_id, alert_title->title.
+            db.from('v_alert_truth')
+              .select('alert_id, machine, title, severity, detected_at')
               .eq('hive_id', HIVE_ID)
+              .eq('alert_kind', 'signature')
               .eq('severity', 'critical')
               .order('detected_at', { ascending: false })
               .limit(1)
@@ -3555,7 +3559,10 @@
       }
 
       if (amcPending) {
-        const amcSummary = (amcPending.brief && (amcPending.brief.summary || amcPending.brief.composer_summary)) || '';
+        // v_amc_truth exposes summary + headline as top-level cols (extracted
+        // from the JSONB brief by the view). headline is a fallback when
+        // summary is empty.
+        const amcSummary = amcPending.summary || amcPending.headline || '';
         candidates.push({
           rank: 95,
           tone: 'critical', accent: '#a78bfa',
@@ -3580,11 +3587,13 @@
       }
 
       if (sigAlert) {
+        // v_alert_truth renames alert_title -> title (normalized across
+        // failure_signature_alerts + anomaly_signals).
         candidates.push({
           rank: 75,
           tone: 'high', accent: '#fb923c',
           label: 'Critical Failure Signature',
-          headline: `${sigAlert.machine || 'Asset'}: ${sigAlert.alert_title || 'failure signature detected'}`,
+          headline: `${sigAlert.machine || 'Asset'}: ${sigAlert.title || 'failure signature detected'}`,
           detail: 'A historical failure pattern just matched. Review before the shift ends.',
           cta: 'Open Alert Hub',
           href: 'alert-hub.html',

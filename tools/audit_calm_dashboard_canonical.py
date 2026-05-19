@@ -91,6 +91,11 @@ PAGE_RAW_OWNERS: dict[str, dict[str, str]] = {
     "index.html": {
         "worker_profiles": "index.html signup flow creates worker_profiles rows (canonical write owner)",
     },
+    "alert-hub.html": {
+        "amc_briefings":            "alert-hub is the supervisor's AMC approval surface (read + write workflow)",
+        "anomaly_signals":          "alert-hub writes acknowledge/resolve transitions on anomaly_signals",
+        "failure_signature_alerts": "alert-hub renders + acknowledges raw signature alerts; consumers needing the wrapper read v_alert_truth instead",
+    },
 }
 
 LEGITIMATE_RAW = {
