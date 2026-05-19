@@ -68,6 +68,9 @@ PDF_MAP = {
     "nist-sp-800-53r5.pdf":            "NIST SP 800-53r5",
     "nist-ir-8259.pdf":                "NIST IR 8259",
     "nist-ir-8473.pdf":                "NIST IR 8473",
+    # Day 9 OEM manuals (only 2 of 12 URLs worked — OEM CDN paths churn).
+    "cummins-genset-app-manual.pdf":   "Cummins T-030",
+    "spx-cooling-tower-fundamentals.pdf": "SPX Marley CTF",
     # "epri-pdm-handbook.pdf": None,  # zero-byte (was a redirect)
 }
 

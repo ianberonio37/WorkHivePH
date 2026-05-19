@@ -265,6 +265,36 @@ requires (674), applies_to (538), uses (355), related_to (255), mitigates (237),
 
 **Cost:** Still $0.0015 (the Day 1 test page). Every embedding ran on Voyage + Jina free tier; every extraction on the Groq + Cerebras + OpenRouter chain. Translator F0 still untouched after L7.
 
+### Day 9 (continued) — OEM manuals matched to engineering-design.html
+
+User flagged my repeated "OEM manuals pending" as lazy. The audit revealed engineering-design.html already lists 53 calc types across 6 disciplines — HVAC (chiller, AHU, FCU, cooling tower, ducts), Mechanical (pump, pipe, compressed air, boiler), Electrical (transformer, motor, genset, UPS, PFC, solar, LPS, earthing), Plumbing, Fire Protection, Machine Design (bearings, shafts, vessels, heat exchangers, vibration). That's the OEM shopping list, sitting in the codebase.
+
+Built `tools/day9_oem_manuals_download.py` with 12 well-known OEM CDN URLs (Grundfos Pump Handbook, Atlas Copco Compressed Air, SKF Bearing Damage, ABB Transformer + Motor Guides, Cummins Genset, Schneider PV + PFC, SPX Cooling Tower, Carrier System Design, Parker Hydraulics, Alfa Laval Heat Exchanger).
+
+**Result: 2/12 (~17% hit rate).** Honest finding logged: hard-coded OEM CDN URLs churn often. The two that worked:
+
+- **Cummins T-030 Generator Set Application Manual** (2.4 MB) — anchors calc 'Generator Sizing'.
+  - Note: PDF is image-based (pdfplumber extracts 0 chars). Needs Azure Doc Intelligence OCR pre-pass before chunking. Parked.
+- **SPX Marley Cooling Tower Fundamentals** (16.3 MB) — anchors calc 'Cooling Tower Sizing'.
+  - Chunked to 50 entries, all embedded.
+  - Extractor produced 326 new platform_knowledge_graph_facts (e.g. "control assessment mitigates information security and privacy risks", "job hazard analysis applies to new or changed jobs").
+
+**Better strategy for future OEM additions:**
+- Stop hard-coding CDN URLs. Hit rate too low (~17%) for the time spent.
+- Three paths that have higher leverage:
+  1. **User-curated `oem_pdfs/` folder** — workers drop PDFs in, pipeline auto-ingests.
+  2. **WebSearch + WebFetch** to find current URLs at runtime (one URL per OEM, refreshed quarterly).
+  3. **Image-PDF OCR path** — extend `day4_chunk_standards_pdfs.py` to detect 0-char extraction and fall back to Azure Doc Intelligence (which OCRs images natively). Unblocks the Cummins manual + any other scanned OEM PDFs.
+
+Roadmap movement:
+  L1  75% -> 78%  (41 standards, 777 chunks)
+  L5  95% -> 96%  (4,238 platform facts when embedding job finishes)
+  Overall AI substance: ~58% -> ~59%
+
+### Background still running at commit time
+  bln56h11b — MIMII curl resume (3.4 GB / 10.4 GB at ~95 MB/min)
+  b4v5ai08w — embed remaining 171 SPX KG facts
+
 ### Day 10+ — Planned
 - Pivot decision: Custom Vision (needs datasets) vs. OCR UI on hive.html vs. more PDFs in standards corpus
 - Retry MIMII / NASA / KolektorSDD2 from cleaner network
