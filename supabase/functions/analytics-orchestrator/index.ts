@@ -661,6 +661,38 @@ serve(async (req) => {
       const predictive   = predR.status  === "fulfilled" ? predR.value  : { error: String(predR.reason) };
       const prescriptive = prescR.status === "fulfilled" ? prescR.value : { error: String(prescR.reason) };
 
+      // Tier E canonical OEE: hive-scoped reads come from get_oee_by_machine RPC
+      // (formula oee_iso_22400 / oee_iso_22400_partial). RPC returns one row
+      // per machine with availability_pct / performance_pct / quality_pct /
+      // oee_pct / is_partial. Override the Python silo result so analytics +
+      // asset-hub + reliability workbench all see the same number. Solo mode
+      // keeps the Python calc since the RPC is hive-scoped.
+      if (hive_id && descriptive && typeof descriptive === "object" && !(descriptive as { error?: unknown }).error) {
+        try {
+          const { data: oeeRows, error: oeeErr } = await db.rpc("get_oee_by_machine", {
+            p_hive_id:     hive_id,
+            p_period_days: periodDays,
+          });
+          if (!oeeErr && Array.isArray(oeeRows)) {
+            const validOee = oeeRows.filter((r: Record<string, unknown>) => r.oee_pct !== null);
+            const avgOee = validOee.length
+              ? validOee.reduce((s: number, r: Record<string, unknown>) => s + Number(r.oee_pct), 0) / validOee.length
+              : null;
+            const isPartialAny = oeeRows.some((r: Record<string, unknown>) => r.is_partial === true);
+            (descriptive as Record<string, unknown>).oee = {
+              oee_by_asset:    oeeRows,
+              assets_tracked:  oeeRows.length,
+              average_oee_pct: avgOee !== null ? Math.round(avgOee * 10) / 10 : null,
+              standard:        isPartialAny
+                ? "ISO 22400-2:2014 — partial (Availability × Quality) where ideal cycle time not captured"
+                : "ISO 22400-2:2014 — full (Availability × Performance × Quality)",
+              formula_id:      isPartialAny ? "oee_iso_22400_partial" : "oee_iso_22400",
+              source:          "RPC get_oee_by_machine",
+            };
+          }
+        } catch (_e) { /* RPC failure: keep Python calc as fallback */ }
+      }
+
       // Optional Groq synthesis — only if prescriptive succeeded
       let actionPlan = null;
       if (prescR.status === "fulfilled" && !(prescriptive as { error?: unknown }).error) {

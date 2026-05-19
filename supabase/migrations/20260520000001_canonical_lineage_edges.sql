@@ -56,6 +56,24 @@ GRANT SELECT ON public.canonical_lineage_edges TO anon, authenticated;
 GRANT USAGE, SELECT ON SEQUENCE public.canonical_lineage_edges_id_seq TO anon, authenticated;
 
 COMMENT ON TABLE public.canonical_lineage_edges IS
-  'Layer -1.5 canonical contract — explicit edge graph linking capture/column/table/view/formula/agent/tile/dashboard nodes. Audited by tools/audit_phantom_*.py and tools/audit_calm_dashboard_canonical.py. File mirror: canonical/lineage_edges.json.';
+  'Layer -1.5 canonical contract: explicit edge graph linking capture/column/table/view/formula/agent/tile/dashboard nodes. Audited by tools/audit_phantom_*.py and tools/audit_calm_dashboard_canonical.py. File mirror: canonical/lineage_edges.json.';
+
+-- Register in canonical_sources so the canonical-anchor gate sees the
+-- table as a known canonical entity (fuel-tier registration check).
+INSERT INTO public.canonical_sources (domain, source_kind, source_name, owner_skill, freshness, contract, description, registered_at)
+VALUES (
+  'lineage_edges',
+  'table',
+  'canonical_lineage_edges',
+  'architect',
+  'realtime',
+  '{"columns":["id","source_kind","source_id","target_kind","target_id","notes","created_at"]}'::jsonb,
+  'Explicit edge graph backing the four-tier canonical contract (Fuel/Engine/Brain/Dashboard). Queryable mirror of canonical/lineage_edges.json.',
+  now()
+)
+ON CONFLICT (domain) DO UPDATE
+  SET source_name = EXCLUDED.source_name,
+      contract    = EXCLUDED.contract,
+      description = EXCLUDED.description;
 
 COMMIT;

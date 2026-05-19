@@ -6,7 +6,7 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 ## Summary
 
 - Tables:        **124**
-- Views:         **30**
+- Views:         **33**
 - RPCs:          **71**
 - HTML surfaces: **36**
 - Edge fns:      **50**
@@ -174,7 +174,7 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 | `get_hive_readiness_current` | p_hive_id uuid | yes | hive.html | — |
 | `get_mtbf_by_machine` | "p_hive_id" "uuid" DEFAULT NULL::"uuid", "p_worker" "text" D | no | — | analytics-orchestrator, batch-risk-scoring |
 | `get_mttr_by_machine` | "p_hive_id" "uuid" DEFAULT NULL::"uuid", "p_worker" "text" D | no | — | analytics-orchestrator |
-| `get_oee_by_machine` | p_hive_id     uuid,   p_period_days int DEFAULT 90 | yes | — | — |
+| `get_oee_by_machine` | p_hive_id     uuid,   p_period_days int DEFAULT 90 | yes | — | analytics-orchestrator |
 | `get_repeat_failures` | "p_hive_id" "uuid" DEFAULT NULL::"uuid", "p_worker" "text" D | no | — | analytics-orchestrator |
 | `handle_community_post_xp` |  | yes | — | — |
 | `handle_community_reaction_xp` |  | yes | — | — |

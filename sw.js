@@ -3,7 +3,9 @@
 // surfaces (logbook, inventory, pm-scheduler, hive, asset-hub, shift-brain).
 // Closes PRODUCTION_FIXES #54.
 
-const CACHE_NAME  = 'workhive-shell-v100';  // bump 2026-05-19: Calm Dashboard hideZeroStat wiring pass — stat-update sites now dim 0/— values across hive (welcome + members + pulse), alert-hub (AMC briefing setStat), asset-hub (asset-360 strip), predictive (4 risk-tier counts), achievements (3 XP stats), founder-console (setStat), platform-health (health-num + streak)
+const CACHE_NAME  = 'workhive-shell-v101';  // bump 2026-05-20: 3 truth-view wrappers (v_alert/amc/sensor) + OEE RPC wired into analytics-orchestrator + lineage_edges registered. Re-prime cache so PWA users get the latest renderers.
+// (Prior bump comment kept inline below for trail.)
+// const CACHE_NAME  = 'workhive-shell-v100';  // bump 2026-05-19: Calm Dashboard hideZeroStat wiring pass — stat-update sites now dim 0/— values across hive (welcome + members + pulse), alert-hub (AMC briefing setStat), asset-hub (asset-360 strip), predictive (4 risk-tier counts), achievements (3 XP stats), founder-console (setStat), platform-health (health-num + streak)
 const SHELL_FILES = [
   // Original report-sender shell
   '/report-sender.html',

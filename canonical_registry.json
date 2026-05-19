@@ -4714,6 +4714,21 @@
       "defined_in": "20260518000001_industry_standards_chunks.sql",
       "read_by_surfaces": [],
       "read_by_edge_fns": []
+    },
+    "v_alert_truth": {
+      "defined_in": "20260520000010_v_alert_truth.sql",
+      "read_by_surfaces": [],
+      "read_by_edge_fns": []
+    },
+    "v_amc_truth": {
+      "defined_in": "20260520000011_v_amc_truth.sql",
+      "read_by_surfaces": [],
+      "read_by_edge_fns": []
+    },
+    "v_sensor_truth": {
+      "defined_in": "20260520000012_v_sensor_truth.sql",
+      "read_by_surfaces": [],
+      "read_by_edge_fns": []
     }
   },
   "rpcs": {
@@ -5320,7 +5335,9 @@
       "security_definer": true,
       "comment": "Tier E canonical OEE per machine. Reads asset_nodes.ideal_cycle_time_seconds to compute the Performance factor. Returns full OEE = A \u00d7 P \u00d7 Q when ideal cycle time and units_produced are both present; otherwise returns partial (A \u00d7 Q) with is_partial=true.",
       "called_by_surfaces": [],
-      "called_by_edge_fns": []
+      "called_by_edge_fns": [
+        "analytics-orchestrator"
+      ]
     }
   },
   "surfaces": {
@@ -6027,10 +6044,11 @@
         "get_failure_frequency",
         "get_mtbf_by_machine",
         "get_mttr_by_machine",
+        "get_oee_by_machine",
         "get_repeat_failures"
       ],
       "edge_fns_invoked": [],
-      "loc": 753
+      "loc": 784
     },
     "asset-brain-query": {
       "tables_read": [

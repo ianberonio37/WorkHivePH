@@ -59,6 +59,11 @@ WRAPPERS = {
     "hive_readiness":       "v_hive_readiness_truth",
     "worker_profiles":      "v_worker_truth",   # composite per audit §C5
     "hive_members":         "v_worker_truth",
+    # 2026-05-20 wrappers shipped to close gap reads:
+    "failure_signature_alerts": "v_alert_truth",
+    "anomaly_signals":          "v_alert_truth",
+    "amc_briefings":            "v_amc_truth",
+    "sensor_readings":          "v_sensor_truth",
 }
 
 # Tables that are legitimately raw — they don't need a v_*_truth wrapper

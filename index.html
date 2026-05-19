@@ -3397,7 +3397,7 @@
             .select('pm_asset_id, asset_name, category, is_due')
             .eq('hive_id', HIVE_ID)
             .limit(200)
-        // canonical-allow: solo-mode fallback — v_pm_compliance_truth is hive-scoped only
+        // canonical-allow: solo-mode fallback (v_pm_compliance_truth is hive-scoped only)
         : db.from('pm_assets')
             .select('id, asset_name, category')
             .eq(scopeFilter.col, scopeFilter.val)

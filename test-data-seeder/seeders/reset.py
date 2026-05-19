@@ -156,6 +156,9 @@ RESET_TABLES = [
     "hive_members",
     "worker_profiles",
     "hives",
+    # Canonical contract glue (2026-05-20). Platform-scoped, hive-agnostic;
+    # safe to wipe between resets since seed data is in canonical/*.json.
+    "canonical_lineage_edges",
 ]
 
 # Tables that don't have an 'id' PK. Reset filters by a different column.
