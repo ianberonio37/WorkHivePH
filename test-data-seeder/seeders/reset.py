@@ -12,6 +12,11 @@ The reset-coverage validator skips these via CATALOG_TABLES_IGNORED."""
 RESET_TABLES = [
     # Founder Console analytics (Phase 0) - append-only, no FKs
     "analytics_events",
+    # Platform feedback (2026-05-19) - votes references feedback, so child first
+    "platform_feedback_votes",
+    "platform_feedback",
+    # Platform Knowledge Graph facts (2026-05-19) - platform-wide hive-agnostic KG
+    "platform_knowledge_graph_facts",
     # Project Manager (child -> parent)
     "project_progress_logs",
     "project_change_orders",

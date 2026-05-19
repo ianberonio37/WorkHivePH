@@ -72,6 +72,10 @@ LIVE_PAGES = [
     # Phase B.3: cross-page voice handler. Lazy-loaded by nav-hub.js so it
     # ends up on every page; needs the same XSS coverage as the HTML files.
     "voice-handler.js",
+    # Universal feedback widget (2026-05-19): renders on every page via
+    # nav-hub.js. Uses innerHTML with interpolation for the form HTML, so
+    # needs XSS coverage like other shared helpers.
+    "wh-feedback-fab.js",
     # Shared helper that uses innerHTML with interpolation (PRODUCTION_FIXES #15)
     "worker-drawer.js",
     # Founder Console — admin-only platform-wide dashboard (Phase 1+)

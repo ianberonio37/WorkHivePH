@@ -3,7 +3,7 @@
 // surfaces (logbook, inventory, pm-scheduler, hive, asset-hub, shift-brain).
 // Closes PRODUCTION_FIXES #54.
 
-const CACHE_NAME  = 'workhive-shell-v96';  // bump 2026-05-19 Step D: wh-persona.js + voice-journal.html re-committed for James=Technical / Rosa=Strategist domain differentiation
+const CACHE_NAME  = 'workhive-shell-v97';  // bump 2026-05-19: nav-hub.js + wh-persona.js + voice-handler.js + logbook.html + wh-feedback-fab.js newer than sw.js — re-prime cache so PWA users pick up fetchWithTimeout + feedback widget updates
 const SHELL_FILES = [
   // Original report-sender shell
   '/report-sender.html',

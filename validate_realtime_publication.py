@@ -109,6 +109,10 @@ EXPECTED_PUBLISHED_TABLES = {
     # Engine 2.0 panel subscribes so supervisors see ack/resolve state flips
     # without manual refresh. Added via 20260513000005_phase4_revenue_surfaces.sql.
     "anomaly_signals",
+    # Platform Feedback (2026-05-19): founder-console.html admin inbox
+    # subscribes for live triage state flips (new -> triaged -> resolved).
+    # Added via 20260519000002_platform_feedback.sql.
+    "platform_feedback",
 }
 
 CHECKS = {

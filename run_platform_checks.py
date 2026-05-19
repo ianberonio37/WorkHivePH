@@ -1812,6 +1812,15 @@ VALIDATORS = [
         "skip_if_fast": False,
     },
     {
+        "id":      "feedback-widget",
+        "script":  "validate_feedback_widget.py",
+        "args":    [],
+        "label":   "Feedback Widget Validator (3-layer: script wiring + form integrity + schema RLS/rate-limit/resolved_at)",
+        "group":   "Platform Feedback",
+        "report":  "feedback_widget_report.json",
+        "skip_if_fast": False,
+    },
+    {
         "id":      "contact-consistency",
         "script":  "validate_contact_consistency.py",
         "args":    [],

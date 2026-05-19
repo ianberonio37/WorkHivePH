@@ -155,12 +155,16 @@ def run_fast_gate() -> int:
 
     cmd = [PYTHON, "run_platform_checks.py", "--fast"]
 
+    # Mega Gate runs ~200 validators; observed 388s on a clean machine on
+    # 2026-05-19. 120s is too tight and reports false-FAIL "Fast gate timeout"
+    # even when validators are all passing. 900s gives 1.5x headroom over
+    # observed peak; lift further if you add a heavy validator class.
     try:
         result = subprocess.run(
             cmd,
             capture_output=True,
             text=True,
-            timeout=120,
+            timeout=900,
         )
 
         # Extract summary line
@@ -244,7 +248,10 @@ def main(surface_filter=None, fast=False) -> int:
     if surface_filter:
         args_0.extend([f"--surface={surface_filter}"])
 
-    rc0, res0 = run_layer(0, "Scenario Execution", "playwright_scenario_executor.py", args_0)
+    # Layer 0 timeout: 21 scenarios @ ~15-25s each + browser warm-up; observed 300+s on 2026-05-19
+    # when the suite grew past 20 scenarios. Apply the same 1.5x-over-observed-peak rule from
+    # lesson #24 — bump 300 → 600 so we don't false-FAIL on a real run.
+    rc0, res0 = run_layer(0, "Scenario Execution", "playwright_scenario_executor.py", args_0, timeout=600)
     loop_results["layers"][0] = res0
 
     scenario_results = load_layer_results("SCENARIO_RESULTS.json")

@@ -64,6 +64,11 @@ TIMESTAMP_RE = re.compile(r"^\d{14}_[a-z0-9_]+\.sql$")
 # (verify the second commit landed BEFORE the migration was deployed; if
 # yes, the entry is permanently safe; if not, it's prod/clone drift).
 ALLOWED_MULTI_COMMIT = {
+    "20260519000002_platform_feedback.sql":
+        "2026-05-19 same-day fix: rate-limit + resolved_at trigger landed in "
+        "follow-up commit (5f5d4dc0) right after the schema commit (023d9d99). "
+        "No prod deploy between the two — the table ships as one logical unit. "
+        "Local Supabase re-applied via `supabase migration up --local`.",
     "20260425000000_hive_audit_log.sql":
         "pre-2026-05-10 historical edit; investigate via git log",
     "20260428000003_analytics_new_field_indexes.sql":
