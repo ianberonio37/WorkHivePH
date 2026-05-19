@@ -12,6 +12,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="utils.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -518,6 +519,12 @@
     var WORKER_NAME = localStorage.getItem('wh_last_worker')
       || localStorage.getItem('wh_worker_name')
       || localStorage.getItem('workerName') || '';
+    // Auth C4: refresh WORKER_NAME from Supabase Auth session if localStorage was
+    // empty or stale. Fire-and-forget -- the report renderer reads WORKER_NAME on
+    // demand from generate(), so an async update is safe.
+    if (typeof restoreIdentityFromSession === 'function') {
+      restoreIdentityFromSession(db).then(function (_n) { if (_n) WORKER_NAME = _n; });
+    }
     var HIVE_ID   = localStorage.getItem('wh_active_hive_id') || localStorage.getItem('wh_hive_id') || null;
     var HIVE_ROLE = localStorage.getItem('wh_hive_role') || '';
 
@@ -555,11 +562,7 @@
     };
 
     // ── Helpers ──────────────────────────────────────────
-    function escHtml(s){
-      return String(s == null ? '' : s)
-        .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
-        .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
-    }
+    // escHtml() is loaded from utils.js (security skill rule: never define inline -- drift risk).
     // Defensive — never paint [object Object]
     function safeText(v){
       if (v == null) return '';

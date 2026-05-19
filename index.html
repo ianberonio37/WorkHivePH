@@ -903,6 +903,8 @@
   <!-- /WorkHive GA4 -->
 </head>
 <body class="bg-navy-wh text-white antialiased overflow-x-hidden">
+<main>
+
 
 <div id="scroll-progress" role="presentation" aria-hidden="true"></div>
 <div id="cursor-glow" role="presentation" aria-hidden="true"></div>
@@ -2976,13 +2978,23 @@
 
     // ── Operational Home Dashboard ─────────────────────────────────────────────
     // Show dashboard to logged-in users; hide marketing page.
-    const workerName = localStorage.getItem('wh_last_worker')
-                    || localStorage.getItem('wh_worker_name')
-                    || localStorage.getItem('workerName');
-    if (workerName) {
+    // Auth C4: restore canonical identity from Supabase Auth session FIRST so
+    // a returning user on a fresh device (cleared localStorage) sees ops-home
+    // instead of the marketing page. Falls back to localStorage if the session
+    // restore returns nothing.
+    const _showOpsHome = (name) => {
+      if (!name) return;
       document.getElementById('mkt-wrap').style.display = 'none';
       document.getElementById('ops-home').style.display = 'block';
-      _initDashboard(workerName);
+      _initDashboard(name);
+    };
+    const _lsWorker = localStorage.getItem('wh_last_worker')
+                  || localStorage.getItem('wh_worker_name')
+                  || localStorage.getItem('workerName');
+    if (_lsWorker) {
+      _showOpsHome(_lsWorker);
+    } else if (typeof restoreIdentityFromSession === 'function' && typeof db !== 'undefined') {
+      restoreIdentityFromSession(db).then(_n => { if (_n) _showOpsHome(_n); }).catch(() => {});
     }
   });
 </script>
@@ -3197,9 +3209,8 @@
     return _ohDb;
   }
 
-  function _escHtml(s) {
-    return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
-  }
+  // _escHtml was an inline alias for escHtml (from utils.js) -- removed 2026-05-18
+  // per security skill rule (drift risk). All call sites updated to use escHtml directly.
 
   function _timeAgo(iso) {
     const diff = (Date.now() - new Date(iso).getTime()) / 1000;
@@ -3213,7 +3224,7 @@
     const h = new Date().getHours();
     const time = h < 12 ? 'morning' : h < 17 ? 'afternoon' : 'evening';
     const first = name.split(' ')[0];
-    return `Good ${time}, ${_escHtml(first)} 👋`;
+    return `Good ${time}, ${escHtml(first)} 👋`;
   }
 
   function _dateStr() {
@@ -3224,10 +3235,10 @@
   }
 
   function _statCard(id, color, label, href) {
-    const inner = `<span id="${_escHtml(id)}" class="oh-stat-num oh-shimmer" style="color:${_escHtml(color)}"></span>
-                   <span class="oh-stat-lbl">${_escHtml(label)}</span>`;
+    const inner = `<span id="${escHtml(id)}" class="oh-stat-num oh-shimmer" style="color:${escHtml(color)}"></span>
+                   <span class="oh-stat-lbl">${escHtml(label)}</span>`;
     if (href) {
-      return `<a href="${_escHtml(href)}" class="oh-card oh-stat-card" style="padding:14px;text-align:center;">${inner}</a>`;
+      return `<a href="${escHtml(href)}" class="oh-card oh-stat-card" style="padding:14px;text-align:center;">${inner}</a>`;
     }
     return `<div class="oh-card" style="padding:14px;text-align:center;">${inner}</div>`;
   }
@@ -3618,15 +3629,15 @@
 
       el.style.display = 'block';
       el.innerHTML = `
-        <a href="${_escHtml(pick.href)}" class="oh-card"
+        <a href="${escHtml(pick.href)}" class="oh-card"
            style="display:flex; align-items:center; gap:14px; padding:18px; text-decoration:none; border-left:3px solid ${pick.accent};">
           <div style="width:36px; height:36px; border-radius:50%; background:${pick.accent}1f; color:${pick.accent}; display:flex; align-items:center; justify-content:center; font-size:1rem; font-weight:800; flex-shrink:0;">!</div>
           <div style="flex:1; min-width:0;">
-            <p style="font-size:.6rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:${pick.accent}; margin:0 0 2px;">Today &middot; ${_escHtml(pick.label)}</p>
-            <p style="font-size:.92rem; font-weight:700; color:#F4F6FA; margin:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${_escHtml(pick.headline)}</p>
-            <p style="font-size:.72rem; color:rgba(255,255,255,.55); margin:3px 0 0;">${_escHtml(pick.detail)}</p>
+            <p style="font-size:.6rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:${pick.accent}; margin:0 0 2px;">Today &middot; ${escHtml(pick.label)}</p>
+            <p style="font-size:.92rem; font-weight:700; color:#F4F6FA; margin:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${escHtml(pick.headline)}</p>
+            <p style="font-size:.72rem; color:rgba(255,255,255,.55); margin:3px 0 0;">${escHtml(pick.detail)}</p>
           </div>
-          <span style="font-size:.65rem; font-weight:700; color:${pick.accent}; white-space:nowrap; padding:6px 12px; border-radius:8px; background:${pick.accent}14; border:1px solid ${pick.accent}33;">${_escHtml(pick.cta)} &#8594;</span>
+          <span style="font-size:.65rem; font-weight:700; color:${pick.accent}; white-space:nowrap; padding:6px 12px; border-radius:8px; background:${pick.accent}14; border:1px solid ${pick.accent}33;">${escHtml(pick.cta)} &#8594;</span>
         </a>`;
     })();
 
@@ -3681,12 +3692,12 @@
           </div>
           <div style="display:flex; flex-direction:column; gap:8px;">
             ${steps.map(s => `
-              <a href="${_escHtml(s.href)}" style="display:flex; align-items:center; gap:12px; padding:10px 12px; background:rgba(255,255,255,${s.done ? '.02' : '.04'}); border-radius:8px; text-decoration:none; ${s.done ? 'opacity:.55;' : ''}">
+              <a href="${escHtml(s.href)}" style="display:flex; align-items:center; gap:12px; padding:10px 12px; background:rgba(255,255,255,${s.done ? '.02' : '.04'}); border-radius:8px; text-decoration:none; ${s.done ? 'opacity:.55;' : ''}">
                 <div style="width:22px; height:22px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0; ${s.done ? 'background:rgba(74,222,128,.18); color:#4ade80;' : 'background:rgba(247,162,27,.15); color:#F7A21B; border:1px solid rgba(247,162,27,.4);'} font-size:.7rem; font-weight:800;">
                   ${s.done ? '&#10003;' : s.id}
                 </div>
-                <span style="flex:1; font-size:.82rem; font-weight:600; color:${s.done ? 'rgba(255,255,255,.5)' : '#F4F6FA'}; ${s.done ? 'text-decoration:line-through;' : ''}">${_escHtml(s.label)}</span>
-                ${s.done ? '' : `<span style="font-size:.62rem; font-weight:700; color:#F7A21B; white-space:nowrap;">${_escHtml(s.cta)} &#8594;</span>`}
+                <span style="flex:1; font-size:.82rem; font-weight:600; color:${s.done ? 'rgba(255,255,255,.5)' : '#F4F6FA'}; ${s.done ? 'text-decoration:line-through;' : ''}">${escHtml(s.label)}</span>
+                ${s.done ? '' : `<span style="font-size:.62rem; font-weight:700; color:#F7A21B; white-space:nowrap;">${escHtml(s.cta)} &#8594;</span>`}
               </a>`).join('')}
           </div>
         </div>`;
@@ -3708,13 +3719,13 @@
               const pct = Math.round((Number(r.risk_score) || 0) * 100);
               const mtbf = r.mtbf_days != null ? `MTBF ${Math.round(r.mtbf_days)}d` : '';
               const href = `asset-hub.html?tag=${encodeURIComponent(r.asset_name || '')}`;
-              return `<a href="${_escHtml(href)}" style="display:flex; align-items:center; justify-content:space-between; gap:10px; text-decoration:none; padding:8px 10px; background:rgba(255,255,255,0.03); border-radius:8px; transition:background .15s;" onmouseover="this.style.background='rgba(255,255,255,0.06)'" onmouseout="this.style.background='rgba(255,255,255,0.03)'">
+              return `<a href="${escHtml(href)}" style="display:flex; align-items:center; justify-content:space-between; gap:10px; text-decoration:none; padding:8px 10px; background:rgba(255,255,255,0.03); border-radius:8px; transition:background .15s;" onmouseover="this.style.background='rgba(255,255,255,0.06)'" onmouseout="this.style.background='rgba(255,255,255,0.03)'">
                 <div style="display:flex; align-items:center; gap:8px; min-width:0; flex:1;">
-                  <span class="oh-badge oh-badge-${_escHtml(r.risk_level)}">${_escHtml(r.risk_level)}</span>
-                  <span style="font-size:.78rem; font-weight:600; color:#F4F6FA; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${_escHtml(r.asset_name)}</span>
+                  <span class="oh-badge oh-badge-${escHtml(r.risk_level)}">${escHtml(r.risk_level)}</span>
+                  <span style="font-size:.78rem; font-weight:600; color:#F4F6FA; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${escHtml(r.asset_name)}</span>
                 </div>
                 <div style="display:flex; align-items:center; gap:10px; flex-shrink:0;">
-                  <span style="font-size:.65rem; color:rgba(255,255,255,.35); white-space:nowrap;">${_escHtml(mtbf)}</span>
+                  <span style="font-size:.65rem; color:rgba(255,255,255,.35); white-space:nowrap;">${escHtml(mtbf)}</span>
                   <span style="font-size:.72rem; font-weight:800; color:#f87171;">${pct}%</span>
                 </div>
               </a>`;
@@ -3760,8 +3771,8 @@
           const cat = j.category || j.maintenance_type || '';
           return `<div class="oh-job-row">
             <div style="flex:1; min-width:0;">
-              <div style="font-size:.82rem; font-weight:700; color:#F4F6FA; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${_escHtml(j.machine || 'Unknown machine')}</div>
-              <div style="font-size:.65rem; color:rgba(255,255,255,.35); margin-top:2px;">${_escHtml(cat)}${ts ? ' · ' + _timeAgo(ts) : ''}</div>
+              <div style="font-size:.82rem; font-weight:700; color:#F4F6FA; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${escHtml(j.machine || 'Unknown machine')}</div>
+              <div style="font-size:.65rem; color:rgba(255,255,255,.35); margin-top:2px;">${escHtml(cat)}${ts ? ' · ' + _timeAgo(ts) : ''}</div>
             </div>
             <span class="oh-badge oh-badge-open">Open</span>
             <a href="logbook.html" style="font-size:.65rem; color:rgba(255,255,255,.3); text-decoration:none; flex-shrink:0;">→</a>
@@ -3780,7 +3791,7 @@
           <div style="display:flex; flex-wrap:wrap; gap:6px;">
             ${lowStock.slice(0,8).map(i => `
               <div style="font-size:.72rem; font-weight:600; background:rgba(251,146,60,.08); border:1px solid rgba(251,146,60,.2); border-radius:6px; padding:.25rem .6rem; color:rgba(255,255,255,.7);">
-                ${_escHtml(i.part_name)} <span style="color:#fb923c;">(${Number(i.qty_on_hand)})</span>
+                ${escHtml(i.part_name)} <span style="color:#fb923c;">(${Number(i.qty_on_hand)})</span>
               </div>`).join('')}
             ${lowStock.length > 8 ? `<div style="font-size:.7rem; color:rgba(255,255,255,.3); padding:.25rem .6rem;">+${lowStock.length - 8} more</div>` : ''}
           </div>
@@ -3790,5 +3801,6 @@
 
 })();
 </script>
+</main>
 </body>
 </html>

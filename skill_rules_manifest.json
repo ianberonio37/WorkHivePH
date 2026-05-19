@@ -224,7 +224,11 @@
       "pattern": "\\bescHtml\\s*\\(|\\bconst\\s+e\\s*=\\s*(?:typeof\\s+)?escHtml\\b",
       "triggered_by": "\\.innerHTML\\s*=",
       "rationale": "Any page that uses innerHTML to render user data must escape it. Two canonical idioms are accepted: direct escHtml() calls, or the `const e = escHtml` alias (memory rule -- shortens template literals in renderer functions).",
-      "severity": "high"
+      "severity": "high",
+      "excluded_files": [
+        {"file": "architecture.html",   "reason": "Static-content page: innerHTML only ever assigned literal strings from a frozen catalog (no user data flows through it). Confirmed 2026-05-19 by grep of innerHTML sites."},
+        {"file": "symbol-gallery.html", "reason": "Static-content page: renders a fixed P&ID symbol library; innerHTML carries no user input. Confirmed 2026-05-19 by grep of innerHTML sites."}
+      ]
     },
     {
       "id": "frontend_writeAuditLog_called",
@@ -247,7 +251,10 @@
       "polarity": "convention",
       "pattern": "from\\s+['\"]\\.\\./_shared/cors\\.ts['\"]",
       "rationale": "Static CORS origin is always wrong; the dynamic helper handles file:// (null origin) for local testing.",
-      "severity": "high"
+      "severity": "high",
+      "excluded_files": [
+        {"file": "marketplace-webhook", "reason": "Stripe webhook receiver: Stripe servers do not send a browser Origin header and require a wildcard or absent ACAO. Using the dynamic helper would echo back a non-Stripe origin on misrouted traffic. Verified 2026-05-19 against the Stripe webhook signature flow."}
+      ]
     },
     {
       "id": "edge_fn_handles_options_preflight",

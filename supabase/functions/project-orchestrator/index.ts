@@ -34,6 +34,7 @@ import { callAI } from '../_shared/ai-chain.ts';
 import { loadMemory, saveTurn, formatMemoryContext } from "../_shared/memory.ts";
 import { logAICost, estimateTokens } from "../_shared/cost-log.ts";
 import { checkAIRateLimit, rateLimitedResponse } from '../_shared/rate-limit.ts';
+import { getCorsHeaders } from '../_shared/cors.ts';
 
 // Warm module-scope Supabase client. Reused across request invocations
 // in the same warm container. Per-request createClient calls below are
@@ -46,23 +47,8 @@ const _whWarmClient = _WH_SUPABASE_URL_M && _WH_SERVICE_KEY_M
   : null;
 void _whWarmClient;
 
-/* ── CORS ──────────────────────────────────────────────────────────────── */
-function getCorsHeaders(req: Request): Record<string, string> {
-  const origin = req.headers.get('origin') || '';
-  const allowed = [
-    'https://workhiveph.com',
-    'https://www.workhiveph.com',
-    'http://localhost',
-    'http://127.0.0.1:5000',
-    'null',
-  ];
-  const allowedOrigin = allowed.includes(origin) ? origin : allowed[0];
-  return {
-    'Access-Control-Allow-Origin':  allowedOrigin,
-    'Access-Control-Allow-Methods': 'POST, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-  };
-}
+/* CORS handled by _shared/cors.ts (security skill rule -- 2026-05-18).
+   Shared helper also matches http://127.0.0.1:* via its localhost check. */
 
 function json(data: unknown, status: number, req: Request) {
   return new Response(JSON.stringify(data), {
@@ -183,6 +169,11 @@ Generate the JSON narrative.`;
 
 /* ── Phase: intent ──────────────────────────────────────────────────── */
 async function runIntent(transcript: string): Promise<Record<string, unknown>> {
+  // Security: cap transcript length before passing to the LLM so a long
+  // dictated prompt can't override the system prompt above. 500 chars
+  // matches the canonical cap used in voice-logbook-entry +
+  // voice-report-intent (mined by security_voice_transcript_length_cap).
+  transcript = (transcript || '').trim().slice(0, 500);
   const systemPrompt = `You convert a project-creation transcript from a Philippine maintenance worker into a strict JSON wizard payload for the WorkHive Project Manager. The user typed or spoke a sentence describing a project they want to create.
 
 Rules:

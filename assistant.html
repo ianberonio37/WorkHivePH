@@ -225,6 +225,8 @@
   </style>
 </head>
 <body class="text-white">
+<main>
+
 
   <!-- ───────── SETUP SCREEN ───────── -->
   <div id="setup-screen" class="screen active">
@@ -931,6 +933,14 @@ happens to know maintenance, not a manual.`;
       );
       logPageView(db);
 
+      // Auth C4: refresh identity from Supabase Auth session before reading
+      // localStorage. Fire-and-forget so the bootstrap doesn't block on a
+      // network call; the per-helper localStorage reads below will pick up
+      // the canonical worker_name once the session resolves on a fresh device.
+      if (typeof restoreIdentityFromSession === 'function') {
+        restoreIdentityFromSession(db).catch(() => {});
+      }
+
       const savedName = localStorage.getItem(KEY_WORKER) || localStorage.getItem('wh_worker_name') || localStorage.getItem('workerName');
       if (savedName) {
         // Already signed in: skip setup and go straight to chat
@@ -943,5 +953,6 @@ happens to know maintenance, not a manual.`;
   </script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="nav-hub.js"></script>
+</main>
 </body>
 </html>
