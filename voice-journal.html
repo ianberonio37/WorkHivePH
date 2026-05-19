@@ -363,7 +363,8 @@
         <div class="skeleton-row mb-2"></div>
         <div class="skeleton-row"></div>
       </div>
-      <div id="history-empty" class="text-center text-xs text-white/40 py-6" style="display:none;">No entries yet. Tap the mic above and say something.</div>
+      <div id="history-empty"      class="empty-state text-center text-xs text-white/40 py-6" style="display:none;">No entries yet. Tap the mic above and say something.</div>
+      <div id="history-no-results" class="empty-state text-center text-xs text-white/40 py-6" style="display:none;">No entries match those filters.</div>
     </section>
 
   </div>
@@ -769,9 +770,10 @@
     }
 
     function renderHistory() {
-      const listEl  = $('history-list');
-      const emptyEl = $('history-empty');
-      const search  = ($('search-input').value || '').trim().toLowerCase();
+      const listEl     = $('history-list');
+      const emptyEl    = $('history-empty');
+      const noResultEl = $('history-no-results');
+      const search     = ($('search-input').value || '').trim().toLowerCase();
 
       const filtered = _entries.filter(p => {
         // Filter now matches on the clamped DISPLAY name, not raw code,
@@ -788,13 +790,15 @@
 
       if (!filtered.length) {
         listEl.innerHTML = '';
-        emptyEl.style.display = 'block';
-        emptyEl.textContent = search || _activeFilter !== 'all'
-          ? 'No entries match those filters.'
-          : 'No entries yet. Tap the mic above and say something.';
+        // List View Contract: empty-state for "never journaled", no-results
+        // when active filters/search are removing everything.
+        const filtersActive = !!search || _activeFilter !== 'all';
+        emptyEl.style.display    = filtersActive ? 'none'  : 'block';
+        noResultEl.style.display = filtersActive ? 'block' : 'none';
         return;
       }
-      emptyEl.style.display = 'none';
+      emptyEl.style.display    = 'none';
+      noResultEl.style.display = 'none';
 
       let lastDay = '';
       const html = filtered.map(p => {

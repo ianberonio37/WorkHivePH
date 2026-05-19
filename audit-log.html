@@ -152,6 +152,8 @@
   </style>
 </head>
 <body>
+<main>
+
 
 <div class="page">
 
@@ -208,10 +210,15 @@
     <div id="feed" class="feed">
       <div class="loading">Loading audit log...</div>
     </div>
-    <div id="empty" class="empty" style="display:none;">
+    <div id="empty" class="empty empty-state" style="display:none;">
       <div class="empty-icon">📋</div>
       <div class="empty-title">No audit entries yet</div>
       <div class="empty-sub">Supervisor and worker actions will appear here as they happen.</div>
+    </div>
+    <div id="no-results" class="empty empty-state" style="display:none;">
+      <div class="empty-icon">🔍</div>
+      <div class="empty-title">No entries match those filters</div>
+      <div class="empty-sub">Use the "Clear filters" button above to see all entries.</div>
     </div>
     <div id="footer-meta" class="footer-meta"></div>
   </div>
@@ -415,16 +422,24 @@
     const items = applyFilters();
     const feed  = document.getElementById('feed');
     const empty = document.getElementById('empty');
+    const noResults = document.getElementById('no-results');
     const summary = document.getElementById('filter-summary');
 
     summary.textContent = items.length + ' of ' + _entries.length + ' entries';
 
     if (!items.length) {
       feed.innerHTML = '';
-      empty.style.display = 'block';
+      // List View Contract: empty-state for "never had data", no-results
+      // when filters are removing everything. _entries holds the unfiltered
+      // dataset; if it has rows but applyFilters returned zero, filters are
+      // the culprit.
+      const filteredToZero = _entries.length > 0;
+      empty.style.display     = filteredToZero ? 'none' : 'block';
+      noResults.style.display = filteredToZero ? 'block' : 'none';
       return;
     }
-    empty.style.display = 'none';
+    empty.style.display     = 'none';
+    noResults.style.display = 'none';
 
     const e = escHtml;
     feed.innerHTML = items.map(en => {
@@ -531,5 +546,6 @@
 
 })();
 </script>
+</main>
 </body>
 </html>

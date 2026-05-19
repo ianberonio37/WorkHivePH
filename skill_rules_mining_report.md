@@ -15,7 +15,7 @@ mined against the codebase. Source manifest: `skill_rules_manifest.json`.
 | architect | 2 | 100% | 0 |
 | data-engineer | 1 | 100% | 0 |
 | designer | 7 | 83% | 25 |
-| frontend | 10 | 66% | 95 |
+| frontend | 10 | 71% | 70 |
 | mobile-maestro | 7 | 85% | 1 |
 | qa-tester | 6 | 98% | 4 |
 | security | 14 | 97% | 13 |
@@ -38,11 +38,11 @@ mined against the codebase. Source manifest: `skill_rules_manifest.json`.
 | Rule | Skill | Conformance | Scope | Polarity |
 |---|---|---:|---|---|
 | `mobile_pdf_pagebreak_covers_p` | mobile-maestro | 0% (0/1) | html_pages | convention |
-| `frontend_list_view_has_no_results_state` | frontend | 18% (2/11) | html_pages | convention |
-| `frontend_list_view_has_load_more` | frontend | 19% (6/31) | html_pages | convention |
-| `frontend_list_view_has_empty_state` | frontend | 28% (9/31) | html_pages | convention |
+| `frontend_list_view_has_load_more` | frontend | 33% (5/15) | html_pages | convention |
+| `frontend_list_view_has_no_results_state` | frontend | 36% (4/11) | html_pages | convention |
 | `frontend_classlist_over_classname` | frontend | 44% (16/36) | html_pages | anti_pattern |
 | `designer_dialog_has_aria_modal_true` | designer | 50% (4/8) | html_pages | convention |
+| `frontend_list_view_has_empty_state` | frontend | 54% (17/31) | html_pages | convention |
 | `frontend_no_innerhtml_in_foreach` | frontend | 55% (20/36) | html_pages | anti_pattern |
 | `designer_card_radius_not_125rem` | designer | 72% (26/36) | html_pages | anti_pattern |
 | `migration_function_sets_search_path` | security | 77% (28/36) | migrations | convention |
