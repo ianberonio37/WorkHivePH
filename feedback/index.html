@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="theme-color" content="#F7A21B" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Roadmap & Feedback | WorkHive</title>
+  <meta name="description" content="See what Filipino plant workers are asking for next. Vote on bug reports and feature ideas, and submit your own from any page using the floating feedback button." />
+  <meta name="keywords" content="WorkHive feedback, public roadmap, feature requests, bug reports, Philippine industrial software, free maintenance platform feedback" />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://workhiveph.com/feedback/" />
+  <link rel="manifest" href="/manifest.json" />
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="WorkHive Roadmap & Feedback" />
+  <meta property="og:description" content="Public roadmap of what Filipino plant workers are asking for next. Vote and submit your own." />
+  <meta property="og:image" content="https://workhiveph.com/brand_assets/og-social.png" />
+  <meta property="og:url" content="https://workhiveph.com/feedback/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="WorkHive" />
+
+  <!-- Structured Data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "CollectionPage",
+        "@id": "https://workhiveph.com/feedback/#page",
+        "url": "https://workhiveph.com/feedback/",
+        "name": "WorkHive Roadmap & Feedback",
+        "description": "Public roadmap of bug reports and feature ideas submitted by Filipino plant workers; community-voted.",
+        "isPartOf": { "@id": "https://workhiveph.com/#website" },
+        "inLanguage": "en-PH"
+      },
+      {
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          { "@type": "ListItem", "position": 1, "name": "Home",     "item": "https://workhiveph.com/" },
+          { "@type": "ListItem", "position": 2, "name": "Roadmap",  "item": "https://workhiveph.com/feedback/" }
+        ]
+      }
+    ]
+  }
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: { extend: { colors: {
+        orange: { wh: '#F7A21B', dark: '#D88A0E', light: '#FDB94A' },
+        blue:   { wh: '#29B6D9', dark: '#1A9ABF', light: '#5FCCE8' },
+        navy:   { wh: '#162032', mid: '#1F2E45', light: '#2A3D58' },
+        steel: '#7B8794', cloud: '#F4F6FA',
+      }, fontFamily: { sans: ['Poppins','system-ui','sans-serif'] } } }
+    };
+  </script>
+  <style>
+    .pill { display:inline-block; padding:.2rem .65rem; border-radius:999px; font-size:.7rem; font-weight:600; letter-spacing:.02em; }
+    .pill-orange { background:rgba(247,162,27,.18); color:#FDB94A; border:1px solid rgba(247,162,27,.35); }
+    .nav-link { color:rgba(244,246,250,.65); transition:color .15s; font-weight:500; }
+    .nav-link:hover { color:#F4F6FA; }
+
+    .fb-card { background:linear-gradient(145deg,rgba(42,61,88,.5),rgba(31,46,69,.7));
+      border:1px solid rgba(255,255,255,.07); border-radius:1rem; padding:1.25rem;
+      transition:border-color .15s, transform .15s; }
+    .fb-card:hover { border-color:rgba(247,162,27,.35); }
+    .kind-chip { display:inline-block; font-size:.7rem; font-weight:600; padding:.15rem .55rem;
+      border-radius:999px; letter-spacing:.02em; }
+    .kind-bug      { background:rgba(255,99,99,.18);   color:#ffb0b0; }
+    .kind-idea     { background:rgba(252,211,77,.18);  color:#fef3c7; }
+    .kind-question { background:rgba(96,165,250,.18);  color:#bfdbfe; }
+    .kind-review   { background:rgba(247,162,27,.18);  color:#fed7aa; }
+    .kind-praise   { background:rgba(134,239,172,.18); color:#bbf7d0; }
+    .kind-other    { background:rgba(255,255,255,.08); color:#cbd5e1; }
+    .status-pill { display:inline-block; font-size:.6rem; padding:.1rem .5rem; border-radius:999px;
+      font-weight:600; text-transform:uppercase; letter-spacing:.04em; }
+    .status-new          { background:rgba(252,211,77,.18); color:#fef3c7; }
+    .status-triaged      { background:rgba(96,165,250,.18); color:#bfdbfe; }
+    .status-in_progress  { background:rgba(96,165,250,.28); color:#dbeafe; }
+    .status-resolved     { background:rgba(134,239,172,.22); color:#bbf7d0; }
+    .status-wontfix      { background:rgba(255,255,255,.08); color:#cbd5e1; }
+    .status-duplicate    { background:rgba(255,255,255,.08); color:#cbd5e1; }
+
+    .vote-btn { display:flex; flex-direction:column; align-items:center; justify-content:center;
+      min-width:54px; min-height:54px;             /* mobile-maestro: 44px+ */
+      background:rgba(22,32,50,.6); border:1px solid rgba(255,255,255,.1);
+      border-radius:.75rem; color:#F4F6FA; cursor:pointer;
+      transition:all .15s; font-family:inherit; padding:.35rem .5rem; }
+    .vote-btn:hover { border-color:rgba(247,162,27,.5); transform:translateY(-1px); }
+    .vote-btn:active { transform:scale(.96); }
+    .vote-btn.voted { background:rgba(247,162,27,.18); border-color:#F7A21B; color:#FDB94A; }
+    .vote-btn .count { font-weight:700; font-size:1rem; line-height:1; margin-top:.15rem; }
+    .vote-btn .arrow { font-size:1rem; line-height:1; }
+    .vote-btn:focus-visible { outline:2px solid #29B6D9; outline-offset:2px; }
+
+    .filter-chip { padding:.4rem .9rem; border-radius:999px; font-size:.8rem; font-weight:500;
+      background:rgba(255,255,255,.04); border:1px solid transparent; color:rgba(244,246,250,.65);
+      cursor:pointer; transition:all .15s; font-family:inherit; }
+    .filter-chip:hover { color:#F4F6FA; }
+    .filter-chip.active { background:rgba(247,162,27,.14); border-color:rgba(247,162,27,.4); color:#FDB94A; }
+  </style>
+
+  <!-- Local-dev URL rewrite (same pattern as /learn/) -->
+  <script>
+    (function () {
+      var ROOT_PATHS = ['/logbook.html','/inventory.html','/pm-scheduler.html','/hive.html',
+        '/assistant.html','/skillmatrix.html','/dayplanner.html',
+        '/engineering-design.html','/project-manager.html','/integrations.html',
+        '/marketplace.html','/community.html','/achievements.html',
+        '/ph-intelligence.html','/predictive.html','/ai-quality.html',
+        '/plant-connections.html'];
+      function rewrite(){
+        document.querySelectorAll('a[href]').forEach(function(a){
+          var h = a.getAttribute('href');
+          if (!h || h[0] !== '/') return;
+          if (h.indexOf('/workhive/') === 0 || h.indexOf('/brand_assets/') === 0 ||
+              h.indexOf('/api/') === 0 || h === '/manifest.json' || h === '/sw.js') return;
+          var matched = false;
+          for (var i = 0; i < ROOT_PATHS.length; i++) {
+            if (h === ROOT_PATHS[i] || h.indexOf(ROOT_PATHS[i]) === 0) { matched = true; break; }
+          }
+          if (!matched && h !== '/' && h.indexOf('/#') !== 0) return;
+          var newHref = '/workhive' + h;
+          if (newHref.endsWith('/')) newHref += 'index.html';
+          else if (h === '/') newHref = '/workhive/index.html';
+          else if (h.indexOf('/#') === 0) newHref = '/workhive/index.html' + h.substring(1);
+          a.setAttribute('href', newHref);
+        });
+      }
+      if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', rewrite);
+      else rewrite();
+    })();
+  </script>
+
+  <!-- GA4 -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-ENMGLTFR2J"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-ENMGLTFR2J', { anonymize_ip: true });
+  </script>
+  <script src="/wh-ga4.js" defer></script>
+</head>
+<body class="bg-navy-wh text-white antialiased">
+
+<!-- Nav -->
+<header class="border-b border-white/[0.06]" style="background: rgba(13,24,36,0.85);">
+  <div class="max-w-6xl mx-auto px-5 sm:px-8 py-4 flex items-center justify-between">
+    <a href="/" class="flex items-center gap-3">
+      <img src="/brand_assets/workhive-logo-transparent.png" alt="WorkHive" style="height: 36px; width: auto;" />
+      <span class="font-black text-lg tracking-tight">WorkHive</span>
+    </a>
+    <nav class="flex items-center gap-6">
+      <a href="/" class="nav-link">Home</a>
+      <a href="/learn/" class="nav-link">Learn</a>
+      <a href="/feedback/" class="nav-link" style="color:#F4F6FA;">Roadmap</a>
+      <a href="/#join" class="nav-link">Join the Hive</a>
+    </nav>
+  </div>
+</header>
+
+<!-- Hero -->
+<section class="py-16 lg:py-20 border-b border-white/[0.06]">
+  <div class="max-w-4xl mx-auto px-5 sm:px-8 text-center">
+    <p class="pill pill-orange mb-5">Public roadmap</p>
+    <h1 class="text-4xl sm:text-5xl font-black leading-tight tracking-tight mb-6">
+      What <span style="background:linear-gradient(135deg,#F7A21B 30%,#FDB94A 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">Filipino plant workers</span> are asking for
+    </h1>
+    <p class="text-lg text-white/70 leading-relaxed max-w-2xl mx-auto font-light">
+      Vote on bug reports and feature ideas. The floating feedback button on every WorkHive page sends submissions here once the admin marks them public. Top-voted items get prioritized.
+    </p>
+    <p class="text-sm text-white/50 mt-5">
+      Have something to add? Tap the <strong>💬</strong> button in the bottom-right corner of any page.
+    </p>
+  </div>
+</section>
+
+<!-- Filters -->
+<section class="max-w-4xl mx-auto px-5 sm:px-8 mt-10">
+  <div class="flex flex-wrap gap-2" id="filter-bar" role="group" aria-label="Filter by kind">
+    <button class="filter-chip active" data-kind="*">All</button>
+    <button class="filter-chip" data-kind="bug">🐞 Bug</button>
+    <button class="filter-chip" data-kind="idea">💡 Idea</button>
+    <button class="filter-chip" data-kind="question">❓ Question</button>
+    <button class="filter-chip" data-kind="review">⭐ Review</button>
+    <button class="filter-chip" data-kind="praise">💛 Praise</button>
+  </div>
+</section>
+
+<!-- List -->
+<main class="max-w-4xl mx-auto px-5 sm:px-8 my-8 mb-20">
+  <div id="fb-roadmap-list" class="space-y-4" aria-live="polite">
+    <div class="text-center text-white/50 text-sm py-16">Loading roadmap…</div>
+  </div>
+</main>
+
+<!-- Footer -->
+<footer class="border-t border-white/[0.06] py-10 mt-10">
+  <div class="max-w-6xl mx-auto px-5 sm:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-white/50">
+    <div>&copy; 2026 WorkHive Engineering Services · DTI 8080496</div>
+    <div class="flex items-center gap-6">
+      <a href="/about/" class="hover:text-white/60 transition-colors">About</a>
+      <a href="/learn/" class="hover:text-white/60 transition-colors">Learn</a>
+      <a href="/privacy-policy/" class="hover:text-white/60 transition-colors">Privacy</a>
+      <a href="/terms-of-service/" class="hover:text-white/60 transition-colors">Terms</a>
+    </div>
+  </div>
+</footer>
+
+<!-- Supabase + roadmap script -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  // ────────────────────────────────────────────────────────────────────
+  // /feedback/ — public roadmap page
+  // ────────────────────────────────────────────────────────────────────
+  // Reads platform_feedback WHERE is_public=true ordered by upvotes desc.
+  // Lets visitors vote via toggle_feedback_upvote(feedback_id, voter_token)
+  // where voter_token is a localStorage-stored random UUID per visitor
+  // (no auth required for the public roadmap). Double-voting is blocked
+  // by the (feedback_id, voter_token) PK.
+  //
+  // Skills consulted: community (open feed pattern), security (escHtml on
+  // every render path), mobile-maestro (54px vote buttons), notifications
+  // (no L2/L3 needed — votes update inline).
+  // ────────────────────────────────────────────────────────────────────
+  const SUPABASE_URL = 'https://hzyvnjtisfgbksicrouu.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_ePj-suLMwkMRVDH6eM6S8g_R0rZVbMZ';
+  const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  const _state = { rows: [], votes: new Set(), kindFilter: '*', voterToken: null };
+
+  // Minimal escHtml — public page doesn't load utils.js
+  function escHtml(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  }
+  function timeAgo(iso) {
+    const t = new Date(iso).getTime();
+    if (isNaN(t)) return '';
+    const d = (Date.now() - t) / 1000;
+    if (d < 60) return Math.floor(d) + 's';
+    if (d < 3600) return Math.floor(d / 60) + 'm';
+    if (d < 86400) return Math.floor(d / 3600) + 'h';
+    if (d < 86400 * 7) return Math.floor(d / 86400) + 'd';
+    return new Date(iso).toLocaleDateString();
+  }
+
+  function getVoterToken() {
+    if (_state.voterToken) return _state.voterToken;
+    let tok = null;
+    try { tok = localStorage.getItem('wh_voter_token'); } catch (_) {}
+    if (!tok) {
+      tok = 'v_' + (crypto && crypto.randomUUID ? crypto.randomUUID()
+                                                : (Date.now().toString(36) + Math.random().toString(36).slice(2)));
+      try { localStorage.setItem('wh_voter_token', tok); } catch (_) {}
+    }
+    _state.voterToken = tok;
+    return tok;
+  }
+
+  async function loadRoadmap() {
+    const list = document.getElementById('fb-roadmap-list');
+    try {
+      const tok = getVoterToken();
+      // Public items + this visitor's votes — parallel, single round trip each
+      const [itemsRes, votesRes] = await Promise.all([
+        db.from('platform_feedback')
+          .select('id,created_at,kind,subject,body,status,upvotes')
+          .eq('is_public', true)
+          .order('upvotes', { ascending: false })
+          .order('created_at', { ascending: false })
+          .limit(200),
+        db.from('platform_feedback_votes')
+          .select('feedback_id')
+          .eq('voter_token', tok)
+          .limit(500),
+      ]);
+      if (itemsRes.error) throw itemsRes.error;
+      _state.rows  = itemsRes.data || [];
+      _state.votes = new Set((votesRes.data || []).map(v => v.feedback_id));
+      render();
+    } catch (e) {
+      console.error('[roadmap] load failed', e);
+      list.innerHTML =
+        '<div class="text-center text-white/60 text-sm py-16">' +
+        'Could not load roadmap right now. <button class="underline text-orange-light" onclick="loadRoadmap()">Try again</button>' +
+        '</div>';
+    }
+  }
+
+  function render() {
+    const list = document.getElementById('fb-roadmap-list');
+    const rows = _state.kindFilter === '*'
+      ? _state.rows
+      : _state.rows.filter(r => r.kind === _state.kindFilter);
+
+    if (!rows.length) {
+      list.innerHTML =
+        '<div class="text-center text-white/50 text-sm py-16">' +
+        (_state.rows.length === 0
+          ? 'No public items yet. Once visitors send feedback (via the 💬 button on any page) and the admin marks it public, it appears here.'
+          : 'Nothing matches that filter.') +
+        '</div>';
+      return;
+    }
+
+    list.innerHTML = rows.map(r => {
+      const voted   = _state.votes.has(r.id);
+      const snippet = (r.body || '').slice(0, 280);
+      return `<article class="fb-card">
+        <div class="flex items-start gap-3">
+          <button class="vote-btn ${voted ? 'voted' : ''}"
+                  type="button"
+                  data-vote="${escHtml(r.id)}"
+                  aria-pressed="${voted ? 'true' : 'false'}"
+                  aria-label="${voted ? 'Remove vote' : 'Vote up'} (${r.upvotes} votes)">
+            <span class="arrow" aria-hidden="true">▲</span>
+            <span class="count">${r.upvotes}</span>
+          </button>
+          <div class="flex-1 min-w-0">
+            <div class="flex flex-wrap items-center gap-2 mb-1.5 text-xs text-white/50">
+              <span class="kind-chip kind-${escHtml(r.kind)}">${escHtml(r.kind)}</span>
+              <span class="status-pill status-${escHtml(r.status)}">${escHtml(r.status.replace('_',' '))}</span>
+              <span>${escHtml(timeAgo(r.created_at))} ago</span>
+            </div>
+            <h2 class="font-semibold text-base mb-1">${escHtml(r.subject || '(no subject)')}</h2>
+            <p class="text-sm text-white/65 leading-relaxed whitespace-pre-wrap break-words">${escHtml(snippet)}${(r.body || '').length > 280 ? '…' : ''}</p>
+          </div>
+        </div>
+      </article>`;
+    }).join('');
+
+    list.querySelectorAll('[data-vote]').forEach(btn => {
+      btn.addEventListener('click', () => onVote(btn.dataset.vote, btn));
+    });
+  }
+
+  async function onVote(feedbackId, btn) {
+    if (btn.disabled) return;
+    btn.disabled = true;
+    const tok = getVoterToken();
+    try {
+      const { data, error } = await db.rpc('toggle_feedback_upvote', {
+        p_feedback_id: feedbackId,
+        p_voter_token: tok,
+      });
+      if (error) throw error;
+      // RPC returns { upvotes, has_voted }
+      const row = _state.rows.find(r => r.id === feedbackId);
+      if (row && data && typeof data.upvotes === 'number') row.upvotes = data.upvotes;
+      if (data && data.has_voted) _state.votes.add(feedbackId);
+      else _state.votes.delete(feedbackId);
+      render();
+    } catch (e) {
+      console.error('[roadmap] vote failed', e);
+      // Reset disabled
+      btn.disabled = false;
+    }
+  }
+
+  // Filter chips
+  document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.filter-chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        _state.kindFilter = chip.dataset.kind;
+        document.querySelectorAll('.filter-chip').forEach(c => c.classList.toggle('active', c === chip));
+        render();
+      });
+    });
+    loadRoadmap();
+  });
+</script>
+
+<!-- Universal feedback FAB so visitors can submit from this page too -->
+<script defer src="/workhive/wh-feedback-fab.js"></script>
+</body>
+</html>

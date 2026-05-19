@@ -1965,6 +1965,15 @@
         <label for="fb-d-note">Admin note (internal)</label>
         <textarea id="fb-d-note" placeholder="Triage notes for yourself…">${escHtml(row.admin_note || '')}</textarea>
 
+        <label style="display:flex;align-items:center;gap:.5rem;margin-top:1rem;cursor:pointer;text-transform:none;letter-spacing:0;color:var(--text)">
+          <input type="checkbox" id="fb-d-public" ${row.is_public ? 'checked' : ''} style="width:auto;cursor:pointer" />
+          <span>Show on public roadmap (/feedback/)</span>
+        </label>
+        <div class="meta" style="margin-top:.35rem">
+          When checked, this item appears on the public roadmap with vote count.
+          Don't expose anything you wouldn't want indexed by Google.
+        </div>
+
         <div class="fb-drawer-actions">
           <button type="button" class="btn primary" id="fb-d-save">Save changes</button>
           ${row.contact_email
@@ -1985,24 +1994,26 @@
     }
 
     async function saveDrawerChanges(id) {
-      const status   = document.getElementById('fb-d-status').value;
-      const priority = document.getElementById('fb-d-priority').value || null;
-      const note     = document.getElementById('fb-d-note').value.trim() || null;
-      const btn      = document.getElementById('fb-d-save');
+      const status    = document.getElementById('fb-d-status').value;
+      const priority  = document.getElementById('fb-d-priority').value || null;
+      const note      = document.getElementById('fb-d-note').value.trim() || null;
+      const isPublic  = document.getElementById('fb-d-public')?.checked || false;
+      const btn       = document.getElementById('fb-d-save');
       btn.disabled = true; btn.textContent = 'Saving…';
       try {
         const { error } = await db.from('platform_feedback')
-          .update({ status, priority, admin_note: note })
+          .update({ status, priority, admin_note: note, is_public: isPublic })
           .eq('id', id);
         if (error) throw error;
         // Patch local cache, re-render, close drawer
         const row = _fb.rows.find(r => r.id === id);
-        if (row) Object.assign(row, { status, priority, admin_note: note,
+        const wasPublic = !!row?.is_public;
+        if (row) Object.assign(row, { status, priority, admin_note: note, is_public: isPublic,
           resolved_at: ['resolved','wontfix','duplicate'].includes(status)
             ? (row.resolved_at || new Date().toISOString()) : row.resolved_at });
         applyFeedbackView();
         closeFeedbackDrawer();
-        showToast('Saved');
+        showToast(isPublic && !wasPublic ? 'Saved — now public on /feedback/' : 'Saved');
       } catch (e) {
         console.error('[feedback-inbox] save failed', e);
         btn.textContent = 'Save changes'; btn.disabled = false;

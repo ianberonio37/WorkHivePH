@@ -41,6 +41,9 @@ ROOT = Path(__file__).resolve().parent
 WIDGET_FILE   = ROOT / "wh-feedback-fab.js"
 NAV_HUB_FILE  = ROOT / "nav-hub.js"
 MIGRATION     = ROOT / "supabase" / "migrations" / "20260519000002_platform_feedback.sql"
+VOTES_MIGRATION = ROOT / "supabase" / "migrations" / "20260519000003_platform_feedback_votes.sql"
+ROADMAP_PAGE  = ROOT / "feedback" / "index.html"
+FOUNDER_PAGE  = ROOT / "founder-console.html"
 
 # Public pages that don't load nav-hub.js — they must reference the FAB
 # script directly. The 36 /learn/<slug>/ articles are also in scope but
@@ -60,6 +63,12 @@ CHECK_NAMES = [
     "schema_rls_enabled",
     "schema_rate_limit_trigger",
     "schema_resolved_at_trigger",
+    # Phase 2 — public roadmap + upvoting
+    "roadmap_page_exists",
+    "roadmap_uses_toggle_rpc",
+    "schema_votes_table",
+    "schema_toggle_rpc",
+    "founder_console_publish_toggle",
 ]
 CHECK_LABELS = {
     "widget_renders":            "L1  FAB script reachable from every public + app page",
@@ -69,6 +78,11 @@ CHECK_LABELS = {
     "schema_rls_enabled":        "L3  platform_feedback RLS enabled in migration",
     "schema_rate_limit_trigger": "L3  Rate-limit trigger declared in migration",
     "schema_resolved_at_trigger":"L3  resolved_at auto-stamp trigger declared in migration",
+    "roadmap_page_exists":       "L4  /feedback/index.html public roadmap page exists",
+    "roadmap_uses_toggle_rpc":   "L4  Roadmap page calls toggle_feedback_upvote RPC",
+    "schema_votes_table":        "L4  platform_feedback_votes table declared in migration",
+    "schema_toggle_rpc":         "L4  toggle_feedback_upvote RPC declared in migration",
+    "founder_console_publish_toggle": "L4  Founder Console drawer has 'Make public' toggle",
 }
 
 
@@ -235,9 +249,97 @@ def check_schema_resolved_at_trigger():
     return issues
 
 
+def check_roadmap_page_exists():
+    """Public /feedback/index.html roadmap page must exist."""
+    if not ROADMAP_PAGE.exists():
+        return [{
+            "check":  "roadmap_page_exists",
+            "page":   str(ROADMAP_PAGE.relative_to(ROOT)),
+            "reason": "Public roadmap page missing. Visitors have no place to vote on or browse public submissions.",
+        }]
+    return []
+
+
+def check_roadmap_uses_toggle_rpc():
+    """Roadmap page must call the toggle_feedback_upvote RPC for voting."""
+    if not ROADMAP_PAGE.exists():
+        return []   # already flagged by roadmap_page_exists
+    src = read_file(str(ROADMAP_PAGE)) or ""
+    if "toggle_feedback_upvote" not in src:
+        return [{
+            "check":  "roadmap_uses_toggle_rpc",
+            "page":   str(ROADMAP_PAGE.relative_to(ROOT)),
+            "reason": "Roadmap page does not call toggle_feedback_upvote RPC. Voting must go through "
+                      "the RPC (not direct upvotes UPDATEs) so the (feedback_id, voter_token) PK "
+                      "blocks double-voting + the is_public guard runs server-side.",
+        }]
+    return []
+
+
+def check_schema_votes_table():
+    """Votes migration must declare platform_feedback_votes with the composite PK."""
+    if not VOTES_MIGRATION.exists():
+        return [{
+            "check":  "schema_votes_table",
+            "page":   str(VOTES_MIGRATION.relative_to(ROOT)),
+            "reason": "Phase 2 migration 20260519000003_platform_feedback_votes.sql missing. "
+                      "Without the votes table, double-voting is unblocked.",
+        }]
+    src = read_file(str(VOTES_MIGRATION)) or ""
+    if "platform_feedback_votes" not in src:
+        return [{
+            "check":  "schema_votes_table",
+            "page":   str(VOTES_MIGRATION.relative_to(ROOT)),
+            "reason": "platform_feedback_votes table missing from Phase 2 migration.",
+        }]
+    if "PRIMARY KEY (feedback_id, voter_token)" not in src:
+        return [{
+            "check":  "schema_votes_table",
+            "page":   str(VOTES_MIGRATION.relative_to(ROOT)),
+            "reason": "platform_feedback_votes missing the composite (feedback_id, voter_token) "
+                      "primary key. Without it, double-voting is unblocked.",
+        }]
+    return []
+
+
+def check_schema_toggle_rpc():
+    """toggle_feedback_upvote RPC must be declared in the votes migration."""
+    if not VOTES_MIGRATION.exists():
+        return []
+    src = read_file(str(VOTES_MIGRATION)) or ""
+    issues = []
+    if "FUNCTION public.toggle_feedback_upvote" not in src:
+        issues.append({
+            "check":  "schema_toggle_rpc",
+            "page":   str(VOTES_MIGRATION.relative_to(ROOT)),
+            "reason": "toggle_feedback_upvote RPC function missing from Phase 2 migration.",
+        })
+    if "is_public" not in src or "RAISE EXCEPTION" not in src:
+        issues.append({
+            "check":  "schema_toggle_rpc",
+            "page":   str(VOTES_MIGRATION.relative_to(ROOT)),
+            "reason": "RPC does not enforce 'item must be public' guard. Without it, visitors could "
+                      "vote on private items the admin hasn't approved.",
+        })
+    return issues
+
+
+def check_founder_console_publish_toggle():
+    """Founder Console drawer must expose the 'Make public' checkbox so admin can promote items."""
+    src = read_file(str(FOUNDER_PAGE)) or ""
+    if "fb-d-public" not in src or "is_public" not in src:
+        return [{
+            "check":  "founder_console_publish_toggle",
+            "page":   str(FOUNDER_PAGE.relative_to(ROOT)),
+            "reason": "Drawer missing 'Make public' checkbox (#fb-d-public). Admin has no way to "
+                      "promote a submission to the public /feedback/ roadmap.",
+        }]
+    return []
+
+
 def main():
     def bold(s): return f"\033[1m{s}\033[0m"
-    print(bold("\nFeedback Widget Validator (7 checks)"))
+    print(bold(f"\nFeedback Widget Validator ({len(CHECK_NAMES)} checks)"))
     print("=" * 55)
 
     all_issues = []
@@ -248,6 +350,11 @@ def main():
     all_issues += check_schema_rls_enabled()
     all_issues += check_schema_rate_limit_trigger()
     all_issues += check_schema_resolved_at_trigger()
+    all_issues += check_roadmap_page_exists()
+    all_issues += check_roadmap_uses_toggle_rpc()
+    all_issues += check_schema_votes_table()
+    all_issues += check_schema_toggle_rpc()
+    all_issues += check_founder_console_publish_toggle()
 
     n_pass, n_warn, n_fail = format_result(CHECK_NAMES, CHECK_LABELS, all_issues)
 
