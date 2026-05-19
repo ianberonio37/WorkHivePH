@@ -60,6 +60,20 @@
     document.head.appendChild(p);
   }
 
+  // ─── Universal Feedback FAB: floating bottom-right button + slide-in
+  // panel for sending bugs / ideas / questions / reviews / praise. Posts
+  // to platform_feedback (migration 20260519000002), surfaces in the
+  // Founder Console's #sec-feel section. Free-tier: no email, no n8n —
+  // Realtime subscription on the admin side handles routing.
+  if (!document.querySelector('script[data-wh-feedback]') &&
+      !document.querySelector('script[src*="wh-feedback-fab.js"]')) {
+    const fb = document.createElement('script');
+    fb.src = 'wh-feedback-fab.js';
+    fb.async = true;
+    fb.setAttribute('data-wh-feedback', '1');
+    document.head.appendChild(fb);
+  }
+
   // ─── Companion Streamline Steps A+C: companion-launcher.js (formerly
   // floating-ai.js) carries the James/Rosa avatar + chat panel + inline
   // mic on every nav-enabled page. Routes through ai-gateway with
