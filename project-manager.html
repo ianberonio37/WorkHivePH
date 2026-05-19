@@ -416,12 +416,12 @@
 
     <div class="recent-row" id="recent-strip"></div>
 
-    <div class="tab-strip" id="status-tabs">
-      <button data-status="active"   class="active">Active</button>
-      <button data-status="planning">Planning</button>
-      <button data-status="on_hold">On hold</button>
-      <button data-status="complete">Complete</button>
-      <button data-status="">All</button>
+    <div class="tab-strip" id="status-tabs" role="tablist" aria-label="Filter projects by status">
+      <button data-status="active"   class="active" role="tab" aria-selected="true">Active</button>
+      <button data-status="planning"               role="tab" aria-selected="false">Planning</button>
+      <button data-status="on_hold"                role="tab" aria-selected="false">On hold</button>
+      <button data-status="complete"               role="tab" aria-selected="false">Complete</button>
+      <button data-status=""                       role="tab" aria-selected="false">All</button>
     </div>
 
     <div class="filter-row">
@@ -1224,8 +1224,11 @@ function loadGroupState() {
 function bindFilters() {
   $('status-tabs').addEventListener('click', ev => {
     const btn = ev.target.closest('button[data-status]'); if (!btn) return;
-    $('status-tabs').querySelectorAll('button').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
+    $('status-tabs').querySelectorAll('button').forEach(b => {
+      const on = (b === btn);
+      b.classList.toggle('active', on);
+      b.setAttribute('aria-selected', on ? 'true' : 'false');
+    });
     _activeFilter.status = btn.dataset.status;
     renderList();
   });
