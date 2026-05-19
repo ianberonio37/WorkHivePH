@@ -110,8 +110,9 @@ def run_layer(layer_num, name, script, args=None, timeout=300) -> tuple[int, dic
         return result.returncode, {"script": script, "returncode": result.returncode}
 
     except subprocess.TimeoutExpired:
-        fail(f"Layer timeout (5m)")
-        return 1, {"script": script, "error": "timeout"}
+        # Show ACTUAL timeout (not hardcoded "5m" — was lying about the real cap)
+        fail(f"Layer timeout ({timeout}s)")
+        return 1, {"script": script, "error": "timeout", "timeout_s": timeout}
     except Exception as e:
         fail(f"Layer error: {e}")
         return 1, {"script": script, "error": str(e)}
@@ -275,7 +276,12 @@ def main(surface_filter=None, fast=False) -> int:
         print(f"  {GREEN}All scenarios passing!{RESET} Skipping to meta-validator.")
     else:
         # Layer 1: Failure Analysis (needs longer timeout for many findings)
-        rc1, res1 = run_layer(1, "Failure Analysis", "analyze_scenario_findings.py", [], timeout=900)
+        # Layer 1 timeout: AI chain (14 providers) rotates through providers on
+        # rate-limit retries; with 14 findings observed 15+ min on 2026-05-19.
+        # Bump 900 -> 1800 (30m) per lesson #24's 1.5x-over-observed-peak rule.
+        # If this overruns again, the analyzer needs concurrent calls or
+        # earlier-exit logic — don't keep bumping the timeout blindly.
+        rc1, res1 = run_layer(1, "Failure Analysis", "analyze_scenario_findings.py", [], timeout=1800)
         loop_results["layers"][1] = res1
 
         if rc1 != 0:
