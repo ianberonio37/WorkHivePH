@@ -30,6 +30,8 @@ import json
 from pathlib import Path
 from typing import Optional
 
+import json
+import time
 import psycopg2
 import pdfplumber
 import requests
@@ -125,8 +127,14 @@ def generate_embedding(text: str) -> tuple[list[float], str]:
 
 
 # ── PDF extraction + smart chunking ──────────────────────────────────────
+# Threshold below which we assume the PDF is image-based (scanned) and fall
+# back to Azure Doc Intelligence OCR. Tuned empirically: even a 1-page PDF
+# with real text yields >500 chars; image-PDFs yield 0-100.
+OCR_FALLBACK_THRESHOLD = 500
+
+
 def extract_pdf_text(pdf_path: Path) -> str:
-    """Pull all page text into a single flowing string."""
+    """Pull all page text into a single flowing string via pdfplumber."""
     pages: list[str] = []
     with pdfplumber.open(pdf_path) as pdf:
         for i, page in enumerate(pdf.pages):
@@ -137,6 +145,75 @@ def extract_pdf_text(pdf_path: Path) -> str:
                 continue
             pages.append(txt)
     return "\n\n".join(pages)
+
+
+def extract_pdf_text_via_azure_ocr(pdf_path: Path) -> str:
+    """OCR fallback for image-based PDFs. Submits to Azure Doc Intelligence
+    prebuilt-read, polls until succeeded, returns the extracted text.
+
+    Cost: $1.50 per 1000 pages on the Read tier (~$0.12 for an 80-page manual).
+    Reuses the credentials provisioned on Day 1 and validated by
+    tools/doc_intelligence_test.py.
+    """
+    # Load credentials from .env.azure on demand (only when OCR is actually used)
+    env_path = ROOT / ".env.azure"
+    if not env_path.exists():
+        raise RuntimeError(f"OCR fallback needs {env_path}")
+    env: dict[str, str] = {}
+    for line in env_path.read_text(encoding="utf-8").splitlines():
+        line = line.strip()
+        if line and not line.startswith("#") and "=" in line:
+            k, v = line.split("=", 1)
+            env[k.strip()] = v.strip()
+    endpoint = env.get("AZURE_DOC_INTELLIGENCE_ENDPOINT", "").rstrip("/")
+    key      = env.get("AZURE_DOC_INTELLIGENCE_KEY", "")
+    if not endpoint or not key:
+        raise RuntimeError("AZURE_DOC_INTELLIGENCE_ENDPOINT / KEY missing in .env.azure")
+
+    submit_url = f"{endpoint}/documentintelligence/documentModels/prebuilt-read:analyze?api-version=2024-11-30"
+    suffix = pdf_path.suffix.lower()
+    ctype  = {".pdf": "application/pdf", ".jpg": "image/jpeg", ".jpeg": "image/jpeg",
+              ".png": "image/png", ".tiff": "image/tiff"}.get(suffix, "application/octet-stream")
+
+    res = requests.post(
+        submit_url,
+        headers={"Ocp-Apim-Subscription-Key": key, "Content-Type": ctype},
+        data=pdf_path.read_bytes(),
+        timeout=120,
+    )
+    if res.status_code not in (200, 202):
+        raise RuntimeError(f"Azure OCR submit {res.status_code}: {res.text[:200]}")
+    op_loc = res.headers.get("Operation-Location") or res.headers.get("operation-location")
+    if not op_loc:
+        raise RuntimeError("Azure OCR submit: no Operation-Location header")
+
+    # Poll — large PDFs take 30-90s. Allow up to 5 minutes.
+    start = time.time()
+    delay = 3
+    while True:
+        if time.time() - start > 300:
+            raise RuntimeError("Azure OCR poll timeout after 5 min")
+        r = requests.get(op_loc, headers={"Ocp-Apim-Subscription-Key": key}, timeout=30)
+        if not r.ok:
+            raise RuntimeError(f"Azure OCR poll {r.status_code}: {r.text[:200]}")
+        data = r.json()
+        status = (data.get("status") or "").lower()
+        if status == "succeeded":
+            return data.get("analyzeResult", {}).get("content", "")
+        if status in ("failed", "canceled"):
+            raise RuntimeError(f"Azure OCR analysis {status}: {json.dumps(data)[:300]}")
+        time.sleep(delay)
+        delay = min(delay + 1, 8)
+
+
+def extract_with_fallback(pdf_path: Path) -> tuple[str, str]:
+    """Try pdfplumber first; if it yields too little text, OCR via Azure.
+    Returns (text, source_label) — source_label is 'pdfplumber' or 'azure-ocr'."""
+    raw = extract_pdf_text(pdf_path)
+    if len(raw.strip()) >= OCR_FALLBACK_THRESHOLD:
+        return raw, "pdfplumber"
+    print(f"    pdfplumber returned only {len(raw.strip())} chars — falling back to Azure OCR")
+    return extract_pdf_text_via_azure_ocr(pdf_path), "azure-ocr"
 
 
 SECTION_HDR = re.compile(r"^(\d+(?:\.\d+)*)\s+([A-Z][^\n]{3,80})", re.MULTILINE)
@@ -254,10 +331,11 @@ def main(argv: Optional[list[str]] = None) -> int:
         print(f"  -> {std_code} ({standard_id})")
         print(f"{'-' * 72}")
 
-        # 1. Extract
+        # 1. Extract — pdfplumber first, Azure Doc Intelligence OCR fallback
+        # for image-based PDFs (e.g. scanned OEM manuals).
         print("  Extracting PDF text...")
-        raw = extract_pdf_text(pdf_path)
-        print(f"  Extracted: {len(raw):,} chars")
+        raw, source = extract_with_fallback(pdf_path)
+        print(f"  Extracted: {len(raw):,} chars via {source}")
 
         # 2. Chunk
         print("  Chunking...")
