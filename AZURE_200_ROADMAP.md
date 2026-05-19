@@ -295,6 +295,24 @@ Roadmap movement:
   bln56h11b — MIMII curl resume (3.4 GB / 10.4 GB at ~95 MB/min)
   b4v5ai08w — embed remaining 171 SPX KG facts
 
+### Day 9 (final) — user-curated PDF drop folder
+
+The 17% hit rate on guessed OEM URLs was the day's clearest signal: stop
+hunting URLs, start ingesting the PDFs you already have. Built
+`tools/ingest_user_pdfs.py` as the third entry point alongside the
+URL-driven downloaders.
+
+**Workflow:**
+1. User drops any PDF in `c:\wh-datasets\standards\user_uploaded\`
+2. Runs `python tools/ingest_user_pdfs.py`
+3. Pipeline does the rest: register → embed → chunk (with OCR fallback) → extract triples → embed facts
+
+**Idempotent at every step.** Re-running on an unchanged folder is a no-op. Adding new PDFs only processes the new ones. The script orchestrates the existing day3 / day4 / day5 tools via subprocess — single source of truth per pipeline step.
+
+**Naming**: `cummins-genset.pdf` → `standard_code = USER-CUMMINS-GENSET`, `source_url = user_upload:cummins-genset.pdf`. Family/jurisdiction default to `other` / `global` but override via `--family` / `--jurisdiction` flags. Title taken from PDF metadata first, fallback to first non-blank line, fallback to filename.
+
+A `README.txt` lives in the drop folder so the workflow is self-documenting when you open the folder months later.
+
 ### Day 10+ — Planned
 - Pivot decision: Custom Vision (needs datasets) vs. OCR UI on hive.html vs. more PDFs in standards corpus
 - Retry MIMII / NASA / KolektorSDD2 from cleaner network
