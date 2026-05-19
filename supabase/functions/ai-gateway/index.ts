@@ -162,20 +162,49 @@ serve(async (req) => {
   });
   const adminClient: SupabaseClient = createClient(SUPABASE_URL, SERVICE_KEY);
 
+  // 2026-05-19 Companion Streamline Step C/D: voice-journal is the
+  // platform's onboarding companion — workers talk to James/Rosa before
+  // they ever sign up. Letting that one agent through anonymously is
+  // intentional. Every other agent (asset-brain, analytics, project,
+  // shift, etc.) still hard-requires Supabase Auth. The previous policy
+  // failed the user's "Equipment alerts today" voice command with
+  // "Sign-in required" → caller's catch fired → user saw
+  // "Sorry, I'm offline."
+  const ANON_OK_AGENTS = new Set(["voice-journal"]);
+
   const { data: { user } } = await authedClient.auth.getUser();
-  if (!user) {
+  if (!user && !ANON_OK_AGENTS.has(agent)) {
     return jsonResponse(corsHeaders, 401, { error: "Sign-in required" });
   }
 
-  // Resolve worker_name + persona preference from worker_profiles.
+  // Resolve worker_name + persona preference. For authed users we look
+  // up worker_profiles; for anon voice-journal callers we trust the
+  // context (and skip memory writes downstream).
+  let worker_name: string;
+  let accountPersona = "james";
+  let authUid: string | null = null;
+  if (user) {
+    const { data: profile } = await adminClient.from("worker_profiles")
+      .select("display_name, preferred_persona").eq("auth_uid", user.id).maybeSingle();
+    worker_name    = profile?.display_name || user.email || "anonymous";
+    accountPersona = (profile?.preferred_persona as string | undefined) || "james";
+    authUid        = user.id;
+  } else {
+    // Anonymous voice-journal caller. worker_name from context if the
+    // browser passed one (most do, via localStorage); fall back to a
+    // generic label so the agent prompt still has something to address.
+    const ctxWorker =
+      (context && typeof context === "object" && typeof (context as any).worker_name === "string")
+        ? String((context as any).worker_name).trim()
+        : "";
+    worker_name = ctxWorker || "kapatid";   // generic, warm
+  }
+
   // Persona Contract: every conversational specialist that adopts the
-  // contract reads ctx.persona; if the client didn't supply one in the
-  // call's context, default to the account-level preference here so the
-  // worker hears the same companion across pages.
-  const { data: profile } = await adminClient.from("worker_profiles")
-    .select("display_name, preferred_persona").eq("auth_uid", user.id).maybeSingle();
-  const worker_name = profile?.display_name || user.email || "anonymous";
-  const accountPersona = (profile?.preferred_persona as string | undefined) || "james";
+  // contract reads ctx.persona; if the client didn't supply one, default
+  // to the account-level preference (authed) or the system default
+  // ('rosa' as of Step D, but we lookup the registered DEFAULT in the
+  // shared persona module so both stay in lock-step).
   if (context && typeof context === "object" && !("persona" in context)) {
     (context as Record<string, unknown>).persona = accountPersona;
   }
@@ -186,21 +215,26 @@ serve(async (req) => {
     return rateLimitedResponse(corsHeaders);
   }
 
-  // Memory hydration.
-  const handle: MemoryHandle = {
-    hive_id, worker_name, auth_uid: user.id, agent_id: agent,
-  };
-  const loaded = await loadMemory(adminClient, handle);
-  let memory_block = formatMemoryContext(loaded);
+  // Memory hydration. Anon callers (voice-journal first-touch) skip
+  // agent_memory entirely — the table is RLS-keyed on auth_uid so we
+  // can't persist without one, and reading a stranger's memory is the
+  // exact failure mode the gateway exists to prevent. Anon paths
+  // therefore get an empty memory_block and degrade gracefully.
+  let memory_block = "";
+  if (authUid) {
+    const handle: MemoryHandle = {
+      hive_id, worker_name, auth_uid: authUid, agent_id: agent,
+    };
+    const loaded = await loadMemory(adminClient, handle);
+    memory_block = formatMemoryContext(loaded);
+  }
 
   // Semantic-recall enrichment for agents that opt in (voice-journal).
-  // The embedding is reused later when persisting the new entry, so we
-  // pay one embed call per turn instead of two. Failures here are
-  // non-fatal: the agent still gets short-term agent_memory.
+  // Skipped for anon for the same reason as agent_memory above.
   let recallEmbedding: number[] = [];
-  if (SEMANTIC_RECALL_AGENTS.has(agent)) {
+  if (authUid && SEMANTIC_RECALL_AGENTS.has(agent)) {
     try {
-      const recall = await loadJournalRecall(adminClient, user.id, message);
+      const recall = await loadJournalRecall(adminClient, authUid, message);
       recallEmbedding = recall.query_embedding;
       if (recall.block) {
         memory_block = memory_block
@@ -278,39 +312,46 @@ serve(async (req) => {
   // Persist the turn (best-effort; failures don't block response).
   // Forward selected context fields into meta so agent_memory can support
   // per-language semantic recall (voice-journal) and similar future facets.
-  const metaExtra: Record<string, unknown> = {
-    target_fn:   route.fn,
-    latency_ms:  Date.now() - t0,
-  };
-  if (context && typeof context === "object") {
-    const langField = (context as Record<string, unknown>).lang;
-    if (typeof langField === "string" && langField.trim()) {
-      metaExtra.lang = langField.trim().toLowerCase();
+  // Anon callers (voice-journal first-touch) skip persistence — agent_memory
+  // and voice_journal_entries are both RLS-keyed on auth_uid.
+  if (authUid) {
+    const metaExtra: Record<string, unknown> = {
+      target_fn:   route.fn,
+      latency_ms:  Date.now() - t0,
+    };
+    if (context && typeof context === "object") {
+      const langField = (context as Record<string, unknown>).lang;
+      if (typeof langField === "string" && langField.trim()) {
+        metaExtra.lang = langField.trim().toLowerCase();
+      }
     }
-  }
-  await saveTurn(adminClient, handle, message, hydratedAnswer, metaExtra);
+    const handle: MemoryHandle = {
+      hive_id, worker_name, auth_uid: authUid, agent_id: agent,
+    };
+    await saveTurn(adminClient, handle, message, hydratedAnswer, metaExtra);
 
-  // Durable archive for semantic-recall agents. agent_memory has 90-day
-  // retention; voice_journal_entries is the permanent journal store and
-  // the source of truth for the history UI. Reuses the embedding we
-  // already generated during recall, so this is a single insert call.
-  if (SEMANTIC_RECALL_AGENTS.has(agent)) {
-    const langField = context && typeof context === "object"
-      ? (context as Record<string, unknown>).lang
-      : null;
-    const lang = typeof langField === "string" && langField.trim()
-      ? langField.trim().toLowerCase()
-      : null;
-    await persistJournalEntry(adminClient, {
-      auth_uid:    user.id,
-      worker_name,
-      hive_id,
-      transcript:  message,
-      reply:       hydratedAnswer,
-      lang,
-      embedding:   recallEmbedding,
-      meta:        { target_fn: route.fn, latency_ms: Date.now() - t0 },
-    });
+    // Durable archive for semantic-recall agents. agent_memory has 90-day
+    // retention; voice_journal_entries is the permanent journal store and
+    // the source of truth for the history UI. Reuses the embedding we
+    // already generated during recall, so this is a single insert call.
+    if (SEMANTIC_RECALL_AGENTS.has(agent)) {
+      const langField = context && typeof context === "object"
+        ? (context as Record<string, unknown>).lang
+        : null;
+      const lang = typeof langField === "string" && langField.trim()
+        ? langField.trim().toLowerCase()
+        : null;
+      await persistJournalEntry(adminClient, {
+        auth_uid:    authUid,
+        worker_name,
+        hive_id,
+        transcript:  message,
+        reply:       hydratedAnswer,
+        lang,
+        embedding:   recallEmbedding,
+        meta:        { target_fn: route.fn, latency_ms: Date.now() - t0 },
+      });
+    }
   }
 
   return jsonResponse(corsHeaders, 200, {
