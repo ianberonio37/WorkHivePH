@@ -207,9 +207,23 @@ VALIDATORS = [
         "id":      "persona-contract",
         "script":  "validate_persona_contract.py",
         "args":    [],
-        "label":   "Persona Contract Validator (7-layer: modules + server + client + gateway + hive + migrations + key parity)",
+        "label":   "Persona Contract Validator (8-layer: modules + server + client + gateway + hive + migrations + key parity + Step D differentiation)",
         "group":   "Platform",
         "report":  "persona_contract_report.json",
+        "skip_if_fast": False,
+    },
+    {
+        # 2026-05-19 Companion Streamline Step C/D hardening: prevents any
+        # production JS file from re-introducing the legacy Cloudflare Worker
+        # fetch pattern. Added after voice-handler.js was caught still calling
+        # the dead worker, which silently triggered the "Sorry, I'm offline"
+        # fallback in Rosa's voice command UI.
+        "id":      "legacy-worker-decommission",
+        "script":  "validate_legacy_worker_decommission.py",
+        "args":    [],
+        "label":   "Legacy Worker Decommission Validator (no production JS calls workhive-assistant.workers.dev)",
+        "group":   "Platform",
+        "report":  None,
         "skip_if_fast": False,
     },
     {

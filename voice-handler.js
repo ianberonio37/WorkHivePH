@@ -645,7 +645,26 @@
   //
   // After the reply, we still save the turn to voice_journal_entries so
   // every conversation lands in the worker's journal as expected.
-  const WH_ASSISTANT_WORKER_URL = 'https://workhive-assistant.ian-beronio37.workers.dev';
+  // 2026-05-19 Companion Streamline Step C/D: legacy Cloudflare Worker
+  // const kept here as a tombstone reference for git-archaeology only.
+  // Production code now routes EVERY conversational reply through
+  // ai-gateway (Step C) and embedding lookups through _embedQuery()
+  // (which is a stub until the embed-entry edge fn is exposed for
+  // synchronous RAG embedding from the browser). The Worker URL must
+  // NOT be passed to fetch/fetcher anywhere — enforced by
+  // validate_legacy_worker_decommission.py.
+  const WH_ASSISTANT_WORKER_URL_DEPRECATED = 'https://workhive-assistant.ian-beronio37.workers.dev';
+
+  // _embedQuery: returns the [384]-dim embedding vector for `transcript`
+  // or null when no synchronous embeddings backend is available. The
+  // callers gracefully degrade — RAG / KG / Standards context just
+  // becomes the empty string in that case. Wire this to a real
+  // /functions/v1/embed-entry call when that path is exposed without
+  // requiring an auth.uid (today it embeds journal entries, not query
+  // strings). TODO closes when that work lands.
+  async function _embedQuery(_transcript) {
+    return null;
+  }
 
   // Session-only fallback memory. voice_journal_entries requires auth
   // (RLS: auth.uid() = auth_uid for both read and insert), so anon
@@ -1080,19 +1099,11 @@
   async function _fetchRAGContext(db, hiveId, transcript) {
     if (!db || !hiveId || !transcript) return '';
     try {
-      // Embed the query using free-tier chain (Voyage)
-      const embedResp = await fetch(WH_ASSISTANT_WORKER_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          model: 'voyage-3',  // Free-tier embeddings
-          input: transcript,
-        }),
-      });
-
-      if (!embedResp || !embedResp.ok) return '';
-      const embedData = await embedResp.json();
-      const embedding = embedData.data && embedData.data[0] && embedData.data[0].embedding;
+      // 2026-05-19 Step C/D: embedding via _embedQuery() stub until a
+      // browser-callable embed-entry edge fn exists. Returns null today,
+      // which short-circuits RAG context — graceful degrade, no offline
+      // banner. See validate_legacy_worker_decommission.py.
+      const embedding = await _embedQuery(transcript);
       if (!embedding) return '';
 
       // Semantic search in kb_chunks via RPC
@@ -1128,14 +1139,7 @@
   async function _fetchKGContext(db, hiveId, transcript) {
     if (!db || !transcript) return '';
     try {
-      const embedResp = await fetch(WH_ASSISTANT_WORKER_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ model: 'voyage-3', input: transcript }),
-      });
-      if (!embedResp || !embedResp.ok) return '';
-      const embedData = await embedResp.json();
-      const embedding = embedData.data && embedData.data[0] && embedData.data[0].embedding;
+      const embedding = await _embedQuery(transcript);
       if (!embedding) return '';
 
       // Fan out: hive-scoped only if we have a hive_id, platform always.
@@ -1185,17 +1189,7 @@
   async function _fetchStandardsContext(db, transcript) {
     if (!db || !transcript) return '';
     try {
-      const embedResp = await fetch(WH_ASSISTANT_WORKER_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          model: 'voyage-3',  // Free-tier embeddings (same as kb RAG path)
-          input: transcript,
-        }),
-      });
-      if (!embedResp || !embedResp.ok) return '';
-      const embedData = await embedResp.json();
-      const embedding = embedData.data && embedData.data[0] && embedData.data[0].embedding;
+      const embedding = await _embedQuery(transcript);
       if (!embedding) return '';
 
       // Platform-wide semantic search — no hive_id param.
@@ -1288,37 +1282,14 @@
       return { route: 'platform', confidence: 0.9, reasoning: 'KPI keywords detected: ' + tLower };
     }
 
-    try {
-      const fetcher = (typeof window.fetchWithTimeout === 'function')
-        ? window.fetchWithTimeout
-        : (u, o) => fetch(u, o);
-
-      const systemMsg = 'You are a lightweight intent router for an industrial maintenance voice assistant. Output ONLY a JSON object with fields: "route" ("platform"|"semantic"|"simple"), "confidence" (0.0-1.0), "reasoning" (string).\n\nROUTE RULES:\n- "platform" = real-time KPI/metric queries. ALWAYS use this for: MTBF, MTTR, OEE, availability, reliability, uptime, downtime, equipment counts, PM status, inventory levels, risk scores. Examples: "MTBF today", "what is our OEE", "how many overdue PMs", "compressor MTTR this week".\n- "semantic" = pattern/analysis/why questions. Use for: "why does X fail", "what changed", "is this trend normal".\n- "simple" = greetings, thanks, no-data-needed. Use for: "thanks", "hi", "what time is it".\n\nWhen in doubt between platform vs semantic, prefer platform — we have real-time data to answer with.';
-      const resp = await fetcher(WH_ASSISTANT_WORKER_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          model: 'meta-llama/llama-4-scout-17b-16e-instruct',
-          max_tokens: 80,
-          messages: [
-            { role: 'system', content: systemMsg },
-            { role: 'user', content: transcript },
-          ],
-        }),
-      }, 5000);
-
-      if (resp && resp.ok) {
-        const data = await resp.json();
-        const answer = (data && data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content) || '';
-        try {
-          const parsed = JSON.parse(answer);
-          if (parsed.route && (parsed.route === 'platform' || parsed.route === 'semantic' || parsed.route === 'simple')) {
-            return parsed;
-          }
-        } catch (_) {}
-      }
-    } catch (_) {}
-    // Fallback heuristic if LLM call fails
+    // 2026-05-19 Companion Streamline Step C/D: removed the LLM-assisted
+    // intent classification call (previously hit the legacy Cloudflare
+    // Worker). The heuristics above (router pre-classify + KPI keyword
+    // regex) cover the vast majority of voice traffic already, and the
+    // LLM call was the silent failure mode that stranded users behind
+    // "Sorry, I'm offline" replies. If you reintroduce LLM-assisted
+    // routing, point it at ai-gateway with a dedicated `intent-router`
+    // agent registered in AGENT_ROUTES — never at an external Worker.
     return _heuristicRoute(transcript);
   }
 
@@ -1971,24 +1942,42 @@
     ];
 
     try {
+      // 2026-05-19 Companion Streamline Step C/D: route through ai-gateway
+      // (agent: "voice-journal") instead of the legacy Cloudflare Worker.
+      // Same backend as companion-launcher.js + voice-journal.html → one
+      // companion, one infra path, one persona contract. The rich system
+      // prompt voice-handler builds (canonicalData / RAG / KG / dialog
+      // state) rides along as context.platform_prompt for the agent to
+      // optionally consume; the agent's own persona block + Step D
+      // domain lens still wraps everything.
       const fetcher = (typeof window.fetchWithTimeout === 'function')
         ? window.fetchWithTimeout
         : (u, o) => fetch(u, o);
-      const resp = await fetcher(WH_ASSISTANT_WORKER_URL, {
+      const gatewayBody = {
+        agent:   'voice-journal',
+        message: transcript,
+        hive_id: ctx && ctx.hive_id ? ctx.hive_id : null,
+        context: {
+          persona:         persona,
+          page:            (ctx && ctx.page) || 'voice-journal',
+          platform_prompt: system,  // rich grounding voice-handler assembled
+          source:          'voice-handler',
+        },
+      };
+      const resp = await fetcher(SUPABASE_URL + '/functions/v1/ai-gateway', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          model:      'meta-llama/llama-4-scout-17b-16e-instruct',
-          max_tokens: 280,
-          messages,
-        }),
+        headers: {
+          'Content-Type':  'application/json',
+          'apikey':        SUPABASE_KEY,
+          'Authorization': 'Bearer ' + SUPABASE_KEY,
+        },
+        body: JSON.stringify(gatewayBody),
       }, 25000);
       if (!resp)        throw new Error('Network timeout');
-      if (!resp.ok)     throw new Error('Worker error ' + resp.status);
+      if (!resp.ok)     throw new Error('Gateway error ' + resp.status);
       const data = await resp.json();
-      const answer = String(
-        (data && data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content) || ''
-      ).trim();
+      if (data && data.error) throw new Error(String(data.error));
+      const answer = String((data && data.answer) || '').trim();
       if (!answer) {
         _setStatus('No reply came back. Tap to try again.');
         _renderReplyBubble('(no reply)', persona);
