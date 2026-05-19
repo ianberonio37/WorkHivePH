@@ -13,15 +13,24 @@ import subprocess
 import json
 import sys
 
+if sys.platform == "win32":
+    import io
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+
 def run_sql(query):
-    """Execute query against local Supabase"""
+    """Execute query against local Supabase.
+
+    Timeout: 30s. Docker exec on cold-start can take 5-10s before psql runs,
+    leaving only ~0-5s for the query itself. 10s was tripping false-FAILs
+    during Mega Gate runs (Voice Alert Layer 1 schema check failed sporadically
+    on 2026-05-19). 30s gives headroom without slowing the happy path."""
     try:
         result = subprocess.run(
             ['docker', 'exec', '-i', 'supabase_db_workhive', 'psql',
              '-U', 'postgres', '-d', 'postgres', '-t', '-c', query],
             capture_output=True,
             text=True,
-            timeout=10
+            timeout=30
         )
         return result.stdout.strip(), result.returncode == 0
     except Exception as e:

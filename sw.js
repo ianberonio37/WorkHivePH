@@ -3,7 +3,7 @@
 // surfaces (logbook, inventory, pm-scheduler, hive, asset-hub, shift-brain).
 // Closes PRODUCTION_FIXES #54.
 
-const CACHE_NAME  = 'workhive-shell-v97';  // bump 2026-05-19: nav-hub.js + wh-persona.js + voice-handler.js + logbook.html + wh-feedback-fab.js newer than sw.js — re-prime cache so PWA users pick up fetchWithTimeout + feedback widget updates
+const CACHE_NAME  = 'workhive-shell-v100';  // bump 2026-05-19: Calm Dashboard hideZeroStat wiring pass — stat-update sites now dim 0/— values across hive (welcome + members + pulse), alert-hub (AMC briefing setStat), asset-hub (asset-360 strip), predictive (4 risk-tier counts), achievements (3 XP stats), founder-console (setStat), platform-health (health-num + streak)
 const SHELL_FILES = [
   // Original report-sender shell
   '/report-sender.html',

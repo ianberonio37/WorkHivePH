@@ -249,10 +249,12 @@ def main(surface_filter=None, fast=False) -> int:
     if surface_filter:
         args_0.extend([f"--surface={surface_filter}"])
 
-    # Layer 0 timeout: 21 scenarios @ ~15-25s each + browser warm-up; observed 300+s on 2026-05-19
-    # when the suite grew past 20 scenarios. Apply the same 1.5x-over-observed-peak rule from
-    # lesson #24 — bump 300 → 600 so we don't false-FAIL on a real run.
-    rc0, res0 = run_layer(0, "Scenario Execution", "playwright_scenario_executor.py", args_0, timeout=600)
+    # Layer 0 timeout: 21 scenarios + browser warm-up. Observed 600+s on 2026-05-19T23:26
+    # run (suite all-PASS, but executor overran 600s wall — likely longer-running individual
+    # scenarios this iteration). Apply 1.5x-over-observed-peak rule (lesson #24) — bump
+    # 600 → 900 so the suite has room. If we keep needing to bump, the executor needs
+    # parallelism or per-scenario early-exit, not a bigger envelope.
+    rc0, res0 = run_layer(0, "Scenario Execution", "playwright_scenario_executor.py", args_0, timeout=900)
     loop_results["layers"][0] = res0
 
     scenario_results = load_layer_results("SCENARIO_RESULTS.json")

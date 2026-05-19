@@ -4,6 +4,12 @@
   <meta charset="UTF-8" />
   <meta name="theme-color" content="#F7A21B" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <!-- Layer -1.5 Calm Dashboard Contract opt-in: this page declares that
+       it follows the verdict-first / disclosure-for-secondary / hide-zero-tiles
+       pattern. The skill-rule miner (tools/mine_skill_rules.py) enforces all
+       three rules on any page carrying this meta. See frontend_calm_dashboard_*
+       entries in skill_rules_manifest.json. -->
+  <meta name="calm-dashboard" content="1" />
   <meta name="google-site-verification" content="0R0cbzF4Ks6d28b_uWAH3kDotNTYQ64uQfdcuMNhb_c" />
   <title>WorkHive | Free Industrial Tools for Every Filipino Worker</title>
   <!-- capture: early_access_signup_v1 (form): landing-page waitlist -->
@@ -1012,42 +1018,51 @@
 <div id="ops-home" style="display:none; padding-top:64px; min-height:100vh; background:#0f1923; font-family:'Poppins',sans-serif; position:relative; z-index:1;">
   <style>
     #ops-home .oh-card { background:rgba(22,32,50,0.85); border:1px solid rgba(255,255,255,0.07); border-radius:12px; }
-    #ops-home .oh-stat-num { font-size:1.8rem; font-weight:800; display:block; line-height:1; }
-    #ops-home .oh-stat-lbl { font-size:0.58rem; font-weight:700; text-transform:uppercase; letter-spacing:.06em; color:rgba(255,255,255,.35); margin-top:4px; display:block; }
     #ops-home .oh-sec-lbl { font-size:.62rem; font-weight:700; text-transform:uppercase; letter-spacing:.07em; color:rgba(255,255,255,.3); margin:0 0 10px; }
     #ops-home .oh-job-row { display:flex; align-items:center; gap:10px; padding:10px 14px; background:rgba(255,255,255,.03); border:1px solid rgba(255,255,255,.06); border-radius:10px; }
     #ops-home .oh-badge { font-size:.55rem; font-weight:800; text-transform:uppercase; letter-spacing:.05em; padding:.2rem .5rem; border-radius:6px; }
     #ops-home .oh-badge-open { background:rgba(251,146,60,.15); color:#fb923c; }
-    #ops-home .oh-badge-crit { background:rgba(248,113,113,.15); color:#f87171; }
+    #ops-home .oh-badge-crit, #ops-home .oh-badge-critical { background:rgba(248,113,113,.15); color:#f87171; }
     #ops-home .oh-badge-high { background:rgba(251,146,60,.15); color:#fb923c; }
-    #ops-home .oh-qa-btn { display:flex; align-items:center; gap:9px; padding:14px 16px; border-radius:12px; text-decoration:none; font-size:.82rem; font-weight:700; border:1px solid; transition:opacity .15s; }
+    /* Calm stat tile: only renders when count > 0. Container is flex so
+       tiles flow without leaving holes. */
+    #ops-home .oh-tile { display:flex; flex-direction:column; align-items:flex-start; padding:14px 16px; min-width:120px; flex:1; text-decoration:none; transition:transform .15s, border-color .15s; }
+    #ops-home .oh-tile:hover { transform:translateY(-1px); border-color:rgba(255,255,255,0.18); }
+    #ops-home .oh-tile-num { font-size:1.5rem; font-weight:800; line-height:1; }
+    #ops-home .oh-tile-lbl { font-size:.62rem; font-weight:700; text-transform:uppercase; letter-spacing:.06em; color:rgba(255,255,255,.4); margin-top:6px; }
+    /* Primary action buttons (max 2 above the fold) */
+    #ops-home .oh-action { display:flex; align-items:center; justify-content:center; gap:9px; padding:14px 16px; border-radius:12px; text-decoration:none; font-size:.85rem; font-weight:700; border:1px solid; transition:opacity .15s; min-height:48px; }
+    #ops-home .oh-action:hover { opacity:.85; }
+    /* Secondary tools grid (inside More) */
+    #ops-home .oh-qa-btn { display:flex; align-items:center; gap:9px; padding:12px 14px; border-radius:10px; text-decoration:none; font-size:.78rem; font-weight:700; border:1px solid; transition:opacity .15s; min-height:44px; }
     #ops-home .oh-qa-btn:hover { opacity:.8; }
-    /* Stat cards become clickable links: hover lift + accent ring */
-    #ops-home .oh-stat-card { display:block; text-decoration:none; cursor:pointer; transition:transform .15s ease, border-color .15s ease, background .15s ease; }
-    #ops-home .oh-stat-card:hover { transform:translateY(-2px); border-color:rgba(255,255,255,0.18); background:rgba(22,32,50,0.95); }
-    /* Skeleton shimmer for loading stat values */
-    @keyframes oh-shimmer { 0%{background-position:-200% 0;} 100%{background-position:200% 0;} }
-    #ops-home .oh-shimmer { display:inline-block; width:32px; height:30px; background:linear-gradient(90deg,rgba(255,255,255,0.04) 25%,rgba(255,255,255,0.12) 50%,rgba(255,255,255,0.04) 75%); background-size:200% 100%; animation:oh-shimmer 1.5s infinite; border-radius:4px; color:transparent; }
-    /* Hive activity strip */
+    /* Disclosure for everything that isn't the verdict, stats, or primary actions */
+    #ops-home .oh-more { background:transparent; border:1px solid rgba(255,255,255,0.07); border-radius:12px; padding:0; overflow:hidden; }
+    #ops-home .oh-more > summary { list-style:none; padding:14px 18px; cursor:pointer; font-size:.78rem; font-weight:700; color:rgba(255,255,255,.6); display:flex; align-items:center; gap:8px; }
+    #ops-home .oh-more > summary::-webkit-details-marker { display:none; }
+    #ops-home .oh-more > summary::before { content:"▸"; transition:transform .15s; color:rgba(255,255,255,.4); }
+    #ops-home .oh-more[open] > summary::before { transform:rotate(90deg); }
+    #ops-home .oh-more-body { padding:6px 18px 18px; display:flex; flex-direction:column; gap:18px; }
+    /* Hive activity strip (inside More) */
     #ops-home .oh-activity { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
     #ops-home .oh-activity .ac-num { font-size:1.3rem; font-weight:800; display:block; line-height:1.05; }
     #ops-home .oh-activity .ac-lbl { font-size:0.55rem; font-weight:600; color:rgba(255,255,255,.4); text-transform:uppercase; letter-spacing:.05em; margin-top:3px; display:block; }
-    @media(max-width:500px){ #ops-home .oh-stats-grid { grid-template-columns:repeat(2,1fr) !important; } }
+    #ops-home .oh-tools-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:10px; }
+    @media(max-width:500px){ #ops-home .oh-tile { min-width:0; flex-basis:calc(50% - 5px); } }
   </style>
 
-  <div style="max-width:840px; margin:0 auto; padding:28px 16px 100px;">
+  <div style="max-width:680px; margin:0 auto; padding:28px 16px 100px;">
 
     <!-- Greeting header -->
-    <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-bottom:28px;">
+    <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-bottom:24px;">
       <div>
         <h1 id="oh-greeting" style="font-size:1.35rem; font-weight:800; color:#F4F6FA; margin:0 0 4px;"></h1>
         <p id="oh-date" style="font-size:.72rem; color:rgba(255,255,255,.35); margin:0;"></p>
       </div>
       <div style="display:flex; gap:8px; align-items:center; flex-shrink:0;">
         <!-- Persona Contract Phase 5: WorkHive companion picker. Persists
-             to localStorage (used by every surface) and syncs to
-             worker_profiles.preferred_persona so ai-gateway routes the
-             same persona to specialists on every device. -->
+             to localStorage and syncs to worker_profiles.preferred_persona
+             so ai-gateway routes the same persona on every device. -->
         <button id="oh-persona-toggle" type="button" onclick="togglePersona()"
                 style="display:none; font-size:.7rem; font-weight:700; padding:6px 12px; background:rgba(247,162,27,.10); color:#F7A21B; border:1px solid rgba(247,162,27,.30); border-radius:8px; font-family:inherit; cursor:pointer;"
                 aria-label="Change AI companion (James or Rosa)">
@@ -1059,80 +1074,82 @@
       </div>
     </div>
 
-    <!-- Phase H.1 (2026-05-12 home streamline): Today's One Thing.
-         The single highest-priority action ranked across canonical views.
-         Hidden until the ranker resolves; falls back to the 4-stat grid as
-         the secondary "Your Stack" layer below. Tools drawer (33-tile grid)
-         is the FAB and remains the third layer. -->
-    <div id="oh-today" style="display:none; margin-bottom:16px;"></div>
+    <!-- Today's One Thing: the verdict line. Single decision, single CTA.
+         All-clear state renders here too. -->
+    <div id="oh-today" style="margin-bottom:18px;"></div>
 
-    <!-- Phase H.3 (2026-05-12 home streamline): first-time worker onboarding
-         ladder. Three concrete steps to first value, with check marks. Shown
-         only when at least one step is incomplete AND the user has not
-         dismissed it. Populated by the home-overview loader so the
-         completion checks share its data fetch. -->
-    <div id="oh-onboarding" style="display:none; margin-bottom:16px;"></div>
+    <!-- Stat tiles. Only non-zero counts render; container hides entirely
+         when all four are zero. Reads v_logbook_truth + v_risk_truth +
+         v_inventory_items_truth + v_pm_compliance_truth (declared in chip
+         inside More). -->
+    <div id="oh-stats" style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:18px;"></div>
 
-    <!-- Summary stats (4 cards) -->
-    <div id="oh-stats" class="oh-stats-grid" style="display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-bottom:8px;"></div>
+    <!-- Two primary actions chosen by role; everything else lives in More. -->
+    <div id="oh-actions" style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:18px;"></div>
 
-    <!-- Source/window chip for the home dashboard KPI strip. Populated in the
-         home-overview loader so it reflects the actual canonical sources read
-         (logbook, risk, inventory, PM compliance). -->
-    <p id="oh-source-chip" style="margin-bottom:20px;"></p>
+    <!-- Everything else collapsed behind one disclosure. -->
+    <details class="oh-more" id="oh-more">
+      <summary>More</summary>
+      <div class="oh-more-body">
 
-    <!-- Alert strip (critical/high risk assets: shown only if present) -->
-    <div id="oh-alerts" style="display:none; margin-bottom:20px;"></div>
+        <!-- First-run onboarding ladder. Auto-hides when all steps done or
+             user dismissed. -->
+        <div id="oh-onboarding" style="display:none;"></div>
 
-    <!-- Top 3 At-Risk Assets (links to Asset Hub) -->
-    <div id="oh-top-risk" style="display:none; margin-bottom:24px;"></div>
+        <!-- My open jobs list. Renders empty-state when zero. -->
+        <div id="oh-jobs-wrap">
+          <p class="oh-sec-lbl">My Open Jobs</p>
+          <div id="oh-jobs" style="display:flex; flex-direction:column; gap:8px;"></div>
+        </div>
 
-    <!-- Hive Activity Today (only when HIVE_ID present) -->
-    <div id="oh-activity" style="display:none; margin-bottom:24px;"></div>
+        <!-- Hive activity today (hive mode only) -->
+        <div id="oh-activity" style="display:none;"></div>
 
-    <!-- Open jobs -->
-    <div style="margin-bottom:24px;">
-      <p class="oh-sec-lbl">My Open Jobs</p>
-      <div id="oh-jobs" style="display:flex; flex-direction:column; gap:8px;">
-        <div style="text-align:center; padding:20px; color:rgba(255,255,255,.25); font-size:.78rem;">Loading...</div>
+        <!-- Top 3 at-risk assets (when present) -->
+        <div id="oh-top-risk" style="display:none;"></div>
+
+        <!-- Low stock (when present) -->
+        <div id="oh-stock" style="display:none;"></div>
+
+        <!-- All tools. Two columns on phone, same icon set as before. -->
+        <div>
+          <p class="oh-sec-lbl">All Tools</p>
+          <div class="oh-tools-grid">
+            <a href="logbook.html" class="oh-qa-btn" style="background:rgba(247,162,27,.08); color:#F7A21B; border-color:rgba(247,162,27,.25);">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              Log a Job
+            </a>
+            <a href="pm-scheduler.html" class="oh-qa-btn" style="background:rgba(41,182,217,.08); color:#29B6D9; border-color:rgba(41,182,217,.25);">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/><path d="M8 14h.01M12 14h.01M16 14h.01"/></svg>
+              PM Scheduler
+            </a>
+            <a href="analytics.html" class="oh-qa-btn" style="background:rgba(167,139,250,.08); color:#a78bfa; border-color:rgba(167,139,250,.25);">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg>
+              Analytics
+            </a>
+            <a href="assistant.html" class="oh-qa-btn" style="background:rgba(74,222,128,.08); color:#4ade80; border-color:rgba(74,222,128,.25);">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+              Ask AI
+            </a>
+            <a href="voice-journal.html" class="oh-qa-btn" style="background:rgba(251,113,133,.08); color:#fb7185; border-color:rgba(251,113,133,.25); grid-column:1 / -1;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+              Voice Journal
+            </a>
+            <!-- Phase E.3d: scan an equipment tag from anywhere in the platform -->
+            <button type="button" id="oh-scan-btn" class="oh-qa-btn" style="background:rgba(255,255,255,.04); color:#F4F6FA; border-color:rgba(255,255,255,.12); cursor:pointer; font-family:inherit; grid-column:1 / -1;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7V5a2 2 0 012-2h2"/><path d="M17 3h2a2 2 0 012 2v2"/><path d="M21 17v2a2 2 0 01-2 2h-2"/><path d="M7 21H5a2 2 0 01-2-2v-2"/><line x1="7" y1="12" x2="17" y2="12"/></svg>
+              Scan an Asset
+            </button>
+          </div>
+        </div>
+
+        <!-- Source/window chip: declares the 4 canonical truth views the
+             tiles read. Lives inside More so it doesn't compete with the
+             verdict but stays inspectable. -->
+        <p id="oh-source-chip" style="margin:0; opacity:.75;"></p>
+
       </div>
-    </div>
-
-    <!-- Quick actions (2x2 grid) -->
-    <div style="margin-bottom:24px;">
-      <p class="oh-sec-lbl">Quick Actions</p>
-      <div style="display:grid; grid-template-columns:repeat(2,1fr); gap:10px;">
-        <a href="logbook.html" class="oh-qa-btn" style="background:rgba(247,162,27,.08); color:#F7A21B; border-color:rgba(247,162,27,.25);">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-          Log a Job
-        </a>
-        <a href="pm-scheduler.html" class="oh-qa-btn" style="background:rgba(41,182,217,.08); color:#29B6D9; border-color:rgba(41,182,217,.25);">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/><path d="M8 14h.01M12 14h.01M16 14h.01"/></svg>
-          Check PM
-        </a>
-        <a href="analytics.html" class="oh-qa-btn" style="background:rgba(167,139,250,.08); color:#a78bfa; border-color:rgba(167,139,250,.25);">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg>
-          Analytics
-        </a>
-        <a href="assistant.html" class="oh-qa-btn" style="background:rgba(74,222,128,.08); color:#4ade80; border-color:rgba(74,222,128,.25);">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
-          Ask AI
-        </a>
-        <a href="voice-journal.html" class="oh-qa-btn" style="background:rgba(251,113,133,.08); color:#fb7185; border-color:rgba(251,113,133,.25); grid-column:1 / -1;">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
-          Voice Journal
-          <span style="margin-left:auto; font-size:.58rem; font-weight:700; letter-spacing:.04em; opacity:.7; text-transform:uppercase;">Talk &amp; remember</span>
-        </a>
-        <!-- Phase E.3d: scan an equipment tag from anywhere in the platform -->
-        <button type="button" id="oh-scan-btn" class="oh-qa-btn" style="background:rgba(255,255,255,.04); color:#F4F6FA; border-color:rgba(255,255,255,.12); border-style:solid; border-width:1px; cursor:pointer; font-family:inherit; grid-column:1 / -1;">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7V5a2 2 0 012-2h2"/><path d="M17 3h2a2 2 0 012 2v2"/><path d="M21 17v2a2 2 0 01-2 2h-2"/><path d="M7 21H5a2 2 0 01-2-2v-2"/><line x1="7" y1="12" x2="17" y2="12"/></svg>
-          Scan an Asset
-        </button>
-      </div>
-    </div>
-
-    <!-- Low stock section (shown only if items below reorder point) -->
-    <div id="oh-stock" style="display:none; margin-bottom:20px;"></div>
+    </details>
 
   </div>
 </div>
@@ -2621,16 +2638,27 @@
   async function signInWithSSO() {
     const domain = prompt('Enter your company email domain:\ne.g. acmecorp.com');
     if (!domain || !domain.includes('.')) { return; }
+    // Inline showToast (qa_no_alert_call): non-blocking, mobile-friendly.
+    window.showToast = window.showToast || function (msg, kind) {
+      const t = document.createElement('div');
+      t.textContent = msg;
+      t.setAttribute('role', 'alert');
+      t.setAttribute('aria-live', 'polite');
+      t.style.cssText = 'position:fixed;top:1rem;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.88);color:#fff;padding:0.75rem 1.25rem;border-radius:0.5rem;font-size:0.875rem;z-index:9999;max-width:90vw;text-align:center;white-space:pre-line;' + (kind === 'error' ? 'border-left:3px solid #ef4444;' : '');
+      document.body.appendChild(t);
+      setTimeout(() => t.remove(), 5000);
+    };
+
     const btn = document.getElementById('si-sso-btn');
     btn.disabled = true;
     btn.textContent = 'Redirecting to your identity provider...';
     try {
       const { data, error } = await db.auth.signInWithSSO({ domain: domain.trim().toLowerCase() });
-      if (error) { btn.disabled = false; btn.textContent = 'Enterprise SSO (Okta / Azure AD)'; alert('SSO error: ' + error.message + '\n\nEnsure your IT team has configured WorkHive as an SSO application in your identity provider.'); return; }
+      if (error) { btn.disabled = false; btn.textContent = 'Enterprise SSO (Okta / Azure AD)'; showToast('SSO error: ' + error.message + '\n\nEnsure your IT team has configured WorkHive as an SSO application in your identity provider.', 'error'); return; }
       if (data?.url) window.location.href = data.url;
     } catch (e) {
       btn.disabled = false; btn.textContent = 'Enterprise SSO (Okta / Azure AD)';
-      alert('SSO not available for this domain. Contact your IT administrator.');
+      showToast('SSO not available for this domain. Contact your IT administrator.', 'error');
     }
   }
 
@@ -3234,15 +3262,6 @@
     return `${days[d.getDay()]}, ${months[d.getMonth()]} ${d.getDate()} · ${d.getHours() < 12 ? 'Morning' : d.getHours() < 17 ? 'Afternoon' : 'Evening'} Shift`;
   }
 
-  function _statCard(id, color, label, href) {
-    const inner = `<span id="${escHtml(id)}" class="oh-stat-num oh-shimmer" style="color:${escHtml(color)}"></span>
-                   <span class="oh-stat-lbl">${escHtml(label)}</span>`;
-    if (href) {
-      return `<a href="${escHtml(href)}" class="oh-card oh-stat-card" style="padding:14px;text-align:center;">${inner}</a>`;
-    }
-    return `<div class="oh-card" style="padding:14px;text-align:center;">${inner}</div>`;
-  }
-
   window._initDashboard = async function(workerName) {
     const db = _getOhDb();
     const HIVE_ID   = localStorage.getItem('wh_active_hive_id') || localStorage.getItem('wh_hive_id') || '';
@@ -3277,14 +3296,28 @@
       }
     }
 
-    // Render stat card shells immediately: each is a clickable link to its tool
-    const statsEl = document.getElementById('oh-stats');
-    if (statsEl) {
-      statsEl.innerHTML =
-        _statCard('oh-stat-jobs',  '#F7A21B', 'Open Jobs',   'logbook.html') +
-        _statCard('oh-stat-risk',  '#f87171', 'Risk Alerts', 'asset-hub.html') +
-        _statCard('oh-stat-stock', '#fb923c', 'Low Stock',   'inventory.html') +
-        _statCard('oh-stat-pm',    '#29B6D9', 'PM Overdue',  'pm-scheduler.html');
+    // Stat tiles render LATER, after fetch resolves, so we only show tiles
+    // with counts > 0. Until then the strip stays empty (no shimmer noise).
+
+    // Two primary actions, role-aware. Field workers get Log a Job;
+    // supervisors get Hive Board. Both get "Ask <persona>". Everything else
+    // moves to More.
+    const _ohActionsEl = document.getElementById('oh-actions');
+    if (_ohActionsEl) {
+      const _role = (localStorage.getItem('wh_nav_mode') === 'supervisor' || HIVE_ROLE === 'supervisor') ? 'supervisor' : 'field';
+      const _personaName = (localStorage.getItem('wh_voice_journal_persona') === 'rosa') ? 'Rosa' : 'James';
+      const _primary = _role === 'supervisor'
+        ? [
+            { href:'hive.html',     label:'Hive Board',         color:'#29B6D9', bg:'rgba(41,182,217,.12)', br:'rgba(41,182,217,.30)' },
+            { href:'assistant.html', label:`Ask ${_personaName}`, color:'#4ade80', bg:'rgba(74,222,128,.10)', br:'rgba(74,222,128,.30)' },
+          ]
+        : [
+            { href:'logbook.html',   label:'Log a Job',           color:'#F7A21B', bg:'rgba(247,162,27,.12)', br:'rgba(247,162,27,.30)' },
+            { href:'assistant.html', label:`Ask ${_personaName}`, color:'#4ade80', bg:'rgba(74,222,128,.10)', br:'rgba(74,222,128,.30)' },
+          ];
+      _ohActionsEl.innerHTML = _primary.map(p =>
+        `<a href="${escHtml(p.href)}" class="oh-action" style="background:${p.bg}; color:${p.color}; border-color:${p.br};">${escHtml(p.label)}</a>`
+      ).join('');
     }
 
     // Source/window chip for the home-dashboard KPI strip. Single chip covers
@@ -3429,15 +3462,31 @@
       }
     }
 
-    // Update stat numbers (clear shimmer class once value lands)
-    const _s = (id, val) => {
-      const el = document.getElementById(id);
-      if (el) { el.classList.remove('oh-shimmer'); el.textContent = val; }
-    };
-    _s('oh-stat-jobs',  jobs.length);
-    _s('oh-stat-risk',  risks.length);
-    _s('oh-stat-stock', lowStock.length);
-    _s('oh-stat-pm',    pmOverdueCount);
+    // Render stat tiles. Only counts > 0 render; container hides when all
+    // four are zero so the verdict stands alone instead of "4 zeros that
+    // look broken." Each tile is a clickable link to its surface.
+    (function renderStats() {
+      const statsEl = document.getElementById('oh-stats');
+      if (!statsEl) return;
+      const tiles = [
+        { num: jobs.length,     label: 'Open Jobs',   color: '#F7A21B', href: 'logbook.html'      },
+        { num: risks.length,    label: 'Risk Alerts', color: '#f87171', href: 'asset-hub.html'    },
+        { num: pmOverdueCount,  label: 'PM Overdue',  color: '#29B6D9', href: 'pm-scheduler.html' },
+        { num: lowStock.length, label: 'Low Stock',   color: '#fb923c', href: 'inventory.html'    },
+      ].filter(t => Number(t.num) > 0);
+
+      if (tiles.length === 0) {
+        statsEl.style.display = 'none';
+        return;
+      }
+      statsEl.style.display = 'flex';
+      statsEl.innerHTML = tiles.map(t =>
+        `<a href="${escHtml(t.href)}" class="oh-card oh-tile">
+           <span class="oh-tile-num" style="color:${t.color};">${Number(t.num)}</span>
+           <span class="oh-tile-lbl">${escHtml(t.label)}</span>
+         </a>`
+      ).join('');
+    })();
 
     // ── Phase H.1 (2026-05-12): Today's One Thing ─────────────────────────
     // Rank the four canonical signals (critical risk, PM overdue + critical,
