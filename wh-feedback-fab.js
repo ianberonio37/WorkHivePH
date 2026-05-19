@@ -33,6 +33,22 @@
   if (window._whFeedbackFabMounted) return;
   window._whFeedbackFabMounted = true;
 
+  // escHtml shim — prefer the shared utils.js helper on pages that load it,
+  // otherwise fall back to a minimal local escaper so any user-derived text
+  // we choose to render below is XSS-safe. The widget's static templates
+  // interpolate only hardcoded constants today, but we keep this in scope
+  // so future render paths can escape user data without touching imports.
+  const escHtml = (typeof window.escHtml === 'function')
+    ? window.escHtml
+    : function (s) {
+        return String(s == null ? '' : s)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#39;');
+      };
+
   // ── Config ─────────────────────────────────────────────────────────────────
   // NOTE: these `const`s MUST be declared before the readyState-based mount()
   // call below. When loaded with `defer`, the script runs after parsing — so
@@ -512,7 +528,9 @@
   // success, or a {code, message} error object on failure.
   async function insertViaRest(row) {
     try {
-      const res = await fetch(`${SUPABASE_URL}/rest/v1/${TABLE}`, {
+      // 10s timeout so a hung server doesn't strand the user behind a spinning "Sending…" button.
+      const fwt = (typeof window !== 'undefined' && window.fetchWithTimeout) || null;
+      const reqInit = {
         method: 'POST',
         headers: {
           'apikey':        SUPABASE_KEY,
@@ -521,7 +539,9 @@
           'Prefer':        'return=minimal',
         },
         body: JSON.stringify(row),
-      });
+      };
+      const url = `${SUPABASE_URL}/rest/v1/${TABLE}`;
+      const res = fwt ? await fwt(url, reqInit, 10000) : await fetch(url, reqInit);
       if (res.ok) return null;
       // PostgREST returns 400/409 with JSON body { code, message, details }
       let parsed = {};
