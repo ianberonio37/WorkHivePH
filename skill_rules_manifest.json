@@ -423,6 +423,66 @@
       "pattern_flags": "i",
       "rationale": "Broadcasting standards-canon to all hives triplicates content and creates drift risk. Platform-scoped facts belong in platform_knowledge_graph_facts (no hive_id). The audit reflex (feedback_canonical_audit_reflex.md) should have caught this on the first build; this rule locks it in for future migrations.",
       "severity": "high"
+    },
+    {
+      "id": "frontend_list_view_has_empty_state",
+      "skill": "frontend",
+      "section": "List View Contract -- Empty State Anchor",
+      "summary": "Pages that render dynamic lists must declare an empty-state element (id=\"empty-state\" or class=\"empty-state\")",
+      "scope": "html_pages",
+      "polarity": "convention",
+      "pattern": "id=[\"']empty-state[\"']|class=[\"'][^\"']*\\bempty-state\\b",
+      "triggered_by": "innerHTML\\s*[+]?=\\s*[^;]+\\.(?:map|join)\\s*\\(",
+      "rationale": "Canonical from logbook.html / inventory.html: every list page declares <div id=\"empty-state\" class=\"... empty-state\"> for the zero-data state. Without it, users see a blank panel with no explanation. Identified 2026-05-19 during list-display uniformity audit.",
+      "severity": "medium"
+    },
+    {
+      "id": "frontend_list_view_has_no_results_state",
+      "skill": "frontend",
+      "section": "List View Contract -- No-Results State for Filterable Lists",
+      "summary": "Filterable list pages (with a search input) must declare a distinct id=\"no-results\" element separate from empty-state",
+      "scope": "html_pages",
+      "polarity": "convention",
+      "pattern": "id=[\"']no-results[\"']",
+      "triggered_by": "placeholder=[\"'][^\"']*[Ss]earch[\\s\\S]{0,200000}innerHTML\\s*[+]?=\\s*[^;]+\\.(?:map|join)\\s*\\(",
+      "rationale": "Canonical from logbook.html:969 + inventory.html:363: empty-state covers \"never had data\", no-results covers \"filters returned zero\". Conflating them hides the difference between onboarding state and a wrong filter. Identified 2026-05-19 during list-display uniformity audit.",
+      "severity": "medium"
+    },
+    {
+      "id": "frontend_list_view_has_load_more",
+      "skill": "frontend",
+      "section": "List View Contract -- Client-Side Slice Pagination",
+      "summary": "Dynamic-list pages should expose a Load More control (id ending in -load-more-wrap, or btn-load-more class, or a loadMoreX() handler)",
+      "scope": "html_pages",
+      "polarity": "convention",
+      "pattern": "id=[\"'][^\"']*-load-more-wrap[\"']|class=[\"'][^\"']*\\bbtn-load-more\\b|\\bloadMore[A-Z]\\w*\\s*\\(",
+      "triggered_by": "innerHTML\\s*[+]?=\\s*[^;]+\\.(?:map|join)\\s*\\(",
+      "rationale": "Frontend SKILL.md:1003 documents the Client-Side Slice Pagination pattern (loadMoreX + _displayCount). Lists that grow past ~20 rows without pagination dump the entire DOM at once -- slow render, no progressive scan. Canonical wrappers: logbook-load-more-wrap, inv-load-more-wrap, pm-load-more-wrap. Identified 2026-05-19 during list-display uniformity audit.",
+      "severity": "medium"
+    },
+    {
+      "id": "frontend_filter_tabs_have_aria_roles",
+      "skill": "frontend",
+      "section": "List View Contract -- Filter Tabs A11y Roles",
+      "summary": "Filter tabs and chip rows must declare role=\"tablist\" on the container and role=\"tab\" + aria-selected on each button",
+      "scope": "html_pages",
+      "polarity": "convention",
+      "pattern": "role=[\"']tablist[\"'][\\s\\S]{0,50000}?role=[\"']tab[\"']",
+      "triggered_by": "class=[\"'][^\"']*\\b(?:section-tabs?|filter-row|filter-tabs?|chip-row|tab-row)\\b",
+      "rationale": "Canonical from marketplace.html:589 (section-tabs) and audit-log.html:188 (filter-row + chip + aria-selected). Screen readers cannot navigate tab UIs without tablist/tab role + aria-selected. A visual tab without these roles is a keyboard-trap regression. Identified 2026-05-19 during list-display uniformity audit.",
+      "severity": "high"
+    },
+    {
+      "id": "frontend_search_resets_pagination",
+      "skill": "frontend",
+      "section": "List View Contract -- Search Resets Display Count",
+      "summary": "Pages with both a search input AND client-side pagination must reset the display count on search input",
+      "scope": "html_pages",
+      "polarity": "convention",
+      "pattern": "addEventListener\\s*\\(\\s*[\"']input[\"'][\\s\\S]{0,400}?(?:_?\\w*[Dd]isplayCount)\\s*=\\s*\\d|(?:_?\\w*[Dd]isplayCount)\\s*=\\s*\\d[\\s\\S]{0,400}?renderList|renderParts|renderDashboard",
+      "triggered_by": "placeholder=[\"'][^\"']*[Ss]earch[\\s\\S]{0,300000}_?\\w*[Dd]isplayCount\\b",
+      "rationale": "Frontend SKILL.md:1023 -- when a user types in the search box, the display count must reset to its starting value, otherwise the visible slice can hide new matches. Pattern: `searchInput.addEventListener('input', () => { _displayCount = 20; renderList(); });`. Identified 2026-05-19 during list-display uniformity audit.",
+      "severity": "medium"
     }
   ]
 }
