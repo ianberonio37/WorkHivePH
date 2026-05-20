@@ -88,7 +88,11 @@ async function handleBenchmarks(db: SupabaseClient, params: URLSearchParams) {
     .order("avg_mtbf_days", { ascending: false })
     .limit(50);
 
-  if (category) query = query.ilike("equipment_category", `%${category}%`);
+  if (category) {
+    // Escape SQL LIKE wildcards in user-controlled query param.
+    const safeCategory = category.replace(/%/g, "\\%").replace(/_/g, "\\_").slice(0, 100);
+    query = query.ilike("equipment_category", `%${safeCategory}%`);
+  }
   if (industry) query = query.eq("industry", industry);
 
   const { data, error } = await query;

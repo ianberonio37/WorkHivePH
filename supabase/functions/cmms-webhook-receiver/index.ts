@@ -224,6 +224,8 @@ serve(async (req) => {
     if (["work_order.created", "work_order.updated", "work_order.completed"].includes(eventType)) {
       const extracted = extractWorkOrder(payload, systemType, hiveId, workerName, now);
       if (!extracted) {
+        // edge-status-allow: webhook delivered + accepted; payload had no
+        // external_id so nothing to sync. Caller checks resp.ok flag.
         return new Response(JSON.stringify({ ok: false, reason: "No external_id in payload" }),
           { status: 200, headers: { ...cors, "Content-Type": "application/json" } });
       }

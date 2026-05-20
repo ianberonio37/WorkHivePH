@@ -746,6 +746,22 @@ VALIDATORS = [
     {"id":"meta-refresh","script":"validate_meta_refresh.py","args":[],
      "label":"<meta http-equiv=refresh> (no auto-redirect anti-pattern; use JS or 30x; forward-only ratchet)",
      "group":"Platform","report":"meta_refresh_report.json","skip_if_fast":False},
+    # Flywheel turns 26-30 (2026-05-21): 5 more bug-class L0 ratchets.
+    {"id":"like-escape","script":"validate_like_escape.py","args":[],
+     "label":"SQL LIKE Escape (.ilike/.like templates escape % and _; tracks file-wide escape-helper vars; forward-only ratchet)",
+     "group":"Platform","report":"like_escape_report.json","skip_if_fast":False},
+    {"id":"icon-button-label","script":"validate_icon_button_label.py","args":[],
+     "label":"Icon-Only Button aria-label (svg-only <button> has aria-label/title/sr-only; forward-only ratchet)",
+     "group":"Platform","report":"icon_button_label_report.json","skip_if_fast":False},
+    {"id":"edge-response-content-type","script":"validate_edge_response_content_type.py","args":[],
+     "label":"Edge Response Content-Type (every new Response(JSON.stringify) sets application/json; comment-stripped; forward-only ratchet)",
+     "group":"Platform","report":"edge_response_content_type_report.json","skip_if_fast":False},
+    {"id":"drop-if-exists","script":"validate_drop_if_exists.py","args":[],
+     "label":"DROP IF EXISTS Idempotency (every DROP TABLE/VIEW/FUNCTION/POLICY/INDEX/TRIGGER/TYPE includes IF EXISTS; forward-only ratchet)",
+     "group":"Platform","report":"drop_if_exists_report.json","skip_if_fast":False},
+    {"id":"table-accessible-name","script":"validate_table_accessible_name.py","args":[],
+     "label":"<table> Accessible Name (every table has caption/aria-label/role=presentation; forward-only ratchet)",
+     "group":"Platform","report":"table_accessible_name_report.json","skip_if_fast":False},
     {
         # 2026-05-20 — Flywheel orchestrator: one turn per Mega Gate run.
         # Walks L-1 -> L-1.5 -> L0 -> L2 -> L13, diffs against the previous
@@ -1018,6 +1034,84 @@ VALIDATORS = [
         "script":  "validate_ai_companion_workflow.py",
         "args":    [],
         "label":   "AI Companion Workflow + Personalization (10-layer: turns #55-#64 — proactive + maturity + slot expiry + action replay + language + brevity + timer + URL prefill + mic quality + action queue)",
+        "group":   "Platform",
+        "report":  None,
+        "skip_if_fast": False,
+    },
+    {
+        # 2026-05-21: AI Companion seventh 10-turn flywheel batch
+        # (turns #65-#74). ORCHESTRATION + INTEGRATION layer: PDF
+        # export detector → Report Sender, per-device pronunciation
+        # library, voice-execute safety lock (default OFF), persona
+        # portrait animation, cross-hive benchmark RPC wiring, daily
+        # digest mode, push notification readiness, multi-worker
+        # concurrency lock, accent / voice-signature adaptation,
+        # streaming SSE response indicator.
+        "id":      "ai-companion-orchestration",
+        "script":  "validate_ai_companion_orchestration.py",
+        "args":    [],
+        "label":   "AI Companion Orchestration + Integration (10-layer: turns #65-#74 — pdf export + pronunciation + voice-execute lock + avatar animation + cross-hive RPC + digest + push + session lock + accent + streaming)",
+        "group":   "Platform",
+        "report":  None,
+        "skip_if_fast": False,
+    },
+    {
+        # 2026-05-21: AI Companion eighth 10-turn flywheel batch
+        # (turns #75-#84). TRUST DEPLOYMENT layer — production
+        # safety + collaboration: toxicity guard, question shape
+        # classifier, freshness disclosure, rate-limit cooldown,
+        # conversation share link, readback request, scope
+        # disclosure, multi-turn correction, confidence label
+        # tier, crisis escalation extension (self-harm + workplace
+        # violence).
+        "id":      "ai-companion-trust-deployment",
+        "script":  "validate_ai_companion_trust_deployment.py",
+        "args":    [],
+        "label":   "AI Companion Trust Deployment (10-layer: turns #75-#84 — toxicity + question shape + freshness + rate-limit + share + readback + scope + correction + confidence label + crisis extension)",
+        "group":   "Platform",
+        "report":  None,
+        "skip_if_fast": False,
+    },
+    {
+        # 2026-05-21: AI Companion ninth 10-turn flywheel batch
+        # (turns #85-#94). INPUT NORMALIZATION + ONBOARDING layer.
+        "id":      "ai-companion-input-normalization",
+        "script":  "validate_ai_companion_input_normalization.py",
+        "args":    [],
+        "label":   "AI Companion Input Normalization + Onboarding (10-layer: turns #85-#94 — precision rule + asset-tag normalization + time-range + ack style + forbidden topics + mic env + pin + help + KPI translation + new-worker welcome)",
+        "group":   "Platform",
+        "report":  None,
+        "skip_if_fast": False,
+    },
+    {
+        # 2026-05-21: AI Companion tenth 10-turn flywheel batch
+        # (turns #95-#104). INTEGRATION + AUDIT layer.
+        "id":      "ai-companion-integration-audit",
+        "script":  "validate_ai_companion_integration_audit.py",
+        "args":    [],
+        "label":   "AI Companion Integration + Audit (10-layer: turns #95-#104 — audit log + quiet hours + preflight + idle cleanup + error analytics + session tag + deep link + grammar guess + phrase pool + shift-end)",
+        "group":   "Platform",
+        "report":  None,
+        "skip_if_fast": False,
+    },
+    {
+        # 2026-05-21: AI Companion eleventh 10-turn flywheel batch
+        # (turns #105-#114). PROACTIVE ASSISTANCE + LEARNING layer.
+        "id":      "ai-companion-learning",
+        "script":  "validate_ai_companion_learning.py",
+        "args":    [],
+        "label":   "AI Companion Proactive Assistance + Learning (10-layer: turns #105-#114 — PM sync drift + skill-level adaptation + cross-asset pattern + intent history + sentiment over time + asset warm-up + symptom normalizer + shift boundary + knowledge gap + mentor handoff)",
+        "group":   "Platform",
+        "report":  None,
+        "skip_if_fast": False,
+    },
+    {
+        # 2026-05-21: AI Companion twelfth 10-turn flywheel batch
+        # (turns #115-#124). COMPLIANCE + DATA GOVERNANCE.
+        "id":      "ai-companion-compliance",
+        "script":  "validate_ai_companion_compliance.py",
+        "args":    [],
+        "label":   "AI Companion Compliance + Data Governance (10-layer: turns #115-#124 — PII scrubber + consent capture + retention + right-to-erasure + audit CSV + suspicious activity + AI disclosure + locale-aware dates + monthly cost cap + voice drift advisory)",
         "group":   "Platform",
         "report":  None,
         "skip_if_fast": False,

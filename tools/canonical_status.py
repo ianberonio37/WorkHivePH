@@ -493,6 +493,12 @@ def _gather() -> dict[str, Any]:
         ("jshref",    "javascript_href_report.json",               ("drift","baseline")),
         ("viewstar",  "view_select_star_report.json",              ("drift","baseline")),
         ("metaref",   "meta_refresh_report.json",                  ("drift","baseline")),
+        # Flywheel turns 26-30 (2026-05-21)
+        ("likeesc",   "like_escape_report.json",                   ("drift","baseline")),
+        ("iconbtn",   "icon_button_label_report.json",             ("drift","baseline")),
+        ("edgect",    "edge_response_content_type_report.json",    ("drift","baseline")),
+        ("dropif",    "drop_if_exists_report.json",                ("drift","baseline")),
+        ("tblname",   "table_accessible_name_report.json",         ("drift","baseline")),
     ]:
         d = _read_json(fname)
         if d:
@@ -905,6 +911,11 @@ def _print(status: dict[str, Any]) -> int:
         ("jshref",    "<a href='javascript:'>:      "),
         ("viewstar",  "CREATE VIEW SELECT *:        "),
         ("metaref",   "<meta http-equiv=refresh>:   "),
+        ("likeesc",   "SQL LIKE escape:             "),
+        ("iconbtn",   "Icon-only button label:      "),
+        ("edgect",    "Edge response Content-Type:  "),
+        ("dropif",    "DROP IF EXISTS:              "),
+        ("tblname",   "<table> accessible name:     "),
     ]:
         val = status.get(f"{key}_val", 0)
         baseline = status.get(f"{key}_baseline", 0)

@@ -934,7 +934,7 @@ function renderParts() {
               ${statusBadge(st)}
               ${approvalBadge(item)}
             </div>
-            <button onclick="openDetailModal('${item.id}')" class="text-white/20 hover:text-white/60 transition-colors flex-shrink-0 p-1" style="min-height:unset;">
+            <button onclick="openDetailModal('${item.id}')" aria-label="Open item details" class="text-white/20 hover:text-white/60 transition-colors flex-shrink-0 p-1" style="min-height:unset;">
               <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
             </button>
           </div>

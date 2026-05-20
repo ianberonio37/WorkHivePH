@@ -49,6 +49,8 @@ serve(async (req) => {
       .limit(1);
 
     if (!configs?.length) {
+      // edge-status-allow: soft no-op — request succeeded but no
+      // integration is configured; caller checks resp.ok flag.
       return new Response(JSON.stringify({ ok: false, reason: "No active integration config" }),
         { status: 200, headers: { ...cors, "Content-Type": "application/json" } });
     }
@@ -59,6 +61,7 @@ serve(async (req) => {
     const authToken  = config.auth_token as string | null;
 
     if (!endpoint) {
+      // edge-status-allow: soft no-op — config exists but endpoint not set.
       return new Response(JSON.stringify({ ok: false, reason: "No endpoint_url configured" }),
         { status: 200, headers: { ...cors, "Content-Type": "application/json" } });
     }
@@ -74,6 +77,7 @@ serve(async (req) => {
 
     const extId = syncRows?.[0]?.external_id;
     if (!extId) {
+      // edge-status-allow: soft no-op — nothing to push back for this machine.
       return new Response(JSON.stringify({ ok: false, reason: "No external_sync record found for machine " + machine }),
         { status: 200, headers: { ...cors, "Content-Type": "application/json" } });
     }

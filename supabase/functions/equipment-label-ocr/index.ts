@@ -216,6 +216,10 @@ serve(async (req) => {
   }
 
   if (!AZURE_ENDPOINT || !AZURE_KEY) {
+    // graceful degradation — Azure OCR not configured; frontend reads
+    // `azure_unavailable` flag + parsed nulls and renders the manual-
+    // entry fallback. Request DID succeed (200) — service unavailable.
+    // edge-status-allow
     return new Response(JSON.stringify({
       error:             "azure_not_configured",
       azure_unavailable: true,
@@ -255,6 +259,9 @@ serve(async (req) => {
     const opLoc = await submitImageBytes(bytes, contentType);
     ocrText = await pollResult(opLoc);
   } catch (err) {
+    // edge-status-allow: graceful degradation — Azure call threw; the
+    // frontend reads `azure_unavailable` + parsed nulls and renders the
+    // manual-entry fallback path.
     return new Response(JSON.stringify({
       error:             "azure_ocr_failed",
       detail:            (err as Error).message,

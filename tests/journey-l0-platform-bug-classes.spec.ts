@@ -228,6 +228,22 @@ test.describe('L0 platform bug-class validators', () => {
   test('meta_refresh: validator at or under forward-only baseline', () => {
     assertPass('validate_meta_refresh.py');
   });
+  // Flywheel turns 26-30 (2026-05-21): 5 more bug-class validators.
+  test('like_escape: validator at or under forward-only baseline', () => {
+    assertPass('validate_like_escape.py');
+  });
+  test('icon_button_label: validator at or under forward-only baseline', () => {
+    assertPass('validate_icon_button_label.py');
+  });
+  test('edge_response_content_type: validator at or under forward-only baseline', () => {
+    assertPass('validate_edge_response_content_type.py');
+  });
+  test('drop_if_exists: validator at or under forward-only baseline', () => {
+    assertPass('validate_drop_if_exists.py');
+  });
+  test('table_accessible_name: validator at or under forward-only baseline', () => {
+    assertPass('validate_table_accessible_name.py');
+  });
 });
 
 // ---------------------------------------------------------------------------
