@@ -2587,7 +2587,7 @@
 
     try {
       const { data: orders, error } = await db
-        .from('marketplace_orders')
+        .from('v_marketplace_orders_truth')
         .select('id,listing_id,seller_name,price,status,stripe_session_id,escrow_release_at,reviewed_at,created_at')
         .eq('buyer_name', WORKER_NAME)
         .order('created_at', { ascending: false })

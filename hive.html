@@ -2585,7 +2585,7 @@ function _openWorkerProfileDrawer(workerName) {
 
   // Parallel fetch: skill badges + community XP + recent activity.
   Promise.all([
-    db.from('skill_badges').select('discipline, level').eq('worker_name', workerName).order('level', { ascending: false }).limit(5),
+    db.from('v_skill_badges_truth').select('discipline, level').eq('worker_name', workerName).order('level', { ascending: false }).limit(5),
     db.from('community_xp').select('xp_total').eq('worker_name', workerName).eq('hive_id', HIVE_ID).maybeSingle(),
     db.from('hive_members').select('role, joined_at').eq('worker_name', workerName).eq('hive_id', HIVE_ID).maybeSingle(),
     db.from('v_logbook_truth').select('machine, problem, created_at, status').eq('hive_id', HIVE_ID).eq('worker_name', workerName).order('created_at', { ascending: false }).limit(3),
@@ -3371,7 +3371,7 @@ async function loadTodaysBrief() {
 
   const types = ['failure_digest', 'predictive', 'pm_overdue'];
   const results = await Promise.allSettled(types.map(type =>
-    db.from('ai_reports')
+    db.from('v_ai_reports_truth')
       .select('summary, report_json, generated_at, report_type')
       .eq('hive_id', HIVE_ID).eq('report_type', type)
       .order('generated_at', { ascending: false }).limit(1).maybeSingle()

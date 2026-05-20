@@ -827,7 +827,7 @@
     if (!names.length) return;
 
     const { data: achs } = await db
-      .from('worker_achievements')
+      .from('v_worker_achievements_truth')
       .select('worker_name, current_level')
       .in('worker_name', names);
 
@@ -946,7 +946,7 @@
       });
     }
     const [achRes, logRes] = await Promise.all([
-      db.from('worker_achievements')
+      db.from('v_worker_achievements_truth')
         .select('achievement_id, current_level, xp_total, last_action_at')
         .eq('worker_name', WORKER_NAME),
       db.from('achievement_xp_log')

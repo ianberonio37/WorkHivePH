@@ -975,7 +975,7 @@ async function loadProjects() {
   // Pull rollup from project_items in batch (one query, then group)
   const ids = _projects.map(p => p.id);
   if (ids.length) {
-    const { data: items } = await db.from('project_items')
+    const { data: items } = await db.from('v_project_items_truth')
       .select('project_id, pct_complete, estimated_hours, status').in('project_id', ids);
     const rollup = {};
     (items || []).forEach(it => {
@@ -1841,9 +1841,9 @@ async function openDetail(id) {
 
   // Load children + rollup + roles + change_orders in parallel
   const [itemsRes, linksRes, logsRes, progRes, rolesRes, coRes] = await Promise.all([
-    db.from('project_items').select('*').eq('project_id', id).order('sort_order'),
+    db.from('v_project_items_truth').select('*').eq('project_id', id).order('sort_order'),
     db.from('project_links').select('*').eq('project_id', id).order('created_at'),
-    db.from('project_progress_logs').select('*').eq('project_id', id).order('log_date', { ascending: false }).limit(30),
+    db.from('v_project_progress_truth').select('*').eq('project_id', id).order('log_date', { ascending: false }).limit(30),
     fetchProgressRollup(id),
     db.from('project_roles').select('*').eq('project_id', id).order('assigned_at', { ascending: false }),
     db.from('project_change_orders').select('*').eq('project_id', id).order('created_at', { ascending: false }),

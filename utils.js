@@ -599,7 +599,7 @@ async function loadWorkerTiers(db, workerNames) {
   if (!workerNames || !workerNames.length) return {};
   try {
     const { data } = await db
-      .from('worker_achievements')
+      .from('v_worker_achievements_truth')
       .select('worker_name, current_level')
       .in('worker_name', workerNames);
     const map = {};

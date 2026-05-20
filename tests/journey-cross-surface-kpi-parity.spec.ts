@@ -228,6 +228,54 @@ test.describe('cross-surface KPI parity', () => {
     ).toEqual([]);
   });
 
+  test('check_community_reads_canonical_view: data load wires to v_community_posts_truth', async ({ whPage }) => {
+    // Locks the turn-1 community_posts migration. The page WRITES community_posts
+    // (update for pin/flag/public, insert for new posts) so raw .from() with
+    // .update/.insert is allowed — only SELECTs must hit the view.
+    const canonicalHits: string[] = [];
+    const rawSelectHits: string[] = [];
+
+    whPage.on('request', (req) => {
+      const url = req.url();
+      if (/\/rest\/v1\/v_community_posts_truth/.test(url)) {
+        canonicalHits.push(url);
+      } else if (/\/rest\/v1\/community_posts(\?|$)/.test(url) && req.method() === 'GET') {
+        rawSelectHits.push(url);
+      }
+    });
+
+    await whPage.goto('/workhive/community.html', { waitUntil: 'networkidle' });
+    // Give the page a beat for the feed to load
+    await whPage.waitForTimeout(1500);
+
+    expect(canonicalHits.length, `community.html did not query v_community_posts_truth`).toBeGreaterThanOrEqual(1);
+    expect(rawSelectHits, `community.html issued GET .../community_posts — raw SELECT is forbidden (writes allowed). Migrate to v_community_posts_truth.`).toEqual([]);
+  });
+
+  test('check_marketplace_reads_canonical_view: data load wires to v_marketplace_listings_truth', async ({ whPage }) => {
+    // Locks the turn-1 marketplace_listings migration across 6 consumer
+    // surfaces (asset-hub, marketplace, marketplace-admin, marketplace-seller,
+    // marketplace-seller-profile, project-manager) + the marketplace-checkout
+    // edge fn. Sample the marketplace.html surface — primary listings browser.
+    const canonicalHits: string[] = [];
+    const rawSelectHits: string[] = [];
+
+    whPage.on('request', (req) => {
+      const url = req.url();
+      if (/\/rest\/v1\/v_marketplace_listings_truth/.test(url)) {
+        canonicalHits.push(url);
+      } else if (/\/rest\/v1\/marketplace_listings(\?|$)/.test(url) && req.method() === 'GET') {
+        rawSelectHits.push(url);
+      }
+    });
+
+    await whPage.goto('/workhive/marketplace.html', { waitUntil: 'networkidle' });
+    await whPage.waitForTimeout(1500);
+
+    expect(canonicalHits.length, `marketplace.html did not query v_marketplace_listings_truth`).toBeGreaterThanOrEqual(1);
+    expect(rawSelectHits, `marketplace.html issued GET .../marketplace_listings — raw SELECT is forbidden (writes allowed). Migrate to v_marketplace_listings_truth.`).toEqual([]);
+  });
+
   test('check_pm_scheduler_reads_canonical_view: data load wires to v_pm_scope_items_truth', async ({ whPage }) => {
     // The hardening fix MUST keep working: pm-scheduler.html should issue a
     // request to /rest/v1/v_pm_scope_items_truth, not /rest/v1/pm_scope_items.

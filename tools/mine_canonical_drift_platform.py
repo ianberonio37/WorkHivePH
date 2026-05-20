@@ -98,6 +98,9 @@ CANONICAL_PAIRS: dict[str, str] = {
     "marketplace_orders":       "v_marketplace_orders_truth",
     "project_items":            "v_project_items_truth",
     "project_progress_logs":    "v_project_progress_truth",
+    "ai_reports":               "v_ai_reports_truth",
+    "skill_badges":             "v_skill_badges_truth",
+    "worker_achievements":      "v_worker_achievements_truth",
 }
 
 # Tables that legitimately read raw — the miner classifies these as ALLOWED
@@ -110,6 +113,12 @@ LEGITIMATE_RAW: dict[str, str] = {
     "ai_quality_log":                "internal eval data",
     "ai_rate_limits":                "internal quota state",
     "analytics_events":              "internal admin telemetry; founder-console-only surface",
+    "parts_staging_recommendations": "ML output table; one-way write from edge fn + read by a single dashboard tile",
+    "network_benchmarks":            "cross-hive aggregate snapshot; admin / founder surface only",
+    "fault_knowledge":               "AI prompt context table; read raw by retrieval, not surfaced as a metric",
+    "hive_benchmarks":               "per-hive benchmark snapshots; admin/founder + analytics-orchestrator only",
+    "agent_memory":                  "AI agent scratchpad; not a user-facing KPI",
+    "api_keys":                      "service-account secrets; admin-only",
     "marketplace_platform_admins":   "admin-table lookup",
     "report_contacts":               "single-purpose form",
     "schedule_items":                "calendar feed, chronological",

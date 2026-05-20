@@ -2324,7 +2324,7 @@ async function loadAssetDetail(asset) {
   let txns = [];
   if (_detailLinkedItems.length) {
     const ids = _detailLinkedItems.map(i => i.id);
-    const { data: t } = await db.from('inventory_transactions')
+    const { data: t } = await db.from('v_inventory_transactions_truth')
       .select('id, item_id, qty_change, note, job_ref, created_at')
       .in('item_id', ids)
       .eq('type', 'use')

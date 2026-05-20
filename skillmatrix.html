@@ -602,7 +602,7 @@ async function init() {
   // Load profile and badges in parallel
   const [profileRes, badgesRes] = await Promise.all([
     db.from('skill_profiles').select('*').eq('worker_name', WORKER_NAME).maybeSingle(),
-    db.from('skill_badges').select('discipline, level').eq('worker_name', WORKER_NAME),
+    db.from('v_skill_badges_truth').select('discipline, level').eq('worker_name', WORKER_NAME),
   ]);
 
   // Handle DB errors gracefully: use cached data if available

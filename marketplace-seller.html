@@ -598,7 +598,7 @@
     showSkeletons();
     try {
       const { data, error } = await db
-        .from('marketplace_orders')
+        .from('v_marketplace_orders_truth')
         .select('id,listing_id,buyer_name,price,status,stripe_transfer_id,escrow_release_at,created_at,marketplace_listings(title)')
         .eq('seller_name', WORKER_NAME)
         .order('created_at', { ascending: false })

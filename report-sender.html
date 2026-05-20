@@ -1026,7 +1026,7 @@
       if (!HIVE_ID) return;
       // Try with created_at first; fall back without it if column missing (400 = schema gap)
       let { data, error } = await db
-        .from('ai_reports')
+        .from('v_ai_reports_truth')
         .select('id, report_type, summary, created_at')
         .eq('hive_id', HIVE_ID)
         .order('created_at', { ascending: false })
@@ -1034,7 +1034,7 @@
       if (error) {
         // created_at may not exist — retry without ordering
         const fallback = await db
-          .from('ai_reports')
+          .from('v_ai_reports_truth')
           .select('id, report_type, summary')
           .eq('hive_id', HIVE_ID)
           .limit(5);

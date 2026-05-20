@@ -226,6 +226,9 @@ CANONICAL_PAIRS = {
     "marketplace_orders":     "v_marketplace_orders_truth",
     "project_items":          "v_project_items_truth",
     "project_progress_logs":  "v_project_progress_truth",
+    "ai_reports":             "v_ai_reports_truth",
+    "skill_badges":           "v_skill_badges_truth",
+    "worker_achievements":    "v_worker_achievements_truth",
 }
 
 

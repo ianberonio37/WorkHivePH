@@ -1499,7 +1499,7 @@
       try {
         const since30 = new Date(); since30.setDate(since30.getDate() - 30);
         const [ordersRes, disputesRes] = await Promise.all([
-          db.from('marketplace_orders').select('id, status, price, created_at').limit(5000),
+          db.from('v_marketplace_orders_truth').select('id, status, price, created_at').limit(5000),
           db.from('marketplace_disputes').select('id, status').limit(2000),
         ]);
         const orders = (ordersRes.data || []);
