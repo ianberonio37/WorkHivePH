@@ -3,7 +3,8 @@
 // surfaces (logbook, inventory, pm-scheduler, hive, asset-hub, shift-brain).
 // Closes PRODUCTION_FIXES #54.
 
-const CACHE_NAME  = 'workhive-shell-v104';  // bump 2026-05-20: Tier-S citation visibility 52% -> 100% — 8 pages now cite their registered standard short_name (marketplace + marketplace-seller-profile + marketplace-seller + skillmatrix + achievements + founder-console + hive maturity-stair). Re-prime cache for the chip text.
+const CACHE_NAME  = 'workhive-shell-v105';  // bump 2026-05-20: AI Prompt Regression L4 — voice-handler.js system prompt now carries the Platform Metric Anchors block (MTBF/MTTR -> ISO 14224, OEE -> ISO 22400-2 / Nakajima, PM -> SMRP, RPN -> IEC 60812, RCM -> SAE JA1011, anomaly -> Z-Score). Re-prime cache for voice answers to be standards-anchored.
+// const CACHE_NAME  = 'workhive-shell-v104';  // bump 2026-05-20: Tier-S citation visibility 52% -> 100% — 8 pages now cite their registered standard short_name (marketplace + marketplace-seller-profile + marketplace-seller + skillmatrix + achievements + founder-console + hive maturity-stair). Re-prime cache for the chip text.
 // const CACHE_NAME  = 'workhive-shell-v103';  // bump 2026-05-20: massive L2 expansion — 6 dashboards added manifest link (analytics/analytics-report/platform-health/achievements/founder-console/ph-intelligence); asset-hub FMEA cites IEC 60812:2018; hive adoption-risk cites WorkHive Adoption Risk; platform-health verdict cites WorkHive Platform Health. Re-prime cache so PWA users see the chip + manifest fixes.
 // const CACHE_NAME  = 'workhive-shell-v102';  // bump 2026-05-20: drift wiring — index.html ops-home Today's One Thing now reads v_amc_truth + v_sensor_truth + v_alert_truth; hive.html pattern-alerts panel + asset-hub anomaly banner now read truth views. Re-prime cache so PWA users see the canonical-wired renderers.
 // const CACHE_NAME  = 'workhive-shell-v101';  // 3 truth-view wrappers + OEE RPC
