@@ -475,6 +475,12 @@ def _gather() -> dict[str, Any]:
         ("jsonparse", "json_parse_safety_report.json",            ("drift","baseline")),
         ("fetchcatch","fetch_error_handling_report.json",         ("drift","baseline")),
         ("edgestatus","edge_status_body_consistency_report.json", ("drift","baseline")),
+        # Flywheel turns 11-15 (2026-05-21)
+        ("edgepin",   "edge_unpinned_imports_report.json",        ("drift","baseline")),
+        ("timer",     "timer_cleanup_report.json",                ("drift","baseline")),
+        ("cssid",     "css_id_existence_report.json",             ("drift","baseline")),
+        ("addcol",    "add_column_default_report.json",           ("drift","baseline")),
+        ("formsub",   "form_submission_target_report.json",       ("drift","baseline")),
     ]:
         d = _read_json(fname)
         if d:
@@ -872,6 +878,11 @@ def _print(status: dict[str, Any]) -> int:
         ("jsonparse", "JSON.parse safety:           "),
         ("fetchcatch","fetch() error handling:      "),
         ("edgestatus","Edge status/body drift:      "),
+        ("edgepin",   "Edge unpinned imports:       "),
+        ("timer",     "Timer cleanup:               "),
+        ("cssid",     "CSS id existence:            "),
+        ("addcol",    "ADD COLUMN DEFAULT safety:   "),
+        ("formsub",   "<form> submission target:    "),
     ]:
         val = status.get(f"{key}_val", 0)
         baseline = status.get(f"{key}_baseline", 0)

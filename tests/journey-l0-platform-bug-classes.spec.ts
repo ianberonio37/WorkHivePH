@@ -180,6 +180,22 @@ test.describe('L0 platform bug-class validators', () => {
   test('edge_status_body_consistency: validator at or under forward-only baseline', () => {
     assertPass('validate_edge_status_body_consistency.py');
   });
+  // Flywheel turns 11-15 (2026-05-21): 5 more bug-class validators.
+  test('edge_unpinned_imports: validator at or under forward-only baseline', () => {
+    assertPass('validate_edge_unpinned_imports.py');
+  });
+  test('timer_cleanup: validator at or under forward-only baseline', () => {
+    assertPass('validate_timer_cleanup.py');
+  });
+  test('css_id_existence: validator at or under forward-only baseline', () => {
+    assertPass('validate_css_id_existence.py');
+  });
+  test('add_column_default: validator at or under forward-only baseline', () => {
+    assertPass('validate_add_column_default.py');
+  });
+  test('form_submission_target: validator at or under forward-only baseline', () => {
+    assertPass('validate_form_submission_target.py');
+  });
 });
 
 // ---------------------------------------------------------------------------

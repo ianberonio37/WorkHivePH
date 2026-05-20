@@ -1846,6 +1846,7 @@ document.addEventListener('keydown', e => { if (e.key==='Escape') document.getEl
 // ── Auto-refresh ───────────────────────────────────────────────────────────
 loadHealth();
 const _healthPollInterval = setInterval(() => { if (!_running) loadHealth(); }, 15000);
+window.addEventListener('beforeunload', () => clearInterval(_healthPollInterval));
 
 // Calm Dashboard Contract: expose hideZeroStat globally so the streak
 // badge + health-num inline dim logic share a single canonical helper.

@@ -867,6 +867,9 @@ function showToast(msg, kind) {
   t.className = 'toast' + (kind === 'error' ? ' error' : kind === 'success' ? ' success' : '');
   t.textContent = msg;
   c.appendChild(t);
+  // timer-cleanup-allow: every setTimeout on this page is short-lived and
+  // self-completing (toast auto-remove, 0ms wizard chaining, focus restore).
+  // No long-running polling — no clearTimeout needed.
   setTimeout(() => t.remove(), 3500);
 }
 function fmtDate(d) {

@@ -698,6 +698,22 @@ VALIDATORS = [
     {"id":"edge-status-body","script":"validate_edge_status_body_consistency.py","args":[],
      "label":"Edge Status/Body Consistency (HTTP status matches body ok/error semantics; forward-only ratchet)",
      "group":"Platform","report":"edge_status_body_consistency_report.json","skip_if_fast":False},
+    # Flywheel turns 11-15 (2026-05-21): 5 more bug-class L0 ratchets.
+    {"id":"edge-unpinned-imports","script":"validate_edge_unpinned_imports.py","args":[],
+     "label":"Edge Unpinned Imports (every remote import pins @version; supply-chain hardening; forward-only ratchet)",
+     "group":"Platform","report":"edge_unpinned_imports_report.json","skip_if_fast":False},
+    {"id":"timer-cleanup","script":"validate_timer_cleanup.py","args":[],
+     "label":"Timer Cleanup (setInterval has clearInterval; high-count setTimeout has clearTimeout; forward-only ratchet)",
+     "group":"Platform","report":"timer_cleanup_report.json","skip_if_fast":False},
+    {"id":"css-id-existence","script":"validate_css_id_existence.py","args":[],
+     "label":"CSS id Existence (every CSS #id selector matches a declared id; dead-rule guard; forward-only ratchet)",
+     "group":"Platform","report":"css_id_existence_report.json","skip_if_fast":False},
+    {"id":"add-column-default","script":"validate_add_column_default.py","args":[],
+     "label":"ADD COLUMN DEFAULT (every ADD COLUMN NOT NULL has a DEFAULT; backfill safety; forward-only ratchet)",
+     "group":"Platform","report":"add_column_default_report.json","skip_if_fast":False},
+    {"id":"form-submission-target","script":"validate_form_submission_target.py","args":[],
+     "label":"<form> Submission Target (every form has action OR onsubmit OR addEventListener('submit'); forward-only ratchet)",
+     "group":"Platform","report":"form_submission_target_report.json","skip_if_fast":False},
     {
         # 2026-05-20 — Flywheel orchestrator: one turn per Mega Gate run.
         # Walks L-1 -> L-1.5 -> L0 -> L2 -> L13, diffs against the previous
