@@ -92,7 +92,10 @@ METRIC_TOKENS = {
     "torque": "metric", "thermal": "metric", "load": "metric",
     "flow": "metric", "head-loss": "metric", "npsh": "metric",
     "motor-power": "metric", "hvac": "metric",
-    "tg-eg": "metric", "tg-lg": "metric", "tg-oa": "metric", "tg-preload": "metric",
+    # tg-* are TOGGLE-GROUP INPUTS (radio-button selectors for calculator
+    # parameters: number of electrodes, ASHRAE 62.1 outside-air %, L/G ratio,
+    # bolt preload target). Not computed outputs — classify as raw.
+    "tg-": "raw", "tg-eg": "raw", "tg-lg": "raw", "tg-oa": "raw", "tg-preload": "raw",
     # Gamification + adoption
     "xp": "metric", "level": "metric", "tier": "metric",
     "stair": "metric", "composite": "metric", "readiness": "metric",
@@ -126,6 +129,20 @@ METRIC_TOKENS = {
     "streak": "raw",
     # Marketplace seller dashboard stat counters (raw aggregates)
     "pstat": "raw",
+    # UI scaffolding (verdict text, progress labels, status bars, presence
+    # indicators, connection labels, refresh tags, role badges, filter
+    # toolbars, asset/sheet pickers, compare-tray strips, view-toggle
+    # buttons). Caught by -bar / -label suffix in the regex but they're
+    # rendered TEXT or visual scaffolding, not computed metric values.
+    "-verdict-label": "raw", "verdict-label": "raw",
+    "conn-label": "raw", "presence-bar": "raw", "status-bar": "raw",
+    "refresh-label": "raw", "role-bar": "raw", "filter-bar": "raw",
+    "asset-picker-label": "raw", "extras-toggle-label": "raw",
+    "view-toggle-bar": "raw", "sheet-save-label": "raw",
+    "compare-bar": "raw", "hive-name-label": "raw",
+    # Single-value labels that are simple counters or trend indicators
+    "profile-xp": "raw", "progress-label": "raw", "trend": "raw",
+    "aicost-trend": "raw",
 }
 
 
