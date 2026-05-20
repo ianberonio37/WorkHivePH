@@ -177,6 +177,39 @@ VALIDATORS = [
         "skip_if_fast": False,
     },
     {
+        # L-1.5 platform-wide canonical-drift miner. Closes the seam between
+        # validate_canonical_sources (which grandfathers via KNOWN_DRIFT /
+        # HTML_OWNERS) and audit_calm_dashboard_canonical (which only scans
+        # Calm-opted-in pages). Caught the "21 PM overdue on hive vs 0 on
+        # pm-scheduler" mismatch on 2026-05-20: pm-scheduler was grandfathered
+        # owner of pm_scope_items AND reimplemented FREQ_DAYS/calcNextDue
+        # locally. The miner tags pages that render hero KPIs and read raw
+        # tables that have a v_*_truth view as TIER A — drift here produces
+        # the "two pages, two numbers" symptom users notice.
+        "id":      "canonical-drift-platform-miner",
+        "script":  os.path.join("tools", "mine_canonical_drift_platform.py"),
+        "args":    [],
+        "label":   "Canonical Drift — Platform-Wide Miner (L-1.5: TIER A = KPI page + canonical drift; produces baseline)",
+        "group":   "Platform",
+        "report":  "canonical_drift_platform_report.json",
+        "skip_if_fast": False,
+    },
+    {
+        # L0 forward-only ratchet over the L-1.5 miner. FAILs when:
+        #   - a page that wasn't TIER A becomes TIER A
+        #   - a TIER A page's drift count regresses upward
+        #   - local truth-math is introduced where baseline had none
+        # Baseline lives in canonical_drift_baseline.json and only moves
+        # downward (via --update-baseline after a deliberate reduction).
+        "id":      "user-facing-kpi-canonical",
+        "script":  "validate_user_facing_kpi_canonical.py",
+        "args":    [],
+        "label":   "User-Facing KPI Canonical Gate (L0: forward-only ratchet over L-1.5 TIER A footprint)",
+        "group":   "Platform",
+        "report":  "user_facing_kpi_canonical_report.json",
+        "skip_if_fast": False,
+    },
+    {
         "id":      "phantom-captures",
         "script":  "tools/audit_phantom_captures.py",
         "args":    [],

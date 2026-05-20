@@ -1334,6 +1334,7 @@ async function validateHiveMembership() {
     return false;
   }
 
+  // canonical-allow: auth-check probe on membership row presence; this is the access gate, not a display read
   // Check DB: is this worker still a member of HIVE_ID?
   const { data: membership, error } = await db
     .from('hive_members')
@@ -1501,6 +1502,7 @@ async function searchTeam(append = false) {
 // ── Load hive members into worker dropdown ──
 async function loadTeamMembers() {
   if (!HIVE_ID) return;
+  // canonical-allow: dropdown picker needs the membership list ordered by name within THIS hive
   const { data } = await db.from('hive_members')
     .select('worker_name').eq('hive_id', HIVE_ID).order('worker_name');
   const sel = document.getElementById('filter-worker');
@@ -1750,6 +1752,7 @@ async function _autoLinkLogbookToProject(entry) {
     .eq('link_id', legacyId);
   if (!assetLinks?.length) return;
   const projectIds = [...new Set(assetLinks.map(l => l.project_id))];
+  // canonical-allow: project_links join already constrained the id set; this is a narrow targeted fetch
   const { data: projs } = await db.from('projects')
     .select('id, project_code, name, status')
     .in('id', projectIds)
@@ -1883,6 +1886,9 @@ async function initAssets() {
 
   let sbAssets = [];
   if (HIVE_ID) {
+    // canonical-allow: logbook is canonical CRUD owner for logbook entries which write asset_node_id;
+    // the asset picker needs the same shaped row set it writes (legacy-aliased COLS), v_asset_truth
+    // renames id → asset_id which would break the existing _assets[].id consumers
     const [hiveRes, myRes] = await Promise.all([
       db.from('asset_nodes').select(COLS).eq('hive_id', HIVE_ID).eq('status', 'approved'),
       db.from('asset_nodes').select(COLS).eq('worker_name', WORKER_NAME),
@@ -1894,6 +1900,7 @@ async function initAssets() {
       if (!seen.has(a.id)) { seen.add(a.id); sbAssets.push(a); }
     }
   } else {
+    // canonical-allow: solo-mode asset picker — same COLS shape requirement as hive branch above
     const { data, error } = await db.from('asset_nodes').select(COLS)
       .eq('worker_name', WORKER_NAME).is('hive_id', null);
     if (error) { console.error('assets load:', error.message); showToast('Could not load assets: ' + error.message); }
@@ -1905,6 +1912,7 @@ async function initAssets() {
       await db.from('asset_nodes').upsert(_assetToNode({ ...a, worker_name: WORKER_NAME, status: 'approved' }));
     }
     localStorage.removeItem(ASSETS_KEY);
+    // canonical-allow: post-upsert read-back after localStorage migration
     const { data: migrated } = await db.from('asset_nodes').select(COLS)
       .eq('worker_name', WORKER_NAME).is('hive_id', null);
     _assets = migrated || [];
@@ -3658,6 +3666,7 @@ async function loadPMTasksForAsset() {
   if (HIVE_ID) {
     q = db.from('v_pm_compliance_truth').select('pm_asset_id, asset_name, tag_id, category').eq('hive_id', HIVE_ID);
   } else {
+    // canonical-allow: solo-mode fallback (v_pm_compliance_truth is hive-scoped only)
     q = db.from('pm_assets').select('id, asset_name, tag_id, category').eq('worker_name', WORKER_NAME);
   }
   const { data: pmRaw } = await q;
@@ -3678,6 +3687,7 @@ async function loadPMTasksForAsset() {
   const assetIds = matched.map(a => a.id);
 
   let scopeQ = db.from('v_pm_scope_items_truth').select('id, asset_id, item_text, frequency, anchor_date').in('asset_id', assetIds);
+  // canonical-allow: per-scope-item completion HISTORY is needed for the inline PM context panel; the rollup view only exposes last_completed_at
   let compsQ  = db.from('pm_completions').select('scope_item_id, completed_at').in('asset_id', assetIds).eq('status', 'done').order('completed_at', { ascending: false });
   if (HIVE_ID) { scopeQ = scopeQ.eq('hive_id', HIVE_ID); compsQ = compsQ.eq('hive_id', HIVE_ID); }
   const [itemsRes, compsRes] = await Promise.all([scopeQ, compsQ]);

@@ -667,7 +667,7 @@
 
   async function loadProfileStats() {
     const [postsRes, xpRes] = await Promise.all([
-      db.from('community_posts').select('id', { count: 'exact', head: true })
+      db.from('v_community_posts_truth').select('id', { count: 'exact', head: true })
         .eq('hive_id', HIVE_ID).eq('author_name', WORKER_NAME).is('deleted_at', null),
       db.from('community_xp').select('xp_total')
         .eq('hive_id', HIVE_ID).eq('worker_name', WORKER_NAME).maybeSingle(),
@@ -820,7 +820,7 @@
   async function _fetchPage() {
     const raw  = document.getElementById('search-input').value.trim();
     const safQ = raw.replace(/%/g, '\\%').replace(/_/g, '\\_');
-    let q = db.from('community_posts')
+    let q = db.from('v_community_posts_truth')
       .select('id, hive_id, author_name, content, category, pinned, flagged, public, created_at, edited_at, mentions, deleted_at')
       .eq('hive_id', HIVE_ID).eq('pinned', false).is('deleted_at', null)
       .order('created_at', { ascending: false }).limit(20);
@@ -837,7 +837,7 @@
     _resetFeed();
 
     const [pinnedRes, pageRes] = await Promise.all([
-      db.from('community_posts')
+      db.from('v_community_posts_truth')
         .select('id, hive_id, author_name, content, category, pinned, flagged, public, created_at, edited_at, mentions, deleted_at')
         .eq('hive_id', HIVE_ID).eq('pinned', true).is('deleted_at', null)
         .order('created_at', { ascending: false }),
@@ -1162,8 +1162,8 @@
     const el = document.getElementById('global-list');
     el.innerHTML = '<p style="font-size:0.78rem; color:rgba(255,255,255,0.3); text-align:center; padding:1rem 0;">Loading…</p>';
 
-    const { data, error } = await db.from('community_posts')
-      .select('id, hive_id, author_name, content, category, created_at, edited_at, mentions, deleted_at, hives(name)')
+    const { data, error } = await db.from('v_community_posts_truth')
+      .select('id, hive_id, author_name, content, category, created_at, edited_at, mentions, deleted_at, hive_name')
       .eq('public', true).eq('flagged', false).is('deleted_at', null)
       .order('created_at', { ascending: false }).limit(20);
 
@@ -1192,8 +1192,8 @@
     const btn = document.getElementById('btn-load-more-global');
     if (btn) { btn.disabled = true; btn.textContent = 'Loading…'; }
 
-    const { data } = await db.from('community_posts')
-      .select('id, hive_id, author_name, content, category, created_at, edited_at, mentions, deleted_at, hives(name)')
+    const { data } = await db.from('v_community_posts_truth')
+      .select('id, hive_id, author_name, content, category, created_at, edited_at, mentions, deleted_at, hive_name')
       .eq('public', true).eq('flagged', false).is('deleted_at', null)
       .lt('created_at', _globalLastCreatedAt)
       .order('created_at', { ascending: false }).limit(20);
@@ -1216,7 +1216,7 @@
   }
 
   function renderGlobalPostCard(p) {
-    const hiveName = p.hives?.name || 'Unknown Hive';
+    const hiveName = p.hive_name || 'Unknown Hive';
     const catClass = 'cat-' + (p.category === 'announcement' ? 'announcement' : p.category);
     const catLabel = p.category === 'announcement' ? 'Announcement'
                    : p.category.charAt(0).toUpperCase() + p.category.slice(1);
@@ -1560,7 +1560,7 @@
     // Deep-link fallback: post may be older than the loaded page. Fetch it,
     // hive-scoped, so cross-hive links return null and we surface "not found".
     if (!post) {
-      const { data } = await db.from('community_posts')
+      const { data } = await db.from('v_community_posts_truth')
         .select('id, hive_id, author_name, content, category, pinned, flagged, public, created_at, edited_at, mentions, deleted_at')
         .eq('id', postId).eq('hive_id', HIVE_ID).is('deleted_at', null).maybeSingle();
       if (!data) {
@@ -1847,8 +1847,8 @@
   async function _addGlobalPostFromRealtime(rowId) {
     if (!_globalLoaded) return; // tab not opened — initial loadGlobalFeed will pick it up
     if (_globalPosts.find(p => p.id === rowId)) return; // already on screen
-    const { data } = await db.from('community_posts')
-      .select('id, hive_id, author_name, content, category, created_at, edited_at, mentions, deleted_at, hives(name)')
+    const { data } = await db.from('v_community_posts_truth')
+      .select('id, hive_id, author_name, content, category, created_at, edited_at, mentions, deleted_at, hive_name')
       .eq('id', rowId).eq('public', true).eq('flagged', false).is('deleted_at', null).maybeSingle();
     if (!data) return;
     if (_globalPosts.find(p => p.id === data.id)) return; // race dedup
@@ -1962,9 +1962,9 @@
 
   // ── @mentions ────────────────────────────────────────────────────────────────
   async function loadHiveMembers() {
-    const { data } = await db.from('hive_members')
+    const { data } = await db.from('v_worker_truth')
       .select('worker_name, role')
-      .eq('hive_id', HIVE_ID).neq('status', 'kicked');
+      .eq('hive_id', HIVE_ID).neq('hive_status', 'kicked');
     _hiveMembers = (data || []).filter(m => m.worker_name && m.worker_name !== WORKER_NAME);
   }
 

@@ -433,7 +433,7 @@
     showSkeletons();
     try {
       const { data, error } = await db
-        .from('marketplace_listings')
+        .from('v_marketplace_listings_truth')
         .select('id,title,description,section,category,condition,price,location,seller_name,seller_contact,image_url,status,created_at')
         .eq('status', status)
         .order('created_at', { ascending: true })
@@ -469,9 +469,9 @@
   async function loadStats() {
     try {
       const [draftRes, pubRes, remRes, sellersRes] = await Promise.all([
-        db.from('marketplace_listings').select('id', { count: 'exact', head: true }).eq('status', 'draft'),
-        db.from('marketplace_listings').select('id', { count: 'exact', head: true }).eq('status', 'published'),
-        db.from('marketplace_listings').select('id', { count: 'exact', head: true }).eq('status', 'removed'),
+        db.from('v_marketplace_listings_truth').select('id', { count: 'exact', head: true }).eq('status', 'draft'),
+        db.from('v_marketplace_listings_truth').select('id', { count: 'exact', head: true }).eq('status', 'published'),
+        db.from('v_marketplace_listings_truth').select('id', { count: 'exact', head: true }).eq('status', 'removed'),
         db.from('v_marketplace_sellers_truth').select('kyb_verified', { count: 'exact' }),
       ]);
       _stats.draft      = draftRes.count  || 0;

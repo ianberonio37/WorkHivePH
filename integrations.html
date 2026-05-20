@@ -164,6 +164,8 @@
   </style>
 </head>
 <body>
+<main>
+
 
 <div id="toast" role="status" aria-live="polite"></div>
 
@@ -1827,7 +1829,7 @@
         const extStatus = ext.status;
         if (!machine) continue;
 
-        const { data: logRows } = await db.from('logbook')
+        const { data: logRows } = await db.from('v_logbook_truth')
           .select('id, machine, status, worker_name, date')
           .eq('hive_id', HIVE_ID)
           .eq('machine', machine)
@@ -1894,5 +1896,6 @@
 </script>
 <script src="nav-hub.js"></script>
 <script src="companion-launcher.js"></script>
+</main>
 </body>
 </html>

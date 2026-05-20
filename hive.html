@@ -2911,7 +2911,8 @@ async function buildNotifications() {
 }
 
 // ── PM HEALTH ──
-const HIVE_FREQ_DAYS = { Monthly: 30, Quarterly: 90, 'Semi-Annual': 180, Yearly: 365 };
+// frequency_days mapping used to live here as HIVE_FREQ_DAYS; deleted 2026-05-20
+// because v_pm_scope_items_truth bakes the same map into next_due_date.
 const HIVE_DUE_SOON  = 14;
 
 async function loadPMHealth() {

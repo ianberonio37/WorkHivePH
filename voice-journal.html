@@ -678,11 +678,12 @@
         // account-level default propagates here so the chip starts on
         // the worker's saved choice). Falls back to localStorage if the
         // column read fails (older DBs without the migration).
-        const { data: profile } = await db.from('worker_profiles')
-          .select('display_name, preferred_persona')
+        const { data: profile } = await db.from('v_worker_truth')
+          .select('worker_name, preferred_persona')
           .eq('auth_uid', AUTH_UID)
+          .limit(1)
           .maybeSingle();
-        WORKER_NAME = profile?.display_name || sess.session.user.email || 'You';
+        WORKER_NAME = profile?.worker_name || sess.session.user.email || 'You';
         if (profile?.preferred_persona && PERSONAS[profile.preferred_persona]) {
           _persona = profile.preferred_persona;
           localStorage.setItem(PERSONA_STORAGE_KEY, _persona);

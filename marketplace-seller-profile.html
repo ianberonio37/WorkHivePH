@@ -492,7 +492,7 @@
   async function loadListings() {
     try {
       const { data } = await db
-        .from('marketplace_listings')
+        .from('v_marketplace_listings_truth')
         .select('id,title,section,category,condition,price,location,image_url,created_at')
         .eq('seller_name', WORKER_VIEW)
         .eq('status', 'published')

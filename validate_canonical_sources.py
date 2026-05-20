@@ -130,7 +130,11 @@ HTML_OWNERS = {
     # asset_nodes directly.
     "logbook.html":       {"logbook", "asset_nodes"},
     "inventory.html":     {"inventory_items", "asset_nodes"},
-    "pm-scheduler.html":  {"pm_assets", "pm_scope_items", "asset_nodes"},
+    # pm_scope_items was here but reads now go through v_pm_scope_items_truth
+    # to match the home dashboard PM Overdue tile (was 21 vs 0 disagreement).
+    # The page still writes pm_scope_items via .insert(); the validator skips
+    # writes (verb != select), so this only affects SELECT enforcement.
+    "pm-scheduler.html":  {"pm_assets", "asset_nodes"},
     "parts-tracker.html": {"inventory_items", "logbook", "asset_nodes"},
     "hive.html":          {"asset_nodes"},      # supervisor approval queue
     "project-manager.html": {"asset_nodes"},    # project asset linker
@@ -212,6 +216,8 @@ CANONICAL_PAIRS = {
     "logbook":             "v_logbook_truth",
     "inventory_items":     "v_inventory_items_truth",
     "marketplace_sellers": "v_marketplace_sellers_truth",
+    "marketplace_listings": "v_marketplace_listings_truth",
+    "community_posts":     "v_community_posts_truth",
     "rcm_pf_intervals":    "v_pf_truth",
 }
 

@@ -884,6 +884,8 @@ function isSupervisor() { return HIVE_ROLE === 'supervisor'; }
 /* ── Init: hive gate, identity, data load ──────────────────── */
 async function validateHiveMembership() {
   if (!HIVE_ID || !WORKER_NAME) return false;
+  // canonical-allow: auth-check probe on the membership row itself; the row
+  // returning maybeSingle() is the auth signal, not a display fan-out
   const { data, error } = await db.from('hive_members')
     .select('role').eq('hive_id', HIVE_ID).eq('worker_name', WORKER_NAME).maybeSingle();
   if (error) { console.warn('membership check error:', error.message); return true; }
@@ -949,6 +951,9 @@ async function validateHiveMembership() {
 
 /* ── Hive members (for owner picker) ───────────────────────── */
 async function loadHiveMembers() {
+  // canonical-allow: project owner picker needs hive_members rows directly
+  // (active membership for THIS hive, ordered for the dropdown); v_worker_truth
+  // is a worker-centric composite that doesn't expose the same ordering scope
   const { data, error } = await db.from('hive_members')
     .select('worker_name').eq('hive_id', HIVE_ID).order('worker_name');
   if (error) { console.warn(error.message); return; }
@@ -2211,10 +2216,11 @@ async function loadLinkOptions() {
   const queries = {
     asset:               () => db.from('asset_nodes').select('id, name').eq('hive_id', HIVE_ID).order('name').limit(200),
     logbook:             () => db.from('v_logbook_truth').select('id, machine, problem, created_at').eq('hive_id', HIVE_ID).order('created_at', { ascending: false }).limit(50),
+    // canonical-allow: project link picker needs individual completion rows; v_pm_compliance_truth aggregates only
     pm_completion:       () => db.from('pm_completions').select('id, asset_id, completed_at').eq('hive_id', HIVE_ID).order('completed_at', { ascending: false }).limit(50),
     inventory_item:      () => db.from('v_inventory_items_truth').select('id, part_name, part_number').eq('hive_id', HIVE_ID).order('part_name').limit(200),
     engineering_calc:    () => db.from('engineering_calcs').select('id, calc_type, project_name, created_at').eq('hive_id', HIVE_ID).order('created_at', { ascending: false }).limit(30),
-    marketplace_listing: () => db.from('marketplace_listings').select('id, title').eq('hive_id', HIVE_ID).order('created_at', { ascending: false }).limit(30),
+    marketplace_listing: () => db.from('v_marketplace_listings_truth').select('id, title').eq('hive_id', HIVE_ID).order('created_at', { ascending: false }).limit(30),
   };
   const fn = queries[t]; if (!fn) { $('l-picker').innerHTML = ''; return; }
   const { data, error } = await fn();

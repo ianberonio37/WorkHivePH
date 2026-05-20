@@ -973,25 +973,12 @@ const PM_TEMPLATES = {
 // ─────────────────────────────────────
 // DUE DATE ENGINE
 // ─────────────────────────────────────
-const FREQ_DAYS = { 'Monthly': 30, 'Quarterly': 90, 'Semi-Annual': 180, 'Yearly': 365 };
-const DUE_SOON_DAYS = 14;
-
-function calcNextDue(lastDate, freq) {
-  if (!lastDate) return null;
-  const d = new Date(lastDate);
-  d.setDate(d.getDate() + (FREQ_DAYS[freq] || 90));
-  return d;
-}
-
-function getItemStatus(nextDue) {
-  if (!nextDue) return 'nodata';
-  const today = new Date(); today.setHours(0, 0, 0, 0);
-  const due   = new Date(nextDue); due.setHours(0, 0, 0, 0);
-  const diff  = Math.floor((due - today) / 86400000);
-  if (diff < 0)              return 'overdue';
-  if (diff <= DUE_SOON_DAYS) return 'duesoon';
-  return 'ontrack';
-}
+// Truth-math (frequency-days map + due-date computation + status classifier)
+// used to live here as a local reimplementation of the canonical view's logic.
+// Deleted 2026-05-20 because v_pm_scope_items_truth bakes is_overdue,
+// is_due_soon and next_due_date in directly. The fallback was the bug that
+// caused the home dashboard tile (21 PM Overdue) to disagree with this page
+// (0 overdue) for never-completed-no-anchor items.
 
 function getAssetOverallStatus(items) {
   if (!items || !items.length) return 'nodata';
@@ -1102,6 +1089,7 @@ function critBadge(crit) {
 // ─────────────────────────────────────
 async function validateHiveMembership() {
   if (!HIVE_ID || !WORKER_NAME) return; // solo worker: no gate needed
+  // canonical-allow: auth-check probe on membership row presence; access gate, not display
   const { data: membership, error } = await db
     .from('hive_members')
     .select('role, status')
@@ -1208,10 +1196,18 @@ async function loadData() {
 
   const assetIds = assets.map(a => a.id);
 
-  // pm_scope_items has no worker_name: always filter by asset_id
-  // pm_completions has worker_name but asset_id filter is safer and consistent
-  // In hive mode, add hive_id scope explicitly: sub-queries do not inherit parent hive scope
-  let scopeQ = db.from('pm_scope_items').select('*').in('asset_id', assetIds).order('created_at', { ascending: true });
+  // Scope items read through the canonical view v_pm_scope_items_truth so
+  // is_overdue / is_due_soon / next_due_date are baked in by the same rule
+  // the home dashboard tile uses (COALESCE last_completion -> anchor_date ->
+  // created_at + frequency_days). Reading the raw table reimplemented this
+  // math locally and disagreed with the tile for never-completed items —
+  // that bug shipped to users as "21 overdue" on hive vs "0 overdue" here.
+  // pm_completions stays raw: the detail view needs full completion history,
+  // not just the latest one the view exposes. canonical-allow: history list
+  let scopeQ = db.from('v_pm_scope_items_truth')
+    .select('id:scope_item_id, asset_id, hive_id, item_text, frequency, anchor_date, is_custom, frequency_days, last_completed_at, last_completed_by, next_due_date, days_until_due, is_overdue, is_due_soon, created_at')
+    .in('asset_id', assetIds).order('created_at', { ascending: true });
+  // canonical-allow: detail view needs full completion history (the view only exposes last_completed_at)
   let compsQ = db.from('pm_completions').select('*').in('asset_id', assetIds).order('completed_at', { ascending: false });
   if (HIVE_ID) { scopeQ = scopeQ.eq('hive_id', HIVE_ID); compsQ = compsQ.eq('hive_id', HIVE_ID); }
   const [itemsRes, compRes] = await Promise.all([scopeQ, compsQ]);
@@ -1249,6 +1245,10 @@ async function subscribeRealtime() {
 // ─────────────────────────────────────
 // DERIVE ENRICHED ITEMS FOR AN ASSET
 // ─────────────────────────────────────
+// Trusts v_pm_scope_items_truth for is_overdue / is_due_soon / next_due_date
+// so this page agrees with the home dashboard tile. The view's rule is
+// COALESCE(last_completion, anchor_date, created_at) + frequency_days,
+// which correctly treats never-completed-but-aged scope items as overdue.
 function getEnrichedItems(assetId) {
   const items = scopeItems.filter(i => i.asset_id === assetId);
   return items.map(item => {
@@ -1256,9 +1256,19 @@ function getEnrichedItems(assetId) {
       .filter(c => c.scope_item_id === item.id && c.status === 'done')
       .sort((a, b) => new Date(b.completed_at) - new Date(a.completed_at))[0];
 
-    const lastDate  = lastComp ? lastComp.completed_at : item.anchor_date;
-    const nextDue   = calcNextDue(lastDate, item.frequency);
-    const st        = getItemStatus(nextDue);
+    let nextDue, st;
+    if (item.next_due_date) {
+      nextDue = new Date(item.next_due_date);
+      st = item.is_overdue ? 'overdue'
+         : item.is_due_soon ? 'duesoon'
+         : 'ontrack';
+    } else {
+      // View was unavailable (network / RLS); without the canonical truth
+      // we deliberately surface 'nodata' instead of guessing — the home
+      // dashboard tile is the safe reference if the user wants the count.
+      nextDue = null;
+      st = 'nodata';
+    }
 
     return { ...item, lastComp, nextDue, itemStatus: st };
   });
@@ -1819,6 +1829,7 @@ async function _autoLinkPmToProject(compData, asset) {
     .eq('link_id', asset.id);
   if (!assetLinks?.length) return;
   const projectIds = [...new Set(assetLinks.map(l => l.project_id))];
+  // canonical-allow: project_links join already constrained the id set; targeted fetch
   const { data: projs } = await db.from('projects')
     .select('id, project_code, status')
     .in('id', projectIds)
@@ -1868,11 +1879,13 @@ async function loadRegisteredAssets() {
 
   loadingEl.classList.remove('hidden');
 
+  // canonical-allow: asset wizard picker uses legacy-aliased col shape (asset_id:tag, type:iso_class) for the existing _assets[] consumers; v_asset_truth uses canonical names
   const queries = [
     db.from('asset_nodes').select('id, name, asset_id:tag, type:iso_class, location, criticality').eq('worker_name', WORKER_NAME).is('hive_id', null),
   ];
   if (HIVE_ID) {
     queries.push(
+      // canonical-allow: same picker shape requirement as solo branch above
       db.from('asset_nodes').select('id, name, asset_id:tag, type:iso_class, location, criticality').eq('hive_id', HIVE_ID).eq('status', 'approved')
     );
   }

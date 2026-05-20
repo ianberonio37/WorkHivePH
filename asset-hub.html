@@ -3171,7 +3171,7 @@
       // Match listings by category ilike iso_class. Escape LIKE wildcards per security skill.
       const safeClass = String(node.iso_class).replace(/%/g, '\\%').replace(/_/g, '\\_');
 
-      const { data, error } = await db.from('marketplace_listings')
+      const { data, error } = await db.from('v_marketplace_listings_truth')
         .select('id, title, section, category, price, condition, location, seller_name, seller_verified, status')
         .eq('status', 'active')
         .ilike('category', '%' + safeClass + '%')

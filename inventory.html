@@ -913,7 +913,7 @@ function renderParts() {
     return `
     <div class="part-card stock-${st} p-5 mb-3">
       <div class="flex items-start gap-4">
-        ${item.photo ? `<img src="${item.photo}" class="photo-thumb flex-shrink-0 mt-0.5" />` : ''}
+        ${item.photo ? `<img src="${item.photo}" alt="Inventory item photo" class="photo-thumb flex-shrink-0 mt-0.5" />` : ''}
         <div class="flex-1 min-w-0">
           <div class="flex items-start justify-between gap-2 mb-1">
             <div class="flex items-center gap-2 flex-wrap">
@@ -1355,7 +1355,7 @@ function openDetailModal(id) {
         </div>
         <p class="text-base text-white/70 font-medium mb-4">${escHtml(item.part_name)}</p>
       </div>
-      ${item.photo && (item.photo.startsWith('data:image/') || item.photo.startsWith('https://')) ? `<img src="${item.photo}" class="photo-thumb flex-shrink-0" />` : ''}
+      ${item.photo && (item.photo.startsWith('data:image/') || item.photo.startsWith('https://')) ? `<img src="${item.photo}" alt="Inventory item photo" class="photo-thumb flex-shrink-0" />` : ''}
     </div>
     ${item.status === 'pending' && HIVE_ID ? `
     <div class="rounded-xl px-4 py-3 mb-4 flex items-start gap-2.5" style="background:rgba(247,162,27,0.07);border:1px solid rgba(247,162,27,0.22);">
@@ -1565,6 +1565,10 @@ async function initData() {
       db.from('inventory_items').select('*').eq('hive_id', HIVE_ID).eq('status', 'approved').order('created_at'),
       db.from('inventory_items').select('*').eq('hive_id', HIVE_ID).eq('worker_name', WORKER_NAME).order('created_at')
     ]);
+    // canonical-allow: inventory's asset picker writes back asset_nodes
+    // (LS-migration upserts below) and needs the exact column set ASSET_COLS
+    // it just wrote; v_asset_truth aliases asset_nodes.id → asset_id which
+    // breaks the existing _buildAssetNodeMaps() consumer
     assetsFetches = Promise.all([
       db.from('asset_nodes').select(ASSET_COLS).eq('hive_id', HIVE_ID).eq('status', 'approved').order('created_at'),
       db.from('asset_nodes').select(ASSET_COLS).eq('worker_name', WORKER_NAME).order('created_at')
@@ -1580,6 +1584,7 @@ async function initData() {
     // the last 365 days, max 500 rows, newest-first. Workers very rarely
     // need older context. Detail modal slices per-item from this window.
     db.from('inventory_transactions').select('*').eq('worker_name', WORKER_NAME).gte('created_at', new Date(Date.now() - 365*24*60*60*1000).toISOString()).order('created_at', { ascending: false }).limit(500),
+    // canonical-allow: solo-mode asset list — same write-companion read as above, ASSET_COLS shape required
     HIVE_ID ? Promise.resolve({ data: null }) : db.from('asset_nodes').select(ASSET_COLS).eq('worker_name', WORKER_NAME).is('hive_id', null).order('created_at'),
     itemsFetches,
     assetsFetches
@@ -1659,6 +1664,7 @@ async function initData() {
       await db.from('asset_nodes').upsert(payload);
     }
     localStorage.removeItem(ASSETS_KEY);
+    // canonical-allow: post-upsert read-back to refresh the local cache after localStorage migration
     const { data: migA } = await db.from('asset_nodes').select(ASSET_COLS)
       .eq('worker_name', WORKER_NAME).is('hive_id', null).order('created_at');
     _assets = migA || [];
@@ -1678,6 +1684,7 @@ async function initData() {
 // ────────────────────────────────────────────
 async function validateHiveMembership() {
   if (!HIVE_ID || !WORKER_NAME) return true; // solo worker: no gate needed
+  // canonical-allow: auth-check probe on membership row presence; this is the access gate, not a display read
   const { data: membership, error } = await db
     .from('hive_members')
     .select('role, status')

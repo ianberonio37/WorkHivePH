@@ -202,7 +202,7 @@
   }
 
   async function fetchPage() {
-    let q = _DB.from('community_posts')
+    let q = _DB.from('v_community_posts_truth')
       .select('id, author_name, content, category, created_at')
       .eq('public', true)
       .eq('flagged', false)

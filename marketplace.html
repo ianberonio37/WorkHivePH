@@ -1634,7 +1634,7 @@
       }
 
       const { data, error } = await db
-        .from('marketplace_listings')
+        .from('v_marketplace_listings_truth')
         .select('id,title,section,category,price,location,seller_name,image_url,status,created_at')
         .in('id', ids)
         .order('created_at', { ascending: false });
@@ -1937,7 +1937,7 @@
 
     try {
       let q = db
-        .from('marketplace_listings')
+        .from('v_marketplace_listings_truth')
         .select('id,title,description,section,category,condition,price,location,seller_name,seller_verified,completed_sales,rating_avg,image_url,created_at')
         .eq('status', 'published')
         .eq('section', _section)
@@ -1989,7 +1989,7 @@
   async function loadCounts() {
     try {
       const { data } = await db
-        .from('marketplace_listings')
+        .from('v_marketplace_listings_truth')
         .select('section')
         .eq('status', 'published');
       if (data) {

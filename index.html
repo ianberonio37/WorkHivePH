@@ -3447,6 +3447,8 @@
       } else {
         const assetIds = pmAssets.map(a => a.id).filter(Boolean);
         try {
+          // canonical-allow: solo-mode fallback — v_pm_compliance_truth is hive-scoped only;
+          // need individual completion rows to compute per-asset cutoff client-side
           const { data: comps } = await db.from('pm_completions')
             .select('asset_id, completed_at')
             .in('asset_id', assetIds)

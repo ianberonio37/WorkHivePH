@@ -552,6 +552,18 @@
       "severity": "low"
     },
     {
+      "id": "frontend_kpi_page_no_local_truth_math",
+      "skill": "frontend",
+      "section": "Canonical Drift -- No Local Truth-Math on KPI Pages",
+      "summary": "Pages that render hero KPIs must not define local truth-math constants (FREQ_DAYS, RISK_TIERS, OEE_FACTORS, SEVERITY_WEIGHTS, calcNextDue, computeOEE, computeMTBF, computeCompliance) when a canonical v_*_truth view bakes the same math in",
+      "scope": "html_pages",
+      "polarity": "anti_pattern",
+      "pattern": "\\b(FREQ_DAYS|HIVE_FREQ_DAYS|RISK_TIERS?|OEE_FACTORS?|SEVERITY_WEIGHTS?)\\s*=\\s*\\{|\\b(calcNextDue|computeOEE|computeMTBF|computeCompliance)\\s*\\(",
+      "triggered_by": "pm_scope_items|pm_completions|pm_assets|asset_risk_scores|logbook|inventory_items",
+      "rationale": "Symptom from 2026-05-20: home dashboard tile said `21 PM OVERDUE` but pm-scheduler.html showed `0 overdue PMs`. Root cause: pm-scheduler read pm_scope_items raw + reimplemented the due-date math locally (FREQ_DAYS + calcNextDue), while hive.html read v_pm_scope_items_truth. Two definitions of overdue diverged for never-completed items. Truth-math must live in exactly one place -- the canonical view. The triggered_by clause narrows the rule to pages actually touching PM / risk / OEE / inventory truth contexts; dayplanner's getItemStatus() returns upcoming/done/missed for schedule events, not overdue/duesoon for compliance, so the generic getItemStatus name was dropped to avoid a domain collision. Pair with tools/mine_canonical_drift_platform.py + validate_user_facing_kpi_canonical.py + tests/journey-cross-surface-kpi-parity.spec.ts.",
+      "severity": "high"
+    },
+    {
       "id": "frontend_calm_dashboard_declares_source_chip",
       "skill": "frontend",
       "section": "Calm Dashboard Contract -- Declare Canonical Sources",
