@@ -69,8 +69,10 @@ PAGES = [
 ]
 
 # id pattern that signals "this element will display a computed value"
+# Widened 2026-05-20 to also catch: -bar, -tier, -trend, -txt, -label suffix,
+# oh-stat-*, kpi-*, sum-* prefix patterns.
 DISPLAY_ID_RE = re.compile(
-    r"""<(?:span|div|td|strong|p)\s+[^>]*\bid=["']([a-z][\w-]*?(?:-(?:num|count|total|pct|avg|score|days|hours|level|val|value|stat|sum|min|max|rate|ratio|index)\b|stat-[a-z-]+|[a-z]+-stat\b))["']""",
+    r"""<(?:span|div|td|strong|p)\s+[^>]*\bid=["']([a-z][\w-]*?(?:-(?:num|count|total|pct|avg|score|days|hours|level|val|value|stat|sum|min|max|rate|ratio|index|bar|tier|trend|txt|label|days|hours|earned|spent|rpn|xp)\b|stat-[a-z-]+|[a-z]+-stat\b|^(?:oh-|kpi-|sum-|amc-|count-|pulse-|welcome-|stat-)[a-z-]+))["']""",
     re.IGNORECASE,
 )
 
@@ -78,22 +80,23 @@ DISPLAY_ID_RE = re.compile(
 # Value is `kind`: 'metric' (needs formula contract), 'raw' (count/timestamp),
 # 'unknown' (catch-all).
 METRIC_TOKENS = {
-    # Core reliability metrics (have/should have contracts)
+    # Core reliability metrics
     "mtbf": "metric", "mttr": "metric", "availability": "metric",
     "oee": "metric", "performance": "metric", "quality": "metric",
     "risk": "metric", "health": "metric",
     "compliance": "metric", "pm-overdue": "metric", "overdue": "metric",
     "rpn": "metric", "fmea": "metric", "weibull": "metric",
-    "pf-interval": "metric", "anomaly": "metric",
-    # Engineering calc families (need contracts)
+    "pf-interval": "metric", "pf-pf": "metric", "anomaly": "metric",
+    # Engineering calc families
     "bearing-life": "metric", "pipe-pressure": "metric", "head": "metric",
     "torque": "metric", "thermal": "metric", "load": "metric",
     "flow": "metric", "head-loss": "metric", "npsh": "metric",
     "motor-power": "metric", "hvac": "metric",
-    # Gamification + adoption (likely contracts needed)
+    "tg-eg": "metric", "tg-lg": "metric", "tg-oa": "metric", "tg-preload": "metric",
+    # Gamification + adoption
     "xp": "metric", "level": "metric", "tier": "metric",
     "stair": "metric", "composite": "metric", "readiness": "metric",
-    "adoption": "metric", "maturity": "metric",
+    "adoption": "metric", "maturity": "metric", "ring-pct": "metric",
     # AI / cost
     "thumbs": "metric", "trust": "metric", "cost": "metric",
     "savings": "metric", "spend": "metric", "tokens": "metric",
@@ -103,7 +106,11 @@ METRIC_TOKENS = {
     # Project EVM
     "spi": "metric", "cpi": "metric", "budget": "metric",
     "progress": "metric", "schedule": "metric",
-    # Pure raw display (no contract needed)
+    # Marketplace
+    "earned": "metric", "rating": "metric", "dispute": "metric",
+    # Skill / exam
+    "exam": "metric", "result-score": "metric",
+    # Raw display (no contract needed)
     "open-jobs": "raw", "open": "raw", "jobs-today": "raw",
     "members": "raw", "stat-members": "raw",
     "stock-issues": "raw", "low-stock": "raw",
@@ -111,6 +118,14 @@ METRIC_TOKENS = {
     "today": "raw", "active-alerts": "raw", "alerts": "raw",
     "count": "raw", "total": "raw",
     "last-updated": "raw", "updated-at": "raw",
+    # Hive invite / lookup codes (not computed values)
+    "code-strip": "raw", "code-value": "raw", "code": "raw",
+    # AMC stat tiles (raw counts from JSONB)
+    "amc-stat": "raw",
+    # Platform-health streak counter (raw count of consecutive clean runs)
+    "streak": "raw",
+    # Marketplace seller dashboard stat counters (raw aggregates)
+    "pstat": "raw",
 }
 
 

@@ -368,6 +368,13 @@ async function callGroqSynthesis(
 
   const systemPrompt = `You are a senior maintenance manager writing a weekly action plan for an industrial team.
 
+Cite the same standards the platform's deterministic calcs use:
+  • MTBF / MTTR / Availability → ISO 14224:2016 §9.2-9.4 (note: platform MTBF/MTTR are partial variants — MTBF uses calendar time, MTTR uses total downtime — declare partial when discussing them)
+  • OEE → ISO 22400-2:2014 §5.5 (platform ships partial A × Q until ideal cycle time captured per asset)
+  • PM compliance → SMRP Best Practices v5.0 Metric 2.1.1 (platform 30-day floor is a coarser approximation)
+  • Risk score → SAE JA1011 §5.4 + IEC 60812 (platform-calibrated composite)
+  • Sensor anomaly → Z-Score 3-sigma rule
+
 The analytics data covers all 4 ISO/SMRP phases:
   • Descriptive: what happened. MTBF, MTTR, OEE, Pareto of downtime causes
   • Diagnostic: why. failure mode distribution, repeat failures, PM-failure correlation, skill-MTTR correlation

@@ -368,6 +368,103 @@
       "added_in":    "extension 2026-05-20"
     },
     {
+      "standard_id":  "platform_adoption_observability",
+      "short_name":   "WorkHive Adoption Risk",
+      "full_title":   "Platform-internal adoption-risk scoring rubric — Phase 3 adoption observability",
+      "publisher":    "WorkHive Platform",
+      "edition_year": 2026,
+      "clauses": {
+        "adoption_risk_composite": {
+          "name":            "Adoption Risk Score",
+          "canonical_formula": "risk = weighted_avg(supervisor_decay_risk, stair_stall_risk, new_worker_silence_risk)",
+          "required_inputs": ["supervisor_decay_risk", "stair_stall_risk", "new_worker_silence_risk"],
+          "units":           "pct (0-100, higher = greater churn risk)",
+          "notes":           "Platform-internal Phase 3 rubric documented in compute_adoption_risk RPC. 3 component risks composited into a single hive-level adoption score."
+        }
+      },
+      "url":         "internal: migration 20260513000004_phase3_adoption_observability.sql",
+      "added_in":    "extension 2026-05-20"
+    },
+    {
+      "standard_id":  "platform_marketplace_seller_score",
+      "short_name":   "WorkHive Marketplace Seller Score",
+      "full_title":   "Platform-internal seller quality composite (verification + ratings + disputes)",
+      "publisher":    "WorkHive Platform",
+      "edition_year": 2026,
+      "clauses": {
+        "seller_quality": {
+          "name":            "Marketplace Seller Quality",
+          "canonical_formula": "score = f(rating_avg, kyb_verified, cert_verified, dispute_rate, listing_age_days)",
+          "required_inputs": ["rating_avg_1_to_5", "kyb_verified", "cert_verified", "dispute_rate"],
+          "units":           "score (0-100)",
+          "notes":           "Platform composite blending Stripe Connect verification + buyer ratings + dispute history. Distinct from OEE Quality — domain is marketplace trust, not production-output quality."
+        }
+      },
+      "url":         "internal: update_seller_rating RPC + marketplace_sellers table",
+      "added_in":    "extension 2026-05-20"
+    },
+    {
+      "standard_id":  "platform_health_score",
+      "short_name":   "WorkHive Platform Health",
+      "full_title":   "Platform-internal validator-pass composite (validators + DAU + AI cost + hives)",
+      "publisher":    "WorkHive Platform",
+      "edition_year": 2026,
+      "clauses": {
+        "validator_pass_pct": {
+          "name":            "Platform Health Score",
+          "canonical_formula": "score = (pass / (pass + fail + warn)) * 100",
+          "required_inputs": ["validator_pass_count", "validator_fail_count", "validator_warn_count"],
+          "units":           "pct (0-100)",
+          "notes":           "Founder-console + platform-health ring percentage. Excludes SKIP from denominator. Green ≥85, amber ≥60, red <60."
+        }
+      },
+      "url":         "internal: platform_health.json + founder-console + platform-health.html",
+      "added_in":    "extension 2026-05-20"
+    },
+    {
+      "standard_id":  "platform_skill_tier_model",
+      "short_name":   "WorkHive Skill Tier Model",
+      "full_title":   "Platform-internal 5-tier skill ladder (Foundation/Practitioner/Expert/Master/Sage)",
+      "publisher":    "WorkHive Platform",
+      "edition_year": 2026,
+      "clauses": {
+        "skill_level": {
+          "name":            "Skill Level Tier",
+          "canonical_formula": "tier = bucket(exam_score) where 0-39=L0, 40-59=L1, 60-74=L2, 75-89=L3, 90-100=L4",
+          "required_inputs": ["exam_score_0_to_100"],
+          "units":           "enum (0-4 tier index)",
+          "notes":           "Platform skill-matrix tier ladder. Distinct from achievement tier (XP-based) — this is exam-driven."
+        },
+        "exam_score": {
+          "name":            "Skill Exam Score",
+          "canonical_formula": "score = correct_answers / total_questions * 100",
+          "required_inputs": ["correct_answers", "total_questions"],
+          "units":           "pct (0-100)",
+          "notes":           "Raw skill exam scoring; feeds into skill_level tier bucketing."
+        }
+      },
+      "url":         "internal: skill_exam_attempts + skillmatrix.html",
+      "added_in":    "extension 2026-05-20"
+    },
+    {
+      "standard_id":  "platform_achievement_tiers",
+      "short_name":   "WorkHive Achievement Tier Model",
+      "full_title":   "Platform-internal achievement-card XP-tier ladder",
+      "publisher":    "WorkHive Platform",
+      "edition_year": 2026,
+      "clauses": {
+        "achievement_level": {
+          "name":            "Achievement Card Level",
+          "canonical_formula": "level = floor(xp_earned / xp_per_level) clamped to [0, max_level]",
+          "required_inputs": ["xp_earned", "xp_per_level"],
+          "units":           "level (integer)",
+          "notes":           "Card-specific XP-to-level scaling defined per achievement definition row."
+        }
+      },
+      "url":         "internal: achievement_definitions + worker_achievements + achievements.html",
+      "added_in":    "extension 2026-05-20"
+    },
+    {
       "standard_id":  "platform_maturity_stair",
       "short_name":   "WorkHive Stair Model",
       "full_title":   "Platform-internal maturity model — 5-stair ladder per Hive Readiness rubric",

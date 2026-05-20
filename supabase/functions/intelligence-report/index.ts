@@ -176,9 +176,9 @@ Active plants: ${(data.summary as Record<string, unknown>)?.active_hives}
 Work orders analyzed: ${(data.summary as Record<string, unknown>)?.work_orders}
 Unique equipment monitored: ${(data.summary as Record<string, unknown>)?.unique_machines}
 
-Top MTBF (days between failures): ${JSON.stringify((data.mtbf_rankings as unknown[])?.slice(0, 5))}
+Top MTBF (ISO 14224:2016 §9.3, days between failures — platform variant uses CALENDAR time, not operating time): ${JSON.stringify((data.mtbf_rankings as unknown[])?.slice(0, 5))}
 
-Most common failure causes: ${JSON.stringify((data.failure_modes as unknown[])?.slice(0, 5))}
+Most common failure causes (ISO 14224:2016 failure mode taxonomy): ${JSON.stringify((data.failure_modes as unknown[])?.slice(0, 5))}
 
 Parts chronically low across multiple plants: ${JSON.stringify(data.chronic_low_stock)}
 
