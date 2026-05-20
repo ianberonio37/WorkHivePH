@@ -151,6 +151,29 @@ test.describe('Canonical Lineage Sentinel (L2 report-shape contract)', () => {
     }
   });
 
+  test('displayed_values_report.json: per-page classification of every value-display anchor', async () => {
+    const r = await loadJson('displayed_values_report.json');
+    expect(r.summary).toBeDefined();
+    for (const k of [
+      'pages_scanned', 'total_display_anchors', 'contracted',
+      'uncontracted', 'raw', 'unknown', 'formula_ids_in_registry',
+    ]) {
+      expect(r.summary[k], `summary.${k} must exist`).toBeDefined();
+    }
+    // Bucket-sum invariant — every anchor classifies into exactly one of 4 buckets
+    expect(
+      r.summary.contracted + r.summary.uncontracted + r.summary.raw + r.summary.unknown
+    ).toBe(r.summary.total_display_anchors);
+
+    // Per-page contract — every entry is an object with the 4 buckets as arrays
+    expect(typeof r.by_page).toBe('object');
+    for (const [page, e] of Object.entries(r.by_page as Record<string, any>)) {
+      for (const bucket of ['contracted', 'uncontracted', 'raw', 'unknown']) {
+        expect(Array.isArray(e[bucket]), `${page}.${bucket} must be an array`).toBe(true);
+      }
+    }
+  });
+
   test('ai_prompt_standards_report.json: schema (informational; report is the punch list)', async () => {
     const r = await loadJson('ai_prompt_standards_report.json');
     expect(r.summary).toBeDefined();

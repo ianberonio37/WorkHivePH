@@ -222,6 +222,15 @@ VALIDATORS = [
         "skip_if_fast": False,
     },
     {
+        "id":      "displayed-values",
+        "script":  "tools/audit_displayed_values.py",
+        "args":    [],
+        "label":   "Displayed Values Audit (Tier S coverage — every value rendered to users should map to a formula contract OR be classified as raw display)",
+        "group":   "Platform",
+        "report":  "displayed_values_report.json",
+        "skip_if_fast": False,
+    },
+    {
         "id":      "home-stack-coverage",
         "script":  "validate_home_stack_coverage.py",
         "args":    [],
