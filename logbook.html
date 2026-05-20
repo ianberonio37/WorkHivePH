@@ -1880,7 +1880,8 @@ function saveAssets(arr) {
 }
 
 async function initAssets() {
-  const lsAssets = JSON.parse(localStorage.getItem(ASSETS_KEY) || '[]');
+  let lsAssets = [];
+  try { lsAssets = JSON.parse(localStorage.getItem(ASSETS_KEY) || '[]'); } catch (_) { lsAssets = []; }
 
   // Phase 5c: select aliases asset_nodes column names back to the legacy
   // shape so downstream render code keeps reading a.asset_id and a.type.

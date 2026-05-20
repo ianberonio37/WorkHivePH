@@ -164,6 +164,22 @@ test.describe('L0 platform bug-class validators', () => {
   test('native_dialog_calls: validator at or under forward-only baseline', () => {
     assertPass('validate_native_dialog_calls.py');
   });
+  // Flywheel turns 6-10 (2026-05-20): 5 more bug-class validators.
+  test('duplicate_html_id: validator at or under forward-only baseline', () => {
+    assertPass('validate_duplicate_html_id.py');
+  });
+  test('img_alt_coverage: validator at or under forward-only baseline', () => {
+    assertPass('validate_img_alt_coverage.py');
+  });
+  test('json_parse_safety: validator at or under forward-only baseline', () => {
+    assertPass('validate_json_parse_safety.py');
+  });
+  test('fetch_error_handling: validator at or under forward-only baseline', () => {
+    assertPass('validate_fetch_error_handling.py');
+  });
+  test('edge_status_body_consistency: validator at or under forward-only baseline', () => {
+    assertPass('validate_edge_status_body_consistency.py');
+  });
 });
 
 // ---------------------------------------------------------------------------

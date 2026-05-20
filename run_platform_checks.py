@@ -682,6 +682,22 @@ VALIDATORS = [
     {"id":"native-dialog-calls","script":"validate_native_dialog_calls.py","args":[],
      "label":"Native alert/confirm/prompt (production code must use the platform toast/modal stack; forward-only ratchet)",
      "group":"Platform","report":"native_dialog_calls_report.json","skip_if_fast":False},
+    # Flywheel turns 6-10 (2026-05-20): 5 more bug-class L0 ratchets.
+    {"id":"duplicate-html-id","script":"validate_duplicate_html_id.py","args":[],
+     "label":"Duplicate HTML id (every static id is unique per document; forward-only ratchet)",
+     "group":"Platform","report":"duplicate_html_id_report.json","skip_if_fast":False},
+    {"id":"img-alt-coverage","script":"validate_img_alt_coverage.py","args":[],
+     "label":"<img> alt Coverage (every <img> declares an alt attribute; forward-only ratchet)",
+     "group":"Platform","report":"img_alt_coverage_report.json","skip_if_fast":False},
+    {"id":"json-parse-safety","script":"validate_json_parse_safety.py","args":[],
+     "label":"JSON.parse Safety (every JSON.parse() is inside try/catch; forward-only ratchet)",
+     "group":"Platform","report":"json_parse_safety_report.json","skip_if_fast":False},
+    {"id":"fetch-error-handling","script":"validate_fetch_error_handling.py","args":[],
+     "label":"fetch() Error Handling (every fetch() is in try/catch or chained to .catch; forward-only ratchet)",
+     "group":"Platform","report":"fetch_error_handling_report.json","skip_if_fast":False},
+    {"id":"edge-status-body","script":"validate_edge_status_body_consistency.py","args":[],
+     "label":"Edge Status/Body Consistency (HTTP status matches body ok/error semantics; forward-only ratchet)",
+     "group":"Platform","report":"edge_status_body_consistency_report.json","skip_if_fast":False},
     {
         # 2026-05-20 — Flywheel orchestrator: one turn per Mega Gate run.
         # Walks L-1 -> L-1.5 -> L0 -> L2 -> L13, diffs against the previous
@@ -884,6 +900,21 @@ VALIDATORS = [
         "script":  "validate_dialog_quality_extended.py",
         "args":    [],
         "label":   "Dialog Quality Extended (10-layer: turns #5-#14 — persona-switch + stale-guard + topic-interrupt + thanks + asset-prime + greeting + code-switch + sensitive-topic + worker-name + repeat)",
+        "group":   "Platform",
+        "report":  None,
+        "skip_if_fast": False,
+    },
+    {
+        # 2026-05-20 Flywheel turns #15-#24 — different DIMENSION from
+        # the dialog-state stack. TRUST (hallucination, citation),
+        # AUDIO QUALITY (interrupt, acronym pronunciation),
+        # OBSERVABILITY (TTS latency, rate-limit, cost-cap, fallback
+        # UX), CROSS-SURFACE COHERENCE (assistant.html pulls voice-
+        # journal entries), and lifecycle (conversation-end ack).
+        "id":      "ai-companion-trust-observability",
+        "script":  "validate_ai_companion_trust_observability.py",
+        "args":    [],
+        "label":   "AI Companion Trust + Observability (10-layer: turns #15-#24 — hallucination guard + citation + audio interrupt + TTS latency + rate-limit + fallback UX + acronym SSML + assistant journal pull + cost-cap + end ack)",
         "group":   "Platform",
         "report":  None,
         "skip_if_fast": False,

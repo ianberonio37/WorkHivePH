@@ -469,6 +469,12 @@ def _gather() -> dict[str, Any]:
         ("definer",   "security_definer_search_path_report.json", ("drift","baseline")),
         ("dupscript", "duplicate_script_tags_report.json",        ("drift","baseline")),
         ("native",    "native_dialog_calls_report.json",          ("drift","baseline")),
+        # Flywheel turns 6-10 (2026-05-20)
+        ("dupid",     "duplicate_html_id_report.json",            ("drift","baseline")),
+        ("imgalt",    "img_alt_coverage_report.json",             ("drift","baseline")),
+        ("jsonparse", "json_parse_safety_report.json",            ("drift","baseline")),
+        ("fetchcatch","fetch_error_handling_report.json",         ("drift","baseline")),
+        ("edgestatus","edge_status_body_consistency_report.json", ("drift","baseline")),
     ]:
         d = _read_json(fname)
         if d:
@@ -861,6 +867,11 @@ def _print(status: dict[str, Any]) -> int:
         ("definer",   "SECURITY DEFINER search_path:"),
         ("dupscript", "Duplicate <script>/<link>:   "),
         ("native",    "Native alert/confirm/prompt: "),
+        ("dupid",     "Duplicate HTML id:           "),
+        ("imgalt",    "<img> alt coverage:          "),
+        ("jsonparse", "JSON.parse safety:           "),
+        ("fetchcatch","fetch() error handling:      "),
+        ("edgestatus","Edge status/body drift:      "),
     ]:
         val = status.get(f"{key}_val", 0)
         baseline = status.get(f"{key}_baseline", 0)

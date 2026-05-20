@@ -596,7 +596,8 @@ async function loadSchedule() {
     }
   } catch(e) {
     console.warn('Schedule load failed, falling back to localStorage:', e);
-    scheduleItems = JSON.parse(localStorage.getItem('wh_lifeplanner_' + WORKER_NAME) || '[]');
+    try { scheduleItems = JSON.parse(localStorage.getItem('wh_lifeplanner_' + WORKER_NAME) || '[]'); }
+    catch (_) { scheduleItems = []; }
   }
   renderSidebar();
   render();

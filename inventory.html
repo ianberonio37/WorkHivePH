@@ -1563,9 +1563,10 @@ async function initData() {
       ],
     });
   }
-  const lsItems  = JSON.parse(localStorage.getItem(INV_KEY)    || '[]');
-  const lsTxns   = JSON.parse(localStorage.getItem(TXN_KEY)    || '[]');
-  const lsAssets = JSON.parse(localStorage.getItem(ASSETS_KEY) || '[]');
+  let lsItems = [], lsTxns = [], lsAssets = [];
+  try { lsItems  = JSON.parse(localStorage.getItem(INV_KEY)    || '[]'); } catch (_) { lsItems  = []; }
+  try { lsTxns   = JSON.parse(localStorage.getItem(TXN_KEY)    || '[]'); } catch (_) { lsTxns   = []; }
+  try { lsAssets = JSON.parse(localStorage.getItem(ASSETS_KEY) || '[]'); } catch (_) { lsAssets = []; }
 
   // Load inventory: approved hive items + all my own (includes my pending) when in a hive
   let itemsFetches, assetsFetches;

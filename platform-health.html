@@ -1390,6 +1390,7 @@ function render(report) {
 
     fetch('./improvement_backlog.json?t=' + Date.now())
       .then(r => r.ok ? r.json() : [])
+      .catch(() => [])
       .then(items => {
         if (!items || !items.length) {
           btbl.innerHTML = '<div style="padding:.6rem 1rem;font-size:.78rem;color:var(--muted);">No items yet — click Run Improve to scan.</div>';
@@ -1513,7 +1514,7 @@ function render(report) {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({action, id: itemId})
-          }).then(r => r.json()).then(d => {
+          }).then(r => r.json()).catch(() => ({ok: false})).then(d => {
             if (d.ok) {
               if (action === 'in_progress') {
                 loadHealth(); // re-render to show WIP state properly
