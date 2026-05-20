@@ -40,6 +40,10 @@ ALLOW_RE = re.compile(r"edge-fn-allow", re.IGNORECASE)
 HTML_COMMENT_RE = re.compile(r"<!--[\s\S]*?-->")
 
 
+# Sentinel binding: name the L2 test `test('edge_function_invoke: ...')` for coverage credit.
+CHECK_NAMES = ["edge_function_invoke"]
+
+
 def main() -> int:
     edge_dir = ROOT / "supabase" / "functions"
     existing = {p.name for p in edge_dir.iterdir() if p.is_dir() and p.name != "_shared"} if edge_dir.exists() else set()

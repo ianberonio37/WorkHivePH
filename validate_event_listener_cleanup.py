@@ -43,6 +43,10 @@ ALLOW_RE = re.compile(r"listener-cleanup-allow", re.IGNORECASE)
 HTML_COMMENT_RE = re.compile(r"<!--[\s\S]*?-->")
 
 
+# Sentinel binding: name the L2 test `test('event_listener_cleanup: ...')` for coverage credit.
+CHECK_NAMES = ["event_listener_cleanup"]
+
+
 def main() -> int:
     per_page = []
     total_risk = 0

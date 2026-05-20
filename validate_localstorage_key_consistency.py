@@ -48,6 +48,10 @@ ALLOW_RE = re.compile(r"storage-key-allow", re.IGNORECASE)
 HTML_COMMENT_RE = re.compile(r"<!--[\s\S]*?-->")
 
 
+# Sentinel binding: name the L2 test `test('localstorage_key_consistency: ...')` for coverage credit.
+CHECK_NAMES = ["localstorage_key_consistency"]
+
+
 def main() -> int:
     files: list[tuple[str, Path]] = [(n, ROOT / n) for n in PAGES]
     for js in sorted(ROOT.glob("*.js")):

@@ -58,6 +58,10 @@ ALLOW_RE = re.compile(r"role-allow", re.IGNORECASE)
 HTML_COMMENT_RE = re.compile(r"<!--[\s\S]*?-->")
 
 
+# Sentinel binding: name the L2 test `test('role_string_consistency: ...')` for coverage credit.
+CHECK_NAMES = ["role_string_consistency"]
+
+
 def main() -> int:
     files: list[tuple[str, Path]] = [(n, ROOT / n) for n in PAGES]
     for js in sorted(ROOT.glob("*.js")):

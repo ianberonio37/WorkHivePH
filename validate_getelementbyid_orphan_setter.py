@@ -45,6 +45,10 @@ ALLOW_RE = re.compile(r"gid-allow", re.IGNORECASE)
 HTML_COMMENT_RE = re.compile(r"<!--[\s\S]*?-->")
 
 
+# Sentinel binding: name the L2 test `test('getelementbyid_orphan_setter: ...')` for coverage credit.
+CHECK_NAMES = ["getelementbyid_orphan_setter"]
+
+
 def main() -> int:
     per_page = []
     total_orphan = 0

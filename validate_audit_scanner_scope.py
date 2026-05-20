@@ -60,6 +60,10 @@ HTML_GLOB_RE   = re.compile(r'ROOT\.glob\(\s*["\']\*\.html["\']\)|ROOT\.glob\(\s
 SUBDIR_SCAN_RE = re.compile(r"subdir\.rglob\(\s*['\"]\*\.html|ROOT\.rglob\(\s*['\"]\*\.html|for\s+subdir\s+in")
 
 
+# Sentinel binding: name the L2 test `test('audit_scanner_scope: ...')` for coverage credit.
+CHECK_NAMES = ["audit_scanner_scope"]
+
+
 def main() -> int:
     targets: list[Path] = []
     for p in sorted((ROOT / "tools").glob("audit_*.py")):

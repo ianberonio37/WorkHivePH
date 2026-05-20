@@ -44,6 +44,10 @@ ALLOW_RE = re.compile(r"channel-cleanup-allow", re.IGNORECASE)
 HTML_COMMENT_RE = re.compile(r"<!--[\s\S]*?-->")
 
 
+# Sentinel binding: name the L2 test `test('realtime_channel_cleanup: ...')` for coverage credit.
+CHECK_NAMES = ["realtime_channel_cleanup"]
+
+
 def main() -> int:
     per_page = []
     total_channels = 0

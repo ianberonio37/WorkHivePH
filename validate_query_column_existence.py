@@ -97,6 +97,10 @@ def _load_registry() -> dict[str, set[str]]:
     return cols
 
 
+# Sentinel binding: name the L2 test `test('query_column_existence: ...')` for coverage credit.
+CHECK_NAMES = ["query_column_existence"]
+
+
 def main() -> int:
     table_cols = _load_registry()
 

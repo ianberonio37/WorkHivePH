@@ -33,6 +33,10 @@ def _resolve(target: str) -> Path | None:
     return ROOT / t
 
 
+# Sentinel binding: name the L2 test `test('service_worker_shell: ...')` for coverage credit.
+CHECK_NAMES = ["service_worker_shell"]
+
+
 def main() -> int:
     sw = ROOT / "sw.js"
     if not sw.exists():

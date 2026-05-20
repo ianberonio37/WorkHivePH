@@ -231,6 +231,10 @@ def _green(s):  return f"\033[92m{s}\033[0m"
 def _yellow(s): return f"\033[93m{s}\033[0m"
 
 
+# Sentinel binding: name the L2 test `test('orphan_kpi_tiles: ...')` for coverage credit.
+CHECK_NAMES = ["orphan_kpi_tiles"]
+
+
 def main() -> int:
     per_page: list[dict] = []
     total_orphans = 0

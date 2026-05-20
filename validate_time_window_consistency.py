@@ -61,6 +61,10 @@ ALLOW_RE = re.compile(r"time-window-allow", re.IGNORECASE)
 HTML_COMMENT_RE = re.compile(r"<!--[\s\S]*?-->")
 
 
+# Sentinel binding: name the L2 test `test('time_window_consistency: ...')` for coverage credit.
+CHECK_NAMES = ["time_window_consistency"]
+
+
 def main() -> int:
     files: list[tuple[str, Path]] = [(n, ROOT / n) for n in PAGES]
     edge = ROOT / "supabase" / "functions"

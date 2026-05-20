@@ -37,6 +37,10 @@ PAGES = [
 CANONICAL_RE = re.compile(r"""<link\s+rel=['"]canonical['"]\s+href=['"](?P<url>[^'"]+)['"]""", re.IGNORECASE)
 
 
+# Sentinel binding: name the L2 test `test('canonical_url_consistency: ...')` for coverage credit.
+CHECK_NAMES = ["canonical_url_consistency"]
+
+
 def main() -> int:
     per_page = []
     drift = 0

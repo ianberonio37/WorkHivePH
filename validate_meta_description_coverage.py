@@ -41,6 +41,10 @@ CHECKS = [
 ]
 
 
+# Sentinel binding: name the L2 test `test('meta_description_coverage: ...')` for coverage credit.
+CHECK_NAMES = ["meta_description_coverage"]
+
+
 def main() -> int:
     per_page = []
     total_missing = 0

@@ -116,6 +116,10 @@ def _green(s):  return f"\033[92m{s}\033[0m"
 def _yellow(s): return f"\033[93m{s}\033[0m"
 
 
+# Sentinel binding: name the L2 test `test('link_target_existence: ...')` for coverage credit.
+CHECK_NAMES = ["link_target_existence"]
+
+
 def main() -> int:
     per_page: list[dict] = []
     total_broken = 0

@@ -61,6 +61,10 @@ BOUNDED_MARKERS = re.compile(
 )
 
 
+# Sentinel binding: name the L2 test `test('unbounded_query: ...')` for coverage credit.
+CHECK_NAMES = ["unbounded_query"]
+
+
 def main() -> int:
     per_page = []
     total_calls = 0

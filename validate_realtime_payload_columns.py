@@ -120,6 +120,10 @@ def _green(s):  return f"\033[92m{s}\033[0m"
 def _yellow(s): return f"\033[93m{s}\033[0m"
 
 
+# Sentinel binding: name the L2 test `test('realtime_payload_columns: ...')` for coverage credit.
+CHECK_NAMES = ["realtime_payload_columns"]
+
+
 def main() -> int:
     reg_path = ROOT / "canonical_registry.json"
     if not reg_path.exists():

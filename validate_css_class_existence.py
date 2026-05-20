@@ -106,6 +106,10 @@ def _is_tailwind(cls: str) -> bool:
     return False
 
 
+# Sentinel binding: name the L2 test `test('css_class_existence: ...')` for coverage credit.
+CHECK_NAMES = ["css_class_existence"]
+
+
 def main() -> int:
     known = _gather_known_classes()
 

@@ -169,6 +169,10 @@ def _scan_page(page: Path) -> list[dict]:
     return issues
 
 
+# Sentinel binding: name the L2 test `test('source_chip_truth: ...')` for coverage credit.
+CHECK_NAMES = ["source_chip_truth"]
+
+
 def main() -> int:
     per_page: list[dict] = []
     total_issues = 0

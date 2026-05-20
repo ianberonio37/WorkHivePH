@@ -39,6 +39,10 @@ FN_REF_RE = re.compile(
 )
 
 
+# Sentinel binding: name the L2 test `test('pg_cron_target_existence: ...')` for coverage credit.
+CHECK_NAMES = ["pg_cron_target_existence"]
+
+
 def main() -> int:
     reg = json.loads((ROOT / "canonical_registry.json").read_text(encoding="utf-8"))
     tables = {t.lower() for t in reg.get("tables", {})}

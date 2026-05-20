@@ -184,6 +184,10 @@ def _scan_page(page: Path) -> dict:
     }
 
 
+# Sentinel binding: name the L2 test `test('realtime_subscription_consistency: ...')` for coverage credit.
+CHECK_NAMES = ["realtime_subscription_consistency"]
+
+
 def main() -> int:
     per_page: list[dict] = []
     total_drift = 0

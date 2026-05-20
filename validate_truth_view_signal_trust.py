@@ -53,6 +53,10 @@ def _green(s): return f"\033[92m{s}\033[0m"
 def _yellow(s):return f"\033[93m{s}\033[0m"
 
 
+# Sentinel binding: name the L2 test `test('truth_view_signal_trust: ...')` for coverage credit.
+CHECK_NAMES = ["truth_view_signal_trust"]
+
+
 def main() -> int:
     # Refresh the miner report (miner exits 1 on AT_RISK; we still want
     # the JSON output for our own gating).

@@ -62,6 +62,10 @@ def _parse_rpc_args(reg_args: str) -> set[str]:
     return out
 
 
+# Sentinel binding: name the L2 test `test('rpc_argument_consistency: ...')` for coverage credit.
+CHECK_NAMES = ["rpc_argument_consistency"]
+
+
 def main() -> int:
     reg_path = ROOT / "canonical_registry.json"
     if not reg_path.exists():

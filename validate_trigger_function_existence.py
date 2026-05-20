@@ -24,6 +24,10 @@ CREATE_TRIGGER_RE = re.compile(
 )
 
 
+# Sentinel binding: name the L2 test `test('trigger_function_existence: ...')` for coverage credit.
+CHECK_NAMES = ["trigger_function_existence"]
+
+
 def main() -> int:
     reg = json.loads((ROOT / "canonical_registry.json").read_text(encoding="utf-8"))
     rpcs = {r.lower() for r in reg.get("rpcs", {})}

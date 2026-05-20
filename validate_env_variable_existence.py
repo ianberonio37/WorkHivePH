@@ -55,6 +55,10 @@ def _read_env_example_names() -> set[str]:
     return names
 
 
+# Sentinel binding: name the L2 test `test('env_variable_existence: ...')` for coverage credit.
+CHECK_NAMES = ["env_variable_existence"]
+
+
 def main() -> int:
     known = _read_env_example_names() | SUPABASE_BUILTIN
 

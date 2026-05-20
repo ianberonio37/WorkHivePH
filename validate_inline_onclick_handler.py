@@ -83,6 +83,10 @@ def _load_shared_fns() -> set[str]:
     return names
 
 
+# Sentinel binding: name the L2 test `test('inline_onclick_handler: ...')` for coverage credit.
+CHECK_NAMES = ["inline_onclick_handler"]
+
+
 def main() -> int:
     shared_fns = _load_shared_fns()
 

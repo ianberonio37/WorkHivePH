@@ -69,6 +69,10 @@ def _resolve(source_page: Path, target: str) -> Path | None:
     return source_page.parent / t
 
 
+# Sentinel binding: name the L2 test `test('image_asset_existence: ...')` for coverage credit.
+CHECK_NAMES = ["image_asset_existence"]
+
+
 def main() -> int:
     per_page = []
     total_broken = 0

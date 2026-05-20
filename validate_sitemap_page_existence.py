@@ -39,6 +39,10 @@ def _resolve(url: str) -> Path | None:
     return candidate
 
 
+# Sentinel binding: name the L2 test `test('sitemap_page_existence: ...')` for coverage credit.
+CHECK_NAMES = ["sitemap_page_existence"]
+
+
 def main() -> int:
     sitemap = ROOT / "sitemap.xml"
     if not sitemap.exists():

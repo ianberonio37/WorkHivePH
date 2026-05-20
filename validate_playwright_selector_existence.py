@@ -54,6 +54,10 @@ def _resolve_page(url: str) -> Path | None:
     return p if p.exists() else None
 
 
+# Sentinel binding: name the L2 test `test('playwright_selector_existence: ...')` for coverage credit.
+CHECK_NAMES = ["playwright_selector_existence"]
+
+
 def main() -> int:
     if not TESTS_DIR.exists():
         print("PASS — no tests/ dir")

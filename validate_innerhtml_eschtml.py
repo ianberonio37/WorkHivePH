@@ -67,6 +67,10 @@ ALLOW_RE = re.compile(r"xss-allow", re.IGNORECASE)
 HTML_COMMENT_RE = re.compile(r"<!--[\s\S]*?-->")
 
 
+# Sentinel binding: name the L2 test `test('innerhtml_eschtml: ...')` for coverage credit.
+CHECK_NAMES = ["innerhtml_eschtml"]
+
+
 def main() -> int:
     per_page = []
     total_assignments = 0

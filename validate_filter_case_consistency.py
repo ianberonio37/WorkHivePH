@@ -120,6 +120,10 @@ def _gather_files() -> dict[str, str]:
     return blobs
 
 
+# Sentinel binding: name the L2 test `test('filter_case_consistency: ...')` for coverage credit.
+CHECK_NAMES = ["filter_case_consistency"]
+
+
 def main() -> int:
     blobs = _gather_files()
 

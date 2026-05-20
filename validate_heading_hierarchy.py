@@ -41,6 +41,10 @@ HEADING_RE = re.compile(r"""<h([1-6])\b[^>]*>""", re.IGNORECASE)
 HTML_COMMENT_RE = re.compile(r"<!--[\s\S]*?-->")
 
 
+# Sentinel binding: name the L2 test `test('heading_hierarchy: ...')` for coverage credit.
+CHECK_NAMES = ["heading_hierarchy"]
+
+
 def main() -> int:
     per_page = []
     total_issues = 0

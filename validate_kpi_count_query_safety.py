@@ -153,6 +153,10 @@ def _scan(name: str, body_raw: str) -> list[dict]:
     return issues
 
 
+# Sentinel binding: name the L2 test `test('kpi_count_query_safety: ...')` for coverage credit.
+CHECK_NAMES = ["kpi_count_query_safety"]
+
+
 def main() -> int:
     per_page = []
     total_issues = 0
