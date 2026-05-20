@@ -14,6 +14,10 @@ not duplicate _classifyDataIntent regex classifier.
 import re
 import sys
 
+if sys.platform == "win32":
+    import io
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+
 # Colors
 RED = "\033[91m"
 GREEN = "\033[92m"

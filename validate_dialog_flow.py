@@ -18,6 +18,10 @@ SUCCESS: All 6 layers pass (indicates Phase 4 wiring is complete)
 import re
 import sys
 
+if sys.platform == "win32":
+    import io
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+
 RED = "\033[91m"
 GREEN = "\033[92m"
 YELLOW = "\033[93m"

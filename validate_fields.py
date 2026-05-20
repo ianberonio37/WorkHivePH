@@ -10,6 +10,10 @@ Output: results_keys.json
 """
 import urllib.request, json, re, time, sys
 
+if sys.platform == "win32":
+    import io
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+
 BASE = "https://engineering-calc-api.onrender.com/calculate"
 
 # ── Test inputs for every Python-handled calc type ────────────────────────────

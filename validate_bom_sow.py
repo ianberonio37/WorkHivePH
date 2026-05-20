@@ -11,6 +11,10 @@ Usage:  python validate_bom_sow.py
 """
 import json, re, sys
 
+if sys.platform == "win32":
+    import io
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+
 with open("results_keys.json") as f:
     api_keys = json.load(f)
 

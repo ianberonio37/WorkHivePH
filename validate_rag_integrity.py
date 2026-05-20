@@ -2,6 +2,10 @@
 """Phase 3 Validator: RAG Integrity (Semantic Search + Citations)"""
 import sys
 
+if sys.platform == "win32":
+    import io
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+
 RED, GREEN, YELLOW, RESET = "\033[91m", "\033[92m", "\033[93m", "\033[0m"
 
 def check():

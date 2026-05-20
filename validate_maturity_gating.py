@@ -35,6 +35,10 @@ from __future__ import annotations
 
 import os
 import sys
+if sys.platform == "win32":
+    import io
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+
 from pathlib import Path
 
 ROOT = Path(__file__).parent

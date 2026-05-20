@@ -15,6 +15,10 @@ SUCCESS: All 4 layers pass (indicates Phase 1.5 optional wiring is complete)
 
 import re
 import sys
+if sys.platform == "win32":
+    import io
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+
 import os
 
 RED = "\033[91m"

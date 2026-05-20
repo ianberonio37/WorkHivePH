@@ -15,6 +15,10 @@ SUCCESS: All 4 layers pass (indicates Phase 10 avatar state management is wired)
 
 import re
 import sys
+if sys.platform == "win32":
+    import io
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+
 import glob
 
 RED = "\033[91m"

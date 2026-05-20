@@ -87,6 +87,8 @@ OPTIONAL_VARS: dict = {
     "GEMINI_API_KEY": "AI fallback chain — Groq is primary; Gemini only used if explicitly configured",
     "AZURE_SPEECH_KEY": "Persona Contract Phase 7 TTS — tts-speak returns 500 when unset; wh-tts.js client falls back to browser SpeechSynthesis. Set in cloud secrets only (Azure F0 free tier).",
     "AZURE_SPEECH_REGION": "Persona Contract Phase 7 TTS — defaults to 'southeastasia' when unset; co-required with AZURE_SPEECH_KEY for the Azure path.",
+    "AZURE_DOC_INTELLIGENCE_ENDPOINT": "Equipment-label-ocr (Azure Day 3) — function returns `azure_not_configured` envelope when unset, caller falls back to manual asset entry. Set in cloud secrets only.",
+    "AZURE_DOC_INTELLIGENCE_KEY": "Equipment-label-ocr companion to AZURE_DOC_INTELLIGENCE_ENDPOINT; same graceful-fallback path when missing.",
 }
 
 # API-key-prefix patterns that indicate a real secret. The trailing length

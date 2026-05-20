@@ -15,6 +15,10 @@ Usage:  python validate_integration.py
 """
 import urllib.request, json, time, sys
 
+if sys.platform == "win32":
+    import io
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+
 EDGE_URL = "https://hzyvnjtisfgbksicrouu.supabase.co/functions/v1/engineering-calc-agent"
 
 # ── Sample set: one per discipline, covering the highest-risk calc types ────
