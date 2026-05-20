@@ -274,7 +274,7 @@
       "inputs":         ["exam_score_0_to_100"],
       "partial_variant": false,
       "partial_reason": "",
-      "implemented_in": "skillmatrix.html + asset-hub.html detail-level + achievements.html ac-card-level",
+      "implemented_in": "skillmatrix.html (5-level dots + disc-level-badge per discipline)",
       "freshness":      "realtime",
       "unit":           "enum (L0/L1/L2/L3/L4)",
       "description":    "5-tier ladder: Foundation (0-39) / Practitioner (40-59) / Expert (60-74) / Master (75-89) / Sage (90-100). Exam-score driven; distinct from achievement-card level (XP driven).",
