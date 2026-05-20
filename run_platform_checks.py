@@ -666,6 +666,22 @@ VALIDATORS = [
     {"id":"event-listener-cleanup","script":"validate_event_listener_cleanup.py","args":[],
      "label":"Event Listener Cleanup (pages with 10+ addEventListener need removes; forward-only ratchet)",
      "group":"Platform","report":"event_listener_cleanup_report.json","skip_if_fast":False},
+    # 2026-05-20 Flywheel 5-turn sweep: 5 new bug-class L0 ratchets.
+    {"id":"external-link-rel","script":"validate_external_link_rel.py","args":[],
+     "label":"External Link rel=noopener (every <a target=_blank> sets rel=noopener/noreferrer; forward-only ratchet)",
+     "group":"Platform","report":"external_link_rel_report.json","skip_if_fast":False},
+    {"id":"button-type-in-form","script":"validate_button_type_in_form.py","args":[],
+     "label":"Button Type in Form (every <button> inside <form> declares type=button/submit/reset; forward-only ratchet)",
+     "group":"Platform","report":"button_type_in_form_report.json","skip_if_fast":False},
+    {"id":"security-definer-search-path","script":"validate_security_definer_search_path.py","args":[],
+     "label":"SECURITY DEFINER search_path (every definer fn pins search_path; covers ALTER FUNCTION hardening; forward-only ratchet)",
+     "group":"Platform","report":"security_definer_search_path_report.json","skip_if_fast":False},
+    {"id":"duplicate-script-tags","script":"validate_duplicate_script_tags.py","args":[],
+     "label":"Duplicate <script>/<link> Tags (no per-page duplicates of script src or stylesheet href; forward-only ratchet)",
+     "group":"Platform","report":"duplicate_script_tags_report.json","skip_if_fast":False},
+    {"id":"native-dialog-calls","script":"validate_native_dialog_calls.py","args":[],
+     "label":"Native alert/confirm/prompt (production code must use the platform toast/modal stack; forward-only ratchet)",
+     "group":"Platform","report":"native_dialog_calls_report.json","skip_if_fast":False},
     {
         # 2026-05-20 — Flywheel orchestrator: one turn per Mega Gate run.
         # Walks L-1 -> L-1.5 -> L0 -> L2 -> L13, diffs against the previous
@@ -798,6 +814,76 @@ VALIDATORS = [
         "script":  "validate_dialog_affirmation_bypass.py",
         "args":    [],
         "label":   "Dialog Affirmation Bypass (5-layer: regex + vocabulary + word-cap + callsite bypass + shouldClarify symmetry)",
+        "group":   "Platform",
+        "report":  None,
+        "skip_if_fast": False,
+    },
+    {
+        # 2026-05-20 Sister hardening loop covering the NEGATIVE side +
+        # noise + clarification-loop ceiling. Locks _isFollowupNegation
+        # ('no', 'cancel', 'wala', 'hindi'), _isNoisyTranscript (empty /
+        # 1-2 char / lone filler), and _clarifyStreak (caps consecutive
+        # clarifications at 2 then switches shape + resets). Paired with
+        # 3 L2 sentinels in tests/journey-voice-journal.spec.ts.
+        "id":      "dialog-followup-handlers",
+        "script":  "validate_dialog_followup_handlers.py",
+        "args":    [],
+        "label":   "Dialog Follow-up Handlers (6-layer: negation + vocabulary + noise + state-clear + upstream + clarify-streak ceiling)",
+        "group":   "Platform",
+        "report":  None,
+        "skip_if_fast": False,
+    },
+    {
+        # 2026-05-20 Flywheel turn #3 of the AI Companion dialog-quality
+        # stack. Locks the multi-turn CONTINUITY surface inside
+        # _buildVoiceSystemPrompt: PRIOR TOPIC HANDLE block (pronoun
+        # resolution — 'it' / 'that' / 'yan' / 'yun' resolved to the
+        # prior intent) + natural-language SLOT ENUMERATION ('You already
+        # know: asset tag = P-203'). Without these the LLM has no
+        # deterministic anchor for short follow-ups and the worker feels
+        # the companion 'forgot' them. Paired with L2 sentinels:
+        # dialog-prior-topic-handle + dialog-slot-enumeration + the
+        # case-invariance probes against the affirmation/negation regex.
+        "id":      "dialog-continuity",
+        "script":  "validate_dialog_continuity.py",
+        "args":    [],
+        "label":   "Dialog Continuity (5-layer: prompt builder + DIALOG STATE block + PRIOR TOPIC HANDLE + slot enumeration + PH/English pronoun vocabulary)",
+        "group":   "Platform",
+        "report":  None,
+        "skip_if_fast": False,
+    },
+    {
+        # 2026-05-20 Flywheel turn #4 of the AI Companion dialog-quality
+        # stack. Two concerns share the validator:
+        #   Phase 4.7 — clarification-recovery routing: bare "logbook" /
+        #               "PM" / "analytics" replies after the streak-ceiling
+        #               prompt route directly to that intent so the loop
+        #               actually breaks.
+        #   Phase 4.8 — crisis-line safety override: persona.ts MUST keep
+        #               its 'self-harm' + 'helpline' clause positioned in
+        #               the conversational reply rules block. Voice
+        #               journals are a high-trust surface — this clause
+        #               can NEVER be silently optimised away.
+        "id":      "dialog-recovery-safety",
+        "script":  "validate_dialog_recovery_safety.py",
+        "args":    [],
+        "label":   "Dialog Recovery + Safety (5-layer: recovery helper + recovery vocabulary + clarification_pending guard + crisis line present + crisis line positioned)",
+        "group":   "Platform",
+        "report":  None,
+        "skip_if_fast": False,
+    },
+    {
+        # 2026-05-20 Flywheel turns #5-#14 (10-turn dialog-quality
+        # expansion bundle). Each layer locks one bug class:
+        #   T5  persona-switch utterance       T10 first-turn greeting
+        #   T6  stale dialog-state guard       T11 code-switch anchor
+        #   T7  topic-interruption signal      T12 sensitive-topic redirect
+        #   T8  thanks / ack handler           T13 worker-name personalization
+        #   T9  asset-context auto-priming     T14 repeat-that handler
+        "id":      "dialog-quality-extended",
+        "script":  "validate_dialog_quality_extended.py",
+        "args":    [],
+        "label":   "Dialog Quality Extended (10-layer: turns #5-#14 — persona-switch + stale-guard + topic-interrupt + thanks + asset-prime + greeting + code-switch + sensitive-topic + worker-name + repeat)",
         "group":   "Platform",
         "report":  None,
         "skip_if_fast": False,

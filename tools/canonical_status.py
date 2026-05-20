@@ -463,6 +463,12 @@ def _gather() -> dict[str, Any]:
         ("heading",   "heading_hierarchy_report.json",            ("total_issues","baseline")),
         ("canon",     "canonical_url_consistency_report.json",    ("drift","baseline")),
         ("listener",  "event_listener_cleanup_report.json",       ("risky_pages","baseline")),
+        # Flywheel 5-turn sweep (2026-05-20)
+        ("rel",       "external_link_rel_report.json",            ("drift","baseline")),
+        ("btn",       "button_type_in_form_report.json",          ("drift","baseline")),
+        ("definer",   "security_definer_search_path_report.json", ("drift","baseline")),
+        ("dupscript", "duplicate_script_tags_report.json",        ("drift","baseline")),
+        ("native",    "native_dialog_calls_report.json",          ("drift","baseline")),
     ]:
         d = _read_json(fname)
         if d:
@@ -850,6 +856,11 @@ def _print(status: dict[str, Any]) -> int:
         ("heading",   "Heading hierarchy:           "),
         ("canon",     "Canonical URL consistency:   "),
         ("listener",  "Event listener cleanup:      "),
+        ("rel",       "External link rel=noopener:  "),
+        ("btn",       "Button type in form:         "),
+        ("definer",   "SECURITY DEFINER search_path:"),
+        ("dupscript", "Duplicate <script>/<link>:   "),
+        ("native",    "Native alert/confirm/prompt: "),
     ]:
         val = status.get(f"{key}_val", 0)
         baseline = status.get(f"{key}_baseline", 0)

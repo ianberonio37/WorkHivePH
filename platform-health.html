@@ -632,10 +632,10 @@
   <div style="flex:1; min-width:240px; line-height:1.45;">
     <strong style="color:var(--gold);">This page has moved.</strong>
     The unified <strong>WorkHive Tester</strong> at
-    <a href="http://127.0.0.1:5000/" target="_blank" style="color:var(--gold); text-decoration:underline;">localhost:5000</a>
+    <a href="http://127.0.0.1:5000/" target="_blank" rel="noopener noreferrer" style="color:var(--gold); text-decoration:underline;">localhost:5000</a>
     now handles health + seed + gate + backlog in one workspace. This dashboard stays as a fallback.
   </div>
-  <a href="http://127.0.0.1:5000/" target="_blank" style="padding:7px 14px; background:rgba(247,162,27,0.15); border:1px solid rgba(247,162,27,0.45); border-radius:8px; color:var(--gold); font-weight:600; text-decoration:none; font-size:0.78rem;">Open Tester →</a>
+  <a href="http://127.0.0.1:5000/" target="_blank" rel="noopener noreferrer" style="padding:7px 14px; background:rgba(247,162,27,0.15); border:1px solid rgba(247,162,27,0.45); border-radius:8px; color:var(--gold); font-weight:600; text-decoration:none; font-size:0.78rem;">Open Tester →</a>
   <button onclick="document.getElementById('dep-banner').style.display='none'; try{localStorage.setItem('dep_banner_dismissed','1');}catch(e){}" style="background:none; border:none; color:var(--muted); cursor:pointer; font-size:1rem; padding:4px 8px; line-height:1;" title="Dismiss for this session">✕</button>
 </div>
 <script>
@@ -1566,7 +1566,7 @@ function render(report) {
               <div class="bl-field"><span class="bl-field-k">Affects</span><span class="bl-field-v">${escHtml(affects)}</span></div>
               <div class="bl-field"><span class="bl-field-k">Validators</span><span class="bl-field-v" style="color:var(--blue);">${escHtml(valIds)}</span></div>
               <div class="bl-field"><span class="bl-field-k">Signals</span><span class="bl-field-v" style="color:var(--gold);">${escHtml(signals)}</span></div>
-              ${url ? `<div class="bl-field"><span class="bl-field-k">Source</span><span class="bl-field-v"><a href="${escHtml(url)}" target="_blank" style="color:var(--blue);font-size:.74rem;">${escHtml(url.substring(0,60))}${url.length>60?'...':''}</a></span></div>` : ''}
+              ${url ? `<div class="bl-field"><span class="bl-field-k">Source</span><span class="bl-field-v"><a href="${escHtml(url)}" target="_blank" rel="noopener noreferrer" style="color:var(--blue);font-size:.74rem;">${escHtml(url.substring(0,60))}${url.length>60?'...':''}</a></span></div>` : ''}
               <div class="bl-score-bar"><div class="bl-score-fill" style="width:${scoreW}%"></div></div>
               <div style="font-size:.68rem;color:var(--muted);margin-top:.2rem;">Signal strength: ${scoreW}/100 — ${escHtml(item.assessment||'')}</div>
               <div class="bl-actions">

@@ -148,6 +148,22 @@ test.describe('L0 platform bug-class validators', () => {
   test('unbounded_query: validator at or under forward-only baseline', () => {
     assertPass('validate_unbounded_query.py');
   });
+  // 2026-05-20 Flywheel 5-turn sweep: 5 new bug-class validators.
+  test('external_link_rel: validator at or under forward-only baseline', () => {
+    assertPass('validate_external_link_rel.py');
+  });
+  test('button_type_in_form: validator at or under forward-only baseline', () => {
+    assertPass('validate_button_type_in_form.py');
+  });
+  test('security_definer_search_path: validator at or under forward-only baseline', () => {
+    assertPass('validate_security_definer_search_path.py');
+  });
+  test('duplicate_script_tags: validator at or under forward-only baseline', () => {
+    assertPass('validate_duplicate_script_tags.py');
+  });
+  test('native_dialog_calls: validator at or under forward-only baseline', () => {
+    assertPass('validate_native_dialog_calls.py');
+  });
 });
 
 // ---------------------------------------------------------------------------
