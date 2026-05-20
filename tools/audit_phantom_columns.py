@@ -105,19 +105,45 @@ def _strip_py_comments(text: str) -> str:
 
 def _gather_blobs() -> dict[str, str]:
     blobs: dict[str, str] = {}
+    # Root-level HTML
     for p in sorted(ROOT.glob(HTML_GLOB)):
         if any(rx.search(p.name) for rx in EXCLUDED_HTML):
             continue
         blobs[p.name] = _strip_html_comments(p.read_text(encoding="utf-8", errors="replace"))
+    # Subdirectory HTML (feedback/, learn/, etc.) — one level deep is enough
+    # to catch consumer surfaces that live outside the root (e.g. feedback/index.html
+    # reads platform_feedback_votes.voter_token).
+    for subdir in sorted(ROOT.iterdir()):
+        if not subdir.is_dir() or subdir.name.startswith(".") or subdir.name in {
+            "node_modules", "test-results", "playwright-report", ".tmp",
+            "supabase", "tools", "python-api", "tests",
+        }:
+            continue
+        for p in sorted(subdir.rglob("*.html")):
+            if any(rx.search(p.name) for rx in EXCLUDED_HTML):
+                continue
+            rel = p.relative_to(ROOT).as_posix()
+            blobs[rel] = _strip_html_comments(p.read_text(encoding="utf-8", errors="replace"))
+    # Root-level JS
     for p in sorted(ROOT.glob(JS_GLOB)):
         if p.name == "sw.js":
             continue
         blobs[p.name] = _strip_js_comments(p.read_text(encoding="utf-8", errors="replace"))
     if SUPABASE_DIR.exists():
+        # Edge functions (index.ts per fn)
         for fn_dir in sorted((SUPABASE_DIR / "functions").glob("*")):
             if fn_dir.is_dir() and (fn_dir / "index.ts").exists():
                 blobs[f"edge:{fn_dir.name}"] = _strip_js_comments(
                     (fn_dir / "index.ts").read_text(encoding="utf-8", errors="replace")
+                )
+        # Shared TS modules (memory.ts, rate-limit.ts, embedding-chain.ts, ai-chain.ts ...)
+        # These are imported by edge fns and consume columns directly.
+        shared_dir = SUPABASE_DIR / "functions" / "_shared"
+        if shared_dir.exists():
+            for p in sorted(shared_dir.rglob("*.ts")):
+                rel = p.relative_to(ROOT).as_posix()
+                blobs[f"shared:{rel}"] = _strip_js_comments(
+                    p.read_text(encoding="utf-8", errors="replace")
                 )
         for m in sorted((SUPABASE_DIR / "migrations").glob("*.sql")):
             blobs[f"mig:{m.name}"] = _strip_sql_comments(m.read_text(encoding="utf-8", errors="replace"))
@@ -134,13 +160,21 @@ def _column_has_consumer(table: str, col: str, blobs: dict[str, str], own_migrat
     """A column `col` of table `table` has a consumer if its name appears in
     any non-migration file (or in a migration OTHER than its own DDL site).
 
+    For the own migration: the DDL line itself contributes one match. If the
+    column also appears 2+ times inside the same migration, the extra
+    occurrence is a view / function / trigger consuming the column — count
+    it as alive.
+
     Word-boundary match: `(?<![A-Za-z0-9_])col(?![A-Za-z0-9_])`.
     """
     pat = re.compile(r"(?<![A-Za-z0-9_])" + re.escape(col) + r"(?![A-Za-z0-9_])")
     consumers = []
     for fname, blob in blobs.items():
         if fname == f"mig:{own_migration}":
-            # the column's own DDL site doesn't count
+            # The DDL declaration is 1 match. View / function / trigger
+            # consumers inside the same migration push the count >=2.
+            if len(pat.findall(blob)) >= 2:
+                consumers.append(fname)
             continue
         if pat.search(blob):
             consumers.append(fname)

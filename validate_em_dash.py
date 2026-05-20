@@ -36,6 +36,16 @@ JSON_LD_RE = re.compile(
     re.DOTALL | re.IGNORECASE,
 )
 
+# Strip HTML comments — they're authoring notes (e.g. `canonical-allow: ...`),
+# not user-visible body text, and authors legitimately use em-dashes inside
+# them for readability. AEO/GEO crawlers don't index comment content.
+HTML_COMMENT_RE = re.compile(r"<!--[\s\S]*?-->")
+
+# Strip JS line comments — same logic: code comments are not user-visible
+# body text. `canonical-allow:` markers and developer notes routinely
+# contain em-dashes for readability.
+JS_LINE_COMMENT_RE = re.compile(r"^[ \t]*//[^\n]*$", re.MULTILINE)
+
 
 def check_em_dashes(pages):
     """Every public page must use plain ASCII punctuation, no em or en dashes
@@ -45,8 +55,10 @@ def check_em_dashes(pages):
         content = read_file(page)
         if content is None:
             continue
-        # Strip JSON-LD blocks before scanning
-        scannable = JSON_LD_RE.sub("", content)
+        # Strip JSON-LD blocks + HTML comments + JS line comments before scanning
+        scannable = JS_LINE_COMMENT_RE.sub(
+            "", HTML_COMMENT_RE.sub("", JSON_LD_RE.sub("", content))
+        )
         matches = list(EM_DASH_RE.finditer(scannable))
         if matches:
             # Sample first 3 matches with surrounding context for the report

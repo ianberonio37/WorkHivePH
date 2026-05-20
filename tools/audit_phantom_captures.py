@@ -190,6 +190,19 @@ def _gather_consumer_text() -> tuple[str, dict[str, str]]:
             continue
         blobs[p.name] = _strip_html_comments(p.read_text(encoding="utf-8", errors="replace"))
 
+    # Subdirectory HTML (feedback/, learn/, etc.) — consumer surfaces outside root.
+    for subdir in sorted(ROOT.iterdir()):
+        if not subdir.is_dir() or subdir.name.startswith(".") or subdir.name in {
+            "node_modules", "test-results", "playwright-report", ".tmp",
+            "supabase", "tools", "python-api", "tests",
+        }:
+            continue
+        for p in sorted(subdir.rglob("*.html")):
+            if any(rx.search(p.name) for rx in EXCLUDED_HTML):
+                continue
+            rel = p.relative_to(ROOT).as_posix()
+            blobs[rel] = _strip_html_comments(p.read_text(encoding="utf-8", errors="replace"))
+
     for p in sorted(ROOT.glob(JS_GLOB)):
         if p.name == "sw.js":
             continue
@@ -202,6 +215,15 @@ def _gather_consumer_text() -> tuple[str, dict[str, str]]:
             idx = fn_dir / "index.ts"
             if idx.exists():
                 blobs[f"edge:{fn_dir.name}"] = _strip_js_comments(idx.read_text(encoding="utf-8", errors="replace"))
+        # Shared TS modules (memory.ts, rate-limit.ts, embedding-chain.ts ...) — imported
+        # by edge fns and frequently the actual consumer of a capture.
+        shared_dir = SUPABASE_DIR / "functions" / "_shared"
+        if shared_dir.exists():
+            for p in sorted(shared_dir.rglob("*.ts")):
+                rel = p.relative_to(ROOT).as_posix()
+                blobs[f"shared:{rel}"] = _strip_js_comments(
+                    p.read_text(encoding="utf-8", errors="replace")
+                )
         for m in sorted((SUPABASE_DIR / "migrations").glob("*.sql")):
             blobs[f"migration:{m.name}"] = _strip_sql_comments(m.read_text(encoding="utf-8", errors="replace"))
 

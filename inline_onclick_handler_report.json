@@ -1,0 +1,131 @@
+{
+  "summary": {
+    "pages_scanned": 30,
+    "total_handlers": 982,
+    "total_orphans": 0,
+    "baseline": 0,
+    "shared_fns_known": 163
+  },
+  "per_page": [
+    {
+      "page": "index.html",
+      "orphans": []
+    },
+    {
+      "page": "hive.html",
+      "orphans": []
+    },
+    {
+      "page": "logbook.html",
+      "orphans": []
+    },
+    {
+      "page": "inventory.html",
+      "orphans": []
+    },
+    {
+      "page": "pm-scheduler.html",
+      "orphans": []
+    },
+    {
+      "page": "analytics.html",
+      "orphans": []
+    },
+    {
+      "page": "analytics-report.html",
+      "orphans": []
+    },
+    {
+      "page": "skillmatrix.html",
+      "orphans": []
+    },
+    {
+      "page": "community.html",
+      "orphans": []
+    },
+    {
+      "page": "public-feed.html",
+      "orphans": []
+    },
+    {
+      "page": "marketplace.html",
+      "orphans": []
+    },
+    {
+      "page": "marketplace-seller.html",
+      "orphans": []
+    },
+    {
+      "page": "dayplanner.html",
+      "orphans": []
+    },
+    {
+      "page": "engineering-design.html",
+      "orphans": []
+    },
+    {
+      "page": "assistant.html",
+      "orphans": []
+    },
+    {
+      "page": "report-sender.html",
+      "orphans": []
+    },
+    {
+      "page": "platform-health.html",
+      "orphans": []
+    },
+    {
+      "page": "project-manager.html",
+      "orphans": []
+    },
+    {
+      "page": "integrations.html",
+      "orphans": []
+    },
+    {
+      "page": "ph-intelligence.html",
+      "orphans": []
+    },
+    {
+      "page": "project-report.html",
+      "orphans": []
+    },
+    {
+      "page": "predictive.html",
+      "orphans": []
+    },
+    {
+      "page": "ai-quality.html",
+      "orphans": []
+    },
+    {
+      "page": "plant-connections.html",
+      "orphans": []
+    },
+    {
+      "page": "achievements.html",
+      "orphans": []
+    },
+    {
+      "page": "asset-hub.html",
+      "orphans": []
+    },
+    {
+      "page": "shift-brain.html",
+      "orphans": []
+    },
+    {
+      "page": "alert-hub.html",
+      "orphans": []
+    },
+    {
+      "page": "audit-log.html",
+      "orphans": []
+    },
+    {
+      "page": "voice-journal.html",
+      "orphans": []
+    }
+  ]
+}

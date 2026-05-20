@@ -1,3 +1,4 @@
+# audit-scope-allow: Calm-opted-in pages declare their opt-in via a root-level <meta name="calm-dashboard"> tag; only root HTML pages opt in. Subdirectory HTML is intentionally out of scope.
 """
 Calm Dashboard Canonical-Wiring Auditor (Layer -1.5).
 ======================================================
@@ -81,12 +82,19 @@ PAGE_RAW_OWNERS: dict[str, dict[str, str]] = {
         "pm_scope_items": "asset-hub creates initial PM scope items for new assets",
         "pm_completions": "asset-hub reads completion history on the per-asset 360 view",
         "hive_members":   "asset-hub reads membership for permission checks (same write/read column set as v_worker_truth would project)",
+        "asset_edges":                   "asset-hub is the canonical owner of the asset neighbor graph (add/remove edges)",
+        "equipment_reading_templates":   "asset-hub is the canonical owner of reading-template CRUD per asset",
+        "parts_staged_reservations":     "asset-hub stages part reservations when scheduling PM/jobs on an asset",
+        "parts_staging_recommendations": "asset-hub generates staging recommendations from the asset PM context",
+        "rcm_fmea_modes":                "asset-hub is the canonical FMEA-mode entry point per asset",
+        "rcm_strategies":                "asset-hub is the canonical RCM strategy entry point per asset",
     },
     "hive.html": {
         "hive_members": "hive.html is the canonical owner of hive membership CRUD (create/join/leave/kick/promote)",
         "asset_nodes":  "hive.html approves pending asset registrations (admin workflow writes)",
         "logbook":      "hive.html approves/closes logbook entries via supervisor workflows",
         "pm_completions": "hive.html PM Health card reads completions with bespoke filters",
+        "hives":        "hive.html IS the hive page — reads/writes the current hive row (canonical CRUD owner)",
     },
     "index.html": {
         "worker_profiles": "index.html signup flow creates worker_profiles rows (canonical write owner)",
@@ -95,6 +103,24 @@ PAGE_RAW_OWNERS: dict[str, dict[str, str]] = {
         "amc_briefings":            "alert-hub is the supervisor's AMC approval surface (read + write workflow)",
         "anomaly_signals":          "alert-hub writes acknowledge/resolve transitions on anomaly_signals",
         "failure_signature_alerts": "alert-hub renders + acknowledges raw signature alerts; consumers needing the wrapper read v_alert_truth instead",
+        "parts_staging_recommendations": "alert-hub is the supervisor's parts-staging review surface (read + approve workflow)",
+    },
+    "achievements.html": {
+        "achievement_xp_log":  "achievements.html writes XP log entries when a badge unlocks (canonical write owner)",
+        "worker_achievements": "achievements.html is the canonical owner of worker badge unlocks (insert/read)",
+    },
+    "ph-intelligence.html": {
+        "ph_intelligence_reports": "ph-intelligence is the canonical owner of intelligence-report CRUD",
+    },
+    "plant-connections.html": {
+        "gateway_audit_log":     "plant-connections is the canonical owner of integration audit logging",
+        "hive_retention_config": "plant-connections owns retention config CRUD (settings panel)",
+        "integration_configs":   "plant-connections is the canonical owner of integration config CRUD",
+        "sensor_topic_map":      "plant-connections owns sensor topic mapping CRUD",
+        "sso_configs":           "plant-connections owns SSO config CRUD",
+    },
+    "shift-brain.html": {
+        "shift_plans": "shift-brain is the canonical owner of shift_plans CRUD (create/edit/approve)",
     },
 }
 
@@ -111,8 +137,17 @@ LEGITIMATE_RAW = {
     "skill_exam_attempts":     "personal log; raw row needed",
     "voice_journal_entries":   "personal log; raw row needed",
     "community_xp":            "single-purpose XP tally read per worker",
-    "early_access_emails":     "write-only form",
     "canonical_sources":       "the registry itself; trivially canonical",
+    # 2026-05-20 — admin/observability surfaces read these raw; no per-user KPI is built on top.
+    "analytics_events":     "raw event stream; read by founder-console for admin observability",
+    "marketplace_disputes": "admin observability surface read; no per-user KPI built on top yet",
+    "marketplace_orders":   "admin observability surface read; no per-user KPI built on top yet",
+    "platform_feedback":    "admin observability surface read raw (founder-console)",
+    "hive_benchmarks":      "benchmark comparison snapshot; read by hive + ph-intelligence for comparison tiles",
+    "network_benchmarks":   "network-wide benchmark snapshot; read for comparison tiles",
+    "ai_reports":           "observability tile data; read raw for display in cards",
+    "skill_badges":         "badge-definitions catalog table; read for display lookups",
+    "v_sensor_recent":      "recent-reads view consumed as-is (not a _truth wrapper, but already an aggregation view)",
 }
 
 CALM_TRIGGER_RE = re.compile(r"""<meta\s+name=["']calm-dashboard["']\s+content=["']1["']""", re.IGNORECASE)

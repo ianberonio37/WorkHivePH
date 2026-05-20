@@ -1,0 +1,231 @@
+{
+  "summary": {
+    "files_scanned": 55,
+    "total_calls": 25,
+    "total_drift": 0,
+    "baseline": 0,
+    "edge_fns_known": 50
+  },
+  "per_page": [
+    {
+      "page": "index.html",
+      "broken": []
+    },
+    {
+      "page": "hive.html",
+      "broken": []
+    },
+    {
+      "page": "logbook.html",
+      "broken": []
+    },
+    {
+      "page": "inventory.html",
+      "broken": []
+    },
+    {
+      "page": "pm-scheduler.html",
+      "broken": []
+    },
+    {
+      "page": "analytics.html",
+      "broken": []
+    },
+    {
+      "page": "analytics-report.html",
+      "broken": []
+    },
+    {
+      "page": "skillmatrix.html",
+      "broken": []
+    },
+    {
+      "page": "community.html",
+      "broken": []
+    },
+    {
+      "page": "public-feed.html",
+      "broken": []
+    },
+    {
+      "page": "marketplace.html",
+      "broken": []
+    },
+    {
+      "page": "marketplace-seller.html",
+      "broken": []
+    },
+    {
+      "page": "dayplanner.html",
+      "broken": []
+    },
+    {
+      "page": "engineering-design.html",
+      "broken": []
+    },
+    {
+      "page": "assistant.html",
+      "broken": []
+    },
+    {
+      "page": "report-sender.html",
+      "broken": []
+    },
+    {
+      "page": "platform-health.html",
+      "broken": []
+    },
+    {
+      "page": "project-manager.html",
+      "broken": []
+    },
+    {
+      "page": "integrations.html",
+      "broken": []
+    },
+    {
+      "page": "ph-intelligence.html",
+      "broken": []
+    },
+    {
+      "page": "project-report.html",
+      "broken": []
+    },
+    {
+      "page": "predictive.html",
+      "broken": []
+    },
+    {
+      "page": "ai-quality.html",
+      "broken": []
+    },
+    {
+      "page": "plant-connections.html",
+      "broken": []
+    },
+    {
+      "page": "achievements.html",
+      "broken": []
+    },
+    {
+      "page": "asset-hub.html",
+      "broken": []
+    },
+    {
+      "page": "shift-brain.html",
+      "broken": []
+    },
+    {
+      "page": "alert-hub.html",
+      "broken": []
+    },
+    {
+      "page": "audit-log.html",
+      "broken": []
+    },
+    {
+      "page": "voice-journal.html",
+      "broken": []
+    },
+    {
+      "page": "button-lock.js",
+      "broken": []
+    },
+    {
+      "page": "companion-launcher.js",
+      "broken": []
+    },
+    {
+      "page": "connectivity-widget.js",
+      "broken": []
+    },
+    {
+      "page": "device-fingerprint.js",
+      "broken": []
+    },
+    {
+      "page": "drawing-symbols.js",
+      "broken": []
+    },
+    {
+      "page": "form-autosave.js",
+      "broken": []
+    },
+    {
+      "page": "maturity-gate.js",
+      "broken": []
+    },
+    {
+      "page": "nav-hub.js",
+      "broken": []
+    },
+    {
+      "page": "oc-helper.js",
+      "broken": []
+    },
+    {
+      "page": "offline-banner.js",
+      "broken": []
+    },
+    {
+      "page": "offline-queue.js",
+      "broken": []
+    },
+    {
+      "page": "onboarding.js",
+      "broken": []
+    },
+    {
+      "page": "qr-scanner.js",
+      "broken": []
+    },
+    {
+      "page": "search-overlay.js",
+      "broken": []
+    },
+    {
+      "page": "session-timeout.js",
+      "broken": []
+    },
+    {
+      "page": "skill-content.js",
+      "broken": []
+    },
+    {
+      "page": "utils.js",
+      "broken": []
+    },
+    {
+      "page": "voice-handler.js",
+      "broken": []
+    },
+    {
+      "page": "wh-capture-validate.js",
+      "broken": []
+    },
+    {
+      "page": "wh-feedback-fab.js",
+      "broken": []
+    },
+    {
+      "page": "wh-ga4.js",
+      "broken": []
+    },
+    {
+      "page": "wh-help.js",
+      "broken": []
+    },
+    {
+      "page": "wh-persona.js",
+      "broken": []
+    },
+    {
+      "page": "wh-tts.js",
+      "broken": []
+    },
+    {
+      "page": "worker-drawer.js",
+      "broken": []
+    }
+  ]
+}

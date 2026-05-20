@@ -6,6 +6,10 @@
   <meta name="theme-color" content="#F7A21B" />
   <link rel="manifest" href="manifest.json" />
   <title>Seller Dashboard — WorkHive Marketplace</title>
+  <meta name="description" content="Seller dashboard for the WorkHive marketplace. Manage listings, inquiries, orders, and payouts." />
+  <meta property="og:title" content="Seller Dashboard — WorkHive Marketplace" />
+  <meta property="og:image" content="https://workhiveph.com/brand_assets/og-social.png" />
+  <link rel="canonical" href="https://workhiveph.com/workhive/marketplace-seller.html" />
   <!-- capture: marketplace_listing_v1 (form + upload) -->
   <!-- dashboard-allow: marketplace seller dashboard; reads v_marketplace_sellers_truth. -->
   <!-- Standard: WorkHive Marketplace Seller Score (platform-internal listing-quality composite, 0-100). -->
@@ -576,6 +580,13 @@
     updateProfileStats();
   }
 
+  // True counts (head-only, no .limit) so the badges aren't capped at
+  // the detail-list LIMIT. Same fix shape as the index.html home tile
+  // bug (2026-05-20).
+  let _ordersTotal    = 0;
+  let _inquiriesTotal = 0;
+  let _inquiriesPendingTotal = 0;
+
   /* ── Load inquiries ─────────────────────────────────────────────────────── */
   async function loadInquiries() {
     showSkeletons();
@@ -588,6 +599,20 @@
         .limit(50);
       if (error) throw error;
       _inquiries = data || [];
+      // True counts for the badge (un-capped by the detail .limit()).
+      try {
+        const { count: totalCount } = await db
+          .from('v_marketplace_inquiries_truth')
+          .select('id', { count: 'exact', head: true })
+          .eq('seller_name', WORKER_NAME);
+        _inquiriesTotal = Number(totalCount || 0);
+        const { count: pendingCount } = await db
+          .from('v_marketplace_inquiries_truth')
+          .select('id', { count: 'exact', head: true })
+          .eq('seller_name', WORKER_NAME)
+          .eq('status', 'pending');
+        _inquiriesPendingTotal = Number(pendingCount || 0);
+      } catch (_) { /* fall back to .length below */ }
     } catch (_) { _inquiries = []; }
     renderInquiries();
     updateBadges();
@@ -605,6 +630,13 @@
         .limit(50);
       if (error) throw error;
       _orders = data || [];
+      try {
+        const { count } = await db
+          .from('v_marketplace_orders_truth')
+          .select('id', { count: 'exact', head: true })
+          .eq('seller_name', WORKER_NAME);
+        _ordersTotal = Number(count || 0);
+      } catch (_) { /* fall back */ }
     } catch (_) { _orders = []; }
     renderOrders();
     updateBadges();
@@ -617,8 +649,10 @@
     const bi = document.getElementById('badge-inquiries');
     const bo = document.getElementById('badge-orders');
     if (bl) bl.textContent = _listings.length;
-    if (bi) bi.textContent = _inquiries.filter(i => i.status === 'pending').length;
-    if (bo) bo.textContent = _orders.length;
+    // Pending inquiry badge uses the head-only count when available, else
+    // falls back to the in-memory filter on the limited array.
+    if (bi) bi.textContent = _inquiriesPendingTotal || _inquiries.filter(i => i.status === 'pending').length;
+    if (bo) bo.textContent = _ordersTotal || _orders.length;
   }
 
   function updateProfileStats() {

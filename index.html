@@ -1065,9 +1065,9 @@
              so ai-gateway routes the same persona on every device. -->
         <button id="oh-persona-toggle" type="button" onclick="togglePersona()"
                 style="display:none; font-size:.7rem; font-weight:700; padding:6px 12px; background:rgba(247,162,27,.10); color:#F7A21B; border:1px solid rgba(247,162,27,.30); border-radius:8px; font-family:inherit; cursor:pointer;"
-                aria-label="Change AI companion (James or Rosa)">
+                aria-label="Change AI companion (Hezekiah or Zaniah)">
           <label for="oh-persona-toggle" class="sr-only">AI companion</label>
-          <span aria-hidden="true">Companion: </span><span id="oh-persona-name">James</span>
+          <span aria-hidden="true">Companion: </span><span id="oh-persona-name">Zaniah</span>
         </button>
         <a href="hive.html" id="oh-hive-btn" style="display:none; font-size:.7rem; font-weight:700; padding:6px 14px; background:rgba(41,182,217,.12); color:#29B6D9; border:1px solid rgba(41,182,217,.25); border-radius:8px; text-decoration:none;" aria-label="Open hive board"></a>
         <button onclick="signOut()" style="font-size:.7rem; font-weight:600; padding:6px 14px; background:rgba(255,255,255,.05); color:rgba(255,255,255,.45); border:1px solid rgba(255,255,255,.1); border-radius:8px; font-family:inherit; cursor:pointer;">Sign Out</button>
@@ -2228,7 +2228,7 @@
     <div class="px-5 pt-5 pb-0 flex-shrink-0">
       <div class="flex items-center justify-between mb-4">
         <p class="text-[10px] font-bold uppercase tracking-[0.15em] text-white/40">Your Growth Path</p>
-        <button onclick="closeStagePopup()" class="w-8 h-8 rounded-full flex items-center justify-center text-white/50 hover:text-white hover:bg-white/10 transition-colors">
+        <button onclick="closeStagePopup()" class="w-8 h-8 rounded-full flex items-center justify-center text-white/50 hover:text-white hover:bg-white/10 transition-colors" aria-label="Close">
           <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
         </button>
       </div>
@@ -2468,13 +2468,13 @@
   <div style="background:rgba(22,32,50,0.97); border:1px solid rgba(247,162,27,0.3); border-radius:999px; padding:10px 18px; display:flex; align-items:center; gap:10px; box-shadow:0 8px 32px rgba(0,0,0,0.4); font-size:0.78rem;">
     <span style="color:rgba(255,255,255,0.6);">Signed in as <strong id="upgrade-banner-name" style="color:white;"></strong></span>
     <button onclick="upgradeToAccount()" style="background:#F7A21B; color:#162032; border:none; border-radius:999px; padding:5px 14px; font-size:0.75rem; font-weight:700; cursor:pointer;">Secure account →</button>
-    <button onclick="dismissUpgradeBanner()" style="background:transparent; border:none; color:rgba(255,255,255,0.3); cursor:pointer; font-size:1rem; line-height:1; padding:0 2px;">&times;</button>
+    <button onclick="dismissUpgradeBanner()" style="background:transparent; border:none; color:rgba(255,255,255,0.3); cursor:pointer; font-size:1rem; line-height:1; padding:0 2px;" aria-label="Close">&times;</button>
   </div>
 </div>
 
 <div id="signin-modal" class="fixed inset-0 z-50 flex items-center justify-center hidden" style="background:rgba(0,0,0,0.75); backdrop-filter:blur(10px);">
   <div class="relative rounded-2xl p-7 w-full max-w-sm mx-4" style="background:#1a2535; border:1px solid rgba(255,255,255,0.1); box-shadow:0 24px 80px rgba(0,0,0,0.5);">
-    <button onclick="closeSignIn()" class="absolute top-4 right-4 text-white/30 hover:text-white/70 transition-colors text-xl leading-none">&times;</button>
+    <button onclick="closeSignIn()" class="absolute top-4 right-4 text-white/30 hover:text-white/70 transition-colors text-xl leading-none" aria-label="Close">&times;</button>
 
     <div class="flex justify-center mb-5">
       <img src="brand_assets/workhive-logo-transparent.png" alt="WorkHive" class="h-9 w-auto" />
@@ -2866,14 +2866,14 @@
     _getDb().auth.signOut(); // best effort, fire-and-forget after clearing local state
   }
 
-  // ── Persona Contract Phase 5: companion picker (James <-> Rosa) ─────────
+  // ── Persona Contract Phase 5: companion picker (Hezekiah <-> Zaniah) ────
   // The toggle on the home greeting flips between the two personas in one
   // tap. State of truth: localStorage `wh_voice_journal_persona` (also read
   // by voice-journal, floating-AI, assistant, wh-tts, wh-persona). On
   // change we also push to worker_profiles.preferred_persona so the
   // ai-gateway hydrates the same persona for downstream specialists on
   // every device the worker uses. See WORKHIVE_PERSONA_CONTRACT.md.
-  function _personaLabel(key) { return key === 'rosa' ? 'Rosa' : 'James'; }
+  function _personaLabel(key) { return key === 'hezekiah' ? 'Hezekiah' : 'Zaniah'; }
 
   function _renderPersonaToggle() {
     const btn  = document.getElementById('oh-persona-toggle');
@@ -2881,17 +2881,17 @@
     if (!btn || !span) return;
     const key = (typeof window.getPersonaKey === 'function')
       ? window.getPersonaKey()
-      : (localStorage.getItem('wh_voice_journal_persona') || 'james');
+      : (localStorage.getItem('wh_voice_journal_persona') || 'zaniah');
     span.textContent = _personaLabel(key);
     btn.style.display = '';
-    btn.setAttribute('aria-pressed', key === 'rosa' ? 'true' : 'false');
+    btn.setAttribute('aria-pressed', key === 'hezekiah' ? 'true' : 'false');
   }
 
   async function togglePersona() {
     const cur  = (typeof window.getPersonaKey === 'function')
       ? window.getPersonaKey()
-      : (localStorage.getItem('wh_voice_journal_persona') || 'james');
-    const next = cur === 'james' ? 'rosa' : 'james';
+      : (localStorage.getItem('wh_voice_journal_persona') || 'zaniah');
+    const next = cur === 'zaniah' ? 'hezekiah' : 'zaniah';
     try { localStorage.setItem('wh_voice_journal_persona', next); } catch (_) {}
     _renderPersonaToggle();
     // Companion Streamline: ping the floating widget so its avatar
@@ -3282,7 +3282,12 @@
       if (user) {
         const { data: profile } = await db.from('worker_profiles')
           .select('preferred_persona').eq('auth_uid', user.id).maybeSingle();
-        const cloudKey = (profile && profile.preferred_persona === 'rosa') ? 'rosa' : 'james';
+        // Legacy james/rosa values from pre-rename rows still map cleanly.
+        const raw = profile && profile.preferred_persona;
+        let cloudKey = 'zaniah';
+        if (raw === 'hezekiah' || raw === 'zaniah') cloudKey = raw;
+        else if (raw === 'james') cloudKey = 'hezekiah';
+        else if (raw === 'rosa')  cloudKey = 'zaniah';
         try { localStorage.setItem('wh_voice_journal_persona', cloudKey); } catch (_) {}
       }
     } catch (_) { /* fall through to localStorage default */ }
@@ -3306,7 +3311,7 @@
     const _ohActionsEl = document.getElementById('oh-actions');
     if (_ohActionsEl) {
       const _role = (localStorage.getItem('wh_nav_mode') === 'supervisor' || HIVE_ROLE === 'supervisor') ? 'supervisor' : 'field';
-      const _personaName = (localStorage.getItem('wh_voice_journal_persona') === 'rosa') ? 'Rosa' : 'James';
+      const _personaName = (localStorage.getItem('wh_voice_journal_persona') === 'hezekiah') ? 'Hezekiah' : 'Zaniah';
       const _primary = _role === 'supervisor'
         ? [
             { href:'hive.html',     label:'Hive Board',         color:'#29B6D9', bg:'rgba(41,182,217,.12)', br:'rgba(41,182,217,.30)' },
@@ -3357,10 +3362,14 @@
 
     const startOfDay = new Date(); startOfDay.setHours(0, 0, 0, 0);
 
-    const [logRes, riskRes, invRes, pmRes, closedTodayRes, pmDoneTodayRes] = await Promise.allSettled([
+    const [logRes, riskRes, invRes, pmRes, closedTodayRes, pmDoneTodayRes,
+           jobsCountRes, risksCountRes] = await Promise.allSettled([
 
       // Open jobs (mine + hive). v_logbook_truth has no logged_at column :
       // the underlying logbook table only has `created_at` and `date`.
+      // limit(5) returns the top rows for the priority-task display; the
+      // TILE NUMBER must come from jobsCountRes (count query) — using
+      // jobs.length here silently capped the home tile at 5.
       db.from('v_logbook_truth')
         .select('id, machine, category, maintenance_type, status, created_at, date')
         .eq(scopeFilter.col, scopeFilter.val)
@@ -3370,6 +3379,7 @@
 
       // Risk alerts (critical/high assets). Canonical: v_risk_truth gives
       // the latest score per asset via DISTINCT ON, avoiding stale history rows.
+      // Same undercount caveat as open jobs — tile number comes from risksCountRes.
       HIVE_ID
         ? db.from('v_risk_truth')
             .select('asset_name, risk_level, risk_score, mtbf_days, generated_at')
@@ -3422,6 +3432,22 @@
             .eq('status', 'done')
             .gte('completed_at', startOfDay.toISOString())
         : Promise.resolve({ count: 0 }),
+
+      // True Open Jobs count (head-only, no .limit() — drives the home tile).
+      // Separate from the detail .limit(5) above so the tile shows the real
+      // count even when there are >5 open jobs.
+      db.from('v_logbook_truth')
+        .select('id', { count: 'exact', head: true })
+        .eq(scopeFilter.col, scopeFilter.val)
+        .eq('status', 'Open'),
+
+      // True Risk Alerts count (head-only, hive-scoped — solo mode is 0).
+      HIVE_ID
+        ? db.from('v_risk_truth')
+            .select('asset_name', { count: 'exact', head: true })
+            .eq('hive_id', HIVE_ID)
+            .in('risk_level', ['critical', 'high'])
+        : Promise.resolve({ count: 0 }),
     ]);
 
     const jobs     = logRes.status   === 'fulfilled' ? (logRes.value.data   || []) : [];
@@ -3431,10 +3457,10 @@
     const closedToday = closedTodayRes.status === 'fulfilled' ? (closedTodayRes.value.count || 0) : 0;
     const pmDoneToday = pmDoneTodayRes.status === 'fulfilled' ? (pmDoneTodayRes.value.count || 0) : 0;
 
-    // Low stock: items where qty_on_hand <= reorder_point (and reorder_point > 0)
-    const lowStock = invRaw.filter(i =>
-      Number(i.reorder_point) > 0 && Number(i.qty_on_hand) <= Number(i.reorder_point)
-    );
+    // Low stock: trust v_inventory_items_truth.is_low_stock (canonical signal).
+    // Re-computing qty_on_hand <= reorder_point locally was a semantic-drift
+    // bug — view-side definition is the single source of truth.
+    const lowStock = invRaw.filter(i => i.is_low_stock === true);
 
     // PM Overdue. In hive mode the canonical view above already carries
     // the is_due flag (last_anchor_date older than 30d OR never completed),
@@ -3471,14 +3497,19 @@
     // Render stat tiles. Only counts > 0 render; container hides when all
     // four are zero so the verdict stands alone instead of "4 zeros that
     // look broken." Each tile is a clickable link to its surface.
+    // TILE NUMBERS must come from the head-only count queries — using
+    // jobs.length / risks.length here capped the tile at the detail .limit(5).
+    const jobsCount  = jobsCountRes.status  === 'fulfilled' ? Number(jobsCountRes.value.count  || 0) : 0;
+    const risksCount = risksCountRes.status === 'fulfilled' ? Number(risksCountRes.value.count || 0) : 0;
+
     (function renderStats() {
       const statsEl = document.getElementById('oh-stats');
       if (!statsEl) return;
       const tiles = [
-        { num: jobs.length,     label: 'Open Jobs',   color: '#F7A21B', href: 'logbook.html'      },
-        { num: risks.length,    label: 'Risk Alerts', color: '#f87171', href: 'asset-hub.html'    },
-        { num: pmOverdueCount,  label: 'PM Overdue',  color: '#29B6D9', href: 'pm-scheduler.html' },
-        { num: lowStock.length, label: 'Low Stock',   color: '#fb923c', href: 'inventory.html'    },
+        { kpi: 'open-jobs',   num: jobsCount,       label: 'Open Jobs',   color: '#F7A21B', href: 'logbook.html'      },
+        { kpi: 'risk-alerts', num: risksCount,      label: 'Risk Alerts', color: '#f87171', href: 'asset-hub.html'    },
+        { kpi: 'pm-overdue',  num: pmOverdueCount,  label: 'PM Overdue',  color: '#29B6D9', href: 'pm-scheduler.html' },
+        { kpi: 'low-stock',   num: lowStock.length, label: 'Low Stock',   color: '#fb923c', href: 'inventory.html'    },
       ].filter(t => Number(t.num) > 0);
 
       if (tiles.length === 0) {
@@ -3486,8 +3517,10 @@
         return;
       }
       statsEl.style.display = 'flex';
+      // data-kpi attribute lets tests/journey-canonical-signal-parity.spec.ts
+      // target each tile precisely without text-matching.
       statsEl.innerHTML = tiles.map(t =>
-        `<a href="${escHtml(t.href)}" class="oh-card oh-tile">
+        `<a href="${escHtml(t.href)}" class="oh-card oh-tile" data-kpi="${escHtml(t.kpi)}">
            <span class="oh-tile-num" style="color:${t.color};">${Number(t.num)}</span>
            <span class="oh-tile-lbl">${escHtml(t.label)}</span>
          </a>`

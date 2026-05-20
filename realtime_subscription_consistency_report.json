@@ -1,0 +1,608 @@
+{
+  "summary": {
+    "pages_scanned": 30,
+    "total_subs": 37,
+    "total_drift": 0,
+    "baseline": 0
+  },
+  "per_page": [
+    {
+      "page": "index.html",
+      "reads": [
+        "early_access_emails",
+        "pm_assets",
+        "pm_completions",
+        "v_alert_truth",
+        "v_amc_truth",
+        "v_inventory_items_truth",
+        "v_logbook_truth",
+        "v_pm_compliance_truth",
+        "v_risk_truth",
+        "v_sensor_truth",
+        "v_worker_truth",
+        "worker_profiles"
+      ],
+      "subscriptions": [],
+      "drift": []
+    },
+    {
+      "page": "hive.html",
+      "reads": [
+        "asset_nodes",
+        "community_xp",
+        "hive_audit_log",
+        "hive_benchmarks",
+        "hive_members",
+        "hives",
+        "logbook",
+        "network_benchmarks",
+        "pm_completions",
+        "v_ai_reports_truth",
+        "v_alert_truth",
+        "v_hives_truth",
+        "v_inventory_items_truth",
+        "v_knowledge_freshness_truth",
+        "v_logbook_truth",
+        "v_pm_compliance_truth",
+        "v_pm_scope_items_truth",
+        "v_skill_badges_truth",
+        "v_worker_truth"
+      ],
+      "subscriptions": [
+        {
+          "table": "hive_readiness",
+          "allowed": true,
+          "offset": 94012
+        },
+        {
+          "table": "hive_adoption_score",
+          "allowed": true,
+          "offset": 100853
+        },
+        {
+          "table": "logbook",
+          "allowed": false,
+          "offset": 137373
+        },
+        {
+          "table": "logbook",
+          "allowed": false,
+          "offset": 137790
+        },
+        {
+          "table": "logbook",
+          "allowed": false,
+          "offset": 138915
+        },
+        {
+          "table": "pm_completions",
+          "allowed": false,
+          "offset": 139747
+        },
+        {
+          "table": "inventory_items",
+          "allowed": false,
+          "offset": 141209
+        },
+        {
+          "table": "asset_nodes",
+          "allowed": false,
+          "offset": 159591
+        },
+        {
+          "table": "asset_nodes",
+          "allowed": false,
+          "offset": 160070
+        },
+        {
+          "table": "inventory_items",
+          "allowed": false,
+          "offset": 160772
+        },
+        {
+          "table": "inventory_items",
+          "allowed": false,
+          "offset": 161235
+        },
+        {
+          "table": "asset_nodes",
+          "allowed": false,
+          "offset": 162394
+        },
+        {
+          "table": "inventory_items",
+          "allowed": false,
+          "offset": 162831
+        }
+      ],
+      "drift": []
+    },
+    {
+      "page": "logbook.html",
+      "reads": [
+        "asset_nodes",
+        "equipment_reading_templates",
+        "fault_knowledge",
+        "hive_audit_log",
+        "hive_members",
+        "inventory_items",
+        "inventory_transactions",
+        "logbook",
+        "pm_assets",
+        "pm_completions",
+        "project_links",
+        "projects",
+        "v_external_sync_truth",
+        "v_inventory_transactions_truth",
+        "v_pm_compliance_truth",
+        "v_pm_scope_items_truth"
+      ],
+      "subscriptions": [],
+      "drift": []
+    },
+    {
+      "page": "inventory.html",
+      "reads": [
+        "asset_nodes",
+        "hive_audit_log",
+        "hive_members",
+        "inventory_items",
+        "inventory_transactions",
+        "parts_staged_reservations",
+        "v_inventory_items_truth",
+        "v_inventory_transactions_truth"
+      ],
+      "subscriptions": [],
+      "drift": []
+    },
+    {
+      "page": "pm-scheduler.html",
+      "reads": [
+        "asset_nodes",
+        "hive_audit_log",
+        "hive_members",
+        "logbook",
+        "pm_assets",
+        "pm_completions",
+        "pm_scope_items",
+        "project_links",
+        "projects",
+        "v_pm_scope_items_truth"
+      ],
+      "subscriptions": [
+        {
+          "table": "pm_completions",
+          "allowed": false,
+          "offset": 62540
+        }
+      ],
+      "drift": []
+    },
+    {
+      "page": "analytics.html",
+      "reads": [],
+      "subscriptions": [],
+      "drift": []
+    },
+    {
+      "page": "analytics-report.html",
+      "reads": [
+        "v_hives_truth"
+      ],
+      "subscriptions": [],
+      "drift": []
+    },
+    {
+      "page": "skillmatrix.html",
+      "reads": [
+        "skill_badges",
+        "skill_exam_attempts",
+        "skill_profiles",
+        "v_skill_badges_truth"
+      ],
+      "subscriptions": [],
+      "drift": []
+    },
+    {
+      "page": "community.html",
+      "reads": [
+        "community_posts",
+        "community_reactions",
+        "community_replies",
+        "community_xp",
+        "hive_audit_log",
+        "v_community_posts_truth",
+        "v_worker_truth"
+      ],
+      "subscriptions": [
+        {
+          "table": "community_posts",
+          "allowed": false,
+          "offset": 90319
+        },
+        {
+          "table": "community_posts",
+          "allowed": false,
+          "offset": 91262
+        },
+        {
+          "table": "community_posts",
+          "allowed": false,
+          "offset": 93099
+        },
+        {
+          "table": "community_replies",
+          "allowed": false,
+          "offset": 93414
+        },
+        {
+          "table": "community_reactions",
+          "allowed": false,
+          "offset": 94108
+        },
+        {
+          "table": "community_reactions",
+          "allowed": false,
+          "offset": 94879
+        },
+        {
+          "table": "community_posts",
+          "allowed": false,
+          "offset": 97471
+        },
+        {
+          "table": "community_posts",
+          "allowed": false,
+          "offset": 97731
+        }
+      ],
+      "drift": []
+    },
+    {
+      "page": "public-feed.html",
+      "reads": [
+        "v_community_posts_truth"
+      ],
+      "subscriptions": [],
+      "drift": []
+    },
+    {
+      "page": "marketplace.html",
+      "reads": [
+        "hive_audit_log",
+        "marketplace_disputes",
+        "marketplace_inquiries",
+        "marketplace_listings",
+        "marketplace_orders",
+        "marketplace_platform_admins",
+        "marketplace_reviews",
+        "marketplace_saved_searches",
+        "marketplace_watchlist",
+        "v_marketplace_listings_truth",
+        "v_marketplace_orders_truth",
+        "v_marketplace_sellers_truth"
+      ],
+      "subscriptions": [
+        {
+          "table": "marketplace_listings",
+          "allowed": false,
+          "offset": 132057
+        }
+      ],
+      "drift": []
+    },
+    {
+      "page": "marketplace-seller.html",
+      "reads": [
+        "hive_audit_log",
+        "marketplace_disputes",
+        "marketplace_inquiries",
+        "marketplace_listings",
+        "marketplace_sellers",
+        "v_marketplace_inquiries_truth",
+        "v_marketplace_listings_truth",
+        "v_marketplace_orders_truth",
+        "v_marketplace_sellers_truth"
+      ],
+      "subscriptions": [],
+      "drift": []
+    },
+    {
+      "page": "dayplanner.html",
+      "reads": [
+        "logbook",
+        "schedule_items",
+        "v_logbook_truth"
+      ],
+      "subscriptions": [],
+      "drift": []
+    },
+    {
+      "page": "engineering-design.html",
+      "reads": [
+        "engineering_calcs"
+      ],
+      "subscriptions": [],
+      "drift": []
+    },
+    {
+      "page": "assistant.html",
+      "reads": [
+        "schedule_items",
+        "v_inventory_items_truth",
+        "v_logbook_truth",
+        "v_pm_compliance_truth",
+        "v_skill_badges_truth",
+        "voice_journal_entries"
+      ],
+      "subscriptions": [],
+      "drift": []
+    },
+    {
+      "page": "report-sender.html",
+      "reads": [
+        "report_contacts",
+        "v_ai_reports_truth"
+      ],
+      "subscriptions": [],
+      "drift": []
+    },
+    {
+      "page": "platform-health.html",
+      "reads": [
+        "marketplace_platform_admins"
+      ],
+      "subscriptions": [],
+      "drift": []
+    },
+    {
+      "page": "project-manager.html",
+      "reads": [
+        "asset_nodes",
+        "engineering_calcs",
+        "hive_members",
+        "pm_completions",
+        "project_change_orders",
+        "project_items",
+        "project_links",
+        "project_progress_logs",
+        "project_roles",
+        "projects",
+        "v_inventory_items_truth",
+        "v_logbook_truth",
+        "v_marketplace_listings_truth",
+        "v_project_items_truth",
+        "v_project_progress_truth"
+      ],
+      "subscriptions": [
+        {
+          "table": "projects",
+          "allowed": false,
+          "offset": 152377
+        },
+        {
+          "table": "project_items",
+          "allowed": false,
+          "offset": 152521
+        },
+        {
+          "table": "project_progress_logs",
+          "allowed": false,
+          "offset": 152691
+        }
+      ],
+      "drift": []
+    },
+    {
+      "page": "integrations.html",
+      "reads": [
+        "api_keys",
+        "asset_nodes",
+        "cmms_audit_log",
+        "external_sync",
+        "fault_knowledge",
+        "integration_configs",
+        "inventory_items",
+        "logbook",
+        "pm_assets",
+        "pm_scope_items",
+        "v_external_sync_truth",
+        "v_logbook_truth"
+      ],
+      "subscriptions": [],
+      "drift": []
+    },
+    {
+      "page": "ph-intelligence.html",
+      "reads": [
+        "hive_benchmarks",
+        "ph_intelligence_reports"
+      ],
+      "subscriptions": [],
+      "drift": []
+    },
+    {
+      "page": "project-report.html",
+      "reads": [
+        "project_links",
+        "v_project_items_truth",
+        "v_project_progress_truth",
+        "v_project_truth"
+      ],
+      "subscriptions": [],
+      "drift": []
+    },
+    {
+      "page": "predictive.html",
+      "reads": [
+        "v_risk_truth"
+      ],
+      "subscriptions": [],
+      "drift": []
+    },
+    {
+      "page": "ai-quality.html",
+      "reads": [
+        "ai_cost_log"
+      ],
+      "subscriptions": [],
+      "drift": []
+    },
+    {
+      "page": "plant-connections.html",
+      "reads": [
+        "gateway_audit_log",
+        "hive_retention_config",
+        "integration_configs",
+        "sensor_topic_map",
+        "sso_configs",
+        "v_external_sync_truth"
+      ],
+      "subscriptions": [],
+      "drift": []
+    },
+    {
+      "page": "achievements.html",
+      "reads": [
+        "achievement_xp_log",
+        "v_worker_achievements_truth",
+        "v_worker_truth"
+      ],
+      "subscriptions": [
+        {
+          "table": "worker_achievements",
+          "allowed": false,
+          "offset": 41829
+        }
+      ],
+      "drift": []
+    },
+    {
+      "page": "asset-hub.html",
+      "reads": [
+        "asset_edges",
+        "asset_nodes",
+        "equipment_reading_templates",
+        "hive_audit_log",
+        "hive_members",
+        "parts_staged_reservations",
+        "parts_staging_recommendations",
+        "pm_assets",
+        "pm_completions",
+        "pm_scope_items",
+        "rcm_fmea_modes",
+        "rcm_strategies",
+        "v_asset_truth",
+        "v_external_sync_truth",
+        "v_fmea_truth",
+        "v_logbook_truth",
+        "v_marketplace_listings_truth",
+        "v_pf_truth",
+        "v_rcm_truth",
+        "v_risk_truth",
+        "v_sensor_recent",
+        "v_sensor_truth",
+        "v_weibull_truth"
+      ],
+      "subscriptions": [
+        {
+          "table": "sensor_readings",
+          "allowed": false,
+          "offset": 102050
+        },
+        {
+          "table": "logbook",
+          "allowed": false,
+          "offset": 161645
+        },
+        {
+          "table": "pm_completions",
+          "allowed": false,
+          "offset": 162195
+        },
+        {
+          "table": "asset_edges",
+          "allowed": false,
+          "offset": 162684
+        },
+        {
+          "table": "rcm_fmea_modes",
+          "allowed": false,
+          "offset": 163433
+        },
+        {
+          "table": "rcm_strategies",
+          "allowed": false,
+          "offset": 164034
+        },
+        {
+          "table": "weibull_fits",
+          "allowed": true,
+          "offset": 164896
+        }
+      ],
+      "drift": []
+    },
+    {
+      "page": "shift-brain.html",
+      "reads": [
+        "shift_plans",
+        "v_worker_truth"
+      ],
+      "subscriptions": [],
+      "drift": []
+    },
+    {
+      "page": "alert-hub.html",
+      "reads": [
+        "amc_briefings",
+        "anomaly_signals",
+        "automation_log",
+        "failure_signature_alerts",
+        "hive_audit_log",
+        "parts_staging_recommendations",
+        "v_anomaly_truth",
+        "v_inventory_items_truth",
+        "v_pm_compliance_truth",
+        "v_risk_truth"
+      ],
+      "subscriptions": [
+        {
+          "table": "amc_briefings",
+          "allowed": false,
+          "offset": 33820
+        },
+        {
+          "table": "anomaly_signals",
+          "allowed": false,
+          "offset": 44365
+        }
+      ],
+      "drift": []
+    },
+    {
+      "page": "audit-log.html",
+      "reads": [
+        "hive_audit_log"
+      ],
+      "subscriptions": [
+        {
+          "table": "hive_audit_log",
+          "allowed": false,
+          "offset": 13364
+        }
+      ],
+      "drift": []
+    },
+    {
+      "page": "voice-journal.html",
+      "reads": [
+        "v_worker_truth",
+        "voice_journal_entries",
+        "worker_profiles"
+      ],
+      "subscriptions": [],
+      "drift": []
+    }
+  ]
+}

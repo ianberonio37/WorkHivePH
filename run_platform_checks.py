@@ -337,6 +337,336 @@ VALIDATORS = [
         "skip_if_fast": False,
     },
     {
+        # 2026-05-20 — catches semantic drift INSIDE the same canonical signal:
+        # surfaces that read a v_*_truth column but locally re-derive its math
+        # (qty_on_hand <= reorder_point, FREQ_DAYS, Date.now() - last_completed,
+        # 'nodata' fallback for never-serviced items). Three real bugs caught
+        # on first run: pm-scheduler.html, index.html low-stock, logbook.html.
+        "id":      "truth-view-signal-trust",
+        "script":  "validate_truth_view_signal_trust.py",
+        "args":    [],
+        "label":   "Truth-View Signal-Trust (no local re-derivation alongside v_*_truth reads; forward-only ratchet)",
+        "group":   "Platform",
+        "report":  "truth_view_signal_trust_report.json",
+        "skip_if_fast": False,
+    },
+    {
+        # 2026-05-20 — catches KPI tiles declared in HTML with default values
+        # ("0", "—") that no JS setter ever populates. Caught the marketplace
+        # `mk-total-hero` / skillmatrix `sm-*-hero` class on first pass (turned
+        # out wired via setCard dispatch; baseline 0 locks the cleaned state).
+        "id":      "orphan-kpi-tiles",
+        "script":  "validate_orphan_kpi_tiles.py",
+        "args":    [],
+        "label":   "Orphan KPI Tiles (every default-value tile must have a JS setter; forward-only ratchet)",
+        "group":   "Platform",
+        "report":  "orphan_kpi_tiles_report.json",
+        "skip_if_fast": False,
+    },
+    {
+        # 2026-05-20 — catches the home-tile undercount class: a page does
+        # `db.from(v_*_truth)...limit(N)` then renders `arr.length` as a
+        # KPI count. The number caps at N silently when actual data exceeds.
+        # Caught the index.html Open Jobs / Risk Alerts bug (limit(5)) and
+        # marketplace-seller.html badges (limit(50)).
+        "id":      "kpi-count-query-safety",
+        "script":  "validate_kpi_count_query_safety.py",
+        "args":    [],
+        "label":   "KPI Count-Query Safety (no .limit(N) + .length as canonical KPI count; forward-only ratchet)",
+        "group":   "Platform",
+        "report":  "kpi_count_query_safety_report.json",
+        "skip_if_fast": False,
+    },
+    {
+        # 2026-05-20 — every renderSourceChip({ source: 'v_X_truth + ...' })
+        # must reference views the page actually reads. Catches stale chip
+        # declarations that lie about lineage after a refactor (page stopped
+        # reading view X, but the chip still claims it). Baseline tightened
+        # from 7 to 0 the same day by fixing hive chips + allow-markering
+        # RPC/wrapper-backed chips.
+        "id":      "source-chip-truth",
+        "script":  "validate_source_chip_truth.py",
+        "args":    [],
+        "label":   "Source-Chip Truth (every renderSourceChip view is actually .from()-read on the page; forward-only ratchet)",
+        "group":   "Platform",
+        "report":  "source_chip_truth_report.json",
+        "skip_if_fast": False,
+    },
+    {
+        # 2026-05-20 — catches enum-column filter case/spelling drift across
+        # surfaces. Two pages filtering `.eq('status', 'Open')` vs
+        # `.eq('status', 'open')` return different result sets from the SAME
+        # column. Tracks `(column, lowercase(value))` and fails when 2+
+        # files use distinct case variants. Allow with `// filter-case-allow`.
+        "id":      "filter-case-consistency",
+        "script":  "validate_filter_case_consistency.py",
+        "args":    [],
+        "label":   "Filter Case Consistency (same enum-column filter must use consistent case across files; forward-only ratchet)",
+        "group":   "Platform",
+        "report":  "filter_case_consistency_report.json",
+        "skip_if_fast": False,
+    },
+    {
+        # 2026-05-20 — catches realtime subscription drift. `hive.html` had
+        # been subscribing to `postgres_changes` on the DEAD `assets` table
+        # for months — supervisors never got realtime "asset pending approval"
+        # notifications because workers actually submit to `asset_nodes`.
+        # Fixed in same commit. Validator subscribes-table must match (or be
+        # an underlying-table of) the page's .from() reads.
+        "id":      "realtime-subscription",
+        "script":  "validate_realtime_subscription_consistency.py",
+        "args":    [],
+        "label":   "Realtime Subscription Consistency (every postgres_changes table must be read by the page; forward-only ratchet)",
+        "group":   "Platform",
+        "report":  "realtime_subscription_consistency_report.json",
+        "skip_if_fast": False,
+    },
+    {
+        # 2026-05-20 — catches dead-link CTAs (href / location.href targets
+        # to a .html file that doesn't exist on disk). User clicks → 404.
+        # Caught voice-journal.html → login.html on first run (the canonical
+        # signin redirect is index.html?signin=1; login.html never existed).
+        "id":      "link-target-existence",
+        "script":  "validate_link_target_existence.py",
+        "args":    [],
+        "label":   "Link Target Existence (every <a href>/location.href to a .html target must exist on disk; forward-only ratchet)",
+        "group":   "Platform",
+        "report":  "link_target_existence_report.json",
+        "skip_if_fast": False,
+    },
+    {
+        # 2026-05-20 — every payload.new.X / payload.old.X in a
+        # postgres_changes callback must be a real column of the subscribed
+        # table. Sibling to realtime-subscription (which checks table).
+        "id":      "realtime-payload-columns",
+        "script":  "validate_realtime_payload_columns.py",
+        "args":    [],
+        "label":   "Realtime Payload Columns (payload.new/old.X must be a real column on the subscribed table; forward-only ratchet)",
+        "group":   "Platform",
+        "report":  "realtime_payload_columns_report.json",
+        "skip_if_fast": False,
+    },
+    {
+        # 2026-05-20 — every functions.invoke('NAME') must point at a real
+        # edge fn directory. Caught silent-404 risk when fn renamed.
+        "id":      "edge-function-invoke",
+        "script":  "validate_edge_function_invoke.py",
+        "args":    [],
+        "label":   "Edge Function Invoke (every functions.invoke('X') target must exist; forward-only ratchet)",
+        "group":   "Platform",
+        "report":  "edge_function_invoke_report.json",
+        "skip_if_fast": False,
+    },
+    {
+        # 2026-05-20 — every db.rpc('X', { p_y: ... }) must use real arg
+        # keys for the RPC's signature. Caught registry bug where the
+        # CREATE FUNCTION regex truncated args at vector(384) — fixed there
+        # so this validator can do its job cleanly.
+        "id":      "rpc-argument-consistency",
+        "script":  "validate_rpc_argument_consistency.py",
+        "args":    [],
+        "label":   "RPC Argument Consistency (every db.rpc() name + arg keys exist; forward-only ratchet)",
+        "group":   "Platform",
+        "report":  "rpc_argument_consistency_report.json",
+        "skip_if_fast": False,
+    },
+    {
+        # 2026-05-20 — every <img src>, <link href>, <script src>, css url()
+        # pointing at a local asset must resolve to a file. Catches broken
+        # image icons and 404'd CSS/JS includes after a rename.
+        "id":      "image-asset-existence",
+        "script":  "validate_image_asset_existence.py",
+        "args":    [],
+        "label":   "Image / Asset Existence (every local asset ref must resolve to a file; forward-only ratchet)",
+        "group":   "Platform",
+        "report":  "image_asset_existence_report.json",
+        "skip_if_fast": False,
+    },
+    {
+        # 2026-05-20 — every path in sw.js's SHELL_FILES = [...] array
+        # must exist. Otherwise SW precache install fails silently.
+        "id":      "service-worker-shell",
+        "script":  "validate_service_worker_shell.py",
+        "args":    [],
+        "label":   "Service Worker SHELL_FILES (every precache path must exist; forward-only ratchet)",
+        "group":   "Platform",
+        "report":  "service_worker_shell_report.json",
+        "skip_if_fast": False,
+    },
+    {
+        # 2026-05-20 — every column in .select/.eq/.in/.gt/.gte/.lt/.lte/
+        # .order/.is on a known table must be a real column. Catches schema-
+        # rename drift where a column was removed/renamed but consumer code
+        # still references the old name. Includes a registry-miner fix for
+        # multi-clause ALTER TABLE ADD COLUMN.
+        "id":      "query-column-existence",
+        "script":  "validate_query_column_existence.py",
+        "args":    [],
+        "label":   "Query Column Existence (every .select/.eq/.in column must exist on the table; forward-only ratchet)",
+        "group":   "Platform",
+        "report":  "query_column_existence_report.json",
+        "skip_if_fast": False,
+    },
+    {
+        # 2026-05-20 — every getElementById('X')/querySelector('#X') must
+        # match an HTML element with id=X. Sibling of orphan-kpi-tiles
+        # (which finds the opposite: HTML elements with no JS setter).
+        "id":      "getelementbyid-orphan-setter",
+        "script":  "validate_getelementbyid_orphan_setter.py",
+        "args":    [],
+        "label":   "getElementById Orphan Setter (every JS id lookup must have a matching <id> in HTML; forward-only ratchet)",
+        "group":   "Platform",
+        "report":  "getelementbyid_orphan_setter_report.json",
+        "skip_if_fast": False,
+    },
+    {
+        # 2026-05-20 — surfaces hardcoded `N * 86400000` day windows where
+        # the same context keyword (overdue/completed/recent/...) is used
+        # with DIFFERENT N values across files. Catches "different numbers
+        # because different windows" silent drift.
+        "id":      "time-window-consistency",
+        "script":  "validate_time_window_consistency.py",
+        "args":    [],
+        "label":   "Time-Window Consistency (same context keyword must use same N*day window across files; forward-only ratchet)",
+        "group":   "Platform",
+        "report":  "time_window_consistency_report.json",
+        "skip_if_fast": False,
+    },
+    {
+        # 2026-05-20 — role-string permission-gate consistency. Every
+        # `role === 'X'` literal must use a canonical role name; off-canon
+        # strings are typo / privilege-drift candidates.
+        "id":      "role-string-consistency",
+        "script":  "validate_role_string_consistency.py",
+        "args":    [],
+        "label":   "Role String Consistency (every role === '...' literal must use a canonical role name; forward-only ratchet)",
+        "group":   "Platform",
+        "report":  "role_string_consistency_report.json",
+        "skip_if_fast": False,
+    },
+    {
+        # 2026-05-20 — inline onclick/onchange/... handlers must reference
+        # a defined function. Caught engineering-design.html → syncEGSoilInput()
+        # which was a stale handler (function never existed). Fixed by removing
+        # the dead onchange attribute.
+        "id":      "inline-onclick-handler",
+        "script":  "validate_inline_onclick_handler.py",
+        "args":    [],
+        "label":   "Inline Handler Existence (every onclick/onchange/... fn must be defined; forward-only ratchet)",
+        "group":   "Platform",
+        "report":  "inline_onclick_handler_report.json",
+        "skip_if_fast": False,
+    },
+    {
+        # 2026-05-20 — innerHTML = `...${interp}...` template literals must
+        # run interpolations through escHtml/sanitize/e() escaper. XSS class
+        # guard with forward-only ratchet.
+        "id":      "innerhtml-eschtml",
+        "script":  "validate_innerhtml_eschtml.py",
+        "args":    [],
+        "label":   "innerHTML escHtml Audit (interpolating template literals must escape; XSS guard, forward-only ratchet)",
+        "group":   "Platform",
+        "report":  "innerhtml_eschtml_report.json",
+        "skip_if_fast": False,
+    },
+    {
+        # 2026-05-20 — Deno.env.get('X') / process.env.X references in edge
+        # fns + python-api must be documented in .env.example/README. Catches
+        # secret-rename drift that would crash edge fns at runtime.
+        "id":      "env-variable-existence",
+        "script":  "validate_env_variable_existence.py",
+        "args":    [],
+        "label":   "Env Variable Existence (every env reference must be in .env.example/README; forward-only ratchet)",
+        "group":   "Platform",
+        "report":  "env_variable_existence_report.json",
+        "skip_if_fast": False,
+    },
+    {
+        # 2026-05-20 — interactive elements (button, input) must have an
+        # accessible name (aria-label / aria-labelledby / title / associated
+        # label / visible text). Accessibility class with forward-only ratchet.
+        "id":      "aria-label-coverage",
+        "script":  "validate_aria_label_coverage.py",
+        "args":    [],
+        "label":   "ARIA Label Coverage (every interactive element has an accessible name; forward-only ratchet)",
+        "group":   "Platform",
+        "report":  "aria_label_coverage_report.json",
+        "skip_if_fast": False,
+    },
+    {
+        # 2026-05-20 — every db.channel(...) must have matching db.removeChannel()
+        # OR a beforeunload/pagehide cleanup listener. Without cleanup, navigating
+        # between pages leaks websocket channels; free-tier hits its 200-channel
+        # ceiling and silently stops delivering events.
+        "id":      "realtime-channel-cleanup",
+        "script":  "validate_realtime_channel_cleanup.py",
+        "args":    [],
+        "label":   "Realtime Channel Cleanup (every db.channel() has cleanup; forward-only ratchet)",
+        "group":   "Platform",
+        "report":  "realtime_channel_cleanup_report.json",
+        "skip_if_fast": False,
+    },
+    {
+        # 2026-05-20 — every page.locator('#X') in tests/journey-*.spec.ts
+        # must point at an id that exists on the target HTML page. Catches
+        # tests that flake silently after a page rename.
+        "id":      "playwright-selector-existence",
+        "script":  "validate_playwright_selector_existence.py",
+        "args":    [],
+        "label":   "Playwright Selector Existence (every locator('#X') id must exist on target page; forward-only ratchet)",
+        "group":   "Platform",
+        "report":  "playwright_selector_existence_report.json",
+        "skip_if_fast": False,
+    },
+    {
+        # 2026-05-20 — localStorage / sessionStorage keys must be both set
+        # AND read somewhere in the codebase. Catches cache-key drift where
+        # writer + reader disagree on the key name.
+        "id":      "localstorage-key-consistency",
+        "script":  "validate_localstorage_key_consistency.py",
+        "args":    [],
+        "label":   "localStorage Key Consistency (every key must be set AND read; forward-only ratchet)",
+        "group":   "Platform",
+        "report":  "localstorage_key_consistency_report.json",
+        "skip_if_fast": False,
+    },
+    {
+        # 2026-05-20 — every classList.add/remove/toggle('X') must have a
+        # matching `.X` CSS rule somewhere (style block or CSS file). Catches
+        # JS-only classes where the CSS was deleted but the toggle stayed.
+        "id":      "css-class-existence",
+        "script":  "validate_css_class_existence.py",
+        "args":    [],
+        "label":   "CSS Class Existence (every classList.* class must have a CSS rule; forward-only ratchet)",
+        "group":   "Platform",
+        "report":  "css_class_existence_report.json",
+        "skip_if_fast": False,
+    },
+    {"id":"pg-cron-target","script":"validate_pg_cron_target_existence.py","args":[],
+     "label":"pg_cron Target Existence (jobs reference real tables + RPCs; forward-only ratchet)",
+     "group":"Platform","report":"pg_cron_target_existence_report.json","skip_if_fast":False},
+    {"id":"trigger-function","script":"validate_trigger_function_existence.py","args":[],
+     "label":"Trigger Function Existence (CREATE TRIGGER target functions exist; forward-only ratchet)",
+     "group":"Platform","report":"trigger_function_existence_report.json","skip_if_fast":False},
+    {"id":"meta-description","script":"validate_meta_description_coverage.py","args":[],
+     "label":"Meta Description Coverage (every page has description + og:title + og:image + canonical; forward-only ratchet)",
+     "group":"Platform","report":"meta_description_coverage_report.json","skip_if_fast":False},
+    {"id":"sitemap-page-existence","script":"validate_sitemap_page_existence.py","args":[],
+     "label":"Sitemap Page Existence (every sitemap.xml URL resolves to a file; forward-only ratchet)",
+     "group":"Platform","report":"sitemap_page_existence_report.json","skip_if_fast":False},
+    {"id":"unbounded-query","script":"validate_unbounded_query.py","args":[],
+     "label":"Unbounded Query Detection (every .from() chain has .limit/.single/.range/.eq-on-id; forward-only ratchet)",
+     "group":"Platform","report":"unbounded_query_report.json","skip_if_fast":False},
+    {"id":"heading-hierarchy","script":"validate_heading_hierarchy.py","args":[],
+     "label":"Heading Hierarchy (no skipped levels, no multiple h1; forward-only ratchet)",
+     "group":"Platform","report":"heading_hierarchy_report.json","skip_if_fast":False},
+    {"id":"canonical-url","script":"validate_canonical_url_consistency.py","args":[],
+     "label":"Canonical URL Consistency (<link rel=canonical> points at the page; forward-only ratchet)",
+     "group":"Platform","report":"canonical_url_consistency_report.json","skip_if_fast":False},
+    {"id":"event-listener-cleanup","script":"validate_event_listener_cleanup.py","args":[],
+     "label":"Event Listener Cleanup (pages with 10+ addEventListener need removes; forward-only ratchet)",
+     "group":"Platform","report":"event_listener_cleanup_report.json","skip_if_fast":False},
+    {
         "id":      "persona-contract",
         "script":  "validate_persona_contract.py",
         "args":    [],

@@ -1,0 +1,28 @@
+{
+  "summary": {
+    "files_scanned": 94,
+    "enum_columns": [
+      "approval_state",
+      "asset_type",
+      "category",
+      "criticality",
+      "delivery_method",
+      "frequency",
+      "kind",
+      "level",
+      "report_type",
+      "risk_level",
+      "role",
+      "section",
+      "severity",
+      "shift_type",
+      "status",
+      "tier",
+      "tone",
+      "type"
+    ],
+    "drift_count": 0,
+    "baseline": 0
+  },
+  "drift": []
+}

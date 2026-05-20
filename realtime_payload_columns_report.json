@@ -1,0 +1,130 @@
+{
+  "summary": {
+    "pages_scanned": 30,
+    "total_refs": 70,
+    "total_drift": 0,
+    "baseline": 0
+  },
+  "per_page": [
+    {
+      "page": "index.html",
+      "drift": []
+    },
+    {
+      "page": "hive.html",
+      "drift": []
+    },
+    {
+      "page": "logbook.html",
+      "drift": []
+    },
+    {
+      "page": "inventory.html",
+      "drift": []
+    },
+    {
+      "page": "pm-scheduler.html",
+      "drift": []
+    },
+    {
+      "page": "analytics.html",
+      "drift": []
+    },
+    {
+      "page": "analytics-report.html",
+      "drift": []
+    },
+    {
+      "page": "skillmatrix.html",
+      "drift": []
+    },
+    {
+      "page": "community.html",
+      "drift": []
+    },
+    {
+      "page": "public-feed.html",
+      "drift": []
+    },
+    {
+      "page": "marketplace.html",
+      "drift": []
+    },
+    {
+      "page": "marketplace-seller.html",
+      "drift": []
+    },
+    {
+      "page": "dayplanner.html",
+      "drift": []
+    },
+    {
+      "page": "engineering-design.html",
+      "drift": []
+    },
+    {
+      "page": "assistant.html",
+      "drift": []
+    },
+    {
+      "page": "report-sender.html",
+      "drift": []
+    },
+    {
+      "page": "platform-health.html",
+      "drift": []
+    },
+    {
+      "page": "project-manager.html",
+      "drift": []
+    },
+    {
+      "page": "integrations.html",
+      "drift": []
+    },
+    {
+      "page": "ph-intelligence.html",
+      "drift": []
+    },
+    {
+      "page": "project-report.html",
+      "drift": []
+    },
+    {
+      "page": "predictive.html",
+      "drift": []
+    },
+    {
+      "page": "ai-quality.html",
+      "drift": []
+    },
+    {
+      "page": "plant-connections.html",
+      "drift": []
+    },
+    {
+      "page": "achievements.html",
+      "drift": []
+    },
+    {
+      "page": "asset-hub.html",
+      "drift": []
+    },
+    {
+      "page": "shift-brain.html",
+      "drift": []
+    },
+    {
+      "page": "alert-hub.html",
+      "drift": []
+    },
+    {
+      "page": "audit-log.html",
+      "drift": []
+    },
+    {
+      "page": "voice-journal.html",
+      "drift": []
+    }
+  ]
+}

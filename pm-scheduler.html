@@ -7,6 +7,8 @@
   <title>PM Scheduler: WorkHive</title>
   <!-- capture: pm_completion_v1 (form) — PM completion + scope-item add/edit writes to pm_completions + pm_scope_items -->
   <meta name="description" content="Plant Maintenance Scheduler. Add assets, assign PM scope by category, set frequencies, and track due dates. Syncs with your WorkHive hive board." />
+  <meta property="og:title" content="PM Scheduler: WorkHive" />
+  <meta property="og:image" content="https://workhiveph.com/brand_assets/og-social.png" />
   <meta name="robots" content="noindex, follow" />
   <link rel="canonical" href="https://workhiveph.com/pm-scheduler.html" />
   <link rel="manifest" href="manifest.json" />
@@ -1256,19 +1258,17 @@ function getEnrichedItems(assetId) {
       .filter(c => c.scope_item_id === item.id && c.status === 'done')
       .sort((a, b) => new Date(b.completed_at) - new Date(a.completed_at))[0];
 
-    let nextDue, st;
-    if (item.next_due_date) {
-      nextDue = new Date(item.next_due_date);
-      st = item.is_overdue ? 'overdue'
-         : item.is_due_soon ? 'duesoon'
-         : 'ontrack';
-    } else {
-      // View was unavailable (network / RLS); without the canonical truth
-      // we deliberately surface 'nodata' instead of guessing — the home
-      // dashboard tile is the safe reference if the user wants the count.
-      nextDue = null;
-      st = 'nodata';
-    }
+    // Trust the canonical view's is_overdue / is_due_soon signals AS-IS.
+    // A scope item with is_overdue=true and next_due_date=null is a
+    // never-serviced critical item — the view rightly flags it overdue
+    // (matches the "leave anchor blank to surface immediately" UX text).
+    // The home tile counts the same way (hive.html v_pm_scope_items_truth
+    // read); re-gating on next_due_date here caused the 21 ↔ 0 mismatch.
+    const nextDue = item.next_due_date ? new Date(item.next_due_date) : null;
+    const st = item.is_overdue ? 'overdue'
+             : item.is_due_soon ? 'duesoon'
+             : nextDue           ? 'ontrack'
+             : 'nodata';
 
     return { ...item, lastComp, nextDue, itemStatus: st };
   });
@@ -2064,7 +2064,7 @@ function renderScopeList() {
             </select>
           </div>
         </div>
-        ${item.isCustom ? `<button onclick="removeCustomItem(${idx})" class="text-white/20 hover:text-red-400 transition-colors p-1">
+        ${item.isCustom ? `<button onclick="removeCustomItem(${idx})" class="text-white/20 hover:text-red-400 transition-colors p-1" aria-label="Remove">
           <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
         </button>` : ''}
       </div>
@@ -2486,7 +2486,7 @@ init();
 
     <div class="flex items-center justify-between mb-4">
       <h3 class="font-bold text-base">Add PM Task</h3>
-      <button onclick="closeAddTaskSheet()" class="text-white/40 hover:text-white/70 p-1 -mr-1">
+      <button onclick="closeAddTaskSheet()" class="text-white/40 hover:text-white/70 p-1 -mr-1" aria-label="Close">
         <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
       </button>
     </div>

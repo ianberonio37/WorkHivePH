@@ -1,0 +1,611 @@
+{
+  "summary": {
+    "files_scanned": 150,
+    "total_refs": 197,
+    "total_missing": 0,
+    "baseline": 0,
+    "env_names_known": 19
+  },
+  "per_file": [
+    {
+      "file": "supabase/functions/_shared/ai-chain.ts",
+      "missing": []
+    },
+    {
+      "file": "supabase/functions/_shared/audio-chain.ts",
+      "missing": []
+    },
+    {
+      "file": "supabase/functions/_shared/context-budget.ts",
+      "missing": []
+    },
+    {
+      "file": "supabase/functions/_shared/cors.ts",
+      "missing": []
+    },
+    {
+      "file": "supabase/functions/_shared/cost-log.ts",
+      "missing": []
+    },
+    {
+      "file": "supabase/functions/_shared/embedding-chain.ts",
+      "missing": []
+    },
+    {
+      "file": "supabase/functions/_shared/journal-recall.ts",
+      "missing": []
+    },
+    {
+      "file": "supabase/functions/_shared/mappings.ts",
+      "missing": []
+    },
+    {
+      "file": "supabase/functions/_shared/memory.ts",
+      "missing": []
+    },
+    {
+      "file": "supabase/functions/_shared/persona.ts",
+      "missing": []
+    },
+    {
+      "file": "supabase/functions/_shared/rate-limit.ts",
+      "missing": []
+    },
+    {
+      "file": "supabase/functions/_shared/redactPII.ts",
+      "missing": []
+    },
+    {
+      "file": "supabase/functions/_shared/validate-contract.ts",
+      "missing": []
+    },
+    {
+      "file": "supabase/functions/_shared/validateAgentContract.ts",
+      "missing": []
+    },
+    {
+      "file": "supabase/functions/ai-eval-runner/index.ts",
+      "missing": []
+    },
+    {
+      "file": "supabase/functions/ai-gateway/index.ts",
+      "missing": []
+    },
+    {
+      "file": "supabase/functions/ai-orchestrator/index.ts",
+      "missing": []
+    },
+    {
+      "file": "supabase/functions/amc-orchestrator/index.ts",
+      "missing": []
+    },
+    {
+      "file": "supabase/functions/analytics-orchestrator/index.ts",
+      "missing": []
+    },
+    {
+      "file": "supabase/functions/asset-brain-query/index.ts",
+      "missing": []
+    },
+    {
+      "file": "supabase/functions/batch-risk-scoring/index.ts",
+      "missing": []
+    },
+    {
+      "file": "supabase/functions/benchmark-compute/index.ts",
+      "missing": []
+    },
+    {
+      "file": "supabase/functions/cmms-push-completion/index.ts",
+      "missing": []
+    },
+    {
+      "file": "supabase/functions/cmms-sync/index.ts",
+      "missing": []
+    },
+    {
+      "file": "supabase/functions/cmms-webhook-receiver/index.ts",
+      "missing": []
+    },
+    {
+      "file": "supabase/functions/embed-entry/index.ts",
+      "missing": []
+    },
+    {
+      "file": "supabase/functions/engineering-bom-sow/index.ts",
+      "missing": []
+    },
+    {
+      "file": "supabase/functions/engineering-calc-agent/index.ts",
+      "missing": []
+    },
+    {
+      "file": "supabase/functions/equipment-label-ocr/index.ts",
+      "missing": []
+    },
+    {
+      "file": "supabase/functions/export-hive-data/index.ts",
+      "missing": []
+    },
+    {
+      "file": "supabase/functions/failure-signature-scan/index.ts",
+      "missing": []
+    },
+    {
+      "file": "supabase/functions/fmea-populator/index.ts",
+      "missing": []
+    },
+    {
+      "file": "supabase/functions/intelligence-api/index.ts",
+      "missing": []
+    },
+    {
+      "file": "supabase/functions/intelligence-report/index.ts",
+      "missing": []
+    },
+    {
+      "file": "supabase/functions/marketplace-checkout/index.ts",
+      "missing": []
+    },
+    {
+      "file": "supabase/functions/marketplace-connect-onboard/index.ts",
+      "missing": []
+    },
+    {
+      "file": "supabase/functions/marketplace-connect-status/index.ts",
+      "missing": []
+    },
+    {
+      "file": "supabase/functions/marketplace-release/index.ts",
+      "missing": []
+    },
+    {
+      "file": "supabase/functions/marketplace-webhook/index.ts",
+      "missing": []
+    },
+    {
+      "file": "supabase/functions/parts-staging-recommender/index.ts",
+      "missing": []
+    },
+    {
+      "file": "supabase/functions/pdf-ingest/index.ts",
+      "missing": []
+    },
+    {
+      "file": "supabase/functions/pf-calculator/index.ts",
+      "missing": []
+    },
+    {
+      "file": "supabase/functions/platform-gateway/index.ts",
+      "missing": []
+    },
+    {
+      "file": "supabase/functions/platform-scraper/index.ts",
+      "missing": []
+    },
+    {
+      "file": "supabase/functions/project-orchestrator/index.ts",
+      "missing": []
+    },
+    {
+      "file": "supabase/functions/project-progress/index.ts",
+      "missing": []
+    },
+    {
+      "file": "supabase/functions/scheduled-agents/index.ts",
+      "missing": []
+    },
+    {
+      "file": "supabase/functions/semantic-search/index.ts",
+      "missing": []
+    },
+    {
+      "file": "supabase/functions/send-report-email/index.ts",
+      "missing": []
+    },
+    {
+      "file": "supabase/functions/sensor-readings-ingest/index.ts",
+      "missing": []
+    },
+    {
+      "file": "supabase/functions/shift-planner-orchestrator/index.ts",
+      "missing": []
+    },
+    {
+      "file": "supabase/functions/trigger-ml-retrain/index.ts",
+      "missing": []
+    },
+    {
+      "file": "supabase/functions/tts-speak/index.ts",
+      "missing": []
+    },
+    {
+      "file": "supabase/functions/visual-defect-capture/index.ts",
+      "missing": []
+    },
+    {
+      "file": "supabase/functions/voice-action-router/index.ts",
+      "missing": []
+    },
+    {
+      "file": "supabase/functions/voice-embeddings/index.ts",
+      "missing": []
+    },
+    {
+      "file": "supabase/functions/voice-journal-agent/index.ts",
+      "missing": []
+    },
+    {
+      "file": "supabase/functions/voice-logbook-entry/index.ts",
+      "missing": []
+    },
+    {
+      "file": "supabase/functions/voice-model-call/index.ts",
+      "missing": []
+    },
+    {
+      "file": "supabase/functions/voice-report-intent/index.ts",
+      "missing": []
+    },
+    {
+      "file": "supabase/functions/voice-semantic-rag/index.ts",
+      "missing": []
+    },
+    {
+      "file": "supabase/functions/voice-transcribe/index.ts",
+      "missing": []
+    },
+    {
+      "file": "supabase/functions/walkthrough-analyzer/index.ts",
+      "missing": []
+    },
+    {
+      "file": "supabase/functions/weibull-fitter/index.ts",
+      "missing": []
+    },
+    {
+      "file": "python-api/analytics/__init__.py",
+      "missing": []
+    },
+    {
+      "file": "python-api/analytics/descriptive.py",
+      "missing": []
+    },
+    {
+      "file": "python-api/analytics/diagnostic.py",
+      "missing": []
+    },
+    {
+      "file": "python-api/analytics/predictive.py",
+      "missing": []
+    },
+    {
+      "file": "python-api/analytics/prescriptive.py",
+      "missing": []
+    },
+    {
+      "file": "python-api/calcs/__init__.py",
+      "missing": []
+    },
+    {
+      "file": "python-api/calcs/ahu_sizing.py",
+      "missing": []
+    },
+    {
+      "file": "python-api/calcs/beam_column.py",
+      "missing": []
+    },
+    {
+      "file": "python-api/calcs/bearing_life.py",
+      "missing": []
+    },
+    {
+      "file": "python-api/calcs/boiler_steam.py",
+      "missing": []
+    },
+    {
+      "file": "python-api/calcs/boiler_system.py",
+      "missing": []
+    },
+    {
+      "file": "python-api/calcs/bolt_torque.py",
+      "missing": []
+    },
+    {
+      "file": "python-api/calcs/cable_tray_sizing.py",
+      "missing": []
+    },
+    {
+      "file": "python-api/calcs/chiller.py",
+      "missing": []
+    },
+    {
+      "file": "python-api/calcs/clean_agent_suppression.py",
+      "missing": []
+    },
+    {
+      "file": "python-api/calcs/compressed_air.py",
+      "missing": []
+    },
+    {
+      "file": "python-api/calcs/cooling_tower.py",
+      "missing": []
+    },
+    {
+      "file": "python-api/calcs/domestic_water.py",
+      "missing": []
+    },
+    {
+      "file": "python-api/calcs/drainage_pipe_sizing.py",
+      "missing": []
+    },
+    {
+      "file": "python-api/calcs/duct_sizing.py",
+      "missing": []
+    },
+    {
+      "file": "python-api/calcs/earthing_grounding.py",
+      "missing": []
+    },
+    {
+      "file": "python-api/calcs/elevator_traffic.py",
+      "missing": []
+    },
+    {
+      "file": "python-api/calcs/expansion_tank.py",
+      "missing": []
+    },
+    {
+      "file": "python-api/calcs/fcu_selection.py",
+      "missing": []
+    },
+    {
+      "file": "python-api/calcs/fire_alarm_battery.py",
+      "missing": []
+    },
+    {
+      "file": "python-api/calcs/fire_pump.py",
+      "missing": []
+    },
+    {
+      "file": "python-api/calcs/fire_sprinkler.py",
+      "missing": []
+    },
+    {
+      "file": "python-api/calcs/fluid_power.py",
+      "missing": []
+    },
+    {
+      "file": "python-api/calcs/gear_belt_drive.py",
+      "missing": []
+    },
+    {
+      "file": "python-api/calcs/generator_sizing.py",
+      "missing": []
+    },
+    {
+      "file": "python-api/calcs/grease_trap.py",
+      "missing": []
+    },
+    {
+      "file": "python-api/calcs/harmonic_distortion.py",
+      "missing": []
+    },
+    {
+      "file": "python-api/calcs/heat_exchanger.py",
+      "missing": []
+    },
+    {
+      "file": "python-api/calcs/hoist_capacity.py",
+      "missing": []
+    },
+    {
+      "file": "python-api/calcs/hot_water_demand.py",
+      "missing": []
+    },
+    {
+      "file": "python-api/calcs/hvac_cooling_load.py",
+      "missing": []
+    },
+    {
+      "file": "python-api/calcs/lighting_design.py",
+      "missing": []
+    },
+    {
+      "file": "python-api/calcs/lightning_protection.py",
+      "missing": []
+    },
+    {
+      "file": "python-api/calcs/load_estimation.py",
+      "missing": []
+    },
+    {
+      "file": "python-api/calcs/load_schedule.py",
+      "missing": []
+    },
+    {
+      "file": "python-api/calcs/noise_acoustics.py",
+      "missing": []
+    },
+    {
+      "file": "python-api/calcs/pipe_sizing.py",
+      "missing": []
+    },
+    {
+      "file": "python-api/calcs/power_factor_correction.py",
+      "missing": []
+    },
+    {
+      "file": "python-api/calcs/pressure_vessel.py",
+      "missing": []
+    },
+    {
+      "file": "python-api/calcs/pump_tdh.py",
+      "missing": []
+    },
+    {
+      "file": "python-api/calcs/refrigerant_pipe.py",
+      "missing": []
+    },
+    {
+      "file": "python-api/calcs/roof_drain.py",
+      "missing": []
+    },
+    {
+      "file": "python-api/calcs/septic_tank.py",
+      "missing": []
+    },
+    {
+      "file": "python-api/calcs/sewer_drainage.py",
+      "missing": []
+    },
+    {
+      "file": "python-api/calcs/shaft_design.py",
+      "missing": []
+    },
+    {
+      "file": "python-api/calcs/short_circuit.py",
+      "missing": []
+    },
+    {
+      "file": "python-api/calcs/solar_pv.py",
+      "missing": []
+    },
+    {
+      "file": "python-api/calcs/stairwell_pressurization.py",
+      "missing": []
+    },
+    {
+      "file": "python-api/calcs/storm_drain.py",
+      "missing": []
+    },
+    {
+      "file": "python-api/calcs/transformer_sizing.py",
+      "missing": []
+    },
+    {
+      "file": "python-api/calcs/ups_sizing.py",
+      "missing": []
+    },
+    {
+      "file": "python-api/calcs/ventilation_ach.py",
+      "missing": []
+    },
+    {
+      "file": "python-api/calcs/vibration_analysis.py",
+      "missing": []
+    },
+    {
+      "file": "python-api/calcs/voltage_drop.py",
+      "missing": []
+    },
+    {
+      "file": "python-api/calcs/wastewater_stp.py",
+      "missing": []
+    },
+    {
+      "file": "python-api/calcs/water_softener.py",
+      "missing": []
+    },
+    {
+      "file": "python-api/calcs/water_supply_pipe.py",
+      "missing": []
+    },
+    {
+      "file": "python-api/calcs/water_treatment.py",
+      "missing": []
+    },
+    {
+      "file": "python-api/calcs/wire_sizing.py",
+      "missing": []
+    },
+    {
+      "file": "python-api/diagrams/__init__.py",
+      "missing": []
+    },
+    {
+      "file": "python-api/diagrams/duct_chart.py",
+      "missing": []
+    },
+    {
+      "file": "python-api/diagrams/harmonic_spectrum.py",
+      "missing": []
+    },
+    {
+      "file": "python-api/diagrams/psychrometric_chart.py",
+      "missing": []
+    },
+    {
+      "file": "python-api/diagrams/pump_curve.py",
+      "missing": []
+    },
+    {
+      "file": "python-api/diagrams/transformer_sld.py",
+      "missing": []
+    },
+    {
+      "file": "python-api/main.py",
+      "missing": []
+    },
+    {
+      "file": "python-api/ml/__init__.py",
+      "missing": []
+    },
+    {
+      "file": "python-api/ml/feature_engineering.py",
+      "missing": []
+    },
+    {
+      "file": "python-api/ml/trainer.py",
+      "missing": []
+    },
+    {
+      "file": "python-api/projects/__init__.py",
+      "missing": []
+    },
+    {
+      "file": "python-api/projects/descriptive.py",
+      "missing": []
+    },
+    {
+      "file": "python-api/projects/diagnostic.py",
+      "missing": []
+    },
+    {
+      "file": "python-api/projects/predictive.py",
+      "missing": []
+    },
+    {
+      "file": "python-api/projects/prescriptive.py",
+      "missing": []
+    },
+    {
+      "file": "python-api/projects/resources.py",
+      "missing": []
+    },
+    {
+      "file": "python-api/reliability/__init__.py",
+      "missing": []
+    },
+    {
+      "file": "python-api/reliability/pf_interval.py",
+      "missing": []
+    },
+    {
+      "file": "python-api/reliability/weibull.py",
+      "missing": []
+    },
+    {
+      "file": "python-api/sensors/__init__.py",
+      "missing": []
+    },
+    {
+      "file": "python-api/sensors/anomaly.py",
+      "missing": []
+    },
+    {
+      "file": "python-api/sensors/mqtt_subscriber_template.py",
+      "missing": []
+    }
+  ]
+}

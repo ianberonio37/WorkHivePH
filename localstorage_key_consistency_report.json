@@ -1,0 +1,144 @@
+{
+  "summary": {
+    "files_scanned": 55,
+    "total_keys": 27,
+    "drift": 10,
+    "baseline": 10
+  },
+  "drift": [
+    {
+      "key": "hive_id",
+      "kind": "get-without-set",
+      "files": [
+        "voice-handler.js"
+      ]
+    },
+    {
+      "key": "wh.signup_role",
+      "kind": "set-without-get",
+      "files": [
+        "index.html"
+      ]
+    },
+    {
+      "key": "wh_ai_history_",
+      "kind": "get-without-set",
+      "files": [
+        "companion-launcher.js"
+      ]
+    },
+    {
+      "key": "wh_lifeplanner_",
+      "kind": "get-without-set",
+      "files": [
+        "dayplanner.html"
+      ]
+    },
+    {
+      "key": "wh_nav_mode",
+      "kind": "get-without-set",
+      "files": [
+        "index.html"
+      ]
+    },
+    {
+      "key": "wh_onb_audit_visited",
+      "kind": "set-without-get",
+      "files": [
+        "audit-log.html"
+      ]
+    },
+    {
+      "key": "wh_persona",
+      "kind": "get-without-set",
+      "files": [
+        "companion-launcher.js"
+      ]
+    },
+    {
+      "key": "wh_voice_session_id",
+      "kind": "set-without-get",
+      "files": [
+        "voice-handler.js"
+      ]
+    },
+    {
+      "key": "wh_worker_name",
+      "kind": "get-without-set",
+      "files": [
+        "achievements.html",
+        "ai-quality.html",
+        "alert-hub.html",
+        "analytics-report.html",
+        "analytics.html",
+        "asset-hub.html",
+        "assistant.html",
+        "audit-log.html",
+        "community.html",
+        "dayplanner.html",
+        "device-fingerprint.js",
+        "engineering-design.html",
+        "hive.html",
+        "index.html",
+        "integrations.html",
+        "inventory.html",
+        "logbook.html",
+        "marketplace-seller.html",
+        "marketplace.html",
+        "ph-intelligence.html",
+        "plant-connections.html",
+        "platform-health.html",
+        "pm-scheduler.html",
+        "predictive.html",
+        "project-manager.html",
+        "project-report.html",
+        "report-sender.html",
+        "session-timeout.js",
+        "shift-brain.html",
+        "skillmatrix.html",
+        "utils.js",
+        "voice-handler.js",
+        "voice-journal.html"
+      ]
+    },
+    {
+      "key": "workerName",
+      "kind": "get-without-set",
+      "files": [
+        "achievements.html",
+        "ai-quality.html",
+        "alert-hub.html",
+        "analytics-report.html",
+        "analytics.html",
+        "asset-hub.html",
+        "assistant.html",
+        "audit-log.html",
+        "community.html",
+        "dayplanner.html",
+        "device-fingerprint.js",
+        "engineering-design.html",
+        "hive.html",
+        "index.html",
+        "integrations.html",
+        "inventory.html",
+        "logbook.html",
+        "marketplace-seller.html",
+        "marketplace.html",
+        "ph-intelligence.html",
+        "plant-connections.html",
+        "platform-health.html",
+        "pm-scheduler.html",
+        "predictive.html",
+        "project-manager.html",
+        "project-report.html",
+        "report-sender.html",
+        "session-timeout.js",
+        "shift-brain.html",
+        "skillmatrix.html",
+        "utils.js",
+        "voice-handler.js",
+        "voice-journal.html"
+      ]
+    }
+  ]
+}

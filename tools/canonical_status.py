@@ -203,6 +203,272 @@ def _gather() -> dict[str, Any]:
         out["phantom_cols_alive"]   = 0
         out["phantom_cols_phantom"] = 0
 
+    # 8a. Orphan KPI tiles
+    okt = _read_json("orphan_kpi_tiles_report.json")
+    if okt:
+        s = okt.get("summary", {})
+        out["orphan_tiles"]    = s.get("total_orphans", 0)
+        out["orphan_baseline"] = s.get("baseline", 0)
+    else:
+        out["orphan_tiles"]    = 0
+        out["orphan_baseline"] = 0
+
+    # 8a2. KPI count-query safety (limit + .length as KPI)
+    kcq = _read_json("kpi_count_query_safety_report.json")
+    if kcq:
+        s = kcq.get("summary", {})
+        out["kpi_count_issues"]    = s.get("total_issues", 0)
+        out["kpi_count_baseline"]  = s.get("baseline", 0)
+    else:
+        out["kpi_count_issues"]   = 0
+        out["kpi_count_baseline"] = 0
+
+    # 8a3. Source-chip truth — chips must reference views the page actually reads
+    sct = _read_json("source_chip_truth_report.json")
+    if sct:
+        s = sct.get("summary", {})
+        out["chip_stale"]    = s.get("total_issues", 0)
+        out["chip_baseline"] = s.get("baseline", 0)
+    else:
+        out["chip_stale"]    = 0
+        out["chip_baseline"] = 0
+
+    # 8a4. Filter case consistency — same column + value lowercase, different case across files
+    fcc = _read_json("filter_case_consistency_report.json")
+    if fcc:
+        s = fcc.get("summary", {})
+        out["filter_drift"]    = s.get("drift_count", 0)
+        out["filter_baseline"] = s.get("baseline", 0)
+    else:
+        out["filter_drift"]    = 0
+        out["filter_baseline"] = 0
+
+    # 8a5. Realtime subscription consistency — subscribed table must be read
+    rts = _read_json("realtime_subscription_consistency_report.json")
+    if rts:
+        s = rts.get("summary", {})
+        out["rt_drift"]     = s.get("total_drift", 0)
+        out["rt_subs"]      = s.get("total_subs", 0)
+        out["rt_baseline"]  = s.get("baseline", 0)
+    else:
+        out["rt_drift"]    = 0
+        out["rt_subs"]     = 0
+        out["rt_baseline"] = 0
+
+    # 8a6. Link target existence — every href .html must resolve to a file
+    lte = _read_json("link_target_existence_report.json")
+    if lte:
+        s = lte.get("summary", {})
+        out["link_broken"]    = s.get("total_broken", 0)
+        out["link_total"]     = s.get("total_links", 0)
+        out["link_baseline"]  = s.get("baseline", 0)
+    else:
+        out["link_broken"]   = 0
+        out["link_total"]    = 0
+        out["link_baseline"] = 0
+
+    # 8a7. Realtime payload column drift
+    rpc_data = _read_json("realtime_payload_columns_report.json")
+    if rpc_data:
+        s = rpc_data.get("summary", {})
+        out["payload_drift"]    = s.get("total_drift", 0)
+        out["payload_refs"]     = s.get("total_refs", 0)
+        out["payload_baseline"] = s.get("baseline", 0)
+    else:
+        out["payload_drift"] = out["payload_refs"] = out["payload_baseline"] = 0
+
+    # 8a8. Edge function invoke targets exist
+    efi = _read_json("edge_function_invoke_report.json")
+    if efi:
+        s = efi.get("summary", {})
+        out["edge_invoke_broken"]   = s.get("total_drift", 0)
+        out["edge_invoke_calls"]    = s.get("total_calls", 0)
+        out["edge_invoke_baseline"] = s.get("baseline", 0)
+    else:
+        out["edge_invoke_broken"] = out["edge_invoke_calls"] = out["edge_invoke_baseline"] = 0
+
+    # 8a9. RPC argument consistency
+    rac = _read_json("rpc_argument_consistency_report.json")
+    if rac:
+        s = rac.get("summary", {})
+        out["rpc_drift"]    = s.get("total_drift", 0)
+        out["rpc_calls"]    = s.get("total_calls", 0)
+        out["rpc_baseline"] = s.get("baseline", 0)
+    else:
+        out["rpc_drift"] = out["rpc_calls"] = out["rpc_baseline"] = 0
+
+    # 8a10. Image / asset existence
+    iae = _read_json("image_asset_existence_report.json")
+    if iae:
+        s = iae.get("summary", {})
+        out["asset_broken"]   = s.get("total_broken", 0)
+        out["asset_refs"]     = s.get("total_refs", 0)
+        out["asset_baseline"] = s.get("baseline", 0)
+    else:
+        out["asset_broken"] = out["asset_refs"] = out["asset_baseline"] = 0
+
+    # 8a11. Service Worker SHELL_FILES
+    sws = _read_json("service_worker_shell_report.json")
+    if sws:
+        s = sws.get("summary", {})
+        out["sw_broken"]    = s.get("total_broken", 0)
+        out["sw_paths"]     = s.get("total_shell_paths", 0)
+        out["sw_baseline"]  = s.get("baseline", 0)
+    else:
+        out["sw_broken"] = out["sw_paths"] = out["sw_baseline"] = 0
+
+    # 8a12. Query column existence
+    qce = _read_json("query_column_existence_report.json")
+    if qce:
+        s = qce.get("summary", {})
+        out["query_col_drift"]    = s.get("total_drift", 0)
+        out["query_col_calls"]    = s.get("total_calls", 0)
+        out["query_col_baseline"] = s.get("baseline", 0)
+    else:
+        out["query_col_drift"] = out["query_col_calls"] = out["query_col_baseline"] = 0
+
+    # 8a13. getElementById orphan setters
+    gos = _read_json("getelementbyid_orphan_setter_report.json")
+    if gos:
+        s = gos.get("summary", {})
+        out["gid_orphan"]    = s.get("total_orphans", 0)
+        out["gid_lookups"]   = s.get("total_lookups", 0)
+        out["gid_baseline"]  = s.get("baseline", 0)
+    else:
+        out["gid_orphan"] = out["gid_lookups"] = out["gid_baseline"] = 0
+
+    # 8a14. Time-window consistency
+    twc = _read_json("time_window_consistency_report.json")
+    if twc:
+        s = twc.get("summary", {})
+        out["tw_drift"]    = s.get("drift_groups", 0)
+        out["tw_hits"]     = s.get("total_hits", 0)
+        out["tw_baseline"] = s.get("baseline", 0)
+    else:
+        out["tw_drift"] = out["tw_hits"] = out["tw_baseline"] = 0
+
+    # 8a15. Role string consistency
+    rsc = _read_json("role_string_consistency_report.json")
+    if rsc:
+        s = rsc.get("summary", {})
+        out["role_drift"]    = s.get("drift", 0)
+        out["role_baseline"] = s.get("baseline", 0)
+    else:
+        out["role_drift"] = out["role_baseline"] = 0
+
+    # 8a16. Inline onclick handler existence
+    ioh = _read_json("inline_onclick_handler_report.json")
+    if ioh:
+        s = ioh.get("summary", {})
+        out["onclick_orphan"]   = s.get("total_orphans", 0)
+        out["onclick_total"]    = s.get("total_handlers", 0)
+        out["onclick_baseline"] = s.get("baseline", 0)
+    else:
+        out["onclick_orphan"] = out["onclick_total"] = out["onclick_baseline"] = 0
+
+    # 8a17. innerHTML escHtml audit
+    iht = _read_json("innerhtml_eschtml_report.json")
+    if iht:
+        s = iht.get("summary", {})
+        out["xss_risk"]      = s.get("total_risk", 0)
+        out["xss_total"]     = s.get("total_assignments", 0)
+        out["xss_baseline"]  = s.get("baseline", 0)
+    else:
+        out["xss_risk"] = out["xss_total"] = out["xss_baseline"] = 0
+
+    # 8a18. Env variable existence
+    eve = _read_json("env_variable_existence_report.json")
+    if eve:
+        s = eve.get("summary", {})
+        out["env_missing"]   = s.get("total_missing", 0)
+        out["env_refs"]      = s.get("total_refs", 0)
+        out["env_baseline"]  = s.get("baseline", 0)
+    else:
+        out["env_missing"] = out["env_refs"] = out["env_baseline"] = 0
+
+    # 8a19. Aria label coverage
+    arc = _read_json("aria_label_coverage_report.json")
+    if arc:
+        s = arc.get("summary", {})
+        out["aria_missing"]   = s.get("total_missing", 0)
+        out["aria_total"]     = s.get("total_elements", 0)
+        out["aria_baseline"]  = s.get("baseline", 0)
+    else:
+        out["aria_missing"] = out["aria_total"] = out["aria_baseline"] = 0
+
+    # 8a20. Realtime channel cleanup
+    rcc = _read_json("realtime_channel_cleanup_report.json")
+    if rcc:
+        s = rcc.get("summary", {})
+        out["rt_clean_unsafe"]   = s.get("unsafe_pages", 0)
+        out["rt_clean_channels"] = s.get("total_channels", 0)
+        out["rt_clean_baseline"] = s.get("baseline", 0)
+    else:
+        out["rt_clean_unsafe"] = out["rt_clean_channels"] = out["rt_clean_baseline"] = 0
+
+    # 8a21. Playwright selector existence
+    pse = _read_json("playwright_selector_existence_report.json")
+    if pse:
+        s = pse.get("summary", {})
+        out["pw_drift"]     = s.get("total_drift", 0)
+        out["pw_lookups"]   = s.get("total_lookups", 0)
+        out["pw_baseline"]  = s.get("baseline", 0)
+    else:
+        out["pw_drift"] = out["pw_lookups"] = out["pw_baseline"] = 0
+
+    # 8a22. localStorage key consistency
+    lks = _read_json("localstorage_key_consistency_report.json")
+    if lks:
+        s = lks.get("summary", {})
+        out["ls_drift"]    = s.get("drift", 0)
+        out["ls_keys"]     = s.get("total_keys", 0)
+        out["ls_baseline"] = s.get("baseline", 0)
+    else:
+        out["ls_drift"] = out["ls_keys"] = out["ls_baseline"] = 0
+
+    # 8a23. CSS class existence
+    cce = _read_json("css_class_existence_report.json")
+    if cce:
+        s = cce.get("summary", {})
+        out["css_missing"]  = s.get("total_missing", 0)
+        out["css_calls"]    = s.get("total_calls", 0)
+        out["css_baseline"] = s.get("baseline", 0)
+    else:
+        out["css_missing"] = out["css_calls"] = out["css_baseline"] = 0
+
+    # 8a24-31. New batch (pg_cron, triggers, meta, sitemap, unbounded, headings, canonical, listeners)
+    for key, fname, fields in [
+        ("cron",      "pg_cron_target_existence_report.json",     ("total_issues","baseline")),
+        ("trigger",   "trigger_function_existence_report.json",   ("total_issues","baseline")),
+        ("meta",      "meta_description_coverage_report.json",    ("total_missing","baseline")),
+        ("sitemap",   "sitemap_page_existence_report.json",       ("total_broken","baseline")),
+        ("unbounded", "unbounded_query_report.json",              ("total_unbounded","baseline")),
+        ("heading",   "heading_hierarchy_report.json",            ("total_issues","baseline")),
+        ("canon",     "canonical_url_consistency_report.json",    ("drift","baseline")),
+        ("listener",  "event_listener_cleanup_report.json",       ("risky_pages","baseline")),
+    ]:
+        d = _read_json(fname)
+        if d:
+            s = d.get("summary", {})
+            out[f"{key}_val"]      = s.get(fields[0], 0)
+            out[f"{key}_baseline"] = s.get(fields[1], 0)
+        else:
+            out[f"{key}_val"] = out[f"{key}_baseline"] = 0
+
+    # 8b. Truth-view signal-trust (semantic drift inside the same canonical signal)
+    tvst = _read_json("truth_view_signal_trust_report.json")
+    if tvst:
+        s = tvst.get("summary", {})
+        out["signal_pairs"]   = s.get("view_column_pairs", 0)
+        out["signal_at_risk"] = s.get("at_risk", 0)
+        out["signal_review"]  = s.get("review", 0)
+    else:
+        out["signal_pairs"]   = 0
+        out["signal_at_risk"] = 0
+        out["signal_review"]  = 0
+    tvst_base = _read_json("truth_view_signal_trust_baseline.json")
+    out["signal_baseline"] = (tvst_base or {}).get("review", 0)
+
     # 9. Canonical drift flywheel (TIER A + drift + gap counts)
     cdp = _read_json("canonical_drift_platform_report.json")
     if cdp:
@@ -281,19 +547,24 @@ def _gather() -> dict[str, Any]:
     out["voice_phases_green"]  = sum(1 for _, _, p, f, st in phase_results if st == "ok" and (f or 0) == 0)
     out["voice_phases_total"]  = len(phase_results)
 
-    # 10. Cross-surface KPI sentinel spec count (static scan of the spec file)
-    sentinel_file = ROOT / "tests" / "journey-cross-surface-kpi-parity.spec.ts"
+    # 10. Cross-surface KPI sentinel spec count (static scan of the spec files).
+    # Counts BOTH conventions:
+    #   1. Literal `test('check_X: ...', ...)` — one test() per check
+    #   2. Table-driven `name: 'check_X: ...'` — one case per check in a CASES array
+    sentinel_files = [
+        ROOT / "tests" / "journey-cross-surface-kpi-parity.spec.ts",
+        ROOT / "tests" / "journey-canonical-signal-parity.spec.ts",
+    ]
     sentinel_count = 0
-    if sentinel_file.exists():
-        body = sentinel_file.read_text(encoding="utf-8", errors="replace")
-        # Count `test('check_X` definitions, excluding `test.fixme` (skipped)
-        sentinel_count = len(re.findall(r"\btest\s*\(\s*['\"]check_", body))
-        sentinel_fixme = len(re.findall(r"\btest\.fixme\s*\(\s*['\"]check_", body))
-        out["sentinel_specs"]        = sentinel_count
-        out["sentinel_fixme"]        = sentinel_fixme
-    else:
-        out["sentinel_specs"] = 0
-        out["sentinel_fixme"] = 0
+    sentinel_fixme = 0
+    for sf in sentinel_files:
+        if sf.exists():
+            body = sf.read_text(encoding="utf-8", errors="replace")
+            sentinel_count += len(re.findall(r"\btest\s*\(\s*['\"]check_", body))
+            sentinel_count += len(re.findall(r"\bname\s*:\s*['\"]check_", body))
+            sentinel_fixme += len(re.findall(r"\btest\.fixme\s*\(\s*['\"]check_", body))
+    out["sentinel_specs"] = sentinel_count
+    out["sentinel_fixme"] = sentinel_fixme
 
     # 12. Cross-migration table-collision auditor — catches the agent_memory-class
     # bug where two migrations both CREATE TABLE IF NOT EXISTS X with different columns.
@@ -383,6 +654,190 @@ def _print(status: dict[str, Any]) -> int:
           f"{status['phantom_captures_phantom']} phantom / {status['phantom_captures_alive']} alive")
     print(f"  {_badge(phcol_ok, warn=not phcol_ok)}  Phantom DB columns:           "
           f"{status['phantom_cols_phantom']} phantom / {status['phantom_cols_alive']} alive")
+
+    # 8a. Orphan KPI tiles
+    orphan_ok = status["orphan_tiles"] <= status["orphan_baseline"]
+    if not orphan_ok: fail_count += 1
+    print(f"  {_badge(orphan_ok)}  Orphan KPI tiles:             "
+          f"{status['orphan_tiles']} orphan (baseline {status['orphan_baseline']})")
+
+    # 8a2. KPI count-query safety
+    kcq_ok = status["kpi_count_issues"] <= status["kpi_count_baseline"]
+    if not kcq_ok: fail_count += 1
+    print(f"  {_badge(kcq_ok, warn=status['kpi_count_issues']>0)}  "
+          f"KPI count-query safety:       "
+          f"{status['kpi_count_issues']} limit-as-count (baseline {status['kpi_count_baseline']})")
+
+    # 8a3. Source-chip truth
+    chip_ok = status["chip_stale"] <= status["chip_baseline"]
+    if not chip_ok: fail_count += 1
+    print(f"  {_badge(chip_ok, warn=status['chip_stale']>0)}  "
+          f"Source-chip truth:            "
+          f"{status['chip_stale']} stale claims (baseline {status['chip_baseline']})")
+
+    # 8a4. Filter case consistency
+    filter_ok = status["filter_drift"] <= status["filter_baseline"]
+    if not filter_ok: fail_count += 1
+    print(f"  {_badge(filter_ok, warn=status['filter_drift']>0)}  "
+          f"Filter case consistency:      "
+          f"{status['filter_drift']} drift (baseline {status['filter_baseline']})")
+
+    # 8a5. Realtime subscription consistency
+    rt_ok = status["rt_drift"] <= status["rt_baseline"]
+    if not rt_ok: fail_count += 1
+    print(f"  {_badge(rt_ok, warn=status['rt_drift']>0)}  "
+          f"Realtime subscriptions:       "
+          f"{status['rt_drift']} drift / {status['rt_subs']} subs (baseline {status['rt_baseline']})")
+
+    # 8a6. Link target existence
+    link_ok = status["link_broken"] <= status["link_baseline"]
+    if not link_ok: fail_count += 1
+    print(f"  {_badge(link_ok, warn=status['link_broken']>0)}  "
+          f"Link targets exist:           "
+          f"{status['link_broken']} broken / {status['link_total']} links (baseline {status['link_baseline']})")
+
+    # 8a7. Realtime payload column drift
+    pld_ok = status["payload_drift"] <= status["payload_baseline"]
+    if not pld_ok: fail_count += 1
+    print(f"  {_badge(pld_ok, warn=status['payload_drift']>0)}  "
+          f"Realtime payload columns:     "
+          f"{status['payload_drift']} drift / {status['payload_refs']} refs (baseline {status['payload_baseline']})")
+
+    # 8a8. Edge function invoke
+    ei_ok = status["edge_invoke_broken"] <= status["edge_invoke_baseline"]
+    if not ei_ok: fail_count += 1
+    print(f"  {_badge(ei_ok, warn=status['edge_invoke_broken']>0)}  "
+          f"Edge fn invoke targets:       "
+          f"{status['edge_invoke_broken']} broken / {status['edge_invoke_calls']} calls (baseline {status['edge_invoke_baseline']})")
+
+    # 8a9. RPC argument consistency
+    rac_ok = status["rpc_drift"] <= status["rpc_baseline"]
+    if not rac_ok: fail_count += 1
+    print(f"  {_badge(rac_ok, warn=status['rpc_drift']>0)}  "
+          f"RPC argument consistency:     "
+          f"{status['rpc_drift']} drift / {status['rpc_calls']} calls (baseline {status['rpc_baseline']})")
+
+    # 8a10. Image / asset existence
+    iae_ok = status["asset_broken"] <= status["asset_baseline"]
+    if not iae_ok: fail_count += 1
+    print(f"  {_badge(iae_ok, warn=status['asset_broken']>0)}  "
+          f"Image / asset existence:      "
+          f"{status['asset_broken']} broken / {status['asset_refs']} refs (baseline {status['asset_baseline']})")
+
+    # 8a11. Service Worker SHELL_FILES
+    sw_ok = status["sw_broken"] <= status["sw_baseline"]
+    if not sw_ok: fail_count += 1
+    print(f"  {_badge(sw_ok, warn=status['sw_broken']>0)}  "
+          f"SW SHELL_FILES exist:         "
+          f"{status['sw_broken']} broken / {status['sw_paths']} paths (baseline {status['sw_baseline']})")
+
+    # 8a12. Query column existence
+    qce_ok = status["query_col_drift"] <= status["query_col_baseline"]
+    if not qce_ok: fail_count += 1
+    print(f"  {_badge(qce_ok, warn=status['query_col_drift']>0)}  "
+          f"Query column existence:       "
+          f"{status['query_col_drift']} drift / {status['query_col_calls']} calls (baseline {status['query_col_baseline']})")
+
+    # 8a13. getElementById orphan setters
+    gos_ok = status["gid_orphan"] <= status["gid_baseline"]
+    if not gos_ok: fail_count += 1
+    print(f"  {_badge(gos_ok, warn=status['gid_orphan']>0)}  "
+          f"getElementById orphan:        "
+          f"{status['gid_orphan']} orphan / {status['gid_lookups']} lookups (baseline {status['gid_baseline']})")
+
+    # 8a14. Time-window consistency
+    tw_ok = status["tw_drift"] <= status["tw_baseline"]
+    if not tw_ok: fail_count += 1
+    print(f"  {_badge(tw_ok, warn=status['tw_drift']>0)}  "
+          f"Time-window consistency:      "
+          f"{status['tw_drift']} drift groups / {status['tw_hits']} hits (baseline {status['tw_baseline']})")
+
+    # 8a15. Role string consistency
+    role_ok = status["role_drift"] <= status["role_baseline"]
+    if not role_ok: fail_count += 1
+    print(f"  {_badge(role_ok, warn=status['role_drift']>0)}  "
+          f"Role string consistency:      "
+          f"{status['role_drift']} off-canonical (baseline {status['role_baseline']})")
+
+    # 8a16. Inline onclick handler existence
+    oc_ok = status["onclick_orphan"] <= status["onclick_baseline"]
+    if not oc_ok: fail_count += 1
+    print(f"  {_badge(oc_ok, warn=status['onclick_orphan']>0)}  "
+          f"Inline handler existence:     "
+          f"{status['onclick_orphan']} orphan / {status['onclick_total']} handlers (baseline {status['onclick_baseline']})")
+
+    # 8a17. innerHTML escHtml audit
+    xss_ok = status["xss_risk"] <= status["xss_baseline"]
+    if not xss_ok: fail_count += 1
+    print(f"  {_badge(xss_ok, warn=status['xss_risk']>0)}  "
+          f"innerHTML escHtml audit:      "
+          f"{status['xss_risk']} risk / {status['xss_total']} assigns (baseline {status['xss_baseline']})")
+
+    # 8a18. Env variable existence
+    env_ok = status["env_missing"] <= status["env_baseline"]
+    if not env_ok: fail_count += 1
+    print(f"  {_badge(env_ok, warn=status['env_missing']>0)}  "
+          f"Env variable existence:       "
+          f"{status['env_missing']} missing / {status['env_refs']} refs (baseline {status['env_baseline']})")
+
+    # 8a19. Aria label coverage
+    aria_ok = status["aria_missing"] <= status["aria_baseline"]
+    if not aria_ok: fail_count += 1
+    print(f"  {_badge(aria_ok, warn=status['aria_missing']>0)}  "
+          f"Aria label coverage:          "
+          f"{status['aria_missing']} missing / {status['aria_total']} interactives (baseline {status['aria_baseline']})")
+
+    # 8a20. Realtime channel cleanup
+    rcc_ok = status["rt_clean_unsafe"] <= status["rt_clean_baseline"]
+    if not rcc_ok: fail_count += 1
+    print(f"  {_badge(rcc_ok, warn=status['rt_clean_unsafe']>0)}  "
+          f"Realtime channel cleanup:     "
+          f"{status['rt_clean_unsafe']} unsafe / {status['rt_clean_channels']} channels (baseline {status['rt_clean_baseline']})")
+
+    # 8a21. Playwright selector existence
+    pw_ok = status["pw_drift"] <= status["pw_baseline"]
+    if not pw_ok: fail_count += 1
+    print(f"  {_badge(pw_ok, warn=status['pw_drift']>0)}  "
+          f"Playwright selectors exist:   "
+          f"{status['pw_drift']} drift / {status['pw_lookups']} lookups (baseline {status['pw_baseline']})")
+
+    # 8a22. localStorage key consistency
+    ls_ok = status["ls_drift"] <= status["ls_baseline"]
+    if not ls_ok: fail_count += 1
+    print(f"  {_badge(ls_ok, warn=status['ls_drift']>0)}  "
+          f"localStorage keys consistent: "
+          f"{status['ls_drift']} drift / {status['ls_keys']} keys (baseline {status['ls_baseline']})")
+
+    # 8a23. CSS class existence
+    css_ok = status["css_missing"] <= status["css_baseline"]
+    if not css_ok: fail_count += 1
+    print(f"  {_badge(css_ok, warn=status['css_missing']>0)}  "
+          f"CSS class existence:          "
+          f"{status['css_missing']} missing / {status['css_calls']} calls (baseline {status['css_baseline']})")
+
+    # 8a24-31. New batch
+    for key, label in [
+        ("cron",      "pg_cron target existence:    "),
+        ("trigger",   "Trigger function exists:     "),
+        ("meta",      "Meta description coverage:   "),
+        ("sitemap",   "Sitemap page existence:      "),
+        ("unbounded", "Unbounded queries:           "),
+        ("heading",   "Heading hierarchy:           "),
+        ("canon",     "Canonical URL consistency:   "),
+        ("listener",  "Event listener cleanup:      "),
+    ]:
+        val = status.get(f"{key}_val", 0)
+        baseline = status.get(f"{key}_baseline", 0)
+        ok = val <= baseline
+        if not ok: fail_count += 1
+        print(f"  {_badge(ok, warn=val>0)}  {label}{val} (baseline {baseline})")
+
+    # 8b. Truth-view signal-trust
+    signal_ok = status["signal_at_risk"] == 0 and status["signal_review"] <= status["signal_baseline"]
+    if not signal_ok: fail_count += 1
+    print(f"  {_badge(signal_ok)}  Signal-trust (truth views):   "
+          f"{status['signal_at_risk']} AT_RISK / {status['signal_review']} REVIEW "
+          f"(baseline {status['signal_baseline']}, {status['signal_pairs']} pairs)")
 
     # 9. Canonical drift flywheel
     drift_ok = status["drift_reads"] == 0 and status["drift_tier_a_pages"] == 0

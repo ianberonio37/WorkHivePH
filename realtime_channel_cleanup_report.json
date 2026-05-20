@@ -1,0 +1,190 @@
+{
+  "summary": {
+    "pages_scanned": 30,
+    "total_channels": 19,
+    "unsafe_pages": 0,
+    "baseline": 0
+  },
+  "per_page": [
+    {
+      "page": "index.html",
+      "channels": 0,
+      "removes": 0,
+      "has_unmount": false
+    },
+    {
+      "page": "hive.html",
+      "channels": 8,
+      "removes": 25,
+      "has_unmount": true
+    },
+    {
+      "page": "logbook.html",
+      "channels": 0,
+      "removes": 0,
+      "has_unmount": false
+    },
+    {
+      "page": "inventory.html",
+      "channels": 0,
+      "removes": 0,
+      "has_unmount": false
+    },
+    {
+      "page": "pm-scheduler.html",
+      "channels": 1,
+      "removes": 2,
+      "has_unmount": true
+    },
+    {
+      "page": "analytics.html",
+      "channels": 0,
+      "removes": 0,
+      "has_unmount": false
+    },
+    {
+      "page": "analytics-report.html",
+      "channels": 0,
+      "removes": 0,
+      "has_unmount": false
+    },
+    {
+      "page": "skillmatrix.html",
+      "channels": 0,
+      "removes": 0,
+      "has_unmount": false
+    },
+    {
+      "page": "community.html",
+      "channels": 3,
+      "removes": 3,
+      "has_unmount": true
+    },
+    {
+      "page": "public-feed.html",
+      "channels": 0,
+      "removes": 0,
+      "has_unmount": false
+    },
+    {
+      "page": "marketplace.html",
+      "channels": 1,
+      "removes": 2,
+      "has_unmount": true
+    },
+    {
+      "page": "marketplace-seller.html",
+      "channels": 0,
+      "removes": 0,
+      "has_unmount": false
+    },
+    {
+      "page": "dayplanner.html",
+      "channels": 0,
+      "removes": 0,
+      "has_unmount": false
+    },
+    {
+      "page": "engineering-design.html",
+      "channels": 0,
+      "removes": 0,
+      "has_unmount": false
+    },
+    {
+      "page": "assistant.html",
+      "channels": 0,
+      "removes": 0,
+      "has_unmount": false
+    },
+    {
+      "page": "report-sender.html",
+      "channels": 0,
+      "removes": 0,
+      "has_unmount": false
+    },
+    {
+      "page": "platform-health.html",
+      "channels": 0,
+      "removes": 0,
+      "has_unmount": true
+    },
+    {
+      "page": "project-manager.html",
+      "channels": 1,
+      "removes": 2,
+      "has_unmount": true
+    },
+    {
+      "page": "integrations.html",
+      "channels": 0,
+      "removes": 0,
+      "has_unmount": false
+    },
+    {
+      "page": "ph-intelligence.html",
+      "channels": 0,
+      "removes": 0,
+      "has_unmount": false
+    },
+    {
+      "page": "project-report.html",
+      "channels": 0,
+      "removes": 0,
+      "has_unmount": false
+    },
+    {
+      "page": "predictive.html",
+      "channels": 0,
+      "removes": 0,
+      "has_unmount": false
+    },
+    {
+      "page": "ai-quality.html",
+      "channels": 0,
+      "removes": 0,
+      "has_unmount": false
+    },
+    {
+      "page": "plant-connections.html",
+      "channels": 0,
+      "removes": 0,
+      "has_unmount": false
+    },
+    {
+      "page": "achievements.html",
+      "channels": 1,
+      "removes": 2,
+      "has_unmount": true
+    },
+    {
+      "page": "asset-hub.html",
+      "channels": 2,
+      "removes": 4,
+      "has_unmount": true
+    },
+    {
+      "page": "shift-brain.html",
+      "channels": 0,
+      "removes": 0,
+      "has_unmount": false
+    },
+    {
+      "page": "alert-hub.html",
+      "channels": 2,
+      "removes": 2,
+      "has_unmount": true
+    },
+    {
+      "page": "audit-log.html",
+      "channels": 0,
+      "removes": 1,
+      "has_unmount": true
+    },
+    {
+      "page": "voice-journal.html",
+      "channels": 0,
+      "removes": 0,
+      "has_unmount": false
+    }
+  ]
+}

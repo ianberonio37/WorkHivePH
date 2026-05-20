@@ -9,6 +9,8 @@
   <!-- capability: audio_tts_browser -->
   <!-- capture: voice_journal_capture_v1 (voice) — multi-stage audio → Whisper transcript → Groq extraction → voice_journal_entries -->
   <meta name="description" content="Speak your day. WorkHive Voice Journal transcribes, remembers, and reflects back in any language you speak." />
+  <meta property="og:title" content="Voice Journal: WorkHive" />
+  <meta property="og:image" content="https://workhiveph.com/brand_assets/og-social.png" />
   <meta name="robots" content="noindex, follow" />
   <link rel="canonical" href="https://workhiveph.com/voice-journal.html" />
   <link rel="manifest" href="manifest.json" />
@@ -304,19 +306,19 @@
 
       <!-- Persona picker: who is journaling with you today.
            Choice persists in localStorage and travels to the agent as
-           ctx.persona. 2026-05-19 Step D: Rosa = default (Strategist),
-           James = Technical. Labels signal the LENS, not just the name. -->
+           ctx.persona. 2026-05-19 Step D: Zaniah = default (Strategist),
+           Hezekiah = Technical. Labels signal the LENS, not just the name. -->
       <div id="persona-row" class="flex items-center justify-center gap-2 mb-4" role="radiogroup" aria-label="Choose your companion lens">
         <span class="text-[10px] uppercase tracking-widest text-white/40 font-semibold mr-1">Talking with</span>
-        <button id="persona-rosa" type="button" role="radio" aria-checked="true"
-                class="persona-chip persona-chip-active" data-persona="rosa"
+        <button id="persona-zaniah" type="button" role="radio" aria-checked="true"
+                class="persona-chip persona-chip-active" data-persona="zaniah"
                 title="Strategist — patterns, priorities, this-week thinking">
-          <span aria-hidden="true">🧭</span> Rosa <span class="text-[9px] opacity-70">· Strategy</span>
+          <span aria-hidden="true">🧭</span> Zaniah <span class="text-[9px] opacity-70">· Strategy</span>
         </button>
-        <button id="persona-james" type="button" role="radio" aria-checked="false"
-                class="persona-chip" data-persona="james"
+        <button id="persona-hezekiah" type="button" role="radio" aria-checked="false"
+                class="persona-chip" data-persona="hezekiah"
                 title="Technical Expert — torque, SOPs, this-asset thinking">
-          <span aria-hidden="true">🛠️</span> James <span class="text-[9px] opacity-70">· Technical</span>
+          <span aria-hidden="true">🛠️</span> Hezekiah <span class="text-[9px] opacity-70">· Technical</span>
         </button>
       </div>
 
@@ -398,11 +400,14 @@
     // matching local voice when available; non-en-PH machines just get
     // the default en voice and that's fine.
     const PERSONAS = {
-      james: { label: 'James', gender: 'male' },
-      rosa:  { label: 'Rosa',  gender: 'female' },
+      hezekiah: { label: 'Hezekiah', gender: 'male' },
+      zaniah:   { label: 'Zaniah',   gender: 'female' },
     };
+    // Legacy james/rosa values from pre-rename localStorage map silently.
     let _persona = localStorage.getItem(PERSONA_STORAGE_KEY);
-    if (!PERSONAS[_persona]) _persona = 'james';
+    if (_persona === 'james') _persona = 'hezekiah';
+    if (_persona === 'rosa')  _persona = 'zaniah';
+    if (!PERSONAS[_persona]) _persona = 'zaniah';
 
     const LANG_NAMES = {
       en:  'English',
@@ -543,9 +548,10 @@
     let _azureAudio = null;
 
     // Edge-TTS via python-api — same Microsoft Neural voice path the
-    // Video Marketing app uses. Natural en-PH-JamesNeural /
-    // en-PH-RosaNeural that DO sound human (Azure Speech API's en-PH
-    // catalog is a different, smaller set). Free, no auth.
+    // Video Marketing app uses. Natural en-PH-JamesNeural (under the
+    // hezekiah persona) and en-PH-RosaNeural (under zaniah) that DO sound
+    // human (Azure Speech API's en-PH catalog is a different, smaller
+    // set). Free, no auth.
     const EDGE_TTS_BASE = (window.WH_TTS_EDGE_URL || 'http://localhost:8000').replace(/\/+$/, '');
 
     async function speakEdge(text, persona) {
@@ -554,7 +560,7 @@
         const resp = await fetch(EDGE_TTS_BASE + '/tts/speak', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ text: String(text), persona: persona || 'james' }),
+          body: JSON.stringify({ text: String(text), persona: persona || 'zaniah' }),
         });
         if (!resp.ok) return false;
         const data = await resp.json();
@@ -582,7 +588,7 @@
             'apikey':        SUPABASE_KEY,
             'Content-Type':  'application/json',
           },
-          body: JSON.stringify({ text: String(text), persona: persona || 'james' }),
+          body: JSON.stringify({ text: String(text), persona: persona || 'zaniah' }),
         });
         if (!resp.ok) return false;
         const data = await resp.json();
@@ -605,7 +611,7 @@
       if (!_ttsOn || !text) return;
       // Tier 1: Edge-TTS via python-api. Same Microsoft Neural voices the
       // Video Marketing app uses — natural, free, no auth. This is the
-      // path that makes James / Rosa actually sound human.
+      // path that makes Hezekiah / Zaniah actually sound human.
       // Tier 2: Azure Speech API via tts-speak edge function (cloud
       // fallback). Tier 3: browser SpeechSynthesis (last resort).
       const edgeOk = await speakEdge(text, _persona);
@@ -619,7 +625,7 @@
         const u = new SpeechSynthesisUtterance(String(text));
         const bcp47 = LANG_TO_BCP47[langCode] || 'en-US';
         u.lang = bcp47;
-        const personaGender = (PERSONAS[_persona] || PERSONAS.james).gender;
+        const personaGender = (PERSONAS[_persona] || PERSONAS.hezekiah).gender;
         const v = pickVoice(bcp47, personaGender);
         if (v) u.voice = v;
         u.rate = 1.0;
@@ -632,7 +638,7 @@
 
     // ──────────────── Persona picker wiring ────────────────
     function setPersonaUI() {
-      ['james', 'rosa'].forEach(key => {
+      ['hezekiah', 'zaniah'].forEach(key => {
         const btn = document.getElementById('persona-' + key);
         if (!btn) return;
         const active = key === _persona;
@@ -641,7 +647,7 @@
       });
     }
     function wirePersonaPicker() {
-      ['james', 'rosa'].forEach(key => {
+      ['hezekiah', 'zaniah'].forEach(key => {
         const btn = document.getElementById('persona-' + key);
         if (!btn) return;
         btn.addEventListener('click', async () => {
@@ -998,7 +1004,7 @@
           agent:   AGENT_ID,
           message: message,
           // persona drives the system prompt in voice-journal-agent so the
-          // reply tone matches whoever the worker picked (James / Rosa).
+          // reply tone matches whoever the worker picked (Hezekiah / Zaniah).
           context: { lang: lang || 'en', persona: _persona },
           hive_id: HIVE_ID || null,
         },

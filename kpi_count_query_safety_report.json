@@ -1,0 +1,218 @@
+{
+  "summary": {
+    "pages_scanned": 30,
+    "total_issues": 7,
+    "baseline": 7
+  },
+  "per_page": [
+    {
+      "page": "index.html",
+      "issues": [
+        {
+          "view": "v_risk_truth",
+          "limit_n": 100,
+          "hits": [
+            {
+              "var": "lowStock",
+              "shape": "\\{\\s*[^}]*\\bnum\\s*:\\s*(?P<var>\\w+)\\.leng..."
+            }
+          ],
+          "char_offset": 180186
+        },
+        {
+          "view": "v_pm_compliance_truth",
+          "limit_n": 100,
+          "hits": [
+            {
+              "var": "lowStock",
+              "shape": "\\{\\s*[^}]*\\bnum\\s*:\\s*(?P<var>\\w+)\\.leng..."
+            }
+          ],
+          "char_offset": 180712
+        }
+      ]
+    },
+    {
+      "page": "hive.html",
+      "issues": []
+    },
+    {
+      "page": "logbook.html",
+      "issues": []
+    },
+    {
+      "page": "inventory.html",
+      "issues": []
+    },
+    {
+      "page": "pm-scheduler.html",
+      "issues": []
+    },
+    {
+      "page": "analytics.html",
+      "issues": []
+    },
+    {
+      "page": "analytics-report.html",
+      "issues": []
+    },
+    {
+      "page": "skillmatrix.html",
+      "issues": []
+    },
+    {
+      "page": "community.html",
+      "issues": []
+    },
+    {
+      "page": "public-feed.html",
+      "issues": []
+    },
+    {
+      "page": "marketplace.html",
+      "issues": []
+    },
+    {
+      "page": "marketplace-seller.html",
+      "issues": [
+        {
+          "view": "v_marketplace_inquiries_truth",
+          "limit_n": 50,
+          "hits": [
+            {
+              "var": "_listings",
+              "shape": "\\.textContent\\s*=\\s*(?P<var>\\w+)\\.length..."
+            },
+            {
+              "var": "_listings",
+              "shape": "\\.textContent\\s*=\\s*(?P<var>\\w+)\\.length..."
+            }
+          ],
+          "char_offset": 36954
+        },
+        {
+          "view": "v_marketplace_orders_truth",
+          "limit_n": 50,
+          "hits": [
+            {
+              "var": "_listings",
+              "shape": "\\.textContent\\s*=\\s*(?P<var>\\w+)\\.length..."
+            },
+            {
+              "var": "_listings",
+              "shape": "\\.textContent\\s*=\\s*(?P<var>\\w+)\\.length..."
+            }
+          ],
+          "char_offset": 38168
+        }
+      ]
+    },
+    {
+      "page": "dayplanner.html",
+      "issues": []
+    },
+    {
+      "page": "engineering-design.html",
+      "issues": []
+    },
+    {
+      "page": "assistant.html",
+      "issues": []
+    },
+    {
+      "page": "report-sender.html",
+      "issues": []
+    },
+    {
+      "page": "platform-health.html",
+      "issues": []
+    },
+    {
+      "page": "project-manager.html",
+      "issues": []
+    },
+    {
+      "page": "integrations.html",
+      "issues": []
+    },
+    {
+      "page": "ph-intelligence.html",
+      "issues": []
+    },
+    {
+      "page": "project-report.html",
+      "issues": []
+    },
+    {
+      "page": "predictive.html",
+      "issues": []
+    },
+    {
+      "page": "ai-quality.html",
+      "issues": []
+    },
+    {
+      "page": "plant-connections.html",
+      "issues": []
+    },
+    {
+      "page": "achievements.html",
+      "issues": []
+    },
+    {
+      "page": "asset-hub.html",
+      "issues": []
+    },
+    {
+      "page": "shift-brain.html",
+      "issues": []
+    },
+    {
+      "page": "alert-hub.html",
+      "issues": [
+        {
+          "view": "v_anomaly_truth",
+          "limit_n": 1,
+          "hits": [
+            {
+              "var": "rows",
+              "shape": "\\.textContent\\s*=\\s*(?P<var>\\w+)\\.length..."
+            }
+          ],
+          "char_offset": 34259
+        },
+        {
+          "view": "v_anomaly_truth",
+          "limit_n": 5,
+          "hits": [
+            {
+              "var": "rows",
+              "shape": "\\.textContent\\s*=\\s*(?P<var>\\w+)\\.length..."
+            }
+          ],
+          "char_offset": 34749
+        }
+      ]
+    },
+    {
+      "page": "audit-log.html",
+      "issues": []
+    },
+    {
+      "page": "voice-journal.html",
+      "issues": [
+        {
+          "view": "v_worker_truth",
+          "limit_n": 1,
+          "hits": [
+            {
+              "var": "filtered",
+              "shape": "\\.textContent\\s*=\\s*(?P<var>\\w+)\\.length..."
+            }
+          ],
+          "char_offset": 25486
+        }
+      ]
+    }
+  ]
+}

@@ -9,6 +9,8 @@
   <!-- chip-allow: Q&A assistant. KPI views are read to ground answers per-question; chip belongs inside the answer rendering, not the page header. -->
 
   <meta name="description" content="Your personal AI maintenance assistant. Ask technical questions, review your job history, and get shift planning help: powered by WorkHive." />
+  <meta property="og:title" content="AI Work Assistant: WorkHive" />
+  <meta property="og:image" content="https://workhiveph.com/brand_assets/og-social.png" />
   <meta name="robots" content="noindex, follow" />
   <link rel="canonical" href="https://workhiveph.com/assistant.html" />
   <link rel="manifest" href="manifest.json" />
@@ -416,7 +418,7 @@
     // ── Companion Streamline Step C: tab switcher (Chat | Journal) ───
     // Chat tab shows the existing assistant chat; Journal tab embeds
     // voice-journal.html?embedded=1 so the worker stays in one surface.
-    // Persona changes propagate via localStorage so flipping James/Rosa
+    // Persona changes propagate via localStorage so flipping Hezekiah/Zaniah
     // on either tab refreshes both.
     let _journalLoaded = false;
     function switchAssistantTab(name) {
@@ -665,7 +667,7 @@ ${journalText}
 VOICE OVERRIDE — read this last; it wins over every instruction above.
 ────────────────────────────────────────────────────────────────────
 The doctrine, platform context, and worker records above are REFERENCE
-MATERIAL, not a tone guide. Your replies stay in the James / Rosa voice
+MATERIAL, not a tone guide. Your replies stay in the Hezekiah / Zaniah voice
 declared at the very top of this prompt: warm PH-English, contractions,
 sentence fragments OK, react first when emotion shows, mostly 2-4
 sentences (longer only when the worker asks for detail or a walkthrough).
@@ -839,7 +841,7 @@ happens to know maintenance, not a manual.`;
         // ── Step 2: Fall back to personal assistant if orchestrator has no answer ──
         if (!reply) {
           // semanticContext already fetched above — reuse it here
-          // Persona Contract: prepend James/Rosa companion block so the
+          // Persona Contract: prepend Hezekiah/Zaniah companion block so the
           // assistant inherits the worker's chosen voice + canonical anchor.
           const personaBlock = (typeof window.getCompanionBlock === 'function')
             ? window.getCompanionBlock() + '\n\n'

@@ -1,0 +1,160 @@
+{
+  "summary": {
+    "pages_scanned": 30,
+    "total_links": 185,
+    "total_broken": 0,
+    "baseline": 0
+  },
+  "per_page": [
+    {
+      "page": "index.html",
+      "link_count": 37,
+      "broken": []
+    },
+    {
+      "page": "hive.html",
+      "link_count": 15,
+      "broken": []
+    },
+    {
+      "page": "logbook.html",
+      "link_count": 10,
+      "broken": []
+    },
+    {
+      "page": "inventory.html",
+      "link_count": 7,
+      "broken": []
+    },
+    {
+      "page": "pm-scheduler.html",
+      "link_count": 6,
+      "broken": []
+    },
+    {
+      "page": "analytics.html",
+      "link_count": 7,
+      "broken": []
+    },
+    {
+      "page": "analytics-report.html",
+      "link_count": 0,
+      "broken": []
+    },
+    {
+      "page": "skillmatrix.html",
+      "link_count": 5,
+      "broken": []
+    },
+    {
+      "page": "community.html",
+      "link_count": 8,
+      "broken": []
+    },
+    {
+      "page": "public-feed.html",
+      "link_count": 1,
+      "broken": []
+    },
+    {
+      "page": "marketplace.html",
+      "link_count": 6,
+      "broken": []
+    },
+    {
+      "page": "marketplace-seller.html",
+      "link_count": 4,
+      "broken": []
+    },
+    {
+      "page": "dayplanner.html",
+      "link_count": 6,
+      "broken": []
+    },
+    {
+      "page": "engineering-design.html",
+      "link_count": 5,
+      "broken": []
+    },
+    {
+      "page": "assistant.html",
+      "link_count": 3,
+      "broken": []
+    },
+    {
+      "page": "report-sender.html",
+      "link_count": 2,
+      "broken": []
+    },
+    {
+      "page": "platform-health.html",
+      "link_count": 2,
+      "broken": []
+    },
+    {
+      "page": "project-manager.html",
+      "link_count": 7,
+      "broken": []
+    },
+    {
+      "page": "integrations.html",
+      "link_count": 5,
+      "broken": []
+    },
+    {
+      "page": "ph-intelligence.html",
+      "link_count": 2,
+      "broken": []
+    },
+    {
+      "page": "project-report.html",
+      "link_count": 4,
+      "broken": []
+    },
+    {
+      "page": "predictive.html",
+      "link_count": 6,
+      "broken": []
+    },
+    {
+      "page": "ai-quality.html",
+      "link_count": 4,
+      "broken": []
+    },
+    {
+      "page": "plant-connections.html",
+      "link_count": 5,
+      "broken": []
+    },
+    {
+      "page": "achievements.html",
+      "link_count": 2,
+      "broken": []
+    },
+    {
+      "page": "asset-hub.html",
+      "link_count": 7,
+      "broken": []
+    },
+    {
+      "page": "shift-brain.html",
+      "link_count": 5,
+      "broken": []
+    },
+    {
+      "page": "alert-hub.html",
+      "link_count": 8,
+      "broken": []
+    },
+    {
+      "page": "audit-log.html",
+      "link_count": 4,
+      "broken": []
+    },
+    {
+      "page": "voice-journal.html",
+      "link_count": 2,
+      "broken": []
+    }
+  ]
+}

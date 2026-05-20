@@ -7,6 +7,8 @@
   <meta name="calm-dashboard" content="1" />
   <title>Shift Brain | WorkHive</title>
   <meta name="description" content="The autonomous shift planner. AI-generated risk-prioritized plan for the incoming shift, draft for supervisor review and crew publication." />
+  <meta property="og:title" content="Shift Brain · WorkHive" />
+  <meta property="og:image" content="https://workhiveph.com/brand_assets/og-social.png" />
   <meta name="robots" content="noindex, follow" />
   <link rel="canonical" href="https://workhiveph.com/shift-brain.html" />
   <link rel="manifest" href="manifest.json" />
@@ -709,6 +711,10 @@
         return;
       }
 
+      // source-chip-allow: page reads shift_plans (pre-aggregated by the
+      // shift-planner-orchestrator edge fn); the chip documents the upstream
+      // canonical sources the orchestrator drew from (v_risk_truth +
+      // pm_scope_items) so supervisors can trace any tile back to its fuel.
       const _sbChip = document.getElementById('shift-source-chip');
       if (_sbChip && typeof renderSourceChip === 'function') {
         _sbChip.innerHTML = renderSourceChip({

@@ -1,0 +1,159 @@
+{
+  "summary": {
+    "specs_scanned": 13,
+    "total_lookups": 57,
+    "total_drift": 8,
+    "baseline": 8
+  },
+  "per_file": [
+    {
+      "spec": "alert-hub-amc.spec.ts",
+      "targets": [
+        "alert-hub.html",
+        "alert-hub.html"
+      ],
+      "misses": []
+    },
+    {
+      "spec": "asset-hub-telemetry.spec.ts",
+      "targets": [
+        "asset-hub.html",
+        "asset-hub.html"
+      ],
+      "misses": []
+    },
+    {
+      "spec": "assistant.spec.ts",
+      "targets": [
+        "assistant.html",
+        "assistant.html"
+      ],
+      "misses": []
+    },
+    {
+      "spec": "dayplanner.spec.ts",
+      "targets": [
+        "dayplanner.html",
+        "dayplanner.html"
+      ],
+      "misses": []
+    },
+    {
+      "spec": "feedback-journey.spec.ts",
+      "targets": [
+        "hive.html"
+      ],
+      "misses": [
+        {
+          "id": "wh-feedback-fab",
+          "offset": 3107
+        },
+        {
+          "id": "wh-fb-subject",
+          "offset": 6389
+        },
+        {
+          "id": "wh-fb-body",
+          "offset": 6447
+        },
+        {
+          "id": "wh-fb-email",
+          "offset": 6583
+        },
+        {
+          "id": "wh-fb-submit-btn",
+          "offset": 6637
+        }
+      ]
+    },
+    {
+      "spec": "integrations.spec.ts",
+      "targets": [
+        "integrations.html"
+      ],
+      "misses": []
+    },
+    {
+      "spec": "inventory.spec.ts",
+      "targets": [
+        "inventory.html",
+        "inventory.html",
+        "inventory.html"
+      ],
+      "misses": []
+    },
+    {
+      "spec": "journey-cross-page.spec.ts",
+      "targets": [
+        "logbook.html",
+        "hive.html",
+        "hive.html",
+        "inventory.html",
+        "hive.html",
+        "pm-scheduler.html"
+      ],
+      "misses": []
+    },
+    {
+      "spec": "journey-cross-surface-kpi-parity.spec.ts",
+      "targets": [
+        "logbook.html",
+        "inventory.html",
+        "inventory.html",
+        "community.html",
+        "marketplace.html"
+      ],
+      "misses": [
+        {
+          "id": "pulse-pm-overdue",
+          "offset": 2095
+        },
+        {
+          "id": "stat-overdue",
+          "offset": 2974
+        },
+        {
+          "id": "stat-members",
+          "offset": 9389
+        }
+      ]
+    },
+    {
+      "spec": "journey-engineer.spec.ts",
+      "targets": [
+        "logbook.html"
+      ],
+      "misses": []
+    },
+    {
+      "spec": "journey-permissions.spec.ts",
+      "targets": [
+        "hive.html",
+        "hive.html",
+        "hive.html",
+        "hive.html",
+        "pm-scheduler.html",
+        "hive.html",
+        "hive.html"
+      ],
+      "misses": []
+    },
+    {
+      "spec": "logbook.spec.ts",
+      "targets": [
+        "logbook.html",
+        "logbook.html",
+        "logbook.html"
+      ],
+      "misses": []
+    },
+    {
+      "spec": "pm-scheduler.spec.ts",
+      "targets": [
+        "pm-scheduler.html",
+        "pm-scheduler.html"
+      ],
+      "misses": []
+    }
+  ]
+}

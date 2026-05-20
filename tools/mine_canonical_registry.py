@@ -188,10 +188,24 @@ def parse_migration(path: Path, regs: dict) -> None:
             if c not in regs["tables"][name]["columns"]:
                 regs["tables"][name]["columns"].append(c)
 
-    # ALTER TABLE ADD COLUMN
-    for m in ADD_COLUMN_RE.finditer(code):
-        tbl = _unquote(m.group("table"))
-        col = _unquote(m.group("col"))
+    # ALTER TABLE ADD COLUMN (incl. multi-clause form:
+    #   ALTER TABLE X
+    #     ADD COLUMN A type,
+    #     ADD COLUMN B type,
+    #     ADD COLUMN C type;
+    # The single-clause ADD_COLUMN_RE catches the FIRST clause; we then scan
+    # the rest of the ALTER statement (up to next `;`) for subsequent
+    # `ADD COLUMN <name>` clauses.)
+    ALTER_STMT_RE = re.compile(
+        r"""ALTER\s+TABLE\s+(?:ONLY\s+)?(?P<table>[\"\w.]+)\s+(?P<body>[^;]+);""",
+        re.IGNORECASE | re.DOTALL,
+    )
+    INNER_ADD_RE = re.compile(
+        r"""ADD\s+COLUMN\s+(?:IF\s+NOT\s+EXISTS\s+)?(?P<col>[\"\w]+)""",
+        re.IGNORECASE,
+    )
+    for sm in ALTER_STMT_RE.finditer(code):
+        tbl = _unquote(sm.group("table"))
         if tbl not in regs["tables"]:
             regs["tables"][tbl] = {
                 "defined_in": fname, "columns": [], "rls_enabled": False,
@@ -199,8 +213,10 @@ def parse_migration(path: Path, regs: dict) -> None:
                 "read_by_surfaces": [], "written_by_surfaces": [],
                 "read_by_edge_fns": [], "written_by_edge_fns": [],
             }
-        if col not in regs["tables"][tbl]["columns"]:
-            regs["tables"][tbl]["columns"].append(col)
+        for am in INNER_ADD_RE.finditer(sm.group("body")):
+            col = _unquote(am.group("col"))
+            if col not in regs["tables"][tbl]["columns"]:
+                regs["tables"][tbl]["columns"].append(col)
 
     # CREATE FUNCTION
     for m in CREATE_FUNCTION_RE.finditer(code):
@@ -220,13 +236,112 @@ def parse_migration(path: Path, regs: dict) -> None:
                 regs["rpcs"][name]["security_definer"] or is_definer
             )
 
-    # CREATE VIEW
+    # CREATE VIEW — also extract the projected column list from the SELECT.
+    # Heuristic: walk forward from CREATE VIEW ... AS to the next `;`. The
+    # outermost SELECT projection between SELECT and the FIRST top-level FROM
+    # gives us the view's column names. Aliases (`expr AS name`) take the
+    # alias as the column name; bare identifiers (`tbl.col`) take the
+    # rightmost segment.
     for m in CREATE_VIEW_RE.finditer(code):
         name = _unquote(m.group("name"))
+        # Walk forward to the matching ';' at depth 0
+        i = m.end()
+        depth = 0
+        in_string = False
+        string_ch = ""
+        end = len(code)
+        while i < len(code):
+            ch = code[i]
+            if in_string:
+                if ch == string_ch and code[i-1] != "\\":
+                    in_string = False
+            elif ch in ("'", '"'):
+                in_string = True
+                string_ch = ch
+            elif ch == "(":
+                depth += 1
+            elif ch == ")":
+                depth -= 1
+            elif ch == ";" and depth == 0:
+                end = i
+                break
+            i += 1
+        view_body = code[m.end():end]
+        # The outer SELECT is the LAST top-level SELECT in the view body
+        # (when CTEs / WITH-clauses exist, those have inner SELECTs first).
+        # Find every SELECT...FROM at depth 0.
+        proj_match = None
+        depth = 0
+        cur_select_start = -1
+        for ci in range(len(view_body)):
+            ch = view_body[ci]
+            if ch == "(":
+                depth += 1
+            elif ch == ")":
+                depth -= 1
+            elif depth == 0:
+                if view_body[ci:ci+7].upper() == "SELECT ":
+                    cur_select_start = ci + 6  # right after "SELECT"
+        if cur_select_start >= 0:
+            tail = view_body[cur_select_start:]
+            # Now find the FROM at depth 0 within tail
+            d2, from_idx = 0, -1
+            for ci in range(len(tail)):
+                ch = tail[ci]
+                if ch == "(":
+                    d2 += 1
+                elif ch == ")":
+                    d2 -= 1
+                elif d2 == 0 and tail[ci:ci+5].upper() == "FROM " and (ci == 0 or not tail[ci-1].isalnum()):
+                    from_idx = ci
+                    break
+            if from_idx > 0:
+                class _Wrap:
+                    def __init__(self, s): self._s = s
+                    def group(self, k): return self._s
+                # Strip leading whitespace + DISTINCT [ON (...)]
+                proj_txt = tail[:from_idx].strip()
+                proj_txt = re.sub(r"^DISTINCT\s+(?:ON\s*\([^)]*\)\s+)?", "", proj_txt, flags=re.IGNORECASE)
+                proj_match = _Wrap(proj_txt)
+        view_cols: list[str] = []
+        if proj_match:
+            proj = proj_match.group("proj")
+            # Split projection on commas at depth 0
+            parts: list[str] = []
+            cur, dep = "", 0
+            for ch in proj:
+                if ch == "(":
+                    dep += 1
+                elif ch == ")":
+                    dep -= 1
+                if ch == "," and dep == 0:
+                    parts.append(cur); cur = ""
+                else:
+                    cur += ch
+            if cur.strip():
+                parts.append(cur)
+            for p in parts:
+                p = p.strip()
+                if not p: continue
+                # `expr AS name` → take `name`
+                alias_m = re.search(r"""\bAS\s+['"]?([a-z_][\w]*)['"]?\s*$""", p, re.IGNORECASE)
+                if alias_m:
+                    view_cols.append(alias_m.group(1).lower())
+                    continue
+                # bare `col` or `tbl.col` — take rightmost identifier
+                last_id = re.findall(r"\b([a-z_][\w]*)\b", p, re.IGNORECASE)
+                if last_id:
+                    view_cols.append(last_id[-1].lower())
         if name not in regs["views"]:
             regs["views"][name] = {
                 "defined_in": fname, "read_by_surfaces": [], "read_by_edge_fns": [],
+                "columns": [],
             }
+        # Merge view columns (idempotent — first definition wins, later
+        # CREATE OR REPLACE adds new columns)
+        for c in view_cols:
+            if c not in regs["views"][name].get("columns", []):
+                regs["views"][name].setdefault("columns", []).append(c)
 
     # ENABLE RLS
     for m in ENABLE_RLS_RE.finditer(code):

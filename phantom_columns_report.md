@@ -9,23 +9,14 @@ candidates punch list. Allowlist a column by adding it to
 
 - Tables scanned:           **124**
 - Total columns:            **1331**
-- Alive (consumed):         **1003** ✅
+- Alive (consumed):         **1015** ✅
 - Universal-skipped:        **316** (id, created_at, hive_id, ...)
 - Allowlisted phantoms:     **0**
-- Phantom (deletion cand):  **12** ❌
+- Phantom (deletion cand):  **0** ❌
 
-## Tables with phantom columns (8)
+## Tables with phantom columns (0)
 
-| Table | Phantom cols | Phantom column names |
-|---|---:|---|
-| `hive_adoption_score` | 3 | `supervisor_decay_risk`, `stair_stall_risk`, `new_worker_silence_risk` |
-| `industry_standards` | 3 | `current_version`, `effective_year`, `planned_review_at` |
-| `agent_memory` | 1 | `turn_text` |
-| `hive_route_calls` | 1 | `hour_bucket` |
-| `hive_route_quotas` | 1 | `hourly_cap` |
-| `kb_chunks` | 1 | `relevance_score` |
-| `platform_feedback_votes` | 1 | `voter_token` |
-| `rcm_strategies` | 1 | `weibull_fit_id` |
+_None — every non-universal column has at least one consumer._
 
 ## What to do with a phantom column
 

@@ -12,6 +12,8 @@
 
   <meta name="robots" content="noindex, follow" />
   <meta name="description" content="WorkHive Live Board: team collaboration hub with real-time activity feed, PM health panel, inventory approvals, and live presence tracking." />
+  <meta property="og:title" content="Hive Live Board: WorkHive" />
+  <meta property="og:image" content="https://workhiveph.com/brand_assets/og-social.png" />
   <link rel="manifest" href="manifest.json" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -3227,13 +3229,6 @@ function startWorkerApprovalListener() {
     .subscribe();
 }
 
-document.getElementById('btn-toggle-approval')?.addEventListener('click', () => {
-  const body = document.getElementById('approval-body');
-  const btn  = document.getElementById('btn-toggle-approval');
-  const isHidden = body.style.display === 'none';
-  body.style.display = isHidden ? '' : 'none';
-  btn.textContent = isHidden ? 'Hide' : 'Show';
-});
 
 // ── AUDIT LOG (supervisor only) ──
 async function loadAuditLog() {
@@ -3341,29 +3336,6 @@ document.getElementById('btn-toggle-audit').addEventListener('click', () => {
   btn.textContent = isHidden ? 'Hide' : 'Show';
 });
 
-document.getElementById('btn-toggle-mttr')?.addEventListener('click', () => {
-  const body = document.getElementById('mttr-body');
-  const btn  = document.getElementById('btn-toggle-mttr');
-  const isHidden = body.style.display === 'none';
-  body.style.display = isHidden ? '' : 'none';
-  btn.textContent = isHidden ? 'Hide' : 'Show';
-});
-
-document.getElementById('btn-toggle-mtbf')?.addEventListener('click', () => {
-  const body = document.getElementById('mtbf-body');
-  const btn  = document.getElementById('btn-toggle-mtbf');
-  const isHidden = body.style.display === 'none';
-  body.style.display = isHidden ? '' : 'none';
-  btn.textContent = isHidden ? 'Hide' : 'Show';
-});
-
-document.getElementById('btn-toggle-downtime')?.addEventListener('click', () => {
-  const body = document.getElementById('downtime-body');
-  const btn  = document.getElementById('btn-toggle-downtime');
-  const isHidden = body.style.display === 'none';
-  body.style.display = isHidden ? '' : 'none';
-  btn.textContent = isHidden ? 'Hide' : 'Show';
-});
 
 
 // ── TODAY'S BRIEF (AI, reads ai_reports, 8h sessionStorage cache) ──────────────

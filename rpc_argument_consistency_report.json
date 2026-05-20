@@ -1,0 +1,487 @@
+{
+  "summary": {
+    "files_scanned": 119,
+    "total_calls": 27,
+    "total_drift": 0,
+    "baseline": 0,
+    "rpcs_known": 71
+  },
+  "per_file": [
+    {
+      "file": "index.html",
+      "issues": []
+    },
+    {
+      "file": "hive.html",
+      "issues": []
+    },
+    {
+      "file": "logbook.html",
+      "issues": []
+    },
+    {
+      "file": "inventory.html",
+      "issues": []
+    },
+    {
+      "file": "pm-scheduler.html",
+      "issues": []
+    },
+    {
+      "file": "analytics.html",
+      "issues": []
+    },
+    {
+      "file": "analytics-report.html",
+      "issues": []
+    },
+    {
+      "file": "skillmatrix.html",
+      "issues": []
+    },
+    {
+      "file": "community.html",
+      "issues": []
+    },
+    {
+      "file": "public-feed.html",
+      "issues": []
+    },
+    {
+      "file": "marketplace.html",
+      "issues": []
+    },
+    {
+      "file": "marketplace-seller.html",
+      "issues": []
+    },
+    {
+      "file": "dayplanner.html",
+      "issues": []
+    },
+    {
+      "file": "engineering-design.html",
+      "issues": []
+    },
+    {
+      "file": "assistant.html",
+      "issues": []
+    },
+    {
+      "file": "report-sender.html",
+      "issues": []
+    },
+    {
+      "file": "platform-health.html",
+      "issues": []
+    },
+    {
+      "file": "project-manager.html",
+      "issues": []
+    },
+    {
+      "file": "integrations.html",
+      "issues": []
+    },
+    {
+      "file": "ph-intelligence.html",
+      "issues": []
+    },
+    {
+      "file": "project-report.html",
+      "issues": []
+    },
+    {
+      "file": "predictive.html",
+      "issues": []
+    },
+    {
+      "file": "ai-quality.html",
+      "issues": []
+    },
+    {
+      "file": "plant-connections.html",
+      "issues": []
+    },
+    {
+      "file": "achievements.html",
+      "issues": []
+    },
+    {
+      "file": "asset-hub.html",
+      "issues": []
+    },
+    {
+      "file": "shift-brain.html",
+      "issues": []
+    },
+    {
+      "file": "alert-hub.html",
+      "issues": []
+    },
+    {
+      "file": "audit-log.html",
+      "issues": []
+    },
+    {
+      "file": "voice-journal.html",
+      "issues": []
+    },
+    {
+      "file": "button-lock.js",
+      "issues": []
+    },
+    {
+      "file": "companion-launcher.js",
+      "issues": []
+    },
+    {
+      "file": "connectivity-widget.js",
+      "issues": []
+    },
+    {
+      "file": "device-fingerprint.js",
+      "issues": []
+    },
+    {
+      "file": "drawing-symbols.js",
+      "issues": []
+    },
+    {
+      "file": "form-autosave.js",
+      "issues": []
+    },
+    {
+      "file": "maturity-gate.js",
+      "issues": []
+    },
+    {
+      "file": "nav-hub.js",
+      "issues": []
+    },
+    {
+      "file": "oc-helper.js",
+      "issues": []
+    },
+    {
+      "file": "offline-banner.js",
+      "issues": []
+    },
+    {
+      "file": "offline-queue.js",
+      "issues": []
+    },
+    {
+      "file": "onboarding.js",
+      "issues": []
+    },
+    {
+      "file": "qr-scanner.js",
+      "issues": []
+    },
+    {
+      "file": "search-overlay.js",
+      "issues": []
+    },
+    {
+      "file": "session-timeout.js",
+      "issues": []
+    },
+    {
+      "file": "skill-content.js",
+      "issues": []
+    },
+    {
+      "file": "utils.js",
+      "issues": []
+    },
+    {
+      "file": "voice-handler.js",
+      "issues": []
+    },
+    {
+      "file": "wh-capture-validate.js",
+      "issues": []
+    },
+    {
+      "file": "wh-feedback-fab.js",
+      "issues": []
+    },
+    {
+      "file": "wh-ga4.js",
+      "issues": []
+    },
+    {
+      "file": "wh-help.js",
+      "issues": []
+    },
+    {
+      "file": "wh-persona.js",
+      "issues": []
+    },
+    {
+      "file": "wh-tts.js",
+      "issues": []
+    },
+    {
+      "file": "worker-drawer.js",
+      "issues": []
+    },
+    {
+      "file": "supabase\\functions\\_shared\\ai-chain.ts",
+      "issues": []
+    },
+    {
+      "file": "supabase\\functions\\_shared\\audio-chain.ts",
+      "issues": []
+    },
+    {
+      "file": "supabase\\functions\\_shared\\context-budget.ts",
+      "issues": []
+    },
+    {
+      "file": "supabase\\functions\\_shared\\cors.ts",
+      "issues": []
+    },
+    {
+      "file": "supabase\\functions\\_shared\\cost-log.ts",
+      "issues": []
+    },
+    {
+      "file": "supabase\\functions\\_shared\\embedding-chain.ts",
+      "issues": []
+    },
+    {
+      "file": "supabase\\functions\\_shared\\journal-recall.ts",
+      "issues": []
+    },
+    {
+      "file": "supabase\\functions\\_shared\\mappings.ts",
+      "issues": []
+    },
+    {
+      "file": "supabase\\functions\\_shared\\memory.ts",
+      "issues": []
+    },
+    {
+      "file": "supabase\\functions\\_shared\\persona.ts",
+      "issues": []
+    },
+    {
+      "file": "supabase\\functions\\_shared\\rate-limit.ts",
+      "issues": []
+    },
+    {
+      "file": "supabase\\functions\\_shared\\redactPII.ts",
+      "issues": []
+    },
+    {
+      "file": "supabase\\functions\\_shared\\validate-contract.ts",
+      "issues": []
+    },
+    {
+      "file": "supabase\\functions\\_shared\\validateAgentContract.ts",
+      "issues": []
+    },
+    {
+      "file": "supabase\\functions\\ai-eval-runner\\index.ts",
+      "issues": []
+    },
+    {
+      "file": "supabase\\functions\\ai-gateway\\index.ts",
+      "issues": []
+    },
+    {
+      "file": "supabase\\functions\\ai-orchestrator\\index.ts",
+      "issues": []
+    },
+    {
+      "file": "supabase\\functions\\amc-orchestrator\\index.ts",
+      "issues": []
+    },
+    {
+      "file": "supabase\\functions\\analytics-orchestrator\\index.ts",
+      "issues": []
+    },
+    {
+      "file": "supabase\\functions\\asset-brain-query\\index.ts",
+      "issues": []
+    },
+    {
+      "file": "supabase\\functions\\batch-risk-scoring\\index.ts",
+      "issues": []
+    },
+    {
+      "file": "supabase\\functions\\benchmark-compute\\index.ts",
+      "issues": []
+    },
+    {
+      "file": "supabase\\functions\\cmms-push-completion\\index.ts",
+      "issues": []
+    },
+    {
+      "file": "supabase\\functions\\cmms-sync\\index.ts",
+      "issues": []
+    },
+    {
+      "file": "supabase\\functions\\cmms-webhook-receiver\\index.ts",
+      "issues": []
+    },
+    {
+      "file": "supabase\\functions\\embed-entry\\index.ts",
+      "issues": []
+    },
+    {
+      "file": "supabase\\functions\\engineering-bom-sow\\index.ts",
+      "issues": []
+    },
+    {
+      "file": "supabase\\functions\\engineering-calc-agent\\index.ts",
+      "issues": []
+    },
+    {
+      "file": "supabase\\functions\\equipment-label-ocr\\index.ts",
+      "issues": []
+    },
+    {
+      "file": "supabase\\functions\\export-hive-data\\index.ts",
+      "issues": []
+    },
+    {
+      "file": "supabase\\functions\\failure-signature-scan\\index.ts",
+      "issues": []
+    },
+    {
+      "file": "supabase\\functions\\fmea-populator\\index.ts",
+      "issues": []
+    },
+    {
+      "file": "supabase\\functions\\intelligence-api\\index.ts",
+      "issues": []
+    },
+    {
+      "file": "supabase\\functions\\intelligence-report\\index.ts",
+      "issues": []
+    },
+    {
+      "file": "supabase\\functions\\marketplace-checkout\\index.ts",
+      "issues": []
+    },
+    {
+      "file": "supabase\\functions\\marketplace-connect-onboard\\index.ts",
+      "issues": []
+    },
+    {
+      "file": "supabase\\functions\\marketplace-connect-status\\index.ts",
+      "issues": []
+    },
+    {
+      "file": "supabase\\functions\\marketplace-release\\index.ts",
+      "issues": []
+    },
+    {
+      "file": "supabase\\functions\\marketplace-webhook\\index.ts",
+      "issues": []
+    },
+    {
+      "file": "supabase\\functions\\parts-staging-recommender\\index.ts",
+      "issues": []
+    },
+    {
+      "file": "supabase\\functions\\pdf-ingest\\index.ts",
+      "issues": []
+    },
+    {
+      "file": "supabase\\functions\\pf-calculator\\index.ts",
+      "issues": []
+    },
+    {
+      "file": "supabase\\functions\\platform-gateway\\index.ts",
+      "issues": []
+    },
+    {
+      "file": "supabase\\functions\\platform-scraper\\index.ts",
+      "issues": []
+    },
+    {
+      "file": "supabase\\functions\\project-orchestrator\\index.ts",
+      "issues": []
+    },
+    {
+      "file": "supabase\\functions\\project-progress\\index.ts",
+      "issues": []
+    },
+    {
+      "file": "supabase\\functions\\scheduled-agents\\index.ts",
+      "issues": []
+    },
+    {
+      "file": "supabase\\functions\\semantic-search\\index.ts",
+      "issues": []
+    },
+    {
+      "file": "supabase\\functions\\send-report-email\\index.ts",
+      "issues": []
+    },
+    {
+      "file": "supabase\\functions\\sensor-readings-ingest\\index.ts",
+      "issues": []
+    },
+    {
+      "file": "supabase\\functions\\shift-planner-orchestrator\\index.ts",
+      "issues": []
+    },
+    {
+      "file": "supabase\\functions\\trigger-ml-retrain\\index.ts",
+      "issues": []
+    },
+    {
+      "file": "supabase\\functions\\tts-speak\\index.ts",
+      "issues": []
+    },
+    {
+      "file": "supabase\\functions\\visual-defect-capture\\index.ts",
+      "issues": []
+    },
+    {
+      "file": "supabase\\functions\\voice-action-router\\index.ts",
+      "issues": []
+    },
+    {
+      "file": "supabase\\functions\\voice-embeddings\\index.ts",
+      "issues": []
+    },
+    {
+      "file": "supabase\\functions\\voice-journal-agent\\index.ts",
+      "issues": []
+    },
+    {
+      "file": "supabase\\functions\\voice-logbook-entry\\index.ts",
+      "issues": []
+    },
+    {
+      "file": "supabase\\functions\\voice-model-call\\index.ts",
+      "issues": []
+    },
+    {
+      "file": "supabase\\functions\\voice-report-intent\\index.ts",
+      "issues": []
+    },
+    {
+      "file": "supabase\\functions\\voice-semantic-rag\\index.ts",
+      "issues": []
+    },
+    {
+      "file": "supabase\\functions\\voice-transcribe\\index.ts",
+      "issues": []
+    },
+    {
+      "file": "supabase\\functions\\walkthrough-analyzer\\index.ts",
+      "issues": []
+    },
+    {
+      "file": "supabase\\functions\\weibull-fitter\\index.ts",
+      "issues": []
+    }
+  ]
+}

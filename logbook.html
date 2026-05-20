@@ -11,6 +11,8 @@
   <!-- chip-allow: editor surface, not a dashboard. Reads v_pm_compliance_truth + v_inventory_items_truth to support fault-entry drafting (PM context, parts picker); no metric tile is rendered. -->
 
   <meta name="description" content="Log every repair, breakdown, and PM activity digitally. Track failure modes, root causes, and actions taken: all in one place with WorkHive." />
+  <meta property="og:title" content="Digital Maintenance Logbook: WorkHive" />
+  <meta property="og:image" content="https://workhiveph.com/brand_assets/og-social.png" />
   <meta name="robots" content="noindex, follow" />
   <link rel="canonical" href="https://workhiveph.com/logbook.html" />
   <link rel="manifest" href="manifest.json" />
@@ -803,7 +805,7 @@
                     <button type="button" id="photo-remove-btn"
                       style="position: absolute; top: -16px; right: -16px; width: 44px; height: 44px;
                              display: flex; align-items: center; justify-content: center;
-                             background: transparent; border: none; cursor: pointer; padding: 0;">
+                             background: transparent; border: none; cursor: pointer; padding: 0;" aria-label="Remove">
                       <span style="width: 20px; height: 20px; background: rgba(30,30,40,0.95);
                                    border: 1.5px solid rgba(255,255,255,0.18); border-radius: 50%;
                                    color: rgba(255,255,255,0.75); font-size: 11px;
@@ -1000,7 +1002,7 @@
   <!-- ── DETAIL MODAL ── -->
   <div id="modal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4" style="background: rgba(0,0,0,0.7); backdrop-filter: blur(6px);">
     <div class="card w-full max-w-lg max-h-[85vh] overflow-y-auto p-7 relative">
-      <button id="modal-close" class="absolute top-3 right-3 w-11 h-11 rounded-lg flex items-center justify-center text-white/40 hover:text-white/80 transition-colors" style="background: rgba(255,255,255,0.06);">
+      <button id="modal-close" class="absolute top-3 right-3 w-11 h-11 rounded-lg flex items-center justify-center text-white/40 hover:text-white/80 transition-colors" style="background: rgba(255,255,255,0.06);" aria-label="Close">
         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
       </button>
       <div id="modal-content"></div>
@@ -1010,7 +1012,7 @@
 <!-- ── ASSET REGISTRY MODAL ── -->
 <div id="asset-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4" style="display:none; background: rgba(0,0,0,0.7); backdrop-filter: blur(6px);">
   <div class="card w-full max-w-md max-h-[88vh] overflow-y-auto p-7 relative">
-    <button id="asset-modal-close" class="absolute top-3 right-3 w-11 h-11 rounded-lg flex items-center justify-center text-white/40 hover:text-white/80 transition-colors" style="background: rgba(255,255,255,0.06);">
+    <button id="asset-modal-close" class="absolute top-3 right-3 w-11 h-11 rounded-lg flex items-center justify-center text-white/40 hover:text-white/80 transition-colors" style="background: rgba(255,255,255,0.06);" aria-label="Close">
       <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
     </button>
 
@@ -1127,7 +1129,7 @@
 <!-- Asset Edit Modal -->
 <div id="asset-edit-modal" class="fixed inset-0 z-50 items-center justify-center p-4" style="display:none; background: rgba(0,0,0,0.7); backdrop-filter: blur(6px);">
   <div class="card w-full max-w-md p-6 relative">
-    <button onclick="closeEditAsset()" class="absolute top-3 right-3 w-11 h-11 rounded-lg flex items-center justify-center text-white/40 hover:text-white/80 transition-colors" style="background: rgba(255,255,255,0.06);">
+    <button onclick="closeEditAsset()" class="absolute top-3 right-3 w-11 h-11 rounded-lg flex items-center justify-center text-white/40 hover:text-white/80 transition-colors" style="background: rgba(255,255,255,0.06);" aria-label="Close">
       <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
     </button>
     <h3 class="font-bold text-base text-white mb-4 pr-8">Edit Asset</h3>
@@ -1173,7 +1175,7 @@
 <!-- Asset Detail Modal -->
 <div id="asset-detail-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4" style="display:none; background: rgba(0,0,0,0.7); backdrop-filter: blur(6px);">
   <div class="card w-full max-w-md max-h-[88vh] overflow-y-auto p-6 relative">
-    <button id="asset-detail-close" class="absolute top-3 right-3 w-11 h-11 rounded-lg flex items-center justify-center text-white/40 hover:text-white/80 transition-colors" style="background: rgba(255,255,255,0.06);">
+    <button id="asset-detail-close" class="absolute top-3 right-3 w-11 h-11 rounded-lg flex items-center justify-center text-white/40 hover:text-white/80 transition-colors" style="background: rgba(255,255,255,0.06);" aria-label="Close">
       <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
     </button>
 
@@ -1198,7 +1200,7 @@
     <div class="p-5 border-b" style="border-color:rgba(255,255,255,0.07);">
       <div class="flex items-center justify-between mb-3">
         <h3 class="font-bold text-sm">Select Asset</h3>
-        <button id="asset-picker-modal-close" class="w-11 h-11 rounded-lg flex items-center justify-center" style="background:rgba(255,255,255,0.06); color:rgba(255,255,255,0.4);">
+        <button id="asset-picker-modal-close" class="w-11 h-11 rounded-lg flex items-center justify-center" style="background:rgba(255,255,255,0.06); color:rgba(255,255,255,0.4);" aria-label="Close">
           <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
         </button>
       </div>
@@ -1224,7 +1226,7 @@
           <h3 class="font-bold text-sm text-white">Work Tasklist</h3>
           <p id="tasklist-modal-subtitle" class="text-[11px] text-white/40 mt-0.5"></p>
         </div>
-        <button id="tasklist-modal-close" class="w-11 h-11 rounded-lg flex items-center justify-center flex-shrink-0" style="background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.4);">
+        <button id="tasklist-modal-close" class="w-11 h-11 rounded-lg flex items-center justify-center flex-shrink-0" style="background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.4);" aria-label="Close">
           <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
         </button>
       </div>
@@ -1243,7 +1245,7 @@
     <div class="p-5 border-b" style="border-color:rgba(255,255,255,0.07);">
       <div class="flex items-center justify-between mb-3">
         <h3 class="font-bold text-sm">Select Part Used</h3>
-        <button id="parts-picker-modal-close" class="w-11 h-11 rounded-lg flex items-center justify-center" style="background:rgba(255,255,255,0.06); color:rgba(255,255,255,0.4);">
+        <button id="parts-picker-modal-close" class="w-11 h-11 rounded-lg flex items-center justify-center" style="background:rgba(255,255,255,0.06); color:rgba(255,255,255,0.4);" aria-label="Close">
           <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
         </button>
       </div>
@@ -3263,7 +3265,7 @@ function renderEditParts() {
         onchange="_editPartsUsed[${i}].qty = parseFloat(this.value) || 1" />
       <span class="text-[10px] text-white/40">${escHtml(p.unit || 'pcs')}</span>
       <button onclick="_editPartsUsed.splice(${i},1); renderEditParts();"
-        class="w-7 h-7 rounded flex items-center justify-center flex-shrink-0" style="background:rgba(239,68,68,0.1);color:#f87171;">
+        class="w-7 h-7 rounded flex items-center justify-center flex-shrink-0" style="background:rgba(239,68,68,0.1);color:#f87171;" aria-label="Remove">
         <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
       </button>
     </div>`).join('');
@@ -3686,7 +3688,13 @@ async function loadPMTasksForAsset() {
 
   const assetIds = matched.map(a => a.id);
 
-  let scopeQ = db.from('v_pm_scope_items_truth').select('id, asset_id, item_text, frequency, anchor_date').in('asset_id', assetIds);
+  // Project the canonical signals (is_overdue / is_due_soon / next_due_date /
+  // days_until_due) so the inline PM panel matches the home tile + pm-scheduler.
+  // LOG_FREQ_DAYS was a hardcoded reimplementation of v_pm_scope_items_truth's
+  // status math — exactly the semantic-drift class caught by mine_truth_view_signal_trust.py.
+  let scopeQ = db.from('v_pm_scope_items_truth')
+    .select('id:scope_item_id, asset_id, item_text, frequency, anchor_date, next_due_date, days_until_due, is_overdue, is_due_soon')
+    .in('asset_id', assetIds);
   // canonical-allow: per-scope-item completion HISTORY is needed for the inline PM context panel; the rollup view only exposes last_completed_at
   let compsQ  = db.from('pm_completions').select('scope_item_id, completed_at').in('asset_id', assetIds).eq('status', 'done').order('completed_at', { ascending: false });
   if (HIVE_ID) { scopeQ = scopeQ.eq('hive_id', HIVE_ID); compsQ = compsQ.eq('hive_id', HIVE_ID); }
@@ -3697,21 +3705,16 @@ async function loadPMTasksForAsset() {
 
   if (!items.length) { panel.classList.add('hidden'); _pmItemsForAsset = []; return; }
 
-  const today = new Date(); today.setHours(0, 0, 0, 0);
   const order = { overdue: 0, duesoon: 1, nodata: 2, ontrack: 3 };
 
   _pmItemsForAsset = items.map(item => {
-    const lastComp = comps.find(c => c.scope_item_id === item.id);
-    const lastDate = lastComp ? lastComp.completed_at : item.anchor_date;
-    let status = 'nodata'; let nextDue = null; let diff = null;
-    if (lastDate) {
-      const next = new Date(lastDate);
-      next.setDate(next.getDate() + (LOG_FREQ_DAYS[item.frequency] || 90));
-      next.setHours(0, 0, 0, 0);
-      diff   = Math.floor((next - today) / 86400000);
-      status = diff < 0 ? 'overdue' : diff <= LOG_DUE_SOON ? 'duesoon' : 'ontrack';
-      nextDue = next;
-    }
+    // Trust the canonical view — same signals hive.html + pm-scheduler.html use.
+    const nextDue = item.next_due_date ? new Date(item.next_due_date) : null;
+    const status  = item.is_overdue  ? 'overdue'
+                  : item.is_due_soon ? 'duesoon'
+                  : nextDue          ? 'ontrack'
+                  : 'nodata';
+    const diff = (item.days_until_due == null) ? null : Number(item.days_until_due);
     const asset = matched.find(a => a.id === item.asset_id);
     return { ...item, status, nextDue, diff, assetName: asset?.asset_name || '' };
   }).sort((a, b) => order[a.status] - order[b.status]);
@@ -4404,7 +4407,7 @@ async function vdcAnalyze() {
 
     vdcApplyDraft(data);
 
-    // Persona Contract Phase 4: play the narration in James/Rosa's voice
+    // Persona Contract Phase 4: play the narration in Hezekiah/Zaniah's voice
     // while the worker reviews the auto-filled draft. wh-tts.js handles
     // the Azure -> browser-TTS fallback chain.
     const narration = data && data.draft && data.draft.narration;
@@ -5030,7 +5033,7 @@ function renderSelectedParts() {
         <span class="text-[10px]" style="color:rgba(255,255,255,0.4);">${escHtml(p.unit)}</span>
         <button type="button" onclick="_partsUsed.splice(${idx},1); renderSelectedParts();"
           class="w-11 h-11 rounded-lg flex items-center justify-center ml-1"
-          style="background:rgba(239,68,68,0.1); color:#f87171; border:1px solid rgba(239,68,68,0.2); min-height:44px; min-width:44px; cursor:pointer;">
+          style="background:rgba(239,68,68,0.1); color:#f87171; border:1px solid rgba(239,68,68,0.2); min-height:44px; min-width:44px; cursor:pointer;" aria-label="Remove">
           <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
         </button>
       </div>

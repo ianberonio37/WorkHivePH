@@ -1,0 +1,131 @@
+{
+  "summary": {
+    "pages_scanned": 30,
+    "total_calls": 674,
+    "total_missing": 0,
+    "baseline": 0,
+    "css_classes_known": 1356
+  },
+  "per_page": [
+    {
+      "page": "index.html",
+      "missing": []
+    },
+    {
+      "page": "hive.html",
+      "missing": []
+    },
+    {
+      "page": "logbook.html",
+      "missing": []
+    },
+    {
+      "page": "inventory.html",
+      "missing": []
+    },
+    {
+      "page": "pm-scheduler.html",
+      "missing": []
+    },
+    {
+      "page": "analytics.html",
+      "missing": []
+    },
+    {
+      "page": "analytics-report.html",
+      "missing": []
+    },
+    {
+      "page": "skillmatrix.html",
+      "missing": []
+    },
+    {
+      "page": "community.html",
+      "missing": []
+    },
+    {
+      "page": "public-feed.html",
+      "missing": []
+    },
+    {
+      "page": "marketplace.html",
+      "missing": []
+    },
+    {
+      "page": "marketplace-seller.html",
+      "missing": []
+    },
+    {
+      "page": "dayplanner.html",
+      "missing": []
+    },
+    {
+      "page": "engineering-design.html",
+      "missing": []
+    },
+    {
+      "page": "assistant.html",
+      "missing": []
+    },
+    {
+      "page": "report-sender.html",
+      "missing": []
+    },
+    {
+      "page": "platform-health.html",
+      "missing": []
+    },
+    {
+      "page": "project-manager.html",
+      "missing": []
+    },
+    {
+      "page": "integrations.html",
+      "missing": []
+    },
+    {
+      "page": "ph-intelligence.html",
+      "missing": []
+    },
+    {
+      "page": "project-report.html",
+      "missing": []
+    },
+    {
+      "page": "predictive.html",
+      "missing": []
+    },
+    {
+      "page": "ai-quality.html",
+      "missing": []
+    },
+    {
+      "page": "plant-connections.html",
+      "missing": []
+    },
+    {
+      "page": "achievements.html",
+      "missing": []
+    },
+    {
+      "page": "asset-hub.html",
+      "missing": []
+    },
+    {
+      "page": "shift-brain.html",
+      "missing": []
+    },
+    {
+      "page": "alert-hub.html",
+      "missing": []
+    },
+    {
+      "page": "audit-log.html",
+      "missing": []
+    },
+    {
+      "page": "voice-journal.html",
+      "missing": []
+    }
+  ]
+}

@@ -9,6 +9,8 @@
   <!-- capture: asset_wizard_v1 (form) -->
   <!-- capture: qr_asset_lookup_v1 (qr) -->
   <meta name="description" content="Asset Brain 360 view for any equipment in your hive: live state, history timeline, neighbors, and AI Q and A grounded in your own data." />
+  <meta property="og:title" content="Asset Hub · WorkHive" />
+  <meta property="og:image" content="https://workhiveph.com/brand_assets/og-social.png" />
   <meta name="robots" content="noindex, follow" />
   <link rel="canonical" href="https://workhiveph.com/asset-hub.html" />
   <link rel="manifest" href="manifest.json" />
@@ -3355,6 +3357,9 @@
       });
 
       // Weibull fits (Phase R.5). asset_id is on the row, hive_id at the wire.
+      // realtime-allow: compute-trigger — page reads weibull data via
+      // v_weibull_truth wrapper; this listener fires the 360 panel re-render
+      // when a new fit is computed by the reliability-workbench edge fn.
       _hubChannel.on('postgres_changes', {
         event: '*', schema: 'public', table: 'weibull_fits',
         filter: 'hive_id=eq.' + HIVE_ID,
@@ -3473,7 +3478,7 @@
 
         ansEl.innerHTML = e(data.answer || '(no answer)').replace(/\n/g, '<br>');
 
-        // Persona Contract Phase 4: play the narration in James/Rosa's
+        // Persona Contract Phase 4: play the narration in Hezekiah/Zaniah's
         // voice while the worker reads the full answer.
         if (data.narration && typeof window.speakPersona === 'function') {
           window.speakPersona(data.narration);

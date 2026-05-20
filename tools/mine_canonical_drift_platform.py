@@ -402,6 +402,18 @@ def main() -> int:
         if _is_excluded(p.name):
             continue
         targets.append((p, "html"))
+    # Subdirectory HTML (feedback/, learn/, etc.) — consumer surfaces outside
+    # the project root. feedback/index.html reads platform_feedback raw, etc.
+    for subdir in sorted(ROOT.iterdir()):
+        if not subdir.is_dir() or subdir.name.startswith(".") or subdir.name in {
+            "node_modules", "test-results", "playwright-report", ".tmp",
+            "supabase", "tools", "python-api", "tests",
+        }:
+            continue
+        for p in sorted(subdir.rglob("*.html")):
+            if _is_excluded(p.name):
+                continue
+            targets.append((p, "html"))
     for fname in ("utils.js", "nav-hub.js", "companion-launcher.js",
                   "search-overlay.js", "wh-persona.js"):
         candidate = ROOT / fname

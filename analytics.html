@@ -6,6 +6,10 @@
   <!-- Layer -1.5 Calm Dashboard Contract opt-in (frontend_calm_dashboard_*). -->
   <meta name="calm-dashboard" content="1" />
   <title>Analytics Engine | WorkHive</title>
+  <meta name="description" content="Maintenance analytics: MTBF, MTTR, OEE, PM compliance trends with ISO 14224 / ISO 22400-2 / SMRP-aligned formulas." />
+  <meta property="og:title" content="Analytics Engine · WorkHive" />
+  <meta property="og:image" content="https://workhiveph.com/brand_assets/og-social.png" />
+  <link rel="canonical" href="https://workhiveph.com/workhive/analytics.html" />
   <link rel="manifest" href="manifest.json" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
@@ -2374,6 +2378,9 @@
   function _refreshSourceChip() {
     const el = document.getElementById('wh-source-chip');
     if (!el) return;
+    // source-chip-allow: analytics computes via Postgres RPCs (calc_mtbf /
+    // calc_mttr / calc_oee) over v_logbook_truth — no direct db.from() of
+    // the view, but the RPC bodies guarantee identical lineage.
     el.innerHTML = renderSourceChip({
       freshness: 'Live recomputation each refresh',
       source:    'v_logbook_truth via Postgres RPCs',

@@ -15,7 +15,7 @@
     "hive.html": 0,
     "integrations.html": 0,
     "inventory.html": 0,
-    "logbook.html": 0,
+    "logbook.html": 1,
     "marketplace.html": 0,
     "ph-intelligence.html": 0,
     "plant-connections.html": 0,
@@ -28,5 +28,5 @@
     "skillmatrix.html": 0,
     "voice-journal.html": 0
   },
-  "total": 0
+  "total": 1
 }

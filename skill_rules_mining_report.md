@@ -3,10 +3,10 @@
 Documented rules from `C:/Users/ILBeronio/.claude/skills/<skill>/SKILL.md` files,
 mined against the codebase. Source manifest: `skill_rules_manifest.json`.
 
-- Rules evaluated: **50**
+- Rules evaluated: **53**
 - Critical / high-severity violations: **0**
-- Promotion candidates (drift band): **0**
-- Rules by source: skill_md:designer=2, skill_md:mobile-maestro=2, skill_md:security=3, manifest=43
+- Promotion candidates (drift band): **2**
+- Rules by source: skill_md:designer=2, skill_md:mobile-maestro=2, skill_md:security=3, manifest=46
 
 ## Per-skill roll-up
 
@@ -15,14 +15,17 @@ mined against the codebase. Source manifest: `skill_rules_manifest.json`.
 | architect | 2 | 100% | 0 |
 | data-engineer | 1 | 100% | 0 |
 | designer | 7 | 92% | 4 |
-| frontend | 13 | 92% | 36 |
+| frontend | 16 | 92% | 39 |
 | mobile-maestro | 7 | 85% | 1 |
 | qa-tester | 6 | 100% | 0 |
 | security | 14 | 100% | 0 |
 
 ## Promotion candidates (documented rules with measurable drift)
 
-_None today -- every documented rule is at 100% conformance, has zero scope, or sits below the promotion band._
+| Rule | Skill | Severity | Conformance | Violators |
+|---|---|---|---:|---|
+| `frontend_no_em_dash_in_prompt_template` | frontend | medium | 98% | analytics-orchestrator |
+| `frontend_calm_dashboard_declares_source_chip` | frontend | medium | 85% | ph-intelligence.html, platform-health.html |
 
 ## All rules (full conformance ranking)
 
@@ -32,9 +35,11 @@ _None today -- every documented rule is at 100% conformance, has zero scope, or 
 | `frontend_classlist_over_classname` | frontend | 44% (16/36) | html_pages | anti_pattern |
 | `designer_dialog_has_aria_modal_true` | designer | 50% (4/8) | html_pages | convention |
 | `frontend_no_innerhtml_in_foreach` | frontend | 55% (20/36) | html_pages | anti_pattern |
+| `frontend_calm_dashboard_declares_source_chip` | frontend | 85% (12/14) | html_pages | convention |
+| `frontend_no_em_dash_in_prompt_template` | frontend | 98% (49/50) | edge_fns | anti_pattern |
 | `designer_btn_primary_canonical_gradient` | designer | 100% (14/14) | html_and_js | convention |
 | `mobile_decorative_anim_has_mobile_kill` | mobile-maestro | 100% (8/8) | html_pages | convention |
-| `security_inventory_status_approved_scope` | security | 100% (2/2) | html_pages | convention |
+| `security_inventory_status_approved_scope` | security | 100% (1/1) | html_pages | convention |
 | `security_voice_transcript_length_cap` | security | 100% (2/2) | edge_fns | convention |
 | `security_inline_onclick_role_check_inside_fn` | security | 100% (3/3) | html_pages | convention |
 | `security_no_inline_eschtml` | security | 100% (36/36) | html_pages | anti_pattern |
@@ -58,24 +63,25 @@ _None today -- every documented rule is at 100% conformance, has zero scope, or 
 | `frontend_writeAuditLog_called` | frontend | 100% (3/3) | html_pages | convention |
 | `edge_fn_uses_get_cors_headers` | security | 100% (49/49) | edge_fns | convention |
 | `edge_fn_handles_options_preflight` | security | 100% (50/50) | edge_fns | convention |
-| `migration_grant_when_rls_enabled` | security | 100% (40/40) | migrations | convention |
+| `migration_grant_when_rls_enabled` | security | 100% (41/41) | migrations | convention |
 | `data_engineer_restore_identity_from_session` | data-engineer | 100% (30/30) | html_pages | convention |
-| `migration_function_sets_search_path` | security | 100% (28/28) | migrations | convention |
+| `migration_function_sets_search_path` | security | 100% (30/30) | migrations | convention |
 | `security_no_function_constructor` | security | 100% (61/61) | html_and_js | anti_pattern |
 | `security_no_token_in_localstorage` | security | 100% (61/61) | html_and_js | anti_pattern |
 | `designer_card_radius_not_125rem` | designer | 100% (36/36) | html_pages | anti_pattern |
 | `a11y_main_landmark_present` | qa-tester | 100% (36/36) | html_pages | convention |
 | `a11y_img_has_alt` | qa-tester | 100% (36/36) | html_pages | anti_pattern |
 | `qa_utils_js_loads_before_inline_script` | qa-tester | 100% (29/29) | html_pages | convention |
-| `frontend_no_em_dash_in_prompt_template` | frontend | 100% (50/50) | edge_fns | anti_pattern |
 | `kg_voice_handler_must_call_platform_rpc` | architect | 100% (1/1) | js_modules | convention |
-| `kg_migrations_no_broadcast_across_hives` | architect | 100% (151/151) | migrations | anti_pattern |
+| `kg_migrations_no_broadcast_across_hives` | architect | 100% (176/176) | migrations | anti_pattern |
 | `frontend_list_view_has_empty_state` | frontend | 100% (27/27) | html_pages | convention |
 | `frontend_list_view_has_no_results_state` | frontend | 100% (11/11) | html_pages | convention |
 | `frontend_list_view_has_load_more` | frontend | 100% (12/12) | html_pages | convention |
 | `frontend_filter_tabs_have_aria_roles` | frontend | 100% (6/6) | html_pages | convention |
 | `frontend_calm_dashboard_has_verdict` | frontend | 100% (14/14) | html_pages | convention |
 | `frontend_calm_dashboard_uses_details_disclosure` | frontend | 100% (14/14) | html_pages | convention |
+| `frontend_phantom_capture_allow_has_reason` | frontend | 100% (36/36) | html_pages | anti_pattern |
+| `frontend_kpi_page_no_local_truth_math` | frontend | 100% (22/22) | html_pages | anti_pattern |
 | `frontend_calm_dashboard_filters_zero_kpis` | frontend | 100% (14/14) | html_pages | convention |
 | `frontend_search_resets_pagination` | frontend | 100% (8/8) | html_pages | convention |
 

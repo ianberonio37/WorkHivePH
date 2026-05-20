@@ -1,0 +1,189 @@
+{
+  "summary": {
+    "pages_scanned": 30,
+    "risky_pages": 9,
+    "baseline": 9
+  },
+  "per_page": [
+    {
+      "page": "index.html",
+      "add": 23,
+      "remove": 0,
+      "risky": true
+    },
+    {
+      "page": "hive.html",
+      "add": 40,
+      "remove": 0,
+      "risky": true
+    },
+    {
+      "page": "logbook.html",
+      "add": 68,
+      "remove": 0,
+      "risky": true
+    },
+    {
+      "page": "inventory.html",
+      "add": 25,
+      "remove": 0,
+      "risky": true
+    },
+    {
+      "page": "pm-scheduler.html",
+      "add": 4,
+      "remove": 0,
+      "risky": false
+    },
+    {
+      "page": "analytics.html",
+      "add": 2,
+      "remove": 0,
+      "risky": false
+    },
+    {
+      "page": "analytics-report.html",
+      "add": 1,
+      "remove": 1,
+      "risky": false
+    },
+    {
+      "page": "skillmatrix.html",
+      "add": 15,
+      "remove": 1,
+      "risky": false
+    },
+    {
+      "page": "community.html",
+      "add": 13,
+      "remove": 1,
+      "risky": false
+    },
+    {
+      "page": "public-feed.html",
+      "add": 0,
+      "remove": 0,
+      "risky": false
+    },
+    {
+      "page": "marketplace.html",
+      "add": 45,
+      "remove": 0,
+      "risky": true
+    },
+    {
+      "page": "marketplace-seller.html",
+      "add": 15,
+      "remove": 0,
+      "risky": true
+    },
+    {
+      "page": "dayplanner.html",
+      "add": 3,
+      "remove": 0,
+      "risky": false
+    },
+    {
+      "page": "engineering-design.html",
+      "add": 8,
+      "remove": 0,
+      "risky": false
+    },
+    {
+      "page": "assistant.html",
+      "add": 1,
+      "remove": 0,
+      "risky": false
+    },
+    {
+      "page": "report-sender.html",
+      "add": 18,
+      "remove": 0,
+      "risky": true
+    },
+    {
+      "page": "platform-health.html",
+      "add": 10,
+      "remove": 0,
+      "risky": true
+    },
+    {
+      "page": "project-manager.html",
+      "add": 8,
+      "remove": 0,
+      "risky": false
+    },
+    {
+      "page": "integrations.html",
+      "add": 5,
+      "remove": 0,
+      "risky": false
+    },
+    {
+      "page": "ph-intelligence.html",
+      "add": 1,
+      "remove": 0,
+      "risky": false
+    },
+    {
+      "page": "project-report.html",
+      "add": 0,
+      "remove": 0,
+      "risky": false
+    },
+    {
+      "page": "predictive.html",
+      "add": 2,
+      "remove": 0,
+      "risky": false
+    },
+    {
+      "page": "ai-quality.html",
+      "add": 1,
+      "remove": 0,
+      "risky": false
+    },
+    {
+      "page": "plant-connections.html",
+      "add": 1,
+      "remove": 0,
+      "risky": false
+    },
+    {
+      "page": "achievements.html",
+      "add": 2,
+      "remove": 0,
+      "risky": false
+    },
+    {
+      "page": "asset-hub.html",
+      "add": 12,
+      "remove": 3,
+      "risky": false
+    },
+    {
+      "page": "shift-brain.html",
+      "add": 7,
+      "remove": 0,
+      "risky": false
+    },
+    {
+      "page": "alert-hub.html",
+      "add": 9,
+      "remove": 0,
+      "risky": false
+    },
+    {
+      "page": "audit-log.html",
+      "add": 10,
+      "remove": 0,
+      "risky": true
+    },
+    {
+      "page": "voice-journal.html",
+      "add": 7,
+      "remove": 0,
+      "risky": false
+    }
+  ]
+}

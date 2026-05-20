@@ -1,0 +1,161 @@
+{
+  "summary": {
+    "pages_scanned": 30,
+    "pages_with_orphans": 0,
+    "total_orphans": 0,
+    "total_allowlisted": 0,
+    "baseline": 0
+  },
+  "per_page": [
+    {
+      "page": "index.html",
+      "orphans": [],
+      "allowlisted": []
+    },
+    {
+      "page": "hive.html",
+      "orphans": [],
+      "allowlisted": []
+    },
+    {
+      "page": "logbook.html",
+      "orphans": [],
+      "allowlisted": []
+    },
+    {
+      "page": "inventory.html",
+      "orphans": [],
+      "allowlisted": []
+    },
+    {
+      "page": "pm-scheduler.html",
+      "orphans": [],
+      "allowlisted": []
+    },
+    {
+      "page": "analytics.html",
+      "orphans": [],
+      "allowlisted": []
+    },
+    {
+      "page": "analytics-report.html",
+      "orphans": [],
+      "allowlisted": []
+    },
+    {
+      "page": "skillmatrix.html",
+      "orphans": [],
+      "allowlisted": []
+    },
+    {
+      "page": "community.html",
+      "orphans": [],
+      "allowlisted": []
+    },
+    {
+      "page": "public-feed.html",
+      "orphans": [],
+      "allowlisted": []
+    },
+    {
+      "page": "marketplace.html",
+      "orphans": [],
+      "allowlisted": []
+    },
+    {
+      "page": "marketplace-seller.html",
+      "orphans": [],
+      "allowlisted": []
+    },
+    {
+      "page": "dayplanner.html",
+      "orphans": [],
+      "allowlisted": []
+    },
+    {
+      "page": "engineering-design.html",
+      "orphans": [],
+      "allowlisted": []
+    },
+    {
+      "page": "assistant.html",
+      "orphans": [],
+      "allowlisted": []
+    },
+    {
+      "page": "report-sender.html",
+      "orphans": [],
+      "allowlisted": []
+    },
+    {
+      "page": "platform-health.html",
+      "orphans": [],
+      "allowlisted": []
+    },
+    {
+      "page": "project-manager.html",
+      "orphans": [],
+      "allowlisted": []
+    },
+    {
+      "page": "integrations.html",
+      "orphans": [],
+      "allowlisted": []
+    },
+    {
+      "page": "ph-intelligence.html",
+      "orphans": [],
+      "allowlisted": []
+    },
+    {
+      "page": "project-report.html",
+      "orphans": [],
+      "allowlisted": []
+    },
+    {
+      "page": "predictive.html",
+      "orphans": [],
+      "allowlisted": []
+    },
+    {
+      "page": "ai-quality.html",
+      "orphans": [],
+      "allowlisted": []
+    },
+    {
+      "page": "plant-connections.html",
+      "orphans": [],
+      "allowlisted": []
+    },
+    {
+      "page": "achievements.html",
+      "orphans": [],
+      "allowlisted": []
+    },
+    {
+      "page": "asset-hub.html",
+      "orphans": [],
+      "allowlisted": []
+    },
+    {
+      "page": "shift-brain.html",
+      "orphans": [],
+      "allowlisted": []
+    },
+    {
+      "page": "alert-hub.html",
+      "orphans": [],
+      "allowlisted": []
+    },
+    {
+      "page": "audit-log.html",
+      "orphans": [],
+      "allowlisted": []
+    },
+    {
+      "page": "voice-journal.html",
+      "orphans": [],
+      "allowlisted": []
+    }
+  ]
+}

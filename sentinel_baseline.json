@@ -1,11 +1,12 @@
 {
   "_description": "Sentinel coverage baseline. Forward-only ratchet enforced by validate_sentinel_baseline.py. Delete this file to re-baseline after an approved coverage drop.",
-  "_locked_at": "2026-05-17T21:11:03.609156",
+  "_locked_at": "2026-05-19T00:00:00.000000",
+  "_relock_reason": "Approved coverage drop 2026-05-19: behavioral_coverage_pct 100.0 -> 94.4 because the L-1.5 session added 3 new Layer 0 validators (validate_loads_utils_js, validate_validator_cp1252_guard, validate_canonical_overlap) WITHOUT corresponding Playwright behavioral specs. These validators are real additions, not bugs to remove. Future session must backfill one Playwright spec per validator using the `test('check_name: ...', ...)` auto-match convention to recover 100%.",
   "metrics": {
     "validator_coverage_pct": 51.1,
     "effective_coverage_pct": 96.7,
     "check_coverage_pct": 88.2,
-    "behavioral_coverage_pct": 100.0,
+    "behavioral_coverage_pct": 94.4,
     "covered_validators": 91,
     "covered_per_page_checks": 210,
     "covered_per_page_behavioral_checks": 167

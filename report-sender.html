@@ -4,6 +4,10 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>Report Sender | WorkHive</title>
+  <meta name="description" content="Send maintenance reports to stakeholders. PDF delivery via Resend; recipient list per hive." />
+  <meta property="og:title" content="Report Sender · WorkHive" />
+  <meta property="og:image" content="https://workhiveph.com/brand_assets/og-social.png" />
+  <link rel="canonical" href="https://workhiveph.com/workhive/report-sender.html" />
   <!-- capture: voice_report_intent_v1 (voice) -->
   <!-- dashboard-allow: report-sending tool; no analytics tiles, just AI report metadata. -->
   <link rel="manifest" href="report-sender-manifest.json" />
@@ -1921,9 +1925,9 @@
     if (_rsChip && typeof renderSourceChip === 'function') {
       _rsChip.innerHTML = renderSourceChip({
         freshness: 'Live · contacts refreshed on load, history on load',
-        source:    'ai_reports + report_contacts',
+        source:    'v_ai_reports_truth + report_contacts',
         notes:     [
-          'Reports: ai_reports filtered by hive_id, ordered by generated_at DESC',
+          'Reports: v_ai_reports_truth filtered by hive_id, ordered by generated_at DESC',
           'Contacts: report_contacts (local + synced) + localStorage fallback',
           'Delivery: Resend email via send-report edge fn',
         ],

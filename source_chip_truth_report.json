@@ -1,0 +1,129 @@
+{
+  "summary": {
+    "pages_scanned": 30,
+    "total_issues": 0,
+    "baseline": 0
+  },
+  "per_page": [
+    {
+      "page": "index.html",
+      "issues": []
+    },
+    {
+      "page": "hive.html",
+      "issues": []
+    },
+    {
+      "page": "logbook.html",
+      "issues": []
+    },
+    {
+      "page": "inventory.html",
+      "issues": []
+    },
+    {
+      "page": "pm-scheduler.html",
+      "issues": []
+    },
+    {
+      "page": "analytics.html",
+      "issues": []
+    },
+    {
+      "page": "analytics-report.html",
+      "issues": []
+    },
+    {
+      "page": "skillmatrix.html",
+      "issues": []
+    },
+    {
+      "page": "community.html",
+      "issues": []
+    },
+    {
+      "page": "public-feed.html",
+      "issues": []
+    },
+    {
+      "page": "marketplace.html",
+      "issues": []
+    },
+    {
+      "page": "marketplace-seller.html",
+      "issues": []
+    },
+    {
+      "page": "dayplanner.html",
+      "issues": []
+    },
+    {
+      "page": "engineering-design.html",
+      "issues": []
+    },
+    {
+      "page": "assistant.html",
+      "issues": []
+    },
+    {
+      "page": "report-sender.html",
+      "issues": []
+    },
+    {
+      "page": "platform-health.html",
+      "issues": []
+    },
+    {
+      "page": "project-manager.html",
+      "issues": []
+    },
+    {
+      "page": "integrations.html",
+      "issues": []
+    },
+    {
+      "page": "ph-intelligence.html",
+      "issues": []
+    },
+    {
+      "page": "project-report.html",
+      "issues": []
+    },
+    {
+      "page": "predictive.html",
+      "issues": []
+    },
+    {
+      "page": "ai-quality.html",
+      "issues": []
+    },
+    {
+      "page": "plant-connections.html",
+      "issues": []
+    },
+    {
+      "page": "achievements.html",
+      "issues": []
+    },
+    {
+      "page": "asset-hub.html",
+      "issues": []
+    },
+    {
+      "page": "shift-brain.html",
+      "issues": []
+    },
+    {
+      "page": "alert-hub.html",
+      "issues": []
+    },
+    {
+      "page": "audit-log.html",
+      "issues": []
+    },
+    {
+      "page": "voice-journal.html",
+      "issues": []
+    }
+  ]
+}

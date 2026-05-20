@@ -1,0 +1,6969 @@
+{
+  "summary": {
+    "view_column_pairs": 316,
+    "at_risk": 0,
+    "review": 9,
+    "files_scanned": 178
+  },
+  "pairs": [
+    {
+      "view": "v_adoption_truth",
+      "column": "active_ratio_risk",
+      "consumers": [
+        {
+          "file": "voice-handler.js",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_adoption_truth",
+      "column": "active_workers_week",
+      "consumers": [
+        {
+          "file": "supabase/functions/platform-scraper/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "voice-handler.js",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_adoption_truth",
+      "column": "adoption_score",
+      "consumers": [
+        {
+          "file": "supabase/functions/platform-scraper/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "voice-handler.js",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_adoption_truth",
+      "column": "momentum_risk",
+      "consumers": [
+        {
+          "file": "voice-handler.js",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_adoption_truth",
+      "column": "risk_score",
+      "consumers": [
+        {
+          "file": "voice-handler.js",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_adoption_truth",
+      "column": "risk_tier",
+      "consumers": [
+        {
+          "file": "voice-handler.js",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_adoption_truth",
+      "column": "snapshot_date",
+      "consumers": [
+        {
+          "file": "voice-handler.js",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_ai_reports_truth",
+      "column": "generated_at",
+      "consumers": [
+        {
+          "file": "hive.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_ai_reports_truth",
+      "column": "report_json",
+      "consumers": [
+        {
+          "file": "hive.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_ai_reports_truth",
+      "column": "report_type",
+      "consumers": [
+        {
+          "file": "hive.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "report-sender.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_ai_reports_truth",
+      "column": "summary",
+      "consumers": [
+        {
+          "file": "hive.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "report-sender.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_alert_truth",
+      "column": "alert_id",
+      "consumers": [
+        {
+          "file": "index.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_alert_truth",
+      "column": "category",
+      "consumers": [
+        {
+          "file": "hive.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_alert_truth",
+      "column": "detail",
+      "consumers": [
+        {
+          "file": "hive.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_alert_truth",
+      "column": "detected_at",
+      "consumers": [
+        {
+          "file": "hive.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "index.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_alert_truth",
+      "column": "machine",
+      "consumers": [
+        {
+          "file": "hive.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "index.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_alert_truth",
+      "column": "rule_id",
+      "consumers": [
+        {
+          "file": "hive.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_alert_truth",
+      "column": "severity",
+      "consumers": [
+        {
+          "file": "hive.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "index.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_alert_truth",
+      "column": "title",
+      "consumers": [
+        {
+          "file": "hive.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "index.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_amc_truth",
+      "column": "amc_id",
+      "consumers": [
+        {
+          "file": "index.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_amc_truth",
+      "column": "headline",
+      "consumers": [
+        {
+          "file": "index.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_amc_truth",
+      "column": "shift_date",
+      "consumers": [
+        {
+          "file": "index.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_amc_truth",
+      "column": "status",
+      "consumers": [
+        {
+          "file": "index.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/amc-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_amc_truth",
+      "column": "summary",
+      "consumers": [
+        {
+          "file": "index.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_anomaly_truth",
+      "column": "composite_score",
+      "consumers": [
+        {
+          "file": "alert-hub.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "voice-handler.js",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_anomaly_truth",
+      "column": "computed_at",
+      "consumers": [
+        {
+          "file": "alert-hub.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_anomaly_truth",
+      "column": "logbook_cluster_score",
+      "consumers": [
+        {
+          "file": "voice-handler.js",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_anomaly_truth",
+      "column": "machine",
+      "consumers": [
+        {
+          "file": "alert-hub.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "voice-handler.js",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_anomaly_truth",
+      "column": "severity",
+      "consumers": [
+        {
+          "file": "alert-hub.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_anomaly_truth",
+      "column": "snapshot_date",
+      "consumers": [
+        {
+          "file": "voice-handler.js",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_anomaly_truth",
+      "column": "source_count",
+      "consumers": [
+        {
+          "file": "alert-hub.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_anomaly_truth",
+      "column": "status",
+      "consumers": [
+        {
+          "file": "alert-hub.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_anomaly_truth",
+      "column": "top_reasons",
+      "consumers": [
+        {
+          "file": "alert-hub.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_asset_truth",
+      "column": "asset_id",
+      "consumers": [
+        {
+          "file": "supabase/functions/asset-brain-query/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/fmea-populator/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/pf-calculator/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/visual-defect-capture/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/voice-action-router/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/weibull-fitter/index.ts",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_asset_truth",
+      "column": "count",
+      "consumers": [
+        {
+          "file": "supabase/functions/platform-scraper/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "voice-handler.js",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_asset_truth",
+      "column": "criticality",
+      "consumers": [
+        {
+          "file": "search-overlay.js",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/asset-brain-query/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "voice-handler.js",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_asset_truth",
+      "column": "edge_count",
+      "consumers": [
+        {
+          "file": "asset-hub.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/asset-brain-query/index.ts",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_asset_truth",
+      "column": "external_ids",
+      "consumers": [
+        {
+          "file": "supabase/functions/asset-brain-query/index.ts",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_asset_truth",
+      "column": "iso_class",
+      "consumers": [
+        {
+          "file": "supabase/functions/asset-brain-query/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/fmea-populator/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/pf-calculator/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/weibull-fitter/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "voice-handler.js",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_asset_truth",
+      "column": "last_failure_at",
+      "consumers": [
+        {
+          "file": "asset-hub.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/asset-brain-query/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "voice-handler.js",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_asset_truth",
+      "column": "legacy_asset_id",
+      "consumers": [
+        {
+          "file": "supabase/functions/asset-brain-query/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/fmea-populator/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/pf-calculator/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/weibull-fitter/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "utils.js",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_asset_truth",
+      "column": "level",
+      "consumers": [
+        {
+          "file": "search-overlay.js",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/asset-brain-query/index.ts",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_asset_truth",
+      "column": "lifetime_logbook_entries",
+      "consumers": [
+        {
+          "file": "asset-hub.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/asset-brain-query/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "voice-handler.js",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_asset_truth",
+      "column": "location",
+      "consumers": [
+        {
+          "file": "search-overlay.js",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/asset-brain-query/index.ts",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_asset_truth",
+      "column": "manufacturer",
+      "consumers": [
+        {
+          "file": "supabase/functions/asset-brain-query/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/equipment-label-ocr/index.ts",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_asset_truth",
+      "column": "model",
+      "consumers": [
+        {
+          "file": "supabase/functions/asset-brain-query/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/equipment-label-ocr/index.ts",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_asset_truth",
+      "column": "name",
+      "consumers": [
+        {
+          "file": "search-overlay.js",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/asset-brain-query/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/batch-risk-scoring/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/equipment-label-ocr/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/fmea-populator/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/pf-calculator/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/visual-defect-capture/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/voice-action-router/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/weibull-fitter/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "voice-handler.js",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_asset_truth",
+      "column": "parent_id",
+      "consumers": [
+        {
+          "file": "supabase/functions/asset-brain-query/index.ts",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_asset_truth",
+      "column": "pm_asset_id",
+      "consumers": [
+        {
+          "file": "supabase/functions/asset-brain-query/index.ts",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_asset_truth",
+      "column": "pm_completed_count",
+      "consumers": [
+        {
+          "file": "asset-hub.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/asset-brain-query/index.ts",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_asset_truth",
+      "column": "state",
+      "consumers": [
+        {
+          "file": "supabase/functions/platform-scraper/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "voice-handler.js",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_asset_truth",
+      "column": "tag",
+      "consumers": [
+        {
+          "file": "search-overlay.js",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/asset-brain-query/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/batch-risk-scoring/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/equipment-label-ocr/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/fmea-populator/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/pf-calculator/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/visual-defect-capture/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/voice-action-router/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/weibull-fitter/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "voice-handler.js",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_community_posts_truth",
+      "column": "author_name",
+      "consumers": [
+        {
+          "file": "community.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "public-feed.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_community_posts_truth",
+      "column": "category",
+      "consumers": [
+        {
+          "file": "community.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "public-feed.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_community_posts_truth",
+      "column": "content",
+      "consumers": [
+        {
+          "file": "community.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "public-feed.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_community_posts_truth",
+      "column": "edited_at",
+      "consumers": [
+        {
+          "file": "community.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_community_posts_truth",
+      "column": "flagged",
+      "consumers": [
+        {
+          "file": "community.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_community_posts_truth",
+      "column": "hive_name",
+      "consumers": [
+        {
+          "file": "community.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_community_posts_truth",
+      "column": "mentions",
+      "consumers": [
+        {
+          "file": "community.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_community_posts_truth",
+      "column": "pinned",
+      "consumers": [
+        {
+          "file": "community.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_community_posts_truth",
+      "column": "public",
+      "consumers": [
+        {
+          "file": "community.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_external_sync_truth",
+      "column": "entity_type",
+      "consumers": [
+        {
+          "file": "asset-hub.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "plant-connections.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_external_sync_truth",
+      "column": "external_id",
+      "consumers": [
+        {
+          "file": "asset-hub.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "integrations.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "plant-connections.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/cmms-push-completion/index.ts",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_external_sync_truth",
+      "column": "last_synced_at",
+      "consumers": [
+        {
+          "file": "asset-hub.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "integrations.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "plant-connections.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_external_sync_truth",
+      "column": "status",
+      "consumers": [
+        {
+          "file": "integrations.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "plant-connections.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/cmms-push-completion/index.ts",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_external_sync_truth",
+      "column": "sync_payload",
+      "consumers": [
+        {
+          "file": "integrations.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "logbook.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_external_sync_truth",
+      "column": "sync_status",
+      "consumers": [
+        {
+          "file": "asset-hub.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_external_sync_truth",
+      "column": "system_type",
+      "consumers": [
+        {
+          "file": "asset-hub.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "logbook.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "plant-connections.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_external_sync_truth",
+      "column": "workhive_table",
+      "consumers": [
+        {
+          "file": "plant-connections.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_fmea_truth",
+      "column": "ai_confidence",
+      "consumers": [
+        {
+          "file": "asset-hub.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_fmea_truth",
+      "column": "approved_at",
+      "consumers": [
+        {
+          "file": "asset-hub.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_fmea_truth",
+      "column": "asset_id",
+      "consumers": [
+        {
+          "file": "supabase/functions/batch-risk-scoring/index.ts",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_fmea_truth",
+      "column": "cause_text",
+      "consumers": [
+        {
+          "file": "asset-hub.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/asset-brain-query/index.ts",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_fmea_truth",
+      "column": "consequence_class",
+      "consumers": [
+        {
+          "file": "asset-hub.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/asset-brain-query/index.ts",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_fmea_truth",
+      "column": "detection",
+      "consumers": [
+        {
+          "file": "asset-hub.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/asset-brain-query/index.ts",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_fmea_truth",
+      "column": "effect_text",
+      "consumers": [
+        {
+          "file": "asset-hub.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/asset-brain-query/index.ts",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_fmea_truth",
+      "column": "failure_mode",
+      "consumers": [
+        {
+          "file": "asset-hub.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/asset-brain-query/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/batch-risk-scoring/index.ts",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_fmea_truth",
+      "column": "function_text",
+      "consumers": [
+        {
+          "file": "asset-hub.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/asset-brain-query/index.ts",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_fmea_truth",
+      "column": "occurrence",
+      "consumers": [
+        {
+          "file": "asset-hub.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/asset-brain-query/index.ts",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_fmea_truth",
+      "column": "rpn",
+      "consumers": [
+        {
+          "file": "asset-hub.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/asset-brain-query/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/batch-risk-scoring/index.ts",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_fmea_truth",
+      "column": "severity",
+      "consumers": [
+        {
+          "file": "asset-hub.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/asset-brain-query/index.ts",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_fmea_truth",
+      "column": "source",
+      "consumers": [
+        {
+          "file": "asset-hub.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/asset-brain-query/index.ts",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_hive_readiness_truth",
+      "column": "blocker_summary",
+      "consumers": [
+        {
+          "file": "founder-console.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "maturity-gate.js",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_hive_readiness_truth",
+      "column": "composite_score",
+      "consumers": [
+        {
+          "file": "founder-console.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "maturity-gate.js",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_hive_readiness_truth",
+      "column": "current_stair",
+      "consumers": [
+        {
+          "file": "founder-console.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "maturity-gate.js",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_hive_readiness_truth",
+      "column": "evidence",
+      "consumers": [
+        {
+          "file": "maturity-gate.js",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_hives_truth",
+      "column": "created_by",
+      "consumers": [
+        {
+          "file": "hive.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_hives_truth",
+      "column": "hive_members",
+      "consumers": [
+        {
+          "file": "supabase/functions/amc-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_hives_truth",
+      "column": "intent",
+      "consumers": [
+        {
+          "file": "hive.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_hives_truth",
+      "column": "name",
+      "consumers": [
+        {
+          "file": "analytics-report.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "hive.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/amc-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/batch-risk-scoring/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/parts-staging-recommender/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/scheduled-agents/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/send-report-email/index.ts",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_hives_truth",
+      "column": "preferred_persona",
+      "consumers": [
+        {
+          "file": "supabase/functions/amc-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_inventory_items_truth",
+      "column": "bin_location",
+      "consumers": [
+        {
+          "file": "supabase/functions/ai-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/shift-planner-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_inventory_items_truth",
+      "column": "category",
+      "consumers": [
+        {
+          "file": "assistant.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_inventory_items_truth",
+      "column": "count",
+      "consumers": [
+        {
+          "file": "voice-handler.js",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_inventory_items_truth",
+      "column": "is_low_stock",
+      "consumers": [
+        {
+          "file": "alert-hub.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "index.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/shift-planner-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_inventory_items_truth",
+      "column": "is_out_of_stock",
+      "consumers": [
+        {
+          "file": "alert-hub.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_inventory_items_truth",
+      "column": "min_qty",
+      "consumers": [
+        {
+          "file": "assistant.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "hive.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/shift-planner-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "voice-handler.js",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_inventory_items_truth",
+      "column": "part_name",
+      "consumers": [
+        {
+          "file": "alert-hub.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "assistant.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "hive.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "index.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "project-manager.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "search-overlay.js",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/ai-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/analytics-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/batch-risk-scoring/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/intelligence-report/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/parts-staging-recommender/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/shift-planner-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "voice-handler.js",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_inventory_items_truth",
+      "column": "part_number",
+      "consumers": [
+        {
+          "file": "project-manager.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "search-overlay.js",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/parts-staging-recommender/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/shift-planner-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "voice-handler.js",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_inventory_items_truth",
+      "column": "qty_on_hand",
+      "consumers": [
+        {
+          "file": "alert-hub.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "assistant.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "hive.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "index.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "search-overlay.js",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/ai-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/analytics-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/batch-risk-scoring/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/parts-staging-recommender/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/shift-planner-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "voice-handler.js",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_inventory_items_truth",
+      "column": "reorder_point",
+      "consumers": [
+        {
+          "file": "alert-hub.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "index.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "search-overlay.js",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/ai-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/analytics-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/batch-risk-scoring/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "voice-handler.js",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_inventory_items_truth",
+      "column": "status",
+      "consumers": [
+        {
+          "file": "supabase/functions/parts-staging-recommender/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/shift-planner-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_inventory_items_truth",
+      "column": "unit",
+      "consumers": [
+        {
+          "file": "assistant.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/analytics-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_inventory_items_truth",
+      "column": "worker_name",
+      "consumers": [
+        {
+          "file": "hive.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_inventory_transactions_truth",
+      "column": "inventory_items",
+      "consumers": [
+        {
+          "file": "supabase/functions/analytics-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/batch-risk-scoring/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/trigger-ml-retrain/index.ts",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_inventory_transactions_truth",
+      "column": "item_id",
+      "consumers": [
+        {
+          "file": "logbook.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_inventory_transactions_truth",
+      "column": "job_ref",
+      "consumers": [
+        {
+          "file": "logbook.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_inventory_transactions_truth",
+      "column": "note",
+      "consumers": [
+        {
+          "file": "logbook.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_inventory_transactions_truth",
+      "column": "qty_change",
+      "consumers": [
+        {
+          "file": "logbook.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/analytics-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/batch-risk-scoring/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/trigger-ml-retrain/index.ts",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_inventory_transactions_truth",
+      "column": "type",
+      "consumers": [
+        {
+          "file": "supabase/functions/analytics-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/batch-risk-scoring/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/trigger-ml-retrain/index.ts",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_knowledge_freshness_truth",
+      "column": "days_since_last_embed",
+      "consumers": [
+        {
+          "file": "hive.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_knowledge_freshness_truth",
+      "column": "embedded_pct",
+      "consumers": [
+        {
+          "file": "hive.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_knowledge_freshness_truth",
+      "column": "embedded_rows",
+      "consumers": [
+        {
+          "file": "hive.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_knowledge_freshness_truth",
+      "column": "kind",
+      "consumers": [
+        {
+          "file": "hive.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_knowledge_freshness_truth",
+      "column": "last_embedded_at",
+      "consumers": [
+        {
+          "file": "hive.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_knowledge_freshness_truth",
+      "column": "pending_rows",
+      "consumers": [
+        {
+          "file": "hive.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_knowledge_freshness_truth",
+      "column": "total_rows",
+      "consumers": [
+        {
+          "file": "hive.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_knowledge_truth",
+      "column": "content",
+      "consumers": [
+        {
+          "file": "voice-handler.js",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_knowledge_truth",
+      "column": "source",
+      "consumers": [
+        {
+          "file": "voice-handler.js",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_kpi_truth",
+      "column": "failures_30d",
+      "consumers": [
+        {
+          "file": "voice-handler.js",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_kpi_truth",
+      "column": "machine",
+      "consumers": [
+        {
+          "file": "voice-handler.js",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_kpi_truth",
+      "column": "mtbf_30d",
+      "consumers": [
+        {
+          "file": "voice-handler.js",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_kpi_truth",
+      "column": "mttr_30d",
+      "consumers": [
+        {
+          "file": "voice-handler.js",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_kpi_truth",
+      "column": "total_downtime_30d",
+      "consumers": [
+        {
+          "file": "voice-handler.js",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_logbook_truth",
+      "column": "action",
+      "consumers": [
+        {
+          "file": "asset-hub.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "assistant.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/ai-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/asset-brain-query/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/fmea-populator/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/scheduled-agents/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "voice-handler.js",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_logbook_truth",
+      "column": "asset_node_id",
+      "consumers": [
+        {
+          "file": "supabase/functions/asset-brain-query/index.ts",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_logbook_truth",
+      "column": "category",
+      "consumers": [
+        {
+          "file": "assistant.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "hive.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "index.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/ai-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/analytics-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/batch-risk-scoring/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/benchmark-compute/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/failure-signature-scan/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/scheduled-agents/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/trigger-ml-retrain/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "voice-handler.js",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_logbook_truth",
+      "column": "closed_at",
+      "consumers": [
+        {
+          "file": "asset-hub.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/analytics-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/asset-brain-query/index.ts",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_logbook_truth",
+      "column": "date",
+      "consumers": [
+        {
+          "file": "assistant.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "hive.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "index.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "integrations.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "voice-handler.js",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_logbook_truth",
+      "column": "downtime_hours",
+      "consumers": [
+        {
+          "file": "asset-hub.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "assistant.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/ai-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/analytics-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/asset-brain-query/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/batch-risk-scoring/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/benchmark-compute/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/fmea-populator/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/scheduled-agents/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/shift-planner-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/trigger-ml-retrain/index.ts",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_logbook_truth",
+      "column": "failure_consequence",
+      "consumers": [
+        {
+          "file": "supabase/functions/analytics-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/fmea-populator/index.ts",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_logbook_truth",
+      "column": "knowledge",
+      "consumers": [
+        {
+          "file": "supabase/functions/ai-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_logbook_truth",
+      "column": "machine",
+      "consumers": [
+        {
+          "file": "asset-hub.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "assistant.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "hive.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "index.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "integrations.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "project-manager.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "search-overlay.js",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/ai-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/analytics-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/asset-brain-query/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/batch-risk-scoring/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/benchmark-compute/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/failure-signature-scan/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/intelligence-report/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/parts-staging-recommender/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/scheduled-agents/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/shift-planner-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/trigger-ml-retrain/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "voice-handler.js",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_logbook_truth",
+      "column": "maintenance_type",
+      "consumers": [
+        {
+          "file": "asset-hub.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "assistant.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "index.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "search-overlay.js",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/ai-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/analytics-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/asset-brain-query/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/batch-risk-scoring/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/benchmark-compute/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/failure-signature-scan/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/fmea-populator/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/parts-staging-recommender/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/scheduled-agents/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/shift-planner-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/trigger-ml-retrain/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/weibull-fitter/index.ts",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_logbook_truth",
+      "column": "parts_used",
+      "consumers": [
+        {
+          "file": "assistant.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/parts-staging-recommender/index.ts",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_logbook_truth",
+      "column": "problem",
+      "consumers": [
+        {
+          "file": "asset-hub.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "assistant.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "hive.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "project-manager.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "search-overlay.js",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/ai-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/analytics-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/asset-brain-query/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/fmea-populator/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/scheduled-agents/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/shift-planner-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "voice-handler.js",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_logbook_truth",
+      "column": "production_output",
+      "consumers": [
+        {
+          "file": "supabase/functions/analytics-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_logbook_truth",
+      "column": "readings_json",
+      "consumers": [
+        {
+          "file": "supabase/functions/analytics-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/pf-calculator/index.ts",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_logbook_truth",
+      "column": "root_cause",
+      "consumers": [
+        {
+          "file": "asset-hub.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "assistant.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/ai-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/analytics-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/asset-brain-query/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/batch-risk-scoring/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/failure-signature-scan/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/fmea-populator/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/parts-staging-recommender/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/scheduled-agents/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/trigger-ml-retrain/index.ts",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_logbook_truth",
+      "column": "status",
+      "consumers": [
+        {
+          "file": "asset-hub.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "assistant.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "hive.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "index.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "integrations.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "project-manager.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "search-overlay.js",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/ai-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/analytics-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/asset-brain-query/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/batch-risk-scoring/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/scheduled-agents/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/shift-planner-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/trigger-ml-retrain/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "voice-handler.js",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_logbook_truth",
+      "column": "worker_name",
+      "consumers": [
+        {
+          "file": "hive.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "integrations.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/ai-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/analytics-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/scheduled-agents/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/shift-planner-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "voice-handler.js",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_marketplace_inquiries_truth",
+      "column": "buyer_contact",
+      "consumers": [
+        {
+          "file": "marketplace-seller.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_marketplace_inquiries_truth",
+      "column": "buyer_name",
+      "consumers": [
+        {
+          "file": "marketplace-seller.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_marketplace_inquiries_truth",
+      "column": "listing_id",
+      "consumers": [
+        {
+          "file": "marketplace-seller.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_marketplace_inquiries_truth",
+      "column": "listing_title",
+      "consumers": [
+        {
+          "file": "marketplace-seller.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_marketplace_inquiries_truth",
+      "column": "message",
+      "consumers": [
+        {
+          "file": "marketplace-seller.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_marketplace_inquiries_truth",
+      "column": "replied_at",
+      "consumers": [
+        {
+          "file": "marketplace-seller-profile.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "marketplace-seller.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_marketplace_inquiries_truth",
+      "column": "reply_text",
+      "consumers": [
+        {
+          "file": "marketplace-seller.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_marketplace_inquiries_truth",
+      "column": "status",
+      "consumers": [
+        {
+          "file": "marketplace-seller-profile.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "marketplace-seller.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_marketplace_listings_truth",
+      "column": "category",
+      "consumers": [
+        {
+          "file": "asset-hub.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "marketplace-admin.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "marketplace-seller-profile.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "marketplace-seller.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "marketplace.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_marketplace_listings_truth",
+      "column": "completed_sales",
+      "consumers": [
+        {
+          "file": "marketplace.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_marketplace_listings_truth",
+      "column": "condition",
+      "consumers": [
+        {
+          "file": "asset-hub.html",
+          "shape": "mapped_enum",
+          "smells": []
+        },
+        {
+          "file": "marketplace-admin.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "marketplace-seller-profile.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "marketplace-seller.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "marketplace.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_marketplace_listings_truth",
+      "column": "description",
+      "consumers": [
+        {
+          "file": "marketplace-admin.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "marketplace.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_marketplace_listings_truth",
+      "column": "image_url",
+      "consumers": [
+        {
+          "file": "marketplace-admin.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "marketplace-seller-profile.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "marketplace-seller.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "marketplace.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/marketplace-checkout/index.ts",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_marketplace_listings_truth",
+      "column": "location",
+      "consumers": [
+        {
+          "file": "asset-hub.html",
+          "shape": "mapped_enum",
+          "smells": []
+        },
+        {
+          "file": "marketplace-admin.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "marketplace-seller-profile.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "marketplace-seller.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "marketplace.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_marketplace_listings_truth",
+      "column": "price",
+      "consumers": [
+        {
+          "file": "asset-hub.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "marketplace-admin.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "marketplace-seller-profile.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "marketplace-seller.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "marketplace.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/marketplace-checkout/index.ts",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_marketplace_listings_truth",
+      "column": "rating_avg",
+      "consumers": [
+        {
+          "file": "marketplace.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_marketplace_listings_truth",
+      "column": "section",
+      "consumers": [
+        {
+          "file": "asset-hub.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "marketplace-admin.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "marketplace-seller-profile.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "marketplace-seller.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "marketplace.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/marketplace-checkout/index.ts",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_marketplace_listings_truth",
+      "column": "seller_contact",
+      "consumers": [
+        {
+          "file": "marketplace-admin.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "marketplace-seller.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_marketplace_listings_truth",
+      "column": "seller_name",
+      "consumers": [
+        {
+          "file": "asset-hub.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "marketplace-admin.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "marketplace.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/marketplace-checkout/index.ts",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_marketplace_listings_truth",
+      "column": "seller_verified",
+      "consumers": [
+        {
+          "file": "asset-hub.html",
+          "shape": "mapped_enum",
+          "smells": []
+        },
+        {
+          "file": "marketplace.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_marketplace_listings_truth",
+      "column": "status",
+      "consumers": [
+        {
+          "file": "asset-hub.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "marketplace-admin.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "marketplace-seller.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "marketplace.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/marketplace-checkout/index.ts",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_marketplace_listings_truth",
+      "column": "title",
+      "consumers": [
+        {
+          "file": "asset-hub.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "marketplace-admin.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "marketplace-seller-profile.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "marketplace-seller.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "marketplace.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "project-manager.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/marketplace-checkout/index.ts",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_marketplace_listings_truth",
+      "column": "view_count",
+      "consumers": [
+        {
+          "file": "marketplace-seller.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_marketplace_orders_truth",
+      "column": "buyer_name",
+      "consumers": [
+        {
+          "file": "marketplace-seller.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/marketplace-release/index.ts",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_marketplace_orders_truth",
+      "column": "escrow_release_at",
+      "consumers": [
+        {
+          "file": "marketplace-seller.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "marketplace.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_marketplace_orders_truth",
+      "column": "listing_id",
+      "consumers": [
+        {
+          "file": "marketplace-seller.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "marketplace.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_marketplace_orders_truth",
+      "column": "marketplace_listings",
+      "consumers": [
+        {
+          "file": "marketplace-seller.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_marketplace_orders_truth",
+      "column": "price",
+      "consumers": [
+        {
+          "file": "founder-console.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "marketplace-seller.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "marketplace.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/marketplace-release/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/marketplace-webhook/index.ts",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_marketplace_orders_truth",
+      "column": "reviewed_at",
+      "consumers": [
+        {
+          "file": "marketplace.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_marketplace_orders_truth",
+      "column": "seller_name",
+      "consumers": [
+        {
+          "file": "marketplace.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/marketplace-release/index.ts",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_marketplace_orders_truth",
+      "column": "status",
+      "consumers": [
+        {
+          "file": "founder-console.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "marketplace-seller.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "marketplace.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/marketplace-release/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/marketplace-webhook/index.ts",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_marketplace_orders_truth",
+      "column": "stripe_payment_id",
+      "consumers": [
+        {
+          "file": "supabase/functions/marketplace-release/index.ts",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_marketplace_orders_truth",
+      "column": "stripe_session_id",
+      "consumers": [
+        {
+          "file": "marketplace.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_marketplace_orders_truth",
+      "column": "stripe_transfer_id",
+      "consumers": [
+        {
+          "file": "marketplace-seller.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_marketplace_sellers_truth",
+      "column": "active_listings_count",
+      "consumers": [
+        {
+          "file": "marketplace-admin.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "marketplace-seller-profile.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "marketplace.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_marketplace_sellers_truth",
+      "column": "cert_verified",
+      "consumers": [
+        {
+          "file": "marketplace-admin.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "marketplace-seller-profile.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "marketplace.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_marketplace_sellers_truth",
+      "column": "cert_verified_at",
+      "consumers": [
+        {
+          "file": "marketplace-admin.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "marketplace-seller-profile.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_marketplace_sellers_truth",
+      "column": "certifications",
+      "consumers": [
+        {
+          "file": "marketplace-admin.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "marketplace-seller-profile.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "marketplace.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_marketplace_sellers_truth",
+      "column": "is_verified_public",
+      "consumers": [
+        {
+          "file": "marketplace-admin.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "marketplace-seller-profile.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "marketplace.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_marketplace_sellers_truth",
+      "column": "kyb_verified",
+      "consumers": [
+        {
+          "file": "marketplace-admin.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "marketplace-seller-profile.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "marketplace.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/marketplace-checkout/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/marketplace-connect-onboard/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/marketplace-connect-status/index.ts",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_marketplace_sellers_truth",
+      "column": "kyb_verified_at",
+      "consumers": [
+        {
+          "file": "marketplace-admin.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "marketplace-seller-profile.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_marketplace_sellers_truth",
+      "column": "last_listed_at",
+      "consumers": [
+        {
+          "file": "marketplace-admin.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "marketplace-seller-profile.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_marketplace_sellers_truth",
+      "column": "messenger_username",
+      "consumers": [
+        {
+          "file": "marketplace-seller-profile.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "marketplace.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_marketplace_sellers_truth",
+      "column": "rating_avg",
+      "consumers": [
+        {
+          "file": "marketplace-admin.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "marketplace-seller-profile.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "marketplace.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_marketplace_sellers_truth",
+      "column": "rating_count",
+      "consumers": [
+        {
+          "file": "marketplace-seller-profile.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "marketplace.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_marketplace_sellers_truth",
+      "column": "stripe_account_id",
+      "consumers": [
+        {
+          "file": "marketplace-admin.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/marketplace-checkout/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/marketplace-connect-onboard/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/marketplace-connect-status/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/marketplace-release/index.ts",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_marketplace_sellers_truth",
+      "column": "tier",
+      "consumers": [
+        {
+          "file": "marketplace-admin.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "marketplace-seller-profile.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "marketplace.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/marketplace-connect-status/index.ts",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_marketplace_sellers_truth",
+      "column": "total_sales",
+      "consumers": [
+        {
+          "file": "marketplace-admin.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "marketplace-seller-profile.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_marketplace_sellers_truth",
+      "column": "worker_name",
+      "consumers": [
+        {
+          "file": "marketplace-admin.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "marketplace-seller-profile.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_pf_truth",
+      "column": "basis",
+      "consumers": [
+        {
+          "file": "asset-hub.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/asset-brain-query/index.ts",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_pf_truth",
+      "column": "f_threshold",
+      "consumers": [
+        {
+          "file": "asset-hub.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/asset-brain-query/index.ts",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_pf_truth",
+      "column": "generated_at",
+      "consumers": [
+        {
+          "file": "asset-hub.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_pf_truth",
+      "column": "p_threshold",
+      "consumers": [
+        {
+          "file": "asset-hub.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/asset-brain-query/index.ts",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_pf_truth",
+      "column": "parameter",
+      "consumers": [
+        {
+          "file": "asset-hub.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/asset-brain-query/index.ts",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_pf_truth",
+      "column": "pf_days",
+      "consumers": [
+        {
+          "file": "asset-hub.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/asset-brain-query/index.ts",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_pf_truth",
+      "column": "recommended_interval_days",
+      "consumers": [
+        {
+          "file": "asset-hub.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/asset-brain-query/index.ts",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_pm_compliance_truth",
+      "column": "asset_id",
+      "consumers": [
+        {
+          "file": "supabase/functions/ai-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/analytics-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/asset-brain-query/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/batch-risk-scoring/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/scheduled-agents/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/trigger-ml-retrain/index.ts",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_pm_compliance_truth",
+      "column": "asset_name",
+      "consumers": [
+        {
+          "file": "alert-hub.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "assistant.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "hive.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "index.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "logbook.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "search-overlay.js",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/ai-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/amc-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/analytics-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/batch-risk-scoring/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/embed-entry/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/scheduled-agents/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/shift-planner-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/trigger-ml-retrain/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "voice-handler.js",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_pm_compliance_truth",
+      "column": "category",
+      "consumers": [
+        {
+          "file": "alert-hub.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "assistant.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "index.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "logbook.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "search-overlay.js",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/ai-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/amc-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/analytics-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/batch-risk-scoring/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/embed-entry/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/scheduled-agents/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/shift-planner-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/trigger-ml-retrain/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "voice-handler.js",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_pm_compliance_truth",
+      "column": "completed_at",
+      "consumers": [
+        {
+          "file": "supabase/functions/ai-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/analytics-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/asset-brain-query/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/batch-risk-scoring/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/scheduled-agents/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/trigger-ml-retrain/index.ts",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_pm_compliance_truth",
+      "column": "completions_30d",
+      "consumers": [
+        {
+          "file": "alert-hub.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "voice-handler.js",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_pm_compliance_truth",
+      "column": "criticality",
+      "consumers": [
+        {
+          "file": "alert-hub.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "search-overlay.js",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/amc-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/analytics-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/shift-planner-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "voice-handler.js",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_pm_compliance_truth",
+      "column": "days_since_last_completion",
+      "consumers": [
+        {
+          "file": "alert-hub.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/amc-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/shift-planner-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "voice-handler.js",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_pm_compliance_truth",
+      "column": "is_due",
+      "consumers": [
+        {
+          "file": "alert-hub.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "index.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/amc-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/shift-planner-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_pm_compliance_truth",
+      "column": "last_anchor_date",
+      "consumers": [
+        {
+          "file": "alert-hub.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/shift-planner-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "voice-handler.js",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_pm_compliance_truth",
+      "column": "last_completion_at",
+      "consumers": [
+        {
+          "file": "alert-hub.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_pm_compliance_truth",
+      "column": "location",
+      "consumers": [
+        {
+          "file": "supabase/functions/shift-planner-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_pm_compliance_truth",
+      "column": "pm_asset_id",
+      "consumers": [
+        {
+          "file": "index.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "logbook.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/ai-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/amc-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/analytics-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/scheduled-agents/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/shift-planner-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_pm_compliance_truth",
+      "column": "scope_item_id",
+      "consumers": [
+        {
+          "file": "supabase/functions/analytics-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/asset-brain-query/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/batch-risk-scoring/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/trigger-ml-retrain/index.ts",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_pm_compliance_truth",
+      "column": "status",
+      "consumers": [
+        {
+          "file": "supabase/functions/analytics-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/batch-risk-scoring/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/trigger-ml-retrain/index.ts",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_pm_compliance_truth",
+      "column": "tag_id",
+      "consumers": [
+        {
+          "file": "logbook.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/analytics-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/batch-risk-scoring/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/shift-planner-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/trigger-ml-retrain/index.ts",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_pm_compliance_truth",
+      "column": "worker_name",
+      "consumers": [
+        {
+          "file": "supabase/functions/analytics-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/asset-brain-query/index.ts",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_pm_scope_items_truth",
+      "column": "anchor_date",
+      "consumers": [
+        {
+          "file": "logbook.html",
+          "shape": "direct",
+          "smells": [
+            "nodata_fallback"
+          ]
+        },
+        {
+          "file": "pm-scheduler.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [
+        "nodata_fallback"
+      ],
+      "risk": "REVIEW"
+    },
+    {
+      "view": "v_pm_scope_items_truth",
+      "column": "asset_id",
+      "consumers": [
+        {
+          "file": "logbook.html",
+          "shape": "direct",
+          "smells": [
+            "nodata_fallback"
+          ]
+        },
+        {
+          "file": "pm-scheduler.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/analytics-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/batch-risk-scoring/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/trigger-ml-retrain/index.ts",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [
+        "nodata_fallback"
+      ],
+      "risk": "REVIEW"
+    },
+    {
+      "view": "v_pm_scope_items_truth",
+      "column": "asset_name",
+      "consumers": [
+        {
+          "file": "hive.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_pm_scope_items_truth",
+      "column": "count",
+      "consumers": [
+        {
+          "file": "voice-handler.js",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_pm_scope_items_truth",
+      "column": "days_until_due",
+      "consumers": [
+        {
+          "file": "logbook.html",
+          "shape": "direct",
+          "smells": [
+            "nodata_fallback"
+          ]
+        },
+        {
+          "file": "pm-scheduler.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [
+        "nodata_fallback"
+      ],
+      "risk": "REVIEW"
+    },
+    {
+      "view": "v_pm_scope_items_truth",
+      "column": "frequency",
+      "consumers": [
+        {
+          "file": "hive.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "logbook.html",
+          "shape": "direct",
+          "smells": [
+            "nodata_fallback"
+          ]
+        },
+        {
+          "file": "pm-scheduler.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/analytics-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/batch-risk-scoring/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/trigger-ml-retrain/index.ts",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [
+        "nodata_fallback"
+      ],
+      "risk": "REVIEW"
+    },
+    {
+      "view": "v_pm_scope_items_truth",
+      "column": "frequency_days",
+      "consumers": [
+        {
+          "file": "pm-scheduler.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_pm_scope_items_truth",
+      "column": "is_custom",
+      "consumers": [
+        {
+          "file": "pm-scheduler.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_pm_scope_items_truth",
+      "column": "is_due_soon",
+      "consumers": [
+        {
+          "file": "hive.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "logbook.html",
+          "shape": "mapped_enum",
+          "smells": [
+            "nodata_fallback"
+          ]
+        },
+        {
+          "file": "pm-scheduler.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [
+        "nodata_fallback"
+      ],
+      "risk": "REVIEW"
+    },
+    {
+      "view": "v_pm_scope_items_truth",
+      "column": "is_overdue",
+      "consumers": [
+        {
+          "file": "hive.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "logbook.html",
+          "shape": "mapped_enum",
+          "smells": [
+            "nodata_fallback"
+          ]
+        },
+        {
+          "file": "pm-scheduler.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [
+        "nodata_fallback"
+      ],
+      "risk": "REVIEW"
+    },
+    {
+      "view": "v_pm_scope_items_truth",
+      "column": "item_text",
+      "consumers": [
+        {
+          "file": "hive.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "logbook.html",
+          "shape": "direct",
+          "smells": [
+            "nodata_fallback"
+          ]
+        },
+        {
+          "file": "pm-scheduler.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/analytics-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/batch-risk-scoring/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/trigger-ml-retrain/index.ts",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [
+        "nodata_fallback"
+      ],
+      "risk": "REVIEW"
+    },
+    {
+      "view": "v_pm_scope_items_truth",
+      "column": "last_completed_at",
+      "consumers": [
+        {
+          "file": "pm-scheduler.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_pm_scope_items_truth",
+      "column": "last_completed_by",
+      "consumers": [
+        {
+          "file": "pm-scheduler.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_pm_scope_items_truth",
+      "column": "next_due_date",
+      "consumers": [
+        {
+          "file": "logbook.html",
+          "shape": "direct",
+          "smells": [
+            "nodata_fallback"
+          ]
+        },
+        {
+          "file": "pm-scheduler.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [
+        "nodata_fallback"
+      ],
+      "risk": "REVIEW"
+    },
+    {
+      "view": "v_pm_scope_items_truth",
+      "column": "pm_asset_id",
+      "consumers": [
+        {
+          "file": "hive.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_pm_scope_items_truth",
+      "column": "scope_item_id",
+      "consumers": [
+        {
+          "file": "hive.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "logbook.html",
+          "shape": "direct",
+          "smells": [
+            "nodata_fallback"
+          ]
+        },
+        {
+          "file": "pm-scheduler.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/platform-scraper/index.ts",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [
+        "nodata_fallback"
+      ],
+      "risk": "REVIEW"
+    },
+    {
+      "view": "v_project_items_truth",
+      "column": "actual_hours",
+      "consumers": [
+        {
+          "file": "supabase/functions/project-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/project-progress/index.ts",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_project_items_truth",
+      "column": "estimated_hours",
+      "consumers": [
+        {
+          "file": "project-manager.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/project-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/project-progress/index.ts",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_project_items_truth",
+      "column": "notes",
+      "consumers": [
+        {
+          "file": "supabase/functions/project-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/project-progress/index.ts",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_project_items_truth",
+      "column": "owner_name",
+      "consumers": [
+        {
+          "file": "supabase/functions/project-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/project-progress/index.ts",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_project_items_truth",
+      "column": "pct_complete",
+      "consumers": [
+        {
+          "file": "project-manager.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/project-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/project-progress/index.ts",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_project_items_truth",
+      "column": "planned_end",
+      "consumers": [
+        {
+          "file": "supabase/functions/project-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/project-progress/index.ts",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_project_items_truth",
+      "column": "planned_start",
+      "consumers": [
+        {
+          "file": "supabase/functions/project-progress/index.ts",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_project_items_truth",
+      "column": "predecessors",
+      "consumers": [
+        {
+          "file": "supabase/functions/project-progress/index.ts",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_project_items_truth",
+      "column": "project_id",
+      "consumers": [
+        {
+          "file": "project-manager.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_project_items_truth",
+      "column": "sort_order",
+      "consumers": [
+        {
+          "file": "supabase/functions/project-progress/index.ts",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_project_items_truth",
+      "column": "status",
+      "consumers": [
+        {
+          "file": "project-manager.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/project-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/project-progress/index.ts",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_project_items_truth",
+      "column": "title",
+      "consumers": [
+        {
+          "file": "supabase/functions/project-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/project-progress/index.ts",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_project_progress_truth",
+      "column": "acknowledged_at",
+      "consumers": [
+        {
+          "file": "supabase/functions/project-progress/index.ts",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_project_progress_truth",
+      "column": "acknowledged_by",
+      "consumers": [
+        {
+          "file": "supabase/functions/project-progress/index.ts",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_project_progress_truth",
+      "column": "blockers",
+      "consumers": [
+        {
+          "file": "supabase/functions/project-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/project-progress/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/scheduled-agents/index.ts",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_project_progress_truth",
+      "column": "hours_worked",
+      "consumers": [
+        {
+          "file": "supabase/functions/project-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/project-progress/index.ts",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_project_progress_truth",
+      "column": "log_date",
+      "consumers": [
+        {
+          "file": "supabase/functions/project-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/project-progress/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/scheduled-agents/index.ts",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_project_progress_truth",
+      "column": "notes",
+      "consumers": [
+        {
+          "file": "supabase/functions/project-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/project-progress/index.ts",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_project_progress_truth",
+      "column": "pct_complete",
+      "consumers": [
+        {
+          "file": "supabase/functions/project-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/project-progress/index.ts",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_project_progress_truth",
+      "column": "project_id",
+      "consumers": [
+        {
+          "file": "supabase/functions/scheduled-agents/index.ts",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_project_progress_truth",
+      "column": "reported_by",
+      "consumers": [
+        {
+          "file": "supabase/functions/project-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/project-progress/index.ts",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_project_truth",
+      "column": "budget_php",
+      "consumers": [
+        {
+          "file": "supabase/functions/project-progress/index.ts",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_project_truth",
+      "column": "end_date",
+      "consumers": [
+        {
+          "file": "supabase/functions/project-progress/index.ts",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_project_truth",
+      "column": "name",
+      "consumers": [
+        {
+          "file": "supabase/functions/project-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "voice-handler.js",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_project_truth",
+      "column": "priority",
+      "consumers": [
+        {
+          "file": "voice-handler.js",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_project_truth",
+      "column": "project_code",
+      "consumers": [
+        {
+          "file": "supabase/functions/project-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/scheduled-agents/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "voice-handler.js",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_project_truth",
+      "column": "project_type",
+      "consumers": [
+        {
+          "file": "supabase/functions/project-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/project-progress/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "voice-handler.js",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_project_truth",
+      "column": "start_date",
+      "consumers": [
+        {
+          "file": "supabase/functions/project-progress/index.ts",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_project_truth",
+      "column": "status",
+      "consumers": [
+        {
+          "file": "supabase/functions/project-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/project-progress/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "voice-handler.js",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_rcm_truth",
+      "column": "approved_at",
+      "consumers": [
+        {
+          "file": "asset-hub.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_rcm_truth",
+      "column": "decision",
+      "consumers": [
+        {
+          "file": "asset-hub.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/asset-brain-query/index.ts",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_rcm_truth",
+      "column": "fmea_mode_id",
+      "consumers": [
+        {
+          "file": "asset-hub.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_rcm_truth",
+      "column": "interval_days",
+      "consumers": [
+        {
+          "file": "asset-hub.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/asset-brain-query/index.ts",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_rcm_truth",
+      "column": "rationale",
+      "consumers": [
+        {
+          "file": "asset-hub.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/asset-brain-query/index.ts",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_rcm_truth",
+      "column": "source",
+      "consumers": [
+        {
+          "file": "asset-hub.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_rcm_truth",
+      "column": "strategy_id",
+      "consumers": [
+        {
+          "file": "asset-hub.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_rcm_truth",
+      "column": "task_text",
+      "consumers": [
+        {
+          "file": "asset-hub.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/asset-brain-query/index.ts",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_rcm_truth",
+      "column": "written_to_pm_scope_item_id",
+      "consumers": [
+        {
+          "file": "asset-hub.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/asset-brain-query/index.ts",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_risk_truth",
+      "column": "asset_id",
+      "consumers": [
+        {
+          "file": "predictive.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/amc-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/asset-brain-query/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/parts-staging-recommender/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/shift-planner-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_risk_truth",
+      "column": "asset_name",
+      "consumers": [
+        {
+          "file": "alert-hub.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "asset-hub.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "index.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "predictive.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/amc-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/analytics-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/asset-brain-query/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/parts-staging-recommender/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/platform-scraper/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/shift-planner-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "voice-handler.js",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_risk_truth",
+      "column": "days_until_failure",
+      "consumers": [
+        {
+          "file": "asset-hub.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "predictive.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/amc-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/analytics-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/asset-brain-query/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "voice-handler.js",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_risk_truth",
+      "column": "generated_at",
+      "consumers": [
+        {
+          "file": "alert-hub.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "asset-hub.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "index.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "predictive.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/analytics-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/asset-brain-query/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/parts-staging-recommender/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/shift-planner-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_risk_truth",
+      "column": "health_score",
+      "consumers": [
+        {
+          "file": "predictive.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/asset-brain-query/index.ts",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_risk_truth",
+      "column": "model_version",
+      "consumers": [
+        {
+          "file": "asset-hub.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "predictive.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/asset-brain-query/index.ts",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_risk_truth",
+      "column": "mtbf_days",
+      "consumers": [
+        {
+          "file": "asset-hub.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "index.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "predictive.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/amc-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/analytics-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/asset-brain-query/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "voice-handler.js",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_risk_truth",
+      "column": "risk_level",
+      "consumers": [
+        {
+          "file": "alert-hub.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "asset-hub.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "index.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "predictive.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/amc-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/analytics-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/asset-brain-query/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/platform-scraper/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/shift-planner-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "voice-handler.js",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_risk_truth",
+      "column": "risk_score",
+      "consumers": [
+        {
+          "file": "alert-hub.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "asset-hub.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "index.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "predictive.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/amc-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/analytics-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/asset-brain-query/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/parts-staging-recommender/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/shift-planner-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "voice-handler.js",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_risk_truth",
+      "column": "top_factors",
+      "consumers": [
+        {
+          "file": "alert-hub.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "asset-hub.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "predictive.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/amc-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/analytics-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/asset-brain-query/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/parts-staging-recommender/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/shift-planner-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_sensor_truth",
+      "column": "asset_id",
+      "consumers": [
+        {
+          "file": "index.html",
+          "shape": "mapped_enum",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_sensor_truth",
+      "column": "is_anomaly",
+      "consumers": [
+        {
+          "file": "asset-hub.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "index.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_sensor_truth",
+      "column": "parameter",
+      "consumers": [
+        {
+          "file": "asset-hub.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "index.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_sensor_truth",
+      "column": "quality_flag",
+      "consumers": [
+        {
+          "file": "asset-hub.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "index.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_sensor_truth",
+      "column": "recorded_at",
+      "consumers": [
+        {
+          "file": "asset-hub.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "index.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_sensor_truth",
+      "column": "value",
+      "consumers": [
+        {
+          "file": "asset-hub.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_skill_badges_truth",
+      "column": "badge_key",
+      "consumers": [
+        {
+          "file": "assistant.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_skill_badges_truth",
+      "column": "discipline",
+      "consumers": [
+        {
+          "file": "assistant.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "hive.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "skillmatrix.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_skill_badges_truth",
+      "column": "level",
+      "consumers": [
+        {
+          "file": "assistant.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "hive.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "skillmatrix.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_weibull_truth",
+      "column": "asset_id",
+      "consumers": [
+        {
+          "file": "supabase/functions/batch-risk-scoring/index.ts",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_weibull_truth",
+      "column": "beta",
+      "consumers": [
+        {
+          "file": "asset-hub.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/asset-brain-query/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/batch-risk-scoring/index.ts",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_weibull_truth",
+      "column": "eta_days",
+      "consumers": [
+        {
+          "file": "asset-hub.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/asset-brain-query/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/batch-risk-scoring/index.ts",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_weibull_truth",
+      "column": "failure_pattern",
+      "consumers": [
+        {
+          "file": "asset-hub.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/asset-brain-query/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/batch-risk-scoring/index.ts",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_weibull_truth",
+      "column": "generated_at",
+      "consumers": [
+        {
+          "file": "asset-hub.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/asset-brain-query/index.ts",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_weibull_truth",
+      "column": "log_likelihood",
+      "consumers": [
+        {
+          "file": "asset-hub.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_weibull_truth",
+      "column": "n_censored",
+      "consumers": [
+        {
+          "file": "asset-hub.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/asset-brain-query/index.ts",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_weibull_truth",
+      "column": "n_failures",
+      "consumers": [
+        {
+          "file": "asset-hub.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/asset-brain-query/index.ts",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_weibull_truth",
+      "column": "source_window_days",
+      "consumers": [
+        {
+          "file": "asset-hub.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_worker_achievements_truth",
+      "column": "achievement_id",
+      "consumers": [
+        {
+          "file": "achievements.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_worker_achievements_truth",
+      "column": "current_level",
+      "consumers": [
+        {
+          "file": "achievements.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "utils.js",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_worker_achievements_truth",
+      "column": "last_action_at",
+      "consumers": [
+        {
+          "file": "achievements.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_worker_achievements_truth",
+      "column": "worker_name",
+      "consumers": [
+        {
+          "file": "achievements.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "utils.js",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_worker_achievements_truth",
+      "column": "xp_total",
+      "consumers": [
+        {
+          "file": "achievements.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_worker_assignment_truth",
+      "column": "capacity_signal",
+      "consumers": [
+        {
+          "file": "supabase/functions/ai-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_worker_assignment_truth",
+      "column": "last_category",
+      "consumers": [
+        {
+          "file": "supabase/functions/ai-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_worker_assignment_truth",
+      "column": "open_jobs",
+      "consumers": [
+        {
+          "file": "supabase/functions/ai-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_worker_assignment_truth",
+      "column": "worker_name",
+      "consumers": [
+        {
+          "file": "supabase/functions/ai-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_worker_skill_truth",
+      "column": "badge_count",
+      "consumers": [
+        {
+          "file": "supabase/functions/ai-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_worker_skill_truth",
+      "column": "current_level",
+      "consumers": [
+        {
+          "file": "supabase/functions/ai-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/amc-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/analytics-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_worker_skill_truth",
+      "column": "discipline",
+      "consumers": [
+        {
+          "file": "supabase/functions/ai-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/amc-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/analytics-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "voice-handler.js",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_worker_skill_truth",
+      "column": "primary_skill",
+      "consumers": [
+        {
+          "file": "supabase/functions/ai-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "voice-handler.js",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_worker_skill_truth",
+      "column": "role",
+      "consumers": [
+        {
+          "file": "supabase/functions/amc-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "voice-handler.js",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_worker_skill_truth",
+      "column": "worker_name",
+      "consumers": [
+        {
+          "file": "supabase/functions/ai-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/amc-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/analytics-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_worker_truth",
+      "column": "display_name",
+      "consumers": [
+        {
+          "file": "supabase/functions/ai-gateway/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/analytics-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/voice-logbook-entry/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "utils.js",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_worker_truth",
+      "column": "hive_status",
+      "consumers": [
+        {
+          "file": "hive.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "shift-brain.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_worker_truth",
+      "column": "preferred_persona",
+      "consumers": [
+        {
+          "file": "supabase/functions/ai-gateway/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "voice-journal.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_worker_truth",
+      "column": "role",
+      "consumers": [
+        {
+          "file": "community.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "hive.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "shift-brain.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/export-hive-data/index.ts",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_worker_truth",
+      "column": "status",
+      "consumers": [
+        {
+          "file": "supabase/functions/export-hive-data/index.ts",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_worker_truth",
+      "column": "worker_name",
+      "consumers": [
+        {
+          "file": "achievements.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "community.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "index.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/analytics-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/cmms-sync/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/cmms-webhook-receiver/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/platform-gateway/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "voice-journal.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    }
+  ]
+}

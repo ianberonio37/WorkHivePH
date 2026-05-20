@@ -12,6 +12,8 @@
   <!-- chip-allow: chronological event feed (DILO/WILO/MILO/YILO), not a KPI tile. Reads v_logbook_truth for context only. -->
 
   <meta name="description" content="Plan your maintenance shift with DILO, WILO, MILO, and YILO views. Schedule tasks, track open items, and stay on top of your workday with WorkHive." />
+  <meta property="og:title" content="Maintenance Day Planner: WorkHive" />
+  <meta property="og:image" content="https://workhiveph.com/brand_assets/og-social.png" />
   <meta name="robots" content="noindex, follow" />
   <link rel="canonical" href="https://workhiveph.com/dayplanner.html" />
   <link rel="manifest" href="manifest.json" />
@@ -354,7 +356,7 @@
   <div class="modal-box">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem">
       <h3 style="font-size:1rem;font-weight:700" id="modal-title">Schedule Item</h3>
-      <button onclick="closeModal()" style="background:none;border:none;cursor:pointer;color:rgba(255,255,255,0.4);padding:0.25rem">
+      <button onclick="closeModal()" style="background:none;border:none;cursor:pointer;color:rgba(255,255,255,0.4);padding:0.25rem" aria-label="Close">
         <svg style="width:18px;height:18px" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
       </button>
     </div>
