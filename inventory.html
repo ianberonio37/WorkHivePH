@@ -1728,6 +1728,15 @@ async function validateHiveMembership() {
   if (!WORKER_NAME) { window.location.href = 'index.html?signin=1'; return; }
   // Phase B (auth migration): require authenticated session — see PRODUCTION_FIXES.md #37.
   if (!_authUid) { window.location.href = 'index.html?signin=1'; return; }
+  // Auth-attachment race fix (2026-05-20): getSession() returns the session
+  // from localStorage but Supabase's HTTP layer may not have the JWT attached
+  // to the next .from(...).select() call yet. getUser() forces a server
+  // roundtrip with the current JWT, guaranteeing it's wired up before any
+  // RLS-gated read. Without this, the first initData reads can return empty
+  // (RLS rejected) even though the same queries work moments later.
+  // Caught by the cross-surface KPI parity sentinel (#stat-low = 0 while
+  // v_inventory_items_truth.is_low_stock = 3).
+  try { await db.auth.getUser(); } catch (_) {}
   await validateHiveMembership();
   await initData();
 })();

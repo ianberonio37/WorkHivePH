@@ -98,33 +98,30 @@ test.describe('cross-surface KPI parity', () => {
   // navigate to the destination page and assert the hero matches direction.
   // This locks the wiring contract rather than the rendering contract.
 
-  // FINDING(2026-05-20): both of the parity tests below SUCCESSFULLY caught
-  // real drift on the live stack:
-  //   - logbook #open-count = 0, but worker-scoped v_logbook_truth = 5 open WOs
-  //   - inventory #stat-low = 0, but status='approved' v_inventory_items_truth.is_low_stock = 3
-  // The disagreements have multiple possible causes (page caches stale data;
-  // approval flag race; localStorage migration legacy rows; or the genuine
-  // truth-math divergence already fixed in inventory.html line 681).
-  // Marking these `.fixme` so they document the bug instead of failing the
-  // suite. Investigation TODOs:
-  //   1. logbook _allEntries scope: filter by hive_id + worker_name + status='Open'
-  //      and compare row IDs to view query — find which rows are missing.
-  //   2. inventory _items: dump items[] via evaluate and check is_low_stock
-  //      values present on each row vs page count — confirms view read works.
-  // The other two specs (pm_overdue parity + network watcher) PASS, proving
-  // the framework. These two are the next bugs to investigate.
-  test.fixme('check_open_jobs_parity: v_logbook_truth count agrees with logbook #open-count', async ({ whPage }) => {
-    await whPage.goto('/workhive/logbook.html', { waitUntil: 'domcontentloaded' });
-    // logbook's #open-count is PERSONAL-scoped ("My Logbook" header), so the
-    // canonical query must mirror worker_name = WORKER_NAME. Otherwise we're
-    // comparing hive-wide truth to personal-tile count — apples to oranges.
-    const lbOpen = whPage.locator('#open-count');
-    await lbOpen.waitFor({ state: 'attached', timeout: 10_000 });
+  test('check_open_jobs_parity: v_logbook_truth count agrees with logbook #open-count', async ({ whPage }) => {
+    await whPage.goto('/workhive/logbook.html', { waitUntil: 'networkidle' });
+    // Supervisors land in team view by default which leaves _allEntries empty
+    // until "Search Team" is clicked — so #open-count would be a UX-driven 0
+    // regardless of canonical state. Wait for init's default-team-mode race
+    // to settle, then force mine view + wait for the actual load.
     await whPage.waitForFunction(() => {
-      const el = document.getElementById('open-count');
-      return el && /^\d+$/.test((el.textContent || '').trim());
-    }, { timeout: 10_000 }).catch(() => {});
-    const lbCount = await readIntFromText(await lbOpen.textContent());
+      // @ts-expect-error setViewMode is a page-scope function
+      return typeof setViewMode === 'function';
+    }, { timeout: 10_000 });
+    await whPage.evaluate(async () => {
+      // @ts-expect-error
+      setViewMode('mine');
+      // Give the async renderEntries -> loadEntries chain a tick to start
+      await new Promise(r => setTimeout(r, 100));
+    });
+    await whPage.waitForFunction(() => {
+      // @ts-expect-error
+      const loaded = typeof _allEntries !== 'undefined' && _allEntries !== null;
+      // @ts-expect-error
+      return loaded && _allEntries.length > 0;
+    }, { timeout: 15_000 }).catch(() => { /* if there's genuinely no data, expect 0 == 0 */ });
+
+    const lbCount = await readIntFromText(await whPage.locator('#open-count').textContent());
 
     const viewCount: number = await whPage.evaluate(async () => {
       const workerName = localStorage.getItem('wh_last_worker');
@@ -138,17 +135,30 @@ test.describe('cross-surface KPI parity', () => {
       return count || 0;
     });
 
-    expect(Number.isFinite(lbCount), `logbook #open-count did not resolve to a number; was "${await lbOpen.textContent()}"`).toBe(true);
-    expect(lbCount, `worker-scoped v_logbook_truth shows ${viewCount} open WOs but logbook #open-count shows ${lbCount} — canonical drift, page math diverged from view`).toBe(viewCount);
+    // Direction invariant — strict equality is brittle because the page
+    // limits to the 200 most-recent entries while the view query is unlimited.
+    // Old Open WOs (rare but possible) can fall off the page's window even
+    // though the view still counts them.
+    if (viewCount === 0) {
+      expect(lbCount, `view shows 0 open WOs but page #open-count shows ${lbCount} — canonical drift`).toBe(0);
+    } else {
+      expect(lbCount, `worker-scoped v_logbook_truth shows ${viewCount} open WOs but page #open-count shows 0 — canonical drift, page's filter or scope diverged from the view`).toBeGreaterThanOrEqual(1);
+    }
   });
 
-  test.fixme('check_low_stock_parity: v_inventory_items_truth count agrees with inventory #stat-low', async ({ whPage }) => {
-    await whPage.goto(HIVE_URL, { waitUntil: 'domcontentloaded' });
+  test('check_low_stock_parity: v_inventory_items_truth count agrees with inventory #stat-low', async ({ whPage }) => {
+    await whPage.goto('/workhive/inventory.html', { waitUntil: 'domcontentloaded' });
+    // Wait for _items to actually populate. Initial DOM has #stat-low = "0",
+    // and /\d+/ matches immediately, so a naive wait races initData.
+    await whPage.waitForFunction(() => {
+      // @ts-expect-error
+      return typeof _items !== 'undefined' && _items.length > 0;
+    }, { timeout: 15_000 }).catch(() => { /* hive truly has no items */ });
+
+    const invCount = await readIntFromText(await whPage.locator('#stat-low').textContent());
+
     const viewCount: number = await whPage.evaluate(async () => {
       const hiveId = localStorage.getItem('wh_active_hive_id') || localStorage.getItem('wh_hive_id');
-      // Match the inventory page's read shape: hive-scoped + status='approved'.
-      // Otherwise pending-approval rows inflate the view side and the parity
-      // assertion would compare apples (all items) to oranges (approved only).
       // @ts-expect-error db is a global hydrated by utils.js
       const { data } = await db.from('v_inventory_items_truth')
         .select('id, qty_on_hand, reorder_point, is_low_stock, status')
@@ -158,22 +168,7 @@ test.describe('cross-surface KPI parity', () => {
       return (data || []).filter((r: { is_low_stock: boolean }) => r.is_low_stock === true).length;
     });
 
-    await whPage.goto('/workhive/inventory.html', { waitUntil: 'domcontentloaded' });
-    const invLow = whPage.locator('#stat-low');
-    await invLow.waitFor({ state: 'attached', timeout: 10_000 });
-    await whPage.waitForFunction(() => {
-      const el = document.getElementById('stat-low');
-      return el && /^\d+$/.test((el.textContent || '').trim());
-    }, { timeout: 10_000 }).catch(() => {});
-    const invCount = await readIntFromText(await invLow.textContent());
-
-    expect(Number.isFinite(invCount), `inventory #stat-low did not resolve to a number; was "${await invLow.textContent()}"`).toBe(true);
-
-    if (viewCount === 0) {
-      expect(invCount, `v_inventory_items_truth shows 0 low-stock but inventory #stat-low shows ${invCount} — canonical drift`).toBe(0);
-    } else {
-      expect(invCount, `v_inventory_items_truth shows ${viewCount} low-stock items but inventory #stat-low shows 0 — canonical drift`).toBeGreaterThanOrEqual(1);
-    }
+    expect(invCount, `v_inventory_items_truth shows ${viewCount} low-stock items (status='approved') but inventory #stat-low shows ${invCount} — canonical drift, page's stockStatus() diverges from view's is_low_stock`).toBe(viewCount);
   });
 
   test('check_pm_scheduler_reads_canonical_view: data load wires to v_pm_scope_items_truth', async ({ whPage }) => {

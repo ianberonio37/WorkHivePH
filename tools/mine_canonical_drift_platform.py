@@ -394,6 +394,12 @@ def main() -> int:
         candidate = ROOT / fname
         if candidate.exists():
             targets.append((candidate, "shared_js"))
+    # Edge functions: same canonical-drift rules apply server-side. Turn 3
+    # parity with validate_canonical_sources.py which already scans these.
+    edge_dir = ROOT / "supabase" / "functions"
+    if edge_dir.exists():
+        for ts in sorted(edge_dir.glob("**/*.ts")):
+            targets.append((ts, "edge_fn"))
 
     results = []
     grand = {"canonical": 0, "drift": 0, "gap": 0, "allowed": 0,
