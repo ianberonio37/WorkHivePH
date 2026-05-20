@@ -151,6 +151,26 @@ test.describe('Canonical Lineage Sentinel (L2 report-shape contract)', () => {
     }
   });
 
+  test('partial_label_honesty_report.json: zero pages display a partial without an honesty marker', async () => {
+    const r = await loadJson('partial_label_honesty_report.json');
+    expect(r.summary).toBeDefined();
+    for (const k of [
+      'pages_scanned', 'partial_formulas', 'pages_with_partial_display',
+      'pages_with_honesty', 'pages_with_violation', 'total_violations',
+    ]) {
+      expect(r.summary[k], `summary.${k} must exist`).toBeDefined();
+    }
+    // Strictest invariant — zero UI-layer OEE-class bugs
+    if (r.summary.total_violations > 0) {
+      console.error(`Partial-label violations (${r.summary.total_violations}):`);
+      for (const v of (r.violations as any[]).slice(0, 5)) {
+        console.error(`  - ${v.page} · ${v.anchor_id} · ${v.formula_id}`);
+      }
+    }
+    expect(r.summary.total_violations,
+           'every partial-variant display must carry an honesty marker').toBe(0);
+  });
+
   test('displayed_values_report.json: per-page classification of every value-display anchor', async () => {
     const r = await loadJson('displayed_values_report.json');
     expect(r.summary).toBeDefined();

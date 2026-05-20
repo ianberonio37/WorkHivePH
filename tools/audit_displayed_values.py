@@ -161,6 +161,28 @@ def _load_formulas() -> set[str]:
     return {f.get("formula_id", "") for f in doc.get("formulas", []) if f.get("formula_id")}
 
 
+# Token → formula_id aliases. These cover cases where the display anchor's
+# id doesn't naturally contain the formula_id substring (e.g. "ring-pct"
+# is the visual element of `platform_health_pct`; "result-score" is the
+# rendered form of `skill_exam_score`).
+TOKEN_ALIASES: dict[str, str] = {
+    "ring-pct":     "platform_health_pct",
+    "result-score": "skill_exam_score",
+    "pf-pf":        "pf_interval_days",
+    "pf-interval":  "pf_interval_days",
+    "stair":        "hive_stair_composite",
+    "composite":    "hive_stair_composite",
+    "readiness":    "hive_stair_composite",
+    "adoption":     "adoption_risk_score_v1",
+    "earned":       "marketplace_seller_quality_score",  # marketplace earnings tile
+    "health":       "platform_health_pct",
+    "ring":         "platform_health_pct",
+    "anomaly":      "z_score_anomaly_3sigma",
+    "tier":         "skill_level_tier",
+    "level":        "skill_level_tier",
+}
+
+
 def main() -> int:
     formula_ids = _load_formulas()
     # Build a lookup from token → formula_id (token = substring of formula_id
@@ -170,6 +192,11 @@ def main() -> int:
         for token in METRIC_TOKENS:
             if token.replace("-", "_") in fid.replace("-", "_"):
                 formula_index[token].append(fid)
+    # Augment with explicit aliases (catches cases where the token doesn't
+    # naturally appear as a substring of the formula_id).
+    for tok, fid in TOKEN_ALIASES.items():
+        if fid in formula_ids:
+            formula_index[tok].append(fid)
 
     per_page: dict[str, dict] = {}
     grand = {"contracted": 0, "uncontracted": 0, "raw": 0, "unknown": 0}

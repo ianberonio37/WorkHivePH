@@ -668,7 +668,7 @@
             <div style="display:flex; align-items:center; gap:10px;">
               <span id="adoption-tier-badge" style="display:inline-flex; align-items:center; gap:6px; padding:4px 10px; border-radius:999px; font-size:10px; font-weight:800; letter-spacing:0.06em; text-transform:uppercase; background:rgba(74,222,128,0.18); color:#4ade80;">Healthy</span>
               <span id="adoption-risk-score" style="font-size:1.7rem; font-weight:900; color:#F4F6FA; line-height:1;">--</span>
-              <span style="font-size:11px; color:rgba(255,255,255,0.4); letter-spacing:0.04em;">/100 risk</span>
+              <span style="font-size:11px; color:rgba(255,255,255,0.4); letter-spacing:0.04em;">/100 composite risk</span>
             </div>
             <button id="adoption-explain-btn" type="button" style="background:rgba(255,255,255,0.04); color:rgba(255,255,255,0.55); border:1px solid rgba(255,255,255,0.08); border-radius:8px; padding:10px 16px; font-family:inherit; font-size:11px; font-weight:600; cursor:pointer; min-height:44px; min-width:44px;">Why?</button>
           </div>
@@ -900,9 +900,9 @@
             <p class="text-xl font-black text-white" id="pulse-jobs-today">&#8212;</p>
             <p class="text-[10px] text-white/35 mt-0.5 leading-tight">Jobs Today</p>
           </div>
-          <div class="rounded-xl p-3 text-center" style="background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.18);">
+          <div class="rounded-xl p-3 text-center" style="background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.18);" title="SMRP 2.1.1 partial — 30-day floor approximation">
             <p class="text-xl font-black text-red-400" id="pulse-pm-overdue">&#8212;</p>
-            <p class="text-[10px] text-white/35 mt-0.5 leading-tight">PMs Overdue</p>
+            <p class="text-[10px] text-white/35 mt-0.5 leading-tight">PMs Overdue<br/><span style="font-size:9px; color:rgba(255,255,255,0.3);">(30d approximation)</span></p>
           </div>
           <div class="rounded-xl p-3 text-center" style="background:rgba(247,162,27,0.06);border:1px solid rgba(247,162,27,0.18);">
             <p class="text-xl font-black" style="color:#F7A21B;" id="pulse-stock-issues">&#8212;</p>

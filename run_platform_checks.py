@@ -231,6 +231,15 @@ VALIDATORS = [
         "skip_if_fast": False,
     },
     {
+        "id":      "partial-label-honesty",
+        "script":  "tools/audit_partial_label_honesty.py",
+        "args":    [],
+        "label":   "Partial-Label Honesty Audit (Tier S rendering — every page displaying a partial-variant metric must render the honesty marker near the value)",
+        "group":   "Platform",
+        "report":  "partial_label_honesty_report.json",
+        "skip_if_fast": False,
+    },
+    {
         "id":      "home-stack-coverage",
         "script":  "validate_home_stack_coverage.py",
         "args":    [],

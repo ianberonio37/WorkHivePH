@@ -405,26 +405,29 @@
   <div id="an-summary">
     <div id="an-verdict" class="verdict empty">
       <span id="an-verdict-icon" class="verdict-icon">·</span>
-      <div class="verdict-text"><span id="an-verdict-label">Rolling up reliability KPIs...</span><small id="an-verdict-sub">Loading OEE, MTBF, and PM compliance from the descriptive phase.</small></div>
+      <div class="verdict-text"><span id="an-verdict-label">Rolling up reliability KPIs...</span><small id="an-verdict-sub">Loading OEE (partial, A × Q), MTBF (partial, calendar time), and PM compliance (30-day approximation) from the descriptive phase.</small></div>
     </div>
     <div class="simple-row">
       <div class="simple-card tag-grey" id="an-card-oee">
-        <div class="sc-label">OEE (avg)</div>
+        <div class="sc-label">OEE (avg, partial)</div>
         <div class="sc-hero" id="an-oee-hero">—</div>
         <div class="sc-sub" id="an-oee-sub">Loading...</div>
         <span class="sc-tag" id="an-oee-tag">—</span>
+        <small style="display:block;font-size:.55rem;color:rgba(255,255,255,0.4);margin-top:4px;">ISO 22400-2:2014 §5.5 · partial (A × Q) until ideal cycle time captured</small>
       </div>
       <div class="simple-card tag-grey" id="an-card-mtbf">
-        <div class="sc-label">Worst MTBF</div>
+        <div class="sc-label">Worst MTBF (partial)</div>
         <div class="sc-hero" id="an-mtbf-hero">—</div>
         <div class="sc-sub" id="an-mtbf-sub">Loading...</div>
         <span class="sc-tag" id="an-mtbf-tag">—</span>
+        <small style="display:block;font-size:.55rem;color:rgba(255,255,255,0.4);margin-top:4px;">ISO 14224:2016 §9.3 · partial: calendar time (not operating time)</small>
       </div>
       <div class="simple-card tag-grey" id="an-card-pm">
-        <div class="sc-label">PM compliance</div>
+        <div class="sc-label">PM compliance (30d approx)</div>
         <div class="sc-hero" id="an-pm-hero">—</div>
         <div class="sc-sub" id="an-pm-sub">Loading...</div>
         <span class="sc-tag" id="an-pm-tag">—</span>
+        <small style="display:block;font-size:.55rem;color:rgba(255,255,255,0.4);margin-top:4px;">SMRP Best Practices v5.0 §2.1.1 · partial: 30-day floor approximation</small>
       </div>
     </div>
     <div class="action-card">
