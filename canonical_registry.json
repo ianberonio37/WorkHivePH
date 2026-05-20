@@ -569,6 +569,8 @@
         "created_at",
         "intent",
         "federated_benchmark_opted_in",
+        "federated_opt_in_at",
+        "federated_opt_in_by",
         "preferred_persona"
       ],
       "rls_enabled": true,
@@ -1866,7 +1868,10 @@
         "last_sync_at",
         "last_sync_count",
         "created_at",
-        "auth_token"
+        "auth_token",
+        "last_sync_status",
+        "last_sync_error",
+        "delta_cursor"
       ],
       "rls_enabled": false,
       "grants": {},
@@ -2247,7 +2252,8 @@
         "approved_at",
         "created_at",
         "updated_at",
-        "lifecycle"
+        "lifecycle",
+        "ideal_cycle_time_seconds"
       ],
       "rls_enabled": true,
       "grants": {
@@ -2784,7 +2790,10 @@
         "cost_usd",
         "latency_ms",
         "status",
-        "created_at"
+        "created_at",
+        "schema_compliance",
+        "user_feedback",
+        "prompt_hash"
       ],
       "rls_enabled": true,
       "grants": {
@@ -4365,13 +4374,34 @@
       "written_by_surfaces": [],
       "read_by_edge_fns": [],
       "written_by_edge_fns": []
+    },
+    "IF": {
+      "defined_in": "20260520000004_drop_phantom_columns_safe.sql",
+      "columns": [
+        "actual_start",
+        "actual_end",
+        "predecessors",
+        "estimated_hours",
+        "actual_hours",
+        "sort_order",
+        "xp_per_level"
+      ],
+      "rls_enabled": false,
+      "grants": {},
+      "realtime_published": false,
+      "comment": "",
+      "read_by_surfaces": [],
+      "written_by_surfaces": [],
+      "read_by_edge_fns": [],
+      "written_by_edge_fns": []
     }
   },
   "views": {
     "asset_brain_overview": {
       "defined_in": "20260508000009_asset_brain_foundation.sql",
       "read_by_surfaces": [],
-      "read_by_edge_fns": []
+      "read_by_edge_fns": [],
+      "columns": []
     },
     "v_asset_truth": {
       "defined_in": "20260509000002_v_asset_truth.sql",
@@ -4389,7 +4419,8 @@
         "visual-defect-capture",
         "voice-action-router",
         "weibull-fitter"
-      ]
+      ],
+      "columns": []
     },
     "v_risk_truth": {
       "defined_in": "20260509000003_v_risk_truth.sql",
@@ -4405,6 +4436,20 @@
         "parts-staging-recommender",
         "platform-scraper",
         "shift-planner-orchestrator"
+      ],
+      "columns": [
+        "asset_id",
+        "hive_id",
+        "asset_name",
+        "risk_score",
+        "risk_level",
+        "health_score",
+        "mtbf_days",
+        "days_until_failure",
+        "top_factors",
+        "components",
+        "model_version",
+        "generated_at"
       ]
     },
     "v_pm_compliance_truth": {
@@ -4425,7 +4470,8 @@
         "scheduled-agents",
         "shift-planner-orchestrator",
         "trigger-ml-retrain"
-      ]
+      ],
+      "columns": []
     },
     "v_fmea_truth": {
       "defined_in": "20260509000005_reliability_workbench_foundation.sql",
@@ -4435,7 +4481,8 @@
       "read_by_edge_fns": [
         "asset-brain-query",
         "batch-risk-scoring"
-      ]
+      ],
+      "columns": []
     },
     "v_rcm_truth": {
       "defined_in": "20260509000005_reliability_workbench_foundation.sql",
@@ -4444,7 +4491,8 @@
       ],
       "read_by_edge_fns": [
         "asset-brain-query"
-      ]
+      ],
+      "columns": []
     },
     "v_weibull_truth": {
       "defined_in": "20260509000005_reliability_workbench_foundation.sql",
@@ -4454,6 +4502,21 @@
       "read_by_edge_fns": [
         "asset-brain-query",
         "batch-risk-scoring"
+      ],
+      "columns": [
+        "fit_id",
+        "hive_id",
+        "asset_id",
+        "fmea_mode_id",
+        "beta",
+        "eta_days",
+        "failure_pattern",
+        "n_failures",
+        "n_censored",
+        "fit_method",
+        "log_likelihood",
+        "source_window_days",
+        "generated_at"
       ]
     },
     "v_pf_truth": {
@@ -4463,6 +4526,19 @@
       ],
       "read_by_edge_fns": [
         "asset-brain-query"
+      ],
+      "columns": [
+        "pf_interval_id",
+        "hive_id",
+        "asset_id",
+        "fmea_mode_id",
+        "parameter",
+        "p_threshold",
+        "f_threshold",
+        "pf_days",
+        "recommended_interval_days",
+        "basis",
+        "generated_at"
       ]
     },
     "v_logbook_truth": {
@@ -4490,7 +4566,8 @@
         "shift-planner-orchestrator",
         "trigger-ml-retrain",
         "weibull-fitter"
-      ]
+      ],
+      "columns": []
     },
     "v_inventory_items_truth": {
       "defined_in": "20260510000003_v_inventory_items_truth.sql",
@@ -4509,7 +4586,8 @@
         "parts-staging-recommender",
         "platform-scraper",
         "shift-planner-orchestrator"
-      ]
+      ],
+      "columns": []
     },
     "v_pm_scope_items_truth": {
       "defined_in": "20260510000004_v_pm_scope_items_truth.sql",
@@ -4523,7 +4601,8 @@
         "batch-risk-scoring",
         "platform-scraper",
         "trigger-ml-retrain"
-      ]
+      ],
+      "columns": []
     },
     "v_marketplace_sellers_truth": {
       "defined_in": "20260510000005_v_marketplace_sellers_truth.sql",
@@ -4538,7 +4617,8 @@
         "marketplace-connect-onboard",
         "marketplace-connect-status",
         "marketplace-release"
-      ]
+      ],
+      "columns": []
     },
     "v_worker_skill_truth": {
       "defined_in": "20260512000001_v_worker_skill_truth.sql",
@@ -4547,14 +4627,16 @@
         "ai-orchestrator",
         "amc-orchestrator",
         "analytics-orchestrator"
-      ]
+      ],
+      "columns": []
     },
     "v_sensor_recent": {
       "defined_in": "20260512000003_sensor_readings.sql",
       "read_by_surfaces": [
         "asset-hub.html"
       ],
-      "read_by_edge_fns": []
+      "read_by_edge_fns": [],
+      "columns": []
     },
     "v_worker_truth": {
       "defined_in": "20260512000012_canonical_anchor_batch.sql",
@@ -4573,14 +4655,16 @@
         "export-hive-data",
         "platform-gateway",
         "voice-logbook-entry"
-      ]
+      ],
+      "columns": []
     },
     "v_worker_assignment_truth": {
       "defined_in": "20260512000012_canonical_anchor_batch.sql",
       "read_by_surfaces": [],
       "read_by_edge_fns": [
         "ai-orchestrator"
-      ]
+      ],
+      "columns": []
     },
     "v_project_truth": {
       "defined_in": "20260512000013_tier_bcde_foundation.sql",
@@ -4591,93 +4675,187 @@
         "project-orchestrator",
         "project-progress",
         "scheduled-agents"
-      ]
+      ],
+      "columns": []
     },
     "v_knowledge_truth": {
       "defined_in": "20260512000013_tier_bcde_foundation.sql",
       "read_by_surfaces": [],
-      "read_by_edge_fns": []
+      "read_by_edge_fns": [],
+      "columns": [
+        "project",
+        "id",
+        "hive_id",
+        "content",
+        "embedding",
+        "created_at"
+      ]
     },
     "v_audit_unified": {
       "defined_in": "20260512000013_tier_bcde_foundation.sql",
       "read_by_surfaces": [],
-      "read_by_edge_fns": []
+      "read_by_edge_fns": [],
+      "columns": [
+        "gateway",
+        "text",
+        "hive_id",
+        "worker_name",
+        "action",
+        "target_type",
+        "target_id",
+        "payload",
+        "created_at"
+      ]
     },
     "v_hive_readiness_truth": {
       "defined_in": "20260513000001_hive_readiness.sql",
       "read_by_surfaces": [
         "founder-console.html"
       ],
-      "read_by_edge_fns": []
+      "read_by_edge_fns": [],
+      "columns": [
+        "hive_id",
+        "snapshot_date",
+        "process_maturity_score",
+        "data_quality_score",
+        "infrastructure_resilience_score",
+        "leadership_engagement_score",
+        "cultural_adoption_score",
+        "composite_score",
+        "current_stair",
+        "evidence",
+        "blocker_summary",
+        "computed_at",
+        "model_version"
+      ]
     },
     "v_adoption_truth": {
       "defined_in": "20260513000004_phase3_adoption_observability.sql",
       "read_by_surfaces": [],
       "read_by_edge_fns": [
         "platform-scraper"
-      ]
+      ],
+      "columns": []
     },
     "v_anomaly_truth": {
       "defined_in": "20260513000005_phase4_revenue_surfaces.sql",
       "read_by_surfaces": [
         "alert-hub.html"
       ],
-      "read_by_edge_fns": []
+      "read_by_edge_fns": [],
+      "columns": [
+        "id",
+        "hive_id",
+        "snapshot_date",
+        "machine",
+        "asset_node_id",
+        "composite_score",
+        "logbook_cluster_score",
+        "sensor_zscore_score",
+        "pm_drift_score",
+        "parts_spend_score",
+        "failure_signature_score",
+        "source_count",
+        "severity",
+        "top_reasons",
+        "evidence",
+        "status",
+        "acknowledged_by",
+        "acknowledged_at",
+        "resolved_by",
+        "resolved_at",
+        "computed_at",
+        "model_version"
+      ]
     },
     "v_knowledge_freshness_truth": {
       "defined_in": "20260513000005_phase4_revenue_surfaces.sql",
       "read_by_surfaces": [
         "hive.html"
       ],
-      "read_by_edge_fns": []
+      "read_by_edge_fns": [],
+      "columns": [
+        "hive_id",
+        "kind",
+        "total_rows",
+        "embedded_rows",
+        "pending_rows",
+        "last_embedded_at",
+        "days_since_last_embed",
+        "embedded_pct"
+      ]
     },
     "v_insurance_bridge_truth": {
       "defined_in": "20260513000007_phase6_industry_defining.sql",
       "read_by_surfaces": [],
-      "read_by_edge_fns": []
+      "read_by_edge_fns": [],
+      "columns": []
     },
     "v_session_memory_recent": {
       "defined_in": "20260516000001_agent_memory_phase2.sql",
       "read_by_surfaces": [],
-      "read_by_edge_fns": []
+      "read_by_edge_fns": [],
+      "columns": []
     },
     "v_dialog_state_current": {
       "defined_in": "20260516000002_dialog_state_phase4.sql",
       "read_by_surfaces": [],
-      "read_by_edge_fns": []
+      "read_by_edge_fns": [],
+      "columns": []
     },
     "v_active_anomaly_alerts": {
       "defined_in": "20260516000003_anomaly_alerts_phase5.sql",
       "read_by_surfaces": [],
-      "read_by_edge_fns": []
+      "read_by_edge_fns": [],
+      "columns": []
     },
     "v_kb_freshness_truth": {
       "defined_in": "20260516000004_kb_rag_phase3.sql",
       "read_by_surfaces": [],
-      "read_by_edge_fns": []
+      "read_by_edge_fns": [],
+      "columns": []
     },
     "v_conversation_health": {
       "defined_in": "20260516000007_voice_analytics_phase8.sql",
       "read_by_surfaces": [],
-      "read_by_edge_fns": []
+      "read_by_edge_fns": [],
+      "columns": []
     },
     "v_industry_standards_coverage": {
       "defined_in": "20260518000001_industry_standards_chunks.sql",
       "read_by_surfaces": [],
-      "read_by_edge_fns": []
+      "read_by_edge_fns": [],
+      "columns": []
     },
     "v_alert_truth": {
       "defined_in": "20260520000010_v_alert_truth.sql",
       "read_by_surfaces": [
         "hive.html"
       ],
-      "read_by_edge_fns": []
+      "read_by_edge_fns": [],
+      "columns": []
     },
     "v_amc_truth": {
       "defined_in": "20260520000011_v_amc_truth.sql",
       "read_by_surfaces": [],
       "read_by_edge_fns": [
         "amc-orchestrator"
+      ],
+      "columns": [
+        "amc_id",
+        "hive_id",
+        "shift_date",
+        "generated_at",
+        "status",
+        "asset_count",
+        "pm_count",
+        "parts_count",
+        "summary",
+        "headline",
+        "approved_by",
+        "approved_at",
+        "expires_at",
+        "model_version"
       ]
     },
     "v_sensor_truth": {
@@ -4685,7 +4863,19 @@
       "read_by_surfaces": [
         "asset-hub.html"
       ],
-      "read_by_edge_fns": []
+      "read_by_edge_fns": [],
+      "columns": [
+        "reading_id",
+        "hive_id",
+        "asset_id",
+        "parameter",
+        "value",
+        "unit",
+        "quality_flag",
+        "recorded_at",
+        "source",
+        "is_anomaly"
+      ]
     },
     "v_marketplace_listings_truth": {
       "defined_in": "20260520000017_v_marketplace_listings_truth.sql",
@@ -4699,7 +4889,8 @@
       ],
       "read_by_edge_fns": [
         "marketplace-checkout"
-      ]
+      ],
+      "columns": []
     },
     "v_community_posts_truth": {
       "defined_in": "20260520000018_v_community_posts_truth.sql",
@@ -4707,7 +4898,8 @@
         "community.html",
         "public-feed.html"
       ],
-      "read_by_edge_fns": []
+      "read_by_edge_fns": [],
+      "columns": []
     },
     "v_hives_truth": {
       "defined_in": "20260520000019_v_hives_truth.sql",
@@ -4724,7 +4916,8 @@
         "scheduled-agents",
         "send-report-email",
         "shift-planner-orchestrator"
-      ]
+      ],
+      "columns": []
     },
     "v_marketplace_inquiries_truth": {
       "defined_in": "20260520000020_v_marketplace_inquiries_truth.sql",
@@ -4732,7 +4925,8 @@
         "marketplace-seller-profile.html",
         "marketplace-seller.html"
       ],
-      "read_by_edge_fns": []
+      "read_by_edge_fns": [],
+      "columns": []
     },
     "v_external_sync_truth": {
       "defined_in": "20260520000021_v_external_sync_truth.sql",
@@ -4745,7 +4939,8 @@
       "read_by_edge_fns": [
         "cmms-push-completion",
         "cmms-webhook-receiver"
-      ]
+      ],
+      "columns": []
     },
     "v_inventory_transactions_truth": {
       "defined_in": "20260520000022_v_inventory_transactions_truth.sql",
@@ -4757,7 +4952,8 @@
         "analytics-orchestrator",
         "batch-risk-scoring",
         "trigger-ml-retrain"
-      ]
+      ],
+      "columns": []
     },
     "v_marketplace_orders_truth": {
       "defined_in": "20260520000023_v_marketplace_orders_truth.sql",
@@ -4769,7 +4965,8 @@
       "read_by_edge_fns": [
         "marketplace-release",
         "marketplace-webhook"
-      ]
+      ],
+      "columns": []
     },
     "v_project_items_truth": {
       "defined_in": "20260520000024_v_project_items_progress_truth.sql",
@@ -4780,7 +4977,8 @@
       "read_by_edge_fns": [
         "project-orchestrator",
         "project-progress"
-      ]
+      ],
+      "columns": []
     },
     "v_project_progress_truth": {
       "defined_in": "20260520000024_v_project_items_progress_truth.sql",
@@ -4792,7 +4990,8 @@
         "project-orchestrator",
         "project-progress",
         "scheduled-agents"
-      ]
+      ],
+      "columns": []
     },
     "v_ai_reports_truth": {
       "defined_in": "20260520000025_v_ai_reports_skill_badges_achievements_truth.sql",
@@ -4800,7 +4999,8 @@
         "hive.html",
         "report-sender.html"
       ],
-      "read_by_edge_fns": []
+      "read_by_edge_fns": [],
+      "columns": []
     },
     "v_skill_badges_truth": {
       "defined_in": "20260520000025_v_ai_reports_skill_badges_achievements_truth.sql",
@@ -4809,14 +5009,16 @@
         "hive.html",
         "skillmatrix.html"
       ],
-      "read_by_edge_fns": []
+      "read_by_edge_fns": [],
+      "columns": []
     },
     "v_worker_achievements_truth": {
       "defined_in": "20260520000025_v_ai_reports_skill_badges_achievements_truth.sql",
       "read_by_surfaces": [
         "achievements.html"
       ],
-      "read_by_edge_fns": []
+      "read_by_edge_fns": [],
+      "columns": []
     }
   },
   "rpcs": {
@@ -5669,7 +5871,7 @@
         "ai-orchestrator",
         "benchmark-compute"
       ],
-      "size_kb": 204.4
+      "size_kb": 204.3
     },
     "index.html": {
       "tables_read": [],
@@ -7184,6 +7386,11 @@
     {
       "kind": "dead_table",
       "table": "canonical_lineage_edges",
+      "note": "defined in migrations but not referenced in any surface or edge fn"
+    },
+    {
+      "kind": "dead_table",
+      "table": "IF",
       "note": "defined in migrations but not referenced in any surface or edge fn"
     }
   ]
