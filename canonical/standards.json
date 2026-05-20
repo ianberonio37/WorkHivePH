@@ -326,8 +326,8 @@
     },
     {
       "standard_id":  "pmbok_evm",
-      "short_name":   "PMI PMBOK EVM",
-      "full_title":   "PMI Project Management Body of Knowledge — Earned Value Management",
+      "short_name":   "PMBOK 7th",
+      "full_title":   "PMI Project Management Body of Knowledge (7th ed.) — Earned Value Management",
       "publisher":    "PMI",
       "edition_year": 2021,
       "clauses": {
