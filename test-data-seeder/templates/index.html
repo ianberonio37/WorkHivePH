@@ -1426,12 +1426,12 @@
         data-tip-foot="✅ CLICK AFTER: any code change (HTML / JS / migrations).&#10;👉 This is your DEFAULT pre-commit gate. Should pass before `git add`.">🛡️ Fast Guardian (all validators · ~90s)</button>
       <button class="seed-btn" data-action="run-gate-ai"
         data-tip-title="🤖 + AI Prompt Regression"
-        data-tip="Fast Guardian plus ~10 live Groq calls to verify AI prompts still produce the expected shape and tone. Free."
-        data-tip-foot="✅ CLICK AFTER: editing AI prompts — assistant.html, floating-ai.js, any edge function calling Groq, or RAG context tweaks.">🤖 + AI Prompt Regression (Groq · ~5min · $0)</button>
+        data-tip="Fast Guardian plus ~10 live Groq calls to verify AI prompts still produce the expected shape and tone. Also runs L4 Tier-S citation check: every metric mentioned in companion-launcher.js + assistant.html must cite its registered Tier-S standard short_name. Free."
+        data-tip-foot="✅ CLICK AFTER: editing AI prompts — assistant.html, floating-ai.js / companion-launcher.js, any edge function calling Groq, RAG context tweaks, OR Tier-S registry / formula contracts.">🤖 + AI Prompt Regression (Groq · ~5min · $0)</button>
       <button class="seed-btn" data-action="run-tests"
         data-tip-title="🧪 Data Tests"
-        data-tip="DB integrity checks (no browser): hive isolation, logbook fields, inventory math, PM frequencies, skill levels, asset linkage."
-        data-tip-foot="✅ CLICK AFTER: schema migration, seeder edit, or any DB write-path change.">🧪 Data Tests (DB · ~5s)</button>
+        data-tip="DB integrity checks (no browser): hive isolation, logbook fields, inventory math, PM frequencies, skill levels, asset linkage. Plus 2 new canonical sections: Tier-S file↔DB drift (every standard in canonical/standards.json is also in canonical_standards table) and formula→page existence (every implemented_in page actually exists)."
+        data-tip-foot="✅ CLICK AFTER: schema migration, seeder edit, DB write-path change, OR canonical/standards.json / formula_contracts.json edit.">🧪 Data Tests (DB · ~5s)</button>
     </div>
   </div>
 
