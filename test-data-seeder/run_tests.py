@@ -474,6 +474,85 @@ def s21_auth_uid_set(db):
     return results
 
 
+def s_canonical_tier_s_drift(db):
+    """Tier-S registry: canonical/standards.json file <-> canonical_standards DB table.
+
+    Every standard_id declared in the file must exist in the DB so AI agents +
+    edge functions that JOIN against canonical_standards never see a missing
+    citation for a standard the formula registry references. The opposite
+    direction (DB has standards the file doesn't) is tolerated — the file is
+    the curated subset; the DB carries legacy bulk imports from earlier
+    Phase 7 mining.
+    """
+    import json
+    from pathlib import Path
+    results = []
+    std_file = Path(__file__).resolve().parent.parent / "canonical" / "standards.json"
+    if not std_file.exists():
+        results.append(warn("canonical/standards.json missing; Tier-S drift check skipped"))
+        return results
+    try:
+        with std_file.open(encoding="utf-8") as fh:
+            file_ids = {s["standard_id"] for s in json.load(fh).get("standards", [])}
+    except Exception as e:
+        results.append(fail(f"canonical/standards.json unreadable: {e}"))
+        return results
+    try:
+        db_rows = db.table("canonical_standards").select("standard_id").execute().data or []
+        db_ids = {r["standard_id"] for r in db_rows}
+    except Exception as e:
+        results.append(warn(f"canonical_standards table not reachable: {e}; check skipped"))
+        return results
+
+    missing_in_db = sorted(file_ids - db_ids)
+    if not missing_in_db:
+        results.append(ok(f"all {len(file_ids)} standards in canonical/standards.json registered in DB ({len(db_ids)} DB rows total)"))
+    else:
+        results.append(fail(
+            f"{len(missing_in_db)} standards in canonical/standards.json NOT in canonical_standards DB "
+            f"(file={len(file_ids)}, db={len(db_ids)}, missing: {missing_in_db[:5]}{'…' if len(missing_in_db) > 5 else ''})"
+        ))
+    return results
+
+
+def s_canonical_formula_pages_exist(db):
+    """Every page declared in formula_contracts.json implemented_in must serve 200.
+
+    Same dimension as the Layer 2 anchor-consistency spec but at the data-level
+    so a malformed implemented_in label (e.g. typo, deleted page) gets caught
+    in the cheapest possible gate (~5s) instead of waiting for UI Locks.
+    """
+    import json
+    import re as _re
+    from pathlib import Path
+    results = []
+    fc_file = Path(__file__).resolve().parent.parent / "canonical" / "formula_contracts.json"
+    if not fc_file.exists():
+        results.append(warn("canonical/formula_contracts.json missing; page-existence check skipped"))
+        return results
+    try:
+        with fc_file.open(encoding="utf-8") as fh:
+            formulas = json.load(fh).get("formulas", [])
+    except Exception as e:
+        results.append(fail(f"canonical/formula_contracts.json unreadable: {e}"))
+        return results
+    project_root = Path(__file__).resolve().parent.parent
+    page_re = _re.compile(r"([a-z0-9\-]+\.html)", _re.IGNORECASE)
+    missing = []
+    referenced = set()
+    for f in formulas:
+        for p in page_re.findall(f.get("implemented_in", "") or ""):
+            p = p.lower()
+            referenced.add(p)
+            if not (project_root / p).exists():
+                missing.append((f.get("formula_id", "?"), p))
+    if missing:
+        results.append(fail(f"{len(missing)} formula.implemented_in references point to non-existent pages: {missing[:3]}"))
+    else:
+        results.append(ok(f"all {len(referenced)} pages referenced by formula_contracts.json exist"))
+    return results
+
+
 # ─────────────────────────────────────────────────────────────────────────
 # Test sections — register here
 # ─────────────────────────────────────────────────────────────────────────
@@ -499,6 +578,8 @@ SECTIONS = [
     ("10. Marketplace — sections / statuses / conditions", s10_marketplace_sections),
     ("21. Cross-page — logbook ↔ assets linkage", s21_logbook_assets_link),
     ("21. Cross-page — auth_uid populated everywhere", s21_auth_uid_set),
+    ("22. Canonical — Tier-S file ↔ DB registry drift", s_canonical_tier_s_drift),
+    ("22. Canonical — every formula.implemented_in page exists", s_canonical_formula_pages_exist),
 ]
 
 
