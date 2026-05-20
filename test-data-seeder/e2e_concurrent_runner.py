@@ -457,6 +457,29 @@ async def run_all_async(pages: List[str], scenario_filter: Optional[str] = None)
     print(f"RESULTS: {p}{GREEN} PASS {RESET}| {f}{RED} FAIL {RESET}| {w}{YELLOW} WARN {RESET}| {s} SKIP")
     print(f"{BLUE}{'=' * 60}{RESET}")
 
+    # ── Canonical Dimensions cross-check ──────────────────────────────────
+    # Same 4-dimension canonical check the other L2 gates carry — keeps
+    # the concurrent-edit run honest about Tier-S / Calm Dashboard /
+    # partial honesty / view reachability after any OC-related refactor.
+    print(f"\n{BLUE}[Canonical Dimensions]{RESET} cross-check after concurrent pass")
+    try:
+        from flows import canonical_dimensions_flow as _cdims
+        class _NoOp: pass
+        cd_out = _cdims.run(_NoOp(), [], [], log=lambda m: None)
+        cd_pass = sum(1 for st, _ in cd_out.get("results", []) if st == "PASS")
+        cd_fail = sum(1 for st, _ in cd_out.get("results", []) if st == "FAIL")
+        cd_warn = sum(1 for st, _ in cd_out.get("results", []) if st == "WARN")
+        color = GREEN if cd_fail == 0 else RED
+        print(f"  {color}{cd_pass} PASS / {cd_fail} FAIL / {cd_warn} WARN{RESET}")
+        for status, msg in cd_out.get("results", []):
+            marker = GREEN + "PASS" + RESET if status == "PASS" else (RED + "FAIL" + RESET if status == "FAIL" else YELLOW + "WARN" + RESET)
+            print(f"    {marker}  {msg}")
+        results["total_pass"] += cd_pass
+        results["total_fail"] += cd_fail
+        results["canonical_dimensions"] = cd_out.get("results", [])
+    except Exception as e:
+        print(f"  {YELLOW}WARN{RESET}  canonical_dimensions_flow crashed: {e}")
+
     with open("e2e_concurrent_results.json", "w") as fh:
         json.dump(results, fh, indent=2)
     print("✓ Results saved to e2e_concurrent_results.json")

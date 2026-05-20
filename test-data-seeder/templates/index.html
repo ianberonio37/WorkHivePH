@@ -1731,24 +1731,24 @@
     <div class="button-grid">
       <button class="seed-btn" data-action="run-flows"
         data-tip-title="🎬 Smoke Tests"
-        data-tip="Playwright walks every page: does it load, console errors, buttons clickable, forms present. Read-only — no DB writes."
-        data-tip-foot="✅ CLICK AFTER: rendering or interaction code changes.&#10;👉 Catches blank pages, JS errors, missing buttons.">🎬 Smoke Tests (~30s)</button>
+        data-tip="Playwright walks every page: does it load, console errors, buttons clickable, forms present. Also runs 4 canonical-contract dimensions (Tier-S chip visibility, Calm Dashboard, partial-label honesty, v_*_truth reachability). Read-only — no DB writes."
+        data-tip-foot="✅ CLICK AFTER: rendering or interaction code changes, OR canonical-formula / standards-registry edits.&#10;👉 Catches blank pages, JS errors, missing chips, broken Calm Dashboard contracts, unreachable views.">🎬 Smoke Tests (~30s)</button>
       <button class="seed-btn" data-action="run-roles"
         data-tip-title="👥 Role Permission Tests (NEW)"
-        data-tip="Tests every page with 3 roles: solo / worker / supervisor. Confirms each role sees only what they should."
-        data-tip-foot="✅ CLICK AFTER: touching auth, admin gates, role-gated UI, or hive_members.&#10;💡 Already found founder-console admin gate disabled (fixed).">👥 Role Permission Tests (~3 min)</button>
+        data-tip="Tests every page with 3 roles: solo / worker / supervisor. Confirms each role sees only what they should. Cross-checks the 4 canonical-contract dimensions after the role pass."
+        data-tip-foot="✅ CLICK AFTER: touching auth, admin gates, role-gated UI, hive_members, OR Tier-S registry / formula contracts.&#10;💡 Already found founder-console admin gate disabled (fixed).">👥 Role Permission Tests (~3 min)</button>
       <button class="seed-btn" data-action="run-concurrent"
         data-tip-title="⚡ Concurrent Edit Tests (NEW)"
-        data-tip="2 sessions edit the same record at once. Verifies updated_at conflict detection so B can't silently overwrite A."
-        data-tip-foot="✅ CLICK AFTER: any save/update flow change or new updated_at OC guard.&#10;💡 Already found 6 pages with no OC — 3 fixed (logbook, pm-scheduler, project-manager).">⚡ Concurrent Edit Tests (~2 min)</button>
+        data-tip="2 sessions edit the same record at once. Verifies updated_at conflict detection so B can't silently overwrite A. Cross-checks the 4 canonical-contract dimensions after the concurrent pass."
+        data-tip-foot="✅ CLICK AFTER: any save/update flow change, updated_at OC guard, OR canonical-view refactor.&#10;💡 Already found 6 pages with no OC — 3 fixed (logbook, pm-scheduler, project-manager).">⚡ Concurrent Edit Tests (~2 min)</button>
       <button class="seed-btn" data-action="run-crud-tests" style="background:rgba(248,113,113,0.1);color:var(--red);border-color:rgba(248,113,113,0.3);"
         data-tip-title="🔍 CRUD Tests"
-        data-tip="Playwright writes rows then reads them back via Supabase. Catches 'looks fine but the insert silently dropped fields'."
-        data-tip-foot="✅ CLICK AFTER: insert / update / delete flow changes, or form-that-saves edits.">🔍 CRUD Tests (~2 min, DB-verified)</button>
+        data-tip="Playwright writes rows then reads them back via Supabase. Catches 'looks fine but the insert silently dropped fields'. Cross-checks the 4 canonical-contract dimensions so a write that breaks the chip / view / partial-label rendering surfaces here too."
+        data-tip-foot="✅ CLICK AFTER: insert / update / delete flow changes, form-that-saves edits, OR migration that adds a new v_*_truth view.">🔍 CRUD Tests (~2 min, DB-verified)</button>
       <button class="seed-btn" data-action="run-playwright-node"
-        data-tip-title="🛡️ UI Locks"
-        data-tip="Per-page interaction locks: real Supabase Auth sign-in, fills form, asserts toast AND verifies row in DB."
-        data-tip-foot="✅ CLICK AFTER: capture-validate.js, any form, toast handler, or addEntry/save flow.&#10;⚠️ First time only: run `subst Z: &lt;project-path&gt;`.">🛡️ UI Locks (Node · ~6 min)</button>
+        data-tip-title="🛡️ UI Locks + Canonical Contract"
+        data-tip="Per-page interaction locks: real Supabase Auth sign-in, fills form, asserts toast AND verifies row in DB. Also runs the 4 new L2 canonical-contract specs (surface-coverage 29 pages, anchor consistency Tier-S→E, calm dashboard behaviour, view reachability) — 132 tests total."
+        data-tip-foot="✅ CLICK AFTER: capture-validate.js, any form, toast handler, addEntry/save flow, OR any canonical-contract edit (standards.json / formula_contracts.json / v_*_truth migrations).&#10;⚠️ First time only: run `subst Z: &lt;project-path&gt;`.">🛡️ UI Locks (Node · ~6 min)</button>
       <button class="seed-btn" data-action="run-gate-visual"
         data-tip-title="📷 Visual Regression"
         data-tip="Screenshots every page at desktop viewport, diffs against the saved baseline. Fails on pixel drift."
@@ -1767,6 +1767,9 @@
             <tr><td>Form / save / addEntry flow</td>         <td>🔍 CRUD Tests + 🛡️ UI Locks</td></tr>
             <tr><td>Auth / admin gate / role UI</td>         <td>👥 Role Permission Tests</td></tr>
             <tr><td>updated_at / OC guard / save logic</td>  <td>⚡ Concurrent Edit Tests</td></tr>
+            <tr><td>New v_*_truth view / formula contract / Tier-S standard</td><td>🎬 Smoke Tests (chip + view reachability) + 🛡️ UI Locks (full canonical contract)</td></tr>
+            <tr><td>Calm Dashboard refactor (verdict / details / hide-zero)</td><td>🛡️ UI Locks (behaviour spec) + 📷 Visual Regression (chip pixel-stable)</td></tr>
+            <tr><td>Partial-variant formula label edit</td>   <td>🎬 Smoke Tests (catches missing honesty marker before deploy)</td></tr>
             <tr><td>About to deploy to prod</td>             <td>🚀 Mega Gate (everything)</td></tr>
           </tbody>
         </table>

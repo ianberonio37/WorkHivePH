@@ -32,6 +32,7 @@ from flows import work_order_flow, ml_predictive_flow, auto_staging_flow
 from flows import home_dashboard_flow
 from flows import voice_action_router_flow
 from flows import canonical_sources_flow
+from flows import canonical_dimensions_flow
 
 WITH_AI = "--with-ai" in sys.argv
 WITH_VISUAL = "--with-visual" in sys.argv
@@ -93,6 +94,7 @@ def main():
                 ("Auto-Staging",       auto_staging_flow),
                 ("Voice Action Router", voice_action_router_flow),
                 ("Canonical Sources",   canonical_sources_flow),
+                ("Canonical Dimensions", canonical_dimensions_flow),
                 ("Logbook",            logbook),
                 ("Community",      community),
                 ("Analytics",      analytics),

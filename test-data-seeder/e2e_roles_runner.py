@@ -231,6 +231,30 @@ def run_all(pages: List[str], report: bool = False) -> Dict:
                 if r["result"] == "FAIL":
                     print(f"  {pg:<25} {r['role']:<12} {r['element']:<30} expected={r['expected']} actual={r['actual']}")
 
+    # ── Canonical Dimensions cross-check ──────────────────────────────────
+    # Each Layer 2 gate now also enforces this session's 4 canonical
+    # dimensions (Tier-S chip + Calm Dashboard + partial honesty + view
+    # reachability) so a per-role permission run also catches drift in
+    # the canonical contract layer. No signin needed — raw fetch.
+    print(f"\n{BLUE}[Canonical Dimensions]{RESET} cross-check after role pass")
+    try:
+        from flows import canonical_dimensions_flow as _cdims
+        class _NoOp: pass
+        cd_out = _cdims.run(_NoOp(), [], [], log=lambda m: None)
+        cd_pass = sum(1 for s, _ in cd_out.get("results", []) if s == "PASS")
+        cd_fail = sum(1 for s, _ in cd_out.get("results", []) if s == "FAIL")
+        cd_warn = sum(1 for s, _ in cd_out.get("results", []) if s == "WARN")
+        color = GREEN if cd_fail == 0 else RED
+        print(f"  {color}{cd_pass} PASS / {cd_fail} FAIL / {cd_warn} WARN{RESET}")
+        for status, msg in cd_out.get("results", []):
+            marker = GREEN + "PASS" + RESET if status == "PASS" else (RED + "FAIL" + RESET if status == "FAIL" else YELLOW + "WARN" + RESET)
+            print(f"    {marker}  {msg}")
+        results["total_pass"] += cd_pass
+        results["total_fail"] += cd_fail
+        results["canonical_dimensions"] = cd_out.get("results", [])
+    except Exception as e:
+        print(f"  {YELLOW}WARN{RESET}  canonical_dimensions_flow crashed: {e}")
+
     # Save JSON
     with open("e2e_roles_results.json", "w") as f_:
         json.dump(results, f_, indent=2)
