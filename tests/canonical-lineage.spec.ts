@@ -130,6 +130,38 @@ test.describe('Canonical Lineage Sentinel (L2 report-shape contract)', () => {
     expect(typeof r.by_table).toBe('object');
   });
 
+  test('standards_alignment_report.json: every formula either supersets its standard OR is honestly partial', async () => {
+    const r = await loadJson('standards_alignment_report.json');
+    expect(r.summary).toBeDefined();
+    for (const k of ['total_formulas', 'pass', 'fail', 'partial_honest', 'partial_silent']) {
+      expect(r.summary[k], `summary.${k} must exist`).toBeDefined();
+    }
+    // Strictest invariant: zero SILENT partials (a formula labelled as full
+    // when it actually misses the standard's required_inputs is the OEE-class
+    // bug this auditor exists to catch).
+    expect(r.summary.partial_silent, 'no formula may be a silent partial').toBe(0);
+    expect(r.summary.fail,           'every formula must pass standards alignment').toBe(0);
+
+    // Per-result contract
+    expect(Array.isArray(r.results)).toBe(true);
+    for (const row of r.results) {
+      expect(row.formula_id).toBeTruthy();
+      expect(typeof row.ok).toBe('boolean');
+      expect(typeof row.is_partial).toBe('boolean');
+    }
+  });
+
+  test('ai_prompt_standards_report.json: schema (informational; report is the punch list)', async () => {
+    const r = await loadJson('ai_prompt_standards_report.json');
+    expect(r.summary).toBeDefined();
+    for (const k of ['files_scanned', 'metric_hits', 'standards_cited', 'metric_uncited']) {
+      expect(r.summary[k], `summary.${k} must exist`).toBeDefined();
+    }
+    // metric_hits should equal cited + uncited (no leaks)
+    expect(r.summary.metric_hits).toBe(r.summary.standards_cited + r.summary.metric_uncited);
+    expect(Array.isArray(r.findings)).toBe(true);
+  });
+
   test('tier_contracts_report.json: 4-tier shape + zero broken chain references', async () => {
     const r = await loadJson('tier_contracts_report.json');
     expect(Array.isArray(r.tiers)).toBe(true);

@@ -1,0 +1,217 @@
+{
+  "_doc": [
+    "Tier-S (Standards / Source-of-Truth) canonical registry.",
+    "",
+    "Each entry is a published industrial standard or seminal academic source",
+    "the platform commits to honouring. Every Tier-E formula MUST cite a",
+    "standard_id in this file; every Tier-B AI prompt that mentions a metric",
+    "MUST cite the same standard_id as the formula it references; every",
+    "Tier-D chip on a dashboard MUST display the standard's short name.",
+    "",
+    "This is the layer that catches the OEE-class bug: a formula's",
+    "implementation must SUPERSET the standard's required_inputs, OR the",
+    "formula must explicitly declare itself a `partial_variant` with a",
+    "documented reason. Audited by tools/audit_standards_alignment.py.",
+    "",
+    "Fields:",
+    "  standard_id        snake_case slug; immutable",
+    "  short_name         display label for chips ('ISO 14224:2016')",
+    "  full_title         long name of the publication",
+    "  publisher          ISO / SAE / SMRP / Nakajima / etc.",
+    "  edition_year       publication year (so drift can be detected)",
+    "  clauses            map of clause -> { required_inputs, formula, units }",
+    "  url                public reference (optional)",
+    "  added_in           registry commit reference"
+  ],
+  "standards": [
+    {
+      "standard_id":  "iso_14224_2016",
+      "short_name":   "ISO 14224:2016",
+      "full_title":   "Petroleum, petrochemical and natural gas industries — Collection and exchange of reliability and maintenance data for equipment",
+      "publisher":    "ISO",
+      "edition_year": 2016,
+      "clauses": {
+        "9.2_availability": {
+          "name":            "Availability",
+          "canonical_formula": "Availability = Uptime / (Uptime + Downtime)",
+          "required_inputs": ["uptime_hours", "downtime_hours"],
+          "units":           "pct (0-100)",
+          "notes":           "Inherent availability per ISO 14224 §9.2; excludes administrative + logistic delays. For operational availability, see §9.2 alternate formula."
+        },
+        "9.3_mtbf": {
+          "name":            "MTBF — Mean Time Between Failures",
+          "canonical_formula": "MTBF = sum(operating_time_between_failures) / failure_count",
+          "required_inputs": ["operating_time_hours", "failure_count"],
+          "units":           "hours OR days (declare per surface)",
+          "notes":           "ISO 14224 §9.3 specifies OPERATING time between failures (excludes idle / planned downtime). Calendar-time approximations should declare themselves partial."
+        },
+        "9.4_mttr": {
+          "name":            "MTTR — Mean Time To Repair",
+          "canonical_formula": "MTTR = sum(active_repair_time) / failure_count",
+          "required_inputs": ["active_repair_time_hours", "failure_count"],
+          "units":           "hours",
+          "notes":           "ISO 14224 §9.4 distinguishes active repair time (technician on the asset) from logistic/admin time. Implementations using total downtime should declare themselves a partial variant or use MTTR_total."
+        },
+        "9.5_failure_modes": {
+          "name":            "Failure Mode Taxonomy",
+          "canonical_formula": "n/a (classification scheme)",
+          "required_inputs": [],
+          "units":           "categorical",
+          "notes":           "ISO 14224:2016 Table B.4 defines the failure mode taxonomy used for cross-asset comparison."
+        }
+      },
+      "url":         "https://www.iso.org/standard/64076.html",
+      "added_in":    "seed 2026-05-20 (Tier S foundation)"
+    },
+    {
+      "standard_id":  "iso_22400_2_2014",
+      "short_name":   "ISO 22400-2:2014",
+      "full_title":   "Automation systems and integration — Key performance indicators (KPIs) for manufacturing operations management — Part 2: Definitions and descriptions",
+      "publisher":    "ISO",
+      "edition_year": 2014,
+      "clauses": {
+        "5.5_oee": {
+          "name":            "OEE — Overall Equipment Effectiveness",
+          "canonical_formula": "OEE = Availability × Performance × Quality",
+          "required_inputs": ["availability_pct", "performance_pct", "quality_pct"],
+          "units":           "pct (0-100)",
+          "notes":           "Nakajima TPM (1988) defined the three-factor form; ISO 22400-2:2014 §5.5 formalised the standard. Any implementation missing one factor MUST declare itself a partial variant."
+        },
+        "5.5_availability_factor": {
+          "name":            "Availability (OEE factor)",
+          "canonical_formula": "Availability = (Planned Production Time - Downtime) / Planned Production Time",
+          "required_inputs": ["planned_production_time_hours", "downtime_hours"],
+          "units":           "pct (0-100)",
+          "notes":           "ISO 22400-2 availability uses PLANNED production time as the denominator (different from ISO 14224 §9.2 inherent availability)."
+        },
+        "5.5_performance_factor": {
+          "name":            "Performance (OEE factor)",
+          "canonical_formula": "Performance = (Ideal Cycle Time × Total Count) / Run Time",
+          "required_inputs": ["ideal_cycle_time_seconds", "total_count_units", "run_time_seconds"],
+          "units":           "pct (0-100, clamped)",
+          "notes":           "Requires per-asset ideal cycle time (planned rate). Without this fuel field, OEE drops to partial (Availability × Quality)."
+        },
+        "5.5_quality_factor": {
+          "name":            "Quality (OEE factor)",
+          "canonical_formula": "Quality = Good Count / Total Count",
+          "required_inputs": ["good_count_units", "total_count_units"],
+          "units":           "pct (0-100)",
+          "notes":           "Defective units / rework / scrap reduce quality."
+        }
+      },
+      "url":         "https://www.iso.org/standard/54497.html",
+      "added_in":    "seed 2026-05-20"
+    },
+    {
+      "standard_id":  "nakajima_tpm_1988",
+      "short_name":   "Nakajima TPM (1988)",
+      "full_title":   "Introduction to TPM: Total Productive Maintenance — Seiichi Nakajima",
+      "publisher":    "Productivity Press",
+      "edition_year": 1988,
+      "clauses": {
+        "six_big_losses": {
+          "name":            "Six Big Losses",
+          "canonical_formula": "n/a (loss classification)",
+          "required_inputs": [],
+          "units":           "categorical",
+          "notes":           "Breakdowns, setup/adjustment, idling/minor stops, reduced speed, startup defects, scrap/rework. Maps to OEE: first 2 → Availability, next 2 → Performance, last 2 → Quality."
+        },
+        "oee_three_factor": {
+          "name":            "OEE = A × P × Q (original definition)",
+          "canonical_formula": "OEE = Availability × Performance × Quality",
+          "required_inputs": ["availability_pct", "performance_pct", "quality_pct"],
+          "units":           "pct (0-100)",
+          "notes":           "World-class benchmark: 85% (Nakajima 1988). Identical formula to ISO 22400-2 §5.5 but predates it."
+        }
+      },
+      "url":         "https://www.amazon.com/dp/0915299232",
+      "added_in":    "seed 2026-05-20"
+    },
+    {
+      "standard_id":  "sae_ja1011",
+      "short_name":   "SAE JA1011",
+      "full_title":   "Evaluation Criteria for Reliability-Centered Maintenance (RCM) Processes",
+      "publisher":    "SAE International",
+      "edition_year": 2009,
+      "clauses": {
+        "5.4_consequence_buckets": {
+          "name":            "RCM Consequence Classification",
+          "canonical_formula": "n/a (classification scheme)",
+          "required_inputs": ["failure_mode", "operating_context"],
+          "units":           "enum: hidden | safety_environmental | operational | non_operational",
+          "notes":           "SAE JA1011 §5.4 requires every failure mode be classified into one of four consequence categories. Drives PM strategy selection."
+        },
+        "6_pm_interval": {
+          "name":            "PM Interval Selection",
+          "canonical_formula": "interval = P-F / (2 * safety_factor)",
+          "required_inputs": ["p_f_interval_days", "safety_factor"],
+          "units":           "days",
+          "notes":           "P-F interval (potential-to-functional failure) divided by safety factor; SAE JA1011 §6 + MIL-STD-2173."
+        }
+      },
+      "url":         "https://www.sae.org/standards/content/ja1011_200908/",
+      "added_in":    "seed 2026-05-20"
+    },
+    {
+      "standard_id":  "smrp_metrics_v5",
+      "short_name":   "SMRP Best Practices v5.0",
+      "full_title":   "Society for Maintenance & Reliability Professionals — Body of Knowledge Best Practices, 5th Edition",
+      "publisher":    "SMRP",
+      "edition_year": 2017,
+      "clauses": {
+        "2.1.1_pm_compliance": {
+          "name":            "PM Compliance Rate",
+          "canonical_formula": "PM Compliance = PMs Completed On Schedule / PMs Scheduled",
+          "required_inputs": ["pms_completed_on_schedule", "pms_scheduled"],
+          "units":           "pct (0-100)",
+          "notes":           "SMRP Metric 2.1.1. World-class target: >= 90%. Period-scoped (typically 30d / 90d / 365d). The 30-day threshold for is_due is platform convention, not SMRP."
+        },
+        "4.2_parts_management": {
+          "name":            "Parts Inventory Turnover",
+          "canonical_formula": "Inventory Turnover = Annual Parts Consumption Value / Average Inventory Value",
+          "required_inputs": ["annual_consumption_php", "avg_inventory_value_php"],
+          "units":           "ratio (turns/year)",
+          "notes":           "SMRP 4.2; world-class >= 2 turns/year for critical spares."
+        }
+      },
+      "url":         "https://smrp.org/",
+      "added_in":    "seed 2026-05-20"
+    },
+    {
+      "standard_id":  "iec_60812_2018",
+      "short_name":   "IEC 60812:2018",
+      "full_title":   "Failure modes and effects analysis (FMEA and FMECA)",
+      "publisher":    "IEC",
+      "edition_year": 2018,
+      "clauses": {
+        "rpn": {
+          "name":            "Risk Priority Number (RPN)",
+          "canonical_formula": "RPN = Severity × Occurrence × Detection",
+          "required_inputs": ["severity_1_to_10", "occurrence_1_to_10", "detection_1_to_10"],
+          "units":           "score (1-1000)",
+          "notes":           "Classical FMEA RPN per IEC 60812:2018. Newer guidance (AIAG-VDA 2019) favours Action Priority over RPN, but RPN remains widely used."
+        }
+      },
+      "url":         "https://webstore.iec.ch/publication/26359",
+      "added_in":    "seed 2026-05-20"
+    },
+    {
+      "standard_id":  "weibull_pf_analysis",
+      "short_name":   "Weibull Reliability Analysis",
+      "full_title":   "Weibull++ methodology — Weibull distribution fitting for time-to-failure analysis",
+      "publisher":    "ReliaSoft / academic",
+      "edition_year": 1951,
+      "clauses": {
+        "wearout_shape": {
+          "name":            "Weibull Shape Parameter (β)",
+          "canonical_formula": "β > 1 indicates wear-out; β = 1 random; β < 1 infant mortality",
+          "required_inputs": ["failure_times", "censoring_indicators"],
+          "units":           "dimensionless",
+          "notes":           "Weibull (1951). Used by the platform's batch-risk-scoring to detect wear-out modes (β > 1.5 typically triggers a PM interval review)."
+        }
+      },
+      "url":         "https://www.weibull.com/",
+      "added_in":    "seed 2026-05-20"
+    }
+  ]
+}
