@@ -1,0 +1,37 @@
+#!/bin/sh
+#
+# WorkHive pre-commit hook.
+# Runs `tools/canonical_status.py` — the 13-dimension canonical-contract
+# overview. Reads existing audit reports + registries (no network, no DB),
+# so it runs in <1 second and is safe to invoke on every commit.
+#
+# What it surveys:
+#   Tier-S standards, Tier-E formulas, citation visibility, calm dashboards,
+#   canonical view reachability, partial honesty, AI prompts citing standards,
+#   phantom captures + columns, canonical drift flywheel (drift/gap reads),
+#   forward-only ratchet regressions, sentinel KPI parity coverage.
+#
+# Exits 1 if any dimension FAILS, blocking the commit. Bypass with
+# `git commit --no-verify` (not recommended — every red dimension represents
+# real platform drift).
+#
+
+# Resolve project root (script is at .git/hooks/pre-commit)
+ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
+
+python "$ROOT/tools/canonical_status.py"
+RC=$?
+
+if [ $RC -ne 0 ]; then
+    echo ""
+    echo "================================================"
+    echo "  COMMIT BLOCKED — canonical contract dimension(s) failing"
+    echo "================================================"
+    echo ""
+    echo "Fix the FAIL line(s) above, or bypass (NOT recommended):"
+    echo "  git commit --no-verify"
+    echo ""
+    exit 1
+fi
+
+exit 0

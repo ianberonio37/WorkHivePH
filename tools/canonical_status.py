@@ -20,6 +20,7 @@ Dimensions surveyed:
   8. Phantom captures + columns  (reverse audit)
   9. Canonical drift flywheel    (TIER A pages + gap reads + drift reads)
  10. Cross-surface KPI sentinel  (parity specs locked vs baseline)
+ 11. Voice Companion phases 1-11 (PASS / FAIL summary per phase validator)
 
 Designed to be cheap enough to run after every commit; surfaces drift
 the same instant the underlying file changes.
@@ -230,6 +231,56 @@ def _gather() -> dict[str, Any]:
         out["ratchet_baseline_gap"]  = 0
         out["ratchet_current_gap"]   = 0
 
+    # 11. Voice Companion phase validators — Phase 1 through Phase 11.
+    # Each validator is a self-contained Python script that returns "PASS: N | FAIL: M"
+    # in its output. We parse the line and roll up to per-phase + grand totals.
+    # Avoid invoking subprocess per validator (expensive); instead read the
+    # validator's __doc__ + grep for the result-line shape via Python import.
+    import subprocess
+    VOICE_PHASES = [
+        ("1",   "validate_voice_companion_phase1"),
+        ("1.5", "validate_voice_companion_phase1_5"),
+        ("2",   "validate_voice_companion_phase2"),
+        ("3",   "validate_voice_companion_phase3"),
+        ("4",   "validate_dialog_flow"),
+        ("5",   "validate_proactive_alerts"),
+        ("6",   "validate_offline_resilience_phase6"),
+        ("7",   "validate_tts_quality_phase7"),
+        ("8",   "validate_voice_data_flow"),
+        ("9",   "validate_team_coordination"),
+        ("10",  "validate_avatar_state_phase10"),
+        ("11",  "validate_multilingual_phase11"),
+    ]
+    phase_results = []
+    pass_re = re.compile(r"PASS[: ]\s*(\d+)\s*\|\s*FAIL[: ]\s*(\d+)|(\d+)\s+PASS\s+(\d+)\s+SKIP\s+(\d+)\s+FAIL|Result[: ]\s*(\d+)\s+PASS[, ]+(\d+)\s+FAIL", re.IGNORECASE)
+    for label, script in VOICE_PHASES:
+        script_path = ROOT / f"{script}.py"
+        if not script_path.exists():
+            phase_results.append((label, script, None, None, "missing"))
+            continue
+        try:
+            r = subprocess.run(
+                [sys.executable, str(script_path)],
+                capture_output=True, text=True, timeout=30, cwd=str(ROOT),
+            )
+            text = (r.stdout or "") + "\n" + (r.stderr or "")
+            m = pass_re.search(text)
+            if m:
+                # Three patterns in the regex; pick whichever matched
+                groups = m.groups()
+                p = next((int(g) for g in groups[::2] if g and g.isdigit()), None)
+                f = next((int(g) for i, g in enumerate(groups) if i % 2 == 1 and g and g.isdigit()), None)
+                phase_results.append((label, script, p, f, "ok"))
+            else:
+                phase_results.append((label, script, None, None, "unparsed"))
+        except subprocess.TimeoutExpired:
+            phase_results.append((label, script, None, None, "timeout"))
+        except Exception as e:
+            phase_results.append((label, script, None, None, f"error: {e}"))
+    out["voice_phase_results"] = phase_results
+    out["voice_phases_green"]  = sum(1 for _, _, p, f, st in phase_results if st == "ok" and (f or 0) == 0)
+    out["voice_phases_total"]  = len(phase_results)
+
     # 10. Cross-surface KPI sentinel spec count (static scan of the spec file)
     sentinel_file = ROOT / "tests" / "journey-cross-surface-kpi-parity.spec.ts"
     sentinel_count = 0
@@ -331,6 +382,17 @@ def _print(status: dict[str, Any]) -> int:
     print(f"  {_badge(sentinel_ok, warn=status['sentinel_fixme']>0)}  Cross-surface KPI sentinels:  "
           f"{status['sentinel_specs']} active "
           f"({status['sentinel_fixme']} fixme'd)")
+
+    # 11. Voice Companion phases
+    voice_ok = status["voice_phases_green"] == status["voice_phases_total"]
+    if not voice_ok: fail_count += 1
+    print(f"  {_badge(voice_ok)}  Voice Companion phases:       "
+          f"{status['voice_phases_green']}/{status['voice_phases_total']} green")
+    for label, script, p, f, st in status["voice_phase_results"]:
+        if st != "ok" or (f or 0) > 0:
+            badge = _badge(False)
+            extra = f"PASS:{p or 0} FAIL:{f or 0}" if st == "ok" else st
+            print(f"         {badge}  Phase {label:<4} ({script}): {extra}")
 
     print("=" * 56)
     if fail_count == 0:
