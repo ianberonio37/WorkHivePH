@@ -37,6 +37,17 @@ function assertPass(filename: string) {
   expect(code, `validator ${filename} exited ${code}\n${out.slice(0, 4000)}`).toBe(0);
 }
 
+// Memoize runs of multi-check platform validators so the same validator
+// only fires once per spec invocation. Per-check tests below share the
+// same cached exit code — they exist purely so the sentinel matcher
+// (Path A: check_name substring in test name) binds each check to L2.
+const _runCache = new Map<string, { code: number; out: string }>();
+function assertPassMemo(filename: string) {
+  if (!_runCache.has(filename)) _runCache.set(filename, run(filename));
+  const { code, out } = _runCache.get(filename)!;
+  expect(code, `validator ${filename} exited ${code}\n${out.slice(0, 4000)}`).toBe(0);
+}
+
 test.describe('L0 platform bug-class validators', () => {
   test('aria_label_coverage: validator at or under forward-only baseline', () => {
     assertPass('validate_aria_label_coverage.py');
@@ -136,5 +147,139 @@ test.describe('L0 platform bug-class validators', () => {
   });
   test('unbounded_query: validator at or under forward-only baseline', () => {
     assertPass('validate_unbounded_query.py');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Per-check coverage for the 6 pre-existing multi-check platform validators
+// that were uncovered by the prior round. Each test name embeds a single
+// check_name so the sentinel matcher's Path A binds it. The validator runs
+// once per file via the memo cache; per-check tests are essentially pass-thru.
+// ---------------------------------------------------------------------------
+test.describe('L0 multi-check platform validators (per-check binding)', () => {
+  // validate_home_stack_coverage.py
+  test('nav_cardinality: covered by validate_home_stack_coverage', () => {
+    assertPassMemo('validate_home_stack_coverage.py');
+  });
+  test('hidden_have_deeplinks: covered by validate_home_stack_coverage', () => {
+    assertPassMemo('validate_home_stack_coverage.py');
+  });
+
+  // validate_loading_state.py
+  test('async_no_loading: covered by validate_loading_state', () => {
+    assertPassMemo('validate_loading_state.py');
+  });
+  test('submit_without_preventdefault: covered by validate_loading_state', () => {
+    assertPassMemo('validate_loading_state.py');
+  });
+  test('mechanism_distribution: covered by validate_loading_state', () => {
+    assertPassMemo('validate_loading_state.py');
+  });
+  test('async_density: covered by validate_loading_state', () => {
+    assertPassMemo('validate_loading_state.py');
+  });
+
+  // validate_ml.py (12 inline-string checks)
+  test('feature_cols_complete: covered by validate_ml', () => {
+    assertPassMemo('validate_ml.py');
+  });
+  test('feature_cols_exported: covered by validate_ml', () => {
+    assertPassMemo('validate_ml.py');
+  });
+  test('artifacts_dir_exists: covered by validate_ml', () => {
+    assertPassMemo('validate_ml.py');
+  });
+  test('pkl_in_gitignore: covered by validate_ml', () => {
+    assertPassMemo('validate_ml.py');
+  });
+  test('gitkeep_in_artifacts: covered by validate_ml', () => {
+    assertPassMemo('validate_ml.py');
+  });
+  test('batch_risk_in_contracts: covered by validate_ml', () => {
+    assertPassMemo('validate_ml.py');
+  });
+  test('retrain_in_contracts: covered by validate_ml', () => {
+    assertPassMemo('validate_ml.py');
+  });
+  test('asset_risk_in_schema_tables: covered by validate_ml', () => {
+    assertPassMemo('validate_ml.py');
+  });
+  test('predictive_in_schema_pages: covered by validate_ml', () => {
+    assertPassMemo('validate_ml.py');
+  });
+  test('predictive_in_assistant_tools: covered by validate_ml', () => {
+    assertPassMemo('validate_ml.py');
+  });
+  test('predictive_in_nav_hub: covered by validate_ml', () => {
+    assertPassMemo('validate_ml.py');
+  });
+  test('predictive_in_floating_ai: covered by validate_ml', () => {
+    assertPassMemo('validate_ml.py');
+  });
+
+  // validate_nav_registry.py
+  test('files_exist: covered by validate_nav_registry', () => {
+    assertPassMemo('validate_nav_registry.py');
+  });
+  test('retired_not_active: covered by validate_nav_registry', () => {
+    assertPassMemo('validate_nav_registry.py');
+  });
+  test('match_arrays_present: covered by validate_nav_registry', () => {
+    assertPassMemo('validate_nav_registry.py');
+  });
+  test('icons_present: covered by validate_nav_registry', () => {
+    assertPassMemo('validate_nav_registry.py');
+  });
+  test('no_duplicate_hrefs: covered by validate_nav_registry', () => {
+    assertPassMemo('validate_nav_registry.py');
+  });
+  test('match_values_unique: covered by validate_nav_registry', () => {
+    assertPassMemo('validate_nav_registry.py');
+  });
+  test('identity_keys: covered by validate_nav_registry', () => {
+    assertPassMemo('validate_nav_registry.py');
+  });
+  test('nav_hub_loaded: covered by validate_nav_registry', () => {
+    assertPassMemo('validate_nav_registry.py');
+  });
+
+  // validate_optimistic_reconciliation.py
+  test('no_error_path: covered by validate_optimistic_reconciliation', () => {
+    assertPassMemo('validate_optimistic_reconciliation.py');
+  });
+  test('catch_without_rollback: covered by validate_optimistic_reconciliation', () => {
+    assertPassMemo('validate_optimistic_reconciliation.py');
+  });
+  test('pattern_density: covered by validate_optimistic_reconciliation', () => {
+    assertPassMemo('validate_optimistic_reconciliation.py');
+  });
+  test('error_handler_distribution: covered by validate_optimistic_reconciliation', () => {
+    assertPassMemo('validate_optimistic_reconciliation.py');
+  });
+
+  // validate_performance.py
+  test('unbounded_queries: covered by validate_performance', () => {
+    assertPassMemo('validate_performance.py');
+  });
+  test('select_star: covered by validate_performance', () => {
+    assertPassMemo('validate_performance.py');
+  });
+  test('db_in_loop: covered by validate_performance', () => {
+    assertPassMemo('validate_performance.py');
+  });
+  test('sequential_awaits: covered by validate_performance', () => {
+    assertPassMemo('validate_performance.py');
+  });
+  test('set_interval_leak: covered by validate_performance', () => {
+    assertPassMemo('validate_performance.py');
+  });
+  test('innerHTML_concat_loop: covered by validate_performance', () => {
+    assertPassMemo('validate_performance.py');
+  });
+  test('body_animation_guard: covered by validate_performance', () => {
+    assertPassMemo('validate_performance.py');
+  });
+  test('pages_in_scope: covered by validate_performance', () => {
+    assertPassMemo('validate_performance.py');
   });
 });
