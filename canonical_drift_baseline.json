@@ -10,6 +10,7 @@
     "community_replies": 2,
     "engineering_calcs": 2,
     "marketplace_disputes": 2,
+    "platform_feedback": 2,
     "marketplace_reviews": 2,
     "ph_intelligence_reports": 2,
     "project_roles": 2,
@@ -19,7 +20,6 @@
     "v_sensor_recent": 1,
     "rcm_strategies": 1,
     "community_reactions": 1,
-    "platform_feedback": 1,
     "cmms_audit_log": 1,
     "parts_staged_reservations": 1,
     "marketplace_saved_searches": 1,
@@ -31,6 +31,7 @@
     "x": 1,
     "shift_plans": 1,
     "skill_profiles": 1,
+    "platform_feedback_votes": 1,
     "hive_route_quotas": 1,
     "hive_route_calls": 1,
     "canonical_agent_contracts": 1

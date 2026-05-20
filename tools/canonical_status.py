@@ -295,6 +295,16 @@ def _gather() -> dict[str, Any]:
         out["sentinel_specs"] = 0
         out["sentinel_fixme"] = 0
 
+    # 11b. Voice phase runtime sentinel (parallel to static phase validators)
+    voice_sentinel_file = ROOT / "tests" / "journey-voice-phases.spec.ts"
+    if voice_sentinel_file.exists():
+        body = voice_sentinel_file.read_text(encoding="utf-8", errors="replace")
+        out["voice_sentinel_specs"] = len(re.findall(r"\btest\s*\(\s*['\"]phase_", body))
+        out["voice_sentinel_fixme"] = len(re.findall(r"\btest\.fixme\s*\(\s*['\"]phase_", body))
+    else:
+        out["voice_sentinel_specs"] = 0
+        out["voice_sentinel_fixme"] = 0
+
     return out
 
 
@@ -387,12 +397,18 @@ def _print(status: dict[str, Any]) -> int:
     voice_ok = status["voice_phases_green"] == status["voice_phases_total"]
     if not voice_ok: fail_count += 1
     print(f"  {_badge(voice_ok)}  Voice Companion phases:       "
-          f"{status['voice_phases_green']}/{status['voice_phases_total']} green")
+          f"{status['voice_phases_green']}/{status['voice_phases_total']} green (static)")
     for label, script, p, f, st in status["voice_phase_results"]:
         if st != "ok" or (f or 0) > 0:
             badge = _badge(False)
             extra = f"PASS:{p or 0} FAIL:{f or 0}" if st == "ok" else st
             print(f"         {badge}  Phase {label:<4} ({script}): {extra}")
+
+    # 11b. Voice phase runtime sentinel
+    vsentinel_ok = status["voice_sentinel_specs"] >= 6
+    print(f"  {_badge(vsentinel_ok, warn=status['voice_sentinel_fixme']>0)}  Voice phase runtime sentinels: "
+          f"{status['voice_sentinel_specs']} active "
+          f"({status['voice_sentinel_fixme']} fixme'd)")
 
     print("=" * 56)
     if fail_count == 0:
