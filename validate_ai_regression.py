@@ -203,6 +203,106 @@ def check_feature_parity(float_content, assistant_content):
     return issues
 
 
+# ── Layer 4: Tier-S citation in AI surfaces ─────────────────────────────────
+
+def check_tier_s_citations(float_content, assistant_content):
+    """Both AI surfaces must mention the metrics they reason about WITH the
+    Tier-S standard short_name when those metrics have a registered formula.
+
+    Without this guard, a worker asking 'what does MTBF mean here?' gets the
+    name but not the standard — and we can no longer prove the platform's
+    answer matches ISO 14224. The audit_ai_prompt_standards.py validator
+    already enforces this for edge functions; this layer extends the same
+    contract to the two user-facing AI surfaces (floating widget + assistant).
+
+    For each metric → standard mapping derived from canonical/formula_contracts.json
+    + canonical/standards.json: if the surface mentions the metric (e.g. 'MTBF',
+    'OEE', 'RPN'), it MUST also mention the registered short_name (e.g.
+    'ISO 14224', 'ISO 22400', 'IEC 60812'). Otherwise the AI answer drifts
+    away from the platform's standards-anchored math.
+    """
+    issues = []
+    import json
+    from pathlib import Path
+    root = Path(__file__).resolve().parent
+    try:
+        stds = {s["standard_id"]: s for s in
+                json.loads((root / "canonical" / "standards.json").read_text(encoding="utf-8"))["standards"]}
+        formulas = json.loads((root / "canonical" / "formula_contracts.json").read_text(encoding="utf-8"))["formulas"]
+    except Exception:
+        return issues  # registries missing — skip (covered by other gates)
+
+    # Map metric name keywords -> short_name to assert citation when the
+    # metric is mentioned. Only include metrics likely to surface in
+    # natural-language AI prompts (not raw formula IDs).
+    METRIC_TO_CITATION = []
+    for f in formulas:
+        short = (stds.get(f.get("standard_id"), {}) or {}).get("short_name", "")
+        if not short:
+            continue
+        # Derive a metric keyword from the formula's display name (first 1-2 words)
+        name = (f.get("name", "") or "").lower()
+        for keyword in ["mtbf", "mttr", "oee", "pm compliance", "rpn",
+                        "bearing l10", "pump head", "motor power",
+                        "anomaly", "weibull", "darcy", "schedule performance",
+                        "cost performance"]:
+            if keyword in name and (keyword, short) not in METRIC_TO_CITATION:
+                METRIC_TO_CITATION.append((keyword, short))
+
+    # Build a frequency map of bodies registered in standards.json so body-alone
+    # citations are accepted only for unambiguous bodies (e.g. 'SMRP' is unique;
+    # 'ISO' covers 5+ standards so body-alone is ambiguous for ISO standards).
+    body_freq: dict[str, int] = {}
+    for s in stds.values():
+        b = (s.get("short_name", "").split() or [""])[0]
+        body_freq[b] = body_freq.get(b, 0) + 1
+
+    def _accepted_citations(short_name: str) -> list[str]:
+        """Return all acceptable citation strings for a Tier-S short_name.
+        Accepts the full short_name, the body+number prefix (e.g. 'ISO 14224'
+        for 'ISO 14224:2016'), and the body alone ONLY for unambiguous bodies
+        (those covering one standard in the registry, e.g. 'SMRP'). Body alone
+        is rejected for multi-standard bodies like 'ISO' to avoid false-positive
+        matches against unrelated ISO standards in the same prompt.
+        """
+        out = [short_name]
+        if ":" in short_name:
+            out.append(short_name.split(":")[0].strip())  # 'ISO 14224:2016' -> 'ISO 14224'
+        toks = short_name.split()
+        if len(toks) >= 2 and toks[0].isupper():
+            out.append(" ".join(toks[:2]).rstrip(":"))  # 'ISO 22400-2:2014' -> 'ISO 22400-2'
+        first = toks[0] if toks else ""
+        if first.isupper() and len(first) >= 3 and body_freq.get(first, 99) <= 1:
+            out.append(first)  # body alone — only for unambiguous bodies
+        return out
+
+    for page, content in [(FLOAT_JS, float_content), (ASSISTANT_HTML, assistant_content)]:
+        if not content:
+            continue
+        low = content.lower()
+        for keyword, short in METRIC_TO_CITATION:
+            # Surface mentions the metric (case-insensitive keyword present)
+            mentions_metric = keyword in low
+            if not mentions_metric:
+                continue
+            # Accept any of the canonical citation forms (full short_name,
+            # body+number, or body acronym for single-org standards).
+            accepted = _accepted_citations(short)
+            cited = any(c.lower() in low for c in accepted)
+            if not cited:
+                issues.append({
+                    "check":  "tier_s_citation",
+                    "page":   page,
+                    "metric": keyword,
+                    "standard": short,
+                    "reason": (
+                        f"{page} mentions '{keyword}' but does not cite any of "
+                        f"{accepted!r} — AI answer about this metric won't be standards-anchored"
+                    ),
+                })
+    return issues
+
+
 # ── Runner ─────────────────────────────────────────────────────────────────────
 
 CHECK_NAMES = [
@@ -212,6 +312,8 @@ CHECK_NAMES = [
     "draft_artifacts",
     # L3
     "analytics_feature_parity", "logbook_feature_parity",
+    # L4
+    "tier_s_citation",
 ]
 
 CHECK_LABELS = {
@@ -224,6 +326,8 @@ CHECK_LABELS = {
     # L3
     "analytics_feature_parity": "L3  Analytics features (OEE, consequence, anomaly) in both surfaces",
     "logbook_feature_parity":   "L3  Logbook new fields (consequence, production) in both surfaces",
+    # L4
+    "tier_s_citation":          "L4  Every metric mentioned in an AI prompt cites its Tier-S standard short_name",
 }
 
 
@@ -242,6 +346,7 @@ def main():
     all_issues += check_calc_count_consistency(float_js, assistant)
     all_issues += check_draft_artifacts(float_js, assistant)
     all_issues += check_feature_parity(float_js, assistant)
+    all_issues += check_tier_s_citations(float_js, assistant)
 
     n_pass, n_skip, n_fail = format_result(CHECK_NAMES, CHECK_LABELS, all_issues)
 
