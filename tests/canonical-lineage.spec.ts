@@ -229,4 +229,40 @@ test.describe('Canonical Lineage Sentinel (L2 report-shape contract)', () => {
     }
     expect(totalBroken, 'tier contract registry must reference only known IDs').toBe(0);
   });
+
+  test('standards.json + formula_contracts.json: cross-registry referential integrity', async () => {
+    // Locks the Tier-S → Tier-E foreign-key contract at the registry-file level
+    // so a future refactor that renames a standard_id without rewriting referencing
+    // formulas fires red here BEFORE the audit (audit_standards_alignment) catches it
+    // at a higher cost.
+    const stds = (await loadJson('canonical/standards.json')).standards;
+    const formulas = (await loadJson('canonical/formula_contracts.json')).formulas;
+    const stdIds = new Set<string>(stds.map((s: any) => s.standard_id));
+
+    const orphans: string[] = [];
+    for (const f of formulas) {
+      if (!stdIds.has(f.standard_id)) {
+        orphans.push(`${f.formula_id} references unknown standard_id "${f.standard_id}"`);
+      }
+    }
+    expect(orphans.length, `Tier S→E orphan references:\n${orphans.join('\n')}`).toBe(0);
+
+    // And: every partial formula must declare both partial_reason and an
+    // honest implemented_in label — same gate as the L2 anchor-consistency
+    // spec, but enforced here against the FILE shape so a malformed registry
+    // edit fails fast during pre-flight rather than at test-runtime.
+    const silentPartials: string[] = [];
+    for (const f of formulas) {
+      if (f.partial_variant !== true) continue;
+      if (!f.partial_reason || f.partial_reason.trim().length < 8) {
+        silentPartials.push(`${f.formula_id}: partial_variant=true but partial_reason is empty/trivial`);
+      }
+      const impl = (f.implemented_in || '').toLowerCase();
+      const fid  = (f.formula_id     || '').toLowerCase();
+      if (!fid.endsWith('_partial') && !impl.includes('partial')) {
+        silentPartials.push(`${f.formula_id}: partial_variant=true but no "partial" tag in formula_id or implemented_in`);
+      }
+    }
+    expect(silentPartials.length, `silent partials in canonical/formula_contracts.json:\n${silentPartials.join('\n')}`).toBe(0);
+  });
 });
