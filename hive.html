@@ -1704,6 +1704,9 @@ function renderMaturityStairway(row) {
   // Source chip — anchors composite + 5-dim breakdown to v_maturity_truth.
   // Doctrine: every readiness number on the page is reproducible by
   // querying this view.
+  // source-chip-allow: page renders maturity via compute_hive_readiness RPC,
+  // not a direct db.from() — the chip documents the underlying canonical view
+  // that materializes the same numbers for ad-hoc queries.
   const chipEl = document.getElementById('stair-source-chip');
   if (chipEl && typeof renderSourceChip === 'function') {
     chipEl.innerHTML = renderSourceChip({
@@ -1792,6 +1795,10 @@ function renderMaturityStairway(row) {
 
 function startReadinessRealtime() {
   if (_readinessChannel || !HIVE_ID) return;
+  // realtime-allow: compute-trigger subscription — page reads maturity via
+  // compute_hive_readiness RPC (not hive_readiness directly). The subscription
+  // exists so the RPC re-fires when the trigger table is updated by the
+  // scheduled-agents job. Lineage chip docs this with v_maturity_truth.
   _readinessChannel = db.channel('hive-readiness:' + HIVE_ID)
     .on('postgres_changes', {
       event: '*', schema: 'public', table: 'hive_readiness',
@@ -1939,6 +1946,9 @@ function renderAdoptionCard(row) {
 
 function startAdoptionRealtime() {
   if (_adoptionChannel || !HIVE_ID || HIVE_ROLE !== 'supervisor') return;
+  // realtime-allow: compute-trigger — adoption card data comes from
+  // compute_hive_adoption RPC; the subscription fires when the trigger
+  // table updates (via scheduled-agents) so the card re-renders.
   _adoptionChannel = db.channel('hive-adoption:' + HIVE_ID)
     .on('postgres_changes', {
       event: '*', schema: 'public', table: 'hive_adoption_score',
@@ -3147,17 +3157,22 @@ async function rejectItem(table, id, submittedBy, label) {
 function startApprovalRealtime() {
   if (HIVE_ROLE !== 'supervisor') return;
   if (approvalChannel) db.removeChannel(approvalChannel);
+  // 2026-05-20 — fixed: was subscribing to dead `assets` table; workers
+  // actually submit to `asset_nodes`. Supervisors never got realtime
+  // pending-approval notifications until this fix. Also note the worker
+  // payload column is asset_nodes.tag, not assets.asset_id — read both
+  // to stay tolerant if a row was inserted via the older API path.
   approvalChannel = db.channel('hive-approval:' + HIVE_ID)
-    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'assets', filter: 'hive_id=eq.' + HIVE_ID },
+    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'asset_nodes', filter: 'hive_id=eq.' + HIVE_ID },
       (payload) => {
         if (payload.new.status === 'pending') {
           _pendingAssets.push(payload.new);
           renderApprovalQueue();
           pushNotif('approval-in', 'Asset Pending Approval',
-            `${payload.new.submitted_by || payload.new.worker_name} submitted ${payload.new.asset_id}.`, null);
+            `${payload.new.submitted_by || payload.new.worker_name} submitted ${payload.new.tag}.`, null);
         }
       })
-    .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'assets', filter: 'hive_id=eq.' + HIVE_ID },
+    .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'asset_nodes', filter: 'hive_id=eq.' + HIVE_ID },
       (payload) => {
         if (payload.new.status === 'pending') {
           // Worker resubmitted a previously rejected asset: replace or add to pending list
@@ -3165,7 +3180,7 @@ function startApprovalRealtime() {
           if (idx !== -1) _pendingAssets[idx] = payload.new; else _pendingAssets.push(payload.new);
           renderApprovalQueue();
           pushNotif('approval-in', 'Asset Resubmitted',
-            `${payload.new.submitted_by || payload.new.worker_name} resubmitted ${payload.new.asset_id}.`, null);
+            `${payload.new.submitted_by || payload.new.worker_name} resubmitted ${payload.new.tag}.`, null);
         }
       })
     .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'inventory_items', filter: 'hive_id=eq.' + HIVE_ID },
@@ -3194,11 +3209,15 @@ function startApprovalRealtime() {
 function startWorkerApprovalListener() {
   if (HIVE_ROLE === 'supervisor') return; // supervisor handles approvals, no need to listen
   if (workerApprovalCh) db.removeChannel(workerApprovalCh);
+  // 2026-05-20 — fixed: was listening on dead `assets` table; canonical
+  // worker-asset writes go to `asset_nodes`. Workers never got the
+  // realtime approval/rejection toast prior to this fix.
   workerApprovalCh = db.channel('worker-appr:' + WORKER_NAME)
-    .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'assets', filter: 'worker_name=eq.' + WORKER_NAME },
+    .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'asset_nodes', filter: 'worker_name=eq.' + WORKER_NAME },
       (payload) => {
-        if (payload.new.status === 'approved') showToast('Your asset ' + payload.new.asset_id + ' was approved!');
-        if (payload.new.status === 'rejected') showToast('Your asset ' + payload.new.asset_id + ' was rejected by supervisor.');
+        const label = payload.new.tag;
+        if (payload.new.status === 'approved') showToast('Your asset ' + label + ' was approved!');
+        if (payload.new.status === 'rejected') showToast('Your asset ' + label + ' was rejected by supervisor.');
       })
     .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'inventory_items', filter: 'worker_name=eq.' + WORKER_NAME },
       (payload) => {
@@ -3412,7 +3431,7 @@ async function loadTodaysBrief() {
   if (chipEl && typeof renderSourceChip === 'function') {
     chipEl.innerHTML = renderSourceChip({
       freshness: 'AI brief · regenerated daily · 8h client cache',
-      source:    'ai_reports',
+      source:    'v_ai_reports_truth',
       notes:     [
         'Types: failure_digest / predictive / pm_overdue',
         'Ordered by generated_at DESC; latest of each type wins',
@@ -3442,15 +3461,15 @@ async function loadPatternAlerts() {
   const content = document.getElementById('pattern-alerts-content');
   if (!panel || !content) return;
 
-  // Source chip — anchors the rendered cards to their canonical fuel
-  // (failure_signature_alerts) + the 4 rule formulas registered in
-  // canonical_formulas. Supervisors can trace any alert label here back
-  // to its trigger condition (see migration 20260513000030).
+  // Source chip — anchors the rendered cards to their canonical fuel.
+  // Page reads via v_alert_truth (UNION of failure_signature_alerts +
+  // anomaly_signals); supervisors can trace any alert label back to its
+  // trigger condition via canonical_formulas (see migration 20260513000030).
   const chipEl = document.getElementById('pattern-alerts-source-chip');
   if (chipEl && typeof renderSourceChip === 'function') {
     chipEl.innerHTML = renderSourceChip({
       freshness: 'Scan: failure-signature-scan edge fn (cron-triggered)',
-      source:    'failure_signature_alerts',
+      source:    'v_alert_truth (kind=signature)',
       notes:     [
         'Rules: repeat_failure / escalating_frequency / multi_symptom / missed_pm',
         'Standard: ISO 14224',
@@ -3619,7 +3638,7 @@ async function askCoach() {
   if (chipEl && typeof renderSourceChip === 'function' && !chipEl.innerHTML) {
     chipEl.innerHTML = renderSourceChip({
       freshness: 'On-demand · ai-orchestrator edge fn (mode: coach)',
-      source:    'v_logbook_truth + v_pm_compliance_truth + v_inventory_items_truth + ai_reports',
+      source:    'v_logbook_truth + v_pm_compliance_truth + v_inventory_items_truth + v_ai_reports_truth',
       notes:     [
         'Output: ranked actions with urgency (TODAY / THIS WEEK / MONITOR)',
         'Model: see canonical_agent_contracts for the coach schema',

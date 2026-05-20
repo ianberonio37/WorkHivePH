@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <!-- dashboard-allow: voice-journal is a personal log; render functions emit conversation turns from agent_memory; not a metric dashboard -->
   <meta charset="UTF-8" />
   <meta name="theme-color" content="#F7A21B" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
@@ -294,7 +295,7 @@
     <div id="signin-gate" class="wh-card p-5 mb-5 fade-up">
       <div class="text-sm font-semibold text-white mb-1">Sign in to journal</div>
       <p class="text-xs text-white/55 mb-3">Your spoken entries are saved privately under your account. Sign in once and they sync across devices.</p>
-      <a href="login.html" class="btn-primary inline-flex" style="text-decoration:none;">Sign in</a>
+      <a href="index.html?signin=1" class="btn-primary inline-flex" style="text-decoration:none;">Sign in</a>
     </div>
 
     <!-- Live capture panel -->

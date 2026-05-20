@@ -242,8 +242,15 @@ def check_server_price_fetch():
             "reason": "marketplace-checkout/index.ts not found",
         })
         return issues
-    # Must fetch listing from DB before charging
-    if not re.search(r"\.from\(\s*['\"]marketplace_listings['\"]\s*\)\s*\.select", content):
+    # Must fetch listing from DB before charging.
+    # 2026-05-20: accept either the raw table OR the canonical view
+    # v_marketplace_listings_truth — both prove the server fetches the price
+    # from the DB rather than trusting the client's input. The view was
+    # introduced by the canonical-drift flywheel (turn 1, commit d22bb86).
+    if not re.search(
+        r"\.from\(\s*['\"](?:marketplace_listings|v_marketplace_listings_truth)['\"]\s*\)\s*\.select",
+        content,
+    ):
         issues.append({
             "check":  "server_price_fetch",
             "reason": "marketplace-checkout does not fetch listing from DB before charging — client could submit any price",

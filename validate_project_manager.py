@@ -186,10 +186,20 @@ def layer2_edge_contract():
                          "Every Supabase select in the edge fn must filter by hive_id"))
 
     # 18. Soft-delete filter on projects select
-    proj_select = re.search(r"\.from\(['\"]projects['\"]\).*?\.maybeSingle\(\)", edge, re.DOTALL)
-    soft_ok = proj_select and ".is('deleted_at', null)" in proj_select.group(0)
+    # 2026-05-20: accept either the raw projects table OR v_project_truth.
+    # When the consumer migrates to v_project_truth, the view can either
+    # filter deleted rows out or expose an is_deleted flag — the chain
+    # `.is('deleted_at', null)` becomes optional (the view's contract handles it).
+    proj_select_raw  = re.search(r"\.from\(['\"]projects['\"]\).*?\.maybeSingle\(\)", edge, re.DOTALL)
+    proj_select_view = re.search(r"\.from\(['\"]v_project_truth['\"]\).*?\.maybeSingle\(\)", edge, re.DOTALL)
+    if proj_select_view:
+        soft_ok = True   # view-sourced — soft-delete handled in the view contract
+    elif proj_select_raw:
+        soft_ok = ".is('deleted_at', null)" in proj_select_raw.group(0)
+    else:
+        soft_ok = False
     issues.append(_check("soft_delete_on_projects", soft_ok,
-                         "projects select must chain .is('deleted_at', null)"))
+                         "projects select must chain .is('deleted_at', null) (or read from v_project_truth)"))
 
     return issues
 

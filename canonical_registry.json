@@ -22,10 +22,7 @@
       },
       "realtime_published": false,
       "comment": "",
-      "read_by_surfaces": [
-        "hive.html",
-        "report-sender.html"
-      ],
+      "read_by_surfaces": [],
       "written_by_surfaces": [],
       "read_by_edge_fns": [
         "scheduled-agents"
@@ -204,8 +201,7 @@
       "realtime_published": false,
       "comment": "",
       "read_by_surfaces": [
-        "community.html",
-        "public-feed.html"
+        "community.html"
       ],
       "written_by_surfaces": [
         "community.html"
@@ -332,12 +328,8 @@
       },
       "realtime_published": false,
       "comment": "",
-      "read_by_surfaces": [
-        "index.html"
-      ],
-      "written_by_surfaces": [
-        "index.html"
-      ],
+      "read_by_surfaces": [],
+      "written_by_surfaces": [],
       "read_by_edge_fns": [],
       "written_by_edge_fns": []
     },
@@ -555,7 +547,6 @@
       "comment": "",
       "read_by_surfaces": [
         "asset-hub.html",
-        "community.html",
         "hive.html",
         "inventory.html",
         "logbook.html",
@@ -565,12 +556,7 @@
       "written_by_surfaces": [
         "hive.html"
       ],
-      "read_by_edge_fns": [
-        "analytics-orchestrator",
-        "cmms-sync",
-        "cmms-webhook-receiver",
-        "export-hive-data"
-      ],
+      "read_by_edge_fns": [],
       "written_by_edge_fns": []
     },
     "hives": {
@@ -603,22 +589,12 @@
       "realtime_published": false,
       "comment": "",
       "read_by_surfaces": [
-        "analytics-report.html",
         "hive.html"
       ],
       "written_by_surfaces": [
         "hive.html"
       ],
-      "read_by_edge_fns": [
-        "amc-orchestrator",
-        "batch-risk-scoring",
-        "benchmark-compute",
-        "failure-signature-scan",
-        "parts-staging-recommender",
-        "scheduled-agents",
-        "send-report-email",
-        "shift-planner-orchestrator"
-      ],
+      "read_by_edge_fns": [],
       "written_by_edge_fns": []
     },
     "inventory_items": {
@@ -716,11 +692,7 @@
         "inventory.html",
         "logbook.html"
       ],
-      "read_by_edge_fns": [
-        "analytics-orchestrator",
-        "batch-risk-scoring",
-        "trigger-ml-retrain"
-      ],
+      "read_by_edge_fns": [],
       "written_by_edge_fns": []
     },
     "logbook": {
@@ -790,12 +762,11 @@
       ],
       "read_by_edge_fns": [
         "cmms-sync",
-        "cmms-webhook-receiver",
-        "parts-staging-recommender",
-        "trigger-ml-retrain"
+        "cmms-webhook-receiver"
       ],
       "written_by_edge_fns": [
-        "cmms-sync"
+        "cmms-sync",
+        "cmms-webhook-receiver"
       ]
     },
     "marketplace_disputes": {
@@ -872,7 +843,6 @@
       "realtime_published": false,
       "comment": "",
       "read_by_surfaces": [
-        "marketplace-seller-profile.html",
         "marketplace-seller.html",
         "marketplace.html"
       ],
@@ -921,21 +891,16 @@
       "realtime_published": false,
       "comment": "",
       "read_by_surfaces": [
-        "asset-hub.html",
         "marketplace-admin.html",
-        "marketplace-seller-profile.html",
         "marketplace-seller.html",
-        "marketplace.html",
-        "project-manager.html"
+        "marketplace.html"
       ],
       "written_by_surfaces": [
         "marketplace-admin.html",
         "marketplace-seller.html",
         "marketplace.html"
       ],
-      "read_by_edge_fns": [
-        "marketplace-checkout"
-      ],
+      "read_by_edge_fns": [],
       "written_by_edge_fns": []
     },
     "marketplace_orders": {
@@ -973,9 +938,7 @@
       "realtime_published": false,
       "comment": "",
       "read_by_surfaces": [
-        "founder-console.html",
         "marketplace-admin.html",
-        "marketplace-seller.html",
         "marketplace.html"
       ],
       "written_by_surfaces": [
@@ -1242,7 +1205,6 @@
       "comment": "",
       "read_by_surfaces": [
         "asset-hub.html",
-        "index.html",
         "integrations.html",
         "logbook.html",
         "pm-scheduler.html"
@@ -1253,12 +1215,7 @@
         "logbook.html",
         "pm-scheduler.html"
       ],
-      "read_by_edge_fns": [
-        "ai-orchestrator",
-        "analytics-orchestrator",
-        "batch-risk-scoring",
-        "trigger-ml-retrain"
-      ],
+      "read_by_edge_fns": [],
       "written_by_edge_fns": []
     },
     "pm_completions": {
@@ -1294,7 +1251,6 @@
       "read_by_surfaces": [
         "asset-hub.html",
         "hive.html",
-        "index.html",
         "logbook.html",
         "pm-scheduler.html",
         "project-manager.html"
@@ -1303,14 +1259,7 @@
         "logbook.html",
         "pm-scheduler.html"
       ],
-      "read_by_edge_fns": [
-        "ai-orchestrator",
-        "analytics-orchestrator",
-        "asset-brain-query",
-        "batch-risk-scoring",
-        "scheduled-agents",
-        "trigger-ml-retrain"
-      ],
+      "read_by_edge_fns": [],
       "written_by_edge_fns": []
     },
     "pm_knowledge": {
@@ -1497,8 +1446,6 @@
       "realtime_published": false,
       "comment": "",
       "read_by_surfaces": [
-        "assistant.html",
-        "hive.html",
         "skillmatrix.html"
       ],
       "written_by_surfaces": [
@@ -1639,22 +1586,13 @@
       "realtime_published": false,
       "comment": "",
       "read_by_surfaces": [
-        "index.html",
         "voice-journal.html"
       ],
       "written_by_surfaces": [
-        "index.html",
         "voice-journal.html"
       ],
-      "read_by_edge_fns": [
-        "ai-gateway",
-        "analytics-orchestrator",
-        "platform-gateway",
-        "voice-logbook-entry"
-      ],
-      "written_by_edge_fns": [
-        "platform-gateway"
-      ]
+      "read_by_edge_fns": [],
+      "written_by_edge_fns": []
     },
     "projects": {
       "defined_in": "20260505000000_project_manager.sql",
@@ -1686,17 +1624,12 @@
       "read_by_surfaces": [
         "logbook.html",
         "pm-scheduler.html",
-        "project-manager.html",
-        "project-report.html"
+        "project-manager.html"
       ],
       "written_by_surfaces": [
         "project-manager.html"
       ],
-      "read_by_edge_fns": [
-        "project-orchestrator",
-        "project-progress",
-        "scheduled-agents"
-      ],
+      "read_by_edge_fns": [],
       "written_by_edge_fns": []
     },
     "project_items": {
@@ -1727,16 +1660,12 @@
       "realtime_published": true,
       "comment": "",
       "read_by_surfaces": [
-        "project-manager.html",
-        "project-report.html"
+        "project-manager.html"
       ],
       "written_by_surfaces": [
         "project-manager.html"
       ],
-      "read_by_edge_fns": [
-        "project-orchestrator",
-        "project-progress"
-      ],
+      "read_by_edge_fns": [],
       "written_by_edge_fns": []
     },
     "project_links": {
@@ -1793,17 +1722,12 @@
       "realtime_published": true,
       "comment": "",
       "read_by_surfaces": [
-        "project-manager.html",
-        "project-report.html"
+        "project-manager.html"
       ],
       "written_by_surfaces": [
         "project-manager.html"
       ],
-      "read_by_edge_fns": [
-        "project-orchestrator",
-        "project-progress",
-        "scheduled-agents"
-      ],
+      "read_by_edge_fns": [],
       "written_by_edge_fns": []
     },
     "project_roles": {
@@ -1911,10 +1835,7 @@
       "realtime_published": false,
       "comment": "",
       "read_by_surfaces": [
-        "asset-hub.html",
-        "integrations.html",
-        "logbook.html",
-        "plant-connections.html"
+        "integrations.html"
       ],
       "written_by_surfaces": [
         "integrations.html"
@@ -1991,9 +1912,7 @@
       "realtime_published": false,
       "comment": "",
       "read_by_surfaces": [
-        "alert-hub.html",
-        "hive.html",
-        "index.html"
+        "alert-hub.html"
       ],
       "written_by_surfaces": [],
       "read_by_edge_fns": [
@@ -2199,9 +2118,7 @@
       },
       "realtime_published": true,
       "comment": "Per-worker achievement progress. Public read via direct SELECT (no RLS). Writes via SECURITY DEFINER triggers only.",
-      "read_by_surfaces": [
-        "achievements.html"
-      ],
+      "read_by_surfaces": [],
       "written_by_surfaces": [],
       "read_by_edge_fns": [],
       "written_by_edge_fns": []
@@ -2289,12 +2206,14 @@
       "read_by_surfaces": [],
       "written_by_surfaces": [],
       "read_by_edge_fns": [
+        "_shared/rate-limit.ts",
         "asset-brain-query",
         "fmea-populator",
         "visual-defect-capture",
         "voice-action-router"
       ],
       "written_by_edge_fns": [
+        "_shared/rate-limit.ts",
         "asset-brain-query",
         "fmea-populator",
         "visual-defect-capture",
@@ -2362,12 +2281,7 @@
         "inventory.html",
         "logbook.html"
       ],
-      "read_by_edge_fns": [
-        "asset-brain-query",
-        "batch-risk-scoring",
-        "equipment-label-ocr",
-        "sensor-readings-ingest"
-      ],
+      "read_by_edge_fns": [],
       "written_by_edge_fns": []
     },
     "asset_edges": {
@@ -2812,8 +2726,12 @@
       "comment": "",
       "read_by_surfaces": [],
       "written_by_surfaces": [],
-      "read_by_edge_fns": [],
-      "written_by_edge_fns": []
+      "read_by_edge_fns": [
+        "_shared/memory.ts"
+      ],
+      "written_by_edge_fns": [
+        "_shared/memory.ts"
+      ]
     },
     "hive_quotas": {
       "defined_in": "20260511000003_hive_quotas.sql",
@@ -2886,8 +2804,12 @@
         "founder-console.html"
       ],
       "written_by_surfaces": [],
-      "read_by_edge_fns": [],
-      "written_by_edge_fns": []
+      "read_by_edge_fns": [
+        "_shared/cost-log.ts"
+      ],
+      "written_by_edge_fns": [
+        "_shared/cost-log.ts"
+      ]
     },
     "ai_quality_log": {
       "defined_in": "20260511000006_ai_quality_log.sql",
@@ -3039,7 +2961,9 @@
       "comment": "",
       "read_by_surfaces": [],
       "written_by_surfaces": [],
-      "read_by_edge_fns": [],
+      "read_by_edge_fns": [
+        "_shared/rate-limit.ts"
+      ],
       "written_by_edge_fns": []
     },
     "hive_route_calls": {
@@ -3068,8 +2992,12 @@
       "comment": "",
       "read_by_surfaces": [],
       "written_by_surfaces": [],
-      "read_by_edge_fns": [],
-      "written_by_edge_fns": []
+      "read_by_edge_fns": [
+        "_shared/rate-limit.ts"
+      ],
+      "written_by_edge_fns": [
+        "_shared/rate-limit.ts"
+      ]
     },
     "voice_journal_entries": {
       "defined_in": "20260511000014_voice_journal_entries.sql",
@@ -3108,9 +3036,12 @@
       ],
       "written_by_surfaces": [],
       "read_by_edge_fns": [
+        "_shared/journal-recall.ts",
         "voice-semantic-rag"
       ],
-      "written_by_edge_fns": []
+      "written_by_edge_fns": [
+        "_shared/journal-recall.ts"
+      ]
     },
     "amc_briefings": {
       "defined_in": "20260512000002_amc_briefings.sql",
@@ -3148,8 +3079,7 @@
       "realtime_published": true,
       "comment": "Autonomous Maintenance Crew daily briefing. One row per (hive, shift_date). brief JSONB carries the 5 sub-agent outputs. Supervisor approves in batch via alert-hub.html.",
       "read_by_surfaces": [
-        "alert-hub.html",
-        "index.html"
+        "alert-hub.html"
       ],
       "written_by_surfaces": [
         "alert-hub.html"
@@ -3195,10 +3125,7 @@
       },
       "realtime_published": true,
       "comment": "Time-series sensor readings per asset. Ingested via the sensor-readings-ingest edge function from a plant-side MQTT bridge or OPC-UA gateway. Dedup via external_key (source + asset + parameter + recorded_at).",
-      "read_by_surfaces": [
-        "asset-hub.html",
-        "index.html"
-      ],
+      "read_by_surfaces": [],
       "written_by_surfaces": [],
       "read_by_edge_fns": [
         "sensor-readings-ingest"
@@ -3327,7 +3254,9 @@
       "comment": "Tier C: JSON Schema registry for AI/brain outputs. Locks the response shape so multiple consumers can rely on identical fields. Versioned per agent.",
       "read_by_surfaces": [],
       "written_by_surfaces": [],
-      "read_by_edge_fns": [],
+      "read_by_edge_fns": [
+        "_shared/validate-contract.ts"
+      ],
       "written_by_edge_fns": []
     },
     "canonical_capture_contracts": {
@@ -4431,7 +4360,7 @@
         ]
       },
       "realtime_published": false,
-      "comment": "Layer -1.5 canonical contract \u2014 explicit edge graph linking capture/column/table/view/formula/agent/tile/dashboard nodes. Audited by tools/audit_phantom_*.py and tools/audit_calm_dashboard_canonical.py. File mirror: canonical/lineage_edges.json.",
+      "comment": "Layer -1.5 canonical contract: explicit edge graph linking capture/column/table/view/formula/agent/tile/dashboard nodes. Audited by tools/audit_phantom_*.py and tools/audit_calm_dashboard_canonical.py. File mirror: canonical/lineage_edges.json.",
       "read_by_surfaces": [],
       "written_by_surfaces": [],
       "read_by_edge_fns": [],
@@ -4451,9 +4380,12 @@
       ],
       "read_by_edge_fns": [
         "asset-brain-query",
+        "batch-risk-scoring",
+        "equipment-label-ocr",
         "fmea-populator",
         "pf-calculator",
         "platform-scraper",
+        "sensor-readings-ingest",
         "visual-defect-capture",
         "voice-action-router",
         "weibull-fitter"
@@ -4464,7 +4396,6 @@
       "read_by_surfaces": [
         "alert-hub.html",
         "asset-hub.html",
-        "index.html",
         "predictive.html"
       ],
       "read_by_edge_fns": [
@@ -4482,16 +4413,18 @@
         "alert-hub.html",
         "assistant.html",
         "hive.html",
-        "index.html",
         "logbook.html"
       ],
       "read_by_edge_fns": [
         "ai-orchestrator",
         "amc-orchestrator",
         "analytics-orchestrator",
+        "asset-brain-query",
+        "batch-risk-scoring",
         "embed-entry",
         "scheduled-agents",
-        "shift-planner-orchestrator"
+        "shift-planner-orchestrator",
+        "trigger-ml-retrain"
       ]
     },
     "v_fmea_truth": {
@@ -4539,7 +4472,7 @@
         "assistant.html",
         "dayplanner.html",
         "hive.html",
-        "index.html",
+        "integrations.html",
         "project-manager.html"
       ],
       "read_by_edge_fns": [
@@ -4551,9 +4484,11 @@
         "failure-signature-scan",
         "fmea-populator",
         "intelligence-report",
+        "parts-staging-recommender",
         "pf-calculator",
         "scheduled-agents",
         "shift-planner-orchestrator",
+        "trigger-ml-retrain",
         "weibull-fitter"
       ]
     },
@@ -4563,7 +4498,7 @@
         "alert-hub.html",
         "assistant.html",
         "hive.html",
-        "index.html",
+        "inventory.html",
         "project-manager.html"
       ],
       "read_by_edge_fns": [
@@ -4580,7 +4515,8 @@
       "defined_in": "20260510000004_v_pm_scope_items_truth.sql",
       "read_by_surfaces": [
         "hive.html",
-        "logbook.html"
+        "logbook.html",
+        "pm-scheduler.html"
       ],
       "read_by_edge_fns": [
         "analytics-orchestrator",
@@ -4624,11 +4560,20 @@
       "defined_in": "20260512000012_canonical_anchor_batch.sql",
       "read_by_surfaces": [
         "achievements.html",
+        "community.html",
         "hive.html",
-        "index.html",
-        "shift-brain.html"
+        "shift-brain.html",
+        "voice-journal.html"
       ],
-      "read_by_edge_fns": []
+      "read_by_edge_fns": [
+        "ai-gateway",
+        "analytics-orchestrator",
+        "cmms-sync",
+        "cmms-webhook-receiver",
+        "export-hive-data",
+        "platform-gateway",
+        "voice-logbook-entry"
+      ]
     },
     "v_worker_assignment_truth": {
       "defined_in": "20260512000012_canonical_anchor_batch.sql",
@@ -4639,8 +4584,14 @@
     },
     "v_project_truth": {
       "defined_in": "20260512000013_tier_bcde_foundation.sql",
-      "read_by_surfaces": [],
-      "read_by_edge_fns": []
+      "read_by_surfaces": [
+        "project-report.html"
+      ],
+      "read_by_edge_fns": [
+        "project-orchestrator",
+        "project-progress",
+        "scheduled-agents"
+      ]
     },
     "v_knowledge_truth": {
       "defined_in": "20260512000013_tier_bcde_foundation.sql",
@@ -4717,17 +4668,154 @@
     },
     "v_alert_truth": {
       "defined_in": "20260520000010_v_alert_truth.sql",
-      "read_by_surfaces": [],
+      "read_by_surfaces": [
+        "hive.html"
+      ],
       "read_by_edge_fns": []
     },
     "v_amc_truth": {
       "defined_in": "20260520000011_v_amc_truth.sql",
       "read_by_surfaces": [],
-      "read_by_edge_fns": []
+      "read_by_edge_fns": [
+        "amc-orchestrator"
+      ]
     },
     "v_sensor_truth": {
       "defined_in": "20260520000012_v_sensor_truth.sql",
-      "read_by_surfaces": [],
+      "read_by_surfaces": [
+        "asset-hub.html"
+      ],
+      "read_by_edge_fns": []
+    },
+    "v_marketplace_listings_truth": {
+      "defined_in": "20260520000017_v_marketplace_listings_truth.sql",
+      "read_by_surfaces": [
+        "asset-hub.html",
+        "marketplace-admin.html",
+        "marketplace-seller-profile.html",
+        "marketplace-seller.html",
+        "marketplace.html",
+        "project-manager.html"
+      ],
+      "read_by_edge_fns": [
+        "marketplace-checkout"
+      ]
+    },
+    "v_community_posts_truth": {
+      "defined_in": "20260520000018_v_community_posts_truth.sql",
+      "read_by_surfaces": [
+        "community.html",
+        "public-feed.html"
+      ],
+      "read_by_edge_fns": []
+    },
+    "v_hives_truth": {
+      "defined_in": "20260520000019_v_hives_truth.sql",
+      "read_by_surfaces": [
+        "analytics-report.html",
+        "hive.html"
+      ],
+      "read_by_edge_fns": [
+        "amc-orchestrator",
+        "batch-risk-scoring",
+        "benchmark-compute",
+        "failure-signature-scan",
+        "parts-staging-recommender",
+        "scheduled-agents",
+        "send-report-email",
+        "shift-planner-orchestrator"
+      ]
+    },
+    "v_marketplace_inquiries_truth": {
+      "defined_in": "20260520000020_v_marketplace_inquiries_truth.sql",
+      "read_by_surfaces": [
+        "marketplace-seller-profile.html",
+        "marketplace-seller.html"
+      ],
+      "read_by_edge_fns": []
+    },
+    "v_external_sync_truth": {
+      "defined_in": "20260520000021_v_external_sync_truth.sql",
+      "read_by_surfaces": [
+        "asset-hub.html",
+        "integrations.html",
+        "logbook.html",
+        "plant-connections.html"
+      ],
+      "read_by_edge_fns": [
+        "cmms-push-completion",
+        "cmms-webhook-receiver"
+      ]
+    },
+    "v_inventory_transactions_truth": {
+      "defined_in": "20260520000022_v_inventory_transactions_truth.sql",
+      "read_by_surfaces": [
+        "inventory.html",
+        "logbook.html"
+      ],
+      "read_by_edge_fns": [
+        "analytics-orchestrator",
+        "batch-risk-scoring",
+        "trigger-ml-retrain"
+      ]
+    },
+    "v_marketplace_orders_truth": {
+      "defined_in": "20260520000023_v_marketplace_orders_truth.sql",
+      "read_by_surfaces": [
+        "founder-console.html",
+        "marketplace-seller.html",
+        "marketplace.html"
+      ],
+      "read_by_edge_fns": [
+        "marketplace-release",
+        "marketplace-webhook"
+      ]
+    },
+    "v_project_items_truth": {
+      "defined_in": "20260520000024_v_project_items_progress_truth.sql",
+      "read_by_surfaces": [
+        "project-manager.html",
+        "project-report.html"
+      ],
+      "read_by_edge_fns": [
+        "project-orchestrator",
+        "project-progress"
+      ]
+    },
+    "v_project_progress_truth": {
+      "defined_in": "20260520000024_v_project_items_progress_truth.sql",
+      "read_by_surfaces": [
+        "project-manager.html",
+        "project-report.html"
+      ],
+      "read_by_edge_fns": [
+        "project-orchestrator",
+        "project-progress",
+        "scheduled-agents"
+      ]
+    },
+    "v_ai_reports_truth": {
+      "defined_in": "20260520000025_v_ai_reports_skill_badges_achievements_truth.sql",
+      "read_by_surfaces": [
+        "hive.html",
+        "report-sender.html"
+      ],
+      "read_by_edge_fns": []
+    },
+    "v_skill_badges_truth": {
+      "defined_in": "20260520000025_v_ai_reports_skill_badges_achievements_truth.sql",
+      "read_by_surfaces": [
+        "assistant.html",
+        "hive.html",
+        "skillmatrix.html"
+      ],
+      "read_by_edge_fns": []
+    },
+    "v_worker_achievements_truth": {
+      "defined_in": "20260520000025_v_ai_reports_skill_badges_achievements_truth.sql",
+      "read_by_surfaces": [
+        "achievements.html"
+      ],
       "read_by_edge_fns": []
     }
   },
@@ -5077,11 +5165,12 @@
     },
     "search_voice_journal_entries": {
       "defined_in": "20260511000014_voice_journal_entries.sql",
-      "args": "query_embedding vector(384",
+      "args": "query_embedding vector(384),\n  match_auth_uid  uuid,\n  match_count     int DEFAULT 5",
       "security_definer": false,
       "comment": "",
       "called_by_surfaces": [],
       "called_by_edge_fns": [
+        "_shared/journal-recall.ts",
         "voice-semantic-rag"
       ]
     },
@@ -5344,13 +5433,13 @@
     "achievements.html": {
       "tables_read": [
         "achievement_xp_log",
-        "v_worker_truth",
-        "worker_achievements"
+        "v_worker_achievements_truth",
+        "v_worker_truth"
       ],
       "tables_written": [],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "size_kb": 44.7
+      "size_kb": 44.9
     },
     "ai-quality.html": {
       "tables_read": [
@@ -5387,7 +5476,7 @@
     },
     "analytics-report.html": {
       "tables_read": [
-        "hives"
+        "v_hives_truth"
       ],
       "tables_written": [],
       "rpcs_called": [],
@@ -5399,7 +5488,7 @@
       "tables_written": [],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "size_kb": 128.1
+      "size_kb": 129.0
     },
     "architecture.html": {
       "tables_read": [],
@@ -5413,10 +5502,8 @@
         "asset_edges",
         "asset_nodes",
         "equipment_reading_templates",
-        "external_sync",
         "hive_audit_log",
         "hive_members",
-        "marketplace_listings",
         "parts_staged_reservations",
         "parts_staging_recommendations",
         "pm_assets",
@@ -5424,14 +5511,16 @@
         "pm_scope_items",
         "rcm_fmea_modes",
         "rcm_strategies",
-        "sensor_readings",
         "v_asset_truth",
+        "v_external_sync_truth",
         "v_fmea_truth",
         "v_logbook_truth",
+        "v_marketplace_listings_truth",
         "v_pf_truth",
         "v_rcm_truth",
         "v_risk_truth",
         "v_sensor_recent",
+        "v_sensor_truth",
         "v_weibull_truth"
       ],
       "tables_written": [
@@ -5452,21 +5541,21 @@
         "pf-calculator",
         "weibull-fitter"
       ],
-      "size_kb": 177.2
+      "size_kb": 177.9
     },
     "assistant.html": {
       "tables_read": [
         "schedule_items",
-        "skill_badges",
         "v_inventory_items_truth",
         "v_logbook_truth",
         "v_pm_compliance_truth",
+        "v_skill_badges_truth",
         "voice_journal_entries"
       ],
       "tables_written": [],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "size_kb": 50.4
+      "size_kb": 50.5
     },
     "audit-log.html": {
       "tables_read": [
@@ -5484,7 +5573,8 @@
         "community_replies",
         "community_xp",
         "hive_audit_log",
-        "hive_members"
+        "v_community_posts_truth",
+        "v_worker_truth"
       ],
       "tables_written": [
         "community_posts",
@@ -5494,7 +5584,7 @@
       ],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "size_kb": 108.3
+      "size_kb": 108.4
     },
     "dayplanner.html": {
       "tables_read": [
@@ -5522,7 +5612,7 @@
         "engineering-bom-sow",
         "engineering-calc-agent"
       ],
-      "size_kb": 2192.8
+      "size_kb": 2192.9
     },
     "founder-console.html": {
       "tables_read": [
@@ -5530,23 +5620,21 @@
         "analytics_events",
         "hive_audit_log",
         "marketplace_disputes",
-        "marketplace_orders",
         "platform_feedback",
-        "v_hive_readiness_truth"
+        "v_hive_readiness_truth",
+        "v_marketplace_orders_truth"
       ],
       "tables_written": [
         "platform_feedback"
       ],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "size_kb": 98.1
+      "size_kb": 98.3
     },
     "hive.html": {
       "tables_read": [
-        "ai_reports",
         "asset_nodes",
         "community_xp",
-        "failure_signature_alerts",
         "hive_audit_log",
         "hive_benchmarks",
         "hive_members",
@@ -5554,12 +5642,15 @@
         "logbook",
         "network_benchmarks",
         "pm_completions",
-        "skill_badges",
+        "v_ai_reports_truth",
+        "v_alert_truth",
+        "v_hives_truth",
         "v_inventory_items_truth",
         "v_knowledge_freshness_truth",
         "v_logbook_truth",
         "v_pm_compliance_truth",
         "v_pm_scope_items_truth",
+        "v_skill_badges_truth",
         "v_worker_truth"
       ],
       "tables_written": [
@@ -5578,30 +5669,14 @@
         "ai-orchestrator",
         "benchmark-compute"
       ],
-      "size_kb": 202.3
+      "size_kb": 204.4
     },
     "index.html": {
-      "tables_read": [
-        "amc_briefings",
-        "early_access_emails",
-        "failure_signature_alerts",
-        "pm_assets",
-        "pm_completions",
-        "sensor_readings",
-        "v_inventory_items_truth",
-        "v_logbook_truth",
-        "v_pm_compliance_truth",
-        "v_risk_truth",
-        "v_worker_truth",
-        "worker_profiles"
-      ],
-      "tables_written": [
-        "early_access_emails",
-        "worker_profiles"
-      ],
+      "tables_read": [],
+      "tables_written": [],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "size_kb": 214.6
+      "size_kb": 92.0
     },
     "integrations.html": {
       "tables_read": [
@@ -5614,7 +5689,9 @@
         "inventory_items",
         "logbook",
         "pm_assets",
-        "pm_scope_items"
+        "pm_scope_items",
+        "v_external_sync_truth",
+        "v_logbook_truth"
       ],
       "tables_written": [
         "api_keys",
@@ -5641,7 +5718,9 @@
         "hive_members",
         "inventory_items",
         "inventory_transactions",
-        "parts_staged_reservations"
+        "parts_staged_reservations",
+        "v_inventory_items_truth",
+        "v_inventory_transactions_truth"
       ],
       "tables_written": [
         "asset_nodes",
@@ -5651,13 +5730,12 @@
       ],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "size_kb": 91.7
+      "size_kb": 93.7
     },
     "logbook.html": {
       "tables_read": [
         "asset_nodes",
         "equipment_reading_templates",
-        "external_sync",
         "fault_knowledge",
         "hive_audit_log",
         "hive_members",
@@ -5668,6 +5746,8 @@
         "pm_completions",
         "project_links",
         "projects",
+        "v_external_sync_truth",
+        "v_inventory_transactions_truth",
         "v_pm_compliance_truth",
         "v_pm_scope_items_truth"
       ],
@@ -5688,7 +5768,7 @@
         "visual-defect-capture",
         "voice-logbook-entry"
       ],
-      "size_kb": 269.2
+      "size_kb": 270.4
     },
     "marketplace-admin.html": {
       "tables_read": [
@@ -5698,6 +5778,7 @@
         "marketplace_orders",
         "marketplace_platform_admins",
         "marketplace_sellers",
+        "v_marketplace_listings_truth",
         "v_marketplace_sellers_truth"
       ],
       "tables_written": [
@@ -5713,15 +5794,15 @@
     },
     "marketplace-seller-profile.html": {
       "tables_read": [
-        "marketplace_inquiries",
-        "marketplace_listings",
         "marketplace_reviews",
+        "v_marketplace_inquiries_truth",
+        "v_marketplace_listings_truth",
         "v_marketplace_sellers_truth"
       ],
       "tables_written": [],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "size_kb": 31.5
+      "size_kb": 31.9
     },
     "marketplace-seller.html": {
       "tables_read": [
@@ -5729,8 +5810,10 @@
         "marketplace_disputes",
         "marketplace_inquiries",
         "marketplace_listings",
-        "marketplace_orders",
         "marketplace_sellers",
+        "v_marketplace_inquiries_truth",
+        "v_marketplace_listings_truth",
+        "v_marketplace_orders_truth",
         "v_marketplace_sellers_truth"
       ],
       "tables_written": [
@@ -5742,7 +5825,7 @@
       ],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "size_kb": 82.4
+      "size_kb": 83.9
     },
     "marketplace.html": {
       "tables_read": [
@@ -5755,6 +5838,8 @@
         "marketplace_reviews",
         "marketplace_saved_searches",
         "marketplace_watchlist",
+        "v_marketplace_listings_truth",
+        "v_marketplace_orders_truth",
         "v_marketplace_sellers_truth"
       ],
       "tables_written": [
@@ -5771,7 +5856,7 @@
         "increment_listing_view"
       ],
       "edge_fns_invoked": [],
-      "size_kb": 153.7
+      "size_kb": 153.8
     },
     "parts-tracker.html": {
       "tables_read": [],
@@ -5790,16 +5875,16 @@
       "edge_fns_invoked": [
         "intelligence-report"
       ],
-      "size_kb": 30.0
+      "size_kb": 30.2
     },
     "plant-connections.html": {
       "tables_read": [
-        "external_sync",
         "gateway_audit_log",
         "hive_retention_config",
         "integration_configs",
         "sensor_topic_map",
-        "sso_configs"
+        "sso_configs",
+        "v_external_sync_truth"
       ],
       "tables_written": [],
       "rpcs_called": [],
@@ -5813,7 +5898,7 @@
       "tables_written": [],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "size_kb": 121.9
+      "size_kb": 122.0
     },
     "pm-scheduler.html": {
       "tables_read": [
@@ -5825,7 +5910,8 @@
         "pm_completions",
         "pm_scope_items",
         "project_links",
-        "projects"
+        "projects",
+        "v_pm_scope_items_truth"
       ],
       "tables_written": [
         "hive_audit_log",
@@ -5837,7 +5923,7 @@
       ],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "size_kb": 116.7
+      "size_kb": 118.4
     },
     "predictive.html": {
       "tables_read": [
@@ -5855,7 +5941,6 @@
         "asset_nodes",
         "engineering_calcs",
         "hive_members",
-        "marketplace_listings",
         "pm_completions",
         "project_change_orders",
         "project_items",
@@ -5864,7 +5949,10 @@
         "project_roles",
         "projects",
         "v_inventory_items_truth",
-        "v_logbook_truth"
+        "v_logbook_truth",
+        "v_marketplace_listings_truth",
+        "v_project_items_truth",
+        "v_project_progress_truth"
       ],
       "tables_written": [
         "project_change_orders",
@@ -5883,42 +5971,42 @@
         "project-orchestrator",
         "project-progress"
       ],
-      "size_kb": 150.4
+      "size_kb": 150.9
     },
     "project-report.html": {
       "tables_read": [
-        "project_items",
         "project_links",
-        "project_progress_logs",
-        "projects"
+        "v_project_items_truth",
+        "v_project_progress_truth",
+        "v_project_truth"
       ],
       "tables_written": [],
       "rpcs_called": [],
       "edge_fns_invoked": [
         "project-orchestrator"
       ],
-      "size_kb": 28.5
+      "size_kb": 28.8
     },
     "public-feed.html": {
       "tables_read": [
-        "community_posts"
+        "v_community_posts_truth"
       ],
       "tables_written": [],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "size_kb": 10.0
+      "size_kb": 10.2
     },
     "report-sender.html": {
       "tables_read": [
-        "ai_reports",
-        "report_contacts"
+        "report_contacts",
+        "v_ai_reports_truth"
       ],
       "tables_written": [
         "report_contacts"
       ],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "size_kb": 84.3
+      "size_kb": 84.4
     },
     "shift-brain.html": {
       "tables_read": [
@@ -5932,13 +6020,14 @@
       "edge_fns_invoked": [
         "shift-planner-orchestrator"
       ],
-      "size_kb": 38.3
+      "size_kb": 38.6
     },
     "skillmatrix.html": {
       "tables_read": [
         "skill_badges",
         "skill_exam_attempts",
-        "skill_profiles"
+        "skill_profiles",
+        "v_skill_badges_truth"
       ],
       "tables_written": [
         "skill_badges",
@@ -5947,7 +6036,7 @@
       ],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "size_kb": 61.4
+      "size_kb": 61.6
     },
     "symbol-gallery.html": {
       "tables_read": [],
@@ -5958,6 +6047,7 @@
     },
     "voice-journal.html": {
       "tables_read": [
+        "v_worker_truth",
         "voice_journal_entries",
         "worker_profiles"
       ],
@@ -5968,10 +6058,173 @@
       "edge_fns_invoked": [
         "ai-gateway"
       ],
-      "size_kb": 42.9
+      "size_kb": 43.0
+    },
+    "findings.html": {
+      "tables_read": [],
+      "tables_written": [],
+      "rpcs_called": [],
+      "edge_fns_invoked": [],
+      "size_kb": 8.8
+    },
+    "lineage.html": {
+      "tables_read": [],
+      "tables_written": [],
+      "rpcs_called": [],
+      "edge_fns_invoked": [],
+      "size_kb": 24.7
+    },
+    "token_stats.html": {
+      "tables_read": [],
+      "tables_written": [],
+      "rpcs_called": [],
+      "edge_fns_invoked": [],
+      "size_kb": 23.9
+    },
+    "workhive_index.html": {
+      "tables_read": [],
+      "tables_written": [],
+      "rpcs_called": [],
+      "edge_fns_invoked": [],
+      "size_kb": 3.0
+    },
+    "snapshot.html": {
+      "tables_read": [],
+      "tables_written": [],
+      "rpcs_called": [],
+      "edge_fns_invoked": [],
+      "size_kb": 0.9
+    },
+    "uiMode.html": {
+      "tables_read": [],
+      "tables_written": [],
+      "rpcs_called": [],
+      "edge_fns_invoked": [],
+      "size_kb": 0.6
     }
   },
   "edge_fns": {
+    "_shared/ai-chain.ts": {
+      "tables_read": [],
+      "tables_written": [],
+      "rpcs_called": [],
+      "edge_fns_invoked": [],
+      "loc": 196
+    },
+    "_shared/audio-chain.ts": {
+      "tables_read": [],
+      "tables_written": [],
+      "rpcs_called": [],
+      "edge_fns_invoked": [],
+      "loc": 68
+    },
+    "_shared/context-budget.ts": {
+      "tables_read": [],
+      "tables_written": [],
+      "rpcs_called": [],
+      "edge_fns_invoked": [],
+      "loc": 73
+    },
+    "_shared/cors.ts": {
+      "tables_read": [],
+      "tables_written": [],
+      "rpcs_called": [],
+      "edge_fns_invoked": [],
+      "loc": 34
+    },
+    "_shared/cost-log.ts": {
+      "tables_read": [
+        "ai_cost_log"
+      ],
+      "tables_written": [
+        "ai_cost_log"
+      ],
+      "rpcs_called": [],
+      "edge_fns_invoked": [],
+      "loc": 78
+    },
+    "_shared/embedding-chain.ts": {
+      "tables_read": [],
+      "tables_written": [],
+      "rpcs_called": [],
+      "edge_fns_invoked": [],
+      "loc": 192
+    },
+    "_shared/journal-recall.ts": {
+      "tables_read": [
+        "voice_journal_entries"
+      ],
+      "tables_written": [
+        "voice_journal_entries"
+      ],
+      "rpcs_called": [
+        "search_voice_journal_entries"
+      ],
+      "edge_fns_invoked": [],
+      "loc": 148
+    },
+    "_shared/mappings.ts": {
+      "tables_read": [],
+      "tables_written": [],
+      "rpcs_called": [],
+      "edge_fns_invoked": [],
+      "loc": 130
+    },
+    "_shared/memory.ts": {
+      "tables_read": [
+        "agent_memory"
+      ],
+      "tables_written": [
+        "agent_memory"
+      ],
+      "rpcs_called": [],
+      "edge_fns_invoked": [],
+      "loc": 167
+    },
+    "_shared/persona.ts": {
+      "tables_read": [],
+      "tables_written": [],
+      "rpcs_called": [],
+      "edge_fns_invoked": [],
+      "loc": 240
+    },
+    "_shared/rate-limit.ts": {
+      "tables_read": [
+        "ai_rate_limits",
+        "hive_route_calls",
+        "hive_route_quotas"
+      ],
+      "tables_written": [
+        "ai_rate_limits",
+        "hive_route_calls"
+      ],
+      "rpcs_called": [],
+      "edge_fns_invoked": [],
+      "loc": 165
+    },
+    "_shared/redactPII.ts": {
+      "tables_read": [],
+      "tables_written": [],
+      "rpcs_called": [],
+      "edge_fns_invoked": [],
+      "loc": 135
+    },
+    "_shared/validate-contract.ts": {
+      "tables_read": [
+        "canonical_agent_contracts"
+      ],
+      "tables_written": [],
+      "rpcs_called": [],
+      "edge_fns_invoked": [],
+      "loc": 128
+    },
+    "_shared/validateAgentContract.ts": {
+      "tables_read": [],
+      "tables_written": [],
+      "rpcs_called": [],
+      "edge_fns_invoked": [],
+      "loc": 96
+    },
     "ai-eval-runner": {
       "tables_read": [
         "ai_quality_log"
@@ -5985,7 +6238,7 @@
     },
     "ai-gateway": {
       "tables_read": [
-        "worker_profiles"
+        "v_worker_truth"
       ],
       "tables_written": [],
       "rpcs_called": [],
@@ -5994,8 +6247,6 @@
     },
     "ai-orchestrator": {
       "tables_read": [
-        "pm_assets",
-        "pm_completions",
         "v_inventory_items_truth",
         "v_logbook_truth",
         "v_pm_compliance_truth",
@@ -6010,8 +6261,9 @@
     "amc-orchestrator": {
       "tables_read": [
         "amc_briefings",
-        "hives",
         "parts_staging_recommendations",
+        "v_amc_truth",
+        "v_hives_truth",
         "v_pm_compliance_truth",
         "v_risk_truth",
         "v_worker_skill_truth"
@@ -6026,17 +6278,14 @@
     "analytics-orchestrator": {
       "tables_read": [
         "engineering_calcs",
-        "hive_members",
-        "inventory_transactions",
-        "pm_assets",
-        "pm_completions",
         "v_inventory_items_truth",
+        "v_inventory_transactions_truth",
         "v_logbook_truth",
         "v_pm_compliance_truth",
         "v_pm_scope_items_truth",
         "v_risk_truth",
         "v_worker_skill_truth",
-        "worker_profiles"
+        "v_worker_truth"
       ],
       "tables_written": [],
       "rpcs_called": [
@@ -6048,18 +6297,17 @@
         "get_repeat_failures"
       ],
       "edge_fns_invoked": [],
-      "loc": 784
+      "loc": 790
     },
     "asset-brain-query": {
       "tables_read": [
         "ai_rate_limits",
         "asset_edges",
-        "asset_nodes",
-        "pm_completions",
         "v_asset_truth",
         "v_fmea_truth",
         "v_logbook_truth",
         "v_pf_truth",
+        "v_pm_compliance_truth",
         "v_rcm_truth",
         "v_risk_truth",
         "v_weibull_truth"
@@ -6073,16 +6321,15 @@
     },
     "batch-risk-scoring": {
       "tables_read": [
-        "asset_nodes",
         "asset_risk_scores",
         "automation_log",
-        "hives",
-        "inventory_transactions",
-        "pm_assets",
-        "pm_completions",
+        "v_asset_truth",
         "v_fmea_truth",
+        "v_hives_truth",
         "v_inventory_items_truth",
+        "v_inventory_transactions_truth",
         "v_logbook_truth",
+        "v_pm_compliance_truth",
         "v_pm_scope_items_truth",
         "v_weibull_truth"
       ],
@@ -6100,8 +6347,8 @@
       "tables_read": [
         "automation_log",
         "hive_benchmarks",
-        "hives",
         "network_benchmarks",
+        "v_hives_truth",
         "v_logbook_truth"
       ],
       "tables_written": [
@@ -6117,7 +6364,8 @@
       "tables_read": [
         "automation_log",
         "external_sync",
-        "integration_configs"
+        "integration_configs",
+        "v_external_sync_truth"
       ],
       "tables_written": [
         "automation_log",
@@ -6133,9 +6381,9 @@
         "cmms_audit_log",
         "external_sync",
         "fault_knowledge",
-        "hive_members",
         "integration_configs",
-        "logbook"
+        "logbook",
+        "v_worker_truth"
       ],
       "tables_written": [
         "automation_log",
@@ -6152,12 +6400,14 @@
     "cmms-webhook-receiver": {
       "tables_read": [
         "external_sync",
-        "hive_members",
         "integration_configs",
-        "logbook"
+        "logbook",
+        "v_external_sync_truth",
+        "v_worker_truth"
       ],
       "tables_written": [
-        "external_sync"
+        "external_sync",
+        "logbook"
       ],
       "rpcs_called": [],
       "edge_fns_invoked": [],
@@ -6188,7 +6438,7 @@
     },
     "equipment-label-ocr": {
       "tables_read": [
-        "asset_nodes"
+        "v_asset_truth"
       ],
       "tables_written": [],
       "rpcs_called": [],
@@ -6198,7 +6448,7 @@
     "export-hive-data": {
       "tables_read": [
         "hive_audit_log",
-        "hive_members"
+        "v_worker_truth"
       ],
       "tables_written": [
         "hive_audit_log"
@@ -6213,7 +6463,7 @@
       "tables_read": [
         "automation_log",
         "failure_signature_alerts",
-        "hives",
+        "v_hives_truth",
         "v_logbook_truth"
       ],
       "tables_written": [
@@ -6272,8 +6522,8 @@
     },
     "marketplace-checkout": {
       "tables_read": [
-        "marketplace_listings",
         "marketplace_orders",
+        "v_marketplace_listings_truth",
         "v_marketplace_sellers_truth"
       ],
       "tables_written": [
@@ -6310,6 +6560,7 @@
     "marketplace-release": {
       "tables_read": [
         "marketplace_orders",
+        "v_marketplace_orders_truth",
         "v_marketplace_sellers_truth"
       ],
       "tables_written": [
@@ -6321,7 +6572,8 @@
     },
     "marketplace-webhook": {
       "tables_read": [
-        "marketplace_orders"
+        "marketplace_orders",
+        "v_marketplace_orders_truth"
       ],
       "tables_written": [
         "marketplace_orders"
@@ -6333,10 +6585,10 @@
     "parts-staging-recommender": {
       "tables_read": [
         "automation_log",
-        "hives",
-        "logbook",
         "parts_staging_recommendations",
+        "v_hives_truth",
         "v_inventory_items_truth",
+        "v_logbook_truth",
         "v_risk_truth"
       ],
       "tables_written": [
@@ -6374,11 +6626,10 @@
     "platform-gateway": {
       "tables_read": [
         "gateway_audit_log",
-        "worker_profiles"
+        "v_worker_truth"
       ],
       "tables_written": [
-        "gateway_audit_log",
-        "worker_profiles"
+        "gateway_audit_log"
       ],
       "rpcs_called": [],
       "edge_fns_invoked": [],
@@ -6399,9 +6650,9 @@
     },
     "project-orchestrator": {
       "tables_read": [
-        "project_items",
-        "project_progress_logs",
-        "projects"
+        "v_project_items_truth",
+        "v_project_progress_truth",
+        "v_project_truth"
       ],
       "tables_written": [],
       "rpcs_called": [],
@@ -6411,11 +6662,11 @@
     "project-progress": {
       "tables_read": [
         "project_change_orders",
-        "project_items",
         "project_links",
-        "project_progress_logs",
         "project_roles",
-        "projects"
+        "v_project_items_truth",
+        "v_project_progress_truth",
+        "v_project_truth"
       ],
       "tables_written": [],
       "rpcs_called": [],
@@ -6426,13 +6677,12 @@
       "tables_read": [
         "ai_reports",
         "automation_log",
-        "hives",
-        "pm_completions",
         "project_links",
-        "project_progress_logs",
-        "projects",
+        "v_hives_truth",
         "v_logbook_truth",
-        "v_pm_compliance_truth"
+        "v_pm_compliance_truth",
+        "v_project_progress_truth",
+        "v_project_truth"
       ],
       "tables_written": [
         "ai_reports",
@@ -6456,7 +6706,7 @@
     "send-report-email": {
       "tables_read": [
         "automation_log",
-        "hives"
+        "v_hives_truth"
       ],
       "tables_written": [
         "automation_log"
@@ -6467,8 +6717,8 @@
     },
     "sensor-readings-ingest": {
       "tables_read": [
-        "asset_nodes",
-        "sensor_readings"
+        "sensor_readings",
+        "v_asset_truth"
       ],
       "tables_written": [
         "sensor_readings"
@@ -6479,8 +6729,8 @@
     },
     "shift-planner-orchestrator": {
       "tables_read": [
-        "hives",
         "shift_plans",
+        "v_hives_truth",
         "v_inventory_items_truth",
         "v_logbook_truth",
         "v_pm_compliance_truth",
@@ -6496,10 +6746,9 @@
     "trigger-ml-retrain": {
       "tables_read": [
         "automation_log",
-        "inventory_transactions",
-        "logbook",
-        "pm_assets",
-        "pm_completions",
+        "v_inventory_transactions_truth",
+        "v_logbook_truth",
+        "v_pm_compliance_truth",
         "v_pm_scope_items_truth"
       ],
       "tables_written": [
@@ -6558,7 +6807,7 @@
     },
     "voice-logbook-entry": {
       "tables_read": [
-        "worker_profiles"
+        "v_worker_truth"
       ],
       "tables_written": [],
       "rpcs_called": [],
@@ -6632,9 +6881,10 @@
         "pm_assets",
         "pm_completions",
         "project_links",
-        "projects"
+        "projects",
+        "v_pm_scope_items_truth"
       ],
-      "jaccard": 0.5
+      "jaccard": 0.53
     },
     {
       "kind": "surface_overlap",
@@ -6644,11 +6894,11 @@
         "hive_audit_log",
         "marketplace_disputes",
         "marketplace_listings",
-        "marketplace_orders",
         "marketplace_sellers",
+        "v_marketplace_listings_truth",
         "v_marketplace_sellers_truth"
       ],
-      "jaccard": 0.75
+      "jaccard": 0.55
     },
     {
       "kind": "surface_overlap",
@@ -6660,9 +6910,10 @@
         "marketplace_listings",
         "marketplace_orders",
         "marketplace_platform_admins",
+        "v_marketplace_listings_truth",
         "v_marketplace_sellers_truth"
       ],
-      "jaccard": 0.55
+      "jaccard": 0.54
     },
     {
       "kind": "surface_overlap",
@@ -6673,10 +6924,11 @@
         "marketplace_disputes",
         "marketplace_inquiries",
         "marketplace_listings",
-        "marketplace_orders",
+        "v_marketplace_listings_truth",
+        "v_marketplace_orders_truth",
         "v_marketplace_sellers_truth"
       ],
-      "jaccard": 0.55
+      "jaccard": 0.5
     },
     {
       "kind": "near_duplicate_column",
@@ -6711,6 +6963,11 @@
     },
     {
       "kind": "dead_table",
+      "table": "early_access_emails",
+      "note": "defined in migrations but not referenced in any surface or edge fn"
+    },
+    {
+      "kind": "dead_table",
       "table": "hive_analytics_cache",
       "note": "defined in migrations but not referenced in any surface or edge fn"
     },
@@ -6741,6 +6998,11 @@
     },
     {
       "kind": "dead_table",
+      "table": "worker_achievements",
+      "note": "defined in migrations but not referenced in any surface or edge fn"
+    },
+    {
+      "kind": "dead_table",
       "table": "asset_embeddings",
       "note": "defined in migrations but not referenced in any surface or edge fn"
     },
@@ -6751,22 +7013,7 @@
     },
     {
       "kind": "dead_table",
-      "table": "agent_memory",
-      "note": "defined in migrations but not referenced in any surface or edge fn"
-    },
-    {
-      "kind": "dead_table",
       "table": "hive_quotas",
-      "note": "defined in migrations but not referenced in any surface or edge fn"
-    },
-    {
-      "kind": "dead_table",
-      "table": "hive_route_quotas",
-      "note": "defined in migrations but not referenced in any surface or edge fn"
-    },
-    {
-      "kind": "dead_table",
-      "table": "hive_route_calls",
       "note": "defined in migrations but not referenced in any surface or edge fn"
     },
     {
@@ -6777,11 +7024,6 @@
     {
       "kind": "dead_table",
       "table": "canonical_formulas",
-      "note": "defined in migrations but not referenced in any surface or edge fn"
-    },
-    {
-      "kind": "dead_table",
-      "table": "canonical_agent_contracts",
       "note": "defined in migrations but not referenced in any surface or edge fn"
     },
     {

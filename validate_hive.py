@@ -51,17 +51,20 @@ CHANNEL_EXPECTATIONS = {
                              "reason": "INSERT miss means newly approved parts do not auto-refresh"},
     },
     "hive-approval": {
-        "assets":           {"required": ["INSERT", "UPDATE"], "expected": []},
+        # 2026-05-20: workers submit assets via asset_nodes now (canonical
+        # uuid). The old `assets` text-id table is deprecated. hive.html
+        # subscribes to asset_nodes for the approval queue.
+        "asset_nodes":      {"required": ["INSERT", "UPDATE"], "expected": []},
         "inventory_items":  {"required": ["INSERT", "UPDATE"], "expected": []},
     },
     "worker-appr": {
-        "assets":           {"required": ["UPDATE"], "expected": []},
+        "asset_nodes":      {"required": ["UPDATE"], "expected": []},
         "inventory_items":  {"required": ["UPDATE"], "expected": []},
     },
 }
 
 HIVE_SCOPED_TABLES = [
-    "logbook", "assets", "inventory_items", "pm_assets",
+    "logbook", "asset_nodes", "inventory_items", "pm_assets",
     "pm_scope_items", "pm_completions", "hive_members",
 ]
 

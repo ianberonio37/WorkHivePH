@@ -64,6 +64,60 @@ TIMESTAMP_RE = re.compile(r"^\d{14}_[a-z0-9_]+\.sql$")
 # (verify the second commit landed BEFORE the migration was deployed; if
 # yes, the entry is permanently safe; if not, it's prod/clone drift).
 ALLOWED_MULTI_COMMIT = {
+    # ── 2026-05-20 voice-phase migration cascade self-heal (turns 10-11) ───────
+    # Local Supabase migration up failed because of cross-migration schema
+    # collisions (CREATE TABLE IF NOT EXISTS X declared twice with different
+    # columns) and a few worker_hives → hive_members typos. Each file below
+    # received the SAME class of self-heal edit: additive ALTER TABLE for
+    # missing columns, or table-name correction. All 7 files were edited
+    # IN-PLACE rather than via follow-up migrations because none had been
+    # applied locally yet (the failing migrations blocked everything after
+    # them). Documented in memory project_agent_memory_schema_collision_2026_05_20.md.
+    # Local Supabase re-applied via `supabase migration up --local` after each fix;
+    # production deploys should use these in-place edits as well since the
+    # migrations weren't applied in any environment.
+    "20260516000001_agent_memory_phase2.sql":
+        "2026-05-20 self-heal: additive ALTER TABLE ADD COLUMN IF NOT EXISTS "
+        "for Phase 2 columns (session_id, turn_num, etc.) to coexist with the "
+        "older 20260511000001 agent_memory schema. Caught by turn-8 sentinel "
+        "phase_4_dialog_state. The IF NOT EXISTS guards make this idempotent "
+        "on both fresh and partially-applied environments.",
+    "20260516000003_anomaly_alerts_phase5.sql":
+        "2026-05-20 self-heal: RLS policy referenced non-existent worker_hives; "
+        "rewritten to use hive_members. Also DROP FUNCTION IF EXISTS before "
+        "CREATE OR REPLACE on fetch_active_alerts (return type changed).",
+    "20260516000004_kb_rag_phase3.sql":
+        "2026-05-20 self-heal: RLS policies referenced non-existent worker_hives; "
+        "rewritten to use hive_members on both kb_documents and kb_chunks.",
+    "20260516000007_voice_analytics_phase8.sql":
+        "2026-05-20 self-heal: additive ALTER TABLE on conversation_analytics "
+        "(session_id, turn_num, created_at, etc.) so the table coexists with "
+        "the earlier voice_tables_simple declaration. The index on (session_id, "
+        "turn_num) requires these columns.",
+    "20260516000011_voice_tables_simple.sql":
+        "2026-05-20 self-heal: 4 CREATE TABLE IF NOT EXISTS lines annotated "
+        "with `-- table-collision-allow:` markers documenting the intentional "
+        "simple-fallback pattern (after the phase-specific migrations).",
+    "20260519000003_platform_feedback_votes.sql":
+        "2026-05-20 self-heal: additive ALTER ADD COLUMN voted_at for "
+        "environments where an earlier partial run created the table without it.",
+    "20260519000021_canonical_sources_platform_feedback_and_kg.sql":
+        "2026-05-20 fix: ON CONFLICT (source_name) → ON CONFLICT (domain). "
+        "canonical_sources PK is `domain` not `source_name`. Single-token fix.",
+    "20260520000004_drop_phantom_columns_safe.sql":
+        "2026-05-20 fix: skipped DROP COLUMN clarification_prompt + last_turn_num "
+        "from dialog_state because they're referenced by the fetch_dialog_state "
+        "RPC return table — DROP would CASCADE and remove the RPC.",
+    "20260520000024_v_project_items_progress_truth.sql":
+        "2026-05-20 self-heal: added ALTER TABLE project_items ADD COLUMN IF "
+        "NOT EXISTS for actual_start, actual_end, predecessors, etc. — "
+        "20260520000009 dropped these as phantom but the v_project_items_truth "
+        "view (turn 4) was the consumer that justified keeping them.",
+    "20260520000025_v_ai_reports_skill_badges_achievements_truth.sql":
+        "2026-05-20 self-heal: ALTER TABLE achievement_definitions ADD COLUMN "
+        "xp_per_level int default 100. The turn-5 v_worker_achievements_truth "
+        "view assumed it existed; restoring as an additive column is safer than "
+        "rewriting the view.",
     "20260520000001_canonical_lineage_edges.sql":
         "2026-05-20 same-day amendment: original commit b528865 created the "
         "table; follow-up commit 1b1a203 added the canonical_sources INSERT "

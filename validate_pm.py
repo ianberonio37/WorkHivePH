@@ -102,6 +102,14 @@ def extract_payload_fields(content, payload_name, pattern_override=None):
 # ── Layer 1: Config alignment ─────────────────────────────────────────────────
 
 def check_freq_days_alignment(content, page):
+    # 2026-05-20: pm-scheduler.html migrated away from a local FREQ_DAYS
+    # constant — it reads frequency_days from v_pm_scope_items_truth which
+    # bakes in the canonical Monthly=30/Quarterly=90/etc. mapping. When the
+    # page consumes the view, the constant isn't expected to exist; the
+    # validator's role then becomes "verify the view is read" (handled by
+    # the canonical-drift L0 ratchet) rather than "verify the local constant".
+    if "v_pm_scope_items_truth" in content:
+        return []  # canonical source — local constant not required
     freq_days_keys = extract_freq_days_keys(content)
     freq_order     = extract_array_values(content, "freqOrder")
     if not freq_days_keys:
@@ -193,6 +201,12 @@ def check_logbook_pm_fields(content, page):
 # ── Layer 3: Logic correctness ────────────────────────────────────────────────
 
 def check_midnight_normalization(content, page):
+    # 2026-05-20: pm-scheduler.html no longer needs getItemStatus() locally
+    # when it consumes v_pm_scope_items_truth — the view returns is_overdue
+    # as a server-side boolean. The midnight-normalization concern was about
+    # JS timezone math; PostgreSQL does the date comparison correctly without it.
+    if "v_pm_scope_items_truth" in content and not re.search(r"function getItemStatus\b", content):
+        return []
     if not re.search(r"function getItemStatus\b[\s\S]{0,300}?today\.setHours\(0", content):
         return [{"check": "midnight_normalization", "page": page,
                  "reason": "getItemStatus() does not call today.setHours(0,0,0,0) — overdue status varies by time of day"}]

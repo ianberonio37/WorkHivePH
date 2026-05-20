@@ -248,10 +248,10 @@ serve(async (req) => {
     authUid = user.id;
     const { data: profile } = await adminClient
       .from("v_worker_truth")
-      .select("display_name")
+      .select("worker_name")
       .eq("auth_uid", user.id)
       .maybeSingle();
-    workerName = profile?.display_name || user.email || "anonymous";
+    workerName = profile?.worker_name || user.email || "anonymous";
   }
 
   // Per-route rate gate.
