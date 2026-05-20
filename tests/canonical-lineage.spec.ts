@@ -265,4 +265,52 @@ test.describe('Canonical Lineage Sentinel (L2 report-shape contract)', () => {
     }
     expect(silentPartials.length, `silent partials in canonical/formula_contracts.json:\n${silentPartials.join('\n')}`).toBe(0);
   });
+
+  test('Tier-S citation visibility: every implemented_in page cites the standard short_name (100% ratchet)', async () => {
+    // Forward-only ratchet — locks the 100% citation visibility achieved
+    // 2026-05-20 (commits 6643c87 + 4e5edab). Any future change that drops
+    // visibility below 100% fires red here BEFORE merge. The Layer 2
+    // anchor-consistency spec ran this as informational ("test E"); this
+    // version is the hard regression gate so the achievement cannot quietly
+    // erode as new formulas/pages land without their chip text.
+    const fs = await import('fs');
+    const path = await import('path');
+    const root = path.resolve(__dirname, '..');
+    const stds     = (await loadJson('canonical/standards.json')).standards;
+    const formulas = (await loadJson('canonical/formula_contracts.json')).formulas;
+    const stdShort: Record<string, string> = {};
+    for (const s of stds) stdShort[s.standard_id] = s.short_name;
+
+    const PAGE_RE = /([a-z0-9\-]+\.html)/gi;
+    const fileCache: Record<string, string> = {};
+    const gaps: string[] = [];
+    let total = 0, present = 0;
+
+    for (const f of formulas) {
+      const short = stdShort[f.standard_id] || '';
+      if (!short) continue;
+      const impl = (f.implemented_in || '');
+      const pages = (impl.match(PAGE_RE) || []).map((p: string) => p.toLowerCase());
+      for (const p of pages) {
+        total++;
+        const fp = path.join(root, p);
+        if (!(p in fileCache)) {
+          try { fileCache[p] = fs.readFileSync(fp, 'utf8'); }
+          catch { fileCache[p] = ''; }
+        }
+        if (fileCache[p].includes(short)) {
+          present++;
+        } else {
+          gaps.push(`${p} renders ${f.formula_id} but does not cite "${short}"`);
+        }
+      }
+    }
+    if (gaps.length > 0) {
+      console.error(`Tier-S citation gaps (${gaps.length}):\n` + gaps.slice(0, 6).join('\n'));
+    }
+    expect(gaps.length,
+      `Tier-S citation visibility regressed below 100%. ${present}/${total} citations honoured. ` +
+      `Either add the standard short_name to the page that renders the formula, or update ` +
+      `canonical/formula_contracts.json implemented_in if the page no longer renders it.`).toBe(0);
+  });
 });
