@@ -1237,6 +1237,26 @@
     }
   }
 
+  // Phase 4.1: Follow-up affirmation detector — bypass the clarification UI.
+  // Caught 2026-05-20: worker said "Yes, the details" after being asked about
+  // query.ask and Zaniah STILL surfaced "Did you mean to keep talking about
+  // query.ask, or switch to unknown?". Affirmative continuations must
+  // resume the prior topic, not look like a topic switch.
+  //
+  // Phrases match the SHORT-REPLY shape only (start-of-utterance, ≤5 words);
+  // longer requests like "yes — and also tell me about MTBF" should still
+  // go through normal intent classification.
+  const _AFFIRMATION_RE = /^(yes|yeah|yep|yup|sure|ok|okay|alright|right|correct|that(?:'|’)?s\s+right|of course|definitely|absolutely|tama|opo|oo|sige|sige na|sige po|go|go on|please|continue|tell me more|more details?|the details?|details(?:\s+please)?|kindly)([\s,!.?]|$)/i;
+  function _isFollowupAffirmation(text) {
+    const s = String(text || '').trim();
+    if (!s) return false;
+    // Cap: short utterances only. A long sentence starting with "yes" is a
+    // real follow-up question, not a bare confirmation.
+    const words = s.split(/\s+/);
+    if (words.length > 5) return false;
+    return _AFFIRMATION_RE.test(s);
+  }
+
   // Phase 4: Clarification logic — if confidence too low, ask instead of guessing
   function _shouldClarify(confidence, priorIntent, newIntent) {
     // If confidence < 0.65 and intent flipped, ask for clarification
@@ -1996,8 +2016,18 @@
         return;
       }
       // Phase 4: Intent refinement + clarification logic
-      const newIntentKind = (firstIntent && firstIntent.kind) || 'unknown';
-      const newConfidence = (firstIntent && firstIntent.confidence) || 0;
+      let newIntentKind = (firstIntent && firstIntent.kind) || 'unknown';
+      let newConfidence = (firstIntent && firstIntent.confidence) || 0;
+
+      // Phase 4.1: Affirmation passthrough — "yes / sige / the details" must
+      // resume the prior topic, never flip to a topic-switch clarification.
+      // Resolving the intent here means the downstream _shouldClarify check
+      // naturally returns false (priorIntent === newIntentKind) AND every
+      // state-persist call below records the resolved topic, not "unknown".
+      if (priorIntent && _isFollowupAffirmation(transcript)) {
+        newIntentKind = priorIntent;
+        newConfidence = Math.max(newConfidence, 0.9);
+      }
 
       // If intent flipped and confidence low, ask clarification instead
       if (_shouldClarify(newConfidence, priorIntent, newIntentKind)) {
@@ -2204,7 +2234,17 @@
     return { ctx, db_available: !!db };
   };
 
-  window.WHVoice = { open, close, register, dispatch, _handlers: handlers, _debugContext: window._debugVoiceContext };
+  // _isFollowupAffirmation + _shouldClarify are exposed for the journey-voice-journal
+  // Playwright sentinel — Layer 2 needs to assert the regex catches the right
+  // phrases ("yes", "sige", "the details", "oo", PH variants) without simulating
+  // the full multi-turn voice flow.
+  window.WHVoice = {
+    open, close, register, dispatch,
+    _handlers: handlers,
+    _debugContext: window._debugVoiceContext,
+    _isFollowupAffirmation,
+    _shouldClarify,
+  };
 
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', _mount);

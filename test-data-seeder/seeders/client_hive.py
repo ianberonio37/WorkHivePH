@@ -155,6 +155,25 @@ def seed_client_hive(
     log(f"  created {len(workers)} workers: "
         + ", ".join(f"{w['worker_name']} ({w['role']})" for w in workers))
 
+    # Platform admin allowlist. The supervisor of a freshly-seeded local hive
+    # is the founder for that environment; grant them Founder Console access
+    # so the page is usable on first sign-in instead of bouncing to the gate.
+    # 'Pablo Aguilar' is always inserted too (canonical local test identity,
+    # see memory: reference_playwright_test_identity) so reseeds don't drop
+    # the founder's saved wh_last_worker login.
+    admin_rows = []
+    sup = next((w for w in workers if w["role"] == "supervisor"), None)
+    if sup:
+        admin_rows.append({"worker_name": sup["worker_name"], "granted_by": "seeder"})
+    if not any(r["worker_name"] == "Pablo Aguilar" for r in admin_rows):
+        admin_rows.append({"worker_name": "Pablo Aguilar", "granted_by": "seeder"})
+    try:
+        client.table("marketplace_platform_admins") \
+            .upsert(admin_rows, on_conflict="worker_name").execute()
+        log(f"  platform admins seeded: " + ", ".join(r["worker_name"] for r in admin_rows))
+    except Exception as e:
+        log(f"  WARN: could not seed platform admins: {e}")
+
     # ── 3. Generate CMMS dataset ─────────────────────────────────────────────
     log(f"Generating {size} {cmms_type} dataset for {profile['label']}...")
     ds = generate_dataset(industry=industry, size=size, cmms_type=cmms_type,

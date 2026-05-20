@@ -70,8 +70,17 @@ PROVIDER_CHAIN = [
     {"provider": "groq",     "base_url": "https://api.groq.com/openai/v1",  "model": "openai/gpt-oss-120b",                       "env_key": "GROQ_API_KEY"},
 
     # ── Tier 2: Cerebras — 1M tokens/day free, 8K total context cap ──────────
+    # NOTE 2026-05-18: both entries below returned 404 "Model X does not exist
+    # or you do not have access to it" during the skill-rule extraction run.
+    # Cerebras catalog evolves frequently and free-tier accounts vary in which
+    # models are exposed. Verify model names against your account dashboard at
+    # https://cloud.cerebras.ai when this tier seems dead. Common safe names:
+    # `llama3.1-8b`, `llama-4-scout-17b-16e-instruct`.
     {"provider": "cerebras", "base_url": "https://api.cerebras.ai/v1",       "model": "llama-3.3-70b",                             "env_key": "CEREBRAS_API_KEY", "max_tokens_cap": 4096},
     {"provider": "cerebras", "base_url": "https://api.cerebras.ai/v1",       "model": "qwen-3-32b",                                "env_key": "CEREBRAS_API_KEY", "max_tokens_cap": 4096},
+    # Fallback name commonly available on Cerebras free tier (verified safe
+    # against historical 404s on the two entries above).
+    {"provider": "cerebras", "base_url": "https://api.cerebras.ai/v1",       "model": "llama3.1-8b",                               "env_key": "CEREBRAS_API_KEY", "max_tokens_cap": 4096},
 
     # ── Tier 3: OpenRouter — :free models, $0/token, 200 req/day ─────────────
     {"provider": "openrouter", "base_url": "https://openrouter.ai/api/v1",  "model": "nvidia/nemotron-3-super-120b-a12b:free",    "env_key": "OPENROUTER_API_KEY", "extra_headers": {"HTTP-Referer": "https://workhiveph.com", "X-Title": "WorkHive"}},
@@ -90,6 +99,7 @@ def call_ai_chain(
     max_tokens:  int          = 4096,
     json_mode:   bool         = False,
     timeout:     int          = 90,
+    prefer_model: str | None  = None,
 ) -> str:
     """
     Walk the fallback chain top-to-bottom. Return the first non-empty content.
@@ -102,6 +112,11 @@ def call_ai_chain(
         max_tokens: response length cap. Cerebras hard-caps at 4096.
         json_mode: if True, request JSON object response (OpenAI-compatible).
         timeout: per-provider HTTP timeout in seconds.
+        prefer_model: optional substring match against entry['model']; entries
+            matching this substring are tried FIRST, before the standard chain
+            order. Useful when a task needs a specific model trait (e.g.,
+            'gpt-oss-20b' for strict JSON-schema adherence). The rest of the
+            chain still serves as fallback.
     """
     messages = (
         [{"role": "system", "content": system_prompt},
@@ -110,7 +125,16 @@ def call_ai_chain(
         [{"role": "user",   "content": prompt}]
     )
 
-    for entry in PROVIDER_CHAIN:
+    # Re-order chain to put preferred model entries first, preserving the
+    # rest as fallbacks. Substring-match is intentional (so "gpt-oss-20b"
+    # matches "openai/gpt-oss-20b" without exact-string fragility).
+    chain = list(PROVIDER_CHAIN)
+    if prefer_model:
+        preferred = [e for e in chain if prefer_model in e["model"]]
+        rest      = [e for e in chain if prefer_model not in e["model"]]
+        chain = preferred + rest
+
+    for entry in chain:
         api_key = os.environ.get(entry["env_key"], "").strip()
         if not api_key:
             continue

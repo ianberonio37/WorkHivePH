@@ -780,6 +780,28 @@ def api_run_crud_tests():
             log("  SKIP write-path specs: Flask not running on :5000")
             results["write-path-specs"] = {"summary": "skipped (Flask not running)", "exit_code": 0}
 
+        # -- Canonical Dimensions cross-check (same as Smoke/Role/Concurrent) --
+        # Adds Tier-S chip + Calm Dashboard + partial honesty + view reachability
+        # so every L2 gate carries the new canonical-contract dimensions.
+        log("\n  Running canonical-dimensions cross-check...")
+        try:
+            import sys as _sys
+            _sys.path.insert(0, str(seeder_dir))
+            from flows import canonical_dimensions_flow as _cdims
+            class _NoOp: pass
+            cd_out = _cdims.run(_NoOp(), [], [], log=lambda m: log(f"    {m}"))
+            cd_pass = sum(1 for st, _ in cd_out.get("results", []) if st == "PASS")
+            cd_fail = sum(1 for st, _ in cd_out.get("results", []) if st == "FAIL")
+            for status, msg in cd_out.get("results", []):
+                log(f"    {status}  {msg}")
+            results["canonical-dimensions"] = {
+                "summary":   f"{cd_pass} PASS / {cd_fail} FAIL",
+                "exit_code": 0 if cd_fail == 0 else 1,
+            }
+        except Exception as e:
+            log(f"  ERROR canonical_dimensions_flow crashed: {e}")
+            results["canonical-dimensions"] = {"summary": str(e), "exit_code": 1}
+
         summary_passes = sum(1 for r in results.values() if r.get("exit_code") == 0)
         summary_fails  = len(results) - summary_passes
         return {
@@ -2409,6 +2431,178 @@ def api_lineage_scan():
         return jsonify({"ok": False, "error": f"{type(e).__name__}: {e}"}), 500
 
 
+@app.route("/edge-patterns/report")
+def edge_patterns_report_endpoint():
+    """Serve edge_pattern_mining_report.json for the Tester UI.
+
+    Layer -1 Convention Mining surfaces emergent edge-fn patterns and
+    flags outliers. The report is informational: promotion candidates
+    are proposals for human review, not gate failures. Falls back to a
+    stale-but-readable response if the miner hasn't been run yet.
+    """
+    from flask import jsonify
+    report_path = WORKHIVE_ROOT / "edge_pattern_mining_report.json"
+    if not report_path.exists():
+        return jsonify({
+            "available": False,
+            "message": "Run `python tools/mine_edge_patterns.py` to generate the report.",
+        }), 200
+    try:
+        data = json.loads(report_path.read_text(encoding="utf-8"))
+        return jsonify({"available": True, **data}), 200
+    except (OSError, json.JSONDecodeError) as e:
+        return jsonify({"available": False, "error": str(e)}), 200
+
+
+@app.route("/edge-patterns/run", methods=["POST"])
+def edge_patterns_run_endpoint():
+    """Trigger a fresh pattern-mining run. Returns the new report inline."""
+    from flask import jsonify
+    import subprocess
+    script = WORKHIVE_ROOT / "tools" / "mine_edge_patterns.py"
+    try:
+        result = subprocess.run(
+            [sys.executable, "-u", str(script)],
+            capture_output=True, text=True,
+            encoding="utf-8", errors="replace",
+            cwd=str(WORKHIVE_ROOT), timeout=60,
+        )
+        report_path = WORKHIVE_ROOT / "edge_pattern_mining_report.json"
+        data = json.loads(report_path.read_text(encoding="utf-8")) if report_path.exists() else {}
+        return jsonify({
+            "ok":     result.returncode == 0,
+            "stdout": result.stdout,
+            "stderr": result.stderr,
+            "report": data,
+        }), 200
+    except subprocess.TimeoutExpired:
+        return jsonify({"ok": False, "error": "miner hung; killed after 60s"}), 500
+    except Exception as e:
+        return jsonify({"ok": False, "error": f"{type(e).__name__}: {e}"}), 500
+
+
+@app.route("/html-patterns/report")
+def html_patterns_report_endpoint():
+    """Serve html_pattern_mining_report.json for the Tester UI.
+
+    Companion to /edge-patterns/report; surfaces emergent HTML page
+    conventions and outliers (pages missing utils.js, nav-hub.js, etc.).
+    Static-HTML scan only -- runtime-injected scripts are invisible.
+    """
+    from flask import jsonify
+    report_path = WORKHIVE_ROOT / "html_pattern_mining_report.json"
+    if not report_path.exists():
+        return jsonify({
+            "available": False,
+            "message": "Run `python tools/mine_html_patterns.py` to generate the report.",
+        }), 200
+    try:
+        data = json.loads(report_path.read_text(encoding="utf-8"))
+        return jsonify({"available": True, **data}), 200
+    except (OSError, json.JSONDecodeError) as e:
+        return jsonify({"available": False, "error": str(e)}), 200
+
+
+@app.route("/html-patterns/run", methods=["POST"])
+def html_patterns_run_endpoint():
+    """Trigger a fresh HTML pattern-mining run."""
+    from flask import jsonify
+    import subprocess
+    script = WORKHIVE_ROOT / "tools" / "mine_html_patterns.py"
+    try:
+        result = subprocess.run(
+            [sys.executable, "-u", str(script)],
+            capture_output=True, text=True,
+            encoding="utf-8", errors="replace",
+            cwd=str(WORKHIVE_ROOT), timeout=60,
+        )
+        report_path = WORKHIVE_ROOT / "html_pattern_mining_report.json"
+        data = json.loads(report_path.read_text(encoding="utf-8")) if report_path.exists() else {}
+        return jsonify({
+            "ok":     result.returncode == 0,
+            "stdout": result.stdout,
+            "stderr": result.stderr,
+            "report": data,
+        }), 200
+    except subprocess.TimeoutExpired:
+        return jsonify({"ok": False, "error": "miner hung; killed after 60s"}), 500
+    except Exception as e:
+        return jsonify({"ok": False, "error": f"{type(e).__name__}: {e}"}), 500
+
+
+# ── L-1 Convention Mining: generic dual-door for clusters A–E ──────────────
+# Five new miners share an identical surface (report endpoint + run endpoint).
+# Rather than copy-paste 10 functions, a small factory mounts them. Each
+# entry maps: (URL prefix, miner script, JSON report file).
+_MINING_CLUSTERS = [
+    ("js-module-patterns",   "tools/mine_js_module_patterns.py",   "js_module_pattern_mining_report.json"),
+    ("migration-patterns",   "tools/mine_migration_patterns.py",   "migration_pattern_mining_report.json"),
+    ("python-tool-patterns", "tools/mine_python_tool_patterns.py", "python_tool_pattern_mining_report.json"),
+    ("validator-patterns",   "tools/mine_validator_patterns.py",   "validator_pattern_mining_report.json"),
+    ("seeder-patterns",      "tools/mine_seeder_patterns.py",      "seeder_pattern_mining_report.json"),
+    # L-1.5 Skill-Rule Miner -- documented rules from SKILL.md files.
+    ("skill-rules",          "tools/mine_skill_rules.py",          "skill_rules_mining_report.json"),
+    # L-1 Foundation: Canonical Source Registry (the "what's already on
+    # the platform" reference; consulted before any new surface/column/RPC).
+    ("canonical-registry",   "tools/mine_canonical_registry.py",   "canonical_registry.json"),
+]
+
+
+def _make_report_endpoint(report_filename: str):
+    def _endpoint():
+        from flask import jsonify
+        path = WORKHIVE_ROOT / report_filename
+        if not path.exists():
+            return jsonify({"available": False, "message": f"Run the miner to generate {report_filename}."}), 200
+        try:
+            data = json.loads(path.read_text(encoding="utf-8"))
+            return jsonify({"available": True, **data}), 200
+        except (OSError, json.JSONDecodeError) as e:
+            return jsonify({"available": False, "error": str(e)}), 200
+    return _endpoint
+
+
+def _make_run_endpoint(script_relpath: str, report_filename: str):
+    def _endpoint():
+        from flask import jsonify
+        import subprocess
+        script = WORKHIVE_ROOT / script_relpath
+        try:
+            result = subprocess.run(
+                [sys.executable, "-u", str(script)],
+                capture_output=True, text=True,
+                encoding="utf-8", errors="replace",
+                cwd=str(WORKHIVE_ROOT), timeout=120,
+            )
+            report_path = WORKHIVE_ROOT / report_filename
+            data = json.loads(report_path.read_text(encoding="utf-8")) if report_path.exists() else {}
+            return jsonify({
+                "ok": result.returncode == 0,
+                "stdout": result.stdout, "stderr": result.stderr,
+                "report": data,
+            }), 200
+        except subprocess.TimeoutExpired:
+            return jsonify({"ok": False, "error": "miner hung; killed after 120s"}), 500
+        except Exception as e:
+            return jsonify({"ok": False, "error": f"{type(e).__name__}: {e}"}), 500
+    return _endpoint
+
+
+for _prefix, _script, _report in _MINING_CLUSTERS:
+    app.add_url_rule(
+        f"/{_prefix}/report",
+        endpoint=f"{_prefix.replace('-', '_')}_report",
+        view_func=_make_report_endpoint(_report),
+        methods=["GET"],
+    )
+    app.add_url_rule(
+        f"/{_prefix}/run",
+        endpoint=f"{_prefix.replace('-', '_')}_run",
+        view_func=_make_run_endpoint(_script, _report),
+        methods=["POST"],
+    )
+
+
 @app.route("/sentinel/coverage")
 def sentinel_coverage_endpoint():
     """Serve sentinel_coverage_report.json for the Tester UI bridge card.
@@ -2645,6 +2839,13 @@ def manifest_json():
     if not f.exists():
         abort(404)
     return send_from_directory(WORKHIVE_ROOT, "manifest.json")
+
+
+@app.route("/wh-ga4.js")
+def wh_ga4_js():
+    # GA4 wiring is referenced as root-absolute `/wh-ga4.js` so it works on
+    # workhiveph.com root; locally we alias it to workhive_file() for parity.
+    return workhive_file("wh-ga4.js")
 
 
 @app.route("/brand_assets/<path:filename>")

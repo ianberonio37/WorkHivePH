@@ -1,3 +1,4 @@
+# audit-scope-allow: each rule in skill_rules_manifest.json declares its own scope (which file set to scan); per-rule scope, not platform-wide consumer scan.
 """
 Skill-Rule Miner -- Layer -1.5 Convention Mining (WorkHive Platform)
 ======================================================================

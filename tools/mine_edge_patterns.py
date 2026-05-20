@@ -109,7 +109,20 @@ def extract_features(path: Path) -> dict:
     features["sets_content_type_json"] = bool(re.search(r"""Content-Type["']?\s*:\s*["']application/json""", code))
 
     # ---- try / catch -------------------------------------------------------
-    features["has_try_catch"]          = bool(re.search(r"\btry\s*\{", code) and re.search(r"\bcatch\s*\(", code))
+    # The codebase uses BOTH `catch (err)` and bare `catch {` (no error
+    # binding, allowed since TS 4.0). Earlier miner version only matched the
+    # first form, producing false-positives on the 5 marketplace fns that
+    # use the bare form. Now matches either.
+    features["has_try_catch"] = bool(
+        re.search(r"\btry\s*\{", code)
+        and re.search(r"\bcatch\s*[({]", code)
+    )
+
+    # Top-level handler try/catch -- the WHOLE serve() body is wrapped.
+    # Stronger guarantee than "any try anywhere": catches the case where
+    # only an inner `await req.json()` is wrapped but the rest of the
+    # handler can still throw to a 500 with no error envelope.
+    features["wraps_handler_in_try"] = _handler_body_wrapped_in_try(code, serve_match)
 
     # ---- logging -----------------------------------------------------------
     # console.error or console.warn that prefixes the fn name (helps grep prod logs)
@@ -144,7 +157,25 @@ def extract_features(path: Path) -> dict:
     features["reads_service_role_env"] = bool(re.search(r"""Deno\.env\.get\(\s*["']SUPABASE_SERVICE_ROLE_KEY""", code))
 
     # ---- abort / timeout discipline ----------------------------------------
-    features["uses_abort_controller"]  = bool(re.search(r"\bAbortController\s*\(", code) or "AbortSignal" in code)
+    # Two distinct disciplines:
+    #   - AbortController: manual abort wiring (older Deno pattern)
+    #   - AbortSignal.timeout(ms): one-line modern timeout (newer pattern)
+    # Codebase has both; separating them surfaces the migration progress.
+    features["uses_abort_controller"]   = bool(re.search(r"\bnew\s+AbortController\s*\(", code))
+    features["uses_abortsignal_timeout"] = bool(re.search(r"AbortSignal\.timeout\s*\(", code))
+
+    # ---- env-prefix discipline ---------------------------------------------
+    # ai-gateway and analytics-orchestrator use a `_WH_` prefix on module-
+    # scope env constants (e.g., `const _WH_SUPABASE_URL_M = ...`). This is
+    # an emergent naming convention -- it makes module-scope warm-client
+    # variables easy to grep and distinguish from per-request locals.
+    features["uses_wh_env_prefix"] = bool(re.search(r"\bconst\s+_WH_[A-Z_]+\s*=", code))
+
+    # ---- response-shape consistency ----------------------------------------
+    # Canonical response shape in this codebase:
+    #   new Response(JSON.stringify({...}), { status, headers: { ...corsHeaders, "Content-Type": "application/json" } })
+    # Outliers either omit Content-Type or omit the spread of corsHeaders.
+    features["responses_spread_cors_headers"] = bool(re.search(r"\.\.\.corsHeaders|\.\.\.getCorsHeaders\s*\(", code))
 
     # ---- input validation 400 ---------------------------------------------
     features["returns_400_on_bad_input"] = bool(re.search(r"status\s*:\s*400", code))
@@ -175,6 +206,33 @@ def _has_module_scope_create_client(code: str, serve_match) -> bool:
         else:
             if depth == 0:
                 return True
+    return False
+
+
+def _handler_body_wrapped_in_try(code: str, serve_match) -> bool:
+    """Return True if the FIRST executable statement inside the serve()
+    handler body is `try {`. Tolerates short prelude lines like the
+    corsHeaders binding and the OPTIONS preflight return -- those don't
+    need to be inside the try because they can't throw.
+
+    Heuristic: scan the first ~25 non-blank/non-comment lines of the
+    handler. If a `try {` appears before any await/return that touches
+    request data, the whole handler is wrapped.
+    """
+    if not serve_match:
+        return False
+    body = code[serve_match.end():]
+    # Look in the first ~1500 chars of the handler body.
+    head = body[:1500]
+    lines = [l.strip() for l in head.splitlines() if l.strip()]
+    for ln in lines[:25]:
+        if ln.startswith("try"):
+            return True
+        # Heavy operation before any try -- handler is NOT top-wrapped.
+        if re.search(r"\bawait\s+req\.(json|formData|text|arrayBuffer)\b", ln):
+            return False
+        if re.search(r"\bawait\s+\w+\.(from|rpc|invoke|insert|update|select)\b", ln):
+            return False
     return False
 
 
