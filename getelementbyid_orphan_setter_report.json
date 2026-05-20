@@ -36,19 +36,19 @@
         },
         {
           "id": "e-parts-section",
-          "offset": 255219
+          "offset": 255224
         },
         {
           "id": "e-tasklist-section",
-          "offset": 255286
+          "offset": 255291
         },
         {
           "id": "e-maint-type",
-          "offset": 255528
+          "offset": 255533
         },
         {
           "id": "e-category",
-          "offset": 255643
+          "offset": 255648
         }
       ]
     },

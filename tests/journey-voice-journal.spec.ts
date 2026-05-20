@@ -277,4 +277,104 @@ test.describe('voice-journal.html — voice journal journey', () => {
     const hit = technicalVocab.find(v => lower.includes(v));
     expect(hit, `Hezekiah's reply ("${result.answer.slice(0, 200)}…") must use at least one technical-lane keyword (${technicalVocab.join(', ')}). If this fails, Step D's domain lens didn't reach the prompt.`).toBeTruthy();
   });
+
+  // ─── Dialog-state quality sentinels (added 2026-05-20) ──────────────────
+  // Locks the affirmation-bypass behaviour at the BROWSER LEVEL. The L0
+  // ratchet (validate_dialog_affirmation_bypass.py) certifies the code
+  // shape; these specs certify the LIVE regex + predicate actually catch
+  // the right phrases when voice-handler.js loads on a real page.
+  //
+  // Bug class caught 2026-05-20: worker said "Yes, the details." after
+  // being asked about query.ask, and Zaniah STILL surfaced the topic-
+  // switch UI. If these two checks fail, the bug class is live again.
+
+  test('dialog-affirmation-regex: short PH + English confirmations match, long follow-ups do not', async ({ whPage }) => {
+    await whPage.goto(PAGE);
+    await waitForPageReady(whPage);
+    // voice-handler.js is lazy-loaded by nav-hub; trigger a load by opening
+    // the voice overlay once (closed immediately after).
+    await whPage.evaluate(() => {
+      if (window.WHVoice && typeof window.WHVoice.open === 'function') {
+        try { window.WHVoice.open(); } catch (_) { /* mount-only */ }
+        try { window.WHVoice.close(); } catch (_) { /* mount-only */ }
+      }
+    });
+    await whPage.waitForTimeout(500);
+
+    const probes = await whPage.evaluate(() => {
+      const fn = window.WHVoice && (window.WHVoice as any)._isFollowupAffirmation;
+      if (typeof fn !== 'function') return { ready: false, results: [] };
+      const cases: Array<{ text: string; expected: boolean; label: string }> = [
+        // MUST bypass — short affirmations workers actually said
+        { text: 'yes',                  expected: true,  label: 'bare yes' },
+        { text: 'Yes, the details.',    expected: true,  label: 'yes + comma + details (the field bug)' },
+        { text: 'the details',          expected: true,  label: 'just the details' },
+        { text: 'sige',                 expected: true,  label: 'PH affirmative — sige' },
+        { text: 'oo',                   expected: true,  label: 'PH affirmative — oo' },
+        { text: 'opo',                  expected: true,  label: 'PH respectful affirmative — opo' },
+        { text: 'ok',                   expected: true,  label: 'bare ok' },
+        { text: 'tell me more',         expected: true,  label: 'tell me more' },
+        { text: 'go on',                expected: true,  label: 'go on' },
+        // MUST NOT bypass — these are real questions, not affirmations
+        { text: 'yes, but also tell me about MTBF this week', expected: false, label: 'long sentence starting with yes' },
+        { text: 'what is the MTBF',     expected: false, label: 'question with no affirmation prefix' },
+        { text: 'tell me about C-01 compressor backlog hours', expected: false, label: 'long new request' },
+        { text: '',                     expected: false, label: 'empty string' },
+      ];
+      return {
+        ready: true,
+        results: cases.map(c => ({ ...c, got: fn(c.text) })),
+      };
+    });
+
+    expect(probes.ready, 'window.WHVoice._isFollowupAffirmation must be exposed for runtime assertion').toBe(true);
+    const failures = probes.results.filter(r => r.got !== r.expected);
+    expect(
+      failures,
+      `Affirmation regex mis-classified: ${JSON.stringify(failures, null, 2)}. ` +
+      `If this fails, the topic-switch clarification UI is back for the listed phrases.`
+    ).toEqual([]);
+  });
+
+  test('dialog-shouldClarify-symmetry: when prior intent matches new intent (post-bypass), clarification stays off', async ({ whPage }) => {
+    await whPage.goto(PAGE);
+    await waitForPageReady(whPage);
+    await whPage.evaluate(() => {
+      if (window.WHVoice && typeof window.WHVoice.open === 'function') {
+        try { window.WHVoice.open(); } catch (_) { /* mount-only */ }
+        try { window.WHVoice.close(); } catch (_) { /* mount-only */ }
+      }
+    });
+    await whPage.waitForTimeout(500);
+
+    const verdict = await whPage.evaluate(() => {
+      const fn = window.WHVoice && (window.WHVoice as any)._shouldClarify;
+      if (typeof fn !== 'function') return { ready: false, cases: [] };
+      // Simulate the post-affirmation state: the bypass has just rewritten
+      // newIntent = priorIntent and bumped confidence. Predicate MUST be false.
+      const cases = [
+        // The exact case from the 2026-05-20 bug report — after the bypass.
+        { label: 'post-bypass: query.ask + query.ask + high confidence',
+          got: fn(0.9, 'query.ask', 'query.ask'),
+          expected: false },
+        // Still-flipped intent at low confidence — clarification SHOULD fire.
+        { label: 'unbypassed: query.ask + unknown + low confidence',
+          got: fn(0.3, 'query.ask', 'unknown'),
+          expected: true },
+        // No prior intent — first turn, no clarification.
+        { label: 'first turn: null prior + new intent + low confidence',
+          got: fn(0.3, null, 'mtbf'),
+          expected: false },
+      ];
+      return { ready: true, cases };
+    });
+
+    expect(verdict.ready, 'window.WHVoice._shouldClarify must be exposed for runtime assertion').toBe(true);
+    const failed = verdict.cases.filter(c => c.got !== c.expected);
+    expect(
+      failed,
+      `_shouldClarify symmetry broke: ${JSON.stringify(failed, null, 2)}. ` +
+      `If this fails, the bypass loses its anchor — clarifications fire even on resolved intents.`
+    ).toEqual([]);
+  });
 });

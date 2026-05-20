@@ -56,7 +56,7 @@
       "issues": [
         {
           "table": "v_marketplace_listings_truth",
-          "offset": 105363
+          "offset": 105579
         }
       ]
     },
@@ -219,7 +219,7 @@
       "issues": [
         {
           "table": "v_hives_truth",
-          "offset": 24855
+          "offset": 24859
         }
       ]
     },

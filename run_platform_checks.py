@@ -775,6 +775,21 @@ VALIDATORS = [
         "skip_if_fast": False,
     },
     {
+        # 2026-05-20 Hardening Loop for the "Yes, the details → topic-switch
+        # UI" bug class. Locks _isFollowupAffirmation + the call-site bypass
+        # + _shouldClarify symmetry guard so short PH/English affirmations
+        # ('yes', 'sige', 'oo', 'the details') resume the prior topic
+        # instead of tripping the clarification UI. Paired with the L2
+        # sentinels in tests/journey-voice-journal.spec.ts.
+        "id":      "dialog-affirmation-bypass",
+        "script":  "validate_dialog_affirmation_bypass.py",
+        "args":    [],
+        "label":   "Dialog Affirmation Bypass (5-layer: regex + vocabulary + word-cap + callsite bypass + shouldClarify symmetry)",
+        "group":   "Platform",
+        "report":  None,
+        "skip_if_fast": False,
+    },
+    {
         "id":      "proactive-alerts",
         "script":  "validate_proactive_alerts.py",
         "args":    [],

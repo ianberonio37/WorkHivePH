@@ -31,7 +31,7 @@
         {
           "kind": "input(number)",
           "snippet": "<input type=\"number\" min=\"1\" value=\"${p.qty}\" inputmode=\"numeric\"\n          onchange=\">",
-          "offset": 261941
+          "offset": 261946
         }
       ]
     },

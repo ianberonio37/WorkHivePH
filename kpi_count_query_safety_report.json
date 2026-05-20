@@ -17,7 +17,7 @@
               "shape": "\\{\\s*[^}]*\\bnum\\s*:\\s*(?P<var>\\w+)\\.leng..."
             }
           ],
-          "char_offset": 180186
+          "char_offset": 180456
         },
         {
           "view": "v_pm_compliance_truth",
@@ -28,7 +28,7 @@
               "shape": "\\{\\s*[^}]*\\bnum\\s*:\\s*(?P<var>\\w+)\\.leng..."
             }
           ],
-          "char_offset": 180712
+          "char_offset": 180982
         }
       ]
     },
@@ -88,7 +88,7 @@
               "shape": "\\.textContent\\s*=\\s*(?P<var>\\w+)\\.length..."
             }
           ],
-          "char_offset": 36954
+          "char_offset": 37352
         },
         {
           "view": "v_marketplace_orders_truth",
@@ -103,7 +103,7 @@
               "shape": "\\.textContent\\s*=\\s*(?P<var>\\w+)\\.length..."
             }
           ],
-          "char_offset": 38168
+          "char_offset": 38566
         }
       ]
     },
@@ -179,7 +179,7 @@
               "shape": "\\.textContent\\s*=\\s*(?P<var>\\w+)\\.length..."
             }
           ],
-          "char_offset": 34259
+          "char_offset": 34637
         },
         {
           "view": "v_anomaly_truth",
@@ -190,7 +190,7 @@
               "shape": "\\.textContent\\s*=\\s*(?P<var>\\w+)\\.length..."
             }
           ],
-          "char_offset": 34749
+          "char_offset": 35127
         }
       ]
     },
@@ -210,7 +210,7 @@
               "shape": "\\.textContent\\s*=\\s*(?P<var>\\w+)\\.length..."
             }
           ],
-          "char_offset": 25486
+          "char_offset": 25791
         }
       ]
     }

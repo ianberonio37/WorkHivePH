@@ -14,7 +14,7 @@
           "interps": [
             "${role === 'supervisor' ? 'alert-hub.html' : 'pm-scheduler.html'}"
           ],
-          "offset": 203218
+          "offset": 203563
         }
       ]
     },
@@ -31,7 +31,7 @@
             "${a.asset_id}",
             "${a.name}"
           ],
-          "offset": 130682
+          "offset": 131005
         }
       ]
     },
@@ -44,7 +44,7 @@
             "${a.asset_id}",
             "${a.name}"
           ],
-          "offset": 54148
+          "offset": 54404
         }
       ]
     },
@@ -56,7 +56,7 @@
           "interps": [
             "${a.id}"
           ],
-          "offset": 93104
+          "offset": 93259
         }
       ]
     },
@@ -69,14 +69,14 @@
             "${icons[phase]||'\ud83d\udcca'}",
             "${PHASE_BANNERS[phase]}"
           ],
-          "offset": 32536
+          "offset": 32932
         },
         {
           "snippet": "`Filtered: ${active.map(escHtml).join(' \u00b7 ')} <button onclick=\"resetFilters()\" s",
           "interps": [
             "${active.map(escHtml).join(' \u00b7 ')}"
           ],
-          "offset": 34731
+          "offset": 35127
         }
       ]
     },
@@ -106,7 +106,7 @@
             "${_hasMore ? '+' : ''}",
             "${_listings.length !== 1 ? 's' : ''}"
           ],
-          "offset": 98084
+          "offset": 98383
         }
       ]
     },
@@ -127,7 +127,7 @@
             "${['Office','Conference','Server Room','Production Floor','Warehouse','Toilet / CR','Kitchen','Laboratory','Lobby','Hospital Ward'].map((v,i) =>\n            `<button class=\"toggle-btn${i===0?' active':''}",
             "${v}"
           ],
-          "offset": 292194
+          "offset": 292366
         },
         {
           "snippet": "`              <div class=\"mb-4\">         <div class=\"field-label\">Project / Sys",
@@ -135,7 +135,7 @@
             "${['Water','Chilled Water','Hot Water','Glycol Solution','Seawater'].map((v,i) =>\n            `<button class=\"toggle-btn${i===0?' active':''}",
             "${v}"
           ],
-          "offset": 294974
+          "offset": 295146
         },
         {
           "snippet": "`              <div class=\"mb-4\">         <div class=\"field-label\">Project / Sys",
@@ -143,7 +143,7 @@
             "${['Steam','Hot Water'].map((v,i) =>\n            `<button class=\"toggle-btn${i===0?' active':''}",
             "${v}"
           ],
-          "offset": 300428
+          "offset": 300600
         },
         {
           "snippet": "`              <div class=\"mb-4\">         <div class=\"field-label\">Project / Sys",
@@ -151,7 +151,7 @@
             "${['Chilled Water Supply','Chilled Water Return','Hot Water Supply','Condenser Water','Cold Water Supply','Fire Protection','General Water'].map((v,i) =>\n            `<button class=\"toggle-btn${i===0?' active':''}",
             "${v}"
           ],
-          "offset": 308513
+          "offset": 308685
         },
         {
           "snippet": "`       <div class=\"mb-4\">         <div class=\"field-label\">Project / System Nam",
@@ -159,7 +159,7 @@
             "${['Horizontal Branch','Drain Stack','Building Drain'].map((v,i) =>\n            `<button class=\"toggle-btn${i===0?' active':''}",
             "${v}"
           ],
-          "offset": 322987
+          "offset": 323159
         },
         {
           "snippet": "`       <div class=\"mb-4\">         <div class=\"field-label\">Project / Panel Name",
@@ -168,7 +168,7 @@
             "${v}",
             "${v}"
           ],
-          "offset": 369145
+          "offset": 369317
         },
         {
           "snippet": "`       <div class=\"mb-4\">         <div class=\"field-label\">Project / Generator ",
@@ -177,7 +177,7 @@
             "${v}",
             "${v}"
           ],
-          "offset": 371358
+          "offset": 371530
         },
         {
           "snippet": "`       <div class=\"mb-4\">         <div class=\"field-label\">Project / System Nam",
@@ -185,7 +185,7 @@
             "${['Grid-Tied','Off-Grid','Hybrid'].map((v,i) =>\n            `<button class=\"toggle-btn${i===0?' active':''}",
             "${v}"
           ],
-          "offset": 375770
+          "offset": 375942
         },
         {
           "snippet": "`       <div class=\"mb-4\">         <div class=\"field-label\">Project / Circuit Na",
@@ -193,7 +193,7 @@
             "${['General Load','Motor (continuous)','HVAC Compressor','Lighting (continuous)','Receptacle'].map((v,i) =>\n            `<button class=\"toggle-btn${i===0?' active':''}",
             "${v}"
           ],
-          "offset": 434689
+          "offset": 434861
         },
         {
           "snippet": "`       <div class=\"mb-4\">         <div class=\"field-label\">Project / Room Name<",
@@ -201,7 +201,7 @@
             "${['Office','Conference Room','Corridor','Toilet','Warehouse','Production Floor','School / Classroom','Retail'].map((v,i) =>\n            `<button class=\"toggle-btn${i===0?' active':''}",
             "${v}"
           ],
-          "offset": 441983
+          "offset": 442155
         },
         {
           "snippet": "`     <select class=\"wh-input py-2\" id=\"tool-type-${id}\" onchange=\"toggleCustomC",
@@ -210,7 +210,7 @@
             "${id}",
             "${TOOL_OPTIONS.map(t => `<option value=\"${t}"
           ],
-          "offset": 571838
+          "offset": 572010
         },
         {
           "snippet": "`     <select class=\"wh-input py-2\" id=\"fix-type-${id}\" onchange=\"toggleCustomFi",
@@ -219,7 +219,7 @@
             "${id}",
             "${FIXTURE_OPTIONS.map(t => `<option value=\"${t}"
           ],
-          "offset": 573939
+          "offset": 574111
         },
         {
           "snippet": "`     <select class=\"wh-input py-2\" id=\"hw-type-${id}\" onchange=\"toggleCustomRat",
@@ -228,7 +228,7 @@
             "${id}",
             "${HW_USE_OPTIONS.map(t => `<option value=\"${t}"
           ],
-          "offset": 576676
+          "offset": 576848
         },
         {
           "snippet": "`     <select class=\"wh-input py-2\" id=\"drain-type-${id}\" onchange=\"toggleCustom",
@@ -237,7 +237,7 @@
             "${id}",
             "${DRAIN_FIXTURE_OPTIONS.map(t => `<option value=\"${t}"
           ],
-          "offset": 579642
+          "offset": 579814
         },
         {
           "snippet": "`     <select class=\"wh-input py-2\" id=\"gt-type-${id}\" onchange=\"toggleGTCustomF",
@@ -246,7 +246,7 @@
             "${id}",
             "${GT_FIXTURE_OPTIONS.map(t => `<option value=\"${t}"
           ],
-          "offset": 582989
+          "offset": 583161
         },
         {
           "snippet": "`     <select class=\"wh-input py-2\" id=\"lt-type-${id}\" onchange=\"applyLoadDefaul",
@@ -255,7 +255,7 @@
             "${id}",
             "${LOAD_TYPE_OPTIONS.map(t => `<option value=\"${t}"
           ],
-          "offset": 587070
+          "offset": 587242
         },
         {
           "snippet": "`     <select class=\"wh-input py-2\" id=\"glt-type-${id}\" onchange=\"applyGenLoadDe",
@@ -264,7 +264,7 @@
             "${id}",
             "${LOAD_TYPE_OPTIONS.map(t => `<option value=\"${t}"
           ],
-          "offset": 589045
+          "offset": 589217
         },
         {
           "snippet": "`     <select class=\"wh-input py-2\" id=\"ct-type-${id}\">       ${CT_CABLE_TYPE_OP",
@@ -273,7 +273,7 @@
             "${CT_CABLE_TYPE_OPTIONS.map(t => `<option value=\"${t}",
             "${t===defaultType?' selected':''}"
           ],
-          "offset": 591208
+          "offset": 591380
         },
         {
           "snippet": "_sowSections.map((sec, i) => `     <div class=\"sow-checklist-item ${sec.checked ",
@@ -282,7 +282,7 @@
             "${i}",
             "${i}"
           ],
-          "offset": 1862761
+          "offset": 1862933
         }
       ]
     },
@@ -296,7 +296,7 @@
             "${i.color}",
             "${i.count}"
           ],
-          "offset": 18206
+          "offset": 18371
         }
       ]
     },
@@ -314,7 +314,7 @@
             "${regs.length>1?'s':''}",
             "${r.label}"
           ],
-          "offset": 91498
+          "offset": 91657
         },
         {
           "snippet": "`<span>${msgs[overall]||overall}</span><span class=\"b-sub\">${regs.length?`${regs",
@@ -322,7 +322,7 @@
             "${msgs[overall]||overall}",
             "${regs.length?`${regs.length}"
           ],
-          "offset": 91986
+          "offset": 92145
         },
         {
           "snippet": "[{cls:'pass',n:summary.pass||0,l:'Pass'},{cls:'fail',n:summary.fail||0,l:'Fail'}",
@@ -331,7 +331,7 @@
             "${c.n}",
             "${c.l}"
           ],
-          "offset": 92292
+          "offset": 92451
         },
         {
           "snippet": "`       <span class=\"vgroup-name\">${groupName}</span>       <span class=\"vgroup-",
@@ -340,7 +340,7 @@
             "${summaryParts.join(' \u00b7 ')}",
             "${hasIssue ? 'open' : ''}"
           ],
-          "offset": 95222
+          "offset": 95381
         },
         {
           "snippet": "`       <div class=\"gcard-top\">         <span class=\"gcard-icon\" style=\"color:${",
@@ -349,7 +349,7 @@
             "${icon}",
             "${v.status||'SKIP'}"
           ],
-          "offset": 98540
+          "offset": 98699
         }
       ]
     },
@@ -363,7 +363,7 @@
             "${r.items_done ?? 0}",
             "${r.items_total ?? 0}"
           ],
-          "offset": 104821
+          "offset": 105225
         },
         {
           "snippet": "`     <div class=\"kpi-row\">       <div class=\"kpi\"><div class=\"kpi-label\">Critic",
@@ -372,7 +372,7 @@
             "${cp.item_ids.length}",
             "${_items.length}"
           ],
-          "offset": 129179
+          "offset": 129583
         },
         {
           "snippet": "`     <div class=\"kpi-row\">       <div class=\"kpi\"><div class=\"kpi-label\">Budget",
@@ -381,7 +381,7 @@
             "${fmtPHP(ev.pv)}",
             "${fmtPHP(ev.ev)}"
           ],
-          "offset": 140580
+          "offset": 140984
         },
         {
           "snippet": "`     <div class=\"kpi-row\">       <div class=\"kpi\"><div class=\"kpi-label\">Sign-o",
@@ -389,7 +389,7 @@
             "${passed}",
             "${checks.length}"
           ],
-          "offset": 142865
+          "offset": 143269
         }
       ]
     },
@@ -401,14 +401,14 @@
           "interps": [
             "${c.c}"
           ],
-          "offset": 75822
+          "offset": 76209
         },
         {
           "snippet": "patterns.map(p =>         `<div class=\"pattern-row\"><div class=\"pattern-dot\" sty",
           "interps": [
             "${p.color}"
           ],
-          "offset": 78860
+          "offset": 79247
         }
       ]
     },
@@ -421,7 +421,7 @@
             "${s.n}",
             "${s.l}"
           ],
-          "offset": 22976
+          "offset": 23399
         }
       ]
     },
@@ -451,7 +451,7 @@
             "${t.label}",
             "${t.range}"
           ],
-          "offset": 28982
+          "offset": 29360
         }
       ]
     },

@@ -1,73 +1,8 @@
 {
   "summary": {
-    "pages_scanned": 16,
+    "pages_scanned": 0,
     "drift": 0,
     "baseline": 0
   },
-  "per_page": [
-    {
-      "page": "analytics.html",
-      "status": "no_canonical"
-    },
-    {
-      "page": "analytics-report.html",
-      "status": "no_canonical"
-    },
-    {
-      "page": "public-feed.html",
-      "status": "no_canonical"
-    },
-    {
-      "page": "marketplace.html",
-      "status": "no_canonical"
-    },
-    {
-      "page": "marketplace-seller.html",
-      "status": "no_canonical"
-    },
-    {
-      "page": "report-sender.html",
-      "status": "no_canonical"
-    },
-    {
-      "page": "project-manager.html",
-      "status": "no_canonical"
-    },
-    {
-      "page": "integrations.html",
-      "status": "no_canonical"
-    },
-    {
-      "page": "ph-intelligence.html",
-      "status": "no_canonical"
-    },
-    {
-      "page": "project-report.html",
-      "status": "no_canonical"
-    },
-    {
-      "page": "predictive.html",
-      "status": "no_canonical"
-    },
-    {
-      "page": "ai-quality.html",
-      "status": "no_canonical"
-    },
-    {
-      "page": "plant-connections.html",
-      "status": "no_canonical"
-    },
-    {
-      "page": "achievements.html",
-      "status": "no_canonical"
-    },
-    {
-      "page": "alert-hub.html",
-      "status": "no_canonical"
-    },
-    {
-      "page": "audit-log.html",
-      "status": "no_canonical"
-    }
-  ]
+  "per_page": []
 }

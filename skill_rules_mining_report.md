@@ -73,7 +73,7 @@ mined against the codebase. Source manifest: `skill_rules_manifest.json`.
 | `a11y_img_has_alt` | qa-tester | 100% (36/36) | html_pages | anti_pattern |
 | `qa_utils_js_loads_before_inline_script` | qa-tester | 100% (29/29) | html_pages | convention |
 | `kg_voice_handler_must_call_platform_rpc` | architect | 100% (1/1) | js_modules | convention |
-| `kg_migrations_no_broadcast_across_hives` | architect | 100% (176/176) | migrations | anti_pattern |
+| `kg_migrations_no_broadcast_across_hives` | architect | 100% (177/177) | migrations | anti_pattern |
 | `frontend_list_view_has_empty_state` | frontend | 100% (27/27) | html_pages | convention |
 | `frontend_list_view_has_no_results_state` | frontend | 100% (11/11) | html_pages | convention |
 | `frontend_list_view_has_load_more` | frontend | 100% (12/12) | html_pages | convention |
