@@ -18,6 +18,8 @@ Dimensions surveyed:
   6. Partial-label honesty       (zero-tolerance regression)
   7. AI prompt grounding         (every metric mention cites a standard)
   8. Phantom captures + columns  (reverse audit)
+  9. Canonical drift flywheel    (TIER A pages + gap reads + drift reads)
+ 10. Cross-surface KPI sentinel  (parity specs locked vs baseline)
 
 Designed to be cheap enough to run after every commit; surfaces drift
 the same instant the underlying file changes.
@@ -200,6 +202,48 @@ def _gather() -> dict[str, Any]:
         out["phantom_cols_alive"]   = 0
         out["phantom_cols_phantom"] = 0
 
+    # 9. Canonical drift flywheel (TIER A + drift + gap counts)
+    cdp = _read_json("canonical_drift_platform_report.json")
+    if cdp:
+        s = cdp.get("summary", {})
+        out["drift_tier_a_pages"]    = s.get("tier_a_pages", 0)
+        out["drift_tier_b_pages"]    = s.get("tier_b_pages", 0)
+        out["drift_reads"]           = s.get("total_drift_reads", 0)
+        out["drift_gap_reads"]       = s.get("total_gap_reads", 0)
+        out["drift_files_scanned"]   = s.get("files_scanned", 0)
+    else:
+        out["drift_tier_a_pages"]    = 0
+        out["drift_tier_b_pages"]    = 0
+        out["drift_reads"]           = 0
+        out["drift_gap_reads"]       = 0
+        out["drift_files_scanned"]   = 0
+
+    # 9b. Forward-only ratchet
+    fkc = _read_json("user_facing_kpi_canonical_report.json")
+    if fkc:
+        s = fkc.get("summary", {})
+        out["ratchet_regressions"]   = s.get("tier_a_regressions", 0) + s.get("gap_regressions", 0)
+        out["ratchet_baseline_gap"]  = s.get("baseline_gap_reads", 0)
+        out["ratchet_current_gap"]   = s.get("current_gap_reads", 0)
+    else:
+        out["ratchet_regressions"]   = 0
+        out["ratchet_baseline_gap"]  = 0
+        out["ratchet_current_gap"]   = 0
+
+    # 10. Cross-surface KPI sentinel spec count (static scan of the spec file)
+    sentinel_file = ROOT / "tests" / "journey-cross-surface-kpi-parity.spec.ts"
+    sentinel_count = 0
+    if sentinel_file.exists():
+        body = sentinel_file.read_text(encoding="utf-8", errors="replace")
+        # Count `test('check_X` definitions, excluding `test.fixme` (skipped)
+        sentinel_count = len(re.findall(r"\btest\s*\(\s*['\"]check_", body))
+        sentinel_fixme = len(re.findall(r"\btest\.fixme\s*\(\s*['\"]check_", body))
+        out["sentinel_specs"]        = sentinel_count
+        out["sentinel_fixme"]        = sentinel_fixme
+    else:
+        out["sentinel_specs"] = 0
+        out["sentinel_fixme"] = 0
+
     return out
 
 
@@ -265,6 +309,28 @@ def _print(status: dict[str, Any]) -> int:
           f"{status['phantom_captures_phantom']} phantom / {status['phantom_captures_alive']} alive")
     print(f"  {_badge(phcol_ok, warn=not phcol_ok)}  Phantom DB columns:           "
           f"{status['phantom_cols_phantom']} phantom / {status['phantom_cols_alive']} alive")
+
+    # 9. Canonical drift flywheel
+    drift_ok = status["drift_reads"] == 0 and status["drift_tier_a_pages"] == 0
+    if not drift_ok: fail_count += 1
+    print(f"  {_badge(drift_ok)}  Canonical drift (flywheel):   "
+          f"{status['drift_reads']} drift / {status['drift_gap_reads']} gap reads "
+          f"({status['drift_files_scanned']} files; TIER A: {status['drift_tier_a_pages']})")
+
+    # 9b. Forward-only ratchet
+    ratchet_ok = status["ratchet_regressions"] == 0
+    if not ratchet_ok: fail_count += 1
+    delta = status["ratchet_current_gap"] - status["ratchet_baseline_gap"]
+    delta_str = f"+{delta}" if delta > 0 else f"{delta}"
+    print(f"  {_badge(ratchet_ok)}  Forward-only ratchet:         "
+          f"{status['ratchet_regressions']} regressions (gap {status['ratchet_current_gap']} "
+          f"vs baseline {status['ratchet_baseline_gap']}, {delta_str})")
+
+    # 10. Sentinel KPI parity coverage
+    sentinel_ok = status["sentinel_specs"] >= 6 and status["sentinel_fixme"] == 0
+    print(f"  {_badge(sentinel_ok, warn=status['sentinel_fixme']>0)}  Cross-surface KPI sentinels:  "
+          f"{status['sentinel_specs']} active "
+          f"({status['sentinel_fixme']} fixme'd)")
 
     print("=" * 56)
     if fail_count == 0:
