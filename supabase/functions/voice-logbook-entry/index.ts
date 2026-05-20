@@ -83,7 +83,7 @@ async function deriveWorkerFromJWT(
     const { data: { user } } = await authedClient.auth.getUser();
     if (!user) return null;
     const { data: profile } = await adminClient
-      .from("worker_profiles")
+      .from("v_worker_truth")
       .select("display_name")
       .eq("auth_uid", user.id)
       .maybeSingle();

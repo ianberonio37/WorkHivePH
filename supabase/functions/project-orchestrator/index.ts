@@ -71,10 +71,10 @@ async function runNarrative(
   hive_id: string,
 ): Promise<Record<string, unknown>> {
   const [projRes, itemsRes, logsRes] = await Promise.all([
-    db.from('projects').select('*').eq('id', project_id).eq('hive_id', hive_id).is('deleted_at', null).maybeSingle(),
-    db.from('project_items').select('id, title, status, pct_complete, estimated_hours, actual_hours, planned_end, owner_name, notes')
+    db.from('v_project_truth').select('*').eq('id', project_id).eq('hive_id', hive_id).is('deleted_at', null).maybeSingle(),
+    db.from('v_project_items_truth').select('id, title, status, pct_complete, estimated_hours, actual_hours, planned_end, owner_name, notes')
       .eq('project_id', project_id).eq('hive_id', hive_id).order('sort_order'),
-    db.from('project_progress_logs').select('log_date, reported_by, pct_complete, hours_worked, notes, blockers')
+    db.from('v_project_progress_truth').select('log_date, reported_by, pct_complete, hours_worked, notes, blockers')
       .eq('project_id', project_id).eq('hive_id', hive_id).order('log_date', { ascending: false }).limit(20),
   ]);
   if (projRes.error || !projRes.data) {
@@ -239,8 +239,8 @@ async function runLessonsDraft(
   hive_id: string,
 ): Promise<Record<string, unknown>> {
   const [projRes, logsRes] = await Promise.all([
-    db.from('projects').select('project_code, name, project_type, status').eq('id', project_id).eq('hive_id', hive_id).is('deleted_at', null).maybeSingle(),
-    db.from('project_progress_logs').select('log_date, reported_by, pct_complete, hours_worked, notes, blockers')
+    db.from('v_project_truth').select('project_code, name, project_type, status').eq('id', project_id).eq('hive_id', hive_id).is('deleted_at', null).maybeSingle(),
+    db.from('v_project_progress_truth').select('log_date, reported_by, pct_complete, hours_worked, notes, blockers')
       .eq('project_id', project_id).eq('hive_id', hive_id).order('log_date', { ascending: false }).limit(40),
   ]);
   if (projRes.error || !projRes.data) {

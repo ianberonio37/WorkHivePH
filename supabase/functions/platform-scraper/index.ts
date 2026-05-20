@@ -163,31 +163,29 @@ async function _fetchRiskAssets(db: any, hive_id: string): Promise<string> {
 
 // Helper: PM status (due this week, overdue)
 async function _fetchPMStatus(db: any, hive_id: string): Promise<string> {
+  // Canonical view: v_pm_scope_items_truth (defined 2026-05-10). Exposes
+  // pre-computed is_due_soon (next 14 days) and is_overdue booleans, plus
+  // hive_id for scoping. Replaces stale references to v_pm_truth (renamed
+  // away during the 2026-05-09/10 PM data-model split; never had a `status`
+  // column or `next_due_date` at the PM-asset grain).
   try {
-    const today = new Date().toISOString().slice(0, 10);
-    const weekEnd = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
-      .toISOString()
-      .slice(0, 10);
-
     const [dueSoon, overdue] = await Promise.all([
       db
-        .from("v_pm_truth")
-        .select("COUNT(*)")
+        .from("v_pm_scope_items_truth")
+        .select("scope_item_id", { count: "exact", head: true })
         .eq("hive_id", hive_id)
-        .eq("status", "due")
-        .gte("next_due_date", today)
-        .lt("next_due_date", weekEnd)
+        .eq("is_due_soon", true)
         .execute(),
       db
-        .from("v_pm_truth")
-        .select("COUNT(*)")
+        .from("v_pm_scope_items_truth")
+        .select("scope_item_id", { count: "exact", head: true })
         .eq("hive_id", hive_id)
-        .eq("status", "overdue")
+        .eq("is_overdue", true)
         .execute(),
     ]);
 
-    const dueCount = dueSoon.data?.[0]?.count || 0;
-    const overdueCount = overdue.data?.[0]?.count || 0;
+    const dueCount    = dueSoon.count ?? 0;
+    const overdueCount = overdue.count ?? 0;
 
     if (dueCount + overdueCount === 0) return "";
 
@@ -204,23 +202,28 @@ async function _fetchPMStatus(db: any, hive_id: string): Promise<string> {
 // Helper: inventory alerts (low, out of stock)
 async function _fetchInventoryAlerts(db: any, hive_id: string): Promise<string> {
   try {
+    // Canonical view: v_inventory_items_truth (defined 2026-05-10). Exposes
+    // pre-computed is_low_stock and is_out_of_stock booleans plus hive_id
+    // for scoping. Replaces stale references to v_inventory_truth (never
+    // existed under that name; the canonical bakes in the threshold math
+    // that was duplicated across consumers).
     const [low, out] = await Promise.all([
       db
-        .from("v_inventory_truth")
-        .select("COUNT(*)")
+        .from("v_inventory_items_truth")
+        .select("id", { count: "exact", head: true })
         .eq("hive_id", hive_id)
-        .eq("stock_level", "low")
+        .eq("is_low_stock", true)
         .execute(),
       db
-        .from("v_inventory_truth")
-        .select("COUNT(*)")
+        .from("v_inventory_items_truth")
+        .select("id", { count: "exact", head: true })
         .eq("hive_id", hive_id)
-        .eq("stock_level", "out")
+        .eq("is_out_of_stock", true)
         .execute(),
     ]);
 
-    const lowCount = low.data?.[0]?.count || 0;
-    const outCount = out.data?.[0]?.count || 0;
+    const lowCount = low.count ?? 0;
+    const outCount = out.count ?? 0;
 
     if (lowCount + outCount === 0) return "";
 

@@ -43,16 +43,16 @@ serve(async (req) => {
 
     // Fetch training data: all corrective logbook entries across all hives
     const [logRes, assetsRes, compsRes, scopeRes, txnsRes] = await Promise.allSettled([
-      db.from("logbook")
+      db.from("v_logbook_truth")
         .select("machine, maintenance_type, category, root_cause, downtime_hours, created_at, status, hive_id")
         .or("maintenance_type.ilike.%Corrective%,maintenance_type.ilike.%Breakdown%")
         .eq("status", "Closed")
         .order("created_at", { ascending: false })
         .limit(10000),
 
-      db.from("pm_assets").select("id, asset_name, tag_id, category, hive_id"),
+      db.from("v_pm_compliance_truth").select("id, asset_name, tag_id, category, hive_id"),
 
-      db.from("pm_completions")
+      db.from("v_pm_compliance_truth")
         .select("asset_id, scope_item_id, completed_at, status, hive_id")
         .eq("status", "done")
         .limit(5000),
@@ -63,7 +63,7 @@ serve(async (req) => {
 
       // inventory_transactions has no part_name — only item_id (FK). Embed
       // via PostgREST then flatten before passing to the Python training job.
-      db.from("inventory_transactions")
+      db.from("v_inventory_transactions_truth")
         .select("qty_change, type, created_at, hive_id, item:inventory_items(part_name)")
         .order("created_at", { ascending: false })
         .limit(5000),

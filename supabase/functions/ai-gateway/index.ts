@@ -184,7 +184,7 @@ serve(async (req) => {
   let accountPersona = "james";
   let authUid: string | null = null;
   if (user) {
-    const { data: profile } = await adminClient.from("worker_profiles")
+    const { data: profile } = await adminClient.from("v_worker_truth")
       .select("display_name, preferred_persona").eq("auth_uid", user.id).maybeSingle();
     worker_name    = profile?.display_name || user.email || "anonymous";
     accountPersona = (profile?.preferred_persona as string | undefined) || "james";

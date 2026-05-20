@@ -24,6 +24,7 @@ import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 
 // contract-allow: project progress write
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { getCorsHeaders } from '../_shared/cors.ts';
 
 // Warm module-scope Supabase client. Reused across request invocations
 // in the same warm container. Per-request createClient calls below are
@@ -36,23 +37,7 @@ const _whWarmClient = _WH_SUPABASE_URL_M && _WH_SERVICE_KEY_M
   : null;
 void _whWarmClient;
 
-/* ── CORS ──────────────────────────────────────────────────────────────── */
-function getCorsHeaders(req: Request): Record<string, string> {
-  const origin = req.headers.get('origin') || '';
-  const allowed = [
-    'https://workhiveph.com',
-    'https://www.workhiveph.com',
-    'http://localhost',
-    'http://127.0.0.1:5000',
-    'null', // file:// local testing
-  ];
-  const allowedOrigin = allowed.includes(origin) ? origin : allowed[0];
-  return {
-    'Access-Control-Allow-Origin':  allowedOrigin,
-    'Access-Control-Allow-Methods': 'POST, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-  };
-}
+/* CORS handled by _shared/cors.ts (security skill rule -- 2026-05-18). */
 
 function json(data: unknown, status: number, req: Request) {
   return new Response(JSON.stringify(data), {
@@ -120,13 +105,13 @@ serve(async (req: Request) => {
 
   /* ── Load project + items + links + logs + roles + change_orders ───── */
   const [projRes, itemsRes, linksRes, logsRes, rolesRes, coRes] = await Promise.all([
-    db.from('projects')
+    db.from('v_project_truth')
       .select('id, hive_id, project_type, status, start_date, end_date, budget_php, created_at')
       .eq('id', project_id)
       .eq('hive_id', hive_id)
       .is('deleted_at', null)
       .maybeSingle(),
-    db.from('project_items')
+    db.from('v_project_items_truth')
       .select('id, title, status, pct_complete, estimated_hours, actual_hours, predecessors, planned_start, planned_end, owner_name, notes, sort_order')
       .eq('project_id', project_id)
       .eq('hive_id', hive_id)
@@ -135,7 +120,7 @@ serve(async (req: Request) => {
       .select('id, link_type, link_id, label')
       .eq('project_id', project_id)
       .eq('hive_id', hive_id),
-    db.from('project_progress_logs')
+    db.from('v_project_progress_truth')
       .select('log_date, reported_by, pct_complete, hours_worked, notes, blockers, acknowledged_by, acknowledged_at')
       .eq('project_id', project_id)
       .eq('hive_id', hive_id)

@@ -101,7 +101,7 @@ async function recommendForHive(
   // ── 2. Historical corrective records for those assets ──────────────────────
   const machineNames = targets.map((t) => t.asset_name);
   const { data: logbook, error: logErr } = await db
-    .from("logbook")
+    .from("v_logbook_truth")
     .select("machine, maintenance_type, root_cause, parts_used, created_at")
     .eq("hive_id", hiveId)
     .in("machine", machineNames)

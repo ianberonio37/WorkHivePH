@@ -148,7 +148,7 @@ async function fetchAssetGraphContext(
   // Parent (single hop) and immediate neighbors via asset_edges.
   let parent: AnyRow | null = null;
   if (node && (node as AnyRow).parent_id) {
-    const { data: parr } = await db.from("asset_nodes")
+    const { data: parr } = await db.from("v_asset_truth")
       .select("id, tag, name, level")
       .eq("hive_id", hiveId).eq("id", (node as AnyRow).parent_id).limit(1);
     parent = (parr && parr[0]) || null;
@@ -164,7 +164,7 @@ async function fetchAssetGraphContext(
   if (edges && edges.length) {
     const otherIds = Array.from(new Set(edges.map(e => (e.from_node_id === assetId ? e.to_node_id : e.from_node_id))));
     if (otherIds.length) {
-      const { data: nbs } = await db.from("asset_nodes")
+      const { data: nbs } = await db.from("v_asset_truth")
         .select("id, tag, name, criticality, iso_class")
         .eq("hive_id", hiveId).in("id", otherIds);
       neighbors = (nbs || []).map(n => {
@@ -197,7 +197,7 @@ async function fetchAssetTimeline(
   );
   if (node.pm_asset_id) {
     queries.push(
-      db.from("pm_completions")
+      db.from("v_pm_compliance_truth")
         .select("id, asset_id, completed_at, worker_name, scope_item_id")
         .eq("hive_id", hiveId)
         .eq("asset_id", node.pm_asset_id)
@@ -230,7 +230,7 @@ async function fetchSimilarFailures(
 
   // Find peer assets in the same hive + iso_class (excluding self).
   // canonical-allow: asset-brain neighbor traversal needs the raw graph table
-  const { data: peers } = await db.from("asset_nodes")
+  const { data: peers } = await db.from("v_asset_truth")
     .select("id, tag, name")
     .eq("hive_id", hiveId)
     .eq("iso_class", node.iso_class)

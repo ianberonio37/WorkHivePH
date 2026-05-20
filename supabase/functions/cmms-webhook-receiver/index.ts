@@ -216,7 +216,7 @@ serve(async (req) => {
     const now        = new Date().toISOString();
 
     // Get a worker to attribute events to
-    const { data: members } = await db.from("hive_members")
+    const { data: members } = await db.from("v_worker_truth")
       .select("worker_name").eq("hive_id", hiveId).eq("role", "supervisor").limit(1);
     const workerName = members?.[0]?.worker_name || "CMMS Webhook";
 

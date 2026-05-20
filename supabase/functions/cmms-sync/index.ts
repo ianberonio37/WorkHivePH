@@ -181,7 +181,7 @@ async function syncConfig(
   if (!endpoint) return { synced: 0, failed: 0, error: "No endpoint_url configured" };
 
   // Get a supervisor worker_name for the hive (for logbook attribution)
-  const { data: members } = await db.from("hive_members")
+  const { data: members } = await db.from("v_worker_truth")
     .select("worker_name").eq("hive_id", hiveId).eq("role", "supervisor").limit(1);
   const workerName = members?.[0]?.worker_name || "CMMS Sync";
 

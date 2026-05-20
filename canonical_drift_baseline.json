@@ -2,10 +2,6 @@
   "_doc": "Forward-only ratchet baseline. Updated only via --update-baseline after a deliberate reduction.",
   "tier_a_pages": {},
   "gap_table_counts": {
-    "inventory_transactions": 6,
-    "project_progress_logs": 6,
-    "marketplace_orders": 5,
-    "project_items": 5,
     "integration_configs": 4,
     "worker_achievements": 3,
     "parts_staging_recommendations": 3,

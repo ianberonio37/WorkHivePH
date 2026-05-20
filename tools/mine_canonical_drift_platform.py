@@ -94,6 +94,10 @@ CANONICAL_PAIRS: dict[str, str] = {
     "amc_briefings":            "v_amc_truth",
     "sensor_readings":          "v_sensor_truth",
     "rcm_pf_intervals":         "v_pf_truth",
+    "inventory_transactions":   "v_inventory_transactions_truth",
+    "marketplace_orders":       "v_marketplace_orders_truth",
+    "project_items":            "v_project_items_truth",
+    "project_progress_logs":    "v_project_progress_truth",
 }
 
 # Tables that legitimately read raw — the miner classifies these as ALLOWED

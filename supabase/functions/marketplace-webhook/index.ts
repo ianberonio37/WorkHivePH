@@ -113,7 +113,7 @@ serve(async (req: Request) => {
     const amountTotal = session['amount_total']      as number;
 
     const { data: order, error: findErr } = await db
-      .from('marketplace_orders')
+      .from('v_marketplace_orders_truth')
       .select('id, price, status')
       .eq('stripe_session_id', sessionId)
       .maybeSingle();

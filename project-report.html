@@ -246,10 +246,10 @@ function getPhase(it) {
 
 async function loadAndRender(projectId) {
   const [projRes, itemsRes, linksRes, logsRes] = await Promise.all([
-    db.from('projects').select('*').eq('id', projectId).is('deleted_at', null).maybeSingle(),
-    db.from('project_items').select('*').eq('project_id', projectId).order('sort_order'),
+    db.from('v_project_truth').select('*').eq('id', projectId).is('deleted_at', null).maybeSingle(),
+    db.from('v_project_items_truth').select('*').eq('project_id', projectId).order('sort_order'),
     db.from('project_links').select('*').eq('project_id', projectId).order('created_at'),
-    db.from('project_progress_logs').select('*').eq('project_id', projectId).order('log_date', { ascending: false }).limit(60),
+    db.from('v_project_progress_truth').select('*').eq('project_id', projectId).order('log_date', { ascending: false }).limit(60),
   ]);
   if (projRes.error || !projRes.data) {
     $('tb-title').textContent = 'Project not found';

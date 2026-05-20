@@ -171,6 +171,63 @@ test.describe('cross-surface KPI parity', () => {
     expect(invCount, `v_inventory_items_truth shows ${viewCount} low-stock items (status='approved') but inventory #stat-low shows ${invCount} — canonical drift, page's stockStatus() diverges from view's is_low_stock`).toBe(viewCount);
   });
 
+  test('check_members_parity: hive #stat-members agrees with v_worker_truth active count', async ({ whPage }) => {
+    await whPage.goto(HIVE_URL, { waitUntil: 'domcontentloaded' });
+    // Wait for loadMembers to set the count (initial DOM is "—" em-dash)
+    await whPage.waitForFunction(() => {
+      const el = document.getElementById('stat-members');
+      return el && /^\d+$/.test((el.textContent || '').trim());
+    }, { timeout: 15_000 }).catch(() => { /* hive may genuinely have only Pablo */ });
+
+    const tileCount = await readIntFromText(await whPage.locator('#stat-members').textContent());
+
+    const viewCount: number = await whPage.evaluate(async () => {
+      const hiveId = localStorage.getItem('wh_active_hive_id') || localStorage.getItem('wh_hive_id');
+      // @ts-expect-error db is a global hydrated by utils.js
+      const { count } = await db.from('v_worker_truth')
+        .select('worker_name', { count: 'exact', head: true })
+        .eq('hive_id', hiveId)
+        .eq('hive_status', 'active');
+      return count || 0;
+    });
+
+    expect(Number.isFinite(tileCount), `hive #stat-members did not resolve to a number`).toBe(true);
+    expect(tileCount, `v_worker_truth active count = ${viewCount} but hive #stat-members shows ${tileCount} — canonical drift, page's hive_members count diverged from view`).toBe(viewCount);
+  });
+
+  test('check_inventory_reads_canonical_view: data load wires to v_inventory_items_truth', async ({ whPage }) => {
+    // Network watcher: inventory.html must hit /rest/v1/v_inventory_items_truth
+    // and must NOT GET /rest/v1/inventory_items (writes via .upsert / .delete
+    // stay allowed since they target the underlying table). Locks the turn-2
+    // hardening fix where inventory.html migrated 4 SELECTs to the view.
+    const canonicalHits: string[] = [];
+    const rawSelectHits: string[] = [];
+
+    whPage.on('request', (req) => {
+      const url = req.url();
+      if (/\/rest\/v1\/v_inventory_items_truth/.test(url)) {
+        canonicalHits.push(url);
+      } else if (/\/rest\/v1\/inventory_items(\?|$)/.test(url) && req.method() === 'GET') {
+        rawSelectHits.push(url);
+      }
+    });
+
+    await whPage.goto('/workhive/inventory.html', { waitUntil: 'networkidle' });
+    await whPage.waitForFunction(() => {
+      // @ts-expect-error
+      return typeof _items !== 'undefined' && _items.length > 0;
+    }, { timeout: 15_000 }).catch(() => {});
+
+    expect(
+      canonicalHits.length,
+      `inventory.html did not query v_inventory_items_truth — canonical view wire-up regressed`,
+    ).toBeGreaterThanOrEqual(1);
+    expect(
+      rawSelectHits,
+      `inventory.html issued GET .../inventory_items — raw SELECT is forbidden (writes allowed). Migrate to v_inventory_items_truth.`,
+    ).toEqual([]);
+  });
+
   test('check_pm_scheduler_reads_canonical_view: data load wires to v_pm_scope_items_truth', async ({ whPage }) => {
     // The hardening fix MUST keep working: pm-scheduler.html should issue a
     // request to /rest/v1/v_pm_scope_items_truth, not /rest/v1/pm_scope_items.

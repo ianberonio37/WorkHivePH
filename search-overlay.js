@@ -259,7 +259,7 @@
                                  : { col: 'worker_name', val: WORKER };
 
     const [assetsRes, jobsRes, partsRes, pmsRes] = await Promise.allSettled([
-      db.from('asset_nodes')
+      db.from('v_asset_truth')
         .select('id, tag, name, level, location, criticality')
         .eq('hive_id', HIVE_ID)
         .or(`tag.ilike.%${safe}%,name.ilike.%${safe}%,location.ilike.%${safe}%`)
@@ -278,7 +278,7 @@
         .eq(scopeFilter.col, scopeFilter.val)
         .or(`part_name.ilike.%${safe}%,part_number.ilike.%${safe}%`)
         .limit(8),
-      db.from('pm_assets')
+      db.from('v_pm_compliance_truth')
         .select('id, asset_name, category, criticality')
         .eq(scopeFilter.col, scopeFilter.val)
         .ilike('asset_name', `%${safe}%`)

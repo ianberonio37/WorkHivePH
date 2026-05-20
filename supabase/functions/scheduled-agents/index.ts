@@ -55,7 +55,7 @@ async function runPMOverdue(db: SupabaseClient, hiveId: string, voiceContext?: s
   if (!assets.length) return "No assets found.";
 
   const assetIds = assets.map(a => a.id);
-  const { data: completions } = await db.from("pm_completions")
+  const { data: completions } = await db.from("v_pm_compliance_truth")
     .select("asset_id, completed_at")
     .in("asset_id", assetIds)
     .order("completed_at", { ascending: false });
@@ -196,7 +196,7 @@ async function runProjectSuggestions(db: SupabaseClient, hiveId: string, voiceCo
   if (!logs?.length) return "No breakdown history in the last 90 days.";
 
   // Skip assets already covered by an active project
-  const { data: activeProjects } = await db.from("projects")
+  const { data: activeProjects } = await db.from("v_project_truth")
     .select("id").eq("hive_id", hiveId).in("status", ["planning", "active"]).is("deleted_at", null);
   const activeProjectIds = (activeProjects || []).map(p => p.id);
   let coveredAssets: string[] = [];
@@ -268,13 +268,13 @@ Top 3 risks max. Use only the data provided — never invent.`;
 async function runProjectRisk(db: SupabaseClient, hiveId: string, voiceContext?: string): Promise<string> {
   const since = new Date(Date.now() - 30 * 86400000).toISOString();
   // Get active projects + their blockers from last 30d
-  const { data: projects } = await db.from("projects")
+  const { data: projects } = await db.from("v_project_truth")
     .select("id, project_code").eq("hive_id", hiveId)
     .in("status", ["planning", "active"]).is("deleted_at", null);
   if (!projects?.length) return "No active projects with blockers to analyse.";
 
   const projectIds = projects.map(p => p.id);
-  const { data: logs } = await db.from("project_progress_logs")
+  const { data: logs } = await db.from("v_project_progress_truth")
     .select("project_id, blockers, log_date")
     .in("project_id", projectIds).gte("log_date", since.slice(0, 10));
   const withBlockers = (logs || []).filter(l => ((l as Record<string, string>).blockers || "").trim());

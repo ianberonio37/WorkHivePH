@@ -186,7 +186,7 @@ serve(async (req) => {
     // that don't to prevent cross-hive injection through a compromised plant
     // bridge.
     const uniqueAssetIds = Array.from(new Set(validated.map(v => v.asset_id)));
-    const { data: validAssets } = await db.from("asset_nodes")
+    const { data: validAssets } = await db.from("v_asset_truth")
       .select("id")
       .eq("hive_id", hive_id)
       .in("id", uniqueAssetIds);

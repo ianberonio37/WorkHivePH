@@ -97,14 +97,14 @@ async function scoreHive(
         .order("created_at", { ascending: false })
         .limit(2000),
 
-      db.from("pm_assets")
+      db.from("v_pm_compliance_truth")
         .select("id, asset_name, tag_id, category")
         .eq("hive_id", hiveId),
 
       // inventory_transactions has no part_name column — only item_id (FK
       // to inventory_items). Use a PostgREST embed to surface part_name
       // through the join, matching the pattern in analytics-orchestrator.
-      db.from("inventory_transactions")
+      db.from("v_inventory_transactions_truth")
         .select("qty_change, type, created_at, item:inventory_items(part_name)")
         .eq("hive_id", hiveId)
         .order("created_at", { ascending: false })
@@ -115,7 +115,7 @@ async function scoreHive(
         .eq("hive_id", hiveId)
         .limit(500),
 
-      db.from("asset_nodes")
+      db.from("v_asset_truth")
         .select("id, name, tag")
         .eq("hive_id", hiveId)
         .eq("status", "approved")
@@ -144,7 +144,7 @@ async function scoreHive(
   // PM data requires asset IDs first (child table pattern — Architect rule)
   const [compsRes, scopeRes] = await Promise.allSettled([
     assetIds.length
-      ? db.from("pm_completions")
+      ? db.from("v_pm_compliance_truth")
           .select("asset_id, scope_item_id, completed_at, status")
           .in("asset_id", assetIds)
           .eq("status", "done")

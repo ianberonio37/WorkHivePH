@@ -247,7 +247,7 @@ serve(async (req) => {
     }
     authUid = user.id;
     const { data: profile } = await adminClient
-      .from("worker_profiles")
+      .from("v_worker_truth")
       .select("display_name")
       .eq("auth_uid", user.id)
       .maybeSingle();

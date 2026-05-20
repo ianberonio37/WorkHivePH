@@ -533,7 +533,7 @@ async function buildBriefForHive(
   ).toISOString().slice(0, 10);
 
   // Idempotency check: skip if a non-expired brief for this shift_date already exists.
-  const { data: existing } = await db.from("amc_briefings")
+  const { data: existing } = await db.from("v_amc_truth")
     .select("id, status")
     .eq("hive_id", hive.id)
     .eq("shift_date", today)

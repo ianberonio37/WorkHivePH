@@ -103,7 +103,7 @@ async function resolveAssetNodeId(db, hiveId, legacyAssetId) {
   if (!db || !hiveId || !legacyAssetId) return null;
   try {
     // canonical-allow: bridge helper needs the legacy_asset_id column on the raw graph table
-    const { data } = await db.from('asset_nodes')
+    const { data } = await db.from('v_asset_truth')
       .select('id')
       .eq('hive_id', hiveId)
       .eq('legacy_asset_id', legacyAssetId)
@@ -121,7 +121,7 @@ async function resolveLegacyAssetId(db, assetNodeId) {
   if (!db || !assetNodeId) return null;
   try {
     // canonical-allow: bridge helper needs the legacy_asset_id column on the raw graph table
-    const { data } = await db.from('asset_nodes')
+    const { data } = await db.from('v_asset_truth')
       .select('legacy_asset_id')
       .eq('id', assetNodeId)
       .maybeSingle();
@@ -458,7 +458,7 @@ async function restoreIdentityFromSession(db) {
   try {
     const { data: { session } } = await db.auth.getSession();
     if (!session) return '';
-    const { data: profile } = await db.from('worker_profiles')
+    const { data: profile } = await db.from('v_worker_truth')
       .select('display_name').eq('auth_uid', session.user.id).maybeSingle();
     if (profile?.display_name) {
       localStorage.setItem('wh_last_worker', profile.display_name);
@@ -547,7 +547,7 @@ async function isPlatformAdmin(db) {
   try {
     const { data: { session } } = await db.auth.getSession();
     if (!session) return false;
-    const { data: profile } = await db.from('worker_profiles')
+    const { data: profile } = await db.from('v_worker_truth')
       .select('display_name').eq('auth_uid', session.user.id).maybeSingle();
     if (!profile || !profile.display_name) return false;
     const { data: admin } = await db.from('marketplace_platform_admins')

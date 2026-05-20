@@ -14,6 +14,7 @@
 
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { getCorsHeaders } from '../_shared/cors.ts';
 
 // Warm module-scope Supabase client. Reused across request invocations
 // in the same warm container. Per-request createClient calls below are
@@ -26,16 +27,7 @@ const _whWarmClient = _WH_SUPABASE_URL_M && _WH_SERVICE_KEY_M
   : null;
 void _whWarmClient;
 
-function getCorsHeaders(req: Request): Record<string, string> {
-  const origin = req.headers.get('origin') || '';
-  const allowed = ['https://workhiveph.com', 'https://www.workhiveph.com', 'null', 'http://localhost'];
-  const allowedOrigin = allowed.includes(origin) ? origin : allowed[0];
-  return {
-    'Access-Control-Allow-Origin':  allowedOrigin,
-    'Access-Control-Allow-Methods': 'POST, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-  };
-}
+/* CORS handled by _shared/cors.ts (security skill rule -- 2026-05-18). */
 
 function errJson(error: string, status: number, req: Request) {
   return new Response(JSON.stringify({ error: error }), {

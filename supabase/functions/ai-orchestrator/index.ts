@@ -78,7 +78,7 @@ async function pmStatusAgent(db: SupabaseClient, hiveId: string | null, workerNa
     }));
   } else if (workerName) {
     // canonical-allow: solo mode (no hive_id) cannot use hive-scoped v_pm_compliance_truth
-    const { data } = await db.from("pm_assets")
+    const { data } = await db.from("v_pm_compliance_truth")
       .select("id, asset_name, category")
       .eq("worker_name", workerName);
     assets = (data || []) as Array<Record<string, string>>;
@@ -86,7 +86,7 @@ async function pmStatusAgent(db: SupabaseClient, hiveId: string | null, workerNa
   if (!assets.length) return { agent: "pm_status", result: null };
 
   const assetIds = assets.map(a => a.id);
-  const { data: completions } = await db.from("pm_completions")
+  const { data: completions } = await db.from("v_pm_compliance_truth")
     .select("asset_id, completed_at")
     .in("asset_id", assetIds)
     .order("completed_at", { ascending: false });

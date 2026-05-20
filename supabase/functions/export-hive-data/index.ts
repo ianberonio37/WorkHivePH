@@ -71,7 +71,7 @@ async function checkSupervisor(
 
   // Membership check via service-role bypass of RLS.
   const { data: member, error: memErr } = await db
-    .from("hive_members")
+    .from("v_worker_truth")
     .select("role, status")
     .eq("hive_id", hive_id)
     .eq("auth_uid", auth_uid)

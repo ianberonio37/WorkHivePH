@@ -30,8 +30,12 @@ const PROVIDER_CHAIN: ProviderEntry[] = [
   { provider: "groq", baseUrl: "https://api.groq.com/openai/v1", model: "openai/gpt-oss-120b",                       envKey: "GROQ_API_KEY" },
 
   // ── Tier 2: Cerebras — 1M tokens/day free, 8K total context cap ─────────────
+  // NOTE 2026-05-18: the first two entries 404'd on accounts without access.
+  // Fallback `llama3.1-8b` is broadly available on free tier. Mirror with
+  // Python tools/ai_chain.py.
   { provider: "cerebras", baseUrl: "https://api.cerebras.ai/v1", model: "llama-3.3-70b", envKey: "CEREBRAS_API_KEY", maxTokensCap: 4096 },
   { provider: "cerebras", baseUrl: "https://api.cerebras.ai/v1", model: "qwen-3-32b",    envKey: "CEREBRAS_API_KEY", maxTokensCap: 4096 },
+  { provider: "cerebras", baseUrl: "https://api.cerebras.ai/v1", model: "llama3.1-8b",   envKey: "CEREBRAS_API_KEY", maxTokensCap: 4096 },
 
   // ── Tier 3: OpenRouter — :free models, $0/token, 200 req/day ────────────────
   // Gemma 3/4 family supports vision via OpenAI-compatible image_url blocks.

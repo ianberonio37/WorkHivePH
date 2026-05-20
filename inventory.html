@@ -1593,7 +1593,7 @@ async function initData() {
     // Architect skill Query-First pattern: cap inventory_transactions to
     // the last 365 days, max 500 rows, newest-first. Workers very rarely
     // need older context. Detail modal slices per-item from this window.
-    db.from('inventory_transactions').select('*').eq('worker_name', WORKER_NAME).gte('created_at', new Date(Date.now() - 365*24*60*60*1000).toISOString()).order('created_at', { ascending: false }).limit(500),
+    db.from('v_inventory_transactions_truth').select('*').eq('worker_name', WORKER_NAME).gte('created_at', new Date(Date.now() - 365*24*60*60*1000).toISOString()).order('created_at', { ascending: false }).limit(500),
     // canonical-allow: solo-mode asset list — same write-companion read as above, ASSET_COLS shape required
     HIVE_ID ? Promise.resolve({ data: null }) : db.from('asset_nodes').select(ASSET_COLS).eq('worker_name', WORKER_NAME).is('hive_id', null).order('created_at'),
     itemsFetches,
@@ -1626,7 +1626,7 @@ async function initData() {
     const [ir, tr] = await Promise.all([
       db.from('v_inventory_items_truth').select('*').eq('worker_name', WORKER_NAME).order('created_at'),
       // Same window/cap as the primary fetch above — keep the two paths consistent.
-      db.from('inventory_transactions').select('*').eq('worker_name', WORKER_NAME).gte('created_at', new Date(Date.now() - 365*24*60*60*1000).toISOString()).order('created_at', { ascending: false }).limit(500)
+      db.from('v_inventory_transactions_truth').select('*').eq('worker_name', WORKER_NAME).gte('created_at', new Date(Date.now() - 365*24*60*60*1000).toISOString()).order('created_at', { ascending: false }).limit(500)
     ]);
     _items = ir.data || [];
     _txns  = tr.data || [];

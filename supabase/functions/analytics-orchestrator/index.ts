@@ -49,7 +49,7 @@ async function deriveWorkerFromJWT(
     const { data: { user } } = await authedClient.auth.getUser();
     if (!user) return null;
     const { data: profile } = await adminClient
-      .from("worker_profiles")
+      .from("v_worker_truth")
       .select("display_name")
       .eq("auth_uid", user.id)
       .maybeSingle();
@@ -108,7 +108,7 @@ async function fetchDescriptiveData(
     }));
   } else if (workerName) {
     // canonical-allow: solo mode (no hive_id) cannot use hive-scoped v_pm_compliance_truth
-    const { data } = await db.from("pm_assets")
+    const { data } = await db.from("v_pm_compliance_truth")
       .select("id, asset_name, tag_id, category")
       .eq("worker_name", workerName);
     assets = (data || []) as Array<Record<string, string>>;
@@ -116,7 +116,7 @@ async function fetchDescriptiveData(
   const assetIds = (assets || []).map((a: Record<string, string>) => a.id);
 
   const completionsLimit = dynLimit(periodDays, 5 * Math.max(assetIds.length, 1) / 30, 5000);
-  const completionsQ = db.from("pm_completions")
+  const completionsQ = db.from("v_pm_compliance_truth")
     .select("asset_id, scope_item_id, completed_at, status, worker_name")
     .eq("status", "done").order("completed_at", { ascending: false })
     .limit(completionsLimit);
@@ -138,7 +138,7 @@ async function fetchDescriptiveData(
   // inventory_transactions has item_id, NOT part_name — embed the part_name
   // from inventory_items via PostgREST so the Python calc finds it directly.
   const sincePrev = new Date(Date.now() - periodDays * 2 * 86400000).toISOString();
-  const txnQ = db.from("inventory_transactions")
+  const txnQ = db.from("v_inventory_transactions_truth")
     .select("qty_change, type, created_at, item:inventory_items(part_name)")
     .eq("type", "use")
     .gte("created_at", sincePrev).limit(dynLimit(periodDays * 2, 20));
@@ -290,7 +290,7 @@ async function fetchPrescriptiveData(
       }));
     }
     // canonical-allow: solo mode (no hive_id) cannot use hive-scoped v_pm_compliance_truth
-    const q = db.from("pm_assets")
+    const q = db.from("v_pm_compliance_truth")
       .select("id, asset_name, tag_id, category, criticality")
       .limit(500);
     if (workerName) q.eq("worker_name", workerName);
@@ -705,7 +705,7 @@ serve(async (req) => {
       if (prescR.status === "fulfilled" && !(prescriptive as { error?: unknown }).error) {
         let hiveMembers: string[] = [];
         if (hive_id) {
-          const { data: members } = await db.from("hive_members")
+          const { data: members } = await db.from("v_worker_truth")
             .select("worker_name").eq("hive_id", hive_id).eq("status", "active");
           hiveMembers = (members || []).map((m: Record<string, string>) => m.worker_name).filter(Boolean);
         } else if (worker_name) {
@@ -805,7 +805,7 @@ serve(async (req) => {
     if (phase === "prescriptive" && !results.error) {
       let hiveMembers: string[] = [];
       if (hive_id) {
-        const { data: members } = await db.from("hive_members")
+        const { data: members } = await db.from("v_worker_truth")
           .select("worker_name").eq("hive_id", hive_id).eq("status", "active");
         hiveMembers = (members || []).map((m: Record<string, string>) => m.worker_name).filter(Boolean);
       } else if (worker_name) {
