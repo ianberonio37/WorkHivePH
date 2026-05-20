@@ -34,6 +34,7 @@ from validator_utils import read_file, extract_js_array, format_result
 
 FLOAT_JS       = "companion-launcher.js"
 ASSISTANT_HTML = "assistant.html"
+VOICE_JS       = "voice-handler.js"
 SKILL_CONTENT  = "skill-content.js"
 
 CORRECT_CALC_COUNT = 46
@@ -276,7 +277,14 @@ def check_tier_s_citations(float_content, assistant_content):
             out.append(first)  # body alone — only for unambiguous bodies
         return out
 
-    for page, content in [(FLOAT_JS, float_content), (ASSISTANT_HTML, assistant_content)]:
+    # voice-handler.js drives James/Rosa voice answers — same Tier-S
+    # citation contract applies. Loaded here to avoid expanding the
+    # function signature for backward compatibility with the runner.
+    from pathlib import Path
+    voice_path = Path(__file__).resolve().parent / VOICE_JS
+    voice_content = voice_path.read_text(encoding="utf-8", errors="replace") if voice_path.exists() else ""
+
+    for page, content in [(FLOAT_JS, float_content), (ASSISTANT_HTML, assistant_content), (VOICE_JS, voice_content)]:
         if not content:
             continue
         low = content.lower()

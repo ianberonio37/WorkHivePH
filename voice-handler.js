@@ -1781,10 +1781,21 @@
 
     // Day 4: Industry standards retrieval (platform-wide, ISO/IEC/ASHRAE/NFPA/PSME/DOLE).
     // Use these citations when answering regulatory or best-practice questions.
+    // Tier-S anchor map for in-platform metrics: cite the registered standard
+    // short_name whenever you mention the metric. validate_ai_regression L4
+    // enforces this — keep the list in sync with canonical/formula_contracts.json.
     const standardsSection = standardsContext
       ? '\nINDUSTRY STANDARDS — Regulatory and best-practice canon:\n' + standardsContext +
         '\nWhen citing, name the standard code (e.g. "ISO 14224 says..." or "per NFPA 70E..."). ' +
-        'Standards are authoritative; prefer them over generic advice.\n'
+        'Standards are authoritative; prefer them over generic advice.\n' +
+        '\nPLATFORM METRIC ANCHORS — always cite the standard when answering about:\n' +
+        '  MTBF / MTTR -> ISO 14224:2016\n' +
+        '  OEE -> ISO 22400-2:2014 / Nakajima TPM (1988)\n' +
+        '  PM compliance -> SMRP Best Practices v5.0\n' +
+        '  FMEA RPN -> IEC 60812:2018\n' +
+        '  RCM consequence -> SAE JA1011\n' +
+        '  Anomaly detection -> Z-Score Anomaly (3-sigma rule)\n' +
+        '  Risk score -> WorkHive composite (platform-internal)\n'
       : '';
 
     // Day 5 (L7): PH industrial phrase glossary. Helps the LLM correctly

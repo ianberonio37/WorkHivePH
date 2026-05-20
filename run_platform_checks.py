@@ -1491,7 +1491,7 @@ VALIDATORS = [
         "id":      "ai-regression",
         "script":  "validate_ai_regression.py",
         "args":    [],
-        "label":   "AI Prompt Regression Validator",
+        "label":   "AI Prompt Regression Validator (4-layer: consistency + content + parity + Tier-S citation)",
         "group":   "Platform",
         "report":  "ai_regression_report.json",
         "skip_if_fast": False,
