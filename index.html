@@ -2150,6 +2150,8 @@
     // (email, role) so future updates pick it up; older versions ignore the
     // extra arg gracefully.
     if (role) {
+      // storage-key-allow: write-ahead persistence hook; future backend
+      // helper will read this value when signup signature accepts role.
       try { localStorage.setItem('wh.signup_role', role); } catch (_) {}
     }
 
