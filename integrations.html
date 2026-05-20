@@ -602,6 +602,9 @@
       <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px;">
         <div>
           <label for="sc-token" class="wh-label">API Key / Bearer Token</label>
+          <!-- password-input-allow: Bearer/API token entry; browsers don't
+               autofill API keys and password managers shouldn't save them.
+               type=password is for visual obscuring only. -->
           <input id="sc-token" class="wh-input" type="password" placeholder="sk-... or Bearer token" />
         </div>
         <div>

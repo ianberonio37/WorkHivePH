@@ -481,6 +481,12 @@ def _gather() -> dict[str, Any]:
         ("cssid",     "css_id_existence_report.json",             ("drift","baseline")),
         ("addcol",    "add_column_default_report.json",           ("drift","baseline")),
         ("formsub",   "form_submission_target_report.json",       ("drift","baseline")),
+        # Flywheel turns 16-20 (2026-05-21)
+        ("preflight", "edge_options_preflight_report.json",        ("drift","baseline")),
+        ("pwinput",   "password_input_form_report.json",           ("drift","baseline")),
+        ("fkdelete",  "fk_on_delete_report.json",                  ("drift","baseline")),
+        ("bodysize",  "edge_body_size_guard_report.json",          ("drift","baseline")),
+        ("selectph",  "select_placeholder_report.json",            ("drift","baseline")),
     ]:
         d = _read_json(fname)
         if d:
@@ -883,6 +889,11 @@ def _print(status: dict[str, Any]) -> int:
         ("cssid",     "CSS id existence:            "),
         ("addcol",    "ADD COLUMN DEFAULT safety:   "),
         ("formsub",   "<form> submission target:    "),
+        ("preflight", "Edge OPTIONS preflight:      "),
+        ("pwinput",   "<input type=password> form:  "),
+        ("fkdelete",  "FK ON DELETE explicit:       "),
+        ("bodysize",  "Edge body size guard:        "),
+        ("selectph",  "<select> placeholder:        "),
     ]:
         val = status.get(f"{key}_val", 0)
         baseline = status.get(f"{key}_baseline", 0)

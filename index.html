@@ -2491,7 +2491,9 @@
     </div>
 
     <!-- Sign In panel -->
-    <div id="panel-signin">
+    <!-- Wrapped in <form> so password managers attach autofill + save flow.
+         onsubmit returns false because submitSignIn() handles the POST via JS. -->
+    <form id="panel-signin" onsubmit="event.preventDefault(); submitSignIn(); return false;">
       <div class="space-y-3 mb-3">
         <input id="si-username" type="text" placeholder="Username" autocomplete="username"
           class="w-full rounded-xl px-4 py-3 text-sm text-white outline-none"
@@ -2507,23 +2509,24 @@
         </div>
       </div>
       <p id="si-error" class="text-xs text-red-400 mb-3 hidden"></p>
-      <button id="si-btn" onclick="submitSignIn()"
+      <button type="submit" id="si-btn" onclick="submitSignIn()"
         class="w-full rounded-xl py-3 text-sm font-bold"
         style="background:#F7A21B; color:#162032;">Sign In</button>
 
       <!-- SSO (Phase 4.2) -->
       <div style="margin-top:12px; text-align:center;">
         <p style="font-size:.65rem; color:rgba(255,255,255,0.2); margin-bottom:8px; text-transform:uppercase; letter-spacing:.06em;">Or</p>
-        <button id="si-sso-btn" onclick="signInWithSSO()"
+        <button type="button" id="si-sso-btn" onclick="signInWithSSO()"
           class="w-full rounded-xl py-2.5 text-sm font-semibold"
           style="background:rgba(41,182,217,0.08); color:#29B6D9; border:1px solid rgba(41,182,217,0.25);">
           Enterprise SSO (Okta / Azure AD)
         </button>
       </div>
-    </div>
+    </form>
 
     <!-- Sign Up panel -->
-    <div id="panel-signup" class="hidden">
+    <!-- Wrapped in <form> for password manager save flow on new accounts. -->
+    <form id="panel-signup" class="hidden" onsubmit="event.preventDefault(); submitSignUp(); return false;">
       <div class="space-y-3 mb-3">
         <div>
           <input id="su-username" type="text" placeholder="Username (letters, numbers, underscores)" autocomplete="username"
@@ -2555,11 +2558,11 @@
           style="background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.12);" />
       </div>
       <p id="su-error" class="text-xs text-red-400 mb-3 hidden"></p>
-      <button id="su-btn" onclick="submitSignUp()"
+      <button type="submit" id="su-btn" onclick="submitSignUp()"
         class="w-full rounded-xl py-3 text-sm font-bold"
         style="background:#F7A21B; color:#162032;">Create Account</button>
       <p class="text-center text-xs mt-2" style="color:rgba(255,255,255,0.2);">Username cannot be changed later</p>
-    </div>
+    </form>
 
     <!-- Guest panel removed (C4: all access now requires auth) -->
     <div id="panel-guest" class="hidden">

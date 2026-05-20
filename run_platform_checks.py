@@ -714,6 +714,22 @@ VALIDATORS = [
     {"id":"form-submission-target","script":"validate_form_submission_target.py","args":[],
      "label":"<form> Submission Target (every form has action OR onsubmit OR addEventListener('submit'); forward-only ratchet)",
      "group":"Platform","report":"form_submission_target_report.json","skip_if_fast":False},
+    # Flywheel turns 16-20 (2026-05-21): 5 more bug-class L0 ratchets.
+    {"id":"edge-options-preflight","script":"validate_edge_options_preflight.py","args":[],
+     "label":"Edge OPTIONS Preflight (body-consuming edge fn handles CORS preflight; forward-only ratchet)",
+     "group":"Platform","report":"edge_options_preflight_report.json","skip_if_fast":False},
+    {"id":"password-input-form","script":"validate_password_input_form.py","args":[],
+     "label":"<input type=password> Form Wrapper (password inputs wrapped in <form> for autofill+save; forward-only ratchet)",
+     "group":"Platform","report":"password_input_form_report.json","skip_if_fast":False},
+    {"id":"fk-on-delete","script":"validate_fk_on_delete.py","args":[],
+     "label":"FK ON DELETE (every REFERENCES declares explicit ON DELETE behavior; covers ALTER ADD CONSTRAINT supersede; forward-only ratchet)",
+     "group":"Platform","report":"fk_on_delete_report.json","skip_if_fast":False},
+    {"id":"edge-body-size-guard","script":"validate_edge_body_size_guard.py","args":[],
+     "label":"Edge Body Size Guard (req.json() in try/catch or has Content-Length/sizeLimit check; DoS hardening; forward-only ratchet)",
+     "group":"Platform","report":"edge_body_size_guard_report.json","skip_if_fast":False},
+    {"id":"select-placeholder","script":"validate_select_placeholder.py","args":[],
+     "label":"<select> Placeholder (every <select> has explicit selected/value=''/disabled-placeholder first option; forward-only ratchet)",
+     "group":"Platform","report":"select_placeholder_report.json","skip_if_fast":False},
     {
         # 2026-05-20 — Flywheel orchestrator: one turn per Mega Gate run.
         # Walks L-1 -> L-1.5 -> L0 -> L2 -> L13, diffs against the previous
@@ -931,6 +947,32 @@ VALIDATORS = [
         "script":  "validate_ai_companion_trust_observability.py",
         "args":    [],
         "label":   "AI Companion Trust + Observability (10-layer: turns #15-#24 — hallucination guard + citation + audio interrupt + TTS latency + rate-limit + fallback UX + acronym SSML + assistant journal pull + cost-cap + end ack)",
+        "group":   "Platform",
+        "report":  None,
+        "skip_if_fast": False,
+    },
+    {
+        # 2026-05-21 Flywheel turns #25-#34 — CONTEXT AWARENESS +
+        # INTELLIGENCE layer. Shift, repeated-issue, standards lookup,
+        # voice shortcuts, quality thumbs, worker discipline, goodbye,
+        # confidence calibration, long-session pacing, alerts override.
+        "id":      "ai-companion-intelligence",
+        "script":  "validate_ai_companion_intelligence.py",
+        "args":    [],
+        "label":   "AI Companion Intelligence (10-layer: turns #25-#34 — shift + repeated-issue + standards + shortcuts + thumbs + discipline + goodbye + confidence + pacing + alerts override)",
+        "group":   "Platform",
+        "report":  None,
+        "skip_if_fast": False,
+    },
+    {
+        # 2026-05-21 Flywheel turns #35-#44 — COLLABORATION + WELLBEING.
+        # Action confirmation, wellbeing nudge, encouragement, skill gap,
+        # shift handover, batch action, explainability, co-worker
+        # mention, fatigue signal, transcript export.
+        "id":      "ai-companion-collaboration",
+        "script":  "validate_ai_companion_collaboration.py",
+        "args":    [],
+        "label":   "AI Companion Collaboration + Wellbeing (10-layer: turns #35-#44 — action confirm + wellbeing + encouragement + skill gap + handover + batch + explainability + co-worker mention + fatigue + transcript export)",
         "group":   "Platform",
         "report":  None,
         "skip_if_fast": False,

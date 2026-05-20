@@ -41,8 +41,11 @@ def _check_page(path: Path) -> list:
     body = path.read_text(encoding="utf-8", errors="replace")
     if "form-submit-allow" in body:
         return []
+    # Strip HTML comments — <form> tokens inside comment prose are not real
+    # form elements (e.g. "Wrapped in <form> for...").
+    body_scan = re.sub(r"<!--.*?-->", "", body, flags=re.DOTALL)
     issues = []
-    for m in FORM_OPEN_RE.finditer(body):
+    for m in FORM_OPEN_RE.finditer(body_scan):
         attrs = m.group(1)
         if ATTR_RE("action").search(attrs):
             continue
@@ -64,7 +67,7 @@ def _check_page(path: Path) -> list:
         # Fallback: ANY addEventListener('submit', ...) on the page
         if re.search(r"""addEventListener\s*\(\s*['"]submit['"]""", body):
             continue
-        line_no = body.count("\n", 0, m.start()) + 1
+        line_no = body_scan.count("\n", 0, m.start()) + 1
         issues.append({"page": path.name, "line": line_no, "attrs": attrs.strip()[:120]})
     return issues
 
