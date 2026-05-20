@@ -26,11 +26,18 @@ create index if not exists idx_anomaly_alerts_asset on anomaly_alerts(asset_id);
 alter table anomaly_alerts enable row level security;
 
 drop policy if exists "anomaly_alerts_hive_access" on anomaly_alerts;
+-- 2026-05-20 fix: blueprint referenced a non-existent `worker_hives` table;
+-- the platform uses `hive_members` with auth_uid + hive_id columns.
 create policy "anomaly_alerts_hive_access" on anomaly_alerts
   for select
-  using (auth.uid() in (
-    select worker_id from worker_hives where hive_id = anomaly_alerts.hive_id
-  ));
+  using (
+    exists (
+      select 1 from public.hive_members hm
+      where hm.hive_id = anomaly_alerts.hive_id
+        and hm.auth_uid = auth.uid()
+        and hm.status = 'active'
+    )
+  );
 
 -- View: active, non-suppressed alerts
 create or replace view v_active_anomaly_alerts as
@@ -49,6 +56,10 @@ order by
   detected_at desc;
 
 -- RPC: fetch active alerts for a hive
+-- 2026-05-20 self-heal: DROP first so an existing function with a different
+-- return type doesn't block CREATE OR REPLACE (Postgres disallows return-type
+-- changes via OR REPLACE).
+drop function if exists fetch_active_alerts(uuid);
 create or replace function fetch_active_alerts(p_hive_id uuid)
 returns table (
   alert_id bigint,

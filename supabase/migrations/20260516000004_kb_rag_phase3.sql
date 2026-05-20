@@ -33,19 +33,34 @@ create index if not exists idx_kb_chunks_doc on kb_chunks(doc_id, chunk_num);
 create index if not exists idx_kb_chunks_embedding on kb_chunks using ivfflat (embedding vector_cosine_ops);
 
 -- RLS policies
+-- 2026-05-20 fix: blueprint referenced non-existent `worker_hives`;
+-- platform uses `hive_members` (hive_id, auth_uid, status='active').
 alter table kb_documents enable row level security;
 drop policy if exists "kb_documents_hive_access" on kb_documents;
 create policy "kb_documents_hive_access" on kb_documents
   for select
-  using (auth.uid() in (select worker_id from worker_hives where hive_id = kb_documents.hive_id));
+  using (
+    exists (
+      select 1 from public.hive_members hm
+      where hm.hive_id = kb_documents.hive_id
+        and hm.auth_uid = auth.uid()
+        and hm.status = 'active'
+    )
+  );
 
 alter table kb_chunks enable row level security;
 drop policy if exists "kb_chunks_hive_access" on kb_chunks;
 create policy "kb_chunks_hive_access" on kb_chunks
   for select
-  using (doc_id in (select id from kb_documents where hive_id in (
-    select hive_id from worker_hives where worker_id = auth.uid()
-  )));
+  using (
+    exists (
+      select 1 from public.kb_documents kd
+      join public.hive_members hm on hm.hive_id = kd.hive_id
+      where kd.id = kb_chunks.doc_id
+        and hm.auth_uid = auth.uid()
+        and hm.status = 'active'
+    )
+  );
 
 -- GRANTs required for anon/authenticated roles
 grant select, insert, update, delete on kb_documents to anon, authenticated;

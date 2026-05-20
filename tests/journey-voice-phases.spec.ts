@@ -101,13 +101,13 @@ test.describe('voice companion phases — runtime wiring', () => {
       `phase-3 search_voice_journal_entries RPC is not deployed: ${result.error}`).toBe(false);
   });
 
-  // FINDING(2026-05-20): fetch_dialog_state RPC declared in migration
-  // 20260516000002_dialog_state_phase4.sql but NOT in the local DB's
-  // schema cache. validate_dialog_flow.py passes 10/0 (it parses the
-  // migration file). The sentinel correctly surfaces the deployment gap.
-  // To resolve: `supabase db reset` or `supabase migration up` on the
-  // local Supabase instance. After that, un-fixme this test.
-  test.fixme('phase_4_dialog_state: fetch_dialog_state RPC is reachable', async ({ whPage }) => {
+  // 2026-05-20: this test was previously fixme'd because fetch_dialog_state
+  // wasn't in the schema cache. Root cause was an agent_memory schema
+  // collision blocking the migration chain (see project memory file
+  // project_agent_memory_schema_collision_2026_05_20.md). Fixed by making
+  // 20260516000001_agent_memory_phase2.sql self-healing with ALTER TABLE
+  // ADD COLUMN IF NOT EXISTS. Now passes.
+  test('phase_4_dialog_state: fetch_dialog_state RPC is reachable', async ({ whPage }) => {
     await whPage.goto(VOICE_PAGE, { waitUntil: 'domcontentloaded' });
     const result = await whPage.evaluate(async () => {
       // @ts-expect-error

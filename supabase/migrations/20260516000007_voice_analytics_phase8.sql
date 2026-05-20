@@ -12,6 +12,20 @@ create table if not exists conversation_analytics (
   created_at timestamptz default now()
 );
 
+-- 2026-05-20 self-heal: an earlier conversation_analytics may have been
+-- declared via a different migration (e.g. voice_tables_simple) without
+-- all columns. Add additive columns + created_at so the index + view
+-- below succeed regardless of the prior table state.
+alter table conversation_analytics
+  add column if not exists session_id            text,
+  add column if not exists turn_num              int,
+  add column if not exists question_category     text,
+  add column if not exists answer_quality_rating int,
+  add column if not exists user_feedback         text,
+  add column if not exists model_confidence      real,
+  add column if not exists response_time_ms      int,
+  add column if not exists created_at            timestamptz default now();
+
 create index if not exists idx_analytics_session on conversation_analytics(session_id, turn_num);
 create index if not exists idx_analytics_category on conversation_analytics(question_category, answer_quality_rating);
 

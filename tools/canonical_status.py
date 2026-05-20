@@ -295,6 +295,19 @@ def _gather() -> dict[str, Any]:
         out["sentinel_specs"] = 0
         out["sentinel_fixme"] = 0
 
+    # 12. Cross-migration table-collision auditor — catches the agent_memory-class
+    # bug where two migrations both CREATE TABLE IF NOT EXISTS X with different columns.
+    coll = _read_json("table_collision_report.json")
+    if coll:
+        s = coll.get("summary", {})
+        out["table_collisions"]        = s.get("collisions", 0)
+        out["table_redeclared"]        = s.get("tables_redeclared", 0)
+        out["table_scanned"]           = s.get("tables_scanned", 0)
+    else:
+        out["table_collisions"]        = 0
+        out["table_redeclared"]        = 0
+        out["table_scanned"]           = 0
+
     # 11b. Voice phase runtime sentinel (parallel to static phase validators)
     voice_sentinel_file = ROOT / "tests" / "journey-voice-phases.spec.ts"
     if voice_sentinel_file.exists():
@@ -409,6 +422,13 @@ def _print(status: dict[str, Any]) -> int:
     print(f"  {_badge(vsentinel_ok, warn=status['voice_sentinel_fixme']>0)}  Voice phase runtime sentinels: "
           f"{status['voice_sentinel_specs']} active "
           f"({status['voice_sentinel_fixme']} fixme'd)")
+
+    # 12. Cross-migration table collisions
+    coll_ok = status["table_collisions"] == 0
+    if not coll_ok: fail_count += 1
+    print(f"  {_badge(coll_ok)}  Migration table collisions:   "
+          f"{status['table_collisions']} unallowed "
+          f"({status['table_redeclared']} redeclared / {status['table_scanned']} scanned)")
 
     print("=" * 56)
     if fail_count == 0:

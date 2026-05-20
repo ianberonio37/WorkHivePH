@@ -1,6 +1,18 @@
 -- Phase 2: Session Memory & Conversation Context
 -- Tracks multi-turn conversations for recall and deduplication
+--
+-- 2026-05-20 SELF-HEAL EDIT: an older migration 20260511000001_agent_memory.sql
+-- declares a DIFFERENT agent_memory schema (worker_name text, agent_id text,
+-- kind text, turn_text, summary, meta). When that table is already present
+-- the IF NOT EXISTS below silently skips this CREATE, leaving downstream
+-- statements (indexes, policy) referencing columns that don't exist. The
+-- ALTER TABLE block below adds every Phase 2 column additively so this
+-- migration succeeds whether the older table exists or not. Original
+-- create-table block is retained verbatim for fresh-DB environments.
 
+-- table-collision-allow: Phase 2 extends the older 20260511000001 agent_memory
+-- schema additively via the ALTER TABLE block below; the IF NOT EXISTS make
+-- this CREATE a no-op when the older table already exists
 create table if not exists agent_memory (
   id bigserial primary key,
   hive_id uuid not null,
@@ -18,6 +30,23 @@ create table if not exists agent_memory (
   expires_at timestamptz      -- 24h inactivity cleanup
 );
 
+-- SELF-HEAL: additive ALTER for environments where 20260511's older
+-- agent_memory schema is already in place. ADD COLUMN IF NOT EXISTS is
+-- idempotent and a no-op on a fresh-DB run (columns already present from
+-- the CREATE above).
+alter table agent_memory
+  add column if not exists session_id            text,
+  add column if not exists turn_num              int,
+  add column if not exists user_input            text,
+  add column if not exists user_input_hash       text,
+  add column if not exists assistant_response    text,
+  add column if not exists intent_classification text,
+  add column if not exists intent_confidence     real,
+  add column if not exists embedding             bytea,
+  add column if not exists response_time_ms      int,
+  add column if not exists expires_at            timestamptz,
+  add column if not exists worker_id             uuid;
+
 create index if not exists idx_agent_memory_session on agent_memory(session_id, turn_num);
 create index if not exists idx_agent_memory_worker_hive on agent_memory(worker_id, hive_id, session_id);
 create index if not exists idx_agent_memory_expires on agent_memory(expires_at);
@@ -28,12 +57,12 @@ alter table agent_memory enable row level security;
 drop policy if exists "agent_memory_worker_access" on agent_memory;
 create policy "agent_memory_worker_access" on agent_memory
   for select
-  using (auth.uid() = worker_id);
+  using (auth.uid() = worker_id OR auth.uid() = auth_uid);
 
 drop policy if exists "agent_memory_insert_own" on agent_memory;
 create policy "agent_memory_insert_own" on agent_memory
   for insert
-  with check (auth.uid() = worker_id);
+  with check (auth.uid() = worker_id OR auth.uid() = auth_uid);
 
 -- View: recent memory for a session (last 10 turns)
 create or replace view v_session_memory_recent as
