@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "last_scan": "2026-05-18T08:09:18.317035",
+  "last_scan": "2026-05-20T17:05:20.006985",
   "surfaces": {
     "achievements.html": {
       "verdict_labels": [
@@ -236,8 +236,8 @@
         "marketplace-source-chip"
       ],
       "edge_functions": [
-        "marketplace-release",
         "marketplace-connect-onboard",
+        "marketplace-release",
         "marketplace-checkout"
       ],
       "ai_rpcs": [],
@@ -327,9 +327,9 @@
         "report-sender-source-chip"
       ],
       "edge_functions": [
-        "send-report-email",
-        "scheduled-agents",
         "voice-transcribe",
+        "scheduled-agents",
+        "send-report-email",
         "voice-report-intent"
       ],
       "ai_rpcs": [],
@@ -403,6 +403,7 @@
     "embed-entry",
     "engineering-bom-sow",
     "engineering-calc-agent",
+    "equipment-label-ocr",
     "export-hive-data",
     "failure-signature-scan",
     "fmea-populator",

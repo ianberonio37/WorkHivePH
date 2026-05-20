@@ -44,7 +44,13 @@ def main() -> int:
         print("FAIL: SHELL_FILES = [...] block not found in sw.js")
         return 2
 
-    paths = [p.group("p") for p in PATH_RE.finditer(m.group("body"))]
+    # Strip JS line + block comments before extracting paths — without this,
+    # any quoted word inside a `// ...` comment (e.g. "james"/"rosa" name
+    # references in explanatory notes) gets picked up as a fake path entry.
+    sw_body = m.group("body")
+    sw_body = re.sub(r"/\*[\s\S]*?\*/", "", sw_body)        # block comments
+    sw_body = re.sub(r"^[ \t]*//[^\n]*$", "", sw_body, flags=re.MULTILINE)  # line comments
+    paths = [p.group("p") for p in PATH_RE.finditer(sw_body)]
     broken = []
     for p in paths:
         resolved = _resolve(p)
