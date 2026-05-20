@@ -730,6 +730,22 @@ VALIDATORS = [
     {"id":"select-placeholder","script":"validate_select_placeholder.py","args":[],
      "label":"<select> Placeholder (every <select> has explicit selected/value=''/disabled-placeholder first option; forward-only ratchet)",
      "group":"Platform","report":"select_placeholder_report.json","skip_if_fast":False},
+    # Flywheel turns 21-25 (2026-05-21): 5 more bug-class L0 ratchets.
+    {"id":"rls-open-policy","script":"validate_rls_open_policy.py","args":[],
+     "label":"RLS Open Policy (CREATE POLICY USING(true)/WITH CHECK(true) flagged; covers DROP POLICY supersede; forward-only ratchet)",
+     "group":"Platform","report":"rls_open_policy_report.json","skip_if_fast":False},
+    {"id":"console-log-drift","script":"validate_console_log_drift.py","args":[],
+     "label":"console.log Production Drift (no console.log outside catch/DEBUG-guard in production code; forward-only ratchet)",
+     "group":"Platform","report":"console_log_drift_report.json","skip_if_fast":False},
+    {"id":"javascript-href","script":"validate_javascript_href.py","args":[],
+     "label":"<a href='javascript:'> Anti-Pattern (use <button> for actions; reserve <a href> for navigation; forward-only ratchet)",
+     "group":"Platform","report":"javascript_href_report.json","skip_if_fast":False},
+    {"id":"view-select-star","script":"validate_view_select_star.py","args":[],
+     "label":"CREATE VIEW SELECT * (every view projects explicit columns; preserves canonical-registry coverage; forward-only ratchet)",
+     "group":"Platform","report":"view_select_star_report.json","skip_if_fast":False},
+    {"id":"meta-refresh","script":"validate_meta_refresh.py","args":[],
+     "label":"<meta http-equiv=refresh> (no auto-redirect anti-pattern; use JS or 30x; forward-only ratchet)",
+     "group":"Platform","report":"meta_refresh_report.json","skip_if_fast":False},
     {
         # 2026-05-20 — Flywheel orchestrator: one turn per Mega Gate run.
         # Walks L-1 -> L-1.5 -> L0 -> L2 -> L13, diffs against the previous
@@ -973,6 +989,35 @@ VALIDATORS = [
         "script":  "validate_ai_companion_collaboration.py",
         "args":    [],
         "label":   "AI Companion Collaboration + Wellbeing (10-layer: turns #35-#44 — action confirm + wellbeing + encouragement + skill gap + handover + batch + explainability + co-worker mention + fatigue + transcript export)",
+        "group":   "Platform",
+        "report":  None,
+        "skip_if_fast": False,
+    },
+    {
+        # 2026-05-21 Flywheel turns #45-#54 — RESILIENCE + MEMORY +
+        # TRUST OPS. Offline tracker, 10-min reply cache, feedback
+        # escalation, custom plant terminology resolver, conversation
+        # branching stack, multi-modal photo intent, avatar emotion
+        # state, cross-hive anonymised benchmark, summary-on-demand,
+        # identity drift tracker.
+        "id":      "ai-companion-resilience",
+        "script":  "validate_ai_companion_resilience.py",
+        "args":    [],
+        "label":   "AI Companion Resilience + Memory (10-layer: turns #45-#54 — offline + cache + escalation + terminology + branching + photo intent + avatar state + benchmark + summary + identity drift)",
+        "group":   "Platform",
+        "report":  None,
+        "skip_if_fast": False,
+    },
+    {
+        # 2026-05-21 Flywheel turns #55-#64 — WORKFLOW + PERSONALIZATION.
+        # Proactive companion turn (open accepts alert payload), maturity-
+        # stair gating, per-slot expiry windows, action replay, language
+        # opt-in, brevity preference, timer follow-up, URL-context pre-
+        # fill, mic quality meter, multi-step action queue.
+        "id":      "ai-companion-workflow",
+        "script":  "validate_ai_companion_workflow.py",
+        "args":    [],
+        "label":   "AI Companion Workflow + Personalization (10-layer: turns #55-#64 — proactive + maturity + slot expiry + action replay + language + brevity + timer + URL prefill + mic quality + action queue)",
         "group":   "Platform",
         "report":  None,
         "skip_if_fast": False,

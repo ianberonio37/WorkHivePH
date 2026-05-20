@@ -487,6 +487,12 @@ def _gather() -> dict[str, Any]:
         ("fkdelete",  "fk_on_delete_report.json",                  ("drift","baseline")),
         ("bodysize",  "edge_body_size_guard_report.json",          ("drift","baseline")),
         ("selectph",  "select_placeholder_report.json",            ("drift","baseline")),
+        # Flywheel turns 21-25 (2026-05-21)
+        ("rlsopen",   "rls_open_policy_report.json",               ("drift","baseline")),
+        ("conslog",   "console_log_drift_report.json",             ("drift","baseline")),
+        ("jshref",    "javascript_href_report.json",               ("drift","baseline")),
+        ("viewstar",  "view_select_star_report.json",              ("drift","baseline")),
+        ("metaref",   "meta_refresh_report.json",                  ("drift","baseline")),
     ]:
         d = _read_json(fname)
         if d:
@@ -894,6 +900,11 @@ def _print(status: dict[str, Any]) -> int:
         ("fkdelete",  "FK ON DELETE explicit:       "),
         ("bodysize",  "Edge body size guard:        "),
         ("selectph",  "<select> placeholder:        "),
+        ("rlsopen",   "RLS open policies:           "),
+        ("conslog",   "console.log drift:           "),
+        ("jshref",    "<a href='javascript:'>:      "),
+        ("viewstar",  "CREATE VIEW SELECT *:        "),
+        ("metaref",   "<meta http-equiv=refresh>:   "),
     ]:
         val = status.get(f"{key}_val", 0)
         baseline = status.get(f"{key}_baseline", 0)
