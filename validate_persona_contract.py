@@ -1,8 +1,8 @@
 """
 Persona Contract Validator -- WorkHive Platform
 ================================================
-Forward-only gate on the WorkHive Persona Contract (James / Rosa across every
-worker-facing AI surface). See WORKHIVE_PERSONA_CONTRACT.md.
+Forward-only gate on the WorkHive Persona Contract (Hezekiah / Zaniah across
+every worker-facing AI surface). See WORKHIVE_PERSONA_CONTRACT.md.
 
 The contract has five modes:
 
@@ -39,7 +39,7 @@ This validator enforces that:
         20260513000022_hive_preferred_persona.sql (hives column)
 
   L7  Server <-> client persona key parity: both modules MUST expose the
-      same set of persona keys (today: { james, rosa }) -- divergence
+      same set of persona keys (today: { hezekiah, zaniah }) -- divergence
       means a worker's choice on one device doesn't render on another.
 
 Usage:  python validate_persona_contract.py
@@ -219,7 +219,7 @@ def check_client_adoption() -> list[dict]:
                 "check": "client_adoption",
                 "reason": (f"{surface} does not call window.getCompanionBlock "
                            f"-- the companion block is not being prepended "
-                           f"to the system prompt; James/Rosa overlay is "
+                           f"to the system prompt; Hezekiah/Zaniah overlay is "
                            f"missing on this surface."),
             })
             continue
@@ -398,19 +398,19 @@ def check_key_parity() -> list[dict]:
 # -- Layer 8: domain differentiation -----------------------------------------
 
 # 2026-05-19 Companion Streamline Step D guardrail. The persona toggle is
-# only meaningful if James (technical) and Rosa (strategist) actually
+# only meaningful if Hezekiah (technical) and Zaniah (strategist) actually
 # DIFFER in lens. This check fails the build if:
 #   - either persona drops its DOMAIN_LENS entry,
 #   - tone bullets become identical / nearly identical (>50% lexical
 #     overlap signals the differentiation was undone),
 #   - example replies stop using lane-specific vocabulary,
-#   - DEFAULT_PERSONA stops being "rosa" (first-time-visitor default).
+#   - DEFAULT_PERSONA stops being "zaniah" (first-time-visitor default).
 
-JAMES_KEYWORDS = (
+HEZEKIAH_KEYWORDS = (
     "torque", "sop", "iso 14224", "loto", "ir gun", "ppe",
     "regrease", "lube", "manual", "failure mode",
 )
-ROSA_KEYWORDS = (
+ZANIAH_KEYWORDS = (
     "oee", "backlog", "planned-vs-reactive", "planned vs reactive",
     "recurrence", "mtbf", "kpi", "weekly", "escalation", "pattern",
 )
@@ -487,8 +487,8 @@ def check_domain_differentiation() -> list[dict]:
     client = read_file(CLIENT_PERSONA_JS)
 
     # 8a. DOMAIN_LENS exists in both, with both persona entries.
-    # Accept either TS-style identifier keys (`james:`) or JS-style
-    # string keys (`'james':` / `"james":`) inside the LENS object.
+    # Accept either TS-style identifier keys (`hezekiah:`) or JS-style
+    # string keys (`'hezekiah':` / `"hezekiah":`) inside the LENS object.
     for path, content in (("server", server), ("client", client)):
         if not content:
             continue
@@ -514,18 +514,18 @@ def check_domain_differentiation() -> list[dict]:
                     depth -= 1
                 j += 1
             lens_body = content[start:j - 1]
-        if not re.search(r"['\"]?james['\"]?\s*:", lens_body):
+        if not re.search(r"['\"]?hezekiah['\"]?\s*:", lens_body):
             issues.append({
                 "check": "domain_differentiation",
-                "reason": f"{path} DOMAIN_LENS does not have a james entry.",
+                "reason": f"{path} DOMAIN_LENS does not have a hezekiah entry.",
             })
-        if not re.search(r"['\"]?rosa['\"]?\s*:", lens_body):
+        if not re.search(r"['\"]?zaniah['\"]?\s*:", lens_body):
             issues.append({
                 "check": "domain_differentiation",
-                "reason": f"{path} DOMAIN_LENS does not have a rosa entry.",
+                "reason": f"{path} DOMAIN_LENS does not have a zaniah entry.",
             })
 
-    # 8b. DEFAULT_PERSONA must be 'rosa' (Step D decision: strategist for
+    # 8b. DEFAULT_PERSONA must be 'zaniah' (Step D decision: strategist for
     # first-time visitors). Skip optional TS type annotation between the
     # identifier and the `=`.
     for path, content in (
@@ -544,27 +544,27 @@ def check_domain_differentiation() -> list[dict]:
                 "reason": f"{path}: DEFAULT_PERSONA not found.",
             })
             continue
-        if m.group(1) != "rosa":
+        if m.group(1) != "zaniah":
             issues.append({
                 "check": "domain_differentiation",
                 "reason": (
                     f"{path}: DEFAULT_PERSONA is '{m.group(1)}' but Step D "
-                    "set it to 'rosa' so first-time visitors land on the "
+                    "set it to 'zaniah' so first-time visitors land on the "
                     "strategist lens. Update or document the override."
                 ),
             })
 
     # 8c. tone bullets must be differentiated (no >50% lexical overlap).
     if server:
-        james_tone = _extract_persona_field(server, "james", "tone")
-        rosa_tone  = _extract_persona_field(server, "rosa",  "tone")
-        if james_tone and rosa_tone:
-            overlap = _bullet_overlap_ratio(james_tone, rosa_tone)
+        hez_tone = _extract_persona_field(server, "hezekiah", "tone")
+        zan_tone = _extract_persona_field(server, "zaniah",   "tone")
+        if hez_tone and zan_tone:
+            overlap = _bullet_overlap_ratio(hez_tone, zan_tone)
             if overlap > 0.5:
                 issues.append({
                     "check": "domain_differentiation",
                     "reason": (
-                        f"James and Rosa tone bullets share {overlap:.0%} of "
+                        f"Hezekiah and Zaniah tone bullets share {overlap:.0%} of "
                         "significant tokens — the differentiation has eroded. "
                         "Step D requires distinct technical-vs-strategist "
                         "voicing. Re-divide the tone[] lists."
@@ -573,24 +573,24 @@ def check_domain_differentiation() -> list[dict]:
 
     # 8d. examples must use lane-specific keywords.
     if server:
-        james_ex = _extract_persona_field(server, "james", "examples")
-        rosa_ex  = _extract_persona_field(server, "rosa",  "examples")
-        james_hits = [k for k in JAMES_KEYWORDS if k in james_ex]
-        rosa_hits  = [k for k in ROSA_KEYWORDS  if k in rosa_ex]
-        if len(james_hits) < 3:
+        hez_ex = _extract_persona_field(server, "hezekiah", "examples")
+        zan_ex = _extract_persona_field(server, "zaniah",   "examples")
+        hez_hits = [k for k in HEZEKIAH_KEYWORDS if k in hez_ex]
+        zan_hits = [k for k in ZANIAH_KEYWORDS   if k in zan_ex]
+        if len(hez_hits) < 3:
             issues.append({
                 "check": "domain_differentiation",
                 "reason": (
-                    "James's examples must reference at least 3 technical-lane "
-                    f"keywords (torque/SOP/ISO/LOTO/IR gun/etc). Found: {james_hits}."
+                    "Hezekiah's examples must reference at least 3 technical-lane "
+                    f"keywords (torque/SOP/ISO/LOTO/IR gun/etc). Found: {hez_hits}."
                 ),
             })
-        if len(rosa_hits) < 3:
+        if len(zan_hits) < 3:
             issues.append({
                 "check": "domain_differentiation",
                 "reason": (
-                    "Rosa's examples must reference at least 3 strategist-lane "
-                    f"keywords (OEE/backlog/planned-vs-reactive/recurrence/MTBF/etc). Found: {rosa_hits}."
+                    "Zaniah's examples must reference at least 3 strategist-lane "
+                    f"keywords (OEE/backlog/planned-vs-reactive/recurrence/MTBF/etc). Found: {zan_hits}."
                 ),
             })
 
@@ -618,7 +618,7 @@ CHECK_LABELS = {
     "amc_hive_persona":       "L5  amc-orchestrator reads hives.preferred_persona for brief signature",
     "migrations_present":     "L6  Persona migrations (worker + hive column) present",
     "key_parity":             "L7  Server and client persona key sets are identical",
-    "domain_differentiation": "L8  Step D: James=Technical / Rosa=Strategist lens preserved (DOMAIN_LENS, tone, examples)",
+    "domain_differentiation": "L8  Step D: Hezekiah=Technical / Zaniah=Strategist lens preserved (DOMAIN_LENS, tone, examples)",
 }
 
 

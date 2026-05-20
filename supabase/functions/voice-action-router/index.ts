@@ -146,7 +146,7 @@ interface RouterResponse {
   transcript:        string;
   intents:           VoiceIntent[];
   mentioned_assets:  string[];
-  // Persona narration (1-2 sentences in James/Rosa voice). The frontend
+  // Persona narration (1-2 sentences in Hezekiah/Zaniah voice). The frontend
   // plays / displays this alongside the structured route decision.
   narration:         string;
   asset_resolution?: {

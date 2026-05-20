@@ -277,7 +277,7 @@ def check_tier_s_citations(float_content, assistant_content):
             out.append(first)  # body alone — only for unambiguous bodies
         return out
 
-    # voice-handler.js drives James/Rosa voice answers — same Tier-S
+    # voice-handler.js drives Hezekiah/Zaniah voice answers — same Tier-S
     # citation contract applies. Loaded here to avoid expanding the
     # function signature for backward compatibility with the runner.
     from pathlib import Path

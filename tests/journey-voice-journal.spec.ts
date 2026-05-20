@@ -121,7 +121,7 @@ test.describe('voice-journal.html — voice journal journey', () => {
   // this exact call. If this test passes, that screenshot can't reoccur
   // without a regression first failing the test.
 
-  test('rosa-default-persona: voice-journal opens with Rosa selected by default', async ({ whPage }) => {
+  test('zaniah-default-persona: voice-journal opens with Zaniah selected by default', async ({ whPage }) => {
     // Clear any previously-saved persona choice so we exercise the default
     await whPage.addInitScript(() => {
       try {
@@ -132,15 +132,15 @@ test.describe('voice-journal.html — voice journal journey', () => {
     await waitForPageReady(whPage);
     await whPage.waitForTimeout(1500);
 
-    // Step D made Rosa the default persona for first-time visitors.
-    // Either the Rosa chip is aria-checked or .persona-chip-active.
-    const rosaChip = whPage.locator('#persona-rosa');
-    await expect(rosaChip, 'rosa persona chip should be rendered').toBeVisible();
-    const isActive = await rosaChip.evaluate(el =>
+    // Step D made Zaniah (formerly "Rosa") the default persona for first-time
+    // visitors. Either the Zaniah chip is aria-checked or .persona-chip-active.
+    const zaniahChip = whPage.locator('#persona-zaniah');
+    await expect(zaniahChip, 'zaniah persona chip should be rendered').toBeVisible();
+    const isActive = await zaniahChip.evaluate(el =>
       el.classList.contains('persona-chip-active')
       || el.getAttribute('aria-checked') === 'true'
     );
-    expect(isActive, 'rosa should be the default persona (Step D)').toBe(true);
+    expect(isActive, 'zaniah should be the default persona (Step D)').toBe(true);
   });
 
   test('ai-gateway anon-allow: voice-journal agent answers without sign-in', async ({ whPage }) => {
@@ -172,7 +172,7 @@ test.describe('voice-journal.html — voice journal journey', () => {
             agent:   'voice-journal',
             message: 'What are the priorities today?',
             hive_id: '586fd158-42d1-4853-a406-64a4695e71c4',
-            context: { persona: 'rosa', worker_name: 'Pablo Aguilar', source: 'journey-test' },
+            context: { persona: 'zaniah', worker_name: 'Pablo Aguilar', source: 'journey-test' },
           }),
         });
         const data = await resp.json().catch(() => ({}));
@@ -190,7 +190,7 @@ test.describe('voice-journal.html — voice journal journey', () => {
     expect(result.answer.toLowerCase()).not.toContain('your question is saved');
   });
 
-  test('rosa-strategist-lens: priorities-question reply uses strategist vocabulary', async ({ whPage }) => {
+  test('zaniah-strategist-lens: priorities-question reply uses strategist vocabulary', async ({ whPage }) => {
     await whPage.goto(PAGE);
     await waitForPageReady(whPage);
     await whPage.waitForTimeout(1500);
@@ -211,7 +211,7 @@ test.describe('voice-journal.html — voice journal journey', () => {
             agent:   'voice-journal',
             message: 'What are the priorities today?',
             hive_id: '586fd158-42d1-4853-a406-64a4695e71c4',
-            context: { persona: 'rosa', worker_name: 'Pablo Aguilar', source: 'journey-test' },
+            context: { persona: 'zaniah', worker_name: 'Pablo Aguilar', source: 'journey-test' },
           }),
         });
         const data = await resp.json().catch(() => ({}));
@@ -233,10 +233,10 @@ test.describe('voice-journal.html — voice journal journey', () => {
       'this month', 'escalat', 'review', 'pattern', 'trend',
     ];
     const hit = strategistVocab.find(v => lower.includes(v));
-    expect(hit, `Rosa's reply ("${result.answer.slice(0, 200)}…") must use at least one strategist-lane keyword (${strategistVocab.join(', ')}). If this fails, Step D's domain lens didn't reach the prompt.`).toBeTruthy();
+    expect(hit, `Zaniah's reply ("${result.answer.slice(0, 200)}…") must use at least one strategist-lane keyword (${strategistVocab.join(', ')}). If this fails, Step D's domain lens didn't reach the prompt.`).toBeTruthy();
   });
 
-  test('james-technical-lens: torque-question reply bridges to technical or uses technical vocabulary', async ({ whPage }) => {
+  test('hezekiah-technical-lens: torque-question reply bridges to technical or uses technical vocabulary', async ({ whPage }) => {
     await whPage.goto(PAGE);
     await waitForPageReady(whPage);
     await whPage.waitForTimeout(1500);
@@ -257,7 +257,7 @@ test.describe('voice-journal.html — voice journal journey', () => {
             agent:   'voice-journal',
             message: 'What torque should I use for an M20 anchor bolt on a pump baseplate?',
             hive_id: '586fd158-42d1-4853-a406-64a4695e71c4',
-            context: { persona: 'james', worker_name: 'Pablo Aguilar', source: 'journey-test' },
+            context: { persona: 'hezekiah', worker_name: 'Pablo Aguilar', source: 'journey-test' },
           }),
         });
         const data = await resp.json().catch(() => ({}));
@@ -275,6 +275,6 @@ test.describe('voice-journal.html — voice journal journey', () => {
       'lubricated', 'dry', 'wrench', 'pattern', 'pass',
     ];
     const hit = technicalVocab.find(v => lower.includes(v));
-    expect(hit, `James's reply ("${result.answer.slice(0, 200)}…") must use at least one technical-lane keyword (${technicalVocab.join(', ')}). If this fails, Step D's domain lens didn't reach the prompt.`).toBeTruthy();
+    expect(hit, `Hezekiah's reply ("${result.answer.slice(0, 200)}…") must use at least one technical-lane keyword (${technicalVocab.join(', ')}). If this fails, Step D's domain lens didn't reach the prompt.`).toBeTruthy();
   });
 });

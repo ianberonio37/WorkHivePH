@@ -163,7 +163,7 @@ serve(async (req) => {
   const adminClient: SupabaseClient = createClient(SUPABASE_URL, SERVICE_KEY);
 
   // 2026-05-19 Companion Streamline Step C/D: voice-journal is the
-  // platform's onboarding companion — workers talk to James/Rosa before
+  // platform's onboarding companion — workers talk to Hezekiah/Zaniah before
   // they ever sign up. Letting that one agent through anonymously is
   // intentional. Every other agent (asset-brain, analytics, project,
   // shift, etc.) still hard-requires Supabase Auth. The previous policy
@@ -181,13 +181,13 @@ serve(async (req) => {
   // up worker_profiles; for anon voice-journal callers we trust the
   // context (and skip memory writes downstream).
   let worker_name: string;
-  let accountPersona = "james";
+  let accountPersona = "zaniah";
   let authUid: string | null = null;
   if (user) {
     const { data: profile } = await adminClient.from("v_worker_truth")
       .select("display_name, preferred_persona").eq("auth_uid", user.id).maybeSingle();
     worker_name    = profile?.display_name || user.email || "anonymous";
-    accountPersona = (profile?.preferred_persona as string | undefined) || "james";
+    accountPersona = (profile?.preferred_persona as string | undefined) || "zaniah";
     authUid        = user.id;
   } else {
     // Anonymous voice-journal caller. worker_name from context if the
@@ -203,8 +203,8 @@ serve(async (req) => {
   // Persona Contract: every conversational specialist that adopts the
   // contract reads ctx.persona; if the client didn't supply one, default
   // to the account-level preference (authed) or the system default
-  // ('rosa' as of Step D, but we lookup the registered DEFAULT in the
-  // shared persona module so both stay in lock-step).
+  // ('zaniah' as of the 2026-05-20 rename — same Strategist lens as the
+  // former 'rosa' default; the shared persona module is authoritative).
   if (context && typeof context === "object" && !("persona" in context)) {
     (context as Record<string, unknown>).persona = accountPersona;
   }

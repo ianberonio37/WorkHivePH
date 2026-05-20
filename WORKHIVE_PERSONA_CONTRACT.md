@@ -10,11 +10,13 @@ Worker picks the persona once (account-level preference). Each conversational ag
 
 | Layer | Where |
 |---|---|
-| **Fuel** | `worker_profiles.preferred_persona` (text, default `'james'`, CHECK in `('james','rosa')`) |
+| **Fuel** | `worker_profiles.preferred_persona` (text, default `'zaniah'`, CHECK in `('hezekiah','zaniah')`) |
 | **Engine** | `v_worker_truth.preferred_persona` (passthrough) |
 | **Brain** | `supabase/functions/_shared/persona.ts` — exports `PERSONAS`, `DEFAULT_PERSONA`, `buildPersonaBlock(key, mode)`, `clampPersona(raw)` |
 | **Dashboard** | Per-page chip picker (defaults to account preference, overrides locally if changed) + a settings section to set the account default |
 | **Driver** | The worker hears the same name + tone everywhere |
+
+> **2026-05-20 rename note.** The personas were renamed `james → hezekiah` and `rosa → zaniah` across the platform — same Azure neural voices (`en-PH-JamesNeural` / `en-PH-RosaNeural`) and same portrait artwork, just new names. `clampPersona()` ships a one-month shim that silently maps stale `'james'`/`'rosa'` inputs to the new keys so cached clients keep working through the cycle.
 
 ---
 
@@ -22,8 +24,8 @@ Worker picks the persona once (account-level preference). Each conversational ag
 
 | Key | Name | Voice | Tone |
 |---|---|---|---|
-| `james` | **James** | Filipino male, PH English | Warm tito, older brother. "Naks, mahirap yan." Leads with empathy, asks one good follow-up. |
-| `rosa` | **Rosa** | Filipino female, PH English | Calm ate, sisterly. "Hala ka, sounds like a long one." Gentle, notices the small things. |
+| `hezekiah` | **Hezekiah** | Filipino male, PH English | Warm tito, older brother. "Naks, mahirap yan." Leads with empathy, asks one good follow-up. Technical Expert lens (torque / SOP / LOTO / failure-mode). |
+| `zaniah`   | **Zaniah**   | Filipino female, PH English | Calm ate, sisterly. "Hala ka, sounds like a long one." Gentle, notices the small things. Strategist lens (OEE / planned-vs-reactive / MTBF / patterns). |
 
 Both reply in **English**. Both **understand** Filipino, Tagalog, Cebuano, and other PH languages.
 
@@ -40,7 +42,7 @@ Every agent that adopts the contract calls `buildPersonaBlock(key, mode)`. The M
 | `'conversational'` | Voice Journal | Full persona character + tone rules + sample openings ("naks, mahirap yan"). Output is freeform prose. |
 | `'companion'` | Floating AI, Assistant | Same persona character but BRIEF tone (1-3 sentences max). Reply is helpful + warm but stays task-focused. |
 | `'narrated-specialist'` | Visual Defect Capture, Voice Action Router, analytics/asset-brain/project/shift when called from a human surface | Specialist returns its normal structured JSON AND a `narration` field — 1-2 sentence prose summary in the persona's voice. ONE chain call, no extra cost. Frontend uses the data for behaviour; plays the narration as the friendly feedback. |
-| `'briefing-signature'` | AMC orchestrator | Persona signs the briefing footer ("Signed by James, your WorkHive daily companion"). Brief body STAYS structured. No tone changes to the data. |
+| `'briefing-signature'` | AMC orchestrator | Persona signs the briefing footer ("Signed by Hezekiah, your WorkHive daily companion"). Brief body STAYS structured. No tone changes to the data. |
 | `'silent'` (rare) | Pure machine-to-machine specialists, scheduled jobs, embedding generators | No persona block emitted. Output is never user-facing. |
 
 **Critical:** the mode tells the agent **how much** persona to wear. `'silent'` is rare — almost every user-facing AI surface gets SOME persona overlay. `'narrated-specialist'` is the workhorse: structured behaviour with a human voice attached, all in one call.
@@ -68,7 +70,7 @@ Every agent that adopts the contract calls `buildPersonaBlock(key, mode)`. The M
 2. **Clamp unknown values to `DEFAULT_PERSONA`.** A typo or stale client must not break the prompt.
 3. **Include `buildPersonaBlock(key, mode)` in the system prompt.** No agent rolls its own tone block.
 4. **Specialist output formats (JSON briefings, structured drafts) take precedence over tone.** A briefing JSON must not be prefixed with "naks, mahirap yan" — the persona signs the FOOTER, not the body.
-5. **Never claim to BE James / Rosa.** The persona is a name + tone, not a deception. If a worker asks "are you a real person?" the reply is honest: "I'm James, your WorkHive journal companion. AI, but warm."
+5. **Never claim to BE Hezekiah / Zaniah.** The persona is a name + tone, not a deception. If a worker asks "are you a real person?" the reply is honest: "I'm Hezekiah, your WorkHive journal companion. AI, but warm."
 6. **Persona changes the tone, not the safety rules.** Crisis lines, no medical/legal/financial advice, PII redaction — these are above the persona layer and never change.
 
 ---
@@ -88,7 +90,7 @@ Every agent that adopts the contract calls `buildPersonaBlock(key, mode)`. The M
 ## What this isn't
 
 - **Not a single mega-agent.** Each specialist stays specialist. Persona is a tone overlay, not a router.
-- **Not real Azure TTS voices yet.** Browser SpeechSynthesis falls back to the OS's closest en-PH voice. Server-side TTS via Azure (matching the actual James/Rosa voices from Video Marketing) is a separate phase.
+- **Not real Azure TTS voices yet.** Browser SpeechSynthesis falls back to the OS's closest en-PH voice. Server-side TTS via Azure (`en-PH-JamesNeural` for Hezekiah, `en-PH-RosaNeural` for Zaniah — the Microsoft voice catalog names are independent of the WorkHive persona labels) is a separate phase.
 - **Not a personality test.** Workers pick once, persona stays consistent. Future "auto-pick by mood" is out of scope.
 - **Not a brand voice rewrite.** Headlines, marketing copy, button labels stay platform-neutral. Persona only surfaces in *AI-generated* output.
 
@@ -97,7 +99,7 @@ Every agent that adopts the contract calls `buildPersonaBlock(key, mode)`. The M
 ## Tradeoffs the contract accepts
 
 - **Two personas only at launch.** Adding more dilutes the "your companion" feel until there's clear demand.
-- **English-only replies even from "Rosa" / "James".** Per the language rule from the voice-journal walkthrough — we always reply in English, understand PH languages on input.
+- **English-only replies even from "Zaniah" / "Hezekiah".** Per the language rule from the voice-journal walkthrough — we always reply in English, understand PH languages on input.
 - **Persona consistency in writing first, voice later.** Until Azure TTS lands, the spoken voice may not match the persona's gender on every machine. The written tone, name, and emoji do.
 - **Specialists stay silent.** Trying to wrap a JSON-output classifier in "naks, mahirap yan" produces noise. Better to keep boundaries crisp.
 

@@ -2,7 +2,7 @@
 Phase 3: Semantic RAG Knowledge Base seeder
 
 Populates kb_documents and kb_chunks with sample maintenance documentation.
-Used for semantic search and citation in Rosa/James responses.
+Used for semantic search and citation in Zaniah/Hezekiah responses.
 """
 
 def seed_kb_documents_and_chunks(client, log, ctx):

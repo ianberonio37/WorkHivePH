@@ -33,7 +33,9 @@ const SHELL_FILES = [
   // Voice Companion handler (Phase 1-11 orchestrator)
   '/voice-handler.js',
   // Companion Streamline Step B: persona portraits (compressed JPEGs;
-  // 12KB each; full-res source PNGs are at /brand_assets/{James,Rosa}.png)
+  // 12KB each; full-res source PNGs are at /brand_assets/{James,Rosa}.png).
+  // Filenames retain the original "james"/"rosa" suffixes after the
+  // 2026-05-20 Hezekiah/Zaniah rename — same artwork, same files.
   '/brand_assets/james-256.jpg',
   '/brand_assets/rosa-256.jpg',
   // Worker-critical pages (offline-capable on cached page-shell)

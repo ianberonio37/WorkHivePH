@@ -75,7 +75,7 @@
   }
 
   // ─── Companion Streamline Steps A+C: companion-launcher.js (formerly
-  // floating-ai.js) carries the James/Rosa avatar + chat panel + inline
+  // floating-ai.js) carries the Hezekiah/Zaniah avatar + chat panel + inline
   // mic on every nav-enabled page. Routes through ai-gateway with
   // agent="voice-journal" — same backend as voice-journal.html and
   // assistant.html, so the worker experiences ONE companion across

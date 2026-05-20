@@ -685,9 +685,11 @@ def ml_status():
 
 # ─── TTS — Edge TTS (free, natural Microsoft Neural voices) ───────────────────
 # Same pattern as video_marketing_app/app.py. The Edge TTS catalog includes
-# en-PH-JamesNeural + en-PH-RosaNeural (the actual "James" and "Rosa" voices,
-# which DO NOT exist in the Azure Speech API en-PH catalog). No auth, no
-# subscription, just a websocket call to Microsoft's Edge browser TTS.
+# en-PH-JamesNeural + en-PH-RosaNeural (Microsoft's voice catalog names —
+# unrelated to WorkHive's persona labels after the 2026-05-20 rename to
+# hezekiah/zaniah). These voices DO NOT exist in the Azure Speech API
+# en-PH catalog. No auth, no subscription, just a websocket call to
+# Microsoft's Edge browser TTS.
 #
 # Cache: sha256(voice::text) keys a local MP3 file under .tmp/wh_tts_cache/.
 # Repeat narration hits the disk cache instantly. Cache survives across
@@ -705,8 +707,14 @@ from fastapi.responses import FileResponse
 
 _TTS_CACHE_DIR = _Path(__file__).parent.parent / ".tmp" / "wh_tts_cache"
 _TTS_VOICES = {
-    "james": "en-PH-JamesNeural",
-    "rosa":  "en-PH-RosaNeural",
+    "hezekiah": "en-PH-JamesNeural",  # WorkHive persona key → Microsoft voice
+    "zaniah":   "en-PH-RosaNeural",
+}
+# Legacy aliases: pre-rename clients send 'james'/'rosa'; map silently so
+# in-flight requests during the 30-day cache-cycle window don't 400.
+_TTS_LEGACY_ALIASES = {
+    "james": "hezekiah",
+    "rosa":  "zaniah",
 }
 _MAX_TTS_CHARS  = 1500
 _EDGE_TIMEOUT_S = 60
@@ -745,7 +753,7 @@ def _generate_tts_edge(text: str, voice_id: str, out_path: _Path) -> None:
 
 class TtsRequest(BaseModel):
     text:    str
-    persona: str = "james"
+    persona: str = "zaniah"
 
 
 @app.post("/tts/speak")
@@ -762,9 +770,10 @@ def tts_speak(req: TtsRequest):
             status_code=413,
             detail=f"text too long (max {_MAX_TTS_CHARS} chars)",
         )
-    persona_key = (req.persona or "james").strip().lower()
+    persona_key = (req.persona or "zaniah").strip().lower()
+    persona_key = _TTS_LEGACY_ALIASES.get(persona_key, persona_key)
     if persona_key not in _TTS_VOICES:
-        persona_key = "james"
+        persona_key = "zaniah"
     voice_id = _TTS_VOICES[persona_key]
 
     _TTS_CACHE_DIR.mkdir(parents=True, exist_ok=True)

@@ -53,7 +53,7 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 // contract-allow: produces AMC briefing; future Tier C: amc_brief_v1
 import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { callAI } from "../_shared/ai-chain.ts";
-// Persona Contract: AMC briefings sign their footer ("Signed by James,
+// Persona Contract: AMC briefings sign their footer ("Signed by Hezekiah,
 // your WorkHive daily companion"). The brief BODY stays structured —
 // only the narrative footer wears the persona. See
 // WORKHIVE_PERSONA_CONTRACT.md, mode='briefing-signature'.
@@ -651,7 +651,7 @@ serve(async (req) => {
 
     // Select hives to brief. Persona Contract Phase 6: pull the hive's
     // preferred_persona alongside id+name so the briefing signature wears
-    // the right voice. New hives default to 'james' via the column DEFAULT.
+    // the right voice. New hives default to 'zaniah' via the column DEFAULT.
     let hives: Array<{ id: string; name: string; preferred_persona?: string | null }> = [];
     if (targetHive) {
       const { data: one, error: oneErr } = await db.from("v_hives_truth")

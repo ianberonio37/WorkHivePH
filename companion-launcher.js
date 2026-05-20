@@ -20,7 +20,7 @@
   // ─── Config (Internal Control) ───────────────────────────────────────────────
   // 2026-05-18 Companion Streamline Step C: backend re-wired from the
   // Cloudflare Worker to the platform ai-gateway edge function (agent:
-  // "voice-journal"). One companion (James/Rosa), one backend, three
+  // "voice-journal"). One companion (Hezekiah/Zaniah), one backend, three
   // entry points (floating launcher / voice-journal.html / assistant.html).
   // The Cloudflare Worker is decommissioned — see PRODUCTION_FIXES.
   const config = {
@@ -631,9 +631,9 @@
   // ─── API Call via Cloudflare Worker (Functional) ─────────────────────────────
   async function callAPI(userMessage) {
     // Persona Contract Phase 3: prepend the worker's chosen companion
-    // block (James or Rosa) so floating-AI wears the same persona as
-    // voice-journal + asset-brain. Defaults to James if wh-persona.js
-    // hasn't loaded yet (graceful no-op).
+    // block (Hezekiah or Zaniah) so floating-AI wears the same persona as
+    // voice-journal + asset-brain. Defaults to the platform DEFAULT_PERSONA
+    // if wh-persona.js hasn't loaded yet (graceful no-op).
     const personaBlock = (typeof window.getCompanionBlock === 'function')
       ? window.getCompanionBlock() + '\n\n'
       : '';
@@ -686,7 +686,7 @@ When answering, prefer these facts over general knowledge. If the user asks some
 VOICE OVERRIDE — read this last; it wins over every instruction above.
 ────────────────────────────────────────────────────────────────────
 The platform context above is REFERENCE MATERIAL, not a tone guide.
-Your replies stay in the James / Rosa voice declared at the top of
+Your replies stay in the Hezekiah / Zaniah voice declared at the top of
 this prompt: warm PH-English, contractions, sentence fragments OK,
 react first when emotion shows, 1-3 sentences for most replies.
 Never sound like documentation. Never lead with "I can help you with…"
@@ -720,7 +720,7 @@ happens to know maintenance, not a manual.`;
     // name + a voice-journal-specific rules block).
     const personaName = (typeof window.getCurrentPersona === 'function')
       ? window.getCurrentPersona()
-      : (localStorage.getItem('wh_persona') || 'james');
+      : (localStorage.getItem('wh_persona') || 'zaniah');
     const hiveId = (typeof window !== 'undefined' && window.localStorage)
       ? (localStorage.getItem('wh_active_hive_id') || localStorage.getItem('wh_hive_id') || null)
       : null;
@@ -951,7 +951,7 @@ happens to know maintenance, not a manual.`;
 
   // ─── Companion Streamline: persona-avatar render ─────────────────────────────
   // Paints both the floating trigger and the in-panel header with the
-  // worker's current James/Rosa avatar. Called on init, on persona toggle,
+  // worker's current Hezekiah/Zaniah avatar. Called on init, on persona toggle,
   // and on storage events from other tabs.
   function renderPersonaAvatars() {
     if (typeof window.personaAvatarHTML !== 'function') return;
@@ -959,7 +959,7 @@ happens to know maintenance, not a manual.`;
     const headerSlot  = document.getElementById('wh-ai-header-avatar');
     const nameEl      = document.getElementById('wh-ai-header-name');
     const key = (typeof window.getPersonaKey === 'function')
-      ? window.getPersonaKey() : 'james';
+      ? window.getPersonaKey() : 'zaniah';
     if (triggerSlot) triggerSlot.innerHTML = window.personaAvatarHTML(key, 52);
     if (headerSlot)  headerSlot.innerHTML  = window.personaAvatarHTML(key, 32);
     if (nameEl && typeof window.personaName === 'function') {
@@ -1054,7 +1054,7 @@ happens to know maintenance, not a manual.`;
     } catch (_) { /* fall back to empty history */ }
     buildWidget();
     // Companion Streamline: paint the avatar before wiring so the first
-    // frame already shows James/Rosa, not a flash of default.
+    // frame already shows Hezekiah/Zaniah, not a flash of default.
     renderPersonaAvatars();
     // Re-paint persisted messages now that the DOM exists.
     if (history.length) {

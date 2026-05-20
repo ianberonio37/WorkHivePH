@@ -4,7 +4,7 @@ ai-gateway anon-friendly voice-journal contract validator
 Locks in the 2026-05-19 fix that made voice-journal the platform's
 anon-friendly onboarding companion. The bug it prevents: every other
 agent in ai-gateway requires Supabase Auth, but voice-journal MUST
-let anonymous callers through because Step D made Rosa the default
+let anonymous callers through because Step D made Zaniah the default
 persona for first-time visitors — workers talk to her BEFORE they
 sign up.
 
@@ -14,7 +14,7 @@ conversation because:
   1. voice-handler.js POSTs to ai-gateway with the worker's anon JWT
   2. ai-gateway returned 401 "Sign-in required"
   3. voice-handler's try/catch fired _generateFallbackReply
-  4. User saw canned offline copy instead of Rosa's strategist voice
+  4. User saw canned offline copy instead of Zaniah's strategist voice
 
 Layer 1 — ANON_OK_AGENTS set declared in ai-gateway/index.ts       [FAIL]
   The gateway must declare an `ANON_OK_AGENTS` Set (or equivalent
@@ -42,7 +42,7 @@ Layer 4 — voice-journal listed in AGENT_ROUTES                     [FAIL]
   agent. Final structural check.
 
 History:
-  2026-05-19 — User saw Rosa stuck at "Sorry, I'm offline" even
+  2026-05-19 — User saw Zaniah (then "Rosa") stuck at "Sorry, I'm offline" even
   after Step C + Step D shipped. Root cause was the auth wall here.
   Fix in commit f5a8d99. This validator captures the fix as policy.
 
@@ -95,7 +95,7 @@ def check_anon_ok_set_declared(content: str) -> list[dict]:
                 "ai-gateway/index.ts is missing the `ANON_OK_AGENTS` Set "
                 "containing 'voice-journal'. Without this, the gateway "
                 "falls back to auth-walling every agent — which silently "
-                "degrades the worker's first-touch conversation with Rosa "
+                "degrades the worker's first-touch conversation with Zaniah "
                 "to the 'Sorry, I'm offline' canned reply. See commit f5a8d99."
             ),
         }]

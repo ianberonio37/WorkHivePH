@@ -1,7 +1,7 @@
 """
 Voice Alert Formatting Validator (v1)
 
-Ensures anomaly_alerts are properly formatted when surfaced in Rosa/James responses.
+Ensures anomaly_alerts are properly formatted when surfaced in Zaniah/Hezekiah responses.
 4-layer audit:
   1. Alert table has required columns (description, action_suggested)
   2. RPC fetch_active_alerts returns all required fields

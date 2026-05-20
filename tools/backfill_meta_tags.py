@@ -46,7 +46,7 @@ DEFAULT_DESCRIPTIONS = {
     "marketplace-seller.html":"Seller dashboard for the WorkHive marketplace. Manage listings, inquiries, orders, and payouts.",
     "dayplanner.html":        "Day planner for industrial maintenance technicians. Schedule jobs against your hive's PM and risk priorities.",
     "engineering-design.html":"Engineering calculations: piping, electrical, thermal, mechanical sizing tools with PEC / ASHRAE / ASME alignment.",
-    "assistant.html":         "AI maintenance assistant. Ask Rosa or James about your hive's data, get cited answers grounded in canonical KPIs.",
+    "assistant.html":         "AI maintenance assistant. Ask Zaniah or Hezekiah about your hive's data, get cited answers grounded in canonical KPIs.",
     "report-sender.html":     "Send maintenance reports to stakeholders. PDF delivery via Resend; recipient list per hive.",
     "platform-health.html":   "Platform health monitor: edge function latency, AI cost log, canonical drift, and uptime indicators.",
     "project-manager.html":   "Project management for industrial shutdowns and overhauls. Critical-path tracking, daily progress, predecessor links.",

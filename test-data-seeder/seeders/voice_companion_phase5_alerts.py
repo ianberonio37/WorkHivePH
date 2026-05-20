@@ -2,7 +2,7 @@
 Phase 5: Proactive Alerts seeder
 
 Populates anomaly_alerts table with realistic KPI spikes, risk escalations, and maintenance overdue alerts.
-Used to test Rosa/James alert surfacing logic (Hard Rule: surface critical alerts FIRST).
+Used to test Zaniah/Hezekiah alert surfacing logic (Hard Rule: surface critical alerts FIRST).
 """
 
 def seed_anomaly_alerts(client, log, ctx):

@@ -3,10 +3,11 @@
  *
  * Phase 7 of the WorkHive Persona Contract. Turns narration text +
  * persona key into a playable MP3 URL. The persona key maps to a fixed
- * Azure neural voice:
+ * Azure neural voice (Azure voice IDs retained verbatim after the
+ * 2026-05-20 hezekiah/zaniah rename — same voice, new persona label):
  *
- *   james -> en-PH-JamesNeural   (Filipino male, PH English)
- *   rosa  -> en-PH-RosaNeural    (Filipino female, PH English)
+ *   hezekiah -> en-PH-JamesNeural   (Filipino male, PH English)
+ *   zaniah   -> en-PH-RosaNeural    (Filipino female, PH English)
  *
  * Both en-PH neural voices ship in southeastasia. fil-PH-AngeloNeural +
  * fil-PH-BlessicaNeural are also available but we stay in the en-PH pair
@@ -36,32 +37,30 @@ import { clampPersona } from "../_shared/persona.ts";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
-// 1500 chars is roughly 30s of speech — well past anything James/Rosa would
+// 1500 chars is roughly 30s of speech — well past anything Hezekiah/Zaniah would
 // say in a single turn. Prevents abuse via large narration payloads.
 const MAX_TEXT_LENGTH = 1500;
 
 // Azure Neural voices for en-PH locale. Confirmed against the live voice
 // catalog at /cognitiveservices/voices/list (southeastasia region, 2026-05-18):
-//   en-PH-JamesNeural (Male)   — display name "James" — used for james persona
-//   en-PH-RosaNeural  (Female) — display name "Rosa"  — used for rosa persona
+//   en-PH-JamesNeural (Male)   — used for hezekiah persona (legacy Azure ID)
+//   en-PH-RosaNeural  (Female) — used for zaniah   persona (legacy Azure ID)
+// The Azure voice display names ("James" / "Rosa") are Microsoft's labels
+// and are independent of the WorkHive persona name shown to workers.
 // (fil-PH-AngeloNeural + fil-PH-BlessicaNeural also exist for pure-Tagalog
 //  output, but the conversational companion replies in en-PH so we stick to
 //  the English-Philippine pair.)
-//
-// Earlier the comment here claimed "en-PH-JamesNeural was a hallucination"
-// and routed to AngeloNeural — that was wrong. Angelo only exists under the
-// fil-PH locale; en-PH-AngeloNeural returns 400 Unsupported voice from Azure.
 const PERSONA_TO_VOICE: Record<string, string> = {
-  james: "en-PH-JamesNeural",
-  rosa:  "en-PH-RosaNeural",
+  hezekiah: "en-PH-JamesNeural",  // legacy Azure voice ID retained 2026-05-20
+  zaniah:   "en-PH-RosaNeural",   // legacy Azure voice ID retained 2026-05-20
 };
 
-// Per-persona prosody tuning. James (tito) reads slightly slower and a
-// touch lower for warmth; Rosa (ate) stays neutral. Tiny adjustments —
+// Per-persona prosody tuning. Hezekiah (tito) reads slightly slower and a
+// touch lower for warmth; Zaniah (ate) stays neutral. Tiny adjustments —
 // large rate/pitch shifts make Azure Neural sound synthetic again.
 const PROSODY: Record<string, { rate: string; pitch: string }> = {
-  james: { rate: "-4%", pitch: "-2%" },
-  rosa:  { rate: "-2%", pitch:  "0%" },
+  hezekiah: { rate: "-4%", pitch: "-2%" },
+  zaniah:   { rate: "-2%", pitch:  "0%" },
 };
 
 const CACHE_BUCKET = "tts-cache";

@@ -670,7 +670,7 @@
   // (RLS: auth.uid() = auth_uid for both read and insert), so anon
   // workers in the Tester walkthrough have no persistent memory. We
   // keep the last few turns in a module-local array so within one page
-  // session James / Rosa still has continuity. Lost on page reload —
+  // session Hezekiah / Zaniah still has continuity. Lost on page reload —
   // signed-in workers get durable history from the table.
   const _sessionTurns = [];   // [{ user, assistant, ts }]
   const _SESSION_TURN_LIMIT = 5;
@@ -985,7 +985,7 @@
       await db.from('tts_quality_log').insert({
         worker_id: (await db.auth.getUser())?.data?.user?.id,
         hive_id: hiveId,
-        persona: 'rosa',
+        persona: 'zaniah',
         latency_ms: latencyMs,
         error_message: error || null,
       });
@@ -1398,7 +1398,7 @@
       workerName ? db.from('v_worker_skill_truth').select('discipline,primary_skill,role').eq('worker_name', workerName).limit(10) : Promise.resolve({ data: [] }),
       db.from('v_anomaly_truth').select('machine,composite_score,logbook_cluster_score,snapshot_date').eq('hive_id', hiveId).order('snapshot_date', { ascending: false }).limit(5),
       db.from('v_project_truth').select('name,project_code,project_type,status,priority').eq('hive_id', hiveId).limit(10),
-      // Recent CLOSED logbook (so Rosa can answer "what did we fix recently?")
+      // Recent CLOSED logbook (so Zaniah can answer "what did we fix recently?")
       db.from('v_logbook_truth').select('machine,category,problem,action,date,created_at,worker_name').eq('hive_id', hiveId).eq('status', 'Closed').order('created_at', { ascending: false }).limit(10),
     ]);
 
@@ -1665,7 +1665,7 @@
   function _generateFallbackReply(transcript, routerIntents, persona) {
     const intent = routerIntents && routerIntents[0];
     const kind = intent && intent.kind;
-    const personaName = persona === 'rosa' ? 'Rosa' : 'James';
+    const personaName = persona === 'zaniah' ? 'Zaniah' : 'Hezekiah';
 
     // Match against known intent patterns for better fallback text
     if (kind === 'mtbf' || kind === 'mttr' || kind === 'downtime' || kind === 'risk_top' || kind === 'failures_count') {
@@ -1754,7 +1754,7 @@
     // v_*_truth view, we fetch it BEFORE the LLM call and inject it here.
     // Without this block, Hard Rule #2 (no inventing numbers) + Rule #9 (no
     // inventing UI) leaves the model only one legal answer ("check
-    // Analytics"). With it, Rosa/James paraphrase the real figure.
+    // Analytics"). With it, Zaniah/Hezekiah paraphrase the real figure.
     const canonicalSection = canonicalData
       ? '\n═══════════════════════════════════════════════════════════════════\n' +
         'CANONICAL DATA — anchor verbatim on the figures below.\n' +
@@ -1892,8 +1892,8 @@
     const db = _getDb();
     const ctx = _ctx();
     const persona = (typeof window.getPersona === 'function')
-      ? window.getPersona() : 'james';
-    const personaName = persona === 'rosa' ? 'Rosa' : 'James';
+      ? window.getPersona() : 'zaniah';
+    const personaName = persona === 'zaniah' ? 'Zaniah' : 'Hezekiah';
     const hiveName = (function () {
       try { return localStorage.getItem('wh_hive_name') || ''; } catch (_) { return ''; }
     })();

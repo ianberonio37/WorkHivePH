@@ -680,7 +680,7 @@ VALIDATORS = [
         # production JS file from re-introducing the legacy Cloudflare Worker
         # fetch pattern. Added after voice-handler.js was caught still calling
         # the dead worker, which silently triggered the "Sorry, I'm offline"
-        # fallback in Rosa's voice command UI.
+        # fallback in Zaniah's (then "Rosa") voice command UI.
         "id":      "legacy-worker-decommission",
         "script":  "validate_legacy_worker_decommission.py",
         "args":    [],
@@ -690,7 +690,7 @@ VALIDATORS = [
         "skip_if_fast": False,
     },
     {
-        # 2026-05-19 Hardening Loop for the Rosa-offline incident (f5a8d99):
+        # 2026-05-19 Hardening Loop for the Zaniah-offline incident (formerly "Rosa", f5a8d99):
         # locks in ANON_OK_AGENTS Set + auth-gate skip + persistence guard +
         # AGENT_ROUTES registration so the voice-journal anon path can't
         # silently regress to 401 -> "Sorry, I'm offline" again.

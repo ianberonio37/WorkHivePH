@@ -67,8 +67,8 @@ test.describe('assistant.html - sentinel scenarios', () => {
     await whPage.goto(PAGE);
     await waitForPageReady(whPage);
     const __sentSrc_4 = await pageSrcWithExternals(whPage);
-    const has = /James|Rosa|getCompanionBlock|persona/i.test(__sentSrc_4);
-    expect(has, 'assistant prompts should identify the persona (James/Rosa)').toBeTruthy();
+    const has = /Hezekiah|Zaniah|getCompanionBlock|persona/i.test(__sentSrc_4);
+    expect(has, 'assistant prompts should identify the persona (Hezekiah/Zaniah)').toBeTruthy();
   });
 
   test('prc_disclaimer: prescriptive/RCA narratives carry a disclaimer', async ({ whPage }) => {

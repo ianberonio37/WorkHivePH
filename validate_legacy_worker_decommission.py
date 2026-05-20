@@ -10,7 +10,7 @@ The Step C migration is a one-way door: every AI conversation should
 flow through ai-gateway so the persona contract + memory + PII redaction
 + rate-limit policy applies uniformly. A stray Cloudflare Worker call:
 
-  - Bypasses Step D's James=Technical / Rosa=Strategist domain lens
+  - Bypasses Step D's Hezekiah=Technical / Zaniah=Strategist domain lens
     (the Worker's prompt does not include DOMAIN_LENS).
   - Returns generic OpenAI-shaped JSON the voice handler can't always
     parse cleanly, then falls through to the "Sorry, I'm offline."
@@ -40,7 +40,7 @@ Layer 2 — No production JS file leaves the Cloudflare endpoint as the
 History:
   - 2026-05-18 commit b64fd8a — companion-launcher.js migrated.
   - 2026-05-19 — voice-handler.js conversational + intent-router calls
-    migrated after the user noticed Rosa stuck in offline mode.
+    migrated after the user noticed Zaniah (then "Rosa") stuck in offline mode.
   - This validator was added so the same bug class never lands again.
 
 Skills consulted: ai-engineer (gateway-routing pattern + persona

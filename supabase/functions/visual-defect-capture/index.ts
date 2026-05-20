@@ -223,7 +223,7 @@ function coerceDraft(parsed: Record<string, unknown>): DraftRow {
     knowledge:           clampStr(parsed.knowledge, 400),
     asset_tag_extracted: tag,
     confidence:          Math.max(0, Math.min(1, Number(parsed.confidence) || 0)),
-    // Persona narration (1-2 sentences in James/Rosa voice). Capped so a
+    // Persona narration (1-2 sentences in Hezekiah/Zaniah voice). Capped so a
     // model that returns a paragraph doesn't bloat the response.
     narration:           clampStr(parsed.narration, 280),
   };

@@ -250,18 +250,19 @@ def main():
 
         # 4d. Journey specs — behavioral end-to-end tests that exercise
         # actual user paths through the live browser + ai-gateway. Added
-        # 2026-05-19 after the Rosa-offline regression: static validators
-        # kept being added (ANON_OK_AGENTS, legacy-worker-decommission, ...)
-        # but the bug only surfaces when a real fetch reaches the gateway.
-        # The journey-voice-journal.spec.ts file owns the Sentinel Review
-        # for that bug class (rosa-default-persona, ai-gateway anon-allow,
-        # rosa-strategist-lens, james-technical-lens).
+        # 2026-05-19 after the Zaniah-offline regression (then "Rosa"):
+        # static validators kept being added (ANON_OK_AGENTS,
+        # legacy-worker-decommission, ...) but the bug only surfaces when a
+        # real fetch reaches the gateway. The journey-voice-journal.spec.ts
+        # file owns the Sentinel Review for that bug class
+        # (zaniah-default-persona, ai-gateway anon-allow,
+        # zaniah-strategist-lens, hezekiah-technical-lens).
         try:
             import subprocess as _jsp, os as _jos, sys as _jsys, re as _jre
             _jroot = _jos.path.dirname(_jos.path.dirname(_jos.path.abspath(__file__)))
             _jcwd  = "Z:\\" if _jos.path.exists("Z:/playwright.config.ts") else _jroot
             _jansi = _jre.compile(r"\x1b\[[0-9;]*m")
-            print("\n[Journey specs — Rosa/James end-to-end sentinel]")
+            print("\n[Journey specs — Zaniah/Hezekiah end-to-end sentinel]")
             jproc = _jsp.Popen(
                 ["npx", "playwright", "test",
                  "tests/journey-voice-journal.spec.ts",

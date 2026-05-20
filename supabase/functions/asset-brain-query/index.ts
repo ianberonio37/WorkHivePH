@@ -568,7 +568,7 @@ serve(async (req) => {
     return jsonResponse({
       answer:    String(parsed.answer || "").trim(),
       cited:     Array.isArray(parsed.cited) ? parsed.cited : [],
-      // Persona narration (1-2 sentences in James/Rosa voice). Capped to
+      // Persona narration (1-2 sentences in Hezekiah/Zaniah voice). Capped to
       // keep responses sane if the model overruns.
       narration: String(parsed.narration || "").trim().slice(0, 280),
       remaining: rl.remaining,

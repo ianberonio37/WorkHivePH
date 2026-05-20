@@ -38,8 +38,13 @@
   function getPersona() {
     try {
       const raw = localStorage.getItem(PERSONA_STORAGE_KEY);
-      return (raw === 'rosa' || raw === 'james') ? raw : 'james';
-    } catch (_) { return 'james'; }
+      // Legacy james/rosa values silently map to the new keys for
+      // workers whose localStorage predates the 2026-05-20 rename.
+      if (raw === 'hezekiah' || raw === 'zaniah') return raw;
+      if (raw === 'james') return 'hezekiah';
+      if (raw === 'rosa')  return 'zaniah';
+      return 'zaniah';
+    } catch (_) { return 'zaniah'; }
   }
 
   function isTtsOn() {
@@ -136,13 +141,18 @@
     }
   }
 
-  // Persona-gender map for the browser-TTS fallback path. James (male)
-  // and Rosa (female) sound identical via the system default voice
+  // Persona-gender map for the browser-TTS fallback path. Hezekiah (male)
+  // and Zaniah (female) sound identical via the system default voice
   // unless we bias the choice. We pick the first installed voice whose
   // name OR locale tag matches the gender heuristic.
-  const PERSONA_GENDER = { james: 'male', rosa: 'female' };
+  //
+  // MALE_HINTS / FEMALE_HINTS still include 'james' and 'rosa' because
+  // those are SYSTEM voice names on Windows + macOS, not WorkHive persona
+  // labels — keeping them ensures the browser's installed en-PH voices
+  // still match the gender filter.
+  const PERSONA_GENDER = { hezekiah: 'male', zaniah: 'female' };
   const MALE_HINTS   = /(male|man|guy|david|mark|alex|james|angelo|paolo|daniel|guy|ravi|brandon)/i;
-  const FEMALE_HINTS = /(female|woman|girl|samantha|victoria|sara|rosa|maria|isabella|tessa|zira|hazel|eva|aria|jenny|nova|emma|libby|sonia|natasha|tracy|catherine|rosa)/i;
+  const FEMALE_HINTS = /(female|woman|girl|samantha|victoria|sara|rosa|maria|isabella|tessa|zira|hazel|eva|aria|jenny|nova|emma|libby|sonia|natasha|tracy|catherine)/i;
 
   // Pre-load voices on page load (browsers populate this async)
   let _voicesCache = null;
