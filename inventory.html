@@ -678,10 +678,20 @@ function formatDate(iso) {
        + ' · ' + d.toLocaleTimeString('en-PH', { hour:'2-digit', minute:'2-digit' });
 }
 
+// Stock status canonical anchor: prefer the derived flags from
+// v_inventory_items_truth (is_out_of_stock / is_low_stock) when present.
+// Falls back to local math only when the page loaded items directly from
+// the raw table (writes / localStorage migration paths) where the derived
+// flags are absent. The view's rule is:
+//   is_out_of_stock = qty_on_hand <= 0
+//   is_low_stock    = min_qty > 0 AND qty_on_hand <= min_qty
+// The previous local fallback (`min_qty > 0 ? qty <= min_qty : qty <= 1`)
+// treated items with min_qty=0 as low when qty <= 1; aligning to the view
+// drops that quirk so the home dashboard tile and #stat-low stay in lockstep.
 function stockStatus(item) {
-  if (item.qty_on_hand <= 0) return 'out';
-  const threshold = item.min_qty > 0 ? item.min_qty : 1;
-  if (item.qty_on_hand <= threshold) return 'low';
+  if (item.is_out_of_stock === true || item.qty_on_hand <= 0) return 'out';
+  if (item.is_low_stock === true) return 'low';
+  if (item.is_low_stock === undefined && item.min_qty > 0 && item.qty_on_hand <= item.min_qty) return 'low';
   return 'ok';
 }
 
@@ -1562,8 +1572,8 @@ async function initData() {
   const ASSET_COLS = 'id, asset_id:tag, name, type:iso_class, location, criticality, hive_id, worker_name, status, created_at';
   if (HIVE_ID) {
     itemsFetches = Promise.all([
-      db.from('inventory_items').select('*').eq('hive_id', HIVE_ID).eq('status', 'approved').order('created_at'),
-      db.from('inventory_items').select('*').eq('hive_id', HIVE_ID).eq('worker_name', WORKER_NAME).order('created_at')
+      db.from('v_inventory_items_truth').select('*').eq('hive_id', HIVE_ID).eq('status', 'approved').order('created_at'),
+      db.from('v_inventory_items_truth').select('*').eq('hive_id', HIVE_ID).eq('worker_name', WORKER_NAME).order('created_at')
     ]);
     // canonical-allow: inventory's asset picker writes back asset_nodes
     // (LS-migration upserts below) and needs the exact column set ASSET_COLS
@@ -1579,7 +1589,7 @@ async function initData() {
   }
 
   const [itemsRes, txnsRes, assetsRes, [hiveItemsRes, myItemsRes], [hiveAssetsRes, myAssetsRes]] = await Promise.all([
-    HIVE_ID ? Promise.resolve({ data: null }) : db.from('inventory_items').select('*').eq('worker_name', WORKER_NAME).order('created_at'),
+    HIVE_ID ? Promise.resolve({ data: null }) : db.from('v_inventory_items_truth').select('*').eq('worker_name', WORKER_NAME).order('created_at'),
     // Architect skill Query-First pattern: cap inventory_transactions to
     // the last 365 days, max 500 rows, newest-first. Workers very rarely
     // need older context. Detail modal slices per-item from this window.
@@ -1614,7 +1624,7 @@ async function initData() {
     localStorage.removeItem(INV_KEY);
     localStorage.removeItem(TXN_KEY);
     const [ir, tr] = await Promise.all([
-      db.from('inventory_items').select('*').eq('worker_name', WORKER_NAME).order('created_at'),
+      db.from('v_inventory_items_truth').select('*').eq('worker_name', WORKER_NAME).order('created_at'),
       // Same window/cap as the primary fetch above — keep the two paths consistent.
       db.from('inventory_transactions').select('*').eq('worker_name', WORKER_NAME).gte('created_at', new Date(Date.now() - 365*24*60*60*1000).toISOString()).order('created_at', { ascending: false }).limit(500)
     ]);

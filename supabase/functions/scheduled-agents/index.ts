@@ -327,7 +327,7 @@ serve(async (req) => {
     if (hive_id) {
       // On-demand: run for a single hive (called from Report Sender page)
       const { data, error: hiveErr } = await db
-        .from("hives").select("id, name").eq("id", hive_id).single();
+        .from("v_hives_truth").select("id, name").eq("id", hive_id).single();
       if (hiveErr || !data) {
         return new Response(
           JSON.stringify({ status: "skipped", reason: "Hive not found" }),
@@ -337,7 +337,7 @@ serve(async (req) => {
       hives = [data];
     } else {
       // Cron path: run for all active hives
-      const { data, error: hivesErr } = await db.from("hives").select("id, name");
+      const { data, error: hivesErr } = await db.from("v_hives_truth").select("id, name");
       if (hivesErr || !data?.length) {
         return new Response(
           JSON.stringify({ status: "skipped", reason: "No hives found" }),

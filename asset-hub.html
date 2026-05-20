@@ -3226,7 +3226,7 @@
       const ids = keys.map(k => String(ext[k])).filter(Boolean);
       if (!ids.length) { meta.textContent = ''; return; }
 
-      const { data, error } = await db.from('external_sync')
+      const { data, error } = await db.from('v_external_sync_truth')
         .select('system_type, external_id, entity_type, sync_status, last_synced_at')
         .eq('hive_id', HIVE_ID)
         .eq('entity_type', 'asset')

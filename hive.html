@@ -1256,7 +1256,7 @@ document.getElementById('nav-worker').textContent = WORKER_NAME;
     // Fetch hive names for all found memberships
     const hiveIds = memberships.map(m => m.hive_id);
     const { data: hives } = await db
-      .from('hives')
+      .from('v_hives_truth')
       .select('id, name, created_by')
       .in('id', hiveIds);
 
@@ -1378,7 +1378,7 @@ async function submitJoin() {
   const btn = document.getElementById('btn-submit-join');
   btn.textContent = 'Joining...'; btn.disabled = true;
 
-  const { data: hive, error } = await db.from('hives')
+  const { data: hive, error } = await db.from('v_hives_truth')
     .select('id, name, created_by')
     .eq('invite_code', codeVal)
     .single();
@@ -2307,7 +2307,7 @@ async function maybeShowIntentCapture() {
 
   let intent = null;
   try {
-    const { data } = await db.from('hives')
+    const { data } = await db.from('v_hives_truth')
       .select('intent')
       .eq('id', HIVE_ID)
       .maybeSingle();

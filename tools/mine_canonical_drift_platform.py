@@ -81,7 +81,10 @@ CANONICAL_PAIRS: dict[str, str] = {
     "inventory_items":          "v_inventory_items_truth",
     "marketplace_sellers":      "v_marketplace_sellers_truth",
     "marketplace_listings":     "v_marketplace_listings_truth",
+    "marketplace_inquiries":    "v_marketplace_inquiries_truth",
     "community_posts":          "v_community_posts_truth",
+    "hives":                    "v_hives_truth",
+    "external_sync":            "v_external_sync_truth",
     "projects":                 "v_project_truth",
     "hive_readiness":           "v_hive_readiness_truth",
     "worker_profiles":          "v_worker_truth",
@@ -102,6 +105,7 @@ LEGITIMATE_RAW: dict[str, str] = {
     "ai_cost_log":                   "founder/admin surface only",
     "ai_quality_log":                "internal eval data",
     "ai_rate_limits":                "internal quota state",
+    "analytics_events":              "internal admin telemetry; founder-console-only surface",
     "marketplace_platform_admins":   "admin-table lookup",
     "report_contacts":               "single-purpose form",
     "schedule_items":                "calendar feed, chronological",
@@ -139,6 +143,7 @@ PAGE_RAW_OWNERS: dict[str, dict[str, str]] = {
     "logbook.html": {
         "logbook":         "canonical owner of logbook CRUD",
         "inventory_items": "parts-picker writes deductions on logbook close",
+        "project_links":   "logbook entry -> project link writer (small join table)",
     },
     "inventory.html": {
         "inventory_items": "canonical owner of inventory CRUD",
@@ -146,17 +151,23 @@ PAGE_RAW_OWNERS: dict[str, dict[str, str]] = {
     "pm-scheduler.html": {
         "pm_assets":      "creates + edits PM asset configs",
         "pm_completions": "writes completion rows when a PM is marked done",
+        "project_links":  "PM completion -> project link writer (small join table)",
         # pm_scope_items intentionally NOT here: reads should go through
         # v_pm_scope_items_truth. The page DOES write scope items, but the
         # write path can stay raw (`.insert(...)`); only the SELECT reads
         # need to migrate. The miner separates by verb.
     },
     "project-manager.html": {
-        "projects":    "canonical owner of project CRUD",
-        "asset_nodes": "project asset linker (writes project_links rows)",
+        "projects":      "canonical owner of project CRUD",
+        "asset_nodes":   "project asset linker (writes project_links rows)",
+        "project_links": "project_links is owned by project-manager (it's the join table)",
     },
     "parts-tracker.html": {
         "inventory_items": "parts deduction writer",
+    },
+    "integrations.html": {
+        "integration_configs": "canonical owner of integration config CRUD",
+        "external_sync":        "CMMS sync upsert writer (owner page does its own raw reads too)",
     },
 }
 

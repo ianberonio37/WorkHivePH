@@ -38,7 +38,7 @@ serve(async (req) => {
 
     // Fetch all hives that have at least one pm_asset (active hives only)
     const { data: hives, error: hivesErr } = await db
-      .from("hives")
+      .from("v_hives_truth")
       .select("id, name");
 
     if (hivesErr) throw new Error(`Hives fetch: ${hivesErr.message}`);

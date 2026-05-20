@@ -1116,7 +1116,7 @@
     if (entityType === 'work_order') {
       // Duplicate guard: skip logbook insert for external_ids already synced
       const allExtIds   = validRows.map(r => r.external_id);
-      const { data: existing } = await db.from('external_sync')
+      const { data: existing } = await db.from('v_external_sync_truth')
         .select('external_id')
         .eq('hive_id', HIVE_ID).eq('entity_type', 'work_order')
         .in('external_id', allExtIds.slice(0, 1000));
@@ -1811,7 +1811,7 @@
 
     try {
       // Load external_sync work order statuses
-      const { data: extRows } = await db.from('external_sync')
+      const { data: extRows } = await db.from('v_external_sync_truth')
         .select('external_id, status, sync_payload, last_synced_at')
         .eq('hive_id', HIVE_ID)
         .eq('entity_type', 'work_order')

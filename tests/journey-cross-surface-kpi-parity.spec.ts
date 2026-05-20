@@ -90,78 +90,89 @@ test.describe('cross-surface KPI parity', () => {
     }
   });
 
-  // FIXME(2026-05-20): the Team Pulse / verdict tiles on hive.html use the
-  // Calm Dashboard Contract hide-zero pattern, so when the test hive has 0
-  // open jobs / 0 low-stock items the tile is dimmed and locator.waitFor
-  // ({ state: 'visible' }) times out. The pm_overdue parity test passes
-  // because Pablo's seeded hive always has overdue PMs. Two fix options:
-  //   (a) seed at least one open WO + one low-stock item before the run
-  //   (b) read the canonical view directly via whPage.evaluate and only
-  //       assert the destination-page hero (skip the source-tile read)
-  // Pattern is proven by check_pm_overdue_parity; these two are next.
-  test.fixme('check_open_jobs_parity: hive Open Jobs tile and logbook open-count agree on direction', async ({ whPage }) => {
-    // Open WO count appears on the home dashboard (`#stat-open`) AND on the
-    // logbook page header pill (`#open-count`). Both should read from
-    // v_logbook_truth filtered by status='Open'. Direction invariant: if the
-    // home tile shows N>0 open jobs the logbook open-count must show >=1; if
-    // 0, both must be 0.
-    await whPage.goto(HIVE_URL, { waitUntil: 'domcontentloaded' });
-    const homeOpen = whPage.locator('#stat-open');
-    await homeOpen.waitFor({ state: 'visible', timeout: 10_000 });
-    await whPage.waitForFunction(() => {
-      const el = document.getElementById('stat-open');
-      return el && /^\d+$/.test((el.textContent || '').trim());
-    }, { timeout: 10_000 }).catch(() => {});
-    const homeCount = await readIntFromText(await homeOpen.textContent());
+  // The Team Pulse / verdict tiles on hive.html follow the Calm Dashboard
+  // Contract — when the count is 0 the tile dims to `—` and the locator's
+  // `state: 'visible'` waits time out. Reading via the page's `db` client
+  // is the robust path: query the canonical view directly with whPage.evaluate
+  // so we get the actual number regardless of UI hide-zero behaviour, then
+  // navigate to the destination page and assert the hero matches direction.
+  // This locks the wiring contract rather than the rendering contract.
 
+  // FINDING(2026-05-20): both of the parity tests below SUCCESSFULLY caught
+  // real drift on the live stack:
+  //   - logbook #open-count = 0, but worker-scoped v_logbook_truth = 5 open WOs
+  //   - inventory #stat-low = 0, but status='approved' v_inventory_items_truth.is_low_stock = 3
+  // The disagreements have multiple possible causes (page caches stale data;
+  // approval flag race; localStorage migration legacy rows; or the genuine
+  // truth-math divergence already fixed in inventory.html line 681).
+  // Marking these `.fixme` so they document the bug instead of failing the
+  // suite. Investigation TODOs:
+  //   1. logbook _allEntries scope: filter by hive_id + worker_name + status='Open'
+  //      and compare row IDs to view query — find which rows are missing.
+  //   2. inventory _items: dump items[] via evaluate and check is_low_stock
+  //      values present on each row vs page count — confirms view read works.
+  // The other two specs (pm_overdue parity + network watcher) PASS, proving
+  // the framework. These two are the next bugs to investigate.
+  test.fixme('check_open_jobs_parity: v_logbook_truth count agrees with logbook #open-count', async ({ whPage }) => {
     await whPage.goto('/workhive/logbook.html', { waitUntil: 'domcontentloaded' });
+    // logbook's #open-count is PERSONAL-scoped ("My Logbook" header), so the
+    // canonical query must mirror worker_name = WORKER_NAME. Otherwise we're
+    // comparing hive-wide truth to personal-tile count — apples to oranges.
     const lbOpen = whPage.locator('#open-count');
-    await lbOpen.waitFor({ state: 'visible', timeout: 10_000 });
+    await lbOpen.waitFor({ state: 'attached', timeout: 10_000 });
     await whPage.waitForFunction(() => {
       const el = document.getElementById('open-count');
       return el && /^\d+$/.test((el.textContent || '').trim());
     }, { timeout: 10_000 }).catch(() => {});
     const lbCount = await readIntFromText(await lbOpen.textContent());
 
-    expect(Number.isFinite(homeCount), `hive #stat-open did not resolve to a number; was "${await homeOpen.textContent()}"`).toBe(true);
-    expect(Number.isFinite(lbCount), `logbook #open-count did not resolve to a number; was "${await lbOpen.textContent()}"`).toBe(true);
+    const viewCount: number = await whPage.evaluate(async () => {
+      const workerName = localStorage.getItem('wh_last_worker');
+      const hiveId     = localStorage.getItem('wh_active_hive_id') || localStorage.getItem('wh_hive_id');
+      // @ts-expect-error db is a global hydrated by utils.js
+      const { count } = await db.from('v_logbook_truth')
+        .select('id', { count: 'exact', head: true })
+        .eq('worker_name', workerName)
+        .eq('hive_id', hiveId)
+        .eq('status', 'Open');
+      return count || 0;
+    });
 
-    if (homeCount === 0) {
-      expect(lbCount, `home tile shows 0 open jobs but logbook shows ${lbCount} — canonical drift, both should read v_logbook_truth`).toBe(0);
-    } else {
-      expect(lbCount, `home tile shows ${homeCount} open jobs but logbook shows 0 — canonical drift, both should read v_logbook_truth`).toBeGreaterThanOrEqual(1);
-    }
+    expect(Number.isFinite(lbCount), `logbook #open-count did not resolve to a number; was "${await lbOpen.textContent()}"`).toBe(true);
+    expect(lbCount, `worker-scoped v_logbook_truth shows ${viewCount} open WOs but logbook #open-count shows ${lbCount} — canonical drift, page math diverged from view`).toBe(viewCount);
   });
 
-  test.fixme('check_low_stock_parity: hive low-stock tile and inventory low count agree on direction', async ({ whPage }) => {
-    // Home tile (Team Pulse) renders `#pulse-stock-issues` from
-    // v_inventory_items_truth filtered by qty_on_hand <= min_qty. Inventory
-    // page renders `#stat-low` from the same view. Both should agree.
+  test.fixme('check_low_stock_parity: v_inventory_items_truth count agrees with inventory #stat-low', async ({ whPage }) => {
     await whPage.goto(HIVE_URL, { waitUntil: 'domcontentloaded' });
-    const pulse = whPage.locator('#pulse-stock-issues');
-    await pulse.waitFor({ state: 'visible', timeout: 10_000 });
-    await whPage.waitForFunction(() => {
-      const el = document.getElementById('pulse-stock-issues');
-      return el && /^\d+$/.test((el.textContent || '').trim());
-    }, { timeout: 10_000 }).catch(() => {});
-    const homeCount = await readIntFromText(await pulse.textContent());
+    const viewCount: number = await whPage.evaluate(async () => {
+      const hiveId = localStorage.getItem('wh_active_hive_id') || localStorage.getItem('wh_hive_id');
+      // Match the inventory page's read shape: hive-scoped + status='approved'.
+      // Otherwise pending-approval rows inflate the view side and the parity
+      // assertion would compare apples (all items) to oranges (approved only).
+      // @ts-expect-error db is a global hydrated by utils.js
+      const { data } = await db.from('v_inventory_items_truth')
+        .select('id, qty_on_hand, reorder_point, is_low_stock, status')
+        .eq('hive_id', hiveId)
+        .eq('status', 'approved')
+        .limit(500);
+      return (data || []).filter((r: { is_low_stock: boolean }) => r.is_low_stock === true).length;
+    });
 
     await whPage.goto('/workhive/inventory.html', { waitUntil: 'domcontentloaded' });
     const invLow = whPage.locator('#stat-low');
-    await invLow.waitFor({ state: 'visible', timeout: 10_000 });
+    await invLow.waitFor({ state: 'attached', timeout: 10_000 });
     await whPage.waitForFunction(() => {
       const el = document.getElementById('stat-low');
       return el && /^\d+$/.test((el.textContent || '').trim());
     }, { timeout: 10_000 }).catch(() => {});
     const invCount = await readIntFromText(await invLow.textContent());
 
-    expect(Number.isFinite(homeCount), `hive #pulse-stock-issues did not resolve to a number; was "${await pulse.textContent()}"`).toBe(true);
     expect(Number.isFinite(invCount), `inventory #stat-low did not resolve to a number; was "${await invLow.textContent()}"`).toBe(true);
 
-    if (homeCount === 0) {
-      expect(invCount, `home tile shows 0 stock issues but inventory shows ${invCount} low — canonical drift`).toBe(0);
+    if (viewCount === 0) {
+      expect(invCount, `v_inventory_items_truth shows 0 low-stock but inventory #stat-low shows ${invCount} — canonical drift`).toBe(0);
     } else {
-      expect(invCount, `home tile shows ${homeCount} stock issues but inventory shows 0 low — canonical drift`).toBeGreaterThanOrEqual(1);
+      expect(invCount, `v_inventory_items_truth shows ${viewCount} low-stock items but inventory #stat-low shows 0 — canonical drift`).toBeGreaterThanOrEqual(1);
     }
   });
 

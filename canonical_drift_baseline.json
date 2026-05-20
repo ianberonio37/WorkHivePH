@@ -2,12 +2,6 @@
   "_doc": "Forward-only ratchet baseline. Updated only via --update-baseline after a deliberate reduction.",
   "tier_a_pages": {},
   "gap_table_counts": {
-    "external_sync": 5,
-    "analytics_events": 5,
-    "marketplace_inquiries": 5,
-    "hives": 4,
-    "integration_configs": 4,
-    "project_links": 4,
     "worker_achievements": 3,
     "skill_badges": 3,
     "marketplace_orders": 3,
@@ -37,6 +31,7 @@
     "marketplace_saved_searches": 1,
     "marketplace_watchlist": 1,
     "ph_intelligence_reports": 1,
+    "integration_configs": 1,
     "sensor_topic_map": 1,
     "gateway_audit_log": 1,
     "hive_retention_config": 1,
@@ -44,6 +39,7 @@
     "x": 1,
     "project_roles": 1,
     "project_change_orders": 1,
+    "project_links": 1,
     "shift_plans": 1,
     "skill_profiles": 1
   }

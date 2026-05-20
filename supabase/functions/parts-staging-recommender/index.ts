@@ -45,7 +45,7 @@ serve(async (req) => {
   try {
     const db = createClient(SUPABASE_URL, SERVICE_KEY);
 
-    const { data: hives, error: hivesErr } = await db.from("hives").select("id, name");
+    const { data: hives, error: hivesErr } = await db.from("v_hives_truth").select("id, name");
     if (hivesErr) throw new Error(`Hives fetch: ${hivesErr.message}`);
     if (!hives?.length) {
       return new Response(JSON.stringify({ recommended: 0, note: "No hives" }), {

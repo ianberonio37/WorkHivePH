@@ -236,7 +236,7 @@ serve(async (req) => {
 
       // Insert to logbook (only for new events — skip if already exists via external_id check)
       if (eventType === "work_order.created") {
-        const { data: existing } = await db.from("external_sync")
+        const { data: existing } = await db.from("v_external_sync_truth")
           .select("id").eq("external_id", extracted.extId).eq("hive_id", hiveId).limit(1);
         if (!existing?.length) {
           await db.from("logbook").insert(logRow);

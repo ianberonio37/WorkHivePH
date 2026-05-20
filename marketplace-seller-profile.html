@@ -600,7 +600,7 @@
   async function computeResponseStats() {
     try {
       const { data } = await db
-        .from('marketplace_inquiries')
+        .from('v_marketplace_inquiries_truth')
         .select('created_at, replied_at, status')
         .eq('seller_name', WORKER_VIEW)
         .not('replied_at', 'is', null)

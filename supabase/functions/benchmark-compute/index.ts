@@ -220,7 +220,7 @@ serve(async (req) => {
     if (body.hive_id) {
       hiveIds = [body.hive_id];
     } else {
-      const { data: hives } = await db.from("hives").select("id").limit(500);
+      const { data: hives } = await db.from("v_hives_truth").select("id").limit(500);
       hiveIds = (hives || []).map((h: { id: string }) => h.id);
     }
 

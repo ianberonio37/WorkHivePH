@@ -217,7 +217,10 @@ CANONICAL_PAIRS = {
     "inventory_items":     "v_inventory_items_truth",
     "marketplace_sellers": "v_marketplace_sellers_truth",
     "marketplace_listings": "v_marketplace_listings_truth",
+    "marketplace_inquiries": "v_marketplace_inquiries_truth",
     "community_posts":     "v_community_posts_truth",
+    "hives":               "v_hives_truth",
+    "external_sync":       "v_external_sync_truth",
     "rcm_pf_intervals":    "v_pf_truth",
 }
 

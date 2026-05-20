@@ -581,8 +581,8 @@
     showSkeletons();
     try {
       const { data, error } = await db
-        .from('marketplace_inquiries')
-        .select('id,listing_id,buyer_name,buyer_contact,message,status,reply_text,replied_at,created_at,marketplace_listings(title)')
+        .from('v_marketplace_inquiries_truth')
+        .select('id,listing_id,buyer_name,buyer_contact,message,status,reply_text,replied_at,created_at,listing_title')
         .eq('seller_name', WORKER_NAME)
         .order('created_at', { ascending: false })
         .limit(50);
@@ -717,7 +717,7 @@
     }
 
     area.innerHTML = _inquiries.map(inq => {
-      const listingTitle = inq.marketplace_listings?.title || 'Unknown Listing';
+      const listingTitle = inq.listing_title || 'Unknown Listing';
       const isReplied = inq.status !== 'pending';
       return `
         <div class="inquiry-item${isReplied ? ' replied' : ''}" data-id="${e(inq.id)}">
@@ -1166,7 +1166,7 @@
     try {
       /* My response time + reply count (already used elsewhere) */
       const { data: myRepliedInq } = await db
-        .from('marketplace_inquiries')
+        .from('v_marketplace_inquiries_truth')
         .select('created_at, replied_at')
         .eq('seller_name', WORKER_NAME)
         .not('replied_at', 'is', null)
@@ -1179,7 +1179,7 @@
 
       /* Platform avg (sample up to 500 most-recent replied inquiries across all sellers) */
       const { data: platRepliedInq } = await db
-        .from('marketplace_inquiries')
+        .from('v_marketplace_inquiries_truth')
         .select('created_at, replied_at')
         .not('replied_at', 'is', null)
         .order('created_at', { ascending: false })
@@ -1197,7 +1197,7 @@
     let pendingInquiries = 0;
     try {
       const { data } = await db
-        .from('marketplace_inquiries')
+        .from('v_marketplace_inquiries_truth')
         .select('listing_id, status')
         .eq('seller_name', WORKER_NAME);
       (data || []).forEach(r => {

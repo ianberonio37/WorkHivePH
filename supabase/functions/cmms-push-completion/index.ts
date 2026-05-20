@@ -64,7 +64,7 @@ serve(async (req) => {
     }
 
     // Find the external_sync row for this machine (most recent work order)
-    const { data: syncRows } = await db.from("external_sync")
+    const { data: syncRows } = await db.from("v_external_sync_truth")
       .select("external_id, status")
       .eq("hive_id", hive_id)
       .eq("entity_type", "work_order")

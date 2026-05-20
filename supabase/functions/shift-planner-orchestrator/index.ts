@@ -255,7 +255,7 @@ serve(async (req) => {
       targetHives = [single_hive];
     } else {
       // Cron path: run for every active hive
-      const { data: hives } = await db.from("hives")
+      const { data: hives } = await db.from("v_hives_truth")
         .select("id")
         .limit(1000);
       targetHives = (hives || []).map(h => h.id);

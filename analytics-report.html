@@ -539,7 +539,7 @@
     async function loadHiveName(){
       if (_hiveName || !HIVE_ID) return _hiveName;
       try {
-        var r = await db.from('hives').select('name').eq('id', HIVE_ID).maybeSingle();
+        var r = await db.from('v_hives_truth').select('name').eq('id', HIVE_ID).maybeSingle();
         _hiveName = (r && r.data && r.data.name) || '';
       } catch (_) { /* non-fatal */ }
       return _hiveName;

@@ -654,7 +654,7 @@ serve(async (req) => {
     // the right voice. New hives default to 'james' via the column DEFAULT.
     let hives: Array<{ id: string; name: string; preferred_persona?: string | null }> = [];
     if (targetHive) {
-      const { data: one, error: oneErr } = await db.from("hives")
+      const { data: one, error: oneErr } = await db.from("v_hives_truth")
         .select("id, name, preferred_persona").eq("id", targetHive).maybeSingle();
       if (oneErr || !one) {
         return new Response(
@@ -669,7 +669,7 @@ serve(async (req) => {
       }];
     } else {
       // Drain mode: every hive with at least one active member.
-      const { data: all, error: allErr } = await db.from("hives")
+      const { data: all, error: allErr } = await db.from("v_hives_truth")
         .select("id, name, preferred_persona, hive_members!inner(status)")
         .eq("hive_members.status", "active");
       if (allErr) {

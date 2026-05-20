@@ -127,7 +127,7 @@ serve(async (req) => {
     let hiveName = "WorkHive";
     if (hive_id) {
       const { data: hive } = await db
-        .from("hives").select("id, name").eq("id", hive_id).single();
+        .from("v_hives_truth").select("id, name").eq("id", hive_id).single();
       if (hive) hiveName = hive.name;
 
       // Rate limit: max 20 successful email sends per hive per hour

@@ -1304,7 +1304,7 @@ let _syncedMachineSource = {};  // { "P-001": "SAP PM", "EQ-042": "Maximo" }
 async function loadSyncedMachines() {
   if (!HIVE_ID) return;
   try {
-    const { data } = await db.from('external_sync')
+    const { data } = await db.from('v_external_sync_truth')
       .select('sync_payload, system_type')
       .eq('hive_id', HIVE_ID)
       .eq('entity_type', 'work_order')

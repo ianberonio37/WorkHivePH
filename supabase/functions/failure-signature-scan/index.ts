@@ -290,7 +290,7 @@ serve(async (req) => {
   } else {
     // Scheduled: scan all active hives
     const { data: hives } = await db
-      .from("hives")
+      .from("v_hives_truth")
       .select("id")
       .limit(500);
     hiveIds = (hives || []).map((h: { id: string }) => h.id);
