@@ -1,5 +1,5 @@
 {
-  "turn": 2,
+  "turn": 3,
   "history": [
     {
       "turn": 1,
@@ -42,6 +42,44 @@
     {
       "turn": 2,
       "ts": "2026-05-20T22:46:55",
+      "diff": {
+        "L-1_total_proposals": {
+          "from": 0,
+          "to": 0,
+          "delta": 0
+        },
+        "L-1.5_rules_in_manifest": {
+          "from": 46,
+          "to": 46,
+          "delta": 0
+        },
+        "L0_total_baseline_count": {
+          "from": 171,
+          "to": 171,
+          "delta": 0
+        },
+        "L0_validators_with_baseline": {
+          "from": 39,
+          "to": 39,
+          "delta": 0
+        },
+        "L2_sentinel_specs": {
+          "from": 33,
+          "to": 33,
+          "delta": 0
+        },
+        "L13_walkthroughs_stale": {
+          "from": 0,
+          "to": 0,
+          "delta": 0
+        }
+      },
+      "L0_ratchets": [],
+      "L0_regressions": []
+    },
+    {
+      "turn": 3,
+      "ts": "2026-05-20T22:52:21",
       "diff": {
         "L-1_total_proposals": {
           "from": 0,
