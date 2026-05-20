@@ -26,6 +26,12 @@ CREATE TABLE IF NOT EXISTS public.platform_feedback_votes (
   PRIMARY KEY (feedback_id, voter_token)
 );
 
+-- 2026-05-20 self-heal: an earlier partial run created the table without
+-- voted_at (later dropped by 20260520000008 which then partially applied).
+-- Additive ALTER restores it so the index below succeeds.
+ALTER TABLE public.platform_feedback_votes
+  ADD COLUMN IF NOT EXISTS voted_at timestamptz NOT NULL DEFAULT now();
+
 -- Reverse index for cheap "did I vote on this?" lookups by voter
 CREATE INDEX IF NOT EXISTS idx_platform_feedback_votes_voter
   ON public.platform_feedback_votes (voter_token, voted_at DESC);

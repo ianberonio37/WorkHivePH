@@ -6,6 +6,20 @@
 DROP VIEW IF EXISTS public.v_project_items_truth;
 DROP VIEW IF EXISTS public.v_project_progress_truth;
 
+-- 2026-05-20: 20260520000009_drop_phantom_columns_seeder_only.sql earlier
+-- dropped actual_start/actual_end/predecessors/sort_order from project_items
+-- (declared unused by the phantom auditor). The view below restores them
+-- because the schedule-flag derivations need actual_start, and the audit
+-- only considered code consumers — the view IS the consumer that justifies
+-- keeping them. Additive ALTER restores any missing column.
+ALTER TABLE IF EXISTS public.project_items
+  ADD COLUMN IF NOT EXISTS actual_start    date,
+  ADD COLUMN IF NOT EXISTS actual_end      date,
+  ADD COLUMN IF NOT EXISTS predecessors    jsonb NOT NULL DEFAULT '[]'::jsonb,
+  ADD COLUMN IF NOT EXISTS estimated_hours numeric(8,2),
+  ADD COLUMN IF NOT EXISTS actual_hours    numeric(8,2),
+  ADD COLUMN IF NOT EXISTS sort_order      integer NOT NULL DEFAULT 0;
+
 -- ── project_items_truth ─────────────────────────────────────────────────────
 CREATE VIEW public.v_project_items_truth AS
 SELECT

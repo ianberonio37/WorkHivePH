@@ -69,8 +69,12 @@ ALTER TABLE IF EXISTS public.avatar_animations      DROP COLUMN IF EXISTS state_
 ALTER TABLE IF EXISTS public.avatar_animations      DROP COLUMN IF EXISTS animation_key;
 ALTER TABLE IF EXISTS public.avatar_state           DROP COLUMN IF EXISTS last_gesture;
 
-ALTER TABLE IF EXISTS public.dialog_state           DROP COLUMN IF EXISTS clarification_prompt;
-ALTER TABLE IF EXISTS public.dialog_state           DROP COLUMN IF EXISTS last_turn_num;
+-- 2026-05-20: skipped — clarification_prompt is referenced by the
+-- fetch_dialog_state RPC return table. Dropping with CASCADE would drop
+-- the RPC too. Leave the column for now; the RPC's behaviour is fine
+-- (returns NULL when clarification not pending).
+-- ALTER TABLE IF EXISTS public.dialog_state           DROP COLUMN IF EXISTS clarification_prompt;
+-- ALTER TABLE IF EXISTS public.dialog_state           DROP COLUMN IF EXISTS last_turn_num;
 
 ALTER TABLE IF EXISTS public.language_preferences   DROP COLUMN IF EXISTS preferred_language;
 ALTER TABLE IF EXISTS public.language_preferences   DROP COLUMN IF EXISTS code_switch_allowed;

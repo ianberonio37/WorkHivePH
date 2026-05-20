@@ -68,6 +68,12 @@ COMMENT ON VIEW public.v_skill_badges_truth IS
 -- Bridges to achievement_definitions for the definition (name, levels,
 -- description) + worker_profiles for display_name; derives next-level XP
 -- progress so consumers don't re-implement the math.
+-- 2026-05-20: my turn-5 v_worker_achievements_truth assumed xp_per_level
+-- existed on achievement_definitions; the table from 20260508000002 has
+-- only max_level. ALTER TABLE adds xp_per_level with a sane default so
+-- the view's progress math doesn't divide by zero.
+ALTER TABLE IF EXISTS public.achievement_definitions
+  ADD COLUMN IF NOT EXISTS xp_per_level int NOT NULL DEFAULT 100;
 DROP VIEW IF EXISTS public.v_worker_achievements_truth;
 CREATE VIEW public.v_worker_achievements_truth AS
 SELECT

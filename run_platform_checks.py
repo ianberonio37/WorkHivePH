@@ -210,6 +210,21 @@ VALIDATORS = [
         "skip_if_fast": False,
     },
     {
+        # Cross-migration table-collision auditor. Catches the agent_memory
+        # class of bug where two migrations both `CREATE TABLE IF NOT EXISTS X`
+        # with incompatible column sets. The static counterpart to the runtime
+        # sentinel that surfaced this on 2026-05-20 (5 collisions found across
+        # 102 migrations, all documented with `-- table-collision-allow:` markers).
+        # Exits 1 on any unallowed collision.
+        "id":      "table-collision-audit",
+        "script":  os.path.join("tools", "audit_table_collision.py"),
+        "args":    [],
+        "label":   "Cross-Migration Table-Collision Auditor (catches CREATE TABLE IF NOT EXISTS with incompatible column sets across migrations)",
+        "group":   "Platform",
+        "report":  "table_collision_report.json",
+        "skip_if_fast": False,
+    },
+    {
         "id":      "phantom-captures",
         "script":  "tools/audit_phantom_captures.py",
         "args":    [],
@@ -306,6 +321,19 @@ VALIDATORS = [
         "label":   "Canonical Anchor Gate (8-layer forward-anchor: fuel/engine/Tier A/Tier C/formula/standard/dashboard/capture)",
         "group":   "Platform",
         "report":  "canonical_anchor_report.json",
+        "skip_if_fast": False,
+    },
+    {
+        # 2026-05-20 — meta-validator: every consumer-scanning audit must cover
+        # supabase/functions/_shared/**/*.ts + subdirectory HTML, or the next
+        # contributor will reintroduce the false-positive phantom-column class
+        # caught 2026-05-20 (memory: feedback_audit_scanner_scope.md).
+        "id":      "audit-scanner-scope",
+        "script":  "validate_audit_scanner_scope.py",
+        "args":    [],
+        "label":   "Audit Scanner Scope (meta-validator: every consumer-scanning audit covers _shared + subdir HTML)",
+        "group":   "Platform",
+        "report":  None,
         "skip_if_fast": False,
     },
     {

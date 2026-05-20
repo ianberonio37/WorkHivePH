@@ -23,6 +23,9 @@
 
 BEGIN;
 
+-- 2026-05-20: DROP first because CREATE OR REPLACE can't drop columns when
+-- a prior version of the view shipped with a wider column set.
+DROP VIEW IF EXISTS public.v_alert_truth;
 CREATE OR REPLACE VIEW public.v_alert_truth AS
 SELECT
   fsa.id                          AS alert_id,

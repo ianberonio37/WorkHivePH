@@ -28,4 +28,5 @@ VALUES
    'table', 'platform_knowledge_graph_facts', 'ai-engineer', 'realtime',
    'Platform-wide knowledge graph facts (hive-agnostic, like industry_standards). Powers semantic_search_platform_kg_facts RPC used by ai-orchestrator / assistant for industry-grade answers.',
    '{"key":["id"],"hive_scoped":false,"embedding_dim":384,"search_rpc":"semantic_search_platform_kg_facts"}'::jsonb)
-ON CONFLICT (source_name) DO NOTHING;
+-- 2026-05-20 fix: canonical_sources PK is `domain`, not `source_name`
+ON CONFLICT (domain) DO NOTHING;
