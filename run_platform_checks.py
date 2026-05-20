@@ -667,6 +667,19 @@ VALIDATORS = [
      "label":"Event Listener Cleanup (pages with 10+ addEventListener need removes; forward-only ratchet)",
      "group":"Platform","report":"event_listener_cleanup_report.json","skip_if_fast":False},
     {
+        # 2026-05-20 — Flywheel orchestrator: one turn per Mega Gate run.
+        # Walks L-1 -> L-1.5 -> L0 -> L2 -> L13, diffs against the previous
+        # turn's snapshot, surfaces RATCHETS (baselines tightened) +
+        # REGRESSIONS (baselines loosened). Reporting-only — exit 0 always.
+        "id":      "flywheel-turn",
+        "script":  os.path.join("tools", "flywheel_orchestrator.py"),
+        "args":    [],
+        "label":   "Flywheel Turn (walks every Mega Gate layer; ratchet/regression diff vs prior turn)",
+        "group":   "Platform",
+        "report":  "flywheel_state.json",
+        "skip_if_fast": False,
+    },
+    {
         "id":      "persona-contract",
         "script":  "validate_persona_contract.py",
         "args":    [],

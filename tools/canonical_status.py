@@ -436,6 +436,23 @@ def _gather() -> dict[str, Any]:
     else:
         out["css_missing"] = out["css_calls"] = out["css_baseline"] = 0
 
+    # 8a23b. Flywheel state — runs of tools/flywheel_orchestrator.py
+    fw = _read_json("flywheel_state.json")
+    if fw:
+        out["flywheel_turn"]      = fw.get("turn", 0)
+        hist = fw.get("history", []) or []
+        if hist:
+            last = hist[-1]
+            out["flywheel_ratchets"]    = len(last.get("L0_ratchets", []))
+            out["flywheel_regressions"] = len(last.get("L0_regressions", []))
+        else:
+            out["flywheel_ratchets"]    = 0
+            out["flywheel_regressions"] = 0
+    else:
+        out["flywheel_turn"] = 0
+        out["flywheel_ratchets"]    = 0
+        out["flywheel_regressions"] = 0
+
     # 8a24-31. New batch (pg_cron, triggers, meta, sitemap, unbounded, headings, canonical, listeners)
     for key, fname, fields in [
         ("cron",      "pg_cron_target_existence_report.json",     ("total_issues","baseline")),
@@ -814,6 +831,14 @@ def _print(status: dict[str, Any]) -> int:
     print(f"  {_badge(css_ok, warn=status['css_missing']>0)}  "
           f"CSS class existence:          "
           f"{status['css_missing']} missing / {status['css_calls']} calls (baseline {status['css_baseline']})")
+
+    # 8a23b. Flywheel state
+    fw_ok = status.get("flywheel_regressions", 0) == 0
+    if not fw_ok: fail_count += 1
+    print(f"  {_badge(fw_ok)}  Flywheel turns:               "
+          f"{status.get('flywheel_turn', 0)} run · last "
+          f"{status.get('flywheel_ratchets', 0)} ratchet / "
+          f"{status.get('flywheel_regressions', 0)} regression")
 
     # 8a24-31. New batch
     for key, label in [
