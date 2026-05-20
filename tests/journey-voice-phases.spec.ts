@@ -117,6 +117,49 @@ test.describe('voice companion phases — runtime wiring', () => {
     expect(result.error, `phase-4 fetch_dialog_state RPC errored: ${result.error}`).toBeNull();
   });
 
+  test('phase_6_offline_resilience: offline_snapshot_cache + voice_response_queue tables are reachable', async ({ whPage }) => {
+    await whPage.goto(VOICE_PAGE, { waitUntil: 'domcontentloaded' });
+    const result = await whPage.evaluate(async () => {
+      // @ts-expect-error
+      const a = await db.from('offline_snapshot_cache').select('id', { head: true, count: 'exact' });
+      // @ts-expect-error
+      const b = await db.from('voice_response_queue').select('id', { head: true, count: 'exact' });
+      return {
+        cacheErr: a.error?.message || null,
+        queueErr: b.error?.message || null,
+      };
+    });
+    expect(result.cacheErr, `phase-6 offline_snapshot_cache errored: ${result.cacheErr}`).toBeNull();
+    expect(result.queueErr, `phase-6 voice_response_queue errored: ${result.queueErr}`).toBeNull();
+  });
+
+  test('phase_7_azure_tts: tts_cache table is reachable', async ({ whPage }) => {
+    await whPage.goto(VOICE_PAGE, { waitUntil: 'domcontentloaded' });
+    const result = await whPage.evaluate(async () => {
+      // @ts-expect-error
+      const { error } = await db.from('tts_cache')
+        .select('id', { head: true, count: 'exact' });
+      return { error: error?.message || null };
+    });
+    expect(result.error, `phase-7 tts_cache errored: ${result.error}`).toBeNull();
+  });
+
+  test('phase_9_team_coordination: cross_hive_alerts + best_practices tables are reachable', async ({ whPage }) => {
+    await whPage.goto(VOICE_PAGE, { waitUntil: 'domcontentloaded' });
+    const result = await whPage.evaluate(async () => {
+      // @ts-expect-error
+      const a = await db.from('cross_hive_alerts').select('id', { head: true, count: 'exact' });
+      // @ts-expect-error
+      const b = await db.from('best_practices').select('id', { head: true, count: 'exact' });
+      return {
+        alertsErr: a.error?.message || null,
+        practicesErr: b.error?.message || null,
+      };
+    });
+    expect(result.alertsErr, `phase-9 cross_hive_alerts errored: ${result.alertsErr}`).toBeNull();
+    expect(result.practicesErr, `phase-9 best_practices errored: ${result.practicesErr}`).toBeNull();
+  });
+
   test('phase_5_anomaly_alerts: v_alert_truth canonical view is reachable', async ({ whPage }) => {
     await whPage.goto(VOICE_PAGE, { waitUntil: 'domcontentloaded' });
     const result = await whPage.evaluate(async () => {
