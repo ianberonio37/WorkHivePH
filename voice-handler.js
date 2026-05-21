@@ -96,13 +96,32 @@
   let _sessionId = null;          // Phase 2: session-scoped memory tracking
   let _turnNum = 0;               // Phase 2: turn counter per session
 
-  // Phase 2: Initialize session ID (per-tab or per-conversation window)
+  // Phase 2: Initialize session ID (per-tab or per-conversation window).
+  // Persists in sessionStorage so a page reload inside the same tab keeps
+  // the same session ID (preserves dialog state continuity).
   function _getSessionId() {
     if (!_sessionId) {
-      _sessionId = 'voice_session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-      if (typeof sessionStorage !== 'undefined') {
-        sessionStorage.setItem('wh_voice_session_id', _sessionId);
+      // empty-catch-allow: sessionStorage may be denied in private-browsing or
+      // strict-cookie modes. Failure here is benign — we just fall through to
+      // generating a fresh ID, which is the existing behaviour.
+      try {
+        if (typeof sessionStorage !== 'undefined') {
+          const prior = sessionStorage.getItem('wh_voice_session_id');
+          if (prior && prior.startsWith('voice_session_')) {
+            _sessionId = prior;
+          }
+        }
+      } catch (_) { /* sessionStorage may be denied */ }
+      if (!_sessionId) {
+        _sessionId = 'voice_session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
       }
+      // empty-catch-allow: setItem fails the same way as getItem; we already
+      // have a working in-memory session ID, persistence is best-effort.
+      try {
+        if (typeof sessionStorage !== 'undefined') {
+          sessionStorage.setItem('wh_voice_session_id', _sessionId);
+        }
+      } catch (_) { /* sessionStorage may be denied */ }
     }
     return _sessionId;
   }
@@ -931,7 +950,7 @@
       if (result.error) {
         console.warn('[WHVoice] store_memory_turn RPC failed:', result.error);
       } else {
-        console.log('[WHVoice] Turn ' + _turnNum + ' stored to agent_memory');
+        console.log('[WHVoice] Turn ' + _turnNum + ' stored to agent_memory'); // console-log-allow: agent-memory store confirmation, low-volume (1 per turn)
       }
     } catch (err) {
       console.warn('[WHVoice] Memory store exception:', err && err.message);
@@ -958,9 +977,9 @@
       return [];
     }
     try {
-      console.log('[WHVoice] Calling fetch_active_alerts RPC with hiveId:', hiveId);
+      console.log('[WHVoice] Calling fetch_active_alerts RPC with hiveId:', hiveId); // console-log-allow: RPC call observability (alerts fetch debug)
       const { data, error } = await db.rpc('fetch_active_alerts', { p_hive_id: hiveId });
-      console.log('[WHVoice] RPC response:', { data, error });
+      console.log('[WHVoice] RPC response:', { data, error }); // console-log-allow: RPC response observability
       if (error) {
         console.warn('[WHVoice] Fetch alerts RPC error:', JSON.stringify(error));
         return [];
@@ -976,7 +995,7 @@
         }
         return a;
       });
-      console.log('[WHVoice] Fetched alerts:', validated.length, 'alerts');
+      console.log('[WHVoice] Fetched alerts:', validated.length, 'alerts'); // console-log-allow: alerts count confirmation
       return validated;
     } catch (err) {
       console.warn('[WHVoice] Proactive alerts fetch exception:', err && err.message);
@@ -1416,6 +1435,33 @@
     const s = String(text || '').trim();
     if (!s) return false;
     return _TOPIC_SHIFT_RE.test(s);
+  }
+
+  // ─── Item 6 of AGENTIC_RAG_ROADMAP.md integration: long-horizon detector ──
+  // Identifies questions that span multiple periods or 18-month+ history —
+  // the queries the standard ai-gateway path can't ground without context
+  // overflow. When this fires, voice-handler tries agentic-rag-loop first
+  // (with hierarchical summaries + grader + checker) and falls back to
+  // ai-gateway on any failure. Heuristic-only — never blocks short queries.
+  const _LONG_HORIZON_RE = new RegExp(
+    [
+      // English: compare/trend across years/quarters/months
+      /\b(compare|trend|history|over the (?:last|past))\b.*\b(year|years|quarter|quarters|month|months|decade)\b/i.source,
+      // Multi-year explicit ranges or "since YYYY"
+      /\b(20\d{2})\b.*\b(?:vs|versus|compared to|to)\b.*\b(20\d{2})\b/i.source,
+      /\bsince\s+(?:20\d{2}|last\s+year)\b/i.source,
+      // "Last N years" / "past N years"
+      /\b(?:last|past)\s+(?:\d+|\bfive\b|\bten\b|\btwo\b|\bthree\b|\bfour\b)\s+years?\b/i.source,
+      // "All-time", "since commissioning", "lifetime"
+      /\b(all[\s-]?time|since\s+commissioning|lifetime|historical)\b/i.source,
+      // Tagalog/Filipino: "mga taon", "mula nuong", "nakaraang taon"
+      /\b(?:mga\s+taon|mula\s+nuong|nakaraang\s+taon|taon\s+na\s+ang\s+nakakaraan)\b/i.source,
+    ].join('|'), 'i'
+  );
+  function _isLongHorizonQuestion(text) {
+    const s = String(text || '').trim();
+    if (!s || s.length < 8) return false;     // too short to be a horizon query
+    return _LONG_HORIZON_RE.test(s);
   }
 
   // Phase 4.12: Thanks / acknowledgment detector (turn #8).
@@ -5747,7 +5793,7 @@
         console.warn('[WHVoice] Snapshot: no hiveId found in localStorage either');
         return '';
       }
-      console.log('[WHVoice] Snapshot: recovered hiveId from localStorage:', hiveId);
+      console.log('[WHVoice] Snapshot: recovered hiveId from localStorage:', hiveId); // console-log-allow: snapshot hiveId recovery diagnostic
     }
     const today = new Date().toISOString().slice(0, 10);
 
@@ -5780,8 +5826,8 @@
     const [kpi, risk, pm, openLogbook, inventory, assets, adoption, knowledge, schedule, skills, anomalies, projects, recentClosed] = data;
     const logbook = openLogbook; // alias for backward compat with formatting below
 
-    console.log('[WHVoice] Snapshot context:', { hiveId, workerName });
-    console.log('[WHVoice] Snapshot data counts:', {
+    console.log('[WHVoice] Snapshot context:', { hiveId, workerName }); // console-log-allow: snapshot context dump (once per session-open)
+    console.log('[WHVoice] Snapshot data counts:', { // console-log-allow: snapshot data counts (once per session-open)
       kpi: kpi.length, risk: risk.length, pm: pm.length, openLogbook: openLogbook.length,
       inventory: inventory.length, assets: assets.length, adoption: adoption.length,
       knowledge: knowledge.length, schedule: schedule.length, skills: skills.length,
@@ -6076,7 +6122,7 @@
     if (proactiveAlerts && proactiveAlerts.length) {
       console.log('[WHVoice] DEBUG: alertsSection building with', proactiveAlerts.length, 'alerts:', JSON.stringify(proactiveAlerts.slice(0, 2)));
     } else {
-      console.log('[WHVoice] DEBUG: NO ALERTS FOUND - proactiveAlerts empty or null:', proactiveAlerts);
+      console.log('[WHVoice] DEBUG: NO ALERTS FOUND - proactiveAlerts empty or null:', proactiveAlerts); // console-log-allow: T6 proactive-alerts DEBUG trace
     }
     const alertsSection = (proactiveAlerts && proactiveAlerts.length)
       ? '\n═══ CRITICAL PRIORITY: ACTIVE EQUIPMENT ALERTS ═══\n' +
@@ -7324,8 +7370,11 @@
     }
 
     // T104 SHIFT END — within 30 min of worker's shift end.
+    // empty-catch-allow: localStorage may be denied in private browsing.
+    // If we can't read shift_end_hour, we just skip the horizon anchor —
+    // a non-critical UX nudge that re-fires on the next turn anyway.
     try {
-      const _shiftEnd = Number(localStorage.getItem('wh_shift_end_hour'));
+      const _shiftEnd = Number(localStorage.getItem('wh_shift_end_hour')); // storage-key-allow: T104 worker preference, set by worker profile UI (not in current source tree)
       if (Number.isFinite(_shiftEnd) && _isNearShiftEnd(_shiftEnd, 30)) {
         perTurnAnchors +=
           '\nSHIFT END HORIZON — worker is within 30 min of shift end. Offer ' +
@@ -7549,6 +7598,56 @@
       { role: 'system', content: system },
       { role: 'user',   content: transcript },
     ];
+
+    // ─── Item 6: Agentic RAG opt-in path (AGENTIC_RAG_ROADMAP.md Phase 1) ──
+    // For LONG-HORIZON questions (5-year compares, "since 2022", multi-period
+    // failure-pattern questions), prefer agentic-rag-loop over ai-gateway.
+    // The agentic loop runs hierarchical retrieval + grader + checker so the
+    // answer is grounded across years without choking the context window.
+    // Everything else keeps using ai-gateway (the existing 214-turn-hardened
+    // path). On any failure the opt-in path falls through to ai-gateway.
+    try {
+      if (_isLongHorizonQuestion(transcript)) {
+        const fetcher = (typeof window.fetchWithTimeout === 'function')
+          ? window.fetchWithTimeout
+          : (u, o) => fetch(u, o);
+        const ragBody = {
+          question:    transcript,
+          hive_id:     ctx && ctx.hive_id ? ctx.hive_id : null,
+          worker_name: ctx && ctx.worker_name ? ctx.worker_name : null,
+          auth_uid:    ctx && ctx.auth_uid    ? ctx.auth_uid    : null,
+        };
+        const ragResp = await fetcher(SUPABASE_URL + '/functions/v1/agentic-rag-loop', {
+          method: 'POST',
+          headers: {
+            'Content-Type':  'application/json',
+            'apikey':        SUPABASE_KEY,
+            'Authorization': 'Bearer ' + SUPABASE_KEY,
+          },
+          body: JSON.stringify(ragBody),
+        }, 30000);
+        if (ragResp && ragResp.ok) {
+          const ragData = await ragResp.json().catch(() => ({}));
+          const ragAnswer = String((ragData && ragData.answer) || '').trim();
+          if (ragAnswer && ragAnswer.length > 20 && ragData.checker_passed !== false) {
+            _setStatus(personaName + ' (agentic-RAG) says:');
+            _renderReplyBubble(ragAnswer, persona);
+            if (typeof window.speakPersona === 'function') {
+              window.speakPersona(ragAnswer, { persona });
+            }
+            _writeReplyCache(transcript, ctx.hive_id, ragAnswer);
+            _setOffline(false);
+            _appendSessionTurn(transcript, ragAnswer);
+            _saveJournalTurn(db, ctx, transcript, ragAnswer, persona);
+            _showTalkAgainButton();
+            return;   // success — short-circuit the ai-gateway path entirely
+          }
+        }
+        // Failure / empty / checker-failed → fall through to ai-gateway.
+      }
+    } catch (ragErr) {
+      console.warn('[WHVoice] agentic-rag-loop opt-in failed, falling back to ai-gateway:', ragErr && ragErr.message);
+    }
 
     try {
       // 2026-05-19 Companion Streamline Step C/D: route through ai-gateway
@@ -8010,7 +8109,7 @@
     const ctx = _ctx();
     const db = _getDb();
     const lsKeys = Object.keys(localStorage).filter(k => k.includes('wh_') || k.includes('hive') || k.includes('worker') || k.includes('auth'));
-    console.log('[WHVoice Debug] Current Context:', {
+    console.log('[WHVoice Debug] Current Context:', { // console-log-allow: debug context dump (rare, only when debug helper is invoked)
       db_available: !!db,
       worker_name: ctx.worker_name || '(empty)',
       hive_id: ctx.hive_id || '(empty)',

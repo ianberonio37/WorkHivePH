@@ -10,6 +10,19 @@ The reset-coverage validator skips these via CATALOG_TABLES_IGNORED."""
 # Order matters -- children before parents. Tables with PK other than 'id'
 # go in RESET_TABLES_NON_ID below (uses a different sentinel filter).
 RESET_TABLES = [
+    # 2026-05-21 paydown: new platform tables added in migrations, register
+    # in reset.py so reset-coverage validator passes.
+    "agentic_rag_traces",          # 20260521120000 — append-only RAG trace log
+    "canonical_period_summaries",  # 20260521121000 — period rollup cache
+    "agent_episodic_memory",       # 20260521122000 — per-worker episodic memory
+    "unified_events",              # 20260521123000 — unified event stream
+    # Voice Companion infra tables (20260521125000) — referenced from voice-handler.js
+    "ai_audit_log",                # T95 audit log
+    "ai_knowledge_gap",            # T113 knowledge gap logging
+    "ai_quality_escalation",       # T46 thumbs-down escalation
+    "shared_voice_notes",          # T147 team-thread notes
+    "mentor_relay_queue",          # T114 mentor defer queue
+    "companion_handoff",           # T146/T150/T154 cross-worker messages
     # Founder Console analytics (Phase 0) - append-only, no FKs
     "analytics_events",
     # Platform feedback (2026-05-19) - votes references feedback, so child first
@@ -164,7 +177,11 @@ RESET_TABLES = [
 # Tables that don't have an 'id' PK. Reset filters by a different column.
 # Maps table -> (column, sentinel_value) used for the .neq() delete filter.
 RESET_TABLES_NON_ID = {
-    "ai_rate_limits": ("hive_id", "00000000-0000-0000-0000-000000000000"),
+    "ai_rate_limits":   ("hive_id", "00000000-0000-0000-0000-000000000000"),
+    # 2026-05-21 paydown: composite-PK tables from voice-handler infra migration.
+    "asset_watchlist":   ("hive_id", "00000000-0000-0000-0000-000000000000"),
+    "wh_feature_flags":  ("hive_id", "00000000-0000-0000-0000-000000000000"),
+    "wh_voice_presence": ("hive_id", "00000000-0000-0000-0000-000000000000"),
 }
 
 

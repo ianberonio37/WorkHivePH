@@ -65,6 +65,7 @@ LIVE_PAGES = [
     "voice-journal.html",
     # Founder Console — admin-only platform-wide dashboard (Phase 1)
     "founder-console.html",
+    "agentic-rag-observability.html",  # Phase 8 placeholder — reads agentic_rag_traces
 ]
 
 # Tables that grow row-by-row over time (one row per event, hour, or

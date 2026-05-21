@@ -230,6 +230,15 @@ def check_insert_adjacent_html():
 
 def check_injection_vectors():
     issues = []
+    # Word-boundary regex per vector. Plain substring match misfires on
+    # benign identifiers (e.g. _rewriteQueryForRetrieval( contains "eval(",
+    # _newFunction() / _newFunctionX( contain "new Function("). Anchoring
+    # at \b cuts those false positives without weakening the real check.
+    vector_patterns = [
+        ("eval(",            re.compile(r'\beval\s*\(')),
+        ("new Function(",    re.compile(r'\bnew\s+Function\s*\(')),
+        ("document.write(",  re.compile(r'(?<![\w.])document\.write\s*\(')),
+    ]
     for page in LIVE_PAGES:
         content = read_file(page)
         if content is None:
@@ -239,13 +248,13 @@ def check_injection_vectors():
             stripped = line.strip()
             if stripped.startswith("//") or stripped.startswith("*"):
                 continue
-            for vector in INJECTION_VECTORS:
-                if vector == "document.write(" and re.search(r'\w+\.document\.write\s*\(', line):
+            for vector_label, pat in vector_patterns:
+                if vector_label == "document.write(" and re.search(r'\w+\.document\.write\s*\(', line):
                     continue
-                if vector in line:
+                if pat.search(line):
                     issues.append({"check": "injection_vectors", "page": page,
-                                   "line": i + 1, "vector": vector,
-                                   "reason": f"{page}:{i+1} high-risk vector '{vector}' bypasses all XSS escaping — remove or wrap in code review comment"})
+                                   "line": i + 1, "vector": vector_label,
+                                   "reason": f"{page}:{i+1} high-risk vector '{vector_label}' bypasses all XSS escaping — remove or wrap in code review comment"})
                     break
     return issues
 

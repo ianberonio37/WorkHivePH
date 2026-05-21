@@ -79,6 +79,7 @@ LIVE_PAGES = [
     "oc-helper.js",
     # Founder Console (Phase 1 of admin/dev surface)
     "founder-console.html",
+    "agentic-rag-observability.html",  # Phase 8 placeholder — reads agentic_rag_traces
 ]
 
 RETIRED_TABLES = {"parts_records", "checklist_records"}

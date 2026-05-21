@@ -558,6 +558,55 @@ VALIDATORS = [
         "skip_if_fast": False,
     },
     {
+        # 2026-05-21 paydown — bug-class L0 ratchets added during flywheel
+        # turns 31-35 that landed on disk but were never wired into the
+        # platform-check runner (caught by auto-discovery
+        # validator_registered check).
+        "id":      "empty-catch",
+        "script":  "validate_empty_catch.py",
+        "args":    [],
+        "label":   "Empty Catch Block (try/catch{} that silently swallows errors; forward-only ratchet)",
+        "group":   "Platform",
+        "report":  "empty_catch_report.json",
+        "skip_if_fast": False,
+    },
+    {
+        "id":      "settimeout-string",
+        "script":  "validate_settimeout_string.py",
+        "args":    [],
+        "label":   "setTimeout/setInterval String Arg (string-form is eval-equivalent; forward-only ratchet)",
+        "group":   "Platform",
+        "report":  "settimeout_string_report.json",
+        "skip_if_fast": False,
+    },
+    {
+        "id":      "document-write",
+        "script":  "validate_document_write.py",
+        "args":    [],
+        "label":   "document.write Usage (forbidden API; forward-only ratchet)",
+        "group":   "Platform",
+        "report":  "document_write_report.json",
+        "skip_if_fast": False,
+    },
+    {
+        "id":      "tabindex-positive",
+        "script":  "validate_tabindex_positive.py",
+        "args":    [],
+        "label":   "Positive tabindex (a11y anti-pattern: tabindex >= 1 breaks tab order; forward-only ratchet)",
+        "group":   "Platform",
+        "report":  "tabindex_positive_report.json",
+        "skip_if_fast": False,
+    },
+    {
+        "id":      "viewport-user-scalable",
+        "script":  "validate_viewport_user_scalable.py",
+        "args":    [],
+        "label":   "Viewport user-scalable=no (a11y anti-pattern: blocks pinch-zoom; forward-only ratchet)",
+        "group":   "Platform",
+        "report":  "viewport_user_scalable_report.json",
+        "skip_if_fast": False,
+    },
+    {
         # 2026-05-20 — innerHTML = `...${interp}...` template literals must
         # run interpolations through escHtml/sanitize/e() escaper. XSS class
         # guard with forward-only ratchet.
@@ -1112,6 +1161,209 @@ VALIDATORS = [
         "script":  "validate_ai_companion_compliance.py",
         "args":    [],
         "label":   "AI Companion Compliance + Data Governance (10-layer: turns #115-#124 — PII scrubber + consent capture + retention + right-to-erasure + audit CSV + suspicious activity + AI disclosure + locale-aware dates + monthly cost cap + voice drift advisory)",
+        "group":   "Platform",
+        "report":  None,
+        "skip_if_fast": False,
+    },
+    {
+        # 2026-05-21: AI Companion thirteenth 10-turn flywheel batch
+        # (turns #125-#134). MULTI-MODAL + ACCESSIBILITY.
+        "id":      "ai-companion-accessibility",
+        "script":  "validate_ai_companion_accessibility.py",
+        "args":    [],
+        "label":   "AI Companion Multi-Modal + Accessibility (10-layer: turns #125-#134 — camera capture + file attachment + reduced motion + aria-live + keyboard nav + CB-safe palette + large text + haptic + voice-only mode + live captions)",
+        "group":   "Platform",
+        "report":  None,
+        "skip_if_fast": False,
+    },
+    {
+        # 2026-05-21: AI Companion fourteenth 10-turn flywheel batch
+        # (turns #135-#144). OPERATIONAL EXCELLENCE.
+        "id":      "ai-companion-operational",
+        "script":  "validate_ai_companion_operational.py",
+        "args":    [],
+        "label":   "AI Companion Operational Excellence (10-layer: turns #135-#144 — health ping + self-test + feature flags + browser support + network adapt + memory pressure + clock drift + background pause + crash recovery + presence heartbeat)",
+        "group":   "Platform",
+        "report":  None,
+        "skip_if_fast": False,
+    },
+    {
+        # 2026-05-21: AI Companion fifteenth 10-turn flywheel batch
+        # (turns #145-#154). TEAM COORDINATION + CROSS-WORKER.
+        "id":      "ai-companion-team-coordination",
+        "script":  "validate_ai_companion_team_coordination.py",
+        "args":    [],
+        "label":   "AI Companion Team Coordination (10-layer: turns #145-#154 — active sessions + handoff + shared notes + concurrency alert + watchlist + broadcast + resolution + cross-shift continuity + buddy mode + mention notifications)",
+        "group":   "Platform",
+        "report":  None,
+        "skip_if_fast": False,
+    },
+    {
+        # 2026-05-21: AI Companion sixteenth 10-turn flywheel batch
+        # (turns #155-#164). EXTERNAL INTEGRATION.
+        "id":      "ai-companion-external-integration",
+        "script":  "validate_ai_companion_external_integration.py",
+        "args":    [],
+        "label":   "AI Companion External Integration (10-layer: turns #155-#164 — SAP PM webhook + Maximo poll + OPC-UA tag + MQTT topic + Slack + email digest + Teams card + ICS calendar + signature compare + outbound retry queue)",
+        "group":   "Platform",
+        "report":  None,
+        "skip_if_fast": False,
+    },
+    {
+        # 2026-05-21: AI Companion seventeenth 10-turn flywheel batch
+        # (turns #165-#174). ADVANCED ANALYTICS.
+        "id":      "ai-companion-analytics",
+        "script":  "validate_ai_companion_analytics.py",
+        "args":    [],
+        "label":   "AI Companion Advanced Analytics (10-layer: turns #165-#174 — 3σ anomaly + Weibull MTBF + Pareto + linear trend + seasonal peak + trimmed mean + z-score + correlation + Weibull CDF + availability)",
+        "group":   "Platform",
+        "report":  None,
+        "skip_if_fast": False,
+    },
+    {
+        # 2026-05-21: AI Companion eighteenth 10-turn flywheel batch
+        # (turns #175-#184). SAFETY + PERMIT-TO-WORK.
+        "id":      "ai-companion-safety",
+        "script":  "validate_ai_companion_safety.py",
+        "args":    [],
+        "label":   "AI Companion Safety + Permit-to-Work (10-layer: turns #175-#184 — LOTO + hot work + confined space + PPE matrix + near-miss + JSA + gas test + incident + energy isolation + permit expiry)",
+        "group":   "Platform",
+        "report":  None,
+        "skip_if_fast": False,
+    },
+    {
+        # 2026-05-21: Phase 1 of AGENTIC_RAG_ROADMAP.md.
+        # 5-stage self-correcting agentic RAG loop (Router → Retriever → Grader →
+        # Generator → Checker), free-tier multi-provider chain only, per-stage
+        # cost-logged, trace-persisted to agentic_rag_traces.
+        "id":      "agentic-rag-loop",
+        "script":  "validate_agentic_rag_loop.py",
+        "args":    [],
+        "label":   "Agentic RAG Loop Phase 1 (18-layer: edge fn + 5 stages + hive scoping + FREE-TIER-ONLY + callAI + rate limit + retry cap + grader threshold + question cap + trace + cost log + migration + 4-place sync + em-dash safety + JSON mode)",
+        "group":   "Platform",
+        "report":  None,
+        "skip_if_fast": False,
+    },
+    {
+        # 2026-05-21: Phase 2 of AGENTIC_RAG_ROADMAP.md.
+        # Hierarchical period summaries (Daily → Weekly → Monthly → Quarterly →
+        # Yearly) pre-digested in canonical_period_summaries. Agentic RAG
+        # Retriever reads these instead of raw logbook for time-bound queries.
+        "id":      "hierarchical-summaries",
+        "script":  "validate_hierarchical_summaries.py",
+        "args":    [],
+        "label":   "Hierarchical Period Summaries Phase 2 (16-layer: migration + 5 levels + RLS + aggregator + Breakdown/Corrective filter + FREE-TIER-ONLY + callAI + hive scoping + row cap + empty short-circuit + upsert + 4-place sync + em-dash safety + cost log)",
+        "group":   "Platform",
+        "report":  None,
+        "skip_if_fast": False,
+    },
+    {
+        # 2026-05-21: Phase 4 of AGENTIC_RAG_ROADMAP.md.
+        # Tiered Model Router — adds taskProfile parameter to callAI; reorders
+        # the free-tier multi-provider chain per task. Drops TPM pressure ~40%
+        # by routing cheap tasks (grader, checker, intent) to the 8B model
+        # instead of 17B Scout. All 11 expected task profiles covered.
+        "id":      "model-router",
+        "script":  "validate_model_router.py",
+        "args":    [],
+        "label":   "Tiered Model Router Phase 4 (9-layer: TASK_PROFILES + 11 profiles + free-tier values + reorderChain + callAI signature + reorderChain usage + Phase 1 stages wired + Phase 2 digest wired + no paid models)",
+        "group":   "Platform",
+        "report":  None,
+        "skip_if_fast": False,
+    },
+    {
+        # 2026-05-21: Phase 8 of AGENTIC_RAG_ROADMAP.md.
+        # Supervisor-facing observability dashboard reading agentic_rag_traces.
+        "id":      "agentic-rag-observability",
+        "script":  "validate_agentic_rag_observability.py",
+        "args":    [],
+        "label":   "Agentic RAG Observability Phase 8 (10-layer: page exists + calm-dashboard meta + utils + hive gate + hive-scoped query + narrow select + 4 render fns + escHtml + bounded fetch + window filter)",
+        "group":   "Platform",
+        "report":  None,
+        "skip_if_fast": False,
+    },
+    {
+        # 2026-05-21: Phase 3 of AGENTIC_RAG_ROADMAP.md.
+        # Supervisor-worker temporal RAG orchestrator: decomposes time-bound
+        # questions across N parallel sub-agents on canonical_period_summaries,
+        # then folds. Bounded concurrency keeps Groq TPM contention safe.
+        "id":      "temporal-orchestrator",
+        "script":  "validate_temporal_orchestrator.py",
+        "args":    [],
+        "label":   "Temporal RAG Orchestrator Phase 3 (17-layer: edge fn + decompose + 3 granularities + auto-heuristic + MAX_PERIODS + MAX_PARALLEL + runBounded + reads Phase 2 + 2x callAI + sub/fold taskProfiles + FREE-TIER + hive scoping + rate limit before fan-out + 4-place sync + cost log + em-dash safety)",
+        "group":   "Platform",
+        "report":  None,
+        "skip_if_fast": False,
+    },
+    {
+        # 2026-05-21: Phase 7 of AGENTIC_RAG_ROADMAP.md.
+        # agent_episodic_memory + agent-memory-store edge fn. Durable facts
+        # (factual/procedural/episodic/semantic) extracted by Phase 1 Checker
+        # at run end, recalled at run start. LRU eviction with importance
+        # weighting. Distinct from agent_memory (which is conversation-turn).
+        "id":      "agent-episodic-memory",
+        "script":  "validate_agent_memory_store.py",
+        "args":    [],
+        "label":   "Agent Episodic Memory Phase 7 (12-layer: migration + 4 types + RLS + edge fn + recall+store ops + caps + content cap + importance×log rank + batch cap + hive scoping + 4-place sync + no raw fetch)",
+        "group":   "Platform",
+        "report":  None,
+        "skip_if_fast": False,
+    },
+    {
+        # 2026-05-21: Phase 5 of AGENTIC_RAG_ROADMAP.md (scaffolding).
+        # unified_events + data-fabric-normalizer edge fn. Canonical event
+        # schema that normalizes SAP/Maximo/OPC-UA/MQTT/CMMS/voice/photo/
+        # sensor/email/manual sources into one shape for cross-source RAG.
+        "id":      "data-fabric",
+        "script":  "validate_data_fabric.py",
+        "args":    [],
+        "label":   "Data Fabric Normalizer Phase 5 (9-layer scaffolding: migration + 10 sources + RLS + edge fn + 3 adapters + SHA-256 dedup + hive scoping + duplicate handling + no LLM + 4-place sync)",
+        "group":   "Platform",
+        "report":  None,
+        "skip_if_fast": False,
+    },
+    {
+        # 2026-05-21: Phase 6 of AGENTIC_RAG_ROADMAP.md (scaffolding).
+        # cold-archive-query edge fn + tools/cold_archive_exporter.py Python
+        # tool. Quarterly Parquet export to Supabase Storage for >18-month
+        # data. Edge fn returns 503 until DuckDB-Parquet read path lands.
+        "id":      "cold-archive",
+        "script":  "validate_cold_archive.py",
+        "args":    [],
+        "label":   "Cold Lakehouse Archive Phase 6 (10-layer scaffolding: edge fn + 4 supported tables + 503 contract + storage list + hive scoping + Python exporter + --commit dry-run default + ARCHIVE_AGE_MONTHS=18 + no auto-delete safety + 4-place sync)",
+        "group":   "Platform",
+        "report":  None,
+        "skip_if_fast": False,
+    },
+    {
+        # 2026-05-21: AI Companion nineteenth 10-turn flywheel batch
+        # (turns #185-#194). KNOWLEDGE GRAPH.
+        "id":      "ai-companion-knowledge-graph",
+        "script":  "validate_ai_companion_knowledge_graph.py",
+        "args":    [],
+        "label":   "AI Companion Knowledge Graph (10-layer: turns #185-#194 — entity + relation + triple + RAG block + FNV hash + chunking + citation + query rewrite + reasoning trace + KB version)",
+        "group":   "Platform",
+        "report":  None,
+        "skip_if_fast": False,
+    },
+    {
+        # 2026-05-21: AI Companion twentieth 10-turn flywheel batch
+        # (turns #195-#204). ENERGY + SUSTAINABILITY.
+        "id":      "ai-companion-sustainability",
+        "script":  "validate_ai_companion_sustainability.py",
+        "args":    [],
+        "label":   "AI Companion Energy + Sustainability (10-layer: turns #195-#204 — EnPI + PH carbon factor + peak demand + 5σ energy anomaly + standby waste + water + air leak + motor efficiency + sustainability bundle + energy query)",
+        "group":   "Platform",
+        "report":  None,
+        "skip_if_fast": False,
+    },
+    {
+        # 2026-05-21: AI Companion twenty-first 10-turn flywheel batch
+        # (turns #205-#214). MULTI-LANGUAGE NLU.
+        "id":      "ai-companion-multilang",
+        "script":  "validate_ai_companion_multilang.py",
+        "args":    [],
+        "label":   "AI Companion Multi-Language NLU (10-layer: turns #205-#214 — Cebuano + Ilonggo + Tagalog imperative + code-switch ratio + politeness register + PH time phrases + number words + filler strip + stop words + slang dict)",
         "group":   "Platform",
         "report":  None,
         "skip_if_fast": False,
