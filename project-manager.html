@@ -594,7 +594,7 @@
       <div class="grid-2">
         <div class="field">
           <label for="f-type">Type *</label>
-          <select id="f-type" required>
+          <select id="f-type" required data-select-placeholder-allow="default 'workorder' is the most common project type">
             <option value="workorder">Work Order Bundle</option>
             <option value="shutdown">Shutdown / Turnaround</option>
             <option value="capex">CAPEX / Improvement</option>
@@ -647,7 +647,7 @@
         </div>
         <div class="field">
           <label for="s-status">Status</label>
-          <select id="s-status">
+          <select id="s-status" data-select-placeholder-allow="default 'pending' is the correct initial status for new items">
             <option value="pending">Pending</option>
             <option value="in_progress">In progress</option>
             <option value="done">Done</option>
@@ -696,7 +696,7 @@
     <h3>Link existing work</h3>
     <div class="field">
       <label for="l-type">Type</label>
-      <select id="l-type" onchange="loadLinkOptions()">
+      <select id="l-type" onchange="loadLinkOptions()" data-select-placeholder-allow="default 'asset' is the most common link target">
         <option value="asset">Asset</option>
         <option value="logbook">Logbook entry</option>
         <option value="pm_completion">PM completion</option>
@@ -748,7 +748,7 @@
         </div>
         <div class="field">
           <label for="r-role">Role *</label>
-          <select id="r-role" required>
+          <select id="r-role" required data-select-placeholder-allow="default 'owner' is the initial role for the creator">
             <option value="owner">Owner</option>
             <option value="planner">Planner</option>
             <option value="safety_officer">Safety Officer</option>
@@ -953,7 +953,7 @@ async function validateHiveMembership() {
     });
   })();
 
-  console.log('[project-manager] booted as', WORKER_NAME, 'hive', HIVE_ID, 'role', HIVE_ROLE);
+  console.log('[project-manager] booted as', WORKER_NAME, 'hive', HIVE_ID, 'role', HIVE_ROLE); // console-log-allow: page-boot diagnostic, surfaces auth + hive context in DevTools for support
 })();
 
 /* ── Hive members (for owner picker) ───────────────────────── */

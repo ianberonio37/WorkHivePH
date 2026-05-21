@@ -698,7 +698,7 @@
             </div>
             <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
               <label for="pf-direction" style="font-size:.65rem; color:var(--muted); text-transform:uppercase; letter-spacing:.05em;">Direction</label>
-              <select id="pf-direction" style="height:36px; border-radius:0.45rem; background:rgba(255,255,255,0.04); border:1px solid var(--border); color:#F4F6FA; padding:0 0.55rem; font-size:14px;">
+              <select id="pf-direction" style="height:36px; border-radius:0.45rem; background:rgba(255,255,255,0.04); border:1px solid var(--border); color:#F4F6FA; padding:0 0.55rem; font-size:14px;" data-select-placeholder-allow="filter UI, default direction intentional">
                 <option value="above">above (rising = bad)</option>
                 <option value="below">below (falling = bad)</option>
               </select>
@@ -817,7 +817,7 @@
     <div id="edge-modal-card">
       <h3 id="edge-modal-title">Add an edge</h3>
       <label for="edge-type">Relationship</label>
-      <select id="edge-type">
+      <select id="edge-type" data-select-placeholder-allow="graph edge type, parent_of is the most common edge">
         <option value="parent_of">parent_of (this asset contains another)</option>
         <option value="feeds">feeds (this asset feeds another)</option>
         <option value="supplies">supplies (this asset supplies another)</option>

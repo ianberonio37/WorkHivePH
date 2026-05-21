@@ -5248,7 +5248,7 @@ function renderInputForm(calcType) {
           </div>
           <div>
             <div style="font-size:0.78rem;color:rgba(255,255,255,0.45);margin-bottom:0.3rem;">Starting Method</div>
-            <select id="f-gen-start-method" aria-label="Motor starting method" class="wh-input">
+            <select id="f-gen-start-method" aria-label="Motor starting method" class="wh-input" data-select-placeholder-allow="DOL is the most common starter for typical PH plant sizes">
               <option value="DOL">DOL (Direct Online)</option>
               <option value="Soft Starter">Soft Starter</option>
               <option value="VFD">VFD (Variable Frequency Drive)</option>
@@ -5679,7 +5679,7 @@ function renderInputForm(calcType) {
 
       <div class="mb-4">
         <div class="field-label">Location / Flash Density (Ng)</div>
-        <select aria-label="Location / Flash Density" id="f-lps-loc" class="wh-input" onchange="toggleLPSCustomNg()">
+        <select aria-label="Location / Flash Density" id="f-lps-loc" class="wh-input" onchange="toggleLPSCustomNg()" data-select-placeholder-allow="Metro Manila default matches the largest user-base location">
           <option value="Metro Manila / NCR">Metro Manila / NCR: 10 fl/km²/yr</option>
           <option value="Baguio / Cordillera">Baguio / Cordillera: 12 fl/km²/yr</option>
           <option value="Ilocos Region">Ilocos Region: 8 fl/km²/yr</option>

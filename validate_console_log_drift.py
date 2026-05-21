@@ -36,10 +36,13 @@ CHECK_NAMES = ["console_log_drift"]
 
 
 def _strip_comments_keep_lines(src: str) -> str:
+    # Preserve character offsets so downstream marker checks that index
+    # into the RAW body using offsets from this stripped body line up.
+    # Replace each character with a space (except newlines).
     def _block_rep(m):
-        return "\n" * m.group(0).count("\n")
+        return "".join(c if c == "\n" else " " for c in m.group(0))
     out = re.sub(r"/\*.*?\*/", _block_rep, src, flags=re.DOTALL)
-    out = re.sub(r"//[^\n]*", "", out)
+    out = re.sub(r"//[^\n]*", _block_rep, out)
     out = re.sub(r"<!--.*?-->", _block_rep, out, flags=re.DOTALL)
     return out
 
@@ -77,7 +80,10 @@ def _check_file(path: Path) -> list:
         idx = m.start()
         if not any(s <= idx < e for s, e in regions):
             continue
-        if "console-log-allow" in body[max(0, idx-300): idx+100]:
+        # Window +400 so trailing markers on long lines (typical for booted-as
+        # diagnostics) still match. body has full chars; src has chars stripped
+        # in-place so offsets line up.
+        if "console-log-allow" in body[max(0, idx-300): idx+400]:
             continue
         # Allow inside catch blocks
         if _is_in_catch_block(src, idx):

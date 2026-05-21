@@ -633,7 +633,7 @@
         <button id="refresh-btn" class="refresh-btn" title="Refresh all panels (R)">
           <span class="refresh-ico">↻</span> Refresh all
         </button>
-        <select id="auto-select" class="auto-select" title="Auto-refresh interval">
+        <select id="auto-select" class="auto-select" title="Auto-refresh interval" data-select-placeholder-allow="auto-refresh defaults to 'Off' (safest)">
           <option value="0">Auto: Off</option>
           <option value="30">Auto: 30s</option>
           <option value="60">Auto: 1m</option>
@@ -862,7 +862,7 @@
                 <button class="fb-tab"        type="button" data-status="*"          role="tab" aria-selected="false">All <span class="fb-tab-count" id="fb-count-all">0</span></button>
               </div>
               <div class="fb-filters">
-                <select class="fb-filter" id="fb-filter-kind" aria-label="Filter by kind">
+                <select class="fb-filter" id="fb-filter-kind" aria-label="Filter by kind" data-select-placeholder-allow="filter defaults to 'All kinds' (broadest match)">
                   <option value="*">All kinds</option>
                   <option value="bug">🐞 Bug</option>
                   <option value="idea">💡 Idea</option>
