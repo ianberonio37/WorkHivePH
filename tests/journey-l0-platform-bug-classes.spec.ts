@@ -244,6 +244,10 @@ test.describe('L0 platform bug-class validators', () => {
   test('table_accessible_name: validator at or under forward-only baseline', () => {
     assertPass('validate_table_accessible_name.py');
   });
+  // Flywheel turn 31 (2026-05-21): empty catch{} silent-failure ratchet.
+  test('empty_catch: validator at or under forward-only baseline', () => {
+    assertPass('validate_empty_catch.py');
+  });
 });
 
 // ---------------------------------------------------------------------------

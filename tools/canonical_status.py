@@ -499,6 +499,8 @@ def _gather() -> dict[str, Any]:
         ("edgect",    "edge_response_content_type_report.json",    ("drift","baseline")),
         ("dropif",    "drop_if_exists_report.json",                ("drift","baseline")),
         ("tblname",   "table_accessible_name_report.json",         ("drift","baseline")),
+        # Flywheel turn 31 (2026-05-21)
+        ("emptycatch","empty_catch_report.json",                   ("drift","baseline")),
     ]:
         d = _read_json(fname)
         if d:
@@ -916,6 +918,7 @@ def _print(status: dict[str, Any]) -> int:
         ("edgect",    "Edge response Content-Type:  "),
         ("dropif",    "DROP IF EXISTS:              "),
         ("tblname",   "<table> accessible name:     "),
+        ("emptycatch","Empty catch{} bodies:        "),
     ]:
         val = status.get(f"{key}_val", 0)
         baseline = status.get(f"{key}_baseline", 0)
