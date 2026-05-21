@@ -2620,8 +2620,6 @@
         btn.style.fontWeight = active ? '700' : '600';
       }
     });
-    const guestLink = document.getElementById('guest-link');
-    if (guestLink) guestLink.style.display = tab === 'guest' ? 'none' : '';
     const firstInput = { signin: 'si-username', signup: 'su-username', guest: 'guest-input' }[tab];
     if (firstInput) setTimeout(() => document.getElementById(firstInput)?.focus(), 50);
   }

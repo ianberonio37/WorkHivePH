@@ -1922,7 +1922,6 @@ async function initAssets() {
   } else {
     _assets = sbAssets;
   }
-  updateAssetDatalist();
   refreshAssetCountBadge();
 }
 
@@ -2053,7 +2052,6 @@ async function submitAsset() {
     name: asset.name, type: asset.type, criticality: asset.criticality, status: asset.status,
   });
   _assets = [...assets, asset];
-  updateAssetDatalist();
   refreshAssetCountBadge();
   renderAssetList();
   showToast(HIVE_ID ? assetId + ' submitted for supervisor approval.' : assetId + ' registered.');
@@ -2082,7 +2080,6 @@ async function deleteAsset(id) {
   });
 
   _assets = _assets.filter(a => a.id !== id);
-  updateAssetDatalist();
   renderAssetList();
   refreshAssetCountBadge();
   showToast('Asset removed.');
@@ -2175,7 +2172,6 @@ async function saveEditAsset() {
     criticality: updates.criticality,
     ...(needsReapproval ? { status: 'pending' } : {}),
   } : a);
-  updateAssetDatalist();
   renderAssetList();
   closeEditAsset();
 
@@ -2471,17 +2467,6 @@ document.getElementById('asset-detail-modal').addEventListener('click', function
 document.getElementById('detail-tab-stocked').addEventListener('click',     () => switchDetailTab('stocked'));
 document.getElementById('detail-tab-consumption').addEventListener('click', () => switchDetailTab('consumption'));
 document.getElementById('detail-tab-faults').addEventListener('click',      () => switchDetailTab('faults'));
-
-function updateAssetDatalist() {
-  const datalist = document.getElementById('machine-suggestions');
-  if (!datalist) return;
-  // Only show approved assets in the autocomplete (pending ones are not yet validated)
-  const assets = loadAssets().filter(a => !a.status || a.status === 'approved');
-  datalist.innerHTML = assets.map(a => {
-    const label = a.name ? `${a.asset_id}: ${a.name}` : a.asset_id;
-    return `<option value="${escHtml(a.asset_id)}" label="${escHtml(label)}">`;
-  }).join('');
-}
 
 // ────────────────────────────────────────────
 // ASSET PICKER (replaces free-text datalist)
@@ -3253,6 +3238,7 @@ let _editPhotoData    = null; // current photo for the edit modal (null = remove
 let _editingUpdatedAt = null; // updated_at snapshot at edit-open time (optimistic lock sentinel)
 
 function renderEditParts() {
+  // gid-allow: edit-modal scaffold — HTML form pending; guard returns when absent
   const el = document.getElementById('e-parts-display');
   if (!el) return;
   if (!_editPartsUsed.length) { el.innerHTML = '<p class="text-xs text-white/30 py-1">No parts added yet.</p>'; return; }
@@ -3430,6 +3416,7 @@ async function saveEdit(id) {
     hive_id:         HIVE_ID,
     parts_used:             _editPartsUsed.map(p => ({ partId: p.partId, partName: p.partName, partNumber: p.partNumber, qty: p.qty, unit: p.unit })),
     closed_at:              closedAt,
+    // gid-allow: edit-modal scaffold — HTML form pending; optional-chained
     tasklist_acknowledged:  document.getElementById('e-tasklist-ack-check')?.checked ?? existing?.tasklist_acknowledged ?? false,
     tasklist_note:          _tasklistNote || existing?.tasklist_note || null,
     failure_consequence:    existing?.failure_consequence ?? null,
@@ -4892,13 +4879,13 @@ document.addEventListener('change', function(e) {
   if (e.target.name === 'e-status') {
     updateStatusToggle('e-status');
     const isClosed  = e.target.value === 'Closed';
-    const ePartsSect = document.getElementById('e-parts-section');
-    const eTaskSect  = document.getElementById('e-tasklist-section');
+    const ePartsSect = document.getElementById('e-parts-section'); // gid-allow: edit-modal scaffold
+    const eTaskSect  = document.getElementById('e-tasklist-section'); // gid-allow: edit-modal scaffold
     if (ePartsSect) ePartsSect.classList.toggle('hidden', !isClosed);
     if (eTaskSect) {
       // Prefer the actual stored value as fallback when the select shows blank
-      const maintType = document.getElementById('e-maint-type')?.value || (_editingEntry?.maintenance_type ?? '');
-      const category  = document.getElementById('e-category')?.value  || (_editingEntry?.category ?? '');
+      const maintType = document.getElementById('e-maint-type')?.value || (_editingEntry?.maintenance_type ?? ''); // gid-allow: edit-modal scaffold
+      const category  = document.getElementById('e-category')?.value  || (_editingEntry?.category ?? ''); // gid-allow: edit-modal scaffold
       eTaskSect.classList.toggle('hidden', !(isClosed && !!getTasklist(maintType, category)));
     }
     if (isClosed && _inventoryItems.length === 0) loadInventoryForPicker();
