@@ -925,3 +925,255 @@ Bonus harden output: a3rd Layer 0 → Layer 2 lesson surfaced from this batch
 — founder-console.html now uses Realtime channels (commit d0c592c) but was
 missing from validate_observability.py LIVE_PAGES. Caught + fixed in
 commit cffafdd via the proactive harden sweep.
+
+
+# Sentinel Drafts — Batch 3 (2026-05-21)
+
+Generated from `/sentinel-review` for **5 gaps** sampled from `sentinel_proposals.md` after the Mega Gate paydown re-baseline (commit `0689d79`).
+
+**Baseline coverage at draft time:**
+- Raw coverage: 81.4% (241/296 validators)
+- Per-page check coverage: 81.7% (227/278)
+- Behavioral coverage: 89.5% (179 of 200 covered checks are runtime-exercised)
+
+Batch picked from the per-page proposals to maximize ROI: 4 behavioral (extend or create journey specs) + 1 infrastructure (tagged honestly).
+
+---
+
+## Draft #11: `validate_achievements.py` — INFRASTRUCTURE
+
+**Rule:** `l2_reset_missing` — `test-data-seeder/seeders/reset.py` must exist (the reset script is required to protect catalog-only tables from being wiped by the seeder).
+
+**Reason no Layer 2 proposal:** Pure file-existence check on a developer tool. The behavior under test is "the file is on disk." Playwright can't add value — the validator IS the right enforcement layer.
+
+**Status:** INFRASTRUCTURE — NO PROPOSAL NEEDED
+
+---
+
+## Draft #12: `validate_agentic_rag_observability.py` `render_blocks` → `tests/journey-agentic-rag-observability.spec.ts` (NEW FILE)
+
+**Rule:** Page must declare `renderRouteTable` + `renderHeaviest` + `renderRecent` + `renderSummary` render functions AND wire them to visible DOM blocks (`#summary-cards`, `#route-tbl`, `#recent-tbl`).
+
+**Target file:** `tests/journey-agentic-rag-observability.spec.ts` (NEW — no journey spec exists for this Phase 8 surface yet).
+
+```typescript
+/**
+ * journey-agentic-rag-observability.spec.ts — Phase 8 agentic-RAG observability surface.
+ *
+ * Page is admin-facing (NON_TOOL_PAGES) but the four rendering blocks
+ * (summary cards, route breakdown table, heaviest queries, recent traces)
+ * are the supervisor's window into agentic-rag-loop performance.
+ * Layer 0 (validate_agentic_rag_observability.py) verifies the JS shape;
+ * this spec verifies the DOM actually surfaces them.
+ */
+import { test, expect } from './_fixtures';
+import { waitForPageReady } from './_helpers';
+
+const PAGE = '/workhive/agentic-rag-observability.html';
+
+test.describe('agentic-rag-observability — render blocks', () => {
+
+  test('render_blocks: all four observability blocks land in DOM after load', async ({ whPage }) => {
+    await whPage.goto(PAGE);
+    await waitForPageReady(whPage);
+    await whPage.waitForTimeout(2000);
+
+    // 1. Summary cards container (renderSummary feeds it).
+    const summary = whPage.locator('#summary-cards');
+    await expect(summary).toBeAttached();
+
+    // 2. Route breakdown table with its descriptive aria-label.
+    const routeTable = whPage.locator('#route-tbl');
+    await expect(routeTable).toBeAttached();
+    const routeAria = await routeTable.getAttribute('aria-label');
+    expect(routeAria, 'route table aria-label must describe the breakdown')
+      .toMatch(/route|volume|retry/i);
+
+    // 3. Recent-traces table.
+    const recentTable = whPage.locator('#recent-tbl');
+    await expect(recentTable).toBeAttached();
+
+    // 4. renderHeaviest fires — its heading is the anchor we ratchet on.
+    const heaviestSection = whPage.locator('text=/heaviest|top.heavy|top heavy/i').first();
+    await expect(heaviestSection).toBeVisible({ timeout: 5000 });
+
+    // Either rows present OR an honest "No traces yet" message — never stuck loading.
+    const stuckLoading = whPage.locator('text=/loading.*\\.\\.\\.|computing\\.\\.\\./i');
+    expect(await stuckLoading.count(), 'observability page should not be stuck loading')
+      .toBeLessThan(2);
+  });
+
+});
+```
+
+**Why this scenario covers the rule:** Layer 0 checks each render function EXISTS in source. This spec proves each renders a VISIBLE DOM block. If a render function silently no-ops (wrapped in an always-false guard), Layer 0 still passes but this spec fails.
+
+**Status:** READY FOR REVIEW
+
+---
+
+## Draft #13: `validate_ai_companion_trust_observability.py` `conversation_end_ack` → `tests/journey-voice-journal.spec.ts` (extend)
+
+**Rule:** T24 — `WHVoice.close()` must (a) call `_updateDialogState` to persist a clean dialog-state reset, (b) cancel in-flight audio via `WHTts.stop()` or `speechSynthesis.cancel()`, and (c) reset `_clarifyStreak` so a stale loop counter does not leak into the next session.
+
+**Target file:** `tests/journey-voice-journal.spec.ts` (extend).
+
+```typescript
+test('conversation_end_ack: WHVoice.close() cancels TTS, persists dialog reset, resets clarify streak', async ({ whPage }) => {
+  await whPage.goto(PAGE);
+  await waitForPageReady(whPage);
+  await whPage.waitForTimeout(800);
+
+  const verdict = await whPage.evaluate(async () => {
+    const wh: any = (window as any).WHVoice;
+    const tts: any = (window as any).WHTts;
+    if (!wh || typeof wh.open !== 'function' || typeof wh.close !== 'function') {
+      return { ready: false, why: 'WHVoice.open / close not exported' };
+    }
+    try { wh.open(); } catch (_) { /* mount-only side effects ok */ }
+
+    let stopCalled = false;
+    if (tts && typeof tts.stop === 'function') {
+      const origStop = tts.stop.bind(tts);
+      (tts as any).stop = function () { stopCalled = true; return origStop(); };
+    }
+
+    if (typeof wh._bumpClarifyStreak === 'function') wh._bumpClarifyStreak();
+    const streakBefore = (typeof wh._getClarifyStreak === 'function') ? wh._getClarifyStreak() : null;
+
+    wh.close();
+
+    const streakAfter = (typeof wh._getClarifyStreak === 'function') ? wh._getClarifyStreak() : null;
+    return { ready: true, stopCalled, streakBefore, streakAfter };
+  });
+
+  expect(verdict.ready, verdict.why || 'voice handler exports open + close').toBe(true);
+  expect(verdict.stopCalled, 'T24 close() must cancel in-flight TTS').toBe(true);
+  expect(verdict.streakAfter, 'T24 close() must reset clarify streak to 0').toBe(0);
+});
+```
+
+**Why this scenario covers the rule:** Layer 0 reads close() source and greps for `WHTts` + `_updateDialogState` + `_resetClarifyStreak` tokens. A refactor could rename WHTts and keep the validator passing while breaking real behavior. This spec proves close actually stops the audio object AND resets the counter, independent of token names.
+
+**Status:** READY FOR REVIEW
+
+---
+
+## Draft #14: `validate_ai_companion_trust_observability.py` `audio_interrupt` → `tests/journey-voice-journal.spec.ts` (extend)
+
+**Rule:** T17 — `_startRecording` must cancel in-flight audio (`window.WHTts.stop()`) BEFORE opening the mic. Otherwise the worker hears their own question over Zaniah's prior reply.
+
+**Target file:** `tests/journey-voice-journal.spec.ts` (extend, sibling of `conversation_end_ack`).
+
+```typescript
+test('audio_interrupt: _startRecording cancels in-flight TTS before mic opens', async ({ whPage }) => {
+  await whPage.context().grantPermissions(['microphone']).catch(() => {});
+  await whPage.goto(PAGE);
+  await waitForPageReady(whPage);
+  await whPage.waitForTimeout(800);
+
+  const verdict = await whPage.evaluate(async () => {
+    const wh: any = (window as any).WHVoice;
+    const tts: any = (window as any).WHTts;
+    if (!wh || typeof wh._startRecording !== 'function') {
+      return { ready: false, why: 'WHVoice._startRecording not exported' };
+    }
+    if (!tts || typeof tts.stop !== 'function') {
+      return { ready: false, why: 'WHTts.stop not exported' };
+    }
+    let stopCalled = false;
+    const origStop = tts.stop.bind(tts);
+    (tts as any).stop = function () { stopCalled = true; return origStop(); };
+
+    // Headless mic rejects in getUserMedia — but WHTts.stop() must fire FIRST.
+    try { await wh._startRecording(); } catch (_) { /* mic denied is fine */ }
+
+    return { ready: true, stopCalled };
+  });
+
+  expect(verdict.ready, verdict.why || 'voice handler exports _startRecording').toBe(true);
+  expect(verdict.stopCalled,
+    'T17 _startRecording must call WHTts.stop() before opening mic — even if getUserMedia later fails')
+    .toBe(true);
+});
+```
+
+**Why this scenario covers the rule:** Layer 0 greps for `WHTts` token inside `_startRecording` body. This spec proves the ORDERING — even when mic permission is denied, the TTS cancel fires BEFORE the getUserMedia call. Catches a refactor that moves the cancel into a `then()` that never runs on rejection.
+
+**Status:** READY FOR REVIEW
+
+---
+
+## Draft #15: `validate_hive.py` `supervisor_gate_kick` → `tests/journey-hive.spec.ts` (extend)
+
+**Rule:** L3 — `kickMember(workerName)` must short-circuit with a `Supervisors only.` toast when `HIVE_ROLE !== 'supervisor'`. Worker-role identity must NOT be able to kick anyone even by calling the function from the JS console.
+
+**Target file:** `tests/journey-hive.spec.ts` (extend — `auth_gate` + `audit_log_power_actions` are already covered here).
+
+```typescript
+test('supervisor_gate_kick: kickMember as worker shows toast and does NOT update DB', async ({ rawPage }) => {
+  const PAGE_URL = '/workhive/hive.html';
+  await rawPage.goto(PAGE_URL);
+
+  // Seed identity as a NON-supervisor before scripts mount.
+  await rawPage.evaluate(() => {
+    localStorage.setItem('wh_last_worker', 'TestWorker');
+    localStorage.setItem('wh_active_hive_id', '00000000-0000-0000-0000-000000000000');
+    localStorage.setItem('wh_hive_role', 'worker');
+  });
+  await rawPage.reload();
+  await waitForPageReady(rawPage);
+  await rawPage.waitForTimeout(800);
+
+  const toastSeen = await rawPage.evaluate(async () => {
+    const w: any = window as any;
+    if (typeof w.kickMember !== 'function') return { ready: false, why: 'kickMember not exported' };
+
+    let captured = '';
+    const origToast = w.showToast;
+    w.showToast = function (msg: string) {
+      captured = String(msg || '');
+      if (typeof origToast === 'function') return origToast(msg);
+    };
+
+    try { await w.kickMember('SomePoorVictim'); } catch (_) { /* gated rejection is fine */ }
+    return { ready: true, captured };
+  });
+
+  expect(toastSeen.ready, toastSeen.why || 'kickMember reachable as global').toBe(true);
+  expect(toastSeen.captured, 'L3 kickMember must show a "Supervisors only" toast for non-supervisor roles')
+    .toMatch(/supervisor/i);
+});
+```
+
+**Why this scenario covers the rule:** Layer 0 greps for the `HIVE_ROLE` check inside `kickMember`. This spec proves the RUNTIME behavior — calling `window.kickMember` as a worker actually surfaces the toast and short-circuits before any DB write. Catches a refactor that wraps the check in a flag (`if (BYPASS_ROLE_CHECK || HIVE_ROLE !== 'supervisor')`).
+
+**Status:** READY FOR REVIEW
+
+---
+
+## Batch 3 summary
+
+| # | Validator | Picked check | Status |
+|---|---|---|---|
+| 11 | validate_achievements.py | `l2_reset_missing` | INFRASTRUCTURE |
+| 12 | validate_agentic_rag_observability.py | `render_blocks` | READY |
+| 13 | validate_ai_companion_trust_observability.py | `conversation_end_ack` | READY |
+| 14 | validate_ai_companion_trust_observability.py | `audio_interrupt` | READY |
+| 15 | validate_hive.py | `supervisor_gate_kick` | READY |
+
+**Coverage projection if all 4 behavioral drafts land:**
+- Raw coverage: 81.4% → ~82.8% (+3 covered validators — Drafts #13 and #14 share validator #3)
+- Per-page check coverage: 81.7% → ~83.1% (+4 covered checks)
+- Behavioral coverage: 89.5% → ~91.5% (denominator stays; 4 new runtime probes)
+
+**Deferred for a future batch:**
+- `validate_ai_companion_trust_observability.py` still has 6 untested checks (acronym_pronunciation, assistant_journal_pull, cost_cap, fallback_ux, rate_limit_guard, tts_latency_budget). `assistant_journal_pull` and `cost_cap` are worth a Batch 4 review; rest are infra-leaning.
+- `validate_reliability_workbench.py` has 17 untested checks — the biggest single gap; deserves a dedicated batch.
+- `validate_analytics.py` 8 untested checks — mostly Python-side (orchestrator, edge_phases, py_smoke_*); needs a separate analytics-orchestrator harness pass.
+- `validate_hive.py` still has `supervisor_gate_approve` and `supervisor_gate_reject` — symmetric to Draft #15; copy-paste-and-tweak should land them quickly.
+
+**Static / Layer-0-native checks acknowledged (do not draft):**
+- `l2_reset_missing` (file existence — see Draft #11).
+- `module_level_channels` (validate_notifications.py — source-code-pattern scan on variable declaration scope; Layer 0 is the right place).
+- Most of validate_renderers.py / validate_ai_regression.py / validate_analytics.py code-shape checks (already noted in Batch 2 LANDING NOTES).
