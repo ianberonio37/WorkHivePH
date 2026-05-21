@@ -472,19 +472,19 @@
         <div class="verdict-text"><span id="ah-verdict-label">Loading asset fleet...</span><small id="ah-verdict-sub">Counting approved assets, critical equipment, and pending approvals.</small></div>
       </div>
       <div class="simple-row">
-        <div class="simple-card tag-grey" id="ah-card-total">
+        <div class="simple-card tag-grey" id="ah-card-total" data-rag-tile="asset-hub:total_assets" data-rag-label="Total assets">
           <div class="sc-label">Total assets</div>
           <div class="sc-hero" id="ah-total-hero">0</div>
           <div class="sc-sub" id="ah-total-sub">Loading...</div>
           <span class="sc-tag" id="ah-total-tag">—</span>
         </div>
-        <div class="simple-card tag-grey" id="ah-card-critical">
+        <div class="simple-card tag-grey" id="ah-card-critical" data-rag-tile="asset-hub:critical_assets" data-rag-label="Critical assets">
           <div class="sc-label">Critical assets</div>
           <div class="sc-hero" id="ah-critical-hero">0</div>
           <div class="sc-sub" id="ah-critical-sub">Loading...</div>
           <span class="sc-tag" id="ah-critical-tag">—</span>
         </div>
-        <div class="simple-card tag-grey" id="ah-card-pending">
+        <div class="simple-card tag-grey" id="ah-card-pending" data-rag-tile="asset-hub:pending_approval" data-rag-label="Pending approval">
           <div class="sc-label">Pending approval</div>
           <div class="sc-hero" id="ah-pending-hero">0</div>
           <div class="sc-sub" id="ah-pending-sub">Loading...</div>
@@ -2981,7 +2981,7 @@
       let weibullBlock;
       if (weibull && weibull.beta != null) {
         weibullBlock = `
-          <table class="meta-table">
+          <!-- table-name-allow: asset-hub reliability metric table (Weibull/RPN/RCM/P-F/history) --> <table class="meta-table">
             <tr><th>Beta (shape)</th><td>${esc(Number(weibull.beta).toFixed(2))}</td></tr>
             <tr><th>Eta (characteristic life)</th><td>${esc(Math.round(Number(weibull.eta_days)))} d</td></tr>
             <tr><th>Pattern</th><td>${esc(weibull.failure_pattern)}</td></tr>
@@ -3105,7 +3105,7 @@
 
 <section>
   <h2>1. FMEA matrix (AIAG-VDA 2019)</h2>
-  <table>
+  <!-- table-name-allow: asset-hub reliability metric table (Weibull/RPN/RCM/P-F/history) --> <table>
     <thead><tr>
       <th>RPN</th><th>Function</th><th>Failure mode</th><th>Effect</th><th>Cause</th>
       <th>S</th><th>O</th><th>D</th><th>Conseq.</th><th>Source</th>
@@ -3116,7 +3116,7 @@
 
 <section>
   <h2>2. RCM strategies (SAE JA1011 / JA1012)</h2>
-  <table>
+  <!-- table-name-allow: asset-hub reliability metric table (Weibull/RPN/RCM/P-F/history) --> <table>
     <thead><tr>
       <th>Decision</th><th>Task</th><th>Interval</th><th>Rationale</th><th>PM link</th><th>Source</th>
     </tr></thead>
@@ -3131,7 +3131,7 @@
 
 <section>
   <h2>4. P-F intervals (RCM bathtub curve, ISO 13381-1)</h2>
-  <table>
+  <!-- table-name-allow: asset-hub reliability metric table (Weibull/RPN/RCM/P-F/history) --> <table>
     <thead><tr>
       <th>Parameter</th><th>P</th><th>F</th><th>P-F window</th><th>Inspect every</th><th>Basis</th><th>Computed</th>
     </tr></thead>
@@ -3141,7 +3141,7 @@
 
 <section>
   <h2>5. Recent corrective history (last 365 d)</h2>
-  <table>
+  <!-- table-name-allow: asset-hub reliability metric table (Weibull/RPN/RCM/P-F/history) --> <table>
     <thead><tr>
       <th>Date</th><th>Type</th><th>Problem</th><th>Root cause</th><th>Downtime</th>
     </tr></thead>

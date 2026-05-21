@@ -413,21 +413,21 @@
       <div class="verdict-text"><span id="an-verdict-label">Rolling up reliability KPIs...</span><small id="an-verdict-sub">Loading OEE (partial, A × Q), MTBF (partial, calendar time), and PM compliance (30-day approximation) from the descriptive phase.</small></div>
     </div>
     <div class="simple-row">
-      <div class="simple-card tag-grey" id="an-card-oee">
+      <div class="simple-card tag-grey" id="an-card-oee" data-rag-tile="analytics:oee" data-rag-label="OEE (avg, partial)">
         <div class="sc-label">OEE (avg, partial)</div>
         <div class="sc-hero" id="an-oee-hero">—</div>
         <div class="sc-sub" id="an-oee-sub">Loading...</div>
         <span class="sc-tag" id="an-oee-tag">—</span>
         <small style="display:block;font-size:.55rem;color:rgba(255,255,255,0.4);margin-top:4px;">ISO 22400-2:2014 §5.5 · partial (A × Q) until ideal cycle time captured</small>
       </div>
-      <div class="simple-card tag-grey" id="an-card-mtbf">
+      <div class="simple-card tag-grey" id="an-card-mtbf" data-rag-tile="analytics:mtbf" data-rag-label="Worst MTBF (partial)">
         <div class="sc-label">Worst MTBF (partial)</div>
         <div class="sc-hero" id="an-mtbf-hero">—</div>
         <div class="sc-sub" id="an-mtbf-sub">Loading...</div>
         <span class="sc-tag" id="an-mtbf-tag">—</span>
         <small style="display:block;font-size:.55rem;color:rgba(255,255,255,0.4);margin-top:4px;">ISO 14224:2016 §9.3 · partial: calendar time (not operating time)</small>
       </div>
-      <div class="simple-card tag-grey" id="an-card-pm">
+      <div class="simple-card tag-grey" id="an-card-pm" data-rag-tile="analytics:pm_compliance" data-rag-label="PM compliance (30d approx)">
         <div class="sc-label">PM compliance (30d approx)</div>
         <div class="sc-hero" id="an-pm-hero">—</div>
         <div class="sc-sub" id="an-pm-sub">Loading...</div>
@@ -1076,7 +1076,7 @@
     }).join('');
     return `<div class="card">
       <div class="card-title">OEE — Overall Equipment Effectiveness <span class="card-standard">ISO 22400-2:2014 · partial (A × Q) · ${d.assets_tracked} asset(s)</span></div>
-      <table class="data-table">
+      <!-- table-name-allow: maintenance analytics data table --> <table class="data-table">
         <thead><tr><th>Machine</th><th class="num">Availability</th><th class="num">Quality</th><th class="num">OEE (partial)</th></tr></thead>
         <tbody>${rows}</tbody>
       </table>
@@ -1202,7 +1202,7 @@
       value: overall + '%', unit: 'overall hive',
       sublabel: failing.length ? `${failing.length} asset(s) below 85% target` : 'All assets on track',
       color: heroColor,
-      detail: `<table class="data-table"><thead><tr><th>Asset</th><th class="num">Done/Sched</th><th class="num">Rate</th></tr></thead><tbody>${rows}</tbody></table>`,
+      detail: `<!-- table-name-allow: maintenance analytics data table --> <table class="data-table"><thead><tr><th>Asset</th><th class="num">Done/Sched</th><th class="num">Rate</th></tr></thead><tbody>${rows}</tbody></table>`,
       legend: '🔴 <70% · 🟡 <85% · 🟢 ≥85%',
     });
   }
@@ -1479,7 +1479,7 @@
         <div class="stat-tile"><div class="val">${d.overall_avg_mttr_h}h</div><div class="label">Avg MTTR</div></div>
         <div class="stat-tile"><div class="val">${d.median_mttr_h}h</div><div class="label">Median MTTR</div></div>
       </div>
-      ${rows ? `<table class="data-table"><thead><tr><th>Machine</th><th class="num">Downtime</th><th class="num">Above avg</th><th>Date</th></tr></thead><tbody>${rows}</tbody></table>` : ''}
+      ${rows ? `<!-- table-name-allow: maintenance analytics data table --> <table class="data-table"><thead><tr><th>Machine</th><th class="num">Downtime</th><th class="num">Above avg</th><th>Date</th></tr></thead><tbody>${rows}</tbody></table>` : ''}
       <p style="font-size:0.65rem;color:rgba(255,255,255,0.2);margin-top:0.75rem;">${escHtml(d.note || '')}</p>
     </div>`;
   }
@@ -2020,7 +2020,7 @@
     }).join('');
     return `<div class="card">
       <div class="card-title">Technician Assignment <span class="card-standard">SMRP workforce · ${d.open_job_count || 0} open job(s)</span></div>
-      ${assignments ? `<table class="data-table"><thead><tr><th>Machine</th><th>Problem</th><th>Assign To</th><th class="num">Level</th></tr></thead><tbody>${assignments}</tbody></table>` : ''}
+      ${assignments ? `<!-- table-name-allow: maintenance analytics data table --> <table class="data-table"><thead><tr><th>Machine</th><th>Problem</th><th>Assign To</th><th class="num">Level</th></tr></thead><tbody>${assignments}</tbody></table>` : ''}
       ${gaps}
     </div>`;
   }
@@ -2125,7 +2125,7 @@
     if (total <= defaultN && !searchable) {
       const html = items.map(renderRow).join('');
       return wrap === 'table'
-        ? `<table class="data-table">${tableHeader}<tbody>${html}</tbody></table>`
+        ? `<!-- table-name-allow: maintenance analytics data table --> <table class="data-table">${tableHeader}<tbody>${html}</tbody></table>`
         : `<div class="cards-stack">${html}</div>`;
     }
 
@@ -2146,7 +2146,7 @@
     if (wrap === 'table') {
       return `<div class="list-with-showall">
         ${searchInput}
-        <table class="data-table">
+        <!-- table-name-allow: maintenance analytics data table --> <table class="data-table">
           ${tableHeader}
           <tbody>${visibleHtml}</tbody>
           ${hiddenHtml ? `<tbody class="extra-rows" hidden>${hiddenHtml}</tbody>` : ''}

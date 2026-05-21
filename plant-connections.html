@@ -463,7 +463,7 @@
         <div class="card">
           <h3>Data retention</h3>
           <p class="meta">PDPA evidence · daily cron at 12:00 PHT purges past retention</p>
-          <table class="pc-table">
+          <!-- table-name-allow: plant-connections integration status table --> <table class="pc-table">
             <tbody>
               <tr><td>Soft-deleted rows</td><td class="num-right">${escHtml(soft)}</td></tr>
               <tr><td>Audit trail</td><td class="num-right">${escHtml(audit)}</td></tr>
@@ -490,7 +490,7 @@
         <div class="card">
           <h3>Single Sign-On</h3>
           <p class="meta">Provider: ${escHtml(s.provider || '—')} · ${escHtml(s.enforced ? 'enforced for hive' : 'optional')}</p>
-          <table class="pc-table">
+          <!-- table-name-allow: plant-connections integration status table --> <table class="pc-table">
             <tbody>
               <tr><td>Status</td><td class="num-right"><span class="pill ${statusPill}">${escHtml(s.status || '?')}</span></td></tr>
               <tr><td>IdP Entity ID</td><td class="num-right">${escHtml(s.idp_entity_id || '—')}</td></tr>
@@ -536,7 +536,7 @@
         <div class="card">
           <h3>CMMS integrations <span class="pill pill-grey">${cfgs.length}</span></h3>
           <p class="meta">Per-hive sync configs · staleness against last_sync_at</p>
-          <table class="pc-table">
+          <!-- table-name-allow: plant-connections integration status table --> <table class="pc-table">
             <thead><tr><th>Integration</th><th>Frequency</th><th>Auth</th><th>Status</th></tr></thead>
             <tbody>${rows}</tbody>
           </table>
@@ -574,7 +574,7 @@
         <div class="card">
           <h3>External sync activity <span class="pill pill-grey">${syncs.length}</span></h3>
           <p class="meta">Last 30 days · top 10 shown · ${summary}</p>
-          <table class="pc-table">
+          <!-- table-name-allow: plant-connections integration status table --> <table class="pc-table">
             <thead><tr><th>System</th><th>Entity</th><th>External ID</th><th>WorkHive table</th><th>Status</th><th class="num-right">Synced</th></tr></thead>
             <tbody>${rows}</tbody>
           </table>
@@ -603,7 +603,7 @@
         <div class="card">
           <h3>Sensor topic map <span class="pill pill-grey">${topics.length}</span></h3>
           <p class="meta">Live MQTT bridge feeds Anomaly Engine 2.0</p>
-          <table class="pc-table">
+          <!-- table-name-allow: plant-connections integration status table --> <table class="pc-table">
             <thead><tr><th>Topic pattern</th><th>Parameter</th><th>Unit</th></tr></thead>
             <tbody>${rows}</tbody>
           </table>
@@ -639,7 +639,7 @@
         <div class="card">
           <h3>Gateway audit <span class="pill ${errCount > 0 ? 'pill-amber' : 'pill-grey'}">${audit.length}</span></h3>
           <p class="meta">Last 7 days · ${errCount} non-2xx · top 10 shown</p>
-          <table class="pc-table">
+          <!-- table-name-allow: plant-connections integration status table --> <table class="pc-table">
             <thead><tr><th>Route</th><th>Method</th><th>Status</th><th class="num-right">Latency</th><th>Caller</th><th class="num-right">When</th></tr></thead>
             <tbody>${rows}</tbody>
           </table>

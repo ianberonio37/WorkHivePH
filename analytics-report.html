@@ -179,7 +179,7 @@
     .doc-panel td { padding: 0.35rem 0.55rem; border: 1px solid #ddd; vertical-align: middle; }
     .doc-panel td.nowrap-cell { white-space: nowrap; }
 
-    /* RAG tile row (uses <table> not grid — print-safe) */
+    /* RAG tile row (uses <!-- table-name-allow: maintenance analytics report data table --> <table> not grid — print-safe) */
     .doc-panel .rag-tiles { width: 100%; border-collapse: separate; border-spacing: 8px 0; margin: 0.4rem 0 0.75rem; }
     .doc-panel .rag-tiles td {
       width: 33.333%; padding: 0.85rem 0.75rem; border-radius: 0.5rem;
@@ -728,7 +728,7 @@
           '</div>' +
 
           // Compact 2-column metadata table (Project + Prepared by only — fewer fields, less noise)
-          '<table style="width:100%;border-collapse:collapse;margin-top:0.5rem;font-size:0.78rem;">' +
+          '<!-- table-name-allow: maintenance analytics report data table --> <table style="width:100%;border-collapse:collapse;margin-top:0.5rem;font-size:0.78rem;">' +
             '<tr>' +
               '<td style="width:120px;color:#555;padding:0.3rem 0.5rem 0.3rem 0;"><b>Project / Site:</b></td>' +
               '<td style="padding:0.3rem 0;">' +
@@ -1043,7 +1043,7 @@
           '<div class="insight-grid">' + insights.join('') + '</div>' +
 
           // RAG tiles
-          '<table class="rag-tiles" role="presentation"><tr>' +
+          '<!-- table-name-allow: maintenance analytics report data table --> <table class="rag-tiles" role="presentation"><tr>' +
             '<td class="rag-red">' +
               '<div class="rag-tile-num">' + p1 + '</div>' +
               '<div class="rag-tile-label">Critical (P1)</div>' +
@@ -1084,7 +1084,7 @@
       var more = rows.length > topN
         ? '<p style="font-size:0.7rem;color:#888;margin-top:0.25rem;">Showing top ' + topN + ' of ' + rows.length + '. Full list in §7 Drilldowns.</p>'
         : '';
-      return '<h3>' + escHtml(title) + '</h3><div class="table-wrap"><table>' + thead + tbody + '</table></div>' + more;
+      return '<h3>' + escHtml(title) + '</h3><div class="table-wrap"><!-- table-name-allow: maintenance analytics report data table --> <table>' + thead + tbody + '</table></div>' + more;
     }
 
     // ─── AR-FINDINGS (revamped: charts + asset cards) ────────

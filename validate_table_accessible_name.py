@@ -42,7 +42,10 @@ CHECK_NAMES = ["table_accessible_name"]
 
 def _check_page(path: Path) -> list:
     body = path.read_text(encoding="utf-8", errors="replace")
-    body_clean = re.sub(r"<!--.*?-->", "", body, flags=re.DOTALL)
+    # Replace HTML comments with same-length spaces so offsets line up with body.
+    body_clean = re.sub(r"<!--.*?-->",
+                        lambda m: " " * len(m.group(0)),
+                        body, flags=re.DOTALL)
     issues = []
     for m in TABLE_RE.finditer(body_clean):
         attrs = m.group(1)
@@ -53,7 +56,8 @@ def _check_page(path: Path) -> list:
             continue
         if CAPTION_RE.search(inner[:500]):
             continue
-        if "table-name-allow" in body_clean[max(0, m.start()-200): m.end()+100]:
+        # Search RAW body for the marker (comments stripped from body_clean).
+        if "table-name-allow" in body[max(0, m.start()-200): m.end()+100]:
             continue
         line_no = body_clean.count("\n", 0, m.start()) + 1
         issues.append({"page": path.name, "line": line_no,

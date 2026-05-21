@@ -183,19 +183,19 @@
     <div class="verdict-text"><span id="pr-verdict-label">Computing risk forecast...</span><small id="pr-verdict-sub">Counting hot assets, healthy assets, and earliest forecast failure.</small></div>
   </div>
   <div class="simple-row">
-    <div class="simple-card tag-grey" id="pr-card-hot">
+    <div class="simple-card tag-grey" id="pr-card-hot" data-rag-tile="predictive:hot_assets" data-rag-label="Hot assets">
       <div class="sc-label">Hot assets</div>
       <div class="sc-hero" id="pr-hot-hero">0</div>
       <div class="sc-sub" id="pr-hot-sub">Loading...</div>
       <span class="sc-tag" id="pr-hot-tag">—</span>
     </div>
-    <div class="simple-card tag-grey" id="pr-card-healthy">
+    <div class="simple-card tag-grey" id="pr-card-healthy" data-rag-tile="predictive:healthy_assets" data-rag-label="Healthy assets">
       <div class="sc-label">Healthy</div>
       <div class="sc-hero" id="pr-healthy-hero">0</div>
       <div class="sc-sub" id="pr-healthy-sub">Loading...</div>
       <span class="sc-tag" id="pr-healthy-tag">—</span>
     </div>
-    <div class="simple-card tag-grey" id="pr-card-soonest">
+    <div class="simple-card tag-grey" id="pr-card-soonest" data-rag-tile="predictive:earliest_forecast" data-rag-label="Earliest forecast failure">
       <div class="sc-label">Earliest forecast</div>
       <div class="sc-hero" id="pr-soonest-hero">—</div>
       <div class="sc-sub" id="pr-soonest-sub">Loading...</div>
@@ -256,7 +256,7 @@
       No risk data yet. Scores generate daily at 13:00 PHT once your hive has logbook entries.
     </div>
     <div id="ranking-table-wrap" style="display:none; overflow-x:auto;">
-      <table class="risk-table">
+      <!-- table-name-allow: predictive risk score data table --> <table class="risk-table">
         <thead>
           <tr>
             <th>Asset</th>

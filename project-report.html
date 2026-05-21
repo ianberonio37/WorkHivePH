@@ -416,7 +416,7 @@ function renderScope(items) {
     const phaseClass = p ? `phase-${p}` : 'phase-pre';
     return `
       <h3><span class="phase-tag ${phaseClass}">${e(phaseLabel)}</span> <span style="font-weight: 400; color: var(--muted); font-size: 9.5pt;">${list.length} item${list.length === 1 ? '' : 's'}</span></h3>
-      <table class="doc-table">
+      <!-- table-name-allow: project-report data table --> <table class="doc-table">
         <thead><tr><th>WBS</th><th>Title</th><th>Owner</th><th>Status</th><th class="right">Est h</th><th class="right">Actual h</th><th class="nowrap">Due</th></tr></thead>
         <tbody>${list.map(it => `
           <tr class="${it.status === 'done' ? 'done' : ''}">
@@ -453,7 +453,7 @@ function renderProgress(logs) {
   if (!logs.length) { $('progress-section').innerHTML = '<div class="empty-section">No daily progress logs recorded.</div>'; return; }
   const sorted = [...logs].sort((a, b) => (a.log_date || '').localeCompare(b.log_date || ''));
   $('progress-section').innerHTML = `
-    <table class="doc-table">
+    <!-- table-name-allow: project-report data table --> <table class="doc-table">
       <thead><tr><th class="nowrap">Date</th><th>Reported by</th><th style="width:110px;">% complete</th><th class="right">Hours</th><th>Notes</th><th>Blockers</th></tr></thead>
       <tbody>${sorted.map(l => `
         <tr>

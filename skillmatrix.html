@@ -384,19 +384,19 @@
       <div class="verdict-text"><span id="sm-verdict-label">Computing skill progress...</span><small id="sm-verdict-sub">Counting disciplines on target, quizzes available, and total badges.</small></div>
     </div>
     <div class="simple-row">
-      <div class="simple-card tag-grey" id="sm-card-ontrack">
+      <div class="simple-card tag-grey" id="sm-card-ontrack" data-rag-tile="skillmatrix:on_target" data-rag-label="On target workers">
         <div class="sc-label">On target</div>
         <div class="sc-hero" id="sm-ontrack-hero">0</div>
         <div class="sc-sub" id="sm-ontrack-sub">Loading...</div>
         <span class="sc-tag" id="sm-ontrack-tag">—</span>
       </div>
-      <div class="simple-card tag-grey" id="sm-card-quizzes">
+      <div class="simple-card tag-grey" id="sm-card-quizzes" data-rag-tile="skillmatrix:quizzes_available" data-rag-label="Quizzes available">
         <div class="sc-label">Quizzes available</div>
         <div class="sc-hero" id="sm-quizzes-hero">0</div>
         <div class="sc-sub" id="sm-quizzes-sub">Loading...</div>
         <span class="sc-tag" id="sm-quizzes-tag">—</span>
       </div>
-      <div class="simple-card tag-grey" id="sm-card-badges">
+      <div class="simple-card tag-grey" id="sm-card-badges" data-rag-tile="skillmatrix:total_badges" data-rag-label="Total badges earned">
         <div class="sc-label">Total badges</div>
         <div class="sc-hero" id="sm-badges-hero">0</div>
         <div class="sc-sub" id="sm-badges-sub">Loading...</div>
@@ -426,7 +426,7 @@
       <div class="chart-title">Skill Overview</div>
       <canvas id="radar-canvas" width="280" height="280"></canvas>
       <div class="chart-fallback" id="chart-fallback">
-        <table><tbody id="fallback-table"></tbody></table>
+        <!-- table-name-allow: skill matrix data table --> <table><tbody id="fallback-table"></tbody></table>
       </div>
       <div class="chart-legend">
         <span><span class="legend-dot" style="background:#29B6D9"></span>Target</span>
