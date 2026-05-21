@@ -6586,7 +6586,7 @@ function renderInputForm(calcType) {
       ].map(([id, label, def]) => `
         <div style="display:grid;grid-template-columns:1fr 70px;gap:0.4rem;align-items:center;margin-bottom:0.4rem;">
           <div style="font-size:0.78rem;color:rgba(255,255,255,0.65);padding:0 0.25rem;">${label}</div>
-          <input id="${id}" class="wh-input" type="number" value="${def}" min="0" style="padding:0.5rem;text-align:center;" />
+          <input id="${id}" aria-label="${label}" class="wh-input" type="number" value="${def}" min="0" style="padding:0.5rem;text-align:center;" />
         </div>`).join('')}
 
       <div style="font-size:0.78rem;color:#F7A21B;font-weight:600;margin-bottom:0.5rem;margin-top:0.75rem;">Notification Appliances</div>
@@ -6597,7 +6597,7 @@ function renderInputForm(calcType) {
       ].map(([id, label, def]) => `
         <div style="display:grid;grid-template-columns:1fr 70px;gap:0.4rem;align-items:center;margin-bottom:0.4rem;">
           <div style="font-size:0.78rem;color:rgba(255,255,255,0.65);padding:0 0.25rem;">${label}</div>
-          <input id="${id}" class="wh-input" type="number" value="${def}" min="0" style="padding:0.5rem;text-align:center;" />
+          <input id="${id}" aria-label="${label}" class="wh-input" type="number" value="${def}" min="0" style="padding:0.5rem;text-align:center;" />
         </div>`).join('')}
 
       <div style="background:rgba(247,162,27,0.08);border:1px solid rgba(247,162,27,0.2);border-radius:0.75rem;padding:0.75rem 1rem;font-size:0.78rem;color:rgba(255,255,255,0.5);margin-top:0.75rem;">
@@ -6836,7 +6836,7 @@ function renderInputForm(calcType) {
           <div style="font-weight:700;color:#F7A21B;font-size:0.8rem;min-width:36px;">${ord}</div>
           <div style="font-size:0.75rem;color:rgba(255,255,255,0.55);">${desc}</div>
           <div class="input-group" style="margin:0;">
-            <input id="${id}" class="wh-input" type="number" value="${def}" min="0" max="100" step="0.5" style="padding:0.5rem;text-align:center;" />
+            <input id="${id}" aria-label="${desc}" class="wh-input" type="number" value="${def}" min="0" max="100" step="0.5" style="padding:0.5rem;text-align:center;" />
             <span class="input-unit">%</span>
           </div>
         </div>`).join('')}
@@ -8666,11 +8666,11 @@ function addToolRow(defaultTool = 'Impact Wrench 1/2', defaultQty = 1) {
       ${TOOL_OPTIONS.map(t => `<option value="${t}"${t===defaultTool?' selected':''}>${t}</option>`).join('')}
     </select>
     <div class="input-group" style="min-width:0;">
-      <input id="tool-qty-${id}" class="wh-input py-2" type="number" value="${defaultQty}" min="1" style="padding:0.5rem 0.4rem;" />
+      <input id="tool-qty-${id}" aria-label="Tool quantity" class="wh-input py-2" type="number" value="${defaultQty}" min="1" style="padding:0.5rem 0.4rem;" />
       <span class="input-unit" style="font-size:0.7rem;">qty</span>
     </div>
     <div class="input-group" style="min-width:0;" id="custom-cfm-wrap-${id}" style="display:none;">
-      <input id="tool-cfm-${id}" class="wh-input py-2" type="number" value="0" min="0" placeholder="CFM" style="padding:0.5rem 0.4rem;" />
+      <input id="tool-cfm-${id}" aria-label="Tool CFM" class="wh-input py-2" type="number" value="0" min="0" placeholder="CFM" style="padding:0.5rem 0.4rem;" />
       <span class="input-unit" style="font-size:0.7rem;">CFM</span>
     </div>
     <button onclick="document.getElementById('tool-row-${id}').remove()" style="background:rgba(220,50,50,0.15);border:1px solid rgba(220,50,50,0.3);border-radius:0.4rem;color:rgba(220,50,50,0.8);width:28px;height:28px;cursor:pointer;font-size:0.9rem;flex-shrink:0;">x</button>
@@ -8698,15 +8698,15 @@ function addFixtureRow(defaultFixture = 'Water Closet (Flush Tank)', defaultQty 
       ${FIXTURE_OPTIONS.map(t => `<option value="${t}"${t===defaultFixture?' selected':''}>${t}</option>`).join('')}
     </select>
     <div class="input-group" style="min-width:0;">
-      <input id="fix-qty-${id}" class="wh-input py-2" type="number" value="${defaultQty}" min="1" style="padding:0.5rem 0.4rem;" />
+      <input id="fix-qty-${id}" aria-label="Fixture quantity" class="wh-input py-2" type="number" value="${defaultQty}" min="1" style="padding:0.5rem 0.4rem;" />
       <span class="input-unit" style="font-size:0.7rem;">qty</span>
     </div>
     <div class="input-group" style="min-width:0;display:none;" id="fix-wfu-wrap-${id}">
-      <input id="fix-wfu-${id}" class="wh-input py-2" type="number" value="1" min="0" placeholder="WFU" style="padding:0.5rem 0.4rem;" />
+      <input id="fix-wfu-${id}" aria-label="Fixture WFU" class="wh-input py-2" type="number" value="1" min="0" placeholder="WFU" style="padding:0.5rem 0.4rem;" />
       <span class="input-unit" style="font-size:0.65rem;">WFU</span>
     </div>
     <div class="input-group" style="min-width:0;display:none;" id="fix-lpm-wrap-${id}">
-      <input id="fix-lpm-${id}" class="wh-input py-2" type="number" value="3.8" min="0" placeholder="L/min" style="padding:0.5rem 0.4rem;" />
+      <input id="fix-lpm-${id}" aria-label="Fixture L/min" class="wh-input py-2" type="number" value="3.8" min="0" placeholder="L/min" style="padding:0.5rem 0.4rem;" />
       <span class="input-unit" style="font-size:0.65rem;">L/min</span>
     </div>
     <button onclick="document.getElementById('fixture-row-${id}').remove()" style="background:rgba(220,50,50,0.15);border:1px solid rgba(220,50,50,0.3);border-radius:0.4rem;color:rgba(220,50,50,0.8);width:28px;height:28px;cursor:pointer;font-size:0.9rem;flex-shrink:0;">x</button>
@@ -8737,15 +8737,15 @@ function addUseRow(defaultType = 'Hotel Room', defaultQty = 10, defaultCount = 1
       ${HW_USE_OPTIONS.map(t => `<option value="${t}"${t===defaultType?' selected':''}>${t}</option>`).join('')}
     </select>
     <div class="input-group" style="min-width:0;">
-      <input id="hw-qty-${id}" class="wh-input py-2" type="number" value="${defaultQty}" min="1" style="padding:0.5rem 0.4rem;" />
+      <input id="hw-qty-${id}" aria-label="Hot water quantity" class="wh-input py-2" type="number" value="${defaultQty}" min="1" style="padding:0.5rem 0.4rem;" />
       <span class="input-unit" style="font-size:0.65rem;">qty</span>
     </div>
     <div class="input-group" style="min-width:0;">
-      <input id="hw-count-${id}" class="wh-input py-2" type="number" value="${defaultCount}" min="1" style="padding:0.5rem 0.4rem;" />
+      <input id="hw-count-${id}" aria-label="Hot water count" class="wh-input py-2" type="number" value="${defaultCount}" min="1" style="padding:0.5rem 0.4rem;" />
       <span class="input-unit" style="font-size:0.65rem;">/day</span>
     </div>
     <div class="input-group" style="min-width:0;" id="hw-rate-wrap-${id}">
-      <input id="hw-rate-${id}" class="wh-input py-2" type="number" value="${HW_USE_RATES[defaultType]||0}" min="0" style="padding:0.5rem 0.4rem;" />
+      <input id="hw-rate-${id}" aria-label="Hot water rate" class="wh-input py-2" type="number" value="${HW_USE_RATES[defaultType]||0}" min="0" style="padding:0.5rem 0.4rem;" />
       <span class="input-unit" style="font-size:0.65rem;">L</span>
     </div>
     <button onclick="document.getElementById('hw-use-row-${id}').remove()" style="background:rgba(220,50,50,0.15);border:1px solid rgba(220,50,50,0.3);border-radius:0.4rem;color:rgba(220,50,50,0.8);width:28px;height:28px;cursor:pointer;font-size:0.9rem;flex-shrink:0;">x</button>
@@ -8785,11 +8785,11 @@ function addDrainFixtureRow(defaultType = 'Water Closet', defaultQty = 1) {
       ${DRAIN_FIXTURE_OPTIONS.map(t => `<option value="${t}"${t===defaultType?' selected':''}>${t}</option>`).join('')}
     </select>
     <div class="input-group" style="min-width:0;">
-      <input id="drain-qty-${id}" class="wh-input py-2" type="number" value="${defaultQty}" min="1" style="padding:0.5rem 0.4rem;" />
+      <input id="drain-qty-${id}" aria-label="Drain quantity" class="wh-input py-2" type="number" value="${defaultQty}" min="1" style="padding:0.5rem 0.4rem;" />
       <span class="input-unit" style="font-size:0.65rem;">qty</span>
     </div>
     <div class="input-group" style="min-width:0;" id="drain-dfu-wrap-${id}">
-      <input id="drain-dfu-${id}" class="wh-input py-2" type="number" value="${DRAIN_DFU_VALUES[defaultType]||0}" min="0" style="padding:0.5rem 0.4rem;" />
+      <input id="drain-dfu-${id}" aria-label="Drain DFU" class="wh-input py-2" type="number" value="${DRAIN_DFU_VALUES[defaultType]||0}" min="0" style="padding:0.5rem 0.4rem;" />
       <span class="input-unit" style="font-size:0.65rem;">DFU</span>
     </div>
     <div style="font-size:0.7rem;color:rgba(255,255,255,0.3);text-align:center;" id="drain-total-${id}">x${defaultQty}</div>
@@ -8850,11 +8850,11 @@ function addGTFixtureRow(defaultType = 'Single Kitchen Sink', defaultFlow = 7.6,
       ${GT_FIXTURE_OPTIONS.map(t => `<option value="${t}"${t===defaultType?' selected':''}>${t}</option>`).join('')}
     </select>
     <div class="input-group" style="min-width:0;">
-      <input id="gt-flow-${id}" class="wh-input py-2" type="number" value="${defaultFlow}" min="0" step="0.1" style="padding:0.5rem 0.4rem;" />
+      <input id="gt-flow-${id}" aria-label="Gas tool flow" class="wh-input py-2" type="number" value="${defaultFlow}" min="0" step="0.1" style="padding:0.5rem 0.4rem;" />
       <span class="input-unit" style="font-size:0.65rem;">L/m</span>
     </div>
     <div class="input-group" style="min-width:0;">
-      <input id="gt-qty-${id}" class="wh-input py-2" type="number" value="${defaultQty}" min="1" style="padding:0.5rem 0.4rem;" />
+      <input id="gt-qty-${id}" aria-label="Gas tool quantity" class="wh-input py-2" type="number" value="${defaultQty}" min="1" style="padding:0.5rem 0.4rem;" />
       <span class="input-unit" style="font-size:0.65rem;">qty</span>
     </div>
     <button onclick="document.getElementById('gt-row-${id}').remove()" style="background:rgba(220,50,50,0.15);border:1px solid rgba(220,50,50,0.3);border-radius:0.4rem;color:rgba(220,50,50,0.8);width:28px;height:28px;cursor:pointer;font-size:0.9rem;flex-shrink:0;">x</button>
@@ -8911,15 +8911,15 @@ function addLoadRow(defaultType = 'Lighting (General)', defaultQty = 1, defaultW
       ${LOAD_TYPE_OPTIONS.map(t => `<option value="${t}"${t===defaultType?' selected':''}>${t}</option>`).join('')}
     </select>
     <div class="input-group" style="min-width:0;">
-      <input id="lt-qty-${id}" class="wh-input py-2" type="number" value="${defaultQty}" min="1" style="padding:0.5rem 0.4rem;" />
+      <input id="lt-qty-${id}" aria-label="Lighting quantity" class="wh-input py-2" type="number" value="${defaultQty}" min="1" style="padding:0.5rem 0.4rem;" />
       <span class="input-unit" style="font-size:0.6rem;">qty</span>
     </div>
     <div class="input-group" style="min-width:0;">
-      <input id="lt-w-${id}" class="wh-input py-2" type="number" value="${defaultW}" min="1" style="padding:0.5rem 0.4rem;" />
+      <input id="lt-w-${id}" aria-label="Lighting wattage" class="wh-input py-2" type="number" value="${defaultW}" min="1" style="padding:0.5rem 0.4rem;" />
       <span class="input-unit" style="font-size:0.6rem;">W</span>
     </div>
     <div class="input-group" style="min-width:0;">
-      <input id="lt-pf-${id}" class="wh-input py-2" type="number" value="${defaultPF}" min="0.5" max="1.0" step="0.05" style="padding:0.5rem 0.4rem;" />
+      <input id="lt-pf-${id}" aria-label="Lighting power factor" class="wh-input py-2" type="number" value="${defaultPF}" min="0.5" max="1.0" step="0.05" style="padding:0.5rem 0.4rem;" />
       <span class="input-unit" style="font-size:0.6rem;">PF</span>
     </div>
     <button onclick="document.getElementById('load-row-${id}').remove()" style="background:rgba(220,50,50,0.15);border:1px solid rgba(220,50,50,0.3);border-radius:0.4rem;color:rgba(220,50,50,0.8);width:28px;height:28px;cursor:pointer;font-size:0.9rem;flex-shrink:0;">x</button>
@@ -8944,15 +8944,15 @@ function addGenLoadRow(defaultType = 'Lighting (General)', defaultQty = 1, defau
       ${LOAD_TYPE_OPTIONS.map(t => `<option value="${t}"${t===defaultType?' selected':''}>${t}</option>`).join('')}
     </select>
     <div class="input-group" style="min-width:0;">
-      <input id="glt-qty-${id}" class="wh-input py-2" type="number" value="${defaultQty}" min="1" style="padding:0.5rem 0.4rem;" />
+      <input id="glt-qty-${id}" aria-label="General lighting quantity" class="wh-input py-2" type="number" value="${defaultQty}" min="1" style="padding:0.5rem 0.4rem;" />
       <span class="input-unit" style="font-size:0.6rem;">qty</span>
     </div>
     <div class="input-group" style="min-width:0;">
-      <input id="glt-w-${id}" class="wh-input py-2" type="number" value="${defaultW}" min="1" style="padding:0.5rem 0.4rem;" />
+      <input id="glt-w-${id}" aria-label="General lighting wattage" class="wh-input py-2" type="number" value="${defaultW}" min="1" style="padding:0.5rem 0.4rem;" />
       <span class="input-unit" style="font-size:0.6rem;">W</span>
     </div>
     <div class="input-group" style="min-width:0;">
-      <input id="glt-pf-${id}" class="wh-input py-2" type="number" value="${defaultPF}" min="0.5" max="1.0" step="0.05" style="padding:0.5rem 0.4rem;" />
+      <input id="glt-pf-${id}" aria-label="General lighting power factor" class="wh-input py-2" type="number" value="${defaultPF}" min="0.5" max="1.0" step="0.05" style="padding:0.5rem 0.4rem;" />
       <span class="input-unit" style="font-size:0.6rem;">PF</span>
     </div>
     <button onclick="document.getElementById('gen-load-row-${id}').remove()" style="background:rgba(220,50,50,0.15);border:1px solid rgba(220,50,50,0.3);border-radius:0.4rem;color:rgba(220,50,50,0.8);width:28px;height:28px;cursor:pointer;font-size:0.9rem;flex-shrink:0;">x</button>
@@ -8979,15 +8979,15 @@ function addCTCableRow(defaultType = 'Power', defaultOD = 25, defaultQty = 1, de
       ${CT_CABLE_TYPE_OPTIONS.map(t => `<option value="${t}"${t===defaultType?' selected':''}>${t}</option>`).join('')}
     </select>
     <div class="input-group" style="min-width:0;">
-      <input id="ct-od-${id}" class="wh-input py-2" type="number" value="${defaultOD}" min="1" step="0.5" style="padding:0.5rem 0.4rem;" />
+      <input id="ct-od-${id}" aria-label="Conduit outer diameter" class="wh-input py-2" type="number" value="${defaultOD}" min="1" step="0.5" style="padding:0.5rem 0.4rem;" />
       <span class="input-unit" style="font-size:0.6rem;">mm</span>
     </div>
     <div class="input-group" style="min-width:0;">
-      <input id="ct-qty-${id}" class="wh-input py-2" type="number" value="${defaultQty}" min="1" style="padding:0.5rem 0.4rem;" />
+      <input id="ct-qty-${id}" aria-label="Conduit quantity" class="wh-input py-2" type="number" value="${defaultQty}" min="1" style="padding:0.5rem 0.4rem;" />
       <span class="input-unit" style="font-size:0.6rem;">qty</span>
     </div>
     <div class="input-group" style="min-width:0;">
-      <input id="ct-w-${id}" class="wh-input py-2" type="number" value="${defaultWeight}" min="0" step="0.01" placeholder="auto" style="padding:0.5rem 0.4rem;" />
+      <input id="ct-w-${id}" aria-label="Conduit weight" class="wh-input py-2" type="number" value="${defaultWeight}" min="0" step="0.01" placeholder="auto" style="padding:0.5rem 0.4rem;" />
       <span class="input-unit" style="font-size:0.55rem;">kg/m</span>
     </div>
     <button onclick="document.getElementById('ct-cable-row-${id}').remove()" style="background:rgba(220,50,50,0.15);border:1px solid rgba(220,50,50,0.3);border-radius:0.4rem;color:rgba(220,50,50,0.8);width:28px;height:28px;cursor:pointer;font-size:0.9rem;flex-shrink:0;">x</button>
@@ -9003,17 +9003,17 @@ function addUPSLoadRow(defaultDesc = 'Load', defaultVA = 1000, defaultPF = 0.9, 
   row.id    = `ups-load-row-${id}`;
   row.style.cssText = 'display:grid;grid-template-columns:3fr 70px 55px 50px 28px;gap:0.35rem;align-items:center;';
   row.innerHTML = `
-    <input id="ups-desc-${id}" class="wh-input py-2" type="text" value="${escHtml(String(defaultDesc))}" placeholder="Load description" style="padding:0.5rem 0.4rem;" />
+    <input id="ups-desc-${id}" aria-label="UPS load description" class="wh-input py-2" type="text" value="${escHtml(String(defaultDesc))}" placeholder="Load description" style="padding:0.5rem 0.4rem;" />
     <div class="input-group" style="min-width:0;">
-      <input id="ups-va-${id}" class="wh-input py-2" type="number" value="${defaultVA}" min="1" step="1" style="padding:0.5rem 0.4rem;" />
+      <input id="ups-va-${id}" aria-label="UPS VA rating" class="wh-input py-2" type="number" value="${defaultVA}" min="1" step="1" style="padding:0.5rem 0.4rem;" />
       <span class="input-unit" style="font-size:0.6rem;">VA</span>
     </div>
     <div class="input-group" style="min-width:0;">
-      <input id="ups-pf-${id}" class="wh-input py-2" type="number" value="${defaultPF}" min="0.1" max="1.0" step="0.01" style="padding:0.5rem 0.4rem;" />
+      <input id="ups-pf-${id}" aria-label="UPS power factor" class="wh-input py-2" type="number" value="${defaultPF}" min="0.1" max="1.0" step="0.01" style="padding:0.5rem 0.4rem;" />
       <span class="input-unit" style="font-size:0.55rem;">PF</span>
     </div>
     <div class="input-group" style="min-width:0;">
-      <input id="ups-qty-${id}" class="wh-input py-2" type="number" value="${defaultQty}" min="1" style="padding:0.5rem 0.4rem;" />
+      <input id="ups-qty-${id}" aria-label="UPS quantity" class="wh-input py-2" type="number" value="${defaultQty}" min="1" style="padding:0.5rem 0.4rem;" />
       <span class="input-unit" style="font-size:0.55rem;">qty</span>
     </div>
     <button onclick="document.getElementById('ups-load-row-${id}').remove()" style="background:rgba(220,50,50,0.15);border:1px solid rgba(220,50,50,0.3);border-radius:0.4rem;color:rgba(220,50,50,0.8);width:28px;height:28px;cursor:pointer;font-size:0.9rem;flex-shrink:0;">x</button>
@@ -9030,13 +9030,13 @@ function addDuctSegRow(defaultName = 'Segment', defaultFlow = 500, defaultLen = 
   row.id    = `duct-seg-row-${id}`;
   row.style.cssText = 'display:grid;grid-template-columns:2fr 70px 70px 100px 28px;gap:0.35rem;align-items:center;';
   row.innerHTML = `
-    <input id="duct-name-${id}" class="wh-input py-2" type="text" value="${escHtml(String(defaultName))}" placeholder="Segment name" style="padding:0.5rem 0.4rem;" />
+    <input id="duct-name-${id}" aria-label="Duct segment name" class="wh-input py-2" type="text" value="${escHtml(String(defaultName))}" placeholder="Segment name" style="padding:0.5rem 0.4rem;" />
     <div class="input-group" style="min-width:0;">
-      <input id="duct-flow-${id}" class="wh-input py-2" type="number" value="${defaultFlow}" min="1" step="1" style="padding:0.5rem 0.4rem;" />
+      <input id="duct-flow-${id}" aria-label="Duct flow" class="wh-input py-2" type="number" value="${defaultFlow}" min="1" step="1" style="padding:0.5rem 0.4rem;" />
       <span class="input-unit" style="font-size:0.6rem;">L/s</span>
     </div>
     <div class="input-group" style="min-width:0;">
-      <input id="duct-len-${id}" class="wh-input py-2" type="number" value="${defaultLen}" min="0.1" step="0.5" style="padding:0.5rem 0.4rem;" />
+      <input id="duct-len-${id}" aria-label="Duct length" class="wh-input py-2" type="number" value="${defaultLen}" min="0.1" step="0.5" style="padding:0.5rem 0.4rem;" />
       <span class="input-unit" style="font-size:0.6rem;">m</span>
     </div>
     <select class="wh-input py-2" id="duct-type-${id}">
@@ -9109,10 +9109,10 @@ function addFCURoomRow(defaultName = 'Room', defaultArea = 30, defaultLoad = 5.0
   row.id    = `fcu-room-row-${id}`;
   row.style.cssText = 'display:grid;grid-template-columns:2fr 65px 80px 55px 28px;gap:0.35rem;align-items:center;';
   row.innerHTML = `
-    <input id="fcu-name-${id}" class="wh-input py-2" type="text"   value="${escHtml(String(defaultName))}" placeholder="Room name" style="font-size:16px;padding:0.5rem 0.4rem;" />
-    <input id="fcu-area-${id}" class="wh-input py-2" type="number" value="${defaultArea}"  min="1"   step="1"   style="font-size:16px;padding:0.5rem 0.4rem;" />
-    <input id="fcu-load-${id}" class="wh-input py-2" type="number" value="${defaultLoad}"  min="0.1" step="0.1" style="font-size:16px;padding:0.5rem 0.4rem;" />
-    <input id="fcu-qty-${id}"  class="wh-input py-2" type="number" value="${defaultQty}"   min="1"   step="1"   style="font-size:16px;padding:0.5rem 0.4rem;" />
+    <input id="fcu-name-${id}" aria-label="FCU room name" class="wh-input py-2" type="text"   value="${escHtml(String(defaultName))}" placeholder="Room name" style="font-size:16px;padding:0.5rem 0.4rem;" />
+    <input id="fcu-area-${id}" aria-label="FCU area" class="wh-input py-2" type="number" value="${defaultArea}"  min="1"   step="1"   style="font-size:16px;padding:0.5rem 0.4rem;" />
+    <input id="fcu-load-${id}" aria-label="FCU cooling load" class="wh-input py-2" type="number" value="${defaultLoad}"  min="0.1" step="0.1" style="font-size:16px;padding:0.5rem 0.4rem;" />
+    <input id="fcu-qty-${id}" aria-label="FCU quantity"  class="wh-input py-2" type="number" value="${defaultQty}"   min="1"   step="1"   style="font-size:16px;padding:0.5rem 0.4rem;" />
     <button onclick="document.getElementById('fcu-room-row-${id}').remove()" style="background:rgba(220,50,50,0.15);border:1px solid rgba(220,50,50,0.3);border-radius:0.4rem;color:rgba(220,50,50,0.8);width:28px;height:28px;cursor:pointer;font-size:0.9rem;flex-shrink:0;">x</button>
   `;
   document.getElementById('fcu-room-list').appendChild(row);
@@ -9127,12 +9127,12 @@ function addRefrigLineRow(defaultName = 'Line', defaultType = 'Suction: Horizont
   row.id    = `refrig-line-row-${id}`;
   row.style.cssText = 'display:grid;grid-template-columns:2fr 120px 70px 28px;gap:0.35rem;align-items:center;';
   row.innerHTML = `
-    <input id="refrig-name-${id}" class="wh-input py-2" type="text" value="${escHtml(String(defaultName))}" placeholder="Line name" style="font-size:16px;padding:0.5rem 0.4rem;" />
+    <input id="refrig-name-${id}" aria-label="Refrigerant line name" class="wh-input py-2" type="text" value="${escHtml(String(defaultName))}" placeholder="Line name" style="font-size:16px;padding:0.5rem 0.4rem;" />
     <select class="wh-input py-2" id="refrig-type-${id}" style="font-size:16px;padding:0.5rem 0.4rem;">
       ${REFRIG_LINE_TYPES.map(t => `<option value="${t}"${t === defaultType ? ' selected' : ''}>${t}</option>`).join('')}
     </select>
     <div class="input-group" style="min-width:0;">
-      <input id="refrig-len-${id}" class="wh-input py-2" type="number" value="${defaultLen}" min="0.5" step="0.5" style="font-size:16px;padding:0.5rem 0.4rem;" />
+      <input id="refrig-len-${id}" aria-label="Refrigerant line length" class="wh-input py-2" type="number" value="${defaultLen}" min="0.5" step="0.5" style="font-size:16px;padding:0.5rem 0.4rem;" />
       <span class="input-unit" style="font-size:0.6rem;">m</span>
     </div>
     <button onclick="document.getElementById('refrig-line-row-${id}').remove()" style="background:rgba(220,50,50,0.15);border:1px solid rgba(220,50,50,0.3);border-radius:0.4rem;color:rgba(220,50,50,0.8);width:28px;height:28px;cursor:pointer;font-size:0.9rem;flex-shrink:0;">x</button>
@@ -28972,7 +28972,7 @@ function renderBomChecklist() {
         <div class="bom-item-row">
           <input class="bom-item-input spec" type="text" placeholder="Specification" value="${escHtml(item.specification || '')}"
             oninput="_bomItems[${i}].specification=this.value" />
-          <input class="bom-item-input qty" type="number" min="0" step="0.1" value="${item.qty ?? 1}"
+          <input class="bom-item-input qty" aria-label="Item quantity" type="number" min="0" step="0.1" value="${item.qty ?? 1}"
             oninput="_bomItems[${i}].qty=parseFloat(this.value)||0" />
           <select class="bom-item-select" onchange="_bomItems[${i}].unit=this.value">
             ${(() => {
@@ -29245,11 +29245,11 @@ function renderBomTablePreview(items) {
   const rows = items.map((it, i) => `
     <tr>
       <td style="text-align:center;width:36px;">${i + 1}</td>
-      <td><input type="text" value="${escHtml(it.description || '')}" /></td>
-      <td><input type="text" value="${escHtml(it.specification || '')}" /></td>
-      <td style="text-align:center;"><input type="number" value="${it.qty ?? 1}" min="0" step="0.1" /></td>
-      <td style="text-align:center;width:50px;"><input type="text" value="${escHtml(it.unit || 'unit')}" /></td>
-      <td><input type="text" value="${escHtml(it.remarks || '')}" /></td>
+      <td><input type="text" aria-label="SOW item description" value="${escHtml(it.description || '')}" /></td>
+      <td><input type="text" aria-label="SOW item specification" value="${escHtml(it.specification || '')}" /></td>
+      <td style="text-align:center;"><input type="number" aria-label="SOW item quantity" value="${it.qty ?? 1}" min="0" step="0.1" /></td>
+      <td style="text-align:center;width:50px;"><input type="text" aria-label="SOW item unit" value="${escHtml(it.unit || 'unit')}" /></td>
+      <td><input type="text" aria-label="SOW item remarks" value="${escHtml(it.remarks || '')}" /></td>
     </tr>`).join('');
 
   document.getElementById('bom-table-preview').innerHTML = `
@@ -31350,7 +31350,7 @@ async function downloadBomDocPdf() {
   // ── Server-side vector PDF ────────────────────────────────────────────────
   try {
     const clone = el.cloneNode(true);
-    // Replace <input> elements with plain text spans (weasyprint can't render inputs)
+    // Replace input form elements with plain text spans (weasyprint can't render inputs)
     clone.querySelectorAll('input[type="text"], input[type="number"]').forEach(inp => {
       const sp = document.createElement('span');
       sp.textContent = inp.value;
