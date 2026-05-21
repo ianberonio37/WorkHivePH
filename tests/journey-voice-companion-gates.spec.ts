@@ -364,3 +364,351 @@ test.describe('voice-journal Phase A companion-gates wiring', () => {
   });
 
 });
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   PER-ANCHOR L2 BLAST-RADIUS TESTS (Phase A2.5 — 2026-05-21)
+   ───────────────────────────────────────────────────────────────────────────
+   The cluster tests above prove chained-scenario behaviour (one transcript
+   triggers multiple detectors). These per-anchor tests prove BLAST RADIUS:
+   if a single anchor's detector OR wire breaks, only that one test fails,
+   not a whole cluster. Tighter signal for the self-improvement loop.
+
+   Each PER_ANCHOR_CASE entry describes:
+     - tNum:    flywheel turn number for the anchor
+     - anchor:  the CAPS GATE / HEADER string that should land in perTurnAnchors
+     - detector:name of the WHVoice helper
+     - callsite:exact source token the validator ratchets against
+     - probes:  positive + negative transcripts (or nullary for non-text helpers)
+     - expect:  what the helper should return for each probe
+
+   Helpers that don't take a transcript (e.g. _isQuietHours, _isNearShiftEnd,
+   _checkMemoryPressure, _detectSuspiciousActivity) get a "callable" probe
+   only — the detector test asserts the function exists.
+   ════════════════════════════════════════════════════════════════════════ */
+
+interface AnchorProbe {
+  label:    string;
+  input:    any[];       // arguments passed to the helper (empty = nullary)
+  matcher: (out: any) => boolean;
+  why:      string;      // assertion message
+}
+
+interface PerAnchorCase {
+  tNum:     string;
+  anchor:   string;
+  callsite: string;
+  detector: string;
+  probes:   AnchorProbe[];
+}
+
+const PER_ANCHOR_CASES: PerAnchorCase[] = [
+  // ── Safety block ───────────────────────────────────────────────────────
+  {
+    tNum: 'T175', anchor: 'LOTO GATE',
+    detector: '_detectLotoIntent', callsite: '_detectLotoIntent(transcript)',
+    probes: [
+      { label: 'lockout-tagout',     input: ['doing lockout-tagout on P-203'], matcher: o => o === true,  why: 'fires on "lockout-tagout"' },
+      { label: 'de-energize',        input: ['de-energize the panel first'],   matcher: o => o === true,  why: 'fires on "de-energize"' },
+      { label: 'pure data question', input: ['what is the MTBF for P-203'],    matcher: o => o === false, why: 'does NOT fire on data query' },
+    ],
+  },
+  {
+    tNum: 'T176', anchor: 'HOT WORK GATE',
+    detector: '_detectHotWorkIntent', callsite: '_detectHotWorkIntent(transcript)',
+    probes: [
+      { label: 'welding',     input: ['welding the bracket now'],          matcher: o => o === true,  why: 'fires on "welding"' },
+      { label: 'grinding',    input: ['grinding the weld bead'],           matcher: o => o === true,  why: 'fires on "grinding"' },
+      { label: 'paghihinang', input: ['paghihinang ng pipe'],              matcher: o => o === true,  why: 'fires on Tagalog "paghihinang"' },
+      { label: 'pure data',   input: ['what is the MTBF for P-203'],       matcher: o => o === false, why: 'does NOT fire on data query' },
+    ],
+  },
+  {
+    tNum: 'T177', anchor: 'CONFINED SPACE GATE',
+    detector: '_detectConfinedSpaceIntent', callsite: '_detectConfinedSpaceIntent(transcript)',
+    probes: [
+      { label: 'tank entry',  input: ['tank entry for the boiler cleanout'], matcher: o => o === true,  why: 'fires on "tank entry"' },
+      { label: 'pumasok',     input: ['pumasok sa tangke ako ngayon'],       matcher: o => o === true,  why: 'fires on Tagalog "pumasok sa tangke"' },
+      { label: 'pure data',   input: ['what is the MTBF for P-203'],         matcher: o => o === false, why: 'does NOT fire on data query' },
+    ],
+  },
+  {
+    tNum: 'T178', anchor: 'PPE MATRIX',
+    detector: '_isPpeQuery', callsite: '_isPpeQuery(transcript)',
+    probes: [
+      { label: 'what PPE EN',  input: ['what ppe do I need for this'],    matcher: o => o === true,  why: 'fires on "what ppe"' },
+      { label: 'ano PPE TGL',  input: ['ano ang ppe kailangan ko dito'],  matcher: o => o === true,  why: 'fires on Tagalog "ano ang ppe"' },
+      { label: 'unrelated',    input: ['the bearing failed yesterday'],   matcher: o => o === false, why: 'does NOT fire on unrelated' },
+    ],
+  },
+  {
+    tNum: 'T179', anchor: 'NEAR-MISS CAPTURE',
+    detector: '_isNearMissReport', callsite: '_isNearMissReport(transcript)',
+    probes: [
+      { label: 'close call EN', input: ['close call earlier, almost slipped'], matcher: o => o === true,  why: 'fires on "close call / almost slipped"' },
+      { label: 'muntik TGL',    input: ['muntik na akong masaktan sa pipa'],   matcher: o => o === true,  why: 'fires on Tagalog "muntik na ... masaktan"' },
+      { label: 'unrelated',     input: ['the alarm went off this morning'],    matcher: o => o === false, why: 'does NOT fire on alarm event' },
+    ],
+  },
+  {
+    tNum: 'T180', anchor: 'JSA OFFER',
+    detector: '_shouldOfferJsa', callsite: '_shouldOfferJsa(transcript)',
+    probes: [
+      { label: 'first time EN', input: ['this is my first time doing this overhaul'], matcher: o => o === true,  why: 'fires on "first time doing"' },
+      { label: 'unang beses',   input: ['unang beses kong gagawin to'],               matcher: o => o === true,  why: 'fires on Tagalog "unang beses"' },
+      { label: 'unrelated',     input: ['what is the MTBF'],                          matcher: o => o === false, why: 'does NOT fire on MTBF question' },
+    ],
+  },
+  {
+    tNum: 'T182', anchor: 'INCIDENT GATE',
+    detector: '_isIncidentReport', callsite: '_isIncidentReport(transcript)',
+    probes: [
+      { label: 'first aid EN',   input: ['someone got hurt, need first aid asap'], matcher: o => o === true,  why: 'fires on "got hurt + first aid"' },
+      { label: 'nasaktan TGL',   input: ['may nasaktan sa floor, paramedic kailangan'], matcher: o => o === true, why: 'fires on Tagalog "may nasaktan"' },
+      { label: 'fatigue not it', input: ['I am tired today'],                       matcher: o => o === false, why: 'fatigue is NOT incident' },
+    ],
+  },
+  // ── Integration + audit ────────────────────────────────────────────────
+  {
+    tNum: 'T96', anchor: 'QUIET HOURS',
+    detector: '_isQuietHours', callsite: '_isQuietHours(new Date())',
+    probes: [
+      { label: '02:00 (quiet)', input: [new Date('2026-05-21T02:00:00+08:00')], matcher: o => o === true,  why: '02:00 PHT is quiet hours' },
+      { label: '14:00 (loud)',  input: [new Date('2026-05-21T14:00:00+08:00')], matcher: o => o === false, why: '14:00 PHT is NOT quiet hours' },
+    ],
+  },
+  {
+    tNum: 'T100', anchor: 'SESSION TAG',
+    detector: '_detectSessionTagRequest', callsite: '_detectSessionTagRequest(transcript)',
+    probes: [
+      { label: 'tag this as',  input: ['tag this as P-203 commissioning'], matcher: o => typeof o === 'string' && o.includes('P-203'), why: 'extracts the tag value' },
+      { label: 'unrelated',    input: ['what is the MTBF'],                 matcher: o => !o,                                          why: 'no tag returns falsy' },
+    ],
+  },
+  {
+    tNum: 'T102', anchor: 'STT MANGLED',
+    detector: '_looksGrammarMangled', callsite: '_looksGrammarMangled(transcript)',
+    probes: [
+      { label: 'garbled',  input: ['asdfghjklqw zxcvbnmpoi qwertyuopa'], matcher: o => o === true,  why: 'fires on 3 long no-verb tokens' },
+      { label: 'normal',   input: ['the bearing on P-203 failed yesterday during the second shift'], matcher: o => o === false, why: 'long well-formed sentence is NOT mangled' },
+    ],
+  },
+  {
+    tNum: 'T104', anchor: 'SHIFT END HORIZON',
+    detector: '_isNearShiftEnd', callsite: '_isNearShiftEnd(_shiftEnd, 30)',
+    probes: [
+      // helper takes (shiftEndHour, marginMin); within 30 min of the hour returns true
+      { label: 'callable', input: [22, 30], matcher: o => typeof o === 'boolean', why: 'returns a boolean' },
+    ],
+  },
+  // ── Learning ────────────────────────────────────────────────────────────
+  {
+    tNum: 'T114', anchor: 'MENTOR HANDOFF',
+    detector: '_isMentorHandoff', callsite: '_isMentorHandoff(transcript)',
+    probes: [
+      { label: 'I will ask supervisor',  input: ["I'll ask my supervisor about this"], matcher: o => o === true,  why: 'fires on first-person "ask supervisor"' },
+      { label: 'tatanungin ko TGL',      input: ['tatanungin ko si supervisor'],       matcher: o => o === true,  why: 'fires on Tagalog form' },
+      { label: 'unrelated',              input: ['the bearing failed'],                matcher: o => o === false, why: 'does NOT fire on unrelated' },
+    ],
+  },
+  // ── Compliance ─────────────────────────────────────────────────────────
+  {
+    tNum: 'T115', anchor: 'PII SCRUBBED',
+    detector: '_scrubPii', callsite: '_scrubPii(transcript)',
+    probes: [
+      { label: 'phone + email', input: ['phone 09171234567 email mike@plant.ph'],
+        matcher: o => o && typeof o.text === 'string' && o.text.includes('[PHONE]') && o.text.includes('[EMAIL]') && o.scrubs >= 2,
+        why: 'replaces phone + email with markers + scrubs count ≥ 2' },
+      { label: 'clean text',    input: ['what is the MTBF for P-203'],
+        matcher: o => o && o.scrubs === 0,
+        why: 'clean text returns scrubs == 0' },
+    ],
+  },
+  {
+    tNum: 'T116', anchor: 'CONSENT CHANGE',
+    detector: '_detectConsentChange', callsite: '_detectConsentChange(transcript)',
+    probes: [
+      { label: 'grant',  input: ['I consent to voice logging'],  matcher: o => o === 'grant',  why: 'returns "grant" for affirmative' },
+      { label: 'revoke', input: ['please revoke my consent'],    matcher: o => o === 'revoke', why: 'returns "revoke" for opt-out' },
+      { label: 'noop',   input: ['what is the MTBF'],            matcher: o => o === null,     why: 'returns null for unrelated' },
+    ],
+  },
+  {
+    tNum: 'T118', anchor: 'ERASURE REQUEST',
+    detector: '_isErasureRequest', callsite: '_isErasureRequest(transcript)',
+    probes: [
+      { label: 'delete history',  input: ['delete all my voice history'], matcher: o => o === true,  why: 'fires on right-to-erasure phrasing' },
+      { label: 'burahin TGL',     input: ['burahin mo lahat ng history'], matcher: o => o === true,  why: 'fires on Tagalog "burahin"' },
+      { label: 'unrelated',       input: ['what is the MTBF'],            matcher: o => o === false, why: 'does NOT fire on unrelated' },
+    ],
+  },
+  {
+    tNum: 'T120', anchor: 'SUSPICIOUS ACTIVITY',
+    detector: '_detectSuspiciousActivity', callsite: '_detectSuspiciousActivity(ctx.worker_name)',
+    probes: [
+      { label: 'callable', input: ['test-worker'], matcher: o => o === null || (typeof o === 'object'), why: 'returns null or {kind,count}' },
+    ],
+  },
+  // ── Accessibility ──────────────────────────────────────────────────────
+  {
+    tNum: 'T133', anchor: 'VOICE-ONLY TOGGLE',
+    detector: '_detectVoiceOnlyToggle', callsite: '_detectVoiceOnlyToggle(transcript)',
+    probes: [
+      // Regex requires "voice-only (mode|on|off)" or "hands-free (mode|on|off)".
+      { label: 'voice-only mode', input: ['switch to voice-only mode'], matcher: o => !!o, why: 'truthy on "voice-only mode"' },
+      { label: 'voice-only off',  input: ['voice-only off please'],     matcher: o => !!o, why: 'truthy on "voice-only off"' },
+      { label: 'unrelated',       input: ['what is the MTBF'],          matcher: o => !o,  why: 'falsy on unrelated' },
+    ],
+  },
+  // ── Operational ────────────────────────────────────────────────────────
+  {
+    tNum: 'T140', anchor: 'MEMORY PRESSURE',
+    detector: '_checkMemoryPressure', callsite: '_checkMemoryPressure()',
+    probes: [
+      // Returns { pressure, reason } where pressure is 'low' / 'medium' / 'high'.
+      { label: 'callable', input: [], matcher: o => o === null || (typeof o === 'object' && 'pressure' in o), why: 'returns null or {pressure, reason}' },
+    ],
+  },
+  // ── Team coordination ─────────────────────────────────────────────────
+  {
+    tNum: 'T146', anchor: 'HANDOFF',
+    detector: '_detectHandoffRequest', callsite: '_detectHandoffRequest(transcript)',
+    probes: [
+      { label: 'send to Mike',  input: ['send this to Mike Santos'],   matcher: o => typeof o === 'string' && o.includes('Mike'),  why: 'extracts name EN' },
+      { label: 'ipasa TGL',     input: ['ipasa mo kay Kuya Ben'],       matcher: o => typeof o === 'string' && o.includes('Ben'),   why: 'extracts name Tagalog' },
+      { label: 'unrelated',     input: ['what is the MTBF'],           matcher: o => o === null,                                   why: 'returns null on unrelated' },
+    ],
+  },
+  {
+    tNum: 'T147', anchor: 'SHARED NOTE',
+    detector: '_isSharedNoteRequest', callsite: '_isSharedNoteRequest(transcript)',
+    probes: [
+      { label: 'team share',  input: ['share this with the team'], matcher: o => o === true,  why: 'fires on "share with team"' },
+      { label: 'unrelated',   input: ['what is the MTBF'],         matcher: o => o === false, why: 'does NOT fire' },
+    ],
+  },
+  {
+    tNum: 'T149', anchor: 'WATCHLIST',
+    detector: '_detectWatchRequest', callsite: '_detectWatchRequest(transcript)',
+    probes: [
+      { label: 'watch tag',   input: ['watch P-203 for me'], matcher: o => o === 'P-203', why: 'returns asset tag' },
+      { label: 'unrelated',   input: ['what is the MTBF'],   matcher: o => o === null,    why: 'returns null' },
+    ],
+  },
+  {
+    tNum: 'T151', anchor: 'RESOLUTION CAPTURE',
+    detector: '_detectResolution', callsite: '_detectResolution(transcript)',
+    probes: [
+      { label: 'fixed it',     input: ['fixed it na boss'], matcher: o => o === 'fix_resolved', why: 'fires on "fixed it"' },
+      { label: 'ayos na TGL',  input: ['ayos na to'],        matcher: o => o === 'fix_resolved', why: 'fires on Tagalog "ayos na"' },
+      { label: 'still broken', input: ['still broken'],      matcher: o => o === null,           why: 'does NOT fire on "still broken"' },
+    ],
+  },
+  {
+    tNum: 'T153', anchor: 'BUDDY SET',
+    detector: '_detectBuddySet', callsite: '_detectBuddySet(transcript)',
+    probes: [
+      { label: 'buddy up EN',  input: ['buddy up with Juan Cruz'],          matcher: o => typeof o === 'string' && o.includes('Juan'),  why: 'extracts buddy name EN' },
+      { label: 'kasama TGL',   input: ['kasama ko sa shift si Romeo Santos'], matcher: o => typeof o === 'string' && o.includes('Romeo'), why: 'extracts buddy name Tagalog' },
+      { label: 'unrelated',    input: ['what is the MTBF'],                 matcher: o => o === null,                                   why: 'returns null on unrelated' },
+    ],
+  },
+  // ── Sustainability ────────────────────────────────────────────────────
+  {
+    tNum: 'T204', anchor: 'ENERGY QUERY',
+    detector: '_isEnergyQuery', callsite: '_isEnergyQuery(transcript)',
+    probes: [
+      { label: 'kWh',           input: ['what is the kWh consumption of MX-12 last week'], matcher: o => o === true,  why: 'fires on kWh' },
+      { label: 'wasting power', input: ['are we wasting power on P-203 this shift'],       matcher: o => o === true,  why: 'fires on "wasting power"' },
+      { label: 'MTBF',          input: ['what is the MTBF for P-203'],                     matcher: o => o === false, why: 'MTBF is NOT energy' },
+    ],
+  },
+  // ── Multi-language NLU ────────────────────────────────────────────────
+  {
+    tNum: 'T205', anchor: 'DIALECT NOTE',
+    detector: '_isCebuanoLeaning', callsite: '_isCebuanoLeaning(transcript)',
+    probes: [
+      { label: '≥2 Cebuano markers', input: ['unsa man na asa ang spare bearing kinsa nag-bitay'], matcher: o => o === true,  why: 'fires with ≥2 markers' },
+      { label: '0 markers',          input: ['the bearing failed yesterday'],                       matcher: o => o === false, why: 'does NOT fire on EN' },
+    ],
+  },
+  {
+    tNum: 'T206', anchor: 'DIALECT NOTE',
+    detector: '_isIlonggoLeaning', callsite: '_isIlonggoLeaning(transcript)',
+    probes: [
+      { label: '≥2 Ilonggo markers', input: ['manami gid bala ang reading damo gid na maintenance'], matcher: o => o === true,  why: 'fires with ≥2 markers' },
+      { label: '0 markers',          input: ['the bearing failed yesterday'],                         matcher: o => o === false, why: 'does NOT fire on EN' },
+    ],
+  },
+  {
+    tNum: 'T207', anchor: 'TAGALOG IMPERATIVE',
+    detector: '_isTagalogImperative', callsite: '_isTagalogImperative(transcript)',
+    probes: [
+      { label: 'i-X mo',     input: ['i-check mo ang vibration ng P-203'], matcher: o => o === true,  why: 'fires on "i-X mo"' },
+      { label: 'pakisuyo',   input: ['pakisuyo, i-restart mo ang pump'],   matcher: o => o === true,  why: 'fires on "pakisuyo"' },
+      { label: 'unrelated',  input: ['what is the MTBF'],                  matcher: o => o === false, why: 'does NOT fire on EN' },
+    ],
+  },
+  {
+    tNum: 'T209', anchor: 'POLITENESS REGISTER',
+    detector: '_classifyPolitenessRegister', callsite: '_classifyPolitenessRegister(transcript)',
+    probes: [
+      { label: 'formal po', input: ['opo sir, gagawin ko na po'],            matcher: o => o === 'formal', why: 'returns formal for po/opo' },
+      { label: 'casual tol', input: ['sige tol ako bahala dyan pre'],         matcher: o => o === 'casual', why: 'returns casual for tol/pre' },
+    ],
+  },
+];
+
+test.describe('voice-journal per-anchor blast-radius (Phase A2.5)', () => {
+
+  for (const c of PER_ANCHOR_CASES) {
+    // One test per anchor — fast, isolated, names the breakage if it fails.
+    test(`${c.tNum} ${c.anchor} (${c.detector}) — detector + wire ratchet`, async ({ whPage }) => {
+      await whPage.goto(PAGE);
+      await waitForPageReady(whPage);
+      await whPage.waitForTimeout(250);
+
+      // 1. detector behaviour
+      const verdict = await whPage.evaluate(
+        ([detectorName, probes]) => {
+          const wh = (window as any).WHVoice;
+          if (!wh || typeof wh[detectorName as string] !== 'function') {
+            return { ready: false, missing: detectorName };
+          }
+          return {
+            ready: true,
+            results: (probes as any[]).map(p => {
+              try { return { ok: true,  out: (wh as any)[detectorName as string].apply(wh, p.input) }; }
+              catch (e) { return { ok: false, err: String(e) }; }
+            }),
+          };
+        },
+        [c.detector, c.probes.map(p => ({ input: p.input }))] as const,
+      );
+
+      expect(verdict.ready, `${c.tNum} ${c.detector} must be exported on window.WHVoice`).toBe(true);
+      for (let i = 0; i < c.probes.length; i++) {
+        const probe = c.probes[i];
+        const res = verdict.results![i];
+        expect(res.ok, `${c.tNum} ${probe.label} threw: ${res.err || ''}`).toBe(true);
+        expect(probe.matcher(res.out), `${c.tNum} ${probe.label}: ${probe.why} (got ${JSON.stringify(res.out)})`).toBe(true);
+      }
+    });
+  }
+
+  test('per-anchor source-wire ratchet: every PER_ANCHOR_CASES entry has its anchor + callsite in voice-handler.js', async ({ whPage }) => {
+    await whPage.goto(PAGE);
+    await waitForPageReady(whPage);
+    const source = await whPage.evaluate(async () => {
+      const r = await fetch('/workhive/voice-handler.js', { cache: 'no-store' });
+      return r.ok ? await r.text() : '';
+    });
+    expect(source.length, 'voice-handler.js fetched').toBeGreaterThan(100000);
+    const missing: string[] = [];
+    for (const c of PER_ANCHOR_CASES) {
+      if (!source.includes(c.anchor))   missing.push(`${c.tNum} anchor "${c.anchor}"`);
+      if (!source.includes(c.callsite)) missing.push(`${c.tNum} callsite \`${c.callsite}\``);
+    }
+    expect(missing, `Per-anchor wire ratchet — missing:\n${missing.join('\n')}`).toEqual([]);
+  });
+
+});
