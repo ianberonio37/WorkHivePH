@@ -1177,3 +1177,138 @@ test('supervisor_gate_kick: kickMember as worker shows toast and does NOT update
 - `l2_reset_missing` (file existence — see Draft #11).
 - `module_level_channels` (validate_notifications.py — source-code-pattern scan on variable declaration scope; Layer 0 is the right place).
 - Most of validate_renderers.py / validate_ai_regression.py / validate_analytics.py code-shape checks (already noted in Batch 2 LANDING NOTES).
+
+---
+
+# Sentinel Drafts - 2026-05-22 (Session batch)
+
+Generated from `/sentinel-review` on a 5-gap batch. Baseline coverage: 81.5%
+(243/298 validators, 100% per-page coverage, 89.5% per-page behavioral).
+Remaining 55 gaps are all infrastructure-only per the coverage report's
+`infra_gap_count: 55`.
+
+---
+
+## Draft #1: validate_auto_discovery.py - INFRASTRUCTURE
+
+**Rule:** Scans the manifest / registry for auto-discovered surfaces and
+verifies each declared surface resolves to a real file. Pure registry-vs-fs
+audit — runs at L0 without invoking any page in a browser.
+
+**Reason no Layer 2 proposal:** No UI surface — the validator's failure mode
+is "manifest references a file that doesn't exist on disk", which is caught
+deterministically at static-analysis time. A Playwright scenario that loaded
+each manifest surface and confirmed 200-OK would be redundant with the
+existing `validate_image_asset_existence.py` + `validate_sitemap_page_existence.py`
+sentinels.
+
+**Status:** INFRASTRUCTURE — NO PROPOSAL NEEDED
+
+---
+
+## Draft #2: validate_avatar_state_phase10.py - INFRASTRUCTURE
+
+**Rule:** Phase 10 companion avatar state machine — verifies the
+`data-avatar-state` attribute taxonomy (idle / listening / thinking /
+speaking / urgent / celebratory / concerned / helpful) is declared in
+voice-handler.js and applied to the avatar bubble element.
+
+**Reason no Layer 2 proposal:** The state-attribute writes happen in
+`voice-handler.js` (already covered by `journey-voice-phases.spec.ts phase_10`
+which is the canonical Phase 10 runtime sentinel). Adding another behavioral
+test would duplicate that existing scenario.
+
+**Status:** INFRASTRUCTURE — NO PROPOSAL NEEDED
+
+---
+
+## Draft #3: validate_bundle_bloat.py - INFRASTRUCTURE
+
+**Rule:** Edge fn LOC + top-level import-count ceilings; cold-start
+proxy. Layer 1 hard LOC ceiling, Layer 2 hard import-count ceiling,
+Layer 3 informational ranking, Layer 4 dynamic-import drift.
+
+**Reason no Layer 2 proposal:** Bundle size is a build-time / deploy-time
+property — Playwright doesn't observe LOC counts. The user-visible
+consequence (slow cold-start) is more usefully measured by `validate_cold_start_memoization.py`
+and runtime trace timing, not a sentinel scenario.
+
+**Status:** INFRASTRUCTURE — NO PROPOSAL NEEDED
+
+---
+
+## Draft #4: validate_button_type_in_form.py -> tests/journey-button-type-regression.spec.ts
+
+**Rule:** `<button>` inside a `<form>` MUST declare `type="button"` /
+`type="submit"` / `type="reset"`. Default is submit, so a stray icon /
+cancel button triggers unintended form posts.
+
+**Target file:** new `tests/journey-button-type-regression.spec.ts`
+
+```typescript
+import { test, expect } from './_fixtures';
+import { waitForPageReady } from './_helpers';
+
+// regression scenario for the button_type_in_form validator
+// Every button inside a form should NOT trigger a navigation
+// when clicked unless it's the explicit submit.
+test.describe('REGRESSION: button_type_in_form', () => {
+  // Pages that contain at least one <form> per the static scan.
+  const FORM_PAGES = ['/workhive/logbook.html', '/workhive/inventory.html'];
+
+  for (const url of FORM_PAGES) {
+    test(`button_type_in_form: no unintended form submit on ${url}`, async ({ whPage }) => {
+      await whPage.goto(url);
+      await waitForPageReady(whPage);
+
+      // Capture all buttons inside forms that are NOT type="submit"
+      const inFormButtons = await whPage.$$eval('form button', (btns) =>
+        btns
+          .filter(b => (b.getAttribute('type') || '').toLowerCase() !== 'submit')
+          .map(b => ({
+            text: (b.textContent || '').trim().slice(0, 30),
+            type: b.getAttribute('type') || '(none)',
+            id:   b.id || '(none)',
+          }))
+      );
+
+      // Each non-submit in-form button MUST have type=button or type=reset
+      const violations = inFormButtons.filter(b => !['button', 'reset'].includes(b.type));
+      expect(violations, `Unmarked in-form buttons would submit by default on ${url}`).toEqual([]);
+
+      // Behavioral check: clicking an in-form "Cancel"-style button must not navigate
+      const cancelBtn = whPage.locator('form button[type="button"]:has-text("Cancel"), form button[type="button"]:has-text("Close")').first();
+      if (await cancelBtn.count()) {
+        const beforeUrl = whPage.url();
+        await cancelBtn.click({ timeout: 2000 }).catch(() => {});
+        await whPage.waitForTimeout(500);
+        expect(whPage.url(), 'Cancel button must not navigate the page').toBe(beforeUrl);
+      }
+    });
+  }
+});
+```
+
+**Why this scenario covers the rule:** Asserts the static rule
+(every in-form button has explicit `type`) AND adds a behavioral round-trip
+(clicking a type=button doesn't navigate). The two together catch both new
+violations and real-world drift where someone removes `type="button"` and the
+in-form button starts submitting.
+
+**Status:** READY FOR REVIEW
+
+---
+
+## Draft #5: validate_capability_dedup.py - INFRASTRUCTURE
+
+**Rule:** Capability catalog uniqueness — every `// capability: <id>` source
+annotation must match a registered primary_surface, no two files can claim
+the same capability as primary.
+
+**Reason no Layer 2 proposal:** Catalog is a static registry-vs-source audit
+(Tier G of the contracts stack). Mismatches are syntactic; no UI to test.
+Validator runs in <100ms; the L0 layer is the right home.
+
+**Status:** INFRASTRUCTURE — NO PROPOSAL NEEDED
+
+---
