@@ -2955,6 +2955,7 @@ async function loadPMHealth() {
   }
 
   // PM done this week (kept for the Team Pulse / activity card)
+  // time-window-allow: 7d = rolling week filter for the activity card, distinct from PM-overdue thresholds
   const weekAgo   = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
   const weekComps = pmComps.filter(c => c.completed_at >= weekAgo);
 
@@ -3837,7 +3838,7 @@ function generateHandover() {
   const stillOpen     = all.filter(e => e.status === 'Open');
   const openThisShift = stillOpen.filter(e => new Date(e.created_at || e.date) >= since8h);
   const carryForward  = stillOpen.filter(e => new Date(e.created_at || e.date) < since8h);
-  const overdue       = stillOpen.filter(e => (now - new Date(e.created_at || e.date)) > 3 * 86400000);
+  const overdue       = stillOpen.filter(e => (now - new Date(e.created_at || e.date)) > 3 * 86400000); // time-window-allow: 3d = OPEN logbook entry triage SLA (distinct from 30d PM-cycle gap)
 
   const lotoRx   = /loto|lock.?out|tag.?out|isolat|permit.?to.?work|\bptw\b/i;
   const lotoJobs = stillOpen.filter(e => lotoRx.test(e.problem || '') || lotoRx.test(e.category || ''));
@@ -3902,7 +3903,7 @@ function generateHandover() {
     html += `<div class="ho-section">
       <p class="ho-label" style="color:#f87171;">🔁 Carry-Forward — Previous Shifts (${carryForward.length})${overdue.length ? ' · ' + overdue.length + ' overdue' : ''}</p>
       ${carryForward.slice(0, 8).map(e => {
-        const isOD = (now - new Date(e.created_at || e.date)) > 3 * 86400000;
+        const isOD = (now - new Date(e.created_at || e.date)) > 3 * 86400000; // time-window-allow: 3d = OPEN logbook entry triage SLA (same as line 3840)
         return `<div class="ho-item"><span style="color:${isOD ? '#ef4444' : '#F7A21B'};flex-shrink:0;">${isOD ? '⚠️' : '•'}</span><span>${escHtml(e.machine || '—')}${e.problem ? ' — <em style="color:rgba(255,255,255,0.4)">' + escHtml(e.problem.slice(0, 50)) + '</em>' : ''}</span></div>`;
       }).join('')}
     </div>`;

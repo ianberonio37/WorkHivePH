@@ -3488,7 +3488,7 @@
           (comps || []).forEach(c => {
             if (!lastByAsset[c.asset_id]) lastByAsset[c.asset_id] = new Date(c.completed_at).getTime();
           });
-          const cutoff = Date.now() - 30 * 86400000;
+          const cutoff = Date.now() - 30 * 86400000; // time-window-allow: 30d = PM-cycle gap (asset not serviced in a month), distinct from 3d open-issue triage
           pmOverdueCount = pmAssets.filter(a => {
             const last = lastByAsset[a.id];
             return !last || last < cutoff;

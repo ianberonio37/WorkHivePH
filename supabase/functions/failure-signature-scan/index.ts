@@ -91,6 +91,7 @@ function detectEscalatingFrequency(
   now: Date,
 ): ScanAlert | null {
   // Rule: more failures in last 30d than in the prior 60d
+  // time-window-allow: dual-band trend rule (recent 30d vs prior 60d to 90d ago); both windows required for the comparison
   const ms30 = 30 * 86400000;
   const ms90 = 90 * 86400000;
   const breakdowns = rows.filter(r => r.maintenance_type === "Breakdown / Corrective");
@@ -183,8 +184,8 @@ async function scanHive(
   hiveId: string,
   now: Date,
 ): Promise<{ created: number; updated: number; errors: number }> {
-  const since90 = new Date(now.getTime() - 90 * 86400000).toISOString();
-  const since30 = new Date(now.getTime() - 30 * 86400000).toISOString();
+  const since90 = new Date(now.getTime() - 90 * 86400000).toISOString(); // time-window-allow: dual-band fetch (90d primes trend detector)
+  const since30 = new Date(now.getTime() - 30 * 86400000).toISOString(); // time-window-allow: dual-band fetch (30d slices for recent counts)
 
   // Fetch recent breakdowns for this hive.
   // Canonical: logbook_truth.

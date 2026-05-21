@@ -56,7 +56,7 @@ function currentPeriod(type: "monthly" | "quarterly"): string {
 
 async function gatherData(db: SupabaseClient) {
   const now   = new Date();
-  const since = new Date(now.getTime() - 90 * 86400000).toISOString();
+  const since = new Date(now.getTime() - 90 * 86400000).toISOString(); // time-window-allow: 90d = standard intelligence-rollup window across canonical truth views
 
   // Total hives with recent activity. Canonical: logbook_truth (drop-in for all 3 reads).
   const { data: activeHives } = await db.from("v_logbook_truth")
