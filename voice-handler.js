@@ -7487,6 +7487,30 @@
             : 'Mixed — start neutral, follow the worker\'s next turn lead.') + '\n';
     }
 
+    // T153 BUDDY SET — "buddy up with Juan" / "kasama ko sa shift si Romeo".
+    // Persist on the spot so the buddy is queryable from the next turn.
+    const _buddyName = _detectBuddySet(transcript);
+    if (_buddyName && ctx && ctx.worker_name) {
+      try { _setBuddy(ctx.worker_name, _buddyName); } catch (_) { /* best-effort */ }
+      perTurnAnchors +=
+        '\nBUDDY SET — worker paired with "' + _buddyName + '" for this shift. ' +
+        'Acknowledge in one line ("sige, kasama mo ngayon si ' + _buddyName +
+        '"). Future logbook entries / handoffs may auto-include the buddy.\n';
+    }
+
+    // T205 / T206 DIALECT NOTE — extends T59 LANGUAGE PREF with
+    // implicit dialect detection. Fires when ≥2 Cebuano or Ilonggo
+    // markers appear, even without an explicit "switch to" request.
+    const _ceb = _isCebuanoLeaning(transcript);
+    const _ilo = _isIlonggoLeaning(transcript);
+    if (_ceb || _ilo) {
+      perTurnAnchors +=
+        '\nDIALECT NOTE — worker is leaning ' + (_ceb ? 'Cebuano (Bisaya)' : 'Ilonggo (Hiligaynon)') +
+        ' based on dialect markers (unsa/asa/kinsa for Cebuano, gid/bala/manami for Ilonggo). ' +
+        'Reply in matching dialect-leaning Tagalog/Taglish — do NOT force pure Tagalog. If unsure, ' +
+        'keep the answer short and follow the worker\'s next turn lead.\n';
+    }
+
     // ═══════════════════════════════════════════════════════════════════════
     // END PHASE A COMPREHENSIVE WIRING
     // ═══════════════════════════════════════════════════════════════════════

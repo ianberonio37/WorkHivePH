@@ -67,11 +67,15 @@ const WIRED_ANCHORS: Array<{ anchor: string; callsite: string; tNum: string }> =
   { anchor: 'ENERGY QUERY',        callsite: '_isEnergyQuery(transcript)',              tNum: 'T204' },
   { anchor: 'TAGALOG IMPERATIVE',  callsite: '_isTagalogImperative(transcript)',        tNum: 'T207' },
   { anchor: 'POLITENESS REGISTER', callsite: '_classifyPolitenessRegister(transcript)', tNum: 'T209' },
+  // Phase A2 — orphan-detector closeout (2026-05-21)
+  { anchor: 'BUDDY SET',           callsite: '_detectBuddySet(transcript)',             tNum: 'T153' },
+  { anchor: 'DIALECT NOTE',        callsite: '_isCebuanoLeaning(transcript)',           tNum: 'T205' },
+  { anchor: 'DIALECT NOTE',        callsite: '_isIlonggoLeaning(transcript)',           tNum: 'T206' },
 ];
 
 test.describe('voice-journal Phase A companion-gates wiring', () => {
 
-  test('all 25 Phase A anchor strings + detector callsites live in voice-handler.js', async ({ whPage }) => {
+  test('all Phase A anchor strings + detector callsites live in voice-handler.js', async ({ whPage }) => {
     await whPage.goto(PAGE);
     await waitForPageReady(whPage);
     const source = await whPage.evaluate(async () => {
@@ -310,6 +314,10 @@ test.describe('voice-journal Phase A companion-gates wiring', () => {
         res_fixed:    wh._detectResolution('fixed it na boss'),
         res_ayos:     wh._detectResolution('ayos na to'),
         res_neg:      wh._detectResolution('still broken'),
+        // T153 buddy set (Phase A2)
+        buddy_en:     wh._detectBuddySet('buddy up with Juan Cruz'),
+        buddy_tgl:    wh._detectBuddySet('kasama ko sa shift si Romeo Santos'),
+        buddy_neg:    wh._detectBuddySet('what is the MTBF'),
       };
     });
 
@@ -324,6 +332,35 @@ test.describe('voice-journal Phase A companion-gates wiring', () => {
     expect(verdict.res_fixed,   'T151 "fixed it" → resolved').toBe('fix_resolved');
     expect(verdict.res_ayos,    'T151 "ayos na" → resolved').toBe('fix_resolved');
     expect(verdict.res_neg,     'T151 "still broken" not resolved').toBeNull();
+    expect(verdict.buddy_en,    'T153 "buddy up with Juan Cruz"').toContain('Juan');
+    expect(verdict.buddy_tgl,   'T153 "kasama ko si Romeo"').toContain('Romeo');
+    expect(verdict.buddy_neg,   'T153 non-buddy returns null').toBeNull();
+  });
+
+  test('dialect detection: Cebuano + Ilonggo markers fire DIALECT NOTE (Phase A2)', async ({ whPage }) => {
+    await whPage.goto(PAGE);
+    await waitForPageReady(whPage);
+    await whPage.waitForTimeout(300);
+
+    const verdict = await whPage.evaluate(() => {
+      const wh = (window as any).WHVoice;
+      if (!wh) return { ready: false };
+      return {
+        ready:       true,
+        // T205 _isCebuanoLeaning needs ≥2 markers from the Cebuano set.
+        ceb_yes:     wh._isCebuanoLeaning('unsa man na asa ang spare bearing kinsa nag-bitay'),
+        ceb_neg:     wh._isCebuanoLeaning('the bearing failed yesterday'),
+        // T206 _isIlonggoLeaning needs ≥2 Hiligaynon markers.
+        ilo_yes:     wh._isIlonggoLeaning('manami gid bala ang reading damo gid na maintenance'),
+        ilo_neg:     wh._isIlonggoLeaning('the bearing failed yesterday'),
+      };
+    });
+
+    expect(verdict.ready).toBe(true);
+    expect(verdict.ceb_yes, 'T205 Cebuano ≥2 markers').toBe(true);
+    expect(verdict.ceb_neg, 'T205 EN sentence NOT Cebuano').toBe(false);
+    expect(verdict.ilo_yes, 'T206 Ilonggo ≥2 markers').toBe(true);
+    expect(verdict.ilo_neg, 'T206 EN sentence NOT Ilonggo').toBe(false);
   });
 
 });

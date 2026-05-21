@@ -25,7 +25,7 @@ SYMBOLS = {
     "fillers":     ["_stripFillers"],
     "stop_words":  ["_STOP_WORDS", "_removeStopWords"],
     "slang":       ["_SLANG_DICT", "_slangToCanonical", "'broken'", "'overheat'", "'leak'"],
-    "wires":       ["TAGALOG IMPERATIVE", "_isTagalogImperative(transcript)", "POLITENESS REGISTER", "_classifyPolitenessRegister(transcript)"],
+    "wires":       ["TAGALOG IMPERATIVE", "_isTagalogImperative(transcript)", "POLITENESS REGISTER", "_classifyPolitenessRegister(transcript)", "DIALECT NOTE", "_isCebuanoLeaning(transcript)", "_isIlonggoLeaning(transcript)"],
 }
 LABELS = {
     "cebuano":     "T205 _CEBUANO_MARKERS (unsa/asa/kinsa)",
@@ -38,7 +38,7 @@ LABELS = {
     "fillers":     "T212 _stripFillers",
     "stop_words":  "T213 _STOP_WORDS bilingual",
     "slang":       "T214 _SLANG_DICT (sira→broken etc)",
-    "wires":       "PHASE A wires — T207 TAGALOG IMPERATIVE + T209 POLITENESS REGISTER anchors live in perTurnAnchors",
+    "wires":       "PHASE A wires — T207 TAGALOG IMPERATIVE + T209 POLITENESS REGISTER + T205/T206 DIALECT NOTE anchors live in perTurnAnchors",
 }
 
 

@@ -131,6 +131,7 @@ def check_phase_a_wires(c: str) -> list[dict]:
         ("SHARED NOTE",        "_isSharedNoteRequest(transcript)",   "T147 SHARED NOTE anchor"),
         ("WATCHLIST",          "_detectWatchRequest(transcript)",    "T149 WATCHLIST anchor"),
         ("RESOLUTION CAPTURE", "_detectResolution(transcript)",      "T151 RESOLUTION CAPTURE anchor"),
+        ("BUDDY SET",          "_detectBuddySet(transcript)",        "T153 BUDDY SET anchor"),
     ]
     for anchor, callsite, label in pairs:
         if anchor not in c:
