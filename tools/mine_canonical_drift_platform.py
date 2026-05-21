@@ -347,8 +347,11 @@ def _scan_file(path: Path, layer: str) -> dict:
             canonical.append({"table": tbl, "line": line_no, "verb": verb})
             continue
 
-        # Inline allow.
-        allow = _allow_reason_near(scan_text, m.start())
+        # Inline allow. Use RAW (not scan_text) because the marker lives in
+        # comments which scan_text has stripped. Offsets still line up because
+        # _strip_comments_js preserves character positions (newlines retained,
+        # other chars replaced with spaces of equal length).
+        allow = _allow_reason_near(raw, m.start())
         if allow:
             allowed.append({"table": tbl, "line": line_no, "reason": allow})
             continue
