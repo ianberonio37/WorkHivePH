@@ -337,6 +337,7 @@ serve(async (req) => {
       hives = [data];
     } else {
       // Cron path: run for all active hives
+      // unbounded-query-allow: scheduled-agent dispatcher iterates every hive; full active set required
       const { data, error: hivesErr } = await db.from("v_hives_truth").select("id, name");
       if (hivesErr || !data?.length) {
         return new Response(

@@ -59,6 +59,7 @@ async function gatherData(db: SupabaseClient) {
   const since = new Date(now.getTime() - 90 * 86400000).toISOString(); // time-window-allow: 90d = standard intelligence-rollup window across canonical truth views
 
   // Total hives with recent activity. Canonical: logbook_truth (drop-in for all 3 reads).
+  // unbounded-query-allow: server-side intelligence rollup — full recent-activity scan for hive ranking
   const { data: activeHives } = await db.from("v_logbook_truth")
     .select("hive_id")
     .gte("created_at", since)
@@ -71,6 +72,7 @@ async function gatherData(db: SupabaseClient) {
     .gte("created_at", since);
 
   // Total unique machines
+  // unbounded-query-allow: unique-machines count for intelligence rollup; full recent set required
   const { data: machineRows } = await db.from("v_logbook_truth")
     .select("machine")
     .gte("created_at", since)
@@ -103,6 +105,7 @@ async function gatherData(db: SupabaseClient) {
 
   // Low stock parts across multiple hives. Canonical view exposes the
   // is_low_stock derived flag so the threshold rule lives in one place.
+  // unbounded-query-allow: cross-hive low-stock scan for intelligence rollup
   const { data: lowStock } = await db.from("v_inventory_items_truth")
     .select("part_name, hive_id")
     .eq("is_low_stock", true)
@@ -120,6 +123,7 @@ async function gatherData(db: SupabaseClient) {
     .map(([part, hiveCount]) => ({ part, hive_count: hiveCount }));
 
   // Seasonal: failure count by month (last 12 months). Canonical: logbook_truth.
+  // unbounded-query-allow: 12-month seasonal faults read for intelligence rollup
   const { data: monthlyFaults } = await db.from("v_logbook_truth")
     .select("created_at")
     .eq("maintenance_type", "Breakdown / Corrective")

@@ -153,6 +153,7 @@ async function computeForHive(db: SupabaseClient, hiveId: string, now: Date) {
   }
 
   if (hiveRows.length) {
+    // unbounded-query-allow: benchmark aggregator reads the full benchmark table for percentile compute
     await db.from("hive_benchmarks")
       .upsert(hiveRows, { onConflict: "hive_id,equipment_category" });
   }
@@ -162,6 +163,7 @@ async function computeForHive(db: SupabaseClient, hiveId: string, now: Date) {
 
 async function computeNetwork(db: SupabaseClient, now: Date) {
   // Pull all recent hive_benchmarks
+  // unbounded-query-allow: network percentile compute — full recent-benchmark scan required
   const { data: allHive } = await db.from("hive_benchmarks")
     .select("hive_id, equipment_category, mtbf_days, failure_count")
     .gte("computed_at", new Date(now.getTime() - 8 * 86400000).toISOString()) // last 8 days

@@ -99,10 +99,14 @@ def main() -> int:
                 gid = m.group("id")
                 total_lookups += 1
                 if gid in target_ids: continue
-                win = body[max(0, m.start() - 200):m.end() + 200]
-                if ALLOW_RE.search(win): continue
                 key = (spec.name, gid)
                 if key in seen: continue
+                # Allow marker near ANY occurrence of this id in this spec exempts it
+                # (markers on the first use shouldn't have to be repeated on every use).
+                win = body[max(0, m.start() - 200):m.end() + 200]
+                if ALLOW_RE.search(win):
+                    seen.add(key)
+                    continue
                 seen.add(key)
                 misses.append({"id": gid, "offset": m.start()})
 

@@ -45,6 +45,7 @@ serve(async (req) => {
   try {
     const db = createClient(SUPABASE_URL, SERVICE_KEY);
 
+    // unbounded-query-allow: parts recommender runs per-hive on schedule; full active-hive set required
     const { data: hives, error: hivesErr } = await db.from("v_hives_truth").select("id, name");
     if (hivesErr) throw new Error(`Hives fetch: ${hivesErr.message}`);
     if (!hives?.length) {

@@ -251,6 +251,7 @@ serve(async (req) => {
     const now       = new Date().toISOString();
 
     // Fetch configs to sync
+    // unbounded-query-allow: enabled integration configs (one row per hive max); full fetch required
     let configQuery = db.from("integration_configs")
       .select("*").eq("enabled", true);
     if (body.config_id) configQuery = configQuery.eq("id",      body.config_id);

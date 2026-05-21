@@ -59,6 +59,7 @@ test.describe('Universal feedback widget — visual journey', () => {
     test(`fab_journey_public: FAB renders on ${stop.label}`, async ({ rawPage }) => {
       await rawPage.goto(stop.url, { waitUntil: 'domcontentloaded' });
       // FAB lazy-loads — wait up to 8s for it to mount
+      // pw-selector-allow: #wh-feedback-fab is JS-injected by wh-feedback-fab.js at runtime, not in static HTML
       const fab = rawPage.locator('#wh-feedback-fab');
       await fab.waitFor({ state: 'visible', timeout: 8000 });
       // Capture a viewport screenshot for human spot-check
@@ -126,10 +127,11 @@ test.describe('Universal feedback widget — visual journey', () => {
     await expect(whPage.locator('#wh-feedback-panel.open')).toBeVisible({ timeout: 5000 });
 
     await whPage.locator('.wh-fb-kind[data-kind="praise"]').click();
+    // pw-selector-allow: #wh-fb-subject / #wh-fb-body / #wh-fb-email / #wh-fb-submit-btn are JS-injected by wh-feedback-fab.js
     await whPage.locator('#wh-fb-subject').fill(subject);
-    await whPage.locator('#wh-fb-body').fill('Submitted from signed-in hive.html — journey spec verifying signed-in submission path.');
-    await whPage.locator('#wh-fb-email').fill(email);
-    await whPage.locator('#wh-fb-submit-btn').click();
+    await whPage.locator('#wh-fb-body').fill('Submitted from signed-in hive.html — journey spec verifying signed-in submission path.'); // pw-selector-allow: JS-injected
+    await whPage.locator('#wh-fb-email').fill(email); // pw-selector-allow: JS-injected
+    await whPage.locator('#wh-fb-submit-btn').click(); // pw-selector-allow: JS-injected
 
     await expect(whPage.locator('.wh-fb-success')).toBeVisible({ timeout: 5000 });
 

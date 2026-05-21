@@ -188,6 +188,7 @@ async function workforceMatchAgent(db: SupabaseClient, hiveId: string | null, wo
     .limit(100);
   if (hiveId) skillsQ.eq("hive_id", hiveId);
 
+  // unbounded-query-allow: server-side roster scan (RLS-scoped); full hive worker list needed for assignment routing
   const capQ = db.from("v_worker_assignment_truth")  // canonical: worker_assignment_truth
     .select("worker_name, capacity_signal, open_jobs, last_category");
   if (hiveId) capQ.eq("hive_id", hiveId);

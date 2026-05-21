@@ -2703,6 +2703,7 @@
 
     async function _ensurePfTemplates() {
       if (_pfTemplatesByCategory) return _pfTemplatesByCategory;
+      // unbounded-query-allow: small reference catalog (~30 reading-type templates), full fetch needed for dropdown
       const { data, error } = await db.from('equipment_reading_templates')
         .select('category, reading_key, label, unit, sort_order')
         .order('category', { ascending: true })

@@ -50,6 +50,7 @@ serve(async (req) => {
         .order("created_at", { ascending: false })
         .limit(10000),
 
+      // unbounded-query-allow: ML retrain reads full PM-compliance set for training data
       db.from("v_pm_compliance_truth").select("id, asset_name, tag_id, category, hive_id"),
 
       db.from("v_pm_compliance_truth")

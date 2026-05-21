@@ -2702,6 +2702,7 @@ let _readingTemplates = null; // cached after first load
 async function loadReadingTemplates() {
   if (_readingTemplates) return _readingTemplates;
   try {
+    // unbounded-query-allow: small reference catalog (~30 reading-type templates), full fetch needed for dropdown
     const { data, error } = await db.from('equipment_reading_templates')
       .select('category, reading_key, label, unit, placeholder, sort_order')
       .order('category').order('sort_order');

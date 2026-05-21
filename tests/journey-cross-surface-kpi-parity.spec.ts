@@ -43,6 +43,7 @@ test.describe('cross-surface KPI parity', () => {
     await whPage.goto(HIVE_URL, { waitUntil: 'domcontentloaded' });
     // Team Pulse tile populates after loadPMHealth() resolves; the cell starts
     // as "—" (em dash). Poll until it's a number or 5s passes.
+    // pw-selector-allow: #pulse-pm-overdue lives in hive.html (HIVE_URL constant; validator's GOTO_RE matches literals only)
     const pulseLocator = whPage.locator('#pulse-pm-overdue');
     await pulseLocator.waitFor({ state: 'visible', timeout: 10_000 });
     await whPage.waitForFunction(() => {
@@ -59,6 +60,7 @@ test.describe('cross-surface KPI parity', () => {
 
     // ── Read overdue ASSET count from PM Scheduler hero card ───────────────
     await whPage.goto(SCHED_URL, { waitUntil: 'domcontentloaded' });
+    // pw-selector-allow: #stat-overdue lives in pm-scheduler.html (SCHED_URL constant; validator's GOTO_RE matches literals only)
     const heroLocator = whPage.locator('#stat-overdue');
     await heroLocator.waitFor({ state: 'visible', timeout: 10_000 });
     await whPage.waitForFunction(() => {
@@ -179,6 +181,7 @@ test.describe('cross-surface KPI parity', () => {
       return el && /^\d+$/.test((el.textContent || '').trim());
     }, { timeout: 15_000 }).catch(() => { /* hive may genuinely have only Pablo */ });
 
+    // pw-selector-allow: #stat-members lives in hive.html (HIVE_URL constant; validator's GOTO_RE matches literals only)
     const tileCount = await readIntFromText(await whPage.locator('#stat-members').textContent());
 
     const viewCount: number = await whPage.evaluate(async () => {

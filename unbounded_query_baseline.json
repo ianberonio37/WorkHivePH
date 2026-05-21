@@ -1,4 +1,4 @@
 {
-  "unbounded": 15,
-  "established": true
+  "unbounded": 0,
+  "tightened": true
 }

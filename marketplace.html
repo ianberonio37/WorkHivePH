@@ -1639,6 +1639,7 @@
       }
 
       const { data, error } = await db
+        // unbounded-query-allow: bounded by .in('id', ids) — ids array is the upstream cap
         .from('v_marketplace_listings_truth')
         .select('id,title,section,category,price,location,seller_name,image_url,status,created_at')
         .in('id', ids)
@@ -1994,6 +1995,7 @@
   async function loadCounts() {
     try {
       const { data } = await db
+        // unbounded-query-allow: section-count rollup; trades a full-table read for 3 separate per-section head-counts (TODO if listings exceed ~5k)
         .from('v_marketplace_listings_truth')
         .select('section')
         .eq('status', 'published');

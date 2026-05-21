@@ -38,6 +38,7 @@ serve(async (req) => {
 
     // Fetch all hives that have at least one pm_asset (active hives only)
     const { data: hives, error: hivesErr } = await db
+      // unbounded-query-allow: batch scorer iterates every hive on schedule; full set required
       .from("v_hives_truth")
       .select("id, name");
 
