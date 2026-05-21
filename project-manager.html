@@ -1618,7 +1618,7 @@ async function wizardSubmit() {
   if (!name) { showToast('Project name is required'); $('wiz-name').focus(); return; }
   const checkedItems = _wizardState.items.filter(i => i._checked && i.title.trim());
   if (_wizardState.template_id !== '__blank__' && !checkedItems.length) {
-    if (!confirm('No scope items checked. Create an empty project?')) return;
+    if (!(await window.whConfirm('No scope items checked. Create an empty project?', { okLabel: 'Create empty', cancelLabel: 'Go back' }))) return;
   }
   $('wiz-create').disabled = true;
   $('wiz-create').textContent = 'Creating…';
@@ -1818,7 +1818,7 @@ async function saveProject() {
 
 async function deleteProject() {
   if (!_detail) return;
-  if (!confirm('Soft-delete project ' + _detail.project_code + '? It will be hidden from views.')) return;
+  if (!(await window.whConfirm('Soft-delete project ' + _detail.project_code + '? It will be hidden from views.', { okLabel: 'Delete', cancelLabel: 'Cancel' }))) return;
   const { error } = await db.from('projects')
     .update({ deleted_at: new Date().toISOString() })
     .eq('id', _detail.id).eq('hive_id', HIVE_ID);
@@ -2262,7 +2262,7 @@ async function saveLink() {
   await refreshDetail();
 }
 async function removeLink(id) {
-  if (!confirm('Remove this link?')) return;
+  if (!(await window.whConfirm('Remove this link?', { okLabel: 'Remove', cancelLabel: 'Keep' }))) return;
   const { error } = await db.from('project_links').delete().eq('id', id);
   if (error) { showToast(error.message, 'error'); return; }
   await refreshDetail();
@@ -2456,7 +2456,7 @@ async function saveRole() {
 }
 async function removeRole(id) {
   if (!isSupervisor()) { showToast('Supervisors only.'); return; }
-  if (!confirm('Remove this role?')) return;
+  if (!(await window.whConfirm('Remove this role?', { okLabel: 'Remove', cancelLabel: 'Keep' }))) return;
   const { error } = await db.from('project_roles').delete().eq('id', id);
   if (error) { showToast(error.message, 'error'); return; }
   await refreshDetail();
@@ -2537,7 +2537,7 @@ async function saveChangeOrder() {
 }
 async function approveCO(id) {
   if (!isSupervisor()) { showToast('Supervisors only.'); return; }
-  if (!confirm('Approve this change order? Cost / schedule impact will be reflected in the project.')) return;
+  if (!(await window.whConfirm('Approve this change order? Cost / schedule impact will be reflected in the project.', { okLabel: 'Approve', cancelLabel: 'Cancel' }))) return;
   const { error } = await db.from('project_change_orders')
     .update({ status: 'approved', approved_by: WORKER_NAME, approved_at: new Date().toISOString() })
     .eq('id', id);
@@ -2547,7 +2547,7 @@ async function approveCO(id) {
 }
 async function rejectCO(id) {
   if (!isSupervisor()) { showToast('Supervisors only.'); return; }
-  const reason = prompt('Reason for rejection (visible to requester):');
+  const reason = await window.whPrompt('Reason for rejection (visible to requester):', { inputLabel: 'Rejection reason' });
   if (!reason) return;
   const { error } = await db.from('project_change_orders')
     .update({ status: 'rejected', approved_by: WORKER_NAME, approved_at: new Date().toISOString(), rejection_reason: reason })
@@ -2569,7 +2569,7 @@ async function cancelCO(id) {
     showToast('Only pending change orders can be cancelled.');
     return;
   }
-  if (!confirm('Cancel this change order? It will be hidden from the active queue but kept for history.')) return;
+  if (!(await window.whConfirm('Cancel this change order? It will be hidden from the active queue but kept for history.', { okLabel: 'Cancel CO', cancelLabel: 'Keep' }))) return;
   const { error } = await db.from('project_change_orders')
     .update({ status: 'cancelled', approved_by: WORKER_NAME, approved_at: new Date().toISOString() })
     .eq('id', id);
@@ -2710,9 +2710,9 @@ async function markComplete() {
   if (open.length) {
     const msg = `${open.length} scope item${open.length === 1 ? ' is' : 's are'} still open (pending / in progress / blocked). ` +
                 `Best practice: close them or mark them 'skipped' before marking the project complete.\n\nContinue anyway?`;
-    if (!confirm(msg)) return;
+    if (!(await window.whConfirm(msg, { okLabel: 'Confirm', cancelLabel: 'Cancel' }))) return;
   } else {
-    if (!confirm('Mark project as complete? Subsequent edits will need to reopen it.')) return;
+    if (!(await window.whConfirm('Mark project as complete? Subsequent edits will need to reopen it.', { okLabel: 'Complete', cancelLabel: 'Cancel' }))) return;
   }
   await markStatus('complete', { closed_at: new Date().toISOString() });
 }
