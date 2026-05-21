@@ -11126,7 +11126,7 @@ function renderReport(inputs, results, narrative) {
 
     <div style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #1a1a1a;padding-bottom:0.75rem;margin-bottom:1rem;">
       <div>
-        <h1>DESIGN CALCULATION</h1>
+        <!-- heading-allow: standalone calc report template --><h1>DESIGN CALCULATION</h1>
         <div style="font-size:0.8rem;color:#555;">HVAC Cooling Load - Simplified Total Heat Gain Method</div>
       </div>
       <div style="text-align:right;font-size:0.78rem;color:#555;">
@@ -11284,7 +11284,7 @@ function renderVentReport(inputs, results, narrative) {
 
     <div style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #1a1a1a;padding-bottom:0.75rem;margin-bottom:1rem;">
       <div>
-        <h1>DESIGN CALCULATION</h1>
+        <!-- heading-allow: standalone calc report template --><h1>DESIGN CALCULATION</h1>
         <div style="font-size:0.8rem;color:#555;">Ventilation - Air Changes per Hour (ASHRAE 62.1)</div>
       </div>
       <div style="text-align:right;font-size:0.78rem;color:#555;">
@@ -11423,7 +11423,7 @@ function renderBoilerReport(inputs, results, narrative) {
       <!-- Header -->
       <div style="text-align:center;border-bottom:2px solid #162032;padding-bottom:1rem;margin-bottom:1.5rem;">
         <div style="font-size:0.8rem;color:#555;margin-bottom:0.3rem;">DESIGN CALCULATION REPORT</div>
-        <h1 style="font-size:1.3rem;font-weight:700;margin:0;">${e(inputs.project_name)}</h1>
+        <!-- heading-allow: standalone calc report template --><h1 style="font-size:1.3rem;font-weight:700;margin:0;">${e(inputs.project_name)}</h1>
         <div style="font-size:0.85rem;color:#444;margin-top:0.4rem;">Boiler System: ${e(inputs.boiler_type)} Boiler (${e(inputs.fuel_type)})</div>
         <div style="font-size:0.78rem;color:#666;margin-top:0.25rem;">Date: ${dateStr} &nbsp;|&nbsp; Ref: MECH-BLR-001</div>
       </div>
@@ -11580,7 +11580,7 @@ function renderHotWaterBoilerReport(inputs, results, narrative) {
       <!-- Header -->
       <div style="text-align:center;border-bottom:2px solid #162032;padding-bottom:1rem;margin-bottom:1.5rem;">
         <div style="font-size:0.8rem;color:#555;margin-bottom:0.3rem;">DESIGN CALCULATION REPORT</div>
-        <h1 style="font-size:1.3rem;font-weight:700;margin:0;">${e(inputs.project_name)}</h1>
+        <!-- heading-allow: standalone calc report template --><h1 style="font-size:1.3rem;font-weight:700;margin:0;">${e(inputs.project_name)}</h1>
         <div style="font-size:0.85rem;color:#444;margin-top:0.4rem;">Hot Water Boiler System (${e(inputs.fuel_type)})</div>
         <div style="font-size:0.78rem;color:#666;margin-top:0.25rem;">Date: ${dateStr} &nbsp;|&nbsp; Ref: MECH-HWB-001</div>
       </div>
@@ -11733,7 +11733,7 @@ function renderAirReport(inputs, results, narrative) {
       <strong>Tip:</strong> Click any underlined field to edit before downloading.
     </div>
 
-    <h1 style="font-size:1.1rem;font-weight:700;margin:0 0 0.15rem;">COMPRESSED AIR SYSTEM DESIGN CALCULATION</h1>
+    <!-- heading-allow: standalone calc report template --><h1 style="font-size:1.1rem;font-weight:700;margin:0 0 0.15rem;">COMPRESSED AIR SYSTEM DESIGN CALCULATION</h1>
     <div style="font-size:0.8rem;color:#555;margin-bottom:1rem;">Connected Load + Demand Factor Method - PSME / ISO 8573 / CAGI</div>
 
     <h2>1. PROJECT INFORMATION</h2>
@@ -11859,7 +11859,7 @@ function renderPipeReport(inputs, results, narrative) {
       <strong>Tip:</strong> Click any underlined field to edit before downloading.
     </div>
 
-    <h1 style="font-size:1.1rem;font-weight:700;margin:0 0 0.15rem;">PIPE SIZING DESIGN CALCULATION</h1>
+    <!-- heading-allow: standalone calc report template --><h1 style="font-size:1.1rem;font-weight:700;margin:0 0 0.15rem;">PIPE SIZING DESIGN CALCULATION</h1>
     <div style="font-size:0.8rem;color:#555;margin-bottom:1rem;">Velocity Method + Hazen-Williams Friction Loss - PSME / ASHRAE</div>
 
     <h2>1. PROJECT INFORMATION</h2>
@@ -11988,7 +11988,7 @@ function renderPumpReport(inputs, results, narrative) {
       <strong>Tip:</strong> Click any underlined field to edit before downloading. Fields with dashed underlines are editable.
     </div>
 
-    <h1 style="font-size:1.1rem;font-weight:700;margin:0 0 0.15rem;">PUMP SIZING DESIGN CALCULATION</h1>
+    <!-- heading-allow: standalone calc report template --><h1 style="font-size:1.1rem;font-weight:700;margin:0 0 0.15rem;">PUMP SIZING DESIGN CALCULATION</h1>
     <div style="font-size:0.8rem;color:#555;margin-bottom:1rem;">Total Dynamic Head (TDH) Method - Hazen-Williams / Hydraulic Institute</div>
 
     <h2>1. PROJECT INFORMATION</h2>
@@ -12500,7 +12500,7 @@ function renderPFCReport(inputs, results, narrative) {
   <div class="report-wrap">
     <div class="report-header">
       <div>
-        <h1 class="report-title">POWER FACTOR CORRECTION: DESIGN CALCULATION</h1>
+        <!-- heading-allow: standalone calc report template --><h1 class="report-title">POWER FACTOR CORRECTION: DESIGN CALCULATION</h1>
         <div class="report-meta">Project: ${e(projName)}</div>
         <div class="report-meta">Prepared by: ${e(WORKER_NAME || '')}</div>
         <div class="report-meta">Date: ${e(dateStr)}</div>
@@ -12688,7 +12688,7 @@ function renderCableTrayReport(inputs, results, narrative) {
   <div class="report-wrap">
     <div class="report-header">
       <div>
-        <h1 class="report-title">CABLE TRAY SIZING: DESIGN CALCULATION</h1>
+        <!-- heading-allow: standalone calc report template --><h1 class="report-title">CABLE TRAY SIZING: DESIGN CALCULATION</h1>
         <div class="report-meta">Project: ${e(projName)}</div>
         <div class="report-meta">Prepared by: ${e(WORKER_NAME || '')}</div>
         <div class="report-meta">Date: ${e(dateStr)}</div>
@@ -12896,7 +12896,7 @@ function renderUPSSizingReport(inputs, results, narrative) {
     <!-- HEADER -->
     <div class="report-header">
       <div class="report-stamp">IEC 62040-3 | IEEE 446 | IEEE 1184 | PEC 2017 Art. 7</div>
-      <h1>UPS SIZING CALCULATION</h1>
+      <!-- heading-allow: standalone calc report template --><h1>UPS SIZING CALCULATION</h1>
       <div class="report-subtitle">${e(projName)}</div>
       <div class="report-meta">
         Prepared by: ${e(WORKER_NAME || '')} &nbsp;|&nbsp; Date: ${e(dateStr)} &nbsp;|&nbsp;
@@ -13428,7 +13428,7 @@ function renderTransformerReport(inputs, results, narrative) {
   panel.innerHTML = `
     <div class="no-print" style="background:#fff8e1;border:1px solid #F7A21B;border-radius:0.5rem;padding:0.5rem 0.75rem;margin-bottom:1rem;font-size:0.78rem;color:#7a5a00;"><strong>Tip:</strong> Click any underlined field to edit before downloading.</div>
     <div style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #1a1a1a;padding-bottom:0.75rem;margin-bottom:1rem;">
-      <div><h1 style="font-size:1.3rem;font-weight:700;margin:0 0 2px 0;">DESIGN CALCULATION</h1>
+      <div><!-- heading-allow: standalone calc report template --><h1 style="font-size:1.3rem;font-weight:700;margin:0 0 2px 0;">DESIGN CALCULATION</h1>
         <div style="font-size:0.8rem;color:#555;">Transformer Sizing — IEC 60076-1 / IEEE C57.12.00 / PEC 2017</div></div>
       <div style="text-align:right;font-size:0.78rem;color:#555;"><div>Rev. ${e('0')}</div><div>Date: ${dateStr}</div></div>
     </div>
@@ -13476,7 +13476,7 @@ function renderHarmonicReport(inputs, results, narrative) {
   panel.innerHTML = `
     <div class="no-print" style="background:#fff8e1;border:1px solid #F7A21B;border-radius:0.5rem;padding:0.5rem 0.75rem;margin-bottom:1rem;font-size:0.78rem;color:#7a5a00;"><strong>Tip:</strong> Click any underlined field to edit before downloading.</div>
     <div style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #1a1a1a;padding-bottom:0.75rem;margin-bottom:1rem;">
-      <div><h1 style="font-size:1.3rem;font-weight:700;margin:0 0 2px 0;">DESIGN CALCULATION</h1>
+      <div><!-- heading-allow: standalone calc report template --><h1 style="font-size:1.3rem;font-weight:700;margin:0 0 2px 0;">DESIGN CALCULATION</h1>
         <div style="font-size:0.8rem;color:#555;">Harmonic Distortion Analysis — IEEE 519-2022 / IEC 61000-3-2</div></div>
       <div style="text-align:right;font-size:0.78rem;color:#555;"><div>Rev. ${e('0')}</div><div>Date: ${dateStr}</div></div>
     </div>
@@ -13840,7 +13840,7 @@ function renderCleanAgentReport(inputs, results, narrative) {
   panel.innerHTML = `
     <div class="no-print" style="background:#fff8e1;border:1px solid #F7A21B;border-radius:0.5rem;padding:0.5rem 0.75rem;margin-bottom:1rem;font-size:0.78rem;color:#7a5a00;"><strong>Tip:</strong> Click any underlined field to edit before downloading.</div>
     <div style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #1a1a1a;padding-bottom:0.75rem;margin-bottom:1rem;">
-      <div><h1 style="font-size:1.3rem;font-weight:700;margin:0 0 2px 0;">DESIGN CALCULATION</h1>
+      <div><!-- heading-allow: standalone calc report template --><h1 style="font-size:1.3rem;font-weight:700;margin:0 0 2px 0;">DESIGN CALCULATION</h1>
         <div style="font-size:0.8rem;color:#555;">Clean Agent Suppression System — NFPA 2001:2022 / ISO 14520:2015</div></div>
       <div style="text-align:right;font-size:0.78rem;color:#555;"><div>Rev. ${e('0')}</div><div>Date: ${dateStr}</div></div>
     </div>
@@ -13942,7 +13942,7 @@ function renderEarthingReport(inputs, results, narrative) {
   <div class="report-doc">
     <div class="report-header">
       <div class="report-stamp">PEC 2017 Art. 2.50 | IEEE 80-2013 | IEEE 142-2007 | IEC 62305-3</div>
-      <h1>EARTHING / GROUNDING SYSTEM CALCULATION</h1>
+      <!-- heading-allow: standalone calc report template --><h1>EARTHING / GROUNDING SYSTEM CALCULATION</h1>
       <div class="report-subtitle">${e(projName)}</div>
       <div class="report-meta">
         Prepared by: ${e(WORKER_NAME || '')} &nbsp;|&nbsp; Date: ${e(dateStr)} &nbsp;|&nbsp;
@@ -14305,7 +14305,7 @@ function renderDuctSizingReport(inputs, results, narrative) {
       <strong>Tip:</strong> Click any underlined field to edit before downloading.
     </div>
 
-    <h1 style="font-size:1.1rem;font-weight:700;margin:0 0 0.15rem;">HVAC DUCT SIZING: EQUAL FRICTION METHOD</h1>
+    <!-- heading-allow: standalone calc report template --><h1 style="font-size:1.1rem;font-weight:700;margin:0 0 0.15rem;">HVAC DUCT SIZING: EQUAL FRICTION METHOD</h1>
     <div style="font-size:0.8rem;color:#555;margin-bottom:1rem;">ASHRAE 2021 Fundamentals Ch.21 / SMACNA HVAC Duct Construction Standards / PSME Code</div>
 
     <h2>1. PROJECT INFORMATION</h2>
@@ -14847,7 +14847,7 @@ function renderRefrigPipeReport(inputs, results, narrative) {
       <strong>Tip:</strong> Click any underlined field to edit before downloading.
     </div>
 
-    <h1 style="font-size:1.1rem;font-weight:700;margin:0 0 0.15rem;">HVAC REFRIGERANT PIPE SIZING: VELOCITY METHOD</h1>
+    <!-- heading-allow: standalone calc report template --><h1 style="font-size:1.1rem;font-weight:700;margin:0 0 0.15rem;">HVAC REFRIGERANT PIPE SIZING: VELOCITY METHOD</h1>
     <div style="font-size:0.8rem;color:#555;margin-bottom:1rem;">ASHRAE 2022 Refrigeration Handbook Ch.1 / ASTM B280 ACR Copper Tube / ASHRAE 90.1 Insulation</div>
 
     <h2>1. PROJECT INFORMATION</h2>
@@ -14994,7 +14994,7 @@ function renderLoadReport(inputs, results, narrative) {
     <div class="no-print" style="background:#fff8e1;border:1px solid #F7A21B;border-radius:0.5rem;padding:0.5rem 0.75rem;margin-bottom:1rem;font-size:0.78rem;color:#7a5a00;">
       <strong>Tip:</strong> Click any underlined field to edit before downloading.
     </div>
-    <h1 style="font-size:1.1rem;font-weight:700;margin:0 0 0.15rem;">ELECTRICAL LOAD ESTIMATION: PANEL SCHEDULE</h1>
+    <!-- heading-allow: standalone calc report template --><h1 style="font-size:1.1rem;font-weight:700;margin:0 0 0.15rem;">ELECTRICAL LOAD ESTIMATION: PANEL SCHEDULE</h1>
     <div style="font-size:0.8rem;color:#555;margin-bottom:1rem;">Philippine Electrical Code (PEC) 2017: Articles 2.10 and 2.20</div>
 
     <h2>1. PROJECT INFORMATION</h2>
@@ -15115,7 +15115,7 @@ function renderVDReport(inputs, results, narrative) {
     <div class="no-print" style="background:#fff8e1;border:1px solid #F7A21B;border-radius:0.5rem;padding:0.5rem 0.75rem;margin-bottom:1rem;font-size:0.78rem;color:#7a5a00;">
       <strong>Tip:</strong> Click any underlined field to edit before downloading.
     </div>
-    <h1 style="font-size:1.1rem;font-weight:700;margin:0 0 0.15rem;">VOLTAGE DROP CALCULATION</h1>
+    <!-- heading-allow: standalone calc report template --><h1 style="font-size:1.1rem;font-weight:700;margin:0 0 0.15rem;">VOLTAGE DROP CALCULATION</h1>
     <div style="font-size:0.8rem;color:#555;margin-bottom:1rem;">Philippine Electrical Code (PEC) 2017: Article 2.10.19 / 2.20</div>
 
     <h2>1. PROJECT INFORMATION</h2>
@@ -15225,7 +15225,7 @@ function renderWireSizingReport(inputs, results, narrative) {
     <div class="no-print" style="background:#fff8e1;border:1px solid #F7A21B;border-radius:0.5rem;padding:0.5rem 0.75rem;margin-bottom:1rem;font-size:0.78rem;color:#7a5a00;">
       <strong>Tip:</strong> Click any underlined field to edit before downloading.
     </div>
-    <h1 style="font-size:1.1rem;font-weight:700;margin:0 0 0.15rem;">WIRE SIZING CALCULATION: AMPACITY METHOD</h1>
+    <!-- heading-allow: standalone calc report template --><h1 style="font-size:1.1rem;font-weight:700;margin:0 0 0.15rem;">WIRE SIZING CALCULATION: AMPACITY METHOD</h1>
     <div style="font-size:0.8rem;color:#555;margin-bottom:1rem;">PEC Table 3.10.1: Copper THHN/THWN-2 at 75°C</div>
 
     <h2>1. PROJECT INFORMATION</h2>
@@ -15321,7 +15321,7 @@ function renderSepticReport(inputs, results, narrative) {
       <strong>Tip:</strong> Click any underlined field to edit before downloading.
     </div>
 
-    <h1 style="font-size:1.1rem;font-weight:700;margin:0 0 0.15rem;">SEPTIC TANK SIZING CALCULATION</h1>
+    <!-- heading-allow: standalone calc report template --><h1 style="font-size:1.1rem;font-weight:700;margin:0 0 0.15rem;">SEPTIC TANK SIZING CALCULATION</h1>
     <div style="font-size:0.8rem;color:#555;margin-bottom:1rem;">Occupancy-Based Method: Philippine Plumbing Code / DOH Sanitation Code</div>
 
     <h2>1. PROJECT INFORMATION</h2>
@@ -15489,7 +15489,7 @@ function renderGreaseTrapReport(inputs, results, narrative) {
   <!-- Header -->
   <div style="text-align:center;border-bottom:3px solid #0f766e;padding-bottom:16px;margin-bottom:24px;">
     <div style="font-size:11px;letter-spacing:2px;text-transform:uppercase;color:#0f766e;font-weight:700;">Engineering Design Report</div>
-    <h1 style="margin:8px 0 4px;font-size:24px;font-weight:800;color:#0f172a;">Grease Trap / Interceptor Sizing</h1>
+    <!-- heading-allow: standalone calc report template --><h1 style="margin:8px 0 4px;font-size:24px;font-weight:800;color:#0f172a;">Grease Trap / Interceptor Sizing</h1>
     <div style="font-size:13px;color:#64748b;">PDI BH-201 Flow Rate Method &bull; Philippine Plumbing Code &bull; DENR DAO 2016-08</div>
   </div>
 
@@ -15749,7 +15749,7 @@ function renderDrainageReport(inputs, results, narrative) {
       <strong>Tip:</strong> Click any underlined field to edit before downloading.
     </div>
 
-    <h1 style="font-size:1.1rem;font-weight:700;margin:0 0 0.15rem;">DRAINAGE PIPE SIZING CALCULATION</h1>
+    <!-- heading-allow: standalone calc report template --><h1 style="font-size:1.1rem;font-weight:700;margin:0 0 0.15rem;">DRAINAGE PIPE SIZING CALCULATION</h1>
     <div style="font-size:0.8rem;color:#555;margin-bottom:1rem;">Drainage Fixture Unit (DFU) Method: Philippine Plumbing Code / UPC Table 7-5</div>
 
     <h2>1. PROJECT INFORMATION</h2>
@@ -15891,7 +15891,7 @@ function renderHotWaterReport(inputs, results, narrative) {
       <strong>Tip:</strong> Click any underlined field to edit before downloading.
     </div>
 
-    <h1 style="font-size:1.1rem;font-weight:700;margin:0 0 0.15rem;">HOT WATER DEMAND CALCULATION</h1>
+    <!-- heading-allow: standalone calc report template --><h1 style="font-size:1.1rem;font-weight:700;margin:0 0 0.15rem;">HOT WATER DEMAND CALCULATION</h1>
     <div style="font-size:0.8rem;color:#555;margin-bottom:1rem;">Occupancy / Use Rate Method: ASHRAE HVAC Applications Chapter 50</div>
 
     <h2>1. PROJECT INFORMATION</h2>
@@ -16051,7 +16051,7 @@ function renderWaterSupplyReport(inputs, results, narrative) {
       <strong>Tip:</strong> Click any underlined field to edit before downloading.
     </div>
 
-    <h1 style="font-size:1.1rem;font-weight:700;margin:0 0 0.15rem;">WATER SUPPLY PIPE SIZING CALCULATION</h1>
+    <!-- heading-allow: standalone calc report template --><h1 style="font-size:1.1rem;font-weight:700;margin:0 0 0.15rem;">WATER SUPPLY PIPE SIZING CALCULATION</h1>
     <div style="font-size:0.8rem;color:#555;margin-bottom:1rem;">Hunter's Fixture Unit Method - Philippine Plumbing Code / UPC</div>
 
     <h2>1. PROJECT INFORMATION</h2>
@@ -16205,7 +16205,7 @@ function renderStairwellPressReport(inputs, results, narrative) {
 
     <div style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #1a1a1a;padding-bottom:0.75rem;margin-bottom:1rem;">
       <div>
-        <h1>DESIGN CALCULATION</h1>
+        <!-- heading-allow: standalone calc report template --><h1>DESIGN CALCULATION</h1>
         <div style="font-size:0.8rem;color:#555;">Stairwell Pressurization: NFPA 92</div>
       </div>
       <div style="text-align:right;font-size:0.78rem;color:#555;">
@@ -16366,7 +16366,7 @@ function renderFirePumpReport(inputs, results, narrative) {
 
     <div style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #1a1a1a;padding-bottom:0.75rem;margin-bottom:1rem;">
       <div>
-        <h1>DESIGN CALCULATION</h1>
+        <!-- heading-allow: standalone calc report template --><h1>DESIGN CALCULATION</h1>
         <div style="font-size:0.8rem;color:#555;">Fire Pump Sizing: NFPA 20</div>
       </div>
       <div style="text-align:right;font-size:0.78rem;color:#555;">
@@ -16820,7 +16820,7 @@ function renderFireSprinklerReport(inputs, results, narrative) {
 
     <div style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #1a1a1a;padding-bottom:0.75rem;margin-bottom:1rem;">
       <div>
-        <h1>DESIGN CALCULATION</h1>
+        <!-- heading-allow: standalone calc report template --><h1>DESIGN CALCULATION</h1>
         <div style="font-size:0.8rem;color:#555;">Fire Sprinkler Hydraulic: NFPA 13 Design Area Method</div>
       </div>
       <div style="text-align:right;font-size:0.78rem;color:#555;">
@@ -17005,7 +17005,7 @@ function renderFireAlarmBatteryReport(inputs, results, narrative) {
 
     <div style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #1a1a1a;padding-bottom:0.75rem;margin-bottom:1rem;">
       <div>
-        <h1>DESIGN CALCULATION</h1>
+        <!-- heading-allow: standalone calc report template --><h1>DESIGN CALCULATION</h1>
         <div style="font-size:0.8rem;color:#555;">Fire Alarm Battery Standby: NFPA 72 (National Fire Alarm and Signaling Code)</div>
       </div>
       <div style="text-align:right;font-size:0.78rem;color:#555;">
@@ -17158,7 +17158,7 @@ function renderBoltTorqueReport(inputs, results, narrative) {
 
     <div style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #1a1a1a;padding-bottom:0.75rem;margin-bottom:1rem;">
       <div>
-        <h1>DESIGN CALCULATION</h1>
+        <!-- heading-allow: standalone calc report template --><h1>DESIGN CALCULATION</h1>
         <div style="font-size:0.8rem;color:#555;">Bolt Torque & Preload: ISO 898-1 / VDI 2230 / ASME PCC-1</div>
       </div>
       <div style="text-align:right;font-size:0.78rem;color:#555;">
@@ -17369,7 +17369,7 @@ function renderShaftDesignReport(inputs, results, narrative) {
 
     <div style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #1a1a1a;padding-bottom:0.75rem;margin-bottom:1rem;">
       <div>
-        <h1>DESIGN CALCULATION</h1>
+        <!-- heading-allow: standalone calc report template --><h1>DESIGN CALCULATION</h1>
         <div style="font-size:0.8rem;color:#555;">Shaft Design: ASME B106.1M / Shigley's Combined Loading (Elliptic Criterion)</div>
       </div>
       <div style="text-align:right;font-size:0.78rem;color:#555;">
@@ -17514,7 +17514,7 @@ function renderBearingLifeReport(inputs, results, narrative) {
 
     <div style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #1a1a1a;padding-bottom:0.75rem;margin-bottom:1rem;">
       <div>
-        <h1>DESIGN CALCULATION</h1>
+        <!-- heading-allow: standalone calc report template --><h1>DESIGN CALCULATION</h1>
         <div style="font-size:0.8rem;color:#555;">Bearing Life Calculation: ISO 281:2007 (L10 Basic Rating Life)</div>
       </div>
       <div style="text-align:right;font-size:0.78rem;color:#555;">
@@ -17648,7 +17648,7 @@ function renderVBeltReport(inputs, results, narrative) {
 
     <div style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #1a1a1a;padding-bottom:0.75rem;margin-bottom:1rem;">
       <div>
-        <h1>DESIGN CALCULATION</h1>
+        <!-- heading-allow: standalone calc report template --><h1>DESIGN CALCULATION</h1>
         <div style="font-size:0.8rem;color:#555;">V-Belt Drive Design: RMA IP-20 / ASME B17.1</div>
       </div>
       <div style="text-align:right;font-size:0.78rem;color:#555;">
@@ -17793,7 +17793,7 @@ function renderGearBeltDriveReport(inputs, results, narrative) {
   document.getElementById('report-panel').innerHTML = `
     <div class="no-print" style="background:#fff8e1;border:1px solid #F7A21B;border-radius:0.5rem;padding:0.5rem 0.75rem;margin-bottom:1rem;font-size:0.78rem;color:#7a5a00;"><strong>Tip:</strong> Click any underlined field to edit before downloading.</div>
     <div style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #1a1a1a;padding-bottom:0.75rem;margin-bottom:1rem;">
-      <div><h1>DESIGN CALCULATION</h1><div style="font-size:0.8rem;color:#555;">${escHtml(driveType)}: AGMA 2001-D04 / RMA IP-20 / ANSI B29.1</div></div>
+      <div><!-- heading-allow: standalone calc report template --><h1>DESIGN CALCULATION</h1><div style="font-size:0.8rem;color:#555;">${escHtml(driveType)}: AGMA 2001-D04 / RMA IP-20 / ANSI B29.1</div></div>
       <div style="text-align:right;font-size:0.78rem;color:#555;"><div>Rev. ${e('0')}</div><div>Date: ${dateStr}</div></div>
     </div>
     <h2>Project Information</h2>
@@ -17883,7 +17883,7 @@ function renderBoilerSteamReport(inputs, r, narrative) {
   document.getElementById('report-panel').innerHTML = `
     <div class="no-print" style="background:#fff8e1;border:1px solid #F7A21B;border-radius:0.5rem;padding:0.5rem 0.75rem;margin-bottom:1rem;font-size:0.78rem;color:#7a5a00;"><strong>Tip:</strong> Click any underlined field to edit before downloading.</div>
     <div style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #1a1a1a;padding-bottom:0.75rem;margin-bottom:1rem;">
-      <div><h1>BOILER / STEAM SYSTEM CALCULATION</h1><div style="font-size:0.8rem;color:#555;">ASME BPVC Sec. I/IV | ASME B31.1 | IAPWS-IF97 | RA 8407 (PH)</div></div>
+      <div><!-- heading-allow: standalone calc report template --><h1>BOILER / STEAM SYSTEM CALCULATION</h1><div style="font-size:0.8rem;color:#555;">ASME BPVC Sec. I/IV | ASME B31.1 | IAPWS-IF97 | RA 8407 (PH)</div></div>
       <div style="text-align:right;font-size:0.78rem;color:#555;"><div>Rev. ${e('0')}</div><div>Date: ${dateStr}</div></div>
     </div>
     <h2>Project Information</h2>
@@ -17949,7 +17949,7 @@ function renderChillerWaterCooledReport(inputs, results, narrative) {
 
     <div style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #1a1a1a;padding-bottom:0.75rem;margin-bottom:1rem;">
       <div>
-        <h1>DESIGN CALCULATION</h1>
+        <!-- heading-allow: standalone calc report template --><h1>DESIGN CALCULATION</h1>
         <div style="font-size:0.8rem;color:#555;">Chiller System — Water Cooled | ASHRAE 90.1 / ASHRAE 15 / CTI STD-201 / PSME Code</div>
       </div>
       <div style="text-align:right;font-size:0.78rem;color:#555;">
@@ -18158,7 +18158,7 @@ function renderChillerAirCooledReport(inputs, results, narrative) {
 
     <div style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #1a1a1a;padding-bottom:0.75rem;margin-bottom:1rem;">
       <div>
-        <h1>DESIGN CALCULATION</h1>
+        <!-- heading-allow: standalone calc report template --><h1>DESIGN CALCULATION</h1>
         <div style="font-size:0.8rem;color:#555;">Chiller System — Air Cooled | ASHRAE 90.1 / ASHRAE 15 / PSME Code</div>
       </div>
       <div style="text-align:right;font-size:0.78rem;color:#555;">
@@ -18366,7 +18366,7 @@ function renderHoistCapacityReport(inputs, results, narrative) {
 
     <div style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #1a1a1a;padding-bottom:0.75rem;margin-bottom:1rem;">
       <div>
-        <h1>DESIGN CALCULATION</h1>
+        <!-- heading-allow: standalone calc report template --><h1>DESIGN CALCULATION</h1>
         <div style="font-size:0.8rem;color:#555;">Hoist Capacity & Wire Rope Sizing: ASME B30.2 / ASME B30.16 / PCAB Standards</div>
       </div>
       <div style="text-align:right;font-size:0.78rem;color:#555;">
@@ -18511,7 +18511,7 @@ function renderElevatorTrafficReport(inputs, results, narrative) {
 
     <div style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #1a1a1a;padding-bottom:0.75rem;margin-bottom:1rem;">
       <div>
-        <h1>DESIGN CALCULATION</h1>
+        <!-- heading-allow: standalone calc report template --><h1>DESIGN CALCULATION</h1>
         <div style="font-size:0.8rem;color:#555;">Elevator Traffic Analysis: ASME A17.1 / EN 81 / CIBSE Guide D</div>
       </div>
       <div style="text-align:right;font-size:0.78rem;color:#555;">
@@ -18661,7 +18661,7 @@ function renderAHUSizingReport(inputs, results, narrative) {
 
     <div style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #1a1a1a;padding-bottom:0.75rem;margin-bottom:1rem;">
       <div>
-        <h1>DESIGN CALCULATION</h1>
+        <!-- heading-allow: standalone calc report template --><h1>DESIGN CALCULATION</h1>
         <div style="font-size:0.8rem;color:#555;">Air Handling Unit (AHU) Sizing | ASHRAE 62.1 / ASHRAE 90.1 / PSME Code</div>
       </div>
       <div style="text-align:right;font-size:0.78rem;color:#555;">
@@ -29258,7 +29258,7 @@ function renderBomTablePreview(items) {
       <!-- HEADER: all fields editable -->
       <div class="doc-header-row">
         <div style="flex:1;min-width:0;">
-          <h1 class="editable-field" contenteditable="true" style="font-size:1.1rem;font-weight:800;margin-bottom:0.4rem;">BILL OF MATERIALS</h1>
+          <!-- heading-allow: standalone calc report template --><h1 class="editable-field" contenteditable="true" style="font-size:1.1rem;font-weight:800;margin-bottom:0.4rem;">BILL OF MATERIALS</h1>
           <div class="doc-meta">
             Project: <span class="editable-field" contenteditable="true" style="font-weight:700;">${escHtml(proj)}</span>
           </div>
@@ -29631,7 +29631,7 @@ function renderSowDocPreview(sections) {
       <!-- HEADER: all fields editable -->
       <div class="doc-header-row">
         <div style="flex:1;min-width:0;">
-          <h1 class="editable-field" contenteditable="true" style="font-size:1.1rem;font-weight:800;margin-bottom:0.4rem;">SCOPE OF WORKS</h1>
+          <!-- heading-allow: standalone calc report template --><h1 class="editable-field" contenteditable="true" style="font-size:1.1rem;font-weight:800;margin-bottom:0.4rem;">SCOPE OF WORKS</h1>
           <div class="doc-meta">
             Project: <span class="editable-field" contenteditable="true" style="font-weight:700;">${escHtml(proj)}</span>
           </div>
@@ -30510,7 +30510,7 @@ function renderRoofDrainReport(inputs, r, narrative) {
   <!-- Header -->
   <div style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #1a1a1a;padding-bottom:0.75rem;margin-bottom:1rem;">
     <div>
-      <h1>DESIGN CALCULATION</h1>
+      <!-- heading-allow: standalone calc report template --><h1>DESIGN CALCULATION</h1>
       <div style="font-size:0.8rem;color:#555;">Roof Drain Sizing: Rational Method, IPC Chapter 11</div>
     </div>
     <div style="text-align:right;font-size:0.78rem;color:#555;">
@@ -30754,7 +30754,7 @@ function renderStormDrainReport(inputs, r, narrative) {
       <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:1.25rem;gap:1rem;flex-wrap:wrap;">
         <div style="flex:1;min-width:0;">
           <div style="font-size:0.72rem;font-weight:700;color:#888;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:0.15rem;">DESIGN CALCULATION REPORT</div>
-          <h1 class="editable-field" contenteditable="true" style="font-size:1.15rem;font-weight:800;margin-bottom:0.35rem;color:#1a1a1a;">${e(proj)}</h1>
+          <!-- heading-allow: standalone calc report template --><h1 class="editable-field" contenteditable="true" style="font-size:1.15rem;font-weight:800;margin-bottom:0.35rem;color:#1a1a1a;">${e(proj)}</h1>
           <div style="font-size:1.05rem;font-weight:600;color:#1a1a1a;margin-top:0.2rem;">Storm Drain / Stormwater Sizing: Rational Method</div>
           <div style="font-size:0.78rem;color:#555;margin-top:0.3rem;">
             Prepared by: <span class="editable-field" contenteditable="true">${escHtml(WORKER_NAME)}</span> &nbsp;|&nbsp;
@@ -30977,7 +30977,7 @@ function renderSTPReport(inputs, r, narrative) {
       <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:1.25rem;gap:1rem;flex-wrap:wrap;">
         <div style="flex:1;min-width:0;">
           <div style="font-size:0.72rem;font-weight:700;color:#888;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:0.15rem;">DESIGN CALCULATION REPORT</div>
-          <h1 class="editable-field" contenteditable="true" style="font-size:1.15rem;font-weight:800;margin-bottom:0.35rem;color:#1a1a1a;">${e(proj)}</h1>
+          <!-- heading-allow: standalone calc report template --><h1 class="editable-field" contenteditable="true" style="font-size:1.15rem;font-weight:800;margin-bottom:0.35rem;color:#1a1a1a;">${e(proj)}</h1>
           <div style="font-size:1.05rem;font-weight:600;color:#1a1a1a;margin-top:0.2rem;">Wastewater Treatment Plant: Activated Sludge</div>
           <div style="font-size:0.78rem;color:#555;margin-top:0.3rem;">
             Prepared by: <span class="editable-field" contenteditable="true">${escHtml(WORKER_NAME)}</span> &nbsp;|&nbsp;
@@ -31494,7 +31494,7 @@ function renderBeamColumnReport(inputs, r, narrative) {
   document.getElementById('report-panel').innerHTML = `
     <div class="no-print" style="background:#fff8e1;border:1px solid #F7A21B;border-radius:0.5rem;padding:0.5rem 0.75rem;margin-bottom:1rem;font-size:0.78rem;color:#7a5a00;"><strong>Tip:</strong> Click any underlined field to edit before downloading.</div>
     <div style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #1a1a1a;padding-bottom:0.75rem;margin-bottom:1rem;">
-      <div><h1>DESIGN CALCULATION</h1><div style="font-size:0.8rem;color:#555;">${escHtml(inputs.member_type)}: NSCP 2015 Vol.1 / ${isSteel ? 'AISC 360-22 LRFD' : 'ACI 318-19'}</div></div>
+      <div><!-- heading-allow: standalone calc report template --><h1>DESIGN CALCULATION</h1><div style="font-size:0.8rem;color:#555;">${escHtml(inputs.member_type)}: NSCP 2015 Vol.1 / ${isSteel ? 'AISC 360-22 LRFD' : 'ACI 318-19'}</div></div>
       <div style="text-align:right;font-size:0.78rem;color:#555;"><div>Rev. ${e('0')}</div><div>Date: ${dateStr}</div></div>
     </div>
     <h2>Project Information</h2>
@@ -31696,7 +31696,7 @@ function renderPressureVesselReport(inputs, r, narrative) {
   document.getElementById('report-panel').innerHTML = `
     <div class="no-print" style="background:#fff8e1;border:1px solid #F7A21B;border-radius:0.5rem;padding:0.5rem 0.75rem;margin-bottom:1rem;font-size:0.78rem;color:#7a5a00;"><strong>Tip:</strong> Click any underlined field to edit before downloading.</div>
     <div style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #1a1a1a;padding-bottom:0.75rem;margin-bottom:1rem;">
-      <div><h1>DESIGN CALCULATION</h1><div style="font-size:0.8rem;color:#555;">Pressure Vessel: ASME BPVC Section VIII Division 1</div></div>
+      <div><!-- heading-allow: standalone calc report template --><h1>DESIGN CALCULATION</h1><div style="font-size:0.8rem;color:#555;">Pressure Vessel: ASME BPVC Section VIII Division 1</div></div>
       <div style="text-align:right;font-size:0.78rem;color:#555;"><div>Rev. ${e('0')}</div><div>Date: ${dateStr}</div></div>
     </div>
     <h2>Project Information</h2>
@@ -31834,7 +31834,7 @@ function renderHeatExchangerReport(inputs, r, narrative) {
   document.getElementById('report-panel').innerHTML = `
     <div class="no-print" style="background:#fff8e1;border:1px solid #F7A21B;border-radius:0.5rem;padding:0.5rem 0.75rem;margin-bottom:1rem;font-size:0.78rem;color:#7a5a00;"><strong>Tip:</strong> Click any underlined field to edit before downloading.</div>
     <div style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #1a1a1a;padding-bottom:0.75rem;margin-bottom:1rem;">
-      <div><h1>DESIGN CALCULATION</h1><div style="font-size:0.8rem;color:#555;">Shell-and-Tube Heat Exchanger: TEMA 10th Ed.</div></div>
+      <div><!-- heading-allow: standalone calc report template --><h1>DESIGN CALCULATION</h1><div style="font-size:0.8rem;color:#555;">Shell-and-Tube Heat Exchanger: TEMA 10th Ed.</div></div>
       <div style="text-align:right;font-size:0.78rem;color:#555;"><div>Rev. ${e('0')}</div><div>Date: ${dateStr}</div></div>
     </div>
     <h2>Project Information</h2>
@@ -31906,7 +31906,7 @@ function renderVibrationReport(inputs, r, narrative) {
   document.getElementById('report-panel').innerHTML = `
     <div class="no-print" style="background:#fff8e1;border:1px solid #F7A21B;border-radius:0.5rem;padding:0.5rem 0.75rem;margin-bottom:1rem;font-size:0.78rem;color:#7a5a00;"><strong>Tip:</strong> Click any underlined field to edit before downloading. In the print dialog, uncheck "Headers and footers" for a clean PDF.</div>
     <div style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #1a1a1a;padding-bottom:0.75rem;margin-bottom:1rem;">
-      <div><h1>VIBRATION ANALYSIS</h1><div style="font-size:0.8rem;color:#555;">ISO 10816-3 / ISO 20816-1 / ISO 21940-11 Severity Assessment</div></div>
+      <div><!-- heading-allow: standalone calc report template --><h1>VIBRATION ANALYSIS</h1><div style="font-size:0.8rem;color:#555;">ISO 10816-3 / ISO 20816-1 / ISO 21940-11 Severity Assessment</div></div>
       <div style="text-align:right;font-size:0.78rem;color:#555;"><div>Rev. ${e('0')}</div><div>Date: ${dateStr}</div></div>
     </div>
 
@@ -32059,7 +32059,7 @@ function renderFluidPowerReport(inputs, r, narrative) {
   document.getElementById('report-panel').innerHTML = `
     <div class="no-print" style="background:#fff8e1;border:1px solid #F7A21B;border-radius:0.5rem;padding:0.5rem 0.75rem;margin-bottom:1rem;font-size:0.78rem;color:#7a5a00;"><strong>Tip:</strong> Click any underlined field to edit before downloading. In the print dialog, uncheck "Headers and footers" for a clean PDF.</div>
     <div style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #1a1a1a;padding-bottom:0.75rem;margin-bottom:1rem;">
-      <div><h1>HYDRAULIC SYSTEM CALCULATION</h1><div style="font-size:0.8rem;color:#555;">ISO 4413:2010 / NFPA T2.12.10 / SAE J517</div></div>
+      <div><!-- heading-allow: standalone calc report template --><h1>HYDRAULIC SYSTEM CALCULATION</h1><div style="font-size:0.8rem;color:#555;">ISO 4413:2010 / NFPA T2.12.10 / SAE J517</div></div>
       <div style="text-align:right;font-size:0.78rem;color:#555;"><div>Rev. ${e('0')}</div><div>Date: ${dateStr}</div></div>
     </div>
 
@@ -32206,7 +32206,7 @@ function renderNoiseAcousticsReport(inputs, r, narrative) {
   document.getElementById('report-panel').innerHTML = `
     <div class="no-print" style="background:#fff8e1;border:1px solid #F7A21B;border-radius:0.5rem;padding:0.5rem 0.75rem;margin-bottom:1rem;font-size:0.78rem;color:#7a5a00;"><strong>Tip:</strong> Click any underlined field to edit before downloading. In the print dialog, uncheck "Headers and footers" for a clean PDF.</div>
     <div style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #1a1a1a;padding-bottom:0.75rem;margin-bottom:1rem;">
-      <div><h1>NOISE AND ACOUSTICS ASSESSMENT</h1><div style="font-size:0.8rem;color:#555;">ISO 9613-2 / OSHA 29 CFR 1910.95 / DOLE D.O. 13 Series 1998 / ASHRAE Applications Ch 8</div></div>
+      <div><!-- heading-allow: standalone calc report template --><h1>NOISE AND ACOUSTICS ASSESSMENT</h1><div style="font-size:0.8rem;color:#555;">ISO 9613-2 / OSHA 29 CFR 1910.95 / DOLE D.O. 13 Series 1998 / ASHRAE Applications Ch 8</div></div>
       <div style="text-align:right;font-size:0.78rem;color:#555;"><div>Rev. ${e('0')}</div><div>Date: ${dateStr}</div></div>
     </div>
 

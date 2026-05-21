@@ -1,47 +1,9 @@
 {
-  "turn": 3,
+  "turn": 25,
   "history": [
     {
-      "turn": 1,
-      "ts": "2026-05-20T22:46:48",
-      "diff": {
-        "L-1_total_proposals": {
-          "from": 0,
-          "to": 0,
-          "delta": 0
-        },
-        "L-1.5_rules_in_manifest": {
-          "from": 0,
-          "to": 46,
-          "delta": 46
-        },
-        "L0_total_baseline_count": {
-          "from": 0,
-          "to": 171,
-          "delta": 171
-        },
-        "L0_validators_with_baseline": {
-          "from": 0,
-          "to": 39,
-          "delta": 39
-        },
-        "L2_sentinel_specs": {
-          "from": 0,
-          "to": 33,
-          "delta": 33
-        },
-        "L13_walkthroughs_stale": {
-          "from": 0,
-          "to": 0,
-          "delta": 0
-        }
-      },
-      "L0_ratchets": [],
-      "L0_regressions": []
-    },
-    {
-      "turn": 2,
-      "ts": "2026-05-20T22:46:55",
+      "turn": 16,
+      "ts": "2026-05-21T07:58:17",
       "diff": {
         "L-1_total_proposals": {
           "from": 0,
@@ -54,13 +16,13 @@
           "delta": 0
         },
         "L0_total_baseline_count": {
-          "from": 171,
-          "to": 171,
+          "from": 263,
+          "to": 263,
           "delta": 0
         },
         "L0_validators_with_baseline": {
-          "from": 39,
-          "to": 39,
+          "from": 64,
+          "to": 64,
           "delta": 0
         },
         "L2_sentinel_specs": {
@@ -78,8 +40,8 @@
       "L0_regressions": []
     },
     {
-      "turn": 3,
-      "ts": "2026-05-20T22:52:21",
+      "turn": 17,
+      "ts": "2026-05-21T07:59:17",
       "diff": {
         "L-1_total_proposals": {
           "from": 0,
@@ -92,13 +54,397 @@
           "delta": 0
         },
         "L0_total_baseline_count": {
-          "from": 171,
-          "to": 171,
+          "from": 263,
+          "to": 263,
           "delta": 0
         },
         "L0_validators_with_baseline": {
+          "from": 64,
+          "to": 64,
+          "delta": 0
+        },
+        "L2_sentinel_specs": {
+          "from": 33,
+          "to": 33,
+          "delta": 0
+        },
+        "L13_walkthroughs_stale": {
+          "from": 0,
+          "to": 0,
+          "delta": 0
+        }
+      },
+      "L0_ratchets": [],
+      "L0_regressions": []
+    },
+    {
+      "turn": 18,
+      "ts": "2026-05-21T08:03:09",
+      "diff": {
+        "L-1_total_proposals": {
+          "from": 0,
+          "to": 0,
+          "delta": 0
+        },
+        "L-1.5_rules_in_manifest": {
+          "from": 46,
+          "to": 46,
+          "delta": 0
+        },
+        "L0_total_baseline_count": {
+          "from": 263,
+          "to": 263,
+          "delta": 0
+        },
+        "L0_validators_with_baseline": {
+          "from": 64,
+          "to": 64,
+          "delta": 0
+        },
+        "L2_sentinel_specs": {
+          "from": 33,
+          "to": 33,
+          "delta": 0
+        },
+        "L13_walkthroughs_stale": {
+          "from": 0,
+          "to": 0,
+          "delta": 0
+        }
+      },
+      "L0_ratchets": [],
+      "L0_regressions": []
+    },
+    {
+      "turn": 19,
+      "ts": "2026-05-21T08:27:03",
+      "diff": {
+        "L-1_total_proposals": {
+          "from": 0,
+          "to": 0,
+          "delta": 0
+        },
+        "L-1.5_rules_in_manifest": {
+          "from": 46,
+          "to": 46,
+          "delta": 0
+        },
+        "L0_total_baseline_count": {
+          "from": 263,
+          "to": 560,
+          "delta": 297
+        },
+        "L0_validators_with_baseline": {
+          "from": 64,
+          "to": 69,
+          "delta": 5
+        },
+        "L2_sentinel_specs": {
+          "from": 33,
+          "to": 33,
+          "delta": 0
+        },
+        "L13_walkthroughs_stale": {
+          "from": 0,
+          "to": 0,
+          "delta": 0
+        }
+      },
+      "L0_ratchets": [
+        {
+          "validator": "edge_status_body_consistency",
+          "from": 6,
+          "to": 0
+        }
+      ],
+      "L0_regressions": []
+    },
+    {
+      "turn": 20,
+      "ts": "2026-05-21T17:42:48",
+      "diff": {
+        "L-1_total_proposals": {
+          "from": 0,
+          "to": 0,
+          "delta": 0
+        },
+        "L-1.5_rules_in_manifest": {
+          "from": 46,
+          "to": 46,
+          "delta": 0
+        },
+        "L0_total_baseline_count": {
+          "from": 560,
+          "to": 714,
+          "delta": 154
+        },
+        "L0_validators_with_baseline": {
+          "from": 69,
+          "to": 70,
+          "delta": 1
+        },
+        "L2_sentinel_specs": {
+          "from": 33,
+          "to": 33,
+          "delta": 0
+        },
+        "L13_walkthroughs_stale": {
+          "from": 0,
+          "to": 0,
+          "delta": 0
+        }
+      },
+      "L0_ratchets": [],
+      "L0_regressions": []
+    },
+    {
+      "turn": 21,
+      "ts": "2026-05-21T18:20:48",
+      "diff": {
+        "L-1_total_proposals": {
+          "from": 0,
+          "to": 0,
+          "delta": 0
+        },
+        "L-1.5_rules_in_manifest": {
+          "from": 46,
+          "to": 46,
+          "delta": 0
+        },
+        "L0_total_baseline_count": {
+          "from": 714,
+          "to": 694,
+          "delta": -20
+        },
+        "L0_validators_with_baseline": {
+          "from": 70,
+          "to": 74,
+          "delta": 4
+        },
+        "L2_sentinel_specs": {
+          "from": 33,
+          "to": 33,
+          "delta": 0
+        },
+        "L13_walkthroughs_stale": {
+          "from": 0,
+          "to": 0,
+          "delta": 0
+        }
+      },
+      "L0_ratchets": [
+        {
+          "validator": "getelementbyid_orphan_setter",
+          "from": 8,
+          "to": 0
+        },
+        {
+          "validator": "aria_label_coverage",
+          "from": 43,
+          "to": 39
+        },
+        {
+          "validator": "role_string_consistency",
+          "from": 4,
+          "to": 0
+        },
+        {
+          "validator": "time_window_consistency",
+          "from": 3,
+          "to": 0
+        },
+        {
+          "validator": "innerhtml_eschtml",
+          "from": 40,
+          "to": 39
+        }
+      ],
+      "L0_regressions": []
+    },
+    {
+      "turn": 22,
+      "ts": "2026-05-21T19:33:46",
+      "diff": {
+        "L-1_total_proposals": {
+          "from": 0,
+          "to": 0,
+          "delta": 0
+        },
+        "L-1.5_rules_in_manifest": {
+          "from": 46,
+          "to": 46,
+          "delta": 0
+        },
+        "L0_total_baseline_count": {
+          "from": 694,
+          "to": 655,
+          "delta": -39
+        },
+        "L0_validators_with_baseline": {
+          "from": 74,
+          "to": 74,
+          "delta": 0
+        },
+        "L2_sentinel_specs": {
+          "from": 33,
+          "to": 33,
+          "delta": 0
+        },
+        "L13_walkthroughs_stale": {
+          "from": 0,
+          "to": 0,
+          "delta": 0
+        }
+      },
+      "L0_ratchets": [
+        {
+          "validator": "unbounded_query",
+          "from": 15,
+          "to": 0
+        },
+        {
+          "validator": "event_listener_cleanup",
+          "from": 9,
+          "to": 0
+        },
+        {
+          "validator": "playwright_selector_existence",
+          "from": 8,
+          "to": 0
+        },
+        {
+          "validator": "kpi_count_query_safety",
+          "from": 7,
+          "to": 0
+        }
+      ],
+      "L0_regressions": []
+    },
+    {
+      "turn": 23,
+      "ts": "2026-05-21T20:34:13",
+      "diff": {
+        "L-1_total_proposals": {
+          "from": 0,
+          "to": 0,
+          "delta": 0
+        },
+        "L-1.5_rules_in_manifest": {
+          "from": 46,
+          "to": 46,
+          "delta": 0
+        },
+        "L0_total_baseline_count": {
+          "from": 655,
+          "to": 621,
+          "delta": -34
+        },
+        "L0_validators_with_baseline": {
+          "from": 74,
+          "to": 74,
+          "delta": 0
+        },
+        "L2_sentinel_specs": {
+          "from": 33,
+          "to": 33,
+          "delta": 0
+        },
+        "L13_walkthroughs_stale": {
+          "from": 0,
+          "to": 0,
+          "delta": 0
+        }
+      },
+      "L0_ratchets": [
+        {
+          "validator": "select_placeholder",
+          "from": 18,
+          "to": 0
+        },
+        {
+          "validator": "console_log_drift",
+          "from": 12,
+          "to": 0
+        },
+        {
+          "validator": "aria_label_coverage",
           "from": 39,
-          "to": 39,
+          "to": 36
+        },
+        {
+          "validator": "localstorage_key_consistency",
+          "from": 10,
+          "to": 9
+        }
+      ],
+      "L0_regressions": []
+    },
+    {
+      "turn": 24,
+      "ts": "2026-05-21T20:53:59",
+      "diff": {
+        "L-1_total_proposals": {
+          "from": 0,
+          "to": 0,
+          "delta": 0
+        },
+        "L-1.5_rules_in_manifest": {
+          "from": 46,
+          "to": 46,
+          "delta": 0
+        },
+        "L0_total_baseline_count": {
+          "from": 621,
+          "to": 627,
+          "delta": 6
+        },
+        "L0_validators_with_baseline": {
+          "from": 74,
+          "to": 74,
+          "delta": 0
+        },
+        "L2_sentinel_specs": {
+          "from": 33,
+          "to": 33,
+          "delta": 0
+        },
+        "L13_walkthroughs_stale": {
+          "from": 0,
+          "to": 0,
+          "delta": 0
+        }
+      },
+      "L0_ratchets": [],
+      "L0_regressions": [
+        {
+          "validator": "empty_catch",
+          "from": 154,
+          "to": 160
+        }
+      ]
+    },
+    {
+      "turn": 25,
+      "ts": "2026-05-21T21:00:17",
+      "diff": {
+        "L-1_total_proposals": {
+          "from": 0,
+          "to": 0,
+          "delta": 0
+        },
+        "L-1.5_rules_in_manifest": {
+          "from": 46,
+          "to": 46,
+          "delta": 0
+        },
+        "L0_total_baseline_count": {
+          "from": 627,
+          "to": 627,
+          "delta": 0
+        },
+        "L0_validators_with_baseline": {
+          "from": 74,
+          "to": 74,
           "delta": 0
         },
         "L2_sentinel_specs": {
@@ -136,48 +482,83 @@
     },
     "L0": {
       "baselines": {
-        "aria_label_coverage": 43,
+        "add_column_default": 0,
+        "aria_label_coverage": 36,
+        "button_type_in_form": 0,
         "canonical_anchor": 0,
         "canonical_drift": 0,
         "canonical_url_consistency": 0,
+        "console_log_drift": 0,
         "css_class_existence": 0,
+        "css_id_existence": 0,
+        "document_write": 0,
+        "drop_if_exists": 0,
+        "duplicate_html_id": 0,
+        "duplicate_script_tags": 0,
+        "edge_body_size_guard": 0,
         "edge_function_invoke": 0,
+        "edge_options_preflight": 0,
+        "edge_response_content_type": 0,
+        "edge_status_body_consistency": 0,
+        "edge_unpinned_imports": 0,
+        "empty_catch": 160,
         "env_variable_existence": 0,
-        "event_listener_cleanup": 9,
+        "event_listener_cleanup": 0,
+        "external_link_rel": 0,
+        "fetch_error_handling": 0,
         "filter_case_consistency": 0,
-        "getelementbyid_orphan_setter": 8,
+        "fk_on_delete": 0,
+        "form_submission_target": 0,
+        "getelementbyid_orphan_setter": 0,
         "heading_hierarchy": 14,
+        "icon_button_label": 0,
         "image_asset_existence": 0,
+        "img_alt_coverage": 0,
         "inline_onclick_handler": 0,
-        "innerhtml_eschtml": 40,
-        "kpi_count_query_safety": 7,
+        "innerhtml_eschtml": 39,
+        "javascript_href": 0,
+        "json_parse_safety": 0,
+        "kpi_count_query_safety": 0,
+        "like_escape": 0,
         "link_target_existence": 0,
-        "localstorage_key_consistency": 10,
+        "localstorage_key_consistency": 9,
         "meta_description_coverage": 0,
+        "meta_refresh": 0,
+        "native_dialog_calls": 34,
         "orphan_kpi_tiles": 0,
+        "password_input_form": 0,
         "performance_unbounded": 0,
         "pg_cron_target_existence": 0,
         "platform": 0,
-        "playwright_selector_existence": 8,
+        "playwright_selector_existence": 0,
         "playwright_staleness": 0,
         "query_column_existence": 0,
         "realtime_channel_cleanup": 0,
         "realtime_payload_columns": 0,
         "realtime_subscription_consistency": 0,
-        "role_string_consistency": 4,
-        "rpc_argument_consistency": 0,
+        "rls_open_policy": 21,
+        "role_string_consistency": 0,
+        "rpc_argument_consistency": 1,
+        "security_definer_search_path": 0,
+        "select_placeholder": 0,
         "sentinel": 0,
         "service_worker_shell": 0,
+        "settimeout_string": 0,
         "sitemap_page_existence": 0,
         "source_chip_truth": 0,
-        "time_window_consistency": 3,
+        "tabindex_positive": 0,
+        "table_accessible_name": 303,
+        "time_window_consistency": 0,
+        "timer_cleanup": 0,
         "trigger_function_existence": 0,
         "truth_view_signal_trust": 9,
-        "unbounded_query": 15,
-        "ux_contract_input_label": 1
+        "unbounded_query": 0,
+        "ux_contract_input_label": 1,
+        "view_select_star": 0,
+        "viewport_user_scalable": 0
       },
-      "total_baseline_count": 171,
-      "validators_with_baseline": 39
+      "total_baseline_count": 627,
+      "validators_with_baseline": 74
     },
     "L2": {
       "sentinel_specs": 33,

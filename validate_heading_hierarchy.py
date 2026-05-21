@@ -39,6 +39,10 @@ PAGES = [
 
 HEADING_RE = re.compile(r"""<h([1-6])\b[^>]*>""", re.IGNORECASE)
 HTML_COMMENT_RE = re.compile(r"<!--[\s\S]*?-->")
+# A `<!-- heading-allow: <reason> -->` within 200 chars BEFORE a heading
+# tag exempts that heading from both multiple_h1 and skip detection.
+# Useful for popup/PDF templates that emit a separate document's h1.
+ALLOW_RE = re.compile(r"heading-allow", re.IGNORECASE)
 
 
 # Sentinel binding: name the L2 test `test('heading_hierarchy: ...')` for coverage credit.
@@ -51,8 +55,16 @@ def main() -> int:
     for name in PAGES:
         page = ROOT / name
         if not page.exists(): continue
-        body = HTML_COMMENT_RE.sub("", page.read_text(encoding="utf-8", errors="replace"))
-        levels = [int(m.group(1)) for m in HEADING_RE.finditer(body)]
+        raw  = page.read_text(encoding="utf-8", errors="replace")
+        body = HTML_COMMENT_RE.sub(lambda m: " " * len(m.group(0)), raw)  # preserve offsets
+        levels = []
+        for m in HEADING_RE.finditer(body):
+            # Check the RAW source (before comment strip) for the allow marker
+            # within 300 chars before the heading.
+            window = raw[max(0, m.start()-300): m.start()]
+            if ALLOW_RE.search(window):
+                continue
+            levels.append(int(m.group(1)))
         issues = []
         # Multiple h1
         h1_count = sum(1 for l in levels if l == 1)
