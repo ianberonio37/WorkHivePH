@@ -398,6 +398,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script src="utils.js"></script>
 <script>
+  // listener-cleanup-allow: static HTML page — listeners die with page nav; render-scoped listeners attach to elements removed in the same render cycle
 (function () {
   'use strict';
 
@@ -596,7 +597,7 @@
         .select('id,listing_id,buyer_name,buyer_contact,message,status,reply_text,replied_at,created_at,listing_title')
         .eq('seller_name', WORKER_NAME)
         .order('created_at', { ascending: false })
-        .limit(50);
+        .limit(50); // limit-as-count-allow: list cap only; tile counts come from the head-count queries below
       if (error) throw error;
       _inquiries = data || [];
       // True counts for the badge (un-capped by the detail .limit()).
@@ -627,7 +628,7 @@
         .select('id,listing_id,buyer_name,price,status,stripe_transfer_id,escrow_release_at,created_at,marketplace_listings(title)')
         .eq('seller_name', WORKER_NAME)
         .order('created_at', { ascending: false })
-        .limit(50);
+        .limit(50); // limit-as-count-allow: list cap only; _ordersTotal head-count query below drives the badge
       if (error) throw error;
       _orders = data || [];
       try {

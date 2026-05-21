@@ -75,6 +75,7 @@ export async function loadMemory(
   const recent_turns: MemoryTurn[] = [];
   for (const row of (recentRes.data || []).reverse()) {   // chronological
     const text = row.turn_text || "";
+    // role-allow: LLM chat-message role ("user" | "agent"), not a platform auth role
     const role = (row.meta as Record<string, unknown> | null)?.role === "agent"
       ? "agent" as const : "user" as const;
     recent_turns.push({ role, text, created_at: row.created_at });
@@ -175,7 +176,7 @@ export function formatMemoryContext(loaded: LoadedMemory): string {
   if (loaded.recent_turns.length) {
     parts.push("Recent turns:");
     for (const t of loaded.recent_turns) {
-      const tag = t.role === "user" ? "Worker" : "Agent";
+      const tag = t.role === "user" ? "Worker" : "Agent"; // role-allow: LLM chat-message role
       parts.push(`${tag}: ${t.text}`);
     }
   }

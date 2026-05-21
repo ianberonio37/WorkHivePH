@@ -272,6 +272,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
+  // listener-cleanup-allow: static HTML page — listeners die with page nav; render-scoped listeners attach to elements removed in the same render cycle
     tailwind.config = {
       theme: {
         extend: {
@@ -3399,7 +3400,7 @@
       db.from('v_inventory_items_truth')
         .select('part_name, qty_on_hand, reorder_point, is_low_stock')
         .eq(scopeFilter.col, scopeFilter.val)
-        .limit(100),
+        .limit(100), // limit-as-count-allow: low-stock tile is rare; 100 covers typical PH plant inventory. TODO: head-count if a hive ever exceeds.
 
       // PM compliance via canonical (v_pm_compliance_truth) when in a hive.
       // The view exposes is_due directly, so the per-asset roll-up below
@@ -3409,7 +3410,7 @@
         ? db.from('v_pm_compliance_truth')
             .select('pm_asset_id, asset_name, category, is_due')
             .eq('hive_id', HIVE_ID)
-            .limit(200)
+            .limit(200) // limit-as-count-allow: PM-asset roster is bounded; 200 covers expected hive scale. TODO: head-count if exceeded.
         // canonical-allow: solo-mode fallback (v_pm_compliance_truth is hive-scoped only)
         : db.from('pm_assets')
             .select('id, asset_name, category')
@@ -3669,6 +3670,7 @@
         }
       }
       // 3) Any PM overdue (for field workers this is the actionable item).
+      // role-allow: 'field' is a nav display mode (matches nav-hub.js), not a DB auth role
       if (pmOverdueCount > 0 && role === 'field') {
         candidates.push({
           rank: 80,
@@ -3694,7 +3696,7 @@
         });
       }
       // 5) My oldest open job (field).
-      if (role === 'field' && jobs.length) {
+      if (role === 'field' && jobs.length) { // role-allow: nav display mode
         const oldest = jobs[jobs.length - 1];
         candidates.push({
           rank: 60,

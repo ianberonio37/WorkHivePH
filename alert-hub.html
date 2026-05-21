@@ -762,7 +762,7 @@
           .select('computed_at')
           .eq('hive_id', HIVE_ID)
           .order('computed_at', { ascending: false })
-          .limit(1);
+          .limit(1); // limit-as-count-allow: freshness probe (latest computed_at), not a count
         const newest = latest && latest[0] ? new Date(latest[0].computed_at).getTime() : 0;
         const stale  = !newest || (Date.now() - newest > 3600 * 1000);
         if (stale) {
@@ -772,7 +772,7 @@
           .select('id, machine, composite_score, severity, source_count, top_reasons, status, computed_at')
           .eq('hive_id', HIVE_ID)
           .order('composite_score', { ascending: false })
-          .limit(5);
+          .limit(5); // limit-as-count-allow: Top-5 Anomaly Engine surface; "5 signals" label is the list size by design
         rows = data || [];
       } catch (e) {
         console.warn('anomaly load failed:', e?.message || e);

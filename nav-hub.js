@@ -202,6 +202,7 @@
   // mode + new install). Existing users with an explicit choice keep it.
   function _defaultMode() {
     var role = localStorage.getItem('wh_hive_role') || '';
+    // role-allow: nav display mode ('field' | 'supervisor' | 'engineer'), not an auth role
     if (role === 'supervisor') return 'supervisor';
     if (role === 'engineer')   return 'engineer';
     // Workers default to 'field'. Solo mode (no hive) gets 'field' too --

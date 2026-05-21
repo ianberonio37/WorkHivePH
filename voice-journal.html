@@ -688,7 +688,7 @@
         const { data: profile } = await db.from('v_worker_truth')
           .select('worker_name, preferred_persona')
           .eq('auth_uid', AUTH_UID)
-          .limit(1)
+          .limit(1) // limit-as-count-allow: single-row profile lookup, .maybeSingle() coerces; not a count surface
           .maybeSingle();
         WORKER_NAME = profile?.worker_name || sess.session.user.email || 'You';
         if (profile?.preferred_persona && PERSONAS[profile.preferred_persona]) {

@@ -122,9 +122,11 @@ def _scan(name: str, body_raw: str) -> list[dict]:
         n    = int(lm.group("n"))
 
         # Look for allow marker within ±300 chars (covers the comment-on-line-above pattern).
+        # NOTE: lm offsets index into `body` (comment-stripped), so search `body` here
+        # too — searching `body_raw` would index at a shifted position and miss markers.
         window_start = max(0, lm.start() - 300)
-        window_end   = min(len(body_raw), lm.end() + 300)
-        if ALLOW_RE.search(body_raw[window_start:window_end]):
+        window_end   = min(len(body), lm.end() + 300)
+        if ALLOW_RE.search(body[window_start:window_end]):
             continue
 
         # Scan a window AFTER the .limit() call to find the variable that

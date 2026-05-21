@@ -729,6 +729,7 @@
   </div>
 
   <script>
+  // listener-cleanup-allow: static HTML page — listeners die with page nav; render-scoped listeners attach to elements removed in the same render cycle
     // ── PWA: service worker + install prompt ──────────────────────────────────────
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('/sw.js').catch(() => {});
