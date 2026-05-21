@@ -90,6 +90,7 @@
   const handlers = {};            // kind -> async fn(intent, asset_resolution)
   let _stream = null;
   let _recorder = null;
+  let _micQualityMeter = null;  // T63 — AnalyserNode wrapper; stopped on close
   let _chunks = [];
   let _stopTimer = null;
   let _sessionId = null;          // Phase 2: session-scoped memory tracking
@@ -437,6 +438,17 @@
   }
 
   async function _startRecording() {
+    // Phase 4.21 (turn #17) AUDIO INTERRUPT — if Zaniah/Hezekiah is mid-
+    // sentence and the worker taps the mic, KILL the audio first.
+    // Otherwise the worker hears their own question over the persona's
+    // reply, which sounds broken on noisy plant floors. Both the Edge
+    // / Azure audio path (wh-tts._audio) and the browser TTS fallback
+    // need cancelling — wh-tts.stop() does both.
+    if (window.WHTts && typeof window.WHTts.stop === 'function') {
+      try { window.WHTts.stop(); } catch (_) { /* non-fatal */ }
+    } else if (window.speechSynthesis) {
+      try { window.speechSynthesis.cancel(); } catch (_) { /* non-fatal */ }
+    }
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
       _setStatus('Voice not supported on this browser.');
       _setRecRowVisible(false);
@@ -444,6 +456,17 @@
     }
     try {
       _stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      // Phase 4.62 (turn #63) Mic quality meter — wraps the live stream
+      // in an AnalyserNode. If the peak stays below threshold for >2s,
+      // we surface a one-time "you sound far away" hint to the worker.
+      try {
+        if (_micQualityMeter && typeof _micQualityMeter.stop === 'function') {
+          _micQualityMeter.stop();
+        }
+        _micQualityMeter = _attachMicQualityMeter(_stream, function () {
+          _setStatus('You sound far away — speak closer to the mic.');
+        });
+      } catch (_) { /* non-fatal */ }
     } catch (err) {
       _setStatus('Microphone permission denied.');
       _setRecRowVisible(false);
@@ -1257,6 +1280,4331 @@
     return _AFFIRMATION_RE.test(s);
   }
 
+  // Phase 4.2: Follow-up NEGATION detector — mirror of affirmation.
+  // Short "no", "cancel that", "wala na", "hindi", "scratch that" after a
+  // prior topic / pending clarification MUST exit the thread cleanly,
+  // not be classified as a new intent (which would also trip the
+  // clarification UI). Same ≤5-word cap as affirmation so longer
+  // sentences ("no, tell me about MTBF instead") still classify normally.
+  const _NEGATION_RE = /^(no|nope|nah|not really|not now|never mind|nevermind|cancel|cancel that|scratch that|skip|forget it|stop|hindi|hindi pa|wala|wala na|huwag na|ayaw|ayaw ko)([\s,!.?]|$)/i;
+  function _isFollowupNegation(text) {
+    const s = String(text || '').trim();
+    if (!s) return false;
+    const words = s.split(/\s+/);
+    if (words.length > 5) return false;
+    return _NEGATION_RE.test(s);
+  }
+
+  // Phase 4.3: Noisy / empty transcript guard. Background sound, false
+  // mic trigger, "uh", "um", or 1-2 character garbage transcripts must
+  // NEVER enter intent classification — the resulting unknown intent
+  // would otherwise trip the topic-switch clarification UI for what is
+  // really just silence. Routes to a "didn't catch that" prompt instead.
+  function _isNoisyTranscript(text) {
+    const s = String(text || '').trim();
+    if (!s) return true;                                // empty
+    if (s.length < 3) return true;                      // 1-2 chars
+    if (/^[^\w]+$/.test(s)) return true;                // pure punctuation/whitespace
+    // Lone filler word ("uh", "um", "ah", "hm", "oh") with nothing else.
+    if (s.split(/\s+/).length === 1 && /^(uh|um|ah|hm|hmm|oh|er|eh)[.!?,]*$/i.test(s)) return true;
+    return false;
+  }
+
+  // Phase 4.4: Clarification-loop ceiling. If we already clarified twice
+  // in a row and the worker STILL hasn't landed on a clear intent, we
+  // stop clarifying — looping the same prompt makes Zaniah/Hezekiah feel
+  // broken. After 2 consecutive clarifies we ask once in a different
+  // shape ("what page would help?") and HARD reset the counter so we
+  // can never loop more than 3 deep on the same conversation.
+  let _clarifyStreak = 0;
+  function _getClarifyStreak() { return _clarifyStreak; }
+  function _resetClarifyStreak() { _clarifyStreak = 0; }
+  function _bumpClarifyStreak() { _clarifyStreak += 1; return _clarifyStreak; }
+
+  // Phase 4.7: Clarification-recovery routing. After the streak ceiling
+  // fires the "what page would help: Analytics, Logbook, PM Scheduler,
+  // or Asset Hub?" prompt, a worker saying just "logbook" / "PM" /
+  // "analytics" / "asset hub" must route DIRECTLY to that intent. Without
+  // this detector the bare page name enters normal classification, gets
+  // tagged 'unknown' (low confidence), and trips clarify AGAIN — the
+  // exact loop the ceiling was supposed to break.
+  //
+  // Returns the resolved intent slug (compatible with _generateClarification's
+  // intentNames map) when matched, else null. ≤4-word cap keeps real
+  // sentences ("can you open the logbook page for me?") going through
+  // normal classification.
+  const _PAGE_RECOVERY_MAP = {
+    'analytics':         'oee',
+    'analytics report':  'oee',
+    'oee':               'oee',
+    'logbook':           'troubleshooting',
+    'log':               'troubleshooting',
+    'pm':                'pm_scheduling',
+    'pm scheduler':      'pm_scheduling',
+    'preventive maintenance': 'pm_scheduling',
+    'asset':             'troubleshooting',
+    'asset hub':         'troubleshooting',
+    'asset brain':       'troubleshooting',
+    'inventory':         'inventory_check',
+    'parts':             'inventory_check',
+    'predictive':        'risk_assessment',
+    'risk':              'risk_assessment',
+    'shift':             'pm_scheduling',
+    'shift brain':       'pm_scheduling',
+  };
+  function _isPageRecoveryReply(text) {
+    const s = String(text || '').trim().toLowerCase().replace(/[.,!?;:]/g, '');
+    if (!s) return null;
+    const words = s.split(/\s+/);
+    if (words.length > 4) return null;
+    if (Object.prototype.hasOwnProperty.call(_PAGE_RECOVERY_MAP, s)) {
+      return _PAGE_RECOVERY_MAP[s];
+    }
+    return null;
+  }
+
+  // Phase 4.9: Persona-switch utterance detector (turn #5).
+  // Workers occasionally ask for the OTHER companion mid-conversation —
+  // "switch to Hezekiah", "talk to Zaniah", "tawagin si Hezekiah".
+  // Without this detector the bare phrase gets intent-classified as
+  // 'unknown' and trips the clarification UI. We instead route directly
+  // to the persona toggle, render a warm hand-off, and clear dialog
+  // state so the new persona starts on a clean slate.
+  //
+  // Returns the resolved persona key ('hezekiah' / 'zaniah') or null.
+  const _PERSONA_SWITCH_RE = /^(?:switch to|talk to|change to|get|call|tawagin si|kunin si|usapin si)\s+(hezekiah|zaniah|hez|zan)\b/i;
+  function _isPersonaSwitchUtterance(text) {
+    const s = String(text || '').trim();
+    if (!s) return null;
+    const words = s.split(/\s+/);
+    if (words.length > 6) return null;
+    const m = _PERSONA_SWITCH_RE.exec(s);
+    if (!m) return null;
+    const tok = m[1].toLowerCase();
+    if (tok === 'hez') return 'hezekiah';
+    if (tok === 'zan') return 'zaniah';
+    return tok;
+  }
+
+  // Phase 4.10: Stale dialog-state guard (turn #6).
+  // A worker who comes back to voice journal hours later should be
+  // treated as a FRESH conversation. Applying the prior intent / slots /
+  // clarification_pending across a long gap makes the companion sound
+  // like it didn't notice the worker was gone. Threshold: 15 minutes
+  // since the prior turn. Anything older → ignore priorDialogState.
+  const _STALE_THRESHOLD_MS = 15 * 60 * 1000;
+  function _isStaleDialogState(dialogState) {
+    if (!dialogState) return false;
+    // updated_at / created_at / last_turn_at — whichever the RPC returns.
+    const ts = dialogState.updated_at || dialogState.last_turn_at || dialogState.created_at;
+    if (!ts) return false;
+    const t = new Date(ts).getTime();
+    if (!isFinite(t) || t <= 0) return false;
+    return (Date.now() - t) > _STALE_THRESHOLD_MS;
+  }
+
+  // Phase 4.11: Topic interruption signal (turn #7).
+  // The affirmation bypass (4.1) treats short follow-ups as "stay on the
+  // prior topic". But sometimes a worker INTERRUPTS — "hold on", "wait,
+  // actually", "speaking of", "by the way" — signalling they want to
+  // switch topics RIGHT NOW. When this signal fires, we explicitly
+  // SUPPRESS the affirmation bypass and let normal intent classification
+  // run on the full utterance. The detector is "starts-with" so longer
+  // sentences carry the signal correctly without bypass interference.
+  const _TOPIC_SHIFT_RE = /^(?:hold on|hold up|wait|wait a sec|wait wait|actually|speaking of|by the way|btw|teka|sandali|sandali lang|teka muna)\b/i;
+  function _isTopicShiftSignal(text) {
+    const s = String(text || '').trim();
+    if (!s) return false;
+    return _TOPIC_SHIFT_RE.test(s);
+  }
+
+  // Phase 4.12: Thanks / acknowledgment detector (turn #8).
+  // "Thanks" / "salamat" / "maraming salamat" / "appreciate it" are
+  // conversation-CLOSERS. Workers don't want a follow-up question after
+  // a thank-you — they want acknowledgment then silence so they can
+  // get back to work. Skip the LLM, render a short "you're welcome"
+  // beat, and clear the dialog state so the next utterance starts fresh.
+  const _THANKS_RE = /^(?:thanks|thank you|thx|tnx|appreciate it|salamat|maraming salamat|salamat ah|salamat po|nice one|cool|got it|noted)([\s,!.?]|$)/i;
+  function _isThanksReply(text) {
+    const s = String(text || '').trim();
+    if (!s) return false;
+    const words = s.split(/\s+/);
+    if (words.length > 5) return false;
+    return _THANKS_RE.test(s);
+  }
+
+  // Phase 4.14: First-turn greeting detector (turn #10).
+  // When a worker opens voice journal with NO prior dialog state AND
+  // no in-session memory turns AND a short greeting-shape utterance
+  // ("hello", "hi", "kumusta", "magandang umaga"), respond with a warm
+  // hello rather than running the LLM through full grounding. The
+  // greeting acts as a session opener — it sets the tone before the
+  // worker gets into a real question.
+  const _GREETING_RE = /^(?:hello|hi|hey|yo|good morning|good afternoon|good evening|magandang umaga|magandang hapon|magandang gabi|kumusta|kamusta|musta|kumusta ka|hi po|hello po|sup)([\s,!.?]|$)/i;
+  function _isGreeting(text) {
+    const s = String(text || '').trim();
+    if (!s) return false;
+    const words = s.split(/\s+/);
+    if (words.length > 5) return false;
+    return _GREETING_RE.test(s);
+  }
+
+  // Phase 4.28 (turn #28): Voice command shortcut detector.
+  // "open logbook", "show analytics", "schedule a PM", "asset hub" —
+  // explicit navigation requests that should jump to that page instead
+  // of running through the conversational LLM. Returns the target URL
+  // path (e.g. 'logbook.html') or null. Cap at 6 words so longer
+  // questions ("can you walk me through how to open the logbook?") still
+  // route through the LLM for a conversational answer.
+  const _VOICE_SHORTCUT_MAP = {
+    'open logbook':          'logbook.html',
+    'go to logbook':         'logbook.html',
+    'log this':              'logbook.html',
+    'log a job':             'logbook.html',
+    'open analytics':        'analytics.html',
+    'show analytics':        'analytics.html',
+    'show me analytics':     'analytics.html',
+    'open pm':               'pm-scheduler.html',
+    'open pm scheduler':     'pm-scheduler.html',
+    'schedule pm':           'pm-scheduler.html',
+    'schedule a pm':         'pm-scheduler.html',
+    'open inventory':        'inventory.html',
+    'show inventory':        'inventory.html',
+    'open asset hub':        'asset-hub.html',
+    'asset hub':             'asset-hub.html',
+    'open hive':             'hive.html',
+    'show hive':             'hive.html',
+    'open community':        'community.html',
+    'open dayplanner':       'dayplanner.html',
+    'open day planner':      'dayplanner.html',
+    'open assistant':        'assistant.html',
+    'open ai assistant':     'assistant.html',
+    'open report sender':    'report-sender.html',
+    'show predictive':       'predictive.html',
+  };
+  function _isVoiceShortcut(text) {
+    const s = String(text || '').trim().toLowerCase().replace(/[.,!?;:]/g, '');
+    if (!s) return null;
+    const words = s.split(/\s+/);
+    if (words.length > 6) return null;
+    if (Object.prototype.hasOwnProperty.call(_VOICE_SHORTCUT_MAP, s)) {
+      return _VOICE_SHORTCUT_MAP[s];
+    }
+    return null;
+  }
+
+  // Phase 4.29 (turn #31): Goodbye / wrap-up detector. "yun lang" /
+  // "that's all" / "I'm done" / "tapos na" — worker is closing the
+  // conversation. Render a warm exit + persist a clean session end.
+  // Different from thanks (T8) which is a closer ON A SINGLE TURN;
+  // goodbye is a closer ON THE WHOLE SESSION.
+  const _GOODBYE_RE = /^(?:that(?:'|’)?s\s+all|that(?:'|’)?s\s+it|i(?:'|’)?m\s+done|im\s+done|done|all\s+set|all\s+good|good\s+for\s+now|nothing\s+else|wala\s+na|wala\s+nang\s+iba|tapos|tapos\s+na|tama\s+na|hanggang\s+dito|goodbye|bye|paalam|see\s+you)([\s,!.?]|$)/i;
+  function _isGoodbye(text) {
+    const s = String(text || '').trim();
+    if (!s) return false;
+    const words = s.split(/\s+/);
+    if (words.length > 5) return false;
+    return _GOODBYE_RE.test(s);
+  }
+
+  // Phase 4.54 (turn #55): Proactive companion turn.
+  // When a CRITICAL/HIGH proactive alert exists and the worker hasn't
+  // acknowledged it yet, the companion may speak FIRST without a tap.
+  // We expose a helper that picks the highest-severity unacknowledged
+  // alert. The voice-overlay opens with this line pre-rendered.
+  function _selectProactiveAlertForSpeak(alerts) {
+    if (!Array.isArray(alerts) || alerts.length === 0) return null;
+    const critical = alerts.find(a => a && String(a.severity || '').toLowerCase() === 'critical');
+    if (critical) return critical;
+    const high = alerts.find(a => a && String(a.severity || '').toLowerCase() === 'high');
+    if (high) return high;
+    return null;
+  }
+
+  // Phase 4.55 (turn #56): Maturity-stair gating.
+  // Hives at Stair < 2 don't have enough history for predictive replies.
+  // The anchor below MUTES the companion's predictive vocabulary on
+  // those hives so we don't promise capability they haven't earned.
+  function _readHiveMaturityStair() {
+    try {
+      const s = localStorage.getItem('wh_hive_maturity_stair');
+      const n = Number(s);
+      return isFinite(n) ? n : null;
+    } catch (_) { return null; }
+  }
+
+  // Phase 4.56 (turn #57): Per-slot expiry windows.
+  // T6 expires the whole dialogState at 15min. Per-slot expiry is
+  // finer: asset_tag is ephemeral (60min), time_window decays faster
+  // (2h), machine_status is volatile (30min). Anything else uses the
+  // session-level guard. Returns a slots object with stale entries removed.
+  const _SLOT_TTL_MS = {
+    asset_tag:      60 * 60 * 1000,
+    machine_status: 30 * 60 * 1000,
+    time_window:   120 * 60 * 1000,
+    failure_mode:   60 * 60 * 1000,
+    co_worker:     120 * 60 * 1000,
+  };
+  function _pruneStaleSlots(slots, slotsUpdatedAt) {
+    if (!slots || typeof slots !== 'object') return slots || {};
+    if (!slotsUpdatedAt) return slots;
+    const refTs = new Date(slotsUpdatedAt).getTime();
+    if (!isFinite(refTs) || refTs <= 0) return slots;
+    const now = Date.now();
+    const pruned = {};
+    Object.keys(slots).forEach(k => {
+      const ttl = _SLOT_TTL_MS[k];
+      if (!ttl) { pruned[k] = slots[k]; return; }
+      if ((now - refTs) <= ttl) pruned[k] = slots[k];
+    });
+    return pruned;
+  }
+
+  // Phase 4.57 (turn #58): Action replay.
+  // After a confirmed logbook/PM action lands, we snapshot its shape
+  // (verb + slot template) on a module-local var. A subsequent "same
+  // fix on <new_asset>" / "same as before for <new_asset>" replays the
+  // template with the new asset_tag substituted.
+  let _lastConfirmedAction = null;  // { verb, slots, ts }
+  function _stashConfirmedAction(verb, slots) {
+    if (!verb) return;
+    _lastConfirmedAction = { verb: String(verb), slots: slots || {}, ts: Date.now() };
+  }
+  function _getLastConfirmedAction() { return _lastConfirmedAction; }
+  const _REPLAY_RE = /\b(?:same (?:thing|fix|action|entry) (?:for|on) |gawin mo (?:rin )?(?:to|yan) (?:for|sa))\s+([A-Z0-9][A-Za-z0-9\-_.]{1,30})\b/i;
+  function _detectActionReplay(text) {
+    const m = String(text || '').match(_REPLAY_RE);
+    if (!m || !_lastConfirmedAction) return null;
+    // Only honour if the prior action is fresh (within 15 min).
+    if ((Date.now() - _lastConfirmedAction.ts) > 15 * 60 * 1000) return null;
+    return { verb: _lastConfirmedAction.verb, slots: _lastConfirmedAction.slots, newAsset: m[1] };
+  }
+
+  // Phase 4.58 (turn #59): Language opt-in.
+  // "Speak tagalog" / "english only" / "tagalog na lang" — persist a
+  // session-level pref so the LLM picks the right output language
+  // without the worker having to ask every turn.
+  const _LANG_OPT_RE = /\b(?:speak\s+(tagalog|english|cebuano|tag\-?lish)|reply\s+in\s+(tagalog|english|cebuano)\s*only|(tagalog|english|cebuano)\s+(?:na\s+lang|lang|please)|sa\s+(tagalog|english|cebuano)\s+na\s+lang)\b/i;
+  function _detectLanguagePref(text) {
+    const m = String(text || '').match(_LANG_OPT_RE);
+    if (!m) return null;
+    const lang = (m[1] || m[2] || m[3] || m[4] || '').toLowerCase();
+    if (!lang) return null;
+    if (lang === 'tag-lish' || lang === 'taglish') return 'taglish';
+    return lang;
+  }
+  function _setLanguagePref(lang) {
+    if (!lang) return;
+    try { localStorage.setItem('wh_voice_lang_pref', lang); } catch (_) { /* non-fatal */ }
+  }
+  function _getLanguagePref() {
+    try { return localStorage.getItem('wh_voice_lang_pref') || null; }
+    catch (_) { return null; }
+  }
+
+  // Phase 4.59 (turn #60): Brevity preference.
+  // "Shorter" / "be brief" / "one sentence" / "TLDR" — persists a
+  // session-level brevity flag. The prompt then caps the reply at one
+  // sentence until the worker says "more detail" / "expand".
+  const _BREVITY_ON_RE  = /\b(?:shorter|be\s+brief|brief\s+please|one\s+sentence|tldr|tl;dr|maikli\s+lang|saglit\s+lang|usapan\s+ng\s+maikli)\b/i;
+  const _BREVITY_OFF_RE = /\b(?:more\s+detail|tell\s+me\s+more|expand|longer\s+please|details\s+please\s+full|kompleto\s+ko|detalyado)\b/i;
+  function _detectBrevityToggle(text) {
+    const s = String(text || '');
+    if (_BREVITY_ON_RE.test(s)) return 'brief';
+    if (_BREVITY_OFF_RE.test(s)) return 'full';
+    return null;
+  }
+  function _setBrevityPref(mode) {
+    if (mode !== 'brief' && mode !== 'full') return;
+    try { localStorage.setItem('wh_voice_brevity', mode); } catch (_) { /* non-fatal */ }
+  }
+  function _getBrevityPref() {
+    try { return localStorage.getItem('wh_voice_brevity') || null; }
+    catch (_) { return null; }
+  }
+
+  // Phase 4.60 (turn #61): Timer follow-up.
+  // "Remind me in 20 minutes about P-203" — parse the duration + topic,
+  // schedule a setTimeout that opens the overlay with a pre-rendered
+  // reminder. Bounded list so we never schedule more than 5 concurrent.
+  const _TIMER_LIST_MAX = 5;
+  const _timers = [];  // [{ id, due, label }]
+  const _TIMER_RE = /\bremind\s+me\s+(?:in\s+)?(\d{1,3})\s*(min|mins|minute|minutes|hr|hour|hours)\s+(?:about|to|tungkol sa)\s+(.{2,80})$/i;
+  function _detectTimerRequest(text) {
+    const m = String(text || '').match(_TIMER_RE);
+    if (!m) return null;
+    const n = Number(m[1]);
+    const unit = String(m[2] || 'min').toLowerCase();
+    const label = String(m[3] || '').trim();
+    if (!n || !label) return null;
+    const ms = (unit.startsWith('h') ? n * 60 : n) * 60 * 1000;
+    return { ms, label };
+  }
+  function _scheduleTimer(spec) {
+    if (!spec || !spec.ms || !spec.label) return null;
+    if (_timers.length >= _TIMER_LIST_MAX) return null;
+    const due = Date.now() + spec.ms;
+    const id = setTimeout(function () {
+      try {
+        const text = "Hey, you asked me to remind you about " + spec.label + ".";
+        if (typeof open === 'function') open();
+        _setStatus(personaName_safe() + ' (reminder):');
+        _renderReplyBubble(text, _getPersonaSafe());
+        if (typeof window.speakPersona === 'function') {
+          window.speakPersona(text, { persona: _getPersonaSafe() });
+        }
+      } catch (_) { /* non-fatal */ }
+      // Remove from active list when fired.
+      const idx = _timers.findIndex(t => t.id === id);
+      if (idx >= 0) _timers.splice(idx, 1);
+    }, spec.ms);
+    _timers.push({ id, due, label: spec.label });
+    return { due, label: spec.label };
+  }
+  function _getActiveTimers() { return _timers.slice(); }
+  function _clearAllTimers() {
+    _timers.forEach(t => { try { clearTimeout(t.id); } catch (_) {} });
+    _timers.length = 0;
+  }
+  function personaName_safe() {
+    try {
+      const p = (typeof window.getPersona === 'function') ? window.getPersona() : 'zaniah';
+      return p === 'hezekiah' ? 'Hezekiah' : 'Zaniah';
+    } catch (_) { return 'Zaniah'; }
+  }
+  function _getPersonaSafe() {
+    try { return (typeof window.getPersona === 'function') ? window.getPersona() : 'zaniah'; }
+    catch (_) { return 'zaniah'; }
+  }
+
+  // Phase 4.61 (turn #62): URL-context pre-fill.
+  // When voice-journal opens from asset-hub.html?asset=P-203 (or any
+  // page with ?asset= / ?machine= query params), pre-seed asset_tag
+  // into the dialog-state slots so turn 1 already has context.
+  function _readUrlAssetParam() {
+    try {
+      const u = new URL(window.location.href);
+      const tag = u.searchParams.get('asset') || u.searchParams.get('machine') ||
+                  u.searchParams.get('asset_tag') || u.searchParams.get('tag');
+      return tag ? String(tag).trim() : null;
+    } catch (_) { return null; }
+  }
+
+  // Phase 4.62 (turn #63): Mic quality warning.
+  // Module-local rolling RMS / peak level monitor. The MediaRecorder
+  // pipeline already grabs an audio stream; we sample it through an
+  // AnalyserNode and surface a "you sound far away" warning if the
+  // peak stays below threshold for >2s. Helper only — the wiring at
+  // _startRecording can wrap it in opportunistically.
+  function _attachMicQualityMeter(stream, onLowLevel) {
+    if (!stream || !window.AudioContext) return null;
+    try {
+      const ac = new AudioContext();
+      const src = ac.createMediaStreamSource(stream);
+      const analyser = ac.createAnalyser();
+      analyser.fftSize = 1024;
+      src.connect(analyser);
+      const buf = new Uint8Array(analyser.fftSize);
+      let lowStreakMs = 0;
+      let stopped = false;
+      const startTs = Date.now();
+      function tick() {
+        if (stopped) return;
+        analyser.getByteTimeDomainData(buf);
+        let peak = 0;
+        for (let i = 0; i < buf.length; i++) {
+          const v = Math.abs(buf[i] - 128);
+          if (v > peak) peak = v;
+        }
+        // Peak ranges 0..128; below 8 ≈ silence; below 20 ≈ very quiet.
+        if (peak < 20) lowStreakMs += 100;
+        else lowStreakMs = 0;
+        if (lowStreakMs >= 2000 && Date.now() - startTs > 1500) {
+          stopped = true;
+          if (typeof onLowLevel === 'function') {
+            try { onLowLevel({ peak, lowStreakMs }); } catch (_) {}
+          }
+          try { ac.close(); } catch (_) {}
+          return;
+        }
+        setTimeout(tick, 100);
+      }
+      tick();
+      return {
+        stop: function () { stopped = true; try { ac.close(); } catch (_) {} },
+      };
+    } catch (_) { return null; }
+  }
+
+  // Phase 4.63 (turn #64): Action queue.
+  // Multi-step request: "log entry then start PM then notify supervisor".
+  // We parse with split on "then" / "tapos" / "after that" / "pagkatapos
+  // ay" and produce an ordered list of action verbs the LLM can confirm
+  // one-by-one. Returns the list or null when no batch shape detected.
+  const _ACTION_SPLIT_RE = /\bthen\b|\bafter that\b|\btapos\b|\bpagkatapos(?:\s+ay)?\b|;/i;
+  function _parseActionQueue(text) {
+    const s = String(text || '').trim();
+    if (!s) return null;
+    if (!_isActionRequest(s)) return null;
+    const parts = s.split(_ACTION_SPLIT_RE).map(p => p.trim()).filter(p => p.length > 2);
+    if (parts.length < 2) return null;
+    // Each step must look action-shaped (start with a verb).
+    const queue = parts.filter(p => _isActionRequest(p));
+    if (queue.length < 2) return null;
+    return queue;
+  }
+
+  // ============================================================
+  // SEVENTH 10-TURN FLYWHEEL — turns #65-#74 (Phase 4.67-4.76)
+  // ORCHESTRATION + INTEGRATION layer. Detectors stay tight; most
+  // wins are wiring real infra (RPC, push, locks, streaming UI,
+  // pronunciation overrides) into the existing detector lattice.
+  // ============================================================
+
+  // Phase 4.67 (turn #65) PDF EXPORT REQUEST — "save as PDF" /
+  // "i-PDF mo ito" / "export to PDF" / "download conversation".
+  // The companion does NOT generate PDFs; it points the worker at
+  // the Report Sender surface which already owns the PDF pipeline.
+  const _PDF_EXPORT_RE = /\b(?:save|export|download|send|print|i[\-\s]?pdf|pdf[\s\-]?mo|i[\-\s]?save|save\s+mo)\s+(?:this|ito|yan|yun|the\s+conversation|the\s+chat|as|to|mo)?\s*(?:to\s+)?(?:pdf|p\.d\.f|hard\s*copy|file)\b/i;
+  function _isPdfExportRequest(text) {
+    const s = String(text || '').trim();
+    if (!s || s.length > 200) return false;
+    return _PDF_EXPORT_RE.test(s);
+  }
+
+  // Phase 4.68 (turn #66) CUSTOM PRONUNCIATION LIBRARY — workers
+  // routinely correct STT/TTS mispronunciations of plant-specific
+  // terms ("it's pee-two-oh-three, not pi-two-oh-three"). The
+  // override map persists per-device so the correction sticks
+  // across sessions. Applied immediately before TTS in callers.
+  const _PRONUNCIATION_KEY = 'wh_pronunciation_overrides';
+  function _getPronunciationMap() {
+    try {
+      const raw = localStorage.getItem(_PRONUNCIATION_KEY);
+      if (!raw) return {};
+      const parsed = JSON.parse(raw);
+      return (parsed && typeof parsed === 'object') ? parsed : {};
+    } catch (_) { return {}; }
+  }
+  function _setPronunciationOverride(term, sayAs) {
+    if (!term || !sayAs) return false;
+    const t = String(term).trim();
+    const a = String(sayAs).trim();
+    if (!t || !a || t.length > 60 || a.length > 80) return false;
+    try {
+      const m = _getPronunciationMap();
+      m[t.toLowerCase()] = a;
+      localStorage.setItem(_PRONUNCIATION_KEY, JSON.stringify(m));
+      return true;
+    } catch (_) { return false; }
+  }
+  function _applyPronunciation(text) {
+    const s = String(text || '');
+    if (!s) return s;
+    const m = _getPronunciationMap();
+    const keys = Object.keys(m);
+    if (keys.length === 0) return s;
+    let out = s;
+    for (const k of keys) {
+      // word-boundary, case-insensitive replace
+      const re = new RegExp('\\b' + k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\b', 'gi');
+      out = out.replace(re, m[k]);
+    }
+    return out;
+  }
+
+  // Phase 4.69 (turn #67) VOICE EXECUTE LOCK — safety gate so that
+  // write-verb intents (action confirmation / replay / queue) do
+  // NOT actually dispatch through voice-action-router until the
+  // worker has explicitly enabled voice-execute mode. Default is
+  // OFF — conservative. The lock is per-device.
+  const _VOICE_EXECUTE_KEY = 'wh_voice_execute_authorised';
+  function _isVoiceExecuteAuth() {
+    try { return localStorage.getItem(_VOICE_EXECUTE_KEY) === '1'; }
+    catch (_) { return false; }
+  }
+  function _setVoiceExecuteAuth(flag) {
+    try {
+      if (flag) localStorage.setItem(_VOICE_EXECUTE_KEY, '1');
+      else localStorage.removeItem(_VOICE_EXECUTE_KEY);
+      return true;
+    } catch (_) { return false; }
+  }
+
+  // Phase 4.70 (turn #68) PERSONA PORTRAIT ANIMATION — companion
+  // bubble carries a data-avatar-anim attribute that drives a CSS
+  // animation (idle / listening / thinking / speaking / urgent).
+  // The animation is purely visual; the avatar emotion (T53) drives
+  // tint, this drives motion. Fail-soft if the overlay isn't mounted.
+  const _AVATAR_ANIM_STATES = ['idle', 'listening', 'thinking', 'speaking', 'urgent'];
+  function _setAvatarAnimation(state) {
+    if (!_AVATAR_ANIM_STATES.includes(state)) return false;
+    try {
+      const ov = document.getElementById('wh-voice-overlay');
+      if (!ov) return false;
+      ov.setAttribute('data-avatar-anim', state);
+      return true;
+    } catch (_) { return false; }
+  }
+
+  // Phase 4.71 (turn #69) CROSS-HIVE BENCHMARK RPC — wires the T54
+  // anchor to a real Supabase RPC. Returns { p50, p90, p_self } for
+  // the requested metric. 5-minute in-memory cache keyed by metric;
+  // the RPC itself enforces anonymisation (PH-INTELLIGENCE rollup).
+  const _CROSS_HIVE_RPC = 'fn_cross_hive_benchmark';
+  const _BENCHMARK_CACHE_TTL_MS = 5 * 60 * 1000;
+  const _benchmarkCache = {}; // metric -> { value, ts }
+  async function _fetchCrossHiveBenchmark(db, metric) {
+    if (!db || !metric) return null;
+    const m = String(metric).toLowerCase();
+    const now = Date.now();
+    const cached = _benchmarkCache[m];
+    if (cached && (now - cached.ts) < _BENCHMARK_CACHE_TTL_MS) {
+      return cached.value;
+    }
+    try {
+      const { data, error } = await db.rpc(_CROSS_HIVE_RPC, { p_metric: m });
+      if (error || !data) return null;
+      const value = (Array.isArray(data) ? data[0] : data) || null;
+      if (value) _benchmarkCache[m] = { value, ts: now };
+      return value;
+    } catch (_) { return null; }
+  }
+
+  // Phase 4.72 (turn #70) DAILY DIGEST MODE — "morning summary" /
+  // "what happened overnight" / "i-summarize mo ang shift" → flip
+  // into a 5-line briefing format. Distinct from T22 SUMMARY MODE
+  // (recap of THIS session) — this surfaces platform-state delta.
+  const _DIGEST_RE = /\b(?:morning\s+(?:summary|brief|digest|update)|overnight\s+(?:summary|update)|shift\s+(?:summary|digest|brief)|i[\-\s]?summarize\s+mo(?:\s+ang)?\s+shift|brief\s+me\s+(?:on|about)\s+the\s+(?:shift|night|morning)|what\s+happened\s+(?:overnight|last\s+shift|sa\s+gabi)|daily\s+digest)\b/i;
+  function _isDigestRequest(text) {
+    const s = String(text || '').trim();
+    if (!s || s.length > 200) return false;
+    return _DIGEST_RE.test(s);
+  }
+
+  // Phase 4.73 (turn #71) PUSH NOTIFICATION READINESS — wraps the
+  // browser Notification API. The companion checks permission state
+  // BEFORE offering to "alert me" so it doesn't promise a feature
+  // the browser will silently drop. Requesting permission is
+  // user-gesture-gated by the browser; we expose the request as a
+  // helper but never auto-call it.
+  function _canPushNotify() {
+    try {
+      return (typeof Notification !== 'undefined') &&
+             Notification.permission === 'granted';
+    } catch (_) { return false; }
+  }
+  function _pushNotifyState() {
+    try {
+      if (typeof Notification === 'undefined') return 'unsupported';
+      return Notification.permission || 'default';
+    } catch (_) { return 'unsupported'; }
+  }
+  async function _requestPushPerm() {
+    try {
+      if (typeof Notification === 'undefined') return 'unsupported';
+      if (Notification.permission === 'granted') return 'granted';
+      if (Notification.permission === 'denied') return 'denied';
+      const result = await Notification.requestPermission();
+      return String(result || 'default');
+    } catch (_) { return 'error'; }
+  }
+  const _PUSH_OPT_IN_RE = /\b(?:yes\s*,?\s*(?:alert|notify|ping|notify\s+me)|sige[, ]+(?:alert|notify|ipush)\s+mo|turn\s+on\s+(?:alerts|notifications|push)|enable\s+(?:alerts|notifications|push)|push\s+(?:on|please|sige)|opt\s+in\s+(?:to\s+)?(?:alerts|push|notifications))\b/i;
+  function _isPushOptInReply(text) {
+    const s = String(text || '').trim();
+    if (!s || s.length > 120) return false;
+    return _PUSH_OPT_IN_RE.test(s);
+  }
+
+  // Phase 4.74 (turn #72) MULTI-WORKER CONCURRENCY LOCK — when two
+  // workers in the same hive open the companion on overlapping
+  // devices, the second one would otherwise stomp on shared
+  // dialog-state. We write a short-lived lock keyed by hive_id;
+  // the holder's worker_id is in the value, with a 10-min TTL.
+  // The owning device clears it on close(). Lock is advisory —
+  // we don't block, we just surface a warning anchor.
+  const _SESSION_LOCK_TTL_MS = 10 * 60 * 1000;
+  function _sessionLockKey(hiveId) {
+    return 'wh_voice_session_lock_' + String(hiveId || 'anon');
+  }
+  function _acquireSessionLock(hiveId, workerId) {
+    if (!hiveId || !workerId) return false;
+    try {
+      const payload = JSON.stringify({ worker: String(workerId), ts: Date.now() });
+      localStorage.setItem(_sessionLockKey(hiveId), payload);
+      return true;
+    } catch (_) { return false; }
+  }
+  function _isSessionLocked(hiveId, workerId) {
+    if (!hiveId) return null;
+    try {
+      const raw = localStorage.getItem(_sessionLockKey(hiveId));
+      if (!raw) return null;
+      const parsed = JSON.parse(raw);
+      if (!parsed || typeof parsed !== 'object') return null;
+      if ((Date.now() - Number(parsed.ts || 0)) >= _SESSION_LOCK_TTL_MS) {
+        // expired — clear and treat as unlocked
+        try { localStorage.removeItem(_sessionLockKey(hiveId)); } catch (_) {}
+        return null;
+      }
+      if (workerId && String(parsed.worker) === String(workerId)) return null; // own lock
+      return parsed; // foreign lock
+    } catch (_) { return null; }
+  }
+  function _releaseSessionLock(hiveId, workerId) {
+    if (!hiveId) return false;
+    try {
+      const raw = localStorage.getItem(_sessionLockKey(hiveId));
+      if (!raw) return true;
+      const parsed = JSON.parse(raw);
+      if (!parsed) return true;
+      if (workerId && String(parsed.worker) !== String(workerId)) return false;
+      localStorage.removeItem(_sessionLockKey(hiveId));
+      return true;
+    } catch (_) { return false; }
+  }
+
+  // Phase 4.75 (turn #73) ACCENT / VOICE SIGNATURE — over a session,
+  // measure how much of the worker's speech is Tagalog-leaning so
+  // the TTS voice picker can adapt. Persisted per-device. The hint
+  // is recomputed from the rolling _sessionTurns; a stable pref
+  // sticks once set explicitly.
+  const _ACCENT_PREF_KEY = 'wh_voice_accent_pref';
+  const _TGL_HINT_WORDS = new Set([
+    'ako','ikaw','siya','kami','tayo','kayo','sila','yung','yun','yan','iyan',
+    'kasi','naman','lang','po','ho','sige','oo','hindi','wala','meron','meron',
+    'tapos','pagkatapos','tagalog','salamat','paki','paano','bakit','ano',
+    'kuya','ate','kapatid','mam','sir',
+  ]);
+  function _detectAccentHint(turnSamples) {
+    const samples = Array.isArray(turnSamples) ? turnSamples : (_sessionTurns || []);
+    if (samples.length === 0) return null;
+    const window = samples.slice(-10);
+    let tgl = 0, total = 0;
+    for (const t of window) {
+      const text = String((t && (t.utter || t.user || t)) || '').toLowerCase();
+      const words = text.split(/[^a-z]+/).filter(w => w.length >= 2);
+      for (const w of words) {
+        total++;
+        if (_TGL_HINT_WORDS.has(w)) tgl++;
+      }
+    }
+    if (total < 8) return null; // not enough signal
+    const ratio = tgl / total;
+    if (ratio >= 0.18) return 'tagalog-leaning';
+    if (ratio <= 0.03) return 'english-leaning';
+    return 'mixed';
+  }
+  function _getAccentPref() {
+    try { return localStorage.getItem(_ACCENT_PREF_KEY) || null; }
+    catch (_) { return null; }
+  }
+  function _setAccentPref(pref) {
+    try {
+      if (!pref) { localStorage.removeItem(_ACCENT_PREF_KEY); return true; }
+      const allowed = new Set(['tagalog-leaning','english-leaning','mixed','cebuano-leaning']);
+      if (!allowed.has(pref)) return false;
+      localStorage.setItem(_ACCENT_PREF_KEY, pref);
+      return true;
+    } catch (_) { return false; }
+  }
+
+  // Phase 4.76 (turn #74) STREAMING SSE INDICATOR — when the ai-
+  // gateway later emits incremental tokens, voice-handler updates
+  // the latest reply bubble in place instead of waiting for the
+  // full response. This block exposes the wiring; the gateway
+  // flip-over (server side) ships separately. data-streaming on
+  // the overlay drives a subtle "..." cursor.
+  let _streamIncremental = false;
+  let _lastReplyBubble = null;
+  function _setStreamingState(on) {
+    _streamIncremental = !!on;
+    try {
+      const ov = document.getElementById('wh-voice-overlay');
+      if (ov) ov.setAttribute('data-streaming', on ? '1' : '0');
+    } catch (_) { /* non-fatal */ }
+    return _streamIncremental;
+  }
+  function _isStreaming() { return _streamIncremental === true; }
+  function _bindStreamingBubble(node) {
+    _lastReplyBubble = node || null;
+  }
+  function _appendStreamingChunk(chunk) {
+    if (!_streamIncremental || !chunk) return false;
+    const c = String(chunk);
+    try {
+      if (_lastReplyBubble && typeof _lastReplyBubble.textContent === 'string') {
+        _lastReplyBubble.textContent = (_lastReplyBubble.textContent || '') + c;
+        return true;
+      }
+    } catch (_) { /* non-fatal */ }
+    return false;
+  }
+  function _finalizeStream() {
+    _streamIncremental = false;
+    _lastReplyBubble = null;
+    try {
+      const ov = document.getElementById('wh-voice-overlay');
+      if (ov) ov.setAttribute('data-streaming', '0');
+    } catch (_) { /* non-fatal */ }
+  }
+
+  // ============================================================
+  // EIGHTH 10-TURN FLYWHEEL — turns #75-#84 (Phase 4.77-4.86)
+  // TRUST DEPLOYMENT layer. Production-safety + collaboration:
+  // toxicity guard, question shape classifier, freshness
+  // disclosure, rate-limit cooldown, conversation share, readback,
+  // scope disclosure, correction handler, confidence label,
+  // crisis escalation extension.
+  // ============================================================
+
+  // Phase 4.77 (turn #75) TOXICITY GUARD — detect obviously toxic
+  // language directed at the worker (or coming from them about a
+  // colleague). The companion should de-escalate, never amplify.
+  // Word-list approach is intentional — keeps the gate local-only,
+  // no PII leaves the device. Severity 0..1 (0=clean, 1=hostile).
+  const _TOX_TERMS_SEVERE = [
+    /\b(?:f(?:ck|uck|uk)|sht|shit|bitch|bullsh.t|kill\s+(?:yourself|yourselves)|fucking\s+id\w+)\b/i,
+    /\b(?:gago|tanga|bobo|inutil|hayop|pakshet|putang\s*ina|tang\s*ina|punyeta|leche|gunggong)\b/i,
+  ];
+  const _TOX_TERMS_MILD = [
+    /\b(?:stupid|idiot|dumb|garbage|trash|useless|moron|loser)\b/i,
+    /\b(?:bobo[\s-]talaga|tanga[\s-]talaga|wala[\s-]kang\s+kwenta)\b/i,
+  ];
+  function _detectToxicLanguage(text) {
+    const s = String(text || '');
+    if (!s || s.length > 600) return { severity: 0, hit: null };
+    for (const re of _TOX_TERMS_SEVERE) {
+      const m = s.match(re);
+      if (m) return { severity: 0.85, hit: m[0] };
+    }
+    for (const re of _TOX_TERMS_MILD) {
+      const m = s.match(re);
+      if (m) return { severity: 0.45, hit: m[0] };
+    }
+    return { severity: 0, hit: null };
+  }
+
+  // Phase 4.78 (turn #76) QUESTION SHAPE CLASSIFIER — different
+  // shapes of question deserve different reply structures. The
+  // classifier is heuristic (not LLM) so we can pre-anchor in the
+  // system prompt before the LLM ever sees the transcript.
+  function _classifyQuestionShape(text) {
+    const s = String(text || '').trim().toLowerCase();
+    if (!s) return 'unknown';
+    if (/\b(?:how\s+(?:do|can|to)|paano|pano|saan|where\s+can\s+i|how\s+about)\b/i.test(s)) return 'how_to';
+    if (/\b(?:what(?:'s|\s+is)|ano(?:\s+ang)?|magkano|how\s+many|how\s+much|kailan|when\s+(?:was|is|did))\b/i.test(s)) return 'data';
+    if (/\b(?:should\s+i|dapat\s+ba|mas\s+ok\s+ba|do\s+you\s+think|sa\s+tingin\s+mo)\b/i.test(s)) return 'opinion';
+    if (/\b(?:why\s+(?:is|are|do|does)|bakit|paano\s+nangyari|how\s+come)\b/i.test(s)) return 'troubleshoot';
+    if (/\b(?:hi|hello|hey|kamusta|magandang|salamat|thank\s+you|good\s+(?:morning|afternoon|evening|night))\b/i.test(s)) return 'social';
+    return 'unknown';
+  }
+
+  // Phase 4.79 (turn #77) FRESHNESS DISCLOSURE — when the reply
+  // depends on a canonical view (PLATFORM SNAPSHOT), the freshness
+  // (last_updated timestamp) MUST be disclosable on demand. The
+  // detector picks up "is this fresh" / "kailan ito na-update" so
+  // the LLM has an anchor to reach for. Defaults rely on the
+  // truth-view source-of-record convention already documented in
+  // canonical/standards.json.
+  const _FRESHNESS_RE = /\b(?:is\s+(?:this|that|it)\s+(?:fresh|current|up\s*to\s+date|stale|old)|kailan\s+(?:ito|to|yan|yun)\s+(?:na[\-\s]?update|naging\s+ganito)|how\s+old\s+is\s+(?:this|the\s+data|the\s+report)|kailan\s+ang\s+huling\s+(?:update|sync|refresh))\b/i;
+  function _isFreshnessRequest(text) {
+    const s = String(text || '').trim();
+    if (!s || s.length > 200) return false;
+    return _FRESHNESS_RE.test(s);
+  }
+
+  // Phase 4.80 (turn #78) RATE-LIMIT GRACEFUL FALLBACK — when the
+  // ai-gateway returns 429 (or our local rateLimitedResponse fires)
+  // we stash a cooldown-until timestamp per-hive. Until that time
+  // passes, we don't re-call the gateway; we serve a canned reply
+  // that points the worker at the right page.
+  function _rateLimitKey(hiveId) {
+    return 'wh_ratelimit_until_' + String(hiveId || 'anon');
+  }
+  function _setRateLimitCooldown(hiveId, durationMs) {
+    if (!hiveId) return false;
+    const ms = Number(durationMs) || (60 * 1000); // default 60s
+    try {
+      const until = Date.now() + Math.min(ms, 10 * 60 * 1000); // cap 10 min
+      localStorage.setItem(_rateLimitKey(hiveId), String(until));
+      return until;
+    } catch (_) { return false; }
+  }
+  function _inRateLimitCooldown(hiveId) {
+    if (!hiveId) return false;
+    try {
+      const raw = localStorage.getItem(_rateLimitKey(hiveId));
+      if (!raw) return false;
+      const until = Number(raw);
+      if (!Number.isFinite(until)) return false;
+      if (Date.now() >= until) {
+        try { localStorage.removeItem(_rateLimitKey(hiveId)); } catch (_) {}
+        return false;
+      }
+      return until;
+    } catch (_) { return false; }
+  }
+  function _clearRateLimitCooldown(hiveId) {
+    if (!hiveId) return;
+    try { localStorage.removeItem(_rateLimitKey(hiveId)); } catch (_) {}
+  }
+
+  // Phase 4.81 (turn #79) CONVERSATION SHARE LINK — workers
+  // routinely want to forward the assistant's reply to a colleague.
+  // The companion produces a URL with the session id; the receiving
+  // surface (voice-journal.html) loads the persisted turns. The link
+  // is built locally; no extra round-trip.
+  const _SHARE_RE = /\b(?:share\s+(?:this|it|that|yun|yan)\s*(?:with|to|kay|sa)?|forward\s+(?:this|it|that|to)|i[\-\s]?share\s+mo|ipasa\s+mo)\b/i;
+  function _isShareRequest(text) {
+    const s = String(text || '').trim();
+    if (!s || s.length > 200) return false;
+    return _SHARE_RE.test(s);
+  }
+  function _buildShareLink(sessionId) {
+    if (!sessionId) return null;
+    try {
+      const origin = (window.location && window.location.origin) || '';
+      const safeId = String(sessionId).replace(/[^A-Za-z0-9_\-]/g, '').slice(0, 64);
+      if (!safeId) return null;
+      return origin + '/voice-journal.html#session=' + safeId;
+    } catch (_) { return null; }
+  }
+
+  // Phase 4.82 (turn #80) READBACK REQUEST — distinct from T14
+  // _isRepeatRequest (which replays the entire last reply text in
+  // the same channel). READBACK explicitly asks the companion to
+  // SPEAK the prior reply through TTS again — useful for hands-busy
+  // / eyes-busy situations like working at a panel.
+  const _READBACK_RE = /\b(?:read\s+(?:it|that|this|yun|yan|ito|yung\s+\w+)\s+(?:aloud|again|please|ulit)|read\s+(?:back|aloud)|basahin\s+(?:mo)?\s+(?:ulit|nga|para\s+sa\s+akin)|ulit\s+basahin|i[\-\s]?speak\s+mo\s+(?:ulit|yun))\b/i;
+  function _isReadbackRequest(text) {
+    const s = String(text || '').trim();
+    if (!s || s.length > 120) return false;
+    return _READBACK_RE.test(s);
+  }
+
+  // Phase 4.83 (turn #81) SCOPE DISCLOSURE — workers ask "what can
+  // you do" / "magagawa mo ba ___" to discover the surface. The
+  // companion should NOT guess; it should reach for a canonical
+  // scope list. The detector flags the question; the SCOPE
+  // DISCLOSURE anchor instructs the LLM to ground the answer in
+  // the actual capability list.
+  const _SCOPE_RE = /\b(?:what\s+can\s+you\s+do|what\s+(?:are\s+)?your\s+(?:capabilities|skills|features)|can\s+you\s+(?:do|help\s+with|access)|magagawa\s+mo\s+ba|kaya\s+mo\s+ba(?:ng)?|paano\s+ka\s+tumulong|how\s+do\s+you\s+help|tell\s+me\s+what\s+you\s+can\s+do)\b/i;
+  function _isScopeQuery(text) {
+    const s = String(text || '').trim();
+    if (!s || s.length > 200) return false;
+    return _SCOPE_RE.test(s);
+  }
+
+  // Phase 4.84 (turn #82) MULTI-TURN CORRECTION — "no, I meant X" /
+  // "hindi yun, ___" / "actually it was X". DISTINCT from T2
+  // _isFollowupNegation (which cancels the current line of thought).
+  // CORRECTION says "your prior answer used wrong info; here's the
+  // right info — please redo the answer with the correction."
+  const _CORRECTION_RE = /\b(?:no\s*,?\s*i\s+(?:meant|said|wanted)|actually\s*,?\s*(?:it|that|the|i)\s+(?:was|is|meant)|wait\s*,?\s*(?:i\s+meant|hindi)|hindi\s+yun\s*,?\s+(?:ito|yung|yun)|let\s+me\s+correct|wrong\s*,?\s+(?:the|it|that)\s+(?:was|is)|to\s+correct|teka\s*,?\s*(?:hindi|ang\s+meant))\b/i;
+  function _isCorrection(text) {
+    const s = String(text || '').trim();
+    if (!s || s.length > 200) return false;
+    return _CORRECTION_RE.test(s);
+  }
+
+  // Phase 4.85 (turn #83) CONFIDENCE LABEL TIER — T28 already
+  // hedges on low-sample data; this layer adds the explicit label
+  // ('high'/'medium'/'low') the LLM should PREFIX a number with
+  // when the underlying source has fewer than 30 days of history
+  // OR fewer than 5 rows. Caller passes the source counts.
+  function _confidenceLabel(rowCount, dayCount) {
+    const rows = Number(rowCount);
+    const days = Number(dayCount);
+    if (!Number.isFinite(rows) || !Number.isFinite(days)) return 'unknown';
+    if (rows < 5 || days < 30) return 'low';
+    if (rows < 30 || days < 90) return 'medium';
+    return 'high';
+  }
+
+  // Phase 4.86 (turn #84) CRISIS ESCALATION EXTENSION — T4 covered
+  // self-harm + helpline. This layer extends to workplace violence
+  // ("X threatened me", "may nanakit") and routes to the safety
+  // officer / HR hotline. Returns the kind so the caller can pick
+  // the right escalation path. PII redaction kept best-effort.
+  function _detectCrisisEscalation(text) {
+    const s = String(text || '');
+    if (!s) return null;
+    if (/\b(?:kill\s+myself|end\s+(?:my|it\s+all)|magpakamatay|gusto\s+ko\s+nang\s+(?:mamatay|magpakamatay)|don[ '`]t\s+want\s+to\s+live|self[\s\-]harm|suicidal)\b/i.test(s)) {
+      return { kind: 'self_harm', severity: 'critical' };
+    }
+    if (/\b(?:(?:he|she|they|si\s+\w+)\s+(?:threatened|hit|punched|attacked|hurt)\s+(?:me|us)|may\s+(?:nanakit|nambabraso|nagbanta)|workplace\s+violence|sinaktan\s+(?:ako|kami)|hinarass(?:\s+ako)?|harassed?\s+me)\b/i.test(s)) {
+      return { kind: 'workplace_violence', severity: 'high' };
+    }
+    return null;
+  }
+
+  // ============================================================
+  // NINTH 10-TURN FLYWHEEL — turns #85-#94 (Phase 4.87-4.96)
+  // INPUT NORMALIZATION + ONBOARDING layer. Now that the lattice
+  // is broad, the next velocity comes from making input forgiving
+  // (asset tag spelling variants, time-range phrases, KPI label
+  // mismatch) and onboarding new workers cleanly.
+  // ============================================================
+
+  // Phase 4.87 (turn #85) NUMERIC PRECISION RULE — when the
+  // companion quotes a KPI it must include unit + sensible
+  // precision (no "92.482314%"). Helper rounds + unit-stamps.
+  // The PRECISION RULE anchor instructs LLM to invoke this shape.
+  function _formatKpi(value, unit, decimals) {
+    const v = Number(value);
+    if (!Number.isFinite(v)) return null;
+    const d = Number.isFinite(Number(decimals)) ? Math.max(0, Math.min(4, Number(decimals))) : 1;
+    const u = String(unit || '').trim();
+    const rounded = v.toFixed(d);
+    return u ? (rounded + (u.startsWith('%') || u.startsWith('/') ? u : ' ' + u)) : rounded;
+  }
+
+  // Phase 4.88 (turn #86) ASSET TAG NORMALIZATION — STT regularly
+  // hands us "P TWO OH THREE" or "PEE DASH 2 0 3" instead of
+  // "P-203". The normalizer collapses the spoken form to canonical.
+  // Returns the canonical tag or null when no pattern matches.
+  const _DIGIT_WORDS = {
+    'zero':'0','o':'0','oh':'0',
+    'one':'1','two':'2','three':'3','four':'4','five':'5',
+    'six':'6','seven':'7','eight':'8','nine':'9',
+    'isa':'1','dalawa':'2','tatlo':'3','apat':'4','lima':'5',
+    'anim':'6','pito':'7','walo':'8','siyam':'9','siam':'9',
+  };
+  const _LETTER_WORDS = {
+    'pee':'P','bee':'B','see':'C','cee':'C','dee':'D','ee':'E','eff':'F',
+    'gee':'G','aitch':'H','jay':'J','kay':'K','ell':'L','em':'M','en':'N',
+    'pe':'P','be':'B','ce':'C','de':'D','ge':'G',
+  };
+  function _normalizeAssetTag(text) {
+    const s = String(text || '').toLowerCase();
+    if (!s) return null;
+    // Fast path: already canonical e.g. "P-203" / "C01" / "MX-12"
+    const direct = s.match(/\b([A-Za-z]{1,3})\s*-?\s*(\d{2,5})\b/);
+    if (direct) {
+      return direct[1].toUpperCase() + '-' + direct[2];
+    }
+    // Slow path: replace letter/digit words.
+    const tokens = s.replace(/[^a-z0-9 \-]/g, ' ').split(/\s+/).filter(Boolean);
+    const mapped = tokens.map(t => {
+      if (_LETTER_WORDS[t]) return _LETTER_WORDS[t];
+      if (_DIGIT_WORDS[t]) return _DIGIT_WORDS[t];
+      if (/^[a-z]$/.test(t)) return t.toUpperCase();
+      if (/^\d+$/.test(t)) return t;
+      if (t === 'dash' || t === 'gitling') return '-';
+      return null;
+    }).filter(Boolean);
+    // Look for a [letter+] [digit+] adjacency.
+    for (let i = 0; i < mapped.length - 1; i++) {
+      const a = mapped[i], b = mapped[i + 1];
+      if (/^[A-Z]{1,3}$/.test(a) && /^\d{2,5}$/.test(b)) {
+        return a + '-' + b;
+      }
+      // Compact form e.g. P + 2 + 0 + 3 → P-203
+      if (/^[A-Z]$/.test(a)) {
+        const rest = mapped.slice(i + 1, i + 5).join('');
+        if (/^\d{2,4}$/.test(rest)) return a + '-' + rest;
+      }
+    }
+    return null;
+  }
+
+  // Phase 4.89 (turn #87) TIME-RANGE NORMALIZATION — workers say
+  // "this week" / "yesterday" / "ngayong araw" / "last 7 days".
+  // Helper returns { start, end } ISO strings (start of day to now).
+  // Server-side queries can use these directly.
+  function _normalizeTimeRange(text) {
+    const s = String(text || '').toLowerCase();
+    if (!s) return null;
+    const now = new Date();
+    const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const dayMs = 24 * 60 * 60 * 1000;
+    function isoSpan(daysAgo) {
+      const start = new Date(todayStart.getTime() - daysAgo * dayMs);
+      return { start: start.toISOString(), end: now.toISOString(), days: daysAgo + 1 };
+    }
+    if (/\btoday|ngayon|ngayong\s+araw\b/i.test(s)) return isoSpan(0);
+    if (/\byesterday|kahapon\b/i.test(s)) {
+      const start = new Date(todayStart.getTime() - dayMs);
+      const end = new Date(todayStart.getTime() - 1);
+      return { start: start.toISOString(), end: end.toISOString(), days: 1 };
+    }
+    if (/\bthis\s+week|ngayong\s+linggo\b/i.test(s))   return isoSpan(7);
+    if (/\blast\s+week|nakaraang\s+linggo\b/i.test(s)) return isoSpan(14);
+    if (/\bthis\s+month|ngayong\s+buwan\b/i.test(s))   return isoSpan(30);
+    if (/\blast\s+30\s+days|nakaraang\s+30\s+araw\b/i.test(s)) return isoSpan(30);
+    if (/\blast\s+7\s+days|nakaraang\s+7\s+araw|past\s+week\b/i.test(s)) return isoSpan(7);
+    const m = s.match(/\blast\s+(\d{1,3})\s+(day|days|araw)\b/i);
+    if (m) {
+      const n = Math.min(365, Math.max(1, Number(m[1])));
+      return isoSpan(n);
+    }
+    return null;
+  }
+
+  // Phase 4.90 (turn #88) ACKNOWLEDGEMENT STYLE — workers vary in
+  // how much warm-up they want. 'terse' = no naks/sige/ah/oo before
+  // the data; 'warm' = one short ack line. Persists per-device.
+  const _ACK_STYLE_KEY = 'wh_voice_ack_style';
+  function _getAckStyle() {
+    try { return localStorage.getItem(_ACK_STYLE_KEY) || 'warm'; }
+    catch (_) { return 'warm'; }
+  }
+  function _setAckStyle(style) {
+    if (style !== 'terse' && style !== 'warm') return false;
+    try { localStorage.setItem(_ACK_STYLE_KEY, style); return true; }
+    catch (_) { return false; }
+  }
+  const _ACK_TERSE_RE = /\b(?:no\s+small\s+talk|skip\s+(?:the\s+)?(?:ack|small\s+talk|pleasantries)|just\s+(?:the|give\s+me\s+the)\s+(?:number|answer|data)|terse|cut\s+the\s+chit\s*chat|wag\s+nang\s+(?:mag[\-\s]?ack|magpaligoy[\-\s]?ligoy))\b/i;
+  const _ACK_WARM_RE  = /\b(?:be\s+warmer|more\s+(?:friendly|warm|conversational)|warm\s+(?:up|mode|tone)|sige[, ]+(?:friendly|mag[\-\s]?warm)\s+ka)\b/i;
+  function _detectAckStyleToggle(text) {
+    const s = String(text || '');
+    if (!s) return null;
+    if (_ACK_TERSE_RE.test(s)) return 'terse';
+    if (_ACK_WARM_RE.test(s)) return 'warm';
+    return null;
+  }
+
+  // Phase 4.91 (turn #89) FORBIDDEN-TOPIC REDIRECT — beyond the
+  // T12 SENSITIVE TOPIC (HR/legal/financial), some surfaces are
+  // hard-banned: competitor names, internal politics, off-topic
+  // chitchat at depth. Detector returns the topic kind so the LLM
+  // can use the matched REDIRECT anchor.
+  const _COMPETITORS_RE = /\b(?:UpKeep|Fiix|Limble|MaintainX|eMaint|Hippo\s+CMMS|Maintenance\s+Connection|MicroMain)\b/i;
+  const _POLITICS_RE = /\b(?:office\s+politics|chismis|tsismis|drama|backstab|gossip|rumour|rumor)\b/i;
+  function _detectForbiddenTopic(text) {
+    const s = String(text || '');
+    if (!s) return null;
+    if (_COMPETITORS_RE.test(s)) return 'competitor';
+    if (_POLITICS_RE.test(s)) return 'office_politics';
+    return null;
+  }
+
+  // Phase 4.92 (turn #90) NOISE-FLOOR AUTO-PAUSE — extends T63
+  // mic meter with a noise-floor estimate. If background noise
+  // sustains above 35 (peak) for >3s while no speech-shaped
+  // burst lands, suggest a quieter location.
+  function _classifyMicEnv(peakSamples) {
+    if (!Array.isArray(peakSamples) || peakSamples.length < 8) return 'unknown';
+    const sorted = peakSamples.slice().sort((a, b) => a - b);
+    const p50 = sorted[Math.floor(sorted.length / 2)];
+    const p90 = sorted[Math.floor(sorted.length * 0.9)];
+    if (p50 < 20)  return 'quiet';
+    if (p50 < 35)  return 'normal';
+    if (p50 < 55 && p90 - p50 > 10)  return 'spotty';   // bursts of background
+    return 'noisy';
+  }
+
+  // Phase 4.93 (turn #91) CONVERSATION PIN — workers want to mark
+  // a piece of advice ("pin this") so it surfaces again at the
+  // start of the next session. Stored per worker_name, capped at
+  // 20 entries.
+  const _PIN_KEY_PREFIX = 'wh_voice_pinned_';
+  const _PIN_MAX = 20;
+  function _pinTurn(workerName, payload) {
+    if (!workerName || !payload) return false;
+    try {
+      const key = _PIN_KEY_PREFIX + String(workerName).slice(0, 60);
+      const raw = localStorage.getItem(key);
+      const list = raw ? (JSON.parse(raw) || []) : [];
+      list.push({
+        ts:    Date.now(),
+        text:  String(payload.text || '').slice(0, 240),
+        intent: String(payload.intent || ''),
+      });
+      while (list.length > _PIN_MAX) list.shift();
+      localStorage.setItem(key, JSON.stringify(list));
+      return true;
+    } catch (_) { return false; }
+  }
+  function _getPinnedTurns(workerName) {
+    if (!workerName) return [];
+    try {
+      const raw = localStorage.getItem(_PIN_KEY_PREFIX + String(workerName).slice(0, 60));
+      const parsed = raw ? JSON.parse(raw) : [];
+      return Array.isArray(parsed) ? parsed : [];
+    } catch (_) { return []; }
+  }
+  const _PIN_RE = /\b(?:pin\s+(?:this|that|yan|yun|ito)|i[\-\s]?pin\s+mo|save\s+(?:this|that)\s+(?:for\s+later|as\s+pin)|tandaan\s+mo\s+(?:to|ito|yun|yan)|tag\s+(?:this|ito|yun)\s+(?:as\s+)?pin)\b/i;
+  function _isPinRequest(text) {
+    const s = String(text || '');
+    if (!s || s.length > 120) return false;
+    return _PIN_RE.test(s);
+  }
+
+  // Phase 4.94 (turn #92) HELP COMMAND SHORTCUT — "help" /
+  // "tulungan mo ako" / "/help" surfaces a quick capability tour
+  // (different from T81 SCOPE which describes the full surface).
+  // HELP routes directly without LLM round-trip.
+  const _HELP_RE = /^(?:\/help|help\s+(?:me|please|pls)?|tulungan\s+mo\s+ako|saklolo|paano\s+gamitin|how\s+to\s+use)$/i;
+  function _isHelpCommand(text) {
+    const s = String(text || '').trim();
+    if (!s || s.length > 60) return false;
+    return _HELP_RE.test(s);
+  }
+
+  // Phase 4.95 (turn #93) MULTI-LANGUAGE KPI LABEL — when the
+  // language pref is Tagalog/Cebuano, serve the KPI label in that
+  // language too. The dictionary is intentionally small + manual
+  // (no machine translation) so terminology stays standards-aligned.
+  const _KPI_LABEL_DICT = {
+    'mtbf':       { tagalog: 'Karaniwang oras bago masira', cebuano: 'Kasagarang takna bag-o madaot' },
+    'mttr':       { tagalog: 'Karaniwang oras para iayos',   cebuano: 'Kasagarang takna sa pag-ayo' },
+    'oee':        { tagalog: 'Bisa ng makina (OEE)',         cebuano: 'Episyensya sa makina (OEE)' },
+    'compliance': { tagalog: 'Pagsunod sa PM',                cebuano: 'Pagsunod sa PM' },
+    'availability': { tagalog: 'Kahandaan',                   cebuano: 'Kahandaan' },
+  };
+  function _translateKpiLabel(metric, pref) {
+    if (!metric) return null;
+    const m = String(metric).toLowerCase();
+    const p = String(pref || '').toLowerCase().replace(/-leaning$/, '');
+    const entry = _KPI_LABEL_DICT[m];
+    if (!entry) return null;
+    return entry[p] || null;
+  }
+
+  // Phase 4.96 (turn #94) NEW-WORKER ONBOARDING — when the worker
+  // has no prior turns in agent_memory AND voice_journal_entries
+  // is empty, mark this as a first-time session. Caller surfaces
+  // a 2-line welcome + a "try saying X" hint as the first
+  // companion line.
+  async function _isFirstTimeWorker(db, hiveId, workerName) {
+    if (!db || !hiveId || !workerName) return false;
+    try {
+      const { count } = await db.from('voice_journal_entries')
+        .select('id', { count: 'exact', head: true })
+        .eq('hive_id', hiveId)
+        .eq('worker_name', workerName)
+        .limit(1);
+      return Number(count) === 0;
+    } catch (_) { return false; }
+  }
+  function _firstTimeWelcomeLine(personaName) {
+    const p = String(personaName || 'kapatid');
+    return 'Hi! I\'m ' + p + ', your maintenance companion. ' +
+           'Try saying: "what\'s overdue today" / "log a stop on P-203" / "what is OEE". ' +
+           'I\'ll always cite the source — and I never guess on numbers.';
+  }
+
+  // ============================================================
+  // TENTH 10-TURN FLYWHEEL — turns #95-#104 (Phase 4.97-4.106)
+  // INTEGRATION + AUDIT layer. Adds audit trail, quiet hours,
+  // action preflight, idle cleanup, error analytics, session
+  // tagging, deep links, STT grammar guess, persona phrase pool,
+  // shift-end handover trigger.
+  // ============================================================
+
+  // Phase 4.97 (turn #95) AUDIT LOG EMISSION — every confirmed
+  // write action (log entry, schedule, alert flag) writes to
+  // ai_audit_log so we can replay every voice-driven decision.
+  // Best-effort: never blocks the turn.
+  async function _emitAuditEvent(db, ctx, eventType, payload) {
+    if (!db || !ctx || !eventType) return false;
+    try {
+      const row = {
+        hive_id:     ctx.hive_id || null,
+        worker_name: ctx.worker_name || null,
+        event_type:  String(eventType).slice(0, 60),
+        payload:     payload || {},
+        source:      'voice-handler',
+        created_at:  new Date().toISOString(),
+      };
+      await db.from('ai_audit_log').insert(row);
+      return true;
+    } catch (_) { return false; }
+  }
+
+  // Phase 4.98 (turn #96) QUIET HOURS — non-critical proactive
+  // alerts are silent between 22:00-06:00 PHT (UTC+8). Critical
+  // alerts always fire — quiet hours never block safety signals.
+  function _isQuietHours(nowDate) {
+    const d = nowDate ? new Date(nowDate) : new Date();
+    if (!(d instanceof Date) || isNaN(d.getTime())) return false;
+    // Convert to UTC+8 hour. d.getUTCHours() gives UTC.
+    const phHour = (d.getUTCHours() + 8) % 24;
+    return phHour >= 22 || phHour < 6;
+  }
+
+  // Phase 4.99 (turn #97) ACTION PREFLIGHT — before dispatching
+  // through voice-action-router, run a deterministic preflight:
+  // do we have the required slots? is the asset valid-shape?
+  // do we hold the voice-execute lock? Returns {ok, blocker}.
+  function _preflightAction(intent, slots) {
+    const i = String(intent || '');
+    const s = (slots && typeof slots === 'object') ? slots : {};
+    if (!i) return { ok: false, blocker: 'no_intent' };
+    // Most write intents need an asset_tag.
+    const writeVerbs = new Set([
+      'log_entry','schedule_pm','flag_alert','update_status',
+      'log_stop','close_pm','start_pm','log_bearing_change',
+    ]);
+    if (writeVerbs.has(i)) {
+      if (!s.asset_tag) return { ok: false, blocker: 'missing_asset_tag' };
+      if (!/^[A-Z]{1,3}-?\d{2,5}$/i.test(String(s.asset_tag))) {
+        return { ok: false, blocker: 'malformed_asset_tag' };
+      }
+    }
+    if (!_isVoiceExecuteAuth()) {
+      return { ok: false, blocker: 'voice_execute_lock' };
+    }
+    return { ok: true, blocker: null };
+  }
+
+  // Phase 4.100 (turn #98) IDLE SESSION CLEANUP — when the
+  // overlay sits open with no input for >5 min, auto-pause:
+  // stop recording, dim avatar to 'idle', release session lock.
+  // Caller schedules with setTimeout.
+  const _IDLE_TIMEOUT_MS = 5 * 60 * 1000;
+  let _idleTimerHandle = null;
+  function _scheduleIdleCleanup(callback) {
+    if (_idleTimerHandle) {
+      try { clearTimeout(_idleTimerHandle); } catch (_) {}
+    }
+    if (typeof callback !== 'function') return null;
+    _idleTimerHandle = setTimeout(callback, _IDLE_TIMEOUT_MS);
+    return _idleTimerHandle;
+  }
+  function _cancelIdleCleanup() {
+    if (_idleTimerHandle) {
+      try { clearTimeout(_idleTimerHandle); } catch (_) {}
+      _idleTimerHandle = null;
+    }
+  }
+
+  // Phase 4.101 (turn #99) COMPANION-ERROR ANALYTICS — when the
+  // gateway returns 5xx, bump a per-hive counter in localStorage.
+  // The ai-quality.html surface surfaces this; the supervisor
+  // sees patterns (e.g. "Hive 3 hit 12 gateway 503s today").
+  function _errorKey(hiveId) {
+    return 'wh_voice_errors_' + String(hiveId || 'anon');
+  }
+  function _bumpErrorCount(hiveId, kind) {
+    if (!hiveId) return false;
+    try {
+      const k = _errorKey(hiveId);
+      const raw = localStorage.getItem(k);
+      const data = raw ? (JSON.parse(raw) || {}) : {};
+      const today = new Date().toISOString().slice(0, 10);
+      data[today] = data[today] || {};
+      const errKind = String(kind || 'unknown').slice(0, 32);
+      data[today][errKind] = (data[today][errKind] || 0) + 1;
+      // Prune older than 7 days.
+      const cutoff = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
+        .toISOString().slice(0, 10);
+      Object.keys(data).forEach(day => { if (day < cutoff) delete data[day]; });
+      localStorage.setItem(k, JSON.stringify(data));
+      return data[today][errKind];
+    } catch (_) { return false; }
+  }
+  function _getErrorCounts(hiveId) {
+    try {
+      const raw = localStorage.getItem(_errorKey(hiveId));
+      return raw ? (JSON.parse(raw) || {}) : {};
+    } catch (_) { return {}; }
+  }
+
+  // Phase 4.102 (turn #100) SESSION TAG — workers can label a
+  // session ("PM planning", "incident on C-01") so the next
+  // session can pull up the prior context. Stored per-session
+  // in localStorage with a session_id key.
+  function _sessionTagKey(sessionId) {
+    return 'wh_voice_session_tag_' + String(sessionId || 'unknown');
+  }
+  function _setSessionTag(sessionId, tag) {
+    if (!sessionId || !tag) return false;
+    try {
+      localStorage.setItem(_sessionTagKey(sessionId),
+        String(tag).slice(0, 80));
+      return true;
+    } catch (_) { return false; }
+  }
+  function _getSessionTag(sessionId) {
+    try { return localStorage.getItem(_sessionTagKey(sessionId)) || null; }
+    catch (_) { return null; }
+  }
+  const _TAG_RE = /\b(?:tag\s+(?:this|ito|yan)\s+(?:as|na)?\s*([\w\-\s]{3,40})|i[\-\s]?tag\s+mo\s+(?:as|na)\s+([\w\-\s]{3,40}))\b/i;
+  function _detectSessionTagRequest(text) {
+    const s = String(text || '');
+    if (!s || s.length > 120) return null;
+    const m = s.match(_TAG_RE);
+    if (!m) return null;
+    return String(m[1] || m[2] || '').trim().slice(0, 60);
+  }
+
+  // Phase 4.103 (turn #101) CROSS-PAGE DEEP-LINK SHORTHAND — the
+  // companion's reply may contain a token like <wh-link page=pm
+  // asset=P-203> which the renderer converts to an anchor tag.
+  // Helper here builds + parses the shorthand.
+  function _buildDeepLink(page, params) {
+    const p = String(page || '').toLowerCase().replace(/[^a-z0-9\-_]/g, '');
+    if (!p) return null;
+    const safeParams = {};
+    if (params && typeof params === 'object') {
+      Object.keys(params).forEach(k => {
+        const cleanK = String(k).replace(/[^a-z0-9_]/g, '');
+        if (cleanK) safeParams[cleanK] = String(params[k] || '')
+          .replace(/[<>"]/g, '').slice(0, 60);
+      });
+    }
+    const q = Object.keys(safeParams)
+      .map(k => k + '=' + encodeURIComponent(safeParams[k])).join('&');
+    return '/' + p + '.html' + (q ? '?' + q : '');
+  }
+  function _parseDeepLinkToken(token) {
+    const s = String(token || '');
+    const m = s.match(/<wh-link\s+([^>]+)>/i);
+    if (!m) return null;
+    const attrs = {};
+    const re = /(\w+)\s*=\s*([^\s>]+)/g;
+    let am;
+    while ((am = re.exec(m[1])) !== null) {
+      attrs[am[1].toLowerCase()] = am[2];
+    }
+    if (!attrs.page) return null;
+    const { page, ...rest } = attrs;
+    return { page, params: rest };
+  }
+
+  // Phase 4.104 (turn #102) STT GRAMMAR CORRECTION GUESS — when
+  // the transcript looks badly mangled (high consonant clustering,
+  // few word boundaries), surface a "did you mean" line. Heuristic
+  // only — never silently rewrites the worker's input.
+  function _looksGrammarMangled(text) {
+    const s = String(text || '').trim();
+    if (!s || s.length < 8 || s.length > 400) return false;
+    const words = s.split(/\s+/);
+    if (words.length < 3) return false;
+    // Too many >=10-char tokens AND no recognised verbs.
+    const longTokens = words.filter(w => w.length >= 10).length;
+    const hasVerb = /\b(?:is|are|was|were|has|have|will|can|do|does|did|log|check|schedule|show|tell|find|open|close|update|start|stop|create|fix|run|set|get)\b/i.test(s);
+    if (longTokens / words.length >= 0.5 && !hasVerb) return true;
+    // High consonant ratio with no spaces.
+    const noSpace = s.replace(/\s+/g, '');
+    if (noSpace.length >= 20) {
+      const vowels = (noSpace.match(/[aeiouAEIOU]/g) || []).length;
+      if (vowels / noSpace.length < 0.18) return true;
+    }
+    return false;
+  }
+
+  // Phase 4.105 (turn #103) PERSONA PHRASE POOL — instead of
+  // always opening with "naks" / "sige", rotate through a small
+  // pool to avoid repetition fatigue. Pool keyed by category;
+  // helper returns a randomly chosen phrase.
+  const _PHRASE_POOL = {
+    ack:        ['sige', 'oks', 'ay sige', 'okay kuya', 'ah ok'],
+    encourage:  ['naks', 'galing', 'astig', 'magaling', 'sulit'],
+    concern:    ['aray', 'medyo magulo', 'sandali lang', 'teka', 'eh ano nga'],
+    closing:    ['salamat', 'good luck', 'ingat ka', 'tara', 'sige po'],
+  };
+  let _lastPhrasePerCategory = {};
+  function _pickPersonaPhrase(category) {
+    const cat = String(category || '').toLowerCase();
+    const pool = _PHRASE_POOL[cat];
+    if (!pool || pool.length === 0) return null;
+    let i = Math.floor(Math.random() * pool.length);
+    // Avoid emitting the same phrase twice in a row.
+    if (_lastPhrasePerCategory[cat] === pool[i] && pool.length > 1) {
+      i = (i + 1) % pool.length;
+    }
+    _lastPhrasePerCategory[cat] = pool[i];
+    return pool[i];
+  }
+
+  // Phase 4.106 (turn #104) SHIFT-END HANDOVER TRIGGER — when
+  // the worker's shift is about to end (worker_shift_end_hour
+  // in worker profile + UTC+8 math), proactively offer a
+  // handover summary. Detection only; caller decides UX.
+  function _isNearShiftEnd(shiftEndHour, marginMin) {
+    const h = Number(shiftEndHour);
+    if (!Number.isFinite(h) || h < 0 || h > 23) return false;
+    const m = Number.isFinite(Number(marginMin)) ? Number(marginMin) : 30;
+    const now = new Date();
+    const phMin = (now.getUTCHours() * 60 + now.getUTCMinutes() + 8 * 60) % (24 * 60);
+    const endMin = h * 60;
+    const diff = endMin - phMin;
+    if (diff < 0) return false;
+    return diff <= m;
+  }
+
+  // ============================================================
+  // ELEVENTH 10-TURN FLYWHEEL — turns #105-#114 (Phase 4.107-4.116)
+  // PROACTIVE ASSISTANCE + LEARNING. The companion now adapts to
+  // the worker rather than vice-versa: skill-level pacing, pattern
+  // detection, vocabulary normalization, knowledge-gap logging,
+  // and mentor-handoff.
+  // ============================================================
+
+  // Phase 4.107 (turn #105) ADAPTIVE PM SYNC — when the worker
+  // logs "PM done on P-203" and the schedule says it wasn't due
+  // for X more days, surface a sync prompt so the schedule
+  // doesn't drift. Returns {sync_needed, days_diff} or null.
+  function _detectPmSyncDrift(loggedAsset, schedNextDate) {
+    if (!loggedAsset || !schedNextDate) return null;
+    try {
+      const next = new Date(schedNextDate);
+      if (isNaN(next.getTime())) return null;
+      const now = Date.now();
+      const diffMs = next.getTime() - now;
+      const diffDays = Math.round(diffMs / (24 * 60 * 60 * 1000));
+      if (Math.abs(diffDays) < 3) return null; // tolerance
+      return { sync_needed: true, days_diff: diffDays, asset: loggedAsset };
+    } catch (_) { return null; }
+  }
+
+  // Phase 4.108 (turn #106) SKILL-LEVEL ADAPTATION — the worker's
+  // skill record (Level 1-5) drives vocabulary depth. Level 1-2
+  // (apprentice) gets plain words; Level 4-5 (senior/lead) gets
+  // technical depth (RPN, FMEA, MTBF derivative). The helper picks
+  // the depth tier.
+  function _skillDepthForLevel(level) {
+    const n = Number(level);
+    if (!Number.isFinite(n)) return 'standard';
+    if (n <= 2) return 'apprentice';
+    if (n >= 4) return 'senior';
+    return 'standard';
+  }
+  function _vocabularyForDepth(depth) {
+    if (depth === 'apprentice') {
+      return { mtbf: 'average time between breakdowns', mttr: 'average repair time',
+               rpn: 'risk score (1-1000)', fmea: 'failure-mode review' };
+    }
+    if (depth === 'senior') {
+      return { mtbf: 'MTBF (calendar time)', mttr: 'MTTR (active repair)',
+               rpn: 'RPN (S*O*D)', fmea: 'FMEA per SAE J1739' };
+    }
+    return { mtbf: 'mean time between failures', mttr: 'mean time to repair',
+             rpn: 'risk priority number', fmea: 'FMEA' };
+  }
+
+  // Phase 4.109 (turn #107) CROSS-ASSET PATTERN DETECTION — when
+  // the same failure_mode is reported on >=2 assets in <7 days,
+  // surface the pattern. Helper takes the recent logbook entries
+  // and finds clusters.
+  function _detectCrossAssetPattern(logbookEntries) {
+    if (!Array.isArray(logbookEntries) || logbookEntries.length < 2) return null;
+    const cutoff = Date.now() - 7 * 24 * 60 * 60 * 1000;
+    const recent = logbookEntries.filter(e => {
+      if (!e || !e.created_at) return false;
+      try { return new Date(e.created_at).getTime() >= cutoff; }
+      catch (_) { return false; }
+    });
+    if (recent.length < 2) return null;
+    const byMode = {};
+    for (const e of recent) {
+      const m = String((e.failure_mode || e.issue || '')).toLowerCase().trim();
+      if (!m) continue;
+      const a = String(e.asset_tag || '').trim();
+      if (!a) continue;
+      byMode[m] = byMode[m] || new Set();
+      byMode[m].add(a);
+    }
+    const patterns = [];
+    Object.keys(byMode).forEach(m => {
+      const assets = Array.from(byMode[m]);
+      if (assets.length >= 2) patterns.push({ failure_mode: m, assets, count: assets.length });
+    });
+    return patterns.length ? patterns : null;
+  }
+
+  // Phase 4.110 (turn #108) VOICE COMMAND VOCABULARY LEARNING —
+  // count per-worker recurring intents in localStorage so the
+  // companion can hint "you usually check X next". Capped at 50
+  // intents per worker; 30-day rolling window.
+  const _INTENT_HISTORY_KEY = 'wh_voice_intent_hist_';
+  function _recordIntent(workerName, intent) {
+    if (!workerName || !intent) return false;
+    try {
+      const key = _INTENT_HISTORY_KEY + String(workerName).slice(0, 60);
+      const raw = localStorage.getItem(key);
+      const list = raw ? (JSON.parse(raw) || []) : [];
+      list.push({ intent: String(intent).slice(0, 40), ts: Date.now() });
+      const cutoff = Date.now() - 30 * 24 * 60 * 60 * 1000;
+      const pruned = list.filter(e => e.ts >= cutoff).slice(-50);
+      localStorage.setItem(key, JSON.stringify(pruned));
+      return true;
+    } catch (_) { return false; }
+  }
+  function _topRecurringIntents(workerName, n) {
+    if (!workerName) return [];
+    try {
+      const raw = localStorage.getItem(_INTENT_HISTORY_KEY + String(workerName).slice(0, 60));
+      const list = raw ? (JSON.parse(raw) || []) : [];
+      const counts = {};
+      list.forEach(e => { counts[e.intent] = (counts[e.intent] || 0) + 1; });
+      const limit = Math.max(1, Math.min(10, Number(n) || 3));
+      return Object.keys(counts)
+        .map(k => ({ intent: k, count: counts[k] }))
+        .sort((a, b) => b.count - a.count)
+        .slice(0, limit);
+    } catch (_) { return []; }
+  }
+
+  // Phase 4.111 (turn #109) SENTIMENT-OVER-TIME — track the
+  // session sentiment (rough heuristic) per day. Three days of
+  // negative sentiment in a row → escalate to supervisor via
+  // ai_quality_escalation.
+  const _SENTIMENT_KEY = 'wh_voice_sentiment_';
+  function _classifySessionSentiment(turns) {
+    if (!Array.isArray(turns) || turns.length === 0) return 'neutral';
+    const text = turns.map(t => (t && (t.user || t.utter)) || '').join(' ').toLowerCase();
+    const neg = (text.match(/\b(?:pagod|frustrated|stressed|sira|broken|fail|hindi gumana|nakakaloka|ayoko|sawa|gago|tanga)\b/g) || []).length;
+    const pos = (text.match(/\b(?:salamat|thanks|naks|galing|magaling|astig|nice|fixed|gumana|tapos na|done|ayos)\b/g) || []).length;
+    if (neg - pos >= 3) return 'negative';
+    if (pos - neg >= 3) return 'positive';
+    return 'neutral';
+  }
+  function _recordDailySentiment(workerName, sentiment) {
+    if (!workerName || !sentiment) return false;
+    try {
+      const key = _SENTIMENT_KEY + String(workerName).slice(0, 60);
+      const raw = localStorage.getItem(key);
+      const log = raw ? (JSON.parse(raw) || {}) : {};
+      const today = new Date().toISOString().slice(0, 10);
+      log[today] = sentiment;
+      // Prune older than 14 days.
+      const cutoff = new Date(Date.now() - 14 * 24 * 60 * 60 * 1000)
+        .toISOString().slice(0, 10);
+      Object.keys(log).forEach(d => { if (d < cutoff) delete log[d]; });
+      localStorage.setItem(key, JSON.stringify(log));
+      return true;
+    } catch (_) { return false; }
+  }
+  function _isPersistentNegative(workerName, daysRequired) {
+    if (!workerName) return false;
+    const req = Math.max(2, Math.min(7, Number(daysRequired) || 3));
+    try {
+      const raw = localStorage.getItem(_SENTIMENT_KEY + String(workerName).slice(0, 60));
+      const log = raw ? (JSON.parse(raw) || {}) : {};
+      const days = Object.keys(log).sort().slice(-req);
+      if (days.length < req) return false;
+      return days.every(d => log[d] === 'negative');
+    } catch (_) { return false; }
+  }
+
+  // Phase 4.112 (turn #110) ANTICIPATORY DATA WARM-UP — when the
+  // worker is on asset-hub and an asset_tag is mentioned, pre-
+  // fetch the asset record so the next turn is sub-second. We
+  // cache for 60s; longer than that and freshness matters more
+  // than latency.
+  const _WARMUP_TTL_MS = 60 * 1000;
+  const _warmupCache = {};
+  async function _warmAssetRecord(db, hiveId, assetTag) {
+    if (!db || !hiveId || !assetTag) return null;
+    const key = String(hiveId) + '|' + String(assetTag);
+    const now = Date.now();
+    const cached = _warmupCache[key];
+    if (cached && (now - cached.ts) < _WARMUP_TTL_MS) return cached.value;
+    try {
+      const { data } = await db.from('v_asset_truth')
+        .select('asset_tag,name,category,status,last_pm_at,next_pm_at,description')
+        .eq('hive_id', hiveId).eq('asset_tag', assetTag).limit(1);
+      const value = Array.isArray(data) && data.length ? data[0] : null;
+      _warmupCache[key] = { value, ts: now };
+      return value;
+    } catch (_) { return null; }
+  }
+
+  // Phase 4.113 (turn #111) MAINTENANCE VOCABULARY NORMALIZER —
+  // workers describe symptoms colloquially. Normalize to canonical
+  // failure-mode tags so the LLM + downstream tooling agree.
+  const _SYMPTOM_TO_FMODE = {
+    vibration_anomaly: /\b(?:vibrat\w+|yumayanig|nag[\-\s]?vibrate|shaking|umuugoy|gumagalaw|shake|wobble)\b/i,
+    overheat:          /\b(?:overheat|napaka[\-\s]?init|sumosobra\s+ang\s+init|mainit\s+(?:masyado|sobra)|nag[\-\s]?init|hot\s+to\s+touch|too\s+hot)\b/i,
+    noise_anomaly:     /\b(?:noisy|umiingay|maingay|rattling|kumakalabog|kumakalansing|grinding|klanggg|squeal\w*)\b/i,
+    leak:              /\b(?:leak\w*|tumutulo|tagas|paagos|may\s+tubig\s+sa)\b/i,
+    smell_anomaly:     /\b(?:burning\s+smell|naa[\-\s]?amoy\s+sunog|amoy\s+kable|electrical\s+smell)\b/i,
+    no_start:          /\b(?:won['']?t\s+start|hindi\s+(?:nag[\-\s]?start|umaandar|bumubukas)|no[\-\s]?start|ayaw\s+(?:bumukas|gumana))\b/i,
+  };
+  function _normalizeSymptom(text) {
+    const s = String(text || '');
+    if (!s) return null;
+    for (const mode of Object.keys(_SYMPTOM_TO_FMODE)) {
+      if (_SYMPTOM_TO_FMODE[mode].test(s)) return mode;
+    }
+    return null;
+  }
+
+  // Phase 4.114 (turn #112) SHIFT-BOUNDARY CONTEXT RESET — when
+  // the session has been alive across a shift boundary (PHT
+  // 06:00 / 14:00 / 22:00), the worker is effectively a new
+  // session. Surface that + suggest a fresh session.
+  function _crossedShiftBoundary(startedAtIso) {
+    if (!startedAtIso) return false;
+    try {
+      const start = new Date(startedAtIso);
+      const now = new Date();
+      if (isNaN(start.getTime())) return false;
+      // Build the list of PHT shift boundaries between start and now.
+      const boundaries = [6, 14, 22];
+      const startPhHour = (start.getUTCHours() + 8) % 24;
+      const nowPhHour   = (now.getUTCHours() + 8) % 24;
+      // If now-start > 8h, definitely crossed.
+      if ((now.getTime() - start.getTime()) > 8 * 60 * 60 * 1000) return true;
+      // Otherwise check whether we walked through a boundary.
+      return boundaries.some(b => {
+        if (startPhHour < b && nowPhHour >= b) return true;
+        if (startPhHour > nowPhHour && nowPhHour >= b) return true; // wrapped midnight
+        return false;
+      });
+    } catch (_) { return false; }
+  }
+
+  // Phase 4.115 (turn #113) KNOWLEDGE GAP LOGGING — when the
+  // companion can't answer ("I don't have that data"), write a
+  // row to ai_knowledge_gap so the supervisor can prioritise
+  // backfilling the truth view. Best-effort.
+  async function _logKnowledgeGap(db, ctx, transcript, reason) {
+    if (!db || !ctx || !transcript) return false;
+    try {
+      await db.from('ai_knowledge_gap').insert({
+        hive_id:     ctx.hive_id || null,
+        worker_name: ctx.worker_name || null,
+        question:    String(transcript).slice(0, 280),
+        reason:      String(reason || 'unknown').slice(0, 80),
+        source:      'voice-handler',
+        created_at:  new Date().toISOString(),
+      });
+      return true;
+    } catch (_) { return false; }
+  }
+
+  // Phase 4.116 (turn #114) MENTOR-MODE HANDOFF — when the
+  // worker says "I'll ask my supervisor", offer to relay the
+  // question (drops into a queue the supervisor reads on Hive).
+  const _MENTOR_HANDOFF_RE = /\b(?:i[ '']?ll\s+(?:ask|check\s+with)\s+(?:my\s+)?(?:supervisor|kuya|ate|boss|lead)|tatanungin\s+ko\s+(?:si\s+\w+|ang\s+supervisor)|mag[\-\s]?tatanong\s+ako\s+kay\s+supervisor)\b/i;
+  function _isMentorHandoff(text) {
+    const s = String(text || '');
+    if (!s || s.length > 200) return false;
+    return _MENTOR_HANDOFF_RE.test(s);
+  }
+  async function _relayMentorQuestion(db, ctx, question) {
+    if (!db || !ctx || !question) return false;
+    try {
+      await db.from('mentor_relay_queue').insert({
+        hive_id:     ctx.hive_id || null,
+        from_worker: ctx.worker_name || null,
+        question:    String(question).slice(0, 280),
+        status:      'pending',
+        source:      'voice-handler',
+        created_at:  new Date().toISOString(),
+      });
+      return true;
+    } catch (_) { return false; }
+  }
+
+  // ============================================================
+  // TWELFTH 10-TURN FLYWHEEL — turns #115-#124 (Phase 4.117-4.126)
+  // COMPLIANCE + DATA GOVERNANCE. PII scrub, consent, retention,
+  // right-to-erasure, audit export, suspicious activity, AI
+  // disclosure, locale-aware dates, cost cap, voice drift advisory.
+  // ============================================================
+
+  // Phase 4.117 (turn #115) PII SCRUBBER — before persisting any
+  // transcript to ai_audit_log / voice_journal, scrub phone
+  // numbers, emails, and obvious PII patterns. PHL Data Privacy
+  // Act compliance. Returns scrubbed text + the scrub count.
+  function _scrubPii(text) {
+    const s = String(text || '');
+    if (!s) return { text: s, scrubs: 0 };
+    let scrubs = 0;
+    let out = s;
+    // PH mobile: 09XX-XXX-XXXX or +639XX-XXX-XXXX
+    out = out.replace(/(?:\+63|0)9\d{2}[\s\-]?\d{3}[\s\-]?\d{4}/g, () => { scrubs++; return '[PHONE]'; });
+    // Generic email
+    out = out.replace(/[a-z0-9._-]+@[a-z0-9.-]+\.[a-z]{2,}/gi, () => { scrubs++; return '[EMAIL]'; });
+    // Generic 11-15 digit numbers (likely IDs)
+    out = out.replace(/\b\d{11,15}\b/g, () => { scrubs++; return '[ID]'; });
+    return { text: out, scrubs };
+  }
+
+  // Phase 4.118 (turn #116) CONSENT CAPTURE — voice recording
+  // requires explicit worker consent under PH Data Privacy Act.
+  // Stored per-device with timestamp + scope.
+  const _CONSENT_KEY = 'wh_voice_consent';
+  function _hasConsent() {
+    try {
+      const raw = localStorage.getItem(_CONSENT_KEY);
+      if (!raw) return false;
+      const data = JSON.parse(raw);
+      return !!(data && data.consented_at);
+    } catch (_) { return false; }
+  }
+  function _captureConsent(scope) {
+    try {
+      localStorage.setItem(_CONSENT_KEY, JSON.stringify({
+        consented_at: new Date().toISOString(),
+        scope: String(scope || 'voice-recording').slice(0, 80),
+      }));
+      return true;
+    } catch (_) { return false; }
+  }
+  function _revokeConsent() {
+    try { localStorage.removeItem(_CONSENT_KEY); return true; }
+    catch (_) { return false; }
+  }
+  const _CONSENT_GRANT_RE = /\b(?:i\s+consent|sige[, ]+(?:i[\-\s]?consent|payag\s+ako)|payag\s+ako(?:\s+sa\s+recording)?|opt\s+in\s+to\s+(?:recording|voice)|sang[\-\s]?ayon\s+ako)\b/i;
+  const _CONSENT_REVOKE_RE = /\b(?:revoke\s+(?:my\s+)?consent|opt\s+out\s+of\s+(?:recording|voice)|hindi\s+(?:na\s+)?ako\s+payag|withdraw\s+(?:my\s+)?consent|stop\s+recording\s+me)\b/i;
+  function _detectConsentChange(text) {
+    const s = String(text || '');
+    if (!s) return null;
+    if (_CONSENT_GRANT_RE.test(s))  return 'grant';
+    if (_CONSENT_REVOKE_RE.test(s)) return 'revoke';
+    return null;
+  }
+
+  // Phase 4.119 (turn #117) DATA RETENTION POLICY — per-hive
+  // configurable retention (default 180 days). The retention
+  // check returns the cutoff ISO; caller runs the DELETE.
+  function _retentionCutoffIso(daysToRetain) {
+    const d = Number(daysToRetain);
+    const days = Number.isFinite(d) && d > 0 ? Math.min(d, 3650) : 180;
+    return new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString();
+  }
+  async function _enforceRetention(db, hiveId, daysToRetain) {
+    if (!db || !hiveId) return false;
+    try {
+      const cutoff = _retentionCutoffIso(daysToRetain);
+      await db.from('voice_journal_entries')
+        .delete()
+        .eq('hive_id', hiveId)
+        .lt('created_at', cutoff);
+      return cutoff;
+    } catch (_) { return false; }
+  }
+
+  // Phase 4.120 (turn #118) RIGHT-TO-ERASURE — when the worker
+  // says "delete my voice history" / "burahin mo lahat", run a
+  // scoped DELETE against voice_journal_entries for their rows.
+  // Best-effort + reports the operation for audit.
+  const _ERASURE_RE = /\b(?:delete\s+(?:my|all\s+my)\s+(?:voice|conversation|chat|journal)\s+(?:history|data|records)|forget\s+everything\s+about\s+me|burahin\s+mo\s+(?:lahat|ang\s+history)|kalimutan\s+mo\s+lahat|right\s+to\s+erasure|gdpr\s+delete)\b/i;
+  function _isErasureRequest(text) {
+    const s = String(text || '');
+    if (!s || s.length > 200) return false;
+    return _ERASURE_RE.test(s);
+  }
+  async function _executeErasure(db, ctx) {
+    if (!db || !ctx || !ctx.hive_id || !ctx.worker_name) return false;
+    try {
+      await db.from('voice_journal_entries')
+        .delete()
+        .eq('hive_id', ctx.hive_id)
+        .eq('worker_name', ctx.worker_name);
+      // Log the erasure itself so we have a record OF the deletion.
+      await db.from('ai_audit_log').insert({
+        hive_id:     ctx.hive_id,
+        worker_name: ctx.worker_name,
+        event_type:  'right_to_erasure',
+        payload:     { scope: 'voice_journal_entries' },
+        source:      'voice-handler',
+        created_at:  new Date().toISOString(),
+      });
+      return true;
+    } catch (_) { return false; }
+  }
+
+  // Phase 4.121 (turn #119) AUDIT EXPORT — produce a CSV string
+  // of voice activity for compliance review. Caller hands the
+  // string to a Blob/download anchor.
+  function _toCsvRow(values) {
+    return values.map(v => {
+      const s = String(v == null ? '' : v).replace(/"/g, '""');
+      return /[",\n]/.test(s) ? '"' + s + '"' : s;
+    }).join(',');
+  }
+  function _buildAuditCsv(rows) {
+    if (!Array.isArray(rows) || rows.length === 0) {
+      return 'created_at,worker_name,event_type\n';
+    }
+    const header = ['created_at','worker_name','event_type','payload'];
+    const out = [header.join(',')];
+    for (const r of rows) {
+      out.push(_toCsvRow([
+        r.created_at || '',
+        r.worker_name || '',
+        r.event_type || '',
+        typeof r.payload === 'object' ? JSON.stringify(r.payload) : (r.payload || ''),
+      ]));
+    }
+    return out.join('\n') + '\n';
+  }
+
+  // Phase 4.122 (turn #120) SUSPICIOUS-ACTIVITY FLAG — detect
+  // anomalous patterns (rapid-fire same intent, bulk off-hours
+  // requests). Returns a kind label or null.
+  function _detectSuspiciousActivity(workerName) {
+    if (!workerName) return null;
+    try {
+      const raw = localStorage.getItem(_INTENT_HISTORY_KEY + String(workerName).slice(0, 60));
+      const list = raw ? (JSON.parse(raw) || []) : [];
+      if (list.length < 6) return null;
+      // Rapid-fire: 5 same-intent within 60s
+      const sorted = list.slice().sort((a,b) => a.ts - b.ts);
+      for (let i = 4; i < sorted.length; i++) {
+        const window = sorted.slice(i - 4, i + 1);
+        if (window.every(e => e.intent === window[0].intent)
+            && (window[4].ts - window[0].ts) <= 60 * 1000) {
+          return 'rapid_fire';
+        }
+      }
+      // Off-hours bulk: 10+ events in quiet hours (PHT 22-06)
+      const offHours = list.filter(e => {
+        const d = new Date(e.ts);
+        const h = (d.getUTCHours() + 8) % 24;
+        return h >= 22 || h < 6;
+      });
+      if (offHours.length >= 10) return 'off_hours_bulk';
+      return null;
+    } catch (_) { return null; }
+  }
+
+  // Phase 4.123 (turn #121) AI DISCLOSURE — when the disclosure
+  // policy flag is set, the first companion turn surfaces an
+  // explicit "you're talking to AI" line. Helper returns the
+  // line + flips the per-session flag so it doesn't repeat.
+  const _AI_DISCLOSURE_FLAG_KEY = 'wh_voice_ai_disclosure_policy';
+  const _AI_DISCLOSURE_SHOWN_PREFIX = 'wh_voice_ai_disclosure_shown_';
+  function _setAiDisclosurePolicy(enabled) {
+    try {
+      if (enabled) localStorage.setItem(_AI_DISCLOSURE_FLAG_KEY, '1');
+      else localStorage.removeItem(_AI_DISCLOSURE_FLAG_KEY);
+      return true;
+    } catch (_) { return false; }
+  }
+  function _needsAiDisclosure(sessionId) {
+    try {
+      if (localStorage.getItem(_AI_DISCLOSURE_FLAG_KEY) !== '1') return false;
+      if (!sessionId) return true;
+      const k = _AI_DISCLOSURE_SHOWN_PREFIX + String(sessionId);
+      return localStorage.getItem(k) !== '1';
+    } catch (_) { return false; }
+  }
+  function _markAiDisclosureShown(sessionId) {
+    if (!sessionId) return false;
+    try {
+      localStorage.setItem(_AI_DISCLOSURE_SHOWN_PREFIX + String(sessionId), '1');
+      return true;
+    } catch (_) { return false; }
+  }
+  function _aiDisclosureLine() {
+    return 'Quick note — I\'m an AI companion. I cite the source for every number ' +
+           'and I won\'t make medical, legal, or HR decisions. Sige, what do you need?';
+  }
+
+  // Phase 4.124 (turn #122) LOCALE-AWARE DATE FORMAT — when
+  // language pref is Tagalog/Cebuano, format dates as DD/MM/YYYY
+  // (PH convention); otherwise ISO. Helper consumes a Date OR
+  // an ISO string and returns the formatted string.
+  function _formatLocaleDate(input, langPref) {
+    let d = null;
+    if (input instanceof Date) d = input;
+    else if (typeof input === 'string') {
+      const parsed = new Date(input);
+      if (!isNaN(parsed.getTime())) d = parsed;
+    }
+    if (!d) return null;
+    const dd = String(d.getDate()).padStart(2, '0');
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    const yyyy = d.getFullYear();
+    const p = String(langPref || '').toLowerCase();
+    if (p.startsWith('tagalog') || p.startsWith('cebuano') || p.startsWith('filipino')) {
+      return dd + '/' + mm + '/' + yyyy;
+    }
+    return yyyy + '-' + mm + '-' + dd;
+  }
+
+  // Phase 4.125 (turn #123) COST CAP — per-hive monthly cost
+  // ceiling. Reads aggregate USD spend from ai_cost_log; when
+  // the running total breaches the cap, the next turn is
+  // short-circuited to a "monthly cap reached" reply.
+  async function _getMonthlyCost(db, hiveId) {
+    if (!db || !hiveId) return 0;
+    try {
+      const monthStart = new Date();
+      monthStart.setUTCDate(1); monthStart.setUTCHours(0,0,0,0);
+      const { data } = await db.from('ai_cost_log')
+        .select('cost_usd')
+        .eq('hive_id', hiveId)
+        .gte('created_at', monthStart.toISOString())
+        .limit(10000);
+      if (!Array.isArray(data)) return 0;
+      return data.reduce((acc, r) => acc + (Number(r.cost_usd) || 0), 0);
+    } catch (_) { return 0; }
+  }
+  function _exceededCostCap(spentUsd, capUsd) {
+    const s = Number(spentUsd);
+    const c = Number(capUsd);
+    if (!Number.isFinite(s) || !Number.isFinite(c) || c <= 0) return false;
+    return s >= c;
+  }
+
+  // Phase 4.126 (turn #124) VOICE DRIFT ADVISORY — track a
+  // hash of mic-input characteristics (peak avg + cadence) and
+  // warn when it shifts dramatically mid-session (someone else
+  // grabbed the mic). ADVISORY ONLY — never an auth signal.
+  const _DRIFT_KEY_PREFIX = 'wh_voice_signature_';
+  function _signatureKey(workerName) { return _DRIFT_KEY_PREFIX + String(workerName || 'anon').slice(0, 60); }
+  function _recordVoiceSignature(workerName, signature) {
+    if (!workerName || !signature) return false;
+    try {
+      localStorage.setItem(_signatureKey(workerName), JSON.stringify({
+        ts: Date.now(),
+        avg_peak: Number(signature.avg_peak) || 0,
+        cadence:  Number(signature.cadence) || 0,
+      }));
+      return true;
+    } catch (_) { return false; }
+  }
+  function _voiceSignatureDrift(workerName, currentSig) {
+    if (!workerName || !currentSig) return null;
+    try {
+      const raw = localStorage.getItem(_signatureKey(workerName));
+      if (!raw) return null;
+      const prior = JSON.parse(raw);
+      if (!prior) return null;
+      const peakDelta = Math.abs((Number(currentSig.avg_peak) || 0) - prior.avg_peak);
+      const cadenceDelta = Math.abs((Number(currentSig.cadence) || 0) - prior.cadence);
+      // Thresholds intentionally generous; this is advisory only.
+      if (peakDelta > 25 && cadenceDelta > 0.3) {
+        return { drift: true, peakDelta, cadenceDelta };
+      }
+      return { drift: false, peakDelta, cadenceDelta };
+    } catch (_) { return null; }
+  }
+
+  // ============================================================
+  // THIRTEENTH 10-TURN FLYWHEEL — turns #125-#134 (Phase 4.127-4.136)
+  // MULTI-MODAL + ACCESSIBILITY layer. Camera capture, file
+  // attachments, reduced-motion, screen-reader announce, keyboard
+  // nav, color-blind palette, large-text, haptic, voice-only,
+  // live captions.
+  // ============================================================
+
+  // Phase 4.127 (turn #125) IMAGE CAPTURE — "tingnan mo to" /
+  // "let me show you" routes through this helper to open the
+  // device camera, capture a still, and return a blob URL.
+  // Falls back gracefully when getUserMedia is unavailable.
+  async function _captureImageStill() {
+    try {
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        return { ok: false, blocker: 'no_media_devices' };
+      }
+      const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+      const video = document.createElement('video');
+      video.srcObject = stream;
+      video.muted = true;
+      video.playsInline = true;
+      await video.play();
+      // Give the camera one frame to expose
+      await new Promise(r => setTimeout(r, 250));
+      const w = video.videoWidth || 640;
+      const h = video.videoHeight || 480;
+      const canvas = document.createElement('canvas');
+      canvas.width = w; canvas.height = h;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(video, 0, 0, w, h);
+      stream.getTracks().forEach(t => t.stop());
+      const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
+      return { ok: true, dataUrl, width: w, height: h };
+    } catch (e) {
+      return { ok: false, blocker: 'capture_failed', message: String(e && e.message || e) };
+    }
+  }
+
+  // Phase 4.128 (turn #126) FILE ATTACHMENT — accept photo /
+  // PDF uploads through a hidden input. Returns base64 + meta;
+  // caller hands to the platform_scraper or attaches to the
+  // logbook entry.
+  function _openFileAttachment(accept) {
+    return new Promise((resolve) => {
+      try {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = String(accept || 'image/*,application/pdf');
+        input.style.display = 'none';
+        document.body.appendChild(input);
+        input.addEventListener('change', () => {
+          const file = input.files && input.files[0];
+          if (!file) { input.remove(); resolve(null); return; }
+          if (file.size > 8 * 1024 * 1024) {
+            input.remove();
+            resolve({ ok: false, blocker: 'too_large', size: file.size });
+            return;
+          }
+          const reader = new FileReader();
+          reader.onload = () => {
+            input.remove();
+            resolve({
+              ok: true,
+              name: String(file.name).slice(0, 120),
+              type: file.type,
+              size: file.size,
+              dataUrl: reader.result,
+            });
+          };
+          reader.onerror = () => { input.remove(); resolve({ ok: false, blocker: 'read_failed' }); };
+          reader.readAsDataURL(file);
+        });
+        input.click();
+      } catch (e) {
+        resolve({ ok: false, blocker: 'unsupported' });
+      }
+    });
+  }
+
+  // Phase 4.129 (turn #127) REDUCED-MOTION ACCESSIBILITY — when
+  // the worker's OS prefers reduced motion (prefers-reduced-motion
+  // media query) OR they've toggled the pref manually, suppress
+  // the avatar animation + bubble fade-in.
+  const _REDUCED_MOTION_KEY = 'wh_voice_reduced_motion';
+  function _isReducedMotionRequested() {
+    try {
+      if (localStorage.getItem(_REDUCED_MOTION_KEY) === '1') return true;
+      if (typeof window.matchMedia === 'function') {
+        return window.matchMedia('(prefers-reduced-motion: reduce)').matches === true;
+      }
+      return false;
+    } catch (_) { return false; }
+  }
+  function _setReducedMotion(on) {
+    try {
+      if (on) localStorage.setItem(_REDUCED_MOTION_KEY, '1');
+      else localStorage.removeItem(_REDUCED_MOTION_KEY);
+      const ov = document.getElementById('wh-voice-overlay');
+      if (ov) ov.setAttribute('data-reduced-motion', on ? '1' : '0');
+      return true;
+    } catch (_) { return false; }
+  }
+
+  // Phase 4.130 (turn #128) SCREEN-READER ANNOUNCE — every reply
+  // is mirrored into an aria-live="polite" region so AT users
+  // hear the companion's reply without needing to focus the
+  // bubble. The region is created on first use.
+  function _ensureAriaLiveRegion() {
+    let region = document.getElementById('wh-voice-aria-live');
+    if (region) return region;
+    try {
+      region = document.createElement('div');
+      region.id = 'wh-voice-aria-live';
+      region.setAttribute('aria-live', 'polite');
+      region.setAttribute('aria-atomic', 'true');
+      region.setAttribute('role', 'status');
+      region.style.cssText = 'position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden;';
+      document.body.appendChild(region);
+      return region;
+    } catch (_) { return null; }
+  }
+  function _announceForScreenReader(text) {
+    const r = _ensureAriaLiveRegion();
+    if (!r) return false;
+    try {
+      // Force a content change so AT picks it up even on identical text.
+      r.textContent = '';
+      setTimeout(() => { r.textContent = String(text || '').slice(0, 800); }, 30);
+      return true;
+    } catch (_) { return false; }
+  }
+
+  // Phase 4.131 (turn #129) KEYBOARD NAVIGATION — workers wearing
+  // gloves or using a keyboard-only setup need predictable
+  // shortcuts. Handler dispatches to actions; caller registers
+  // the keydown listener once at mount.
+  const _KEY_ACTIONS = {
+    'Escape':    'close',
+    'Space':     'toggle_recording',
+    'Enter':     'submit_typed',
+    'ArrowUp':   'replay_last',
+    'ArrowDown': 'next_suggestion',
+    'KeyH':      'help',
+  };
+  function _resolveKeyAction(event) {
+    if (!event || !event.code) return null;
+    const action = _KEY_ACTIONS[event.code] || null;
+    if (!action) return null;
+    // KeyH only fires with Ctrl/Cmd to avoid stealing real letters.
+    if (event.code === 'KeyH' && !(event.ctrlKey || event.metaKey)) return null;
+    // Space is dangerous in inputs; ignore when target is editable.
+    if (event.code === 'Space' && event.target && _isEditableTarget(event.target)) return null;
+    return action;
+  }
+  function _isEditableTarget(el) {
+    if (!el) return false;
+    const tag = String(el.tagName || '').toUpperCase();
+    if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return true;
+    if (el.isContentEditable) return true;
+    return false;
+  }
+
+  // Phase 4.132 (turn #130) COLOR-BLIND SAFE PALETTE — the
+  // critical/high/medium severity tints get a CB-safe alternative
+  // (blue-orange-yellow) when the worker opts in. Returns the
+  // palette tokens; caller applies via data-palette attribute.
+  const _CB_PALETTE_KEY = 'wh_voice_cb_palette';
+  const _PALETTE_DEFAULT = { critical: '#dc2626', high: '#ea580c', medium: '#ca8a04', low: '#65a30d', info: '#0891b2' };
+  const _PALETTE_CB_SAFE = { critical: '#1d4ed8', high: '#f59e0b', medium: '#facc15', low: '#0ea5e9', info: '#64748b' };
+  function _isColorBlindMode() {
+    try { return localStorage.getItem(_CB_PALETTE_KEY) === '1'; }
+    catch (_) { return false; }
+  }
+  function _setColorBlindMode(on) {
+    try {
+      if (on) localStorage.setItem(_CB_PALETTE_KEY, '1');
+      else localStorage.removeItem(_CB_PALETTE_KEY);
+      const ov = document.getElementById('wh-voice-overlay');
+      if (ov) ov.setAttribute('data-palette', on ? 'cb-safe' : 'default');
+      return true;
+    } catch (_) { return false; }
+  }
+  function _currentPalette() {
+    return _isColorBlindMode() ? _PALETTE_CB_SAFE : _PALETTE_DEFAULT;
+  }
+
+  // Phase 4.133 (turn #131) LARGE-TEXT MODE — outdoor / low-vision
+  // workers need 1.5x text. Toggle persists, applied via
+  // data-text-size attribute.
+  const _LARGE_TEXT_KEY = 'wh_voice_large_text';
+  function _isLargeTextMode() {
+    try { return localStorage.getItem(_LARGE_TEXT_KEY) === '1'; }
+    catch (_) { return false; }
+  }
+  function _setLargeTextMode(on) {
+    try {
+      if (on) localStorage.setItem(_LARGE_TEXT_KEY, '1');
+      else localStorage.removeItem(_LARGE_TEXT_KEY);
+      const ov = document.getElementById('wh-voice-overlay');
+      if (ov) ov.setAttribute('data-text-size', on ? 'large' : 'normal');
+      return true;
+    } catch (_) { return false; }
+  }
+
+  // Phase 4.134 (turn #132) HAPTIC FEEDBACK — short vibrate
+  // pulses for important events on mobile (critical alert,
+  // confirm-needed, error). Wraps navigator.vibrate which is
+  // missing on iOS Safari — guarded everywhere.
+  const _HAPTIC_PATTERNS = {
+    confirm:  [40],
+    success:  [30, 60, 30],
+    warning:  [80, 80, 80],
+    critical: [200, 80, 200, 80, 200],
+  };
+  function _hapticPulse(kind) {
+    const pattern = _HAPTIC_PATTERNS[String(kind || '').toLowerCase()];
+    if (!pattern) return false;
+    try {
+      if (navigator && typeof navigator.vibrate === 'function') {
+        return navigator.vibrate(pattern);
+      }
+      return false;
+    } catch (_) { return false; }
+  }
+
+  // Phase 4.135 (turn #133) VOICE-ONLY MODE — workers in safety
+  // glasses / hands-busy contexts. UI fades, TTS does all the
+  // talking, all output stays in audio + screen-reader region.
+  // Implemented as a flag + data attribute; UI css consumes.
+  const _VOICE_ONLY_KEY = 'wh_voice_only_mode';
+  function _isVoiceOnlyMode() {
+    try { return localStorage.getItem(_VOICE_ONLY_KEY) === '1'; }
+    catch (_) { return false; }
+  }
+  function _setVoiceOnlyMode(on) {
+    try {
+      if (on) localStorage.setItem(_VOICE_ONLY_KEY, '1');
+      else localStorage.removeItem(_VOICE_ONLY_KEY);
+      const ov = document.getElementById('wh-voice-overlay');
+      if (ov) ov.setAttribute('data-voice-only', on ? '1' : '0');
+      return true;
+    } catch (_) { return false; }
+  }
+  const _VOICE_ONLY_TOGGLE_RE = /\b(?:voice[\s\-]?only\s+(?:mode|on|off)|hands[\s\-]?free\s+(?:mode|on|off)|i[\-\s]?turn\s+(?:on|off)\s+voice[\s\-]?only|naka[\s\-]?safety\s+glasses\s+ako)\b/i;
+  function _detectVoiceOnlyToggle(text) {
+    const s = String(text || '');
+    if (!s) return null;
+    if (!_VOICE_ONLY_TOGGLE_RE.test(s)) return null;
+    return /\boff\b/i.test(s) ? 'off' : 'on';
+  }
+
+  // Phase 4.136 (turn #134) LIVE CAPTIONS — when the worker
+  // requests captions, every TTS line is mirrored into a visible
+  // caption bar on the overlay. Distinct from screen-reader
+  // announce (which is for AT). Persists per-device.
+  const _CAPTIONS_KEY = 'wh_voice_captions';
+  function _isCaptionsOn() {
+    try { return localStorage.getItem(_CAPTIONS_KEY) === '1'; }
+    catch (_) { return false; }
+  }
+  function _setCaptionsOn(on) {
+    try {
+      if (on) localStorage.setItem(_CAPTIONS_KEY, '1');
+      else localStorage.removeItem(_CAPTIONS_KEY);
+      return true;
+    } catch (_) { return false; }
+  }
+  function _renderCaption(text) {
+    if (!_isCaptionsOn()) return false;
+    try {
+      let bar = document.getElementById('wh-voice-caption-bar');
+      if (!bar) {
+        bar = document.createElement('div');
+        bar.id = 'wh-voice-caption-bar';
+        bar.setAttribute('aria-hidden', 'true');
+        bar.style.cssText = 'position:fixed;bottom:0;left:0;right:0;background:rgba(0,0,0,0.78);color:white;padding:12px 16px;text-align:center;z-index:99999;font-size:18px;line-height:1.4;';
+        document.body.appendChild(bar);
+      }
+      bar.textContent = String(text || '').slice(0, 240);
+      return true;
+    } catch (_) { return false; }
+  }
+
+  // ============================================================
+  // FOURTEENTH 10-TURN FLYWHEEL — turns #135-#144 (Phase 4.137-4.146)
+  // OPERATIONAL EXCELLENCE. Health pings, self-test, feature flags,
+  // browser support, network adaptation, memory pressure, clock
+  // drift, background tab pause, auto-recovery, presence heartbeat.
+  // ============================================================
+
+  // Phase 4.137 (turn #135) HEALTH CHECK PING — every 5 min the
+  // companion pings /functions/v1/health so the supervisor's
+  // ai-quality surface knows the device is alive + which version
+  // it's running.
+  const _HEALTH_PING_INTERVAL_MS = 5 * 60 * 1000;
+  let _healthPingHandle = null;
+  async function _pingHealthCheck(db, ctx) {
+    if (!db || !ctx) return false;
+    try {
+      const fetcher = (typeof window.fetchWithTimeout === 'function')
+        ? window.fetchWithTimeout : (u, o) => fetch(u, o);
+      const body = {
+        hive_id:     ctx.hive_id || null,
+        worker_name: ctx.worker_name || null,
+        client:      'voice-handler',
+        sw_version:  (window.WHTts && window.WHTts.version) || 'unknown',
+        ts:          new Date().toISOString(),
+      };
+      await fetcher((typeof SUPABASE_URL !== 'undefined' ? SUPABASE_URL : '') + '/functions/v1/voice-health', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      }, 4000);
+      return true;
+    } catch (_) { return false; }
+  }
+  function _scheduleHealthPings(db, ctx) {
+    if (_healthPingHandle) return _healthPingHandle;
+    _healthPingHandle = setInterval(() => _pingHealthCheck(db, ctx), _HEALTH_PING_INTERVAL_MS);
+    return _healthPingHandle;
+  }
+  function _stopHealthPings() {
+    if (_healthPingHandle) {
+      try { clearInterval(_healthPingHandle); } catch (_) {}
+      _healthPingHandle = null;
+    }
+  }
+
+  // Phase 4.138 (turn #136) SELF-TEST ON MOUNT — sanity-check
+  // the key helpers exist + return expected shapes. Logs to
+  // console; never throws. Result is a {passed, total, failures}
+  // structure so caller can render a badge.
+  function _runSelfTest() {
+    const checks = [
+      ['affirmation regex', () => _isFollowupAffirmation('yes') === true],
+      ['negation regex', () => _isFollowupNegation('no') === true],
+      ['noise transcript', () => _isNoisyTranscript('') === true],
+      ['asset tag normalize', () => _normalizeAssetTag('P-203') === 'P-203'],
+      ['time range parse', () => _normalizeTimeRange('this week') !== null],
+      ['toxicity guard', () => _detectToxicLanguage('clean text').severity === 0],
+      ['pii scrub', () => _scrubPii('09171234567').text.includes('[PHONE]')],
+      ['symptom normalize', () => _normalizeSymptom('yumayanig') === 'vibration_anomaly'],
+      ['confidence label', () => _confidenceLabel(50, 120) === 'high'],
+      ['palette current', () => typeof _currentPalette().critical === 'string'],
+    ];
+    const failures = [];
+    let passed = 0;
+    for (const [name, fn] of checks) {
+      try {
+        if (fn()) passed++;
+        else failures.push(name);
+      } catch (e) { failures.push(name + ': ' + (e && e.message || e)); }
+    }
+    const result = { passed, total: checks.length, failures };
+    try { console.info('[WHVoice self-test]', result); } catch (_) {}
+    return result;
+  }
+
+  // Phase 4.139 (turn #137) FEATURE FLAG SYSTEM — per-hive flags
+  // override per-build defaults. Flags are pulled from
+  // wh_feature_flags table once per session + cached in module.
+  const _featureFlagCache = { fetched_at: 0, flags: {} };
+  const _FEATURE_FLAG_TTL_MS = 5 * 60 * 1000;
+  async function _loadFeatureFlags(db, hiveId) {
+    if (!db || !hiveId) return {};
+    const now = Date.now();
+    if (now - _featureFlagCache.fetched_at < _FEATURE_FLAG_TTL_MS
+        && _featureFlagCache.hive_id === hiveId) {
+      return _featureFlagCache.flags;
+    }
+    try {
+      const { data } = await db.from('wh_feature_flags')
+        .select('name,enabled')
+        .or('hive_id.eq.' + hiveId + ',hive_id.is.null')
+        .limit(200);
+      const flags = {};
+      if (Array.isArray(data)) data.forEach(r => { flags[r.name] = !!r.enabled; });
+      _featureFlagCache.fetched_at = now;
+      _featureFlagCache.hive_id = hiveId;
+      _featureFlagCache.flags = flags;
+      return flags;
+    } catch (_) { return _featureFlagCache.flags; }
+  }
+  function _isFeatureOn(name) {
+    const n = String(name || '');
+    if (!n) return false;
+    return _featureFlagCache.flags[n] === true;
+  }
+
+  // Phase 4.140 (turn #138) BROWSER SUPPORT BANNER — when key
+  // APIs are missing (mediaDevices, AudioContext, fetch), surface
+  // a banner so the worker knows to upgrade.
+  function _checkBrowserSupport() {
+    const missing = [];
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) missing.push('mediaDevices');
+    if (typeof AudioContext === 'undefined' && typeof webkitAudioContext === 'undefined') missing.push('AudioContext');
+    if (typeof fetch !== 'function') missing.push('fetch');
+    if (typeof Promise === 'undefined') missing.push('Promise');
+    return { supported: missing.length === 0, missing };
+  }
+  function _renderBrowserBanner(missing) {
+    if (!Array.isArray(missing) || missing.length === 0) return false;
+    try {
+      let banner = document.getElementById('wh-voice-browser-banner');
+      if (banner) return true;
+      banner = document.createElement('div');
+      banner.id = 'wh-voice-browser-banner';
+      banner.setAttribute('role', 'alert');
+      banner.textContent = 'Voice companion: your browser is missing ' + missing.join(', ') +
+        '. Please use a recent Chrome / Edge / Safari for full functionality.';
+      banner.style.cssText = 'position:fixed;top:0;left:0;right:0;background:#fef3c7;color:#92400e;padding:10px 16px;text-align:center;z-index:99998;border-bottom:1px solid #f59e0b;';
+      document.body.appendChild(banner);
+      return true;
+    } catch (_) { return false; }
+  }
+
+  // Phase 4.141 (turn #139) NETWORK CONDITION ADAPTATION —
+  // navigator.connection.effectiveType ('slow-2g'/'2g'/'3g'/'4g')
+  // drives payload size. On 2g we send the transcript only; on
+  // 4g we send the full context block.
+  function _currentNetworkClass() {
+    try {
+      const c = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+      if (!c) return 'unknown';
+      return String(c.effectiveType || 'unknown');
+    } catch (_) { return 'unknown'; }
+  }
+  function _shouldUseLitePayload() {
+    const cls = _currentNetworkClass();
+    return cls === 'slow-2g' || cls === '2g';
+  }
+
+  // Phase 4.142 (turn #140) MEMORY PRESSURE HANDLER — when device
+  // memory is low OR performance.memory shows heavy usage, drop
+  // optional context (filipinoGlossary, kgContext) to keep the
+  // turn under the heap budget.
+  function _checkMemoryPressure() {
+    try {
+      const dm = Number(navigator.deviceMemory);
+      if (Number.isFinite(dm) && dm <= 2) return { pressure: 'high', reason: 'device_memory_low' };
+      if (typeof performance !== 'undefined' && performance.memory) {
+        const used = performance.memory.usedJSHeapSize || 0;
+        const limit = performance.memory.jsHeapSizeLimit || 1;
+        const pct = used / limit;
+        if (pct > 0.85) return { pressure: 'high', reason: 'heap_pct_high', pct };
+        if (pct > 0.60) return { pressure: 'medium', reason: 'heap_pct_medium', pct };
+      }
+      return { pressure: 'low', reason: null };
+    } catch (_) { return { pressure: 'unknown', reason: null }; }
+  }
+
+  // Phase 4.143 (turn #141) SERVER TIME SYNC — if the client
+  // clock drifts >2 min from server time (Date header on a ping),
+  // warn the supervisor — log timestamps will mismatch.
+  async function _checkClockDrift() {
+    try {
+      const fetcher = (typeof window.fetchWithTimeout === 'function')
+        ? window.fetchWithTimeout : (u, o) => fetch(u, o);
+      const resp = await fetcher((typeof SUPABASE_URL !== 'undefined' ? SUPABASE_URL : '') + '/functions/v1/voice-health', { method: 'HEAD' }, 3000);
+      if (!resp) return null;
+      const serverDate = resp.headers && resp.headers.get && resp.headers.get('Date');
+      if (!serverDate) return null;
+      const serverMs = new Date(serverDate).getTime();
+      if (!Number.isFinite(serverMs)) return null;
+      const driftMs = Math.abs(Date.now() - serverMs);
+      return { drift_ms: driftMs, exceeded: driftMs > 2 * 60 * 1000 };
+    } catch (_) { return null; }
+  }
+
+  // Phase 4.144 (turn #142) BACKGROUND TAB PAUSE — when
+  // document.visibilityState === 'hidden', pause recording so a
+  // background tab doesn't keep the mic open + waste battery.
+  function _shouldPauseForBackground() {
+    try {
+      return document.visibilityState === 'hidden';
+    } catch (_) { return false; }
+  }
+  function _attachVisibilityHandler(onHidden, onVisible) {
+    if (typeof onHidden !== 'function' && typeof onVisible !== 'function') return null;
+    const handler = () => {
+      try {
+        if (document.visibilityState === 'hidden' && typeof onHidden === 'function') onHidden();
+        else if (document.visibilityState === 'visible' && typeof onVisible === 'function') onVisible();
+      } catch (_) { /* non-fatal */ }
+    };
+    try {
+      document.addEventListener('visibilitychange', handler);
+      return handler;
+    } catch (_) { return null; }
+  }
+
+  // Phase 4.145 (turn #143) AUTO-RECOVERY ON JS EXCEPTION —
+  // window.onerror catcher captures uncaught exceptions inside
+  // the companion code path; surfaces a recover button (caller
+  // wires the click). Best-effort: don't fight the browser's
+  // own error handler.
+  let _lastUncaughtError = null;
+  function _installCrashHandler() {
+    try {
+      const prev = window.onerror;
+      window.onerror = function(msg, src, line, col, err) {
+        try {
+          const s = String(src || '');
+          if (s.indexOf('voice-handler') >= 0 || s.indexOf('wh-tts') >= 0) {
+            _lastUncaughtError = { msg, src, line, col, ts: Date.now() };
+          }
+        } catch (_) {}
+        if (typeof prev === 'function') {
+          try { return prev.apply(this, arguments); } catch (_) {}
+        }
+        return false;
+      };
+      return true;
+    } catch (_) { return false; }
+  }
+  function _getLastCrashSummary() {
+    if (!_lastUncaughtError) return null;
+    return {
+      msg: String(_lastUncaughtError.msg || '').slice(0, 200),
+      line: _lastUncaughtError.line || 0,
+      ago_ms: Date.now() - (_lastUncaughtError.ts || Date.now()),
+    };
+  }
+  function _clearCrashState() { _lastUncaughtError = null; }
+
+  // Phase 4.146 (turn #144) PRESENCE HEARTBEAT — write
+  // last_seen for the worker_name to wh_voice_presence every
+  // 60s. Supervisor's hive dashboard lists active voice workers.
+  const _PRESENCE_INTERVAL_MS = 60 * 1000;
+  let _presenceHandle = null;
+  async function _writePresence(db, ctx) {
+    if (!db || !ctx || !ctx.hive_id || !ctx.worker_name) return false;
+    try {
+      await db.from('wh_voice_presence').upsert({
+        hive_id:     ctx.hive_id,
+        worker_name: ctx.worker_name,
+        last_seen:   new Date().toISOString(),
+      }, { onConflict: 'hive_id,worker_name' });
+      return true;
+    } catch (_) { return false; }
+  }
+  function _startPresenceHeartbeat(db, ctx) {
+    if (_presenceHandle) return _presenceHandle;
+    _writePresence(db, ctx);
+    _presenceHandle = setInterval(() => _writePresence(db, ctx), _PRESENCE_INTERVAL_MS);
+    return _presenceHandle;
+  }
+  function _stopPresenceHeartbeat() {
+    if (_presenceHandle) {
+      try { clearInterval(_presenceHandle); } catch (_) {}
+      _presenceHandle = null;
+    }
+  }
+
+  // ============================================================
+  // FIFTEENTH 10-TURN FLYWHEEL — turns #145-#154 (Phase 4.147-4.156)
+  // TEAM COORDINATION + CROSS-WORKER layer. Active sessions,
+  // handoff, shared notes, broadcast, watchlist, buddy mode.
+  // ============================================================
+
+  // Phase 4.147 (turn #145) ACTIVE SESSION LIST — query
+  // wh_voice_presence for all workers in the same hive whose
+  // last_seen is within 5 min. Returns array of {worker_name, last_seen, age_min}.
+  async function _listActiveVoiceWorkers(db, hiveId, selfWorker) {
+    if (!db || !hiveId) return [];
+    try {
+      const since = new Date(Date.now() - 5 * 60 * 1000).toISOString();
+      const { data } = await db.from('wh_voice_presence')
+        .select('worker_name,last_seen')
+        .eq('hive_id', hiveId)
+        .gte('last_seen', since)
+        .limit(50);
+      if (!Array.isArray(data)) return [];
+      const now = Date.now();
+      return data
+        .filter(r => r.worker_name && r.worker_name !== selfWorker)
+        .map(r => ({
+          worker_name: r.worker_name,
+          last_seen:   r.last_seen,
+          age_min:     Math.round((now - new Date(r.last_seen).getTime()) / 60000),
+        }));
+    } catch (_) { return []; }
+  }
+
+  // Phase 4.148 (turn #146) CROSS-WORKER HANDOFF — "send this to
+  // Mike" / "ipasa kay kuya Ben" writes a row to
+  // companion_handoff. Receiver sees it at next session open.
+  const _HANDOFF_RE = /\b(?:send\s+(?:this|that|yan|yun|ito)\s+(?:to|kay|sa)\s+([A-Z][\w \-]{1,40})|i[\-\s]?pasa\s+mo\s+(?:kay|sa)\s+([A-Z][\w \-]{1,40})|hand\s+(?:this|that|it)\s+to\s+([A-Z][\w \-]{1,40}))\b/;
+  function _detectHandoffRequest(text) {
+    const s = String(text || '');
+    if (!s || s.length > 200) return null;
+    const m = s.match(_HANDOFF_RE);
+    if (!m) return null;
+    const name = (m[1] || m[2] || m[3] || '').trim();
+    return name ? name.slice(0, 60) : null;
+  }
+  async function _sendHandoff(db, ctx, toWorker, message) {
+    if (!db || !ctx || !toWorker || !message) return false;
+    try {
+      await db.from('companion_handoff').insert({
+        hive_id:      ctx.hive_id || null,
+        from_worker:  ctx.worker_name || null,
+        to_worker:    String(toWorker).slice(0, 60),
+        message:      String(message).slice(0, 600),
+        status:       'pending',
+        source:       'voice-handler',
+        created_at:   new Date().toISOString(),
+      });
+      return true;
+    } catch (_) { return false; }
+  }
+  async function _fetchPendingHandoffs(db, ctx) {
+    if (!db || !ctx || !ctx.hive_id || !ctx.worker_name) return [];
+    try {
+      const { data } = await db.from('companion_handoff')
+        .select('id,from_worker,message,created_at')
+        .eq('hive_id', ctx.hive_id)
+        .eq('to_worker', ctx.worker_name)
+        .eq('status', 'pending')
+        .order('created_at', { ascending: false })
+        .limit(10);
+      return Array.isArray(data) ? data : [];
+    } catch (_) { return []; }
+  }
+
+  // Phase 4.149 (turn #147) SHARED NOTE THREAD — workers can
+  // attach a turn to a shared note (per-asset or per-shift).
+  // Writes to shared_voice_notes; renders on Hive surface.
+  const _SHARED_NOTE_RE = /\b(?:share\s+(?:this|that|yan|ito)\s+(?:to|with)\s+(?:the\s+team|kuya|kasama|shift)|share\s+(?:this|that)\s+as\s+(?:a\s+)?note|i[\-\s]?share\s+mo\s+sa\s+team|post\s+(?:this|to\s+the\s+team\s+note))\b/i;
+  function _isSharedNoteRequest(text) {
+    const s = String(text || '');
+    if (!s || s.length > 200) return false;
+    return _SHARED_NOTE_RE.test(s);
+  }
+  async function _postSharedNote(db, ctx, threadKey, content) {
+    if (!db || !ctx || !content) return false;
+    try {
+      await db.from('shared_voice_notes').insert({
+        hive_id:     ctx.hive_id || null,
+        thread_key:  String(threadKey || 'general').slice(0, 80),
+        worker_name: ctx.worker_name || null,
+        content:     String(content).slice(0, 600),
+        source:      'voice-handler',
+        created_at:  new Date().toISOString(),
+      });
+      return true;
+    } catch (_) { return false; }
+  }
+
+  // Phase 4.150 (turn #148) ACTIVE WORKER COUNT ALERT — when
+  // the hive has >5 voice sessions active concurrently, surface
+  // "team is busy, consider async" so workers don't crowd the
+  // shared mental-state.
+  function _shouldFlagHighConcurrency(activeCount, threshold) {
+    const n = Number(activeCount);
+    const t = Number(threshold);
+    if (!Number.isFinite(n)) return false;
+    const cap = Number.isFinite(t) && t > 0 ? t : 5;
+    return n > cap;
+  }
+
+  // Phase 4.151 (turn #149) WATCHLIST SUBSCRIPTIONS — worker
+  // subscribes to an asset_tag; when ANY worker logs activity
+  // on that tag, the subscriber gets a heads-up on next open.
+  async function _subscribeWatchlist(db, ctx, assetTag) {
+    if (!db || !ctx || !assetTag) return false;
+    try {
+      await db.from('asset_watchlist').upsert({
+        hive_id:     ctx.hive_id || null,
+        worker_name: ctx.worker_name || null,
+        asset_tag:   String(assetTag).slice(0, 40),
+        subscribed_at: new Date().toISOString(),
+      }, { onConflict: 'hive_id,worker_name,asset_tag' });
+      return true;
+    } catch (_) { return false; }
+  }
+  async function _unsubscribeWatchlist(db, ctx, assetTag) {
+    if (!db || !ctx || !assetTag) return false;
+    try {
+      await db.from('asset_watchlist')
+        .delete()
+        .eq('hive_id', ctx.hive_id || null)
+        .eq('worker_name', ctx.worker_name || null)
+        .eq('asset_tag', String(assetTag).slice(0, 40));
+      return true;
+    } catch (_) { return false; }
+  }
+  const _WATCH_RE = /\b(?:watch\s+(?:this|that|yung|yang)?\s*(?:asset|tag|machine)?\s*([A-Z]{1,3}-?\d{2,5})|sub(?:scribe)?\s+(?:to|kay)\s+([A-Z]{1,3}-?\d{2,5})|i[\-\s]?watch\s+mo\s+([A-Z]{1,3}-?\d{2,5})|notify\s+me\s+(?:on|about)\s+([A-Z]{1,3}-?\d{2,5}))\b/i;
+  function _detectWatchRequest(text) {
+    const s = String(text || '');
+    if (!s) return null;
+    const m = s.match(_WATCH_RE);
+    if (!m) return null;
+    return (m[1] || m[2] || m[3] || m[4] || '').toUpperCase();
+  }
+
+  // Phase 4.152 (turn #150) VOICE BROADCAST — supervisor-only
+  // capability: send a one-line message to every active voice
+  // worker in the hive. Helper here is the SEND side; receive
+  // is _fetchPendingHandoffs with from_worker='__broadcast__'.
+  async function _sendBroadcast(db, ctx, message) {
+    if (!db || !ctx || !ctx.hive_id || !message) return false;
+    if (String(ctx.hive_role || '').toLowerCase() !== 'supervisor') {
+      return { ok: false, blocker: 'not_supervisor' };
+    }
+    try {
+      const active = await _listActiveVoiceWorkers(db, ctx.hive_id, null);
+      const rows = active.map(w => ({
+        hive_id:     ctx.hive_id,
+        from_worker: '__broadcast__',
+        to_worker:   w.worker_name,
+        message:     String(message).slice(0, 600),
+        status:      'pending',
+        source:      'voice-handler-broadcast',
+        created_at:  new Date().toISOString(),
+      }));
+      if (rows.length === 0) return { ok: true, recipients: 0 };
+      await db.from('companion_handoff').insert(rows);
+      return { ok: true, recipients: rows.length };
+    } catch (_) { return { ok: false, blocker: 'insert_failed' }; }
+  }
+
+  // Phase 4.153 (turn #151) KNOWLEDGE SHARING NUDGE — when the
+  // worker resolves a fault ("fixed", "ayos na", "tapos na yan"),
+  // prompt to share the resolution. Returns the resolution kind.
+  const _RESOLUTION_RE = /\b(?:fixed(?:\s+it)?|gumana\s+na|tapos\s+na\s+(?:to|yun|yan)|ayos\s+na(?:\s+to)?|solved(?:\s+it)?|nag[\-\s]?work\s+na|naayos\s+na|resolved|patched\s+it)\b/i;
+  function _detectResolution(text) {
+    const s = String(text || '');
+    if (!s || s.length > 200) return null;
+    if (!_RESOLUTION_RE.test(s)) return null;
+    return 'fix_resolved';
+  }
+
+  // Phase 4.154 (turn #152) CROSS-SHIFT CONTINUITY — at session
+  // start, pull the prior-shift open items (logbook entries with
+  // status='open' from the prior shift slot). Returns array of
+  // open items so the welcome line can surface them.
+  async function _fetchPriorShiftOpenItems(db, hiveId) {
+    if (!db || !hiveId) return [];
+    try {
+      // "Prior shift" = previous 8h window in PHT.
+      const since = new Date(Date.now() - 16 * 60 * 60 * 1000).toISOString();
+      const { data } = await db.from('v_logbook_truth')
+        .select('asset_tag,issue,status,created_at')
+        .eq('hive_id', hiveId)
+        .eq('status', 'open')
+        .gte('created_at', since)
+        .order('created_at', { ascending: false })
+        .limit(20);
+      return Array.isArray(data) ? data : [];
+    } catch (_) { return []; }
+  }
+
+  // Phase 4.155 (turn #153) BUDDY MODE — pair worker A + B per
+  // hive; their handovers auto-route to each other. Stored in
+  // localStorage (per device).
+  const _BUDDY_KEY_PREFIX = 'wh_voice_buddy_';
+  function _buddyKey(workerName) { return _BUDDY_KEY_PREFIX + String(workerName || 'anon').slice(0, 60); }
+  function _setBuddy(workerName, buddyName) {
+    if (!workerName || !buddyName) return false;
+    try {
+      localStorage.setItem(_buddyKey(workerName),
+        String(buddyName).slice(0, 60));
+      return true;
+    } catch (_) { return false; }
+  }
+  function _getBuddy(workerName) {
+    if (!workerName) return null;
+    try { return localStorage.getItem(_buddyKey(workerName)) || null; }
+    catch (_) { return null; }
+  }
+  function _clearBuddy(workerName) {
+    if (!workerName) return false;
+    try { localStorage.removeItem(_buddyKey(workerName)); return true; }
+    catch (_) { return false; }
+  }
+  const _BUDDY_SET_RE = /\b(?:set\s+(?:my\s+)?buddy\s+(?:to|kay)\s+([\w \-]{2,40})|buddy\s+up\s+with\s+([\w \-]{2,40})|kasama\s+ko\s+sa\s+shift\s+si\s+([\w \-]{2,40})|partner\s+with\s+([\w \-]{2,40}))\b/i;
+  function _detectBuddySet(text) {
+    const s = String(text || '');
+    if (!s) return null;
+    const m = s.match(_BUDDY_SET_RE);
+    if (!m) return null;
+    return (m[1] || m[2] || m[3] || m[4] || '').trim().slice(0, 60);
+  }
+
+  // Phase 4.156 (turn #154) MENTION NOTIFICATIONS — when the
+  // worker mentions another by name (T38 _detectMention),
+  // notify that worker through companion_handoff with a
+  // 'mention' status so their next session surfaces it.
+  async function _sendMentionNotice(db, ctx, mentionedWorker, snippet) {
+    if (!db || !ctx || !mentionedWorker) return false;
+    try {
+      await db.from('companion_handoff').insert({
+        hive_id:     ctx.hive_id || null,
+        from_worker: ctx.worker_name || null,
+        to_worker:   String(mentionedWorker).slice(0, 60),
+        message:     '[mention] ' + String(snippet || '').slice(0, 400),
+        status:      'mention',
+        source:      'voice-handler-mention',
+        created_at:  new Date().toISOString(),
+      });
+      return true;
+    } catch (_) { return false; }
+  }
+
+  // ============================================================
+  // SIXTEENTH 10-TURN FLYWHEEL — turns #155-#164 (Phase 4.157-4.166)
+  // EXTERNAL INTEGRATION layer. CMMS / SCADA / chat / email / IoT
+  // bridge — the companion talks to the rest of the enterprise.
+  // ============================================================
+
+  // Phase 4.157 (turn #155) SAP PM WEBHOOK RECEIVER — inbound
+  // work-order notifications from SAP PM land at our edge
+  // function which normalises + writes to pm_external_inbox.
+  // Helper validates the payload shape before insert.
+  function _validateSapWorkOrder(payload) {
+    if (!payload || typeof payload !== 'object') return { ok: false, reason: 'not_object' };
+    if (!payload.order_id) return { ok: false, reason: 'missing_order_id' };
+    if (!payload.equipment_id) return { ok: false, reason: 'missing_equipment_id' };
+    const validTypes = ['PM01','PM02','PM03','PM04'];
+    if (payload.order_type && !validTypes.includes(payload.order_type)) {
+      return { ok: false, reason: 'invalid_order_type' };
+    }
+    return { ok: true, normalized: {
+      external_id: String(payload.order_id).slice(0, 40),
+      asset_ref:   String(payload.equipment_id).slice(0, 40),
+      order_type:  payload.order_type || 'PM01',
+      priority:    Number(payload.priority) || 3,
+      due_at:      payload.due_at || null,
+      source_system: 'sap_pm',
+    }};
+  }
+
+  // Phase 4.158 (turn #156) MAXIMO POLL SYNC — outbound poll
+  // against Maximo's REST endpoint for completed PMs we should
+  // back-fill into our schedule. Helper builds the request shape
+  // + parses the response into our pm_schedule row format.
+  function _buildMaximoQuery(hiveId, sinceIso) {
+    if (!hiveId || !sinceIso) return null;
+    return {
+      url: '/maximo/rest/mxapi/v2/os/mxwo',
+      params: {
+        'oslc.where':  'site="' + hiveId + '" and statusdate>"' + sinceIso + '" and status="COMP"',
+        'oslc.select': 'wonum,description,assetnum,statusdate,actfinish',
+        'oslc.pageSize': '100',
+      },
+    };
+  }
+  function _parseMaximoResponse(resp) {
+    if (!resp || !Array.isArray(resp.member)) return [];
+    return resp.member.map(r => ({
+      external_id: String(r.wonum || '').slice(0, 40),
+      asset_ref:   String(r.assetnum || '').slice(0, 40),
+      completed_at: r.actfinish || r.statusdate || null,
+      source_system: 'maximo',
+    })).filter(r => r.external_id && r.asset_ref);
+  }
+
+  // Phase 4.159 (turn #157) OPC-UA TAG MAPPING — plant-floor
+  // OPC tags ("Plant1.Pump203.Vibration_RMS") map to our canonical
+  // asset_tag ("P-203") + metric. Maintained as a per-hive
+  // dictionary in the opc_tag_map table; helper just normalises.
+  function _parseOpcTag(opcTag) {
+    if (!opcTag) return null;
+    const s = String(opcTag);
+    // Pattern: <plant>.<asset><digits>.<metric>
+    const m = s.match(/(?:^|\.)([A-Z]{1,3})(\d{2,5})\.([A-Z_a-z]+)$/);
+    if (!m) return null;
+    return {
+      asset_tag: m[1].toUpperCase() + '-' + m[2],
+      metric:    m[3].toLowerCase(),
+    };
+  }
+
+  // Phase 4.160 (turn #158) MQTT TOPIC SUBSCRIBE — declarative
+  // helper that produces the canonical MQTT topic for a (hive,
+  // asset_tag) tuple. Subscription lifecycle is the edge fn's
+  // problem; we just build the strings.
+  function _buildMqttTopic(hiveId, assetTag, metric) {
+    if (!hiveId || !assetTag) return null;
+    const m = String(metric || 'all').toLowerCase().replace(/[^a-z0-9_]/g, '');
+    return 'workhive/' + String(hiveId).slice(0, 40) + '/' + String(assetTag).slice(0, 20) + '/' + m;
+  }
+  function _parseMqttPayload(raw) {
+    try {
+      const data = typeof raw === 'string' ? JSON.parse(raw) : raw;
+      if (!data || typeof data !== 'object') return null;
+      return {
+        value:     Number(data.value),
+        unit:      String(data.unit || '').slice(0, 20),
+        timestamp: data.ts || data.timestamp || null,
+      };
+    } catch (_) { return null; }
+  }
+
+  // Phase 4.161 (turn #159) SLACK WEBHOOK — supervisor configures
+  // a webhook URL per hive. Helper formats the payload + POSTs;
+  // never blocks the turn.
+  async function _sendSlackMessage(webhookUrl, text, blocks) {
+    if (!webhookUrl || !text) return false;
+    const body = { text: String(text).slice(0, 1500) };
+    if (Array.isArray(blocks)) body.blocks = blocks;
+    try {
+      const fetcher = (typeof window.fetchWithTimeout === 'function')
+        ? window.fetchWithTimeout : (u, o) => fetch(u, o);
+      await fetcher(webhookUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      }, 5000);
+      return true;
+    } catch (_) { return false; }
+  }
+
+  // Phase 4.162 (turn #160) EMAIL DIGEST — supervisor receives a
+  // daily 5-line digest. Helper formats the body; the send goes
+  // through Resend via an edge function (not directly from the
+  // client, to keep API key off the device).
+  function _buildEmailDigestBody(digest) {
+    if (!digest || typeof digest !== 'object') return null;
+    const lines = [
+      'Daily Digest — ' + new Date().toISOString().slice(0, 10),
+      '',
+      '1) Open alerts: ' + (digest.open_alerts || 0),
+      '2) Closed PMs: ' + (digest.closed_pms || 0),
+      '3) Overdue PMs: ' + (digest.overdue_pms || 0),
+      '4) Watch list: ' + (Array.isArray(digest.watch_list) ? digest.watch_list.join(', ') : ''),
+      '5) Focus: ' + (digest.focus_item || 'none'),
+      '',
+      '— WorkHive Voice Companion',
+    ];
+    return lines.join('\n');
+  }
+
+  // Phase 4.163 (turn #161) MICROSOFT TEAMS WEBHOOK — adaptive
+  // card payload format. Different shape from Slack; helper
+  // builds the Teams-flavoured payload.
+  function _buildTeamsCard(title, text, severity) {
+    const colorMap = { critical: 'attention', high: 'warning', medium: 'good', info: 'default' };
+    const color = colorMap[String(severity || 'info').toLowerCase()] || 'default';
+    return {
+      type: 'message',
+      attachments: [{
+        contentType: 'application/vnd.microsoft.card.adaptive',
+        content: {
+          $schema: 'http://adaptivecards.io/schemas/adaptive-card.json',
+          type: 'AdaptiveCard',
+          version: '1.4',
+          body: [
+            { type: 'TextBlock', size: 'Medium', weight: 'Bolder', text: String(title || '').slice(0, 200), color },
+            { type: 'TextBlock', text: String(text || '').slice(0, 800), wrap: true },
+          ],
+        },
+      }],
+    };
+  }
+
+  // Phase 4.164 (turn #162) CALENDAR INTEGRATION — Google/Outlook
+  // accept ICS payloads. Helper builds the ICS string for a PM
+  // schedule entry. Edge fn posts it to the worker's calendar API.
+  function _buildIcsEvent(event) {
+    if (!event || !event.start || !event.summary) return null;
+    function fmt(iso) {
+      const d = new Date(iso);
+      if (isNaN(d.getTime())) return null;
+      return d.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
+    }
+    const dtStart = fmt(event.start);
+    const dtEnd   = fmt(event.end || event.start);
+    if (!dtStart || !dtEnd) return null;
+    const uid = (event.uid || ('wh-' + Date.now() + '-' + Math.random().toString(36).slice(2, 8))).slice(0, 60);
+    return [
+      'BEGIN:VCALENDAR',
+      'VERSION:2.0',
+      'PRODID:-//WorkHive//Voice Companion//EN',
+      'BEGIN:VEVENT',
+      'UID:' + uid,
+      'DTSTAMP:' + fmt(new Date().toISOString()),
+      'DTSTART:' + dtStart,
+      'DTEND:' + dtEnd,
+      'SUMMARY:' + String(event.summary).slice(0, 200).replace(/\n/g, ' '),
+      'DESCRIPTION:' + String(event.description || '').slice(0, 800).replace(/\n/g, '\\n'),
+      'END:VEVENT',
+      'END:VCALENDAR',
+    ].join('\r\n');
+  }
+
+  // Phase 4.165 (turn #163) WEBHOOK SIGNATURE VALIDATION —
+  // inbound webhooks (SAP/Maximo/Slack) must carry an HMAC-SHA256
+  // signature we verify before processing. Helper is the constant-
+  // time comparator (actual HMAC is server-side).
+  function _constantTimeCompare(a, b) {
+    const sa = String(a || '');
+    const sb = String(b || '');
+    if (sa.length !== sb.length) return false;
+    let diff = 0;
+    for (let i = 0; i < sa.length; i++) {
+      diff |= sa.charCodeAt(i) ^ sb.charCodeAt(i);
+    }
+    return diff === 0;
+  }
+
+  // Phase 4.166 (turn #164) OUTBOUND RETRY QUEUE — when an
+  // outbound POST (Slack / Teams / SAP) fails, push to a local
+  // retry queue that drains on next online window. Capped at 20
+  // entries; oldest dropped on overflow.
+  const _OUTBOUND_QUEUE_KEY = 'wh_voice_outbound_queue';
+  const _OUTBOUND_MAX = 20;
+  function _enqueueOutbound(entry) {
+    if (!entry || !entry.url) return false;
+    try {
+      const raw = localStorage.getItem(_OUTBOUND_QUEUE_KEY);
+      const q = raw ? (JSON.parse(raw) || []) : [];
+      q.push({
+        url:     String(entry.url).slice(0, 240),
+        body:    typeof entry.body === 'string' ? entry.body.slice(0, 4000) : JSON.stringify(entry.body).slice(0, 4000),
+        headers: entry.headers || {},
+        kind:    String(entry.kind || 'unknown').slice(0, 40),
+        ts:      Date.now(),
+      });
+      while (q.length > _OUTBOUND_MAX) q.shift();
+      localStorage.setItem(_OUTBOUND_QUEUE_KEY, JSON.stringify(q));
+      return true;
+    } catch (_) { return false; }
+  }
+  function _getOutboundQueue() {
+    try {
+      const raw = localStorage.getItem(_OUTBOUND_QUEUE_KEY);
+      return raw ? (JSON.parse(raw) || []) : [];
+    } catch (_) { return []; }
+  }
+  async function _drainOutboundQueue() {
+    const q = _getOutboundQueue();
+    if (q.length === 0) return { drained: 0, remaining: 0 };
+    const remaining = [];
+    let drained = 0;
+    for (const entry of q) {
+      try {
+        await fetch(entry.url, {
+          method: 'POST',
+          headers: entry.headers || { 'Content-Type': 'application/json' },
+          body: entry.body,
+        });
+        drained++;
+      } catch (_) {
+        remaining.push(entry);
+      }
+    }
+    try {
+      localStorage.setItem(_OUTBOUND_QUEUE_KEY, JSON.stringify(remaining));
+    } catch (_) {}
+    return { drained, remaining: remaining.length };
+  }
+
+  // ============================================================
+  // SEVENTEENTH 10-TURN FLYWHEEL — turns #165-#174 (Phase 4.167-4.176)
+  // ADVANCED ANALYTICS layer. Statistical primitives the companion
+  // can use to ground its replies in real math instead of vague
+  // language ("looks high"). Pure-function utilities.
+  // ============================================================
+
+  // Phase 4.167 (turn #165) ANOMALY DETECTION — 3σ rule.
+  // Returns {is_anomaly, z, mean, sd} for the current reading
+  // against a rolling-window sample.
+  function _detectAnomaly3Sigma(current, sample) {
+    if (!Number.isFinite(Number(current))) return null;
+    if (!Array.isArray(sample) || sample.length < 5) return null;
+    const nums = sample.map(Number).filter(Number.isFinite);
+    if (nums.length < 5) return null;
+    const mean = nums.reduce((a, b) => a + b, 0) / nums.length;
+    const variance = nums.reduce((a, b) => a + (b - mean) * (b - mean), 0) / nums.length;
+    const sd = Math.sqrt(variance);
+    if (sd === 0) return { is_anomaly: false, z: 0, mean, sd };
+    const z = (Number(current) - mean) / sd;
+    return { is_anomaly: Math.abs(z) >= 3, z, mean, sd };
+  }
+
+  // Phase 4.168 (turn #166) WEIBULL MTBF FORECAST — given a list
+  // of times-to-failure, fit a 2-parameter Weibull (method of
+  // moments) and return MTBF + 80% confidence interval.
+  function _weibullMomentFit(timesToFailure) {
+    if (!Array.isArray(timesToFailure) || timesToFailure.length < 3) return null;
+    const nums = timesToFailure.map(Number).filter(t => Number.isFinite(t) && t > 0);
+    if (nums.length < 3) return null;
+    const n = nums.length;
+    const mean = nums.reduce((a, b) => a + b, 0) / n;
+    const variance = nums.reduce((a, b) => a + (b - mean) * (b - mean), 0) / n;
+    if (variance === 0) return { mtbf: mean, low_80: mean, high_80: mean, beta: null, eta: mean };
+    const cv = Math.sqrt(variance) / mean; // coefficient of variation
+    // Closed-form approx: beta ≈ (cv)^-1.086 (Justus, 1978)
+    const beta = Math.pow(Math.max(cv, 0.001), -1.086);
+    // eta solved from mean = eta * Γ(1 + 1/beta); approximate Γ via Stirling
+    const gammaArg = 1 + 1 / beta;
+    const gammaApprox = Math.sqrt(2 * Math.PI / gammaArg) * Math.pow(gammaArg / Math.E, gammaArg);
+    const eta = mean / gammaApprox;
+    // 80% CI on mean (normal approximation; OK for engineering use)
+    const sem = Math.sqrt(variance / n);
+    return {
+      mtbf:   mean,
+      low_80: Math.max(0, mean - 1.28 * sem),
+      high_80: mean + 1.28 * sem,
+      beta, eta,
+    };
+  }
+
+  // Phase 4.169 (turn #167) PARETO ANALYSIS — given an array of
+  // {label, value} pairs, return the items contributing to 80%
+  // of cumulative value.
+  function _paretoTop80(items) {
+    if (!Array.isArray(items) || items.length === 0) return [];
+    const sorted = items
+      .filter(i => i && Number.isFinite(Number(i.value)) && Number(i.value) > 0)
+      .map(i => ({ label: String(i.label || ''), value: Number(i.value) }))
+      .sort((a, b) => b.value - a.value);
+    const total = sorted.reduce((a, b) => a + b.value, 0);
+    if (total === 0) return [];
+    const out = [];
+    let acc = 0;
+    for (const item of sorted) {
+      out.push({ ...item, pct: item.value / total, cum_pct: (acc + item.value) / total });
+      acc += item.value;
+      if (acc / total >= 0.8) break;
+    }
+    return out;
+  }
+
+  // Phase 4.170 (turn #168) TREND DETECTION — simple linear
+  // regression on time-series (x = day index, y = value). Returns
+  // slope + r^2 + direction.
+  function _linearTrend(series) {
+    if (!Array.isArray(series) || series.length < 3) return null;
+    const pts = series.map((y, i) => ({ x: i, y: Number(y) }))
+      .filter(p => Number.isFinite(p.y));
+    if (pts.length < 3) return null;
+    const n = pts.length;
+    const sumX = pts.reduce((a, p) => a + p.x, 0);
+    const sumY = pts.reduce((a, p) => a + p.y, 0);
+    const meanX = sumX / n, meanY = sumY / n;
+    let numer = 0, denomX = 0, denomY = 0;
+    for (const p of pts) {
+      numer  += (p.x - meanX) * (p.y - meanY);
+      denomX += (p.x - meanX) * (p.x - meanX);
+      denomY += (p.y - meanY) * (p.y - meanY);
+    }
+    if (denomX === 0) return null;
+    const slope = numer / denomX;
+    const r2 = denomY === 0 ? 0 : (numer * numer) / (denomX * denomY);
+    const direction = slope > 0.001 ? 'rising' : (slope < -0.001 ? 'falling' : 'flat');
+    return { slope, r2, direction, n };
+  }
+
+  // Phase 4.171 (turn #169) SEASONAL PATTERN — for a series
+  // indexed by day-of-week or hour-of-day, surface the index
+  // where activity peaks + average peak/trough ratio.
+  function _seasonalPeakIndex(buckets) {
+    if (!Array.isArray(buckets) || buckets.length < 2) return null;
+    const nums = buckets.map(Number);
+    if (nums.some(n => !Number.isFinite(n))) return null;
+    const max = Math.max(...nums);
+    const min = Math.min(...nums);
+    if (max === 0) return { peak_index: -1, ratio: 0 };
+    const peak_index = nums.indexOf(max);
+    return {
+      peak_index,
+      trough_index: nums.indexOf(min),
+      ratio: min > 0 ? max / min : Infinity,
+    };
+  }
+
+  // Phase 4.172 (turn #170) OUTLIER-TRIMMED MEAN — trim top/bottom
+  // pct (default 5%) before averaging. Robust to single huge
+  // outliers (e.g. a 24h shift where the machine was down).
+  function _trimmedMean(values, trimPct) {
+    if (!Array.isArray(values) || values.length === 0) return null;
+    const nums = values.map(Number).filter(Number.isFinite);
+    if (nums.length === 0) return null;
+    const pct = Number.isFinite(Number(trimPct)) ? Math.max(0, Math.min(0.45, Number(trimPct))) : 0.05;
+    const sorted = nums.slice().sort((a, b) => a - b);
+    const trim = Math.floor(sorted.length * pct);
+    const trimmed = sorted.slice(trim, sorted.length - trim);
+    if (trimmed.length === 0) return null;
+    return trimmed.reduce((a, b) => a + b, 0) / trimmed.length;
+  }
+
+  // Phase 4.173 (turn #171) Z-SCORE — bare primitive.
+  function _zScore(value, mean, sd) {
+    const v = Number(value), m = Number(mean), s = Number(sd);
+    if (!Number.isFinite(v) || !Number.isFinite(m) || !Number.isFinite(s) || s === 0) return null;
+    return (v - m) / s;
+  }
+
+  // Phase 4.174 (turn #172) PEARSON CORRELATION — between two
+  // equal-length series. Used to surface "your overheat counts
+  // correlate with daytime hours" type insights.
+  function _pearsonCorrelation(x, y) {
+    if (!Array.isArray(x) || !Array.isArray(y)) return null;
+    if (x.length !== y.length || x.length < 3) return null;
+    const nx = x.map(Number), ny = y.map(Number);
+    if (nx.some(v => !Number.isFinite(v)) || ny.some(v => !Number.isFinite(v))) return null;
+    const n = nx.length;
+    const mx = nx.reduce((a, b) => a + b, 0) / n;
+    const my = ny.reduce((a, b) => a + b, 0) / n;
+    let num = 0, dx = 0, dy = 0;
+    for (let i = 0; i < n; i++) {
+      const ax = nx[i] - mx, ay = ny[i] - my;
+      num += ax * ay; dx += ax * ax; dy += ay * ay;
+    }
+    if (dx === 0 || dy === 0) return 0;
+    return num / Math.sqrt(dx * dy);
+  }
+
+  // Phase 4.175 (turn #173) WEIBULL CDF — given beta + eta from
+  // _weibullMomentFit, evaluate the failure-probability CDF at a
+  // time t. Used by the companion to answer "what's the chance
+  // P-203 fails in the next 14 days".
+  function _weibullCdf(t, beta, eta) {
+    const tn = Number(t), bn = Number(beta), en = Number(eta);
+    if (!Number.isFinite(tn) || tn <= 0) return null;
+    if (!Number.isFinite(bn) || bn <= 0) return null;
+    if (!Number.isFinite(en) || en <= 0) return null;
+    return 1 - Math.exp(-Math.pow(tn / en, bn));
+  }
+
+  // Phase 4.176 (turn #174) AVAILABILITY — uptime / (uptime +
+  // downtime). Tolerates zero-uptime by returning 0; tolerates
+  // zero-downtime by returning 1; rejects negative inputs.
+  function _availability(uptimeHours, downtimeHours) {
+    const u = Number(uptimeHours), d = Number(downtimeHours);
+    if (!Number.isFinite(u) || !Number.isFinite(d)) return null;
+    if (u < 0 || d < 0) return null;
+    const total = u + d;
+    if (total === 0) return null;
+    return u / total;
+  }
+
+  // ============================================================
+  // EIGHTEENTH 10-TURN FLYWHEEL — turns #175-#184 (Phase 4.177-4.186)
+  // SAFETY + PERMIT-TO-WORK layer. Domain-critical detectors for
+  // LOTO, hot work, confined space, PPE checks, near-miss capture.
+  // ============================================================
+
+  // Phase 4.177 (turn #175) LOTO INTENT DETECTOR — "lockout
+  // tagout" / "isolation" / "padlock the breaker". The companion
+  // MUST not proceed with diagnostic work intents until LOTO is
+  // confirmed.
+  const _LOTO_RE = /\b(?:loto|lockout[\s\-]?tagout|lockout\s+tag\s*out|lock\s+out|tag\s+out|isolation|isolate(?:\s+the\s+\w+)?|padlock(?:\s+the\s+breaker)?|de[\-\s]?energi[sz]e|line\s+breaking|i[\-\s]?lock\s+mo|i[\-\s]?isolate\s+mo)\b/i;
+  function _detectLotoIntent(text) {
+    const s = String(text || '');
+    if (!s || s.length > 200) return false;
+    return _LOTO_RE.test(s);
+  }
+
+  // Phase 4.178 (turn #176) HOT WORK INTENT — welding, grinding,
+  // open flame, soldering on plant. Requires hot-work permit.
+  const _HOT_WORK_RE = /\b(?:welding|weld\s+(?:on|the)|grinding|grinder|cutting\s+torch|open\s+flame|brazing|soldering\s+on\s+(?:pipe|line|tank)|hot\s+work|paghihinang|nag[\-\s]?welding)\b/i;
+  function _detectHotWorkIntent(text) {
+    const s = String(text || '');
+    if (!s || s.length > 200) return false;
+    return _HOT_WORK_RE.test(s);
+  }
+
+  // Phase 4.179 (turn #177) CONFINED SPACE — tank entry, sump,
+  // boiler interior, sewer manhole. Requires gas testing +
+  // attendant + rescue plan.
+  const _CONFINED_RE = /\b(?:confined\s+space|tank\s+entry|enter\s+(?:the\s+)?tank|manhole\s+entry|boiler\s+interior|sump\s+entry|vessel\s+entry|pumasok\s+sa\s+(?:tangke|tank|sump))\b/i;
+  function _detectConfinedSpaceIntent(text) {
+    const s = String(text || '');
+    if (!s || s.length > 200) return false;
+    return _CONFINED_RE.test(s);
+  }
+
+  // Phase 4.180 (turn #178) PPE COMPLIANCE QUESTION — when the
+  // worker asks "what PPE do I need" / "ano ang PPE para dito",
+  // surface the matrix by hazard kind.
+  const _PPE_QUERY_RE = /\b(?:what\s+ppe|which\s+ppe|do\s+i\s+need\s+ppe|ppe\s+for|ano\s+(?:ang\s+)?ppe|kailangan\s+(?:ko\s+ba|niya)\s+(?:ng\s+)?ppe)\b/i;
+  function _isPpeQuery(text) {
+    const s = String(text || '');
+    if (!s || s.length > 200) return false;
+    return _PPE_QUERY_RE.test(s);
+  }
+  const _PPE_MATRIX = {
+    hot_work:       ['welding hood (shade 10+)', 'flame-resistant clothing', 'leather gloves', 'fire watch'],
+    confined_space: ['SCBA or air-line respirator', '4-gas monitor (O2/LEL/CO/H2S)', 'harness + retrieval line', 'attendant'],
+    chemical:       ['chemical splash goggles', 'gauntlet gloves (matching chemical)', 'apron or suit', 'eyewash within 10m'],
+    electrical:     ['Class 0/1 rubber gloves', 'arc-rated face shield', 'voltage detector', 'rubber mat'],
+    height:         ['full-body harness', 'double lanyard', 'hard hat with chinstrap', 'tool tether'],
+    default:        ['hard hat', 'safety shoes', 'safety glasses', 'gloves matching the task'],
+  };
+  function _ppeFor(hazardKind) {
+    const k = String(hazardKind || 'default').toLowerCase();
+    return _PPE_MATRIX[k] || _PPE_MATRIX.default;
+  }
+
+  // Phase 4.181 (turn #179) NEAR-MISS CAPTURE — "almost slipped",
+  // "muntik na akong masaktan", "close call" → propose a
+  // near-miss report (writes to safety_near_miss table; the
+  // detector is here, the write is wired at the call site).
+  const _NEAR_MISS_RE = /\b(?:near[\s\-]?miss|close\s+call|almost\s+(?:slipped|fell|got\s+hit|hurt|cut)|muntik\s+na(?:[\s,]+\w+){0,4}\s+(?:matamaan|madisgrasya|masaktan|mahulog|nasugatan|ma[\-\s]?electrocute)|halos\s+(?:nahulog|nasaktan)|nag[\-\s]?slip\s+pero\s+ayos|stopped\s+(?:myself|in\s+time))\b/i;
+  function _isNearMissReport(text) {
+    const s = String(text || '');
+    if (!s || s.length > 300) return false;
+    return _NEAR_MISS_RE.test(s);
+  }
+
+  // Phase 4.182 (turn #180) JSA (JOB SAFETY ANALYSIS) PROMPT —
+  // for first-time or high-risk task, propose a 4-step JSA
+  // (task → hazard → control → PPE). Detect "first time doing X"
+  // / "unang beses kong gagawin to".
+  const _JSA_NEED_RE = /\b(?:first\s+time\s+(?:doing|sa)|unang\s+beses\s+(?:kong)?\s*(?:gagawin|ginagawa)\s+(?:to|ito)|never\s+done\s+this|haven['']?t\s+done\s+this\s+before|new\s+to\s+(?:me|this\s+task))\b/i;
+  function _shouldOfferJsa(text) {
+    const s = String(text || '');
+    if (!s || s.length > 300) return false;
+    return _JSA_NEED_RE.test(s);
+  }
+  function _buildJsaTemplate(taskName) {
+    return {
+      task:        String(taskName || 'this task').slice(0, 80),
+      steps: [
+        { step: 1, label: 'Break the task into 3-5 steps',  prompt: 'What are the major steps?' },
+        { step: 2, label: 'Identify hazards per step',       prompt: 'What can hurt you at each step?' },
+        { step: 3, label: 'Define controls (elim/sub/eng/admin/PPE)', prompt: 'How will you reduce each hazard? (use hierarchy)' },
+        { step: 4, label: 'Confirm PPE + permits',           prompt: 'Do you have all PPE + permits before you start?' },
+      ],
+    };
+  }
+
+  // Phase 4.183 (turn #181) GAS-TEST GATING — before confined-
+  // space entry, the worker must record a 4-gas reading. Helper
+  // validates the reading against PH OSHS limits.
+  function _validateGasReading(reading) {
+    const limits = {
+      O2_min:  19.5,
+      O2_max:  23.5,
+      LEL_max: 10,      // % of LEL
+      CO_max:  35,      // ppm
+      H2S_max: 10,      // ppm
+    };
+    if (!reading || typeof reading !== 'object') return { ok: false, reason: 'missing_reading' };
+    const O2 = Number(reading.O2), LEL = Number(reading.LEL), CO = Number(reading.CO), H2S = Number(reading.H2S);
+    const fail = [];
+    if (!Number.isFinite(O2) || O2 < limits.O2_min || O2 > limits.O2_max) fail.push('O2_out_of_range');
+    if (!Number.isFinite(LEL) || LEL > limits.LEL_max) fail.push('LEL_too_high');
+    if (!Number.isFinite(CO) || CO > limits.CO_max) fail.push('CO_too_high');
+    if (!Number.isFinite(H2S) || H2S > limits.H2S_max) fail.push('H2S_too_high');
+    return { ok: fail.length === 0, fail, limits };
+  }
+
+  // Phase 4.184 (turn #182) INCIDENT REPORT TRIGGER — "someone
+  // got hurt", "may nasaktan", "injury" → escalate to safety
+  // officer queue. Distinct from T84 crisis (workplace violence)
+  // and T182 near-miss (no actual harm).
+  const _INCIDENT_RE = /\b(?:(?:someone|may\s+\w+)\s+(?:got\s+hurt|nasaktan|got\s+injured|got\s+burned|got\s+shocked|nabaril|nahulog)|injury\s+on\s+(?:site|line|the\s+floor)|may\s+(?:tao|kasamahan)\s+(?:nasaktan|nasugatan|nahulog)|need\s+(?:first\s+aid|medical)\s+(?:now|asap)|paramedic\s+kailangan)\b/i;
+  function _isIncidentReport(text) {
+    const s = String(text || '');
+    if (!s || s.length > 300) return false;
+    return _INCIDENT_RE.test(s);
+  }
+
+  // Phase 4.185 (turn #183) ENERGY-ISOLATION CHECKLIST — for
+  // LOTO, the worker confirms each energy source. Returns the
+  // checklist for the asset's category (electrical / mechanical
+  // / hydraulic / pneumatic / chemical / thermal / gravitational).
+  function _energyIsolationChecklist(category) {
+    const map = {
+      electrical:    ['Identify all electrical sources', 'Switch off + lock breaker', 'Verify zero voltage with tester', 'Tag with worker name + date'],
+      mechanical:    ['Stop rotating parts', 'Engage mechanical block / pin', 'Verify by attempt-to-start', 'Tag'],
+      hydraulic:     ['Close isolation valve', 'Bleed residual pressure', 'Verify 0 PSI on gauge', 'Tag'],
+      pneumatic:     ['Close air supply', 'Vent line to atmosphere', 'Verify 0 PSI', 'Tag'],
+      chemical:      ['Close + lock chemical supply valve', 'Drain or purge line', 'Verify with sampling port', 'Tag'],
+      thermal:       ['Shut off heat source', 'Allow cool-down to safe touch temp', 'Verify with thermal camera', 'Tag'],
+      gravitational: ['Lower load to ground OR support with cribbing', 'Verify mechanical stop engaged', 'Tag'],
+    };
+    return map[String(category || '').toLowerCase()] || null;
+  }
+
+  // Phase 4.186 (turn #184) PERMIT EXPIRY CHECK — work permits
+  // have validity windows (typically 8h shift). Helper returns
+  // remaining minutes + an "expired" flag.
+  function _permitTimeRemaining(issuedAtIso, validityHours) {
+    if (!issuedAtIso) return null;
+    const issued = new Date(issuedAtIso);
+    if (isNaN(issued.getTime())) return null;
+    const hours = Number.isFinite(Number(validityHours)) ? Math.max(0.5, Math.min(24, Number(validityHours))) : 8;
+    const elapsedMs = Date.now() - issued.getTime();
+    const totalMs = hours * 60 * 60 * 1000;
+    const remainingMs = totalMs - elapsedMs;
+    return {
+      remaining_min: Math.round(remainingMs / 60000),
+      expired:       remainingMs <= 0,
+      expires_in_min: remainingMs <= 0 ? 0 : Math.round(remainingMs / 60000),
+    };
+  }
+
+  // ============================================================
+  // NINETEENTH 10-TURN FLYWHEEL — turns #185-#194 (Phase 4.187-4.196)
+  // KNOWLEDGE GRAPH layer. Entity + relation extraction, triple
+  // builder, RAG helpers, embedding hash, chunking, citation,
+  // query rewriter, multi-hop, KB versioning.
+  // ============================================================
+
+  // Phase 4.187 (turn #185) ENTITY EXTRACTION — extract asset
+  // tags, failure modes, worker name candidates from a transcript.
+  // Returns {asset_tags: [], failure_modes: [], workers: []}.
+  function _extractEntities(text) {
+    const s = String(text || '');
+    if (!s) return { asset_tags: [], failure_modes: [], workers: [] };
+    const asset_tags = [];
+    const re = /\b[A-Z]{1,3}-\d{2,5}\b/g;
+    let m;
+    while ((m = re.exec(s)) !== null) {
+      if (!asset_tags.includes(m[0])) asset_tags.push(m[0]);
+    }
+    const failure_modes = [];
+    for (const mode of Object.keys(_SYMPTOM_TO_FMODE || {})) {
+      if (_SYMPTOM_TO_FMODE[mode].test(s)) failure_modes.push(mode);
+    }
+    // Worker candidates: "Kuya/Ate <Name>" / "si <Name>".
+    const workers = [];
+    const wre = /\b(?:Kuya|Ate|si)\s+([A-Z][a-z]{2,20}(?:\s+[A-Z][a-z]{2,20})?)/g;
+    while ((m = wre.exec(s)) !== null) {
+      if (!workers.includes(m[1])) workers.push(m[1]);
+    }
+    return { asset_tags, failure_modes, workers };
+  }
+
+  // Phase 4.188 (turn #186) RELATION EXTRACTION — find simple
+  // "<asset> <verb> <asset>" or "<asset> caused <failure>" triples
+  // in the transcript.
+  function _extractRelations(text) {
+    const s = String(text || '');
+    if (!s) return [];
+    const triples = [];
+    // Pattern A: asset A caused/triggered/led to asset B
+    let m;
+    const reCause = /([A-Z]{1,3}-\d{2,5})\s+(?:caused|triggered|led\s+to|nag[\-\s]?cause\s+ng)\s+(?:failure\s+on\s+)?([A-Z]{1,3}-\d{2,5}|\w+_anomaly|overheat|leak|no_start)/gi;
+    while ((m = reCause.exec(s)) !== null) {
+      triples.push({ subject: m[1], predicate: 'caused', object: m[2] });
+    }
+    // Pattern B: asset A connects to / feeds asset B
+    const reConn = /([A-Z]{1,3}-\d{2,5})\s+(?:feeds|connects\s+to|supplies|naka[\-\s]?connect\s+sa)\s+([A-Z]{1,3}-\d{2,5})/gi;
+    while ((m = reConn.exec(s)) !== null) {
+      triples.push({ subject: m[1], predicate: 'feeds', object: m[2] });
+    }
+    return triples;
+  }
+
+  // Phase 4.189 (turn #187) TRIPLE BUILDER — normalise an
+  // {subject, predicate, object} into the canonical row shape
+  // for the kg_triples table (worker-provided triples join the
+  // edge function's harvested ones).
+  function _buildKgTriple(hiveId, subject, predicate, object, source) {
+    if (!hiveId || !subject || !predicate || !object) return null;
+    const allowedPredicates = new Set([
+      'caused', 'feeds', 'requires', 'isolates', 'is_part_of',
+      'replaced_by', 'measured_by', 'next_pm_at', 'fmea_link',
+    ]);
+    const p = String(predicate).toLowerCase();
+    if (!allowedPredicates.has(p)) return null;
+    return {
+      hive_id:   String(hiveId).slice(0, 40),
+      subject:   String(subject).slice(0, 80),
+      predicate: p,
+      object:    String(object).slice(0, 80),
+      source:    String(source || 'voice-handler').slice(0, 40),
+      created_at: new Date().toISOString(),
+    };
+  }
+
+  // Phase 4.190 (turn #188) RAG CONTEXT BUILDER — given a hit
+  // list from the vector search (id + score + snippet), assemble
+  // the prompt-side block with citation markers.
+  function _buildRagBlock(hits, maxLen) {
+    if (!Array.isArray(hits) || hits.length === 0) return '';
+    const cap = Number.isFinite(Number(maxLen)) ? Math.max(200, Number(maxLen)) : 2000;
+    const lines = ['RAG CONTEXT — relevant prior knowledge:'];
+    let total = lines[0].length;
+    for (let i = 0; i < hits.length && i < 6; i++) {
+      const h = hits[i];
+      if (!h || !h.snippet) continue;
+      const cite = '[doc:' + (h.id || ('h' + i)) + ' score=' + (Number(h.score) || 0).toFixed(2) + ']';
+      const line = cite + ' ' + String(h.snippet).slice(0, 300);
+      if (total + line.length > cap) break;
+      lines.push(line);
+      total += line.length;
+    }
+    return lines.join('\n');
+  }
+
+  // Phase 4.191 (turn #189) EMBEDDING HASH — until we wire a real
+  // embedding model in the edge function, the client produces a
+  // 32-bit hash that's stable per-content and usable as a cheap
+  // similarity surrogate (Hamming distance over hex chars).
+  function _embeddingHash32(text) {
+    const s = String(text || '');
+    if (!s) return '00000000';
+    let h = 0x811c9dc5;  // FNV-1a 32-bit
+    for (let i = 0; i < s.length; i++) {
+      h ^= s.charCodeAt(i);
+      h = (h * 0x01000193) >>> 0;
+    }
+    return ('00000000' + h.toString(16)).slice(-8);
+  }
+  function _hashHamming(h1, h2) {
+    if (!h1 || !h2 || h1.length !== h2.length) return null;
+    let diff = 0;
+    for (let i = 0; i < h1.length; i++) {
+      if (h1[i] !== h2[i]) diff++;
+    }
+    return diff;
+  }
+
+  // Phase 4.192 (turn #190) DOCUMENT CHUNKING — split a long
+  // SOP/manual into overlapping chunks suitable for embedding.
+  // Default 400 chars per chunk with 50 char overlap.
+  function _chunkDocument(text, chunkSize, overlap) {
+    const s = String(text || '');
+    if (!s) return [];
+    const size = Number.isFinite(Number(chunkSize)) ? Math.max(100, Math.min(2000, Number(chunkSize))) : 400;
+    const lap  = Number.isFinite(Number(overlap)) ? Math.max(0, Math.min(size / 2, Number(overlap))) : 50;
+    const out = [];
+    let i = 0;
+    while (i < s.length) {
+      out.push({
+        offset: i,
+        text: s.slice(i, i + size),
+      });
+      i += (size - lap);
+      if (out.length > 1000) break; // safety
+    }
+    return out;
+  }
+
+  // Phase 4.193 (turn #191) CITATION BUILDER — given a reply
+  // that references a number, build the canonical citation
+  // string `<view>:<row_id>:<column>` so the worker can verify.
+  function _buildCitation(viewName, rowId, column) {
+    const v = String(viewName || '').slice(0, 60);
+    const r = String(rowId == null ? '' : rowId).slice(0, 60);
+    const c = String(column || '').slice(0, 40);
+    if (!v) return null;
+    return v + (r ? ':' + r : '') + (c ? ':' + c : '');
+  }
+  function _parseCitation(citation) {
+    if (!citation) return null;
+    const parts = String(citation).split(':');
+    if (parts.length < 1) return null;
+    return {
+      view:   parts[0] || null,
+      row_id: parts[1] || null,
+      column: parts[2] || null,
+    };
+  }
+
+  // Phase 4.194 (turn #192) QUERY REWRITER — when the worker
+  // asks a question, rewrite into a retrieval-friendly form by
+  // stripping fillers + lowering case + injecting known entities.
+  function _rewriteQueryForRetrieval(transcript, knownEntities) {
+    const s = String(transcript || '').toLowerCase();
+    if (!s) return '';
+    // Strip common fillers
+    const fillers = ['kasi', 'naman', 'po', 'eh', 'kaya', 'pala', 'lang', 'eh ano', 'yan'];
+    let cleaned = s;
+    fillers.forEach(f => {
+      cleaned = cleaned.replace(new RegExp('\\b' + f + '\\b', 'g'), '');
+    });
+    cleaned = cleaned.replace(/\s+/g, ' ').trim();
+    // Append known asset tags / failure modes if not already in the text
+    if (knownEntities && knownEntities.asset_tags) {
+      for (const tag of knownEntities.asset_tags) {
+        if (cleaned.indexOf(tag.toLowerCase()) === -1) cleaned += ' ' + tag.toLowerCase();
+      }
+    }
+    return cleaned;
+  }
+
+  // Phase 4.195 (turn #193) MULTI-HOP REASONING TRACE — record
+  // the step-by-step reasoning the LLM used (caller pulls
+  // intermediate think-block markers). Trace is bounded at 8
+  // hops per turn.
+  const _REASONING_TRACE_KEY = 'wh_voice_reasoning_trace';
+  function _recordReasoningHop(sessionId, hop) {
+    if (!sessionId || !hop) return false;
+    try {
+      const k = _REASONING_TRACE_KEY + '_' + String(sessionId).slice(0, 40);
+      const raw = localStorage.getItem(k);
+      const trace = raw ? (JSON.parse(raw) || []) : [];
+      trace.push({
+        step: trace.length + 1,
+        hop:  String(hop).slice(0, 200),
+        ts:   Date.now(),
+      });
+      while (trace.length > 8) trace.shift();
+      localStorage.setItem(k, JSON.stringify(trace));
+      return trace.length;
+    } catch (_) { return false; }
+  }
+  function _getReasoningTrace(sessionId) {
+    if (!sessionId) return [];
+    try {
+      const raw = localStorage.getItem(_REASONING_TRACE_KEY + '_' + String(sessionId).slice(0, 40));
+      return raw ? (JSON.parse(raw) || []) : [];
+    } catch (_) { return []; }
+  }
+
+  // Phase 4.196 (turn #194) KB VERSIONING — track the version
+  // of the local knowledge base (SOP set) so the companion can
+  // warn the worker when answers may be stale. Stored once per
+  // hive in localStorage; updated on next sync.
+  const _KB_VERSION_KEY = 'wh_voice_kb_version_';
+  function _setKbVersion(hiveId, version) {
+    if (!hiveId || !version) return false;
+    try {
+      localStorage.setItem(_KB_VERSION_KEY + String(hiveId).slice(0, 40), JSON.stringify({
+        version: String(version).slice(0, 60),
+        synced_at: new Date().toISOString(),
+      }));
+      return true;
+    } catch (_) { return false; }
+  }
+  function _getKbVersion(hiveId) {
+    if (!hiveId) return null;
+    try {
+      const raw = localStorage.getItem(_KB_VERSION_KEY + String(hiveId).slice(0, 40));
+      return raw ? JSON.parse(raw) : null;
+    } catch (_) { return null; }
+  }
+  function _isKbStale(hiveId, maxAgeDays) {
+    const entry = _getKbVersion(hiveId);
+    if (!entry || !entry.synced_at) return true;
+    const max = Number.isFinite(Number(maxAgeDays)) ? Number(maxAgeDays) : 30;
+    const ageMs = Date.now() - new Date(entry.synced_at).getTime();
+    return ageMs > max * 24 * 60 * 60 * 1000;
+  }
+
+  // ============================================================
+  // TWENTIETH 10-TURN FLYWHEEL — turns #195-#204 (Phase 4.197-4.206)
+  // ENERGY MANAGEMENT + SUSTAINABILITY layer. ISO 50001 alignment,
+  // kWh tracking, carbon intensity, peak-demand alerts.
+  // ============================================================
+
+  // Phase 4.197 (turn #195) ENERGY USE INDEX — kWh per unit of
+  // production output. ISO 50001 EnPI metric.
+  function _energyUseIndex(kwh, output) {
+    const k = Number(kwh), o = Number(output);
+    if (!Number.isFinite(k) || !Number.isFinite(o) || o <= 0) return null;
+    return k / o;
+  }
+
+  // Phase 4.198 (turn #196) CARBON INTENSITY — kgCO2e per kWh.
+  // Default PH grid mix factor 0.717 kgCO2e/kWh (2024 DOE figure).
+  const _PH_GRID_CARBON_FACTOR = 0.717;
+  function _carbonFromKwh(kwh, factorOverride) {
+    const k = Number(kwh);
+    if (!Number.isFinite(k) || k < 0) return null;
+    const factor = Number.isFinite(Number(factorOverride)) ? Number(factorOverride) : _PH_GRID_CARBON_FACTOR;
+    return k * factor;
+  }
+
+  // Phase 4.199 (turn #197) PEAK DEMAND DETECTOR — when current
+  // demand (kW) crosses a per-hive ceiling, fire an alert so the
+  // worker can shed load before the utility penalty kicks in.
+  function _isPeakDemandBreach(currentKw, ceilingKw, headroomPct) {
+    const c = Number(currentKw), ceil = Number(ceilingKw);
+    if (!Number.isFinite(c) || !Number.isFinite(ceil) || ceil <= 0) return null;
+    const headroom = Number.isFinite(Number(headroomPct)) ? Number(headroomPct) : 0.95;
+    return {
+      breach: c >= ceil,
+      near:   c >= ceil * headroom,
+      pct:    c / ceil,
+    };
+  }
+
+  // Phase 4.200 (turn #198) ENERGY ANOMALY DETECTOR — same shape
+  // as T165 but tuned for energy series (5σ instead of 3σ —
+  // electrical loads are noisier than mechanical KPIs).
+  function _detectEnergyAnomaly(current, sample) {
+    if (!Array.isArray(sample) || sample.length < 5) return null;
+    const result = _detectAnomaly3Sigma(current, sample);
+    if (!result) return null;
+    // Upgrade threshold from 3σ to 5σ.
+    return {
+      ...result,
+      is_anomaly: Math.abs(result.z) >= 5,
+    };
+  }
+
+  // Phase 4.201 (turn #199) STANDBY POWER WASTE — when a machine
+  // is "off" (not producing) but still drawing >baseline, surface
+  // the waste opportunity in kWh/day.
+  function _standbyWaste(idleKw, dailyIdleHours, baselineKw) {
+    const ik = Number(idleKw), ih = Number(dailyIdleHours), bk = Number(baselineKw || 0);
+    if (!Number.isFinite(ik) || !Number.isFinite(ih) || ih <= 0) return null;
+    const wasteKw = Math.max(0, ik - bk);
+    return wasteKw * ih;
+  }
+
+  // Phase 4.202 (turn #200) WATER USE TRACKING — per-asset m³/day
+  // baseline + breach detector. Water is the second-most reported
+  // sustainability metric in PH F&B plants.
+  function _waterUseBreach(currentM3PerDay, baselineM3PerDay, tolerancePct) {
+    const c = Number(currentM3PerDay), b = Number(baselineM3PerDay);
+    if (!Number.isFinite(c) || !Number.isFinite(b) || b <= 0) return null;
+    const tol = Number.isFinite(Number(tolerancePct)) ? Number(tolerancePct) : 0.15;
+    return {
+      breach: c > b * (1 + tol),
+      pct_over: (c - b) / b,
+    };
+  }
+
+  // Phase 4.203 (turn #201) COMPRESSED AIR LEAK ESTIMATOR —
+  // ultrasonic-leak survey returns dB readings; helper converts
+  // to estimated leak cfm + annual kWh waste.
+  function _compressedAirLeakLoss(dbReading, runningHoursYr, kwhPerCfmYear) {
+    const db = Number(dbReading), hrs = Number(runningHoursYr), kp = Number(kwhPerCfmYear || 2400);
+    if (!Number.isFinite(db) || db < 0 || !Number.isFinite(hrs) || hrs <= 0) return null;
+    // Rough conversion: cfm ≈ 0.1 * (dB - 25), clamped at 0.
+    const cfm = Math.max(0, 0.1 * (db - 25));
+    return {
+      estimated_cfm: cfm,
+      annual_kwh:    cfm * kp,
+    };
+  }
+
+  // Phase 4.204 (turn #202) MOTOR EFFICIENCY CHECK — given
+  // measured kW + nameplate kW + load factor, return efficiency
+  // delta from IE3 baseline (typical 93-95%).
+  function _motorEfficiencyDelta(measuredKw, nameplateKw, loadFactor) {
+    const m = Number(measuredKw), n = Number(nameplateKw), lf = Number(loadFactor);
+    if (!Number.isFinite(m) || !Number.isFinite(n) || n <= 0) return null;
+    if (!Number.isFinite(lf) || lf <= 0 || lf > 1.2) return null;
+    const expected = n * lf / 0.94; // IE3 baseline 94%
+    const efficiency = (n * lf) / m;
+    return {
+      efficiency,
+      delta_from_ie3: efficiency - 0.94,
+      kw_overdraw:    m - expected,
+    };
+  }
+
+  // Phase 4.205 (turn #203) SUSTAINABILITY KPI BUNDLE — package
+  // the per-hive monthly numbers (kWh, kgCO2e, m³ water, leak
+  // count) into a single bundle for the dashboard.
+  function _buildSustainabilityBundle(input) {
+    if (!input || typeof input !== 'object') return null;
+    return {
+      kwh_total:    Number(input.kwh_total) || 0,
+      kgco2e:       Number(input.kgco2e) || _carbonFromKwh(input.kwh_total) || 0,
+      water_m3:     Number(input.water_m3) || 0,
+      leak_count:   Number(input.leak_count) || 0,
+      enpi:         _energyUseIndex(input.kwh_total, input.output_units) || null,
+      month_ending: input.month_ending || new Date().toISOString().slice(0, 7),
+    };
+  }
+
+  // Phase 4.206 (turn #204) ENERGY INTENT DETECTOR — worker
+  // says "are we wasting power on P-203" / "kuryente lang ba
+  // kakain nito" → route to energy lookup pipeline.
+  const _ENERGY_QUERY_RE = /\b(?:energy\s+(?:use|cost|waste)|kwh|kilowatt|electric(?:al|ity)\s+(?:bill|cost|use)|wasting\s+power|nag[\-\s]?aaksaya\s+ng\s+kuryente|kuryente\s+(?:lang|nag[\-\s]?aaksaya|gastos)|power\s+(?:bill|hog|consumption))\b/i;
+  function _isEnergyQuery(text) {
+    const s = String(text || '');
+    if (!s || s.length > 200) return false;
+    return _ENERGY_QUERY_RE.test(s);
+  }
+
+  // ============================================================
+  // TWENTY-FIRST 10-TURN FLYWHEEL — turns #205-#214 (Phase 4.207-4.216)
+  // MULTI-LANGUAGE NLU layer. Cebuano + Hiligaynon + Tagalog
+  // dialect detection, politeness register, regional time
+  // expressions, slang.
+  // ============================================================
+
+  // Phase 4.207 (turn #205) CEBUANO DIALECT MARKERS — extends T59
+  // language detection with explicit Bisaya phrases.
+  const _CEBUANO_MARKERS = ['unsa', 'asa', 'kinsa', 'kanus-a', 'pila', 'lagi', 'bitaw', 'gud', 'bya', 'oo bitaw', 'sus', 'naman ka oy'];
+  function _isCebuanoLeaning(text) {
+    const s = String(text || '').toLowerCase();
+    if (!s) return false;
+    let hits = 0;
+    for (const w of _CEBUANO_MARKERS) {
+      if (new RegExp('\\b' + w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\b').test(s)) hits++;
+    }
+    return hits >= 2;
+  }
+
+  // Phase 4.208 (turn #206) HILIGAYNON (ILONGGO) MARKERS.
+  const _ILONGGO_MARKERS = ['gid', 'bala', 'ano gani', 'diin', 'sin-o', 'san-o', 'pila ka', 'manami', 'damo gid'];
+  function _isIlonggoLeaning(text) {
+    const s = String(text || '').toLowerCase();
+    if (!s) return false;
+    let hits = 0;
+    for (const w of _ILONGGO_MARKERS) {
+      if (new RegExp('\\b' + w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\b').test(s)) hits++;
+    }
+    return hits >= 2;
+  }
+
+  // Phase 4.209 (turn #207) TAGALOG IMPERATIVE — "i-<verb> mo" /
+  // "<verb>-an mo" / "<verb> mo nga". Useful for action intent.
+  const _TGL_IMPERATIVE_RE = /\b(?:i[\-\s][a-z]{3,}\s+mo|[a-z]{3,}\s+mo\s+(?:nga|naman|please|po)|[a-z]{3,}-an\s+mo|pakisuyo|paki[\s\-]?(?:gawin|check|log|i[\-\s]\w+))\b/i;
+  function _isTagalogImperative(text) {
+    const s = String(text || '');
+    if (!s || s.length > 200) return false;
+    return _TGL_IMPERATIVE_RE.test(s);
+  }
+
+  // Phase 4.210 (turn #208) CODE-SWITCH RATIO — fraction of words
+  // in PH languages vs total words. Returns 0..1.
+  const _PH_WORDS_SAMPLE = new Set([
+    'ako','ikaw','siya','kami','tayo','kayo','sila','ang','ng','sa','at','o','pero',
+    'kasi','naman','lang','po','ho','sige','oo','hindi','wala','meron','may',
+    'tapos','pagkatapos','yung','yun','yan','ito','ano','paano','bakit','saan',
+    'unsa','asa','kinsa','gid','bala','manami','kuya','ate','kapatid',
+  ]);
+  function _codeSwitchRatio(text) {
+    const s = String(text || '').toLowerCase();
+    if (!s) return 0;
+    const words = s.split(/[^a-z]+/).filter(w => w.length >= 2);
+    if (words.length === 0) return 0;
+    let ph = 0;
+    for (const w of words) {
+      if (_PH_WORDS_SAMPLE.has(w)) ph++;
+    }
+    return ph / words.length;
+  }
+
+  // Phase 4.211 (turn #209) POLITENESS REGISTER — "po"/"ho" present
+  // = formal; absent + tu-form = casual. Returns 'formal' /
+  // 'casual' / 'mixed'.
+  function _classifyPolitenessRegister(text) {
+    const s = String(text || '').toLowerCase();
+    if (!s) return 'unknown';
+    const hasPo = /\b(?:po|ho|opo|opo\s*po)\b/.test(s);
+    const hasCasual = /\b(?:tol|pre|bro|bes|bestie|kuya|ate|gago|bobo)\b/.test(s);
+    if (hasPo && !hasCasual) return 'formal';
+    if (!hasPo && hasCasual) return 'casual';
+    if (hasPo && hasCasual) return 'mixed';
+    return 'neutral';
+  }
+
+  // Phase 4.212 (turn #210) REGIONAL TIME EXPRESSIONS — Filipino
+  // expressions for time-of-day that aren't covered by T87.
+  // Returns the canonical 24h hour OR null.
+  const _PH_TIME_PHRASES = {
+    'umaga':       7,
+    'tanghali':    12,
+    'hapon':       15,
+    'gabi':        20,
+    'madaling araw': 4,
+    'paglubog ng araw': 18,
+    'pagsikat ng araw': 6,
+    'alas-singko ng umaga': 5,
+    'alas-otso ng umaga':  8,
+    'tanghaling tapat':    12,
+  };
+  function _parsePhTimeExpression(text) {
+    const s = String(text || '').toLowerCase();
+    if (!s) return null;
+    for (const phrase of Object.keys(_PH_TIME_PHRASES)) {
+      if (s.indexOf(phrase) !== -1) return _PH_TIME_PHRASES[phrase];
+    }
+    return null;
+  }
+
+  // Phase 4.213 (turn #211) NUMBER WORDS — convert spoken PH +
+  // English number words 0-20 to digits.
+  const _NUMBER_WORDS = {
+    'zero': 0, 'one': 1, 'two': 2, 'three': 3, 'four': 4, 'five': 5,
+    'six': 6, 'seven': 7, 'eight': 8, 'nine': 9, 'ten': 10,
+    'eleven': 11, 'twelve': 12, 'thirteen': 13, 'fourteen': 14, 'fifteen': 15,
+    'sixteen': 16, 'seventeen': 17, 'eighteen': 18, 'nineteen': 19, 'twenty': 20,
+    'isa': 1, 'dalawa': 2, 'tatlo': 3, 'apat': 4, 'lima': 5,
+    'anim': 6, 'pito': 7, 'walo': 8, 'siyam': 9, 'sampu': 10,
+    'labing-isa': 11, 'labindalawa': 12, 'labintatlo': 13, 'dalawampu': 20,
+    'usa': 1, 'duha': 2, 'tulo': 3, 'upat': 4, 'lima_ceb': 5, 'unom': 6,
+  };
+  function _wordToNumber(word) {
+    if (!word) return null;
+    const k = String(word).toLowerCase().trim();
+    return Object.prototype.hasOwnProperty.call(_NUMBER_WORDS, k) ? _NUMBER_WORDS[k] : null;
+  }
+
+  // Phase 4.214 (turn #212) FILLER SUPPRESSION — strip throat-
+  // clearing fillers ("uh", "um", "ahh", "eto kasi") before
+  // intent classification.
+  function _stripFillers(text) {
+    let s = String(text || '');
+    if (!s) return s;
+    s = s.replace(/\b(?:uh+|um+|ahh+|eh+|er+|hmm+|ano ba|kasi|eto kasi|yun nga|ay+)\b[, ]*/gi, ' ');
+    s = s.replace(/\s+/g, ' ').trim();
+    return s;
+  }
+
+  // Phase 4.215 (turn #213) STOP-WORD LIST — for retrieval index
+  // building. Bilingual.
+  const _STOP_WORDS = new Set([
+    'the','a','an','and','or','of','to','in','on','for','at','by','with','from',
+    'is','are','was','were','be','been','being','this','that','it','its',
+    'ang','ng','sa','at','ay','na','mga','para','kung','dahil','kasi','tas','o',
+    'yung','yun','iyon','ito','yan','iyan',
+  ]);
+  function _removeStopWords(text) {
+    const s = String(text || '').toLowerCase();
+    if (!s) return '';
+    return s.split(/\s+/).filter(w => w && !_STOP_WORDS.has(w)).join(' ');
+  }
+
+  // Phase 4.216 (turn #214) SLANG DICTIONARY — common shop-floor
+  // slang to canonical maintenance vocabulary.
+  const _SLANG_DICT = {
+    'sira':       'broken',
+    'siraulo':    'malfunction',
+    'naloloka':   'erratic',
+    'nag-init':   'overheat',
+    'umiyak':     'leak',
+    'umiwas':     'avoid',
+    'pumalya':    'failure',
+    'wala_na':    'depleted',
+    'patay':      'no_power',
+    'iling':      'wobble',
+    'busted':     'failure',
+  };
+  function _slangToCanonical(word) {
+    if (!word) return null;
+    const k = String(word).toLowerCase().trim();
+    return Object.prototype.hasOwnProperty.call(_SLANG_DICT, k) ? _SLANG_DICT[k] : null;
+  }
+
+  // Phase 4.44 (turn #45): Offline degradation tracker.
+  // Module-local state so successive failures don't each retry the
+  // same dead endpoint. Flips true after a fetch failure inside the
+  // conversational call path; the next turn reads `_isOffline()` and
+  // renders an offline indicator instead of pretending to call the LLM.
+  // Recovers automatically on next successful fetch (reset by the
+  // _converseInline success path).
+  let _offlineFlag = false;
+  function _isOffline() { return _offlineFlag === true; }
+  function _setOffline(v) { _offlineFlag = !!v; }
+
+  // Phase 4.45 (turn #46): Reply cache (memoization).
+  // Identical (transcript, hiveId) tuples within a 10-minute TTL replay
+  // the prior assistant turn instead of calling the LLM. Captures the
+  // common case where workers tap the same question twice (network
+  // hiccup, accidental re-tap, double mic press). 16-entry LRU keeps
+  // memory bounded.
+  const _REPLY_CACHE_TTL_MS = 10 * 60 * 1000;
+  const _REPLY_CACHE_MAX_ENTRIES = 16;
+  const _replyCache = [];  // [{ key, reply, ts }]
+  function _replyCacheKey(transcript, hiveId) {
+    return String(hiveId || 'anon') + '|' + String(transcript || '').trim().toLowerCase();
+  }
+  function _lookupReplyCache(transcript, hiveId) {
+    const k = _replyCacheKey(transcript, hiveId);
+    const now = Date.now();
+    for (let i = _replyCache.length - 1; i >= 0; i--) {
+      const e = _replyCache[i];
+      if (e.key === k && (now - e.ts) < _REPLY_CACHE_TTL_MS) {
+        return e.reply;
+      }
+    }
+    return null;
+  }
+  function _writeReplyCache(transcript, hiveId, reply) {
+    if (!reply) return;
+    const k = _replyCacheKey(transcript, hiveId);
+    _replyCache.push({ key: k, reply: reply, ts: Date.now() });
+    if (_replyCache.length > _REPLY_CACHE_MAX_ENTRIES) {
+      _replyCache.splice(0, _replyCache.length - _REPLY_CACHE_MAX_ENTRIES);
+    }
+  }
+  function _clearReplyCache() { _replyCache.length = 0; }
+
+  // Phase 4.46 (turn #47): Worker-feedback escalation check.
+  // If the worker has 3+ thumbs-down ratings in the last 7 days, flag
+  // ai_quality_escalation so the supervisor's ai-quality dashboard
+  // surfaces it. Best-effort — never blocks the conversation.
+  async function _checkFeedbackEscalation(db, workerName) {
+    if (!db || !workerName) return null;
+    try {
+      const since = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+      const { data } = await db.from('ai_cost_log')
+        .select('quality_rating')
+        .eq('worker_name', workerName)
+        .gte('created_at', since)
+        .lt('quality_rating', 0)
+        .limit(20);
+      if (!Array.isArray(data)) return null;
+      if (data.length >= 3) {
+        return { needs_escalation: true, negative_count: data.length };
+      }
+      return null;
+    } catch (_) { return null; }
+  }
+
+  // Phase 4.47 (turn #48): Custom plant terminology resolver.
+  // Workers say "the big chiller" / "yung pump sa loading area" instead
+  // of the registered asset_tag. We fuzzy-match against the worker's
+  // hive assets and return the best candidate (or null). Match is
+  // intentionally fuzzy — phonetic-ish, common-word stripped — because
+  // STT regularly mangles tag boundaries.
+  async function _resolveTerminology(db, hiveId, transcript) {
+    if (!db || !hiveId || !transcript) return null;
+    const s = String(transcript).toLowerCase();
+    // Heuristic gate: only fire when the transcript contains a noun
+    // phrase typical of nicknames (no digit-letter asset shape).
+    const looksLikeNickname = /\b(?:the|yung|yang)\s+[a-z]{3,}/i.test(s)
+      && !/\b[A-Z]{1,3}-?\d{2,5}\b/.test(transcript);
+    if (!looksLikeNickname) return null;
+    try {
+      const { data } = await db.from('v_asset_truth')
+        .select('asset_tag,name,category,description')
+        .eq('hive_id', hiveId)
+        .limit(60);
+      if (!Array.isArray(data) || data.length === 0) return null;
+      const words = s.replace(/[^a-z0-9 ]/g, '').split(/\s+/).filter(w => w.length >= 3);
+      const stops = new Set(['the','yung','yang','sa','ng','at','mo','ko','about','this','that','what','how']);
+      const sig = words.filter(w => !stops.has(w));
+      if (sig.length === 0) return null;
+      // Score each asset by overlap with name + category + description.
+      let best = null, bestScore = 0;
+      for (const a of data) {
+        const hay = (String(a.name || '') + ' ' + String(a.category || '') + ' ' + String(a.description || '')).toLowerCase();
+        let score = 0;
+        for (const w of sig) {
+          if (hay.includes(w)) score += 1;
+        }
+        if (score > bestScore) { bestScore = score; best = a; }
+      }
+      // Require ≥2 significant overlaps so a single common word doesn't
+      // false-match.
+      if (best && bestScore >= 2) {
+        return { asset_tag: best.asset_tag, name: best.name, score: bestScore };
+      }
+      return null;
+    } catch (_) { return null; }
+  }
+
+  // Phase 4.48 (turn #49): Conversation branching.
+  // Module-local stack of (intent, slots, ts) snapshots. When the
+  // worker says "back to the X thing", we pop the matching snapshot
+  // and reuse its priorIntent for this turn. Bounded to last 5
+  // branches so memory stays small.
+  const _BRANCH_STACK_MAX = 5;
+  const _branchStack = [];  // [{ intent, slots, label, ts }]
+  function _pushBranch(intent, slots) {
+    if (!intent || intent === 'unknown') return;
+    _branchStack.push({
+      intent: intent,
+      slots: slots || {},
+      label: String(intent).toLowerCase(),
+      ts: Date.now(),
+    });
+    if (_branchStack.length > _BRANCH_STACK_MAX) {
+      _branchStack.splice(0, _branchStack.length - _BRANCH_STACK_MAX);
+    }
+  }
+  const _BRANCH_RECALL_RE = /\b(?:back to|going back to|earlier|kanina|bumalik tayo sa|balik tayo sa)\s+(?:the\s+|yung\s+|yang\s+)?([A-Za-z0-9\-_. ]{2,30}?)(?:\s+(?:thing|topic|question|issue))?\b/i;
+  function _detectBranchRecall(text) {
+    const m = String(text || '').match(_BRANCH_RECALL_RE);
+    if (!m) return null;
+    const needle = String(m[1] || '').trim().toLowerCase();
+    if (!needle) return null;
+    // Find best matching branch by label substring.
+    for (let i = _branchStack.length - 1; i >= 0; i--) {
+      const b = _branchStack[i];
+      if (b.label.includes(needle) || needle.includes(b.label) ||
+          JSON.stringify(b.slots).toLowerCase().includes(needle)) {
+        return b;
+      }
+    }
+    return null;
+  }
+
+  // Phase 4.49 (turn #50): Multi-modal photo intent.
+  // "let me show you" / "tingnan mo to" / "I'll send a photo" — worker
+  // wants to share visual context. We don't open visual-defect-capture
+  // automatically (that would feel pushy), we instruct the LLM to
+  // offer it ONCE in plain prose.
+  const _PHOTO_INTENT_RE = /\b(?:let me show you|tingnan mo (?:to|ito)|send (?:you )?a photo|i(?:'|’)?ll send (?:you )?a photo|let me snap|i can show|may litrato|may picture|kuhanan kita ng picture|photo capture)\b/i;
+  function _isPhotoIntent(text) {
+    const s = String(text || '').trim();
+    if (!s) return false;
+    return _PHOTO_INTENT_RE.test(s);
+  }
+
+  // Phase 4.50 (turn #53): Summary-on-demand detector.
+  // "summarise this conversation" / "i-summarize mo yung pinag-usapan
+  // natin" — worker wants a recap. We don't compress here; we tell
+  // the LLM to switch to summary mode using the existing session
+  // turns + dialog state context.
+  const _SUMMARY_RE = /\b(?:summari[sz]e (?:this|our|the) (?:conversation|chat|session|talk)|recap (?:this|the) (?:conversation|chat)|i-summari[sz]e mo|i-recap mo|give me the (?:summary|recap)|wrap[- ]up (?:my|the) shift)\b/i;
+  function _isSummaryRequest(text) {
+    const s = String(text || '').trim();
+    if (!s) return false;
+    return _SUMMARY_RE.test(s);
+  }
+
+  // Phase 4.51 (turn #54): Identity drift detector.
+  // Workers occasionally hand their phone to a colleague mid-shift.
+  // We track the worker_name observed on the FIRST turn; if a later
+  // turn carries a different worker_name, we flag the drift so the
+  // LLM can ask "still you?" before logging anything as the original
+  // account. Module-local — resets on session reload.
+  let _identityFirstSeen = null;
+  function _trackIdentity(workerName) {
+    if (!workerName) return false;
+    const w = String(workerName).trim();
+    if (!w) return false;
+    if (_identityFirstSeen === null) { _identityFirstSeen = w; return false; }
+    return _identityFirstSeen !== w;
+  }
+  function _resetIdentityTracking() { _identityFirstSeen = null; }
+
+  // Phase 4.52 (turn #51): Avatar emotion-state classifier.
+  // Inspects the assistant reply and picks an avatar state attribute
+  // (UI uses this to color-tint the persona portrait while playing).
+  // States: 'urgent' (any 🚨 / "critical" / "action today"), 'celebratory'
+  // ("naks" / "great work"), 'concerned' (fatigue or sensitive topic
+  // mentioned), 'helpful' (default).
+  function _classifyAvatarState(replyText) {
+    const r = String(replyText || '').toLowerCase();
+    if (/critical|action today|red line|safety risk|emergency|🚨/.test(r)) return 'urgent';
+    if (/naks|great work|good job|salamat sa shift|nicely done|amazing/.test(r)) return 'celebratory';
+    if (/hala|frustrated|pagod|stressed|take care|i hear you/.test(r)) return 'concerned';
+    return 'helpful';
+  }
+
+  // Phase 4.34 (turn #35): Voice action verb detector.
+  // When the transcript starts with a write-action verb ("log", "create",
+  // "file", "schedule", "open a ticket"), the reply MUST ask for
+  // explicit yes/no confirmation BEFORE voice-action-router executes
+  // the side effect. Workers don't want a typo to silently create
+  // logbook rows or PM schedules.
+  const _ACTION_VERB_RE = /^(?:log|create|file|schedule|open a ticket|raise a ticket|book|add|record|i-log|gawa ng|gawan ng|i-record)\b/i;
+  function _isActionRequest(text) {
+    const s = String(text || '').trim();
+    if (!s) return false;
+    return _ACTION_VERB_RE.test(s);
+  }
+
+  // Phase 4.35 (turn #40): Batch action language detector.
+  // "log bearing replacement on P-203, P-205, and P-208" — multiple
+  // items in one utterance. The LLM needs to know to PARSE each item
+  // and confirm BATCH (e.g. "I see 3 entries — confirm all?"). Caps
+  // at >=2 comma/and separators so single-item logs don't trip it.
+  function _isBatchAction(text) {
+    const s = String(text || '').trim();
+    if (!s) return false;
+    // Counts the joiners: commas + the word "and" + "at" (Tagalog).
+    const commaCount = (s.match(/,/g) || []).length;
+    const andCount = (s.match(/\b(?:and|at)\b/gi) || []).length;
+    return (commaCount + andCount) >= 2 && _isActionRequest(s);
+  }
+
+  // Phase 4.36 (turn #41): Explainability question detector.
+  // "Why did you say that?" / "How do you know?" / "Where did that
+  // come from?" — worker is questioning the reasoning behind a prior
+  // claim. The LLM should TRACE: name the source view, the row, and
+  // the timestamp. No more "the data shows" without saying which data.
+  const _EXPLAIN_RE = /^(?:why|how do you know|how did you|where did you get|where(?:'|’)?s that from|paano mo nalaman|saan galing|saan mo nakuha|prove it|show me how)\b/i;
+  function _isExplainRequest(text) {
+    const s = String(text || '').trim();
+    if (!s) return false;
+    return _EXPLAIN_RE.test(s);
+  }
+
+  // Phase 4.37 (turn #42): Worker-mention detector.
+  // "kasama si Romeo" / "with Romeo" / "Romeo helped" — worker is
+  // tagging another teammate. The LLM should capture the second name
+  // so voice-action-router can attach it to the logbook entry's
+  // co_worker field. Returns the captured name or null.
+  const _MENTION_RE = /\b(?:kasama si|kasama ni|with|together with|along with|kasama|katulong si|tinulungan ako ni|with help from)\s+([A-Z][a-zA-Z'\-]{1,40}(?:\s+[A-Z][a-zA-Z'\-]{1,40})?)\b/;
+  function _detectMention(text) {
+    const m = String(text || '').match(_MENTION_RE);
+    return m ? String(m[1]).trim() : null;
+  }
+
+  // Phase 4.38 (turn #43): Fatigue / frustration detector.
+  // Workers signal stress through specific phrases. The LLM should
+  // shift to a more empathetic tone and offer a break + (optionally)
+  // mention available wellbeing resources without being preachy.
+  const _FATIGUE_RE = /\b(?:pagod\s+na(?:\s+ako)?|tired|exhausted|burnt\s*out|frustrated|nakaka\s*frustrate|ayoko\s+na|naloloka(?:\s+na)?|nahirapan\s+na|stress\s+na|stressed\s+out|sawa\s+na|sira\s+ulit|ulit\s+ulit|nakaka\s*hassle)\b/i;
+  function _detectFatigueSignal(text) {
+    const s = String(text || '').trim();
+    if (!s) return false;
+    return _FATIGUE_RE.test(s);
+  }
+
+  // Phase 4.39 (turn #44): Transcript export detector.
+  // "send the transcript" / "save this conversation" / "i-save mo ito"
+  // — worker wants the session captured outside the journal. We
+  // don't ship execution here (handled by report-sender), just emit
+  // an EXPORT REQUEST anchor so the LLM acknowledges + routes.
+  const _EXPORT_RE = /\b(?:send (?:me )?(?:the |a |this )?(?:transcript|summary|conversation|notes)|save (?:this |the )?(?:transcript|conversation|session|chat)|email (?:me )?(?:the )?(?:transcript|summary)|i-save mo (?:ito|yan)|i-send mo ito|export this)\b/i;
+  function _isExportRequest(text) {
+    const s = String(text || '').trim();
+    if (!s) return false;
+    return _EXPORT_RE.test(s);
+  }
+
+  // Phase 4.31 (turn #26): Repeated-issue surface.
+  // Best-effort query against v_logbook_truth for same-asset failure
+  // repetition in the last 30 days. If the same machine has 3+ entries
+  // with similar failure mode, the LLM gets a flag in the prompt so it
+  // can escalate ("this is the 3rd corrective on Compressor C-01 this
+  // month — worth flagging to your supervisor"). Empty string when no
+  // repetition or query fails — never blocks.
+  async function _fetchRepeatedIssueFlag(db, hiveId) {
+    if (!db || !hiveId) return '';
+    try {
+      const since = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+      const { data } = await db.from('v_logbook_truth')
+        .select('machine,category,maintenance_type')
+        .eq('hive_id', hiveId)
+        .eq('maintenance_type', 'Corrective')
+        .gte('created_at', since)
+        .limit(200);
+      if (!Array.isArray(data) || data.length === 0) return '';
+      // Group by machine. Any machine with >= 3 corrective entries is
+      // "chronic" in the 30-day window.
+      const counts = {};
+      data.forEach(row => {
+        const m = String(row.machine || '').trim();
+        if (!m) return;
+        counts[m] = (counts[m] || 0) + 1;
+      });
+      const chronic = Object.entries(counts)
+        .filter(([_, n]) => n >= 3)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 3);
+      if (chronic.length === 0) return '';
+      const lines = chronic.map(([m, n]) => '  - ' + m + ': ' + n + ' corrective entries in last 30 days').join('\n');
+      return '\nREPEATED ISSUES (last 30 days, ≥3 corrective each — surface ' +
+             'these IF the worker asks about any of these machines, or ' +
+             'proactively if context warrants):\n' + lines + '\n';
+    } catch (_) {
+      return '';
+    }
+  }
+
+  // Phase 4.43 (turn #38): Skill-gap nudge fetch.
+  // Pulls v_worker_skill_truth for the current worker, identifies the
+  // lowest-level discipline relative to their primary, and emits a
+  // SKILL GAP block when the gap is meaningful (level <=2 / Awareness
+  // or Foundational). Empty string when no gap or query fails. The
+  // anchor lets the LLM offer a quick refresher path without becoming
+  // a nag (only surfaces when the conversation naturally warrants it).
+  async function _fetchSkillGapFlag(db, workerName) {
+    if (!db || !workerName) return '';
+    try {
+      const { data } = await db.from('v_worker_skill_truth')
+        .select('discipline,level,primary_skill,role')
+        .eq('worker_name', workerName)
+        .limit(20);
+      if (!Array.isArray(data) || data.length === 0) return '';
+      const gaps = data.filter(r => typeof r.level === 'number' && r.level <= 2);
+      if (gaps.length === 0) return '';
+      // Surface up to 2 lowest-level gaps so the prompt stays short.
+      const sorted = gaps.slice().sort((a, b) => (a.level || 99) - (b.level || 99)).slice(0, 2);
+      const lines = sorted.map(g =>
+        '  - ' + (g.discipline || 'discipline') + ' (Level ' + (g.level || 0) + ')'
+      ).join('\n');
+      return '\nSKILL GAPS (Awareness / Foundational level — surface ONLY if the ' +
+             'worker\'s question maps to one of these, and only as a one-line ' +
+             'offer: "want a quick refresher on <discipline>?"):\n' + lines + '\n';
+    } catch (_) {
+      return '';
+    }
+  }
+
+  // Phase 4.32 (turn #27): Standards lookup detector.
+  // When the worker's transcript mentions a maintenance standard
+  // (ISO 14224, SAE JA1011, ISO 22400-2, NFPA 70, IEC 60812, SMRP,
+  // ASHRAE, etc.), inject a STANDARDS QUERY flag so the LLM knows to
+  // anchor the reply on industry_standards_chunks (already RAG'd via
+  // standardsContext) instead of paraphrasing from training data.
+  const _STANDARDS_RE = /\b(?:ISO\s*\d{4,5}(?:-\d+)?|IEC\s*\d{4,5}|SAE\s*JA\s*\d{4}|ASHRAE\s*\d{2,3}(?:\.\d+)?|NFPA\s*\d{2,3}|SMRP|TPM|RCM|FMEA|ASME\s*[A-Z]?\d{2,3}|PEC\s*\d{4}|PSME|NSCP)\b/i;
+  function _detectStandardsMention(text) {
+    const s = String(text || '');
+    const m = s.match(_STANDARDS_RE);
+    return m ? m[0] : null;
+  }
+
+  // Phase 4.18: Repeat-that detector (turn #14).
+  // Plants are loud. Workers regularly miss the audio playback the
+  // first time and ask "what?" / "ulitin mo" / "say it again" / "come
+  // again". Don't burn an LLM call — just replay the LAST assistant
+  // reply from session memory. Falls through to normal classification
+  // when there's nothing to replay.
+  const _REPEAT_RE = /^(?:what|huh|huh\?|sorry|come again|say it again|say that again|repeat that|repeat please|paki ulit|paki-ulit|pakiulit|ulitin mo|ulit|ulit nga|one more time|once more)([\s,!.?]|$)/i;
+  function _isRepeatRequest(text) {
+    const s = String(text || '').trim();
+    if (!s) return false;
+    const words = s.split(/\s+/);
+    if (words.length > 5) return false;
+    return _REPEAT_RE.test(s);
+  }
+
+  // Phase 4.13: Asset-context auto-priming (turn #9).
+  // When a worker opens voice journal from inside an asset page (or
+  // right after editing a logbook entry on a specific machine), the
+  // asset_tag is sitting in the worker's recent context but NOT yet in
+  // the dialog state's context_slots. This helper auto-primes
+  // context_slots.asset_tag from the most recent logbook entry so the
+  // PRIOR TOPIC HANDLE + slot enumeration can reference it from turn 1.
+  //
+  // The fetch is best-effort: failures fall through to no priming.
+  async function _maybePrimeAssetContext(db, dialogState, workerName, hiveId) {
+    if (!db || !workerName || !hiveId) return dialogState;
+    const slots = (dialogState && dialogState.context_slots) || {};
+    // If asset_tag is already set, don't override.
+    if (slots.asset_tag) return dialogState;
+    try {
+      const { data } = await db.from('v_logbook_truth')
+        .select('machine,date,created_at')
+        .eq('worker_name', workerName)
+        .eq('hive_id', hiveId)
+        .order('created_at', { ascending: false })
+        .limit(1);
+      const recent = Array.isArray(data) && data[0];
+      if (!recent || !recent.machine) return dialogState;
+      // Only prime if the logbook entry is recent (last 60 min) — older
+      // entries aren't reliable context anymore.
+      const ts = recent.created_at ? new Date(recent.created_at).getTime() : 0;
+      if (!ts || (Date.now() - ts) > 60 * 60 * 1000) return dialogState;
+      const primed = Object.assign({}, dialogState || { context_slots: {} });
+      primed.context_slots = Object.assign({}, slots, { asset_tag: recent.machine });
+      return primed;
+    } catch (_) {
+      return dialogState;
+    }
+  }
+
   // Phase 4: Clarification logic — if confidence too low, ask instead of guessing
   function _shouldClarify(confidence, priorIntent, newIntent) {
     // If confidence < 0.65 and intent flipped, ask for clarification
@@ -1751,17 +6099,309 @@
         '\n═══ END ALERTS (MANDATORY TO ADDRESS ABOVE) ═══\n'
       : '';
 
-    // Phase 4: Dialog state (intent + slots + clarification status)
-    const dialogSection = dialogState
-      ? '\nDIALOG STATE:\n' +
-        'Current intent: ' + (dialogState.current_intent || 'unknown') + '\n' +
-        'Confidence: ' + Math.round((dialogState.intent_confidence || 0) * 100) + '%\n' +
-        (dialogState.context_slots && Object.keys(dialogState.context_slots).length
-          ? 'Context: ' + JSON.stringify(dialogState.context_slots) + '\n'
-          : '') +
-        (dialogState.clarification_pending ? 'Awaiting clarification from worker\n' : '') +
-        '\n'
+    // Phase 4.15 (turn #11) CODE-SWITCH ANCHOR — explicit hint that workers
+    // mix English + Tagalog / Cebuano / Ilocano in one sentence. Without
+    // this, models occasionally try to "translate" PH words to English
+    // ("ay grabe" → "wow really") which loses the affective tone.
+    const codeSwitchAnchor =
+      'LANGUAGE NOTE — workers in PH plants mix English with Tagalog / Cebuano / Ilocano / Hiligaynon mid-sentence. ' +
+      'When they say "ay grabe naman ang init" or "pak, sira ulit", DO NOT translate the PH words to English — ' +
+      'mirror their cadence. You reply in English (per the persona contract) but you may keep one or two PH words ' +
+      'they used if it carries the meaning ("the bearing housing is mainit at 80°C").\n';
+
+    // Phase 4.16 (turn #12) SENSITIVE-TOPIC REDIRECT — anchor a one-line
+    // reminder that HR / legal / financial / payroll / disciplinary topics
+    // are above the companion's scope. Route to supervisor + plant
+    // administrator instead of attempting to advise.
+    const sensitiveTopicAnchor =
+      'SENSITIVE TOPIC REDIRECT — if the worker raises HR / legal / financial / payroll / disciplinary / ' +
+      'visa / immigration issues, respond with ONE calm sentence: "Yan ay para sa supervisor / HR / plant ' +
+      'admin — they will help you properly." Do NOT advise, do NOT speculate, do NOT take sides. The ' +
+      'self-harm + helpline clause in the safety block still applies for crisis content.\n';
+
+    // Phase 4.17 (turn #13) WORKER NAME PERSONALIZATION — always address
+    // the worker by name when known. Falls back to "kapatid" (kin) for
+    // anonymous voice-journal callers so the reply still sounds warm
+    // rather than clinical.
+    const safeWorkerName = (workerName && String(workerName).trim()) || 'kapatid';
+    const workerNameAnchor = 'You are talking to ' + safeWorkerName + '. Use their name in your reply when it feels natural.\n';
+
+    // Phase 4.19 (turn #15) HALLUCINATION GUARD — explicit rule that no
+    // asset tag / part number / KPI value / page name may appear in the
+    // reply UNLESS it is present verbatim in CANONICAL DATA, PRIOR TURNS,
+    // or the worker's own utterance. Without this anchor the model
+    // sometimes invents plausible-sounding tags ("Pump P-104") that
+    // don't exist in the worker's hive — destroys trust on first read.
+    const hallucinationGuardAnchor =
+      'HALLUCINATION GUARD — you may ONLY mention asset tags, part numbers, ' +
+      'machine names, KPI values, or page names that appear verbatim in CANONICAL ' +
+      'DATA above, in PRIOR TURNS WITH THIS WORKER, or in the worker\'s own ' +
+      'utterance. If you want to reference something not there, say plainly ' +
+      '"your records don\'t show that one — check Asset Hub" instead of inventing. ' +
+      'A friendly-but-wrong tag destroys trust on first read.\n';
+
+    // Phase 4.20 (turn #16) CITATION ENFORCEMENT — when the reply quotes a
+    // KPI / metric / number that came from CANONICAL DATA, name the
+    // source view inline ("MTBF is 14 days from v_kpi_truth"). This
+    // gives the worker a one-tap path to drill into the underlying data
+    // and forces the model to stay anchored. Optional when no number is
+    // quoted (a tone-only reply doesn\'t need a citation).
+    const citationAnchor =
+      'CITATION RULE — when your reply quotes a number, percentage, or ' +
+      'date that came from CANONICAL DATA, name the source view in plain ' +
+      'prose: "from v_kpi_truth", "per v_pm_compliance_truth", "the logbook ' +
+      'shows…". One short citation per reply is enough. Skip the citation ' +
+      'when the reply is tone-only (no numbers).\n';
+
+    // Phase 4.24 (turn #25) SHIFT CONTEXT ANCHOR — PH industrial plants
+    // run 3 shifts (06:00 / 14:00 / 22:00 PHT). The companion's opener
+    // should match: "magandang umaga" for AM shift, "good afternoon
+    // kapatid" for PM, "kumusta sa night shift" for graveyard. Inject
+    // the current shift NAME so the LLM can tailor accordingly without
+    // having to compute it.
+    const phNow = new Date();
+    // PH is UTC+8 — use offset arithmetic so this works regardless of
+    // the worker's device timezone (a worker in Mindanao on UTC+8 vs a
+    // dev on UTC+12 both get the same shift window).
+    const phHour = (phNow.getUTCHours() + 8) % 24;
+    let shiftName = 'Day';
+    if (phHour >= 6  && phHour < 14) shiftName = 'Morning (06:00-14:00 PHT)';
+    else if (phHour >= 14 && phHour < 22) shiftName = 'Afternoon (14:00-22:00 PHT)';
+    else                                  shiftName = 'Night (22:00-06:00 PHT)';
+    const shiftAnchor = 'SHIFT CONTEXT — it is currently the ' + shiftName + ' shift. ' +
+      'If the worker hasn\'t said hello yet, match the time-of-day in your opener ' +
+      '(magandang umaga / magandang hapon / kumusta sa night shift). Workers on ' +
+      'graveyard shift are running on less sleep — keep replies extra short.\n';
+
+    // Phase 4.25 (turn #30) WORKER DISCIPLINE BIASING — when the worker
+    // has a registered primary_discipline (mechanical / electrical /
+    // instrumentation / facilities / production), bias technical examples
+    // toward THAT discipline. Default: keep neutral (mechanical-ish).
+    const workerDiscipline = (ctx && ctx.worker_discipline) ||
+                             (priorDialogState && priorDialogState.worker_discipline) || '';
+    const disciplineAnchor = workerDiscipline
+      ? 'WORKER DISCIPLINE — ' + safeWorkerName + ' is registered as ' + workerDiscipline +
+        '. Bias technical examples toward ' + workerDiscipline + ' (vocabulary, failure ' +
+        'modes, standards). Do NOT switch to ' + workerDiscipline + '-only — workers also ' +
+        'ask cross-discipline questions — but pick the matching example when there\'s a choice.\n'
       : '';
+
+    // Phase 4.26 (turn #32) CONFIDENCE CALIBRATION — when the canonical
+    // data behind the reply is THIN (sample size <5, RAG context empty,
+    // or analytics window <30 days), the reply MUST hedge. Workers
+    // distrust over-confident answers about small-sample data more than
+    // they distrust honest "not enough yet".
+    const confidenceAnchor =
+      'CONFIDENCE CALIBRATION — if CANONICAL DATA shows <5 records / <30 days / ' +
+      'empty RAG, your reply MUST hedge: "based on what we have so far", "early ' +
+      'signal — verify with your records", "this is one entry, not a pattern". ' +
+      'Stating a small-sample finding as if it were a verified pattern is the ' +
+      '#1 way to lose worker trust.\n';
+
+    // Phase 4.40 (turn #36) WELLBEING NUDGE — fires automatically on
+    // graveyard shift. The transcript-based fatigue signal (T43) is
+    // appended separately at the call site (where transcript is in
+    // scope). Both produce similar prompt overlays — empathy first,
+    // cap at 2 sentences, optional EAP pointer.
+    const isGraveyard = (shiftName || '').startsWith('Night');
+    const wellbeingAnchor = isGraveyard
+      ? 'WELLBEING NUDGE — the worker is on graveyard shift. Open with one ' +
+        'short empathy beat ("pagod na talaga ng shift na ito, hindi ba"). ' +
+        'Cap your reply at 2 sentences max. If they mention burnout / ' +
+        'frustration / safety risk to themselves, point ONCE to "talk to ' +
+        'your supervisor or use the EAP helpline if you have one" and stop ' +
+        'journaling further advice for that turn. Never moralise. Never ' +
+        'compare to other workers.\n'
+      : '';
+
+    // Phase 4.41 (turn #37) ENCOURAGEMENT ANCHOR — when CANONICAL DATA
+    // shows the worker just closed a logbook entry or completed a PM
+    // in the last 24h, the reply should open with a brief "naks, good
+    // work" beat. Workers in PH plants rarely get verbal recognition
+    // for daily wins — even a one-line acknowledgement materially
+    // changes adoption.
+    const encouragementAnchor =
+      'ENCOURAGEMENT — if the worker\'s recent logbook or PM completion is ' +
+      'in CANONICAL DATA (LOGBOOK / PM HEALTH section), and the question ' +
+      'is general or wrap-up shaped, open with ONE short recognition line: ' +
+      '"naks, you closed P-203 today, salamat ah". Skip if the question is ' +
+      'purely a data lookup — don\'t pad data answers with praise.\n';
+
+    // Phase 4.64 (turn #56) MATURITY-STAIR GATING — when the hive is
+    // at Stair 0 (Paper) or Stair 1 (Digital Logbook) — i.e. <2 — the
+    // companion MUST NOT promise predictive features. Reply stays
+    // descriptive ("what is happening") and points to the Maturity
+    // Stairway when the worker asks for forecasts.
+    const maturityStair = _readHiveMaturityStair();
+    const maturityAnchor = (typeof maturityStair === 'number' && maturityStair < 2)
+      ? 'MATURITY GATING — this hive is at Stair ' + maturityStair + ' (Paper / ' +
+        'Digital Logbook). Do NOT promise predictive features (forecast, ' +
+        'next-failure date, anomaly detection). Stay descriptive ("here is ' +
+        'what happened in the last 30 days"). If asked for a forecast, say ' +
+        'plainly "we need 90 days of history first — check the Maturity ' +
+        'Stairway on Home for the path".\n'
+      : '';
+
+    // Phase 4.65 (turn #59) LANGUAGE PREF — when the worker has opted
+    // into a non-default language for output, honour it. The persona
+    // contract still keeps the default (English) so this anchor only
+    // fires when an explicit pref is stored.
+    const langPref = _getLanguagePref();
+    const languageAnchor = langPref
+      ? 'LANGUAGE PREFERENCE — the worker has opted into "' + langPref +
+        '" output. Reply in ' + langPref + ' (not the persona-default English) ' +
+        'until they say "speak english" again. Persona character + safety ' +
+        'rules still apply — only the output language changes.\n'
+      : '';
+
+    // Phase 4.66 (turn #60) BREVITY PREF — when set, force a one-sentence
+    // cap on the reply. Worker says "more detail" / "expand" to release.
+    const brevityPref = _getBrevityPref();
+    const brevityAnchor = (brevityPref === 'brief')
+      ? 'BREVITY MODE — worker requested brief replies. Cap your reply at ' +
+        'ONE sentence, ≤25 words. If they need a number, just say the number ' +
+        '+ unit + source view. Skip the empathy beat unless they vented. ' +
+        'Release by them saying "more detail" / "expand".\n'
+      : '';
+
+    // Phase 4.68 (turn #66) PRONUNCIATION RESPECT — when the worker
+    // has registered pronunciation overrides (per-device library),
+    // the reply text MUST use the override spelling so the TTS
+    // pronunciation pipeline lands the right sound. The map is
+    // already applied client-side in _applyPronunciation, but the
+    // anchor also instructs the LLM to keep referring to the term
+    // with the worker's preferred spelling so corrections stick.
+    const _pronunciationMap = _getPronunciationMap();
+    const _pronunciationKeys = Object.keys(_pronunciationMap || {});
+    const pronunciationAnchor = (_pronunciationKeys.length > 0)
+      ? 'PRONUNCIATION RESPECT — the worker has corrected the say-as for: ' +
+        _pronunciationKeys.slice(0, 8).join(', ') + '. Use the corrected ' +
+        'spelling/form when referring to those terms; do NOT revert to the ' +
+        'STT default. If the worker corrects a new term ("it\'s pee-two-oh-three, ' +
+        'not pi-two-oh-three"), acknowledge and ask if they want it remembered.\n'
+      : '';
+
+    // Phase 4.69 (turn #67) VOICE EXECUTE LOCK — when the device has
+    // NOT opted into voice-execute, write-verb intents (action
+    // confirmation / replay / queue) must NOT auto-dispatch. The
+    // companion confirms verbally + tells the worker to tap the
+    // typed-confirm button. Default OFF (conservative).
+    const _voiceExecuteOn = _isVoiceExecuteAuth();
+    const voiceExecuteLockAnchor = !_voiceExecuteOn
+      ? 'VOICE EXECUTE LOCK — voice-execute is OFF for this device. If the worker ' +
+        'asks you to perform a write action (log, schedule, notify, file ticket), ' +
+        'DO confirm what you understood ("you want me to log a stop on P-203 for ' +
+        '15 minutes — confirm?") but tell them to tap the confirm button in the ' +
+        'overlay — voice-confirm-only is disabled until they turn it on in Settings.\n'
+      : '';
+
+    // Phase 4.75 (turn #73) ACCENT MATCH — if a stored accent pref
+    // is set OR the session is leaning Tagalog/Cebuano, the reply
+    // should mirror the worker's natural code-switch density.
+    // Persona contract (English default) still applies; this only
+    // shifts the conversational filler tone, not the data terms.
+    const _storedAccent = _getAccentPref();
+    const _detectedAccent = _detectAccentHint(_sessionTurns);
+    const _accentToUse = _storedAccent || _detectedAccent;
+    const accentMatchAnchor = (_accentToUse && _accentToUse !== 'english-leaning')
+      ? 'ACCENT MATCH — the worker is ' + _accentToUse + '. Mirror the ' +
+        'code-switch density: keep conversational fillers in their tongue ("oo, ' +
+        'tama" / "sige po" / "ayos lang") while data terms stay in canonical ' +
+        'form (asset_tag, MTBF, source view). Do not over-correct toward formal ' +
+        'English when they speak casually.\n'
+      : '';
+
+    // Phase 4.53 (turn #52) CROSS-HIVE BENCHMARK — when CROSS-HIVE
+    // CONTEXT (PH-INTELLIGENCE anonymised median) is in the prompt
+    // and the worker's question is about a KPI (MTBF / MTTR / OEE / PM
+    // compliance), the reply SHOULD include the comparison ("your 14d
+    // MTBF vs the PH F&B median of 18d"). Never name other plants —
+    // anonymised only.
+    const crossHiveBenchmarkAnchor = (crossHiveContext && String(crossHiveContext).trim().length > 0)
+      ? 'CROSS-HIVE BENCHMARK — CROSS-HIVE CONTEXT above carries anonymised PH ' +
+        'industry medians. If the worker\'s question is about a KPI, include a ' +
+        'one-line comparison ("your MTBF is 14d vs PH F&B median 18d — slightly ' +
+        'behind"). Never name other plants or workers; the data is anonymised by ' +
+        'design. Skip the comparison if the question isn\'t KPI-shaped.\n'
+      : '';
+
+    // Phase 4.42 (turn #39) SHIFT HANDOVER MODE — if the transcript
+    // contains handover language ("handover", "turnover", "pass to
+    // next shift", "endorso"), the reply should produce a STRUCTURED
+    // handover block (machine + status + open items + watch list)
+    // suitable for the next shift to read at a glance. Different from
+    // a conversational answer.
+    const handoverIntent = /\b(?:handover|hand\s*over|turnover|turn\s*over|endorso|endorse to next shift|pass to next shift|brief the next shift|shift handover|shift report)\b/i.test(transcript || '');
+    const handoverAnchor = handoverIntent
+      ? 'HANDOVER MODE — worker requested a shift handover. Structure the reply as ' +
+        'a 4-line block:\n' +
+        '  Machines worked: <comma-separated tags>\n' +
+        '  Open items: <max 3, with status>\n' +
+        '  Watch list: <max 2, what next shift should monitor>\n' +
+        '  Notes: <one short line>\n' +
+        'No prose intro / outro. The next shift reads this in 10 seconds.\n'
+      : '';
+
+    // Phase 4.30 (turn #33) LONG-SESSION PACING — once the worker has
+    // gone >10 turns in a single session, plant fatigue is real. The
+    // companion should suggest a short break OR a wrap-up. The anchor
+    // only fires after the LLM finishes its primary answer, so we don't
+    // truncate substantive content; it appears as a closing nudge.
+    const sessionPacingAnchor = (_sessionTurns.length >= 10)
+      ? 'SESSION PACING — we are at turn ' + _sessionTurns.length + ' in this session. ' +
+        'After your normal answer, append ONE short closing line nudging a break or ' +
+        'wrap-up: "we\'ve been at this a while — pa-break ka muna?" / "want to wrap ' +
+        'up and pick this up next shift?". One line, then stop.\n'
+      : '';
+
+    // Phase 4.27 (turn #34) PROACTIVE ALERTS OVERRIDE — critical / high
+    // severity alerts MUST be the FIRST thing in the reply, even when
+    // the worker asked about something else. The worker can't make a
+    // safe decision without seeing the active fire first.
+    const alertsOverrideAnchor =
+      'ALERTS OVERRIDE — if PROACTIVE ALERTS above contains a CRITICAL or HIGH ' +
+      'severity entry, your reply MUST surface it in the FIRST sentence, even if ' +
+      'the worker asked about something else. Example: "Heads up — bearing on C-01 ' +
+      'is in critical range, action today. About your MTBF question…". Workers ' +
+      'can\'t make a safe decision if you bury the alert.\n';
+
+    // Phase 4: Dialog state (intent + slots + clarification status) plus
+    // Phase 4.5 PRIOR TOPIC HANDLE — explicit pronoun-resolution clause so
+    // the LLM treats "it" / "that" / "yan" / "yun" as references to the
+    // prior intent instead of asking the worker to repeat themselves.
+    // Phase 4.6 SLOT CARRYOVER — natural-language enumeration of the
+    // sticky slots (asset_tag, time_window, machine, etc.) so the model
+    // can reuse them without re-prompting.
+    let dialogSection = '';
+    if (dialogState) {
+      const intent = dialogState.current_intent || 'unknown';
+      const confPct = Math.round((dialogState.intent_confidence || 0) * 100);
+      const slots = dialogState.context_slots && typeof dialogState.context_slots === 'object'
+        ? dialogState.context_slots
+        : {};
+      const slotKeys = Object.keys(slots).filter(k => slots[k] != null && slots[k] !== '');
+      // Natural-language enumeration of slots — easier for the model to
+      // honour than a raw JSON dump. Falls back to JSON when there is
+      // nothing nameable so we never lie about empty state.
+      const slotEnumeration = slotKeys.length
+        ? 'You already know:\n' + slotKeys.map(k =>
+            '  - ' + k.replace(/_/g, ' ') + ' = ' + String(slots[k]).slice(0, 80)
+          ).join('\n') + '\n'
+        : '';
+      // PRIOR TOPIC HANDLE — only emit when there IS a topic worth
+      // resolving to. Resolving pronouns to "unknown" would just confuse
+      // the model.
+      const priorTopicHandle = (intent && intent !== 'unknown')
+        ? 'PRIOR TOPIC HANDLE — if the worker uses a pronoun ("it", "that", "those", "yan", "yun", "iyon", "iyan") or a short follow-up ("more on that?", "details?", "and?"), resolve to: ' + intent + '. Do NOT ask the worker to repeat the subject — you already know it.\n'
+        : '';
+      dialogSection = '\nDIALOG STATE:\n' +
+        'Current intent: ' + intent + '\n' +
+        'Confidence: ' + confPct + '%\n' +
+        slotEnumeration +
+        priorTopicHandle +
+        (dialogState.clarification_pending ? 'Awaiting clarification from worker\n' : '') +
+        '\n';
+    }
 
     // Recent conversation context. Without this, "Help me find it" /
     // "yung pump kanina" / "tapos?" have nothing to anchor to and the
@@ -1848,6 +6488,26 @@
       routerBlock +
       routingBlock +
       alertsSection +
+      workerNameAnchor +
+      codeSwitchAnchor +
+      sensitiveTopicAnchor +
+      hallucinationGuardAnchor +
+      citationAnchor +
+      shiftAnchor +
+      disciplineAnchor +
+      confidenceAnchor +
+      alertsOverrideAnchor +
+      sessionPacingAnchor +
+      wellbeingAnchor +
+      encouragementAnchor +
+      handoverAnchor +
+      crossHiveBenchmarkAnchor +
+      maturityAnchor +
+      languageAnchor +
+      brevityAnchor +
+      pronunciationAnchor +
+      voiceExecuteLockAnchor +
+      accentMatchAnchor +
       dialogSection +
       memorySection +
       canonicalSection +
@@ -1932,12 +6592,904 @@
 
     // Phase 4: Fetch dialog state (intent evolution + context slots)
     const sessionId = _getSessionId();
-    const priorDialogState = await _fetchDialogState(db, sessionId).catch(() => null);
+    const priorDialogStateRaw = await _fetchDialogState(db, sessionId).catch(() => null);
+    // Phase 4.10 stale-state guard (turn #6): if the prior turn was >15 min
+    // ago, ignore the dialog state entirely. The worker has moved on and
+    // applying stale intent/slots would feel like the companion missed
+    // the gap.
+    let priorDialogState = _isStaleDialogState(priorDialogStateRaw) ? null : priorDialogStateRaw;
+    // Phase 4.13 asset-context auto-priming (turn #9): if the worker
+    // edited a logbook entry on a specific machine in the last hour,
+    // pull that asset_tag into context_slots so PRIOR TOPIC HANDLE +
+    // slot enumeration can reference it from turn 1.
+    priorDialogState = await _maybePrimeAssetContext(db, priorDialogState, ctx.worker_name, ctx.hive_id);
+
+    // Phase 4.61 (turn #62) URL-context pre-fill — voice-journal opened
+    // from asset-hub.html?asset=P-203 (or ?machine= / ?asset_tag=) seeds
+    // context_slots.asset_tag so the very first turn has the right tag.
+    const urlAsset = _readUrlAssetParam();
+    if (urlAsset) {
+      priorDialogState = priorDialogState || { current_intent: null, context_slots: {} };
+      priorDialogState.context_slots = priorDialogState.context_slots || {};
+      if (!priorDialogState.context_slots.asset_tag) {
+        priorDialogState.context_slots.asset_tag = urlAsset;
+      }
+    }
+
     const priorIntent = priorDialogState && priorDialogState.current_intent;
-    const priorSlots = priorDialogState && priorDialogState.context_slots;
+    // Phase 4.56 (turn #57) Per-slot expiry — prune stale slots based
+    // on their individual TTL before passing to the LLM. The reference
+    // timestamp is the dialog state's updated_at; missing timestamps
+    // pass through unchanged.
+    const rawSlots = priorDialogState && priorDialogState.context_slots;
+    const priorSlots = _pruneStaleSlots(rawSlots, priorDialogState && priorDialogState.updated_at);
+    if (priorDialogState) priorDialogState.context_slots = priorSlots;
+
+    // Phase 4.45 (turn #46) Reply cache hit — return the prior assistant
+    // turn for the same (transcript, hive) pair within a 10-min TTL.
+    // Saves an LLM call on accidental double-tap or network-retry. Sits
+    // right after the noise guard so we don't cache empty transcripts.
+    {
+      const cached = _lookupReplyCache(transcript, ctx.hive_id);
+      if (cached) {
+        _setStatus(personaName + ' (cached):');
+        _renderReplyBubble(cached, persona);
+        if (typeof window.speakPersona === 'function') {
+          window.speakPersona(cached, { persona });
+        }
+        _appendSessionTurn(transcript, cached);
+        _showTalkAgainButton();
+        return;
+      }
+    }
+
+    // Phase 4.3: Noisy / empty transcript guard — runs BEFORE the LLM call
+    // and before the heavy parallel platform fetch. Empty, 1-2 char, or
+    // pure-filler ("uh", "um") transcripts must never enter intent
+    // classification — the resulting 'unknown' would trip the topic-switch
+    // clarification UI for what is really just silence. Saves an LLM call
+    // and renders an honest "didn't catch that" prompt.
+    if (_isNoisyTranscript(transcript)) {
+      const noiseReply = "Hindi ko marinig yan. Tap to talk again — try in a few words.";
+      _setStatus(personaName + " didn't catch that:");
+      _renderReplyBubble(noiseReply, persona);
+      if (typeof window.speakPersona === 'function') {
+        window.speakPersona(noiseReply, { persona });
+      }
+      _appendSessionTurn(transcript, noiseReply);
+      // Do NOT touch dialog state — this turn never happened from the
+      // state-machine's perspective. Worker tries again on the next tap.
+      _resetClarifyStreak();
+      _showTalkAgainButton();
+      return;
+    }
+
+    // Phase 4.2: Negation handler — short "no" / "cancel" / "wala" / "hindi"
+    // exits the prior topic cleanly. Renders an acknowledgement, CLEARS the
+    // dialog state (no priorIntent, no pending clarification), and returns
+    // WITHOUT running the LLM call or intent classification. Mirrors the
+    // affirmation bypass (Phase 4.1) on the negative side.
+    if (priorIntent && _isFollowupNegation(transcript)) {
+      const negReply = "Sige, never mind yan. Ano next?";
+      _setStatus(personaName + ' says:');
+      _renderReplyBubble(negReply, persona);
+      if (typeof window.speakPersona === 'function') {
+        window.speakPersona(negReply, { persona });
+      }
+      _appendSessionTurn(transcript, negReply);
+      _saveJournalTurn(db, ctx, transcript, negReply, persona);
+      // Reset dialog state: no prior intent, no pending clarification.
+      _updateDialogState(db, ctx.hive_id, sessionId, null, 0, {}, false, null);
+      _resetClarifyStreak();
+      _showTalkAgainButton();
+      return;
+    }
+
+    // Phase 4.18: Repeat-that short-circuit. Noisy plant → worker
+    // missed the first audio playback → "ulit nga" / "say it again".
+    // Replay the LAST assistant turn instead of running the LLM again.
+    if (_sessionTurns.length > 0 && _isRepeatRequest(transcript)) {
+      const last = _sessionTurns[_sessionTurns.length - 1];
+      const repeatReply = (last && last.assistant) || "Wala pa akong nasabi — try the question again.";
+      _setStatus(personaName + ' (repeating):');
+      _renderReplyBubble(repeatReply, persona);
+      if (typeof window.speakPersona === 'function') {
+        window.speakPersona(repeatReply, { persona });
+      }
+      _appendSessionTurn(transcript, repeatReply);
+      // Don't disturb dialog state — the worker is just asking for a re-play.
+      _showTalkAgainButton();
+      return;
+    }
+
+    // Phase 4.14: First-turn greeting short-circuit. No prior dialog
+    // state AND no session turns AND greeting-shape utterance = open a
+    // fresh conversation with a warm hello. Skips the LLM call entirely.
+    if (!priorDialogState && _sessionTurns.length === 0 && _isGreeting(transcript)) {
+      const greetReply = "Hi! " + personaName + " here. What can I help you with today?";
+      _setStatus(personaName + ' says:');
+      _renderReplyBubble(greetReply, persona);
+      if (typeof window.speakPersona === 'function') {
+        window.speakPersona(greetReply, { persona });
+      }
+      _appendSessionTurn(transcript, greetReply);
+      _saveJournalTurn(db, ctx, transcript, greetReply, persona);
+      _resetClarifyStreak();
+      _showTalkAgainButton();
+      return;
+    }
+
+    // Phase 4.28 (turn #28) Voice command shortcut — direct navigation.
+    // "open logbook" / "schedule a PM" / "show analytics" navigate
+    // straight to the target page. We render a brief ack so the worker
+    // hears confirmation before the page swap, then call window.location
+    // after a short delay.
+    const shortcutTarget = _isVoiceShortcut(transcript);
+    if (shortcutTarget) {
+      const shortcutReply = "Opening " + shortcutTarget.replace('.html', '').replace(/-/g, ' ') + " — sandali lang.";
+      _setStatus(personaName + ' says:');
+      _renderReplyBubble(shortcutReply, persona);
+      if (typeof window.speakPersona === 'function') {
+        window.speakPersona(shortcutReply, { persona });
+      }
+      _appendSessionTurn(transcript, shortcutReply);
+      _saveJournalTurn(db, ctx, transcript, shortcutReply, persona);
+      // Don't disturb dialog state — the worker is navigating, not
+      // ending the conversation. Defer the actual nav so audio has a
+      // chance to start playing.
+      setTimeout(function () {
+        try { window.location.href = shortcutTarget; } catch (_) { /* non-fatal */ }
+      }, 1200);
+      _showTalkAgainButton();
+      return;
+    }
+
+    // Phase 4.29 (turn #31) Goodbye / wrap-up short-circuit. Worker is
+    // closing the whole session ("yun lang" / "I'm done" / "tapos na").
+    // Render a warm exit, clear dialog state, suggest reopening
+    // tomorrow. Different from thanks (turn #8) which is a single-turn
+    // closer — goodbye implies the worker is walking away from the
+    // overlay.
+    if (_isGoodbye(transcript)) {
+      const goodbyeName = (ctx && ctx.worker_name && String(ctx.worker_name).trim()) || 'kapatid';
+      const goodbyeReply = "Sige, " + goodbyeName + ". Salamat sa shift, take care.";
+      _setStatus(personaName + ' says:');
+      _renderReplyBubble(goodbyeReply, persona);
+      if (typeof window.speakPersona === 'function') {
+        window.speakPersona(goodbyeReply, { persona });
+      }
+      _appendSessionTurn(transcript, goodbyeReply);
+      _saveJournalTurn(db, ctx, transcript, goodbyeReply, persona);
+      // Clean session end — same shape as close() (turn #24).
+      _updateDialogState(db, ctx.hive_id, sessionId, null, 0, {}, false, null);
+      _resetClarifyStreak();
+      _showTalkAgainButton();
+      return;
+    }
+
+    // Phase 4.12: Thanks / acknowledgment short-circuit. Conversation
+    // closer — render a brief "walang anuman" beat, clear dialog state,
+    // skip the LLM call. Suppresses the urge to ask one-more-question
+    // when the worker is signalling they're done.
+    if (_isThanksReply(transcript)) {
+      const thanksReply = "Walang anuman. Take care.";
+      _setStatus(personaName + ' says:');
+      _renderReplyBubble(thanksReply, persona);
+      if (typeof window.speakPersona === 'function') {
+        window.speakPersona(thanksReply, { persona });
+      }
+      _appendSessionTurn(transcript, thanksReply);
+      _saveJournalTurn(db, ctx, transcript, thanksReply, persona);
+      _updateDialogState(db, ctx.hive_id, sessionId, null, 0, {}, false, null);
+      _resetClarifyStreak();
+      _showTalkAgainButton();
+      return;
+    }
+
+    // Phase 4.9: Persona-switch utterance — "switch to Hezekiah" /
+    // "tawagin si Zaniah" routes to the persona toggle, NOT through
+    // intent classification. Persists the chosen persona to localStorage
+    // (so subsequent surfaces see it) AND clears dialog state so the new
+    // persona starts on a clean slate.
+    const switchTarget = _isPersonaSwitchUtterance(transcript);
+    if (switchTarget) {
+      try { localStorage.setItem('wh_voice_journal_persona', switchTarget); } catch (_) { /* ignore */ }
+      const targetName = switchTarget === 'hezekiah' ? 'Hezekiah' : 'Zaniah';
+      const switchReply = "Sige, switching you to " + targetName + ". Tap the mic again — " + targetName + " will take it from here.";
+      _setStatus('Switching companion to ' + targetName + '…');
+      _renderReplyBubble(switchReply, persona);
+      if (typeof window.speakPersona === 'function') {
+        window.speakPersona(switchReply, { persona });
+      }
+      _appendSessionTurn(transcript, switchReply);
+      _saveJournalTurn(db, ctx, transcript, switchReply, persona);
+      // Reset state so the new persona has a clean slate (no carryover
+      // intent / slots) AND nudge any open companion UI to refresh.
+      _updateDialogState(db, ctx.hive_id, sessionId, null, 0, {}, false, null);
+      _resetClarifyStreak();
+      if (window.WHAssistant && typeof window.WHAssistant.refreshPersona === 'function') {
+        try { window.WHAssistant.refreshPersona(); } catch (_) { /* non-fatal */ }
+      }
+      _showTalkAgainButton();
+      return;
+    }
+
+    // Phase 4.7: Clarification-recovery routing — only fires when the
+    // PRIOR turn ended with a pending clarification (the streak-ceiling
+    // prompt). A worker reply that is JUST a page name resolves directly
+    // to that intent. Without this guard the bare page name enters
+    // normal classification → 'unknown' → clarify loops again — the
+    // exact dead-end the ceiling was meant to break.
+    const recoveryIntent = (priorDialogState && priorDialogState.clarification_pending)
+      ? _isPageRecoveryReply(transcript)
+      : null;
+    if (recoveryIntent) {
+      const recReply = "Sige, let's stay on " + recoveryIntent.replace(/_/g, ' ') + ". What do you need to know?";
+      _setStatus(personaName + ' says:');
+      _renderReplyBubble(recReply, persona);
+      if (typeof window.speakPersona === 'function') {
+        window.speakPersona(recReply, { persona });
+      }
+      _appendSessionTurn(transcript, recReply);
+      _saveJournalTurn(db, ctx, transcript, recReply, persona);
+      // Persist the resolved intent at high confidence so the next turn
+      // has a real anchor. Clarification flag is now cleared — the worker
+      // landed on a page, the loop is broken.
+      _updateDialogState(db, ctx.hive_id, sessionId, recoveryIntent, 0.85, {}, false, null);
+      _resetClarifyStreak();
+      _showTalkAgainButton();
+      return;
+    }
 
     // Phase 5: Fetch proactive alerts (KPI spikes, risk escalation, overdue PM)
     const proactiveAlerts = await _fetchProactiveAlerts(db, ctx.hive_id).catch(() => []);
+
+    // Phase 4.31 (turn #26): Fetch repeated-issue flag for the hive.
+    // Best-effort, in parallel where possible. Surfaces machines with
+    // 3+ corrective entries in 30d so the LLM can suggest escalation.
+    const repeatedIssueFlag = await _fetchRepeatedIssueFlag(db, ctx.hive_id).catch(() => '');
+
+    // Phase 4.43 (turn #38): Skill-gap nudge.
+    // Best-effort fetch of v_worker_skill_truth. Empty string when no
+    // gap, fetch fails, or worker isn't registered. The anchor surfaces
+    // a one-line refresher offer when the LLM judges it relevant — it
+    // does NOT force the LLM to mention it on every turn.
+    const skillGapFlag = await _fetchSkillGapFlag(db, ctx.worker_name).catch(() => '');
+
+    // Phase 4.32 (turn #27): Detect standards mention in the transcript
+    // and emit a STANDARDS QUERY anchor so the LLM grounds on the
+    // industry_standards_chunks RAG (already in standardsContext) when
+    // available.
+    const standardMentioned = _detectStandardsMention(transcript);
+    const standardsQueryAnchor = standardMentioned
+      ? '\nSTANDARDS QUERY — worker mentioned ' + standardMentioned + '. If the ' +
+        'STANDARDS CONTEXT block above contains an excerpt from that standard, ' +
+        'quote it verbatim (clause + page). If not, say plainly "I don\'t have ' +
+        'that clause loaded — check Plant Connections > Standards Library".\n'
+      : '';
+
+    // Phase 4.34/4.35/4.36/4.37/4.38/4.39 (turns #35/#40/#41/#42/#43/#44):
+    // Per-turn transcript-driven anchors. Each detector runs against
+    // the current utterance; matched anchors are appended to canonicalData
+    // so the LLM sees them in the prompt alongside the static T26 + T27
+    // anchors. Stays out of _buildVoiceSystemPrompt to keep that
+    // function's signature small.
+    let perTurnAnchors = '';
+    if (_isActionRequest(transcript)) {
+      perTurnAnchors +=
+        '\nACTION CONFIRMATION — worker started with a write-action verb ' +
+        '(log / create / file / schedule). Do NOT execute the side effect ' +
+        'this turn. Reply with: "Confirm: <restate the action in 1 line> — ' +
+        'sabihin yes para gawin." Voice-action-router only executes after ' +
+        'an explicit yes on the NEXT turn.\n';
+    }
+    if (_isBatchAction(transcript)) {
+      perTurnAnchors +=
+        '\nBATCH ACTION — worker named multiple items in one breath (comma + ' +
+        '"and" / "at"). Parse the list, restate as a numbered batch, then ' +
+        'ask for ONE confirmation for the whole batch ("3 entries — confirm ' +
+        'all?"). Never split into multiple confirmation rounds.\n';
+    }
+    if (_isExplainRequest(transcript)) {
+      perTurnAnchors +=
+        '\nEXPLAIN PATH — worker is questioning your reasoning. Trace it: ' +
+        'name the SOURCE VIEW (e.g. v_kpi_truth), the ROW count or date ' +
+        'window the figure came from, and the most recent timestamp. ' +
+        '"MTBF is 14 days — from v_kpi_truth, 6 corrective entries between ' +
+        'May 1 and May 21." No more "the data shows" without showing which.\n';
+    }
+    const mentionedCoWorker = _detectMention(transcript);
+    if (mentionedCoWorker) {
+      perTurnAnchors +=
+        '\nCO-WORKER MENTION — the worker named "' + mentionedCoWorker + '" ' +
+        'as a teammate on this task. If the conversation involves logging ' +
+        'an action, include co_worker = "' + mentionedCoWorker + '" in the ' +
+        'confirmation summary so voice-action-router tags the logbook row.\n';
+    }
+    if (_detectFatigueSignal(transcript)) {
+      perTurnAnchors +=
+        '\nFATIGUE SIGNAL — worker said something tired / frustrated. ' +
+        'Open with one short empathy line ("pagod ka na, hindi ba"), then ' +
+        'answer in ONE sentence max. If they continue venting on the next ' +
+        'turn, suggest a break or talking to their supervisor — do NOT ' +
+        'stack more technical advice on top.\n';
+    }
+    if (_isExportRequest(transcript)) {
+      perTurnAnchors +=
+        '\nEXPORT REQUEST — worker wants this session captured outside the ' +
+        'journal. Acknowledge briefly ("Sige, I\'ll prepare a summary") and ' +
+        'point to Report Sender (report-sender.html) as the surface that ' +
+        'emails transcripts. Don\'t fabricate sending it yourself.\n';
+    }
+    // T50 photo intent — offer visual-defect-capture in plain prose.
+    if (_isPhotoIntent(transcript)) {
+      perTurnAnchors +=
+        '\nPHOTO INTENT — worker wants to share a photo. Offer ONCE: ' +
+        '"open Visual Defect Capture from the logbook, snap a shot, and ' +
+        'I\'ll read it back to you". Don\'t open the page yourself; the ' +
+        'worker drives the camera, not the LLM.\n';
+    }
+    // T53 summary request — switch the LLM to summary mode.
+    if (_isSummaryRequest(transcript)) {
+      perTurnAnchors +=
+        '\nSUMMARY MODE — worker requested a recap. Produce a 4-bullet ' +
+        'summary from PRIOR TURNS WITH THIS WORKER + CANONICAL DATA: ' +
+        '(1) main topics covered, (2) decisions / confirmations, (3) ' +
+        'open items / unanswered questions, (4) suggested next step. ' +
+        'No prose intro / outro. Bullets only.\n';
+    }
+    // T48 terminology resolution — async fetch + inject resolved tag.
+    const resolvedAsset = await _resolveTerminology(db, ctx.hive_id, transcript).catch(() => null);
+    if (resolvedAsset) {
+      perTurnAnchors +=
+        '\nTERMINOLOGY RESOLVED — worker said a nickname that fuzzy-matched ' +
+        'to asset_tag "' + resolvedAsset.asset_tag + '" (' + (resolvedAsset.name || '') +
+        '). Treat the rest of the turn as if they said the tag explicitly. ' +
+        'If unsure, briefly confirm: "you mean ' + resolvedAsset.asset_tag + ', right?".\n';
+    }
+    // T49 branch recall — if worker referenced a prior thread, surface it.
+    const recalledBranch = _detectBranchRecall(transcript);
+    if (recalledBranch) {
+      perTurnAnchors +=
+        '\nBRANCH RECALL — worker wants to return to the "' + recalledBranch.label +
+        '" thread (' + Math.round((Date.now() - recalledBranch.ts) / 60000) + ' min ago). ' +
+        'Resume from that intent + slots: ' + JSON.stringify(recalledBranch.slots) + '. ' +
+        'Acknowledge the switch ("right, back to ' + recalledBranch.label + '") before answering.\n';
+    }
+    // T54 identity drift — flag if worker_name changed mid-session.
+    if (_trackIdentity(ctx.worker_name)) {
+      perTurnAnchors +=
+        '\nIDENTITY DRIFT — the worker_name on this turn differs from the ' +
+        'first turn of the session. Open with a single calm verification ' +
+        'line: "quick check — is this still ' + (ctx.worker_name || 'you') +
+        '?". Do NOT log any action this turn until they confirm.\n';
+    }
+
+    // T58 Action replay — "same fix on P-205" after a confirmed action.
+    const replay = _detectActionReplay(transcript);
+    if (replay) {
+      perTurnAnchors +=
+        '\nACTION REPLAY — worker wants to repeat the last confirmed action ' +
+        '("' + replay.verb + '") on a new asset: ' + replay.newAsset + '. ' +
+        'Substitute asset_tag = ' + replay.newAsset + ' into the same slot ' +
+        'shape: ' + JSON.stringify(replay.slots) + '. Confirm once before ' +
+        'voice-action-router executes.\n';
+    }
+
+    // T59 Language opt-in — persist the worker's choice.
+    const langChange = _detectLanguagePref(transcript);
+    if (langChange) {
+      _setLanguagePref(langChange);
+      perTurnAnchors +=
+        '\nLANGUAGE PREF UPDATED — worker opted into "' + langChange + '". ' +
+        'Acknowledge in one short line ("sige, ' + langChange + ' na") + reply ' +
+        'in the new language from here.\n';
+    }
+
+    // T60 Brevity toggle.
+    const brevityChange = _detectBrevityToggle(transcript);
+    if (brevityChange) {
+      _setBrevityPref(brevityChange);
+    }
+
+    // T61 Timer request.
+    const timerSpec = _detectTimerRequest(transcript);
+    if (timerSpec) {
+      const scheduled = _scheduleTimer(timerSpec);
+      if (scheduled) {
+        perTurnAnchors +=
+          '\nTIMER SCHEDULED — set a reminder in ' + Math.round(timerSpec.ms / 60000) +
+          ' minutes about "' + timerSpec.label + '". Acknowledge in one line ' +
+          '("sige, paalalahanan kita") and do NOT re-prompt for confirmation.\n';
+      }
+    }
+
+    // T64 Action queue — multi-step ("log entry then start PM then notify").
+    const actionQueue = _parseActionQueue(transcript);
+    if (actionQueue && actionQueue.length > 1) {
+      perTurnAnchors +=
+        '\nACTION QUEUE — worker chained ' + actionQueue.length + ' steps. ' +
+        'Enumerate them ("1. ' + actionQueue.join(', 2. ').slice(0, 200) + '") ' +
+        'and confirm the FIRST step only. Voice-action-router will pick up the ' +
+        'remaining steps after each confirmation lands.\n';
+    }
+
+    // T65 PDF export — point to Report Sender, never fabricate sending.
+    if (_isPdfExportRequest(transcript)) {
+      perTurnAnchors +=
+        '\nPDF EXPORT REQUEST — worker wants this conversation saved as a PDF. ' +
+        'Do NOT pretend to generate or send anything. Tell them to tap the export ' +
+        'icon, or open Report Sender from the menu — that surface owns the PDF ' +
+        'pipeline. One short line, then stop.\n';
+    }
+
+    // T70 Daily digest — 5-line briefing format.
+    if (_isDigestRequest(transcript)) {
+      perTurnAnchors +=
+        '\nDIGEST MODE — worker asked for a shift/overnight digest. Reply as ' +
+        'exactly 5 lines:\n' +
+        '  1) Open alerts (count + top 2 with severity)\n' +
+        '  2) Closed PMs since last shift (count)\n' +
+        '  3) Overdue PMs (count + top asset_tag)\n' +
+        '  4) Watch list (assets with anomaly flag — top 2)\n' +
+        '  5) Focus item (the one thing you would do first this shift)\n' +
+        'No prose intro / outro. Numbers from PLATFORM SNAPSHOT only.\n';
+    }
+
+    // T71 Push opt-in detected — request browser permission inline.
+    if (_isPushOptInReply(transcript)) {
+      const pushState = _pushNotifyState();
+      if (pushState === 'default') {
+        // Fire the permission prompt — user-gesture window is open.
+        try { _requestPushPerm(); } catch (_) { /* non-fatal */ }
+      }
+      perTurnAnchors +=
+        '\nPUSH READINESS — worker opted into alerts. Browser permission ' +
+        'state is "' + pushState + '". If granted, confirm in one line ("sige, ' +
+        'aalertan kita sa critical events"). If denied/unsupported, say plainly ' +
+        '"alerts are blocked in your browser — open site settings to enable" — ' +
+        'do NOT promise alerts you cannot deliver.\n';
+    }
+
+    // T75 Toxicity guard — de-escalate, never amplify.
+    const _tox = _detectToxicLanguage(transcript);
+    if (_tox && _tox.severity >= 0.45) {
+      perTurnAnchors +=
+        '\nTOXICITY GUARD — the worker\'s turn contains hostile/abusive language ' +
+        '(severity ' + _tox.severity.toFixed(2) + '). Do NOT repeat the term, do NOT ' +
+        'match the tone, and do NOT moralise. Reply in one calm sentence: ' +
+        'acknowledge the frustration ("ok, kasi mukha talagang stressful"), then ' +
+        'offer the next concrete action. If the language is directed at a ' +
+        'colleague, point to the Shift Supervisor — never coach the worker on ' +
+        'how to talk to that person.\n';
+    }
+
+    // T76 Question shape — drives reply structure.
+    const _shape = _classifyQuestionShape(transcript);
+    if (_shape && _shape !== 'unknown') {
+      perTurnAnchors +=
+        '\nQUESTION SHAPE — this turn is "' + _shape + '". Reply structure: ' +
+        (_shape === 'data' ? 'lead with the number + unit + source view name; ONE follow-up line max.' :
+         _shape === 'how_to' ? 'numbered steps (1, 2, 3); link to the relevant page at the end.' :
+         _shape === 'opinion' ? 'state your view with confidence calibration; cite the canonical data behind it.' :
+         _shape === 'troubleshoot' ? 'lead with the most likely cause; offer to walk through the diagnostic tree.' :
+         _shape === 'social' ? 'one warm line, no data dump; ask what they\'re working on.' :
+         'plain answer.') + '\n';
+    }
+
+    // T77 Freshness disclosure — caller asks how current the data is.
+    if (_isFreshnessRequest(transcript)) {
+      perTurnAnchors +=
+        '\nFRESHNESS DISCLOSURE — worker asked how fresh the data is. Pull the ' +
+        'last_updated timestamp from PLATFORM SNAPSHOT for the relevant truth view ' +
+        'and state it plainly ("v_kpi_truth was refreshed 3 min ago"). If the ' +
+        'snapshot doesn\'t carry a freshness stamp, say so — do NOT invent.\n';
+    }
+
+    // T79 Share request — emit a shareable session link.
+    if (_isShareRequest(transcript)) {
+      const _sId = (typeof _getSessionId === 'function') ? _getSessionId() : null;
+      const _link = _buildShareLink(_sId);
+      if (_link) {
+        perTurnAnchors +=
+          '\nSHARE LINK — worker wants to forward this conversation. Quote the ' +
+          'URL exactly: ' + _link + ' — tell them to paste it in Slack/SMS. Don\'t ' +
+          'try to send it yourself; the link IS the share mechanism.\n';
+      }
+    }
+
+    // T80 Readback request — re-trigger TTS on the prior reply.
+    if (_isReadbackRequest(transcript) && _sessionTurns.length > 0) {
+      perTurnAnchors +=
+        '\nREADBACK — worker wants the prior reply spoken aloud again, not a new ' +
+        'answer. Repeat the LAST assistant turn verbatim (no rephrasing, no new ' +
+        'analysis). Voice client will route this through TTS — keep the reply ' +
+        'short so the read-back fits in their listening window.\n';
+    }
+
+    // T81 Scope query — disclose actual capabilities.
+    if (_isScopeQuery(transcript)) {
+      perTurnAnchors +=
+        '\nSCOPE DISCLOSURE — worker asked what you can do. Ground the answer in ' +
+        'the actual capability list:\n' +
+        '  • answer questions about KPIs (MTBF, MTTR, OEE) using v_*_truth views\n' +
+        '  • surface open alerts + overdue PMs\n' +
+        '  • log a journal entry / schedule a PM (if voice-execute is ON)\n' +
+        '  • point you at the right page for deeper work\n' +
+        'DO NOT invent abilities (predicting future failures, sending email, ' +
+        'doing maintenance). Be honest about the boundary.\n';
+    }
+
+    // T82 Correction handler — redo last answer with new info.
+    if (_isCorrection(transcript)) {
+      perTurnAnchors +=
+        '\nCORRECTION — worker said your last answer used wrong info. Apologise ' +
+        'in HALF a line ("ah ok"), then REDO the answer using the corrected ' +
+        'detail. Do NOT defend the prior answer; do NOT ask why. Just produce ' +
+        'the right one.\n';
+    }
+
+    // T84 Crisis escalation — extended (self-harm + workplace violence).
+    const _crisis = _detectCrisisEscalation(transcript);
+    if (_crisis && _crisis.kind) {
+      perTurnAnchors += (_crisis.kind === 'self_harm')
+        ? '\nCRISIS — self-harm signal. Drop the technical reply. One short line ' +
+          'of care, then the National Center for Mental Health crisis line: ' +
+          '1553 (PH toll-free). Then "may we connect you to your supervisor or HR?".\n'
+        : '\nCRISIS — workplace-violence signal. One short line of care, then ' +
+          '"tell Safety Officer / HR right away — would you like me to flag this ' +
+          'to your supervisor through the Alert Hub?". Do NOT advise tactics.\n';
+    }
+
+    // T182 INCIDENT GATE — actual injury / first-aid needed. Highest
+    // priority safety anchor; fires before LOTO/hot-work/confined gates.
+    if (_isIncidentReport(transcript)) {
+      perTurnAnchors +=
+        '\nINCIDENT GATE — worker is reporting an actual injury on site. Drop ' +
+        'every other reply path. One short line of care, then route: "Tap the ' +
+        'red SOS button in Alert Hub or call site Safety Officer NOW. I am ' +
+        'flagging this to your supervisor on logging." Do NOT advise first aid ' +
+        'beyond "stop the bleed / clear the area / wait for medic" basics. The ' +
+        'router will write to safety_incident_queue on confirmation.\n';
+    }
+
+    // T175 LOTO GATE — lockout-tagout mentioned. Diagnostic-work
+    // intents MUST NOT proceed until isolation is confirmed.
+    if (_detectLotoIntent(transcript)) {
+      perTurnAnchors +=
+        '\nLOTO GATE — worker mentioned lockout-tagout / isolation / ' +
+        'de-energize. Before ANY diagnostic step proceeds, confirm verbatim: ' +
+        '(1) energy source identified, (2) breaker/valve locked, (3) zero-energy ' +
+        'verified, (4) tag in place with worker name + date. Use the ' +
+        'energy isolation checklist (electrical / mechanical / hydraulic / pneumatic / ' +
+        'chemical / thermal / gravitational) for the right category. If ANY ' +
+        'step is unconfirmed, stop and ask. Never let confidence override the ' +
+        'gate.\n';
+    }
+
+    // T176 HOT WORK GATE — welding / grinding / cutting torch on
+    // plant. Requires a current hot-work permit + fire watch.
+    if (_detectHotWorkIntent(transcript)) {
+      perTurnAnchors +=
+        '\nHOT WORK GATE — worker mentioned welding / grinding / cutting / ' +
+        'brazing / paghihinang. Required before any flame touches metal: (1) ' +
+        'hot-work permit issued + still within validity window, (2) fire watch ' +
+        'assigned, (3) flammables cleared 11m radius (or fire-blanket coverage), ' +
+        '(4) PPE per the hot_work matrix (welding hood shade 10+, FR clothing, ' +
+        'leather gloves). Ask "permit number + expiry?" if not yet on the turn ' +
+        'transcript.\n';
+    }
+
+    // T177 CONFINED SPACE GATE — tank / sump / vessel entry. MUST
+    // trigger gas-test workflow (PH OSHS limits) + attendant +
+    // rescue plan. Entering without gas reading is P0.
+    if (_detectConfinedSpaceIntent(transcript)) {
+      perTurnAnchors +=
+        '\nCONFINED SPACE GATE — worker mentioned tank / sump / vessel / ' +
+        'manhole entry. Required before ANY entry: (1) 4-gas reading within ' +
+        'PH OSHS limits — O2 19.5-23.5%, LEL ≤10%, CO ≤35ppm, H2S ≤10ppm, (2) ' +
+        'attendant stationed at entry with comms, (3) rescue plan agreed + ' +
+        'retrieval line attached, (4) confined-space entry permit. Ask for ' +
+        'the gas-test reading first — do not advise on the task until the ' +
+        'numbers are confirmed in range.\n';
+    }
+
+    // T178 PPE QUERY — answer from the matrix, never improvise.
+    if (_isPpeQuery(transcript)) {
+      perTurnAnchors +=
+        '\nPPE MATRIX — worker asked what PPE to wear. Answer ONLY from the ' +
+        'authoritative matrix below — never invent. If the hazard kind is ' +
+        'unclear, ask one short clarifying question (hot work? confined space? ' +
+        'electrical? chemical? height? or general task?) before listing PPE.\n' +
+        '  • hot_work: welding hood shade 10+, FR clothing, leather gloves, fire watch\n' +
+        '  • confined_space: SCBA or air-line respirator, 4-gas monitor, harness + retrieval line, attendant\n' +
+        '  • chemical: chemical splash goggles, gauntlet gloves (matching chemical), apron or suit, eyewash within 10m\n' +
+        '  • electrical: Class 0/1 rubber gloves, arc-rated face shield, voltage detector, rubber mat\n' +
+        '  • height: full-body harness, double lanyard, hard hat with chinstrap, tool tether\n' +
+        '  • default: hard hat, safety shoes, safety glasses, gloves matching task\n';
+    }
+
+    // T179 NEAR-MISS CAPTURE — close call, no injury yet.
+    if (_isNearMissReport(transcript)) {
+      perTurnAnchors +=
+        '\nNEAR-MISS CAPTURE — worker described a close call (no injury). One ' +
+        'short empathy line ("naks, mabuti naiwasan mo"), then offer to log a ' +
+        'near-miss report: "want me to file this as a near-miss? safety team ' +
+        'can review the root cause." Voice-action-router writes to ' +
+        'safety_near_miss on yes. Distinct from INCIDENT GATE (actual injury).\n';
+    }
+
+    // T180 JSA OFFER — first time / never done before.
+    if (_shouldOfferJsa(transcript)) {
+      perTurnAnchors +=
+        '\nJSA OFFER — worker said this is their first time on the task. ' +
+        'Offer a 4-step JSA in one line: "let us walk through a quick JSA — ' +
+        '(1) break the task into 3-5 steps, (2) identify hazards per step, ' +
+        '(3) define controls (elim / sub / eng / admin / PPE), (4) confirm ' +
+        'PPE + permits before starting." Wait for their yes before stepping ' +
+        'through each. Adding more than 4 steps defeats the purpose.\n';
+    }
+
+    // T85 Numeric precision — sticky anchor (every turn).
+    perTurnAnchors +=
+      '\nPRECISION RULE — every KPI number you quote MUST include a unit and ' +
+      'sensible precision: percentages to 1 decimal (92.4%), times to whole ' +
+      'units (14 days, 38 min), counts as integers. Never quote a raw 92.4823. ' +
+      'No-data is "no data yet" + the source view name, not 0 or N/A.\n';
+
+    // T86 Asset tag normalization — when normalizer returns a tag.
+    const _normTag = _normalizeAssetTag(transcript);
+    if (_normTag) {
+      perTurnAnchors +=
+        '\nASSET TAG NORMALIZED — the worker said this asset; canonical form is "' +
+        _normTag + '". Use this exact form (with hyphen) when querying or quoting.\n';
+    }
+
+    // T87 Time range normalization — surface ISO bounds for SQL clarity.
+    const _normTime = _normalizeTimeRange(transcript);
+    if (_normTime && _normTime.start) {
+      perTurnAnchors +=
+        '\nTIME RANGE NORMALIZED — worker referenced a time window. Canonical span: ' +
+        _normTime.start + ' to ' + _normTime.end + ' (' + _normTime.days +
+        ' day' + (_normTime.days === 1 ? '' : 's') +
+        '). Use this when filtering PLATFORM SNAPSHOT data.\n';
+    }
+
+    // T88 Ack-style toggle — persist + acknowledge in 1 line.
+    const _ackToggle = _detectAckStyleToggle(transcript);
+    if (_ackToggle) {
+      _setAckStyle(_ackToggle);
+      perTurnAnchors +=
+        '\nACK STYLE — worker switched to "' + _ackToggle + '" mode. ' +
+        (_ackToggle === 'terse'
+          ? 'No "naks" / "sige" / "ah" before the data — answer cold + direct.'
+          : 'One short warm ack line ("ah ok kuya") before the data is welcome.') + '\n';
+    }
+
+    // T89 Forbidden-topic redirect.
+    const _forbidden = _detectForbiddenTopic(transcript);
+    if (_forbidden) {
+      perTurnAnchors += (_forbidden === 'competitor')
+        ? '\nFORBIDDEN — competitor name detected. Don\'t compare, don\'t comment. ' +
+          '"I focus on the work in front of you — let\'s look at your plant\'s data."\n'
+        : '\nFORBIDDEN — office-politics / chismis detected. Redirect: "let\'s stay ' +
+          'on what we can fix today — what machine or PM is on your mind?".\n';
+    }
+
+    // T91 Pin request.
+    if (_isPinRequest(transcript) && _sessionTurns.length > 0) {
+      const last = _sessionTurns[_sessionTurns.length - 1];
+      if (last && last.assistant && ctx && ctx.worker_name) {
+        _pinTurn(ctx.worker_name, { text: last.assistant, intent: priorIntent || '' });
+      }
+      perTurnAnchors +=
+        '\nPIN — worker pinned the prior reply. Acknowledge in one line ("sige, ' +
+        'pinned mo na") and proceed normally. The pinned list will surface again ' +
+        'at the start of their next session.\n';
+    }
+
+    // T92 Help command — short-circuit before LLM.
+    if (_isHelpCommand(transcript)) {
+      perTurnAnchors +=
+        '\nHELP — worker asked for help. Surface this exact mini-tour:\n' +
+        '  1) Ask about KPIs: "what is the MTBF for P-203"\n' +
+        '  2) Log: "log a 15-min stop on C-01"\n' +
+        '  3) Schedule: "schedule a PM for next Tuesday"\n' +
+        '  4) Get a digest: "morning summary please"\n' +
+        '  Say "what can you do" for the full list.\n';
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // PHASE A COMPREHENSIVE WIRING — all transcript-driven detectors from
+    // batches T95-T214 that weren't previously plumbed into per-turn anchors.
+    // Each anchor uses a unique CAPS GATE / HEADER so validators can ratchet.
+    // ═══════════════════════════════════════════════════════════════════════
+
+    // T100 SESSION TAG — "tag this as X" labels the session.
+    const _sessTag = _detectSessionTagRequest(transcript);
+    if (_sessTag) {
+      perTurnAnchors +=
+        '\nSESSION TAG — worker labelled this session "' + _sessTag + '". ' +
+        'Acknowledge in one line ("sige, tagged as ' + _sessTag + '"). ' +
+        'Future references to this session by tag are resolvable.\n';
+    }
+
+    // T102 STT MANGLED — heuristic flag for garbled transcript.
+    if (_looksGrammarMangled(transcript)) {
+      perTurnAnchors +=
+        '\nSTT MANGLED — transcript looks garbled (consonant clusters, no ' +
+        'verb). Lead with a soft "did you mean…" guess based on closest ' +
+        'asset tag / KPI in CANONICAL DATA, then offer to retry. Never log ' +
+        'an action on a mangled turn.\n';
+    }
+
+    // T104 SHIFT END — within 30 min of worker's shift end.
+    try {
+      const _shiftEnd = Number(localStorage.getItem('wh_shift_end_hour'));
+      if (Number.isFinite(_shiftEnd) && _isNearShiftEnd(_shiftEnd, 30)) {
+        perTurnAnchors +=
+          '\nSHIFT END HORIZON — worker is within 30 min of shift end. Offer ' +
+          'handover prep in one line ("want me to draft the handover for next ' +
+          'shift?"). Do NOT start long diagnostic threads — wrap up.\n';
+      }
+    } catch (_) { /* localStorage may be denied */ }
+
+    // T96 QUIET HOURS — non-critical alerts muted 22:00-06:00 PHT.
+    if (_isQuietHours(new Date())) {
+      perTurnAnchors +=
+        '\nQUIET HOURS — non-critical replies should stay concise. Critical / ' +
+        'safety items still surface in full; everything else gets a one-line ' +
+        'summary unless the worker explicitly asks for more.\n';
+    }
+
+    // T114 MENTOR HANDOFF — "ask Kuya Ben" / "tanungin natin si mentor".
+    if (_isMentorHandoff(transcript)) {
+      perTurnAnchors +=
+        '\nMENTOR HANDOFF — worker wants senior input. Acknowledge ("sige, ' +
+        'i-relay ko ito sa mentor queue") and route the question into ' +
+        'mentor_relay_queue. Do NOT fabricate an expert answer; defer to the ' +
+        'real mentor.\n';
+    }
+
+    // T115 PII SCRUB — strip phone/email/ID markers before any persistence.
+    // Calling here makes the scrubbed form available as _piiScrubbed for
+    // downstream audit log + journal save paths.
+    let _piiScrubbed = transcript;
+    try {
+      const _sc = _scrubPii(transcript);
+      if (_sc && _sc.text) _piiScrubbed = _sc.text;
+      if (_sc && _sc.markers && _sc.markers.length > 0) {
+        perTurnAnchors +=
+          '\nPII SCRUBBED — worker turn contained ' + _sc.markers.join(', ') +
+          '. Reply MUST use the scrubbed canonical form (no raw phone / email / ' +
+          'ID). The unscrubbed transcript is dropped before audit log write.\n';
+      }
+    } catch (_) { /* scrubber is best-effort */ }
+
+    // T116 CONSENT CHANGE — explicit grant/revoke voice consent.
+    const _consent = _detectConsentChange(transcript);
+    if (_consent) {
+      perTurnAnchors +=
+        '\nCONSENT CHANGE — worker said "' + _consent + '" voice consent. ' +
+        'Acknowledge in plain language ("sige, ' + _consent + ' ka na — voice ' +
+        'logging is ' + (_consent === 'grant' ? 'on' : 'off') + '") and persist ' +
+        'to wh_voice_consent. PH Data Privacy Act.\n';
+    }
+
+    // T118 ERASURE REQUEST — right-to-be-forgotten.
+    if (_isErasureRequest(transcript)) {
+      perTurnAnchors +=
+        '\nERASURE REQUEST — worker invoked right-to-erasure. Reply in one ' +
+        'line: "I can clear your voice + journal history for this hive. ' +
+        'Confirm with yes — this cannot be undone." The scoped DELETE runs ' +
+        'on the next confirmed yes; an audit row records the request.\n';
+    }
+
+    // T120 SUSPICIOUS ACTIVITY — per-worker pattern check.
+    if (ctx && ctx.worker_name) {
+      try {
+        const _susp = _detectSuspiciousActivity(ctx.worker_name);
+        if (_susp && _susp.kind) {
+          perTurnAnchors +=
+            '\nSUSPICIOUS ACTIVITY — pattern "' + _susp.kind + '" detected for ' +
+            'this worker (' + (_susp.count || '?') + ' events). Stay calm + ' +
+            'helpful — do NOT accuse. If pattern persists, flag to supervisor ' +
+            'via the Alert Hub on the worker\'s next confirmed action.\n';
+        }
+      } catch (_) { /* aggregate may be missing */ }
+    }
+
+    // T133 VOICE-ONLY TOGGLE — UI dim / audio-only mode.
+    const _voiceOnly = _detectVoiceOnlyToggle(transcript);
+    if (_voiceOnly) {
+      perTurnAnchors +=
+        '\nVOICE-ONLY TOGGLE — worker requested "' + _voiceOnly + '" mode. ' +
+        'Acknowledge in one short line; the UI dim + caption suppress is ' +
+        'driven by wh_voice_only_mode persisted state.\n';
+    }
+
+    // T140 MEMORY PRESSURE — device under load.
+    try {
+      const _mem = _checkMemoryPressure();
+      if (_mem && _mem.level === 'high') {
+        perTurnAnchors +=
+          '\nMEMORY PRESSURE — device is under high memory load. Keep replies ' +
+          'concise and skip long RAG citations this turn. Suggest closing ' +
+          'background tabs if the next turn also degrades.\n';
+      }
+    } catch (_) { /* perf API may be unavailable */ }
+
+    // T146 HANDOFF — "send this to Kuya Ben".
+    const _handoffTo = _detectHandoffRequest(transcript);
+    if (_handoffTo) {
+      perTurnAnchors +=
+        '\nHANDOFF — worker wants to forward this turn to "' + _handoffTo + '". ' +
+        'Confirm in one line ("sige, i-pasa ko kay ' + _handoffTo + '") and the ' +
+        'next yes writes a row to companion_handoff. Do NOT auto-send; require ' +
+        'the explicit yes.\n';
+    }
+
+    // T147 SHARED NOTE — broadcast to team thread.
+    if (_isSharedNoteRequest(transcript)) {
+      perTurnAnchors +=
+        '\nSHARED NOTE — worker wants to post this to the team thread. ' +
+        'Confirm in one line; on yes, write to shared_voice_notes. The note ' +
+        'surfaces on the Hive page for everyone in the hive.\n';
+    }
+
+    // T149 WATCHLIST — subscribe to asset notifications.
+    const _watchTag = _detectWatchRequest(transcript);
+    if (_watchTag) {
+      perTurnAnchors +=
+        '\nWATCHLIST — worker wants notifications on "' + _watchTag + '". ' +
+        'Acknowledge ("sige, aalertan kita pag may kilos sa ' + _watchTag +
+        '") and upsert to asset_watchlist on the next confirmed yes.\n';
+    }
+
+    // T151 RESOLUTION — fault fixed; offer to capture the fix.
+    if (_detectResolution(transcript)) {
+      perTurnAnchors +=
+        '\nRESOLUTION CAPTURE — worker reported the fault is fixed ("ayos na ' +
+        '/ gumana na / fixed it"). Acknowledge briefly, then offer: "want me ' +
+        'to log the fix to fault_knowledge so the next worker can find it?". ' +
+        'On yes, write the resolution to fault_knowledge_base. This is how ' +
+        'tribal knowledge becomes searchable.\n';
+    }
+
+    // T204 ENERGY QUERY — surface sustainability KPIs.
+    if (_isEnergyQuery(transcript)) {
+      perTurnAnchors +=
+        '\nENERGY QUERY — worker asked about energy / kWh / carbon / ' +
+        'compressed-air / motor-efficiency. Pull from PLATFORM SNAPSHOT ' +
+        'energy block. Quote EnPI (ISO 50001) with unit, compare to baseline, ' +
+        'and if a leak/standby waste is detected, name the asset. PH grid ' +
+        'factor 0.717 kgCO2e/kWh.\n';
+    }
+
+    // T207 TAGALOG IMPERATIVE — direct command form ("i-X mo").
+    if (_isTagalogImperative(transcript)) {
+      perTurnAnchors +=
+        '\nTAGALOG IMPERATIVE — worker used a direct command ("i-X mo / ' +
+        'pakisuyo"). Reply in Tagalog/Taglish, not pure English. Match the ' +
+        'register: imperative form deserves an active-voice answer, not a ' +
+        'passive English explainer.\n';
+    }
+
+    // T209 POLITENESS REGISTER — formal "po/ho" vs casual "tol/pre".
+    const _register = _classifyPolitenessRegister(transcript);
+    if (_register && _register !== 'unknown') {
+      perTurnAnchors +=
+        '\nPOLITENESS REGISTER — worker is "' + _register + '". ' +
+        (_register === 'formal'
+          ? 'Use "po/ho" forms. No slang. Address as "sir/maam" or family role (kuya/ate).'
+          : _register === 'casual'
+            ? 'Drop honorifics, match the tol/pre/bro energy, no "po".'
+            : 'Mixed — start neutral, follow the worker\'s next turn lead.') + '\n';
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // END PHASE A COMPREHENSIVE WIRING
+    // ═══════════════════════════════════════════════════════════════════════
 
     // FULL PLATFORM SCAN: pull everything from every truth view in parallel, hand to LLM.
     // No routing decisions, no intent classification — the LLM gets the complete platform
@@ -1961,7 +7513,9 @@
 
     // canonicalData carries the full snapshot — every truth view in one block.
     // platformData (legacy scraper) and ragContext stay separate for now.
-    const canonicalData = platformSnapshot || '';
+    // Turn #26 + #27 anchors are appended here so the prompt builder
+    // doesn't need a signature change.
+    const canonicalData = (platformSnapshot || '') + repeatedIssueFlag + skillGapFlag + standardsQueryAnchor + perTurnAnchors;
     if (!canonicalData && db && ctx.hive_id && ctx.worker_name) {
       console.warn('[WHVoice] No platform snapshot returned; check DB connection or query errors');
     }
@@ -2024,14 +7578,31 @@
       // Resolving the intent here means the downstream _shouldClarify check
       // naturally returns false (priorIntent === newIntentKind) AND every
       // state-persist call below records the resolved topic, not "unknown".
-      if (priorIntent && _isFollowupAffirmation(transcript)) {
+      //
+      // Phase 4.11 OVERRIDE (turn #7): topic-shift signals ("hold on" /
+      // "actually" / "by the way" / "teka") SUPPRESS the affirmation bypass.
+      // The worker is explicitly interrupting the prior topic; let normal
+      // intent classification run on the full utterance.
+      if (priorIntent && _isFollowupAffirmation(transcript) && !_isTopicShiftSignal(transcript)) {
         newIntentKind = priorIntent;
         newConfidence = Math.max(newConfidence, 0.9);
       }
 
       // If intent flipped and confidence low, ask clarification instead
       if (_shouldClarify(newConfidence, priorIntent, newIntentKind)) {
-        const clarifyAnswer = _generateClarification(transcript, newIntentKind, priorIntent);
+        // Phase 4.4: Clarification-loop ceiling. After 2 consecutive
+        // clarifications on the same conversation, switch to a different
+        // shape ("what page would help?") and HARD reset the counter so
+        // we can never loop deeper than 3 — looping the same prompt makes
+        // Zaniah/Hezekiah feel broken.
+        const streak = _bumpClarifyStreak();
+        let clarifyAnswer;
+        if (streak >= 2) {
+          clarifyAnswer = "Let's try a different way — what page would help: Analytics, Logbook, PM Scheduler, or Asset Hub?";
+          _resetClarifyStreak();
+        } else {
+          clarifyAnswer = _generateClarification(transcript, newIntentKind, priorIntent);
+        }
         _setStatus(personaName + ' is clarifying:');
         _renderReplyBubble(clarifyAnswer, persona);
         if (typeof window.speakPersona === 'function') {
@@ -2044,6 +7615,10 @@
         _showTalkAgainButton();
         return;
       }
+      // Any non-clarify success turn resets the streak — a single good
+      // turn means we're out of the loop. Lives here (right before the
+      // success render path) so the reset is hard to miss in code review.
+      _resetClarifyStreak();
 
       _setStatus(personaName + ' says:');
       _renderReplyBubble(answer, persona);
@@ -2052,6 +7627,19 @@
         window.speakPersona(answer, { persona });
       }
       const ttsLatencyMs = Date.now() - ttsStartMs;
+      // Phase 4.45 (turn #46) Cache the successful reply for repeat-tap savings.
+      _writeReplyCache(transcript, ctx.hive_id, answer);
+      // Phase 4.44 (turn #45) Clear offline flag — we just got a successful gateway response.
+      _setOffline(false);
+      // Phase 4.52 (turn #51) Classify avatar emotion state from the rendered reply
+      // and stamp it on the bubble for the UI tint layer to pick up.
+      try {
+        const bubble = document.querySelector('#wh-voice-intents .wh-voice-bubble');
+        if (bubble) bubble.setAttribute('data-avatar-state', _classifyAvatarState(answer));
+      } catch (_) { /* non-fatal */ }
+      // Phase 4.48 (turn #49) Push the resolved intent onto the branch stack so a
+      // future "back to the X" reference can recall it.
+      _pushBranch(newIntentKind, priorSlots || {});
       // Session-memory turn (always — works for anon walkthrough).
       _appendSessionTurn(transcript, answer);
       // Durable save — silently no-ops if RLS denies (anon workers).
@@ -2071,6 +7659,12 @@
       _showTalkAgainButton();
     } catch (err) {
       console.warn('[WHVoice] conversational call failed:', err);
+
+      // Phase 4.44 (turn #45) Offline degradation — flip the module flag
+      // so the next turn knows we lost gateway connectivity. The flag
+      // auto-clears on the next successful response (set in the success
+      // path above).
+      _setOffline(true);
 
       // Phase 3: Error recovery with graceful fallback
       const fallbackReply = _generateFallbackReply(transcript, routerIntents, persona);
@@ -2114,12 +7708,84 @@
           '<span class="wh-voice-bubble-text"><span class="wh-voice-dots"><i></i><i></i><i></i></span></span>' +
         '</div>';
     } else {
+      // Phase 4.33 (turn #29) AI QUALITY FEEDBACK — every assistant reply
+      // ships with thumbs up/down so workers can rate the answer in one
+      // tap. Rating persists to ai_cost_log.quality_rating (when a
+      // matching log row exists) for the ai-quality dashboard.
       slot.innerHTML =
         '<div class="wh-voice-bubble wh-voice-bubble-assistant">' +
           avatarHTML +
           '<span class="wh-voice-bubble-text">' + safe + '</span>' +
+          '<span class="wh-voice-rate" style="display:inline-flex;gap:6px;margin-left:8px;align-items:center;">' +
+            '<button type="button" data-rate="1" aria-label="Helpful reply" ' +
+              'style="background:transparent;border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.55);' +
+              'border-radius:50%;width:24px;height:24px;line-height:1;cursor:pointer;font-size:.7rem;">👍</button>' +
+            '<button type="button" data-rate="-1" aria-label="Unhelpful reply" ' +
+              'style="background:transparent;border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.55);' +
+              'border-radius:50%;width:24px;height:24px;line-height:1;cursor:pointer;font-size:.7rem;">👎</button>' +
+          '</span>' +
         '</div>';
+      // Wire the rating buttons. One-shot — once the worker rates, both
+      // buttons disable so they can't double-vote on the same reply.
+      const rateBtns = slot.querySelectorAll('button[data-rate]');
+      rateBtns.forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          const rating = Number(btn.getAttribute('data-rate')) || 0;
+          rateBtns.forEach(b => { b.disabled = true; b.style.opacity = '0.4'; });
+          btn.style.background = (rating > 0)
+            ? 'rgba(74,222,128,.20)' : 'rgba(248,113,113,.20)';
+          _recordReplyRating(rating).catch(function () { /* non-fatal */ });
+        });
+      });
     }
+  }
+
+  // Phase 4.33 (turn #29) AI QUALITY FEEDBACK helper.
+  // Worker taps thumbs up/down → write to ai_cost_log.quality_rating
+  // for the most recent voice-journal cost row, scoped to this worker
+  // + session. Best-effort: anon callers (RLS) silently skip; cloud
+  // outages don't disturb the conversation.
+  async function _recordReplyRating(rating) {
+    const r = Number(rating);
+    if (r !== 1 && r !== -1) return;
+    const db = _getDb();
+    const ctx = _ctx();
+    if (!db || !ctx) return;
+    const sessionId = (typeof _getSessionId === 'function') ? _getSessionId() : null;
+    try {
+      const { error } = await db.rpc('record_ai_reply_rating', {
+        p_session_id: sessionId,
+        p_rating:     r,
+      });
+      if (error) {
+        // Fall back to a direct UPDATE on ai_cost_log if the RPC isn't
+        // available. Scoped to the most recent row for this hive +
+        // agent so we don't accidentally rate stale entries.
+        await db.from('ai_cost_log')
+          .update({ quality_rating: r })
+          .eq('hive_id', ctx.hive_id || null)
+          .eq('agent_name', 'voice-journal')
+          .order('created_at', { ascending: false })
+          .limit(1);
+      }
+      // Phase 4.46 (turn #47) Feedback escalation — if this is a 👎 AND
+      // the worker has 3+ negative ratings in the last 7 days, flag for
+      // the ai-quality dashboard. The dashboard reads this flag to
+      // prompt supervisor outreach.
+      if (r < 0) {
+        const esc = await _checkFeedbackEscalation(db, ctx.worker_name);
+        if (esc && esc.needs_escalation) {
+          try {
+            await db.from('ai_quality_escalation').upsert({
+              worker_name: ctx.worker_name,
+              hive_id: ctx.hive_id || null,
+              negative_count: esc.negative_count,
+              last_negative_at: new Date().toISOString(),
+            });
+          } catch (_) { /* table may not exist yet — non-fatal */ }
+        }
+      }
+    } catch (_) { /* swallow — non-fatal */ }
   }
 
   function _showTalkAgainButton() {
@@ -2192,7 +7858,7 @@
   }
 
   // ─── Public API ──────────────────────────────────────────────────────────
-  function open() {
+  function open(initOpts) {
     _mount();
     const ov = document.getElementById('wh-voice-overlay');
     if (!ov) return;
@@ -2204,12 +7870,108 @@
     if (confirmBtn) { confirmBtn.style.display = 'none'; confirmBtn.disabled = false; confirmBtn.textContent = 'Confirm'; }
     const again = document.getElementById('wh-voice-again');
     if (again) again.style.display = 'none';
+
+    // T68 (Phase 4.70) Persona portrait animation — listening state
+    // while the mic is hot. _startRecording flips to listening at end
+    // of this function; idle is the default attribute.
+    _setAvatarAnimation('listening');
+
+    // T72 (Phase 4.74) Multi-worker concurrency lock — record this
+    // session in localStorage so a second device in the same hive
+    // can detect the foreign session. Advisory only; we don't block.
+    try {
+      const ctxOpen = _ctx();
+      if (ctxOpen && ctxOpen.hive_id && ctxOpen.worker_name) {
+        const foreign = _isSessionLocked(ctxOpen.hive_id, ctxOpen.worker_name);
+        if (foreign && foreign.worker) {
+          const ageMs = Date.now() - Number(foreign.ts || 0);
+          const ageMin = Math.max(1, Math.round(ageMs / 60000));
+          _renderReplyBubble(
+            'Heads up — another worker (' + String(foreign.worker).slice(0, 24) +
+            ') has the voice session open in your hive (' + ageMin +
+            ' min ago). Both can talk, but shared notes may overlap.',
+            _getPersonaSafe()
+          );
+        }
+        _acquireSessionLock(ctxOpen.hive_id, ctxOpen.worker_name);
+      }
+    } catch (_) { /* non-fatal */ }
+
+    // T74 (Phase 4.76) Streaming — reset the streaming indicator on
+    // every open. ai-gateway flips it when the response starts.
+    _setStreamingState(false);
+
+    // Phase 4.54 (turn #55) Proactive alert opener — when initOpts.alert
+    // is a critical/high proactive alert, render its description as the
+    // FIRST companion line before listening. The worker can then tap to
+    // talk and the conversation flows from there. Fires only when the
+    // caller explicitly passes the alert (i.e. companion-launcher or
+    // similar surface that knows of a fresh critical event).
+    if (initOpts && initOpts.alert && initOpts.alert.description) {
+      const a = initOpts.alert;
+      const sev = String(a.severity || 'high').toUpperCase();
+      const proactiveLine = '[' + sev + '] ' + String(a.description).slice(0, 200) +
+        (a.action_suggested ? ' — ' + String(a.action_suggested).slice(0, 120) : '');
+      try {
+        const persona = _getPersonaSafe();
+        _setStatus(personaName_safe() + ' (heads up):');
+        _renderReplyBubble(proactiveLine, persona);
+        if (typeof window.speakPersona === 'function') {
+          window.speakPersona(proactiveLine, { persona });
+        }
+        _appendSessionTurn('(proactive alert)', proactiveLine);
+      } catch (_) { /* non-fatal */ }
+    }
+
     _startRecording();
   }
 
   function close() {
+    // Phase 4.23 (turn #24) CONVERSATION-END ACK — when the worker closes
+    // the voice overlay mid-conversation, persist a clean "session ended"
+    // marker so the next time they open it the stale-state guard (turn #6)
+    // and greeting (turn #10) behave correctly. Best-effort: failures
+    // don't block the close.
+    try {
+      if (window.WHTts && typeof window.WHTts.stop === 'function') {
+        window.WHTts.stop();
+      } else if (window.speechSynthesis) {
+        window.speechSynthesis.cancel();
+      }
+    } catch (_) { /* non-fatal */ }
+    try {
+      const db = _getDb();
+      const sessionId = (typeof _getSessionId === 'function') ? _getSessionId() : null;
+      const ctx = _ctx();
+      if (db && sessionId && ctx && ctx.hive_id && _sessionTurns.length > 0) {
+        // Mark the dialog state as cleanly ended: no priorIntent, no
+        // pending clarification, empty slots. The stale-state guard
+        // (turn #6) will pick this up if the worker comes back >15 min
+        // later; the first-turn greeting (turn #10) only requires
+        // empty _sessionTurns to fire so the next session opens warm.
+        _updateDialogState(db, ctx.hive_id, sessionId, null, 0, {}, false, null);
+      }
+    } catch (_) { /* non-fatal */ }
+    _resetClarifyStreak();
     _stopRecording();
     if (_stream) { _stream.getTracks().forEach(t => t.stop()); _stream = null; }
+    // T63 — stop the mic-quality meter so the AudioContext is released.
+    if (_micQualityMeter && typeof _micQualityMeter.stop === 'function') {
+      try { _micQualityMeter.stop(); } catch (_) { /* non-fatal */ }
+      _micQualityMeter = null;
+    }
+    // T68 (Phase 4.70) — avatar back to idle.
+    _setAvatarAnimation('idle');
+    // T72 (Phase 4.74) — release the multi-worker session lock so the
+    // next device opening voice in the same hive sees a clean slate.
+    try {
+      const ctxClose = _ctx();
+      if (ctxClose && ctxClose.hive_id && ctxClose.worker_name) {
+        _releaseSessionLock(ctxClose.hive_id, ctxClose.worker_name);
+      }
+    } catch (_) { /* non-fatal */ }
+    // T74 (Phase 4.76) — clear any in-flight streaming state.
+    _finalizeStream();
     const ov = document.getElementById('wh-voice-overlay');
     if (ov) ov.classList.remove('open');
   }
@@ -2234,16 +7996,329 @@
     return { ctx, db_available: !!db };
   };
 
-  // _isFollowupAffirmation + _shouldClarify are exposed for the journey-voice-journal
-  // Playwright sentinel — Layer 2 needs to assert the regex catches the right
-  // phrases ("yes", "sige", "the details", "oo", PH variants) without simulating
-  // the full multi-turn voice flow.
+  // Dialog-quality helpers exposed for the journey-voice-journal Playwright
+  // sentinel — Layer 2 reaches into these directly to assert the live
+  // regex + state machine behave correctly without simulating the full
+  // multi-turn voice flow.
+  //   _isFollowupAffirmation  — "yes / sige / the details" bypass (Phase 4.1)
+  //   _isFollowupNegation     — "no / wala / cancel" exit (Phase 4.2)
+  //   _isNoisyTranscript      — empty / 1-2 char / pure-filler guard (Phase 4.3)
+  //   _getClarifyStreak       — current consecutive-clarify counter (Phase 4.4)
+  //   _resetClarifyStreak     — test-side helper to reset between specs
+  //   _shouldClarify          — predicate that fires the clarification UI
+  //   _isPageRecoveryReply    — page-name recovery routing (Phase 4.7)
+  //   _buildVoiceSystemPrompt — for L2 specs that assert the slot enumeration
+  //                              + PRIOR TOPIC HANDLE actually land in the
+  //                              prompt at runtime (turn #3 + turn #4)
   window.WHVoice = {
     open, close, register, dispatch,
     _handlers: handlers,
     _debugContext: window._debugVoiceContext,
     _isFollowupAffirmation,
+    _isFollowupNegation,
+    _isNoisyTranscript,
+    _getClarifyStreak,
+    _resetClarifyStreak,
+    _bumpClarifyStreak,
     _shouldClarify,
+    _isPageRecoveryReply,
+    _buildVoiceSystemPrompt,
+    // Turns #5-#10 + #14 helpers
+    _isPersonaSwitchUtterance,
+    _isStaleDialogState,
+    _isTopicShiftSignal,
+    _isThanksReply,
+    _isGreeting,
+    _isRepeatRequest,
+    // Turns #25-#34 helpers
+    _isVoiceShortcut,
+    _isGoodbye,
+    _detectStandardsMention,
+    _recordReplyRating,
+    // Turns #35-#44 helpers
+    _isActionRequest,
+    _isBatchAction,
+    _isExplainRequest,
+    _detectMention,
+    _detectFatigueSignal,
+    _isExportRequest,
+    // Turns #45-#54 helpers
+    _isOffline,
+    _setOffline,
+    _lookupReplyCache,
+    _writeReplyCache,
+    _clearReplyCache,
+    _pushBranch,
+    _detectBranchRecall,
+    _isPhotoIntent,
+    _isSummaryRequest,
+    _classifyAvatarState,
+    _trackIdentity,
+    _resetIdentityTracking,
+    // Turns #55-#64 helpers
+    _selectProactiveAlertForSpeak,
+    _readHiveMaturityStair,
+    _pruneStaleSlots,
+    _stashConfirmedAction,
+    _getLastConfirmedAction,
+    _detectActionReplay,
+    _detectLanguagePref,
+    _setLanguagePref,
+    _getLanguagePref,
+    _detectBrevityToggle,
+    _setBrevityPref,
+    _getBrevityPref,
+    _detectTimerRequest,
+    _scheduleTimer,
+    _getActiveTimers,
+    _clearAllTimers,
+    _readUrlAssetParam,
+    _parseActionQueue,
+    // Turns #65-#74 helpers — ORCHESTRATION + INTEGRATION layer
+    _isPdfExportRequest,
+    _getPronunciationMap,
+    _setPronunciationOverride,
+    _applyPronunciation,
+    _isVoiceExecuteAuth,
+    _setVoiceExecuteAuth,
+    _setAvatarAnimation,
+    _fetchCrossHiveBenchmark,
+    _isDigestRequest,
+    _canPushNotify,
+    _pushNotifyState,
+    _requestPushPerm,
+    _isPushOptInReply,
+    _acquireSessionLock,
+    _isSessionLocked,
+    _releaseSessionLock,
+    _detectAccentHint,
+    _getAccentPref,
+    _setAccentPref,
+    _setStreamingState,
+    _isStreaming,
+    _bindStreamingBubble,
+    _appendStreamingChunk,
+    _finalizeStream,
+    // Turns #75-#84 helpers — TRUST DEPLOYMENT layer
+    _detectToxicLanguage,
+    _classifyQuestionShape,
+    _isFreshnessRequest,
+    _setRateLimitCooldown,
+    _inRateLimitCooldown,
+    _clearRateLimitCooldown,
+    _isShareRequest,
+    _buildShareLink,
+    _isReadbackRequest,
+    _isScopeQuery,
+    _isCorrection,
+    _confidenceLabel,
+    _detectCrisisEscalation,
+    // Turns #85-#94 helpers — INPUT NORMALIZATION + ONBOARDING layer
+    _formatKpi,
+    _normalizeAssetTag,
+    _normalizeTimeRange,
+    _getAckStyle,
+    _setAckStyle,
+    _detectAckStyleToggle,
+    _detectForbiddenTopic,
+    _classifyMicEnv,
+    _pinTurn,
+    _getPinnedTurns,
+    _isPinRequest,
+    _isHelpCommand,
+    _translateKpiLabel,
+    _isFirstTimeWorker,
+    _firstTimeWelcomeLine,
+    // Turns #95-#104 helpers — INTEGRATION + AUDIT layer
+    _emitAuditEvent,
+    _isQuietHours,
+    _preflightAction,
+    _scheduleIdleCleanup,
+    _cancelIdleCleanup,
+    _bumpErrorCount,
+    _getErrorCounts,
+    _setSessionTag,
+    _getSessionTag,
+    _detectSessionTagRequest,
+    _buildDeepLink,
+    _parseDeepLinkToken,
+    _looksGrammarMangled,
+    _pickPersonaPhrase,
+    _isNearShiftEnd,
+    // Turns #105-#114 helpers — PROACTIVE ASSISTANCE + LEARNING
+    _detectPmSyncDrift,
+    _skillDepthForLevel,
+    _vocabularyForDepth,
+    _detectCrossAssetPattern,
+    _recordIntent,
+    _topRecurringIntents,
+    _classifySessionSentiment,
+    _recordDailySentiment,
+    _isPersistentNegative,
+    _warmAssetRecord,
+    _normalizeSymptom,
+    _crossedShiftBoundary,
+    _logKnowledgeGap,
+    _isMentorHandoff,
+    _relayMentorQuestion,
+    // Turns #115-#124 helpers — COMPLIANCE + DATA GOVERNANCE
+    _scrubPii,
+    _hasConsent,
+    _captureConsent,
+    _revokeConsent,
+    _detectConsentChange,
+    _retentionCutoffIso,
+    _enforceRetention,
+    _isErasureRequest,
+    _executeErasure,
+    _buildAuditCsv,
+    _detectSuspiciousActivity,
+    _setAiDisclosurePolicy,
+    _needsAiDisclosure,
+    _markAiDisclosureShown,
+    _aiDisclosureLine,
+    _formatLocaleDate,
+    _getMonthlyCost,
+    _exceededCostCap,
+    _recordVoiceSignature,
+    _voiceSignatureDrift,
+    // Turns #125-#134 helpers — MULTI-MODAL + ACCESSIBILITY
+    _captureImageStill,
+    _openFileAttachment,
+    _isReducedMotionRequested,
+    _setReducedMotion,
+    _ensureAriaLiveRegion,
+    _announceForScreenReader,
+    _resolveKeyAction,
+    _isColorBlindMode,
+    _setColorBlindMode,
+    _currentPalette,
+    _isLargeTextMode,
+    _setLargeTextMode,
+    _hapticPulse,
+    _isVoiceOnlyMode,
+    _setVoiceOnlyMode,
+    _detectVoiceOnlyToggle,
+    _isCaptionsOn,
+    _setCaptionsOn,
+    _renderCaption,
+    // Turns #135-#144 helpers — OPERATIONAL EXCELLENCE
+    _pingHealthCheck,
+    _scheduleHealthPings,
+    _stopHealthPings,
+    _runSelfTest,
+    _loadFeatureFlags,
+    _isFeatureOn,
+    _checkBrowserSupport,
+    _renderBrowserBanner,
+    _currentNetworkClass,
+    _shouldUseLitePayload,
+    _checkMemoryPressure,
+    _checkClockDrift,
+    _shouldPauseForBackground,
+    _attachVisibilityHandler,
+    _installCrashHandler,
+    _getLastCrashSummary,
+    _clearCrashState,
+    _writePresence,
+    _startPresenceHeartbeat,
+    _stopPresenceHeartbeat,
+    // Turns #145-#154 helpers — TEAM COORDINATION
+    _listActiveVoiceWorkers,
+    _detectHandoffRequest,
+    _sendHandoff,
+    _fetchPendingHandoffs,
+    _isSharedNoteRequest,
+    _postSharedNote,
+    _shouldFlagHighConcurrency,
+    _subscribeWatchlist,
+    _unsubscribeWatchlist,
+    _detectWatchRequest,
+    _sendBroadcast,
+    _detectResolution,
+    _fetchPriorShiftOpenItems,
+    _setBuddy,
+    _getBuddy,
+    _clearBuddy,
+    _detectBuddySet,
+    _sendMentionNotice,
+    // Turns #155-#164 helpers — EXTERNAL INTEGRATION
+    _validateSapWorkOrder,
+    _buildMaximoQuery,
+    _parseMaximoResponse,
+    _parseOpcTag,
+    _buildMqttTopic,
+    _parseMqttPayload,
+    _sendSlackMessage,
+    _buildEmailDigestBody,
+    _buildTeamsCard,
+    _buildIcsEvent,
+    _constantTimeCompare,
+    _enqueueOutbound,
+    _getOutboundQueue,
+    _drainOutboundQueue,
+    // Turns #165-#174 helpers — ADVANCED ANALYTICS
+    _detectAnomaly3Sigma,
+    _weibullMomentFit,
+    _paretoTop80,
+    _linearTrend,
+    _seasonalPeakIndex,
+    _trimmedMean,
+    _zScore,
+    _pearsonCorrelation,
+    _weibullCdf,
+    _availability,
+    // Turns #175-#184 helpers — SAFETY + PERMIT-TO-WORK
+    _detectLotoIntent,
+    _detectHotWorkIntent,
+    _detectConfinedSpaceIntent,
+    _isPpeQuery,
+    _ppeFor,
+    _isNearMissReport,
+    _shouldOfferJsa,
+    _buildJsaTemplate,
+    _validateGasReading,
+    _isIncidentReport,
+    _energyIsolationChecklist,
+    _permitTimeRemaining,
+    // Turns #185-#194 helpers — KNOWLEDGE GRAPH
+    _extractEntities,
+    _extractRelations,
+    _buildKgTriple,
+    _buildRagBlock,
+    _embeddingHash32,
+    _hashHamming,
+    _chunkDocument,
+    _buildCitation,
+    _parseCitation,
+    _rewriteQueryForRetrieval,
+    _recordReasoningHop,
+    _getReasoningTrace,
+    _setKbVersion,
+    _getKbVersion,
+    _isKbStale,
+    // Turns #195-#204 helpers — ENERGY + SUSTAINABILITY
+    _energyUseIndex,
+    _carbonFromKwh,
+    _isPeakDemandBreach,
+    _detectEnergyAnomaly,
+    _standbyWaste,
+    _waterUseBreach,
+    _compressedAirLeakLoss,
+    _motorEfficiencyDelta,
+    _buildSustainabilityBundle,
+    _isEnergyQuery,
+    // Turns #205-#214 helpers — MULTI-LANGUAGE NLU
+    _isCebuanoLeaning,
+    _isIlonggoLeaning,
+    _isTagalogImperative,
+    _codeSwitchRatio,
+    _classifyPolitenessRegister,
+    _parsePhTimeExpression,
+    _wordToNumber,
+    _stripFillers,
+    _removeStopWords,
+    _slangToCanonical,
   };
 
   if (document.readyState === 'loading') {
