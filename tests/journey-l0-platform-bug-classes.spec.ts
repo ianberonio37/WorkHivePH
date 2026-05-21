@@ -248,6 +248,13 @@ test.describe('L0 platform bug-class validators', () => {
   test('empty_catch: validator at or under forward-only baseline', () => {
     assertPass('validate_empty_catch.py');
   });
+  // Flywheel turns 32-33 (2026-05-21): eval-adjacent + parser-blocking ratchets.
+  test('document_write_top_level: validator at or under forward-only baseline', () => {
+    assertPass('validate_document_write.py');
+  });
+  test('settimeout_string_arg: validator at or under forward-only baseline', () => {
+    assertPass('validate_settimeout_string.py');
+  });
 });
 
 // ---------------------------------------------------------------------------

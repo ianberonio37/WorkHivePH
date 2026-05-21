@@ -501,6 +501,9 @@ def _gather() -> dict[str, Any]:
         ("tblname",   "table_accessible_name_report.json",         ("drift","baseline")),
         # Flywheel turn 31 (2026-05-21)
         ("emptycatch","empty_catch_report.json",                   ("drift","baseline")),
+        # Flywheel turns 32-33 (2026-05-21)
+        ("docwrite",  "document_write_report.json",                ("drift","baseline")),
+        ("timerstr",  "settimeout_string_report.json",             ("drift","baseline")),
     ]:
         d = _read_json(fname)
         if d:
@@ -919,6 +922,8 @@ def _print(status: dict[str, Any]) -> int:
         ("dropif",    "DROP IF EXISTS:              "),
         ("tblname",   "<table> accessible name:     "),
         ("emptycatch","Empty catch{} bodies:        "),
+        ("docwrite",  "document.write() top-level:  "),
+        ("timerstr",  "setTimeout(string) eval:     "),
     ]:
         val = status.get(f"{key}_val", 0)
         baseline = status.get(f"{key}_baseline", 0)
