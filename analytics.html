@@ -1614,7 +1614,7 @@
     });
 
     return `<div class="card">
-      <div class="card-title">Anomaly Baseline Detection <span class="card-standard">ISO 7870-2 SPC · ${d.machines_tracked} machine(s) · ${d.anomaly_count} alert(s)</span></div>
+      <div class="card-title">Anomaly Baseline Detection <span class="card-standard">ISO 7870-2 SPC · ${d.machines_tracked} machine(s) · ${d.anomaly_count} alert(s)</span><!-- native-dialog-allow: literal text in HTML string, not a function call --></div>
       ${anomalyHtml}
       <p style="font-size:0.62rem;color:rgba(255,255,255,0.25);margin:0.75rem 0 0.4rem;text-transform:uppercase;letter-spacing:0.06em;font-weight:600;">Baseline reference (top 8 by sample count)</p>
       ${baselineList}

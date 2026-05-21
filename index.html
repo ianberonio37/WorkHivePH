@@ -2640,7 +2640,7 @@
 
   // ── Enterprise SSO (Phase 4.2) ─────────────────────────────────────────────
   async function signInWithSSO() {
-    const domain = prompt('Enter your company email domain:\ne.g. acmecorp.com');
+    const domain = await window.whPrompt('Enter your company email domain (e.g. acmecorp.com):', { inputLabel: 'Company email domain' });
     if (!domain || !domain.includes('.')) { return; }
     // Inline showToast (qa_no_alert_call): non-blocking, mobile-friendly.
     window.showToast = window.showToast || function (msg, kind) {

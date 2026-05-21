@@ -1224,7 +1224,7 @@
 
     async function rejectAssetNode(nodeId) {
       if (HIVE_ROLE !== 'supervisor') { showToast('Supervisors only.'); return; }
-      if (!confirm('Reject this asset? It stays in the queue but will not appear in the approved list.')) return;
+      if (!(await window.whConfirm('Reject this asset? It stays in the queue but will not appear in the approved list.', { okLabel: 'Reject', cancelLabel: 'Cancel' }))) return;
       const node = _allNodes.find(n => n.id === nodeId);
       const { error } = await db.from('asset_nodes')
         .update({ status: 'rejected', approved_by: WORKER_NAME, approved_at: new Date().toISOString() })
@@ -2262,7 +2262,7 @@
 
     async function deleteFmeaMode(id) {
       if (HIVE_ROLE !== 'supervisor') { showToast('Supervisors only.'); return; }
-      if (!confirm('Delete this FMEA failure mode? Linked RCM strategies will cascade.')) return;
+      if (!(await window.whConfirm('Delete this FMEA failure mode? Linked RCM strategies will cascade.', { okLabel: 'Delete', cancelLabel: 'Keep' }))) return;
       const { error } = await db.from('rcm_fmea_modes')
         .delete()
         .eq('id', id)
@@ -2436,7 +2436,7 @@
 
     async function deleteStrategy(strategyId) {
       if (HIVE_ROLE !== 'supervisor') { showToast('Supervisors only.'); return; }
-      if (!confirm('Delete this RCM strategy? Linked PM scope item will remain in PM Scheduler (unlink only).')) return;
+      if (!(await window.whConfirm('Delete this RCM strategy? Linked PM scope item will remain in PM Scheduler (unlink only).', { okLabel: 'Delete', cancelLabel: 'Keep' }))) return;
       const { error } = await db.from('rcm_strategies')
         .delete().eq('id', strategyId).eq('hive_id', HIVE_ID);
       if (error) { showToast('Delete failed: ' + error.message); return; }

@@ -1728,7 +1728,7 @@
   }
 
   async function revokeKey(id) {
-    if (!confirm('Revoke this API key? Any integrations using it will stop working.')) return;
+    if (!(await window.whConfirm('Revoke this API key? Any integrations using it will stop working.', { okLabel: 'Revoke', cancelLabel: 'Keep' }))) return;
     await db.from('api_keys').update({ enabled: false }).eq('id', id);
     loadApiKeys();
   }
@@ -1771,7 +1771,7 @@
   }
 
   async function rollbackBatch(batchId, entityType, triggeredBy, createdAt) {
-    if (!confirm(`Undo this import? This will delete the ${entityType} records from external_sync and attempt to remove the corresponding logbook/asset/inventory rows created in that batch.`)) return;
+    if (!(await window.whConfirm(`Undo this import? This will delete the ${entityType} records from external_sync and attempt to remove the corresponding logbook/asset/inventory rows created in that batch.`, { okLabel: 'Undo import', cancelLabel: 'Cancel' }))) return;
 
     const batchTime = new Date(createdAt);
     const windowEnd = new Date(batchTime.getTime() + 300000).toISOString();  // +5 min window

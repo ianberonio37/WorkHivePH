@@ -2108,7 +2108,7 @@ function setStep(n) {
   renderStepIndicator(n);
 }
 
-function goStep(n) {
+async function goStep(n) {
   if (n === 2) {
     const name = document.getElementById('w-name').value.trim();
     const cat  = document.getElementById('w-category').value;
@@ -2122,7 +2122,7 @@ function goStep(n) {
       (a.tag_id     || '').toLowerCase() === nameLower
     );
     if (existing) {
-      if (confirm(`"${name}" is already registered as an asset.\n\nOpen it to add more tasks instead?`)) {
+      if (await window.whConfirm(`"${name}" is already registered as an asset.\n\nOpen it to add more tasks instead?`, { okLabel: 'Open existing', cancelLabel: 'Cancel' })) {
         showScreen('dashboard');
         openDetail(existing.id);
       }
@@ -2349,7 +2349,7 @@ async function confirmDeleteAsset() {
   if (HIVE_ID && HIVE_ROLE !== 'supervisor' && currentAsset.worker_name !== WORKER_NAME) {
     showToast('Only supervisors can delete other members\' assets.'); return;
   }
-  if (!confirm(`Delete "${currentAsset.asset_name}" and all its PM data? This cannot be undone.`)) return;
+  if (!(await window.whConfirm(`Delete "${currentAsset.asset_name}" and all its PM data? This cannot be undone.`, { okLabel: 'Delete', cancelLabel: 'Cancel' }))) return;
   await deleteAsset();
 }
 

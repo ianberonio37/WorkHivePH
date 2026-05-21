@@ -1531,7 +1531,7 @@
   }
 
   async function deleteSavedSearch(id) {
-    if (!confirm('Delete this saved search? This cannot be undone.')) return;
+    if (!(await window.whConfirm('Delete this saved search? This cannot be undone.', { okLabel: 'Delete', cancelLabel: 'Cancel' }))) return;
     try {
       const { error } = await db
         .from('marketplace_saved_searches')

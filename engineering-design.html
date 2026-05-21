@@ -28859,7 +28859,7 @@ function viewHistoryReport(row) {
 }
 
 async function deleteCalc(id) {
-  if (!confirm('Delete this calculation?')) return;
+  if (!(await window.whConfirm('Delete this calculation?', { okLabel: 'Delete', cancelLabel: 'Cancel' }))) return;
   // Defense-in-depth: scope by worker_name so a console caller can't
   // delete another worker's calc even if RLS is misconfigured.
   if (!WORKER_NAME) { showToast('Sign in to delete.'); return; }
@@ -28996,10 +28996,10 @@ function toggleBomItem(i) {
   document.getElementById('bom-row-' + i)?.classList.toggle('unchecked', _bomItems[i].checked === false);
 }
 
-function deleteBomRow(i) {
+async function deleteBomRow(i) {
   const item = _bomItems[i];
   const label = (item && item.description) ? item.description : 'this item';
-  if (!confirm(`Remove ${label} from the BOM?`)) return;
+  if (!(await window.whConfirm(`Remove ${label} from the BOM?`, { okLabel: 'Remove', cancelLabel: 'Keep' }))) return;
   _bomItems.splice(i, 1);
   renderBomChecklist();
 }

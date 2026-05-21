@@ -1068,7 +1068,7 @@
   async function handleDelete(id) {
     const item = _listings.find(l => l.id === id);
     if (!item || item.status !== 'draft') return;
-    if (!confirm(`Delete "${item.title}"? This cannot be undone.`)) return;
+    if (!(await window.whConfirm(`Delete "${item.title}"? This cannot be undone.`, { okLabel: 'Delete', cancelLabel: 'Cancel' }))) return;
 
     try {
       const { error } = await db.from('marketplace_listings').delete().eq('id', id).eq('seller_name', WORKER_NAME);

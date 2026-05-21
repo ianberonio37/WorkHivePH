@@ -662,7 +662,7 @@
     async function archivePlan() {
       if (HIVE_ROLE !== 'supervisor') { showToast('Supervisors only.'); return; }
       if (!_activePlan) return;
-      if (!confirm('Archive this shift plan? It will be hidden from the active view but kept for history.')) return;
+      if (!(await window.whConfirm('Archive this shift plan? It will be hidden from the active view but kept for history.', { okLabel: 'Archive', cancelLabel: 'Cancel' }))) return;
       const btn = document.getElementById('archive-btn');
       if (btn) btn.disabled = true;
       const { error } = await db.from('shift_plans')

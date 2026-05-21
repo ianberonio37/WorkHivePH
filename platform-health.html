@@ -1686,11 +1686,11 @@ async function loadHealth() {
 }
 
 // ── Commit & Push ─────────────────────────────────────────────────────────
-function commitAndPush() {
+async function commitAndPush() {
   if (_running) return;
   const defaultMsg = 'Platform update ' + new Date().toLocaleDateString('en-PH',
     {year:'numeric', month:'short', day:'numeric'});
-  const msg = prompt('Commit message:', defaultMsg);
+  const msg = await window.whPrompt('Commit message:', { inputLabel: 'Commit message', defaultValue: defaultMsg });
   if (msg === null) return;
 
   if (_evtSource) { _evtSource.close(); _evtSource = null; }

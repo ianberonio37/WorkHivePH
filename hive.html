@@ -1496,7 +1496,7 @@ document.getElementById('btn-leave-hive').addEventListener('click', async () => 
       return;
     }
   }
-  if (!confirm('Leave this hive? Your past contributions will no longer appear in the hive feed.')) return;
+  if (!(await window.whConfirm('Leave this hive? Your past contributions will no longer appear in the hive feed.', { okLabel: 'Leave', cancelLabel: 'Stay' }))) return;
   await performLeave();
 });
 
@@ -2435,7 +2435,7 @@ async function loadMembers() {
 
 async function kickMember(workerName) {
   if (HIVE_ROLE !== 'supervisor') { showToast('Supervisors only.'); return; }
-  if (!confirm(`Remove ${workerName} from the hive? They will not be able to rejoin unless a supervisor re-approves them.`)) return;
+  if (!(await window.whConfirm(`Remove ${workerName} from the hive? They will not be able to rejoin unless a supervisor re-approves them.`, { okLabel: 'Remove', cancelLabel: 'Keep' }))) return;
   const { error } = await db.from('hive_members')
     .update({ status: 'kicked' }).eq('hive_id', HIVE_ID).eq('worker_name', workerName);
   if (error) { showToast('Could not remove member: ' + error.message); return; }
@@ -3146,7 +3146,7 @@ async function approveItem(table, id, submittedBy, label) {
 
 async function rejectItem(table, id, submittedBy, label) {
   if (HIVE_ROLE !== 'supervisor') { showToast('Supervisors only.'); return; }
-  if (!confirm(`Reject "${label}" submitted by ${submittedBy}? They will need to resubmit.`)) return;
+  if (!(await window.whConfirm(`Reject "${label}" submitted by ${submittedBy}? They will need to resubmit.`, { okLabel: 'Reject', cancelLabel: 'Cancel' }))) return;
   const { error } = await db.from(table).update({ status: 'rejected' }).eq('id', id).eq('hive_id', HIVE_ID);
   if (error) { showToast('Reject failed: ' + error.message); return; }
 

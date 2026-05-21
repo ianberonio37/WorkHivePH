@@ -1613,7 +1613,7 @@
       showToast('Link copied to clipboard');
     } catch (_) {
       // Fallback: select-and-prompt for older browsers / file:// origin
-      window.prompt('Copy this link:', url);
+      await window.whPrompt('Copy this link:', { inputLabel: 'Share URL', defaultValue: url });
     }
   }
 

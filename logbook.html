@@ -1801,7 +1801,7 @@ async function embedFaultEntry(entry) {
 }
 
 async function deleteEntry(id) {
-  if (!confirm('Delete this entry? This cannot be undone.')) return;
+  if (!(await window.whConfirm('Delete this entry? This cannot be undone.', { okLabel: 'Delete', cancelLabel: 'Cancel' }))) return;
   const { data: deleted, error } = await db.from('logbook')
     .delete()
     .eq('id', id)
@@ -2071,7 +2071,7 @@ async function deleteAsset(id) {
     }
   }
 
-  if (!confirm('Remove this asset from the registry?')) return;
+  if (!(await window.whConfirm('Remove this asset from the registry?', { okLabel: 'Remove', cancelLabel: 'Cancel' }))) return;
 
   const { error } = await db.from('asset_nodes').delete().eq('id', id);
   if (error) { showToast('Could not remove asset: ' + error.message); return; }
@@ -3618,7 +3618,7 @@ document.getElementById('modal').addEventListener('click', (e) => {
 // DELETE
 // ────────────────────────────────────────────
 async function confirmDelete(id) {
-  if (confirm('Delete this entry? This cannot be undone.')) {
+  if (await window.whConfirm('Delete this entry? This cannot be undone.', { okLabel: 'Delete', cancelLabel: 'Cancel' })) {
     await deleteEntry(id);
     await renderEntries();
     showToast('Entry deleted.');
