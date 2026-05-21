@@ -255,6 +255,13 @@ test.describe('L0 platform bug-class validators', () => {
   test('settimeout_string_arg: validator at or under forward-only baseline', () => {
     assertPass('validate_settimeout_string.py');
   });
+  // Flywheel turns 34-35 (2026-05-21): a11y tab order + pinch-zoom ratchets.
+  test('tabindex_positive: validator at or under forward-only baseline', () => {
+    assertPass('validate_tabindex_positive.py');
+  });
+  test('viewport_user_scalable: validator at or under forward-only baseline', () => {
+    assertPass('validate_viewport_user_scalable.py');
+  });
 });
 
 // ---------------------------------------------------------------------------

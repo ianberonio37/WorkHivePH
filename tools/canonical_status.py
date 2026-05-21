@@ -504,6 +504,9 @@ def _gather() -> dict[str, Any]:
         # Flywheel turns 32-33 (2026-05-21)
         ("docwrite",  "document_write_report.json",                ("drift","baseline")),
         ("timerstr",  "settimeout_string_report.json",             ("drift","baseline")),
+        # Flywheel turns 34-35 (2026-05-21)
+        ("tabidxpos", "tabindex_positive_report.json",             ("drift","baseline")),
+        ("vpscale",   "viewport_user_scalable_report.json",        ("drift","baseline")),
     ]:
         d = _read_json(fname)
         if d:
@@ -924,6 +927,8 @@ def _print(status: dict[str, Any]) -> int:
         ("emptycatch","Empty catch{} bodies:        "),
         ("docwrite",  "document.write() top-level:  "),
         ("timerstr",  "setTimeout(string) eval:     "),
+        ("tabidxpos", "tabindex positive (a11y):    "),
+        ("vpscale",   "viewport zoom disabled:      "),
     ]:
         val = status.get(f"{key}_val", 0)
         baseline = status.get(f"{key}_baseline", 0)
