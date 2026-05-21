@@ -383,6 +383,152 @@ async function fetchWithTimeout(url, options, timeoutMs) {
 if (typeof window !== 'undefined') window.fetchWithTimeout = fetchWithTimeout;
 
 // ─────────────────────────────────────────────
+// whConfirm() / whPrompt() — styled async modals
+// ─────────────────────────────────────────────
+// Drop-in async replacements for native confirm() / prompt(). Both block
+// the main thread, can't be styled, and on some mobile browsers are
+// silently suppressed entirely. The platform toast/modal stack owns the
+// UI shell; whConfirm/whPrompt are the gateway to it.
+//
+// Migration from native:
+//   if (!confirm('Delete X?')) return;
+//     -> if (!(await whConfirm('Delete X?'))) return;        // caller becomes async
+//
+//   const name = prompt('Enter name'); if (!name) return;
+//     -> const name = await whPrompt('Enter name'); if (!name) return;
+//
+// Both return a Promise:
+//   whConfirm: resolves true (OK) / false (Cancel or Esc / backdrop click)
+//   whPrompt: resolves the entered string, or null if cancelled
+//
+// The modal mounts on document.body (so it works on any page without
+// per-page setup), traps focus, and disposes on resolve. ARIA: role="dialog"
+// + aria-labelledby + aria-modal so screen readers announce it.
+(function(){
+  if (typeof window === 'undefined' || window.whConfirm) return;
+
+  function _mount(opts) {
+    const {
+      message,
+      okLabel = 'OK',
+      cancelLabel = 'Cancel',
+      withInput = false,
+      inputLabel = '',
+      inputDefault = '',
+      onResolve,
+    } = opts;
+
+    const ovId   = 'wh-modal-ov-' + Date.now() + '-' + Math.floor(Math.random()*1000);
+    const titleId = ovId + '-title';
+    const inputId = ovId + '-input';
+
+    const overlay = document.createElement('div');
+    overlay.id = ovId;
+    overlay.setAttribute('role', 'dialog');
+    overlay.setAttribute('aria-modal', 'true');
+    overlay.setAttribute('aria-labelledby', titleId);
+    overlay.style.cssText =
+      'position:fixed;inset:0;z-index:10001;background:rgba(0,0,0,0.6);' +
+      'backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;' +
+      'padding:16px;animation:wh-fade-in 0.12s ease-out;';
+
+    overlay.innerHTML =
+      '<div style="background:#162032;border:1px solid rgba(255,255,255,0.1);border-radius:14px;' +
+        'padding:20px 22px;max-width:440px;width:100%;box-shadow:0 16px 48px rgba(0,0,0,0.5);">' +
+        '<p id="' + escHtml(titleId) + '" style="font-size:0.95rem;font-weight:600;color:#F4F6FA;' +
+          'margin:0 0 14px;line-height:1.45;">' + escHtml(message) + '</p>' +
+        (withInput
+          ? '<input id="' + escHtml(inputId) + '" type="text" ' +
+            'aria-label="' + escHtml(inputLabel || message) + '" ' +
+            'value="' + escHtml(inputDefault || '') + '" ' +
+            'style="width:100%;padding:9px 12px;border-radius:8px;border:1px solid rgba(255,255,255,0.12);' +
+            'background:rgba(255,255,255,0.04);color:#F4F6FA;font-size:0.9rem;font-family:inherit;' +
+            'margin-bottom:14px;min-height:44px;" />'
+          : ''
+        ) +
+        '<div style="display:flex;gap:8px;justify-content:flex-end;">' +
+          '<button type="button" data-wh-modal-cancel ' +
+            'style="background:transparent;color:rgba(255,255,255,0.65);border:1px solid rgba(255,255,255,0.12);' +
+            'border-radius:8px;padding:9px 16px;font-size:0.85rem;font-weight:600;cursor:pointer;' +
+            'min-height:44px;font-family:inherit;">' + escHtml(cancelLabel) + '</button>' +
+          '<button type="button" data-wh-modal-ok ' +
+            'style="background:#F7A21B;color:#162032;border:none;border-radius:8px;padding:9px 16px;' +
+            'font-size:0.85rem;font-weight:700;cursor:pointer;min-height:44px;font-family:inherit;">' +
+            escHtml(okLabel) + '</button>' +
+        '</div>' +
+      '</div>';
+
+    document.body.appendChild(overlay);
+
+    const inputEl  = withInput ? overlay.querySelector('#' + CSS.escape(inputId)) : null;
+    const cancelEl = overlay.querySelector('[data-wh-modal-cancel]');
+    const okEl     = overlay.querySelector('[data-wh-modal-ok]');
+
+    // Trap focus + autofocus the relevant control
+    const focusTarget = inputEl || okEl;
+    setTimeout(() => focusTarget && focusTarget.focus(), 0);
+
+    function dispose(value) {
+      try { document.removeEventListener('keydown', onKey, true); } catch (_) { /* empty-catch-allow: best-effort cleanup */ }
+      try { overlay.remove(); } catch (_) { /* empty-catch-allow: best-effort cleanup */ }
+      onResolve(value);
+    }
+    function onKey(e) {
+      if (e.key === 'Escape') { e.stopPropagation(); dispose(withInput ? null : false); }
+      else if (e.key === 'Enter' && (e.target === inputEl || e.target === okEl || !withInput)) {
+        e.stopPropagation();
+        dispose(withInput ? (inputEl.value || '') : true);
+      }
+    }
+    document.addEventListener('keydown', onKey, true);
+
+    cancelEl.addEventListener('click', () => dispose(withInput ? null : false));
+    okEl.addEventListener('click',     () => dispose(withInput ? (inputEl.value || '') : true));
+    overlay.addEventListener('click', (e) => { if (e.target === overlay) dispose(withInput ? null : false); });
+  }
+
+  window.whConfirm = function whConfirm(message, opts) {
+    opts = opts || {};
+    return new Promise((resolve) => {
+      _mount({
+        message,
+        okLabel:     opts.okLabel || 'OK',
+        cancelLabel: opts.cancelLabel || 'Cancel',
+        withInput:   false,
+        onResolve:   resolve,
+      });
+    });
+  };
+
+  window.whPrompt = function whPrompt(message, opts) {
+    opts = opts || {};
+    return new Promise((resolve) => {
+      _mount({
+        message,
+        okLabel:      opts.okLabel || 'OK',
+        cancelLabel:  opts.cancelLabel || 'Cancel',
+        withInput:    true,
+        inputLabel:   opts.inputLabel || '',
+        inputDefault: opts.defaultValue || '',
+        onResolve:    resolve,
+      });
+    });
+  };
+
+  // Inject the minimal fade-in keyframe (the same shell used elsewhere reuses
+  // existing animations, but whConfirm is loaded on every page so it owns its
+  // own animation to avoid a load-order dependency).
+  try {
+    if (!document.getElementById('wh-modal-anim-style')) {
+      const s = document.createElement('style');
+      s.id = 'wh-modal-anim-style';
+      s.textContent = '@keyframes wh-fade-in{from{opacity:0;}to{opacity:1;}}';
+      document.head.appendChild(s);
+    }
+  } catch (_) { /* empty-catch-allow: best-effort style inject; modal still works without anim */ }
+})();
+
+// ─────────────────────────────────────────────
 // trimChatToTokenBudget — context-window compressor (Phase 1.8 of STRATEGIC_ROADMAP)
 // ─────────────────────────────────────────────
 // floating-ai and assistant.html both stuff a long system prompt (2k-2.7k

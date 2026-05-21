@@ -1470,9 +1470,11 @@ function saveScheduleItem() {
   render();
 }
 
-function deleteScheduleItem() {
+async function deleteScheduleItem() {
   if (!editingScheduleId) return;
-  if (!confirm('Remove this scheduled item?')) return;
+  // Migrated from native confirm() to whConfirm() (utils.js) — styled modal,
+  // focus-trapped, ARIA-labelled. Cancel + Esc + backdrop click all resolve false.
+  if (!(await window.whConfirm('Remove this scheduled item?', { okLabel: 'Remove', cancelLabel: 'Keep' }))) return;
   scheduleItems = scheduleItems.filter(i => i.id !== editingScheduleId);
   deleteItemFromSupabase(editingScheduleId);
   closeModal();
