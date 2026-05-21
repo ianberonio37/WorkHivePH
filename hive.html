@@ -488,19 +488,19 @@
           <div class="verdict-text"><span id="ss-verdict-label">Computing hive health...</span><small id="ss-verdict-sub">Rolling up adoption + PM compliance + open work + low stock.</small></div>
         </div>
         <div class="simple-row" id="ss-cards">
-          <div class="simple-card tag-grey" id="ss-card-stair" title="WorkHive Stair Model — 5-dimension composite (Reliability/Operations/Safety/People/Cost) per KPI_ENGINE.md">
+          <div class="simple-card tag-grey" id="ss-card-stair" title="WorkHive Stair Model — 5-dimension composite (Reliability/Operations/Safety/People/Cost) per KPI_ENGINE.md" data-rag-tile="hive:maturity_stair" data-rag-label="Hive maturity stair">
             <div class="sc-label">Maturity stair · WorkHive Stair Model</div>
             <div class="sc-hero" id="ss-stair-hero">&#8212;</div>
             <div class="sc-sub" id="ss-stair-sub">Loading...</div>
             <span class="sc-tag" id="ss-stair-tag">&#8212;</span>
           </div>
-          <div class="simple-card tag-grey" id="ss-card-adoption">
+          <div class="simple-card tag-grey" id="ss-card-adoption" data-rag-tile="hive:adoption_health" data-rag-label="Adoption health">
             <div class="sc-label">Adoption health</div>
             <div class="sc-hero" id="ss-adoption-hero">&#8212;</div>
             <div class="sc-sub" id="ss-adoption-sub">Loading...</div>
             <span class="sc-tag" id="ss-adoption-tag">&#8212;</span>
           </div>
-          <div class="simple-card tag-grey" id="ss-card-issues">
+          <div class="simple-card tag-grey" id="ss-card-issues" data-rag-tile="hive:open_issues" data-rag-label="Open issues">
             <div class="sc-label">Open issues</div>
             <div class="sc-hero" id="ss-issues-hero">&#8212;</div>
             <div class="sc-sub" id="ss-issues-sub">Loading...</div>
@@ -1201,7 +1201,7 @@ document.getElementById('nav-worker').textContent = WORKER_NAME;
 (async function initHive() {
   // C4: restore identity from auth session on new device, then get auth_uid
   if (!WORKER_NAME) { WORKER_NAME = await restoreIdentityFromSession(db); }
-  try { const { data: { session } } = await db.auth.getSession(); _authUid = session?.user?.id || null; } catch (_) {}
+  try { const { data: { session } } = await db.auth.getSession(); _authUid = session?.user?.id || null; } catch (_) { /* empty-catch-allow: best-effort silent swallow */ }
   if (!WORKER_NAME) { window.location.href = 'index.html?signin=1'; return; }
   // Phase B (auth migration): require authenticated session, not just stale localStorage.
   // Stale WORKER_NAME without _authUid means the worker would 401 once Phase E flips
@@ -1429,11 +1429,11 @@ async function submitJoin() {
       // browser still holds the old session). Force a fresh sign-in instead
       // of leaving the user stuck on a confusing FK error.
       if (/auth_uid.*fkey|violates foreign key/i.test(joinErr.message || '')) {
-        try { await db.auth.signOut(); } catch (_) {}
+        try { await db.auth.signOut(); } catch (_) { /* empty-catch-allow: best-effort silent swallow */ }
         try {
           ['wh_active_hive_id','wh_hive_id','wh_hive_name','wh_hive_role','wh_hive_code',
            'wh_last_worker','wh_worker_name','workerName'].forEach(k => localStorage.removeItem(k));
-        } catch (_) {}
+        } catch (_) { /* empty-catch-allow: best-effort silent swallow */ }
         errEl.innerHTML = 'Your sign-in session expired (auth was reset). Redirecting you to sign in again…';
         errEl.classList.remove('hidden');
         setTimeout(() => { window.location.href = 'index.html?signin=1'; }, 1200);
@@ -1853,7 +1853,7 @@ async function loadAdoptionCard() {
   try {
     const res = await db.rpc('get_adoption_risk_current', { p_hive_id: HIVE_ID });
     row = Array.isArray(res.data) ? res.data[0] : res.data;
-  } catch (_) {}
+  } catch (_) { /* empty-catch-allow: best-effort silent swallow */ }
 
   const isStale = !row
     || !row.computed_at
@@ -1903,7 +1903,7 @@ function renderAdoptionCard(row) {
       try {
         const reasons = Array.isArray(row.top_reasons) ? row.top_reasons : [];
         if (reasons.length && reasons[0].label) top = reasons[0].label;
-      } catch (_) {}
+      } catch (_) { /* empty-catch-allow: best-effort silent swallow */ }
       summary.textContent = top;
     }
   }
@@ -2243,7 +2243,7 @@ async function loadKnowledgePipeline() {
       .select('kind, total_rows, embedded_rows, pending_rows, last_embedded_at, days_since_last_embed, embedded_pct')
       .eq('hive_id', HIVE_ID);
     rows = data || [];
-  } catch (_) {}
+  } catch (_) { /* empty-catch-allow: best-effort silent swallow */ }
 
   const e = escHtml;
   const KIND_LABEL = { fault: 'Fault history', skill: 'Skill profiles', pm: 'PM knowledge' };
@@ -2316,7 +2316,7 @@ async function loadOnboardingCard() {
 async function maybeShowIntentCapture() {
   if (!HIVE_ID || HIVE_ROLE !== 'supervisor') return;
   const sessionKey = 'wh_intent_dismissed_' + HIVE_ID;
-  try { if (sessionStorage.getItem(sessionKey)) return; } catch (_) {}
+  try { if (sessionStorage.getItem(sessionKey)) return; } catch (_) { /* empty-catch-allow: best-effort silent swallow */ }
 
   let intent = null;
   try {
@@ -2375,7 +2375,7 @@ async function maybeShowIntentCapture() {
   }
   if (skip && !skip._wired) {
     skip.addEventListener('click', () => {
-      try { sessionStorage.setItem(sessionKey, '1'); } catch (_) {}
+      try { sessionStorage.setItem(sessionKey, '1'); } catch (_) { /* empty-catch-allow: best-effort silent swallow */ }
       modal.style.display = 'none';
       modal.classList.add('hidden');
     });
@@ -3360,7 +3360,7 @@ async function loadTodaysBrief() {
       }
       if (looksLikePlaceholder) sessionStorage.removeItem(cacheKey);
     }
-  } catch {}
+  } catch { /* empty-catch-allow: best-effort silent swallow */ }
 
   const types = ['failure_digest', 'predictive', 'pm_overdue'];
   const results = await Promise.allSettled(types.map(type =>
@@ -3394,7 +3394,7 @@ async function loadTodaysBrief() {
   // lands, the panel appears with real content. Also evict any prior
   // cache so a poisoned entry from an earlier build can't resurrect.
   if (!bullets.length) {
-    try { sessionStorage.removeItem(cacheKey); } catch {}
+    try { sessionStorage.removeItem(cacheKey); } catch { /* empty-catch-allow: best-effort silent swallow */ }
     panel.classList.add('hidden');
     return;
   }
@@ -3424,7 +3424,7 @@ async function loadTodaysBrief() {
   if (ageText) html += `<p class="text-[10px] text-white/20 mt-2">Updated ${escHtml(ageText)}</p>`;
 
   el.innerHTML = html;
-  try { sessionStorage.setItem(cacheKey, JSON.stringify({ html, ts: Date.now() })); } catch {}
+  try { sessionStorage.setItem(cacheKey, JSON.stringify({ html, ts: Date.now() })); } catch { /* empty-catch-allow: best-effort silent swallow */ }
   panel.classList.remove('hidden');
 }
 

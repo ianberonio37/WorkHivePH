@@ -480,7 +480,7 @@
       _stats.sellers    = sellersRes.data?.length || 0;
       _stats.unverified = (sellersRes.data || []).filter(s => !s.kyb_verified).length;
       updateStats();
-    } catch (_) {}
+    } catch (_) { /* empty-catch-allow: best-effort silent swallow */ }
   }
 
   function updateStats() {

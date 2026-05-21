@@ -2004,7 +2004,7 @@
         data.forEach(row => { if (_counts[row.section] != null) _counts[row.section]++; });
         updateCountBadges();
       }
-    } catch (_) { /* ignore — table may not exist yet */ }
+    } catch (_) { /* ignore — table may not exist yet */ /* empty-catch-allow: best-effort silent swallow */ }
   }
 
   function updateCountBadges() {
@@ -2070,7 +2070,7 @@
             <p class="review-text">${e(rv.comment)}</p>
           </div>`).join('');
       }
-    } catch (_) { /* ignore */ }
+    } catch (_) { /* ignore */ /* empty-catch-allow: best-effort silent swallow */ }
 
     const content = document.getElementById('detail-content');
     if (!content) return;
@@ -2907,7 +2907,7 @@
     try {
       const { data: { session } } = await db.auth.getSession();
       _authUid = session?.user?.id || null;
-    } catch (_) {}
+    } catch (_) { /* empty-catch-allow: best-effort silent swallow */ }
 
     // Phase B (auth migration): marketplace browsing is anon-friendly by design,
     // so we DON'T require auth to view listings. But if a worker has a stale

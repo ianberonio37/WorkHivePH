@@ -111,7 +111,7 @@
             _sessionId = prior;
           }
         }
-      } catch (_) { /* sessionStorage may be denied */ }
+      } catch (_) { /* sessionStorage may be denied */ /* empty-catch-allow: best-effort silent swallow */ }
       if (!_sessionId) {
         _sessionId = 'voice_session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
       }
@@ -121,7 +121,7 @@
         if (typeof sessionStorage !== 'undefined') {
           sessionStorage.setItem('wh_voice_session_id', _sessionId);
         }
-      } catch (_) { /* sessionStorage may be denied */ }
+      } catch (_) { /* sessionStorage may be denied */ /* empty-catch-allow: best-effort silent swallow */ }
     }
     return _sessionId;
   }
@@ -464,9 +464,9 @@
     // / Azure audio path (wh-tts._audio) and the browser TTS fallback
     // need cancelling — wh-tts.stop() does both.
     if (window.WHTts && typeof window.WHTts.stop === 'function') {
-      try { window.WHTts.stop(); } catch (_) { /* non-fatal */ }
+      try { window.WHTts.stop(); } catch (_) { /* non-fatal */ /* empty-catch-allow: best-effort silent swallow */ }
     } else if (window.speechSynthesis) {
-      try { window.speechSynthesis.cancel(); } catch (_) { /* non-fatal */ }
+      try { window.speechSynthesis.cancel(); } catch (_) { /* non-fatal */ /* empty-catch-allow: best-effort silent swallow */ }
     }
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
       _setStatus('Voice not supported on this browser.');
@@ -485,7 +485,7 @@
         _micQualityMeter = _attachMicQualityMeter(_stream, function () {
           _setStatus('You sound far away — speak closer to the mic.');
         });
-      } catch (_) { /* non-fatal */ }
+      } catch (_) { /* non-fatal */ /* empty-catch-allow: best-effort silent swallow */ }
     } catch (err) {
       _setStatus('Microphone permission denied.');
       _setRecRowVisible(false);
@@ -903,7 +903,7 @@
             assistant: String(row.reply || ''),
           }));
         }
-      } catch (_) { /* RLS denial / network — fall through */ }
+      } catch (_) { /* RLS denial / network — fall through */ /* empty-catch-allow: best-effort silent swallow */ }
     }
 
     // Merge: session turns (fresh), then journal turns (older). Dedupe by user message.
@@ -1641,7 +1641,7 @@
   }
   function _setLanguagePref(lang) {
     if (!lang) return;
-    try { localStorage.setItem('wh_voice_lang_pref', lang); } catch (_) { /* non-fatal */ }
+    try { localStorage.setItem('wh_voice_lang_pref', lang); } catch (_) { /* non-fatal */ /* empty-catch-allow: best-effort silent swallow */ }
   }
   function _getLanguagePref() {
     try { return localStorage.getItem('wh_voice_lang_pref') || null; }
@@ -1662,7 +1662,7 @@
   }
   function _setBrevityPref(mode) {
     if (mode !== 'brief' && mode !== 'full') return;
-    try { localStorage.setItem('wh_voice_brevity', mode); } catch (_) { /* non-fatal */ }
+    try { localStorage.setItem('wh_voice_brevity', mode); } catch (_) { /* non-fatal */ /* empty-catch-allow: best-effort silent swallow */ }
   }
   function _getBrevityPref() {
     try { return localStorage.getItem('wh_voice_brevity') || null; }
@@ -1699,7 +1699,7 @@
         if (typeof window.speakPersona === 'function') {
           window.speakPersona(text, { persona: _getPersonaSafe() });
         }
-      } catch (_) { /* non-fatal */ }
+      } catch (_) { /* non-fatal */ /* empty-catch-allow: best-effort silent swallow */ }
       // Remove from active list when fired.
       const idx = _timers.findIndex(t => t.id === id);
       if (idx >= 0) _timers.splice(idx, 1);
@@ -1709,7 +1709,7 @@
   }
   function _getActiveTimers() { return _timers.slice(); }
   function _clearAllTimers() {
-    _timers.forEach(t => { try { clearTimeout(t.id); } catch (_) {} });
+    _timers.forEach(t => { try { clearTimeout(t.id); } catch (_) { /* empty-catch-allow: best-effort silent swallow */ } });
     _timers.length = 0;
   }
   function personaName_safe() {
@@ -1768,16 +1768,16 @@
         if (lowStreakMs >= 2000 && Date.now() - startTs > 1500) {
           stopped = true;
           if (typeof onLowLevel === 'function') {
-            try { onLowLevel({ peak, lowStreakMs }); } catch (_) {}
+            try { onLowLevel({ peak, lowStreakMs }); } catch (_) { /* empty-catch-allow: best-effort silent swallow */ }
           }
-          try { ac.close(); } catch (_) {}
+          try { ac.close(); } catch (_) { /* empty-catch-allow: best-effort silent swallow */ }
           return;
         }
         setTimeout(tick, 100);
       }
       tick();
       return {
-        stop: function () { stopped = true; try { ac.close(); } catch (_) {} },
+        stop: function () { stopped = true; try { ac.close(); } catch (_) { /* empty-catch-allow: best-effort silent swallow */ } },
       };
     } catch (_) { return null; }
   }
@@ -1990,7 +1990,7 @@
       if (!parsed || typeof parsed !== 'object') return null;
       if ((Date.now() - Number(parsed.ts || 0)) >= _SESSION_LOCK_TTL_MS) {
         // expired — clear and treat as unlocked
-        try { localStorage.removeItem(_sessionLockKey(hiveId)); } catch (_) {}
+        try { localStorage.removeItem(_sessionLockKey(hiveId)); } catch (_) { /* empty-catch-allow: best-effort silent swallow */ }
         return null;
       }
       if (workerId && String(parsed.worker) === String(workerId)) return null; // own lock
@@ -2068,7 +2068,7 @@
     try {
       const ov = document.getElementById('wh-voice-overlay');
       if (ov) ov.setAttribute('data-streaming', on ? '1' : '0');
-    } catch (_) { /* non-fatal */ }
+    } catch (_) { /* non-fatal */ /* empty-catch-allow: best-effort silent swallow */ }
     return _streamIncremental;
   }
   function _isStreaming() { return _streamIncremental === true; }
@@ -2083,7 +2083,7 @@
         _lastReplyBubble.textContent = (_lastReplyBubble.textContent || '') + c;
         return true;
       }
-    } catch (_) { /* non-fatal */ }
+    } catch (_) { /* non-fatal */ /* empty-catch-allow: best-effort silent swallow */ }
     return false;
   }
   function _finalizeStream() {
@@ -2092,7 +2092,7 @@
     try {
       const ov = document.getElementById('wh-voice-overlay');
       if (ov) ov.setAttribute('data-streaming', '0');
-    } catch (_) { /* non-fatal */ }
+    } catch (_) { /* non-fatal */ /* empty-catch-allow: best-effort silent swallow */ }
   }
 
   // ============================================================
@@ -2185,7 +2185,7 @@
       const until = Number(raw);
       if (!Number.isFinite(until)) return false;
       if (Date.now() >= until) {
-        try { localStorage.removeItem(_rateLimitKey(hiveId)); } catch (_) {}
+        try { localStorage.removeItem(_rateLimitKey(hiveId)); } catch (_) { /* empty-catch-allow: best-effort silent swallow */ }
         return false;
       }
       return until;
@@ -2193,7 +2193,7 @@
   }
   function _clearRateLimitCooldown(hiveId) {
     if (!hiveId) return;
-    try { localStorage.removeItem(_rateLimitKey(hiveId)); } catch (_) {}
+    try { localStorage.removeItem(_rateLimitKey(hiveId)); } catch (_) { /* empty-catch-allow: best-effort silent swallow */ }
   }
 
   // Phase 4.81 (turn #79) CONVERSATION SHARE LINK — workers
@@ -2604,7 +2604,7 @@
   let _idleTimerHandle = null;
   function _scheduleIdleCleanup(callback) {
     if (_idleTimerHandle) {
-      try { clearTimeout(_idleTimerHandle); } catch (_) {}
+      try { clearTimeout(_idleTimerHandle); } catch (_) { /* empty-catch-allow: best-effort silent swallow */ }
     }
     if (typeof callback !== 'function') return null;
     _idleTimerHandle = setTimeout(callback, _IDLE_TIMEOUT_MS);
@@ -2612,7 +2612,7 @@
   }
   function _cancelIdleCleanup() {
     if (_idleTimerHandle) {
-      try { clearTimeout(_idleTimerHandle); } catch (_) {}
+      try { clearTimeout(_idleTimerHandle); } catch (_) { /* empty-catch-allow: best-effort silent swallow */ }
       _idleTimerHandle = null;
     }
   }
@@ -3642,7 +3642,7 @@
   }
   function _stopHealthPings() {
     if (_healthPingHandle) {
-      try { clearInterval(_healthPingHandle); } catch (_) {}
+      try { clearInterval(_healthPingHandle); } catch (_) { /* empty-catch-allow: best-effort silent swallow */ }
       _healthPingHandle = null;
     }
   }
@@ -3673,7 +3673,7 @@
       } catch (e) { failures.push(name + ': ' + (e && e.message || e)); }
     }
     const result = { passed, total: checks.length, failures };
-    try { console.info('[WHVoice self-test]', result); } catch (_) {}
+    try { console.info('[WHVoice self-test]', result); } catch (_) { /* empty-catch-allow: best-effort silent swallow */ }
     return result;
   }
 
@@ -3802,7 +3802,7 @@
       try {
         if (document.visibilityState === 'hidden' && typeof onHidden === 'function') onHidden();
         else if (document.visibilityState === 'visible' && typeof onVisible === 'function') onVisible();
-      } catch (_) { /* non-fatal */ }
+      } catch (_) { /* non-fatal */ /* empty-catch-allow: best-effort silent swallow */ }
     };
     try {
       document.addEventListener('visibilitychange', handler);
@@ -3825,9 +3825,9 @@
           if (s.indexOf('voice-handler') >= 0 || s.indexOf('wh-tts') >= 0) {
             _lastUncaughtError = { msg, src, line, col, ts: Date.now() };
           }
-        } catch (_) {}
+        } catch (_) { /* empty-catch-allow: best-effort silent swallow */ }
         if (typeof prev === 'function') {
-          try { return prev.apply(this, arguments); } catch (_) {}
+          try { return prev.apply(this, arguments); } catch (_) { /* empty-catch-allow: best-effort silent swallow */ }
         }
         return false;
       };
@@ -3868,7 +3868,7 @@
   }
   function _stopPresenceHeartbeat() {
     if (_presenceHandle) {
-      try { clearInterval(_presenceHandle); } catch (_) {}
+      try { clearInterval(_presenceHandle); } catch (_) { /* empty-catch-allow: best-effort silent swallow */ }
       _presenceHandle = null;
     }
   }
@@ -4369,7 +4369,7 @@
     }
     try {
       localStorage.setItem(_OUTBOUND_QUEUE_KEY, JSON.stringify(remaining));
-    } catch (_) {}
+    } catch (_) { /* empty-catch-allow: best-effort silent swallow */ }
     return { drained, remaining: remaining.length };
   }
 
@@ -6784,7 +6784,7 @@
       // ending the conversation. Defer the actual nav so audio has a
       // chance to start playing.
       setTimeout(function () {
-        try { window.location.href = shortcutTarget; } catch (_) { /* non-fatal */ }
+        try { window.location.href = shortcutTarget; } catch (_) { /* non-fatal */ /* empty-catch-allow: best-effort silent swallow */ }
       }, 1200);
       _showTalkAgainButton();
       return;
@@ -6839,7 +6839,7 @@
     // persona starts on a clean slate.
     const switchTarget = _isPersonaSwitchUtterance(transcript);
     if (switchTarget) {
-      try { localStorage.setItem('wh_voice_journal_persona', switchTarget); } catch (_) { /* ignore */ }
+      try { localStorage.setItem('wh_voice_journal_persona', switchTarget); } catch (_) { /* ignore */ /* empty-catch-allow: best-effort silent swallow */ }
       const targetName = switchTarget === 'hezekiah' ? 'Hezekiah' : 'Zaniah';
       const switchReply = "Sige, switching you to " + targetName + ". Tap the mic again — " + targetName + " will take it from here.";
       _setStatus('Switching companion to ' + targetName + '…');
@@ -6854,7 +6854,7 @@
       _updateDialogState(db, ctx.hive_id, sessionId, null, 0, {}, false, null);
       _resetClarifyStreak();
       if (window.WHAssistant && typeof window.WHAssistant.refreshPersona === 'function') {
-        try { window.WHAssistant.refreshPersona(); } catch (_) { /* non-fatal */ }
+        try { window.WHAssistant.refreshPersona(); } catch (_) { /* non-fatal */ /* empty-catch-allow: best-effort silent swallow */ }
       }
       _showTalkAgainButton();
       return;
@@ -7087,7 +7087,7 @@
       const pushState = _pushNotifyState();
       if (pushState === 'default') {
         // Fire the permission prompt — user-gesture window is open.
-        try { _requestPushPerm(); } catch (_) { /* non-fatal */ }
+        try { _requestPushPerm(); } catch (_) { /* non-fatal */ /* empty-catch-allow: best-effort silent swallow */ }
       }
       perTurnAnchors +=
         '\nPUSH READINESS — worker opted into alerts. Browser permission ' +
@@ -7381,7 +7381,7 @@
           'handover prep in one line ("want me to draft the handover for next ' +
           'shift?"). Do NOT start long diagnostic threads — wrap up.\n';
       }
-    } catch (_) { /* localStorage may be denied */ }
+    } catch (_) { /* localStorage may be denied */ /* empty-catch-allow: best-effort silent swallow */ }
 
     // T96 QUIET HOURS — non-critical alerts muted 22:00-06:00 PHT.
     if (_isQuietHours(new Date())) {
@@ -7413,7 +7413,7 @@
           '. Reply MUST use the scrubbed canonical form (no raw phone / email / ' +
           'ID). The unscrubbed transcript is dropped before audit log write.\n';
       }
-    } catch (_) { /* scrubber is best-effort */ }
+    } catch (_) { /* scrubber is best-effort */ /* empty-catch-allow: best-effort silent swallow */ }
 
     // T116 CONSENT CHANGE — explicit grant/revoke voice consent.
     const _consent = _detectConsentChange(transcript);
@@ -7445,7 +7445,7 @@
             'helpful — do NOT accuse. If pattern persists, flag to supervisor ' +
             'via the Alert Hub on the worker\'s next confirmed action.\n';
         }
-      } catch (_) { /* aggregate may be missing */ }
+      } catch (_) { /* aggregate may be missing */ /* empty-catch-allow: best-effort silent swallow */ }
     }
 
     // T133 VOICE-ONLY TOGGLE — UI dim / audio-only mode.
@@ -7466,7 +7466,7 @@
           'concise and skip long RAG citations this turn. Suggest closing ' +
           'background tabs if the next turn also degrades.\n';
       }
-    } catch (_) { /* perf API may be unavailable */ }
+    } catch (_) { /* perf API may be unavailable */ /* empty-catch-allow: best-effort silent swallow */ }
 
     // T146 HANDOFF — "send this to Kuya Ben".
     const _handoffTo = _detectHandoffRequest(transcript);
@@ -7540,7 +7540,7 @@
     // Persist on the spot so the buddy is queryable from the next turn.
     const _buddyName = _detectBuddySet(transcript);
     if (_buddyName && ctx && ctx.worker_name) {
-      try { _setBuddy(ctx.worker_name, _buddyName); } catch (_) { /* best-effort */ }
+      try { _setBuddy(ctx.worker_name, _buddyName); } catch (_) { /* best-effort */ /* empty-catch-allow: best-effort silent swallow */ }
       perTurnAnchors +=
         '\nBUDDY SET — worker paired with "' + _buddyName + '" for this shift. ' +
         'Acknowledge in one line ("sige, kasama mo ngayon si ' + _buddyName +
@@ -7759,7 +7759,7 @@
       try {
         const bubble = document.querySelector('#wh-voice-intents .wh-voice-bubble');
         if (bubble) bubble.setAttribute('data-avatar-state', _classifyAvatarState(answer));
-      } catch (_) { /* non-fatal */ }
+      } catch (_) { /* non-fatal */ /* empty-catch-allow: best-effort silent swallow */ }
       // Phase 4.48 (turn #49) Push the resolved intent onto the branch stack so a
       // future "back to the X" reference can recall it.
       _pushBranch(newIntentKind, priorSlots || {});
@@ -7857,7 +7857,7 @@
           rateBtns.forEach(b => { b.disabled = true; b.style.opacity = '0.4'; });
           btn.style.background = (rating > 0)
             ? 'rgba(74,222,128,.20)' : 'rgba(248,113,113,.20)';
-          _recordReplyRating(rating).catch(function () { /* non-fatal */ });
+          _recordReplyRating(rating).catch(function () { /* non-fatal */ /* empty-catch-allow: best-effort silent swallow */ });
         });
       });
     }
@@ -7905,10 +7905,10 @@
               negative_count: esc.negative_count,
               last_negative_at: new Date().toISOString(),
             });
-          } catch (_) { /* table may not exist yet — non-fatal */ }
+          } catch (_) { /* table may not exist yet — non-fatal */ /* empty-catch-allow: best-effort silent swallow */ }
         }
       }
-    } catch (_) { /* swallow — non-fatal */ }
+    } catch (_) { /* swallow — non-fatal */ /* empty-catch-allow: best-effort silent swallow */ }
   }
 
   function _showTalkAgainButton() {
@@ -7977,7 +7977,7 @@
           document.getElementById('wh-ai-panel')?.classList.add('open');
         }
       }
-    } catch (_) {}
+    } catch (_) { /* empty-catch-allow: best-effort silent swallow */ }
   }
 
   // ─── Public API ──────────────────────────────────────────────────────────
@@ -8018,7 +8018,7 @@
         }
         _acquireSessionLock(ctxOpen.hive_id, ctxOpen.worker_name);
       }
-    } catch (_) { /* non-fatal */ }
+    } catch (_) { /* non-fatal */ /* empty-catch-allow: best-effort silent swallow */ }
 
     // T74 (Phase 4.76) Streaming — reset the streaming indicator on
     // every open. ai-gateway flips it when the response starts.
@@ -8043,7 +8043,7 @@
           window.speakPersona(proactiveLine, { persona });
         }
         _appendSessionTurn('(proactive alert)', proactiveLine);
-      } catch (_) { /* non-fatal */ }
+      } catch (_) { /* non-fatal */ /* empty-catch-allow: best-effort silent swallow */ }
     }
 
     _startRecording();
@@ -8061,7 +8061,7 @@
       } else if (window.speechSynthesis) {
         window.speechSynthesis.cancel();
       }
-    } catch (_) { /* non-fatal */ }
+    } catch (_) { /* non-fatal */ /* empty-catch-allow: best-effort silent swallow */ }
     try {
       const db = _getDb();
       const sessionId = (typeof _getSessionId === 'function') ? _getSessionId() : null;
@@ -8074,13 +8074,13 @@
         // empty _sessionTurns to fire so the next session opens warm.
         _updateDialogState(db, ctx.hive_id, sessionId, null, 0, {}, false, null);
       }
-    } catch (_) { /* non-fatal */ }
+    } catch (_) { /* non-fatal */ /* empty-catch-allow: best-effort silent swallow */ }
     _resetClarifyStreak();
     _stopRecording();
     if (_stream) { _stream.getTracks().forEach(t => t.stop()); _stream = null; }
     // T63 — stop the mic-quality meter so the AudioContext is released.
     if (_micQualityMeter && typeof _micQualityMeter.stop === 'function') {
-      try { _micQualityMeter.stop(); } catch (_) { /* non-fatal */ }
+      try { _micQualityMeter.stop(); } catch (_) { /* non-fatal */ /* empty-catch-allow: best-effort silent swallow */ }
       _micQualityMeter = null;
     }
     // T68 (Phase 4.70) — avatar back to idle.
@@ -8092,7 +8092,7 @@
       if (ctxClose && ctxClose.hive_id && ctxClose.worker_name) {
         _releaseSessionLock(ctxClose.hive_id, ctxClose.worker_name);
       }
-    } catch (_) { /* non-fatal */ }
+    } catch (_) { /* non-fatal */ /* empty-catch-allow: best-effort silent swallow */ }
     // T74 (Phase 4.76) — clear any in-flight streaming state.
     _finalizeStream();
     const ov = document.getElementById('wh-voice-overlay');

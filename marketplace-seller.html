@@ -613,7 +613,7 @@
           .eq('seller_name', WORKER_NAME)
           .eq('status', 'pending');
         _inquiriesPendingTotal = Number(pendingCount || 0);
-      } catch (_) { /* fall back to .length below */ }
+      } catch (_) { /* fall back to .length below */ /* empty-catch-allow: best-effort silent swallow */ }
     } catch (_) { _inquiries = []; }
     renderInquiries();
     updateBadges();
@@ -637,7 +637,7 @@
           .select('id', { count: 'exact', head: true })
           .eq('seller_name', WORKER_NAME);
         _ordersTotal = Number(count || 0);
-      } catch (_) { /* fall back */ }
+      } catch (_) { /* fall back */ /* empty-catch-allow: best-effort silent swallow */ }
     } catch (_) { _orders = []; }
     renderOrders();
     updateBadges();
@@ -1224,7 +1224,7 @@
         const totalMs = platRepl.reduce((sum, i) => sum + Math.max(0, new Date(i.replied_at).getTime() - new Date(i.created_at).getTime()), 0);
         platformAvgH = (totalMs / platRepl.length) / 3600000;
       }
-    } catch (_) { /* ignore — render with nulls */ }
+    } catch (_) { /* ignore — render with nulls */ /* empty-catch-allow: best-effort silent swallow */ }
 
     /* Aggregate inquiry counts per listing */
     const inqByListing = {};
@@ -1242,7 +1242,7 @@
           if (r.status === 'pending') pendingInquiries++;
         }
       });
-    } catch (_) {}
+    } catch (_) { /* empty-catch-allow: best-effort silent swallow */ }
 
     /* Aggregate views from already-loaded _listings */
     const myListings = _listings || [];

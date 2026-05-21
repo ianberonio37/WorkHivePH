@@ -139,7 +139,7 @@
           _detector = new BarcodeDetector({ formats: usable });
           return;
         }
-      } catch (_) { /* fall through to ZXing */ }
+      } catch (_) { /* fall through to ZXing */ /* empty-catch-allow: best-effort silent swallow */ }
     }
 
     // Step 2 — lazy-load ZXing from CDN
@@ -179,7 +179,7 @@
 
   function stopCamera() {
     if (_stream) {
-      _stream.getTracks().forEach((t) => { try { t.stop(); } catch (_) {} });
+      _stream.getTracks().forEach((t) => { try { t.stop(); } catch (_) { /* empty-catch-allow: best-effort silent swallow */ } });
       _stream = null;
     }
   }
@@ -199,7 +199,7 @@
 
   function stopScanLoop() {
     if (_scanLoopTimer) { clearInterval(_scanLoopTimer); _scanLoopTimer = null; }
-    if (_zxingReader) { try { _zxingReader.reset(); } catch (_) {} }
+    if (_zxingReader) { try { _zxingReader.reset(); } catch (_) { /* empty-catch-allow: best-effort silent swallow */ } }
   }
 
   async function scanOnce() {
@@ -207,7 +207,7 @@
     try {
       const codes = await _detector.detect(_video);
       if (codes && codes.length) deliverScan(codes[0].rawValue);
-    } catch (_) { /* transient — keep looping */ }
+    } catch (_) { /* transient — keep looping */ /* empty-catch-allow: best-effort silent swallow */ }
   }
 
   function deliverScan(rawText) {

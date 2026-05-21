@@ -215,7 +215,7 @@
     // Persist the role-derived default so the analytics + chip surfaces
     // can read it the same way without re-deriving on every page.
     var d = _defaultMode();
-    try { localStorage.setItem(MODE_KEY, d); } catch (_) {}
+    try { localStorage.setItem(MODE_KEY, d); } catch (_) { /* empty-catch-allow: best-effort silent swallow */ }
     return d;
   }
   function setMode(id) {
@@ -238,7 +238,7 @@
       var c = JSON.parse(localStorage.getItem(CLICK_KEY) || '{}');
       c[href] = (c[href] || 0) + 1;
       localStorage.setItem(CLICK_KEY, JSON.stringify(c));
-    } catch (_) {}
+    } catch (_) { /* empty-catch-allow: best-effort silent swallow */ }
   }
 
   function getQuickTools(n) {
@@ -760,12 +760,12 @@
         applyPosition(saved.side, Math.max(16, Math.min(saved.bottom, window.innerHeight - 80)));
         return;
       }
-    } catch (_) {}
+    } catch (_) { /* empty-catch-allow: best-effort silent swallow */ }
     applyPosition('right', 24);
   }
 
   function savePosition(side, bottom) {
-    try { localStorage.setItem(STORAGE_KEY, JSON.stringify({ side, bottom })); } catch (_) {}
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify({ side, bottom })); } catch (_) { /* empty-catch-allow: best-effort silent swallow */ }
   }
 
   function makeDraggable() {

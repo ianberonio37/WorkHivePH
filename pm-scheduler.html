@@ -355,19 +355,19 @@
 
     <!-- Summary stat row — repurposed into Plain-Read .simple-card layout. -->
     <div class="simple-row mb-5">
-      <div class="simple-card tag-grey" id="pm-card-overdue">
+      <div class="simple-card tag-grey" id="pm-card-overdue" data-rag-tile="pm-scheduler:overdue" data-rag-label="Overdue PMs">
         <div class="sc-label">Overdue</div>
         <div class="sc-hero" id="stat-overdue">0</div>
         <div class="sc-sub" id="pm-overdue-sub">Past due date</div>
         <span class="sc-tag" id="pm-overdue-tag">—</span>
       </div>
-      <div class="simple-card tag-grey" id="pm-card-duesoon">
+      <div class="simple-card tag-grey" id="pm-card-duesoon" data-rag-tile="pm-scheduler:due_soon" data-rag-label="Due this week">
         <div class="sc-label">Due this week</div>
         <div class="sc-hero" id="stat-duesoon">0</div>
         <div class="sc-sub" id="pm-duesoon-sub">Next 14 days</div>
         <span class="sc-tag" id="pm-duesoon-tag">—</span>
       </div>
-      <div class="simple-card tag-grey" id="pm-card-ontrack">
+      <div class="simple-card tag-grey" id="pm-card-ontrack" data-rag-tile="pm-scheduler:on_track" data-rag-label="On track">
         <div class="sc-label">On track</div>
         <div class="sc-hero" id="stat-ontrack">0</div>
         <div class="sc-sub" id="pm-ontrack-sub">Compliance %</div>
@@ -1121,7 +1121,7 @@ async function validateHiveMembership() {
 // ─────────────────────────────────────
 async function init() {
   if (!WORKER_NAME) { WORKER_NAME = await restoreIdentityFromSession(db); }
-  try { const { data: { session } } = await db.auth.getSession(); _authUid = session?.user?.id || null; } catch (_) {}
+  try { const { data: { session } } = await db.auth.getSession(); _authUid = session?.user?.id || null; } catch (_) { /* empty-catch-allow: best-effort silent swallow */ }
   if (!WORKER_NAME) { window.location.href = 'index.html?signin=1'; return; }
   // Phase B (auth migration): require authenticated session — see PRODUCTION_FIXES.md #37.
   if (!_authUid) { window.location.href = 'index.html?signin=1'; return; }
@@ -2547,7 +2547,7 @@ init();
       // input fires the filter. Belt-and-suspenders: call directly too.
       search.dispatchEvent(new Event('input', { bubbles: true }));
       if (typeof window.filterRegisteredAssets === 'function') {
-        try { window.filterRegisteredAssets(); } catch (_) {}
+        try { window.filterRegisteredAssets(); } catch (_) { /* empty-catch-allow: best-effort silent swallow */ }
       }
       search.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }

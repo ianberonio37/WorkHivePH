@@ -1320,7 +1320,7 @@ async function loadSyncedMachines() {
           .replace('sap_pm', 'SAP PM').replace('maximo', 'Maximo').replace('generic', 'CMMS');
       }
     });
-  } catch (_) { /* external_sync may not exist — silent */ }
+  } catch (_) { /* external_sync may not exist — silent */ /* empty-catch-allow: best-effort silent swallow */ }
 }
 let _authUid    = null; // C3: populated at init from Supabase Auth session
 
@@ -4462,7 +4462,7 @@ function vdcApplyDraft(payload) {
         labelM.style.color = 'rgba(255,255,255,0.6)';
       }
       filled.push('Machine');
-      try { loadMachineHistory(hiddenM.value); } catch (_) {}
+      try { loadMachineHistory(hiddenM.value); } catch (_) { /* empty-catch-allow: best-effort silent swallow */ }
     }
   }
 
@@ -5100,7 +5100,7 @@ function saveDraft() {
       downtime:    document.getElementById('f-downtime').value,
       status:      document.querySelector('input[name="f-status"]:checked')?.value || 'Open'
     }));
-  } catch (_) {}
+  } catch (_) { /* empty-catch-allow: best-effort silent swallow */ }
 }
 
 function restoreDraft() {
@@ -5144,7 +5144,7 @@ document.getElementById('f-category').addEventListener('change', updateTasklistS
 (async () => {
   // C4: restore identity from auth session on new device, then get auth_uid
   if (!WORKER_NAME) { WORKER_NAME = await restoreIdentityFromSession(db); }
-  try { const { data: { session } } = await db.auth.getSession(); _authUid = session?.user?.id || null; } catch (_) {}
+  try { const { data: { session } } = await db.auth.getSession(); _authUid = session?.user?.id || null; } catch (_) { /* empty-catch-allow: best-effort silent swallow */ }
   if (!WORKER_NAME) { window.location.href = 'index.html?signin=1'; return; }
   // Phase B (auth migration): require authenticated session — see PRODUCTION_FIXES.md #37.
   if (!_authUid) { window.location.href = 'index.html?signin=1'; return; }

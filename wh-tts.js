@@ -67,9 +67,9 @@
   }
 
   function stop() {
-    if (_audio) { try { _audio.pause(); } catch (_) {} }
+    if (_audio) { try { _audio.pause(); } catch (_) { /* empty-catch-allow: best-effort silent swallow */ } }
     if (window.speechSynthesis) {
-      try { window.speechSynthesis.cancel(); } catch (_) {}
+      try { window.speechSynthesis.cancel(); } catch (_) { /* empty-catch-allow: best-effort silent swallow */ }
     }
   }
 
@@ -91,7 +91,7 @@
       const data = await resp.json();
       if (!data || !data.url) return false;
       const audioUrl = base + data.url;
-      if (_audio) { try { _audio.pause(); } catch (_) {} }
+      if (_audio) { try { _audio.pause(); } catch (_) { /* empty-catch-allow: best-effort silent swallow */ } }
       _audio = new Audio(audioUrl);
       _audio.play().catch(err => {
         // AbortError is expected when a new narration interrupts an old
@@ -128,7 +128,7 @@
       if (!resp || !resp.ok) return false;
       const data = await resp.json();
       if (!data || !data.url) return false;
-      if (_audio) { try { _audio.pause(); } catch (_) {} }
+      if (_audio) { try { _audio.pause(); } catch (_) { /* empty-catch-allow: best-effort silent swallow */ } }
       _audio = new Audio(data.url);
       _audio.play().catch(err => {
         if (err && err.name === 'AbortError') return;
@@ -153,6 +153,34 @@
   const PERSONA_GENDER = { hezekiah: 'male', zaniah: 'female' };
   const MALE_HINTS   = /(male|man|guy|david|mark|alex|james|angelo|paolo|daniel|guy|ravi|brandon)/i;
   const FEMALE_HINTS = /(female|woman|girl|samantha|victoria|sara|rosa|maria|isabella|tessa|zira|hazel|eva|aria|jenny|nova|emma|libby|sonia|natasha|tracy|catherine)/i;
+
+  // Phase 4.22 (turn #21) ACRONYM PRONUNCIATION. The TTS engines tend to
+  // mangle maintenance acronyms — "MTBF" comes out as "mmm-tee-bff",
+  // "OEE" as "ooo-ee-ee" run together. Pre-process the text to spell
+  // out acronyms one letter at a time using spaces (which TTS engines
+  // pronounce as letters). The same engines handle "P-203" correctly
+  // because the dash + digit forces letter pronunciation, so we only
+  // touch the pure-letter acronyms.
+  const _ACRONYMS_TO_SPELL = [
+    'MTBF', 'MTTR', 'MTBR', 'OEE', 'OEE%', 'KPI', 'KPIs',
+    'PM', 'PMs', 'RPN', 'RCM', 'FMEA', 'PPE', 'SOP', 'SOPs',
+    'LOTO', 'OPC-UA', 'MQTT', 'CMMS', 'ERP', 'SAP', 'HVAC',
+    'RPM', 'TPM', 'SMRP', 'IR-gun', 'IR gun',
+  ];
+  function _spellOutAcronyms(text) {
+    if (!text) return text;
+    let out = String(text);
+    _ACRONYMS_TO_SPELL.forEach(acr => {
+      // Match the acronym only when surrounded by word boundaries to
+      // avoid clobbering substrings (e.g. "PMS" inside "PMS-101").
+      const re = new RegExp('\\b' + acr.replace(/[.*+?^${}()|[\\]\\\\]/g, '\\$&') + '\\b', 'g');
+      // Insert thin spaces between letters so TTS reads them as letters.
+      // Keep hyphens and digits in place ("IR-gun" → "I R - gun").
+      const spelled = acr.replace(/([A-Za-z])(?=[A-Za-z])/g, '$1 ');
+      out = out.replace(re, spelled);
+    });
+    return out;
+  }
 
   // Pre-load voices on page load (browsers populate this async)
   let _voicesCache = null;
@@ -203,7 +231,7 @@
            voices.find(avoidWrongGender) ||
            phMatches[0] || enMatches[0] || voices[0];
     if (picked) {
-      console.log('[wh-tts] persona=' + persona + ' picked voice:', picked.name, picked.lang, isNeural(picked) ? '(NEURAL)' : '(default)');
+      console.log('[wh-tts] persona=' + persona + ' picked voice:', picked.name, picked.lang, isNeural(picked) ? '(NEURAL)' : '(default)'); // console-log-allow: TTS voice-pick diagnostic (one per persona switch)
     }
     return picked;
   }
@@ -239,14 +267,20 @@
     if (!text || !isTtsOn()) return false;
     const persona = (opts && opts.persona) || getPersona();
 
+    // Phase 4.22 (turn #21) ACRONYM PRONUNCIATION — spell out MTBF / OEE /
+    // PM / RPN / etc. so TTS reads them as letters. Asset tags like
+    // "P-203" already pronounce correctly because the digit+hyphen
+    // pattern forces letter pronunciation in every TTS engine we use.
+    const spoken = _spellOutAcronyms(text);
+
     // Local dev mode: if WH_TTS_EDGE_URL is set, try Edge-TTS first (better quality).
-    if (window.WH_TTS_EDGE_URL && await speakEdge(text, persona)) {
+    if (window.WH_TTS_EDGE_URL && await speakEdge(spoken, persona)) {
       return true;
     }
 
     // Production mode: browser SpeechSynthesis with gender bias.
     // Always available, free, no external keys required.
-    speakBrowser(text, persona);
+    speakBrowser(spoken, persona);
     return false;
   }
 
@@ -265,6 +299,16 @@
   window.speakPersona     = speakPersona;
   window.stopPersonaSpeak = stop;
   window.getPersona       = getPersona;
+  // Phase 4.21 (turn #17) AUDIO INTERRUPT — voice-handler's mic-tap needs
+  // a single object handle (rather than relying on the legacy stopPersonaSpeak
+  // global being present). Expose WHTts with stop() + getPersona() so
+  // _startRecording can call window.WHTts.stop() before starting a fresh
+  // recording, cancelling any in-flight audio.
+  window.WHTts = Object.freeze({
+    stop: stop,
+    getPersona: getPersona,
+    _spellOutAcronyms: _spellOutAcronyms,
+  });
   window.toggleTts        = toggleTts;
   window.isTtsOn          = isTtsOn;
 })();

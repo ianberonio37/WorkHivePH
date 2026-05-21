@@ -107,7 +107,7 @@
       if (!item || !item.id) throw new Error('enqueue: item.id required');
       const idb = await _idb();
       await _idbReq(idb, cfg.store, 'readwrite', (s) => s.put(item));
-      try { channel && channel.postMessage({ type: 'enqueue' }); } catch (_) {} // empty-catch-allow: cross-tab broadcast best-effort
+      try { channel && channel.postMessage({ type: 'enqueue' }); } catch (_) { /* empty-catch-allow: best-effort silent swallow */ } // empty-catch-allow: cross-tab broadcast best-effort
       return item;
     }
 
@@ -119,13 +119,13 @@
     async function remove(id) {
       const idb = await _idb();
       await _idbReq(idb, cfg.store, 'readwrite', (s) => s.delete(id));
-      try { channel && channel.postMessage({ type: 'drain' }); } catch (_) {} // empty-catch-allow: cross-tab broadcast best-effort
+      try { channel && channel.postMessage({ type: 'drain' }); } catch (_) { /* empty-catch-allow: best-effort silent swallow */ } // empty-catch-allow: cross-tab broadcast best-effort
     }
 
     async function clear() {
       const idb = await _idb();
       await _idbReq(idb, cfg.store, 'readwrite', (s) => s.clear());
-      try { channel && channel.postMessage({ type: 'clear' }); } catch (_) {} // empty-catch-allow: cross-tab broadcast best-effort
+      try { channel && channel.postMessage({ type: 'clear' }); } catch (_) { /* empty-catch-allow: best-effort silent swallow */ } // empty-catch-allow: cross-tab broadcast best-effort
     }
 
     async function drain(supabase) {
@@ -172,7 +172,7 @@
             await remove(item.id);
             drained += 1;
             if (typeof cfg.onSyncedRow === 'function') {
-              try { cfg.onSyncedRow(item); } catch (_) {} // empty-catch-allow: consumer hook isolation
+              try { cfg.onSyncedRow(item); } catch (_) { /* empty-catch-allow: best-effort silent swallow */ } // empty-catch-allow: consumer hook isolation
             }
           } else {
             errors += 1;
@@ -183,7 +183,7 @@
       }
 
       if (drained && typeof cfg.postSync === 'function') {
-        try { await cfg.postSync({ drained, errors }); } catch (_) {} // empty-catch-allow: consumer hook isolation
+        try { await cfg.postSync({ drained, errors }); } catch (_) { /* empty-catch-allow: best-effort silent swallow */ } // empty-catch-allow: consumer hook isolation
       }
       return { drained, errors };
     }

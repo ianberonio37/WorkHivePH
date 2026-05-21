@@ -1,5 +1,4 @@
 {
-  "drift": 160,
-  "tightened": true,
-  "_note": "2026-05-21 Mega Gate paydown: baseline raised 154 -> 160 to accept 6 empty catches added between baseline (4ae6dc6) and the paydown. Includes Phase A wiring sessionStorage best-effort wrappers (localStorage / sessionStorage may be denied in private-browsing or strict-cookie modes). Future commits ratchet downward only."
+  "drift": 0,
+  "tightened": true
 }

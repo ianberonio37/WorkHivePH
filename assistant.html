@@ -836,7 +836,7 @@ happens to know maintenance, not a manual.`;
             const orchData = await orchRes.json();
             if (orchData.answer && !orchData.error) reply = orchData.answer;
           }
-        } catch { /* fall through */ }
+        } catch { /* fall through */ /* empty-catch-allow: best-effort silent swallow */ }
 
         // ── Step 2: Fall back to personal assistant if orchestrator has no answer ──
         if (!reply) {

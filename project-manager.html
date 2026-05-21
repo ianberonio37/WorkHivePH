@@ -914,7 +914,7 @@ async function validateHiveMembership() {
   // _authUid is populated when the new !_authUid gate runs. The previous
   // order let WORKER_NAME-gated workers redirect before _authUid was read,
   // hiding the auth gap. See PRODUCTION_FIXES.md #37.
-  try { const { data: { session } } = await db.auth.getSession(); _authUid = session?.user?.id || null; } catch {}
+  try { const { data: { session } } = await db.auth.getSession(); _authUid = session?.user?.id || null; } catch { /* empty-catch-allow: best-effort silent swallow */ }
   if (!WORKER_NAME) { window.location.href = 'index.html?signin=1'; return; }
   if (!_authUid)    { window.location.href = 'index.html?signin=1'; return; }
 
@@ -1202,7 +1202,7 @@ function renderList() {
 function toggleGroup(status) {
   const cur = (_groupOpen[status] !== undefined) ? _groupOpen[status] : (status === 'active');
   _groupOpen[status] = !cur;
-  try { localStorage.setItem('wh_pm_groups_' + HIVE_ID, JSON.stringify(_groupOpen)); } catch {}
+  try { localStorage.setItem('wh_pm_groups_' + HIVE_ID, JSON.stringify(_groupOpen)); } catch { /* empty-catch-allow: best-effort silent swallow */ }
   document.querySelector(`.group[data-status="${status}"]`)?.classList.toggle('collapsed', !_groupOpen[status]);
 }
 
@@ -1224,7 +1224,7 @@ function loadRecents() {
   try { _recents = JSON.parse(localStorage.getItem('wh_pm_recent_' + HIVE_ID) || '[]'); } catch { _recents = []; }
 }
 function saveRecents() {
-  try { localStorage.setItem('wh_pm_recent_' + HIVE_ID, JSON.stringify(_recents.slice(0, 5))); } catch {}
+  try { localStorage.setItem('wh_pm_recent_' + HIVE_ID, JSON.stringify(_recents.slice(0, 5))); } catch { /* empty-catch-allow: best-effort silent swallow */ }
 }
 function pushRecent(p) {
   _recents = [{ id: p.id, code: p.project_code, name: p.name, type: p.project_type, opened_at: Date.now() },

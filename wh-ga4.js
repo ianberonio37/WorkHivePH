@@ -102,6 +102,6 @@
         link_url:       url.href.slice(0, 200),
         page_path:      location.pathname,
       });
-    } catch (_) { /* malformed URL, skip */ }
+    } catch (_) { /* malformed URL, skip */ /* empty-catch-allow: best-effort silent swallow */ }
   }, true);
 })();

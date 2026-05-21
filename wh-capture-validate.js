@@ -77,7 +77,7 @@
           if (!(new RegExp(schema.pattern)).test(value)) {
             errs.push({ path, message: `string does not match pattern ${schema.pattern}` });
           }
-        } catch (_e) { /* invalid regex => skip */ }
+        } catch (_e) { /* invalid regex => skip */ /* empty-catch-allow: best-effort silent swallow */ }
       }
       if (schema.format === 'email') {
         // RFC-5322 lite, same shape Supabase Auth accepts

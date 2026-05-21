@@ -271,7 +271,7 @@
     if (new URLSearchParams(location.search).get('embedded') === '1') {
       document.body.classList.add('wh-embedded');
     }
-  } catch (_) {}
+  } catch (_) { /* empty-catch-allow: best-effort silent swallow */ }
 </script>
 
   <div class="max-w-2xl mx-auto px-4 pt-5 pb-24" style="padding-bottom: max(6rem, calc(6rem + env(safe-area-inset-bottom)));">
@@ -512,9 +512,9 @@
       if (!_ttsOn) {
         // Stop both playback paths.
         if (window.speechSynthesis) {
-          try { window.speechSynthesis.cancel(); } catch (_) {}
+          try { window.speechSynthesis.cancel(); } catch (_) { /* empty-catch-allow: best-effort silent swallow */ }
         }
-        if (_azureAudio) { try { _azureAudio.pause(); } catch (_) {} }
+        if (_azureAudio) { try { _azureAudio.pause(); } catch (_) { /* empty-catch-allow: best-effort silent swallow */ } }
       }
     }
     function pickVoice(bcp47, gender) {
@@ -565,7 +565,7 @@
         if (!resp.ok) return false;
         const data = await resp.json();
         if (!data || !data.url) return false;
-        if (_azureAudio) { try { _azureAudio.pause(); } catch (_) {} }
+        if (_azureAudio) { try { _azureAudio.pause(); } catch (_) { /* empty-catch-allow: best-effort silent swallow */ } }
         _azureAudio = new Audio(EDGE_TTS_BASE + data.url);
         _azureAudio.play().catch(err => {
           if (err && err.name === 'AbortError') return;
@@ -594,7 +594,7 @@
         const data = await resp.json();
         if (!data || !data.url) return false;
         // Stop any prior playback so a new entry doesn't overlap.
-        if (_azureAudio) { try { _azureAudio.pause(); } catch (_) {} }
+        if (_azureAudio) { try { _azureAudio.pause(); } catch (_) { /* empty-catch-allow: best-effort silent swallow */ } }
         _azureAudio = new Audio(data.url);
         _azureAudio.play().catch(err => {
           if (err && err.name === 'AbortError') return;
@@ -662,7 +662,7 @@
               await db.from('worker_profiles')
                 .update({ preferred_persona: key })
                 .eq('auth_uid', AUTH_UID);
-            } catch (_) { /* non-fatal */ }
+            } catch (_) { /* non-fatal */ /* empty-catch-allow: best-effort silent swallow */ }
           }
         });
       });
@@ -913,7 +913,7 @@
 
     function stopRecording() {
       if (_stopTimer) { clearTimeout(_stopTimer); _stopTimer = null; }
-      try { if (_recorder && _recorder.state === 'recording') _recorder.stop(); } catch (_) {}
+      try { if (_recorder && _recorder.state === 'recording') _recorder.stop(); } catch (_) { /* empty-catch-allow: best-effort silent swallow */ }
       $('mic-btn').classList.remove('recording');
       $('mic-btn').setAttribute('aria-label', 'Tap to start');
     }
@@ -1028,7 +1028,7 @@
       // Prime the voice list on browsers that load it asynchronously.
       if (window.speechSynthesis && typeof window.speechSynthesis.onvoiceschanged !== 'undefined') {
         window.speechSynthesis.onvoiceschanged = () => { /* no-op, voices cached */ };
-        try { window.speechSynthesis.getVoices(); } catch (_) {}
+        try { window.speechSynthesis.getVoices(); } catch (_) { /* empty-catch-allow: best-effort silent swallow */ }
       }
 
       const ok = await bootstrapIdentity();

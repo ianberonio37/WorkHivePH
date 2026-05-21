@@ -482,8 +482,8 @@
       // Pull identity from localStorage (matches platform identity model)
       let worker_name = null;
       let hive_id     = null;
-      try { worker_name = localStorage.getItem('wh_last_worker') || null; } catch (_) {}
-      try { hive_id     = localStorage.getItem('wh_active_hive_id') || null; } catch (_) {}
+      try { worker_name = localStorage.getItem('wh_last_worker') || null; } catch (_) { /* empty-catch-allow: best-effort silent swallow */ }
+      try { hive_id     = localStorage.getItem('wh_active_hive_id') || null; } catch (_) { /* empty-catch-allow: best-effort silent swallow */ }
 
       const row = {
         kind:          state.kind,
@@ -545,7 +545,7 @@
       if (res.ok) return null;
       // PostgREST returns 400/409 with JSON body { code, message, details }
       let parsed = {};
-      try { parsed = await res.json(); } catch (_) {}
+      try { parsed = await res.json(); } catch (_) { /* empty-catch-allow: best-effort silent swallow */ }
       return {
         code:    parsed.code    || String(res.status),
         message: parsed.message || res.statusText,

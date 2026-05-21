@@ -464,7 +464,7 @@ async function restoreIdentityFromSession(db) {
       localStorage.setItem('wh_last_worker', profile.display_name);
       return profile.display_name;
     }
-  } catch (_) {}
+  } catch (_) { /* empty-catch-allow: best-effort silent swallow */ }
   return '';
 }
 

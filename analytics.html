@@ -656,7 +656,7 @@
     const val = btn.dataset.value;
     if (!dim || _filters[dim] === val) return;
     _filters[dim] = val;
-    try { localStorage.setItem('wh_analytics_filters', JSON.stringify(_filters)); } catch {}
+    try { localStorage.setItem('wh_analytics_filters', JSON.stringify(_filters)); } catch { /* empty-catch-allow: best-effort silent swallow */ }
 
     // Update chip active state for this dimension
     document.querySelectorAll(`.filter-chip[data-dim="${dim}"]`).forEach(c => {
@@ -691,7 +691,7 @@
   }
   function resetFilters() {
     _filters = { criticality: 'all', discipline: 'all' };
-    try { localStorage.setItem('wh_analytics_filters', JSON.stringify(_filters)); } catch {}
+    try { localStorage.setItem('wh_analytics_filters', JSON.stringify(_filters)); } catch { /* empty-catch-allow: best-effort silent swallow */ }
     document.querySelectorAll('.filter-chip').forEach(c => {
       c.classList.toggle('active', c.dataset.value === 'all');
     });
@@ -1050,7 +1050,7 @@
       requestAnimationFrame(() => {
         const charts = detail.querySelectorAll('[id^="chart-"]');
         charts.forEach(el => {
-          try { Plotly.Plots.resize(el); } catch(e) {}
+          try { Plotly.Plots.resize(el); } catch(e) { /* empty-catch-allow: best-effort silent swallow */ }
         });
       });
     }

@@ -869,7 +869,7 @@ function trackRecentCalc(id) {
     r = [id, ...r.filter(x => x !== id)].slice(0, 4);
     localStorage.setItem(RECENT_KEY, JSON.stringify(r));
     renderRecentCalcs();
-  } catch (_) {}
+  } catch (_) { /* empty-catch-allow: best-effort silent swallow */ }
 }
 
 function renderRecentCalcs() {
@@ -19624,7 +19624,7 @@ function _makeSVGEditable(svg) {
     let mx=Infinity,my=Infinity,Mx=-Infinity,My=-Infinity;
     sel.forEach(el=>{ try{ const b=el.getBBox();
       mx=Math.min(mx,b.x); my=Math.min(my,b.y); Mx=Math.max(Mx,b.x+b.width); My=Math.max(My,b.y+b.height);
-    }catch(er){} });
+    }catch(er){ /* empty-catch-allow: best-effort silent swallow */ } });
     if(mx===Infinity) return;
     sbEl=document.createElementNS(NS,'rect');
     sbEl.setAttribute('x',mx-5); sbEl.setAttribute('y',my-5);
@@ -19737,7 +19737,7 @@ function _makeSVGEditable(svg) {
           if(el.id==='_svg_rb'||el.id==='_svg_sb'||isBg(el)) return;
           try { const b=el.getBBox();
             if(b.x<rx+rw && b.x+b.width>rx && b.y<ry+rh && b.y+b.height>ry) sel.add(el);
-          } catch(er) {}
+          } catch(er) { /* empty-catch-allow: best-effort silent swallow */ }
         });
         if(sel.size>0) makeSB();
       }

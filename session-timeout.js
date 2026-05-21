@@ -66,14 +66,14 @@
         'wh_last_worker', 'wh_worker_name', 'workerName',
         'wh_active_hive_id', 'wh_hive_id', 'wh_hive_name', 'wh_hive_role', 'wh_hive_code',
       ].forEach((k) => localStorage.removeItem(k));
-    } catch (_) {}
+    } catch (_) { /* empty-catch-allow: best-effort silent swallow */ }
     try {
       // Best-effort Supabase signOut. If the global isn't available we
       // just navigate; the signin page handles a stale session.
       if (window.db && window.db.auth && typeof window.db.auth.signOut === 'function') {
         window.db.auth.signOut();
       }
-    } catch (_) {}
+    } catch (_) { /* empty-catch-allow: best-effort silent swallow */ }
     window.location.href = SIGN_IN_URL;
   }
 

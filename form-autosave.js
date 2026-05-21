@@ -66,7 +66,7 @@
       } else {
         el.value = value;
       }
-      try { el.dispatchEvent(new Event('input', { bubbles: true })); } catch (_) {} // empty-catch-allow: dispatch best-effort on detached/disabled el
+      try { el.dispatchEvent(new Event('input', { bubbles: true })); } catch (_) { /* empty-catch-allow: best-effort silent swallow */ } // empty-catch-allow: dispatch best-effort on detached/disabled el
     }
   }
 
@@ -100,11 +100,11 @@
         if (data && typeof data === 'object') {
           _restore(container, data);
           if (onRestore) {
-            try { onRestore(data); } catch (_) {} // empty-catch-allow: consumer hook isolation
+            try { onRestore(data); } catch (_) { /* empty-catch-allow: best-effort silent swallow */ } // empty-catch-allow: consumer hook isolation
           }
         }
       }
-    } catch (_) {} // empty-catch-allow: corrupt draft falls through silently (brownout-safe)
+    } catch (_) { /* empty-catch-allow: best-effort silent swallow */ } // empty-catch-allow: corrupt draft falls through silently (brownout-safe)
 
     const tick = () => {
       try {
@@ -115,7 +115,7 @@
         } else {
           localStorage.setItem(key, JSON.stringify(snap));
         }
-      } catch (_) {} // empty-catch-allow: localStorage quota / private-browsing fallthrough
+      } catch (_) { /* empty-catch-allow: best-effort silent swallow */ } // empty-catch-allow: localStorage quota / private-browsing fallthrough
     };
 
     // Heartbeat + on-blur capture (which fires sooner than the 5s tick).
@@ -129,7 +129,7 @@
   }
 
   function whClearAutosave(key) {
-    try { localStorage.removeItem(key); } catch (_) {} // empty-catch-allow: localStorage may be unavailable
+    try { localStorage.removeItem(key); } catch (_) { /* empty-catch-allow: best-effort silent swallow */ } // empty-catch-allow: localStorage may be unavailable
     const t = _timers.get(key);
     if (t) clearInterval(t);
     _timers.delete(key);

@@ -224,19 +224,19 @@
         <div class="verdict-text"><span id="ah-verdict-label">Rolling up alert state...</span><small id="ah-verdict-sub">Loading from v_risk_truth + anomaly_signals + AMC briefing.</small></div>
       </div>
       <div class="simple-row">
-        <div class="simple-card tag-grey" id="ah-card-critical">
+        <div class="simple-card tag-grey" id="ah-card-critical" data-rag-tile="alert-hub:high_severity_alerts" data-rag-label="High-severity alerts">
           <div class="sc-label">High-severity alerts</div>
           <div class="sc-hero" id="ah-critical-hero">—</div>
           <div class="sc-sub" id="ah-critical-sub">Loading...</div>
           <span class="sc-tag" id="ah-critical-tag">—</span>
         </div>
-        <div class="simple-card tag-grey" id="ah-card-anomaly">
+        <div class="simple-card tag-grey" id="ah-card-anomaly" data-rag-tile="alert-hub:anomaly_signals" data-rag-label="Anomaly signals">
           <div class="sc-label">Anomaly signals</div>
           <div class="sc-hero" id="ah-anomaly-hero">—</div>
           <div class="sc-sub" id="ah-anomaly-sub">Loading...</div>
           <span class="sc-tag" id="ah-anomaly-tag">—</span>
         </div>
-        <div class="simple-card tag-grey" id="ah-card-amc">
+        <div class="simple-card tag-grey" id="ah-card-amc" data-rag-tile="alert-hub:amc_daily_brief" data-rag-label="AMC daily brief">
           <div class="sc-label">AMC daily brief</div>
           <div class="sc-hero" id="ah-amc-hero">—</div>
           <div class="sc-sub" id="ah-amc-sub">Loading...</div>
@@ -766,7 +766,7 @@
         const newest = latest && latest[0] ? new Date(latest[0].computed_at).getTime() : 0;
         const stale  = !newest || (Date.now() - newest > 3600 * 1000);
         if (stale) {
-          try { await db.rpc('compute_anomaly_signals', { p_hive_id: HIVE_ID }); } catch (_) {}
+          try { await db.rpc('compute_anomaly_signals', { p_hive_id: HIVE_ID }); } catch (_) { /* empty-catch-allow: best-effort silent swallow */ }
         }
         const { data } = await db.from('v_anomaly_truth')
           .select('id, machine, composite_score, severity, source_count, top_reasons, status, computed_at')
@@ -1154,7 +1154,7 @@
         const m = (badge.textContent || '').match(/(\d+)/);
         if (m) anomalyCount = parseInt(m[1], 10);
       }
-    } catch (_) {}
+    } catch (_) { /* empty-catch-allow: best-effort silent swallow */ }
 
     // AMC brief status: read from the AMC card visible state + status pill.
     let amcStatus = 'none';
@@ -1169,7 +1169,7 @@
         else if (txt.includes('rejected')) { amcStatus = 'rejected'; amcHero = 'Rejected'; }
         else { amcStatus = 'active'; amcHero = 'Brief ready'; }
       }
-    } catch (_) {}
+    } catch (_) { /* empty-catch-allow: best-effort silent swallow */ }
 
     const setCard = (name, hero, sub, tag, tone) => {
       const card = document.getElementById('ah-card-' + name);

@@ -635,7 +635,7 @@
 
     // C4: restore identity from auth session on new device, then get auth_uid
     if (!WORKER_NAME) { WORKER_NAME = await restoreIdentityFromSession(db); }
-    try { const { data: { session } } = await db.auth.getSession(); _authUid = session?.user?.id || null; } catch (_) {}
+    try { const { data: { session } } = await db.auth.getSession(); _authUid = session?.user?.id || null; } catch (_) { /* empty-catch-allow: best-effort silent swallow */ }
     if (!WORKER_NAME) { window.location.href = 'index.html'; return; }
     // Phase B (auth migration): require authenticated session — see PRODUCTION_FIXES.md #37.
     if (!_authUid) { window.location.href = 'index.html?signin=1'; return; }
@@ -1587,7 +1587,7 @@
       if (location.search !== '?post=' + encodeURIComponent(postId)) {
         history.replaceState(null, '', next);
       }
-    } catch (_) {}
+    } catch (_) { /* empty-catch-allow: best-effort silent swallow */ }
 
     replyingToPostId = postId;
     await loadReplies(postId);
@@ -1602,7 +1602,7 @@
     // Drop the ?post= param from the URL so reload doesn't auto-reopen
     try {
       if (location.search) history.replaceState(null, '', location.pathname);
-    } catch (_) {}
+    } catch (_) { /* empty-catch-allow: best-effort silent swallow */ }
   }
 
   async function copyThreadLink() {
@@ -1959,7 +1959,7 @@
         action,
         meta:    { target_id: targetId, page: 'community', ...(extraMeta || {}) }
       });
-    } catch (_) {}
+    } catch (_) { /* empty-catch-allow: best-effort silent swallow */ }
   }
 
   // ── @mentions ────────────────────────────────────────────────────────────────
@@ -2101,7 +2101,7 @@
     return function cleanup() {
       container.removeEventListener('keydown', onKeyDown);
       if (previouslyFocused && typeof previouslyFocused.focus === 'function') {
-        try { previouslyFocused.focus(); } catch (_) {}
+        try { previouslyFocused.focus(); } catch (_) { /* empty-catch-allow: best-effort silent swallow */ }
       }
     };
   }

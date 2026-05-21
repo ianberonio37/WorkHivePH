@@ -142,7 +142,7 @@
     catch { return []; }
   }
   function _saveHistoryFor(key, h) {
-    try { localStorage.setItem(_historyKey(key), JSON.stringify((h || []).slice(-config.maxHistory))); } catch {}
+    try { localStorage.setItem(_historyKey(key), JSON.stringify((h || []).slice(-config.maxHistory))); } catch { /* empty-catch-allow: best-effort silent swallow */ }
   }
   function _setContext(rag) {
     // rag: { key, summary, badge } or null
@@ -860,12 +860,12 @@ happens to know maintenance, not a manual.`;
         applyPosition(saved.side, Math.max(16, Math.min(saved.bottom, window.innerHeight - 80)));
         return;
       }
-    } catch (_) {}
+    } catch (_) { /* empty-catch-allow: best-effort silent swallow */ }
     applyPosition('right', 24);
   }
 
   function savePosition(side, bottom) {
-    try { localStorage.setItem(STORAGE_KEY, JSON.stringify({ side, bottom })); } catch (_) {}
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify({ side, bottom })); } catch (_) { /* empty-catch-allow: best-effort silent swallow */ }
   }
 
   function makeDraggable() {
@@ -1051,7 +1051,7 @@ happens to know maintenance, not a manual.`;
     try {
       const saved = JSON.parse(localStorage.getItem('wh_ai_history_' + GLOBAL_HISTORY_KEY) || '[]');
       if (Array.isArray(saved) && saved.length) history = saved.slice(-config.maxHistory);
-    } catch (_) { /* fall back to empty history */ }
+    } catch (_) { /* fall back to empty history */ /* empty-catch-allow: best-effort silent swallow */ }
     buildWidget();
     // Companion Streamline: paint the avatar before wiring so the first
     // frame already shows Hezekiah/Zaniah, not a flash of default.

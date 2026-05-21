@@ -50,7 +50,7 @@
 
   function _fingerprintInputs() {
     let tz = '';
-    try { tz = Intl.DateTimeFormat().resolvedOptions().timeZone || ''; } catch (_) {}
+    try { tz = Intl.DateTimeFormat().resolvedOptions().timeZone || ''; } catch (_) { /* empty-catch-allow: best-effort silent swallow */ }
     return {
       ua:    (navigator.userAgent || '').slice(0, 200),
       sw:    screen ? screen.width  : 0,
@@ -103,18 +103,18 @@
     if (!next.hash) return;                 // subtle.digest unavailable
 
     let prev = null;
-    try { prev = JSON.parse(localStorage.getItem(FP_KEY) || 'null'); } catch (_) {}
+    try { prev = JSON.parse(localStorage.getItem(FP_KEY) || 'null'); } catch (_) { /* empty-catch-allow: best-effort silent swallow */ }
 
     const isFirst = !prev || !prev.hash;
     if (isFirst) {
-      try { localStorage.setItem(FP_KEY, JSON.stringify(next)); } catch (_) {}
+      try { localStorage.setItem(FP_KEY, JSON.stringify(next)); } catch (_) { /* empty-catch-allow: best-effort silent swallow */ }
       return;
     }
 
     if (prev.hash === next.hash) return;     // same device, nothing to do
 
     const changed = _diffInputs(prev.inputs || {}, next.inputs || {});
-    try { localStorage.setItem(FP_KEY, JSON.stringify(next)); } catch (_) {}
+    try { localStorage.setItem(FP_KEY, JSON.stringify(next)); } catch (_) { /* empty-catch-allow: best-effort silent swallow */ }
 
     // Best-effort audit-log write. Schema matches hive.html writeAuditLog().
     try {
@@ -128,7 +128,7 @@
         target_name: worker,
         meta:        { changed_fields: changed, fp: next.hash.slice(0, 16) },
       });
-    } catch (_) {}
+    } catch (_) { /* empty-catch-allow: best-effort silent swallow */ }
   }
 
   // Run once after the page settles. Wait 2s so window.db has time to mount

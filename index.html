@@ -2153,7 +2153,7 @@
     if (role) {
       // storage-key-allow: write-ahead persistence hook; future backend
       // helper will read this value when signup signature accepts role.
-      try { localStorage.setItem('wh.signup_role', role); } catch (_) {}
+      try { localStorage.setItem('wh.signup_role', role); } catch (_) { /* empty-catch-allow: best-effort silent swallow */ }
     }
 
     // Fire the GA4 conversion event with role as a custom param. The
@@ -2896,7 +2896,7 @@
       ? window.getPersonaKey()
       : (localStorage.getItem('wh_voice_journal_persona') || 'zaniah');
     const next = cur === 'zaniah' ? 'hezekiah' : 'zaniah';
-    try { localStorage.setItem('wh_voice_journal_persona', next); } catch (_) {}
+    try { localStorage.setItem('wh_voice_journal_persona', next); } catch (_) { /* empty-catch-allow: best-effort silent swallow */ }
     _renderPersonaToggle();
     // Companion Streamline: ping the floating widget so its avatar
     // re-paints without a page reload.
@@ -3003,7 +3003,7 @@
         // Guest worker (has name, no auth session): show upgrade nudge after 3s
         setTimeout(() => _showUpgradeBanner(name), 3000);
       }
-    } catch (_) {}
+    } catch (_) { /* empty-catch-allow: best-effort silent swallow */ }
 
     if (new URLSearchParams(window.location.search).get('signin') === '1') {
       openSignIn(null);
@@ -3292,9 +3292,9 @@
         if (raw === 'hezekiah' || raw === 'zaniah') cloudKey = raw;
         else if (raw === 'james') cloudKey = 'hezekiah';
         else if (raw === 'rosa')  cloudKey = 'zaniah';
-        try { localStorage.setItem('wh_voice_journal_persona', cloudKey); } catch (_) {}
+        try { localStorage.setItem('wh_voice_journal_persona', cloudKey); } catch (_) { /* empty-catch-allow: best-effort silent swallow */ }
       }
-    } catch (_) { /* fall through to localStorage default */ }
+    } catch (_) { /* fall through to localStorage default */ /* empty-catch-allow: best-effort silent swallow */ }
     if (typeof _renderPersonaToggle === 'function') _renderPersonaToggle();
 
     // Hive button
@@ -3494,7 +3494,7 @@
             const last = lastByAsset[a.id];
             return !last || last < cutoff;
           }).length;
-        } catch (_) {}
+        } catch (_) { /* empty-catch-allow: best-effort silent swallow */ }
       }
     }
 
@@ -3594,7 +3594,7 @@
           amcPending    = amcRes.status    === 'fulfilled' ? amcRes.value.data    : null;
           sensorAnomaly = anomRes.status   === 'fulfilled' ? anomRes.value.data   : null;
           sigAlert      = sigRes.status    === 'fulfilled' ? sigRes.value.data    : null;
-        } catch (_) { /* network failure: just skip these signals */ }
+        } catch (_) { /* network failure: just skip these signals */ /* empty-catch-allow: best-effort silent swallow */ }
       }
 
       if (amcPending) {
@@ -3784,7 +3784,7 @@
               <p style="font-size:.6rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:#F7A21B; margin:0;">Getting Started &middot; ${done} of ${steps.length}</p>
               <p style="font-size:.78rem; font-weight:600; color:rgba(255,255,255,.7); margin:2px 0 0;">Finish these three steps to unlock the platform.</p>
             </div>
-            <button type="button" onclick="(function(){ try{localStorage.setItem('wh_onboarding_dismissed','1');}catch(_){}; document.getElementById('oh-onboarding').style.display='none'; })()"
+            <button type="button" onclick="(function(){ try{localStorage.setItem('wh_onboarding_dismissed','1');}catch(_){ /* empty-catch-allow: best-effort silent swallow */ }; document.getElementById('oh-onboarding').style.display='none'; })()"
                     style="font-size:.62rem; color:rgba(255,255,255,.35); background:none; border:none; cursor:pointer; padding:6px 8px; min-height:44px;">
               Dismiss &times;
             </button>

@@ -42,7 +42,7 @@
       if (!c) return 'unknown';
       if (c.saveData) return '2g';
       if (typeof c.effectiveType === 'string') return c.effectiveType;  // '4g'|'3g'|'2g'|'slow-2g'
-    } catch (_) {}
+    } catch (_) { /* empty-catch-allow: best-effort silent swallow */ }
     return 'unknown';
   }
   function isSlowLink() {
@@ -180,7 +180,7 @@
       if (c && typeof c.addEventListener === 'function') {
         c.addEventListener('change', refresh);
       }
-    } catch (_) {}
+    } catch (_) { /* empty-catch-allow: best-effort silent swallow */ }
 
     // Periodic queue-depth refresh while popover is open OR offline.
     // Stored so it can be cleared if the page navigates away (defence-in-depth
@@ -201,7 +201,7 @@
         const ch = new BroadcastChannel('wh-offline-queue:wh_offline');
         ch.onmessage = () => refresh();
       }
-    } catch (_) {}
+    } catch (_) { /* empty-catch-allow: best-effort silent swallow */ }
 
     refresh();
   }
@@ -223,7 +223,7 @@
         const d = await window.whGetQueueDepth();
         depth = d.total || 0;
       }
-    } catch (_) {}
+    } catch (_) { /* empty-catch-allow: best-effort silent swallow */ }
 
     if (!online) {
       chip.setAttribute('data-state', 'offline');

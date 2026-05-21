@@ -268,19 +268,19 @@
       <div class="verdict-text"><span id="inv-verdict-label">Computing stock health...</span><small id="inv-verdict-sub">Counting out-of-stock, low-stock, and pending-approval items.</small></div>
     </div>
     <div class="simple-row">
-      <div class="simple-card tag-grey" id="inv-card-out">
+      <div class="simple-card tag-grey" id="inv-card-out" data-rag-tile="inventory:out_of_stock" data-rag-label="Out of stock">
         <div class="sc-label">Out of stock</div>
         <div class="sc-hero" id="inv-out-hero">0</div>
         <div class="sc-sub" id="inv-out-sub">Loading...</div>
         <span class="sc-tag" id="inv-out-tag">—</span>
       </div>
-      <div class="simple-card tag-grey" id="inv-card-low">
+      <div class="simple-card tag-grey" id="inv-card-low" data-rag-tile="inventory:low_stock" data-rag-label="Low stock">
         <div class="sc-label">Low stock</div>
         <div class="sc-hero" id="inv-low-hero">0</div>
         <div class="sc-sub" id="inv-low-sub">Loading...</div>
         <span class="sc-tag" id="inv-low-tag">—</span>
       </div>
-      <div class="simple-card tag-grey" id="inv-card-pending">
+      <div class="simple-card tag-grey" id="inv-card-pending" data-rag-tile="inventory:pending_approval" data-rag-label="Pending approval">
         <div class="sc-label">Pending approval</div>
         <div class="sc-hero" id="inv-pending-hero">0</div>
         <div class="sc-sub" id="inv-pending-sub">Loading...</div>
@@ -1728,7 +1728,7 @@ async function validateHiveMembership() {
 // ────────────────────────────────────────────
 (async () => {
   if (!WORKER_NAME) { WORKER_NAME = await restoreIdentityFromSession(db); }
-  try { const { data: { session } } = await db.auth.getSession(); _authUid = session?.user?.id || null; } catch (_) {}
+  try { const { data: { session } } = await db.auth.getSession(); _authUid = session?.user?.id || null; } catch (_) { /* empty-catch-allow: best-effort silent swallow */ }
   if (!WORKER_NAME) { window.location.href = 'index.html?signin=1'; return; }
   // Phase B (auth migration): require authenticated session — see PRODUCTION_FIXES.md #37.
   if (!_authUid) { window.location.href = 'index.html?signin=1'; return; }
@@ -1740,7 +1740,7 @@ async function validateHiveMembership() {
   // (RLS rejected) even though the same queries work moments later.
   // Caught by the cross-surface KPI parity sentinel (#stat-low = 0 while
   // v_inventory_items_truth.is_low_stock = 3).
-  try { await db.auth.getUser(); } catch (_) {}
+  try { await db.auth.getUser(); } catch (_) { /* empty-catch-allow: best-effort silent swallow */ }
   await validateHiveMembership();
   await initData();
 })();

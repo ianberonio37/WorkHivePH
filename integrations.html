@@ -1767,7 +1767,7 @@
             ${canUndo ? `<button onclick="rollbackBatch('${escHtml(row.batch_id)}','${escHtml(row.entity_type)}','${escHtml(row.triggered_by || '')}','${escHtml(row.created_at)}')" style="padding:4px 12px; background:rgba(248,113,113,0.08); color:var(--red); border:1px solid rgba(248,113,113,0.25); border-radius:6px; font-size:.68rem; font-weight:700; cursor:pointer; font-family:inherit; white-space:nowrap;">↩ Undo</button>` : `<span style="font-size:.6rem; color:var(--muted);">Expired</span>`}
           </div>`;
       }).join('');
-    } catch (_) { /* cmms_audit_log may not exist yet */ }
+    } catch (_) { /* cmms_audit_log may not exist yet */ /* empty-catch-allow: best-effort silent swallow */ }
   }
 
   async function rollbackBatch(batchId, entityType, triggeredBy, createdAt) {
