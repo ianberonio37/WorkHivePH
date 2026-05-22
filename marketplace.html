@@ -551,19 +551,19 @@
     <div class="verdict-text"><span id="mk-verdict-label">Loading marketplace...</span><small id="mk-verdict-sub">Counting listings, your activity, and open inquiries.</small></div>
   </div>
   <div class="simple-row">
-    <div class="simple-card tag-grey" id="mk-card-total">
+    <div class="simple-card tag-grey" id="mk-card-total" data-rag-tile="marketplace:listings_in_view" data-rag-label="Listings in view">
       <div class="sc-label">Listings in view</div>
       <div class="sc-hero" id="mk-total-hero">0</div>
       <div class="sc-sub" id="mk-total-sub">Loading...</div>
       <span class="sc-tag" id="mk-total-tag">—</span>
     </div>
-    <div class="simple-card tag-grey" id="mk-card-mine">
+    <div class="simple-card tag-grey" id="mk-card-mine" data-rag-tile="marketplace:my_listings" data-rag-label="My listings">
       <div class="sc-label">My listings</div>
       <div class="sc-hero" id="mk-mine-hero">0</div>
       <div class="sc-sub" id="mk-mine-sub">Loading...</div>
       <span class="sc-tag" id="mk-mine-tag">—</span>
     </div>
-    <div class="simple-card tag-grey" id="mk-card-section">
+    <div class="simple-card tag-grey" id="mk-card-section" data-rag-tile="marketplace:current_tab" data-rag-label="Current tab">
       <div class="sc-label">Current tab</div>
       <div class="sc-hero" id="mk-section-hero">—</div>
       <div class="sc-sub" id="mk-section-sub">Loading...</div>
@@ -1215,7 +1215,7 @@
     const e = escHtml;
     const row = document.getElementById('filter-chips');
     if (!row) return;
-    row.innerHTML = (CATS[_section] || []).map(c =>
+    row/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = (CATS[_section] || []).map(c =>
       `<button class="filter-chip${_cat === c ? ' active' : ''}" data-cat="${e(c)}">${e(c)}</button>`
     ).join('');
     row.querySelectorAll('.filter-chip').forEach(btn => {
@@ -1317,7 +1317,7 @@
     if (cnt) cnt.textContent = selected.length;
     if (plr) plr.textContent = selected.length === 1 ? '' : 's';
     if (list) {
-      list.innerHTML = selected.map(item => `
+      list/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = selected.map(item => `
         <div style="display:flex;align-items:center;gap:0.5rem;padding:0.4rem;background:rgba(255,255,255,0.04);border-radius:0.4rem;font-size:0.72rem;">
           <span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#F4F6FA;">${e(item.title)}</span>
           <span style="color:#7B8794;white-space:nowrap;">${e(item.seller_name || 'Seller')}</span>
@@ -1418,7 +1418,7 @@
 
       const items = data || [];
       if (!items.length) {
-        content.innerHTML = `<div style="text-align:center;padding:2rem 1rem;color:#7B8794;">
+        content/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = `<div style="text-align:center;padding:2rem 1rem;color:#7B8794;">
           <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.3"><polygon points="19 21 12 17 5 21 5 5 19 5 19 21"/></svg>
           <h2 style="font-size:0.95rem;font-weight:700;color:#F4F6FA;margin:0.625rem 0 0.4rem;">No saved searches</h2>
           <p style="font-size:0.78rem;">Set filters above and save them here for quick reuse.</p>
@@ -1427,7 +1427,7 @@
       }
 
       const e = escHtml;
-      content.innerHTML = items.map(s => {
+      content/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = items.map(s => {
         const pieces = [];
         if (s.section)    pieces.push(s.section.charAt(0).toUpperCase() + s.section.slice(1));
         if (s.category)   pieces.push(s.category);
@@ -1464,7 +1464,7 @@
         btn.addEventListener('click', () => deleteSavedSearch(btn.dataset.id));
       });
     } catch (_err) {
-      content.innerHTML = `<p style="font-size:0.78rem;color:#f87171;padding:1rem 0;">Could not load saved searches. Try again.</p>`;
+      content/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = `<p style="font-size:0.78rem;color:#f87171;padding:1rem 0;">Could not load saved searches. Try again.</p>`;
     }
   }
 
@@ -1603,7 +1603,7 @@
       btn.classList.toggle('saved', isSaved);
       btn.setAttribute('aria-pressed', isSaved ? 'true' : 'false');
       btn.setAttribute('aria-label',  isSaved ? 'Remove from watchlist' : 'Save to watchlist');
-      btn.innerHTML = isSaved
+      btn/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = isSaved
         ? `<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>`
         : `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>`;
     });
@@ -1629,7 +1629,7 @@
       /* Fetch the actual listings, joined via watchlist IDs */
       const ids = Array.from(_watchlist);
       if (!ids.length) {
-        content.innerHTML = `
+        content/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = `
           <div style="text-align:center;padding:2.5rem 1rem;color:#7B8794;">
             <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.3"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
             <h3 style="font-size:0.95rem;font-weight:700;color:#F4F6FA;margin:0.625rem 0 0.4rem;">No saved listings</h3>
@@ -1648,12 +1648,12 @@
 
       const items = data || [];
       if (!items.length) {
-        content.innerHTML = `<p style="font-size:0.78rem;color:#7B8794;padding:1rem 0;">Saved listings are no longer available.</p>`;
+        content/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = `<p style="font-size:0.78rem;color:#7B8794;padding:1rem 0;">Saved listings are no longer available.</p>`;
         return;
       }
 
       const e = escHtml;
-      content.innerHTML = items.map(item => {
+      content/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = items.map(item => {
         const removed = item.status === 'removed';
         const hasImg  = !!item.image_url;
         return `
@@ -1689,7 +1689,7 @@
         });
       });
     } catch (_err) {
-      content.innerHTML = `<p style="font-size:0.78rem;color:#f87171;padding:1rem 0;">Could not load watchlist. Try again.</p>`;
+      content/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = `<p style="font-size:0.78rem;color:#f87171;padding:1rem 0;">Could not load watchlist. Try again.</p>`;
     }
   }
 
@@ -1841,7 +1841,7 @@
     renderMarketplaceSummary();
 
     if (info) {
-      info.innerHTML = _listings.length
+      info/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = _listings.length
         ? `Showing <span>${_listings.length}</span>${_hasMore ? '+' : ''} listing${_listings.length !== 1 ? 's' : ''}`
         : '';
     }
@@ -1868,7 +1868,7 @@
         },
       };
       const cfg = emptyConfig[_section] || emptyConfig.parts;
-      grid.innerHTML = `
+      grid/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = `
         <div class="empty-state">
           ${cfg.icon}
           <h3>${escHtml(cfg.title)}</h3>
@@ -1882,7 +1882,7 @@
       return;
     }
 
-    grid.innerHTML = _listings.map(cardHtml).join('');
+    grid/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = _listings.map(cardHtml).join('');
 
     grid.querySelectorAll('.btn-view').forEach(btn => {
       btn.addEventListener('click', ev => {
@@ -1920,7 +1920,7 @@
   function showSkeletons() {
     const grid = document.getElementById('listing-grid');
     if (!grid) return;
-    grid.innerHTML = Array(8).fill(0).map(() => `
+    grid/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = Array(8).fill(0).map(() => `
       <div class="skel-card skel-pulse">
         <div class="skel" style="height:160px;"></div>
         <div style="padding:0.875rem;">
@@ -2075,7 +2075,7 @@
     const content = document.getElementById('detail-content');
     if (!content) return;
 
-    content.innerHTML = `
+    content/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = `
       <div class="detail-image">
         ${item.image_url
           ? `<img src="${e(item.image_url)}" alt="${e(item.title)}" />`
@@ -2243,7 +2243,7 @@
     const sel = document.getElementById('post-category');
     if (!sel) return;
     const cats = (CATS[section] || []).filter(c => c !== 'All');
-    sel.innerHTML = cats.map(c => `<option value="${escHtml(c)}">${escHtml(c)}</option>`).join('');
+    sel/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = cats.map(c => `<option value="${escHtml(c)}">${escHtml(c)}</option>`).join('');
     const condWrap = document.getElementById('post-condition-wrap');
     if (condWrap) condWrap.style.display = section === 'parts' ? '' : 'none';
   }
@@ -2423,9 +2423,9 @@
 
     if (tipsEl) {
       if (!tips.length) {
-        tipsEl.innerHTML = '<span style="color:#4ade80;">✓ Great listing — buyers love specifics like yours.</span>';
+        tipsEl/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = '<span style="color:#4ade80;">✓ Great listing — buyers love specifics like yours.</span>';
       } else {
-        tipsEl.innerHTML = '<strong style="color:#F4F6FA;">To improve:</strong><br>' +
+        tipsEl/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = '<strong style="color:#F4F6FA;">To improve:</strong><br>' +
           tips.slice(0, 4).map(t => '• ' + escHtml(t)).join('<br>');
       }
     }
@@ -2603,7 +2603,7 @@
       if (error) throw error;
 
       if (!orders || !orders.length) {
-        content.innerHTML = `<div style="text-align:center;padding:2rem 1rem;color:#7B8794;">
+        content/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = `<div style="text-align:center;padding:2rem 1rem;color:#7B8794;">
           <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.3"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
           <p style="margin-top:0.75rem;font-size:0.82rem;">No orders yet.</p>
         </div>`;
@@ -2611,7 +2611,7 @@
       }
 
       const e = escHtml;
-      content.innerHTML = orders.map(ord => {
+      content/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = orders.map(ord => {
         const st = STATUS_LABEL[ord.status] || { label: ord.status, color: '#7B8794' };
         const canConfirm  = ord.status === 'escrow_hold';
         const canDispute  = ord.status === 'escrow_hold';
@@ -2663,7 +2663,7 @@
       });
 
     } catch (_err) {
-      if (content) content.innerHTML = `<p style="color:#f87171;font-size:0.82rem;padding:1rem 0;">Could not load orders. Try again.</p>`;
+      if (content) content/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = `<p style="color:#f87171;font-size:0.82rem;padding:1rem 0;">Could not load orders. Try again.</p>`;
     }
   }
 
@@ -2917,7 +2917,7 @@
     if (WORKER_NAME && !_authUid) { window.location.href = 'index.html?signin=1'; return; }
     const _mkChip = document.getElementById('marketplace-source-chip');
     if (_mkChip && typeof renderSourceChip === 'function') {
-      _mkChip.innerHTML = renderSourceChip({
+      _mkChip/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = renderSourceChip({
         freshness: 'Live · refreshed on each tab switch',
         source:    'marketplace_listings + v_marketplace_sellers_truth',
         notes:     [

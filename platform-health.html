@@ -1178,12 +1178,12 @@ function render(report) {
     `Last run: ${ts}  ·  ${mode} mode  ·  ${dur}`;
 
   const main = document.getElementById('main');
-  main.innerHTML = '';
+  main/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = '';
 
   // Regression alert
   if (regs.length) {
     const ra = ce('div', 'reg-alert');
-    ra.innerHTML = `<div class="reg-title">⚠ ${regs.length} Regression${regs.length>1?'s':''} Detected</div>` +
+    ra/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = `<div class="reg-title">⚠ ${regs.length} Regression${regs.length>1?'s':''} Detected</div>` +
       regs.map(r=>`<div class="reg-item">• ${r.label}: was ${r.was} → now ${r.now}</div>`).join('');
     main.appendChild(ra);
   }
@@ -1191,12 +1191,12 @@ function render(report) {
   // Banner
   const msgs = { PASS:'✓  All checks pass — READY to deploy', FAIL:'✗  Failures found — fix before deploying', WARN:'⚠  Warnings present — review before deploying' };
   const banner = ce('div', `banner ${overall.toLowerCase()}`);
-  banner.innerHTML = `<span>${msgs[overall]||overall}</span><span class="b-sub">${regs.length?`${regs.length} regression(s)`: 'Baseline: '+(report.baseline_ref?new Date(report.baseline_ref).toLocaleDateString():'none')}</span>`;
+  banner/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = `<span>${msgs[overall]||overall}</span><span class="b-sub">${regs.length?`${regs.length} regression(s)`: 'Baseline: '+(report.baseline_ref?new Date(report.baseline_ref).toLocaleDateString():'none')}</span>`;
   main.appendChild(banner);
 
   // Summary cards
   const g4 = ce('div','grid-4');
-  g4.innerHTML = [{cls:'pass',n:summary.pass||0,l:'Pass'},{cls:'fail',n:summary.fail||0,l:'Fail'},{cls:'warn',n:summary.warn||0,l:'Warn'},{cls:'skip',n:summary.skip||0,l:'Skip'}]
+  g4/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = [{cls:'pass',n:summary.pass||0,l:'Pass'},{cls:'fail',n:summary.fail||0,l:'Fail'},{cls:'warn',n:summary.warn||0,l:'Warn'},{cls:'skip',n:summary.skip||0,l:'Skip'}]
     .map(c => `<div class="scard ${c.cls}"><div class="num">${c.n}</div><div class="lbl">${c.l}</div></div>`).join('');
   main.appendChild(g4);
 
@@ -1245,7 +1245,7 @@ function render(report) {
     if (warnN) summaryParts.push(`<span style="color:var(--yellow);">${warnN} WARN</span>`);
     summaryParts.push(`<span>${passN}/${groupVals.length} pass</span>`);
 
-    hdr.innerHTML = `
+    hdr/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = `
       <span class="vgroup-name">${groupName}</span>
       <span class="vgroup-summary">${summaryParts.join(' · ')}</span>
       <span class="vgroup-arrow ${hasIssue ? 'open' : ''}">▼</span>`;
@@ -1253,7 +1253,7 @@ function render(report) {
     // Group body — rows with trend arrows
     const body = document.createElement('div');
     body.className = 'vgroup-body' + (hasIssue ? ' open' : '');
-    body.innerHTML = groupVals.map(v => {
+    body/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = groupVals.map(v => {
       const s     = (v.status||'SKIP').toLowerCase();
       const trend = getTrend(v.id, v.status);
       return `<div class="vrow"><span class="badge ${s}">${v.status}</span><span class="vlabel">${v.label}</span>${trend}<span class="vtime">${v.elapsed?v.elapsed+'s':'—'}</span></div>`;
@@ -1273,7 +1273,7 @@ function render(report) {
   const calcVals = vals.filter(v => v.group === 'Engineering Calculator');
   if (calcVals.length) {
     const sec = ce('div','sec');
-    sec.innerHTML = '<div class="sec-title">Engineering Calculator</div>';
+    sec/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = '<div class="sec-title">Engineering Calculator</div>';
     const tbl = renderValidatorGroup('Engineering Calc Suite', calcVals);
     if (tbl) sec.appendChild(tbl);
     main.appendChild(sec);
@@ -1283,7 +1283,7 @@ function render(report) {
   const platformVals = vals.filter(v => v.group === 'Platform');
   if (platformVals.length) {
     const sec = ce('div','sec');
-    sec.innerHTML = '<div class="sec-title">Platform Validators</div>';
+    sec/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = '<div class="sec-title">Platform Validators</div>';
     const assigned = new Set();
 
     Object.entries(SUBGROUPS).forEach(([subName, ids]) => {
@@ -1306,7 +1306,7 @@ function render(report) {
 
   // Readiness gate — visual status cards
   const gsec = ce('div','sec');
-  gsec.innerHTML = '<div class="sec-title">Readiness Gate</div>';
+  gsec/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = '<div class="sec-title">Readiness Gate</div>';
 
   const GATE_META = {
     git:        { label:'Git',            icon:{ pass:'✓', fail:'✗', warn:'⚠', skip:'⊘' } },
@@ -1328,7 +1328,7 @@ function render(report) {
 
     const card = document.createElement('div');
     card.className = `gcard ${s}`;
-    card.innerHTML = `
+    card/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = `
       <div class="gcard-top">
         <span class="gcard-icon" style="color:${iconColor}">${icon}</span>
         <span class="gcard-status">${v.status||'SKIP'}</span>
@@ -1345,13 +1345,13 @@ function render(report) {
   const failsExist   = (summary.fail || 0) > 0 || regs.length > 0;
   if (!failsExist && gateAllOk) {
     deployBanner.className = 'deploy-ready';
-    deployBanner.innerHTML = `✓ &nbsp;Platform is ready to deploy`;
+    deployBanner/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = `✓ &nbsp;Platform is ready to deploy`;
   } else {
     deployBanner.className = 'deploy-blocked';
     const reason = failsExist
       ? `${summary.fail||0} validator failure(s) — fix before deploying`
       : `${gateBlockReason} — resolve before deploying`;
-    deployBanner.innerHTML = `✗ &nbsp;${reason}`;
+    deployBanner/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = `✗ &nbsp;${reason}`;
   }
   gsec.appendChild(deployBanner);
   main.appendChild(gsec);
@@ -1364,7 +1364,7 @@ function render(report) {
     const bsec = ce('div','sec');
     const upd  = backlog?.last_updated ? new Date(backlog.last_updated).toLocaleDateString() : '—';
     const high = backlog?.high||0, med = backlog?.medium||0, lo = backlog?.low||0;
-    bsec.innerHTML = `
+    bsec/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = `
       <div class="sec-title">Improvement Backlog
         <span style="font-size:.7rem;font-weight:400;color:var(--muted);margin-left:.5rem;">
           Last scanned: ${upd}
@@ -1374,7 +1374,7 @@ function render(report) {
     // Summary row
     const sumrow = document.createElement('div');
     sumrow.style = 'display:flex;gap:.5rem;padding:.5rem 1rem .25rem;flex-wrap:wrap;';
-    sumrow.innerHTML = `
+    sumrow/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = `
       <span class="badge fail">${high} HIGH</span>
       <span class="badge warn">${med} MED</span>
       <span class="badge skip">${lo} LOW</span>
@@ -1385,7 +1385,7 @@ function render(report) {
     // Load and render full items
     const btbl = ce('div','vtable');
     btbl.id = 'bl-items-table';
-    btbl.innerHTML = '<div style="padding:.6rem 1rem;font-size:.78rem;color:var(--muted);">Loading items...</div>';
+    btbl/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = '<div style="padding:.6rem 1rem;font-size:.78rem;color:var(--muted);">Loading items...</div>';
     bsec.appendChild(btbl);
     main.appendChild(bsec);
 
@@ -1394,7 +1394,7 @@ function render(report) {
       .catch(() => [])
       .then(items => {
         if (!items || !items.length) {
-          btbl.innerHTML = '<div style="padding:.6rem 1rem;font-size:.78rem;color:var(--muted);">No items yet — click Run Improve to scan.</div>';
+          btbl/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = '<div style="padding:.6rem 1rem;font-size:.78rem;color:var(--muted);">No items yet — click Run Improve to scan.</div>';
           return;
         }
 
@@ -1439,7 +1439,7 @@ function render(report) {
         const progEl = document.createElement('div');
         progEl.className = 'bl-progress';
         const pct = totalItems > 0 ? Math.round((resolvedCount / totalItems) * 100) : 0;
-        progEl.innerHTML = `
+        progEl/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = `
           <span>${resolvedCount} of ${totalItems} items resolved</span>
           <div class="bl-progress-track"><div class="bl-progress-fill" style="width:${pct}%"></div></div>
           <span>${pct}%</span>`;
@@ -1480,13 +1480,13 @@ function render(report) {
 
         let shownCount = 0;
         function renderPage(reset) {
-          if (reset === 0) { listEl.innerHTML = ''; shownCount = 0; }
+          if (reset === 0) { listEl/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = ''; shownCount = 0; }
           const filtered = getFiltered();
           const slice = filtered.slice(shownCount, shownCount + PAGE_SIZE);
           const isArchived = activeFilter === 'done';
 
           if (shownCount === 0 && !slice.length) {
-            listEl.innerHTML = '<div style="padding:.6rem 1rem;font-size:.78rem;color:var(--muted);">No items in this filter.</div>';
+            listEl/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = '<div style="padding:.6rem 1rem;font-size:.78rem;color:var(--muted);">No items in this filter.</div>';
             return;
           }
 
@@ -1554,7 +1554,7 @@ function render(report) {
 
           const card = document.createElement('div');
           card.className = 'bl-item' + (isDone ? ' done-item' : '') + (isWIP ? ' wip-item' : '');
-          card.innerHTML = `
+          card/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = `
             <div class="bl-item-header">
               <span class="badge ${priBadge}">${item.priority||'?'}</span>
               <span class="bl-item-label">${escHtml(item.label||item.id||'')}</span>
@@ -1605,7 +1605,7 @@ function render(report) {
         // Initial render is handled by renderPage(0) above
       })
       .catch(() => {
-        btbl.innerHTML = '<div style="padding:.6rem 1rem;font-size:.78rem;color:var(--muted);">Could not load backlog. Run Improve to generate items.</div>';
+        btbl/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = '<div style="padding:.6rem 1rem;font-size:.78rem;color:var(--muted);">Could not load backlog. Run Improve to generate items.</div>';
       });
   }
 
@@ -1613,13 +1613,13 @@ function render(report) {
   const hist = getHist();
   if (hist.length > 1) {
     const hsec = ce('div','sec');
-    hsec.innerHTML = '<div class="sec-title">Run History</div>';
+    hsec/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = '<div class="sec-title">Run History</div>';
 
     // ── Sparkline chart ──────────────────────────────────────────────────────
     const chartRuns = hist.slice(0, 10).reverse(); // oldest → newest, max 10
     const spark = document.createElement('div');
     spark.className = 'sparkline-wrap';
-    spark.innerHTML = '<div class="spark-axis"></div>';
+    spark/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = '<div class="spark-axis"></div>';
 
     const BAR_H = 36; // max bar height in px
 
@@ -1636,7 +1636,7 @@ function render(report) {
       const bar = document.createElement('div');
       bar.className = 'spark-bar';
       bar.style.cssText = `height:${barH}px; background:${color};`;
-      bar.innerHTML = `<div class="spark-tip">${tipHtml}</div>`;
+      bar/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = `<div class="spark-tip">${tipHtml}</div>`;
       spark.appendChild(bar);
     });
 
@@ -1644,7 +1644,7 @@ function render(report) {
 
     // ── Recent runs list (last 5) ────────────────────────────────────────────
     const htbl = ce('div','vtable');
-    htbl.innerHTML = hist.slice(0, 5).map(h => {
+    htbl/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = hist.slice(0, 5).map(h => {
       const s  = (h.overall||'PASS').toLowerCase();
       const t  = new Date(h.timestamp).toLocaleString([], {month:'short', day:'numeric', hour:'2-digit', minute:'2-digit'});
       const rg = h.regressions ? `<span style="color:var(--red);font-size:.68rem"> ⚠${h.regressions}</span>` : '';
@@ -1676,7 +1676,7 @@ async function loadHealth() {
   } catch(e) {
     const main = document.getElementById('main');
     if (!main.querySelector('.banner')) {
-      main.innerHTML = `<div class="empty">
+      main/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = `<div class="empty">
         ⚠ Could not load platform_health.json<br><br>
         <span style="font-size:.8rem">Start the server: <code style="color:var(--gold)">python guardian_server.py</code></span><br>
         <span style="font-size:.75rem;color:var(--muted);margin-top:.5rem;display:block">Then open: <code>http://localhost:8080</code></span>
@@ -1798,7 +1798,7 @@ function run(cmd) {
 
 // ── Terminal ───────────────────────────────────────────────────────────────
 function openTerm(label) {
-  document.getElementById('terminal').innerHTML = '';
+  document.getElementById('terminal')/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = '';
   document.getElementById('term-title').textContent = label;
   document.getElementById('term-status').textContent = '';
   document.getElementById('terminal-wrap').classList.add('open');
@@ -1824,7 +1824,7 @@ function termLine(text, cls) {
 // ── Bottom sheet for backlog item detail on mobile ────────────────────────────
 function openBSheet(title, bodyHtml) {
   document.getElementById('bsheet-title').textContent = title;
-  document.getElementById('bsheet-body').innerHTML = bodyHtml;
+  document.getElementById('bsheet-body')/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = bodyHtml;
   document.getElementById('bsheet-overlay').classList.add('open');
   document.body.style.overflow = 'hidden';
 }

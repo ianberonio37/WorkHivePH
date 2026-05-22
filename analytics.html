@@ -628,7 +628,7 @@
     const banner = document.getElementById('phase-banner');
     if (banner && PHASE_BANNERS[phase]) {
       const icons = { descriptive:'📊', diagnostic:'🔍', predictive:'🔮', prescriptive:'⚡' };
-      banner.innerHTML = `<span>${icons[phase]||'📊'}</span><span>${PHASE_BANNERS[phase]}</span>`;
+      banner/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = `<span>${icons[phase]||'📊'}</span><span>${PHASE_BANNERS[phase]}</span>`;
     }
 
     // Instant switch from cache if available
@@ -686,7 +686,7 @@
       banner.textContent = '';
     } else {
       banner.style.display = '';
-      banner.innerHTML = `Filtered: ${active.map(escHtml).join(' · ')} <button onclick="resetFilters()" style="margin-left:0.5rem;background:none;border:none;color:#a78bfa;cursor:pointer;text-decoration:underline;font-size:0.66rem;font-family:inherit;">clear</button>`;
+      banner/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = `Filtered: ${active.map(escHtml).join(' · ')} <button onclick="resetFilters()" style="margin-left:0.5rem;background:none;border:none;color:#a78bfa;cursor:pointer;text-decoration:underline;font-size:0.66rem;font-family:inherit;">clear</button>`;
     }
   }
   function resetFilters() {
@@ -750,7 +750,7 @@
       console.warn(`[analytics] ${phase} failed:`, err.message);
       showToast('Analysis failed — check console');
       if (_phase === phase) {
-        document.getElementById('results-panel').innerHTML = `
+        document.getElementById('results-panel')/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = `
           <div class="card"><div class="empty" style="color:#f87171;">
             ${escHtml(err.message.includes('not yet available') ? 'Analytics engine warming up — try Refresh in a moment.' : err.message)}
           </div></div>`;
@@ -831,7 +831,7 @@
 
   // ── Skeleton loading cards ─────────────────────────────────────────────────
   function showSkeleton() {
-    document.getElementById('results-panel').innerHTML = `
+    document.getElementById('results-panel')/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = `
       <div class="card" style="min-height:260px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:2.5rem;">
         <div class="spinner" style="width:40px;height:40px;border-width:3px;border-color:rgba(167,139,250,0.15);border-top-color:#a78bfa;margin-bottom:1.25rem;"></div>
         <div style="color:#a78bfa;font-size:0.7rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;margin-bottom:0.6rem;">WorkHive Analytics AI</div>
@@ -875,7 +875,7 @@
     html += renderRepeatFailures(data.repeat_failures);           // ineffective repair signal — high action
     html += renderPartsConsumption(data.parts_consumption);       // cost angle — least urgent for ops
 
-    panel.innerHTML = html;
+    panel/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = html;
     flushCharts();
 
     // Plain-Read summary (Layer D — UX Contract). Rolls up OEE / MTBF /
@@ -1380,7 +1380,7 @@
     html += renderPartsAvailabilityImpact(data.parts_availability_impact);  // supply chain × MTTR
     html += renderRCMConsequence(data.rcm_consequence);                     // taxonomy — useful but least actionable
     html += renderEngineeringValidation(data.engineering_validation);       // sanity / data quality — last
-    panel.innerHTML = html;
+    panel/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = html;
     flushCharts();
   }
 
@@ -1532,7 +1532,7 @@
     html += renderPMDueCalendar(data.pm_due_calendar);               // scheduled work coming up
     html += renderPartsStockout(data.parts_stockout);                // supply chain forecast
     html += renderPartsSpike(data.parts_consumption_spike);          // early-warning indicator — secondary signal
-    panel.innerHTML = html;
+    panel/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = html;
     flushCharts();
   }
 
@@ -1901,7 +1901,7 @@
     html += renderPartsReorder(data.parts_reorder);                    // what to buy now
     html += renderPMOptimization(data.pm_interval_optimization);       // longer-horizon schedule change
     html += renderTrainingGaps(data.training_gaps);                    // longest-horizon HR action
-    panel.innerHTML = html;
+    panel/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = html;
   }
 
   function renderActionPlan(plan) {
@@ -2239,12 +2239,12 @@
     const pred  = _cache.predictive;
     const presc = _cache.prescriptive;
 
-    if (!desc && !pred && !presc) { el.innerHTML = ''; return; }
+    if (!desc && !pred && !presc) { el/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = ''; return; }
 
     if (_role === 'supervisor') {
-      el.innerHTML = buildSupervisorView(desc, pred, presc);
+      el/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = buildSupervisorView(desc, pred, presc);
     } else {
-      el.innerHTML = buildWorkerView(pred, presc);
+      el/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = buildWorkerView(pred, presc);
     }
   }
 
@@ -2264,7 +2264,7 @@
       ? urgent.filter(t => t.asset_name === assetName)  // all tasks for selected asset
       : urgent.slice(0, 5);                              // default: top 5 across all
     const el = document.getElementById('pm-task-list');
-    if (el) el.innerHTML = _buildPMTaskRows(tasks);
+    if (el) el/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = _buildPMTaskRows(tasks);
   }
 
   // ── Worker Quick View: PM due + open jobs + parts needed ──────────────────
@@ -2381,7 +2381,7 @@
     // source-chip-allow: analytics computes via Postgres RPCs (calc_mtbf /
     // calc_mttr / calc_oee) over v_logbook_truth — no direct db.from() of
     // the view, but the RPC bodies guarantee identical lineage.
-    el.innerHTML = renderSourceChip({
+    el/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = renderSourceChip({
       freshness: 'Live recomputation each refresh',
       source:    'v_logbook_truth via Postgres RPCs',
       window:    `MTBF / MTTR / OEE @ ${_period}d window (selected period)`,

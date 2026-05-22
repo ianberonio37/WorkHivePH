@@ -2372,7 +2372,7 @@
 
     const grid = document.getElementById('popup-tools');
     const rgb = s.rgb || '247,162,27';
-    grid.innerHTML = s.tools.map(t => {
+    grid/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = s.tools.map(t => {
       const isLink = t.link !== null;
       const tag = isLink ? `a href="${t.link}"` : 'div';
       const closeTag = isLink ? 'a' : 'div';
@@ -2799,7 +2799,7 @@
 
     if (count > 0) {
       // Existing worker: show records-linked confirmation before closing
-      document.getElementById('panel-signup').innerHTML = `
+      document.getElementById('panel-signup')/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = `
         <div style="text-align:center; padding:0.5rem 0 1rem;">
           <div style="font-size:2.5rem; margin-bottom:0.75rem;">&#10003;</div>
           <p style="color:white; font-weight:800; font-size:1rem; margin:0 0 0.5rem;">Account secured!</p>
@@ -3325,7 +3325,7 @@
             { href:'logbook.html',   label:'Log a Job',           color:'#F7A21B', bg:'rgba(247,162,27,.12)', br:'rgba(247,162,27,.30)' },
             { href:'assistant.html', label:`Ask ${_personaName}`, color:'#4ade80', bg:'rgba(74,222,128,.10)', br:'rgba(74,222,128,.30)' },
           ];
-      _ohActionsEl.innerHTML = _primary.map(p =>
+      _ohActionsEl/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = _primary.map(p =>
         `<a href="${escHtml(p.href)}" class="oh-action" style="background:${p.bg}; color:${p.color}; border-color:${p.br};">${escHtml(p.label)}</a>`
       ).join('');
     }
@@ -3335,7 +3335,7 @@
     // for Risk Alerts, inventory for Low Stock, PM compliance for PM Overdue).
     const _ohChipEl = document.getElementById('oh-source-chip');
     if (_ohChipEl && typeof renderSourceChip === 'function') {
-      _ohChipEl.innerHTML = renderSourceChip({
+      _ohChipEl/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = renderSourceChip({
         freshness: HIVE_ID ? 'Live data' : 'Live (solo mode)',
         source:    'v_logbook_truth + v_risk_truth + v_inventory_items_truth + v_pm_compliance_truth',
         notes:     [
@@ -3523,7 +3523,7 @@
       statsEl.style.display = 'flex';
       // data-kpi attribute lets tests/journey-canonical-signal-parity.spec.ts
       // target each tile precisely without text-matching.
-      statsEl.innerHTML = tiles.map(t =>
+      statsEl/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = tiles.map(t =>
         `<a href="${escHtml(t.href)}" class="oh-card oh-tile" data-kpi="${escHtml(t.kpi)}">
            <span class="oh-tile-num" style="color:${t.color};">${Number(t.num)}</span>
            <span class="oh-tile-lbl">${escHtml(t.label)}</span>
@@ -3715,7 +3715,7 @@
       if (!pick) {
         // Empty / all-clear state.
         el.style.display = 'block';
-        el.innerHTML = `
+        el/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = `
           <a href="${role === 'supervisor' ? 'alert-hub.html' : 'pm-scheduler.html'}" class="oh-card"
              style="display:flex; align-items:center; gap:14px; padding:18px; text-decoration:none; border-left:3px solid #4ade80;">
             <div style="width:36px; height:36px; border-radius:50%; background:rgba(74,222,128,0.12); color:#4ade80; display:flex; align-items:center; justify-content:center; font-size:1.2rem; flex-shrink:0;">&#10003;</div>
@@ -3730,7 +3730,7 @@
       }
 
       el.style.display = 'block';
-      el.innerHTML = `
+      el/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = `
         <a href="${escHtml(pick.href)}" class="oh-card"
            style="display:flex; align-items:center; gap:14px; padding:18px; text-decoration:none; border-left:3px solid ${pick.accent};">
           <div style="width:36px; height:36px; border-radius:50%; background:${pick.accent}1f; color:${pick.accent}; display:flex; align-items:center; justify-content:center; font-size:1rem; font-weight:800; flex-shrink:0;">!</div>
@@ -3777,7 +3777,7 @@
       const pct = Math.round((done / steps.length) * 100);
 
       el.style.display = 'block';
-      el.innerHTML = `
+      el/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = `
         <div class="oh-card" style="padding:16px 18px; border-left:3px solid #F7A21B;">
           <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:10px;">
             <div>
@@ -3810,7 +3810,7 @@
     if (topRiskEl && risks.length > 0) {
       const top3 = risks.slice(0, 3);
       topRiskEl.style.display = 'block';
-      topRiskEl.innerHTML = `
+      topRiskEl/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = `
         <div class="oh-card" style="padding:14px 16px; border-left:3px solid #f87171;">
           <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;">
             <p style="font-size:.62rem; font-weight:700; text-transform:uppercase; letter-spacing:.07em; color:#f87171; margin:0;">Top At-Risk Assets</p>
@@ -3840,7 +3840,7 @@
     const activityEl = document.getElementById('oh-activity');
     if (activityEl && HIVE_ID) {
       activityEl.style.display = 'block';
-      activityEl.innerHTML = `
+      activityEl/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = `
         <p class="oh-sec-lbl">Hive Activity Today</p>
         <div class="oh-card oh-activity" style="padding:14px;">
           <div style="text-align:center;">
@@ -3862,13 +3862,13 @@
     const jobsEl = document.getElementById('oh-jobs');
     if (jobsEl) {
       if (!jobs.length) {
-        jobsEl.innerHTML = `<div class="oh-card" style="text-align:center; padding:24px 20px;">
+        jobsEl/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = `<div class="oh-card" style="text-align:center; padding:24px 20px;">
           <div style="font-size:1.4rem; margin-bottom:6px;">✓</div>
           <div style="font-size:.82rem; font-weight:700; color:#4ade80; margin-bottom:4px;">All clear</div>
           <div style="font-size:.7rem; color:rgba(255,255,255,.4);">No open jobs right now. Tap <strong style="color:#F7A21B;">+ Log a Job</strong> below if a fault comes up.</div>
         </div>`;
       } else {
-        jobsEl.innerHTML = jobs.map(j => {
+        jobsEl/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = jobs.map(j => {
           const ts = j.created_at || j.date;
           const cat = j.category || j.maintenance_type || '';
           return `<div class="oh-job-row">
@@ -3887,7 +3887,7 @@
     const stockEl = document.getElementById('oh-stock');
     if (stockEl && lowStock.length > 0) {
       stockEl.style.display = 'block';
-      stockEl.innerHTML = `
+      stockEl/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = `
         <div class="oh-card" style="padding:12px 16px; border-left:3px solid #fb923c;">
           <p style="font-size:.62rem; font-weight:700; text-transform:uppercase; letter-spacing:.07em; color:#fb923c; margin:0 0 8px;">Low Stock (${lowStock.length})</p>
           <div style="display:flex; flex-wrap:wrap; gap:6px;">

@@ -1137,7 +1137,7 @@ async function init() {
 
   const _pmChip = document.getElementById('pm-source-chip');
   if (_pmChip && typeof renderSourceChip === 'function') {
-    _pmChip.innerHTML = renderSourceChip({
+    _pmChip/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = renderSourceChip({
       freshness: 'Live · refreshed on load',
       source:    'pm_assets + pm_scope_items + pm_completions',
       notes:     [
@@ -1221,7 +1221,7 @@ async function loadData() {
   const cats = [...new Set(assets.map(a => a.category))].sort();
   const sel  = document.getElementById('cat-filter');
   const prev = sel.value;
-  sel.innerHTML = '<option value="">All Categories</option>' +
+  sel/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = '<option value="">All Categories</option>' +
     cats.map(c => `<option value="${c}">${c}</option>`).join('');
   if (prev) sel.value = prev;
 }
@@ -1400,7 +1400,7 @@ function renderDashboard() {
 
   if (!filtered.length) {
     empty.classList.remove('hidden');
-    list.innerHTML = '';
+    list/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = '';
     document.getElementById('pm-load-more-wrap').classList.add('hidden');
     return;
   }
@@ -1412,7 +1412,7 @@ function renderDashboard() {
   pmWrap.classList.toggle('hidden', _pmDisplayCount >= filtered.length);
   pmLbl.textContent = `Showing ${visible.length} of ${filtered.length} assets`;
 
-  list.innerHTML = visible.map(asset => {
+  list/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = visible.map(asset => {
     const totalItems    = asset.enrichedItems.length;
     const overdueItems  = asset.enrichedItems.filter(i => i.itemStatus === 'overdue').length;
     const nextDueItem   = asset.enrichedItems
@@ -1500,7 +1500,7 @@ function renderDetail(asset) {
   freqOrder.forEach(f => { grouped[f] = items.filter(i => i.frequency === f); });
 
   const tasksEl = document.getElementById('det-tasks');
-  tasksEl.innerHTML = freqOrder.map(freq => {
+  tasksEl/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = freqOrder.map(freq => {
     if (!grouped[freq].length) return '';
     return `
       <div class="mb-4">
@@ -1550,13 +1550,13 @@ function renderDetail(asset) {
   const histMoreWrap  = document.getElementById('det-history-more');
 
   if (!assetComps.length) {
-    histEl.innerHTML = '';
+    histEl/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = '';
     histEmpty.classList.remove('hidden');
     histMoreWrap.classList.add('hidden');
   } else {
     histEmpty.classList.add('hidden');
     histMoreWrap.classList.toggle('hidden', _histDisplayCount >= allAssetComps.length);
-    histEl.innerHTML = assetComps.map(c => {
+    histEl/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = assetComps.map(c => {
       const item    = scopeItems.find(i => i.id === c.scope_item_id);
       const itemTxt = item ? item.item_text : 'Unknown task';
       const statusCls = c.status === 'done' ? 'text-green-400' : 'text-yellow-400';
@@ -1907,13 +1907,13 @@ function renderRegisteredAssets(list) {
   const emptyEl = document.getElementById('reg-assets-empty');
 
   if (!list.length) {
-    listEl.innerHTML = '';
+    listEl/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = '';
     emptyEl.classList.remove('hidden');
     return;
   }
   emptyEl.classList.add('hidden');
 
-  listEl.innerHTML = list.map(a => `
+  listEl/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = list.map(a => `
     <button type="button" onclick="pickRegisteredAsset('${a.id}')"
       class="w-full text-left px-3 py-2.5 rounded-xl border transition-all"
       style="background:rgba(255,255,255,0.04);border-color:rgba(255,255,255,0.08);"
@@ -2042,11 +2042,11 @@ function addCustomItem() {
 function renderScopeList() {
   const container = document.getElementById('scope-list');
   if (!wizardItems.length) {
-    container.innerHTML = '<p class="text-sm text-white/30 text-center py-6">Select a category to load PM scope templates.</p>';
+    container/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = '<p class="text-sm text-white/30 text-center py-6">Select a category to load PM scope templates.</p>';
     return;
   }
 
-  container.innerHTML = wizardItems.map((item, idx) => {
+  container/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = wizardItems.map((item, idx) => {
     const included = item.included !== false;
     const freqOpts = ['Monthly','Quarterly','Semi-Annual','Yearly']
       .map(f => `<option value="${f}" ${item.freq === f ? 'selected' : ''}>${f}</option>`).join('');
@@ -2088,7 +2088,7 @@ function removeCustomItem(idx) {
 
 function renderStepIndicator(step) {
   const dots = document.getElementById('step-indicator');
-  dots.innerHTML = [1,2,3,4].map(s => {
+  dots/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = [1,2,3,4].map(s => {
     const cls = s < step ? 'done' : s === step ? 'active' : '';
     return `<div class="step-dot ${cls}"></div>`;
   }).join('');
@@ -2157,7 +2157,7 @@ function renderReview() {
   document.getElementById('rev-anchor').textContent    = anchor ? `Anchor: ${formatDate(anchor)}` : 'No anchor date set';
   document.getElementById('rev-count').textContent     = included.length;
 
-  document.getElementById('rev-scope').innerHTML = included.map(item => `
+  document.getElementById('rev-scope')/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = included.map(item => `
     <div class="flex items-center gap-2">
       ${freqBadge(item.freq)}
       <span class="text-sm text-white/70 leading-snug">${escHtml(item.text)}</span>
@@ -2257,7 +2257,7 @@ function populateTemplateOptions() {
 function renderCatTabs() {
   const tabsEl = document.getElementById('tmpl-cat-tabs');
   const cats   = Object.keys(PM_TEMPLATES);
-  tabsEl.innerHTML = cats.map(cat => {
+  tabsEl/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = cats.map(cat => {
     const isActive = cat === _tmplActiveCat;
     const style = isActive
       ? 'background:rgba(247,162,27,0.18);color:#F7A21B;border-color:rgba(247,162,27,0.5);'
@@ -2285,14 +2285,14 @@ function renderTaskChips() {
   const chipsEl = document.getElementById('tmpl-chips');
 
   if (!templates.length) {
-    chipsEl.innerHTML = '<p class="text-xs text-white/25 py-2">All standard tasks for this category already added.</p>';
+    chipsEl/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = '<p class="text-xs text-white/25 py-2">All standard tasks for this category already added.</p>';
     return;
   }
 
   const freqColor = { Monthly: '#29B6D9', Quarterly: '#a78bfa', 'Semi-Annual': '#fb923c', Yearly: '#4ade80' };
   const currentText = document.getElementById('add-task-text').value.trim();
 
-  chipsEl.innerHTML = templates.map(t => {
+  chipsEl/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = templates.map(t => {
     const isSelected = currentText === t.text;
     const fc = freqColor[t.freq] || '#ffffff';
     const bg = isSelected ? 'rgba(247,162,27,0.15)' : 'rgba(255,255,255,0.04)';

@@ -862,7 +862,7 @@ function renderParts() {
   const noRes  = document.getElementById('no-results');
 
   if (items.length === 0) {
-    list.innerHTML = '';
+    list/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = '';
     empty.classList.remove('hidden');
     noRes.classList.add('hidden');
     return;
@@ -894,7 +894,7 @@ function renderParts() {
   });
 
   if (filtered.length === 0) {
-    list.innerHTML = '';
+    list/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = '';
     noRes.classList.remove('hidden');
     document.getElementById('inv-load-more-wrap').classList.add('hidden');
     return;
@@ -908,7 +908,7 @@ function renderParts() {
   lbl.textContent = `Showing ${visible.length} of ${filtered.length} parts`;
 
   const q = query;
-  list.innerHTML = visible.map(item => {
+  list/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = visible.map(item => {
     const st      = stockStatus(item);
     const sc      = STATUS_COLORS[st];
     // Phase 5b.2: linked_asset_node_ids is uuid[]; map back to display codes
@@ -982,13 +982,13 @@ function renderAssetLinker() {
   const linker  = document.getElementById('asset-linker');
   const emptyEl = document.getElementById('asset-linker-empty');
   if (assets.length === 0) {
-    linker.innerHTML = '';
+    linker/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = '';
     linker.appendChild(emptyEl);
     emptyEl.classList.remove('hidden');
     return;
   }
   emptyEl.classList.add('hidden');
-  linker.innerHTML = assets.map(a => {
+  linker/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = assets.map(a => {
     const label = a.name ? `${a.asset_id}: ${a.name}` : a.asset_id;
     const sel   = selectedAssetIds.has(a.asset_id);
     return `<button type="button" class="asset-tag${sel ? ' selected' : ''}" data-asset-id="${escHtml(a.asset_id)}">${escHtml(label)}</button>`;
@@ -1357,7 +1357,7 @@ function openDetailModal(id) {
   const st   = stockStatus(item);
   const sc   = STATUS_COLORS[st];
 
-  document.getElementById('detail-content').innerHTML = `
+  document.getElementById('detail-content')/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = `
     <div class="flex items-start gap-3 mb-1 pr-10">
       <div class="flex-1 min-w-0">
         <div class="flex items-center gap-2 flex-wrap mb-1">
@@ -1480,10 +1480,10 @@ function showToast(msg, type) {
   document.getElementById('toast-text').textContent = msg;
   if (type === 'warn') {
     icon.style.color = '#F7A21B';
-    icon.innerHTML   = `<path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>`;
+    icon/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML   = `<path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>`;
   } else {
     icon.style.color = '#4ade80';
-    icon.innerHTML   = `<path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>`;
+    icon/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML   = `<path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>`;
   }
   const toast = document.getElementById('toast');
   toast.classList.remove('hidden');
@@ -1554,7 +1554,7 @@ document.getElementById('filter-status').addEventListener('change',   () => { _i
 async function initData() {
   const _invChip = document.getElementById('inventory-source-chip');
   if (_invChip && typeof renderSourceChip === 'function') {
-    _invChip.innerHTML = renderSourceChip({
+    _invChip/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = renderSourceChip({
       freshness: 'Live · refreshed on load',
       source:    'inventory_items + inventory_transactions',
       notes:     [

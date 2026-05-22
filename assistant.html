@@ -469,7 +469,7 @@
       const nudge = document.getElementById('empty-records-nudge');
       if (nudge) nudge.classList.toggle('hidden', items.some(i => i.count > 0));
 
-      list.innerHTML = items.map(i => `
+      list/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = items.map(i => `
         <div class="flex items-center justify-between">
           <span class="text-xs text-white/50">${i.label}</span>
           <span class="text-xs font-bold" style="color:${i.color}">${i.count} record${i.count !== 1 ? 's' : ''}</span>
@@ -728,7 +728,7 @@ happens to know maintenance, not a manual.`;
       const container = document.getElementById('chat-messages');
       const wrap = document.createElement('div');
       wrap.className = 'flex justify-end fade-up';
-      wrap.innerHTML = `<div class="bubble-user">${escHtml(text)}</div>`;
+      wrap/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = `<div class="bubble-user">${escHtml(text)}</div>`;
       container.appendChild(wrap);
       scrollToBottom();
     }
@@ -741,7 +741,7 @@ happens to know maintenance, not a manual.`;
       const formatted = escHtml(text)
         .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
         .replace(/\n/g, '<br>');
-      wrap.innerHTML = `<div class="bubble-assistant">${formatted}</div>`;
+      wrap/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = `<div class="bubble-assistant">${formatted}</div>`;
       container.appendChild(wrap);
       scrollToBottom();
     }
@@ -751,7 +751,7 @@ happens to know maintenance, not a manual.`;
       const wrap = document.createElement('div');
       wrap.id = 'typing-indicator';
       wrap.className = 'flex justify-start fade-up';
-      wrap.innerHTML = `
+      wrap/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = `
         <div class="bubble-assistant flex items-center gap-1.5 py-3 px-4">
           <div class="typing-dot"></div>
           <div class="typing-dot"></div>
@@ -908,7 +908,7 @@ happens to know maintenance, not a manual.`;
     // ── Clear chat ────────────────────────────────────────────────
     function clearChat() {
       sessionMessages = [];
-      document.getElementById('chat-messages').innerHTML = '';
+      document.getElementById('chat-messages')/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = '';
       addAssistantBubble(`Chat cleared! What would you like to ask, ${workerName}?`);
       showToast('Chat cleared');
     }

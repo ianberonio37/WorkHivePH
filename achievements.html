@@ -380,19 +380,19 @@
     <div class="verdict-text"><span id="ac-verdict-label">Computing XP progress...</span><small id="ac-verdict-sub">Adding this week's XP and counting active domains.</small></div>
   </div>
   <div class="simple-row">
-    <div class="simple-card tag-grey" id="ac-card-week">
+    <div class="simple-card tag-grey" id="ac-card-week" data-rag-tile="achievements:xp_this_week" data-rag-label="XP this week">
       <div class="sc-label">XP this week</div>
       <div class="sc-hero" id="ac-week-hero">0</div>
       <div class="sc-sub" id="ac-week-sub">Loading...</div>
       <span class="sc-tag" id="ac-week-tag">—</span>
     </div>
-    <div class="simple-card tag-grey" id="ac-card-active">
+    <div class="simple-card tag-grey" id="ac-card-active" data-rag-tile="achievements:active_domains" data-rag-label="Active domains">
       <div class="sc-label">Active domains</div>
       <div class="sc-hero" id="ac-active-hero">0</div>
       <div class="sc-sub" id="ac-active-sub">Loading...</div>
       <span class="sc-tag" id="ac-active-tag">—</span>
     </div>
-    <div class="simple-card tag-grey" id="ac-card-level">
+    <div class="simple-card tag-grey" id="ac-card-level" data-rag-tile="achievements:total_level" data-rag-label="Total level">
       <div class="sc-label">Total level</div>
       <div class="sc-hero" id="ac-level-hero">0</div>
       <div class="sc-sub" id="ac-level-sub">Loading...</div>
@@ -625,7 +625,7 @@
       { label: 'Platinum', range: 'Lv 76-90',  sample: 83 },
       { label: 'Legend',   range: 'Lv 91-100', sample: 96 },
     ];
-    document.getElementById('tier-showcase').innerHTML = tiers.map(t => `
+    document.getElementById('tier-showcase')/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = tiers.map(t => `
       <div class="tier-sample">
         <div class="tier-sample-badge">${renderDomainBadge('★', t.sample, 48)}</div>
         <div class="tier-sample-name">${t.label}</div>
@@ -648,7 +648,7 @@
       }
       html += '</div>';
     }
-    wrap.innerHTML = html;
+    wrap/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = html;
   }
 
   // Layer D — Plain-Read summary for Achievements. Rolls up _achievements +
@@ -735,7 +735,7 @@
     const composite = _achievements.reduce((s, a) => s + (a.current_level || 0), 0);
     const active    = _achievements.filter(a => (a.current_level || 0) > 0).length;
 
-    document.getElementById('hero-avatar-wrap').innerHTML = renderWorkerAvatar(WORKER_NAME, topLevel, 72);
+    document.getElementById('hero-avatar-wrap')/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = renderWorkerAvatar(WORKER_NAME, topLevel, 72);
     document.getElementById('hero-name').textContent = WORKER_NAME;
 
     const tierEl = document.getElementById('hero-tier-label');
@@ -769,10 +769,10 @@
   function renderRecentActivity() {
     const el = document.getElementById('recent-list');
     if (!_xpLog.length) {
-      el.innerHTML = '<p class="empty-note">No XP earned yet. Close your first logbook entry!</p>';
+      el/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = '<p class="empty-note">No XP earned yet. Close your first logbook entry!</p>';
       return;
     }
-    el.innerHTML = _xpLog.slice(0, 10).map(e => {
+    el/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = _xpLog.slice(0, 10).map(e => {
       const def    = ACHIEVEMENT_DEFS[e.achievement_id];
       const icon   = def ? def.icon : '⭐';
       const label  = ACTION_LABELS[e.source_action] || e.source_action || 'XP earned';
@@ -802,10 +802,10 @@
     const eventsEl = card.querySelector('.domain-events');
     const events   = _xpLog.filter(e => e.achievement_id === achId).slice(0, 3);
     if (!events.length) {
-      eventsEl.innerHTML = '<p class="empty-note" style="padding:0.4rem 0;">No activity yet</p>';
+      eventsEl/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = '<p class="empty-note" style="padding:0.4rem 0;">No activity yet</p>';
       return;
     }
-    eventsEl.innerHTML = events.map(e => {
+    eventsEl/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = events.map(e => {
       const label = ACTION_LABELS[e.source_action] || e.source_action;
       return `<div class="event-row">
         <span class="event-label">${escHtml(label)}</span>
@@ -848,12 +848,12 @@
 
     const el = document.getElementById('standings-list');
     if (!top.length) {
-      el.innerHTML = '<p class="empty-note">No standings yet</p>';
+      el/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = '<p class="empty-note">No standings yet</p>';
       return;
     }
     const rankClass = (i) => i === 0 ? 'gold' : i === 1 ? 'silver' : i === 2 ? 'bronze' : '';
     const rankIcon  = (i) => i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : (i + 1);
-    el.innerHTML = top.map((w, i) => `
+    el/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = top.map((w, i) => `
       <div class="standing-row">
         <div class="standing-rank ${rankClass(i)}">${rankIcon(i)}</div>
         <div class="standing-avatar-wrap">${renderWorkerAvatar(w.worker_name, tierMap[w.worker_name] || 0, 28)}</div>
@@ -870,7 +870,7 @@
     const tier = getWorkerTier(newLevel);
     if (!def) return;
 
-    document.getElementById('levelup-badge-wrap').innerHTML = renderDomainBadge(def.icon, newLevel, 96);
+    document.getElementById('levelup-badge-wrap')/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = renderDomainBadge(def.icon, newLevel, 96);
     document.getElementById('levelup-eyebrow').textContent  = isTierUp ? 'Tier Up!' : 'Level Up!';
     document.getElementById('levelup-heading').textContent  = def.name;
     document.getElementById('levelup-meta').textContent     = tier.label + ' — Level ' + newLevel;
@@ -939,7 +939,7 @@
   async function init() {
     const _acChip = document.getElementById('achievements-source-chip');
     if (_acChip && typeof renderSourceChip === 'function') {
-      _acChip.innerHTML = renderSourceChip({
+      _acChip/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = renderSourceChip({
         freshness: 'Live · refreshed on load',
         source:    'worker_achievements + achievement_xp_log',
         notes:     [

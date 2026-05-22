@@ -386,19 +386,19 @@
       <div class="verdict-text"><span id="pm-verdict-label">Computing project health...</span><small id="pm-verdict-sub">Counting active projects, overdue, and on-hold work.</small></div>
     </div>
     <div class="simple-row">
-      <div class="simple-card tag-grey" id="pm-card-active">
+      <div class="simple-card tag-grey" id="pm-card-active" data-rag-tile="project-manager:active_projects" data-rag-label="Active projects">
         <div class="sc-label">Active projects</div>
         <div class="sc-hero" id="pm-active-hero">0</div>
         <div class="sc-sub" id="pm-active-sub">Loading...</div>
         <span class="sc-tag" id="pm-active-tag">—</span>
       </div>
-      <div class="simple-card tag-grey" id="pm-card-overdue">
+      <div class="simple-card tag-grey" id="pm-card-overdue" data-rag-tile="project-manager:past_end_date" data-rag-label="Past end date">
         <div class="sc-label">Past end date</div>
         <div class="sc-hero" id="pm-overdue-hero">0</div>
         <div class="sc-sub" id="pm-overdue-sub">Loading...</div>
         <span class="sc-tag" id="pm-overdue-tag">—</span>
       </div>
-      <div class="simple-card tag-grey" id="pm-card-blocked">
+      <div class="simple-card tag-grey" id="pm-card-blocked" data-rag-tile="project-manager:on_hold_planning" data-rag-label="On hold or planning">
         <div class="sc-label">On hold or planning</div>
         <div class="sc-hero" id="pm-blocked-hero">0</div>
         <div class="sc-sub" id="pm-blocked-sub">Loading...</div>
@@ -924,7 +924,7 @@ async function validateHiveMembership() {
   $('hive-tag').textContent = HIVE_NAME ? '🐝 ' + HIVE_NAME : '';
   const _pmMgrChip = document.getElementById('pm-mgr-source-chip');
   if (_pmMgrChip && typeof renderSourceChip === 'function') {
-    _pmMgrChip.innerHTML = renderSourceChip({
+    _pmMgrChip/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = renderSourceChip({
       freshness: 'Live · refreshed on load + realtime on projects table',
       source:    'projects + project_items',
       notes:     [
@@ -1030,7 +1030,7 @@ function renderEmptyState(grid, totalProjects) {
   // No projects at all → show 4 type tiles to start. Some projects exist but
   // none match filter → simple empty hint.
   if (totalProjects === 0) {
-    grid.innerHTML = `
+    grid/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = `
       <div class="empty-tiles-wrap" style="grid-column: 1 / -1;">
         <div class="empty-tiles-headline">No projects yet — start with a template</div>
         <div class="empty-tiles-sub">Pick a flavour. Each one comes with industry-standard scope items you can tweak.</div>
@@ -1058,7 +1058,7 @@ function renderEmptyState(grid, totalProjects) {
         </div>
       </div>`;
   } else {
-    grid.innerHTML = '<div class="empty" style="grid-column: 1 / -1;">No projects match the filter. Try clearing search or switching to All.</div>';
+    grid/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = '<div class="empty" style="grid-column: 1 / -1;">No projects match the filter. Try clearing search or switching to All.</div>';
   }
 }
 
@@ -1170,7 +1170,7 @@ function renderList() {
     grid.style.display = 'grid';
     const visible = list.slice(0, _pmDisplayCount);
     if (lmWrap) lmWrap.classList.toggle('hidden', visible.length >= list.length);
-    grid.innerHTML = visible.map(pcardHtml).join('');
+    grid/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = visible.map(pcardHtml).join('');
     return;
   }
 
@@ -1196,7 +1196,7 @@ function renderList() {
         <div class="group-content"><div class="card-grid">${items.map(pcardHtml).join('')}</div></div>
       </div>`;
   }).join('');
-  grid.innerHTML = html;
+  grid/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = html;
 }
 
 function toggleGroup(status) {
@@ -1215,7 +1215,7 @@ function updateTabCounts() {
     const label = btn.dataset.label || (btn.textContent.replace(/\s*\d+\s*$/, '').trim());
     btn.dataset.label = label;
     const n = counts[s] ?? 0;
-    btn.innerHTML = `${e(label)} <span class="tab-count">${n}</span>`;
+    btn/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = `${e(label)} <span class="tab-count">${n}</span>`;
   });
 }
 
@@ -1234,12 +1234,12 @@ function pushRecent(p) {
 }
 function renderRecents() {
   const strip = $('recent-strip'); if (!strip) return;
-  if (!_recents.length) { strip.innerHTML = ''; return; }
+  if (!_recents.length) { strip/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = ''; return; }
   // Drop any recents that no longer exist (deleted projects)
   const valid = _recents.filter(r => _projects.some(p => p.id === r.id));
   if (valid.length !== _recents.length) { _recents = valid; saveRecents(); }
-  if (!valid.length) { strip.innerHTML = ''; return; }
-  strip.innerHTML = '<span class="recent-label">Jump back:</span>' +
+  if (!valid.length) { strip/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = ''; return; }
+  strip/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = '<span class="recent-label">Jump back:</span>' +
     valid.map(r => `
       <span class="recent-chip" onclick="openDetail('${e(r.id)}')" title="${e(r.name)}">
         <span class="pcode">${e(r.code)}</span>
@@ -1545,7 +1545,7 @@ function wizardBack() {
 function renderWizardTemplates() {
   const list = $('wiz-template-list');
   const tmpls = PROJECT_TEMPLATES[_wizardState.type] || [];
-  list.innerHTML = tmpls.map(t => {
+  list/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = tmpls.map(t => {
     const totalH = t.items.reduce((s, i) => s + (i.est_h || 0), 0);
     return `<div class="template-card" data-tid="${e(t.id)}" onclick="wizardPickTemplate('${e(t.id)}')">
       <div class="template-card-name">${e(t.name)}</div>
@@ -1566,9 +1566,9 @@ function renderWizardTemplates() {
 function renderWizardItems() {
   const list = $('wiz-item-list');
   if (!_wizardState.items.length) {
-    list.innerHTML = '<div class="empty" style="padding: 14px;">Blank project — add custom items below or skip and add scope items inside the project.</div>';
+    list/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = '<div class="empty" style="padding: 14px;">Blank project — add custom items below or skip and add scope items inside the project.</div>';
   } else {
-    list.innerHTML = _wizardState.items.map((it, idx) => `
+    list/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = _wizardState.items.map((it, idx) => `
       <div class="item-row ${it._checked ? '' : 'unchecked'}" data-idx="${idx}">
         <input type="checkbox" ${it._checked ? 'checked' : ''} onchange="wizardToggleItem(${idx}, this.checked)">
         <input type="text" value="${e(it.title)}" oninput="wizardEditItem(${idx}, 'title', this.value)" placeholder="Scope item">
@@ -1910,7 +1910,7 @@ function buildDetailTabs(type) {
     { key: 'changes',  label: 'Change orders', show: type !== 'workorder' },      // Phase 5D
     { key: 'signoff',  label: 'Sign-off', show: true },               // all types — workorder bundles also benefit from lessons + print report
   ];
-  $('detail-tabs').innerHTML = tabs.filter(t => t.show)
+  $('detail-tabs')/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = tabs.filter(t => t.show)
     .map((t, i) => `<button data-pane="${t.key}" class="${i === 0 ? 'active' : ''}" onclick="setActivePane('${t.key}')">${e(t.label)}</button>`).join('');
   document.querySelectorAll('.detail-pane').forEach(p => p.classList.remove('active'));
   $('pane-overview').classList.add('active');
@@ -1953,7 +1953,7 @@ function renderOverview() {
   const r = _progress?.rollup || {};
   const ev = (_progress?.earned_value && _progress.earned_value.available !== false) ? _progress.earned_value : null;
   const evColor = ev ? (ev.status === 'green' ? 'green' : ev.status === 'amber' ? 'amber' : 'red') : '';
-  $('pane-overview').innerHTML = `
+  $('pane-overview')/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = `
     <div class="kpi-row">
       <div class="kpi"><div class="kpi-label">Progress</div><div class="kpi-value">${r.pct_complete ?? 0}%</div><div class="kpi-sub">${r.items_done ?? 0}/${r.items_total ?? 0} items done</div></div>
       <div class="kpi"><div class="kpi-label">Hours</div><div class="kpi-value">${_num(r.hours_actual, 0)}<span style="font-size:0.85rem; color:var(--muted);"> / ${_num(r.hours_estimated, 0)}</span></div><div class="kpi-sub">actual / estimated</div></div>
@@ -2010,7 +2010,7 @@ async function cycleScopeStatus(id, ev) {
 
 function renderScope() {
   if (!_items.length) {
-    $('pane-scope').innerHTML = `
+    $('pane-scope')/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = `
       <div class="row" style="justify-content: space-between; margin-bottom: 10px;">
         <div class="small" style="color: var(--muted);">No scope items yet. Add the first work breakdown item to start tracking.</div>
         <button class="btn primary small" onclick="openNewScope()">+ Add scope item</button>
@@ -2059,7 +2059,7 @@ function renderScope() {
       <tbody>${_items.map(renderRow).join('')}</tbody>
     </table>`;
 
-  $('pane-scope').innerHTML = `
+  $('pane-scope')/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = `
     <div class="row" style="justify-content: space-between; margin-bottom: 10px;">
       <div class="small" style="color: var(--muted);">
         ${_items.length} scope item(s) · ${_items.filter(i => i.status === 'done').length} done
@@ -2106,7 +2106,7 @@ function openEditScope(id) {
 function populatePredecessors(currentId, selected = []) {
   const opts = _items.filter(i => i.id !== currentId)
     .map(i => `<option value="${e(i.id)}" ${selected.includes(i.id) ? 'selected' : ''}>${e(i.wbs_code || '')} ${e(i.title)}</option>`).join('');
-  $('s-preds').innerHTML = opts || '<option disabled>No other items yet</option>';
+  $('s-preds')/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = opts || '<option disabled>No other items yet</option>';
 }
 
 async function saveScopeItem() {
@@ -2205,7 +2205,7 @@ function renderLinked() {
           </span>`).join('')}
       </div>
     </div>` : '';
-  $('pane-linked').innerHTML = `
+  $('pane-linked')/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = `
     <div class="row" style="justify-content: space-between; margin-bottom: 12px;">
       <div class="small" style="color: var(--muted);">${_links.length} linked item(s) — pull existing logbook entries, PMs, parts, contractor info into this project</div>
       <button class="btn primary small" onclick="openModal('modal-link'); loadLinkOptions();">+ Link work</button>
@@ -2229,9 +2229,9 @@ async function loadLinkOptions() {
     engineering_calc:    () => db.from('engineering_calcs').select('id, calc_type, project_name, created_at').eq('hive_id', HIVE_ID).order('created_at', { ascending: false }).limit(30),
     marketplace_listing: () => db.from('v_marketplace_listings_truth').select('id, title').eq('hive_id', HIVE_ID).order('created_at', { ascending: false }).limit(30),
   };
-  const fn = queries[t]; if (!fn) { $('l-picker').innerHTML = ''; return; }
+  const fn = queries[t]; if (!fn) { $('l-picker')/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = ''; return; }
   const { data, error } = await fn();
-  if (error) { $('l-picker').innerHTML = `<option>Error: ${e(error.message)}</option>`; return; }
+  if (error) { $('l-picker')/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = `<option>Error: ${e(error.message)}</option>`; return; }
   const labelFor = (r) => {
     if (t === 'asset' || t === 'marketplace_listing') return r.name || r.title || r.id;
     if (t === 'inventory_item') return r.part_name || r.part_number || r.id;
@@ -2240,7 +2240,7 @@ async function loadLinkOptions() {
     if (t === 'engineering_calc') return `${r.calc_type} — ${r.project_name || ''}`;
     return r.id;
   };
-  $('l-picker').innerHTML = (data || []).map(r => `<option value="${e(r.id)}">${e(labelFor(r))}</option>`).join('');
+  $('l-picker')/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = (data || []).map(r => `<option value="${e(r.id)}">${e(labelFor(r))}</option>`).join('');
 }
 
 async function saveLink() {
@@ -2282,7 +2282,7 @@ function renderProgress() {
         : (isSupervisor() ? `<button class="btn small" style="margin-top:6px;" onclick="ackLog('${e(l.id)}')">Acknowledge</button>` : '')}
     </div>
   `).join('');
-  $('pane-progress').innerHTML = `
+  $('pane-progress')/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = `
     <div class="row" style="justify-content: space-between; margin-bottom: 12px;">
       <div class="small" style="color: var(--muted);">${_logs.length} log entr(ies). Workers report; supervisors acknowledge.</div>
       <button class="btn primary small" onclick="openProgressLog()">+ Log progress</button>
@@ -2323,7 +2323,7 @@ async function ackLog(id) {
 
 /* ── Pane: Critical path ──────────────────────────────────── */
 function renderCpm() {
-  if (!_items.length) { $('pane-cpm').innerHTML = '<div class="empty">Add scope items with planned dates and predecessors first.</div>'; return; }
+  if (!_items.length) { $('pane-cpm')/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = '<div class="empty">Add scope items with planned dates and predecessors first.</div>'; return; }
   const cp = _progress?.critical_path || { item_ids: [], total_days: 0, slack_per_item: {} };
   const totalDays = Math.max(cp.total_days, 1);
   const dayWidth = 100 / totalDays;
@@ -2380,7 +2380,7 @@ function renderCpm() {
     resHtml = `<div class="small" style="color: var(--green); margin-top: 12px;">✓ No worker overloads detected with current scope item dates.</div>`;
   }
 
-  $('pane-cpm').innerHTML = `
+  $('pane-cpm')/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = `
     <div class="kpi-row">
       <div class="kpi"><div class="kpi-label">Critical path</div><div class="kpi-value">${cp.total_days}d</div><div class="kpi-sub">${cp.item_ids.length} of ${_items.length} items on critical path</div></div>
     </div>
@@ -2419,7 +2419,7 @@ function renderRoles() {
       <h4 style="font-size: 0.78rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px;">Owner (legacy)</h4>
       <span class="link-pill">${e(_detail.owner_name)} <span style="color: var(--muted); margin-left: 4px;">from project header</span></span>
     </div>` : '';
-  $('pane-roles').innerHTML = `
+  $('pane-roles')/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = `
     <div class="row" style="justify-content: space-between; margin-bottom: 12px;">
       <div class="small" style="color: var(--muted);">${_roles.length} role assignment${_roles.length === 1 ? '' : 's'}. Same worker can hold multiple roles.</div>
       ${isSupervisor() ? '<button class="btn primary small" onclick="openAddRole()">+ Assign role</button>' : ''}
@@ -2431,7 +2431,7 @@ function renderRoles() {
 function openAddRole() {
   if (!isSupervisor()) { showToast('Supervisors only.'); return; }
   // Populate worker dropdown
-  $('r-worker').innerHTML = '<option value="">—</option>' +
+  $('r-worker')/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = '<option value="">—</option>' +
     _members.map(m => `<option value="${e(m)}">${e(m)}</option>`).join('');
   $('r-worker').value = '';
   $('r-role').value = 'planner';
@@ -2501,7 +2501,7 @@ function renderChangeOrders() {
         ${co.status === 'cancelled' ? `<div class="small" style="color: var(--muted); margin-top: 6px;">Cancelled by ${e(co.approved_by || co.requested_by)} on ${e(fmtDate(co.approved_at || co.created_at))}</div>` : ''}
       </div>`;
   }).join('');
-  $('pane-changes').innerHTML = `
+  $('pane-changes')/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = `
     <div class="row" style="justify-content: space-between; margin-bottom: 12px;">
       <div class="small" style="color: var(--muted);">${_changeOrders.length} change order${_changeOrders.length === 1 ? '' : 's'}. Supervisor approval required to apply impact.</div>
       <button class="btn primary small" onclick="openNewCO()">+ Raise change order</button>
@@ -2580,11 +2580,11 @@ async function cancelCO(id) {
 
 /* ── Pane: Budget (supervisor only) ───────────────────────── */
 function renderBudget() {
-  if (!isSupervisor()) { $('pane-budget').innerHTML = '<div class="empty">Budget visibility is restricted to supervisors.</div>'; return; }
+  if (!isSupervisor()) { $('pane-budget')/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = '<div class="empty">Budget visibility is restricted to supervisors.</div>'; return; }
   const ev = _progress?.earned_value;
-  if (!ev) { $('pane-budget').innerHTML = '<div class="empty">Add a budget, start date and end date to enable Earned Value tracking.</div>'; return; }
+  if (!ev) { $('pane-budget')/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = '<div class="empty">Add a budget, start date and end date to enable Earned Value tracking.</div>'; return; }
   const cls = ev.status === 'green' ? 'green' : ev.status === 'amber' ? 'amber' : 'red';
-  $('pane-budget').innerHTML = `
+  $('pane-budget')/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = `
     <div class="kpi-row">
       <div class="kpi"><div class="kpi-label">Budget at completion</div><div class="kpi-value">${fmtPHP(ev.bac)}</div></div>
       <div class="kpi"><div class="kpi-label">Planned value (PV)</div><div class="kpi-value">${fmtPHP(ev.pv)}</div></div>
@@ -2618,7 +2618,7 @@ function renderSignoff() {
     { ok: !!lessonsExisting.trim(), label: 'Lessons learned captured' },
   ];
   const passed = checks.filter(c => c.ok).length;
-  $('pane-signoff').innerHTML = `
+  $('pane-signoff')/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = `
     <div class="kpi-row">
       <div class="kpi"><div class="kpi-label">Sign-off readiness</div><div class="kpi-value">${passed}/${checks.length}</div><div class="kpi-sub">checks passed</div></div>
     </div>

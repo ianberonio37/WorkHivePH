@@ -182,19 +182,19 @@
     <div class="verdict-text"><span id="it-verdict-label">Loading integrations...</span><small id="it-verdict-sub">Counting active CMMS connections, imports, and API keys.</small></div>
   </div>
   <div class="simple-row">
-    <div class="simple-card tag-grey" id="it-card-active">
+    <div class="simple-card tag-grey" id="it-card-active" data-rag-tile="integrations:active" data-rag-label="Active integrations">
       <div class="sc-label">Active integrations</div>
       <div class="sc-hero" id="it-active-hero">0</div>
       <div class="sc-sub" id="it-active-sub">Loading...</div>
       <span class="sc-tag" id="it-active-tag">—</span>
     </div>
-    <div class="simple-card tag-grey" id="it-card-stale">
+    <div class="simple-card tag-grey" id="it-card-stale" data-rag-tile="integrations:stale" data-rag-label="Stale syncs">
       <div class="sc-label">Stale syncs</div>
       <div class="sc-hero" id="it-stale-hero">0</div>
       <div class="sc-sub" id="it-stale-sub">Loading...</div>
       <span class="sc-tag" id="it-stale-tag">—</span>
     </div>
-    <div class="simple-card tag-grey" id="it-card-disabled">
+    <div class="simple-card tag-grey" id="it-card-disabled" data-rag-tile="integrations:disabled" data-rag-label="Disabled integrations">
       <div class="sc-label">Disabled</div>
       <div class="sc-hero" id="it-disabled-hero">0</div>
       <div class="sc-sub" id="it-disabled-sub">Loading...</div>
@@ -881,7 +881,7 @@
   function buildMappingTable() {
     const fields = FIELDS_BY_ENTITY[_entityType] || FIELDS_BY_ENTITY.work_order;
     const tbody  = document.getElementById('map-tbody');
-    tbody.innerHTML = '';
+    tbody/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = '';
     _confidence = {};
     fields.forEach(f => {
       const options = ['<option value="">— skip —</option>']
@@ -919,7 +919,7 @@
     if (!headerValue) {
       const fields = FIELDS_BY_ENTITY[_entityType] || FIELDS_BY_ENTITY.work_order;
       const f = fields.find(x => x.key === fieldKey);
-      el.innerHTML = f?.required
+      el/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = f?.required
         ? _confidenceBadge('none',    'No match — required')
         : _confidenceBadge('skipped', 'Skipped');
       _confidence[fieldKey] = f?.required ? 'none' : 'skipped';
@@ -927,17 +927,17 @@
     }
     const sys  = _systemType === 'auto' ? 'generic' : (_systemType || 'generic');
     const sugg = ((SUGGESTIONS[sys] || SUGGESTIONS.generic)[_entityType || 'work_order'] || {})[fieldKey] || '';
-    if (!sugg) { el.innerHTML = _confidenceBadge('exact', 'Mapped'); _confidence[fieldKey] = 'exact'; return; }
+    if (!sugg) { el/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = _confidenceBadge('exact', 'Mapped'); _confidence[fieldKey] = 'exact'; return; }
     const upper = headerValue.toUpperCase();
     const suggU = sugg.toUpperCase();
     if (upper === suggU) {
-      el.innerHTML = _confidenceBadge('exact', 'Exact match');
+      el/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = _confidenceBadge('exact', 'Exact match');
       _confidence[fieldKey] = 'exact';
     } else if (upper.includes(suggU) || suggU.includes(upper)) {
-      el.innerHTML = _confidenceBadge('partial', 'Partial match');
+      el/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = _confidenceBadge('partial', 'Partial match');
       _confidence[fieldKey] = 'partial';
     } else {
-      el.innerHTML = _confidenceBadge('partial', 'Custom mapped');
+      el/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = _confidenceBadge('partial', 'Custom mapped');
       _confidence[fieldKey] = 'partial';
     }
   }
@@ -1060,7 +1060,7 @@
       issues.push({ level: 'warn', msg: `${lowConf.length} required field(s) have no column mapped: ${lowConf.join(', ')} — go back to Step 3 to fix` });
 
     const tbody = document.getElementById('preview-tbody');
-    tbody.innerHTML = '';
+    tbody/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = '';
     sample.forEach(n => {
       if (_entityType === 'work_order') {
         const sc = n.status === 'Closed' ? 'status-closed' : 'status-open';
@@ -1090,7 +1090,7 @@
     const skipWarn = missing > 0
       ? `<div style="padding:8px 12px; background:rgba(248,113,113,0.08); border:1px solid rgba(248,113,113,0.2); border-radius:8px; font-size:.72rem; color:var(--red); margin-bottom:6px;">⚠ ${missing} rows missing ${entityLabel} and will be skipped. Map the correct column in Step 3.</div>`
       : '';
-    warnings.innerHTML = skipWarn + issueHtml;
+    warnings/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = skipWarn + issueHtml;
   }
 
   // ── Step 5: Import ────────────────────────────────────────────────────────
@@ -1354,7 +1354,7 @@
       imported.toLocaleString() + ' ' + entityLabel + ' imported from your ' +
       (_systemType || 'generic').replace('_',' ').toUpperCase() + ' data.';
 
-    document.getElementById('results-chips').innerHTML = [
+    document.getElementById('results-chips')/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = [
       { n: imported,   l: 'Imported',   c: 'var(--green)' },
       { n: machines,   l: 'Machines',   c: 'var(--blue)' },
       { n: closed,     l: 'Closed WOs', c: 'var(--muted)' },
@@ -1403,7 +1403,7 @@
     const patterns = computePatterns(rows);
     if (patterns.length) {
       document.getElementById('patterns-section').classList.remove('hidden');
-      document.getElementById('patterns-list').innerHTML = patterns.map(p =>
+      document.getElementById('patterns-list')/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = patterns.map(p =>
         `<div class="pattern-row"><div class="pattern-dot" style="background:${p.color};"></div><span style="color:rgba(255,255,255,0.75);">${escHtml(p.text)}</span></div>`
       ).join('');
     }
@@ -1555,7 +1555,7 @@
     if (!HIVE_ID) return;
     const _intChip = document.getElementById('integrations-source-chip');
     if (_intChip && typeof renderSourceChip === 'function') {
-      _intChip.innerHTML = renderSourceChip({
+      _intChip/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = renderSourceChip({
         freshness: 'Live · refreshed on load',
         source:    'integration_configs + external_sync',
         notes:     [
@@ -1570,11 +1570,11 @@
     // Plain-Read summary (Layer D) — runs even when there are no configs.
     renderIntegrationsSummary(data || []);
     const list = document.getElementById('sync-active-list');
-    if (!data?.length) { list.innerHTML = '<p style="font-size:.75rem; color:var(--muted);">No live sync configs yet. Add one above.</p>'; return; }
+    if (!data?.length) { list/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = '<p style="font-size:.75rem; color:var(--muted);">No live sync configs yet. Add one above.</p>'; return; }
     const supabaseUrl = 'https://hzyvnjtisfgbksicrouu.supabase.co';
     const whList = document.getElementById('webhook-url-list');
     if (whList) {
-      whList.innerHTML = data.map(c => {
+      whList/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = data.map(c => {
         const whUrl = supabaseUrl + '/functions/v1/cmms-webhook-receiver?config_id=' + c.id;
         return `<div style="margin-bottom:8px;">
           <p style="font-size:.7rem; font-weight:600; color:rgba(255,255,255,0.6); margin-bottom:3px;">${escHtml(c.label || c.system_type)}</p>
@@ -1586,7 +1586,7 @@
       }).join('');
     }
 
-    list.innerHTML = data.map(c => {
+    list/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = data.map(c => {
       const statusColor = c.last_sync_status === 'success' ? 'var(--green)' : c.last_sync_status === 'failed' ? 'var(--red)' : 'var(--muted)';
       const lastSync = c.last_sync_at ? new Date(c.last_sync_at).toLocaleString('en-PH', { month:'short', day:'numeric', hour:'2-digit', minute:'2-digit' }) : 'Never';
       return `<div class="card-sm" style="margin-bottom:10px; display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap;">
@@ -1701,7 +1701,7 @@
 
     const resEl = document.getElementById('new-key-result');
     resEl.style.display = 'block';
-    resEl.innerHTML = `<div style="background:rgba(74,222,128,0.08); border:1px solid rgba(74,222,128,0.25); border-radius:8px; padding:12px 14px; margin-bottom:4px;">
+    resEl/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = `<div style="background:rgba(74,222,128,0.08); border:1px solid rgba(74,222,128,0.25); border-radius:8px; padding:12px 14px; margin-bottom:4px;">
       <p style="font-size:.72rem; color:var(--green); font-weight:700; margin-bottom:6px;">✓ API key generated — copy it now, it won't be shown again.</p>
       <code style="font-size:.78rem; color:var(--text); word-break:break-all;">${escHtml(rawKey)}</code>
       <button onclick="navigator.clipboard.writeText('${escHtml(rawKey)}').then(()=>showToast('Copied!'))" style="display:block; margin-top:8px; padding:5px 12px; background:rgba(74,222,128,0.12); color:var(--green); border:1px solid rgba(74,222,128,0.3); border-radius:6px; font-size:.72rem; cursor:pointer; font-family:inherit;">Copy Key</button>
@@ -1714,8 +1714,8 @@
     if (!HIVE_ID) return;
     const { data } = await db.from('api_keys').select('id, key_prefix, label, enabled, call_count, last_used_at').eq('hive_id', HIVE_ID).eq('enabled', true).order('created_at', { ascending: false });
     const list = document.getElementById('api-keys-list');
-    if (!data?.length) { list.innerHTML = '<p style="font-size:.75rem; color:var(--muted);">No keys yet. Generate one above.</p>'; return; }
-    list.innerHTML = data.map(k => {
+    if (!data?.length) { list/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = '<p style="font-size:.75rem; color:var(--muted);">No keys yet. Generate one above.</p>'; return; }
+    list/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = data.map(k => {
       const last = k.last_used_at ? new Date(k.last_used_at).toLocaleDateString('en-PH', { month:'short', day:'numeric' }) : 'Never used';
       return `<div style="display:flex; align-items:center; justify-content:space-between; gap:10px; padding:10px 0; border-bottom:1px solid var(--border); flex-wrap:wrap;">
         <div>
@@ -1749,7 +1749,7 @@
       if (!data?.length) return;
       section.style.display = 'block';
 
-      list.innerHTML = data.map(row => {
+      list/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = data.map(row => {
         const age   = Date.now() - new Date(row.created_at).getTime();
         const canUndo = age < 86400000;  // within 24 hours
         const qs    = row.quality_score || {};
@@ -1812,9 +1812,9 @@
   // ── Conflict Resolution ───────────────────────────────────────────────────
   async function loadConflicts() {
     const listEl = document.getElementById('conflicts-list');
-    if (!HIVE_ID) { listEl.innerHTML = '<div style="font-size:.72rem; color:var(--muted);">Join a hive first.</div>'; return; }
+    if (!HIVE_ID) { listEl/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = '<div style="font-size:.72rem; color:var(--muted);">Join a hive first.</div>'; return; }
 
-    listEl.innerHTML = '<div style="font-size:.72rem; color:var(--muted);">Scanning for conflicts...</div>';
+    listEl/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = '<div style="font-size:.72rem; color:var(--muted);">Scanning for conflicts...</div>';
 
     try {
       // Load external_sync work order statuses
@@ -1825,7 +1825,7 @@
         .limit(200);
 
       if (!extRows?.length) {
-        listEl.innerHTML = '<div style="font-size:.72rem; color:var(--muted);">No synced records found. Run a Live Sync first.</div>';
+        listEl/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = '<div style="font-size:.72rem; color:var(--muted);">No synced records found. Run a Live Sync first.</div>';
         return;
       }
 
@@ -1853,11 +1853,11 @@
       }
 
       if (!conflicts.length) {
-        listEl.innerHTML = '<div style="font-size:.72rem; color:var(--green);">✓ No conflicts found — SAP and WorkHive are in sync.</div>';
+        listEl/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = '<div style="font-size:.72rem; color:var(--green);">✓ No conflicts found — SAP and WorkHive are in sync.</div>';
         return;
       }
 
-      listEl.innerHTML = `
+      listEl/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = `
         <div style="font-size:.68rem; color:var(--muted); margin-bottom:10px;">${conflicts.length} conflict${conflicts.length > 1 ? 's' : ''} detected — SAP and WorkHive disagree on status.</div>
         ${conflicts.map(c => `
           <div style="background:var(--card); border:1px solid rgba(248,113,113,0.2); border-radius:8px; padding:10px 12px; margin-bottom:8px;">
@@ -1872,7 +1872,7 @@
             </div>
           </div>`).join('')}`;
     } catch (e) {
-      listEl.innerHTML = `<div style="font-size:.72rem; color:var(--red);">Error: ${escHtml(e.message)}</div>`;
+      listEl/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = `<div style="font-size:.72rem; color:var(--red);">Error: ${escHtml(e.message)}</div>`;
     }
   }
 

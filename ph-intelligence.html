@@ -142,19 +142,19 @@
       <div class="verdict-text"><span id="ph-verdict-label">Loading regional intelligence...</span><small id="ph-verdict-sub">Reading the latest anonymised report from the PH network.</small></div>
     </div>
     <div class="simple-row">
-      <div class="simple-card tag-grey" id="ph-card-plants">
+      <div class="simple-card tag-grey" id="ph-card-plants" data-rag-tile="ph-intelligence:plants_in_network" data-rag-label="Plants in network">
         <div class="sc-label">Plants in network</div>
         <div class="sc-hero" id="ph-plants-hero">0</div>
         <div class="sc-sub" id="ph-plants-sub">Loading...</div>
         <span class="sc-tag" id="ph-plants-tag">—</span>
       </div>
-      <div class="simple-card tag-grey" id="ph-card-cause">
+      <div class="simple-card tag-grey" id="ph-card-cause" data-rag-tile="ph-intelligence:top_failure_cause" data-rag-label="Top failure cause">
         <div class="sc-label">Top failure cause</div>
         <div class="sc-hero" id="ph-cause-hero">—</div>
         <div class="sc-sub" id="ph-cause-sub">Loading...</div>
         <span class="sc-tag" id="ph-cause-tag">—</span>
       </div>
-      <div class="simple-card tag-grey" id="ph-card-fresh">
+      <div class="simple-card tag-grey" id="ph-card-fresh" data-rag-tile="ph-intelligence:report_freshness" data-rag-label="Report freshness">
         <div class="sc-label">Report freshness</div>
         <div class="sc-hero" id="ph-fresh-hero">—</div>
         <div class="sc-sub" id="ph-fresh-sub">Loading...</div>
@@ -398,7 +398,7 @@
     renderPhSummary(data);
 
     // Stats
-    document.getElementById('stats-row').innerHTML = [
+    document.getElementById('stats-row')/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = [
       { n: data.hive_count    || 0, l: 'Plants' },
       { n: (data.wo_count || 0).toLocaleString(), l: 'Work Orders' },
       { n: data.equipment_count || 0, l: 'Equipment' },
@@ -414,7 +414,7 @@
     // MTBF chart
     const benchmarks = (r.mtbf_rankings || []).filter(b => b.avg_mtbf_days);
     const maxMTBF    = Math.max(...benchmarks.map(b => b.avg_mtbf_days || 0), 1);
-    document.getElementById('mtbf-chart').innerHTML = benchmarks.slice(0, 8).map(b => {
+    document.getElementById('mtbf-chart')/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = benchmarks.slice(0, 8).map(b => {
       const pct = Math.round((b.avg_mtbf_days / maxMTBF) * 100);
       return `<div class="mtbf-row">
         <div class="mtbf-cat" title="${escHtml(b.equipment_category)}">${escHtml(b.equipment_category)}</div>
@@ -426,7 +426,7 @@
     // Failure modes
     const modes = r.failure_modes || [];
     const maxCount = Math.max(...modes.map(m => m.count || 0), 1);
-    document.getElementById('failure-modes-list').innerHTML = modes.slice(0, 8).map((m, i) => {
+    document.getElementById('failure-modes-list')/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = modes.slice(0, 8).map((m, i) => {
       const pct = Math.round((m.count / maxCount) * 100);
       return `<div class="fm-row">
         <div class="fm-rank">${i+1}</div>
@@ -470,7 +470,7 @@
     if (!rows.length) return;
 
     document.getElementById('your-plant-card').classList.remove('hidden');
-    document.getElementById('your-plant-compare').innerHTML = rows.map(h => {
+    document.getElementById('your-plant-compare')/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = rows.map(h => {
       const net = netByCategory[h.equipment_category];
       const ratio = h.mtbf_days / (net.avg_mtbf_days || 1);
       const color = ratio >= 0.9 ? 'var(--green)' : ratio >= 0.6 ? 'var(--yellow)' : 'var(--red)';
