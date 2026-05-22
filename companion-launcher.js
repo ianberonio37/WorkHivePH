@@ -720,7 +720,7 @@ happens to know maintenance, not a manual.`;
     // name + a voice-journal-specific rules block).
     const personaName = (typeof window.getCurrentPersona === 'function')
       ? window.getCurrentPersona()
-      : (localStorage.getItem('wh_persona') || 'zaniah');
+      : (/* storage-key-allow: persona pref, set by voice-journal / persona switcher */ localStorage.getItem('wh_persona') || 'zaniah');
     const hiveId = (typeof window !== 'undefined' && window.localStorage)
       ? (localStorage.getItem('wh_active_hive_id') || localStorage.getItem('wh_hive_id') || null)
       : null;
@@ -1049,7 +1049,7 @@ happens to know maintenance, not a manual.`;
     // turns. Pages that need scoped history call setContext() later, which
     // swaps to a per-key history (project:<id>, asset:<uuid>, ...).
     try {
-      const saved = JSON.parse(localStorage.getItem('wh_ai_history_' + GLOBAL_HISTORY_KEY) || '[]');
+      const saved = JSON.parse(/* storage-key-allow: prefix only; runtime key is wh_ai_history_<sessionId> */ localStorage.getItem('wh_ai_history_' + GLOBAL_HISTORY_KEY) || '[]');
       if (Array.isArray(saved) && saved.length) history = saved.slice(-config.maxHistory);
     } catch (_) { /* fall back to empty history */ /* empty-catch-allow: best-effort silent swallow */ }
     buildWidget();

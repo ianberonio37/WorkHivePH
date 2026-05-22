@@ -3022,7 +3022,7 @@
       _initDashboard(name);
     };
     const _lsWorker = localStorage.getItem('wh_last_worker')
-                  || localStorage.getItem('wh_worker_name')
+                  || /* storage-key-allow: legacy worker-name fallback (current writes use wh_last_worker) */ localStorage.getItem('wh_worker_name')
                   || localStorage.getItem('workerName');
     if (_lsWorker) {
       _showOpsHome(_lsWorker);
@@ -3314,7 +3314,7 @@
     // moves to More.
     const _ohActionsEl = document.getElementById('oh-actions');
     if (_ohActionsEl) {
-      const _role = (localStorage.getItem('wh_nav_mode') === 'supervisor' || HIVE_ROLE === 'supervisor') ? 'supervisor' : 'field';
+      const _role = (/* storage-key-allow: nav display mode, set by settings UI */ localStorage.getItem('wh_nav_mode') === 'supervisor' || HIVE_ROLE === 'supervisor') ? 'supervisor' : 'field';
       const _personaName = (localStorage.getItem('wh_voice_journal_persona') === 'hezekiah') ? 'Hezekiah' : 'Zaniah';
       const _primary = _role === 'supervisor'
         ? [
@@ -3541,7 +3541,7 @@
     (async function renderTodaysOneThing() {
       const el = document.getElementById('oh-today');
       if (!el) return;
-      const role = (localStorage.getItem('wh_nav_mode') === 'supervisor' || HIVE_ROLE === 'supervisor') ? 'supervisor' : 'field';
+      const role = (/* storage-key-allow: nav display mode, set by settings UI */ localStorage.getItem('wh_nav_mode') === 'supervisor' || HIVE_ROLE === 'supervisor') ? 'supervisor' : 'field';
 
       const candidates = [];
       // Phase Tier2.3 (2026-05-12): richer Today's One Thing signals.

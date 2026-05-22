@@ -453,7 +453,7 @@
 
     // ── Load records summary on setup screen ──────────────────────
     async function loadRecordsSummary() {
-      const name = localStorage.getItem(KEY_WORKER) || localStorage.getItem('wh_worker_name') || localStorage.getItem('workerName') || '';
+      const name = localStorage.getItem(KEY_WORKER) || /* storage-key-allow: legacy worker-name fallback (current writes use wh_last_worker) */ localStorage.getItem('wh_worker_name') || localStorage.getItem('workerName') || '';
       let logbookCount = 0;
       if (name) {
         const [l] = await Promise.all([
@@ -943,7 +943,7 @@ happens to know maintenance, not a manual.`;
         restoreIdentityFromSession(db).catch(() => {});
       }
 
-      const savedName = localStorage.getItem(KEY_WORKER) || localStorage.getItem('wh_worker_name') || localStorage.getItem('workerName');
+      const savedName = localStorage.getItem(KEY_WORKER) || /* storage-key-allow: legacy worker-name fallback (current writes use wh_last_worker) */ localStorage.getItem('wh_worker_name') || localStorage.getItem('workerName');
       if (savedName) {
         // Already signed in: skip setup and go straight to chat
         document.getElementById('worker-name').value = savedName;

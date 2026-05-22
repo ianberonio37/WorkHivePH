@@ -57,7 +57,7 @@
     return {
       worker_name:
         localStorage.getItem('wh_last_worker') ||
-        localStorage.getItem('wh_worker_name') ||
+        /* storage-key-allow: legacy worker-name fallback (current writes use wh_last_worker) */ localStorage.getItem('wh_worker_name') ||
         localStorage.getItem('workerName') || '',
       hive_id:
         localStorage.getItem('wh_active_hive_id') ||
@@ -1573,7 +1573,7 @@
   // those hives so we don't promise capability they haven't earned.
   function _readHiveMaturityStair() {
     try {
-      const s = localStorage.getItem('wh_hive_maturity_stair');
+      const s = /* storage-key-allow: hive-stair value, set by hive maturity rollup elsewhere */ localStorage.getItem('wh_hive_maturity_stair');
       const n = Number(s);
       return isFinite(n) ? n : null;
     } catch (_) { return null; }
@@ -5788,7 +5788,7 @@
       // Fallback: if hive_id not in context, try all common localStorage keys
       hiveId = localStorage.getItem('wh_active_hive_id') ||
                localStorage.getItem('wh_hive_id') ||
-               localStorage.getItem('hive_id') || '';
+               /* storage-key-allow: bootstrap fallback for hive context */ localStorage.getItem('hive_id') || '';
       if (!hiveId) {
         console.warn('[WHVoice] Snapshot: no hiveId found in localStorage either');
         return '';

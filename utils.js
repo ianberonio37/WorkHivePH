@@ -598,7 +598,7 @@ function debounce(fn, wait) {
 //         if (!WORKER_NAME) { window.location.href = 'index.html?signin=1'; return; }
 async function restoreIdentityFromSession(db) {
   const cached = localStorage.getItem('wh_last_worker')
-               || localStorage.getItem('wh_worker_name')
+               || /* storage-key-allow: legacy worker-name fallback (current writes use wh_last_worker) */ localStorage.getItem('wh_worker_name')
                || localStorage.getItem('workerName') || '';
   if (cached) return cached;
   try {
@@ -646,7 +646,7 @@ function logEvent(db, eventName, props) {
   if (!db || !eventName) return;
   try {
     const workerName = localStorage.getItem('wh_last_worker')
-                    || localStorage.getItem('wh_worker_name')
+                    || /* storage-key-allow: legacy worker-name fallback (current writes use wh_last_worker) */ localStorage.getItem('wh_worker_name')
                     || localStorage.getItem('workerName') || null;
     const hiveId = localStorage.getItem('wh_active_hive_id')
                 || localStorage.getItem('wh_hive_id') || null;

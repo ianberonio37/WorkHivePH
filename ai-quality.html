@@ -145,7 +145,7 @@
     // hasn't rehydrated yet. restoreIdentityFromSession runs second as the
     // canonical resolver.
     let WORKER_NAME = localStorage.getItem('wh_last_worker')
-                    || localStorage.getItem('wh_worker_name')
+                    || /* storage-key-allow: legacy worker-name fallback (current writes use wh_last_worker) */ localStorage.getItem('wh_worker_name')
                     || localStorage.getItem('workerName') || '';
     let HIVE_ID = '';
 

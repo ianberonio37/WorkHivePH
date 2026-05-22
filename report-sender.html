@@ -556,19 +556,19 @@
       <div class="verdict-text"><span id="rs-verdict-label">Ready when you are</span><small id="rs-verdict-sub">Pick a report, pick recipients, send.</small></div>
     </div>
     <div class="simple-row">
-      <div class="simple-card tag-grey" id="rs-card-reports">
+      <div class="simple-card tag-grey" id="rs-card-reports" data-rag-tile="report-sender:reports_selected" data-rag-label="Reports selected">
         <div class="sc-label">Reports selected</div>
         <div class="sc-hero" id="rs-reports-hero">0</div>
         <div class="sc-sub" id="rs-reports-sub">Loading...</div>
         <span class="sc-tag" id="rs-reports-tag">—</span>
       </div>
-      <div class="simple-card tag-grey" id="rs-card-recipients">
+      <div class="simple-card tag-grey" id="rs-card-recipients" data-rag-tile="report-sender:recipients" data-rag-label="Recipients">
         <div class="sc-label">Recipients</div>
         <div class="sc-hero" id="rs-recipients-hero">0</div>
         <div class="sc-sub" id="rs-recipients-sub">Loading...</div>
         <span class="sc-tag" id="rs-recipients-tag">—</span>
       </div>
-      <div class="simple-card tag-grey" id="rs-card-contacts">
+      <div class="simple-card tag-grey" id="rs-card-contacts" data-rag-tile="report-sender:saved_contacts" data-rag-label="Saved contacts">
         <div class="sc-label">Saved contacts</div>
         <div class="sc-hero" id="rs-contacts-hero">0</div>
         <div class="sc-sub" id="rs-contacts-sub">Loading...</div>
@@ -813,7 +813,7 @@
 
     // ── Auth gate ────────────────────────────────────────────────────────────────
     let WORKER_NAME = localStorage.getItem('wh_last_worker')
-      || localStorage.getItem('wh_worker_name')
+      || /* storage-key-allow: legacy worker-name fallback (current writes use wh_last_worker) */ localStorage.getItem('wh_worker_name')
       || localStorage.getItem('workerName') || '';
       // Auth C4: refresh WORKER_NAME from Supabase Auth session if localStorage was
       // empty or stale. Fire-and-forget -- the sync auth-check redirect still runs

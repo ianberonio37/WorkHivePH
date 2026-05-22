@@ -572,7 +572,7 @@
 
   logPageView(db);
   let WORKER_NAME = localStorage.getItem('wh_last_worker')
-    || localStorage.getItem('wh_worker_name')
+    || /* storage-key-allow: legacy worker-name fallback (current writes use wh_last_worker) */ localStorage.getItem('wh_worker_name')
     || localStorage.getItem('workerName') || '';
   // C4: redirect deferred to DOMContentLoaded — checks auth session first
 

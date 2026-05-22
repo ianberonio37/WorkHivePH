@@ -221,19 +221,19 @@
       <div class="verdict-text"><span id="sb-verdict-label">Loading shift readiness...</span><small id="sb-verdict-sub">Counting top-risk assets, PMs due, and carry-forward items for this window.</small></div>
     </div>
     <div class="simple-row">
-      <div class="simple-card tag-grey" id="sb-card-risk">
+      <div class="simple-card tag-grey" id="sb-card-risk" data-rag-tile="shift-brain:top_risk_this_shift" data-rag-label="Top risk this shift">
         <div class="sc-label">Top risk this shift</div>
         <div class="sc-hero" id="sb-risk-hero">0</div>
         <div class="sc-sub" id="sb-risk-sub">Loading...</div>
         <span class="sc-tag" id="sb-risk-tag">—</span>
       </div>
-      <div class="simple-card tag-grey" id="sb-card-pms">
+      <div class="simple-card tag-grey" id="sb-card-pms" data-rag-tile="shift-brain:pms_due" data-rag-label="PMs due">
         <div class="sc-label">PMs due</div>
         <div class="sc-hero" id="sb-pms-hero">0</div>
         <div class="sc-sub" id="sb-pms-sub">Loading...</div>
         <span class="sc-tag" id="sb-pms-tag">—</span>
       </div>
-      <div class="simple-card tag-grey" id="sb-card-carry">
+      <div class="simple-card tag-grey" id="sb-card-carry" data-rag-tile="shift-brain:carry_forward" data-rag-label="Carry-forward">
         <div class="sc-label">Carry-forward</div>
         <div class="sc-hero" id="sb-carry-hero">0</div>
         <div class="sc-sub" id="sb-carry-sub">Loading...</div>
@@ -313,7 +313,7 @@
 
     logPageView(db);
     let WORKER_NAME = localStorage.getItem('wh_last_worker')
-      || localStorage.getItem('wh_worker_name')
+      || /* storage-key-allow: legacy worker-name fallback (current writes use wh_last_worker) */ localStorage.getItem('wh_worker_name')
       || localStorage.getItem('workerName') || '';
     let HIVE_ID   = localStorage.getItem('wh_active_hive_id') || localStorage.getItem('wh_hive_id') || '';
     let HIVE_ROLE = localStorage.getItem('wh_hive_role') || '';

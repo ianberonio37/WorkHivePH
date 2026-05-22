@@ -306,19 +306,19 @@
       <div class="verdict-text"><span id="dp-verdict-label">Loading day plan...</span><small id="dp-verdict-sub">Counting today's items, this week's load, and overdue.</small></div>
     </div>
     <div class="simple-row">
-      <div class="simple-card tag-grey" id="dp-card-today">
+      <div class="simple-card tag-grey" id="dp-card-today" data-rag-tile="dayplanner:today_count" data-rag-label="Tasks today">
         <div class="sc-label">Today</div>
         <div class="sc-hero" id="dp-today-hero">0</div>
         <div class="sc-sub" id="dp-today-sub">Loading...</div>
         <span class="sc-tag" id="dp-today-tag">—</span>
       </div>
-      <div class="simple-card tag-grey" id="dp-card-week">
+      <div class="simple-card tag-grey" id="dp-card-week" data-rag-tile="dayplanner:week_count" data-rag-label="Tasks this week">
         <div class="sc-label">This week</div>
         <div class="sc-hero" id="dp-week-hero">0</div>
         <div class="sc-sub" id="dp-week-sub">Loading...</div>
         <span class="sc-tag" id="dp-week-tag">—</span>
       </div>
-      <div class="simple-card tag-grey" id="dp-card-overdue">
+      <div class="simple-card tag-grey" id="dp-card-overdue" data-rag-tile="dayplanner:overdue_count" data-rag-label="Overdue tasks">
         <div class="sc-label">Overdue</div>
         <div class="sc-hero" id="dp-overdue-hero">0</div>
         <div class="sc-sub" id="dp-overdue-sub">Loading...</div>
@@ -428,7 +428,7 @@
 // SUPABASE
 // ─────────────────────────────────────────────
 // db initialized after supabase-js CDN loads (see script block below)
-let WORKER_NAME = localStorage.getItem('wh_last_worker') || localStorage.getItem('wh_worker_name') || localStorage.getItem('workerName') || '';
+let WORKER_NAME = localStorage.getItem('wh_last_worker') || /* storage-key-allow: legacy worker-name fallback (current writes use wh_last_worker) */ localStorage.getItem('wh_worker_name') || localStorage.getItem('workerName') || '';
 var _authUid = null; // C3b: populated at init from Supabase Auth session
 // C4: redirect deferred to db init block — checks auth session first
 
@@ -596,7 +596,7 @@ async function loadSchedule() {
     }
   } catch(e) {
     console.warn('Schedule load failed, falling back to localStorage:', e);
-    try { scheduleItems = JSON.parse(localStorage.getItem('wh_lifeplanner_' + WORKER_NAME) || '[]'); }
+    try { scheduleItems = JSON.parse(/* storage-key-allow: prefix only; runtime key is wh_lifeplanner_<userId> */ localStorage.getItem('wh_lifeplanner_' + WORKER_NAME) || '[]'); }
     catch (_) { scheduleItems = []; }
   }
   renderSidebar();

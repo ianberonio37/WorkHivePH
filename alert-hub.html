@@ -347,7 +347,7 @@
   logPageView(db);
   // ── Identity / hive gate ───────────────────────────────────────────────────
   let WORKER_NAME = localStorage.getItem('wh_last_worker')
-                  || localStorage.getItem('wh_worker_name')
+                  || /* storage-key-allow: legacy worker-name fallback (current writes use wh_last_worker) */ localStorage.getItem('wh_worker_name')
                   || localStorage.getItem('workerName') || '';
   if (!WORKER_NAME) { WORKER_NAME = await restoreIdentityFromSession(db); }
   if (!WORKER_NAME) { window.location.href = 'index.html?signin=1'; return; }

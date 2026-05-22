@@ -442,7 +442,7 @@
     // but the 3 canonical localStorage keys are read as a fallback display name
     // and to keep nav-hub identity consistent with the rest of the platform.
     let WORKER_NAME = localStorage.getItem('wh_last_worker')
-                   || localStorage.getItem('wh_worker_name')
+                   || /* storage-key-allow: legacy worker-name fallback (current writes use wh_last_worker) */ localStorage.getItem('wh_worker_name')
                    || localStorage.getItem('workerName')
                    || '';
       // Auth C4: refresh WORKER_NAME from Supabase Auth session if localStorage was

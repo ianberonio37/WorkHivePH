@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="calm-dashboard" content="1" />
+  <title>Agentic RAG Observability | WorkHive</title>
+  <meta name="theme-color" content="#162032" />
+  <meta name="description" content="Per-hive observability of the agentic-rag-loop: route breakdown, retry rate, grader/checker pass rate, hallucination trend, token budget, p95 latency. Phase 8 of AGENTIC_RAG_ROADMAP.md." />
+  <link rel="canonical" href="https://workhiveph.com/workhive/agentic-rag-observability.html" />
+  <link rel="manifest" href="manifest.json" />
+  <!-- chip-allow: phase 8 observability surface; reads agentic_rag_traces directly (canonical owner) -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="utils.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0f1923; --surface: #162032; --card: #1d2e44;
+      --gold: #F7A21B; --blue: #29B6D9; --green: #4ade80;
+      --red: #f87171; --amber: #fb923c; --muted: rgba(255,255,255,0.4);
+      --text: #F4F6FA; --border: rgba(255,255,255,0.07);
+    }
+    body { font-family: 'Poppins', system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding-bottom: 90px; }
+    .page { max-width: 1000px; margin: 0 auto; padding: 1rem 1rem 0; padding-top: 68px; }
+    .page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; flex-wrap: wrap; gap: 10px; }
+    .page-title { font-size: 1.3rem; font-weight: 800; }
+    .page-sub { font-size: 0.72rem; color: var(--muted); margin-top: 2px; }
+    .freshness { font-size: 0.62rem; color: var(--muted); }
+
+    .summary-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-bottom: 20px; }
+    .sum-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 14px; text-align: center; }
+    .sum-card .sn { font-size: 1.6rem; font-weight: 800; display: block; line-height: 1; color: var(--gold); }
+    .sum-card .sl { font-size: 0.58rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin-top: 4px; }
+    .sum-card.green .sn { color: var(--green); }
+    .sum-card.red .sn   { color: var(--red); }
+    .sum-card.blue .sn  { color: var(--blue); }
+    .sum-card.amber .sn { color: var(--amber); }
+
+    .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px; margin-bottom: 16px; }
+    .card h3 { font-size: 0.9rem; font-weight: 800; margin-bottom: 4px; }
+    .card .meta { font-size: 0.62rem; color: var(--muted); margin-bottom: 12px; }
+
+    table.tbl { width: 100%; border-collapse: collapse; font-size: 0.78rem; }
+    table.tbl th { text-align: left; font-size: 0.6rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); padding: 7px 8px; border-bottom: 1px solid var(--border); }
+    table.tbl td { padding: 9px 8px; border-bottom: 1px solid rgba(255,255,255,0.04); vertical-align: top; }
+    table.tbl tr:hover td { background: rgba(255,255,255,0.02); }
+    .num-right { text-align: right; font-variant-numeric: tabular-nums; }
+    .route-chip { display: inline-block; font-size: 0.62rem; font-weight: 700; padding: 0.18rem 0.55rem; border-radius: 999px;
+      background: rgba(41,182,217,0.12); color: var(--blue); border: 1px solid rgba(41,182,217,0.25); }
+    .route-chip.temporal  { background: rgba(167,139,250,0.12); color: #a78bfa; border-color: rgba(167,139,250,0.25); }
+    .route-chip.cold_archive { background: rgba(251,146,60,0.12); color: var(--amber); border-color: rgba(251,146,60,0.25); }
+
+    .pass-pill { display: inline-block; font-size: 0.6rem; font-weight: 700; padding: 0.12rem 0.45rem; border-radius: 6px; }
+    .pass-pill.yes { background: rgba(74,222,128,0.14); color: var(--green); }
+    .pass-pill.no  { background: rgba(248,113,113,0.14); color: var(--red); }
+
+    .empty-state { padding: 24px; text-align: center; color: var(--muted); font-size: 0.85rem; }
+    .hive-gate { display: none; position: fixed; inset: 0; background: rgba(15,25,35,0.96); z-index: 100; align-items: center; justify-content: center; padding: 20px; }
+    .hive-gate .box { max-width: 360px; background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 24px; text-align: center; }
+    .hive-gate a { color: var(--gold); font-weight: 700; }
+    .filter-bar { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; font-size: 0.75rem; }
+    .filter-bar select, .filter-bar button {
+      background: var(--surface); color: var(--text); border: 1px solid var(--border);
+      border-radius: 8px; padding: 6px 10px; font-size: 0.75rem;
+    }
+    .filter-bar button { background: var(--gold); color: #1a1a1a; font-weight: 700; cursor: pointer; border: none; }
+  </style>
+</head>
+<body>
+  <div id="hive-gate" class="hive-gate">
+    <div class="box">
+      <h3>Agentic RAG Observability is hive-scoped.</h3>
+      <p style="font-size:0.78rem;color:var(--muted);margin:10px 0 16px;">You need to join or create a hive first to see your agentic-RAG traces.</p>
+      <a href="hive.html">Go to Hive board &rarr;</a>
+    </div>
+  </div>
+
+  <div class="page" id="page-body">
+    <div class="page-header">
+      <div>
+        <div class="page-title">Agentic RAG Observability</div>
+        <div class="page-sub">Phase 8 of AGENTIC_RAG_ROADMAP.md - per-hive trace breakdown of every agentic-rag-loop run</div>
+      </div>
+      <div class="freshness" id="freshness">Live</div>
+    </div>
+
+    <div class="filter-bar">
+      <label>Window:
+        <select id="filter-window">
+          <option value="7">Last 7 days</option>
+          <option value="30" selected>Last 30 days</option>
+          <option value="90">Last 90 days</option>
+        </select>
+      </label>
+      <label>Route:
+        <select id="filter-route">
+          <option value="">All routes</option>
+          <option value="simple_recency">simple_recency</option>
+          <option value="semantic">semantic</option>
+          <option value="orchestrator">orchestrator</option>
+          <option value="temporal">temporal</option>
+          <option value="cold_archive">cold_archive</option>
+          <option value="unknown">unknown</option>
+        </select>
+      </label>
+      <button id="filter-apply">Apply</button>
+    </div>
+
+    <div class="summary-row" id="summary-cards"></div>
+
+    <div class="card">
+      <h3>Route breakdown</h3>
+      <div class="meta">Volume + retry rate + checker pass rate per route. Source: agentic_rag_traces grouped by route in the selected window.</div>
+      <table class="tbl" id="route-tbl" aria-label="Route breakdown: volume, retry rate, checker pass rate per agentic-RAG route">
+        <thead><tr><th>Route</th><th class="num-right">Calls</th><th class="num-right">Avg retries</th><th class="num-right">Grader %</th><th class="num-right">Checker %</th><th class="num-right">Avg tokens</th><th class="num-right">p95 ms</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <h3>Top 10 most token-heavy queries</h3>
+      <div class="meta">Highest total_tokens in the selected window. Spot prompt drift or runaway retrievers early.</div>
+      <table class="tbl" id="heavy-tbl" aria-label="Top 10 most token-heavy agentic-RAG queries">
+        <thead><tr><th>Question</th><th>Route</th><th>Retries</th><th>Checker</th><th class="num-right">Tokens</th><th class="num-right">Latency ms</th><th>When</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <h3>Recent traces</h3>
+      <div class="meta">Most recent 20 agentic-rag-loop runs in the selected window.</div>
+      <table class="tbl" id="recent-tbl" aria-label="Most recent 20 agentic-rag-loop trace entries">
+        <thead><tr><th>When</th><th>Route</th><th>Question</th><th>Retries</th><th>Grader</th><th>Checker</th><th>Citations</th><th class="num-right">Latency ms</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    // Hive gate: this dashboard is hive-scoped (traces have hive_id, RLS filters per hive_members)
+    var HIVE_ID     = localStorage.getItem('wh_active_hive_id') || localStorage.getItem('wh_hive_id') || '';
+    var WORKER_NAME = localStorage.getItem('wh_last_worker') || /* storage-key-allow: legacy worker-name fallback (current writes use wh_last_worker) */ localStorage.getItem('wh_worker_name') || '';
+    if (!HIVE_ID) { document.getElementById('hive-gate').style.display = 'flex'; }
+
+    // Supabase URL/key are inlined elsewhere on the platform; mirror the pattern.
+    var SUPABASE_URL = (window).SUPABASE_URL || 'https://your-project.supabase.co';
+    var SUPABASE_KEY = (window).SUPABASE_KEY || '';
+    var db = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY) : null;
+
+    function pct(n, d) { return d > 0 ? Math.round((n / d) * 100) + '%' : '-'; }
+    function fmtNum(n) { return (n || 0).toLocaleString(); }
+    function p95(arr) {
+      if (!arr.length) return 0;
+      var s = arr.slice().sort(function(a, b) { return a - b; });
+      var idx = Math.floor(s.length * 0.95);
+      return s[Math.min(idx, s.length - 1)];
+    }
+    function whenAgo(iso) {
+      if (!iso) return '-';
+      var diffMs = Date.now() - new Date(iso).getTime();
+      var h = Math.floor(diffMs / 3600000);
+      if (h < 1) return Math.floor(diffMs / 60000) + 'm ago';
+      if (h < 24) return h + 'h ago';
+      return Math.floor(h / 24) + 'd ago';
+    }
+
+    async function loadTraces() {
+      if (!HIVE_ID || !db) return;
+      var windowDays = parseInt(document.getElementById('filter-window').value, 10) || 30;
+      var routeFilter = document.getElementById('filter-route').value || '';
+      var cutoff = new Date(Date.now() - windowDays * 86400000).toISOString();
+
+      // canonical-allow: agent infra observability surface, traces table is the canonical source
+      var q = db.from('agentic_rag_traces')
+        .select('id, question, route, retries, grader_passed, checker_passed, citation_count, total_tokens, latency_ms, created_at')
+        .eq('hive_id', HIVE_ID)
+        .gte('created_at', cutoff)
+        .order('created_at', { ascending: false })
+        .limit(500);
+      if (routeFilter) q = q.eq('route', routeFilter);
+
+      var result = await q;
+      var rows = result.data || [];
+      renderSummary(rows);
+      renderRouteTable(rows);
+      renderHeaviest(rows);
+      renderRecent(rows);
+      document.getElementById('freshness').textContent = 'Live - ' + rows.length + ' traces in window';
+    }
+
+    function renderSummary(rows) {
+      var total = rows.length;
+      var checkerPass = rows.filter(function(r) { return r.checker_passed === true; }).length;
+      var graderPass  = rows.filter(function(r) { return r.grader_passed === true; }).length;
+      var avgTokens = total ? Math.round(rows.reduce(function(a, r) { return a + (r.total_tokens || 0); }, 0) / total) : 0;
+      var avgLatency = total ? Math.round(rows.reduce(function(a, r) { return a + (r.latency_ms || 0); }, 0) / total) : 0;
+      var retryRate = total ? rows.filter(function(r) { return (r.retries || 0) > 0; }).length / total : 0;
+      var hallucRate = total ? 1 - (checkerPass / total) : 0;
+
+      document.getElementById('summary-cards').innerHTML = [
+        sumCard(fmtNum(total), 'Total runs', 'blue'),
+        sumCard(pct(checkerPass, total), 'Checker pass', 'green'),
+        sumCard(pct(graderPass, total), 'Grader pass', 'green'),
+        sumCard(fmtNum(avgTokens), 'Avg tokens/run', ''),
+        sumCard(avgLatency + 'ms', 'Avg latency', ''),
+        sumCard(Math.round(retryRate * 100) + '%', 'Retry rate', retryRate > 0.1 ? 'amber' : ''),
+        sumCard(Math.round(hallucRate * 100) + '%', 'Hallucination rate', hallucRate > 0.05 ? 'red' : 'green'),
+      ].join('');
+    }
+    function sumCard(value, label, klass) {
+      return '<div class="sum-card ' + escHtml(klass) + '"><span class="sn">' + escHtml(value) + '</span><span class="sl">' + escHtml(label) + '</span></div>';
+    }
+
+    function renderRouteTable(rows) {
+      var tbody = document.querySelector('#route-tbl tbody');
+      if (!rows.length) { tbody.innerHTML = '<tr><td colspan="7" class="empty-state">No traces yet for this window.</td></tr>'; return; }
+      var byRoute = {};
+      rows.forEach(function(r) {
+        var k = r.route || 'unknown';
+        if (!byRoute[k]) byRoute[k] = { calls: 0, retries: 0, gpass: 0, cpass: 0, tokens: 0, latencies: [] };
+        byRoute[k].calls++;
+        byRoute[k].retries += r.retries || 0;
+        if (r.grader_passed)  byRoute[k].gpass++;
+        if (r.checker_passed) byRoute[k].cpass++;
+        byRoute[k].tokens += r.total_tokens || 0;
+        byRoute[k].latencies.push(r.latency_ms || 0);
+      });
+      var keys = Object.keys(byRoute).sort(function(a, b) { return byRoute[b].calls - byRoute[a].calls; });
+      tbody.innerHTML = keys.map(function(k) {
+        var s = byRoute[k];
+        return '<tr>' +
+          '<td><span class="route-chip ' + escHtml(k) + '">' + escHtml(k) + '</span></td>' +
+          '<td class="num-right">' + s.calls + '</td>' +
+          '<td class="num-right">' + (s.retries / s.calls).toFixed(2) + '</td>' +
+          '<td class="num-right">' + pct(s.gpass, s.calls) + '</td>' +
+          '<td class="num-right">' + pct(s.cpass, s.calls) + '</td>' +
+          '<td class="num-right">' + Math.round(s.tokens / s.calls) + '</td>' +
+          '<td class="num-right">' + p95(s.latencies) + '</td>' +
+        '</tr>';
+      }).join('');
+    }
+
+    function renderHeaviest(rows) {
+      var tbody = document.querySelector('#heavy-tbl tbody');
+      if (!rows.length) { tbody.innerHTML = '<tr><td colspan="7" class="empty-state">No traces.</td></tr>'; return; }
+      var top = rows.slice().sort(function(a, b) { return (b.total_tokens || 0) - (a.total_tokens || 0); }).slice(0, 10);
+      tbody.innerHTML = top.map(function(r) {
+        return '<tr>' +
+          '<td>' + escHtml((r.question || '').slice(0, 80)) + '</td>' +
+          '<td><span class="route-chip ' + escHtml(r.route || 'unknown') + '">' + escHtml(r.route || 'unknown') + '</span></td>' +
+          '<td>' + (r.retries || 0) + '</td>' +
+          '<td><span class="pass-pill ' + (r.checker_passed ? 'yes' : 'no') + '">' + (r.checker_passed ? 'pass' : 'fail') + '</span></td>' +
+          '<td class="num-right">' + fmtNum(r.total_tokens) + '</td>' +
+          '<td class="num-right">' + fmtNum(r.latency_ms) + '</td>' +
+          '<td>' + escHtml(whenAgo(r.created_at)) + '</td>' +
+        '</tr>';
+      }).join('');
+    }
+
+    function renderRecent(rows) {
+      var tbody = document.querySelector('#recent-tbl tbody');
+      if (!rows.length) { tbody.innerHTML = '<tr><td colspan="8" class="empty-state">No recent traces.</td></tr>'; return; }
+      var recent = rows.slice(0, 20);
+      tbody.innerHTML = recent.map(function(r) {
+        return '<tr>' +
+          '<td>' + escHtml(whenAgo(r.created_at)) + '</td>' +
+          '<td><span class="route-chip ' + escHtml(r.route || 'unknown') + '">' + escHtml(r.route || 'unknown') + '</span></td>' +
+          '<td>' + escHtml((r.question || '').slice(0, 60)) + '</td>' +
+          '<td>' + (r.retries || 0) + '</td>' +
+          '<td><span class="pass-pill ' + (r.grader_passed ? 'yes' : 'no') + '">' + (r.grader_passed ? 'pass' : 'fail') + '</span></td>' +
+          '<td><span class="pass-pill ' + (r.checker_passed ? 'yes' : 'no') + '">' + (r.checker_passed ? 'pass' : 'fail') + '</span></td>' +
+          '<td>' + (r.citation_count || 0) + '</td>' +
+          '<td class="num-right">' + fmtNum(r.latency_ms) + '</td>' +
+        '</tr>';
+      }).join('');
+    }
+
+    document.getElementById('filter-apply').addEventListener('click', loadTraces);
+    if (HIVE_ID && db) { loadTraces(); }
+  </script>
+</body>
+</html>
