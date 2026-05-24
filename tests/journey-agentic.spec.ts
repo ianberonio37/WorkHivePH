@@ -47,7 +47,11 @@ test.describe('agentic-rag-observability.html — observability dashboard journe
   });
 
   test('bounded_fetch: trace query carries a .limit(N) clause in source', async ({ whPage }) => {
-    const src = await pageSrcWithExternals(whPage, PAGE);
+    // pageSrcWithExternals reads the CURRENT navigated page; without a prior
+    // goto it only saw the empty initial document. Navigate first.
+    await whPage.goto(PAGE);
+    await waitForPageReady(whPage);
+    const src = await pageSrcWithExternals(whPage);
     expect(src, 'agentic_rag_traces query must be bounded').toMatch(/\.limit\(\s*\d+\s*\)/);
     expect(src, 'agentic_rag_traces must be referenced').toContain('agentic_rag_traces');
   });

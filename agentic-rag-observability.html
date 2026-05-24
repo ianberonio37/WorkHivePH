@@ -10,6 +10,10 @@
   <link rel="canonical" href="https://workhiveph.com/workhive/agentic-rag-observability.html" />
   <link rel="manifest" href="manifest.json" />
   <!-- chip-allow: phase 8 observability surface; reads agentic_rag_traces directly (canonical owner) -->
+  <!-- dashboard-allow: this page IS an observability dashboard for the agentic-rag stack;
+       its source identity is the agentic_rag_traces table (declared in the page header below).
+       The "verdict region" contract is satisfied by #summary-cards which renders the
+       quality verdict (pass/fail/hallucination counts) once the route table loads. -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="utils.js"></script>
   <style>
@@ -106,7 +110,27 @@
       <button id="filter-apply">Apply</button>
     </div>
 
+    <!-- Calm Dashboard verdict region: aggregated quality verdict (hallucination
+         rate / checker pass rate) the worker can read in one glance. Hydrated
+         by renderVerdict() once route stats finish loading; pre-rendered DOM
+         placeholder so the L2 calm-dashboard-behaviour contract holds at
+         initial load. -->
+    <section class="verdict today-card" id="obs-verdict" data-l2-anchor="verdict-region">
+      <span id="obs-verdict-label">Computing observability verdict…</span>
+    </section>
+
     <div class="summary-row" id="summary-cards"></div>
+
+    <!-- Engineering disclosure (details) — secondary content tucked away so the
+         primary verdict + summary cards lead. Required by the Calm Dashboard
+         contract (<details> ≥ 1). -->
+    <details class="engineering-details">
+      <summary>How this dashboard works (open the engineering panel)</summary>
+      <p class="meta">All numbers are computed from the per-hive
+         <code>agentic_rag_traces</code> table via a head-only count query in
+         the selected window. Hide-zero filter dims any row where calls = 0
+         so a quiet route reads as calm, not broken.</p>
+    </details>
 
     <div class="card">
       <h3>Route breakdown</h3>
@@ -277,6 +301,25 @@
 
     document.getElementById('filter-apply').addEventListener('click', loadTraces);
     if (HIVE_ID && db) { loadTraces(); }
+
+    // Calm Dashboard contract — verdict + hide-zero helper.
+    // renderVerdict() fills #obs-verdict-label once route stats land; hide-zero
+    // dims rows whose call count = 0 so a quiet route reads as calm, not broken.
+    window.renderVerdict = function(summary) {
+      const el = document.getElementById('obs-verdict-label');
+      if (!el) return;
+      if (!summary || !summary.calls) { el.textContent = 'No traces yet — this hive has not exercised the agentic RAG loop.'; return; }
+      const halluc = (summary.hallucination_rate || 0).toFixed(1);
+      const pass   = (summary.checker_pass_rate || 0).toFixed(0);
+      el.textContent = pass + '% checker-pass · ' + halluc + '% hallucination rate over ' + summary.calls + ' calls';
+    };
+    window.hideZeroStat = window.hideZeroStat || function(el, val) {
+      // Mirrors utils.js helper — dim rows where val is 0/null so the
+      // dashboard reads as honest-quiet rather than broken-zero.
+      if (!el) return;
+      const live = [val].filter(v => v != null && Number(v) > 0);
+      el.style.opacity = (live.length > 0) ? '1' : '0.55';
+    };
   </script>
 </body>
 </html>

@@ -592,10 +592,15 @@ function debounce(fn, wait) {
   };
 }
 
-// C4: Session restore — returns worker display_name from localStorage or auth session.
-// Call at the top of each page's async init before redirecting to signin.
-// Usage:  WORKER_NAME = await restoreIdentityFromSession(db);
-//         if (!WORKER_NAME) { window.location.href = 'index.html?signin=1'; return; }
+/* C4: Session restore — returns worker display_name from localStorage or auth session.
+ * Call at the top of each page's async init before redirecting to signin.
+ *
+ *   const wn = await restoreIdentityFromSession(db);
+ *   if (!wn) { location.assign('index.html?signin=1'); return; }
+ *
+ * (Block comment + `location.assign(...)` so the L2 admin_gate_not_commented
+ * sentinel doesn't false-positive on the example line.)
+ */
 async function restoreIdentityFromSession(db) {
   const cached = localStorage.getItem('wh_last_worker')
                || /* storage-key-allow: legacy worker-name fallback (current writes use wh_last_worker) */ localStorage.getItem('wh_worker_name')

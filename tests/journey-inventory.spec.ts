@@ -461,7 +461,9 @@ test.describe('inventory.html - sentinel scenarios', () => {
   });
 
   test('txn_type_valid: every txn uses a canonical type value', async () => {
-    const valid = new Set(['use', 'restock', 'adjust', 'consume']);
+    // `adjustment` is what inventory.html writes via addTransaction(..., 'adjustment', ...);
+    // `adjust` is kept as a back-compat read-side alias (see the icon switch in inventory.html).
+    const valid = new Set(['use', 'restock', 'adjust', 'adjustment', 'consume']);
     const db = adminClient();
     const { data } = await db.from('inventory_transactions')
       .select('type').limit(50);
