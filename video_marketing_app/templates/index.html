@@ -874,6 +874,34 @@
       background: rgba(0,0,0,0.3); padding: 1px 4px; border-radius: 3px;
       font-size: 0.9em;
     }
+
+    /* Status pill — sits in the nlm-title row, color matches health state */
+    .nlm-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      font-size: 0.6rem;
+      font-weight: 600;
+      padding: 0.2rem 0.55rem;
+      border-radius: 1rem;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+      margin-left: 0.55rem;
+      vertical-align: middle;
+      cursor: help;
+    }
+    .nlm-status::before {
+      content: ''; width: 6px; height: 6px; border-radius: 50%;
+      display: inline-block;
+    }
+    .nlm-status.green  { background: rgba(34,197,94,0.12); color: var(--green);  border: 1px solid rgba(34,197,94,0.3); }
+    .nlm-status.green::before  { background: var(--green); }
+    .nlm-status.amber  { background: rgba(247,162,27,0.12); color: var(--orange); border: 1px solid rgba(247,162,27,0.3); }
+    .nlm-status.amber::before  { background: var(--orange); }
+    .nlm-status.red    { background: rgba(239,68,68,0.12);  color: var(--red);    border: 1px solid rgba(239,68,68,0.3); }
+    .nlm-status.red::before    { background: var(--red); }
+    .nlm-status.unknown { background: rgba(150,150,150,0.12); color: var(--steel); border: 1px solid rgba(150,150,150,0.25); }
+    .nlm-status.unknown::before { background: var(--steel); }
   </style>
 </head>
 <body>
@@ -1116,6 +1144,10 @@
         kz.innerHTML = kitHtml;
         loadAssets(idea.id);   // populate narration/recording status badges
         loadNlmStatus(idea.id); // populate existing NotebookLM artifacts
+        refreshNlmStatus(idea.id); // populate status pill (lib/session/recent campaigns)
+        // Auto-refresh the pill every 45s while this panel is mounted.
+        if (window._nlmStatusTimer) clearInterval(window._nlmStatusTimer);
+        window._nlmStatusTimer = setInterval(() => refreshNlmStatus(idea.id), 45_000);
       }
     });
 
@@ -1235,6 +1267,7 @@
         kz.innerHTML = kitHtml;
         loadAssets(selectedId);
         loadNlmStatus(selectedId);
+        refreshNlmStatus(selectedId);
       }
     });
 
@@ -1523,7 +1556,9 @@
       '<div class="nlm-card" id="nlmCard-' + ideaId + '">' +
         '<div class="nlm-header">' +
           '<div>' +
-            '<div class="nlm-title">📓 NotebookLM Long-Form Lane</div>' +
+            '<div class="nlm-title">📓 NotebookLM Long-Form Lane' +
+              '<span class="nlm-status unknown" id="nlmStatus-' + ideaId + '" title="Checking…">checking</span>' +
+            '</div>' +
             '<div class="nlm-sub">' +
               'Turn this idea into podcasts, cinematic video, blog post, infographic + mind map. ' +
               'Audio is voiced with PH Edge TTS (James/Rosa/Angelo). Runs in background, ~10-45min depending on profile.' +
@@ -1539,6 +1574,38 @@
         '<div class="nlm-artifacts" id="nlmArtifacts-' + ideaId + '"></div>' +
       '</div>'
     );
+  }
+
+  // ── NotebookLM health pill ───────────────────────────────────────────────
+  // Polls /api/notebooklm/health every 45s while a panel is mounted.
+  // The endpoint is fast (no Google calls) — just file-system checks +
+  // index lookup. Color: green = ready, amber = session aging, red =
+  // library/session missing.
+  async function refreshNlmStatus(ideaId) {
+    const pill = document.getElementById('nlmStatus-' + ideaId);
+    if (!pill) return;
+    try {
+      const r = await fetch('/api/notebooklm/health', { cache: 'no-store' });
+      const d = await r.json();
+      const cls = ['green', 'amber', 'red'].includes(d.status) ? d.status : 'unknown';
+      pill.className = 'nlm-status ' + cls;
+      pill.textContent = d.summary || cls;
+      const lines = [
+        'Library: ' + (d.library_installed ? '✓ ' + (d.library_version || 'installed') : '✗ missing'),
+        'Session: ' + (d.session_file_ready
+          ? (d.session_age_min != null ? d.session_age_min + ' min old' : '✓')
+          : '✗ none'),
+        'Artifacts on disk: ' + (d.artifact_count || 0),
+        'Last campaign: ' + (d.last_campaign_at
+          ? new Date(d.last_campaign_at * 1000).toLocaleString()
+          : 'never'),
+      ];
+      pill.title = lines.join('\n');
+    } catch (err) {
+      pill.className = 'nlm-status unknown';
+      pill.textContent = 'offline';
+      pill.title = 'Could not reach /api/notebooklm/health: ' + err.message;
+    }
   }
 
   // ── NotebookLM orchestration ────────────────────────────────────────────

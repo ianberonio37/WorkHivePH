@@ -136,14 +136,16 @@ test.describe('NotebookLM Long-Form Lane — dashboard journey', () => {
     await waitForIdeaList(page);
     await openIdea(page, IDEA_WITH_ASSETS);
 
-    // The panel renders TWICE: once on initial selectIdea, again after
-    // the script content loads (which re-runs renderProductionKit and
-    // re-invokes loadNlmStatus). The second render races with the first
-    // render's DOM, so we poll for a stable artifact count rather than
-    // racing on a single response.
+    // The dashboard re-renders the panel twice (initial + after script
+    // content loads). The first render populates the grid, the second
+    // wipes + repopulates. We force a third loadNlmStatus call after
+    // both renders settle so the test asserts against a stable state
+    // regardless of which render was last.
+    await page.waitForTimeout(1500);
+    await page.evaluate((id) => (window as any).loadNlmStatus?.(id), IDEA_WITH_ASSETS);
     await expect.poll(
       () => page.locator(`#nlmArtifacts-${IDEA_WITH_ASSETS} .nlm-artifact`).count(),
-      { timeout: 20_000, intervals: [250, 500, 1000] },
+      { timeout: 15_000, intervals: [200, 400, 800] },
     ).toBe(3);
     const grid = page.locator(`#nlmArtifacts-${IDEA_WITH_ASSETS}`);
 
@@ -369,6 +371,74 @@ test.describe('NotebookLM Long-Form Lane — dashboard journey', () => {
     const runBtn = page.locator(`#nlmRunBtn-${IDEA_WITH_ASSETS}`);
     await expect(runBtn).toBeEnabled();
     await expect(runBtn).toContainText('Run Campaign');
+  });
+
+  test('status pill turns green when health endpoint reports ready', async ({ page }) => {
+    await page.route('**/api/notebooklm/health', route => {
+      route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          status: 'green', summary: 'ready',
+          library_installed: true, library_version: '0.4.1',
+          session_file_ready: true, session_age_min: 12.4,
+          artifact_count: 6, last_campaign_at: 1779576523,
+          checked_at: 1779600000,
+        }),
+      });
+    });
+    await page.goto('/');
+    await waitForIdeaList(page);
+    await openIdea(page, IDEA_WITH_ASSETS);
+    const pill = page.locator(`#nlmStatus-${IDEA_WITH_ASSETS}`);
+    await expect(pill).toHaveClass(/green/, { timeout: 10_000 });
+    await expect(pill).toContainText('ready');
+    // Tooltip should expose library + session age for hover diagnostics.
+    const title = await pill.getAttribute('title');
+    expect(title).toContain('0.4.1');
+    expect(title).toContain('12.4');
+  });
+
+  test('status pill turns red when library is missing', async ({ page }) => {
+    await page.route('**/api/notebooklm/health', route => {
+      route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          status: 'red', summary: 'library missing',
+          library_installed: false, library_version: null,
+          session_file_ready: false, session_age_min: null,
+          artifact_count: 0, last_campaign_at: null,
+        }),
+      });
+    });
+    await page.goto('/');
+    await waitForIdeaList(page);
+    await openIdea(page, IDEA_WITH_ASSETS);
+    const pill = page.locator(`#nlmStatus-${IDEA_WITH_ASSETS}`);
+    await expect(pill).toHaveClass(/red/, { timeout: 10_000 });
+    await expect(pill).toContainText('library missing');
+  });
+
+  test('status pill turns amber when session is aging', async ({ page }) => {
+    await page.route('**/api/notebooklm/health', route => {
+      route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          status: 'amber', summary: 'session 7h old — may need re-auth',
+          library_installed: true, library_version: '0.4.1',
+          session_file_ready: true, session_age_min: 432,
+          artifact_count: 5, last_campaign_at: 1779576523,
+        }),
+      });
+    });
+    await page.goto('/');
+    await waitForIdeaList(page);
+    await openIdea(page, IDEA_WITH_ASSETS);
+    const pill = page.locator(`#nlmStatus-${IDEA_WITH_ASSETS}`);
+    await expect(pill).toHaveClass(/amber/, { timeout: 10_000 });
+    await expect(pill).toContainText('re-auth');
   });
 
   test('relogin helper exits with non-zero code → error banner shows output tail', async ({ page }) => {

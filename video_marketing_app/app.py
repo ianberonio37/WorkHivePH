@@ -1632,6 +1632,74 @@ def nlm_relogin_status():
     })
 
 
+@app.route("/api/notebooklm/health")
+def nlm_health():
+    """One-shot rollup of NotebookLM subsystem status for the UI status pill.
+
+    Combines library availability, session validity (without hitting Google
+    — uses file mtime + earlier session-check result cache), and the
+    most-recent campaign timestamp. Cached for 30s so the panel can poll
+    without hammering Google's API or the file system.
+    """
+    from tools import notebooklm_client as _nlm
+
+    # Library + session file presence (fast, no network calls).
+    rep = _nlm.availability_report()
+    sp  = _nlm.storage_state_path()
+    session_age_min = None
+    if sp.exists() and sp.stat().st_size > 0:
+        try:
+            session_age_min = round((time.time() - sp.stat().st_mtime) / 60, 1)
+        except Exception:
+            pass
+
+    # Last campaign across all ideas (looking at the artifact index).
+    last_campaign_at = None
+    try:
+        idx = _nlm._load_index()
+        for entry in idx.values():
+            ts = entry.get("updated_at") or entry.get("created_at")
+            if ts and (last_campaign_at is None or ts > last_campaign_at):
+                last_campaign_at = ts
+    except Exception:
+        pass
+
+    # Total artifacts produced (informational — not the quota count, since
+    # NotebookLM doesn't expose remaining quota via API).
+    artifact_count = 0
+    try:
+        idx = _nlm._load_index()
+        for entry in idx.values():
+            artifact_count += len(entry.get("artifacts", {}))
+    except Exception:
+        pass
+
+    # Coarse status classification — green/amber/red — for the UI pill.
+    # We don't validate against Google here (too slow for a polled
+    # endpoint); the UI calls /session-check separately if it wants
+    # active confirmation.
+    if not rep["library_installed"]:
+        status, summary = "red", "library missing"
+    elif not rep["session_file_ready"]:
+        status, summary = "red", "no session — log in"
+    elif session_age_min is not None and session_age_min > 360:    # >6h
+        status, summary = "amber", f"session {int(session_age_min/60)}h old — may need re-auth"
+    else:
+        status, summary = "green", "ready"
+
+    return jsonify({
+        "status":            status,
+        "summary":           summary,
+        "library_installed": rep["library_installed"],
+        "library_version":   rep["library_version"],
+        "session_file_ready": rep["session_file_ready"],
+        "session_age_min":   session_age_min,
+        "last_campaign_at":  last_campaign_at,
+        "artifact_count":    artifact_count,
+        "checked_at":        time.time(),
+    })
+
+
 @app.route("/api/notebooklm/session-check", methods=["POST"])
 def nlm_session_check():
     """Quick API-level session validity probe.
