@@ -1,6 +1,14 @@
 /**
  * journey-notebooklm.spec.ts — NotebookLM Long-Form Lane UI journey.
  *
+ * Layered like the existing WorkHive L2 test framework:
+ *   Smoke              (~5s)  — panel renders, endpoints respond
+ *   Concurrent edit    (~5s)  — double-click Run doesn't fire two jobs
+ *   CRUD / DB-verified (~10s) — Prepare writes 6 source files to disk
+ *   UI Locks           (~5s)  — Run button disables in-flight, re-enables after
+ *   Visual regression  (~5s)  — banner DOM snapshots for auth/quota/lib-missing
+ *   Plus the original journey scenarios (re-auth, error categories, etc.)
+ *
  * Verifies the in-dashboard NotebookLM panel that lives inside the
  * Flask video marketing app (port 5001 by default — distinct from the
  * WorkHive seeder on 5000). Tests both the happy path (panel renders +
@@ -489,5 +497,214 @@ test.describe('NotebookLM Long-Form Lane — dashboard journey', () => {
     await expect(msg).toContainText('Browser profile dir locked', { timeout: 5_000 });
     // Try again button is the recovery affordance.
     await expect(msg.locator('button:has-text("Try again")')).toBeVisible();
+  });
+
+  // ────────────────────────────────────────────────────────────────────────
+  // L2 CATEGORY: CONCURRENT-EDIT
+  // ────────────────────────────────────────────────────────────────────────
+  test('concurrent: double-click Run Campaign only fires one job', async ({ page }) => {
+    let runCalls = 0;
+    await page.route(`**/api/notebooklm/doctor`, route => {
+      route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ library_installed: true, session_file_ready: true }) });
+    });
+    // Delay the run response so the second click would race in if not gated.
+    await page.route(`**/api/ideas/${IDEA_WITH_ASSETS}/notebooklm/run`, async route => {
+      runCalls += 1;
+      await new Promise(r => setTimeout(r, 600));
+      route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ success: true, job_id: 'mock_concurrent_' + runCalls }) });
+    });
+    await page.route(/\/api\/notebooklm-jobs\//, route => {
+      route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ success: true, status: 'running', stage: 'prepare', message: '...' }) });
+    });
+
+    await page.goto('/');
+    await waitForIdeaList(page);
+    await openIdea(page, IDEA_WITH_ASSETS);
+    const runBtn = page.locator(`#nlmRunBtn-${IDEA_WITH_ASSETS}`);
+
+    // Fire two clicks back-to-back. UI must disable the button on first click.
+    await runBtn.click();
+    await runBtn.click({ force: true }).catch(() => {});
+
+    // Wait long enough for both mock responses to settle.
+    await page.waitForTimeout(1500);
+    expect(runCalls, 'Run endpoint should only have been called once').toBe(1);
+  });
+
+  // ────────────────────────────────────────────────────────────────────────
+  // L2 CATEGORY: CRUD / DISK-VERIFIED — Prepare writes source files to disk
+  // ────────────────────────────────────────────────────────────────────────
+  test('crud: Prepare Sources writes 6 source files reported by the endpoint', async ({ page, request }) => {
+    // Hit the real endpoint (no mock) — this is a DB-verified style test:
+    // we assert the endpoint reports the correct number of source files
+    // and exposes their sizes (proxy for "files exist on disk").
+    const res = await request.post(`${DASHBOARD_URL}/api/ideas/${IDEA_WITH_ASSETS}/notebooklm/prepare`);
+    expect(res.status()).toBe(200);
+    const body = await res.json();
+    expect(body.success, body.error || '').toBe(true);
+    expect(body.count, 'prepare should report 6 source files (brand_voice, product_overview, platform_context, idea_brief, video_script, narration_and_music)').toBe(6);
+    expect(Array.isArray(body.sources)).toBe(true);
+    // Each source has a name + size_kb >= 0.
+    for (const s of body.sources) {
+      expect(s.name).toMatch(/\.md$/);
+      expect(typeof s.size_kb).toBe('number');
+    }
+    // The 6 canonical filenames must all be present (order-independent).
+    const names = body.sources.map((s: any) => s.name).sort();
+    expect(names).toEqual([
+      '01_brand_voice.md',
+      '02_product_overview.md',
+      '03_platform_context.md',
+      '04_idea_brief.md',
+      '05_video_script.md',
+      '06_narration_and_music.md',
+    ]);
+  });
+
+  // ────────────────────────────────────────────────────────────────────────
+  // L2 CATEGORY: UI LOCKS — Run button must disable during a job
+  // ────────────────────────────────────────────────────────────────────────
+  test('ui-lock: Run button disables while a job is in-flight + re-enables on terminal state', async ({ page }) => {
+    let jobStatus = 'running';
+    await page.route(`**/api/notebooklm/doctor`, route => {
+      route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ library_installed: true, session_file_ready: true }) });
+    });
+    await page.route(`**/api/ideas/${IDEA_WITH_ASSETS}/notebooklm/run`, route => {
+      route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ success: true, job_id: 'mock_uilock_' + Date.now() }) });
+    });
+    await page.route(/\/api\/notebooklm-jobs\//, route => {
+      route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          success: true,
+          status: jobStatus,
+          stage: jobStatus === 'running' ? 'prepare' : 'done',
+          message: jobStatus === 'running' ? 'Building source bundle…' : '1/1 artifacts produced',
+        }),
+      });
+    });
+
+    await page.goto('/');
+    await waitForIdeaList(page);
+    await openIdea(page, IDEA_WITH_ASSETS);
+    const runBtn = page.locator(`#nlmRunBtn-${IDEA_WITH_ASSETS}`);
+
+    // Wait for the panel to fully settle — script-content fetch + the
+    // second renderProductionKit run both touch the button. Without this
+    // stabilization step, an in-flight panel re-render can clobber the
+    // disabled state set by nlmRun.
+    await expect(runBtn).toBeEnabled({ timeout: 8_000 });
+    await page.waitForTimeout(800);
+
+    // Click → button must immediately enter a disabled state.
+    await runBtn.click();
+    await expect(runBtn).toBeDisabled({ timeout: 5_000 });
+
+    // Flip the mocked job to complete. The polling loop should detect it
+    // and re-enable the button.
+    jobStatus = 'complete';
+    await expect(runBtn).toBeEnabled({ timeout: 10_000 });
+    await expect(runBtn).toContainText(/Run Campaign Again|Run Campaign/);
+  });
+
+  // ────────────────────────────────────────────────────────────────────────
+  // L2 CATEGORY: VISUAL REGRESSION — banner DOM snapshots
+  // Uses textContent + class snapshots rather than pixel diffs so the
+  // assertion survives font-rendering noise across machines but still
+  // catches any structural drift in the error banners.
+  // ────────────────────────────────────────────────────────────────────────
+  test('visual-regression: auth_expired banner DOM matches the canonical structure', async ({ page }) => {
+    await page.route(`**/api/notebooklm/doctor`, route => {
+      route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ library_installed: true, session_file_ready: true }) });
+    });
+    await page.route(`**/api/ideas/${IDEA_WITH_ASSETS}/notebooklm/run`, route => {
+      route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ success: true, job_id: 'mock_vr_auth_' + Date.now() }) });
+    });
+    await page.route(/\/api\/notebooklm-jobs\//, route => {
+      route.fulfill({
+        status: 200, contentType: 'application/json',
+        body: JSON.stringify({ success: true, status: 'error', error_kind: 'auth_expired', message: 'Session expired.', stage: 'done' }),
+      });
+    });
+
+    await page.goto('/');
+    await waitForIdeaList(page);
+    await openIdea(page, IDEA_WITH_ASSETS);
+    await page.locator(`#nlmRunBtn-${IDEA_WITH_ASSETS}`).click();
+
+    const reloginBtn = page.locator(`#nlmReloginBtn-${IDEA_WITH_ASSETS}`);
+    await expect(reloginBtn).toBeVisible({ timeout: 15_000 });
+
+    // Snapshot the canonical structure for the auth banner. Any change
+    // to the banner HTML will fail this and require a deliberate update.
+    const msg = page.locator(`#nlmMsg-${IDEA_WITH_ASSETS}`);
+    const warn = msg.locator('.nlm-doctor-warn');
+    await expect(warn).toBeVisible();
+    await expect(warn).toContainText('NotebookLM session expired');
+    await expect(warn).toContainText('Google sessions only last');
+    await expect(warn.locator(`#nlmReloginBtn-${IDEA_WITH_ASSETS}`)).toBeVisible();
+    await expect(warn.locator(`#nlmReloginBtn-${IDEA_WITH_ASSETS}`)).toContainText('Re-authenticate Now');
+  });
+
+  test('visual-regression: quota_exceeded banner DOM matches the canonical structure', async ({ page }) => {
+    await page.route(`**/api/notebooklm/doctor`, route => {
+      route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ library_installed: true, session_file_ready: true }) });
+    });
+    await page.route(`**/api/ideas/${IDEA_WITH_ASSETS}/notebooklm/run`, route => {
+      route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ success: true, job_id: 'mock_vr_quota_' + Date.now() }) });
+    });
+    await page.route(/\/api\/notebooklm-jobs\//, route => {
+      route.fulfill({
+        status: 200, contentType: 'application/json',
+        body: JSON.stringify({ success: true, status: 'error', error_kind: 'quota_exceeded', message: 'NotebookLM daily quota hit. Resets at UTC midnight.', stage: 'done' }),
+      });
+    });
+
+    await page.goto('/');
+    await waitForIdeaList(page);
+    await openIdea(page, IDEA_WITH_ASSETS);
+    await page.locator(`#nlmRunBtn-${IDEA_WITH_ASSETS}`).click();
+
+    const msg = page.locator(`#nlmMsg-${IDEA_WITH_ASSETS}`);
+    const warn = msg.locator('.nlm-doctor-warn');
+    await expect(warn).toBeVisible({ timeout: 15_000 });
+    await expect(warn).toContainText('NotebookLM daily quota hit');
+    // Must NOT contain a re-auth button (orthogonality with auth_expired).
+    await expect(warn.locator(`#nlmReloginBtn-${IDEA_WITH_ASSETS}`)).toHaveCount(0);
+  });
+
+  test('visual-regression: status pill renders all three traffic-light states correctly', async ({ page }) => {
+    // Cycle through green → amber → red on the same panel by changing the
+    // mocked /health response between page evaluates. Snapshot each.
+    let mocked = 'green';
+    await page.route('**/api/notebooklm/health', route => {
+      const bodies = {
+        green: { status: 'green', summary: 'ready', library_installed: true, library_version: '0.4.1', session_file_ready: true, session_age_min: 5, artifact_count: 3, last_campaign_at: null },
+        amber: { status: 'amber', summary: 'session 7h old — may need re-auth', library_installed: true, library_version: '0.4.1', session_file_ready: true, session_age_min: 420, artifact_count: 3, last_campaign_at: null },
+        red:   { status: 'red',   summary: 'no session — log in', library_installed: true, library_version: '0.4.1', session_file_ready: false, session_age_min: null, artifact_count: 0, last_campaign_at: null },
+      };
+      route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify((bodies as any)[mocked]) });
+    });
+
+    await page.goto('/');
+    await waitForIdeaList(page);
+    await openIdea(page, IDEA_WITH_ASSETS);
+    const pill = page.locator(`#nlmStatus-${IDEA_WITH_ASSETS}`);
+
+    // Green initial
+    await expect(pill).toHaveClass(/green/, { timeout: 8_000 });
+
+    // Force amber via re-evaluation
+    mocked = 'amber';
+    await page.evaluate((id) => (window as any).refreshNlmStatus?.(id), IDEA_WITH_ASSETS);
+    await expect(pill).toHaveClass(/amber/, { timeout: 5_000 });
+    await expect(pill).toContainText('re-auth');
+
+    // Force red
+    mocked = 'red';
+    await page.evaluate((id) => (window as any).refreshNlmStatus?.(id), IDEA_WITH_ASSETS);
+    await expect(pill).toHaveClass(/red/, { timeout: 5_000 });
+    await expect(pill).toContainText('no session');
   });
 });

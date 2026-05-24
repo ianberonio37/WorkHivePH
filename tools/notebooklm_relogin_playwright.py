@@ -93,6 +93,51 @@ async def _wait_for_signin(page, max_seconds: int = 600) -> bool:
     return False
 
 
+def _clean_stale_profile_locks(profile_dir: Path) -> None:
+    """Remove Chromium profile lock files left by aborted earlier runs.
+
+    When the previous `notebooklm login` subprocess gets killed mid-session
+    (we hit this exact scenario when forcibly terminating a hung lib CLI),
+    Chromium leaves its profile dir locked. Subsequent Playwright launches
+    hit exit code 21 with no useful error. The lock manifests as a few
+    well-known files inside the user_data_dir.
+    """
+    lock_files = ["SingletonLock", "SingletonCookie", "SingletonSocket", "Default/lockfile"]
+    for rel in lock_files:
+        p = profile_dir / rel
+        if p.exists():
+            try:
+                p.unlink()
+                print(f"  [cleanup] removed stale lock: {p.name}", flush=True)
+            except Exception as exc:
+                print(f"  [cleanup] could not remove {p.name}: {exc}", flush=True)
+
+
+async def _launch_browser(p, profile_dir: Path):
+    """Use a fresh non-persistent Chromium context every time.
+
+    We tried persistent contexts (sharing `browser_profile/` with the lib's
+    own login flow) but ran into unrecoverable lock files from killed
+    earlier processes — the lock survives Python process death because
+    Windows file handles aren't released until the actual Chromium
+    process exits, which can take a while or never if it was force-killed.
+
+    Non-persistent context starts fresh every time. The user signs in
+    from scratch (full credentials, no "Continue as X" shortcut), but the
+    cookies still land in storage_state.json which is the ONLY file the
+    lib actually reads.
+    """
+    args = [
+        "--disable-blink-features=AutomationControlled",
+        "--no-first-run",
+        "--no-default-browser-check",
+    ]
+    browser = await p.chromium.launch(headless=False, args=args)
+    context = await browser.new_context()
+    print("  [browser] fresh non-persistent context up", flush=True)
+    return context, browser
+
+
 async def _run() -> int:
     try:
         from playwright.async_api import async_playwright
@@ -103,21 +148,15 @@ async def _run() -> int:
     profile_dir, storage_file = _paths()
     print(f"  [paths] profile={profile_dir}", flush=True)
     print(f"  [paths] storage={storage_file}", flush=True)
+
+    # Always sweep stale locks before any launch attempt.
+    _clean_stale_profile_locks(profile_dir)
+
     print("  [browser] launching Chromium…", flush=True)
 
     try:
         async with async_playwright() as p:
-            context = await p.chromium.launch_persistent_context(
-                user_data_dir=str(profile_dir),
-                headless=False,
-                # Some Google flows refuse to render in headless / automation
-                # mode. Make us look as much like a normal Chrome as possible.
-                args=[
-                    "--disable-blink-features=AutomationControlled",
-                    "--no-first-run",
-                    "--no-default-browser-check",
-                ],
-            )
+            context, browser = await _launch_browser(p, profile_dir)
             try:
                 pages = context.pages
                 page = pages[0] if pages else await context.new_page()
@@ -137,6 +176,11 @@ async def _run() -> int:
                     await context.close()
                 except Exception:
                     pass
+                if browser is not None:
+                    try:
+                        await browser.close()
+                    except Exception:
+                        pass
     except Exception as exc:
         print(f"  [error] {type(exc).__name__}: {exc}", file=sys.stderr)
         return 4
