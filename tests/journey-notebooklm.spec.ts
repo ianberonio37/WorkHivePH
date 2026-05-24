@@ -231,7 +231,7 @@ test.describe('NotebookLM Long-Form Lane — dashboard journey', () => {
     await expect(page.locator(`#nlmMsg-${IDEA_WITH_ASSETS}`)).toContainText('session expired', { ignoreCase: true });
   });
 
-  test('error_kind=quota_exceeded → amber quota banner (no re-auth button)', async ({ page }) => {
+  test('error_kind=quota_exceeded → amber rate-limit banner WITH re-auth offer', async ({ page }) => {
     await page.route(`**/api/notebooklm/doctor`, route => {
       route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ library_installed: true, session_file_ready: true }) });
     });
@@ -256,9 +256,12 @@ test.describe('NotebookLM Long-Form Lane — dashboard journey', () => {
     await page.locator(`#nlmRunBtn-${IDEA_WITH_ASSETS}`).click();
 
     const msg = page.locator(`#nlmMsg-${IDEA_WITH_ASSETS}`);
-    await expect(msg).toContainText('quota', { ignoreCase: true, timeout: 15_000 });
-    // The quota banner should NOT show the re-auth button.
-    await expect(page.locator(`#nlmReloginBtn-${IDEA_WITH_ASSETS}`)).toHaveCount(0);
+    // Banner mentions rate-limit (Google's USER_DISPLAYABLE_ERROR is a
+    // per-session-token throttle, not an account quota). The re-auth
+    // button is the recommended remedy since fresh tokens get fresh
+    // budget — so we EXPECT to see the button here.
+    await expect(msg).toContainText(/rate-limit|quota/i, { timeout: 15_000 });
+    await expect(page.locator(`#nlmReloginBtn-${IDEA_WITH_ASSETS}`)).toBeVisible();
   });
 
   test('error_kind=lib_missing → setup hint banner', async ({ page }) => {
@@ -669,9 +672,12 @@ test.describe('NotebookLM Long-Form Lane — dashboard journey', () => {
     const msg = page.locator(`#nlmMsg-${IDEA_WITH_ASSETS}`);
     const warn = msg.locator('.nlm-doctor-warn');
     await expect(warn).toBeVisible({ timeout: 15_000 });
-    await expect(warn).toContainText('NotebookLM daily quota hit');
-    // Must NOT contain a re-auth button (orthogonality with auth_expired).
-    await expect(warn.locator(`#nlmReloginBtn-${IDEA_WITH_ASSETS}`)).toHaveCount(0);
+    await expect(warn).toContainText(/rate-limit|quota/i);
+    // Banner offers re-auth as the fast remedy (fresh tokens reset the
+    // per-session throttle). It also notes that notebooklm.google.com is
+    // unaffected so the user knows the account itself is healthy.
+    await expect(warn.locator(`#nlmReloginBtn-${IDEA_WITH_ASSETS}`)).toBeVisible();
+    await expect(warn).toContainText('notebooklm.google.com');
   });
 
   test('visual-regression: status pill renders all three traffic-light states correctly', async ({ page }) => {

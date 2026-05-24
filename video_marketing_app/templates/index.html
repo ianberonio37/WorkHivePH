@@ -1705,10 +1705,19 @@
                 'Run <code>notebooklm_setup.bat</code> once, then restart the dashboard.' +
               '</div>';
           } else if (d.error_kind === 'quota_exceeded') {
+            // The "quota" is actually a per-session-token throttle from
+            // Google, not a real account quota. Re-authenticating gives
+            // fresh tokens — often the fastest fix.
             msg.innerHTML =
               '<div class="nlm-doctor-warn">' +
-                '<strong>NotebookLM daily quota hit.</strong><br>' +
-                esc(friendly) +
+                '<strong>Session rate-limited by Google.</strong> ' +
+                esc(friendly) + '<br><br>' +
+                '<button class="btn-nlm" onclick="nlmReloginStart(\'' + ideaId + '\')" id="nlmReloginBtn-' + ideaId + '">' +
+                  '🔑 Get fresh tokens (Re-authenticate)' +
+                '</button>' +
+                '<div style="font-size:.65rem;color:var(--steel);margin-top:.5rem">' +
+                  'Tip: notebooklm.google.com in your regular browser is unaffected — this throttle is per-session.' +
+                '</div>' +
               '</div>';
           } else {
             msg.textContent = friendly;

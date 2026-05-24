@@ -1854,10 +1854,16 @@ def _run_nlm_job(job_id, idea_id, profile, language, only_kinds):
         # Friendly summary line replaces "0/N artifacts produced" when we
         # have a known category.
         if ok == 0 and error_kind == "quota_exceeded":
+            # NOT a true daily quota — Google rate-limits the unofficial-API
+            # session token, not the account. notebooklm.google.com in the
+            # user's regular browser usually still works. Re-authenticating
+            # gets fresh tokens with a fresh rate-limit budget, which fixes
+            # it more reliably than waiting.
             message = (
-                "NotebookLM daily quota hit — no artifacts produced. "
-                "Free-tier quota resets at UTC midnight (~8 AM PHT). "
-                "Try again tomorrow morning."
+                "NotebookLM session is rate-limited by Google. "
+                "Your account still works in notebooklm.google.com directly — "
+                "this only affects our programmatic session. "
+                "Click Re-authenticate to get fresh tokens, OR wait ~1 hour for the throttle to clear."
             )
         elif ok == 0 and error_kind == "auth_expired":
             message = "NotebookLM session expired during the run."
@@ -1893,9 +1899,9 @@ def _run_nlm_job(job_id, idea_id, profile, language, only_kinds):
             error_kind = "lib_missing"
         elif "rate limit" in lower_raw or "quota" in lower_raw:
             friendly = (
-                "NotebookLM daily quota hit (typically Veo cinematic video). "
-                "Quota usually resets at UTC midnight. Try the 'Sales' profile "
-                "instead, or wait until tomorrow."
+                "Google is rate-limiting this NotebookLM session token. "
+                "Your account is fine — notebooklm.google.com still works in your browser. "
+                "Click Re-authenticate to get fresh tokens, or wait ~1 hour."
             )
             error_kind = "quota_exceeded"
         else:
