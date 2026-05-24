@@ -1,4 +1,10 @@
 npx supabase functions deploy ai-orchestrator --no-verify-jwt
+npx supabase functions deploy agentic-rag-loop --no-verify-jwt
+npx supabase functions deploy hierarchical-summarizer --no-verify-jwt
+npx supabase functions deploy temporal-rag-orchestrator --no-verify-jwt
+npx supabase functions deploy agent-memory-store --no-verify-jwt
+npx supabase functions deploy data-fabric-normalizer --no-verify-jwt
+npx supabase functions deploy cold-archive-query --no-verify-jwt
 npx supabase functions deploy engineering-bom-sow --no-verify-jwt
 npx supabase functions deploy engineering-calc-agent --no-verify-jwt
 npx supabase functions deploy scheduled-agents --no-verify-jwt

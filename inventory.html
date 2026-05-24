@@ -294,7 +294,9 @@
     <button id="details-toggle-btn" type="button" class="details-toggle" aria-expanded="false" aria-controls="inv-summary-details">
       Show details
     </button>
-    <div id="inv-summary-details" role="region" aria-label="Stock health explainer">
+    <div id="inv-summary-details" role="region" aria-label="Stock health explainer"
+    data-rag-tile="inventory:detail_panel"
+    data-rag-label="Inventory detail breakdown">
       <strong style="display:block;margin-bottom:6px;color:rgba(255,255,255,0.85);">How these counts are computed</strong>
       <ul style="margin:0;padding-left:20px;">
         <li><strong>Out of stock</strong>: parts with <code>qty_on_hand &lt;= 0</code>.</li>

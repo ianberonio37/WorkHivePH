@@ -1,0 +1,9 @@
+﻿
+Running 4 tests using 1 worker
+
+  ok 1 [chromium] › tests\canonical-lineage.spec.ts:35:7 › Canonical Lineage Sentinel (L2 report-shape contract) › calm_canonical_audit_report.json: schema + non-trivial coverage (74ms)
+  ok 2 [chromium] › tests\canonical-lineage.spec.ts:68:7 › Canonical Lineage Sentinel (L2 report-shape contract) › calm_canonical_audit_report.json: gap+drift counts are tracked (3ms)
+  ok 3 [chromium] › tests\canonical-lineage.spec.ts:77:7 › Canonical Lineage Sentinel (L2 report-shape contract) › phantom_captures_report.json: schema + bucket totals add up (682ms)
+  ok 4 [chromium] › tests\canonical-lineage.spec.ts:106:7 › Canonical Lineage Sentinel (L2 report-shape contract) › phantom_captures_report.json: zero unjustified phantoms (regression gate) (7ms)
+
+  4 passed (1.8s)

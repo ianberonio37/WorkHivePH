@@ -84,6 +84,12 @@ ALL_FUNCTIONS = [
     "voice-semantic-rag",
     "voice-model-call",
     "walkthrough-analyzer",
+    "agentic-rag-loop",
+    "hierarchical-summarizer",
+    "temporal-rag-orchestrator",
+    "agent-memory-store",
+    "data-fabric-normalizer",
+    "cold-archive-query",
 ]
 
 REQUIRED_FIELDS = {
@@ -132,6 +138,12 @@ REQUIRED_FIELDS = {
     "voice-embeddings":             ["texts"],                     # Phase 1.5 RAG embeddings
     "voice-semantic-rag":           ["auth_uid", "query_text"],    # Phase 1.5 semantic search
     "voice-model-call":             ["messages"], # Phase 2 model orchestrator; model_strategy has default "scout"
+    "agentic-rag-loop":             ["question"], # Phase 1 of AGENTIC_RAG_ROADMAP.md; hive_id/worker_name/auth_uid one-of validated inline
+    "hierarchical-summarizer":      ["hive_id", "level"], # Phase 2 of AGENTIC_RAG_ROADMAP.md; level must be one of day/week/month/quarter/year
+    "temporal-rag-orchestrator":    ["question", "hive_id"], # Phase 3 of AGENTIC_RAG_ROADMAP.md; from/to/granularity optional with defaults
+    "agent-memory-store":           ["op"], # Phase 7 of AGENTIC_RAG_ROADMAP.md; op must be "recall" or "store"; hive_id/worker_name one-of validated inline
+    "data-fabric-normalizer":       ["source", "source_id", "hive_id", "payload"], # Phase 5 of AGENTIC_RAG_ROADMAP.md; source must be in CHECK list
+    "cold-archive-query":           ["hive_id", "table", "time_range"], # Phase 6 of AGENTIC_RAG_ROADMAP.md (scaffolding); table must be in SUPPORTED_TABLES
 }
 
 

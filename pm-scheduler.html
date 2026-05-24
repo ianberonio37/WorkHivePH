@@ -383,7 +383,9 @@
     <button id="details-toggle-btn" type="button" class="details-toggle" aria-expanded="false" aria-controls="pm-summary-details">
       Show details
     </button>
-    <div id="pm-summary-details" role="region" aria-label="PM compliance explainer">
+    <div id="pm-summary-details" role="region" aria-label="PM compliance explainer"
+    data-rag-tile="pm-scheduler:detail_panel"
+    data-rag-label="PM detail breakdown">
       <strong style="display:block;margin-bottom:6px;color:rgba(255,255,255,0.85);">How PM compliance is computed</strong>
       <ul style="margin:0;padding-left:20px;">
         <li><strong>Overdue</strong>: scope items where today &gt; last completion + frequency (Monthly=30, Quarterly=90, Semi-Annual=180, Yearly=365 days).</li>

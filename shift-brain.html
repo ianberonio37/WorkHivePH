@@ -247,7 +247,9 @@
     <button id="details-toggle-btn" type="button" class="details-toggle" aria-expanded="false" aria-controls="sb-summary-details">
       Show details
     </button>
-    <div id="sb-summary-details" role="region" aria-label="Shift plan explainer">
+    <div id="sb-summary-details" role="region" aria-label="Shift plan explainer"
+    data-rag-tile="shift-brain:detail_panel"
+    data-rag-label="Shift brain detail">
       <strong style="display:block;margin-bottom:6px;color:rgba(255,255,255,0.85);">How this shift plan is built</strong>
       <ul style="margin:0;padding-left:20px;">
         <li><strong>Top risk this shift</strong>: assets ranked by latest <code>asset_risk_scores.risk_score</code>; threshold cuts off below 0.65.</li>

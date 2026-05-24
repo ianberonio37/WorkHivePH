@@ -1,6 +1,6 @@
 # Validator Pattern Mining Report (Meta)
 
-- Files scanned: **229** validate_*.py
+- Files scanned: **288** validate_*.py
 - Features extracted: **20**
 - Promotion threshold (homogeneous cluster): >= 90% conformance, <= 12 outliers
 - Promotion candidates: **1**
@@ -15,23 +15,23 @@
 
 | Feature | Conformance | Positive / Total |
 |---|---:|---|
-| `has_cp1252_stdout_guard` | 100% | 229 / 229 |
-| `has_main_guard` | 98% | 225 / 229 |
-| `defines_main` | 90% | 207 / 229 |
-| `has_module_docstring` | 90% | 206 / 229 |
-| `writes_report_json` | 89% | 204 / 229 |
-| `mentions_layer_structure` | 69% | 160 / 229 |
-| `has_check_names_const` | 65% | 149 / 229 |
-| `has_check_labels_const` | 64% | 148 / 229 |
-| `prints_header_banner` | 62% | 144 / 229 |
-| `imports_validator_utils` | 61% | 140 / 229 |
-| `imports_format_result` | 60% | 139 / 229 |
-| `calls_format_result` | 60% | 139 / 229 |
-| `imports_read_file` | 55% | 128 / 229 |
-| `uses_future_annotations` | 54% | 125 / 229 |
-| `mentions_skills_consulted` | 33% | 76 / 229 |
-| `main_exits_with_code` | 28% | 66 / 229 |
-| `returns_1_on_fail` | 24% | 56 / 229 |
-| `returns_0_on_success` | 20% | 47 / 229 |
-| `imports_wh_pages` | 3% | 7 / 229 |
-| `has_allowlist_constant` | 0% | 2 / 229 |
+| `has_cp1252_stdout_guard` | 100% | 288 / 288 |
+| `has_main_guard` | 98% | 284 / 288 |
+| `defines_main` | 92% | 266 / 288 |
+| `has_module_docstring` | 92% | 265 / 288 |
+| `writes_report_json` | 83% | 239 / 288 |
+| `has_check_names_const` | 81% | 236 / 288 |
+| `uses_future_annotations` | 63% | 184 / 288 |
+| `has_check_labels_const` | 57% | 167 / 288 |
+| `mentions_layer_structure` | 56% | 164 / 288 |
+| `imports_validator_utils` | 56% | 164 / 288 |
+| `imports_format_result` | 56% | 163 / 288 |
+| `calls_format_result` | 56% | 163 / 288 |
+| `imports_read_file` | 52% | 152 / 288 |
+| `prints_header_banner` | 50% | 144 / 288 |
+| `main_exits_with_code` | 43% | 125 / 288 |
+| `returns_1_on_fail` | 39% | 115 / 288 |
+| `returns_0_on_success` | 28% | 82 / 288 |
+| `mentions_skills_consulted` | 26% | 76 / 288 |
+| `imports_wh_pages` | 2% | 7 / 288 |
+| `has_allowlist_constant` | 0% | 2 / 288 |

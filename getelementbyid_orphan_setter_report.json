@@ -1,19 +1,14 @@
 {
   "summary": {
     "pages_scanned": 30,
-    "total_lookups": 2408,
-    "total_orphans": 8,
-    "baseline": 8
+    "total_lookups": 2406,
+    "total_orphans": 0,
+    "baseline": 0
   },
   "per_page": [
     {
       "page": "index.html",
-      "orphans": [
-        {
-          "id": "guest-link",
-          "offset": 154823
-        }
-      ]
+      "orphans": []
     },
     {
       "page": "hive.html",
@@ -21,36 +16,7 @@
     },
     {
       "page": "logbook.html",
-      "orphans": [
-        {
-          "id": "machine-suggestions",
-          "offset": 130762
-        },
-        {
-          "id": "e-parts-display",
-          "offset": 169542
-        },
-        {
-          "id": "e-tasklist-ack-check",
-          "offset": 177921
-        },
-        {
-          "id": "e-parts-section",
-          "offset": 255224
-        },
-        {
-          "id": "e-tasklist-section",
-          "offset": 255291
-        },
-        {
-          "id": "e-maint-type",
-          "offset": 255533
-        },
-        {
-          "id": "e-category",
-          "offset": 255648
-        }
-      ]
+      "orphans": []
     },
     {
       "page": "inventory.html",

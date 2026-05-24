@@ -26,6 +26,36 @@ verify_jwt = false
 import_map = "./functions/ai-orchestrator/deno.json"
 entrypoint = "./functions/ai-orchestrator/index.ts"
 
+[functions.agentic-rag-loop]
+enabled = true
+verify_jwt = false
+entrypoint = "./functions/agentic-rag-loop/index.ts"
+
+[functions.hierarchical-summarizer]
+enabled = true
+verify_jwt = false
+entrypoint = "./functions/hierarchical-summarizer/index.ts"
+
+[functions.temporal-rag-orchestrator]
+enabled = true
+verify_jwt = false
+entrypoint = "./functions/temporal-rag-orchestrator/index.ts"
+
+[functions.agent-memory-store]
+enabled = true
+verify_jwt = false
+entrypoint = "./functions/agent-memory-store/index.ts"
+
+[functions.data-fabric-normalizer]
+enabled = true
+verify_jwt = false
+entrypoint = "./functions/data-fabric-normalizer/index.ts"
+
+[functions.cold-archive-query]
+enabled = true
+verify_jwt = false
+entrypoint = "./functions/cold-archive-query/index.ts"
+
 [functions.analytics-orchestrator]
 enabled = true
 verify_jwt = false

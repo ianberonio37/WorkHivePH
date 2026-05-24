@@ -2,8 +2,8 @@
   "summary": {
     "pages_scanned": 30,
     "total_elements": 1692,
-    "total_missing": 43,
-    "baseline": 43
+    "total_missing": 0,
+    "baseline": 0
   },
   "per_page": [
     {
@@ -12,48 +12,19 @@
     },
     {
       "page": "hive.html",
-      "missing": [
-        {
-          "kind": "button",
-          "snippet": "<button onclick=\"document.getElementById('handover-sheet').classList.add('hidden')\" cla>",
-          "offset": 50764
-        }
-      ]
+      "missing": []
     },
     {
       "page": "logbook.html",
-      "missing": [
-        {
-          "kind": "input(number)",
-          "snippet": "<input type=\"number\" min=\"0.1\" step=\"0.1\" value=\"${p.qty}\" class=\"wh-input w-16 text-c>",
-          "offset": 170165
-        },
-        {
-          "kind": "input(number)",
-          "snippet": "<input type=\"number\" min=\"1\" value=\"${p.qty}\" inputmode=\"numeric\"\n          onchange=\">",
-          "offset": 261946
-        }
-      ]
+      "missing": []
     },
     {
       "page": "inventory.html",
-      "missing": [
-        {
-          "kind": "button",
-          "snippet": "<button onclick=\"openDetailModal('${item.id}')\" class=\"text-white/20 hover:text-white/6>",
-          "offset": 50972
-        }
-      ]
+      "missing": []
     },
     {
       "page": "pm-scheduler.html",
-      "missing": [
-        {
-          "kind": "button",
-          "snippet": "<button class=\"fab\" onclick=\"goAddAsset()\">",
-          "offset": 21953
-        }
-      ]
+      "missing": []
     },
     {
       "page": "analytics.html",
@@ -65,13 +36,7 @@
     },
     {
       "page": "skillmatrix.html",
-      "missing": [
-        {
-          "kind": "button",
-          "snippet": "<button class=\"btn-primary\" id=\"result-primary-btn\">",
-          "offset": 28096
-        }
-      ]
+      "missing": []
     },
     {
       "page": "community.html",
@@ -95,198 +60,11 @@
     },
     {
       "page": "engineering-design.html",
-      "missing": [
-        {
-          "kind": "input(number)",
-          "snippet": "<input id=\"${id}\" class=\"wh-input\" type=\"number\" value=\"${def}\" min=\"0\" style=\"padding>",
-          "offset": 450242
-        },
-        {
-          "kind": "input(number)",
-          "snippet": "<input id=\"${id}\" class=\"wh-input\" type=\"number\" value=\"${def}\" min=\"0\" style=\"padding>",
-          "offset": 451039
-        },
-        {
-          "kind": "input(number)",
-          "snippet": "<input id=\"${id}\" class=\"wh-input\" type=\"number\" value=\"${def}\" min=\"0\" max=\"100\" step>",
-          "offset": 463557
-        },
-        {
-          "kind": "input(number)",
-          "snippet": "<input id=\"tool-qty-${id}\" class=\"wh-input py-2\" type=\"number\" value=\"${defaultQty}\" m>",
-          "offset": 572297
-        },
-        {
-          "kind": "input(number)",
-          "snippet": "<input id=\"fix-qty-${id}\" class=\"wh-input py-2\" type=\"number\" value=\"${defaultQty}\" mi>",
-          "offset": 574407
-        },
-        {
-          "kind": "input(number)",
-          "snippet": "<input id=\"hw-qty-${id}\" class=\"wh-input py-2\" type=\"number\" value=\"${defaultQty}\" min>",
-          "offset": 577136
-        },
-        {
-          "kind": "input(number)",
-          "snippet": "<input id=\"hw-count-${id}\" class=\"wh-input py-2\" type=\"number\" value=\"${defaultCount}\">",
-          "offset": 577398
-        },
-        {
-          "kind": "input(number)",
-          "snippet": "<input id=\"hw-rate-${id}\" class=\"wh-input py-2\" type=\"number\" value=\"${HW_USE_RATES[de>",
-          "offset": 577689
-        },
-        {
-          "kind": "input(number)",
-          "snippet": "<input id=\"drain-qty-${id}\" class=\"wh-input py-2\" type=\"number\" value=\"${defaultQty}\" >",
-          "offset": 580111
-        },
-        {
-          "kind": "input(number)",
-          "snippet": "<input id=\"drain-dfu-${id}\" class=\"wh-input py-2\" type=\"number\" value=\"${DRAIN_DFU_VAL>",
-          "offset": 580402
-        },
-        {
-          "kind": "input(number)",
-          "snippet": "<input id=\"gt-flow-${id}\" class=\"wh-input py-2\" type=\"number\" value=\"${defaultFlow}\" m>",
-          "offset": 583455
-        },
-        {
-          "kind": "input(number)",
-          "snippet": "<input id=\"gt-qty-${id}\" class=\"wh-input py-2\" type=\"number\" value=\"${defaultQty}\" min>",
-          "offset": 583730
-        },
-        {
-          "kind": "input(number)",
-          "snippet": "<input id=\"lt-qty-${id}\" class=\"wh-input py-2\" type=\"number\" value=\"${defaultQty}\" min>",
-          "offset": 587534
-        },
-        {
-          "kind": "input(number)",
-          "snippet": "<input id=\"lt-w-${id}\" class=\"wh-input py-2\" type=\"number\" value=\"${defaultW}\" min=\"1\">",
-          "offset": 587795
-        },
-        {
-          "kind": "input(number)",
-          "snippet": "<input id=\"lt-pf-${id}\" class=\"wh-input py-2\" type=\"number\" value=\"${defaultPF}\" min=\">",
-          "offset": 588050
-        },
-        {
-          "kind": "input(number)",
-          "snippet": "<input id=\"glt-qty-${id}\" class=\"wh-input py-2\" type=\"number\" value=\"${defaultQty}\" mi>",
-          "offset": 589513
-        },
-        {
-          "kind": "input(number)",
-          "snippet": "<input id=\"glt-w-${id}\" class=\"wh-input py-2\" type=\"number\" value=\"${defaultW}\" min=\"1>",
-          "offset": 589775
-        },
-        {
-          "kind": "input(number)",
-          "snippet": "<input id=\"glt-pf-${id}\" class=\"wh-input py-2\" type=\"number\" value=\"${defaultPF}\" min=>",
-          "offset": 590031
-        },
-        {
-          "kind": "input(number)",
-          "snippet": "<input id=\"ct-od-${id}\" class=\"wh-input py-2\" type=\"number\" value=\"${defaultOD}\" min=\">",
-          "offset": 591640
-        },
-        {
-          "kind": "input(number)",
-          "snippet": "<input id=\"ct-qty-${id}\" class=\"wh-input py-2\" type=\"number\" value=\"${defaultQty}\" min>",
-          "offset": 591909
-        },
-        {
-          "kind": "input(number)",
-          "snippet": "<input id=\"ups-va-${id}\" class=\"wh-input py-2\" type=\"number\" value=\"${defaultVA}\" min=>",
-          "offset": 593437
-        },
-        {
-          "kind": "input(number)",
-          "snippet": "<input id=\"ups-pf-${id}\" class=\"wh-input py-2\" type=\"number\" value=\"${defaultPF}\" min=>",
-          "offset": 593705
-        },
-        {
-          "kind": "input(number)",
-          "snippet": "<input id=\"ups-qty-${id}\" class=\"wh-input py-2\" type=\"number\" value=\"${defaultQty}\" mi>",
-          "offset": 593989
-        },
-        {
-          "kind": "input(number)",
-          "snippet": "<input id=\"duct-flow-${id}\" class=\"wh-input py-2\" type=\"number\" value=\"${defaultFlow}\">",
-          "offset": 595324
-        },
-        {
-          "kind": "input(number)",
-          "snippet": "<input id=\"duct-len-${id}\" class=\"wh-input py-2\" type=\"number\" value=\"${defaultLen}\" m>",
-          "offset": 595598
-        },
-        {
-          "kind": "input(number)",
-          "snippet": "<input id=\"fcu-area-${id}\" class=\"wh-input py-2\" type=\"number\" value=\"${defaultArea}\" >",
-          "offset": 599499
-        },
-        {
-          "kind": "input(number)",
-          "snippet": "<input id=\"fcu-load-${id}\" class=\"wh-input py-2\" type=\"number\" value=\"${defaultLoad}\" >",
-          "offset": 599660
-        },
-        {
-          "kind": "input(number)",
-          "snippet": "<input id=\"fcu-qty-${id}\"  class=\"wh-input py-2\" type=\"number\" value=\"${defaultQty}\"  >",
-          "offset": 599821
-        },
-        {
-          "kind": "input(number)",
-          "snippet": "<input id=\"refrig-len-${id}\" class=\"wh-input py-2\" type=\"number\" value=\"${defaultLen}\">",
-          "offset": 601367
-        },
-        {
-          "kind": "input(number)",
-          "snippet": "<input class=\"bom-item-input qty\" type=\"number\" min=\"0\" step=\"0.1\" value=\"${item.qty ?>",
-          "offset": 1860689
-        },
-        {
-          "kind": "input(text)",
-          "snippet": "<input type=\"text\" value=\"${escHtml(it.description || '')}\" />",
-          "offset": 1888640
-        },
-        {
-          "kind": "input(text)",
-          "snippet": "<input type=\"text\" value=\"${escHtml(it.specification || '')}\" />",
-          "offset": 1888718
-        },
-        {
-          "kind": "input(number)",
-          "snippet": "<input type=\"number\" value=\"${it.qty ?? 1}\" min=\"0\" step=\"0.1\" />",
-          "offset": 1888825
-        },
-        {
-          "kind": "input(text)",
-          "snippet": "<input type=\"text\" value=\"${escHtml(it.unit || 'unit')}\" />",
-          "offset": 1888944
-        },
-        {
-          "kind": "input(text)",
-          "snippet": "<input type=\"text\" value=\"${escHtml(it.remarks || '')}\" />",
-          "offset": 1889019
-        },
-        {
-          "kind": "input(text)",
-          "snippet": "<input>",
-          "offset": 2139459
-        }
-      ]
+      "missing": []
     },
     {
       "page": "assistant.html",
-      "missing": [
-        {
-          "kind": "button",
-          "snippet": "<button id=\"send-btn\" class=\"send-btn\" onclick=\"sendMessage()\">",
-          "offset": 13583
-        }
-      ]
+      "missing": []
     },
     {
       "page": "report-sender.html",

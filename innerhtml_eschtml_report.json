@@ -1,22 +1,14 @@
 {
   "summary": {
     "pages_scanned": 30,
-    "total_assignments": 503,
-    "total_risk": 40,
-    "baseline": 40
+    "total_assignments": 502,
+    "total_risk": 0,
+    "baseline": 0
   },
   "per_page": [
     {
       "page": "index.html",
-      "risks": [
-        {
-          "snippet": "`           <a href=\"${role === 'supervisor' ? 'alert-hub.html' : 'pm-scheduler.",
-          "interps": [
-            "${role === 'supervisor' ? 'alert-hub.html' : 'pm-scheduler.html'}"
-          ],
-          "offset": 203563
-        }
-      ]
+      "risks": []
     },
     {
       "page": "hive.html",
@@ -24,61 +16,19 @@
     },
     {
       "page": "logbook.html",
-      "risks": [
-        {
-          "snippet": "assets.map(a => {     const label = a.name ? `${a.asset_id}: ${a.name}` : a.asse",
-          "interps": [
-            "${a.asset_id}",
-            "${a.name}"
-          ],
-          "offset": 131005
-        }
-      ]
+      "risks": []
     },
     {
       "page": "inventory.html",
-      "risks": [
-        {
-          "snippet": "assets.map(a => {     const label = a.name ? `${a.asset_id}: ${a.name}` : a.asse",
-          "interps": [
-            "${a.asset_id}",
-            "${a.name}"
-          ],
-          "offset": 54404
-        }
-      ]
+      "risks": []
     },
     {
       "page": "pm-scheduler.html",
-      "risks": [
-        {
-          "snippet": "list.map(a => `     <button type=\"button\" onclick=\"pickRegisteredAsset('${a.id}'",
-          "interps": [
-            "${a.id}"
-          ],
-          "offset": 93259
-        }
-      ]
+      "risks": []
     },
     {
       "page": "analytics.html",
-      "risks": [
-        {
-          "snippet": "`<span>${icons[phase]||'\ud83d\udcca'}</span><span>${PHASE_BANNERS[phase]}</span>`",
-          "interps": [
-            "${icons[phase]||'\ud83d\udcca'}",
-            "${PHASE_BANNERS[phase]}"
-          ],
-          "offset": 32932
-        },
-        {
-          "snippet": "`Filtered: ${active.map(escHtml).join(' \u00b7 ')} <button onclick=\"resetFilters()\" s",
-          "interps": [
-            "${active.map(escHtml).join(' \u00b7 ')}"
-          ],
-          "offset": 35127
-        }
-      ]
+      "risks": []
     },
     {
       "page": "analytics-report.html",
@@ -98,17 +48,7 @@
     },
     {
       "page": "marketplace.html",
-      "risks": [
-        {
-          "snippet": "_listings.length         ? `Showing <span>${_listings.length}</span>${_hasMore ?",
-          "interps": [
-            "${_listings.length}",
-            "${_hasMore ? '+' : ''}",
-            "${_listings.length !== 1 ? 's' : ''}"
-          ],
-          "offset": 98383
-        }
-      ]
+      "risks": []
     },
     {
       "page": "marketplace-seller.html",
@@ -120,185 +60,11 @@
     },
     {
       "page": "engineering-design.html",
-      "risks": [
-        {
-          "snippet": "`              <div class=\"mb-4\">         <div class=\"field-label\">Project / Roo",
-          "interps": [
-            "${['Office','Conference','Server Room','Production Floor','Warehouse','Toilet / CR','Kitchen','Laboratory','Lobby','Hospital Ward'].map((v,i) =>\n            `<button class=\"toggle-btn${i===0?' active':''}",
-            "${v}"
-          ],
-          "offset": 292366
-        },
-        {
-          "snippet": "`              <div class=\"mb-4\">         <div class=\"field-label\">Project / Sys",
-          "interps": [
-            "${['Water','Chilled Water','Hot Water','Glycol Solution','Seawater'].map((v,i) =>\n            `<button class=\"toggle-btn${i===0?' active':''}",
-            "${v}"
-          ],
-          "offset": 295146
-        },
-        {
-          "snippet": "`              <div class=\"mb-4\">         <div class=\"field-label\">Project / Sys",
-          "interps": [
-            "${['Steam','Hot Water'].map((v,i) =>\n            `<button class=\"toggle-btn${i===0?' active':''}",
-            "${v}"
-          ],
-          "offset": 300600
-        },
-        {
-          "snippet": "`              <div class=\"mb-4\">         <div class=\"field-label\">Project / Sys",
-          "interps": [
-            "${['Chilled Water Supply','Chilled Water Return','Hot Water Supply','Condenser Water','Cold Water Supply','Fire Protection','General Water'].map((v,i) =>\n            `<button class=\"toggle-btn${i===0?' active':''}",
-            "${v}"
-          ],
-          "offset": 308685
-        },
-        {
-          "snippet": "`       <div class=\"mb-4\">         <div class=\"field-label\">Project / System Nam",
-          "interps": [
-            "${['Horizontal Branch','Drain Stack','Building Drain'].map((v,i) =>\n            `<button class=\"toggle-btn${i===0?' active':''}",
-            "${v}"
-          ],
-          "offset": 323159
-        },
-        {
-          "snippet": "`       <div class=\"mb-4\">         <div class=\"field-label\">Project / Panel Name",
-          "interps": [
-            "${['1-Phase 2-Wire (230V)','1-Phase 3-Wire (230V)','3-Phase 3-Wire (400V)','3-Phase 4-Wire (400V)'].map((v,i) =>\n            `<button class=\"toggle-btn${i===3?' active':''}",
-            "${v}",
-            "${v}"
-          ],
-          "offset": 369317
-        },
-        {
-          "snippet": "`       <div class=\"mb-4\">         <div class=\"field-label\">Project / Generator ",
-          "interps": [
-            "${['1-Phase 2-Wire (230V)','3-Phase 4-Wire (400V)'].map((v,i) =>\n            `<button class=\"toggle-btn${i===1?' active':''}",
-            "${v}",
-            "${v}"
-          ],
-          "offset": 371530
-        },
-        {
-          "snippet": "`       <div class=\"mb-4\">         <div class=\"field-label\">Project / System Nam",
-          "interps": [
-            "${['Grid-Tied','Off-Grid','Hybrid'].map((v,i) =>\n            `<button class=\"toggle-btn${i===0?' active':''}",
-            "${v}"
-          ],
-          "offset": 375942
-        },
-        {
-          "snippet": "`       <div class=\"mb-4\">         <div class=\"field-label\">Project / Circuit Na",
-          "interps": [
-            "${['General Load','Motor (continuous)','HVAC Compressor','Lighting (continuous)','Receptacle'].map((v,i) =>\n            `<button class=\"toggle-btn${i===0?' active':''}",
-            "${v}"
-          ],
-          "offset": 434861
-        },
-        {
-          "snippet": "`       <div class=\"mb-4\">         <div class=\"field-label\">Project / Room Name<",
-          "interps": [
-            "${['Office','Conference Room','Corridor','Toilet','Warehouse','Production Floor','School / Classroom','Retail'].map((v,i) =>\n            `<button class=\"toggle-btn${i===0?' active':''}",
-            "${v}"
-          ],
-          "offset": 442155
-        },
-        {
-          "snippet": "`     <select class=\"wh-input py-2\" id=\"tool-type-${id}\" onchange=\"toggleCustomC",
-          "interps": [
-            "${id}",
-            "${id}",
-            "${TOOL_OPTIONS.map(t => `<option value=\"${t}"
-          ],
-          "offset": 572010
-        },
-        {
-          "snippet": "`     <select class=\"wh-input py-2\" id=\"fix-type-${id}\" onchange=\"toggleCustomFi",
-          "interps": [
-            "${id}",
-            "${id}",
-            "${FIXTURE_OPTIONS.map(t => `<option value=\"${t}"
-          ],
-          "offset": 574111
-        },
-        {
-          "snippet": "`     <select class=\"wh-input py-2\" id=\"hw-type-${id}\" onchange=\"toggleCustomRat",
-          "interps": [
-            "${id}",
-            "${id}",
-            "${HW_USE_OPTIONS.map(t => `<option value=\"${t}"
-          ],
-          "offset": 576848
-        },
-        {
-          "snippet": "`     <select class=\"wh-input py-2\" id=\"drain-type-${id}\" onchange=\"toggleCustom",
-          "interps": [
-            "${id}",
-            "${id}",
-            "${DRAIN_FIXTURE_OPTIONS.map(t => `<option value=\"${t}"
-          ],
-          "offset": 579814
-        },
-        {
-          "snippet": "`     <select class=\"wh-input py-2\" id=\"gt-type-${id}\" onchange=\"toggleGTCustomF",
-          "interps": [
-            "${id}",
-            "${id}",
-            "${GT_FIXTURE_OPTIONS.map(t => `<option value=\"${t}"
-          ],
-          "offset": 583161
-        },
-        {
-          "snippet": "`     <select class=\"wh-input py-2\" id=\"lt-type-${id}\" onchange=\"applyLoadDefaul",
-          "interps": [
-            "${id}",
-            "${id}",
-            "${LOAD_TYPE_OPTIONS.map(t => `<option value=\"${t}"
-          ],
-          "offset": 587242
-        },
-        {
-          "snippet": "`     <select class=\"wh-input py-2\" id=\"glt-type-${id}\" onchange=\"applyGenLoadDe",
-          "interps": [
-            "${id}",
-            "${id}",
-            "${LOAD_TYPE_OPTIONS.map(t => `<option value=\"${t}"
-          ],
-          "offset": 589217
-        },
-        {
-          "snippet": "`     <select class=\"wh-input py-2\" id=\"ct-type-${id}\">       ${CT_CABLE_TYPE_OP",
-          "interps": [
-            "${id}",
-            "${CT_CABLE_TYPE_OPTIONS.map(t => `<option value=\"${t}",
-            "${t===defaultType?' selected':''}"
-          ],
-          "offset": 591380
-        },
-        {
-          "snippet": "_sowSections.map((sec, i) => `     <div class=\"sow-checklist-item ${sec.checked ",
-          "interps": [
-            "${sec.checked === false ? 'unchecked' : ''}",
-            "${i}",
-            "${i}"
-          ],
-          "offset": 1862933
-        }
-      ]
+      "risks": []
     },
     {
       "page": "assistant.html",
-      "risks": [
-        {
-          "snippet": "items.map(i => `         <div class=\"flex items-center justify-between\">        ",
-          "interps": [
-            "${i.label}",
-            "${i.color}",
-            "${i.count}"
-          ],
-          "offset": 18371
-        }
-      ]
+      "risks": []
     },
     {
       "page": "report-sender.html",
@@ -306,124 +72,19 @@
     },
     {
       "page": "platform-health.html",
-      "risks": [
-        {
-          "snippet": "`<div class=\"reg-title\">\u26a0 ${regs.length} Regression${regs.length>1?'s':''} Detec",
-          "interps": [
-            "${regs.length}",
-            "${regs.length>1?'s':''}",
-            "${r.label}"
-          ],
-          "offset": 91657
-        },
-        {
-          "snippet": "`<span>${msgs[overall]||overall}</span><span class=\"b-sub\">${regs.length?`${regs",
-          "interps": [
-            "${msgs[overall]||overall}",
-            "${regs.length?`${regs.length}"
-          ],
-          "offset": 92145
-        },
-        {
-          "snippet": "[{cls:'pass',n:summary.pass||0,l:'Pass'},{cls:'fail',n:summary.fail||0,l:'Fail'}",
-          "interps": [
-            "${c.cls}",
-            "${c.n}",
-            "${c.l}"
-          ],
-          "offset": 92451
-        },
-        {
-          "snippet": "`       <span class=\"vgroup-name\">${groupName}</span>       <span class=\"vgroup-",
-          "interps": [
-            "${groupName}",
-            "${summaryParts.join(' \u00b7 ')}",
-            "${hasIssue ? 'open' : ''}"
-          ],
-          "offset": 95381
-        },
-        {
-          "snippet": "`       <div class=\"gcard-top\">         <span class=\"gcard-icon\" style=\"color:${",
-          "interps": [
-            "${iconColor}",
-            "${icon}",
-            "${v.status||'SKIP'}"
-          ],
-          "offset": 98699
-        }
-      ]
+      "risks": []
     },
     {
       "page": "project-manager.html",
-      "risks": [
-        {
-          "snippet": "`     <div class=\"kpi-row\">       <div class=\"kpi\"><div class=\"kpi-label\">Progre",
-          "interps": [
-            "${r.pct_complete ?? 0}",
-            "${r.items_done ?? 0}",
-            "${r.items_total ?? 0}"
-          ],
-          "offset": 105225
-        },
-        {
-          "snippet": "`     <div class=\"kpi-row\">       <div class=\"kpi\"><div class=\"kpi-label\">Critic",
-          "interps": [
-            "${cp.total_days}",
-            "${cp.item_ids.length}",
-            "${_items.length}"
-          ],
-          "offset": 129583
-        },
-        {
-          "snippet": "`     <div class=\"kpi-row\">       <div class=\"kpi\"><div class=\"kpi-label\">Budget",
-          "interps": [
-            "${fmtPHP(ev.bac)}",
-            "${fmtPHP(ev.pv)}",
-            "${fmtPHP(ev.ev)}"
-          ],
-          "offset": 140984
-        },
-        {
-          "snippet": "`     <div class=\"kpi-row\">       <div class=\"kpi\"><div class=\"kpi-label\">Sign-o",
-          "interps": [
-            "${passed}",
-            "${checks.length}"
-          ],
-          "offset": 143269
-        }
-      ]
+      "risks": []
     },
     {
       "page": "integrations.html",
-      "risks": [
-        {
-          "snippet": "[       { n: imported,   l: 'Imported',   c: 'var(--green)' },       { n: machin",
-          "interps": [
-            "${c.c}"
-          ],
-          "offset": 76209
-        },
-        {
-          "snippet": "patterns.map(p =>         `<div class=\"pattern-row\"><div class=\"pattern-dot\" sty",
-          "interps": [
-            "${p.color}"
-          ],
-          "offset": 79247
-        }
-      ]
+      "risks": []
     },
     {
       "page": "ph-intelligence.html",
-      "risks": [
-        {
-          "snippet": "[       { n: data.hive_count    || 0, l: 'Plants' },       { n: (data.wo_count |",
-          "interps": [
-            "${s.n}",
-            "${s.l}"
-          ],
-          "offset": 23399
-        }
-      ]
+      "risks": []
     },
     {
       "page": "project-report.html",
@@ -443,17 +104,7 @@
     },
     {
       "page": "achievements.html",
-      "risks": [
-        {
-          "snippet": "tiers.map(t => `       <div class=\"tier-sample\">         <div class=\"tier-sample",
-          "interps": [
-            "${renderDomainBadge('\u2605', t.sample, 48)}",
-            "${t.label}",
-            "${t.range}"
-          ],
-          "offset": 29360
-        }
-      ]
+      "risks": []
     },
     {
       "page": "asset-hub.html",

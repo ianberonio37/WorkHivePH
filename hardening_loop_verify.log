@@ -1,0 +1,117 @@
+
+[96m======================================================================[0m
+[96m             AI SELF-IMPROVEMENT LOOP (Playwright-Driven)             [0m
+[96m======================================================================[0m
+
+[22:22:48] Prerequisites Check
+  [92m[PASS][0m Flask seeder reachable (127.0.0.1:5000)
+  [92m[PASS][0m Local Supabase reachable (127.0.0.1:54321)
+
+[22:22:48] Layer -1: AI Surface Discovery
+    ======================================================================
+    LAYER -1: AI SURFACE DISCOVERY
+    ======================================================================
+    Total AI surfaces discovered: 21
+    Total edge functions: 50
+    Total cron jobs: 26
+    No new surfaces or changes detected. Manifest is current.
+    Manifest saved: AI_SURFACES_MANIFEST.json
+    Report saved: NEW_SURFACES_REPORT.json
+    Drift saved: SCENARIO_DRIFT.json
+
+[22:22:49] Layer 0: Scenario Execution
+    ======================================================================
+    LAYER 0: PLAYWRIGHT SCENARIO EXECUTOR (CALIBRATED)
+    ======================================================================
+    [VOICE]
+      Running: Voice Journal: Page Load & Mic Available... [OK] (8937ms)
+      [PASS] mic_button_present
+      [PASS] capture_panel_loaded
+      [PASS] mic_state_visible
+    [ASSISTANT]
+      Running: Assistant: Chat Input Ready... [OK] (10480ms)
+      [PASS] page_loaded
+    [VISUAL]
+      Running: Visual Defect: Upload Surface Available... [OK] (16064ms)
+      [PASS] page_loaded
+    [AMC]
+      Running: Alert Hub: Verdict Loaded... [FAIL] (9526ms)
+      [FAIL] verdict_loaded
+      [PASS] source_chip_visible
+    [CALC]
+      Running: Engineering Design: Calc Selector Ready... [OK] (3343ms)
+      [PASS] calc_grid_loaded
+      [PASS] source_chip_visible
+    [CHAT]
+      Running: Hive Page: Loaded... [OK] (10617ms)
+      [PASS] page_loaded
+    [AI_QUALITY]
+      Running: AI Quality: ROI Meta Loaded... [OK] (18486ms)
+      [PASS] content_loaded
+      [PASS] roi_meta_visible
+    [ANALYTICS]
+      Running: Analytics: Verdict & Summary Generated... [FAIL] (25651ms)
+      [FAIL] verdict_loaded
+      [PASS] source_chip_visible
+    [ASSET_HUB]
+      Running: Asset Hub: Verdict Loaded... [OK] (17995ms)
+      [PASS] verdict_loaded
+      [PASS] source_chip_visible
+    [INTEGRATIONS]
+      Running: Integrations: Page Loaded... [OK] (11059ms)
+      [PASS] page_loaded
+    [LOGBOOK]
+      Running: Logbook: Page Loaded... [OK] (9497ms)
+      [PASS] page_loaded
+    [MARKETPLACE]
+      Running: Marketplace: Verdict & Total Loaded... [OK] (16876ms)
+      [PASS] verdict_loaded
+      [PASS] source_chip_visible
+      [PASS] total_hero_visible
+    [PLATFORM_HEALTH]
+      Running: Platform Health: Dashboard Loaded... [OK] (11297ms)
+      [PASS] page_loaded
+    [PREDICTIVE]
+      Running: Predictive: Risk Verdict Loaded... [OK] (9303ms)
+      [PASS] verdict_loaded
+      [PASS] verdict_label_visible
+      [PASS] source_chip_visible
+      [PASS] model_chip_visible
+    [PROJECT_MANAGER]
+      Running: Project Manager: Verdict Loaded... [OK] (24101ms)
+      [PASS] verdict_loaded
+      [PASS] verdict_label_visible
+      [PASS] source_chip_visible
+    [REPORT_SENDER]
+      Running: Report Sender: Page Loaded... [OK] (11876ms)
+      [PASS] page_loaded
+    [SHIFT_BRAIN]
+      Running: Shift Brain: Verdict Loaded... [FAIL] (18374ms)
+      [PASS] verdict_loaded
+      [FAIL] verdict_label_visible
+      [PASS] source_chip_visible
+    [SKILL_MATRIX]
+      Running: Skill Matrix: Onboarding Section Loaded... [OK] (17768ms)
+      [PASS] page_loaded
+      [PASS] source_chip_visible
+    [PH_INTELLIGENCE]
+      Running: PH Intelligence: Page Loaded... [OK] (11357ms)
+      [PASS] page_loaded
+    [PLANT_CONNECTIONS]
+      Running: Plant Connections: Page Loaded... [OK] (10566ms)
+      [PASS] page_loaded
+    [COMMUNITY]
+      Running: Community: Page Loaded... [OK] (9767ms)
+      [PASS] page_loaded
+    ======================================================================
+    RESULTS: 18 PASS | 3 FAIL
+    ======================================================================
+    Results saved to: SCENARIO_RESULTS.json
+
+  Results: 18 PASS | 3 FAIL
+
+[22:27:56] Layer 1: Failure Analysis
+  [91m[FAIL][0m Layer timeout (5m)
+  [91m[FAIL][0m Layer 1 failed, stopping.
+
+Metadata saved to: LOOP_METADATA.json

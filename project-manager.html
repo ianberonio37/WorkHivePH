@@ -364,7 +364,9 @@
 
 
   <!-- LIST VIEW -->
-  <div id="list-view">
+  <div id="list-view"
+    data-rag-tile="project-manager:project_list"
+    data-rag-label="Project list view">
     <div class="row" style="justify-content: space-between; margin-bottom: 4px;">
       <h1>Project Manager</h1>
       <div style="display:flex; align-items:center; gap:10px;">
@@ -449,7 +451,9 @@
       <button class="btn small" onclick="openAIIntentModal()" title="Describe your project in plain language">🤖 AI: from text</button>
     </div>
 
-    <div id="card-grid" class="card-grid"></div>
+    <div id="card-grid" class="card-grid"
+    data-rag-tile="project-manager:project_cards"
+    data-rag-label="Project card grid"></div>
     <div id="pm-load-more-wrap" class="hidden" style="margin-top:0.25rem;padding-bottom:1rem;">
       <button onclick="loadMorePm()" style="width:100%;padding:0.75rem;border-radius:0.75rem;font-size:0.875rem;font-weight:600;background:rgba(247,162,27,0.1);color:#F7A21B;border:1px solid rgba(247,162,27,0.3);cursor:pointer;">Load More</button>
     </div>

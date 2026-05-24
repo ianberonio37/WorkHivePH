@@ -1,46 +1,46 @@
 {
-  "timestamp": "2026-05-19T07:59:38.556039",
+  "timestamp": "2026-05-21T07:52:08.674037",
   "jobs": [
     {
       "job_id": "pm-overdue-daily",
       "name": "PM Overdue Analysis (Daily)",
       "status": "FAIL",
-      "latency_ms": 1294,
+      "latency_ms": 1926,
       "error": "No ai_reports found for pm_overdue"
     },
     {
       "job_id": "failure-digest-weekly",
       "name": "Failure Digest (Weekly)",
       "status": "FAIL",
-      "latency_ms": 758,
+      "latency_ms": 1205,
       "error": "No ai_reports found for failure_digest"
     },
     {
       "job_id": "shift-handover-morning",
       "name": "Shift Handover (Morning)",
       "status": "FAIL",
-      "latency_ms": 1065,
+      "latency_ms": 799,
       "error": "No ai_reports found for shift_handover"
     },
     {
       "job_id": "shift-handover-afternoon",
       "name": "Shift Handover (Afternoon)",
       "status": "FAIL",
-      "latency_ms": 834,
+      "latency_ms": 805,
       "error": "No ai_reports found for shift_handover"
     },
     {
       "job_id": "shift-handover-night",
       "name": "Shift Handover (Night)",
       "status": "FAIL",
-      "latency_ms": 737,
+      "latency_ms": 763,
       "error": "No ai_reports found for shift_handover"
     },
     {
       "job_id": "predictive-weekly",
       "name": "Predictive Risk Calendar (Weekly)",
       "status": "FAIL",
-      "latency_ms": 770,
+      "latency_ms": 720,
       "error": "No ai_reports found for predictive"
     }
   ],

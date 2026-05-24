@@ -2,8 +2,8 @@
   "summary": {
     "specs_scanned": 13,
     "total_lookups": 57,
-    "total_drift": 8,
-    "baseline": 8
+    "total_drift": 0,
+    "baseline": 0
   },
   "per_file": [
     {
@@ -43,28 +43,7 @@
       "targets": [
         "hive.html"
       ],
-      "misses": [
-        {
-          "id": "wh-feedback-fab",
-          "offset": 3107
-        },
-        {
-          "id": "wh-fb-subject",
-          "offset": 6389
-        },
-        {
-          "id": "wh-fb-body",
-          "offset": 6447
-        },
-        {
-          "id": "wh-fb-email",
-          "offset": 6583
-        },
-        {
-          "id": "wh-fb-submit-btn",
-          "offset": 6637
-        }
-      ]
+      "misses": []
     },
     {
       "spec": "integrations.spec.ts",
@@ -103,20 +82,7 @@
         "community.html",
         "marketplace.html"
       ],
-      "misses": [
-        {
-          "id": "pulse-pm-overdue",
-          "offset": 2095
-        },
-        {
-          "id": "stat-overdue",
-          "offset": 2974
-        },
-        {
-          "id": "stat-members",
-          "offset": 9389
-        }
-      ]
+      "misses": []
     },
     {
       "spec": "journey-engineer.spec.ts",

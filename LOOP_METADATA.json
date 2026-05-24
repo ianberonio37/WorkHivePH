@@ -1,7 +1,7 @@
 {
-  "loop_start": "2026-05-20T17:05:19.896367",
-  "loop_end": "2026-05-20T17:18:42.923567",
-  "duration_seconds": 803.0272,
+  "loop_start": "2026-05-21T07:47:20.045521",
+  "loop_end": "2026-05-21T08:02:14.344000",
+  "duration_seconds": 894.298479,
   "surface_filter": null,
   "layer_results": {
     "-1": {
@@ -11,6 +11,10 @@
     "0": {
       "script": "playwright_scenario_executor.py",
       "returncode": 0
+    },
+    "0.5": {
+      "script": "test_cron_jobs.py",
+      "returncode": 1
     },
     "4": {
       "script": "validate_improvement_loop_integrity.py",

@@ -1,48 +1,8 @@
 {
   "summary": {
-    "total_hits": 33,
-    "drift_groups": 3,
-    "baseline": 3
+    "total_hits": 41,
+    "drift_groups": 0,
+    "baseline": 0
   },
-  "drift": [
-    {
-      "context": "completed",
-      "variants": {
-        "7": [
-          "hive.html"
-        ],
-        "30": [
-          "index.html"
-        ]
-      }
-    },
-    {
-      "context": "overdue",
-      "variants": {
-        "3": [
-          "hive.html"
-        ],
-        "7": [
-          "hive.html",
-          "voice-handler.js"
-        ],
-        "30": [
-          "index.html"
-        ]
-      }
-    },
-    {
-      "context": "recent",
-      "variants": {
-        "30": [
-          "supabase/functions/failure-signature-scan/index.ts",
-          "voice-handler.js"
-        ],
-        "90": [
-          "supabase/functions/failure-signature-scan/index.ts",
-          "supabase/functions/intelligence-report/index.ts"
-        ]
-      }
-    }
-  ]
+  "drift": []
 }

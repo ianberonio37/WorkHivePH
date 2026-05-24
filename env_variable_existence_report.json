@@ -1,7 +1,7 @@
 {
   "summary": {
-    "files_scanned": 150,
-    "total_refs": 197,
+    "files_scanned": 156,
+    "total_refs": 209,
     "total_missing": 0,
     "baseline": 0,
     "env_names_known": 19
@@ -64,6 +64,14 @@
       "missing": []
     },
     {
+      "file": "supabase/functions/agent-memory-store/index.ts",
+      "missing": []
+    },
+    {
+      "file": "supabase/functions/agentic-rag-loop/index.ts",
+      "missing": []
+    },
+    {
       "file": "supabase/functions/ai-eval-runner/index.ts",
       "missing": []
     },
@@ -108,6 +116,14 @@
       "missing": []
     },
     {
+      "file": "supabase/functions/cold-archive-query/index.ts",
+      "missing": []
+    },
+    {
+      "file": "supabase/functions/data-fabric-normalizer/index.ts",
+      "missing": []
+    },
+    {
       "file": "supabase/functions/embed-entry/index.ts",
       "missing": []
     },
@@ -133,6 +149,10 @@
     },
     {
       "file": "supabase/functions/fmea-populator/index.ts",
+      "missing": []
+    },
+    {
+      "file": "supabase/functions/hierarchical-summarizer/index.ts",
       "missing": []
     },
     {
@@ -209,6 +229,10 @@
     },
     {
       "file": "supabase/functions/shift-planner-orchestrator/index.ts",
+      "missing": []
+    },
+    {
+      "file": "supabase/functions/temporal-rag-orchestrator/index.ts",
       "missing": []
     },
     {

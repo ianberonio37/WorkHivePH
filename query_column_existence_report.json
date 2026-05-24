@@ -1,7 +1,7 @@
 {
   "summary": {
-    "files_scanned": 94,
-    "total_calls": 637,
+    "files_scanned": 100,
+    "total_calls": 660,
     "total_drift": 0,
     "baseline": 0,
     "tables_known": 135
@@ -184,6 +184,14 @@
       "issues": []
     },
     {
+      "file": "supabase/functions/agent-memory-store/index.ts",
+      "issues": []
+    },
+    {
+      "file": "supabase/functions/agentic-rag-loop/index.ts",
+      "issues": []
+    },
+    {
       "file": "supabase/functions/ai-eval-runner/index.ts",
       "issues": []
     },
@@ -228,6 +236,14 @@
       "issues": []
     },
     {
+      "file": "supabase/functions/cold-archive-query/index.ts",
+      "issues": []
+    },
+    {
+      "file": "supabase/functions/data-fabric-normalizer/index.ts",
+      "issues": []
+    },
+    {
       "file": "supabase/functions/embed-entry/index.ts",
       "issues": []
     },
@@ -253,6 +269,10 @@
     },
     {
       "file": "supabase/functions/fmea-populator/index.ts",
+      "issues": []
+    },
+    {
+      "file": "supabase/functions/hierarchical-summarizer/index.ts",
       "issues": []
     },
     {
@@ -329,6 +349,10 @@
     },
     {
       "file": "supabase/functions/shift-planner-orchestrator/index.ts",
+      "issues": []
+    },
+    {
+      "file": "supabase/functions/temporal-rag-orchestrator/index.ts",
       "issues": []
     },
     {

@@ -1,8 +1,8 @@
 {
   "summary": {
-    "files_scanned": 119,
-    "drift": 4,
-    "baseline": 4,
+    "files_scanned": 125,
+    "drift": 0,
+    "baseline": 0,
     "canonical_roles": [
       "admin",
       "founder",
@@ -13,34 +13,5 @@
       "worker"
     ]
   },
-  "drift": [
-    {
-      "value": "agent",
-      "files": [
-        "supabase/functions/_shared/memory.ts"
-      ],
-      "occurrence": 1
-    },
-    {
-      "value": "engineer",
-      "files": [
-        "nav-hub.js"
-      ],
-      "occurrence": 1
-    },
-    {
-      "value": "field",
-      "files": [
-        "index.html"
-      ],
-      "occurrence": 1
-    },
-    {
-      "value": "user",
-      "files": [
-        "supabase/functions/_shared/memory.ts"
-      ],
-      "occurrence": 1
-    }
-  ]
+  "drift": []
 }

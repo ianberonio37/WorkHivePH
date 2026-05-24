@@ -776,6 +776,104 @@
 
     @keyframes ap-pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.55; } }
     .ap-step.active .ap-icon { animation: ap-pulse 1.2s ease-in-out infinite; }
+
+    /* ── NotebookLM long-form lane ──────────────────────────────────── */
+    .nlm-card {
+      margin: 0.85rem 0.85rem 0;
+      padding: 1rem 1.1rem;
+      background: linear-gradient(135deg, rgba(41,182,217,0.10) 0%, rgba(168,85,247,0.10) 100%);
+      border: 1px solid rgba(41,182,217,0.32);
+      border-radius: 0.7rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.7rem;
+    }
+    .nlm-header {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 0.6rem; flex-wrap: wrap;
+    }
+    .nlm-title {
+      font-size: 0.95rem; font-weight: 700; color: var(--cloud);
+      display: flex; align-items: center; gap: 0.45rem;
+    }
+    .nlm-sub { font-size: 0.68rem; color: var(--steel); line-height: 1.5; }
+    .nlm-controls { display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap; }
+    .nlm-controls select {
+      background: rgba(22,32,50,0.85);
+      border: 1px solid rgba(255,255,255,0.14);
+      border-radius: 0.4rem;
+      color: white; padding: 0.3rem 0.5rem;
+      font-size: 0.7rem; font-family: 'Poppins', sans-serif;
+    }
+    .btn-nlm {
+      background: linear-gradient(135deg, #29B6D9 0%, #1A8FB0 100%);
+      border: none; color: white;
+      padding: 0.5rem 0.95rem;
+      font-size: 0.78rem; font-weight: 700;
+      border-radius: 0.45rem; font-family: 'Poppins', sans-serif;
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(41,182,217,0.3);
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+    .btn-nlm:hover:not(:disabled) {
+      transform: translateY(-1px); box-shadow: 0 4px 14px rgba(41,182,217,0.45);
+    }
+    .btn-nlm:disabled { opacity: 0.55; cursor: not-allowed; }
+    .btn-nlm.ghost {
+      background: rgba(22,32,50,0.55);
+      border: 1px solid rgba(41,182,217,0.32);
+      box-shadow: none;
+    }
+    .nlm-message {
+      font-size: 0.7rem; color: var(--cloud);
+      padding: 0.35rem 0; min-height: 1rem;
+    }
+    .nlm-message.error { color: var(--red); }
+    .nlm-message.done  { color: var(--green); font-weight: 600; }
+
+    .nlm-artifacts {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 0.45rem;
+    }
+    .nlm-artifact {
+      background: rgba(22,32,50,0.65);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 0.5rem;
+      padding: 0.55rem 0.7rem;
+      display: flex; flex-direction: column; gap: 0.25rem;
+    }
+    .nlm-artifact .nlm-a-kind {
+      font-size: 0.6rem; color: var(--cyan);
+      text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700;
+    }
+    .nlm-artifact .nlm-a-name {
+      font-size: 0.68rem; color: var(--cloud);
+      word-break: break-all; line-height: 1.3;
+    }
+    .nlm-artifact .nlm-a-meta {
+      font-size: 0.6rem; color: var(--steel);
+      display: flex; gap: 0.5rem; align-items: center;
+    }
+    .nlm-artifact .nlm-a-meta a {
+      color: var(--cyan); text-decoration: none;
+    }
+    .nlm-artifact .nlm-a-meta a:hover { text-decoration: underline; }
+    .nlm-artifact audio { width: 100%; height: 28px; margin-top: 0.25rem; }
+
+    .nlm-doctor-warn {
+      background: rgba(247,162,27,0.10);
+      border: 1px solid rgba(247,162,27,0.32);
+      border-radius: 0.5rem;
+      padding: 0.55rem 0.75rem;
+      color: var(--orange);
+      font-size: 0.7rem;
+      line-height: 1.4;
+    }
+    .nlm-doctor-warn code {
+      background: rgba(0,0,0,0.3); padding: 1px 4px; border-radius: 3px;
+      font-size: 0.9em;
+    }
   </style>
 </head>
 <body>
@@ -1017,6 +1115,7 @@
       if (kz) {
         kz.innerHTML = kitHtml;
         loadAssets(idea.id);   // populate narration/recording status badges
+        loadNlmStatus(idea.id); // populate existing NotebookLM artifacts
       }
     });
 
@@ -1397,9 +1496,356 @@
           '<span class="kit-free-badge">100% Free Stack</span>' +
         '</div>' +
         renderAutoProduceCard(ideaId) +
+        renderNotebookLMCard(ideaId) +
         '<div class="kit-grid">' + html + '</div>' +
       '</div>'
     );
+  }
+
+  // ── NotebookLM long-form lane (podcasts / cinematic / blog / mindmap) ───
+  function renderNotebookLMCard(ideaId) {
+    const profileOpts = [
+      {k:'marketing',  l:'Marketing pack (7 artifacts, ~30-45min)'},
+      {k:'sales',      l:'Sales pack (3 audios, ~10-15min)'},
+      {k:'enablement', l:'Enablement (2 audios EN+TL)'},
+      {k:'minimal',    l:'Minimal (1 short audio)'},
+    ].map(p => '<option value="' + p.k + '">' + p.l + '</option>').join('');
+
+    return (
+      '<div class="nlm-card" id="nlmCard-' + ideaId + '">' +
+        '<div class="nlm-header">' +
+          '<div>' +
+            '<div class="nlm-title">📓 NotebookLM Long-Form Lane</div>' +
+            '<div class="nlm-sub">' +
+              'Turn this idea into podcasts, cinematic video, blog post, infographic + mind map. ' +
+              'Audio is voiced with PH Edge TTS (James/Rosa/Angelo). Runs in background, ~10-45min depending on profile.' +
+            '</div>' +
+          '</div>' +
+          '<div class="nlm-controls">' +
+            '<select id="nlmProfile-' + ideaId + '">' + profileOpts + '</select>' +
+            '<button class="btn-nlm ghost" id="nlmPrepBtn-' + ideaId + '" onclick="nlmPrepare(\'' + ideaId + '\')">Prepare Sources</button>' +
+            '<button class="btn-nlm" id="nlmRunBtn-' + ideaId + '" onclick="nlmRun(\'' + ideaId + '\')">Run Campaign</button>' +
+          '</div>' +
+        '</div>' +
+        '<div class="nlm-message" id="nlmMsg-' + ideaId + '"></div>' +
+        '<div class="nlm-artifacts" id="nlmArtifacts-' + ideaId + '"></div>' +
+      '</div>'
+    );
+  }
+
+  // ── NotebookLM orchestration ────────────────────────────────────────────
+  async function nlmPrepare(ideaId) {
+    const btn = document.getElementById('nlmPrepBtn-' + ideaId);
+    const msg = document.getElementById('nlmMsg-' + ideaId);
+    btn.disabled = true; btn.textContent = 'Preparing...';
+    msg.className = 'nlm-message'; msg.textContent = '';
+    try {
+      const r = await fetch('/api/ideas/' + ideaId + '/notebooklm/prepare', { method: 'POST' });
+      const d = await r.json();
+      if (!d.success) throw new Error(d.error || 'prepare failed');
+      msg.className = 'nlm-message done';
+      msg.textContent = '✓ ' + d.count + ' source files built (brand voice, product overview, idea brief, script, narration).';
+    } catch (err) {
+      msg.className = 'nlm-message error';
+      msg.textContent = 'Prepare failed: ' + err.message;
+    }
+    btn.disabled = false; btn.textContent = 'Prepare Sources';
+  }
+
+  async function nlmRun(ideaId) {
+    // First check doctor — if NotebookLM lib/session isn't ready, surface that.
+    const msg = document.getElementById('nlmMsg-' + ideaId);
+    const btn = document.getElementById('nlmRunBtn-' + ideaId);
+    const profileSel = document.getElementById('nlmProfile-' + ideaId);
+    const profile = profileSel ? profileSel.value : 'marketing';
+
+    msg.className = 'nlm-message'; msg.textContent = 'Checking NotebookLM session…';
+    btn.disabled = true; btn.textContent = 'Starting…';
+
+    try {
+      const dr = await fetch('/api/notebooklm/doctor').then(r => r.json());
+      if (!dr.library_installed || !dr.session_file_ready) {
+        msg.className = 'nlm-message error';
+        let issue = '';
+        if (!dr.library_installed) issue += 'Library not installed. Run <code>pip install notebooklm-py</code>. ';
+        if (!dr.session_file_ready) issue += 'No NotebookLM session. Run <code>notebooklm_login.bat</code> first.';
+        msg.innerHTML = '<span class="nlm-doctor-warn">' + issue + '</span>';
+        btn.disabled = false; btn.textContent = 'Run Campaign';
+        return;
+      }
+
+      msg.textContent = 'Launching ' + profile + ' campaign…';
+      const r = await fetch('/api/ideas/' + ideaId + '/notebooklm/run', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ profile: profile }),
+      });
+      const d = await r.json();
+      if (!d.success) throw new Error(d.error || 'run failed');
+      msg.textContent = 'Campaign running (job ' + d.job_id + '). This can take 10-45 min.';
+      pollNlmJob(ideaId, d.job_id);
+    } catch (err) {
+      msg.className = 'nlm-message error';
+      msg.textContent = 'Failed to start: ' + err.message;
+      btn.disabled = false; btn.textContent = 'Run Campaign';
+    }
+  }
+
+  async function pollNlmJob(ideaId, jobId) {
+    const msg = document.getElementById('nlmMsg-' + ideaId);
+    const btn = document.getElementById('nlmRunBtn-' + ideaId);
+    let consecutiveFailures = 0;
+    const MAX_FAIL = 20;
+
+    const tick = async () => {
+      try {
+        const r = await fetch('/api/notebooklm-jobs/' + jobId, { cache: 'no-store' });
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        const d = await r.json();
+        if (!d.success) throw new Error(d.error || 'job error');
+        consecutiveFailures = 0;
+
+        msg.className = 'nlm-message';
+        msg.textContent = (d.stage ? '[' + d.stage + '] ' : '') + (d.message || 'Running…');
+
+        if (d.status === 'complete') {
+          msg.className = 'nlm-message done';
+          msg.textContent = '✓ ' + (d.message || 'Campaign complete');
+          btn.disabled = false; btn.textContent = 'Run Campaign Again';
+          loadNlmStatus(ideaId);
+          return;
+        }
+        if (d.status === 'error') {
+          msg.className = 'nlm-message error';
+          // Prefer the backend-mapped friendly message over the raw error.
+          // For known categories, render with a callout style + actionable
+          // copy. Falls back to plain text for unknown errors.
+          const friendly = d.message || d.error || 'Campaign failed';
+          if (d.error_kind === 'auth_expired') {
+            msg.innerHTML = renderReloginPanel(ideaId, 'initial');
+          } else if (d.error_kind === 'lib_missing') {
+            msg.innerHTML =
+              '<div class="nlm-doctor-warn">' +
+                '<strong>notebooklm-py library missing.</strong><br>' +
+                'Run <code>notebooklm_setup.bat</code> once, then restart the dashboard.' +
+              '</div>';
+          } else if (d.error_kind === 'quota_exceeded') {
+            msg.innerHTML =
+              '<div class="nlm-doctor-warn">' +
+                '<strong>NotebookLM daily quota hit.</strong><br>' +
+                esc(friendly) +
+              '</div>';
+          } else {
+            msg.textContent = friendly;
+          }
+          btn.disabled = false; btn.textContent = 'Retry Campaign';
+          loadNlmStatus(ideaId);
+          return;
+        }
+        // Refresh artifact list periodically while running so user sees them as they land
+        if (Math.random() < 0.15) loadNlmStatus(ideaId);
+        setTimeout(tick, 3000);
+      } catch (err) {
+        consecutiveFailures += 1;
+        if (consecutiveFailures >= MAX_FAIL) {
+          msg.className = 'nlm-message error';
+          msg.textContent = 'Lost connection (' + err.message + '). Job may still be running — reload to check.';
+          btn.disabled = false; btn.textContent = 'Run Campaign';
+          return;
+        }
+        setTimeout(tick, 4000);
+      }
+    };
+    tick();
+  }
+
+  // ── NotebookLM re-authentication flow (in-dashboard) ───────────────────
+  // Three states:
+  //   initial      → "🔑 Re-authenticate Now" button
+  //   awaiting     → "Sign in via the Chromium that just opened" + "I'm signed in →" button
+  //   saving       → "Saving session…" with spinner
+  //   restored     → "✓ Session restored" + Retry Campaign hint
+  //   error        → message + retry button
+  function renderReloginPanel(ideaId, state, extra) {
+    extra = extra || {};
+    const base = '<div class="nlm-doctor-warn">';
+    const close = '</div>';
+    if (state === 'initial') {
+      return base +
+        '<strong>NotebookLM session expired.</strong> ' +
+        'Google sessions only last a few hours.<br><br>' +
+        '<button class="btn-nlm" onclick="nlmReloginStart(\'' + ideaId + '\')" id="nlmReloginBtn-' + ideaId + '">' +
+          '🔑 Re-authenticate Now' +
+        '</button>' +
+        close;
+    }
+    if (state === 'awaiting') {
+      return base +
+        '<strong>👉 Sign in to NotebookLM</strong> in the Chromium window that just opened.<br>' +
+        '<span style="font-size:.65rem;color:var(--steel)">If no window appeared, ' +
+        '<a href="#" onclick="nlmReloginStart(\'' + ideaId + '\'); return false" style="color:var(--cyan)">retry</a>.</span><br><br>' +
+        '<button class="btn-nlm" onclick="nlmReloginConfirm(\'' + ideaId + '\')" id="nlmReloginConfirmBtn-' + ideaId + '">' +
+          '✓ I\'m signed in →' +
+        '</button> ' +
+        '<span id="nlmReloginElapsed-' + ideaId + '" style="font-size:.65rem;color:var(--steel);margin-left:.5rem"></span>' +
+        close;
+    }
+    if (state === 'saving') {
+      return base +
+        '<strong>Saving session…</strong><br>' +
+        '<span style="font-size:.65rem;color:var(--steel)">' +
+          'Verifying with Google… ' + (extra.elapsed || 0) + 's' +
+        '</span>' +
+        close;
+    }
+    if (state === 'restored') {
+      return base.replace('nlm-doctor-warn', 'nlm-doctor-warn') +
+        '<strong style="color:var(--green)">✓ Session restored.</strong> ' +
+        'Click <strong>Retry Campaign</strong> above to continue.' +
+        close;
+    }
+    if (state === 'error') {
+      return base +
+        '<strong>Re-authentication failed.</strong><br>' +
+        '<span style="font-size:.7rem">' + esc(extra.error || 'Unknown error') + '</span><br><br>' +
+        '<button class="btn-nlm" onclick="nlmReloginStart(\'' + ideaId + '\')">🔑 Try again</button>' +
+        close;
+    }
+    return base + 'Unknown state' + close;
+  }
+
+  async function nlmReloginStart(ideaId) {
+    const msg = document.getElementById('nlmMsg-' + ideaId);
+    const btn = document.getElementById('nlmReloginBtn-' + ideaId);
+    if (btn) { btn.disabled = true; btn.textContent = '🔑 Opening browser…'; }
+
+    try {
+      const r = await fetch('/api/notebooklm/relogin', { method: 'POST' });
+      const d = await r.json();
+      if (!d.success) throw new Error(d.error || 'Failed to start re-login');
+    } catch (err) {
+      msg.innerHTML = renderReloginPanel(ideaId, 'error', { error: err.message });
+      return;
+    }
+
+    msg.innerHTML = renderReloginPanel(ideaId, 'awaiting');
+
+    // While the user is signing in, update the elapsed counter every 2s.
+    const startedAt = Date.now();
+    const elapsedTick = setInterval(() => {
+      const el = document.getElementById('nlmReloginElapsed-' + ideaId);
+      if (!el) { clearInterval(elapsedTick); return; }
+      const s = Math.floor((Date.now() - startedAt) / 1000);
+      el.textContent = '(' + s + 's elapsed)';
+      // Also poll the relogin/status — if subprocess died unexpectedly,
+      // surface that before the user clicks confirm.
+      if (s > 5 && s % 8 === 0) {
+        fetch('/api/notebooklm/relogin/status').then(r => r.json()).then(s => {
+          if (s.state === 'error' || (s.state === 'done' && s.returncode !== 0)) {
+            clearInterval(elapsedTick);
+            msg.innerHTML = renderReloginPanel(ideaId, 'error', {
+              error: 'Login process exited unexpectedly: ' + (s.output_tail || '').slice(-200),
+            });
+          }
+        }).catch(() => {});
+      }
+    }, 2000);
+    // Stash the interval id on the panel so confirm can clear it
+    msg.dataset.elapsedTick = elapsedTick;
+  }
+
+  async function nlmReloginConfirm(ideaId) {
+    const msg = document.getElementById('nlmMsg-' + ideaId);
+    const btn = document.getElementById('nlmReloginConfirmBtn-' + ideaId);
+    if (btn) { btn.disabled = true; btn.textContent = 'Saving…'; }
+    if (msg.dataset.elapsedTick) {
+      clearInterval(parseInt(msg.dataset.elapsedTick, 10));
+    }
+
+    try {
+      const r = await fetch('/api/notebooklm/relogin/confirm', { method: 'POST' });
+      const d = await r.json();
+      if (!d.success) throw new Error(d.error || 'Confirm failed');
+    } catch (err) {
+      msg.innerHTML = renderReloginPanel(ideaId, 'error', { error: err.message });
+      return;
+    }
+
+    // Now poll for session validity. The subprocess takes 2-5 sec to save.
+    const startedAt = Date.now();
+    msg.innerHTML = renderReloginPanel(ideaId, 'saving', { elapsed: 0 });
+    const MAX = 30;   // 30 * 2s = 60s
+    let attempts = 0;
+    const poll = async () => {
+      attempts += 1;
+      const elapsed = Math.floor((Date.now() - startedAt) / 1000);
+      try {
+        const r = await fetch('/api/notebooklm/session-check', { method: 'POST' });
+        const d = await r.json();
+        if (d.valid) {
+          msg.className = 'nlm-message done';
+          msg.innerHTML = renderReloginPanel(ideaId, 'restored');
+          const runBtn = document.getElementById('nlmRunBtn-' + ideaId);
+          if (runBtn) { runBtn.disabled = false; runBtn.textContent = 'Run Campaign'; }
+          return;
+        }
+        if (attempts >= MAX) {
+          msg.innerHTML = renderReloginPanel(ideaId, 'error', {
+            error: 'Session still not detected after 60s. The browser window may not have completed sign-in.',
+          });
+          return;
+        }
+        msg.innerHTML = renderReloginPanel(ideaId, 'saving', { elapsed: elapsed });
+        setTimeout(poll, 2000);
+      } catch (err) {
+        if (attempts < MAX) setTimeout(poll, 2500);
+      }
+    };
+    setTimeout(poll, 1500);
+  }
+
+  async function loadNlmStatus(ideaId) {
+    const grid = document.getElementById('nlmArtifacts-' + ideaId);
+    if (!grid) return;
+    try {
+      const r = await fetch('/api/ideas/' + ideaId + '/notebooklm/status', { cache: 'no-store' });
+      const d = await r.json();
+      const artifacts = d.artifacts || {};
+      const keys = Object.keys(artifacts);
+      if (!keys.length) {
+        grid.innerHTML = '<div style="color:var(--steel);font-size:.65rem;padding:.4rem">No artifacts yet. Click <strong>Run Campaign</strong> to generate.</div>';
+        return;
+      }
+      grid.innerHTML = keys.map(k => {
+        const a = artifacts[k];
+        const filename = (a.file || '').split(/[\\/]/).pop();
+        const kb = a.size_bytes ? Math.round(a.size_bytes / 1024) : 0;
+        const url = '/api/notebooklm/' + ideaId + '/' + filename;
+        const isAudio = /\.(mp3|m4a)$/i.test(filename);
+        const isMd    = /\.md$/i.test(filename);
+        const isJson  = /\.json$/i.test(filename);
+        const isPng   = /\.png$/i.test(filename);
+        const isMp4   = /\.mp4$/i.test(filename);
+        let player = '';
+        if (isAudio) player = '<audio controls preload="none" src="' + url + '"></audio>';
+        else if (isMp4) player = '<video controls preload="none" src="' + url + '" style="width:100%;max-height:140px;border-radius:.3rem;margin-top:.25rem"></video>';
+        else if (isPng) player = '<img src="' + url + '" style="max-width:100%;border-radius:.3rem;margin-top:.25rem">';
+        const kindLabel = isAudio ? 'AUDIO' : isMp4 ? 'VIDEO' : isPng ? 'INFOGRAPHIC' : isMd ? 'BLOG/REPORT' : isJson ? 'MIND MAP' : k.split(':')[0].toUpperCase();
+        return (
+          '<div class="nlm-artifact">' +
+            '<div class="nlm-a-kind">' + esc(kindLabel) + '</div>' +
+            '<div class="nlm-a-name">' + esc(filename) + '</div>' +
+            player +
+            '<div class="nlm-a-meta">' +
+              '<span>' + kb + ' KB</span>' +
+              '<a href="' + url + '?download=1" download>Download</a>' +
+            '</div>' +
+          '</div>'
+        );
+      }).join('');
+    } catch (err) {
+      grid.innerHTML = '<div style="color:var(--red);font-size:.65rem">Status check failed: ' + esc(err.message) + '</div>';
+    }
   }
 
   // ── Auto-Produce hero card ────────────────────────────────────────────────

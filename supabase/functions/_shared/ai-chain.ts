@@ -47,6 +47,61 @@ const PROVIDER_CHAIN: ProviderEntry[] = [
   { provider: "openrouter", baseUrl: "https://openrouter.ai/api/v1", model: "google/gemma-3-27b-it:free",                envKey: "OPENROUTER_API_KEY", extraHeaders: { "HTTP-Referer": "https://workhiveph.com", "X-Title": "WorkHive" }, vision: true },
 ];
 
+// ── Phase 4 (AGENTIC_RAG_ROADMAP.md): Tiered Model Router ──────────────────
+//
+// TASK_PROFILES maps a task profile name to an ordered list of model
+// substrings that should be tried first. The base PROVIDER_CHAIN is
+// reordered so models matching the profile are tried first, then the
+// remaining chain follows as fallback. All profiles map to free-tier
+// models only — there is no paid-tier escalation, ever.
+//
+// When taskProfile is omitted, callAI behaves exactly as before (Scout-17B
+// primary). Existing edge functions need no changes.
+//
+// Match is by SUBSTRING in entry.model (case-insensitive) so we don't have
+// to keep two parallel lists in sync with PROVIDER_CHAIN.
+//
+// See AGENTIC_RAG_ROADMAP.md §5 Phase 4 and feedback_free_tier_only_models.md
+// for the canonical task → model map.
+export const TASK_PROFILES: Record<string, string[]> = {
+  // Cheap, fast tasks → prefer the 8B model
+  intent_classification:   ["llama-3.1-8b-instant"],
+  slot_extraction:         ["llama-3.1-8b-instant"],
+  single_fact_retrieval:   ["llama-3.1-8b-instant"],
+  orchestrator_router:     ["llama-3.1-8b-instant"],
+  chunk_grader:            ["llama-3.1-8b-instant"],
+  hallucination_checker:   ["llama-3.1-8b-instant"],
+  // Mid-tier reasoning
+  multi_step_orchestration: ["llama-3.3-70b-versatile", "qwen/qwen3-32b"],
+  // Heavy synthesis / long output — prefer Scout-17B (30K TPM)
+  synthesis_long_output:   ["llama-4-scout-17b-16e-instruct", "llama-3.3-70b-versatile"],
+  temporal_fold:           ["llama-4-scout-17b-16e-instruct", "llama-3.3-70b-versatile"],
+  temporal_subagent:       ["llama-3.1-8b-instant"],
+  // Specialised
+  code_or_sql_generation:  ["qwen/qwen3-32b", "llama-3.3-70b-versatile"],
+  narrative_report:        ["llama-4-scout-17b-16e-instruct", "llama-3.1-8b-instant"],
+};
+
+export function reorderChain(taskProfile?: string): ProviderEntry[] {
+  if (!taskProfile) return PROVIDER_CHAIN;
+  const preferred = TASK_PROFILES[taskProfile];
+  if (!preferred || !preferred.length) return PROVIDER_CHAIN;
+
+  const matched: ProviderEntry[] = [];
+  const rest:    ProviderEntry[] = [];
+  for (const entry of PROVIDER_CHAIN) {
+    const isPreferred = preferred.some(p => entry.model.toLowerCase().includes(p.toLowerCase()));
+    if (isPreferred) matched.push(entry); else rest.push(entry);
+  }
+  // Within matched: keep the order specified in `preferred` (most preferred first).
+  matched.sort((a, b) => {
+    const ai = preferred.findIndex(p => a.model.toLowerCase().includes(p.toLowerCase()));
+    const bi = preferred.findIndex(p => b.model.toLowerCase().includes(p.toLowerCase()));
+    return ai - bi;
+  });
+  return [...matched, ...rest];
+}
+
 export async function callAI(
   prompt: string,
   options: {
@@ -54,15 +109,16 @@ export async function callAI(
     temperature?: number;
     maxTokens?: number;
     jsonMode?: boolean;
+    taskProfile?: string;
   } = {}
 ): Promise<string> {
-  const { systemPrompt, temperature = 0.2, maxTokens = 1024, jsonMode = true } = options;
+  const { systemPrompt, temperature = 0.2, maxTokens = 1024, jsonMode = true, taskProfile } = options;
 
   const messages = systemPrompt
     ? [{ role: "system", content: systemPrompt }, { role: "user", content: prompt }]
     : [{ role: "user", content: prompt }];
 
-  for (const entry of PROVIDER_CHAIN) {
+  for (const entry of reorderChain(taskProfile)) {
     const apiKey = Deno.env.get(entry.envKey);
     if (!apiKey) continue;
 

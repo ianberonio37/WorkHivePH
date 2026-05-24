@@ -406,7 +406,9 @@
   <button id="details-toggle-btn" type="button" class="details-toggle" aria-expanded="false" aria-controls="ac-summary-details">
     Show details
   </button>
-  <div id="ac-summary-details" role="region" aria-label="Achievements explainer">
+  <div id="ac-summary-details" role="region" aria-label="Achievements explainer"
+    data-rag-tile="achievements:detail_panel"
+    data-rag-label="Achievements detail">
     <strong style="display:block;margin-bottom:6px;color:rgba(255,255,255,0.85);">How XP and tiers work</strong>
     <div style="font-size:11px;color:rgba(255,255,255,0.55);margin-bottom:6px;">Standard: WorkHive Achievement Tier Model (platform-internal, 5 tiers × 12 domains).</div>
     <ul style="margin:0;padding-left:20px;">
@@ -429,15 +431,21 @@
       <div id="hero-tier-label" style="display:none;"></div>
       <div class="hero-stats" id="hero-stats">
         <div class="hero-stat">
-          <div class="hero-stat-val" id="stat-composite">—</div>
+          <div class="hero-stat-val" id="stat-composite"
+    data-rag-tile="achievements:composite_score"
+    data-rag-label="Composite skill score">—</div>
           <div class="hero-stat-lbl">Total Level</div>
         </div>
         <div class="hero-stat">
-          <div class="hero-stat-val" id="stat-active">—</div>
+          <div class="hero-stat-val" id="stat-active"
+    data-rag-tile="achievements:active_domains_stat"
+    data-rag-label="Active domains stat">—</div>
           <div class="hero-stat-lbl">Domains Active</div>
         </div>
         <div class="hero-stat">
-          <div class="hero-stat-val" id="stat-top">—</div>
+          <div class="hero-stat-val" id="stat-top"
+    data-rag-tile="achievements:top_domain"
+    data-rag-label="Top skill domain">—</div>
           <div class="hero-stat-lbl">Highest Level</div>
         </div>
       </div>

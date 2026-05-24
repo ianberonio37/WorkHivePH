@@ -6,10 +6,10 @@ differently (one trusts it; one re-gates on another field).
 
 ## Summary
 
-- View/column pairs scanned: **316**
+- View/column pairs scanned: **325**
 - AT_RISK pairs (re-gating detected): **0**
 - REVIEW pairs (local-math smell on at least one consumer): **9**
-- Files scanned: **178**
+- Files scanned: **185**
 
 ## Smell legend
 
@@ -74,12 +74,16 @@ re-deriving what the canonical view should expose:
 | `v_anomaly_truth` | `status` | ✅ OK | 1 | direct |
 | `v_anomaly_truth` | `top_reasons` | ✅ OK | 1 | direct |
 | `v_asset_truth` | `asset_id` | ✅ OK | 6 | direct |
+| `v_asset_truth` | `asset_tag` | ✅ OK | 1 | direct |
+| `v_asset_truth` | `category` | ✅ OK | 1 | direct |
 | `v_asset_truth` | `count` | ✅ OK | 2 | direct |
 | `v_asset_truth` | `criticality` | ✅ OK | 3 | direct |
+| `v_asset_truth` | `description` | ✅ OK | 1 | direct |
 | `v_asset_truth` | `edge_count` | ✅ OK | 2 | direct |
 | `v_asset_truth` | `external_ids` | ✅ OK | 1 | direct |
 | `v_asset_truth` | `iso_class` | ✅ OK | 5 | direct |
 | `v_asset_truth` | `last_failure_at` | ✅ OK | 3 | direct |
+| `v_asset_truth` | `last_pm_at` | ✅ OK | 1 | direct |
 | `v_asset_truth` | `legacy_asset_id` | ✅ OK | 5 | direct |
 | `v_asset_truth` | `level` | ✅ OK | 2 | direct |
 | `v_asset_truth` | `lifetime_logbook_entries` | ✅ OK | 3 | direct |
@@ -87,10 +91,12 @@ re-deriving what the canonical view should expose:
 | `v_asset_truth` | `manufacturer` | ✅ OK | 2 | direct |
 | `v_asset_truth` | `model` | ✅ OK | 2 | direct |
 | `v_asset_truth` | `name` | ✅ OK | 10 | direct |
+| `v_asset_truth` | `next_pm_at` | ✅ OK | 1 | direct |
 | `v_asset_truth` | `parent_id` | ✅ OK | 1 | direct |
 | `v_asset_truth` | `pm_asset_id` | ✅ OK | 1 | direct |
 | `v_asset_truth` | `pm_completed_count` | ✅ OK | 2 | direct |
 | `v_asset_truth` | `state` | ✅ OK | 2 | direct |
+| `v_asset_truth` | `status` | ✅ OK | 1 | direct |
 | `v_asset_truth` | `tag` | ✅ OK | 10 | direct |
 | `v_community_posts_truth` | `author_name` | ✅ OK | 2 | direct |
 | `v_community_posts_truth` | `category` | ✅ OK | 2 | direct |
@@ -164,22 +170,24 @@ re-deriving what the canonical view should expose:
 | `v_kpi_truth` | `mtbf_30d` | ✅ OK | 1 | direct |
 | `v_kpi_truth` | `mttr_30d` | ✅ OK | 1 | direct |
 | `v_kpi_truth` | `total_downtime_30d` | ✅ OK | 1 | direct |
-| `v_logbook_truth` | `action` | ✅ OK | 7 | direct |
+| `v_logbook_truth` | `action` | ✅ OK | 8 | direct |
 | `v_logbook_truth` | `asset_node_id` | ✅ OK | 1 | direct |
-| `v_logbook_truth` | `category` | ✅ OK | 11 | direct |
-| `v_logbook_truth` | `closed_at` | ✅ OK | 3 | direct |
+| `v_logbook_truth` | `asset_tag` | ✅ OK | 1 | direct |
+| `v_logbook_truth` | `category` | ✅ OK | 12 | direct |
+| `v_logbook_truth` | `closed_at` | ✅ OK | 4 | direct |
 | `v_logbook_truth` | `date` | ✅ OK | 5 | direct |
-| `v_logbook_truth` | `downtime_hours` | ✅ OK | 11 | direct |
+| `v_logbook_truth` | `downtime_hours` | ✅ OK | 13 | direct |
 | `v_logbook_truth` | `failure_consequence` | ✅ OK | 2 | direct |
+| `v_logbook_truth` | `issue` | ✅ OK | 1 | direct |
 | `v_logbook_truth` | `knowledge` | ✅ OK | 1 | direct |
-| `v_logbook_truth` | `machine` | ✅ OK | 19 | direct |
-| `v_logbook_truth` | `maintenance_type` | ✅ OK | 16 | direct |
+| `v_logbook_truth` | `machine` | ✅ OK | 21 | direct |
+| `v_logbook_truth` | `maintenance_type` | ✅ OK | 19 | direct |
 | `v_logbook_truth` | `parts_used` | ✅ OK | 2 | direct |
 | `v_logbook_truth` | `problem` | ✅ OK | 12 | direct |
 | `v_logbook_truth` | `production_output` | ✅ OK | 1 | direct |
 | `v_logbook_truth` | `readings_json` | ✅ OK | 2 | direct |
-| `v_logbook_truth` | `root_cause` | ✅ OK | 11 | direct |
-| `v_logbook_truth` | `status` | ✅ OK | 15 | direct |
+| `v_logbook_truth` | `root_cause` | ✅ OK | 13 | direct |
+| `v_logbook_truth` | `status` | ✅ OK | 17 | direct |
 | `v_logbook_truth` | `worker_name` | ✅ OK | 7 | direct |
 | `v_marketplace_inquiries_truth` | `buyer_contact` | ✅ OK | 1 | direct |
 | `v_marketplace_inquiries_truth` | `buyer_name` | ✅ OK | 1 | direct |
@@ -244,8 +252,8 @@ re-deriving what the canonical view should expose:
 | `v_pm_compliance_truth` | `completions_30d` | ✅ OK | 2 | direct |
 | `v_pm_compliance_truth` | `criticality` | ✅ OK | 6 | direct |
 | `v_pm_compliance_truth` | `days_since_last_completion` | ✅ OK | 4 | direct |
-| `v_pm_compliance_truth` | `is_due` | ✅ OK | 4 | direct |
-| `v_pm_compliance_truth` | `last_anchor_date` | ✅ OK | 3 | direct |
+| `v_pm_compliance_truth` | `is_due` | ✅ OK | 5 | direct |
+| `v_pm_compliance_truth` | `last_anchor_date` | ✅ OK | 4 | direct |
 | `v_pm_compliance_truth` | `last_completion_at` | ✅ OK | 1 | direct |
 | `v_pm_compliance_truth` | `location` | ✅ OK | 1 | direct |
 | `v_pm_compliance_truth` | `pm_asset_id` | ✅ OK | 7 | direct |
@@ -347,6 +355,7 @@ re-deriving what the canonical view should expose:
 | `v_worker_skill_truth` | `badge_count` | ✅ OK | 1 | direct |
 | `v_worker_skill_truth` | `current_level` | ✅ OK | 3 | direct |
 | `v_worker_skill_truth` | `discipline` | ✅ OK | 4 | direct |
+| `v_worker_skill_truth` | `level` | ✅ OK | 1 | direct |
 | `v_worker_skill_truth` | `primary_skill` | ✅ OK | 2 | direct |
 | `v_worker_skill_truth` | `role` | ✅ OK | 2 | direct |
 | `v_worker_skill_truth` | `worker_name` | ✅ OK | 3 | direct |

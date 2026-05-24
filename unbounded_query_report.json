@@ -1,9 +1,9 @@
 {
   "summary": {
-    "files_scanned": 94,
-    "total_calls": 637,
-    "total_unbounded": 15,
-    "baseline": 15
+    "files_scanned": 100,
+    "total_calls": 660,
+    "total_unbounded": 0,
+    "baseline": 0
   },
   "per_file": [
     {
@@ -16,12 +16,7 @@
     },
     {
       "file": "logbook.html",
-      "issues": [
-        {
-          "table": "equipment_reading_templates",
-          "offset": 142364
-        }
-      ]
+      "issues": []
     },
     {
       "file": "inventory.html",
@@ -53,12 +48,7 @@
     },
     {
       "file": "marketplace.html",
-      "issues": [
-        {
-          "table": "v_marketplace_listings_truth",
-          "offset": 105579
-        }
-      ]
+      "issues": []
     },
     {
       "file": "marketplace-seller.html",
@@ -118,12 +108,7 @@
     },
     {
       "file": "asset-hub.html",
-      "issues": [
-        {
-          "table": "equipment_reading_templates",
-          "offset": 134852
-        }
-      ]
+      "issues": []
     },
     {
       "file": "shift-brain.html",
@@ -198,6 +183,14 @@
       "issues": []
     },
     {
+      "file": "supabase/functions/agent-memory-store/index.ts",
+      "issues": []
+    },
+    {
+      "file": "supabase/functions/agentic-rag-loop/index.ts",
+      "issues": []
+    },
+    {
       "file": "supabase/functions/ai-eval-runner/index.ts",
       "issues": []
     },
@@ -207,21 +200,11 @@
     },
     {
       "file": "supabase/functions/ai-orchestrator/index.ts",
-      "issues": [
-        {
-          "table": "v_worker_assignment_truth",
-          "offset": 9857
-        }
-      ]
+      "issues": []
     },
     {
       "file": "supabase/functions/amc-orchestrator/index.ts",
-      "issues": [
-        {
-          "table": "v_hives_truth",
-          "offset": 24859
-        }
-      ]
+      "issues": []
     },
     {
       "file": "supabase/functions/analytics-orchestrator/index.ts",
@@ -233,21 +216,11 @@
     },
     {
       "file": "supabase/functions/batch-risk-scoring/index.ts",
-      "issues": [
-        {
-          "table": "v_hives_truth",
-          "offset": 1956
-        }
-      ]
+      "issues": []
     },
     {
       "file": "supabase/functions/benchmark-compute/index.ts",
-      "issues": [
-        {
-          "table": "hive_benchmarks",
-          "offset": 6328
-        }
-      ]
+      "issues": []
     },
     {
       "file": "supabase/functions/cmms-push-completion/index.ts",
@@ -255,15 +228,18 @@
     },
     {
       "file": "supabase/functions/cmms-sync/index.ts",
-      "issues": [
-        {
-          "table": "integration_configs",
-          "offset": 9712
-        }
-      ]
+      "issues": []
     },
     {
       "file": "supabase/functions/cmms-webhook-receiver/index.ts",
+      "issues": []
+    },
+    {
+      "file": "supabase/functions/cold-archive-query/index.ts",
+      "issues": []
+    },
+    {
+      "file": "supabase/functions/data-fabric-normalizer/index.ts",
       "issues": []
     },
     {
@@ -295,29 +271,16 @@
       "issues": []
     },
     {
+      "file": "supabase/functions/hierarchical-summarizer/index.ts",
+      "issues": []
+    },
+    {
       "file": "supabase/functions/intelligence-api/index.ts",
       "issues": []
     },
     {
       "file": "supabase/functions/intelligence-report/index.ts",
-      "issues": [
-        {
-          "table": "v_logbook_truth",
-          "offset": 2636
-        },
-        {
-          "table": "v_logbook_truth",
-          "offset": 3080
-        },
-        {
-          "table": "v_inventory_items_truth",
-          "offset": 4455
-        },
-        {
-          "table": "v_logbook_truth",
-          "offset": 5108
-        }
-      ]
+      "issues": []
     },
     {
       "file": "supabase/functions/marketplace-checkout/index.ts",
@@ -341,12 +304,7 @@
     },
     {
       "file": "supabase/functions/parts-staging-recommender/index.ts",
-      "issues": [
-        {
-          "table": "v_hives_truth",
-          "offset": 2326
-        }
-      ]
+      "issues": []
     },
     {
       "file": "supabase/functions/pdf-ingest/index.ts",
@@ -374,12 +332,7 @@
     },
     {
       "file": "supabase/functions/scheduled-agents/index.ts",
-      "issues": [
-        {
-          "table": "v_hives_truth",
-          "offset": 16980
-        }
-      ]
+      "issues": []
     },
     {
       "file": "supabase/functions/semantic-search/index.ts",
@@ -398,13 +351,12 @@
       "issues": []
     },
     {
+      "file": "supabase/functions/temporal-rag-orchestrator/index.ts",
+      "issues": []
+    },
+    {
       "file": "supabase/functions/trigger-ml-retrain/index.ts",
-      "issues": [
-        {
-          "table": "v_pm_compliance_truth",
-          "offset": 2382
-        }
-      ]
+      "issues": []
     },
     {
       "file": "supabase/functions/tts-speak/index.ts",

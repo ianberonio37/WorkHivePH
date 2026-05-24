@@ -250,7 +250,9 @@
       <button id="details-toggle-btn" type="button" class="details-toggle" aria-expanded="false" aria-controls="ah-summary-details">
         Show details
       </button>
-      <div id="ah-summary-details" role="region" aria-label="Alert breakdown">
+      <div id="ah-summary-details" role="region" aria-label="Alert breakdown"
+    data-rag-tile="alert-hub:detail_panel"
+    data-rag-label="Alert detail breakdown">
         <strong style="display:block;margin-bottom:6px;color:rgba(255,255,255,0.85);">How this is computed</strong>
         <ul style="margin:0;padding-left:20px;">
           <li><strong>High-severity alerts</strong>: count of alerts in the feed with severity = critical or high.</li>
@@ -275,10 +277,18 @@
       <div id="amc-headline" class="amc-headline"></div>
       <div id="amc-summary" class="amc-summary"></div>
       <div class="amc-stats">
-        <div class="amc-stat"><div id="amc-stat-assets" class="amc-stat-num">0</div><div class="amc-stat-label">High Risk</div></div>
-        <div class="amc-stat"><div id="amc-stat-pms"    class="amc-stat-num">0</div><div class="amc-stat-label">PMs Due</div></div>
-        <div class="amc-stat"><div id="amc-stat-parts"  class="amc-stat-num">0</div><div class="amc-stat-label">Parts</div></div>
-        <div class="amc-stat"><div id="amc-stat-crew"   class="amc-stat-num">0</div><div class="amc-stat-label">Crew</div></div>
+        <div class="amc-stat"><div id="amc-stat-assets" class="amc-stat-num"
+    data-rag-tile="alert-hub:amc_assets"
+    data-rag-label="AMC assets checked">0</div><div class="amc-stat-label">High Risk</div></div>
+        <div class="amc-stat"><div id="amc-stat-pms"    class="amc-stat-num"
+    data-rag-tile="alert-hub:amc_pms"
+    data-rag-label="AMC PMs flagged">0</div><div class="amc-stat-label">PMs Due</div></div>
+        <div class="amc-stat"><div id="amc-stat-parts"  class="amc-stat-num"
+    data-rag-tile="alert-hub:amc_parts"
+    data-rag-label="AMC parts at risk">0</div><div class="amc-stat-label">Parts</div></div>
+        <div class="amc-stat"><div id="amc-stat-crew"   class="amc-stat-num"
+    data-rag-tile="alert-hub:amc_crew"
+    data-rag-label="AMC crew alerts">0</div><div class="amc-stat-label">Crew</div></div>
       </div>
       <div id="amc-details" class="amc-details"></div>
       <div class="amc-actions">

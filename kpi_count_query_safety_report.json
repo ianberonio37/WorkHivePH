@@ -1,36 +1,13 @@
 {
   "summary": {
     "pages_scanned": 30,
-    "total_issues": 7,
-    "baseline": 7
+    "total_issues": 0,
+    "baseline": 0
   },
   "per_page": [
     {
       "page": "index.html",
-      "issues": [
-        {
-          "view": "v_risk_truth",
-          "limit_n": 100,
-          "hits": [
-            {
-              "var": "lowStock",
-              "shape": "\\{\\s*[^}]*\\bnum\\s*:\\s*(?P<var>\\w+)\\.leng..."
-            }
-          ],
-          "char_offset": 180456
-        },
-        {
-          "view": "v_pm_compliance_truth",
-          "limit_n": 100,
-          "hits": [
-            {
-              "var": "lowStock",
-              "shape": "\\{\\s*[^}]*\\bnum\\s*:\\s*(?P<var>\\w+)\\.leng..."
-            }
-          ],
-          "char_offset": 180982
-        }
-      ]
+      "issues": []
     },
     {
       "page": "hive.html",
@@ -74,38 +51,7 @@
     },
     {
       "page": "marketplace-seller.html",
-      "issues": [
-        {
-          "view": "v_marketplace_inquiries_truth",
-          "limit_n": 50,
-          "hits": [
-            {
-              "var": "_listings",
-              "shape": "\\.textContent\\s*=\\s*(?P<var>\\w+)\\.length..."
-            },
-            {
-              "var": "_listings",
-              "shape": "\\.textContent\\s*=\\s*(?P<var>\\w+)\\.length..."
-            }
-          ],
-          "char_offset": 37352
-        },
-        {
-          "view": "v_marketplace_orders_truth",
-          "limit_n": 50,
-          "hits": [
-            {
-              "var": "_listings",
-              "shape": "\\.textContent\\s*=\\s*(?P<var>\\w+)\\.length..."
-            },
-            {
-              "var": "_listings",
-              "shape": "\\.textContent\\s*=\\s*(?P<var>\\w+)\\.length..."
-            }
-          ],
-          "char_offset": 38566
-        }
-      ]
+      "issues": []
     },
     {
       "page": "dayplanner.html",
@@ -169,30 +115,7 @@
     },
     {
       "page": "alert-hub.html",
-      "issues": [
-        {
-          "view": "v_anomaly_truth",
-          "limit_n": 1,
-          "hits": [
-            {
-              "var": "rows",
-              "shape": "\\.textContent\\s*=\\s*(?P<var>\\w+)\\.length..."
-            }
-          ],
-          "char_offset": 34637
-        },
-        {
-          "view": "v_anomaly_truth",
-          "limit_n": 5,
-          "hits": [
-            {
-              "var": "rows",
-              "shape": "\\.textContent\\s*=\\s*(?P<var>\\w+)\\.length..."
-            }
-          ],
-          "char_offset": 35127
-        }
-      ]
+      "issues": []
     },
     {
       "page": "audit-log.html",
@@ -200,19 +123,7 @@
     },
     {
       "page": "voice-journal.html",
-      "issues": [
-        {
-          "view": "v_worker_truth",
-          "limit_n": 1,
-          "hits": [
-            {
-              "var": "filtered",
-              "shape": "\\.textContent\\s*=\\s*(?P<var>\\w+)\\.length..."
-            }
-          ],
-          "char_offset": 25791
-        }
-      ]
+      "issues": []
     }
   ]
 }

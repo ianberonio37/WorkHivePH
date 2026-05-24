@@ -1,33 +1,33 @@
 {
   "summary": {
     "pages_scanned": 30,
-    "risky_pages": 9,
-    "baseline": 9
+    "risky_pages": 0,
+    "baseline": 0
   },
   "per_page": [
     {
       "page": "index.html",
-      "add": 23,
+      "add": 0,
       "remove": 0,
-      "risky": true
+      "allowed": true
     },
     {
       "page": "hive.html",
-      "add": 36,
+      "add": 0,
       "remove": 0,
-      "risky": true
+      "allowed": true
     },
     {
       "page": "logbook.html",
-      "add": 68,
+      "add": 0,
       "remove": 0,
-      "risky": true
+      "allowed": true
     },
     {
       "page": "inventory.html",
-      "add": 25,
+      "add": 0,
       "remove": 0,
-      "risky": true
+      "allowed": true
     },
     {
       "page": "pm-scheduler.html",
@@ -67,15 +67,15 @@
     },
     {
       "page": "marketplace.html",
-      "add": 45,
+      "add": 0,
       "remove": 0,
-      "risky": true
+      "allowed": true
     },
     {
       "page": "marketplace-seller.html",
-      "add": 15,
+      "add": 0,
       "remove": 0,
-      "risky": true
+      "allowed": true
     },
     {
       "page": "dayplanner.html",
@@ -97,15 +97,15 @@
     },
     {
       "page": "report-sender.html",
-      "add": 18,
+      "add": 0,
       "remove": 0,
-      "risky": true
+      "allowed": true
     },
     {
       "page": "platform-health.html",
-      "add": 10,
+      "add": 0,
       "remove": 0,
-      "risky": true
+      "allowed": true
     },
     {
       "page": "project-manager.html",
@@ -175,9 +175,9 @@
     },
     {
       "page": "audit-log.html",
-      "add": 10,
+      "add": 0,
       "remove": 0,
-      "risky": true
+      "allowed": true
     },
     {
       "page": "voice-journal.html",

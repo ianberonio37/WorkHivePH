@@ -577,7 +577,9 @@
   <button id="details-toggle-btn" type="button" class="details-toggle" aria-expanded="false" aria-controls="mk-summary-details">
     Show details
   </button>
-  <div id="mk-summary-details" role="region" aria-label="Marketplace explainer">
+  <div id="mk-summary-details" role="region" aria-label="Marketplace explainer"
+    data-rag-tile="marketplace:detail_panel"
+    data-rag-label="Marketplace detail">
     <strong style="display:block;margin-bottom:6px;color:rgba(255,255,255,0.85);">How counts are derived</strong>
     <ul style="margin:0;padding-left:20px;">
       <li><strong>Listings in view</strong>: <code>marketplace_listings</code> rows for the current section (parts / training / jobs) within your search + filter.</li>
@@ -680,7 +682,9 @@
   <div class="listings-info" id="listings-info"></div>
 
   <!-- Grid -->
-  <div class="listing-grid" id="listing-grid" role="list"></div>
+  <div class="listing-grid" id="listing-grid" role="list"
+    data-rag-tile="marketplace:listing_grid"
+    data-rag-label="Marketplace listing grid"></div>
 
   <!-- Load More -->
   <div style="text-align:center;margin-top:1.25rem;">

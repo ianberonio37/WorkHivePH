@@ -5800,7 +5800,7 @@
       ],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "size_kb": 81.5
+      "size_kb": 81.6
     },
     "engineering-design.html": {
       "tables_read": [
@@ -5871,7 +5871,7 @@
         "ai-orchestrator",
         "benchmark-compute"
       ],
-      "size_kb": 203.1
+      "size_kb": 203.4
     },
     "index.html": {
       "tables_read": [],
@@ -5911,7 +5911,7 @@
       "edge_fns_invoked": [
         "cmms-sync"
       ],
-      "size_kb": 107.1
+      "size_kb": 107.3
     },
     "inventory.html": {
       "tables_read": [
@@ -5932,7 +5932,7 @@
       ],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "size_kb": 93.9
+      "size_kb": 94.1
     },
     "logbook.html": {
       "tables_read": [
@@ -5970,7 +5970,7 @@
         "visual-defect-capture",
         "voice-logbook-entry"
       ],
-      "size_kb": 270.8
+      "size_kb": 270.5
     },
     "marketplace-admin.html": {
       "tables_read": [
@@ -6058,14 +6058,14 @@
         "increment_listing_view"
       ],
       "edge_fns_invoked": [],
-      "size_kb": 154.1
+      "size_kb": 154.2
     },
     "parts-tracker.html": {
       "tables_read": [],
       "tables_written": [],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "size_kb": 2.2
+      "size_kb": 2.5
     },
     "ph-intelligence.html": {
       "tables_read": [
@@ -6100,7 +6100,7 @@
       "tables_written": [],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "size_kb": 122.1
+      "size_kb": 122.3
     },
     "pm-scheduler.html": {
       "tables_read": [
@@ -6125,7 +6125,7 @@
       ],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "size_kb": 118.5
+      "size_kb": 118.6
     },
     "predictive.html": {
       "tables_read": [
@@ -6173,7 +6173,7 @@
         "project-orchestrator",
         "project-progress"
       ],
-      "size_kb": 151.3
+      "size_kb": 151.5
     },
     "project-report.html": {
       "tables_read": [
@@ -6381,7 +6381,7 @@
       ],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "loc": 167
+      "loc": 168
     },
     "_shared/persona.ts": {
       "tables_read": [],
@@ -6575,7 +6575,7 @@
       ],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "loc": 117
+      "loc": 121
     },
     "cmms-sync": {
       "tables_read": [
@@ -6613,7 +6613,7 @@
       ],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "loc": 225
+      "loc": 227
     },
     "embed-entry": {
       "tables_read": [
@@ -6645,7 +6645,7 @@
       "tables_written": [],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "loc": 275
+      "loc": 282
     },
     "export-hive-data": {
       "tables_read": [
@@ -6674,7 +6674,7 @@
       ],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "loc": 290
+      "loc": 291
     },
     "fmea-populator": {
       "tables_read": [
@@ -6703,7 +6703,7 @@
       ],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "loc": 168
+      "loc": 172
     },
     "intelligence-report": {
       "tables_read": [

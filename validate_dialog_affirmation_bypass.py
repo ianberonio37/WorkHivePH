@@ -195,18 +195,31 @@ def check_callsite_bypass(content: str) -> list[dict]:
     # signature `_isFollowupAffirmation(transcript)` inside an `if (priorIntent
     # && _isFollowupAffirmation(...))` guard plus a `newIntentKind = priorIntent`
     # assignment.
-    bypass_pattern = re.compile(
-        r"if\s*\(\s*priorIntent\s*&&\s*_isFollowupAffirmation\s*\(\s*transcript\s*\)\s*\)\s*\{[^}]*?"
-        r"newIntentKind\s*=\s*priorIntent\s*;",
-        re.DOTALL,
+    #
+    # Anchor on the `_isFollowupAffirmation(transcript)` call, then scan
+    # forward up to 400 chars for the `newIntentKind = priorIntent;`
+    # assignment. We avoid `[^)]` because turn #7's topic-shift suppression
+    # adds `!_isTopicShiftSignal(transcript)` to the same condition, which
+    # contains a `)` and would terminate the character class prematurely.
+    anchor_match = re.search(
+        r"_isFollowupAffirmation\s*\(\s*transcript\s*\)",
+        content,
     )
-    if not bypass_pattern.search(content):
+    if anchor_match:
+        window = content[anchor_match.end(): anchor_match.end() + 400]
+        bypass_pattern = re.compile(r"newIntentKind\s*=\s*priorIntent\s*;")
+    else:
+        # Helper never invoked — fall through and let the search below fail.
+        window = ""
+        bypass_pattern = re.compile(r"newIntentKind\s*=\s*priorIntent\s*;")
+    if not bypass_pattern.search(window):
         return [{
             "check": "callsite_bypass",
             "reason": (
                 "Could not locate the affirmation bypass clause at the "
                 "_shouldClarify call site. Required shape:\n"
-                "  if (priorIntent && _isFollowupAffirmation(transcript)) {\n"
+                "  if (priorIntent && _isFollowupAffirmation(transcript)"
+                " /* optional && !_isTopicShiftSignal(transcript) */) {\n"
                 "    newIntentKind = priorIntent;\n"
                 "    newConfidence = Math.max(newConfidence, 0.9);\n"
                 "  }\n"
@@ -217,7 +230,8 @@ def check_callsite_bypass(content: str) -> list[dict]:
         }]
     # Also verify the bypass is upstream of _shouldClarify, not downstream
     # (else the persisted intent / confidence path uses the wrong values).
-    bypass_pos = bypass_pattern.search(content).start()
+    assign_in_window = bypass_pattern.search(window)
+    bypass_pos = anchor_match.end() + assign_in_window.start()
     clarify_pos = content.find("_shouldClarify(", bypass_pos)
     if clarify_pos < 0:
         # No _shouldClarify after bypass — surface this as a separate

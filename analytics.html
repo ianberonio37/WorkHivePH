@@ -442,7 +442,9 @@
     <button id="details-toggle-btn" type="button" class="details-toggle" aria-expanded="false" aria-controls="an-summary-details">
       Show details
     </button>
-    <div id="an-summary-details" role="region" aria-label="Analytics methodology">
+    <div id="an-summary-details" role="region" aria-label="Analytics methodology"
+    data-rag-tile="analytics:detail_panel"
+    data-rag-label="Analytics detail breakdown">
       <strong style="display:block;margin-bottom:6px;color:rgba(255,255,255,0.85);">How these KPIs are computed</strong>
       <ul style="margin:0;padding-left:20px;">
         <li><strong>OEE</strong>: average of <code>oee_pct</code> across all assets returned by the descriptive phase. Availability × Performance × Quality (the OEE formula).</li>
@@ -517,7 +519,9 @@
   </details>
 
   <!-- Results panel -->
-  <div id="results-panel">
+  <div id="results-panel"
+    data-rag-tile="analytics:results_panel"
+    data-rag-label="Per-machine analytics results">
     <div class="card" style="padding:2rem;text-align:center;">
       <div class="spinner" style="width:32px;height:32px;border-width:3px;border-color:rgba(167,139,250,0.15);border-top-color:#a78bfa;margin:0 auto 1rem;"></div>
       <p style="font-size:0.8rem;color:rgba(255,255,255,0.3);">Loading analytics...</p>

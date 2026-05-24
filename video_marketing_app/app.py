@@ -1481,6 +1481,406 @@ def get_tools():
     ])
 
 
+# ── NotebookLM long-form lane ─────────────────────────────────────────────────
+# Wraps tools/notebooklm_campaign.py so the existing dashboard can fire
+# podcasts, cinematic videos, blog posts, infographics, mind maps for any idea
+# that already has a script. Mirrors the produce-jobs polling pattern used
+# above so the frontend (or just curl) can watch progress.
+
+NLM_JOBS = {}
+NLM_LOCK = threading.Lock()
+
+NLM_PROFILES = ["marketing", "sales", "enablement", "minimal"]
+NLM_KINDS    = ["audio", "video", "cinematic", "slides", "infographic", "mindmap", "blog", "briefing", "study"]
+
+# ── In-dashboard NotebookLM re-authentication ──────────────────────────────
+# Holds the single in-flight `notebooklm login` subprocess so the dashboard
+# can drive its lifecycle: kick off (browser opens) → user signs in → user
+# clicks "I'm signed in" (we pipe \n to stdin) → subprocess saves session
+# and exits. Keeps the entire flow in-app — zero terminal interaction.
+NLM_RELOGIN = {"proc": None, "started_at": None}
+NLM_RELOGIN_LOCK = threading.Lock()
+
+
+def _nlm_set(job_id, **kwargs):
+    with NLM_LOCK:
+        if job_id in NLM_JOBS:
+            NLM_JOBS[job_id].update(kwargs)
+            NLM_JOBS[job_id]["updated_at"] = time.time()
+
+
+def _nlm_log(job_id, msg):
+    with NLM_LOCK:
+        if job_id in NLM_JOBS:
+            NLM_JOBS[job_id].setdefault("log", []).append(msg)
+            NLM_JOBS[job_id]["updated_at"] = time.time()
+    print(f"  [nlm {job_id}] {msg}")
+
+
+@app.route("/api/notebooklm/doctor")
+def nlm_doctor():
+    """Frontend readiness check — same data as `notebooklm_campaign.py doctor`."""
+    from tools import notebooklm_client as _nlm
+    return jsonify(_nlm.availability_report())
+
+
+@app.route("/api/notebooklm/relogin", methods=["POST"])
+def nlm_relogin():
+    """Spawn `notebooklm login` as a managed subprocess.
+
+    The lib opens a Chromium window pointed at NotebookLM (it uses
+    Playwright internally) and then `input()`s waiting for ENTER. We pipe
+    stdin so the dashboard can later send the ENTER programmatically when
+    the user clicks "I'm signed in" — no terminal interaction needed.
+
+    Returns immediately after spawn; the browser will appear on the user's
+    desktop within a second or two.
+    """
+    import subprocess, sys
+
+    # Reap any prior process so we always have exactly one in-flight.
+    with NLM_RELOGIN_LOCK:
+        prev = NLM_RELOGIN.get("proc")
+        if prev is not None:
+            try:
+                if prev.poll() is None:
+                    prev.terminate()
+            except Exception:
+                pass
+            NLM_RELOGIN["proc"] = None
+
+    # Locate the notebooklm CLI executable — Scripts/ on the active Python.
+    # We can't rely on PATH because Flask may have been started from a
+    # different shell context. Fall back to `python -m notebooklm` if the
+    # entry point isn't where we expect.
+    py_dir   = Path(sys.executable).parent
+    nlm_exe  = py_dir / "Scripts" / "notebooklm.exe"
+    if nlm_exe.exists():
+        cmd = [str(nlm_exe), "login"]
+    else:
+        cmd = [sys.executable, "-m", "notebooklm", "login"]
+
+    try:
+        # Run from the user's home so the lib writes the storage file
+        # under its default location (~/.notebooklm/profiles/default/).
+        proc = subprocess.Popen(
+            cmd,
+            stdin=subprocess.PIPE,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            text=True,
+            bufsize=1,
+            cwd=str(Path.home()),
+        )
+        with NLM_RELOGIN_LOCK:
+            NLM_RELOGIN["proc"] = proc
+            NLM_RELOGIN["started_at"] = time.time()
+        return jsonify({
+            "success": True,
+            "message": "Chromium will open. Sign in to NotebookLM, then click 'I'm signed in'.",
+            "pid": proc.pid,
+        })
+    except Exception as exc:
+        return jsonify({"success": False, "error": f"{type(exc).__name__}: {exc}"}), 500
+
+
+@app.route("/api/notebooklm/relogin/confirm", methods=["POST"])
+def nlm_relogin_confirm():
+    """User clicked 'I'm signed in' — send ENTER to the subprocess.
+
+    The `notebooklm login` command blocks on `input()` waiting for ENTER
+    before saving cookies to storage_state.json. We pipe a single newline,
+    which unblocks it and causes the session to be saved.
+    """
+    with NLM_RELOGIN_LOCK:
+        proc = NLM_RELOGIN.get("proc")
+
+    if proc is None:
+        return jsonify({"success": False, "error": "No active re-login session. Click 'Re-authenticate Now' first."}), 400
+    if proc.poll() is not None:
+        return jsonify({
+            "success": False,
+            "error": f"Re-login subprocess already exited (returncode={proc.returncode}).",
+        }), 400
+
+    try:
+        proc.stdin.write("\n")
+        proc.stdin.flush()
+        # Don't close stdin yet — give the subprocess time to read.
+        # It will exit on its own after saving the session.
+        return jsonify({"success": True, "message": "Signing-in confirmed. Saving session…"})
+    except Exception as exc:
+        return jsonify({"success": False, "error": f"stdin write failed: {type(exc).__name__}: {exc}"}), 500
+
+
+@app.route("/api/notebooklm/relogin/status")
+def nlm_relogin_status():
+    """Report whether the re-login subprocess is still running.
+
+    The dashboard polls this alongside session-check so it can show
+    'browser opening…' → 'waiting for sign-in…' → 'saving session…' → done.
+    """
+    with NLM_RELOGIN_LOCK:
+        proc       = NLM_RELOGIN.get("proc")
+        started_at = NLM_RELOGIN.get("started_at")
+
+    if proc is None:
+        return jsonify({"state": "idle"})
+
+    rc = proc.poll()
+    elapsed = round(time.time() - (started_at or time.time()), 1)
+    if rc is None:
+        # Still running; the elapsed time tells the UI whether to nudge
+        # the user (browser is up + waiting for sign-in).
+        return jsonify({"state": "running", "elapsed_s": elapsed, "pid": proc.pid})
+    # Finished — read what it printed (helpful diagnostic) and reset.
+    try:
+        out = proc.stdout.read() if proc.stdout else ""
+    except Exception:
+        out = ""
+    with NLM_RELOGIN_LOCK:
+        NLM_RELOGIN["proc"] = None
+        NLM_RELOGIN["started_at"] = None
+    return jsonify({
+        "state":       "done" if rc == 0 else "error",
+        "returncode":  rc,
+        "elapsed_s":   elapsed,
+        "output_tail": (out or "")[-1500:],
+    })
+
+
+@app.route("/api/notebooklm/session-check", methods=["POST"])
+def nlm_session_check():
+    """Quick API-level session validity probe.
+
+    Returns {valid: bool, reason?: str}. Used by the UI to poll after a
+    re-login click — once `valid: true`, the panel can drop the error
+    banner without the user touching anything.
+    """
+    import subprocess, sys
+    checker = Path(__file__).resolve().parent.parent / "tools" / "notebooklm_session_check.py"
+    if not checker.exists():
+        return jsonify({"valid": False, "reason": "checker_not_found"}), 200
+    try:
+        proc = subprocess.run(
+            [sys.executable, str(checker)],
+            capture_output=True, text=True, timeout=15,
+        )
+        rc = proc.returncode
+        # 0=valid, 1=missing, 2=expired, 3=lib not installed,
+        # 4=rate-limited (session valid), 5=unknown (don't force re-login).
+        # `valid: true` means re-authentication is NOT needed — this
+        # includes the rate-limited case, since waiting fixes that, not
+        # re-login.
+        return jsonify({
+            "valid":      rc in (0, 4, 5),
+            "reason":     {0: "ok", 1: "missing", 2: "expired", 3: "lib_missing", 4: "rate_limited", 5: "unknown_error"}.get(rc, "unknown"),
+            "returncode": rc,
+        })
+    except subprocess.TimeoutExpired:
+        return jsonify({"valid": False, "reason": "timeout"}), 200
+    except Exception as exc:
+        return jsonify({"valid": False, "reason": f"{type(exc).__name__}: {exc}"}), 200
+
+
+@app.route("/api/notebooklm/profiles")
+def nlm_profiles():
+    return jsonify({"profiles": NLM_PROFILES, "kinds": NLM_KINDS})
+
+
+@app.route("/api/ideas/<idea_id>/notebooklm/status")
+def nlm_idea_status(idea_id):
+    """Local view: which artifacts have been generated for this idea."""
+    from tools import notebooklm_client as _nlm
+    idx   = _nlm._load_index()
+    entry = idx.get(idea_id, {})
+    return jsonify({
+        "idea_id":     idea_id,
+        "notebook_id": entry.get("notebook_id"),
+        "title":       entry.get("title"),
+        "artifacts":   entry.get("artifacts", {}),
+        "last_run":    entry.get("updated_at"),
+    })
+
+
+@app.route("/api/ideas/<idea_id>/notebooklm/prepare", methods=["POST"])
+def nlm_prepare(idea_id):
+    """Materialise the source bundle. Fast, no NotebookLM calls."""
+    try:
+        from tools.notebooklm_brief_builder import build_sources
+        paths = build_sources(idea_id)
+        return jsonify({
+            "success": True,
+            "count":   len(paths),
+            "sources": [{"name": p.name, "size_kb": p.stat().st_size // 1024} for p in paths],
+        })
+    except Exception as exc:
+        return jsonify({"success": False, "error": f"{type(exc).__name__}: {exc}"}), 500
+
+
+def _run_nlm_job(job_id, idea_id, profile, language, only_kinds):
+    """Background worker — drives the NotebookLM campaign (synchronous lib)."""
+    try:
+        from tools import notebooklm_campaign as _camp
+        _nlm_set(job_id, stage="prepare", message="Building source bundle…")
+        result = _camp._run_full(idea_id, profile, language, only_kinds)
+
+        ok    = sum(1 for r in result["results"].values() if r["ok"])
+        total = len(result["results"])
+
+        # If ANY artifact failed, sniff the per-artifact errors so we can
+        # classify the run with a friendly error_kind (the UI uses this to
+        # render quota/auth/lib banners instead of plain "0/N produced").
+        # Per-artifact errors are caught inside `_run_full_async` and never
+        # raise to the outer except — without this we'd lose the category.
+        all_errs = " | ".join(
+            r.get("error", "") for r in result["results"].values() if not r["ok"]
+        ).lower()
+        error_kind = None
+        if all_errs:
+            if any(t in all_errs for t in ("rate limit", "quota exceeded", "user_displayable_error")):
+                error_kind = "quota_exceeded"
+            elif any(t in all_errs for t in ("authentication expired", "redirected to", "signin/accountchooser")):
+                error_kind = "auth_expired"
+
+        # Friendly summary line replaces "0/N artifacts produced" when we
+        # have a known category.
+        if ok == 0 and error_kind == "quota_exceeded":
+            message = (
+                "NotebookLM daily quota hit — no artifacts produced. "
+                "Free-tier quota resets at UTC midnight (~8 AM PHT). "
+                "Try again tomorrow morning."
+            )
+        elif ok == 0 and error_kind == "auth_expired":
+            message = "NotebookLM session expired during the run."
+        else:
+            message = f"{ok}/{total} artifacts produced"
+
+        _nlm_set(job_id,
+                 stage      = "done",
+                 status     = "complete" if ok else "error",
+                 message    = message,
+                 error_kind = error_kind,
+                 result     = result)
+    except Exception as exc:
+        import traceback as _tb
+        _tb.print_exc()
+        # Map known fatal error types to friendly, actionable messages.
+        # The lib raises a raw ValueError with the full redirect URL dumped
+        # in the message when Google rejects the session — that's noise
+        # the user can't act on. Detect it and replace with a clean prompt
+        # to re-launch via the bat file.
+        raw = f"{type(exc).__name__}: {exc}"
+        lower_raw = raw.lower()
+        if any(t in lower_raw for t in ("authentication expired", "redirected to", "signin/accountchooser", "session expired")):
+            friendly = (
+                "NotebookLM session expired. To fix: close the dashboard "
+                "and re-launch via video_marketing.bat — the launcher will "
+                "re-authenticate automatically. (Google sessions are short-"
+                "lived, so this happens every few hours of inactivity.)"
+            )
+            error_kind = "auth_expired"
+        elif "no module named 'notebooklm'" in lower_raw or "notebooklm-py" in lower_raw:
+            friendly = "notebooklm-py library not installed. Run notebooklm_setup.bat."
+            error_kind = "lib_missing"
+        elif "rate limit" in lower_raw or "quota" in lower_raw:
+            friendly = (
+                "NotebookLM daily quota hit (typically Veo cinematic video). "
+                "Quota usually resets at UTC midnight. Try the 'Sales' profile "
+                "instead, or wait until tomorrow."
+            )
+            error_kind = "quota_exceeded"
+        else:
+            friendly = f"Failed: {exc}"
+            error_kind = "unknown"
+
+        _nlm_set(job_id,
+                 status     = "error",
+                 error      = raw,             # keep raw for debugging
+                 error_kind = error_kind,      # category for UI handling
+                 message    = friendly)         # user-facing
+
+
+@app.route("/api/ideas/<idea_id>/notebooklm/run", methods=["POST"])
+def nlm_run(idea_id):
+    body       = request.get_json(silent=True) or {}
+    profile    = body.get("profile", "marketing")
+    language   = body.get("language", os.getenv("NOTEBOOKLM_DEFAULT_LANGUAGE", "en"))
+    only_raw   = body.get("only", "")
+    only_kinds = [k.strip() for k in (only_raw if isinstance(only_raw, str) else ",".join(only_raw)).split(",") if k.strip()] or None
+
+    if profile not in NLM_PROFILES:
+        return jsonify({"success": False, "error": f"Unknown profile: {profile}"}), 400
+
+    data = load_backlog()
+    idea = next((i for i in data["ideas"] if i["id"] == idea_id), None)
+    if not idea:
+        return jsonify({"success": False, "error": "Idea not found"}), 404
+
+    job_id = f"nlm_{idea_id}_{uuid.uuid4().hex[:8]}"
+    with NLM_LOCK:
+        NLM_JOBS[job_id] = {
+            "job_id":     job_id,
+            "idea_id":    idea_id,
+            "profile":    profile,
+            "language":   language,
+            "only":       only_kinds,
+            "status":     "running",
+            "stage":      "starting",
+            "message":    "Starting NotebookLM campaign…",
+            "log":        [],
+            "started_at": time.time(),
+            "updated_at": time.time(),
+        }
+
+    threading.Thread(
+        target=_run_nlm_job,
+        args=(job_id, idea_id, profile, language, only_kinds),
+        daemon=True,
+    ).start()
+
+    return jsonify({"success": True, "job_id": job_id})
+
+
+@app.route("/api/notebooklm-jobs/<job_id>")
+def nlm_job_status(job_id):
+    with NLM_LOCK:
+        job = NLM_JOBS.get(job_id)
+        if not job:
+            return jsonify({"success": False, "error": "Job not found"}), 404
+        return jsonify({"success": True, **job})
+
+
+@app.route("/api/notebooklm/<idea_id>/<path:filename>")
+def nlm_download(idea_id, filename):
+    """Serve any generated artifact for download/streaming.
+
+    Flask's `send_file` requires an **absolute** path (relative paths raise
+    in 2.x+), and the `<audio>` tag won't render inline if we set
+    `as_attachment=True` — browsers download instead. Stream audio/video/img
+    inline (?inline=1 in URL or by default) and only force-download for the
+    explicit Download links.
+    """
+    from tools.notebooklm_client import OUT_ROOT
+    p = (OUT_ROOT / idea_id / "artifacts" / filename).resolve()
+    if not p.exists():
+        return jsonify({"error": "File not found", "path": str(p)}), 404
+    mime = (
+        "audio/mpeg"  if p.suffix == ".mp3"  else
+        "audio/mp4"   if p.suffix == ".m4a"  else
+        "video/mp4"   if p.suffix == ".mp4"  else
+        "image/png"   if p.suffix == ".png"  else
+        "application/vnd.openxmlformats-officedocument.presentationml.presentation" if p.suffix == ".pptx" else
+        "text/markdown" if p.suffix == ".md" else
+        "application/json" if p.suffix == ".json" else
+        "application/octet-stream"
+    )
+    # Stream inline by default so <audio>/<video>/<img> tags work. Only
+    # force-download when ?download=1 is explicitly set.
+    force_dl = request.args.get("download") == "1"
+    return send_file(str(p), mimetype=mime, as_attachment=force_dl, download_name=p.name if force_dl else None)
+
+
 # ── Main ──────────────────────────────────────────────────────────────────────
 
 if __name__ == "__main__":

@@ -514,7 +514,9 @@
         <button id="details-toggle-btn" type="button" class="details-toggle" aria-expanded="false" aria-controls="supervisor-summary-details">
           Show details
         </button>
-        <div id="supervisor-summary-details" role="region" aria-label="Hive health explainer">
+        <div id="supervisor-summary-details" role="region" aria-label="Hive health explainer"
+    data-rag-tile="hive:detail_panel"
+    data-rag-label="Hive supervisor detail">
           <strong style="display:block;margin-bottom:6px;color:rgba(255,255,255,0.85);">How this is computed</strong>
           <ul style="margin:0;padding-left:20px;">
             <li><strong>Maturity stair</strong>: latest snapshot from <code>v_maturity_truth</code>. Hive must clear 5 dimension gates per stair (Reliability / Operations / Safety / People / Cost).</li>

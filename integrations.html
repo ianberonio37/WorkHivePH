@@ -208,7 +208,9 @@
   <button id="details-toggle-btn" type="button" class="details-toggle" aria-expanded="false" aria-controls="it-summary-details">
     Show details
   </button>
-  <div id="it-summary-details" role="region" aria-label="Integrations explainer">
+  <div id="it-summary-details" role="region" aria-label="Integrations explainer"
+    data-rag-tile="integrations:detail_panel"
+    data-rag-label="Integrations detail">
     <strong style="display:block;margin-bottom:6px;color:rgba(255,255,255,0.85);">How integrations are categorised</strong>
     <ul style="margin:0;padding-left:20px;">
       <li><strong>Active integrations</strong>: <code>integration_configs</code> rows with <code>enabled = true</code> and a sync in the last 7 days.</li>
@@ -528,7 +530,9 @@
   </div><!-- /wizard -->
 
   <!-- ── API KEYS TAB (Phase 5.3) ── -->
-  <div id="tab-api-content" style="display:none;">
+  <div id="tab-api-content" style="display:none;"
+    data-rag-tile="integrations:api_config"
+    data-rag-label="API configuration">
     <div style="margin-bottom:1.5rem;">
       <span style="display:inline-block; font-size:.6rem; font-weight:700; letter-spacing:.06em; text-transform:uppercase; padding:.2rem .6rem; border-radius:999px; background:rgba(167,139,250,0.12); color:var(--purple); border:1px solid rgba(167,139,250,0.3); margin-bottom:.5rem;">Phase 5 · Intelligence API</span>
       <h2 style="font-size:1.1rem; font-weight:800;">API Keys</h2>
@@ -564,7 +568,9 @@
   </div>
 
   <!-- ── LIVE SYNC TAB (Phase 3.1) ── -->
-  <div id="tab-sync-content" style="display:none;">
+  <div id="tab-sync-content" style="display:none;"
+    data-rag-tile="integrations:sync_log"
+    data-rag-label="Sync log">
     <div style="margin-bottom:1.5rem;">
       <span style="display:inline-block; font-size:.6rem; font-weight:700; letter-spacing:.06em; text-transform:uppercase; padding:.2rem .6rem; border-radius:999px; background:rgba(41,182,217,0.12); color:var(--blue); border:1px solid rgba(41,182,217,0.3); margin-bottom:.5rem;">Tier 2 · Scheduled API Sync</span>
       <h2 style="font-size:1.1rem; font-weight:800;">Live Sync Configuration</h2>

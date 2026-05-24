@@ -24,14 +24,18 @@ export default defineConfig({
   testMatch: '**/*.spec.ts',
   fullyParallel: false,        // tests share a hive + worker; keep serial
   forbidOnly: !!process.env.CI,
-  retries: process.env.CI ? 2 : 1,  // 1 local retry handles 502 load spikes in long suites
+  // RAG flywheel walk: per-page test can take up to 30 min (83 tiles × 5s
+  // inter-tile delay + LLM latency). Disable retries for the flywheel spec
+  // to prevent duplicate observations. CI retries restored via env var.
+  retries: process.env.CI ? 2 : 0,
   workers: 1,
   outputDir: './test-results',
   reporter: [
     ['list'],
     ['json', { outputFile: 'playwright-report.json' }],
   ],
-  timeout: 60_000,
+  // 45 min per test: handles 83 tiles × (5s throttle + up to 90s LLM) worst-case
+  timeout: 2_700_000,
   expect: { timeout: 8_000 },
   use: {
     // The Flask seeder serves WorkHive pages at /workhive/<file>.html, NOT

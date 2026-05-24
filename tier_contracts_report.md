@@ -6,13 +6,15 @@ failures (registry entries pointing at non-existent IDs) fail the gate.
 
 | Tier | Registry file | Registered | Discovered | Pending |
 |---|---|---:|---:|---:|
-| F (Fuel) | `canonical/capture_contracts.json` | 494 | 493 | 1 |
+| F (Fuel) | `canonical/capture_contracts.json` | 494 | 495 | 3 |
 | E (Engine) | `canonical/formula_contracts.json` | 22 | 8 | 5 |
 | B (Brain) | `canonical/agent_contracts.json` | 7 | 64 | 10 |
 | Glue (lineage edges) | `canonical/lineage_edges.json` | 17 | — | — |
 
-## Tier F (Fuel) — pending registrations (1)
+## Tier F (Fuel) — pending registrations (3)
 
+- `filter-route`
+- `filter-window`
 - `ideal_cycle_time_seconds`
 
 ## Tier E (Engine) — pending registrations (5)

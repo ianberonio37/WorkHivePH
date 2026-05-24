@@ -498,7 +498,9 @@
       <button id="details-toggle-btn" type="button" class="details-toggle" aria-expanded="false" aria-controls="ah-summary-details">
         Show details
       </button>
-      <div id="ah-summary-details" role="region" aria-label="Asset fleet explainer">
+      <div id="ah-summary-details" role="region" aria-label="Asset fleet explainer"
+    data-rag-tile="asset-hub:detail_panel"
+    data-rag-label="Asset detail breakdown">
         <strong style="display:block;margin-bottom:6px;color:rgba(255,255,255,0.85);">How this is computed</strong>
         <ul style="margin:0;padding-left:20px;">
           <li><strong>Total assets</strong>: <code>asset_nodes</code> rows where <code>status = 'approved'</code> in this hive.</li>
@@ -564,19 +566,27 @@
       <div class="stats-grid">
         <div class="stat-card">
           <div class="stat-label">Logbook entries</div>
-          <div class="stat-value" id="stat-logbook">0</div>
+          <div class="stat-value" id="stat-logbook"
+    data-rag-tile="asset-hub:logbook_count"
+    data-rag-label="Asset logbook entries">0</div>
         </div>
         <div class="stat-card">
           <div class="stat-label">PM completed</div>
-          <div class="stat-value" id="stat-pm">0</div>
+          <div class="stat-value" id="stat-pm"
+    data-rag-tile="asset-hub:pm_count"
+    data-rag-label="Asset PM completions">0</div>
         </div>
         <div class="stat-card">
           <div class="stat-label">Last failure</div>
-          <div class="stat-value" id="stat-last-failure" style="font-size:0.92rem;">never</div>
+          <div class="stat-value" id="stat-last-failure" style="font-size:0.92rem;"
+    data-rag-tile="asset-hub:last_failure"
+    data-rag-label="Asset last failure">never</div>
         </div>
         <div class="stat-card">
           <div class="stat-label">Edges</div>
-          <div class="stat-value" id="stat-edges">0</div>
+          <div class="stat-value" id="stat-edges"
+    data-rag-tile="asset-hub:rcm_edges"
+    data-rag-label="Asset RCM edges">0</div>
         </div>
       </div>
 

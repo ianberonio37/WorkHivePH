@@ -5,12 +5,12 @@ CANONICAL / DRIFT / GAP / ALLOWED. Run by `tools/audit_calm_dashboard_canonical.
 
 ## Summary
 
-- Calm-opted-in pages: **14**
-- Fully compliant pages (0 drift + 0 gap): **14** (100%)
+- Calm-opted-in pages: **15**
+- Fully compliant pages (0 drift + 0 gap): **15** (100%)
 - Canonical reads (✅): **40**
 - Drift reads (⚠️ wrapper exists, page reads raw): **0**
 - Gap reads (❌ no wrapper exists yet): **0**
-- Allowed reads (legitimate raw): **50**
+- Allowed reads (legitimate raw): **51**
 - Truth views in registry: **37**
 
 ## Per-page conformance
@@ -18,6 +18,7 @@ CANONICAL / DRIFT / GAP / ALLOWED. Run by `tools/audit_calm_dashboard_canonical.
 | Page | Canonical | Drift | Gap | Allowed | Chip? | Compliant |
 |---|---:|---:|---:|---:|:---:|:---:|
 | `achievements.html` | 2 | 0 | 0 | 1 | ✓ | ✅ |
+| `agentic-rag-observability.html` | 0 | 0 | 0 | 1 | — | ✅ |
 | `ai-quality.html` | 0 | 0 | 0 | 1 | ✓ | ✅ |
 | `alert-hub.html` | 4 | 0 | 0 | 6 | ✓ | ✅ |
 | `analytics.html` | 0 | 0 | 0 | 0 | ✓ | ✅ |
@@ -48,6 +49,10 @@ CANONICAL / DRIFT / GAP / ALLOWED. Run by `tools/audit_calm_dashboard_canonical.
 
 **Canonical** (2): `v_worker_achievements_truth`, `v_worker_truth`
 **Allowed raw** (1): `achievement_xp_log`
+
+### `agentic-rag-observability.html` — ✅ compliant
+
+**Allowed raw** (1): `agentic_rag_traces`
 
 ### `ai-quality.html` — ✅ compliant
 

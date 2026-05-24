@@ -24,8 +24,8 @@
 | `uses_localstorage` | 48% | 12 / 25 |
 | `listens_dom_ready` | 36% | 9 / 25 |
 | `has_jsdoc_header` | 32% | 8 / 25 |
+| `has_capability_tag` | 32% | 8 / 25 |
 | `has_any_console_log` | 32% | 8 / 25 |
-| `has_capability_tag` | 28% | 7 / 25 |
 | `logs_with_module_prefix` | 16% | 4 / 25 |
 | `uses_eschtml` | 12% | 3 / 25 |
 | `calls_create_client` | 12% | 3 / 25 |

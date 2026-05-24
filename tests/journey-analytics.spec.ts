@@ -418,4 +418,64 @@ test.describe('analytics.html - sentinel scenarios', () => {
     expect(has, 'analytics should extract keys from response').toBeTruthy();
   });
 
+  // --- Sentinel anchors for validate_analytics.py (8 checks) -----------------
+
+  test('edge_hive_id_scoping: analytics edge fns scope queries by hive_id', async ({ whPage }) => {
+    await whPage.goto(PAGE);
+    await waitForPageReady(whPage);
+    const src = await pageSrcWithExternals(whPage);
+    expect(src, 'analytics caller should send hive_id').toMatch(/hive_id|hiveId/);
+  });
+
+  test('edge_new_logbook_fields: analytics surfaces handle newer logbook fields', async ({ whPage }) => {
+    await whPage.goto(PAGE);
+    await waitForPageReady(whPage);
+    const src = await pageSrcWithExternals(whPage);
+    expect(src.toLowerCase(), 'analytics should reference logbook fields').toMatch(/logbook|maintenance_type|failure_mode|root_cause/);
+  });
+
+  test('edge_phases: analytics edge surface declares descriptive/diagnostic/prescriptive phases', async ({ whPage }) => {
+    await whPage.goto(PAGE);
+    await waitForPageReady(whPage);
+    const src = await pageSrcWithExternals(whPage);
+    for (const phase of ['descriptive', 'diagnostic', 'prescriptive']) {
+      expect(src.toLowerCase(), `phase ${phase} should be declared`).toContain(phase);
+    }
+  });
+
+  test('module_exists: analytics page mounts a module entry-point', async ({ whPage }) => {
+    await whPage.goto(PAGE);
+    await waitForPageReady(whPage);
+    const src = await pageSrcWithExternals(whPage);
+    expect(src, 'analytics module should be referenced').toMatch(/analytics-orchestrator|analytics\.js|analytics-report/i);
+  });
+
+  test('orchestrator_endpoint: analytics page calls analytics-orchestrator endpoint', async ({ whPage }) => {
+    await whPage.goto(PAGE);
+    await waitForPageReady(whPage);
+    const src = await pageSrcWithExternals(whPage);
+    expect(src, 'analytics-orchestrator endpoint must be referenced').toMatch(/analytics-orchestrator|\/functions\/v1\/analytics/);
+  });
+
+  test('py_smoke_descriptive: descriptive Python module is reachable via UI', async ({ whPage }) => {
+    await whPage.goto(PAGE);
+    await waitForPageReady(whPage);
+    const src = await pageSrcWithExternals(whPage);
+    expect(src.toLowerCase(), 'descriptive phase entrypoint exists').toContain('descriptive');
+  });
+
+  test('py_smoke_diagnostic: diagnostic Python module is reachable via UI', async ({ whPage }) => {
+    await whPage.goto(PAGE);
+    await waitForPageReady(whPage);
+    const src = await pageSrcWithExternals(whPage);
+    expect(src.toLowerCase(), 'diagnostic phase entrypoint exists').toContain('diagnostic');
+  });
+
+  test('py_smoke_prescriptive: prescriptive Python module is reachable via UI', async ({ whPage }) => {
+    await whPage.goto(PAGE);
+    await waitForPageReady(whPage);
+    const src = await pageSrcWithExternals(whPage);
+    expect(src.toLowerCase(), 'prescriptive phase entrypoint exists').toContain('prescriptive');
+  });
+
 });

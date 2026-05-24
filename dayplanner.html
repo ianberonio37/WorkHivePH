@@ -332,7 +332,9 @@
     <button id="details-toggle-btn" type="button" class="details-toggle" aria-expanded="false" aria-controls="dp-summary-details">
       Show details
     </button>
-    <div id="dp-summary-details" role="region" aria-label="Day planner explainer">
+    <div id="dp-summary-details" role="region" aria-label="Day planner explainer"
+    data-rag-tile="dayplanner:detail_panel"
+    data-rag-label="Day planner detail">
       <strong style="display:block;margin-bottom:6px;color:rgba(255,255,255,0.85);">How this is computed</strong>
       <ul style="margin:0;padding-left:20px;">
         <li><strong>Today</strong>: <code>schedule_items</code> with <code>date = today</code> (PHT).</li>
