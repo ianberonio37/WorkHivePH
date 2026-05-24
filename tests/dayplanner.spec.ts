@@ -18,11 +18,21 @@ test.describe('dayplanner.html schedule item flow', () => {
     // Page renders some content (specific containers vary by viewport
     // and worker context). Use a permissive check — the body has text.
     await expect(whPage.locator('body')).toBeVisible({ timeout: 8000 });
-    // And at least one chunk of meaningful text — accepts "Open Items"
-    // (the per-worker queue), "Schedule", or any nav link.
-    await expect(
-      whPage.locator('text=/Open|Schedule|Planner|Today/i').first()
-    ).toBeVisible({ timeout: 5000 });
+    // And at least one VISIBLE chunk of meaningful text — accepts "Open Items"
+    // (the per-worker queue), "Schedule", or any nav link. Some pages carry
+    // sr-only <h1> with these words (visually hidden via clip:rect(0,0,0,0))
+    // and Playwright's bare text= matcher picks the first DOM hit; chain
+    // :visible to skip the accessibility-only copy.
+    // Iterate matches manually because Playwright 1.60 doesn't expose
+    // a `filter({ visible: true })` option on Locator.
+    const matches = whPage.locator('text=/Open|Schedule|Planner|Today/i');
+    await whPage.waitForTimeout(500);
+    const total = await matches.count();
+    let saw = false;
+    for (let i = 0; i < total; i++) {
+      if (await matches.nth(i).isVisible()) { saw = true; break; }
+    }
+    expect(saw, 'at least one visible Open/Schedule/Planner/Today text').toBe(true);
   });
 
   test('add-item flow does not show a fake "saved" toast on blocked save', async ({ whPage }) => {

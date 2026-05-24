@@ -385,7 +385,10 @@ test.describe('logbook.html - sentinel scenarios', () => {
     await whPage.goto(PAGE);
     await waitForPageReady(whPage);
     const __sentSrc_6 = await pageSrcWithExternals(whPage);
-    const has = /saveEdit[\s\S]{0,500}(asset_ref_id|maintenance_type|consequence)/i.test(__sentSrc_6);
+    // Match the function declaration (not stray button onclick="saveEdit*" refs)
+    // and look 1200 chars ahead — the function body lists ~12 fields before
+    // its first canonical field reference at the maintenance_type assignment.
+    const has = /function\s+saveEdit(?:FromForm)?\s*\([\s\S]{0,1500}?(asset_ref_id|maintenance_type|consequence)/i.test(__sentSrc_6);
     expect(has, 'saveEdit should include canonical new fields').toBeTruthy();
   });
 
