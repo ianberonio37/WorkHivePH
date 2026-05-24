@@ -13,11 +13,16 @@
  *   - Supervisor-only elements visible
  */
 import { test, expect } from './_fixtures';
-import { waitForPageReady, pageSrcWithExternals } from './_helpers';
+import { waitForPageReady, pageSrcWithExternals, bypassMaturityGate } from './_helpers';
 import { adminClient } from './_db-cleanup';
 
 const PAGE = '/workhive/hive.html';
 const SETTLE_TIMEOUT = 20000;
+
+// Hive board's stair card uses maturity progress; without bypass it shows "—".
+test.beforeEach(async ({ whPage }) => {
+  await bypassMaturityGate(whPage);
+});
 
 /** Wait for the Plain-Read verdict to leave its initial "Computing..." state. */
 async function waitForVerdictSettled(page) {

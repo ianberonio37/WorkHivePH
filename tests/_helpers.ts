@@ -9,6 +9,55 @@
  */
 import { Page, expect } from '@playwright/test';
 
+/**
+ * Bypass the WorkHive Stair maturity gate at the fetch layer.
+ *
+ * Several pages (predictive, ai-quality, alert-hub, hive, ph-intelligence)
+ * gate rendering behind a hive readiness check — Stair 2/3/etc — and fall
+ * back to an honest empty state when the hive lacks enough corrective
+ * history. Test fixtures never carry that much real data, so those pages
+ * render blank tiles in CI and fail every "card hero populated" check.
+ *
+ * This helper synthesises a Stair-5 response so the page renders its real
+ * query path. Mirrors journey-rag-flywheel-walk.spec.ts pattern (one source
+ * of truth so we don't drift across specs).
+ *
+ * Call from a beforeEach BEFORE page.goto.
+ */
+export async function bypassMaturityGate(page: Page) {
+  await page.addInitScript(() => {
+    try {
+      const hiveId = localStorage.getItem('wh_active_hive_id') ||
+                     localStorage.getItem('wh_hive_id') || '';
+      if (hiveId) {
+        localStorage.setItem(`wh_hive_maturity_stair_${hiveId}`, '5');
+      }
+      localStorage.setItem('wh_hive_maturity_stair', '5');
+    } catch (_) { /* noop */ }
+    const origFetch = window.fetch;
+    (window as any).fetch = async function(...args: any[]) {
+      const url = String(args[0] || '');
+      if (url.includes('v_hive_readiness_truth')) {
+        return new Response(JSON.stringify([{
+          current_stair:   5,
+          composite_score: 1.0,
+          blocker_summary: '',
+          evidence:        { test_bypass: 'gate bypassed at fetch layer' },
+        }]), { status: 200, headers: { 'Content-Type': 'application/json' } });
+      }
+      return origFetch.apply(this, args as any);
+    };
+    (window as any).checkMaturityGate = async function() {
+      return {
+        blocked: false, currentStair: 5, currentStairName: 'Industry Leader',
+        requiredStair: 1, requiredStairName: '(test bypass)',
+        blockerSummary: '(maturity gate bypassed for L2 test)',
+        evidence: {}, compositeScore: 1.0,
+      };
+    };
+  });
+}
+
 /** Wait for a toast (any class) and return its text. */
 export async function readToast(page: Page, timeoutMs = 4000): Promise<string | null> {
   try {

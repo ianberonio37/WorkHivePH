@@ -11,8 +11,15 @@
  *   network error — page gracefully handles missing data
  */
 import { test, expect } from './_fixtures';
-import { waitForPageReady, readToast } from './_helpers';
+import { waitForPageReady, readToast, bypassMaturityGate } from './_helpers';
 import { adminClient } from './_db-cleanup';
+
+// Alert Hub gates on Stair 1+ (sometimes shows honest empty state when
+// the hive has zero seeded alerts in the test fixture). Bypass so the
+// Plain-Read verdict + 3 cards render.
+test.beforeEach(async ({ whPage }) => {
+  await bypassMaturityGate(whPage);
+});
 
 const HIVE_ID = process.env.WH_TEST_HIVE_ID || '586fd158-42d1-4853-a406-64a4695e71c4';
 

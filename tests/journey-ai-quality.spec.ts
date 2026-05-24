@@ -16,7 +16,14 @@
  *   console errors   — no JS errors
  */
 import { test, expect } from './_fixtures';
-import { waitForPageReady } from './_helpers';
+import { waitForPageReady, bypassMaturityGate } from './_helpers';
+
+// AI Quality gates on Stair 2 (per ai-quality.html). Test fixtures rarely
+// cross that threshold; bypass at the fetch layer so the page renders its
+// real verdict + KPI tiles instead of the honest empty state.
+test.beforeEach(async ({ whPage }) => {
+  await bypassMaturityGate(whPage);
+});
 
 const PAGE = '/workhive/ai-quality.html';
 

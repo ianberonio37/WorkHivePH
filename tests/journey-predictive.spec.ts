@@ -12,7 +12,7 @@
  *   console errors  — no JS errors
  */
 import { test, expect } from './_fixtures';
-import { waitForPageReady, pageSrcWithExternals } from './_helpers';
+import { waitForPageReady, pageSrcWithExternals, bypassMaturityGate } from './_helpers';
 
 const PAGE = '/workhive/predictive.html';
 
@@ -26,6 +26,15 @@ async function waitForPredVerdictSettled(page) {
 }
 
 test.describe('predictive.html — predictive maintenance journey', () => {
+
+  // Bypass Stair-3 maturity gate so test fixtures (which carry only days,
+  // not 90+ days of corrective history) still see the page's real render
+  // path. Without this the page short-circuits to an honest empty state
+  // and every "card hero populated" / "source chip declares v_risk_truth"
+  // check fails for reasons unrelated to the predictive code.
+  test.beforeEach(async ({ whPage }) => {
+    await bypassMaturityGate(whPage);
+  });
 
   test('page loads without console errors', async ({ whPage }) => {
     const errors: string[] = [];

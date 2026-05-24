@@ -28,6 +28,7 @@
  * exists to catch.
  */
 import { test, expect } from './_fixtures';
+import { bypassMaturityGate } from './_helpers';
 
 type ParityCase = {
   name:          string;
@@ -43,6 +44,14 @@ type ParityCase = {
   //                'all'    = COUNT all rows (no filter; for "X tracked" totals)
   mode:          'rows' | 'assets' | 'all';
   expectExact:   boolean;
+  // Cross-hive surface (the page does NOT scope by hive_id — e.g. marketplace
+  // listings are intentionally global). Default false: most pages scope per-hive
+  // and the canonical view is RLS-disabled, so the test must mirror the page's
+  // .eq('hive_id', HIVE_ID) filter to compare like-for-like.
+  crossHive?:    boolean;
+  // Page filters by a worker/seller/author identity column instead of just hive.
+  // When set, the test query adds .eq(scopeByWorker, WORKER_NAME) to mirror.
+  scopeByWorker?: string;
 };
 
 const CASES: ParityCase[] = [
@@ -230,6 +239,7 @@ const CASES: ParityCase[] = [
     extraEq:       [{ col: 'status', value: 'published' }],
     mode:          'rows',
     expectExact:   true,
+    crossHive:     true,  // marketplace listings are intentionally global
   },
   {
     name:          'check_marketplace_training_count: marketplace #count-training == COUNT(v_marketplace_listings_truth WHERE section=training AND status=published)',
@@ -240,6 +250,7 @@ const CASES: ParityCase[] = [
     extraEq:       [{ col: 'status', value: 'published' }],
     mode:          'rows',
     expectExact:   true,
+    crossHive:     true,
   },
   {
     name:          'check_marketplace_jobs_count: marketplace #count-jobs == COUNT(v_marketplace_listings_truth WHERE section=jobs AND status=published)',
@@ -250,6 +261,7 @@ const CASES: ParityCase[] = [
     extraEq:       [{ col: 'status', value: 'published' }],
     mode:          'rows',
     expectExact:   true,
+    crossHive:     true,
   },
   // 2026-05-20 L2 expansion: project-manager + community.
   {
@@ -279,9 +291,8 @@ const CASES: ParityCase[] = [
     view:          'v_marketplace_listings_truth',
     mode:          'all',
     expectExact:   true,
-    // Seller-scoped: the page filters by seller_name = WORKER_NAME, but the
-    // sentinel queries from the page's db client which inherits the same
-    // auth scope — the canonical-count therefore matches naturally.
+    crossHive:     true,    // marketplace listings are global
+    scopeByWorker: 'seller_name',  // page badge counts only the signed-in seller's listings
   },
   {
     name:          'check_community_profile_posts: community #profile-posts == COUNT(v_community_posts_truth WHERE author_name=WORKER_NAME AND not deleted)',
@@ -291,8 +302,7 @@ const CASES: ParityCase[] = [
     extraIsNull:   ['deleted_at'],
     mode:          'all',
     expectExact:   true,
-    // Page filters by author_name=WORKER_NAME at the same db scope; sentinel
-    // inherits it through the page's db client.
+    scopeByWorker: 'author_name',  // page shows only the signed-in user's posts
   },
 ];
 
@@ -307,6 +317,11 @@ async function readIntFromText(text: string | null | undefined): Promise<number>
 test.describe('canonical signal parity', () => {
   for (const c of CASES) {
     test(c.name, async ({ whPage }) => {
+      // Bypass Stair-3+ maturity gate so predictive/ai-quality/etc render
+      // their real query paths against the test fixture's days-old data
+      // instead of falling back to "Predictive on insufficient data lies"
+      // empty states (which leave KPI tiles at their HTML default "0").
+      await bypassMaturityGate(whPage);
       // ── Load the surface ──────────────────────────────────────────────
       await whPage.goto(c.page, { waitUntil: 'domcontentloaded' });
 
@@ -320,32 +335,72 @@ test.describe('canonical signal parity', () => {
         // The element may legitimately render as `—` when 0 under
         // Calm Dashboard. We'll handle that in the assertion.
       });
+      // Settle-poll: most KPI tiles ship with `<span id="...">0</span>` in
+      // the HTML, so waitForFunction above returns immediately on the static
+      // "0" before the async loader populates the real number. Re-read the
+      // text every 300ms until it stops changing for two consecutive reads
+      // OR 4s of total wait elapses — whichever comes first.
+      await whPage.waitForFunction((sel) => {
+        const el = document.querySelector(sel);
+        if (!el) return false;
+        const w = window as unknown as { __whCspSnap?: Record<string, { v: string; n: number }> };
+        w.__whCspSnap = w.__whCspSnap || {};
+        const txt = (el.textContent || '').trim();
+        const prev = w.__whCspSnap[sel];
+        if (!prev || prev.v !== txt) {
+          w.__whCspSnap[sel] = { v: txt, n: 1 };
+          return false;
+        }
+        w.__whCspSnap[sel] = { v: txt, n: prev.n + 1 };
+        return prev.n >= 2;
+      }, c.domSelector, { timeout: 4_000, polling: 300 }).catch(() => { /* settle best-effort */ });
 
       const rawText  = await locator.textContent().catch(() => '');
       const displayed = await readIntFromText(rawText);
 
       // ── Query the canonical view independently ────────────────────────
       const canonicalCount = await whPage.evaluate(
-        async ({ view, column, filterIn, extraEq, extraIsNull, mode }) => {
+        async ({ view, column, filterIn, extraEq, extraIsNull, mode, crossHive, scopeByWorker }) => {
           // @ts-expect-error db is a page-scope Supabase client
           if (typeof db === 'undefined' || !db) return -1;
+          // Several canonical views (v_risk_truth, v_pm_scope_items_truth,
+          // v_marketplace_listings_truth, etc.) are RLS-disabled in current
+          // migrations — they were designed to be scoped by the caller's
+          // explicit hive_id filter. The page DOES scope; the test must too,
+          // otherwise the test reads ALL hives' rows and the parity check
+          // falsely flags every per-hive count as "rederive drift".
+          // `crossHive: true` opts out for genuinely-global surfaces (marketplace).
+          const hiveId = (typeof localStorage !== 'undefined')
+            ? (localStorage.getItem('wh_active_hive_id') ||
+               localStorage.getItem('wh_hive_id') || '')
+            : '';
+          const workerName = (typeof localStorage !== 'undefined')
+            ? (localStorage.getItem('wh_last_worker') ||
+               localStorage.getItem('wh_worker_name') || '')
+            : '';
           const applyExtra = (q: any) => {
             for (const e of (extraEq || [])) q = q.eq(e.col, e.value);
             for (const col of (extraIsNull || [])) q = q.is(col, null);
             return q;
           };
+          const scopeHive   = (q: any) => (crossHive || !hiveId)        ? q : q.eq('hive_id', hiveId);
+          const scopeWorker = (q: any) => (!scopeByWorker || !workerName) ? q : q.eq(scopeByWorker, workerName);
           if (mode === 'rows') {
             // @ts-expect-error
             let q = db.from(view).select('*', { count: 'exact', head: true });
             if (column)   q = q.eq(column, true);
             if (filterIn) q = q.in(filterIn.col, filterIn.values);
             q = applyExtra(q);
+            q = scopeHive(q);
+            q = scopeWorker(q);
             const { count, error } = await q;
             return error ? -1 : (count ?? 0);
           } else if (mode === 'all') {
             // @ts-expect-error
             let q = db.from(view).select('*', { count: 'exact', head: true });
             q = applyExtra(q);
+            q = scopeHive(q);
+            q = scopeWorker(q);
             const { count, error } = await q;
             return error ? -1 : (count ?? 0);
           } else {
@@ -355,6 +410,8 @@ test.describe('canonical signal parity', () => {
             if (column)   q = q.eq(column, true);
             if (filterIn) q = q.in(filterIn.col, filterIn.values);
             q = applyExtra(q);
+            q = scopeHive(q);
+            q = scopeWorker(q);
             const { data, error } = await q;
             if (error) return -1;
             const ids = new Set((data || []).map((r: any) => r.asset_id).filter(Boolean));
@@ -362,7 +419,8 @@ test.describe('canonical signal parity', () => {
           }
         },
         { view: c.view, column: c.filterColumn, filterIn: c.filterIn,
-          extraEq: c.extraEq, extraIsNull: c.extraIsNull, mode: c.mode },
+          extraEq: c.extraEq, extraIsNull: c.extraIsNull, mode: c.mode,
+          crossHive: !!c.crossHive, scopeByWorker: c.scopeByWorker },
       );
 
       // ── Assert parity ─────────────────────────────────────────────────
