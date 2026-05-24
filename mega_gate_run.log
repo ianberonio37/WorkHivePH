@@ -1,39 +1,154 @@
 ========================================================================
 [1m  WorkHive Platform Guardian[0m
-  2026-05-17 21:49  |  FAST mode (skip live API)  |  Python 3.12.4
+  2026-05-24 16:56  |  Full mode  |  Python 3.12.4
 ========================================================================
 
-  Baseline loaded from 2026-05-16 07:26
+  Baseline loaded from 2026-05-21 08:56
 
   [96mENGINEERING CALCULATOR[0m
   --------------------------------------------------------------------
-  RUN   Engineering Calc Suite (L1+L2a+L2b)                   [91mFAIL[0m  300.1s
+  RUN   Engineering Calc Suite (L1+L2a+L2b)                   [92mPASS[0m  44.8s
 
   [96mPLATFORM[0m
   --------------------------------------------------------------------
-  RUN   Auto-discovery Validator (HTML classified, edge fns in config, validators registered)  [92mPASS[0m   0.3s
-  RUN   Tester Coverage Validator (every live tool page is in PUBLIC_PAGES + 4 flow PAGES lists)  [92mPASS[0m   0.1s
-  RUN   Schema Coverage Validator (auto-derived from migrations, table+column existence)  [91mFAIL[0m   2.1s
-  RUN   Reset Coverage Validator (every migration table is in reset.py)  [92mPASS[0m   0.5s
-  RUN   Edge Function Config Validator (config.toml coverage)  [92mPASS[0m   0.1s
+  RUN   Auto-discovery Validator (HTML classified, edge fns in config, validators registered)  [91mFAIL[0m   0.2s
+  RUN   Tester Coverage Validator (every live tool page is in PUBLIC_PAGES + 4 flow PAGES lists)  [92mPASS[0m   0.2s
+  RUN   Schema Coverage Validator (auto-derived from migrations, table+column existence)  [92mPASS[0m   1.9s
+  RUN   Reset Coverage Validator (every migration table is in reset.py)  [92mPASS[0m   0.3s
+  RUN   Edge Function Config Validator (config.toml coverage)  [92mPASS[0m   0.2s
   RUN   Cross-Page Flow Validator                             [92mPASS[0m   0.2s
-  RUN   DOM Reference Integrity Validator (bare getElementById on missing elements)  [92mPASS[0m   1.3s
-  RUN   Asset Brain Foundation Validator (schema, RLS, realtime publication)  [92mPASS[0m   0.6s
-  RUN   Canonical Sources Registry Validator (truth-scattering fix foundation + L2 drift detection)  [92mPASS[0m   0.5s
-  RUN   KPI Chip Coverage Validator (pages reading v_*_truth must render renderSourceChip)  [92mPASS[0m   0.3s
-  RUN   Home Stack Coverage Validator (primary-nav cardinality + hidden tools have deep-links)  [92mPASS[0m   0.3s
-  RUN   JS Syntax Sanity (no `await` inside non-async function/IIFE in inline scripts)  [92mPASS[0m   3.3s
-  RUN   Silo Monitor (4-layer: drift + orphans + unregistered hotspots + cross-system matrix)  [92mPASS[0m   0.5s
-  RUN   Canonical Anchor Gate (8-layer forward-anchor: fuel/engine/Tier A/Tier C/formula/standard/dashboard/capture)  [91mFAIL[0m   2.3s
-  RUN   Persona Contract Validator (7-layer: modules + server + client + gateway + hive + migrations + key parity)  [92mPASS[0m   0.1s
-  RUN   Voice Canonical Anchor Validator (4-layer: classifier + fetch + wiring + DATA block in prompt)  [92mPASS[0m   0.1s
+  RUN   DOM Reference Integrity Validator (bare getElementById on missing elements)  [92mPASS[0m   1.0s
+  RUN   Asset Brain Foundation Validator (schema, RLS, realtime publication)  [92mPASS[0m   0.2s
+  RUN   Canonical Sources Registry Validator (truth-scattering fix foundation + L2 drift detection)  [92mPASS[0m   0.4s
+  RUN   KPI Chip Coverage Validator (pages reading v_*_truth must render renderSourceChip)  [92mPASS[0m   0.2s
+  RUN   Calm Dashboard Canonical-Wiring Audit (per-tile classify: canonical/drift/gap/allowed)  [92mPASS[0m   0.3s
+  RUN   Canonical Drift — Platform-Wide Miner (L-1.5: TIER A = KPI page + canonical drift; produces baseline)  [92mPASS[0m   5.3s
+  RUN   User-Facing KPI Canonical Gate (L0: forward-only ratchet over L-1.5 TIER A footprint)  [92mPASS[0m   0.2s
+  RUN   Cross-Migration Table-Collision Auditor (catches CREATE TABLE IF NOT EXISTS with incompatible column sets across migrations)  [92mPASS[0m   0.2s
+  RUN   Phantom Capture Auditor (reverse-lineage: every <input>/<select> must have >=1 downstream consumer)  [91mFAIL[0m  300.1s
+  RUN   Phantom Column Auditor (schema-bloat: every column in registry must have >=1 consumer)  [91mFAIL[0m  300.3s
+  RUN   Tier Contract Auditor (Fuel/Engine/Brain/Glue registry health + chain integrity)  [92mPASS[0m   0.8s
+  RUN   Standards Alignment Auditor (Tier S — formula required_inputs supersets cited standard OR honestly declared partial_variant)  [92mPASS[0m   0.2s
+  RUN   AI Prompt Standards Audit (Tier B — edge fn prompts mentioning a metric must cite its canonical standard)  [92mPASS[0m   1.3s
+  RUN   Displayed Values Audit (Tier S coverage — every value rendered to users should map to a formula contract OR be classified as raw display)  [92mPASS[0m   1.9s
+  RUN   Partial-Label Honesty Audit (Tier S rendering — every page displaying a partial-variant metric must render the honesty marker near the value)  [92mPASS[0m   4.1s
+  RUN   Home Stack Coverage Validator (primary-nav cardinality + hidden tools have deep-links)  [92mPASS[0m   0.8s
+  RUN   JS Syntax Sanity (no `await` inside non-async function/IIFE in inline scripts)  [92mPASS[0m   5.9s
+  RUN   Silo Monitor (4-layer: drift + orphans + unregistered hotspots + cross-system matrix)  [92mPASS[0m   0.8s
+  RUN   Canonical Anchor Gate (8-layer forward-anchor: fuel/engine/Tier A/Tier C/formula/standard/dashboard/capture)  [92mPASS[0m   5.9s
+  RUN   Audit Scanner Scope (meta-validator: every consumer-scanning audit covers _shared + subdir HTML)  [92mPASS[0m   0.3s
+  RUN   Truth-View Signal-Trust (no local re-derivation alongside v_*_truth reads; forward-only ratchet)  [92mPASS[0m   3.3s
+  RUN   Orphan KPI Tiles (every default-value tile must have a JS setter; forward-only ratchet)  [92mPASS[0m   1.0s
+  RUN   KPI Count-Query Safety (no .limit(N) + .length as canonical KPI count; forward-only ratchet)  [92mPASS[0m   0.7s
+  RUN   Source-Chip Truth (every renderSourceChip view is actually .from()-read on the page; forward-only ratchet)  [92mPASS[0m   0.6s
+  RUN   Filter Case Consistency (same enum-column filter must use consistent case across files; forward-only ratchet)  [92mPASS[0m   0.7s
+  RUN   Realtime Subscription Consistency (every postgres_changes table must be read by the page; forward-only ratchet)  [92mPASS[0m   0.6s
+  RUN   Link Target Existence (every <a href>/location.href to a .html target must exist on disk; forward-only ratchet)  [92mPASS[0m   2.1s
+  RUN   Realtime Payload Columns (payload.new/old.X must be a real column on the subscribed table; forward-only ratchet)  [92mPASS[0m   0.4s
+  RUN   Edge Function Invoke (every functions.invoke('X') target must exist; forward-only ratchet)  [92mPASS[0m   0.6s
+  RUN   RPC Argument Consistency (every db.rpc() name + arg keys exist; forward-only ratchet)  [92mPASS[0m   0.8s
+  RUN   Image / Asset Existence (every local asset ref must resolve to a file; forward-only ratchet)  [92mPASS[0m   0.9s
+  RUN   Service Worker SHELL_FILES (every precache path must exist; forward-only ratchet)  [92mPASS[0m   0.3s
+  RUN   Query Column Existence (every .select/.eq/.in column must exist on the table; forward-only ratchet)  [92mPASS[0m   0.5s
+  RUN   getElementById Orphan Setter (every JS id lookup must have a matching <id> in HTML; forward-only ratchet)  [92mPASS[0m   0.9s
+  RUN   Time-Window Consistency (same context keyword must use same N*day window across files; forward-only ratchet)  [92mPASS[0m   1.0s
+  RUN   Role String Consistency (every role === '...' literal must use a canonical role name; forward-only ratchet)  [92mPASS[0m   0.8s
+  RUN   Inline Handler Existence (every onclick/onchange/... fn must be defined; forward-only ratchet)  [92mPASS[0m   1.1s
+  RUN   Empty Catch Block (try/catch{} that silently swallows errors; forward-only ratchet)  [92mPASS[0m   0.2s
+  RUN   setTimeout/setInterval String Arg (string-form is eval-equivalent; forward-only ratchet)  [92mPASS[0m   0.8s
+  RUN   document.write Usage (forbidden API; forward-only ratchet)  [92mPASS[0m   0.8s
+  RUN   Positive tabindex (a11y anti-pattern: tabindex >= 1 breaks tab order; forward-only ratchet)  [92mPASS[0m   0.2s
+  RUN   Viewport user-scalable=no (a11y anti-pattern: blocks pinch-zoom; forward-only ratchet)  [92mPASS[0m   0.2s
+  RUN   innerHTML escHtml Audit (interpolating template literals must escape; XSS guard, forward-only ratchet)  [92mPASS[0m   0.2s
+  RUN   Env Variable Existence (every env reference must be in .env.example/README; forward-only ratchet)  [91mFAIL[0m   0.3s
+  RUN   ARIA Label Coverage (every interactive element has an accessible name; forward-only ratchet)  [92mPASS[0m   0.2s
+  RUN   Realtime Channel Cleanup (every db.channel() has cleanup; forward-only ratchet)  [92mPASS[0m   0.9s
+  RUN   Playwright Selector Existence (every locator('#X') id must exist on target page; forward-only ratchet)  [92mPASS[0m   2.6s
+  RUN   localStorage Key Consistency (every key must be set AND read; forward-only ratchet)  [92mPASS[0m   0.4s
+  RUN   CSS Class Existence (every classList.* class must have a CSS rule; forward-only ratchet)  [92mPASS[0m   0.4s
+  RUN   pg_cron Target Existence (jobs reference real tables + RPCs; forward-only ratchet)  [92mPASS[0m   0.2s
+  RUN   Trigger Function Existence (CREATE TRIGGER target functions exist; forward-only ratchet)  [92mPASS[0m   0.2s
+  RUN   Meta Description Coverage (every page has description + og:title + og:image + canonical; forward-only ratchet)  [92mPASS[0m   0.2s
+  RUN   Sitemap Page Existence (every sitemap.xml URL resolves to a file; forward-only ratchet)  [92mPASS[0m   0.1s
+  RUN   Unbounded Query Detection (every .from() chain has .limit/.single/.range/.eq-on-id; forward-only ratchet)  [92mPASS[0m   0.2s
+  RUN   Heading Hierarchy (no skipped levels, no multiple h1; forward-only ratchet)  [92mPASS[0m   0.2s
+  RUN   Canonical URL Consistency (<link rel=canonical> points at the page; forward-only ratchet)  [92mPASS[0m   0.2s
+  RUN   Event Listener Cleanup (pages with 10+ addEventListener need removes; forward-only ratchet)  [92mPASS[0m   0.9s
+  RUN   External Link rel=noopener (every <a target=_blank> sets rel=noopener/noreferrer; forward-only ratchet)  [92mPASS[0m   0.3s
+  RUN   Button Type in Form (every <button> inside <form> declares type=button/submit/reset; forward-only ratchet)  [92mPASS[0m   0.3s
+  RUN   SECURITY DEFINER search_path (every definer fn pins search_path; covers ALTER FUNCTION hardening; forward-only ratchet)  [92mPASS[0m   0.4s
+  RUN   Duplicate <script>/<link> Tags (no per-page duplicates of script src or stylesheet href; forward-only ratchet)  [92mPASS[0m   0.3s
+  RUN   Native alert/confirm/prompt (production code must use the platform toast/modal stack; forward-only ratchet)  [91mFAIL[0m   0.6s
+  RUN   Duplicate HTML id (every static id is unique per document; forward-only ratchet)  [92mPASS[0m   0.2s
+  RUN   <img> alt Coverage (every <img> declares an alt attribute; forward-only ratchet)  [92mPASS[0m   0.2s
+  RUN   JSON.parse Safety (every JSON.parse() is inside try/catch; forward-only ratchet)  [92mPASS[0m   0.4s
+  RUN   fetch() Error Handling (every fetch() is in try/catch or chained to .catch; forward-only ratchet)  [92mPASS[0m   0.7s
+  RUN   Edge Status/Body Consistency (HTTP status matches body ok/error semantics; forward-only ratchet)  [92mPASS[0m   0.2s
+  RUN   Edge Unpinned Imports (every remote import pins @version; supply-chain hardening; forward-only ratchet)  [92mPASS[0m   0.3s
+  RUN   Timer Cleanup (setInterval has clearInterval; high-count setTimeout has clearTimeout; forward-only ratchet)  [92mPASS[0m   1.0s
+  RUN   CSS id Existence (every CSS #id selector matches a declared id; dead-rule guard; forward-only ratchet)  [92mPASS[0m   0.5s
+  RUN   ADD COLUMN DEFAULT (every ADD COLUMN NOT NULL has a DEFAULT; backfill safety; forward-only ratchet)  [92mPASS[0m   0.2s
+  RUN   <form> Submission Target (every form has action OR onsubmit OR addEventListener('submit'); forward-only ratchet)  [92mPASS[0m   0.2s
+  RUN   Edge OPTIONS Preflight (body-consuming edge fn handles CORS preflight; forward-only ratchet)  [92mPASS[0m   0.1s
+  RUN   <input type=password> Form Wrapper (password inputs wrapped in <form> for autofill+save; forward-only ratchet)  [92mPASS[0m   0.2s
+  RUN   FK ON DELETE (every REFERENCES declares explicit ON DELETE behavior; covers ALTER ADD CONSTRAINT supersede; forward-only ratchet)  [92mPASS[0m   0.3s
+  RUN   Edge Body Size Guard (req.json() in try/catch or has Content-Length/sizeLimit check; DoS hardening; forward-only ratchet)  [92mPASS[0m   0.2s
+  RUN   <select> Placeholder (every <select> has explicit selected/value=''/disabled-placeholder first option; forward-only ratchet)  [92mPASS[0m   0.2s
+  RUN   RLS Open Policy (CREATE POLICY USING(true)/WITH CHECK(true) flagged; covers DROP POLICY supersede; forward-only ratchet)  [92mPASS[0m   0.2s
+  RUN   console.log Production Drift (no console.log outside catch/DEBUG-guard in production code; forward-only ratchet)  [92mPASS[0m   0.6s
+  RUN   <a href='javascript:'> Anti-Pattern (use <button> for actions; reserve <a href> for navigation; forward-only ratchet)  [92mPASS[0m   0.2s
+  RUN   CREATE VIEW SELECT * (every view projects explicit columns; preserves canonical-registry coverage; forward-only ratchet)  [92mPASS[0m   0.2s
+  RUN   <meta http-equiv=refresh> (no auto-redirect anti-pattern; use JS or 30x; forward-only ratchet)  [92mPASS[0m   0.2s
+  RUN   SQL LIKE Escape (.ilike/.like templates escape % and _; tracks file-wide escape-helper vars; forward-only ratchet)  [92mPASS[0m   0.7s
+  RUN   Icon-Only Button aria-label (svg-only <button> has aria-label/title/sr-only; forward-only ratchet)  [92mPASS[0m   0.3s
+  RUN   Edge Response Content-Type (every new Response(JSON.stringify) sets application/json; comment-stripped; forward-only ratchet)  [92mPASS[0m   0.4s
+  RUN   DROP IF EXISTS Idempotency (every DROP TABLE/VIEW/FUNCTION/POLICY/INDEX/TRIGGER/TYPE includes IF EXISTS; forward-only ratchet)  [92mPASS[0m   0.4s
+  RUN   <table> Accessible Name (every table has caption/aria-label/role=presentation; forward-only ratchet)  [92mPASS[0m   0.3s
+  RUN   Flywheel Turn (walks every Mega Gate layer; ratchet/regression diff vs prior turn)  [92mPASS[0m   0.6s
+  RUN   Persona Contract Validator (8-layer: modules + server + client + gateway + hive + migrations + key parity + Step D differentiation)  [92mPASS[0m   0.2s
+  RUN   Legacy Worker Decommission Validator (no production JS calls workhive-assistant.workers.dev)  [92mPASS[0m   4.7s
+  RUN   ai-gateway Anon Voice-Journal Contract (4-layer: ANON_OK_AGENTS set + auth-gate skip + authUid persistence guard + AGENT_ROUTES entry)  [92mPASS[0m   0.2s
+  RUN   Voice Canonical Anchor Validator (4-layer: classifier + fetch + wiring + DATA block in prompt)  [92mPASS[0m   0.2s
   RUN   Voice Routing Unification (Phase 0: router output passing)  [92mPASS[0m   0.1s
   RUN   Voice Companion Phase 1 (multi-agent orchestrator)    [92mPASS[0m   0.1s
   RUN   Voice Companion Phase 1.5 (semantic RAG with pgvector)  [92mPASS[0m   0.1s
-  RUN   Voice Companion Phase 2 (multi-model A/B testing)     [92mPASS[0m   0.0s
+  RUN   Voice Companion Phase 2 (multi-model A/B testing)     [92mPASS[0m   0.1s
   RUN   Voice Companion Phase 3 (error recovery + anon memory)  [92mPASS[0m   0.1s
   RUN   Memory Integrity (Phase 2: session memory, turn tracking, dedup)  [92mPASS[0m   0.1s
   RUN   Dialog Flow (Phase 4: intent refinement, clarification, slot-filling)  [92mPASS[0m   0.1s
+  RUN   Dialog Affirmation Bypass (5-layer: regex + vocabulary + word-cap + callsite bypass + shouldClarify symmetry)  [92mPASS[0m   0.1s
+  RUN   Dialog Follow-up Handlers (6-layer: negation + vocabulary + noise + state-clear + upstream + clarify-streak ceiling)  [92mPASS[0m   0.1s
+  RUN   Dialog Continuity (5-layer: prompt builder + DIALOG STATE block + PRIOR TOPIC HANDLE + slot enumeration + PH/English pronoun vocabulary)  [92mPASS[0m   0.1s
+  RUN   Dialog Recovery + Safety (5-layer: recovery helper + recovery vocabulary + clarification_pending guard + crisis line present + crisis line positioned)  [92mPASS[0m   0.1s
+  RUN   Dialog Quality Extended (10-layer: turns #5-#14 — persona-switch + stale-guard + topic-interrupt + thanks + asset-prime + greeting + code-switch + sensitive-topic + worker-name + repeat)  [92mPASS[0m   0.1s
+  RUN   AI Companion Trust + Observability (10-layer: turns #15-#24 — hallucination guard + citation + audio interrupt + TTS latency + rate-limit + fallback UX + acronym SSML + assistant journal pull + cost-cap + end ack)  [92mPASS[0m   0.1s
+  RUN   AI Companion Intelligence (10-layer: turns #25-#34 — shift + repeated-issue + standards + shortcuts + thumbs + discipline + goodbye + confidence + pacing + alerts override)  [92mPASS[0m   0.1s
+  RUN   AI Companion Collaboration + Wellbeing (10-layer: turns #35-#44 — action confirm + wellbeing + encouragement + skill gap + handover + batch + explainability + co-worker mention + fatigue + transcript export)  [92mPASS[0m   0.1s
+  RUN   AI Companion Resilience + Memory (10-layer: turns #45-#54 — offline + cache + escalation + terminology + branching + photo intent + avatar state + benchmark + summary + identity drift)  [92mPASS[0m   0.1s
+  RUN   AI Companion Workflow + Personalization (10-layer: turns #55-#64 — proactive + maturity + slot expiry + action replay + language + brevity + timer + URL prefill + mic quality + action queue)  [92mPASS[0m   0.2s
+  RUN   AI Companion Orchestration + Integration (10-layer: turns #65-#74 — pdf export + pronunciation + voice-execute lock + avatar animation + cross-hive RPC + digest + push + session lock + accent + streaming)  [92mPASS[0m   0.1s
+  RUN   AI Companion Trust Deployment (10-layer: turns #75-#84 — toxicity + question shape + freshness + rate-limit + share + readback + scope + correction + confidence label + crisis extension)  [92mPASS[0m   0.1s
+  RUN   AI Companion Input Normalization + Onboarding (10-layer: turns #85-#94 — precision rule + asset-tag normalization + time-range + ack style + forbidden topics + mic env + pin + help + KPI translation + new-worker welcome)  [92mPASS[0m   0.1s
+  RUN   AI Companion Integration + Audit (10-layer: turns #95-#104 — audit log + quiet hours + preflight + idle cleanup + error analytics + session tag + deep link + grammar guess + phrase pool + shift-end)  [92mPASS[0m   0.1s
+  RUN   AI Companion Proactive Assistance + Learning (10-layer: turns #105-#114 — PM sync drift + skill-level adaptation + cross-asset pattern + intent history + sentiment over time + asset warm-up + symptom normalizer + shift boundary + knowledge gap + mentor handoff)  [92mPASS[0m   0.1s
+  RUN   AI Companion Compliance + Data Governance (10-layer: turns #115-#124 — PII scrubber + consent capture + retention + right-to-erasure + audit CSV + suspicious activity + AI disclosure + locale-aware dates + monthly cost cap + voice drift advisory)  [92mPASS[0m   0.1s
+  RUN   AI Companion Multi-Modal + Accessibility (10-layer: turns #125-#134 — camera capture + file attachment + reduced motion + aria-live + keyboard nav + CB-safe palette + large text + haptic + voice-only mode + live captions)  [92mPASS[0m   0.1s
+  RUN   AI Companion Operational Excellence (10-layer: turns #135-#144 — health ping + self-test + feature flags + browser support + network adapt + memory pressure + clock drift + background pause + crash recovery + presence heartbeat)  [92mPASS[0m   0.1s
+  RUN   AI Companion Team Coordination (10-layer: turns #145-#154 — active sessions + handoff + shared notes + concurrency alert + watchlist + broadcast + resolution + cross-shift continuity + buddy mode + mention notifications)  [92mPASS[0m   0.1s
+  RUN   AI Companion External Integration (10-layer: turns #155-#164 — SAP PM webhook + Maximo poll + OPC-UA tag + MQTT topic + Slack + email digest + Teams card + ICS calendar + signature compare + outbound retry queue)  [92mPASS[0m   0.2s
+  RUN   AI Companion Advanced Analytics (10-layer: turns #165-#174 — 3σ anomaly + Weibull MTBF + Pareto + linear trend + seasonal peak + trimmed mean + z-score + correlation + Weibull CDF + availability)  [92mPASS[0m   0.1s
+  RUN   AI Companion Safety + Permit-to-Work (10-layer: turns #175-#184 — LOTO + hot work + confined space + PPE matrix + near-miss + JSA + gas test + incident + energy isolation + permit expiry)  [92mPASS[0m   0.1s
+  RUN   Agentic RAG Loop Phase 1 (18-layer: edge fn + 5 stages + hive scoping + FREE-TIER-ONLY + callAI + rate limit + retry cap + grader threshold + question cap + trace + cost log + migration + 4-place sync + em-dash safety + JSON mode)  [91mFAIL[0m   0.2s
+  RUN   Hierarchical Period Summaries Phase 2 (16-layer: migration + 5 levels + RLS + aggregator + Breakdown/Corrective filter + FREE-TIER-ONLY + callAI + hive scoping + row cap + empty short-circuit + upsert + 4-place sync + em-dash safety + cost log)  [92mPASS[0m   0.1s
+  RUN   Tiered Model Router Phase 4 (9-layer: TASK_PROFILES + 11 profiles + free-tier values + reorderChain + callAI signature + reorderChain usage + Phase 1 stages wired + Phase 2 digest wired + no paid models)  [92mPASS[0m   0.1s
+  RUN   Agentic RAG Observability Phase 8 (10-layer: page exists + calm-dashboard meta + utils + hive gate + hive-scoped query + narrow select + 4 render fns + escHtml + bounded fetch + window filter)  [92mPASS[0m   0.1s
+  RUN   Temporal RAG Orchestrator Phase 3 (17-layer: edge fn + decompose + 3 granularities + auto-heuristic + MAX_PERIODS + MAX_PARALLEL + runBounded + reads Phase 2 + 2x callAI + sub/fold taskProfiles + FREE-TIER + hive scoping + rate limit before fan-out + 4-place sync + cost log + em-dash safety)  [92mPASS[0m   0.1s
+  RUN   Agent Episodic Memory Phase 7 (12-layer: migration + 4 types + RLS + edge fn + recall+store ops + caps + content cap + importance×log rank + batch cap + hive scoping + 4-place sync + no raw fetch)  [92mPASS[0m   0.1s
+  RUN   Data Fabric Normalizer Phase 5 (9-layer scaffolding: migration + 10 sources + RLS + edge fn + 3 adapters + SHA-256 dedup + hive scoping + duplicate handling + no LLM + 4-place sync)  [92mPASS[0m   0.2s
+  RUN   Cold Lakehouse Archive Phase 6 (10-layer scaffolding: edge fn + 4 supported tables + 503 contract + storage list + hive scoping + Python exporter + --commit dry-run default + ARCHIVE_AGE_MONTHS=18 + no auto-delete safety + 4-place sync)  [92mPASS[0m   0.3s
+  RUN   AI Companion Knowledge Graph (10-layer: turns #185-#194 — entity + relation + triple + RAG block + FNV hash + chunking + citation + query rewrite + reasoning trace + KB version)  [92mPASS[0m   0.2s
+  RUN   AI Companion Energy + Sustainability (10-layer: turns #195-#204 — EnPI + PH carbon factor + peak demand + 5σ energy anomaly + standby waste + water + air leak + motor efficiency + sustainability bundle + energy query)  [92mPASS[0m   0.1s
+  RUN   AI Companion Multi-Language NLU (10-layer: turns #205-#214 — Cebuano + Ilonggo + Tagalog imperative + code-switch ratio + politeness register + PH time phrases + number words + filler strip + stop words + slang dict)  [92mPASS[0m   0.1s
   RUN   Proactive Alerts (Phase 5: KPI spikes, risk escalation, overdue PM)  [92mPASS[0m   0.1s
   RUN   Voice Alert Formatting (Phase 5: alerts render with descriptions, not IDs)  [92mPASS[0m   0.9s
   RUN   Offline Resilience (Phase 6: snapshot caching, response queue)  [92mPASS[0m   0.1s
@@ -42,128 +157,142 @@
   RUN   Multilingual Support (Phase 11: term translation, language prefs)  [92mPASS[0m   0.1s
   RUN   Voice Data Flow Audit (Phase 3/5/8: KB RAG, proactive alerts, analytics)  [92mPASS[0m   0.1s
   RUN   RAG Integrity (Phase 1.5: semantic search, KB chunks, embeddings)  [92mPASS[0m   0.1s
-  RUN   Analytics Integrity (Phase 8: conversation quality metrics, health view)  [92mPASS[0m   0.0s
-  RUN   Team Coordination (Phase 9: cross-hive alerts, best practices sharing)  [92mPASS[0m   0.0s
-  RUN   Tier C Contract Regression Validator (good/bad fixtures per agent contract)  [92mPASS[0m   0.4s
-  RUN   Tier F Capture Contract Regression Validator (good/bad payload fixtures per input surface)  [92mPASS[0m   0.4s
-  RUN   Formula Invocation Drift (Tier D-f refinement: same formula called with different period_days across consumers)  [92mPASS[0m   9.4s
-  RUN   Tier G / Layer 9 Capability Catalog & Dedup (every user-facing function pinned to one primary surface)  [92mPASS[0m   0.4s
-  RUN   Playwright Coverage (every LIVE_TOOL_PAGE has tests/<page>.spec.ts with a real goto)  [92mPASS[0m   0.1s
-  RUN   Seed -> Consumer Contract (TZ-aware date columns + JSONB key contract for AMC-like blobs)  [92mPASS[0m   0.3s
-  RUN   WorkHive UX Contract (input labels [ratchet] + destructive confirm + page title + role-gate)  [92mPASS[0m   1.0s
-  RUN   Supabase Client Singleton (at-most-one createClient per page; shared JS uses singleton)  [92mPASS[0m   0.3s
-  RUN   Write Path Monitor (4-layer: shape drift + orphan RPCs + write hotspots + single-layer writers)  [92mPASS[0m   0.4s
-  RUN   Schema Phantom Column Detector (4-layer: phantom reads + dead columns + alias drift + layer hotspots)  [92mPASS[0m   0.5s
-  RUN   PostgREST Embed Integrity (4-layer: phantom target + phantom embed column + missing FK + embed distribution)  [92mPASS[0m   0.5s
-  RUN   Service-Role Key Exposure (4-layer: service_role identifier + JWT in client + secret env + anon-key inventory)  [92mPASS[0m   1.7s
-  RUN   Migration Immutability (4-layer: edited-after-first-commit + filename convention + whitespace-only + recency)  [91mFAIL[0m  105.3s
-  RUN   RLS Policy Symmetry (4-layer: write-without-read + read-without-create + update gap + CRUD matrix)  [92mPASS[0m   0.3s
-  RUN   Optimistic Concurrency (4-layer: content-without-guard + no-defence-available + writer matrix + adoption count)  [92mPASS[0m   0.3s
-  RUN   PII Egress to Third Parties (4-layer: direct-fetch+PII + AI-prompt+PII + host distribution + PII reach)  [92mPASS[0m   0.5s
-  RUN   Index Coverage (4-layer: high-freq unindexed + med-freq unindexed + coverage matrix + tables-with-only-PK)  [92mPASS[0m   0.3s
-  RUN   CORS Wildcard Audit (4-layer: hardcoded-* + wildcard-on-data + strategy distribution + echo-without-allowlist)  [92mPASS[0m   0.2s
+  RUN   Analytics Integrity (Phase 8: conversation quality metrics, health view)  [92mPASS[0m   0.1s
+  RUN   Team Coordination (Phase 9: cross-hive alerts, best practices sharing)  [92mPASS[0m   0.1s
+  RUN   Tier C Contract Regression Validator (good/bad fixtures per agent contract)  [92mPASS[0m   1.2s
+  RUN   Tier F Capture Contract Regression Validator (good/bad payload fixtures per input surface)  [92mPASS[0m   0.5s
+  RUN   Formula Invocation Drift (Tier D-f refinement: same formula called with different period_days across consumers)  [92mPASS[0m  19.7s
+  RUN   Tier G / Layer 9 Capability Catalog & Dedup (every user-facing function pinned to one primary surface)  [92mPASS[0m   1.1s
+  RUN   Playwright Coverage (every LIVE_TOOL_PAGE has tests/<page>.spec.ts with a real goto)  [92mPASS[0m   0.5s
+  RUN   Seed -> Consumer Contract (TZ-aware date columns + JSONB key contract for AMC-like blobs)  [92mPASS[0m   2.1s
+  RUN   WorkHive UX Contract (input labels [ratchet] + destructive confirm + page title + role-gate)  [91mFAIL[0m   1.8s
+  RUN   Supabase Client Singleton (at-most-one createClient per page; shared JS uses singleton)  [92mPASS[0m   0.4s
+  RUN   Playwright UI Smoke Suite (real browser, silent-failure regression locks per page)  [92mPASS[0m   4.0s
+  RUN   Write Path Monitor (4-layer: shape drift + orphan RPCs + write hotspots + single-layer writers)  [92mPASS[0m   1.3s
+  RUN   Schema Phantom Column Detector (4-layer: phantom reads + dead columns + alias drift + layer hotspots)  [92mPASS[0m   2.6s
+  RUN   PostgREST Embed Integrity (4-layer: phantom target + phantom embed column + missing FK + embed distribution)  [92mPASS[0m   2.1s
+  RUN   KG Facts Scope Split (4-layer: platform table + RPC + voice-handler fan-out + no broadcast pattern)  [92mPASS[0m   0.6s
+  RUN   Service-Role Key Exposure (4-layer: service_role identifier + JWT in client + secret env + anon-key inventory)  [92mPASS[0m   4.6s
+  RUN   Migration Immutability (4-layer: edited-after-first-commit + filename convention + whitespace-only + recency)  [91mFAIL[0m  59.8s
+  RUN   RLS Policy Symmetry (4-layer: write-without-read + read-without-create + update gap + CRUD matrix)  [92mPASS[0m   0.7s
+  RUN   Optimistic Concurrency (4-layer: content-without-guard + no-defence-available + writer matrix + adoption count)  [92mPASS[0m   0.4s
+  RUN   PII Egress to Third Parties (4-layer: direct-fetch+PII + AI-prompt+PII + host distribution + PII reach)  [92mPASS[0m   0.8s
+  RUN   Index Coverage (4-layer: high-freq unindexed + med-freq unindexed + coverage matrix + tables-with-only-PK)  [92mPASS[0m   0.4s
+  RUN   CORS Wildcard Audit (4-layer: hardcoded-* + wildcard-on-data + strategy distribution + echo-without-allowlist)  [92mPASS[0m   0.3s
   RUN   AbortSignal Timeout Coverage (4-layer: external-no-signal + loop-no-timeout + timeout distribution + no-fetch fns)  [92mPASS[0m   0.4s
-  RUN   Cold-Start Memoization (4-layer: createClient-in-handler + multiple-calls + adoption + budget)  [92mPASS[0m   1.1s
+  RUN   Cold-Start Memoization (4-layer: createClient-in-handler + multiple-calls + adoption + budget)  [92mPASS[0m   1.2s
+  RUN   Edge-Fn Pattern Miner (L-1 Convention Mining -- informational, surfaces drift)  [92mPASS[0m   0.4s
+  RUN   HTML Page Pattern Miner (L-1 Convention Mining -- informational, surfaces drift)  [92mPASS[0m   1.1s
+  RUN   JS Shared Module Pattern Miner (L-1 Convention Mining -- informational)  [92mPASS[0m   0.3s
+  RUN   SQL Migration Pattern Miner (L-1 Convention Mining -- informational)  [92mPASS[0m   0.4s
+  RUN   Python Tool Pattern Miner (L-1 Convention Mining -- informational)  [92mPASS[0m   0.3s
+  RUN   Validator Pattern Miner [META] (L-1 Convention Mining -- informational)  [92mPASS[0m   6.4s
+  RUN   Seeder Pattern Miner (L-1 Convention Mining -- informational)  [92mPASS[0m   0.2s
+  RUN   Skill-Rule Miner [L-1.5] (documented rules from SKILL.md -- informational)  [92mPASS[0m   4.7s
+  RUN   Canonical Source Registry [L-1 Foundation] (tables/RPCs/views/surfaces inventory + duplicate signals)  [92mPASS[0m   2.0s
+  RUN   Canonical Overlap (L-1 Layer 2 -- blocks phantom tables + undocumented surface overlaps)  [92mPASS[0m   0.2s
+  RUN   Loads-Utils-JS (3-layer: required + allowlist-freshness + census)  [92mPASS[0m   0.3s
+  RUN   Validator cp1252-Guard (3-layer: required + allowlist + placement)  [92mPASS[0m   0.2s
   RUN   Cascade Behavior (4-layer: no-on-delete-clause + explicit-no-action + distribution + orphan-risk)  [92mPASS[0m   0.2s
-  RUN   Hardcoded Secret Detector (4-layer: provider tokens + generic assignments + provider distribution + allowlist inventory)  [92mPASS[0m   5.3s
-  RUN   Loading State Coverage (4-layer: async-no-loading + submit-no-preventDefault + mechanism distribution + async density)  [92mPASS[0m   2.1s
-  RUN   JSONB Schema Drift (4-layer: unread JSONB + reader-without-writer + key inventory + column census)  [92mPASS[0m  18.7s
+  RUN   Hardcoded Secret Detector (4-layer: provider tokens + generic assignments + provider distribution + allowlist inventory)  [92mPASS[0m   6.8s
+  RUN   Loading State Coverage (4-layer: async-no-loading + submit-no-preventDefault + mechanism distribution + async density)  [92mPASS[0m   3.8s
+  RUN   JSONB Schema Drift (4-layer: unread JSONB + reader-without-writer + key inventory + column census)  [92mPASS[0m  24.6s
   RUN   Validator Self-Coverage Meta-Gate (4-layer: missing script + unregistered + report mismatch + census)  [92mPASS[0m   0.1s
-  RUN   Direct Provider Bypass (4-layer: client provider + edge bypass + SDK drift + distribution)  [92mPASS[0m   7.1s
-  RUN   Cache Invalidation (4-layer: shell missing + shell drift + version history + shell inventory)  [92mPASS[0m   5.4s
+  RUN   Direct Provider Bypass (4-layer: client provider + edge bypass + SDK drift + distribution)  [92mPASS[0m   7.7s
+  RUN   Cache Invalidation (4-layer: shell missing + shell drift + version history + shell inventory)  [92mPASS[0m   3.4s
   RUN   Cross-Hive Realtime Filter Coverage (4-layer: missing filter + channel naming + scoped distribution + density)  [92mPASS[0m   1.0s
-  RUN   Optimistic Update Reconciliation (4-layer: no error path + catch w/o rollback + pattern density + handler distribution)  [92mPASS[0m   1.1s
+  RUN   Optimistic Update Reconciliation (4-layer: no error path + catch w/o rollback + pattern density + handler distribution)  [92mPASS[0m   1.0s
   RUN   Agent Memory Integrity (4-layer: schema + RLS + index + retention)  [92mPASS[0m   0.1s
   RUN   AI Gateway Routing (4-layer: gateway present + routes exist + canonical coverage + inventory)  [92mPASS[0m   0.1s
   RUN   Agent Handoff Contract (4-layer: handoff keys + specialist awareness + worker_name trust + inventory)  [92mPASS[0m   0.1s
-  RUN   SQL Function Security Posture (4-layer: DEFINER+search_path + trigger explicit + matrix + aggregate)  [92mPASS[0m   0.2s
-  RUN   Admin Gate Enforcement (founder-console, marketplace-admin, platform-health must verify admin)  [92mPASS[0m   0.1s
-  RUN   HTML ID Uniqueness (4-layer: dup-within-file + cross-page drift + density + reserved-name)  [92mPASS[0m   1.0s
+  RUN   SQL Function Security Posture (4-layer: DEFINER+search_path + trigger explicit + matrix + aggregate)  [92mPASS[0m   0.3s
+  RUN   Admin Gate Enforcement (founder-console, marketplace-admin, platform-health must verify admin)  [92mPASS[0m   0.2s
+  RUN   HTML ID Uniqueness (4-layer: dup-within-file + cross-page drift + density + reserved-name)  [92mPASS[0m   1.2s
   RUN   Trigger Reentrancy Safety (4-layer: self-write guard + indirect loop + inventory + depth adoption)  [92mPASS[0m   0.3s
-  RUN   Schema Migration Order Safety (4-layer: table order + column order + function order + dependency matrix)  [92mPASS[0m   0.4s
-  RUN   Auth Boundary Coverage (4-layer: HTML identity + edge auth + identity distribution + anon writes)  [92mPASS[0m   2.6s
-  RUN   AI Evaluation Coverage (4-layer: registry present + fixture coverage + eval cron + quality log)  [92mPASS[0m   0.3s
+  RUN   Schema Migration Order Safety (4-layer: table order + column order + function order + dependency matrix)  [92mPASS[0m   0.5s
+  RUN   Auth Boundary Coverage (4-layer: HTML identity + edge auth + identity distribution + anon writes)  [92mPASS[0m   2.2s
+  RUN   AI Evaluation Coverage (4-layer: registry present + fixture coverage + eval cron + quality log)  [92mPASS[0m   0.4s
   RUN   Edge Function Bundle Bloat (4-layer: LOC + imports + distribution + dynamic adoption)  [92mPASS[0m   0.5s
   RUN   Service Worker Offline Coverage (4-layer: critical-in-shell + offline fallback + resilience + register)  [92mPASS[0m   0.4s
-  RUN   Module-Scope Mutable State (4-layer: unbounded growth + eviction adoption + inventory + clean fns)  [92mPASS[0m   2.7s
+  RUN   Module-Scope Mutable State (4-layer: unbounded growth + eviction adoption + inventory + clean fns)  [92mPASS[0m   2.4s
   RUN   Date Arithmetic Safety (4-layer: space-date + parse-vs-ISO + ms literals + TZ-naive helpers)  [92mPASS[0m   1.0s
   RUN   Cron Job Functional Coverage (4-layer: target exists + config entry + AI gate + density)  [92mPASS[0m   0.1s
-  RUN   JSONB Index Drift (4-layer: missing GIN + arrow freq + inventory + op distribution)  [92mPASS[0m   0.6s
+  RUN   JSONB Index Drift (4-layer: missing GIN + arrow freq + inventory + op distribution)  [92mPASS[0m   0.7s
   RUN   Test Page Drift (4-layer: smaller + larger + orphans + inventory)  [92mPASS[0m   0.3s
-  RUN   Embedding Coverage & Freshness (4-layer: refresh pipeline + vector index + source coverage + dim inventory)  [92mPASS[0m   0.6s
-  RUN   AI Cost Observability (4-layer: ledger + callAI logs + dashboard + invocations)  [92mPASS[0m   0.2s
+  RUN   Embedding Coverage & Freshness (4-layer: refresh pipeline + vector index + source coverage + dim inventory)  [92mPASS[0m   0.8s
+  RUN   AI Cost Observability (4-layer: ledger + callAI logs + dashboard + invocations)  [92mPASS[0m   0.3s
   RUN   Per-Hive Resource Quota (4-layer: quota table + trigger coverage + inventory + adoption)  [92mPASS[0m   0.8s
-  RUN   Data Retention / Right-to-Erasure (4-layer: delete path + helper + PII inventory + retention)  [92mPASS[0m   0.5s
-  RUN   AI Input Bounds / Safety (4-layer: field slices + any slice + slice constants + input inventory)  [92mPASS[0m   0.5s
-  RUN   AI Alignment / Provenance (4-layer: source stamp + provenance cols + dashboard filter + inventory)  [92mPASS[0m   0.2s
+  RUN   Data Retention / Right-to-Erasure (4-layer: delete path + helper + PII inventory + retention)  [92mPASS[0m   0.3s
+  RUN   AI Input Bounds / Safety (4-layer: field slices + any slice + slice constants + input inventory)  [92mPASS[0m   0.6s
+  RUN   AI Alignment / Provenance (4-layer: source stamp + provenance cols + dashboard filter + inventory)  [92mPASS[0m   0.3s
   RUN   AI Payload Hygiene (4-layer: no select-star + module prompts + limit bounds + payload inventory)  [92mPASS[0m   0.3s
-  RUN   pgvector Consistency (4-layer: dim match + hive filter + embedding RLS + dim distribution)  [92mPASS[0m   0.2s
-  RUN   PDF Pipeline / Knowledge Ingestion (4-layer: jobs table + runner fn + coverage + inventory)  [92mPASS[0m   0.4s
+  RUN   pgvector Consistency (4-layer: dim match + hive filter + embedding RLS + dim distribution)  [92mPASS[0m   0.3s
+  RUN   PDF Pipeline / Knowledge Ingestion (4-layer: jobs table + runner fn + coverage + inventory)  [92mPASS[0m   0.6s
   RUN   RAG Completeness (4-layer: rerank helper + budget helper + rerank adoption + inventory)  [92mPASS[0m   0.3s
-  RUN   Platform Gateway Coverage (4-layer: gateway present + routes exist + coverage + inventory)  [92mPASS[0m   0.2s
-  RUN   Platform Gateway Audit Completeness (4-layer: schema + writes + RLS + retention)  [92mPASS[0m   0.4s
+  RUN   Platform Gateway Coverage (4-layer: gateway present + routes exist + coverage + inventory)  [92mPASS[0m   0.1s
+  RUN   Platform Gateway Audit Completeness (4-layer: schema + writes + RLS + retention)  [92mPASS[0m   0.2s
   RUN   AI Pattern Compliance (4-layer: rate-gate-first + fallback chain + JSON mode + cost concentration)  [92mPASS[0m   0.2s
   RUN   State Machine Integrity (4-layer: invalid writes + unreachable states + unconstrained columns + writer matrix)  [92mPASS[0m   0.3s
   RUN   Audit Log Coverage (4-layer: unaudited writers + dead audit columns + critical-table coverage + writer matrix)  [92mPASS[0m   0.4s
   RUN   Cron Schedule Integrity (4-layer: function existence + scheduled-agents routing + config drift + schedule sanity)  [92mPASS[0m   0.1s
-  RUN   RLS Readiness Audit (4-layer: lockout traps + dead policies + permissive USING(true) catalog + verb completeness)  [92mPASS[0m   0.2s
+  RUN   RLS Readiness Audit (4-layer: lockout traps + dead policies + permissive USING(true) catalog + verb completeness)  [92mPASS[0m   0.3s
   RUN   Auth Migration Readiness (Phase A audit: sibling coverage + auth_uid columns + identity gate strength)  [92mPASS[0m   0.3s
-  RUN   Edge Function Caller Contract (4-layer: function existence + required field coverage + phantom fields + orphan functions)  [92mPASS[0m   0.2s
-  RUN   Env Secret Coverage (4-layer: declared coverage + required-vs-optional + orphan keys + hardcoded secret detection)  [92mPASS[0m   0.4s
-  RUN   Realtime Payload Consumer Contract (4-layer: subscribed table + payload columns + filter columns + channel name uniqueness)  [92mPASS[0m   0.3s
+  RUN   Edge Function Caller Contract (4-layer: function existence + required field coverage + phantom fields + orphan functions)  [92mPASS[0m   0.3s
+  RUN   Env Secret Coverage (4-layer: declared coverage + required-vs-optional + orphan keys + hardcoded secret detection)  [91mFAIL[0m   0.7s
+  RUN   Realtime Payload Consumer Contract (4-layer: subscribed table + payload columns + filter columns + channel name uniqueness)  [92mPASS[0m   0.4s
   RUN   Edge Function Response Contract (4-layer: function returns + caller field validity + introspection coverage + error-only detection)  [92mPASS[0m   0.2s
-  RUN   Realtime Subscription Cleanup (4-layer: cleanup pairing + lifecycle wiring + const-decl warning + asymmetry metric)  [92mPASS[0m   1.2s
-  RUN   Reliability Workbench Validator (FMEA + RCM + Weibull + P-F schema, RLS, canonical registration)  [92mPASS[0m   0.1s
+  RUN   Realtime Subscription Cleanup (4-layer: cleanup pairing + lifecycle wiring + const-decl warning + asymmetry metric)  [92mPASS[0m   1.0s
+  RUN   Reliability Workbench Validator (FMEA + RCM + Weibull + P-F schema, RLS, canonical registration)  [92mPASS[0m   0.2s
   RUN   Maturity Gating Validator (Phase 0.5: gated pages load maturity-gate.js + call checkMaturityGate + render honest empty state)  [92mPASS[0m   0.1s
   RUN   AMC Validator (Phase 1.9: amc_briefings migration + cost log + realtime + alert-hub subscription + canonical anchor)  [92mPASS[0m   0.1s
   RUN   Visual Defect Capture Validator (Phase 1.9: callAIMultimodal + rate-limit + MIME whitelist + fire-and-forget embed + cost log)  [92mPASS[0m   0.1s
   RUN   Sensor Pipeline Validator (Phase 1.9: sensor_readings schema + realtime + asset-hub subscription + anomaly module)  [92mPASS[0m   0.1s
-  RUN   Achievements Validator (Phase 1.9: badge_key + catalog-not-in-reset + worker_achievements realtime + ON CONFLICT shape)  [92mPASS[0m   0.1s
-  RUN   Day Planner Validator (Phase 1.9: DILO/WILO/MILO/YILO tabs + schedule_items + nav-hub linkage + auth-aware)  [92mPASS[0m   0.1s
-  RUN   Resilience Validator (Phase 1.10 reframe: offline queue + network-loss UI + fetchWithTimeout + shared-device sign-out)  [92mPASS[0m   0.2s
-  RUN   Adoption Observability Validator (Phase 3.6: hive_adoption_score migration + supervisor card + onboarding stepper + intent capture + canonical anchors)  [92mPASS[0m   0.1s
-  RUN   Revenue Surfaces Validator (Phase 4: AI Quality Stair 2 gate + Anomaly Engine 2.0 Stair 3 gate + Knowledge Pipeline tile + canonical anchors)  [92mPASS[0m   0.1s
-  RUN   Enterprise Unlock Validator (Phase 5: retention + soft-delete cron + PDPA export + auth_session_events + MFA scaffold + SSO scaffold + Plant Connections Console)  [92mPASS[0m   0.2s
-  RUN   Industry-Defining Validator (Phase 6: knowledge graph + drone inspections + standards registry + federated opt-in + insurance bridge view + MaaS consulting engagements)  [92mPASS[0m   0.2s
-  RUN   Audit Trail Coverage (2-layer: lifecycle status updates write to hive_audit_log + every action name has ACTION_ICON entry)  [92mPASS[0m   0.3s
-  RUN   Realtime Publication Coverage Validator (subscribed tables in supabase_realtime)  [92mPASS[0m   0.3s
-  RUN   Hive-State LocalStorage Consistency Validator (branch-symmetry on hive.html)  [92mPASS[0m   0.1s
-  RUN   Soft-Delete Read-Path Validator (.is(deleted_at, null) on every SELECT)  [92mPASS[0m   0.2s
-  RUN   Schema Drift Validator (HTML SELECT columns exist in EXPECTED_SCHEMA)  [92mPASS[0m   0.2s
+  RUN   Achievements Validator (Phase 1.9: badge_key + catalog-not-in-reset + worker_achievements realtime + ON CONFLICT shape)  [92mPASS[0m   0.2s
+  RUN   Day Planner Validator (Phase 1.9: DILO/WILO/MILO/YILO tabs + schedule_items + nav-hub linkage + auth-aware)  [92mPASS[0m   0.2s
+  RUN   Resilience Validator (Phase 1.10 reframe: offline queue + network-loss UI + fetchWithTimeout + shared-device sign-out)  [92mPASS[0m   0.6s
+  RUN   Adoption Observability Validator (Phase 3.6: hive_adoption_score migration + supervisor card + onboarding stepper + intent capture + canonical anchors)  [92mPASS[0m   0.5s
+  RUN   Revenue Surfaces Validator (Phase 4: AI Quality Stair 2 gate + Anomaly Engine 2.0 Stair 3 gate + Knowledge Pipeline tile + canonical anchors)  [92mPASS[0m   0.8s
+  RUN   Enterprise Unlock Validator (Phase 5: retention + soft-delete cron + PDPA export + auth_session_events + MFA scaffold + SSO scaffold + Plant Connections Console)  [92mPASS[0m   0.3s
+  RUN   Industry-Defining Validator (Phase 6: knowledge graph + drone inspections + standards registry + federated opt-in + insurance bridge view + MaaS consulting engagements)  [92mPASS[0m   0.4s
+  RUN   Audit Trail Coverage (2-layer: lifecycle status updates write to hive_audit_log + every action name has ACTION_ICON entry)  [92mPASS[0m   0.5s
+  RUN   Realtime Publication Coverage Validator (subscribed tables in supabase_realtime)  [92mPASS[0m   0.5s
+  RUN   Hive-State LocalStorage Consistency Validator (branch-symmetry on hive.html)  [92mPASS[0m   0.2s
+  RUN   Soft-Delete Read-Path Validator (.is(deleted_at, null) on every SELECT)  [92mPASS[0m   0.6s
+  RUN   Schema Drift Validator (HTML SELECT columns exist in EXPECTED_SCHEMA)  [92mPASS[0m   0.7s
 
   [96mDATA QUALITY[0m
   --------------------------------------------------------------------
-  RUN   Logbook Consistency (closed_at set, Open no closed_at, parts txn parity)  [92mPASS[0m   4.8s
-  RUN   Pattern Alerts Quality (no <think> leak, valid rule_ids, non-empty text)  [92mPASS[0m   2.6s
-  RUN   Inventory Integrity (no negative qty, valid txn types, qty_after accuracy)  [92mPASS[0m   2.8s
+  RUN   Logbook Consistency (closed_at set, Open no closed_at, parts txn parity)  [92mPASS[0m   5.5s
+  RUN   Pattern Alerts Quality (no <think> leak, valid rule_ids, non-empty text)  [92mPASS[0m   3.4s
+  RUN   Inventory Integrity (no negative qty, valid txn types, qty_after accuracy)  [92mPASS[0m   4.3s
   RUN   Hive Validator                                        [92mPASS[0m   0.1s
   RUN   Logbook Validator                                     [92mPASS[0m   0.1s
-  RUN   Inventory Validator                                   [92mPASS[0m   0.1s
-  RUN   Marketplace Validator (4-layer: schema + edge functions + UI gates + money flow)  [92mPASS[0m   0.2s
-  RUN   PM Scheduler Validator                                [92mPASS[0m   0.2s
+  RUN   Inventory Validator                                   [92mPASS[0m   0.2s
+  RUN   Marketplace Validator (4-layer: schema + edge functions + UI gates + money flow)  [92mPASS[0m   0.3s
+  RUN   PM Scheduler Validator                                [92mPASS[0m   0.1s
   RUN   Skill Matrix Validator                                [92mPASS[0m   0.3s
-  RUN   Report Sender Validator (32 checks: structure + UI + logic + PWA)  [92mPASS[0m   0.1s
-  RUN   Community Validator (24 checks: XSS + isolation + access + realtime + standards + feature schema completeness)  [92mPASS[0m   0.2s
-  RUN   Assistant Validator                                   [92mPASS[0m   0.2s
-  RUN   AI Context Quality Validator                          [92mPASS[0m   0.1s
-  RUN   Input Guards Validator                                [92mPASS[0m   0.5s
-  RUN   Schema Consistency Validator                          [92mPASS[0m   5.6s
-  RUN   Observability Validator                               [92mPASS[0m   0.9s
+  RUN   Report Sender Validator (32 checks: structure + UI + logic + PWA)  [92mPASS[0m   0.3s
+  RUN   Community Validator (24 checks: XSS + isolation + access + realtime + standards + feature schema completeness)  [92mPASS[0m   0.3s
+  RUN   Assistant Validator                                   [92mPASS[0m   0.3s
+  RUN   AI Context Quality Validator                          [92mPASS[0m   0.2s
+  RUN   Input Guards Validator                                [92mPASS[0m   0.7s
+  RUN   Schema Consistency Validator                          [92mPASS[0m   8.4s
+  RUN   Observability Validator                               [92mPASS[0m   1.4s
   RUN   Data Governance Validator                             [92mPASS[0m   0.5s
-  RUN   PWA Integrity Validator                               [91mFAIL[0m   3.3s
+  RUN   PWA Integrity Validator                               [91mFAIL[0m   2.3s
   RUN   Accessibility Baseline Validator                      [92mPASS[0m   0.6s
-  RUN   Tenant Boundary Escape Validator (5-layer, +nullable auth_uid RLS trap)  [92mPASS[0m   1.4s
-  RUN   AI Prompt Regression Validator                        [92mPASS[0m   0.1s
-  RUN   Timer and Scheduled Job Hygiene                       [92mPASS[0m   1.5s
-  RUN   XSS / escHtml Coverage Validator                      [92mPASS[0m   1.7s
-  RUN   SEO and Page Metadata Validator                       [92mPASS[0m   0.2s
-  RUN   Mobile UX Compliance Validator                        [92mPASS[0m   0.6s
-  RUN   Nav Hub Registry Validator                            [92mPASS[0m   0.1s
-  RUN   Performance Anti-Pattern Validator                    [92mPASS[0m   1.5s
+  RUN   Tenant Boundary Escape Validator (5-layer, +nullable auth_uid RLS trap)  [92mPASS[0m   1.8s
+  RUN   AI Prompt Regression Validator (4-layer: consistency + content + parity + Tier-S citation)  [92mPASS[0m   0.1s
+  RUN   Timer and Scheduled Job Hygiene                       [92mPASS[0m   1.4s
+  RUN   XSS / escHtml Coverage Validator                      [92mPASS[0m   2.2s
+  RUN   SEO and Page Metadata Validator                       [92mPASS[0m   0.3s
+  RUN   Mobile UX Compliance Validator                        [92mPASS[0m   0.8s
+  RUN   Nav Hub Registry Validator                            [92mPASS[0m   0.2s
+  RUN   Performance Anti-Pattern Validator                    [92mPASS[0m   1.9s
   RUN   Catalog Approval Status Validator                     [92mPASS[0m   0.2s
-  RUN   Drawing Standards Compliance Validator                [92mPASS[0m   2.5s
-  RUN   Diagram Inputs Contract Validator (inp.xxx vs collectInputs keys)  [92mPASS[0m   0.4s
-  RUN   Enterprise Compliance Baseline Validator              [92mPASS[0m   0.3s
+  RUN   Drawing Standards Compliance Validator                [92mPASS[0m   1.9s
+  RUN   Diagram Inputs Contract Validator (inp.xxx vs collectInputs keys)  [92mPASS[0m   0.3s
+  RUN   Enterprise Compliance Baseline Validator              [92mPASS[0m   0.2s
   RUN   Notification and Alert Health Validator               [92mPASS[0m   0.1s
   RUN   Predictive Analytics Data Quality Validator           [92mPASS[0m   0.1s
   RUN   Vector Knowledge Base Schema Validator                [92mPASS[0m   0.2s
@@ -173,80 +302,92 @@
   RUN   Context Window Management Validator                   [92mPASS[0m   0.1s
   RUN   Knowledge Base Freshness Validator                    [92mPASS[0m   0.3s
   RUN   SSO Readiness Validator                               [92mPASS[0m   0.5s
-  RUN   Webhook and Integration Idempotency Validator (5-layer, +UPDATE col exists, +backfill timing)  [91mFAIL[0m   1.7s
-  RUN   Integration Security Baseline Validator (3-layer, +cors dynamic, +deploy coverage)  [92mPASS[0m   1.2s
-  RUN   CMMS Contracts Validator (STATUS_MAP parity, DB column targets, shared imports)  [92mPASS[0m   0.1s
-  RUN   Digital Twin Schema Readiness Validator               [92mPASS[0m   0.2s
+  RUN   Webhook and Integration Idempotency Validator (5-layer, +UPDATE col exists, +backfill timing)  [92mPASS[0m   1.9s
+  RUN   Integration Security Baseline Validator (3-layer, +cors dynamic, +deploy coverage)  [92mPASS[0m   0.9s
+  RUN   CMMS Contracts Validator (STATUS_MAP parity, DB column targets, shared imports)  [92mPASS[0m   0.2s
+  RUN   CMMS Reconciliation Validator (external_sync vs table counts, audit coverage, quality scores)  [92mPASS[0m   2.9s
+  RUN   Digital Twin Schema Readiness Validator               [92mPASS[0m   0.4s
   RUN   IoT and MQTT Protocol Safety Validator                [92mPASS[0m   1.1s
   RUN   Content Quality Validator (embed guard, schema drift, label quality)  [92mPASS[0m   0.1s
   RUN   Data Governance Validator (ownership, metadata, write path, versioning)  [92mPASS[0m   0.5s
   RUN   AI Data Pipeline Validator (stale data, silos, latency, observability)  [92mPASS[0m   0.1s
   RUN   Data Quality Validator (duplicates, incomplete, bias, inconsistent formats)  [92mPASS[0m   0.1s
-  RUN   Analytics Engine Validator (4-layer: HTML + Edge + Python + AST)  [92mPASS[0m   3.8s
-  RUN   Project Manager Validator (4-layer: HTML + Edge + Python + Smoke)  [92mPASS[0m   0.2s
+  RUN   Analytics Engine Validator (4-layer: HTML + Edge + Python + AST)  [92mPASS[0m  13.9s
+  RUN   Project Manager Validator (4-layer: HTML + Edge + Python + Smoke)  [92mPASS[0m   0.3s
   RUN   ML Layer Validator (5-layer: features + API + artifacts + edge fns + UI)  [92mPASS[0m   0.2s
-  RUN   Playwright Staleness Gate (L13 — walkthrough coverage + finding closure + chip assertions)  [92mPASS[0m   0.2s
+  RUN   Analytics Live Test (L4 — deployed endpoint, all 4 phases)  [92mPASS[0m  55.8s
+  RUN   Calc Integration Test (L3 — live edge function)       [92mPASS[0m  114.7s
+  RUN   Playwright Staleness Gate (L13 — walkthrough coverage + finding closure + chip assertions)  [92mPASS[0m   0.5s
 
   [96mAI VALIDATION[0m
   --------------------------------------------------------------------
   RUN   AI Self-Improvement: Voice Kb Context                 [92mPASS[0m   0.1s
-  RUN   AI Self-Improvement: Voice Alert Order                [91mFAIL[0m   0.1s
-  RUN   AI Self-Improvement: Voice Response Latency           [91mFAIL[0m   0.1s
-  RUN   AI Self-Improvement: Response Format Validation       [91mFAIL[0m   0.1s
-  RUN   AI Self-Improvement: Data Completeness                [91mFAIL[0m   0.1s
-  RUN   AI Self-Improvement: Calc Formula Accuracy            [91mFAIL[0m   0.1s
+  RUN   AI Self-Improvement: Voice Alert Order                [92mPASS[0m   0.1s
+  RUN   AI Self-Improvement: Voice Response Latency           [92mPASS[0m   0.1s
+  RUN   AI Self-Improvement: Response Format Validation       [92mPASS[0m   0.1s
+  RUN   AI Self-Improvement: Data Completeness                [92mPASS[0m   0.1s
+  RUN   AI Self-Improvement: Calc Formula Accuracy            [92mPASS[0m   0.1s
 
   [96mSENTINEL[0m
   --------------------------------------------------------------------
-  RUN   Sentinel Review (L0->L2 bridge: coverage + pattern + depth + freshness)  [92mPASS[0m   5.3s
-  RUN   Sentinel Baseline Ratchet (forward-only behavioral coverage; locks at first run)  [92mPASS[0m   0.2s
+  RUN   Sentinel Review (L0->L2 bridge: coverage + pattern + depth + freshness)  [92mPASS[0m  25.4s
+  RUN   Sentinel Baseline Ratchet (forward-only behavioral coverage; locks at first run)  [92mPASS[0m   0.1s
 
   [96mSEO CLOSED LOOP[0m
   --------------------------------------------------------------------
-  RUN   Em-Dash Validator (no em or en dashes in public body text)  [92mPASS[0m   0.7s
-  RUN   Contact Consistency Validator (3-layer: no stale hello@/ian.beronio37@ + canonical admin@ present)  [92mPASS[0m   0.6s
-  RUN   GA4 Coverage Validator (4-layer: GA4 block + wh-ga4.js load + canonical ID + custom-events file)  [92mPASS[0m   0.6s
-  RUN   Audience Block Validator (3-layer: every /learn/ article has Who-this-is-for + 4+ roles + beyond-technicians)  [92mPASS[0m   0.8s
-  RUN   Tool-Aligned CTA Validator (3-layer: every /learn/ article anchors to a /<tool>.html + names the tool)  [92mPASS[0m   1.0s
-  RUN   Sitemap Sync Validator (3-layer: sitemap URLs <-> filesystem in sync + metadata complete)  [92mPASS[0m   0.6s
-  RUN   llms.txt Sync Validator (4-layer: every article in llms.txt + no stale slugs + sections + contact)  [92mPASS[0m   0.5s
-  RUN   AI Chain Mirror Validator (4-layer: Python ai_chain.py mirrors TS _shared/ai-chain.ts PROVIDER_CHAIN)  [92mPASS[0m   0.6s
+  RUN   Em-Dash Validator (no em or en dashes in public body text)  [92mPASS[0m   0.2s
+
+  [96mPLATFORM FEEDBACK[0m
+  --------------------------------------------------------------------
+  RUN   Feedback Widget Validator (3-layer: script wiring + form integrity + schema RLS/rate-limit/resolved_at)  [92mPASS[0m   0.2s
+  RUN   Contact Consistency Validator (3-layer: no stale hello@/ian.beronio37@ + canonical admin@ present)  [92mPASS[0m   0.3s
+  RUN   GA4 Coverage Validator (4-layer: GA4 block + wh-ga4.js load + canonical ID + custom-events file)  [92mPASS[0m   0.4s
+  RUN   Audience Block Validator (3-layer: every /learn/ article has Who-this-is-for + 4+ roles + beyond-technicians)  [92mPASS[0m   1.4s
+  RUN   Tool-Aligned CTA Validator (3-layer: every /learn/ article anchors to a /<tool>.html + names the tool)  [92mPASS[0m   0.5s
+  RUN   Sitemap Sync Validator (3-layer: sitemap URLs <-> filesystem in sync + metadata complete)  [92mPASS[0m   0.2s
+  RUN   llms.txt Sync Validator (4-layer: every article in llms.txt + no stale slugs + sections + contact)  [92mPASS[0m   0.3s
+  RUN   AI Chain Mirror Validator (4-layer: Python ai_chain.py mirrors TS _shared/ai-chain.ts PROVIDER_CHAIN)  [92mPASS[0m   0.3s
 
   [96mREADINESS GATE[0m
   --------------------------------------------------------------------
-  [93mWARN[0m  Git working tree                        1 uncommitted file(s)
-  [96mSKIP[0m  Python API (Render)                     --fast mode
-  [96mSKIP[0m  Supabase edge function                  --fast mode
+  [93mWARN[0m  Git working tree                        5 uncommitted file(s)
+  [92mPASS[0m  Python API (Render)                     HTTP 200
+  [92mPASS[0m  Supabase edge function                  OPTIONS 200
 
   FAILURES
   --------------------------------------------------------------------
-  [91mFAIL[0m  Engineering Calc Suite (L1+L2a+L2b)
-  [91mFAIL[0m  Schema Coverage Validator (auto-derived from migrations, table+column existence)
-         [FAIL] table_exists       2 unknown table(s): v_inventory_truth (voice
-  [91mFAIL[0m  Canonical Anchor Gate (8-layer forward-anchor: fuel/engine/Tier A/Tier C/formula/standard/dashboard/capture)
-         [91mFAIL[0m  L1  Fuel: every new table registered in canonical_sourc
+  [91mFAIL[0m  Auto-discovery Validator (HTML classified, edge fns in config, validators registered)
+         [FAIL] validator_registered           2 validator(s) not registered in
+  [91mFAIL[0m  Phantom Capture Auditor (reverse-lineage: every <input>/<select> must have >=1 downstream consumer)
+  [91mFAIL[0m  Phantom Column Auditor (schema-bloat: every column in registry must have >=1 consumer)
+  [91mFAIL[0m  Env Variable Existence (every env reference must be in .env.example/README; forward-only ratchet)
+         missing:          2  (baseline: 0)
+  [91mFAIL[0m  Native alert/confirm/prompt (production code must use the platform toast/modal stack; forward-only ratchet)
+  [91mFAIL[0m  Agentic RAG Loop Phase 1 (18-layer: edge fn + 5 stages + hive scoping + FREE-TIER-ONLY + callAI + rate limit + retry cap + grader threshold + question cap + trace + cost log + migration + 4-place sync + em-dash safety + JSON mode)
+         [91mFAIL[0m  R17 No em dashes in system prompts (encoding safety)
+  [91mFAIL[0m  WorkHive UX Contract (input labels [ratchet] + destructive confirm + page title + role-gate)
+         [91mFAIL[0m  A3  Every destructive button has a confirm()/modal step
   [91mFAIL[0m  Migration Immutability (4-layer: edited-after-first-commit + filename convention + whitespace-only + recency)
          [91mFAIL[0m  L1  No migration file edited after its first commit    
+  [91mFAIL[0m  Env Secret Coverage (4-layer: declared coverage + required-vs-optional + orphan keys + hardcoded secret detection)
+         [91mFAIL[0m  L1  Every Deno.env.get('FOO') is declared in .env, buil
   [91mFAIL[0m  PWA Integrity Validator
          [91mFAIL[0m  L6  SHELL_FILES not committed after sw.js (cache is fre
-  [91mFAIL[0m  Webhook and Integration Idempotency Validator (5-layer, +UPDATE col exists, +backfill timing)
-         [91mFAIL[0m  L0  CREATE POLICY preceded by DROP POLICY IF EXISTS
-  [91mFAIL[0m  AI Self-Improvement: Voice Alert Order
-  [91mFAIL[0m  AI Self-Improvement: Voice Response Latency
-  [91mFAIL[0m  AI Self-Improvement: Response Format Validation
-  [91mFAIL[0m  AI Self-Improvement: Data Completeness
-  [91mFAIL[0m  AI Self-Improvement: Calc Formula Accuracy
 
   [91mREGRESSIONS DETECTED[0m (was PASS, now FAIL):
-  [91mREG[0m  Engineering Calc Suite (L1+L2a+L2b)
-  [91mREG[0m  Schema Coverage Validator (auto-derived from migrations, table+column existence)
-  [91mREG[0m  Canonical Anchor Gate (8-layer forward-anchor: fuel/engine/Tier A/Tier C/formula/standard/dashboard/capture)
+  [91mREG[0m  Auto-discovery Validator (HTML classified, edge fns in config, validators registered)
+  [91mREG[0m  Phantom Capture Auditor (reverse-lineage: every <input>/<select> must have >=1 downstream consumer)
+  [91mREG[0m  Phantom Column Auditor (schema-bloat: every column in registry must have >=1 consumer)
+  [91mREG[0m  Env Variable Existence (every env reference must be in .env.example/README; forward-only ratchet)
+  [91mREG[0m  Native alert/confirm/prompt (production code must use the platform toast/modal stack; forward-only ratchet)
+  [91mREG[0m  Agentic RAG Loop Phase 1 (18-layer: edge fn + 5 stages + hive scoping + FREE-TIER-ONLY + callAI + rate limit + retry cap + grader threshold + question cap + trace + cost log + migration + 4-place sync + em-dash safety + JSON mode)
+  [91mREG[0m  WorkHive UX Contract (input labels [ratchet] + destructive confirm + page title + role-gate)
   [91mREG[0m  Migration Immutability (4-layer: edited-after-first-commit + filename convention + whitespace-only + recency)
+  [91mREG[0m  Env Secret Coverage (4-layer: declared coverage + required-vs-optional + orphan keys + hardcoded secret detection)
   [91mREG[0m  PWA Integrity Validator
-  [91mREG[0m  Webhook and Integration Idempotency Validator (5-layer, +UPDATE col exists, +backfill timing)
 ========================================================================
 
   [1m[91mBLOCKED — fix failures before deploying[0m[0m
-  178 PASS  11 FAIL  0 WARN  4 SKIP  |  557.6s total
+  312 PASS  10 FAIL  0 WARN  0 SKIP  |  1191.3s total
 
   Saved platform_health.json

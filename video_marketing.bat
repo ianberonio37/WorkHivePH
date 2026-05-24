@@ -65,9 +65,15 @@ echo  After login completes, the dashboard will start automatically.
 echo.
 pause
 
-:: Run login synchronously (same console) and wait for it to finish
+:: Run login synchronously (same console) and wait for it to finish.
+:: IMPORTANT: do NOT use `call notebooklm login` here. There's a local
+:: `notebooklm.bat` in this folder that intercepts the call and routes it
+:: to `notebooklm_campaign.py login`, which doesn't have a `login` command
+:: (argparse error: "invalid choice: 'login'"). Bypass the shim by
+:: calling the Python module directly — `python -m notebooklm login`
+:: imports the lib's CLI module and runs it with no PATH lookup.
 pushd "%PROJ%" >nul 2>&1
-call notebooklm login
+python -m notebooklm login
 popd >nul 2>&1
 
 :: Verify it actually worked

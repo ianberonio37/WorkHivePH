@@ -1224,10 +1224,18 @@
 
     document.getElementById('scriptBody').innerHTML = marked.parse(content);
 
-    // Update the kit with full narration/prompt data now that script is loaded
+    // Update the kit with full narration/prompt data now that script is loaded.
+    // CRITICAL: re-call loadNlmStatus + loadAssets after the swap. The initial
+    // render at idea-open already populated those, but innerHTML overwrite
+    // wipes them — without re-calling, the NotebookLM artifact grid silently
+    // empties for any idea that has a script_file.
     renderProductionKit(selectedId, content).then(kitHtml => {
       const kz = document.getElementById('kitZone');
-      if (kz) kz.innerHTML = kitHtml;
+      if (kz) {
+        kz.innerHTML = kitHtml;
+        loadAssets(selectedId);
+        loadNlmStatus(selectedId);
+      }
     });
 
     // Load Platform Pack section (shows "Generate" button if not yet generated)
@@ -1682,12 +1690,12 @@
     if (state === 'awaiting') {
       return base +
         '<strong>👉 Sign in to NotebookLM</strong> in the Chromium window that just opened.<br>' +
+        '<span style="font-size:.7rem;color:var(--steel)">' +
+          'Auto-detection is active — once you\'re signed in, the dashboard updates itself. No button needed.' +
+        '</span><br>' +
         '<span style="font-size:.65rem;color:var(--steel)">If no window appeared, ' +
-        '<a href="#" onclick="nlmReloginStart(\'' + ideaId + '\'); return false" style="color:var(--cyan)">retry</a>.</span><br><br>' +
-        '<button class="btn-nlm" onclick="nlmReloginConfirm(\'' + ideaId + '\')" id="nlmReloginConfirmBtn-' + ideaId + '">' +
-          '✓ I\'m signed in →' +
-        '</button> ' +
-        '<span id="nlmReloginElapsed-' + ideaId + '" style="font-size:.65rem;color:var(--steel);margin-left:.5rem"></span>' +
+        '<a href="#" onclick="nlmReloginStart(\'' + ideaId + '\'); return false" style="color:var(--cyan)">retry</a>.</span><br>' +
+        '<span id="nlmReloginElapsed-' + ideaId + '" style="font-size:.65rem;color:var(--steel)"></span>' +
         close;
     }
     if (state === 'saving') {
@@ -1730,78 +1738,82 @@
 
     msg.innerHTML = renderReloginPanel(ideaId, 'awaiting');
 
-    // While the user is signing in, update the elapsed counter every 2s.
+    // The Playwright helper auto-detects sign-in and saves the session
+    // itself. We poll two things in lockstep:
+    //   (a) /relogin/status — did the helper finish? (success or error)
+    //   (b) /session-check — is the session now valid?
+    // Either signal flips us to the appropriate terminal state.
     const startedAt = Date.now();
-    const elapsedTick = setInterval(() => {
+    let stopped = false;
+    const MAX_SECONDS = 12 * 60;     // 12 min hard cap
+
+    const updateElapsed = () => {
       const el = document.getElementById('nlmReloginElapsed-' + ideaId);
-      if (!el) { clearInterval(elapsedTick); return; }
+      if (!el || stopped) return;
       const s = Math.floor((Date.now() - startedAt) / 1000);
-      el.textContent = '(' + s + 's elapsed)';
-      // Also poll the relogin/status — if subprocess died unexpectedly,
-      // surface that before the user clicks confirm.
-      if (s > 5 && s % 8 === 0) {
-        fetch('/api/notebooklm/relogin/status').then(r => r.json()).then(s => {
-          if (s.state === 'error' || (s.state === 'done' && s.returncode !== 0)) {
-            clearInterval(elapsedTick);
-            msg.innerHTML = renderReloginPanel(ideaId, 'error', {
-              error: 'Login process exited unexpectedly: ' + (s.output_tail || '').slice(-200),
-            });
-          }
-        }).catch(() => {});
-      }
-    }, 2000);
-    // Stash the interval id on the panel so confirm can clear it
-    msg.dataset.elapsedTick = elapsedTick;
-  }
+      el.textContent = '(' + s + 's waiting…)';
+    };
+    const elapsedTick = setInterval(updateElapsed, 1000);
 
-  async function nlmReloginConfirm(ideaId) {
-    const msg = document.getElementById('nlmMsg-' + ideaId);
-    const btn = document.getElementById('nlmReloginConfirmBtn-' + ideaId);
-    if (btn) { btn.disabled = true; btn.textContent = 'Saving…'; }
-    if (msg.dataset.elapsedTick) {
-      clearInterval(parseInt(msg.dataset.elapsedTick, 10));
-    }
-
-    try {
-      const r = await fetch('/api/notebooklm/relogin/confirm', { method: 'POST' });
-      const d = await r.json();
-      if (!d.success) throw new Error(d.error || 'Confirm failed');
-    } catch (err) {
-      msg.innerHTML = renderReloginPanel(ideaId, 'error', { error: err.message });
-      return;
-    }
-
-    // Now poll for session validity. The subprocess takes 2-5 sec to save.
-    const startedAt = Date.now();
-    msg.innerHTML = renderReloginPanel(ideaId, 'saving', { elapsed: 0 });
-    const MAX = 30;   // 30 * 2s = 60s
-    let attempts = 0;
     const poll = async () => {
-      attempts += 1;
-      const elapsed = Math.floor((Date.now() - startedAt) / 1000);
+      if (stopped) return;
+      const seconds = Math.floor((Date.now() - startedAt) / 1000);
+      if (seconds > MAX_SECONDS) {
+        stopped = true; clearInterval(elapsedTick);
+        msg.innerHTML = renderReloginPanel(ideaId, 'error', {
+          error: 'Timed out after 12 minutes. If you finished signing in, click Re-authenticate Now to try a fresh detection.',
+        });
+        return;
+      }
       try {
-        const r = await fetch('/api/notebooklm/session-check', { method: 'POST' });
-        const d = await r.json();
-        if (d.valid) {
+        // Check helper status — exit code 0 means saved successfully
+        const sRes = await fetch('/api/notebooklm/relogin/status').then(r => r.json());
+        if (sRes.state === 'done' && sRes.returncode === 0) {
+          // Helper succeeded. Verify session is live.
+          const vRes = await fetch('/api/notebooklm/session-check', { method: 'POST' }).then(r => r.json());
+          if (vRes.valid) {
+            stopped = true; clearInterval(elapsedTick);
+            msg.className = 'nlm-message done';
+            msg.innerHTML = renderReloginPanel(ideaId, 'restored');
+            const runBtn = document.getElementById('nlmRunBtn-' + ideaId);
+            if (runBtn) { runBtn.disabled = false; runBtn.textContent = 'Run Campaign'; }
+            return;
+          }
+        }
+        if (sRes.state === 'error') {
+          stopped = true; clearInterval(elapsedTick);
+          const tail = (sRes.output_tail || '').trim().slice(-300);
+          msg.innerHTML = renderReloginPanel(ideaId, 'error', {
+            error: 'Login helper exited with code ' + sRes.returncode + '. ' +
+                   (tail ? 'Last output: ' + tail : 'Check the helper window for details.'),
+          });
+          return;
+        }
+        // Still running — also try session-check; if the helper saved
+        // already and we just missed the status transition, this catches
+        // it.
+        const vRes = await fetch('/api/notebooklm/session-check', { method: 'POST' }).then(r => r.json());
+        if (vRes.valid) {
+          stopped = true; clearInterval(elapsedTick);
           msg.className = 'nlm-message done';
           msg.innerHTML = renderReloginPanel(ideaId, 'restored');
           const runBtn = document.getElementById('nlmRunBtn-' + ideaId);
           if (runBtn) { runBtn.disabled = false; runBtn.textContent = 'Run Campaign'; }
           return;
         }
-        if (attempts >= MAX) {
-          msg.innerHTML = renderReloginPanel(ideaId, 'error', {
-            error: 'Session still not detected after 60s. The browser window may not have completed sign-in.',
-          });
-          return;
-        }
-        msg.innerHTML = renderReloginPanel(ideaId, 'saving', { elapsed: elapsed });
-        setTimeout(poll, 2000);
       } catch (err) {
-        if (attempts < MAX) setTimeout(poll, 2500);
+        // Network blip — keep going
       }
+      setTimeout(poll, 3000);
     };
-    setTimeout(poll, 1500);
+    setTimeout(poll, 3000);    // first check after 3s (browser needs time to open)
+  }
+
+  // Kept for backwards compatibility — no longer surfaced in the UI.
+  async function nlmReloginConfirm(ideaId) {
+    // Auto-detection handles this now; clicking would just trigger an
+    // immediate session-check, which the poll above already does.
+    return;
   }
 
   async function loadNlmStatus(ideaId) {

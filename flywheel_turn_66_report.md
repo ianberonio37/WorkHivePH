@@ -1,0 +1,108 @@
+# RAG Flywheel — Turn 66 report
+Generated: 2026-05-24T07:30:21.578102+00:00
+
+## Walk metrics
+- Tiles observed   : **83** (83 real / 0 dry)
+- Pages walked     : 16 (achievements=7, alert-hub=8, analytics=5, asset-hub=8, dayplanner=4, hive=4, integrations=6, inventory=4, marketplace=5, ph-intelligence=4, pm-scheduler=4, predictive=7, project-manager=5, report-sender=4, shift-brain=4, skillmatrix=4)
+- Routes used      : {'semantic': 69, 'n/a': 13, 'simple_recency': 1}
+- Avg latency      : 2135.0 ms
+- Avg tokens       : 332.3
+
+## Convergence metrics
+- Grader pass rate    : **8.4%** (7/83)
+- Checker pass rate   : **2.4%** (2/83)
+- Citation coverage   : 8.4% (7/83 tiles had ≥1 citation)
+
+## Gaps found
+- Tiles missing canonical anchor      : **0**
+- Tiles with checker FAIL (need work) : **81**
+- Tiles with zero citations           : **63**
+
+## Auto-actions taken
+- canonical_sources INSERTed : **0**
+- New L0 tile locks added    : **0**
+- L2 review queue            : `.tmp/flywheel_turn_66_l2_review.md` (manual review per locked decision)
+
+## Tiles needing work (checker failed)
+
+- `analytics::analytics:pm_compliance` — value=— — AI answer: _I don't have enough recent records to answer that. Try rephrasing or asking about a specific asset / date._
+- `analytics::analytics:detail_panel` — value=4 rows — AI answer: __
+- `analytics::analytics:results_panel` — value= — AI answer: _I don't have enough recent records to answer that. Try rephrasing or asking about a specific asset / date._
+- `alert-hub::alert-hub:high_severity_alerts` — value=37 — AI answer: _The 'High-severity alerts' tile on the alert-hub.html page reflects the count of assets whose composite risk score is hi_
+- `alert-hub::alert-hub:anomaly_signals` — value=0 — AI answer: _I don't have enough recent records to answer that. Try rephrasing or asking about a specific asset / date._
+- `alert-hub::alert-hub:amc_daily_brief` — value=None today — AI answer: _I don't have enough recent records to answer that. Try rephrasing or asking about a specific asset / date._
+- `alert-hub::alert-hub:detail_panel` — value=4 rows — AI answer: _I don't have enough recent records to answer that. Try rephrasing or asking about a specific asset / date._
+- `alert-hub::alert-hub:amc_assets` — value= — AI answer: _I don't have enough recent records to answer that. Try rephrasing or asking about a specific asset / date._
+- `alert-hub::alert-hub:amc_pms` — value= — AI answer: _I don't have enough recent records to answer that. Try rephrasing or asking about a specific asset / date._
+- `alert-hub::alert-hub:amc_parts` — value= — AI answer: _I don't have enough recent records to answer that. Try rephrasing or asking about a specific asset / date._
+- `alert-hub::alert-hub:amc_crew` — value= — AI answer: _I don't have enough recent records to answer that. Try rephrasing or asking about a specific asset / date._
+- `asset-hub::asset-hub:total_assets` — value=30 — AI answer: _The number reflects the total number of assets with approved status in the hive, [def#v_asset_truth]._
+- `asset-hub::asset-hub:critical_assets` — value=6 — AI answer: _I don't have enough recent records to answer that. Try rephrasing or asking about a specific asset / date._
+- `asset-hub::asset-hub:pending_approval` — value=0 — AI answer: _I don't have enough recent records to answer that. Try rephrasing or asking about a specific asset / date._
+- `asset-hub::asset-hub:detail_panel` — value=4 rows — AI answer: _I don't have enough recent records to answer that. Try rephrasing or asking about a specific asset / date._
+- `asset-hub::asset-hub:logbook_count` — value= — AI answer: _I don't have enough recent records to answer that. Try rephrasing or asking about a specific asset / date._
+- `asset-hub::asset-hub:pm_count` — value= — AI answer: _I don't have enough recent records to answer that. Try rephrasing or asking about a specific asset / date._
+- `asset-hub::asset-hub:last_failure` — value= — AI answer: __
+- `asset-hub::asset-hub:rcm_edges` — value= — AI answer: _I don't have enough recent records to answer that. Try rephrasing or asking about a specific asset / date._
+- `pm-scheduler::pm-scheduler:overdue` — value=0 — AI answer: __
+- `pm-scheduler::pm-scheduler:due_soon` — value=19 — AI answer: _I don't have enough recent records to answer that. Try rephrasing or asking about a specific asset / date._
+- `pm-scheduler::pm-scheduler:on_track` — value=12 — AI answer: __
+- `pm-scheduler::pm-scheduler:detail_panel` — value=4 rows — AI answer: _I don't have enough recent records to answer that. Try rephrasing or asking about a specific asset / date._
+- `predictive::predictive:hot_assets` — value=2 — AI answer: _I don't have enough recent records to answer that. Try rephrasing or asking about a specific asset / date._
+- `predictive::predictive:healthy_assets` — value=1 — AI answer: _I don't have enough recent records to answer that. Try rephrasing or asking about a specific asset / date._
+- `predictive::predictive:earliest_forecast` — value=1.2d — AI answer: _I don't have enough recent records to answer that. Try rephrasing or asking about a specific asset / date._
+- `predictive::predictive:detail_panel` — value=4 rows — AI answer: _I don't have enough recent records to answer that. Try rephrasing or asking about a specific asset / date._
+- `predictive::predictive:risk_ranking` — value=4 rows — AI answer: _I don't have enough recent records to answer that. Try rephrasing or asking about a specific asset / date._
+- `predictive::predictive:risk_heatmap` — value= — AI answer: _I don't have enough recent records to answer that. Try rephrasing or asking about a specific asset / date._
+- `predictive::predictive:mtbf_trend` — value=Weekly Failure Count — AI answer: _I don't have enough recent records to answer that. Try rephrasing or asking about a specific asset / date._
+- `inventory::inventory:out_of_stock` — value=0 — AI answer: __
+- `inventory::inventory:low_stock` — value=3 — AI answer: _I don't have enough recent records to answer that. Try rephrasing or asking about a specific asset / date._
+- `inventory::inventory:pending_approval` — value=0 — AI answer: _I don't have enough recent records to answer that. Try rephrasing or asking about a specific asset / date._
+- `inventory::inventory:detail_panel` — value=4 rows — AI answer: _I don't have enough recent records to answer that. Try rephrasing or asking about a specific asset / date._
+- `skillmatrix::skillmatrix:on_target` — value=5/5 — AI answer: _I don't have enough recent records to answer that. Try rephrasing or asking about a specific asset / date._
+- `skillmatrix::skillmatrix:quizzes_available` — value=1 — AI answer: __
+- `skillmatrix::skillmatrix:total_badges` — value=19 — AI answer: _I don't have enough recent records to answer that. Try rephrasing or asking about a specific asset / date._
+- `skillmatrix::skillmatrix:detail_panel` — value=4 rows — AI answer: _I don't have enough recent records to answer that. Try rephrasing or asking about a specific asset / date._
+- `hive::hive:maturity_stair` — value=Stair 2 — AI answer: __
+- `hive::hive:adoption_health` — value=Healthy — AI answer: _I don't have enough recent records to answer that. Try rephrasing or asking about a specific asset / date._
+- `hive::hive:open_issues` — value=21 — AI answer: _I don't have enough recent records to answer that. Try rephrasing or asking about a specific asset / date._
+- `hive::hive:detail_panel` — value=4 rows — AI answer: _I don't have enough recent records to answer that. Try rephrasing or asking about a specific asset / date._
+- `achievements::achievements:xp_this_week` — value=+600 — AI answer: _The XP this week number reflects total community XP earned by the worker in the past 7 days, sourced from community_xp t_
+- `achievements::achievements:active_domains` — value=3/12 — AI answer: _I don't have enough recent records to answer that. Try rephrasing or asking about a specific asset / date._
+- `achievements::achievements:total_level` — value=71 — AI answer: _I don't have enough recent records to answer that. Try rephrasing or asking about a specific asset / date._
+- `achievements::achievements:detail_panel` — value=4 rows — AI answer: _I don't have enough recent records to answer that. Try rephrasing or asking about a specific asset / date._
+- `achievements::achievements:composite_score` — value= — AI answer: _I don't have enough recent records to answer that. Try rephrasing or asking about a specific asset / date._
+- `achievements::achievements:active_domains_stat` — value= — AI answer: _I don't have enough recent records to answer that. Try rephrasing or asking about a specific asset / date._
+- `achievements::achievements:top_domain` — value= — AI answer: _I don't have enough recent records to answer that. Try rephrasing or asking about a specific asset / date._
+- `dayplanner::dayplanner:today_count` — value=0 — AI answer: _I don't have enough recent records to answer that. Try rephrasing or asking about a specific asset / date._
+- `dayplanner::dayplanner:week_count` — value=6 — AI answer: _I don't have enough recent records to answer that. Try rephrasing or asking about a specific asset / date._
+- `dayplanner::dayplanner:overdue_count` — value=6 — AI answer: __
+- `dayplanner::dayplanner:detail_panel` — value=4 rows — AI answer: _I don't have enough recent records to answer that. Try rephrasing or asking about a specific asset / date._
+- `integrations::integrations:active` — value=0 — AI answer: _The 'Active integrations' tile on the integrations.html page shows a non-zero value when there are active worker connect_
+- `integrations::integrations:stale` — value=0 — AI answer: _I don't have enough recent records to answer that. Try rephrasing or asking about a specific asset / date._
+- `integrations::integrations:disabled` — value=0 — AI answer: _I don't have enough recent records to answer that. Try rephrasing or asking about a specific asset / date._
+- `integrations::integrations:detail_panel` — value=4 rows — AI answer: _I don't have enough recent records to answer that. Try rephrasing or asking about a specific asset / date._
+- `integrations::integrations:api_config` — value=Phase 5 · Intelligence API — AI answer: _I don't have enough recent records to answer that. Try rephrasing or asking about a specific asset / date._
+- `integrations::integrations:sync_log` — value=Tier 2 · Scheduled API Sync — AI answer: _I don't have enough recent records to answer that. Try rephrasing or asking about a specific asset / date._
+- `marketplace::marketplace:listings_in_view` — value=13 — AI answer: _The number reflects the current inventory status of the hive 5163ddb9._
+- `marketplace::marketplace:my_listings` — value=1 — AI answer: _I don't have enough recent records to answer that. Try rephrasing or asking about a specific asset / date._
+- `marketplace::marketplace:current_tab` — value=Parts — AI answer: __
+- `marketplace::marketplace:detail_panel` — value=4 rows — AI answer: _I don't have enough recent records to answer that. Try rephrasing or asking about a specific asset / date._
+- `marketplace::marketplace:listing_grid` — value=13 rows — AI answer: _I don't have enough recent records to answer that. Try rephrasing or asking about a specific asset / date._
+- `ph-intelligence::ph-intelligence:plants_in_network` — value=3 — AI answer: __
+- `ph-intelligence::ph-intelligence:top_failure_cause` — value=Wear — AI answer: _I don't have enough recent records to answer that. Try rephrasing or asking about a specific asset / date._
+- `ph-intelligence::ph-intelligence:report_freshness` — value=4d — AI answer: _I don't have enough recent records to answer that. Try rephrasing or asking about a specific asset / date._
+- `ph-intelligence::ph-intelligence:detail_panel` — value=4 rows — AI answer: _I don't have enough recent records to answer that. Try rephrasing or asking about a specific asset / date._
+- `project-manager::project-manager:project_list` — value=Project portfolio is climbing — a few things to handle2 past end_date. — AI answer: _I don't have enough recent records to answer that. Try rephrasing or asking about a specific asset / date._
+- `project-manager::project-manager:active_projects` — value=4 — AI answer: _I don't have enough recent records to answer that. Try rephrasing or asking about a specific asset / date._
+- `project-manager::project-manager:past_end_date` — value=2 — AI answer: __
+- `project-manager::project-manager:on_hold_planning` — value=0 — AI answer: _I don't have enough recent records to answer that. Try rephrasing or asking about a specific asset / date._
+- `project-manager::project-manager:project_cards` — value=SHD-2026-001 — AI answer: _I don't have enough recent records to answer that. Try rephrasing or asking about a specific asset / date._
+- `report-sender::report-sender:reports_selected` — value=0 — AI answer: __
+- `report-sender::report-sender:recipients` — value=0 — AI answer: _I don't have enough recent records to answer that. Try rephrasing or asking about a specific asset / date._
+- `report-sender::report-sender:saved_contacts` — value=0 — AI answer: _I don't have enough recent records to answer that. Try rephrasing or asking about a specific asset / date._
+- `report-sender::report-sender:detail_panel` — value=4 rows — AI answer: _I don't have enough recent records to answer that. Try rephrasing or asking about a specific asset / date._
+- `shift-brain::shift-brain:top_risk_this_shift` — value=0 — AI answer: __
+- `shift-brain::shift-brain:pms_due` — value=0 — AI answer: _I don't have enough recent records to answer that. Try rephrasing or asking about a specific asset / date._
+- `shift-brain::shift-brain:carry_forward` — value=0 — AI answer: _I don't have enough recent records to answer that. Try rephrasing or asking about a specific asset / date._
+- `shift-brain::shift-brain:detail_panel` — value=5 rows — AI answer: _I don't have enough recent records to answer that. Try rephrasing or asking about a specific asset / date._

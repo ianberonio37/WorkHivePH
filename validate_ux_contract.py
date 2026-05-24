@@ -264,8 +264,9 @@ def check_destructive_confirm(pages: list[str]) -> list[dict]:
                                     break
                             i += 1
                         body = src[fn_match.end():i]
-                        if re.search(r"\bconfirm\s*\(|\bopenModal\s*\(|"
-                                     r"\bshowConfirm\s*\(|\bopen[A-Z]\w*Modal\s*\(",
+                        if re.search(r"\bconfirm\s*\(|\bwhConfirm\s*\(|\bwhPrompt\s*\(|"
+                                     r"\bopenModal\s*\(|\bshowConfirm\s*\(|"
+                                     r"\bopen[A-Z]\w*Modal\s*\(",
                                      body):
                             continue
             # data-action='X' pattern: button routed via event-listener
@@ -301,8 +302,9 @@ def check_destructive_confirm(pages: list[str]) -> list[dict]:
                                     break
                             i += 1
                         body = src[fn_match.end():i]
-                        if re.search(r"\bconfirm\s*\(|\bopenModal\s*\(|"
-                                     r"\bshowConfirm\s*\(|\bopen[A-Z]\w*Modal\s*\(",
+                        if re.search(r"\bconfirm\s*\(|\bwhConfirm\s*\(|\bwhPrompt\s*\(|"
+                                     r"\bopenModal\s*\(|\bshowConfirm\s*\(|"
+                                     r"\bopen[A-Z]\w*Modal\s*\(",
                                      body):
                             continue
             # className-routed wiring: `<button class="btn-delete-x">` paired
@@ -354,8 +356,9 @@ def check_destructive_confirm(pages: list[str]) -> list[dict]:
                             break
                     i += 1
                 body = src[fn_match.end():i]
-                if re.search(r"\bconfirm\s*\(|\bopenModal\s*\(|"
-                             r"\bshowConfirm\s*\(|\bopen[A-Z]\w*Modal\s*\(",
+                if re.search(r"\bconfirm\s*\(|\bwhConfirm\s*\(|\bwhPrompt\s*\(|"
+                             r"\bopenModal\s*\(|\bshowConfirm\s*\(|"
+                             r"\bopen[A-Z]\w*Modal\s*\(",
                              body):
                     cls_handler_has_confirm = True
                     break
@@ -423,15 +426,17 @@ def check_destructive_confirm(pages: list[str]) -> list[dict]:
                                     break
                             i += 1
                         body = src[fn_match.end():i]
-                        if re.search(r"\bconfirm\s*\(|\bopenModal\s*\(|"
-                                     r"\bshowConfirm\s*\(|\bopen[A-Z]\w*Modal\s*\(",
+                        if re.search(r"\bconfirm\s*\(|\bwhConfirm\s*\(|\bwhPrompt\s*\(|"
+                                     r"\bopenModal\s*\(|\bshowConfirm\s*\(|"
+                                     r"\bopen[A-Z]\w*Modal\s*\(",
                                      body):
                             id_handler_has_confirm = True
             if id_handler_has_confirm:
                 continue
             # Last resort: nearby-source heuristic (handler may be inline).
             tail = src[m.end(): m.end() + 1500]
-            if re.search(r"\bconfirm\s*\(|\bopenModal\s*\(|\bshowConfirm\s*\(|"
+            if re.search(r"\bconfirm\s*\(|\bwhConfirm\s*\(|\bwhPrompt\s*\(|"
+                         r"\bopenModal\s*\(|\bshowConfirm\s*\(|"
                          r"\.classList\.remove\s*\(\s*['\"]hidden['\"]", tail):
                 continue
             line = src.count("\n", 0, m.start()) + 1

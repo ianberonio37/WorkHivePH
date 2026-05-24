@@ -6433,7 +6433,7 @@
       "consumers": [
         {
           "file": "index.html",
-          "shape": "mapped_enum",
+          "shape": "direct",
           "smells": []
         }
       ],

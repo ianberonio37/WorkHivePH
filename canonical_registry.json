@@ -2212,15 +2212,19 @@
       "written_by_surfaces": [],
       "read_by_edge_fns": [
         "_shared/rate-limit.ts",
+        "agentic-rag-loop",
         "asset-brain-query",
         "fmea-populator",
+        "temporal-rag-orchestrator",
         "visual-defect-capture",
         "voice-action-router"
       ],
       "written_by_edge_fns": [
         "_shared/rate-limit.ts",
+        "agentic-rag-loop",
         "asset-brain-query",
         "fmea-populator",
+        "temporal-rag-orchestrator",
         "visual-defect-capture",
         "voice-action-router"
       ]
@@ -2501,7 +2505,9 @@
       "comment": "Single-source-of-truth registry. Every AI agent reads this first when asked about a registered domain. Drift caught by validate_canonical_sources.py.",
       "read_by_surfaces": [],
       "written_by_surfaces": [],
-      "read_by_edge_fns": [],
+      "read_by_edge_fns": [
+        "agentic-rag-loop"
+      ],
       "written_by_edge_fns": []
     },
     "rcm_fmea_modes": {
@@ -2793,7 +2799,8 @@
         "created_at",
         "schema_compliance",
         "user_feedback",
-        "prompt_hash"
+        "prompt_hash",
+        "quality_rating"
       ],
       "rls_enabled": true,
       "grants": {
@@ -3046,6 +3053,7 @@
       "written_by_surfaces": [],
       "read_by_edge_fns": [
         "_shared/journal-recall.ts",
+        "agentic-rag-loop",
         "voice-semantic-rag"
       ],
       "written_by_edge_fns": [
@@ -4394,6 +4402,463 @@
       "written_by_surfaces": [],
       "read_by_edge_fns": [],
       "written_by_edge_fns": []
+    },
+    "agentic_rag_traces": {
+      "defined_in": "20260521120000_agentic_rag_traces.sql",
+      "columns": [
+        "id",
+        "hive_id",
+        "worker_name",
+        "question",
+        "route",
+        "stages",
+        "retrievals",
+        "retries",
+        "grader_passed",
+        "checker_passed",
+        "citation_count",
+        "final_answer",
+        "total_tokens",
+        "latency_ms",
+        "user_rating",
+        "created_at"
+      ],
+      "rls_enabled": true,
+      "grants": {
+        "anon": [
+          "SELECT",
+          "INSERT"
+        ],
+        "authenticated": [
+          "SELECT",
+          "INSERT"
+        ]
+      },
+      "realtime_published": false,
+      "comment": "",
+      "read_by_surfaces": [
+        "agentic-rag-observability.html"
+      ],
+      "written_by_surfaces": [],
+      "read_by_edge_fns": [
+        "agentic-rag-loop"
+      ],
+      "written_by_edge_fns": [
+        "agentic-rag-loop"
+      ]
+    },
+    "canonical_period_summaries": {
+      "defined_in": "20260521121000_canonical_period_summaries.sql",
+      "columns": [
+        "id",
+        "hive_id",
+        "asset_tag",
+        "level",
+        "period_start",
+        "period_end",
+        "summary_text",
+        "summary_json",
+        "embedding",
+        "source_row_ids",
+        "standard_cites",
+        "generated_at"
+      ],
+      "rls_enabled": true,
+      "grants": {
+        "anon": [
+          "SELECT",
+          "INSERT",
+          "UPDATE"
+        ],
+        "authenticated": [
+          "SELECT",
+          "INSERT",
+          "UPDATE"
+        ]
+      },
+      "realtime_published": false,
+      "comment": "",
+      "read_by_surfaces": [],
+      "written_by_surfaces": [],
+      "read_by_edge_fns": [
+        "agentic-rag-loop",
+        "hierarchical-summarizer",
+        "temporal-rag-orchestrator"
+      ],
+      "written_by_edge_fns": [
+        "hierarchical-summarizer"
+      ]
+    },
+    "agent_episodic_memory": {
+      "defined_in": "20260521122000_agent_episodic_memory.sql",
+      "columns": [
+        "id",
+        "hive_id",
+        "worker_name",
+        "auth_uid",
+        "memory_type",
+        "content",
+        "embedding",
+        "importance",
+        "use_count",
+        "last_used_at",
+        "source_trace_id",
+        "created_at"
+      ],
+      "rls_enabled": true,
+      "grants": {
+        "anon": [
+          "SELECT",
+          "INSERT",
+          "UPDATE"
+        ],
+        "authenticated": [
+          "SELECT",
+          "INSERT",
+          "UPDATE"
+        ]
+      },
+      "realtime_published": false,
+      "comment": "",
+      "read_by_surfaces": [],
+      "written_by_surfaces": [],
+      "read_by_edge_fns": [
+        "agent-memory-store"
+      ],
+      "written_by_edge_fns": [
+        "agent-memory-store"
+      ]
+    },
+    "unified_events": {
+      "defined_in": "20260521123000_unified_events.sql",
+      "columns": [
+        "id",
+        "hive_id",
+        "asset_tag",
+        "source",
+        "source_id",
+        "event_type",
+        "occurred_at",
+        "payload",
+        "payload_text",
+        "embedding",
+        "hash",
+        "ingested_at"
+      ],
+      "rls_enabled": true,
+      "grants": {
+        "anon": [
+          "SELECT",
+          "INSERT"
+        ],
+        "authenticated": [
+          "SELECT",
+          "INSERT"
+        ]
+      },
+      "realtime_published": false,
+      "comment": "",
+      "read_by_surfaces": [],
+      "written_by_surfaces": [],
+      "read_by_edge_fns": [
+        "data-fabric-normalizer"
+      ],
+      "written_by_edge_fns": [
+        "data-fabric-normalizer"
+      ]
+    },
+    "ai_audit_log": {
+      "defined_in": "20260521125000_voice_companion_infra_tables.sql",
+      "columns": [
+        "id",
+        "hive_id",
+        "worker_name",
+        "event",
+        "payload",
+        "source",
+        "created_at"
+      ],
+      "rls_enabled": true,
+      "grants": {
+        "anon": [
+          "SELECT",
+          "INSERT",
+          "UPDATE",
+          "DELETE"
+        ],
+        "authenticated": [
+          "SELECT",
+          "INSERT",
+          "UPDATE",
+          "DELETE"
+        ]
+      },
+      "realtime_published": false,
+      "comment": "",
+      "read_by_surfaces": [],
+      "written_by_surfaces": [],
+      "read_by_edge_fns": [],
+      "written_by_edge_fns": []
+    },
+    "ai_knowledge_gap": {
+      "defined_in": "20260521125000_voice_companion_infra_tables.sql",
+      "columns": [
+        "id",
+        "hive_id",
+        "worker_name",
+        "question",
+        "reason",
+        "topic",
+        "created_at"
+      ],
+      "rls_enabled": true,
+      "grants": {
+        "anon": [
+          "SELECT",
+          "INSERT",
+          "UPDATE",
+          "DELETE"
+        ],
+        "authenticated": [
+          "SELECT",
+          "INSERT",
+          "UPDATE",
+          "DELETE"
+        ]
+      },
+      "realtime_published": false,
+      "comment": "",
+      "read_by_surfaces": [],
+      "written_by_surfaces": [],
+      "read_by_edge_fns": [],
+      "written_by_edge_fns": []
+    },
+    "ai_quality_escalation": {
+      "defined_in": "20260521125000_voice_companion_infra_tables.sql",
+      "columns": [
+        "id",
+        "hive_id",
+        "worker_name",
+        "thumbs_down_7d",
+        "last_negative_at",
+        "reviewed_at",
+        "reviewed_by",
+        "created_at"
+      ],
+      "rls_enabled": true,
+      "grants": {
+        "anon": [
+          "SELECT",
+          "INSERT",
+          "UPDATE",
+          "DELETE"
+        ],
+        "authenticated": [
+          "SELECT",
+          "INSERT",
+          "UPDATE",
+          "DELETE"
+        ]
+      },
+      "realtime_published": false,
+      "comment": "",
+      "read_by_surfaces": [],
+      "written_by_surfaces": [],
+      "read_by_edge_fns": [],
+      "written_by_edge_fns": []
+    },
+    "asset_watchlist": {
+      "defined_in": "20260521125000_voice_companion_infra_tables.sql",
+      "columns": [
+        "hive_id",
+        "worker_name",
+        "asset_tag",
+        "subscribed_at"
+      ],
+      "rls_enabled": true,
+      "grants": {
+        "anon": [
+          "SELECT",
+          "INSERT",
+          "UPDATE",
+          "DELETE"
+        ],
+        "authenticated": [
+          "SELECT",
+          "INSERT",
+          "UPDATE",
+          "DELETE"
+        ]
+      },
+      "realtime_published": false,
+      "comment": "",
+      "read_by_surfaces": [],
+      "written_by_surfaces": [],
+      "read_by_edge_fns": [],
+      "written_by_edge_fns": []
+    },
+    "companion_handoff": {
+      "defined_in": "20260521125000_voice_companion_infra_tables.sql",
+      "columns": [
+        "id",
+        "hive_id",
+        "from_worker",
+        "to_worker",
+        "message",
+        "status",
+        "source",
+        "created_at"
+      ],
+      "rls_enabled": true,
+      "grants": {
+        "anon": [
+          "SELECT",
+          "INSERT",
+          "UPDATE",
+          "DELETE"
+        ],
+        "authenticated": [
+          "SELECT",
+          "INSERT",
+          "UPDATE",
+          "DELETE"
+        ]
+      },
+      "realtime_published": false,
+      "comment": "",
+      "read_by_surfaces": [],
+      "written_by_surfaces": [],
+      "read_by_edge_fns": [],
+      "written_by_edge_fns": []
+    },
+    "mentor_relay_queue": {
+      "defined_in": "20260521125000_voice_companion_infra_tables.sql",
+      "columns": [
+        "id",
+        "hive_id",
+        "from_worker",
+        "question",
+        "status",
+        "answer",
+        "answered_by",
+        "answered_at",
+        "source",
+        "created_at"
+      ],
+      "rls_enabled": true,
+      "grants": {
+        "anon": [
+          "SELECT",
+          "INSERT",
+          "UPDATE",
+          "DELETE"
+        ],
+        "authenticated": [
+          "SELECT",
+          "INSERT",
+          "UPDATE",
+          "DELETE"
+        ]
+      },
+      "realtime_published": false,
+      "comment": "",
+      "read_by_surfaces": [],
+      "written_by_surfaces": [],
+      "read_by_edge_fns": [],
+      "written_by_edge_fns": []
+    },
+    "shared_voice_notes": {
+      "defined_in": "20260521125000_voice_companion_infra_tables.sql",
+      "columns": [
+        "id",
+        "hive_id",
+        "thread_key",
+        "worker_name",
+        "content",
+        "source",
+        "created_at"
+      ],
+      "rls_enabled": true,
+      "grants": {
+        "anon": [
+          "SELECT",
+          "INSERT",
+          "UPDATE",
+          "DELETE"
+        ],
+        "authenticated": [
+          "SELECT",
+          "INSERT",
+          "UPDATE",
+          "DELETE"
+        ]
+      },
+      "realtime_published": false,
+      "comment": "",
+      "read_by_surfaces": [],
+      "written_by_surfaces": [],
+      "read_by_edge_fns": [],
+      "written_by_edge_fns": []
+    },
+    "wh_feature_flags": {
+      "defined_in": "20260521125000_voice_companion_infra_tables.sql",
+      "columns": [
+        "hive_id",
+        "name",
+        "enabled",
+        "config",
+        "updated_at"
+      ],
+      "rls_enabled": true,
+      "grants": {
+        "anon": [
+          "SELECT",
+          "INSERT",
+          "UPDATE",
+          "DELETE"
+        ],
+        "authenticated": [
+          "SELECT",
+          "INSERT",
+          "UPDATE",
+          "DELETE"
+        ]
+      },
+      "realtime_published": false,
+      "comment": "",
+      "read_by_surfaces": [],
+      "written_by_surfaces": [],
+      "read_by_edge_fns": [],
+      "written_by_edge_fns": []
+    },
+    "wh_voice_presence": {
+      "defined_in": "20260521125000_voice_companion_infra_tables.sql",
+      "columns": [
+        "hive_id",
+        "worker_name",
+        "last_seen"
+      ],
+      "rls_enabled": true,
+      "grants": {
+        "anon": [
+          "SELECT",
+          "INSERT",
+          "UPDATE",
+          "DELETE"
+        ],
+        "authenticated": [
+          "SELECT",
+          "INSERT",
+          "UPDATE",
+          "DELETE"
+        ]
+      },
+      "realtime_published": false,
+      "comment": "",
+      "read_by_surfaces": [],
+      "written_by_surfaces": [],
+      "read_by_edge_fns": [],
+      "written_by_edge_fns": []
     }
   },
   "views": {
@@ -4409,6 +4874,7 @@
         "asset-hub.html"
       ],
       "read_by_edge_fns": [
+        "agentic-rag-loop",
         "asset-brain-query",
         "batch-risk-scoring",
         "equipment-label-ocr",
@@ -4461,12 +4927,14 @@
         "logbook.html"
       ],
       "read_by_edge_fns": [
+        "agentic-rag-loop",
         "ai-orchestrator",
         "amc-orchestrator",
         "analytics-orchestrator",
         "asset-brain-query",
         "batch-risk-scoring",
         "embed-entry",
+        "hierarchical-summarizer",
         "scheduled-agents",
         "shift-planner-orchestrator",
         "trigger-ml-retrain"
@@ -4552,6 +5020,7 @@
         "project-manager.html"
       ],
       "read_by_edge_fns": [
+        "agentic-rag-loop",
         "ai-orchestrator",
         "analytics-orchestrator",
         "asset-brain-query",
@@ -4559,6 +5028,7 @@
         "benchmark-compute",
         "failure-signature-scan",
         "fmea-populator",
+        "hierarchical-summarizer",
         "intelligence-report",
         "parts-staging-recommender",
         "pf-calculator",
@@ -4579,6 +5049,7 @@
         "project-manager.html"
       ],
       "read_by_edge_fns": [
+        "agentic-rag-loop",
         "ai-orchestrator",
         "analytics-orchestrator",
         "batch-risk-scoring",
@@ -5641,7 +6112,16 @@
       "tables_written": [],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "size_kb": 45.3
+      "size_kb": 47.0
+    },
+    "agentic-rag-observability.html": {
+      "tables_read": [
+        "agentic_rag_traces"
+      ],
+      "tables_written": [],
+      "rpcs_called": [],
+      "edge_fns_invoked": [],
+      "size_kb": 15.7
     },
     "ai-quality.html": {
       "tables_read": [
@@ -5650,7 +6130,7 @@
       "tables_written": [],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "size_kb": 29.4
+      "size_kb": 29.6
     },
     "alert-hub.html": {
       "tables_read": [
@@ -5674,7 +6154,7 @@
         "compute_anomaly_signals"
       ],
       "edge_fns_invoked": [],
-      "size_kb": 65.6
+      "size_kb": 66.7
     },
     "analytics-report.html": {
       "tables_read": [
@@ -5683,21 +6163,21 @@
       "tables_written": [],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "size_kb": 80.3
+      "size_kb": 80.8
     },
     "analytics.html": {
       "tables_read": [],
       "tables_written": [],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "size_kb": 129.4
+      "size_kb": 131.7
     },
     "architecture.html": {
       "tables_read": [],
       "tables_written": [],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "size_kb": 29.0
+      "size_kb": 29.2
     },
     "asset-hub.html": {
       "tables_read": [
@@ -5743,7 +6223,7 @@
         "pf-calculator",
         "weibull-fitter"
       ],
-      "size_kb": 178.0
+      "size_kb": 180.1
     },
     "assistant.html": {
       "tables_read": [
@@ -5757,7 +6237,7 @@
       "tables_written": [],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "size_kb": 50.7
+      "size_kb": 51.4
     },
     "audit-log.html": {
       "tables_read": [
@@ -5766,7 +6246,7 @@
       "tables_written": [],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "size_kb": 25.3
+      "size_kb": 25.7
     },
     "community.html": {
       "tables_read": [
@@ -5786,7 +6266,7 @@
       ],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "size_kb": 108.5
+      "size_kb": 109.1
     },
     "dayplanner.html": {
       "tables_read": [
@@ -5800,7 +6280,7 @@
       ],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "size_kb": 81.6
+      "size_kb": 82.4
     },
     "engineering-design.html": {
       "tables_read": [
@@ -5814,7 +6294,7 @@
         "engineering-bom-sow",
         "engineering-calc-agent"
       ],
-      "size_kb": 2193.1
+      "size_kb": 2227.7
     },
     "founder-console.html": {
       "tables_read": [
@@ -5831,7 +6311,7 @@
       ],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "size_kb": 98.3
+      "size_kb": 98.4
     },
     "hive.html": {
       "tables_read": [
@@ -5871,14 +6351,14 @@
         "ai-orchestrator",
         "benchmark-compute"
       ],
-      "size_kb": 203.4
+      "size_kb": 204.8
     },
     "index.html": {
       "tables_read": [],
       "tables_written": [],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "size_kb": 92.0
+      "size_kb": 110.8
     },
     "integrations.html": {
       "tables_read": [
@@ -5911,7 +6391,7 @@
       "edge_fns_invoked": [
         "cmms-sync"
       ],
-      "size_kb": 107.3
+      "size_kb": 110.5
     },
     "inventory.html": {
       "tables_read": [
@@ -5932,7 +6412,7 @@
       ],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "size_kb": 94.1
+      "size_kb": 95.7
     },
     "logbook.html": {
       "tables_read": [
@@ -5970,7 +6450,7 @@
         "visual-defect-capture",
         "voice-logbook-entry"
       ],
-      "size_kb": 270.5
+      "size_kb": 271.3
     },
     "marketplace-admin.html": {
       "tables_read": [
@@ -5992,7 +6472,7 @@
       ],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "size_kb": 44.8
+      "size_kb": 44.9
     },
     "marketplace-seller-profile.html": {
       "tables_read": [
@@ -6027,7 +6507,7 @@
       ],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "size_kb": 84.3
+      "size_kb": 85.0
     },
     "marketplace.html": {
       "tables_read": [
@@ -6058,7 +6538,7 @@
         "increment_listing_view"
       ],
       "edge_fns_invoked": [],
-      "size_kb": 154.2
+      "size_kb": 157.4
     },
     "parts-tracker.html": {
       "tables_read": [],
@@ -6077,7 +6557,7 @@
       "edge_fns_invoked": [
         "intelligence-report"
       ],
-      "size_kb": 30.6
+      "size_kb": 31.4
     },
     "plant-connections.html": {
       "tables_read": [
@@ -6091,7 +6571,7 @@
       "tables_written": [],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "size_kb": 31.9
+      "size_kb": 32.4
     },
     "platform-health.html": {
       "tables_read": [
@@ -6100,7 +6580,7 @@
       "tables_written": [],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "size_kb": 122.3
+      "size_kb": 125.4
     },
     "pm-scheduler.html": {
       "tables_read": [
@@ -6125,7 +6605,7 @@
       ],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "size_kb": 118.6
+      "size_kb": 120.8
     },
     "predictive.html": {
       "tables_read": [
@@ -6136,7 +6616,7 @@
       "edge_fns_invoked": [
         "analytics-orchestrator"
       ],
-      "size_kb": 38.0
+      "size_kb": 38.7
     },
     "project-manager.html": {
       "tables_read": [
@@ -6173,7 +6653,7 @@
         "project-orchestrator",
         "project-progress"
       ],
-      "size_kb": 151.5
+      "size_kb": 156.3
     },
     "project-report.html": {
       "tables_read": [
@@ -6187,7 +6667,7 @@
       "edge_fns_invoked": [
         "project-orchestrator"
       ],
-      "size_kb": 29.2
+      "size_kb": 29.4
     },
     "public-feed.html": {
       "tables_read": [
@@ -6208,7 +6688,7 @@
       ],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "size_kb": 84.7
+      "size_kb": 85.3
     },
     "shift-brain.html": {
       "tables_read": [
@@ -6222,7 +6702,7 @@
       "edge_fns_invoked": [
         "shift-planner-orchestrator"
       ],
-      "size_kb": 38.8
+      "size_kb": 39.2
     },
     "skillmatrix.html": {
       "tables_read": [
@@ -6238,7 +6718,7 @@
       ],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "size_kb": 61.8
+      "size_kb": 62.4
     },
     "symbol-gallery.html": {
       "tables_read": [],
@@ -6260,7 +6740,7 @@
       "edge_fns_invoked": [
         "ai-gateway"
       ],
-      "size_kb": 43.5
+      "size_kb": 44.1
     },
     "findings.html": {
       "tables_read": [],
@@ -6311,7 +6791,7 @@
       "tables_written": [],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "loc": 196
+      "loc": 249
     },
     "_shared/audio-chain.ts": {
       "tables_read": [],
@@ -6427,6 +6907,37 @@
       "edge_fns_invoked": [],
       "loc": 96
     },
+    "agent-memory-store": {
+      "tables_read": [
+        "agent_episodic_memory"
+      ],
+      "tables_written": [
+        "agent_episodic_memory"
+      ],
+      "rpcs_called": [],
+      "edge_fns_invoked": [],
+      "loc": 206
+    },
+    "agentic-rag-loop": {
+      "tables_read": [
+        "agentic_rag_traces",
+        "ai_rate_limits",
+        "canonical_period_summaries",
+        "canonical_sources",
+        "v_asset_truth",
+        "v_inventory_items_truth",
+        "v_logbook_truth",
+        "v_pm_compliance_truth",
+        "voice_journal_entries"
+      ],
+      "tables_written": [
+        "agentic_rag_traces",
+        "ai_rate_limits"
+      ],
+      "rpcs_called": [],
+      "edge_fns_invoked": [],
+      "loc": 1078
+    },
     "ai-eval-runner": {
       "tables_read": [
         "ai_quality_log"
@@ -6458,7 +6969,7 @@
       "tables_written": [],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "loc": 383
+      "loc": 384
     },
     "amc-orchestrator": {
       "tables_read": [
@@ -6475,7 +6986,7 @@
       ],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "loc": 668
+      "loc": 671
     },
     "analytics-orchestrator": {
       "tables_read": [
@@ -6543,7 +7054,7 @@
         "get_mtbf_by_machine"
       ],
       "edge_fns_invoked": [],
-      "loc": 579
+      "loc": 580
     },
     "benchmark-compute": {
       "tables_read": [
@@ -6560,7 +7071,7 @@
       ],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "loc": 217
+      "loc": 219
     },
     "cmms-push-completion": {
       "tables_read": [
@@ -6597,7 +7108,7 @@
       ],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "loc": 278
+      "loc": 279
     },
     "cmms-webhook-receiver": {
       "tables_read": [
@@ -6614,6 +7125,24 @@
       "rpcs_called": [],
       "edge_fns_invoked": [],
       "loc": 227
+    },
+    "cold-archive-query": {
+      "tables_read": [],
+      "tables_written": [],
+      "rpcs_called": [],
+      "edge_fns_invoked": [],
+      "loc": 97
+    },
+    "data-fabric-normalizer": {
+      "tables_read": [
+        "unified_events"
+      ],
+      "tables_written": [
+        "unified_events"
+      ],
+      "rpcs_called": [],
+      "edge_fns_invoked": [],
+      "loc": 161
     },
     "embed-entry": {
       "tables_read": [
@@ -6691,6 +7220,19 @@
       "edge_fns_invoked": [],
       "loc": 342
     },
+    "hierarchical-summarizer": {
+      "tables_read": [
+        "canonical_period_summaries",
+        "v_logbook_truth",
+        "v_pm_compliance_truth"
+      ],
+      "tables_written": [
+        "canonical_period_summaries"
+      ],
+      "rpcs_called": [],
+      "edge_fns_invoked": [],
+      "loc": 339
+    },
     "intelligence-api": {
       "tables_read": [
         "api_keys",
@@ -6720,7 +7262,7 @@
       ],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "loc": 209
+      "loc": 213
     },
     "marketplace-checkout": {
       "tables_read": [
@@ -6799,7 +7341,7 @@
       ],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "loc": 196
+      "loc": 197
     },
     "pdf-ingest": {
       "tables_read": [
@@ -6892,7 +7434,7 @@
       ],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "loc": 333
+      "loc": 334
     },
     "semantic-search": {
       "tables_read": [],
@@ -6945,6 +7487,18 @@
       "edge_fns_invoked": [],
       "loc": 251
     },
+    "temporal-rag-orchestrator": {
+      "tables_read": [
+        "ai_rate_limits",
+        "canonical_period_summaries"
+      ],
+      "tables_written": [
+        "ai_rate_limits"
+      ],
+      "rpcs_called": [],
+      "edge_fns_invoked": [],
+      "loc": 336
+    },
     "trigger-ml-retrain": {
       "tables_read": [
         "automation_log",
@@ -6958,7 +7512,7 @@
       ],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "loc": 105
+      "loc": 106
     },
     "tts-speak": {
       "tables_read": [],
@@ -7149,6 +7703,14 @@
       ]
     },
     {
+      "kind": "near_duplicate_column",
+      "table": "unified_events",
+      "columns": [
+        "source",
+        "source_id"
+      ]
+    },
+    {
       "kind": "dead_table",
       "table": "assets",
       "note": "defined in migrations but not referenced in any surface or edge fn"
@@ -7206,11 +7768,6 @@
     {
       "kind": "dead_table",
       "table": "asset_embeddings",
-      "note": "defined in migrations but not referenced in any surface or edge fn"
-    },
-    {
-      "kind": "dead_table",
-      "table": "canonical_sources",
       "note": "defined in migrations but not referenced in any surface or edge fn"
     },
     {
@@ -7391,6 +7948,51 @@
     {
       "kind": "dead_table",
       "table": "IF",
+      "note": "defined in migrations but not referenced in any surface or edge fn"
+    },
+    {
+      "kind": "dead_table",
+      "table": "ai_audit_log",
+      "note": "defined in migrations but not referenced in any surface or edge fn"
+    },
+    {
+      "kind": "dead_table",
+      "table": "ai_knowledge_gap",
+      "note": "defined in migrations but not referenced in any surface or edge fn"
+    },
+    {
+      "kind": "dead_table",
+      "table": "ai_quality_escalation",
+      "note": "defined in migrations but not referenced in any surface or edge fn"
+    },
+    {
+      "kind": "dead_table",
+      "table": "asset_watchlist",
+      "note": "defined in migrations but not referenced in any surface or edge fn"
+    },
+    {
+      "kind": "dead_table",
+      "table": "companion_handoff",
+      "note": "defined in migrations but not referenced in any surface or edge fn"
+    },
+    {
+      "kind": "dead_table",
+      "table": "mentor_relay_queue",
+      "note": "defined in migrations but not referenced in any surface or edge fn"
+    },
+    {
+      "kind": "dead_table",
+      "table": "shared_voice_notes",
+      "note": "defined in migrations but not referenced in any surface or edge fn"
+    },
+    {
+      "kind": "dead_table",
+      "table": "wh_feature_flags",
+      "note": "defined in migrations but not referenced in any surface or edge fn"
+    },
+    {
+      "kind": "dead_table",
+      "table": "wh_voice_presence",
       "note": "defined in migrations but not referenced in any surface or edge fn"
     }
   ]

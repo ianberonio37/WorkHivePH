@@ -1336,6 +1336,32 @@ VALIDATORS = [
         "skip_if_fast": False,
     },
     {
+        # 2026-05-21: RAG Flywheel processor + multi-turn loop orchestrator.
+        # tools/rag_flywheel_processor.py + run_rag_flywheel_loop.py drive
+        # synthetic walks; this validator ratchets the contract surface
+        # (canonical tile tags, KPI seeds, walk template branches, lane D).
+        "id":      "rag-flywheel",
+        "script":  "validate_rag_flywheel.py",
+        "args":    [],
+        "label":   "RAG Flywheel (processor + loop orchestrator + canonical tile tags + KPI seeds + walk template branches + lane D retriever)",
+        "group":   "Platform",
+        "report":  None,
+        "skip_if_fast": False,
+    },
+    {
+        # 2026-05-22: RAG Flywheel hard locks (immutable contracts that the
+        # loop must never regress: 5s inter-tile throttle, domain prefix on
+        # rag_tile inserts, rule-9 view-name self-check, positive-framing
+        # seeds, live-query cold_archive demotion).
+        "id":      "rag-flywheel-locks",
+        "script":  "validate_rag_flywheel_locks.py",
+        "args":    [],
+        "label":   "RAG Flywheel Locks (inter-tile throttle + domain prefix + view-name self-check + positive-framing seeds + cold_archive demotion)",
+        "group":   "Platform",
+        "report":  None,
+        "skip_if_fast": False,
+    },
+    {
         # 2026-05-21: AI Companion nineteenth 10-turn flywheel batch
         # (turns #185-#194). KNOWLEDGE GRAPH.
         "id":      "ai-companion-knowledge-graph",
@@ -2974,7 +3000,12 @@ SUPABASE_URL    = "https://hzyvnjtisfgbksicrouu.supabase.co/functions/v1/enginee
 
 
 # ── Run one validator ─────────────────────────────────────────────────────────
-VALIDATOR_TIMEOUT_SECONDS = 300  # per-validator hard cap; hung child gets SIGTERM
+VALIDATOR_TIMEOUT_SECONDS = 600  # per-validator hard cap; hung child gets SIGTERM
+# 2026-05-24: bumped 300 -> 600. Phantom capture + phantom column auditors
+# trend toward 4+ minutes as the codebase grows (495 captures / 1459 columns
+# scanned cross-product against every HTML + JS + edge fn + migration blob).
+# Standalone they finish in ~4 min, but mega-gate concurrency was pushing
+# them past the old 300s ceiling and reporting false-FAIL timeouts.
 
 
 def run_validator(v):

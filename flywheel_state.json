@@ -1,44 +1,6 @@
 {
-  "turn": 25,
+  "turn": 26,
   "history": [
-    {
-      "turn": 16,
-      "ts": "2026-05-21T07:58:17",
-      "diff": {
-        "L-1_total_proposals": {
-          "from": 0,
-          "to": 0,
-          "delta": 0
-        },
-        "L-1.5_rules_in_manifest": {
-          "from": 46,
-          "to": 46,
-          "delta": 0
-        },
-        "L0_total_baseline_count": {
-          "from": 263,
-          "to": 263,
-          "delta": 0
-        },
-        "L0_validators_with_baseline": {
-          "from": 64,
-          "to": 64,
-          "delta": 0
-        },
-        "L2_sentinel_specs": {
-          "from": 33,
-          "to": 33,
-          "delta": 0
-        },
-        "L13_walkthroughs_stale": {
-          "from": 0,
-          "to": 0,
-          "delta": 0
-        }
-      },
-      "L0_ratchets": [],
-      "L0_regressions": []
-    },
     {
       "turn": 17,
       "ts": "2026-05-21T07:59:17",
@@ -460,6 +422,80 @@
       },
       "L0_ratchets": [],
       "L0_regressions": []
+    },
+    {
+      "turn": 26,
+      "ts": "2026-05-24T17:08:19",
+      "diff": {
+        "L-1_total_proposals": {
+          "from": 0,
+          "to": 0,
+          "delta": 0
+        },
+        "L-1.5_rules_in_manifest": {
+          "from": 46,
+          "to": 46,
+          "delta": 0
+        },
+        "L0_total_baseline_count": {
+          "from": 627,
+          "to": 32,
+          "delta": -595
+        },
+        "L0_validators_with_baseline": {
+          "from": 74,
+          "to": 74,
+          "delta": 0
+        },
+        "L2_sentinel_specs": {
+          "from": 33,
+          "to": 33,
+          "delta": 0
+        },
+        "L13_walkthroughs_stale": {
+          "from": 0,
+          "to": 0,
+          "delta": 0
+        }
+      },
+      "L0_ratchets": [
+        {
+          "validator": "table_accessible_name",
+          "from": 303,
+          "to": 0
+        },
+        {
+          "validator": "empty_catch",
+          "from": 160,
+          "to": 0
+        },
+        {
+          "validator": "innerhtml_eschtml",
+          "from": 39,
+          "to": 0
+        },
+        {
+          "validator": "aria_label_coverage",
+          "from": 36,
+          "to": 0
+        },
+        {
+          "validator": "native_dialog_calls",
+          "from": 34,
+          "to": 0
+        },
+        {
+          "validator": "heading_hierarchy",
+          "from": 14,
+          "to": 0
+        },
+        {
+          "validator": "localstorage_key_consistency",
+          "from": 9,
+          "to": 0
+        }
+      ],
+      "L0_regressions": []
     }
   ],
   "snapshots": {
@@ -483,7 +519,7 @@
     "L0": {
       "baselines": {
         "add_column_default": 0,
-        "aria_label_coverage": 36,
+        "aria_label_coverage": 0,
         "button_type_in_form": 0,
         "canonical_anchor": 0,
         "canonical_drift": 0,
@@ -501,7 +537,7 @@
         "edge_response_content_type": 0,
         "edge_status_body_consistency": 0,
         "edge_unpinned_imports": 0,
-        "empty_catch": 160,
+        "empty_catch": 0,
         "env_variable_existence": 0,
         "event_listener_cleanup": 0,
         "external_link_rel": 0,
@@ -510,21 +546,21 @@
         "fk_on_delete": 0,
         "form_submission_target": 0,
         "getelementbyid_orphan_setter": 0,
-        "heading_hierarchy": 14,
+        "heading_hierarchy": 0,
         "icon_button_label": 0,
         "image_asset_existence": 0,
         "img_alt_coverage": 0,
         "inline_onclick_handler": 0,
-        "innerhtml_eschtml": 39,
+        "innerhtml_eschtml": 0,
         "javascript_href": 0,
         "json_parse_safety": 0,
         "kpi_count_query_safety": 0,
         "like_escape": 0,
         "link_target_existence": 0,
-        "localstorage_key_consistency": 9,
+        "localstorage_key_consistency": 0,
         "meta_description_coverage": 0,
         "meta_refresh": 0,
-        "native_dialog_calls": 34,
+        "native_dialog_calls": 0,
         "orphan_kpi_tiles": 0,
         "password_input_form": 0,
         "performance_unbounded": 0,
@@ -547,7 +583,7 @@
         "sitemap_page_existence": 0,
         "source_chip_truth": 0,
         "tabindex_positive": 0,
-        "table_accessible_name": 303,
+        "table_accessible_name": 0,
         "time_window_consistency": 0,
         "timer_cleanup": 0,
         "trigger_function_existence": 0,
@@ -557,7 +593,7 @@
         "view_select_star": 0,
         "viewport_user_scalable": 0
       },
-      "total_baseline_count": 627,
+      "total_baseline_count": 32,
       "validators_with_baseline": 74
     },
     "L2": {

@@ -14,7 +14,9 @@ echo.
 echo ============================================================
 echo.
 
-notebooklm login
+:: Bypass the local notebooklm.bat shim (which routes to our campaign
+:: script). `python -m notebooklm` calls the lib's CLI directly.
+python -m notebooklm login
 
 echo.
 echo ============================================================

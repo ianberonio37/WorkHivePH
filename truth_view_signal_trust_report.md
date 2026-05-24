@@ -325,7 +325,7 @@ re-deriving what the canonical view should expose:
 | `v_risk_truth` | `risk_level` | ✅ OK | 10 | direct |
 | `v_risk_truth` | `risk_score` | ✅ OK | 10 | direct |
 | `v_risk_truth` | `top_factors` | ✅ OK | 8 | direct |
-| `v_sensor_truth` | `asset_id` | ✅ OK | 1 | mapped_enum |
+| `v_sensor_truth` | `asset_id` | ✅ OK | 1 | direct |
 | `v_sensor_truth` | `is_anomaly` | ✅ OK | 2 | direct |
 | `v_sensor_truth` | `parameter` | ✅ OK | 2 | direct |
 | `v_sensor_truth` | `quality_flag` | ✅ OK | 2 | direct |

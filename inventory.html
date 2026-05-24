@@ -1449,7 +1449,8 @@ async function confirmDeleteItem(id) {
     if (item.status !== 'rejected') { showToast('Supervisors only.', 'warn'); return; }
     if (item.worker_name !== WORKER_NAME) { showToast('You can only remove your own rejected parts.', 'warn'); return; }
   }
-  if (!confirm(`Remove "${item.part_name}" (${item.part_number}) from inventory? This cannot be undone.`)) return;
+  const proceed = await window.whConfirm(`Remove "${item.part_name}" (${item.part_number}) from inventory? This cannot be undone.`, { title: 'Remove part', confirmLabel: 'Remove', tone: 'danger' });
+  if (!proceed) return;
 
   if (HIVE_ID) {
     // Supervisor deletes by hive scope; worker deletes own rejected item by worker_name

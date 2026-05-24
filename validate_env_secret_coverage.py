@@ -89,6 +89,8 @@ OPTIONAL_VARS: dict = {
     "AZURE_SPEECH_REGION": "Persona Contract Phase 7 TTS — defaults to 'southeastasia' when unset; co-required with AZURE_SPEECH_KEY for the Azure path.",
     "AZURE_DOC_INTELLIGENCE_ENDPOINT": "Equipment-label-ocr (Azure Day 3) — function returns `azure_not_configured` envelope when unset, caller falls back to manual asset entry. Set in cloud secrets only.",
     "AZURE_DOC_INTELLIGENCE_KEY": "Equipment-label-ocr companion to AZURE_DOC_INTELLIGENCE_ENDPOINT; same graceful-fallback path when missing.",
+    "WH_RATE_LIMIT_OVERRIDE": "RAG Flywheel rate-limit knob (agentic-rag-loop). Falls back to compiled default (50 prod / 300 dev) when unset; only set during multi-turn synthetic walks to lift the in-process token bucket.",
+    "WH_RATE_LIMIT_RESET": "RAG Flywheel rate-limit reset flag (agentic-rag-loop). When set to '1' on a single request, clears the in-process token bucket; absent means bucket persists across requests. Pure dev/test knob.",
 }
 
 # API-key-prefix patterns that indicate a real secret. The trailing length

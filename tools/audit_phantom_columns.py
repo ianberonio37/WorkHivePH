@@ -62,6 +62,16 @@ PHANTOM_COLUMN_ALLOW: dict[str, dict[str, str]] = {
     "canonical_sources": {
         "last_validated": "Written by validate_schema_phantom.py + future canonical-source validator runs. Allowlisted while the validator suite catches up to the column.",
     },
+    "mentor_relay_queue": {
+        "answered_by":  "2026-05-21 mentor-relay scaffolding (T114). Worker-id of the mentor who answered; written by mentor-relay-respond edge fn (Phase 4.114 wave 2, not yet shipped). Wire-in tracked under project_ai_companion_learning_2026_05_21.",
+        "answered_at":  "2026-05-21 mentor-relay scaffolding (T114). Server timestamp on mentor reply; written by the same mentor-relay-respond edge fn. Allowlisted until that fn lands.",
+    },
+    "agentic_rag_traces": {
+        "user_rating":  "2026-05-21 agentic-RAG Phase 8 observability scaffolding. Worker thumbs up/down captured by the observability dashboard write-back path (not yet wired in agentic-rag-observability.html). Allowlisted until dashboard rating UI ships.",
+    },
+    "ai_quality_escalation": {
+        "thumbs_down_7d":  "2026-05-21 AI quality 7-day rolling thumbs-down counter. Aggregated by a future ai-quality-roll-up edge fn (Phase 4.122 cohort, not yet shipped). Allowlisted until the roll-up fn lands.",
+    },
 }
 
 

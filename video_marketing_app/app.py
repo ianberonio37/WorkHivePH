@@ -1526,19 +1526,23 @@ def nlm_doctor():
 
 @app.route("/api/notebooklm/relogin", methods=["POST"])
 def nlm_relogin():
-    """Spawn `notebooklm login` as a managed subprocess.
+    """Spawn our Playwright-based re-login helper as a managed subprocess.
 
-    The lib opens a Chromium window pointed at NotebookLM (it uses
-    Playwright internally) and then `input()`s waiting for ENTER. We pipe
-    stdin so the dashboard can later send the ENTER programmatically when
-    the user clicks "I'm signed in" — no terminal interaction needed.
+    Previous attempt used `notebooklm login` (the lib's CLI) with piped
+    stdin. The CLI uses interactive prompts that hang silently when stdin
+    isn't a TTY — confirmed in the field (subprocess sat for 5+ minutes
+    without exiting even after our \\n was piped in). Now we drive
+    Playwright directly from `tools/notebooklm_relogin_playwright.py`:
+      * Browser opens on the user's desktop
+      * Helper polls page state to auto-detect successful sign-in
+      * Saves storage_state.json itself, no ENTER press required
+      * Exits with code 0 on success
 
-    Returns immediately after spawn; the browser will appear on the user's
-    desktop within a second or two.
+    The /confirm endpoint is now a no-op left in place for backwards
+    compatibility — the new helper completes the flow on its own.
     """
     import subprocess, sys
 
-    # Reap any prior process so we always have exactly one in-flight.
     with NLM_RELOGIN_LOCK:
         prev = NLM_RELOGIN.get("proc")
         if prev is not None:
@@ -1549,36 +1553,30 @@ def nlm_relogin():
                 pass
             NLM_RELOGIN["proc"] = None
 
-    # Locate the notebooklm CLI executable — Scripts/ on the active Python.
-    # We can't rely on PATH because Flask may have been started from a
-    # different shell context. Fall back to `python -m notebooklm` if the
-    # entry point isn't where we expect.
-    py_dir   = Path(sys.executable).parent
-    nlm_exe  = py_dir / "Scripts" / "notebooklm.exe"
-    if nlm_exe.exists():
-        cmd = [str(nlm_exe), "login"]
-    else:
-        cmd = [sys.executable, "-m", "notebooklm", "login"]
+    helper = Path(__file__).resolve().parent.parent / "tools" / "notebooklm_relogin_playwright.py"
+    if not helper.exists():
+        return jsonify({"success": False, "error": f"Helper missing: {helper}"}), 500
 
     try:
-        # Run from the user's home so the lib writes the storage file
-        # under its default location (~/.notebooklm/profiles/default/).
+        # CREATE_NEW_CONSOLE so the user sees a small log window — helpful
+        # for diagnostics if Playwright fails to launch the browser. The
+        # script writes progress lines as it runs.
         proc = subprocess.Popen(
-            cmd,
-            stdin=subprocess.PIPE,
+            [sys.executable, str(helper)],
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
             text=True,
             bufsize=1,
             cwd=str(Path.home()),
+            creationflags=getattr(subprocess, "CREATE_NEW_CONSOLE", 0),
         )
         with NLM_RELOGIN_LOCK:
             NLM_RELOGIN["proc"] = proc
             NLM_RELOGIN["started_at"] = time.time()
         return jsonify({
             "success": True,
-            "message": "Chromium will open. Sign in to NotebookLM, then click 'I'm signed in'.",
-            "pid": proc.pid,
+            "message": "Chromium is opening. Sign in to NotebookLM — the dashboard will auto-detect when you're signed in.",
+            "pid":     proc.pid,
         })
     except Exception as exc:
         return jsonify({"success": False, "error": f"{type(exc).__name__}: {exc}"}), 500
@@ -1586,31 +1584,16 @@ def nlm_relogin():
 
 @app.route("/api/notebooklm/relogin/confirm", methods=["POST"])
 def nlm_relogin_confirm():
-    """User clicked 'I'm signed in' — send ENTER to the subprocess.
+    """No-op kept for UI compatibility.
 
-    The `notebooklm login` command blocks on `input()` waiting for ENTER
-    before saving cookies to storage_state.json. We pipe a single newline,
-    which unblocks it and causes the session to be saved.
+    The new Playwright helper auto-detects sign-in and saves the session
+    itself. The dashboard's session-check polling will catch the new
+    session within a few seconds of the helper finishing.
     """
-    with NLM_RELOGIN_LOCK:
-        proc = NLM_RELOGIN.get("proc")
-
-    if proc is None:
-        return jsonify({"success": False, "error": "No active re-login session. Click 'Re-authenticate Now' first."}), 400
-    if proc.poll() is not None:
-        return jsonify({
-            "success": False,
-            "error": f"Re-login subprocess already exited (returncode={proc.returncode}).",
-        }), 400
-
-    try:
-        proc.stdin.write("\n")
-        proc.stdin.flush()
-        # Don't close stdin yet — give the subprocess time to read.
-        # It will exit on its own after saving the session.
-        return jsonify({"success": True, "message": "Signing-in confirmed. Saving session…"})
-    except Exception as exc:
-        return jsonify({"success": False, "error": f"stdin write failed: {type(exc).__name__}: {exc}"}), 500
+    return jsonify({
+        "success": True,
+        "message": "Auto-detection is active — sign in via the Chromium window. No further clicks needed.",
+    })
 
 
 @app.route("/api/notebooklm/relogin/status")

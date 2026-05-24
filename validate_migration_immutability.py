@@ -211,6 +211,14 @@ ALLOWED_MULTI_COMMIT = {
         "2026-05-16 same-day fix pass (commit 0c8408f): validator registration "
         "and RLS policies. Phase 6 Offline Resilience migration, never applied "
         "to remote prod.",
+    "20260521000001_fk_on_delete_hardening.sql":
+        "2026-05-21 self-heal: wrapped each FK reconstruction in a DO $$ IF EXISTS "
+        "guard so the migration applies cleanly on fresh local stacks where parent "
+        "tables were dropped by earlier 20260512000009_phase_5c_drop_assets cascades. "
+        "Pure idempotency hardening: semantics unchanged where parents exist; "
+        "silently skips where they don't. Never applied to remote prod between the "
+        "two commits (local-first workflow). Long-term: roll the guard into a fresh "
+        "migration if this file needs further edits.",
 }
 
 

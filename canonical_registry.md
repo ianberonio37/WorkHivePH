@@ -5,13 +5,13 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 
 ## Summary
 
-- Tables:        **125**
+- Tables:        **138**
 - Views:         **45**
 - RPCs:          **71**
-- HTML surfaces: **42**
-- Edge fns:      **64**
+- HTML surfaces: **43**
+- Edge fns:      **70**
 - Phantom tables (referenced in code, not in migrations): **0**
-- Duplicate signals: **55**
+- Duplicate signals: **64**
 
 ## Tables (sorted by usage)
 
@@ -20,9 +20,9 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 | `hive_audit_log` | 9 | no | yes | alert-hub.html, asset-hub.html, audit-log.html, community.html ... | alert-hub.html, asset-hub.html, community.html ... | export-hive-data |
 | `automation_log` | 6 | yes | no | alert-hub.html | — | batch-risk-scoring, benchmark-compute, cmms-push-completion ... |
 | `logbook` | 30 | yes | no | dayplanner.html, hive.html, integrations.html, logbook.html ... | dayplanner.html, hive.html, integrations.html ... | cmms-sync, cmms-webhook-receiver |
+| `ai_rate_limits` | 3 | yes | no | — | — | _shared/rate-limit.ts, agentic-rag-loop, asset-brain-query ... |
 | `asset_nodes` | 26 | yes | yes | asset-hub.html, hive.html, integrations.html, inventory.html ... | asset-hub.html, integrations.html, inventory.html ... | — |
 | `marketplace_orders` | 17 | no | no | marketplace-admin.html, marketplace.html | marketplace-admin.html, marketplace.html | marketplace-checkout, marketplace-release, marketplace-webhook |
-| `ai_rate_limits` | 3 | yes | no | — | — | _shared/rate-limit.ts, asset-brain-query, fmea-populator ... |
 | `fault_knowledge` | 14 | yes | no | integrations.html, logbook.html | integrations.html | cmms-sync, visual-defect-capture |
 | `project_links` | 8 | no | no | logbook.html, pm-scheduler.html, project-manager.html, project-report.html | logbook.html, pm-scheduler.html, project-manager.html | — |
 | `marketplace_sellers` | 19 | no | no | marketplace-admin.html, marketplace-seller.html | marketplace-admin.html, marketplace-seller.html | marketplace-connect-onboard, marketplace-connect-status |
@@ -36,8 +36,8 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 | `marketplace_listings` | 20 | no | no | marketplace-admin.html, marketplace-seller.html, marketplace.html | marketplace-admin.html, marketplace-seller.html, marketplace.html | — |
 | `pm_scope_items` | 8 | yes | no | asset-hub.html, integrations.html, pm-scheduler.html | asset-hub.html, integrations.html, pm-scheduler.html | — |
 | `parts_staging_recommendations` | 14 | no | yes | alert-hub.html, asset-hub.html | asset-hub.html | parts-staging-recommender |
-| `network_benchmarks` | 9 | no | no | hive.html | — | benchmark-compute |
 | `voice_journal_entries` | 10 | yes | no | assistant.html, voice-journal.html | — | _shared/journal-recall.ts |
+| `network_benchmarks` | 9 | no | no | hive.html | — | benchmark-compute |
 | `engineering_calcs` | 13 | yes | no | engineering-design.html, project-manager.html | engineering-design.html | — |
 | `inventory_transactions` | 11 | yes | no | inventory.html, logbook.html | inventory.html, logbook.html | — |
 | `marketplace_inquiries` | 11 | no | no | marketplace-seller.html, marketplace.html | marketplace-seller.html, marketplace.html | — |
@@ -48,8 +48,9 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 | `cmms_audit_log` | 12 | no | no | integrations.html | integrations.html | cmms-sync |
 | `shift_plans` | 13 | yes | yes | shift-brain.html | shift-brain.html | shift-planner-orchestrator |
 | `rcm_fmea_modes` | 20 | yes | yes | asset-hub.html | asset-hub.html | fmea-populator |
-| `ai_cost_log` | 16 | yes | no | ai-quality.html, founder-console.html | — | _shared/cost-log.ts |
+| `ai_cost_log` | 17 | yes | no | ai-quality.html, founder-console.html | — | _shared/cost-log.ts |
 | `amc_briefings` | 14 | yes | yes | alert-hub.html | alert-hub.html | amc-orchestrator |
+| `canonical_period_summaries` | 12 | yes | no | — | — | hierarchical-summarizer |
 | `marketplace_platform_admins` | 3 | no | no | marketplace-admin.html, marketplace.html, platform-health.html | — | — |
 | `marketplace_reviews` | 7 | no | no | marketplace-seller-profile.html, marketplace.html | marketplace.html | — |
 | `schedule_items` | 12 | yes | no | assistant.html, dayplanner.html | dayplanner.html | — |
@@ -59,6 +60,7 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 | `asset_edges` | 8 | yes | yes | asset-hub.html | asset-hub.html | — |
 | `parts_staged_reservations` | 11 | no | yes | asset-hub.html, inventory.html | asset-hub.html | — |
 | `gateway_audit_log` | 13 | yes | no | plant-connections.html | — | platform-gateway |
+| `agentic_rag_traces` | 16 | yes | no | agentic-rag-observability.html | — | agentic-rag-loop |
 | `ai_reports` | 7 | yes | no | — | — | scheduled-agents |
 | `community_posts` | 13 | yes | no | community.html | community.html | — |
 | `community_reactions` | 6 | yes | no | community.html | community.html | — |
@@ -86,7 +88,10 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 | `sensor_readings` | 13 | yes | yes | — | — | sensor-readings-ingest |
 | `anomaly_signals` | 22 | yes | yes | alert-hub.html | alert-hub.html | — |
 | `platform_feedback` | 20 | yes | yes | founder-console.html | founder-console.html | — |
+| `agent_episodic_memory` | 12 | yes | no | — | — | agent-memory-store |
+| `unified_events` | 12 | yes | no | — | — | data-fabric-normalizer |
 | `achievement_xp_log` | 7 | yes | no | achievements.html | — | — |
+| `canonical_sources` | 10 | yes | no | — | — | — |
 | `hive_route_quotas` | 7 | yes | no | — | — | — |
 | `sensor_topic_map` | 10 | yes | no | plant-connections.html | — | — |
 | `canonical_agent_contracts` | 6 | yes | no | — | — | — |
@@ -105,7 +110,6 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 | `achievement_definitions` | 7 | yes | no | — | — | — |
 | `worker_achievements` | 7 | yes | yes | — | — | — |
 | `asset_embeddings` | 5 | yes | no | — | — | — |
-| `canonical_sources` | 10 | yes | no | — | — | — |
 | `hive_quotas` | 10 | yes | no | — | — | — |
 | `canonical_standards` | 9 | yes | no | — | — | — |
 | `canonical_formulas` | 10 | yes | no | — | — | — |
@@ -142,6 +146,15 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 | `platform_feedback_votes` | 3 | yes | no | — | — | — |
 | `canonical_lineage_edges` | 7 | yes | no | — | — | — |
 | `IF` | 7 | no | no | — | — | — |
+| `ai_audit_log` | 7 | yes | no | — | — | — |
+| `ai_knowledge_gap` | 7 | yes | no | — | — | — |
+| `ai_quality_escalation` | 8 | yes | no | — | — | — |
+| `asset_watchlist` | 4 | yes | no | — | — | — |
+| `companion_handoff` | 8 | yes | no | — | — | — |
+| `mentor_relay_queue` | 10 | yes | no | — | — | — |
+| `shared_voice_notes` | 7 | yes | no | — | — | — |
+| `wh_feature_flags` | 5 | yes | no | — | — | — |
+| `wh_voice_presence` | 3 | yes | no | — | — | — |
 
 ## RPCs / Functions
 
@@ -224,6 +237,7 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 | Page | Primary tables (read) | Tables written | RPCs called | Edge fns invoked |
 |---|---|---|---|---|
 | `achievements.html` | achievement_xp_log, v_worker_achievements_truth, v_worker_truth | — | — | — |
+| `agentic-rag-observability.html` | agentic_rag_traces | — | — | — |
 | `ai-quality.html` | ai_cost_log | — | — | — |
 | `alert-hub.html` | amc_briefings, anomaly_signals, automation_log, failure_signature_alerts ... | amc_briefings, anomaly_signals, hive_audit_log | compute_anomaly_signals | — |
 | `analytics-report.html` | v_hives_truth | — | — | — |
@@ -281,6 +295,7 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 
 - `marketplace_sellers`: `kyb_verified` vs `kyb_verified_at`
 - `marketplace_sellers`: `cert_verified` vs `cert_verified_at`
+- `unified_events`: `source` vs `source_id`
 
 ### Dead tables (no readers, no writers)
 
@@ -296,7 +311,6 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 - `achievement_definitions` (defined but unreferenced)
 - `worker_achievements` (defined but unreferenced)
 - `asset_embeddings` (defined but unreferenced)
-- `canonical_sources` (defined but unreferenced)
 - `hive_quotas` (defined but unreferenced)
 - `canonical_standards` (defined but unreferenced)
 - `canonical_formulas` (defined but unreferenced)
@@ -333,3 +347,12 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 - `platform_feedback_votes` (defined but unreferenced)
 - `canonical_lineage_edges` (defined but unreferenced)
 - `IF` (defined but unreferenced)
+- `ai_audit_log` (defined but unreferenced)
+- `ai_knowledge_gap` (defined but unreferenced)
+- `ai_quality_escalation` (defined but unreferenced)
+- `asset_watchlist` (defined but unreferenced)
+- `companion_handoff` (defined but unreferenced)
+- `mentor_relay_queue` (defined but unreferenced)
+- `shared_voice_notes` (defined but unreferenced)
+- `wh_feature_flags` (defined but unreferenced)
+- `wh_voice_presence` (defined but unreferenced)
