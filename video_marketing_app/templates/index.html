@@ -1758,10 +1758,12 @@
       return base +
         '<strong>👉 Sign in to NotebookLM</strong> in the Chromium window that just opened.<br>' +
         '<span style="font-size:.7rem;color:var(--steel)">' +
-          'Auto-detection is active — once you\'re signed in, the dashboard updates itself. No button needed.' +
+          'The browser is maximized — if you don\'t see it, use <kbd>Alt+Tab</kbd>. ' +
+          'Auto-detection picks up the sign-in automatically. No button needed.' +
         '</span><br>' +
         '<span style="font-size:.65rem;color:var(--steel)">If no window appeared, ' +
         '<a href="#" onclick="nlmReloginStart(\'' + ideaId + '\'); return false" style="color:var(--cyan)">retry</a>.</span><br>' +
+        '<div id="nlmReloginUrl-' + ideaId + '" style="font-size:.6rem;color:var(--cyan);margin-top:.45rem;word-break:break-all;font-family:monospace"></div>' +
         '<span id="nlmReloginElapsed-' + ideaId + '" style="font-size:.65rem;color:var(--steel)"></span>' +
         close;
     }
@@ -1835,6 +1837,15 @@
       try {
         // Check helper status — exit code 0 means saved successfully
         const sRes = await fetch('/api/notebooklm/relogin/status').then(r => r.json());
+        // Surface the browser's current URL so the user can see whether
+        // the helper has actually progressed past sign-in or is stuck.
+        const urlEl = document.getElementById('nlmReloginUrl-' + ideaId);
+        if (urlEl && sRes.current_url) {
+          const short = sRes.current_url.length > 90
+            ? sRes.current_url.slice(0, 87) + '…'
+            : sRes.current_url;
+          urlEl.textContent = 'Browser is at: ' + short;
+        }
         if (sRes.state === 'done' && sRes.returncode === 0) {
           // Helper succeeded. Verify session is live.
           const vRes = await fetch('/api/notebooklm/session-check', { method: 'POST' }).then(r => r.json());

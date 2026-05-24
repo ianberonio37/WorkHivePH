@@ -1602,33 +1602,90 @@ def nlm_relogin_status():
 
     The dashboard polls this alongside session-check so it can show
     'browser opening…' → 'waiting for sign-in…' → 'saving session…' → done.
+
+    While running, we ALSO drain stdout into a buffered tail so the UI
+    can show the current browser URL (the helper prints "[browser] <url>"
+    on every navigation). This makes it obvious whether the user has
+    progressed past sign-in or is still stuck on accounts.google.com.
     """
     with NLM_RELOGIN_LOCK:
         proc       = NLM_RELOGIN.get("proc")
         started_at = NLM_RELOGIN.get("started_at")
+        running_tail = NLM_RELOGIN.get("running_tail", "")
 
     if proc is None:
         return jsonify({"state": "idle"})
 
+    # Drain whatever's pending on stdout (non-blocking) so the running
+    # tail stays fresh. Use a thread-friendly approach: read until WOULD
+    # block. On Windows this requires a select-style trick — we use a
+    # bounded read via os.read which respects non-blocking flag if set.
+    new_chunk = ""
+    if proc.stdout is not None:
+        try:
+            import os as _os, msvcrt
+            # On Windows, use PeekNamedPipe via msvcrt? Simpler: just
+            # rely on bufsize=1 + line buffering. We do a single non-
+            # blocking readline attempt with a tiny timeout-equivalent.
+            # Easiest portable approach: stash a reader thread on the
+            # subprocess record. Lazy-create on first poll.
+            if "tail_thread" not in NLM_RELOGIN:
+                import threading as _th
+                def _drain():
+                    buf = []
+                    try:
+                        for line in iter(proc.stdout.readline, ""):
+                            if not line:
+                                break
+                            buf.append(line)
+                            with NLM_RELOGIN_LOCK:
+                                NLM_RELOGIN["running_tail"] = "".join(buf)[-2000:]
+                    except Exception:
+                        pass
+                t = _th.Thread(target=_drain, daemon=True)
+                t.start()
+                with NLM_RELOGIN_LOCK:
+                    NLM_RELOGIN["tail_thread"] = t
+        except Exception:
+            pass
+
+    # Parse a current browser URL out of the running tail so the UI can
+    # surface it. The helper prints lines like "  [browser] <url>".
+    current_url = None
+    if running_tail:
+        for line in reversed(running_tail.splitlines()):
+            s = line.strip()
+            if s.startswith("[browser] http"):
+                current_url = s[len("[browser]"):].strip()
+                break
+
     rc = proc.poll()
     elapsed = round(time.time() - (started_at or time.time()), 1)
     if rc is None:
-        # Still running; the elapsed time tells the UI whether to nudge
-        # the user (browser is up + waiting for sign-in).
-        return jsonify({"state": "running", "elapsed_s": elapsed, "pid": proc.pid})
-    # Finished — read what it printed (helpful diagnostic) and reset.
+        return jsonify({
+            "state":       "running",
+            "elapsed_s":   elapsed,
+            "pid":         proc.pid,
+            "current_url": current_url,
+            "tail":        (running_tail or "")[-800:],
+        })
+    # Finished — read whatever's left in stdout and reset.
     try:
-        out = proc.stdout.read() if proc.stdout else ""
+        rest = proc.stdout.read() if proc.stdout else ""
     except Exception:
-        out = ""
+        rest = ""
+    full_out = (running_tail or "") + (rest or "")
     with NLM_RELOGIN_LOCK:
         NLM_RELOGIN["proc"] = None
         NLM_RELOGIN["started_at"] = None
+        NLM_RELOGIN["running_tail"] = ""
+        NLM_RELOGIN.pop("tail_thread", None)
     return jsonify({
         "state":       "done" if rc == 0 else "error",
         "returncode":  rc,
         "elapsed_s":   elapsed,
-        "output_tail": (out or "")[-1500:],
+        "current_url": current_url,
+        "output_tail": full_out[-1500:],
     })
 
 

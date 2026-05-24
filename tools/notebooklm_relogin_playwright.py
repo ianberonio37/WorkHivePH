@@ -47,45 +47,73 @@ def _paths() -> tuple[Path, Path]:
     return profile_dir, storage_file
 
 
-async def _wait_for_signin(page, max_seconds: int = 600) -> bool:
-    """Poll the page until the user is clearly signed in to NotebookLM.
+async def _wait_for_signin(page, context, max_seconds: int = 600) -> bool:
+    """Poll until the user is signed in to NotebookLM.
 
-    Signed-in detection: URL is NOT on a signin/accountchooser page AND
-    we can find at least one element that only appears post-login (new
-    notebook button, notebooks list container, or the NotebookLM nav).
+    A sign-in is confirmed when ALL of these are true:
+      1. Page URL is on notebooklm.google.com (NOT a signin/accountchooser/login redirect)
+      2. We see a post-login DOM element OR the auth cookies are set
+      3. The page has been on that URL for >2s (avoid catching mid-redirect)
+
+    Loose detection caused false positives on Google's redirect chain
+    (notebooklm.google.com/login?continue=… briefly shows as "on NL" even
+    though it's still a transitional URL).
     """
     deadline = asyncio.get_event_loop().time() + max_seconds
-    SIGNED_OUT_URLS = ("signin", "accountchooser", "myaccount.google", "ServiceLogin")
+    SIGNED_OUT_PATTERNS = (
+        "/signin/", "/v3/signin", "accountchooser",
+        "/ServiceLogin", "myaccount.google", "/login?",
+        "/oauth", "challenge",
+    )
     POST_LOGIN_SELECTORS = [
         "button:has-text('New notebook')",
         "button:has-text('Create new')",
         "[role='button']:has-text('New')",
+        "button:has-text('Try NotebookLM')",
         "[data-test-id*='notebook']",
         "[data-test-id*='create']",
-        "nav",
+        "[aria-label*='notebook' i]",
     ]
     last_url = ""
+    stable_since = None
     while asyncio.get_event_loop().time() < deadline:
         try:
             url = page.url
         except Exception:
-            return False                                  # page closed
+            return False                                  # page/browser closed
         if url != last_url:
             print(f"  [browser] {url}", flush=True)
             last_url = url
-        if any(t in url for t in SIGNED_OUT_URLS):
-            await asyncio.sleep(2)
-            continue
+            stable_since = asyncio.get_event_loop().time()
+        # Not on NotebookLM at all — keep waiting.
         if "notebooklm.google.com" not in url:
             await asyncio.sleep(2)
             continue
-        # On NotebookLM and NOT on a signin page — confirm by finding a
-        # post-login element. Selectors are unreliable individually so we
-        # try several.
+        # On NotebookLM domain but still on a transitional URL — keep waiting.
+        if any(p in url for p in SIGNED_OUT_PATTERNS):
+            await asyncio.sleep(2)
+            continue
+        # URL looks settled. Wait at least 2s on the same URL before
+        # checking DOM/cookies so we don't catch a mid-redirect state.
+        if stable_since is None or (asyncio.get_event_loop().time() - stable_since) < 2:
+            await asyncio.sleep(1)
+            continue
+        # Check for sign-in evidence (any one of these passes):
+        # (a) Auth cookies set for notebooklm/google
+        try:
+            cookies = await context.cookies("https://notebooklm.google.com/")
+            cookie_names = {c.get("name", "") for c in cookies}
+            if any(n in cookie_names for n in ("SAPISID", "__Secure-1PSID", "SID", "HSID")):
+                print(f"  [signin] auth cookies present ({len(cookie_names)} cookies)", flush=True)
+                return True
+        except Exception as exc:
+            print(f"  [signin] cookie check raised: {exc}", flush=True)
+        # (b) Post-login DOM element visible
         for sel in POST_LOGIN_SELECTORS:
             try:
-                el = await page.wait_for_selector(sel, timeout=1500, state="attached")
+                el = await page.wait_for_selector(sel, timeout=800, state="attached")
                 if el:
+                    print(f"  [signin] DOM marker found: {sel}", flush=True)
                     return True
             except Exception:
                 continue
@@ -126,14 +154,25 @@ async def _launch_browser(p, profile_dir: Path):
     from scratch (full credentials, no "Continue as X" shortcut), but the
     cookies still land in storage_state.json which is the ONLY file the
     lib actually reads.
+
+    Window args force the Chromium window to be MAXIMIZED, top-most, and
+    focused so the user can't miss it. We also set a custom window title
+    so it's identifiable in alt-tab.
     """
     args = [
         "--disable-blink-features=AutomationControlled",
         "--no-first-run",
         "--no-default-browser-check",
+        "--start-maximized",                     # full screen, can't miss it
+        "--window-name=WorkHive NotebookLM Login",
     ]
-    browser = await p.chromium.launch(headless=False, args=args)
-    context = await browser.new_context()
+    browser = await p.chromium.launch(
+        headless=False,
+        args=args,
+        # no_viewport=True lets the maximized window actually use full screen
+        # instead of being clamped to Playwright's default 1280x720 viewport.
+    )
+    context = await browser.new_context(no_viewport=True)
     print("  [browser] fresh non-persistent context up", flush=True)
     return context, browser
 
@@ -163,7 +202,7 @@ async def _run() -> int:
                 print("  [browser] navigating to NotebookLM…", flush=True)
                 await page.goto("https://notebooklm.google.com/", wait_until="domcontentloaded")
                 print("  [waiting] sign in to your Google account in the browser…", flush=True)
-                signed_in = await _wait_for_signin(page, max_seconds=600)
+                signed_in = await _wait_for_signin(page, context, max_seconds=600)
                 if not signed_in:
                     print("  [timeout] no sign-in detected within 10 minutes", file=sys.stderr)
                     return 3
