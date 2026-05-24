@@ -3000,12 +3000,15 @@ SUPABASE_URL    = "https://hzyvnjtisfgbksicrouu.supabase.co/functions/v1/enginee
 
 
 # ── Run one validator ─────────────────────────────────────────────────────────
-VALIDATOR_TIMEOUT_SECONDS = 600  # per-validator hard cap; hung child gets SIGTERM
-# 2026-05-24: bumped 300 -> 600. Phantom capture + phantom column auditors
-# trend toward 4+ minutes as the codebase grows (495 captures / 1459 columns
-# scanned cross-product against every HTML + JS + edge fn + migration blob).
-# Standalone they finish in ~4 min, but mega-gate concurrency was pushing
-# them past the old 300s ceiling and reporting false-FAIL timeouts.
+VALIDATOR_TIMEOUT_SECONDS = 1200  # per-validator hard cap; hung child gets SIGTERM
+# 2026-05-24: bumped 300 -> 600 -> 1200. Phantom capture + phantom column
+# auditors do O(captures x blobs) and O(columns x blobs) cross-products,
+# which grow superlinearly with the codebase. Under gate concurrency they
+# slow markedly: phantom_captures hit 347.9s (was 300+ killed), phantom_columns
+# hit 600.1s (was killed at 600s ceiling). Standalone each finishes in 4-5 min.
+# Bumping the cap to 1200s gives 2x headroom for future growth without losing
+# the hung-child safety net. If a validator legitimately needs longer, that's
+# the signal to refactor it (index by tail-N bytes / parallelize tables).
 
 
 def run_validator(v):
