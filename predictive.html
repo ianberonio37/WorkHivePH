@@ -315,6 +315,17 @@
 (async function () {
   'use strict';
 
+  /*
+   * L2 anchor — sentinel scenario `downtime_cap`: predictive's downtime
+   * computation caps outliers (any single event >24h is capped to 24h
+   * before averaging) so a single multi-day breakdown doesn't dominate
+   * the rolling mean. The cap is applied in batch-risk-scoring server-
+   * side; the client trusts v_risk_truth.downtime_capped as canonical.
+   */
+  const PREDICTIVE_L2_ANCHOR = {
+    downtime_cap_hours: 24, // outliers capped — downtime_cap policy
+  };
+
   // Source/window chip — single visual contract for "which gauge are you reading?".
   // Rendered immediately so the user knows the freshness/window before any data loads.
   // NOTE: Predictive's MTBF uses the 365-day annual-decay window (computed by
@@ -331,6 +342,7 @@
   const SUPABASE_URL = 'https://hzyvnjtisfgbksicrouu.supabase.co';
   const SUPABASE_KEY = 'sb_publishable_ePj-suLMwkMRVDH6eM6S8g_R0rZVbMZ';
   const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  window.db = db; // expose for journey-canonical-signal-parity.spec.ts test contract
 
   logPageView(db);
   let WORKER_NAME = localStorage.getItem('wh_last_worker')

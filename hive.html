@@ -996,6 +996,7 @@
 const SUPABASE_URL = 'https://hzyvnjtisfgbksicrouu.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_ePj-suLMwkMRVDH6eM6S8g_R0rZVbMZ'; // anon key: safe in frontend
 const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+window.db = db; // expose for journey-canonical-signal-parity.spec.ts test contract
 logPageView(db);
 let _authUid = null; // C3: populated at init from Supabase Auth session
 

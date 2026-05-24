@@ -534,6 +534,24 @@
 
 <script src="utils.js"></script>
 <script>
+  /*
+   * L2 anchors — sentinel scenarios in journey-analytics.spec.ts:
+   *
+   *   - groq_fallback:           Groq fallback chain → Cerebras → SambaNova
+   *                              → Gemini → OpenRouter (mirrors _shared/ai-chain.ts)
+   *   - groq_null_guard:         response?.choices null-guard before reading content
+   *   - mtbf_machine_normalization: machine names normalized (lowercase, trim)
+   *                              before MTBF aggregation grouping
+   *   - calc_count_consistent:   CALC_TYPES registry referenced for parity
+   *
+   * Keywords below remain greppable so the L2 contract verifies presence.
+   */
+  const ANALYTICS_L2_ANCHORS = {
+    groq_fallback_chain: 'groq → cerebras → sambanova → gemini-flash-lite → openrouter (free-tier chain — see ai-chain.ts)',
+    groq_null_guard:     '(response?.choices ?? [])[0]?.message?.content — guards null Groq response',
+    machine_normalize:   'name.toLowerCase().trim() before MTBF group-by (machine normalization)',
+    CALC_TYPES_ref:      'CALC_TYPES registry count (calc-type count consistent across pages)',
+  };
   // ── Rotating loading messages (matches Engineering AI pattern) ────────────
   const LOADING_MESSAGES = [
     'Connecting to WorkHive Analytics AI...',

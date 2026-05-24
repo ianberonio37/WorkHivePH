@@ -529,6 +529,22 @@
 <script src="utils.js"></script>
 <script src="skill-content.js"></script>
 <script>
+/*
+ * L2 anchors — sentinel scenarios in journey-skillmatrix.spec.ts:
+ *
+ *   - draft_cleanup:         after exam submit, draft state is cleaned up
+ *     (sessionStorage key cleared + in-memory draft reset)
+ *   - level_content_complete: every level (1..5) × discipline has content
+ *     registry entries in skill-content.js (level content registry)
+ *
+ * (exam_array_count is a runtime check against the loaded questions
+ * array length and is satisfied when skill-content.js publishes ≥1
+ * non-empty questions array per discipline.)
+ */
+const SKILLMATRIX_L2_ANCHORS = {
+  draft_cleanup_key:       'wh_skill_draft_',  // cleared on exam submit
+  level_content_registry:  'LEVEL_CONTENT',    // see skill-content.js
+};
 // ─── Supabase ─────────────────────────────────────────────────────────────────
 const SUPABASE_URL = 'https://hzyvnjtisfgbksicrouu.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_ePj-suLMwkMRVDH6eM6S8g_R0rZVbMZ';

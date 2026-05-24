@@ -77,7 +77,7 @@ void _whWarmClient;
 // ─── Constants ────────────────────────────────────────────────────────────────
 
 const MODEL_VERSION         = "visual-defect-v1";
-const RATE_LIMIT_PER_HOUR   = 50;
+const RATE_LIMIT_PER_HOUR   = Number(Deno.env.get("WH_RATE_LIMIT_OVERRIDE") || 50);
 const MAX_IMAGE_BYTES       = 4_500_000;   // ~3.4 MB base64 = 2.5 MB binary
 const MAX_VOICE_NOTE_CHARS  = 500;
 const MAX_TOKENS_OUT        = 700;

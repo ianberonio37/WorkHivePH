@@ -53,7 +53,7 @@ void _whWarmClient;
 // ─── Constants ────────────────────────────────────────────────────────────────
 
 const MAX_TRANSCRIPT_CHARS = 500;
-const RATE_LIMIT_PER_HOUR  = 50;
+const RATE_LIMIT_PER_HOUR  = Number(Deno.env.get("WH_RATE_LIMIT_OVERRIDE") || 50);
 const MAX_TOKENS_OUT       = 800;
 const ASSET_CANDIDATE_CAP  = 5;
 

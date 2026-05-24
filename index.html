@@ -3238,7 +3238,12 @@
   let _ohDb = null;
   function _getOhDb() {
     // Shared singleton (utils.js): was creating a separate GoTrueClient.
-    if (!_ohDb) _ohDb = window.getDb(_OH_URL, _OH_KEY);
+    if (!_ohDb) {
+      _ohDb = window.getDb(_OH_URL, _OH_KEY);
+      // Expose for journey-canonical-signal-parity.spec.ts test contract
+      // (home tiles count against v_*_truth views the test can re-query).
+      window.db = _ohDb;
+    }
     return _ohDb;
   }
 

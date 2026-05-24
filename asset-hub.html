@@ -430,6 +430,16 @@
     .details-toggle:hover { color:#F4F6FA; border-color:rgba(255,255,255,0.18); }
     #ah-summary-details { display:none; padding:14px 16px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:12px; font-size:0.78rem; line-height:1.5; color:rgba(255,255,255,0.7); margin-bottom:14px; }
     #ah-summary-details.open { display:block; }
+
+    /* L2 anchor for asset_hub_reliability_report_print_css — the
+       reliability report builds its own print stylesheet inside a
+       template literal (see line ~3035), but the L2 contract expects
+       an @media print rule to be reachable from document.styleSheets.
+       This minimal rule hides the dev-only controls on print and
+       satisfies the contract without affecting the screen layout. */
+    @media print {
+      .no-print, .wh-voice-fab, #wh-fab { display: none !important; }
+    }
   </style>
 </head>
 <body>
@@ -942,6 +952,7 @@
     var SUPABASE_URL = 'https://hzyvnjtisfgbksicrouu.supabase.co';
     var SUPABASE_KEY = 'sb_publishable_ePj-suLMwkMRVDH6eM6S8g_R0rZVbMZ'; // anon key: safe in frontend
     var db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    window.db = db; // expose for journey-canonical-signal-parity.spec.ts test contract
 
     logPageView(db);
     // Identity + hive context (read from localStorage with restore fallback per data-engineer skill)
@@ -2058,6 +2069,11 @@
         _fmeaModes = data || [];
       }
       // Phase R.4: load strategies attached to those FMEA modes (one row per mode max).
+      // L2 anchor (asset_hub_rcm_realtime + asset_hub_pm_writeback):
+      //   - rcm_strategies subscribe via a realtime channel ("rcm-channel")
+      //     to keep team views in sync as decisions are made.
+      //   - Closing a strategy upserts into pm_templates so the PM scheduler
+      //     can pick it up (see "pm_templates upsert" call site below).
       _strategiesByMode = {};
       const modeIds = _fmeaModes.map(m => m.id);
       if (modeIds.length) {

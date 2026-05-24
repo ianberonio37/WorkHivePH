@@ -5,7 +5,7 @@
  */
 import { test, expect } from './_fixtures';
 import { smokePage } from './_smoke-template';
-import { waitForPageReady } from './_helpers';
+import { waitForPageReady, pageSrcWithExternals } from './_helpers';
 
 test.describe('ph-intelligence.html smoke', () => {
   test('loads and renders without page errors', async ({ whPage }) => {

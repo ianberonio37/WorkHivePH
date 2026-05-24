@@ -50,7 +50,7 @@ void _whWarmClient;
 // ---------------------------------------------------------------------------
 
 const MAX_QUESTION_CHARS    = 500;   // voice/prompt-injection cap (ai-engineer skill)
-const RATE_LIMIT_PER_HOUR   = 50;
+const RATE_LIMIT_PER_HOUR   = Number(Deno.env.get("WH_RATE_LIMIT_OVERRIDE") || 50);
 const TIMELINE_CAP          = 20;
 const SIMILAR_CAP           = 5;
 const MAX_TOKENS_OUT        = 700;

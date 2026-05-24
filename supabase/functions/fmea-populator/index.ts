@@ -38,7 +38,7 @@ void _whWarmClient;
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
-const RATE_LIMIT_PER_HOUR    = 50;
+const RATE_LIMIT_PER_HOUR    = Number(Deno.env.get("WH_RATE_LIMIT_OVERRIDE") || 50);
 const DEFAULT_SINCE_DAYS     = 365;
 const MIN_CLUSTER_SIZE       = 2;     // skill rule: a cluster of >= 2 is a candidate
 const MAX_CLUSTERS_PER_RUN   = 6;     // cap so a noisy hive does not spam rows

@@ -302,7 +302,7 @@ test.describe('hive.html - sentinel scenarios', () => {
     await whPage.goto(PAGE);
     await waitForPageReady(whPage);
     const __sentSrc = await pageSrcWithExternals(whPage);
-    const hasChannel = /hive-approval|approval[-_]channel|channel.*approval/i.test(src) ||
+    const hasChannel = /hive-approval|approval[-_]channel|channel.*approval/i.test(__sentSrc) ||
              /supabase\.channel\s*\(/i.test(__sentSrc);
     expect(hasChannel, 'no approval channel wiring detected in inline scripts').toBeTruthy();
   });
@@ -319,7 +319,7 @@ test.describe('hive.html - sentinel scenarios', () => {
     await whPage.goto(PAGE);
     await waitForPageReady(whPage);
     const __sentSrc_2 = await pageSrcWithExternals(whPage);
-    const has = /\.eq\s*\(\s*['"]hive_id['"]/.test(src) ||
+    const has = /\.eq\s*\(\s*['"]hive_id['"]/.test(__sentSrc_2) ||
              /hive_id\s*:\s*activeHiveId/.test(__sentSrc_2);
     expect(has, 'hive board should scope DB queries by hive_id').toBeTruthy();
   });

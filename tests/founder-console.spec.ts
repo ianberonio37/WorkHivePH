@@ -6,7 +6,7 @@
  * scenario so a regression that disables the gate triggers a Layer 2 FAIL.
  */
 import { test, expect } from './_fixtures';
-import { waitForPageReady } from './_helpers';
+import { waitForPageReady, pageSrcWithExternals } from './_helpers';
 
 const PAGE = '/workhive/founder-console.html';
 

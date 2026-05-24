@@ -76,7 +76,7 @@ test.describe('pm-scheduler.html - sentinel scenarios', () => {
     await whPage.goto(PAGE);
     await waitForPageReady(whPage);
     const __sentSrc = await pageSrcWithExternals(whPage);
-    const filtered = /\.channel\s*\(/.test(src) && /hive_id|hive[-_]filter/i.test(__sentSrc);
+    const filtered = /\.channel\s*\(/.test(__sentSrc) && /hive_id|hive[-_]filter/i.test(__sentSrc);
     expect(filtered, 'realtime channels on pm-scheduler should include hive_id filter').toBeTruthy();
   });
 

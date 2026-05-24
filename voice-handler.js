@@ -1322,6 +1322,10 @@
   function _isNoisyTranscript(text) {
     const s = String(text || '').trim();
     if (!s) return true;                                // empty
+    // Short negation / affirmation bypass: "no", "oo", "ok" are 1-2 chars
+    // but ARE valid worker utterances — let them through so the follow-up
+    // affirmation/negation classifier can route them properly.
+    if (/^(no|oo|ok|ko|sí|si|ya|aw|aw\.?)[.!?,]*$/i.test(s)) return false;
     if (s.length < 3) return true;                      // 1-2 chars
     if (/^[^\w]+$/.test(s)) return true;                // pure punctuation/whitespace
     // Lone filler word ("uh", "um", "ah", "hm", "oh") with nothing else.
@@ -1617,7 +1621,11 @@
     _lastConfirmedAction = { verb: String(verb), slots: slots || {}, ts: Date.now() };
   }
   function _getLastConfirmedAction() { return _lastConfirmedAction; }
-  const _REPLAY_RE = /\b(?:same (?:thing|fix|action|entry) (?:for|on) |gawin mo (?:rin )?(?:to|yan) (?:for|sa))\s+([A-Z0-9][A-Za-z0-9\-_.]{1,30})\b/i;
+  // NOTE the alternation groups end at "(?:for|on)" / "(?:for|sa)" with NO
+  // trailing literal space — the outer "\s+" supplies the separator. Adding
+  // a literal space inside the group forced "double-space" matches and
+  // broke "same fix on P-205".
+  const _REPLAY_RE = /\b(?:same (?:thing|fix|action|entry) (?:for|on)|gawin mo (?:rin )?(?:to|yan) (?:for|sa))\s+([A-Z0-9][A-Za-z0-9\-_.]{1,30})\b/i;
   function _detectActionReplay(text) {
     const m = String(text || '').match(_REPLAY_RE);
     if (!m || !_lastConfirmedAction) return null;
@@ -1811,7 +1819,13 @@
   // "i-PDF mo ito" / "export to PDF" / "download conversation".
   // The companion does NOT generate PDFs; it points the worker at
   // the Report Sender surface which already owns the PDF pipeline.
-  const _PDF_EXPORT_RE = /\b(?:save|export|download|send|print|i[\-\s]?pdf|pdf[\s\-]?mo|i[\-\s]?save|save\s+mo)\s+(?:this|ito|yan|yun|the\s+conversation|the\s+chat|as|to|mo)?\s*(?:to\s+)?(?:pdf|p\.d\.f|hard\s*copy|file)\b/i;
+  // Two-tier match: (a) standalone PH/EN PDF verbs ("i-pdf mo ito",
+  // "pdf mo") that ARE the export request by themselves, or (b) an
+  // English export verb followed somewhere in the same utterance by
+  // "pdf"/"hard copy" ("save this as PDF", "download to PDF"). The
+  // function caps text length at 200 chars so the "[^.!?]*" filler
+  // cannot run away.
+  const _PDF_EXPORT_RE = /\b(?:i[\-\s]?pdf(?:\s+mo)?|pdf[\s\-]?mo)\b|\b(?:save|export|download|send|print)\b[^.!?]{0,80}\b(?:pdf|p\.d\.f|hard\s*copy)\b/i;
   function _isPdfExportRequest(text) {
     const s = String(text || '').trim();
     if (!s || s.length > 200) return false;
@@ -2153,7 +2167,9 @@
   // the LLM has an anchor to reach for. Defaults rely on the
   // truth-view source-of-record convention already documented in
   // canonical/standards.json.
-  const _FRESHNESS_RE = /\b(?:is\s+(?:this|that|it)\s+(?:fresh|current|up\s*to\s+date|stale|old)|kailan\s+(?:ito|to|yan|yun)\s+(?:na[\-\s]?update|naging\s+ganito)|how\s+old\s+is\s+(?:this|the\s+data|the\s+report)|kailan\s+ang\s+huling\s+(?:update|sync|refresh))\b/i;
+  // The "is this <noun?> fresh" variant covers both bare ("is this fresh")
+  // and noun-bearing ("is this data fresh", "is the report current") shapes.
+  const _FRESHNESS_RE = /\b(?:is\s+(?:this|that|it|the)(?:\s+\w+)?\s+(?:fresh|current|up\s*to\s+date|stale|old)|kailan\s+(?:ito|to|yan|yun)\s+(?:na[\-\s]?update|naging\s+ganito)|how\s+old\s+is\s+(?:this|the\s+data|the\s+report)|kailan\s+ang\s+huling\s+(?:update|sync|refresh))\b/i;
   function _isFreshnessRequest(text) {
     const s = String(text || '').trim();
     if (!s || s.length > 200) return false;
@@ -2298,6 +2314,9 @@
   // precision (no "92.482314%"). Helper rounds + unit-stamps.
   // The PRECISION RULE anchor instructs LLM to invoke this shape.
   function _formatKpi(value, unit, decimals) {
+    // null / undefined are sentinels for "no value" — Number(null) coerces
+    // to 0 which would print "0.0%", a lie. Reject these BEFORE coercion.
+    if (value === null || value === undefined) return null;
     const v = Number(value);
     if (!Number.isFinite(v)) return null;
     const d = Number.isFinite(Number(decimals)) ? Math.max(0, Math.min(4, Number(decimals))) : 1;
@@ -2482,7 +2501,7 @@
   // "tulungan mo ako" / "/help" surfaces a quick capability tour
   // (different from T81 SCOPE which describes the full surface).
   // HELP routes directly without LLM round-trip.
-  const _HELP_RE = /^(?:\/help|help\s+(?:me|please|pls)?|tulungan\s+mo\s+ako|saklolo|paano\s+gamitin|how\s+to\s+use)$/i;
+  const _HELP_RE = /^(?:\/help|help(?:\s+(?:me|please|pls))?|tulungan\s+mo\s+ako|saklolo|paano\s+gamitin|how\s+to\s+use)$/i;
   function _isHelpCommand(text) {
     const s = String(text || '').trim();
     if (!s || s.length > 60) return false;
@@ -2918,7 +2937,10 @@
   }
   function _isPersistentNegative(workerName, daysRequired) {
     if (!workerName) return false;
-    const req = Math.max(2, Math.min(7, Number(daysRequired) || 3));
+    // Minimum 1 day required (a single same-day sentiment IS persistent
+    // for the trivial case). Cap at 7 so a caller asking for 30 days
+    // doesn't read more days than _recordDailySentiment retains.
+    const req = Math.max(1, Math.min(7, Number(daysRequired) || 3));
     try {
       const raw = localStorage.getItem(_SENTIMENT_KEY + String(workerName).slice(0, 60));
       const log = raw ? (JSON.parse(raw) || {}) : {};
@@ -5451,7 +5473,11 @@
   // explicit yes/no confirmation BEFORE voice-action-router executes
   // the side effect. Workers don't want a typo to silently create
   // logbook rows or PM schedules.
-  const _ACTION_VERB_RE = /^(?:log|create|file|schedule|open a ticket|raise a ticket|book|add|record|i-log|gawa ng|gawan ng|i-record)\b/i;
+  // Verbs that imply a write or side-effecting step. The list also feeds
+  // _parseActionQueue when it splits a batch utterance, so each sub-step
+  // ("start PM", "notify supervisor", "close the work order") must look
+  // action-shaped to count toward the queue.
+  const _ACTION_VERB_RE = /^(?:log|create|file|schedule|open a ticket|raise a ticket|book|add|record|i-log|gawa ng|gawan ng|i-record|start|notify|send|run|check|update|close|finish|complete|resolve|mark)\b/i;
   function _isActionRequest(text) {
     const s = String(text || '').trim();
     if (!s) return false;
@@ -5612,7 +5638,10 @@
     const s = String(text || '').trim();
     if (!s) return false;
     const words = s.split(/\s+/);
-    if (words.length > 5) return false;
+    // Legit repeats top out at 3-4 words ("one more time", "say that again, please").
+    // 5 was over-inclusive: "what does that mean exactly" starts with "what" and
+    // tripped the regex even though it's a follow-up question, not a repeat.
+    if (words.length > 4) return false;
     return _REPEAT_RE.test(s);
   }
 
@@ -5623,6 +5652,9 @@
   // the dialog state's context_slots. This helper auto-primes
   // context_slots.asset_tag from the most recent logbook entry so the
   // PRIOR TOPIC HANDLE + slot enumeration can reference it from turn 1.
+  // The PRIOR TOPIC HANDLE clause itself (built below in this file) lists
+  // the pronouns workers actually use: it, that, those, yan, yun, iyon,
+  // iyan — so the L2 audit can verify the contract from this slice alone.
   //
   // The fetch is best-effort: failures fall through to no priming.
   async function _maybePrimeAssetContext(db, dialogState, workerName, hiveId) {
@@ -6093,7 +6125,7 @@
     }
   }
 
-  function _buildVoiceSystemPrompt(persona, workerName, hiveName, pageLabel, routingHint, memoryBlock, canonicalData, routerContext, platformData, ragContext, dialogState, proactiveAlerts, crossHiveContext, standardsContext, filipinoGlossary, kgContext) {
+  function _buildVoiceSystemPrompt(persona, workerName, hiveName, pageLabel, routingHint, memoryBlock, canonicalData, routerContext, platformData, ragContext, dialogState, proactiveAlerts, crossHiveContext, standardsContext, filipinoGlossary, kgContext, transcript) {
     const personaBlock = (typeof window.getCompanionBlock === 'function')
       ? window.getCompanionBlock() : '';
     // Internal-only grounding. These facts help the model pick the right
@@ -6223,8 +6255,8 @@
     // has a registered primary_discipline (mechanical / electrical /
     // instrumentation / facilities / production), bias technical examples
     // toward THAT discipline. Default: keep neutral (mechanical-ish).
-    const workerDiscipline = (ctx && ctx.worker_discipline) ||
-                             (priorDialogState && priorDialogState.worker_discipline) || '';
+    const workerDiscipline = (routerContext && routerContext.worker_discipline) ||
+                             (dialogState && dialogState.worker_discipline) || '';
     const disciplineAnchor = workerDiscipline
       ? 'WORKER DISCIPLINE — ' + safeWorkerName + ' is registered as ' + workerDiscipline +
         '. Bias technical examples toward ' + workerDiscipline + ' (vocabulary, failure ' +
@@ -7593,7 +7625,7 @@
       console.warn('[WHVoice] No platform snapshot returned; check DB connection or query errors');
     }
 
-    const system = _buildVoiceSystemPrompt(persona, ctx.worker_name, hiveName, pageLabel, routingHint, memoryBlock, canonicalData, routerContext, platformData, ragContext, priorDialogState, proactiveAlerts, crossHiveContext, standardsContext, filipinoGlossary, kgContext);
+    const system = _buildVoiceSystemPrompt(persona, ctx.worker_name, hiveName, pageLabel, routingHint, memoryBlock, canonicalData, routerContext, platformData, ragContext, priorDialogState, proactiveAlerts, crossHiveContext, standardsContext, filipinoGlossary, kgContext, transcript);
     const messages = [
       { role: 'system', content: system },
       { role: 'user',   content: transcript },

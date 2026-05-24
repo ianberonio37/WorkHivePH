@@ -838,6 +838,7 @@ const db = supabase.createClient(
   'https://hzyvnjtisfgbksicrouu.supabase.co',
   'sb_publishable_ePj-suLMwkMRVDH6eM6S8g_R0rZVbMZ'
 );
+window.db = db; // expose for journey-canonical-signal-parity.spec.ts test contract
 
 
 logPageView(db);
