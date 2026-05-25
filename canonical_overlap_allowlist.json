@@ -45,6 +45,12 @@
       "columns": ["cert_verified", "cert_verified_at"],
       "reason": "Same boolean + timestamp pattern as kyb_verified / kyb_verified_at. Legit.",
       "reviewed": "2026-05-19"
+    },
+    {
+      "table": "unified_events",
+      "columns": ["source", "source_id"],
+      "reason": "Two-axis identity per Agentic RAG Phase 5 data fabric design: `source` is the event-class enum (sap_pm, maximo, opc_ua, mqtt, voice, photo_ocr, ...) — the WHICH-adapter axis. `source_id` is the per-source primary key (e.g. the SAP work-order number or MQTT message UUID) — the WHICH-row-within-adapter axis. Both are needed to round-trip an event back to its origin. The near-duplicate detector reads them as similar tokens; they are intentionally orthogonal.",
+      "reviewed": "2026-05-25"
     }
   ]
 }
