@@ -291,16 +291,25 @@
   })();
 
   async function loadReport() {
+    // Gate-aware early-out: if the maturity gate already replaced <main>'s
+    // innerHTML via renderMaturityHonestEmpty, the named elements below
+    // (loading-state, no-report-state, etc.) no longer exist. The original
+    // code did getElementById().classList.add() with no null guard and
+    // crashed on the empty-state branch — pageerror surfaced in smoke.
+    const loading = document.getElementById('loading-state');
+    if (!loading) return;
+
     const { data, error } = await db.from('ph_intelligence_reports')
       .select('*')
       .order('generated_at', { ascending: false })
       .limit(1)
       .maybeSingle();
 
-    document.getElementById('loading-state').classList.add('hidden');
+    loading.classList.add('hidden');
 
     if (error || !data) {
-      document.getElementById('no-report-state').classList.remove('hidden');
+      const noRpt = document.getElementById('no-report-state');
+      if (noRpt) noRpt.classList.remove('hidden');
       return;
     }
 
