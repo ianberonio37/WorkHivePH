@@ -6358,7 +6358,7 @@
       "tables_written": [],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "size_kb": 110.8
+      "size_kb": 114.7
     },
     "integrations.html": {
       "tables_read": [
@@ -6412,7 +6412,7 @@
       ],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "size_kb": 95.7
+      "size_kb": 95.8
     },
     "logbook.html": {
       "tables_read": [

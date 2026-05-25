@@ -1,0 +1,113 @@
+﻿
+Running 25 tests using 1 worker
+
+[browser error] Failed to load resource: the server responded with a status of 400 (Bad Request)
+  ok  1 [chromium] › tests\journey-canonical-signal-parity.spec.ts:318:9 › canonical signal parity › check_pm_overdue_scope_items_count: hive Team Pulse #pulse-pm-overdue == COUNT(v_pm_scope_items_truth WHERE is_overdue) (11.5s)
+  ok  2 [chromium] › tests\journey-canonical-signal-parity.spec.ts:318:9 › canonical signal parity › check_pm_overdue_assets_count: pm-scheduler #stat-overdue == COUNT(DISTINCT asset_id WHERE is_overdue) (6.8s)
+  ok  3 [chromium] › tests\journey-canonical-signal-parity.spec.ts:318:9 › canonical signal parity › check_low_stock_count: home tile == COUNT(v_inventory_items_truth WHERE is_low_stock) (6.6s)
+  ok  4 [chromium] › tests\journey-canonical-signal-parity.spec.ts:318:9 › canonical signal parity › check_open_jobs_count: home tile == COUNT(v_logbook_truth WHERE status=Open) (6.8s)
+  ok  5 [chromium] › tests\journey-canonical-signal-parity.spec.ts:318:9 › canonical signal parity › check_risk_alerts_count: home tile == COUNT(v_risk_truth WHERE risk_level IN critical/high) (7.1s)
+  ok  6 [chromium] › tests\journey-canonical-signal-parity.spec.ts:318:9 › canonical signal parity › check_pm_overdue_home_tile: home tile == hive Team Pulse count (both v_pm_scope_items_truth.is_overdue / v_pm_compliance_truth.is_due rollup) (6.1s)
+  ok  7 [chromium] › tests\journey-canonical-signal-parity.spec.ts:318:9 › canonical signal parity › check_total_assets_count: asset-hub #ah-total-hero == COUNT(v_asset_truth) (6.5s)
+  ok  8 [chromium] › tests\journey-canonical-signal-parity.spec.ts:318:9 › canonical signal parity › check_critical_assets_count: asset-hub #ah-critical-hero == COUNT(asset_nodes WHERE criticality=critical, case-insensitive) (5.2s)
+  ok  9 [chromium] › tests\journey-canonical-signal-parity.spec.ts:318:9 › canonical signal parity › check_pm_duesoon_assets_count: pm-scheduler #stat-duesoon == DISTINCT(asset_id) WHERE is_due_soon (5.2s)
+  ok 10 [chromium] › tests\journey-canonical-signal-parity.spec.ts:318:9 › canonical signal parity › check_inventory_low_count: inventory #stat-low == COUNT(v_inventory_items_truth WHERE is_low_stock) (7.2s)
+  ok 11 [chromium] › tests\journey-canonical-signal-parity.spec.ts:318:9 › canonical signal parity › check_inventory_out_count: inventory #stat-out == COUNT(v_inventory_items_truth WHERE is_out_of_stock) (5.2s)
+  ok 12 [chromium] › tests\journey-canonical-signal-parity.spec.ts:318:9 › canonical signal parity › check_alert_hub_critical_count: alert-hub #ah-critical-hero >= COUNT(v_risk_truth WHERE risk_level IN critical/high) (5.7s)
+  ok 13 [chromium] › tests\journey-canonical-signal-parity.spec.ts:318:9 › canonical signal parity › check_predictive_critical_count: predictive #count-critical == COUNT(v_risk_truth WHERE risk_level=critical) (4.7s)
+  ok 14 [chromium] › tests\journey-canonical-signal-parity.spec.ts:318:9 › canonical signal parity › check_predictive_high_count: predictive #count-high == COUNT(v_risk_truth WHERE risk_level=high) (5.8s)
+  ok 15 [chromium] › tests\journey-canonical-signal-parity.spec.ts:318:9 › canonical signal parity › check_predictive_medium_count: predictive #count-medium == COUNT(v_risk_truth WHERE risk_level=medium) (7.0s)
+  ok 16 [chromium] › tests\journey-canonical-signal-parity.spec.ts:318:9 › canonical signal parity › check_predictive_low_count: predictive #count-low == COUNT(v_risk_truth WHERE risk_level=low) (6.0s)
+  ok 17 [chromium] › tests\journey-canonical-signal-parity.spec.ts:318:9 › canonical signal parity › check_predictive_hot_hero: predictive #pr-hot-hero == COUNT(v_risk_truth WHERE risk_level IN critical/high) (6.2s)
+  x  18 [chromium] › tests\journey-canonical-signal-parity.spec.ts:318:9 › canonical signal parity › check_predictive_healthy_hero: predictive #pr-healthy-hero == COUNT(v_risk_truth WHERE risk_level=low) (14.4s)
+  ok 19 [chromium] › tests\journey-canonical-signal-parity.spec.ts:318:9 › canonical signal parity › check_marketplace_parts_count: marketplace #count-parts == COUNT(v_marketplace_listings_truth WHERE section=parts AND status=published) (10.5s)
+  ok 20 [chromium] › tests\journey-canonical-signal-parity.spec.ts:318:9 › canonical signal parity › check_marketplace_training_count: marketplace #count-training == COUNT(v_marketplace_listings_truth WHERE section=training AND status=published) (7.4s)
+  x  21 [chromium] › tests\journey-canonical-signal-parity.spec.ts:318:9 › canonical signal parity › check_marketplace_jobs_count: marketplace #count-jobs == COUNT(v_marketplace_listings_truth WHERE section=jobs AND status=published) (12.9s)
+  ok 22 [chromium] › tests\journey-canonical-signal-parity.spec.ts:318:9 › canonical signal parity › check_project_manager_active: pm #pm-active-hero == COUNT(projects WHERE status=active AND not deleted) (9.1s)
+  ok 23 [chromium] › tests\journey-canonical-signal-parity.spec.ts:318:9 › canonical signal parity › check_project_manager_on_hold_planning: pm #pm-blocked-hero == COUNT(projects WHERE status IN on_hold/planning) (6.3s)
+  ok 24 [chromium] › tests\journey-canonical-signal-parity.spec.ts:318:9 › canonical signal parity › check_seller_listings_badge: marketplace-seller #badge-listings == COUNT(v_marketplace_listings_truth WHERE seller_name=WORKER_NAME) (8.8s)
+[browser error] TypeError: Failed to fetch
+    at https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:105903
+    at https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:110864
+    at Cr (https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:111032)
+    at https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:161312
+    at _s._useSession (https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:158860)
+    at async _s._getUser (https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:161171)
+    at async https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:160974
+  ok 25 [chromium] › tests\journey-canonical-signal-parity.spec.ts:318:9 › canonical signal parity › check_community_profile_posts: community #profile-posts == COUNT(v_community_posts_truth WHERE author_name=WORKER_NAME AND not deleted) (7.1s)
+
+
+  1) [chromium] › tests\journey-canonical-signal-parity.spec.ts:318:9 › canonical signal parity › check_predictive_healthy_hero: predictive #pr-healthy-hero == COUNT(v_risk_truth WHERE risk_level=low) 
+
+    TimeoutError: page.waitForFunction: Timeout 8000ms exceeded.
+
+       at _fixtures.ts:90
+
+      88 |
+      89 |   // Wait for either success (localStorage set) or visible error
+    > 90 |   await page.waitForFunction(
+         |              ^
+      91 |     () => localStorage.getItem('wh_last_worker') ||
+      92 |           (document.getElementById('si-error') &&
+      93 |            !document.getElementById('si-error')!.classList.contains('hidden')),
+        at signIn (C:\Users\ILBeronio\Desktop\Industry 4.0\AI Maintenance Engineer\Self-learning Road-Map\Build & Sell with Claude Code\Website simple 1st\tests\_fixtures.ts:90:14)
+        at Object.whPage (C:\Users\ILBeronio\Desktop\Industry 4.0\AI Maintenance Engineer\Self-learning Road-Map\Build & Sell with Claude Code\Website simple 1st\tests\_fixtures.ts:152:5)
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\journey-canonical-signal-p-5329e-truth-WHERE-risk-level-low--chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results\journey-canonical-signal-p-5329e-truth-WHERE-risk-level-low--chromium\video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\journey-canonical-signal-p-5329e-truth-WHERE-risk-level-low--chromium\error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\journey-canonical-signal-p-5329e-truth-WHERE-risk-level-low--chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\journey-canonical-signal-p-5329e-truth-WHERE-risk-level-low--chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) [chromium] › tests\journey-canonical-signal-parity.spec.ts:318:9 › canonical signal parity › check_marketplace_jobs_count: marketplace #count-jobs == COUNT(v_marketplace_listings_truth WHERE section=jobs AND status=published) 
+
+    Error: /workhive/marketplace.html #count-jobs shows 0 but v_marketplace_listings_truth.undefined directly counts 6 (mode=rows). Page is re-deriving instead of trusting the canonical signal.
+
+    [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+    Expected: [32m6[39m
+    Received: [31m0[39m
+
+      477 |           `directly counts ${canonicalCount} (mode=${c.mode}). ` +
+      478 |           `Page is re-deriving instead of trusting the canonical signal.`,
+    > 479 |         ).toBe(canonicalCount);
+          |           ^
+      480 |       } else {
+      481 |         if (canonicalCount === 0) {
+      482 |           expect(surface).toBe(0);
+        at C:\Users\ILBeronio\Desktop\Industry 4.0\AI Maintenance Engineer\Self-learning Road-Map\Build & Sell with Claude Code\Website simple 1st\tests\journey-canonical-signal-parity.spec.ts:479:11
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\journey-canonical-signal-p-c6fc3--jobs-AND-status-published--chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results\journey-canonical-signal-p-c6fc3--jobs-AND-status-published--chromium\video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\journey-canonical-signal-p-c6fc3--jobs-AND-status-published--chromium\error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\journey-canonical-signal-p-c6fc3--jobs-AND-status-published--chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\journey-canonical-signal-p-c6fc3--jobs-AND-status-published--chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    [chromium] › tests\journey-canonical-signal-parity.spec.ts:318:9 › canonical signal parity › check_predictive_healthy_hero: predictive #pr-healthy-hero == COUNT(v_risk_truth WHERE risk_level=low) 
+    [chromium] › tests\journey-canonical-signal-parity.spec.ts:318:9 › canonical signal parity › check_marketplace_jobs_count: marketplace #count-jobs == COUNT(v_marketplace_listings_truth WHERE section=jobs AND status=published) 
+  23 passed (3.3m)

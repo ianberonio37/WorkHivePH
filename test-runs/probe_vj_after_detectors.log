@@ -1,0 +1,226 @@
+﻿
+Running 37 tests using 1 worker
+
+[browser error] TypeError: Failed to fetch
+    at https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:105903
+    at https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:110864
+    at Cr (https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:111032)
+    at https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:161312
+    at _s._useSession (https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:158860)
+    at async _s._getUser (https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:161171)
+    at async https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:160974
+  ok  1 [chromium] › tests\journey-voice-journal.spec.ts:23:7 › voice-journal.html — voice journal journey › page loads without console errors (17.7s)
+[browser error] TypeError: Failed to fetch
+    at https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:105903
+    at https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:110864
+    at Cr (https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:111032)
+    at https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:161312
+    at _s._useSession (https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:158860)
+    at async _s._getUser (https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:161171)
+    at async https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:160974
+  ok  2 [chromium] › tests\journey-voice-journal.spec.ts:43:7 › voice-journal.html — voice journal journey › mic button is visible and aria-labeled (8.7s)
+  ok  3 [chromium] › tests\journey-voice-journal.spec.ts:54:7 › voice-journal.html — voice journal journey › transcript box renders in initial "Waiting for voice..." state (6.9s)
+  ok  4 [chromium] › tests\journey-voice-journal.spec.ts:70:7 › voice-journal.html — voice journal journey › conversation history section renders or shows empty state (8.7s)
+  ok  5 [chromium] › tests\journey-voice-journal.spec.ts:84:7 › voice-journal.html — voice journal journey › clicking mic button triggers graceful response (permission or recording) (9.9s)
+  x   6 [chromium] › tests\journey-voice-journal.spec.ts:124:7 › voice-journal.html — voice journal journey › zaniah-default-persona: voice-journal opens with Zaniah selected by default (7.5s)
+  ok  7 [chromium] › tests\journey-voice-journal.spec.ts:146:7 › voice-journal.html — voice journal journey › ai-gateway anon-allow: voice-journal agent answers without sign-in (12.8s)
+[browser error] TypeError: Failed to fetch
+    at https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:105903
+    at https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:110864
+    at Cr (https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:111032)
+    at https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:161312
+    at _s._useSession (https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:158860)
+    at async _s._getUser (https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:161171)
+    at async https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:160974
+  ok  8 [chromium] › tests\journey-voice-journal.spec.ts:193:7 › voice-journal.html — voice journal journey › zaniah-strategist-lens: priorities-question reply uses strategist vocabulary (15.5s)
+  ok  9 [chromium] › tests\journey-voice-journal.spec.ts:239:7 › voice-journal.html — voice journal journey › hezekiah-technical-lens: torque-question reply bridges to technical or uses technical vocabulary (10.7s)
+  ok 10 [chromium] › tests\journey-voice-journal.spec.ts:291:7 › voice-journal.html — voice journal journey › dialog-affirmation-regex: short PH + English confirmations match, long follow-ups do not (6.9s)
+  ok 11 [chromium] › tests\journey-voice-journal.spec.ts:339:7 › voice-journal.html — voice journal journey › dialog-negation-regex: short PH + English negations match, long sentences do not (6.7s)
+  ok 12 [chromium] › tests\journey-voice-journal.spec.ts:383:7 › voice-journal.html — voice journal journey › dialog-noise-transcript-guard: empty / 1-2 char / pure-filler transcripts route as noise (6.0s)
+[browser error] TypeError: Failed to fetch
+    at https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:105903
+    at https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:110864
+    at Cr (https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:111032)
+    at https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:161312
+    at _s._useSession (https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:158860)
+    at async _s._getUser (https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:161171)
+    at async https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:160974
+  ok 13 [chromium] › tests\journey-voice-journal.spec.ts:426:7 › voice-journal.html — voice journal journey › dialog-affirmation-case-invariance: regex matches uppercase + padded + punctuated variants (6.8s)
+  ok 14 [chromium] › tests\journey-voice-journal.spec.ts:471:7 › voice-journal.html — voice journal journey › dialog-prior-topic-handle: voice-handler prompt builder emits a PRIOR TOPIC HANDLE clause with PH + English pronouns (7.7s)
+[browser error] TypeError: Failed to fetch
+    at https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:105903
+    at https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:110864
+    at Cr (https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:111032)
+    at https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:161312
+    at _s._useSession (https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:158860)
+    at async _s._getUser (https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:161171)
+    at async https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:160974
+  ok 15 [chromium] › tests\journey-voice-journal.spec.ts:512:7 › voice-journal.html — voice journal journey › dialog-page-recovery-regex: bare page-name replies resolve to the right intent slug, long sentences do not (11.8s)
+[browser error] TypeError: Failed to fetch
+    at https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:105903
+    at https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:110864
+    at Cr (https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:111032)
+    at https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:161312
+    at _s._useSession (https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:158860)
+    at async _s._getUser (https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:161171)
+    at async https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:160974
+  ok 16 [chromium] › tests\journey-voice-journal.spec.ts:554:7 › voice-journal.html — voice journal journey › dialog-system-prompt-slot-bullets-live: _buildVoiceSystemPrompt emits "You already know:" + PRIOR TOPIC HANDLE for a real dialogState object (7.1s)
+  ok 17 [chromium] › tests\journey-voice-journal.spec.ts:613:7 › voice-journal.html — voice journal journey › dialog-slot-enumeration: voice-handler prompt builder emits "You already know:" with a key/value loop (6.2s)
+  ok 18 [chromium] › tests\journey-voice-journal.spec.ts:634:7 › voice-journal.html — voice journal journey › dialog-clarify-streak-ceiling: counter caps + breaks after 2 consecutive clarifies (7.5s)
+  ok 19 [chromium] › tests\journey-voice-journal.spec.ts:685:7 › voice-journal.html — voice journal journey › dialog-quality-extended-detectors: turns #5-#10 + #14 helpers behave correctly (6.2s)
+  x  20 [chromium] › tests\journey-voice-journal.spec.ts:759:7 › voice-journal.html — voice journal journey › ai-companion-workflow-detectors: turns #55-#64 behaviour locked (7.8s)
+  ok 21 [chromium] › tests\journey-voice-journal.spec.ts:839:7 › voice-journal.html — voice journal journey › ai-companion-orchestration-detectors: turns #65-#74 behaviour locked (8.5s)
+  ok 22 [chromium] › tests\journey-voice-journal.spec.ts:976:7 › voice-journal.html — voice journal journey › ai-companion-trust-deployment-detectors: turns #75-#84 behaviour locked (6.7s)
+  x  23 [chromium] › tests\journey-voice-journal.spec.ts:1101:7 › voice-journal.html — voice journal journey › ai-companion-input-normalization-detectors: turns #85-#94 behaviour locked (6.7s)
+  ok 24 [chromium] › tests\journey-voice-journal.spec.ts:1209:7 › voice-journal.html — voice journal journey › ai-companion-integration-audit-detectors: turns #95-#104 behaviour locked (11.3s)
+[browser error] TypeError: Failed to fetch
+    at https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:105903
+    at https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:110864
+    at Cr (https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:111032)
+    at https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:161312
+    at _s._useSession (https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:158860)
+    at async _s._getUser (https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:161171)
+    at async https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:160974
+  ok 25 [chromium] › tests\journey-voice-journal.spec.ts:1301:7 › voice-journal.html — voice journal journey › ai-companion-learning-detectors: turns #105-#114 behaviour locked (9.4s)
+[browser error] TypeError: Failed to fetch
+    at https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:105903
+    at https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:110864
+    at Cr (https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:111032)
+    at https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:161312
+    at _s._useSession (https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:158860)
+    at async _s._getUser (https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:161171)
+    at async https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:160974
+  ok 26 [chromium] › tests\journey-voice-journal.spec.ts:1405:7 › voice-journal.html — voice journal journey › ai-companion-compliance-detectors: turns #115-#124 behaviour locked (9.8s)
+  ok 27 [chromium] › tests\journey-voice-journal.spec.ts:1512:7 › voice-journal.html — voice journal journey › ai-companion-accessibility-detectors: turns #125-#134 behaviour locked (6.5s)
+  ok 28 [chromium] › tests\journey-voice-journal.spec.ts:1614:7 › voice-journal.html — voice journal journey › ai-companion-operational-detectors: turns #135-#144 behaviour locked (7.7s)
+  ok 29 [chromium] › tests\journey-voice-journal.spec.ts:1670:7 › voice-journal.html — voice journal journey › ai-companion-team-coordination-detectors: turns #145-#154 behaviour locked (7.4s)
+  ok 30 [chromium] › tests\journey-voice-journal.spec.ts:1751:7 › voice-journal.html — voice journal journey › ai-companion-external-integration-detectors: turns #155-#164 behaviour locked (6.9s)
+  ok 31 [chromium] › tests\journey-voice-journal.spec.ts:1830:7 › voice-journal.html — voice journal journey › ai-companion-resilience-detectors: turns #45-#54 behaviour locked (6.0s)
+  ok 32 [chromium] › tests\journey-voice-journal.spec.ts:1907:7 › voice-journal.html — voice journal journey › ai-companion-collaboration-detectors: turns #35-#44 detectors behave correctly (6.6s)
+  ok 33 [chromium] › tests\journey-voice-journal.spec.ts:1964:7 › voice-journal.html — voice journal journey › ai-companion-intelligence-detectors: turns #25-#34 detectors behave correctly (6.3s)
+  ok 34 [chromium] › tests\journey-voice-journal.spec.ts:2012:7 › voice-journal.html — voice journal journey › ai-companion-intelligence-anchors: turns #25/#30/#32/#33/#34 prompt anchors appear in the rendered prompt (6.2s)
+  ok 35 [chromium] › tests\journey-voice-journal.spec.ts:2046:7 › voice-journal.html — voice journal journey › ai-companion-trust-anchors: turns #15/#16 prompt builder emits HALLUCINATION GUARD + CITATION RULE; turn #21 wh-tts spells out acronyms (6.8s)
+[browser error] TypeError: Failed to fetch
+    at https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:105903
+    at https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:110864
+    at Cr (https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:111032)
+    at https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:161312
+    at _s._useSession (https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:158860)
+    at async _s._getUser (https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:161171)
+    at async https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:160974
+  ok 36 [chromium] › tests\journey-voice-journal.spec.ts:2089:7 › voice-journal.html — voice journal journey › dialog-prompt-anchors-live: turns #11/#12/#13 prompt builder emits LANGUAGE NOTE + SENSITIVE TOPIC REDIRECT + worker name (10.6s)
+  ok 37 [chromium] › tests\journey-voice-journal.spec.ts:2131:7 › voice-journal.html — voice journal journey › dialog-shouldClarify-symmetry: when prior intent matches new intent (post-bypass), clarification stays off (6.8s)
+
+
+  1) [chromium] › tests\journey-voice-journal.spec.ts:124:7 › voice-journal.html — voice journal journey › zaniah-default-persona: voice-journal opens with Zaniah selected by default 
+
+    Error: zaniah should be the default persona (Step D)
+
+    [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+    Expected: [32mtrue[39m
+    Received: [31mfalse[39m
+
+      141 |       || el.getAttribute('aria-checked') === 'true'
+      142 |     );
+    > 143 |     expect(isActive, 'zaniah should be the default persona (Step D)').toBe(true);
+          |                                                                       ^
+      144 |   });
+      145 |
+      146 |   test('ai-gateway anon-allow: voice-journal agent answers without sign-in', async ({ whPage }) => {
+        at C:\Users\ILBeronio\Desktop\Industry 4.0\AI Maintenance Engineer\Self-learning Road-Map\Build & Sell with Claude Code\Website simple 1st\tests\journey-voice-journal.spec.ts:143:71
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\journey-voice-journal-voic-e7316--Zaniah-selected-by-default-chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results\journey-voice-journal-voic-e7316--Zaniah-selected-by-default-chromium\video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\journey-voice-journal-voic-e7316--Zaniah-selected-by-default-chromium\error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\journey-voice-journal-voic-e7316--Zaniah-selected-by-default-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\journey-voice-journal-voic-e7316--Zaniah-selected-by-default-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) [chromium] › tests\journey-voice-journal.spec.ts:759:7 › voice-journal.html — voice journal journey › ai-companion-workflow-detectors: turns #55-#64 behaviour locked 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBeGreaterThanOrEqual[2m([22m[32mexpected[39m[2m)[22m
+
+    [1mMatcher error[22m: [31mreceived[39m value must be a number or bigint
+
+    Received has value: [31mnull[39m
+
+      833 |     expect(verdict.timer[1], 'T61 timer parses 2 hours').toBe(2 * 60 * 60 * 1000);
+      834 |     expect(verdict.timer[2], 'T61 non-timer returns null').toBeNull();
+    > 835 |     expect(verdict.queue[0], 'T64 action queue parses 3 steps').toBeGreaterThanOrEqual(2);
+          |                                                                 ^
+      836 |     expect(verdict.queue[1], 'T64 non-batch returns null').toBeNull();
+      837 |   });
+      838 |
+        at C:\Users\ILBeronio\Desktop\Industry 4.0\AI Maintenance Engineer\Self-learning Road-Map\Build & Sell with Claude Code\Website simple 1st\tests\journey-voice-journal.spec.ts:835:65
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\journey-voice-journal-voic-ba6ee-rns-55--64-behaviour-locked-chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results\journey-voice-journal-voic-ba6ee-rns-55--64-behaviour-locked-chromium\video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\journey-voice-journal-voic-ba6ee-rns-55--64-behaviour-locked-chromium\error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\journey-voice-journal-voic-ba6ee-rns-55--64-behaviour-locked-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\journey-voice-journal-voic-ba6ee-rns-55--64-behaviour-locked-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) [chromium] › tests\journey-voice-journal.spec.ts:1101:7 › voice-journal.html — voice journal journey › ai-companion-input-normalization-detectors: turns #85-#94 behaviour locked 
+
+    Error: T92 "help"
+
+    [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+    Expected: [32mtrue[39m
+    Received: [31mfalse[39m
+
+      1196 |     expect(verdict.pin.detect, 'T91 "pin this" detected').toBe(true);
+      1197 |     expect(verdict.pin.detectNo, 'T91 non-pin returns false').toBe(false);
+    > 1198 |     expect(verdict.help[0], 'T92 "help"').toBe(true);
+           |                                           ^
+      1199 |     expect(verdict.help[1], 'T92 "/help"').toBe(true);
+      1200 |     expect(verdict.help[2], 'T92 "tulungan mo ako"').toBe(true);
+      1201 |     expect(verdict.help[3], 'T92 non-help returns false').toBe(false);
+        at C:\Users\ILBeronio\Desktop\Industry 4.0\AI Maintenance Engineer\Self-learning Road-Map\Build & Sell with Claude Code\Website simple 1st\tests\journey-voice-journal.spec.ts:1198:43
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\journey-voice-journal-voic-fc130-rns-85--94-behaviour-locked-chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results\journey-voice-journal-voic-fc130-rns-85--94-behaviour-locked-chromium\video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\journey-voice-journal-voic-fc130-rns-85--94-behaviour-locked-chromium\error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\journey-voice-journal-voic-fc130-rns-85--94-behaviour-locked-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\journey-voice-journal-voic-fc130-rns-85--94-behaviour-locked-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3 failed
+    [chromium] › tests\journey-voice-journal.spec.ts:124:7 › voice-journal.html — voice journal journey › zaniah-default-persona: voice-journal opens with Zaniah selected by default 
+    [chromium] › tests\journey-voice-journal.spec.ts:759:7 › voice-journal.html — voice journal journey › ai-companion-workflow-detectors: turns #55-#64 behaviour locked 
+    [chromium] › tests\journey-voice-journal.spec.ts:1101:7 › voice-journal.html — voice journal journey › ai-companion-input-normalization-detectors: turns #85-#94 behaviour locked 
+  34 passed (5.4m)

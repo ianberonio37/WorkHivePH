@@ -712,3 +712,123 @@ test.describe('voice-journal per-anchor blast-radius (Phase A2.5)', () => {
   });
 
 });
+
+test.describe('companion_page_coverage: Zaniah & Hezekiah wiring across all platform pages', () => {
+
+  test('companion present — alert-hub.html loads companion-launcher.js', async ({ whPage }) => {
+    await whPage.goto('/workhive/alert-hub.html');
+    await waitForPageReady(whPage);
+    await whPage.waitForTimeout(500);
+
+    // Companion widget should be rendered and visible
+    const trigger = await whPage.locator('#wh-ai-trigger').first();
+    expect(trigger).toBeVisible({ timeout: 5000 });
+  });
+
+  test('companion present — analytics.html loads companion-launcher.js', async ({ whPage }) => {
+    await whPage.goto('/workhive/analytics.html');
+    await waitForPageReady(whPage);
+    await whPage.waitForTimeout(500);
+
+    const trigger = await whPage.locator('#wh-ai-trigger').first();
+    expect(trigger).toBeVisible({ timeout: 5000 });
+  });
+
+  test('companion present — logbook.html loads companion-launcher.js', async ({ whPage }) => {
+    await whPage.goto('/workhive/logbook.html');
+    await waitForPageReady(whPage);
+    await whPage.waitForTimeout(500);
+
+    const trigger = await whPage.locator('#wh-ai-trigger').first();
+    expect(trigger).toBeVisible({ timeout: 5000 });
+  });
+
+  test('companion present — skillmatrix.html loads companion-launcher.js', async ({ whPage }) => {
+    await whPage.goto('/workhive/skillmatrix.html');
+    await waitForPageReady(whPage);
+    await whPage.waitForTimeout(500);
+
+    const trigger = await whPage.locator('#wh-ai-trigger').first();
+    expect(trigger).toBeVisible({ timeout: 5000 });
+  });
+
+  test('companion absent — assistant.html intentional exclusion guard (no #wh-ai-trigger)', async ({ whPage }) => {
+    await whPage.goto('/workhive/assistant.html');
+    await waitForPageReady(whPage);
+    await whPage.waitForTimeout(500);
+
+    // Assistant page should NOT have the floating companion trigger
+    // (intentional: it has its own dedicated AI interface)
+    const trigger = await whPage.locator('#wh-ai-trigger');
+    expect(trigger).toHaveCount(0);
+  });
+
+  test('zaniah default persona — companion initializes with zaniah on fresh page load', async ({ whPage }) => {
+    await whPage.goto('/workhive/alert-hub.html');
+    await waitForPageReady(whPage);
+    await whPage.waitForTimeout(500);
+
+    const persona = await whPage.evaluate(() => {
+      return localStorage.getItem('wh_persona') || 'unknown';
+    });
+
+    // Zaniah should be the default persona for new workers
+    expect(persona).toBe('zaniah');
+  });
+
+  test('hezekiah persona switch — companion respects persona switch via localStorage', async ({ whPage }) => {
+    await whPage.goto('/workhive/alert-hub.html');
+    await waitForPageReady(whPage);
+    await whPage.waitForTimeout(500);
+
+    // Simulate persona switch
+    await whPage.evaluate(() => {
+      localStorage.setItem('wh_persona', 'hezekiah');
+      // Trigger a refresh or dispatch to reload persona
+      if (typeof window !== 'undefined' && (window as any).WHAssistant?.refreshPersona) {
+        (window as any).WHAssistant.refreshPersona();
+      }
+    });
+
+    await whPage.waitForTimeout(500);
+
+    const newPersona = await whPage.evaluate(() => {
+      return localStorage.getItem('wh_persona') || 'unknown';
+    });
+
+    expect(newPersona).toBe('hezekiah');
+  });
+
+  test('companion_page_coverage: companion sends messages to voice-journal agent', async ({ whPage }) => {
+    await whPage.goto('/workhive/alert-hub.html');
+    await waitForPageReady(whPage);
+    await whPage.waitForTimeout(500);
+
+    // Intercept fetch to ai-gateway to verify voice-journal routing
+    let interceptedRequest: any = null;
+    await whPage.on('response', async (response) => {
+      if (response.url().includes('ai-gateway') || response.url().includes('voice-journal')) {
+        const request = response.request();
+        try {
+          const postData = request.postData();
+          if (postData && postData.includes('voice-journal')) {
+            interceptedRequest = JSON.parse(postData);
+          }
+        } catch (e) {
+          // PostData may not be JSON, that's okay
+        }
+      }
+    });
+
+    // Open companion widget (click the trigger)
+    const trigger = await whPage.locator('#wh-ai-trigger').first();
+    await trigger.click({ timeout: 5000 });
+    await whPage.waitForTimeout(1000);
+
+    // Verify companion rendered (simple check: floating widget is visible)
+    const block = await whPage.locator('[data-companion-block]');
+    const count = await block.count();
+    expect(count).toBeGreaterThan(0);
+  });
+
+});

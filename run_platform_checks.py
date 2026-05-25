@@ -2830,6 +2830,15 @@ VALIDATORS = [
         "skip_if_fast": False,
     },
     {
+        "id":      "companion-page-coverage",
+        "script":  "validate_companion_page_coverage.py",
+        "args":    [],
+        "label":   "Companion Launcher Page Coverage (L0 — every nav-hub page has companion-launcher.js)",
+        "group":   "Platform",
+        "report":  "companion_page_coverage_report.json",
+        "skip_if_fast": False,
+    },
+    {
         "id":      "voice_kb_context",
         "script":  "tools/validate_voice_kb_context.py",
         "args":    [],

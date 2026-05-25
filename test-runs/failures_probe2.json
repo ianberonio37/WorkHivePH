@@ -1,0 +1,295 @@
+{
+  "total_failed": 34,
+  "stats": {
+    "startTime": "2026-05-24T15:12:18.791Z",
+    "duration": 605588.066,
+    "expected": 38,
+    "skipped": 0,
+    "unexpected": 34,
+    "flaky": 0
+  },
+  "flake": [
+    {
+      "file": "ph-intelligence.spec.ts",
+      "title": "loads and renders without page errors",
+      "line": 11,
+      "status": "failed",
+      "duration_ms": 6845,
+      "error": "Error: page errors on /workhive/ph-intelligence.html: Cannot read properties of null (reading 'classList') expect(received).toEqual(expected) // deep equality - Expected - 1 + Received + 3 - Array [] + Array [ + \"Cannot read properties of null (reading 'classList')\", + ] at _smoke-template.ts:60 58 | !/net::ERR_/i.test(e) 59 | ); > 60 | expect(seriousErrors, `page errors on ${url}: ${seriousErrors.join(' | ')}`).toEqual([]); | ^ 61 | } 62 | at smokePage (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\_smoke-template.ts:60:80) at C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\ph-intelligence.spec.ts:12:5"
+    }
+  ],
+  "fixture": [],
+  "sentinel": [],
+  "real": [
+    {
+      "file": "founder-console.spec.ts",
+      "title": "admin_gate_not_commented: no commented-out gate redirect logic",
+      "line": 49,
+      "status": "failed",
+      "duration_ms": 6314,
+      "error": "Error: no commented-out redirect on the admin gate path expect(received).toBe(expected) // Object.is equality Expected: false Received: true 52 | const __sentSrc_4 = await pageSrcWithExternals(whPage); 53 | const stripped = /\\/\\/[^\\n]*window\\.location|\\/\\/[^\\n]*redirect|\\/\\/[^\\n]*router\\.push/i.test(__sentSrc_4); > 54 | expect(stripped, 'no commented-out redirect on the admin gate path').toBe(false); | ^ 55 | }); 56 | 57 | }); at C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\founder-console.spec.ts:54:74"
+    },
+    {
+      "file": "journey-canonical-signal-parity.spec.ts",
+      "title": "check_pm_overdue_scope_items_count: hive Team Pulse #pulse-pm-overdue == COUNT(v_pm_scope_items_truth WHERE is_overdue)",
+      "line": 309,
+      "status": "failed",
+      "duration_ms": 7028,
+      "error": "Error: /workhive/hive.html #pulse-pm-overdue shows 0 but v_pm_scope_items_truth.is_overdue directly counts 5 (mode=rows). Page is re-deriving instead of trusting the canonical signal. expect(received).toBe(expected) // Object.is equality Expected: 5 Received: 0 383 | `directly counts ${canonicalCount} (mode=${c.mode}). ` + 384 | `Page is re-deriving instead of trusting the canonical signal.`, > 385 | ).toBe(canonicalCount); | ^ 386 | } else { 387 | if (canonicalCount === 0) { 388 | expect(surface).toBe(0); at C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\journey-canonical-signal-parity.spec.ts:385:11"
+    },
+    {
+      "file": "journey-canonical-signal-parity.spec.ts",
+      "title": "check_pm_overdue_assets_count: pm-scheduler #stat-overdue == COUNT(DISTINCT asset_id WHERE is_overdue)",
+      "line": 309,
+      "status": "failed",
+      "duration_ms": 5493,
+      "error": "Error: /workhive/pm-scheduler.html #stat-overdue shows 0 but v_pm_scope_items_truth.is_overdue directly counts 5 (mode=assets). Page is re-deriving instead of trusting the canonical signal. expect(received).toBe(expected) // Object.is equality Expected: 5 Received: 0 383 | `directly counts ${canonicalCount} (mode=${c.mode}). ` + 384 | `Page is re-deriving instead of trusting the canonical signal.`, > 385 | ).toBe(canonicalCount); | ^ 386 | } else { 387 | if (canonicalCount === 0) { 388 | expect(surface).toBe(0); at C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\journey-canonical-signal-parity.spec.ts:385:11"
+    },
+    {
+      "file": "journey-canonical-signal-parity.spec.ts",
+      "title": "check_low_stock_count: home tile == COUNT(v_inventory_items_truth WHERE is_low_stock)",
+      "line": 309,
+      "status": "failed",
+      "duration_ms": 6833,
+      "error": "Error: /workhive/index.html [data-kpi=\"low-stock\"] .oh-tile-num shows 3 but v_inventory_items_truth.is_low_stock directly counts 9 (mode=rows). Page is re-deriving instead of trusting the canonical signal. expect(received).toBe(expected) // Object.is equality Expected: 9 Received: 3 383 | `directly counts ${canonicalCount} (mode=${c.mode}). ` + 384 | `Page is re-deriving instead of trusting the canonical signal.`, > 385 | ).toBe(canonicalCount); | ^ 386 | } else { 387 | if (canonicalCount === 0) { 388 | expect(surface).toBe(0); at C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\journey-canonical-signal-parity.spec.ts:385:11"
+    },
+    {
+      "file": "journey-canonical-signal-parity.spec.ts",
+      "title": "check_open_jobs_count: home tile == COUNT(v_logbook_truth WHERE status=Open)",
+      "line": 309,
+      "status": "failed",
+      "duration_ms": 6009,
+      "error": "Error: /workhive/index.html [data-kpi=\"open-jobs\"] .oh-tile-num shows 18 but v_logbook_truth.undefined directly counts 53 (mode=rows). Page is re-deriving instead of trusting the canonical signal. expect(received).toBe(expected) // Object.is equality Expected: 53 Received: 18 383 | `directly counts ${canonicalCount} (mode=${c.mode}). ` + 384 | `Page is re-deriving instead of trusting the canonical signal.`, > 385 | ).toBe(canonicalCount); | ^ 386 | } else { 387 | if (canonicalCount === 0) { 388 | expect(surface).toBe(0); at C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\journey-canonical-signal-parity.spec.ts:385:11"
+    },
+    {
+      "file": "journey-canonical-signal-parity.spec.ts",
+      "title": "check_risk_alerts_count: home tile == COUNT(v_risk_truth WHERE risk_level IN critical/high)",
+      "line": 309,
+      "status": "failed",
+      "duration_ms": 6933,
+      "error": "Error: /workhive/index.html [data-kpi=\"risk-alerts\"] .oh-tile-num shows 2 but v_risk_truth.undefined directly counts 6 (mode=rows). Page is re-deriving instead of trusting the canonical signal. expect(received).toBe(expected) // Object.is equality Expected: 6 Received: 2 383 | `directly counts ${canonicalCount} (mode=${c.mode}). ` + 384 | `Page is re-deriving instead of trusting the canonical signal.`, > 385 | ).toBe(canonicalCount); | ^ 386 | } else { 387 | if (canonicalCount === 0) { 388 | expect(surface).toBe(0); at C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\journey-canonical-signal-parity.spec.ts:385:11"
+    },
+    {
+      "file": "journey-canonical-signal-parity.spec.ts",
+      "title": "check_pm_overdue_home_tile: home tile == hive Team Pulse count (both v_pm_scope_items_truth.is_overdue / v_pm_compliance_truth.is_due rollup)",
+      "line": 309,
+      "status": "failed",
+      "duration_ms": 6290,
+      "error": "Error: /workhive/index.html [data-kpi=\"pm-overdue\"] .oh-tile-num shows 22 but v_pm_compliance_truth.is_due directly counts 63 (mode=rows). Page is re-deriving instead of trusting the canonical signal. expect(received).toBe(expected) // Object.is equality Expected: 63 Received: 22 383 | `directly counts ${canonicalCount} (mode=${c.mode}). ` + 384 | `Page is re-deriving instead of trusting the canonical signal.`, > 385 | ).toBe(canonicalCount); | ^ 386 | } else { 387 | if (canonicalCount === 0) { 388 | expect(surface).toBe(0); at C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\journey-canonical-signal-parity.spec.ts:385:11"
+    },
+    {
+      "file": "journey-canonical-signal-parity.spec.ts",
+      "title": "check_total_assets_count: asset-hub #ah-total-hero == COUNT(v_asset_truth)",
+      "line": 309,
+      "status": "failed",
+      "duration_ms": 5388,
+      "error": "Error: /workhive/asset-hub.html #ah-total-hero shows 30 but v_asset_truth.undefined directly counts 90 (mode=all). Page is re-deriving instead of trusting the canonical signal. expect(received).toBe(expected) // Object.is equality Expected: 90 Received: 30 383 | `directly counts ${canonicalCount} (mode=${c.mode}). ` + 384 | `Page is re-deriving instead of trusting the canonical signal.`, > 385 | ).toBe(canonicalCount); | ^ 386 | } else { 387 | if (canonicalCount === 0) { 388 | expect(surface).toBe(0); at C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\journey-canonical-signal-parity.spec.ts:385:11"
+    },
+    {
+      "file": "journey-canonical-signal-parity.spec.ts",
+      "title": "check_critical_assets_count: asset-hub #ah-critical-hero == COUNT(asset_nodes WHERE criticality=critical, case-insensitive)",
+      "line": 309,
+      "status": "failed",
+      "duration_ms": 5417,
+      "error": "Error: /workhive/asset-hub.html #ah-critical-hero shows 6 but v_asset_truth.undefined directly counts 16 (mode=rows). Page is re-deriving instead of trusting the canonical signal. expect(received).toBe(expected) // Object.is equality Expected: 16 Received: 6 383 | `directly counts ${canonicalCount} (mode=${c.mode}). ` + 384 | `Page is re-deriving instead of trusting the canonical signal.`, > 385 | ).toBe(canonicalCount); | ^ 386 | } else { 387 | if (canonicalCount === 0) { 388 | expect(surface).toBe(0); at C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\journey-canonical-signal-parity.spec.ts:385:11"
+    },
+    {
+      "file": "journey-canonical-signal-parity.spec.ts",
+      "title": "check_pm_duesoon_assets_count: pm-scheduler #stat-duesoon == DISTINCT(asset_id) WHERE is_due_soon",
+      "line": 309,
+      "status": "failed",
+      "duration_ms": 5653,
+      "error": "Error: /workhive/pm-scheduler.html #stat-duesoon shows 0 but v_pm_scope_items_truth.is_due_soon directly counts 59 (mode=assets). Page is re-deriving instead of trusting the canonical signal. expect(received).toBe(expected) // Object.is equality Expected: 59 Received: 0 383 | `directly counts ${canonicalCount} (mode=${c.mode}). ` + 384 | `Page is re-deriving instead of trusting the canonical signal.`, > 385 | ).toBe(canonicalCount); | ^ 386 | } else { 387 | if (canonicalCount === 0) { 388 | expect(surface).toBe(0); at C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\journey-canonical-signal-parity.spec.ts:385:11"
+    },
+    {
+      "file": "journey-canonical-signal-parity.spec.ts",
+      "title": "check_inventory_low_count: inventory #stat-low == COUNT(v_inventory_items_truth WHERE is_low_stock)",
+      "line": 309,
+      "status": "failed",
+      "duration_ms": 6018,
+      "error": "Error: /workhive/inventory.html #stat-low shows 0 but v_inventory_items_truth.is_low_stock directly counts 9 (mode=rows). Page is re-deriving instead of trusting the canonical signal. expect(received).toBe(expected) // Object.is equality Expected: 9 Received: 0 383 | `directly counts ${canonicalCount} (mode=${c.mode}). ` + 384 | `Page is re-deriving instead of trusting the canonical signal.`, > 385 | ).toBe(canonicalCount); | ^ 386 | } else { 387 | if (canonicalCount === 0) { 388 | expect(surface).toBe(0); at C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\journey-canonical-signal-parity.spec.ts:385:11"
+    },
+    {
+      "file": "journey-canonical-signal-parity.spec.ts",
+      "title": "check_predictive_critical_count: predictive #count-critical == COUNT(v_risk_truth WHERE risk_level=critical)",
+      "line": 309,
+      "status": "failed",
+      "duration_ms": 29622,
+      "error": "Error: /workhive/predictive.html #count-critical shows 0 but v_risk_truth.undefined directly counts 3 (mode=rows). Page is re-deriving instead of trusting the canonical signal. expect(received).toBe(expected) // Object.is equality Expected: 3 Received: 0 383 | `directly counts ${canonicalCount} (mode=${c.mode}). ` + 384 | `Page is re-deriving instead of trusting the canonical signal.`, > 385 | ).toBe(canonicalCount); | ^ 386 | } else { 387 | if (canonicalCount === 0) { 388 | expect(surface).toBe(0); at C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\journey-canonical-signal-parity.spec.ts:385:11"
+    },
+    {
+      "file": "journey-canonical-signal-parity.spec.ts",
+      "title": "check_predictive_high_count: predictive #count-high == COUNT(v_risk_truth WHERE risk_level=high)",
+      "line": 309,
+      "status": "failed",
+      "duration_ms": 29934,
+      "error": "Error: /workhive/predictive.html #count-high shows 0 but v_risk_truth.undefined directly counts 3 (mode=rows). Page is re-deriving instead of trusting the canonical signal. expect(received).toBe(expected) // Object.is equality Expected: 3 Received: 0 383 | `directly counts ${canonicalCount} (mode=${c.mode}). ` + 384 | `Page is re-deriving instead of trusting the canonical signal.`, > 385 | ).toBe(canonicalCount); | ^ 386 | } else { 387 | if (canonicalCount === 0) { 388 | expect(surface).toBe(0); at C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\journey-canonical-signal-parity.spec.ts:385:11"
+    },
+    {
+      "file": "journey-canonical-signal-parity.spec.ts",
+      "title": "check_predictive_medium_count: predictive #count-medium == COUNT(v_risk_truth WHERE risk_level=medium)",
+      "line": 309,
+      "status": "failed",
+      "duration_ms": 30193,
+      "error": "Error: /workhive/predictive.html #count-medium shows 0 but v_risk_truth.undefined directly counts 6 (mode=rows). Page is re-deriving instead of trusting the canonical signal. expect(received).toBe(expected) // Object.is equality Expected: 6 Received: 0 383 | `directly counts ${canonicalCount} (mode=${c.mode}). ` + 384 | `Page is re-deriving instead of trusting the canonical signal.`, > 385 | ).toBe(canonicalCount); | ^ 386 | } else { 387 | if (canonicalCount === 0) { 388 | expect(surface).toBe(0); at C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\journey-canonical-signal-parity.spec.ts:385:11"
+    },
+    {
+      "file": "journey-canonical-signal-parity.spec.ts",
+      "title": "check_predictive_low_count: predictive #count-low == COUNT(v_risk_truth WHERE risk_level=low)",
+      "line": 309,
+      "status": "failed",
+      "duration_ms": 30290,
+      "error": "Error: /workhive/predictive.html #count-low shows 0 but v_risk_truth.undefined directly counts 3 (mode=rows). Page is re-deriving instead of trusting the canonical signal. expect(received).toBe(expected) // Object.is equality Expected: 3 Received: 0 383 | `directly counts ${canonicalCount} (mode=${c.mode}). ` + 384 | `Page is re-deriving instead of trusting the canonical signal.`, > 385 | ).toBe(canonicalCount); | ^ 386 | } else { 387 | if (canonicalCount === 0) { 388 | expect(surface).toBe(0); at C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\journey-canonical-signal-parity.spec.ts:385:11"
+    },
+    {
+      "file": "journey-canonical-signal-parity.spec.ts",
+      "title": "check_predictive_hot_hero: predictive #pr-hot-hero == COUNT(v_risk_truth WHERE risk_level IN critical/high)",
+      "line": 309,
+      "status": "failed",
+      "duration_ms": 5417,
+      "error": "Error: /workhive/predictive.html #pr-hot-hero shows 0 but v_risk_truth.undefined directly counts 6 (mode=rows). Page is re-deriving instead of trusting the canonical signal. expect(received).toBe(expected) // Object.is equality Expected: 6 Received: 0 383 | `directly counts ${canonicalCount} (mode=${c.mode}). ` + 384 | `Page is re-deriving instead of trusting the canonical signal.`, > 385 | ).toBe(canonicalCount); | ^ 386 | } else { 387 | if (canonicalCount === 0) { 388 | expect(surface).toBe(0); at C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\journey-canonical-signal-parity.spec.ts:385:11"
+    },
+    {
+      "file": "journey-canonical-signal-parity.spec.ts",
+      "title": "check_predictive_healthy_hero: predictive #pr-healthy-hero == COUNT(v_risk_truth WHERE risk_level=low)",
+      "line": 309,
+      "status": "failed",
+      "duration_ms": 14560,
+      "error": "Error: /workhive/predictive.html #pr-healthy-hero shows 0 but v_risk_truth.undefined directly counts 3 (mode=rows). Page is re-deriving instead of trusting the canonical signal. expect(received).toBe(expected) // Object.is equality Expected: 3 Received: 0 383 | `directly counts ${canonicalCount} (mode=${c.mode}). ` + 384 | `Page is re-deriving instead of trusting the canonical signal.`, > 385 | ).toBe(canonicalCount); | ^ 386 | } else { 387 | if (canonicalCount === 0) { 388 | expect(surface).toBe(0); at C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\journey-canonical-signal-parity.spec.ts:385:11"
+    },
+    {
+      "file": "journey-canonical-signal-parity.spec.ts",
+      "title": "check_project_manager_active: pm #pm-active-hero == COUNT(projects WHERE status=active AND not deleted)",
+      "line": 309,
+      "status": "failed",
+      "duration_ms": 4744,
+      "error": "Error: /workhive/project-manager.html #pm-active-hero shows 0 but projects.undefined directly counts 12 (mode=rows). Page is re-deriving instead of trusting the canonical signal. expect(received).toBe(expected) // Object.is equality Expected: 12 Received: 0 383 | `directly counts ${canonicalCount} (mode=${c.mode}). ` + 384 | `Page is re-deriving instead of trusting the canonical signal.`, > 385 | ).toBe(canonicalCount); | ^ 386 | } else { 387 | if (canonicalCount === 0) { 388 | expect(surface).toBe(0); at C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\journey-canonical-signal-parity.spec.ts:385:11"
+    },
+    {
+      "file": "journey-canonical-signal-parity.spec.ts",
+      "title": "check_seller_listings_badge: marketplace-seller #badge-listings == COUNT(v_marketplace_listings_truth WHERE seller_name=WORKER_NAME)",
+      "line": 309,
+      "status": "failed",
+      "duration_ms": 5580,
+      "error": "Error: /workhive/marketplace-seller.html #badge-listings shows 2 but v_marketplace_listings_truth.undefined directly counts 27 (mode=all). Page is re-deriving instead of trusting the canonical signal. expect(received).toBe(expected) // Object.is equality Expected: 27 Received: 2 383 | `directly counts ${canonicalCount} (mode=${c.mode}). ` + 384 | `Page is re-deriving instead of trusting the canonical signal.`, > 385 | ).toBe(canonicalCount); | ^ 386 | } else { 387 | if (canonicalCount === 0) { 388 | expect(surface).toBe(0); at C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\journey-canonical-signal-parity.spec.ts:385:11"
+    },
+    {
+      "file": "journey-canonical-signal-parity.spec.ts",
+      "title": "check_community_profile_posts: community #profile-posts == COUNT(v_community_posts_truth WHERE author_name=WORKER_NAME AND not deleted)",
+      "line": 309,
+      "status": "failed",
+      "duration_ms": 6546,
+      "error": "Error: /workhive/community.html #profile-posts shows 9 but v_community_posts_truth.undefined directly counts 151 (mode=all). Page is re-deriving instead of trusting the canonical signal. expect(received).toBe(expected) // Object.is equality Expected: 151 Received: 9 383 | `directly counts ${canonicalCount} (mode=${c.mode}). ` + 384 | `Page is re-deriving instead of trusting the canonical signal.`, > 385 | ).toBe(canonicalCount); | ^ 386 | } else { 387 | if (canonicalCount === 0) { 388 | expect(surface).toBe(0); at C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\journey-canonical-signal-parity.spec.ts:385:11"
+    },
+    {
+      "file": "journey-voice-journal.spec.ts",
+      "title": "zaniah-default-persona: voice-journal opens with Zaniah selected by default",
+      "line": 124,
+      "status": "failed",
+      "duration_ms": 6873,
+      "error": "Error: zaniah should be the default persona (Step D) expect(received).toBe(expected) // Object.is equality Expected: true Received: false 141 | || el.getAttribute('aria-checked') === 'true' 142 | ); > 143 | expect(isActive, 'zaniah should be the default persona (Step D)').toBe(true); | ^ 144 | }); 145 | 146 | test('ai-gateway anon-allow: voice-journal agent answers without sign-in', async ({ whPage }) => { at C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\journey-voice-journal.spec.ts:143:71"
+    },
+    {
+      "file": "journey-voice-journal.spec.ts",
+      "title": "dialog-noise-transcript-guard: empty / 1-2 char / pure-filler transcripts route as noise",
+      "line": 383,
+      "status": "failed",
+      "duration_ms": 5575,
+      "error": "Error: Noise guard mis-classified: [ { \"text\": \"no\", \"expected\": false, \"label\": \"short negation (handled by negation bypass)\", \"got\": true } ]. Empty / filler-only transcripts that fall through to the LLM waste model cost AND trip the topic-switch clarification UI on silence. expect(received).toEqual(expected) // deep equality - Expected - 1 + Received + 8 - Array [] + Array [ + Object { + \"expected\": false, + \"got\": true, + \"label\": \"short negation (handled by negation bypass)\", + \"text\": \"no\", + }, + ] 421 | `Empty / filler-only transcripts that fall through to the LLM waste ` + 422 | `model cost AND trip the topic-switch clarification UI on silence.` > 423 | ).toEqual([]); | ^ 424 | }); 425 | 426 | test('dialog-affirmation-case-invariance: regex matches uppercase + padded + punctuated "
+    },
+    {
+      "file": "journey-voice-journal.spec.ts",
+      "title": "dialog-prior-topic-handle: voice-handler prompt builder emits a PRIOR TOPIC HANDLE clause with PH + English pronouns",
+      "line": 471,
+      "status": "failed",
+      "duration_ms": 4903,
+      "error": "Error: PRIOR TOPIC HANDLE must list \"that\" expect(received).toBe(expected) // Object.is equality Expected: true Received: false 504 | expect(audit.hasHandle, 'PRIOR TOPIC HANDLE clause must exist').toBe(true); 505 | expect(audit.mentionsIt, 'PRIOR TOPIC HANDLE must list \"it\"').toBe(true); > 506 | expect(audit.mentionsThat,'PRIOR TOPIC HANDLE must list \"that\"').toBe(true); | ^ 507 | expect(audit.mentionsYan, 'PRIOR TOPIC HANDLE must list \"yan\" (PH)').toBe(true); 508 | expect(audit.mentionsYun, 'PRIOR TOPIC HANDLE must list \"yun\" (PH)').toBe(true); 509 | expect(audit.guardsUnknown, 'PRIOR TOPIC HANDLE must be guarded against the \"unknown\" intent (so pronouns are never resolved to nothing)').toBe(true); at C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\"
+    },
+    {
+      "file": "journey-voice-journal.spec.ts",
+      "title": "dialog-system-prompt-slot-bullets-live: _buildVoiceSystemPrompt emits \"You already know:\" + PRIOR TOPIC HANDLE for a real dialogState object",
+      "line": 554,
+      "status": "failed",
+      "duration_ms": 5802,
+      "error": "Error: page.evaluate: ReferenceError: transcript is not defined at _buildVoiceSystemPrompt (http://127.0.0.1:5000/workhive/voice-handler.js:6380:184) at eval (eval at evaluate (:302:30), <anonymous>:18:22) at UtilityScript.evaluate (<anonymous>:304:16) at UtilityScript.<anonymous> (<anonymous>:1:44) at _buildVoiceSystemPrompt (http://127.0.0.1:5000/workhive/voice-handler.js:6380:184) at eval (eval at evaluate (:302:30), <anonymous>:18:22) at UtilityScript.evaluate (<anonymous>:304:16) at UtilityScript.<anonymous> (<anonymous>:1:44) at C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\journey-voice-journal.spec.ts:570:34"
+    },
+    {
+      "file": "journey-voice-journal.spec.ts",
+      "title": "dialog-quality-extended-detectors: turns #5-#10 + #14 helpers behave correctly",
+      "line": 685,
+      "status": "failed",
+      "duration_ms": 5349,
+      "error": "Error: One or more turn #5-#14 detectors mis-classified: [ { \"label\": \"repeat: \\\"what does that mean exactly\\\"\", \"got\": true, \"expected\": false } ] expect(received).toEqual(expected) // deep equality - Expected - 1 + Received + 7 - Array [] + Array [ + Object { + \"expected\": false, + \"got\": true, + \"label\": \"repeat: \\\"what does that mean exactly\\\"\", + }, + ] 754 | failures, 755 | `One or more turn #5-#14 detectors mis-classified: ${JSON.stringify(failures, null, 2)}` > 756 | ).toEqual([]); | ^ 757 | }); 758 | 759 | test('ai-companion-workflow-detectors: turns #55-#64 behaviour locked', async ({ whPage }) => { at C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\journey-voice-journal.spec.ts:756:7"
+    },
+    {
+      "file": "journey-voice-journal.spec.ts",
+      "title": "ai-companion-workflow-detectors: turns #55-#64 behaviour locked",
+      "line": 759,
+      "status": "failed",
+      "duration_ms": 5752,
+      "error": "Error: T58 action replay returns new asset expect(received).toBe(expected) // Object.is equality Expected: \"P-205\" Received: null 826 | expect(verdict.stale).not.toContain('asset_tag'); 827 | expect(verdict.stale).toContain('time_window'); > 828 | expect(verdict.replay.yes, 'T58 action replay returns new asset').toBe('P-205'); | ^ 829 | expect(verdict.replay.no, 'T58 non-replay returns null').toBeNull(); 830 | expect(verdict.lang, 'T59 language detector').toEqual(['tagalog', 'english', 'cebuano', null]); 831 | expect(verdict.brev, 'T60 brevity toggle').toEqual(['brief', 'full', null]); at C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\journey-voice-journal.spec.ts:828:71"
+    },
+    {
+      "file": "journey-voice-journal.spec.ts",
+      "title": "ai-companion-orchestration-detectors: turns #65-#74 behaviour locked",
+      "line": 839,
+      "status": "failed",
+      "duration_ms": 6658,
+      "error": "Error: T65 \"save as PDF\" detected expect(received).toBe(expected) // Object.is equality Expected: true Received: false 933 | expect(verdict.ready).toBe(true); 934 | // T65 PDF export > 935 | expect(verdict.pdf[0], 'T65 \"save as PDF\" detected').toBe(true); | ^ 936 | expect(verdict.pdf[1], 'T65 i-pdf mo ito detected').toBe(true); 937 | expect(verdict.pdf[2], 'T65 non-PDF returns false').toBe(false); 938 | // T66 pronunciation at C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\journey-voice-journal.spec.ts:935:58"
+    },
+    {
+      "file": "journey-voice-journal.spec.ts",
+      "title": "ai-companion-trust-deployment-detectors: turns #75-#84 behaviour locked",
+      "line": 976,
+      "status": "failed",
+      "duration_ms": 6301,
+      "error": "Error: T77 \"is this fresh\" detected expect(received).toBe(expected) // Object.is equality Expected: true Received: false 1064 | expect(verdict.shapes.social).toBe('social'); 1065 | // T77 freshness > 1066 | expect(verdict.fresh[0], 'T77 \"is this fresh\" detected').toBe(true); | ^ 1067 | expect(verdict.fresh[1], 'T77 \"kailan ito na-update\" detected').toBe(true); 1068 | expect(verdict.fresh[2], 'T77 non-freshness returns false').toBe(false); 1069 | // T78 rate limit at C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\journey-voice-journal.spec.ts:1066:62"
+    },
+    {
+      "file": "journey-voice-journal.spec.ts",
+      "title": "ai-companion-input-normalization-detectors: turns #85-#94 behaviour locked",
+      "line": 1101,
+      "status": "failed",
+      "duration_ms": 5950,
+      "error": "Error: T85 null input → null expect(received).toBeNull() Received: \"0.0%\" 1176 | expect(verdict.kpi[0], 'T85 92.4823% → \"92.5%\"').toMatch(/^92\\.[45]%/); 1177 | expect(verdict.kpi[1], 'T85 13.7 days, 0 decimals → \"14 days\"').toMatch(/^1[34] days/); > 1178 | expect(verdict.kpi[2], 'T85 null input → null').toBeNull(); | ^ 1179 | expect(verdict.tag[0], 'T86 direct \"P-203\"').toBe('P-203'); 1180 | expect(verdict.tag[1], 'T86 spoken \"pee two oh three\"').toBe('P-203'); 1181 | expect(verdict.tag[2], 'T86 no asset → null').toBeNull(); at C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\journey-voice-journal.spec.ts:1178:53"
+    },
+    {
+      "file": "journey-voice-journal.spec.ts",
+      "title": "ai-companion-learning-detectors: turns #105-#114 behaviour locked",
+      "line": 1301,
+      "status": "failed",
+      "duration_ms": 6132,
+      "error": "Error: T109 1-day required + 1 day → persistent expect(received).toBe(expected) // Object.is equality Expected: true Received: false 1392 | expect(verdict.sentiment.pos, 'T109 positive sentiment').toBe('positive'); 1393 | expect(verdict.sentiment.neg, 'T109 negative sentiment').toBe('negative'); > 1394 | expect(verdict.sentiment.persistent, 'T109 1-day required + 1 day → persistent').toBe(true); | ^ 1395 | expect(verdict.symptom.v, 'T111 vibration symptom normalized').toBe('vibration_anomaly'); 1396 | expect(verdict.symptom.o, 'T111 overheat symptom normalized').toBe('overheat'); 1397 | expect(verdict.symptom.n, 'T111 no symptom → null').toBeNull(); at C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tes"
+    },
+    {
+      "file": "journey-voice-journal.spec.ts",
+      "title": "ai-companion-intelligence-anchors: turns #25/#30/#32/#33/#34 prompt anchors appear in the rendered prompt",
+      "line": 2012,
+      "status": "failed",
+      "duration_ms": 5391,
+      "error": "Error: page.evaluate: ReferenceError: transcript is not defined at _buildVoiceSystemPrompt (http://127.0.0.1:5000/workhive/voice-handler.js:6380:184) at eval (eval at evaluate (:302:30), <anonymous>:6:22) at UtilityScript.evaluate (<anonymous>:304:16) at UtilityScript.<anonymous> (<anonymous>:1:44) at _buildVoiceSystemPrompt (http://127.0.0.1:5000/workhive/voice-handler.js:6380:184) at eval (eval at evaluate (:302:30), <anonymous>:6:22) at UtilityScript.evaluate (<anonymous>:304:16) at UtilityScript.<anonymous> (<anonymous>:1:44) at C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\journey-voice-journal.spec.ts:2023:34"
+    },
+    {
+      "file": "journey-voice-journal.spec.ts",
+      "title": "ai-companion-trust-anchors: turns #15/#16 prompt builder emits HALLUCINATION GUARD + CITATION RULE; turn #21 wh-tts spells out acronyms",
+      "line": 2046,
+      "status": "failed",
+      "duration_ms": 6605,
+      "error": "Error: page.evaluate: ReferenceError: transcript is not defined at Object._buildVoiceSystemPrompt (http://127.0.0.1:5000/workhive/voice-handler.js:6380:184) at eval (eval at evaluate (:302:30), <anonymous>:7:25) at UtilityScript.evaluate (<anonymous>:304:16) at UtilityScript.<anonymous> (<anonymous>:1:44) at Object._buildVoiceSystemPrompt (http://127.0.0.1:5000/workhive/voice-handler.js:6380:184) at eval (eval at evaluate (:302:30), <anonymous>:7:25) at UtilityScript.evaluate (<anonymous>:304:16) at UtilityScript.<anonymous> (<anonymous>:1:44) at C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\journey-voice-journal.spec.ts:2057:34"
+    },
+    {
+      "file": "journey-voice-journal.spec.ts",
+      "title": "dialog-prompt-anchors-live: turns #11/#12/#13 prompt builder emits LANGUAGE NOTE + SENSITIVE TOPIC REDIRECT + worker name",
+      "line": 2089,
+      "status": "failed",
+      "duration_ms": 5796,
+      "error": "Error: page.evaluate: ReferenceError: transcript is not defined at _buildVoiceSystemPrompt (http://127.0.0.1:5000/workhive/voice-handler.js:6380:184) at eval (eval at evaluate (:302:30), <anonymous>:6:22) at UtilityScript.evaluate (<anonymous>:304:16) at UtilityScript.<anonymous> (<anonymous>:1:44) at _buildVoiceSystemPrompt (http://127.0.0.1:5000/workhive/voice-handler.js:6380:184) at eval (eval at evaluate (:302:30), <anonymous>:6:22) at UtilityScript.evaluate (<anonymous>:304:16) at UtilityScript.<anonymous> (<anonymous>:1:44) at C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\journey-voice-journal.spec.ts:2100:34"
+    }
+  ],
+  "by_file": {
+    "journey-canonical-signal-parity.spec.ts": 19,
+    "journey-voice-journal.spec.ts": 13,
+    "founder-console.spec.ts": 1,
+    "ph-intelligence.spec.ts": 1
+  }
+}

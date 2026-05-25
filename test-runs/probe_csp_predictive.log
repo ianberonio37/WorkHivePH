@@ -1,0 +1,258 @@
+﻿
+Running 6 tests using 1 worker
+
+[browser error] TypeError: Failed to fetch
+    at https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:105903
+    at https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:110864
+    at Cr (https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:111032)
+    at https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:161312
+    at _s._useSession (https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:158860)
+    at async _s._getUser (https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:161171)
+    at async https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:160974
+  x  1 [chromium] › tests\journey-canonical-signal-parity.spec.ts:309:9 › canonical signal parity › check_predictive_critical_count: predictive #count-critical == COUNT(v_risk_truth WHERE risk_level=critical) (10.5s)
+[browser error] TypeError: Failed to fetch
+    at https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:105903
+    at https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:110864
+    at Cr (https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:111032)
+    at https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:161312
+    at _s._useSession (https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:158860)
+    at async _s._getUser (https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:161171)
+    at async https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:160974
+  x  2 [chromium] › tests\journey-canonical-signal-parity.spec.ts:309:9 › canonical signal parity › check_predictive_high_count: predictive #count-high == COUNT(v_risk_truth WHERE risk_level=high) (7.3s)
+  x  3 [chromium] › tests\journey-canonical-signal-parity.spec.ts:309:9 › canonical signal parity › check_predictive_medium_count: predictive #count-medium == COUNT(v_risk_truth WHERE risk_level=medium) (6.2s)
+  x  4 [chromium] › tests\journey-canonical-signal-parity.spec.ts:309:9 › canonical signal parity › check_predictive_low_count: predictive #count-low == COUNT(v_risk_truth WHERE risk_level=low) (7.9s)
+[browser error] TypeError: Failed to fetch
+    at https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:105903
+    at https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:110864
+    at Cr (https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:111032)
+    at https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:161312
+    at _s._useSession (https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:158860)
+    at async _s._getUser (https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:161171)
+    at async https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:160974
+  x  5 [chromium] › tests\journey-canonical-signal-parity.spec.ts:309:9 › canonical signal parity › check_predictive_hot_hero: predictive #pr-hot-hero == COUNT(v_risk_truth WHERE risk_level IN critical/high) (6.2s)
+  x  6 [chromium] › tests\journey-canonical-signal-parity.spec.ts:309:9 › canonical signal parity › check_predictive_healthy_hero: predictive #pr-healthy-hero == COUNT(v_risk_truth WHERE risk_level=low) (5.6s)
+
+
+  1) [chromium] › tests\journey-canonical-signal-parity.spec.ts:309:9 › canonical signal parity › check_predictive_critical_count: predictive #count-critical == COUNT(v_risk_truth WHERE risk_level=critical) 
+
+    Error: /workhive/predictive.html #count-critical shows 1 but v_risk_truth.undefined directly counts 3 (mode=rows). Page is re-deriving instead of trusting the canonical signal.
+
+    [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+    Expected: [32m3[39m
+    Received: [31m1[39m
+
+      425 |           `directly counts ${canonicalCount} (mode=${c.mode}). ` +
+      426 |           `Page is re-deriving instead of trusting the canonical signal.`,
+    > 427 |         ).toBe(canonicalCount);
+          |           ^
+      428 |       } else {
+      429 |         if (canonicalCount === 0) {
+      430 |           expect(surface).toBe(0);
+        at C:\Users\ILBeronio\Desktop\Industry 4.0\AI Maintenance Engineer\Self-learning Road-Map\Build & Sell with Claude Code\Website simple 1st\tests\journey-canonical-signal-parity.spec.ts:427:11
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\journey-canonical-signal-p-05560--WHERE-risk-level-critical--chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results\journey-canonical-signal-p-05560--WHERE-risk-level-critical--chromium\video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\journey-canonical-signal-p-05560--WHERE-risk-level-critical--chromium\error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\journey-canonical-signal-p-05560--WHERE-risk-level-critical--chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\journey-canonical-signal-p-05560--WHERE-risk-level-critical--chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) [chromium] › tests\journey-canonical-signal-parity.spec.ts:309:9 › canonical signal parity › check_predictive_high_count: predictive #count-high == COUNT(v_risk_truth WHERE risk_level=high) 
+
+    Error: /workhive/predictive.html #count-high shows 1 but v_risk_truth.undefined directly counts 3 (mode=rows). Page is re-deriving instead of trusting the canonical signal.
+
+    [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+    Expected: [32m3[39m
+    Received: [31m1[39m
+
+      425 |           `directly counts ${canonicalCount} (mode=${c.mode}). ` +
+      426 |           `Page is re-deriving instead of trusting the canonical signal.`,
+    > 427 |         ).toBe(canonicalCount);
+          |           ^
+      428 |       } else {
+      429 |         if (canonicalCount === 0) {
+      430 |           expect(surface).toBe(0);
+        at C:\Users\ILBeronio\Desktop\Industry 4.0\AI Maintenance Engineer\Self-learning Road-Map\Build & Sell with Claude Code\Website simple 1st\tests\journey-canonical-signal-parity.spec.ts:427:11
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\journey-canonical-signal-p-fd439-ruth-WHERE-risk-level-high--chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results\journey-canonical-signal-p-fd439-ruth-WHERE-risk-level-high--chromium\video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\journey-canonical-signal-p-fd439-ruth-WHERE-risk-level-high--chromium\error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\journey-canonical-signal-p-fd439-ruth-WHERE-risk-level-high--chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\journey-canonical-signal-p-fd439-ruth-WHERE-risk-level-high--chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) [chromium] › tests\journey-canonical-signal-parity.spec.ts:309:9 › canonical signal parity › check_predictive_medium_count: predictive #count-medium == COUNT(v_risk_truth WHERE risk_level=medium) 
+
+    Error: /workhive/predictive.html #count-medium shows 2 but v_risk_truth.undefined directly counts 6 (mode=rows). Page is re-deriving instead of trusting the canonical signal.
+
+    [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+    Expected: [32m6[39m
+    Received: [31m2[39m
+
+      425 |           `directly counts ${canonicalCount} (mode=${c.mode}). ` +
+      426 |           `Page is re-deriving instead of trusting the canonical signal.`,
+    > 427 |         ).toBe(canonicalCount);
+          |           ^
+      428 |       } else {
+      429 |         if (canonicalCount === 0) {
+      430 |           expect(surface).toBe(0);
+        at C:\Users\ILBeronio\Desktop\Industry 4.0\AI Maintenance Engineer\Self-learning Road-Map\Build & Sell with Claude Code\Website simple 1st\tests\journey-canonical-signal-parity.spec.ts:427:11
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\journey-canonical-signal-p-1cc80-th-WHERE-risk-level-medium--chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results\journey-canonical-signal-p-1cc80-th-WHERE-risk-level-medium--chromium\video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\journey-canonical-signal-p-1cc80-th-WHERE-risk-level-medium--chromium\error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\journey-canonical-signal-p-1cc80-th-WHERE-risk-level-medium--chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\journey-canonical-signal-p-1cc80-th-WHERE-risk-level-medium--chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) [chromium] › tests\journey-canonical-signal-parity.spec.ts:309:9 › canonical signal parity › check_predictive_low_count: predictive #count-low == COUNT(v_risk_truth WHERE risk_level=low) 
+
+    Error: /workhive/predictive.html #count-low shows 1 but v_risk_truth.undefined directly counts 3 (mode=rows). Page is re-deriving instead of trusting the canonical signal.
+
+    [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+    Expected: [32m3[39m
+    Received: [31m1[39m
+
+      425 |           `directly counts ${canonicalCount} (mode=${c.mode}). ` +
+      426 |           `Page is re-deriving instead of trusting the canonical signal.`,
+    > 427 |         ).toBe(canonicalCount);
+          |           ^
+      428 |       } else {
+      429 |         if (canonicalCount === 0) {
+      430 |           expect(surface).toBe(0);
+        at C:\Users\ILBeronio\Desktop\Industry 4.0\AI Maintenance Engineer\Self-learning Road-Map\Build & Sell with Claude Code\Website simple 1st\tests\journey-canonical-signal-parity.spec.ts:427:11
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\journey-canonical-signal-p-77e13-truth-WHERE-risk-level-low--chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results\journey-canonical-signal-p-77e13-truth-WHERE-risk-level-low--chromium\video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\journey-canonical-signal-p-77e13-truth-WHERE-risk-level-low--chromium\error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\journey-canonical-signal-p-77e13-truth-WHERE-risk-level-low--chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\journey-canonical-signal-p-77e13-truth-WHERE-risk-level-low--chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) [chromium] › tests\journey-canonical-signal-parity.spec.ts:309:9 › canonical signal parity › check_predictive_hot_hero: predictive #pr-hot-hero == COUNT(v_risk_truth WHERE risk_level IN critical/high) 
+
+    Error: /workhive/predictive.html #pr-hot-hero shows 2 but v_risk_truth.undefined directly counts 6 (mode=rows). Page is re-deriving instead of trusting the canonical signal.
+
+    [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+    Expected: [32m6[39m
+    Received: [31m2[39m
+
+      425 |           `directly counts ${canonicalCount} (mode=${c.mode}). ` +
+      426 |           `Page is re-deriving instead of trusting the canonical signal.`,
+    > 427 |         ).toBe(canonicalCount);
+          |           ^
+      428 |       } else {
+      429 |         if (canonicalCount === 0) {
+      430 |           expect(surface).toBe(0);
+        at C:\Users\ILBeronio\Desktop\Industry 4.0\AI Maintenance Engineer\Self-learning Road-Map\Build & Sell with Claude Code\Website simple 1st\tests\journey-canonical-signal-parity.spec.ts:427:11
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\journey-canonical-signal-p-965dc-isk-level-IN-critical-high--chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results\journey-canonical-signal-p-965dc-isk-level-IN-critical-high--chromium\video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\journey-canonical-signal-p-965dc-isk-level-IN-critical-high--chromium\error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\journey-canonical-signal-p-965dc-isk-level-IN-critical-high--chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\journey-canonical-signal-p-965dc-isk-level-IN-critical-high--chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) [chromium] › tests\journey-canonical-signal-parity.spec.ts:309:9 › canonical signal parity › check_predictive_healthy_hero: predictive #pr-healthy-hero == COUNT(v_risk_truth WHERE risk_level=low) 
+
+    Error: /workhive/predictive.html #pr-healthy-hero shows 1 but v_risk_truth.undefined directly counts 3 (mode=rows). Page is re-deriving instead of trusting the canonical signal.
+
+    [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+    Expected: [32m3[39m
+    Received: [31m1[39m
+
+      425 |           `directly counts ${canonicalCount} (mode=${c.mode}). ` +
+      426 |           `Page is re-deriving instead of trusting the canonical signal.`,
+    > 427 |         ).toBe(canonicalCount);
+          |           ^
+      428 |       } else {
+      429 |         if (canonicalCount === 0) {
+      430 |           expect(surface).toBe(0);
+        at C:\Users\ILBeronio\Desktop\Industry 4.0\AI Maintenance Engineer\Self-learning Road-Map\Build & Sell with Claude Code\Website simple 1st\tests\journey-canonical-signal-parity.spec.ts:427:11
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\journey-canonical-signal-p-5329e-truth-WHERE-risk-level-low--chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results\journey-canonical-signal-p-5329e-truth-WHERE-risk-level-low--chromium\video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\journey-canonical-signal-p-5329e-truth-WHERE-risk-level-low--chromium\error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\journey-canonical-signal-p-5329e-truth-WHERE-risk-level-low--chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\journey-canonical-signal-p-5329e-truth-WHERE-risk-level-low--chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6 failed
+    [chromium] › tests\journey-canonical-signal-parity.spec.ts:309:9 › canonical signal parity › check_predictive_critical_count: predictive #count-critical == COUNT(v_risk_truth WHERE risk_level=critical) 
+    [chromium] › tests\journey-canonical-signal-parity.spec.ts:309:9 › canonical signal parity › check_predictive_high_count: predictive #count-high == COUNT(v_risk_truth WHERE risk_level=high) 
+    [chromium] › tests\journey-canonical-signal-parity.spec.ts:309:9 › canonical signal parity › check_predictive_medium_count: predictive #count-medium == COUNT(v_risk_truth WHERE risk_level=medium) 
+    [chromium] › tests\journey-canonical-signal-parity.spec.ts:309:9 › canonical signal parity › check_predictive_low_count: predictive #count-low == COUNT(v_risk_truth WHERE risk_level=low) 
+    [chromium] › tests\journey-canonical-signal-parity.spec.ts:309:9 › canonical signal parity › check_predictive_hot_hero: predictive #pr-hot-hero == COUNT(v_risk_truth WHERE risk_level IN critical/high) 
+    [chromium] › tests\journey-canonical-signal-parity.spec.ts:309:9 › canonical signal parity › check_predictive_healthy_hero: predictive #pr-healthy-hero == COUNT(v_risk_truth WHERE risk_level=low) 

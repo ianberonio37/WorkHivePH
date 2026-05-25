@@ -1,0 +1,475 @@
+﻿
+Running 25 tests using 1 worker
+
+[browser error] TypeError: Failed to fetch
+    at https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:105903
+    at https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:110864
+    at Cr (https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:111032)
+    at https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:161312
+    at _s._useSession (https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:158860)
+    at async _s._getUser (https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:161171)
+    at async https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:160974
+[browser error] Failed to load resource: the server responded with a status of 400 (Bad Request)
+  ok  1 [chromium] › tests\journey-canonical-signal-parity.spec.ts:309:9 › canonical signal parity › check_pm_overdue_scope_items_count: hive Team Pulse #pulse-pm-overdue == COUNT(v_pm_scope_items_truth WHERE is_overdue) (8.8s)
+  ok  2 [chromium] › tests\journey-canonical-signal-parity.spec.ts:309:9 › canonical signal parity › check_pm_overdue_assets_count: pm-scheduler #stat-overdue == COUNT(DISTINCT asset_id WHERE is_overdue) (5.1s)
+  ok  3 [chromium] › tests\journey-canonical-signal-parity.spec.ts:309:9 › canonical signal parity › check_low_stock_count: home tile == COUNT(v_inventory_items_truth WHERE is_low_stock) (7.5s)
+  ok  4 [chromium] › tests\journey-canonical-signal-parity.spec.ts:309:9 › canonical signal parity › check_open_jobs_count: home tile == COUNT(v_logbook_truth WHERE status=Open) (7.6s)
+  ok  5 [chromium] › tests\journey-canonical-signal-parity.spec.ts:309:9 › canonical signal parity › check_risk_alerts_count: home tile == COUNT(v_risk_truth WHERE risk_level IN critical/high) (10.1s)
+[browser error] TypeError: Failed to fetch
+    at https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:105903
+    at https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:110864
+    at Cr (https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:111032)
+    at https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:161312
+    at _s._useSession (https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:158860)
+    at async _s._getUser (https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:161171)
+    at async https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:160974
+  ok  6 [chromium] › tests\journey-canonical-signal-parity.spec.ts:309:9 › canonical signal parity › check_pm_overdue_home_tile: home tile == hive Team Pulse count (both v_pm_scope_items_truth.is_overdue / v_pm_compliance_truth.is_due rollup) (6.7s)
+  ok  7 [chromium] › tests\journey-canonical-signal-parity.spec.ts:309:9 › canonical signal parity › check_total_assets_count: asset-hub #ah-total-hero == COUNT(v_asset_truth) (4.6s)
+  ok  8 [chromium] › tests\journey-canonical-signal-parity.spec.ts:309:9 › canonical signal parity › check_critical_assets_count: asset-hub #ah-critical-hero == COUNT(asset_nodes WHERE criticality=critical, case-insensitive) (4.9s)
+  x   9 [chromium] › tests\journey-canonical-signal-parity.spec.ts:309:9 › canonical signal parity › check_pm_duesoon_assets_count: pm-scheduler #stat-duesoon == DISTINCT(asset_id) WHERE is_due_soon (6.3s)
+  x  10 [chromium] › tests\journey-canonical-signal-parity.spec.ts:309:9 › canonical signal parity › check_inventory_low_count: inventory #stat-low == COUNT(v_inventory_items_truth WHERE is_low_stock) (7.3s)
+  ok 11 [chromium] › tests\journey-canonical-signal-parity.spec.ts:309:9 › canonical signal parity › check_inventory_out_count: inventory #stat-out == COUNT(v_inventory_items_truth WHERE is_out_of_stock) (6.3s)
+  ok 12 [chromium] › tests\journey-canonical-signal-parity.spec.ts:309:9 › canonical signal parity › check_alert_hub_critical_count: alert-hub #ah-critical-hero >= COUNT(v_risk_truth WHERE risk_level IN critical/high) (5.8s)
+[browser error] TypeError: Failed to fetch
+    at https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:105903
+    at https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:110864
+    at Cr (https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:111032)
+    at https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:161312
+    at _s._useSession (https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:158860)
+    at async _s._getUser (https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:161171)
+    at async https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:160974
+  ok 13 [chromium] › tests\journey-canonical-signal-parity.spec.ts:309:9 › canonical signal parity › check_predictive_critical_count: predictive #count-critical == COUNT(v_risk_truth WHERE risk_level=critical) (8.0s)
+[browser error] TypeError: Failed to fetch
+    at https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:105903
+    at https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:110864
+    at Cr (https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:111032)
+    at https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:161312
+    at _s._useSession (https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:158860)
+    at async _s._getUser (https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:161171)
+    at async https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:160974
+  ok 14 [chromium] › tests\journey-canonical-signal-parity.spec.ts:309:9 › canonical signal parity › check_predictive_high_count: predictive #count-high == COUNT(v_risk_truth WHERE risk_level=high) (11.2s)
+  ok 15 [chromium] › tests\journey-canonical-signal-parity.spec.ts:309:9 › canonical signal parity › check_predictive_medium_count: predictive #count-medium == COUNT(v_risk_truth WHERE risk_level=medium) (11.5s)
+  ok 16 [chromium] › tests\journey-canonical-signal-parity.spec.ts:309:9 › canonical signal parity › check_predictive_low_count: predictive #count-low == COUNT(v_risk_truth WHERE risk_level=low) (7.7s)
+[browser error] TypeError: Failed to fetch
+    at https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:105903
+    at https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:110864
+    at Cr (https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:111032)
+    at https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:161312
+    at _s._useSession (https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:158860)
+    at async _s._getUser (https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:161171)
+    at async https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:160974
+  x  17 [chromium] › tests\journey-canonical-signal-parity.spec.ts:309:9 › canonical signal parity › check_predictive_hot_hero: predictive #pr-hot-hero == COUNT(v_risk_truth WHERE risk_level IN critical/high) (6.3s)
+  x  18 [chromium] › tests\journey-canonical-signal-parity.spec.ts:309:9 › canonical signal parity › check_predictive_healthy_hero: predictive #pr-healthy-hero == COUNT(v_risk_truth WHERE risk_level=low) (13.9s)
+[browser error] TypeError: Failed to fetch
+    at https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:105903
+    at https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:110864
+    at Cr (https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:111032)
+    at https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:161312
+    at _s._useSession (https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:158860)
+    at async _s._getUser (https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:161171)
+    at async https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:160974
+  x  19 [chromium] › tests\journey-canonical-signal-parity.spec.ts:309:9 › canonical signal parity › check_marketplace_parts_count: marketplace #count-parts == COUNT(v_marketplace_listings_truth WHERE section=parts AND status=published) (13.0s)
+  x  20 [chromium] › tests\journey-canonical-signal-parity.spec.ts:309:9 › canonical signal parity › check_marketplace_training_count: marketplace #count-training == COUNT(v_marketplace_listings_truth WHERE section=training AND status=published) (13.9s)
+  x  21 [chromium] › tests\journey-canonical-signal-parity.spec.ts:309:9 › canonical signal parity › check_marketplace_jobs_count: marketplace #count-jobs == COUNT(v_marketplace_listings_truth WHERE section=jobs AND status=published) (7.6s)
+[browser error] TypeError: Failed to fetch
+    at https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:105903
+    at https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:110864
+    at Cr (https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:111032)
+    at https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:161312
+    at _s._useSession (https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:158860)
+    at async _s._getUser (https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:161171)
+    at async https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:160974
+  x  22 [chromium] › tests\journey-canonical-signal-parity.spec.ts:309:9 › canonical signal parity › check_project_manager_active: pm #pm-active-hero == COUNT(projects WHERE status=active AND not deleted) (7.2s)
+[browser error] TypeError: Failed to fetch
+    at https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:105903
+    at https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:110864
+    at Cr (https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:111032)
+    at https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:161312
+    at _s._useSession (https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:158860)
+    at async _s._getUser (https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:161171)
+    at async https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:160974
+  ok 23 [chromium] › tests\journey-canonical-signal-parity.spec.ts:309:9 › canonical signal parity › check_project_manager_on_hold_planning: pm #pm-blocked-hero == COUNT(projects WHERE status IN on_hold/planning) (7.1s)
+[browser error] TypeError: Failed to fetch
+    at https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:105903
+    at https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:110864
+    at Cr (https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:111032)
+    at https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:161312
+    at _s._useSession (https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:158860)
+    at async _s._getUser (https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:161171)
+    at async https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:160974
+  x  24 [chromium] › tests\journey-canonical-signal-parity.spec.ts:309:9 › canonical signal parity › check_seller_listings_badge: marketplace-seller #badge-listings == COUNT(v_marketplace_listings_truth WHERE seller_name=WORKER_NAME) (6.4s)
+  x  25 [chromium] › tests\journey-canonical-signal-parity.spec.ts:309:9 › canonical signal parity › check_community_profile_posts: community #profile-posts == COUNT(v_community_posts_truth WHERE author_name=WORKER_NAME AND not deleted) (8.7s)
+
+
+  1) [chromium] › tests\journey-canonical-signal-parity.spec.ts:309:9 › canonical signal parity › check_pm_duesoon_assets_count: pm-scheduler #stat-duesoon == DISTINCT(asset_id) WHERE is_due_soon 
+
+    Error: /workhive/pm-scheduler.html #stat-duesoon shows 0 but v_pm_scope_items_truth.is_due_soon directly counts 19 (mode=assets). Page is re-deriving instead of trusting the canonical signal.
+
+    [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+    Expected: [32m19[39m
+    Received: [31m0[39m
+
+      439 |           `directly counts ${canonicalCount} (mode=${c.mode}). ` +
+      440 |           `Page is re-deriving instead of trusting the canonical signal.`,
+    > 441 |         ).toBe(canonicalCount);
+          |           ^
+      442 |       } else {
+      443 |         if (canonicalCount === 0) {
+      444 |           expect(surface).toBe(0);
+        at C:\Users\ILBeronio\Desktop\Industry 4.0\AI Maintenance Engineer\Self-learning Road-Map\Build & Sell with Claude Code\Website simple 1st\tests\journey-canonical-signal-parity.spec.ts:441:11
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\journey-canonical-signal-p-e1c29--asset-id-WHERE-is-due-soon-chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results\journey-canonical-signal-p-e1c29--asset-id-WHERE-is-due-soon-chromium\video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\journey-canonical-signal-p-e1c29--asset-id-WHERE-is-due-soon-chromium\error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\journey-canonical-signal-p-e1c29--asset-id-WHERE-is-due-soon-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\journey-canonical-signal-p-e1c29--asset-id-WHERE-is-due-soon-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) [chromium] › tests\journey-canonical-signal-parity.spec.ts:309:9 › canonical signal parity › check_inventory_low_count: inventory #stat-low == COUNT(v_inventory_items_truth WHERE is_low_stock) 
+
+    Error: /workhive/inventory.html #stat-low shows 0 but v_inventory_items_truth.is_low_stock directly counts 3 (mode=rows). Page is re-deriving instead of trusting the canonical signal.
+
+    [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+    Expected: [32m3[39m
+    Received: [31m0[39m
+
+      439 |           `directly counts ${canonicalCount} (mode=${c.mode}). ` +
+      440 |           `Page is re-deriving instead of trusting the canonical signal.`,
+    > 441 |         ).toBe(canonicalCount);
+          |           ^
+      442 |       } else {
+      443 |         if (canonicalCount === 0) {
+      444 |           expect(surface).toBe(0);
+        at C:\Users\ILBeronio\Desktop\Industry 4.0\AI Maintenance Engineer\Self-learning Road-Map\Build & Sell with Claude Code\Website simple 1st\tests\journey-canonical-signal-parity.spec.ts:441:11
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\journey-canonical-signal-p-19586-s-truth-WHERE-is-low-stock--chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results\journey-canonical-signal-p-19586-s-truth-WHERE-is-low-stock--chromium\video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\journey-canonical-signal-p-19586-s-truth-WHERE-is-low-stock--chromium\error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\journey-canonical-signal-p-19586-s-truth-WHERE-is-low-stock--chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\journey-canonical-signal-p-19586-s-truth-WHERE-is-low-stock--chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) [chromium] › tests\journey-canonical-signal-parity.spec.ts:309:9 › canonical signal parity › check_predictive_hot_hero: predictive #pr-hot-hero == COUNT(v_risk_truth WHERE risk_level IN critical/high) 
+
+    Error: /workhive/predictive.html #pr-hot-hero shows 0 but v_risk_truth.undefined directly counts 2 (mode=rows). Page is re-deriving instead of trusting the canonical signal.
+
+    [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+    Expected: [32m2[39m
+    Received: [31m0[39m
+
+      439 |           `directly counts ${canonicalCount} (mode=${c.mode}). ` +
+      440 |           `Page is re-deriving instead of trusting the canonical signal.`,
+    > 441 |         ).toBe(canonicalCount);
+          |           ^
+      442 |       } else {
+      443 |         if (canonicalCount === 0) {
+      444 |           expect(surface).toBe(0);
+        at C:\Users\ILBeronio\Desktop\Industry 4.0\AI Maintenance Engineer\Self-learning Road-Map\Build & Sell with Claude Code\Website simple 1st\tests\journey-canonical-signal-parity.spec.ts:441:11
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\journey-canonical-signal-p-965dc-isk-level-IN-critical-high--chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results\journey-canonical-signal-p-965dc-isk-level-IN-critical-high--chromium\video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\journey-canonical-signal-p-965dc-isk-level-IN-critical-high--chromium\error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\journey-canonical-signal-p-965dc-isk-level-IN-critical-high--chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\journey-canonical-signal-p-965dc-isk-level-IN-critical-high--chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) [chromium] › tests\journey-canonical-signal-parity.spec.ts:309:9 › canonical signal parity › check_predictive_healthy_hero: predictive #pr-healthy-hero == COUNT(v_risk_truth WHERE risk_level=low) 
+
+    Error: /workhive/predictive.html #pr-healthy-hero shows 0 but v_risk_truth.undefined directly counts 1 (mode=rows). Page is re-deriving instead of trusting the canonical signal.
+
+    [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+    Expected: [32m1[39m
+    Received: [31m0[39m
+
+      439 |           `directly counts ${canonicalCount} (mode=${c.mode}). ` +
+      440 |           `Page is re-deriving instead of trusting the canonical signal.`,
+    > 441 |         ).toBe(canonicalCount);
+          |           ^
+      442 |       } else {
+      443 |         if (canonicalCount === 0) {
+      444 |           expect(surface).toBe(0);
+        at C:\Users\ILBeronio\Desktop\Industry 4.0\AI Maintenance Engineer\Self-learning Road-Map\Build & Sell with Claude Code\Website simple 1st\tests\journey-canonical-signal-parity.spec.ts:441:11
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\journey-canonical-signal-p-5329e-truth-WHERE-risk-level-low--chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results\journey-canonical-signal-p-5329e-truth-WHERE-risk-level-low--chromium\video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\journey-canonical-signal-p-5329e-truth-WHERE-risk-level-low--chromium\error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\journey-canonical-signal-p-5329e-truth-WHERE-risk-level-low--chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\journey-canonical-signal-p-5329e-truth-WHERE-risk-level-low--chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) [chromium] › tests\journey-canonical-signal-parity.spec.ts:309:9 › canonical signal parity › check_marketplace_parts_count: marketplace #count-parts == COUNT(v_marketplace_listings_truth WHERE section=parts AND status=published) 
+
+    Error: /workhive/marketplace.html #count-parts shows 0 but v_marketplace_listings_truth.undefined directly counts 4 (mode=rows). Page is re-deriving instead of trusting the canonical signal.
+
+    [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+    Expected: [32m4[39m
+    Received: [31m0[39m
+
+      439 |           `directly counts ${canonicalCount} (mode=${c.mode}). ` +
+      440 |           `Page is re-deriving instead of trusting the canonical signal.`,
+    > 441 |         ).toBe(canonicalCount);
+          |           ^
+      442 |       } else {
+      443 |         if (canonicalCount === 0) {
+      444 |           expect(surface).toBe(0);
+        at C:\Users\ILBeronio\Desktop\Industry 4.0\AI Maintenance Engineer\Self-learning Road-Map\Build & Sell with Claude Code\Website simple 1st\tests\journey-canonical-signal-parity.spec.ts:441:11
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\journey-canonical-signal-p-5e526-parts-AND-status-published--chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results\journey-canonical-signal-p-5e526-parts-AND-status-published--chromium\video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\journey-canonical-signal-p-5e526-parts-AND-status-published--chromium\error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\journey-canonical-signal-p-5e526-parts-AND-status-published--chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\journey-canonical-signal-p-5e526-parts-AND-status-published--chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) [chromium] › tests\journey-canonical-signal-parity.spec.ts:309:9 › canonical signal parity › check_marketplace_training_count: marketplace #count-training == COUNT(v_marketplace_listings_truth WHERE section=training AND status=published) 
+
+    Error: /workhive/marketplace.html #count-training shows 0 but v_marketplace_listings_truth.undefined directly counts 2 (mode=rows). Page is re-deriving instead of trusting the canonical signal.
+
+    [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+    Expected: [32m2[39m
+    Received: [31m0[39m
+
+      439 |           `directly counts ${canonicalCount} (mode=${c.mode}). ` +
+      440 |           `Page is re-deriving instead of trusting the canonical signal.`,
+    > 441 |         ).toBe(canonicalCount);
+          |           ^
+      442 |       } else {
+      443 |         if (canonicalCount === 0) {
+      444 |           expect(surface).toBe(0);
+        at C:\Users\ILBeronio\Desktop\Industry 4.0\AI Maintenance Engineer\Self-learning Road-Map\Build & Sell with Claude Code\Website simple 1st\tests\journey-canonical-signal-parity.spec.ts:441:11
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\journey-canonical-signal-p-3d3f9-ining-AND-status-published--chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results\journey-canonical-signal-p-3d3f9-ining-AND-status-published--chromium\video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\journey-canonical-signal-p-3d3f9-ining-AND-status-published--chromium\error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\journey-canonical-signal-p-3d3f9-ining-AND-status-published--chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\journey-canonical-signal-p-3d3f9-ining-AND-status-published--chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  7) [chromium] › tests\journey-canonical-signal-parity.spec.ts:309:9 › canonical signal parity › check_marketplace_jobs_count: marketplace #count-jobs == COUNT(v_marketplace_listings_truth WHERE section=jobs AND status=published) 
+
+    Error: /workhive/marketplace.html #count-jobs shows 0 but v_marketplace_listings_truth.undefined directly counts 2 (mode=rows). Page is re-deriving instead of trusting the canonical signal.
+
+    [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+    Expected: [32m2[39m
+    Received: [31m0[39m
+
+      439 |           `directly counts ${canonicalCount} (mode=${c.mode}). ` +
+      440 |           `Page is re-deriving instead of trusting the canonical signal.`,
+    > 441 |         ).toBe(canonicalCount);
+          |           ^
+      442 |       } else {
+      443 |         if (canonicalCount === 0) {
+      444 |           expect(surface).toBe(0);
+        at C:\Users\ILBeronio\Desktop\Industry 4.0\AI Maintenance Engineer\Self-learning Road-Map\Build & Sell with Claude Code\Website simple 1st\tests\journey-canonical-signal-parity.spec.ts:441:11
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\journey-canonical-signal-p-c6fc3--jobs-AND-status-published--chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results\journey-canonical-signal-p-c6fc3--jobs-AND-status-published--chromium\video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\journey-canonical-signal-p-c6fc3--jobs-AND-status-published--chromium\error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\journey-canonical-signal-p-c6fc3--jobs-AND-status-published--chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\journey-canonical-signal-p-c6fc3--jobs-AND-status-published--chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  8) [chromium] › tests\journey-canonical-signal-parity.spec.ts:309:9 › canonical signal parity › check_project_manager_active: pm #pm-active-hero == COUNT(projects WHERE status=active AND not deleted) 
+
+    Error: /workhive/project-manager.html #pm-active-hero shows 0 but projects.undefined directly counts 4 (mode=rows). Page is re-deriving instead of trusting the canonical signal.
+
+    [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+    Expected: [32m4[39m
+    Received: [31m0[39m
+
+      439 |           `directly counts ${canonicalCount} (mode=${c.mode}). ` +
+      440 |           `Page is re-deriving instead of trusting the canonical signal.`,
+    > 441 |         ).toBe(canonicalCount);
+          |           ^
+      442 |       } else {
+      443 |         if (canonicalCount === 0) {
+      444 |           expect(surface).toBe(0);
+        at C:\Users\ILBeronio\Desktop\Industry 4.0\AI Maintenance Engineer\Self-learning Road-Map\Build & Sell with Claude Code\Website simple 1st\tests\journey-canonical-signal-parity.spec.ts:441:11
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\journey-canonical-signal-p-cc4e3-tus-active-AND-not-deleted--chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results\journey-canonical-signal-p-cc4e3-tus-active-AND-not-deleted--chromium\video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\journey-canonical-signal-p-cc4e3-tus-active-AND-not-deleted--chromium\error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\journey-canonical-signal-p-cc4e3-tus-active-AND-not-deleted--chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\journey-canonical-signal-p-cc4e3-tus-active-AND-not-deleted--chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  9) [chromium] › tests\journey-canonical-signal-parity.spec.ts:309:9 › canonical signal parity › check_seller_listings_badge: marketplace-seller #badge-listings == COUNT(v_marketplace_listings_truth WHERE seller_name=WORKER_NAME) 
+
+    Error: /workhive/marketplace-seller.html #badge-listings shows 0 but v_marketplace_listings_truth.undefined directly counts 9 (mode=all). Page is re-deriving instead of trusting the canonical signal.
+
+    [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+    Expected: [32m9[39m
+    Received: [31m0[39m
+
+      439 |           `directly counts ${canonicalCount} (mode=${c.mode}). ` +
+      440 |           `Page is re-deriving instead of trusting the canonical signal.`,
+    > 441 |         ).toBe(canonicalCount);
+          |           ^
+      442 |       } else {
+      443 |         if (canonicalCount === 0) {
+      444 |           expect(surface).toBe(0);
+        at C:\Users\ILBeronio\Desktop\Industry 4.0\AI Maintenance Engineer\Self-learning Road-Map\Build & Sell with Claude Code\Website simple 1st\tests\journey-canonical-signal-parity.spec.ts:441:11
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\journey-canonical-signal-p-7b90a-RE-seller-name-WORKER-NAME--chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results\journey-canonical-signal-p-7b90a-RE-seller-name-WORKER-NAME--chromium\video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\journey-canonical-signal-p-7b90a-RE-seller-name-WORKER-NAME--chromium\error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\journey-canonical-signal-p-7b90a-RE-seller-name-WORKER-NAME--chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\journey-canonical-signal-p-7b90a-RE-seller-name-WORKER-NAME--chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  10) [chromium] › tests\journey-canonical-signal-parity.spec.ts:309:9 › canonical signal parity › check_community_profile_posts: community #profile-posts == COUNT(v_community_posts_truth WHERE author_name=WORKER_NAME AND not deleted) 
+
+    Error: /workhive/community.html #profile-posts shows 9 but v_community_posts_truth.undefined directly counts 60 (mode=all). Page is re-deriving instead of trusting the canonical signal.
+
+    [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+    Expected: [32m60[39m
+    Received: [31m9[39m
+
+      439 |           `directly counts ${canonicalCount} (mode=${c.mode}). ` +
+      440 |           `Page is re-deriving instead of trusting the canonical signal.`,
+    > 441 |         ).toBe(canonicalCount);
+          |           ^
+      442 |       } else {
+      443 |         if (canonicalCount === 0) {
+      444 |           expect(surface).toBe(0);
+        at C:\Users\ILBeronio\Desktop\Industry 4.0\AI Maintenance Engineer\Self-learning Road-Map\Build & Sell with Claude Code\Website simple 1st\tests\journey-canonical-signal-parity.spec.ts:441:11
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\journey-canonical-signal-p-3a185-ORKER-NAME-AND-not-deleted--chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results\journey-canonical-signal-p-3a185-ORKER-NAME-AND-not-deleted--chromium\video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\journey-canonical-signal-p-3a185-ORKER-NAME-AND-not-deleted--chromium\error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\journey-canonical-signal-p-3a185-ORKER-NAME-AND-not-deleted--chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\journey-canonical-signal-p-3a185-ORKER-NAME-AND-not-deleted--chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  10 failed
+    [chromium] › tests\journey-canonical-signal-parity.spec.ts:309:9 › canonical signal parity › check_pm_duesoon_assets_count: pm-scheduler #stat-duesoon == DISTINCT(asset_id) WHERE is_due_soon 
+    [chromium] › tests\journey-canonical-signal-parity.spec.ts:309:9 › canonical signal parity › check_inventory_low_count: inventory #stat-low == COUNT(v_inventory_items_truth WHERE is_low_stock) 
+    [chromium] › tests\journey-canonical-signal-parity.spec.ts:309:9 › canonical signal parity › check_predictive_hot_hero: predictive #pr-hot-hero == COUNT(v_risk_truth WHERE risk_level IN critical/high) 
+    [chromium] › tests\journey-canonical-signal-parity.spec.ts:309:9 › canonical signal parity › check_predictive_healthy_hero: predictive #pr-healthy-hero == COUNT(v_risk_truth WHERE risk_level=low) 
+    [chromium] › tests\journey-canonical-signal-parity.spec.ts:309:9 › canonical signal parity › check_marketplace_parts_count: marketplace #count-parts == COUNT(v_marketplace_listings_truth WHERE section=parts AND status=published) 
+    [chromium] › tests\journey-canonical-signal-parity.spec.ts:309:9 › canonical signal parity › check_marketplace_training_count: marketplace #count-training == COUNT(v_marketplace_listings_truth WHERE section=training AND status=published) 
+    [chromium] › tests\journey-canonical-signal-parity.spec.ts:309:9 › canonical signal parity › check_marketplace_jobs_count: marketplace #count-jobs == COUNT(v_marketplace_listings_truth WHERE section=jobs AND status=published) 
+    [chromium] › tests\journey-canonical-signal-parity.spec.ts:309:9 › canonical signal parity › check_project_manager_active: pm #pm-active-hero == COUNT(projects WHERE status=active AND not deleted) 
+    [chromium] › tests\journey-canonical-signal-parity.spec.ts:309:9 › canonical signal parity › check_seller_listings_badge: marketplace-seller #badge-listings == COUNT(v_marketplace_listings_truth WHERE seller_name=WORKER_NAME) 
+    [chromium] › tests\journey-canonical-signal-parity.spec.ts:309:9 › canonical signal parity › check_community_profile_posts: community #profile-posts == COUNT(v_community_posts_truth WHERE author_name=WORKER_NAME AND not deleted) 
+  15 passed (3.9m)

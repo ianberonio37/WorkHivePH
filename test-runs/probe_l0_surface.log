@@ -1,0 +1,179 @@
+﻿
+Running 42 tests using 1 worker
+
+  ok  1 [chromium] › tests\journey-l0-surface-coverage.spec.ts:31:9 › L0 bug-class surface coverage (browser-level) › tabindex_positive: no positive tabindex on /workhive/index.html (7.8s)
+  ok  2 [chromium] › tests\journey-l0-surface-coverage.spec.ts:45:9 › L0 bug-class surface coverage (browser-level) › viewport_user_scalable: pinch-zoom allowed on /workhive/index.html (6.5s)
+[browser error] TypeError: Failed to fetch
+    at https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:105903
+    at https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:110864
+    at Cr (https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:111032)
+    at https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:161312
+    at _s._useSession (https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:158860)
+    at async _s._getUser (https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:161171)
+    at async https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:160974
+  ok  3 [chromium] › tests\journey-l0-surface-coverage.spec.ts:53:9 › L0 bug-class surface coverage (browser-level) › heading_hierarchy: single h1 + no skip on /workhive/index.html (10.8s)
+  ok  4 [chromium] › tests\journey-l0-surface-coverage.spec.ts:74:9 › L0 bug-class surface coverage (browser-level) › table_accessible_name: every visible <table> has caption/aria-label/role=presentation on /workhive/index.html (6.1s)
+  ok  5 [chromium] › tests\journey-l0-surface-coverage.spec.ts:97:9 › L0 bug-class surface coverage (browser-level) › select_placeholder: every <select> has safe default on /workhive/index.html (6.3s)
+  ok  6 [chromium] › tests\journey-l0-surface-coverage.spec.ts:123:9 › L0 bug-class surface coverage (browser-level) › console_log_drift: no naked console.log on /workhive/index.html page load (6.4s)
+[browser error] Failed to load resource: the server responded with a status of 400 (Bad Request)
+  ok  7 [chromium] › tests\journey-l0-surface-coverage.spec.ts:31:9 › L0 bug-class surface coverage (browser-level) › tabindex_positive: no positive tabindex on /workhive/hive.html (7.2s)
+[browser error] TypeError: Failed to fetch
+    at https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:105903
+    at https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:110864
+    at Cr (https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:111032)
+    at https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:161312
+    at _s._useSession (https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:158860)
+    at async _s._getUser (https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:161171)
+    at async https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:160974
+  ok  8 [chromium] › tests\journey-l0-surface-coverage.spec.ts:45:9 › L0 bug-class surface coverage (browser-level) › viewport_user_scalable: pinch-zoom allowed on /workhive/hive.html (5.0s)
+[browser error] Failed to load resource: the server responded with a status of 400 (Bad Request)
+  ok  9 [chromium] › tests\journey-l0-surface-coverage.spec.ts:53:9 › L0 bug-class surface coverage (browser-level) › heading_hierarchy: single h1 + no skip on /workhive/hive.html (6.6s)
+[browser error] Failed to load resource: the server responded with a status of 400 (Bad Request)
+  ok 10 [chromium] › tests\journey-l0-surface-coverage.spec.ts:74:9 › L0 bug-class surface coverage (browser-level) › table_accessible_name: every visible <table> has caption/aria-label/role=presentation on /workhive/hive.html (7.5s)
+[browser error] TypeError: Failed to fetch
+    at https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:105903
+    at https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:110864
+    at Cr (https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:111032)
+    at https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:161312
+    at _s._useSession (https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:158860)
+    at async _s._getUser (https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:161171)
+    at async https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:160974
+[browser error] Failed to load resource: the server responded with a status of 400 (Bad Request)
+  ok 11 [chromium] › tests\journey-l0-surface-coverage.spec.ts:97:9 › L0 bug-class surface coverage (browser-level) › select_placeholder: every <select> has safe default on /workhive/hive.html (7.1s)
+[browser error] Failed to load resource: the server responded with a status of 400 (Bad Request)
+  ok 12 [chromium] › tests\journey-l0-surface-coverage.spec.ts:123:9 › L0 bug-class surface coverage (browser-level) › console_log_drift: no naked console.log on /workhive/hive.html page load (6.6s)
+  ok 13 [chromium] › tests\journey-l0-surface-coverage.spec.ts:31:9 › L0 bug-class surface coverage (browser-level) › tabindex_positive: no positive tabindex on /workhive/logbook.html (6.2s)
+  ok 14 [chromium] › tests\journey-l0-surface-coverage.spec.ts:45:9 › L0 bug-class surface coverage (browser-level) › viewport_user_scalable: pinch-zoom allowed on /workhive/logbook.html (5.6s)
+  ok 15 [chromium] › tests\journey-l0-surface-coverage.spec.ts:53:9 › L0 bug-class surface coverage (browser-level) › heading_hierarchy: single h1 + no skip on /workhive/logbook.html (5.5s)
+  ok 16 [chromium] › tests\journey-l0-surface-coverage.spec.ts:74:9 › L0 bug-class surface coverage (browser-level) › table_accessible_name: every visible <table> has caption/aria-label/role=presentation on /workhive/logbook.html (5.1s)
+  ok 17 [chromium] › tests\journey-l0-surface-coverage.spec.ts:97:9 › L0 bug-class surface coverage (browser-level) › select_placeholder: every <select> has safe default on /workhive/logbook.html (4.9s)
+  ok 18 [chromium] › tests\journey-l0-surface-coverage.spec.ts:123:9 › L0 bug-class surface coverage (browser-level) › console_log_drift: no naked console.log on /workhive/logbook.html page load (5.4s)
+  ok 19 [chromium] › tests\journey-l0-surface-coverage.spec.ts:31:9 › L0 bug-class surface coverage (browser-level) › tabindex_positive: no positive tabindex on /workhive/inventory.html (5.7s)
+  ok 20 [chromium] › tests\journey-l0-surface-coverage.spec.ts:45:9 › L0 bug-class surface coverage (browser-level) › viewport_user_scalable: pinch-zoom allowed on /workhive/inventory.html (5.2s)
+[browser error] TypeError: Failed to fetch
+    at https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:105903
+    at https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:110864
+    at Cr (https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:111032)
+    at https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:161312
+    at _s._useSession (https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:158860)
+    at async _s._getUser (https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:161171)
+    at async https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:160974
+  x  21 [chromium] › tests\journey-l0-surface-coverage.spec.ts:53:9 › L0 bug-class surface coverage (browser-level) › heading_hierarchy: single h1 + no skip on /workhive/inventory.html (5.6s)
+  ok 22 [chromium] › tests\journey-l0-surface-coverage.spec.ts:74:9 › L0 bug-class surface coverage (browser-level) › table_accessible_name: every visible <table> has caption/aria-label/role=presentation on /workhive/inventory.html (6.3s)
+  ok 23 [chromium] › tests\journey-l0-surface-coverage.spec.ts:97:9 › L0 bug-class surface coverage (browser-level) › select_placeholder: every <select> has safe default on /workhive/inventory.html (5.9s)
+[browser error] TypeError: Failed to fetch
+    at https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:105903
+    at https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:110864
+    at Cr (https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:111032)
+    at https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:161312
+    at _s._useSession (https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:158860)
+    at async _s._getUser (https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:161171)
+    at async https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:160974
+  ok 24 [chromium] › tests\journey-l0-surface-coverage.spec.ts:123:9 › L0 bug-class surface coverage (browser-level) › console_log_drift: no naked console.log on /workhive/inventory.html page load (5.3s)
+[browser error] TypeError: Failed to fetch
+    at https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:105903
+    at https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:110864
+    at Cr (https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:111032)
+    at https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:161312
+    at _s._useSession (https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:158860)
+    at async _s._getUser (https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:161171)
+    at async https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:160974
+  ok 25 [chromium] › tests\journey-l0-surface-coverage.spec.ts:31:9 › L0 bug-class surface coverage (browser-level) › tabindex_positive: no positive tabindex on /workhive/pm-scheduler.html (5.4s)
+  ok 26 [chromium] › tests\journey-l0-surface-coverage.spec.ts:45:9 › L0 bug-class surface coverage (browser-level) › viewport_user_scalable: pinch-zoom allowed on /workhive/pm-scheduler.html (4.9s)
+[browser error] TypeError: Failed to fetch
+    at https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:105903
+    at https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:110864
+    at Cr (https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:111032)
+    at https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:161312
+    at _s._useSession (https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:158860)
+    at async _s._getUser (https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:161171)
+    at async https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:160974
+  ok 27 [chromium] › tests\journey-l0-surface-coverage.spec.ts:53:9 › L0 bug-class surface coverage (browser-level) › heading_hierarchy: single h1 + no skip on /workhive/pm-scheduler.html (5.4s)
+  ok 28 [chromium] › tests\journey-l0-surface-coverage.spec.ts:74:9 › L0 bug-class surface coverage (browser-level) › table_accessible_name: every visible <table> has caption/aria-label/role=presentation on /workhive/pm-scheduler.html (5.3s)
+  ok 29 [chromium] › tests\journey-l0-surface-coverage.spec.ts:97:9 › L0 bug-class surface coverage (browser-level) › select_placeholder: every <select> has safe default on /workhive/pm-scheduler.html (5.2s)
+  ok 30 [chromium] › tests\journey-l0-surface-coverage.spec.ts:123:9 › L0 bug-class surface coverage (browser-level) › console_log_drift: no naked console.log on /workhive/pm-scheduler.html page load (5.4s)
+  ok 31 [chromium] › tests\journey-l0-surface-coverage.spec.ts:31:9 › L0 bug-class surface coverage (browser-level) › tabindex_positive: no positive tabindex on /workhive/analytics.html (5.0s)
+  ok 32 [chromium] › tests\journey-l0-surface-coverage.spec.ts:45:9 › L0 bug-class surface coverage (browser-level) › viewport_user_scalable: pinch-zoom allowed on /workhive/analytics.html (5.8s)
+  ok 33 [chromium] › tests\journey-l0-surface-coverage.spec.ts:53:9 › L0 bug-class surface coverage (browser-level) › heading_hierarchy: single h1 + no skip on /workhive/analytics.html (5.0s)
+  ok 34 [chromium] › tests\journey-l0-surface-coverage.spec.ts:74:9 › L0 bug-class surface coverage (browser-level) › table_accessible_name: every visible <table> has caption/aria-label/role=presentation on /workhive/analytics.html (4.8s)
+  ok 35 [chromium] › tests\journey-l0-surface-coverage.spec.ts:97:9 › L0 bug-class surface coverage (browser-level) › select_placeholder: every <select> has safe default on /workhive/analytics.html (4.5s)
+[browser error] TypeError: Failed to fetch
+    at https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:105903
+    at https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:110864
+    at Cr (https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:111032)
+    at https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:161312
+    at _s._useSession (https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:158860)
+    at async _s._getUser (https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:161171)
+    at async https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:160974
+  ok 36 [chromium] › tests\journey-l0-surface-coverage.spec.ts:123:9 › L0 bug-class surface coverage (browser-level) › console_log_drift: no naked console.log on /workhive/analytics.html page load (4.5s)
+  ok 37 [chromium] › tests\journey-l0-surface-coverage.spec.ts:31:9 › L0 bug-class surface coverage (browser-level) › tabindex_positive: no positive tabindex on /workhive/asset-hub.html (5.1s)
+[browser error] TypeError: Failed to fetch
+    at https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:105903
+    at https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:110864
+    at Cr (https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:111032)
+    at https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:161312
+    at _s._useSession (https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:158860)
+    at async _s._getUser (https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:161171)
+    at async https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:160974
+  ok 38 [chromium] › tests\journey-l0-surface-coverage.spec.ts:45:9 › L0 bug-class surface coverage (browser-level) › viewport_user_scalable: pinch-zoom allowed on /workhive/asset-hub.html (4.7s)
+  ok 39 [chromium] › tests\journey-l0-surface-coverage.spec.ts:53:9 › L0 bug-class surface coverage (browser-level) › heading_hierarchy: single h1 + no skip on /workhive/asset-hub.html (5.5s)
+[browser error] TypeError: Failed to fetch
+    at https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:105903
+    at https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:110864
+    at Cr (https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:111032)
+    at https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:161312
+    at _s._useSession (https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:158860)
+    at async _s._getUser (https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:161171)
+    at async https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:160974
+  ok 40 [chromium] › tests\journey-l0-surface-coverage.spec.ts:74:9 › L0 bug-class surface coverage (browser-level) › table_accessible_name: every visible <table> has caption/aria-label/role=presentation on /workhive/asset-hub.html (4.7s)
+  ok 41 [chromium] › tests\journey-l0-surface-coverage.spec.ts:97:9 › L0 bug-class surface coverage (browser-level) › select_placeholder: every <select> has safe default on /workhive/asset-hub.html (5.9s)
+[browser error] TypeError: Failed to fetch
+    at https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:105903
+    at https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:110864
+    at Cr (https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:111032)
+    at https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:161312
+    at _s._useSession (https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:158860)
+    at async _s._getUser (https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:161171)
+    at async https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:160974
+  ok 42 [chromium] › tests\journey-l0-surface-coverage.spec.ts:123:9 › L0 bug-class surface coverage (browser-level) › console_log_drift: no naked console.log on /workhive/asset-hub.html page load (4.7s)
+
+
+  1) [chromium] › tests\journey-l0-surface-coverage.spec.ts:53:9 › L0 bug-class surface coverage (browser-level) › heading_hierarchy: single h1 + no skip on /workhive/inventory.html 
+
+    Error: heading skip 2->4 on /workhive/inventory.html
+
+    [2mexpect([22m[31mreceived[39m[2m).[22mtoBeLessThanOrEqual[2m([22m[32mexpected[39m[2m)[22m
+
+    Expected: <= [32m3[39m
+    Received:    [31m4[39m
+
+      66 |       for (const lvl of levels) {
+      67 |         if (prev > 0) {
+    > 68 |           expect(lvl, `heading skip ${prev}->${lvl} on ${url}`).toBeLessThanOrEqual(prev + 1);
+         |                                                                 ^
+      69 |         }
+      70 |         prev = lvl;
+      71 |       }
+        at C:\Users\ILBeronio\Desktop\Industry 4.0\AI Maintenance Engineer\Self-learning Road-Map\Build & Sell with Claude Code\Website simple 1st\tests\journey-l0-surface-coverage.spec.ts:68:65
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\journey-l0-surface-coverag-a98e6--on-workhive-inventory-html-chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results\journey-l0-surface-coverag-a98e6--on-workhive-inventory-html-chromium\video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\journey-l0-surface-coverag-a98e6--on-workhive-inventory-html-chromium\error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\journey-l0-surface-coverag-a98e6--on-workhive-inventory-html-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\journey-l0-surface-coverag-a98e6--on-workhive-inventory-html-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [chromium] › tests\journey-l0-surface-coverage.spec.ts:53:9 › L0 bug-class surface coverage (browser-level) › heading_hierarchy: single h1 + no skip on /workhive/inventory.html 
+  41 passed (4.1m)

@@ -8,7 +8,7 @@ failures (registry entries pointing at non-existent IDs) fail the gate.
 |---|---|---:|---:|---:|
 | F (Fuel) | `canonical/capture_contracts.json` | 494 | 495 | 3 |
 | E (Engine) | `canonical/formula_contracts.json` | 22 | 8 | 5 |
-| B (Brain) | `canonical/agent_contracts.json` | 7 | 64 | 10 |
+| B (Brain) | `canonical/agent_contracts.json` | 7 | 70 | 14 |
 | Glue (lineage edges) | `canonical/lineage_edges.json` | 17 | — | — |
 
 ## Tier F (Fuel) — pending registrations (3)
@@ -25,15 +25,19 @@ failures (registry entries pointing at non-existent IDs) fail the gate.
 - `get_hive_readiness_current`
 - `get_repeat_failures`
 
-## Tier B (Brain) — pending registrations (10)
+## Tier B (Brain) — pending registrations (14)
 
+- `agent-memory-store`
+- `agentic-rag-loop`
 - `ai-orchestrator`
 - `amc-orchestrator`
 - `asset-brain-query`
+- `cold-archive-query`
 - `engineering-calc-agent`
 - `failure-signature-scan`
 - `fmea-populator`
 - `project-orchestrator`
 - `scheduled-agents`
 - `shift-planner-orchestrator`
+- `temporal-rag-orchestrator`
 - `voice-journal-agent`

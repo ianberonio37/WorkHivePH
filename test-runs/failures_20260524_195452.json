@@ -1,0 +1,1679 @@
+{
+  "run_id": "20260524_195452",
+  "total_rows": 1009,
+  "total_passed": 808,
+  "total_failed": 201,
+  "flake": [
+    {
+      "idx": 8,
+      "status": "failed",
+      "file": "tests/ai-quality.spec.ts",
+      "line": 12,
+      "title": "ai-quality.html smoke › loads and renders without page errors",
+      "error": "Error: page errors on /workhive/ai-quality.html: [console.error] TypeError: Failed to fetch at https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:105903 at https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:110864 at Cr (https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:111032) at https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:161312 at _s._useSession (https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:158860) at async _s._getUser (https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:161171) at async https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:160974 \u001b[2me"
+    },
+    {
+      "idx": 16,
+      "status": "failed",
+      "file": "tests/asset-hub.spec.ts",
+      "line": 10,
+      "title": "asset-hub.html smoke › loads and renders without page errors",
+      "error": "Error: page errors on /workhive/asset-hub.html: [console.error] TypeError: Failed to fetch at https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:105903 at https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:110864 at Cr (https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:111032) at https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:161312 at _s._useSession (https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:158860) at async _s._getUser (https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:161171) at async https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:160974 \u001b[2mex"
+    },
+    {
+      "idx": 89,
+      "status": "failed",
+      "file": "tests/engineering-design.spec.ts",
+      "line": 10,
+      "title": "engineering-design.html smoke › loads and renders without page errors",
+      "error": "Error: page errors on /workhive/engineering-design.html: [console.error] TypeError: Failed to fetch at https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:105903 at https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:110864 at Cr (https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:111032) at https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:161312 at _s._useSession (https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:158860) at async _s._getUser (https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:161171) at async https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:1609"
+    },
+    {
+      "idx": 115,
+      "status": "failed",
+      "file": "tests/index.spec.ts",
+      "line": 10,
+      "title": "index.html smoke › loads and renders without page errors",
+      "error": "Error: page errors on /workhive/index.html: [console.error] TypeError: Failed to fetch at https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:105903 at https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:110864 at Cr (https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:111032) at https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:161312 at _s._useSession (https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:158860) at async _s._getUser (https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:161171) at async https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:160974 \u001b[2mexpect"
+    },
+    {
+      "idx": 880,
+      "status": "failed",
+      "file": "tests/marketplace-admin.spec.ts",
+      "line": 10,
+      "title": "marketplace-admin.html smoke › loads and renders without page errors",
+      "error": "Error: page errors on /workhive/marketplace-admin.html: [console.error] TypeError: Failed to fetch at https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:105903 at https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:110864 at Cr (https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:111032) at https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:161312 at _s._useSession (https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:158860) at async _s._getUser (https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:161171) at async https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:16097"
+    },
+    {
+      "idx": 883,
+      "status": "failed",
+      "file": "tests/marketplace.spec.ts",
+      "line": 10,
+      "title": "marketplace.html smoke › loads and renders without page errors",
+      "error": "Error: page errors on /workhive/marketplace.html: [console.error] TypeError: Failed to fetch at https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:105903 at https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:110864 at Cr (https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:111032) at https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:161312 at _s._useSession (https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:158860) at async _s._getUser (https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:161171) at async https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:160974 \u001b[2m"
+    },
+    {
+      "idx": 937,
+      "status": "failed",
+      "file": "tests/project-report.spec.ts",
+      "line": 10,
+      "title": "project-report.html smoke › loads and renders without page errors",
+      "error": "Error: page errors on /workhive/project-report.html: Cannot access 'db' before initialization \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // deep equality\u001b[22m \u001b[32m- Expected - 1\u001b[39m \u001b[31m+ Received + 3\u001b[39m \u001b[32m- Array []\u001b[39m \u001b[31m+ Array [\u001b[39m \u001b[31m+ \"Cannot access 'db' before initialization\",\u001b[39m \u001b[31m+ ]\u001b[39m at _smoke-template.ts:60 58 | !/net::ERR_/i.test(e) 59 | ); > 60 | expect(seriousErrors, `page errors on ${url}: ${seriousErrors.join(' | ')}`).toEqual([]); | ^ 61 | } 62 | at smokePage (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Mainten"
+    },
+    {
+      "idx": 939,
+      "status": "failed",
+      "file": "tests/report-sender.spec.ts",
+      "line": 10,
+      "title": "report-sender.html smoke › loads and renders without page errors",
+      "error": "Error: page errors on /workhive/report-sender.html: Cannot access 'db' before initialization \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // deep equality\u001b[22m \u001b[32m- Expected - 1\u001b[39m \u001b[31m+ Received + 3\u001b[39m \u001b[32m- Array []\u001b[39m \u001b[31m+ Array [\u001b[39m \u001b[31m+ \"Cannot access 'db' before initialization\",\u001b[39m \u001b[31m+ ]\u001b[39m at _smoke-template.ts:60 58 | !/net::ERR_/i.test(e) 59 | ); > 60 | expect(seriousErrors, `page errors on ${url}: ${seriousErrors.join(' | ')}`).toEqual([]); | ^ 61 | } 62 | at smokePage (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintena"
+    }
+  ],
+  "sentinel": [
+    {
+      "idx": 3,
+      "status": "failed",
+      "file": "tests/achievements.spec.ts",
+      "line": 28,
+      "title": "achievements.html - sentinel scenarios › l2: layer-2 (worker_achievements writes wired in scripts)",
+      "error": "TimeoutError: page.waitForFunction: Timeout 8000ms exceeded. at _fixtures.ts:90 88 | 89 | // Wait for either success (localStorage set) or visible error > 90 | await page.waitForFunction( | ^ 91 | () => localStorage.getItem('wh_last_worker') || 92 | (document.getElementById('si-error') && 93 | !document.getElementById('si-error')!.classList.contains('hidden')), at signIn (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\_fixtures.ts:90:14) at Object.whPage (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Ma"
+    },
+    {
+      "idx": 4,
+      "status": "failed",
+      "file": "tests/achievements.spec.ts",
+      "line": 36,
+      "title": "achievements.html - sentinel scenarios › l3_worker_ach: at least one worker achievement card renders",
+      "error": "TimeoutError: page.waitForFunction: Timeout 8000ms exceeded. at _fixtures.ts:90 88 | 89 | // Wait for either success (localStorage set) or visible error > 90 | await page.waitForFunction( | ^ 91 | () => localStorage.getItem('wh_last_worker') || 92 | (document.getElementById('si-error') && 93 | !document.getElementById('si-error')!.classList.contains('hidden')), at signIn (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\_fixtures.ts:90:14) at Object.whPage (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Ma"
+    },
+    {
+      "idx": 5,
+      "status": "failed",
+      "file": "tests/achievements.spec.ts",
+      "line": 45,
+      "title": "achievements.html - sentinel scenarios › l3_xp_log: xp_log table is referenced and active",
+      "error": "TimeoutError: page.waitForFunction: Timeout 8000ms exceeded. at _fixtures.ts:90 88 | 89 | // Wait for either success (localStorage set) or visible error > 90 | await page.waitForFunction( | ^ 91 | () => localStorage.getItem('wh_last_worker') || 92 | (document.getElementById('si-error') && 93 | !document.getElementById('si-error')!.classList.contains('hidden')), at signIn (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\_fixtures.ts:90:14) at Object.whPage (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Ma"
+    },
+    {
+      "idx": 7,
+      "status": "failed",
+      "file": "tests/achievements.spec.ts",
+      "line": 69,
+      "title": "achievements.html - sentinel scenarios › l5: layer-5 (leaderboard or ranking) surface exists",
+      "error": "TimeoutError: page.waitForFunction: Timeout 8000ms exceeded. at _fixtures.ts:90 88 | 89 | // Wait for either success (localStorage set) or visible error > 90 | await page.waitForFunction( | ^ 91 | () => localStorage.getItem('wh_last_worker') || 92 | (document.getElementById('si-error') && 93 | !document.getElementById('si-error')!.classList.contains('hidden')), at signIn (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\_fixtures.ts:90:14) at Object.whPage (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Ma"
+    },
+    {
+      "idx": 19,
+      "status": "failed",
+      "file": "tests/assistant.spec.ts",
+      "line": 34,
+      "title": "assistant.html - sentinel scenarios › ai_label_per_message: assistant messages carry an AI source label",
+      "error": "Error: assistant should label each AI message with its model/source \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeTruthy\u001b[2m()\u001b[22m Received: \u001b[31mfalse\u001b[39m 37 | const __sentSrc = await pageSrcWithExternals(whPage); 38 | const has = /ai[-_]?source|model[-_]?label|via.*Groq|generated by/i.test(__sentSrc); > 39 | expect(has, 'assistant should label each AI message with its model/source').toBeTruthy(); | ^ 40 | }); 41 | 42 | test('assistant_scope: assistant respects active hive scope', async ({ whPage }) => { at C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Roa"
+    },
+    {
+      "idx": 20,
+      "status": "failed",
+      "file": "tests/assistant.spec.ts",
+      "line": 42,
+      "title": "assistant.html - sentinel scenarios › assistant_scope: assistant respects active hive scope",
+      "error": "TimeoutError: page.waitForFunction: Timeout 8000ms exceeded. at _fixtures.ts:90 88 | 89 | // Wait for either success (localStorage set) or visible error > 90 | await page.waitForFunction( | ^ 91 | () => localStorage.getItem('wh_last_worker') || 92 | (document.getElementById('si-error') && 93 | !document.getElementById('si-error')!.classList.contains('hidden')), at signIn (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\_fixtures.ts:90:14) at Object.whPage (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Ma"
+    },
+    {
+      "idx": 21,
+      "status": "failed",
+      "file": "tests/assistant.spec.ts",
+      "line": 50,
+      "title": "assistant.html - sentinel scenarios › floating_ai_disclaimer: floating AI surfaces a disclaimer",
+      "error": "Error: AI assistant should expose a disclaimer to workers \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoMatch\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m Expected pattern: \u001b[32m/AI[\\s-]?generated|may be inaccurate|verify|advisory|not a substitute/i\u001b[39m Received string: \u001b[31m\"<!DOCTYPE html><html lang=\\\"en\\\"><head>\u001b[39m \u001b[31m <meta charset=\\\"UTF-8\\\">\u001b[39m \u001b[31m <meta name=\\\"theme-color\\\" content=\\\"#F7A21B\\\">\u001b[39m \u001b[31m <meta name=\\\"viewport\\\" content=\\\"width=device-width, initial-scale=1.0, viewport-fit=cover\\\">\u001b[39m \u001b[31m <title>AI Work Assistant: WorkHive</title>\u001b[39m \u001b[31m <!-- capture: ai_chat_"
+    },
+    {
+      "idx": 25,
+      "status": "failed",
+      "file": "tests/assistant.spec.ts",
+      "line": 82,
+      "title": "assistant.html - sentinel scenarios › conversation_types: conversation type taxonomy is referenced",
+      "error": "Error: assistant should declare a conversation type \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeTruthy\u001b[2m()\u001b[22m Received: \u001b[31mfalse\u001b[39m 85 | const __sentSrc_5 = await pageSrcWithExternals(whPage); 86 | const has = /conversation[-_]?type|chat_type|message_type/i.test(__sentSrc_5); > 87 | expect(has, 'assistant should declare a conversation type').toBeTruthy(); | ^ 88 | }); 89 | 90 | test('hint_quality: assistant exposes contextual hint or input UI', async ({ whPage }) => { at C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude"
+    },
+    {
+      "idx": 26,
+      "status": "failed",
+      "file": "tests/assistant.spec.ts",
+      "line": 90,
+      "title": "assistant.html - sentinel scenarios › hint_quality: assistant exposes contextual hint or input UI",
+      "error": "TimeoutError: page.waitForFunction: Timeout 8000ms exceeded. at _fixtures.ts:90 88 | 89 | // Wait for either success (localStorage set) or visible error > 90 | await page.waitForFunction( | ^ 91 | () => localStorage.getItem('wh_last_worker') || 92 | (document.getElementById('si-error') && 93 | !document.getElementById('si-error')!.classList.contains('hidden')), at signIn (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\_fixtures.ts:90:14) at Object.whPage (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Ma"
+    },
+    {
+      "idx": 30,
+      "status": "failed",
+      "file": "tests/assistant.spec.ts",
+      "line": 138,
+      "title": "assistant.html - sentinel scenarios › calc_count_consistency: assistant references calc-type registry consistency",
+      "error": "Error: assistant should reference the calc-type registry \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeTruthy\u001b[2m()\u001b[22m Received: \u001b[31mfalse\u001b[39m 141 | const __sentSrc_8 = await pageSrcWithExternals(whPage); 142 | const has = /calc[_-]?type.*count|calcTypes|CALC_TYPES/i.test(__sentSrc_8); > 143 | expect(has, 'assistant should reference the calc-type registry').toBeTruthy(); | ^ 144 | }); 145 | 146 | test('stale_hints: stale hint detection logic referenced', async ({ whPage }) => { at C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Cl"
+    },
+    {
+      "idx": 31,
+      "status": "failed",
+      "file": "tests/assistant.spec.ts",
+      "line": 146,
+      "title": "assistant.html - sentinel scenarios › stale_hints: stale hint detection logic referenced",
+      "error": "TimeoutError: page.waitForFunction: Timeout 8000ms exceeded. at _fixtures.ts:90 88 | 89 | // Wait for either success (localStorage set) or visible error > 90 | await page.waitForFunction( | ^ 91 | () => localStorage.getItem('wh_last_worker') || 92 | (document.getElementById('si-error') && 93 | !document.getElementById('si-error')!.classList.contains('hidden')), at signIn (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\_fixtures.ts:90:14) at Object.whPage (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Ma"
+    },
+    {
+      "idx": 32,
+      "status": "failed",
+      "file": "tests/assistant.spec.ts",
+      "line": 154,
+      "title": "assistant.html - sentinel scenarios › automation_log_monitored: AI data pipeline monitors automation log",
+      "error": "Error: AI data pipeline should monitor automation log \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeTruthy\u001b[2m()\u001b[22m Received: \u001b[31mfalse\u001b[39m 157 | const __sentSrc_10 = await pageSrcWithExternals(whPage); 158 | const has = /automation_log|ai_run_log|pipeline.*monitor/i.test(__sentSrc_10); > 159 | expect(has, 'AI data pipeline should monitor automation log').toBeTruthy(); | ^ 160 | }); 161 | 162 | test('empty_knowledge_handling: assistant degrades gracefully when knowledge is empty', async ({ whPage }) => { at C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Ro"
+    },
+    {
+      "idx": 36,
+      "status": "failed",
+      "file": "tests/assistant.spec.ts",
+      "line": 188,
+      "title": "assistant.html - sentinel scenarios › bad_rejected: bad capture payloads are rejected",
+      "error": "Error: assistant capture path should reject bad payloads \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeTruthy\u001b[2m()\u001b[22m Received: \u001b[31mfalse\u001b[39m 191 | const __sentSrc_13 = await pageSrcWithExternals(whPage); 192 | const has = /reject.*payload|invalid.*payload|capture.*reject|wh-capture-validate/i.test(__sentSrc_13); > 193 | expect(has, 'assistant capture path should reject bad payloads').toBeTruthy(); | ^ 194 | }); 195 | 196 | test('fixture_coverage: capture fixture coverage referenced in tests', async ({ whPage }) => { at C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Se"
+    },
+    {
+      "idx": 39,
+      "status": "failed",
+      "file": "tests/assistant.spec.ts",
+      "line": 212,
+      "title": "assistant.html - sentinel scenarios › context_sources_bounded: context sources count is bounded",
+      "error": "Error: context sources should be bounded \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeTruthy\u001b[2m()\u001b[22m Received: \u001b[31mfalse\u001b[39m 215 | const __sentSrc_16 = await pageSrcWithExternals(whPage); 216 | const has = /max[_-]?sources|MAX_SOURCES|sources.*slice|limit\\s*\\(\\s*\\d+\\s*\\).*context/i.test(__sentSrc_16); > 217 | expect(has, 'context sources should be bounded').toBeTruthy(); | ^ 218 | }); 219 | 220 | test('history_slice: chat history is sliced before sending', async ({ whPage }) => { at C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell wit"
+    },
+    {
+      "idx": 109,
+      "status": "failed",
+      "file": "tests/founder-console.spec.ts",
+      "line": 15,
+      "title": "founder-console.html - sentinel scenarios › admin_gate_present: page declares an admin gate function",
+      "error": "ReferenceError: pageSrcWithExternals is not defined 16 | await whPage.goto(PAGE); 17 | await waitForPageReady(whPage); > 18 | const __sentSrc = await pageSrcWithExternals(whPage); | ^ 19 | const has = /isPlatformAdmin|isAdmin|admin_gate|adminGate/i.test(__sentSrc); 20 | expect(has, 'founder-console must declare an admin gate function').toBeTruthy(); 21 | }); at C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\founder-console.spec.ts:18:23 attachment #1: screenshot (image/png) ──────────────────────────"
+    },
+    {
+      "idx": 110,
+      "status": "failed",
+      "file": "tests/founder-console.spec.ts",
+      "line": 23,
+      "title": "founder-console.html - sentinel scenarios › admin_gate_active: admin gate is not commented out / stubbed",
+      "error": "ReferenceError: pageSrcWithExternals is not defined 24 | await whPage.goto(PAGE); 25 | await waitForPageReady(whPage); > 26 | const __sentSrc_2 = await pageSrcWithExternals(whPage); | ^ 27 | const commented = /\\/\\/\\s*(if|await)\\s*\\(?\\s*isPlatformAdmin|\\/\\*[^*]*isPlatformAdmin[^*]*\\*\\//i.test(__sentSrc_2); 28 | expect(commented, 'admin gate must NOT be commented out').toBe(false); 29 | }); at C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\founder-console.spec.ts:26:25 attachment #1: screenshot (image/"
+    },
+    {
+      "idx": 111,
+      "status": "failed",
+      "file": "tests/founder-console.spec.ts",
+      "line": 31,
+      "title": "founder-console.html - sentinel scenarios › admin_gate_active_call: gate is actually called, not just declared",
+      "error": "ReferenceError: pageSrcWithExternals is not defined 32 | await whPage.goto(PAGE); 33 | await waitForPageReady(whPage); > 34 | const __sentSrc_3 = await pageSrcWithExternals(whPage); | ^ 35 | const called = /await\\s+isPlatformAdmin\\s*\\(|isPlatformAdmin\\s*\\(/i.test(__sentSrc_3); 36 | expect(called, 'admin gate function must be called').toBeTruthy(); 37 | }); at C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\founder-console.spec.ts:34:25 attachment #1: screenshot (image/png) ────────────────────────────"
+    },
+    {
+      "idx": 113,
+      "status": "failed",
+      "file": "tests/founder-console.spec.ts",
+      "line": 49,
+      "title": "founder-console.html - sentinel scenarios › admin_gate_not_commented: no commented-out gate redirect logic",
+      "error": "ReferenceError: pageSrcWithExternals is not defined 50 | await whPage.goto(PAGE); 51 | await waitForPageReady(whPage); > 52 | const __sentSrc_4 = await pageSrcWithExternals(whPage); | ^ 53 | const stripped = /\\/\\/[^\\n]*window\\.location|\\/\\/[^\\n]*redirect|\\/\\/[^\\n]*router\\.push/i.test(__sentSrc_4); 54 | expect(stripped, 'no commented-out redirect on the admin gate path').toBe(false); 55 | }); at C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\founder-console.spec.ts:52:25 attachment #1: screenshot (ima"
+    },
+    {
+      "idx": 194,
+      "status": "failed",
+      "file": "tests/journey-analytics.spec.ts",
+      "line": 170,
+      "title": "analytics.html - sentinel scenarios › phase_banners: descriptive/diagnostic/predictive phase markers exist",
+      "error": "TimeoutError: page.waitForFunction: Timeout 8000ms exceeded. at _fixtures.ts:90 88 | 89 | // Wait for either success (localStorage set) or visible error > 90 | await page.waitForFunction( | ^ 91 | () => localStorage.getItem('wh_last_worker') || 92 | (document.getElementById('si-error') && 93 | !document.getElementById('si-error')!.classList.contains('hidden')), at signIn (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\_fixtures.ts:90:14) at Object.whPage (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Ma"
+    },
+    {
+      "idx": 206,
+      "status": "failed",
+      "file": "tests/journey-analytics.spec.ts",
+      "line": 274,
+      "title": "analytics.html - sentinel scenarios › groq_fallback: analytics references Groq fallback chain",
+      "error": "Error: analytics should declare a fallback chain \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeTruthy\u001b[2m()\u001b[22m Received: \u001b[31mfalse\u001b[39m 277 | const __sentSrc_9 = await pageSrcWithExternals(whPage); 278 | const has = /groq.*fallback|fallback.*chain|ai[-_]?chain/i.test(__sentSrc_9); > 279 | expect(has, 'analytics should declare a fallback chain').toBeTruthy(); | ^ 280 | }); 281 | 282 | test('groq_null_guard: null guard before reading Groq response', async ({ whPage }) => { at C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Cod"
+    },
+    {
+      "idx": 207,
+      "status": "failed",
+      "file": "tests/journey-analytics.spec.ts",
+      "line": 282,
+      "title": "analytics.html - sentinel scenarios › groq_null_guard: null guard before reading Groq response",
+      "error": "Error: Groq response access should be null-guarded \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeTruthy\u001b[2m()\u001b[22m Received: \u001b[31mfalse\u001b[39m 285 | const __sentSrc_10 = await pageSrcWithExternals(whPage); 286 | const has = /\\?\\.\\s*choices|response\\?\\.|\\?\\?\\s*['\"]/i.test(__sentSrc_10); > 287 | expect(has, 'Groq response access should be null-guarded').toBeTruthy(); | ^ 288 | }); 289 | 290 | test('main_phase_routing: phase param routes to the right view', async ({ whPage }) => { at C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude C"
+    },
+    {
+      "idx": 219,
+      "status": "failed",
+      "file": "tests/journey-analytics.spec.ts",
+      "line": 387,
+      "title": "analytics.html - sentinel scenarios › mtbf_machine_normalization: machine name normalized before MTBF aggregation",
+      "error": "Error: machine names should be normalized before MTBF aggregation \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeTruthy\u001b[2m()\u001b[22m Received: \u001b[31mfalse\u001b[39m 390 | const __sentSrc_15 = await pageSrcWithExternals(whPage); 391 | const has = /normalize.*machine|machine.*normalize|trim\\(\\).*machine|machine.*toLower/i.test(__sentSrc_15); > 392 | expect(has, 'machine names should be normalized before MTBF aggregation').toBeTruthy(); | ^ 393 | }); 394 | 395 | test('calc_count_consistent: calc-type count matches across registries', async ({ whPage }) => { at C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI"
+    },
+    {
+      "idx": 220,
+      "status": "failed",
+      "file": "tests/journey-analytics.spec.ts",
+      "line": 395,
+      "title": "analytics.html - sentinel scenarios › calc_count_consistent: calc-type count matches across registries",
+      "error": "Error: analytics should reference the calc-type registry \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeTruthy\u001b[2m()\u001b[22m Received: \u001b[31mfalse\u001b[39m 398 | const __sentSrc_16 = await pageSrcWithExternals(whPage); 399 | const has = /CALC_TYPES|calcTypes|calc_type_count/i.test(__sentSrc_16); > 400 | expect(has, 'analytics should reference the calc-type registry').toBeTruthy(); | ^ 401 | }); 402 | 403 | test('discipline_names: discipline names match canonical list', async ({ whPage }) => { at C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with "
+    },
+    {
+      "idx": 240,
+      "status": "failed",
+      "file": "tests/journey-asset-hub.spec.ts",
+      "line": 177,
+      "title": "asset-hub.html - sentinel scenarios (reliability_workbench) › asset_hub_rcm_realtime: RCM panel subscribes to a realtime channel",
+      "error": "Error: RCM panel should subscribe to a realtime channel \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeTruthy\u001b[2m()\u001b[22m Received: \u001b[31mfalse\u001b[39m 180 | const __sentSrc = await pageSrcWithExternals(whPage); 181 | const has = /rcm.*channel|channel.*rcm|rcm_strategies.*subscribe/i.test(__sentSrc); > 182 | expect(has, 'RCM panel should subscribe to a realtime channel').toBeTruthy(); | ^ 183 | }); 184 | 185 | test('asset_hub_rcm_strategy_writes: RCM strategy writes go to rcm_strategies', async ({ whPage }) => { at C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road"
+    },
+    {
+      "idx": 242,
+      "status": "failed",
+      "file": "tests/journey-asset-hub.spec.ts",
+      "line": 193,
+      "title": "asset-hub.html - sentinel scenarios (reliability_workbench) › asset_hub_pm_writeback: closing RCM strategy writes back to pm_templates",
+      "error": "TimeoutError: page.waitForFunction: Timeout 8000ms exceeded. at _fixtures.ts:90 88 | 89 | // Wait for either success (localStorage set) or visible error > 90 | await page.waitForFunction( | ^ 91 | () => localStorage.getItem('wh_last_worker') || 92 | (document.getElementById('si-error') && 93 | !document.getElementById('si-error')!.classList.contains('hidden')), at signIn (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\_fixtures.ts:90:14) at Object.whPage (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Ma"
+    },
+    {
+      "idx": 244,
+      "status": "failed",
+      "file": "tests/journey-asset-hub.spec.ts",
+      "line": 210,
+      "title": "asset-hub.html - sentinel scenarios (reliability_workbench) › asset_hub_reliability_report_print_css: print CSS applies to reliability report",
+      "error": "Error: asset-hub should declare @media print rules for reliability report \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeTruthy\u001b[2m()\u001b[22m Received: \u001b[31mfalse\u001b[39m 222 | } catch { return false; } 223 | }); > 224 | expect(has, 'asset-hub should declare @media print rules for reliability report').toBeTruthy(); | ^ 225 | }); 226 | 227 | test('asset_hub_reliability_report_sections: report exposes canonical sections', async ({ whPage }) => { at C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\journey-ass"
+    },
+    {
+      "idx": 371,
+      "status": "failed",
+      "file": "tests/journey-engineering-design.spec.ts",
+      "line": 237,
+      "title": "engineering-design.html - sentinel scenarios › all_builders_covered: page declares a diagram builder reference",
+      "error": "Error: engineering-design should declare diagram builders \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeTruthy\u001b[2m()\u001b[22m Received: \u001b[31mfalse\u001b[39m 240 | const __sentSrc = await pageSrcWithExternals(whPage); 241 | const has = /buildDiagram|drawDiagram|renderDiagram|builderFor|DIAGRAM_BUILDERS/i.test(__sentSrc); > 242 | expect(has, 'engineering-design should declare diagram builders').toBeTruthy(); | ^ 243 | }); 244 | 245 | }); at C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\journey-engineering-d"
+    },
+    {
+      "idx": 393,
+      "status": "failed",
+      "file": "tests/journey-hive.spec.ts",
+      "line": 301,
+      "title": "hive.html - sentinel scenarios › approval_channel_events: hive board supports approval realtime channel",
+      "error": "ReferenceError: src is not defined 303 | await waitForPageReady(whPage); 304 | const __sentSrc = await pageSrcWithExternals(whPage); > 305 | const hasChannel = /hive-approval|approval[-_]channel|channel.*approval/i.test(src) || | ^ 306 | /supabase\\.channel\\s*\\(/i.test(__sentSrc); 307 | expect(hasChannel, 'no approval channel wiring detected in inline scripts').toBeTruthy(); 308 | }); at C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\journey-hive.spec.ts:305:84 attachment #1: screenshot (image/png) ──"
+    },
+    {
+      "idx": 395,
+      "status": "failed",
+      "file": "tests/journey-hive.spec.ts",
+      "line": 318,
+      "title": "hive.html - sentinel scenarios › hive_id_scoping: hive board scripts scope queries by hive_id",
+      "error": "ReferenceError: src is not defined 320 | await waitForPageReady(whPage); 321 | const __sentSrc_2 = await pageSrcWithExternals(whPage); > 322 | const has = /\\.eq\\s*\\(\\s*['\"]hive_id['\"]/.test(src) || | ^ 323 | /hive_id\\s*:\\s*activeHiveId/.test(__sentSrc_2); 324 | expect(has, 'hive board should scope DB queries by hive_id').toBeTruthy(); 325 | }); at C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\journey-hive.spec.ts:322:52 attachment #1: screenshot (image/png) ──────────────────────────────────────────"
+    },
+    {
+      "idx": 402,
+      "status": "failed",
+      "file": "tests/journey-hive.spec.ts",
+      "line": 375,
+      "title": "hive.html - sentinel scenarios › flow_logbook_inventory_transactions: logbook->inventory_transactions linkage referenced",
+      "error": "Error: inventory_transactions queryable \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeTruthy\u001b[2m()\u001b[22m Received: \u001b[31mfalse\u001b[39m 377 | const { data } = await db.from('inventory_transactions') 378 | .select('source').eq('source', 'logbook').limit(1); > 379 | expect(Array.isArray(data), 'inventory_transactions queryable').toBeTruthy(); | ^ 380 | }); 381 | 382 | test('flow_logbook_pm_completions: logbook->pm_completions linkage referenced', async ({ whPage }) => { at C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website si"
+    },
+    {
+      "idx": 440,
+      "status": "failed",
+      "file": "tests/journey-inventory.spec.ts",
+      "line": 463,
+      "title": "inventory.html - sentinel scenarios › txn_type_valid: every txn uses a canonical type value",
+      "error": "Error: every txn type must be canonical \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m Expected: \u001b[32m0\u001b[39m Received: \u001b[31m7\u001b[39m 468 | if (!data) { test.skip(true, 'no rows'); return; } 469 | const bad = data.filter(r => r.type && !valid.has(r.type)); > 470 | expect(bad.length, 'every txn type must be canonical').toBe(0); | ^ 471 | }); 472 | 473 | }); at C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\journey-inventory.spec.ts:470:60 Err"
+    },
+    {
+      "idx": 606,
+      "status": "failed",
+      "file": "tests/journey-logbook.spec.ts",
+      "line": 301,
+      "title": "logbook.html - sentinel scenarios › maintenance_type_values: maintenance type dropdown exposes canonical values",
+      "error": "TimeoutError: page.waitForFunction: Timeout 8000ms exceeded. at _fixtures.ts:90 88 | 89 | // Wait for either success (localStorage set) or visible error > 90 | await page.waitForFunction( | ^ 91 | () => localStorage.getItem('wh_last_worker') || 92 | (document.getElementById('si-error') && 93 | !document.getElementById('si-error')!.classList.contains('hidden')), at signIn (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\_fixtures.ts:90:14) at Object.whPage (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Ma"
+    },
+    {
+      "idx": 608,
+      "status": "failed",
+      "file": "tests/journey-logbook.spec.ts",
+      "line": 319,
+      "title": "logbook.html - sentinel scenarios › hive_id_in_txn_insert: inventory_transactions writes from logbook carry hive_id",
+      "error": "TimeoutError: page.waitForFunction: Timeout 8000ms exceeded. at _fixtures.ts:90 88 | 89 | // Wait for either success (localStorage set) or visible error > 90 | await page.waitForFunction( | ^ 91 | () => localStorage.getItem('wh_last_worker') || 92 | (document.getElementById('si-error') && 93 | !document.getElementById('si-error')!.classList.contains('hidden')), at signIn (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\_fixtures.ts:90:14) at Object.whPage (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Ma"
+    },
+    {
+      "idx": 615,
+      "status": "failed",
+      "file": "tests/journey-logbook.spec.ts",
+      "line": 384,
+      "title": "logbook.html - sentinel scenarios › new_fields_in_save_edit: saveEdit includes canonical new fields",
+      "error": "Error: saveEdit should include canonical new fields \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeTruthy\u001b[2m()\u001b[22m Received: \u001b[31mfalse\u001b[39m 387 | const __sentSrc_6 = await pageSrcWithExternals(whPage); 388 | const has = /saveEdit[\\s\\S]{0,500}(asset_ref_id|maintenance_type|consequence)/i.test(__sentSrc_6); > 389 | expect(has, 'saveEdit should include canonical new fields').toBeTruthy(); | ^ 390 | }); 391 | 392 | test('offline_queue: page references offline queue mechanism', async ({ whPage }) => { at C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Bui"
+    },
+    {
+      "idx": 623,
+      "status": "failed",
+      "file": "tests/journey-logbook.spec.ts",
+      "line": 455,
+      "title": "logbook.html - sentinel scenarios › parts_txn_parity: every parts_used entry has an inventory_transactions row",
+      "error": "Error: every parts_used entry must have a matching inv txn \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m Expected: \u001b[32m0\u001b[39m Received: \u001b[31m10\u001b[39m 463 | const seen = new Set((txns ?? []).map(t => t.logbook_id)); 464 | const missing = ids.filter(id => !seen.has(id)); > 465 | expect(missing.length, 'every parts_used entry must have a matching inv txn').toBe(0); | ^ 466 | }); 467 | 468 | test('maintenance_type_valid: every entry has a recognised maintenance_type', async () => { at C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Mainten"
+    },
+    {
+      "idx": 704,
+      "status": "failed",
+      "file": "tests/journey-predictive.spec.ts",
+      "line": 163,
+      "title": "predictive.html - sentinel scenarios › downtime_cap: downtime computation caps outliers",
+      "error": "Error: downtime computation should be capped against outliers \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeTruthy\u001b[2m()\u001b[22m Received: \u001b[31mfalse\u001b[39m 166 | const __sentSrc_4 = await pageSrcWithExternals(whPage); 167 | const has = /downtime[_-]?cap|cap[_-]?downtime|Math\\.min.*downtime|clamp.*downtime/i.test(__sentSrc_4); > 168 | expect(has, 'downtime computation should be capped against outliers').toBeTruthy(); | ^ 169 | }); 170 | 171 | test('failure_consequence_adoption: failure consequence field is used', async ({ whPage }) => { at C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance E"
+    },
+    {
+      "idx": 766,
+      "status": "failed",
+      "file": "tests/journey-skillmatrix.spec.ts",
+      "line": 236,
+      "title": "skillmatrix.html - sentinel scenarios › exam_array_count: exam questions array has expected length",
+      "error": "Error: skillmatrix should declare at least one questions array \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m Expected: > \u001b[32m0\u001b[39m Received: \u001b[31m0\u001b[39m 242 | return matches.length; 243 | }); > 244 | expect(counts, 'skillmatrix should declare at least one questions array').toBeGreaterThan(0); | ^ 245 | }); 246 | 247 | test('options_count: each multiple-choice question carries options array', async ({ whPage }) => { at C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Websit"
+    },
+    {
+      "idx": 769,
+      "status": "failed",
+      "file": "tests/journey-skillmatrix.spec.ts",
+      "line": 263,
+      "title": "skillmatrix.html - sentinel scenarios › draft_cleanup: skill draft cleanup is wired",
+      "error": "Error: skill draft state should be cleaned up after exam \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeTruthy\u001b[2m()\u001b[22m Received: \u001b[31mfalse\u001b[39m 266 | const __sentSrc_6 = await pageSrcWithExternals(whPage); 267 | const has = /draft.*cleanup|clearDraft|cleanupDraft|draft.*remove/i.test(__sentSrc_6); > 268 | expect(has, 'skill draft state should be cleaned up after exam').toBeTruthy(); | ^ 269 | }); 270 | 271 | test('level_content_complete: every level has content for every discipline', async ({ whPage }) => { at C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning "
+    },
+    {
+      "idx": 770,
+      "status": "failed",
+      "file": "tests/journey-skillmatrix.spec.ts",
+      "line": 271,
+      "title": "skillmatrix.html - sentinel scenarios › level_content_complete: every level has content for every discipline",
+      "error": "TimeoutError: page.waitForFunction: Timeout 8000ms exceeded. at _fixtures.ts:90 88 | 89 | // Wait for either success (localStorage set) or visible error > 90 | await page.waitForFunction( | ^ 91 | () => localStorage.getItem('wh_last_worker') || 92 | (document.getElementById('si-error') && 93 | !document.getElementById('si-error')!.classList.contains('hidden')), at signIn (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\_fixtures.ts:90:14) at Object.whPage (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Ma"
+    },
+    {
+      "idx": 888,
+      "status": "failed",
+      "file": "tests/ph-intelligence.spec.ts",
+      "line": 25,
+      "title": "ph-intelligence.html - sentinel scenarios › script_tag_loaded: maturity-gating script is loaded",
+      "error": "ReferenceError: pageSrcWithExternals is not defined 26 | await whPage.goto(PAGE); 27 | await waitForPageReady(whPage); > 28 | const __sentSrc = await pageSrcWithExternals(whPage); | ^ 29 | const has = /maturity|maturity_level|maturity_gate|hive_maturity/i.test(__sentSrc); 30 | expect(has, 'page should load maturity-gating script').toBeTruthy(); 31 | }); at C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\ph-intelligence.spec.ts:28:23 attachment #1: screenshot (image/png) ───────────────────────────────"
+    },
+    {
+      "idx": 889,
+      "status": "failed",
+      "file": "tests/ph-intelligence.spec.ts",
+      "line": 33,
+      "title": "ph-intelligence.html - sentinel scenarios › gate_call_present: maturity gate is actually invoked",
+      "error": "ReferenceError: pageSrcWithExternals is not defined 34 | await whPage.goto(PAGE); 35 | await waitForPageReady(whPage); > 36 | const __sentSrc_2 = await pageSrcWithExternals(whPage); | ^ 37 | const has = /maturity/i.test(__sentSrc_2); 38 | expect(has, 'maturity gate must be referenced').toBeTruthy(); 39 | }); at C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\ph-intelligence.spec.ts:36:25 attachment #1: screenshot (image/png) ────────────────────────────────────────────────────────── test-results\\ph-in"
+    },
+    {
+      "idx": 927,
+      "status": "failed",
+      "file": "tests/pm-scheduler.spec.ts",
+      "line": 75,
+      "title": "pm-scheduler.html - sentinel scenarios › realtime_hive_filter: scripts subscribe to channels with hive filter",
+      "error": "ReferenceError: src is not defined 77 | await waitForPageReady(whPage); 78 | const __sentSrc = await pageSrcWithExternals(whPage); > 79 | const filtered = /\\.channel\\s*\\(/.test(src) && /hive_id|hive[-_]filter/i.test(__sentSrc); | ^ 80 | expect(filtered, 'realtime channels on pm-scheduler should include hive_id filter').toBeTruthy(); 81 | }); 82 | at C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\pm-scheduler.spec.ts:79:44 attachment #1: screenshot (image/png) ─────────────────────────────────────────"
+    }
+  ],
+  "real": [
+    {
+      "idx": 1,
+      "status": "failed",
+      "file": "tests/achievements.spec.ts",
+      "line": 12,
+      "title": "achievements.html smoke › loads and renders without page errors",
+      "error": "TimeoutError: page.waitForFunction: Timeout 8000ms exceeded. at _fixtures.ts:90 88 | 89 | // Wait for either success (localStorage set) or visible error > 90 | await page.waitForFunction( | ^ 91 | () => localStorage.getItem('wh_last_worker') || 92 | (document.getElementById('si-error') && 93 | !document.getElementById('si-error')!.classList.contains('hidden')), at signIn (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\_fixtures.ts:90:14) at Object.whPage (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Ma"
+    },
+    {
+      "idx": 17,
+      "status": "failed",
+      "file": "tests/assistant.spec.ts",
+      "line": 11,
+      "title": "assistant.html › chat input is present and enabled",
+      "error": "TimeoutError: page.waitForFunction: Timeout 8000ms exceeded. at _fixtures.ts:90 88 | 89 | // Wait for either success (localStorage set) or visible error > 90 | await page.waitForFunction( | ^ 91 | () => localStorage.getItem('wh_last_worker') || 92 | (document.getElementById('si-error') && 93 | !document.getElementById('si-error')!.classList.contains('hidden')), at signIn (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\_fixtures.ts:90:14) at Object.whPage (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Ma"
+    },
+    {
+      "idx": 18,
+      "status": "failed",
+      "file": "tests/assistant.spec.ts",
+      "line": 20,
+      "title": "assistant.html › no page errors on load",
+      "error": ""
+    },
+    {
+      "idx": 87,
+      "status": "failed",
+      "file": "tests/dayplanner.spec.ts",
+      "line": 14,
+      "title": "dayplanner.html schedule item flow › page loads and lists today's schedule items",
+      "error": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed Locator: locator('text=/Open|Schedule|Planner|Today/i').first() Expected: visible Received: hidden Timeout: 5000ms Call log: \u001b[2m - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m \u001b[2m - waiting for locator('text=/Open|Schedule|Planner|Today/i').first()\u001b[22m \u001b[2m 13 × locator resolved to <div hidden=\"\" id=\"empty-state\" class=\"empty-state\">Nothing scheduled — tap '+' to plan a task.</div>\u001b[22m \u001b[2m - unexpected value \"hidden\"\u001b[22m 23 | await expect( 24 | whPage.locator('text=/Open|Schedule|Planner|Today/i')."
+    },
+    {
+      "idx": 99,
+      "status": "failed",
+      "file": "tests/feedback-journey.spec.ts",
+      "line": 84,
+      "title": "Universal feedback widget — visual journey › fab_journey_app: FAB renders on signed-in logbook",
+      "error": "TimeoutError: page.waitForFunction: Timeout 8000ms exceeded. at _fixtures.ts:90 88 | 89 | // Wait for either success (localStorage set) or visible error > 90 | await page.waitForFunction( | ^ 91 | () => localStorage.getItem('wh_last_worker') || 92 | (document.getElementById('si-error') && 93 | !document.getElementById('si-error')!.classList.contains('hidden')), at signIn (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\_fixtures.ts:90:14) at Object.whPage (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Ma"
+    },
+    {
+      "idx": 104,
+      "status": "failed",
+      "file": "tests/feedback-realtime.spec.ts",
+      "line": 28,
+      "title": "Feedback inbox Realtime (commit cffafdd L2 verification) › inbox_realtime_pushes_new_row: row inserted via service role appears live in Founder Console inbox",
+      "error": "Error: Realtime push did not arrive in 10s. Counts seen: {\"all\":\"0\",\"new_\":\"0\"} Console errors: (none) 77 | new_: document.getElementById('fb-count-new')?.textContent, 78 | })); > 79 | throw new Error( | ^ 80 | `Realtime push did not arrive in 10s.\\n` + 81 | `Counts seen: ${JSON.stringify(counts)}\\n` + 82 | `Console errors: ${consoleErrs.join(' | ') || '(none)'}` at C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\feedback-realtime.spec.ts:79:15 attachment #1: screenshot (image/png) ───────────────────"
+    },
+    {
+      "idx": 116,
+      "status": "failed",
+      "file": "tests/integrations.spec.ts",
+      "line": 11,
+      "title": "integrations.html smoke › loads and renders without page errors",
+      "error": "TimeoutError: page.waitForFunction: Timeout 8000ms exceeded. at _fixtures.ts:90 88 | 89 | // Wait for either success (localStorage set) or visible error > 90 | await page.waitForFunction( | ^ 91 | () => localStorage.getItem('wh_last_worker') || 92 | (document.getElementById('si-error') && 93 | !document.getElementById('si-error')!.classList.contains('hidden')), at signIn (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\_fixtures.ts:90:14) at Object.whPage (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Ma"
+    },
+    {
+      "idx": 119,
+      "status": "failed",
+      "file": "tests/inventory.spec.ts",
+      "line": 36,
+      "title": "inventory.html add-part flow › saves a valid part and the row appears in the list",
+      "error": "TimeoutError: page.waitForFunction: Timeout 8000ms exceeded. at _fixtures.ts:90 88 | 89 | // Wait for either success (localStorage set) or visible error > 90 | await page.waitForFunction( | ^ 91 | () => localStorage.getItem('wh_last_worker') || 92 | (document.getElementById('si-error') && 93 | !document.getElementById('si-error')!.classList.contains('hidden')), at signIn (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\_fixtures.ts:90:14) at Object.whPage (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Ma"
+    },
+    {
+      "idx": 121,
+      "status": "failed",
+      "file": "tests/journey-achievements.spec.ts",
+      "line": 28,
+      "title": "achievements.html — achievements journey › page loads without console errors",
+      "error": "TimeoutError: page.waitForFunction: Timeout 8000ms exceeded. at _fixtures.ts:90 88 | 89 | // Wait for either success (localStorage set) or visible error > 90 | await page.waitForFunction( | ^ 91 | () => localStorage.getItem('wh_last_worker') || 92 | (document.getElementById('si-error') && 93 | !document.getElementById('si-error')!.classList.contains('hidden')), at signIn (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\_fixtures.ts:90:14) at Object.whPage (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Ma"
+    },
+    {
+      "idx": 122,
+      "status": "failed",
+      "file": "tests/journey-achievements.spec.ts",
+      "line": 38,
+      "title": "achievements.html — achievements journey › source chip declares worker_achievements + achievement_xp_log",
+      "error": "TimeoutError: page.waitForFunction: Timeout 8000ms exceeded. at _fixtures.ts:90 88 | 89 | // Wait for either success (localStorage set) or visible error > 90 | await page.waitForFunction( | ^ 91 | () => localStorage.getItem('wh_last_worker') || 92 | (document.getElementById('si-error') && 93 | !document.getElementById('si-error')!.classList.contains('hidden')), at signIn (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\_fixtures.ts:90:14) at Object.whPage (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Ma"
+    },
+    {
+      "idx": 123,
+      "status": "failed",
+      "file": "tests/journey-achievements.spec.ts",
+      "line": 48,
+      "title": "achievements.html — achievements journey › verdict settles from \"Computing XP progress...\"",
+      "error": "TimeoutError: page.waitForFunction: Timeout 8000ms exceeded. at _fixtures.ts:90 88 | 89 | // Wait for either success (localStorage set) or visible error > 90 | await page.waitForFunction( | ^ 91 | () => localStorage.getItem('wh_last_worker') || 92 | (document.getElementById('si-error') && 93 | !document.getElementById('si-error')!.classList.contains('hidden')), at signIn (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\_fixtures.ts:90:14) at Object.whPage (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Ma"
+    },
+    {
+      "idx": 124,
+      "status": "failed",
+      "file": "tests/journey-achievements.spec.ts",
+      "line": 57,
+      "title": "achievements.html — achievements journey › 3 cards have non-placeholder heroes (XP / domains / level)",
+      "error": "TimeoutError: page.waitForFunction: Timeout 8000ms exceeded. at _fixtures.ts:90 88 | 89 | // Wait for either success (localStorage set) or visible error > 90 | await page.waitForFunction( | ^ 91 | () => localStorage.getItem('wh_last_worker') || 92 | (document.getElementById('si-error') && 93 | !document.getElementById('si-error')!.classList.contains('hidden')), at signIn (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\_fixtures.ts:90:14) at Object.whPage (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Ma"
+    },
+    {
+      "idx": 125,
+      "status": "failed",
+      "file": "tests/journey-achievements.spec.ts",
+      "line": 71,
+      "title": "achievements.html — achievements journey › worker profile card shows Pablo Aguilar",
+      "error": "TimeoutError: page.waitForFunction: Timeout 8000ms exceeded. at _fixtures.ts:90 88 | 89 | // Wait for either success (localStorage set) or visible error > 90 | await page.waitForFunction( | ^ 91 | () => localStorage.getItem('wh_last_worker') || 92 | (document.getElementById('si-error') && 93 | !document.getElementById('si-error')!.classList.contains('hidden')), at signIn (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\_fixtures.ts:90:14) at Object.whPage (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Ma"
+    },
+    {
+      "idx": 126,
+      "status": "failed",
+      "file": "tests/journey-achievements.spec.ts",
+      "line": 82,
+      "title": "achievements.html — achievements journey › tier guide renders at least one tier level",
+      "error": "TimeoutError: page.waitForFunction: Timeout 8000ms exceeded. at _fixtures.ts:90 88 | 89 | // Wait for either success (localStorage set) or visible error > 90 | await page.waitForFunction( | ^ 91 | () => localStorage.getItem('wh_last_worker') || 92 | (document.getElementById('si-error') && 93 | !document.getElementById('si-error')!.classList.contains('hidden')), at signIn (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\_fixtures.ts:90:14) at Object.whPage (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Ma"
+    },
+    {
+      "idx": 127,
+      "status": "failed",
+      "file": "tests/journey-achievements.spec.ts",
+      "line": 93,
+      "title": "achievements.html — achievements journey › LEGEND TECHNICIAN badge visible for Pablo",
+      "error": "TimeoutError: page.waitForFunction: Timeout 8000ms exceeded. at _fixtures.ts:90 88 | 89 | // Wait for either success (localStorage set) or visible error > 90 | await page.waitForFunction( | ^ 91 | () => localStorage.getItem('wh_last_worker') || 92 | (document.getElementById('si-error') && 93 | !document.getElementById('si-error')!.classList.contains('hidden')), at signIn (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\_fixtures.ts:90:14) at Object.whPage (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Ma"
+    },
+    {
+      "idx": 128,
+      "status": "failed",
+      "file": "tests/journey-achievements.spec.ts",
+      "line": 107,
+      "title": "achievements.html — achievements journey › l2_reset_missing: achievement catalog survives reset (cards rendered)",
+      "error": "TimeoutError: page.waitForFunction: Timeout 8000ms exceeded. at _fixtures.ts:90 88 | 89 | // Wait for either success (localStorage set) or visible error > 90 | await page.waitForFunction( | ^ 91 | () => localStorage.getItem('wh_last_worker') || 92 | (document.getElementById('si-error') && 93 | !document.getElementById('si-error')!.classList.contains('hidden')), at signIn (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\_fixtures.ts:90:14) at Object.whPage (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Ma"
+    },
+    {
+      "idx": 130,
+      "status": "failed",
+      "file": "tests/journey-agent-memory.spec.ts",
+      "line": 41,
+      "title": "agent-memory-store — Phase 7 of AGENTIC_RAG_ROADMAP.md › invalid op → 400",
+      "error": "TimeoutError: page.waitForFunction: Timeout 8000ms exceeded. at _fixtures.ts:90 88 | 89 | // Wait for either success (localStorage set) or visible error > 90 | await page.waitForFunction( | ^ 91 | () => localStorage.getItem('wh_last_worker') || 92 | (document.getElementById('si-error') && 93 | !document.getElementById('si-error')!.classList.contains('hidden')), at signIn (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\_fixtures.ts:90:14) at Object.whPage (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Ma"
+    },
+    {
+      "idx": 133,
+      "status": "failed",
+      "file": "tests/journey-agent-memory.spec.ts",
+      "line": 64,
+      "title": "agent-memory-store — Phase 7 of AGENTIC_RAG_ROADMAP.md › store rejects payload with no memories",
+      "error": "TimeoutError: page.waitForFunction: Timeout 8000ms exceeded. at _fixtures.ts:90 88 | 89 | // Wait for either success (localStorage set) or visible error > 90 | await page.waitForFunction( | ^ 91 | () => localStorage.getItem('wh_last_worker') || 92 | (document.getElementById('si-error') && 93 | !document.getElementById('si-error')!.classList.contains('hidden')), at signIn (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\_fixtures.ts:90:14) at Object.whPage (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Ma"
+    },
+    {
+      "idx": 134,
+      "status": "failed",
+      "file": "tests/journey-agentic-rag-observability.spec.ts",
+      "line": 16,
+      "title": "agentic-rag-observability — Phase 8 of AGENTIC_RAG_ROADMAP.md › page loads without console errors",
+      "error": "TimeoutError: page.waitForFunction: Timeout 8000ms exceeded. at _fixtures.ts:90 88 | 89 | // Wait for either success (localStorage set) or visible error > 90 | await page.waitForFunction( | ^ 91 | () => localStorage.getItem('wh_last_worker') || 92 | (document.getElementById('si-error') && 93 | !document.getElementById('si-error')!.classList.contains('hidden')), at signIn (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\_fixtures.ts:90:14) at Object.whPage (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Ma"
+    },
+    {
+      "idx": 135,
+      "status": "failed",
+      "file": "tests/journey-agentic-rag-observability.spec.ts",
+      "line": 27,
+      "title": "agentic-rag-observability — Phase 8 of AGENTIC_RAG_ROADMAP.md › renders filter bar + 3 tables + summary container",
+      "error": "TimeoutError: page.waitForFunction: Timeout 8000ms exceeded. at _fixtures.ts:90 88 | 89 | // Wait for either success (localStorage set) or visible error > 90 | await page.waitForFunction( | ^ 91 | () => localStorage.getItem('wh_last_worker') || 92 | (document.getElementById('si-error') && 93 | !document.getElementById('si-error')!.classList.contains('hidden')), at signIn (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\_fixtures.ts:90:14) at Object.whPage (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Ma"
+    },
+    {
+      "idx": 140,
+      "status": "failed",
+      "file": "tests/journey-agentic-rag.spec.ts",
+      "line": 134,
+      "title": "agentic-rag-loop — Phase 1 of AGENTIC_RAG_ROADMAP.md › question length cap: oversized question truncated, not 500",
+      "error": "TimeoutError: page.waitForFunction: Timeout 8000ms exceeded. at _fixtures.ts:90 88 | 89 | // Wait for either success (localStorage set) or visible error > 90 | await page.waitForFunction( | ^ 91 | () => localStorage.getItem('wh_last_worker') || 92 | (document.getElementById('si-error') && 93 | !document.getElementById('si-error')!.classList.contains('hidden')), at signIn (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\_fixtures.ts:90:14) at Object.whPage (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Ma"
+    },
+    {
+      "idx": 141,
+      "status": "failed",
+      "file": "tests/journey-agentic-rag.spec.ts",
+      "line": 155,
+      "title": "agentic-rag-loop — Phase 1 of AGENTIC_RAG_ROADMAP.md › citation markers present in answer when chunks were graded successfully",
+      "error": "Error: answer must either cite a chunk [c#] or admit no records \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m Expected: \u001b[32mtrue\u001b[39m Received: \u001b[31mfalse\u001b[39m 171 | const hasCitation = /\\[c[a-z0-9#_-]+\\]/i.test(result.body.answer || ''); 172 | const isAdmission = answer.includes(\"don't have\") || answer.includes('no record') || answer.includes('no matching') || answer.includes('not enough'); > 173 | expect(hasCitation || isAdmission, 'answer must either cite a chunk [c#] or admit no records').toBe(true); | ^ 174 | }); 175 | 176 |"
+    },
+    {
+      "idx": 142,
+      "status": "failed",
+      "file": "tests/journey-agentic-rag.spec.ts",
+      "line": 176,
+      "title": "agentic-rag-loop — Phase 1 of AGENTIC_RAG_ROADMAP.md › hallucination guard: never invents asset tags not in chunks",
+      "error": "Error: answer mentions fictional asset but neither cites a chunk nor admits no records \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m Expected: \u001b[32mtrue\u001b[39m Received: \u001b[31mfalse\u001b[39m 195 | const hasCitation = /\\[c[a-z0-9#_-]+\\]/i.test(result.body.answer || ''); 196 | const isAdmission = answer.includes(\"don't have\") || answer.includes('no record') || answer.includes('no matching') || answer.includes('not enough'); > 197 | expect(hasCitation || isAdmission, 'answer mentions fictional asset but neither cites a chunk nor admits no r"
+    },
+    {
+      "idx": 146,
+      "status": "failed",
+      "file": "tests/journey-agentic.spec.ts",
+      "line": 49,
+      "title": "agentic-rag-observability.html — observability dashboard journey › bounded_fetch: trace query carries a .limit(N) clause in source",
+      "error": "Error: agentic_rag_traces must be referenced \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoContain\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // indexOf\u001b[22m Expected substring: \u001b[32m\"agentic_rag_traces\"\u001b[39m Received string: \u001b[31m\"<html lang=\\\"en\\\" style=\\\"overflow-x: hidden;\\\"><head>\u001b[39m \u001b[31m <meta charset=\\\"UTF-8\\\">\u001b[39m \u001b[31m <meta name=\\\"theme-color\\\" content=\\\"#F7A21B\\\">\u001b[39m \u001b[31m <meta name=\\\"viewport\\\" content=\\\"width=device-width, initial-scale=1.0, viewport-fit=cover\\\">\u001b[39m \u001b[31m <!-- Layer -1.5 Calm Dashboard Contract opt-in: this page declares that\u001b[39m \u001b[31m it follows the verdict-firs"
+    },
+    {
+      "idx": 153,
+      "status": "failed",
+      "file": "tests/journey-ai-quality.spec.ts",
+      "line": 47,
+      "title": "ai-quality.html — AI quality journey › content renders (Stair 3 hive not gated)",
+      "error": "TimeoutError: page.waitForFunction: Timeout 8000ms exceeded. at _fixtures.ts:90 88 | 89 | // Wait for either success (localStorage set) or visible error > 90 | await page.waitForFunction( | ^ 91 | () => localStorage.getItem('wh_last_worker') || 92 | (document.getElementById('si-error') && 93 | !document.getElementById('si-error')!.classList.contains('hidden')), at signIn (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\_fixtures.ts:90:14) at Object.whPage (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Ma"
+    },
+    {
+      "idx": 154,
+      "status": "failed",
+      "file": "tests/journey-ai-quality.spec.ts",
+      "line": 59,
+      "title": "ai-quality.html — AI quality journey › Plain-Read verdict renders with quality tone",
+      "error": "TimeoutError: page.waitForFunction: Timeout 8000ms exceeded. at _fixtures.ts:90 88 | 89 | // Wait for either success (localStorage set) or visible error > 90 | await page.waitForFunction( | ^ 91 | () => localStorage.getItem('wh_last_worker') || 92 | (document.getElementById('si-error') && 93 | !document.getElementById('si-error')!.classList.contains('hidden')), at signIn (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\_fixtures.ts:90:14) at Object.whPage (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Ma"
+    },
+    {
+      "idx": 155,
+      "status": "failed",
+      "file": "tests/journey-ai-quality.spec.ts",
+      "line": 71,
+      "title": "ai-quality.html — AI quality journey › spend / cost card shows a number (not empty dashes)",
+      "error": "TimeoutError: page.waitForFunction: Timeout 8000ms exceeded. at _fixtures.ts:90 88 | 89 | // Wait for either success (localStorage set) or visible error > 90 | await page.waitForFunction( | ^ 91 | () => localStorage.getItem('wh_last_worker') || 92 | (document.getElementById('si-error') && 93 | !document.getElementById('si-error')!.classList.contains('hidden')), at signIn (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\_fixtures.ts:90:14) at Object.whPage (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Ma"
+    },
+    {
+      "idx": 159,
+      "status": "failed",
+      "file": "tests/journey-ai-quality.spec.ts",
+      "line": 128,
+      "title": "ai-quality.html — AI quality journey › ROI card or time-saved card renders a number",
+      "error": "TimeoutError: page.waitForFunction: Timeout 8000ms exceeded. at _fixtures.ts:90 88 | 89 | // Wait for either success (localStorage set) or visible error > 90 | await page.waitForFunction( | ^ 91 | () => localStorage.getItem('wh_last_worker') || 92 | (document.getElementById('si-error') && 93 | !document.getElementById('si-error')!.classList.contains('hidden')), at signIn (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\_fixtures.ts:90:14) at Object.whPage (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Ma"
+    },
+    {
+      "idx": 169,
+      "status": "failed",
+      "file": "tests/journey-ai.spec.ts",
+      "line": 61,
+      "title": "ai-quality.html — trust & observability anchors › conversation_end_ack: voice-handler close() resets dialog state and stops audio",
+      "error": "TimeoutError: page.waitForFunction: Timeout 8000ms exceeded. at _fixtures.ts:90 88 | 89 | // Wait for either success (localStorage set) or visible error > 90 | await page.waitForFunction( | ^ 91 | () => localStorage.getItem('wh_last_worker') || 92 | (document.getElementById('si-error') && 93 | !document.getElementById('si-error')!.classList.contains('hidden')), at signIn (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\_fixtures.ts:90:14) at Object.whPage (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Ma"
+    },
+    {
+      "idx": 171,
+      "status": "failed",
+      "file": "tests/journey-ai.spec.ts",
+      "line": 76,
+      "title": "analytics.html — AI regression anchors › analytics_feature_parity: analytics page renders descriptive + diagnostic + prescriptive panes",
+      "error": "TimeoutError: page.waitForFunction: Timeout 8000ms exceeded. at _fixtures.ts:90 88 | 89 | // Wait for either success (localStorage set) or visible error > 90 | await page.waitForFunction( | ^ 91 | () => localStorage.getItem('wh_last_worker') || 92 | (document.getElementById('si-error') && 93 | !document.getElementById('si-error')!.classList.contains('hidden')), at signIn (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\_fixtures.ts:90:14) at Object.whPage (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Ma"
+    },
+    {
+      "idx": 173,
+      "status": "failed",
+      "file": "tests/journey-ai.spec.ts",
+      "line": 88,
+      "title": "analytics.html — AI regression anchors › logbook_feature_parity: logbook surface mirrors the analytics phases for write parity",
+      "error": "TimeoutError: page.waitForFunction: Timeout 8000ms exceeded. at _fixtures.ts:90 88 | 89 | // Wait for either success (localStorage set) or visible error > 90 | await page.waitForFunction( | ^ 91 | () => localStorage.getItem('wh_last_worker') || 92 | (document.getElementById('si-error') && 93 | !document.getElementById('si-error')!.classList.contains('hidden')), at signIn (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\_fixtures.ts:90:14) at Object.whPage (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Ma"
+    },
+    {
+      "idx": 175,
+      "status": "failed",
+      "file": "tests/journey-alerts.spec.ts",
+      "line": 44,
+      "title": "alert-hub.html — user journey › source chip declares v_risk_truth canonical source",
+      "error": "TimeoutError: page.waitForFunction: Timeout 8000ms exceeded. at _fixtures.ts:90 88 | 89 | // Wait for either success (localStorage set) or visible error > 90 | await page.waitForFunction( | ^ 91 | () => localStorage.getItem('wh_last_worker') || 92 | (document.getElementById('si-error') && 93 | !document.getElementById('si-error')!.classList.contains('hidden')), at signIn (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\_fixtures.ts:90:14) at Object.whPage (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Ma"
+    },
+    {
+      "idx": 176,
+      "status": "failed",
+      "file": "tests/journey-alerts.spec.ts",
+      "line": 54,
+      "title": "alert-hub.html — user journey › verdict settles and shows real alert data",
+      "error": "TimeoutError: page.waitForFunction: Timeout 8000ms exceeded. at _fixtures.ts:90 88 | 89 | // Wait for either success (localStorage set) or visible error > 90 | await page.waitForFunction( | ^ 91 | () => localStorage.getItem('wh_last_worker') || 92 | (document.getElementById('si-error') && 93 | !document.getElementById('si-error')!.classList.contains('hidden')), at signIn (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\_fixtures.ts:90:14) at Object.whPage (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Ma"
+    },
+    {
+      "idx": 177,
+      "status": "failed",
+      "file": "tests/journey-alerts.spec.ts",
+      "line": 63,
+      "title": "alert-hub.html — user journey › 3 plain-read cards populated (HIGH-SEVERITY, ANOMALY SIGNALS, AMC BRIEF)",
+      "error": "Error: card 0 hero should be populated \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mnot\u001b[2m.\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m Expected: not \u001b[32m\"—\"\u001b[39m 71 | for (let i = 0; i < Math.min(count, 3); i++) { 72 | const text = await heroes.nth(i).textContent(); > 73 | expect(text?.trim(), `card ${i} hero should be populated`).not.toBe('—'); | ^ 74 | } 75 | }); 76 | at C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\journey-alerts.spec.ts:73:70 attachment #1: screenshot"
+    },
+    {
+      "idx": 236,
+      "status": "failed",
+      "file": "tests/journey-asset-hub.spec.ts",
+      "line": 99,
+      "title": "asset-hub.html — 360-view journey › clicking an asset card opens 360 detail view",
+      "error": "Error: asset list should have at least 1 card — run test-data-seeder if empty \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m Expected: > \u001b[32m0\u001b[39m Received: \u001b[31m0\u001b[39m 105 | // A zero count means the seeder hasn't run or asset data was wiped. 106 | const count = await firstCard.count(); > 107 | expect(count, 'asset list should have at least 1 card — run test-data-seeder if empty').toBeGreaterThan(0); | ^ 108 | 109 | await firstCard.click(); 110 | await whPage.waitForTimeout(1000); at C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance E"
+    },
+    {
+      "idx": 237,
+      "status": "failed",
+      "file": "tests/journey-asset-hub.spec.ts",
+      "line": 118,
+      "title": "asset-hub.html — 360-view journey › risk score renders (not empty dashes) after asset selection",
+      "error": "TypeError: _fixtures.expect.fail is not a function 121 | 122 | const firstCard = whPage.locator('#asset-list .wh-card, #asset-list [data-asset-id]').first(); > 123 | if (await firstCard.count() === 0) { expect.fail('asset list is empty — run seeder first'); return; } | ^ 124 | 125 | await firstCard.click(); 126 | await whPage.waitForTimeout(2000); at C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\journey-asset-hub.spec.ts:123:49 attachment #1: screenshot (image/png) ──────────────────────────────────"
+    },
+    {
+      "idx": 238,
+      "status": "failed",
+      "file": "tests/journey-asset-hub.spec.ts",
+      "line": 137,
+      "title": "asset-hub.html — 360-view journey › telemetry card shows readings or empty state (not crashed)",
+      "error": "TypeError: _fixtures.expect.fail is not a function 140 | 141 | const firstCard = whPage.locator('#asset-list .wh-card, #asset-list [data-asset-id]').first(); > 142 | if (await firstCard.count() === 0) { expect.fail('asset list is empty — run seeder first'); return; } | ^ 143 | 144 | await firstCard.click(); 145 | await whPage.waitForTimeout(2000); at C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\journey-asset-hub.spec.ts:142:49 attachment #1: screenshot (image/png) ──────────────────────────────────"
+    },
+    {
+      "idx": 268,
+      "status": "failed",
+      "file": "tests/journey-auth.spec.ts",
+      "line": 111,
+      "title": "Auth — sign-in flow › sign-in with valid credentials succeeds and sets localStorage",
+      "error": "TimeoutError: page.waitForFunction: Timeout 8000ms exceeded. 131 | 132 | // Wait for successful sign-in: localStorage set > 133 | await rawPage.waitForFunction( | ^ 134 | () => !!localStorage.getItem('wh_last_worker'), 135 | { timeout: 15000 }, 136 | ); at C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\journey-auth.spec.ts:133:19 attachment #1: screenshot (image/png) ────────────────────────────────────────────────────────── test-results\\journey-auth-Auth-—-sign-i-1a860-ceeds-and-sets-localStorage-ch"
+    },
+    {
+      "idx": 272,
+      "status": "failed",
+      "file": "tests/journey-calm-dashboard-behaviour.spec.ts",
+      "line": 84,
+      "title": "Calm Dashboard Contract — behavioural per-page check › agentic-rag-observability.html: calm-dashboard meta + verdict + <details> + hide-zero helper",
+      "error": "Error: agentic-rag-observability.html: verdict region must be either pre-rendered in DOM or declared in a template literal / renderVerdict function \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m Expected: \u001b[32mtrue\u001b[39m Received: \u001b[31mfalse\u001b[39m 100 | const verdictInTemplate = /class=[\"']verdict\\b|renderVerdict\\s*\\(|verdictHost|class=[\"']today-card|class=[\"']focus-card|class=[\"']hero-card|id=[\"'][^\"']*(?:today|verdict|hero|focus|now)[\"']/i.test(html); 101 | expect(verdictCount > 0 || verdictInTemplate, > 102 | `${pageName}: verdict"
+    },
+    {
+      "idx": 287,
+      "status": "failed",
+      "file": "tests/journey-calm-dashboard-behaviour.spec.ts",
+      "line": 133,
+      "title": "Calm Dashboard Contract — registry consistency › every calm-dashboard page exposes a source chip OR a documented dashboard-allow comment",
+      "error": "Error: Pages with neither a source chip nor a dashboard-allow comment: agentic-rag-observability.html \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m Expected: \u001b[32m0\u001b[39m Received: \u001b[31m1\u001b[39m 140 | } 141 | expect(gaps.length, > 142 | `Pages with neither a source chip nor a dashboard-allow comment:\\n${gaps.join('\\n')}`).toBe(0); | ^ 143 | }); 144 | }); 145 | at C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\journey-calm-dashboard-behaviou"
+    },
+    {
+      "idx": 296,
+      "status": "failed",
+      "file": "tests/journey-canonical-signal-parity.spec.ts",
+      "line": 309,
+      "title": "canonical signal parity › check_pm_overdue_scope_items_count: hive Team Pulse #pulse-pm-overdue == COUNT(v_pm_scope_items_truth WHERE is_overdue)",
+      "error": "Error: /workhive/hive.html #pulse-pm-overdue shows 0 but v_pm_scope_items_truth.is_overdue directly counts 5 (mode=rows). Page is re-deriving instead of trusting the canonical signal. \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m Expected: \u001b[32m5\u001b[39m Received: \u001b[31m0\u001b[39m 383 | `directly counts ${canonicalCount} (mode=${c.mode}). ` + 384 | `Page is re-deriving instead of trusting the canonical signal.`, > 385 | ).toBe(canonicalCount); | ^ 386 | } else { 387 | if (canonicalCount === 0) { 388 | expect(surface).toBe(0); at C:\\Users\\"
+    },
+    {
+      "idx": 297,
+      "status": "failed",
+      "file": "tests/journey-canonical-signal-parity.spec.ts",
+      "line": 309,
+      "title": "canonical signal parity › check_pm_overdue_assets_count: pm-scheduler #stat-overdue == COUNT(DISTINCT asset_id WHERE is_overdue)",
+      "error": "Error: /workhive/pm-scheduler.html #stat-overdue shows 0 but v_pm_scope_items_truth.is_overdue directly counts 5 (mode=assets). Page is re-deriving instead of trusting the canonical signal. \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m Expected: \u001b[32m5\u001b[39m Received: \u001b[31m0\u001b[39m 383 | `directly counts ${canonicalCount} (mode=${c.mode}). ` + 384 | `Page is re-deriving instead of trusting the canonical signal.`, > 385 | ).toBe(canonicalCount); | ^ 386 | } else { 387 | if (canonicalCount === 0) { 388 | expect(surface).toBe(0); at C:\\"
+    },
+    {
+      "idx": 298,
+      "status": "failed",
+      "file": "tests/journey-canonical-signal-parity.spec.ts",
+      "line": 309,
+      "title": "canonical signal parity › check_low_stock_count: home tile == COUNT(v_inventory_items_truth WHERE is_low_stock)",
+      "error": "Error: Could not query canonical view v_inventory_items_truth.is_low_stock from page scope — db client may not be initialized. \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m Expected: >= \u001b[32m0\u001b[39m Received: \u001b[31m-1\u001b[39m 371 | `Could not query canonical view ${c.view}.${c.filterColumn} from page scope — ` + 372 | `db client may not be initialized.`, > 373 | ).toBeGreaterThanOrEqual(0); | ^ 374 | 375 | // When canonical says 0, the surface may legitimately render `—`. 376 | // Treat NaN as 0 only when canonical is also 0. at C:\\Users\\I"
+    },
+    {
+      "idx": 299,
+      "status": "failed",
+      "file": "tests/journey-canonical-signal-parity.spec.ts",
+      "line": 309,
+      "title": "canonical signal parity › check_open_jobs_count: home tile == COUNT(v_logbook_truth WHERE status=Open)",
+      "error": "Error: Could not query canonical view v_logbook_truth.undefined from page scope — db client may not be initialized. \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m Expected: >= \u001b[32m0\u001b[39m Received: \u001b[31m-1\u001b[39m 371 | `Could not query canonical view ${c.view}.${c.filterColumn} from page scope — ` + 372 | `db client may not be initialized.`, > 373 | ).toBeGreaterThanOrEqual(0); | ^ 374 | 375 | // When canonical says 0, the surface may legitimately render `—`. 376 | // Treat NaN as 0 only when canonical is also 0. at C:\\Users\\ILBeronio\\De"
+    },
+    {
+      "idx": 300,
+      "status": "failed",
+      "file": "tests/journey-canonical-signal-parity.spec.ts",
+      "line": 309,
+      "title": "canonical signal parity › check_risk_alerts_count: home tile == COUNT(v_risk_truth WHERE risk_level IN critical/high)",
+      "error": "TimeoutError: page.waitForFunction: Timeout 8000ms exceeded. at _fixtures.ts:90 88 | 89 | // Wait for either success (localStorage set) or visible error > 90 | await page.waitForFunction( | ^ 91 | () => localStorage.getItem('wh_last_worker') || 92 | (document.getElementById('si-error') && 93 | !document.getElementById('si-error')!.classList.contains('hidden')), at signIn (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\_fixtures.ts:90:14) at Object.whPage (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Ma"
+    },
+    {
+      "idx": 301,
+      "status": "failed",
+      "file": "tests/journey-canonical-signal-parity.spec.ts",
+      "line": 309,
+      "title": "canonical signal parity › check_pm_overdue_home_tile: home tile == hive Team Pulse count (both v_pm_scope_items_truth.is_overdue / v_pm_compliance_truth.is_due rollup)",
+      "error": "TimeoutError: page.waitForFunction: Timeout 8000ms exceeded. at _fixtures.ts:90 88 | 89 | // Wait for either success (localStorage set) or visible error > 90 | await page.waitForFunction( | ^ 91 | () => localStorage.getItem('wh_last_worker') || 92 | (document.getElementById('si-error') && 93 | !document.getElementById('si-error')!.classList.contains('hidden')), at signIn (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\_fixtures.ts:90:14) at Object.whPage (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Ma"
+    },
+    {
+      "idx": 302,
+      "status": "failed",
+      "file": "tests/journey-canonical-signal-parity.spec.ts",
+      "line": 309,
+      "title": "canonical signal parity › check_total_assets_count: asset-hub #ah-total-hero == COUNT(v_asset_truth)",
+      "error": "Error: /workhive/asset-hub.html #ah-total-hero shows 0 but v_asset_truth.undefined directly counts 90 (mode=all). Page is re-deriving instead of trusting the canonical signal. \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m Expected: \u001b[32m90\u001b[39m Received: \u001b[31m0\u001b[39m 383 | `directly counts ${canonicalCount} (mode=${c.mode}). ` + 384 | `Page is re-deriving instead of trusting the canonical signal.`, > 385 | ).toBe(canonicalCount); | ^ 386 | } else { 387 | if (canonicalCount === 0) { 388 | expect(surface).toBe(0); at C:\\Users\\ILBeron"
+    },
+    {
+      "idx": 303,
+      "status": "failed",
+      "file": "tests/journey-canonical-signal-parity.spec.ts",
+      "line": 309,
+      "title": "canonical signal parity › check_critical_assets_count: asset-hub #ah-critical-hero == COUNT(asset_nodes WHERE criticality=critical, case-insensitive)",
+      "error": "Error: /workhive/asset-hub.html #ah-critical-hero shows 0 but v_asset_truth.undefined directly counts 16 (mode=rows). Page is re-deriving instead of trusting the canonical signal. \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m Expected: \u001b[32m16\u001b[39m Received: \u001b[31m0\u001b[39m 383 | `directly counts ${canonicalCount} (mode=${c.mode}). ` + 384 | `Page is re-deriving instead of trusting the canonical signal.`, > 385 | ).toBe(canonicalCount); | ^ 386 | } else { 387 | if (canonicalCount === 0) { 388 | expect(surface).toBe(0); at C:\\Users\\ILB"
+    },
+    {
+      "idx": 304,
+      "status": "failed",
+      "file": "tests/journey-canonical-signal-parity.spec.ts",
+      "line": 309,
+      "title": "canonical signal parity › check_pm_duesoon_assets_count: pm-scheduler #stat-duesoon == DISTINCT(asset_id) WHERE is_due_soon",
+      "error": "Error: /workhive/pm-scheduler.html #stat-duesoon shows 0 but v_pm_scope_items_truth.is_due_soon directly counts 59 (mode=assets). Page is re-deriving instead of trusting the canonical signal. \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m Expected: \u001b[32m59\u001b[39m Received: \u001b[31m0\u001b[39m 383 | `directly counts ${canonicalCount} (mode=${c.mode}). ` + 384 | `Page is re-deriving instead of trusting the canonical signal.`, > 385 | ).toBe(canonicalCount); | ^ 386 | } else { 387 | if (canonicalCount === 0) { 388 | expect(surface).toBe(0); at "
+    },
+    {
+      "idx": 305,
+      "status": "failed",
+      "file": "tests/journey-canonical-signal-parity.spec.ts",
+      "line": 309,
+      "title": "canonical signal parity › check_inventory_low_count: inventory #stat-low == COUNT(v_inventory_items_truth WHERE is_low_stock)",
+      "error": "Error: /workhive/inventory.html #stat-low shows 0 but v_inventory_items_truth.is_low_stock directly counts 9 (mode=rows). Page is re-deriving instead of trusting the canonical signal. \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m Expected: \u001b[32m9\u001b[39m Received: \u001b[31m0\u001b[39m 383 | `directly counts ${canonicalCount} (mode=${c.mode}). ` + 384 | `Page is re-deriving instead of trusting the canonical signal.`, > 385 | ).toBe(canonicalCount); | ^ 386 | } else { 387 | if (canonicalCount === 0) { 388 | expect(surface).toBe(0); at C:\\Users\\"
+    },
+    {
+      "idx": 306,
+      "status": "failed",
+      "file": "tests/journey-canonical-signal-parity.spec.ts",
+      "line": 309,
+      "title": "canonical signal parity › check_inventory_out_count: inventory #stat-out == COUNT(v_inventory_items_truth WHERE is_out_of_stock)",
+      "error": "TimeoutError: page.waitForFunction: Timeout 8000ms exceeded. at _fixtures.ts:90 88 | 89 | // Wait for either success (localStorage set) or visible error > 90 | await page.waitForFunction( | ^ 91 | () => localStorage.getItem('wh_last_worker') || 92 | (document.getElementById('si-error') && 93 | !document.getElementById('si-error')!.classList.contains('hidden')), at signIn (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\_fixtures.ts:90:14) at Object.whPage (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Ma"
+    },
+    {
+      "idx": 307,
+      "status": "failed",
+      "file": "tests/journey-canonical-signal-parity.spec.ts",
+      "line": 309,
+      "title": "canonical signal parity › check_alert_hub_critical_count: alert-hub #ah-critical-hero >= COUNT(v_risk_truth WHERE risk_level IN critical/high)",
+      "error": "TimeoutError: page.waitForFunction: Timeout 8000ms exceeded. at _fixtures.ts:90 88 | 89 | // Wait for either success (localStorage set) or visible error > 90 | await page.waitForFunction( | ^ 91 | () => localStorage.getItem('wh_last_worker') || 92 | (document.getElementById('si-error') && 93 | !document.getElementById('si-error')!.classList.contains('hidden')), at signIn (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\_fixtures.ts:90:14) at Object.whPage (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Ma"
+    },
+    {
+      "idx": 308,
+      "status": "failed",
+      "file": "tests/journey-canonical-signal-parity.spec.ts",
+      "line": 309,
+      "title": "canonical signal parity › check_predictive_critical_count: predictive #count-critical == COUNT(v_risk_truth WHERE risk_level=critical)",
+      "error": "TimeoutError: page.waitForFunction: Timeout 8000ms exceeded. at _fixtures.ts:90 88 | 89 | // Wait for either success (localStorage set) or visible error > 90 | await page.waitForFunction( | ^ 91 | () => localStorage.getItem('wh_last_worker') || 92 | (document.getElementById('si-error') && 93 | !document.getElementById('si-error')!.classList.contains('hidden')), at signIn (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\_fixtures.ts:90:14) at Object.whPage (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Ma"
+    },
+    {
+      "idx": 309,
+      "status": "failed",
+      "file": "tests/journey-canonical-signal-parity.spec.ts",
+      "line": 309,
+      "title": "canonical signal parity › check_predictive_high_count: predictive #count-high == COUNT(v_risk_truth WHERE risk_level=high)",
+      "error": "TimeoutError: page.waitForFunction: Timeout 8000ms exceeded. at _fixtures.ts:90 88 | 89 | // Wait for either success (localStorage set) or visible error > 90 | await page.waitForFunction( | ^ 91 | () => localStorage.getItem('wh_last_worker') || 92 | (document.getElementById('si-error') && 93 | !document.getElementById('si-error')!.classList.contains('hidden')), at signIn (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\_fixtures.ts:90:14) at Object.whPage (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Ma"
+    },
+    {
+      "idx": 310,
+      "status": "failed",
+      "file": "tests/journey-canonical-signal-parity.spec.ts",
+      "line": 309,
+      "title": "canonical signal parity › check_predictive_medium_count: predictive #count-medium == COUNT(v_risk_truth WHERE risk_level=medium)",
+      "error": "TimeoutError: page.waitForFunction: Timeout 8000ms exceeded. at _fixtures.ts:90 88 | 89 | // Wait for either success (localStorage set) or visible error > 90 | await page.waitForFunction( | ^ 91 | () => localStorage.getItem('wh_last_worker') || 92 | (document.getElementById('si-error') && 93 | !document.getElementById('si-error')!.classList.contains('hidden')), at signIn (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\_fixtures.ts:90:14) at Object.whPage (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Ma"
+    },
+    {
+      "idx": 311,
+      "status": "failed",
+      "file": "tests/journey-canonical-signal-parity.spec.ts",
+      "line": 309,
+      "title": "canonical signal parity › check_predictive_low_count: predictive #count-low == COUNT(v_risk_truth WHERE risk_level=low)",
+      "error": "TimeoutError: page.waitForFunction: Timeout 8000ms exceeded. at _fixtures.ts:90 88 | 89 | // Wait for either success (localStorage set) or visible error > 90 | await page.waitForFunction( | ^ 91 | () => localStorage.getItem('wh_last_worker') || 92 | (document.getElementById('si-error') && 93 | !document.getElementById('si-error')!.classList.contains('hidden')), at signIn (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\_fixtures.ts:90:14) at Object.whPage (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Ma"
+    },
+    {
+      "idx": 312,
+      "status": "failed",
+      "file": "tests/journey-canonical-signal-parity.spec.ts",
+      "line": 309,
+      "title": "canonical signal parity › check_predictive_hot_hero: predictive #pr-hot-hero == COUNT(v_risk_truth WHERE risk_level IN critical/high)",
+      "error": "TimeoutError: page.waitForFunction: Timeout 8000ms exceeded. at _fixtures.ts:90 88 | 89 | // Wait for either success (localStorage set) or visible error > 90 | await page.waitForFunction( | ^ 91 | () => localStorage.getItem('wh_last_worker') || 92 | (document.getElementById('si-error') && 93 | !document.getElementById('si-error')!.classList.contains('hidden')), at signIn (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\_fixtures.ts:90:14) at Object.whPage (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Ma"
+    },
+    {
+      "idx": 313,
+      "status": "failed",
+      "file": "tests/journey-canonical-signal-parity.spec.ts",
+      "line": 309,
+      "title": "canonical signal parity › check_predictive_healthy_hero: predictive #pr-healthy-hero == COUNT(v_risk_truth WHERE risk_level=low)",
+      "error": "Error: worker process exited unexpectedly (code=2147483651, signal=null)"
+    },
+    {
+      "idx": 314,
+      "status": "failed",
+      "file": "tests/journey-canonical-signal-parity.spec.ts",
+      "line": 309,
+      "title": "canonical signal parity › check_marketplace_parts_count: marketplace #count-parts == COUNT(v_marketplace_listings_truth WHERE section=parts AND status=published)",
+      "error": "Error: worker process exited unexpectedly (code=3221226505, signal=null)"
+    },
+    {
+      "idx": 321,
+      "status": "failed",
+      "file": "tests/journey-canonical-view-reachability.spec.ts",
+      "line": 114,
+      "title": "Canonical View Reachability — Engine has at least one consumer › every v_*_truth view in migrations has ≥1 consumer reference outside migrations",
+      "error": "Error: worker process exited unexpectedly (code=3221226505, signal=null)"
+    },
+    {
+      "idx": 323,
+      "status": "failed",
+      "file": "tests/journey-community.spec.ts",
+      "line": 32,
+      "title": "community.html — forum journey › page loads without console errors",
+      "error": "Error: worker process exited unexpectedly (code=3221226505, signal=null)"
+    },
+    {
+      "idx": 331,
+      "status": "failed",
+      "file": "tests/journey-content.spec.ts",
+      "line": 21,
+      "title": "hive.html — content quality anchor › python_column_safety: hive surfaces fault-knowledge / embed columns the Python path expects",
+      "error": "Error: worker process exited unexpectedly (code=3221226505, signal=null)"
+    },
+    {
+      "idx": 335,
+      "status": "failed",
+      "file": "tests/journey-cross-page.spec.ts",
+      "line": 104,
+      "title": "Cross-page data flows › inventory add → part appears in inventory list",
+      "error": "TimeoutError: page.waitForFunction: Timeout 8000ms exceeded. at _fixtures.ts:90 88 | 89 | // Wait for either success (localStorage set) or visible error > 90 | await page.waitForFunction( | ^ 91 | () => localStorage.getItem('wh_last_worker') || 92 | (document.getElementById('si-error') && 93 | !document.getElementById('si-error')!.classList.contains('hidden')), at signIn (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\_fixtures.ts:90:14) at Object.whPage (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Ma"
+    },
+    {
+      "idx": 336,
+      "status": "failed",
+      "file": "tests/journey-cross-page.spec.ts",
+      "line": 133,
+      "title": "Cross-page data flows › PM Scheduler verdict updates after data changes (re-navigate recomputes)",
+      "error": "Error: PM verdict should settle after navigation \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mnot\u001b[2m.\u001b[22mtoMatch\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m Expected pattern: not \u001b[32m/^Computing/\u001b[39m Received string: \u001b[31m\"\u001b[7mComputing\u001b[27m PM compliance...\"\u001b[39m 144 | 145 | const label = await whPage.locator('#pm-verdict-label').textContent().catch(() => ''); > 146 | expect(label?.trim(), 'PM verdict should settle after navigation').not.toMatch(/^Computing/); | ^ 147 | }); 148 | }); 149 | at C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell wit"
+    },
+    {
+      "idx": 338,
+      "status": "failed",
+      "file": "tests/journey-cross-surface-kpi-parity.spec.ts",
+      "line": 103,
+      "title": "cross-surface KPI parity › check_open_jobs_parity: v_logbook_truth count agrees with logbook #open-count",
+      "error": "Error: worker-scoped v_logbook_truth shows 5 open WOs but page #open-count shows 0 — canonical drift, page's filter or scope diverged from the view \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m Expected: >= \u001b[32m1\u001b[39m Received: \u001b[31m0\u001b[39m 145 | expect(lbCount, `view shows 0 open WOs but page #open-count shows ${lbCount} — canonical drift`).toBe(0); 146 | } else { > 147 | expect(lbCount, `worker-scoped v_logbook_truth shows ${viewCount} open WOs but page #open-count shows 0 — canonical drift, page's filter or scope diverged from the "
+    },
+    {
+      "idx": 377,
+      "status": "failed",
+      "file": "tests/journey-hive.spec.ts",
+      "line": 49,
+      "title": "hive.html — supervisor Plain-Read journey › page loads without console errors",
+      "error": "Error: serious console errors on hive.html: Failed to load resource: the server responded with a status of 400 (Bad Request) \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // deep equality\u001b[22m \u001b[32m- Expected - 1\u001b[39m \u001b[31m+ Received + 3\u001b[39m \u001b[32m- Array []\u001b[39m \u001b[31m+ Array [\u001b[39m \u001b[31m+ \"Failed to load resource: the server responded with a status of 400 (Bad Request)\",\u001b[39m \u001b[31m+ ]\u001b[39m 72 | ); 73 | console.log('[journey-hive] all errors seen:', errors); > 74 | expect(serious, `serious console errors on hive.html: ${serious.join(' | ')}`).toEqual([])"
+    },
+    {
+      "idx": 381,
+      "status": "failed",
+      "file": "tests/journey-hive.spec.ts",
+      "line": 107,
+      "title": "hive.html — supervisor Plain-Read journey › 3 plain-read cards all have non-placeholder heroes",
+      "error": "Error: stair hero should be populated \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mnot\u001b[2m.\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m Expected: not \u001b[32m\"—\"\u001b[39m 112 | // Stair card 113 | const stairHero = await whPage.locator('#ss-stair-hero').textContent(); > 114 | expect(stairHero?.trim(), 'stair hero should be populated').not.toBe('—'); | ^ 115 | expect(stairHero?.trim()).not.toBe('--'); 116 | 117 | // Adoption card at C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\jour"
+    },
+    {
+      "idx": 551,
+      "status": "failed",
+      "file": "tests/journey-l0-surface-coverage.spec.ts",
+      "line": 31,
+      "title": "L0 bug-class surface coverage (browser-level) › tabindex_positive: no positive tabindex on /workhive/index.html",
+      "error": "TimeoutError: page.waitForFunction: Timeout 8000ms exceeded. at _fixtures.ts:90 88 | 89 | // Wait for either success (localStorage set) or visible error > 90 | await page.waitForFunction( | ^ 91 | () => localStorage.getItem('wh_last_worker') || 92 | (document.getElementById('si-error') && 93 | !document.getElementById('si-error')!.classList.contains('hidden')), at signIn (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\_fixtures.ts:90:14) at Object.whPage (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Ma"
+    },
+    {
+      "idx": 553,
+      "status": "failed",
+      "file": "tests/journey-l0-surface-coverage.spec.ts",
+      "line": 53,
+      "title": "L0 bug-class surface coverage (browser-level) › heading_hierarchy: single h1 + no skip on /workhive/index.html",
+      "error": "TimeoutError: page.waitForFunction: Timeout 8000ms exceeded. at _fixtures.ts:90 88 | 89 | // Wait for either success (localStorage set) or visible error > 90 | await page.waitForFunction( | ^ 91 | () => localStorage.getItem('wh_last_worker') || 92 | (document.getElementById('si-error') && 93 | !document.getElementById('si-error')!.classList.contains('hidden')), at signIn (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\_fixtures.ts:90:14) at Object.whPage (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Ma"
+    },
+    {
+      "idx": 554,
+      "status": "failed",
+      "file": "tests/journey-l0-surface-coverage.spec.ts",
+      "line": 74,
+      "title": "L0 bug-class surface coverage (browser-level) › table_accessible_name: every visible <table> has caption/aria-label/role=presentation on /workhive/index.html",
+      "error": "TimeoutError: page.waitForFunction: Timeout 8000ms exceeded. at _fixtures.ts:90 88 | 89 | // Wait for either success (localStorage set) or visible error > 90 | await page.waitForFunction( | ^ 91 | () => localStorage.getItem('wh_last_worker') || 92 | (document.getElementById('si-error') && 93 | !document.getElementById('si-error')!.classList.contains('hidden')), at signIn (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\_fixtures.ts:90:14) at Object.whPage (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Ma"
+    },
+    {
+      "idx": 562,
+      "status": "failed",
+      "file": "tests/journey-l0-surface-coverage.spec.ts",
+      "line": 123,
+      "title": "L0 bug-class surface coverage (browser-level) › console_log_drift: no naked console.log on /workhive/hive.html page load",
+      "error": "TimeoutError: page.waitForFunction: Timeout 8000ms exceeded. at _fixtures.ts:90 88 | 89 | // Wait for either success (localStorage set) or visible error > 90 | await page.waitForFunction( | ^ 91 | () => localStorage.getItem('wh_last_worker') || 92 | (document.getElementById('si-error') && 93 | !document.getElementById('si-error')!.classList.contains('hidden')), at signIn (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\_fixtures.ts:90:14) at Object.whPage (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Ma"
+    },
+    {
+      "idx": 563,
+      "status": "failed",
+      "file": "tests/journey-l0-surface-coverage.spec.ts",
+      "line": 31,
+      "title": "L0 bug-class surface coverage (browser-level) › tabindex_positive: no positive tabindex on /workhive/logbook.html",
+      "error": "TimeoutError: page.waitForFunction: Timeout 8000ms exceeded. at _fixtures.ts:90 88 | 89 | // Wait for either success (localStorage set) or visible error > 90 | await page.waitForFunction( | ^ 91 | () => localStorage.getItem('wh_last_worker') || 92 | (document.getElementById('si-error') && 93 | !document.getElementById('si-error')!.classList.contains('hidden')), at signIn (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\_fixtures.ts:90:14) at Object.whPage (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Ma"
+    },
+    {
+      "idx": 565,
+      "status": "failed",
+      "file": "tests/journey-l0-surface-coverage.spec.ts",
+      "line": 53,
+      "title": "L0 bug-class surface coverage (browser-level) › heading_hierarchy: single h1 + no skip on /workhive/logbook.html",
+      "error": "TimeoutError: page.waitForFunction: Timeout 8000ms exceeded. at _fixtures.ts:90 88 | 89 | // Wait for either success (localStorage set) or visible error > 90 | await page.waitForFunction( | ^ 91 | () => localStorage.getItem('wh_last_worker') || 92 | (document.getElementById('si-error') && 93 | !document.getElementById('si-error')!.classList.contains('hidden')), at signIn (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\_fixtures.ts:90:14) at Object.whPage (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Ma"
+    },
+    {
+      "idx": 566,
+      "status": "failed",
+      "file": "tests/journey-l0-surface-coverage.spec.ts",
+      "line": 74,
+      "title": "L0 bug-class surface coverage (browser-level) › table_accessible_name: every visible <table> has caption/aria-label/role=presentation on /workhive/logbook.html",
+      "error": "TimeoutError: page.waitForFunction: Timeout 8000ms exceeded. at _fixtures.ts:90 88 | 89 | // Wait for either success (localStorage set) or visible error > 90 | await page.waitForFunction( | ^ 91 | () => localStorage.getItem('wh_last_worker') || 92 | (document.getElementById('si-error') && 93 | !document.getElementById('si-error')!.classList.contains('hidden')), at signIn (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\_fixtures.ts:90:14) at Object.whPage (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Ma"
+    },
+    {
+      "idx": 567,
+      "status": "failed",
+      "file": "tests/journey-l0-surface-coverage.spec.ts",
+      "line": 97,
+      "title": "L0 bug-class surface coverage (browser-level) › select_placeholder: every <select> has safe default on /workhive/logbook.html",
+      "error": "TimeoutError: page.waitForFunction: Timeout 8000ms exceeded. at _fixtures.ts:90 88 | 89 | // Wait for either success (localStorage set) or visible error > 90 | await page.waitForFunction( | ^ 91 | () => localStorage.getItem('wh_last_worker') || 92 | (document.getElementById('si-error') && 93 | !document.getElementById('si-error')!.classList.contains('hidden')), at signIn (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\_fixtures.ts:90:14) at Object.whPage (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Ma"
+    },
+    {
+      "idx": 568,
+      "status": "failed",
+      "file": "tests/journey-l0-surface-coverage.spec.ts",
+      "line": 123,
+      "title": "L0 bug-class surface coverage (browser-level) › console_log_drift: no naked console.log on /workhive/logbook.html page load",
+      "error": "TimeoutError: page.waitForFunction: Timeout 8000ms exceeded. at _fixtures.ts:90 88 | 89 | // Wait for either success (localStorage set) or visible error > 90 | await page.waitForFunction( | ^ 91 | () => localStorage.getItem('wh_last_worker') || 92 | (document.getElementById('si-error') && 93 | !document.getElementById('si-error')!.classList.contains('hidden')), at signIn (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\_fixtures.ts:90:14) at Object.whPage (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Ma"
+    },
+    {
+      "idx": 569,
+      "status": "failed",
+      "file": "tests/journey-l0-surface-coverage.spec.ts",
+      "line": 31,
+      "title": "L0 bug-class surface coverage (browser-level) › tabindex_positive: no positive tabindex on /workhive/inventory.html",
+      "error": "TimeoutError: page.waitForFunction: Timeout 8000ms exceeded. at _fixtures.ts:90 88 | 89 | // Wait for either success (localStorage set) or visible error > 90 | await page.waitForFunction( | ^ 91 | () => localStorage.getItem('wh_last_worker') || 92 | (document.getElementById('si-error') && 93 | !document.getElementById('si-error')!.classList.contains('hidden')), at signIn (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\_fixtures.ts:90:14) at Object.whPage (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Ma"
+    },
+    {
+      "idx": 570,
+      "status": "failed",
+      "file": "tests/journey-l0-surface-coverage.spec.ts",
+      "line": 45,
+      "title": "L0 bug-class surface coverage (browser-level) › viewport_user_scalable: pinch-zoom allowed on /workhive/inventory.html",
+      "error": "TimeoutError: page.waitForFunction: Timeout 8000ms exceeded. at _fixtures.ts:90 88 | 89 | // Wait for either success (localStorage set) or visible error > 90 | await page.waitForFunction( | ^ 91 | () => localStorage.getItem('wh_last_worker') || 92 | (document.getElementById('si-error') && 93 | !document.getElementById('si-error')!.classList.contains('hidden')), at signIn (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\_fixtures.ts:90:14) at Object.whPage (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Ma"
+    },
+    {
+      "idx": 571,
+      "status": "failed",
+      "file": "tests/journey-l0-surface-coverage.spec.ts",
+      "line": 53,
+      "title": "L0 bug-class surface coverage (browser-level) › heading_hierarchy: single h1 + no skip on /workhive/inventory.html",
+      "error": "Error: heading skip 2->4 on /workhive/inventory.html \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeLessThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m Expected: <= \u001b[32m3\u001b[39m Received: \u001b[31m4\u001b[39m 66 | for (const lvl of levels) { 67 | if (prev > 0) { > 68 | expect(lvl, `heading skip ${prev}->${lvl} on ${url}`).toBeLessThanOrEqual(prev + 1); | ^ 69 | } 70 | prev = lvl; 71 | } at C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\journey-l0-surface-coverage.spec.ts:68:65 attachment #1: screenshot (im"
+    },
+    {
+      "idx": 572,
+      "status": "failed",
+      "file": "tests/journey-l0-surface-coverage.spec.ts",
+      "line": 74,
+      "title": "L0 bug-class surface coverage (browser-level) › table_accessible_name: every visible <table> has caption/aria-label/role=presentation on /workhive/inventory.html",
+      "error": "TimeoutError: page.waitForFunction: Timeout 8000ms exceeded. at _fixtures.ts:90 88 | 89 | // Wait for either success (localStorage set) or visible error > 90 | await page.waitForFunction( | ^ 91 | () => localStorage.getItem('wh_last_worker') || 92 | (document.getElementById('si-error') && 93 | !document.getElementById('si-error')!.classList.contains('hidden')), at signIn (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\_fixtures.ts:90:14) at Object.whPage (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Ma"
+    },
+    {
+      "idx": 577,
+      "status": "failed",
+      "file": "tests/journey-l0-surface-coverage.spec.ts",
+      "line": 53,
+      "title": "L0 bug-class surface coverage (browser-level) › heading_hierarchy: single h1 + no skip on /workhive/pm-scheduler.html",
+      "error": "TimeoutError: page.waitForFunction: Timeout 8000ms exceeded. at _fixtures.ts:90 88 | 89 | // Wait for either success (localStorage set) or visible error > 90 | await page.waitForFunction( | ^ 91 | () => localStorage.getItem('wh_last_worker') || 92 | (document.getElementById('si-error') && 93 | !document.getElementById('si-error')!.classList.contains('hidden')), at signIn (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\_fixtures.ts:90:14) at Object.whPage (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Ma"
+    },
+    {
+      "idx": 585,
+      "status": "failed",
+      "file": "tests/journey-l0-surface-coverage.spec.ts",
+      "line": 97,
+      "title": "L0 bug-class surface coverage (browser-level) › select_placeholder: every <select> has safe default on /workhive/analytics.html",
+      "error": "TimeoutError: page.waitForFunction: Timeout 8000ms exceeded. at _fixtures.ts:90 88 | 89 | // Wait for either success (localStorage set) or visible error > 90 | await page.waitForFunction( | ^ 91 | () => localStorage.getItem('wh_last_worker') || 92 | (document.getElementById('si-error') && 93 | !document.getElementById('si-error')!.classList.contains('hidden')), at signIn (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\_fixtures.ts:90:14) at Object.whPage (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Ma"
+    },
+    {
+      "idx": 587,
+      "status": "failed",
+      "file": "tests/journey-l0-surface-coverage.spec.ts",
+      "line": 31,
+      "title": "L0 bug-class surface coverage (browser-level) › tabindex_positive: no positive tabindex on /workhive/asset-hub.html",
+      "error": "TimeoutError: page.waitForFunction: Timeout 8000ms exceeded. at _fixtures.ts:90 88 | 89 | // Wait for either success (localStorage set) or visible error > 90 | await page.waitForFunction( | ^ 91 | () => localStorage.getItem('wh_last_worker') || 92 | (document.getElementById('si-error') && 93 | !document.getElementById('si-error')!.classList.contains('hidden')), at signIn (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\_fixtures.ts:90:14) at Object.whPage (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Ma"
+    },
+    {
+      "idx": 589,
+      "status": "failed",
+      "file": "tests/journey-l0-surface-coverage.spec.ts",
+      "line": 53,
+      "title": "L0 bug-class surface coverage (browser-level) › heading_hierarchy: single h1 + no skip on /workhive/asset-hub.html",
+      "error": "TimeoutError: page.waitForFunction: Timeout 8000ms exceeded. at _fixtures.ts:90 88 | 89 | // Wait for either success (localStorage set) or visible error > 90 | await page.waitForFunction( | ^ 91 | () => localStorage.getItem('wh_last_worker') || 92 | (document.getElementById('si-error') && 93 | !document.getElementById('si-error')!.classList.contains('hidden')), at signIn (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\_fixtures.ts:90:14) at Object.whPage (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Ma"
+    },
+    {
+      "idx": 593,
+      "status": "failed",
+      "file": "tests/journey-logbook.spec.ts",
+      "line": 48,
+      "title": "logbook.html — full write journey › page loads without console errors",
+      "error": "TimeoutError: page.waitForFunction: Timeout 8000ms exceeded. at _fixtures.ts:90 88 | 89 | // Wait for either success (localStorage set) or visible error > 90 | await page.waitForFunction( | ^ 91 | () => localStorage.getItem('wh_last_worker') || 92 | (document.getElementById('si-error') && 93 | !document.getElementById('si-error')!.classList.contains('hidden')), at signIn (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\_fixtures.ts:90:14) at Object.whPage (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Ma"
+    },
+    {
+      "idx": 596,
+      "status": "failed",
+      "file": "tests/journey-logbook.spec.ts",
+      "line": 83,
+      "title": "logbook.html — full write journey › happy path: save Inspection entry — DB confirms write",
+      "error": "Error: expected success toast matching /(saved|logged|entry)/i but last seen toast was: Draft restored. Continue where you left off. at _helpers.ts:54 52 | await page.waitForTimeout(150); 53 | } > 54 | throw new Error( | ^ 55 | `expected success toast matching ${successToastMatcher} but last seen toast was: ${lastSeen}`, 56 | ); 57 | } at assertSubmitSucceeded (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\_helpers.ts:54:9) at C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-lear"
+    },
+    {
+      "idx": 597,
+      "status": "failed",
+      "file": "tests/journey-logbook.spec.ts",
+      "line": 109,
+      "title": "logbook.html — full write journey › happy path: save Breakdown entry — consequence field present",
+      "error": "TimeoutError: page.waitForFunction: Timeout 8000ms exceeded. at _fixtures.ts:90 88 | 89 | // Wait for either success (localStorage set) or visible error > 90 | await page.waitForFunction( | ^ 91 | () => localStorage.getItem('wh_last_worker') || 92 | (document.getElementById('si-error') && 93 | !document.getElementById('si-error')!.classList.contains('hidden')), at signIn (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\_fixtures.ts:90:14) at Object.whPage (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Ma"
+    },
+    {
+      "idx": 600,
+      "status": "failed",
+      "file": "tests/journey-logbook.spec.ts",
+      "line": 167,
+      "title": "logbook.html — full write journey › write-path: update entry status Open to Closed — closed_at set in DB",
+      "error": "Error: expected success toast matching /(saved|logged|updated|entry)/i but last seen toast was: null at _helpers.ts:54 52 | await page.waitForTimeout(150); 53 | } > 54 | throw new Error( | ^ 55 | `expected success toast matching ${successToastMatcher} but last seen toast was: ${lastSeen}`, 56 | ); 57 | } at assertSubmitSucceeded (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\_helpers.ts:54:9) at C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with "
+    },
+    {
+      "idx": 626,
+      "status": "failed",
+      "file": "tests/journey-marketplace.spec.ts",
+      "line": 40,
+      "title": "marketplace.html — marketplace journey › page loads without serious console errors",
+      "error": "TimeoutError: page.waitForFunction: Timeout 8000ms exceeded. at _fixtures.ts:90 88 | 89 | // Wait for either success (localStorage set) or visible error > 90 | await page.waitForFunction( | ^ 91 | () => localStorage.getItem('wh_last_worker') || 92 | (document.getElementById('si-error') && 93 | !document.getElementById('si-error')!.classList.contains('hidden')), at signIn (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\_fixtures.ts:90:14) at Object.whPage (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Ma"
+    },
+    {
+      "idx": 627,
+      "status": "failed",
+      "file": "tests/journey-marketplace.spec.ts",
+      "line": 50,
+      "title": "marketplace.html — marketplace journey › source chip declares marketplace_listings + v_marketplace_sellers_truth",
+      "error": "TimeoutError: page.waitForFunction: Timeout 8000ms exceeded. at _fixtures.ts:90 88 | 89 | // Wait for either success (localStorage set) or visible error > 90 | await page.waitForFunction( | ^ 91 | () => localStorage.getItem('wh_last_worker') || 92 | (document.getElementById('si-error') && 93 | !document.getElementById('si-error')!.classList.contains('hidden')), at signIn (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\_fixtures.ts:90:14) at Object.whPage (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Ma"
+    },
+    {
+      "idx": 628,
+      "status": "failed",
+      "file": "tests/journey-marketplace.spec.ts",
+      "line": 59,
+      "title": "marketplace.html — marketplace journey › verdict settles with real listing count",
+      "error": "TimeoutError: page.waitForFunction: Timeout 8000ms exceeded. at _fixtures.ts:90 88 | 89 | // Wait for either success (localStorage set) or visible error > 90 | await page.waitForFunction( | ^ 91 | () => localStorage.getItem('wh_last_worker') || 92 | (document.getElementById('si-error') && 93 | !document.getElementById('si-error')!.classList.contains('hidden')), at signIn (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\_fixtures.ts:90:14) at Object.whPage (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Ma"
+    },
+    {
+      "idx": 643,
+      "status": "failed",
+      "file": "tests/journey-megagate-marketplace.spec.ts",
+      "line": 62,
+      "title": "Tier 5b — Marketplace flows (megagate) › F5_seller_inquiries_visible_on_profile: marketplace-seller-profile reads marketplace_inquiries",
+      "error": "Error: seller profile must query marketplace_inquiries \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoMatch\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m Expected pattern: \u001b[32m/from\\s*\\(\\s*['\"]marketplace_inquiries['\"]\\s*\\)/\u001b[39m Received string: \u001b[31m\"<!DOCTYPE html>·\u001b[39m \u001b[31m<html lang=\\\"en\\\">·\u001b[39m \u001b[31m<head>·\u001b[39m \u001b[31m <meta charset=\\\"UTF-8\\\" />·\u001b[39m \u001b[31m <meta name=\\\"viewport\\\" content=\\\"width=device-width, initial-scale=1.0, viewport-fit=cover\\\" />·\u001b[39m \u001b[31m <meta name=\\\"theme-color\\\" content=\\\"#F7A21B\\\" />·\u001b[39m \u001b[31m <link rel=\\\"manifest\\\" href=\\\"manifest.json\\\" />·\u001b[39m \u001b[31m <title>"
+    },
+    {
+      "idx": 648,
+      "status": "failed",
+      "file": "tests/journey-mobile-a11y.spec.ts",
+      "line": 82,
+      "title": "Tier 6 — Mobile / accessibility › G5_main_landmark_present_on_every_page: every public page has <main>",
+      "error": "Error: every public page must include a <main> landmark \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // deep equality\u001b[22m \u001b[32m- Expected - 1\u001b[39m \u001b[31m+ Received + 3\u001b[39m \u001b[32m- Array []\u001b[39m \u001b[31m+ Array [\u001b[39m \u001b[31m+ \"agentic-rag-observability.html\",\u001b[39m \u001b[31m+ ]\u001b[39m 88 | if (!/<main\\b/i.test(content)) missing.push(f); 89 | } > 90 | expect(missing, 'every public page must include a <main> landmark').toEqual([]); | ^ 91 | }); 92 | 93 | test('G6_static_no_avoid_all_in_html2pdf_config: no avoid-all in any pagebreak config', async () => { at C:\\Users\\"
+    },
+    {
+      "idx": 656,
+      "status": "failed",
+      "file": "tests/journey-notebooklm.spec.ts",
+      "line": 232,
+      "title": "NotebookLM Long-Form Lane — dashboard journey › error_kind=quota_exceeded → amber quota banner (no re-auth button)",
+      "error": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveCount\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed Locator: locator('#nlmReloginBtn-idea_002') Expected: \u001b[32m0\u001b[39m Received: \u001b[31m1\u001b[39m Timeout: 8000ms Call log: \u001b[2m - Expect \"toHaveCount\" with timeout 8000ms\u001b[22m \u001b[2m - waiting for locator('#nlmReloginBtn-idea_002')\u001b[22m \u001b[2m 18 × locator resolved to 1 element\u001b[22m \u001b[2m - unexpected value \"1\"\u001b[22m 257 | 258 | const msg = page.locator(`#nlmMsg-${IDEA_WITH_ASSETS}`); > 259 | // Banner mentions rate-limit (Google's USER_DISPLAYABLE_ERROR is a | ^ 260 | // per-session-token throttle, no"
+    },
+    {
+      "idx": 665,
+      "status": "failed",
+      "file": "tests/journey-permissions.spec.ts",
+      "line": 19,
+      "title": "Permission gates — supervisor view (Pablo Aguilar) › supervisor sees Plain-Read summary block on hive.html",
+      "error": "TimeoutError: page.waitForFunction: Timeout 8000ms exceeded. at _fixtures.ts:90 88 | 89 | // Wait for either success (localStorage set) or visible error > 90 | await page.waitForFunction( | ^ 91 | () => localStorage.getItem('wh_last_worker') || 92 | (document.getElementById('si-error') && 93 | !document.getElementById('si-error')!.classList.contains('hidden')), at signIn (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\_fixtures.ts:90:14) at Object.whPage (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Ma"
+    },
+    {
+      "idx": 666,
+      "status": "failed",
+      "file": "tests/journey-permissions.spec.ts",
+      "line": 28,
+      "title": "Permission gates — supervisor view (Pablo Aguilar) › supervisor sees Engagement/Adoption card",
+      "error": "TimeoutError: page.waitForFunction: Timeout 8000ms exceeded. at _fixtures.ts:90 88 | 89 | // Wait for either success (localStorage set) or visible error > 90 | await page.waitForFunction( | ^ 91 | () => localStorage.getItem('wh_last_worker') || 92 | (document.getElementById('si-error') && 93 | !document.getElementById('si-error')!.classList.contains('hidden')), at signIn (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\_fixtures.ts:90:14) at Object.whPage (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Ma"
+    },
+    {
+      "idx": 674,
+      "status": "failed",
+      "file": "tests/journey-plant-connections.spec.ts",
+      "line": 36,
+      "title": "plant-connections.html — plant connections journey › page loads without console errors",
+      "error": "TimeoutError: page.waitForFunction: Timeout 8000ms exceeded. at _fixtures.ts:90 88 | 89 | // Wait for either success (localStorage set) or visible error > 90 | await page.waitForFunction( | ^ 91 | () => localStorage.getItem('wh_last_worker') || 92 | (document.getElementById('si-error') && 93 | !document.getElementById('si-error')!.classList.contains('hidden')), at signIn (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\_fixtures.ts:90:14) at Object.whPage (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Ma"
+    },
+    {
+      "idx": 675,
+      "status": "failed",
+      "file": "tests/journey-plant-connections.spec.ts",
+      "line": 48,
+      "title": "plant-connections.html — plant connections journey › supervisor sees content (not the denied gate)",
+      "error": "TimeoutError: page.waitForFunction: Timeout 8000ms exceeded. at _fixtures.ts:90 88 | 89 | // Wait for either success (localStorage set) or visible error > 90 | await page.waitForFunction( | ^ 91 | () => localStorage.getItem('wh_last_worker') || 92 | (document.getElementById('si-error') && 93 | !document.getElementById('si-error')!.classList.contains('hidden')), at signIn (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\_fixtures.ts:90:14) at Object.whPage (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Ma"
+    },
+    {
+      "idx": 694,
+      "status": "failed",
+      "file": "tests/journey-predictive.spec.ts",
+      "line": 40,
+      "title": "predictive.html — predictive maintenance journey › source chip declares v_risk_truth and 365d window",
+      "error": "Error: chip should mention v_risk_truth \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoContain\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // indexOf\u001b[22m Expected substring: \u001b[32m\"v_risk_truth\"\u001b[39m Received string: \u001b[31m\"\"\u001b[39m 44 | const chip = whPage.locator('.wh-source-chip').first(); 45 | const text = await chip.textContent({ timeout: 5000 }).catch(() => ''); > 46 | expect(text, 'chip should mention v_risk_truth').toContain('v_risk_truth'); | ^ 47 | }); 48 | 49 | test('Plain-Read verdict settles with meaningful content', async ({ whPage }) => { at C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintena"
+    },
+    {
+      "idx": 695,
+      "status": "failed",
+      "file": "tests/journey-predictive.spec.ts",
+      "line": 49,
+      "title": "predictive.html — predictive maintenance journey › Plain-Read verdict settles with meaningful content",
+      "error": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m Expected: > \u001b[32m3\u001b[39m Received: \u001b[31m0\u001b[39m 53 | const label = await whPage.locator('[id$=\"verdict-label\"]').first().textContent().catch(() => ''); 54 | expect(label?.trim()).not.toMatch(/^Computing|^Loading/); > 55 | expect(label?.trim().length).toBeGreaterThan(3); | ^ 56 | }); 57 | 58 | test('3 plain-read cards populated with real numbers', async ({ whPage }) => { at C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Web"
+    },
+    {
+      "idx": 696,
+      "status": "failed",
+      "file": "tests/journey-predictive.spec.ts",
+      "line": 58,
+      "title": "predictive.html — predictive maintenance journey › 3 plain-read cards populated with real numbers",
+      "error": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m Expected: >= \u001b[32m3\u001b[39m Received: \u001b[31m0\u001b[39m 62 | const heroes = whPage.locator('.sc-hero'); 63 | const count = await heroes.count(); > 64 | expect(count).toBeGreaterThanOrEqual(3); | ^ 65 | 66 | for (let i = 0; i < Math.min(count, 3); i++) { 67 | const text = await heroes.nth(i).textContent(); at C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\journey-predictive.spec.ts:64:19 attachment "
+    },
+    {
+      "idx": 697,
+      "status": "failed",
+      "file": "tests/journey-predictive.spec.ts",
+      "line": 72,
+      "title": "predictive.html — predictive maintenance journey › RULES ENGINE V1 badge is visible",
+      "error": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed Locator: locator('text=RULES ENGINE V1').first() Expected: visible Timeout: 5000ms Error: element(s) not found Call log: \u001b[2m - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m \u001b[2m - waiting for locator('text=RULES ENGINE V1').first()\u001b[22m 76 | 77 | const badge = whPage.locator('text=RULES ENGINE V1').first(); > 78 | await expect(badge).toBeVisible({ timeout: 5000 }); | ^ 79 | }); 80 | 81 | test('Risk Ranking tab shows a table with asset rows', async ({ whPage }) => { at C:\\Users\\ILBeronio\\Desktop\\Industry "
+    },
+    {
+      "idx": 725,
+      "status": "failed",
+      "file": "tests/journey-regression-pins.spec.ts",
+      "line": 50,
+      "title": "Tier 12 — Regression pins › M3_main_landmark_on_every_page: every production HTML has <main>",
+      "error": "Error: every production page must include <main> \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // deep equality\u001b[22m \u001b[32m- Expected - 1\u001b[39m \u001b[31m+ Received + 3\u001b[39m \u001b[32m- Array []\u001b[39m \u001b[31m+ Array [\u001b[39m \u001b[31m+ \"agentic-rag-observability.html\",\u001b[39m \u001b[31m+ ]\u001b[39m 55 | if (!/<main\\b/i.test(c)) missing.push(f); 56 | } > 57 | expect(missing, 'every production page must include <main>').toEqual([]); | ^ 58 | }); 59 | 60 | test('M4_no_inline_eschtml_anywhere: utils.js is the single source of truth', async () => { at C:\\Users\\ILBeronio\\Desktop\\Industry 4.0"
+    },
+    {
+      "idx": 730,
+      "status": "failed",
+      "file": "tests/journey-report-sender.spec.ts",
+      "line": 32,
+      "title": "report-sender.html — report send journey › REGRESSION: no escHtml duplicate declaration (crash fix)",
+      "error": "TimeoutError: page.waitForFunction: Timeout 8000ms exceeded. at _fixtures.ts:90 88 | 89 | // Wait for either success (localStorage set) or visible error > 90 | await page.waitForFunction( | ^ 91 | () => localStorage.getItem('wh_last_worker') || 92 | (document.getElementById('si-error') && 93 | !document.getElementById('si-error')!.classList.contains('hidden')), at signIn (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\_fixtures.ts:90:14) at Object.whPage (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Ma"
+    },
+    {
+      "idx": 731,
+      "status": "failed",
+      "file": "tests/journey-report-sender.spec.ts",
+      "line": 43,
+      "title": "report-sender.html — report send journey › page loads without serious console errors",
+      "error": "TimeoutError: page.waitForFunction: Timeout 8000ms exceeded. at _fixtures.ts:90 88 | 89 | // Wait for either success (localStorage set) or visible error > 90 | await page.waitForFunction( | ^ 91 | () => localStorage.getItem('wh_last_worker') || 92 | (document.getElementById('si-error') && 93 | !document.getElementById('si-error')!.classList.contains('hidden')), at signIn (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\_fixtures.ts:90:14) at Object.whPage (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Ma"
+    },
+    {
+      "idx": 732,
+      "status": "failed",
+      "file": "tests/journey-report-sender.spec.ts",
+      "line": 56,
+      "title": "report-sender.html — report send journey › source chip declares ai_reports + report_contacts",
+      "error": "TimeoutError: page.waitForFunction: Timeout 8000ms exceeded. at _fixtures.ts:90 88 | 89 | // Wait for either success (localStorage set) or visible error > 90 | await page.waitForFunction( | ^ 91 | () => localStorage.getItem('wh_last_worker') || 92 | (document.getElementById('si-error') && 93 | !document.getElementById('si-error')!.classList.contains('hidden')), at signIn (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\_fixtures.ts:90:14) at Object.whPage (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Ma"
+    },
+    {
+      "idx": 733,
+      "status": "failed",
+      "file": "tests/journey-report-sender.spec.ts",
+      "line": 66,
+      "title": "report-sender.html — report send journey › verdict settled: reports available count shown",
+      "error": "TimeoutError: page.waitForFunction: Timeout 8000ms exceeded. at _fixtures.ts:90 88 | 89 | // Wait for either success (localStorage set) or visible error > 90 | await page.waitForFunction( | ^ 91 | () => localStorage.getItem('wh_last_worker') || 92 | (document.getElementById('si-error') && 93 | !document.getElementById('si-error')!.classList.contains('hidden')), at signIn (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\_fixtures.ts:90:14) at Object.whPage (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Ma"
+    },
+    {
+      "idx": 734,
+      "status": "failed",
+      "file": "tests/journey-report-sender.spec.ts",
+      "line": 79,
+      "title": "report-sender.html — report send journey › Send button is disabled when no reports selected",
+      "error": "TimeoutError: page.waitForFunction: Timeout 8000ms exceeded. at _fixtures.ts:90 88 | 89 | // Wait for either success (localStorage set) or visible error > 90 | await page.waitForFunction( | ^ 91 | () => localStorage.getItem('wh_last_worker') || 92 | (document.getElementById('si-error') && 93 | !document.getElementById('si-error')!.classList.contains('hidden')), at signIn (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\_fixtures.ts:90:14) at Object.whPage (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Ma"
+    },
+    {
+      "idx": 749,
+      "status": "failed",
+      "file": "tests/journey-shift-brain.spec.ts",
+      "line": 109,
+      "title": "shift-brain.html — shift planner journey › write-path: generate plan — archives any existing plan first, then generates + DB confirms",
+      "error": "Error: shift_plans draft row should exist in DB after Generate \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m Expected: \u001b[32mtrue\u001b[39m Received: \u001b[31mfalse\u001b[39m 146 | await whPage.waitForTimeout(800); 147 | } > 148 | expect(found, 'shift_plans draft row should exist in DB after Generate').toBe(true); | ^ 149 | 150 | // Publish button should now be visible 151 | const pubBtn = whPage.locator('#publish-btn'); at C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Websit"
+    },
+    {
+      "idx": 750,
+      "status": "failed",
+      "file": "tests/journey-shift-brain.spec.ts",
+      "line": 155,
+      "title": "shift-brain.html — shift planner journey › write-path: publish plan — clicks Publish, DB status becomes published",
+      "error": "TimeoutError: page.waitForFunction: Timeout 8000ms exceeded. at _fixtures.ts:90 88 | 89 | // Wait for either success (localStorage set) or visible error > 90 | await page.waitForFunction( | ^ 91 | () => localStorage.getItem('wh_last_worker') || 92 | (document.getElementById('si-error') && 93 | !document.getElementById('si-error')!.classList.contains('hidden')), at signIn (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\_fixtures.ts:90:14) at Object.whPage (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Ma"
+    },
+    {
+      "idx": 779,
+      "status": "failed",
+      "file": "tests/journey-temporal-rag.spec.ts",
+      "line": 36,
+      "title": "temporal-rag-orchestrator — Phase 3 of AGENTIC_RAG_ROADMAP.md › missing question → 400",
+      "error": "TimeoutError: page.waitForFunction: Timeout 8000ms exceeded. at _fixtures.ts:90 88 | 89 | // Wait for either success (localStorage set) or visible error > 90 | await page.waitForFunction( | ^ 91 | () => localStorage.getItem('wh_last_worker') || 92 | (document.getElementById('si-error') && 93 | !document.getElementById('si-error')!.classList.contains('hidden')), at signIn (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\_fixtures.ts:90:14) at Object.whPage (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Ma"
+    },
+    {
+      "idx": 781,
+      "status": "failed",
+      "file": "tests/journey-temporal-rag.spec.ts",
+      "line": 50,
+      "title": "temporal-rag-orchestrator — Phase 3 of AGENTIC_RAG_ROADMAP.md › invalid from/to range → 400",
+      "error": "TimeoutError: page.waitForFunction: Timeout 8000ms exceeded. at _fixtures.ts:90 88 | 89 | // Wait for either success (localStorage set) or visible error > 90 | await page.waitForFunction( | ^ 91 | () => localStorage.getItem('wh_last_worker') || 92 | (document.getElementById('si-error') && 93 | !document.getElementById('si-error')!.classList.contains('hidden')), at signIn (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\_fixtures.ts:90:14) at Object.whPage (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Ma"
+    },
+    {
+      "idx": 782,
+      "status": "failed",
+      "file": "tests/journey-temporal-rag.spec.ts",
+      "line": 60,
+      "title": "temporal-rag-orchestrator — Phase 3 of AGENTIC_RAG_ROADMAP.md › happy path: 5-year window decomposes to yearly periods",
+      "error": "TimeoutError: page.waitForFunction: Timeout 8000ms exceeded. at _fixtures.ts:90 88 | 89 | // Wait for either success (localStorage set) or visible error > 90 | await page.waitForFunction( | ^ 91 | () => localStorage.getItem('wh_last_worker') || 92 | (document.getElementById('si-error') && 93 | !document.getElementById('si-error')!.classList.contains('hidden')), at signIn (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\_fixtures.ts:90:14) at Object.whPage (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Ma"
+    },
+    {
+      "idx": 785,
+      "status": "failed",
+      "file": "tests/journey-voice-companion-gates.spec.ts",
+      "line": 126,
+      "title": "voice-journal Phase A companion-gates wiring › safety procedures: PPE / near-miss / JSA / incident detectors classify correctly",
+      "error": "TimeoutError: page.waitForFunction: Timeout 8000ms exceeded. at _fixtures.ts:90 88 | 89 | // Wait for either success (localStorage set) or visible error > 90 | await page.waitForFunction( | ^ 91 | () => localStorage.getItem('wh_last_worker') || 92 | (document.getElementById('si-error') && 93 | !document.getElementById('si-error')!.classList.contains('hidden')), at signIn (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\_fixtures.ts:90:14) at Object.whPage (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Ma"
+    },
+    {
+      "idx": 786,
+      "status": "failed",
+      "file": "tests/journey-voice-companion-gates.spec.ts",
+      "line": 173,
+      "title": "voice-journal Phase A companion-gates wiring › compliance chain: PII scrub returns markers + consent / erasure / suspicious classify",
+      "error": "TimeoutError: page.waitForFunction: Timeout 8000ms exceeded. at _fixtures.ts:90 88 | 89 | // Wait for either success (localStorage set) or visible error > 90 | await page.waitForFunction( | ^ 91 | () => localStorage.getItem('wh_last_worker') || 92 | (document.getElementById('si-error') && 93 | !document.getElementById('si-error')!.classList.contains('hidden')), at signIn (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\_fixtures.ts:90:14) at Object.whPage (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Ma"
+    },
+    {
+      "idx": 788,
+      "status": "failed",
+      "file": "tests/journey-voice-companion-gates.spec.ts",
+      "line": 260,
+      "title": "voice-journal Phase A companion-gates wiring › energy query + multi-lang: T204 / T207 / T209 detectors classify correctly",
+      "error": "TimeoutError: page.waitForFunction: Timeout 8000ms exceeded. at _fixtures.ts:90 88 | 89 | // Wait for either success (localStorage set) or visible error > 90 | await page.waitForFunction( | ^ 91 | () => localStorage.getItem('wh_last_worker') || 92 | (document.getElementById('si-error') && 93 | !document.getElementById('si-error')!.classList.contains('hidden')), at signIn (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\_fixtures.ts:90:14) at Object.whPage (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Ma"
+    },
+    {
+      "idx": 789,
+      "status": "failed",
+      "file": "tests/journey-voice-companion-gates.spec.ts",
+      "line": 293,
+      "title": "voice-journal Phase A companion-gates wiring › team coordination chain: handoff + shared note + watchlist + resolution",
+      "error": "TimeoutError: page.waitForFunction: Timeout 8000ms exceeded. at _fixtures.ts:90 88 | 89 | // Wait for either success (localStorage set) or visible error > 90 | await page.waitForFunction( | ^ 91 | () => localStorage.getItem('wh_last_worker') || 92 | (document.getElementById('si-error') && 93 | !document.getElementById('si-error')!.classList.contains('hidden')), at signIn (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\_fixtures.ts:90:14) at Object.whPage (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Ma"
+    },
+    {
+      "idx": 791,
+      "status": "failed",
+      "file": "tests/journey-voice-companion-gates.spec.ts",
+      "line": 665,
+      "title": "voice-journal per-anchor blast-radius (Phase A2.5) › T175 LOTO GATE (_detectLotoIntent) — detector + wire ratchet",
+      "error": "TimeoutError: page.waitForFunction: Timeout 8000ms exceeded. at _fixtures.ts:90 88 | 89 | // Wait for either success (localStorage set) or visible error > 90 | await page.waitForFunction( | ^ 91 | () => localStorage.getItem('wh_last_worker') || 92 | (document.getElementById('si-error') && 93 | !document.getElementById('si-error')!.classList.contains('hidden')), at signIn (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\_fixtures.ts:90:14) at Object.whPage (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Ma"
+    },
+    {
+      "idx": 792,
+      "status": "failed",
+      "file": "tests/journey-voice-companion-gates.spec.ts",
+      "line": 665,
+      "title": "voice-journal per-anchor blast-radius (Phase A2.5) › T176 HOT WORK GATE (_detectHotWorkIntent) — detector + wire ratchet",
+      "error": "TimeoutError: page.waitForFunction: Timeout 8000ms exceeded. at _fixtures.ts:90 88 | 89 | // Wait for either success (localStorage set) or visible error > 90 | await page.waitForFunction( | ^ 91 | () => localStorage.getItem('wh_last_worker') || 92 | (document.getElementById('si-error') && 93 | !document.getElementById('si-error')!.classList.contains('hidden')), at signIn (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\_fixtures.ts:90:14) at Object.whPage (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Ma"
+    },
+    {
+      "idx": 793,
+      "status": "failed",
+      "file": "tests/journey-voice-companion-gates.spec.ts",
+      "line": 665,
+      "title": "voice-journal per-anchor blast-radius (Phase A2.5) › T177 CONFINED SPACE GATE (_detectConfinedSpaceIntent) — detector + wire ratchet",
+      "error": "TimeoutError: page.waitForFunction: Timeout 8000ms exceeded. at _fixtures.ts:90 88 | 89 | // Wait for either success (localStorage set) or visible error > 90 | await page.waitForFunction( | ^ 91 | () => localStorage.getItem('wh_last_worker') || 92 | (document.getElementById('si-error') && 93 | !document.getElementById('si-error')!.classList.contains('hidden')), at signIn (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\_fixtures.ts:90:14) at Object.whPage (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Ma"
+    },
+    {
+      "idx": 794,
+      "status": "failed",
+      "file": "tests/journey-voice-companion-gates.spec.ts",
+      "line": 665,
+      "title": "voice-journal per-anchor blast-radius (Phase A2.5) › T178 PPE MATRIX (_isPpeQuery) — detector + wire ratchet",
+      "error": "TimeoutError: page.waitForFunction: Timeout 8000ms exceeded. at _fixtures.ts:90 88 | 89 | // Wait for either success (localStorage set) or visible error > 90 | await page.waitForFunction( | ^ 91 | () => localStorage.getItem('wh_last_worker') || 92 | (document.getElementById('si-error') && 93 | !document.getElementById('si-error')!.classList.contains('hidden')), at signIn (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\_fixtures.ts:90:14) at Object.whPage (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Ma"
+    },
+    {
+      "idx": 796,
+      "status": "failed",
+      "file": "tests/journey-voice-companion-gates.spec.ts",
+      "line": 665,
+      "title": "voice-journal per-anchor blast-radius (Phase A2.5) › T180 JSA OFFER (_shouldOfferJsa) — detector + wire ratchet",
+      "error": "TimeoutError: page.waitForFunction: Timeout 8000ms exceeded. at _fixtures.ts:90 88 | 89 | // Wait for either success (localStorage set) or visible error > 90 | await page.waitForFunction( | ^ 91 | () => localStorage.getItem('wh_last_worker') || 92 | (document.getElementById('si-error') && 93 | !document.getElementById('si-error')!.classList.contains('hidden')), at signIn (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\_fixtures.ts:90:14) at Object.whPage (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Ma"
+    },
+    {
+      "idx": 800,
+      "status": "failed",
+      "file": "tests/journey-voice-companion-gates.spec.ts",
+      "line": 665,
+      "title": "voice-journal per-anchor blast-radius (Phase A2.5) › T102 STT MANGLED (_looksGrammarMangled) — detector + wire ratchet",
+      "error": "TimeoutError: page.waitForFunction: Timeout 8000ms exceeded. at _fixtures.ts:90 88 | 89 | // Wait for either success (localStorage set) or visible error > 90 | await page.waitForFunction( | ^ 91 | () => localStorage.getItem('wh_last_worker') || 92 | (document.getElementById('si-error') && 93 | !document.getElementById('si-error')!.classList.contains('hidden')), at signIn (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\_fixtures.ts:90:14) at Object.whPage (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Ma"
+    },
+    {
+      "idx": 803,
+      "status": "failed",
+      "file": "tests/journey-voice-companion-gates.spec.ts",
+      "line": 665,
+      "title": "voice-journal per-anchor blast-radius (Phase A2.5) › T115 PII SCRUBBED (_scrubPii) — detector + wire ratchet",
+      "error": "TimeoutError: page.waitForFunction: Timeout 8000ms exceeded. at _fixtures.ts:90 88 | 89 | // Wait for either success (localStorage set) or visible error > 90 | await page.waitForFunction( | ^ 91 | () => localStorage.getItem('wh_last_worker') || 92 | (document.getElementById('si-error') && 93 | !document.getElementById('si-error')!.classList.contains('hidden')), at signIn (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\_fixtures.ts:90:14) at Object.whPage (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Ma"
+    },
+    {
+      "idx": 813,
+      "status": "failed",
+      "file": "tests/journey-voice-companion-gates.spec.ts",
+      "line": 665,
+      "title": "voice-journal per-anchor blast-radius (Phase A2.5) › T153 BUDDY SET (_detectBuddySet) — detector + wire ratchet",
+      "error": "TimeoutError: page.waitForFunction: Timeout 8000ms exceeded. at _fixtures.ts:90 88 | 89 | // Wait for either success (localStorage set) or visible error > 90 | await page.waitForFunction( | ^ 91 | () => localStorage.getItem('wh_last_worker') || 92 | (document.getElementById('si-error') && 93 | !document.getElementById('si-error')!.classList.contains('hidden')), at signIn (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\_fixtures.ts:90:14) at Object.whPage (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Ma"
+    },
+    {
+      "idx": 816,
+      "status": "failed",
+      "file": "tests/journey-voice-companion-gates.spec.ts",
+      "line": 665,
+      "title": "voice-journal per-anchor blast-radius (Phase A2.5) › T206 DIALECT NOTE (_isIlonggoLeaning) — detector + wire ratchet",
+      "error": "TimeoutError: page.waitForFunction: Timeout 8000ms exceeded. at _fixtures.ts:90 88 | 89 | // Wait for either success (localStorage set) or visible error > 90 | await page.waitForFunction( | ^ 91 | () => localStorage.getItem('wh_last_worker') || 92 | (document.getElementById('si-error') && 93 | !document.getElementById('si-error')!.classList.contains('hidden')), at signIn (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\_fixtures.ts:90:14) at Object.whPage (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Ma"
+    },
+    {
+      "idx": 825,
+      "status": "failed",
+      "file": "tests/journey-voice-journal.spec.ts",
+      "line": 124,
+      "title": "voice-journal.html — voice journal journey › zaniah-default-persona: voice-journal opens with Zaniah selected by default",
+      "error": "Error: zaniah should be the default persona (Step D) \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m Expected: \u001b[32mtrue\u001b[39m Received: \u001b[31mfalse\u001b[39m 141 | || el.getAttribute('aria-checked') === 'true' 142 | ); > 143 | expect(isActive, 'zaniah should be the default persona (Step D)').toBe(true); | ^ 144 | }); 145 | 146 | test('ai-gateway anon-allow: voice-journal agent answers without sign-in', async ({ whPage }) => { at C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude"
+    },
+    {
+      "idx": 826,
+      "status": "failed",
+      "file": "tests/journey-voice-journal.spec.ts",
+      "line": 146,
+      "title": "voice-journal.html — voice journal journey › ai-gateway anon-allow: voice-journal agent answers without sign-in",
+      "error": "Error: answer must be non-empty \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m Expected: > \u001b[32m20\u001b[39m Received: \u001b[31m2\u001b[39m 184 | 185 | expect(result.status, `gateway returned ${result.status} (error: ${result.error})`).toBe(200); > 186 | expect(result.answer.length, 'answer must be non-empty').toBeGreaterThan(20); | ^ 187 | // Negative: the offline fallback string must NEVER come back from the 188 | // gateway. If voice-handler.js sees it, that means the gateway said no. 189 | expect(result.answer.toLowerCase()).not.toContain(\"i'm offline\""
+    },
+    {
+      "idx": 827,
+      "status": "failed",
+      "file": "tests/journey-voice-journal.spec.ts",
+      "line": 193,
+      "title": "voice-journal.html — voice journal journey › zaniah-strategist-lens: priorities-question reply uses strategist vocabulary",
+      "error": "Error: Zaniah's reply (\"{}…\") must use at least one strategist-lane keyword (oee, planned-vs-reactive, planned vs reactive, reactive, backlog, recurrence, mtbf, priorit, this week, this month, escalat, review, pattern, trend). If this fails, Step D's domain lens didn't reach the prompt. \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeTruthy\u001b[2m()\u001b[22m Received: \u001b[31mundefined\u001b[39m 234 | ]; 235 | const hit = strategistVocab.find(v => lower.includes(v)); > 236 | expect(hit, `Zaniah's reply (\"${result.answer.slice(0, 200)}…\") must use at least one strategist-lane keyword (${strategistVocab.join("
+    },
+    {
+      "idx": 828,
+      "status": "failed",
+      "file": "tests/journey-voice-journal.spec.ts",
+      "line": 239,
+      "title": "voice-journal.html — voice journal journey › hezekiah-technical-lens: torque-question reply bridges to technical or uses technical vocabulary",
+      "error": "Error: Hezekiah's reply (\"{}…\") must use at least one technical-lane keyword (torque, nm, newton-meter, n·m, cross-pattern, grade 8.8, m20, manufacturer, manual, pre-load, lubricated, dry, wrench, pattern, pass). If this fails, Step D's domain lens didn't reach the prompt. \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeTruthy\u001b[2m()\u001b[22m Received: \u001b[31mundefined\u001b[39m 276 | ]; 277 | const hit = technicalVocab.find(v => lower.includes(v)); > 278 | expect(hit, `Hezekiah's reply (\"${result.answer.slice(0, 200)}…\") must use at least one technical-lane keyword (${technicalVocab.join(', ')}). If thi"
+    },
+    {
+      "idx": 831,
+      "status": "failed",
+      "file": "tests/journey-voice-journal.spec.ts",
+      "line": 383,
+      "title": "voice-journal.html — voice journal journey › dialog-noise-transcript-guard: empty / 1-2 char / pure-filler transcripts route as noise",
+      "error": "Error: Noise guard mis-classified: [ { \"text\": \"no\", \"expected\": false, \"label\": \"short negation (handled by negation bypass)\", \"got\": true } ]. Empty / filler-only transcripts that fall through to the LLM waste model cost AND trip the topic-switch clarification UI on silence. \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // deep equality\u001b[22m \u001b[32m- Expected - 1\u001b[39m \u001b[31m+ Received + 8\u001b[39m \u001b[32m- Array []\u001b[39m \u001b[31m+ Array [\u001b[39m \u001b[31m+ Object {\u001b[39m \u001b[31m+ \"expected\": false,\u001b[39m \u001b[31m+ \"got\": true,\u001b[39m \u001b[31m+ \"label\": \"short negation (handled by ne"
+    },
+    {
+      "idx": 833,
+      "status": "failed",
+      "file": "tests/journey-voice-journal.spec.ts",
+      "line": 471,
+      "title": "voice-journal.html — voice journal journey › dialog-prior-topic-handle: voice-handler prompt builder emits a PRIOR TOPIC HANDLE clause with PH + English pronouns",
+      "error": "Error: PRIOR TOPIC HANDLE must list \"that\" \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m Expected: \u001b[32mtrue\u001b[39m Received: \u001b[31mfalse\u001b[39m 504 | expect(audit.hasHandle, 'PRIOR TOPIC HANDLE clause must exist').toBe(true); 505 | expect(audit.mentionsIt, 'PRIOR TOPIC HANDLE must list \"it\"').toBe(true); > 506 | expect(audit.mentionsThat,'PRIOR TOPIC HANDLE must list \"that\"').toBe(true); | ^ 507 | expect(audit.mentionsYan, 'PRIOR TOPIC HANDLE must list \"yan\" (PH)').toBe(true); 508 | expect(audit.mentionsYun, 'PRIOR TOPIC HANDLE must l"
+    },
+    {
+      "idx": 835,
+      "status": "failed",
+      "file": "tests/journey-voice-journal.spec.ts",
+      "line": 554,
+      "title": "voice-journal.html — voice journal journey › dialog-system-prompt-slot-bullets-live: _buildVoiceSystemPrompt emits \"You already know:\" + PRIOR TOPIC HANDLE for a real dialogState object",
+      "error": "Error: page.evaluate: ReferenceError: ctx is not defined at _buildVoiceSystemPrompt (http://127.0.0.1:5000/workhive/voice-handler.js:6226:30) at eval (eval at evaluate (:302:30), <anonymous>:18:22) at UtilityScript.evaluate (<anonymous>:304:16) at UtilityScript.<anonymous> (<anonymous>:1:44) at _buildVoiceSystemPrompt (http://127.0.0.1:5000/workhive/voice-handler.js:6226:30) at eval (eval at evaluate (:302:30), <anonymous>:18:22) at UtilityScript.evaluate (<anonymous>:304:16) at UtilityScript.<anonymous> (<anonymous>:1:44) at C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self"
+    },
+    {
+      "idx": 838,
+      "status": "failed",
+      "file": "tests/journey-voice-journal.spec.ts",
+      "line": 685,
+      "title": "voice-journal.html — voice journal journey › dialog-quality-extended-detectors: turns #5-#10 + #14 helpers behave correctly",
+      "error": "Error: One or more turn #5-#14 detectors mis-classified: [ { \"label\": \"repeat: \\\"what does that mean exactly\\\"\", \"got\": true, \"expected\": false } ] \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // deep equality\u001b[22m \u001b[32m- Expected - 1\u001b[39m \u001b[31m+ Received + 7\u001b[39m \u001b[32m- Array []\u001b[39m \u001b[31m+ Array [\u001b[39m \u001b[31m+ Object {\u001b[39m \u001b[31m+ \"expected\": false,\u001b[39m \u001b[31m+ \"got\": true,\u001b[39m \u001b[31m+ \"label\": \"repeat: \\\"what does that mean exactly\\\"\",\u001b[39m \u001b[31m+ },\u001b[39m \u001b[31m+ ]\u001b[39m 754 | failures, 755 | `One or more turn #5-#14 detectors mis-classified: ${JSON.str"
+    },
+    {
+      "idx": 839,
+      "status": "failed",
+      "file": "tests/journey-voice-journal.spec.ts",
+      "line": 759,
+      "title": "voice-journal.html — voice journal journey › ai-companion-workflow-detectors: turns #55-#64 behaviour locked",
+      "error": "Error: T58 action replay returns new asset \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m Expected: \u001b[32m\"P-205\"\u001b[39m Received: \u001b[31mnull\u001b[39m 826 | expect(verdict.stale).not.toContain('asset_tag'); 827 | expect(verdict.stale).toContain('time_window'); > 828 | expect(verdict.replay.yes, 'T58 action replay returns new asset').toBe('P-205'); | ^ 829 | expect(verdict.replay.no, 'T58 non-replay returns null').toBeNull(); 830 | expect(verdict.lang, 'T59 language detector').toEqual(['tagalog', 'english', 'cebuano', null]); 831 | expect(v"
+    },
+    {
+      "idx": 840,
+      "status": "failed",
+      "file": "tests/journey-voice-journal.spec.ts",
+      "line": 839,
+      "title": "voice-journal.html — voice journal journey › ai-companion-orchestration-detectors: turns #65-#74 behaviour locked",
+      "error": "Error: T65 \"save as PDF\" detected \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m Expected: \u001b[32mtrue\u001b[39m Received: \u001b[31mfalse\u001b[39m 933 | expect(verdict.ready).toBe(true); 934 | // T65 PDF export > 935 | expect(verdict.pdf[0], 'T65 \"save as PDF\" detected').toBe(true); | ^ 936 | expect(verdict.pdf[1], 'T65 i-pdf mo ito detected').toBe(true); 937 | expect(verdict.pdf[2], 'T65 non-PDF returns false').toBe(false); 938 | // T66 pronunciation at C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build "
+    },
+    {
+      "idx": 841,
+      "status": "failed",
+      "file": "tests/journey-voice-journal.spec.ts",
+      "line": 976,
+      "title": "voice-journal.html — voice journal journey › ai-companion-trust-deployment-detectors: turns #75-#84 behaviour locked",
+      "error": "Error: T77 \"is this fresh\" detected \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m Expected: \u001b[32mtrue\u001b[39m Received: \u001b[31mfalse\u001b[39m 1064 | expect(verdict.shapes.social).toBe('social'); 1065 | // T77 freshness > 1066 | expect(verdict.fresh[0], 'T77 \"is this fresh\" detected').toBe(true); | ^ 1067 | expect(verdict.fresh[1], 'T77 \"kailan ito na-update\" detected').toBe(true); 1068 | expect(verdict.fresh[2], 'T77 non-freshness returns false').toBe(false); 1069 | // T78 rate limit at C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenanc"
+    },
+    {
+      "idx": 842,
+      "status": "failed",
+      "file": "tests/journey-voice-journal.spec.ts",
+      "line": 1101,
+      "title": "voice-journal.html — voice journal journey › ai-companion-input-normalization-detectors: turns #85-#94 behaviour locked",
+      "error": "TimeoutError: page.waitForFunction: Timeout 8000ms exceeded. at _fixtures.ts:90 88 | 89 | // Wait for either success (localStorage set) or visible error > 90 | await page.waitForFunction( | ^ 91 | () => localStorage.getItem('wh_last_worker') || 92 | (document.getElementById('si-error') && 93 | !document.getElementById('si-error')!.classList.contains('hidden')), at signIn (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\_fixtures.ts:90:14) at Object.whPage (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Ma"
+    },
+    {
+      "idx": 843,
+      "status": "failed",
+      "file": "tests/journey-voice-journal.spec.ts",
+      "line": 1209,
+      "title": "voice-journal.html — voice journal journey › ai-companion-integration-audit-detectors: turns #95-#104 behaviour locked",
+      "error": "TimeoutError: page.waitForFunction: Timeout 8000ms exceeded. at _fixtures.ts:90 88 | 89 | // Wait for either success (localStorage set) or visible error > 90 | await page.waitForFunction( | ^ 91 | () => localStorage.getItem('wh_last_worker') || 92 | (document.getElementById('si-error') && 93 | !document.getElementById('si-error')!.classList.contains('hidden')), at signIn (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\_fixtures.ts:90:14) at Object.whPage (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Ma"
+    },
+    {
+      "idx": 844,
+      "status": "failed",
+      "file": "tests/journey-voice-journal.spec.ts",
+      "line": 1301,
+      "title": "voice-journal.html — voice journal journey › ai-companion-learning-detectors: turns #105-#114 behaviour locked",
+      "error": "TimeoutError: page.waitForFunction: Timeout 8000ms exceeded. at _fixtures.ts:90 88 | 89 | // Wait for either success (localStorage set) or visible error > 90 | await page.waitForFunction( | ^ 91 | () => localStorage.getItem('wh_last_worker') || 92 | (document.getElementById('si-error') && 93 | !document.getElementById('si-error')!.classList.contains('hidden')), at signIn (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\_fixtures.ts:90:14) at Object.whPage (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Ma"
+    },
+    {
+      "idx": 845,
+      "status": "failed",
+      "file": "tests/journey-voice-journal.spec.ts",
+      "line": 1405,
+      "title": "voice-journal.html — voice journal journey › ai-companion-compliance-detectors: turns #115-#124 behaviour locked",
+      "error": "TimeoutError: page.waitForFunction: Timeout 8000ms exceeded. at _fixtures.ts:90 88 | 89 | // Wait for either success (localStorage set) or visible error > 90 | await page.waitForFunction( | ^ 91 | () => localStorage.getItem('wh_last_worker') || 92 | (document.getElementById('si-error') && 93 | !document.getElementById('si-error')!.classList.contains('hidden')), at signIn (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\_fixtures.ts:90:14) at Object.whPage (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Ma"
+    },
+    {
+      "idx": 846,
+      "status": "failed",
+      "file": "tests/journey-voice-journal.spec.ts",
+      "line": 1512,
+      "title": "voice-journal.html — voice journal journey › ai-companion-accessibility-detectors: turns #125-#134 behaviour locked",
+      "error": "TimeoutError: page.waitForFunction: Timeout 8000ms exceeded. at _fixtures.ts:90 88 | 89 | // Wait for either success (localStorage set) or visible error > 90 | await page.waitForFunction( | ^ 91 | () => localStorage.getItem('wh_last_worker') || 92 | (document.getElementById('si-error') && 93 | !document.getElementById('si-error')!.classList.contains('hidden')), at signIn (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\_fixtures.ts:90:14) at Object.whPage (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Ma"
+    },
+    {
+      "idx": 847,
+      "status": "failed",
+      "file": "tests/journey-voice-journal.spec.ts",
+      "line": 1614,
+      "title": "voice-journal.html — voice journal journey › ai-companion-operational-detectors: turns #135-#144 behaviour locked",
+      "error": "TimeoutError: page.waitForFunction: Timeout 8000ms exceeded. at _fixtures.ts:90 88 | 89 | // Wait for either success (localStorage set) or visible error > 90 | await page.waitForFunction( | ^ 91 | () => localStorage.getItem('wh_last_worker') || 92 | (document.getElementById('si-error') && 93 | !document.getElementById('si-error')!.classList.contains('hidden')), at signIn (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\_fixtures.ts:90:14) at Object.whPage (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Ma"
+    },
+    {
+      "idx": 848,
+      "status": "failed",
+      "file": "tests/journey-voice-journal.spec.ts",
+      "line": 1670,
+      "title": "voice-journal.html — voice journal journey › ai-companion-team-coordination-detectors: turns #145-#154 behaviour locked",
+      "error": "TimeoutError: page.waitForFunction: Timeout 8000ms exceeded. at _fixtures.ts:90 88 | 89 | // Wait for either success (localStorage set) or visible error > 90 | await page.waitForFunction( | ^ 91 | () => localStorage.getItem('wh_last_worker') || 92 | (document.getElementById('si-error') && 93 | !document.getElementById('si-error')!.classList.contains('hidden')), at signIn (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\_fixtures.ts:90:14) at Object.whPage (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Ma"
+    },
+    {
+      "idx": 849,
+      "status": "failed",
+      "file": "tests/journey-voice-journal.spec.ts",
+      "line": 1751,
+      "title": "voice-journal.html — voice journal journey › ai-companion-external-integration-detectors: turns #155-#164 behaviour locked",
+      "error": "TimeoutError: page.waitForFunction: Timeout 8000ms exceeded. at _fixtures.ts:90 88 | 89 | // Wait for either success (localStorage set) or visible error > 90 | await page.waitForFunction( | ^ 91 | () => localStorage.getItem('wh_last_worker') || 92 | (document.getElementById('si-error') && 93 | !document.getElementById('si-error')!.classList.contains('hidden')), at signIn (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\_fixtures.ts:90:14) at Object.whPage (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Ma"
+    },
+    {
+      "idx": 853,
+      "status": "failed",
+      "file": "tests/journey-voice-journal.spec.ts",
+      "line": 2012,
+      "title": "voice-journal.html — voice journal journey › ai-companion-intelligence-anchors: turns #25/#30/#32/#33/#34 prompt anchors appear in the rendered prompt",
+      "error": "Error: page.evaluate: ReferenceError: ctx is not defined at _buildVoiceSystemPrompt (http://127.0.0.1:5000/workhive/voice-handler.js:6226:30) at eval (eval at evaluate (:302:30), <anonymous>:6:22) at UtilityScript.evaluate (<anonymous>:304:16) at UtilityScript.<anonymous> (<anonymous>:1:44) at _buildVoiceSystemPrompt (http://127.0.0.1:5000/workhive/voice-handler.js:6226:30) at eval (eval at evaluate (:302:30), <anonymous>:6:22) at UtilityScript.evaluate (<anonymous>:304:16) at UtilityScript.<anonymous> (<anonymous>:1:44) at C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-l"
+    },
+    {
+      "idx": 854,
+      "status": "failed",
+      "file": "tests/journey-voice-journal.spec.ts",
+      "line": 2046,
+      "title": "voice-journal.html — voice journal journey › ai-companion-trust-anchors: turns #15/#16 prompt builder emits HALLUCINATION GUARD + CITATION RULE; turn #21 wh-tts spells out acronyms",
+      "error": "Error: page.evaluate: ReferenceError: ctx is not defined at Object._buildVoiceSystemPrompt (http://127.0.0.1:5000/workhive/voice-handler.js:6226:30) at eval (eval at evaluate (:302:30), <anonymous>:7:25) at UtilityScript.evaluate (<anonymous>:304:16) at UtilityScript.<anonymous> (<anonymous>:1:44) at Object._buildVoiceSystemPrompt (http://127.0.0.1:5000/workhive/voice-handler.js:6226:30) at eval (eval at evaluate (:302:30), <anonymous>:7:25) at UtilityScript.evaluate (<anonymous>:304:16) at UtilityScript.<anonymous> (<anonymous>:1:44) at C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance E"
+    },
+    {
+      "idx": 855,
+      "status": "failed",
+      "file": "tests/journey-voice-journal.spec.ts",
+      "line": 2089,
+      "title": "voice-journal.html — voice journal journey › dialog-prompt-anchors-live: turns #11/#12/#13 prompt builder emits LANGUAGE NOTE + SENSITIVE TOPIC REDIRECT + worker name",
+      "error": "Error: page.evaluate: ReferenceError: ctx is not defined at _buildVoiceSystemPrompt (http://127.0.0.1:5000/workhive/voice-handler.js:6226:30) at eval (eval at evaluate (:302:30), <anonymous>:6:22) at UtilityScript.evaluate (<anonymous>:304:16) at UtilityScript.<anonymous> (<anonymous>:1:44) at _buildVoiceSystemPrompt (http://127.0.0.1:5000/workhive/voice-handler.js:6226:30) at eval (eval at evaluate (:302:30), <anonymous>:6:22) at UtilityScript.evaluate (<anonymous>:304:16) at UtilityScript.<anonymous> (<anonymous>:1:44) at C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-l"
+    },
+    {
+      "idx": 857,
+      "status": "failed",
+      "file": "tests/journey-voice-phases.spec.ts",
+      "line": 35,
+      "title": "voice companion phases — runtime wiring › phase_1_always_scan: voice button + canonical-views snapshot helper present",
+      "error": "TimeoutError: page.waitForFunction: Timeout 8000ms exceeded. at _fixtures.ts:90 88 | 89 | // Wait for either success (localStorage set) or visible error > 90 | await page.waitForFunction( | ^ 91 | () => localStorage.getItem('wh_last_worker') || 92 | (document.getElementById('si-error') && 93 | !document.getElementById('si-error')!.classList.contains('hidden')), at signIn (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\_fixtures.ts:90:14) at Object.whPage (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Ma"
+    },
+    {
+      "idx": 921,
+      "status": "failed",
+      "file": "tests/platform-validators.spec.ts",
+      "line": 74,
+      "title": "Layer 0 validator behavioral coverage (2026-05-19 additions) › documented_column_pair: every near-duplicate column pair is allowlisted",
+      "error": "Error: every near-duplicate column pair must be documented \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m Expected: \u001b[32m0\u001b[39m Received: \u001b[31m1\u001b[39m 75 | const r = readReport('canonical_overlap_report.json'); 76 | expect(r.census.near_dup_cols_undocumented, > 77 | 'every near-duplicate column pair must be documented').toBe(0); | ^ 78 | expect(r.census.near_dup_cols_total).toBe(r.census.near_dup_cols_allowlisted); 79 | }); 80 | at C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell wi"
+    },
+    {
+      "idx": 923,
+      "status": "failed",
+      "file": "tests/pm-scheduler.spec.ts",
+      "line": 13,
+      "title": "pm-scheduler.html › page loads and renders scope items list",
+      "error": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed Locator: locator('text=/PM|Preventive|Scheduler|Asset|Maintenance/i').first() Expected: visible Received: hidden Timeout: 5000ms Call log: \u001b[2m - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m \u001b[2m - waiting for locator('text=/PM|Preventive|Scheduler|Asset|Maintenance/i').first()\u001b[22m \u001b[2m 13 × locator resolved to <div hidden=\"\" id=\"no-results\" class=\"empty-state\">No PM tasks match those filters.</div>\u001b[22m \u001b[2m - unexpected value \"hidden\"\u001b[22m 20 | await expect( 21 | whPage.locator('text=/PM|Preventive|Sc"
+    }
+  ],
+  "by_file": {
+    "tests/journey-voice-journal.spec.ts": 22,
+    "tests/journey-canonical-signal-parity.spec.ts": 19,
+    "tests/journey-l0-surface-coverage.spec.ts": 17,
+    "tests/journey-voice-companion-gates.spec.ts": 13,
+    "tests/assistant.spec.ts": 12,
+    "tests/journey-achievements.spec.ts": 8,
+    "tests/journey-logbook.spec.ts": 8,
+    "tests/journey-asset-hub.spec.ts": 6,
+    "tests/achievements.spec.ts": 5,
+    "tests/journey-analytics.spec.ts": 5,
+    "tests/journey-hive.spec.ts": 5,
+    "tests/journey-predictive.spec.ts": 5,
+    "tests/journey-report-sender.spec.ts": 5,
+    "tests/founder-console.spec.ts": 4,
+    "tests/journey-ai-quality.spec.ts": 4,
+    "tests/journey-agentic-rag.spec.ts": 3,
+    "tests/journey-ai.spec.ts": 3,
+    "tests/journey-alerts.spec.ts": 3,
+    "tests/journey-marketplace.spec.ts": 3,
+    "tests/journey-skillmatrix.spec.ts": 3,
+    "tests/journey-temporal-rag.spec.ts": 3,
+    "tests/journey-agent-memory.spec.ts": 2,
+    "tests/journey-agentic-rag-observability.spec.ts": 2,
+    "tests/journey-calm-dashboard-behaviour.spec.ts": 2,
+    "tests/journey-cross-page.spec.ts": 2,
+    "tests/journey-permissions.spec.ts": 2,
+    "tests/journey-plant-connections.spec.ts": 2,
+    "tests/journey-shift-brain.spec.ts": 2,
+    "tests/ph-intelligence.spec.ts": 2,
+    "tests/pm-scheduler.spec.ts": 2,
+    "tests/ai-quality.spec.ts": 1,
+    "tests/asset-hub.spec.ts": 1,
+    "tests/dayplanner.spec.ts": 1,
+    "tests/engineering-design.spec.ts": 1,
+    "tests/feedback-journey.spec.ts": 1,
+    "tests/feedback-realtime.spec.ts": 1,
+    "tests/index.spec.ts": 1,
+    "tests/integrations.spec.ts": 1,
+    "tests/inventory.spec.ts": 1,
+    "tests/journey-agentic.spec.ts": 1,
+    "tests/journey-auth.spec.ts": 1,
+    "tests/journey-canonical-view-reachability.spec.ts": 1,
+    "tests/journey-community.spec.ts": 1,
+    "tests/journey-content.spec.ts": 1,
+    "tests/journey-cross-surface-kpi-parity.spec.ts": 1,
+    "tests/journey-engineering-design.spec.ts": 1,
+    "tests/journey-inventory.spec.ts": 1,
+    "tests/journey-megagate-marketplace.spec.ts": 1,
+    "tests/journey-mobile-a11y.spec.ts": 1,
+    "tests/journey-notebooklm.spec.ts": 1,
+    "tests/journey-regression-pins.spec.ts": 1,
+    "tests/journey-voice-phases.spec.ts": 1,
+    "tests/marketplace-admin.spec.ts": 1,
+    "tests/marketplace.spec.ts": 1,
+    "tests/platform-validators.spec.ts": 1,
+    "tests/project-report.spec.ts": 1,
+    "tests/report-sender.spec.ts": 1
+  }
+}

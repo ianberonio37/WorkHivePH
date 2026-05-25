@@ -1,0 +1,493 @@
+{
+  "total_failed": 56,
+  "stats": {
+    "startTime": "2026-05-24T16:49:51.584Z",
+    "duration": 3701996.22,
+    "expected": 571,
+    "skipped": 23,
+    "unexpected": 56,
+    "flaky": 0
+  },
+  "flake": [
+    {
+      "file": "integrations.spec.ts",
+      "title": "loads and renders without page errors",
+      "line": 11,
+      "status": "failed",
+      "duration_ms": 7667,
+      "error": "Error: page errors on /workhive/integrations.html: [console.error] TypeError: Failed to fetch at https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:105903 at https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:110864 at Cr (https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:111032) at https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:161312 at _s._useSession (https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:158860) at async _s._getUser (https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:161171) at async https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2:7:160974 expect(received).toEqual(expected) // deep equality - Expected - 1 + Received + 10 - Array [] + Array [ + \"[console.error] TypeError: Failed to fetch + at https://cdn.jsdelivr.net/npm/@supabase/supabase-"
+    },
+    {
+      "file": "journey-agentic-rag-observability.spec.ts",
+      "title": "page loads without console errors",
+      "line": 16,
+      "status": "failed",
+      "duration_ms": 6093,
+      "error": "Error: expect(received).toEqual(expected) // deep equality - Expected - 1 + Received + 3 - Array [] + Array [ + \"supabaseKey is required.\", + ] 22 | const serious = errors.filter(e => 23 | !e.includes('net::ERR_') && !e.includes('Failed to fetch') && !e.includes('NotAllowedError')); > 24 | expect(serious).toEqual([]); | ^ 25 | }); 26 | 27 | test('renders filter bar + 3 tables + summary container', async ({ whPage }) => { at C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\journey-agentic-rag-observability.spec.ts:24:21"
+    },
+    {
+      "file": "ph-intelligence.spec.ts",
+      "title": "loads and renders without page errors",
+      "line": 11,
+      "status": "failed",
+      "duration_ms": 6809,
+      "error": "Error: page errors on /workhive/ph-intelligence.html: Cannot read properties of null (reading 'classList') expect(received).toEqual(expected) // deep equality - Expected - 1 + Received + 3 - Array [] + Array [ + \"Cannot read properties of null (reading 'classList')\", + ] at _smoke-template.ts:60 58 | !/net::ERR_/i.test(e) 59 | ); > 60 | expect(seriousErrors, `page errors on ${url}: ${seriousErrors.join(' | ')}`).toEqual([]); | ^ 61 | } 62 | at smokePage (C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\_smoke-template.ts:60:80) at C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\ph-intelligence.spec.ts:12:5"
+    }
+  ],
+  "fixture": [],
+  "sentinel": [],
+  "real": [
+    {
+      "file": "dayplanner.spec.ts",
+      "title": "page loads and lists today's schedule items",
+      "line": 14,
+      "status": "failed",
+      "duration_ms": 11032,
+      "error": "Error: expect(locator).toBeVisible() failed Locator: locator('text=/Open|Schedule|Planner|Today/i').first() Expected: visible Received: hidden Timeout: 5000ms Call log: - Expect \"toBeVisible\" with timeout 5000ms - waiting for locator('text=/Open|Schedule|Planner|Today/i').first() 13 × locator resolved to <div hidden=\"\" id=\"empty-state\" class=\"empty-state\">Nothing scheduled — tap '+' to plan a task.</div> - unexpected value \"hidden\" 23 | await expect( 24 | whPage.locator('text=/Open|Schedule|Planner|Today/i').first() > 25 | ).toBeVisible({ timeout: 5000 }); | ^ 26 | }); 27 | 28 | test('add-item flow does not show a fake \"saved\" toast on blocked save', async ({ whPage }) => { at C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Co"
+    },
+    {
+      "file": "founder-console.spec.ts",
+      "title": "admin_gate_not_commented: no commented-out gate redirect logic",
+      "line": 49,
+      "status": "failed",
+      "duration_ms": 6085,
+      "error": "Error: no commented-out redirect on the admin gate path expect(received).toBe(expected) // Object.is equality Expected: false Received: true 52 | const __sentSrc_4 = await pageSrcWithExternals(whPage); 53 | const stripped = /\\/\\/[^\\n]*window\\.location|\\/\\/[^\\n]*redirect|\\/\\/[^\\n]*router\\.push/i.test(__sentSrc_4); > 54 | expect(stripped, 'no commented-out redirect on the admin gate path').toBe(false); | ^ 55 | }); 56 | 57 | }); at C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\founder-console.spec.ts:54:74"
+    },
+    {
+      "file": "journey-agentic-rag-observability.spec.ts",
+      "title": "renders filter bar + 3 tables + summary container",
+      "line": 27,
+      "status": "failed",
+      "duration_ms": 15334,
+      "error": "Error: expect(locator).toBeVisible() failed Locator: locator('#summary-cards') Expected: visible Received: hidden Timeout: 8000ms Call log: - Expect \"toBeVisible\" with timeout 8000ms - waiting for locator('#summary-cards') 19 × locator resolved to <div id=\"summary-cards\" class=\"summary-row\"></div> - unexpected value \"hidden\" 33 | await expect(whPage.locator('#filter-route')).toBeVisible(); 34 | await expect(whPage.locator('#filter-apply')).toBeVisible(); > 35 | await expect(whPage.locator('#summary-cards')).toBeVisible(); | ^ 36 | await expect(whPage.locator('#route-tbl')).toBeVisible(); 37 | await expect(whPage.locator('#heavy-tbl')).toBeVisible(); 38 | await expect(whPage.locator('#recent-tbl')).toBeVisible(); at C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learni"
+    },
+    {
+      "file": "journey-agentic-rag.spec.ts",
+      "title": "citation markers present in answer when chunks were graded successfully",
+      "line": 155,
+      "status": "failed",
+      "duration_ms": 6955,
+      "error": "Error: answer must either cite a chunk [c#] or admit no records expect(received).toBe(expected) // Object.is equality Expected: true Received: false 171 | const hasCitation = /\\[c[a-z0-9#_-]+\\]/i.test(result.body.answer || ''); 172 | const isAdmission = answer.includes(\"don't have\") || answer.includes('no record') || answer.includes('no matching') || answer.includes('not enough'); > 173 | expect(hasCitation || isAdmission, 'answer must either cite a chunk [c#] or admit no records').toBe(true); | ^ 174 | }); 175 | 176 | test('hallucination guard: never invents asset tags not in chunks', async ({ whPage }) => { at C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\journey-agentic-rag.spec.ts:173:100"
+    },
+    {
+      "file": "journey-agentic-rag.spec.ts",
+      "title": "hallucination guard: never invents asset tags not in chunks",
+      "line": 176,
+      "status": "failed",
+      "duration_ms": 7025,
+      "error": "Error: answer mentions fictional asset but neither cites a chunk nor admits no records expect(received).toBe(expected) // Object.is equality Expected: true Received: false 195 | const hasCitation = /\\[c[a-z0-9#_-]+\\]/i.test(result.body.answer || ''); 196 | const isAdmission = answer.includes(\"don't have\") || answer.includes('no record') || answer.includes('no matching') || answer.includes('not enough'); > 197 | expect(hasCitation || isAdmission, 'answer mentions fictional asset but neither cites a chunk nor admits no records').toBe(true); | ^ 198 | } 199 | }); 200 | at C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\journey-agentic-rag.spec.ts:197:125"
+    },
+    {
+      "file": "journey-agentic.spec.ts",
+      "title": "bounded_fetch: trace query carries a .limit(N) clause in source",
+      "line": 49,
+      "status": "failed",
+      "duration_ms": 4561,
+      "error": "Error: agentic_rag_traces must be referenced expect(received).toContain(expected) // indexOf Expected substring: \"agentic_rag_traces\" Received string: \"<html lang=\\\"en\\\" style=\\\"overflow-x: hidden;\\\"><head> <meta charset=\\\"UTF-8\\\"> <meta name=\\\"theme-color\\\" content=\\\"#F7A21B\\\"> <meta name=\\\"viewport\\\" content=\\\"width=device-width, initial-scale=1.0, viewport-fit=cover\\\"> <!-- Layer -1.5 Calm Dashboard Contract opt-in: this page declares that it follows the verdict-first / disclosure-for-secondary / hide-zero-tiles pattern. The skill-rule miner (tools/mine_skill_rules.py) enforces all three rules on any page carrying this meta. See frontend_calm_dashboard_* entries in skill_rules_manifest.json. --> <meta name=\\\"calm-dashboard\\\" content=\\\"1\\\"> <meta name=\\\"google-site-verification\\\" content"
+    },
+    {
+      "file": "journey-ai-quality.spec.ts",
+      "title": "three plain-read cards render with non-placeholder heroes",
+      "line": 86,
+      "status": "failed",
+      "duration_ms": 4013,
+      "error": "Error: expect(received).not.toBe(expected) // Object.is equality Expected: not \"—\" 94 | const text = await heroes.nth(i).textContent(); 95 | expect(text?.trim(), `card ${i} hero should not be empty`).not.toBe(''); > 96 | expect(text?.trim()).not.toBe('—'); | ^ 97 | } 98 | } 99 | // If fewer than 3 cards, page may be loading or gated — soft pass at C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\journey-ai-quality.spec.ts:96:34"
+    },
+    {
+      "file": "journey-alerts.spec.ts",
+      "title": "3 plain-read cards populated (HIGH-SEVERITY, ANOMALY SIGNALS, AMC BRIEF)",
+      "line": 63,
+      "status": "failed",
+      "duration_ms": 5830,
+      "error": "Error: card 0 hero should be populated expect(received).not.toBe(expected) // Object.is equality Expected: not \"—\" 71 | for (let i = 0; i < Math.min(count, 3); i++) { 72 | const text = await heroes.nth(i).textContent(); > 73 | expect(text?.trim(), `card ${i} hero should be populated`).not.toBe('—'); | ^ 74 | } 75 | }); 76 | at C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\journey-alerts.spec.ts:73:70"
+    },
+    {
+      "file": "journey-asset-hub.spec.ts",
+      "title": "clicking an asset card opens 360 detail view",
+      "line": 99,
+      "status": "failed",
+      "duration_ms": 4487,
+      "error": "Error: asset list should have at least 1 card — run test-data-seeder if empty expect(received).toBeGreaterThan(expected) Expected: > 0 Received: 0 105 | // A zero count means the seeder hasn't run or asset data was wiped. 106 | const count = await firstCard.count(); > 107 | expect(count, 'asset list should have at least 1 card — run test-data-seeder if empty').toBeGreaterThan(0); | ^ 108 | 109 | await firstCard.click(); 110 | await whPage.waitForTimeout(1000); at C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\journey-asset-hub.spec.ts:107:93"
+    },
+    {
+      "file": "journey-calm-dashboard-behaviour.spec.ts",
+      "title": "agentic-rag-observability.html: calm-dashboard meta + verdict + <details> + hide-zero helper",
+      "line": 84,
+      "status": "failed",
+      "duration_ms": 389,
+      "error": "Error: agentic-rag-observability.html: verdict region must be either pre-rendered in DOM or declared in a template literal / renderVerdict function expect(received).toBe(expected) // Object.is equality Expected: true Received: false 100 | const verdictInTemplate = /class=[\"']verdict\\b|renderVerdict\\s*\\(|verdictHost|class=[\"']today-card|class=[\"']focus-card|class=[\"']hero-card|id=[\"'][^\"']*(?:today|verdict|hero|focus|now)[\"']/i.test(html); 101 | expect(verdictCount > 0 || verdictInTemplate, > 102 | `${pageName}: verdict region must be either pre-rendered in DOM or declared in a template literal / renderVerdict function`).toBe(true); | ^ 103 | 104 | // 3. <details> disclosure exists for secondary content 105 | const detailsCount = await page.locator('details').count(); at C:\\Users\\ILBeronio\\"
+    },
+    {
+      "file": "journey-calm-dashboard-behaviour.spec.ts",
+      "title": "every calm-dashboard page exposes a source chip OR a documented dashboard-allow comment",
+      "line": 133,
+      "status": "failed",
+      "duration_ms": 200,
+      "error": "Error: Pages with neither a source chip nor a dashboard-allow comment: agentic-rag-observability.html expect(received).toBe(expected) // Object.is equality Expected: 0 Received: 1 140 | } 141 | expect(gaps.length, > 142 | `Pages with neither a source chip nor a dashboard-allow comment:\\n${gaps.join('\\n')}`).toBe(0); | ^ 143 | }); 144 | }); 145 | at C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\journey-calm-dashboard-behaviour.spec.ts:142:94"
+    },
+    {
+      "file": "journey-canonical-signal-parity.spec.ts",
+      "title": "check_pm_overdue_scope_items_count: hive Team Pulse #pulse-pm-overdue == COUNT(v_pm_scope_items_truth WHERE is_overdue)",
+      "line": 309,
+      "status": "failed",
+      "duration_ms": 5835,
+      "error": "Error: /workhive/hive.html #pulse-pm-overdue shows 0 but v_pm_scope_items_truth.is_overdue directly counts 5 (mode=rows). Page is re-deriving instead of trusting the canonical signal. expect(received).toBe(expected) // Object.is equality Expected: 5 Received: 0 383 | `directly counts ${canonicalCount} (mode=${c.mode}). ` + 384 | `Page is re-deriving instead of trusting the canonical signal.`, > 385 | ).toBe(canonicalCount); | ^ 386 | } else { 387 | if (canonicalCount === 0) { 388 | expect(surface).toBe(0); at C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\journey-canonical-signal-parity.spec.ts:385:11"
+    },
+    {
+      "file": "journey-canonical-signal-parity.spec.ts",
+      "title": "check_pm_overdue_assets_count: pm-scheduler #stat-overdue == COUNT(DISTINCT asset_id WHERE is_overdue)",
+      "line": 309,
+      "status": "failed",
+      "duration_ms": 5940,
+      "error": "Error: /workhive/pm-scheduler.html #stat-overdue shows 0 but v_pm_scope_items_truth.is_overdue directly counts 5 (mode=assets). Page is re-deriving instead of trusting the canonical signal. expect(received).toBe(expected) // Object.is equality Expected: 5 Received: 0 383 | `directly counts ${canonicalCount} (mode=${c.mode}). ` + 384 | `Page is re-deriving instead of trusting the canonical signal.`, > 385 | ).toBe(canonicalCount); | ^ 386 | } else { 387 | if (canonicalCount === 0) { 388 | expect(surface).toBe(0); at C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\journey-canonical-signal-parity.spec.ts:385:11"
+    },
+    {
+      "file": "journey-canonical-signal-parity.spec.ts",
+      "title": "check_low_stock_count: home tile == COUNT(v_inventory_items_truth WHERE is_low_stock)",
+      "line": 309,
+      "status": "failed",
+      "duration_ms": 5741,
+      "error": "Error: /workhive/index.html [data-kpi=\"low-stock\"] .oh-tile-num shows 3 but v_inventory_items_truth.is_low_stock directly counts 9 (mode=rows). Page is re-deriving instead of trusting the canonical signal. expect(received).toBe(expected) // Object.is equality Expected: 9 Received: 3 383 | `directly counts ${canonicalCount} (mode=${c.mode}). ` + 384 | `Page is re-deriving instead of trusting the canonical signal.`, > 385 | ).toBe(canonicalCount); | ^ 386 | } else { 387 | if (canonicalCount === 0) { 388 | expect(surface).toBe(0); at C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\journey-canonical-signal-parity.spec.ts:385:11"
+    },
+    {
+      "file": "journey-canonical-signal-parity.spec.ts",
+      "title": "check_open_jobs_count: home tile == COUNT(v_logbook_truth WHERE status=Open)",
+      "line": 309,
+      "status": "failed",
+      "duration_ms": 5563,
+      "error": "Error: /workhive/index.html [data-kpi=\"open-jobs\"] .oh-tile-num shows 18 but v_logbook_truth.undefined directly counts 53 (mode=rows). Page is re-deriving instead of trusting the canonical signal. expect(received).toBe(expected) // Object.is equality Expected: 53 Received: 18 383 | `directly counts ${canonicalCount} (mode=${c.mode}). ` + 384 | `Page is re-deriving instead of trusting the canonical signal.`, > 385 | ).toBe(canonicalCount); | ^ 386 | } else { 387 | if (canonicalCount === 0) { 388 | expect(surface).toBe(0); at C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\journey-canonical-signal-parity.spec.ts:385:11"
+    },
+    {
+      "file": "journey-canonical-signal-parity.spec.ts",
+      "title": "check_risk_alerts_count: home tile == COUNT(v_risk_truth WHERE risk_level IN critical/high)",
+      "line": 309,
+      "status": "failed",
+      "duration_ms": 5969,
+      "error": "Error: /workhive/index.html [data-kpi=\"risk-alerts\"] .oh-tile-num shows 2 but v_risk_truth.undefined directly counts 6 (mode=rows). Page is re-deriving instead of trusting the canonical signal. expect(received).toBe(expected) // Object.is equality Expected: 6 Received: 2 383 | `directly counts ${canonicalCount} (mode=${c.mode}). ` + 384 | `Page is re-deriving instead of trusting the canonical signal.`, > 385 | ).toBe(canonicalCount); | ^ 386 | } else { 387 | if (canonicalCount === 0) { 388 | expect(surface).toBe(0); at C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\journey-canonical-signal-parity.spec.ts:385:11"
+    },
+    {
+      "file": "journey-canonical-signal-parity.spec.ts",
+      "title": "check_pm_overdue_home_tile: home tile == hive Team Pulse count (both v_pm_scope_items_truth.is_overdue / v_pm_compliance_truth.is_due rollup)",
+      "line": 309,
+      "status": "failed",
+      "duration_ms": 6929,
+      "error": "Error: /workhive/index.html [data-kpi=\"pm-overdue\"] .oh-tile-num shows 22 but v_pm_compliance_truth.is_due directly counts 63 (mode=rows). Page is re-deriving instead of trusting the canonical signal. expect(received).toBe(expected) // Object.is equality Expected: 63 Received: 22 383 | `directly counts ${canonicalCount} (mode=${c.mode}). ` + 384 | `Page is re-deriving instead of trusting the canonical signal.`, > 385 | ).toBe(canonicalCount); | ^ 386 | } else { 387 | if (canonicalCount === 0) { 388 | expect(surface).toBe(0); at C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\journey-canonical-signal-parity.spec.ts:385:11"
+    },
+    {
+      "file": "journey-canonical-signal-parity.spec.ts",
+      "title": "check_total_assets_count: asset-hub #ah-total-hero == COUNT(v_asset_truth)",
+      "line": 309,
+      "status": "failed",
+      "duration_ms": 4666,
+      "error": "Error: /workhive/asset-hub.html #ah-total-hero shows 30 but v_asset_truth.undefined directly counts 90 (mode=all). Page is re-deriving instead of trusting the canonical signal. expect(received).toBe(expected) // Object.is equality Expected: 90 Received: 30 383 | `directly counts ${canonicalCount} (mode=${c.mode}). ` + 384 | `Page is re-deriving instead of trusting the canonical signal.`, > 385 | ).toBe(canonicalCount); | ^ 386 | } else { 387 | if (canonicalCount === 0) { 388 | expect(surface).toBe(0); at C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\journey-canonical-signal-parity.spec.ts:385:11"
+    },
+    {
+      "file": "journey-canonical-signal-parity.spec.ts",
+      "title": "check_critical_assets_count: asset-hub #ah-critical-hero == COUNT(asset_nodes WHERE criticality=critical, case-insensitive)",
+      "line": 309,
+      "status": "failed",
+      "duration_ms": 4620,
+      "error": "Error: /workhive/asset-hub.html #ah-critical-hero shows 6 but v_asset_truth.undefined directly counts 16 (mode=rows). Page is re-deriving instead of trusting the canonical signal. expect(received).toBe(expected) // Object.is equality Expected: 16 Received: 6 383 | `directly counts ${canonicalCount} (mode=${c.mode}). ` + 384 | `Page is re-deriving instead of trusting the canonical signal.`, > 385 | ).toBe(canonicalCount); | ^ 386 | } else { 387 | if (canonicalCount === 0) { 388 | expect(surface).toBe(0); at C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\journey-canonical-signal-parity.spec.ts:385:11"
+    },
+    {
+      "file": "journey-canonical-signal-parity.spec.ts",
+      "title": "check_pm_duesoon_assets_count: pm-scheduler #stat-duesoon == DISTINCT(asset_id) WHERE is_due_soon",
+      "line": 309,
+      "status": "failed",
+      "duration_ms": 6000,
+      "error": "Error: /workhive/pm-scheduler.html #stat-duesoon shows 0 but v_pm_scope_items_truth.is_due_soon directly counts 59 (mode=assets). Page is re-deriving instead of trusting the canonical signal. expect(received).toBe(expected) // Object.is equality Expected: 59 Received: 0 383 | `directly counts ${canonicalCount} (mode=${c.mode}). ` + 384 | `Page is re-deriving instead of trusting the canonical signal.`, > 385 | ).toBe(canonicalCount); | ^ 386 | } else { 387 | if (canonicalCount === 0) { 388 | expect(surface).toBe(0); at C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\journey-canonical-signal-parity.spec.ts:385:11"
+    },
+    {
+      "file": "journey-canonical-signal-parity.spec.ts",
+      "title": "check_inventory_low_count: inventory #stat-low == COUNT(v_inventory_items_truth WHERE is_low_stock)",
+      "line": 309,
+      "status": "failed",
+      "duration_ms": 4984,
+      "error": "Error: /workhive/inventory.html #stat-low shows 0 but v_inventory_items_truth.is_low_stock directly counts 9 (mode=rows). Page is re-deriving instead of trusting the canonical signal. expect(received).toBe(expected) // Object.is equality Expected: 9 Received: 0 383 | `directly counts ${canonicalCount} (mode=${c.mode}). ` + 384 | `Page is re-deriving instead of trusting the canonical signal.`, > 385 | ).toBe(canonicalCount); | ^ 386 | } else { 387 | if (canonicalCount === 0) { 388 | expect(surface).toBe(0); at C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\journey-canonical-signal-parity.spec.ts:385:11"
+    },
+    {
+      "file": "journey-canonical-signal-parity.spec.ts",
+      "title": "check_predictive_critical_count: predictive #count-critical == COUNT(v_risk_truth WHERE risk_level=critical)",
+      "line": 309,
+      "status": "failed",
+      "duration_ms": 29281,
+      "error": "Error: /workhive/predictive.html #count-critical shows 0 but v_risk_truth.undefined directly counts 3 (mode=rows). Page is re-deriving instead of trusting the canonical signal. expect(received).toBe(expected) // Object.is equality Expected: 3 Received: 0 383 | `directly counts ${canonicalCount} (mode=${c.mode}). ` + 384 | `Page is re-deriving instead of trusting the canonical signal.`, > 385 | ).toBe(canonicalCount); | ^ 386 | } else { 387 | if (canonicalCount === 0) { 388 | expect(surface).toBe(0); at C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\journey-canonical-signal-parity.spec.ts:385:11"
+    },
+    {
+      "file": "journey-canonical-signal-parity.spec.ts",
+      "title": "check_predictive_high_count: predictive #count-high == COUNT(v_risk_truth WHERE risk_level=high)",
+      "line": 309,
+      "status": "failed",
+      "duration_ms": 29625,
+      "error": "Error: /workhive/predictive.html #count-high shows 0 but v_risk_truth.undefined directly counts 3 (mode=rows). Page is re-deriving instead of trusting the canonical signal. expect(received).toBe(expected) // Object.is equality Expected: 3 Received: 0 383 | `directly counts ${canonicalCount} (mode=${c.mode}). ` + 384 | `Page is re-deriving instead of trusting the canonical signal.`, > 385 | ).toBe(canonicalCount); | ^ 386 | } else { 387 | if (canonicalCount === 0) { 388 | expect(surface).toBe(0); at C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\journey-canonical-signal-parity.spec.ts:385:11"
+    },
+    {
+      "file": "journey-canonical-signal-parity.spec.ts",
+      "title": "check_predictive_medium_count: predictive #count-medium == COUNT(v_risk_truth WHERE risk_level=medium)",
+      "line": 309,
+      "status": "failed",
+      "duration_ms": 30631,
+      "error": "Error: /workhive/predictive.html #count-medium shows 0 but v_risk_truth.undefined directly counts 6 (mode=rows). Page is re-deriving instead of trusting the canonical signal. expect(received).toBe(expected) // Object.is equality Expected: 6 Received: 0 383 | `directly counts ${canonicalCount} (mode=${c.mode}). ` + 384 | `Page is re-deriving instead of trusting the canonical signal.`, > 385 | ).toBe(canonicalCount); | ^ 386 | } else { 387 | if (canonicalCount === 0) { 388 | expect(surface).toBe(0); at C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\journey-canonical-signal-parity.spec.ts:385:11"
+    },
+    {
+      "file": "journey-canonical-signal-parity.spec.ts",
+      "title": "check_predictive_low_count: predictive #count-low == COUNT(v_risk_truth WHERE risk_level=low)",
+      "line": 309,
+      "status": "failed",
+      "duration_ms": 29483,
+      "error": "Error: /workhive/predictive.html #count-low shows 0 but v_risk_truth.undefined directly counts 3 (mode=rows). Page is re-deriving instead of trusting the canonical signal. expect(received).toBe(expected) // Object.is equality Expected: 3 Received: 0 383 | `directly counts ${canonicalCount} (mode=${c.mode}). ` + 384 | `Page is re-deriving instead of trusting the canonical signal.`, > 385 | ).toBe(canonicalCount); | ^ 386 | } else { 387 | if (canonicalCount === 0) { 388 | expect(surface).toBe(0); at C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\journey-canonical-signal-parity.spec.ts:385:11"
+    },
+    {
+      "file": "journey-canonical-signal-parity.spec.ts",
+      "title": "check_predictive_hot_hero: predictive #pr-hot-hero == COUNT(v_risk_truth WHERE risk_level IN critical/high)",
+      "line": 309,
+      "status": "failed",
+      "duration_ms": 29641,
+      "error": "Error: /workhive/predictive.html #pr-hot-hero shows 0 but v_risk_truth.undefined directly counts 6 (mode=rows). Page is re-deriving instead of trusting the canonical signal. expect(received).toBe(expected) // Object.is equality Expected: 6 Received: 0 383 | `directly counts ${canonicalCount} (mode=${c.mode}). ` + 384 | `Page is re-deriving instead of trusting the canonical signal.`, > 385 | ).toBe(canonicalCount); | ^ 386 | } else { 387 | if (canonicalCount === 0) { 388 | expect(surface).toBe(0); at C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\journey-canonical-signal-parity.spec.ts:385:11"
+    },
+    {
+      "file": "journey-canonical-signal-parity.spec.ts",
+      "title": "check_predictive_healthy_hero: predictive #pr-healthy-hero == COUNT(v_risk_truth WHERE risk_level=low)",
+      "line": 309,
+      "status": "failed",
+      "duration_ms": 29606,
+      "error": "Error: /workhive/predictive.html #pr-healthy-hero shows 0 but v_risk_truth.undefined directly counts 3 (mode=rows). Page is re-deriving instead of trusting the canonical signal. expect(received).toBe(expected) // Object.is equality Expected: 3 Received: 0 383 | `directly counts ${canonicalCount} (mode=${c.mode}). ` + 384 | `Page is re-deriving instead of trusting the canonical signal.`, > 385 | ).toBe(canonicalCount); | ^ 386 | } else { 387 | if (canonicalCount === 0) { 388 | expect(surface).toBe(0); at C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\journey-canonical-signal-parity.spec.ts:385:11"
+    },
+    {
+      "file": "journey-canonical-signal-parity.spec.ts",
+      "title": "check_marketplace_parts_count: marketplace #count-parts == COUNT(v_marketplace_listings_truth WHERE section=parts AND status=published)",
+      "line": 309,
+      "status": "failed",
+      "duration_ms": 5957,
+      "error": "Error: /workhive/marketplace.html #count-parts shows 0 but v_marketplace_listings_truth.undefined directly counts 13 (mode=rows). Page is re-deriving instead of trusting the canonical signal. expect(received).toBe(expected) // Object.is equality Expected: 13 Received: 0 383 | `directly counts ${canonicalCount} (mode=${c.mode}). ` + 384 | `Page is re-deriving instead of trusting the canonical signal.`, > 385 | ).toBe(canonicalCount); | ^ 386 | } else { 387 | if (canonicalCount === 0) { 388 | expect(surface).toBe(0); at C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\journey-canonical-signal-parity.spec.ts:385:11"
+    },
+    {
+      "file": "journey-canonical-signal-parity.spec.ts",
+      "title": "check_marketplace_training_count: marketplace #count-training == COUNT(v_marketplace_listings_truth WHERE section=training AND status=published)",
+      "line": 309,
+      "status": "failed",
+      "duration_ms": 5206,
+      "error": "Error: /workhive/marketplace.html #count-training shows 0 but v_marketplace_listings_truth.undefined directly counts 6 (mode=rows). Page is re-deriving instead of trusting the canonical signal. expect(received).toBe(expected) // Object.is equality Expected: 6 Received: 0 383 | `directly counts ${canonicalCount} (mode=${c.mode}). ` + 384 | `Page is re-deriving instead of trusting the canonical signal.`, > 385 | ).toBe(canonicalCount); | ^ 386 | } else { 387 | if (canonicalCount === 0) { 388 | expect(surface).toBe(0); at C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\journey-canonical-signal-parity.spec.ts:385:11"
+    },
+    {
+      "file": "journey-canonical-signal-parity.spec.ts",
+      "title": "check_project_manager_active: pm #pm-active-hero == COUNT(projects WHERE status=active AND not deleted)",
+      "line": 309,
+      "status": "failed",
+      "duration_ms": 4196,
+      "error": "Error: /workhive/project-manager.html #pm-active-hero shows 0 but projects.undefined directly counts 12 (mode=rows). Page is re-deriving instead of trusting the canonical signal. expect(received).toBe(expected) // Object.is equality Expected: 12 Received: 0 383 | `directly counts ${canonicalCount} (mode=${c.mode}). ` + 384 | `Page is re-deriving instead of trusting the canonical signal.`, > 385 | ).toBe(canonicalCount); | ^ 386 | } else { 387 | if (canonicalCount === 0) { 388 | expect(surface).toBe(0); at C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\journey-canonical-signal-parity.spec.ts:385:11"
+    },
+    {
+      "file": "journey-canonical-signal-parity.spec.ts",
+      "title": "check_seller_listings_badge: marketplace-seller #badge-listings == COUNT(v_marketplace_listings_truth WHERE seller_name=WORKER_NAME)",
+      "line": 309,
+      "status": "failed",
+      "duration_ms": 5147,
+      "error": "Error: /workhive/marketplace-seller.html #badge-listings shows 2 but v_marketplace_listings_truth.undefined directly counts 27 (mode=all). Page is re-deriving instead of trusting the canonical signal. expect(received).toBe(expected) // Object.is equality Expected: 27 Received: 2 383 | `directly counts ${canonicalCount} (mode=${c.mode}). ` + 384 | `Page is re-deriving instead of trusting the canonical signal.`, > 385 | ).toBe(canonicalCount); | ^ 386 | } else { 387 | if (canonicalCount === 0) { 388 | expect(surface).toBe(0); at C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\journey-canonical-signal-parity.spec.ts:385:11"
+    },
+    {
+      "file": "journey-canonical-signal-parity.spec.ts",
+      "title": "check_community_profile_posts: community #profile-posts == COUNT(v_community_posts_truth WHERE author_name=WORKER_NAME AND not deleted)",
+      "line": 309,
+      "status": "failed",
+      "duration_ms": 5600,
+      "error": "Error: /workhive/community.html #profile-posts shows 9 but v_community_posts_truth.undefined directly counts 151 (mode=all). Page is re-deriving instead of trusting the canonical signal. expect(received).toBe(expected) // Object.is equality Expected: 151 Received: 9 383 | `directly counts ${canonicalCount} (mode=${c.mode}). ` + 384 | `Page is re-deriving instead of trusting the canonical signal.`, > 385 | ).toBe(canonicalCount); | ^ 386 | } else { 387 | if (canonicalCount === 0) { 388 | expect(surface).toBe(0); at C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\journey-canonical-signal-parity.spec.ts:385:11"
+    },
+    {
+      "file": "journey-community.spec.ts",
+      "title": "happy path: create post — appears in feed and DB",
+      "line": 96,
+      "status": "failed",
+      "duration_ms": 22662,
+      "error": "Error: Post \"Test post from Playwright [WH-PW-34-mpk1emke]\" should appear in community_posts or feed expect(received).toBe(expected) // Object.is equality Expected: true Received: false 127 | // Accept either DB confirmation or post visible in feed 128 | const inFeed = await whPage.getByText(testMarker).count(); > 129 | expect(found || inFeed > 0, `Post \"${content}\" should appear in community_posts or feed`).toBe(true); | ^ 130 | }); 131 | 132 | test('@ mention: typing @ opens the mention dropdown', async ({ whPage }) => { at C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\journey-community.spec.ts:129:95"
+    },
+    {
+      "file": "journey-engineering-design.spec.ts",
+      "title": "all_builders_covered: page declares a diagram builder reference",
+      "line": 237,
+      "status": "failed",
+      "duration_ms": 7106,
+      "error": "Error: engineering-design should declare diagram builders expect(received).toBeTruthy() Received: false 240 | const __sentSrc = await pageSrcWithExternals(whPage); 241 | const has = /buildDiagram|drawDiagram|renderDiagram|builderFor|DIAGRAM_BUILDERS/i.test(__sentSrc); > 242 | expect(has, 'engineering-design should declare diagram builders').toBeTruthy(); | ^ 243 | }); 244 | 245 | }); at C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\journey-engineering-design.spec.ts:242:71"
+    },
+    {
+      "file": "journey-hive.spec.ts",
+      "title": "page loads without console errors",
+      "line": 49,
+      "status": "failed",
+      "duration_ms": 8931,
+      "error": "Error: serious console errors on hive.html: Failed to load resource: the server responded with a status of 400 (Bad Request) expect(received).toEqual(expected) // deep equality - Expected - 1 + Received + 3 - Array [] + Array [ + \"Failed to load resource: the server responded with a status of 400 (Bad Request)\", + ] 72 | ); 73 | console.log('[journey-hive] all errors seen:', errors); > 74 | expect(serious, `serious console errors on hive.html: ${serious.join(' | ')}`).toEqual([]); | ^ 75 | }); 76 | 77 | test('supervisor sees the Plain-Read summary block (not hidden)', async ({ whPage }) => { at C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\journey-hive.spec.ts:74:84"
+    },
+    {
+      "file": "journey-hive.spec.ts",
+      "title": "3 plain-read cards all have non-placeholder heroes",
+      "line": 107,
+      "status": "failed",
+      "duration_ms": 5444,
+      "error": "Error: stair hero should be populated expect(received).not.toBe(expected) // Object.is equality Expected: not \"—\" 112 | // Stair card 113 | const stairHero = await whPage.locator('#ss-stair-hero').textContent(); > 114 | expect(stairHero?.trim(), 'stair hero should be populated').not.toBe('—'); | ^ 115 | expect(stairHero?.trim()).not.toBe('--'); 116 | 117 | // Adoption card at C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\journey-hive.spec.ts:114:69"
+    },
+    {
+      "file": "journey-hive.spec.ts",
+      "title": "flow_logbook_inventory_transactions: logbook->inventory_transactions linkage referenced",
+      "line": 375,
+      "status": "failed",
+      "duration_ms": 4466,
+      "error": "Error: inventory_transactions queryable expect(received).toBeTruthy() Received: false 377 | const { data } = await db.from('inventory_transactions') 378 | .select('source').eq('source', 'logbook').limit(1); > 379 | expect(Array.isArray(data), 'inventory_transactions queryable').toBeTruthy(); | ^ 380 | }); 381 | 382 | test('flow_logbook_pm_completions: logbook->pm_completions linkage referenced', async ({ whPage }) => { at C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\journey-hive.spec.ts:379:69"
+    },
+    {
+      "file": "journey-inventory.spec.ts",
+      "title": "txn_type_valid: every txn uses a canonical type value",
+      "line": 463,
+      "status": "failed",
+      "duration_ms": 21,
+      "error": "Error: every txn type must be canonical expect(received).toBe(expected) // Object.is equality Expected: 0 Received: 7 468 | if (!data) { test.skip(true, 'no rows'); return; } 469 | const bad = data.filter(r => r.type && !valid.has(r.type)); > 470 | expect(bad.length, 'every txn type must be canonical').toBe(0); | ^ 471 | }); 472 | 473 | }); at C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\journey-inventory.spec.ts:470:60"
+    },
+    {
+      "file": "journey-l0-surface-coverage.spec.ts",
+      "title": "heading_hierarchy: single h1 + no skip on /workhive/inventory.html",
+      "line": 53,
+      "status": "failed",
+      "duration_ms": 5735,
+      "error": "Error: heading skip 2->4 on /workhive/inventory.html expect(received).toBeLessThanOrEqual(expected) Expected: <= 3 Received: 4 66 | for (const lvl of levels) { 67 | if (prev > 0) { > 68 | expect(lvl, `heading skip ${prev}->${lvl} on ${url}`).toBeLessThanOrEqual(prev + 1); | ^ 69 | } 70 | prev = lvl; 71 | } at C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\journey-l0-surface-coverage.spec.ts:68:65"
+    },
+    {
+      "file": "journey-logbook.spec.ts",
+      "title": "new_fields_in_save_edit: saveEdit includes canonical new fields",
+      "line": 384,
+      "status": "failed",
+      "duration_ms": 5471,
+      "error": "Error: saveEdit should include canonical new fields expect(received).toBeTruthy() Received: false 387 | const __sentSrc_6 = await pageSrcWithExternals(whPage); 388 | const has = /saveEdit[\\s\\S]{0,500}(asset_ref_id|maintenance_type|consequence)/i.test(__sentSrc_6); > 389 | expect(has, 'saveEdit should include canonical new fields').toBeTruthy(); | ^ 390 | }); 391 | 392 | test('offline_queue: page references offline queue mechanism', async ({ whPage }) => { at C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\journey-logbook.spec.ts:389:65"
+    },
+    {
+      "file": "journey-logbook.spec.ts",
+      "title": "parts_txn_parity: every parts_used entry has an inventory_transactions row",
+      "line": 455,
+      "status": "failed",
+      "duration_ms": 22,
+      "error": "Error: every parts_used entry must have a matching inv txn expect(received).toBe(expected) // Object.is equality Expected: 0 Received: 10 463 | const seen = new Set((txns ?? []).map(t => t.logbook_id)); 464 | const missing = ids.filter(id => !seen.has(id)); > 465 | expect(missing.length, 'every parts_used entry must have a matching inv txn').toBe(0); | ^ 466 | }); 467 | 468 | test('maintenance_type_valid: every entry has a recognised maintenance_type', async () => { at C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\journey-logbook.spec.ts:465:83"
+    },
+    {
+      "file": "journey-megagate-marketplace.spec.ts",
+      "title": "F5_seller_inquiries_visible_on_profile: marketplace-seller-profile reads marketplace_inquiries",
+      "line": 62,
+      "status": "failed",
+      "duration_ms": 9,
+      "error": "Error: seller profile must query marketplace_inquiries expect(received).toMatch(expected) Expected pattern: /from\\s*\\(\\s*['\"]marketplace_inquiries['\"]\\s*\\)/ Received string: \"<!DOCTYPE html>· <html lang=\\\"en\\\">· <head>· <meta charset=\\\"UTF-8\\\" />· <meta name=\\\"viewport\\\" content=\\\"width=device-width, initial-scale=1.0, viewport-fit=cover\\\" />· <meta name=\\\"theme-color\\\" content=\\\"#F7A21B\\\" />· <link rel=\\\"manifest\\\" href=\\\"manifest.json\\\" />· <title>Seller Profile — WorkHive Marketplace</title>· <!-- dashboard-allow: marketplace seller view; reads v_marketplace_sellers_truth. -->· <meta name=\\\"description\\\" content=\\\"Verified seller profile on WorkHive Marketplace: response time, listings, reviews, and direct contact for Philippine industrial parts, training, and services.\\\" />··· <!-- Ope"
+    },
+    {
+      "file": "journey-mobile-a11y.spec.ts",
+      "title": "G5_main_landmark_present_on_every_page: every public page has <main>",
+      "line": 82,
+      "status": "failed",
+      "duration_ms": 32,
+      "error": "Error: every public page must include a <main> landmark expect(received).toEqual(expected) // deep equality - Expected - 1 + Received + 3 - Array [] + Array [ + \"agentic-rag-observability.html\", + ] 88 | if (!/<main\\b/i.test(content)) missing.push(f); 89 | } > 90 | expect(missing, 'every public page must include a <main> landmark').toEqual([]); | ^ 91 | }); 92 | 93 | test('G6_static_no_avoid_all_in_html2pdf_config: no avoid-all in any pagebreak config', async () => { at C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\journey-mobile-a11y.spec.ts:90:73"
+    },
+    {
+      "file": "journey-predictive.spec.ts",
+      "title": "source chip declares v_risk_truth and 365d window",
+      "line": 40,
+      "status": "failed",
+      "duration_ms": 12746,
+      "error": "Error: chip should mention v_risk_truth expect(received).toContain(expected) // indexOf Expected substring: \"v_risk_truth\" Received string: \"\" 44 | const chip = whPage.locator('.wh-source-chip').first(); 45 | const text = await chip.textContent({ timeout: 5000 }).catch(() => ''); > 46 | expect(text, 'chip should mention v_risk_truth').toContain('v_risk_truth'); | ^ 47 | }); 48 | 49 | test('Plain-Read verdict settles with meaningful content', async ({ whPage }) => { at C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\journey-predictive.spec.ts:46:54"
+    },
+    {
+      "file": "journey-predictive.spec.ts",
+      "title": "Plain-Read verdict settles with meaningful content",
+      "line": 49,
+      "status": "failed",
+      "duration_ms": 14672,
+      "error": "Error: expect(received).toBeGreaterThan(expected) Expected: > 3 Received: 0 53 | const label = await whPage.locator('[id$=\"verdict-label\"]').first().textContent().catch(() => ''); 54 | expect(label?.trim()).not.toMatch(/^Computing|^Loading/); > 55 | expect(label?.trim().length).toBeGreaterThan(3); | ^ 56 | }); 57 | 58 | test('3 plain-read cards populated with real numbers', async ({ whPage }) => { at C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\journey-predictive.spec.ts:55:34"
+    },
+    {
+      "file": "journey-predictive.spec.ts",
+      "title": "3 plain-read cards populated with real numbers",
+      "line": 58,
+      "status": "failed",
+      "duration_ms": 5505,
+      "error": "Error: expect(received).toBeGreaterThanOrEqual(expected) Expected: >= 3 Received: 0 62 | const heroes = whPage.locator('.sc-hero'); 63 | const count = await heroes.count(); > 64 | expect(count).toBeGreaterThanOrEqual(3); | ^ 65 | 66 | for (let i = 0; i < Math.min(count, 3); i++) { 67 | const text = await heroes.nth(i).textContent(); at C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\journey-predictive.spec.ts:64:19"
+    },
+    {
+      "file": "journey-predictive.spec.ts",
+      "title": "RULES ENGINE V1 badge is visible",
+      "line": 72,
+      "status": "failed",
+      "duration_ms": 12204,
+      "error": "Error: expect(locator).toBeVisible() failed Locator: locator('text=RULES ENGINE V1').first() Expected: visible Timeout: 5000ms Error: element(s) not found Call log: - Expect \"toBeVisible\" with timeout 5000ms - waiting for locator('text=RULES ENGINE V1').first() 76 | 77 | const badge = whPage.locator('text=RULES ENGINE V1').first(); > 78 | await expect(badge).toBeVisible({ timeout: 5000 }); | ^ 79 | }); 80 | 81 | test('Risk Ranking tab shows a table with asset rows', async ({ whPage }) => { at C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\journey-predictive.spec.ts:78:25"
+    },
+    {
+      "file": "journey-predictive.spec.ts",
+      "title": "downtime_cap: downtime computation caps outliers",
+      "line": 163,
+      "status": "failed",
+      "duration_ms": 4674,
+      "error": "Error: downtime computation should be capped against outliers expect(received).toBeTruthy() Received: false 166 | const __sentSrc_4 = await pageSrcWithExternals(whPage); 167 | const has = /downtime[_-]?cap|cap[_-]?downtime|Math\\.min.*downtime|clamp.*downtime/i.test(__sentSrc_4); > 168 | expect(has, 'downtime computation should be capped against outliers').toBeTruthy(); | ^ 169 | }); 170 | 171 | test('failure_consequence_adoption: failure consequence field is used', async ({ whPage }) => { at C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\journey-predictive.spec.ts:168:75"
+    },
+    {
+      "file": "journey-regression-pins.spec.ts",
+      "title": "M3_main_landmark_on_every_page: every production HTML has <main>",
+      "line": 50,
+      "status": "failed",
+      "duration_ms": 55,
+      "error": "Error: every production page must include <main> expect(received).toEqual(expected) // deep equality - Expected - 1 + Received + 3 - Array [] + Array [ + \"agentic-rag-observability.html\", + ] 55 | if (!/<main\\b/i.test(c)) missing.push(f); 56 | } > 57 | expect(missing, 'every production page must include <main>').toEqual([]); | ^ 58 | }); 59 | 60 | test('M4_no_inline_eschtml_anywhere: utils.js is the single source of truth', async () => { at C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\journey-regression-pins.spec.ts:57:66"
+    },
+    {
+      "file": "journey-skillmatrix.spec.ts",
+      "title": "exam_array_count: exam questions array has expected length",
+      "line": 236,
+      "status": "failed",
+      "duration_ms": 4905,
+      "error": "Error: skillmatrix should declare at least one questions array expect(received).toBeGreaterThan(expected) Expected: > 0 Received: 0 242 | return matches.length; 243 | }); > 244 | expect(counts, 'skillmatrix should declare at least one questions array').toBeGreaterThan(0); | ^ 245 | }); 246 | 247 | test('options_count: each multiple-choice question carries options array', async ({ whPage }) => { at C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\journey-skillmatrix.spec.ts:244:79"
+    },
+    {
+      "file": "journey-voice-journal.spec.ts",
+      "title": "zaniah-default-persona: voice-journal opens with Zaniah selected by default",
+      "line": 124,
+      "status": "failed",
+      "duration_ms": 7152,
+      "error": "Error: zaniah should be the default persona (Step D) expect(received).toBe(expected) // Object.is equality Expected: true Received: false 141 | || el.getAttribute('aria-checked') === 'true' 142 | ); > 143 | expect(isActive, 'zaniah should be the default persona (Step D)').toBe(true); | ^ 144 | }); 145 | 146 | test('ai-gateway anon-allow: voice-journal agent answers without sign-in', async ({ whPage }) => { at C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\journey-voice-journal.spec.ts:143:71"
+    },
+    {
+      "file": "platform-validators.spec.ts",
+      "title": "documented_column_pair: every near-duplicate column pair is allowlisted",
+      "line": 74,
+      "status": "failed",
+      "duration_ms": 4,
+      "error": "Error: every near-duplicate column pair must be documented expect(received).toBe(expected) // Object.is equality Expected: 0 Received: 1 75 | const r = readReport('canonical_overlap_report.json'); 76 | expect(r.census.near_dup_cols_undocumented, > 77 | 'every near-duplicate column pair must be documented').toBe(0); | ^ 78 | expect(r.census.near_dup_cols_total).toBe(r.census.near_dup_cols_allowlisted); 79 | }); 80 | at C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\tests\\platform-validators.spec.ts:77:62"
+    },
+    {
+      "file": "pm-scheduler.spec.ts",
+      "title": "page loads and renders scope items list",
+      "line": 13,
+      "status": "failed",
+      "duration_ms": 10484,
+      "error": "Error: expect(locator).toBeVisible() failed Locator: locator('text=/PM|Preventive|Scheduler|Asset|Maintenance/i').first() Expected: visible Received: hidden Timeout: 5000ms Call log: - Expect \"toBeVisible\" with timeout 5000ms - waiting for locator('text=/PM|Preventive|Scheduler|Asset|Maintenance/i').first() 13 × locator resolved to <div hidden=\"\" id=\"no-results\" class=\"empty-state\">No PM tasks match those filters.</div> - unexpected value \"hidden\" 20 | await expect( 21 | whPage.locator('text=/PM|Preventive|Scheduler|Asset|Maintenance/i').first() > 22 | ).toBeVisible({ timeout: 5000 }); | ^ 23 | }); 24 | 25 | test('no global console errors during page load', async ({ whPage }) => { at C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Cl"
+    }
+  ],
+  "by_file": {
+    "journey-canonical-signal-parity.spec.ts": 21,
+    "journey-predictive.spec.ts": 5,
+    "journey-hive.spec.ts": 3,
+    "journey-agentic-rag-observability.spec.ts": 2,
+    "journey-agentic-rag.spec.ts": 2,
+    "journey-calm-dashboard-behaviour.spec.ts": 2,
+    "journey-logbook.spec.ts": 2,
+    "dayplanner.spec.ts": 1,
+    "founder-console.spec.ts": 1,
+    "integrations.spec.ts": 1,
+    "journey-agentic.spec.ts": 1,
+    "journey-ai-quality.spec.ts": 1,
+    "journey-alerts.spec.ts": 1,
+    "journey-asset-hub.spec.ts": 1,
+    "journey-community.spec.ts": 1,
+    "journey-engineering-design.spec.ts": 1,
+    "journey-inventory.spec.ts": 1,
+    "journey-l0-surface-coverage.spec.ts": 1,
+    "journey-megagate-marketplace.spec.ts": 1,
+    "journey-mobile-a11y.spec.ts": 1,
+    "journey-regression-pins.spec.ts": 1,
+    "journey-skillmatrix.spec.ts": 1,
+    "journey-voice-journal.spec.ts": 1,
+    "ph-intelligence.spec.ts": 1,
+    "platform-validators.spec.ts": 1,
+    "pm-scheduler.spec.ts": 1
+  }
+}
