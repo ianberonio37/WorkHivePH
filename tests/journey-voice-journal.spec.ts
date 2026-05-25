@@ -122,11 +122,30 @@ test.describe('voice-journal.html — voice journal journey', () => {
   // without a regression first failing the test.
 
   test('zaniah-default-persona: voice-journal opens with Zaniah selected by default', async ({ whPage }) => {
-    // Clear any previously-saved persona choice so we exercise the default
+    // Clear any previously-saved persona choice so we exercise the default.
+    // Two surfaces carry persona state: localStorage (per-device) and
+    // worker_profiles.preferred_persona (account-level, account-wide
+    // Persona Contract — bootstrapIdentity reads it and overrides the
+    // localStorage default). Both must be cleared to exercise the
+    // first-time-visitor default. The bootstrapIdentity DB read happens
+    // AFTER initial page render, so we intercept the v_worker_truth fetch
+    // and force preferred_persona=null without touching the underlying row.
     await whPage.addInitScript(() => {
-      try {
-        localStorage.removeItem('wh_voice_journal_persona');
-      } catch (_) { /* noop */ }
+      try { localStorage.removeItem('wh_voice_journal_persona'); } catch (_) { /* noop */ }
+      // Monkey-patch fetch so any select on v_worker_truth returns a row
+      // with preferred_persona=null (test isolation: don't touch real DB).
+      const origFetch = window.fetch;
+      window.fetch = async function(input: any, init?: any) {
+        const url = typeof input === 'string' ? input : (input?.url || '');
+        if (/\/v_worker_truth\b/.test(url) && /preferred_persona/.test(url)) {
+          // Pretend the row was returned but with null persona
+          return new Response(
+            JSON.stringify([{ worker_name: 'Test Worker', preferred_persona: null }]),
+            { status: 200, headers: { 'Content-Type': 'application/json' } }
+          );
+        }
+        return origFetch.call(this, input, init);
+      };
     });
     await whPage.goto(PAGE);
     await waitForPageReady(whPage);
