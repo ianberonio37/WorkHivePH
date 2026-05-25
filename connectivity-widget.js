@@ -153,7 +153,7 @@
     pop.id = 'wh-conn-popover';
     pop.className = 'wh-conn-popover hidden';
     pop.innerHTML = `
-      <h4>Connectivity</h4>
+      <h3>Connectivity</h3>
       <div class="wh-conn-row"><span class="wh-conn-label">Status</span><span id="wh-conn-status" class="wh-conn-value">Online</span></div>
       <div class="wh-conn-row"><span class="wh-conn-label">Network</span><span id="wh-conn-net" class="wh-conn-value">unknown</span></div>
       <div class="wh-conn-row"><span class="wh-conn-label">Pending writes</span><span id="wh-conn-queue" class="wh-conn-value">0</span></div>

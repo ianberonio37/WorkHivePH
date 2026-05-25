@@ -59,11 +59,13 @@ test.describe('Tier 5b — Marketplace flows (megagate)', () => {
     expect(src, 'must return 401 on invalid signature').toMatch(/Invalid Stripe signature[\s\S]{0,40},\s*401/);
   });
 
-  test('F5_seller_inquiries_visible_on_profile: marketplace-seller-profile reads marketplace_inquiries', async () => {
-    // WHY: marketplace_inquiries is the buyer↔seller channel; seller profile must surface them
+  test('F5_seller_inquiries_visible_on_profile: marketplace-seller-profile reads marketplace_inquiries (or canonical view)', async () => {
+    // WHY: marketplace_inquiries is the buyer↔seller channel; seller profile must surface them.
+    // Accept either the raw table or v_marketplace_inquiries_truth (canonical view) —
+    // reading the truth view is the platform's preferred pattern per KPI_ENGINE.md.
     const html = readFileSync(resolve(ROOT, 'marketplace-seller-profile.html'), 'utf-8');
-    expect(html, 'seller profile must query marketplace_inquiries').toMatch(
-      /from\s*\(\s*['"]marketplace_inquiries['"]\s*\)/
+    expect(html, 'seller profile must query marketplace_inquiries or v_marketplace_inquiries_truth').toMatch(
+      /from\s*\(\s*['"](?:marketplace_inquiries|v_marketplace_inquiries_truth)['"]\s*\)/
     );
     // Inquiries replied counter (UI surface)
     expect(html, 'must display inquiries-replied stat').toMatch(/stat-replies|Inquiries Replied/i);

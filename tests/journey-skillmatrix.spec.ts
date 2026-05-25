@@ -236,12 +236,12 @@ test.describe('skillmatrix.html - sentinel scenarios', () => {
   test('exam_array_count: exam questions array has expected length', async ({ whPage }) => {
     await whPage.goto(PAGE);
     await waitForPageReady(whPage);
-    const counts = await whPage.evaluate(() => {
-      const src = document.documentElement.outerHTML;
-      const matches = src.match(/questions\s*[:=]\s*\[/g) || [];
-      return matches.length;
-    });
-    expect(counts, 'skillmatrix should declare at least one questions array').toBeGreaterThan(0);
+    // Exam content lives in skill-content.js (external script) as `exam: [...]`
+    // arrays per discipline+level. Use pageSrcWithExternals so the contract
+    // covers both inline `questions: [` and external `exam: [` shapes.
+    const __sentSrc = await pageSrcWithExternals(whPage);
+    const matches = __sentSrc.match(/(?:exam|questions)\s*[:=]\s*\[/g) || [];
+    expect(matches.length, 'skillmatrix should declare at least one exam/questions array').toBeGreaterThan(0);
   });
 
   test('options_count: each multiple-choice question carries options array', async ({ whPage }) => {
