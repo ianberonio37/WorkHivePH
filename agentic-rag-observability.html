@@ -167,9 +167,15 @@
     if (!HIVE_ID) { document.getElementById('hive-gate').style.display = 'flex'; }
 
     // Supabase URL/key are inlined elsewhere on the platform; mirror the pattern.
-    var SUPABASE_URL = (window).SUPABASE_URL || 'https://your-project.supabase.co';
-    var SUPABASE_KEY = (window).SUPABASE_KEY || '';
-    var db = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY) : null;
+    // Default to the WorkHive Supabase project — the same hardcoded URL +
+    // publishable key every other dashboard uses (see predictive.html etc.).
+    // createClient throws "supabaseKey is required" on empty string, which
+    // surfaced as a page-load console error in the smoke test.
+    var SUPABASE_URL = (window).SUPABASE_URL || 'https://hzyvnjtisfgbksicrouu.supabase.co';
+    var SUPABASE_KEY = (window).SUPABASE_KEY || 'sb_publishable_ePj-suLMwkMRVDH6eM6S8g_R0rZVbMZ';
+    var db = (window.supabase && SUPABASE_URL && SUPABASE_KEY)
+      ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY)
+      : null;
 
     function pct(n, d) { return d > 0 ? Math.round((n / d) * 100) + '%' : '-'; }
     function fmtNum(n) { return (n || 0).toLocaleString(); }

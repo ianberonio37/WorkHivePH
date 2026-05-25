@@ -17,9 +17,18 @@ test.describe('pm-scheduler.html', () => {
     // PM-scheduler renders varying chrome by viewport/auth state.
     // Accept any body-level text content related to PM management.
     await expect(whPage.locator('body')).toBeVisible({ timeout: 8000 });
-    await expect(
-      whPage.locator('text=/PM|Preventive|Scheduler|Asset|Maintenance/i').first()
-    ).toBeVisible({ timeout: 5000 });
+    // Iterate matches manually because Playwright 1.60 doesn't expose
+    // filter({ visible: true }) on Locator. Pages carry sr-only h1 with
+    // these keywords (clipped 0,0,0,0) and the bare text= matcher hits
+    // those first — we need the first VISIBLE one.
+    const matches = whPage.locator('text=/PM|Preventive|Scheduler|Asset|Maintenance/i');
+    await whPage.waitForTimeout(500);
+    const total = await matches.count();
+    let saw = false;
+    for (let i = 0; i < total; i++) {
+      if (await matches.nth(i).isVisible()) { saw = true; break; }
+    }
+    expect(saw, 'at least one visible PM/Preventive/Scheduler/Asset/Maintenance text').toBe(true);
   });
 
   test('no global console errors during page load', async ({ whPage }) => {
