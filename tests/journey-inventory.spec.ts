@@ -461,9 +461,14 @@ test.describe('inventory.html - sentinel scenarios', () => {
   });
 
   test('txn_type_valid: every txn uses a canonical type value', async () => {
-    // `adjustment` is what inventory.html writes via addTransaction(..., 'adjustment', ...);
-    // `adjust` is kept as a back-compat read-side alias (see the icon switch in inventory.html).
-    const valid = new Set(['use', 'restock', 'adjust', 'adjustment', 'consume']);
+    // Canonical txn types the platform writes:
+    //   `add`        — initial stock entry on new part create (inventory.html:1228)
+    //   `use`        — stock deduct (inventory.html:1281)
+    //   `restock`    — stock add (inventory.html:1324)
+    //   `adjustment` — manual qty correction from edit-part flow (inventory.html:1208)
+    //   `adjust`     — back-compat read-side alias for adjustment
+    //   `consume`    — voice-handler.js / agentic consumption marker
+    const valid = new Set(['use', 'restock', 'adjust', 'adjustment', 'consume', 'add']);
     const db = adminClient();
     const { data } = await db.from('inventory_transactions')
       .select('type').limit(50);
