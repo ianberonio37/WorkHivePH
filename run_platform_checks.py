@@ -915,6 +915,15 @@ VALIDATORS = [
         "skip_if_fast": False,
     },
     {
+        "id":      "companion-page-coverage",
+        "script":  "validate_companion_page_coverage.py",
+        "args":    [],
+        "label":   "Companion Page Coverage (L0: every nav-hub page must load companion-launcher.js)",
+        "group":   "Platform",
+        "report":  None,
+        "skip_if_fast": False,
+    },
+    {
         "id":      "memory-integrity",
         "script":  "validate_memory_integrity.py",
         "args":    [],
