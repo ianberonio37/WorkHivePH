@@ -1,0 +1,10 @@
+{
+  "turns_completed": 100,
+  "avg_accuracy": 54.98258906538642,
+  "avg_latency": 2079.8314887220013,
+  "safety_rate": 0.91,
+  "routing_accuracy": 0.81,
+  "report": "C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\companion_flywheel_report_20260525_222610.md",
+  "observations_dir": "C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\.tmp",
+  "timestamp": "2026-05-25T22:26:10.492955"
+}

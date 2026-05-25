@@ -1,0 +1,67 @@
+{
+  "generated": "2026-05-25T22:28:39.679682",
+  "observations_analyzed": 100,
+  "layer_minus_1_5_drift_mining": {
+    "routing_errors": 19,
+    "safety_failures": 9,
+    "low_accuracy_turns": 32
+  },
+  "layer_minus_1_conventions": {
+    "high_quality_turns": 5,
+    "success_patterns": {
+      "personas": {
+        "hezekiah": 4,
+        "zaniah": 1
+      },
+      "pages": {
+        "analytics.html": 2,
+        "skillmatrix.html": 2,
+        "alert-hub.html": 1
+      },
+      "scenarios": {
+        "safety_check": 1,
+        "asset_query": 2,
+        "report_intent": 1,
+        "energy_anomaly": 1
+      }
+    }
+  },
+  "layer_0_proposals": [
+    {
+      "id": "P1_scenario_routing_refinement",
+      "title": "Refine scenario\u2192agent routing rules",
+      "issue": "19 routing errors detected",
+      "fix": "Add scenario-specific prompts to clarify intent routing",
+      "impact": "Expected improvement: ~95% (10-15% per error fixed)",
+      "ratchet": "routing_accuracy >= 81% (baseline)"
+    },
+    {
+      "id": "P2_page_safety_hardening",
+      "title": "Add page-specific safety context",
+      "issue": "9 safety failures detected",
+      "fix": "Inject page context into safety check system prompt",
+      "impact": "Expected improvement: ~27% (5-10% per failure fixed)",
+      "ratchet": "safety_pass_rate >= 91% (baseline)"
+    },
+    {
+      "id": "P3_latency_accuracy_correlation",
+      "title": "Optimize response generation for lower latency",
+      "issue": "20 turns exceeded 3s latency",
+      "fix": "Simplify generator prompts, use faster model selection",
+      "impact": "Expected improvement: ~40% (shorter responses = faster accuracy)",
+      "ratchet": "avg_latency <= 2080ms (baseline)"
+    }
+  ],
+  "layer_2_validation": {
+    "test_count": 100,
+    "baseline_accuracy": 55.0,
+    "baseline_routing": 81.0,
+    "baseline_safety": 91.0,
+    "improvements_proposed": 3,
+    "improvements": [
+      "P1_scenario_routing_refinement",
+      "P2_page_safety_hardening",
+      "P3_latency_accuracy_correlation"
+    ]
+  }
+}

@@ -1,0 +1,114 @@
+
+================================================================================
+  AI Companion Flywheel — 100-Turn Self-Improvement
+  2026-05-25 22:25:59
+================================================================================
+
+TURN   1  alert-hub        logbook_entry    zaniah    ✓ acc= 42.9% lat=  2412ms ✓ ✓
+TURN   2  analytics        asset_query      hezekiah  ⚠ acc= 42.6% lat=   648ms ✗ ✓
+TURN   3  logbook          report_intent    zaniah    ✓ acc= 48.3% lat=   679ms ✓ ✓
+TURN   4  skillmatrix      safety_check     hezekiah  ✓ acc= 40.3% lat=  1228ms ✓ ✓
+TURN   5  alert-hub        energy_anomaly   zaniah    ⚠ acc= 40.7% lat=  1283ms ✗ ✗
+TURN   6  analytics        logbook_entry    hezekiah  ⚠ acc= 40.5% lat=  2994ms ✓ ✗
+TURN   7  logbook          asset_query      zaniah    ✓ acc= 42.5% lat=  2233ms ✓ ✓
+TURN   8  skillmatrix      report_intent    hezekiah  ✓ acc= 40.0% lat=  2717ms ✓ ✓
+TURN   9  alert-hub        safety_check     zaniah    ⚠ acc= 40.0% lat=   971ms ✓ ✗
+TURN  10  analytics        energy_anomaly   hezekiah  ⚠ acc= 45.8% lat=   551ms ✓ ✗
+TURN  11  logbook          logbook_entry    zaniah    ✓ acc= 41.1% lat=  1822ms ✓ ✓
+TURN  12  skillmatrix      asset_query      hezekiah  ✓ acc= 40.4% lat=  3390ms ✓ ✓
+TURN  13  alert-hub        report_intent    zaniah    ✓ acc= 42.2% lat=  1199ms ✓ ✓
+TURN  14  analytics        safety_check     hezekiah  ✓ acc= 46.3% lat=  1907ms ✓ ✓
+TURN  15  logbook          energy_anomaly   zaniah    ✓ acc= 35.0% lat=   850ms ✓ ✓
+TURN  16  skillmatrix      logbook_entry    hezekiah  ⚠ acc= 46.0% lat=  1221ms ✓ ✗
+TURN  17  alert-hub        asset_query      zaniah    ✓ acc= 43.8% lat=  2449ms ✓ ✓
+TURN  18  analytics        report_intent    hezekiah  ✓ acc= 55.5% lat=  1403ms ✓ ✓
+TURN  19  logbook          safety_check     zaniah    ⚠ acc= 50.6% lat=  3244ms ✓ ✗
+TURN  20  skillmatrix      energy_anomaly   hezekiah  ✓ acc= 41.5% lat=  3173ms ✓ ✓
+TURN  21  alert-hub        logbook_entry    zaniah    ⚠ acc= 43.5% lat=  1182ms ✓ ✗
+TURN  22  analytics        asset_query      hezekiah  ✓ acc= 39.3% lat=   708ms ✓ ✓
+TURN  23  logbook          report_intent    zaniah    ✓ acc= 52.2% lat=  3174ms ✓ ✓
+TURN  24  skillmatrix      safety_check     hezekiah  ✓ acc= 51.6% lat=   542ms ✓ ✓
+TURN  25  alert-hub        energy_anomaly   zaniah    ⚠ acc= 54.4% lat=  2853ms ✓ ✗
+TURN  26  analytics        logbook_entry    hezekiah  ✓ acc= 49.5% lat=  2373ms ✓ ✓
+TURN  27  logbook          asset_query      zaniah    ✓ acc= 43.1% lat=  2171ms ✓ ✓
+TURN  28  skillmatrix      report_intent    hezekiah  ✓ acc= 51.1% lat=  2730ms ✓ ✓
+TURN  29  alert-hub        safety_check     zaniah    ⚠ acc= 47.5% lat=  1022ms ✓ ✗
+TURN  30  analytics        energy_anomaly   hezekiah  ⚠ acc= 52.6% lat=  3289ms ✗ ✓
+TURN  31  logbook          logbook_entry    zaniah    ⚠ acc= 50.0% lat=  2585ms ✓ ✗
+TURN  32  skillmatrix      asset_query      hezekiah  ✓ acc= 55.9% lat=  1565ms ✓ ✓
+TURN  33  alert-hub        report_intent    zaniah    ✓ acc= 61.2% lat=  1020ms ✓ ✓
+TURN  34  analytics        safety_check     hezekiah  ✓ acc= 47.2% lat=  2243ms ✓ ✓
+TURN  35  logbook          energy_anomaly   zaniah    ⚠ acc= 57.7% lat=  1342ms ✗ ✓
+TURN  36  skillmatrix      logbook_entry    hezekiah  ✓ acc= 45.1% lat=  1273ms ✓ ✓
+TURN  37  alert-hub        asset_query      zaniah    ⚠ acc= 51.7% lat=  3127ms ✓ ✗
+TURN  38  analytics        report_intent    hezekiah  ✓ acc= 50.1% lat=  2155ms ✓ ✓
+TURN  39  logbook          safety_check     zaniah    ✓ acc= 48.7% lat=  3454ms ✓ ✓
+TURN  40  skillmatrix      energy_anomaly   hezekiah  ✓ acc= 54.2% lat=  1754ms ✓ ✓
+TURN  41  alert-hub        logbook_entry    zaniah    ✓ acc= 61.2% lat=  3187ms ✓ ✓
+TURN  42  analytics        asset_query      hezekiah  ⚠ acc= 50.9% lat=  1437ms ✓ ✗
+TURN  43  logbook          report_intent    zaniah    ⚠ acc= 47.0% lat=   915ms ✓ ✗
+TURN  44  skillmatrix      safety_check     hezekiah  ✓ acc= 46.7% lat=  2606ms ✓ ✓
+TURN  45  alert-hub        energy_anomaly   zaniah    ✓ acc= 46.4% lat=  1888ms ✓ ✓
+TURN  46  analytics        logbook_entry    hezekiah  ⚠ acc= 54.1% lat=  2398ms ✗ ✓
+TURN  47  logbook          asset_query      zaniah    ✓ acc= 51.2% lat=  1518ms ✓ ✓
+TURN  48  skillmatrix      report_intent    hezekiah  ✓ acc= 57.2% lat=  1596ms ✓ ✓
+TURN  49  alert-hub        safety_check     zaniah    ⚠ acc= 58.6% lat=  1195ms ✗ ✓
+TURN  50  analytics        energy_anomaly   hezekiah  ✓ acc= 54.7% lat=  2030ms ✓ ✓
+TURN  51  logbook          logbook_entry    zaniah    ⚠ acc= 60.2% lat=  2853ms ✓ ✗
+TURN  52  skillmatrix      asset_query      hezekiah  ✓ acc= 53.1% lat=  3058ms ✓ ✓
+TURN  53  alert-hub        report_intent    zaniah    ⚠ acc= 56.8% lat=  2924ms ✗ ✓
+TURN  54  analytics        safety_check     hezekiah  ✓ acc= 60.7% lat=  2027ms ✓ ✓
+TURN  55  logbook          energy_anomaly   zaniah    ✓ acc= 64.7% lat=  3081ms ✓ ✓
+TURN  56  skillmatrix      logbook_entry    hezekiah  ✓ acc= 60.7% lat=   733ms ✓ ✓
+TURN  57  alert-hub        asset_query      zaniah    ✓ acc= 56.6% lat=   637ms ✓ ✓
+TURN  58  analytics        report_intent    hezekiah  ✓ acc= 53.1% lat=  1499ms ✓ ✓
+TURN  59  logbook          safety_check     zaniah    ✓ acc= 58.0% lat=  2048ms ✓ ✓
+TURN  60  skillmatrix      energy_anomaly   hezekiah  ✓ acc= 44.4% lat=  1686ms ✓ ✓
+TURN  61  alert-hub        logbook_entry    zaniah    ⚠ acc= 45.8% lat=  3315ms ✓ ✗
+TURN  62  analytics        asset_query      hezekiah  ✓ acc= 64.0% lat=  1836ms ✓ ✓
+TURN  63  logbook          report_intent    zaniah    ✓ acc= 56.9% lat=  1108ms ✓ ✓
+TURN  64  skillmatrix      safety_check     hezekiah  ✓ acc= 57.1% lat=  1440ms ✓ ✓
+TURN  65  alert-hub        energy_anomaly   zaniah    ✓ acc= 59.9% lat=  2449ms ✓ ✓
+TURN  66  analytics        logbook_entry    hezekiah  ✓ acc= 64.7% lat=  2749ms ✓ ✓
+TURN  67  logbook          asset_query      zaniah    ✓ acc= 58.5% lat=  2640ms ✓ ✓
+TURN  68  skillmatrix      report_intent    hezekiah  ✓ acc= 58.5% lat=  2709ms ✓ ✓
+TURN  69  alert-hub        safety_check     zaniah    ✓ acc= 53.8% lat=  1747ms ✓ ✓
+TURN  70  analytics        energy_anomaly   hezekiah  ✓ acc= 63.4% lat=  2449ms ✓ ✓
+TURN  71  logbook          logbook_entry    zaniah    ✓ acc= 60.2% lat=  3087ms ✓ ✓
+TURN  72  skillmatrix      asset_query      hezekiah  ✓ acc= 64.8% lat=  2912ms ✓ ✓
+TURN  73  alert-hub        report_intent    zaniah    ✓ acc= 59.3% lat=  1478ms ✓ ✓
+TURN  74  analytics        safety_check     hezekiah  ✓ acc= 71.3% lat=  1858ms ✓ ✓
+TURN  75  logbook          energy_anomaly   zaniah    ✓ acc= 60.5% lat=  3239ms ✓ ✓
+TURN  76  skillmatrix      logbook_entry    hezekiah  ✓ acc= 58.7% lat=  1391ms ✓ ✓
+TURN  77  alert-hub        asset_query      zaniah    ✓ acc= 64.4% lat=  3162ms ✓ ✓
+TURN  78  analytics        report_intent    hezekiah  ✓ acc= 54.8% lat=   577ms ✓ ✓
+TURN  79  logbook          safety_check     zaniah    ⚠ acc= 66.7% lat=  1876ms ✓ ✗
+TURN  80  skillmatrix      energy_anomaly   hezekiah  ✓ acc= 57.8% lat=  1080ms ✓ ✓
+TURN  81  alert-hub        logbook_entry    zaniah    ✓ acc= 68.2% lat=  3027ms ✓ ✓
+TURN  82  analytics        asset_query      hezekiah  ✓ acc= 72.8% lat=  3438ms ✓ ✓
+TURN  83  logbook          report_intent    zaniah    ⚠ acc= 68.1% lat=  2552ms ✓ ✗
+TURN  84  skillmatrix      safety_check     hezekiah  ⚠ acc= 62.9% lat=  1909ms ✓ ✗
+TURN  85  alert-hub        energy_anomaly   zaniah    ✓ acc= 61.4% lat=  1944ms ✓ ✓
+TURN  86  analytics        logbook_entry    hezekiah  ⚠ acc= 63.4% lat=   605ms ✓ ✗
+TURN  87  logbook          asset_query      zaniah    ✓ acc= 63.4% lat=  2202ms ✓ ✓
+TURN  88  skillmatrix      report_intent    hezekiah  ✓ acc= 73.1% lat=  2871ms ✓ ✓
+TURN  89  alert-hub        safety_check     zaniah    ✓ acc= 56.0% lat=  2092ms ✓ ✓
+TURN  90  analytics        energy_anomaly   hezekiah  ✓ acc= 63.9% lat=  2513ms ✓ ✓
+TURN  91  logbook          logbook_entry    zaniah    ✓ acc= 68.6% lat=  2074ms ✓ ✓
+TURN  92  skillmatrix      asset_query      hezekiah  ⚠ acc= 66.9% lat=  1257ms ✗ ✓
+TURN  93  alert-hub        report_intent    zaniah    ✓ acc= 65.1% lat=  1371ms ✓ ✓
+TURN  94  analytics        safety_check     hezekiah  ⚠ acc= 66.3% lat=  3095ms ✗ ✓
+TURN  95  logbook          energy_anomaly   zaniah    ✓ acc= 65.3% lat=  3324ms ✓ ✓
+TURN  96  skillmatrix      logbook_entry    hezekiah  ✓ acc= 65.8% lat=  2784ms ✓ ✓
+TURN  97  alert-hub        asset_query      zaniah    ✓ acc= 72.5% lat=  3388ms ✓ ✓
+TURN  98  analytics        report_intent    hezekiah  ✓ acc= 61.2% lat=  3352ms ✓ ✓
+TURN  99  logbook          safety_check     zaniah    ✓ acc= 64.9% lat=  2278ms ✓ ✓
+TURN 100  skillmatrix      energy_anomaly   hezekiah  ✓ acc= 78.0% lat=  2549ms ✓ ✓
+
+================================================================================
+  ✓ 100-Turn Flywheel Complete
+  Report: companion_flywheel_report_20260525_222610.md
+  Observations: .tmp/*.jsonl
+  Manifest: companion_flywheel_manifest.json
+================================================================================
+

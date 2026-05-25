@@ -1,0 +1,29 @@
+{
+  "version": "v2",
+  "improvements_applied": [
+    "P1_scenario_routing",
+    "P2_safety_hardening",
+    "P3_latency_optimization",
+    "P4_persona_differentiation"
+  ],
+  "baseline": {
+    "accuracy": 55.0,
+    "latency": 2080.0,
+    "safety": 91,
+    "routing": 81
+  },
+  "v2_results": {
+    "accuracy": 78.44902132346964,
+    "latency": 952.1920119698117,
+    "safety": 97,
+    "routing": 100
+  },
+  "gains": {
+    "accuracy": 23.449021323469637,
+    "latency": 1127.8079880301884,
+    "safety": 6,
+    "routing": 19
+  },
+  "report": "C:\\Users\\ILBeronio\\Desktop\\Industry 4.0\\AI Maintenance Engineer\\Self-learning Road-Map\\Build & Sell with Claude Code\\Website simple 1st\\companion_validation_v2_report_20260525_223037.md",
+  "timestamp": "2026-05-25T22:30:37.420149"
+}
