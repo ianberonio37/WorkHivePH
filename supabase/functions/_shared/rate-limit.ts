@@ -15,7 +15,15 @@
 
 import { SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-export const DEFAULT_RATE_LIMIT_PER_HOUR = 50;
+// 2026-05-26: honor WH_RATE_LIMIT_OVERRIDE at module load so EVERY caller of
+// checkAIRateLimit (including specialists like voice-logbook-entry and
+// voice-report-intent which don't pass an explicit limit) picks up the test
+// override. Previously the gateway honored the override but downstream
+// specialists kept the hardcoded 50 cap and 429'd after the 51st call —
+// V2 flywheel run showed 2 rate-limited probes/turn from turn 4 onward
+// because the ai_rate_limits row is shared per hive across all callers.
+export const DEFAULT_RATE_LIMIT_PER_HOUR =
+  Number(Deno.env.get("WH_RATE_LIMIT_OVERRIDE") || 50);
 
 export interface RateLimitResult {
   allowed:   boolean;
@@ -175,4 +183,189 @@ export function routeRateLimitedResponse(
     }),
     { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } },
   );
+}
+
+
+// ── Per-User Rate Limiting (P1 roadmap 2026-05-26) ─────────────────────────
+//
+// `checkAIRateLimit` is per-hive (whole-hive bucket). `checkRouteRateLimit`
+// is per-(hive, route). Neither protects a hive from a single noisy worker
+// inside it: one user can burn the hive's hourly budget and starve their
+// teammates.
+//
+// `checkUserRateLimit` enforces a per-user soft cap inside the per-hive cap.
+// The soft cap is typically a fraction of the hive cap (e.g. hive cap 200 →
+// per-user soft cap 50). On breach, the call is denied *for that user only*;
+// other hive members keep their budget.
+//
+// Counter table: ai_user_rate_limits.
+//   user_id TEXT PK, hive_id TEXT, call_count INT, window_start TIMESTAMPTZ
+//
+// The hive-level gate runs first. If hive is blocked, we never check user.
+// If hive is allowed, we then check user. If user is blocked, hive count is
+// NOT incremented (caller never made the underlying AI call).
+
+export interface UserRateLimitResult extends RateLimitResult {
+  user_cap:        number;
+  hive_remaining:  number;
+}
+
+export const DEFAULT_USER_RATE_LIMIT_PER_HOUR =
+  Number(Deno.env.get("WH_USER_RATE_LIMIT_OVERRIDE") || 25);
+
+export async function checkUserRateLimit(
+  db:     SupabaseClient,
+  hiveId: string,
+  userId: string,
+  hiveLimit: number = DEFAULT_RATE_LIMIT_PER_HOUR,
+  userLimit: number = DEFAULT_USER_RATE_LIMIT_PER_HOUR,
+): Promise<UserRateLimitResult> {
+  // Hive gate first.
+  const hive = await checkAIRateLimit(db, hiveId, hiveLimit);
+  if (!hive.allowed) {
+    return {
+      allowed:        false,
+      remaining:      0,
+      user_cap:       userLimit,
+      hive_remaining: 0,
+    };
+  }
+  // Solo / system calls — no user bucket needed.
+  if (!userId) {
+    return {
+      allowed:        true,
+      remaining:      userLimit,
+      user_cap:       userLimit,
+      hive_remaining: hive.remaining,
+    };
+  }
+  const windowStart = new Date(Date.now() - 60 * 60 * 1000);
+  // canonical-allow: ai_user_rate_limits is an infrastructure counter table (per-user budget inside the per-hive bucket); not a user-facing KPI source. Registered in canonical_sources as domain='rate_limit_infra'.
+  const { data } = await db.from("ai_user_rate_limits")
+    .select("call_count, window_start")
+    .eq("user_id", userId)
+    .maybeSingle();
+  if (!data || new Date(data.window_start) < windowStart) {
+    // canonical-allow: ai_user_rate_limits infrastructure counter (see lookup site).
+    await db.from("ai_user_rate_limits").upsert({
+      user_id:      userId,
+      hive_id:      hiveId,
+      call_count:   1,
+      window_start: new Date().toISOString(),
+    });
+    return {
+      allowed:        true,
+      remaining:      userLimit - 1,
+      user_cap:       userLimit,
+      hive_remaining: hive.remaining,
+    };
+  }
+  if (data.call_count >= userLimit) {
+    return {
+      allowed:        false,
+      remaining:      0,
+      user_cap:       userLimit,
+      hive_remaining: hive.remaining,
+    };
+  }
+  // canonical-allow: ai_user_rate_limits infrastructure counter (see lookup site).
+  await db.from("ai_user_rate_limits")
+    .update({ call_count: data.call_count + 1 })
+    .eq("user_id", userId);
+  return {
+    allowed:        true,
+    remaining:      userLimit - data.call_count - 1,
+    user_cap:       userLimit,
+    hive_remaining: hive.remaining,
+  };
+}
+
+export function userRateLimitedResponse(
+  corsHeaders: Record<string, string>,
+  userCap: number,
+): Response {
+  return new Response(
+    JSON.stringify({
+      error:    `Per-user AI call limit reached (${userCap}/hour). Other hive members are unaffected.`,
+      user_cap: userCap,
+      scope:    "user",
+    }),
+    { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+  );
+}
+
+
+// ── Voice vs Background Quota Split (P1 roadmap 2026-05-27 turn 7) ────────
+//
+// Voice (interactive, latency-sensitive) and background (RAG flywheel,
+// embeddings, batch scoring) currently share one per-hive bucket. When the
+// flywheel spikes, voice users get 429. Splitting the quota gives voice
+// guaranteed headroom regardless of background activity.
+//
+// `traffic_class`:
+//   "voice"      → interactive user-facing calls (companion turns, gateway)
+//   "background" → batch / flywheel / embedding fills / scheduled work
+//
+// Counter rows: ai_rate_limits is reused; add `traffic_class` column?
+// For now, keep this in-process: traffic_class is a multiplier on the cap.
+// VOICE_QUOTA_RATIO = 0.7 means voice gets 70% of the per-hive cap; bg 30%.
+// When a class hits its share, the OTHER class still flows freely up to
+// the global cap.
+
+export const VOICE_QUOTA_RATIO      = Number(Deno.env.get("WH_VOICE_QUOTA_RATIO") || 0.7);
+export type TrafficClass = "voice" | "background";
+
+export interface ClassedRateLimitResult extends RateLimitResult {
+  cap_for_class: number;
+  traffic_class: TrafficClass;
+}
+
+/** Check a per-hive cap PARTITIONED by traffic class. Voice and background
+ *  get separate ceilings inside the same hive bucket. Background bursts
+ *  cannot starve voice. */
+export async function checkClassedRateLimit(
+  db:           SupabaseClient,
+  hiveId:       string,
+  trafficClass: TrafficClass,
+  globalCap:    number = DEFAULT_RATE_LIMIT_PER_HOUR,
+): Promise<ClassedRateLimitResult> {
+  if (!hiveId) {
+    return {
+      allowed:        true,
+      remaining:      globalCap,
+      cap_for_class:  globalCap,
+      traffic_class:  trafficClass,
+    };
+  }
+  // The class cap is a share of the global cap.
+  const ratio = trafficClass === "voice" ? VOICE_QUOTA_RATIO : (1 - VOICE_QUOTA_RATIO);
+  const capForClass = Math.max(1, Math.floor(globalCap * ratio));
+
+  // Use the existing per-hive bucket; the class ceiling is enforced ON TOP.
+  // Background callers are also allowed to "borrow" up to the global cap
+  // when voice usage is low, but voice callers always have their share
+  // reserved (their check gates on capForClass even if global usage is low).
+  const result = await checkAIRateLimit(db, hiveId, globalCap);
+  // For voice: must have remaining ≥ (globalCap - capForClass) — i.e. at
+  // least the bg-share-floor must still be available. For background:
+  // total usage must not exceed (globalCap - voice-share-reservation).
+  const used = globalCap - result.remaining;
+  const bgFloor = globalCap - capForClass;  // floor that background usage must not push BELOW for voice's share
+
+  let allowed = result.allowed;
+  if (trafficClass === "background") {
+    // Background must leave the voice reservation intact.
+    const voiceReservation = Math.floor(globalCap * VOICE_QUOTA_RATIO);
+    if (used > (globalCap - voiceReservation)) allowed = false;
+  } else {
+    // Voice gets its share regardless; only deny when used > globalCap.
+    allowed = used <= globalCap;
+  }
+
+  return {
+    allowed,
+    remaining:      result.remaining,
+    cap_for_class:  capForClass,
+    traffic_class:  trafficClass,
+  };
 }

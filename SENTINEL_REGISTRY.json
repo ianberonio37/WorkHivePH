@@ -15,6 +15,17 @@
       "depends_on": []
     },
     {
+      "id": "multi-scenario-per-rule",
+      "script": "sentinels/multi_scenario_per_rule.py",
+      "label": "Multi-Scenario Per Rule (TIER 1 rules need >=2 anchored tests)",
+      "axis": "coverage",
+      "tier": "deterministic",
+      "version": "v0",
+      "outputs": ["sentinel_multi_scenario_report.json", "sentinel_drafts.md"],
+      "trigger": "after-coverage-map",
+      "depends_on": ["coverage-map"]
+    },
+    {
       "id": "gap-proposer",
       "script": "sentinels/sentinel_gap_proposer.py",
       "label": "Gap Proposer (context bundler for LLM)",

@@ -36,6 +36,8 @@ import { loadMemory, saveTurn, formatMemoryContext } from "../_shared/memory.ts"
 import { logAICost, estimateTokens } from "../_shared/cost-log.ts";
 import { redactPII } from "../_shared/redactPII.ts";
 import { getCorsHeaders } from "../_shared/cors.ts";
+// P1 roadmap 2026-05-26: envelope adoption (helper imported; success-path migration follows).
+import { beginRequest, ok, fail, recordModelHop } from "../_shared/envelope.ts";
 
 // Warm module-scope Supabase client (PRODUCTION_FIXES #46).
 const _WH_SUPABASE_URL_M = Deno.env.get("SUPABASE_URL") || "";

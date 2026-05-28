@@ -31,7 +31,12 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 // contract-allow: router; forwards to specialist orchestrators
 import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { getCorsHeaders } from "../_shared/cors.ts";
-import { checkAIRateLimit, rateLimitedResponse } from "../_shared/rate-limit.ts";
+import {
+  checkAIRateLimit,
+  checkUserRateLimit,
+  rateLimitedResponse,
+  userRateLimitedResponse,
+} from "../_shared/rate-limit.ts";
 import { redactPIIWithMap, hydratePII } from "../_shared/redactPII.ts";
 import {
   loadMemory,
@@ -43,6 +48,12 @@ import {
   loadJournalRecall,
   persistJournalEntry,
 } from "../_shared/journal-recall.ts";
+
+// P1 roadmap 2026-05-26: adoption of shared envelope + health + structured log.
+// First fn to migrate (highest traffic, sets the pattern for the other 54).
+import { beginRequest, ok, recordModelHop } from "../_shared/envelope.ts";
+import { handleHealth } from "../_shared/health.ts";
+import { log } from "../_shared/logger.ts";
 
 // Agents that get semantic-recall enrichment in addition to short-term
 // agent_memory. Adding an agent here makes the gateway:
@@ -123,6 +134,20 @@ serve(async (req) => {
     return new Response(null, { status: 204, headers: corsHeaders });
   }
 
+  // /health probe — runs BEFORE method check so monitors can GET /health.
+  // Pings the Supabase service and at least one model provider.
+  const SERVICE_KEY_HEALTH = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
+  const SUPABASE_URL_HEALTH = Deno.env.get("SUPABASE_URL") || "";
+  const healthResp = await handleHealth(req, "ai-gateway", async () => {
+    const deps = [
+      { name: "supabase",     ok: Boolean(SERVICE_KEY_HEALTH && SUPABASE_URL_HEALTH) },
+      { name: "groq",         ok: Boolean(Deno.env.get("GROQ_API_KEY")) },
+      { name: "cerebras",     ok: Boolean(Deno.env.get("CEREBRAS_API_KEY")) },
+    ];
+    return { deps };
+  });
+  if (healthResp) return healthResp;
+
   if (req.method !== "POST") {
     return jsonResponse(corsHeaders, 405, { error: "POST only" });
   }
@@ -137,6 +162,11 @@ serve(async (req) => {
   }
 
   const { agent, message, context = {}, hive_id = null } = body;
+
+  // Begin request context (trace_id propagation + envelope spine).
+  // hive_id is captured up-front; user_id is filled in once auth resolves.
+  const ctx = beginRequest(req, { route: "ai-gateway", hive_id: hive_id ?? undefined });
+  log.info(ctx, "request_start", { agent, message_len: message?.length ?? 0 });
 
   if (!agent || typeof agent !== "string") {
     return jsonResponse(corsHeaders, 400, { error: "Missing agent" });
@@ -209,10 +239,80 @@ serve(async (req) => {
     (context as Record<string, unknown>).persona = accountPersona;
   }
 
-  // Rate gate ONCE per request (vs every orchestrator gating independently).
-  const rl = await checkAIRateLimit(adminClient, hive_id || "");
+  // Rate gate ONCE per request — now BOTH hive-level AND user-level (P1
+  // roadmap 2026-05-26). The per-user inner cap stops one noisy worker
+  // inside a hive from starving their teammates while the hive cap protects
+  // the LLM chain from a single hive's burst.
+  //
+  // ADAPTIVE DEGRADATION (P1 roadmap 2026-05-26 — RL.3): when the cap fires
+  // we try to return a *cached* answer for an identical question instead of
+  // a 429. Companion UX dies on 429 today; serving a stale-but-real answer
+  // keeps the conversation alive. Cache lookup is keyed by (agent, message)
+  // — same shape used in Router/Grader/Checker caching.
+  const RL_OVERRIDE      = Number(Deno.env.get("WH_RATE_LIMIT_OVERRIDE")        || 50);
+  const RL_USER_OVERRIDE = Number(Deno.env.get("WH_USER_RATE_LIMIT_OVERRIDE")   || 25);
+  const userId = authUid || ""; // anon callers skip the inner per-user bucket
+  const rl = await checkUserRateLimit(
+    adminClient,
+    hive_id || "",
+    userId,
+    RL_OVERRIDE,
+    RL_USER_OVERRIDE,
+  );
   if (!rl.allowed) {
-    return rateLimitedResponse(corsHeaders);
+    log.warn(ctx, "rate_limit_hit", {
+      hive_remaining: rl.hive_remaining,
+      user_cap:       rl.user_cap,
+      scope:          rl.hive_remaining === 0 ? "hive" : "user",
+    });
+    // Adaptive degrade: try LLM cache for this exact (agent, message) before
+    // returning 429. Only worth it for short messages — long ones rarely
+    // repeat verbatim. Hits the same `ai_cache` table the RAG stages use.
+    if (message.length <= 200) {
+      try {
+        const { cacheLookup } = await import("../_shared/cache.ts");
+        const cacheKey = `gateway:${agent}:${message}`;
+        const hit = await cacheLookup<{ answer: string }>(adminClient, "ai-gateway-adaptive", cacheKey);
+        if (hit.hit && hit.data?.answer) {
+          log.info(ctx, "adaptive_cache_served", { agent });
+          recordModelHop(ctx, "ai-cache");
+          return ok(ctx, { answer: hit.data.answer, agent, usage: { latency_ms: Date.now() - t0, served_from: "adaptive_cache" } });
+        }
+      } catch { /* fall through to 429 */ }
+    }
+    // Distinguish scope so the frontend can show a clearer message.
+    if (rl.hive_remaining === 0) return rateLimitedResponse(corsHeaders);
+    return userRateLimitedResponse(corsHeaders, rl.user_cap);
+  }
+
+  // Gibberish guard — detect transcripts that look like noise BEFORE we burn
+  // a rate-limit slot and have the LLM hallucinate a coherent reply. The
+  // 2026-05-26 baseline showed the voice-journal agent confidently
+  // responding to "asdfqwer ghjkzxcv mnbvpoiu lkjhgfds" with a story about
+  // "technical issues with the compressor". Threshold: <22% vowel ratio AND
+  // length > 12 AND no whitespace word looks like a real word (>=3 chars
+  // with at least one vowel).
+  if (typeof message === "string" && message.length > 12) {
+    const stripped = message.replace(/[^a-zA-Z]/g, "");
+    if (stripped.length >= 12) {
+      const vowels = (stripped.match(/[aeiouAEIOU]/g) || []).length;
+      const vowelRatio = vowels / stripped.length;
+      // Keyboard-row gibberish has 5+ consecutive consonants in one or more
+      // words. Real English / Tagalog words rarely do — "P-203", "kapatid",
+      // "compressor" all safe; "ghjkzxcv" / "asdfqwer" hit.
+      const words = message.split(/\s+/).filter((w) => w.length >= 3);
+      const noisyWords = words.filter((w) =>
+        /[bcdfghjklmnpqrstvwxyz]{5,}/i.test(w) || !/[aeiouAEIOU]/i.test(w)
+      );
+      const noisyRatio = words.length ? noisyWords.length / words.length : 0;
+      if (vowelRatio < 0.30 && noisyRatio >= 0.5) {
+        return jsonResponse(corsHeaders, 200, {
+          answer: "Sorry, I couldn't make out what you said. Could you try again? Pakiulit po — hindi ko narinig nang malinaw.",
+          agent,
+          usage: { latency_ms: Date.now() - t0, refused_as: "low_quality_transcript" },
+        } satisfies GatewayResponse & { usage: { latency_ms: number; refused_as?: string } });
+      }
+    }
   }
 
   // Memory hydration. Anon callers (voice-journal first-touch) skip
@@ -274,6 +374,12 @@ serve(async (req) => {
       signal: AbortSignal.timeout(60_000),
       body: JSON.stringify({
         message:    redactedMessage,
+        // Transcript-based specialists (voice-logbook-entry, voice-report-intent)
+        // destructure `transcript` not `message`. The 2026-05-26 100-turn
+        // baseline showed all 100 such probes 400ing with "Missing or too short
+        // transcript". Sending both is backward-compatible — agents reading
+        // `message` (voice-journal-agent) are unaffected.
+        transcript: redactedMessage,
         context:    redactedContext,
         hive_id,
         worker_name: "<redacted>",       // agents must NOT see real name
@@ -354,11 +460,40 @@ serve(async (req) => {
     }
   }
 
-  return jsonResponse(corsHeaders, 200, {
-    answer: hydratedAnswer,
+  // Record that downstream specialist served the answer (model chain hop).
+  recordModelHop(ctx, route.fn);
+  log.info(ctx, "request_complete", {
     agent,
-    usage:  { latency_ms: Date.now() - t0 },
-  } satisfies GatewayResponse);
+    target_fn:  route.fn,
+    latency_ms: Date.now() - t0,
+  });
+
+  // Populate adaptive cache for short (re-likely) messages so future 429s
+  // can degrade instead of fail. 1h TTL — companion content changes fast
+  // enough that we don't want stale answers more than an hour old.
+  // canonical-allow: ai_cache is an infrastructure table (see _shared/cache.ts).
+  if (message.length <= 200 && hydratedAnswer && hydratedAnswer.length >= 8) {
+    try {
+      const { cacheStore } = await import("../_shared/cache.ts");
+      const adaptiveKey = await (async () => {
+        const data = new TextEncoder().encode(`ai-gateway-adaptive:gateway:${agent}:${message}`);
+        const buf  = await crypto.subtle.digest("SHA-256", data);
+        return Array.from(new Uint8Array(buf), (b) => b.toString(16).padStart(2, "0")).join("");
+      })();
+      await cacheStore(adminClient, adaptiveKey, "ai-gateway-adaptive", { answer: hydratedAnswer }, { ttlSeconds: 3600 });
+    } catch { /* non-fatal */ }
+  }
+
+  // Envelope-conformant success response (P1 roadmap 2026-05-26).
+  // Legacy fields (answer, agent, usage) are nested under `data` so any
+  // caller using the old shape can still pluck them via `body.data.answer`.
+  // Frontends that haven't migrated yet receive a 200 with the same JSON
+  // top-level via the envelope's `ok` field; client adapters land in P2.
+  return ok(ctx, {
+    answer:    hydratedAnswer,
+    agent,
+    usage:     { latency_ms: Date.now() - t0 },
+  });
 });
 
 function jsonResponse(

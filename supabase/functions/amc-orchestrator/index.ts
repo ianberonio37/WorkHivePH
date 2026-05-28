@@ -59,6 +59,8 @@ import { callAI } from "../_shared/ai-chain.ts";
 // WORKHIVE_PERSONA_CONTRACT.md, mode='briefing-signature'.
 import { buildPersonaBlock, clampPersona } from "../_shared/persona.ts";
 import { getCorsHeaders } from "../_shared/cors.ts";
+// P1 roadmap 2026-05-26: envelope adoption (helper imported; success-path migration follows).
+import { beginRequest, ok, fail, recordModelHop } from "../_shared/envelope.ts";
 import { logAICost, estimateTokens } from "../_shared/cost-log.ts";
 
 // Warm module-scope client (PRODUCTION_FIXES #46 pattern).

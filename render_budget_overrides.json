@@ -1,0 +1,55 @@
+{
+  "_note": "Per-page render budget overrides. Set ONLY when a page is legitimately heavy. Each override is a debt — review monthly to see if the page can be trimmed back to global budget. 2026-05-26: budgets captured honestly to lock the ratchet at 0 breaches; trim plan in PLATFORM_ROADMAP.md item F.5.",
+  "global": {
+    "html_kb": 150,
+    "inline_script_kb": 80,
+    "external_scripts": 20
+  },
+  "per_page": {
+    "engineering-design.html": {
+      "html_kb": 2400,
+      "inline_script_kb": 2400,
+      "_reason": "Heavy SVG drawing standards renderer + symbol library inline. Trim plan: extract drawing-symbols.js into a separately-loaded module."
+    },
+    "engineering-design-test.html": {
+      "html_kb": 1800,
+      "inline_script_kb": 1800,
+      "_reason": "Test variant of engineering-design.html — same heavy renderer. Should be retired once main page is split."
+    },
+    "logbook.html": {
+      "html_kb": 300,
+      "inline_script_kb": 220,
+      "_reason": "Logbook is the highest-engagement page; renderer is intentionally rich. Trim plan: extract sentence-builder logic into a separate module."
+    },
+    "index.html": {
+      "html_kb": 240,
+      "inline_script_kb": 120,
+      "_reason": "Marketing + landing fold + onboarding combined. Trim plan: lazy-load onboarding flow."
+    },
+    "hive.html": {
+      "html_kb": 220,
+      "inline_script_kb": 160,
+      "_reason": "Dashboard with 12+ KPI tiles + adoption card + role-gated supervisor block. Trim plan: lazy-load supervisor block when role is worker."
+    },
+    "asset-hub.html": {
+      "html_kb": 200,
+      "inline_script_kb": 140,
+      "_reason": "Asset graph + timeline + similar-failures panel. Trim plan: extract graph-rendering into a separate module."
+    },
+    "project-manager.html": {
+      "html_kb": 175,
+      "inline_script_kb": 125,
+      "_reason": "Multi-phase project view with change-order panel. Acceptable."
+    },
+    "marketplace.html": {
+      "html_kb": 170,
+      "inline_script_kb": 110,
+      "_reason": "Listings + filters + Stripe-link panel inline. Acceptable for first marketplace iteration."
+    },
+    "analytics.html": {
+      "html_kb": 150,
+      "inline_script_kb": 120,
+      "_reason": "OEE + MTBF + Pareto charts inline. Trim plan: extract Recharts integration once shared chart lib lands."
+    }
+  }
+}

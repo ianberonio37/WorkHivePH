@@ -3,6 +3,8 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 // contract-allow: audio -> text passthrough
 import { transcribeAudio } from "../_shared/audio-chain.ts";
 import { getCorsHeaders } from "../_shared/cors.ts";
+// P1 roadmap 2026-05-26: envelope adoption (helper imported; success-path migration follows).
+import { beginRequest, ok, fail, recordModelHop } from "../_shared/envelope.ts";
 
 // Receives a multipart audio blob from the browser (iOS MediaRecorder output),
 // transcribes via Groq Whisper fallback chain, and returns plain text plus

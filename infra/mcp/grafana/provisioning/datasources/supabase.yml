@@ -1,0 +1,21 @@
+# Auto-provisioned at Grafana boot. Local Supabase only — never aim at prod.
+apiVersion: 1
+
+datasources:
+  - name: Supabase Local
+    type: postgres
+    uid: supabase_local
+    url: supabase_db_workhive:5432
+    database: postgres
+    user: grafana_reader
+    secureJsonData:
+      password: ${GRAFANA_PG_READER_PASSWORD}
+    jsonData:
+      sslmode: disable
+      postgresVersion: 1600
+      timescaledb: false
+      maxOpenConns: 5
+      maxIdleConns: 2
+      connMaxLifetime: 14400
+    editable: false
+    isDefault: true

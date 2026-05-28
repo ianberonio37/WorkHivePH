@@ -75,6 +75,7 @@ VALIDATORS = [
         "group":   "Engineering Calculator",
         "report":  None,   # run_all_checks.py manages its own reports
         "skip_if_fast": False,
+        "severity": "blocker",
     },
     # ── Platform Validators ───────────────────────────────────────────────────
     {
@@ -85,6 +86,7 @@ VALIDATORS = [
         "group":   "Platform",
         "report":  "auto_discovery_report.json",
         "skip_if_fast": False,
+        "severity": "blocker",
     },
     {
         "id":      "tester-coverage",
@@ -94,6 +96,7 @@ VALIDATORS = [
         "group":   "Platform",
         "report":  "tester_coverage_report.json",
         "skip_if_fast": False,
+        "severity": "blocker",
     },
     {
         "id":      "schema-coverage",
@@ -103,6 +106,7 @@ VALIDATORS = [
         "group":   "Platform",
         "report":  "schema_coverage_report.json",
         "skip_if_fast": False,
+        "severity": "blocker",
     },
     {
         "id":      "reset-coverage",
@@ -112,6 +116,7 @@ VALIDATORS = [
         "group":   "Platform",
         "report":  "reset_coverage_report.json",
         "skip_if_fast": False,
+        "severity": "blocker",
     },
     {
         "id":      "edge-config",
@@ -121,6 +126,7 @@ VALIDATORS = [
         "group":   "Platform",
         "report":  "edge_config_report.json",
         "skip_if_fast": False,
+        "severity": "blocker",
     },
     {
         "id":      "cross-page",
@@ -130,6 +136,7 @@ VALIDATORS = [
         "group":   "Platform",
         "report":  "cross_page_report.json",
         "skip_if_fast": False,
+        "severity": "blocker",
     },
     {
         "id":      "dom-refs",
@@ -139,6 +146,7 @@ VALIDATORS = [
         "group":   "Platform",
         "report":  "dom_refs_report.json",
         "skip_if_fast": False,
+        "severity": "blocker",
     },
     {
         "id":      "asset-brain",
@@ -148,6 +156,7 @@ VALIDATORS = [
         "group":   "Platform",
         "report":  "asset_brain_report.json",
         "skip_if_fast": False,
+        "severity": "blocker",
     },
     {
         "id":      "canonical-sources",
@@ -157,6 +166,7 @@ VALIDATORS = [
         "group":   "Platform",
         "report":  "canonical_sources_report.json",
         "skip_if_fast": False,
+        "severity": "blocker",
     },
     {
         "id":      "kpi-chip-coverage",
@@ -166,6 +176,7 @@ VALIDATORS = [
         "group":   "Platform",
         "report":  "kpi_chip_coverage_report.json",
         "skip_if_fast": False,
+        "severity": "blocker",
     },
     {
         "id":      "calm-canonical-audit",
@@ -175,6 +186,7 @@ VALIDATORS = [
         "group":   "Platform",
         "report":  "calm_canonical_audit_report.json",
         "skip_if_fast": False,
+        "severity": "blocker",
     },
     {
         # L-1.5 platform-wide canonical-drift miner. Closes the seam between
@@ -193,6 +205,7 @@ VALIDATORS = [
         "group":   "Platform",
         "report":  "canonical_drift_platform_report.json",
         "skip_if_fast": False,
+        "severity": "blocker",
     },
     {
         # L0 forward-only ratchet over the L-1.5 miner. FAILs when:
@@ -505,6 +518,35 @@ VALIDATORS = [
         "label":   "Query Column Existence (every .select/.eq/.in column must exist on the table; forward-only ratchet)",
         "group":   "Platform",
         "report":  "query_column_existence_report.json",
+        "skip_if_fast": False,
+    },
+    {
+        # 2026-05-28 — sibling of query-column-existence: closes its blind spot
+        # (`cols = table_cols.get(table); if cols is None: continue` silently
+        # skips refs to objects that don't exist AT ALL). Every .from('T')/
+        # /rest/v1/T must be a real table/view; every .rpc('fn')/rest/v1/rpc/fn
+        # a real function. Found via the MCP cockpit flywheel (Playwright 404 +
+        # Postgres cross-verify). Allow with `// obj-exist-allow: <reason>`.
+        "id":      "supabase-object-existence",
+        "script":  "validate_supabase_object_existence.py",
+        "args":    [],
+        "label":   "Supabase Object Existence (every .from/.rpc/REST object must exist in the canonical registry; forward-only ratchet)",
+        "group":   "Platform",
+        "report":  "supabase_object_existence_report.json",
+        "skip_if_fast": False,
+    },
+    {
+        # 2026-05-28 — GH hardening bridge from the cockpit flywheel: every NAMED
+        # relative import under supabase/functions/** must resolve to a real
+        # export. Catches the boot-break class (Deno "module does not provide an
+        # export named X") that passes every static gate and only 503s at
+        # `functions serve`. Caught cors.ts/corsHeaders + pdf-ingest/embedText.
+        "id":      "edge-import-exports",
+        "script":  "validate_edge_import_exports.py",
+        "args":    [],
+        "label":   "Edge Import/Export Resolution (every named relative import resolves to a real export; forward-only ratchet)",
+        "group":   "Platform",
+        "report":  "edge_import_exports_report.json",
         "skip_if_fast": False,
     },
     {
@@ -3011,6 +3053,23 @@ VALIDATORS = [
         "report":  "ai_chain_mirror_report.json",
         "skip_if_fast": False,
     },
+
+    # ── P1 Roadmap (turns 5-7, re-registered after revert 2026-05-27) ────────
+    {"id": "truth-view-contract",          "script": "validate_truth_view_contract.py",          "args": [], "label": "Truth-View Contract (every v_*_truth declares _source_count/_freshness_ts/_canonical_version)",                       "group": "P1 Roadmap", "report": "truth_view_contract_report.json",          "skip_if_fast": False, "severity": "blocker",    "parallel_safe": True},
+    {"id": "envelope-conformance",         "script": "validate_envelope_conformance.py",         "args": [], "label": "Envelope Conformance (every edge fn imports _shared/envelope.ts OR is exempt)",                                       "group": "P1 Roadmap", "report": "envelope_conformance_report.json",         "skip_if_fast": False, "severity": "regression", "parallel_safe": True},
+    {"id": "health-endpoint",              "script": "validate_health_endpoint.py",              "args": [], "label": "Health Endpoint (every load-bearing edge fn handles /health)",                                                        "group": "P1 Roadmap", "report": "health_endpoint_report.json",              "skip_if_fast": False, "severity": "regression", "parallel_safe": True},
+    {"id": "render-budget",                "script": "validate_render_budget.py",                "args": [], "label": "Render Budget (per-page HTML + inline JS + external script ratchet)",                                                "group": "P1 Roadmap", "report": "render_budget_report.json",                "skip_if_fast": False, "severity": "warn",       "parallel_safe": True},
+    {"id": "migration-immutability-strict","script": "validate_migration_immutability_strict.py","args": [], "label": "Migration Immutability Strict (sha256 every migration; FAIL on edit-after-first-observation)",                        "group": "P1 Roadmap", "report": "migration_immutability_strict_report.json","skip_if_fast": False, "severity": "blocker",    "parallel_safe": True},
+    {"id": "substrate-manifest",           "script": os.path.join("tools", "build_substrate_manifest.py"), "args": [], "label": "Substrate Manifest (L-1.5: aggregate all 13 pattern miners + drift detectors into one view)",          "group": "P1 Roadmap", "report": "substrate_manifest.json",                  "skip_if_fast": False, "severity": "info",       "parallel_safe": True},
+    {"id": "fullstack-gate-coverage",      "script": os.path.join("tools", "audit_fullstack_gate_coverage.py"), "args": [], "label": "Full-Stack × Gate Coverage Meta-Gate (every artefact named in the study's 13×6 matrix must exist)", "group": "P1 Roadmap", "report": "fullstack_gate_coverage_report.json",      "skip_if_fast": False, "severity": "blocker",    "parallel_safe": True},
+    {"id": "rate-limit-adoption",          "script": "validate_rate_limit_adoption.py",          "args": [], "label": "Rate-Limit Adoption (every callAI fn calls checkAIRateLimit/checkUserRateLimit/checkRouteRateLimit)",                "group": "P1 Roadmap", "report": "rate_limit_adoption_report.json",          "skip_if_fast": False, "severity": "regression", "parallel_safe": True},
+    {"id": "llm-cache-adoption",           "script": "validate_llm_cache_adoption.py",           "args": [], "label": "LLM Cache Adoption (count of fns using cached() from _shared/cache.ts; floor ratchet)",                              "group": "P1 Roadmap", "report": "llm_cache_adoption_report.json",           "skip_if_fast": False, "severity": "warn",       "parallel_safe": True},
+    {"id": "structured-log-adoption",      "script": "validate_structured_log_adoption.py",      "args": [], "label": "Structured Log Adoption (count of fns importing + calling log.* from _shared/logger.ts; floor ratchet)",            "group": "P1 Roadmap", "report": "structured_log_adoption_report.json",      "skip_if_fast": False, "severity": "warn",       "parallel_safe": True},
+    {"id": "reproducible-build-pin",       "script": "validate_reproducible_build_pin.py",       "args": [], "label": "Reproducible Build Pin (L1 .tool-versions + L2 package-lock + L3 engines.node agreement)",                        "group": "P1 Roadmap", "report": "reproducible_build_pin_report.json",       "skip_if_fast": False, "severity": "regression", "parallel_safe": True},
+    {"id": "mine-rls-policies",            "script": os.path.join("tools", "mine_rls_policies.py"), "args": [], "label": "RLS Policy Substrate Miner (L-1.5: USING(true) / WITH CHECK(true) / missing TO clause)",                     "group": "P1 Roadmap", "report": "rls_policy_mining_report.json",            "skip_if_fast": False, "severity": "info",       "parallel_safe": True},
+    {"id": "mine-cache-name-drift",        "script": os.path.join("tools", "mine_cache_name_drift.py"), "args": [], "label": "Cache-Name Drift Miner (L-1: SHELL_FILEs committed after sw.js — bump CACHE_NAME warning)",            "group": "P1 Roadmap", "report": "cache_name_drift_report.json",             "skip_if_fast": False, "severity": "info",       "parallel_safe": True},
+    {"id": "rls-strict",                   "script": "validate_rls_strict.py",                   "args": [], "label": "RLS Strict Baseline (L0 ratchet over mine_rls_policies: USING(true) + WITH CHECK(true) frozen at baseline)",         "group": "P1 Roadmap", "report": "rls_policy_mining_report.json",            "skip_if_fast": False, "severity": "regression", "parallel_safe": True},
+    {"id": "envelope-return-shape",        "script": "validate_envelope_return_shape.py",        "args": [], "label": "Envelope Return-Shape Adoption (true adoption: fns that actually call ok(ctx, ...); floor ratchet)",                 "group": "P1 Roadmap", "report": "envelope_return_shape_report.json",        "skip_if_fast": False, "severity": "warn",       "parallel_safe": True},
 ]
 
 PYTHON_API_URL  = "https://engineering-calc-api.onrender.com/calculate"

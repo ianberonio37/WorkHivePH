@@ -22,7 +22,9 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { getCorsHeaders } from "../_shared/cors.ts";
-import { embedText } from "../_shared/embedding-chain.ts";
+// P1 roadmap 2026-05-26: envelope adoption (helper imported; success-path migration follows).
+import { beginRequest, ok, fail, recordModelHop } from "../_shared/envelope.ts";
+import { generateEmbedding } from "../_shared/embedding-chain.ts";
 
 const _WH_SUPABASE_URL_M = Deno.env.get("SUPABASE_URL") || "";
 const _WH_SERVICE_KEY_M  = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
@@ -84,7 +86,7 @@ async function processJob(
         errors++;
         continue;
       }
-      const embedding = await embedText(text);
+      const embedding = await generateEmbedding(text);
       const row: Record<string, unknown> = {
         hive_id:   job.hive_id,
         embedding,

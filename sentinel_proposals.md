@@ -1,11 +1,11 @@
 # Sentinel Proposals (v1.4 - check-level)
 
-Generated for 25 uncovered CHECK(s) across 5 per-page validators. Each check is one rule
+Generated for 23 uncovered CHECK(s) across 4 per-page validators. Each check is one rule
 the platform should obey - and currently no Playwright spec exercises it.
 
-**Check coverage:** 91.0% (253 of 278 per-page checks - HONEST behavioral coverage)
+**Check coverage:** 91.7% (255 of 278 per-page checks - HONEST behavioral coverage)
 **Topic coverage:** 100.0% (35 of 35 per-page validators - loose, validator-level)
-**Raw coverage:** 81.6% (244 of 299 validators)
+**Raw coverage:** 83.6% (260 of 311 validators)
 
 Each section below groups uncovered checks by validator. Use the per-check
 list as your test backlog - one scenario per check, not one scenario per
@@ -57,43 +57,7 @@ so the next sentinel run automatically marks the check as covered.
 
 ---
 
-## Validator #2: `validate_hive_quota.py`  -  2 check(s) untested
-
-**Label:** validate_hive_quota  
-**Likely surface:** hive.html  
-**Reference pattern:** journey-hive.spec.ts  
-**Already covered (2):** `table_inventory`, `trigger_coverage`
-
-### Uncovered checks (2)
-
-Each line is one rule that needs a Playwright scenario. The check name
-(in backticks) MUST appear in the test() name so the next sentinel run
-matches the new scenario to the rule.
-
-- `adoption_inventory`
-- `quota_table`
-
-### LLM prompt
-
-```
-You are extending Layer 2 of the WorkHive platform.
-
-Validator `validate_hive_quota.py` (target: `hive.html`) declares 2
-rules that have NO Playwright test exercising them:
-  - adoption_inventory
-  - quota_table
-
-Read `hive.html` for selectors, form IDs, routes.
-Match the canonical pattern in `tests/journey-hive.spec.ts` (imports from './_fixtures' + './_helpers', uses whPage + testMarker).
-
-Propose ONE test() block per check above. Each test()'s name MUST
-start with the check name (e.g. `test('approval_channel_events: ...', ...)`)
-so the next sentinel run automatically marks the check as covered.
-```
-
----
-
-## Validator #3: `validate_notifications.py`  -  1 check(s) untested
+## Validator #2: `validate_notifications.py`  -  1 check(s) untested
 
 **Label:** validate_notifications  
 **Likely surface:** hive.html  
@@ -126,7 +90,7 @@ so the next sentinel run automatically marks the check as covered.
 
 ---
 
-## Validator #4: `validate_reliability_workbench.py`  -  16 check(s) untested
+## Validator #3: `validate_reliability_workbench.py`  -  16 check(s) untested
 
 **Label:** validate_reliability_workbench  
 **Likely surface:** asset-hub.html  
@@ -189,7 +153,7 @@ so the next sentinel run automatically marks the check as covered.
 
 ---
 
-## Validator #5: `validate_renderers.py`  -  3 check(s) untested
+## Validator #4: `validate_renderers.py`  -  3 check(s) untested
 
 **Label:** validate_renderers  
 **Likely surface:** engineering-design.html  
@@ -236,7 +200,7 @@ is the right enforcement layer because writing a Playwright scenario per
 page would just duplicate the validator with 50x the runtime.
 
 
-## Infrastructure gaps (55)
+## Infrastructure gaps (51)
 
 These validators have no UI surface - they enforce backend / schema /
 edge function / configuration rules. Layer 0 is the right enforcement
@@ -259,43 +223,39 @@ layer; no Playwright scenario is needed.
 - `validate_digital_twin.py` (6 checks) - validate_digital_twin
 - `validate_drop_if_exists.py` (1 checks) - validate_drop_if_exists
 - `validate_duplicate_html_id.py` (1 checks) - validate_duplicate_html_id
-- `validate_edge_caller_contract.py` (4 checks) - validate_edge_caller_contract
 - `validate_edge_config.py` (4 checks) - validate_edge_config
 - `validate_em_dash.py` (1 checks) - validate_em_dash
-- `validate_embed_integrity.py` (4 checks) - validate_embed_integrity
 - `validate_fields.py` (no named checks) - validate_fields
 - `validate_fk_on_delete.py` (1 checks) - validate_fk_on_delete
 - `validate_ga4_coverage.py` (4 checks) - validate_ga4_coverage
 - `validate_gateway_coverage.py` (4 checks) - validate_gateway_coverage
-- `validate_hardcoded_secrets.py` (4 checks) - validate_hardcoded_secrets
 - `validate_industry_defining.py` (8 checks) - validate_industry_defining.py — Phase 6 of STRATEGIC_ROADMAP.
 - `validate_integration.py` (no named checks) - validate_integration
 - `validate_iot_protocols.py` (6 checks) - validate_iot_protocols
 - `validate_js_syntax_sanity.py` (1 checks) - validate_js_syntax_sanity
 - `validate_jsonb_drift.py` (4 checks) - validate_jsonb_drift
+- `validate_llm_cache_adoption.py` (1 checks) - validate_llm_cache_adoption
 - `validate_llms_sync.py` (4 checks) - validate_llms_sync
 - `validate_migration_immutability.py` (4 checks) - validate_migration_immutability
-- `validate_migration_order.py` (4 checks) - validate_migration_order
+- `validate_migration_immutability_strict.py` (1 checks) - validate_migration_immutability_strict
 - `validate_multilingual_phase11.py` (no named checks) - validate_multilingual_phase11
 - `validate_pdf_pipeline.py` (4 checks) - validate_pdf_pipeline
 - `validate_pii_egress.py` (4 checks) - validate_pii_egress
 - `validate_playwright_coverage.py` (4 checks) - validate_playwright_coverage
-- `validate_playwright_smoke.py` (3 checks) - validate_playwright_smoke
 - `validate_playwright_staleness.py` (3 checks) - validate_playwright_staleness
-- `validate_provider_bypass.py` (4 checks) - validate_provider_bypass
+- `validate_render_budget.py` (1 checks) - validate_render_budget
+- `validate_reproducible_build_pin.py` (1 checks) - validate_reproducible_build_pin
 - `validate_reset_coverage.py` (2 checks) - validate_reset_coverage
-- `validate_rls_readiness.py` (4 checks) - validate_rls_readiness
+- `validate_rls_strict.py` (1 checks) - validate_rls_strict
 - `validate_schema_coverage.py` (no named checks) - validate_schema_coverage
 - `validate_seed_consumer_contract.py` (3 checks) - validate_seed_consumer_contract
 - `validate_sentinel_baseline.py` (no named checks) - validate_sentinel_baseline.py - forward-only ratchet on sentinel coverage.
-- `validate_service_role_exposure.py` (4 checks) - validate_service_role_exposure
 - `validate_sitemap_sync.py` (3 checks) - validate_sitemap_sync
 - `validate_soft_delete.py` (1 checks) - validate_soft_delete
-- `validate_state_machine_integrity.py` (4 checks) - validate_state_machine_integrity
+- `validate_supabase_object_existence.py` (1 checks) - validate_supabase_object_existence
 - `validate_supabase_singleton.py` (2 checks) - validate_supabase_singleton
 - `validate_tester_coverage.py` (no named checks) - validate_tester_coverage
 - `validate_trigger_reentrancy.py` (4 checks) - validate_trigger_reentrancy
 - `validate_validator_self_coverage.py` (4 checks) - validate_validator_self_coverage
-- `validate_write_path_monitor.py` (4 checks) - validate_write_path_monitor
 
-_Generated 5 per-page proposal bundles. Skipped 0 with no extractable tokens. Tagged 0 platform-wide and 55 infrastructure._
+_Generated 4 per-page proposal bundles. Skipped 0 with no extractable tokens. Tagged 0 platform-wide and 51 infrastructure._

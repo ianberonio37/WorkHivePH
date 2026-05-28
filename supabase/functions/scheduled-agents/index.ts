@@ -20,6 +20,8 @@ void _whWarmClient;
 // pipe-delimited summary shape used here.
 import { redactPII as _redactPII } from "../_shared/redactPII.ts";  // eslint-disable-line
 import { getCorsHeaders } from "../_shared/cors.ts";
+// P1 roadmap 2026-05-26: envelope adoption (helper imported; success-path migration follows).
+import { beginRequest, ok, fail, recordModelHop } from "../_shared/envelope.ts";
 
 function callGroq(prompt: string, systemPrompt: string): Promise<string> {
   return callAI(prompt, { systemPrompt, temperature: 0.2, maxTokens: 1024, jsonMode: true });

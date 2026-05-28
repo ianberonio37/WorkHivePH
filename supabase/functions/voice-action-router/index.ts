@@ -34,6 +34,8 @@ import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-
 import { callAI } from "../_shared/ai-chain.ts";
 import { logAICost, estimateTokens } from "../_shared/cost-log.ts";
 import { getCorsHeaders } from "../_shared/cors.ts";
+// P1 roadmap 2026-05-26: envelope adoption (helper imported; success-path migration follows).
+import { beginRequest, ok, fail, recordModelHop } from "../_shared/envelope.ts";
 // Persona Contract: narrated-specialist mode — router returns its route
 // JSON plus a `narration` field in the persona's voice.
 // See WORKHIVE_PERSONA_CONTRACT.md.

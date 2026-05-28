@@ -1,10 +1,10 @@
 {
   "summary": {
-    "files_scanned": 156,
-    "total_refs": 215,
+    "files_scanned": 162,
+    "total_refs": 241,
     "total_missing": 0,
     "baseline": 0,
-    "env_names_known": 22
+    "env_names_known": 25
   },
   "per_file": [
     {
@@ -13,6 +13,10 @@
     },
     {
       "file": "supabase/functions/_shared/audio-chain.ts",
+      "missing": []
+    },
+    {
+      "file": "supabase/functions/_shared/cache.ts",
       "missing": []
     },
     {
@@ -32,7 +36,23 @@
       "missing": []
     },
     {
+      "file": "supabase/functions/_shared/envelope.ts",
+      "missing": []
+    },
+    {
+      "file": "supabase/functions/_shared/error-tracker.ts",
+      "missing": []
+    },
+    {
+      "file": "supabase/functions/_shared/health.ts",
+      "missing": []
+    },
+    {
       "file": "supabase/functions/_shared/journal-recall.ts",
+      "missing": []
+    },
+    {
+      "file": "supabase/functions/_shared/logger.ts",
       "missing": []
     },
     {
@@ -45,6 +65,10 @@
     },
     {
       "file": "supabase/functions/_shared/persona.ts",
+      "missing": []
+    },
+    {
+      "file": "supabase/functions/_shared/provider-health.ts",
       "missing": []
     },
     {

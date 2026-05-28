@@ -1312,3 +1312,7073 @@ Validator runs in <100ms; the L0 layer is the right home.
 **Status:** INFRASTRUCTURE — NO PROPOSAL NEEDED
 
 ---
+
+# Multi-Scenario Sentinel — proposed edge scenarios
+
+63 TIER 1 rule(s) currently have <2 anchored tests:
+
+## `files_parse` (validator: `ai_chain_mirror`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `files_parse`
+  - **File:** `tests/journey-ai-chain-mirror.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('files_parse: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `models_match` (validator: `ai_chain_mirror`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `models_match`
+  - **File:** `tests/journey-ai-chain-mirror.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('models_match: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `env_keys_match` (validator: `ai_chain_mirror`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `env_keys_match`
+  - **File:** `tests/journey-ai-chain-mirror.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('env_keys_match: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `provider_tier_order` (validator: `ai_chain_mirror`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `provider_tier_order`
+  - **File:** `tests/journey-ai-chain-mirror.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('provider_tier_order: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `ai_companion_safety` (validator: `ai_companion_safety`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `ai_companion_safety`
+  - **File:** `tests/journey-ai-companion-safety.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('ai_companion_safety: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `html_no_identity` (validator: `auth_boundary`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `html_no_identity`
+  - **File:** `tests/journey-auth-boundary.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('html_no_identity: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `edge_no_auth` (validator: `auth_boundary`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `edge_no_auth`
+  - **File:** `tests/journey-auth-boundary.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('edge_no_auth: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `identity_distribution` (validator: `auth_boundary`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `identity_distribution`
+  - **File:** `tests/journey-auth-boundary.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('identity_distribution: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `anonymous_writes` (validator: `auth_boundary`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `anonymous_writes`
+  - **File:** `tests/journey-auth-boundary.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('anonymous_writes: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `signin_state_transition` (validator: `auth_boundary`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `signin_state_transition`
+  - **File:** `tests/journey-auth-boundary.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('signin_state_transition: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `fuel_anchor` (validator: `canonical_anchor`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `fuel_anchor`
+  - **File:** `tests/journey-canonical-anchor.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('fuel_anchor: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `engine_anchor` (validator: `canonical_anchor`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `engine_anchor`
+  - **File:** `tests/journey-canonical-anchor.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('engine_anchor: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `tier_a_anchor` (validator: `canonical_anchor`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `tier_a_anchor`
+  - **File:** `tests/journey-canonical-anchor.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('tier_a_anchor: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `tier_c_anchor` (validator: `canonical_anchor`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `tier_c_anchor`
+  - **File:** `tests/journey-canonical-anchor.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('tier_c_anchor: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `formula_anchor` (validator: `canonical_anchor`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `formula_anchor`
+  - **File:** `tests/journey-canonical-anchor.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('formula_anchor: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `standard_anchor` (validator: `canonical_anchor`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `standard_anchor`
+  - **File:** `tests/journey-canonical-anchor.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('standard_anchor: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `dashboard_anchor` (validator: `canonical_anchor`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `dashboard_anchor`
+  - **File:** `tests/journey-canonical-anchor.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('dashboard_anchor: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `capture_anchor` (validator: `canonical_anchor`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `capture_anchor`
+  - **File:** `tests/journey-canonical-anchor.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('capture_anchor: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `seed_render_anchor` (validator: `canonical_anchor`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `seed_render_anchor`
+  - **File:** `tests/journey-canonical-anchor.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('seed_render_anchor: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `header_strip_anchor` (validator: `canonical_anchor`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `header_strip_anchor`
+  - **File:** `tests/journey-canonical-anchor.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('header_strip_anchor: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `insight_panel_anchor` (validator: `canonical_anchor`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `insight_panel_anchor`
+  - **File:** `tests/journey-canonical-anchor.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('insight_panel_anchor: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `journey_coverage` (validator: `canonical_anchor`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `journey_coverage`
+  - **File:** `tests/journey-canonical-anchor.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('journey_coverage: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `registry_table_declared` (validator: `canonical_sources`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `registry_table_declared`
+  - **File:** `tests/journey-canonical-sources.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('registry_table_declared: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `registry_writes_locked` (validator: `canonical_sources`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `registry_writes_locked`
+  - **File:** `tests/journey-canonical-sources.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('registry_writes_locked: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `registry_select_granted` (validator: `canonical_sources`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `registry_select_granted`
+  - **File:** `tests/journey-canonical-sources.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('registry_select_granted: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `registry_seeded_aligned` (validator: `canonical_sources`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `registry_seeded_aligned`
+  - **File:** `tests/journey-canonical-sources.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('registry_seeded_aligned: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `registry_sources_exist` (validator: `canonical_sources`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `registry_sources_exist`
+  - **File:** `tests/journey-canonical-sources.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('registry_sources_exist: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `drift_detection` (validator: `canonical_sources`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `drift_detection`
+  - **File:** `tests/journey-canonical-sources.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('drift_detection: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `edge_response_has_returns` (validator: `edge_response_contract`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `edge_response_has_returns`
+  - **File:** `tests/journey-edge-response-contract.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('edge_response_has_returns: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `edge_response_phantom_field` (validator: `edge_response_contract`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `edge_response_phantom_field`
+  - **File:** `tests/journey-edge-response-contract.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('edge_response_phantom_field: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `edge_response_error_only` (validator: `edge_response_contract`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `edge_response_error_only`
+  - **File:** `tests/journey-edge-response-contract.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('edge_response_error_only: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `envelope_conformance` (validator: `envelope_conformance`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `envelope_conformance`
+  - **File:** `tests/journey-envelope-conformance.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('envelope_conformance: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `chain_exists` (validator: `groq_fallback`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `chain_exists`
+  - **File:** `tests/journey-groq-fallback.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('chain_exists: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `banned_models` (validator: `groq_fallback`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `banned_models`
+  - **File:** `tests/journey-groq-fallback.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('banned_models: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `entry_fields` (validator: `groq_fallback`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `entry_fields`
+  - **File:** `tests/journey-groq-fallback.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('entry_fields: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `callai_import` (validator: `groq_fallback`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `callai_import`
+  - **File:** `tests/journey-groq-fallback.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('callai_import: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `no_raw_groq_fetch` (validator: `groq_fallback`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `no_raw_groq_fetch`
+  - **File:** `tests/journey-groq-fallback.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('no_raw_groq_fetch: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `max_tokens` (validator: `groq_fallback`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `max_tokens`
+  - **File:** `tests/journey-groq-fallback.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('max_tokens: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `error_handling` (validator: `groq_fallback`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `error_handling`
+  - **File:** `tests/journey-groq-fallback.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('error_handling: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `abort_timeout` (validator: `groq_fallback`)
+- Current anchors: ['journey-analytics.spec.ts']
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `abort_timeout`
+  - **File:** `tests/journey-groq-fallback.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('abort_timeout: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `free_tier_only` (validator: `groq_fallback`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `free_tier_only`
+  - **File:** `tests/journey-groq-fallback.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('free_tier_only: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `health_endpoint` (validator: `health_endpoint`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `health_endpoint`
+  - **File:** `tests/journey-health-endpoint.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('health_endpoint: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `quota_table` (validator: `hive_quota`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `quota_table`
+  - **File:** `tests/journey-hive-quota.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('quota_table: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `trigger_coverage` (validator: `hive_quota`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `trigger_coverage`
+  - **File:** `tests/journey-hive-quota.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('trigger_coverage: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `table_inventory` (validator: `hive_quota`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `table_inventory`
+  - **File:** `tests/journey-hive-quota.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('table_inventory: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `adoption_inventory` (validator: `hive_quota`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `adoption_inventory`
+  - **File:** `tests/journey-hive-quota.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('adoption_inventory: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `hive_state_consistency` (validator: `hive_state_consistency`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `hive_state_consistency`
+  - **File:** `tests/journey-hive-state-consistency.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('hive_state_consistency: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `render_budget` (validator: `render_budget`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `render_budget`
+  - **File:** `tests/journey-render-budget.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('render_budget: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `rls_open_policy` (validator: `rls_open_policy`)
+- Current anchors: ['journey-l0-platform-bug-classes.spec.ts']
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `rls_open_policy`
+  - **File:** `tests/journey-rls-open-policy.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('rls_open_policy: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `rls_lockout_trap` (validator: `rls_readiness`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `rls_lockout_trap`
+  - **File:** `tests/journey-rls-readiness.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('rls_lockout_trap: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `rls_dead_policy` (validator: `rls_readiness`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `rls_dead_policy`
+  - **File:** `tests/journey-rls-readiness.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('rls_dead_policy: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `permissive_using_true` (validator: `rls_readiness`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `permissive_using_true`
+  - **File:** `tests/journey-rls-readiness.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('permissive_using_true: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `rls_verb_coverage` (validator: `rls_readiness`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `rls_verb_coverage`
+  - **File:** `tests/journey-rls-readiness.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('rls_verb_coverage: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `# L1
+    "select_filters` (validator: `tenant_boundary`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `# L1
+    "select_filters`
+  - **File:** `tests/journey-tenant-boundary.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('# L1
+    "select_filters: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `realtime_scope` (validator: `tenant_boundary`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `realtime_scope`
+  - **File:** `tests/journey-tenant-boundary.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('realtime_scope: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `# L2
+    "hive_id_source` (validator: `tenant_boundary`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `# L2
+    "hive_id_source`
+  - **File:** `tests/journey-tenant-boundary.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('# L2
+    "hive_id_source: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `worker_name_source` (validator: `tenant_boundary`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `worker_name_source`
+  - **File:** `tests/journey-tenant-boundary.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('worker_name_source: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `# L3
+    "switcher_validation` (validator: `tenant_boundary`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `# L3
+    "switcher_validation`
+  - **File:** `tests/journey-tenant-boundary.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('# L3
+    "switcher_validation: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `url_param_injection` (validator: `tenant_boundary`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `url_param_injection`
+  - **File:** `tests/journey-tenant-boundary.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('url_param_injection: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `# L4
+    "pages_in_scope` (validator: `tenant_boundary`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `# L4
+    "pages_in_scope`
+  - **File:** `tests/journey-tenant-boundary.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('# L4
+    "pages_in_scope: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `# L5
+    "nullable_auth_uid_rls_trap` (validator: `tenant_boundary`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `# L5
+    "nullable_auth_uid_rls_trap`
+  - **File:** `tests/journey-tenant-boundary.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('# L5
+    "nullable_auth_uid_rls_trap: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `truth_view_contract` (validator: `truth_view_contract`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `truth_view_contract`
+  - **File:** `tests/journey-truth-view-contract.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('truth_view_contract: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `truth_view_signal_trust` (validator: `truth_view_signal_trust`)
+- Current anchors: ['journey-l0-platform-bug-classes.spec.ts']
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `truth_view_signal_trust`
+  - **File:** `tests/journey-truth-view-signal-trust.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('truth_view_signal_trust: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+# Multi-Scenario Sentinel — proposed edge scenarios
+
+63 TIER 1 rule(s) currently have <2 anchored tests:
+
+## `files_parse` (validator: `ai_chain_mirror`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `files_parse`
+  - **File:** `tests/journey-ai-chain-mirror.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('files_parse: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `models_match` (validator: `ai_chain_mirror`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `models_match`
+  - **File:** `tests/journey-ai-chain-mirror.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('models_match: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `env_keys_match` (validator: `ai_chain_mirror`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `env_keys_match`
+  - **File:** `tests/journey-ai-chain-mirror.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('env_keys_match: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `provider_tier_order` (validator: `ai_chain_mirror`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `provider_tier_order`
+  - **File:** `tests/journey-ai-chain-mirror.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('provider_tier_order: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `ai_companion_safety` (validator: `ai_companion_safety`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `ai_companion_safety`
+  - **File:** `tests/journey-ai-companion-safety.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('ai_companion_safety: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `html_no_identity` (validator: `auth_boundary`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `html_no_identity`
+  - **File:** `tests/journey-auth-boundary.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('html_no_identity: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `edge_no_auth` (validator: `auth_boundary`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `edge_no_auth`
+  - **File:** `tests/journey-auth-boundary.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('edge_no_auth: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `identity_distribution` (validator: `auth_boundary`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `identity_distribution`
+  - **File:** `tests/journey-auth-boundary.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('identity_distribution: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `anonymous_writes` (validator: `auth_boundary`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `anonymous_writes`
+  - **File:** `tests/journey-auth-boundary.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('anonymous_writes: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `signin_state_transition` (validator: `auth_boundary`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `signin_state_transition`
+  - **File:** `tests/journey-auth-boundary.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('signin_state_transition: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `fuel_anchor` (validator: `canonical_anchor`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `fuel_anchor`
+  - **File:** `tests/journey-canonical-anchor.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('fuel_anchor: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `engine_anchor` (validator: `canonical_anchor`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `engine_anchor`
+  - **File:** `tests/journey-canonical-anchor.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('engine_anchor: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `tier_a_anchor` (validator: `canonical_anchor`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `tier_a_anchor`
+  - **File:** `tests/journey-canonical-anchor.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('tier_a_anchor: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `tier_c_anchor` (validator: `canonical_anchor`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `tier_c_anchor`
+  - **File:** `tests/journey-canonical-anchor.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('tier_c_anchor: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `formula_anchor` (validator: `canonical_anchor`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `formula_anchor`
+  - **File:** `tests/journey-canonical-anchor.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('formula_anchor: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `standard_anchor` (validator: `canonical_anchor`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `standard_anchor`
+  - **File:** `tests/journey-canonical-anchor.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('standard_anchor: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `dashboard_anchor` (validator: `canonical_anchor`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `dashboard_anchor`
+  - **File:** `tests/journey-canonical-anchor.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('dashboard_anchor: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `capture_anchor` (validator: `canonical_anchor`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `capture_anchor`
+  - **File:** `tests/journey-canonical-anchor.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('capture_anchor: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `seed_render_anchor` (validator: `canonical_anchor`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `seed_render_anchor`
+  - **File:** `tests/journey-canonical-anchor.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('seed_render_anchor: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `header_strip_anchor` (validator: `canonical_anchor`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `header_strip_anchor`
+  - **File:** `tests/journey-canonical-anchor.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('header_strip_anchor: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `insight_panel_anchor` (validator: `canonical_anchor`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `insight_panel_anchor`
+  - **File:** `tests/journey-canonical-anchor.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('insight_panel_anchor: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `journey_coverage` (validator: `canonical_anchor`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `journey_coverage`
+  - **File:** `tests/journey-canonical-anchor.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('journey_coverage: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `registry_table_declared` (validator: `canonical_sources`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `registry_table_declared`
+  - **File:** `tests/journey-canonical-sources.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('registry_table_declared: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `registry_writes_locked` (validator: `canonical_sources`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `registry_writes_locked`
+  - **File:** `tests/journey-canonical-sources.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('registry_writes_locked: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `registry_select_granted` (validator: `canonical_sources`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `registry_select_granted`
+  - **File:** `tests/journey-canonical-sources.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('registry_select_granted: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `registry_seeded_aligned` (validator: `canonical_sources`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `registry_seeded_aligned`
+  - **File:** `tests/journey-canonical-sources.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('registry_seeded_aligned: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `registry_sources_exist` (validator: `canonical_sources`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `registry_sources_exist`
+  - **File:** `tests/journey-canonical-sources.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('registry_sources_exist: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `drift_detection` (validator: `canonical_sources`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `drift_detection`
+  - **File:** `tests/journey-canonical-sources.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('drift_detection: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `edge_response_has_returns` (validator: `edge_response_contract`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `edge_response_has_returns`
+  - **File:** `tests/journey-edge-response-contract.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('edge_response_has_returns: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `edge_response_phantom_field` (validator: `edge_response_contract`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `edge_response_phantom_field`
+  - **File:** `tests/journey-edge-response-contract.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('edge_response_phantom_field: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `edge_response_error_only` (validator: `edge_response_contract`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `edge_response_error_only`
+  - **File:** `tests/journey-edge-response-contract.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('edge_response_error_only: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `envelope_conformance` (validator: `envelope_conformance`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `envelope_conformance`
+  - **File:** `tests/journey-envelope-conformance.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('envelope_conformance: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `chain_exists` (validator: `groq_fallback`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `chain_exists`
+  - **File:** `tests/journey-groq-fallback.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('chain_exists: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `banned_models` (validator: `groq_fallback`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `banned_models`
+  - **File:** `tests/journey-groq-fallback.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('banned_models: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `entry_fields` (validator: `groq_fallback`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `entry_fields`
+  - **File:** `tests/journey-groq-fallback.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('entry_fields: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `callai_import` (validator: `groq_fallback`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `callai_import`
+  - **File:** `tests/journey-groq-fallback.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('callai_import: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `no_raw_groq_fetch` (validator: `groq_fallback`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `no_raw_groq_fetch`
+  - **File:** `tests/journey-groq-fallback.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('no_raw_groq_fetch: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `max_tokens` (validator: `groq_fallback`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `max_tokens`
+  - **File:** `tests/journey-groq-fallback.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('max_tokens: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `error_handling` (validator: `groq_fallback`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `error_handling`
+  - **File:** `tests/journey-groq-fallback.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('error_handling: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `abort_timeout` (validator: `groq_fallback`)
+- Current anchors: ['journey-analytics.spec.ts']
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `abort_timeout`
+  - **File:** `tests/journey-groq-fallback.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('abort_timeout: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `free_tier_only` (validator: `groq_fallback`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `free_tier_only`
+  - **File:** `tests/journey-groq-fallback.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('free_tier_only: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `health_endpoint` (validator: `health_endpoint`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `health_endpoint`
+  - **File:** `tests/journey-health-endpoint.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('health_endpoint: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `quota_table` (validator: `hive_quota`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `quota_table`
+  - **File:** `tests/journey-hive-quota.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('quota_table: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `trigger_coverage` (validator: `hive_quota`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `trigger_coverage`
+  - **File:** `tests/journey-hive-quota.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('trigger_coverage: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `table_inventory` (validator: `hive_quota`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `table_inventory`
+  - **File:** `tests/journey-hive-quota.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('table_inventory: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `adoption_inventory` (validator: `hive_quota`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `adoption_inventory`
+  - **File:** `tests/journey-hive-quota.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('adoption_inventory: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `hive_state_consistency` (validator: `hive_state_consistency`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `hive_state_consistency`
+  - **File:** `tests/journey-hive-state-consistency.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('hive_state_consistency: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `render_budget` (validator: `render_budget`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `render_budget`
+  - **File:** `tests/journey-render-budget.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('render_budget: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `rls_open_policy` (validator: `rls_open_policy`)
+- Current anchors: ['journey-l0-platform-bug-classes.spec.ts']
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `rls_open_policy`
+  - **File:** `tests/journey-rls-open-policy.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('rls_open_policy: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `rls_lockout_trap` (validator: `rls_readiness`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `rls_lockout_trap`
+  - **File:** `tests/journey-rls-readiness.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('rls_lockout_trap: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `rls_dead_policy` (validator: `rls_readiness`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `rls_dead_policy`
+  - **File:** `tests/journey-rls-readiness.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('rls_dead_policy: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `permissive_using_true` (validator: `rls_readiness`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `permissive_using_true`
+  - **File:** `tests/journey-rls-readiness.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('permissive_using_true: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `rls_verb_coverage` (validator: `rls_readiness`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `rls_verb_coverage`
+  - **File:** `tests/journey-rls-readiness.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('rls_verb_coverage: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `# L1
+    "select_filters` (validator: `tenant_boundary`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `# L1
+    "select_filters`
+  - **File:** `tests/journey-tenant-boundary.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('# L1
+    "select_filters: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `realtime_scope` (validator: `tenant_boundary`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `realtime_scope`
+  - **File:** `tests/journey-tenant-boundary.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('realtime_scope: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `# L2
+    "hive_id_source` (validator: `tenant_boundary`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `# L2
+    "hive_id_source`
+  - **File:** `tests/journey-tenant-boundary.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('# L2
+    "hive_id_source: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `worker_name_source` (validator: `tenant_boundary`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `worker_name_source`
+  - **File:** `tests/journey-tenant-boundary.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('worker_name_source: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `# L3
+    "switcher_validation` (validator: `tenant_boundary`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `# L3
+    "switcher_validation`
+  - **File:** `tests/journey-tenant-boundary.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('# L3
+    "switcher_validation: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `url_param_injection` (validator: `tenant_boundary`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `url_param_injection`
+  - **File:** `tests/journey-tenant-boundary.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('url_param_injection: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `# L4
+    "pages_in_scope` (validator: `tenant_boundary`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `# L4
+    "pages_in_scope`
+  - **File:** `tests/journey-tenant-boundary.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('# L4
+    "pages_in_scope: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `# L5
+    "nullable_auth_uid_rls_trap` (validator: `tenant_boundary`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `# L5
+    "nullable_auth_uid_rls_trap`
+  - **File:** `tests/journey-tenant-boundary.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('# L5
+    "nullable_auth_uid_rls_trap: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `truth_view_contract` (validator: `truth_view_contract`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `truth_view_contract`
+  - **File:** `tests/journey-truth-view-contract.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('truth_view_contract: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `truth_view_signal_trust` (validator: `truth_view_signal_trust`)
+- Current anchors: ['journey-l0-platform-bug-classes.spec.ts']
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `truth_view_signal_trust`
+  - **File:** `tests/journey-truth-view-signal-trust.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('truth_view_signal_trust: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+# Multi-Scenario Sentinel — proposed edge scenarios
+
+63 TIER 1 rule(s) currently have <2 anchored tests:
+
+## `files_parse` (validator: `ai_chain_mirror`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `files_parse`
+  - **File:** `tests/journey-ai-chain-mirror.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('files_parse: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `models_match` (validator: `ai_chain_mirror`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `models_match`
+  - **File:** `tests/journey-ai-chain-mirror.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('models_match: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `env_keys_match` (validator: `ai_chain_mirror`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `env_keys_match`
+  - **File:** `tests/journey-ai-chain-mirror.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('env_keys_match: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `provider_tier_order` (validator: `ai_chain_mirror`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `provider_tier_order`
+  - **File:** `tests/journey-ai-chain-mirror.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('provider_tier_order: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `ai_companion_safety` (validator: `ai_companion_safety`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `ai_companion_safety`
+  - **File:** `tests/journey-ai-companion-safety.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('ai_companion_safety: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `html_no_identity` (validator: `auth_boundary`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `html_no_identity`
+  - **File:** `tests/journey-auth-boundary.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('html_no_identity: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `edge_no_auth` (validator: `auth_boundary`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `edge_no_auth`
+  - **File:** `tests/journey-auth-boundary.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('edge_no_auth: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `identity_distribution` (validator: `auth_boundary`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `identity_distribution`
+  - **File:** `tests/journey-auth-boundary.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('identity_distribution: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `anonymous_writes` (validator: `auth_boundary`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `anonymous_writes`
+  - **File:** `tests/journey-auth-boundary.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('anonymous_writes: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `signin_state_transition` (validator: `auth_boundary`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `signin_state_transition`
+  - **File:** `tests/journey-auth-boundary.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('signin_state_transition: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `fuel_anchor` (validator: `canonical_anchor`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `fuel_anchor`
+  - **File:** `tests/journey-canonical-anchor.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('fuel_anchor: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `engine_anchor` (validator: `canonical_anchor`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `engine_anchor`
+  - **File:** `tests/journey-canonical-anchor.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('engine_anchor: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `tier_a_anchor` (validator: `canonical_anchor`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `tier_a_anchor`
+  - **File:** `tests/journey-canonical-anchor.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('tier_a_anchor: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `tier_c_anchor` (validator: `canonical_anchor`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `tier_c_anchor`
+  - **File:** `tests/journey-canonical-anchor.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('tier_c_anchor: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `formula_anchor` (validator: `canonical_anchor`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `formula_anchor`
+  - **File:** `tests/journey-canonical-anchor.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('formula_anchor: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `standard_anchor` (validator: `canonical_anchor`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `standard_anchor`
+  - **File:** `tests/journey-canonical-anchor.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('standard_anchor: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `dashboard_anchor` (validator: `canonical_anchor`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `dashboard_anchor`
+  - **File:** `tests/journey-canonical-anchor.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('dashboard_anchor: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `capture_anchor` (validator: `canonical_anchor`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `capture_anchor`
+  - **File:** `tests/journey-canonical-anchor.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('capture_anchor: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `seed_render_anchor` (validator: `canonical_anchor`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `seed_render_anchor`
+  - **File:** `tests/journey-canonical-anchor.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('seed_render_anchor: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `header_strip_anchor` (validator: `canonical_anchor`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `header_strip_anchor`
+  - **File:** `tests/journey-canonical-anchor.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('header_strip_anchor: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `insight_panel_anchor` (validator: `canonical_anchor`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `insight_panel_anchor`
+  - **File:** `tests/journey-canonical-anchor.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('insight_panel_anchor: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `journey_coverage` (validator: `canonical_anchor`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `journey_coverage`
+  - **File:** `tests/journey-canonical-anchor.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('journey_coverage: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `registry_table_declared` (validator: `canonical_sources`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `registry_table_declared`
+  - **File:** `tests/journey-canonical-sources.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('registry_table_declared: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `registry_writes_locked` (validator: `canonical_sources`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `registry_writes_locked`
+  - **File:** `tests/journey-canonical-sources.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('registry_writes_locked: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `registry_select_granted` (validator: `canonical_sources`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `registry_select_granted`
+  - **File:** `tests/journey-canonical-sources.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('registry_select_granted: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `registry_seeded_aligned` (validator: `canonical_sources`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `registry_seeded_aligned`
+  - **File:** `tests/journey-canonical-sources.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('registry_seeded_aligned: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `registry_sources_exist` (validator: `canonical_sources`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `registry_sources_exist`
+  - **File:** `tests/journey-canonical-sources.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('registry_sources_exist: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `drift_detection` (validator: `canonical_sources`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `drift_detection`
+  - **File:** `tests/journey-canonical-sources.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('drift_detection: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `edge_response_has_returns` (validator: `edge_response_contract`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `edge_response_has_returns`
+  - **File:** `tests/journey-edge-response-contract.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('edge_response_has_returns: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `edge_response_phantom_field` (validator: `edge_response_contract`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `edge_response_phantom_field`
+  - **File:** `tests/journey-edge-response-contract.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('edge_response_phantom_field: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `edge_response_error_only` (validator: `edge_response_contract`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `edge_response_error_only`
+  - **File:** `tests/journey-edge-response-contract.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('edge_response_error_only: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `envelope_conformance` (validator: `envelope_conformance`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `envelope_conformance`
+  - **File:** `tests/journey-envelope-conformance.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('envelope_conformance: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `chain_exists` (validator: `groq_fallback`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `chain_exists`
+  - **File:** `tests/journey-groq-fallback.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('chain_exists: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `banned_models` (validator: `groq_fallback`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `banned_models`
+  - **File:** `tests/journey-groq-fallback.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('banned_models: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `entry_fields` (validator: `groq_fallback`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `entry_fields`
+  - **File:** `tests/journey-groq-fallback.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('entry_fields: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `callai_import` (validator: `groq_fallback`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `callai_import`
+  - **File:** `tests/journey-groq-fallback.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('callai_import: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `no_raw_groq_fetch` (validator: `groq_fallback`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `no_raw_groq_fetch`
+  - **File:** `tests/journey-groq-fallback.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('no_raw_groq_fetch: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `max_tokens` (validator: `groq_fallback`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `max_tokens`
+  - **File:** `tests/journey-groq-fallback.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('max_tokens: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `error_handling` (validator: `groq_fallback`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `error_handling`
+  - **File:** `tests/journey-groq-fallback.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('error_handling: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `abort_timeout` (validator: `groq_fallback`)
+- Current anchors: ['journey-analytics.spec.ts']
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `abort_timeout`
+  - **File:** `tests/journey-groq-fallback.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('abort_timeout: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `free_tier_only` (validator: `groq_fallback`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `free_tier_only`
+  - **File:** `tests/journey-groq-fallback.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('free_tier_only: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `health_endpoint` (validator: `health_endpoint`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `health_endpoint`
+  - **File:** `tests/journey-health-endpoint.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('health_endpoint: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `quota_table` (validator: `hive_quota`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `quota_table`
+  - **File:** `tests/journey-hive-quota.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('quota_table: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `trigger_coverage` (validator: `hive_quota`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `trigger_coverage`
+  - **File:** `tests/journey-hive-quota.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('trigger_coverage: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `table_inventory` (validator: `hive_quota`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `table_inventory`
+  - **File:** `tests/journey-hive-quota.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('table_inventory: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `adoption_inventory` (validator: `hive_quota`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `adoption_inventory`
+  - **File:** `tests/journey-hive-quota.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('adoption_inventory: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `hive_state_consistency` (validator: `hive_state_consistency`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `hive_state_consistency`
+  - **File:** `tests/journey-hive-state-consistency.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('hive_state_consistency: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `render_budget` (validator: `render_budget`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `render_budget`
+  - **File:** `tests/journey-render-budget.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('render_budget: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `rls_open_policy` (validator: `rls_open_policy`)
+- Current anchors: ['journey-l0-platform-bug-classes.spec.ts']
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `rls_open_policy`
+  - **File:** `tests/journey-rls-open-policy.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('rls_open_policy: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `rls_lockout_trap` (validator: `rls_readiness`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `rls_lockout_trap`
+  - **File:** `tests/journey-rls-readiness.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('rls_lockout_trap: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `rls_dead_policy` (validator: `rls_readiness`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `rls_dead_policy`
+  - **File:** `tests/journey-rls-readiness.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('rls_dead_policy: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `permissive_using_true` (validator: `rls_readiness`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `permissive_using_true`
+  - **File:** `tests/journey-rls-readiness.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('permissive_using_true: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `rls_verb_coverage` (validator: `rls_readiness`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `rls_verb_coverage`
+  - **File:** `tests/journey-rls-readiness.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('rls_verb_coverage: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `# L1
+    "select_filters` (validator: `tenant_boundary`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `# L1
+    "select_filters`
+  - **File:** `tests/journey-tenant-boundary.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('# L1
+    "select_filters: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `realtime_scope` (validator: `tenant_boundary`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `realtime_scope`
+  - **File:** `tests/journey-tenant-boundary.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('realtime_scope: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `# L2
+    "hive_id_source` (validator: `tenant_boundary`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `# L2
+    "hive_id_source`
+  - **File:** `tests/journey-tenant-boundary.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('# L2
+    "hive_id_source: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `worker_name_source` (validator: `tenant_boundary`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `worker_name_source`
+  - **File:** `tests/journey-tenant-boundary.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('worker_name_source: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `# L3
+    "switcher_validation` (validator: `tenant_boundary`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `# L3
+    "switcher_validation`
+  - **File:** `tests/journey-tenant-boundary.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('# L3
+    "switcher_validation: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `url_param_injection` (validator: `tenant_boundary`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `url_param_injection`
+  - **File:** `tests/journey-tenant-boundary.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('url_param_injection: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `# L4
+    "pages_in_scope` (validator: `tenant_boundary`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `# L4
+    "pages_in_scope`
+  - **File:** `tests/journey-tenant-boundary.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('# L4
+    "pages_in_scope: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `# L5
+    "nullable_auth_uid_rls_trap` (validator: `tenant_boundary`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `# L5
+    "nullable_auth_uid_rls_trap`
+  - **File:** `tests/journey-tenant-boundary.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('# L5
+    "nullable_auth_uid_rls_trap: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `truth_view_contract` (validator: `truth_view_contract`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `truth_view_contract`
+  - **File:** `tests/journey-truth-view-contract.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('truth_view_contract: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `truth_view_signal_trust` (validator: `truth_view_signal_trust`)
+- Current anchors: ['journey-l0-platform-bug-classes.spec.ts']
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `truth_view_signal_trust`
+  - **File:** `tests/journey-truth-view-signal-trust.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('truth_view_signal_trust: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+# Multi-Scenario Sentinel — proposed edge scenarios
+
+61 TIER 1 rule(s) currently have <2 anchored tests:
+
+## `files_parse` (validator: `ai_chain_mirror`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `files_parse`
+  - **File:** `tests/journey-ai-chain-mirror.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('files_parse: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `models_match` (validator: `ai_chain_mirror`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `models_match`
+  - **File:** `tests/journey-ai-chain-mirror.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('models_match: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `env_keys_match` (validator: `ai_chain_mirror`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `env_keys_match`
+  - **File:** `tests/journey-ai-chain-mirror.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('env_keys_match: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `provider_tier_order` (validator: `ai_chain_mirror`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `provider_tier_order`
+  - **File:** `tests/journey-ai-chain-mirror.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('provider_tier_order: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `ai_companion_safety` (validator: `ai_companion_safety`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `ai_companion_safety`
+  - **File:** `tests/journey-ai-companion-safety.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('ai_companion_safety: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `html_no_identity` (validator: `auth_boundary`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `html_no_identity`
+  - **File:** `tests/journey-auth-boundary.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('html_no_identity: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `edge_no_auth` (validator: `auth_boundary`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `edge_no_auth`
+  - **File:** `tests/journey-auth-boundary.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('edge_no_auth: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `identity_distribution` (validator: `auth_boundary`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `identity_distribution`
+  - **File:** `tests/journey-auth-boundary.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('identity_distribution: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `anonymous_writes` (validator: `auth_boundary`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `anonymous_writes`
+  - **File:** `tests/journey-auth-boundary.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('anonymous_writes: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `signin_state_transition` (validator: `auth_boundary`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `signin_state_transition`
+  - **File:** `tests/journey-auth-boundary.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('signin_state_transition: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `fuel_anchor` (validator: `canonical_anchor`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `fuel_anchor`
+  - **File:** `tests/journey-canonical-anchor.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('fuel_anchor: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `engine_anchor` (validator: `canonical_anchor`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `engine_anchor`
+  - **File:** `tests/journey-canonical-anchor.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('engine_anchor: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `tier_a_anchor` (validator: `canonical_anchor`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `tier_a_anchor`
+  - **File:** `tests/journey-canonical-anchor.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('tier_a_anchor: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `tier_c_anchor` (validator: `canonical_anchor`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `tier_c_anchor`
+  - **File:** `tests/journey-canonical-anchor.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('tier_c_anchor: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `formula_anchor` (validator: `canonical_anchor`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `formula_anchor`
+  - **File:** `tests/journey-canonical-anchor.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('formula_anchor: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `standard_anchor` (validator: `canonical_anchor`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `standard_anchor`
+  - **File:** `tests/journey-canonical-anchor.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('standard_anchor: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `dashboard_anchor` (validator: `canonical_anchor`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `dashboard_anchor`
+  - **File:** `tests/journey-canonical-anchor.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('dashboard_anchor: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `capture_anchor` (validator: `canonical_anchor`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `capture_anchor`
+  - **File:** `tests/journey-canonical-anchor.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('capture_anchor: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `seed_render_anchor` (validator: `canonical_anchor`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `seed_render_anchor`
+  - **File:** `tests/journey-canonical-anchor.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('seed_render_anchor: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `header_strip_anchor` (validator: `canonical_anchor`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `header_strip_anchor`
+  - **File:** `tests/journey-canonical-anchor.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('header_strip_anchor: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `insight_panel_anchor` (validator: `canonical_anchor`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `insight_panel_anchor`
+  - **File:** `tests/journey-canonical-anchor.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('insight_panel_anchor: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `journey_coverage` (validator: `canonical_anchor`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `journey_coverage`
+  - **File:** `tests/journey-canonical-anchor.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('journey_coverage: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `registry_table_declared` (validator: `canonical_sources`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `registry_table_declared`
+  - **File:** `tests/journey-canonical-sources.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('registry_table_declared: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `registry_writes_locked` (validator: `canonical_sources`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `registry_writes_locked`
+  - **File:** `tests/journey-canonical-sources.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('registry_writes_locked: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `registry_select_granted` (validator: `canonical_sources`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `registry_select_granted`
+  - **File:** `tests/journey-canonical-sources.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('registry_select_granted: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `registry_seeded_aligned` (validator: `canonical_sources`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `registry_seeded_aligned`
+  - **File:** `tests/journey-canonical-sources.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('registry_seeded_aligned: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `registry_sources_exist` (validator: `canonical_sources`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `registry_sources_exist`
+  - **File:** `tests/journey-canonical-sources.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('registry_sources_exist: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `drift_detection` (validator: `canonical_sources`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `drift_detection`
+  - **File:** `tests/journey-canonical-sources.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('drift_detection: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `edge_response_has_returns` (validator: `edge_response_contract`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `edge_response_has_returns`
+  - **File:** `tests/journey-edge-response-contract.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('edge_response_has_returns: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `edge_response_phantom_field` (validator: `edge_response_contract`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `edge_response_phantom_field`
+  - **File:** `tests/journey-edge-response-contract.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('edge_response_phantom_field: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `edge_response_error_only` (validator: `edge_response_contract`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `edge_response_error_only`
+  - **File:** `tests/journey-edge-response-contract.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('edge_response_error_only: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `envelope_conformance` (validator: `envelope_conformance`)
+- Current anchors: ['journey-p1-substrate.spec.ts']
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `envelope_conformance`
+  - **File:** `tests/journey-envelope-conformance.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('envelope_conformance: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `chain_exists` (validator: `groq_fallback`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `chain_exists`
+  - **File:** `tests/journey-groq-fallback.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('chain_exists: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `banned_models` (validator: `groq_fallback`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `banned_models`
+  - **File:** `tests/journey-groq-fallback.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('banned_models: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `entry_fields` (validator: `groq_fallback`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `entry_fields`
+  - **File:** `tests/journey-groq-fallback.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('entry_fields: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `callai_import` (validator: `groq_fallback`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `callai_import`
+  - **File:** `tests/journey-groq-fallback.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('callai_import: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `no_raw_groq_fetch` (validator: `groq_fallback`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `no_raw_groq_fetch`
+  - **File:** `tests/journey-groq-fallback.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('no_raw_groq_fetch: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `max_tokens` (validator: `groq_fallback`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `max_tokens`
+  - **File:** `tests/journey-groq-fallback.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('max_tokens: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `error_handling` (validator: `groq_fallback`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `error_handling`
+  - **File:** `tests/journey-groq-fallback.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('error_handling: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `abort_timeout` (validator: `groq_fallback`)
+- Current anchors: ['journey-analytics.spec.ts']
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `abort_timeout`
+  - **File:** `tests/journey-groq-fallback.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('abort_timeout: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `free_tier_only` (validator: `groq_fallback`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `free_tier_only`
+  - **File:** `tests/journey-groq-fallback.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('free_tier_only: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `health_endpoint` (validator: `health_endpoint`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `health_endpoint`
+  - **File:** `tests/journey-health-endpoint.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('health_endpoint: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `quota_table` (validator: `hive_quota`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `quota_table`
+  - **File:** `tests/journey-hive-quota.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('quota_table: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `trigger_coverage` (validator: `hive_quota`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `trigger_coverage`
+  - **File:** `tests/journey-hive-quota.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('trigger_coverage: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `table_inventory` (validator: `hive_quota`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `table_inventory`
+  - **File:** `tests/journey-hive-quota.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('table_inventory: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `adoption_inventory` (validator: `hive_quota`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `adoption_inventory`
+  - **File:** `tests/journey-hive-quota.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('adoption_inventory: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `hive_state_consistency` (validator: `hive_state_consistency`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `hive_state_consistency`
+  - **File:** `tests/journey-hive-state-consistency.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('hive_state_consistency: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `rls_lockout_trap` (validator: `rls_readiness`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `rls_lockout_trap`
+  - **File:** `tests/journey-rls-readiness.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('rls_lockout_trap: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `rls_dead_policy` (validator: `rls_readiness`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `rls_dead_policy`
+  - **File:** `tests/journey-rls-readiness.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('rls_dead_policy: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `permissive_using_true` (validator: `rls_readiness`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `permissive_using_true`
+  - **File:** `tests/journey-rls-readiness.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('permissive_using_true: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `rls_verb_coverage` (validator: `rls_readiness`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `rls_verb_coverage`
+  - **File:** `tests/journey-rls-readiness.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('rls_verb_coverage: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `# L1
+    "select_filters` (validator: `tenant_boundary`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `# L1
+    "select_filters`
+  - **File:** `tests/journey-tenant-boundary.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('# L1
+    "select_filters: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `realtime_scope` (validator: `tenant_boundary`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `realtime_scope`
+  - **File:** `tests/journey-tenant-boundary.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('realtime_scope: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `# L2
+    "hive_id_source` (validator: `tenant_boundary`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `# L2
+    "hive_id_source`
+  - **File:** `tests/journey-tenant-boundary.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('# L2
+    "hive_id_source: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `worker_name_source` (validator: `tenant_boundary`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `worker_name_source`
+  - **File:** `tests/journey-tenant-boundary.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('worker_name_source: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `# L3
+    "switcher_validation` (validator: `tenant_boundary`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `# L3
+    "switcher_validation`
+  - **File:** `tests/journey-tenant-boundary.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('# L3
+    "switcher_validation: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `url_param_injection` (validator: `tenant_boundary`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `url_param_injection`
+  - **File:** `tests/journey-tenant-boundary.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('url_param_injection: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `# L4
+    "pages_in_scope` (validator: `tenant_boundary`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `# L4
+    "pages_in_scope`
+  - **File:** `tests/journey-tenant-boundary.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('# L4
+    "pages_in_scope: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `# L5
+    "nullable_auth_uid_rls_trap` (validator: `tenant_boundary`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `# L5
+    "nullable_auth_uid_rls_trap`
+  - **File:** `tests/journey-tenant-boundary.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('# L5
+    "nullable_auth_uid_rls_trap: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `truth_view_contract` (validator: `truth_view_contract`)
+- Current anchors: ['journey-p1-substrate.spec.ts']
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `truth_view_contract`
+  - **File:** `tests/journey-truth-view-contract.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('truth_view_contract: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `truth_view_signal_trust` (validator: `truth_view_signal_trust`)
+- Current anchors: ['journey-l0-platform-bug-classes.spec.ts']
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `truth_view_signal_trust`
+  - **File:** `tests/journey-truth-view-signal-trust.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('truth_view_signal_trust: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+# Multi-Scenario Sentinel — proposed edge scenarios
+
+61 TIER 1 rule(s) currently have <2 anchored tests:
+
+## `files_parse` (validator: `ai_chain_mirror`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `files_parse`
+  - **File:** `tests/journey-ai-chain-mirror.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('files_parse: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `models_match` (validator: `ai_chain_mirror`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `models_match`
+  - **File:** `tests/journey-ai-chain-mirror.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('models_match: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `env_keys_match` (validator: `ai_chain_mirror`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `env_keys_match`
+  - **File:** `tests/journey-ai-chain-mirror.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('env_keys_match: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `provider_tier_order` (validator: `ai_chain_mirror`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `provider_tier_order`
+  - **File:** `tests/journey-ai-chain-mirror.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('provider_tier_order: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `ai_companion_safety` (validator: `ai_companion_safety`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `ai_companion_safety`
+  - **File:** `tests/journey-ai-companion-safety.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('ai_companion_safety: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `html_no_identity` (validator: `auth_boundary`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `html_no_identity`
+  - **File:** `tests/journey-auth-boundary.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('html_no_identity: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `edge_no_auth` (validator: `auth_boundary`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `edge_no_auth`
+  - **File:** `tests/journey-auth-boundary.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('edge_no_auth: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `identity_distribution` (validator: `auth_boundary`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `identity_distribution`
+  - **File:** `tests/journey-auth-boundary.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('identity_distribution: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `anonymous_writes` (validator: `auth_boundary`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `anonymous_writes`
+  - **File:** `tests/journey-auth-boundary.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('anonymous_writes: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `signin_state_transition` (validator: `auth_boundary`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `signin_state_transition`
+  - **File:** `tests/journey-auth-boundary.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('signin_state_transition: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `fuel_anchor` (validator: `canonical_anchor`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `fuel_anchor`
+  - **File:** `tests/journey-canonical-anchor.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('fuel_anchor: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `engine_anchor` (validator: `canonical_anchor`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `engine_anchor`
+  - **File:** `tests/journey-canonical-anchor.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('engine_anchor: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `tier_a_anchor` (validator: `canonical_anchor`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `tier_a_anchor`
+  - **File:** `tests/journey-canonical-anchor.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('tier_a_anchor: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `tier_c_anchor` (validator: `canonical_anchor`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `tier_c_anchor`
+  - **File:** `tests/journey-canonical-anchor.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('tier_c_anchor: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `formula_anchor` (validator: `canonical_anchor`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `formula_anchor`
+  - **File:** `tests/journey-canonical-anchor.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('formula_anchor: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `standard_anchor` (validator: `canonical_anchor`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `standard_anchor`
+  - **File:** `tests/journey-canonical-anchor.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('standard_anchor: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `dashboard_anchor` (validator: `canonical_anchor`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `dashboard_anchor`
+  - **File:** `tests/journey-canonical-anchor.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('dashboard_anchor: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `capture_anchor` (validator: `canonical_anchor`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `capture_anchor`
+  - **File:** `tests/journey-canonical-anchor.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('capture_anchor: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `seed_render_anchor` (validator: `canonical_anchor`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `seed_render_anchor`
+  - **File:** `tests/journey-canonical-anchor.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('seed_render_anchor: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `header_strip_anchor` (validator: `canonical_anchor`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `header_strip_anchor`
+  - **File:** `tests/journey-canonical-anchor.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('header_strip_anchor: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `insight_panel_anchor` (validator: `canonical_anchor`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `insight_panel_anchor`
+  - **File:** `tests/journey-canonical-anchor.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('insight_panel_anchor: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `journey_coverage` (validator: `canonical_anchor`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `journey_coverage`
+  - **File:** `tests/journey-canonical-anchor.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('journey_coverage: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `registry_table_declared` (validator: `canonical_sources`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `registry_table_declared`
+  - **File:** `tests/journey-canonical-sources.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('registry_table_declared: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `registry_writes_locked` (validator: `canonical_sources`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `registry_writes_locked`
+  - **File:** `tests/journey-canonical-sources.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('registry_writes_locked: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `registry_select_granted` (validator: `canonical_sources`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `registry_select_granted`
+  - **File:** `tests/journey-canonical-sources.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('registry_select_granted: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `registry_seeded_aligned` (validator: `canonical_sources`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `registry_seeded_aligned`
+  - **File:** `tests/journey-canonical-sources.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('registry_seeded_aligned: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `registry_sources_exist` (validator: `canonical_sources`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `registry_sources_exist`
+  - **File:** `tests/journey-canonical-sources.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('registry_sources_exist: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `drift_detection` (validator: `canonical_sources`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `drift_detection`
+  - **File:** `tests/journey-canonical-sources.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('drift_detection: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `edge_response_has_returns` (validator: `edge_response_contract`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `edge_response_has_returns`
+  - **File:** `tests/journey-edge-response-contract.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('edge_response_has_returns: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `edge_response_phantom_field` (validator: `edge_response_contract`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `edge_response_phantom_field`
+  - **File:** `tests/journey-edge-response-contract.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('edge_response_phantom_field: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `edge_response_error_only` (validator: `edge_response_contract`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `edge_response_error_only`
+  - **File:** `tests/journey-edge-response-contract.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('edge_response_error_only: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `envelope_conformance` (validator: `envelope_conformance`)
+- Current anchors: ['journey-p1-substrate.spec.ts']
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `envelope_conformance`
+  - **File:** `tests/journey-envelope-conformance.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('envelope_conformance: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `chain_exists` (validator: `groq_fallback`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `chain_exists`
+  - **File:** `tests/journey-groq-fallback.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('chain_exists: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `banned_models` (validator: `groq_fallback`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `banned_models`
+  - **File:** `tests/journey-groq-fallback.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('banned_models: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `entry_fields` (validator: `groq_fallback`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `entry_fields`
+  - **File:** `tests/journey-groq-fallback.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('entry_fields: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `callai_import` (validator: `groq_fallback`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `callai_import`
+  - **File:** `tests/journey-groq-fallback.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('callai_import: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `no_raw_groq_fetch` (validator: `groq_fallback`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `no_raw_groq_fetch`
+  - **File:** `tests/journey-groq-fallback.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('no_raw_groq_fetch: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `max_tokens` (validator: `groq_fallback`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `max_tokens`
+  - **File:** `tests/journey-groq-fallback.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('max_tokens: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `error_handling` (validator: `groq_fallback`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `error_handling`
+  - **File:** `tests/journey-groq-fallback.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('error_handling: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `abort_timeout` (validator: `groq_fallback`)
+- Current anchors: ['journey-analytics.spec.ts']
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `abort_timeout`
+  - **File:** `tests/journey-groq-fallback.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('abort_timeout: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `free_tier_only` (validator: `groq_fallback`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `free_tier_only`
+  - **File:** `tests/journey-groq-fallback.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('free_tier_only: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `health_endpoint` (validator: `health_endpoint`)
+- Current anchors: ['journey-p1-substrate.spec.ts']
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `health_endpoint`
+  - **File:** `tests/journey-health-endpoint.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('health_endpoint: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `quota_table` (validator: `hive_quota`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `quota_table`
+  - **File:** `tests/journey-hive-quota.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('quota_table: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `trigger_coverage` (validator: `hive_quota`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `trigger_coverage`
+  - **File:** `tests/journey-hive-quota.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('trigger_coverage: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `table_inventory` (validator: `hive_quota`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `table_inventory`
+  - **File:** `tests/journey-hive-quota.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('table_inventory: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `adoption_inventory` (validator: `hive_quota`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `adoption_inventory`
+  - **File:** `tests/journey-hive-quota.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('adoption_inventory: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `hive_state_consistency` (validator: `hive_state_consistency`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `hive_state_consistency`
+  - **File:** `tests/journey-hive-state-consistency.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('hive_state_consistency: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `rls_lockout_trap` (validator: `rls_readiness`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `rls_lockout_trap`
+  - **File:** `tests/journey-rls-readiness.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('rls_lockout_trap: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `rls_dead_policy` (validator: `rls_readiness`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `rls_dead_policy`
+  - **File:** `tests/journey-rls-readiness.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('rls_dead_policy: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `permissive_using_true` (validator: `rls_readiness`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `permissive_using_true`
+  - **File:** `tests/journey-rls-readiness.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('permissive_using_true: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `rls_verb_coverage` (validator: `rls_readiness`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `rls_verb_coverage`
+  - **File:** `tests/journey-rls-readiness.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('rls_verb_coverage: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `# L1
+    "select_filters` (validator: `tenant_boundary`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `# L1
+    "select_filters`
+  - **File:** `tests/journey-tenant-boundary.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('# L1
+    "select_filters: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `realtime_scope` (validator: `tenant_boundary`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `realtime_scope`
+  - **File:** `tests/journey-tenant-boundary.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('realtime_scope: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `# L2
+    "hive_id_source` (validator: `tenant_boundary`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `# L2
+    "hive_id_source`
+  - **File:** `tests/journey-tenant-boundary.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('# L2
+    "hive_id_source: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `worker_name_source` (validator: `tenant_boundary`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `worker_name_source`
+  - **File:** `tests/journey-tenant-boundary.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('worker_name_source: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `# L3
+    "switcher_validation` (validator: `tenant_boundary`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `# L3
+    "switcher_validation`
+  - **File:** `tests/journey-tenant-boundary.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('# L3
+    "switcher_validation: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `url_param_injection` (validator: `tenant_boundary`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `url_param_injection`
+  - **File:** `tests/journey-tenant-boundary.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('url_param_injection: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `# L4
+    "pages_in_scope` (validator: `tenant_boundary`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `# L4
+    "pages_in_scope`
+  - **File:** `tests/journey-tenant-boundary.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('# L4
+    "pages_in_scope: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `# L5
+    "nullable_auth_uid_rls_trap` (validator: `tenant_boundary`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `# L5
+    "nullable_auth_uid_rls_trap`
+  - **File:** `tests/journey-tenant-boundary.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('# L5
+    "nullable_auth_uid_rls_trap: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `truth_view_contract` (validator: `truth_view_contract`)
+- Current anchors: ['journey-p1-substrate.spec.ts']
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `truth_view_contract`
+  - **File:** `tests/journey-truth-view-contract.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('truth_view_contract: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `truth_view_signal_trust` (validator: `truth_view_signal_trust`)
+- Current anchors: ['journey-l0-platform-bug-classes.spec.ts']
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `truth_view_signal_trust`
+  - **File:** `tests/journey-truth-view-signal-trust.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('truth_view_signal_trust: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+# Multi-Scenario Sentinel — proposed edge scenarios
+
+58 TIER 1 rule(s) currently have <2 anchored tests:
+
+## `files_parse` (validator: `ai_chain_mirror`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `files_parse`
+  - **File:** `tests/journey-ai-chain-mirror.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('files_parse: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `models_match` (validator: `ai_chain_mirror`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `models_match`
+  - **File:** `tests/journey-ai-chain-mirror.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('models_match: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `env_keys_match` (validator: `ai_chain_mirror`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `env_keys_match`
+  - **File:** `tests/journey-ai-chain-mirror.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('env_keys_match: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `provider_tier_order` (validator: `ai_chain_mirror`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `provider_tier_order`
+  - **File:** `tests/journey-ai-chain-mirror.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('provider_tier_order: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `ai_companion_safety` (validator: `ai_companion_safety`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `ai_companion_safety`
+  - **File:** `tests/journey-ai-companion-safety.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('ai_companion_safety: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `html_no_identity` (validator: `auth_boundary`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `html_no_identity`
+  - **File:** `tests/journey-auth-boundary.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('html_no_identity: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `edge_no_auth` (validator: `auth_boundary`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `edge_no_auth`
+  - **File:** `tests/journey-auth-boundary.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('edge_no_auth: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `identity_distribution` (validator: `auth_boundary`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `identity_distribution`
+  - **File:** `tests/journey-auth-boundary.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('identity_distribution: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `anonymous_writes` (validator: `auth_boundary`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `anonymous_writes`
+  - **File:** `tests/journey-auth-boundary.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('anonymous_writes: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `signin_state_transition` (validator: `auth_boundary`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `signin_state_transition`
+  - **File:** `tests/journey-auth-boundary.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('signin_state_transition: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `fuel_anchor` (validator: `canonical_anchor`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `fuel_anchor`
+  - **File:** `tests/journey-canonical-anchor.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('fuel_anchor: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `engine_anchor` (validator: `canonical_anchor`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `engine_anchor`
+  - **File:** `tests/journey-canonical-anchor.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('engine_anchor: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `tier_a_anchor` (validator: `canonical_anchor`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `tier_a_anchor`
+  - **File:** `tests/journey-canonical-anchor.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('tier_a_anchor: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `tier_c_anchor` (validator: `canonical_anchor`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `tier_c_anchor`
+  - **File:** `tests/journey-canonical-anchor.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('tier_c_anchor: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `formula_anchor` (validator: `canonical_anchor`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `formula_anchor`
+  - **File:** `tests/journey-canonical-anchor.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('formula_anchor: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `standard_anchor` (validator: `canonical_anchor`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `standard_anchor`
+  - **File:** `tests/journey-canonical-anchor.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('standard_anchor: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `dashboard_anchor` (validator: `canonical_anchor`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `dashboard_anchor`
+  - **File:** `tests/journey-canonical-anchor.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('dashboard_anchor: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `capture_anchor` (validator: `canonical_anchor`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `capture_anchor`
+  - **File:** `tests/journey-canonical-anchor.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('capture_anchor: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `seed_render_anchor` (validator: `canonical_anchor`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `seed_render_anchor`
+  - **File:** `tests/journey-canonical-anchor.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('seed_render_anchor: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `header_strip_anchor` (validator: `canonical_anchor`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `header_strip_anchor`
+  - **File:** `tests/journey-canonical-anchor.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('header_strip_anchor: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `insight_panel_anchor` (validator: `canonical_anchor`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `insight_panel_anchor`
+  - **File:** `tests/journey-canonical-anchor.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('insight_panel_anchor: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `journey_coverage` (validator: `canonical_anchor`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `journey_coverage`
+  - **File:** `tests/journey-canonical-anchor.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('journey_coverage: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `registry_table_declared` (validator: `canonical_sources`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `registry_table_declared`
+  - **File:** `tests/journey-canonical-sources.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('registry_table_declared: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `registry_writes_locked` (validator: `canonical_sources`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `registry_writes_locked`
+  - **File:** `tests/journey-canonical-sources.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('registry_writes_locked: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `registry_select_granted` (validator: `canonical_sources`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `registry_select_granted`
+  - **File:** `tests/journey-canonical-sources.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('registry_select_granted: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `registry_seeded_aligned` (validator: `canonical_sources`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `registry_seeded_aligned`
+  - **File:** `tests/journey-canonical-sources.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('registry_seeded_aligned: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `registry_sources_exist` (validator: `canonical_sources`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `registry_sources_exist`
+  - **File:** `tests/journey-canonical-sources.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('registry_sources_exist: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `drift_detection` (validator: `canonical_sources`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `drift_detection`
+  - **File:** `tests/journey-canonical-sources.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('drift_detection: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `edge_response_has_returns` (validator: `edge_response_contract`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `edge_response_has_returns`
+  - **File:** `tests/journey-edge-response-contract.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('edge_response_has_returns: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `edge_response_phantom_field` (validator: `edge_response_contract`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `edge_response_phantom_field`
+  - **File:** `tests/journey-edge-response-contract.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('edge_response_phantom_field: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `edge_response_error_only` (validator: `edge_response_contract`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `edge_response_error_only`
+  - **File:** `tests/journey-edge-response-contract.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('edge_response_error_only: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `chain_exists` (validator: `groq_fallback`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `chain_exists`
+  - **File:** `tests/journey-groq-fallback.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('chain_exists: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `banned_models` (validator: `groq_fallback`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `banned_models`
+  - **File:** `tests/journey-groq-fallback.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('banned_models: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `entry_fields` (validator: `groq_fallback`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `entry_fields`
+  - **File:** `tests/journey-groq-fallback.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('entry_fields: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `callai_import` (validator: `groq_fallback`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `callai_import`
+  - **File:** `tests/journey-groq-fallback.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('callai_import: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `no_raw_groq_fetch` (validator: `groq_fallback`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `no_raw_groq_fetch`
+  - **File:** `tests/journey-groq-fallback.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('no_raw_groq_fetch: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `max_tokens` (validator: `groq_fallback`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `max_tokens`
+  - **File:** `tests/journey-groq-fallback.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('max_tokens: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `error_handling` (validator: `groq_fallback`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `error_handling`
+  - **File:** `tests/journey-groq-fallback.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('error_handling: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `abort_timeout` (validator: `groq_fallback`)
+- Current anchors: ['journey-analytics.spec.ts']
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `abort_timeout`
+  - **File:** `tests/journey-groq-fallback.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('abort_timeout: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `free_tier_only` (validator: `groq_fallback`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `free_tier_only`
+  - **File:** `tests/journey-groq-fallback.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('free_tier_only: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `quota_table` (validator: `hive_quota`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `quota_table`
+  - **File:** `tests/journey-hive-quota.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('quota_table: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `trigger_coverage` (validator: `hive_quota`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `trigger_coverage`
+  - **File:** `tests/journey-hive-quota.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('trigger_coverage: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `table_inventory` (validator: `hive_quota`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `table_inventory`
+  - **File:** `tests/journey-hive-quota.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('table_inventory: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `adoption_inventory` (validator: `hive_quota`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `adoption_inventory`
+  - **File:** `tests/journey-hive-quota.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('adoption_inventory: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `hive_state_consistency` (validator: `hive_state_consistency`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `hive_state_consistency`
+  - **File:** `tests/journey-hive-state-consistency.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('hive_state_consistency: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `rls_lockout_trap` (validator: `rls_readiness`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `rls_lockout_trap`
+  - **File:** `tests/journey-rls-readiness.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('rls_lockout_trap: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `rls_dead_policy` (validator: `rls_readiness`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `rls_dead_policy`
+  - **File:** `tests/journey-rls-readiness.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('rls_dead_policy: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `permissive_using_true` (validator: `rls_readiness`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `permissive_using_true`
+  - **File:** `tests/journey-rls-readiness.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('permissive_using_true: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `rls_verb_coverage` (validator: `rls_readiness`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `rls_verb_coverage`
+  - **File:** `tests/journey-rls-readiness.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('rls_verb_coverage: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `# L1
+    "select_filters` (validator: `tenant_boundary`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `# L1
+    "select_filters`
+  - **File:** `tests/journey-tenant-boundary.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('# L1
+    "select_filters: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `realtime_scope` (validator: `tenant_boundary`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `realtime_scope`
+  - **File:** `tests/journey-tenant-boundary.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('realtime_scope: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `# L2
+    "hive_id_source` (validator: `tenant_boundary`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `# L2
+    "hive_id_source`
+  - **File:** `tests/journey-tenant-boundary.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('# L2
+    "hive_id_source: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `worker_name_source` (validator: `tenant_boundary`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `worker_name_source`
+  - **File:** `tests/journey-tenant-boundary.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('worker_name_source: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `# L3
+    "switcher_validation` (validator: `tenant_boundary`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `# L3
+    "switcher_validation`
+  - **File:** `tests/journey-tenant-boundary.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('# L3
+    "switcher_validation: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `url_param_injection` (validator: `tenant_boundary`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `url_param_injection`
+  - **File:** `tests/journey-tenant-boundary.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('url_param_injection: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `# L4
+    "pages_in_scope` (validator: `tenant_boundary`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `# L4
+    "pages_in_scope`
+  - **File:** `tests/journey-tenant-boundary.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('# L4
+    "pages_in_scope: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `# L5
+    "nullable_auth_uid_rls_trap` (validator: `tenant_boundary`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `# L5
+    "nullable_auth_uid_rls_trap`
+  - **File:** `tests/journey-tenant-boundary.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('# L5
+    "nullable_auth_uid_rls_trap: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `truth_view_signal_trust` (validator: `truth_view_signal_trust`)
+- Current anchors: ['journey-l0-platform-bug-classes.spec.ts']
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `truth_view_signal_trust`
+  - **File:** `tests/journey-truth-view-signal-trust.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('truth_view_signal_trust: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+# Multi-Scenario Sentinel — proposed edge scenarios
+
+58 TIER 1 rule(s) currently have <2 anchored tests:
+
+## `files_parse` (validator: `ai_chain_mirror`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `files_parse`
+  - **File:** `tests/journey-ai-chain-mirror.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('files_parse: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `models_match` (validator: `ai_chain_mirror`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `models_match`
+  - **File:** `tests/journey-ai-chain-mirror.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('models_match: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `env_keys_match` (validator: `ai_chain_mirror`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `env_keys_match`
+  - **File:** `tests/journey-ai-chain-mirror.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('env_keys_match: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `provider_tier_order` (validator: `ai_chain_mirror`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `provider_tier_order`
+  - **File:** `tests/journey-ai-chain-mirror.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('provider_tier_order: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `ai_companion_safety` (validator: `ai_companion_safety`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `ai_companion_safety`
+  - **File:** `tests/journey-ai-companion-safety.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('ai_companion_safety: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `html_no_identity` (validator: `auth_boundary`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `html_no_identity`
+  - **File:** `tests/journey-auth-boundary.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('html_no_identity: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `edge_no_auth` (validator: `auth_boundary`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `edge_no_auth`
+  - **File:** `tests/journey-auth-boundary.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('edge_no_auth: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `identity_distribution` (validator: `auth_boundary`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `identity_distribution`
+  - **File:** `tests/journey-auth-boundary.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('identity_distribution: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `anonymous_writes` (validator: `auth_boundary`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `anonymous_writes`
+  - **File:** `tests/journey-auth-boundary.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('anonymous_writes: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `signin_state_transition` (validator: `auth_boundary`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `signin_state_transition`
+  - **File:** `tests/journey-auth-boundary.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('signin_state_transition: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `fuel_anchor` (validator: `canonical_anchor`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `fuel_anchor`
+  - **File:** `tests/journey-canonical-anchor.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('fuel_anchor: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `engine_anchor` (validator: `canonical_anchor`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `engine_anchor`
+  - **File:** `tests/journey-canonical-anchor.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('engine_anchor: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `tier_a_anchor` (validator: `canonical_anchor`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `tier_a_anchor`
+  - **File:** `tests/journey-canonical-anchor.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('tier_a_anchor: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `tier_c_anchor` (validator: `canonical_anchor`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `tier_c_anchor`
+  - **File:** `tests/journey-canonical-anchor.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('tier_c_anchor: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `formula_anchor` (validator: `canonical_anchor`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `formula_anchor`
+  - **File:** `tests/journey-canonical-anchor.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('formula_anchor: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `standard_anchor` (validator: `canonical_anchor`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `standard_anchor`
+  - **File:** `tests/journey-canonical-anchor.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('standard_anchor: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `dashboard_anchor` (validator: `canonical_anchor`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `dashboard_anchor`
+  - **File:** `tests/journey-canonical-anchor.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('dashboard_anchor: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `capture_anchor` (validator: `canonical_anchor`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `capture_anchor`
+  - **File:** `tests/journey-canonical-anchor.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('capture_anchor: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `seed_render_anchor` (validator: `canonical_anchor`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `seed_render_anchor`
+  - **File:** `tests/journey-canonical-anchor.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('seed_render_anchor: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `header_strip_anchor` (validator: `canonical_anchor`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `header_strip_anchor`
+  - **File:** `tests/journey-canonical-anchor.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('header_strip_anchor: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `insight_panel_anchor` (validator: `canonical_anchor`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `insight_panel_anchor`
+  - **File:** `tests/journey-canonical-anchor.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('insight_panel_anchor: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `journey_coverage` (validator: `canonical_anchor`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `journey_coverage`
+  - **File:** `tests/journey-canonical-anchor.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('journey_coverage: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `registry_table_declared` (validator: `canonical_sources`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `registry_table_declared`
+  - **File:** `tests/journey-canonical-sources.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('registry_table_declared: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `registry_writes_locked` (validator: `canonical_sources`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `registry_writes_locked`
+  - **File:** `tests/journey-canonical-sources.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('registry_writes_locked: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `registry_select_granted` (validator: `canonical_sources`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `registry_select_granted`
+  - **File:** `tests/journey-canonical-sources.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('registry_select_granted: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `registry_seeded_aligned` (validator: `canonical_sources`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `registry_seeded_aligned`
+  - **File:** `tests/journey-canonical-sources.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('registry_seeded_aligned: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `registry_sources_exist` (validator: `canonical_sources`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `registry_sources_exist`
+  - **File:** `tests/journey-canonical-sources.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('registry_sources_exist: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `drift_detection` (validator: `canonical_sources`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `drift_detection`
+  - **File:** `tests/journey-canonical-sources.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('drift_detection: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `edge_response_has_returns` (validator: `edge_response_contract`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `edge_response_has_returns`
+  - **File:** `tests/journey-edge-response-contract.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('edge_response_has_returns: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `edge_response_phantom_field` (validator: `edge_response_contract`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `edge_response_phantom_field`
+  - **File:** `tests/journey-edge-response-contract.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('edge_response_phantom_field: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `edge_response_error_only` (validator: `edge_response_contract`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `edge_response_error_only`
+  - **File:** `tests/journey-edge-response-contract.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('edge_response_error_only: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `chain_exists` (validator: `groq_fallback`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `chain_exists`
+  - **File:** `tests/journey-groq-fallback.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('chain_exists: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `banned_models` (validator: `groq_fallback`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `banned_models`
+  - **File:** `tests/journey-groq-fallback.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('banned_models: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `entry_fields` (validator: `groq_fallback`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `entry_fields`
+  - **File:** `tests/journey-groq-fallback.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('entry_fields: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `callai_import` (validator: `groq_fallback`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `callai_import`
+  - **File:** `tests/journey-groq-fallback.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('callai_import: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `no_raw_groq_fetch` (validator: `groq_fallback`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `no_raw_groq_fetch`
+  - **File:** `tests/journey-groq-fallback.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('no_raw_groq_fetch: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `max_tokens` (validator: `groq_fallback`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `max_tokens`
+  - **File:** `tests/journey-groq-fallback.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('max_tokens: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `error_handling` (validator: `groq_fallback`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `error_handling`
+  - **File:** `tests/journey-groq-fallback.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('error_handling: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `abort_timeout` (validator: `groq_fallback`)
+- Current anchors: ['journey-analytics.spec.ts']
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `abort_timeout`
+  - **File:** `tests/journey-groq-fallback.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('abort_timeout: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `free_tier_only` (validator: `groq_fallback`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `free_tier_only`
+  - **File:** `tests/journey-groq-fallback.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('free_tier_only: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `quota_table` (validator: `hive_quota`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `quota_table`
+  - **File:** `tests/journey-hive-quota.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('quota_table: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `trigger_coverage` (validator: `hive_quota`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `trigger_coverage`
+  - **File:** `tests/journey-hive-quota.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('trigger_coverage: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `table_inventory` (validator: `hive_quota`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `table_inventory`
+  - **File:** `tests/journey-hive-quota.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('table_inventory: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `adoption_inventory` (validator: `hive_quota`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `adoption_inventory`
+  - **File:** `tests/journey-hive-quota.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('adoption_inventory: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `hive_state_consistency` (validator: `hive_state_consistency`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `hive_state_consistency`
+  - **File:** `tests/journey-hive-state-consistency.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('hive_state_consistency: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `rls_lockout_trap` (validator: `rls_readiness`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `rls_lockout_trap`
+  - **File:** `tests/journey-rls-readiness.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('rls_lockout_trap: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `rls_dead_policy` (validator: `rls_readiness`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `rls_dead_policy`
+  - **File:** `tests/journey-rls-readiness.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('rls_dead_policy: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `permissive_using_true` (validator: `rls_readiness`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `permissive_using_true`
+  - **File:** `tests/journey-rls-readiness.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('permissive_using_true: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `rls_verb_coverage` (validator: `rls_readiness`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `rls_verb_coverage`
+  - **File:** `tests/journey-rls-readiness.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('rls_verb_coverage: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `# L1
+    "select_filters` (validator: `tenant_boundary`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `# L1
+    "select_filters`
+  - **File:** `tests/journey-tenant-boundary.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('# L1
+    "select_filters: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `realtime_scope` (validator: `tenant_boundary`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `realtime_scope`
+  - **File:** `tests/journey-tenant-boundary.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('realtime_scope: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `# L2
+    "hive_id_source` (validator: `tenant_boundary`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `# L2
+    "hive_id_source`
+  - **File:** `tests/journey-tenant-boundary.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('# L2
+    "hive_id_source: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `worker_name_source` (validator: `tenant_boundary`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `worker_name_source`
+  - **File:** `tests/journey-tenant-boundary.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('worker_name_source: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `# L3
+    "switcher_validation` (validator: `tenant_boundary`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `# L3
+    "switcher_validation`
+  - **File:** `tests/journey-tenant-boundary.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('# L3
+    "switcher_validation: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `url_param_injection` (validator: `tenant_boundary`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `url_param_injection`
+  - **File:** `tests/journey-tenant-boundary.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('url_param_injection: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `# L4
+    "pages_in_scope` (validator: `tenant_boundary`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `# L4
+    "pages_in_scope`
+  - **File:** `tests/journey-tenant-boundary.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('# L4
+    "pages_in_scope: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `# L5
+    "nullable_auth_uid_rls_trap` (validator: `tenant_boundary`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `# L5
+    "nullable_auth_uid_rls_trap`
+  - **File:** `tests/journey-tenant-boundary.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('# L5
+    "nullable_auth_uid_rls_trap: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `truth_view_signal_trust` (validator: `truth_view_signal_trust`)
+- Current anchors: ['journey-l0-platform-bug-classes.spec.ts']
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `truth_view_signal_trust`
+  - **File:** `tests/journey-truth-view-signal-trust.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('truth_view_signal_trust: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+# Multi-Scenario Sentinel — proposed edge scenarios
+
+55 TIER 1 rule(s) currently have <2 anchored tests:
+
+## `files_parse` (validator: `ai_chain_mirror`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `files_parse`
+  - **File:** `tests/journey-ai-chain-mirror.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('files_parse: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `models_match` (validator: `ai_chain_mirror`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `models_match`
+  - **File:** `tests/journey-ai-chain-mirror.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('models_match: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `env_keys_match` (validator: `ai_chain_mirror`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `env_keys_match`
+  - **File:** `tests/journey-ai-chain-mirror.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('env_keys_match: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `provider_tier_order` (validator: `ai_chain_mirror`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `provider_tier_order`
+  - **File:** `tests/journey-ai-chain-mirror.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('provider_tier_order: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `ai_companion_safety` (validator: `ai_companion_safety`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `ai_companion_safety`
+  - **File:** `tests/journey-ai-companion-safety.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('ai_companion_safety: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `html_no_identity` (validator: `auth_boundary`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `html_no_identity`
+  - **File:** `tests/journey-auth-boundary.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('html_no_identity: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `edge_no_auth` (validator: `auth_boundary`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `edge_no_auth`
+  - **File:** `tests/journey-auth-boundary.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('edge_no_auth: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `identity_distribution` (validator: `auth_boundary`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `identity_distribution`
+  - **File:** `tests/journey-auth-boundary.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('identity_distribution: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `anonymous_writes` (validator: `auth_boundary`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `anonymous_writes`
+  - **File:** `tests/journey-auth-boundary.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('anonymous_writes: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `signin_state_transition` (validator: `auth_boundary`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `signin_state_transition`
+  - **File:** `tests/journey-auth-boundary.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('signin_state_transition: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `fuel_anchor` (validator: `canonical_anchor`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `fuel_anchor`
+  - **File:** `tests/journey-canonical-anchor.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('fuel_anchor: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `engine_anchor` (validator: `canonical_anchor`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `engine_anchor`
+  - **File:** `tests/journey-canonical-anchor.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('engine_anchor: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `tier_a_anchor` (validator: `canonical_anchor`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `tier_a_anchor`
+  - **File:** `tests/journey-canonical-anchor.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('tier_a_anchor: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `tier_c_anchor` (validator: `canonical_anchor`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `tier_c_anchor`
+  - **File:** `tests/journey-canonical-anchor.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('tier_c_anchor: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `formula_anchor` (validator: `canonical_anchor`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `formula_anchor`
+  - **File:** `tests/journey-canonical-anchor.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('formula_anchor: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `standard_anchor` (validator: `canonical_anchor`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `standard_anchor`
+  - **File:** `tests/journey-canonical-anchor.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('standard_anchor: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `dashboard_anchor` (validator: `canonical_anchor`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `dashboard_anchor`
+  - **File:** `tests/journey-canonical-anchor.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('dashboard_anchor: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `capture_anchor` (validator: `canonical_anchor`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `capture_anchor`
+  - **File:** `tests/journey-canonical-anchor.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('capture_anchor: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `seed_render_anchor` (validator: `canonical_anchor`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `seed_render_anchor`
+  - **File:** `tests/journey-canonical-anchor.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('seed_render_anchor: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `header_strip_anchor` (validator: `canonical_anchor`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `header_strip_anchor`
+  - **File:** `tests/journey-canonical-anchor.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('header_strip_anchor: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `insight_panel_anchor` (validator: `canonical_anchor`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `insight_panel_anchor`
+  - **File:** `tests/journey-canonical-anchor.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('insight_panel_anchor: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `journey_coverage` (validator: `canonical_anchor`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `journey_coverage`
+  - **File:** `tests/journey-canonical-anchor.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('journey_coverage: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `registry_table_declared` (validator: `canonical_sources`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `registry_table_declared`
+  - **File:** `tests/journey-canonical-sources.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('registry_table_declared: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `registry_writes_locked` (validator: `canonical_sources`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `registry_writes_locked`
+  - **File:** `tests/journey-canonical-sources.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('registry_writes_locked: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `registry_select_granted` (validator: `canonical_sources`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `registry_select_granted`
+  - **File:** `tests/journey-canonical-sources.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('registry_select_granted: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `registry_seeded_aligned` (validator: `canonical_sources`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `registry_seeded_aligned`
+  - **File:** `tests/journey-canonical-sources.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('registry_seeded_aligned: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `registry_sources_exist` (validator: `canonical_sources`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `registry_sources_exist`
+  - **File:** `tests/journey-canonical-sources.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('registry_sources_exist: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `drift_detection` (validator: `canonical_sources`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `drift_detection`
+  - **File:** `tests/journey-canonical-sources.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('drift_detection: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `edge_response_has_returns` (validator: `edge_response_contract`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `edge_response_has_returns`
+  - **File:** `tests/journey-edge-response-contract.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('edge_response_has_returns: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `edge_response_phantom_field` (validator: `edge_response_contract`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `edge_response_phantom_field`
+  - **File:** `tests/journey-edge-response-contract.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('edge_response_phantom_field: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `edge_response_error_only` (validator: `edge_response_contract`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `edge_response_error_only`
+  - **File:** `tests/journey-edge-response-contract.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('edge_response_error_only: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `chain_exists` (validator: `groq_fallback`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `chain_exists`
+  - **File:** `tests/journey-groq-fallback.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('chain_exists: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `banned_models` (validator: `groq_fallback`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `banned_models`
+  - **File:** `tests/journey-groq-fallback.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('banned_models: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `entry_fields` (validator: `groq_fallback`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `entry_fields`
+  - **File:** `tests/journey-groq-fallback.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('entry_fields: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `callai_import` (validator: `groq_fallback`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `callai_import`
+  - **File:** `tests/journey-groq-fallback.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('callai_import: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `no_raw_groq_fetch` (validator: `groq_fallback`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `no_raw_groq_fetch`
+  - **File:** `tests/journey-groq-fallback.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('no_raw_groq_fetch: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `max_tokens` (validator: `groq_fallback`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `max_tokens`
+  - **File:** `tests/journey-groq-fallback.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('max_tokens: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `error_handling` (validator: `groq_fallback`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `error_handling`
+  - **File:** `tests/journey-groq-fallback.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('error_handling: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `free_tier_only` (validator: `groq_fallback`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `free_tier_only`
+  - **File:** `tests/journey-groq-fallback.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('free_tier_only: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `quota_table` (validator: `hive_quota`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `quota_table`
+  - **File:** `tests/journey-hive-quota.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('quota_table: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `trigger_coverage` (validator: `hive_quota`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `trigger_coverage`
+  - **File:** `tests/journey-hive-quota.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('trigger_coverage: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `table_inventory` (validator: `hive_quota`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `table_inventory`
+  - **File:** `tests/journey-hive-quota.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('table_inventory: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `adoption_inventory` (validator: `hive_quota`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `adoption_inventory`
+  - **File:** `tests/journey-hive-quota.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('adoption_inventory: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `rls_lockout_trap` (validator: `rls_readiness`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `rls_lockout_trap`
+  - **File:** `tests/journey-rls-readiness.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('rls_lockout_trap: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `rls_dead_policy` (validator: `rls_readiness`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `rls_dead_policy`
+  - **File:** `tests/journey-rls-readiness.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('rls_dead_policy: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `permissive_using_true` (validator: `rls_readiness`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `permissive_using_true`
+  - **File:** `tests/journey-rls-readiness.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('permissive_using_true: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `rls_verb_coverage` (validator: `rls_readiness`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `rls_verb_coverage`
+  - **File:** `tests/journey-rls-readiness.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('rls_verb_coverage: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `# L1
+    "select_filters` (validator: `tenant_boundary`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `# L1
+    "select_filters`
+  - **File:** `tests/journey-tenant-boundary.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('# L1
+    "select_filters: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `realtime_scope` (validator: `tenant_boundary`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `realtime_scope`
+  - **File:** `tests/journey-tenant-boundary.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('realtime_scope: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `# L2
+    "hive_id_source` (validator: `tenant_boundary`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `# L2
+    "hive_id_source`
+  - **File:** `tests/journey-tenant-boundary.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('# L2
+    "hive_id_source: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `worker_name_source` (validator: `tenant_boundary`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `worker_name_source`
+  - **File:** `tests/journey-tenant-boundary.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('worker_name_source: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `# L3
+    "switcher_validation` (validator: `tenant_boundary`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `# L3
+    "switcher_validation`
+  - **File:** `tests/journey-tenant-boundary.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('# L3
+    "switcher_validation: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `url_param_injection` (validator: `tenant_boundary`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `url_param_injection`
+  - **File:** `tests/journey-tenant-boundary.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('url_param_injection: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `# L4
+    "pages_in_scope` (validator: `tenant_boundary`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `# L4
+    "pages_in_scope`
+  - **File:** `tests/journey-tenant-boundary.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('# L4
+    "pages_in_scope: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `# L5
+    "nullable_auth_uid_rls_trap` (validator: `tenant_boundary`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `# L5
+    "nullable_auth_uid_rls_trap`
+  - **File:** `tests/journey-tenant-boundary.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('# L5
+    "nullable_auth_uid_rls_trap: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+# Multi-Scenario Sentinel — proposed edge scenarios
+
+32 TIER 1 rule(s) currently have <2 anchored tests:
+
+## `files_parse` (validator: `ai_chain_mirror`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `files_parse`
+  - **File:** `tests/journey-ai-chain-mirror.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('files_parse: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `models_match` (validator: `ai_chain_mirror`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `models_match`
+  - **File:** `tests/journey-ai-chain-mirror.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('models_match: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `env_keys_match` (validator: `ai_chain_mirror`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `env_keys_match`
+  - **File:** `tests/journey-ai-chain-mirror.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('env_keys_match: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `provider_tier_order` (validator: `ai_chain_mirror`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `provider_tier_order`
+  - **File:** `tests/journey-ai-chain-mirror.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('provider_tier_order: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `ai_companion_safety` (validator: `ai_companion_safety`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `ai_companion_safety`
+  - **File:** `tests/journey-ai-companion-safety.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('ai_companion_safety: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `html_no_identity` (validator: `auth_boundary`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `html_no_identity`
+  - **File:** `tests/journey-auth-boundary.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('html_no_identity: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `edge_no_auth` (validator: `auth_boundary`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `edge_no_auth`
+  - **File:** `tests/journey-auth-boundary.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('edge_no_auth: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `identity_distribution` (validator: `auth_boundary`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `identity_distribution`
+  - **File:** `tests/journey-auth-boundary.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('identity_distribution: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `anonymous_writes` (validator: `auth_boundary`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `anonymous_writes`
+  - **File:** `tests/journey-auth-boundary.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('anonymous_writes: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `signin_state_transition` (validator: `auth_boundary`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `signin_state_transition`
+  - **File:** `tests/journey-auth-boundary.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('signin_state_transition: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `registry_table_declared` (validator: `canonical_sources`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `registry_table_declared`
+  - **File:** `tests/journey-canonical-sources.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('registry_table_declared: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `registry_writes_locked` (validator: `canonical_sources`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `registry_writes_locked`
+  - **File:** `tests/journey-canonical-sources.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('registry_writes_locked: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `registry_select_granted` (validator: `canonical_sources`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `registry_select_granted`
+  - **File:** `tests/journey-canonical-sources.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('registry_select_granted: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `registry_seeded_aligned` (validator: `canonical_sources`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `registry_seeded_aligned`
+  - **File:** `tests/journey-canonical-sources.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('registry_seeded_aligned: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `registry_sources_exist` (validator: `canonical_sources`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `registry_sources_exist`
+  - **File:** `tests/journey-canonical-sources.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('registry_sources_exist: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `drift_detection` (validator: `canonical_sources`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `drift_detection`
+  - **File:** `tests/journey-canonical-sources.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('drift_detection: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `edge_response_has_returns` (validator: `edge_response_contract`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `edge_response_has_returns`
+  - **File:** `tests/journey-edge-response-contract.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('edge_response_has_returns: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `edge_response_phantom_field` (validator: `edge_response_contract`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `edge_response_phantom_field`
+  - **File:** `tests/journey-edge-response-contract.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('edge_response_phantom_field: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `edge_response_error_only` (validator: `edge_response_contract`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `edge_response_error_only`
+  - **File:** `tests/journey-edge-response-contract.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('edge_response_error_only: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `quota_table` (validator: `hive_quota`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `quota_table`
+  - **File:** `tests/journey-hive-quota.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('quota_table: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `trigger_coverage` (validator: `hive_quota`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `trigger_coverage`
+  - **File:** `tests/journey-hive-quota.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('trigger_coverage: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `table_inventory` (validator: `hive_quota`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `table_inventory`
+  - **File:** `tests/journey-hive-quota.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('table_inventory: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `adoption_inventory` (validator: `hive_quota`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `adoption_inventory`
+  - **File:** `tests/journey-hive-quota.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('adoption_inventory: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `rls_lockout_trap` (validator: `rls_readiness`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `rls_lockout_trap`
+  - **File:** `tests/journey-rls-readiness.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('rls_lockout_trap: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `rls_dead_policy` (validator: `rls_readiness`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `rls_dead_policy`
+  - **File:** `tests/journey-rls-readiness.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('rls_dead_policy: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `permissive_using_true` (validator: `rls_readiness`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `permissive_using_true`
+  - **File:** `tests/journey-rls-readiness.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('permissive_using_true: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `rls_verb_coverage` (validator: `rls_readiness`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `rls_verb_coverage`
+  - **File:** `tests/journey-rls-readiness.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('rls_verb_coverage: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `# L1
+    "select_filters` (validator: `tenant_boundary`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `# L1
+    "select_filters`
+  - **File:** `tests/journey-tenant-boundary.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('# L1
+    "select_filters: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `# L2
+    "hive_id_source` (validator: `tenant_boundary`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `# L2
+    "hive_id_source`
+  - **File:** `tests/journey-tenant-boundary.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('# L2
+    "hive_id_source: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `# L3
+    "switcher_validation` (validator: `tenant_boundary`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `# L3
+    "switcher_validation`
+  - **File:** `tests/journey-tenant-boundary.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('# L3
+    "switcher_validation: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `# L4
+    "pages_in_scope` (validator: `tenant_boundary`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `# L4
+    "pages_in_scope`
+  - **File:** `tests/journey-tenant-boundary.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('# L4
+    "pages_in_scope: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `# L5
+    "nullable_auth_uid_rls_trap` (validator: `tenant_boundary`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `# L5
+    "nullable_auth_uid_rls_trap`
+  - **File:** `tests/journey-tenant-boundary.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('# L5
+    "nullable_auth_uid_rls_trap: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+# Multi-Scenario Sentinel — proposed edge scenarios
+
+32 TIER 1 rule(s) currently have <2 anchored tests:
+
+## `files_parse` (validator: `ai_chain_mirror`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `files_parse`
+  - **File:** `tests/journey-ai-chain-mirror.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('files_parse: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `models_match` (validator: `ai_chain_mirror`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `models_match`
+  - **File:** `tests/journey-ai-chain-mirror.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('models_match: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `env_keys_match` (validator: `ai_chain_mirror`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `env_keys_match`
+  - **File:** `tests/journey-ai-chain-mirror.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('env_keys_match: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `provider_tier_order` (validator: `ai_chain_mirror`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `provider_tier_order`
+  - **File:** `tests/journey-ai-chain-mirror.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('provider_tier_order: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `ai_companion_safety` (validator: `ai_companion_safety`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `ai_companion_safety`
+  - **File:** `tests/journey-ai-companion-safety.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('ai_companion_safety: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `html_no_identity` (validator: `auth_boundary`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `html_no_identity`
+  - **File:** `tests/journey-auth-boundary.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('html_no_identity: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `edge_no_auth` (validator: `auth_boundary`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `edge_no_auth`
+  - **File:** `tests/journey-auth-boundary.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('edge_no_auth: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `identity_distribution` (validator: `auth_boundary`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `identity_distribution`
+  - **File:** `tests/journey-auth-boundary.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('identity_distribution: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `anonymous_writes` (validator: `auth_boundary`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `anonymous_writes`
+  - **File:** `tests/journey-auth-boundary.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('anonymous_writes: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `signin_state_transition` (validator: `auth_boundary`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `signin_state_transition`
+  - **File:** `tests/journey-auth-boundary.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('signin_state_transition: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `registry_table_declared` (validator: `canonical_sources`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `registry_table_declared`
+  - **File:** `tests/journey-canonical-sources.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('registry_table_declared: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `registry_writes_locked` (validator: `canonical_sources`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `registry_writes_locked`
+  - **File:** `tests/journey-canonical-sources.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('registry_writes_locked: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `registry_select_granted` (validator: `canonical_sources`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `registry_select_granted`
+  - **File:** `tests/journey-canonical-sources.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('registry_select_granted: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `registry_seeded_aligned` (validator: `canonical_sources`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `registry_seeded_aligned`
+  - **File:** `tests/journey-canonical-sources.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('registry_seeded_aligned: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `registry_sources_exist` (validator: `canonical_sources`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `registry_sources_exist`
+  - **File:** `tests/journey-canonical-sources.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('registry_sources_exist: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `drift_detection` (validator: `canonical_sources`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `drift_detection`
+  - **File:** `tests/journey-canonical-sources.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('drift_detection: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `edge_response_has_returns` (validator: `edge_response_contract`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `edge_response_has_returns`
+  - **File:** `tests/journey-edge-response-contract.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('edge_response_has_returns: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `edge_response_phantom_field` (validator: `edge_response_contract`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `edge_response_phantom_field`
+  - **File:** `tests/journey-edge-response-contract.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('edge_response_phantom_field: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `edge_response_error_only` (validator: `edge_response_contract`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `edge_response_error_only`
+  - **File:** `tests/journey-edge-response-contract.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('edge_response_error_only: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `quota_table` (validator: `hive_quota`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `quota_table`
+  - **File:** `tests/journey-hive-quota.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('quota_table: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `trigger_coverage` (validator: `hive_quota`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `trigger_coverage`
+  - **File:** `tests/journey-hive-quota.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('trigger_coverage: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `table_inventory` (validator: `hive_quota`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `table_inventory`
+  - **File:** `tests/journey-hive-quota.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('table_inventory: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `adoption_inventory` (validator: `hive_quota`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `adoption_inventory`
+  - **File:** `tests/journey-hive-quota.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('adoption_inventory: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `rls_lockout_trap` (validator: `rls_readiness`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `rls_lockout_trap`
+  - **File:** `tests/journey-rls-readiness.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('rls_lockout_trap: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `rls_dead_policy` (validator: `rls_readiness`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `rls_dead_policy`
+  - **File:** `tests/journey-rls-readiness.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('rls_dead_policy: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `permissive_using_true` (validator: `rls_readiness`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `permissive_using_true`
+  - **File:** `tests/journey-rls-readiness.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('permissive_using_true: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `rls_verb_coverage` (validator: `rls_readiness`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `rls_verb_coverage`
+  - **File:** `tests/journey-rls-readiness.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('rls_verb_coverage: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `# L1
+    "select_filters` (validator: `tenant_boundary`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `# L1
+    "select_filters`
+  - **File:** `tests/journey-tenant-boundary.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('# L1
+    "select_filters: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `# L2
+    "hive_id_source` (validator: `tenant_boundary`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `# L2
+    "hive_id_source`
+  - **File:** `tests/journey-tenant-boundary.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('# L2
+    "hive_id_source: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `# L3
+    "switcher_validation` (validator: `tenant_boundary`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `# L3
+    "switcher_validation`
+  - **File:** `tests/journey-tenant-boundary.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('# L3
+    "switcher_validation: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `# L4
+    "pages_in_scope` (validator: `tenant_boundary`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `# L4
+    "pages_in_scope`
+  - **File:** `tests/journey-tenant-boundary.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('# L4
+    "pages_in_scope: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `# L5
+    "nullable_auth_uid_rls_trap` (validator: `tenant_boundary`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `# L5
+    "nullable_auth_uid_rls_trap`
+  - **File:** `tests/journey-tenant-boundary.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('# L5
+    "nullable_auth_uid_rls_trap: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+# Multi-Scenario Sentinel — proposed edge scenarios
+
+27 TIER 1 rule(s) currently have <2 anchored tests:
+
+## `files_parse` (validator: `ai_chain_mirror`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `files_parse`
+  - **File:** `tests/journey-ai-chain-mirror.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('files_parse: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `models_match` (validator: `ai_chain_mirror`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `models_match`
+  - **File:** `tests/journey-ai-chain-mirror.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('models_match: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `env_keys_match` (validator: `ai_chain_mirror`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `env_keys_match`
+  - **File:** `tests/journey-ai-chain-mirror.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('env_keys_match: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `provider_tier_order` (validator: `ai_chain_mirror`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `provider_tier_order`
+  - **File:** `tests/journey-ai-chain-mirror.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('provider_tier_order: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `ai_companion_safety` (validator: `ai_companion_safety`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `ai_companion_safety`
+  - **File:** `tests/journey-ai-companion-safety.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('ai_companion_safety: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `html_no_identity` (validator: `auth_boundary`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `html_no_identity`
+  - **File:** `tests/journey-auth-boundary.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('html_no_identity: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `edge_no_auth` (validator: `auth_boundary`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `edge_no_auth`
+  - **File:** `tests/journey-auth-boundary.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('edge_no_auth: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `identity_distribution` (validator: `auth_boundary`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `identity_distribution`
+  - **File:** `tests/journey-auth-boundary.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('identity_distribution: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `anonymous_writes` (validator: `auth_boundary`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `anonymous_writes`
+  - **File:** `tests/journey-auth-boundary.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('anonymous_writes: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `signin_state_transition` (validator: `auth_boundary`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `signin_state_transition`
+  - **File:** `tests/journey-auth-boundary.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('signin_state_transition: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `registry_table_declared` (validator: `canonical_sources`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `registry_table_declared`
+  - **File:** `tests/journey-canonical-sources.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('registry_table_declared: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `registry_writes_locked` (validator: `canonical_sources`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `registry_writes_locked`
+  - **File:** `tests/journey-canonical-sources.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('registry_writes_locked: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `registry_select_granted` (validator: `canonical_sources`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `registry_select_granted`
+  - **File:** `tests/journey-canonical-sources.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('registry_select_granted: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `registry_seeded_aligned` (validator: `canonical_sources`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `registry_seeded_aligned`
+  - **File:** `tests/journey-canonical-sources.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('registry_seeded_aligned: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `registry_sources_exist` (validator: `canonical_sources`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `registry_sources_exist`
+  - **File:** `tests/journey-canonical-sources.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('registry_sources_exist: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `drift_detection` (validator: `canonical_sources`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `drift_detection`
+  - **File:** `tests/journey-canonical-sources.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('drift_detection: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `edge_response_has_returns` (validator: `edge_response_contract`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `edge_response_has_returns`
+  - **File:** `tests/journey-edge-response-contract.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('edge_response_has_returns: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `edge_response_phantom_field` (validator: `edge_response_contract`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `edge_response_phantom_field`
+  - **File:** `tests/journey-edge-response-contract.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('edge_response_phantom_field: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `edge_response_error_only` (validator: `edge_response_contract`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `edge_response_error_only`
+  - **File:** `tests/journey-edge-response-contract.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('edge_response_error_only: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `quota_table` (validator: `hive_quota`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `quota_table`
+  - **File:** `tests/journey-hive-quota.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('quota_table: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `trigger_coverage` (validator: `hive_quota`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `trigger_coverage`
+  - **File:** `tests/journey-hive-quota.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('trigger_coverage: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `table_inventory` (validator: `hive_quota`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `table_inventory`
+  - **File:** `tests/journey-hive-quota.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('table_inventory: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `adoption_inventory` (validator: `hive_quota`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `adoption_inventory`
+  - **File:** `tests/journey-hive-quota.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('adoption_inventory: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `rls_lockout_trap` (validator: `rls_readiness`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `rls_lockout_trap`
+  - **File:** `tests/journey-rls-readiness.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('rls_lockout_trap: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `rls_dead_policy` (validator: `rls_readiness`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `rls_dead_policy`
+  - **File:** `tests/journey-rls-readiness.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('rls_dead_policy: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `permissive_using_true` (validator: `rls_readiness`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `permissive_using_true`
+  - **File:** `tests/journey-rls-readiness.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('permissive_using_true: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```
+
+## `rls_verb_coverage` (validator: `rls_readiness`)
+- Current anchors: NONE
+- Suggested second scenario:
+  - **Edge:** add a test that exercises the FAILURE path of `rls_verb_coverage`
+  - **File:** `tests/journey-rls-readiness.spec.ts`
+  - **Pattern:**
+    ```ts
+    test('rls_verb_coverage: rejects when invariant violated', async ({ whPage }) => {
+      // seed a violation, navigate, assert the surface degrades safely
+    });
+    ```

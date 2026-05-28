@@ -1,6 +1,6 @@
 # Python Tool Pattern Mining Report
 
-- Files scanned: **125**
+- Files scanned: **145**
 - Features extracted: **22**
 - Promotion threshold: >= 80% conformance, <= 8 outliers
 - Promotion candidates: **1**
@@ -9,31 +9,31 @@
 
 | Feature | Conformance | Outlier count |
 |---|---:|---:|
-| `has_print_calls` | 94% | 7 |
+| `has_print_calls` | 95% | 7 |
 
 ## Full conformance ranking
 
 | Feature | Conformance | Positive / Total |
 |---|---:|---|
-| `has_print_calls` | 94% | 118 / 125 |
-| `has_main_guard` | 80% | 100 / 125 |
-| `uses_pathlib` | 75% | 94 / 125 |
-| `has_module_docstring` | 67% | 84 / 125 |
-| `defines_main` | 62% | 78 / 125 |
-| `uses_json_dump` | 49% | 62 / 125 |
-| `uses_future_annotations` | 47% | 59 / 125 |
-| `has_cp1252_guard` | 41% | 52 / 125 |
-| `reads_env_directly` | 29% | 37 / 125 |
-| `has_shebang` | 28% | 35 / 125 |
-| `uses_requests_lib` | 21% | 27 / 125 |
-| `passes_request_timeout` | 20% | 26 / 125 |
-| `uses_argparse` | 19% | 24 / 125 |
-| `uses_sys_argv` | 16% | 20 / 125 |
-| `uses_dotenv` | 13% | 17 / 125 |
-| `uses_subprocess` | 8% | 11 / 125 |
-| `subprocess_has_timeout` | 3% | 4 / 125 |
-| `calls_ai_chain` | 3% | 4 / 125 |
-| `bypasses_chain_with_anthropic` | 2% | 3 / 125 |
-| `bypasses_chain_with_openai` | 1% | 2 / 125 |
-| `uses_httpx` | 0% | 1 / 125 |
-| `uses_logging_module` | 0% | 0 / 125 |
+| `has_print_calls` | 95% | 138 / 145 |
+| `has_main_guard` | 82% | 120 / 145 |
+| `uses_pathlib` | 77% | 113 / 145 |
+| `defines_main` | 67% | 98 / 145 |
+| `has_module_docstring` | 64% | 93 / 145 |
+| `uses_json_dump` | 51% | 75 / 145 |
+| `uses_future_annotations` | 49% | 72 / 145 |
+| `has_cp1252_guard` | 48% | 70 / 145 |
+| `has_shebang` | 31% | 46 / 145 |
+| `reads_env_directly` | 28% | 41 / 145 |
+| `uses_argparse` | 20% | 29 / 145 |
+| `uses_requests_lib` | 18% | 27 / 145 |
+| `passes_request_timeout` | 17% | 26 / 145 |
+| `uses_sys_argv` | 14% | 21 / 145 |
+| `uses_dotenv` | 11% | 17 / 145 |
+| `uses_subprocess` | 10% | 15 / 145 |
+| `subprocess_has_timeout` | 5% | 8 / 145 |
+| `calls_ai_chain` | 2% | 4 / 145 |
+| `bypasses_chain_with_anthropic` | 2% | 3 / 145 |
+| `bypasses_chain_with_openai` | 1% | 2 / 145 |
+| `uses_httpx` | 0% | 1 / 145 |
+| `uses_logging_module` | 0% | 0 / 145 |

@@ -5,13 +5,13 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 
 ## Summary
 
-- Tables:        **138**
-- Views:         **45**
-- RPCs:          **71**
-- HTML surfaces: **43**
-- Edge fns:      **70**
+- Tables:        **142**
+- Views:         **46**
+- RPCs:          **73**
+- HTML surfaces: **45**
+- Edge fns:      **76**
 - Phantom tables (referenced in code, not in migrations): **0**
-- Duplicate signals: **64**
+- Duplicate signals: **65**
 
 ## Tables (sorted by usage)
 
@@ -38,6 +38,7 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 | `parts_staging_recommendations` | 14 | no | yes | alert-hub.html, asset-hub.html | asset-hub.html | parts-staging-recommender |
 | `voice_journal_entries` | 10 | yes | no | assistant.html, voice-journal.html | — | _shared/journal-recall.ts |
 | `network_benchmarks` | 9 | no | no | hive.html | — | benchmark-compute |
+| `ai_cost_log` | 17 | yes | no | ai-quality.html, founder-console.html, llm-observability.html | — | _shared/cost-log.ts |
 | `engineering_calcs` | 13 | yes | no | engineering-design.html, project-manager.html | engineering-design.html | — |
 | `inventory_transactions` | 11 | yes | no | inventory.html, logbook.html | inventory.html, logbook.html | — |
 | `marketplace_inquiries` | 11 | no | no | marketplace-seller.html, marketplace.html | marketplace-seller.html, marketplace.html | — |
@@ -48,7 +49,6 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 | `cmms_audit_log` | 12 | no | no | integrations.html | integrations.html | cmms-sync |
 | `shift_plans` | 13 | yes | yes | shift-brain.html | shift-brain.html | shift-planner-orchestrator |
 | `rcm_fmea_modes` | 20 | yes | yes | asset-hub.html | asset-hub.html | fmea-populator |
-| `ai_cost_log` | 17 | yes | no | ai-quality.html, founder-console.html | — | _shared/cost-log.ts |
 | `amc_briefings` | 14 | yes | yes | alert-hub.html | alert-hub.html | amc-orchestrator |
 | `canonical_period_summaries` | 12 | yes | no | — | — | hierarchical-summarizer |
 | `marketplace_platform_admins` | 3 | no | no | marketplace-admin.html, marketplace.html, platform-health.html | — | — |
@@ -90,6 +90,9 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 | `platform_feedback` | 20 | yes | yes | founder-console.html | founder-console.html | — |
 | `agent_episodic_memory` | 12 | yes | no | — | — | agent-memory-store |
 | `unified_events` | 12 | yes | no | — | — | data-fabric-normalizer |
+| `ai_cache` | 8 | yes | no | — | — | _shared/cache.ts |
+| `ai_user_rate_limits` | 4 | yes | no | — | — | _shared/rate-limit.ts |
+| `wh_traces` | 9 | yes | no | — | — | _shared/error-tracker.ts |
 | `achievement_xp_log` | 7 | yes | no | achievements.html | — | — |
 | `canonical_sources` | 10 | yes | no | — | — | — |
 | `hive_route_quotas` | 7 | yes | no | — | — | — |
@@ -155,12 +158,15 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 | `shared_voice_notes` | 7 | yes | no | — | — | — |
 | `wh_feature_flags` | 5 | yes | no | — | — | — |
 | `wh_voice_presence` | 3 | yes | no | — | — | — |
+| `wh_health_status` | 5 | yes | no | — | — | — |
 
 ## RPCs / Functions
 
 | Function | Args | Definer | Called by surfaces | Called by edge fns |
 |---|---|---|---|---|
 | `acknowledge_alert` | p_alert_id bigint | yes | — | — |
+| `ai_cache_bump` | p_key TEXT | yes | — | _shared/cache.ts |
+| `ai_cache_sweep_expired` |  | yes | — | — |
 | `amc_expire_stale` |  | yes | — | — |
 | `award_achievement_xp` | p_worker    text,   p_ach_id    text,   p_xp        int,   p | yes | — | — |
 | `check_hive_quota_ai_reports` |  | yes | — | — |
@@ -256,6 +262,7 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 | `integrations.html` | api_keys, asset_nodes, cmms_audit_log, external_sync ... | api_keys, asset_nodes, cmms_audit_log ... | — | cmms-sync |
 | `inventory.html` | asset_nodes, hive_audit_log, hive_members, inventory_items ... | asset_nodes, hive_audit_log, inventory_items ... | — | — |
 | `lineage.html` | — | — | — | — |
+| `llm-observability.html` | ai_cost_log | — | — | — |
 | `logbook.html` | asset_nodes, equipment_reading_templates, fault_knowledge, hive_audit_log ... | asset_nodes, hive_audit_log, inventory_items ... | — | cmms-push-completion, equipment-label-ocr, visual-defect-capture |
 | `marketplace-admin.html` | hive_audit_log, marketplace_disputes, marketplace_listings, marketplace_orders ... | hive_audit_log, marketplace_disputes, marketplace_listings ... | — | — |
 | `marketplace-seller-profile.html` | marketplace_reviews, v_marketplace_inquiries_truth, v_marketplace_listings_truth, v_marketplace_sellers_truth | — | — | — |
@@ -277,6 +284,7 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 | `symbol-gallery.html` | — | — | — | — |
 | `token_stats.html` | — | — | — | — |
 | `uiMode.html` | — | — | — | — |
+| `validator-catalog.html` | — | — | — | — |
 | `voice-journal.html` | v_worker_truth, voice_journal_entries, worker_profiles | worker_profiles | — | ai-gateway |
 | `workhive_index.html` | — | — | — | — |
 
@@ -356,3 +364,4 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 - `shared_voice_notes` (defined but unreferenced)
 - `wh_feature_flags` (defined but unreferenced)
 - `wh_voice_presence` (defined but unreferenced)
+- `wh_health_status` (defined but unreferenced)

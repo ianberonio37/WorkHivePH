@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>WorkHive — Validator Catalog</title>
+  <meta name="description" content="Searchable catalog of every WorkHive Layer 0 validator with last-run status, severity, group, and linked specs.">
+  <style>
+    :root {
+      --bg: #0b1220; --bg2: #131b2e; --fg: #e7ecf3; --dim: #94a3b8;
+      --accent: #38bdf8; --pass: #34d399; --fail: #f87171; --warn: #fbbf24;
+      --skip: #64748b; --info: #818cf8;
+      --card: #19243d; --border: #2a3658;
+    }
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; background: var(--bg); color: var(--fg); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; }
+    header { padding: 24px 28px 16px; border-bottom: 1px solid var(--border); background: var(--bg2); }
+    h1 { margin: 0 0 6px; font-size: 22px; font-weight: 600; letter-spacing: -0.01em; }
+    .sub { color: var(--dim); font-size: 13px; }
+    main { padding: 20px 28px; max-width: 1200px; margin: 0 auto; }
+    .controls { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-bottom: 18px; }
+    input[type="search"], select { background: var(--card); color: var(--fg); border: 1px solid var(--border); border-radius: 8px; padding: 8px 12px; font-size: 14px; outline: none; min-width: 220px; }
+    input[type="search"]:focus, select:focus { border-color: var(--accent); }
+    .stat { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 8px 12px; font-size: 13px; }
+    .stat strong { color: var(--fg); }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 8px 10px; text-align: left; font-size: 13px; border-bottom: 1px solid var(--border); }
+    th { color: var(--dim); font-weight: 500; text-transform: uppercase; font-size: 11px; letter-spacing: 0.04em; position: sticky; top: 0; background: var(--bg2); cursor: pointer; }
+    th:hover { color: var(--fg); }
+    tr:hover td { background: rgba(56, 189, 248, 0.05); }
+    .badge { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 600; letter-spacing: 0.02em; }
+    .badge.pass     { background: rgba(52,211,153,0.15); color: var(--pass); }
+    .badge.fail     { background: rgba(248,113,113,0.15); color: var(--fail); }
+    .badge.warn     { background: rgba(251,191,36,0.15); color: var(--warn); }
+    .badge.skip     { background: rgba(100,116,139,0.15); color: var(--skip); }
+    .badge.error    { background: rgba(248,113,113,0.25); color: var(--fail); }
+    .badge.blocker    { background: rgba(248,113,113,0.15); color: var(--fail); }
+    .badge.regression { background: rgba(251,191,36,0.20); color: var(--warn); }
+    .badge.warn-tier  { background: rgba(251,191,36,0.10); color: var(--warn); }
+    .badge.info       { background: rgba(129,140,248,0.15); color: var(--info); }
+    .id { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; color: var(--accent); }
+    .elapsed { color: var(--dim); font-variant-numeric: tabular-nums; }
+    .group { color: var(--dim); }
+    .empty { padding: 24px; text-align: center; color: var(--dim); }
+    .loading { padding: 60px; text-align: center; color: var(--dim); }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Validator Catalog</h1>
+    <div class="sub" id="meta">Loading <code>platform_health.json</code>...</div>
+  </header>
+  <main>
+    <div class="controls">
+      <input type="search" id="q" placeholder="Filter by id, label, or group...">
+      <select id="status-filter">
+        <option value="">All statuses</option>
+        <option value="PASS">PASS only</option>
+        <option value="FAIL">FAIL only</option>
+        <option value="WARN">WARN only</option>
+        <option value="SKIP">SKIP only</option>
+      </select>
+      <select id="group-filter">
+        <option value="">All groups</option>
+      </select>
+      <span class="stat" id="count-stat">—</span>
+      <span class="stat" id="pass-stat">—</span>
+      <span class="stat" id="fail-stat">—</span>
+    </div>
+    <table id="tbl" aria-label="Validator catalog">
+      <caption class="visually-hidden" style="position:absolute;left:-9999px;">Searchable catalog of every Layer 0 validator with last-run status</caption>
+      <thead>
+        <tr>
+          <th data-sort="status">Status</th>
+          <th data-sort="severity">Severity</th>
+          <th data-sort="id">ID</th>
+          <th data-sort="group">Group</th>
+          <th data-sort="label">Label</th>
+          <th data-sort="elapsed">Time</th>
+        </tr>
+      </thead>
+      <tbody id="rows">
+        <tr><td colspan="6" class="loading">Loading...</td></tr>
+      </tbody>
+    </table>
+  </main>
+<script>
+(async function () {
+  // Load both platform_health (last-run status) AND run_platform_checks.py severity declarations.
+  // The severity is embedded in the orchestrator file; we extract it via a small JSON view of the
+  // validator registry. Falls back to "blocker" when missing.
+  let health = null, registry = {};
+  try {
+    const ctrl = new AbortController();
+    const t = setTimeout(() => ctrl.abort(), 8000);  // 8s timeout
+    health = await fetch('platform_health.json', { cache: 'no-store', signal: ctrl.signal }).then(r => r.json());
+    clearTimeout(t);
+  } catch (e) { console.error('Could not load platform_health.json', e); }
+  try {
+    const ctrl = new AbortController();
+    const t = setTimeout(() => ctrl.abort(), 8000);
+    const reg = await fetch('VALIDATOR_REGISTRY.json', { cache: 'no-store', signal: ctrl.signal }).then(r => r.json());
+    clearTimeout(t);
+    if (Array.isArray(reg)) for (const v of reg) registry[v.id] = v;
+  } catch (_) { /* optional file; severity defaults to blocker */ void 0; }
+
+  if (!health) {
+    document.getElementById('rows').innerHTML = '<tr><td colspan="6" class="empty">platform_health.json not found. Run <code>python run_platform_checks.py --fast --workers 6</code> first.</td></tr>';
+    return;
+  }
+
+  const validators = health.validators || [];
+  const ts = (health.timestamp || '').slice(0, 19).replace('T', ' ');
+  document.getElementById('meta').innerHTML = `<strong>${validators.length}</strong> validators · last run <strong>${ts}</strong> · ${health.summary?.pass ?? '?'} PASS / ${health.summary?.fail ?? '?'} FAIL / ${health.summary?.warn ?? '?'} WARN / ${health.summary?.skip ?? '?'} SKIP`;
+
+  // Populate group filter
+  const groups = Array.from(new Set(validators.map(v => v.group).filter(Boolean))).sort();
+  const groupSel = document.getElementById('group-filter');
+  for (const g of groups) {
+    const o = document.createElement('option'); o.value = g; o.textContent = g; groupSel.appendChild(o);
+  }
+
+  // Render
+  let sortKey = 'status', sortDir = 1;
+  function render() {
+    const q = document.getElementById('q').value.toLowerCase().trim();
+    const statusFilter = document.getElementById('status-filter').value;
+    const groupFilter  = document.getElementById('group-filter').value;
+    let rows = validators.slice();
+    if (q) rows = rows.filter(v => (v.id + ' ' + v.label + ' ' + v.group).toLowerCase().includes(q));
+    if (statusFilter) rows = rows.filter(v => v.status === statusFilter);
+    if (groupFilter)  rows = rows.filter(v => v.group === groupFilter);
+
+    // Sort
+    rows.sort((a, b) => {
+      let av, bv;
+      if (sortKey === 'elapsed') { av = a.elapsed || 0; bv = b.elapsed || 0; return (av - bv) * sortDir; }
+      if (sortKey === 'severity') { av = registry[a.id]?.severity || 'blocker'; bv = registry[b.id]?.severity || 'blocker'; }
+      else { av = (a[sortKey] || '').toString(); bv = (b[sortKey] || '').toString(); }
+      return av.localeCompare(bv) * sortDir;
+    });
+
+    document.getElementById('count-stat').innerHTML = `<strong>${rows.length}</strong> shown`;
+    document.getElementById('pass-stat').innerHTML  = `<strong>${rows.filter(v=>v.status==='PASS').length}</strong> PASS`;
+    document.getElementById('fail-stat').innerHTML  = `<strong>${rows.filter(v=>v.status==='FAIL'||v.status==='ERROR').length}</strong> FAIL`;
+
+    const tbody = document.getElementById('rows');
+    if (rows.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="6" class="empty">No validators match the current filter.</td></tr>';
+      return;
+    }
+    const escHtml = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    tbody.innerHTML = rows.map(v => {
+      const sev = registry[v.id]?.severity || 'blocker';
+      const sevClass = sev === 'warn' ? 'warn-tier' : sev;
+      return `<tr>
+        <td><span class="badge ${v.status.toLowerCase()}">${v.status}</span></td>
+        <td><span class="badge ${sevClass}">${sev}</span></td>
+        <td><span class="id">${escHtml(v.id)}</span></td>
+        <td class="group">${escHtml(v.group || '')}</td>
+        <td>${escHtml(v.label)}</td>
+        <td class="elapsed">${(v.elapsed || 0).toFixed(1)}s</td>
+      </tr>`;
+    }).join('');
+  }
+
+  document.getElementById('q').addEventListener('input', render);
+  document.getElementById('status-filter').addEventListener('change', render);
+  document.getElementById('group-filter').addEventListener('change', render);
+  document.querySelectorAll('th[data-sort]').forEach(th => {
+    th.addEventListener('click', () => {
+      const key = th.dataset.sort;
+      if (sortKey === key) sortDir *= -1; else { sortKey = key; sortDir = 1; }
+      render();
+    });
+  });
+
+  render();
+})();
+</script>
+</body>
+</html>

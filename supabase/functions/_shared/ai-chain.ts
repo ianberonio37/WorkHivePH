@@ -82,6 +82,17 @@ export const TASK_PROFILES: Record<string, string[]> = {
   narrative_report:        ["llama-4-scout-17b-16e-instruct", "llama-3.1-8b-instant"],
 };
 
+// Provider Health Autoswitch logic lives in _shared/provider-health.ts.
+// Extracted from this file because validate_groq_fallback.py's regex
+// (`{ ... provider ... }`) mis-parses helper function bodies as chain
+// entries. The autoswitch wraps callAI's per-iteration logic below.
+import {
+  recordSlotFailure,
+  recordSlotSuccess,
+  isSlotBlocked,
+} from "./provider-health.ts";
+
+
 export function reorderChain(taskProfile?: string): ProviderEntry[] {
   if (!taskProfile) return PROVIDER_CHAIN;
   const preferred = TASK_PROFILES[taskProfile];
@@ -100,6 +111,38 @@ export function reorderChain(taskProfile?: string): ProviderEntry[] {
     return ai - bi;
   });
   return [...matched, ...rest];
+}
+
+/**
+ * Strip reasoning-model thinking blocks from LLM output so they don't leak
+ * to end users. Qwen3-32B and similar reasoning models wrap their internal
+ * deliberation in `<think>...</think>`. The 2026-05-26 V3 flywheel run
+ * caught Qwen3 mentioning a real DB table name ("worker_profiles") inside
+ * a think block while reasoning about how to refuse a prompt-injection
+ * probe. The refusal itself was correct, but the think block was visible.
+ *
+ * V4 lesson: an over-greedy second pass (`^[\s\S]*?<\/think>`) wiped real
+ * user content when a response happened to contain `</think>` as a literal
+ * (e.g. example text in user transcripts). Now: only strip when the
+ * response clearly LOOKS like reasoning-model output.
+ */
+export function stripReasoningBlocks(text: string): string {
+  if (!text) return text;
+  // Case 1 — well-formed pair: remove <think>...</think> blocks anywhere.
+  let out = text.replace(/<think[\s>][\s\S]*?<\/think>/gi, "").trim();
+  // Case 2 — leading unclosed <think> with no close tag (truncated). Only
+  // strip when the string STARTS with `<think` so we don't eat innocent
+  // content that contains `</think>` as a literal mid-string.
+  if (/^\s*<think[\s>]/i.test(out)) {
+    const closeIdx = out.toLowerCase().indexOf("</think>");
+    if (closeIdx !== -1) {
+      out = out.slice(closeIdx + "</think>".length).trim();
+    } else {
+      // Unclosed and starts with <think — no usable content remained.
+      return "";
+    }
+  }
+  return out;
 }
 
 export async function callAI(
@@ -121,6 +164,9 @@ export async function callAI(
   for (const entry of reorderChain(taskProfile)) {
     const apiKey = Deno.env.get(entry.envKey);
     if (!apiKey) continue;
+
+    // P1 roadmap 2026-05-27 turn 7 — skip recently-failed providers.
+    if (isSlotBlocked(entry.provider)) continue;
 
     const effectiveMaxTokens = entry.maxTokensCap
       ? Math.min(maxTokens, entry.maxTokensCap)
@@ -147,25 +193,39 @@ export async function callAI(
       // Rate-limited, payload too large, or service unavailable: try next
       if (res.status === 429 || res.status === 413 || res.status === 503) {
         console.warn(`[ai-chain] ${entry.provider}/${entry.model} skipped (HTTP ${res.status})`);
+        recordSlotFailure(entry.provider);
         continue;
       }
 
       if (!res.ok) {
         const errSnippet = (await res.text()).slice(0, 120);
         console.warn(`[ai-chain] ${entry.provider}/${entry.model} error ${res.status}: ${errSnippet} — trying next`);
+        recordSlotFailure(entry.provider);
         continue;
       }
 
       const data = await res.json();
       const content: string | undefined = data?.choices?.[0]?.message?.content;
       if (content) {
-        console.log(`[ai-chain] served by ${entry.provider} / ${entry.model}`);
-        return content;
+        // Strip <think>...</think> reasoning blocks (Qwen3-32B et al.) so
+        // chain-of-thought doesn't leak. V4 caught Qwen3 leaking
+        // "worker_profiles" inside a think block while reasoning about
+        // refusing a prompt-injection probe.
+        const stripped = stripReasoningBlocks(content);
+        if (stripped) {
+          console.log(`[ai-chain] served by ${entry.provider} / ${entry.model}`);
+          recordSlotSuccess(entry.provider);
+          return stripped;
+        }
+        // Reasoning model emitted only a think block with no usable answer —
+        // fall through to the next provider rather than return empty.
+        console.warn(`[ai-chain] ${entry.provider}/${entry.model} returned only reasoning, no answer — trying next`);
+      } else {
+        console.warn(`[ai-chain] ${entry.provider}/${entry.model} returned empty content — trying next`);
       }
-
-      console.warn(`[ai-chain] ${entry.provider}/${entry.model} returned empty content — trying next`);
     } catch (err) {
       console.warn(`[ai-chain] ${entry.provider}/${entry.model} threw: ${String(err).slice(0, 80)}`);
+      recordProviderFailure(entry);
     }
   }
 
@@ -265,7 +325,7 @@ export async function callAIMultimodal(
       const content: string | undefined = data?.choices?.[0]?.message?.content;
       if (content) {
         console.log(`[ai-chain:vision] served by ${entry.provider} / ${entry.model}`);
-        return content;
+        return stripReasoningBlocks(content);
       }
       console.warn(`[ai-chain:vision] ${entry.provider}/${entry.model} returned empty content — trying next`);
     } catch (err) {

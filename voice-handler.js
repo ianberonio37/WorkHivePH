@@ -7649,12 +7649,17 @@
           worker_name: ctx && ctx.worker_name ? ctx.worker_name : null,
           auth_uid:    ctx && ctx.auth_uid    ? ctx.auth_uid    : null,
         };
+        // P1 roadmap 2026-05-26: trace-id propagation (see ai-gateway path below).
+        const _whTraceRag = (window.crypto && window.crypto.getRandomValues
+          ? Array.from(window.crypto.getRandomValues(new Uint8Array(8)), b => b.toString(16).padStart(2,'0')).join('')
+          : Math.random().toString(16).slice(2, 18).padStart(16, '0'));
         const ragResp = await fetcher(SUPABASE_URL + '/functions/v1/agentic-rag-loop', {
           method: 'POST',
           headers: {
             'Content-Type':  'application/json',
             'apikey':        SUPABASE_KEY,
             'Authorization': 'Bearer ' + SUPABASE_KEY,
+            'x-wh-trace':    _whTraceRag,
           },
           body: JSON.stringify(ragBody),
         }, 30000);
@@ -7704,12 +7709,21 @@
           source:          'voice-handler',
         },
       };
+      // P1 roadmap 2026-05-26: propagate a frontend-minted trace-id so
+      // a single companion turn can be followed end-to-end through edge
+      // fns, ai-chain, DB writes, and Sentry. The trace is hex/16 chars,
+      // matches the envelope.beginRequest validator. ai-gateway echoes
+      // it back in `x-wh-trace` response header + envelope `trace_id`.
+      const _whTrace = (window.crypto && window.crypto.getRandomValues
+        ? Array.from(window.crypto.getRandomValues(new Uint8Array(8)), b => b.toString(16).padStart(2,'0')).join('')
+        : Math.random().toString(16).slice(2, 18).padStart(16, '0'));
       const resp = await fetcher(SUPABASE_URL + '/functions/v1/ai-gateway', {
         method: 'POST',
         headers: {
           'Content-Type':  'application/json',
           'apikey':        SUPABASE_KEY,
           'Authorization': 'Bearer ' + SUPABASE_KEY,
+          'x-wh-trace':    _whTrace,
         },
         body: JSON.stringify(gatewayBody),
       }, 25000);

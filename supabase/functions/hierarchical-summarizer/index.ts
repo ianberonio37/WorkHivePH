@@ -42,6 +42,9 @@ import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-
 import { callAI } from "../_shared/ai-chain.ts";
 import { logAICost, estimateTokens } from "../_shared/cost-log.ts";
 import { getCorsHeaders } from "../_shared/cors.ts";
+// P1 roadmap 2026-05-26: adoption of envelope + /health.
+import { beginRequest, ok } from "../_shared/envelope.ts";
+import { handleHealth } from "../_shared/health.ts";
 
 const FN_NAME           = "hierarchical-summarizer";
 const MAX_TOKENS_DIGEST = 320;          // 1-2 paragraph budget
@@ -336,6 +339,16 @@ async function rollupOnePeriod(
 serve(async (req) => {
   const corsHeaders = getCorsHeaders(req);
   if (req.method === "OPTIONS") return new Response(null, { status: 204, headers: corsHeaders });
+
+  // /health probe.
+  const healthResp = await handleHealth(req, "hierarchical-summarizer", async () => ({
+    deps: [
+      { name: "supabase", ok: Boolean(Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")) },
+      { name: "ai-chain", ok: Boolean(Deno.env.get("GROQ_API_KEY") || Deno.env.get("CEREBRAS_API_KEY")) },
+    ],
+  }));
+  if (healthResp) return healthResp;
+
   if (req.method !== "POST") {
     return new Response(JSON.stringify({ error: "Method not allowed" }), {
       status: 405, headers: { ...corsHeaders, "Content-Type": "application/json" },

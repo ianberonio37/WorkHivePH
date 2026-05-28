@@ -53,6 +53,8 @@ NON_TOOL_PAGES = {
     "voice-journal.html",            # voice-journal companion (untracked WIP — not yet a full tool page)
     "founder-console.html",          # Founder Console: admin-only platform-wide dashboard, not a worker tool
     "agentic-rag-observability.html",  # Phase 8 placeholder — observability for the agentic-RAG loop, admin-only
+    "llm-observability.html",        # P1 roadmap 2026-05-27 — LLM observability dashboard (admin/devops only).
+    "validator-catalog.html",        # P1 roadmap 2026-05-27 — validator catalog browser (admin/devops only).
 }
 
 # ── Suffix patterns for test/scratch variants (skipped without complaint) ─────

@@ -1,0 +1,585 @@
+- generic [active] [ref=e1]:
+  - main [ref=e2]:
+    - navigation [ref=e3]:
+      - generic [ref=e4]:
+        - link "WorkHive" [ref=e5] [cursor=pointer]:
+          - /url: "#"
+          - img "WorkHive" [ref=e6]
+        - generic [ref=e7]:
+          - link "The Hive" [ref=e8] [cursor=pointer]:
+            - /url: "#platform"
+          - link "Impact" [ref=e9] [cursor=pointer]:
+            - /url: "#impact"
+          - link "Community" [ref=e10] [cursor=pointer]:
+            - /url: "#community"
+          - link "Learn" [ref=e11] [cursor=pointer]:
+            - /url: /learn/
+        - generic [ref=e12]:
+          - link "Sign In" [ref=e14] [cursor=pointer]:
+            - /url: "#"
+          - link "Join WorkHive" [ref=e15] [cursor=pointer]:
+            - /url: "#join"
+    - text: ▸
+    - generic [ref=e16]:
+      - generic [ref=e18]:
+        - img "WorkHive" [ref=e21]
+        - generic [ref=e22]:
+          - generic [ref=e23]:
+            - generic [ref=e24]:
+              - img [ref=e25]
+              - text: The Hive is Open · Philippines
+            - heading "Access Your Memory" [level=1] [ref=e27]
+            - paragraph [ref=e28]: "Free industrial tools for every Filipino worker: digital logbook, PM scheduler, spare-parts inventory, skill matrix, engineering calculators, and an AI work assistant."
+            - paragraph [ref=e29]: "The beehive has shown us how for 80 million years: every worker valued, every lesson kept. WorkHive brings that to Philippine industry."
+            - generic [ref=e30]:
+              - link "Join the Hive" [ref=e31] [cursor=pointer]:
+                - /url: "#join"
+              - link "See How It Works" [ref=e32] [cursor=pointer]:
+                - /url: "#platform"
+                - text: See How It Works
+                - img [ref=e33]
+            - generic [ref=e35]:
+              - generic [ref=e36]: "Or try free:"
+              - link "Logbook" [ref=e37] [cursor=pointer]:
+                - /url: /logbook.html
+              - generic [ref=e38]: ·
+              - link "PM Scheduler" [ref=e39] [cursor=pointer]:
+                - /url: /pm-scheduler.html
+              - generic [ref=e40]: ·
+              - link "Eng. Calculators" [ref=e41] [cursor=pointer]:
+                - /url: /engineering-design.html
+              - generic [ref=e42]: ·
+              - link "AI Assistant" [ref=e43] [cursor=pointer]:
+                - /url: /assistant.html
+            - generic [ref=e44]:
+              - generic [ref=e45]:
+                - img [ref=e46]
+                - generic [ref=e49]: DTI Registered · 8080496
+              - generic [ref=e50]:
+                - img [ref=e51]
+                - generic [ref=e54]: Free Forever · worker tier
+              - generic [ref=e55]:
+                - img [ref=e56]
+                - generic [ref=e59]: PDPA Compliant · data isolated per hive
+            - generic [ref=e60]:
+              - generic [ref=e61]:
+                - paragraph [ref=e62]: 40-60%
+                - paragraph [ref=e63]: Less Unplanned Downtime
+                - paragraph [ref=e64]: SMRP world-class benchmarks
+              - generic [ref=e66]:
+                - paragraph [ref=e67]: 4 Gaps
+                - paragraph [ref=e68]: Execution · Skills · Intelligence · Marketplace
+                - paragraph [ref=e69]: closed by one hive
+          - generic [ref=e72]:
+            - generic [ref=e73]:
+              - generic [ref=e74]:
+                - paragraph [ref=e75]: Operational Readiness Layer
+                - generic [ref=e76]: 4 Stages
+              - heading "Find your hive's stage" [level=2] [ref=e77]
+              - paragraph [ref=e78]: We don't replace your ERP or CMMS. We make digital tools actually work in your plant.
+              - paragraph [ref=e79]: No predictions on insufficient data. No rigid workflows. No enterprise infrastructure assumed. Free at the worker tier forever.
+            - generic [ref=e80]:
+              - paragraph [ref=e81]: Every hive grows in 4 stages · Every stage unlocks tools
+              - generic [ref=e82]:
+                - generic [ref=e83] [cursor=pointer]:
+                  - generic [ref=e84]: "01"
+                  - paragraph [ref=e85]:
+                    - text: Paper to
+                    - text: Digital
+                  - paragraph [ref=e86]: Get out of paper. Build the operating rhythm.
+                  - text: Free · Start Here
+                  - generic [ref=e87]:
+                    - generic [ref=e88]:
+                      - generic [ref=e89]: Now
+                      - generic [ref=e90]: Hive joined
+                    - generic [ref=e91]:
+                      - generic [ref=e92]: Next
+                      - generic [ref=e93]: 10 assets logged, 1 SOP documented
+                - generic [ref=e94] [cursor=pointer]:
+                  - generic [ref=e95]: "02"
+                  - paragraph [ref=e96]: Disciplined
+                  - paragraph [ref=e97]: PMs compliant. Logbook hygiene. Approvals routine.
+                  - text: Free
+                  - generic [ref=e98]:
+                    - generic [ref=e99]:
+                      - generic [ref=e100]: Now
+                      - generic [ref=e101]: Stage 1 complete
+                    - generic [ref=e102]:
+                      - generic [ref=e103]: Next
+                      - generic [ref=e104]: PM compliance ≥70% for 30 days
+                - generic [ref=e105] [cursor=pointer]:
+                  - generic [ref=e106]: "03"
+                  - paragraph [ref=e107]:
+                    - text: Predictive
+                    - text: Ready
+                  - paragraph [ref=e108]: Move from reacting to predicting.
+                  - text: AI · Sensor
+                  - generic [ref=e109]:
+                    - generic [ref=e110]:
+                      - generic [ref=e111]: Now
+                      - generic [ref=e112]: Stage 2 complete
+                    - generic [ref=e113]:
+                      - generic [ref=e114]: Next
+                      - generic [ref=e115]: 90+ days history OR sensors live
+                - generic [ref=e116] [cursor=pointer]:
+                  - generic [ref=e117]: "04"
+                  - paragraph [ref=e118]:
+                    - text: Industry
+                    - text: Leader
+                  - paragraph [ref=e119]: Become an industrial intelligence source.
+                  - text: Premium
+                  - generic [ref=e120]:
+                    - generic [ref=e121]:
+                      - generic [ref=e122]: Now
+                      - generic [ref=e123]: Stage 3 complete
+                    - generic [ref=e124]:
+                      - generic [ref=e125]: Next
+                      - generic [ref=e126]: "4-of-4: sensor + RCM + audit + benchmarks"
+            - button "See All Tools" [ref=e128] [cursor=pointer]
+      - generic [ref=e130]:
+        - paragraph [ref=e131]: In one paragraph
+        - heading "What is WorkHive?" [level=2] [ref=e132]
+        - paragraph [ref=e133]:
+          - text: WorkHive is a
+          - strong [ref=e134]: free industrial intelligence platform
+          - text: "for every Filipino industrial worker, from field to management: field technicians and operators, engineers, supervisors and planners, plant and operations managers, suppliers, contractors, new graduates entering the labor market, and existing workers expanding their capabilities with AI. It bundles a digital logbook, preventive maintenance scheduler, spare-parts inventory, skill matrix, engineering design calculators, and an AI work assistant in one browser-based hive."
+        - paragraph [ref=e135]: Free · Philippines-first · Works offline · Mobile and desktop
+      - generic [ref=e137]:
+        - paragraph [ref=e138]: Designed for Philippine Industry
+        - generic [ref=e139]:
+          - generic [ref=e140]:
+            - img [ref=e141]
+            - generic [ref=e143]: Manufacturing
+          - generic [ref=e145]:
+            - img [ref=e146]
+            - generic [ref=e148]: Energy & Utilities
+          - generic [ref=e150]:
+            - img [ref=e151]
+            - generic [ref=e153]: Food Processing
+          - generic [ref=e155]:
+            - img [ref=e156]
+            - generic [ref=e158]: Electronics
+          - generic [ref=e160]:
+            - img [ref=e161]
+            - generic [ref=e163]: Facilities & BMS
+          - generic [ref=e165]:
+            - img [ref=e166]
+            - generic [ref=e168]: Petrochemicals
+      - generic [ref=e170]:
+        - generic [ref=e171]:
+          - paragraph [ref=e176]: Why the hive is broken
+          - heading "Filipino workers are skilled. The system is failing them." [level=2] [ref=e177]:
+            - text: Filipino workers are skilled.
+            - text: The system is failing them.
+          - paragraph [ref=e178]: Four systemic failures hold Filipino industry back. Not because of the workers. Because of the system.
+        - generic [ref=e179]:
+          - generic [ref=e180]:
+            - img [ref=e182]
+            - heading "Fragmentation" [level=3] [ref=e184]
+            - paragraph [ref=e185]: Every department runs in isolation. Every boundary requires a human to carry information, manually, imperfectly.
+          - generic [ref=e186]:
+            - img [ref=e188]
+            - heading "Knowledge Loss" [level=3] [ref=e190]
+            - paragraph [ref=e191]: When a technician retires, 12 years of expertise disappears entirely. Replacing that knowledge costs ₱800K to ₱2.4M in lost productivity per transition.
+          - generic [ref=e192]:
+            - img [ref=e194]
+            - heading "Reactive Processes" [level=3] [ref=e196]
+            - paragraph [ref=e197]: An unplanned failure costs 4 to 8 times more than the same repair done preventively. The warnings were there. No system was listening.
+          - generic [ref=e198]:
+            - img [ref=e200]
+            - heading "Skills Invisibility" [level=3] [ref=e202]
+            - paragraph [ref=e203]: Organizations can't deploy their best people because they don't know what their people can actually do. Jobs are assigned by availability, not competence.
+      - generic [ref=e205]:
+        - generic [ref=e206]:
+          - paragraph [ref=e211]: How the hive works
+          - heading "Four gaps. One hive." [level=2] [ref=e212]:
+            - text: Four gaps.
+            - text: One hive.
+          - paragraph [ref=e213]: Philippine industrial work is held back by four compounding gaps. WorkHive is the first hive designed to close all of them, simultaneously, from a single system.
+        - generic [ref=e214]:
+          - generic [ref=e215]:
+            - generic [ref=e216]:
+              - generic [ref=e217]: "01"
+              - generic [ref=e218]:
+                - generic [ref=e219]: Fix It Fast
+                - heading "From Chaos to Coordination" [level=3] [ref=e220]
+            - paragraph [ref=e221]: Every job pre-loaded with the right parts, procedures, and the right person. Planned replaces reactive.
+            - generic [ref=e222]:
+              - generic [ref=e223]:
+                - paragraph [ref=e224]: 40-60%
+                - paragraph [ref=e225]: Less Unplanned Downtime Costs
+              - generic [ref=e226]:
+                - paragraph [ref=e227]: 4-8x
+                - paragraph [ref=e228]: Cost Saved vs. Reactive Repair
+          - generic [ref=e229]:
+            - generic [ref=e230]:
+              - generic [ref=e231]: "02"
+              - generic [ref=e232]:
+                - generic [ref=e233]: Right Person, Right Job
+                - heading "From Guesswork to Precision" [level=3] [ref=e234]
+            - paragraph [ref=e235]: Right person, right job, every time. Competence replaces availability.
+            - generic [ref=e236]:
+              - generic [ref=e237]:
+                - paragraph [ref=e238]: 15-25%
+                - paragraph [ref=e239]: Maintenance Labor Efficiency Gain
+              - generic [ref=e240]:
+                - paragraph [ref=e241]: Data
+                - paragraph [ref=e242]: Not Guesswork, for Every Assignment
+          - generic [ref=e243]:
+            - generic [ref=e244]:
+              - generic [ref=e245]: "03"
+              - generic [ref=e246]:
+                - generic [ref=e247]: The Hive Remembers
+                - heading "From Amnesia to Memory" [level=3] [ref=e248]
+            - paragraph [ref=e249]: When an expert retires, the knowledge stays. Every repair makes the hive smarter.
+            - generic [ref=e250]:
+              - generic [ref=e251]:
+                - paragraph [ref=e252]: 60-80%
+                - paragraph [ref=e253]: Less Knowledge Loss at Transitions
+              - generic [ref=e254]:
+                - paragraph [ref=e255]: ∞
+                - paragraph [ref=e256]: Compounding Organizational Memory
+          - generic [ref=e257]:
+            - generic [ref=e258]:
+              - generic [ref=e259]: "04"
+              - generic [ref=e260]:
+                - generic [ref=e261]: Find a Specialist
+                - heading "From Luck to Design" [level=3] [ref=e262]
+            - paragraph [ref=e263]: The right specialist found in hours, not weeks. Luck replaced by design.
+            - generic [ref=e264]:
+              - generic [ref=e265]:
+                - paragraph [ref=e266]: 35%
+                - paragraph [ref=e267]: Faster Time-to-Source Specialists
+              - generic [ref=e268]:
+                - paragraph [ref=e269]: 4 Pillars
+                - paragraph [ref=e270]: Services, Parts, Training, Jobs
+      - generic [ref=e273]:
+        - generic [ref=e274]:
+          - paragraph [ref=e279]: The hive in action
+          - heading "The day after WorkHive." [level=2] [ref=e280]:
+            - text: The day after
+            - text: WorkHive.
+          - paragraph [ref=e281]: The gap between where Philippine industrial work is today and where it could be is not a gap of talent or ambition. It is a gap of systems. Filipino workers are already capable. WorkHive gives them the infrastructure they deserve.
+          - generic [ref=e282]:
+            - paragraph [ref=e285]: Equipment fails without warning. 24h downtime. Millions lost.
+            - paragraph [ref=e288]: Anomaly detected 72h early. Right tech dispatched. 20-minute fix.
+            - paragraph [ref=e292]: Skills guessed at. Wrong person assigned. Job takes 2x longer.
+            - paragraph [ref=e295]: AI matches the best available worker. 98% precision. Done right, first time.
+            - paragraph [ref=e299]: Expert retires. ₱800K–₱2.4M in knowledge walks out the door. Start from scratch.
+            - paragraph [ref=e302]: Every insight captured before they leave. Organizational memory compounds, forever.
+        - generic [ref=e303]:
+          - generic [ref=e304]:
+            - paragraph [ref=e305]: 40-60%
+            - paragraph [ref=e306]: Less Downtime
+            - paragraph [ref=e307]: Reduction in unplanned downtime costs through predictive maintenance
+          - generic [ref=e308]:
+            - paragraph [ref=e309]: 60-80%
+            - paragraph [ref=e310]: Knowledge Preserved
+            - paragraph [ref=e311]: Reduction in knowledge loss costs at workforce transitions
+          - generic [ref=e312]:
+            - paragraph [ref=e313]: 15-25%
+            - paragraph [ref=e314]: Labor Efficiency
+            - paragraph [ref=e315]: Improvement in maintenance labor efficiency through AI-matched assignments
+          - generic [ref=e316]:
+            - paragraph [ref=e317]: 35%
+            - paragraph [ref=e318]: Faster Sourcing
+            - paragraph [ref=e319]: Average reduction in time-to-source for specialized maintenance services
+      - generic [ref=e321]:
+        - generic [ref=e322]:
+          - paragraph [ref=e327]: Find your role
+          - heading "Every worker has a role in the hive." [level=2] [ref=e328]:
+            - text: Every worker
+            - text: has a role in the hive.
+          - paragraph [ref=e329]: Whether you're on the floor or running the floor, the hive works for you.
+        - generic [ref=e330]:
+          - generic [ref=e331]:
+            - img [ref=e333]
+            - heading "Technicians & Operators" [level=3] [ref=e336]
+            - paragraph [ref=e337]: You prevented ten failures this year and received less credit than the person who fixed one breakdown. WorkHive changes that. Your skills become visible, searchable, and fairly rewarded.
+          - generic [ref=e338]:
+            - img [ref=e340]
+            - heading "Managers & Supervisors" [level=3] [ref=e342]
+            - paragraph [ref=e343]: You can't deploy your best people to your most critical problems if you don't know what your people can actually do. WorkHive gives you the full picture, and the tools to act on it.
+          - generic [ref=e344]:
+            - img [ref=e346]
+            - heading "Entrepreneurs & Builders" [level=3] [ref=e348]
+            - paragraph [ref=e349]: Build a verified reputation in the hive. Get found by plants that need exactly what you do.
+      - generic [ref=e351]:
+        - heading "Frequently asked questions" [level=2] [ref=e356]
+        - paragraph [ref=e357]: Quick answers about WorkHive, pricing, privacy, and what works offline.
+        - generic [ref=e358]:
+          - group [ref=e359]:
+            - generic "What is WorkHive? +" [ref=e360] [cursor=pointer]
+          - group [ref=e361]:
+            - generic "Is WorkHive really free? +" [ref=e362] [cursor=pointer]
+          - group [ref=e363]:
+            - generic "Who is WorkHive for? +" [ref=e364] [cursor=pointer]
+          - group [ref=e365]:
+            - generic "What tools does WorkHive include? +" [ref=e366] [cursor=pointer]
+          - group [ref=e367]:
+            - generic "Does WorkHive work offline? +" [ref=e368] [cursor=pointer]
+          - group [ref=e369]:
+            - generic "Does WorkHive replace SAP, IBM Maximo, or my CMMS? +" [ref=e370] [cursor=pointer]
+          - group [ref=e371]:
+            - generic "How is my plant's data kept private? +" [ref=e372] [cursor=pointer]
+          - group [ref=e373]:
+            - generic "Does WorkHive work on mobile? +" [ref=e374] [cursor=pointer]
+          - group [ref=e375]:
+            - generic "What languages does WorkHive support? +" [ref=e376] [cursor=pointer]
+          - group [ref=e377]:
+            - generic "How do I sign up? +" [ref=e378] [cursor=pointer]
+          - group [ref=e379]:
+            - generic "How do I start today, before my plant is provisioned? +" [ref=e380] [cursor=pointer]
+          - group [ref=e381]:
+            - generic "What if my plant still uses pen and paper logbooks? +" [ref=e382] [cursor=pointer]
+          - group [ref=e383]:
+            - generic "Can I use WorkHive on my own without my supervisor knowing? +" [ref=e384] [cursor=pointer]
+          - group [ref=e385]:
+            - generic "How long until my plant sees results? +" [ref=e386] [cursor=pointer]
+          - group [ref=e387]:
+            - generic "Will WorkHive run on my old Android phone with patchy data? +" [ref=e388] [cursor=pointer]
+      - generic [ref=e390]:
+        - generic [ref=e391]:
+          - paragraph [ref=e392]: Free guides
+          - heading "Practical writing for the Philippine plant floor" [level=2] [ref=e393]
+          - paragraph [ref=e394]: 24 in-depth guides covering OEE, MTBF, PM checklists, skill matrix, shift handover, AI assistants, CMMS integrations, and more. Every guide is tool-aligned with WorkHive and free to read.
+        - generic [ref=e395]:
+          - link "Logbook How to start a digital logbook in a Philippine factory 11 min · zero-budget rollout · 7 FAQs" [ref=e396] [cursor=pointer]:
+            - /url: /learn/start-digital-logbook-philippine-factory/
+            - generic [ref=e397]: Logbook
+            - heading "How to start a digital logbook in a Philippine factory" [level=3] [ref=e398]
+            - paragraph [ref=e399]: 11 min · zero-budget rollout · 7 FAQs
+          - link "OEE What is OEE and how do I calculate it? 10 min · worked PH example · 6 FAQs" [ref=e400] [cursor=pointer]:
+            - /url: /learn/what-is-oee-how-to-calculate/
+            - generic [ref=e401]: OEE
+            - heading "What is OEE and how do I calculate it?" [level=3] [ref=e402]
+            - paragraph [ref=e403]: 10 min · worked PH example · 6 FAQs
+          - link "AI Assistant AI work assistant for every industrial worker 10 min · career-protection guide · 6 FAQs" [ref=e404] [cursor=pointer]:
+            - /url: /learn/ai-work-assistant-maintenance-technicians/
+            - generic [ref=e405]: AI Assistant
+            - heading "AI work assistant for every industrial worker" [level=3] [ref=e406]
+            - paragraph [ref=e407]: 10 min · career-protection guide · 6 FAQs
+        - link "See all 24 guides" [ref=e409] [cursor=pointer]:
+          - /url: /learn/
+          - text: See all 24 guides
+          - img [ref=e410]
+      - generic [ref=e413]:
+        - img "WorkHive" [ref=e415]
+        - heading "Join the hive. Build the future." [level=2] [ref=e416]:
+          - text: Join the hive.
+          - text: Build the future.
+        - paragraph [ref=e417]: "The beehive has been showing us how for 80 million years: every worker valued, every role purposeful, the whole greater than the sum of its parts. That's the system Philippine industry has been missing. Be among the first to build it."
+        - generic [ref=e418]:
+          - generic [ref=e419]:
+            - textbox "Enter your work email" [ref=e420]
+            - button "Join the Hive" [ref=e421] [cursor=pointer]
+          - generic [ref=e422]: Your role (optional)
+          - combobox "Your role (optional)" [ref=e423]:
+            - 'option "Your role (optional): helps us send the right starter pack" [selected]'
+            - option "Field worker / Operator"
+            - option "Maintenance Technician"
+            - option "Supervisor / Shift Lead"
+            - option "Engineer (Reliability / Design / Process)"
+            - option "Planner / Maintenance Planner"
+            - option "Plant Manager / Operations Manager"
+            - option "Supplier / Vendor"
+            - option "Contractor / Specialist"
+            - option "New Graduate / Student"
+            - option "Upskilling worker (career switch)"
+            - option "Other"
+        - paragraph [ref=e424]: Free to join · Philippines-first · No spam, ever
+        - generic [ref=e425]:
+          - generic [ref=e426]:
+            - img [ref=e428]
+            - paragraph [ref=e431]: DTI Registered Business No. 8080496
+          - generic [ref=e432]:
+            - img [ref=e433]
+            - generic [ref=e435]: Free at the worker tier, forever
+    - generic [ref=e437]:
+      - generic [ref=e438]:
+        - generic [ref=e439]:
+          - img "WorkHive" [ref=e440]
+          - paragraph [ref=e441]: The industrial intelligence hive for the Philippines. Closing the Execution, Skills, Intelligence, and Marketplace gaps that hold Filipino workers back.
+          - paragraph [ref=e442]: workhiveph.com · 2026
+        - generic [ref=e443]:
+          - paragraph [ref=e444]: Tools (Free)
+          - list [ref=e445]:
+            - listitem [ref=e446]:
+              - link "Maintenance Logbook" [ref=e447] [cursor=pointer]:
+                - /url: /logbook.html
+            - listitem [ref=e448]:
+              - link "PM Scheduler" [ref=e449] [cursor=pointer]:
+                - /url: /pm-scheduler.html
+            - listitem [ref=e450]:
+              - link "Spare-Parts Inventory" [ref=e451] [cursor=pointer]:
+                - /url: /inventory.html
+            - listitem [ref=e452]:
+              - link "Skill Matrix" [ref=e453] [cursor=pointer]:
+                - /url: /skillmatrix.html
+            - listitem [ref=e454]:
+              - link "Engineering Calculators" [ref=e455] [cursor=pointer]:
+                - /url: /engineering-design.html
+            - listitem [ref=e456]:
+              - link "AI Work Assistant" [ref=e457] [cursor=pointer]:
+                - /url: /assistant.html
+            - listitem [ref=e458]:
+              - link "Learn (24 free guides)" [ref=e459] [cursor=pointer]:
+                - /url: /learn/
+        - generic [ref=e460]:
+          - paragraph [ref=e461]: Company
+          - list [ref=e462]:
+            - listitem [ref=e463]:
+              - link "About" [ref=e464] [cursor=pointer]:
+                - /url: /about/
+            - listitem [ref=e465]:
+              - link "Contact" [ref=e466] [cursor=pointer]:
+                - /url: mailto:admin@workhiveph.com
+          - paragraph [ref=e467]:
+            - text: DTI Registered
+            - text: Business Name 8080496
+      - generic [ref=e468]:
+        - paragraph [ref=e469]:
+          - text: © 2026 WorkHive Engineering Services. · workhiveph.com · Last updated
+          - time [ref=e470]: 17 May 2026
+        - generic [ref=e471]:
+          - link "Privacy Policy" [ref=e472] [cursor=pointer]:
+            - /url: /privacy-policy/
+          - link "Terms of Service" [ref=e473] [cursor=pointer]:
+            - /url: /terms-of-service/
+  - generic [ref=e474]:
+    - button "Open navigation hub" [ref=e475] [cursor=pointer]:
+      - generic: Home
+      - img
+    - dialog "Navigation hub":
+      - generic:
+        - generic: WorkHive
+        - strong: Home
+      - button "Open global search":
+        - img
+        - generic: Search assets, jobs, parts, PMs
+        - generic: ⌘K
+      - generic:
+        - generic:
+          - img
+        - searchbox "Search tools"
+        - generic: Ctrl K
+      - tablist "Tool view mode":
+        - tab "⊞ All":
+          - generic: ⊞
+          - text: All
+        - tab "🔧 Field" [selected]:
+          - generic: 🔧
+          - text: Field
+        - tab "👷 Supervisor":
+          - generic: 👷
+          - text: Supervisor
+        - tab "📐 Engineer":
+          - generic: 📐
+          - text: Engineer
+      - generic:
+        - paragraph: Recent
+        - generic:
+          - link "Home":
+            - /url: index.html
+            - generic:
+              - img
+            - generic: Home
+          - link "Logbook":
+            - /url: logbook.html
+            - generic:
+              - img
+            - generic: Logbook
+          - link "Inventory":
+            - /url: inventory.html
+            - generic:
+              - img
+            - generic: Inventory
+          - link "Day":
+            - /url: dayplanner.html
+            - generic:
+              - img
+            - generic: Day
+      - paragraph: All Tools
+      - region:
+        - link "Home":
+          - /url: index.html
+          - generic:
+            - img
+          - generic: Home
+        - paragraph: Field Work
+        - link "Logbook":
+          - /url: logbook.html
+          - generic:
+            - img
+          - generic: Logbook
+        - link "Inventory":
+          - /url: inventory.html
+          - generic:
+            - img
+          - generic: Inventory
+        - link "Day Planner":
+          - /url: dayplanner.html
+          - generic:
+            - img
+          - generic: Day Planner
+        - paragraph: Your Team
+        - link "PM Scheduler":
+          - /url: pm-scheduler.html
+          - generic:
+            - img
+          - generic: PM Scheduler
+        - link "Community":
+          - /url: community.html
+          - generic:
+            - img
+          - generic: Community
+        - paragraph: Intelligence
+        - link "AI Assistant":
+          - /url: assistant.html
+          - generic:
+            - img
+          - generic: AI Assistant
+        - paragraph: Grow
+        - link "Skill Matrix":
+          - /url: skillmatrix.html
+          - generic:
+            - img
+          - generic: Skill Matrix
+        - link "Achievements":
+          - /url: achievements.html
+          - generic:
+            - img
+          - generic: Achievements
+        - paragraph: Connect
+        - link "Marketplace":
+          - /url: marketplace.html
+          - generic:
+            - img
+          - generic: Marketplace
+  - button "Send feedback to WorkHive" [ref=e476] [cursor=pointer]: 💬
+  - generic:
+    - button "Open companion":
+      - generic: Talk to your companion
+      - generic:
+        - img "Companion Zaniah":
+          - img "Zaniah"
+    - dialog "AI Assistant":
+      - generic:
+        - generic:
+          - img "Companion Zaniah":
+            - img "Zaniah"
+        - generic:
+          - strong: Zaniah
+          - text: WorkHive Home
+        - button "Close": ✕
+      - generic:
+        - img
+        - text: "Context:"
+        - strong: WorkHive Home
+      - generic:
+        - button "Voice command":
+          - img
+        - textbox "Message":
+          - /placeholder: Ask anything…
+        - button "Send":
+          - img

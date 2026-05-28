@@ -1,0 +1,151 @@
+{
+  "buckets": {
+    "uncategorized": [
+      {
+        "source": "layer0",
+        "id": "reset-coverage",
+        "label": "Reset Coverage Validator (every migration table is in reset.py)",
+        "msg": "",
+        "rootcause": "uncategorized",
+        "skills": [
+          "qa-tester",
+          "architect"
+        ],
+        "stem": "cross_page"
+      },
+      {
+        "source": "layer0",
+        "id": "user-facing-kpi-canonical",
+        "label": "User-Facing KPI Canonical Gate (L0: forward-only ratchet over L-1.5 TIER A footprint)",
+        "msg": "",
+        "rootcause": "uncategorized",
+        "skills": [
+          "qa-tester",
+          "architect"
+        ],
+        "stem": "cross_page"
+      },
+      {
+        "source": "layer0",
+        "id": "canonical-anchor",
+        "label": "Canonical Anchor Gate (8-layer forward-anchor: fuel/engine/Tier A/Tier C/formula/standard/dashboard/capture)",
+        "msg": "",
+        "rootcause": "uncategorized",
+        "skills": [
+          "qa-tester",
+          "architect"
+        ],
+        "stem": "cross_page"
+      },
+      {
+        "source": "layer0",
+        "id": "rpc-argument-consistency",
+        "label": "RPC Argument Consistency (every db.rpc() name + arg keys exist; forward-only ratchet)",
+        "msg": "",
+        "rootcause": "uncategorized",
+        "skills": [
+          "qa-tester",
+          "architect"
+        ],
+        "stem": "cross_page"
+      },
+      {
+        "source": "layer0",
+        "id": "env-variable-existence",
+        "label": "Env Variable Existence (every env reference must be in .env.example/README; forward-only ratchet)",
+        "msg": "",
+        "rootcause": "uncategorized",
+        "skills": [
+          "qa-tester",
+          "architect"
+        ],
+        "stem": "cross_page"
+      },
+      {
+        "source": "layer0",
+        "id": "playwright-selector-existence",
+        "label": "Playwright Selector Existence (every locator('#X') id must exist on target page; forward-only ratchet)",
+        "msg": "",
+        "rootcause": "uncategorized",
+        "skills": [
+          "qa-tester",
+          "architect"
+        ],
+        "stem": "cross_page"
+      },
+      {
+        "source": "layer0",
+        "id": "voice-alert-formatting",
+        "label": "Voice Alert Formatting (Phase 5: alerts render with descriptions, not IDs)",
+        "msg": "",
+        "rootcause": "uncategorized",
+        "skills": [
+          "qa-tester",
+          "architect"
+        ],
+        "stem": "cross_page"
+      },
+      {
+        "source": "layer0",
+        "id": "env-secret-coverage",
+        "label": "Env Secret Coverage (4-layer: declared coverage + required-vs-optional + orphan keys + hardcoded secret detection)",
+        "msg": "",
+        "rootcause": "uncategorized",
+        "skills": [
+          "qa-tester",
+          "architect"
+        ],
+        "stem": "cross_page"
+      },
+      {
+        "source": "layer0",
+        "id": "logbook-consistency",
+        "label": "Logbook Consistency (closed_at set, Open no closed_at, parts txn parity)",
+        "msg": "",
+        "rootcause": "uncategorized",
+        "skills": [
+          "qa-tester",
+          "architect"
+        ],
+        "stem": "cross_page"
+      },
+      {
+        "source": "layer0",
+        "id": "pwa",
+        "label": "PWA Integrity Validator",
+        "msg": "",
+        "rootcause": "uncategorized",
+        "skills": [
+          "qa-tester",
+          "architect"
+        ],
+        "stem": "cross_page"
+      },
+      {
+        "source": "layer0",
+        "id": "idempotency",
+        "label": "Webhook and Integration Idempotency Validator (5-layer, +UPDATE col exists, +backfill timing)",
+        "msg": "",
+        "rootcause": "uncategorized",
+        "skills": [
+          "qa-tester",
+          "architect"
+        ],
+        "stem": "cross_page"
+      },
+      {
+        "source": "layer0",
+        "id": "sentinel-review",
+        "label": "Sentinel Review (L0->L2 bridge: coverage + pattern + depth + freshness)",
+        "msg": "",
+        "rootcause": "uncategorized",
+        "skills": [
+          "qa-tester",
+          "architect"
+        ],
+        "stem": "cross_page"
+      }
+    ]
+  },
+  "total": 12
+}

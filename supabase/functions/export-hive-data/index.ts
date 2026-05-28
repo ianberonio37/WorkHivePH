@@ -40,6 +40,8 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 // contract-allow: PDPA right-to-access export; structured payload, not a brain output
 import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { getCorsHeaders } from "../_shared/cors.ts";
+// P1 roadmap 2026-05-26: envelope adoption (helper imported; success-path migration follows).
+import { beginRequest, ok, fail, recordModelHop } from "../_shared/envelope.ts";
 
 // Warm module-scope client (PRODUCTION_FIXES #46 pattern).
 const _WH_SUPABASE_URL_M = Deno.env.get("SUPABASE_URL") || "";

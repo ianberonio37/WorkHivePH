@@ -1,0 +1,138 @@
+name: WorkHive Gate
+
+# Runs the unified mega gate on every push + every PR.
+#   push:        Layer 0 fast (parallel, ~30-60s) + Layer 2 Tier 1 (smoke)
+#   pull_request: Layer 0 fast + sentinel coverage delta + Layer 2 Tier 1
+#   schedule:    nightly Layer 0 full + Layer 2 all tiers (3am UTC)
+
+on:
+  push:
+    branches: [master, main]
+  pull_request:
+    branches: [master, main]
+  schedule:
+    - cron: '0 3 * * *'   # 3am UTC nightly
+
+permissions:
+  contents: read
+  pull-requests: write
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  WH_GUARDIAN_WORKERS: '6'
+  WH_GUARDIAN_SEVERITY_MIN: 'warn'
+  WH_RATE_LIMIT_OVERRIDE: '500'   # generous local cap; gate runs are bursty
+  PYTHONIOENCODING: 'utf-8'
+
+jobs:
+  layer0-fast:
+    name: Layer 0 — Fast Guardian (parallel)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.11', cache: 'pip' }
+      - name: Install deps
+        run: |
+          python -m pip install --upgrade pip
+          [ -f requirements.txt ] && pip install -r requirements.txt || true
+      - name: Run Layer 0 fast
+        run: python run_platform_checks.py --fast --workers 6
+      - name: Upload report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: platform_health-fast
+          path: |
+            platform_health.json
+            *_report.json
+
+  layer2-tier1:
+    name: Layer 2 — Tier 1 smoke
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: layer0-fast
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: '20', cache: 'npm' }
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - name: Tier 1 specs
+        env:
+          WH_TEST_BASE_URL: ${{ secrets.WH_TEST_BASE_URL }}
+        run: |
+          npx playwright test \
+            tests/journey-logbook.spec.ts \
+            tests/journey-inventory.spec.ts \
+            tests/journey-pm.spec.ts \
+            tests/journey-hive.spec.ts \
+            tests/journey-community.spec.ts \
+            tests/journey-marketplace.spec.ts \
+            tests/journey-project-manager.spec.ts \
+            --reporter=line --max-failures=10
+      - name: Upload playwright report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with: { name: playwright-report, path: playwright-report/ }
+
+  sentinel-coverage:
+    name: Sentinel coverage delta
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    if: github.event_name == 'pull_request'
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.11', cache: 'pip' }
+      - name: Sentinel review
+        run: python run_sentinel_review.py --pr-mode --base ${{ github.event.pull_request.base.sha }}
+      - name: Comment on PR
+        if: always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            if (!fs.existsSync('sentinel_proposals.md')) return;
+            const body = fs.readFileSync('sentinel_proposals.md', 'utf8').slice(0, 65000);
+            await github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `### Sentinel coverage delta\n\n${body}`,
+            });
+
+  nightly-full:
+    name: Nightly — Layer 0 full + Layer 2 all tiers
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    if: github.event_name == 'schedule'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.11', cache: 'pip' }
+      - uses: actions/setup-node@v4
+        with: { node-version: '20', cache: 'npm' }
+      - run: |
+          python -m pip install --upgrade pip
+          [ -f requirements.txt ] && pip install -r requirements.txt || true
+          npm ci
+          npx playwright install --with-deps chromium
+      - name: Layer 0 full
+        run: python run_platform_checks.py --workers 6
+      - name: Layer 2 all
+        run: npx playwright test --reporter=list --max-failures=50
+      - name: Upload artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: nightly-reports
+          path: |
+            platform_health.json
+            *_report.json
+            playwright-report/

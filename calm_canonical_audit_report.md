@@ -11,7 +11,7 @@ CANONICAL / DRIFT / GAP / ALLOWED. Run by `tools/audit_calm_dashboard_canonical.
 - Drift reads (⚠️ wrapper exists, page reads raw): **0**
 - Gap reads (❌ no wrapper exists yet): **0**
 - Allowed reads (legitimate raw): **51**
-- Truth views in registry: **37**
+- Truth views in registry: **38**
 
 ## Per-page conformance
 

@@ -154,6 +154,16 @@ def check_entry_fields():
     for i, block in enumerate(entry_blocks):
         if "provider" not in block:
             continue   # not a provider entry block
+        # P1 roadmap 2026-05-27 turn 7: skip CODE blocks that USE entries
+        # rather than DEFINE them. The provider-health autoswitch + cache
+        # wiring introduced for-loop bodies that reference `entry.provider`
+        # but aren't themselves chain entries. Heuristic: real chain entries
+        # have `provider:` as a KEY (not `entry.provider` as a value).
+        if "entry.provider" in block or "entry.envKey" in block or "entry.model" in block:
+            continue
+        # Real chain entries always have `provider:` (key form), not just `provider` substring.
+        if not re.search(r"\bprovider\s*:", block):
+            continue
         present = set(re.findall(r'(\w+)\s*:', block))
         missing = REQUIRED_ENTRY_FIELDS - present
         if missing:

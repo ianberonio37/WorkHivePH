@@ -1,9 +1,9 @@
 # HTML Page Pattern Mining Report
 
-- Pages scanned: **37** (backups + test pages excluded)
+- Pages scanned: **39** (backups + test pages excluded)
 - Features extracted: **40**
 - Promotion threshold: >= 80% conformance, <= 6 outliers
-- Promotion candidates: **11**
+- Promotion candidates: **6**
 
 ## Promotion candidates (sweet spot)
 
@@ -12,62 +12,57 @@ outliers are real gaps or legitimate exceptions for that page type.
 
 | Feature | Conformance | Outliers |
 |---|---:|---|
-| `has_main_landmark` | 97% | agentic-rag-observability.html |
-| `has_meta_description` | 91% | architecture.html, marketplace-admin.html, symbol-gallery.html |
-| `has_manifest_link` | 91% | architecture.html, parts-tracker.html, symbol-gallery.html |
-| `loads_utils_js` | 91% | architecture.html, parts-tracker.html, symbol-gallery.html |
-| `loads_supabase_cdn` | 91% | architecture.html, parts-tracker.html, symbol-gallery.html |
-| `uses_createclient` | 89% | architecture.html, index.html, parts-tracker.html, symbol-gallery.html |
-| `has_canonical_link` | 83% | architecture.html, founder-console.html, marketplace-admin.html, marketplace-seller-profile.html, parts-tracker.html, symbol-gallery.html |
-| `has_og_title` | 83% | agentic-rag-observability.html, architecture.html, founder-console.html, marketplace-admin.html, parts-tracker.html, symbol-gallery.html |
-| `has_og_image` | 83% | agentic-rag-observability.html, architecture.html, founder-console.html, marketplace-admin.html, parts-tracker.html, symbol-gallery.html |
-| `loads_nav_hub_js` | 83% | agentic-rag-observability.html, architecture.html, founder-console.html, parts-tracker.html, platform-health.html, symbol-gallery.html |
-| `calls_eschtml` | 83% | alert-hub.html, architecture.html, parts-tracker.html, project-report.html, shift-brain.html, symbol-gallery.html |
+| `has_meta_description` | 92% | architecture.html, marketplace-admin.html, symbol-gallery.html |
+| `loads_utils_js` | 89% | architecture.html, parts-tracker.html, symbol-gallery.html, validator-catalog.html |
+| `has_manifest_link` | 87% | architecture.html, llm-observability.html, parts-tracker.html, symbol-gallery.html, validator-catalog.html |
+| `loads_supabase_cdn` | 87% | architecture.html, llm-observability.html, parts-tracker.html, symbol-gallery.html, validator-catalog.html |
+| `uses_createclient` | 84% | architecture.html, index.html, llm-observability.html, parts-tracker.html, symbol-gallery.html, validator-catalog.html |
+| `calls_eschtml` | 84% | alert-hub.html, architecture.html, parts-tracker.html, project-report.html, shift-brain.html, symbol-gallery.html |
 
 ## Full conformance ranking
 
 | Feature | Conformance | Positive / Total |
 |---|---:|---|
-| `has_doctype_html` | 100% | 37 / 37 |
-| `has_lang_attr` | 100% | 37 / 37 |
-| `has_meta_charset` | 100% | 37 / 37 |
-| `has_meta_viewport` | 100% | 37 / 37 |
-| `has_title_tag` | 100% | 37 / 37 |
-| `has_main_landmark` | 97% | 36 / 37 |
-| `has_meta_description` | 91% | 34 / 37 |
-| `has_manifest_link` | 91% | 34 / 37 |
-| `loads_utils_js` | 91% | 34 / 37 |
-| `loads_supabase_cdn` | 91% | 34 / 37 |
-| `uses_createclient` | 89% | 33 / 37 |
-| `has_canonical_link` | 83% | 31 / 37 |
-| `has_og_title` | 83% | 31 / 37 |
-| `has_og_image` | 83% | 31 / 37 |
-| `loads_nav_hub_js` | 83% | 31 / 37 |
-| `calls_eschtml` | 83% | 31 / 37 |
-| `has_h1` | 75% | 28 / 37 |
-| `has_empty_state_anchor` | 67% | 25 / 37 |
-| `has_theme_color` | 54% | 20 / 37 |
-| `has_verdict_card` | 54% | 20 / 37 |
-| `has_meta_robots` | 48% | 18 / 37 |
-| `has_details_toggle` | 43% | 16 / 37 |
-| `uses_eschtml_binding` | 29% | 11 / 37 |
-| `loads_offline_banner_js` | 27% | 10 / 37 |
-| `uses_tailwind_cdn` | 24% | 9 / 37 |
-| `validates_hive_membership` | 16% | 6 / 37 |
-| `loads_wh_capture_validate` | 13% | 5 / 37 |
-| `loads_maturity_gate_js` | 10% | 4 / 37 |
-| `has_og_description` | 8% | 3 / 37 |
-| `has_twitter_card` | 8% | 3 / 37 |
-| `has_jsonld_schema` | 8% | 3 / 37 |
-| `has_source_chip` | 8% | 3 / 37 |
-| `loads_wh_persona_js` | 5% | 2 / 37 |
-| `loads_wh_ga4_js` | 2% | 1 / 37 |
-| `loads_wh_help_js` | 2% | 1 / 37 |
-| `loads_wh_tts_js` | 2% | 1 / 37 |
-| `registers_service_worker` | 2% | 1 / 37 |
-| `loads_floating_ai_js` | 0% | 0 / 37 |
-| `loads_search_overlay_js` | 0% | 0 / 37 |
-| `handles_signin_redirect` | 0% | 0 / 37 |
+| `has_doctype_html` | 100% | 39 / 39 |
+| `has_lang_attr` | 100% | 39 / 39 |
+| `has_meta_charset` | 100% | 39 / 39 |
+| `has_meta_viewport` | 100% | 39 / 39 |
+| `has_title_tag` | 100% | 39 / 39 |
+| `has_main_landmark` | 100% | 39 / 39 |
+| `has_meta_description` | 92% | 36 / 39 |
+| `loads_utils_js` | 89% | 35 / 39 |
+| `has_manifest_link` | 87% | 34 / 39 |
+| `loads_supabase_cdn` | 87% | 34 / 39 |
+| `uses_createclient` | 84% | 33 / 39 |
+| `calls_eschtml` | 84% | 33 / 39 |
+| `has_canonical_link` | 79% | 31 / 39 |
+| `has_og_title` | 79% | 31 / 39 |
+| `has_og_image` | 79% | 31 / 39 |
+| `loads_nav_hub_js` | 79% | 31 / 39 |
+| `has_h1` | 76% | 30 / 39 |
+| `has_empty_state_anchor` | 64% | 25 / 39 |
+| `has_verdict_card` | 53% | 21 / 39 |
+| `has_theme_color` | 51% | 20 / 39 |
+| `has_meta_robots` | 46% | 18 / 39 |
+| `has_details_toggle` | 43% | 17 / 39 |
+| `uses_eschtml_binding` | 28% | 11 / 39 |
+| `loads_offline_banner_js` | 25% | 10 / 39 |
+| `uses_tailwind_cdn` | 23% | 9 / 39 |
+| `loads_wh_capture_validate` | 15% | 6 / 39 |
+| `validates_hive_membership` | 15% | 6 / 39 |
+| `loads_maturity_gate_js` | 10% | 4 / 39 |
+| `has_og_description` | 7% | 3 / 39 |
+| `has_twitter_card` | 7% | 3 / 39 |
+| `has_jsonld_schema` | 7% | 3 / 39 |
+| `has_source_chip` | 7% | 3 / 39 |
+| `loads_wh_persona_js` | 5% | 2 / 39 |
+| `loads_wh_ga4_js` | 2% | 1 / 39 |
+| `loads_wh_help_js` | 2% | 1 / 39 |
+| `loads_wh_tts_js` | 2% | 1 / 39 |
+| `registers_service_worker` | 2% | 1 / 39 |
+| `loads_floating_ai_js` | 0% | 0 / 39 |
+| `loads_search_overlay_js` | 0% | 0 / 39 |
+| `handles_signin_redirect` | 0% | 0 / 39 |
 
 ## How to act on this report
 

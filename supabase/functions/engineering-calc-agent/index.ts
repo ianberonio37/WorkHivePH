@@ -5,6 +5,10 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { callAI } from "../_shared/ai-chain.ts";
 import { logAICost, estimateTokens } from "../_shared/cost-log.ts";
 import { getCorsHeaders } from "../_shared/cors.ts";
+// P1 roadmap 2026-05-26: envelope adoption (helper imported; success-path migration follows).
+import { beginRequest, ok, fail, recordModelHop } from "../_shared/envelope.ts";
+// P1 roadmap 2026-05-26: adoption of shared /health helper.
+import { handleHealth } from "../_shared/health.ts";
 
 // ─── HVAC Lookup Tables (Philippine Tropical Climate) ───────────────────────
 
@@ -5945,6 +5949,15 @@ serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
   }
+
+  // /health probe.
+  const healthResp = await handleHealth(req, "engineering-calc-agent", async () => ({
+    deps: [
+      { name: "ai-chain", ok: Boolean(Deno.env.get("GROQ_API_KEY") || Deno.env.get("CEREBRAS_API_KEY")) },
+      { name: "python-api", ok: true },  // checked at deploy, not per-request
+    ],
+  }));
+  if (healthResp) return healthResp;
 
   try {
     const { calc_type, inputs } = await req.json();

@@ -1,6 +1,6 @@
-# Flywheel Turn #28
+# Flywheel Turn #41
 
-_2026-05-24T20:36:56_
+_2026-05-28T08:59:09_
 
 ## Layer deltas
 
@@ -8,8 +8,8 @@ _2026-05-24T20:36:56_
 |---|---|---:|---:|---:|
 | L-1   | cluster proposals       | 0 | 0 | · |
 | L-1.5 | rules in manifest       | 46 | 46 | · |
-| L0    | baselines tracked       | 74 | 74 | · |
-| L0    | total locked count      | 32 | 32 | · |
+| L0    | baselines tracked       | 85 | 85 | · |
+| L0    | total locked count      | 102 | 102 | · |
 | L2    | sentinel parity cases   | 33 | 33 | · |
 | L13   | stale walkthroughs      | 0 | 0 | · |
 

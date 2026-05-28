@@ -182,6 +182,11 @@ RESET_TABLES_NON_ID = {
     "asset_watchlist":   ("hive_id", "00000000-0000-0000-0000-000000000000"),
     "wh_feature_flags":  ("hive_id", "00000000-0000-0000-0000-000000000000"),
     "wh_voice_presence": ("hive_id", "00000000-0000-0000-0000-000000000000"),
+    # 2026-05-26 P1 substrate: 4 new tables, none have an `id` PK.
+    "ai_cache":             ("key", "__none__"),
+    "ai_user_rate_limits":  ("user_id", "00000000-0000-0000-0000-000000000000"),
+    "wh_traces":            ("trace_id", "__none__"),
+    "wh_health_status":     ("surface", "__none__"),
 }
 
 

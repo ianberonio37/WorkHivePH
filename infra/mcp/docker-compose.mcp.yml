@@ -1,0 +1,126 @@
+# WorkHive MCP support stack — Grafana + self-hosted GlitchTip (Sentry-compatible).
+# Lives alongside local Supabase. Reads ../mcp/.env.mcp for credentials.
+#
+# Bring up:   docker compose -f infra/mcp/docker-compose.mcp.yml --env-file infra/mcp/.env.mcp up -d
+# Tear down:  docker compose -f infra/mcp/docker-compose.mcp.yml down
+# Reset data: docker compose -f infra/mcp/docker-compose.mcp.yml down -v   (DESTRUCTIVE)
+
+networks:
+  supabase_network_workhive:
+    external: true
+  workhive_mcp:
+    driver: bridge
+
+volumes:
+  grafana_data:
+  glitchtip_postgres_data:
+  glitchtip_uploads:
+
+services:
+  # ───────────────────────── Grafana (cockpit) ─────────────────────────
+  grafana:
+    image: grafana/grafana-oss:11.2.0
+    container_name: workhive_grafana
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:3001:3000"   # 3001 on host to avoid colliding with dev frontends
+    environment:
+      GF_SECURITY_ADMIN_USER: ${GRAFANA_ADMIN_USER:-admin}
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:-changeme}
+      GF_AUTH_ANONYMOUS_ENABLED: "false"
+      GF_USERS_ALLOW_SIGN_UP: "false"
+      GF_INSTALL_PLUGINS: ""
+      GRAFANA_PG_READER_PASSWORD: ${GRAFANA_PG_READER_PASSWORD:-grafana_reader_change_me}
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+    networks:
+      - supabase_network_workhive   # so Grafana can reach supabase_db_workhive:5432
+      - workhive_mcp
+
+  # ───────────────────────── GlitchTip (Sentry-compatible) ─────────────
+  glitchtip_postgres:
+    image: postgres:16-alpine
+    container_name: workhive_glitchtip_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: glitchtip
+      POSTGRES_PASSWORD: ${GLITCHTIP_DB_PASSWORD:-glitchtip_change_me}
+      POSTGRES_DB: glitchtip
+    volumes:
+      - glitchtip_postgres_data:/var/lib/postgresql/data
+    networks:
+      - workhive_mcp
+
+  glitchtip_redis:
+    image: redis:7-alpine
+    container_name: workhive_glitchtip_redis
+    restart: unless-stopped
+    networks:
+      - workhive_mcp
+
+  glitchtip_migrate:
+    image: glitchtip/glitchtip:v4.1
+    container_name: workhive_glitchtip_migrate
+    depends_on:
+      - glitchtip_postgres
+    command: ./manage.py migrate
+    environment:
+      DATABASE_URL: postgres://glitchtip:${GLITCHTIP_DB_PASSWORD:-glitchtip_change_me}@glitchtip_postgres:5432/glitchtip
+      SECRET_KEY: ${GLITCHTIP_SECRET_KEY:-replace_me_with_50_random_chars}
+      EMAIL_URL: consolemail://
+      GLITCHTIP_DOMAIN: http://localhost:8000
+      DEFAULT_FROM_EMAIL: glitchtip@localhost
+      REDIS_URL: redis://glitchtip_redis:6379/0
+    networks:
+      - workhive_mcp
+    restart: "no"
+
+  glitchtip_web:
+    image: glitchtip/glitchtip:v4.1
+    container_name: workhive_glitchtip_web
+    restart: unless-stopped
+    depends_on:
+      - glitchtip_postgres
+      - glitchtip_redis
+      - glitchtip_migrate
+    ports:
+      - "127.0.0.1:8000:8000"
+    environment:
+      DATABASE_URL: postgres://glitchtip:${GLITCHTIP_DB_PASSWORD:-glitchtip_change_me}@glitchtip_postgres:5432/glitchtip
+      SECRET_KEY: ${GLITCHTIP_SECRET_KEY:-replace_me_with_50_random_chars}
+      PORT: "8000"
+      EMAIL_URL: consolemail://
+      GLITCHTIP_DOMAIN: http://localhost:8000
+      DEFAULT_FROM_EMAIL: glitchtip@localhost
+      CELERY_WORKER_AUTOSCALE: "1,3"
+      CELERY_WORKER_MAX_TASKS_PER_CHILD: "10000"
+      REDIS_URL: redis://glitchtip_redis:6379/0
+      ENABLE_USER_REGISTRATION: "true"
+      ENABLE_OPEN_USER_REGISTRATION: "false"
+    volumes:
+      - glitchtip_uploads:/code/uploads
+    networks:
+      - workhive_mcp
+
+  glitchtip_worker:
+    image: glitchtip/glitchtip:v4.1
+    container_name: workhive_glitchtip_worker
+    restart: unless-stopped
+    depends_on:
+      - glitchtip_postgres
+      - glitchtip_redis
+      - glitchtip_migrate
+    command: ./bin/run-celery-with-beat.sh
+    environment:
+      DATABASE_URL: postgres://glitchtip:${GLITCHTIP_DB_PASSWORD:-glitchtip_change_me}@glitchtip_postgres:5432/glitchtip
+      SECRET_KEY: ${GLITCHTIP_SECRET_KEY:-replace_me_with_50_random_chars}
+      EMAIL_URL: consolemail://
+      GLITCHTIP_DOMAIN: http://localhost:8000
+      DEFAULT_FROM_EMAIL: glitchtip@localhost
+      CELERY_WORKER_AUTOSCALE: "1,3"
+      REDIS_URL: redis://glitchtip_redis:6379/0
+    volumes:
+      - glitchtip_uploads:/code/uploads
+    networks:
+      - workhive_mcp

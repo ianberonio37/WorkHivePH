@@ -1,23 +1,80 @@
 # Unified Mega Gate Architecture
 ## Integrated Platform Quality System
 
-**Created:** 2026-05-16  
-**Status:** Architecture Definition + Standing Rule Formalization  
+**Created:** 2026-05-16
+**Last upgraded:** 2026-05-27 (v2 — 3-layer → 6-gate-layer model)
+**Status:** Architecture Definition + Standing Rule Formalization
 **Integration Level:** Single Entry Point for All Quality Checks
+**Companion study:** [COMPREHENSIVE_STUDY_FULLSTACK_GATE.md](COMPREHENSIVE_STUDY_FULLSTACK_GATE.md) — the 13 × 6 coverage matrix that maps production layers to gate layers.
 
 ---
 
-## Overview
+## v2 Overview (2026-05-27)
+
+The original 3-layer model below describes Layer 0 / Layer 1 (WorkHive Tester) / Layer 2. That model is now a *subset* of a 6-gate architecture that grew across the 2026-05-21 → 2026-05-27 flywheel turns. Use this section as the canonical gate definition; the 3-layer section below remains as the Layer 1 interactive tester reference.
+
+### The 6 gate layers
+
+| ID | Layer | Purpose | Coverage today | Execution |
+|---|---|---|---|---|
+| **G-1.5** | Substrate / Pre-architecture | Pattern miners detect code-shape drift before it becomes a bug | 13 miners aggregated in `substrate_manifest.json` | ~30 sec (info-only) |
+| **G-1** | Auto-discovery / Drift mining | Detects new pages, edge fns, validators; ensures registration | `validate_auto_discovery.py`, `validator_self_coverage`, `NEW_SURFACES_REPORT.json` | ~20 sec |
+| **G0** | Fast Guardian | 330 validators run in parallel (`--workers 6`); every rule baseline-ratcheted | 330 validators across 18 groups | ~90 sec parallel; ~7 min serial |
+| **GH** | Hardening Loop | Layer 2 finding → seeder + validator (the bug becomes the gate) | `/harden` skill, `tools/hardening_auto_trigger.py` | on-demand |
+| **GS** | Sentinel | Layer 0 rule → Playwright scenario (every TIER 1 rule has ≥2 anchored tests) | `sentinels/multi_scenario_per_rule.py` (0 gaps) | ~15 sec |
+| **G2** | Comprehensive E2E | 60+ Playwright specs, 5 tiers, ~375 scenarios | All TIER 1 rules anchored | ~90 sec Tier 1; ~5-15 min full |
+
+### Bridges + flow
+
+```
+  G-1.5  ──────►  G-1  ──────►  G0  ──────►  G2
+SUBSTRATE   AUTODISCOVER   GUARDIAN     PLAYWRIGHT
+                                 ▲           │
+                                 │           ▼
+                              GH HARDEN  GS SENTINEL
+                              (L2 → L0)  (L0 → L2)
+```
+
+The **hardening loop** (GH) and **sentinel** (GS) are the bidirectional bridges that make the gate self-improving. Every flywheel turn moves rules through both bridges:
+
+- A failing L2 scenario → Hardening Loop → new L0 validator → next turn catches the bug class earlier
+- A new L0 validator → Sentinel → proposed L2 scenario → next turn covers it behaviorally
+
+### Coverage matrix
+
+Full 13 production layers × 6 gate layers matrix lives in [COMPREHENSIVE_STUDY_FULLSTACK_GATE.md §4](COMPREHENSIVE_STUDY_FULLSTACK_GATE.md#4-the-coverage-matrix-13--6). Current state: **56 / 78 cells filled (72%)**. The 22 uncovered cells are the gap list in §7 of that study.
+
+### Persistence mechanisms
+
+15 concrete artefacts persist progress across sessions (frozen baselines, migration hashes, PLATFORM_ROADMAP.md, memory entries, validator registrations, etc.) — see [COMPREHENSIVE_STUDY_FULLSTACK_GATE.md §5](COMPREHENSIVE_STUDY_FULLSTACK_GATE.md#5-persistence-mechanisms--how-progress-doesnt-get-lost). Every new artefact must declare which of these it relies on, or it doesn't persist and doesn't belong in the gate.
+
+### Compounding evidence
+
+5 flywheel turns, combined coverage **14% → 17% → 21% → 28% → 37%**. See [COMPREHENSIVE_STUDY_FULLSTACK_GATE.md §6](COMPREHENSIVE_STUDY_FULLSTACK_GATE.md#6-compounding-evidence-5-turns) for the per-turn data. The bridges (GH + GS) are what make the curve compound rather than plateau.
+
+### Standing rules (v2)
+
+Three invariants the gate enforces. Any work that violates them must be reverted.
+
+- **Rule A — Every production change lands with a gate change.** Helpers without validators don't count.
+- **Rule B — Baselines only move down.** A baseline that increments is a real regression, not a "rebase."
+- **Rule C — Every fix updates ≥3 skills.** Lessons compound across the platform's collective intelligence, not just the codebase.
+
+---
+
+## v1 Overview (legacy 3-layer model — kept for Layer 1 interactive tester reference)
 
 The Unified Mega Gate is a three-layer integrated quality system that ensures 99.9% confidence in platform correctness:
 
 | Layer | Component | Purpose | Coverage | Execution |
 |-------|-----------|---------|----------|-----------|
-| **Layer 0** | Fast Platform Guardian | Schema + code architecture validation | 160 validators | <90 sec |
+| **Layer 0** | Fast Platform Guardian | Schema + code architecture validation | **330** validators (was 160 in v1) | **~90 sec parallel** (was <90 sec serial) |
 | **Layer 1** | WorkHive Tester | Local interactive testing + flow specs | 24 journey flows + 6 test panes | Manual or via SSE |
 | **Layer 2** | E2E Comprehensive Tests | Complete user journey validation | 35 pages × 380 scenarios | <5 min (full) / <90 sec (Tier 1) |
 
-**Flow:** Code change → Fast Guardian (Layer 0) → WorkHive Tester (Layer 1) → E2E Tests (Layer 2) → Seeding update → Validator creation → Layer 0 smarter
+**Flow (v1):** Code change → Fast Guardian (Layer 0) → WorkHive Tester (Layer 1) → E2E Tests (Layer 2) → Seeding update → Validator creation → Layer 0 smarter
+
+**Flow (v2):** Code change → G-1.5 substrate → G-1 auto-discovery → G0 guardian → G2 layer 2 → GH harden (if red) → GS sentinel (if new rule) → next turn smarter
 
 ---
 

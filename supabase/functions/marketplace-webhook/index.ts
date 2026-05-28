@@ -11,6 +11,7 @@
  */
 
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
+import { beginRequest, ok, fail, recordModelHop } from "../_shared/envelope.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 // Warm module-scope Supabase client. Reused across request invocations

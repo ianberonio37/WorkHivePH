@@ -74,6 +74,7 @@ ALLOWLIST: dict[str, str] = {
     "parts-tracker.html":    "RETIRED STUB (2026-05-18 review) -- 38-line redirect page to inventory.html#usage-history. No DB, no user data, no script rendering. <meta refresh> + setTimeout JS redirect. SAFE.",
     # analytics-report.html GRADUATED 2026-05-18: now loads utils.js after removing inline escHtml.
     # platform-health.html   GRADUATED 2026-05-18: now loads utils.js after removing inline escHtml.
+    "validator-catalog.html": "P1 roadmap 2026-05-27 -- admin-only validator browser; reads platform_health.json only, no DB calls, no user data rendering. Self-contained escHtml.",
 }
 
 

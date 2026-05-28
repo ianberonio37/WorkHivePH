@@ -13,6 +13,9 @@ package-lock.json
 # Internal AI agent config — not for public deployment
 .claude/
 
+# MCP server config — contains local creds (PATs, tokens, DSNs); never commit
+.mcp.json
+
 # Private business documents
 web context/
 
@@ -37,6 +40,8 @@ supabase/.branches/
 .env.local
 .env.azure
 .env.roboflow
+.env.mcp
+infra/mcp/.env.mcp
 supabase/functions/.env
 supabase/.env.local
 

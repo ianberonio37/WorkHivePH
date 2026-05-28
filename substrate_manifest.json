@@ -1,0 +1,363 @@
+{
+  "generated_at": "2026-05-27T21:22:17.454048+00:00",
+  "sources": 13,
+  "present": 13,
+  "absent": 0,
+  "summaries": [
+    {
+      "label": "Edge fn patterns",
+      "file": "edge_pattern_mining_report.json",
+      "present": true,
+      "proposals": [
+        {
+          "feature": "imports_cors_shared",
+          "anti_pattern": false,
+          "conformance": 0.982,
+          "outlier_count": 1,
+          "outliers": [
+            "marketplace-webhook"
+          ]
+        },
+        {
+          "feature": "cors_headers_first_in_handler",
+          "anti_pattern": false,
+          "conformance": 0.982,
+          "outlier_count": 1,
+          "outliers": [
+            "walkthrough-analyzer"
+          ]
+        },
+        {
+          "feature": "wraps_handler_in_try",
+          "anti_pattern": false,
+          "conformance": 0.964,
+          "outlier_count": 2,
+          "outliers": [
+            "marketplace-webhook",
+            "walkthrough-analyzer"
+          ]
+        },
+        {
+          "feature": "imports_supabase_esm",
+          "anti_pattern": false,
+          "conformance": 0.893,
+          "outlier_count": 6,
+          "outliers": [
+            "engineering-bom-sow",
+            "engineering-calc-agent",
+            "voice-embeddings",
+            "voice-model-call",
+            "voice-transcribe",
+            "walkthrough-analyzer"
+          ]
+        },
+        {
+          "feature": "reads_supabase_url_env",
+          "anti_pattern": false,
+          "conformance": 0.893,
+          "outlier_count": 6,
+          "outliers": [
+            "engineering-bom-sow",
+            "engineering-calc-agent",
+            "voice-embeddings",
+            "voice-model-call",
+            "voice-transcribe",
+            "walkthrough-analyzer"
+          ]
+        },
+        {
+          "feature": "reads_service_role_env",
+          "anti_pattern": false,
+          "conformance": 0.893,
+          "outlier_count": 6,
+          "outliers": [
+            "engineering-bom-sow",
+            "engineering-calc-agent",
+            "voice-embeddings",
+            "voice-model-call",
+            "voice-transcribe",
+            "walkthrough-analyzer"
+          ]
+        }
+      ],
+      "summary": {
+        "fns_scanned": 56,
+        "features_extracted": 35,
+        "promotion_candidates": 6
+      },
+      "proposal_count": 6
+    },
+    {
+      "label": "HTML patterns",
+      "file": "html_pattern_mining_report.json",
+      "present": true,
+      "proposals": [
+        {
+          "feature": "has_meta_description",
+          "conformance": 0.923,
+          "outlier_count": 3,
+          "outliers": [
+            "architecture.html",
+            "marketplace-admin.html",
+            "symbol-gallery.html"
+          ]
+        },
+        {
+          "feature": "loads_utils_js",
+          "conformance": 0.897,
+          "outlier_count": 4,
+          "outliers": [
+            "architecture.html",
+            "parts-tracker.html",
+            "symbol-gallery.html",
+            "validator-catalog.html"
+          ]
+        },
+        {
+          "feature": "has_manifest_link",
+          "conformance": 0.872,
+          "outlier_count": 5,
+          "outliers": [
+            "architecture.html",
+            "llm-observability.html",
+            "parts-tracker.html",
+            "symbol-gallery.html",
+            "validator-catalog.html"
+          ]
+        },
+        {
+          "feature": "loads_supabase_cdn",
+          "conformance": 0.872,
+          "outlier_count": 5,
+          "outliers": [
+            "architecture.html",
+            "llm-observability.html",
+            "parts-tracker.html",
+            "symbol-gallery.html",
+            "validator-catalog.html"
+          ]
+        },
+        {
+          "feature": "uses_createclient",
+          "conformance": 0.846,
+          "outlier_count": 6,
+          "outliers": [
+            "architecture.html",
+            "index.html",
+            "llm-observability.html",
+            "parts-tracker.html",
+            "symbol-gallery.html",
+            "validator-catalog.html"
+          ]
+        },
+        {
+          "feature": "calls_eschtml",
+          "conformance": 0.846,
+          "outlier_count": 6,
+          "outliers": [
+            "alert-hub.html",
+            "architecture.html",
+            "parts-tracker.html",
+            "project-report.html",
+            "shift-brain.html",
+            "symbol-gallery.html"
+          ]
+        }
+      ],
+      "summary": {
+        "pages_scanned": 39,
+        "features_extracted": 40,
+        "promotion_candidates": 6
+      },
+      "proposal_count": 6
+    },
+    {
+      "label": "Migration patterns",
+      "file": "migration_pattern_mining_report.json",
+      "present": true,
+      "proposals": [
+        {
+          "feature": "has_header_comment",
+          "conformance": 0.995,
+          "outlier_count": 1,
+          "outliers": [
+            "20260422192855_remote_commit.sql"
+          ]
+        }
+      ],
+      "summary": {
+        "files_scanned": 188,
+        "features_extracted": 22,
+        "promotion_candidates": 1
+      },
+      "proposal_count": 1
+    },
+    {
+      "label": "Seeder patterns",
+      "file": "seeder_pattern_mining_report.json",
+      "present": true,
+      "proposals": [
+        {
+          "feature": "accepts_client_param",
+          "conformance": 0.9,
+          "outlier_count": 4,
+          "outliers": [
+            "ai_reports.py",
+            "cmms.py",
+            "cmms_demo.py",
+            "cmms_webhook.py"
+          ]
+        }
+      ],
+      "summary": {
+        "files_scanned": 40,
+        "features_extracted": 19,
+        "promotion_candidates": 1
+      },
+      "proposal_count": 1
+    },
+    {
+      "label": "Validator patterns",
+      "file": "validator_pattern_mining_report.json",
+      "present": true,
+      "proposals": [
+        {
+          "feature": "has_main_guard",
+          "conformance": 0.987,
+          "outlier_count": 4,
+          "outliers": [
+            "validate_bom_sow.py",
+            "validate_fields.py",
+            "validate_integration.py",
+            "validate_renderers.py"
+          ]
+        }
+      ],
+      "summary": {
+        "files_scanned": 311,
+        "features_extracted": 20,
+        "promotion_candidates": 1
+      },
+      "proposal_count": 1
+    },
+    {
+      "label": "JS module patterns",
+      "file": "js_module_pattern_mining_report.json",
+      "present": true,
+      "proposals": [
+        {
+          "feature": "wraps_in_iife",
+          "conformance": 0.88,
+          "outlier_count": 3,
+          "outliers": [
+            "drawing-symbols.js",
+            "skill-content.js",
+            "utils.js"
+          ]
+        }
+      ],
+      "summary": {
+        "files_scanned": 25,
+        "features_extracted": 16,
+        "promotion_candidates": 1
+      },
+      "proposal_count": 1
+    },
+    {
+      "label": "Python tool patterns",
+      "file": "python_tool_pattern_mining_report.json",
+      "present": true,
+      "proposals": [
+        {
+          "feature": "has_print_calls",
+          "conformance": 0.952,
+          "outlier_count": 7,
+          "outliers": [
+            "analyze_walkthrough_new.py",
+            "auto_scenarios.py",
+            "claude_token_tracker.py",
+            "log_session.py",
+            "model_advisor.py",
+            "platform_intel.py",
+            "validate_voice_kb_context.py"
+          ]
+        }
+      ],
+      "summary": {
+        "files_scanned": 145,
+        "features_extracted": 22,
+        "promotion_candidates": 1
+      },
+      "proposal_count": 1
+    },
+    {
+      "label": "Skill rules",
+      "file": "skill_rules_mining_report.json",
+      "present": true,
+      "summary": {
+        "rules_evaluated": 53,
+        "rules_with_errors": 0,
+        "promotion_candidates": 8,
+        "critical_violations": 3,
+        "rules_by_source": {
+          "skill_md:designer": 2,
+          "skill_md:mobile-maestro": 2,
+          "skill_md:security": 3,
+          "manifest": 46
+        },
+        "skill_md_parse_errors": []
+      }
+    },
+    {
+      "label": "Test page drift",
+      "file": "test_page_drift_report.json",
+      "present": true,
+      "warnings": [],
+      "issues": []
+    },
+    {
+      "label": "Validator self coverage",
+      "file": "validator_self_coverage_report.json",
+      "present": true,
+      "warnings": [
+        {
+          "check": "unregistered",
+          "skip": true,
+          "reason": "`validate_empty_catch.py` exists but is not registered in run_platform_checks.py. Either add a registry entry, or list it in STANDALONE_OK with a justification (e.g., engineering-calc layer validator run via run_all_checks.py)."
+        }
+      ],
+      "issues": []
+    },
+    {
+      "label": "Canonical drift",
+      "file": "canonical_drift_platform_report.json",
+      "present": true,
+      "summary": {
+        "files_scanned": 173,
+        "kpi_rendering_pages": 78,
+        "truth_math_pages": 0,
+        "tier_a_pages": 0,
+        "tier_b_pages": 0,
+        "total_canonical_reads": 282,
+        "total_drift_reads": 0,
+        "total_gap_reads": 50,
+        "total_allowed_reads": 130
+      }
+    },
+    {
+      "label": "Auto-discovery",
+      "file": "auto_discovery_report.json",
+      "present": true,
+      "summary": {
+        "pass": 3,
+        "warn": 0,
+        "fail": 0
+      }
+    },
+    {
+      "label": "New surfaces",
+      "file": "NEW_SURFACES_REPORT.json",
+      "present": true
+    }
+  ]
+}

@@ -1,10 +1,10 @@
 {
   "summary": {
-    "files_scanned": 125,
-    "total_calls": 28,
+    "files_scanned": 131,
+    "total_calls": 29,
     "total_drift": 1,
     "baseline": 1,
-    "rpcs_known": 71
+    "rpcs_known": 73
   },
   "per_file": [
     {
@@ -241,6 +241,10 @@
       "issues": []
     },
     {
+      "file": "supabase\\functions\\_shared\\cache.ts",
+      "issues": []
+    },
+    {
       "file": "supabase\\functions\\_shared\\context-budget.ts",
       "issues": []
     },
@@ -257,7 +261,23 @@
       "issues": []
     },
     {
+      "file": "supabase\\functions\\_shared\\envelope.ts",
+      "issues": []
+    },
+    {
+      "file": "supabase\\functions\\_shared\\error-tracker.ts",
+      "issues": []
+    },
+    {
+      "file": "supabase\\functions\\_shared\\health.ts",
+      "issues": []
+    },
+    {
       "file": "supabase\\functions\\_shared\\journal-recall.ts",
+      "issues": []
+    },
+    {
+      "file": "supabase\\functions\\_shared\\logger.ts",
       "issues": []
     },
     {
@@ -270,6 +290,10 @@
     },
     {
       "file": "supabase\\functions\\_shared\\persona.ts",
+      "issues": []
+    },
+    {
+      "file": "supabase\\functions\\_shared\\provider-health.ts",
       "issues": []
     },
     {

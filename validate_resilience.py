@@ -137,6 +137,8 @@ DEFERRED_PAGES_FETCH_TIMEOUT: set[str] = {
     "report-sender.html",      # email send + voice transcribe + scheduled-agents
     "voice-journal.html",      # voice-transcribe (will be wrapped with Phase 2 voice harden)
     "voice-handler.js",        # shared voice helper (same Phase 2 batch)
+    "validator-catalog.html",  # P1 roadmap 2026-05-27 — admin-only validator browser. Uses inline AbortController+setTimeout (8s) instead of fetchWithTimeout because the page is self-contained and doesn't load utils.js (allowlisted in validate_loads_utils_js).
+    "llm-observability.html",  # P1 roadmap 2026-05-27 — admin-only LLM observability. Reads ai_cost_log via supabase client (singleton), no bare fetch.
 }
 DEFERRED_PAGES_IDENTITY_CLEAR = {
     "logbook.html",        # signOut wiring deferred (no SignOut button on logbook itself)

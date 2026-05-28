@@ -99,9 +99,13 @@ CREATE_FUNCTION_RE = re.compile(
     r"""CREATE\s+(?:OR\s+REPLACE\s+)?FUNCTION\s+(?P<name>[\"\w.]+)\s*\((?P<args>(?:[^()]|\([^)]*\))*)\)""",
     re.IGNORECASE,
 )
-# CREATE [OR REPLACE] VIEW [schema.]name AS ...
+# CREATE [OR REPLACE] [MATERIALIZED] VIEW [IF NOT EXISTS] [schema.]name AS ...
+# MATERIALIZED + IF NOT EXISTS added 2026-05-28: the miner was silently
+# dropping materialised views (e.g. v_kpi_truth in 20260512000005), leaving
+# the object- and column-existence validators blind to them. Found via the
+# MCP cockpit flywheel.
 CREATE_VIEW_RE = re.compile(
-    r"""CREATE\s+(?:OR\s+REPLACE\s+)?VIEW\s+(?P<name>[\"\w.]+)\s+AS""",
+    r"""CREATE\s+(?:OR\s+REPLACE\s+)?(?:MATERIALIZED\s+)?VIEW\s+(?:IF\s+NOT\s+EXISTS\s+)?(?P<name>[\"\w.]+)\s+AS""",
     re.IGNORECASE,
 )
 ENABLE_RLS_RE = re.compile(

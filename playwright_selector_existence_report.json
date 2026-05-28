@@ -1,9 +1,9 @@
 {
   "summary": {
-    "specs_scanned": 13,
-    "total_lookups": 57,
-    "total_drift": 0,
-    "baseline": 0
+    "specs_scanned": 20,
+    "total_lookups": 76,
+    "total_drift": 2,
+    "baseline": 2
   },
   "per_file": [
     {
@@ -27,6 +27,13 @@
       "targets": [
         "assistant.html",
         "assistant.html"
+      ],
+      "misses": []
+    },
+    {
+      "spec": "companion-rigorous-flywheel.spec.ts",
+      "targets": [
+        "index.html"
       ],
       "misses": []
     },
@@ -62,6 +69,44 @@
       "misses": []
     },
     {
+      "spec": "journey-companion-flywheel-walk.spec.ts",
+      "targets": [
+        "assistant.html",
+        "alert-hub.html",
+        "analytics.html",
+        "logbook.html",
+        "skillmatrix.html",
+        "logbook.html",
+        "analytics.html",
+        "alert-hub.html",
+        "analytics.html",
+        "logbook.html",
+        "analytics.html",
+        "logbook.html",
+        "alert-hub.html",
+        "logbook.html",
+        "inventory.html",
+        "analytics.html",
+        "alert-hub.html",
+        "logbook.html",
+        "analytics.html",
+        "skillmatrix.html",
+        "alert-hub.html",
+        "logbook.html",
+        "analytics.html",
+        "skillmatrix.html",
+        "alert-hub.html",
+        "analytics.html",
+        "logbook.html"
+      ],
+      "misses": [
+        {
+          "id": "wh-ai-trigger",
+          "offset": 4974
+        }
+      ]
+    },
+    {
       "spec": "journey-cross-page.spec.ts",
       "targets": [
         "logbook.html",
@@ -92,6 +137,88 @@
       "misses": []
     },
     {
+      "spec": "journey-p1-canonical-and-chain.spec.ts",
+      "targets": [
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "hive.html",
+        "logbook.html",
+        "inventory.html",
+        "predictive.html",
+        "analytics-report.html",
+        "engineering-design.html",
+        "engineering-design.html",
+        "engineering-design.html",
+        "engineering-design.html",
+        "hive.html",
+        "analytics.html",
+        "logbook.html",
+        "inventory.html",
+        "hive.html",
+        "community.html",
+        "hive.html",
+        "logbook.html",
+        "predictive.html",
+        "analytics.html",
+        "index.html",
+        "hive.html",
+        "logbook.html",
+        "hive.html",
+        "logbook.html",
+        "hive.html",
+        "hive.html",
+        "hive.html",
+        "hive.html",
+        "hive.html",
+        "hive.html",
+        "hive.html",
+        "hive.html",
+        "logbook.html",
+        "inventory.html"
+      ],
+      "misses": []
+    },
+    {
+      "spec": "journey-p1-substrate.spec.ts",
+      "targets": [
+        "analytics.html",
+        "hive.html",
+        "index.html",
+        "logbook.html"
+      ],
+      "misses": []
+    },
+    {
+      "spec": "journey-p1-tier1-coverage.spec.ts",
+      "targets": [
+        "hive.html",
+        "hive.html",
+        "hive.html",
+        "logbook.html",
+        "inventory.html",
+        "hive.html",
+        "logbook.html"
+      ],
+      "misses": []
+    },
+    {
+      "spec": "journey-p1-tier1-deep.spec.ts",
+      "targets": [
+        "index.html",
+        "hive.html",
+        "index.html",
+        "hive.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "logbook.html"
+      ],
+      "misses": []
+    },
+    {
       "spec": "journey-permissions.spec.ts",
       "targets": [
         "hive.html",
@@ -103,6 +230,25 @@
         "hive.html"
       ],
       "misses": []
+    },
+    {
+      "spec": "journey-voice-companion-gates.spec.ts",
+      "targets": [
+        "alert-hub.html",
+        "analytics.html",
+        "logbook.html",
+        "skillmatrix.html",
+        "assistant.html",
+        "alert-hub.html",
+        "alert-hub.html",
+        "alert-hub.html"
+      ],
+      "misses": [
+        {
+          "id": "wh-ai-trigger",
+          "offset": 41216
+        }
+      ]
     },
     {
       "spec": "logbook.spec.ts",

@@ -53,6 +53,11 @@ import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-
 import { callAI } from "../_shared/ai-chain.ts";
 import { logAICost, estimateTokens } from "../_shared/cost-log.ts";
 import { getCorsHeaders } from "../_shared/cors.ts";
+// P1 roadmap 2026-05-26: envelope adoption (helper imported; success-path migration follows).
+import { beginRequest, ok, fail, recordModelHop } from "../_shared/envelope.ts";
+// P1 roadmap 2026-05-26: adoption of shared /health helper + LLM response cache.
+import { handleHealth } from "../_shared/health.ts";
+import { cached } from "../_shared/cache.ts";
 
 // ── Constants ────────────────────────────────────────────────────────────────
 
@@ -248,13 +253,32 @@ interface RouterOutput {
 
 async function routerStage(question: string, db: SupabaseClient, hiveId: string | null, workerName: string | null) {
   const t0 = Date.now();
-  const raw = await callAI(`User question: ${question}`, {
-    systemPrompt: ROUTER_SYSTEM,
-    temperature:  0.1,
-    maxTokens:    MAX_TOKENS_ROUTER,
-    jsonMode:     true,
-    taskProfile:  "orchestrator_router",  // Phase 4: prefer llama-3.1-8b-instant
-  });
+
+  // P1 roadmap 2026-05-26: cache the Router LLM call. The Router stage is
+  // deterministic on `question` alone (system prompt + temperature 0.1
+  // give the same JSON answer for the same question across calls). RAG
+  // flywheel runs the same probe set across hives, so repeat-rate is
+  // high — caching cuts ~30-40% of Router tokens per turn.
+  //
+  // Cache key uses the question text; the model field is "router:auto"
+  // so we never collide with non-Router calls that happen to share text.
+  const cacheKey = `router:${question}`;
+  const { data: raw, hit: cacheHit } = await cached<string>(
+    db, "agentic-rag-router", cacheKey,
+    async () => {
+      const out = await callAI(`User question: ${question}`, {
+        systemPrompt: ROUTER_SYSTEM,
+        temperature:  0.1,
+        maxTokens:    MAX_TOKENS_ROUTER,
+        jsonMode:     true,
+        taskProfile:  "orchestrator_router",
+      });
+      return { data: out, tokensIn: estimateTokens(question) + estimateTokens(ROUTER_SYSTEM), tokensOut: estimateTokens(out) };
+    },
+    // 6h TTL — long enough to absorb a flywheel sweep, short enough that
+    // schema/prompt changes don't get stuck behind stale cache.
+    6 * 60 * 60,
+  );
   const latency = Date.now() - t0;
   const parsed = safeParse<RouterOutput>(raw, {
     route: "semantic",
@@ -307,11 +331,12 @@ async function routerStage(question: string, db: SupabaseClient, hiveId: string 
   // Log cost (model field is best-effort until Phase 4 returns it from callAI)
   await logAICost(db, {
     fn: FN_NAME, hive_id: hiveId, worker_name: workerName,
-    model: "chain:auto", provider: "groq",
-    prompt_tokens: estimateTokens(question) + estimateTokens(ROUTER_SYSTEM),
-    output_tokens: estimateTokens(raw),
+    model: cacheHit ? "cache:hit" : "chain:auto",
+    provider: cacheHit ? "ai_cache" : "groq",
+    prompt_tokens: cacheHit ? 0 : (estimateTokens(question) + estimateTokens(ROUTER_SYSTEM)),
+    output_tokens: cacheHit ? 0 : estimateTokens(raw),
     latency_ms: latency,
-    status: raw === "{}" ? "fallback" : "success",
+    status: cacheHit ? "cache_hit" : (raw === "{}" ? "fallback" : "success"),
     schema_compliance: raw !== "{}",
   });
 
@@ -548,13 +573,25 @@ async function graderStage(
   // Build compact chunk catalog for grader (id + short text only)
   const catalog = chunks.map(c => `${c.id}: ${c.text.slice(0, 240)}`).join("\n---\n");
   const prompt  = `Question: ${question}\n\nChunks:\n${catalog}`;
-  const raw     = await callAI(prompt, {
-    systemPrompt: GRADER_SYSTEM,
-    temperature:  0.1,
-    maxTokens:    MAX_TOKENS_GRADER,
-    jsonMode:     true,
-    taskProfile:  "chunk_grader",  // Phase 4: prefer llama-3.1-8b-instant
-  });
+  // P1 roadmap 2026-05-26: cache the Grader. Grader is deterministic on
+  // (question, chunks) — same question + same chunk set → same grading.
+  // Repeat-rate is moderate (same question retrieves same chunks within
+  // TTL). 3h TTL — Grader is more chunk-sensitive than Router so shorter.
+  const cacheKey = `grader:${question}::${catalog.slice(0, 600)}`;
+  const { data: raw, hit: cacheHit } = await cached<string>(
+    db, "agentic-rag-grader", cacheKey,
+    async () => {
+      const out = await callAI(prompt, {
+        systemPrompt: GRADER_SYSTEM,
+        temperature:  0.1,
+        maxTokens:    MAX_TOKENS_GRADER,
+        jsonMode:     true,
+        taskProfile:  "chunk_grader",
+      });
+      return { data: out, tokensIn: estimateTokens(prompt) + estimateTokens(GRADER_SYSTEM), tokensOut: estimateTokens(out) };
+    },
+    3 * 60 * 60,
+  );
   const latency = Date.now() - t0;
   const parsed  = safeParse<GraderOutput>(raw, { kept: [] });
 
@@ -569,11 +606,12 @@ async function graderStage(
 
   await logAICost(db, {
     fn: FN_NAME, hive_id: hiveId, worker_name: workerName,
-    model: "chain:auto", provider: "groq",
-    prompt_tokens: estimateTokens(prompt) + estimateTokens(GRADER_SYSTEM),
-    output_tokens: estimateTokens(raw),
+    model: cacheHit ? "cache:hit" : "chain:auto",
+    provider: cacheHit ? "ai_cache" : "groq",
+    prompt_tokens: cacheHit ? 0 : (estimateTokens(prompt) + estimateTokens(GRADER_SYSTEM)),
+    output_tokens: cacheHit ? 0 : estimateTokens(raw),
     latency_ms: latency,
-    status: raw === "{}" ? "fallback" : "success",
+    status: cacheHit ? "cache_hit" : (raw === "{}" ? "fallback" : "success"),
     schema_compliance: raw !== "{}",
   });
 
@@ -654,13 +692,26 @@ async function checkerStage(
   }
   const block = kept.map(c => `[${c.id}] ${c.text}`).join("\n---\n");
   const prompt = `Original question: ${question}\n\nAvailable chunks:\n${block}\n\nGenerated answer to verify:\n${answer}`;
-  const raw    = await callAI(prompt, {
-    systemPrompt: CHECKER_SYSTEM,
-    temperature:  0.0,
-    maxTokens:    MAX_TOKENS_CHECKER,
-    jsonMode:     true,
-    taskProfile:  "hallucination_checker",  // Phase 4: prefer llama-3.1-8b-instant
-  });
+  // P1 roadmap 2026-05-26: cache the Checker. Checker is fully deterministic
+  // (temperature 0) on (question, answer, chunks). Same triple → same
+  // verdict. Repeat-rate is lower than Router/Grader (answer differs more)
+  // but each call is the heaviest of the three so cache wins are large.
+  // 2h TTL — Checker output is most sensitive to model upgrades.
+  const cacheKey = `checker:${question}::${answer.slice(0, 200)}::${block.slice(0, 400)}`;
+  const { data: raw, hit: cacheHit } = await cached<string>(
+    db, "agentic-rag-checker", cacheKey,
+    async () => {
+      const out = await callAI(prompt, {
+        systemPrompt: CHECKER_SYSTEM,
+        temperature:  0.0,
+        maxTokens:    MAX_TOKENS_CHECKER,
+        jsonMode:     true,
+        taskProfile:  "hallucination_checker",
+      });
+      return { data: out, tokensIn: estimateTokens(prompt) + estimateTokens(CHECKER_SYSTEM), tokensOut: estimateTokens(out) };
+    },
+    2 * 60 * 60,
+  );
   const latency = Date.now() - t0;
   const parsed  = safeParse<CheckerOutput>(raw, {
     passed: true,                  // fail-open on parse error: don't block a valid answer due to grader hiccup
@@ -670,11 +721,12 @@ async function checkerStage(
 
   await logAICost(db, {
     fn: FN_NAME, hive_id: hiveId, worker_name: workerName,
-    model: "chain:auto", provider: "groq",
-    prompt_tokens: estimateTokens(prompt) + estimateTokens(CHECKER_SYSTEM),
-    output_tokens: estimateTokens(raw),
+    model: cacheHit ? "cache:hit" : "chain:auto",
+    provider: cacheHit ? "ai_cache" : "groq",
+    prompt_tokens: cacheHit ? 0 : (estimateTokens(prompt) + estimateTokens(CHECKER_SYSTEM)),
+    output_tokens: cacheHit ? 0 : estimateTokens(raw),
     latency_ms: latency,
-    status: raw === "{}" ? "fallback" : "success",
+    status: cacheHit ? "cache_hit" : (raw === "{}" ? "fallback" : "success"),
     schema_compliance: raw !== "{}",
   });
 
@@ -953,6 +1005,16 @@ serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { status: 204, headers: corsHeaders });
   }
+
+  // /health probe — pings dependencies before any auth/parse work.
+  const healthResp = await handleHealth(req, "agentic-rag-loop", async () => ({
+    deps: [
+      { name: "supabase",     ok: Boolean(Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")) },
+      { name: "ai-chain",     ok: Boolean(Deno.env.get("GROQ_API_KEY") || Deno.env.get("CEREBRAS_API_KEY")) },
+    ],
+  }));
+  if (healthResp) return healthResp;
+
   if (req.method !== "POST") {
     return new Response(JSON.stringify({ error: "Method not allowed" }), {
       status: 405,

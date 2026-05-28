@@ -57,4 +57,86 @@ test.describe('Tier 11 — Cross-page consistency', () => {
       /worker_achievements|skill_badges|skill_profiles/
     );
   });
+
+  // ── P1 roadmap 2026-05-27 — cross-page rule extension ───────────────────────
+  // The original 4 scenarios cover the canonical-source doctrine. These add
+  // cross-page property tests for the rules that span multiple pages and
+  // can't be caught by single-page validators:
+  //   - escHtml usage (every renderer that interpolates DB data must call escHtml)
+  //   - nav-registry (every page is registered in nav-hub.js)
+  //   - hive-isolation (every hive-scoped query passes hive_id)
+  //   - trace-id (every fetch to /functions/v1/ai-gateway sends x-wh-trace)
+
+  const HIVE_SCOPED_PAGES = [
+    'hive.html', 'logbook.html', 'inventory.html', 'pm-scheduler.html',
+    'analytics.html', 'predictive.html', 'asset-hub.html', 'community.html',
+    'achievements.html', 'dayplanner.html', 'skillmatrix.html', 'project-manager.html',
+    'alert-hub.html', 'audit-log.html', 'voice-journal.html',
+  ];
+
+  test('escHtml_universal: every hive-scoped page declares escHtml usage', async () => {
+    // The rule: any page that interpolates DB strings into innerHTML must
+    // either import or define escHtml, OR be in the validator's ignore list.
+    for (const p of HIVE_SCOPED_PAGES) {
+      const path = resolve(ROOT, p);
+      let body: string;
+      try { body = readFileSync(path, 'utf-8'); } catch { continue; }
+      const usesInnerHtml = /innerHTML\s*=/.test(body) || /\.innerHTML\s*\+=/.test(body);
+      if (!usesInnerHtml) continue;
+      const hasEscHtml = /escHtml|esc_html/.test(body);
+      expect(hasEscHtml, `${p} uses innerHTML but does not declare escHtml`).toBe(true);
+    }
+  });
+
+  test('nav_registry_universal: every load-bearing page is reachable from nav-hub.js or appears in PUBLIC_PAGES', async () => {
+    // nav-hub.js maps page slug -> tile metadata. A page not in nav-hub
+    // can still be linked but won't show up in the nav surface.
+    let nav: string;
+    try { nav = readFileSync(resolve(ROOT, 'nav-hub.js'), 'utf-8'); }
+    catch { test.skip(true, 'nav-hub.js not present'); return; }
+    for (const p of ['hive.html', 'logbook.html', 'inventory.html', 'pm-scheduler.html', 'analytics.html']) {
+      expect(nav, `nav-hub.js must reference ${p}`).toContain(p);
+    }
+  });
+
+  test('hive_id_universal: every hive-scoped page reads wh_active_hive_id or wh_hive_id', async () => {
+    // Hive isolation requires the page to know which hive it's scoping to.
+    // A page that touches hive-scoped tables but doesn't read the active
+    // hive ID is a cross-hive-leak waiting to happen.
+    for (const p of HIVE_SCOPED_PAGES) {
+      const path = resolve(ROOT, p);
+      let body: string;
+      try { body = readFileSync(path, 'utf-8'); } catch { continue; }
+      const queriesHiveTable = /\.from\(['"](?:logbook_entries|inventory_items|pm_assets|hive_members|asset_nodes|work_orders|community_posts)['"]\)/.test(body);
+      if (!queriesHiveTable) continue;
+      const readsHiveId = /wh_active_hive_id|wh_hive_id|hive_id\s*[:=]/.test(body);
+      expect(readsHiveId, `${p} queries hive-scoped tables but does not read an active hive id`).toBe(true);
+    }
+  });
+
+  test('trace_id_universal: voice-handler.js sends x-wh-trace on AI fetches', async () => {
+    // Trace-id propagation rule: every fetch from voice-handler to an AI
+    // edge fn must include the x-wh-trace header. Without it we can't follow
+    // a failing turn through the stack.
+    const vh = readFileSync(resolve(ROOT, 'voice-handler.js'), 'utf-8');
+    // Count fetch sites and trace headers in proximity.
+    const aiGatewayCalls = (vh.match(/['"][^'"]*\/functions\/v1\/ai-gateway['"]/g) || []).length;
+    const ragLoopCalls   = (vh.match(/['"][^'"]*\/functions\/v1\/agentic-rag-loop['"]/g) || []).length;
+    const traceHeaders   = (vh.match(/x-wh-trace/g) || []).length;
+    // We added trace to both the gateway + agentic-rag paths in turn 3.
+    // Require traceHeaders to be at LEAST 2 (covers both sites).
+    expect(traceHeaders, `voice-handler.js must mint x-wh-trace on AI fetches (sites: gateway=${aiGatewayCalls}, rag=${ragLoopCalls})`).toBeGreaterThanOrEqual(2);
+  });
+
+  test('envelope_universal: every TIER 1 load-bearing edge fn imports _shared/envelope.ts', async () => {
+    // Mirrors validate_envelope_conformance.py from the runtime side.
+    const FN_DIR = resolve(ROOT, 'supabase', 'functions');
+    const FNS = ['ai-gateway', 'agentic-rag-loop', 'analytics-orchestrator', 'engineering-calc-agent', 'agent-memory-store'];
+    for (const fn of FNS) {
+      const idx = resolve(FN_DIR, fn, 'index.ts');
+      let body: string;
+      try { body = readFileSync(idx, 'utf-8'); } catch { continue; }
+      expect(body, `${fn}/index.ts must import _shared/envelope.ts`).toContain('"../_shared/envelope.ts"');
+    }
+  });
 });

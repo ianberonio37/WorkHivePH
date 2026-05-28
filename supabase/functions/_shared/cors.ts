@@ -34,3 +34,8 @@ export function getCorsHeaders(req: Request): Record<string, string> {
     "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
   };
 }
+// NOTE (2026-05-28): there is intentionally NO static `corsHeaders` export.
+// envelope.ts + health.ts were fixed to call getCorsHeaders(req) (threaded via
+// RequestContext.cors / a local const) after the static export here boot-broke
+// every edge fn that imports envelope.ts. Keep this module dynamic-only —
+// validate_integration_security.py's cors_dynamic_pattern is the guard.
