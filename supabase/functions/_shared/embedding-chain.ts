@@ -5,6 +5,7 @@
 // Order of attempt (free-tier sustainability):
 //   1. Voyage AI (200M tokens/month free, voyage-3-lite truncated to 384)
 //   2. Jina AI (100M tokens/month free, jina-embeddings-v3 with dim=384)
+//   3. Google Gemini (gemini-embedding-001, output dim=384, L2-normalized)
 //
 // If a provider returns 401/403/429/503, the next is tried.
 // If a provider's key is not set, that provider is skipped.
@@ -74,9 +75,42 @@ async function jinaEmbed(text: string, apiKey: string): Promise<number[]> {
   return vec;
 }
 
+// ── Google Gemini ──────────────────────────────────────────────────────────
+// OpenAI-compatible embeddings endpoint. gemini-embedding-001 supports a
+// configurable output dimension via `dimensions`; we request 384 to match the
+// vector(384) schema. IMPORTANT: Gemini does NOT unit-normalize outputs below
+// 3072 dims (Voyage and Jina return normalized vectors), so we L2-normalize
+// here to keep all three providers in a comparable space for cosine search.
+async function geminiEmbed(text: string, apiKey: string): Promise<number[]> {
+  const res = await fetch("https://generativelanguage.googleapis.com/v1beta/openai/embeddings", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${apiKey}`,
+    },
+    body: JSON.stringify({
+      model: "gemini-embedding-001",
+      input: [text],
+      dimensions: TARGET_DIM,
+    }),
+  });
+  if (!res.ok) {
+    const err = (await res.text()).slice(0, 160);
+    throw new Error(`gemini ${res.status}: ${err}`);
+  }
+  const data = await res.json();
+  const vec = data?.data?.[0]?.embedding;
+  if (!Array.isArray(vec) || vec.length !== TARGET_DIM) {
+    throw new Error(`gemini returned bad shape: ${typeof vec === "object" ? (vec as unknown[])?.length : typeof vec}`);
+  }
+  const norm = Math.sqrt(vec.reduce((s: number, x: number) => s + x * x, 0)) || 1;
+  return vec.map((x: number) => x / norm);
+}
+
 const PROVIDERS: EmbeddingProvider[] = [
   { name: "voyage", envKey: "VOYAGE_API_KEY", call: voyageEmbed },
   { name: "jina",   envKey: "JINA_API_KEY",   call: jinaEmbed },
+  { name: "gemini", envKey: "GEMINI_API_KEY", call: geminiEmbed },
 ];
 
 /**
