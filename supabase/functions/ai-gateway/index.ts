@@ -48,6 +48,21 @@ import {
   loadJournalRecall,
   persistJournalEntry,
 } from "../_shared/journal-recall.ts";
+// 2026-05-30 memory-stack flywheel Turn 1 (layer 02 Episodic): durable
+// long-term memory for the non-journal conversational specialists. Recalled
+// before forward, persisted from the specialist's envelope after.
+import {
+  recallEpisodic,
+  persistEpisodic,
+  formatEpisodicContext,
+  type StoreInput,
+} from "../_shared/episodic-memory.ts";
+// 2026-05-30 memory-stack flywheel Turn 2 (layer 07 Shared Memory): inject the
+// conflict-resolved verified state of an asset so every agent reads one truth.
+import {
+  resolveAssetState,
+  formatVerifiedState,
+} from "../_shared/verified-state.ts";
 
 // P1 roadmap 2026-05-26: adoption of shared envelope + health + structured log.
 // First fn to migrate (highest traffic, sets the pattern for the other 54).
@@ -65,6 +80,36 @@ import { log } from "../_shared/logger.ts";
 // Only voice-journal currently uses this surface; other agents have their
 // own RAG layers (asset-brain has GraphRAG, analytics has its own pipeline).
 const SEMANTIC_RECALL_AGENTS: Set<string> = new Set(["voice-journal"]);
+
+// Agents that get DURABLE episodic-memory enrichment (layer 02 of the AI Agent
+// Memory Stack) on top of short-term agent_memory. For these specialists the
+// gateway:
+//   1. Recalls the worker's/hive's top durable memories (factual/procedural/
+//      episodic/semantic) from agent_episodic_memory and appends them to the
+//      forwarded memory_block.
+//   2. After the specialist responds, persists any memories it emitted in its
+//      envelope (`memories: [{memory_type, content, importance?}]`) so the
+//      store grows from real exchanges. Persisting is LLM-free here — the
+//      specialist (or agentic-rag-loop's Checker) decides what is durable.
+// voice-journal is deliberately EXCLUDED — it already has its own per-user
+// semantic store (voice_journal_entries via journal-recall.ts); double-storing
+// would duplicate the journal into the shared agent memory bank.
+const EPISODIC_MEMORY_AGENTS: Set<string> = new Set([
+  "asset-brain", "analytics", "shift", "project",
+]);
+// How many durable memories to inject per turn. Small — these ride alongside
+// the 10-turn working memory and the budget is shared.
+const EPISODIC_RECALL_LIMIT = 6;
+
+// Agents that get VERIFIED-STATE enrichment (layer 07 Shared Memory) when the
+// turn is about a specific asset. The gateway resolves the asset's current
+// conflict-resolved state from v_asset_state_truth and injects it so the agent
+// answers from the one shared truth rather than a stale or competing event.
+// Asset-centric specialists only; injection is also gated on an asset_tag being
+// present in context (no asset = nothing to resolve).
+const VERIFIED_STATE_AGENTS: Set<string> = new Set([
+  "asset-brain", "shift",
+]);
 
 // Warm module-scope Supabase client. Reused across request invocations
 // in the same warm container. Per-request createClient calls below are
@@ -346,6 +391,46 @@ serve(async (req) => {
     }
   }
 
+  // Durable episodic-memory recall for the non-journal specialists. Pure DB,
+  // no embedding/LLM call. Hive-scoped + worker-scoped via the shared module's
+  // query. Anon callers (no authUid) skip — recall is identity-bound the same
+  // way agent_memory is. Best-effort: a failure just means no long-term block.
+  if (authUid && EPISODIC_MEMORY_AGENTS.has(agent)) {
+    try {
+      const durable = await recallEpisodic(adminClient, hive_id, worker_name, {
+        limit: EPISODIC_RECALL_LIMIT,
+        query: message,
+      });
+      const durableBlock = formatEpisodicContext(durable);
+      if (durableBlock) {
+        memory_block = memory_block ? `${memory_block}\n\n${durableBlock}` : durableBlock;
+      }
+    } catch (err) {
+      console.warn("[ai-gateway] episodic recall failed (non-fatal):", err instanceof Error ? err.message : err);
+    }
+  }
+
+  // Verified-state injection (layer 07). When the turn is about a specific
+  // asset, resolve its conflict-resolved current state so the agent reads one
+  // shared truth. asset_tag comes from context (the asset hub passes it). Pure
+  // DB read; hive-scoped; best-effort. Needs a hive (no solo verified state).
+  if (authUid && hive_id && VERIFIED_STATE_AGENTS.has(agent)) {
+    const assetTag = context && typeof context === "object"
+      ? (context as Record<string, unknown>).asset_tag
+      : null;
+    if (typeof assetTag === "string" && assetTag.trim()) {
+      try {
+        const state = await resolveAssetState(adminClient, hive_id, { assetTag: assetTag.trim() });
+        const stateBlock = formatVerifiedState(state);
+        if (stateBlock) {
+          memory_block = memory_block ? `${memory_block}\n\n${stateBlock}` : stateBlock;
+        }
+      } catch (err) {
+        console.warn("[ai-gateway] verified-state resolve failed (non-fatal):", err instanceof Error ? err.message : err);
+      }
+    }
+  }
+
   // PII redaction. Both the user message AND the context object pass
   // through the same redactor so a downstream agent never sees raw
   // identity unless the agent is explicitly opted-in (Stripe / Resend
@@ -411,11 +496,18 @@ serve(async (req) => {
   }
 
   // The specialist agent returns a JSON envelope. Extract the user-facing
-  // answer field; fall back to the raw text if shape is unexpected.
+  // answer field; fall back to the raw text if shape is unexpected. Also
+  // harvest any durable memories the specialist chose to emit (layer 02).
   let answer = agentRespText;
+  let specialistMemories: StoreInput[] = [];
   try {
     const parsed = JSON.parse(agentRespText);
     answer = String(parsed.answer ?? parsed.summary ?? parsed.message ?? agentRespText);
+    // Specialists (or agentic-rag-loop's Checker, when one is in the path) may
+    // return `memories: [{memory_type, content, importance?}]`. The shared
+    // persistEpisodic clamps/validates/caps — we just pass them through.
+    const m = (parsed as { memories?: unknown }).memories;
+    if (Array.isArray(m)) specialistMemories = m as StoreInput[];
   } catch {
     // Non-JSON response — keep raw.
   }
@@ -443,6 +535,19 @@ serve(async (req) => {
       hive_id, worker_name, auth_uid: authUid, agent_id: agent,
     };
     await saveTurn(adminClient, handle, message, hydratedAnswer, metaExtra);
+
+    // Durable episodic persist (layer 02). Best-effort, non-blocking-on-error.
+    // Only for opted-in specialists AND only when the specialist actually
+    // emitted memories — the gateway never invents memories itself (no LLM
+    // call on this path), so an empty/absent `memories` field is a no-op.
+    if (EPISODIC_MEMORY_AGENTS.has(agent) && specialistMemories.length) {
+      try {
+        const res = await persistEpisodic(adminClient, hive_id, worker_name, specialistMemories);
+        log.info(ctx, "episodic_persist", { written: res.written, evicted: res.evicted });
+      } catch (err) {
+        console.warn("[ai-gateway] episodic persist failed (non-fatal):", err instanceof Error ? err.message : err);
+      }
+    }
 
     // Durable archive for semantic-recall agents. agent_memory has 90-day
     // retention; voice_journal_entries is the permanent journal store and

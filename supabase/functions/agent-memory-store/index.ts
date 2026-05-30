@@ -29,21 +29,25 @@
  */
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { getCorsHeaders } from "../_shared/cors.ts";
 // P1 roadmap 2026-05-26: adoption of envelope + /health.
 import { beginRequest, ok } from "../_shared/envelope.ts";
 import { handleHealth } from "../_shared/health.ts";
 import { log } from "../_shared/logger.ts";
+// 2026-05-30 memory-stack flywheel Turn 1: recall/persist/eviction logic moved
+// to _shared/episodic-memory.ts so ai-gateway can share it (architect
+// 4-place-sync). This fn is now a thin HTTP wrapper over those primitives.
+import {
+  recallEpisodic,
+  persistEpisodic,
+  MEMORY_TYPES,
+  MAX_RECALL_LIMIT,
+  type MemoryType,
+  type StoreInput,
+} from "../_shared/episodic-memory.ts";
 
-const FN_NAME            = "agent-memory-store";
-const MAX_CONTENT_CHARS  = 600;
-const MAX_RECALL_LIMIT   = 20;
-const MAX_STORE_BATCH    = 10;
-const PER_WORKER_CAP     = 200;
-const PER_HIVE_CAP       = 1000;
-const MEMORY_TYPES       = ["factual","procedural","episodic","semantic"] as const;
-type MemoryType = typeof MEMORY_TYPES[number];
+const FN_NAME = "agent-memory-store";
 
 const _URL = Deno.env.get("SUPABASE_URL") || "";
 const _KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
@@ -51,134 +55,8 @@ if (!_URL || !_KEY) console.warn("[agent-memory-store] SUPABASE env missing");
 const _warm = _URL && _KEY ? createClient(_URL, _KEY) : null;
 void _warm;
 
-// ── RECALL ───────────────────────────────────────────────────────────────────
-
-interface RecalledMemory {
-  id: string;
-  memory_type: MemoryType;
-  content: string;
-  importance: number;
-  use_count: number;
-  last_used_at: string | null;
-}
-
-async function recall(
-  db: SupabaseClient,
-  hiveId: string | null,
-  workerName: string | null,
-  memoryTypes: MemoryType[],
-  limit: number,
-): Promise<RecalledMemory[]> {
-  // Fetch a generous pool — we re-rank in JS by importance × log(1+use_count)
-  // because Postgres ORDER BY can't express that compound score cleanly
-  // without a stored generated column.
-  // canonical-allow: agent infra table, server-side store, no user-facing canonical surface
-  let q = db.from("agent_episodic_memory")
-    .select("id, memory_type, content, importance, use_count, last_used_at")
-    .in("memory_type", memoryTypes as unknown as string[])
-    .order("importance", { ascending: false })
-    .limit(Math.max(limit * 3, 50));   // fetch 3× for re-ranking
-  if (hiveId)     q = q.eq("hive_id", hiveId);
-  if (workerName) q = q.eq("worker_name", workerName);
-  const { data, error } = await q;
-  if (error) { console.warn("[agent-memory-store] recall fetch failed:", error.message); return []; }
-
-  const pool = (data || []) as RecalledMemory[];
-  const ranked = pool
-    .map(m => ({ m, score: (m.importance || 0) * Math.log(1 + (m.use_count || 0)) + (m.importance || 0) * 0.5 }))
-    .sort((a, b) => b.score - a.score)
-    .slice(0, limit)
-    .map(x => x.m);
-
-  // Best-effort: bump use_count + last_used_at on the returned rows. Don't
-  // block the recall response on the write — fire and forget.
-  if (ranked.length) {
-    const now = new Date().toISOString();
-    Promise.all(ranked.map(m =>
-      db.from("agent_episodic_memory")
-        .update({ use_count: (m.use_count || 0) + 1, last_used_at: now })
-        .eq("id", m.id)
-    )).catch(err => console.warn("[agent-memory-store] use_count bump failed:", String(err).slice(0, 80)));
-  }
-
-  return ranked;
-}
-
-// ── STORE ────────────────────────────────────────────────────────────────────
-
-interface StoreInput {
-  memory_type: MemoryType;
-  content: string;
-  importance?: number;
-  source_trace_id?: string | null;
-}
-
-async function evictIfOverCap(db: SupabaseClient, hiveId: string | null, workerName: string | null): Promise<number> {
-  // Worker-level eviction (only when worker_name is set)
-  let evicted = 0;
-  if (workerName) {
-    // canonical-allow: worker-level LRU eviction scan, agent infra
-    const { data } = await db.from("agent_episodic_memory")
-      .select("id, importance, use_count")
-      .eq("worker_name", workerName);
-    if ((data || []).length > PER_WORKER_CAP) {
-      const sorted = (data || []).slice().sort((a, b) =>
-        ((a.importance || 0) * Math.log(1 + (a.use_count || 0))) -
-        ((b.importance || 0) * Math.log(1 + (b.use_count || 0))));
-      const toEvict = sorted.slice(0, sorted.length - PER_WORKER_CAP).map(r => r.id);
-      if (toEvict.length) {
-        await db.from("agent_episodic_memory").delete().in("id", toEvict);
-        evicted += toEvict.length;
-      }
-    }
-  }
-  // Hive-level eviction
-  if (hiveId) {
-    // canonical-allow: hive-level LRU eviction scan, agent infra
-    const { data } = await db.from("agent_episodic_memory")
-      .select("id, importance, use_count")
-      .eq("hive_id", hiveId);
-    if ((data || []).length > PER_HIVE_CAP) {
-      const sorted = (data || []).slice().sort((a, b) =>
-        ((a.importance || 0) * Math.log(1 + (a.use_count || 0))) -
-        ((b.importance || 0) * Math.log(1 + (b.use_count || 0))));
-      const toEvict = sorted.slice(0, sorted.length - PER_HIVE_CAP).map(r => r.id);
-      if (toEvict.length) {
-        await db.from("agent_episodic_memory").delete().in("id", toEvict);
-        evicted += toEvict.length;
-      }
-    }
-  }
-  return evicted;
-}
-
-async function store(
-  db: SupabaseClient,
-  hiveId: string | null,
-  workerName: string | null,
-  memories: StoreInput[],
-): Promise<{ written: number; evicted: number; errors: string[] }> {
-  const errors: string[] = [];
-  const rows = memories.slice(0, MAX_STORE_BATCH).map(m => ({
-    hive_id:         hiveId,
-    worker_name:     workerName,
-    memory_type:     m.memory_type,
-    content:         String(m.content || "").slice(0, MAX_CONTENT_CHARS),
-    embedding:       null,
-    importance:      Math.min(1, Math.max(0, Number(m.importance ?? 0.5))),
-    use_count:       0,
-    last_used_at:    null,
-    source_trace_id: m.source_trace_id || null,
-  })).filter(r => r.content && MEMORY_TYPES.includes(r.memory_type as MemoryType));
-
-  if (!rows.length) return { written: 0, evicted: 0, errors: ["no valid memories in payload"] };
-
-  const { data, error } = await db.from("agent_episodic_memory").insert(rows).select("id");
-  if (error) errors.push(error.message);
-
-  const evicted = await evictIfOverCap(db, hiveId, workerName);
-  return { written: (data || []).length, evicted, errors };
-}
+// RECALL / STORE / EVICTION primitives now live in _shared/episodic-memory.ts
+// (recallEpisodic, persistEpisodic, evictIfOverCap). This fn is the HTTP face.
 
 // ── Server entry ─────────────────────────────────────────────────────────────
 
@@ -226,14 +104,14 @@ serve(async (req) => {
       ? body.memory_types.filter((t): t is MemoryType => (MEMORY_TYPES as readonly string[]).includes(t))
       : (MEMORY_TYPES as unknown as MemoryType[]);
     const limit = Math.min(MAX_RECALL_LIMIT, Math.max(1, Number(body.limit ?? 5)));
-    const memories = await recall(db, hiveId, workerName, memoryTypes, limit);
+    const memories = await recallEpisodic(db, hiveId, workerName, { memoryTypes, limit, query: body.query });
     return new Response(JSON.stringify({ ok: true, memories }), {
       status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   }
 
   // store
-  const result = await store(db, hiveId, workerName, body.memories || []);
+  const result = await persistEpisodic(db, hiveId, workerName, body.memories || []);
   return new Response(JSON.stringify({ ok: result.errors.length === 0, ...result }), {
     status: result.errors.length ? 500 : 200,
     headers: { ...corsHeaders, "Content-Type": "application/json" },

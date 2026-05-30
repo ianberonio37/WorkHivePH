@@ -550,6 +550,35 @@ VALIDATORS = [
         "skip_if_fast": False,
     },
     {
+        # 2026-05-30 — memory-stack flywheel Turn 1 (layer 02 Episodic). Keeps the
+        # durable agent_episodic_memory layer (Phase 7) wired into the live
+        # gateway path: recallEpisodic before forward + persistEpisodic after,
+        # via the single-source-of-truth _shared/episodic-memory.ts. Guards
+        # against a refactor silently re-orphaning the episodic layer (it was
+        # dead substrate — table + CRUD fn existed, gateway never called them).
+        "id":      "episodic-memory-wiring",
+        "script":  "validate_episodic_memory_wiring.py",
+        "args":    [],
+        "label":   "Episodic Memory Wiring (agent_episodic_memory recall+persist stays wired into ai-gateway; forward-only ratchet)",
+        "group":   "Platform",
+        "report":  "episodic_memory_wiring_report.json",
+        "skip_if_fast": False,
+    },
+    {
+        # 2026-05-30 — memory-stack flywheel Turn 2 (layer 07 Shared Memory).
+        # Keeps the verified-state / conflict-resolution surface over
+        # unified_events (v_asset_state_truth, resolved by source trust
+        # precedence then recency) wired through _shared/verified-state.ts into
+        # the gateway. Guards "one truth, every agent aligned" from regression.
+        "id":      "verified-state-wiring",
+        "script":  "validate_verified_state_wiring.py",
+        "args":    [],
+        "label":   "Verified-State Wiring (v_asset_state_truth conflict resolution stays wired into ai-gateway; forward-only ratchet)",
+        "group":   "Platform",
+        "report":  "verified_state_wiring_report.json",
+        "skip_if_fast": False,
+    },
+    {
         # 2026-05-20 — every getElementById('X')/querySelector('#X') must
         # match an HTML element with id=X. Sibling of orphan-kpi-tiles
         # (which finds the opposite: HTML elements with no JS setter).
