@@ -34,8 +34,22 @@ serve(async (req) => {
       );
     }
 
-    // Generate embedding for the user's query
-    const embedding = await generateEmbedding(query);
+    // Generate embedding for the user's query. RAG retrieval is an ENHANCEMENT,
+    // never the critical path (mirrors the reranker doctrine in embedding-chain.ts):
+    // if every embedding provider is unconfigured/down/rate-limited, degrade to
+    // "no context" with HTTP 200 instead of 500'ing the whole assistant turn.
+    // (2026-05-30: discovered semantic-search 500'ing on every chat because the
+    // embedding keys were never deployed as secrets — generateEmbedding threw.)
+    let embedding: number[];
+    try {
+      embedding = await generateEmbedding(query);
+    } catch (err) {
+      console.warn(`[semantic-search] embedding unavailable — returning empty RAG context: ${err instanceof Error ? err.message : String(err)}`);
+      return new Response(
+        JSON.stringify({ results: {}, context: "No relevant history found in knowledge base yet." }),
+        { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
 
     const db = createClient(
       Deno.env.get("SUPABASE_URL")!,
