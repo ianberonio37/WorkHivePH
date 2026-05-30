@@ -9,9 +9,19 @@ interface ProviderEntry {
   baseUrl: string;
   model: string;
   envKey: string;
-  maxTokensCap?: number;        // hard cap for providers with context limits
+  maxTokensCap?: number;        // hard cap on OUTPUT tokens for providers with small context
+  contextCap?: number;          // TOTAL context window (in + out). Used for the pre-skip below. Omit = effectively unlimited.
   extraHeaders?: Record<string, string>;
   vision?: boolean;             // true if this model accepts image_url content blocks
+}
+
+// Rough token estimate (~4 chars/token, the standard heuristic for English +
+// light JSON). Used only for the context-fit pre-skip — it never needs to be
+// exact, just conservative enough to catch a prompt that provably won't fit a
+// small-context model before we waste a round-trip discovering the 413.
+export function estimateTokens(text: string): number {
+  if (!text) return 0;
+  return Math.ceil(text.length / 4);
 }
 
 const PROVIDER_CHAIN: ProviderEntry[] = [
@@ -33,11 +43,26 @@ const PROVIDER_CHAIN: ProviderEntry[] = [
   // NOTE 2026-05-18: the first two entries 404'd on accounts without access.
   // Fallback `llama3.1-8b` is broadly available on free tier. Mirror with
   // Python tools/ai_chain.py.
-  { provider: "cerebras", baseUrl: "https://api.cerebras.ai/v1", model: "llama-3.3-70b", envKey: "CEREBRAS_API_KEY", maxTokensCap: 4096 },
-  { provider: "cerebras", baseUrl: "https://api.cerebras.ai/v1", model: "qwen-3-32b",    envKey: "CEREBRAS_API_KEY", maxTokensCap: 4096 },
-  { provider: "cerebras", baseUrl: "https://api.cerebras.ai/v1", model: "llama3.1-8b",   envKey: "CEREBRAS_API_KEY", maxTokensCap: 4096 },
+  { provider: "cerebras", baseUrl: "https://api.cerebras.ai/v1", model: "llama-3.3-70b", envKey: "CEREBRAS_API_KEY", maxTokensCap: 4096, contextCap: 8192 },
+  { provider: "cerebras", baseUrl: "https://api.cerebras.ai/v1", model: "qwen-3-32b",    envKey: "CEREBRAS_API_KEY", maxTokensCap: 4096, contextCap: 8192 },
+  { provider: "cerebras", baseUrl: "https://api.cerebras.ai/v1", model: "llama3.1-8b",   envKey: "CEREBRAS_API_KEY", maxTokensCap: 4096, contextCap: 8192 },
 
-  // ── Tier 3: OpenRouter — :free models, $0/token, 200 req/day ────────────────
+  // NOTE: SambaNova was evaluated (FreeLLMAPI lists it) but REJECTED — its free
+  // tier is $5 of credits that expire in 30 days, not a permanently-free tier.
+  // Violates the no-expiring-credits rule (validate_groq_fallback.py L4).
+
+  // ── Tier 3: Google Gemini — OpenAI-compat endpoint, 250K TPM, vision ────────
+  // Low RPD on the free tier so it sits mid-chain; high quality + multimodal.
+  // Use an AI Studio key (aistudio.google.com), NOT a GCP Console key (limit:0).
+  { provider: "google", baseUrl: "https://generativelanguage.googleapis.com/v1beta/openai", model: "gemini-2.5-flash",      envKey: "GEMINI_API_KEY", vision: true },
+  { provider: "google", baseUrl: "https://generativelanguage.googleapis.com/v1beta/openai", model: "gemini-2.5-flash-lite", envKey: "GEMINI_API_KEY", vision: true },
+
+  // ── Tier 4: Mistral — 500K TPM but only 2 RPM, OpenAI-compatible ────────────
+  // Codestral is strong for code / SQL generation (see TASK_PROFILES).
+  { provider: "mistral", baseUrl: "https://api.mistral.ai/v1", model: "mistral-large-latest", envKey: "MISTRAL_API_KEY" },
+  { provider: "mistral", baseUrl: "https://api.mistral.ai/v1", model: "codestral-latest",     envKey: "MISTRAL_API_KEY" },
+
+  // ── Tier 5: OpenRouter — :free models, $0/token, 200 req/day ────────────────
   // Gemma 3/4 family supports vision via OpenAI-compatible image_url blocks.
   { provider: "openrouter", baseUrl: "https://openrouter.ai/api/v1", model: "nvidia/nemotron-3-super-120b-a12b:free",    envKey: "OPENROUTER_API_KEY", extraHeaders: { "HTTP-Referer": "https://workhiveph.com", "X-Title": "WorkHive" } },
   { provider: "openrouter", baseUrl: "https://openrouter.ai/api/v1", model: "google/gemma-4-31b-it:free",                envKey: "OPENROUTER_API_KEY", extraHeaders: { "HTTP-Referer": "https://workhiveph.com", "X-Title": "WorkHive" }, vision: true },
@@ -90,27 +115,49 @@ import {
   recordSlotFailure,
   recordSlotSuccess,
   isSlotBlocked,
+  getSlotPenalty,
+  getStickyModel,
+  setStickyModel,
 } from "./provider-health.ts";
 
 
 export function reorderChain(taskProfile?: string): ProviderEntry[] {
-  if (!taskProfile) return PROVIDER_CHAIN;
-  const preferred = TASK_PROFILES[taskProfile];
-  if (!preferred || !preferred.length) return PROVIDER_CHAIN;
-
-  const matched: ProviderEntry[] = [];
-  const rest:    ProviderEntry[] = [];
-  for (const entry of PROVIDER_CHAIN) {
-    const isPreferred = preferred.some(p => entry.model.toLowerCase().includes(p.toLowerCase()));
-    if (isPreferred) matched.push(entry); else rest.push(entry);
+  // ── Step 1: task-profile ordering (or the static chain) ──────────────────
+  // Always build a NEW array — never return/mutate the PROVIDER_CHAIN const.
+  let ordered: ProviderEntry[];
+  const preferred = taskProfile ? TASK_PROFILES[taskProfile] : undefined;
+  if (!preferred || !preferred.length) {
+    ordered = [...PROVIDER_CHAIN];
+  } else {
+    const matched: ProviderEntry[] = [];
+    const rest:    ProviderEntry[] = [];
+    for (const entry of PROVIDER_CHAIN) {
+      const isPreferred = preferred.some(p => entry.model.toLowerCase().includes(p.toLowerCase()));
+      if (isPreferred) matched.push(entry); else rest.push(entry);
+    }
+    // Within matched: keep the order specified in `preferred` (most preferred first).
+    matched.sort((a, b) => {
+      const ai = preferred.findIndex(p => a.model.toLowerCase().includes(p.toLowerCase()));
+      const bi = preferred.findIndex(p => b.model.toLowerCase().includes(p.toLowerCase()));
+      return ai - bi;
+    });
+    ordered = [...matched, ...rest];
   }
-  // Within matched: keep the order specified in `preferred` (most preferred first).
-  matched.sort((a, b) => {
-    const ai = preferred.findIndex(p => a.model.toLowerCase().includes(p.toLowerCase()));
-    const bi = preferred.findIndex(p => b.model.toLowerCase().includes(p.toLowerCase()));
-    return ai - bi;
-  });
-  return [...matched, ...rest];
+
+  // ── Step 2: live demotion by slot penalty (FreeLLMAPI dynamic-priority) ───
+  // Stable-sort by current slot penalty so a recently-429'd provider sinks in
+  // the order WITHOUT being hard-skipped (hard skip is isSlotBlocked's job).
+  // Snapshot the penalty once per slot first, because getSlotPenalty applies
+  // time-decay on read — calling it inside the comparator would make the sort
+  // comparator non-deterministic. Array.prototype.sort is stable in V8/Deno,
+  // so when every slot is healthy (penalty 0) the order is byte-identical to
+  // step 1 — this layer is a no-op until something actually fails.
+  const penalty = new Map<string, number>();
+  for (const e of ordered) {
+    if (!penalty.has(e.provider)) penalty.set(e.provider, getSlotPenalty(e.provider));
+  }
+  ordered.sort((a, b) => penalty.get(a.provider)! - penalty.get(b.provider)!);
+  return ordered;
 }
 
 /**
@@ -153,15 +200,32 @@ export async function callAI(
     maxTokens?: number;
     jsonMode?: boolean;
     taskProfile?: string;
+    sessionKey?: string;   // multi-turn affinity — pin this conversation to one model (~30min)
   } = {}
 ): Promise<string> {
-  const { systemPrompt, temperature = 0.2, maxTokens = 1024, jsonMode = true, taskProfile } = options;
+  const { systemPrompt, temperature = 0.2, maxTokens = 1024, jsonMode = true, taskProfile, sessionKey } = options;
 
   const messages = systemPrompt
     ? [{ role: "system", content: systemPrompt }, { role: "user", content: prompt }]
     : [{ role: "user", content: prompt }];
 
-  for (const entry of reorderChain(taskProfile)) {
+  // Sticky session: if this conversation already has a pinned model and it is
+  // still in the chain, try it FIRST. isSlotBlocked below still wins, so a
+  // hard-blocked pin falls through and the conversation re-pins on the next
+  // success. When sessionKey is absent this is a no-op (chain order unchanged).
+  const chain = reorderChain(taskProfile);
+  if (sessionKey) {
+    const sticky = getStickyModel(sessionKey);
+    if (sticky) {
+      const idx = chain.findIndex(e => e.provider === sticky.provider && e.model === sticky.model);
+      if (idx > 0) {
+        const [pinned] = chain.splice(idx, 1);
+        chain.unshift(pinned);
+      }
+    }
+  }
+
+  for (const entry of chain) {
     const apiKey = Deno.env.get(entry.envKey);
     if (!apiKey) continue;
 
@@ -171,6 +235,19 @@ export async function callAI(
     const effectiveMaxTokens = entry.maxTokensCap
       ? Math.min(maxTokens, entry.maxTokensCap)
       : maxTokens;
+
+    // Token-aware pre-skip (FreeLLMAPI canUseTokens idea, 2026-05-30): if this
+    // model's total context window provably can't fit prompt + output, skip it
+    // here instead of wasting a round-trip to discover the 413. Only applies to
+    // entries that declare a contextCap (small-context models like Cerebras);
+    // no-op for everything else. 256t margin covers chat-template overhead.
+    if (entry.contextCap) {
+      const estPromptTokens = estimateTokens((systemPrompt ?? "") + prompt);
+      if (estPromptTokens + effectiveMaxTokens + 256 > entry.contextCap) {
+        console.warn(`[ai-chain] ${entry.provider}/${entry.model} pre-skipped (prompt ~${estPromptTokens}t + ${effectiveMaxTokens}t out > ${entry.contextCap}t context)`);
+        continue;
+      }
+    }
 
     try {
       const res = await fetch(`${entry.baseUrl}/chat/completions`, {
@@ -215,6 +292,9 @@ export async function callAI(
         if (stripped) {
           console.log(`[ai-chain] served by ${entry.provider} / ${entry.model}`);
           recordSlotSuccess(entry.provider);
+          // Pin this conversation to the model that just served it so the next
+          // turn stays on the same model (no-op when sessionKey is absent).
+          if (sessionKey) setStickyModel(sessionKey, entry.provider, entry.model);
           return stripped;
         }
         // Reasoning model emitted only a think block with no usable answer —
@@ -225,7 +305,7 @@ export async function callAI(
       }
     } catch (err) {
       console.warn(`[ai-chain] ${entry.provider}/${entry.model} threw: ${String(err).slice(0, 80)}`);
-      recordProviderFailure(entry);
+      recordSlotFailure(entry.provider);
     }
   }
 

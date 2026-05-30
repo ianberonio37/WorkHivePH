@@ -3,8 +3,9 @@ Python mirror of supabase/functions/_shared/ai-chain.ts
 
 WHY THIS EXISTS:
 The platform's TypeScript edge functions route every AI call through a
-14-model fallback chain (6 Groq models -> 2 Cerebras -> 6 OpenRouter :free
-models). The Python side previously had a 3-model shortcut that would blow
+19-model fallback chain (6 Groq -> 3 Cerebras -> 2 Gemini -> 2 Mistral ->
+6 OpenRouter :free). The Python side previously had a 3-model
+shortcut that would blow
 through Groq's 30-req/min limit, exhaust 1 Cerebras model, and then dead-end
 because OpenRouter wasn't always keyed.
 
@@ -82,7 +83,19 @@ PROVIDER_CHAIN = [
     # against historical 404s on the two entries above).
     {"provider": "cerebras", "base_url": "https://api.cerebras.ai/v1",       "model": "llama3.1-8b",                               "env_key": "CEREBRAS_API_KEY", "max_tokens_cap": 4096},
 
-    # ── Tier 3: OpenRouter — :free models, $0/token, 200 req/day ─────────────
+    # NOTE: SambaNova was evaluated (FreeLLMAPI lists it) but REJECTED — its
+    # free tier is $5 of credits that expire in 30 days, not permanently free.
+
+    # ── Tier 3: Google Gemini — OpenAI-compat endpoint, 250K TPM, vision ──────
+    # Use an AI Studio key (aistudio.google.com), NOT a GCP Console key (limit:0).
+    {"provider": "google",   "base_url": "https://generativelanguage.googleapis.com/v1beta/openai", "model": "gemini-2.5-flash",      "env_key": "GEMINI_API_KEY"},
+    {"provider": "google",   "base_url": "https://generativelanguage.googleapis.com/v1beta/openai", "model": "gemini-2.5-flash-lite", "env_key": "GEMINI_API_KEY"},
+
+    # ── Tier 4: Mistral — 500K TPM but only 2 RPM, OpenAI-compatible ──────────
+    {"provider": "mistral",  "base_url": "https://api.mistral.ai/v1",        "model": "mistral-large-latest",                      "env_key": "MISTRAL_API_KEY"},
+    {"provider": "mistral",  "base_url": "https://api.mistral.ai/v1",        "model": "codestral-latest",                          "env_key": "MISTRAL_API_KEY"},
+
+    # ── Tier 5: OpenRouter — :free models, $0/token, 200 req/day ─────────────
     {"provider": "openrouter", "base_url": "https://openrouter.ai/api/v1",  "model": "nvidia/nemotron-3-super-120b-a12b:free",    "env_key": "OPENROUTER_API_KEY", "extra_headers": {"HTTP-Referer": "https://workhiveph.com", "X-Title": "WorkHive"}},
     {"provider": "openrouter", "base_url": "https://openrouter.ai/api/v1",  "model": "google/gemma-4-31b-it:free",                "env_key": "OPENROUTER_API_KEY", "extra_headers": {"HTTP-Referer": "https://workhiveph.com", "X-Title": "WorkHive"}},
     {"provider": "openrouter", "base_url": "https://openrouter.ai/api/v1",  "model": "openai/gpt-oss-120b:free",                  "env_key": "OPENROUTER_API_KEY", "extra_headers": {"HTTP-Referer": "https://workhiveph.com", "X-Title": "WorkHive"}},
