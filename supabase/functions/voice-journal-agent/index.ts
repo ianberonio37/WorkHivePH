@@ -172,6 +172,8 @@ serve(async (req) => {
       temperature:  0.55,
       maxTokens:    MAX_TOKENS_OUT,
       jsonMode:     false,
+      // Sticky session (set by ai-gateway): keep this companion thread on one model.
+      sessionKey:   typeof body.session_key === "string" ? body.session_key : undefined,
     });
 
     const trimmed = String(answer || "").trim();

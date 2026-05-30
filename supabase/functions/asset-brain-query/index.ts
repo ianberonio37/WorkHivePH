@@ -549,6 +549,8 @@ serve(async (req) => {
         temperature:  0.2,
         maxTokens:    MAX_TOKENS_OUT,
         jsonMode:     true,
+        // Sticky session (set by ai-gateway): keep this conversation on one model.
+        sessionKey:   typeof body.session_key === "string" ? body.session_key : undefined,
       });
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);

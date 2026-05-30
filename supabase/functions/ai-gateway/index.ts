@@ -362,6 +362,13 @@ serve(async (req) => {
   // {project}.supabase.co/functions/v1.
   const targetUrl = `${SUPABASE_URL}/functions/v1/${route.fn}`;
 
+  // Sticky-session key for the downstream callAI chain (FreeLLMAPI borrow #3):
+  // pins a multi-turn conversation to one model for ~30min. Built ONLY from
+  // non-PII identifiers (hive UUID + agent role + auth UUID) — never the real
+  // worker_name, which is redacted out of the forwarded body below. Anon
+  // callers (no authUid) get no key, so the chain behaves exactly as before.
+  const session_key = authUid ? `${hive_id || "nohive"}:${agent}:${authUid}` : undefined;
+
   let agentRespText = "";
   let agentStatus = 0;
   try {
@@ -385,6 +392,7 @@ serve(async (req) => {
         worker_name: "<redacted>",       // agents must NOT see real name
         memory:     memory_block,        // pre-formatted context block
         gateway:    true,                // sentinel for downstream
+        session_key,                     // opaque sticky-session key (undefined for anon → omitted)
       }),
     });
     agentStatus = resp.status;
