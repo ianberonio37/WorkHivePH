@@ -360,6 +360,16 @@ def main() -> int:
     turn_record = _run_turn(reset=args.reset)
     _write_report_md(turn_record)
 
+    # Retrospection stage (SELF_IMPROVING_GATE_ROADMAP.md P1): fold the latest
+    # gate output into the efficacy ledger. Best-effort + fully isolated — this
+    # reporting tool stays exit-0, and the gate's verdicts are never touched.
+    try:
+        import subprocess
+        subprocess.run([sys.executable, str(ROOT / "tools" / "gate_efficacy_ledger.py"), "update"],
+                       timeout=30, capture_output=True)
+    except Exception:
+        pass
+
     if args.json:
         print(json.dumps(turn_record, indent=2))
     else:
