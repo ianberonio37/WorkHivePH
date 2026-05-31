@@ -25,6 +25,7 @@ from validator_utils import read_file, format_result
 
 EDGE_FN = os.path.join("supabase", "functions", "cold-archive-query", "index.ts")
 MODULE  = os.path.join("supabase", "functions", "_shared", "cold-archive.ts")
+LOOP_FN = os.path.join("supabase", "functions", "agentic-rag-loop", "index.ts")
 
 
 def _read_fn() -> str:  return read_file(EDGE_FN) or ""
@@ -92,6 +93,25 @@ def check_contract(src: str) -> list[dict]:
     return issues
 
 
+def check_loop_wiring() -> list[dict]:
+    # Router→cold_archive must actually CALL cold-archive-query (it used to
+    # dead-end: the live lanes skip on cold_archive but nothing fetched the
+    # archive). And the call must graceful-degrade (empty/failed archive read
+    # demotes the route so live lanes still run).
+    if not os.path.isfile(LOOP_FN):
+        return [{"check": "loop_wiring", "reason": f"{LOOP_FN} not found"}]
+    src  = read_file(LOOP_FN) or ""
+    flat = src.replace(" ", "").replace("\n", "")
+    issues = []
+    if '"cold-archive-query"' not in src:
+        issues.append({"check": "loop_wiring", "reason": "agentic-rag-loop must invoke cold-archive-query (it promotes route=cold_archive but must now CALL it)"})
+    if "fetchColdArchiveChunks" not in src:
+        issues.append({"check": "loop_wiring", "reason": "agentic-rag-loop must convert archive rows to chunks (fetchColdArchiveChunks)"})
+    if 'route="semantic"' not in flat:
+        issues.append({"check": "loop_wiring", "reason": "cold_archive lane must graceful-degrade (route = \"semantic\") on empty/failed archive read"})
+    return issues
+
+
 CHECKS = [
     ("module",          "W01 cold-archive.ts exists + exports helpers",   check_module),
     ("hyparquet_import","W02 imports hyparquet + compressors",            lambda: check_hyparquet_import(_read_fn())),
@@ -100,6 +120,7 @@ CHECKS = [
     ("table_file",      "W05 TABLE_FILE maps voice_journal_entries",      lambda: check_table_file_map(_read_fn())),
     ("bounds",          "W06 MAX_QUARTERS + LIMIT_CAP bounds",            lambda: check_bounds(_read_fn())),
     ("contract",        "W07 ok:true success path, no 503",               lambda: check_contract(_read_fn())),
+    ("loop_wiring",     "W08 agentic-rag-loop calls cold-archive-query + degrades", check_loop_wiring),
 ]
 
 

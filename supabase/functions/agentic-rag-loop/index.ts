@@ -369,6 +369,26 @@ async function retrieverStage(
   // JS default parameters only apply to undefined, not explicit null.
   const scope = timeScope || { from: null, to: null };
 
+  // ── Lane F: cold archive (Phase 6 wiring) ──────────────────────────────────
+  // route="cold_archive" means a >18mo question — the live tables don't hold the
+  // data. Pull the archived Parquet rows and let them BE the grounding (the live
+  // lanes below stay skipped while route is cold_archive). Graceful degrade: an
+  // empty or failed archive read demotes the route to "semantic" so the live
+  // lanes still run — an archive miss must never silently kill grounding.
+  if (route === "cold_archive" && hiveId) {
+    try {
+      const archived = await fetchColdArchiveChunks(hiveId, assetTag, scope);
+      if (archived.length) {
+        chunks.push(...archived);
+      } else {
+        route = "semantic";
+      }
+    } catch (err) {
+      console.warn("[agentic-rag-loop] cold-archive lane failed:", String(err).slice(0, 100));
+      route = "semantic";
+    }
+  }
+
   // ── Item 2: Lane C — hierarchical period summaries (Phase 2 integration)
   // Highest-signal pre-digested rows. Pull these FIRST so the grader prefers
   // them over raw logbook lanes when both have hits.
@@ -950,6 +970,54 @@ async function delegateToTemporal(
   if (scope.from) body.from     = scope.from;
   if (scope.to)   body.to       = scope.to;
   return await invokeEdgeFn<TemporalDelegateResponse>("temporal-rag-orchestrator", body);
+}
+
+// ── Router→Cold-Archive wiring (Phase 6) ─────────────────────────────────────
+// The Router promotes >18mo questions to route="cold_archive" but, until now,
+// nothing CALLED cold-archive-query — the live retrieval lanes simply skip on
+// that route, so the question dead-ended to "no records". This pulls the
+// archived Parquet rows (via cold-archive-query) and converts them to chunks so
+// the Generator can ground on real history. Returns [] on any miss so the caller
+// can gracefully degrade to the live lanes (an archive miss must never kill the
+// answer).
+const COLD_ARCHIVE_CHUNK_CAP = 12;
+
+interface ColdArchiveResponse {
+  ok:        boolean;
+  rows?:     Array<Record<string, unknown>>;
+  row_count?: number;
+  reason?:   string;
+}
+
+async function fetchColdArchiveChunks(
+  hiveId: string,
+  assetTag: string | null,
+  scope: { from: string | null; to: string | null },
+): Promise<Chunk[]> {
+  if (!scope.from) return [];
+  const body: Record<string, unknown> = {
+    hive_id:    hiveId,
+    table:      "logbook",
+    time_range: { from: scope.from, to: scope.to || new Date().toISOString().slice(0, 10) },
+    limit:      COLD_ARCHIVE_CHUNK_CAP,
+  };
+  if (assetTag) body.asset_tag = assetTag;
+
+  const resp = await invokeEdgeFn<ColdArchiveResponse>("cold-archive-query", body);
+  if (!resp?.ok || !Array.isArray(resp.rows) || !resp.rows.length) return [];
+
+  return resp.rows.slice(0, COLD_ARCHIVE_CHUNK_CAP).map((row, i) => {
+    const r = row as Record<string, unknown>;
+    const date = String(r.created_at || r.logged_at || "").slice(0, 10);
+    return {
+      id:         `cold#${r.id ?? i}`,
+      source:     "cold_archive:logbook",
+      source_id:  String(r.id ?? `${date}-${i}`),
+      text:       `[archived ${date} ${r.machine || "?"} ${r.maintenance_type || ""}] cause: ${r.root_cause || "n/a"}; action: ${r.action || "n/a"}; problem: ${r.problem || "n/a"}; status: ${r.status || "?"}`.slice(0, 500),
+      metadata:   { created_at: r.created_at, machine: r.machine, archived: true },
+      similarity: 0.7,   // archived history is authoritative for the asked >18mo window
+    } as Chunk;
+  });
 }
 
 // ── Item 2: Lane C — hierarchical period summaries (Phase 2 integration) ─────
