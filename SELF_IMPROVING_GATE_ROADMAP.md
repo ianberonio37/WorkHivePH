@@ -37,7 +37,7 @@ runtime and gets `--no-verify`'d into irrelevance.
 
 ---
 
-## 1. The two tracks
+## 1. The three tracks
 
 - **Track A — Self-Improving Gate:** give the gate the four missing senses (efficacy, decay, noise
   classification, promotion) so it reshapes itself.
@@ -45,9 +45,13 @@ runtime and gets `--no-verify`'d into irrelevance.
   (and validator/baseline edits) — the three transferable ideas from the SkillOpt pipeline:
   **(i) held-out validation split, (ii) edit accept/reject gate + `best_skill.md` checkpoint +
   rejected-edit buffer, (iii) helped/failed efficacy ledger.**
+- **Track C — Domain instantiation (one spine, three faces):** the same self-improving spine,
+  instantiated as **distinct-but-interconnected** gates — **General · SaaS · AI** — each a rule/eval
+  pack with its own reweighted scorecard, stitched at the seams by a meta-gate. Full design in §8.
 
-They converge: Track A's efficacy ledger *is* Track B's "which edits helped" meta-signal, and Track
-B's held-out split *is* the validation rigour Track A's promotion gate needs.
+They converge: Track A's efficacy ledger *is* Track B's "which edits helped" meta-signal, Track
+B's held-out split *is* the validation rigour Track A's promotion gate needs, and Track C is what
+both A and B run *across* — three domains sharing one engine and one ledger.
 
 ---
 
@@ -309,3 +313,109 @@ The Mega Gate is self-improving when, **without a human mining or authoring from
 
 That last point is the whole goal: human attention moves entirely to judgment, which is exactly where
 it is worth most.
+
+---
+
+## 8. Track C — Domain instantiation: one spine, three faces
+
+The General Mega Gate is the *base*. The platform also needs gates tailored for the **Full-Stack
+SaaS** domain and the **AI** domain — distinct, but interconnected. The failure mode to avoid is
+building **three gates that fork and rot independently** (triple maintenance, conflicting verdicts, a
+shared fix that lands in one and not the others). The correct shape is **one spine, three faces.**
+
+```
+                 ┌─────────── META-GATE (composition + seams) ───────────┐
+                 │   rolls up 3 scorecards · guards the boundaries        │
+                 └──────┬───────────────┬───────────────┬────────────────┘
+         ┌──────────────▼──┐  ┌─────────▼────────┐  ┌───▼──────────────┐
+         │  GENERAL gate   │  │   SaaS gate      │  │    AI gate       │
+         │  (rule-pack)    │  │  (rule-pack)     │  │  (EVAL-pack)     │
+         └──────────────┬──┘  └─────────┬────────┘  └───┬──────────────┘
+                 ┌──────▼──────────────────▼───────────────▼──────┐
+                 │  SHARED SPINE (the self-improving engine, P1–P8)│
+                 │  efficacy ledger · promotion · decay · noise ·  │
+                 │  macro-loop · scorecard · held-out splits       │
+                 └─────────────────────────────────────────────────┘
+```
+
+- **One spine** = the P1–P8 engine. Built once, domain-agnostic.
+- **Three packs** plug in, each with its **own reweighted scorecard** and **own verdict source**, but
+  emitting the **same verdict shape** (`{id, status, elapsed, domain, dimension}`) into **one shared
+  efficacy ledger** and **one promotion queue.**
+- **Interconnection** = cross-gate promotion edges + a **meta-gate** that guards the seams. That is
+  what makes them *distinct-but-interconnected* rather than three silos.
+
+### Existing assets already map to all three
+| Gate | Scope | You already have |
+|---|---|---|
+| **General** | cross-cutting invariants | the 330 G0 validators + canonical board |
+| **SaaS** | tenant isolation, billing/entitlements, migrations, compliance, SLOs | multitenant/RLS validators, enterprise-compliance (audit logs, PDPA), marketplace, `RELEASE_GATE_*`, Grafana/Sentry MCPs |
+| **AI** | evals, grounding, drift, cost, safety | companion/RAG flywheel probes, `ai-eval-runner`, `cost-log`, `provider-health`, held-out split (P6) |
+
+Not three new things — **three faces of what's already built.**
+
+### The scorecard reweights per domain (and AI gets two more axes)
+| Dimension | General | SaaS | AI |
+|---|---|---|---|
+| Usability | ●● | ●● | ● |
+| Functionality | ●●● | ●● | ●●● |
+| Adaptability | ●● | ●●● (migrations) | ●● (model-swap) |
+| Internal control | ●● | ●●● (isolation, compliance) | ●●● |
+| **+ Safety/Trust** (AI) | — | ● | ●●● (hallucination, jailbreak, grounding, bias) |
+| **+ Cost/Efficiency** (AI) | — | ● | ●●● (token cost, latency, provider fallback) |
+
+### Eight design notes (what a naive "copy the gate 3×" would miss)
+1. **The AI gate is eval-based, not assert-based** — a category difference. You don't assert
+   "correct"; you **score against a golden set with a tolerance and track the delta** (LLM-as-judge +
+   deterministic metrics). The held-out split (P6) is *optional* for General/SaaS but the **native
+   unit** for AI. The companion/RAG probes are proto-evals — graduate them.
+2. **AI degrades with zero code change** — drift (provider silently updates the model, data shifts,
+   prompts rot). A change-triggered gate can't catch it → the AI gate must also run **on a clock**
+   (Retrospection on a schedule) with a periodically-refreshed golden set.
+3. **The gate must extend past the deploy line** — SaaS SLOs and AI quality live in production.
+   Add **runtime fitness functions** (tenant-isolation canaries, SLO monitors, AI-drift + cost-anomaly
+   alarms) on the Grafana/Sentry substrate. Pre-deploy static checks can't see a model that degraded
+   overnight.
+4. **The seams are the highest-risk, least-covered surface.** SaaS→AI calls, AI→tenant-data reads,
+   billing→entitlement→AI-quota. A seam bug passes all three domain gates individually and breaks the
+   composition → **consumer-driven contract tests** at each seam, owned by the meta-gate.
+   **Per-domain green ≠ system green.**
+5. **AI's non-code assets aren't versioned like schema is.** Prompts, model IDs, eval sets, skill
+   docs are the "trainable" artifacts (the SkillOpt insight) — give them the **same baseline /
+   version / rollback discipline** migrations already have.
+6. **Two extra AI dimensions, named explicitly:** **Safety/Trust** (hallucination, injection/jailbreak
+   resistance, grounding/citation, bias) and **Cost/Efficiency** (token cost, latency, provider
+   fallback economics). Don't bury them inside the original four.
+7. **A composition policy for conflicting verdicts.** When SaaS says "ship" and AI says "eval
+   regressed 3%," the meta-gate decides by **blast radius** (AI-eval regression blocks an AI-feature
+   deploy, not a CSS-only SaaS change).
+8. **One efficacy ledger, tagged `{domain, dimension}`** — never three siloed ledgers. That preserves
+   the cross-gate signal (an AI PII-leak finding promoting a SaaS security rule) and lets the
+   scorecard rebalance globally.
+
+### Prior art to borrow (you're reinventing named patterns)
+- **Fitness functions / evolutionary architecture** (Neal Ford) — the whole gate is a fitness-function
+  suite; the dimensions are its quality attributes; "compute fitness at deploy, roll back if not
+  improving" is your macro-loop's readiness stage.
+- **Eval harnesses** — promptfoo, OpenAI evals, ragas, deepeval, LangSmith (golden sets, LLM-as-judge,
+  CI regression gates, Recall@k/MRR/NDCG, hallucination/cost/latency). The AI gate.
+- **Policy-as-code** — OPA/Rego, conftest, Semgrep. The internal-control dimension.
+- **Data contracts / expectations** — Great Expectations, dbt tests, Soda. The SaaS data layer.
+
+### Track C phases (layered on the spine; P1–P8 unchanged)
+| Phase | Goal | Acceptance |
+|---|---|---|
+| **C1** | Verdict contract + tag the efficacy ledger with `{domain, dimension}` (small extension of P1) | every validator/eval emits a domain+dimension tag; the ledger reports per-domain |
+| **C2** | Stand up the **AI eval gate** as a real harness — golden sets + LLM-as-judge + regression deltas + cost/latency; add Safety + Cost dimensions | an AI eval regression (vs golden set) is detected with a delta + blocks the AI-feature path |
+| **C3** | **Scheduled + runtime fitness functions** (drift, SLO, cost anomaly) via Grafana/Sentry | the AI gate runs on a clock and flags drift with no code change; a SaaS SLO breach surfaces a finding |
+| **C4** | **Seam contract tests + the meta-gate** (composition policy + boundary guards) | a seam bug (SaaS→AI / AI→tenant data) is caught even when both domain gates are green |
+| **C5** | **Version/baseline the AI assets** (prompts, model IDs, eval sets, skill docs) like migrations | a prompt/model change carries a versioned baseline + rollback, gated like a schema change |
+
+**Recommended order:** C1 → C2 → C5 → C3 → C4. (C2 is the highest-value/most-different piece; C1 is a
+tiny prerequisite; C5 protects the assets C2 depends on; C3/C4 extend past deploy and across seams.)
+
+### Definition of done (Track C)
+Three domain gates run off one spine and one ledger; the AI gate scores against held-out goldens on a
+clock and in production; the meta-gate catches seam failures the per-domain gates miss and resolves
+conflicting verdicts by blast radius; and a single tagged scorecard shows where each domain is weak so
+the loop rebalances **across** domains, not just within one.
