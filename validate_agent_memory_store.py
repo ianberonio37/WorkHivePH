@@ -28,6 +28,7 @@ if sys.platform == "win32":
 from validator_utils import read_file, format_result
 
 FN_PATH       = os.path.join("supabase", "functions", "agent-memory-store", "index.ts")
+SHARED_PATH   = os.path.join("supabase", "functions", "_shared", "episodic-memory.ts")
 CONFIG_TOML   = os.path.join("supabase", "config.toml")
 DEPLOY_PS1    = "deploy-functions.ps1"
 EDGE_CONTRACT = "validate_edge_contracts.py"
@@ -35,7 +36,13 @@ MIGRATIONS    = os.path.join("supabase", "migrations")
 
 
 def _read() -> str:
-    return read_file(FN_PATH) or ""
+    # Turn-1 refactor (architect single-source-of-truth): the ranking, caps,
+    # memory-type vocab, content-slice and hive-scoping moved OUT of the edge fn
+    # into _shared/episodic-memory.ts, which both agent-memory-store and
+    # ai-gateway import. Validate against BOTH files so the E05-E11 checks find
+    # the logic wherever it now legitimately lives (the import is asserted in
+    # check_fn_file so the logic can't silently detach from the edge fn).
+    return (read_file(FN_PATH) or "") + "\n" + (read_file(SHARED_PATH) or "")
 
 
 def check_migration() -> list[dict]:
@@ -59,6 +66,14 @@ def check_migration() -> list[dict]:
 def check_fn_file() -> list[dict]:
     if not os.path.isfile(FN_PATH):
         return [{"check": "fn_file", "reason": f"{FN_PATH} not found"}]
+    if not os.path.isfile(SHARED_PATH):
+        return [{"check": "fn_file", "reason": f"{SHARED_PATH} not found (recall/store logic lives here)"}]
+    # The edge fn must import the shared episodic module — otherwise the ranking
+    # / caps / scoping the E05-E11 checks find in the shared file would be
+    # detached from this function (validated logic that nothing uses).
+    fn_src = read_file(FN_PATH) or ""
+    if "episodic-memory.ts" not in fn_src:
+        return [{"check": "fn_file", "reason": "agent-memory-store/index.ts must import _shared/episodic-memory.ts (single source of truth for recall/store/eviction)"}]
     return []
 
 

@@ -137,7 +137,13 @@ RE_CREATE_TABLE = re.compile(
 RE_CREATE_VIEW = re.compile(
     r"CREATE\s+(?:OR\s+REPLACE\s+)?(?:MATERIALIZED\s+)?VIEW\s+"
     r"(?:IF\s+NOT\s+EXISTS\s+)?"
-    r'(?:"?(\w+)"?\.)?"?(\w+)"?\s+AS\b',
+    r'(?:"?(\w+)"?\.)?"?(\w+)"?'
+    # optional view options clause between the name and AS, e.g.
+    #   CREATE OR REPLACE VIEW v WITH (security_invoker = true) AS ...
+    # Without this the security_invoker truth-views (v_asset_state_truth, ...)
+    # were invisible to the table-existence check (false "unknown table").
+    r"(?:\s+WITH\s*\([^)]*\))?"
+    r'\s+AS\b',
     re.IGNORECASE,
 )
 # Sentinel: register views with this column so the table_exists check passes

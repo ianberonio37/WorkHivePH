@@ -116,8 +116,21 @@ def check_callai_options() -> list[dict]:
 
 def check_callai_uses_reorder() -> list[dict]:
     src = read_file(AI_CHAIN) or ""
-    if not re.search(r"for\s*\(\s*const\s+entry\s+of\s+reorderChain\s*\(", src):
-        return [{"check": "callai_uses_reorder", "reason": "callAI body must iterate reorderChain(taskProfile), not raw PROVIDER_CHAIN"}]
+    # callAI must reorder the chain by task profile AND iterate the reordered
+    # result (not the raw PROVIDER_CHAIN const). Two equivalent forms are valid:
+    #   (a) inline:   for (const entry of reorderChain(taskProfile)) { ... }
+    #   (b) via var:  const chain = reorderChain(taskProfile); ... for (const entry of chain)
+    # Form (b) is what sticky-session pinning requires — it splices `chain` to
+    # move the pinned model to the front before iterating. The old check only
+    # accepted (a) and false-FAILed after the sticky-session refactor.
+    inline  = re.search(r"for\s*\(\s*const\s+entry\s+of\s+reorderChain\s*\(", src)
+    via_var = (re.search(r"const\s+chain\s*=\s*reorderChain\s*\(", src)
+               and re.search(r"for\s*\(\s*const\s+entry\s+of\s+chain\b", src))
+    if not (inline or via_var):
+        return [{"check": "callai_uses_reorder",
+                 "reason": "callAI body must iterate reorderChain(taskProfile) — inline "
+                           "`for (const entry of reorderChain(...))` or via "
+                           "`const chain = reorderChain(...); for (const entry of chain)` — not raw PROVIDER_CHAIN"}]
     return []
 
 
