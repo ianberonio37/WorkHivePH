@@ -1,11 +1,11 @@
 """
-Cold Lakehouse Archive Validator (Phase 6 of AGENTIC_RAG_ROADMAP.md, SCAFFOLDING)
+Cold Lakehouse Archive Validator (Phase 6 of AGENTIC_RAG_ROADMAP.md, WIRED Turn 3)
 ================================================================================
 Forward-only L0 ratchet for the cold-archive read endpoint + Python exporter.
 
   C01  cold-archive-query edge fn file exists
   C02  Edge fn declares all 4 SUPPORTED_TABLES
-  C03  Edge fn returns 503 with structured reason (scaffolding contract)
+  C03  Edge fn returns 200 ok:true on read paths (hyparquet; no 503 scaffold)
   C04  Edge fn lists available_quarters via storage.from(BUCKET).list
   C05  Hive scoping enforced (hive_id required)
   C06  Python exporter tool exists
@@ -48,13 +48,21 @@ def check_supported_tables(src: str) -> list[dict]:
     return issues
 
 
-def check_503_scaffolding(src: str) -> list[dict]:
-    # Must return 503 with a structured body containing 'reason' and 'available_quarters'
-    if "status:503" not in src.replace(" ", ""):
-        return [{"check": "scaffolding_503", "reason": "Scaffolding fn must return 503 (not 200 — there is no data yet)"}]
+def check_wired_contract(src: str) -> list[dict]:
+    # Turn 3: the 503 scaffold is gone. The fn reads Parquet via hyparquet and
+    # answers 200 ok:true on every read path (rows found, or an empty result
+    # with a reason). The "never 200+ok:false" rule is enforced by the dedicated
+    # validate_edge_status_body_consistency.py — do NOT grep for ok:false here,
+    # because this fn's own comments legitimately mention "ok:false".
+    flat = src.replace(" ", "")
+    issues = []
+    if "status:503" in flat:
+        issues.append({"check": "wired_contract", "reason": "503 scaffold must be removed — fn now reads Parquet and returns 200"})
+    if "ok:true" not in flat:
+        issues.append({"check": "wired_contract", "reason": "read paths must return ok:true (status 200)"})
     if "reason" not in src or "available_quarters" not in src:
-        return [{"check": "scaffolding_503", "reason": "Response body must include 'reason' and 'available_quarters' fields"}]
-    return []
+        issues.append({"check": "wired_contract", "reason": "Response body must include 'reason' and 'available_quarters'"})
+    return issues
 
 
 def check_lists_quarters(src: str) -> list[dict]:
@@ -118,7 +126,7 @@ def check_4place_sync() -> list[dict]:
 CHECKS = [
     ("fn_file",          "C01 cold-archive-query edge fn exists",         check_fn_file),
     ("supported_tables", "C02 SUPPORTED_TABLES declared (4 tables)",      lambda: check_supported_tables(_read_fn())),
-    ("scaffolding_503",  "C03 Scaffolding returns 503 + structured body", lambda: check_503_scaffolding(_read_fn())),
+    ("wired_contract",   "C03 Parquet read: 200 ok:true, no 503 scaffold", lambda: check_wired_contract(_read_fn())),
     ("lists_quarters",   "C04 Lists available_quarters via storage.list", lambda: check_lists_quarters(_read_fn())),
     ("hive_scoping",     "C05 hive_id required at entry",                 lambda: check_hive_scoping(_read_fn())),
     ("exporter_file",    "C06 Python exporter tool exists",               check_exporter_file),
@@ -130,7 +138,7 @@ CHECKS = [
 
 
 def main() -> int:
-    print("\033[1m\nCold Lakehouse Archive Validator (Phase 6 of AGENTIC_RAG_ROADMAP.md, scaffolding)\033[0m")
+    print("\033[1m\nCold Lakehouse Archive Validator (Phase 6 of AGENTIC_RAG_ROADMAP.md, WIRED Turn 3)\033[0m")
     print("=" * 70)
     all_issues = []
     keys = [c[0] for c in CHECKS]

@@ -144,8 +144,10 @@ export async function evictIfOverCap(
   if (hiveId)     scopes.push({ col: "hive_id",     val: hiveId,     cap: PER_HIVE_CAP });
 
   for (const s of scopes) {
-    // canonical-allow: LRU eviction scan, agent infra
-    const { data } = await db.from("agent_episodic_memory")
+    // canonical-allow: LRU eviction scan, agent infra. The full-scope scan is
+    // intentional (must see all in-scope rows to evict the lowest-value ones);
+    // the table is self-capped at PER_*_CAP by this very eviction.
+    const { data } = await db.from("agent_episodic_memory")  // unbounded-query-allow: LRU eviction full scan, self-capped
       .select("id, importance, use_count")
       .eq(s.col, s.val);
     const rows = data || [];

@@ -45,7 +45,7 @@ LOAD_BEARING = {
 
 NON_CRITICAL = {
     "audio-tts", "audio-stt",        # tightly coupled to a single page
-    "cold-archive-query",            # scaffolding
+    "cold-archive-query",            # bulk rows[] reader (hyparquet), no live deps
 }
 
 

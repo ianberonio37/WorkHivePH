@@ -35,7 +35,7 @@ CHECK_NAMES = ["envelope_conformance"]
 ENVELOPE_EXEMPT = {
     "audio-tts",            # returns audio/wav binary
     "audio-stt",            # streaming text/event-stream
-    "cold-archive-query",   # returns 503 scaffolding until DuckDB wired
+    "cold-archive-query",   # bulk rows[] reader (hyparquet) - non-envelope by design
     "voice-health",         # legacy plain-text health probe
 }
 

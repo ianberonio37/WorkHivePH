@@ -1403,14 +1403,29 @@ VALIDATORS = [
         "skip_if_fast": False,
     },
     {
-        # 2026-05-21: Phase 6 of AGENTIC_RAG_ROADMAP.md (scaffolding).
-        # cold-archive-query edge fn + tools/cold_archive_exporter.py Python
-        # tool. Quarterly Parquet export to Supabase Storage for >18-month
-        # data. Edge fn returns 503 until DuckDB-Parquet read path lands.
+        # 2026-05-21: Phase 6 of AGENTIC_RAG_ROADMAP.md.
+        # 2026-05-31 (memory-stack Turn 3): cold-archive-query is now WIRED -
+        # reads per-hive Parquet snapshots in-process via hyparquet, returns 200
+        # ok:true on read paths (the 503 scaffold is gone). Paired exporter is
+        # tools/cold_archive_exporter.py. See COLD_ARCHIVE_SCALEUP_ROADMAP.md.
         "id":      "cold-archive",
         "script":  "validate_cold_archive.py",
         "args":    [],
-        "label":   "Cold Lakehouse Archive Phase 6 (10-layer scaffolding: edge fn + 4 supported tables + 503 contract + storage list + hive scoping + Python exporter + --commit dry-run default + ARCHIVE_AGE_MONTHS=18 + no auto-delete safety + 4-place sync)",
+        "label":   "Cold Lakehouse Archive Phase 6 (10-layer contract: edge fn + 4 supported tables + 200 ok:true hyparquet read + storage list + hive scoping + Python exporter + --commit dry-run default + ARCHIVE_AGE_MONTHS=18 + no auto-delete safety + 4-place sync)",
+        "group":   "Platform",
+        "report":  None,
+        "skip_if_fast": False,
+    },
+    {
+        # 2026-05-31 (memory-stack Turn 3): asserts the cold-tier read path is
+        # genuinely wired with hyparquet (not a stub) - _shared/cold-archive.ts
+        # helpers + parquetReadObjects + storage.download + TABLE_FILE map +
+        # MAX_QUARTERS/LIMIT_CAP bounds + ok:true contract. Must pass at 0.
+        # Sibling to episodic-memory-wiring / verified-state-wiring.
+        "id":      "cold-archive-wiring",
+        "script":  "validate_cold_archive_wiring.py",
+        "args":    [],
+        "label":   "Cold Archive Wiring (Hierarchical layer: hyparquet Parquet read stays wired into cold-archive-query - _shared helpers + parquetReadObjects + bounds + ok:true)",
         "group":   "Platform",
         "report":  None,
         "skip_if_fast": False,
