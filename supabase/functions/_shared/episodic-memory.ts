@@ -19,9 +19,13 @@
 // doctrine — the Phase-7 store/recall logic previously lived only inside
 // agent-memory-store and was unreachable from the gateway).
 //
-// No LLM call in this module — pure DB mechanics, safe on the hot path.
+// Recall (the hot path) is pure DB mechanics, no network. WRITE (persistEpisodic,
+// post-response) additionally EMBEDS procedural memories best-effort (Turn 5) so
+// the skill library is semantically matchable by _shared/skill-library.ts; that
+// is the only network call here and it never blocks recall.
 
 import { SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { generateEmbedding } from "./embedding-chain.ts";
 
 export const MEMORY_TYPES = ["factual", "procedural", "episodic", "semantic"] as const;
 export type MemoryType = typeof MEMORY_TYPES[number];
@@ -185,7 +189,7 @@ export async function persistEpisodic(
     worker_name:     workerName,
     memory_type:     m.memory_type,
     content:         String(m.content || "").slice(0, MAX_CONTENT_CHARS),
-    embedding:       null,
+    embedding:       null as number[] | null,
     importance:      Math.min(1, Math.max(0, Number(m.importance ?? 0.5))),
     use_count:       0,
     last_used_at:    null,
@@ -193,6 +197,18 @@ export async function persistEpisodic(
   })).filter((r) => r.content && (MEMORY_TYPES as readonly string[]).includes(r.memory_type));
 
   if (!rows.length) return { written: 0, evicted: 0, errors: ["no valid memories in payload"] };
+
+  // Turn 5 (Procedural layer): embed PROCEDURAL memories so the skill library is
+  // semantically matchable via match_procedural_memories. Procedural-only to
+  // bound cost (other types recall by importance/keyword, no embedding needed);
+  // best-effort, so an embedding-provider miss just leaves embedding=null (a
+  // later store of the same lesson can fill it). Never throws.
+  await Promise.all(rows.map(async (r) => {
+    if (r.memory_type === "procedural" && r.content) {
+      try { r.embedding = await generateEmbedding(r.content); }
+      catch (_err) { /* leave null; enrichment / a later store can fill it */ }
+    }
+  }));
 
   const { data, error } = await db.from("agent_episodic_memory").insert(rows).select("id");
   if (error) errors.push(error.message);

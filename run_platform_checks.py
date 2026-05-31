@@ -1446,6 +1446,21 @@ VALIDATORS = [
         "skip_if_fast": False,
     },
     {
+        # 2026-05-31 (memory-stack Turn 5): the Procedural layer (layer 04) skill
+        # library + matcher is wired end to end - persistEpisodic embeds procedural
+        # memories, match_procedural_memories (RPC + idx_aem_embedding) retrieves
+        # them by cosine, _shared/skill-library.ts wraps it, and ai-gateway injects
+        # the top proven procedures for fix-oriented agents. Must pass at 0. Sibling
+        # to episodic/verified-state/cold-archive/semantic-fact wiring.
+        "id":      "skill-library-wiring",
+        "script":  "validate_skill_library_wiring.py",
+        "args":    [],
+        "label":   "Skill Library Wiring (Procedural layer: embed procedural memories + match_procedural_memories cosine RPC + _shared/skill-library.ts matcher + ai-gateway injection for fix agents)",
+        "group":   "Platform",
+        "report":  None,
+        "skip_if_fast": False,
+    },
+    {
         # 2026-05-21: RAG Flywheel processor + multi-turn loop orchestrator.
         # tools/rag_flywheel_processor.py + run_rag_flywheel_loop.py drive
         # synthetic walks; this validator ratchets the contract surface

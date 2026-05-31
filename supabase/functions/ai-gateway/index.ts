@@ -63,6 +63,13 @@ import {
   resolveAssetState,
   formatVerifiedState,
 } from "../_shared/verified-state.ts";
+// 2026-05-31 memory-stack flywheel Turn 5 (layer 04 Procedural): semantically
+// match the current problem against the hive's distilled skill library (proven
+// fix procedures in agent_episodic_memory) and inject the best matches.
+import {
+  matchProcedures,
+  formatProcedures,
+} from "../_shared/skill-library.ts";
 
 // P1 roadmap 2026-05-26: adoption of shared envelope + health + structured log.
 // First fn to migrate (highest traffic, sets the pattern for the other 54).
@@ -110,6 +117,17 @@ const EPISODIC_RECALL_LIMIT = 6;
 const VERIFIED_STATE_AGENTS: Set<string> = new Set([
   "asset-brain", "shift",
 ]);
+
+// Agents that get PROCEDURAL skill-library matching (layer 04). For a fix-
+// oriented turn the gateway embeds the user's message and pulls the top
+// semantically-matched proven procedures (match_procedural_memories over the
+// hive's distilled procedural memories) and injects them so the agent reuses a
+// known-good fix instead of reasoning one from scratch. Embedding-backed, so
+// gated to the agents whose turns are about doing/fixing. Best-effort.
+const PROCEDURAL_SKILL_AGENTS: Set<string> = new Set([
+  "asset-brain", "shift",
+]);
+const PROCEDURE_RECALL_LIMIT = 4;
 
 // Warm module-scope Supabase client. Reused across request invocations
 // in the same warm container. Per-request createClient calls below are
@@ -428,6 +446,25 @@ serve(async (req) => {
       } catch (err) {
         console.warn("[ai-gateway] verified-state resolve failed (non-fatal):", err instanceof Error ? err.message : err);
       }
+    }
+  }
+
+  // Procedural skill-library matching (layer 04). Embed the turn and pull the
+  // hive's top proven procedures for this kind of problem (match_procedural_memories
+  // over distilled procedural memories). Hive-scoped (a teammate's proven fix
+  // helps anyone); best-effort, so an embedding/RPC miss just omits the block.
+  // Needs a hive + identity, same as episodic recall.
+  if (authUid && hive_id && PROCEDURAL_SKILL_AGENTS.has(agent)) {
+    try {
+      const procs = await matchProcedures(adminClient, hive_id, worker_name, message, {
+        limit: PROCEDURE_RECALL_LIMIT,
+      });
+      const procBlock = formatProcedures(procs);
+      if (procBlock) {
+        memory_block = memory_block ? `${memory_block}\n\n${procBlock}` : procBlock;
+      }
+    } catch (err) {
+      console.warn("[ai-gateway] procedure match failed (non-fatal):", err instanceof Error ? err.message : err);
     }
   }
 
