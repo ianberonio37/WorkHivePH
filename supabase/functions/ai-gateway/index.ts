@@ -70,6 +70,15 @@ import {
   matchProcedures,
   formatProcedures,
 } from "../_shared/skill-library.ts";
+// 2026-05-31 memory-stack flywheel Turn 6 (layer 06 Prospective): per-(hive,
+// worker) deferred follow-up queue. Specialists emit followups[] to defer an
+// intention; the gateway enqueues them and surfaces due ones on a later turn.
+import {
+  enqueueFollowups,
+  recallDueFollowups,
+  formatFollowups,
+  type RawFollowup,
+} from "../_shared/followups.ts";
 
 // P1 roadmap 2026-05-26: adoption of shared envelope + health + structured log.
 // First fn to migrate (highest traffic, sets the pattern for the other 54).
@@ -128,6 +137,16 @@ const PROCEDURAL_SKILL_AGENTS: Set<string> = new Set([
   "asset-brain", "shift",
 ]);
 const PROCEDURE_RECALL_LIMIT = 4;
+
+// Agents that participate in the PROSPECTIVE follow-up queue (layer 06). For
+// these the gateway (a) surfaces any of the worker's follow-ups that are now
+// due into the context, and (b) enqueues new follow-ups the specialist emits in
+// its envelope (`followups: [{topic, detail?, due_in_days?}]`). Task/asset
+// agents whose work naturally spawns "check back later" items.
+const FOLLOWUP_AGENTS: Set<string> = new Set([
+  "asset-brain", "shift", "project",
+]);
+const FOLLOWUP_RECALL_LIMIT = 4;
 
 // Warm module-scope Supabase client. Reused across request invocations
 // in the same warm container. Per-request createClient calls below are
@@ -468,6 +487,23 @@ serve(async (req) => {
     }
   }
 
+  // Prospective follow-up surfacing (layer 06). Pull this worker's follow-ups
+  // that are now due and inject them so the agent raises its own deferred
+  // intentions. Pure DB read; marks surfaced fire-and-forget. Best-effort.
+  if (authUid && (hive_id || worker_name) && FOLLOWUP_AGENTS.has(agent)) {
+    try {
+      const due = await recallDueFollowups(adminClient, hive_id, worker_name, {
+        limit: FOLLOWUP_RECALL_LIMIT,
+      });
+      const dueBlock = formatFollowups(due);
+      if (dueBlock) {
+        memory_block = memory_block ? `${memory_block}\n\n${dueBlock}` : dueBlock;
+      }
+    } catch (err) {
+      console.warn("[ai-gateway] follow-up recall failed (non-fatal):", err instanceof Error ? err.message : err);
+    }
+  }
+
   // PII redaction. Both the user message AND the context object pass
   // through the same redactor so a downstream agent never sees raw
   // identity unless the agent is explicitly opted-in (Stripe / Resend
@@ -537,6 +573,7 @@ serve(async (req) => {
   // harvest any durable memories the specialist chose to emit (layer 02).
   let answer = agentRespText;
   let specialistMemories: StoreInput[] = [];
+  let specialistFollowups: RawFollowup[] = [];
   try {
     const parsed = JSON.parse(agentRespText);
     answer = String(parsed.answer ?? parsed.summary ?? parsed.message ?? agentRespText);
@@ -545,6 +582,11 @@ serve(async (req) => {
     // persistEpisodic clamps/validates/caps — we just pass them through.
     const m = (parsed as { memories?: unknown }).memories;
     if (Array.isArray(m)) specialistMemories = m as StoreInput[];
+    // Prospective layer (Turn 6): specialists may defer an intention via
+    // `followups: [{topic, detail?, due_in_days?, importance?}]`. enqueueFollowups
+    // validates/clamps/caps — pass through.
+    const f = (parsed as { followups?: unknown }).followups;
+    if (Array.isArray(f)) specialistFollowups = f as RawFollowup[];
   } catch {
     // Non-JSON response — keep raw.
   }
@@ -583,6 +625,17 @@ serve(async (req) => {
         log.info(ctx, "episodic_persist", { written: res.written, evicted: res.evicted });
       } catch (err) {
         console.warn("[ai-gateway] episodic persist failed (non-fatal):", err instanceof Error ? err.message : err);
+      }
+    }
+
+    // Prospective enqueue (layer 06). Same envelope-driven, opt-in, best-effort
+    // pattern as episodic persist — the gateway never invents follow-ups.
+    if (FOLLOWUP_AGENTS.has(agent) && specialistFollowups.length) {
+      try {
+        const res = await enqueueFollowups(adminClient, hive_id, worker_name, specialistFollowups, ctx.trace_id);
+        log.info(ctx, "followup_enqueue", { written: res.written, skipped: res.skipped });
+      } catch (err) {
+        console.warn("[ai-gateway] follow-up enqueue failed (non-fatal):", err instanceof Error ? err.message : err);
       }
     }
 

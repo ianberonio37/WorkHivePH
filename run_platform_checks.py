@@ -1461,6 +1461,21 @@ VALIDATORS = [
         "skip_if_fast": False,
     },
     {
+        # 2026-05-31 (memory-stack Turn 6): the Prospective layer (layer 06)
+        # deferred follow-up queue is wired end to end - agent_followups store
+        # (non-open RLS), _shared/followups.ts enqueues (capped) + recalls only
+        # DUE items (marking them surfaced), and ai-gateway both surfaces due
+        # follow-ups into context and enqueues new ones from the specialist
+        # envelope. Must pass at 0. Final sibling in the memory-stack wiring set.
+        "id":      "followup-queue-wiring",
+        "script":  "validate_followup_queue_wiring.py",
+        "args":    [],
+        "label":   "Follow-up Queue Wiring (Prospective layer: agent_followups store + _shared/followups.ts enqueue/recall-due/surface + ai-gateway surfacing + envelope-driven enqueue for task agents)",
+        "group":   "Platform",
+        "report":  None,
+        "skip_if_fast": False,
+    },
+    {
         # 2026-05-21: RAG Flywheel processor + multi-turn loop orchestrator.
         # tools/rag_flywheel_processor.py + run_rag_flywheel_loop.py drive
         # synthetic walks; this validator ratchets the contract surface
