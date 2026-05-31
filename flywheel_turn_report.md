@@ -1,6 +1,6 @@
-# Flywheel Turn #41
+# Flywheel Turn #58
 
-_2026-05-28T08:59:09_
+_2026-06-01T10:13:44_
 
 ## Layer deltas
 
@@ -8,9 +8,16 @@ _2026-05-28T08:59:09_
 |---|---|---:|---:|---:|
 | L-1   | cluster proposals       | 0 | 0 | · |
 | L-1.5 | rules in manifest       | 46 | 46 | · |
-| L0    | baselines tracked       | 85 | 85 | · |
-| L0    | total locked count      | 102 | 102 | · |
+| L0    | baselines tracked       | 88 | 88 | · |
+| L0    | total locked count      | 103 | 103 | · |
 | L2    | sentinel parity cases   | 33 | 33 | · |
 | L13   | stale walkthroughs      | 0 | 0 | · |
 
 ## No ratchets or regressions this turn — platform stable.
+
+## ⏫ Promotions — queued for one-pass approval
+
+- **15** rule candidate(s) (L-1→L0) · **0** sentinel candidate(s) (L0→L2)
+- 15 tracked · 0 still below the recurrence gate
+- top rule: `rule:python_tool:has_print_calls`
+- See **[promotion_queue.md](promotion_queue.md)** for the full ranked queue + draft stubs.

@@ -12,8 +12,11 @@ diffs against the previous turn, and surfaces three things:
      wins; the platform got measurably better)
   2. REGRESSIONS — baselines that loosened (caught here before they
      ship; should never happen if Mega Gate is green, but defensive)
-  3. PROMOTIONS — L-1 patterns ready to promote into L-1.5 / L0 / L2
-     (the queue for the next manual turn)
+  3. PROMOTIONS — recurring L-1 miner patterns drafted into L-1.5 / L0 rule
+     candidates, and load-bearing L0 validators (ranked by P1 efficacy) drafted
+     into L0 → L2 sentinel candidates. Written to `promotion_queue.md` for
+     one-pass approval (P2 of SELF_IMPROVING_GATE_ROADMAP.md). The engine
+     discovers + drafts; the human judges via `promotion_dispositions.json`.
 
 Layers walked:
 
@@ -24,8 +27,10 @@ Layers walked:
   L13   walkthrough staleness                          → coverage freshness
 
 State persists in `flywheel_state.json` (turn number + last-snapshot
-counts per layer). Output: `flywheel_turn_report.md` (latest turn only;
-not appended — each run replaces).
+counts per layer + per-candidate promotion recurrence). Outputs:
+`flywheel_turn_report.md` (latest turn) and `promotion_queue.md` (the ranked
+promotion queue; both replaced each run). Human judgments persist in
+`promotion_dispositions.json` (read-only to this tool).
 
 Usage:
   python tools/flywheel_orchestrator.py            # run one turn
@@ -52,6 +57,14 @@ if sys.platform == "win32" and sys.stdout.encoding and sys.stdout.encoding.lower
 ROOT = Path(__file__).resolve().parent.parent
 STATE_PATH  = ROOT / "flywheel_state.json"
 REPORT_PATH = ROOT / "flywheel_turn_report.md"
+
+# P2 promotion engine inputs/outputs (SELF_IMPROVING_GATE_ROADMAP.md §P2)
+LEDGER_PATH          = ROOT / "gate_efficacy_ledger.json"      # P1 efficacy (ranking signal)
+SUBSTRATE_MANIFEST   = ROOT / "substrate_manifest.json"        # L-1 miner proposals
+SENTINEL_COVERAGE    = ROOT / "sentinel_coverage_report.json"  # L0->L2 coverage (best-effort)
+SENTINEL_REGISTRY    = ROOT / "SENTINEL_REGISTRY.json"         # L0->L2 coverage (fallback)
+PROMOTION_QUEUE_PATH = ROOT / "promotion_queue.md"             # the one-pass approval surface
+DISPOSITIONS_PATH    = ROOT / "promotion_dispositions.json"    # human judgments (engine never overwrites)
 
 
 # ── ANSI for terminal output ───────────────────────────────────────────────
@@ -213,6 +226,303 @@ def _scalar_diff(prev: dict, curr: dict, key: str) -> dict:
     return {"from": p, "to": c, "delta": c - p}
 
 
+# ── Promotion engine (P2 of SELF_IMPROVING_GATE_ROADMAP.md) ─────────────────
+# Turns the observer into a driver. Two bridges, mechanized:
+#   L-1 → L0 : recurring miner patterns (de-facto conventions / anti-patterns)
+#              graduate into rule/validator candidates.
+#   L0  → L2 : load-bearing static validators with no Playwright sentinel
+#              graduate into sentinel-scenario candidates, ranked by P1 efficacy.
+# Candidates are DRAFTED into promotion_queue.md for one-pass approval. The
+# engine discovers + drafts; the human judges (roadmap §6) — nothing is
+# auto-promoted. Recurrence-gated so a one-off blip never queues.
+
+PROMOTION_RECUR_THRESHOLD = 2        # must recur across >= N turns before it queues
+PROMOTION_TRACK_PRUNE_AGE = 5        # forget a candidate unseen for this many turns (resolved/aged)
+PROMOTION_CONF_BAND       = (0.80, 0.995)  # promotable band: widely-followed but not yet universal
+SENTINEL_TOP_K            = 8        # cap sentinel candidates surfaced per turn
+
+# Tokens to drop when fuzzy-matching a miner feature against an existing baseline.
+_FEATURE_STOP = {"has", "is", "uses", "calls", "reads", "loads", "in", "the", "a",
+                 "of", "with", "first", "handler", "param", "shared", "imports"}
+
+def _load_json_path(p: Path):
+    if not p.exists():
+        return None
+    try:
+        return json.loads(p.read_text(encoding="utf-8"))
+    except Exception:
+        return None
+
+
+def _load_dispositions() -> dict:
+    """Human judgments persist here (approved/rejected/snoozed), keyed by
+    candidate key. The orchestrator READS this and never overwrites it — it is
+    the human's half of the one-pass-approval contract. Scaffolds an empty
+    template on first run so the file is discoverable."""
+    doc = _load_json_path(DISPOSITIONS_PATH)
+    if doc is None:
+        try:
+            DISPOSITIONS_PATH.write_text(json.dumps({
+                "_README": ("Set a candidate key (e.g. 'rule:edge:imports_cors_shared' or "
+                            "'sentinel:rls_open_policy') to {\"status\": \"approved|rejected|snoozed\", "
+                            "\"note\": \"...\"} to drop it from promotion_queue.md. "
+                            "The orchestrator never overwrites this file."),
+            }, indent=2), encoding="utf-8")
+        except Exception:
+            pass
+        return {}
+    return doc
+
+
+def _disposition_status(dispositions: dict, key: str) -> str | None:
+    rec = dispositions.get(key)
+    if isinstance(rec, dict):
+        return rec.get("status")
+    if isinstance(rec, str):
+        return rec
+    return None
+
+
+def _norm_id(s: str) -> str:
+    """Canonical id form — collapses hyphen/underscore/space/case so a ledger id
+    ('truth-view-contract') and a baseline key ('truth_view_contract') match."""
+    return re.sub(r"[^a-z0-9]+", "_", (s or "").lower()).strip("_")
+
+
+def _feature_tokens(s: str) -> set:
+    return {t for t in re.split(r"[^a-z0-9]+", (s or "").lower())
+            if t and t not in _FEATURE_STOP}
+
+
+def _already_enforced_exact(feature: str, baselines: dict) -> bool:
+    """True when an existing L0 baseline already covers this feature (every
+    feature token appears in a baseline name) — avoids re-proposing what the
+    gate already enforces."""
+    ft = _feature_tokens(feature)
+    if not ft:
+        return False
+    return any(ft <= _feature_tokens(name) for name in baselines)
+
+
+def _enforced_hint(feature: str, baselines: dict) -> str | None:
+    """Soft hint: the baseline with the most token overlap, if any (>=2). Shown
+    in the queue so the human can spot a likely duplicate without it being
+    silently dropped."""
+    ft = _feature_tokens(feature)
+    best, best_ov = None, 0
+    for name in baselines:
+        ov = len(ft & _feature_tokens(name))
+        if ov > best_ov:
+            best, best_ov = name, ov
+    return best if best_ov >= 2 else None
+
+
+def _rule_candidates_from_substrate(baselines: dict) -> list:
+    """L-1 → L0: mine substrate_manifest.json for outlier patterns that are
+    de-facto conventions (high-but-not-universal conformance) or explicit
+    anti-patterns. Each is a candidate rule/validator the gate doesn't yet
+    enforce."""
+    manifest = _load_json_path(SUBSTRATE_MANIFEST)
+    out: list = []
+    if not manifest:
+        return out
+    lo, hi = PROMOTION_CONF_BAND
+    for summ in manifest.get("summaries", []) or []:
+        cluster = (summ.get("file", "") or "").replace("_pattern_mining_report.json", "")
+        cluster = cluster or (summ.get("label", "") or "cluster")
+        for prop in summ.get("proposals", []) or []:
+            feature = prop.get("feature")
+            if not feature:
+                continue
+            outliers = prop.get("outliers") or []
+            n_out = int(prop.get("outlier_count", len(outliers)) or 0)
+            conf = float(prop.get("conformance", 0.0) or 0.0)
+            anti = bool(prop.get("anti_pattern", False))
+            if n_out <= 0:
+                continue
+            if not anti and not (lo <= conf <= hi):
+                continue
+            if _already_enforced_exact(feature, baselines):
+                continue
+            out.append({
+                "key": f"rule:{cluster}:{feature}", "kind": "rule",
+                "cluster": cluster, "feature": feature, "conformance": conf,
+                "anti_pattern": anti, "outlier_count": n_out,
+                "outliers": list(outliers)[:12],
+                "enforced_hint": _enforced_hint(feature, baselines),
+                "predicted_yield": n_out,
+            })
+    return out
+
+
+def _strip_validator_id(s: str) -> str:
+    """Normalize a coverage-map id ('validate_truth_view_contract.py' / label
+    'validate_truth_view_contract') to the gate's short id form
+    ('truth_view_contract') so it joins the efficacy ledger ('truth-view-contract')."""
+    n = _norm_id(s)
+    n = re.sub(r"^validate_", "", n)
+    n = re.sub(r"_py$", "", n)
+    return n
+
+
+def _sentinel_candidates_from_gaps(baselines: dict) -> list:
+    """L0 → L2: the sentinel coverage map (sentinels/sentinel_coverage_map.py) is
+    the authority on which validators lack a Playwright sentinel. Surface only its
+    *actionable* gaps — infrastructure / non-actionable gaps (RLS, cron, edge
+    config, schema drift) cannot have a runtime sentinel and the map already tags
+    them — then rank by P1 efficacy. No coverage map → no confident candidates."""
+    doc = _load_json_path(SENTINEL_COVERAGE)
+    if not isinstance(doc, dict) or not isinstance(doc.get("gaps"), list):
+        return []
+    ledger = _load_json_path(LEDGER_PATH) or {}
+    led_by_norm = {_strip_validator_id(k): v
+                   for k, v in (ledger.get("validators", {}) or {}).items()}
+    norm_base = {_norm_id(k): v for k, v in baselines.items()}
+    out: list = []
+    for g in doc["gaps"]:
+        if not isinstance(g, dict):
+            continue
+        if g.get("is_infrastructure") or g.get("category") == "infrastructure" \
+                or g.get("actionable") is False:
+            continue
+        raw = g.get("file") or g.get("label") or g.get("id") or g.get("validator")
+        if not raw:
+            continue
+        nid = _strip_validator_id(raw)
+        rec = led_by_norm.get(nid, {})
+        tc = int(rec.get("true_catches", 0) or 0)
+        tf = int(rec.get("times_fail", 0) or 0)
+        base = int(norm_base.get(nid, 0) or 0)
+        score = tc * 100 + tf * 5 + min(base, 20)   # cap baseline pull so true catches dominate
+        out.append({
+            "key": f"sentinel:{nid}", "kind": "sentinel", "validator": nid,
+            "label": rec.get("label", "") or g.get("label", "")
+                     or ", ".join((g.get("checks") or [])[:4]),
+            "checks": g.get("checks", []),
+            "true_catches": tc, "times_fail": tf, "baseline": base,
+            "coverage_verified": True, "predicted_yield": score,
+        })
+    out.sort(key=lambda c: -c["predicted_yield"])
+    return out
+
+
+def _compute_promotions(curr: dict, state: dict, turn: int) -> dict:
+    """Discover candidates, update per-candidate recurrence, and emit those past
+    the recurrence gate and not already dispositioned. Mutates
+    state['promotion_tracking'] (persisted by the caller)."""
+    baselines = curr.get("L0", {}).get("baselines", {})
+    dispositions = _load_dispositions()
+    tracking = state.setdefault("promotion_tracking", {})
+
+    actives = (_rule_candidates_from_substrate(baselines)
+               + _sentinel_candidates_from_gaps(baselines))
+    active_by_key = {c["key"]: c for c in actives}
+
+    # recurrence accounting
+    for key, cand in active_by_key.items():
+        t = tracking.get(key)
+        if t is None:
+            tracking[key] = {"kind": cand["kind"], "first_seen_turn": turn,
+                             "last_seen_turn": turn, "seen_turns": 1}
+        else:
+            t["kind"] = cand["kind"]
+            t["last_seen_turn"] = turn
+            t["seen_turns"] = int(t.get("seen_turns", 0)) + 1
+    # prune candidates that have resolved / aged out
+    for key in list(tracking.keys()):
+        if int(tracking[key].get("last_seen_turn", 0)) <= turn - PROMOTION_TRACK_PRUNE_AGE:
+            del tracking[key]
+
+    rule_q, sent_q = [], []
+    n_below, n_disp = 0, 0
+    for key, cand in active_by_key.items():
+        tr = tracking.get(key, {})
+        seen = int(tr.get("seen_turns", 0))
+        cand["seen_turns"] = seen
+        cand["first_seen_turn"] = tr.get("first_seen_turn", turn)
+        if seen < PROMOTION_RECUR_THRESHOLD:
+            n_below += 1
+            continue
+        if _disposition_status(dispositions, key) in ("approved", "rejected", "snoozed"):
+            n_disp += 1
+            continue
+        (rule_q if cand["kind"] == "rule" else sent_q).append(cand)
+
+    rule_q.sort(key=lambda c: (-c["predicted_yield"], -c.get("seen_turns", 0)))
+    sent_q.sort(key=lambda c: (-c["predicted_yield"], -c.get("seen_turns", 0)))
+    sent_q = sent_q[:SENTINEL_TOP_K]
+
+    return {"rule_candidates": rule_q, "sentinel_candidates": sent_q,
+            "tracked_total": len(tracking), "active_total": len(active_by_key),
+            "below_threshold": n_below, "dispositioned": n_disp}
+
+
+def _write_promotion_queue(promo: dict, turn: int, ts: str) -> None:
+    rc, sc = promo["rule_candidates"], promo["sentinel_candidates"]
+    L: list = []
+    L.append(f"# Promotion Queue — Flywheel Turn #{turn}")
+    L.append(f"_{ts}_  ·  generated by `tools/flywheel_orchestrator.py` "
+             f"(P2, SELF_IMPROVING_GATE_ROADMAP.md)\n")
+    L.append("> The engine **discovers and drafts**; you **judge**. Nothing here is auto-promoted.")
+    L.append("> To dispose of a candidate, add its `key` to **`promotion_dispositions.json`** as")
+    L.append("> `{\"status\": \"approved|rejected|snoozed\", \"note\": \"...\"}` — it then drops off this queue.")
+    L.append("> `/harden` consumes the **Rule candidates**; `/sentinel-review` consumes the "
+             "**Sentinel candidates**.\n")
+    L.append(f"**Summary:** {len(rc)} rule candidate(s) · {len(sc)} sentinel candidate(s) · "
+             f"{promo['tracked_total']} tracked · {promo['below_threshold']} still below the "
+             f"{PROMOTION_RECUR_THRESHOLD}-turn recurrence gate · {promo['dispositioned']} already "
+             f"dispositioned.\n")
+
+    L.append("---\n")
+    L.append("## L-1 → L0  ·  Rule candidates (recurring miner patterns)\n")
+    if rc:
+        L.append("Each has recurred enough turns to be a de-facto convention (or an explicit "
+                 "anti-pattern). Promote = author an L-1.5 skill rule and/or an L0 validator that "
+                 "locks it, then fix the listed outliers.\n")
+        for i, c in enumerate(rc, 1):
+            tag = "ANTI-PATTERN" if c["anti_pattern"] else f"convention @ {c['conformance']*100:.1f}%"
+            L.append(f"### {i}. `{c['feature']}`  ({c['cluster']})")
+            L.append(f"- **key:** `{c['key']}`")
+            L.append(f"- **signal:** {tag} · **predicted yield:** {c['predicted_yield']} outlier(s) to "
+                     f"fix · recurred {c['seen_turns']} turn(s) (since #{c['first_seen_turn']})")
+            if c.get("enforced_hint"):
+                L.append(f"- **⚠ possibly already enforced by** `{c['enforced_hint']}` — confirm it isn't "
+                         f"a duplicate before promoting")
+            if c.get("outliers"):
+                L.append("- **outliers:** " + ", ".join("`" + str(o) + "`" for o in c["outliers"]))
+            L.append("- [ ] approve → `/harden` (author rule + validator, fix outliers)\n")
+    else:
+        L.append("_None past the recurrence gate this turn._\n")
+
+    L.append("---\n")
+    L.append("## L0 → L2  ·  Sentinel candidates (load-bearing validators lacking a runtime test)\n")
+    if sc:
+        L.append("Ranked by P1 efficacy (true catches · failure history · open baseline). These static "
+                 "validators carry real signal but have no Playwright sentinel asserting the behaviour "
+                 "end-to-end. Promote = draft an L2 scenario (paste-ready stub below).\n")
+        for i, c in enumerate(sc, 1):
+            verif = "" if c.get("coverage_verified") else "  _(coverage unverified — confirm no sentinel exists)_"
+            L.append(f"### {i}. `{c['validator']}`{verif}")
+            L.append(f"- **key:** `{c['key']}`")
+            L.append(f"- **efficacy:** {c['true_catches']} true catch(es) · {c['times_fail']} fail-run(s) · "
+                     f"open baseline {c['baseline']} · **score {c['predicted_yield']}**")
+            if c.get("label"):
+                L.append(f"- **what it checks:** {c['label']}")
+            L.append("- **draft sentinel stub:**")
+            L.append("  ```ts")
+            L.append(f"  test('check_{c['validator']}', async ({{ page }}) => {{")
+            L.append(f"    // L0 `{c['validator']}` asserts this statically; confirm it holds at runtime.")
+            L.append("    // TODO(sentinel-review): drive the surface this validator guards and assert")
+            L.append("    // the user-visible outcome.")
+            L.append("  });")
+            L.append("  ```")
+            L.append("- [ ] approve → `/sentinel-review` (materialize into a tests/*.spec.ts scenario)\n")
+    else:
+        L.append("_None past the recurrence gate this turn._\n")
+
+    PROMOTION_QUEUE_PATH.write_text("\n".join(L), encoding="utf-8")
+
+
 # ── Turn runner ────────────────────────────────────────────────────────────
 
 def _run_turn(reset: bool = False) -> dict:
@@ -239,12 +549,32 @@ def _run_turn(reset: bool = False) -> dict:
     }
     ratchets, regressions = _diff_L0(prev_snaps.get("L0", {}), curr["L0"])
 
+    # P2 promotion engine — discover + draft + rank, write promotion_queue.md.
+    # Best-effort + isolated: a bug here must never break the reporting turn.
+    ts = datetime.now().isoformat(timespec="seconds")
+    promo_summary = {"rule_candidates": 0, "sentinel_candidates": 0, "tracked_total": 0,
+                     "below_threshold": 0, "top_rule": None, "top_sentinel": None}
+    try:
+        promo = _compute_promotions(curr, state, turn)
+        _write_promotion_queue(promo, turn, ts)
+        promo_summary = {
+            "rule_candidates":    len(promo["rule_candidates"]),
+            "sentinel_candidates": len(promo["sentinel_candidates"]),
+            "tracked_total":      promo["tracked_total"],
+            "below_threshold":    promo["below_threshold"],
+            "top_rule":     promo["rule_candidates"][0]["key"] if promo["rule_candidates"] else None,
+            "top_sentinel": promo["sentinel_candidates"][0]["key"] if promo["sentinel_candidates"] else None,
+        }
+    except Exception as e:
+        promo_summary["error"] = str(e)
+
     turn_record = {
         "turn":        turn,
-        "ts":          datetime.now().isoformat(timespec="seconds"),
+        "ts":          ts,
         "diff":        diff,
         "L0_ratchets": ratchets,
         "L0_regressions": regressions,
+        "promotions":  promo_summary,
     }
 
     state["turn"]     = turn
@@ -296,6 +626,21 @@ def _print_terminal(turn_record: dict) -> None:
         print()
         print(f"  {YELLOW}No ratchets or regressions this turn — platform is stable.{RESET}")
 
+    promo = turn_record.get("promotions") or {}
+    if promo.get("rule_candidates") or promo.get("sentinel_candidates"):
+        print()
+        print(f"{CYAN}{BOLD}  PROMOTIONS{RESET} — queued for one-pass approval "
+              f"({CYAN}promotion_queue.md{RESET}):")
+        print(f"    {CYAN}⏫{RESET} {promo.get('rule_candidates', 0)} rule candidate(s) (L-1→L0)  ·  "
+              f"{promo.get('sentinel_candidates', 0)} sentinel candidate(s) (L0→L2)   "
+              f"[{promo.get('tracked_total', 0)} tracked, {promo.get('below_threshold', 0)} below gate]")
+        if promo.get("top_rule"):     print(f"      top rule:     {promo['top_rule']}")
+        if promo.get("top_sentinel"): print(f"      top sentinel: {promo['top_sentinel']}")
+    elif "promotions" in turn_record:
+        print()
+        print(f"  {YELLOW}No promotion candidates past the recurrence gate this turn "
+              f"({promo.get('below_threshold', 0)} still building recurrence).{RESET}")
+
 
 def _signed(n: int, invert: bool = False) -> str:
     """Format a delta. invert=True flips arrow direction (for "lower is
@@ -338,6 +683,18 @@ def _write_report_md(turn_record: dict) -> None:
         lines.append("")
     if not turn_record["L0_ratchets"] and not turn_record["L0_regressions"]:
         lines.append("## No ratchets or regressions this turn — platform stable.\n")
+
+    promo = turn_record.get("promotions")
+    if promo is not None:
+        lines.append("## ⏫ Promotions — queued for one-pass approval\n")
+        lines.append(f"- **{promo.get('rule_candidates', 0)}** rule candidate(s) (L-1→L0) · "
+                     f"**{promo.get('sentinel_candidates', 0)}** sentinel candidate(s) (L0→L2)")
+        lines.append(f"- {promo.get('tracked_total', 0)} tracked · "
+                     f"{promo.get('below_threshold', 0)} still below the recurrence gate")
+        if promo.get("top_rule"):     lines.append(f"- top rule: `{promo['top_rule']}`")
+        if promo.get("top_sentinel"): lines.append(f"- top sentinel: `{promo['top_sentinel']}`")
+        lines.append("- See **[promotion_queue.md](promotion_queue.md)** for the full ranked queue "
+                     "+ draft stubs.\n")
 
     REPORT_PATH.write_text("\n".join(lines), encoding="utf-8")
 

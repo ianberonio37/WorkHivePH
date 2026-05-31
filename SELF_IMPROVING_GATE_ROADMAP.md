@@ -3,7 +3,7 @@
 **Created:** 2026-06-01
 **Status:** Architecture-of-record + phased plan (design only; no engine built yet)
 **Companion docs:** [UNIFIED_MEGA_GATE.md](UNIFIED_MEGA_GATE.md) (the 6 gate layers), [SENTINEL_ARCHITECTURE.md](SENTINEL_ARCHITECTURE.md) (the two bridges), [COMPREHENSIVE_STUDY_FULLSTACK_GATE.md](COMPREHENSIVE_STUDY_FULLSTACK_GATE.md) (the 13×6 matrix)
-**Engine today:** [tools/flywheel_orchestrator.py](tools/flywheel_orchestrator.py) — an *observer/scorer*, not a driver (its own docstring promises "PROMOTIONS" that `_run_turn()` never computes)
+**Engine today:** [tools/flywheel_orchestrator.py](tools/flywheel_orchestrator.py) — now a *driver*, not just an observer. **P1 (efficacy ledger) + P2 (promotion engine) are built.** Each turn it discovers + drafts a ranked `promotion_queue.md` (recurring L-1 miner patterns → rule candidates; load-bearing L0 validators → sentinel candidates), gated by `promotion_dispositions.json` (the human's one-pass approval). Its docstring is now true.
 
 ---
 
@@ -135,8 +135,8 @@ update ≥3 skills) all govern **growth**. A living system must shed as fast as 
 | Phase | Track | Deliverable | Why this order | Honest % today |
 |---|---|---|---|---|
 | **P0** | — | This roadmap + `SELF_IMPROVING_GATE.md` principles | Write the model down before building | **30%** (this doc) |
-| **P1** | A | **Efficacy ledger** (`gate_efficacy_ledger.json`) | The foundational sense organ — everything hangs off "which rules matter" | 0% |
-| **P2** | A | **Promotion engine** in `flywheel_orchestrator.py` | Convert the scorer into a driver (make its own docstring true) | 0% |
+| **P1** | A | **Efficacy ledger** (`gate_efficacy_ledger.json`) | The foundational sense organ — everything hangs off "which rules matter" | **DONE** |
+| **P2** | A | **Promotion engine** in `flywheel_orchestrator.py` | Convert the scorer into a driver (make its own docstring true) | **DONE** |
 | **P3** | A | **Decay/freshness detector** at G-1 | The #1 real rot vector (validator-lag) — catch it cheap | 0% |
 | **P4** | A | **Noise quarantine** (classify "regression") | Make the orchestrator trustworthy so its signal is actionable | 0% |
 | **P5** | A | **Retirement loop** (Rule D, ledger-driven) | Shedding — keep the gate lean/fast/credible | 0% |
@@ -185,6 +185,22 @@ until P1's ledger has enough turns of history to retire safely.)
   `/harden` and `/sentinel-review` consume the queue.
 - **Persists via:** `flywheel_state.json` (promotion history) + `promotion_queue.md`.
 - **Effort:** M. **Depends on:** P1 (queue ranks candidates by predicted efficacy).
+- **✅ Status: BUILT (2026-06-01).** `_compute_promotions()` + queue writer live in
+  `flywheel_orchestrator.py`; each turn writes `promotion_queue.md` and scaffolds
+  `promotion_dispositions.json`. Two bridges, mechanized:
+  - **L-1 → L0 (rule candidates):** mines `substrate_manifest.json` for outlier patterns in the
+    promotable conformance band (0.80–0.995) or explicit anti-patterns; **recurrence-gated** (must
+    recur ≥2 turns, tracked in `state.promotion_tracking`) so a one-off blip never queues; fuzzy-dedups
+    against existing L0 baselines (skip-if-enforced + a soft "possibly already enforced by" hint);
+    ranked by predicted yield (outlier count).
+  - **L0 → L2 (sentinel candidates):** ledger-ranked (`true_catches·100 + times_fail·5 + min(base,20)`)
+    load-bearing validators lacking a sentinel; emits paste-ready `check_*` stubs; defensive coverage
+    parse with hyphen/underscore id-normalization (covered + infra excluded; "coverage unverified"
+    label when the coverage map can't be parsed).
+  - **Human-in-the-loop:** nothing auto-promotes; a key listed in `promotion_dispositions.json`
+    (`approved|rejected|snoozed`) drops off the queue. The orchestrator never overwrites that file.
+  - **Verified:** turn N tracks candidates below the gate; turn N+1 queues them (15 rule + 7 sentinel
+    candidates on first real run). Tool stays exit-0 / best-effort (a promotion bug can't break a turn).
 
 ### P3 — Decay / freshness detector  (extends G-1 auto-discovery)
 - **Goal:** catch the #1 rot vector — a validator asserting a literal/shape the code already moved

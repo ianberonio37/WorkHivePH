@@ -1,0 +1,3 @@
+{
+  "_README": "Set a candidate key (e.g. 'rule:edge:imports_cors_shared' or 'sentinel:rls_open_policy') to {\"status\": \"approved|rejected|snoozed\", \"note\": \"...\"} to drop it from promotion_queue.md. The orchestrator never overwrites this file."
+}
