@@ -1431,6 +1431,21 @@ VALIDATORS = [
         "skip_if_fast": False,
     },
     {
+        # 2026-05-31 (memory-stack Turn 4): the Semantic layer (layer 03) per-hive
+        # entity extractor is genuinely wired - reads v_logbook_truth, extracts
+        # typed S-P-O triples via the free-tier chain, embeds them, and idempotently
+        # upserts into knowledge_graph_facts (source_type 'ai_extraction') against
+        # uq_kgf_triple_source. Fills the store voice-handler._fetchKGContext reads.
+        # Must pass at 0. Sibling to episodic/verified-state/cold-archive wiring.
+        "id":      "semantic-fact-extractor-wiring",
+        "script":  "validate_semantic_fact_extractor_wiring.py",
+        "args":    [],
+        "label":   "Semantic Fact Extractor Wiring (Semantic layer: logbook -> KG triples -> embed -> idempotent upsert into knowledge_graph_facts; _shared/semantic-facts.ts helpers + dedupe migration + 4-place sync)",
+        "group":   "Platform",
+        "report":  None,
+        "skip_if_fast": False,
+    },
+    {
         # 2026-05-21: RAG Flywheel processor + multi-turn loop orchestrator.
         # tools/rag_flywheel_processor.py + run_rag_flywheel_loop.py drive
         # synthetic walks; this validator ratchets the contract surface

@@ -90,6 +90,7 @@ ALL_FUNCTIONS = [
     "agent-memory-store",
     "data-fabric-normalizer",
     "cold-archive-query",
+    "semantic-fact-extractor",
 ]
 
 REQUIRED_FIELDS = {
@@ -142,6 +143,7 @@ REQUIRED_FIELDS = {
     "hierarchical-summarizer":      ["hive_id", "level"], # Phase 2 of AGENTIC_RAG_ROADMAP.md; level must be one of day/week/month/quarter/year
     "temporal-rag-orchestrator":    ["question", "hive_id"], # Phase 3 of AGENTIC_RAG_ROADMAP.md; from/to/granularity optional with defaults
     "agent-memory-store":           ["op"], # Phase 7 of AGENTIC_RAG_ROADMAP.md; op must be "recall" or "store"; hive_id/worker_name one-of validated inline
+    "semantic-fact-extractor":      ["hive_id"], # Memory-stack Turn 4 (Semantic layer); since/limit/max_groups optional with defaults
     "data-fabric-normalizer":       ["source", "source_id", "hive_id", "payload"], # Phase 5 of AGENTIC_RAG_ROADMAP.md; source must be in CHECK list
     "cold-archive-query":           ["hive_id", "table", "time_range"], # Phase 6 of AGENTIC_RAG_ROADMAP.md (scaffolding); table must be in SUPPORTED_TABLES
 }

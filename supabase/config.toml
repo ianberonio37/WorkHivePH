@@ -56,6 +56,11 @@ enabled = true
 verify_jwt = false
 entrypoint = "./functions/cold-archive-query/index.ts"
 
+[functions.semantic-fact-extractor]
+enabled = true
+verify_jwt = false
+entrypoint = "./functions/semantic-fact-extractor/index.ts"
+
 [functions.analytics-orchestrator]
 enabled = true
 verify_jwt = false
