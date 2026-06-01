@@ -3684,8 +3684,12 @@
       "comment": "Phase 6A \u2014 typed semantic-claim store with confidence + source + embedding. Triples (subject -> predicate -> object) so GraphRAG can traverse the hive's domain knowledge. Distinct from asset_nodes (runtime hierarchy) and fault_knowledge (RAG corpus); this is the semantic ontology layer.",
       "read_by_surfaces": [],
       "written_by_surfaces": [],
-      "read_by_edge_fns": [],
-      "written_by_edge_fns": []
+      "read_by_edge_fns": [
+        "semantic-fact-extractor"
+      ],
+      "written_by_edge_fns": [
+        "semantic-fact-extractor"
+      ]
     },
     "drone_inspections": {
       "defined_in": "20260513000007_phase6_industry_defining.sql",
@@ -4524,10 +4528,10 @@
       "read_by_surfaces": [],
       "written_by_surfaces": [],
       "read_by_edge_fns": [
-        "agent-memory-store"
+        "_shared/episodic-memory.ts"
       ],
       "written_by_edge_fns": [
-        "agent-memory-store"
+        "_shared/episodic-memory.ts"
       ]
     },
     "unified_events": {
@@ -5002,6 +5006,47 @@
       "written_by_surfaces": [],
       "read_by_edge_fns": [],
       "written_by_edge_fns": []
+    },
+    "agent_followups": {
+      "defined_in": "20260531000002_agent_followups.sql",
+      "columns": [
+        "id",
+        "hive_id",
+        "worker_name",
+        "topic",
+        "detail",
+        "due_at",
+        "status",
+        "importance",
+        "source_trace_id",
+        "created_by",
+        "created_at",
+        "surfaced_at",
+        "resolved_at"
+      ],
+      "rls_enabled": true,
+      "grants": {
+        "anon": [
+          "SELECT",
+          "INSERT",
+          "UPDATE"
+        ],
+        "authenticated": [
+          "SELECT",
+          "INSERT",
+          "UPDATE"
+        ]
+      },
+      "realtime_published": false,
+      "comment": "Turn 6 (Prospective layer) - per-(hive,worker) deferred follow-up queue. A specialist enqueues a future-dated intention via its envelope (followups[]); ai-gateway surfaces due ones back into the agent context (recallDueFollowups) and marks them surfaced. Writes are service-role only.",
+      "read_by_surfaces": [],
+      "written_by_surfaces": [],
+      "read_by_edge_fns": [
+        "_shared/followups.ts"
+      ],
+      "written_by_edge_fns": [
+        "_shared/followups.ts"
+      ]
     }
   },
   "views": {
@@ -5176,6 +5221,7 @@
         "parts-staging-recommender",
         "pf-calculator",
         "scheduled-agents",
+        "semantic-fact-extractor",
         "shift-planner-orchestrator",
         "trigger-ml-retrain",
         "weibull-fitter"
@@ -6267,6 +6313,24 @@
       "comment": "",
       "called_by_surfaces": [],
       "called_by_edge_fns": []
+    },
+    "unified_event_source_rank": {
+      "defined_in": "20260530000000_unified_events_verified_state.sql",
+      "args": "p_source text",
+      "security_definer": false,
+      "comment": "Source trust precedence for unified_events conflict resolution. Lower = more trusted (system-of-record CMMS=1 .. human note=5). Used by v_asset_state_truth.",
+      "called_by_surfaces": [],
+      "called_by_edge_fns": []
+    },
+    "match_procedural_memories": {
+      "defined_in": "20260531000001_procedural_skill_matcher.sql",
+      "args": "p_query_embedding  vector,\n  p_hive_id          uuid,\n  p_worker_name      text DEFAULT NULL,\n  p_match_count      int  DEFAULT 5,\n  p_min_similarity   real DEFAULT 0.55",
+      "security_definer": true,
+      "comment": "Turn 5 - semantic retrieval over the procedural skill library (agent_episodic_memory WHERE memory_type=procedural). Hive-scoped, worker optional. Cosine distance, min-similarity gated. _shared/skill-library.ts matchProcedures() calls this; ai-gateway injects the result for fix-oriented agents.",
+      "called_by_surfaces": [],
+      "called_by_edge_fns": [
+        "_shared/skill-library.ts"
+      ]
     }
   },
   "surfaces": {
@@ -6974,7 +7038,7 @@
       "tables_written": [],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "loc": 306
+      "loc": 380
     },
     "_shared/audio-chain.ts": {
       "tables_read": [],
@@ -6996,6 +7060,13 @@
       "edge_fns_invoked": [],
       "loc": 91
     },
+    "_shared/cold-archive.ts": {
+      "tables_read": [],
+      "tables_written": [],
+      "rpcs_called": [],
+      "edge_fns_invoked": [],
+      "loc": 61
+    },
     "_shared/context-budget.ts": {
       "tables_read": [],
       "tables_written": [],
@@ -7008,7 +7079,7 @@
       "tables_written": [],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "loc": 34
+      "loc": 39
     },
     "_shared/cost-log.ts": {
       "tables_read": [
@@ -7026,14 +7097,25 @@
       "tables_written": [],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "loc": 192
+      "loc": 225
     },
     "_shared/envelope.ts": {
       "tables_read": [],
       "tables_written": [],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "loc": 115
+      "loc": 117
+    },
+    "_shared/episodic-memory.ts": {
+      "tables_read": [
+        "agent_episodic_memory"
+      ],
+      "tables_written": [
+        "agent_episodic_memory"
+      ],
+      "rpcs_called": [],
+      "edge_fns_invoked": [],
+      "loc": 222
     },
     "_shared/error-tracker.ts": {
       "tables_read": [
@@ -7046,12 +7128,23 @@
       "edge_fns_invoked": [],
       "loc": 77
     },
+    "_shared/followups.ts": {
+      "tables_read": [
+        "agent_followups"
+      ],
+      "tables_written": [
+        "agent_followups"
+      ],
+      "rpcs_called": [],
+      "edge_fns_invoked": [],
+      "loc": 170
+    },
     "_shared/health.ts": {
       "tables_read": [],
       "tables_written": [],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "loc": 62
+      "loc": 63
     },
     "_shared/journal-recall.ts": {
       "tables_read": [
@@ -7103,7 +7196,7 @@
       "tables_written": [],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "loc": 60
+      "loc": 177
     },
     "_shared/rate-limit.ts": {
       "tables_read": [
@@ -7128,6 +7221,22 @@
       "edge_fns_invoked": [],
       "loc": 135
     },
+    "_shared/semantic-facts.ts": {
+      "tables_read": [],
+      "tables_written": [],
+      "rpcs_called": [],
+      "edge_fns_invoked": [],
+      "loc": 162
+    },
+    "_shared/skill-library.ts": {
+      "tables_read": [],
+      "tables_written": [],
+      "rpcs_called": [
+        "match_procedural_memories"
+      ],
+      "edge_fns_invoked": [],
+      "loc": 85
+    },
     "_shared/validate-contract.ts": {
       "tables_read": [
         "canonical_agent_contracts"
@@ -7144,16 +7253,21 @@
       "edge_fns_invoked": [],
       "loc": 96
     },
-    "agent-memory-store": {
+    "_shared/verified-state.ts": {
       "tables_read": [
-        "agent_episodic_memory"
+        "v_asset_state_truth"
       ],
-      "tables_written": [
-        "agent_episodic_memory"
-      ],
+      "tables_written": [],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "loc": 217
+      "loc": 72
+    },
+    "agent-memory-store": {
+      "tables_read": [],
+      "tables_written": [],
+      "rpcs_called": [],
+      "edge_fns_invoked": [],
+      "loc": 107
     },
     "agentic-rag-loop": {
       "tables_read": [
@@ -7173,7 +7287,7 @@
       ],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "loc": 1137
+      "loc": 1199
     },
     "ai-eval-runner": {
       "tables_read": [
@@ -7193,7 +7307,7 @@
       "tables_written": [],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "loc": 480
+      "loc": 672
     },
     "ai-orchestrator": {
       "tables_read": [
@@ -7267,7 +7381,7 @@
       ],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "loc": 539
+      "loc": 541
     },
     "batch-risk-scoring": {
       "tables_read": [
@@ -7368,7 +7482,7 @@
       "tables_written": [],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "loc": 97
+      "loc": 223
     },
     "data-fabric-normalizer": {
       "tables_read": [
@@ -7673,6 +7787,18 @@
       "edge_fns_invoked": [],
       "loc": 336
     },
+    "semantic-fact-extractor": {
+      "tables_read": [
+        "knowledge_graph_facts",
+        "v_logbook_truth"
+      ],
+      "tables_written": [
+        "knowledge_graph_facts"
+      ],
+      "rpcs_called": [],
+      "edge_fns_invoked": [],
+      "loc": 254
+    },
     "semantic-search": {
       "tables_read": [],
       "tables_written": [],
@@ -7682,7 +7808,7 @@
         "search_skill_knowledge"
       ],
       "edge_fns_invoked": [],
-      "loc": 107
+      "loc": 121
     },
     "send-report-email": {
       "tables_read": [
@@ -7796,7 +7922,7 @@
       "tables_written": [],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "loc": 211
+      "loc": 213
     },
     "voice-logbook-entry": {
       "tables_read": [
@@ -7860,7 +7986,16 @@
       "loc": 246
     }
   },
-  "phantom_tables": {},
+  "phantom_tables": {
+    "v_asset_state_truth": {
+      "read_by_surfaces": [],
+      "read_by_edge_fns": [
+        "_shared/verified-state.ts"
+      ],
+      "written_by_surfaces": [],
+      "written_by_edge_fns": []
+    }
+  },
   "duplicate_signals": [
     {
       "kind": "surface_overlap",
@@ -8055,11 +8190,6 @@
     {
       "kind": "dead_table",
       "table": "mfa_enrollments",
-      "note": "defined in migrations but not referenced in any surface or edge fn"
-    },
-    {
-      "kind": "dead_table",
-      "table": "knowledge_graph_facts",
       "note": "defined in migrations but not referenced in any surface or edge fn"
     },
     {
