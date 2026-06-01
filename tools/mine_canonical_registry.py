@@ -99,13 +99,18 @@ CREATE_FUNCTION_RE = re.compile(
     r"""CREATE\s+(?:OR\s+REPLACE\s+)?FUNCTION\s+(?P<name>[\"\w.]+)\s*\((?P<args>(?:[^()]|\([^)]*\))*)\)""",
     re.IGNORECASE,
 )
-# CREATE [OR REPLACE] [MATERIALIZED] VIEW [IF NOT EXISTS] [schema.]name AS ...
+# CREATE [OR REPLACE] [MATERIALIZED] VIEW [IF NOT EXISTS] [schema.]name [WITH (...)] AS ...
 # MATERIALIZED + IF NOT EXISTS added 2026-05-28: the miner was silently
 # dropping materialised views (e.g. v_kpi_truth in 20260512000005), leaving
 # the object- and column-existence validators blind to them. Found via the
 # MCP cockpit flywheel.
+# WITH (...) options clause added 2026-06-01: a `CREATE OR REPLACE VIEW
+# public.v_asset_state_truth WITH (security_invoker = true) AS ...` was
+# invisible because the regex required `name\s+AS` and could not span the
+# options clause — the exact view-regex gap documented for
+# validate_schema_coverage. Optional `(?:\s+WITH\s*\([^)]*\))?` before AS.
 CREATE_VIEW_RE = re.compile(
-    r"""CREATE\s+(?:OR\s+REPLACE\s+)?(?:MATERIALIZED\s+)?VIEW\s+(?:IF\s+NOT\s+EXISTS\s+)?(?P<name>[\"\w.]+)\s+AS""",
+    r"""CREATE\s+(?:OR\s+REPLACE\s+)?(?:MATERIALIZED\s+)?VIEW\s+(?:IF\s+NOT\s+EXISTS\s+)?(?P<name>[\"\w.]+)(?:\s+WITH\s*\([^)]*\))?\s+AS""",
     re.IGNORECASE,
 )
 ENABLE_RLS_RE = re.compile(

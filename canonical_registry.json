@@ -5050,6 +5050,33 @@
     }
   },
   "views": {
+    "v_worker_achievements": {
+      "defined_in": "20260508000008_achievements_view.sql",
+      "read_by_surfaces": [],
+      "read_by_edge_fns": [],
+      "columns": [
+        "id",
+        "worker_name",
+        "achievement_id",
+        "current_level",
+        "xp_total",
+        "last_action_at"
+      ]
+    },
+    "v_achievement_xp_log": {
+      "defined_in": "20260508000008_achievements_view.sql",
+      "read_by_surfaces": [],
+      "read_by_edge_fns": [],
+      "columns": [
+        "id",
+        "worker_name",
+        "achievement_id",
+        "xp_earned",
+        "source_action",
+        "source_id",
+        "earned_at"
+      ]
+    },
     "asset_brain_overview": {
       "defined_in": "20260508000009_asset_brain_foundation.sql",
       "read_by_surfaces": [],
@@ -5685,6 +5712,30 @@
       ],
       "read_by_edge_fns": [],
       "columns": []
+    },
+    "v_asset_state_truth": {
+      "defined_in": "20260530000000_unified_events_verified_state.sql",
+      "read_by_surfaces": [],
+      "read_by_edge_fns": [
+        "_shared/verified-state.ts"
+      ],
+      "columns": [
+        "hive_id",
+        "asset_tag",
+        "event_type",
+        "verified_source",
+        "verified_source_rank",
+        "source_id",
+        "verified_at",
+        "verified_payload",
+        "verified_text",
+        "conflict_count",
+        "superseded_count",
+        "ingested_at",
+        "_source_count",
+        "_freshness_ts",
+        "_canonical_version"
+      ]
     }
   },
   "rpcs": {
@@ -7986,16 +8037,7 @@
       "loc": 246
     }
   },
-  "phantom_tables": {
-    "v_asset_state_truth": {
-      "read_by_surfaces": [],
-      "read_by_edge_fns": [
-        "_shared/verified-state.ts"
-      ],
-      "written_by_surfaces": [],
-      "written_by_edge_fns": []
-    }
-  },
+  "phantom_tables": {},
   "duplicate_signals": [
     {
       "kind": "surface_overlap",

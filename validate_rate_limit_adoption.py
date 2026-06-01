@@ -41,6 +41,7 @@ EXEMPT = {
     "scheduled-agents",       # internal scheduler; runs as service role; no hive context
     "trigger-ml-retrain",     # batch trigger; no per-call cost
     "cron-runner",            # internal
+    "semantic-fact-extractor",# pg_cron batch extractor; self-caps fan-out (MAX_GROUPS=6); no per-user request path
 }
 
 

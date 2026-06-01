@@ -5,13 +5,13 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 
 ## Summary
 
-- Tables:        **142**
-- Views:         **46**
-- RPCs:          **73**
+- Tables:        **143**
+- Views:         **49**
+- RPCs:          **75**
 - HTML surfaces: **45**
-- Edge fns:      **76**
+- Edge fns:      **83**
 - Phantom tables (referenced in code, not in migrations): **0**
-- Duplicate signals: **65**
+- Duplicate signals: **64**
 
 ## Tables (sorted by usage)
 
@@ -87,12 +87,14 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 | `hive_route_calls` | 5 | yes | no | — | — | _shared/rate-limit.ts |
 | `sensor_readings` | 13 | yes | yes | — | — | sensor-readings-ingest |
 | `anomaly_signals` | 22 | yes | yes | alert-hub.html | alert-hub.html | — |
+| `knowledge_graph_facts` | 18 | yes | yes | — | — | semantic-fact-extractor |
 | `platform_feedback` | 20 | yes | yes | founder-console.html | founder-console.html | — |
-| `agent_episodic_memory` | 12 | yes | no | — | — | agent-memory-store |
+| `agent_episodic_memory` | 12 | yes | no | — | — | _shared/episodic-memory.ts |
 | `unified_events` | 12 | yes | no | — | — | data-fabric-normalizer |
 | `ai_cache` | 8 | yes | no | — | — | _shared/cache.ts |
 | `ai_user_rate_limits` | 4 | yes | no | — | — | _shared/rate-limit.ts |
 | `wh_traces` | 9 | yes | no | — | — | _shared/error-tracker.ts |
+| `agent_followups` | 13 | yes | no | — | — | _shared/followups.ts |
 | `achievement_xp_log` | 7 | yes | no | achievements.html | — | — |
 | `canonical_sources` | 10 | yes | no | — | — | — |
 | `hive_route_quotas` | 7 | yes | no | — | — | — |
@@ -123,7 +125,6 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 | `hive_adoption_score` | 16 | yes | yes | — | — | — |
 | `auth_session_events` | 9 | yes | no | — | — | — |
 | `mfa_enrollments` | 11 | yes | no | — | — | — |
-| `knowledge_graph_facts` | 18 | yes | yes | — | — | — |
 | `drone_inspections` | 16 | yes | yes | — | — | — |
 | `industry_standards` | 13 | yes | no | — | — | — |
 | `consulting_engagements` | 15 | yes | no | — | — | — |
@@ -202,6 +203,7 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 | `hard_delete_expired_soft_deletes` |  | yes | — | — |
 | `increment_community_xp` | "p_worker_name" "text", "p_hive_id" "uuid", "p_amount" integ | yes | — | — |
 | `increment_listing_view` | "p_listing_id" "uuid" | yes | marketplace.html | — |
+| `match_procedural_memories` | p_query_embedding  vector,   p_hive_id          uuid,   p_wo | yes | — | _shared/skill-library.ts |
 | `platform_feedback_stamp_resolved` |  | yes | — | — |
 | `populate_asset_node_bridges` |  | yes | — | — |
 | `refresh_v_kpi_truth` |  | yes | — | — |
@@ -234,6 +236,7 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 | `trg_logbook_achievement_xp` |  | yes | — | — |
 | `trg_pm_achievement_xp` |  | yes | — | — |
 | `trg_skill_badge_achievement_xp` |  | yes | — | — |
+| `unified_event_source_rank` | p_source text | no | — | — |
 | `update_dialog_state` | p_hive_id uuid,   p_session_id text,   p_turn_num int,   p_i | no | — | — |
 | `update_seller_rating` |  | no | — | — |
 | `update_seller_tier` |  | no | — | — |
@@ -329,7 +332,6 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 - `hive_adoption_score` (defined but unreferenced)
 - `auth_session_events` (defined but unreferenced)
 - `mfa_enrollments` (defined but unreferenced)
-- `knowledge_graph_facts` (defined but unreferenced)
 - `drone_inspections` (defined but unreferenced)
 - `industry_standards` (defined but unreferenced)
 - `consulting_engagements` (defined but unreferenced)

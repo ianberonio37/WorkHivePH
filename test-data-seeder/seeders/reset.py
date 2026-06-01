@@ -15,6 +15,7 @@ RESET_TABLES = [
     "agentic_rag_traces",          # 20260521120000 — append-only RAG trace log
     "canonical_period_summaries",  # 20260521121000 — period rollup cache
     "agent_episodic_memory",       # 20260521122000 — per-worker episodic memory
+    "agent_followups",             # 20260531000002 — agent prospective-memory queue
     "unified_events",              # 20260521123000 — unified event stream
     # Voice Companion infra tables (20260521125000) — referenced from voice-handler.js
     "ai_audit_log",                # T95 audit log

@@ -120,6 +120,7 @@ FUEL_ANCHOR_IGNORE_TABLES = {
     "achievement_definitions", "equipment_reading_templates",
     # Memory / brain tooling
     "agent_memory",
+    "agent_followups",   # agent prospective-memory queue (server-side scheduler state; no fuel canonical)
     # Migration metadata
     "schema_migrations",
     # Cache tables (no domain truth, just performance layers)
