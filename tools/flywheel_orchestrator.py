@@ -44,6 +44,8 @@ import argparse
 import io
 import json
 import re
+import socket
+import subprocess
 import sys
 from datetime import datetime
 from pathlib import Path
@@ -224,6 +226,127 @@ def _scalar_diff(prev: dict, curr: dict, key: str) -> dict:
     p = prev.get(key, 0)
     c = curr.get(key, 0)
     return {"from": p, "to": c, "delta": c - p}
+
+
+# ── P4: Noise quarantine (SELF_IMPROVING_GATE_ROADMAP.md) ───────────────────
+# A baseline-count INCREASE between turns is flagged a "regression" by the naive
+# diff — but not every increase is rot. Classify each before scoring so weather
+# never masquerades as a code regression (and never phantom-blocks a commit via
+# the canonical board's "Flywheel turns" gate, which reads L0_regressions):
+#
+#   real             validator still FAILs at the new count — a violation
+#                    ceiling was genuinely loosened. Scored (blocks).
+#   adoption-ratchet validator PASSes; the baseline is an adoption FLOOR that
+#                    legitimately ROSE (e.g. envelope_return_shape 1->2 when a
+#                    new edge fn adopts the envelope). An improvement, not rot.
+#   stale-report     re-running the validator shows the count back at `from` —
+#                    the snapshot read a stale/half-written report (the recurring
+#                    Turn-3 lesson). The re-run also refreshes that report.
+#   env-down         re-running errored on a Docker/connection signature
+#                    (httpx 10061 / dockerDesktopLinuxEngine) — weather, not code.
+#   unknown          no validate_<name>.py to re-run — surfaced conservatively
+#                    (scored) so a real regression in an unmapped validator is
+#                    never silently dropped.
+#
+# Mechanism: re-run the regressed validator (the source of truth) and read its
+# exit code + refreshed count. Best-effort + isolated — a classifier bug falls
+# back to scoring ALL regressions (fail-loud, never hide rot).
+
+ENV_ERROR_SIGNATURES = (
+    "WinError 10061", "Connection refused", "ConnectError", "ConnectionError",
+    "Max retries exceeded", "dockerDesktopLinuxEngine", "Cannot connect",
+    "Failed to establish a new connection", "httpx.ConnectError",
+)
+# *_baseline.json files that are NOT a single validator's ratchet (gate-wide
+# snapshots) — never classified as a code regression.
+NON_VALIDATOR_BASELINES = {"platform"}
+
+
+def _read_single_baseline(name: str) -> int | None:
+    """First numeric value in <name>_baseline.json (same convention as
+    _snapshot_L0). None if absent/unreadable."""
+    try:
+        doc = json.loads((ROOT / f"{name}_baseline.json").read_text(encoding="utf-8"))
+    except Exception:
+        return None
+    for v in doc.values():
+        if isinstance(v, (int, float)):
+            return int(v)
+    return None
+
+
+def _baseline_to_validator(name: str) -> Path | None:
+    cand = ROOT / f"validate_{name}.py"
+    return cand if cand.exists() else None
+
+
+def env_probe() -> bool:
+    """Best-effort hint: is the local Supabase/Docker stack reachable? Used to
+    annotate env-down attribution. The actual env-down verdict comes from the
+    re-run's error signature; this is recorded for context."""
+    for port in (54321, 54322):   # supabase api / db
+        try:
+            with socket.create_connection(("127.0.0.1", port), timeout=1.0):
+                return True
+        except OSError:
+            continue
+    return False
+
+
+def _classify_regression(reg: dict, env_up: bool) -> dict:
+    """Bucket one baseline-increase regression. Returns reg + {classification,
+    scored, ...}. `scored=True` means it counts as a real L0 regression."""
+    name = reg["validator"]
+    out = {**reg, "classification": "real", "scored": True, "env_up": env_up}
+    if name in NON_VALIDATOR_BASELINES:
+        out.update(classification="infra-baseline", scored=False)
+        return out
+    script = _baseline_to_validator(name)
+    if script is None:
+        out.update(classification="unknown", scored=True,
+                   note="no validate_<name>.py to re-run; surfaced conservatively")
+        return out
+    try:
+        proc = subprocess.run([sys.executable, str(script)], capture_output=True,
+                              text=True, timeout=150, cwd=str(ROOT))
+        combined = (proc.stdout or "") + (proc.stderr or "")
+        if any(sig in combined for sig in ENV_ERROR_SIGNATURES):
+            out.update(classification="env-down", scored=False)
+            return out
+        fresh = _read_single_baseline(name)
+        out["fresh_count"] = fresh
+        if proc.returncode == 0:
+            # Validator passes at the new count → not a loosened ceiling.
+            if fresh is not None and fresh <= reg["from"]:
+                out.update(classification="stale-report", scored=False)
+            else:
+                out.update(classification="adoption-ratchet", scored=False)
+        else:
+            out.update(classification="real", scored=True)
+    except subprocess.TimeoutExpired:
+        out.update(classification="env-down", scored=False,
+                   note="validator timed out — treated as env/weather")
+    except Exception as e:
+        out.update(classification="unknown", scored=True, error=str(e))
+    return out
+
+
+def _classify_regressions(raw: list, *, cap: int = 20) -> tuple[list, list, bool | None]:
+    """Split raw regressions into (real, quarantined, env_up). Isolated: any
+    failure falls back to scoring all raw regressions (never hide rot)."""
+    if not raw:
+        return [], [], None
+    try:
+        env_up = env_probe()
+        real, quarantined = [], []
+        for reg in raw[:cap]:
+            c = _classify_regression(reg, env_up)
+            (real if c.get("scored") else quarantined).append(c)
+        for reg in raw[cap:]:
+            real.append({**reg, "classification": "unclassified-cap", "scored": True})
+        return real, quarantined, env_up
+    except Exception:
+        return raw, [], None
 
 
 # ── Promotion engine (P2 of SELF_IMPROVING_GATE_ROADMAP.md) ─────────────────
@@ -547,7 +670,12 @@ def _run_turn(reset: bool = False) -> dict:
         "L2_sentinel_specs":        _scalar_diff(prev_snaps.get("L2", {}),    curr["L2"],    "sentinel_specs"),
         "L13_walkthroughs_stale":   _scalar_diff(prev_snaps.get("L13", {}),   curr["L13"],   "walkthroughs_stale"),
     }
-    ratchets, regressions = _diff_L0(prev_snaps.get("L0", {}), curr["L0"])
+    ratchets, raw_regressions = _diff_L0(prev_snaps.get("L0", {}), curr["L0"])
+    # P4 noise quarantine — classify each baseline-increase before scoring; only
+    # `real` stays in L0_regressions (what the canonical board's Flywheel-turns
+    # gate blocks on). Adoption-floor rises / stale reports / env-down are
+    # quarantined with a reason, not scored as rot.
+    regressions, regressions_quarantined, env_up = _classify_regressions(raw_regressions)
 
     # P2 promotion engine — discover + draft + rank, write promotion_queue.md.
     # Best-effort + isolated: a bug here must never break the reporting turn.
@@ -573,7 +701,9 @@ def _run_turn(reset: bool = False) -> dict:
         "ts":          ts,
         "diff":        diff,
         "L0_ratchets": ratchets,
-        "L0_regressions": regressions,
+        "L0_regressions": regressions,                       # real only — what gets scored
+        "L0_regressions_quarantined": regressions_quarantined,  # noise, classified
+        "env_up":      env_up,
         "promotions":  promo_summary,
     }
 
@@ -618,11 +748,21 @@ def _print_terminal(turn_record: dict) -> None:
 
     if turn_record["L0_regressions"]:
         print()
-        print(f"{RED}{BOLD}  REGRESSIONS ({len(turn_record['L0_regressions'])}){RESET} — baselines that loosened (FIX):")
+        print(f"{RED}{BOLD}  REGRESSIONS ({len(turn_record['L0_regressions'])}){RESET} — real, scored (FIX):")
         for r in turn_record["L0_regressions"][:10]:
-            print(f"    {RED}↑{RESET} {r['validator']:<40s}  {r['from']} → {r['to']}")
+            tag = r.get("classification", "real")
+            print(f"    {RED}↑{RESET} {r['validator']:<40s}  {r['from']} → {r['to']}  [{tag}]")
 
-    if not turn_record["L0_ratchets"] and not turn_record["L0_regressions"]:
+    quarantined = turn_record.get("L0_regressions_quarantined") or []
+    if quarantined:
+        env = turn_record.get("env_up")
+        env_note = "" if env is None else f"  (env {'up' if env else 'DOWN'})"
+        print()
+        print(f"{YELLOW}{BOLD}  QUARANTINED ({len(quarantined)}){RESET} — baseline deltas classified as noise, not scored{env_note}:")
+        for r in quarantined[:10]:
+            print(f"    {YELLOW}~{RESET} {r['validator']:<34s}  {r['from']} → {r['to']}  [{r.get('classification','?')}]")
+
+    if not turn_record["L0_ratchets"] and not turn_record["L0_regressions"] and not quarantined:
         print()
         print(f"  {YELLOW}No ratchets or regressions this turn — platform is stable.{RESET}")
 
@@ -675,13 +815,24 @@ def _write_report_md(turn_record: dict) -> None:
             lines.append(f"| `{r['validator']}` | {r['from']} | **{r['to']}** |")
         lines.append("")
     if turn_record["L0_regressions"]:
-        lines.append(f"## ❌ Regressions ({len(turn_record['L0_regressions'])}) — baselines loosened (FIX)\n")
-        lines.append("| Validator | Was | Now |")
-        lines.append("|---|---:|---:|")
+        lines.append(f"## ❌ Regressions ({len(turn_record['L0_regressions'])}) — real, scored (FIX)\n")
+        lines.append("| Validator | Was | Now | Class |")
+        lines.append("|---|---:|---:|---|")
         for r in turn_record["L0_regressions"]:
-            lines.append(f"| `{r['validator']}` | {r['from']} | **{r['to']}** |")
+            lines.append(f"| `{r['validator']}` | {r['from']} | **{r['to']}** | {r.get('classification','real')} |")
         lines.append("")
-    if not turn_record["L0_ratchets"] and not turn_record["L0_regressions"]:
+    quarantined = turn_record.get("L0_regressions_quarantined") or []
+    if quarantined:
+        env = turn_record.get("env_up")
+        env_note = "" if env is None else f" (env {'up' if env else 'DOWN'})"
+        lines.append(f"## 🟡 Quarantined ({len(quarantined)}) — baseline deltas classified as noise, not scored{env_note}\n")
+        lines.append("| Validator | Was | Now | Class | Note |")
+        lines.append("|---|---:|---:|---|---|")
+        for r in quarantined:
+            note = r.get("note") or r.get("error") or ""
+            lines.append(f"| `{r['validator']}` | {r['from']} | {r['to']} | **{r.get('classification','?')}** | {note} |")
+        lines.append("")
+    if not turn_record["L0_ratchets"] and not turn_record["L0_regressions"] and not quarantined:
         lines.append("## No ratchets or regressions this turn — platform stable.\n")
 
     promo = turn_record.get("promotions")

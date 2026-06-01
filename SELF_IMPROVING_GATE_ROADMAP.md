@@ -3,7 +3,7 @@
 **Created:** 2026-06-01
 **Status:** Architecture-of-record + phased plan (design only; no engine built yet)
 **Companion docs:** [UNIFIED_MEGA_GATE.md](UNIFIED_MEGA_GATE.md) (the 6 gate layers), [SENTINEL_ARCHITECTURE.md](SENTINEL_ARCHITECTURE.md) (the two bridges), [COMPREHENSIVE_STUDY_FULLSTACK_GATE.md](COMPREHENSIVE_STUDY_FULLSTACK_GATE.md) (the 13×6 matrix)
-**Engine today:** [tools/flywheel_orchestrator.py](tools/flywheel_orchestrator.py) — now a *driver*, not just an observer. **P1 (efficacy ledger) + P2 (promotion engine) are built.** Each turn it discovers + drafts a ranked `promotion_queue.md` (recurring L-1 miner patterns → rule candidates; load-bearing L0 validators → sentinel candidates), gated by `promotion_dispositions.json` (the human's one-pass approval). Its docstring is now true. **P3 (decay/freshness sense) is built** as `validate_validator_freshness.py` (a G-1 meta-validator): author-declared `FRESHNESS_ANCHORS` must still match their target file (FAIL), plus a ledger-cross-referenced decay-suspect census (INFO).
+**Engine today:** [tools/flywheel_orchestrator.py](tools/flywheel_orchestrator.py) — now a *driver*, not just an observer. **P1 (efficacy ledger) + P2 (promotion engine) are built.** Each turn it discovers + drafts a ranked `promotion_queue.md` (recurring L-1 miner patterns → rule candidates; load-bearing L0 validators → sentinel candidates), gated by `promotion_dispositions.json` (the human's one-pass approval). Its docstring is now true. **P3 (decay/freshness sense) is built** as `validate_validator_freshness.py` (a G-1 meta-validator): author-declared `FRESHNESS_ANCHORS` must still match their target file (FAIL), plus a ledger-cross-referenced decay-suspect census (INFO). **P4 (noise quarantine) is built**: `_classify_regression()` re-runs each flagged validator before scoring, so adoption-floor rises / stale reports / env-down are quarantined and only `real` regressions reach `L0_regressions` (what the board blocks on).
 
 ---
 
@@ -138,7 +138,7 @@ update ≥3 skills) all govern **growth**. A living system must shed as fast as 
 | **P1** | A | **Efficacy ledger** (`gate_efficacy_ledger.json`) | The foundational sense organ — everything hangs off "which rules matter" | **DONE** |
 | **P2** | A | **Promotion engine** in `flywheel_orchestrator.py` | Convert the scorer into a driver (make its own docstring true) | **DONE** |
 | **P3** | A | **Decay/freshness detector** at G-1 | The #1 real rot vector (validator-lag) — catch it cheap | **DONE** |
-| **P4** | A | **Noise quarantine** (classify "regression") | Make the orchestrator trustworthy so its signal is actionable | 0% |
+| **P4** | A | **Noise quarantine** (classify "regression") | Make the orchestrator trustworthy so its signal is actionable | **DONE** |
 | **P5** | A | **Retirement loop** (Rule D, ledger-driven) | Shedding — keep the gate lean/fast/credible | 0% |
 | **P6** | B | **Held-out validation split** | SkillOpt's #1 idea; the anti-overfit foundation for Track B | 0% |
 | **P7** | B | **Skill-edit accept/reject gate + `best_skill.md` + rejected buffer** | Make skill-file evolution rigorous instead of vibes | 0% |
@@ -251,6 +251,28 @@ until P1's ledger has enough turns of history to retire safely.)
   logged as a ratchet, not a regression; a stale report is auto-refreshed once before scoring.
 - **Persists via:** `flywheel_state.json` (classification per regression).
 - **Effort:** M. **Depends on:** P1 (true-catch attribution feeds off this).
+- **✅ Status: BUILT (2026-06-01).** `_classify_regression()` + `_classify_regressions()` +
+  `env_probe()` in `flywheel_orchestrator.py`. Every baseline-increase the naive `_diff_L0` flags is
+  re-classified **before scoring** by *re-running the regressed validator* (the source of truth) and
+  reading its exit code + refreshed count:
+  - **real** — validator still FAILs at the new count (a violation ceiling genuinely loosened). The
+    ONLY bucket kept in `turn_record["L0_regressions"]` — i.e. the only thing the canonical board's
+    "Flywheel turns" gate blocks on.
+  - **adoption-ratchet** — validator PASSes and the fresh count rose (an adoption FLOOR legitimately
+    increased, e.g. `envelope_return_shape 1→2` when a new edge fn adopts the envelope). Quarantined.
+  - **stale-report** — re-run shows the count back at `from` (the snapshot read a stale/half-written
+    report); the re-run also *refreshes* that report. Quarantined.
+  - **env-down** — re-run errored on a Docker/connection signature (`WinError 10061` /
+    `dockerDesktopLinuxEngine` / `httpx.ConnectError`) or timed out. Quarantined.
+  - **unknown** (no `validate_<name>.py` to re-run) → kept scored, *conservatively* (never silently
+    drop a real regression); **infra-baseline** (`platform`) → not scored.
+  - Quarantined deltas surface in a separate **🟡 Quarantined** block in the terminal + turn report
+    with their class + reason — transparent, not hidden. Best-effort + isolated: a classifier bug
+    falls back to scoring ALL regressions (fail-loud).
+  - **Verified:** all 6 branches unit-tested (synthetic env-down + real-fail validators); end-to-end,
+    a forced `envelope_return_shape 0→2` lands in Quarantined with `L0_regressions` EMPTY → board's
+    Flywheel-turns gate reads 0 regression (the exact recurring phantom-block, now neutralized);
+    `flywheel_state.json` restored; clean turn #64 → board green.
 
 ### P5 — Retirement loop  (Rule D, ledger-driven)
 - **Goal:** the shedding mechanism. Keep the gate lean, fast, and credible.
