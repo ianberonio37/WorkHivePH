@@ -3,7 +3,7 @@
 **Created:** 2026-06-01
 **Status:** Architecture-of-record + phased plan (design only; no engine built yet)
 **Companion docs:** [UNIFIED_MEGA_GATE.md](UNIFIED_MEGA_GATE.md) (the 6 gate layers), [SENTINEL_ARCHITECTURE.md](SENTINEL_ARCHITECTURE.md) (the two bridges), [COMPREHENSIVE_STUDY_FULLSTACK_GATE.md](COMPREHENSIVE_STUDY_FULLSTACK_GATE.md) (the 13×6 matrix)
-**Engine today:** [tools/flywheel_orchestrator.py](tools/flywheel_orchestrator.py) — now a *driver*, not just an observer. **P1 (efficacy ledger) + P2 (promotion engine) are built.** Each turn it discovers + drafts a ranked `promotion_queue.md` (recurring L-1 miner patterns → rule candidates; load-bearing L0 validators → sentinel candidates), gated by `promotion_dispositions.json` (the human's one-pass approval). Its docstring is now true. **P3 (decay/freshness sense) is built** as `validate_validator_freshness.py` (a G-1 meta-validator): author-declared `FRESHNESS_ANCHORS` must still match their target file (FAIL), plus a ledger-cross-referenced decay-suspect census (INFO). **P4 (noise quarantine) is built**: `_classify_regression()` re-runs each flagged validator before scoring, so adoption-floor rises / stale reports / env-down are quarantined and only `real` regressions reach `L0_regressions` (what the board blocks on).
+**Engine today:** [tools/flywheel_orchestrator.py](tools/flywheel_orchestrator.py) — now a *driver*, not just an observer. **P1 (efficacy ledger) + P2 (promotion engine) are built.** Each turn it discovers + drafts a ranked `promotion_queue.md` (recurring L-1 miner patterns → rule candidates; load-bearing L0 validators → sentinel candidates), gated by `promotion_dispositions.json` (the human's one-pass approval). Its docstring is now true. **P3 (decay/freshness sense) is built** as `validate_validator_freshness.py` (a G-1 meta-validator): author-declared `FRESHNESS_ANCHORS` must still match their target file (FAIL), plus a ledger-cross-referenced decay-suspect census (INFO). **P4 (noise quarantine) is built**: `_classify_regression()` re-runs each flagged validator before scoring, so adoption-floor rises / stale reports / env-down are quarantined and only `real` regressions reach `L0_regressions` (what the board blocks on). **C1 (verdict contract) + P6 (held-out split) are built (2026-06-01):** the efficacy ledger tags every validator `{domain, dimension}` (`gate_efficacy_ledger.py` heuristic + `gate_domain_dimension_map.json` override + a per-domain/dimension scorecard in `report`), and `tools/gate_eval_splits.py` freezes the eval corpus (115 L2 specs + 18 companion probes) into train/val/🔒locked-test in `gate_eval_splits.json` with a tamper-evident `test_seal`; `companion_rigorous_grader.py --split test` scores the locked set separately.
 
 ---
 
@@ -140,7 +140,7 @@ update ≥3 skills) all govern **growth**. A living system must shed as fast as 
 | **P3** | A | **Decay/freshness detector** at G-1 | The #1 real rot vector (validator-lag) — catch it cheap | **DONE** |
 | **P4** | A | **Noise quarantine** (classify "regression") | Make the orchestrator trustworthy so its signal is actionable | **DONE** |
 | **P5** | A | **Retirement loop** (Rule D, ledger-driven) | Shedding — keep the gate lean/fast/credible | 0% |
-| **P6** | B | **Held-out validation split** | SkillOpt's #1 idea; the anti-overfit foundation for Track B | 0% |
+| **P6** | B | **Held-out validation split** | SkillOpt's #1 idea; the anti-overfit foundation for Track B | **DONE** |
 | **P7** | B | **Skill-edit accept/reject gate + `best_skill.md` + rejected buffer** | Make skill-file evolution rigorous instead of vibes | 0% |
 | **P8** | B | **Epoch-wise meta-reflection** (helped/failed edit kinds) | Optional/advanced — improves the optimizer itself | 0% |
 
@@ -299,6 +299,26 @@ until P1's ledger has enough turns of history to retire safely.)
   locked test; the test split is provably never used during authoring.
 - **Persists via:** `gate_eval_splits.json` (frozen assignment, like a migration hash).
 - **Effort:** M–L. **Depends on:** nothing (but most valuable after P1).
+- **✅ Status: BUILT (2026-06-01).** `tools/gate_eval_splits.py` (4 subcommands: `build` /
+  `report` / `verify` / `resolve`) + `gate_eval_splits.json`. Corpus = **115 L2 specs**
+  (`tests/*.spec.ts`; RAG evals ride in as their journey specs) **+ 18 companion probes**
+  (`companion_probe_bank.json` baseline+adversarial+held-out-templates) = 133 units, each
+  tagged with the SAME C1 `{domain, dimension}` taxonomy (imported from `gate_efficacy_ledger`).
+  - **Frozen like a migration hash:** split = a salted sha1(`SALT:kind:id`) % 100 bucket
+    (train<60 / val<80 / 🔒test≥80). `build` PRESERVES existing assignments and only assigns
+    NEW units, so the corpus grows without reshuffling and the locked set is stable. Verified:
+    delete + rebuild reproduces the **identical** `test_seal` (`27189b6c…`).
+  - **Tamper-evident locked test:** `test_seal` = sha256 over the sorted test-set ids. `verify`
+    recomputes it and **exits 1 on drift** — silently moving a unit OUT of test to flatter a score
+    is caught (verified: flipping one test spec → `LOCKED-TEST SEAL DRIFT`, exit 1). Legit corpus
+    growth re-`build`s + commits the new seal (a git trail), same discipline as migration hashes.
+  - **`--split` on a runner, paid-call-free:** `companion_rigorous_grader.py --split {train,val,test}`
+    filters to a split's probe membership before scoring (default `all` = unchanged; non-breaking
+    for the turn runner). `test` = the honest locked score. Held-out generated ids
+    (`H02-safety-template-t5`) prefix-match their bank template id. `resolve --split train --kind spec`
+    emits the membership list any runner consumes (e.g. `playwright test $(…)`).
+  - **Not gate-wired yet (by design):** like P1's ledger, this ships as a standalone tool. Promoting
+    `verify` to a G0 validator (so a locked-seal drift blocks the board) is the natural P6 follow-on.
 
 ### P7 — Skill-edit accept/reject gate + `best_skill.md` + rejected buffer
 - **Goal:** make `SKILL.md` evolution rigorous — the structure SkillOpt has and the hand-edit ritual
@@ -467,7 +487,7 @@ Not three new things — **three faces of what's already built.**
 ### Track C phases (layered on the spine; P1–P8 unchanged)
 | Phase | Goal | Acceptance |
 |---|---|---|
-| **C1** | Verdict contract + tag the efficacy ledger with `{domain, dimension}` (small extension of P1) | every validator/eval emits a domain+dimension tag; the ledger reports per-domain |
+| **C1** ✅ **DONE** | Verdict contract + tag the efficacy ledger with `{domain, dimension}` (small extension of P1) | every validator/eval emits a domain+dimension tag; the ledger reports per-domain — **built 2026-06-01** alongside P6 (shared taxonomy in `gate_efficacy_ledger.classify_domain_dimension`; 348 validators tagged general 219 / saas 48 / ai 81; `gate_domain_dimension_map.json` override + `reclassify` command). C2 (AI eval gate) now unblocked. |
 | **C2** | Stand up the **AI eval gate** as a real harness — golden sets + LLM-as-judge + regression deltas + cost/latency; add Safety + Cost dimensions | an AI eval regression (vs golden set) is detected with a delta + blocks the AI-feature path |
 | **C3** | **Scheduled + runtime fitness functions** (drift, SLO, cost anomaly) via Grafana/Sentry | the AI gate runs on a clock and flags drift with no code change; a SaaS SLO breach surfaces a finding |
 | **C4** | **Seam contract tests + the meta-gate** (composition policy + boundary guards) | a seam bug (SaaS→AI / AI→tenant data) is caught even when both domain gates are green |

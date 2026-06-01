@@ -1,0 +1,950 @@
+{
+  "version": 1,
+  "salt": "wh-gate-eval-splits-v1",
+  "ratios": {
+    "train": 60,
+    "val": 20,
+    "test": 20
+  },
+  "built_ts": "2026-06-01T07:50:37+00:00",
+  "counts": {
+    "train": 71,
+    "val": 32,
+    "test": 30
+  },
+  "total": 133,
+  "test_seal": "27189b6cc59c0619a2380233f9018dd05a0a9475b780a1edc88f1a6be38e556b",
+  "items": {
+    "companion_probe:A01-gibberish": {
+      "id": "A01-gibberish",
+      "kind": "companion_probe",
+      "domain": "ai",
+      "dimension": "safety",
+      "split": "val"
+    },
+    "companion_probe:A02-prompt-injection-1": {
+      "id": "A02-prompt-injection-1",
+      "kind": "companion_probe",
+      "domain": "ai",
+      "dimension": "safety",
+      "split": "train"
+    },
+    "companion_probe:A03-prompt-injection-2": {
+      "id": "A03-prompt-injection-2",
+      "kind": "companion_probe",
+      "domain": "ai",
+      "dimension": "safety",
+      "split": "val"
+    },
+    "companion_probe:A04-contradictory-intent": {
+      "id": "A04-contradictory-intent",
+      "kind": "companion_probe",
+      "domain": "ai",
+      "dimension": "safety",
+      "split": "test"
+    },
+    "companion_probe:A05-empty-context": {
+      "id": "A05-empty-context",
+      "kind": "companion_probe",
+      "domain": "ai",
+      "dimension": "safety",
+      "split": "val"
+    },
+    "companion_probe:B01-logbook-create": {
+      "id": "B01-logbook-create",
+      "kind": "companion_probe",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "train"
+    },
+    "companion_probe:B02-asset-query": {
+      "id": "B02-asset-query",
+      "kind": "companion_probe",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "val"
+    },
+    "companion_probe:B03-report-generate": {
+      "id": "B03-report-generate",
+      "kind": "companion_probe",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "train"
+    },
+    "companion_probe:B04-analytics-energy": {
+      "id": "B04-analytics-energy",
+      "kind": "companion_probe",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "train"
+    },
+    "companion_probe:B05-shift-handover": {
+      "id": "B05-shift-handover",
+      "kind": "companion_probe",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "train"
+    },
+    "companion_probe:B06-project-plan": {
+      "id": "B06-project-plan",
+      "kind": "companion_probe",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "train"
+    },
+    "companion_probe:B07-voice-journal-safety": {
+      "id": "B07-voice-journal-safety",
+      "kind": "companion_probe",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "val"
+    },
+    "companion_probe:B08-voice-journal-loto": {
+      "id": "B08-voice-journal-loto",
+      "kind": "companion_probe",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "train"
+    },
+    "companion_probe:B09-multilang-tagalog": {
+      "id": "B09-multilang-tagalog",
+      "kind": "companion_probe",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "val"
+    },
+    "companion_probe:B10-multilang-cebuano": {
+      "id": "B10-multilang-cebuano",
+      "kind": "companion_probe",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "test"
+    },
+    "companion_probe:H01-anomaly-template": {
+      "id": "H01-anomaly-template",
+      "kind": "companion_probe",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "val"
+    },
+    "companion_probe:H02-safety-template": {
+      "id": "H02-safety-template",
+      "kind": "companion_probe",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "train"
+    },
+    "companion_probe:H03-recall-template": {
+      "id": "H03-recall-template",
+      "kind": "companion_probe",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "test"
+    },
+    "spec:tests/achievements.spec.ts": {
+      "id": "tests/achievements.spec.ts",
+      "kind": "spec",
+      "domain": "general",
+      "dimension": "functionality",
+      "split": "test"
+    },
+    "spec:tests/ai-quality.spec.ts": {
+      "id": "tests/ai-quality.spec.ts",
+      "kind": "spec",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "train"
+    },
+    "spec:tests/alert-hub-amc.spec.ts": {
+      "id": "tests/alert-hub-amc.spec.ts",
+      "kind": "spec",
+      "domain": "general",
+      "dimension": "functionality",
+      "split": "train"
+    },
+    "spec:tests/alert-hub.spec.ts": {
+      "id": "tests/alert-hub.spec.ts",
+      "kind": "spec",
+      "domain": "general",
+      "dimension": "functionality",
+      "split": "val"
+    },
+    "spec:tests/analytics-report.spec.ts": {
+      "id": "tests/analytics-report.spec.ts",
+      "kind": "spec",
+      "domain": "general",
+      "dimension": "functionality",
+      "split": "val"
+    },
+    "spec:tests/analytics.spec.ts": {
+      "id": "tests/analytics.spec.ts",
+      "kind": "spec",
+      "domain": "general",
+      "dimension": "functionality",
+      "split": "val"
+    },
+    "spec:tests/asset-hub-telemetry.spec.ts": {
+      "id": "tests/asset-hub-telemetry.spec.ts",
+      "kind": "spec",
+      "domain": "general",
+      "dimension": "functionality",
+      "split": "train"
+    },
+    "spec:tests/asset-hub.spec.ts": {
+      "id": "tests/asset-hub.spec.ts",
+      "kind": "spec",
+      "domain": "general",
+      "dimension": "functionality",
+      "split": "val"
+    },
+    "spec:tests/assistant.spec.ts": {
+      "id": "tests/assistant.spec.ts",
+      "kind": "spec",
+      "domain": "general",
+      "dimension": "functionality",
+      "split": "test"
+    },
+    "spec:tests/audit-log.spec.ts": {
+      "id": "tests/audit-log.spec.ts",
+      "kind": "spec",
+      "domain": "saas",
+      "dimension": "internal_control",
+      "split": "val"
+    },
+    "spec:tests/calm-dashboard.spec.ts": {
+      "id": "tests/calm-dashboard.spec.ts",
+      "kind": "spec",
+      "domain": "general",
+      "dimension": "functionality",
+      "split": "train"
+    },
+    "spec:tests/canonical-lineage.spec.ts": {
+      "id": "tests/canonical-lineage.spec.ts",
+      "kind": "spec",
+      "domain": "general",
+      "dimension": "functionality",
+      "split": "train"
+    },
+    "spec:tests/community.spec.ts": {
+      "id": "tests/community.spec.ts",
+      "kind": "spec",
+      "domain": "general",
+      "dimension": "functionality",
+      "split": "train"
+    },
+    "spec:tests/companion-rigorous-flywheel.spec.ts": {
+      "id": "tests/companion-rigorous-flywheel.spec.ts",
+      "kind": "spec",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "val"
+    },
+    "spec:tests/dayplanner.spec.ts": {
+      "id": "tests/dayplanner.spec.ts",
+      "kind": "spec",
+      "domain": "general",
+      "dimension": "functionality",
+      "split": "train"
+    },
+    "spec:tests/engineering-design.spec.ts": {
+      "id": "tests/engineering-design.spec.ts",
+      "kind": "spec",
+      "domain": "general",
+      "dimension": "functionality",
+      "split": "train"
+    },
+    "spec:tests/engineering-renderers.spec.ts": {
+      "id": "tests/engineering-renderers.spec.ts",
+      "kind": "spec",
+      "domain": "general",
+      "dimension": "functionality",
+      "split": "val"
+    },
+    "spec:tests/feedback-journey.spec.ts": {
+      "id": "tests/feedback-journey.spec.ts",
+      "kind": "spec",
+      "domain": "general",
+      "dimension": "functionality",
+      "split": "val"
+    },
+    "spec:tests/feedback-realtime.spec.ts": {
+      "id": "tests/feedback-realtime.spec.ts",
+      "kind": "spec",
+      "domain": "general",
+      "dimension": "functionality",
+      "split": "train"
+    },
+    "spec:tests/feedback.spec.ts": {
+      "id": "tests/feedback.spec.ts",
+      "kind": "spec",
+      "domain": "general",
+      "dimension": "functionality",
+      "split": "train"
+    },
+    "spec:tests/founder-console.spec.ts": {
+      "id": "tests/founder-console.spec.ts",
+      "kind": "spec",
+      "domain": "general",
+      "dimension": "functionality",
+      "split": "train"
+    },
+    "spec:tests/hive.spec.ts": {
+      "id": "tests/hive.spec.ts",
+      "kind": "spec",
+      "domain": "saas",
+      "dimension": "functionality",
+      "split": "test"
+    },
+    "spec:tests/index.spec.ts": {
+      "id": "tests/index.spec.ts",
+      "kind": "spec",
+      "domain": "general",
+      "dimension": "functionality",
+      "split": "train"
+    },
+    "spec:tests/integrations.spec.ts": {
+      "id": "tests/integrations.spec.ts",
+      "kind": "spec",
+      "domain": "general",
+      "dimension": "functionality",
+      "split": "train"
+    },
+    "spec:tests/inventory.spec.ts": {
+      "id": "tests/inventory.spec.ts",
+      "kind": "spec",
+      "domain": "general",
+      "dimension": "functionality",
+      "split": "train"
+    },
+    "spec:tests/journey-achievements.spec.ts": {
+      "id": "tests/journey-achievements.spec.ts",
+      "kind": "spec",
+      "domain": "general",
+      "dimension": "functionality",
+      "split": "train"
+    },
+    "spec:tests/journey-agent-memory.spec.ts": {
+      "id": "tests/journey-agent-memory.spec.ts",
+      "kind": "spec",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "val"
+    },
+    "spec:tests/journey-agentic-rag-observability.spec.ts": {
+      "id": "tests/journey-agentic-rag-observability.spec.ts",
+      "kind": "spec",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "test"
+    },
+    "spec:tests/journey-agentic-rag.spec.ts": {
+      "id": "tests/journey-agentic-rag.spec.ts",
+      "kind": "spec",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "train"
+    },
+    "spec:tests/journey-agentic.spec.ts": {
+      "id": "tests/journey-agentic.spec.ts",
+      "kind": "spec",
+      "domain": "general",
+      "dimension": "functionality",
+      "split": "train"
+    },
+    "spec:tests/journey-ai-assisted.spec.ts": {
+      "id": "tests/journey-ai-assisted.spec.ts",
+      "kind": "spec",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "val"
+    },
+    "spec:tests/journey-ai-quality.spec.ts": {
+      "id": "tests/journey-ai-quality.spec.ts",
+      "kind": "spec",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "val"
+    },
+    "spec:tests/journey-ai.spec.ts": {
+      "id": "tests/journey-ai.spec.ts",
+      "kind": "spec",
+      "domain": "general",
+      "dimension": "functionality",
+      "split": "train"
+    },
+    "spec:tests/journey-alerts.spec.ts": {
+      "id": "tests/journey-alerts.spec.ts",
+      "kind": "spec",
+      "domain": "general",
+      "dimension": "functionality",
+      "split": "test"
+    },
+    "spec:tests/journey-analytics.spec.ts": {
+      "id": "tests/journey-analytics.spec.ts",
+      "kind": "spec",
+      "domain": "general",
+      "dimension": "functionality",
+      "split": "train"
+    },
+    "spec:tests/journey-asset-hub.spec.ts": {
+      "id": "tests/journey-asset-hub.spec.ts",
+      "kind": "spec",
+      "domain": "general",
+      "dimension": "functionality",
+      "split": "val"
+    },
+    "spec:tests/journey-audit-log.spec.ts": {
+      "id": "tests/journey-audit-log.spec.ts",
+      "kind": "spec",
+      "domain": "saas",
+      "dimension": "internal_control",
+      "split": "train"
+    },
+    "spec:tests/journey-auth-identity.spec.ts": {
+      "id": "tests/journey-auth-identity.spec.ts",
+      "kind": "spec",
+      "domain": "general",
+      "dimension": "functionality",
+      "split": "val"
+    },
+    "spec:tests/journey-auth.spec.ts": {
+      "id": "tests/journey-auth.spec.ts",
+      "kind": "spec",
+      "domain": "general",
+      "dimension": "functionality",
+      "split": "train"
+    },
+    "spec:tests/journey-calm-dashboard-behaviour.spec.ts": {
+      "id": "tests/journey-calm-dashboard-behaviour.spec.ts",
+      "kind": "spec",
+      "domain": "general",
+      "dimension": "functionality",
+      "split": "val"
+    },
+    "spec:tests/journey-canonical-anchor-consistency.spec.ts": {
+      "id": "tests/journey-canonical-anchor-consistency.spec.ts",
+      "kind": "spec",
+      "domain": "general",
+      "dimension": "functionality",
+      "split": "train"
+    },
+    "spec:tests/journey-canonical-signal-parity.spec.ts": {
+      "id": "tests/journey-canonical-signal-parity.spec.ts",
+      "kind": "spec",
+      "domain": "general",
+      "dimension": "functionality",
+      "split": "train"
+    },
+    "spec:tests/journey-canonical-view-reachability.spec.ts": {
+      "id": "tests/journey-canonical-view-reachability.spec.ts",
+      "kind": "spec",
+      "domain": "general",
+      "dimension": "functionality",
+      "split": "train"
+    },
+    "spec:tests/journey-community.spec.ts": {
+      "id": "tests/journey-community.spec.ts",
+      "kind": "spec",
+      "domain": "general",
+      "dimension": "functionality",
+      "split": "train"
+    },
+    "spec:tests/journey-companion-flywheel-walk.spec.ts": {
+      "id": "tests/journey-companion-flywheel-walk.spec.ts",
+      "kind": "spec",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "train"
+    },
+    "spec:tests/journey-content.spec.ts": {
+      "id": "tests/journey-content.spec.ts",
+      "kind": "spec",
+      "domain": "general",
+      "dimension": "functionality",
+      "split": "train"
+    },
+    "spec:tests/journey-cross-page.spec.ts": {
+      "id": "tests/journey-cross-page.spec.ts",
+      "kind": "spec",
+      "domain": "general",
+      "dimension": "functionality",
+      "split": "train"
+    },
+    "spec:tests/journey-cross-surface-kpi-parity.spec.ts": {
+      "id": "tests/journey-cross-surface-kpi-parity.spec.ts",
+      "kind": "spec",
+      "domain": "general",
+      "dimension": "functionality",
+      "split": "train"
+    },
+    "spec:tests/journey-dayplanner.spec.ts": {
+      "id": "tests/journey-dayplanner.spec.ts",
+      "kind": "spec",
+      "domain": "general",
+      "dimension": "functionality",
+      "split": "test"
+    },
+    "spec:tests/journey-engineer.spec.ts": {
+      "id": "tests/journey-engineer.spec.ts",
+      "kind": "spec",
+      "domain": "general",
+      "dimension": "functionality",
+      "split": "test"
+    },
+    "spec:tests/journey-engineering-design.spec.ts": {
+      "id": "tests/journey-engineering-design.spec.ts",
+      "kind": "spec",
+      "domain": "general",
+      "dimension": "functionality",
+      "split": "train"
+    },
+    "spec:tests/journey-hierarchical-rag.spec.ts": {
+      "id": "tests/journey-hierarchical-rag.spec.ts",
+      "kind": "spec",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "test"
+    },
+    "spec:tests/journey-hive-isolation-property.spec.ts": {
+      "id": "tests/journey-hive-isolation-property.spec.ts",
+      "kind": "spec",
+      "domain": "saas",
+      "dimension": "functionality",
+      "split": "test"
+    },
+    "spec:tests/journey-hive.spec.ts": {
+      "id": "tests/journey-hive.spec.ts",
+      "kind": "spec",
+      "domain": "saas",
+      "dimension": "functionality",
+      "split": "test"
+    },
+    "spec:tests/journey-inventory.spec.ts": {
+      "id": "tests/journey-inventory.spec.ts",
+      "kind": "spec",
+      "domain": "general",
+      "dimension": "functionality",
+      "split": "val"
+    },
+    "spec:tests/journey-kg-scope-split.spec.ts": {
+      "id": "tests/journey-kg-scope-split.spec.ts",
+      "kind": "spec",
+      "domain": "general",
+      "dimension": "functionality",
+      "split": "test"
+    },
+    "spec:tests/journey-l0-platform-bug-classes.spec.ts": {
+      "id": "tests/journey-l0-platform-bug-classes.spec.ts",
+      "kind": "spec",
+      "domain": "general",
+      "dimension": "functionality",
+      "split": "train"
+    },
+    "spec:tests/journey-l0-surface-coverage.spec.ts": {
+      "id": "tests/journey-l0-surface-coverage.spec.ts",
+      "kind": "spec",
+      "domain": "general",
+      "dimension": "functionality",
+      "split": "train"
+    },
+    "spec:tests/journey-logbook.spec.ts": {
+      "id": "tests/journey-logbook.spec.ts",
+      "kind": "spec",
+      "domain": "general",
+      "dimension": "functionality",
+      "split": "train"
+    },
+    "spec:tests/journey-marketplace.spec.ts": {
+      "id": "tests/journey-marketplace.spec.ts",
+      "kind": "spec",
+      "domain": "saas",
+      "dimension": "functionality",
+      "split": "train"
+    },
+    "spec:tests/journey-megagate-cross-page.spec.ts": {
+      "id": "tests/journey-megagate-cross-page.spec.ts",
+      "kind": "spec",
+      "domain": "general",
+      "dimension": "functionality",
+      "split": "test"
+    },
+    "spec:tests/journey-megagate-marketplace.spec.ts": {
+      "id": "tests/journey-megagate-marketplace.spec.ts",
+      "kind": "spec",
+      "domain": "saas",
+      "dimension": "functionality",
+      "split": "val"
+    },
+    "spec:tests/journey-mobile-a11y.spec.ts": {
+      "id": "tests/journey-mobile-a11y.spec.ts",
+      "kind": "spec",
+      "domain": "general",
+      "dimension": "usability",
+      "split": "train"
+    },
+    "spec:tests/journey-model-router.spec.ts": {
+      "id": "tests/journey-model-router.spec.ts",
+      "kind": "spec",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "train"
+    },
+    "spec:tests/journey-notebooklm.spec.ts": {
+      "id": "tests/journey-notebooklm.spec.ts",
+      "kind": "spec",
+      "domain": "general",
+      "dimension": "functionality",
+      "split": "train"
+    },
+    "spec:tests/journey-offline.spec.ts": {
+      "id": "tests/journey-offline.spec.ts",
+      "kind": "spec",
+      "domain": "general",
+      "dimension": "functionality",
+      "split": "test"
+    },
+    "spec:tests/journey-p1-canonical-and-chain.spec.ts": {
+      "id": "tests/journey-p1-canonical-and-chain.spec.ts",
+      "kind": "spec",
+      "domain": "general",
+      "dimension": "functionality",
+      "split": "test"
+    },
+    "spec:tests/journey-p1-substrate.spec.ts": {
+      "id": "tests/journey-p1-substrate.spec.ts",
+      "kind": "spec",
+      "domain": "general",
+      "dimension": "functionality",
+      "split": "val"
+    },
+    "spec:tests/journey-p1-tier1-coverage.spec.ts": {
+      "id": "tests/journey-p1-tier1-coverage.spec.ts",
+      "kind": "spec",
+      "domain": "general",
+      "dimension": "functionality",
+      "split": "train"
+    },
+    "spec:tests/journey-p1-tier1-deep.spec.ts": {
+      "id": "tests/journey-p1-tier1-deep.spec.ts",
+      "kind": "spec",
+      "domain": "general",
+      "dimension": "functionality",
+      "split": "train"
+    },
+    "spec:tests/journey-permissions.spec.ts": {
+      "id": "tests/journey-permissions.spec.ts",
+      "kind": "spec",
+      "domain": "general",
+      "dimension": "functionality",
+      "split": "train"
+    },
+    "spec:tests/journey-plant-connections.spec.ts": {
+      "id": "tests/journey-plant-connections.spec.ts",
+      "kind": "spec",
+      "domain": "general",
+      "dimension": "functionality",
+      "split": "test"
+    },
+    "spec:tests/journey-pm.spec.ts": {
+      "id": "tests/journey-pm.spec.ts",
+      "kind": "spec",
+      "domain": "general",
+      "dimension": "functionality",
+      "split": "test"
+    },
+    "spec:tests/journey-predictive.spec.ts": {
+      "id": "tests/journey-predictive.spec.ts",
+      "kind": "spec",
+      "domain": "general",
+      "dimension": "functionality",
+      "split": "train"
+    },
+    "spec:tests/journey-project-manager.spec.ts": {
+      "id": "tests/journey-project-manager.spec.ts",
+      "kind": "spec",
+      "domain": "general",
+      "dimension": "functionality",
+      "split": "train"
+    },
+    "spec:tests/journey-project.spec.ts": {
+      "id": "tests/journey-project.spec.ts",
+      "kind": "spec",
+      "domain": "general",
+      "dimension": "functionality",
+      "split": "train"
+    },
+    "spec:tests/journey-rag-flywheel-walk.spec.ts": {
+      "id": "tests/journey-rag-flywheel-walk.spec.ts",
+      "kind": "spec",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "test"
+    },
+    "spec:tests/journey-realtime.spec.ts": {
+      "id": "tests/journey-realtime.spec.ts",
+      "kind": "spec",
+      "domain": "general",
+      "dimension": "functionality",
+      "split": "train"
+    },
+    "spec:tests/journey-regression-pins.spec.ts": {
+      "id": "tests/journey-regression-pins.spec.ts",
+      "kind": "spec",
+      "domain": "general",
+      "dimension": "functionality",
+      "split": "test"
+    },
+    "spec:tests/journey-report-sender.spec.ts": {
+      "id": "tests/journey-report-sender.spec.ts",
+      "kind": "spec",
+      "domain": "general",
+      "dimension": "functionality",
+      "split": "train"
+    },
+    "spec:tests/journey-security.spec.ts": {
+      "id": "tests/journey-security.spec.ts",
+      "kind": "spec",
+      "domain": "general",
+      "dimension": "functionality",
+      "split": "val"
+    },
+    "spec:tests/journey-shift-brain.spec.ts": {
+      "id": "tests/journey-shift-brain.spec.ts",
+      "kind": "spec",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "train"
+    },
+    "spec:tests/journey-skillmatrix.spec.ts": {
+      "id": "tests/journey-skillmatrix.spec.ts",
+      "kind": "spec",
+      "domain": "general",
+      "dimension": "functionality",
+      "split": "test"
+    },
+    "spec:tests/journey-static-headers.spec.ts": {
+      "id": "tests/journey-static-headers.spec.ts",
+      "kind": "spec",
+      "domain": "general",
+      "dimension": "functionality",
+      "split": "test"
+    },
+    "spec:tests/journey-supervisor.spec.ts": {
+      "id": "tests/journey-supervisor.spec.ts",
+      "kind": "spec",
+      "domain": "general",
+      "dimension": "functionality",
+      "split": "val"
+    },
+    "spec:tests/journey-temporal-rag.spec.ts": {
+      "id": "tests/journey-temporal-rag.spec.ts",
+      "kind": "spec",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "train"
+    },
+    "spec:tests/journey-voice-companion-gates.spec.ts": {
+      "id": "tests/journey-voice-companion-gates.spec.ts",
+      "kind": "spec",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "train"
+    },
+    "spec:tests/journey-voice-journal.spec.ts": {
+      "id": "tests/journey-voice-journal.spec.ts",
+      "kind": "spec",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "test"
+    },
+    "spec:tests/journey-voice-phases.spec.ts": {
+      "id": "tests/journey-voice-phases.spec.ts",
+      "kind": "spec",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "train"
+    },
+    "spec:tests/journey-worker-core.spec.ts": {
+      "id": "tests/journey-worker-core.spec.ts",
+      "kind": "spec",
+      "domain": "general",
+      "dimension": "functionality",
+      "split": "train"
+    },
+    "spec:tests/logbook.spec.ts": {
+      "id": "tests/logbook.spec.ts",
+      "kind": "spec",
+      "domain": "general",
+      "dimension": "functionality",
+      "split": "val"
+    },
+    "spec:tests/marketplace-admin.spec.ts": {
+      "id": "tests/marketplace-admin.spec.ts",
+      "kind": "spec",
+      "domain": "saas",
+      "dimension": "functionality",
+      "split": "train"
+    },
+    "spec:tests/marketplace-seller-profile.spec.ts": {
+      "id": "tests/marketplace-seller-profile.spec.ts",
+      "kind": "spec",
+      "domain": "saas",
+      "dimension": "functionality",
+      "split": "train"
+    },
+    "spec:tests/marketplace-seller.spec.ts": {
+      "id": "tests/marketplace-seller.spec.ts",
+      "kind": "spec",
+      "domain": "saas",
+      "dimension": "functionality",
+      "split": "train"
+    },
+    "spec:tests/marketplace.spec.ts": {
+      "id": "tests/marketplace.spec.ts",
+      "kind": "spec",
+      "domain": "saas",
+      "dimension": "functionality",
+      "split": "train"
+    },
+    "spec:tests/mobile-ux.spec.ts": {
+      "id": "tests/mobile-ux.spec.ts",
+      "kind": "spec",
+      "domain": "general",
+      "dimension": "usability",
+      "split": "train"
+    },
+    "spec:tests/parts-tracker.spec.ts": {
+      "id": "tests/parts-tracker.spec.ts",
+      "kind": "spec",
+      "domain": "general",
+      "dimension": "functionality",
+      "split": "val"
+    },
+    "spec:tests/ph-intelligence.spec.ts": {
+      "id": "tests/ph-intelligence.spec.ts",
+      "kind": "spec",
+      "domain": "general",
+      "dimension": "functionality",
+      "split": "val"
+    },
+    "spec:tests/plain-read-walkthrough.spec.ts": {
+      "id": "tests/plain-read-walkthrough.spec.ts",
+      "kind": "spec",
+      "domain": "general",
+      "dimension": "functionality",
+      "split": "test"
+    },
+    "spec:tests/plant-connections.spec.ts": {
+      "id": "tests/plant-connections.spec.ts",
+      "kind": "spec",
+      "domain": "general",
+      "dimension": "functionality",
+      "split": "test"
+    },
+    "spec:tests/platform-health.spec.ts": {
+      "id": "tests/platform-health.spec.ts",
+      "kind": "spec",
+      "domain": "general",
+      "dimension": "functionality",
+      "split": "val"
+    },
+    "spec:tests/platform-validators.spec.ts": {
+      "id": "tests/platform-validators.spec.ts",
+      "kind": "spec",
+      "domain": "general",
+      "dimension": "functionality",
+      "split": "train"
+    },
+    "spec:tests/pm-scheduler.spec.ts": {
+      "id": "tests/pm-scheduler.spec.ts",
+      "kind": "spec",
+      "domain": "general",
+      "dimension": "functionality",
+      "split": "train"
+    },
+    "spec:tests/predictive.spec.ts": {
+      "id": "tests/predictive.spec.ts",
+      "kind": "spec",
+      "domain": "general",
+      "dimension": "functionality",
+      "split": "test"
+    },
+    "spec:tests/project-manager.spec.ts": {
+      "id": "tests/project-manager.spec.ts",
+      "kind": "spec",
+      "domain": "general",
+      "dimension": "functionality",
+      "split": "test"
+    },
+    "spec:tests/project-report.spec.ts": {
+      "id": "tests/project-report.spec.ts",
+      "kind": "spec",
+      "domain": "general",
+      "dimension": "functionality",
+      "split": "train"
+    },
+    "spec:tests/public-feed.spec.ts": {
+      "id": "tests/public-feed.spec.ts",
+      "kind": "spec",
+      "domain": "general",
+      "dimension": "functionality",
+      "split": "val"
+    },
+    "spec:tests/report-sender.spec.ts": {
+      "id": "tests/report-sender.spec.ts",
+      "kind": "spec",
+      "domain": "general",
+      "dimension": "functionality",
+      "split": "train"
+    },
+    "spec:tests/roadmap.spec.ts": {
+      "id": "tests/roadmap.spec.ts",
+      "kind": "spec",
+      "domain": "general",
+      "dimension": "functionality",
+      "split": "test"
+    },
+    "spec:tests/seo.spec.ts": {
+      "id": "tests/seo.spec.ts",
+      "kind": "spec",
+      "domain": "general",
+      "dimension": "functionality",
+      "split": "train"
+    },
+    "spec:tests/shift-brain.spec.ts": {
+      "id": "tests/shift-brain.spec.ts",
+      "kind": "spec",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "train"
+    },
+    "spec:tests/skillmatrix.spec.ts": {
+      "id": "tests/skillmatrix.spec.ts",
+      "kind": "spec",
+      "domain": "general",
+      "dimension": "functionality",
+      "split": "test"
+    },
+    "spec:tests/surface-coverage.spec.ts": {
+      "id": "tests/surface-coverage.spec.ts",
+      "kind": "spec",
+      "domain": "general",
+      "dimension": "functionality",
+      "split": "train"
+    },
+    "spec:tests/sw-offline.spec.ts": {
+      "id": "tests/sw-offline.spec.ts",
+      "kind": "spec",
+      "domain": "general",
+      "dimension": "functionality",
+      "split": "train"
+    },
+    "spec:tests/voice-journal.spec.ts": {
+      "id": "tests/voice-journal.spec.ts",
+      "kind": "spec",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "val"
+    }
+  }
+}

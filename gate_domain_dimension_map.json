@@ -1,0 +1,9 @@
+{
+  "_comment": "C1 verdict-contract override map. The efficacy ledger (tools/gate_efficacy_ledger.py) and the held-out split (tools/gate_eval_splits.py) classify every validator/eval into {domain, dimension} by a deterministic heuristic. When the heuristic mis-tags one, correct it here and re-run `python tools/gate_efficacy_ledger.py reclassify`. Human override always wins.",
+  "_format": "Inside \"overrides\": \"<validator-or-eval-id>\": {\"domain\": \"general|saas|ai\", \"dimension\": \"usability|functionality|adaptability|internal_control|safety|cost\"}  OR the shorthand \"domain/dimension\"  OR just \"domain\" (dimension stays heuristic). A flat top-level map (no wrapper) is also accepted.",
+  "_examples": {
+    "some-validator-id": "saas/internal_control",
+    "another-id": { "domain": "ai", "dimension": "safety" }
+  },
+  "overrides": {}
+}

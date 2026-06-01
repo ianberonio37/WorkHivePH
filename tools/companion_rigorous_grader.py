@@ -290,10 +290,37 @@ def compute_metrics(grades: list[dict]) -> dict:
     }
 
 
+def _load_split_probe_ids(split: str) -> set:
+    """Companion-probe bank ids assigned to `split` in gate_eval_splits.json (P6)."""
+    p = ROOT / "gate_eval_splits.json"
+    if not p.exists():
+        return set()
+    try:
+        data = json.loads(p.read_text(encoding="utf-8"))
+    except Exception:
+        return set()
+    return {v["id"] for v in (data.get("items") or {}).values()
+            if v.get("kind") == "companion_probe" and v.get("split") == split}
+
+
+def _probe_in_split(probe_id: str, split_ids: set) -> bool:
+    """Match a (possibly per-turn-generated) probe id to a bank id in the split. Held-out
+    instances derive from a template id, e.g. 'H01-anomaly-template' -> 'H01-anomaly-template-t37',
+    so match exact OR by bank-id prefix."""
+    if not probe_id:
+        return False
+    if probe_id in split_ids:
+        return True
+    return any(probe_id.startswith(bank_id) for bank_id in split_ids)
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="Independent grader for companion flywheel turn artifacts.")
     parser.add_argument("--turn", type=int, required=True, help="Turn number to grade")
     parser.add_argument("--artifact-root", type=str, default=".tmp", help="Where flywheel-turn-N dirs live")
+    parser.add_argument("--split", default="all", choices=["all", "train", "val", "test"],
+                        help="Grade only probes in this held-out split (P6). 'test' = the LOCKED set "
+                             "(honest score, never tuned against). Default 'all' = unchanged behaviour.")
     args = parser.parse_args()
 
     turn_dir = ROOT / args.artifact_root / f"flywheel-turn-{args.turn}"
@@ -303,6 +330,17 @@ def main() -> int:
         return 2
 
     probes = json.loads(probes_path.read_text(encoding="utf-8"))
+    if args.split != "all":
+        split_ids = _load_split_probe_ids(args.split)
+        before = len(probes)
+        probes = [p for p in probes if _probe_in_split(p.get("id", ""), split_ids)]
+        lock = " 🔒 locked-test (honest score)" if args.split == "test" else ""
+        print(f"[grader] --split {args.split}{lock}: scoring {len(probes)}/{before} probes "
+              f"({len(split_ids)} bank ids in split).")
+        if not probes:
+            print(f"[grader] no probes in split '{args.split}' for turn {args.turn} — "
+                  f"run `python tools/gate_eval_splits.py build` if the bank changed.", file=sys.stderr)
+            return 0
     grades = [grade_one(p) for p in probes]
     drift = mine_drift(grades)
     conventions = mine_conventions(grades)
@@ -310,6 +348,7 @@ def main() -> int:
 
     report = {
         "turn":         args.turn,
+        "split":        args.split,
         "timestamp":    datetime.now().isoformat(),
         "probe_count":  len(probes),
         "metrics":      metrics,
