@@ -51,6 +51,7 @@ TOOLS_DIR  = Path(__file__).resolve().parent
 SPLITS_PATH = ROOT / "gate_eval_splits.json"
 SPECS_DIR   = ROOT / "tests"
 PROBE_BANK  = TOOLS_DIR / "companion_probe_bank.json"
+CANON_EVALS = ROOT / "evals" / "canonical_questions.json"
 
 # Reuse the ONE taxonomy from the efficacy ledger (C1). The split tool and the ledger must
 # never drift apart on what "domain"/"dimension" mean.
@@ -66,7 +67,7 @@ except Exception:  # pragma: no cover — keep the tool runnable even if the led
 SALT       = "wh-gate-eval-splits-v1"   # change only with a deliberate full re-split
 TRAIN_PCT  = 60
 VAL_PCT    = 20   # test = the remaining 20
-KINDS      = ("spec", "companion_probe")
+KINDS      = ("spec", "companion_probe", "canonical_question")
 SPLITS     = ("train", "val", "test")
 
 GREEN = "\033[92m"; RED = "\033[91m"; YEL = "\033[93m"; CYAN = "\033[96m"; BOLD = "\033[1m"; RESET = "\033[0m"
@@ -120,6 +121,18 @@ def _enumerate_corpus() -> list[dict]:
                 continue
             dom, dim = _classify_probe(entry)
             units.append({"id": pid, "kind": "companion_probe", "domain": dom, "dimension": dim})
+
+    # 3) Canonical LLM-judge eval fixtures (evals/canonical_questions.json) — the golden
+    #    questions ai-eval-runner scores; AI-domain functionality. These are C2's native unit.
+    canon = _load_json(CANON_EVALS) or {}
+    for agent, fixtures in canon.items():
+        if agent.startswith("_") or not isinstance(fixtures, list):
+            continue
+        for f in fixtures:
+            fid = f.get("id")
+            if fid:
+                units.append({"id": fid, "kind": "canonical_question",
+                              "domain": "ai", "dimension": "functionality"})
 
     return units
 

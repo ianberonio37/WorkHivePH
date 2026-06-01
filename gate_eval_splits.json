@@ -6,15 +6,141 @@
     "val": 20,
     "test": 20
   },
-  "built_ts": "2026-06-01T07:50:37+00:00",
+  "built_ts": "2026-06-01T08:17:13+00:00",
   "counts": {
-    "train": 71,
-    "val": 32,
-    "test": 30
+    "train": 79,
+    "val": 39,
+    "test": 33
   },
-  "total": 133,
-  "test_seal": "27189b6cc59c0619a2380233f9018dd05a0a9475b780a1edc88f1a6be38e556b",
+  "total": 151,
+  "test_seal": "3693cddd31287a97612bf4e707ea71ef5ed6c813c8da6e444f0f1a0f8c5789da",
   "items": {
+    "canonical_question:analytics-mtbf-trend": {
+      "id": "analytics-mtbf-trend",
+      "kind": "canonical_question",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "val"
+    },
+    "canonical_question:analytics-oee-last-week": {
+      "id": "analytics-oee-last-week",
+      "kind": "canonical_question",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "test"
+    },
+    "canonical_question:analytics-pm-failure-correlation": {
+      "id": "analytics-pm-failure-correlation",
+      "kind": "canonical_question",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "val"
+    },
+    "canonical_question:asset-brain-failure-history": {
+      "id": "asset-brain-failure-history",
+      "kind": "canonical_question",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "train"
+    },
+    "canonical_question:asset-brain-next-pm": {
+      "id": "asset-brain-next-pm",
+      "kind": "canonical_question",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "train"
+    },
+    "canonical_question:asset-brain-similar-failures": {
+      "id": "asset-brain-similar-failures",
+      "kind": "canonical_question",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "train"
+    },
+    "canonical_question:logbook-voice-electrical-fault": {
+      "id": "logbook-voice-electrical-fault",
+      "kind": "canonical_question",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "val"
+    },
+    "canonical_question:logbook-voice-motor-vibration": {
+      "id": "logbook-voice-motor-vibration",
+      "kind": "canonical_question",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "val"
+    },
+    "canonical_question:logbook-voice-pump-bearing": {
+      "id": "logbook-voice-pump-bearing",
+      "kind": "canonical_question",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "train"
+    },
+    "canonical_question:project-blockers": {
+      "id": "project-blockers",
+      "kind": "canonical_question",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "train"
+    },
+    "canonical_question:project-change-order-risk": {
+      "id": "project-change-order-risk",
+      "kind": "canonical_question",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "train"
+    },
+    "canonical_question:project-status-summary": {
+      "id": "project-status-summary",
+      "kind": "canonical_question",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "val"
+    },
+    "canonical_question:report-voice-daily-summary": {
+      "id": "report-voice-daily-summary",
+      "kind": "canonical_question",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "val"
+    },
+    "canonical_question:report-voice-incident": {
+      "id": "report-voice-incident",
+      "kind": "canonical_question",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "train"
+    },
+    "canonical_question:report-voice-shift-handover": {
+      "id": "report-voice-shift-handover",
+      "kind": "canonical_question",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "train"
+    },
+    "canonical_question:shift-critical-alerts": {
+      "id": "shift-critical-alerts",
+      "kind": "canonical_question",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "test"
+    },
+    "canonical_question:shift-handover-summary": {
+      "id": "shift-handover-summary",
+      "kind": "canonical_question",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "val"
+    },
+    "canonical_question:shift-worker-coverage": {
+      "id": "shift-worker-coverage",
+      "kind": "canonical_question",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "test"
+    },
     "companion_probe:A01-gibberish": {
       "id": "A01-gibberish",
       "kind": "companion_probe",
