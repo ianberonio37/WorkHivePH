@@ -3,7 +3,7 @@
 **Created:** 2026-06-01
 **Status:** Architecture-of-record + phased plan (design only; no engine built yet)
 **Companion docs:** [UNIFIED_MEGA_GATE.md](UNIFIED_MEGA_GATE.md) (the 6 gate layers), [SENTINEL_ARCHITECTURE.md](SENTINEL_ARCHITECTURE.md) (the two bridges), [COMPREHENSIVE_STUDY_FULLSTACK_GATE.md](COMPREHENSIVE_STUDY_FULLSTACK_GATE.md) (the 13×6 matrix)
-**Engine today:** [tools/flywheel_orchestrator.py](tools/flywheel_orchestrator.py) — now a *driver*, not just an observer. **P1 (efficacy ledger) + P2 (promotion engine) are built.** Each turn it discovers + drafts a ranked `promotion_queue.md` (recurring L-1 miner patterns → rule candidates; load-bearing L0 validators → sentinel candidates), gated by `promotion_dispositions.json` (the human's one-pass approval). Its docstring is now true.
+**Engine today:** [tools/flywheel_orchestrator.py](tools/flywheel_orchestrator.py) — now a *driver*, not just an observer. **P1 (efficacy ledger) + P2 (promotion engine) are built.** Each turn it discovers + drafts a ranked `promotion_queue.md` (recurring L-1 miner patterns → rule candidates; load-bearing L0 validators → sentinel candidates), gated by `promotion_dispositions.json` (the human's one-pass approval). Its docstring is now true. **P3 (decay/freshness sense) is built** as `validate_validator_freshness.py` (a G-1 meta-validator): author-declared `FRESHNESS_ANCHORS` must still match their target file (FAIL), plus a ledger-cross-referenced decay-suspect census (INFO).
 
 ---
 
@@ -137,7 +137,7 @@ update ≥3 skills) all govern **growth**. A living system must shed as fast as 
 | **P0** | — | This roadmap + `SELF_IMPROVING_GATE.md` principles | Write the model down before building | **30%** (this doc) |
 | **P1** | A | **Efficacy ledger** (`gate_efficacy_ledger.json`) | The foundational sense organ — everything hangs off "which rules matter" | **DONE** |
 | **P2** | A | **Promotion engine** in `flywheel_orchestrator.py` | Convert the scorer into a driver (make its own docstring true) | **DONE** |
-| **P3** | A | **Decay/freshness detector** at G-1 | The #1 real rot vector (validator-lag) — catch it cheap | 0% |
+| **P3** | A | **Decay/freshness detector** at G-1 | The #1 real rot vector (validator-lag) — catch it cheap | **DONE** |
 | **P4** | A | **Noise quarantine** (classify "regression") | Make the orchestrator trustworthy so its signal is actionable | 0% |
 | **P5** | A | **Retirement loop** (Rule D, ledger-driven) | Shedding — keep the gate lean/fast/credible | 0% |
 | **P6** | B | **Held-out validation split** | SkillOpt's #1 idea; the anti-overfit foundation for Track B | 0% |
@@ -214,6 +214,30 @@ until P1's ledger has enough turns of history to retire safely.)
   *standalone in <5s*, not at full-gate time.
 - **Persists via:** its own baseline (Rule B applies to meta-validators too).
 - **Effort:** M. **Depends on:** P1.
+- **✅ Status: BUILT (2026-06-01).** `validate_validator_freshness.py` (root, registered G0/Platform
+  as `validator-freshness`, `skip_if_fast=False`). Two tiers, chosen so the meta-gate can never emit a
+  *false* FAIL (a noisy gate gets `--no-verify`'d — the rot P4 guards against):
+  - **L1 — declared anchors (FAIL):** a validator opts in with a module-level
+    `FRESHNESS_ANCHORS = [(target_file, regex, note), …]`. The meta-gate reads them via
+    `ast.literal_eval` (never imports/executes the validator — keeps it ~0.5s) and checks each target
+    exists AND the pattern still matches. A miss = "asserting a shape the code moved past — refresh or
+    retire." Author-curated ⇒ zero false positives ⇒ safe to FAIL on. Regex with a plain-substring
+    fallback for un-escapable patterns. **Seeded** on the two clean-fit incident validators:
+    `validate_model_router.py` (3 anchors: `TASK_PROFILES`/`reorderChain`/loop `taskProfile`) +
+    `validate_agent_memory_store.py` (3: shared-module import + `MEMORY_TYPES` + `PER_WORKER_CAP`).
+  - **L2 — decay-suspect census (INFO, never FAIL):** the discovery half — a *never-fired* validator
+    (per `gate_efficacy_ledger.json`) whose code-under-test (resolved from its `os.path.join`/path
+    literals) has an mtime newer than the validator file itself. Gated on ledger maturity
+    (`times_run ≥ 3`), so today it honestly surfaces **nothing** (ledger has 1 run) and sharpens as
+    P1 accrues history. Ledger is keyed by gate-id → joined to the script filename via the registry.
+  - **Verified:** renaming `reorderChain`→`reorderProviderChain` in `ai-chain.ts` trips L1 in **0.41s**,
+    naming the exact stale anchor; restored cleanly. Self-coverage (registered + report-name match) and
+    cp1252-guard both green on the new file; the 2 seeded validators still pass (anchors are inert
+    constants). The `FRESHNESS_ANCHORS` declaration is the extensible surface — any validator can add
+    anchors over time; the seed covers the known rot-prone ones.
+  - **schema_coverage flavor deferred:** its decay was a *self-regex* (`RE_CREATE_VIEW` couldn't span
+    `WITH (...) AS`), not a target-shape literal — a different anchor kind (validator-self-test). Noted
+    as a P3 follow-on; the two seeded validators already satisfy the "any of the 3" acceptance.
 
 ### P4 — Noise quarantine  (wraps the orchestrator's regression classifier)
 - **Goal:** never let weather masquerade as rot. Classify every "regression" before scoring.

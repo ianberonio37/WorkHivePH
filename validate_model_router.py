@@ -62,6 +62,20 @@ ALLOWED_MODEL_SUBSTRINGS = [
 
 PAID_PATTERNS = [r"\bhaiku\b", r"\bsonnet\b", r"\bopus\b", r"claude-3", r"claude-4", r"\bgpt-4\b", r"gpt-4o"]
 
+# Freshness anchors (P3 of SELF_IMPROVING_GATE_ROADMAP.md): the load-bearing
+# symbols this validator asserts. validate_validator_freshness.py checks these
+# still exist in their target file at G-1, so a rename in ai-chain.ts surfaces
+# *cheaply* as "model_router is asserting a shape the code moved past" instead
+# of as an opaque full-gate FAIL. (M06 already rotted once this way.)
+FRESHNESS_ANCHORS = [
+    ("supabase/functions/_shared/ai-chain.ts",
+     r"export\s+const\s+TASK_PROFILES", "M01 TASK_PROFILES export"),
+    ("supabase/functions/_shared/ai-chain.ts",
+     r"export\s+function\s+reorderChain\s*\(", "M04 reorderChain symbol"),
+    ("supabase/functions/agentic-rag-loop/index.ts",
+     r"taskProfile", "M07 loop passes taskProfile"),
+]
+
 
 def check_task_profiles_export() -> list[dict]:
     src = read_file(AI_CHAIN) or ""

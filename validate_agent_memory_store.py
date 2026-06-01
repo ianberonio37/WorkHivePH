@@ -34,6 +34,20 @@ DEPLOY_PS1    = "deploy-functions.ps1"
 EDGE_CONTRACT = "validate_edge_contracts.py"
 MIGRATIONS    = os.path.join("supabase", "migrations")
 
+# Freshness anchors (P3 of SELF_IMPROVING_GATE_ROADMAP.md). The Turn-1 refactor
+# moved E05-E11 logic into _shared/episodic-memory.ts and asserted the edge fn
+# imports it -- exactly the "logic silently detached" rot this guards. These
+# load-bearing symbols are checked at G-1 by validate_validator_freshness.py so
+# a rename in either file surfaces cheaply, not as an opaque full-gate FAIL.
+FRESHNESS_ANCHORS = [
+    ("supabase/functions/agent-memory-store/index.ts",
+     r"episodic-memory\.ts", "edge fn imports the shared single source of truth"),
+    ("supabase/functions/_shared/episodic-memory.ts",
+     r"MEMORY_TYPES\s*=\s*\[", "E05 memory-type vocab"),
+    ("supabase/functions/_shared/episodic-memory.ts",
+     r"PER_WORKER_CAP\s*=", "E06 per-worker cap"),
+]
+
 
 def _read() -> str:
     # Turn-1 refactor (architect single-source-of-truth): the ranking, caps,

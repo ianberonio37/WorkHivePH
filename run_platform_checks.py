@@ -2024,6 +2024,21 @@ VALIDATORS = [
         "skip_if_fast": False,
     },
     {
+        # P3 of SELF_IMPROVING_GATE_ROADMAP.md — the gate's freshness sense.
+        # Catches the #1 rot vector (a validator asserting a literal/shape the
+        # code already moved past) CHEAPLY at G-1, before a full-gate run trips
+        # it opaquely. L1 (FAIL): author-declared FRESHNESS_ANCHORS must still
+        # match their target file. L2 (INFO): ledger-cross-referenced decay
+        # census (never-fired validator whose code-under-test out-paces it).
+        "id":      "validator-freshness",
+        "script":  "validate_validator_freshness.py",
+        "args":    [],
+        "label":   "Validator Freshness / Decay Meta-Gate (P3: declared anchors still match target + never-fired-stale-target census)",
+        "group":   "Platform",
+        "report":  "validator_freshness_report.json",
+        "skip_if_fast": False,
+    },
+    {
         "id":      "provider-bypass",
         "script":  "validate_provider_bypass.py",
         "args":    [],
