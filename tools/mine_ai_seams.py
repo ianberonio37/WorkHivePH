@@ -43,6 +43,10 @@ if sys.platform == "win32" and sys.stdout.encoding and sys.stdout.encoding.lower
 ROOT = Path(__file__).resolve().parent.parent
 FUNCTIONS_DIR = ROOT / "supabase" / "functions"
 CATALOG_PATH = ROOT / "ai_seams_catalog.json"
+# C4 Phase 2a: sidecar manifest mapping seam_id -> contract_test path. Read here
+# and attached as a `contract_test:` field on each seam so the coverage
+# validator can ratchet forward-only on uncovered count.
+CONTRACTS_PATH = ROOT / "ai_seam_contracts.json"
 
 # Edge functions whose primary purpose is AI inference / orchestration.
 # Anything not in this list is treated as SaaS-domain.
@@ -233,10 +237,44 @@ def scan_boundary_seams() -> list[dict]:
     return seams
 
 
+def load_contracts() -> dict[str, dict]:
+    """Read the sidecar contract-test manifest. Returns {seam_id: {test, note}}.
+    Missing/empty file is fine — every seam stays uncovered."""
+    if not CONTRACTS_PATH.exists():
+        return {}
+    try:
+        doc = json.loads(CONTRACTS_PATH.read_text(encoding="utf-8"))
+    except Exception:
+        return {}
+    raw = doc.get("contracts", {}) or {}
+    out: dict[str, dict] = {}
+    for sid, val in raw.items():
+        if isinstance(val, str):
+            out[sid] = {"test": val, "note": None}
+        elif isinstance(val, dict):
+            t = val.get("test")
+            if isinstance(t, str) and t:
+                out[sid] = {"test": t, "note": val.get("note")}
+    return out
+
+
 def main() -> int:
     invoke = scan_invoke_seams()
     boundary = scan_boundary_seams()
     seams = sorted(invoke + boundary, key=lambda s: s["id"])
+    contracts = load_contracts()
+
+    # Attach the contract_test field to every seam (None if no test wired).
+    covered = 0
+    for s in seams:
+        rec = contracts.get(s["id"])
+        if rec is not None:
+            s["contract_test"] = rec["test"]
+            if rec.get("note"):
+                s["contract_note"] = rec["note"]
+            covered += 1
+        else:
+            s["contract_test"] = None
 
     catalog = {
         "_meta": {
@@ -249,6 +287,10 @@ def main() -> int:
                 for k in ("saas→ai", "ai→ai", "ai→tenant", "ai→quota")
             },
             "ai_fn_count": len(AI_FNS),
+            "contracts": {
+                "covered":   covered,
+                "uncovered": len(seams) - covered,
+            },
         },
         "ai_fns": sorted(AI_FNS),
         "seams":  seams,
@@ -261,6 +303,7 @@ def main() -> int:
         c = catalog["_meta"]["by_kind"][k]
         print(f"  {k:<10}        : {c}")
     print(f"  ai_fns tracked    : {len(AI_FNS)}")
+    print(f"  contracts covered : {covered} / {len(seams)} ({len(seams)-covered} uncovered)")
     return 0
 
 

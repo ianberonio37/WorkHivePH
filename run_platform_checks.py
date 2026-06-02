@@ -2087,6 +2087,21 @@ VALIDATORS = [
         "skip_if_fast": False,
     },
     {
+        # C4 Phase 2a of SELF_IMPROVING_GATE_ROADMAP.md — forward-only ratchet
+        # on the count of AI seams that lack a wire-format contract test.
+        # Each entry wired into ai_seam_contracts.json (seam_id -> test path)
+        # pays the baseline down by 1; the baseline floor only drops, never
+        # rises silently. Today's floor = 118 (all uncovered); ratchets to 0
+        # as Phase 2a payoff work writes contract tests.
+        "id":      "ai-seam-coverage",
+        "script":  "validate_ai_seam_coverage.py",
+        "args":    [],
+        "label":   "AI Seam Contract-Test Coverage (C4 Phase 2a: forward-only on uncovered seam count; floor auto-lowers as tests get wired)",
+        "group":   "Platform",
+        "report":  "ai_seam_coverage_baseline.json",
+        "skip_if_fast": False,
+    },
+    {
         "id":      "provider-bypass",
         "script":  "validate_provider_bypass.py",
         "args":    [],

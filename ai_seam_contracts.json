@@ -1,0 +1,13 @@
+{
+  "_meta": {
+    "format_version": "1.0",
+    "description": "C4 Phase 2a — sidecar mapping from seam_id -> contract_test path. Read by tools/mine_ai_seams.py to attach a `contract_test:` field to each seam. Validator validate_ai_seam_coverage.py ratchets forward-only on the count of seams without a contract test. Empty today (every contract is unwritten); each new entry pays the gap down by 1.",
+    "schema": {
+      "seam_id":      "string (matches the catalog's id field exactly: 'saas→ai/<caller>→<callee>' etc.)",
+      "contract_test":"string (path to the Playwright spec or unit test exercising this seam's wire format)",
+      "note":         "string|null (why this test covers this seam)"
+    },
+    "policy": "A 'contract test' here means a test that pins the WIRE FORMAT between caller and callee (request body shape, response envelope, error codes, hive_id propagation, rate-limit fields). Journey tests that incidentally invoke the seam don't qualify — contract tests must FAIL if the format changes silently."
+  },
+  "contracts": {}
+}
