@@ -491,16 +491,15 @@ Not three new things — **three faces of what's already built.**
 | **C2** ✅ **DONE** | Stand up the **AI eval gate** as a real harness — golden sets + LLM-as-judge + regression deltas + cost/latency; add Safety + Cost dimensions | an AI eval regression (vs golden set) is detected with a delta + blocks the AI-feature path — **built 2026-06-01**: NEW `tools/ai_eval_gate.py` scores persisted eval results vs a frozen golden on the 🔒locked-test split per `{domain,dimension}`, surfaces functionality/safety/cost deltas, and **exits 1 on a locked-test regression** (verified: a regressed run trips functionality+safety+cost and BLOCKS; clean run exits 0; degrades to SKIP without data). Reuses the existing LLM-judge framework (`ai-eval-runner` cron writes `ai_quality_log`; `evals/canonical_questions.json` golden fixtures now in the P6 split). Offline/paid-call-free to run+verify. |
 | **C3** | **Scheduled + runtime fitness functions** (drift, SLO, cost anomaly) via Grafana/Sentry | the AI gate runs on a clock and flags drift with no code change; a SaaS SLO breach surfaces a finding |
 | **C4** | **Seam contract tests + the meta-gate** (composition policy + boundary guards) | a seam bug (SaaS→AI / AI→tenant data) is caught even when both domain gates are green |
-| **C5** | **Version/baseline the AI assets** (prompts, model IDs, eval sets, skill docs) like migrations | a prompt/model change carries a versioned baseline + rollback, gated like a schema change |
+| **C5** ✅ **DONE** | **Version/baseline the AI assets** (prompts, model IDs, eval sets, skill docs) like migrations | a prompt/model change carries a versioned baseline + rollback, gated like a schema change — **built 2026-06-02**: NEW `tools/ai_asset_baseline.py` (manifest of 5 assets × `build/verify/report` commands) + `validate_ai_asset_versioning.py` (G0/Platform, 351st validator). Each asset declares a content version (`_meta.ai_asset_version` for JSON, `// AI_ASSET_VERSION:` marker for TS) + sha256 recorded in `ai_asset_baseline.json`. Policy: hash moved + version unchanged = silent-change FAIL; version up + hash unchanged = no-op-bump FAIL; version down = downgrade FAIL; both move together = record + PASS. Optional assets (e.g. `ai_eval_baseline.json` until first real run) skip cleanly. Verified positive (exit 0 on clean state) + negative (mutated canonical_questions.json without bumping → exit 1 naming the offender + emitting fix instruction; reverted). Bug caught: TS marker regex needed `\r?$` for Windows CRLF files (persona.ts LF matched, ai-chain.ts CRLF silently didn't — lesson written to devops + qa skills). |
 
 **Recommended order:** C1 → C2 → C5 → C3 → C4. (C2 is the highest-value/most-different piece; C1 is a
 tiny prerequisite; C5 protects the assets C2 depends on; C3/C4 extend past deploy and across seams.)
-**C1 ✅ + C2 ✅ DONE (2026-06-01).** Next is **C5** — version/baseline the AI assets (prompts, model IDs,
-eval sets, skill docs) like migrations, so the artifacts C2 scores against (golden fixtures, the
-`ai_eval_baseline.json` floor, judge model id) carry rollback discipline — then **C3** (run the eval
-gate on a clock + in prod off `ai_quality_log`, the native production extension of C2) and **C4** (seam
-contract tests + meta-gate). C2's `gate` is also a natural **G0 promotion** (degrade-to-SKIP without
-fresh results), mirroring how P1/P6 shipped standalone first.
+**C1 ✅ + C2 ✅ + C5 ✅ DONE.** Next is **C3** — run the eval gate on a clock + in prod off
+`ai_quality_log` (the native production extension of C2; models drift with zero code change, so the
+AI gate must live past the deploy line). Then **C4** (seam contract tests + meta-gate). C2's `gate`
+is also a natural **G0 promotion** (degrade-to-SKIP without fresh results), mirroring how P1/P6
+shipped standalone first.
 
 ### Definition of done (Track C)
 Three domain gates run off one spine and one ledger; the AI gate scores against held-out goldens on a
