@@ -2039,6 +2039,22 @@ VALIDATORS = [
         "skip_if_fast": False,
     },
     {
+        # C5 of SELF_IMPROVING_GATE_ROADMAP.md — version/baseline AI assets
+        # like migrations. C2's eval gate scores against artifacts the gate
+        # itself doesn't gate today (golden fixtures, judge prompt, model
+        # chain, persona block) — a silent edit there invalidates every
+        # baseline downstream. This validator FAILs if any manifest asset's
+        # hash moved without its declared version bumping. Policy lives in
+        # tools/ai_asset_baseline.py; this wraps `verify`.
+        "id":      "ai-asset-versioning",
+        "script":  "validate_ai_asset_versioning.py",
+        "args":    [],
+        "label":   "AI Asset Versioning (C5: prompts/eval-sets/model-chain/judge versioned + hash-locked like migrations)",
+        "group":   "Platform",
+        "report":  "ai_asset_baseline_report.json",
+        "skip_if_fast": False,
+    },
+    {
         "id":      "provider-bypass",
         "script":  "validate_provider_bypass.py",
         "args":    [],

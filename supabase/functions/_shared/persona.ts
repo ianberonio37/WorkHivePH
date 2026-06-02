@@ -25,6 +25,12 @@
  *   rosa  -> zaniah    (same Azure voice en-PH-RosaNeural,  same portrait)
  * Voice IDs and portrait filenames retained — see PERSONA_TO_VOICE in
  * tts-speak/index.ts and PORTRAIT_URLS in wh-persona.js.
+ *
+ * AI_ASSET_VERSION: 1
+ * C5 (Self-Improving Gate) — bump this integer whenever the persona tone,
+ * examples, voice, or buildPersonaBlock contract changes. The
+ * ai-asset-versioning validator FAILs if the file hash moves without this
+ * bumping. Owner: AI Engineer.
  */
 
 export type PersonaKey = "hezekiah" | "zaniah";

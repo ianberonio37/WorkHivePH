@@ -3,6 +3,12 @@
 // Each API key is read from env — missing keys are silently skipped.
 // Order: fastest / most generous limits first, deeper fallbacks last.
 // Only permanently free tiers — no credits that expire.
+//
+// AI_ASSET_VERSION: 1
+// C5 (Self-Improving Gate) — bump this integer whenever the model chain,
+// provider order, judge model, or any other content the eval gate scores
+// against changes. The ai-asset-versioning validator FAILs if the file
+// hash moves without this bumping. Owner: AI Engineer.
 
 interface ProviderEntry {
   provider: string;

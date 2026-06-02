@@ -18,6 +18,13 @@
  *
  * Closes PRODUCTION_FIXES #52 Phase D (runner wired) -- the cron was
  * scheduled in Phase B/C but the endpoint it called did not exist.
+ *
+ * AI_ASSET_VERSION: 1
+ * C5 (Self-Improving Gate) — bump this integer whenever JUDGE_PROMPT,
+ * judge model id, score rubric, or pass-threshold changes. C2's eval
+ * gate scores against this judge's verdicts, so an unannounced edit
+ * here invalidates baselines. The ai-asset-versioning validator FAILs
+ * if the file hash moves without this bumping. Owner: AI Engineer.
  */
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";

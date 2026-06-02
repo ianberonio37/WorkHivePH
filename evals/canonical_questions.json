@@ -1,6 +1,8 @@
 {
   "_meta": {
     "format_version": "1.0",
+    "ai_asset_version": 1,
+    "ai_asset_version_note": "C5 — bump on every content edit (not schema edit). The ai-asset-versioning validator FAILs if content hash changed without this bumping. Owner: AI Engineer.",
     "description": "AI agent eval fixtures. Each agent_id maps to a list of {question, expected_keywords, expected_shape} fixtures. The LLM-as-judge cron (ai-eval-daily, 03:30 UTC) compares live agent responses against these fixtures and writes scores to ai_quality_log.",
     "min_fixtures_per_agent": 3,
     "schema": {
