@@ -1,0 +1,12 @@
+{
+  "_meta": {
+    "description": "C4 Phase 1 \u2014 frozen seam counts per kind. Forward-only ratchet (new seams require catalog commit)."
+  },
+  "by_kind": {
+    "ai\u2192ai": 1,
+    "ai\u2192quota": 28,
+    "ai\u2192tenant": 74,
+    "saas\u2192ai": 15
+  },
+  "seam_count": 118
+}

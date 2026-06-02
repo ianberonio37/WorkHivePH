@@ -2072,6 +2072,21 @@ VALIDATORS = [
         "skip_if_fast": False,
     },
     {
+        # C4 Phase 1 of SELF_IMPROVING_GATE_ROADMAP.md — catalog the AI seams
+        # (saas→ai / ai→ai / ai→tenant / ai→quota) and ratchet forward-only
+        # on the inventory. "Per-domain green ≠ system green" — a seam bug
+        # passes both domain gates individually. This Phase 1 establishes
+        # the inventory; Phase 2a will wire per-seam contract tests; Phase
+        # 2b's meta-gate consumes the catalog to decide blast radius.
+        "id":      "ai-seams-inventory",
+        "script":  "validate_ai_seams_inventory.py",
+        "args":    [],
+        "label":   "AI Seams Inventory (C4 Phase 1: catalog SaaS→AI / AI→tenant / AI→quota boundaries + forward-only ratchet)",
+        "group":   "Platform",
+        "report":  "ai_seams_catalog.json",
+        "skip_if_fast": False,
+    },
+    {
         "id":      "provider-bypass",
         "script":  "validate_provider_bypass.py",
         "args":    [],
