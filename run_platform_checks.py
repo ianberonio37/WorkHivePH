@@ -2055,6 +2055,23 @@ VALIDATORS = [
         "skip_if_fast": False,
     },
     {
+        # C3 Phase 1 of SELF_IMPROVING_GATE_ROADMAP.md — promote the C2 AI
+        # eval regression gate (`tools/ai_eval_gate.py gate`) to a G0
+        # validator. Degrade-to-SKIP by design: no committed golden baseline
+        # OR no fresh results = exit 0 with an explanatory message; only a
+        # locked-test regression beyond tolerance returns exit 1. Mirrors
+        # how P1's ledger and P6's split shipped standalone first. C3 Phase
+        # 2 (clock + prod off `ai_quality_log` via Grafana/Sentry) is the
+        # production extension — separate, needs deploy.
+        "id":      "ai-eval-regression",
+        "script":  "validate_ai_eval_regression.py",
+        "args":    [],
+        "label":   "AI Eval Regression Gate (C3 Phase 1: score locked-test split vs frozen golden; degrade-to-SKIP without data)",
+        "group":   "Platform",
+        "report":  "ai_eval_baseline.json",
+        "skip_if_fast": False,
+    },
+    {
         "id":      "provider-bypass",
         "script":  "validate_provider_bypass.py",
         "args":    [],
