@@ -2102,6 +2102,25 @@ VALIDATORS = [
         "skip_if_fast": False,
     },
     {
+        # C4 Phase 2c of SELF_IMPROVING_GATE_ROADMAP.md — observation-only
+        # G0 promotion of the meta-gate. The composition policy in
+        # tools/meta_gate.py is strictly MORE PERMISSIVE than the monolithic
+        # 354-validator gate (it converts FAILs to warn via blast radius +
+        # seam-sharpening, never adds blocks), so promoting it as a hard
+        # blocker would be a no-op for ship/block. What this promotion DOES
+        # add: every gate run writes a per-domain composition reasoning
+        # line to meta_gate_decisions.jsonl. That's the macro-loop input
+        # P2's promotion engine will later mine — same pattern as P1's
+        # efficacy ledger (ship the observer first; make it a driver later).
+        "id":      "meta-gate",
+        "script":  "validate_meta_gate.py",
+        "args":    [],
+        "label":   "Meta-Gate Recorder (C4 Phase 2c: observation-mode promotion; writes per-domain decision to meta_gate_decisions.jsonl per gate run)",
+        "group":   "Platform",
+        "report":  "meta_gate_decisions.jsonl",
+        "skip_if_fast": False,
+    },
+    {
         "id":      "provider-bypass",
         "script":  "validate_provider_bypass.py",
         "args":    [],
