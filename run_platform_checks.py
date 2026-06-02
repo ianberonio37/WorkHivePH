@@ -2121,6 +2121,22 @@ VALIDATORS = [
         "skip_if_fast": False,
     },
     {
+        # Meta-check for the Self-Improving Gate's C-track stack. The 7 C-track
+        # phases shipped over 6 in-session turns produced 9 artifacts + 5
+        # validators. Once in place, the next risk is silent erosion (a
+        # baseline gets deleted, a catalog rename buries the validator that
+        # reads it, etc.). This validator asserts every C-track artifact +
+        # validator + registry entry + roadmap label is intact + well-formed.
+        # FAILs loud the moment any piece goes missing.
+        "id":      "c-track-self-coverage",
+        "script":  "validate_c_track_self_coverage.py",
+        "args":    [],
+        "label":   "C-track Self-Coverage (meta: 9 artifacts + 5 validators + registry + roadmap labels of the Self-Improving Gate C-track)",
+        "group":   "Platform",
+        "report":  "c_track_self_coverage_report.json",
+        "skip_if_fast": False,
+    },
+    {
         "id":      "provider-bypass",
         "script":  "validate_provider_bypass.py",
         "args":    [],
