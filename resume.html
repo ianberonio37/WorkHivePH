@@ -154,14 +154,15 @@
     </div>
 
     <div class="card" id="upload-card">
-      <div class="sec-head"><div><div class="sec-title">📎 Add from a file</div><div class="sec-sub">Photo, screenshot, PDF, Word, or Excel — we read it, you choose what to keep</div></div></div>
+      <div class="sec-head"><div><div class="sec-title">📎 Add from files</div><div class="sec-sub">Dump as many as you like — photo, screenshot, PDF, Word, Excel. We read each one and you choose what to keep.</div></div></div>
       <div style="display:flex;flex-wrap:wrap;gap:0.6rem;">
-        <button class="btn btn-ghost" id="btn-photo" type="button" style="flex:1;min-width:calc(50% - 0.6rem);">📷 Take a photo</button>
-        <button class="btn btn-ghost" id="btn-file" type="button" style="flex:1;min-width:calc(50% - 0.6rem);">📁 Choose a file</button>
+        <button class="btn btn-ghost" id="btn-photo" type="button" style="flex:1;min-width:calc(50% - 0.6rem);">📷 Take photos</button>
+        <button class="btn btn-ghost" id="btn-file" type="button" style="flex:1;min-width:calc(50% - 0.6rem);">📁 Choose files</button>
       </div>
-      <input type="file" id="file-photo" accept="image/*" capture="environment" style="display:none;" />
-      <input type="file" id="file-any" accept="image/*,application/pdf,.pdf,.doc,.docx,.xls,.xlsx,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" style="display:none;" />
-      <p style="font-size:0.66rem;color:#7B8794;margin-top:0.6rem;">Your file is read just to fill in your resume, then discarded. Nothing is added until you tap to confirm.</p>
+      <input type="file" id="file-photo" accept="image/*" capture="environment" multiple style="display:none;" />
+      <input type="file" id="file-any" accept="image/*,application/pdf,.pdf,.doc,.docx,.xls,.xlsx,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" multiple style="display:none;" />
+      <p id="upload-status" style="font-size:0.72rem;color:#5FCCE8;margin-top:0.6rem;display:none;"></p>
+      <p style="font-size:0.66rem;color:#7B8794;margin-top:0.4rem;">Your files are read just to fill in your resume, then discarded. Nothing is added until you tap to confirm. Keep adding more anytime — it builds on what you already have.</p>
     </div>
 
     <div class="card" id="ai-card">
@@ -783,30 +784,55 @@
       return items;
     }
 
-    async function handleFile(file) {
-      if (!file) return;
+    const MAX_BATCH = 20;
+    function setBusy(b) { ['btn-photo', 'btn-file'].forEach(id => { const el = document.getElementById(id); if (el) { el.disabled = b; el.style.opacity = b ? '0.6' : ''; } }); }
+    function setUploadStatus(t) { const el = document.getElementById('upload-status'); if (!el) return; if (t) { el.textContent = t; el.style.display = 'block'; } else { el.style.display = 'none'; el.textContent = ''; } }
+
+    // Extract ONE file into checklist items (or { error }).
+    async function extractItemsFromFile(file) {
       const name = (file.name || '').toLowerCase(), type = file.type || '';
-      try {
-        toast('Reading your file…');
-        let kind, payload, source;
-        if (type.startsWith('image/')) { payload = await compressImage(file); kind = 'image'; source = 'photo'; }
-        else if (type === 'application/pdf' || name.endsWith('.pdf')) { payload = await extractPdf(file); kind = 'text'; source = 'pdf'; }
-        else if (name.endsWith('.docx') || type.includes('wordprocessing')) { payload = await extractDocx(file); kind = 'text'; source = 'docx'; }
-        else if (name.endsWith('.xlsx') || name.endsWith('.xls') || type.includes('spreadsheet') || type.includes('excel')) { payload = await extractXlsx(file); kind = 'text'; source = 'xlsx'; }
-        else { toast('Unsupported file. Use a photo, PDF, Word, or Excel file.'); return; }
-        if (kind === 'text' && (!payload || payload.trim().length < 10)) { toast('Could not read text from that file. Try a clear photo instead.'); return; }
-        const fields = await callResumeExtract(kind, payload, source);
-        if (!fields) return;
-        const items = fieldsToChecklist(fields);
-        if (!items.length) { toast('No resume details found in that file.'); return; }
-        openReview('We read ' + items.length + ' things from your file', items, (selected) => {
-          pushUndo(); snapshotVersion('before file import');
-          for (const it of selected) it.apply(resume, it.value);
-          render(); scheduleLocalSave();
-          toast('✓ Added ' + selected.length + ' items from your file.');
-          if (typeof logEvent === 'function') logEvent(db, 'resume_upload_import', { page: 'resume', source, count: selected.length });
-        });
-      } catch (err) { toast('Could not read that file: ' + (err.message || 'error')); }
+      let kind, payload, source;
+      if (type.startsWith('image/')) { payload = await compressImage(file); kind = 'image'; source = 'photo'; }
+      else if (type === 'application/pdf' || name.endsWith('.pdf')) { payload = await extractPdf(file); kind = 'text'; source = 'pdf'; }
+      else if (name.endsWith('.docx') || type.includes('wordprocessing')) { payload = await extractDocx(file); kind = 'text'; source = 'docx'; }
+      else if (name.endsWith('.xlsx') || name.endsWith('.xls') || type.includes('spreadsheet') || type.includes('excel')) { payload = await extractXlsx(file); kind = 'text'; source = 'xlsx'; }
+      else return { error: 'unsupported' };
+      if (kind === 'text' && (!payload || payload.trim().length < 10)) return { error: 'empty' };
+      const fields = await callResumeExtract(kind, payload, source);
+      if (!fields) return { error: 'failed' };
+      return { items: fieldsToChecklist(fields) };
+    }
+
+    // Dump one OR many files -> read each (with progress) -> ONE combined
+    // editable checklist tagged by source filename -> merge into the resume.
+    // Sequential (not parallel) to stay gentle on the free-tier chain + rate limit.
+    async function handleFiles(fileList) {
+      const files = Array.from(fileList).slice(0, MAX_BATCH);
+      if (!files.length) return;
+      if (fileList.length > MAX_BATCH) toast('Reading the first ' + MAX_BATCH + ' files.');
+      setBusy(true);
+      const all = []; let okCount = 0, failCount = 0;
+      for (let i = 0; i < files.length; i++) {
+        const f = files[i];
+        setUploadStatus('Reading file ' + (i + 1) + ' of ' + files.length + ': ' + f.name + '…');
+        try {
+          const res = await extractItemsFromFile(f);
+          if (res.error || !res.items || !res.items.length) { failCount++; continue; }
+          const short = f.name.length > 24 ? f.name.slice(0, 21) + '…' : f.name;
+          res.items.forEach(it => { it.label = it.label ? (it.label + ' · ' + short) : short; });
+          all.push(...res.items); okCount++;
+        } catch (_) { failCount++; }
+      }
+      setBusy(false); setUploadStatus('');
+      if (!all.length) { toast(failCount ? 'Could not read those files. Try clearer photos or PDFs.' : 'No resume details found.'); return; }
+      const note = files.length > 1 ? (' from ' + okCount + ' file' + (okCount === 1 ? '' : 's') + (failCount ? ' (' + failCount + ' skipped)' : '')) : '';
+      openReview('We read ' + all.length + ' things' + note, all, (selected) => {
+        pushUndo(); snapshotVersion('before file import');
+        for (const it of selected) it.apply(resume, it.value);
+        render(); scheduleLocalSave();
+        toast('Added ' + selected.length + ' items to your resume.');
+        if (typeof logEvent === 'function') logEvent(db, 'resume_upload_import', { page: 'resume', files: okCount, count: selected.length });
+      });
     }
 
     // ── AI polish + tailor (P4): suggestions only, gated by the checklist ────
@@ -1054,8 +1080,11 @@
       document.getElementById('btn-photo').addEventListener('click', () => document.getElementById('file-photo').click());
       document.getElementById('btn-file').addEventListener('click', () => document.getElementById('file-any').click());
       ['file-photo', 'file-any'].forEach(id => document.getElementById(id).addEventListener('change', async (ev) => {
-        const f = ev.target.files && ev.target.files[0]; ev.target.value = '';
-        if (f) await handleFile(f);
+        // Snapshot the FileList into an array BEFORE clearing the input — setting
+        // value='' empties the live FileList, so reading files.length after the
+        // reset would be 0 (the bug that made multi-upload silently do nothing).
+        const files = Array.from(ev.target.files || []); ev.target.value = '';
+        if (files.length) await handleFiles(files);
       }));
       document.getElementById('btn-polish').addEventListener('click', () => { runPolish(); });
       document.getElementById('btn-tailor').addEventListener('click', () => { runTailor(); });
