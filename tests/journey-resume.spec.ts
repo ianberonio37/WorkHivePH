@@ -171,4 +171,36 @@ test.describe('resume.html — Resume / CV Builder journey', () => {
     await expect(whPage.locator('#review-body input[data-review-value]'))
       .toHaveValue('Loaded and staged raw materials to keep production running without interruption');
   });
+
+  test('work experience shows the quantified-bullet hint (coaches toward competitive bullets)', async ({ whPage }) => {
+    await gotoResume(whPage);
+    await whPage.click('[data-action="add"][data-sec="work"]');
+    const hint = whPage.locator('.field-hint');
+    await expect(hint).toHaveCount(1);
+    await expect(hint).toContainText('add a number');
+  });
+
+  test('export renders Education BEFORE Certificates (standard order)', async ({ whPage }) => {
+    await whPage.route('**/functions/v1/resume-extract', (route) => route.fulfill({
+      status: 200, contentType: 'application/json',
+      body: JSON.stringify({ fields: {
+        basics: { name: '', label: '', email: '', phone: '', summary: '', location: { city: '', region: '' } },
+        work: [], skills: [],
+        education: [{ institution: 'University of Cebu', studyType: 'BS Mechanical Engineering', area: '', startDate: '2008', endDate: '2013' }],
+        certificates: [{ name: 'Registered Mechanical Engineer (PRC)', issuer: 'PRC', date: '2014' }],
+        projects: [], awards: [],
+      } }),
+    }));
+    await gotoResume(whPage);
+    await whPage.setInputFiles('#file-any', { name: 'cv.png', mimeType: 'image/png', buffer: PNG_1x1 });
+    await expect(whPage.locator('#review-sheet')).toHaveClass(/open/, { timeout: 15000 });
+    await whPage.click('#review-confirm');
+    await whPage.click('#btn-export');
+    await expect(whPage.locator('#preview-overlay')).toHaveClass(/open/);
+    const titles = await whPage.locator('#resume-paper .r-sec-title').allInnerTexts();
+    const ed = titles.findIndex((t) => /education/i.test(t));
+    const ce = titles.findIndex((t) => /certificates/i.test(t));
+    expect(ed, 'Education present').toBeGreaterThanOrEqual(0);
+    expect(ce, 'Certificates after Education').toBeGreaterThan(ed);
+  });
 });
