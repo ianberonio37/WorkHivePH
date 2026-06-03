@@ -232,6 +232,16 @@ enabled = true
 verify_jwt = false
 entrypoint = "./functions/visual-defect-capture/index.ts"
 
+[functions.resume-extract]
+enabled = true
+verify_jwt = false
+entrypoint = "./functions/resume-extract/index.ts"
+
+[functions.resume-polish]
+enabled = true
+verify_jwt = false
+entrypoint = "./functions/resume-polish/index.ts"
+
 [functions.equipment-label-ocr]
 enabled = true
 verify_jwt = false

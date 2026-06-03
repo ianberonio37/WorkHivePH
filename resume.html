@@ -1,0 +1,1085 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="theme-color" content="#F7A21B" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="robots" content="noindex, follow" />
+  <meta name="description" content="Turn your WorkHive skills, badges and logbook into a professional, ATS-friendly resume. Add files from your phone — photo, PDF, Word or Excel. Free for every Filipino worker." />
+  <meta property="og:title" content="Resume / CV Builder · WorkHive" />
+  <meta property="og:image" content="https://workhiveph.com/brand_assets/og-social.png" />
+  <title>Resume / CV Builder | WorkHive</title>
+  <link rel="manifest" href="manifest.json" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <!-- Supabase CDN MUST be first script (utils.js getDb depends on it) -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="utils.js"></script>
+  <!-- html2pdf for PDF export (P2). pagebreak mode:['css'] only per mobile-maestro rules. -->
+  <script src="https://cdn.jsdelivr.net/npm/html2pdf.js@0.10.1/dist/html2pdf.bundle.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: #0f1923;
+      color: #F4F6FA;
+      min-height: 100vh;
+      padding-bottom: calc(96px + env(safe-area-inset-bottom));
+    }
+
+    /* ── Aurora background ── */
+    .aurora { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+    .aurora-blob { position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.07; }
+    .aurora-blob-1 { width: 500px; height: 500px; background: #29B6D9; top: -100px; left: -100px; }
+    .aurora-blob-2 { width: 400px; height: 400px; background: #F7A21B; bottom: 0; right: -100px; }
+
+    /* ── Layout ── */
+    .page { position: relative; z-index: 1; max-width: 720px; margin: 0 auto; padding: 1.5rem 1rem; }
+    .page-header { margin-bottom: 1rem; }
+    .page-header h1 { font-size: 1.5rem; font-weight: 800; color: #fff; display: flex; align-items: center; gap: 0.5rem; }
+    .page-header p { font-size: 0.8rem; color: #7B8794; margin-top: 0.25rem; }
+    .ctx-pill { display: inline-flex; align-items: center; gap: 0.3rem; font-size: 0.68rem; font-weight: 600; color: #29B6D9;
+      background: rgba(41,182,217,0.1); border: 1px solid rgba(41,182,217,0.25); border-radius: 999px; padding: 0.2rem 0.6rem; margin-top: 0.5rem; }
+
+    /* ── Offline banner ── */
+    #offline-banner { display: none; background: rgba(247,162,27,0.15); border: 1px solid rgba(247,162,27,0.4);
+      color: #FDB94A; font-size: 0.75rem; font-weight: 600; padding: 0.5rem 0.9rem; border-radius: 0.6rem; margin-bottom: 0.85rem; }
+    #offline-banner.show { display: block; }
+
+    /* ── Toast ── */
+    #toast { position: fixed; top: 1rem; left: 50%; transform: translateX(-50%) translateY(-90px);
+      background: rgba(31,46,69,0.97); border: 1px solid rgba(255,255,255,0.1); border-radius: 0.75rem;
+      padding: 0.75rem 1.25rem; font-size: 0.8rem; color: #fff; z-index: 9999; transition: transform 0.25s ease-out;
+      display: flex; align-items: center; gap: 0.5rem; max-width: 340px; }
+    #toast.show { transform: translateX(-50%) translateY(0); }
+
+    /* ── Cards ── */
+    .card { background: linear-gradient(145deg, rgba(42,61,88,0.5), rgba(31,46,69,0.7));
+      border: 1px solid rgba(255,255,255,0.07); border-radius: 1rem; padding: 1.1rem 1.2rem; margin-bottom: 1rem; }
+    .sec-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem; }
+    .sec-title { font-size: 0.95rem; font-weight: 700; color: #fff; }
+    .sec-sub { font-size: 0.68rem; color: #7B8794; margin-top: 0.1rem; }
+
+    /* ── Buttons ── */
+    .btn { min-height: 44px; border-radius: 0.7rem; font-family: inherit; font-size: 0.85rem; font-weight: 700;
+      cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 0.4rem;
+      padding: 0.5rem 1rem; border: 1px solid transparent; transition: transform 0.12s, opacity 0.12s; }
+    .btn:active { transform: scale(0.97); }
+    .btn-primary { background: linear-gradient(135deg, #F7A21B, #FDB94A); color: #162032; }
+    .btn-primary:active { opacity: 0.85; }
+    .btn-ghost { background: rgba(255,255,255,0.05); color: #F4F6FA; border-color: rgba(255,255,255,0.12); }
+    .btn-ghost:active { background: rgba(255,255,255,0.1); }
+    .btn-sm { min-height: 36px; padding: 0.35rem 0.7rem; font-size: 0.74rem; }
+    .btn-add { width: 100%; margin-top: 0.6rem; background: rgba(41,182,217,0.08); border: 1px dashed rgba(41,182,217,0.4); color: #5FCCE8; }
+    .btn-add:active { background: rgba(41,182,217,0.15); }
+    .icon-del { background: rgba(248,113,113,0.08); border: 1px solid rgba(248,113,113,0.25); color: #f87171;
+      width: 32px; height: 32px; min-height: 32px; border-radius: 0.5rem; font-size: 1rem; flex-shrink: 0; }
+
+    /* ── Action bar ── */
+    .action-bar { display: flex; flex-wrap: wrap; gap: 0.6rem; margin-bottom: 1.1rem; }
+    .action-bar .btn { flex: 1 1 auto; min-width: calc(50% - 0.6rem); }
+
+    /* ── Inputs (font-size 16px = no iOS auto-zoom) ── */
+    .field { margin-bottom: 0.65rem; }
+    .field label { display: block; font-size: 0.66rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;
+      color: #7B8794; margin-bottom: 0.25rem; }
+    .wh-input { width: 100%; padding: 0.6rem 0.75rem; border-radius: 0.6rem; border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(22,32,50,0.55); color: #F4F6FA; font-size: 1rem; font-family: inherit; line-height: 1.4; }
+    .wh-input:focus { outline: none; border-color: rgba(41,182,217,0.6); }
+    textarea.wh-input { resize: vertical; min-height: 64px; }
+    .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.55rem; }
+
+    /* ── Item card (one repeatable entry) ── */
+    .item { background: rgba(22,32,50,0.4); border: 1px solid rgba(255,255,255,0.06); border-radius: 0.8rem;
+      padding: 0.85rem 0.9rem; margin-bottom: 0.7rem; }
+    .item-top { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; margin-bottom: 0.55rem; }
+
+    /* ── Provenance chips ── */
+    .src-chip { font-size: 0.58rem; font-weight: 700; letter-spacing: 0.03em; padding: 0.12rem 0.45rem; border-radius: 999px;
+      white-space: nowrap; border: 1px solid; }
+
+    /* ── Empty / prompt ── */
+    .empty-prompt { text-align: center; padding: 1.4rem 1rem; }
+    .empty-prompt .big { font-size: 2rem; margin-bottom: 0.4rem; }
+    .empty-prompt p { font-size: 0.82rem; color: #9fb0c0; margin-bottom: 0.9rem; line-height: 1.5; }
+
+    /* ── Bottom sheet (checklist review) ── */
+    .sheet-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 1000; display: none; }
+    .sheet-overlay.open { display: block; }
+    .sheet-panel { position: fixed; left: 0; right: 0; bottom: 0; z-index: 1001; background: #162032;
+      border-top-left-radius: 1.1rem; border-top-right-radius: 1.1rem; max-height: 85vh; overflow-y: auto;
+      padding: 1rem 1rem calc(1rem + env(safe-area-inset-bottom)); transform: translateY(100%);
+      transition: transform 0.3s cubic-bezier(.34,1.2,.64,1); }
+    .sheet-overlay.open .sheet-panel { transform: translateY(0); }
+    .sheet-handle { width: 40px; height: 4px; border-radius: 999px; background: rgba(255,255,255,0.2); margin: 0 auto 0.8rem; }
+    .sheet-group-title { font-size: 0.66rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em;
+      color: #5FCCE8; margin: 0.9rem 0 0.45rem; }
+    .check-row { display: flex; align-items: flex-start; gap: 0.6rem; padding: 0.5rem 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+    .check-row input[type="checkbox"] { width: 22px; height: 22px; min-width: 22px; margin-top: 0.55rem; accent-color: #29B6D9; }
+    .check-row .cr-body { flex: 1; }
+    .sheet-foot { position: sticky; bottom: 0; background: #162032; padding-top: 0.75rem; margin-top: 0.5rem; }
+
+    /* ── Export preview overlay (P2) ── */
+    .preview-overlay { position: fixed; inset: 0; background: #0b1018; z-index: 1100; display: none; flex-direction: column; }
+    .preview-overlay.open { display: flex; }
+    .preview-bar { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; justify-content: space-between;
+      padding: 0.6rem 0.8rem calc(0.6rem + env(safe-area-inset-top)); background: #162032; border-bottom: 1px solid rgba(255,255,255,0.08); }
+    .pv-templates { display: flex; gap: 0.4rem; }
+    .pv-actions { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+    .pv-tpl { background: rgba(255,255,255,0.06); color: #cbd5e1; border: 1px solid rgba(255,255,255,0.12); }
+    .pv-tpl.active { background: rgba(247,162,27,0.18); color: #FDB94A; border-color: #F7A21B; }
+    .preview-scroll { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 1rem 1rem calc(1rem + env(safe-area-inset-bottom)); }
+    #resume-paper { box-shadow: 0 8px 40px rgba(0,0,0,0.5); border-radius: 4px; }
+
+    @media (max-width: 380px) { .field-row { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <div class="aurora"><div class="aurora-blob aurora-blob-1"></div><div class="aurora-blob aurora-blob-2"></div></div>
+
+  <main class="page" id="main">
+    <div id="offline-banner">⚠ You're offline — changes are saved on this device and will sync when you reconnect.</div>
+
+    <header class="page-header">
+      <h1>📄 Resume / CV Builder</h1>
+      <p>Build a professional resume from your WorkHive experience. Everything is editable — you decide what goes in.</p>
+      <div id="ctx-pill" class="ctx-pill" style="display:none;"></div>
+    </header>
+
+    <div class="action-bar">
+      <button class="btn btn-primary" id="btn-autofill" type="button">✨ Auto-fill from my WorkHive data</button>
+      <button class="btn btn-ghost" id="btn-save" type="button">💾 Save</button>
+      <button class="btn btn-ghost" id="btn-export" type="button">👁 Preview &amp; Export</button>
+      <button class="btn btn-ghost" id="btn-undo" type="button">↩ Undo</button>
+    </div>
+
+    <div class="card" id="upload-card">
+      <div class="sec-head"><div><div class="sec-title">📎 Add from a file</div><div class="sec-sub">Photo, screenshot, PDF, Word, or Excel — we read it, you choose what to keep</div></div></div>
+      <div style="display:flex;flex-wrap:wrap;gap:0.6rem;">
+        <button class="btn btn-ghost" id="btn-photo" type="button" style="flex:1;min-width:calc(50% - 0.6rem);">📷 Take a photo</button>
+        <button class="btn btn-ghost" id="btn-file" type="button" style="flex:1;min-width:calc(50% - 0.6rem);">📁 Choose a file</button>
+      </div>
+      <input type="file" id="file-photo" accept="image/*" capture="environment" style="display:none;" />
+      <input type="file" id="file-any" accept="image/*,application/pdf,.pdf,.doc,.docx,.xls,.xlsx,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" style="display:none;" />
+      <p style="font-size:0.66rem;color:#7B8794;margin-top:0.6rem;">Your file is read just to fill in your resume, then discarded. Nothing is added until you tap to confirm.</p>
+    </div>
+
+    <div class="card" id="ai-card">
+      <div class="sec-head"><div><div class="sec-title">✨ AI helpers</div><div class="sec-sub">Turn rough notes into professional wording. You review every suggestion before it is used.</div></div></div>
+      <button class="btn btn-ghost" id="btn-polish" type="button" style="width:100%;margin-bottom:0.75rem;">✨ Polish my experience wording</button>
+      <div class="field"><label>Tailor to a job (paste the job ad)</label>
+        <textarea class="wh-input" id="jd-input" rows="3" placeholder="Paste the job description here, then tap Tailor."></textarea>
+      </div>
+      <button class="btn btn-ghost" id="btn-tailor" type="button" style="width:100%;">🎯 Tailor my resume to this job</button>
+    </div>
+
+    <div id="sections"></div>
+  </main>
+
+  <!-- Checklist review sheet — must be in DOM before the <script> block runs -->
+  <div class="sheet-overlay" id="review-sheet">
+    <div class="sheet-panel">
+      <div class="sheet-handle"></div>
+      <h2 id="review-title" style="font-size:1rem;font-weight:700;color:#fff;margin-bottom:0.2rem;">Review what we found</h2>
+      <p id="review-sub" style="font-size:0.74rem;color:#9fb0c0;margin-bottom:0.4rem;">Uncheck anything you don't want. Tap a value to edit it before adding.</p>
+      <div id="review-body"></div>
+      <div class="sheet-foot">
+        <div style="display:flex;gap:0.6rem;">
+          <button class="btn btn-ghost" id="review-cancel" type="button" style="flex:0 0 auto;">Cancel</button>
+          <button class="btn btn-primary" id="review-confirm" type="button" style="flex:1;">Add selected</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Export preview overlay (P2) — must be in DOM before the script block runs -->
+  <div class="preview-overlay" id="preview-overlay">
+    <div class="preview-bar">
+      <button class="btn btn-ghost btn-sm" id="pv-close" type="button">✕ Close</button>
+      <div class="pv-templates">
+        <button class="btn btn-sm pv-tpl" data-tpl="ats-plain" type="button">ATS-plain</button>
+        <button class="btn btn-sm pv-tpl" data-tpl="workhive" type="button">WorkHive</button>
+      </div>
+      <div class="pv-actions">
+        <button class="btn btn-primary btn-sm" id="pv-pdf" type="button">⬇ Download / View PDF</button>
+        <button class="btn btn-ghost btn-sm" id="pv-print" type="button">🖨 Print</button>
+        <button class="btn btn-ghost btn-sm" id="pv-json" type="button">{ } JSON</button>
+      </div>
+    </div>
+    <div class="preview-scroll"><div id="resume-paper" class="resume-paper"></div></div>
+  </div>
+
+  <div id="toast" role="alert" aria-live="polite"><span id="toast-msg"></span></div>
+
+  <script>
+  (function () {
+    'use strict';
+
+    // ── Supabase singleton + identity ────────────────────────────────────────
+    const SUPABASE_URL = 'https://hzyvnjtisfgbksicrouu.supabase.co';
+    const SUPABASE_KEY = 'sb_publishable_ePj-suLMwkMRVDH6eM6S8g_R0rZVbMZ';
+    const db = getDb(SUPABASE_URL, SUPABASE_KEY);
+
+    let WORKER_NAME = localStorage.getItem('wh_last_worker')
+      || localStorage.getItem('wh_worker_name')
+      || localStorage.getItem('workerName') || '';
+    const HIVE_ID   = localStorage.getItem('wh_active_hive_id') || localStorage.getItem('wh_hive_id') || null;
+    const HIVE_NAME = localStorage.getItem('wh_hive_name') || '';
+    const HIVE_ROLE = localStorage.getItem('wh_hive_role') || 'worker';
+    let _authUid = null;
+
+    // ── Model (JSON Resume schema, https://jsonresume.org/schema) ────────────
+    let resume = emptyResume();
+    let _resumeId = null;
+    const _undoStack = [];
+    function pushUndo() { try { _undoStack.push(JSON.stringify(resume)); if (_undoStack.length > 15) _undoStack.shift(); } catch (_) { /* empty-catch-allow: undo is best-effort */ } }
+    function undo() {
+      if (!_undoStack.length) { toast('Nothing to undo.'); return; }
+      resume = mergeDefaults(JSON.parse(_undoStack.pop()));
+      render(); scheduleLocalSave(); toast('↩ Undone.');
+    }
+
+    function emptyResume() {
+      return {
+        basics: { name: '', label: '', email: '', phone: '', url: '', summary: '',
+                  location: { city: '', region: '', countryCode: 'PH' }, profiles: [], _src: {} },
+        work: [], education: [], skills: [], certificates: [], projects: [], awards: [], references: [],
+        meta: { template: 'ats-plain', title: 'My Resume', generatedBy: 'WorkHive Resume Builder' },
+      };
+    }
+
+    // Section field config — drives both rendering and the change handler.
+    const SECTIONS = [
+      { key: 'work', title: 'Work Experience', sub: 'Jobs and the equipment you maintained', fields: [
+        { f: 'position', label: 'Job title', ph: 'Maintenance Technician' },
+        { f: 'name', label: 'Company / Plant', ph: 'ABC Manufacturing' },
+        { f: 'location', label: 'Location', ph: 'Batangas, PH' },
+        { f: 'startDate', label: 'From', ph: '2021', half: true },
+        { f: 'endDate', label: 'To', ph: 'Present', half: true },
+        { f: 'highlights', label: 'What you did (one per line)', type: 'lines', ph: 'Repaired Pump P-204B; cut downtime by 4 hours\nLed monthly PM on 12 conveyors' },
+      ] },
+      { key: 'skills', title: 'Skills', sub: 'From your Skill Matrix + anything you add', fields: [
+        { f: 'name', label: 'Skill', ph: 'Mechanical Maintenance' },
+        { f: 'level', label: 'Level', ph: 'Intermediate', half: true },
+        { f: 'keywords', label: 'Tags (comma-separated)', type: 'csv', ph: 'TESDA NC II, pumps', half: true },
+      ] },
+      { key: 'certificates', title: 'Certificates & Licenses', sub: 'Skill badges, TESDA NC, PRC, training', fields: [
+        { f: 'name', label: 'Certificate / License', ph: 'Mechanical Level 3 Skill Badge' },
+        { f: 'issuer', label: 'Issued by', ph: 'TESDA', half: true },
+        { f: 'date', label: 'Date', ph: '2025-03', half: true },
+      ] },
+      { key: 'education', title: 'Education', sub: '', fields: [
+        { f: 'institution', label: 'School', ph: 'Batangas State University' },
+        { f: 'studyType', label: 'Degree / Course', ph: 'BS Mechanical Engineering', half: true },
+        { f: 'area', label: 'Field', ph: 'Mechanical', half: true },
+        { f: 'startDate', label: 'From', ph: '2016', half: true },
+        { f: 'endDate', label: 'To', ph: '2020', half: true },
+      ] },
+      { key: 'projects', title: 'Projects', sub: '', fields: [
+        { f: 'name', label: 'Project', ph: 'Boiler reliability program' },
+        { f: 'description', label: 'Description', type: 'area', ph: 'Reduced unplanned downtime 30% over 6 months.' },
+        { f: 'startDate', label: 'From', ph: '2023', half: true },
+        { f: 'endDate', label: 'To', ph: '2024', half: true },
+      ] },
+      { key: 'awards', title: 'Awards', sub: '', fields: [
+        { f: 'title', label: 'Award', ph: 'Safety Champion of the Year' },
+        { f: 'awarder', label: 'Given by', ph: 'Plant Management', half: true },
+        { f: 'date', label: 'Date', ph: '2024', half: true },
+        { f: 'summary', label: 'Note', type: 'area', ph: '' },
+      ] },
+      { key: 'references', title: 'References', sub: '', fields: [
+        { f: 'name', label: 'Name & role', ph: 'Engr. Juan Dela Cruz — Maintenance Supervisor' },
+        { f: 'reference', label: 'Contact / note', type: 'area', ph: 'Available on request' },
+      ] },
+    ];
+
+    function newItem(secKey) {
+      const base = { _source: 'You typed' };
+      if (secKey === 'work') return Object.assign(base, { position: '', name: '', location: '', startDate: '', endDate: '', highlights: [] });
+      if (secKey === 'skills') return Object.assign(base, { name: '', level: '', keywords: [] });
+      if (secKey === 'certificates') return Object.assign(base, { name: '', issuer: '', date: '' });
+      if (secKey === 'education') return Object.assign(base, { institution: '', studyType: '', area: '', startDate: '', endDate: '' });
+      if (secKey === 'projects') return Object.assign(base, { name: '', description: '', startDate: '', endDate: '', highlights: [] });
+      if (secKey === 'awards') return Object.assign(base, { title: '', awarder: '', date: '', summary: '' });
+      if (secKey === 'references') return Object.assign(base, { name: '', reference: '' });
+      return base;
+    }
+
+    // ── Provenance chip ──────────────────────────────────────────────────────
+    const SRC_STYLE = {
+      'Skill Matrix': { c: '#29B6D9', b: 'rgba(41,182,217,0.12)' },
+      'Logbook':      { c: '#F7A21B', b: 'rgba(247,162,27,0.12)' },
+      'Profile':      { c: '#4ade80', b: 'rgba(74,222,128,0.12)' },
+      'AI suggested': { c: '#a78bfa', b: 'rgba(167,139,250,0.14)' },
+      'Uploaded':     { c: '#2dd4bf', b: 'rgba(45,212,191,0.12)' },
+      'You typed':    { c: '#94A3B8', b: 'rgba(148,163,184,0.12)' },
+    };
+    function srcChip(src) {
+      const s = SRC_STYLE[src] || SRC_STYLE['You typed'];
+      return `<span class="src-chip" style="color:${s.c};background:${s.b};border-color:${s.c};">${escHtml(src || 'You typed')}</span>`;
+    }
+
+    // ── Small helpers ────────────────────────────────────────────────────────
+    function cap(s) { s = String(s || ''); return s.charAt(0).toUpperCase() + s.slice(1); }
+    function fmtDate(d) { if (!d) return ''; try { return new Date(d).toISOString().slice(0, 7); } catch (_) { return ''; } }
+    let _toastTimer = null;
+    function toast(msg) {
+      const t = document.getElementById('toast');
+      document.getElementById('toast-msg').textContent = msg;
+      t.classList.add('show');
+      clearTimeout(_toastTimer);
+      _toastTimer = setTimeout(() => t.classList.remove('show'), 2800);
+    }
+    const LEVELWORD = { 1: 'Beginner', 2: 'Basic', 3: 'Intermediate', 4: 'Advanced', 5: 'Expert' };
+    function tesdaHint(level) {
+      if (level >= 4) return 'TESDA NC III equivalent';
+      if (level >= 2) return 'TESDA NC II equivalent';
+      return '';
+    }
+
+    // ── Render ───────────────────────────────────────────────────────────────
+    function isEmptyResume() {
+      return !resume.basics.name && !resume.work.length && !resume.skills.length
+        && !resume.certificates.length && !resume.education.length && !resume.projects.length;
+    }
+
+    function render() {
+      const root = document.getElementById('sections');
+      let html = renderBasics();
+      if (isEmptyResume()) {
+        html += `<div class="card empty-prompt">
+          <div class="big">🧰</div>
+          <p>You already have skills, badges and work history in WorkHive. Tap <b>Auto-fill</b> above to start your resume in seconds — then edit anything you like.</p>
+          <button class="btn btn-primary" id="btn-autofill-2" type="button" style="margin:0 auto;">✨ Auto-fill from my WorkHive data</button>
+        </div>`;
+      }
+      for (const sec of SECTIONS) html += renderSection(sec);
+      root.innerHTML = html;
+      const a2 = document.getElementById('btn-autofill-2');
+      if (a2) a2.addEventListener('click', runAutofill);
+    }
+
+    function basicsField(f, label, val, ph, type) {
+      const src = resume.basics._src && resume.basics._src[f];
+      const chip = src ? ' ' + srcChip(src) : '';
+      const input = type === 'area'
+        ? `<textarea class="wh-input" data-basics="${f}" placeholder="${escHtml(ph)}" rows="3">${escHtml(val)}</textarea>`
+        : `<input class="wh-input" data-basics="${f}" placeholder="${escHtml(ph)}" value="${escHtml(val)}" />`;
+      return `<div class="field"><label>${escHtml(label)}${chip}</label>${input}</div>`;
+    }
+
+    function renderBasics() {
+      const b = resume.basics;
+      return `<div class="card">
+        <div class="sec-head"><div><div class="sec-title">Your Details</div><div class="sec-sub">The top of your resume</div></div></div>
+        ${basicsField('name', 'Full name', b.name, 'Juan Dela Cruz')}
+        ${basicsField('label', 'Headline / role', b.label, 'Mechanical Maintenance Technician')}
+        <div class="field-row">
+          ${basicsField('email', 'Email', b.email, 'you@email.com')}
+          ${basicsField('phone', 'Phone', b.phone, '+63 9XX XXX XXXX')}
+        </div>
+        <div class="field-row">
+          ${basicsField('city', 'City', b.location.city, 'Batangas City')}
+          ${basicsField('region', 'Province / Region', b.location.region, 'Batangas')}
+        </div>
+        ${basicsField('summary', 'Professional summary', b.summary, 'A short paragraph about you...', 'area')}
+      </div>`;
+    }
+
+    function renderSection(sec) {
+      const items = resume[sec.key] || [];
+      let body = '';
+      items.forEach((item, idx) => {
+        let fieldsHtml = '';
+        let pendingHalf = '';
+        for (const fld of sec.fields) {
+          let val = item[fld.f];
+          if (fld.type === 'lines') val = Array.isArray(val) ? val.join('\n') : (val || '');
+          else if (fld.type === 'csv') val = Array.isArray(val) ? val.join(', ') : (val || '');
+          else val = val || '';
+          const dataAttr = `data-sec="${sec.key}" data-idx="${idx}" data-field="${fld.f}"${fld.type ? ` data-type="${fld.type}"` : ''}`;
+          const input = (fld.type === 'area' || fld.type === 'lines')
+            ? `<textarea class="wh-input" ${dataAttr} placeholder="${escHtml(fld.ph || '')}" rows="3">${escHtml(val)}</textarea>`
+            : `<input class="wh-input" ${dataAttr} placeholder="${escHtml(fld.ph || '')}" value="${escHtml(val)}" />`;
+          const fieldHtml = `<div class="field"><label>${escHtml(fld.label)}</label>${input}</div>`;
+          if (fld.half) {
+            if (pendingHalf) { fieldsHtml += `<div class="field-row">${pendingHalf}${fieldHtml}</div>`; pendingHalf = ''; }
+            else pendingHalf = fieldHtml;
+          } else {
+            if (pendingHalf) { fieldsHtml += `<div class="field-row">${pendingHalf}</div>`; pendingHalf = ''; }
+            fieldsHtml += fieldHtml;
+          }
+        }
+        if (pendingHalf) fieldsHtml += `<div class="field-row">${pendingHalf}</div>`;
+        body += `<div class="item">
+          <div class="item-top">${srcChip(item._source)}
+            <button class="btn icon-del" data-action="remove" data-sec="${sec.key}" data-idx="${idx}" type="button" aria-label="Remove">✕</button>
+          </div>${fieldsHtml}</div>`;
+      });
+      return `<div class="card">
+        <div class="sec-head"><div><div class="sec-title">${escHtml(sec.title)}</div>${sec.sub ? `<div class="sec-sub">${escHtml(sec.sub)}</div>` : ''}</div></div>
+        ${body || `<p style="font-size:0.76rem;color:#7B8794;">Nothing here yet.</p>`}
+        <button class="btn btn-add" data-action="add" data-sec="${sec.key}" type="button">+ Add ${escHtml(sec.title.replace(/s$/, '').toLowerCase())}</button>
+      </div>`;
+    }
+
+    // ── Edit handlers (delegation — no re-render on keystroke = no focus loss) ─
+    function onInput(e) {
+      const el = e.target;
+      if (el.dataset.basics !== undefined) {
+        const f = el.dataset.basics;
+        if (f === 'city' || f === 'region') resume.basics.location[f] = el.value;
+        else resume.basics[f] = el.value;
+        scheduleLocalSave();
+        return;
+      }
+      if (el.dataset.sec !== undefined && el.dataset.field) {
+        const item = (resume[el.dataset.sec] || [])[+el.dataset.idx];
+        if (!item) return;
+        const type = el.dataset.type, f = el.dataset.field;
+        if (type === 'lines') item[f] = el.value.split('\n').map(s => s.trim()).filter(Boolean);
+        else if (type === 'csv') item[f] = el.value.split(',').map(s => s.trim()).filter(Boolean);
+        else item[f] = el.value;
+        scheduleLocalSave();
+      }
+    }
+
+    function onClick(e) {
+      const act = e.target.closest('[data-action]');
+      if (!act) return;
+      const action = act.dataset.action, sec = act.dataset.sec;
+      if (action === 'add') {
+        resume[sec].push(newItem(sec));
+        render();
+        // Scroll the new item into view on mobile
+        if (window.innerWidth < 768) {
+          const cards = document.querySelectorAll(`[data-sec="${sec}"][data-action="add"]`);
+          setTimeout(() => cards.length && cards[0].scrollIntoView({ behavior: 'smooth', block: 'center' }), 120);
+        }
+        scheduleLocalSave();
+      } else if (action === 'remove') {
+        resume[sec].splice(+act.dataset.idx, 1);
+        render();
+        scheduleLocalSave();
+      }
+    }
+
+    // ── IndexedDB draft (offline-first) ──────────────────────────────────────
+    function idb() {
+      return new Promise((resolve, reject) => {
+        const req = indexedDB.open('wh_resume', 1);
+        req.onupgradeneeded = () => { if (!req.result.objectStoreNames.contains('draft')) req.result.createObjectStore('draft'); };
+        req.onsuccess = () => resolve(req.result);
+        req.onerror = () => reject(req.error);
+      });
+    }
+    async function idbPut(key, val) {
+      try { const d = await idb(); await new Promise((res, rej) => { const tx = d.transaction('draft', 'readwrite'); tx.objectStore('draft').put(val, key); tx.oncomplete = res; tx.onerror = () => rej(tx.error); }); } catch (_) { /* empty-catch-allow: draft is best-effort */ }
+    }
+    async function idbGet(key) {
+      try { const d = await idb(); return await new Promise((res) => { const tx = d.transaction('draft', 'readonly'); const r = tx.objectStore('draft').get(key); r.onsuccess = () => res(r.result); r.onerror = () => res(null); }); } catch (_) { return null; }
+    }
+    const scheduleLocalSave = debounce(saveLocal, 700);
+    async function saveLocal() { await idbPut('current', { resume, _resumeId, worker: WORKER_NAME, ts: Date.now() }); }
+
+    // ── Cloud save / load (owner-scoped resume_documents) ────────────────────
+    async function snapshotVersion(note) {
+      if (!_resumeId || !_authUid) return;
+      try {
+        await db.from('resume_versions').insert({ resume_id: _resumeId, auth_uid: _authUid, doc: resume, note: note || null });
+        // Prune to the 10 most recent.
+        const { data } = await db.from('resume_versions').select('id').eq('resume_id', _resumeId).order('created_at', { ascending: false }).range(10, 49);
+        if (data && data.length) await db.from('resume_versions').delete().in('id', data.map(r => r.id));
+      } catch (_) { /* empty-catch-allow: versioning is best-effort, never blocks save */ }
+    }
+
+    async function saveCloud() {
+      if (!_authUid) { toast('Saved on this device. Sign in to back up to the cloud.'); await saveLocal(); return; }
+      if (!navigator.onLine) { toast('Offline — saved on this device, will sync later.'); await saveLocal(); return; }
+      const btn = document.getElementById('btn-save');
+      btn.disabled = true; const lbl = btn.textContent; btn.textContent = 'Saving…';
+      const payload = { auth_uid: _authUid, worker_name: WORKER_NAME, hive_id: HIVE_ID || null,
+        title: resume.meta.title || 'My Resume', doc: resume, template: resume.meta.template || 'ats-plain' };
+      try {
+        if (_resumeId) {
+          await snapshotVersion('before save');
+          const { error } = await db.from('resume_documents').update(payload).eq('id', _resumeId);
+          if (error) throw error;
+        } else {
+          const { data, error } = await db.from('resume_documents').insert(payload).select('id').single();
+          if (error) throw error;
+          _resumeId = data.id;
+        }
+        await saveLocal();
+        toast('✓ Resume saved.');
+        if (typeof logEvent === 'function') logEvent(db, 'resume_saved', { page: 'resume' });
+      } catch (err) {
+        toast('Could not save to cloud: ' + (err.message || 'error') + ' — saved on device.');
+        await saveLocal();
+      } finally {
+        btn.disabled = false; btn.textContent = lbl;
+      }
+    }
+
+    async function loadCloud() {
+      if (!_authUid) return false;
+      try {
+        const { data, error } = await db.from('resume_documents')
+          .select('id, doc, template, title').eq('auth_uid', _authUid)
+          .order('updated_at', { ascending: false }).limit(1).maybeSingle();
+        if (error || !data || !data.doc || !data.doc.basics) return false;
+        resume = mergeDefaults(data.doc);
+        _resumeId = data.id;
+        return true;
+      } catch (_) { return false; }
+    }
+
+    // Guard against older/partial docs missing newer keys.
+    function mergeDefaults(doc) {
+      const base = emptyResume();
+      const out = Object.assign(base, doc);
+      out.basics = Object.assign(base.basics, doc.basics || {});
+      out.basics.location = Object.assign({ city: '', region: '', countryCode: 'PH' }, (doc.basics && doc.basics.location) || {});
+      out.basics._src = (doc.basics && doc.basics._src) || {};
+      for (const k of ['work', 'education', 'skills', 'certificates', 'projects', 'awards', 'references']) out[k] = Array.isArray(doc[k]) ? doc[k] : [];
+      out.meta = Object.assign(base.meta, doc.meta || {});
+      return out;
+    }
+
+    // ── Auto-fill from WorkHive (builds checklist items, reuses review sheet) ─
+    async function runAutofill() {
+      toast('Gathering your WorkHive data…');
+      const [badgesRes, profileRes, certRes, logRes, userRes] = await Promise.allSettled([
+        db.from('v_skill_badges_truth').select('discipline, level').eq('worker_name', WORKER_NAME),
+        db.from('skill_profiles').select('primary_skill').eq('worker_name', WORKER_NAME).maybeSingle(),
+        db.from('skill_badges').select('discipline, level, earned_at, exam_score').eq('worker_name', WORKER_NAME),
+        db.from('v_logbook_truth').select('machine, asset_tag, maintenance_type, problem, action, root_cause, downtime_hours, date, created_at').eq('worker_name', WORKER_NAME).order('created_at', { ascending: false }).limit(300),
+        db.auth.getUser(),
+      ]);
+      const badges  = (badgesRes.status === 'fulfilled' && badgesRes.value.data) || [];
+      const primary = (profileRes.status === 'fulfilled' && profileRes.value.data && profileRes.value.data.primary_skill) || '';
+      const certs   = (certRes.status === 'fulfilled' && certRes.value.data) || [];
+      const logs    = (logRes.status === 'fulfilled' && logRes.value.data) || [];
+      const email   = (userRes.status === 'fulfilled' && userRes.value.data && userRes.value.data.user && userRes.value.data.user.email) || '';
+
+      const items = [];
+      const headline = (primary ? cap(primary) + ' ' : '') + 'Maintenance Technician';
+
+      // Group 1 — Your details
+      items.push(mkBasic('Your details', 'name', 'Full name', WORKER_NAME, 'Profile'));
+      if (email) items.push(mkBasic('Your details', 'email', 'Email', email, 'Profile'));
+      items.push(mkBasic('Your details', 'label', 'Headline', headline, 'Profile'));
+
+      // Skills (max level per discipline)
+      const lvlByDisc = {};
+      for (const b of badges) { const d = b.discipline; if (!d) continue; if (!lvlByDisc[d] || b.level > lvlByDisc[d]) lvlByDisc[d] = b.level; }
+      Object.keys(lvlByDisc).forEach((d) => {
+        const lvl = lvlByDisc[d], word = LEVELWORD[lvl] || '';
+        items.push({ group: 'Skills', value: `${cap(d)} — ${word}`, checked: true, src: 'Skill Matrix',
+          apply: (r, val) => { const nm = (val.split('—')[0] || cap(d)).trim();
+            if (r.skills.some(s => s.name.toLowerCase() === nm.toLowerCase())) return;
+            const kw = tesdaHint(lvl); r.skills.push({ name: nm, level: word, keywords: kw ? [kw] : [], _source: 'Skill Matrix' }); } });
+      });
+
+      // Certificates (one per badge that has a date)
+      certs.filter(c => c.discipline).forEach((c) => {
+        const nm = `${cap(c.discipline)} Level ${c.level} Skill Badge`;
+        items.push({ group: 'Certificates', value: nm, checked: true, src: 'Skill Matrix',
+          apply: (r, val) => { if (r.certificates.some(x => x.name === (val || nm))) return;
+            r.certificates.push({ name: val || nm, issuer: 'WorkHive Skill Matrix', date: fmtDate(c.earned_at), _source: 'Skill Matrix' }); } });
+      });
+
+      // Work experience — one consolidated entry from the logbook
+      if (logs.length) {
+        const machines = [...new Set(logs.map(l => l.asset_tag || l.machine).filter(Boolean))];
+        const dates = logs.map(l => l.date || l.created_at).filter(Boolean).sort();
+        const start = dates.length ? String(dates[0]).slice(0, 4) : '';
+        const top = logs.filter(l => l.action).sort((a, b) => (b.downtime_hours || 0) - (a.downtime_hours || 0)).slice(0, 8)
+          .map(l => { const m = l.asset_tag || l.machine || 'equipment'; return `${m}: ${l.action}${l.problem ? ` (resolved: ${l.problem})` : ''}`; });
+        const highlights = [`Logged ${logs.length} maintenance records across ${machines.length} equipment items.`].concat(top);
+        const plant = HIVE_NAME || 'Independent / Solo practice';
+        items.push({ group: 'Experience', value: `${headline} at ${plant}`, checked: true, src: 'Logbook',
+          apply: (r, val) => { r.work.unshift({ position: headline, name: plant, location: '', startDate: start, endDate: 'Present', highlights, _source: 'Logbook' }); } });
+
+        // Deterministic summary uses the same numbers
+        items.push(mkBasic('Your details', 'summary', 'Professional summary',
+          `${headline} with hands-on experience maintaining ${machines.length} equipment types and ${logs.length} documented maintenance jobs.`, 'Logbook'));
+      }
+
+      if (!items.length) { toast('No WorkHive data found yet — start with the Skill Matrix and Logbook.'); return; }
+      openReview('We found ' + items.length + ' things from your WorkHive data', items, (selected) => {
+        pushUndo(); snapshotVersion('before auto-fill');
+        for (const it of selected) it.apply(resume, it.value);
+        render();
+        scheduleLocalSave();
+        toast('Added ' + selected.length + ' items. Edit anything you like.');
+        if (typeof logEvent === 'function') logEvent(db, 'resume_autofill', { page: 'resume', count: selected.length });
+      });
+    }
+
+    function mkBasic(group, field, label, value, src) {
+      return { group, value, label, checked: true, src,
+        apply: (r, val) => { if (field === 'city' || field === 'region') r.basics.location[field] = val; else r.basics[field] = val;
+          r.basics._src = r.basics._src || {}; r.basics._src[field] = src; } };
+    }
+
+    // ── Checklist review sheet (generic — reused by P3 upload extraction) ─────
+    let _reviewItems = [], _reviewConfirm = null;
+    function openReview(title, items, onConfirm) {
+      _reviewItems = items; _reviewConfirm = onConfirm;
+      document.getElementById('review-title').textContent = title;
+      const groups = {};
+      items.forEach((it, i) => { (groups[it.group] = groups[it.group] || []).push(i); });
+      let html = '';
+      for (const g of Object.keys(groups)) {
+        html += `<div class="sheet-group-title">${escHtml(g)}</div>`;
+        for (const i of groups[g]) {
+          const it = items[i];
+          html += `<div class="check-row">
+            <input type="checkbox" data-review-check="${i}" ${it.checked ? 'checked' : ''} aria-label="Include this item" />
+            <div class="cr-body">
+              ${it.label ? `<div style="font-size:0.62rem;color:#7B8794;margin-bottom:0.2rem;">${escHtml(it.label)} ${srcChip(it.src)}</div>` : `<div style="margin-bottom:0.2rem;">${srcChip(it.src)}</div>`}
+              <input class="wh-input" data-review-value="${i}" value="${escHtml(it.value)}" />
+            </div></div>`;
+        }
+      }
+      document.getElementById('review-body').innerHTML = html;
+      updateReviewCount();
+      document.getElementById('review-sheet').classList.add('open');
+    }
+    function updateReviewCount() {
+      const n = _reviewItems.filter(it => it.checked).length;
+      document.getElementById('review-confirm').textContent = 'Add selected (' + n + ')';
+    }
+    function closeReview() {
+      document.getElementById('review-sheet').classList.remove('open');
+      _reviewItems = []; _reviewConfirm = null;
+    }
+    function onReviewInput(e) {
+      const cb = e.target.dataset.reviewCheck, vv = e.target.dataset.reviewValue;
+      if (cb !== undefined) { _reviewItems[+cb].checked = e.target.checked; updateReviewCount(); }
+      else if (vv !== undefined) { _reviewItems[+vv].value = e.target.value; }
+    }
+
+    // ── Offline UI ───────────────────────────────────────────────────────────
+    function updateOfflineUI() {
+      document.getElementById('offline-banner').classList.toggle('show', !navigator.onLine);
+    }
+
+    // ── Upload + AI extract (P3): photo / PDF / Word / Excel -> checklist ─────
+    const _loadedScripts = {};
+    function loadScript(src) {
+      if (_loadedScripts[src]) return _loadedScripts[src];
+      _loadedScripts[src] = new Promise((resolve, reject) => {
+        const s = document.createElement('script'); s.src = src; s.async = true;
+        s.onload = resolve; s.onerror = () => reject(new Error('Failed to load ' + src));
+        document.head.appendChild(s);
+      });
+      return _loadedScripts[src];
+    }
+
+    function compressImage(file) {
+      return new Promise((resolve, reject) => {
+        const img = new Image(); const url = URL.createObjectURL(file);
+        img.onload = () => {
+          URL.revokeObjectURL(url);
+          const MAX = 1400; let w = img.width, h = img.height;
+          if (w > h && w > MAX) { h = Math.round(h * MAX / w); w = MAX; }
+          else if (h > MAX) { w = Math.round(w * MAX / h); h = MAX; }
+          const c = document.createElement('canvas'); c.width = w; c.height = h;
+          c.getContext('2d').drawImage(img, 0, 0, w, h);
+          resolve(c.toDataURL('image/jpeg', 0.82));
+        };
+        img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('Could not load image')); };
+        img.src = url;
+      });
+    }
+
+    const PDFJS_SRC = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js';
+    const PDFJS_WORKER = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js';
+    async function extractPdf(file) {
+      await loadScript(PDFJS_SRC);
+      const pdfjsLib = window.pdfjsLib;
+      pdfjsLib.GlobalWorkerOptions.workerSrc = PDFJS_WORKER;
+      const buf = await file.arrayBuffer();
+      const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
+      let text = '';
+      const maxPages = Math.min(pdf.numPages, 10);
+      for (let i = 1; i <= maxPages; i++) {
+        const page = await pdf.getPage(i);
+        const content = await page.getTextContent();
+        text += content.items.map(it => it.str).join(' ') + '\n';
+      }
+      return text;
+    }
+    async function extractDocx(file) {
+      await loadScript('https://cdn.jsdelivr.net/npm/mammoth@1.6.0/mammoth.browser.min.js');
+      const buf = await file.arrayBuffer();
+      const result = await window.mammoth.extractRawText({ arrayBuffer: buf });
+      return (result && result.value) || '';
+    }
+    async function extractXlsx(file) {
+      await loadScript('https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js');
+      const buf = await file.arrayBuffer();
+      const wb = window.XLSX.read(buf, { type: 'array' });
+      let text = '';
+      wb.SheetNames.slice(0, 6).forEach(n => { text += '# ' + n + '\n' + window.XLSX.utils.sheet_to_csv(wb.Sheets[n]) + '\n'; });
+      return text;
+    }
+
+    async function callResumeExtract(kind, payload, source) {
+      const res = await fetchWithTimeout(`${SUPABASE_URL}/functions/v1/resume-extract`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ kind, payload, source, hive_id: HIVE_ID || null, worker_name: WORKER_NAME }),
+      }, 60000);
+      if (res === null) { toast('That took too long. Try a smaller or clearer file.'); return null; }
+      let data; try { data = await res.json(); } catch (_) { toast('Reader error. Please try again.'); return null; }
+      if (!res.ok || (data && data.error)) { toast(data && data.error ? data.error : 'Reader failed. Try again.'); return null; }
+      return data.fields || null;
+    }
+
+    // Turn an extracted JSON Resume partial into editable checklist items.
+    function fieldsToChecklist(f) {
+      const items = [], S = 'Uploaded';
+      const b = f.basics || {};
+      [['name', 'Full name'], ['label', 'Headline'], ['email', 'Email'], ['phone', 'Phone'], ['summary', 'Summary']].forEach(([k, lab]) => {
+        if (b[k]) items.push({ group: 'Your details', label: lab, value: b[k], checked: true, src: S,
+          apply: (r, val) => { r.basics[k] = val; r.basics._src = r.basics._src || {}; r.basics._src[k] = S; } });
+      });
+      if (b.location && (b.location.city || b.location.region)) {
+        const v = [b.location.city, b.location.region].filter(Boolean).join(', ');
+        items.push({ group: 'Your details', label: 'Location', value: v, checked: true, src: S,
+          apply: (r, val) => { const p = val.split(','); r.basics.location.city = (p[0] || '').trim(); r.basics.location.region = (p[1] || '').trim(); } });
+      }
+      (f.work || []).forEach((w, i) => {
+        const t = [w.position, w.name].filter(Boolean).join(' at ') || ('Work experience ' + (i + 1));
+        items.push({ group: 'Experience', label: t, value: t, checked: true, src: S, apply: (r) => { r.work.push(Object.assign({ _source: S }, w)); } });
+      });
+      (f.education || []).forEach((e, i) => {
+        const t = [e.studyType, e.institution].filter(Boolean).join(', ') || ('Education ' + (i + 1));
+        items.push({ group: 'Education', label: t, value: t, checked: true, src: S, apply: (r) => { r.education.push(Object.assign({ _source: S }, e)); } });
+      });
+      (f.skills || []).forEach((s) => {
+        if (!s.name) return;
+        const v = s.name + (s.level ? ` — ${s.level}` : '');
+        items.push({ group: 'Skills', label: '', value: v, checked: true, src: S,
+          apply: (r, val) => { const nm = (val.split('—')[0] || s.name).trim(); if (r.skills.some(x => x.name.toLowerCase() === nm.toLowerCase())) return; r.skills.push({ name: nm, level: s.level || '', keywords: [], _source: S }); } });
+      });
+      (f.certificates || []).forEach((c) => {
+        if (!c.name) return;
+        items.push({ group: 'Certificates', label: '', value: c.name, checked: true, src: S,
+          apply: (r, val) => { if (r.certificates.some(x => x.name === val)) return; r.certificates.push({ name: val, issuer: c.issuer || '', date: c.date || '', _source: S }); } });
+      });
+      (f.projects || []).forEach((p) => {
+        if (!p.name) return;
+        items.push({ group: 'Projects', label: '', value: p.name, checked: true, src: S,
+          apply: (r, val) => { r.projects.push({ name: val, description: p.description || '', startDate: '', endDate: '', highlights: [], _source: S }); } });
+      });
+      (f.awards || []).forEach((a) => {
+        if (!a.title) return;
+        items.push({ group: 'Awards', label: '', value: a.title, checked: true, src: S,
+          apply: (r, val) => { r.awards.push({ title: val, awarder: a.awarder || '', date: a.date || '', summary: '', _source: S }); } });
+      });
+      return items;
+    }
+
+    async function handleFile(file) {
+      if (!file) return;
+      const name = (file.name || '').toLowerCase(), type = file.type || '';
+      try {
+        toast('Reading your file…');
+        let kind, payload, source;
+        if (type.startsWith('image/')) { payload = await compressImage(file); kind = 'image'; source = 'photo'; }
+        else if (type === 'application/pdf' || name.endsWith('.pdf')) { payload = await extractPdf(file); kind = 'text'; source = 'pdf'; }
+        else if (name.endsWith('.docx') || type.includes('wordprocessing')) { payload = await extractDocx(file); kind = 'text'; source = 'docx'; }
+        else if (name.endsWith('.xlsx') || name.endsWith('.xls') || type.includes('spreadsheet') || type.includes('excel')) { payload = await extractXlsx(file); kind = 'text'; source = 'xlsx'; }
+        else { toast('Unsupported file. Use a photo, PDF, Word, or Excel file.'); return; }
+        if (kind === 'text' && (!payload || payload.trim().length < 10)) { toast('Could not read text from that file. Try a clear photo instead.'); return; }
+        const fields = await callResumeExtract(kind, payload, source);
+        if (!fields) return;
+        const items = fieldsToChecklist(fields);
+        if (!items.length) { toast('No resume details found in that file.'); return; }
+        openReview('We read ' + items.length + ' things from your file', items, (selected) => {
+          pushUndo(); snapshotVersion('before file import');
+          for (const it of selected) it.apply(resume, it.value);
+          render(); scheduleLocalSave();
+          toast('✓ Added ' + selected.length + ' items from your file.');
+          if (typeof logEvent === 'function') logEvent(db, 'resume_upload_import', { page: 'resume', source, count: selected.length });
+        });
+      } catch (err) { toast('Could not read that file: ' + (err.message || 'error')); }
+    }
+
+    // ── AI polish + tailor (P4): suggestions only, gated by the checklist ────
+    async function callResumePolish(payload) {
+      const res = await fetchWithTimeout(`${SUPABASE_URL}/functions/v1/resume-polish`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(Object.assign({ hive_id: HIVE_ID || null, worker_name: WORKER_NAME }, payload)),
+      }, 45000);
+      if (res === null) { toast('That took too long. Please try again.'); return null; }
+      let data; try { data = await res.json(); } catch (_) { toast('AI helper error. Please try again.'); return null; }
+      if (!res.ok || (data && data.error)) { toast(data && data.error ? data.error : 'AI helper failed. Try again.'); return null; }
+      return data;
+    }
+    function ensureWork0() { if (!resume.work.length) resume.work.push(newItem('work')); return resume.work[0]; }
+
+    async function runPolish() {
+      const all = [];
+      resume.work.forEach((w, wi) => (w.highlights || []).forEach((h, hi) => { if (h) all.push({ wi, hi, text: h }); }));
+      if (!all.length) { toast('Add some experience first, then polish it.'); return; }
+      toast('Polishing your wording…');
+      const data = await callResumePolish({ mode: 'polish_bullets', bullets: all.map(x => x.text), context: resume.basics.label || '' });
+      if (!data || !Array.isArray(data.bullets) || !data.bullets.length) { if (data) toast('No changes suggested.'); return; }
+      const items = data.bullets.map((b, i) => ({
+        group: 'Polished experience', label: all[i] ? 'Was: ' + all[i].text : '', value: b, checked: true, src: 'AI suggested',
+        apply: (r, val) => { const ref = all[i]; if (ref && r.work[ref.wi] && Array.isArray(r.work[ref.wi].highlights)) r.work[ref.wi].highlights[ref.hi] = val; },
+      }));
+      openReview('Review the polished wording', items, (selected) => {
+        snapshotVersion('before AI polish');
+        for (const it of selected) it.apply(resume, it.value);
+        render(); scheduleLocalSave();
+        toast('✓ Updated ' + selected.length + ' lines.');
+        if (typeof logEvent === 'function') logEvent(db, 'resume_polish', { page: 'resume', count: selected.length });
+      });
+    }
+
+    async function runTailor() {
+      const jd = (document.getElementById('jd-input').value || '').trim();
+      if (!jd) { toast('Paste the job ad first.'); return; }
+      toast('Tailoring to the job…');
+      const data = await callResumePolish({ mode: 'tailor_to_jd', jd, summary: resume.basics.summary || '', skills: resume.skills.map(s => s.name).filter(Boolean) });
+      if (!data) return;
+      const items = [];
+      if (data.summary) items.push({ group: 'Tailored summary', label: 'New professional summary', value: data.summary, checked: true, src: 'AI suggested',
+        apply: (r, val) => { r.basics.summary = val; r.basics._src = r.basics._src || {}; r.basics._src.summary = 'AI suggested'; } });
+      (data.highlights || []).forEach((h) => items.push({ group: 'Suggested highlights', label: '', value: h, checked: true, src: 'AI suggested',
+        apply: (r, val) => { ensureWork0().highlights.push(val); } }));
+      if (!items.length) { toast('No suggestions returned. Try again.'); return; }
+      openReview('Review the tailored suggestions', items, (selected) => {
+        snapshotVersion('before tailor to job');
+        for (const it of selected) it.apply(resume, it.value);
+        render(); scheduleLocalSave();
+        toast('✓ Applied ' + selected.length + ' suggestions.');
+        if (typeof logEvent === 'function') logEvent(db, 'resume_tailor', { page: 'resume', count: selected.length });
+      });
+    }
+
+    // ── Export: templates + PDF + Print + JSON Resume (P2) ───────────────────
+    let _template = 'ats-plain';
+
+    // Strip internal keys -> a clean, JSON-Resume-valid document.
+    function cleanResume() {
+      const r = JSON.parse(JSON.stringify(resume));
+      if (r.basics) delete r.basics._src;
+      ['work', 'education', 'skills', 'certificates', 'projects', 'awards', 'references']
+        .forEach(k => (r[k] || []).forEach(it => { delete it._source; }));
+      r.meta = { version: 'v1.0.0', generator: 'WorkHive Resume Builder', lastModified: new Date().toISOString() };
+      return r;
+    }
+
+    function resumeCSS() {
+      return [
+        '.resume-paper{max-width:720px;margin:0 auto;background:#fff;color:#1a1a1a;padding:34px 40px;font-family:Arial,Helvetica,sans-serif;font-size:13px;line-height:1.5;}',
+        '.resume-paper *{box-sizing:border-box;}',
+        '.r-name{font-size:24px;font-weight:800;margin:0;}',
+        '.r-label{font-size:14px;margin:2px 0 6px;}',
+        '.r-contact{font-size:12px;color:#444;margin-bottom:10px;}',
+        '.r-summary{margin:0 0 14px;}',
+        '.r-sec{margin-top:16px;}',
+        '.r-sec-title{font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:0.06em;border-bottom:1.5px solid currentColor;padding-bottom:3px;margin-bottom:8px;page-break-after:avoid;break-after:avoid;}',
+        '.r-entry{margin-bottom:10px;page-break-inside:avoid;break-inside:avoid;}',
+        '.r-entry-head{display:flex;justify-content:space-between;gap:10px;}',
+        '.r-pos{font-weight:700;}',
+        '.r-org{color:#444;font-size:12px;margin:1px 0 3px;}',
+        '.r-dates{color:#666;font-size:12px;white-space:nowrap;}',
+        '.resume-paper ul{margin:4px 0 0;padding-left:18px;}',
+        '.resume-paper li{margin-bottom:2px;page-break-inside:avoid;break-inside:avoid;}',
+        '.resume-paper p{page-break-inside:avoid;break-inside:avoid;}',
+        '.r-cert{margin-bottom:4px;page-break-inside:avoid;break-inside:avoid;}',
+        // WorkHive branded variant
+        ".resume-paper.tpl-workhive{font-family:'Poppins',-apple-system,sans-serif;}",
+        '.resume-paper.tpl-workhive .r-name{color:#162032;}',
+        '.resume-paper.tpl-workhive .r-label{color:#D88A0E;font-weight:600;}',
+        '.resume-paper.tpl-workhive .r-sec-title{color:#F7A21B;border-color:#F7A21B;}',
+      ].join('');
+    }
+
+    function buildResumeHTML() {
+      const e = escHtml, b = resume.basics;
+      const contact = [b.email, b.phone, [b.location.city, b.location.region].filter(Boolean).join(', ')]
+        .filter(Boolean).map(e).join(' &middot; ');
+      let h = `<h1 class="r-name">${e(b.name || 'Your Name')}</h1>`;
+      if (b.label) h += `<div class="r-label">${e(b.label)}</div>`;
+      if (contact) h += `<div class="r-contact">${contact}</div>`;
+      if (b.summary) h += `<p class="r-summary">${e(b.summary)}</p>`;
+      const sec = (t) => `<div class="r-sec"><div class="r-sec-title">${e(t)}</div></div>`;
+
+      if (resume.work.length) {
+        h += sec('Experience');
+        for (const w of resume.work) {
+          const dates = [w.startDate, w.endDate].filter(Boolean).join(' – ');
+          const org = [w.name, w.location].filter(Boolean).join(' · ');
+          const hl = (w.highlights || []).filter(Boolean);
+          h += `<div class="r-entry"><div class="r-entry-head"><span class="r-pos">${e(w.position || '')}</span><span class="r-dates">${e(dates)}</span></div>`
+            + (org ? `<div class="r-org">${e(org)}</div>` : '')
+            + (hl.length ? `<ul>${hl.map(x => `<li>${e(x)}</li>`).join('')}</ul>` : '')
+            + (w.summary ? `<div>${e(w.summary)}</div>` : '') + `</div>`;
+        }
+      }
+      if (resume.skills.length) {
+        h += sec('Skills') + `<p class="r-skills">${resume.skills.map(s => e(s.name) + (s.level ? ` (${e(s.level)})` : '')).filter(Boolean).join(' &middot; ')}</p>`;
+      }
+      if (resume.certificates.length) {
+        h += sec('Certificates & Licenses');
+        for (const c of resume.certificates) {
+          const meta = [c.issuer, c.date].filter(Boolean).map(e).join(', ');
+          h += `<div class="r-cert"><b>${e(c.name || '')}</b>${meta ? ` — ${meta}` : ''}</div>`;
+        }
+      }
+      if (resume.education.length) {
+        h += sec('Education');
+        for (const ed of resume.education) {
+          const dates = [ed.startDate, ed.endDate].filter(Boolean).join(' – ');
+          const org = [ed.institution, ed.area].filter(Boolean).join(' · ');
+          h += `<div class="r-entry"><div class="r-entry-head"><span class="r-pos">${e(ed.studyType || ed.area || '')}</span><span class="r-dates">${e(dates)}</span></div>${org ? `<div class="r-org">${e(org)}</div>` : ''}</div>`;
+        }
+      }
+      if (resume.projects.length) {
+        h += sec('Projects');
+        for (const p of resume.projects) {
+          const dates = [p.startDate, p.endDate].filter(Boolean).join(' – ');
+          const hl = (p.highlights || []).filter(Boolean);
+          h += `<div class="r-entry"><div class="r-entry-head"><span class="r-pos">${e(p.name || '')}</span><span class="r-dates">${e(dates)}</span></div>`
+            + (p.description ? `<div>${e(p.description)}</div>` : '')
+            + (hl.length ? `<ul>${hl.map(x => `<li>${e(x)}</li>`).join('')}</ul>` : '') + `</div>`;
+        }
+      }
+      if (resume.awards.length) {
+        h += sec('Awards');
+        for (const a of resume.awards) {
+          const meta = [a.awarder, a.date].filter(Boolean).map(e).join(', ');
+          h += `<div class="r-entry"><span class="r-pos">${e(a.title || '')}</span>${meta ? ` — ${meta}` : ''}${a.summary ? `<div>${e(a.summary)}</div>` : ''}</div>`;
+        }
+      }
+      if (resume.references.length) {
+        h += sec('References');
+        for (const rf of resume.references) {
+          h += `<div class="r-entry"><b>${e(rf.name || '')}</b>${rf.reference ? `<div>${e(rf.reference)}</div>` : ''}</div>`;
+        }
+      }
+      return { css: resumeCSS(), html: h };
+    }
+
+    function renderPaper() {
+      const paper = document.getElementById('resume-paper');
+      const { css, html } = buildResumeHTML();
+      paper.className = 'resume-paper tpl-' + _template;
+      paper.innerHTML = `<style>${css}</style>${html}`;
+      document.querySelectorAll('.pv-tpl').forEach(btn => btn.classList.toggle('active', btn.dataset.tpl === _template));
+    }
+    function openPreview() { _template = resume.meta.template || 'ats-plain'; renderPaper(); document.getElementById('preview-overlay').classList.add('open'); }
+    function closePreview() { document.getElementById('preview-overlay').classList.remove('open'); }
+    function setTemplate(t) { _template = t; resume.meta.template = t; renderPaper(); scheduleLocalSave(); }
+
+    async function downloadPDF() {
+      if (typeof html2pdf === 'undefined') { toast('PDF library still loading — try again in a moment.'); return; }
+      const el = document.getElementById('resume-paper');
+      const safe = (resume.basics.name || 'resume').replace(/[^a-z0-9]+/gi, '_');
+      const prevW = el.style.width; el.style.width = '680px'; // pin A4 portrait content width (mobile-maestro PDF rule)
+      const opt = { margin: [10, 10, 12, 10], filename: safe + '_resume.pdf',
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2, scrollY: 0, scrollX: 0, useCORS: true, backgroundColor: '#ffffff' },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+        pagebreak: { mode: ['css'] } }; // NOT 'avoid-all' (causes blank first page)
+      try { await html2pdf().set(opt).from(el).save(); if (typeof logEvent === 'function') logEvent(db, 'resume_export', { page: 'resume', format: 'pdf' }); }
+      catch (err) { toast('PDF failed: ' + (err.message || 'error')); }
+      finally { el.style.width = prevW; }
+    }
+
+    function printResume() {
+      const { css, html } = buildResumeHTML();
+      const w = window.open('', '_blank', 'width=720,height=900');
+      if (!w) { toast('Allow pop-ups to print.'); return; }
+      w.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>${escHtml(resume.basics.name || 'Resume')}</title>`
+        + `<style>@page{margin:14mm;}body{margin:0;}${css}</style></head><body>`
+        + `<div class="resume-paper tpl-${_template}">${html}</div>`
+        + `<script>window.onload=function(){window.print();setTimeout(function(){window.close();},400);}<\/script></body></html>`);
+      w.document.close();
+    }
+
+    function exportJSON() {
+      const doc = cleanResume();
+      const blob = new Blob([JSON.stringify(doc, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = (resume.basics.name || 'resume').replace(/[^a-z0-9]+/gi, '_') + '_jsonresume.json';
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      toast('✓ JSON Resume downloaded.');
+      if (typeof logEvent === 'function') logEvent(db, 'resume_export', { page: 'resume', format: 'json' });
+    }
+
+    // ── Init ─────────────────────────────────────────────────────────────────
+    document.addEventListener('DOMContentLoaded', async () => {
+      logPageView(db);
+      if (!WORKER_NAME) WORKER_NAME = await restoreIdentityFromSession(db);
+      try { const { data: { session } } = await db.auth.getSession(); _authUid = session && session.user ? session.user.id : null; } catch (_) { /* empty-catch-allow: best-effort session read */ }
+      if (!WORKER_NAME) { window.location.href = 'index.html'; return; }
+      if (!_authUid) { window.location.href = 'index.html?signin=1'; return; }
+
+      // Context pill
+      if (HIVE_NAME) { const p = document.getElementById('ctx-pill'); p.style.display = 'inline-flex'; p.textContent = '🏭 ' + HIVE_NAME + (HIVE_ROLE ? ' · ' + HIVE_ROLE : ''); }
+
+      // Load: cloud → device draft → empty
+      const fromCloud = await loadCloud();
+      if (!fromCloud) {
+        const draft = await idbGet('current');
+        if (draft && draft.resume && draft.resume.basics) { resume = mergeDefaults(draft.resume); _resumeId = draft._resumeId || null; }
+        else if (!resume.basics.name) resume.basics.name = WORKER_NAME;
+      }
+      render();
+      updateOfflineUI();
+
+      // Wire events (delegation)
+      const sections = document.getElementById('sections');
+      sections.addEventListener('input', onInput);
+      sections.addEventListener('click', onClick);
+      document.getElementById('btn-autofill').addEventListener('click', runAutofill);
+      document.getElementById('btn-save').addEventListener('click', async () => { await saveCloud(); });
+      document.getElementById('btn-export').addEventListener('click', openPreview);
+      document.getElementById('pv-close').addEventListener('click', closePreview);
+      document.getElementById('pv-pdf').addEventListener('click', () => { downloadPDF(); });
+      document.getElementById('pv-print').addEventListener('click', printResume);
+      document.getElementById('pv-json').addEventListener('click', exportJSON);
+      document.querySelectorAll('.pv-tpl').forEach(btn => btn.addEventListener('click', () => setTemplate(btn.dataset.tpl)));
+      document.getElementById('btn-photo').addEventListener('click', () => document.getElementById('file-photo').click());
+      document.getElementById('btn-file').addEventListener('click', () => document.getElementById('file-any').click());
+      ['file-photo', 'file-any'].forEach(id => document.getElementById(id).addEventListener('change', async (ev) => {
+        const f = ev.target.files && ev.target.files[0]; ev.target.value = '';
+        if (f) await handleFile(f);
+      }));
+      document.getElementById('btn-polish').addEventListener('click', () => { runPolish(); });
+      document.getElementById('btn-tailor').addEventListener('click', () => { runTailor(); });
+      document.getElementById('btn-undo').addEventListener('click', undo);
+      document.getElementById('review-body').addEventListener('input', onReviewInput);
+      document.getElementById('review-body').addEventListener('change', onReviewInput);
+      document.getElementById('review-cancel').addEventListener('click', closeReview);
+      document.getElementById('review-sheet').addEventListener('click', (e) => { if (e.target.id === 'review-sheet') closeReview(); });
+      document.getElementById('review-confirm').addEventListener('click', () => {
+        const selected = _reviewItems.filter(it => it.checked);
+        const cb = _reviewConfirm; closeReview(); if (cb) cb(selected);
+      });
+      window.addEventListener('online', updateOfflineUI);
+      window.addEventListener('offline', updateOfflineUI);
+    });
+
+    // Expose a couple of hooks for later phases (export, upload-extract) to reuse.
+    window.WHResume = {
+      get: () => resume, set: (r) => { resume = mergeDefaults(r); render(); scheduleLocalSave(); },
+      openReview, snapshotVersion, srcChip,
+    };
+  })();
+  </script>
+
+  <script src="nav-hub.js"></script>
+</body>
+</html>

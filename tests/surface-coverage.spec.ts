@@ -26,7 +26,7 @@ import * as path from 'path';
 
 const ROOT = path.resolve(__dirname, '..');
 
-// Canonical 29-page set (per user-confirmed list)
+// Canonical 30-page set (per user-confirmed list; +resume.html 2026-06-03)
 const ALL_PAGES = [
   'hive.html', 'logbook.html', 'inventory.html', 'pm-scheduler.html',
   'analytics.html', 'analytics-report.html', 'skillmatrix.html',
@@ -38,6 +38,7 @@ const ALL_PAGES = [
   'plant-connections.html', 'achievements.html', 'asset-hub.html',
   'shift-brain.html', 'alert-hub.html', 'audit-log.html',
   'voice-journal.html', 'founder-console.html', 'index.html',
+  'resume.html',
 ];
 
 async function loadJson(rel: string): Promise<any> {
