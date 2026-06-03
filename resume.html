@@ -600,7 +600,7 @@
         const highlights = [`Logged ${logs.length} maintenance records across ${machines.length} equipment items.`].concat(top);
         const plant = HIVE_NAME || 'Independent / Solo practice';
         items.push({ group: 'Experience', value: `${headline} at ${plant}`, checked: true, src: 'Logbook',
-          apply: (r, val) => { r.work.unshift({ position: headline, name: plant, location: '', startDate: start, endDate: 'Present', highlights, _source: 'Logbook' }); } });
+          apply: (r, val) => { if (entryExists('work', { position: headline, name: plant })) return; r.work.unshift({ position: headline, name: plant, location: '', startDate: start, endDate: 'Present', highlights, _source: 'Logbook' }); } });
 
         // Deterministic summary uses the same numbers
         items.push(mkBasic('Your details', 'summary', 'Professional summary',
@@ -739,9 +739,31 @@
       return data.fields || null;
     }
 
+    // ── Dedupe: is an equivalent entry already in the resume? ────────────────
+    // Cross-file dumps and re-uploads otherwise stack duplicate jobs/degrees
+    // (the "Mechanical Engineer x2" bug). Keys are normalized so "Maintenance
+    // Supervisor @ Universal Robina" from two files collapses to one.
+    function _norm(s) { return String(s || '').trim().toLowerCase().replace(/\s+/g, ' '); }
+    function entryKey(section, e) {
+      if (section === 'work')         return _norm(e.position) + '@' + _norm(e.name);
+      if (section === 'education')    return _norm(e.institution) + '|' + _norm(e.studyType || e.area);
+      if (section === 'skills')       return _norm(e.name);
+      if (section === 'certificates') return _norm(e.name);
+      if (section === 'projects')     return _norm(e.name);
+      if (section === 'awards')       return _norm(e.title);
+      return '';
+    }
+    function entryExists(section, candidate) {
+      const k = entryKey(section, candidate);
+      if (!k || k === '@' || k === '|') return false;  // not enough to judge — let it through
+      return (resume[section] || []).some(x => entryKey(section, x) === k);
+    }
+
     // Turn an extracted JSON Resume partial into editable checklist items.
+    // Items that already exist in the resume are pre-UNCHECKED and labelled,
+    // and every apply() guards against duplicates as a safety net.
     function fieldsToChecklist(f) {
-      const items = [], S = 'Uploaded';
+      const items = [], S = 'Uploaded', DUP = ' (already in your resume)';
       const b = f.basics || {};
       [['name', 'Full name'], ['label', 'Headline'], ['email', 'Email'], ['phone', 'Phone'], ['summary', 'Summary']].forEach(([k, lab]) => {
         if (b[k]) items.push({ group: 'Your details', label: lab, value: b[k], checked: true, src: S,
@@ -753,33 +775,41 @@
           apply: (r, val) => { const p = val.split(','); r.basics.location.city = (p[0] || '').trim(); r.basics.location.region = (p[1] || '').trim(); } });
       }
       (f.work || []).forEach((w, i) => {
+        const dup = entryExists('work', w);
         const t = [w.position, w.name].filter(Boolean).join(' at ') || ('Work experience ' + (i + 1));
-        items.push({ group: 'Experience', label: t, value: t, checked: true, src: S, apply: (r) => { r.work.push(Object.assign({ _source: S }, w)); } });
+        items.push({ group: 'Experience', label: t + (dup ? DUP : ''), value: t, checked: !dup, src: S,
+          apply: (r) => { if (entryExists('work', w)) return; r.work.push(Object.assign({ _source: S }, w)); } });
       });
       (f.education || []).forEach((e, i) => {
+        const dup = entryExists('education', e);
         const t = [e.studyType, e.institution].filter(Boolean).join(', ') || ('Education ' + (i + 1));
-        items.push({ group: 'Education', label: t, value: t, checked: true, src: S, apply: (r) => { r.education.push(Object.assign({ _source: S }, e)); } });
+        items.push({ group: 'Education', label: t + (dup ? DUP : ''), value: t, checked: !dup, src: S,
+          apply: (r) => { if (entryExists('education', e)) return; r.education.push(Object.assign({ _source: S }, e)); } });
       });
       (f.skills || []).forEach((s) => {
         if (!s.name) return;
+        const dup = entryExists('skills', s);
         const v = s.name + (s.level ? ` — ${s.level}` : '');
-        items.push({ group: 'Skills', label: '', value: v, checked: true, src: S,
-          apply: (r, val) => { const nm = (val.split('—')[0] || s.name).trim(); if (r.skills.some(x => x.name.toLowerCase() === nm.toLowerCase())) return; r.skills.push({ name: nm, level: s.level || '', keywords: [], _source: S }); } });
+        items.push({ group: 'Skills', label: dup ? ('skill' + DUP) : '', value: v, checked: !dup, src: S,
+          apply: (r, val) => { const nm = (val.split('—')[0] || s.name).trim(); if (entryExists('skills', { name: nm })) return; r.skills.push({ name: nm, level: s.level || '', keywords: [], _source: S }); } });
       });
       (f.certificates || []).forEach((c) => {
         if (!c.name) return;
-        items.push({ group: 'Certificates', label: '', value: c.name, checked: true, src: S,
-          apply: (r, val) => { if (r.certificates.some(x => x.name === val)) return; r.certificates.push({ name: val, issuer: c.issuer || '', date: c.date || '', _source: S }); } });
+        const dup = entryExists('certificates', c);
+        items.push({ group: 'Certificates', label: dup ? ('certificate' + DUP) : '', value: c.name, checked: !dup, src: S,
+          apply: (r, val) => { if (entryExists('certificates', { name: val })) return; r.certificates.push({ name: val, issuer: c.issuer || '', date: c.date || '', _source: S }); } });
       });
       (f.projects || []).forEach((p) => {
         if (!p.name) return;
-        items.push({ group: 'Projects', label: '', value: p.name, checked: true, src: S,
-          apply: (r, val) => { r.projects.push({ name: val, description: p.description || '', startDate: '', endDate: '', highlights: [], _source: S }); } });
+        const dup = entryExists('projects', p);
+        items.push({ group: 'Projects', label: dup ? ('project' + DUP) : '', value: p.name, checked: !dup, src: S,
+          apply: (r, val) => { if (entryExists('projects', { name: val })) return; r.projects.push({ name: val, description: p.description || '', startDate: '', endDate: '', highlights: [], _source: S }); } });
       });
       (f.awards || []).forEach((a) => {
         if (!a.title) return;
-        items.push({ group: 'Awards', label: '', value: a.title, checked: true, src: S,
-          apply: (r, val) => { r.awards.push({ title: val, awarder: a.awarder || '', date: a.date || '', summary: '', _source: S }); } });
+        const dup = entryExists('awards', a);
+        items.push({ group: 'Awards', label: dup ? ('award' + DUP) : '', value: a.title, checked: !dup, src: S,
+          apply: (r, val) => { if (entryExists('awards', { title: val })) return; r.awards.push({ title: val, awarder: a.awarder || '', date: a.date || '', summary: '', _source: S }); } });
       });
       return items;
     }

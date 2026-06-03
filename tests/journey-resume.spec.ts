@@ -24,7 +24,8 @@ const PNG_1x1 = Buffer.from(
 const EXTRACT_FIXTURE = {
   fields: {
     basics: { name: '', label: '', email: '', phone: '', summary: '', location: { city: '', region: '' } },
-    work: [], education: [],
+    work: [{ position: 'Maintenance Supervisor', name: 'Universal Robina', location: '', startDate: '2021', endDate: '2024', highlights: ['Led the preventive maintenance plan'] }],
+    education: [],
     skills: [{ name: 'arc welding', level: '' }, { name: 'centrifugal pumps', level: '' }],
     certificates: [{ name: 'TESDA NC II Mechanical', issuer: 'TESDA', date: '2024' }],
     projects: [], awards: [],
@@ -83,6 +84,23 @@ test.describe('resume.html — Resume / CV Builder journey', () => {
     await expect(whPage.locator('#review-sheet')).toHaveClass(/open/, { timeout: 20000 });
     await expect(whPage.locator('#review-title')).toContainText('from 2 files');
     await expect(whPage.locator('#review-body')).toContainText('cv1.png');
+  });
+
+  test('dumping the same content twice does NOT duplicate jobs/skills (grounded dedupe)', async ({ whPage }) => {
+    await stubExtract(whPage);
+    await gotoResume(whPage);
+    // Two files carrying the SAME job + skills + cert (the real "Mechanical
+    // Engineer x2" failure). After merge they must collapse to one of each.
+    await whPage.setInputFiles('#file-any', [
+      { name: 'resume-a.png', mimeType: 'image/png', buffer: PNG_1x1 },
+      { name: 'resume-b.png', mimeType: 'image/png', buffer: PNG_1x1 },
+    ]);
+    await expect(whPage.locator('#review-sheet')).toHaveClass(/open/, { timeout: 20000 });
+    await whPage.click('#review-confirm');
+    await expect(whPage.locator('#review-sheet')).not.toHaveClass(/open/);
+    await expect(whPage.locator('#sections [data-sec="work"][data-field="position"]')).toHaveCount(1);
+    await expect(whPage.locator('#sections [data-sec="skills"][data-field="name"]')).toHaveCount(2);
+    await expect(whPage.locator('#sections [data-sec="certificates"][data-field="name"]')).toHaveCount(1);
   });
 
   test('manual add: "+ Add skill" inserts an editable row', async ({ whPage }) => {
