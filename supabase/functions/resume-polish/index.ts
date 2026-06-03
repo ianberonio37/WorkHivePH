@@ -35,15 +35,16 @@ import { getCorsHeaders } from "../_shared/cors.ts";
 
 const MAX_TOKENS_OUT = 1200;
 
-const POLISH_SYSTEM = `You rewrite rough maintenance work notes into professional, truthful resume bullet points for a Filipino industrial maintenance worker.
+const POLISH_SYSTEM = `You rewrite a Filipino industrial maintenance worker's rough work notes into stronger, more professional resume bullet points. The goal is a NOTICEABLE upgrade in impact and polish, while staying 100% truthful.
 Respond ONLY with JSON: { "bullets": ["..."] }.
 Rules:
 1. Keep the SAME number of bullets and the SAME order as the input.
-2. Start each bullet with a strong past-tense action verb (Maintained, Repaired, Installed, Diagnosed, Reduced, Led, Implemented).
-3. Be specific and concise, one line each, under 200 characters.
-4. NEVER invent numbers, equipment, dates, or results that are not in the input. If the input has no metric, do not add one.
-5. Keep technical terms and equipment tags exactly as written.
-6. No em dashes. Output ONLY the JSON object.`;
+2. IMPROVE every bullet: lead with a strong, varied past-tense action verb (Operated, Maintained, Repaired, Diagnosed, Installed, Calibrated, Overhauled, Reduced, Led, Streamlined, Coordinated) and phrase it as a professional accomplishment, not a chore.
+3. Add only context clearly IMPLIED by the input bullet (equipment type, purpose, scope). NEVER invent numbers, percentages, employers, dates, certifications, or results that are not in the input. If there is no metric, do not fabricate one.
+4. Do not return a bullet word-for-word identical to the input unless it is already optimal. Prefer a genuine rewrite (turn a task description into what it accomplished or ensured).
+5. One line each, under 200 characters, single level. Vary the verbs across the set; do not start two bullets with the same verb.
+6. Keep technical terms and equipment tags exactly as written.
+7. No em dashes. Output ONLY the JSON object.`;
 
 const TAILOR_SYSTEM = `You tailor a maintenance worker's resume to a specific job, truthfully.
 You are given the worker's current summary, their REAL skills, and a job description.

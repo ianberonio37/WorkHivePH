@@ -582,12 +582,21 @@
             const kw = tesdaHint(lvl); r.skills.push({ name: nm, level: word, keywords: kw ? [kw] : [], _source: 'Skill Matrix' }); } });
       });
 
-      // Certificates (one per badge that has a date)
-      certs.filter(c => c.discipline).forEach((c) => {
-        const nm = `${cap(c.discipline)} Level ${c.level} Skill Badge`;
+      // Certificates: ONE per discipline at the HIGHEST badge level. Listing
+      // every level (L1, L2, L3...) floods the resume with redundant noise -
+      // a recruiter only needs the top credential per discipline.
+      const certMax = {};
+      for (const c of certs) {
+        if (!c.discipline) continue;
+        const d = c.discipline;
+        if (!certMax[d] || (c.level || 0) > certMax[d].level) certMax[d] = { level: c.level || 0, earned_at: c.earned_at };
+      }
+      Object.keys(certMax).forEach((d) => {
+        const m = certMax[d];
+        const nm = `${cap(d)} - Level ${m.level} (WorkHive Skill Badge)`;
         items.push({ group: 'Certificates', value: nm, checked: true, src: 'Skill Matrix',
-          apply: (r, val) => { if (r.certificates.some(x => x.name === (val || nm))) return;
-            r.certificates.push({ name: val || nm, issuer: 'WorkHive Skill Matrix', date: fmtDate(c.earned_at), _source: 'Skill Matrix' }); } });
+          apply: (r, val) => { if (entryExists('certificates', { name: val || nm })) return;
+            r.certificates.push({ name: val || nm, issuer: 'WorkHive Skill Matrix', date: fmtDate(m.earned_at), _source: 'Skill Matrix' }); } });
       });
 
       // Work experience — one consolidated entry from the logbook
@@ -842,6 +851,7 @@
       if (fileList.length > MAX_BATCH) toast('Reading the first ' + MAX_BATCH + ' files.');
       setBusy(true);
       const all = []; let okCount = 0, failCount = 0;
+      const seenRows = new Set();  // collapse duplicate rows ACROSS files (same section + value)
       for (let i = 0; i < files.length; i++) {
         const f = files[i];
         setUploadStatus('Reading file ' + (i + 1) + ' of ' + files.length + ': ' + f.name + '…');
@@ -849,8 +859,14 @@
           const res = await extractItemsFromFile(f);
           if (res.error || !res.items || !res.items.length) { failCount++; continue; }
           const short = f.name.length > 24 ? f.name.slice(0, 21) + '…' : f.name;
-          res.items.forEach(it => { it.label = it.label ? (it.label + ' · ' + short) : short; });
-          all.push(...res.items); okCount++;
+          res.items.forEach(it => {
+            const key = (it.group || '') + '' + _norm(it.value);
+            if (seenRows.has(key)) return;  // same item already came from an earlier file in this dump
+            seenRows.add(key);
+            it.label = it.label ? (it.label + ' · ' + short) : short;
+            all.push(it);
+          });
+          okCount++;
         } catch (_) { failCount++; }
       }
       setBusy(false); setUploadStatus('');
@@ -885,10 +901,16 @@
       toast('Polishing your wording…');
       const data = await callResumePolish({ mode: 'polish_bullets', bullets: all.map(x => x.text), context: resume.basics.label || '' });
       if (!data || !Array.isArray(data.bullets) || !data.bullets.length) { if (data) toast('No changes suggested.'); return; }
-      const items = data.bullets.map((b, i) => ({
-        group: 'Polished experience', label: all[i] ? 'Was: ' + all[i].text : '', value: b, checked: true, src: 'AI suggested',
-        apply: (r, val) => { const ref = all[i]; if (ref && r.work[ref.wi] && Array.isArray(r.work[ref.wi].highlights)) r.work[ref.wi].highlights[ref.hi] = val; },
-      }));
+      // Only surface bullets the AI actually CHANGED — an identical suggestion is a no-op
+      // and just clutters the review (the "Was: X / X" rows).
+      const items = [];
+      data.bullets.forEach((b, i) => {
+        const ref = all[i];
+        if (!ref || _norm(b) === _norm(ref.text)) return;
+        items.push({ group: 'Polished experience', label: 'Was: ' + ref.text, value: b, checked: true, src: 'AI suggested',
+          apply: (r, val) => { if (r.work[ref.wi] && Array.isArray(r.work[ref.wi].highlights)) r.work[ref.wi].highlights[ref.hi] = val; } });
+      });
+      if (!items.length) { toast('Your experience already reads well — no changes suggested.'); return; }
       openReview('Review the polished wording', items, (selected) => {
         snapshotVersion('before AI polish');
         for (const it of selected) it.apply(resume, it.value);
