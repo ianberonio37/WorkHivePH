@@ -126,6 +126,7 @@
     .opt-toggle { display: flex; align-items: center; gap: 0.5rem; margin-top: 0.6rem; min-height: 44px;
       font-size: 0.72rem; color: #9fb0c0; cursor: pointer; }
     .opt-toggle input { width: 18px; height: 18px; flex: 0 0 auto; accent-color: #29B6D9; }
+    :focus-visible { outline: 2px solid #F7A21B; outline-offset: 2px; }
 
     /* ── Empty / prompt ── */
     .empty-prompt { text-align: center; padding: 1.4rem 1rem; }
@@ -208,6 +209,8 @@
       <button class="btn btn-ghost" id="btn-tailor" type="button" style="width:100%;">🎯 Tailor my resume to this job</button>
       <button class="btn btn-ghost" id="btn-jdscore" type="button" style="width:100%;margin-top:0.6rem;">📊 Check my match score for this job</button>
       <div id="jd-score-panel" role="region" aria-label="Job match score" style="display:none;margin-top:0.9rem;"></div>
+      <button class="btn btn-ghost" id="btn-coverletter" type="button" style="width:100%;margin-top:0.6rem;">✍ Draft a cover letter</button>
+      <div id="cover-letter-panel" role="region" aria-label="Cover letter draft" style="display:none;margin-top:0.9rem;"></div>
     </div>
 
     <div id="sections"></div>
@@ -215,7 +218,7 @@
 
   <!-- Checklist review sheet — must be in DOM before the <script> block runs -->
   <div class="sheet-overlay" id="review-sheet">
-    <div class="sheet-panel">
+    <div class="sheet-panel" role="dialog" aria-modal="true" aria-labelledby="review-title">
       <div class="sheet-handle"></div>
       <h2 id="review-title" style="font-size:1rem;font-weight:700;color:#fff;margin-bottom:0.2rem;">Review what we found</h2>
       <p id="review-sub" style="font-size:0.74rem;color:#9fb0c0;margin-bottom:0.4rem;">Uncheck anything you don't want. Tap a value to edit it before adding.</p>
@@ -230,15 +233,17 @@
   </div>
 
   <!-- Export preview overlay (P2) — must be in DOM before the script block runs -->
-  <div class="preview-overlay" id="preview-overlay">
+  <div class="preview-overlay" id="preview-overlay" role="dialog" aria-modal="true" aria-label="Resume preview and export">
     <div class="preview-bar">
       <button class="btn btn-ghost btn-sm" id="pv-close" type="button">✕ Close</button>
       <div class="pv-templates">
         <button class="btn btn-sm pv-tpl" data-tpl="ats-plain" type="button">ATS-plain</button>
         <button class="btn btn-sm pv-tpl" data-tpl="workhive" type="button">WorkHive</button>
+        <button class="btn btn-sm pv-tpl" data-tpl="ofw" type="button">OFW</button>
       </div>
       <div class="pv-actions">
         <button class="btn btn-primary btn-sm" id="pv-pdf" type="button">⬇ Download / View PDF</button>
+        <button class="btn btn-ghost btn-sm" id="pv-docx" type="button">⬇ Word .docx</button>
         <button class="btn btn-ghost btn-sm" id="pv-print" type="button">🖨 Print</button>
         <button class="btn btn-ghost btn-sm" id="pv-json" type="button">{ } JSON</button>
       </div>
@@ -714,6 +719,33 @@
     }
 
     // ── Checklist review sheet (generic — reused by P3 upload extraction) ─────
+    // ── Focus trap + ESC for dialogs (a11y, designer spec) ───────────────────
+    // One global trap slot (WorkHive sheets do not stack). On open: save focus,
+    // move into the dialog, cycle Tab/Shift+Tab inside it. On close: restore focus.
+    let _focusTrapCleanup = null, _lastFocused = null;
+    const _FOCUSABLE = 'a[href],button:not([disabled]),input:not([disabled]),textarea:not([disabled]),select:not([disabled]),[tabindex]:not([tabindex="-1"])';
+    function trapFocus(container) {
+      releaseFocusTrap(false);
+      _lastFocused = document.activeElement;
+      const focusables = () => Array.from(container.querySelectorAll(_FOCUSABLE)).filter(el => el.offsetParent !== null);
+      const first = focusables()[0];
+      if (first) { try { first.focus(); } catch (_) { /* empty-catch-allow: focus best-effort */ } }
+      const onKey = (e) => {
+        if (e.key !== 'Tab') return;
+        const list = focusables(); if (!list.length) return;
+        const f = list[0], l = list[list.length - 1];
+        if (e.shiftKey && document.activeElement === f) { e.preventDefault(); l.focus(); }
+        else if (!e.shiftKey && document.activeElement === l) { e.preventDefault(); f.focus(); }
+      };
+      container.addEventListener('keydown', onKey);
+      _focusTrapCleanup = () => container.removeEventListener('keydown', onKey);
+    }
+    function releaseFocusTrap(restore) {
+      if (_focusTrapCleanup) { _focusTrapCleanup(); _focusTrapCleanup = null; }
+      if (restore !== false && _lastFocused) { try { _lastFocused.focus(); } catch (_) { /* empty-catch-allow */ } }
+      _lastFocused = null;
+    }
+
     let _reviewItems = [], _reviewConfirm = null;
     function openReview(title, items, onConfirm) {
       _reviewItems = items; _reviewConfirm = onConfirm;
@@ -736,6 +768,7 @@
       document.getElementById('review-body').innerHTML = html;
       updateReviewCount();
       document.getElementById('review-sheet').classList.add('open');
+      trapFocus(document.querySelector('#review-sheet .sheet-panel'));
     }
     function updateReviewCount() {
       const n = _reviewItems.filter(it => it.checked).length;
@@ -744,6 +777,7 @@
     function closeReview() {
       document.getElementById('review-sheet').classList.remove('open');
       _reviewItems = []; _reviewConfirm = null;
+      releaseFocusTrap(true);
     }
     function onReviewInput(e) {
       const cb = e.target.dataset.reviewCheck, vv = e.target.dataset.reviewValue;
@@ -1148,6 +1182,57 @@
       if (typeof logEvent === 'function') logEvent(db, 'resume_jd_add_skills', { page: 'resume', count: terms.length });
     }
 
+    // ── Cover-letter draft (Phase 3): truthful, from the worker's real facts ──
+    // Output is a DRAFT the worker edits/copies - never merged into the resume,
+    // never invents facts. Uses the JD textarea if one is pasted, else general.
+    async function runCoverLetter() {
+      const b = resume.basics;
+      const skills = resume.skills.map(s => s.name).filter(Boolean);
+      const experience = resume.work.slice(0, 4).map(w => {
+        const head = [w.position, w.name].filter(Boolean).join(' at ');
+        const hl = (w.highlights || []).filter(Boolean).slice(0, 4).join('; ');
+        return head + (hl ? ': ' + hl : '');
+      }).filter(Boolean).join('\n');
+      if (!b.summary && !skills.length && !experience) { toast('Add some experience or skills first, then draft a cover letter.'); return; }
+      const jd = (document.getElementById('jd-input').value || '').trim();
+      toast('Drafting your cover letter…');
+      const data = await callResumePolish({ mode: 'cover_letter', name: b.name || WORKER_NAME, headline: b.label || '', summary: b.summary || '', skills, experience, jd });
+      if (!data || !data.letter) { if (data) toast('No draft returned. Try again.'); return; }
+      renderCoverLetter(data.letter);
+      if (typeof logEvent === 'function') logEvent(db, 'resume_cover_letter', { page: 'resume', tailored: !!jd });
+    }
+    function renderCoverLetter(letter) {
+      const panel = document.getElementById('cover-letter-panel');
+      if (!panel) return;
+      const e = escHtml;
+      panel.innerHTML =
+        `<div class="kw-group-title" style="color:#5FCCE8">Your cover letter draft</div>` +
+        `<textarea id="cl-text" class="wh-input" rows="12" aria-label="Cover letter draft" style="width:100%;font-size:0.8rem;line-height:1.5;">${e(letter)}</textarea>` +
+        `<p style="font-size:0.68rem;color:#7B8794;margin:0.4rem 0;">Drafted from your real experience. Read it, edit anything, and make it yours before sending. We never invent facts.</p>` +
+        `<div style="display:flex;gap:0.5rem;flex-wrap:wrap;">` +
+        `<button type="button" id="cl-copy" class="btn btn-primary btn-sm" style="flex:1;min-width:120px;">📋 Copy</button>` +
+        `<button type="button" id="cl-download" class="btn btn-ghost btn-sm" style="flex:1;min-width:120px;">⬇ Download .txt</button></div>`;
+      panel.style.display = 'block';
+    }
+    function onCoverLetterClick(ev) {
+      const t = document.getElementById('cl-text');
+      if (ev.target.closest('#cl-copy')) {
+        if (!t) return;
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(t.value).then(() => toast('✓ Copied to clipboard.')).catch(() => { t.select(); toast('Press Ctrl/Cmd+C to copy.'); });
+        } else { t.select(); toast('Press Ctrl/Cmd+C to copy.'); }
+      } else if (ev.target.closest('#cl-download')) {
+        if (!t) return;
+        const blob = new Blob([t.value], { type: 'text/plain' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url; a.download = (resume.basics.name || 'cover_letter').replace(/[^a-z0-9]+/gi, '_') + '_cover_letter.txt';
+        document.body.appendChild(a); a.click(); a.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+        toast('✓ Cover letter downloaded.');
+      }
+    }
+
     // ── Export: templates + PDF + Print + JSON Resume (P2) ───────────────────
     let _template = 'ats-plain';
 
@@ -1186,6 +1271,12 @@
         '.resume-paper.tpl-workhive .r-name{color:#162032;}',
         '.resume-paper.tpl-workhive .r-label{color:#D88A0E;font-weight:600;}',
         '.resume-paper.tpl-workhive .r-sec-title{color:#F7A21B;border-color:#F7A21B;}',
+        // OFW variant: conservative, centered header (international agency style), still single-column + ATS-safe
+        '.resume-paper.tpl-ofw{font-family:Arial,Helvetica,sans-serif;}',
+        '.resume-paper.tpl-ofw .r-name{color:#0d2a4a;text-align:center;letter-spacing:0.02em;}',
+        '.resume-paper.tpl-ofw .r-label{color:#1f5fa8;font-weight:600;text-align:center;}',
+        '.resume-paper.tpl-ofw .r-contact{text-align:center;}',
+        '.resume-paper.tpl-ofw .r-sec-title{color:#0d2a4a;border-color:#0d2a4a;}',
       ].join('');
     }
 
@@ -1262,8 +1353,8 @@
       paper.innerHTML = `<style>${css}</style>${html}`;
       document.querySelectorAll('.pv-tpl').forEach(btn => btn.classList.toggle('active', btn.dataset.tpl === _template));
     }
-    function openPreview() { _template = resume.meta.template || 'ats-plain'; renderPaper(); document.getElementById('preview-overlay').classList.add('open'); }
-    function closePreview() { document.getElementById('preview-overlay').classList.remove('open'); }
+    function openPreview() { _template = resume.meta.template || 'ats-plain'; renderPaper(); document.getElementById('preview-overlay').classList.add('open'); trapFocus(document.getElementById('preview-overlay')); }
+    function closePreview() { document.getElementById('preview-overlay').classList.remove('open'); releaseFocusTrap(true); }
     function setTemplate(t) { _template = t; resume.meta.template = t; renderPaper(); scheduleLocalSave(); }
 
     async function downloadPDF() {
@@ -1304,6 +1395,113 @@
       if (typeof logEvent === 'function') logEvent(db, 'resume_export', { page: 'resume', format: 'json' });
     }
 
+    // ── Word (.docx) export — true OOXML, single-column, Arial, ATS-safe ──────
+    // .docx is the most ATS-universal format. We build the WordprocessingML by
+    // hand and zip it with JSZip (lazy-loaded) so the output is a real .docx an
+    // ATS parses cleanly - not an HTML-masquerading-as-doc file. Section order
+    // mirrors buildResumeHTML so the Word file matches the PDF and the editor.
+    function _xe(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&apos;'); }
+    function _run(text, o) { o = o || {};
+      let rpr = '';
+      if (o.b || o.i || o.sz || o.color) rpr = '<w:rPr>' + (o.b ? '<w:b/>' : '') + (o.i ? '<w:i/>' : '') + (o.sz ? `<w:sz w:val="${o.sz}"/><w:szCs w:val="${o.sz}"/>` : '') + (o.color ? `<w:color w:val="${o.color}"/>` : '') + '</w:rPr>';
+      return `<w:r>${rpr}<w:t xml:space="preserve">${_xe(text)}</w:t></w:r>`;
+    }
+    function _para(runs, o) { o = o || {};
+      let ppr = '<w:pPr>' + `<w:spacing w:after="${o.after == null ? 120 : o.after}"/>`;
+      if (o.border) ppr += '<w:pBdr><w:bottom w:val="single" w:sz="6" w:space="1" w:color="auto"/></w:pBdr>';
+      if (o.indent) ppr += `<w:ind w:left="${o.indent}" w:hanging="${o.indent}"/>`;
+      ppr += '</w:pPr>';
+      return `<w:p>${ppr}${runs}</w:p>`;
+    }
+    function buildDocxBody() {
+      const b = resume.basics, P = [];
+      P.push(_para(_run(b.name || 'Your Name', { b: true, sz: 32 }), { after: 40 }));
+      if (b.label) P.push(_para(_run(b.label, { sz: 22 }), { after: 40 }));
+      const contact = [b.email, b.phone, [b.location.city, b.location.region].filter(Boolean).join(', ')].filter(Boolean).join('   |   ');
+      if (contact) P.push(_para(_run(contact, { sz: 20, color: '444444' }), { after: 160 }));
+      if (b.summary) P.push(_para(_run(b.summary, { sz: 22 }), { after: 160 }));
+      const title = (t) => P.push(_para(_run(t.toUpperCase(), { b: true, sz: 24 }), { after: 60, border: true }));
+      const bullet = (t) => P.push(_para(_run('•  ' + t, { sz: 22 }), { after: 40, indent: 220 }));
+      if (resume.work.length) {
+        title('Experience');
+        for (const w of resume.work) {
+          const dates = [w.startDate, w.endDate].filter(Boolean).join(' – ');
+          P.push(_para(_run(w.position || '', { b: true, sz: 22 }) + (dates ? _run('    ' + dates, { sz: 20, color: '666666' }) : ''), { after: 20 }));
+          const org = [w.name, w.location].filter(Boolean).join(' · ');
+          if (org) P.push(_para(_run(org, { sz: 20, color: '444444' }), { after: 40 }));
+          (w.highlights || []).filter(Boolean).forEach(bullet);
+        }
+      }
+      if (resume.skills.length) {
+        title('Skills');
+        P.push(_para(_run(resume.skills.map(s => s.name + (s.level ? ` (${s.level})` : '')).filter(Boolean).join('   •   '), { sz: 22 }), { after: 120 }));
+      }
+      if (resume.education.length) {
+        title('Education');
+        for (const ed of resume.education) {
+          const dates = [ed.startDate, ed.endDate].filter(Boolean).join(' – ');
+          P.push(_para(_run(ed.studyType || ed.area || '', { b: true, sz: 22 }) + (dates ? _run('    ' + dates, { sz: 20, color: '666666' }) : ''), { after: 20 }));
+          const org = [ed.institution, ed.area].filter(Boolean).join(' · ');
+          if (org) P.push(_para(_run(org, { sz: 20, color: '444444' }), { after: 60 }));
+        }
+      }
+      if (resume.certificates.length) {
+        title('Certificates & Licenses');
+        for (const c of resume.certificates) {
+          const meta = [c.issuer, c.date].filter(Boolean).join(', ');
+          P.push(_para(_run(c.name || '', { b: true, sz: 22 }) + (meta ? _run('  ' + meta, { sz: 20, color: '444444' }) : ''), { after: 40 }));
+        }
+      }
+      if (resume.projects.length) {
+        title('Projects');
+        for (const p of resume.projects) {
+          P.push(_para(_run(p.name || '', { b: true, sz: 22 }), { after: 20 }));
+          if (p.description) P.push(_para(_run(p.description, { sz: 22 }), { after: 40 }));
+          (p.highlights || []).filter(Boolean).forEach(bullet);
+        }
+      }
+      if (resume.awards.length) {
+        title('Awards');
+        for (const a of resume.awards) {
+          const meta = [a.awarder, a.date].filter(Boolean).join(', ');
+          P.push(_para(_run(a.title || '', { b: true, sz: 22 }) + (meta ? _run('  ' + meta, { sz: 20, color: '444444' }) : ''), { after: 40 }));
+        }
+      }
+      if (resume.references.length) {
+        title('References');
+        for (const rf of resume.references) {
+          P.push(_para(_run(rf.name || '', { b: true, sz: 22 }) + (rf.reference ? _run('  ' + rf.reference, { sz: 22 }) : ''), { after: 40 }));
+        }
+      }
+      return P.join('');
+    }
+    async function exportDocx() {
+      try {
+        if (typeof JSZip === 'undefined') await loadScript('https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js');
+        if (typeof JSZip === 'undefined') { toast('Word library still loading — try again in a moment.'); return; }
+        const documentXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:body>${buildDocxBody()}<w:sectPr><w:pgSz w:w="12240" w:h="15840"/><w:pgMar w:top="720" w:right="720" w:bottom="720" w:left="720"/></w:sectPr></w:body></w:document>`;
+        const stylesXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:styles xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:docDefaults><w:rPrDefault><w:rPr><w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:cs="Arial"/><w:sz w:val="22"/><w:szCs w:val="22"/></w:rPr></w:rPrDefault></w:docDefaults></w:styles>`;
+        const contentTypes = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/><Override PartName="/word/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"/></Types>`;
+        const rels = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/></Relationships>`;
+        const docRels = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>`;
+        const zip = new JSZip();
+        zip.file('[Content_Types].xml', contentTypes);
+        zip.folder('_rels').file('.rels', rels);
+        const word = zip.folder('word');
+        word.file('document.xml', documentXml);
+        word.file('styles.xml', stylesXml);
+        word.folder('_rels').file('document.xml.rels', docRels);
+        const blob = await zip.generateAsync({ type: 'blob', mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url; a.download = (resume.basics.name || 'resume').replace(/[^a-z0-9]+/gi, '_') + '_resume.docx';
+        document.body.appendChild(a); a.click(); a.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+        toast('✓ Word (.docx) downloaded.');
+        if (typeof logEvent === 'function') logEvent(db, 'resume_export', { page: 'resume', format: 'docx' });
+      } catch (err) { toast('Word export failed: ' + (err && err.message ? err.message : 'error')); }
+    }
+
     // ── Init ─────────────────────────────────────────────────────────────────
     document.addEventListener('DOMContentLoaded', async () => {
       logPageView(db);
@@ -1334,6 +1532,7 @@
       document.getElementById('btn-export').addEventListener('click', openPreview);
       document.getElementById('pv-close').addEventListener('click', closePreview);
       document.getElementById('pv-pdf').addEventListener('click', () => { downloadPDF(); });
+      document.getElementById('pv-docx').addEventListener('click', () => { exportDocx(); });
       document.getElementById('pv-print').addEventListener('click', printResume);
       document.getElementById('pv-json').addEventListener('click', exportJSON);
       document.querySelectorAll('.pv-tpl').forEach(btn => btn.addEventListener('click', () => setTemplate(btn.dataset.tpl)));
@@ -1350,6 +1549,8 @@
       document.getElementById('btn-tailor').addEventListener('click', () => { runTailor(); });
       document.getElementById('btn-jdscore').addEventListener('click', () => { runJdScore(); });
       document.getElementById('jd-score-panel').addEventListener('click', onJdPanelClick);
+      document.getElementById('btn-coverletter').addEventListener('click', () => { runCoverLetter(); });
+      document.getElementById('cover-letter-panel').addEventListener('click', onCoverLetterClick);
       const pdEl = document.getElementById('promote-dedupe');
       if (pdEl) {
         pdEl.checked = _promoteDedupe;
@@ -1359,6 +1560,12 @@
           catch (_) { /* empty-catch-allow: preference persistence is best-effort */ }
         });
       }
+      // ESC closes the topmost open dialog (preview sits above the review sheet).
+      document.addEventListener('keydown', (e) => {
+        if (e.key !== 'Escape') return;
+        if (document.getElementById('preview-overlay').classList.contains('open')) closePreview();
+        else if (document.getElementById('review-sheet').classList.contains('open')) closeReview();
+      });
       document.getElementById('btn-undo').addEventListener('click', undo);
       document.getElementById('review-body').addEventListener('input', onReviewInput);
       document.getElementById('review-body').addEventListener('change', onReviewInput);

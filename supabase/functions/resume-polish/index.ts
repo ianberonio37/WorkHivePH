@@ -1,7 +1,7 @@
 /**
  * resume-polish - AI wording help for the Resume / CV Builder (resume.html).
  *
- * Three truthful, opt-in modes. All return SUGGESTIONS / FACTS only; the client
+ * Four truthful, opt-in modes. All return SUGGESTIONS / FACTS only; the client
  * routes every suggestion through the editable checklist (or a review panel) so
  * nothing is applied to the worker's resume without an explicit tap (internal control).
  *
@@ -17,6 +17,10 @@
  *     keywords an ATS scans for. EXTRACTION ONLY (no scoring) - the client
  *     computes the match score deterministically against the resume text, so the
  *     model never invents a number (ai-engineer WAT rule).
+ *
+ *   mode "cover_letter": the worker's real summary + skills + recent experience
+ *     (+ optional JD/company) -> a short truthful cover letter draft. Output is
+ *     a draft the worker edits/copies; it is NOT merged into the resume.
  *
  * Input:
  *   { mode, hive_id?, worker_name?, auth_uid?,
@@ -97,6 +101,17 @@ Rules:
 6. Deduplicate. Return at most 25 keywords, most important first.
 7. No em dashes. Output ONLY the JSON object.`;
 
+const COVER_LETTER_SYSTEM = `You write a short, professional, TRUTHFUL cover letter for a Filipino industrial maintenance worker, using only the facts provided.
+You are given the worker's name, headline, summary, real skills, recent experience, and optionally a target job description and company.
+Respond ONLY with JSON: { "letter": "..." }.
+Rules:
+1. 3 to 4 short paragraphs. Open with the role and genuine interest; the middle connects the worker's REAL skills and experience to the job; close with a polite call to action and thanks.
+2. Use ONLY the provided facts. Do NOT invent employers, numbers, certifications, dates, schools, or skills the worker did not list. If a job description is given, speak to the requirements the worker genuinely meets and do not claim the others.
+3. Professional but warm and direct, in plain language a busy hiring manager reads in under a minute. No flowery filler and no generic buzzwords (hardworking, team player) unless backed by a concrete fact.
+4. If no job description is given, write a strong general cover letter for the worker's stated field.
+5. Address it to "Dear Hiring Manager," unless a specific company or person is provided. Sign off with "Sincerely," and the worker's name.
+6. Use real newlines between paragraphs. No em dashes. Output ONLY the JSON object.`;
+
 function clampStr(v: unknown, cap = 300): string { return String(v ?? "").trim().slice(0, cap); }
 function clampStrArr(v: unknown, max: number, cap: number): string[] {
   if (!Array.isArray(v)) return [];
@@ -155,8 +170,19 @@ serve(async (req) => {
       const jd = clampStr(body.jd, 4000);
       if (!jd) return json({ error: "Paste the job description first." }, 400);
       raw = await callAI(jd, { systemPrompt: JD_KEYWORDS_SYSTEM, temperature: 0.1, maxTokens: MAX_TOKENS_OUT, jsonMode: true, taskProfile: "synthesis_long_output" });
+    } else if (mode === "cover_letter") {
+      const summary = clampStr(body.summary, 900);
+      const skills = clampStrArr(body.skills, 40, 100);
+      const experience = clampStr(body.experience, 1800);
+      if (!summary && !skills.length && !experience) return json({ error: "Add some experience or skills first, then draft a cover letter." }, 400);
+      const userMsg = JSON.stringify({
+        name: clampStr(body.name, 120), headline: clampStr(body.headline, 140),
+        summary, skills, recent_experience: experience,
+        job_description: clampStr(body.jd, 4000), company: clampStr(body.company, 160),
+      });
+      raw = await callAI(userMsg, { systemPrompt: COVER_LETTER_SYSTEM, temperature: 0.4, maxTokens: 1500, jsonMode: true, taskProfile: "synthesis_long_output" });
     } else {
-      return json({ error: "mode must be 'polish_bullets', 'tailor_to_jd', or 'jd_keywords'" }, 400);
+      return json({ error: "mode must be 'polish_bullets', 'tailor_to_jd', 'jd_keywords', or 'cover_letter'" }, 400);
     }
 
     if (!raw || raw === "{}") return json({ error: "The AI helper is busy. Please try again in a moment.", ai_provider_unavailable: !raw }, 502);
@@ -175,6 +201,9 @@ serve(async (req) => {
         return { term: clampStr(obj.term, 60), importance: obj.importance === "high" ? "high" : "medium" };
       }).filter((k) => k.term);
       return json({ keywords });
+    }
+    if (mode === "cover_letter") {
+      return json({ letter: clampStr(parsed.letter, 4000) });
     }
     return json({ summary: clampStr(parsed.summary, 900), highlights: clampStrArr(parsed.highlights, 6, 280) });
   } catch (err) {

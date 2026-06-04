@@ -339,4 +339,39 @@ test.describe('resume.html — Resume / CV Builder journey', () => {
     await whPage.reload({ waitUntil: 'domcontentloaded' });
     await expect(whPage.locator('#promote-dedupe')).toBeChecked();
   });
+
+  test('Word .docx export downloads a real .docx file (Phase 2 portability)', async ({ whPage }) => {
+    await gotoResume(whPage);
+    await whPage.fill('[data-basics="name"]', 'Maria Santos');
+    await whPage.click('#btn-export');
+    await expect(whPage.locator('#preview-overlay')).toHaveClass(/open/);
+    const [download] = await Promise.all([
+      whPage.waitForEvent('download', { timeout: 20000 }),
+      whPage.click('#pv-docx'),
+    ]);
+    expect(download.suggestedFilename()).toMatch(/\.docx$/i);
+  });
+
+  test('cover-letter draft renders an editable, copyable letter from real facts (Phase 3)', async ({ whPage }) => {
+    await gotoResume(whPage);
+    await whPage.click('[data-action="add"][data-sec="skills"]');
+    await whPage.locator('[data-sec="skills"][data-field="name"]').last().fill('Preventive Maintenance');
+    await whPage.route('**/functions/v1/resume-polish', (route) => route.fulfill({
+      status: 200, contentType: 'application/json',
+      body: JSON.stringify({ letter: 'Dear Hiring Manager,\n\nI am applying for the Maintenance Technician role.\n\nSincerely,\nMaria' }),
+    }));
+    await whPage.click('#btn-coverletter');
+    await expect(whPage.locator('#cl-text')).toBeVisible({ timeout: 15000 });
+    await expect(whPage.locator('#cl-text')).toHaveValue(/Dear Hiring Manager/);
+    await expect(whPage.locator('#cl-copy')).toBeVisible();
+  });
+
+  test('preview is a labelled dialog and ESC closes it (a11y, Phase 3)', async ({ whPage }) => {
+    await gotoResume(whPage);
+    await expect(whPage.locator('#preview-overlay')).toHaveAttribute('role', 'dialog');
+    await whPage.click('#btn-export');
+    await expect(whPage.locator('#preview-overlay')).toHaveClass(/open/);
+    await whPage.keyboard.press('Escape');
+    await expect(whPage.locator('#preview-overlay')).not.toHaveClass(/open/);
+  });
 });
