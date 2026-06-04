@@ -10,6 +10,7 @@ PAGES = [
     ("analytics.html",           "Analytics",             "body"),
     ("analytics-report.html",    "Analytics Report",      "body"),
     ("skillmatrix.html",         "Skill Matrix",          "body"),
+    ("resume.html",              "Resume / CV Builder",   "body"),
     ("community.html",           "Community",             "body"),
     ("public-feed.html",         "Public feed",           "body"),
     ("marketplace.html",         "Marketplace",           "body"),

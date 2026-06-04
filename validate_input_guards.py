@@ -32,6 +32,7 @@ if sys.platform == "win32":
 from validator_utils import read_file, format_result
 
 TARGET_PAGES = [
+    "resume.html",
     "logbook.html",
     "inventory.html",
     "pm-scheduler.html",

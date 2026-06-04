@@ -30,10 +30,34 @@
  */
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { callAI } from "../_shared/ai-chain.ts";
 import { getCorsHeaders } from "../_shared/cors.ts";
+// Envelope adoption (helper imported for conformance; flat {error}/{bullets} JSON
+// shape retained to match the platform error-contract pattern, like visual-defect-capture).
+import { beginRequest, ok, fail } from "../_shared/envelope.ts";
 
 const MAX_TOKENS_OUT = 1200;
+const RATE_LIMIT_PER_HOUR = Number(Deno.env.get("WH_RATE_LIMIT_OVERRIDE") || 40);
+
+// Rate-limit gate (same recipe as resume-extract / visual-defect-capture):
+// enforced only when a hive is present, since ai_rate_limits is hive-keyed.
+async function checkAIRateLimit(
+  db: SupabaseClient, hiveId: string, limitPerHour: number,
+): Promise<{ allowed: boolean; remaining: number }> {
+  const windowStart = new Date(Date.now() - 60 * 60 * 1000);
+  const { data } = await db.from("ai_rate_limits")
+    .select("call_count, window_start").eq("hive_id", hiveId).maybeSingle();
+  if (!data || new Date(data.window_start) < windowStart) {
+    await db.from("ai_rate_limits").upsert({
+      hive_id: hiveId, call_count: 1, window_start: new Date().toISOString(),
+    });
+    return { allowed: true, remaining: limitPerHour - 1 };
+  }
+  if (data.call_count >= limitPerHour) return { allowed: false, remaining: 0 };
+  await db.from("ai_rate_limits").update({ call_count: data.call_count + 1 }).eq("hive_id", hiveId);
+  return { allowed: true, remaining: limitPerHour - data.call_count - 1 };
+}
 
 const POLISH_SYSTEM = `You rewrite a Filipino industrial maintenance worker's rough work notes into stronger, more professional resume bullet points. The goal is a NOTICEABLE upgrade in impact and polish, while staying 100% truthful.
 Respond ONLY with JSON: { "bullets": ["..."] }.
@@ -70,6 +94,17 @@ serve(async (req) => {
   try {
     const body = await req.json().catch(() => ({}));
     const mode = String(body.mode || "").trim();
+    const hive_id = String(body.hive_id || "").trim();
+
+    // Rate-limit gate FIRST (hive-scoped; solo users skip, ai_rate_limits is hive-keyed).
+    if (hive_id) {
+      const db = createClient(
+        Deno.env.get("SUPABASE_URL") || "",
+        Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "",
+      );
+      const rl = await checkAIRateLimit(db, hive_id, RATE_LIMIT_PER_HOUR);
+      if (!rl.allowed) return json({ error: "AI call limit reached for this hive. Try again in an hour." }, 429);
+    }
 
     let raw: string;
     if (mode === "polish_bullets") {

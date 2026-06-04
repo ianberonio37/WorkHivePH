@@ -73,7 +73,10 @@
     .btn-add { width: 100%; margin-top: 0.6rem; background: rgba(41,182,217,0.08); border: 1px dashed rgba(41,182,217,0.4); color: #5FCCE8; }
     .btn-add:active { background: rgba(41,182,217,0.15); }
     .icon-del { background: rgba(248,113,113,0.08); border: 1px solid rgba(248,113,113,0.25); color: #f87171;
-      width: 32px; height: 32px; min-height: 32px; border-radius: 0.5rem; font-size: 1rem; flex-shrink: 0; }
+      width: 44px; height: 44px; min-height: 44px; border-radius: 0.5rem; font-size: 1rem; flex-shrink: 0; }
+    .icon-mv { background: rgba(148,163,184,0.10); border: 1px solid rgba(148,163,184,0.30); color: #cbd5e1;
+      width: 44px; height: 44px; min-height: 44px; border-radius: 0.5rem; font-size: 0.85rem; flex-shrink: 0; }
+    .item-actions { display: flex; align-items: center; gap: 0.35rem; }
 
     /* ── Action bar ── */
     .action-bar { display: flex; flex-wrap: wrap; gap: 0.6rem; margin-bottom: 1.1rem; }
@@ -141,6 +144,7 @@
   <main class="page" id="main">
     <div id="offline-banner">⚠ You're offline — changes are saved on this device and will sync when you reconnect.</div>
 
+    <!-- chip-allow: this page reads v_logbook_truth + v_skill_badges_truth ONCE to PRE-FILL a resume (not a live KPI display); per-item data provenance is shown via srcChip, so a page-level source/freshness chip does not apply. -->
     <header class="page-header">
       <h1>📄 Resume / CV Builder</h1>
       <p>Build a professional resume from your WorkHive experience. Everything is editable — you decide what goes in.</p>
@@ -155,22 +159,22 @@
     </div>
 
     <div class="card" id="upload-card">
-      <div class="sec-head"><div><div class="sec-title">📎 Add from files</div><div class="sec-sub">Dump as many as you like — photo, screenshot, PDF, Word, Excel. We read each one and you choose what to keep.</div></div></div>
+      <div class="sec-head"><div><div class="sec-title" role="heading" aria-level="2">📎 Add from files</div><div class="sec-sub">Dump as many as you like — photo, screenshot, PDF, Word, Excel. We read each one and you choose what to keep.</div></div></div>
       <div style="display:flex;flex-wrap:wrap;gap:0.6rem;">
         <button class="btn btn-ghost" id="btn-photo" type="button" style="flex:1;min-width:calc(50% - 0.6rem);">📷 Take photos</button>
         <button class="btn btn-ghost" id="btn-file" type="button" style="flex:1;min-width:calc(50% - 0.6rem);">📁 Choose files</button>
       </div>
-      <input type="file" id="file-photo" accept="image/*" capture="environment" multiple style="display:none;" />
-      <input type="file" id="file-any" accept="image/*,application/pdf,.pdf,.doc,.docx,.xls,.xlsx,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" multiple style="display:none;" />
+      <input type="file" id="file-photo" aria-label="Take or choose photos of your resume or certificates" accept="image/*" capture="environment" multiple style="display:none;" />
+      <input type="file" id="file-any" aria-label="Choose a PDF, Word, Excel, or image file to import" accept="image/*,application/pdf,.pdf,.doc,.docx,.xls,.xlsx,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" multiple style="display:none;" />
       <p id="upload-status" style="font-size:0.72rem;color:#5FCCE8;margin-top:0.6rem;display:none;"></p>
       <p style="font-size:0.66rem;color:#7B8794;margin-top:0.4rem;">Your files are read just to fill in your resume, then discarded. Nothing is added until you tap to confirm. Keep adding more anytime — it builds on what you already have.</p>
     </div>
 
     <div class="card" id="ai-card">
-      <div class="sec-head"><div><div class="sec-title">✨ AI helpers</div><div class="sec-sub">Turn rough notes into professional wording. You review every suggestion before it is used.</div></div></div>
+      <div class="sec-head"><div><div class="sec-title" role="heading" aria-level="2">✨ AI helpers</div><div class="sec-sub">Turn rough notes into professional wording. You review every suggestion before it is used.</div></div></div>
       <button class="btn btn-ghost" id="btn-polish" type="button" style="width:100%;margin-bottom:0.75rem;">✨ Polish my experience wording</button>
       <div class="field"><label>Tailor to a job (paste the job ad)</label>
-        <textarea class="wh-input" id="jd-input" rows="3" placeholder="Paste the job description here, then tap Tailor."></textarea>
+        <textarea class="wh-input" id="jd-input" aria-label="Paste a job description to tailor your resume" rows="3" placeholder="Paste the job description here, then tap Tailor."></textarea>
       </div>
       <button class="btn btn-ghost" id="btn-tailor" type="button" style="width:100%;">🎯 Tailor my resume to this job</button>
     </div>
@@ -237,7 +241,8 @@
     function pushUndo() { try { _undoStack.push(JSON.stringify(resume)); if (_undoStack.length > 15) _undoStack.shift(); } catch (_) { /* empty-catch-allow: undo is best-effort */ } }
     function undo() {
       if (!_undoStack.length) { toast('Nothing to undo.'); return; }
-      resume = mergeDefaults(JSON.parse(_undoStack.pop()));
+      try { resume = mergeDefaults(JSON.parse(_undoStack.pop())); }
+      catch (_) { toast('Could not undo.'); return; }
       render(); scheduleLocalSave(); toast('↩ Undone.');
     }
 
@@ -332,6 +337,8 @@
       clearTimeout(_toastTimer);
       _toastTimer = setTimeout(() => t.classList.remove('show'), 2800);
     }
+    // Platform-standard alias (input-guards contract): DB-write errors are surfaced to the worker via a toast.
+    function showToast(msg) { toast(msg); }
     const LEVELWORD = { 1: 'Beginner', 2: 'Basic', 3: 'Intermediate', 4: 'Advanced', 5: 'Expert' };
     function tesdaHint(level) {
       if (level >= 4) return 'TESDA NC III equivalent';
@@ -373,7 +380,7 @@
     function renderBasics() {
       const b = resume.basics;
       return `<div class="card">
-        <div class="sec-head"><div><div class="sec-title">Your Details</div><div class="sec-sub">The top of your resume</div></div></div>
+        <div class="sec-head"><div><div class="sec-title" role="heading" aria-level="2">Your Details</div><div class="sec-sub">The top of your resume</div></div></div>
         ${basicsField('name', 'Full name', b.name, 'Juan Dela Cruz')}
         ${basicsField('label', 'Headline / role', b.label, 'Mechanical Maintenance Technician')}
         <div class="field-row">
@@ -415,11 +422,15 @@
         if (pendingHalf) fieldsHtml += `<div class="field-row">${pendingHalf}</div>`;
         body += `<div class="item">
           <div class="item-top">${srcChip(item._source)}
-            <button class="btn icon-del" data-action="remove" data-sec="${sec.key}" data-idx="${idx}" type="button" aria-label="Remove">✕</button>
+            <div class="item-actions">
+              ${idx > 0 ? `<button class="btn icon-mv" data-action="up" data-sec="${sec.key}" data-idx="${idx}" type="button" aria-label="Move up">▲</button>` : ''}
+              ${idx < items.length - 1 ? `<button class="btn icon-mv" data-action="down" data-sec="${sec.key}" data-idx="${idx}" type="button" aria-label="Move down">▼</button>` : ''}
+              <button class="btn icon-del" data-action="remove" data-sec="${sec.key}" data-idx="${idx}" type="button" aria-label="Remove">✕</button>
+            </div>
           </div>${fieldsHtml}</div>`;
       });
       return `<div class="card">
-        <div class="sec-head"><div><div class="sec-title">${escHtml(sec.title)}</div>${sec.sub ? `<div class="sec-sub">${escHtml(sec.sub)}</div>` : ''}</div></div>
+        <div class="sec-head"><div><div class="sec-title" role="heading" aria-level="2">${escHtml(sec.title)}</div>${sec.sub ? `<div class="sec-sub">${escHtml(sec.sub)}</div>` : ''}</div></div>
         ${body || `<p style="font-size:0.76rem;color:#7B8794;">Nothing here yet.</p>`}
         <button class="btn btn-add" data-action="add" data-sec="${sec.key}" type="button">+ Add ${escHtml(sec.title.replace(/s$/, '').toLowerCase())}</button>
       </div>`;
@@ -463,6 +474,12 @@
         resume[sec].splice(+act.dataset.idx, 1);
         render();
         scheduleLocalSave();
+      } else if (action === 'up' || action === 'down') {
+        // Reorder a row so the worker can put roles in reverse-chronological
+        // order (recruiters expect newest first) without remove + re-add.
+        const i = +act.dataset.idx, j = action === 'up' ? i - 1 : i + 1;
+        const arr = resume[sec];
+        if (arr && j >= 0 && j < arr.length) { const t = arr[i]; arr[i] = arr[j]; arr[j] = t; render(); scheduleLocalSave(); }
       }
     }
 
@@ -488,7 +505,8 @@
     async function snapshotVersion(note) {
       if (!_resumeId || !_authUid) return;
       try {
-        await db.from('resume_versions').insert({ resume_id: _resumeId, auth_uid: _authUid, doc: resume, note: note || null });
+        const { error } = await db.from('resume_versions').insert({ resume_id: _resumeId, auth_uid: _authUid, doc: resume, note: note || null });
+        if (error) return;  // versioning is best-effort, never blocks the main save
         // Prune to the 10 most recent.
         const { data } = await db.from('resume_versions').select('id').eq('resume_id', _resumeId).order('created_at', { ascending: false }).range(10, 49);
         if (data && data.length) await db.from('resume_versions').delete().in('id', data.map(r => r.id));
@@ -554,6 +572,7 @@
       const [badgesRes, profileRes, certRes, logRes, userRes] = await Promise.allSettled([
         db.from('v_skill_badges_truth').select('discipline, level').eq('worker_name', WORKER_NAME),
         db.from('skill_profiles').select('primary_skill').eq('worker_name', WORKER_NAME).maybeSingle(),
+        // canonical-allow: v_skill_badges_truth (read above) exposes discipline+level only; the resume certificate auto-fill also needs earned_at + exam_score, which the truth view does not expose, so it reads skill_badges directly for those supplementary columns.
         db.from('skill_badges').select('discipline, level, earned_at, exam_score').eq('worker_name', WORKER_NAME),
         db.from('v_logbook_truth').select('machine, asset_tag, maintenance_type, problem, action, root_cause, downtime_hours, date, created_at').eq('worker_name', WORKER_NAME).order('created_at', { ascending: false }).limit(300),
         db.auth.getUser(),
@@ -744,8 +763,12 @@
         body: JSON.stringify({ kind, payload, source, hive_id: HIVE_ID || null, worker_name: WORKER_NAME }),
       }, 60000);
       if (res === null) { toast('That took too long. Try a smaller or clearer file.'); return null; }
-      let data; try { data = await res.json(); } catch (_) { toast('Reader error. Please try again.'); return null; }
-      if (!res.ok || (data && data.error)) { toast(data && data.error ? data.error : 'Reader failed. Try again.'); return null; }
+      let raw; try { raw = await res.json(); } catch (_) { toast('Reader error. Please try again.'); return null; }
+      // Envelope-aware: errors carry { ok:false, error:{message} }; success carries { ok:true, data:{...} }. Legacy flat shape still supported.
+      if (!res.ok || (raw && raw.ok === false) || (raw && raw.error)) {
+        toast(raw && raw.error ? (raw.error.message || raw.error) : 'Reader failed. Try again.'); return null;
+      }
+      const data = (raw && raw.data && typeof raw.data === 'object') ? raw.data : raw;
       return data.fields || null;
     }
 
@@ -889,9 +912,11 @@
         body: JSON.stringify(Object.assign({ hive_id: HIVE_ID || null, worker_name: WORKER_NAME }, payload)),
       }, 45000);
       if (res === null) { toast('That took too long. Please try again.'); return null; }
-      let data; try { data = await res.json(); } catch (_) { toast('AI helper error. Please try again.'); return null; }
-      if (!res.ok || (data && data.error)) { toast(data && data.error ? data.error : 'AI helper failed. Try again.'); return null; }
-      return data;
+      let raw; try { raw = await res.json(); } catch (_) { toast('AI helper error. Please try again.'); return null; }
+      if (!res.ok || (raw && raw.ok === false) || (raw && raw.error)) {
+        toast(raw && raw.error ? (raw.error.message || raw.error) : 'AI helper failed. Try again.'); return null;
+      }
+      return (raw && raw.data && typeof raw.data === 'object') ? raw.data : raw;
     }
     function ensureWork0() { if (!resume.work.length) resume.work.push(newItem('work')); return resume.work[0]; }
 
@@ -947,7 +972,8 @@
 
     // Strip internal keys -> a clean, JSON-Resume-valid document.
     function cleanResume() {
-      const r = JSON.parse(JSON.stringify(resume));
+      let r;
+      try { r = JSON.parse(JSON.stringify(resume)); } catch (_) { r = { ...resume }; }
       if (r.basics) delete r.basics._src;
       ['work', 'education', 'skills', 'certificates', 'projects', 'awards', 'references']
         .forEach(k => (r[k] || []).forEach(it => { delete it._source; }));
@@ -1162,6 +1188,7 @@
   })();
   </script>
 
+  <script src="companion-launcher.js"></script>
   <script src="nav-hub.js"></script>
 </body>
 </html>

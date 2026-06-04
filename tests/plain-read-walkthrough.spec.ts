@@ -50,6 +50,7 @@ const PAGES: Array<{ slug: string; file: string; flow: string }> = [
   { slug: 'dayplanner',         file: 'dayplanner.html',         flow: 'worker' },
   // Growth / community
   { slug: 'skillmatrix',        file: 'skillmatrix.html',        flow: 'growth' },
+  { slug: 'resume',             file: 'resume.html',             flow: 'growth' },
   { slug: 'achievements',       file: 'achievements.html',       flow: 'growth' },
   // Admin / specialist
   { slug: 'project-manager',    file: 'project-manager.html',    flow: 'admin' },

@@ -1448,6 +1448,7 @@
       "realtime_published": false,
       "comment": "",
       "read_by_surfaces": [
+        "resume.html",
         "skillmatrix.html"
       ],
       "written_by_surfaces": [
@@ -1553,6 +1554,7 @@
       "realtime_published": false,
       "comment": "",
       "read_by_surfaces": [
+        "resume.html",
         "skillmatrix.html"
       ],
       "written_by_surfaces": [
@@ -2215,6 +2217,7 @@
         "agentic-rag-loop",
         "asset-brain-query",
         "fmea-populator",
+        "resume-extract",
         "temporal-rag-orchestrator",
         "visual-defect-capture",
         "voice-action-router"
@@ -2224,6 +2227,7 @@
         "agentic-rag-loop",
         "asset-brain-query",
         "fmea-populator",
+        "resume-extract",
         "temporal-rag-orchestrator",
         "visual-defect-capture",
         "voice-action-router"
@@ -5047,6 +5051,81 @@
       "written_by_edge_fns": [
         "_shared/followups.ts"
       ]
+    },
+    "resume_documents": {
+      "defined_in": "20260603000000_resume_builder.sql",
+      "columns": [
+        "id",
+        "auth_uid",
+        "worker_name",
+        "hive_id",
+        "title",
+        "doc",
+        "template",
+        "updated_at",
+        "created_at"
+      ],
+      "rls_enabled": true,
+      "grants": {
+        "anon": [
+          "SELECT",
+          "INSERT",
+          "UPDATE",
+          "DELETE"
+        ],
+        "authenticated": [
+          "SELECT",
+          "INSERT",
+          "UPDATE",
+          "DELETE"
+        ]
+      },
+      "realtime_published": false,
+      "comment": "Per-worker Resume / CV Builder document (JSON Resume schema in doc jsonb). Private: RLS owner-only via auth.uid()=auth_uid. hive_id is context, not an access key.",
+      "read_by_surfaces": [
+        "resume.html"
+      ],
+      "written_by_surfaces": [
+        "resume.html"
+      ],
+      "read_by_edge_fns": [],
+      "written_by_edge_fns": []
+    },
+    "resume_versions": {
+      "defined_in": "20260603000000_resume_builder.sql",
+      "columns": [
+        "id",
+        "resume_id",
+        "auth_uid",
+        "doc",
+        "note",
+        "created_at"
+      ],
+      "rls_enabled": true,
+      "grants": {
+        "anon": [
+          "SELECT",
+          "INSERT",
+          "UPDATE",
+          "DELETE"
+        ],
+        "authenticated": [
+          "SELECT",
+          "INSERT",
+          "UPDATE",
+          "DELETE"
+        ]
+      },
+      "realtime_published": false,
+      "comment": "Undo snapshots for resume_documents. Owner-only RLS. Client prunes to ~10 most recent per resume.",
+      "read_by_surfaces": [
+        "resume.html"
+      ],
+      "written_by_surfaces": [
+        "resume.html"
+      ],
+      "read_by_edge_fns": [],
+      "written_by_edge_fns": []
     }
   },
   "views": {
@@ -5232,7 +5311,8 @@
         "dayplanner.html",
         "hive.html",
         "integrations.html",
-        "project-manager.html"
+        "project-manager.html",
+        "resume.html"
       ],
       "read_by_edge_fns": [
         "agentic-rag-loop",
@@ -5700,6 +5780,7 @@
       "read_by_surfaces": [
         "assistant.html",
         "hive.html",
+        "resume.html",
         "skillmatrix.html"
       ],
       "read_by_edge_fns": [],
@@ -6382,6 +6463,14 @@
       "called_by_edge_fns": [
         "_shared/skill-library.ts"
       ]
+    },
+    "resume_documents_touch_updated_at": {
+      "defined_in": "20260603000000_resume_builder.sql",
+      "args": "",
+      "security_definer": false,
+      "comment": "",
+      "called_by_surfaces": [],
+      "called_by_edge_fns": []
     }
   },
   "surfaces": {
@@ -6519,7 +6608,7 @@
       "tables_written": [],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "size_kb": 53.6
+      "size_kb": 53.8
     },
     "audit-log.html": {
       "tables_read": [
@@ -6593,7 +6682,7 @@
       ],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "size_kb": 98.4
+      "size_kb": 105.8
     },
     "hive.html": {
       "tables_read": [
@@ -6981,6 +7070,23 @@
       "edge_fns_invoked": [],
       "size_kb": 85.3
     },
+    "resume.html": {
+      "tables_read": [
+        "resume_documents",
+        "resume_versions",
+        "skill_badges",
+        "skill_profiles",
+        "v_logbook_truth",
+        "v_skill_badges_truth"
+      ],
+      "tables_written": [
+        "resume_documents",
+        "resume_versions"
+      ],
+      "rpcs_called": [],
+      "edge_fns_invoked": [],
+      "size_kb": 70.7
+    },
     "shift-brain.html": {
       "tables_read": [
         "shift_plans",
@@ -7089,7 +7195,7 @@
       "tables_written": [],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "loc": 380
+      "loc": 386
     },
     "_shared/audio-chain.ts": {
       "tables_read": [],
@@ -7240,7 +7346,7 @@
       "tables_written": [],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "loc": 253
+      "loc": 259
     },
     "_shared/provider-health.ts": {
       "tables_read": [],
@@ -7349,7 +7455,7 @@
       ],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "loc": 300
+      "loc": 307
     },
     "ai-gateway": {
       "tables_read": [
@@ -7818,6 +7924,24 @@
       "rpcs_called": [],
       "edge_fns_invoked": [],
       "loc": 152
+    },
+    "resume-extract": {
+      "tables_read": [
+        "ai_rate_limits"
+      ],
+      "tables_written": [
+        "ai_rate_limits"
+      ],
+      "rpcs_called": [],
+      "edge_fns_invoked": [],
+      "loc": 202
+    },
+    "resume-polish": {
+      "tables_read": [],
+      "tables_written": [],
+      "rpcs_called": [],
+      "edge_fns_invoked": [],
+      "loc": 96
     },
     "scheduled-agents": {
       "tables_read": [

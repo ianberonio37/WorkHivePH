@@ -125,6 +125,8 @@ FUEL_ANCHOR_IGNORE_TABLES = {
     "schema_migrations",
     # Cache tables (no domain truth, just performance layers)
     "hive_analytics_cache",
+    # Personal owner-scoped documents (auth.uid-gated, NOT hive KPI/truth sources)
+    "resume_documents", "resume_versions",
 }
 
 

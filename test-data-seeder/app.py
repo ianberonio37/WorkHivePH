@@ -55,6 +55,7 @@ PUBLIC_PAGES = [
     ("analytics.html", "Analytics dashboard"),
     ("analytics-report.html", "Analytics Report (print/PDF)"),
     ("skillmatrix.html", "Skill Matrix"),
+    ("resume.html", "Resume / CV Builder"),
     ("community.html", "Community"),
     ("public-feed.html", "Public feed"),
     ("marketplace.html", "Marketplace"),

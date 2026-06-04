@@ -9,7 +9,7 @@ from .harness import BASE_URL, screenshot, pick_test_username, browser_session
 
 PAGES = [
     "hive.html", "logbook.html", "inventory.html", "pm-scheduler.html",
-    "analytics.html", "analytics-report.html", "community.html", "skillmatrix.html", "marketplace.html",
+    "analytics.html", "analytics-report.html", "community.html", "skillmatrix.html", "resume.html", "marketplace.html",
     "dayplanner.html", "engineering-design.html", "report-sender.html",
     "project-manager.html",
     "project-report.html",

@@ -41,6 +41,7 @@ CONTENT_FILE   = "skill-content.js"
 
 # All live tool pages — must be covered in both companion-launcher.js and assistant.html
 LIVE_TOOL_PAGES = [
+    "resume",
     "logbook", "assistant", "dayplanner", "pm-scheduler",
     "hive", "inventory", "skillmatrix", "engineering-design", "analytics",
     "analytics-report",
@@ -94,8 +95,9 @@ def check_platform_tools_completeness(content, page):
     # Window must cover the entire PLATFORM TOOLS list. 3000 was too tight
     # — bumping to 5000, then to 6500 as platform grew past 18 tools.
     # Bumped to 7800 in May 2026 after Asset Hub + Shift Brain landed.
+    # Bumped to 8400 on 2026-06-04 after Resume / CV Builder landed.
     # Increase again when a new set of tools pushes entries past the cutoff.
-    block = content[start:start + 7800]
+    block = content[start:start + 8400]
     issues = []
     for tool in LIVE_TOOL_PAGES:
         aliases = PAGE_ALIASES.get(tool, [tool])

@@ -5,11 +5,11 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 
 ## Summary
 
-- Tables:        **143**
+- Tables:        **145**
 - Views:         **49**
-- RPCs:          **75**
-- HTML surfaces: **45**
-- Edge fns:      **83**
+- RPCs:          **76**
+- HTML surfaces: **46**
+- Edge fns:      **85**
 - Phantom tables (referenced in code, not in migrations): **0**
 - Duplicate signals: **64**
 
@@ -19,8 +19,8 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 |---|---:|---|---|---|---|---|
 | `hive_audit_log` | 9 | no | yes | alert-hub.html, asset-hub.html, audit-log.html, community.html ... | alert-hub.html, asset-hub.html, community.html ... | export-hive-data |
 | `automation_log` | 6 | yes | no | alert-hub.html | — | batch-risk-scoring, benchmark-compute, cmms-push-completion ... |
-| `logbook` | 30 | yes | no | dayplanner.html, hive.html, integrations.html, logbook.html ... | dayplanner.html, hive.html, integrations.html ... | cmms-sync, cmms-webhook-receiver |
 | `ai_rate_limits` | 3 | yes | no | — | — | _shared/rate-limit.ts, agentic-rag-loop, asset-brain-query ... |
+| `logbook` | 30 | yes | no | dayplanner.html, hive.html, integrations.html, logbook.html ... | dayplanner.html, hive.html, integrations.html ... | cmms-sync, cmms-webhook-receiver |
 | `asset_nodes` | 26 | yes | yes | asset-hub.html, hive.html, integrations.html, inventory.html ... | asset-hub.html, integrations.html, inventory.html ... | — |
 | `marketplace_orders` | 17 | no | no | marketplace-admin.html, marketplace.html | marketplace-admin.html, marketplace.html | marketplace-checkout, marketplace-release, marketplace-webhook |
 | `fault_knowledge` | 14 | yes | no | integrations.html, logbook.html | integrations.html | cmms-sync, visual-defect-capture |
@@ -54,6 +54,8 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 | `marketplace_platform_admins` | 3 | no | no | marketplace-admin.html, marketplace.html, platform-health.html | — | — |
 | `marketplace_reviews` | 7 | no | no | marketplace-seller-profile.html, marketplace.html | marketplace.html | — |
 | `schedule_items` | 12 | yes | no | assistant.html, dayplanner.html | dayplanner.html | — |
+| `skill_badges` | 8 | yes | no | resume.html, skillmatrix.html | skillmatrix.html | — |
+| `skill_profiles` | 6 | yes | no | resume.html, skillmatrix.html | skillmatrix.html | — |
 | `project_roles` | 8 | no | yes | project-manager.html | project-manager.html | — |
 | `project_change_orders` | 16 | no | yes | project-manager.html | project-manager.html | — |
 | `failure_signature_alerts` | 15 | no | no | alert-hub.html | — | failure-signature-scan |
@@ -71,9 +73,7 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 | `marketplace_saved_searches` | 12 | no | no | marketplace.html | marketplace.html | — |
 | `marketplace_watchlist` | 4 | no | no | marketplace.html | marketplace.html | — |
 | `report_contacts` | 6 | yes | no | report-sender.html | report-sender.html | — |
-| `skill_badges` | 8 | yes | no | skillmatrix.html | skillmatrix.html | — |
 | `skill_exam_attempts` | 9 | yes | no | skillmatrix.html | skillmatrix.html | — |
-| `skill_profiles` | 6 | yes | no | skillmatrix.html | skillmatrix.html | — |
 | `worker_profiles` | 7 | yes | no | voice-journal.html | voice-journal.html | — |
 | `project_items` | 19 | no | yes | project-manager.html | project-manager.html | — |
 | `project_progress_logs` | 12 | no | yes | project-manager.html | project-manager.html | — |
@@ -95,6 +95,8 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 | `ai_user_rate_limits` | 4 | yes | no | — | — | _shared/rate-limit.ts |
 | `wh_traces` | 9 | yes | no | — | — | _shared/error-tracker.ts |
 | `agent_followups` | 13 | yes | no | — | — | _shared/followups.ts |
+| `resume_documents` | 9 | yes | no | resume.html | resume.html | — |
+| `resume_versions` | 6 | yes | no | resume.html | resume.html | — |
 | `achievement_xp_log` | 7 | yes | no | achievements.html | — | — |
 | `canonical_sources` | 10 | yes | no | — | — | — |
 | `hive_route_quotas` | 7 | yes | no | — | — | — |
@@ -210,6 +212,7 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 | `rerank_kb_chunks` | p_chunk_ids bigint[],   p_query text | yes | — | — |
 | `resolve_inventory_linked_asset_node_ids` |  | yes | — | — |
 | `resolve_logbook_asset_node_id` |  | yes | — | — |
+| `resume_documents_touch_updated_at` |  | no | — | — |
 | `search_all_knowledge` | "query_embedding" "public"."vector", "match_hive_id" "uuid", | no | — | — |
 | `search_bom_knowledge` | "query_embedding" "public"."vector", "match_hive_id" "uuid", | no | — | — |
 | `search_calc_knowledge` | "query_embedding" "public"."vector", "match_hive_id" "uuid", | no | — | — |
@@ -281,6 +284,7 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 | `project-report.html` | project_links, v_project_items_truth, v_project_progress_truth, v_project_truth | — | — | project-orchestrator |
 | `public-feed.html` | v_community_posts_truth | — | — | — |
 | `report-sender.html` | report_contacts, v_ai_reports_truth | report_contacts | — | — |
+| `resume.html` | resume_documents, resume_versions, skill_badges, skill_profiles ... | resume_documents, resume_versions | — | — |
 | `shift-brain.html` | shift_plans, v_worker_truth | shift_plans | — | shift-planner-orchestrator |
 | `skillmatrix.html` | skill_badges, skill_exam_attempts, skill_profiles, v_skill_badges_truth | skill_badges, skill_exam_attempts, skill_profiles | — | — |
 | `snapshot.html` | — | — | — | — |

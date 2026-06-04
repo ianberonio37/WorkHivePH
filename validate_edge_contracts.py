@@ -34,6 +34,8 @@ from validator_utils import read_file, format_result
 FUNCTIONS_DIR = os.path.join("supabase", "functions")
 
 ALL_FUNCTIONS = [
+    "resume-extract",
+    "resume-polish",
     "ai-gateway",
     "ai-eval-runner",
     "platform-gateway",

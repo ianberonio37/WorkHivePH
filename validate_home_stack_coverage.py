@@ -52,8 +52,8 @@ NAV_HUB_PATH = "nav-hub.js"
 MAX_VISIBLE_TOOLS = {
     # Tuned to the post-H.2 state. The ceiling is the *current* count: any
     # future addition trips the gate so accretion gets challenged.
-    "field":      10,
-    "supervisor": 16,
+    "field":      11,   # +1 (2026-06-04): Resume / CV Builder is a mission feature kept visible to every role (phone-first OFW CV-building); deep-linked from Skill Matrix + the OFW learn article.
+    "supervisor": 17,   # +1 (2026-06-04): Resume / CV Builder (see field note).
     "engineer":   14,
     "all":        25,
 }

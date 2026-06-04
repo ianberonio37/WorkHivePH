@@ -18,7 +18,7 @@ from .harness import BASE_URL, pick_test_username
 
 PAGES = [
     "hive.html", "logbook.html", "inventory.html", "pm-scheduler.html",
-    "analytics.html", "analytics-report.html", "skillmatrix.html", "community.html",
+    "analytics.html", "analytics-report.html", "skillmatrix.html", "resume.html", "community.html",
     "marketplace.html", "dayplanner.html", "engineering-design.html",
     "report-sender.html",
     "project-manager.html",

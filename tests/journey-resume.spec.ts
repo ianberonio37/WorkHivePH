@@ -203,4 +203,71 @@ test.describe('resume.html — Resume / CV Builder journey', () => {
     expect(ed, 'Education present').toBeGreaterThanOrEqual(0);
     expect(ce, 'Certificates after Education').toBeGreaterThan(ed);
   });
+
+  test('extraction surfaces PROJECTS and AWARDS in the checklist and renders them (recall fix 2026-06-04)', async ({ whPage }) => {
+    // Stub mirrors the live extractor AFTER the recall fix: a project and an
+    // award that were EMBEDDED in job bullets are now returned (this was the
+    // "less analysis / projects + achievements dropped" gap the user reported).
+    // Guards the whole path: extract -> checklist group -> merge -> render,
+    // not merely that the model returns them.
+    await whPage.route('**/functions/v1/resume-extract', (route) => route.fulfill({
+      status: 200, contentType: 'application/json',
+      body: JSON.stringify({ fields: {
+        basics: { name: 'Pedro Santos', label: '', email: '', phone: '', summary: '', location: { city: '', region: '' } },
+        work: [{ position: 'Maintenance Supervisor', name: 'San Miguel Brewery', location: 'Cebu', startDate: '2018', endDate: '2024', highlights: ['Supervised 12 technicians across 3 shifts'] }],
+        education: [], skills: [], certificates: [],
+        projects: [
+          { name: 'Downtime-Reduction Initiative', description: 'Cut line stoppages by 25% over 18 months' },
+          { name: 'CMMS Rollout', description: 'Rolled out a CMMS across the plant' },
+        ],
+        awards: [{ title: 'Employee of the Year 2021', awarder: 'San Miguel Brewery', date: '2021' }],
+      } }),
+    }));
+    await gotoResume(whPage);
+    await whPage.setInputFiles('#file-any', { name: 'cv.png', mimeType: 'image/png', buffer: PNG_1x1 });
+    await expect(whPage.locator('#review-sheet')).toHaveClass(/open/, { timeout: 15000 });
+    // The checklist must offer Projects AND Awards groups (the dropped sections).
+    const groups = await whPage.locator('#review-body .sheet-group-title').allInnerTexts();
+    expect(groups.some((g) => /projects/i.test(g)), 'Projects group present in checklist').toBeTruthy();
+    expect(groups.some((g) => /awards/i.test(g)), 'Awards group present in checklist').toBeTruthy();
+    await expect(whPage.locator('#review-body input[value="Downtime-Reduction Initiative"]')).toHaveCount(1);
+    await expect(whPage.locator('#review-body input[value="Employee of the Year 2021"]')).toHaveCount(1);
+    // Confirm -> merge -> they land in the editor sections.
+    await whPage.click('#review-confirm');
+    await expect(whPage.locator('#review-sheet')).not.toHaveClass(/open/);
+    await expect(whPage.locator('#sections input[value="Downtime-Reduction Initiative"]')).toHaveCount(1);
+    await expect(whPage.locator('#sections input[value="Employee of the Year 2021"]')).toHaveCount(1);
+    // And they RENDER in the exported resume (not merely stored).
+    await whPage.click('#btn-export');
+    await expect(whPage.locator('#preview-overlay')).toHaveClass(/open/);
+    const titles = await whPage.locator('#resume-paper .r-sec-title').allInnerTexts();
+    expect(titles.some((t) => /projects/i.test(t)), 'Projects section rendered').toBeTruthy();
+    expect(titles.some((t) => /awards/i.test(t)), 'Awards section rendered').toBeTruthy();
+  });
+
+  test('section titles are level-2 headings (screen-reader outline) (a11y audit 2026-06-04)', async ({ whPage }) => {
+    await gotoResume(whPage);
+    // Section titles must expose heading semantics, not be plain <div>s, or a
+    // screen reader jumps straight from the page H1 to the feedback footer and
+    // misses the whole resume structure.
+    await expect(whPage.locator('[role="heading"][aria-level="2"]', { hasText: 'Work Experience' })).toHaveCount(1);
+    for (const t of ['Skills', 'Education', 'Projects']) {
+      await expect(whPage.locator('[role="heading"][aria-level="2"]', { hasText: t }).first()).toBeVisible();
+    }
+  });
+
+  test('reorder: the down arrow moves a row so the worker can fix reverse-chronological order (UX audit 2026-06-04)', async ({ whPage }) => {
+    await gotoResume(whPage);
+    const sel = '[data-sec="work"][data-field="position"]';
+    const n0 = await whPage.locator(sel).count();
+    await whPage.click('[data-action="add"][data-sec="work"]');
+    await whPage.click('[data-action="add"][data-sec="work"]');
+    const a = n0, b = n0 + 1;
+    await whPage.locator(sel).nth(a).fill('ZZZ Older Role');
+    await whPage.locator(sel).nth(b).fill('AAA Newer Role');
+    // Move the first of the two new rows DOWN -> it swaps with the next.
+    await whPage.click(`[data-sec="work"][data-action="down"][data-idx="${a}"]`);
+    await expect(whPage.locator(sel).nth(a)).toHaveValue('AAA Newer Role');
+    await expect(whPage.locator(sel).nth(b)).toHaveValue('ZZZ Older Role');
+  });
 });

@@ -12,6 +12,8 @@ The reset-coverage validator skips these via CATALOG_TABLES_IGNORED."""
 RESET_TABLES = [
     # 2026-05-21 paydown: new platform tables added in migrations, register
     # in reset.py so reset-coverage validator passes.
+    "resume_versions",             # 20260603000000 - child (FK resume_id), wipe before parent
+    "resume_documents",            # 20260603000000 - owner-scoped personal resume doc
     "agentic_rag_traces",          # 20260521120000 — append-only RAG trace log
     "canonical_period_summaries",  # 20260521121000 — period rollup cache
     "agent_episodic_memory",       # 20260521122000 — per-worker episodic memory
