@@ -43,6 +43,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { callAI, callAIMultimodal } from "../_shared/ai-chain.ts";
+import { checkSoloRateLimit, soloRateLimitKey } from "../_shared/rate-limit.ts";
 import { getCorsHeaders } from "../_shared/cors.ts";
 // Envelope adoption (helper imported for conformance; flat {error}/{fields} JSON
 // shape retained to match the platform error-contract pattern, like visual-defect-capture).
@@ -95,6 +96,14 @@ Rules:
 9. No em dashes. Use commas or short sentences.
 10. If the document has no resume-relevant content, return {}.
 11. Output ONLY the JSON object.`;
+
+// Appended ONLY when the worker turns on the "promote, don't duplicate" toggle
+// (off by default). Default behaviour is recall-first: an achievement mined from
+// a bullet is promoted into projects/awards AND left as the work highlight, and
+// the worker de-dups via the checklist. This rule switches to single placement.
+const PROMOTE_DEDUPE_RULE = `
+
+PLACEMENT MODE (single placement): When an achievement qualifies as a Project or an Award, list it ONLY in that section and do NOT also repeat it as a work highlight. Each distinct achievement appears once, in the section that best showcases it. Routine recurring duties (operated machines, performed PM) still belong in work highlights. This does not change the recall rule: still capture every distinct role, project, certificate, and award.`;
 
 // ─── Rate-limit gate (same recipe as visual-defect-capture) ─────────────────
 async function checkAIRateLimit(
@@ -174,6 +183,10 @@ serve(async (req) => {
     const hive_id = String(body.hive_id || "").trim();
     const worker_name = body.worker_name ? String(body.worker_name).slice(0, 120) : null;
     void worker_name;
+    const auth_uid = body.auth_uid ? String(body.auth_uid).slice(0, 80) : null;
+    // "Promote, don't duplicate" toggle (off by default). When on, extract with
+    // single-placement so a promoted achievement is not also repeated as a bullet.
+    const sysPrompt = body.dedupe_promotions === true ? SYSTEM_PROMPT + PROMOTE_DEDUPE_RULE : SYSTEM_PROMPT;
 
     if (kind !== "image" && kind !== "text") return json({ error: "kind must be 'image' or 'text'" }, 400);
     if (!payload) return json({ error: "payload missing" }, 400);
@@ -183,12 +196,20 @@ serve(async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "",
     );
 
-    // Rate-limit gate FIRST (only when a hive is present; solo users are not
-    // gated here because ai_rate_limits is keyed by hive_id).
+    // Rate-limit gate FIRST. Hive users -> per-hive bucket. Solo users (no hive
+    // -- the Resume Builder's core phone-worker audience) -> per-identity bucket
+    // keyed by auth_uid, or by client IP for an anonymous caller on the public
+    // fn URL (verify_jwt=false). ai_rate_limits is hive_id-keyed and cannot gate
+    // solo users; checkSoloRateLimit (ai_user_rate_limits) closes that hole.
     let remaining = -1;
     if (hive_id) {
       const rl = await checkAIRateLimit(db, hive_id, RATE_LIMIT_PER_HOUR);
       if (!rl.allowed) return json({ error: "AI call limit reached for this hive. Try again in an hour." }, 429);
+      remaining = rl.remaining;
+    } else {
+      const clientIp = (req.headers.get("x-forwarded-for") || "").split(",")[0].trim();
+      const rl = await checkSoloRateLimit(db, soloRateLimitKey(auth_uid, clientIp));
+      if (!rl.allowed) return json({ error: "AI call limit reached. Please try again in an hour." }, 429);
       remaining = rl.remaining;
     }
 
@@ -199,14 +220,14 @@ serve(async (req) => {
       raw = await callAIMultimodal(
         "Extract the resume information from this image into the JSON schema.",
         payload,
-        { systemPrompt: SYSTEM_PROMPT, temperature: 0.1, maxTokens: MAX_TOKENS_OUT, jsonMode: true },
+        { systemPrompt: sysPrompt, temperature: 0.1, maxTokens: MAX_TOKENS_OUT, jsonMode: true },
       );
     } else {
       const text = payload.slice(0, MAX_TEXT_CHARS);
       // Pin synthesis_long_output: a long resume needs a high-capacity reasoning
       // model (Scout-17B @ 30K TPM, then 70B), never the 8B slot-extraction
       // default - extraction here is recall + classification + light synthesis.
-      raw = await callAI(text, { systemPrompt: SYSTEM_PROMPT, temperature: 0.1, maxTokens: MAX_TOKENS_OUT, jsonMode: true, taskProfile: "synthesis_long_output" });
+      raw = await callAI(text, { systemPrompt: sysPrompt, temperature: 0.1, maxTokens: MAX_TOKENS_OUT, jsonMode: true, taskProfile: "synthesis_long_output" });
     }
 
     if (!raw || raw === "{}") {

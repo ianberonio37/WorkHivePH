@@ -1,9 +1,9 @@
 /**
  * resume-polish - AI wording help for the Resume / CV Builder (resume.html).
  *
- * Two truthful, opt-in modes. Both return SUGGESTIONS only; the client routes
- * every suggestion through the editable checklist so nothing is applied to the
- * worker's resume without an explicit tap (internal control).
+ * Three truthful, opt-in modes. All return SUGGESTIONS / FACTS only; the client
+ * routes every suggestion through the editable checklist (or a review panel) so
+ * nothing is applied to the worker's resume without an explicit tap (internal control).
  *
  *   mode "polish_bullets": rough maintenance notes -> professional resume
  *     bullet points (strong action verbs, concise), same count and order,
@@ -13,14 +13,20 @@
  *     description -> a tailored summary plus a few truthful emphasis bullets,
  *     using only skills the worker actually listed.
  *
+ *   mode "jd_keywords": a pasted job description -> the ranked list of concrete
+ *     keywords an ATS scans for. EXTRACTION ONLY (no scoring) - the client
+ *     computes the match score deterministically against the resume text, so the
+ *     model never invents a number (ai-engineer WAT rule).
+ *
  * Input:
- *   { mode, hive_id?, worker_name?,
+ *   { mode, hive_id?, worker_name?, auth_uid?,
  *     bullets?: string[], context?: string,                 // polish_bullets
- *     summary?: string, skills?: string[], jd?: string }    // tailor_to_jd
+ *     summary?: string, skills?: string[], jd?: string }    // tailor_to_jd / jd_keywords (jd)
  *
  * Output:
  *   polish_bullets -> { bullets: string[] }
  *   tailor_to_jd   -> { summary: string, highlights: string[] }
+ *   jd_keywords    -> { keywords: [{ term: string, importance: "high"|"medium" }] }
  *
  * Skills consulted:
  *   ai-engineer (callAI free-tier chain, jsonMode, synthesis task profile)
@@ -32,6 +38,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { callAI } from "../_shared/ai-chain.ts";
+import { checkSoloRateLimit, soloRateLimitKey } from "../_shared/rate-limit.ts";
 import { getCorsHeaders } from "../_shared/cors.ts";
 // Envelope adoption (helper imported for conformance; flat {error}/{bullets} JSON
 // shape retained to match the platform error-contract pattern, like visual-defect-capture).
@@ -79,6 +86,17 @@ Rules:
 3. Match the job's vocabulary only where the worker genuinely has that skill.
 4. No em dashes. Output ONLY the JSON object.`;
 
+const JD_KEYWORDS_SYSTEM = `You extract the concrete keywords an ATS and a recruiter scan for in a job description, so a maintenance worker can see which ones their resume is missing.
+Respond ONLY with JSON: { "keywords": [ { "term": "...", "importance": "high" } ] }.
+Rules:
+1. Extract ONLY terms that actually appear in, or are clearly required by, the job description. Do NOT invent requirements.
+2. Capture concrete, matchable items: hard skills, tools, equipment, systems (for example PLC, VFD, CMMS, SAP PM), techniques (preventive maintenance, predictive maintenance, root cause analysis, 5S, TPM), certifications and licenses (TESDA NC II, electrical permit), and specific named competencies.
+3. Do NOT extract generic filler (team player, hardworking, fast learner), company names, locations, salary, or boilerplate.
+4. Prefer the SHORT canonical form a resume would contain: "PLC" not "programmable logic controller experience"; "preventive maintenance" not "performs preventive maintenance tasks".
+5. importance is "high" for must-have, repeated, or titled requirements; "medium" for nice-to-have or mentioned once.
+6. Deduplicate. Return at most 25 keywords, most important first.
+7. No em dashes. Output ONLY the JSON object.`;
+
 function clampStr(v: unknown, cap = 300): string { return String(v ?? "").trim().slice(0, cap); }
 function clampStrArr(v: unknown, max: number, cap: number): string[] {
   if (!Array.isArray(v)) return [];
@@ -95,15 +113,24 @@ serve(async (req) => {
     const body = await req.json().catch(() => ({}));
     const mode = String(body.mode || "").trim();
     const hive_id = String(body.hive_id || "").trim();
+    const auth_uid = body.auth_uid ? String(body.auth_uid).slice(0, 80) : null;
 
-    // Rate-limit gate FIRST (hive-scoped; solo users skip, ai_rate_limits is hive-keyed).
+    // Rate-limit gate FIRST. Hive users -> per-hive bucket. Solo users (no hive
+    // -- the Resume Builder's core phone-worker audience) -> per-identity bucket
+    // keyed by auth_uid, or by client IP for an anonymous caller on the public
+    // fn URL (verify_jwt=false). ai_rate_limits is hive_id-keyed and cannot gate
+    // solo users; checkSoloRateLimit (ai_user_rate_limits) closes that hole.
+    const db = createClient(
+      Deno.env.get("SUPABASE_URL") || "",
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "",
+    );
     if (hive_id) {
-      const db = createClient(
-        Deno.env.get("SUPABASE_URL") || "",
-        Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "",
-      );
       const rl = await checkAIRateLimit(db, hive_id, RATE_LIMIT_PER_HOUR);
       if (!rl.allowed) return json({ error: "AI call limit reached for this hive. Try again in an hour." }, 429);
+    } else {
+      const clientIp = (req.headers.get("x-forwarded-for") || "").split(",")[0].trim();
+      const rl = await checkSoloRateLimit(db, soloRateLimitKey(auth_uid, clientIp));
+      if (!rl.allowed) return json({ error: "AI call limit reached. Please try again in an hour." }, 429);
     }
 
     let raw: string;
@@ -120,8 +147,16 @@ serve(async (req) => {
       const skills = clampStrArr(body.skills, 40, 100);
       const userMsg = JSON.stringify({ current_summary: summary, skills, job_description: jd });
       raw = await callAI(userMsg, { systemPrompt: TAILOR_SYSTEM, temperature: 0.3, maxTokens: MAX_TOKENS_OUT, jsonMode: true, taskProfile: "synthesis_long_output" });
+    } else if (mode === "jd_keywords") {
+      // Keyword-gap score: extract the JD's matchable keywords (the fuzzy part
+      // a model is good at). The SCORE itself is computed deterministically on
+      // the CLIENT against the resume text - never let the model compute the
+      // number (ai-engineer WAT rule: math is deterministic, prose/extraction is AI).
+      const jd = clampStr(body.jd, 4000);
+      if (!jd) return json({ error: "Paste the job description first." }, 400);
+      raw = await callAI(jd, { systemPrompt: JD_KEYWORDS_SYSTEM, temperature: 0.1, maxTokens: MAX_TOKENS_OUT, jsonMode: true, taskProfile: "synthesis_long_output" });
     } else {
-      return json({ error: "mode must be 'polish_bullets' or 'tailor_to_jd'" }, 400);
+      return json({ error: "mode must be 'polish_bullets', 'tailor_to_jd', or 'jd_keywords'" }, 400);
     }
 
     if (!raw || raw === "{}") return json({ error: "The AI helper is busy. Please try again in a moment.", ai_provider_unavailable: !raw }, 502);
@@ -132,6 +167,14 @@ serve(async (req) => {
 
     if (mode === "polish_bullets") {
       return json({ bullets: clampStrArr(parsed.bullets, 20, 280) });
+    }
+    if (mode === "jd_keywords") {
+      const rawKw = Array.isArray(parsed.keywords) ? parsed.keywords : [];
+      const keywords = rawKw.slice(0, 25).map((k) => {
+        const obj = (k && typeof k === "object") ? k as Record<string, unknown> : { term: k };
+        return { term: clampStr(obj.term, 60), importance: obj.importance === "high" ? "high" : "medium" };
+      }).filter((k) => k.term);
+      return json({ keywords });
     }
     return json({ summary: clampStr(parsed.summary, 900), highlights: clampStrArr(parsed.highlights, 6, 280) });
   } catch (err) {

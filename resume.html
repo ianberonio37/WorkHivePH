@@ -102,6 +102,31 @@
     .src-chip { font-size: 0.58rem; font-weight: 700; letter-spacing: 0.03em; padding: 0.12rem 0.45rem; border-radius: 999px;
       white-space: nowrap; border: 1px solid; }
 
+    /* ── Keyword-gap score (Tailor to JD) ── */
+    .jd-score-head { display: flex; align-items: baseline; gap: 0.5rem; margin-bottom: 0.5rem; }
+    .jd-score-pct { font-size: 1.6rem; font-weight: 800; line-height: 1; }
+    .jd-score-sub { font-size: 0.72rem; color: #9fb0c0; }
+    .jd-bar { height: 8px; border-radius: 999px; background: rgba(255,255,255,0.08); overflow: hidden; margin-bottom: 0.6rem; }
+    .jd-bar > span { display: block; height: 100%; border-radius: 999px; transition: width 0.4s ease; }
+    .kw-group-title { font-size: 0.66rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; margin: 0.7rem 0 0.4rem; }
+    .kw-wrap { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+    .kw-chip { font-size: 0.72rem; font-weight: 600; border-radius: 999px; border: 1px solid; white-space: nowrap; }
+    .kw-have { color: #7FE0A6; background: rgba(46,158,91,0.12); border-color: rgba(46,158,91,0.4);
+      display: inline-flex; align-items: center; min-height: 30px; padding: 0 0.6rem; }
+    .kw-miss { color: #FFD08A; background: rgba(217,138,41,0.10); border-color: rgba(217,138,41,0.4);
+      display: inline-flex; align-items: center; min-height: 44px; padding: 0 0.8rem; cursor: pointer; }
+    .kw-miss[aria-pressed="true"] { background: rgba(95,204,232,0.18); border-color: #5FCCE8; color: #cdeffa; }
+
+    /* ── Quantification coach (Experience) ── */
+    .quant-coach { font-size: 0.7rem; line-height: 1.4; border-radius: 0.5rem; padding: 0.5rem 0.7rem; margin-bottom: 0.7rem;
+      color: #FFD08A; background: rgba(217,138,41,0.10); border: 1px solid rgba(217,138,41,0.3); }
+    .quant-coach.ok { color: #7FE0A6; background: rgba(46,158,91,0.10); border-color: rgba(46,158,91,0.3); }
+
+    /* ── Extraction option toggle ── */
+    .opt-toggle { display: flex; align-items: center; gap: 0.5rem; margin-top: 0.6rem; min-height: 44px;
+      font-size: 0.72rem; color: #9fb0c0; cursor: pointer; }
+    .opt-toggle input { width: 18px; height: 18px; flex: 0 0 auto; accent-color: #29B6D9; }
+
     /* ── Empty / prompt ── */
     .empty-prompt { text-align: center; padding: 1.4rem 1rem; }
     .empty-prompt .big { font-size: 2rem; margin-bottom: 0.4rem; }
@@ -168,6 +193,10 @@
       <input type="file" id="file-any" aria-label="Choose a PDF, Word, Excel, or image file to import" accept="image/*,application/pdf,.pdf,.doc,.docx,.xls,.xlsx,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" multiple style="display:none;" />
       <p id="upload-status" style="font-size:0.72rem;color:#5FCCE8;margin-top:0.6rem;display:none;"></p>
       <p style="font-size:0.66rem;color:#7B8794;margin-top:0.4rem;">Your files are read just to fill in your resume, then discarded. Nothing is added until you tap to confirm. Keep adding more anytime — it builds on what you already have.</p>
+      <label class="opt-toggle" for="promote-dedupe">
+        <input type="checkbox" id="promote-dedupe" />
+        <span>Promote, don't duplicate: when an achievement becomes a Project or Award, don't also keep it as a duplicate bullet. <b>Off by default</b> — leave off to capture the most.</span>
+      </label>
     </div>
 
     <div class="card" id="ai-card">
@@ -177,6 +206,8 @@
         <textarea class="wh-input" id="jd-input" aria-label="Paste a job description to tailor your resume" rows="3" placeholder="Paste the job description here, then tap Tailor."></textarea>
       </div>
       <button class="btn btn-ghost" id="btn-tailor" type="button" style="width:100%;">🎯 Tailor my resume to this job</button>
+      <button class="btn btn-ghost" id="btn-jdscore" type="button" style="width:100%;margin-top:0.6rem;">📊 Check my match score for this job</button>
+      <div id="jd-score-panel" role="region" aria-label="Job match score" style="display:none;margin-top:0.9rem;"></div>
     </div>
 
     <div id="sections"></div>
@@ -233,6 +264,8 @@
     const HIVE_NAME = localStorage.getItem('wh_hive_name') || '';
     const HIVE_ROLE = localStorage.getItem('wh_hive_role') || 'worker';
     let _authUid = null;
+    // "Promote, don't duplicate" extraction toggle — off by default, persisted.
+    let _promoteDedupe = localStorage.getItem('wh_resume_promote_dedupe') === '1';
 
     // ── Model (JSON Resume schema, https://jsonresume.org/schema) ────────────
     let resume = emptyResume();
@@ -366,6 +399,31 @@
       root.innerHTML = html;
       const a2 = document.getElementById('btn-autofill-2');
       if (a2) a2.addEventListener('click', runAutofill);
+      updateQuantCoach();
+    }
+
+    // Quantification coach: deterministic count of experience bullets that include
+    // a number. Coaches toward quantified bullets (the #1 lever vs other applicants)
+    // WITHOUT ever inventing a figure — the worker supplies the real one.
+    function updateQuantCoach() {
+      const el = document.getElementById('quant-coach');
+      if (!el) return;
+      let total = 0, q = 0;
+      (resume.work || []).forEach(w => (w.highlights || []).forEach(h => {
+        const t = String(h || '').trim();
+        if (!t) return;
+        total++;
+        if (/\d/.test(t)) q++;
+      }));
+      if (!total) { el.style.display = 'none'; return; }
+      el.style.display = 'block';
+      if (q === total) {
+        el.className = 'quant-coach ok';
+        el.textContent = `✅ All ${total} experience bullet${total === 1 ? '' : 's'} include a number — strong.`;
+      } else {
+        el.className = 'quant-coach';
+        el.textContent = `💪 ${q} of ${total} experience bullets include a number. Numbers win — add real figures (downtime saved, equipment count, team size, cost). Never invent one.`;
+      }
     }
 
     function basicsField(f, label, val, ph, type) {
@@ -431,6 +489,7 @@
       });
       return `<div class="card">
         <div class="sec-head"><div><div class="sec-title" role="heading" aria-level="2">${escHtml(sec.title)}</div>${sec.sub ? `<div class="sec-sub">${escHtml(sec.sub)}</div>` : ''}</div></div>
+        ${sec.key === 'work' ? '<div id="quant-coach" class="quant-coach" role="status" aria-live="polite" style="display:none;"></div>' : ''}
         ${body || `<p style="font-size:0.76rem;color:#7B8794;">Nothing here yet.</p>`}
         <button class="btn btn-add" data-action="add" data-sec="${sec.key}" type="button">+ Add ${escHtml(sec.title.replace(/s$/, '').toLowerCase())}</button>
       </div>`;
@@ -453,6 +512,7 @@
         if (type === 'lines') item[f] = el.value.split('\n').map(s => s.trim()).filter(Boolean);
         else if (type === 'csv') item[f] = el.value.split(',').map(s => s.trim()).filter(Boolean);
         else item[f] = el.value;
+        if (el.dataset.sec === 'work') updateQuantCoach();
         scheduleLocalSave();
       }
     }
@@ -760,7 +820,7 @@
     async function callResumeExtract(kind, payload, source) {
       const res = await fetchWithTimeout(`${SUPABASE_URL}/functions/v1/resume-extract`, {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ kind, payload, source, hive_id: HIVE_ID || null, worker_name: WORKER_NAME }),
+        body: JSON.stringify({ kind, payload, source, hive_id: HIVE_ID || null, worker_name: WORKER_NAME, auth_uid: _authUid, dedupe_promotions: _promoteDedupe }),
       }, 60000);
       if (res === null) { toast('That took too long. Try a smaller or clearer file.'); return null; }
       let raw; try { raw = await res.json(); } catch (_) { toast('Reader error. Please try again.'); return null; }
@@ -909,7 +969,7 @@
     async function callResumePolish(payload) {
       const res = await fetchWithTimeout(`${SUPABASE_URL}/functions/v1/resume-polish`, {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(Object.assign({ hive_id: HIVE_ID || null, worker_name: WORKER_NAME }, payload)),
+        body: JSON.stringify(Object.assign({ hive_id: HIVE_ID || null, worker_name: WORKER_NAME, auth_uid: _authUid }, payload)),
       }, 45000);
       if (res === null) { toast('That took too long. Please try again.'); return null; }
       let raw; try { raw = await res.json(); } catch (_) { toast('AI helper error. Please try again.'); return null; }
@@ -965,6 +1025,127 @@
         toast('✓ Applied ' + selected.length + ' suggestions.');
         if (typeof logEvent === 'function') logEvent(db, 'resume_tailor', { page: 'resume', count: selected.length });
       });
+    }
+
+    // ── Tailor-to-JD keyword-gap score (Phase 1) ─────────────────────────────
+    // WAT split: the model EXTRACTS the JD's keywords (the fuzzy part); the match
+    // SCORE is computed HERE deterministically against the resume text - never
+    // trust an LLM to compute the number (ai-engineer rule). Degrades to a local
+    // extractor when the free-tier chain is busy so a phone worker still gets a score.
+    let _jdKeywords = [];           // [{ term, importance, have }]
+    const _jdSelected = new Set();  // terms picked from the Missing list
+
+    function _normKw(s) { return String(s || '').toLowerCase().replace(/[^a-z0-9+#.\s/-]/g, ' ').replace(/\s+/g, ' ').trim(); }
+
+    function buildResumeCorpus() {
+      const p = [];
+      const b = resume.basics || {};
+      p.push(b.label, b.summary);
+      (resume.work || []).forEach(w => { p.push(w.position, w.name); (w.highlights || []).forEach(h => p.push(h)); });
+      (resume.education || []).forEach(e => p.push(e.studyType, e.area, e.institution));
+      (resume.skills || []).forEach(s => { p.push(s.name); (s.keywords || []).forEach(k => p.push(k)); });
+      (resume.certificates || []).forEach(c => p.push(c.name, c.issuer));
+      (resume.projects || []).forEach(pr => p.push(pr.name, pr.description));
+      (resume.awards || []).forEach(a => p.push(a.title));
+      return _normKw(p.filter(Boolean).join(' '));
+    }
+
+    // Single-token -> substring match; multi-word -> all significant tokens present.
+    // Leans toward "have" so we never tell a worker they lack a term their resume shows.
+    function keywordPresent(term, corpus) {
+      const t = _normKw(term);
+      if (!t) return false;
+      if (corpus.includes(t)) return true;
+      const toks = t.split(' ').filter(w => w.length > 2);
+      return toks.length > 1 && toks.every(w => corpus.includes(w));
+    }
+
+    // Local fallback extractor: maintenance-domain dictionary + acronym capture.
+    const _JD_DICT = ['preventive maintenance', 'predictive maintenance', 'corrective maintenance', 'condition monitoring',
+      'root cause analysis', 'vibration analysis', 'troubleshooting', 'calibration', 'alignment', 'lubrication',
+      'hydraulics', 'pneumatics', 'welding', 'machining', 'electrical', 'mechanical', 'instrumentation', 'automation',
+      'plc', 'vfd', 'hmi', 'scada', 'cmms', 'sap', 'maximo', 'oee', 'mtbf', 'mttr', 'fmea', 'rcm', 'tpm', '5s', 'kaizen',
+      'lockout tagout', 'loto', 'permit to work', 'bearings', 'gearbox', 'conveyor', 'compressor', 'boiler', 'pump',
+      'motor', 'hvac', 'refrigeration', 'autocad', 'tesda', 'safety', 'iso'];
+    const _KW_ACR = new Set(['plc', 'vfd', 'hmi', 'scada', 'cmms', 'sap', 'oee', 'mtbf', 'mttr', 'fmea', 'rcm', 'tpm', 'loto', 'hvac', 'iso', '5s']);
+    function _prettyKw(t) { const n = _normKw(t); if (_KW_ACR.has(n) || (!n.includes(' ') && n.length <= 4)) return n.toUpperCase(); return n.replace(/\b\w/g, c => c.toUpperCase()); }
+    function extractJdKeywordsLocal(jd) {
+      const norm = _normKw(jd), found = new Map();
+      _JD_DICT.forEach(term => { if (keywordPresent(term, norm)) found.set(term, 'medium'); });
+      const STOP = new Set(['THE', 'AND', 'FOR', 'YOU', 'ARE', 'WITH', 'WILL', 'OUR', 'ALL', 'ANY', 'NEW', 'JOB', 'CAN', 'HAS', 'PER', 'NOT']);
+      (jd.match(/\b[A-Z][A-Z0-9]{1,5}\b/g) || []).forEach(a => { if (!STOP.has(a)) found.set(a.toLowerCase(), 'medium'); });
+      return Array.from(found.keys()).slice(0, 25).map(k => ({ term: _prettyKw(k), importance: found.get(k) }));
+    }
+
+    async function runJdScore() {
+      const jd = (document.getElementById('jd-input').value || '').trim();
+      if (!jd) { toast('Paste the job ad first.'); return; }
+      const corpus = buildResumeCorpus();
+      if (!corpus) { toast('Add some experience or skills first, then check your match.'); return; }
+      toast('Scoring your resume against the job…');
+      const data = await callResumePolish({ mode: 'jd_keywords', jd });
+      let keywords = (data && Array.isArray(data.keywords) && data.keywords.length) ? data.keywords : null;
+      if (!keywords) keywords = extractJdKeywordsLocal(jd);  // free-tier busy -> deterministic fallback
+      if (!keywords.length) { toast('Could not find clear keywords in that job ad.'); return; }
+      _jdKeywords = keywords.map(k => ({ term: k.term, importance: k.importance === 'high' ? 'high' : 'medium', have: keywordPresent(k.term, corpus) }));
+      _jdSelected.clear();
+      renderJdScore();
+      if (typeof logEvent === 'function') logEvent(db, 'resume_jd_score', { page: 'resume', terms: _jdKeywords.length, matched: _jdKeywords.filter(k => k.have).length });
+    }
+
+    function renderJdScore() {
+      const panel = document.getElementById('jd-score-panel');
+      if (!panel) return;
+      const e = escHtml;
+      const total = _jdKeywords.length, have = _jdKeywords.filter(k => k.have).length;
+      const pct = total ? Math.round(have / total * 100) : 0;
+      const color = pct >= 70 ? '#7FE0A6' : pct >= 40 ? '#FFD08A' : '#FF8A8A';
+      const miss = _jdKeywords.filter(k => !k.have), hit = _jdKeywords.filter(k => k.have);
+      let html = `<div class="jd-score-head"><span class="jd-score-pct" style="color:${color}">${pct}%</span>`
+        + `<span class="jd-score-sub">${have} of ${total} key terms in your resume</span></div>`;
+      html += `<div class="jd-bar"><span style="width:${pct}%;background:${color}"></span></div>`;
+      if (miss.length) {
+        html += `<div class="kw-group-title" style="color:#FFD08A">Missing from your resume (${miss.length})</div>`;
+        html += `<div class="kw-wrap" id="jd-miss-wrap">${miss.map(k =>
+          `<button type="button" class="kw-chip kw-miss" data-term="${e(k.term)}" aria-pressed="${_jdSelected.has(k.term)}">${k.importance === 'high' ? '★ ' : ''}${e(k.term)}</button>`).join('')}</div>`;
+        html += `<p style="font-size:0.68rem;color:#7B8794;margin:0.5rem 0 0;">Tap the ones you genuinely have, then add them to Skills. ★ = the job stresses it. Never add a skill you cannot back up.</p>`;
+        html += `<button type="button" id="btn-jd-add" class="btn btn-primary" style="width:100%;margin-top:0.6rem;display:none;">+ Add selected to Skills</button>`;
+      }
+      if (hit.length) {
+        html += `<div class="kw-group-title" style="color:#7FE0A6">Already covered (${hit.length})</div>`;
+        html += `<div class="kw-wrap">${hit.map(k => `<span class="kw-chip kw-have">✓ ${e(k.term)}</span>`).join('')}</div>`;
+      }
+      panel.innerHTML = html;
+      panel.style.display = 'block';
+      _syncJdAddBtn();
+    }
+
+    function _syncJdAddBtn() { const b = document.getElementById('btn-jd-add'); if (b) b.style.display = _jdSelected.size ? 'block' : 'none'; }
+
+    function onJdPanelClick(ev) {
+      const chip = ev.target.closest('.kw-miss');
+      if (chip) {
+        const term = chip.getAttribute('data-term');
+        if (_jdSelected.has(term)) _jdSelected.delete(term); else _jdSelected.add(term);
+        chip.setAttribute('aria-pressed', _jdSelected.has(term));
+        _syncJdAddBtn();
+        return;
+      }
+      if (ev.target.closest('#btn-jd-add')) addSelectedJdSkills();
+    }
+
+    function addSelectedJdSkills() {
+      const terms = Array.from(_jdSelected).filter(t => !entryExists('skills', { name: t }));
+      if (!terms.length) { toast('Those skills are already in your resume.'); _jdSelected.clear(); renderJdScore(); return; }
+      pushUndo(); snapshotVersion('before adding job-match skills');
+      terms.forEach(t => resume.skills.push({ name: t, level: '', keywords: [], _source: 'Job match' }));
+      render(); scheduleLocalSave();
+      toast('Added ' + terms.length + ' skill' + (terms.length === 1 ? '' : 's') + '. Re-checking your match…');
+      _jdSelected.clear();
+      const corpus = buildResumeCorpus();
+      _jdKeywords = _jdKeywords.map(k => ({ ...k, have: keywordPresent(k.term, corpus) }));
+      renderJdScore();
+      if (typeof logEvent === 'function') logEvent(db, 'resume_jd_add_skills', { page: 'resume', count: terms.length });
     }
 
     // ── Export: templates + PDF + Print + JSON Resume (P2) ───────────────────
@@ -1167,6 +1348,17 @@
       }));
       document.getElementById('btn-polish').addEventListener('click', () => { runPolish(); });
       document.getElementById('btn-tailor').addEventListener('click', () => { runTailor(); });
+      document.getElementById('btn-jdscore').addEventListener('click', () => { runJdScore(); });
+      document.getElementById('jd-score-panel').addEventListener('click', onJdPanelClick);
+      const pdEl = document.getElementById('promote-dedupe');
+      if (pdEl) {
+        pdEl.checked = _promoteDedupe;
+        pdEl.addEventListener('change', () => {
+          _promoteDedupe = pdEl.checked;
+          try { localStorage.setItem('wh_resume_promote_dedupe', _promoteDedupe ? '1' : '0'); }
+          catch (_) { /* empty-catch-allow: preference persistence is best-effort */ }
+        });
+      }
       document.getElementById('btn-undo').addEventListener('click', undo);
       document.getElementById('review-body').addEventListener('input', onReviewInput);
       document.getElementById('review-body').addEventListener('change', onReviewInput);

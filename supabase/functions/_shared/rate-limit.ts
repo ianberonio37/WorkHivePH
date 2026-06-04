@@ -295,6 +295,95 @@ export function userRateLimitedResponse(
 }
 
 
+// ── Solo / Personal-Feature Rate Limiting (Resume Builder, 2026-06-05) ──────
+//
+// `checkAIRateLimit` keys on hive_id, so it does NOTHING for a solo phone
+// worker with no hive — the Resume Builder's core audience. `ai_rate_limits`
+// keys on hive_id (uuid); passing a synthetic key type-errors. This gate closes
+// that hole: it caps a SINGLE identity (a signed-in worker by auth_uid, or — for
+// an anonymous caller hitting the public fn URL since verify_jwt=false — by
+// client IP) so neither an honest retry loop nor a bot can drain the free-tier
+// LLM budget.
+//
+// Counter table: reuses ai_user_rate_limits (user_id TEXT PK) — no migration.
+// Solo keys never corrupt in-hive per-user keys: a signed-in person shares ONE
+// bucket across solo + hive contexts (same human — correct), and IP keys are
+// namespaced `ip:` so they cannot collide with a uuid.
+//
+// Why auth_uid FIRST, IP only as fallback: Philippine mobile traffic is heavily
+// CGNAT'd, so many distinct phone workers share one carrier IP. An IP-primary
+// key would make them starve each other. auth_uid is per-person and
+// collision-free; IP is the floor only for callers with no session.
+//
+// Residual risk (documented, acceptable pre-prod): a caller could rotate a
+// spoofed auth_uid in the body to mint fresh buckets; the IP floor only engages
+// when auth_uid is absent. The realistic abuse vector — an anonymous script on
+// the public URL — IS floored by IP. A future hardening could layer an
+// always-on IP ceiling (CGNAT-aware, higher cap) on top of the per-identity cap.
+
+export const DEFAULT_SOLO_RATE_LIMIT_PER_HOUR =
+  Number(Deno.env.get("WH_SOLO_RATE_LIMIT_OVERRIDE") || 30);
+
+/** Build the namespaced solo rate-limit key from the best available identity.
+ *  Prefers auth_uid (per-person); falls back to a namespaced client IP. Returns
+ *  "" when neither is available (degenerate — caller should fail open, there is
+ *  nothing to bucket on). */
+export function soloRateLimitKey(authUid?: string | null, clientIp?: string | null): string {
+  const uid = String(authUid ?? "").trim();
+  if (uid) return uid;                       // per-person bucket (shared with hive ctx — same human)
+  const ip = String(clientIp ?? "").trim();
+  if (ip) return `ip:${ip}`;                 // namespaced so it can never collide with a uuid
+  return "";
+}
+
+/** Per-identity rate-limit gate for solo / personal features with NO hive
+ *  context. Keyed by `soloRateLimitKey(auth_uid, ip)`. Mirrors checkAIRateLimit
+ *  but on ai_user_rate_limits (user_id TEXT PK), so no hive_id uuid is needed. */
+export async function checkSoloRateLimit(
+  db:           SupabaseClient,
+  identityKey:  string,
+  limitPerHour: number = DEFAULT_SOLO_RATE_LIMIT_PER_HOUR,
+): Promise<RateLimitResult> {
+  if (!identityKey) {
+    // No identity AND no IP header — nothing to bucket on. Fail open; rare
+    // degenerate case (no session + no x-forwarded-for).
+    return { allowed: true, remaining: limitPerHour };
+  }
+  const windowStart = new Date(Date.now() - 60 * 60 * 1000);
+  // canonical-allow: ai_user_rate_limits is an infrastructure counter table (rate_limit_infra), not a KPI source.
+  const { data } = await db.from("ai_user_rate_limits")
+    .select("call_count, window_start")
+    .eq("user_id", identityKey)
+    .maybeSingle();
+  if (!data || new Date(data.window_start) < windowStart) {
+    // canonical-allow: ai_user_rate_limits infrastructure counter (see lookup site).
+    await db.from("ai_user_rate_limits").upsert({
+      user_id:      identityKey,
+      hive_id:      null,
+      call_count:   1,
+      window_start: new Date().toISOString(),
+    });
+    return { allowed: true, remaining: limitPerHour - 1 };
+  }
+  if (data.call_count >= limitPerHour) return { allowed: false, remaining: 0 };
+  // canonical-allow: ai_user_rate_limits infrastructure counter (see lookup site).
+  await db.from("ai_user_rate_limits")
+    .update({ call_count: data.call_count + 1 })
+    .eq("user_id", identityKey);
+  return { allowed: true, remaining: limitPerHour - data.call_count - 1 };
+}
+
+export function soloRateLimitedResponse(corsHeaders: Record<string, string>): Response {
+  return new Response(
+    JSON.stringify({
+      error: "AI call limit reached. Please try again in an hour.",
+      scope: "solo",
+    }),
+    { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+  );
+}
+
+
 // ── Voice vs Background Quota Split (P1 roadmap 2026-05-27 turn 7) ────────
 //
 // Voice (interactive, latency-sensitive) and background (RAG flywheel,

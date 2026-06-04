@@ -8,6 +8,7 @@ must also call ONE of:
   - checkAIRateLimit()        (per-hive bucket, existing helper)
   - checkUserRateLimit()      (per-hive + per-user, P1 helper)
   - checkRouteRateLimit()     (per-(hive, route))
+  - checkSoloRateLimit()      (per-identity, no-hive solo/personal features)
 
 Without one of these, a single noisy hive or worker can drain the entire
 free-tier quota in seconds. Adoption is what makes the helper real;
@@ -32,7 +33,7 @@ BASELINE = ROOT / "rate_limit_adoption_baseline.json"
 CHECK_NAMES = ["rate_limit_adoption"]
 
 CALLAI_RE = re.compile(r"\bcallAI\s*\(")
-GATE_RE   = re.compile(r"\bcheck(AIRateLimit|UserRateLimit|RouteRateLimit)\s*\(")
+GATE_RE   = re.compile(r"\bcheck(AIRateLimit|UserRateLimit|RouteRateLimit|SoloRateLimit)\s*\(")
 
 # Exempt: fns that ARE the rate-limit helper itself, or that don't actually
 # burn LLM tokens despite importing the chain (e.g. utilities).

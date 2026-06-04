@@ -270,4 +270,73 @@ test.describe('resume.html — Resume / CV Builder journey', () => {
     await expect(whPage.locator(sel).nth(a)).toHaveValue('AAA Newer Role');
     await expect(whPage.locator(sel).nth(b)).toHaveValue('ZZZ Older Role');
   });
+
+  test('JD keyword-gap score: shows match %, lists missing terms, and "add to skills" closes the gap (Phase 1)', async ({ whPage }) => {
+    await gotoResume(whPage);
+    // Seed one matchable skill so the score is deterministic and non-trivial.
+    await whPage.click('[data-action="add"][data-sec="skills"]');
+    await whPage.locator('[data-sec="skills"][data-field="name"]').last().fill('Preventive Maintenance');
+
+    // Stub the JD keyword EXTRACTION (the model's job). The SCORE is computed on
+    // the client, so this proves the deterministic match + render + add path -
+    // never the model computing the number.
+    await whPage.route('**/functions/v1/resume-polish', (route) => route.fulfill({
+      status: 200, contentType: 'application/json',
+      body: JSON.stringify({ keywords: [
+        { term: 'Preventive Maintenance', importance: 'high' },
+        { term: 'PLC', importance: 'high' },
+        { term: 'SAP PM', importance: 'medium' },
+      ] }),
+    }));
+
+    await whPage.fill('#jd-input', 'Technician needed with Preventive Maintenance, PLC, and SAP PM experience.');
+    await whPage.click('#btn-jdscore');
+
+    // Panel renders: 1 of 3 matched = 33%.
+    await expect(whPage.locator('#jd-score-panel')).toBeVisible({ timeout: 15000 });
+    await expect(whPage.locator('#jd-score-panel .jd-score-pct')).toHaveText('33%');
+    await expect(whPage.locator('#jd-score-panel .jd-score-sub')).toContainText('1 of 3');
+    // Matched term sits under "Already covered"; PLC + SAP PM are tappable Missing chips.
+    await expect(whPage.locator('.kw-have', { hasText: 'Preventive Maintenance' })).toHaveCount(1);
+    await expect(whPage.locator('.kw-miss[data-term="PLC"]')).toHaveCount(1);
+
+    // Tap PLC -> it selects -> the add button appears -> add it to Skills.
+    await whPage.click('.kw-miss[data-term="PLC"]');
+    await expect(whPage.locator('.kw-miss[data-term="PLC"]')).toHaveAttribute('aria-pressed', 'true');
+    await whPage.click('#btn-jd-add');
+
+    // PLC is now a real skill row AND the score recomputed upward (2 of 3 = 67%).
+    await expect(whPage.locator('#sections input[value="PLC"]')).toHaveCount(1);
+    await expect(whPage.locator('#jd-score-panel .jd-score-pct')).toHaveText('67%');
+  });
+
+  test('quantification coach counts experience bullets with a number and updates live (Phase 1)', async ({ whPage }) => {
+    await gotoResume(whPage);
+    await whPage.click('[data-action="add"][data-sec="work"]');
+    const hl = whPage.locator('[data-sec="work"][data-field="highlights"]').last();
+    await hl.fill('Maintained pumps and motors');                 // one bullet, no number
+    await expect(whPage.locator('#quant-coach')).toBeVisible();
+    await expect(whPage.locator('#quant-coach')).toContainText('0 of 1');
+    await hl.fill('Reduced downtime by 20% across 12 conveyors');  // now carries numbers
+    await expect(whPage.locator('#quant-coach')).toContainText('All 1');
+    await expect(whPage.locator('#quant-coach')).toHaveClass(/ok/);
+  });
+
+  test('"promote, dont duplicate" toggle is off by default, reaches the extractor, and persists (Phase 1)', async ({ whPage }) => {
+    await gotoResume(whPage);
+    const toggle = whPage.locator('#promote-dedupe');
+    await expect(toggle, 'safe default is OFF (capture the most)').not.toBeChecked();
+    let sentFlag: unknown;
+    await whPage.route('**/functions/v1/resume-extract', (route) => {
+      try { sentFlag = (route.request().postDataJSON() || {}).dedupe_promotions; } catch (_) { sentFlag = 'parse-error'; }
+      return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(EXTRACT_FIXTURE) });
+    });
+    await toggle.check();
+    await whPage.setInputFiles('#file-any', { name: 'cv.png', mimeType: 'image/png', buffer: PNG_1x1 });
+    await expect(whPage.locator('#review-sheet')).toHaveClass(/open/, { timeout: 15000 });
+    expect(sentFlag, 'toggle ON -> dedupe_promotions:true in the extract request').toBe(true);
+    // Preference persists across a reload.
+    await whPage.reload({ waitUntil: 'domcontentloaded' });
+    await expect(whPage.locator('#promote-dedupe')).toBeChecked();
+  });
 });
