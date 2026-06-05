@@ -147,6 +147,14 @@
     .check-row { display: flex; align-items: flex-start; gap: 0.6rem; padding: 0.5rem 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
     .check-row input[type="checkbox"] { width: 22px; height: 22px; min-width: 22px; margin-top: 0.55rem; accent-color: #29B6D9; }
     .check-row .cr-body { flex: 1; }
+    /* ── My Resumes manager ── */
+    .rm-row { display: flex; align-items: center; gap: 0.6rem; padding: 0.55rem 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+    .rm-row-main { flex: 1; min-width: 0; }
+    .rm-row-title { font-size: 0.86rem; font-weight: 600; color: #fff; overflow-wrap: break-word; }
+    .rm-row-sub { font-size: 0.66rem; color: #7B8794; margin-top: 0.1rem; }
+    .rm-badge { font-size: 0.58rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;
+      color: #0B1220; background: #5FCCE8; border-radius: 999px; padding: 0.05rem 0.4rem; margin-left: 0.35rem; vertical-align: middle; }
+    .rm-row-actions { display: flex; align-items: center; gap: 0.4rem; flex: 0 0 auto; }
     .sheet-foot { position: sticky; bottom: 0; background: #162032; padding-top: 0.75rem; margin-top: 0.5rem; }
 
     /* ── Export preview overlay (P2) ── */
@@ -180,6 +188,7 @@
     <div class="action-bar">
       <button class="btn btn-primary" id="btn-autofill" type="button">✨ Auto-fill from my WorkHive data</button>
       <button class="btn btn-ghost" id="btn-save" type="button">💾 Save</button>
+      <button class="btn btn-ghost" id="btn-resumes" type="button">📂 My Resumes</button>
       <button class="btn btn-ghost" id="btn-export" type="button">👁 Preview &amp; Export</button>
       <button class="btn btn-ghost" id="btn-undo" type="button">↩ Undo</button>
     </div>
@@ -227,6 +236,26 @@
         <div style="display:flex;gap:0.6rem;">
           <button class="btn btn-ghost" id="review-cancel" type="button" style="flex:0 0 auto;">Cancel</button>
           <button class="btn btn-primary" id="review-confirm" type="button" style="flex:1;">Add selected</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- My Resumes manager (named multiple resumes) -->
+  <div class="sheet-overlay" id="resume-manager">
+    <div class="sheet-panel" role="dialog" aria-modal="true" aria-labelledby="rm-title">
+      <div class="sheet-handle"></div>
+      <h2 id="rm-title" style="font-size:1rem;font-weight:700;color:#fff;margin-bottom:0.2rem;">📂 My Resumes</h2>
+      <p style="font-size:0.74rem;color:#9fb0c0;margin-bottom:0.6rem;">Keep separate resumes for different jobs — e.g. a maintenance CV and an OFW application. Each saves on its own.</p>
+      <label style="display:block;font-size:0.7rem;color:#9fb0c0;margin-bottom:0.8rem;">This resume’s name
+        <input class="wh-input" id="rm-current-title" aria-label="Name of the resume you are editing" placeholder="e.g. Maintenance Technician CV" style="margin-top:0.25rem;" />
+      </label>
+      <div class="sheet-group-title">Your saved resumes</div>
+      <div id="rm-list"></div>
+      <div class="sheet-foot">
+        <div style="display:flex;gap:0.6rem;">
+          <button class="btn btn-ghost" id="rm-close" type="button" style="flex:0 0 auto;">Close</button>
+          <button class="btn btn-primary" id="rm-new" type="button" style="flex:1;">＋ New blank resume</button>
         </div>
       </div>
     </div>
@@ -578,11 +607,12 @@
       } catch (_) { /* empty-catch-allow: versioning is best-effort, never blocks save */ }
     }
 
-    async function saveCloud() {
-      if (!_authUid) { toast('Saved on this device. Sign in to back up to the cloud.'); await saveLocal(); return; }
-      if (!navigator.onLine) { toast('Offline — saved on this device, will sync later.'); await saveLocal(); return; }
+    async function saveCloud(silent) {
+      if (!_authUid) { if (!silent) toast('Saved on this device. Sign in to back up to the cloud.'); await saveLocal(); return; }
+      if (!navigator.onLine) { if (!silent) toast('Offline — saved on this device, will sync later.'); await saveLocal(); return; }
       const btn = document.getElementById('btn-save');
-      btn.disabled = true; const lbl = btn.textContent; btn.textContent = 'Saving…';
+      const lbl = btn.textContent;
+      if (!silent) { btn.disabled = true; btn.textContent = 'Saving…'; }
       const payload = { auth_uid: _authUid, worker_name: WORKER_NAME, hive_id: HIVE_ID || null,
         title: resume.meta.title || 'My Resume', doc: resume, template: resume.meta.template || 'ats-plain' };
       try {
@@ -596,13 +626,13 @@
           _resumeId = data.id;
         }
         await saveLocal();
-        toast('✓ Resume saved.');
+        if (!silent) toast('✓ Resume saved.');
         if (typeof logEvent === 'function') logEvent(db, 'resume_saved', { page: 'resume' });
       } catch (err) {
         toast('Could not save to cloud: ' + (err.message || 'error') + ' — saved on device.');
         await saveLocal();
       } finally {
-        btn.disabled = false; btn.textContent = lbl;
+        if (!silent) { btn.disabled = false; btn.textContent = lbl; }
       }
     }
 
@@ -629,6 +659,122 @@
       for (const k of ['work', 'education', 'skills', 'certificates', 'projects', 'awards', 'references']) out[k] = Array.isArray(doc[k]) ? doc[k] : [];
       out.meta = Object.assign(base.meta, doc.meta || {});
       return out;
+    }
+
+    // ── Named multiple resumes (owner-scoped resume_documents; no migration) ──
+    // A worker keeps separate resumes for different jobs (maintenance CV, OFW
+    // application, welder resume). resume_documents already allows many rows per
+    // auth_uid via `title`; this is the picker/switch/rename/delete on top of it.
+    async function listResumes() {
+      if (!_authUid) return [];
+      try {
+        const { data, error } = await db.from('resume_documents')
+          .select('id, title, updated_at').eq('auth_uid', _authUid)
+          .order('updated_at', { ascending: false }).limit(50);
+        return (!error && Array.isArray(data)) ? data : [];
+      } catch (_) { return []; }
+    }
+    async function loadCloudById(id) {
+      try {
+        const { data, error } = await db.from('resume_documents')
+          .select('id, doc, template, title').eq('auth_uid', _authUid).eq('id', id).maybeSingle();
+        if (error || !data || !data.doc || !data.doc.basics) return false;
+        resume = mergeDefaults(data.doc); _resumeId = data.id;
+        return true;
+      } catch (_) { return false; }
+    }
+    // Only persist-before-switch if there is real content worth a row (a brand-new
+    // blank carrying just the worker's name should NOT spawn an "Untitled" doc).
+    function resumeWorthSaving() {
+      return !!(_resumeId || resume.work.length || resume.skills.length || resume.education.length ||
+        resume.certificates.length || resume.projects.length || resume.awards.length ||
+        (resume.references && resume.references.length) || (resume.basics.summary || '').trim());
+    }
+    function relTime(ts) {
+      if (!ts) return 'recently';
+      const s = (Date.now() - new Date(ts).getTime()) / 1000;
+      if (s < 60) return 'just now';
+      if (s < 3600) return Math.floor(s / 60) + ' min ago';
+      if (s < 86400) return Math.floor(s / 3600) + ' hr ago';
+      const d = Math.floor(s / 86400); return d + ' day' + (d > 1 ? 's' : '') + ' ago';
+    }
+    async function openResumeManager() {
+      document.getElementById('rm-current-title').value = resume.meta.title || 'My Resume';
+      await renderResumeList();
+      document.getElementById('resume-manager').classList.add('open');
+      trapFocus(document.querySelector('#resume-manager .sheet-panel'));
+    }
+    function closeResumeManager() {
+      document.getElementById('resume-manager').classList.remove('open');
+      releaseFocusTrap(true);
+    }
+    async function renderResumeList() {
+      const wrap = document.getElementById('rm-list');
+      const e = escHtml;
+      wrap.innerHTML = '<div style="font-size:0.74rem;color:#7B8794;padding:0.4rem 0;">Loading…</div>';
+      const docs = await listResumes();
+      if (!docs.length) {
+        wrap.innerHTML = '<p style="font-size:0.74rem;color:#7B8794;padding:0.4rem 0;">No saved resumes yet. Edit this one and tap 💾 Save, or start a new blank.</p>';
+        return;
+      }
+      wrap.innerHTML = docs.map((d) => {
+        const isCur = d.id === _resumeId;
+        const title = d.title || 'Untitled resume';
+        return `<div class="rm-row" data-id="${e(d.id)}">
+          <div class="rm-row-main">
+            <div class="rm-row-title">${e(title)}${isCur ? ' <span class="rm-badge">open</span>' : ''}</div>
+            <div class="rm-row-sub">Updated ${e(relTime(d.updated_at))}</div>
+          </div>
+          <div class="rm-row-actions">
+            ${isCur ? '' : `<button class="btn btn-ghost btn-sm" data-rm-open="${e(d.id)}" type="button">Open</button>`}
+            <button class="icon-del" data-rm-del="${e(d.id)}" type="button" aria-label="Delete resume ${e(title)}">✕</button>
+          </div></div>`;
+      }).join('');
+    }
+    async function switchResume(id) {
+      if (id === _resumeId) { closeResumeManager(); return; }
+      if (resumeWorthSaving()) await saveCloud(true);  // never lose current work
+      const ok = await loadCloudById(id);
+      if (!ok) { toast('Could not open that resume.'); await renderResumeList(); return; }
+      render(); await saveLocal();
+      closeResumeManager();
+      toast('Opened “' + (resume.meta.title || 'resume') + '”.');
+    }
+    async function newResume() {
+      if (resumeWorthSaving()) await saveCloud(true);
+      resume = emptyResume(); resume.basics.name = WORKER_NAME; resume.meta.title = 'Untitled resume';
+      _resumeId = null;
+      render(); await saveLocal();
+      closeResumeManager();
+      toast('Started a new blank resume. Edit it, then tap 💾 Save.');
+    }
+    async function deleteResume(id) {
+      try {
+        await db.from('resume_versions').delete().eq('resume_id', id);  // best-effort (FK may already cascade)
+        const { error } = await db.from('resume_documents').delete().eq('id', id);
+        if (error) throw error;
+      } catch (err) { toast('Could not delete: ' + (err.message || 'error')); return; }
+      if (id === _resumeId) { resume = emptyResume(); resume.basics.name = WORKER_NAME; _resumeId = null; render(); await saveLocal(); }
+      toast('Resume deleted.');
+      await renderResumeList();
+    }
+    // List-row clicks: Open / Delete (two-tap inline confirm, no native confirm()).
+    function onResumeManagerClick(ev) {
+      const openId = ev.target.closest('[data-rm-open]');
+      const delBtn = ev.target.closest('[data-rm-del]');
+      const yes = ev.target.closest('[data-rm-del-yes]');
+      const no = ev.target.closest('[data-rm-del-no]');
+      if (openId) { switchResume(openId.getAttribute('data-rm-open')); return; }
+      if (yes) { deleteResume(yes.getAttribute('data-rm-del-yes')); return; }
+      if (no) { renderResumeList(); return; }
+      if (delBtn) {
+        const id = delBtn.getAttribute('data-rm-del');
+        const actions = delBtn.closest('.rm-row-actions');
+        if (actions) actions.innerHTML =
+          `<span style="font-size:0.68rem;color:#f87171;">Delete?</span>` +
+          `<button class="btn btn-ghost btn-sm" data-rm-del-yes="${escHtml(id)}" type="button">Yes</button>` +
+          `<button class="btn btn-ghost btn-sm" data-rm-del-no="1" type="button">No</button>`;
+      }
     }
 
     // ── Auto-fill from WorkHive (builds checklist items, reuses review sheet) ─
@@ -1521,10 +1667,15 @@
       // Context pill
       if (HIVE_NAME) { const p = document.getElementById('ctx-pill'); p.style.display = 'inline-flex'; p.textContent = '🏭 ' + HIVE_NAME + (HIVE_ROLE ? ' · ' + HIVE_ROLE : ''); }
 
-      // Load: cloud → device draft → empty
-      const fromCloud = await loadCloud();
-      if (!fromCloud) {
-        const draft = await idbGet('current');
+      // Load: the resume you LAST HAD OPEN (remembered id) → newest cloud doc →
+      // device draft → empty. With named multiple resumes, reopening the newest
+      // doc would silently switch you off the one you were editing - so prefer the
+      // last-open id and only fall back to "newest" when it is gone or you are new.
+      const draft = await idbGet('current');
+      let loaded = false;
+      if (draft && draft._resumeId) loaded = await loadCloudById(draft._resumeId);
+      if (!loaded) loaded = await loadCloud();
+      if (!loaded) {
         if (draft && draft.resume && draft.resume.basics) { resume = mergeDefaults(draft.resume); _resumeId = draft._resumeId || null; }
         else if (!resume.basics.name) resume.basics.name = WORKER_NAME;
       }
@@ -1537,6 +1688,14 @@
       sections.addEventListener('click', onClick);
       document.getElementById('btn-autofill').addEventListener('click', runAutofill);
       document.getElementById('btn-save').addEventListener('click', async () => { await saveCloud(); });
+      document.getElementById('btn-resumes').addEventListener('click', () => { openResumeManager(); });
+      document.getElementById('rm-close').addEventListener('click', closeResumeManager);
+      document.getElementById('rm-new').addEventListener('click', () => { newResume(); });
+      document.getElementById('rm-list').addEventListener('click', onResumeManagerClick);
+      document.getElementById('rm-current-title').addEventListener('input', (e) => {
+        resume.meta.title = e.target.value; scheduleLocalSave();
+      });
+      document.getElementById('resume-manager').addEventListener('click', (e) => { if (e.target.id === 'resume-manager') closeResumeManager(); });
       document.getElementById('btn-export').addEventListener('click', openPreview);
       document.getElementById('pv-close').addEventListener('click', closePreview);
       document.getElementById('pv-pdf').addEventListener('click', () => { downloadPDF(); });
@@ -1573,6 +1732,7 @@
         if (e.key !== 'Escape') return;
         if (document.getElementById('preview-overlay').classList.contains('open')) closePreview();
         else if (document.getElementById('review-sheet').classList.contains('open')) closeReview();
+        else if (document.getElementById('resume-manager').classList.contains('open')) closeResumeManager();
       });
       document.getElementById('btn-undo').addEventListener('click', undo);
       document.getElementById('review-body').addEventListener('input', onReviewInput);

@@ -432,4 +432,59 @@ test.describe('resume.html — Resume / CV Builder journey', () => {
       (el) => el.scrollWidth - el.clientWidth);
     expect(overflow, 'resume paper must not overflow horizontally on a long token').toBeLessThanOrEqual(2);
   });
+
+  test('named multiple resumes: create / list / switch, and reload reopens the LAST-OPEN one not the newest (multi-doc, MCP build 2026-06-05)', async ({ whPage }) => {
+    // Real cloud round-trips (resume_documents, owner-RLS). Start from a fresh blank
+    // so we never rename the worker's existing resume, and ALWAYS delete what we
+    // create (finally) — a leftover doc would load on init and break sibling tests
+    // that assume an empty start (the dedupe test learned this the hard way).
+    await gotoResume(whPage);
+    const A = 'ZZ MCP Alpha ' + Date.now();
+    const B = 'ZZ MCP Bravo ' + Date.now();
+    const nameAndSave = async (title: string, skill: string) => {
+      await whPage.click('#btn-resumes');
+      await expect(whPage.locator('#resume-manager')).toHaveClass(/open/);
+      await whPage.click('#rm-new');                       // fresh blank doc (_resumeId=null)
+      await whPage.click('#btn-resumes');
+      await whPage.fill('#rm-current-title', title);
+      await whPage.click('#rm-close');
+      await whPage.click('[data-action="add"][data-sec="skills"]');
+      await whPage.locator('[data-sec="skills"][data-field="name"]').last().fill(skill);
+      await whPage.click('#btn-save');
+      await expect(whPage.locator('#toast-msg')).toContainText(/saved/i, { timeout: 20000 });
+    };
+    const deleteByTitle = async (title: string) => {
+      await whPage.click('#btn-resumes');
+      const row = whPage.locator('.rm-row', { hasText: title });
+      if (await row.count()) {
+        await row.first().locator('[data-rm-del]').click();
+        await row.first().locator('[data-rm-del-yes]').click();
+        await expect(whPage.locator('#rm-list')).not.toContainText(title, { timeout: 15000 });
+      }
+      await whPage.click('#rm-close');
+    };
+    try {
+      await nameAndSave(A, 'Alpha-Skill');
+      await nameAndSave(B, 'Bravo-Skill');                  // B is now the NEWEST doc
+
+      // Manager lists both named resumes.
+      await whPage.click('#btn-resumes');
+      await expect(whPage.locator('#rm-list')).toContainText(A);
+      await expect(whPage.locator('#rm-list')).toContainText(B);
+
+      // Switch to A (the OLDER doc) -> editor shows A's skill, not B's.
+      await whPage.locator('.rm-row', { hasText: A }).getByRole('button', { name: 'Open' }).click();
+      await expect(whPage.locator('#sections input[value="Alpha-Skill"]')).toHaveCount(1);
+      await expect(whPage.locator('#sections input[value="Bravo-Skill"]')).toHaveCount(0);
+
+      // Reload MUST reopen A (last-open), NOT B (newest) — the continuity fix.
+      await whPage.reload({ waitUntil: 'domcontentloaded' });
+      await whPage.waitForSelector('[data-action="add"][data-sec="skills"]', { timeout: 10000 });
+      await expect(whPage.locator('#sections input[value="Alpha-Skill"]')).toHaveCount(1);
+      await expect(whPage.locator('#sections input[value="Bravo-Skill"]')).toHaveCount(0);
+    } finally {
+      await deleteByTitle(A);
+      await deleteByTitle(B);
+    }
+  });
 });
