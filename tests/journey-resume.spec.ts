@@ -364,6 +364,11 @@ test.describe('resume.html — Resume / CV Builder journey', () => {
     await expect(whPage.locator('#cl-text')).toBeVisible({ timeout: 15000 });
     await expect(whPage.locator('#cl-text')).toHaveValue(/Dear Hiring Manager/);
     await expect(whPage.locator('#cl-copy')).toBeVisible();
+    // The draft textarea must be >=16px or iOS auto-zooms when the worker taps to
+    // edit it on a phone (MCP sweep 2026-06-05: it was 0.8rem/12.8px - the only
+    // text field under the 16px floor). Mobile-first audience: keep it tappable.
+    const clFont = await whPage.locator('#cl-text').evaluate((el) => parseFloat(getComputedStyle(el).fontSize));
+    expect(clFont, 'cover-letter textarea must be >=16px (no iOS focus-zoom)').toBeGreaterThanOrEqual(16);
   });
 
   test('preview is a labelled dialog and ESC closes it (a11y, Phase 3)', async ({ whPage }) => {
@@ -373,5 +378,40 @@ test.describe('resume.html — Resume / CV Builder journey', () => {
     await expect(whPage.locator('#preview-overlay')).toHaveClass(/open/);
     await whPage.keyboard.press('Escape');
     await expect(whPage.locator('#preview-overlay')).not.toHaveClass(/open/);
+  });
+
+  test('a plain-text (.txt) resume is accepted and routed through extract (MCP sweep 2026-06-05)', async ({ whPage }) => {
+    // A .txt resume (Notepad / exported notes) is the simplest input there is, and
+    // the edge fn already accepts a raw-text payload. Before the fix, the handler's
+    // type switch fell through to { error: 'unsupported' } and the sheet NEVER
+    // opened - silently rejecting the most basic format on a phone-first tool.
+    // Guard: selecting a .txt OPENS the review sheet with extracted rows.
+    await stubExtract(whPage);
+    await gotoResume(whPage);
+    await whPage.setInputFiles('#file-any', {
+      name: 'my_resume.txt', mimeType: 'text/plain',
+      buffer: Buffer.from('Maria Santos\nMaintenance Technician\nSkills: arc welding, centrifugal pumps'),
+    });
+    await expect(whPage.locator('#review-sheet'), '.txt must be read + extracted, not rejected as unsupported')
+      .toHaveClass(/open/, { timeout: 15000 });
+    await expect(whPage.locator('#review-body input[value="arc welding"]')).toHaveCount(1);
+  });
+
+  test('a long unbroken token in a bullet does NOT overflow the resume paper (MCP sweep 2026-06-05)', async ({ whPage }) => {
+    // A pasted long URL / email / accidental no-space string would push the paper
+    // wider than its 720px column and clip in the PDF. The paper must break long
+    // tokens (overflow-wrap on .resume-paper *). Guard the user-visible outcome:
+    // rendered paper width never exceeds its own column.
+    await gotoResume(whPage);
+    await whPage.fill('[data-basics="name"]', 'Pablo Aguilar');
+    await whPage.click('[data-action="add"][data-sec="work"]');
+    await whPage.locator('[data-sec="work"][data-field="position"]').last().fill('Technician');
+    await whPage.locator('[data-sec="work"][data-field="highlights"]').last()
+      .fill('Maintained ' + 'Supercalifragilisticexpialidocious'.repeat(8) + ' systems');
+    await whPage.click('#btn-export');
+    await expect(whPage.locator('#preview-overlay')).toHaveClass(/open/);
+    const overflow = await whPage.locator('#resume-paper').evaluate(
+      (el) => el.scrollWidth - el.clientWidth);
+    expect(overflow, 'resume paper must not overflow horizontally on a long token').toBeLessThanOrEqual(2);
   });
 });

@@ -185,13 +185,13 @@
     </div>
 
     <div class="card" id="upload-card">
-      <div class="sec-head"><div><div class="sec-title" role="heading" aria-level="2">📎 Add from files</div><div class="sec-sub">Dump as many as you like — photo, screenshot, PDF, Word, Excel. We read each one and you choose what to keep.</div></div></div>
+      <div class="sec-head"><div><div class="sec-title" role="heading" aria-level="2">📎 Add from files</div><div class="sec-sub">Dump as many as you like — photo, screenshot, PDF, Word, Excel, or text. We read each one and you choose what to keep.</div></div></div>
       <div style="display:flex;flex-wrap:wrap;gap:0.6rem;">
         <button class="btn btn-ghost" id="btn-photo" type="button" style="flex:1;min-width:calc(50% - 0.6rem);">📷 Take photos</button>
         <button class="btn btn-ghost" id="btn-file" type="button" style="flex:1;min-width:calc(50% - 0.6rem);">📁 Choose files</button>
       </div>
       <input type="file" id="file-photo" aria-label="Take or choose photos of your resume or certificates" accept="image/*" capture="environment" multiple style="display:none;" />
-      <input type="file" id="file-any" aria-label="Choose a PDF, Word, Excel, or image file to import" accept="image/*,application/pdf,.pdf,.doc,.docx,.xls,.xlsx,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" multiple style="display:none;" />
+      <input type="file" id="file-any" aria-label="Choose a PDF, Word, Excel, text, or image file to import" accept="image/*,application/pdf,.pdf,.doc,.docx,.xls,.xlsx,.txt,.md,text/plain,text/markdown,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" multiple style="display:none;" />
       <p id="upload-status" style="font-size:0.72rem;color:#5FCCE8;margin-top:0.6rem;display:none;"></p>
       <p style="font-size:0.66rem;color:#7B8794;margin-top:0.4rem;">Your files are read just to fill in your resume, then discarded. Nothing is added until you tap to confirm. Keep adding more anytime — it builds on what you already have.</p>
       <label class="opt-toggle" for="promote-dedupe">
@@ -953,6 +953,9 @@
       else if (type === 'application/pdf' || name.endsWith('.pdf')) { payload = await extractPdf(file); kind = 'text'; source = 'pdf'; }
       else if (name.endsWith('.docx') || type.includes('wordprocessing')) { payload = await extractDocx(file); kind = 'text'; source = 'docx'; }
       else if (name.endsWith('.xlsx') || name.endsWith('.xls') || type.includes('spreadsheet') || type.includes('excel')) { payload = await extractXlsx(file); kind = 'text'; source = 'xlsx'; }
+      // Plain text / markdown: a .txt resume (Notepad, exported notes) is the simplest
+      // input there is, and the edge fn already accepts a raw-text payload — read it directly.
+      else if (type.startsWith('text/') || name.endsWith('.txt') || name.endsWith('.md')) { payload = await file.text(); kind = 'text'; source = 'text'; }
       else return { error: 'unsupported' };
       if (kind === 'text' && (!payload || payload.trim().length < 10)) return { error: 'empty' };
       const fields = await callResumeExtract(kind, payload, source);
@@ -1207,7 +1210,7 @@
       const e = escHtml;
       panel.innerHTML =
         `<div class="kw-group-title" style="color:#5FCCE8">Your cover letter draft</div>` +
-        `<textarea id="cl-text" class="wh-input" rows="12" aria-label="Cover letter draft" style="width:100%;font-size:0.8rem;line-height:1.5;">${e(letter)}</textarea>` +
+        `<textarea id="cl-text" class="wh-input" rows="12" aria-label="Cover letter draft" style="width:100%;font-size:1rem;line-height:1.5;">${e(letter)}</textarea>` +
         `<p style="font-size:0.68rem;color:#7B8794;margin:0.4rem 0;">Drafted from your real experience. Read it, edit anything, and make it yours before sending. We never invent facts.</p>` +
         `<div style="display:flex;gap:0.5rem;flex-wrap:wrap;">` +
         `<button type="button" id="cl-copy" class="btn btn-primary btn-sm" style="flex:1;min-width:120px;">📋 Copy</button>` +
@@ -1250,7 +1253,7 @@
     function resumeCSS() {
       return [
         '.resume-paper{max-width:720px;margin:0 auto;background:#fff;color:#1a1a1a;padding:34px 40px;font-family:Arial,Helvetica,sans-serif;font-size:13px;line-height:1.5;}',
-        '.resume-paper *{box-sizing:border-box;}',
+        '.resume-paper *{box-sizing:border-box;overflow-wrap:break-word;word-break:break-word;}',
         '.r-name{font-size:24px;font-weight:800;margin:0;}',
         '.r-label{font-size:14px;margin:2px 0 6px;}',
         '.r-contact{font-size:12px;color:#444;margin-bottom:10px;}',
