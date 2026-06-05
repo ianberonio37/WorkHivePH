@@ -66,6 +66,46 @@ const BARE_ROLE_SKILLS = new Set([
   "helper", "staff", "officer", "analyst", "specialist", "worker", "employee", "intern",
 ]);
 
+// Deterministic project-miner. The free-tier model reliably extracts jobs, skills,
+// certs, and even AWARDS embedded in bullets, but routinely SKIPS PROJECTS embedded
+// in job bullets even when the prompt names them (measured 0/4 on a heavy senior
+// resume). So we mine them in CODE - the same WAT split as BARE_ROLE_SKILLS: rules
+// the model won't follow live to deterministic code. A bullet is promoted to a
+// Project only when it carries a strong initiative VERB and a project NOUN and is
+// NOT a routine duty (both required = conservative, ~0 false positives). Recall-first:
+// the bullet STAYS a work highlight; the editable checklist is where the worker curates.
+const PROJECT_VERB = /\b(spearheaded|led the (?:installation|implementation|rollout|roll-out|deployment|commissioning|design|build|development|launch)|rolled out|implemented|deployed|designed|engineered|established|launched|commissioned|retrofitted|built|developed|introduced|set up|drove|piloted|standardi[sz]ed|automated|migrated|upgraded)\b/i;
+const PROJECT_NOUN = /\b(initiatives?|program(?:me)?s?|roll-?outs?|installations?|retrofits?|systems?|projects?|cmms|sap|kaizen|upgrades?|migrations?|commissioning|automation|pilots?|standardi[sz]ation)\b/i;
+const ROUTINE_DUTY = /\b(operated|performed pm|conducted pm|routine pm|attended|cleaned|lubricated|greased|inspected|assisted (?:in|with)|day-to-day|housekeeping)\b/i;
+
+function projectNameFromBullet(h: string): string {
+  let s = h.replace(/^(spearheaded|led the [a-z]+(?: and [a-z]+)?(?: of)?|rolled out|implemented|deployed|designed|engineered|established|launched|commissioned|retrofitted|built|developed|introduced|set up|drove|piloted|standardi[sz]ed|automated|migrated|upgraded)\s+(?:a |an |the )?/i, "");
+  s = s.split(/,| that | which | to | by | across | over | for | resulting| sustaining| lifting| catching| improving| reducing| cutting/i)[0];
+  s = s.trim().replace(/[.;:]+$/, "");
+  if (s.length > 80) s = s.slice(0, 80).trim();
+  return s ? s.charAt(0).toUpperCase() + s.slice(1) : "";
+}
+
+function mineProjectsFromWork(
+  work: Array<{ highlights?: string[] }>,
+  existing: Array<{ name: string; description: string }>,
+): Array<{ name: string; description: string }> {
+  const norm = (s: string) => s.toLowerCase().replace(/\s+/g, " ").trim();
+  const seen = new Set(existing.map((p) => norm(p.name)));
+  const seenDesc = new Set(existing.map((p) => norm(p.description)));
+  const mined: Array<{ name: string; description: string }> = [];
+  for (const w of work) {
+    for (const h of (w.highlights || [])) {
+      if (!PROJECT_VERB.test(h) || !PROJECT_NOUN.test(h) || ROUTINE_DUTY.test(h)) continue;
+      const name = projectNameFromBullet(h);
+      if (!name || seen.has(norm(name)) || seenDesc.has(norm(h))) continue;
+      seen.add(norm(name)); seenDesc.add(norm(h));
+      mined.push({ name: clampStr(name, 160), description: clampStr(h, 600) });
+    }
+  }
+  return mined;
+}
+
 const SYSTEM_PROMPT = `You are a careful resume data extractor helping a Filipino industrial maintenance worker build a competitive CV.
 You are given the raw text or an image of an existing resume, certificate, ID/licence card, training record, or spreadsheet. Read the WHOLE document, then organize its REAL facts into a JSON Resume object. Capture everything of value and put each piece in the section a recruiter expects.
 
@@ -167,6 +207,13 @@ function coerceFields(p: Record<string, unknown>): Record<string, unknown> {
   out.certificates = clampArr(p.certificates, 30, (c) => ({ name: clampStr(c.name, 200), issuer: clampStr(c.issuer, 140), date: clampStr(c.date, 20) }));
   out.projects = clampArr(p.projects, 20, (pr) => ({ name: clampStr(pr.name, 160), description: clampStr(pr.description, 600) }));
   out.awards = clampArr(p.awards, 20, (a) => ({ title: clampStr(a.title, 160), awarder: clampStr(a.awarder, 140), date: clampStr(a.date, 20) }));
+  // Safety net: promote strong project bullets the model left only as work highlights
+  // (it routinely under-extracts projects). Recall-first, deduped, capped at 20.
+  const mined = mineProjectsFromWork(
+    out.work as Array<{ highlights?: string[] }>,
+    out.projects as Array<{ name: string; description: string }>,
+  );
+  if (mined.length) out.projects = (out.projects as Array<unknown>).concat(mined).slice(0, 20);
   return out;
 }
 

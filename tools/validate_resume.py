@@ -99,6 +99,10 @@ def validate_resume():
         if src:
             check(f"{fn}: no em dash (U+2014) in source", "—" not in src,
                   "em dashes garble as 3 chars under Windows-1252")
+            if fn == "resume-extract":
+                check("resume-extract: deterministic project-miner present (mineProjectsFromWork)",
+                      "mineProjectsFromWork" in src and "PROJECT_VERB" in src,
+                      "free-tier model under-extracts projects embedded in bullets; code miner is the recall safety net (measured 0/4 -> 4/4)")
 
     spec = read("tests/resume.spec.ts")
     check("smoke spec tests/resume.spec.ts exists", spec is not None)
