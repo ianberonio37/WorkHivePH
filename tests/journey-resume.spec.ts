@@ -310,6 +310,24 @@ test.describe('resume.html — Resume / CV Builder journey', () => {
     await expect(whPage.locator('#jd-score-panel .jd-score-pct')).toHaveText('67%');
   });
 
+  test('JD score still works when the AI is busy - local fallback + calm toast (free-tier resilience, MCP persona sweep 2026-06-05)', async ({ whPage }) => {
+    // The core audience is on a flaky free-tier/CGNAT chain. When resume-polish 429s,
+    // extractJdKeywordsLocal() must still produce a score - and the worker must NOT be
+    // left staring at the raw "rate limited" error toast next to a working score.
+    await gotoResume(whPage);
+    await whPage.click('[data-action="add"][data-sec="skills"]');
+    await whPage.locator('[data-sec="skills"][data-field="name"]').last().fill('Preventive Maintenance');
+    await whPage.route('**/functions/v1/resume-polish', (route) =>
+      route.fulfill({ status: 429, contentType: 'application/json', body: JSON.stringify({ error: 'rate limited' }) }));
+    await whPage.fill('#jd-input', 'Maintenance technician: PLC, VFD, preventive maintenance, hydraulics, TESDA NC II, 5S.');
+    await whPage.click('#btn-jdscore');
+    // Fallback still renders a real score panel...
+    await expect(whPage.locator('#jd-score-panel')).toBeVisible({ timeout: 15000 });
+    await expect(whPage.locator('#jd-score-panel .jd-score-pct')).toHaveText(/\d+%/);
+    // ...and the alarming raw error toast is replaced by a calm offline-estimate note.
+    await expect(whPage.locator('#toast-msg')).toContainText(/offline/i);
+  });
+
   test('quantification coach counts experience bullets with a number and updates live (Phase 1)', async ({ whPage }) => {
     await gotoResume(whPage);
     await whPage.click('[data-action="add"][data-sec="work"]');

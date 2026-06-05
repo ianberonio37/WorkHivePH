@@ -1122,11 +1122,16 @@
       toast('Scoring your resume against the job…');
       const data = await callResumePolish({ mode: 'jd_keywords', jd });
       let keywords = (data && Array.isArray(data.keywords) && data.keywords.length) ? data.keywords : null;
+      const usedFallback = !keywords;
       if (!keywords) keywords = extractJdKeywordsLocal(jd);  // free-tier busy -> deterministic fallback
       if (!keywords.length) { toast('Could not find clear keywords in that job ad.'); return; }
       _jdKeywords = keywords.map(k => ({ term: k.term, importance: k.importance === 'high' ? 'high' : 'medium', have: keywordPresent(k.term, corpus) }));
       _jdSelected.clear();
       renderJdScore();
+      // callResumePolish already toasted its raw error (e.g. "rate limited"); when the
+      // local fallback still produced a score, replace that alarming toast with a calm
+      // note so the flaky-network worker trusts the result they can plainly see.
+      if (usedFallback) toast('Showed a quick offline match estimate — AI was busy.');
       if (typeof logEvent === 'function') logEvent(db, 'resume_jd_score', { page: 'resume', terms: _jdKeywords.length, matched: _jdKeywords.filter(k => k.have).length });
     }
 
