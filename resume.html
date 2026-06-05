@@ -211,6 +211,7 @@
 
     <div class="card" id="ai-card">
       <div class="sec-head"><div><div class="sec-title" role="heading" aria-level="2">✨ AI helpers</div><div class="sec-sub">Turn rough notes into professional wording. You review every suggestion before it is used.</div></div></div>
+      <button class="btn btn-ghost" id="btn-summary" type="button" style="width:100%;margin-bottom:0.75rem;">🧬 Write my summary from my whole resume</button>
       <button class="btn btn-ghost" id="btn-polish" type="button" style="width:100%;margin-bottom:0.75rem;">✨ Polish my experience wording</button>
       <div class="field"><label>Tailor to a job (paste the job ad)</label>
         <textarea class="wh-input" id="jd-input" aria-label="Paste a job description to tailor your resume" rows="3" placeholder="Paste the job description here, then tap Tailor."></textarea>
@@ -1210,6 +1211,70 @@
       });
     }
 
+    // ── Whole-resume summary synthesis (the reduce-pass) ─────────────────────
+    // The #1 quality complaint was that the opening summary never reflected the
+    // WHOLE resume - it was only transcribed from the uploaded doc, or rewritten
+    // from summary+skills alone (tailor). WAT split: compute the HARD facts here
+    // (years from the work dates, role progression, top skills, which achievements
+    // carry a number), then the model writes only prose from that fact sheet. So
+    // the summary synthesizes the entire resume and can never invent a fact/number.
+    function _parseYear(d) { const m = String(d || '').match(/(\d{4})/); return m ? parseInt(m[1], 10) : null; }
+    function _resumeYears() {
+      let earliest = null, latest = null;
+      const nowY = new Date().getFullYear();
+      (resume.work || []).forEach(w => {
+        const s = _parseYear(w.startDate);
+        const e = /present|current|now|ongoing/i.test(String(w.endDate || '')) ? nowY : _parseYear(w.endDate);
+        if (s) earliest = earliest === null ? s : Math.min(earliest, s);
+        const end = e || s;
+        if (end) latest = latest === null ? end : Math.max(latest, end);
+      });
+      if (earliest === null) return '';
+      const yrs = Math.max(0, (latest || nowY) - earliest);
+      return yrs <= 0 ? 'less than a year' : (yrs + (yrs === 1 ? ' year' : ' years'));
+    }
+    function buildResumeFacts() {
+      const b = resume.basics || {};
+      const roles = (resume.work || []).map(w => [w.position, w.name].filter(Boolean).join(' at ')).filter(Boolean);
+      const top_skills = (resume.skills || []).map(s => s.name).filter(Boolean).slice(0, 14);
+      const certifications = (resume.certificates || []).map(c => c.name).filter(Boolean).slice(0, 10);
+      // Strongest achievements = the highlights / projects that carry a NUMBER (a
+      // digit is the honest signal of a quantified, recruiter-grabbing result),
+      // plus awards. We hand the model the real numbers so it can quote them truthfully.
+      const achievements = [];
+      (resume.work || []).forEach(w => (w.highlights || []).forEach(h => { if (h && /\d/.test(h)) achievements.push(h); }));
+      (resume.projects || []).forEach(p => { const t = [p.name, p.description].filter(Boolean).join(': '); if (t && /\d/.test(t)) achievements.push(t); });
+      (resume.awards || []).forEach(a => { if (a.title) achievements.push(a.title); });
+      // If nothing is quantified, fall back to the first highlight of each job so we
+      // can still synthesize a summary (recall-first: never block on missing numbers).
+      if (!achievements.length) (resume.work || []).forEach(w => (w.highlights || []).slice(0, 1).forEach(h => { if (h) achievements.push(h); }));
+      const edu = (resume.education || [])[0];
+      const education = edu ? [edu.studyType, edu.area, edu.institution].filter(Boolean).join(', ') : '';
+      return { headline: b.label || '', years: _resumeYears(), roles: roles.slice(0, 10), top_skills, certifications, achievements: achievements.slice(0, 8), education };
+    }
+
+    async function runSummarize() {
+      const facts = buildResumeFacts();
+      if (!facts.roles.length && !facts.top_skills.length && !facts.achievements.length) {
+        toast('Add some experience or skills first, then I can write your summary.'); return;
+      }
+      toast('Writing a summary from your whole resume…');
+      const data = await callResumePolish({ mode: 'synthesize_summary', facts });
+      if (!data || !data.summary) { if (data) toast('No summary returned. Try again.'); return; }
+      // Internal control: even a single AI summary goes through the review checklist
+      // so nothing is applied without a tap (and the worker can see Was/New).
+      const cur = (resume.basics.summary || '').trim();
+      const items = [{ group: 'Professional summary', label: cur ? ('Was: ' + cur) : 'New professional summary', value: data.summary, checked: true, src: 'AI suggested',
+        apply: (r, val) => { r.basics.summary = val; r.basics._src = r.basics._src || {}; r.basics._src.summary = 'AI suggested'; } }];
+      openReview('Review your new summary', items, (selected) => {
+        snapshotVersion('before summary synthesis');
+        for (const it of selected) it.apply(resume, it.value);
+        render(); scheduleLocalSave();
+        toast(selected.length ? '✓ Updated your summary.' : 'Kept your current summary.');
+        if (typeof logEvent === 'function') logEvent(db, 'resume_summarize', { page: 'resume' });
+      });
+    }
+
     // ── Tailor-to-JD keyword-gap score (Phase 1) ─────────────────────────────
     // WAT split: the model EXTRACTS the JD's keywords (the fuzzy part); the match
     // SCORE is computed HERE deterministically against the resume text - never
@@ -1244,13 +1309,35 @@
     }
 
     // Local fallback extractor: maintenance-domain dictionary + acronym capture.
-    const _JD_DICT = ['preventive maintenance', 'predictive maintenance', 'corrective maintenance', 'condition monitoring',
-      'root cause analysis', 'vibration analysis', 'troubleshooting', 'calibration', 'alignment', 'lubrication',
-      'hydraulics', 'pneumatics', 'welding', 'machining', 'electrical', 'mechanical', 'instrumentation', 'automation',
-      'plc', 'vfd', 'hmi', 'scada', 'cmms', 'sap', 'maximo', 'oee', 'mtbf', 'mttr', 'fmea', 'rcm', 'tpm', '5s', 'kaizen',
-      'lockout tagout', 'loto', 'permit to work', 'bearings', 'gearbox', 'conveyor', 'compressor', 'boiler', 'pump',
-      'motor', 'hvac', 'refrigeration', 'autocad', 'tesda', 'safety', 'iso'];
-    const _KW_ACR = new Set(['plc', 'vfd', 'hmi', 'scada', 'cmms', 'sap', 'oee', 'mtbf', 'mttr', 'fmea', 'rcm', 'tpm', 'loto', 'hvac', 'iso', '5s']);
+    // This list MIRRORS supabase/functions/_shared/resume-taxonomy.ts MAINTENANCE_SKILLS
+    // (curated from O*NET / ESCO / open-resume). No build step in this repo, so the
+    // mirror is intentional - keep the two in sync (validate_resume.py guards a
+    // sentinel subset is present in both). A broader dictionary = a far better
+    // offline match score when the free-tier chain is busy.
+    const _JD_DICT = [
+      'preventive maintenance', 'predictive maintenance', 'corrective maintenance', 'condition monitoring',
+      'condition-based maintenance', 'reliability-centered maintenance', 'total productive maintenance',
+      'root cause analysis', 'failure analysis', 'reliability engineering', 'asset management',
+      'planned maintenance', 'shutdown maintenance', 'turnaround maintenance', 'breakdown maintenance',
+      'autonomous maintenance', 'vibration analysis', 'thermography', 'infrared thermography',
+      'ultrasonic testing', 'oil analysis', 'tribology', 'laser alignment', 'balancing', 'non-destructive testing',
+      'troubleshooting', 'calibration', 'alignment', 'lubrication', 'rigging', 'fabrication', 'machining',
+      'welding', 'brazing', 'soldering', 'fitting', 'pipefitting', 'millwright', 'bearings', 'gearbox',
+      'couplings', 'seals', 'belts', 'chains', 'conveyor', 'actuators', 'pumps', 'compressors', 'blowers',
+      'fans', 'valves', 'boiler', 'turbine', 'hydraulics', 'pneumatics', 'lubrication systems', 'cooling tower',
+      'chiller', 'heat exchanger', 'electrical', 'mechanical', 'instrumentation', 'automation', 'controls',
+      'wiring', 'motor controls', 'switchgear', 'transformers', 'power distribution', 'grounding', 'plc', 'vfd',
+      'hmi', 'scada', 'dcs', 'servo', 'drives', 'sensors', 'transmitters', 'control panels', 'loop tuning',
+      'panel wiring', 'relay logic', 'ladder logic', 'cmms', 'sap', 'sap pm', 'maximo', 'erp', 'autocad',
+      'ms office', 'excel', 'hvac', 'refrigeration', 'fire protection', 'plumbing', 'generator', 'ups',
+      'air compressor', 'steam systems', 'water treatment', 'electrical safety', 'oee', 'mtbf', 'mttr', 'fmea',
+      'rcm', 'tpm', '5s', 'kaizen', 'six sigma', 'lean', 'spc', 'kpi', 'gmp', 'haccp', 'iso 9001', 'iso 14001',
+      'iso 45001', 'iso 50001', 'lockout tagout', 'loto', 'permit to work', 'job safety analysis',
+      'risk assessment', 'confined space', 'working at heights', 'hot work', 'occupational safety', 'tesda',
+      'electrical permit', 'boiler operator', 'welding certification', 'preventive scheduling',
+      'work order management', 'spare parts management', 'inventory management', 'shift handover',
+      'team leadership', 'supervision', 'training', 'documentation', 'standard operating procedures', 'commissioning'];
+    const _KW_ACR = new Set(['plc', 'vfd', 'hmi', 'scada', 'dcs', 'cmms', 'sap', 'erp', 'oee', 'mtbf', 'mttr', 'fmea', 'rcm', 'tpm', 'spc', 'kpi', 'gmp', 'haccp', 'loto', 'hvac', 'ups', 'iso', '5s']);
     function _prettyKw(t) { const n = _normKw(t); if (_KW_ACR.has(n) || (!n.includes(' ') && n.length <= 4)) return n.toUpperCase(); return n.replace(/\b\w/g, c => c.toUpperCase()); }
     function extractJdKeywordsLocal(jd) {
       const norm = _normKw(jd), found = new Map();
@@ -1712,6 +1799,7 @@
         const files = Array.from(ev.target.files || []); ev.target.value = '';
         if (files.length) await handleFiles(files);
       }));
+      document.getElementById('btn-summary').addEventListener('click', () => { runSummarize(); });
       document.getElementById('btn-polish').addEventListener('click', () => { runPolish(); });
       document.getElementById('btn-tailor').addEventListener('click', () => { runTailor(); });
       document.getElementById('btn-jdscore').addEventListener('click', () => { runJdScore(); });

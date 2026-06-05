@@ -172,6 +172,55 @@ test.describe('resume.html — Resume / CV Builder journey', () => {
       .toHaveValue('Loaded and staged raw materials to keep production running without interruption');
   });
 
+  test('summary reduce-pass: writes the professional summary from the WHOLE resume (facts in, prose out) (2026-06-05)', async ({ whPage }) => {
+    // Seed a resume with a dated job carrying a QUANTIFIED bullet, two skills, and a
+    // cert, so buildResumeFacts has real material (years, role, top skills, a numbered
+    // achievement) to compute. The model is stubbed: we test the page's fact sheet, not the LLM.
+    await whPage.route('**/functions/v1/resume-extract', (route) => route.fulfill({
+      status: 200, contentType: 'application/json',
+      body: JSON.stringify({ fields: {
+        basics: { name: 'Maricel Santos', label: 'Reliability Engineer', email: '', phone: '', summary: '', location: { city: 'Cebu City', region: 'Cebu' } },
+        work: [{ position: 'Reliability Engineer', name: 'ZenithFoods', location: '', startDate: '2016', endDate: 'Present',
+          highlights: ['Spearheaded a vibration-monitoring program across 40 assets that cut bearing failures by 35%'] }],
+        education: [], skills: [{ name: 'PLC', level: '' }, { name: 'vibration analysis', level: '' }],
+        certificates: [{ name: 'TESDA NC II Electrical', issuer: 'TESDA', date: '2011' }], projects: [], awards: [],
+      } }),
+    }));
+    await gotoResume(whPage);
+    await whPage.setInputFiles('#file-any', { name: 'cv.png', mimeType: 'image/png', buffer: PNG_1x1 });
+    await expect(whPage.locator('#review-sheet')).toHaveClass(/open/, { timeout: 15000 });
+    await whPage.click('#review-confirm');
+    await expect(whPage.locator('#review-sheet')).not.toHaveClass(/open/);
+
+    // Capture the request to PROVE the client computed and sent the whole-resume FACT
+    // SHEET (roles + achievements + top_skills + years) - the thing that distinguishes
+    // this synthesis from the old tailor path that only sent summary + skills.
+    let sentFacts: Record<string, unknown> | null = null;
+    await whPage.route('**/functions/v1/resume-polish', (route) => {
+      try { const b = route.request().postDataJSON() || {}; sentFacts = b.mode === 'synthesize_summary' ? b.facts : null; } catch (_) { /* ignore */ }
+      route.fulfill({ status: 200, contentType: 'application/json',
+        body: JSON.stringify({ summary: 'Reliability engineer with 10 years in food and beverage plants, skilled in PLC and vibration analysis, who spearheaded a program that cut bearing failures by 35%.' }) });
+    });
+
+    await whPage.click('#btn-summary');
+    // Internal control: even a single AI summary flows through the review checklist.
+    await expect(whPage.locator('#review-sheet')).toHaveClass(/open/, { timeout: 15000 });
+    await whPage.click('#review-confirm');
+    await expect(whPage.locator('#review-sheet')).not.toHaveClass(/open/);
+
+    // It lands in the Professional summary editor.
+    await expect(whPage.locator('textarea[data-basics="summary"]')).toHaveValue(/cut bearing failures by 35%/);
+
+    // The whole-resume contract: roles, the quantified achievement, top skills, and a
+    // deterministically computed years figure were all in the fact sheet.
+    expect(sentFacts, 'client sent a synthesize_summary fact sheet').toBeTruthy();
+    const f = sentFacts as Record<string, unknown>;
+    expect((f.roles as string[]).some((r) => /Reliability Engineer/i.test(r)), 'roles in facts').toBeTruthy();
+    expect((f.achievements as string[]).some((a) => /35%/.test(a)), 'quantified achievement in facts').toBeTruthy();
+    expect((f.top_skills as string[]).includes('PLC'), 'top skills in facts').toBeTruthy();
+    expect(String(f.years || ''), 'computed years present').toMatch(/year/);
+  });
+
   test('work experience shows the quantified-bullet hint (coaches toward competitive bullets)', async ({ whPage }) => {
     await gotoResume(whPage);
     await whPage.click('[data-action="add"][data-sec="work"]');

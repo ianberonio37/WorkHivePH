@@ -22,15 +22,24 @@
  *     (+ optional JD/company) -> a short truthful cover letter draft. Output is
  *     a draft the worker edits/copies; it is NOT merged into the resume.
  *
+ *   mode "synthesize_summary": the FACTS of the worker's whole resume (years,
+ *     role progression, top skills, certs, strongest quantified achievements,
+ *     highest education - all computed deterministically on the CLIENT) -> one
+ *     professional summary that synthesizes the ENTIRE resume. The model only
+ *     writes prose from the supplied fact sheet (WAT: code computes facts/numbers,
+ *     AI writes the narrative), so it can never invent a fact it was not given.
+ *
  * Input:
  *   { mode, hive_id?, worker_name?, auth_uid?,
  *     bullets?: string[], context?: string,                 // polish_bullets
- *     summary?: string, skills?: string[], jd?: string }    // tailor_to_jd / jd_keywords (jd)
+ *     summary?: string, skills?: string[], jd?: string,     // tailor_to_jd / jd_keywords (jd)
+ *     facts?: {headline,years,roles[],top_skills[],certifications[],achievements[],education} } // synthesize_summary
  *
  * Output:
- *   polish_bullets -> { bullets: string[] }
- *   tailor_to_jd   -> { summary: string, highlights: string[] }
- *   jd_keywords    -> { keywords: [{ term: string, importance: "high"|"medium" }] }
+ *   polish_bullets     -> { bullets: string[] }
+ *   tailor_to_jd       -> { summary: string, highlights: string[] }
+ *   jd_keywords        -> { keywords: [{ term: string, importance: "high"|"medium" }] }
+ *   synthesize_summary -> { summary: string }
  *
  * Skills consulted:
  *   ai-engineer (callAI free-tier chain, jsonMode, synthesis task profile)
@@ -100,6 +109,16 @@ Rules:
 5. importance is "high" for must-have, repeated, or titled requirements; "medium" for nice-to-have or mentioned once.
 6. Deduplicate. Return at most 25 keywords, most important first.
 7. No em dashes. Output ONLY the JSON object.`;
+
+const SUMMARIZE_SYSTEM = `You write the PROFESSIONAL SUMMARY (the opening section of a resume) for a Filipino industrial maintenance worker, synthesizing the FACTS of their WHOLE resume that are given to you.
+You are given a fact sheet already computed from the worker's resume: years of experience, their current or most recent role, the list of roles they have held, their top skills, certifications, their strongest quantified achievements, and highest education. Write the summary FROM these facts.
+Respond ONLY with JSON: { "summary": "..." }.
+Rules:
+1. 2 to 4 sentences, written in the implied third person (no "I", no "my"). Open with seniority, years, and field, for example "Maintenance technician with 8 years across food and beverage plants".
+2. Synthesize the WHOLE picture: weave in the worker's strongest real skills and ONE flagship achievement from the facts. Prefer an achievement that carries a number, and quote that number exactly as given.
+3. Use ONLY the facts provided. Do NOT invent employers, numbers, percentages, certifications, schools, or skills that are not in the fact sheet. Never state a number that does not appear in an achievement fact.
+4. Confident and recruiter-scannable, in plain professional English. No filler buzzwords (hardworking, team player, detail-oriented) unless a fact backs it.
+5. No em dashes. Output ONLY the JSON object.`;
 
 const COVER_LETTER_SYSTEM = `You write a short, professional, TRUTHFUL cover letter for a Filipino industrial maintenance worker, using only the facts provided.
 You are given the worker's name, headline, summary, real skills, recent experience, and optionally a target job description and company.
@@ -181,8 +200,30 @@ serve(async (req) => {
         job_description: clampStr(body.jd, 4000), company: clampStr(body.company, 160),
       });
       raw = await callAI(userMsg, { systemPrompt: COVER_LETTER_SYSTEM, temperature: 0.4, maxTokens: 1500, jsonMode: true, taskProfile: "synthesis_long_output" });
+    } else if (mode === "synthesize_summary") {
+      // WAT split: the CLIENT already computed the hard facts (years, role
+      // progression, top skills, which achievements carry a number); the model
+      // only writes prose FROM that fact sheet, so the summary synthesizes the
+      // whole resume without the model ever seeing raw bullets it could
+      // mis-synthesize or inventing a number it was not handed.
+      const facts = (body.facts && typeof body.facts === "object") ? body.facts as Record<string, unknown> : {};
+      const roles = clampStrArr(facts.roles, 12, 160);
+      const topSkills = clampStrArr(facts.top_skills, 20, 80);
+      const achievements = clampStrArr(facts.achievements, 8, 280);
+      if (!roles.length && !topSkills.length && !achievements.length) {
+        return json({ error: "Add some experience or skills first, then generate a summary." }, 400);
+      }
+      const userMsg = JSON.stringify({
+        headline: clampStr(facts.headline, 140),
+        years_experience: clampStr(facts.years, 24),
+        roles, top_skills: topSkills,
+        certifications: clampStrArr(facts.certifications, 15, 160),
+        strongest_achievements: achievements,
+        education: clampStr(facts.education, 200),
+      });
+      raw = await callAI(userMsg, { systemPrompt: SUMMARIZE_SYSTEM, temperature: 0.3, maxTokens: MAX_TOKENS_OUT, jsonMode: true, taskProfile: "synthesis_long_output" });
     } else {
-      return json({ error: "mode must be 'polish_bullets', 'tailor_to_jd', 'jd_keywords', or 'cover_letter'" }, 400);
+      return json({ error: "mode must be 'polish_bullets', 'tailor_to_jd', 'jd_keywords', 'cover_letter', or 'synthesize_summary'" }, 400);
     }
 
     if (!raw || raw === "{}") return json({ error: "The AI helper is busy. Please try again in a moment.", ai_provider_unavailable: !raw }, 502);
@@ -204,6 +245,9 @@ serve(async (req) => {
     }
     if (mode === "cover_letter") {
       return json({ letter: clampStr(parsed.letter, 4000) });
+    }
+    if (mode === "synthesize_summary") {
+      return json({ summary: clampStr(parsed.summary, 900) });
     }
     return json({ summary: clampStr(parsed.summary, 900), highlights: clampStrArr(parsed.highlights, 6, 280) });
   } catch (err) {

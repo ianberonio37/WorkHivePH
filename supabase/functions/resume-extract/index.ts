@@ -45,13 +45,21 @@ import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-
 import { callAI, callAIMultimodal } from "../_shared/ai-chain.ts";
 import { checkSoloRateLimit, soloRateLimitKey } from "../_shared/rate-limit.ts";
 import { getCorsHeaders } from "../_shared/cors.ts";
+import { canonicalizeSkill, isSectionHeaderLine, PROJECT_ACTION_VERBS } from "../_shared/resume-taxonomy.ts";
 // Envelope adoption (helper imported for conformance; flat {error}/{fields} JSON
 // shape retained to match the platform error-contract pattern, like visual-defect-capture).
 import { beginRequest, ok, fail } from "../_shared/envelope.ts";
 
 const RATE_LIMIT_PER_HOUR = Number(Deno.env.get("WH_RATE_LIMIT_OVERRIDE") || 40);
 const MAX_IMAGE_BYTES = 4_500_000;          // ~2.5 MB binary
-const MAX_TEXT_CHARS  = 12_000;             // keep within a comfortable model context
+// Heavy / multi-page resumes: a single 12K-char truncation silently DROPPED the
+// trailing pages (the last jobs/projects/awards never reached the model). Instead
+// we accept a larger total and MAP-REDUCE it: split into section-aware chunks,
+// extract each, then merge with dedupe. CHUNK_CHARS keeps each call in a comfortable
+// context; MAX_CHUNKS bounds the free-tier model calls per upload.
+const MAX_TEXT_TOTAL  = 60_000;             // absolute accept cap (~12+ pages); abuse guard
+const CHUNK_CHARS     = 11_000;             // per model call (comfortable context window)
+const MAX_CHUNKS      = 5;                  // 5 x 11K = 55K chars; bounds cost on a public fn
 const MAX_TOKENS_OUT  = 3500;             // headroom: projects/awards are LAST in the schema, so a tight cap truncates them silently (AI-Engineer skill: max_tokens discipline)
 const ALLOWED_MIME = new Set(["image/jpeg", "image/png", "image/webp"]);
 
@@ -75,7 +83,15 @@ const BARE_ROLE_SKILLS = new Set([
 // NOT a routine duty (both required = conservative, ~0 false positives). Recall-first:
 // the bullet STAYS a work highlight; the editable checklist is where the worker curates.
 const PROJECT_VERB = /\b(spearheaded|led the (?:installation|implementation|rollout|roll-out|deployment|commissioning|design|build|development|launch)|rolled out|implemented|deployed|designed|engineered|established|launched|commissioned|retrofitted|built|developed|introduced|set up|drove|piloted|standardi[sz]ed|automated|migrated|upgraded)\b/i;
-const PROJECT_NOUN = /\b(initiatives?|program(?:me)?s?|roll-?outs?|installations?|retrofits?|systems?|projects?|cmms|sap|kaizen|upgrades?|migrations?|commissioning|automation|pilots?|standardi[sz]ation)\b/i;
+// Broaden initiative-verb recall from the vendored open-source action-verb list
+// (resume-taxonomy.ts) so a strong bullet led by a verb the hand-built regex missed
+// (orchestrated / pioneered / consolidated / revamped ...) can still be mined. The
+// project NOUN + routine-duty guards below stay conservative, so widening the verb
+// set does not create false positives.
+const TAXONOMY_VERB_RE = new RegExp(
+  "\\b(" + PROJECT_ACTION_VERBS.map((v) => v.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|") + ")\\b", "i",
+);
+const PROJECT_NOUN = /\b(initiatives?|program(?:me)?s?|roll-?outs?|installations?|retrofits?|systems?|projects?|cmms|sap|kaizen|upgrades?|migrations?|commissioning|automation|pilots?|standardi[sz]ation|dashboards?|platforms?)\b/i;
 const ROUTINE_DUTY = /\b(operated|performed pm|conducted pm|routine pm|attended|cleaned|lubricated|greased|inspected|assisted (?:in|with)|day-to-day|housekeeping)\b/i;
 
 function projectNameFromBullet(h: string): string {
@@ -96,7 +112,7 @@ function mineProjectsFromWork(
   const mined: Array<{ name: string; description: string }> = [];
   for (const w of work) {
     for (const h of (w.highlights || [])) {
-      if (!PROJECT_VERB.test(h) || !PROJECT_NOUN.test(h) || ROUTINE_DUTY.test(h)) continue;
+      if (!(PROJECT_VERB.test(h) || TAXONOMY_VERB_RE.test(h)) || !PROJECT_NOUN.test(h) || ROUTINE_DUTY.test(h)) continue;
       const name = projectNameFromBullet(h);
       if (!name || seen.has(norm(name)) || seenDesc.has(norm(h))) continue;
       seen.add(norm(name)); seenDesc.add(norm(h));
@@ -182,6 +198,88 @@ function clampArr<T>(v: unknown, max: number, map: (x: Record<string, unknown>) 
   return v.slice(0, max).filter((x) => x && typeof x === "object").map((x) => map(x as Record<string, unknown>));
 }
 
+// ─── Heavy-file map-reduce: split a long resume, extract each part, merge ─────
+// Split a long resume into <= maxChunks parts of <= maxChars, PREFERRING to break
+// at blank lines and detected section headers (resume-taxonomy.isSectionHeaderLine)
+// so a single job entry's header + bullets never get cut across two chunks (which
+// would split its highlights and defeat project mining). The 12K guillotine this
+// replaces silently dropped whatever fell past the cap; chunking keeps the tail.
+function splitResumeText(text: string, maxChars: number, maxChunks: number): string[] {
+  if (text.length <= maxChars) return [text];
+  const lines = text.split(/\r?\n/);
+  const chunks: string[] = [];
+  let cur: string[] = [];
+  let curLen = 0;
+  const flush = () => { if (cur.join("\n").trim()) chunks.push(cur.join("\n")); cur = []; curLen = 0; };
+  for (const line of lines) {
+    const lineLen = line.length + 1;
+    // Start a new chunk at a section header once the current chunk is already
+    // substantial, so an "Experience"/"Projects" block stays whole.
+    if (isSectionHeaderLine(line) && curLen > maxChars * 0.5) flush();
+    if (curLen + lineLen > maxChars && curLen > 0) flush();
+    cur.push(line); curLen += lineLen;
+  }
+  flush();
+  // Enforce the chunk ceiling: fold any overrun into the last allowed chunk
+  // (truncated to maxChars) so we still read as far as the budget permits.
+  if (chunks.length > maxChunks) {
+    const head = chunks.slice(0, maxChunks - 1);
+    head.push(chunks.slice(maxChunks - 1).join("\n").slice(0, maxChars));
+    return head;
+  }
+  return chunks;
+}
+
+// Merge JSON Resume partials from each chunk into one raw partial, deduping by the
+// SAME identity keys the client uses (entryKey doctrine in resume.html), BEFORE
+// coerceFields runs. basics: first non-empty field wins (the header is usually on
+// page 1). work: union the highlights of the same role@employer (a job that spans
+// a page break keeps all its bullets). Other sections: dedupe by name/title.
+function mergePartials(parts: Array<Record<string, unknown>>): Record<string, unknown> {
+  const nrm = (s: unknown) => String(s ?? "").trim().toLowerCase().replace(/\s+/g, " ");
+  const out: Record<string, unknown> = { basics: {}, work: [], education: [], skills: [], certificates: [], projects: [], awards: [] };
+  const basics = out.basics as Record<string, unknown>;
+  const workMap = new Map<string, Record<string, unknown>>();
+  const orphanWork: Array<Record<string, unknown>> = [];
+  const seen: Record<string, Set<string>> = { education: new Set(), skills: new Set(), certificates: new Set(), projects: new Set(), awards: new Set() };
+  const asArr = (v: unknown) => Array.isArray(v) ? v as Array<Record<string, unknown>> : [];
+  for (const p of parts) {
+    if (p && typeof p.basics === "object" && p.basics) {
+      for (const [k, v] of Object.entries(p.basics as Record<string, unknown>)) {
+        const have = basics[k];
+        if (v && (have === undefined || (typeof have === "string" && !have.trim()))) basics[k] = v;
+      }
+    }
+    for (const w of asArr(p?.work)) {
+      const key = nrm(w.position) + "@" + nrm(w.name);
+      if (key === "@") { orphanWork.push(w); continue; }
+      const ex = workMap.get(key);
+      if (!ex) { workMap.set(key, { ...w, highlights: Array.isArray(w.highlights) ? [...w.highlights] : [] }); continue; }
+      const exH = Array.isArray(ex.highlights) ? ex.highlights as unknown[] : [];
+      const hseen = new Set(exH.map((h) => nrm(h)));
+      for (const h of (Array.isArray(w.highlights) ? w.highlights as unknown[] : [])) {
+        if (!hseen.has(nrm(h))) { hseen.add(nrm(h)); exH.push(h); }
+      }
+      ex.highlights = exH;
+      for (const f of ["location", "startDate", "endDate"]) if (!ex[f] && w[f]) ex[f] = w[f];
+    }
+    const dedupePush = (sec: "education" | "skills" | "certificates" | "projects" | "awards", keyOf: (x: Record<string, unknown>) => string) => {
+      for (const it of asArr(p?.[sec])) {
+        const k = keyOf(it);
+        if (!k || k === "|" || seen[sec].has(k)) continue;
+        seen[sec].add(k); (out[sec] as unknown[]).push(it);
+      }
+    };
+    dedupePush("education", (e) => nrm(e.institution) + "|" + nrm(e.studyType || e.area));
+    dedupePush("skills", (s) => nrm(s.name));
+    dedupePush("certificates", (c) => nrm(c.name));
+    dedupePush("projects", (pr) => nrm(pr.name));
+    dedupePush("awards", (a) => nrm(a.title));
+  }
+  out.work = Array.from(workMap.values()).concat(orphanWork);
+  return out;
+}
+
 function coerceFields(p: Record<string, unknown>): Record<string, unknown> {
   const out: Record<string, unknown> = {};
   const b = (p.basics && typeof p.basics === "object") ? p.basics as Record<string, unknown> : null;
@@ -202,8 +300,15 @@ function coerceFields(p: Record<string, unknown>): Record<string, unknown> {
     institution: clampStr(e.institution, 160), studyType: clampStr(e.studyType, 140),
     area: clampStr(e.area, 120), startDate: clampStr(e.startDate, 20), endDate: clampStr(e.endDate, 20),
   }));
-  out.skills = clampArr(p.skills, 40, (s) => ({ name: clampStr(s.name, 100), level: clampStr(s.level, 40) }))
-    .filter((s) => s.name && !BARE_ROLE_SKILLS.has(s.name.trim().toLowerCase()));
+  // Canonicalize skill CASING from the vendored taxonomy ("plc" -> "PLC") so dedupe
+  // and JD-matching line up, then drop bare job titles and collapse case-duplicates.
+  const skillSeen = new Set<string>();
+  out.skills = clampArr(p.skills, 40, (s) => ({ name: canonicalizeSkill(clampStr(s.name, 100)), level: clampStr(s.level, 40) }))
+    .filter((s) => {
+      const low = s.name.trim().toLowerCase();
+      if (!low || BARE_ROLE_SKILLS.has(low) || skillSeen.has(low)) return false;
+      skillSeen.add(low); return true;
+    });
   out.certificates = clampArr(p.certificates, 30, (c) => ({ name: clampStr(c.name, 200), issuer: clampStr(c.issuer, 140), date: clampStr(c.date, 20) }));
   out.projects = clampArr(p.projects, 20, (pr) => ({ name: clampStr(pr.name, 160), description: clampStr(pr.description, 600) }));
   out.awards = clampArr(p.awards, 20, (a) => ({ title: clampStr(a.title, 160), awarder: clampStr(a.awarder, 140), date: clampStr(a.date, 20) }));
@@ -260,7 +365,7 @@ serve(async (req) => {
       remaining = rl.remaining;
     }
 
-    let raw: string;
+    let raw = "";
     if (kind === "image") {
       const v = validateImage(payload, body.mime_type ? String(body.mime_type) : undefined);
       if (!v.ok) return json({ error: v.reason || "invalid image" }, 400);
@@ -270,11 +375,33 @@ serve(async (req) => {
         { systemPrompt: sysPrompt, temperature: 0.1, maxTokens: MAX_TOKENS_OUT, jsonMode: true },
       );
     } else {
-      const text = payload.slice(0, MAX_TEXT_CHARS);
+      const text = payload.slice(0, MAX_TEXT_TOTAL);
+      const chunks = splitResumeText(text, CHUNK_CHARS, MAX_CHUNKS);
       // Pin synthesis_long_output: a long resume needs a high-capacity reasoning
       // model (Scout-17B @ 30K TPM, then 70B), never the 8B slot-extraction
       // default - extraction here is recall + classification + light synthesis.
-      raw = await callAI(text, { systemPrompt: sysPrompt, temperature: 0.1, maxTokens: MAX_TOKENS_OUT, jsonMode: true, taskProfile: "synthesis_long_output" });
+      if (chunks.length === 1) {
+        raw = await callAI(text, { systemPrompt: sysPrompt, temperature: 0.1, maxTokens: MAX_TOKENS_OUT, jsonMode: true, taskProfile: "synthesis_long_output" });
+      } else {
+        // HEAVY / MULTI-PAGE: map-reduce. Extract each part on its own (so the last
+        // page gets the same attention as the first - the old 12K truncation gave
+        // trailing pages NONE), then merge with dedupe. Parts run sequentially to be
+        // gentle on the free-tier chain; a failed or empty part is skipped, not fatal.
+        const partials: Array<Record<string, unknown>> = [];
+        for (let i = 0; i < chunks.length; i++) {
+          const note = `[Part ${i + 1} of ${chunks.length} of one resume. Extract every fact in THIS part only; another part covers the rest.]\n\n`;
+          let pr = "";
+          try {
+            pr = await callAI(note + chunks[i], { systemPrompt: sysPrompt, temperature: 0.1, maxTokens: MAX_TOKENS_OUT, jsonMode: true, taskProfile: "synthesis_long_output" });
+          } catch (_) { continue; }
+          if (!pr || pr === "{}") continue;
+          try { partials.push(JSON.parse(pr)); } catch (_) { /* skip an unparseable part, keep the rest */ }
+        }
+        if (!partials.length) {
+          return json({ error: "Could not read this file. Try a clearer file or split it into two.", ai_provider_unavailable: true }, 502);
+        }
+        return json({ fields: coerceFields(mergePartials(partials)), remaining });
+      }
     }
 
     if (!raw || raw === "{}") {

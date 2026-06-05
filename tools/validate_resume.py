@@ -17,6 +17,13 @@ Checks:
   6. Edge functions exist and contain NO em dash (U+2014) in prompt strings
      (they garble as a 3-char sequence under Windows-1252 misdecode).
   7. Smoke spec exists and surface-coverage lists resume.html.
+  8. Lever A (summary reduce-pass): resume-polish has the synthesize_summary
+     mode; resume.html has buildResumeFacts + runSummarize + the btn-summary.
+  9. Lever B (heavy-file map-reduce): resume-extract has splitResumeText +
+     mergePartials and the 12K hard-truncation is GONE (MAX_TEXT_TOTAL/CHUNK_CHARS).
+ 10. Lever C (vendored taxonomy): _shared/resume-taxonomy.ts exists with its
+     exports, resume-extract imports it, and the offline _JD_DICT in resume.html
+     stays in sync with MAINTENANCE_SKILLS (a sentinel subset is in both).
 
 Exit 0 if all PASS, 1 if any FAIL. Prints one line per check.
 """
@@ -66,6 +73,12 @@ def validate_resume():
         check("calls resume-extract edge fn", "functions/v1/resume-extract" in html)
         check("calls resume-polish edge fn", "functions/v1/resume-polish" in html)
         check("editable-checklist review sheet present (internal control)", "review-sheet" in html and "openReview" in html)
+        # Lever A (summary reduce-pass): the whole-resume facts builder + runner + button.
+        check("summary reduce-pass: buildResumeFacts + runSummarize present",
+              "buildResumeFacts" in html and "runSummarize" in html and "synthesize_summary" in html,
+              "the opening summary must synthesize the WHOLE resume from computed facts, not transcribe the old doc")
+        check("summary reduce-pass: btn-summary wired",
+              'id="btn-summary"' in html and "getElementById('btn-summary')" in html)
 
     nav = read("nav-hub.js")
     check("registered in nav-hub.js TOOLS", bool(nav) and "href: 'resume.html'" in nav)
@@ -103,6 +116,38 @@ def validate_resume():
                 check("resume-extract: deterministic project-miner present (mineProjectsFromWork)",
                       "mineProjectsFromWork" in src and "PROJECT_VERB" in src,
                       "free-tier model under-extracts projects embedded in bullets; code miner is the recall safety net (measured 0/4 -> 4/4)")
+                # Lever B: heavy-file map-reduce, and the silent 12K truncation must be GONE.
+                check("resume-extract: heavy-file map-reduce present (splitResumeText + mergePartials)",
+                      "splitResumeText" in src and "mergePartials" in src,
+                      "a single 12K slice silently dropped trailing pages; chunk + merge keeps the tail")
+                check("resume-extract: no silent 12K truncation (MAX_TEXT_CHARS removed)",
+                      "MAX_TEXT_CHARS" not in src and "MAX_TEXT_TOTAL" in src and "CHUNK_CHARS" in src,
+                      "the old hard slice must not come back")
+                # Lever C: the vendored taxonomy is imported (canonicalization + verbs).
+                check("resume-extract: imports vendored resume-taxonomy",
+                      "resume-taxonomy.ts" in src and "canonicalizeSkill" in src)
+            if fn == "resume-polish":
+                check("resume-polish: synthesize_summary mode present (summary reduce-pass)",
+                      "synthesize_summary" in src and "SUMMARIZE_SYSTEM" in src,
+                      "the whole-resume summary is a server mode fed a deterministic fact sheet")
+
+    # Lever C: the vendored taxonomy file + the offline JD-dict mirror stay in sync.
+    tax = read("supabase/functions/_shared/resume-taxonomy.ts")
+    check("resume-taxonomy.ts exists", tax is not None)
+    if tax:
+        for sym in ("MAINTENANCE_SKILLS", "PROJECT_ACTION_VERBS", "SECTION_HEADERS",
+                    "SKILL_CANON", "canonicalizeSkill", "isSectionHeaderLine"):
+            check(f"resume-taxonomy exports {sym}", sym in tax)
+        check("resume-taxonomy: no em dash (U+2014)", "—" not in tax)
+        if html:
+            # Drift guard: a sentinel subset must appear in BOTH the taxonomy and the
+            # client _JD_DICT mirror (no build step, so the mirror is hand-kept).
+            sentinel = ["preventive maintenance", "vibration analysis", "root cause analysis",
+                        "condition monitoring", "reliability-centered maintenance"]
+            both = [t for t in sentinel if t in tax and t in html]
+            check("offline _JD_DICT mirrors MAINTENANCE_SKILLS (sentinel subset in both)",
+                  len(both) == len(sentinel),
+                  f"missing from one side: {[t for t in sentinel if t not in both]}")
 
     spec = read("tests/resume.spec.ts")
     check("smoke spec tests/resume.spec.ts exists", spec is not None)
