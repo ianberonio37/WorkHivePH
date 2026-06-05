@@ -1230,8 +1230,16 @@
         if (end) latest = latest === null ? end : Math.max(latest, end);
       });
       if (earliest === null) return '';
-      const yrs = Math.max(0, (latest || nowY) - earliest);
-      return yrs <= 0 ? 'less than a year' : (yrs + (yrs === 1 ? ' year' : ' years'));
+      const end = latest || nowY;
+      // Only assert a tenure on a genuine CROSS-year span. With year-only precision a
+      // single same-year record (e.g. an auto-filled "solo practice" entry dated this
+      // year = when the worker joined WorkHive, NOT their career start) carries no real
+      // span - asserting a sub-year tenure there would label an experienced worker
+      // (300 logged jobs, 30 assets, L5 badges) as entry-level. Unknown -> '' and the
+      // summary leads with SCOPE instead of a misleading tenure.
+      if (end <= earliest) return '';
+      const yrs = end - earliest;
+      return yrs + (yrs === 1 ? ' year' : ' years');
     }
     function buildResumeFacts() {
       const b = resume.basics || {};

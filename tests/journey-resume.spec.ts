@@ -221,6 +221,55 @@ test.describe('resume.html — Resume / CV Builder journey', () => {
     expect(String(f.years || ''), 'computed years present').toMatch(/year/);
   });
 
+  test('summary fact sheet: a same-year-only role claims NO tenure; a cross-year span yields the year count (years-precision fix, live MCP 2026-06-05)', async ({ whPage }) => {
+    // The live sweep caught this: an auto-filled "solo practice" role dated 2026-Present
+    // (= when the worker joined WorkHive, NOT their career start) made _resumeYears
+    // return "less than a year", so the summary called a worker with 300 logged jobs and
+    // L5 badges "early-career". With YEAR-only precision a same-year span carries no real
+    // tenure -> facts.years must be '' and the summary leads with scope, not a false tenure.
+    await whPage.route('**/functions/v1/resume-extract', (route) => route.fulfill({
+      status: 200, contentType: 'application/json',
+      body: JSON.stringify({ fields: {
+        basics: { name: 'Solo Worker', label: 'Maintenance Technician', email: '', phone: '', summary: '', location: { city: '', region: '' } },
+        work: [{ position: 'Maintenance Technician', name: 'Independent', location: '', startDate: '2019', endDate: '2019',
+          highlights: ['Logged 300 maintenance records across 30 equipment items'] }],
+        education: [], skills: [{ name: 'Instrumentation', level: '' }], certificates: [], projects: [], awards: [],
+      } }),
+    }));
+    await gotoResume(whPage);
+    await whPage.setInputFiles('#file-any', { name: 'cv.png', mimeType: 'image/png', buffer: PNG_1x1 });
+    await expect(whPage.locator('#review-sheet')).toHaveClass(/open/, { timeout: 15000 });
+    await whPage.click('#review-confirm');
+    await expect(whPage.locator('#review-sheet')).not.toHaveClass(/open/);
+
+    let sentFacts: Record<string, unknown> | null = null;
+    await whPage.route('**/functions/v1/resume-polish', (route) => {
+      try { const b = route.request().postDataJSON() || {}; if (b.mode === 'synthesize_summary') sentFacts = b.facts; } catch (_) { /* ignore */ }
+      route.fulfill({ status: 200, contentType: 'application/json',
+        body: JSON.stringify({ summary: 'Maintenance technician across instrumentation systems, with 300 logged maintenance records across 30 equipment items.' }) });
+    });
+
+    // Same-year-only span -> the fact sheet asserts NO tenure.
+    await whPage.click('#btn-summary');
+    await expect(whPage.locator('#review-sheet')).toHaveClass(/open/, { timeout: 15000 });
+    expect(sentFacts, 'fact sheet sent').toBeTruthy();
+    expect((sentFacts as Record<string, unknown>).years, 'no tenure from a same-year-only span').toBe('');
+    await whPage.click('#review-confirm');
+    await expect(whPage.locator('#review-sheet')).not.toHaveClass(/open/);
+
+    // Add a genuine cross-year role (2010-2020) -> a real 10-year span IS asserted.
+    await whPage.click('[data-action="add"][data-sec="work"]');
+    await whPage.locator('[data-sec="work"][data-field="position"]').last().fill('Maintenance Supervisor');
+    await whPage.locator('[data-sec="work"][data-field="name"]').last().fill('Universal Robina');
+    await whPage.locator('[data-sec="work"][data-field="startDate"]').last().fill('2010');
+    await whPage.locator('[data-sec="work"][data-field="endDate"]').last().fill('2020');
+
+    sentFacts = null;
+    await whPage.click('#btn-summary');
+    await expect(whPage.locator('#review-sheet')).toHaveClass(/open/, { timeout: 15000 });
+    expect((sentFacts as Record<string, unknown>).years, 'a real cross-year span yields the year count').toBe('10 years');
+  });
+
   test('work experience shows the quantified-bullet hint (coaches toward competitive bullets)', async ({ whPage }) => {
     await gotoResume(whPage);
     await whPage.click('[data-action="add"][data-sec="work"]');

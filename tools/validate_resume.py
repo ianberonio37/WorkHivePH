@@ -79,6 +79,12 @@ def validate_resume():
               "the opening summary must synthesize the WHOLE resume from computed facts, not transcribe the old doc")
         check("summary reduce-pass: btn-summary wired",
               'id="btn-summary"' in html and "getElementById('btn-summary')" in html)
+        # Years-precision fix (live MCP 2026-06-05): _resumeYears must only assert a
+        # tenure on a genuine CROSS-year span, or an auto-filled current-year "solo
+        # practice" role makes a veteran read as "less than a year"/"early-career".
+        check("summary reduce-pass: _resumeYears guards same-year spans (no false tenure)",
+              "_resumeYears" in html and "end <= earliest" in html and "less than a year" not in html,
+              "a same-year span must yield '' (unknown), not 'less than a year'")
 
     nav = read("nav-hub.js")
     check("registered in nav-hub.js TOOLS", bool(nav) and "href: 'resume.html'" in nav)
@@ -130,6 +136,9 @@ def validate_resume():
                 check("resume-polish: synthesize_summary mode present (summary reduce-pass)",
                       "synthesize_summary" in src and "SUMMARIZE_SYSTEM" in src,
                       "the whole-resume summary is a server mode fed a deterministic fact sheet")
+                check("resume-polish: summary prompt forbids implying tenure when years is empty",
+                      "years_experience is EMPTY" in src and "early-career" in src,
+                      "live MCP fix: no 'early-career'/'less than a year' when the data gives no real span")
 
     # Lever C: the vendored taxonomy file + the offline JD-dict mirror stay in sync.
     tax = read("supabase/functions/_shared/resume-taxonomy.ts")

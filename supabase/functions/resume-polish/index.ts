@@ -114,7 +114,7 @@ const SUMMARIZE_SYSTEM = `You write the PROFESSIONAL SUMMARY (the opening sectio
 You are given a fact sheet already computed from the worker's resume: years of experience, their current or most recent role, the list of roles they have held, their top skills, certifications, their strongest quantified achievements, and highest education. Write the summary FROM these facts.
 Respond ONLY with JSON: { "summary": "..." }.
 Rules:
-1. 2 to 4 sentences, written in the implied third person (no "I", no "my"). Open with seniority, years, and field, for example "Maintenance technician with 8 years across food and beverage plants".
+1. 2 to 4 sentences, written in the implied third person (no "I", no "my"). If years_experience is given, open with the role, that tenure, and the field, for example "Maintenance technician with 8 years across food and beverage plants". If years_experience is EMPTY or absent, do NOT state or imply any length of experience: no "X years", no "less than a year", and do not call them "early-career", "junior", "entry-level", or "seasoned". Instead open with the role and the SCOPE of their work (systems, equipment, records, disciplines) drawn from the facts.
 2. Synthesize the WHOLE picture: weave in the worker's strongest real skills and ONE flagship achievement from the facts. Prefer an achievement that carries a number, and quote that number exactly as given.
 3. Use ONLY the facts provided. Do NOT invent employers, numbers, percentages, certifications, schools, or skills that are not in the fact sheet. Never state a number that does not appear in an achievement fact.
 4. Confident and recruiter-scannable, in plain professional English. No filler buzzwords (hardworking, team player, detail-oriented) unless a fact backs it.
