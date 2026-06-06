@@ -23,8 +23,13 @@ test('get_hive_board_dashboard equals the separate hive-board loader queries', a
 
     const rpc = await db.rpc('get_hive_board_dashboard', { p_hive_id: HIVE_ID });
 
+    const aiReport = (type: string) => db.from('v_ai_reports_truth')
+      .select('generated_at, report_type').eq('hive_id', HIVE_ID).eq('report_type', type)
+      .order('generated_at', { ascending: false }).limit(1).maybeSingle();
+
     const [membersRes, openWorkersRes, feedLogRes, openCountRes, feedPmRes,
-           pmScopeRes, teamInvRes, pendAssetsRes, pendPartsRes] = await Promise.all([
+           pmScopeRes, teamInvRes, pendAssetsRes, pendPartsRes,
+           auditRes, aiFdRes, aiPredRes, aiPmRes, patRes, benchHiveRes, benchNetRes] = await Promise.all([
       db.from('hive_members').select('worker_name, role, status')
         .eq('hive_id', HIVE_ID).neq('status', 'kicked').order('joined_at'),
       db.from('v_logbook_truth').select('worker_name').eq('hive_id', HIVE_ID).eq('status', 'Open'),
@@ -40,6 +45,14 @@ test('get_hive_board_dashboard equals the separate hive-board loader queries', a
         .eq('hive_id', HIVE_ID).eq('status', 'approved'),
       db.from('asset_nodes').select('id').eq('hive_id', HIVE_ID).eq('status', 'pending'),
       db.from('v_inventory_items_truth').select('id').eq('hive_id', HIVE_ID).eq('status', 'pending'),
+      db.from('hive_audit_log').select('id').eq('hive_id', HIVE_ID).order('created_at', { ascending: false }).limit(50),
+      aiReport('failure_digest'), aiReport('predictive'), aiReport('pm_overdue'),
+      db.from('v_alert_truth').select('machine, title, detected_at')
+        .eq('hive_id', HIVE_ID).eq('alert_kind', 'signature').eq('status', 'active')
+        .order('severity', { ascending: false }).order('detected_at', { ascending: false }).limit(5),
+      db.from('hive_benchmarks').select('equipment_category').eq('hive_id', HIVE_ID)
+        .order('failure_count', { ascending: false }).limit(5),
+      db.from('network_benchmarks').select('equipment_category').order('sample_hives', { ascending: false }).limit(10),
     ]);
 
     const pmCount = (arr: any[]) => ({
@@ -66,6 +79,11 @@ test('get_hive_board_dashboard equals the separate hive-board loader queries', a
         team_inv_keys: (teamInvRes.data || []).map(invKey),
         pend_asset_ids:(pendAssetsRes.data || []).map((a: any) => a.id),
         pend_part_ids: (pendPartsRes.data || []).map((p: any) => p.id),
+        audit_ids:     (auditRes.data || []).map((a: any) => a.id),
+        ai_gen:        { failure_digest: aiFdRes.data?.generated_at || null, predictive: aiPredRes.data?.generated_at || null, pm_overdue: aiPmRes.data?.generated_at || null },
+        pat_keys:      (patRes.data || []).map((a: any) => `${a.machine}|${a.title}|${a.detected_at}`),
+        bench_hive:    (benchHiveRes.data || []).map((h: any) => h.equipment_category),
+        bench_net:     (benchNetRes.data || []).map((n: any) => n.equipment_category),
       },
     };
   });
@@ -104,4 +122,17 @@ test('get_hive_board_dashboard equals the separate hive-board loader queries', a
   // approval queue
   expect(sortStr((rpc.pending_assets || []).map((a: any) => a.id)), 'pending asset ids').toEqual(sortStr(sep.pend_asset_ids));
   expect(sortStr((rpc.pending_parts || []).map((p: any) => p.id)), 'pending part ids').toEqual(sortStr(sep.pend_part_ids));
+
+  // ── Phase 2 analytics cards ──
+  // audit log (supervisor key; fixture runs as supervisor so it's populated)
+  expect(sortStr((rpc.audit_log || []).map((a: any) => a.id)), 'audit log ids').toEqual(sortStr(sep.audit_ids));
+  // ai brief — latest generated_at per type
+  ['failure_digest', 'predictive', 'pm_overdue'].forEach((t) => {
+    expect((rpc.ai_reports?.[t]?.generated_at) || null, `ai ${t}`).toBe((sep.ai_gen as any)[t]);
+  });
+  // pattern alerts — same set (machine|title|detected_at)
+  expect(sortStr((rpc.pattern_alerts || []).map((a: any) => `${a.machine}|${a.title}|${a.detected_at}`)), 'pattern alerts').toEqual(sortStr(sep.pat_keys));
+  // benchmarks — same categories (hive + network)
+  expect(sortStr((rpc.benchmarks?.hive || []).map((h: any) => h.equipment_category)), 'bench hive cats').toEqual(sortStr(sep.bench_hive));
+  expect(sortStr((rpc.benchmarks?.network || []).map((n: any) => n.equipment_category)), 'bench net cats').toEqual(sortStr(sep.bench_net));
 });

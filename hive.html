@@ -3308,11 +3308,17 @@ async function loadAuditLog() {
   const section = document.getElementById('audit-log-section');
   section.classList.remove('hidden');
 
-  const { data, error } = await db.from('hive_audit_log')
-    .select('*')
-    .eq('hive_id', HIVE_ID)
-    .order('created_at', { ascending: false })
-    .limit(50);
+  let data, error = null;
+  if (_board && _board.audit_log) {
+    data = _board.audit_log;
+  } else {
+    const res = await db.from('hive_audit_log')
+      .select('*')
+      .eq('hive_id', HIVE_ID)
+      .order('created_at', { ascending: false })
+      .limit(50);
+    data = res.data; error = res.error;
+  }
 
   const list    = document.getElementById('audit-log-list');
   const emptyEl = document.getElementById('audit-log-empty');
@@ -3433,12 +3439,18 @@ async function loadTodaysBrief() {
   } catch { /* empty-catch-allow: best-effort silent swallow */ }
 
   const types = ['failure_digest', 'predictive', 'pm_overdue'];
-  const results = await Promise.allSettled(types.map(type =>
-    db.from('v_ai_reports_truth')
-      .select('summary, report_json, generated_at, report_type')
-      .eq('hive_id', HIVE_ID).eq('report_type', type)
-      .order('generated_at', { ascending: false }).limit(1).maybeSingle()
-  ));
+  let results;
+  if (_board && _board.ai_reports) {
+    // RPC supplied the latest report per type; shape it like allSettled output.
+    results = types.map(type => ({ status: 'fulfilled', value: { data: _board.ai_reports[type] || null } }));
+  } else {
+    results = await Promise.allSettled(types.map(type =>
+      db.from('v_ai_reports_truth')
+        .select('summary, report_json, generated_at, report_type')
+        .eq('hive_id', HIVE_ID).eq('report_type', type)
+        .order('generated_at', { ascending: false }).limit(1).maybeSingle()
+    ));
+  }
 
   const bullets = [];
   results.forEach((res, i) => {
@@ -3525,15 +3537,21 @@ async function loadPatternAlerts() {
     // Canonical: v_alert_truth (UNION of failure_signature_alerts + anomaly_signals).
     // Filter to signature kind so this pattern-alerts panel stays distinct from
     // anomaly entries. View renames: alert_title -> title, alert_detail -> detail.
-    const { data: alerts } = await db
-      .from('v_alert_truth')
-      .select('machine, category, title, detail, severity, rule_id, detected_at')
-      .eq('hive_id', HIVE_ID)
-      .eq('alert_kind', 'signature')
-      .eq('status', 'active')
-      .order('severity', { ascending: false })
-      .order('detected_at', { ascending: false })
-      .limit(5);
+    let alerts;
+    if (_board && _board.pattern_alerts) {
+      alerts = _board.pattern_alerts;
+    } else {
+      const res = await db
+        .from('v_alert_truth')
+        .select('machine, category, title, detail, severity, rule_id, detected_at')
+        .eq('hive_id', HIVE_ID)
+        .eq('alert_kind', 'signature')
+        .eq('status', 'active')
+        .order('severity', { ascending: false })
+        .order('detected_at', { ascending: false })
+        .limit(5);
+      alerts = res.data;
+    }
 
     if (!alerts || !alerts.length) return;
 
@@ -3594,20 +3612,25 @@ async function loadBenchmarks() {
 
   try {
     // Fetch this hive's metrics and the network aggregate in parallel
-    const [hiveRes, networkRes] = await Promise.all([
-      db.from('hive_benchmarks')
-        .select('equipment_category, mtbf_days, failure_count, sample_machines')
-        .eq('hive_id', HIVE_ID)
-        .order('failure_count', { ascending: false })
-        .limit(5),
-      db.from('network_benchmarks')
-        .select('equipment_category, avg_mtbf_days, p75_mtbf_days, sample_hives')
-        .order('sample_hives', { ascending: false })
-        .limit(10),
-    ]);
-
-    const hiveData    = hiveRes.data || [];
-    const networkData = networkRes.data || [];
+    let hiveData, networkData;
+    if (_board && _board.benchmarks) {
+      hiveData    = _board.benchmarks.hive    || [];
+      networkData = _board.benchmarks.network || [];
+    } else {
+      const [hiveRes, networkRes] = await Promise.all([
+        db.from('hive_benchmarks')
+          .select('equipment_category, mtbf_days, failure_count, sample_machines')
+          .eq('hive_id', HIVE_ID)
+          .order('failure_count', { ascending: false })
+          .limit(5),
+        db.from('network_benchmarks')
+          .select('equipment_category, avg_mtbf_days, p75_mtbf_days, sample_hives')
+          .order('sample_hives', { ascending: false })
+          .limit(10),
+      ]);
+      hiveData    = hiveRes.data    || [];
+      networkData = networkRes.data || [];
+    }
 
     // Build a lookup of network benchmarks by category.
     const netByCategory = {};

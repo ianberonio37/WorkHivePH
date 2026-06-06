@@ -6486,7 +6486,7 @@
       "defined_in": "20260607000000_get_hive_board_dashboard.sql",
       "args": "p_hive_id uuid",
       "security_definer": true,
-      "comment": "Hive Board (hive.html) fan-out collapse PHASE 1: members/feed/pm-health/team-stock/approval-queue in one jsonb round-trip. Membership-gated via auth.uid() (SECURITY DEFINER bypasses RLS). Reads the same canonical views/tables as the client loaders so output is parity-equal. Worker-scoped + analytics + readiness/adoption loaders remain on their own queries (Phase 2/3).",
+      "comment": "Hive Board (hive.html) fan-out collapse PHASE 2: members/feed/pm/team-stock/approvals (P1) + audit-log/ai-brief/pattern-alerts/benchmarks (P2) in one jsonb round-trip. Membership-gated via auth.uid(); supervisor-only keys (audit_log, pending_*, team_inventory) are NULL for non-supervisors. Reads the same canonical views/tables as the client loaders so output is parity-equal. Worker-scoped (stock/notif) + readiness/adoption remain on their own queries (Phase 3).",
       "called_by_surfaces": [
         "hive.html"
       ],
@@ -6743,7 +6743,7 @@
         "ai-orchestrator",
         "benchmark-compute"
       ],
-      "size_kb": 207.6
+      "size_kb": 208.3
     },
     "index.html": {
       "tables_read": [],
