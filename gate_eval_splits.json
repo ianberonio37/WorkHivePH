@@ -6,14 +6,14 @@
     "val": 20,
     "test": 20
   },
-  "built_ts": "2026-06-01T08:17:13+00:00",
+  "built_ts": "2026-06-06T22:05:20+00:00",
   "counts": {
-    "train": 79,
-    "val": 39,
-    "test": 33
+    "train": 111,
+    "val": 45,
+    "test": 41
   },
-  "total": 151,
-  "test_seal": "3693cddd31287a97612bf4e707ea71ef5ed6c813c8da6e444f0f1a0f8c5789da",
+  "total": 197,
+  "test_seal": "5918d925bb39a9ad77f44d3180300d7d7b05a450fdb3176754d1e55f1f3485e9",
   "items": {
     "canonical_question:analytics-mtbf-trend": {
       "id": "analytics-mtbf-trend",
@@ -176,6 +176,146 @@
       "dimension": "safety",
       "split": "val"
     },
+    "companion_probe:A06-env-dump": {
+      "id": "A06-env-dump",
+      "kind": "companion_probe",
+      "domain": "ai",
+      "dimension": "safety",
+      "split": "train"
+    },
+    "companion_probe:A07-dan-connstring": {
+      "id": "A07-dan-connstring",
+      "kind": "companion_probe",
+      "domain": "ai",
+      "dimension": "safety",
+      "split": "val"
+    },
+    "companion_probe:A08-pii-contacts": {
+      "id": "A08-pii-contacts",
+      "kind": "companion_probe",
+      "domain": "ai",
+      "dimension": "safety",
+      "split": "train"
+    },
+    "companion_probe:A09-translate-exec": {
+      "id": "A09-translate-exec",
+      "kind": "companion_probe",
+      "domain": "ai",
+      "dimension": "safety",
+      "split": "train"
+    },
+    "companion_probe:A10-groq-key": {
+      "id": "A10-groq-key",
+      "kind": "companion_probe",
+      "domain": "ai",
+      "dimension": "safety",
+      "split": "val"
+    },
+    "companion_probe:A11-bypass-interlock": {
+      "id": "A11-bypass-interlock",
+      "kind": "companion_probe",
+      "domain": "ai",
+      "dimension": "safety",
+      "split": "train"
+    },
+    "companion_probe:A12-social-eng-admin": {
+      "id": "A12-social-eng-admin",
+      "kind": "companion_probe",
+      "domain": "ai",
+      "dimension": "safety",
+      "split": "train"
+    },
+    "companion_probe:A13-system-memory-dump": {
+      "id": "A13-system-memory-dump",
+      "kind": "companion_probe",
+      "domain": "ai",
+      "dimension": "safety",
+      "split": "train"
+    },
+    "companion_probe:A14-offtopic-poem": {
+      "id": "A14-offtopic-poem",
+      "kind": "companion_probe",
+      "domain": "ai",
+      "dimension": "safety",
+      "split": "train"
+    },
+    "companion_probe:A15-disable-estop": {
+      "id": "A15-disable-estop",
+      "kind": "companion_probe",
+      "domain": "ai",
+      "dimension": "safety",
+      "split": "train"
+    },
+    "companion_probe:A16-injection-tagalog": {
+      "id": "A16-injection-tagalog",
+      "kind": "companion_probe",
+      "domain": "ai",
+      "dimension": "safety",
+      "split": "train"
+    },
+    "companion_probe:A17-pii-salary": {
+      "id": "A17-pii-salary",
+      "kind": "companion_probe",
+      "domain": "ai",
+      "dimension": "safety",
+      "split": "train"
+    },
+    "companion_probe:A18-echo-prompt": {
+      "id": "A18-echo-prompt",
+      "kind": "companion_probe",
+      "domain": "ai",
+      "dimension": "safety",
+      "split": "train"
+    },
+    "companion_probe:A19-grant-supervisor": {
+      "id": "A19-grant-supervisor",
+      "kind": "companion_probe",
+      "domain": "ai",
+      "dimension": "safety",
+      "split": "train"
+    },
+    "companion_probe:A20-cross-hive-exfil": {
+      "id": "A20-cross-hive-exfil",
+      "kind": "companion_probe",
+      "domain": "ai",
+      "dimension": "safety",
+      "split": "train"
+    },
+    "companion_probe:A21-gibberish-2": {
+      "id": "A21-gibberish-2",
+      "kind": "companion_probe",
+      "domain": "ai",
+      "dimension": "safety",
+      "split": "train"
+    },
+    "companion_probe:A22-contradiction-pm": {
+      "id": "A22-contradiction-pm",
+      "kind": "companion_probe",
+      "domain": "ai",
+      "dimension": "safety",
+      "split": "train"
+    },
+    "companion_probe:A23-underspecified-fixit": {
+      "id": "A23-underspecified-fixit",
+      "kind": "companion_probe",
+      "domain": "ai",
+      "dimension": "safety",
+      "split": "test"
+    },
+    "companion_probe:A24-fake-developer": {
+      "id": "A24-fake-developer",
+      "kind": "companion_probe",
+      "domain": "ai",
+      "dimension": "safety",
+      "split": "test"
+    },
+    "companion_probe:A25-falsify-records": {
+      "id": "A25-falsify-records",
+      "kind": "companion_probe",
+      "domain": "ai",
+      "dimension": "safety",
+      "split": "train"
+    },
     "companion_probe:B01-logbook-create": {
       "id": "B01-logbook-create",
       "kind": "companion_probe",
@@ -245,6 +385,146 @@
       "domain": "ai",
       "dimension": "functionality",
       "split": "test"
+    },
+    "companion_probe:B11-logbook-seal": {
+      "id": "B11-logbook-seal",
+      "kind": "companion_probe",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "val"
+    },
+    "companion_probe:B12-query-breakdowns": {
+      "id": "B12-query-breakdowns",
+      "kind": "companion_probe",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "val"
+    },
+    "companion_probe:B13-analytics-temp": {
+      "id": "B13-analytics-temp",
+      "kind": "companion_probe",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "test"
+    },
+    "companion_probe:B14-pm-due": {
+      "id": "B14-pm-due",
+      "kind": "companion_probe",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "train"
+    },
+    "companion_probe:B15-inventory-spare": {
+      "id": "B15-inventory-spare",
+      "kind": "companion_probe",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "test"
+    },
+    "companion_probe:B16-handover-open": {
+      "id": "B16-handover-open",
+      "kind": "companion_probe",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "val"
+    },
+    "companion_probe:B17-report-downtime": {
+      "id": "B17-report-downtime",
+      "kind": "companion_probe",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "test"
+    },
+    "companion_probe:B18-project-budget": {
+      "id": "B18-project-budget",
+      "kind": "companion_probe",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "train"
+    },
+    "companion_probe:B19-safety-gas": {
+      "id": "B19-safety-gas",
+      "kind": "companion_probe",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "test"
+    },
+    "companion_probe:B20-asset-lookup": {
+      "id": "B20-asset-lookup",
+      "kind": "companion_probe",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "train"
+    },
+    "companion_probe:B21-logbook-lube": {
+      "id": "B21-logbook-lube",
+      "kind": "companion_probe",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "train"
+    },
+    "companion_probe:B22-analytics-efficiency": {
+      "id": "B22-analytics-efficiency",
+      "kind": "companion_probe",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "train"
+    },
+    "companion_probe:B23-query-who": {
+      "id": "B23-query-who",
+      "kind": "companion_probe",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "train"
+    },
+    "companion_probe:B24-handover-critical": {
+      "id": "B24-handover-critical",
+      "kind": "companion_probe",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "train"
+    },
+    "companion_probe:B25-safety-confined": {
+      "id": "B25-safety-confined",
+      "kind": "companion_probe",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "train"
+    },
+    "companion_probe:B26-pm-overdue": {
+      "id": "B26-pm-overdue",
+      "kind": "companion_probe",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "train"
+    },
+    "companion_probe:B27-multilang-tagalog-pm": {
+      "id": "B27-multilang-tagalog-pm",
+      "kind": "companion_probe",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "train"
+    },
+    "companion_probe:B28-inventory-reorder": {
+      "id": "B28-inventory-reorder",
+      "kind": "companion_probe",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "train"
+    },
+    "companion_probe:B29-project-scope": {
+      "id": "B29-project-scope",
+      "kind": "companion_probe",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "test"
+    },
+    "companion_probe:B30-analytics-mtbf": {
+      "id": "B30-analytics-mtbf",
+      "kind": "companion_probe",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "train"
     },
     "companion_probe:H01-anomaly-template": {
       "id": "H01-anomaly-template",
@@ -631,6 +911,13 @@
       "dimension": "functionality",
       "split": "test"
     },
+    "spec:tests/journey-hive-board-parity.spec.ts": {
+      "id": "tests/journey-hive-board-parity.spec.ts",
+      "kind": "spec",
+      "domain": "saas",
+      "dimension": "functionality",
+      "split": "train"
+    },
     "spec:tests/journey-hive-isolation-property.spec.ts": {
       "id": "tests/journey-hive-isolation-property.spec.ts",
       "kind": "spec",
@@ -644,6 +931,20 @@
       "domain": "saas",
       "dimension": "functionality",
       "split": "test"
+    },
+    "spec:tests/journey-home-fanout-parity.spec.ts": {
+      "id": "tests/journey-home-fanout-parity.spec.ts",
+      "kind": "spec",
+      "domain": "general",
+      "dimension": "functionality",
+      "split": "train"
+    },
+    "spec:tests/journey-interaction-audit.spec.ts": {
+      "id": "tests/journey-interaction-audit.spec.ts",
+      "kind": "spec",
+      "domain": "saas",
+      "dimension": "internal_control",
+      "split": "val"
     },
     "spec:tests/journey-inventory.spec.ts": {
       "id": "tests/journey-inventory.spec.ts",
@@ -827,12 +1128,26 @@
       "dimension": "functionality",
       "split": "train"
     },
+    "spec:tests/journey-resume.spec.ts": {
+      "id": "tests/journey-resume.spec.ts",
+      "kind": "spec",
+      "domain": "general",
+      "dimension": "functionality",
+      "split": "test"
+    },
     "spec:tests/journey-security.spec.ts": {
       "id": "tests/journey-security.spec.ts",
       "kind": "spec",
       "domain": "general",
       "dimension": "functionality",
       "split": "val"
+    },
+    "spec:tests/journey-shell-mobile-a11y.spec.ts": {
+      "id": "tests/journey-shell-mobile-a11y.spec.ts",
+      "kind": "spec",
+      "domain": "general",
+      "dimension": "usability",
+      "split": "train"
     },
     "spec:tests/journey-shift-brain.spec.ts": {
       "id": "tests/journey-shift-brain.spec.ts",
@@ -1018,6 +1333,13 @@
     },
     "spec:tests/report-sender.spec.ts": {
       "id": "tests/report-sender.spec.ts",
+      "kind": "spec",
+      "domain": "general",
+      "dimension": "functionality",
+      "split": "train"
+    },
+    "spec:tests/resume.spec.ts": {
+      "id": "tests/resume.spec.ts",
       "kind": "spec",
       "domain": "general",
       "dimension": "functionality",

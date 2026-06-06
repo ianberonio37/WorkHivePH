@@ -1,0 +1,10 @@
+{
+  "_README": "Forward-only DEBT CEILING for hand-rolled modal a11y (role=dialog+aria-modal). Lower these as Grounded Sweep critique C7 retrofits land; never raise. Regenerate with: python validate_modal_a11y.py --update-baseline",
+  "total_noncompliant": 13,
+  "per_page": {
+    "hive.html": 2,
+    "index.html": 0,
+    "inventory.html": 4,
+    "logbook.html": 7
+  }
+}

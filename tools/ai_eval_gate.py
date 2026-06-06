@@ -143,7 +143,16 @@ def baseline() -> int:
               f"(or drop an ai_quality_log export there) before freezing a baseline.{RESET}")
         return 0
     scored = score_results(res["results"], _split_index())
+    # C5 (tools/ai_asset_baseline.py) treats this frozen golden as a versioned AI
+    # asset: it MUST carry an int `_meta.ai_asset_version`, and any re-freeze (the
+    # content hash moves) must bump it. Carry the prior version forward + 1, else
+    # start at 1. Without this, the first real freeze flips C5 PASS->FAIL
+    # ("unparseable: missing/non-int version") — found 2026-06-07 grounded sweep.
+    _prev = _load_json(BASELINE_PATH) or {}
+    _prev_ver = (_prev.get("_meta") or {}).get("ai_asset_version")
+    _asset_ver = (_prev_ver + 1) if isinstance(_prev_ver, int) else 1
     out = {
+        "_meta": {"ai_asset_version": _asset_ver},
         "frozen_ts": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "source": res.get("source"), "source_generated_ts": res.get("generated_ts"),
         "tolerances": DEFAULT_TOL,

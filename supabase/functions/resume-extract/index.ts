@@ -75,13 +75,16 @@ const BARE_ROLE_SKILLS = new Set([
 ]);
 
 // Deterministic project-miner. The free-tier model reliably extracts jobs, skills,
-// certs, and even AWARDS embedded in bullets, but routinely SKIPS PROJECTS embedded
-// in job bullets even when the prompt names them (measured 0/4 on a heavy senior
-// resume). So we mine them in CODE - the same WAT split as BARE_ROLE_SKILLS: rules
-// the model won't follow live to deterministic code. A bullet is promoted to a
-// Project only when it carries a strong initiative VERB and a project NOUN and is
-// NOT a routine duty (both required = conservative, ~0 false positives). Recall-first:
-// the bullet STAYS a work highlight; the editable checklist is where the worker curates.
+// and certs, but routinely SKIPS PROJECTS embedded in job bullets even when the
+// prompt names them (measured 0/4 on a heavy senior resume). AWARDS embedded in
+// bullets are ALSO dropped (measured 0/2 across 3 runs on a heavy resume whose
+// bullets read "Named Reliability Engineer of the Year 2019" and "Received the Top
+// Performer Award in 2008" - the prompt rule 5 did not fix it). So we mine BOTH in
+// CODE - the same WAT split as BARE_ROLE_SKILLS: rules the model won't follow live
+// to deterministic code. A bullet is promoted to a Project only when it carries a
+// strong initiative VERB and a project NOUN and is NOT a routine duty (both required
+// = conservative, ~0 false positives). Recall-first: the bullet STAYS a work
+// highlight; the editable checklist is where the worker curates.
 const PROJECT_VERB = /\b(spearheaded|led the (?:installation|implementation|rollout|roll-out|deployment|commissioning|design|build|development|launch)|rolled out|implemented|deployed|designed|engineered|established|launched|commissioned|retrofitted|built|developed|introduced|set up|drove|piloted|standardi[sz]ed|automated|migrated|upgraded)\b/i;
 // Broaden initiative-verb recall from the vendored open-source action-verb list
 // (resume-taxonomy.ts) so a strong bullet led by a verb the hand-built regex missed
@@ -117,6 +120,62 @@ function mineProjectsFromWork(
       if (!name || seen.has(norm(name)) || seenDesc.has(norm(h))) continue;
       seen.add(norm(name)); seenDesc.add(norm(h));
       mined.push({ name: clampStr(name, 160), description: clampStr(h, 600) });
+    }
+  }
+  return mined;
+}
+
+// Deterministic award-miner (symmetric to the project-miner). Awards/recognitions
+// hide inside job bullets ("Named Reliability Engineer of the Year 2019", "Received
+// the Top Performer Award") and the model drops them as reliably as it drops
+// projects. The CUE is distinctive award NOUNS (award/recognition/medal/top
+// performer/dean's list) or an explicit "<role> of the year" / "named ... of the
+// year" - NOT generic verbs - so routine duties ("operated", "maintained") and
+// time phrases ("end of the year") do not false-positive. Recall-first: the bullet
+// stays a highlight; the checklist curates.
+const AWARD_CUE =
+  /\b(awards?|awarded|honou?red|honou?r roll|recipient|recognition|recogni[sz]ed (?:as|for|with)|top performer|dean'?s list(?:er)?|cum laude|gawad|medal|outstanding (?:employee|performer|performance|achievement)|presidential award|plaque of|certificate of (?:recognition|appreciation)|(?:employee|engineer|technician|worker|operator|supervisor|mechanic|electrician|fitter|welder|machinist|apprentice|staff|associate|manager|performer|student) of the (?:year|month|quarter)|(?:named|voted|selected|chosen)\b[^.]*\bof the (?:year|month|quarter)\b)/i;
+
+function awardFromBullet(h: string): { title: string; awarder: string; date: string } {
+  const dateM = h.match(/\b(?:19|20)\d{2}\b/);
+  const date = dateM ? dateM[0] : "";
+  const byM = h.match(/\bby\s+([^.,;]+)/i);
+  const awarder = byM ? byM[1].trim().replace(/[.;:]+$/, "").slice(0, 140) : "";
+  let s = h.replace(
+    /^\W*(?:was\s+|were\s+)?(?:named|awarded|received|won|earned|granted|honou?red(?:\s+with)?|recipient of|recogni[sz]ed(?:\s+as)?|given|presented with|voted|selected as|chosen as)\s+(?:the\s+|a\s+|an\s+)?/i,
+    "",
+  );
+  // Cut at the awarder ("by ..."), reason ("for ..."), source ("from ..."), or a clause break.
+  s = s.split(/\s+\bby\b\s+|\s+\bfor\b\s+|\s+\bfrom\b\s+|,| due to | after | in recognition/i)[0];
+  // Drop a trailing "in YYYY" or a standalone trailing year.
+  s = s.replace(/\s+in\s+(?:19|20)\d{2}\b.*$/i, "").replace(/\s*\b(?:19|20)\d{2}\b\s*$/, "");
+  s = s.trim().replace(/[.;:]+$/, "");
+  if (s.length > 100) s = s.slice(0, 100).trim();
+  const title = s ? s.charAt(0).toUpperCase() + s.slice(1) : "";
+  return { title, awarder, date };
+}
+
+function mineAwardsFromWork(
+  work: Array<{ highlights?: string[] }>,
+  existing: Array<{ title: string }>,
+): Array<{ title: string; awarder: string; date: string }> {
+  // Dedupe key ignores a trailing/embedded year and the literal word "award" so the
+  // model's version ("Apprentice of the Year 1998") and the mined version
+  // ("Apprentice of the Year"), or "Top Performer Award" vs "Top Performer", collapse
+  // to one. Without this, a map-reduce run where the model DID emit the award and the
+  // miner ALSO promoted its bullet produced a duplicate award row.
+  const norm = (s: string) =>
+    s.toLowerCase().replace(/\b(?:19|20)\d{2}\b/g, "").replace(/\bawards?\b/g, "")
+      .replace(/[^a-z0-9 ]+/g, " ").replace(/\s+/g, " ").trim();
+  const seen = new Set(existing.map((a) => norm(a.title)));
+  const mined: Array<{ title: string; awarder: string; date: string }> = [];
+  for (const w of work) {
+    for (const h of (w.highlights || [])) {
+      if (!AWARD_CUE.test(h)) continue;
+      const { title, awarder, date } = awardFromBullet(h);
+      if (!title || title.length < 3 || seen.has(norm(title))) continue;
+      seen.add(norm(title));
+      mined.push({ title: clampStr(title, 160), awarder: clampStr(awarder, 140), date: clampStr(date, 20) });
     }
   }
   return mined;
@@ -295,7 +354,16 @@ function coerceFields(p: Record<string, unknown>): Record<string, unknown> {
     position: clampStr(w.position, 140), name: clampStr(w.name, 160), location: clampStr(w.location, 120),
     startDate: clampStr(w.startDate, 20), endDate: clampStr(w.endDate, 20),
     highlights: Array.isArray(w.highlights) ? (w.highlights as unknown[]).slice(0, 8).map((h) => clampStr(h, 300)).filter(Boolean) : [],
-  }));
+  }))
+    // Drop phantom job rows: a work entry with NEITHER a job title NOR an
+    // employer has no renderable header - its bullets would float under a blank
+    // "Work experience N" row. Heavy/repetitive files and chunk boundaries
+    // produce these headerless "@" orphans (mergePartials concats them). Keying
+    // on header (not highlights) is deliberate: highlights with no home are
+    // unattributable, while a real job always carries a title OR a company, so
+    // recall-first is preserved (a title-only or employer-only entry survives
+    // for the checklist to curate).
+    .filter((w) => !!(w.position || w.name));
   out.education = clampArr(p.education, 15, (e) => ({
     institution: clampStr(e.institution, 160), studyType: clampStr(e.studyType, 140),
     area: clampStr(e.area, 120), startDate: clampStr(e.startDate, 20), endDate: clampStr(e.endDate, 20),
@@ -319,6 +387,13 @@ function coerceFields(p: Record<string, unknown>): Record<string, unknown> {
     out.projects as Array<{ name: string; description: string }>,
   );
   if (mined.length) out.projects = (out.projects as Array<unknown>).concat(mined).slice(0, 20);
+  // Safety net: promote award/recognition bullets the model left only as work
+  // highlights (it drops them as reliably as projects). Recall-first, deduped, capped.
+  const minedAwards = mineAwardsFromWork(
+    out.work as Array<{ highlights?: string[] }>,
+    out.awards as Array<{ title: string }>,
+  );
+  if (minedAwards.length) out.awards = (out.awards as Array<unknown>).concat(minedAwards).slice(0, 20);
   return out;
 }
 
@@ -400,7 +475,19 @@ serve(async (req) => {
         if (!partials.length) {
           return json({ error: "Could not read this file. Try a clearer file or split it into two.", ai_provider_unavailable: true }, 502);
         }
-        return json({ fields: coerceFields(mergePartials(partials)), remaining });
+        // Map-reduce honesty: a chunk that 429'd or returned empty was skipped
+        // (the `continue`s above), so the merged resume is missing that page's
+        // jobs/projects. Report how many of N sections were actually read so the
+        // client can warn the worker instead of silently dropping their last
+        // jobs - the free-tier/CGNAT audience is exactly who hits a mid-sequence
+        // 429. The single-chunk path never sets this (chunks.length === 1).
+        return json({
+          fields: coerceFields(mergePartials(partials)),
+          remaining,
+          chunks_total: chunks.length,
+          chunks_read: partials.length,
+          partial: partials.length < chunks.length,
+        });
       }
     }
 

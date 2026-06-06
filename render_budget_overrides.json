@@ -50,6 +50,11 @@
       "html_kb": 150,
       "inline_script_kb": 120,
       "_reason": "OEE + MTBF + Pareto charts inline. Trim plan: extract Recharts integration once shared chart lib lands."
+    },
+    "resume.html": {
+      "html_kb": 150,
+      "inline_script_kb": 120,
+      "_reason": "JSON-Resume builder: upload->AI-extract->editable-checklist editor + TRUE-OOXML .docx export (JSZip) + cover-letter draft + map-reduce client logic. Grew over the 06-03..06-06 sweeps. Trim plan: extract the .docx/JSZip writer + the taxonomy matcher into separately-loaded modules (PLATFORM_ROADMAP F.5)."
     }
   }
 }

@@ -2,7 +2,7 @@
   "_meta": {
     "format_version": "1.0",
     "description": "C4 Phase 1 \u2014 AI seams catalog. SaaS\u2192AI / AI\u2192AI / AI\u2192tenant / AI\u2192quota call sites. Consumed by Phase 2a (seam contract tests), Phase 2b (meta-gate composition), and `validate_ai_seams_inventory.py` (forward-only ratchet).",
-    "generated_at": "2026-06-02T20:10:56Z",
+    "generated_at": "2026-06-06T23:37:24Z",
     "seam_count": 118,
     "by_kind": {
       "saas\u2192ai": 15,
@@ -1108,7 +1108,7 @@
       "caller": "assistant.html",
       "callee": "ai-orchestrator",
       "file": "assistant.html",
-      "line": 855,
+      "line": 856,
       "evidence": "const orchRes = await fetchWithTimeout(`${SUPABASE_URL}/functions/v1/ai-orchestrator`, {",
       "contract_test": null
     },
@@ -1118,7 +1118,7 @@
       "caller": "companion-launcher.js",
       "callee": "ai-gateway",
       "file": "companion-launcher.js",
-      "line": 759,
+      "line": 761,
       "evidence": "const response = await fetcher(`${SUPABASE_URL}/functions/v1/ai-gateway`, {",
       "contract_test": null
     },

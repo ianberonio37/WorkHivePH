@@ -189,4 +189,29 @@ test.describe('shift-brain.html — shift planner journey', () => {
     }
     expect(found, `shift_plans row ${existing.id} should be published`).toBe(true);
   });
+
+  // ── Grounded MCP Sweep (Wave 1, 2026-06-07) ──────────────────────────────
+  // shift-brain's action buttons (Generate / Publish / Re-run / Archive) used
+  // a FIXED height:42px — 2px under the 44px gloved-hand minimum, while the
+  // same page's .details-toggle was already 44px. validate_mobile is blind to
+  // class-sized buttons. These buttons live behind the hive-gate and depend on
+  // plan state, so we assert the COMPUTED min-height (resolves regardless of
+  // visibility) — the gate-robust way to lock the 42->44 fix.
+  test('mobile: action buttons have min-height >= 44px (tap target)', async ({ whPage }) => {
+    await whPage.setViewportSize({ width: 390, height: 844 });
+    await whPage.goto(PAGE);
+    await waitForPageReady(whPage);
+    await whPage.waitForTimeout(1000);
+
+    const buttons = await whPage.evaluate(() => {
+      return [...document.querySelectorAll('.btn-primary, .btn-ghost')].map(e => ({
+        txt: (e.textContent || '').trim().slice(0, 20),
+        minHeight: parseFloat(getComputedStyle(e).minHeight) || 0,
+      }));
+    });
+    expect(buttons.length, 'shift-brain should expose .btn-primary/.btn-ghost action buttons').toBeGreaterThan(0);
+    for (const b of buttons) {
+      expect(b.minHeight, `"${b.txt}" min-height must be >= 44px (was fixed 42px)`).toBeGreaterThanOrEqual(44);
+    }
+  });
 });

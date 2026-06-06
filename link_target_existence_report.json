@@ -1,14 +1,14 @@
 {
   "summary": {
     "pages_scanned": 30,
-    "total_links": 201,
+    "total_links": 202,
     "total_broken": 0,
     "baseline": 0
   },
   "per_page": [
     {
       "page": "index.html",
-      "link_count": 37,
+      "link_count": 38,
       "broken": []
     },
     {

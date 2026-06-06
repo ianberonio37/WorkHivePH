@@ -1,192 +1,56 @@
 {
-  "timestamp": "2026-05-17T12:06:37.846552",
+  "timestamp": "2026-06-06T22:23:48.893313",
   "pages": {
-    "logbook": {
-      "page": "logbook",
-      "total_pass": 6,
+    "index": {
+      "page": "index",
+      "total_pass": 3,
       "total_fail": 0,
       "total_info": 3,
       "results": [
         {
-          "page": "logbook",
+          "page": "index",
           "role": "solo",
-          "element": "view_team_tab",
-          "expected": null,
-          "actual": false,
-          "result": "INFO"
-        },
-        {
-          "page": "logbook",
-          "role": "worker",
-          "element": "view_team_tab",
-          "expected": true,
-          "actual": true,
-          "result": "PASS"
-        },
-        {
-          "page": "logbook",
-          "role": "supervisor",
-          "element": "view_team_tab",
-          "expected": true,
-          "actual": true,
-          "result": "PASS"
-        },
-        {
-          "page": "logbook",
-          "role": "solo",
-          "element": "view_mine_tab",
-          "expected": null,
-          "actual": false,
-          "result": "INFO"
-        },
-        {
-          "page": "logbook",
-          "role": "worker",
-          "element": "view_mine_tab",
-          "expected": true,
-          "actual": true,
-          "result": "PASS"
-        },
-        {
-          "page": "logbook",
-          "role": "supervisor",
-          "element": "view_mine_tab",
-          "expected": true,
-          "actual": true,
-          "result": "PASS"
-        },
-        {
-          "page": "logbook",
-          "role": "solo",
-          "element": "search_input",
+          "element": "signin_modal_trigger",
           "expected": null,
           "actual": true,
           "result": "INFO"
         },
         {
-          "page": "logbook",
+          "page": "index",
           "role": "worker",
-          "element": "search_input",
-          "expected": true,
-          "actual": true,
-          "result": "PASS"
-        },
-        {
-          "page": "logbook",
-          "role": "supervisor",
-          "element": "search_input",
-          "expected": true,
-          "actual": true,
-          "result": "PASS"
-        }
-      ],
-      "diff": {
-        "supervisor_only": [],
-        "worker_and_above": [
-          "view_team_tab",
-          "view_mine_tab"
-        ],
-        "shared": [
-          "view_team_tab",
-          "search_input",
-          "view_mine_tab"
-        ],
-        "supervisor": {
-          "view_team_tab": true,
-          "view_mine_tab": true,
-          "search_input": true
-        },
-        "worker": {
-          "view_team_tab": true,
-          "view_mine_tab": true,
-          "search_input": true
-        },
-        "solo": {
-          "view_team_tab": false,
-          "view_mine_tab": false,
-          "search_input": true
-        }
-      },
-      "gate_results": {
-        "solo": true,
-        "worker": false,
-        "supervisor": false
-      }
-    },
-    "inventory": {
-      "page": "inventory",
-      "total_pass": 6,
-      "total_fail": 0,
-      "total_info": 3,
-      "results": [
-        {
-          "page": "inventory",
-          "role": "solo",
-          "element": "add_part_btn",
+          "element": "signin_modal_trigger",
           "expected": null,
           "actual": true,
           "result": "INFO"
         },
         {
-          "page": "inventory",
-          "role": "worker",
-          "element": "add_part_btn",
-          "expected": true,
-          "actual": true,
-          "result": "PASS"
-        },
-        {
-          "page": "inventory",
+          "page": "index",
           "role": "supervisor",
-          "element": "add_part_btn",
-          "expected": true,
-          "actual": true,
-          "result": "PASS"
-        },
-        {
-          "page": "inventory",
-          "role": "solo",
-          "element": "restock_btn",
+          "element": "signin_modal_trigger",
           "expected": null,
           "actual": true,
           "result": "INFO"
         },
         {
-          "page": "inventory",
-          "role": "worker",
-          "element": "restock_btn",
-          "expected": true,
-          "actual": true,
-          "result": "PASS"
-        },
-        {
-          "page": "inventory",
-          "role": "supervisor",
-          "element": "restock_btn",
-          "expected": true,
-          "actual": true,
-          "result": "PASS"
-        },
-        {
-          "page": "inventory",
+          "page": "index",
           "role": "solo",
-          "element": "use_btn",
-          "expected": null,
-          "actual": true,
-          "result": "INFO"
-        },
-        {
-          "page": "inventory",
-          "role": "worker",
-          "element": "use_btn",
+          "element": "hero_section",
           "expected": true,
           "actual": true,
           "result": "PASS"
         },
         {
-          "page": "inventory",
+          "page": "index",
+          "role": "worker",
+          "element": "hero_section",
+          "expected": true,
+          "actual": true,
+          "result": "PASS"
+        },
+        {
+          "page": "index",
           "role": "supervisor",
-          "element": "use_btn",
+          "element": "hero_section",
           "expected": true,
           "actual": true,
           "result": "PASS"
@@ -196,440 +60,48 @@
         "supervisor_only": [],
         "worker_and_above": [],
         "shared": [
-          "use_btn",
-          "restock_btn",
-          "add_part_btn"
+          "signin_modal_trigger",
+          "hero_section"
         ],
         "supervisor": {
-          "add_part_btn": true,
-          "restock_btn": true,
-          "use_btn": true
+          "signin_modal_trigger": true,
+          "hero_section": true
         },
         "worker": {
-          "add_part_btn": true,
-          "restock_btn": true,
-          "use_btn": true
+          "signin_modal_trigger": true,
+          "hero_section": true
         },
         "solo": {
-          "add_part_btn": true,
-          "restock_btn": true,
-          "use_btn": true
+          "signin_modal_trigger": true,
+          "hero_section": true
         }
       },
       "gate_results": {
         "solo": false,
-        "worker": false,
-        "supervisor": false
-      }
-    },
-    "pm-scheduler": {
-      "page": "pm-scheduler",
-      "total_pass": 4,
-      "total_fail": 0,
-      "total_info": 5,
-      "results": [
-        {
-          "page": "pm-scheduler",
-          "role": "solo",
-          "element": "filter_all_btn",
-          "expected": null,
-          "actual": true,
-          "result": "INFO"
-        },
-        {
-          "page": "pm-scheduler",
-          "role": "worker",
-          "element": "filter_all_btn",
-          "expected": true,
-          "actual": true,
-          "result": "PASS"
-        },
-        {
-          "page": "pm-scheduler",
-          "role": "supervisor",
-          "element": "filter_all_btn",
-          "expected": true,
-          "actual": true,
-          "result": "PASS"
-        },
-        {
-          "page": "pm-scheduler",
-          "role": "solo",
-          "element": "filter_overdue_btn",
-          "expected": null,
-          "actual": true,
-          "result": "INFO"
-        },
-        {
-          "page": "pm-scheduler",
-          "role": "worker",
-          "element": "filter_overdue_btn",
-          "expected": true,
-          "actual": true,
-          "result": "PASS"
-        },
-        {
-          "page": "pm-scheduler",
-          "role": "supervisor",
-          "element": "filter_overdue_btn",
-          "expected": true,
-          "actual": true,
-          "result": "PASS"
-        },
-        {
-          "page": "pm-scheduler",
-          "role": "solo",
-          "element": "filter_due_soon_btn",
-          "expected": null,
-          "actual": true,
-          "result": "INFO"
-        },
-        {
-          "page": "pm-scheduler",
-          "role": "worker",
-          "element": "filter_due_soon_btn",
-          "expected": null,
-          "actual": true,
-          "result": "INFO"
-        },
-        {
-          "page": "pm-scheduler",
-          "role": "supervisor",
-          "element": "filter_due_soon_btn",
-          "expected": null,
-          "actual": true,
-          "result": "INFO"
-        }
-      ],
-      "diff": {
-        "supervisor_only": [],
-        "worker_and_above": [],
-        "shared": [
-          "filter_all_btn",
-          "filter_overdue_btn",
-          "filter_due_soon_btn"
-        ],
-        "supervisor": {
-          "filter_all_btn": true,
-          "filter_overdue_btn": true,
-          "filter_due_soon_btn": true
-        },
-        "worker": {
-          "filter_all_btn": true,
-          "filter_overdue_btn": true,
-          "filter_due_soon_btn": true
-        },
-        "solo": {
-          "filter_all_btn": true,
-          "filter_overdue_btn": true,
-          "filter_due_soon_btn": true
-        }
-      },
-      "gate_results": {
-        "solo": false,
-        "worker": false,
-        "supervisor": false
-      }
-    },
-    "hive": {
-      "page": "hive",
-      "total_pass": 2,
-      "total_fail": 0,
-      "total_info": 4,
-      "results": [
-        {
-          "page": "hive",
-          "role": "solo",
-          "element": "leave_hive_btn",
-          "expected": null,
-          "actual": true,
-          "result": "INFO"
-        },
-        {
-          "page": "hive",
-          "role": "worker",
-          "element": "leave_hive_btn",
-          "expected": null,
-          "actual": true,
-          "result": "INFO"
-        },
-        {
-          "page": "hive",
-          "role": "supervisor",
-          "element": "leave_hive_btn",
-          "expected": null,
-          "actual": true,
-          "result": "INFO"
-        },
-        {
-          "page": "hive",
-          "role": "solo",
-          "element": "show_invite_code_btn",
-          "expected": null,
-          "actual": true,
-          "result": "INFO"
-        },
-        {
-          "page": "hive",
-          "role": "worker",
-          "element": "show_invite_code_btn",
-          "expected": false,
-          "actual": false,
-          "result": "PASS"
-        },
-        {
-          "page": "hive",
-          "role": "supervisor",
-          "element": "show_invite_code_btn",
-          "expected": true,
-          "actual": true,
-          "result": "PASS"
-        }
-      ],
-      "diff": {
-        "supervisor_only": [
-          "show_invite_code_btn"
-        ],
-        "worker_and_above": [],
-        "shared": [
-          "leave_hive_btn"
-        ],
-        "supervisor": {
-          "leave_hive_btn": true,
-          "show_invite_code_btn": true
-        },
-        "worker": {
-          "leave_hive_btn": true,
-          "show_invite_code_btn": false
-        },
-        "solo": {
-          "leave_hive_btn": true,
-          "show_invite_code_btn": true
-        }
-      },
-      "gate_results": {
-        "solo": false,
-        "worker": false,
-        "supervisor": false
-      }
-    },
-    "community": {
-      "page": "community",
-      "total_pass": 0,
-      "total_fail": 0,
-      "total_info": 6,
-      "results": [
-        {
-          "page": "community",
-          "role": "solo",
-          "element": "create_post_input",
-          "expected": null,
-          "actual": false,
-          "result": "INFO"
-        },
-        {
-          "page": "community",
-          "role": "worker",
-          "element": "create_post_input",
-          "expected": null,
-          "actual": false,
-          "result": "INFO"
-        },
-        {
-          "page": "community",
-          "role": "supervisor",
-          "element": "create_post_input",
-          "expected": null,
-          "actual": false,
-          "result": "INFO"
-        },
-        {
-          "page": "community",
-          "role": "solo",
-          "element": "post_submit_btn",
-          "expected": null,
-          "actual": false,
-          "result": "INFO"
-        },
-        {
-          "page": "community",
-          "role": "worker",
-          "element": "post_submit_btn",
-          "expected": null,
-          "actual": true,
-          "result": "INFO"
-        },
-        {
-          "page": "community",
-          "role": "supervisor",
-          "element": "post_submit_btn",
-          "expected": null,
-          "actual": true,
-          "result": "INFO"
-        }
-      ],
-      "diff": {
-        "supervisor_only": [],
-        "worker_and_above": [
-          "post_submit_btn"
-        ],
-        "shared": [
-          "post_submit_btn"
-        ],
-        "supervisor": {
-          "create_post_input": false,
-          "post_submit_btn": true
-        },
-        "worker": {
-          "create_post_input": false,
-          "post_submit_btn": true
-        },
-        "solo": {
-          "create_post_input": false,
-          "post_submit_btn": false
-        }
-      },
-      "gate_results": {
-        "solo": false,
-        "worker": false,
-        "supervisor": false
-      }
-    },
-    "marketplace": {
-      "page": "marketplace",
-      "total_pass": 2,
-      "total_fail": 0,
-      "total_info": 4,
-      "results": [
-        {
-          "page": "marketplace",
-          "role": "solo",
-          "element": "search_input",
-          "expected": null,
-          "actual": true,
-          "result": "INFO"
-        },
-        {
-          "page": "marketplace",
-          "role": "worker",
-          "element": "search_input",
-          "expected": true,
-          "actual": true,
-          "result": "PASS"
-        },
-        {
-          "page": "marketplace",
-          "role": "supervisor",
-          "element": "search_input",
-          "expected": true,
-          "actual": true,
-          "result": "PASS"
-        },
-        {
-          "page": "marketplace",
-          "role": "solo",
-          "element": "browse_tab",
-          "expected": null,
-          "actual": false,
-          "result": "INFO"
-        },
-        {
-          "page": "marketplace",
-          "role": "worker",
-          "element": "browse_tab",
-          "expected": null,
-          "actual": false,
-          "result": "INFO"
-        },
-        {
-          "page": "marketplace",
-          "role": "supervisor",
-          "element": "browse_tab",
-          "expected": null,
-          "actual": false,
-          "result": "INFO"
-        }
-      ],
-      "diff": {
-        "supervisor_only": [],
-        "worker_and_above": [],
-        "shared": [
-          "search_input"
-        ],
-        "supervisor": {
-          "search_input": true,
-          "browse_tab": false
-        },
-        "worker": {
-          "search_input": true,
-          "browse_tab": false
-        },
-        "solo": {
-          "search_input": true,
-          "browse_tab": false
-        }
-      },
-      "gate_results": {
-        "solo": false,
-        "worker": false,
-        "supervisor": false
-      }
-    },
-    "project-manager": {
-      "page": "project-manager",
-      "total_pass": 2,
-      "total_fail": 0,
-      "total_info": 1,
-      "results": [
-        {
-          "page": "project-manager",
-          "role": "solo",
-          "element": "new_project_btn",
-          "expected": null,
-          "actual": true,
-          "result": "INFO"
-        },
-        {
-          "page": "project-manager",
-          "role": "worker",
-          "element": "new_project_btn",
-          "expected": true,
-          "actual": true,
-          "result": "PASS"
-        },
-        {
-          "page": "project-manager",
-          "role": "supervisor",
-          "element": "new_project_btn",
-          "expected": true,
-          "actual": true,
-          "result": "PASS"
-        }
-      ],
-      "diff": {
-        "supervisor_only": [],
-        "worker_and_above": [],
-        "shared": [
-          "new_project_btn"
-        ],
-        "supervisor": {
-          "new_project_btn": true
-        },
-        "worker": {
-          "new_project_btn": true
-        },
-        "solo": {
-          "new_project_btn": true
-        }
-      },
-      "gate_results": {
-        "solo": true,
         "worker": false,
         "supervisor": false
       }
     }
   },
-  "total_pass": 22,
+  "total_pass": 7,
   "total_fail": 0,
-  "total_info": 26
+  "total_info": 3,
+  "canonical_dimensions": [
+    [
+      "PASS",
+      "Tier-S chip visibility 100% (19/19 formula\u2192page citations honoured)"
+    ],
+    [
+      "PASS",
+      "Calm Dashboard Contract: all 15 opted-in pages compliant"
+    ],
+    [
+      "PASS",
+      "Partial-label honesty: zero violations"
+    ],
+    [
+      "PASS",
+      "Canonical view reachability: all 36 v_*_truth views reachable (1 explicitly allowed, 35 consumed)"
+    ]
+  ]
 }

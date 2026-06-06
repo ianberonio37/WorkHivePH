@@ -6,25 +6,33 @@ failures (registry entries pointing at non-existent IDs) fail the gate.
 
 | Tier | Registry file | Registered | Discovered | Pending |
 |---|---|---:|---:|---:|
-| F (Fuel) | `canonical/capture_contracts.json` | 494 | 498 | 6 |
-| E (Engine) | `canonical/formula_contracts.json` | 22 | 8 | 5 |
-| B (Brain) | `canonical/agent_contracts.json` | 7 | 76 | 14 |
+| F (Fuel) | `canonical/capture_contracts.json` | 494 | 504 | 12 |
+| E (Engine) | `canonical/formula_contracts.json` | 22 | 10 | 7 |
+| B (Brain) | `canonical/agent_contracts.json` | 7 | 86 | 14 |
 | Glue (lineage edges) | `canonical/lineage_edges.json` | 17 | — | — |
 
-## Tier F (Fuel) — pending registrations (6)
+## Tier F (Fuel) — pending registrations (12)
 
+- `cl-text`
+- `file-any`
+- `file-photo`
 - `filter-route`
 - `filter-window`
 - `group-filter`
 - `ideal_cycle_time_seconds`
+- `jd-input`
+- `promote-dedupe`
+- `rm-current-title`
 - `status-filter`
 - `window`
 
-## Tier E (Engine) — pending registrations (5)
+## Tier E (Engine) — pending registrations (7)
 
 - `get_adoption_risk_current`
 - `get_downtime_pareto`
 - `get_failure_frequency`
+- `get_hive_board_dashboard`
+- `get_hive_dashboard`
 - `get_hive_readiness_current`
 - `get_repeat_failures`
 

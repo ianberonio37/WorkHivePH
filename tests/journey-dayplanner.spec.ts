@@ -147,4 +147,74 @@ test.describe('dayplanner.html — day planner journey', () => {
       await expect(renderedItem).toBeVisible();
     }
   });
+
+  // ── Grounded MCP Sweep (Wave 1, 2026-06-07) ──────────────────────────────
+  // dayplanner redefines .btn-primary/.btn-ghost page-locally WITHOUT a
+  // min-height, so the "+ Schedule" CTA (35px) and "Today" (32px) shipped
+  // below the 44px gloved-hand minimum on mobile. validate_mobile.py only
+  // catches INLINE height (blind to padding-sized buttons), so this locks the
+  // fix by reading COMPUTED heights in a real 390px browser.
+  test('mobile: primary CTAs + modal action buttons are >= 44px tall', async ({ whPage }) => {
+    await whPage.setViewportSize({ width: 390, height: 844 });
+    await whPage.goto(PAGE);
+    await waitForPageReady(whPage);
+    await whPage.waitForTimeout(800);
+
+    const cta = await whPage.evaluate(() => {
+      const vis = (e: Element | null) => !!(e && (e as any).checkVisibility && (e as any).checkVisibility());
+      const h = (e: Element | null) => (e ? Math.round(e.getBoundingClientRect().height) : 0);
+      const sched = [...document.querySelectorAll('.btn-primary')].filter(vis)[0] || null;
+      const today = [...document.querySelectorAll('.btn-ghost')].filter(vis)[0] || null;
+      return { sched: sched ? h(sched) : null, today: today ? h(today) : null };
+    });
+    if (cta.sched !== null) {
+      expect(cta.sched, '"+ Schedule" CTA must be >= 44px tall on mobile').toBeGreaterThanOrEqual(44);
+    }
+    if (cta.today !== null) {
+      expect(cta.today, '"Today" button must be >= 44px tall on mobile').toBeGreaterThanOrEqual(44);
+    }
+
+    // Modal Save / Cancel — same .btn-primary/.btn-ghost classes.
+    await whPage.locator('button[onclick="openAddModal()"]').click();
+    await whPage.waitForSelector('#modal', { state: 'visible', timeout: 5000 }).catch(() => {});
+    await whPage.waitForTimeout(300);
+    const modalBtns = await whPage.evaluate(() => {
+      const vis = (e: Element | null) => !!(e && (e as any).checkVisibility && (e as any).checkVisibility());
+      return [...document.querySelectorAll('#modal .btn-primary, #modal .btn-ghost')]
+        .filter(vis).map(e => Math.round(e.getBoundingClientRect().height));
+    });
+    for (const h of modalBtns) {
+      expect(h, 'modal Save/Cancel buttons must be >= 44px tall on mobile').toBeGreaterThanOrEqual(44);
+    }
+  });
+
+  // ── Grounded MCP Sweep deep-audit find (Wave 1, 2026-06-07) ──────────────
+  // WHAT-axis bug: the Overdue card filtered `item_status != 'closed'`, but the
+  // canonical schedule_items enum is done/in_progress/pending (NO 'closed'), so
+  // already-DONE past-due items were counted as overdue (live showed 6 when only
+  // 3 were open). Lock the fix against DB truth + a negative control.
+  test('overdue card counts only OPEN past-due items (excludes done) — DB-verified', async ({ whPage }) => {
+    await whPage.goto(PAGE);
+    await waitForDPVerdictSettled(whPage);
+    await whPage.waitForTimeout(1500);
+
+    const worker = await whPage.evaluate(() => localStorage.getItem('wh_last_worker'));
+    if (!worker) { console.log('[journey-dayplanner] no worker in localStorage — skipping'); return; }
+
+    const db = adminClient();
+    const { data: rows } = await db.from('schedule_items').select('date,item_status').eq('worker_name', worker);
+    const today = new Date().toISOString().slice(0, 10);
+    const DONE = ['done', 'closed', 'cancelled'];
+    const openPastDue = (rows || []).filter(r =>
+      String(r.date || '') < today && !DONE.includes(String(r.item_status || '').toLowerCase())).length;
+    const allPastDue = (rows || []).filter(r => String(r.date || '') < today).length;
+
+    const hero = parseInt((await whPage.locator('#dp-overdue-hero').textContent() || '').trim(), 10);
+    expect(hero, `overdue hero (${hero}) must equal DB open-past-due (${openPastDue}); DONE items must not count`).toBe(openPastDue);
+    // Negative control: when done past-due items exist, overdue must be < all-past-due
+    // (this is exactly the bug — the 'closed' typo made overdue == allPastDue).
+    if (allPastDue > openPastDue) {
+      expect(hero, `regression guard: overdue (${hero}) must be < all-past-due (${allPastDue}) — done items excluded`).toBeLessThan(allPastDue);
+    }
+  });
 });

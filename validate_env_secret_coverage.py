@@ -92,6 +92,7 @@ OPTIONAL_VARS: dict = {
     "WH_RATE_LIMIT_OVERRIDE": "RAG Flywheel rate-limit knob (agentic-rag-loop). Falls back to compiled default (50 prod / 300 dev) when unset; only set during multi-turn synthetic walks to lift the in-process token bucket.",
     "WH_RATE_LIMIT_RESET": "RAG Flywheel rate-limit reset flag (agentic-rag-loop). When set to '1' on a single request, clears the in-process token bucket; absent means bucket persists across requests. Pure dev/test knob.",
     "WH_USER_RATE_LIMIT_OVERRIDE": "P1 roadmap 2026-05-26: per-user soft cap inside the per-hive rate-limit bucket (_shared/rate-limit.ts checkUserRateLimit). Falls back to compiled default 25 when unset.",
+    "WH_SOLO_RATE_LIMIT_OVERRIDE": "Phase 0 solo rate limit (resume-builder): always-on IP/auth_uid ceiling for solo (no-hive) callers in _shared/rate-limit.ts (DEFAULT_SOLO_RATE_LIMIT_PER_HOUR). Falls back to compiled default 30 when unset; only raise for synthetic walks.",
     "WH_LOG_LEVEL": "P1 roadmap 2026-05-26: structured-logger threshold (_shared/logger.ts). Values: debug | info | warn | error. Falls back to 'info' when unset.",
     "WH_VOICE_QUOTA_RATIO": "P1 roadmap 2026-05-27 turn 7: voice quota share inside the per-hive rate-limit bucket (_shared/rate-limit.ts checkClassedRateLimit). 0.0-1.0; falls back to 0.7 when unset.",
 }

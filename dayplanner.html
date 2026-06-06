@@ -139,10 +139,10 @@
     .yilo-month.current-month { border-color: rgba(247,162,27,0.3); }
 
     /* Buttons */
-    .btn-primary { background: linear-gradient(135deg, #F7A21B, #FDB94A); color: #162032; font-weight: 700; border-radius: 0.625rem; padding: 0.5rem 1rem; font-size: 0.8rem; cursor: pointer; transition: opacity 0.2s; border: none; }
+    .btn-primary { background: linear-gradient(135deg, #F7A21B, #FDB94A); color: #162032; font-weight: 700; border-radius: 0.625rem; padding: 0.5rem 1rem; font-size: 0.8rem; cursor: pointer; transition: opacity 0.2s; border: none; min-height: 44px; display: inline-flex; align-items: center; justify-content: center; }
     .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(247,162,27,0.35); }
     .btn-primary:active { opacity: 0.75; transform: scale(0.97); box-shadow: none; }
-    .btn-ghost { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.7); font-weight: 500; border-radius: 0.625rem; padding: 0.4rem 0.75rem; font-size: 0.8rem; cursor: pointer; border: 1px solid rgba(255,255,255,0.08); transition: all 0.2s; }
+    .btn-ghost { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.7); font-weight: 500; border-radius: 0.625rem; padding: 0.4rem 0.75rem; font-size: 0.8rem; cursor: pointer; border: 1px solid rgba(255,255,255,0.08); transition: all 0.2s; min-height: 44px; display: inline-flex; align-items: center; justify-content: center; }
     .btn-ghost:hover { background: rgba(255,255,255,0.1); color: white; }
     .btn-ghost:active { background: rgba(255,255,255,0.15); transform: scale(0.97); }
     .btn-icon { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.6); border-radius: 0.5rem; padding: 0.4rem; cursor: pointer; border: 1px solid rgba(255,255,255,0.08); transition: all 0.2s; display: flex; align-items: center; justify-content: center; }
@@ -339,7 +339,7 @@
       <ul style="margin:0;padding-left:20px;">
         <li><strong>Today</strong>: <code>schedule_items</code> with <code>date = today</code> (PHT).</li>
         <li><strong>This week</strong>: items in the current Monday-Sunday window.</li>
-        <li><strong>Overdue</strong>: items with <code>date &lt; today</code> AND <code>item_status != 'Closed'</code> — open work that slipped.</li>
+        <li><strong>Overdue</strong>: items with <code>date &lt; today</code> AND <code>item_status not in (done, closed, cancelled)</code> — open work that slipped.</li>
         <li><strong>Verdict</strong>: red if 3+ overdue; amber if today &gt; 6 OR any overdue; green when the day is plannable.</li>
       </ul>
       <p style="margin-top:8px;color:rgba(255,255,255,0.55);font-size:11px;">Click into DILO / WILO / MILO / YILO tabs for the day / week / month / year drilldown.</p>
@@ -826,8 +826,14 @@ function renderDayplannerSummary() {
 
   const todayCount = scheduleItems.filter(i => i.date === ymdToday).length;
   const weekCount  = scheduleItems.filter(i => i.date >= ymdMon && i.date <= ymdSun).length;
+  // Overdue = past-due AND still open. The canonical item_status enum is
+  // 'done' / 'in_progress' / 'pending' (see schedule_items) — there is NO
+  // 'closed' value, so the old `!== 'closed'` check excluded nothing and counted
+  // already-DONE past items as overdue (grounded MCP sweep 2026-06-07: showed 6
+  // when only 3 were actually open). Exclude the real completed states.
+  const DONE_STATUSES = ['done', 'closed', 'cancelled'];
   const overdueCount = scheduleItems.filter(i =>
-    i.date < ymdToday && (i.itemStatus || '').toLowerCase() !== 'closed'
+    i.date < ymdToday && !DONE_STATUSES.includes((i.itemStatus || '').toLowerCase())
   ).length;
 
   const setCard = (name, hero, sub, tag, tone) => {

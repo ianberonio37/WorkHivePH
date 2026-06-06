@@ -1,10 +1,10 @@
 {
   "_meta": {
-    "asset_count": 4,
+    "asset_count": 5,
     "description": "C5: versioned baseline of AI assets. Validator FAILs if file hash moves without version bump.",
     "format_version": "1.0",
-    "last_evaluated": "2026-06-02T11:56:22Z",
-    "test_seal": "dc08e24ea8c4fe47"
+    "last_evaluated": "2026-06-06T23:27:08Z",
+    "test_seal": "93465b2261eae670"
   },
   "assets": {
     "ai-eval-runner.judge": {
@@ -20,6 +20,20 @@
       "kind": "ts",
       "owner": "ai-engineer",
       "sha256": "ca4b9f07d72f1849518cbc41555154f34a0f1d8cef116adc60c51784701dd328"
+    },
+    "ai_eval_baseline": {
+      "current_version": 2,
+      "file": "ai_eval_baseline.json",
+      "history": [
+        {
+          "recorded_at": "2026-06-06T23:27:08Z",
+          "sha256": "4f714b8afea4c4ddff91795cffa3c1a225092d039f28161518d72ba27091240d",
+          "version": 2
+        }
+      ],
+      "kind": "json",
+      "owner": "ai-engineer",
+      "sha256": "4f714b8afea4c4ddff91795cffa3c1a225092d039f28161518d72ba27091240d"
     },
     "evals.canonical_questions": {
       "current_version": 1,

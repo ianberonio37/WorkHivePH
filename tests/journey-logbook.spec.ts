@@ -505,3 +505,32 @@ test.describe('logbook.html - sentinel scenarios', () => {
   });
 
 });
+
+test.describe('logbook.html — mobile tap targets (grounded sweep Wave 1)', () => {
+  // The header action buttons share `btn-secondary text-xs py-1.5`; siblings
+  // declare `min-h-[44px]` but the "Voice Journal" link omitted it and shipped
+  // at 30px (gloved-hand miss-tap). Lock every visible header action >= 44px on
+  // a phone. Computed at dpr=1 (Playwright default), so no sub-pixel artifact.
+  test('header action buttons render >= 44px tall at 390px', async ({ whPage }) => {
+    await whPage.setViewportSize({ width: 390, height: 844 });
+    await whPage.goto(PAGE);
+    await waitForPageReady(whPage);
+    await whPage.waitForTimeout(800);
+
+    const undersized = await whPage.evaluate(() => {
+      const out: { label: string; h: number }[] = [];
+      const vis = (el: Element) => (el as any).checkVisibility ? (el as any).checkVisibility() : true;
+      document.querySelectorAll('a.btn-secondary, button.btn-secondary, a.btn-primary, button.btn-primary').forEach((el) => {
+        if (!vis(el)) return;
+        // shared injected widgets (nav-hub / floating-ai / feedback) are swept in their own wave
+        if (el.closest('[id^="wh-ai"],[class*="wh-hub"],[class*="wh-fb"]') || (el.id || '').startsWith('wh-')) return;
+        const b = el.getBoundingClientRect();
+        if (b.width === 0 || b.height === 0) return;
+        if (b.height < 44) out.push({ label: (el.textContent || '').trim().replace(/\s+/g, ' ').slice(0, 24), h: Math.round(b.height) });
+      });
+      return out;
+    });
+
+    expect(undersized, `logbook header buttons under 44px on mobile: ${JSON.stringify(undersized)}`).toEqual([]);
+  });
+});

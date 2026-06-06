@@ -1,0 +1,13 @@
+{
+  "_README": "Manifest of the live regression LOCK each grounded-swept page must keep. Read by validate_grounded_sweep.py (the sweep's self-coverage meta-validator). When a page is marked done (checkmark) in GROUNDED_SWEEP_ROADMAP.md, it MUST have an entry here whose spec file exists and contains the marker string — otherwise the sweep's crystallized guard has silently eroded (Standing Rule D applied to the sweep itself). Add an entry the same session you mark a page done.",
+  "locks": {
+    "resume.html":    { "spec": "tests/journey-resume.spec.ts",            "marker": "resume", "wave": "0 (pilot)", "note": "award-miner crystallization (validate_resume.py 52/52 + journey 29/29)" },
+    "index.html":     { "spec": "tests/journey-shell-mobile-a11y.spec.ts", "marker": "grounded sweep Wave 0", "wave": "0", "note": "auth 16px + header 44px + modal a11y" },
+    "logbook.html":   { "spec": "tests/journey-logbook.spec.ts",           "marker": "mobile tap targets (grounded sweep", "wave": "1", "note": "Voice-Journal min-h fix" },
+    "inventory.html": { "spec": "tests/journey-inventory.spec.ts",         "marker": "mobile tap targets (grounded sweep", "wave": "1", "note": "Add Part min-height:unset fix" },
+    "pm-scheduler.html":  { "spec": "tests/journey-pm.spec.ts",            "marker": "Grounded MCP Sweep (Wave 1, 2026-06-07)", "wave": "1", "note": "4 sub-16px wizard inputs (iOS zoom) -> 16px; validator-blind inline-font override" },
+    "dayplanner.html":    { "spec": "tests/journey-dayplanner.spec.ts",    "marker": "Grounded MCP Sweep (Wave 1, 2026-06-07)", "wave": "1", "note": ".btn-primary/.btn-ghost no min-height (35/32px) -> 44px (CTAs+modal)" },
+    "shift-brain.html":   { "spec": "tests/journey-shift-brain.spec.ts",   "marker": "Grounded MCP Sweep (Wave 1, 2026-06-07)", "wave": "1", "note": ".btn-primary/.btn-ghost fixed height:42px -> min-height:44px" },
+    "voice-journal.html": { "spec": "tests/journey-voice-journal.spec.ts", "marker": "Grounded MCP Sweep (Wave 1, 2026-06-07)", "wave": "1", "note": ".persona-chip missing @media<=480 44px bump its siblings had (41px->44px)" }
+  }
+}

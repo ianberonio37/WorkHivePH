@@ -12,6 +12,7 @@
  * confirmed items MERGE into the resume — both fail if the change handler no-ops.
  */
 import { test, expect } from './_fixtures';
+import { adminClient } from './_db-cleanup';
 import type { Page } from '@playwright/test';
 
 // 1x1 PNG — a real, decodable image so compressImage() (Image + canvas) succeeds.
@@ -583,6 +584,97 @@ test.describe('resume.html — Resume / CV Builder journey', () => {
     } finally {
       await deleteByTitle(A);
       await deleteByTitle(B);
+      // Belt-and-suspenders: the two-tap UI delete is flaky, and ANY leaked
+      // "ZZ ..." doc loads on a sibling test's init and breaks it (the recurring
+      // shared-DB pollution lesson). Hard-delete via the admin client so the
+      // run can never carry a leftover, regardless of UI timing.
+      try { await adminClient().from('resume_documents').delete().or('title.like.ZZ MCP %,title.like.ZZ-SWEEP %'); } catch (_) { /* best effort */ }
     }
+  });
+
+  test('heavy multi-page upload that lost a page WARNS the worker (map-reduce partial-read signal, MCP sweep 2026-06-06)', async ({ whPage }) => {
+    // The edge fn reads a heavy file in N sequential chunks; a chunk that 429'd is
+    // skipped server-side, so the merged resume silently loses that page. The fn now
+    // returns chunks_read/chunks_total + partial; the client must WARN rather than
+    // drop the worker's last jobs in silence (the free-tier/CGNAT audience hits a
+    // mid-sequence 429). Stub the partial shape and assert the calm warning toast.
+    await whPage.route('**/functions/v1/resume-extract', (route) => route.fulfill({
+      status: 200, contentType: 'application/json',
+      body: JSON.stringify({
+        fields: {
+          basics: { name: '', label: '', email: '', phone: '', summary: '', location: { city: '', region: '' } },
+          work: [{ position: 'Maintenance Supervisor', name: 'Universal Robina', startDate: '2021', endDate: '2024', highlights: ['Supervised 12 technicians across 3 shifts'] }],
+          education: [], skills: [], certificates: [], projects: [], awards: [],
+        },
+        partial: true, chunks_read: 2, chunks_total: 3,
+      }),
+    }));
+    await gotoResume(whPage);
+    await whPage.setInputFiles('#file-any', { name: 'big.txt', mimeType: 'text/plain', buffer: Buffer.from('a heavy multi-page resume that needed several chunks '.repeat(40)) });
+    // The worker is told a page was missed...
+    await expect(whPage.locator('#toast-msg')).toContainText(/Read 2 of 3/i, { timeout: 15000 });
+    // ...and the pages we DID read are still offered (the warning is not all-or-nothing).
+    await expect(whPage.locator('#review-sheet')).toHaveClass(/open/, { timeout: 15000 });
+  });
+
+  test('first-timer empty state lists the THREE start paths incl. Upload, and hides once content exists (novice UX sweep 2026-06-06)', async ({ whPage }) => {
+    // A signed-in worker whose name is auto-set but every section is empty is the
+    // exact first-timer who needs guidance. The prompt is content-based (not
+    // name-based, which hid it from this user), presents all three start paths,
+    // and offers Upload - not just Auto-fill, which yields almost nothing for a
+    // brand-new solo worker with no WorkHive history.
+    await gotoResume(whPage);
+    // Deterministic blank start: a sibling test's leftover cloud doc must not
+    // decide whether the prompt shows. New blank == _resumeId null, all sections
+    // empty (the real first-timer state).
+    await whPage.click('#btn-resumes');
+    await expect(whPage.locator('#resume-manager')).toHaveClass(/open/);
+    await whPage.click('#rm-new');
+    if (await whPage.locator('#resume-manager.open').count()) await whPage.click('#rm-close');
+    const prompt = whPage.locator('.empty-prompt');
+    await expect(prompt).toBeVisible();
+    await expect(prompt).toContainText(/three ways to start/i);
+    await expect(whPage.locator('#btn-autofill-2')).toBeVisible();
+    await expect(whPage.locator('#btn-file-2'), 'the Upload start path the old copy omitted').toBeVisible();
+    // Adding any content dismisses the prompt (it is a start-here cue, not chrome).
+    await whPage.click('[data-action="add"][data-sec="skills"]');
+    await expect(prompt).toHaveCount(0);
+  });
+
+  test('removing a row is UNDOABLE - the Undo button restores it (fat-finger recovery, novice sweep 2026-06-06)', async ({ whPage }) => {
+    // A novice accidentally taps the ✕ on a job/skill. Every other mutating path
+    // pushes undo, but row removal silently did not, so the (visible, enabled)
+    // Undo button could not bring it back. Removal must be recoverable.
+    await gotoResume(whPage);
+    // Deterministic blank start so a sibling test's leftover skill can't add a
+    // second "Welding" and skew the count.
+    await whPage.click('#btn-resumes');
+    await expect(whPage.locator('#resume-manager')).toHaveClass(/open/);
+    await whPage.click('#rm-new');
+    if (await whPage.locator('#resume-manager.open').count()) await whPage.click('#rm-close');
+    const sel = '[data-sec="skills"][data-field="name"]';
+    await whPage.click('[data-action="add"][data-sec="skills"]');
+    await whPage.locator(sel).last().fill('Welding');
+    await whPage.click('[data-action="add"][data-sec="skills"]');
+    await whPage.locator(sel).last().fill('Hydraulics');
+    const before = await whPage.locator(sel).count();
+    await whPage.click('[data-action="remove"][data-sec="skills"][data-idx="0"]');
+    await expect(whPage.locator(sel)).toHaveCount(before - 1);
+    await whPage.click('#btn-undo');
+    await expect(whPage.locator(sel), 'Undo restores the removed row').toHaveCount(before);
+    await expect(whPage.locator(`${sel}[value="Welding"]`)).toHaveCount(1);
+  });
+
+  test('an AI helper on a dead network shows a calm message, not a stuck spinner (offline resilience, novice sweep 2026-06-06)', async ({ whPage }) => {
+    // The core audience is on a flaky free-tier/CGNAT link. fetchWithTimeout
+    // THROWS on a network error (vs null on timeout); runPolish did not catch it,
+    // so a drop left a "Polishing..." toast forever + an uncaught rejection.
+    // callResumePolish now catches it and tells the worker plainly.
+    await gotoResume(whPage);
+    await whPage.click('[data-action="add"][data-sec="work"]');
+    await whPage.locator('[data-sec="work"][data-field="highlights"]').last().fill('Maintained pumps and motors safely');
+    await whPage.route('**/functions/v1/resume-polish', (route) => route.abort());
+    await whPage.click('#btn-polish');
+    await expect(whPage.locator('#toast-msg')).toContainText(/check your connection/i, { timeout: 15000 });
   });
 });

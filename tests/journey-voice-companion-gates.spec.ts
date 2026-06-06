@@ -820,15 +820,28 @@ test.describe('companion_page_coverage: Zaniah & Hezekiah wiring across all plat
       }
     });
 
-    // Open companion widget (click the trigger)
+    // Open the nav-hub FIRST. The companion trigger is intentionally hidden
+    // (pointer-events:none, opacity 0) until body.wh-hub-open is set by the
+    // nav-hub FAB. Clicking the trigger while hidden lets the click fall through
+    // to the FAB behind it — this is the real user flow: open hub → companion
+    // springs visible (bottom:96px, clear of the feedback FAB at right:92px).
+    // #wh-hub-fab is injected at runtime by nav-hub.js:648 (FAB), not in static HTML.
+    await whPage.locator('#wh-hub-fab').first().click({ timeout: 5000 }); // pw-selector-allow: nav-hub-injected FAB, verified live 2026-06-07
+    await whPage.waitForSelector('body.wh-hub-open', { timeout: 3000 });
+    await whPage.waitForTimeout(300);
+
+    // Now open the companion widget (click the trigger — visible + clickable)
     const trigger = await whPage.locator('#wh-ai-trigger').first();
     await trigger.click({ timeout: 5000 });
     await whPage.waitForTimeout(1000);
 
-    // Verify companion rendered (simple check: floating widget is visible)
-    const block = await whPage.locator('[data-companion-block]');
-    const count = await block.count();
-    expect(count).toBeGreaterThan(0);
+    // Verify the companion actually opened: its chat panel gets the `open` class
+    // (companion-launcher.js openPanel) and the greeting renders into #wh-ai-messages.
+    // (The legacy [data-companion-block] selector was stale — no source emits it,
+    //  so the old assertion could never pass even when the companion opened fine.)
+    await whPage.waitForSelector('#wh-ai-panel.open', { timeout: 5000 });
+    const panelOpen = await whPage.locator('#wh-ai-panel.open').count();
+    expect(panelOpen, 'companion chat panel should open on trigger click').toBeGreaterThan(0);
   });
 
 });

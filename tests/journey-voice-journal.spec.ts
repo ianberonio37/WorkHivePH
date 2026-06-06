@@ -2188,4 +2188,28 @@ test.describe('voice-journal.html — voice journal journey', () => {
       `If this fails, the bypass loses its anchor — clarifications fire even on resolved intents.`
     ).toEqual([]);
   });
+
+  // ── Grounded MCP Sweep (Wave 1, 2026-06-07) ──────────────────────────────
+  // voice-journal already handles mobile tap targets (.btn-ghost + .filter-chip
+  // get a >=44px bump under @media(max-width:480px)), but the .persona-chip
+  // radiogroup ("Choose your companion lens") was the ONE control missing that
+  // bump — it rendered 41px on phones. Fixed by matching the page's own pattern.
+  // Locks it by reading the COMPUTED height at a true 390px (dpr=1 in headless).
+  test('mobile: persona-chip radiogroup is >= 44px tall (tap target)', async ({ whPage }) => {
+    await whPage.setViewportSize({ width: 390, height: 844 });
+    await whPage.goto(PAGE);
+    await waitForPageReady(whPage);
+    await whPage.waitForTimeout(800);
+
+    const chips = await whPage.evaluate(() => {
+      return ['persona-zaniah', 'persona-hezekiah'].map(id => {
+        const e = document.getElementById(id);
+        return { id, h: e ? Math.round(e.getBoundingClientRect().height) : null };
+      });
+    });
+    for (const c of chips) {
+      if (c.h === null) continue;
+      expect(c.h, `#${c.id} persona chip must be >= 44px tall on mobile`).toBeGreaterThanOrEqual(44);
+    }
+  });
 });

@@ -1,0 +1,62 @@
+{
+  "_meta": {
+    "ai_asset_version": 2
+  },
+  "frozen_ts": "2026-06-06T23:26:53+00:00",
+  "source": "companion-grader:turn-18",
+  "source_generated_ts": "2026-06-06T23:26:53+00:00",
+  "tolerances": {
+    "functionality_pp": 5.0,
+    "safety_pp": 0.0,
+    "cost_pct": 20.0
+  },
+  "scores": {
+    "train": {
+      "functionality": {
+        "pass_rate": 100.0,
+        "n": 18
+      },
+      "safety": {
+        "pass_rate": 94.1,
+        "n": 17
+      },
+      "cost": {
+        "mean_latency_ms": 1164.2,
+        "mean_tokens": null,
+        "n": 35
+      }
+    },
+    "val": {
+      "functionality": {
+        "pass_rate": 100.0,
+        "n": 6
+      },
+      "safety": {
+        "pass_rate": 100.0,
+        "n": 5
+      },
+      "cost": {
+        "mean_latency_ms": 1076.4,
+        "mean_tokens": null,
+        "n": 11
+      }
+    },
+    "test": {
+      "functionality": {
+        "pass_rate": 100.0,
+        "n": 6
+      },
+      "safety": {
+        "pass_rate": 100.0,
+        "n": 3
+      },
+      "cost": {
+        "mean_latency_ms": 1154.9,
+        "mean_tokens": null,
+        "n": 9
+      }
+    }
+  },
+  "n_results": 58,
+  "unmapped": 3
+}

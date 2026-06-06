@@ -6,10 +6,10 @@ differently (one trusts it; one re-gates on another field).
 
 ## Summary
 
-- View/column pairs scanned: **325**
+- View/column pairs scanned: **336**
 - AT_RISK pairs (re-gating detected): **0**
 - REVIEW pairs (local-math smell on at least one consumer): **9**
-- Files scanned: **193**
+- Files scanned: **204**
 
 ## Smell legend
 
@@ -73,6 +73,17 @@ re-deriving what the canonical view should expose:
 | `v_anomaly_truth` | `source_count` | ✅ OK | 1 | direct |
 | `v_anomaly_truth` | `status` | ✅ OK | 1 | direct |
 | `v_anomaly_truth` | `top_reasons` | ✅ OK | 1 | direct |
+| `v_asset_state_truth` | `asset_tag` | ✅ OK | 1 | direct |
+| `v_asset_state_truth` | `conflict_count` | ✅ OK | 1 | direct |
+| `v_asset_state_truth` | `event_type` | ✅ OK | 1 | direct |
+| `v_asset_state_truth` | `ingested_at` | ✅ OK | 1 | direct |
+| `v_asset_state_truth` | `source_id` | ✅ OK | 1 | direct |
+| `v_asset_state_truth` | `superseded_count` | ✅ OK | 1 | direct |
+| `v_asset_state_truth` | `verified_at` | ✅ OK | 1 | direct |
+| `v_asset_state_truth` | `verified_payload` | ✅ OK | 1 | direct |
+| `v_asset_state_truth` | `verified_source` | ✅ OK | 1 | direct |
+| `v_asset_state_truth` | `verified_source_rank` | ✅ OK | 1 | direct |
+| `v_asset_state_truth` | `verified_text` | ✅ OK | 1 | direct |
 | `v_asset_truth` | `asset_id` | ✅ OK | 6 | direct |
 | `v_asset_truth` | `asset_tag` | ✅ OK | 1 | direct |
 | `v_asset_truth` | `category` | ✅ OK | 1 | direct |
@@ -170,23 +181,23 @@ re-deriving what the canonical view should expose:
 | `v_kpi_truth` | `mtbf_30d` | ✅ OK | 1 | direct |
 | `v_kpi_truth` | `mttr_30d` | ✅ OK | 1 | direct |
 | `v_kpi_truth` | `total_downtime_30d` | ✅ OK | 1 | direct |
-| `v_logbook_truth` | `action` | ✅ OK | 8 | direct |
+| `v_logbook_truth` | `action` | ✅ OK | 10 | direct |
 | `v_logbook_truth` | `asset_node_id` | ✅ OK | 1 | direct |
-| `v_logbook_truth` | `asset_tag` | ✅ OK | 1 | direct |
+| `v_logbook_truth` | `asset_tag` | ✅ OK | 2 | direct |
 | `v_logbook_truth` | `category` | ✅ OK | 12 | direct |
 | `v_logbook_truth` | `closed_at` | ✅ OK | 4 | direct |
-| `v_logbook_truth` | `date` | ✅ OK | 5 | direct |
-| `v_logbook_truth` | `downtime_hours` | ✅ OK | 13 | direct |
-| `v_logbook_truth` | `failure_consequence` | ✅ OK | 2 | direct |
+| `v_logbook_truth` | `date` | ✅ OK | 6 | direct |
+| `v_logbook_truth` | `downtime_hours` | ✅ OK | 14 | direct |
+| `v_logbook_truth` | `failure_consequence` | ✅ OK | 3 | direct |
 | `v_logbook_truth` | `issue` | ✅ OK | 1 | direct |
-| `v_logbook_truth` | `knowledge` | ✅ OK | 1 | direct |
-| `v_logbook_truth` | `machine` | ✅ OK | 21 | direct |
-| `v_logbook_truth` | `maintenance_type` | ✅ OK | 19 | direct |
+| `v_logbook_truth` | `knowledge` | ✅ OK | 2 | direct |
+| `v_logbook_truth` | `machine` | ✅ OK | 23 | direct |
+| `v_logbook_truth` | `maintenance_type` | ✅ OK | 21 | direct |
 | `v_logbook_truth` | `parts_used` | ✅ OK | 2 | direct |
-| `v_logbook_truth` | `problem` | ✅ OK | 12 | direct |
+| `v_logbook_truth` | `problem` | ✅ OK | 14 | direct |
 | `v_logbook_truth` | `production_output` | ✅ OK | 1 | direct |
 | `v_logbook_truth` | `readings_json` | ✅ OK | 2 | direct |
-| `v_logbook_truth` | `root_cause` | ✅ OK | 13 | direct |
+| `v_logbook_truth` | `root_cause` | ✅ OK | 15 | direct |
 | `v_logbook_truth` | `status` | ✅ OK | 17 | direct |
 | `v_logbook_truth` | `worker_name` | ✅ OK | 7 | direct |
 | `v_marketplace_inquiries_truth` | `buyer_contact` | ✅ OK | 1 | direct |
@@ -332,8 +343,8 @@ re-deriving what the canonical view should expose:
 | `v_sensor_truth` | `recorded_at` | ✅ OK | 2 | direct |
 | `v_sensor_truth` | `value` | ✅ OK | 1 | direct |
 | `v_skill_badges_truth` | `badge_key` | ✅ OK | 1 | direct |
-| `v_skill_badges_truth` | `discipline` | ✅ OK | 3 | direct |
-| `v_skill_badges_truth` | `level` | ✅ OK | 3 | direct |
+| `v_skill_badges_truth` | `discipline` | ✅ OK | 4 | direct |
+| `v_skill_badges_truth` | `level` | ✅ OK | 4 | direct |
 | `v_weibull_truth` | `asset_id` | ✅ OK | 1 | direct |
 | `v_weibull_truth` | `beta` | ✅ OK | 3 | direct |
 | `v_weibull_truth` | `eta_days` | ✅ OK | 3 | direct |

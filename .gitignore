@@ -73,3 +73,18 @@ test-results/
 playwright-report/
 playwright/.cache/
 playwright-report.json
+
+# Memento local memory cache — health export (contains personal usage patterns)
+memento_health.json
+
+# Playwright MCP runtime output — contains REAL-USER PII (uploaded resumes:
+# *-jsonresume.json / *-resume.docx/pdf), console logs, and ad-hoc screenshots.
+# Never commit; these are disposable per-session MCP artifacts.
+.playwright-mcp/
+
+# Ad-hoc debug/critique screenshots dropped at repo root during MCP sweeps.
+crit-*.png
+resume-0*.png
+resume-projects-awards-live.png
+resume-reorder-controls.png
+memento-panel-*.png

@@ -415,25 +415,40 @@
     }
 
     // ── Render ───────────────────────────────────────────────────────────────
+    // "Empty" = no resume CONTENT yet, so the start-here prompt should show.
+    // Keyed on sections, NOT basics.name: a signed-in worker's name is auto-set
+    // at init, so a name-based check hid the guidance from the exact first-timer
+    // who needs it (name filled, every section still empty). (Novice MCP sweep 2026-06-06.)
     function isEmptyResume() {
-      return !resume.basics.name && !resume.work.length && !resume.skills.length
-        && !resume.certificates.length && !resume.education.length && !resume.projects.length;
+      return !resume.work.length && !resume.skills.length && !resume.certificates.length
+        && !resume.education.length && !resume.projects.length && !resume.awards.length;
     }
 
     function render() {
       const root = document.getElementById('sections');
       let html = renderBasics();
       if (isEmptyResume()) {
+        // Empty state = a first-timer's "start here". Present ALL three paths
+        // neutrally: the old copy assumed "you already have ... in WorkHive",
+        // which is FALSE for a brand-new solo worker (the core audience) — they
+        // auto-fill, get almost nothing, and are never pointed at Upload, the
+        // path they actually need. (Novice MCP sweep 2026-06-06.)
         html += `<div class="card empty-prompt">
           <div class="big">🧰</div>
-          <p>You already have skills, badges and work history in WorkHive. Tap <b>Auto-fill</b> above to start your resume in seconds — then edit anything you like.</p>
-          <button class="btn btn-primary" id="btn-autofill-2" type="button" style="margin:0 auto;">✨ Auto-fill from my WorkHive data</button>
+          <p><b>Three ways to start — pick whichever is easiest:</b></p>
+          <p>① <b>Auto-fill</b> from your WorkHive skills, badges &amp; logbook &nbsp;·&nbsp; ② <b>Upload</b> an old resume (photo, PDF, Word, or text) &nbsp;·&nbsp; ③ Just <b>type</b> into the sections below. You can edit everything afterwards.</p>
+          <div style="display:flex;gap:0.6rem;flex-wrap:wrap;justify-content:center;">
+            <button class="btn btn-primary" id="btn-autofill-2" type="button">✨ Auto-fill from WorkHive</button>
+            <button class="btn btn-ghost" id="btn-file-2" type="button">📁 Upload a resume</button>
+          </div>
         </div>`;
       }
       for (const sec of SECTIONS) html += renderSection(sec);
       root.innerHTML = html;
       const a2 = document.getElementById('btn-autofill-2');
       if (a2) a2.addEventListener('click', runAutofill);
+      const f2 = document.getElementById('btn-file-2');
+      if (f2) f2.addEventListener('click', () => document.getElementById('file-any').click());
       updateQuantCoach();
     }
 
@@ -566,6 +581,12 @@
         }
         scheduleLocalSave();
       } else if (action === 'remove') {
+        // Removing a row is destructive and a novice fat-fingers the ✕ — push
+        // undo FIRST so the (already-visible) Undo button can restore it. Every
+        // other mutating path (file import, auto-fill, JD-add) snapshots; this
+        // one silently didn't, so a deleted job/skill was unrecoverable.
+        // (Novice MCP sweep 2026-06-06.)
+        pushUndo(); snapshotVersion('before remove');
         resume[sec].splice(+act.dataset.idx, 1);
         render();
         scheduleLocalSave();
@@ -640,6 +661,7 @@
     async function loadCloud() {
       if (!_authUid) return false;
       try {
+        // canonical-allow: resume_documents is a PRIVATE owner-scoped personal document (RLS owner-only), read only by resume.html to load the worker's own resume draft — not a cross-surface KPI/aggregate, so a v_*_truth wrapper does not apply.
         const { data, error } = await db.from('resume_documents')
           .select('id, doc, template, title').eq('auth_uid', _authUid)
           .order('updated_at', { ascending: false }).limit(1).maybeSingle();
@@ -669,6 +691,7 @@
     async function listResumes() {
       if (!_authUid) return [];
       try {
+        // canonical-allow: resume_documents is a PRIVATE owner-scoped personal document (RLS owner-only); this lists the worker's OWN resume drafts for the picker — single-surface, not a cross-surface KPI/aggregate, so a v_*_truth wrapper does not apply.
         const { data, error } = await db.from('resume_documents')
           .select('id, title, updated_at').eq('auth_uid', _authUid)
           .order('updated_at', { ascending: false }).limit(50);
@@ -677,6 +700,7 @@
     }
     async function loadCloudById(id) {
       try {
+        // canonical-allow: resume_documents is a PRIVATE owner-scoped personal document (RLS owner-only); loads ONE of the worker's own resume drafts by id for the picker — single-surface, not a cross-surface KPI/aggregate, so a v_*_truth wrapper does not apply.
         const { data, error } = await db.from('resume_documents')
           .select('id, doc, template, title').eq('auth_uid', _authUid).eq('id', id).maybeSingle();
         if (error || !data || !data.doc || !data.doc.basics) return false;
@@ -687,9 +711,15 @@
     // Only persist-before-switch if there is real content worth a row (a brand-new
     // blank carrying just the worker's name should NOT spawn an "Untitled" doc).
     function resumeWorthSaving() {
+      const b = resume.basics || {};
+      // Entered contact details count too: a novice who typed only their email/
+      // phone/headline (no sections yet) then taps New blank or Switch must not
+      // lose it - newResume/switchResume auto-save only when this is true.
+      // (Name alone still does NOT count - it is auto-set, per the note above.)
+      const basicsEntered = !!((b.summary || '').trim() || (b.email || '').trim() || (b.phone || '').trim() || (b.label || '').trim());
       return !!(_resumeId || resume.work.length || resume.skills.length || resume.education.length ||
         resume.certificates.length || resume.projects.length || resume.awards.length ||
-        (resume.references && resume.references.length) || (resume.basics.summary || '').trim());
+        (resume.references && resume.references.length) || basicsEntered);
     }
     function relTime(ts) {
       if (!ts) return 'recently';
@@ -1010,6 +1040,14 @@
         toast(raw && raw.error ? (raw.error.message || raw.error) : 'Reader failed. Try again.'); return null;
       }
       const data = (raw && raw.data && typeof raw.data === 'object') ? raw.data : raw;
+      // Map-reduce honesty: on a heavy multi-page file the fn reads N sections
+      // sequentially; if one 429'd it is skipped server-side, so the resume is
+      // missing that page. Warn the worker instead of silently dropping their
+      // last jobs (the free-tier/CGNAT audience hits this). Soft toast - the
+      // pages we DID read are still worth keeping.
+      if (data && data.partial) {
+        toast('Read ' + data.chunks_read + ' of ' + data.chunks_total + ' sections - one page was busy. Re-upload to add the rest.');
+      }
       return data.fields || null;
     }
 
@@ -1151,10 +1189,18 @@
 
     // ── AI polish + tailor (P4): suggestions only, gated by the checklist ────
     async function callResumePolish(payload) {
-      const res = await fetchWithTimeout(`${SUPABASE_URL}/functions/v1/resume-polish`, {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(Object.assign({ hive_id: HIVE_ID || null, worker_name: WORKER_NAME, auth_uid: _authUid }, payload)),
-      }, 45000);
+      // fetchWithTimeout returns null on TIMEOUT but THROWS on a network error
+      // (offline / DNS) - by its documented contract. Without this catch, a flaky
+      // free-tier/CGNAT drop left the worker staring at a "Polishing..." toast
+      // forever plus an uncaught rejection (novice MCP sweep 2026-06-06). Treat a
+      // network error like the timeout: calm message, return null, caller stops.
+      let res;
+      try {
+        res = await fetchWithTimeout(`${SUPABASE_URL}/functions/v1/resume-polish`, {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(Object.assign({ hive_id: HIVE_ID || null, worker_name: WORKER_NAME, auth_uid: _authUid }, payload)),
+        }, 45000);
+      } catch (_) { toast('Could not reach the AI helper - check your connection and try again.'); return null; }
       if (res === null) { toast('That took too long. Please try again.'); return null; }
       let raw; try { raw = await res.json(); } catch (_) { toast('AI helper error. Please try again.'); return null; }
       if (!res.ok || (raw && raw.ok === false) || (raw && raw.error)) {
@@ -1322,6 +1368,10 @@
     // mirror is intentional - keep the two in sync (validate_resume.py guards a
     // sentinel subset is present in both). A broader dictionary = a far better
     // offline match score when the free-tier chain is busy.
+    // standard-allow: ATS keyword vocabulary. The 'iso 9001/14001/45001/50001'
+    // entries below are resume KEYWORDS the builder matches against a user's CV,
+    // NOT a claim that WorkHive conforms to those standards — so canonical_standards
+    // (Tier D-s) anchoring does not apply to this content. (validate_canonical_anchor L6)
     const _JD_DICT = [
       'preventive maintenance', 'predictive maintenance', 'corrective maintenance', 'condition monitoring',
       'condition-based maintenance', 'reliability-centered maintenance', 'total productive maintenance',

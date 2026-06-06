@@ -6,12 +6,12 @@ the class that produces _two pages, two numbers_ inconsistency.
 
 ## Summary
 
-- Files scanned: **173**
+- Files scanned: **184**
 - KPI-rendering pages: **78**
 - Pages with local truth-math (FREQ_DAYS / calcNextDue / ...): **0**
 - **TIER A drift pages** (user-facing KPI surface): **0**
 - TIER B drift pages (internal / shared JS): **0**
-- Canonical reads: 282 · Drift: 0 · Gap: 50 · Allowed: 130
+- Canonical reads: 286 · Drift: 0 · Gap: 52 · Allowed: 139
 
 ## Gap tables (no `v_*_truth` yet — next-build queue)
 
@@ -30,6 +30,7 @@ the class that produces _two pages, two numbers_ inconsistency.
 | `ph_intelligence_reports` | 2 |
 | `project_roles` | 2 |
 | `project_change_orders` | 2 |
+| `skill_profiles` | 2 |
 | `pdf_jobs` | 2 |
 | `achievement_xp_log` | 1 |
 | `v_sensor_recent` | 1 |
@@ -44,6 +45,5 @@ the class that produces _two pages, two numbers_ inconsistency.
 | `hive_retention_config` | 1 |
 | `sso_configs` | 1 |
 | `x` | 1 |
+| `resume_versions` | 1 |
 | `shift_plans` | 1 |
-| `skill_profiles` | 1 |
-| `platform_feedback_votes` | 1 |

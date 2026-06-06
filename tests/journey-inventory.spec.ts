@@ -478,3 +478,30 @@ test.describe('inventory.html - sentinel scenarios', () => {
   });
 
 });
+
+test.describe('inventory.html — mobile tap targets (grounded sweep Wave 1)', () => {
+  // The primary "Add Part" CTA carried an inline `min-height:unset` that defeated
+  // .btn-primary's 44px default, shipping at 32px on a field-worker phone. Lock
+  // every primary action button >= 44px at 390px (dpr=1, no sub-pixel artifact).
+  test('primary action buttons render >= 44px tall at 390px', async ({ whPage }) => {
+    await whPage.setViewportSize({ width: 390, height: 844 });
+    await whPage.goto(PAGE);
+    await waitForPageReady(whPage);
+    await whPage.waitForTimeout(800);
+
+    const undersized = await whPage.evaluate(() => {
+      const out: { id: string; label: string; h: number }[] = [];
+      const vis = (el: Element) => (el as any).checkVisibility ? (el as any).checkVisibility() : true;
+      document.querySelectorAll('button.btn-primary, a.btn-primary').forEach((el) => {
+        if (!vis(el)) return;
+        if (el.closest('[id^="wh-ai"],[class*="wh-hub"],[class*="wh-fb"]') || (el.id || '').startsWith('wh-')) return;
+        const b = el.getBoundingClientRect();
+        if (b.width === 0 || b.height === 0) return;
+        if (b.height < 44) out.push({ id: el.id || '', label: (el.textContent || '').trim().replace(/\s+/g, ' ').slice(0, 20), h: Math.round(b.height) });
+      });
+      return out;
+    });
+
+    expect(undersized, `inventory primary buttons under 44px on mobile: ${JSON.stringify(undersized)}`).toEqual([]);
+  });
+});

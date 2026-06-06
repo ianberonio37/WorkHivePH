@@ -258,6 +258,37 @@
     }
     .honest-empty .hewhy { color:var(--muted); font-size:.7rem; margin-top:.35rem; }
 
+    /* ── Memento Memory Cache panel (P6) ── */
+    .memento-headline {
+      font-size:.78rem; color:var(--text); margin-bottom:.85rem;
+      padding:.5rem .65rem; background:rgba(41,182,217,.06);
+      border-left:2px solid var(--blue); border-radius:.3rem;
+    }
+    .memento-grid {
+      display:grid; grid-template-columns:repeat(auto-fit,minmax(110px,1fr));
+      gap:.55rem; margin-bottom:.85rem;
+    }
+    .memento-stat {
+      background:var(--card); border:1px solid var(--border);
+      border-radius:.6rem; padding:.65rem .8rem;
+      display:flex; flex-direction:column; gap:.1rem;
+    }
+    .memento-stat .stat-num { font-size:1.15rem; font-weight:800; line-height:1.1; color:var(--blue); }
+    .memento-stat .stat-num.dim { color:var(--muted); font-size:.7rem; font-weight:600; }
+    .memento-stat .stat-lbl { font-size:.55rem; font-weight:700; text-transform:uppercase;
+                              letter-spacing:.06em; color:var(--muted); margin-top:.2rem; }
+    .memento-context {
+      font-size:.7rem; color:var(--muted); line-height:1.6;
+      padding-top:.6rem; border-top:1px dashed var(--border);
+    }
+    .memento-context .warn { color:var(--yellow); font-weight:600; }
+    .memento-context strong { color:var(--text); font-weight:600; }
+    .warming-banner {
+      margin-top:.7rem; padding:.55rem .7rem;
+      background:rgba(251,191,36,.08); border:1px solid rgba(251,191,36,.3);
+      border-radius:.5rem; font-size:.7rem; color:var(--yellow);
+    }
+
     /* ── Validator grid (Tech Health) ── */
     .tech-summary {
       display:grid; grid-template-columns:repeat(auto-fit,minmax(120px,1fr));
@@ -736,6 +767,20 @@
             <div class="panel-body"><div id="audit-content"></div></div>
           </section>
 
+          <section class="panel" id="memento-health">
+            <div class="panel-hdr">
+              <span class="rag-dot" id="rag-memento"></span>
+              <div style="flex:1">
+                <h2>Memento Memory Cache</h2>
+                <div class="panel-sub">Local FTS5+TF-IDF retrieval — chunks surfaced per prompt</div>
+              </div>
+              <span class="updated" id="memento-updated">—</span>
+            </div>
+            <div class="panel-body">
+              <div id="memento-content"><!-- populated by renderMementoHealth() --></div>
+            </div>
+          </section>
+
         </div>
       </div>
 
@@ -983,7 +1028,7 @@
 
       try {
         // All 8 panels + Hero feeders fetched in parallel (Promise.all = ~1-2s total)
-        const [tech, dau14, aicost, hives, mau, heatmap, maturity, pareto, mkt, aiprov, audit] = await Promise.all([
+        const [tech, dau14, aicost, hives, mau, heatmap, maturity, pareto, mkt, aiprov, audit, memento] = await Promise.all([
           fetchTechHealth(ctrl.signal),
           fetchDau14d(),         // 14d sparkline + today's DAU
           fetchAiCostToday(),
@@ -995,9 +1040,11 @@
           fetchMarketplacePulse(),
           fetchAiCostByProvider(),
           fetchAuditFeed(),
+          fetchMementoHealth(ctrl.signal),
         ]);
         renderHero({ tech, dau: dau14, aicost, hives, mau });
         renderTechHealth(tech);
+        renderMementoHealth(memento);
         renderGrowthPulse(dau14, mau);
         renderHeatmap(heatmap);
         renderMaturity(maturity);
@@ -1036,6 +1083,19 @@
       try {
         // utils.js fetchWithTimeout handles abort/timeout uniformly (resilience L3)
         const res = await fetchWithTimeout('platform_health.json?ts=' + Date.now(), { signal }, 10000);
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        return await res.json();
+      } catch (e) {
+        if (e && e.name === 'AbortError') throw e;
+        return { _error: e && e.message || 'fetch failed' };
+      }
+    }
+
+    // Memento health: read memento_health.json (artifact written by Stop hook).
+    // Local-only file; gitignored. Polled like platform_health.json.
+    async function fetchMementoHealth(signal) {
+      try {
+        const res = await fetchWithTimeout('memento_health.json?ts=' + Date.now(), { signal }, 5000);
         if (!res.ok) throw new Error('HTTP ' + res.status);
         return await res.json();
       } catch (e) {
@@ -1555,6 +1615,96 @@
         if (error) return { _error: error.message };
         return { events: data || [] };
       } catch (e) { return { _error: e && e.message || 'fetch failed' }; }
+    }
+
+    // Memento Memory Cache (P6) — surfaces local retrieval health.
+    // honesty doctrine: if retrievals_today < 10, gated metrics show
+    // "still warming up" instead of unreliable numbers.
+    function renderMementoHealth(m) {
+      const el  = document.getElementById('memento-content');
+      const upd = document.getElementById('memento-updated');
+      const rag = document.getElementById('rag-memento');
+
+      if (!m || m._error) {
+        el.innerHTML = '<div class="honest-empty">'
+          + '<div class="hetitle">Memento not reachable</div>'
+          + '<p>Could not load <code>memento_health.json</code>: '
+          + escHtml((m && m._error) || 'unknown') + '</p>'
+          + '<div class="hewhy">Memento writes this file from its Stop hook. '
+          + 'Run <code>python C:\\Users\\ILBeronio\\.claude-memento\\tools\\memento_health_export.py</code> '
+          + 'to regenerate manually.</div>'
+          + '</div>';
+        upd.textContent = '—';
+        rag.className = 'rag-dot fail';
+        return;
+      }
+
+      const sum = m.summary || {};
+      const met = m.metrics || {};
+      const ctx = m.context || {};
+      const hon = m.honesty || {};
+      const warming = !!hon.warming_up;
+
+      const computedAt = m.computed_at ? new Date(m.computed_at * 1000) : null;
+      const ageMin = computedAt ? Math.round((Date.now() - computedAt.getTime()) / 60000) : null;
+      const ageStr = ageMin == null ? '—'
+        : ageMin < 1     ? 'just now'
+        : ageMin < 60    ? (ageMin + ' min ago')
+        : ageMin < 1440  ? (Math.round(ageMin / 60) + ' hr ago')
+        : (Math.round(ageMin / 1440) + ' day(s) ago');
+      const stale = ageMin != null && ageMin > 60;
+      upd.textContent = 'memento_health.json · ' + ageStr + (stale ? ' (STALE)' : '');
+
+      if (sum.status === 'no_data' || sum.status === 'error') rag.className = 'rag-dot fail';
+      else if (warming || stale) rag.className = 'rag-dot warn';
+      else rag.className = 'rag-dot good';
+
+      const gated = new Set(hon.warming_up_metrics || []);
+      const dim = (key, value) => gated.has(key)
+        ? '<span class="dim" title="Need ' + (hon.warming_up_threshold - hon.current_sample_size) + ' more retrievals for reliable numbers">still warming up</span>'
+        : value;
+
+      const lastRefresh = met.last_refresh_age_seconds == null
+        ? '—'
+        : met.last_refresh_age_seconds < 60 ? 'just now'
+        : met.last_refresh_age_seconds < 3600 ? (Math.round(met.last_refresh_age_seconds / 60) + ' min ago')
+        : met.last_refresh_age_seconds < 86400 ? (Math.round(met.last_refresh_age_seconds / 3600) + ' hr ago')
+        : (Math.round(met.last_refresh_age_seconds / 86400) + ' day(s) ago');
+
+      const stat = (lbl, val) => '<div class="memento-stat">'
+        + '<div class="stat-num">' + val + '</div>'
+        + '<div class="stat-lbl">' + escHtml(lbl) + '</div>'
+        + '</div>';
+
+      const mmKB = ctx.memory_md_bytes ? (ctx.memory_md_bytes / 1024).toFixed(0) : null;
+      const mmContext = mmKB
+        ? '<div class="memento-context-row">MEMORY.md source: <strong>' + mmKB + 'KB</strong> '
+            + '~' + escHtml(String(ctx.memory_md_tokens_est || '?')) + ' tokens'
+            + (ctx.memory_md_truncated_at_load ? ' <span class="warn">(truncated on session load)</span>' : '')
+            + '</div>'
+        : '';
+
+      el.innerHTML =
+          '<div class="memento-headline">' + escHtml(sum.headline || '—') + '</div>'
+        + '<div class="memento-grid">'
+        +   stat('files indexed', escHtml(String(met.files_indexed != null ? met.files_indexed : '—')))
+        +   stat('chunks', escHtml(String(met.chunks_indexed != null ? met.chunks_indexed : '—')))
+        +   stat('retrievals today', escHtml(String(met.retrievals_today != null ? met.retrievals_today : '—')))
+        +   stat('avg latency', dim('avg_latency_ms', escHtml(String(met.avg_latency_ms || '—')) + 'ms'))
+        +   stat('tokens / retrieval', dim('avg_tokens_per_retrieval', '~' + escHtml(String(met.avg_tokens_per_retrieval || 0))))
+        +   stat('silent rate', dim('silent_rate_pct', escHtml(String(met.silent_rate_pct || 0)) + '%'))
+        + '</div>'
+        + '<div class="memento-context">'
+        +   '<div class="memento-context-row">Last refresh: <strong>' + escHtml(lastRefresh) + '</strong>'
+        +     ' · vocab v' + escHtml(String(met.vocab_version || '?'))
+        +     ' (' + escHtml(String(met.vocab_terms || '?')) + ' terms)</div>'
+        +   mmContext
+        + '</div>'
+        + (warming
+            ? '<div class="warming-banner">Still warming up — need '
+                + (hon.warming_up_threshold - hon.current_sample_size)
+                + ' more retrievals for full latency / token stats.</div>'
+            : '');
     }
 
     // ── Phase 2+: renderers ─────────────────────────────────────

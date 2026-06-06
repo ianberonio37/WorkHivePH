@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-06-01T03:34:45.166386+00:00",
+  "timestamp": "2026-06-06T23:38:44.542051+00:00",
   "validators": {
     "calc-suite": "PASS",
     "auto-discovery": "PASS",
@@ -52,6 +52,7 @@
     "empty-catch": "PASS",
     "settimeout-string": "PASS",
     "document-write": "PASS",
+    "clone-debt": "PASS",
     "tabindex-positive": "PASS",
     "viewport-user-scalable": "PASS",
     "innerhtml-eschtml": "PASS",
@@ -201,6 +202,14 @@
     "jsonb-drift": "PASS",
     "validator-self-coverage": "PASS",
     "validator-freshness": "PASS",
+    "ai-asset-versioning": "PASS",
+    "ai-eval-regression": "PASS",
+    "ai-seams-inventory": "PASS",
+    "ai-seam-coverage": "PASS",
+    "meta-gate": "PASS",
+    "c-track-self-coverage": "PASS",
+    "grounded-sweep": "PASS",
+    "modal-a11y": "PASS",
     "provider-bypass": "PASS",
     "cache-invalidation": "PASS",
     "realtime-filter": "PASS",
@@ -208,6 +217,7 @@
     "gateway-routing": "PASS",
     "agent-handoff-contract": "PASS",
     "function-security": "PASS",
+    "definer-membership-gate": "PASS",
     "admin-gates": "PASS",
     "html-id-unique": "PASS",
     "trigger-reentrancy": "PASS",
@@ -348,7 +358,8 @@
     "mine-rls-policies": "PASS",
     "mine-cache-name-drift": "PASS",
     "rls-strict": "PASS",
-    "envelope-return-shape": "PASS"
+    "envelope-return-shape": "PASS",
+    "memento-catalog-citations": "PASS"
   },
   "readiness": {
     "git": "WARN",

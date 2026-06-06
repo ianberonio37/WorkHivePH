@@ -1,7 +1,7 @@
 {
   "summary": {
-    "specs_scanned": 20,
-    "total_lookups": 76,
+    "specs_scanned": 24,
+    "total_lookups": 141,
     "total_drift": 2,
     "baseline": 2
   },
@@ -130,9 +130,30 @@
       "misses": []
     },
     {
+      "spec": "journey-definer-rpc-hive-isolation.spec.ts",
+      "targets": [
+        "hive.html"
+      ],
+      "misses": []
+    },
+    {
       "spec": "journey-engineer.spec.ts",
       "targets": [
         "logbook.html"
+      ],
+      "misses": []
+    },
+    {
+      "spec": "journey-hive-board-parity.spec.ts",
+      "targets": [
+        "hive.html"
+      ],
+      "misses": []
+    },
+    {
+      "spec": "journey-home-fanout-parity.spec.ts",
+      "targets": [
+        "index.html"
       ],
       "misses": []
     },
@@ -228,6 +249,13 @@
         "pm-scheduler.html",
         "hive.html",
         "hive.html"
+      ],
+      "misses": []
+    },
+    {
+      "spec": "journey-resume.spec.ts",
+      "targets": [
+        "resume.html"
       ],
       "misses": []
     },

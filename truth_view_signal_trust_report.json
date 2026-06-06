@@ -1,9 +1,9 @@
 {
   "summary": {
-    "view_column_pairs": 325,
+    "view_column_pairs": 336,
     "at_risk": 0,
     "review": 9,
-    "files_scanned": 193
+    "files_scanned": 204
   },
   "pairs": [
     {
@@ -483,6 +483,149 @@
       "consumers": [
         {
           "file": "alert-hub.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_asset_state_truth",
+      "column": "asset_tag",
+      "consumers": [
+        {
+          "file": "supabase/functions/_shared/verified-state.ts",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_asset_state_truth",
+      "column": "conflict_count",
+      "consumers": [
+        {
+          "file": "supabase/functions/_shared/verified-state.ts",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_asset_state_truth",
+      "column": "event_type",
+      "consumers": [
+        {
+          "file": "supabase/functions/_shared/verified-state.ts",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_asset_state_truth",
+      "column": "ingested_at",
+      "consumers": [
+        {
+          "file": "supabase/functions/_shared/verified-state.ts",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_asset_state_truth",
+      "column": "source_id",
+      "consumers": [
+        {
+          "file": "supabase/functions/_shared/verified-state.ts",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_asset_state_truth",
+      "column": "superseded_count",
+      "consumers": [
+        {
+          "file": "supabase/functions/_shared/verified-state.ts",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_asset_state_truth",
+      "column": "verified_at",
+      "consumers": [
+        {
+          "file": "supabase/functions/_shared/verified-state.ts",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_asset_state_truth",
+      "column": "verified_payload",
+      "consumers": [
+        {
+          "file": "supabase/functions/_shared/verified-state.ts",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_asset_state_truth",
+      "column": "verified_source",
+      "consumers": [
+        {
+          "file": "supabase/functions/_shared/verified-state.ts",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_asset_state_truth",
+      "column": "verified_source_rank",
+      "consumers": [
+        {
+          "file": "supabase/functions/_shared/verified-state.ts",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_asset_state_truth",
+      "column": "verified_text",
+      "consumers": [
+        {
+          "file": "supabase/functions/_shared/verified-state.ts",
           "shape": "direct",
           "smells": []
         }
@@ -2401,6 +2544,11 @@
           "smells": []
         },
         {
+          "file": "resume.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
           "file": "supabase/functions/agentic-rag-loop/index.ts",
           "shape": "direct",
           "smells": []
@@ -2422,6 +2570,11 @@
         },
         {
           "file": "supabase/functions/scheduled-agents/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/semantic-fact-extractor/index.ts",
           "shape": "direct",
           "smells": []
         },
@@ -2451,6 +2604,11 @@
       "view": "v_logbook_truth",
       "column": "asset_tag",
       "consumers": [
+        {
+          "file": "resume.html",
+          "shape": "direct",
+          "smells": []
+        },
         {
           "file": "voice-handler.js",
           "shape": "direct",
@@ -2581,6 +2739,11 @@
           "smells": []
         },
         {
+          "file": "resume.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
           "file": "voice-handler.js",
           "shape": "direct",
           "smells": []
@@ -2600,6 +2763,11 @@
         },
         {
           "file": "assistant.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "resume.html",
           "shape": "direct",
           "smells": []
         },
@@ -2675,6 +2843,11 @@
           "file": "supabase/functions/fmea-populator/index.ts",
           "shape": "direct",
           "smells": []
+        },
+        {
+          "file": "supabase/functions/semantic-fact-extractor/index.ts",
+          "shape": "direct",
+          "smells": []
         }
       ],
       "smells": [],
@@ -2699,6 +2872,11 @@
       "consumers": [
         {
           "file": "supabase/functions/ai-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/semantic-fact-extractor/index.ts",
           "shape": "direct",
           "smells": []
         }
@@ -2737,6 +2915,11 @@
         },
         {
           "file": "project-manager.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "resume.html",
           "shape": "direct",
           "smells": []
         },
@@ -2801,6 +2984,11 @@
           "smells": []
         },
         {
+          "file": "supabase/functions/semantic-fact-extractor/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
           "file": "supabase/functions/shift-planner-orchestrator/index.ts",
           "shape": "direct",
           "smells": []
@@ -2835,6 +3023,11 @@
         },
         {
           "file": "index.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "resume.html",
           "shape": "direct",
           "smells": []
         },
@@ -2895,6 +3088,11 @@
         },
         {
           "file": "supabase/functions/scheduled-agents/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/semantic-fact-extractor/index.ts",
           "shape": "direct",
           "smells": []
         },
@@ -2965,6 +3163,11 @@
           "smells": []
         },
         {
+          "file": "resume.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
           "file": "search-overlay.js",
           "shape": "direct",
           "smells": []
@@ -2991,6 +3194,11 @@
         },
         {
           "file": "supabase/functions/scheduled-agents/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/semantic-fact-extractor/index.ts",
           "shape": "direct",
           "smells": []
         },
@@ -3054,6 +3262,11 @@
           "smells": []
         },
         {
+          "file": "resume.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
           "file": "supabase/functions/agentic-rag-loop/index.ts",
           "shape": "direct",
           "smells": []
@@ -3100,6 +3313,11 @@
         },
         {
           "file": "supabase/functions/scheduled-agents/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/semantic-fact-extractor/index.ts",
           "shape": "direct",
           "smells": []
         },
@@ -6553,6 +6771,11 @@
           "smells": []
         },
         {
+          "file": "resume.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
           "file": "skillmatrix.html",
           "shape": "direct",
           "smells": []
@@ -6572,6 +6795,11 @@
         },
         {
           "file": "hive.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "resume.html",
           "shape": "direct",
           "smells": []
         },

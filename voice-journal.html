@@ -199,6 +199,10 @@
       border-color: rgba(247,162,27,0.45);
       color: #ffcc7a;
     }
+    /* Grounded MCP sweep (Wave 1, 2026-06-07): the persona radiogroup was the
+       one control missing the >=44px mobile bump that .btn-ghost (line ~96) and
+       .filter-chip already have — it rendered 41px on phones. Match the pattern. */
+    @media (max-width: 480px) { .persona-chip { min-height: 44px; } }
     .speak-btn:hover  { background: rgba(247,162,27,0.28); }
     .speak-btn:active { transform: scale(0.96); }
 

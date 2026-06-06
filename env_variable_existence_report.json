@@ -1,10 +1,10 @@
 {
   "summary": {
-    "files_scanned": 162,
-    "total_refs": 241,
+    "files_scanned": 172,
+    "total_refs": 256,
     "total_missing": 0,
     "baseline": 0,
-    "env_names_known": 25
+    "env_names_known": 26
   },
   "per_file": [
     {
@@ -17,6 +17,10 @@
     },
     {
       "file": "supabase/functions/_shared/cache.ts",
+      "missing": []
+    },
+    {
+      "file": "supabase/functions/_shared/cold-archive.ts",
       "missing": []
     },
     {
@@ -40,7 +44,15 @@
       "missing": []
     },
     {
+      "file": "supabase/functions/_shared/episodic-memory.ts",
+      "missing": []
+    },
+    {
       "file": "supabase/functions/_shared/error-tracker.ts",
+      "missing": []
+    },
+    {
+      "file": "supabase/functions/_shared/followups.ts",
       "missing": []
     },
     {
@@ -80,11 +92,27 @@
       "missing": []
     },
     {
+      "file": "supabase/functions/_shared/resume-taxonomy.ts",
+      "missing": []
+    },
+    {
+      "file": "supabase/functions/_shared/semantic-facts.ts",
+      "missing": []
+    },
+    {
+      "file": "supabase/functions/_shared/skill-library.ts",
+      "missing": []
+    },
+    {
       "file": "supabase/functions/_shared/validate-contract.ts",
       "missing": []
     },
     {
       "file": "supabase/functions/_shared/validateAgentContract.ts",
+      "missing": []
+    },
+    {
+      "file": "supabase/functions/_shared/verified-state.ts",
       "missing": []
     },
     {
@@ -236,7 +264,19 @@
       "missing": []
     },
     {
+      "file": "supabase/functions/resume-extract/index.ts",
+      "missing": []
+    },
+    {
+      "file": "supabase/functions/resume-polish/index.ts",
+      "missing": []
+    },
+    {
       "file": "supabase/functions/scheduled-agents/index.ts",
+      "missing": []
+    },
+    {
+      "file": "supabase/functions/semantic-fact-extractor/index.ts",
       "missing": []
     },
     {

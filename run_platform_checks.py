@@ -660,6 +660,21 @@ VALIDATORS = [
         "skip_if_fast": False,
     },
     {
+        # Deterministic half of the Holistic/Cross-Page Critic (Grounded MCP Sweep
+        # Phase 4.7): redundancy is a RELATIONSHIP between files, invisible to the
+        # per-element critic. Wraps jscpd (clone detector); forward-only ratchet on
+        # the duplicated-clone count (baseline clone_debt_baseline.json = 73 / 24.65%
+        # of HTML at 2026-06-07). Degrades to SKIP if jscpd absent (npm i -D jscpd to
+        # activate). Blocks NEW copy-paste; collapsing duplication ratchets it down.
+        "id":      "clone-debt",
+        "script":  "validate_clone_debt.py",
+        "args":    [],
+        "label":   "Clone Debt (jscpd cross-page duplication; forward-only ratchet — redundancy critic)",
+        "group":   "Platform",
+        "report":  "clone_debt_baseline.json",
+        "skip_if_fast": False,
+    },
+    {
         "id":      "tabindex-positive",
         "script":  "validate_tabindex_positive.py",
         "args":    [],
@@ -2137,6 +2152,35 @@ VALIDATORS = [
         "skip_if_fast": False,
     },
     {
+        # Standing Rule D for the Grounded MCP Sweep: every page marked done in
+        # GROUNDED_SWEEP_ROADMAP.md must keep its crystallized live lock (a
+        # journey-*.spec.ts assertion named in grounded_sweep_locks.json). FAILs
+        # the moment a done page has no lock, or a lock's spec/marker vanishes —
+        # so the sweep's guards can't silently erode. Makes the sweep a
+        # self-policed part of the self-improving gate, not an adjacent ritual.
+        "id":      "grounded-sweep",
+        "script":  "validate_grounded_sweep.py",
+        "args":    [],
+        "label":   "Grounded MCP Sweep Self-Coverage (meta: every done page in the roadmap keeps its crystallized journey lock)",
+        "group":   "Platform",
+        "report":  "grounded_sweep_report.json",
+        "skip_if_fast": False,
+    },
+    {
+        # Grounded Sweep critique C7, promoted to a gate rule: forward-only DEBT
+        # ratchet on hand-rolled modal a11y (role="dialog"+aria-modal). Baselines
+        # today's debt (modal_a11y_baseline.json) so it doesn't break the gate,
+        # FAILs only when a NEW non-a11y modal ships, and ratchets down as C7
+        # retrofits land. Turns a systemic critique into an enforced, tracked metric.
+        "id":      "modal-a11y",
+        "script":  "validate_modal_a11y.py",
+        "args":    [],
+        "label":   "Modal A11y Debt Ratchet (no NEW hand-rolled modal without role=dialog+aria-modal; critique C7)",
+        "group":   "Platform",
+        "report":  "modal_a11y_report.json",
+        "skip_if_fast": False,
+    },
+    {
         "id":      "provider-bypass",
         "script":  "validate_provider_bypass.py",
         "args":    [],
@@ -2206,6 +2250,20 @@ VALIDATORS = [
         "label":   "SQL Function Security Posture (4-layer: DEFINER+search_path + trigger explicit + matrix + aggregate)",
         "group":   "Platform",
         "report":  "function_security_report.json",
+        "skip_if_fast": False,
+    },
+    {
+        # Companion to function-security: that checks the search_path-shadowing
+        # class; this checks the TENANT-isolation class. A SECURITY DEFINER fn
+        # taking a hive_id bypasses RLS, so if it's reachable by anon/auth and
+        # has no in-function membership gate it's a cross-hive IDOR vector
+        # (invisible to RLS-policy validators). FAIL-at-0: gated OR service_role-only.
+        "id":      "definer-membership-gate",
+        "script":  "validate_definer_membership_gate.py",
+        "args":    [],
+        "label":   "SECURITY DEFINER Hive-Membership Gate (every DEFINER hive-fn gated OR service_role-only)",
+        "group":   "Platform",
+        "report":  "definer_membership_gate_report.json",
         "skip_if_fast": False,
     },
     {
@@ -3272,6 +3330,7 @@ VALIDATORS = [
     {"id": "mine-cache-name-drift",        "script": os.path.join("tools", "mine_cache_name_drift.py"), "args": [], "label": "Cache-Name Drift Miner (L-1: SHELL_FILEs committed after sw.js — bump CACHE_NAME warning)",            "group": "P1 Roadmap", "report": "cache_name_drift_report.json",             "skip_if_fast": False, "severity": "info",       "parallel_safe": True},
     {"id": "rls-strict",                   "script": "validate_rls_strict.py",                   "args": [], "label": "RLS Strict Baseline (L0 ratchet over mine_rls_policies: USING(true) + WITH CHECK(true) frozen at baseline)",         "group": "P1 Roadmap", "report": "rls_policy_mining_report.json",            "skip_if_fast": False, "severity": "regression", "parallel_safe": True},
     {"id": "envelope-return-shape",        "script": "validate_envelope_return_shape.py",        "args": [], "label": "Envelope Return-Shape Adoption (true adoption: fns that actually call ok(ctx, ...); floor ratchet)",                 "group": "P1 Roadmap", "report": "envelope_return_shape_report.json",        "skip_if_fast": False, "severity": "warn",       "parallel_safe": True},
+    {"id": "memento-catalog-citations",    "script": os.path.join("tools", "memento_catalog_citation_validator.py"), "args": [], "label": "Memento Pattern-Catalog Citation Rot (reference_pattern_catalog.md citations all resolve on disk or via the index)", "group": "Platform",   "report": None,                                          "skip_if_fast": False, "severity": "regression", "parallel_safe": True},
 ]
 
 PYTHON_API_URL  = "https://engineering-calc-api.onrender.com/calculate"

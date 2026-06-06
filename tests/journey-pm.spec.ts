@@ -220,4 +220,31 @@ test.describe('pm-scheduler.html — PM user journey', () => {
     const label = await whPage.locator('#pm-verdict-label').textContent().catch(() => '');
     expect(label?.trim(), `verdict still computing after ${elapsed}ms`).not.toMatch(/^Computing/);
   });
+
+  // ── Grounded MCP Sweep (Wave 1, 2026-06-07) ──────────────────────────────
+  // The add-asset wizard's text inputs carried an inline `font-size:0.875rem`
+  // (14px) that OVERRODE .wh-input's 16px base -> iOS Safari auto-zooms on tap,
+  // breaking the layout for a field worker registering an asset on a phone.
+  // validate_mobile.py's input-font check only parses the `.wh-input` CLASS
+  // block, so it is blind to per-element inline overrides (documented there).
+  // This locks the fix by reading the COMPUTED font-size in a real 390px browser.
+  test('mobile: add-asset wizard inputs render >= 16px (iOS auto-zoom guard)', async ({ whPage }) => {
+    await whPage.setViewportSize({ width: 390, height: 844 });
+    await whPage.goto(PAGE);
+    await waitForPageReady(whPage);
+
+    // These live in step-1/step-2 of the wizard (in the DOM, possibly hidden);
+    // getComputedStyle resolves font-size regardless of display state.
+    const ids = ['asset-search', 'custom-item-text', 'custom-item-freq'];
+    for (const id of ids) {
+      const fs = await whPage.evaluate((i) => {
+        const el = document.getElementById(i);
+        return el ? parseFloat(getComputedStyle(el).fontSize) : null;
+      }, id);
+      expect(fs, `#${id} must exist in the wizard`).not.toBeNull();
+      expect(fs as number,
+        `#${id} font-size must be >= 16px (was 14px inline override -> iOS zoom)`,
+      ).toBeGreaterThanOrEqual(16);
+    }
+  });
 });

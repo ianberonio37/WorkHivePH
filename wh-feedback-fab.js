@@ -94,7 +94,13 @@
     const css = `
       .wh-fb-fab {
         position: fixed;
-        right: 24px;
+        /* Sit to the LEFT of the nav-hub FAB (which owns right:24px, bottom:24px)
+           so this feedback button never shares the corner with the nav-hub /
+           companion stack. The companion trigger springs UP to bottom:96px when
+           the hub opens; nav-hub stays at right:24px; this clears both
+           (56px FAB width + 12px gap = 68 → right:92px). Fixes the
+           journey-voice-companion-gates pointer-interception collision. */
+        right: 92px;
         bottom: max(24px, env(safe-area-inset-bottom, 0px));
         width: 56px; height: 56px;
         border-radius: 50%;
@@ -264,7 +270,7 @@
 
       @media (max-width: 480px) {
         .wh-fb-panel { width: 100vw; }
-        .wh-fb-fab { right: 16px; bottom: max(16px, env(safe-area-inset-bottom, 0px)); }
+        .wh-fb-fab { right: 80px; bottom: max(16px, env(safe-area-inset-bottom, 0px)); }
       }
 
       /* Reduced motion: kill the slide animation, just fade */

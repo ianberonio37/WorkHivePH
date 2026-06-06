@@ -79,6 +79,22 @@ def validate_resume():
               "the opening summary must synthesize the WHOLE resume from computed facts, not transcribe the old doc")
         check("summary reduce-pass: btn-summary wired",
               'id="btn-summary"' in html and "getElementById('btn-summary')" in html)
+        # Live MCP sweep 2026-06-06: when the heavy-file map-reduce reads only N of M
+        # sections (a chunk 429'd), the client must warn, not silently merge a resume
+        # missing the worker's last jobs.
+        check("client warns on a partial map-reduce read (data.partial)",
+              "data.partial" in html,
+              "surface the chunks_read/chunks_total signal so a heavy upload that lost a page is not silent")
+        # Novice MCP sweep 2026-06-06: three first-timer / robustness fixes.
+        check("novice: empty state lists all start paths incl. Upload (btn-file-2)",
+              "Three ways to start" in html and 'id="btn-file-2"' in html,
+              "old copy assumed WorkHive data + offered only Auto-fill, misleading a brand-new solo worker")
+        check("novice: row removal is undoable (pushUndo before splice)",
+              "before remove" in html,
+              "a fat-fingered row delete must be recoverable via the Undo button, like every other mutating path")
+        check("novice: callResumePolish catches a network error (offline resilience)",
+              "Could not reach the AI helper" in html,
+              "fetchWithTimeout throws on a network drop; without a catch the AI buttons hang with a stuck toast")
         # Years-precision fix (live MCP 2026-06-05): _resumeYears must only assert a
         # tenure on a genuine CROSS-year span, or an auto-filled current-year "solo
         # practice" role makes a veteran read as "less than a year"/"early-career".
@@ -122,6 +138,17 @@ def validate_resume():
                 check("resume-extract: deterministic project-miner present (mineProjectsFromWork)",
                       "mineProjectsFromWork" in src and "PROJECT_VERB" in src,
                       "free-tier model under-extracts projects embedded in bullets; code miner is the recall safety net (measured 0/4 -> 4/4)")
+                # 50-batch MCP sweep 2026-06-06: the model ALSO drops AWARDS embedded
+                # in bullets ("Named X of the Year", "Received the X Award") - measured
+                # 0/2 across 3 runs on a heavy resume despite prompt rule 5. Symmetric
+                # deterministic miner is the recall safety net (0/2 -> 2/2), wired into
+                # coerceFields and deduped (year-stripped) against the model's own awards.
+                check("resume-extract: deterministic award-miner present (mineAwardsFromWork + AWARD_CUE)",
+                      "mineAwardsFromWork" in src and "AWARD_CUE" in src,
+                      "free-tier model under-extracts awards embedded in bullets; code miner is the recall safety net (measured 0/2 -> 2/2)")
+                check("resume-extract: award-miner wired into coerceFields (minedAwards)",
+                      "minedAwards" in src and "mineAwardsFromWork(" in src,
+                      "the miner must be CALLED, not just defined - a dead function mines nothing")
                 # Lever B: heavy-file map-reduce, and the silent 12K truncation must be GONE.
                 check("resume-extract: heavy-file map-reduce present (splitResumeText + mergePartials)",
                       "splitResumeText" in src and "mergePartials" in src,
@@ -129,6 +156,18 @@ def validate_resume():
                 check("resume-extract: no silent 12K truncation (MAX_TEXT_CHARS removed)",
                       "MAX_TEXT_CHARS" not in src and "MAX_TEXT_TOTAL" in src and "CHUNK_CHARS" in src,
                       "the old hard slice must not come back")
+                # Live MCP sweep 2026-06-06: a work entry with NEITHER a title nor an
+                # employer is a parser artifact (heavy/repetitive files + chunk
+                # boundaries make headerless "@" orphans) that renders as a blank job.
+                check("resume-extract: phantom headerless work-row filter present",
+                      "w.position || w.name" in src,
+                      "drop work entries with no title AND no employer; they render as a blank 'Work experience N' row")
+                # Live MCP sweep 2026-06-06: a chunk that 429'd is skipped server-side,
+                # so the merged resume silently loses that page. Report read/total so
+                # the client can warn (the free-tier/CGNAT audience hits mid-seq 429s).
+                check("resume-extract: map-reduce reports partial reads (chunks_read/chunks_total)",
+                      "chunks_read" in src and "chunks_total" in src and "partial:" in src,
+                      "a dropped chunk must not be invisible to the client")
                 # Lever C: the vendored taxonomy is imported (canonicalization + verbs).
                 check("resume-extract: imports vendored resume-taxonomy",
                       "resume-taxonomy.ts" in src and "canonicalizeSkill" in src)

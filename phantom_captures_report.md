@@ -7,9 +7,9 @@ as an HTML comment on the capture page.
 
 ## Summary
 
-- Capture fields discovered:  **500**
+- Capture fields discovered:  **506**
 - Framework names skipped:    **2** (submit, search, csrf, ...)
-- Alive (≥1 consumer):        **498** ✅
+- Alive (≥1 consumer):        **504** ✅
 - Phantom (0 consumers):      **0** ❌
 - Allowlisted (justified):    **0**
 
@@ -18,7 +18,7 @@ as an HTML comment on the capture page.
 _None — every capture has at least one downstream consumer. Schema discipline is currently good; the gate locks this in against future drift._
 
 
-## Low-usage candidates — `consumer_count == 1` (219)
+## Low-usage candidates — `consumer_count == 1` (221)
 
 Fields read in exactly one place. Likely fine (single-purpose),
 but worth a scan for vestigial half-wired fields.
@@ -26,6 +26,7 @@ but worth a scan for vestigial half-wired fields.
 | Capture name | Captured on |
 |---|---|
 | `a-scan-input` | logbook.html |
+| `cl-text` | resume.html |
 | `custom-item-freq` | pm-scheduler.html |
 | `edge-target` | asset-hub.html |
 | `edge-type` | asset-hub.html |
@@ -84,8 +85,7 @@ but worth a scan for vestigial half-wired fields.
 | `f-et-project` | engineering-design.html |
 | `f-et-vol` | engineering-design.html |
 | `f-ext-load` | engineering-design.html |
-| `f-fan-eff` | engineering-design.html |
-| ... | ... (159 more) |
+| ... | ... (161 more) |
 
 ## What to do with a phantom
 

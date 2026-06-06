@@ -51,6 +51,46 @@ def rotate_for_turn(turn: int) -> tuple[str, str]:
     return persona, hive
 
 
+# Local-eval rate-limit reset (added 2026-06-07 after a 3-run thrash on turn 18).
+# The 58-probe bank exceeds BOTH default caps in `_shared/rate-limit.ts` — per-hive
+# `checkAIRateLimit` (table `ai_rate_limits`, cap 50) AND per-user `checkUserRateLimit`
+# (table `ai_user_rate_limits`, cap 25) — and `supabase start` does NOT load
+# `supabase/functions/.env`, so `WH_*_RATE_LIMIT_OVERRIDE` never reaches the runtime.
+# Un-relaxed, a >25-probe turn gets starved: the LATE probes (always the adversarial /
+# safety tail) 429, grade as fails, and bake a FALSE-low safety floor into the baseline.
+# We seed BOTH counters far-negative with a fresh window before each turn so the whole
+# bank runs un-throttled. LOCAL ONLY: mutates infra counters on the local Supabase
+# docker DB (not real data; self-heals after 1h when the window goes stale). Best-effort
+# — never blocks the run. Opt out with WH_FLYWHEEL_NO_RESET=1. NOTE: resets EXISTING
+# rows; a brand-new DB with no counter row yet may still throttle on turn 1 (rows are
+# upserted by the gateway, then reset cleanly from turn 2 on).
+DB_CONTAINER = os.environ.get("WH_LOCAL_DB_CONTAINER", "supabase_db_workhive")
+
+
+def reset_rate_limit_counters() -> None:
+    """Relax the per-hive + per-user AI rate-limit counters so the full probe bank
+    runs without 429 starvation. See module note above. Best-effort + local-only."""
+    if os.environ.get("WH_FLYWHEEL_NO_RESET"):
+        return
+    sql = (
+        "UPDATE ai_rate_limits SET call_count=-100000, window_start=now();"
+        "UPDATE ai_user_rate_limits SET call_count=-100000, window_start=now();"
+    )
+    try:
+        proc = subprocess.run(
+            ["docker", "exec", DB_CONTAINER, "psql", "-U", "postgres", "-d", "postgres", "-c", sql],
+            capture_output=True, text=True, timeout=20,
+        )
+        if proc.returncode == 0:
+            print("[orch] rate-limit counters relaxed (hive+user) — full bank runs un-throttled.", flush=True)
+        else:
+            print(f"[orch] rate-limit reset SKIPPED (psql rc={proc.returncode}): "
+                  f"{(proc.stderr or '').strip()[:140]} — a >25-probe turn may see 429s.", flush=True)
+    except Exception as e:
+        print(f"[orch] rate-limit reset SKIPPED ({type(e).__name__}: {e}) — "
+              f"a >25-probe turn may see 429s. Set WH_FLYWHEEL_NO_RESET=1 to silence.", flush=True)
+
+
 def save_state(state: dict) -> None:
     STATE_PATH.parent.mkdir(parents=True, exist_ok=True)
     STATE_PATH.write_text(json.dumps(state, indent=2), encoding="utf-8")
@@ -167,6 +207,7 @@ def main() -> int:
         persona, hive = rotate_for_turn(turn)
         turn_started = datetime.now().isoformat()
 
+        reset_rate_limit_counters()  # local-only; keeps the full bank off the 429 tail
         ok, log_tail = run_playwright_for_turn(turn, persona, hive)
         if not ok:
             entry = {

@@ -52,67 +52,67 @@
         {
           "table": "hive_readiness",
           "allowed": true,
-          "offset": 95036
+          "offset": 96535
         },
         {
           "table": "hive_adoption_score",
           "allowed": true,
-          "offset": 101983
+          "offset": 103580
         },
         {
           "table": "logbook",
           "allowed": false,
-          "offset": 138723
+          "offset": 141140
         },
         {
           "table": "logbook",
           "allowed": false,
-          "offset": 139140
+          "offset": 141557
         },
         {
           "table": "logbook",
           "allowed": false,
-          "offset": 140265
+          "offset": 142682
         },
         {
           "table": "pm_completions",
           "allowed": false,
-          "offset": 141097
+          "offset": 143514
         },
         {
           "table": "inventory_items",
           "allowed": false,
-          "offset": 142559
+          "offset": 144976
         },
         {
           "table": "asset_nodes",
           "allowed": false,
-          "offset": 161112
+          "offset": 164452
         },
         {
           "table": "asset_nodes",
           "allowed": false,
-          "offset": 161567
+          "offset": 164907
         },
         {
           "table": "inventory_items",
           "allowed": false,
-          "offset": 162245
+          "offset": 165585
         },
         {
           "table": "inventory_items",
           "allowed": false,
-          "offset": 162708
+          "offset": 166048
         },
         {
           "table": "asset_nodes",
           "allowed": false,
-          "offset": 163867
+          "offset": 167207
         },
         {
           "table": "inventory_items",
           "allowed": false,
-          "offset": 164280
+          "offset": 167620
         }
       ],
       "drift": []
@@ -173,7 +173,7 @@
         {
           "table": "pm_completions",
           "allowed": false,
-          "offset": 63428
+          "offset": 63353
         }
       ],
       "drift": []

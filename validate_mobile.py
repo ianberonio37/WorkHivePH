@@ -106,7 +106,22 @@ def check_viewport_fit(pages):
 
 def check_input_font_size(pages):
     """The .wh-input CSS class must declare font-size >= 1rem (16px). Below 16px,
-    iOS Safari auto-zooms on input tap — workers must double-tap to restore layout."""
+    iOS Safari auto-zooms on input tap — workers must double-tap to restore layout.
+
+    BLIND SPOT (grounded MCP sweep, Wave 0 2026-06-06): this only inspects the
+    `.wh-input` class. Inputs styled via a Tailwind utility (`text-sm` = 14px,
+    e.g. the index.html sign-in/up modal) slip past it. Those COMPUTED-size cases
+    are locked live in tests/journey-shell-mobile-a11y.spec.ts (read the resolved
+    font-size in a real browser at 390px). Keep both: static is cheap+broad, the
+    live spec catches what utility classes hide.
+
+    BLIND SPOT #2 (grounded MCP sweep, Wave 1 2026-06-07, pm-scheduler.html): a
+    PER-ELEMENT inline `style="font-size:0.875rem"` (14px) on an input ALSO defeats
+    the .wh-input 16px base (inline beats the class) and slips past this class-only
+    check — found on #asset-search / #custom-item-text / #custom-item-freq. Locked
+    live in tests/journey-pm.spec.ts ('mobile: add-asset wizard inputs >= 16px').
+    A broad static "any <input> with inline sub-16 font" check would FAIL pages not
+    yet swept, so the computed-value live spec is the right crystallization."""
     issues = []
     for page in pages:
         content = read_file(page)
@@ -165,7 +180,13 @@ def check_safe_area(pages):
 
 def check_touch_targets(pages):
     """Interactive elements with inline height or min-height below 44px are too
-    small for gloved or field worker hands."""
+    small for gloved or field worker hands.
+
+    BLIND SPOT (grounded MCP sweep, Wave 0 2026-06-06): this only matches INLINE
+    `style="height/min-height:..px"`. Buttons sized purely by Tailwind padding
+    (`p-2`, `py-1.5` — e.g. index.html header Sign In + #hamburger at 34px) carry
+    no inline height and slip past. Those COMPUTED-size cases are locked live in
+    tests/journey-shell-mobile-a11y.spec.ts."""
     issues = []
     for page in pages:
         content = read_file(page)

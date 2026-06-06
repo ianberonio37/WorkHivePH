@@ -1,10 +1,10 @@
 {
   "summary": {
-    "files_scanned": 138,
-    "total_calls": 30,
+    "files_scanned": 141,
+    "total_calls": 32,
     "total_drift": 1,
     "baseline": 1,
-    "rpcs_known": 75
+    "rpcs_known": 78
   },
   "per_file": [
     {
@@ -317,6 +317,10 @@
       "issues": []
     },
     {
+      "file": "supabase\\functions\\_shared\\resume-taxonomy.ts",
+      "issues": []
+    },
+    {
       "file": "supabase\\functions\\_shared\\semantic-facts.ts",
       "issues": []
     },
@@ -482,6 +486,14 @@
     },
     {
       "file": "supabase\\functions\\project-progress\\index.ts",
+      "issues": []
+    },
+    {
+      "file": "supabase\\functions\\resume-extract\\index.ts",
+      "issues": []
+    },
+    {
+      "file": "supabase\\functions\\resume-polish\\index.ts",
       "issues": []
     },
     {
