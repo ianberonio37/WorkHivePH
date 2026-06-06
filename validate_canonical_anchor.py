@@ -406,7 +406,12 @@ def check_engine_anchor() -> dict:
     seen: set[str] = set()
     for path in list_migrations():
         sql = read_file(path) or ""
-        sql = re.sub(r"--[^\n]*", "", sql)
+        # Strip line comments so DEF_RE can't match a commented-out CREATE,
+        # but PRESERVE `canonical-allow` markers. Option (b) in this function's
+        # docstring lives in `-- canonical-allow:` comments; the old blanket
+        # `--[^\n]*` strip removed them before has_allow_in_context could see
+        # them, so the documented comment-based anchor never actually worked.
+        sql = re.sub(r"--(?![^\n]*canonical-allow)[^\n]*", "", sql)
         sql = re.sub(r"/\*[\s\S]*?\*/", "", sql)
         for m in DEF_RE.finditer(sql):
             kind = m.group(1).lower()
@@ -631,6 +636,16 @@ def check_standard_anchor() -> dict:
     refs: dict[str, list[str]] = defaultdict(list)
     for path in list_html_pages() + list_edge_functions() + list_python_api_files():
         content = read_file(path) or ""
+        # A file may opt its standard references out as CONTENT (not platform
+        # standard CLAIMS) with a `// standard-allow:` / `# standard-allow:`
+        # marker. e.g. resume.html carries an ATS keyword vocabulary listing
+        # "iso 9001 / 14001 / 45001 / 50001" as resume KEYWORDS to match in a
+        # user's CV — not a claim the platform conforms to those standards, so
+        # no canonical_standards anchor applies. ALLOW_PATTERNS["standard"] was
+        # defined but never consulted by this layer (latent bug) — honor it here,
+        # consistent with the fuel/engine canonical-allow layers.
+        if ALLOW_PATTERNS["standard"].search(content):
+            continue
         for m in STANDARD_REF_RE.finditer(content):
             body = m.group(1).upper().replace(' ', '')
             num  = m.group(2).replace(':', '-').rstrip('.')

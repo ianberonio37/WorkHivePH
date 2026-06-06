@@ -930,7 +930,7 @@
 ═══════════════════════════════════════════════ -->
 <nav class="fixed top-0 left-0 right-0 z-50 border-b border-white/[0.06]" style="background: rgba(22,32,50,0.92); backdrop-filter: blur(16px);">
   <div class="max-w-7xl mx-auto px-5 sm:px-8 h-16 flex items-center justify-between">
-    <a href="#" class="flex-shrink-0">
+    <a href="index.html" class="flex-shrink-0" aria-label="WorkHive home">
       <img src="brand_assets/workhive-logo-transparent.png" alt="WorkHive" class="h-9 w-auto" />
     </a>
 
@@ -1071,7 +1071,7 @@
           <span aria-hidden="true">Companion: </span><span id="oh-persona-name">Zaniah</span>
         </button>
         <a href="hive.html" id="oh-hive-btn" style="display:none; font-size:.7rem; font-weight:700; padding:6px 14px; background:rgba(41,182,217,.12); color:#29B6D9; border:1px solid rgba(41,182,217,.25); border-radius:8px; text-decoration:none;" aria-label="Open hive board"></a>
-        <button onclick="signOut()" style="font-size:.7rem; font-weight:600; padding:6px 14px; background:rgba(255,255,255,.05); color:rgba(255,255,255,.45); border:1px solid rgba(255,255,255,.1); border-radius:8px; font-family:inherit; cursor:pointer;">Sign Out</button>
+        <button onclick="signOut()" class="oh-signout" style="font-size:.7rem; font-weight:600; padding:6px 14px; background:rgba(255,255,255,.05); color:rgba(255,255,255,.45); border:1px solid rgba(255,255,255,.1); border-radius:8px; font-family:inherit; cursor:pointer;">Sign Out</button>
       </div>
     </div>
 
@@ -2476,7 +2476,24 @@
   </div>
 </div>
 
-<div id="signin-modal" class="fixed inset-0 z-50 flex items-center justify-center hidden" style="background:rgba(0,0,0,0.75); backdrop-filter:blur(10px);">
+<style>
+  /* Mobile front-door a11y (grounded MCP sweep, Wave 0 2026-06-06).
+     validate_mobile.py only inspects .wh-input + inline height styles, so these
+     Tailwind-utility-sized controls (text-sm = 14px, p-2/py-1.5 padding) slipped
+     past the static check; caught live at TRUE-390. */
+  /* iOS Safari auto-zooms any input < 16px on focus. Auth inputs use text-sm
+     (14px); force >= 16px so the sign-in/up modal never zoom-jumps on a phone. */
+  #signin-modal input { font-size: 16px; }
+  /* Gloved-hand tap targets: header Sign In + hamburger + dashboard header
+     controls are 30-34px from Tailwind padding. Bump to the 44px minimum on
+     phones only (desktop keeps the tighter density). */
+  @media (max-width: 767px) {
+    .signin-btn { min-height: 44px; display: inline-flex; align-items: center; justify-content: center; }
+    #hamburger { min-height: 44px; min-width: 44px; align-items: center; justify-content: center; }
+    #oh-persona-toggle, .oh-signout { min-height: 44px; }
+  }
+</style>
+<div id="signin-modal" class="fixed inset-0 z-50 flex items-center justify-center hidden" style="background:rgba(0,0,0,0.75); backdrop-filter:blur(10px);" role="dialog" aria-modal="true" aria-label="Sign in to WorkHive">
   <div class="relative rounded-2xl p-7 w-full max-w-sm mx-4" style="background:#1a2535; border:1px solid rgba(255,255,255,0.1); box-shadow:0 24px 80px rgba(0,0,0,0.5);">
     <button onclick="closeSignIn()" class="absolute top-4 right-4 text-white/30 hover:text-white/70 transition-colors text-xl leading-none" aria-label="Close">&times;</button>
 
@@ -2627,16 +2644,23 @@
   }
 
   // ── Open / Close ───────────────────────────────────────────────────────────
+  // a11y: remember who opened the dialog so ESC / close can restore focus to it.
+  let _signinOpener = null;
   function openSignIn(e) {
     if (e) e.preventDefault();
     const name = localStorage.getItem('wh_last_worker') || '';
     if (name) { toggleUserMenu(e); return; }
+    _signinOpener = (e && e.currentTarget) || document.activeElement;
     document.getElementById('signin-modal').classList.remove('hidden');
     switchAuthTab('signin');
   }
 
   function closeSignIn() {
     document.getElementById('signin-modal').classList.add('hidden');
+    // a11y: return focus to the control that opened the dialog (WCAG dialog pattern,
+    // matches utils.js whConfirm/whPrompt).
+    try { if (_signinOpener && typeof _signinOpener.focus === 'function') _signinOpener.focus(); } catch (_) { /* empty-catch-allow: focus restore best-effort */ }
+    _signinOpener = null;
   }
 
   // ── Enterprise SSO (Phase 4.2) ─────────────────────────────────────────────
@@ -2962,9 +2986,23 @@
   });
 
   document.addEventListener('keydown', function(e) {
-    if (e.key !== 'Enter') return;
     const modal = document.getElementById('signin-modal');
     if (modal.classList.contains('hidden')) return;
+    // ESC closes the dialog (WCAG dialog pattern; matches utils.js whConfirm/whPrompt).
+    if (e.key === 'Escape') { e.preventDefault(); closeSignIn(); return; }
+    // Focus trap: keep Tab cycling inside the open dialog instead of escaping
+    // to the page behind it.
+    if (e.key === 'Tab') {
+      const f = [...modal.querySelectorAll('a[href],button:not([disabled]),input:not([disabled]),select,textarea,[tabindex]:not([tabindex="-1"])')]
+        .filter(el => el.offsetParent !== null);
+      if (f.length) {
+        const first = f[0], last = f[f.length - 1];
+        if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+        else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+      }
+      return;
+    }
+    if (e.key !== 'Enter') return;
     if (!document.getElementById('panel-signin').classList.contains('hidden')) submitSignIn();
     else if (!document.getElementById('panel-signup').classList.contains('hidden')) submitSignUp();
     else if (!document.getElementById('panel-guest').classList.contains('hidden')) submitGuest();
@@ -3372,6 +3410,33 @@
 
     const startOfDay = new Date(); startOfDay.setHours(0, 0, 0, 0);
 
+    // ── Fan-out collapse (2026-06-06): in hive mode, one get_hive_dashboard
+    // RPC returns all 11 home signals in a single round-trip (previously 11
+    // separate PostgREST reads). Falls back to the legacy multi-query path on
+    // ANY error (RPC absent before deploy, non-member, network) and in solo
+    // mode (worker_name scope, which the hive-only RPC does not cover).
+    // Parity proven by tests/journey-home-fanout-parity.spec.ts.
+    let _dash = null;
+    if (HIVE_ID) {
+      try {
+        const _r = await db.rpc('get_hive_dashboard', {
+          p_hive_id: HIVE_ID, p_day_start: startOfDay.toISOString(),
+        });
+        if (!_r.error && _r.data) _dash = _r.data;
+      } catch (_e) { /* empty-catch-allow: fall through to legacy multi-query path */ }
+    }
+
+    let jobs, risks, invRaw = [], pmAssets = [],
+        closedToday = 0, pmDoneToday = 0, jobsCount = 0, risksCount = 0;
+
+    if (_dash) {
+      jobs        = _dash.open_jobs || [];
+      risks       = _dash.risks || [];
+      closedToday = Number(_dash.closed_today || 0);
+      pmDoneToday = Number(_dash.pm_done_today || 0);
+      jobsCount   = Number(_dash.open_jobs_count || 0);
+      risksCount  = Number(_dash.risks_count || 0);
+    } else {
     const [logRes, riskRes, invRes, pmRes, closedTodayRes, pmDoneTodayRes,
            jobsCountRes, risksCountRes] = await Promise.allSettled([
 
@@ -3460,57 +3525,68 @@
         : Promise.resolve({ count: 0 }),
     ]);
 
-    const jobs     = logRes.status   === 'fulfilled' ? (logRes.value.data   || []) : [];
-    const risks    = riskRes.status  === 'fulfilled' ? (riskRes.value.data  || []) : [];
-    const invRaw   = invRes.status   === 'fulfilled' ? (invRes.value.data   || []) : [];
-    const pmAssets = pmRes.status    === 'fulfilled' ? (pmRes.value.data    || []) : [];
-    const closedToday = closedTodayRes.status === 'fulfilled' ? (closedTodayRes.value.count || 0) : 0;
-    const pmDoneToday = pmDoneTodayRes.status === 'fulfilled' ? (pmDoneTodayRes.value.count || 0) : 0;
+      jobs     = logRes.status   === 'fulfilled' ? (logRes.value.data   || []) : [];
+      risks    = riskRes.status  === 'fulfilled' ? (riskRes.value.data  || []) : [];
+      invRaw   = invRes.status   === 'fulfilled' ? (invRes.value.data   || []) : [];
+      pmAssets = pmRes.status    === 'fulfilled' ? (pmRes.value.data    || []) : [];
+      closedToday = closedTodayRes.status === 'fulfilled' ? (closedTodayRes.value.count || 0) : 0;
+      pmDoneToday = pmDoneTodayRes.status === 'fulfilled' ? (pmDoneTodayRes.value.count || 0) : 0;
+      jobsCount  = jobsCountRes.status  === 'fulfilled' ? Number(jobsCountRes.value.count  || 0) : 0;
+      risksCount = risksCountRes.status === 'fulfilled' ? Number(risksCountRes.value.count || 0) : 0;
+    }  // end legacy multi-query fallback
 
-    // Low stock: trust v_inventory_items_truth.is_low_stock (canonical signal).
-    // Re-computing qty_on_hand <= reorder_point locally was a semantic-drift
-    // bug — view-side definition is the single source of truth.
-    const lowStock = invRaw.filter(i => i.is_low_stock === true);
+    // Low stock + PM overdue. In hive mode both come from the RPC payload;
+    // in solo / fallback mode both are derived from the legacy fetch.
+    let lowStock, pmOverdueCount;
+    if (_dash) {
+      // low_stock_items mirrors the old invRaw.filter(is_low_stock): the tile
+      // count is lowStock.length and the out-of-stock candidate filters it.
+      lowStock = _dash.low_stock_items || [];
+      pmOverdueCount = Number(_dash.pm_overdue_count || 0);
+    } else {
+      // Low stock: trust v_inventory_items_truth.is_low_stock (canonical signal).
+      // Re-computing qty_on_hand <= reorder_point locally was a semantic-drift
+      // bug — view-side definition is the single source of truth.
+      lowStock = invRaw.filter(i => i.is_low_stock === true);
 
-    // PM Overdue. In hive mode the canonical view above already carries
-    // the is_due flag (last_anchor_date older than 30d OR never completed),
-    // so we just count. In solo mode we still need to fetch completions and
-    // compute client-side because the view does not cover worker_name scope.
-    let pmOverdueCount = 0;
-    if (pmAssets.length > 0) {
-      if (HIVE_ID) {
-        pmOverdueCount = pmAssets.filter(a => a.is_due).length;
-      } else {
-        const assetIds = pmAssets.map(a => a.id).filter(Boolean);
-        try {
-          // canonical-allow: solo-mode fallback — v_pm_compliance_truth is hive-scoped only;
-          // need individual completion rows to compute per-asset cutoff client-side
-          const { data: comps } = await db.from('pm_completions')
-            .select('asset_id, completed_at')
-            .in('asset_id', assetIds)
-            .eq('status', 'done')
-            .order('completed_at', { ascending: false })
-            .limit(500);
-          const lastByAsset = {};
-          (comps || []).forEach(c => {
-            if (!lastByAsset[c.asset_id]) lastByAsset[c.asset_id] = new Date(c.completed_at).getTime();
-          });
-          const cutoff = Date.now() - 30 * 86400000; // time-window-allow: 30d = PM-cycle gap (asset not serviced in a month), distinct from 3d open-issue triage
-          pmOverdueCount = pmAssets.filter(a => {
-            const last = lastByAsset[a.id];
-            return !last || last < cutoff;
-          }).length;
-        } catch (_) { /* empty-catch-allow: best-effort silent swallow */ }
+      // PM Overdue. In hive mode the canonical view already carries the is_due
+      // flag (last_anchor_date older than 30d OR never completed), so we just
+      // count. In solo mode we still need to fetch completions and compute
+      // client-side because the view does not cover worker_name scope.
+      pmOverdueCount = 0;
+      if (pmAssets.length > 0) {
+        if (HIVE_ID) {
+          pmOverdueCount = pmAssets.filter(a => a.is_due).length;
+        } else {
+          const assetIds = pmAssets.map(a => a.id).filter(Boolean);
+          try {
+            // canonical-allow: solo-mode fallback — v_pm_compliance_truth is hive-scoped only;
+            // need individual completion rows to compute per-asset cutoff client-side
+            const { data: comps } = await db.from('pm_completions')
+              .select('asset_id, completed_at')
+              .in('asset_id', assetIds)
+              .eq('status', 'done')
+              .order('completed_at', { ascending: false })
+              .limit(500);
+            const lastByAsset = {};
+            (comps || []).forEach(c => {
+              if (!lastByAsset[c.asset_id]) lastByAsset[c.asset_id] = new Date(c.completed_at).getTime();
+            });
+            const cutoff = Date.now() - 30 * 86400000; // time-window-allow: 30d = PM-cycle gap (asset not serviced in a month), distinct from 3d open-issue triage
+            pmOverdueCount = pmAssets.filter(a => {
+              const last = lastByAsset[a.id];
+              return !last || last < cutoff;
+            }).length;
+          } catch (_) { /* empty-catch-allow: best-effort silent swallow */ }
+        }
       }
     }
 
     // Render stat tiles. Only counts > 0 render; container hides when all
     // four are zero so the verdict stands alone instead of "4 zeros that
     // look broken." Each tile is a clickable link to its surface.
-    // TILE NUMBERS must come from the head-only count queries — using
+    // TILE NUMBERS come from the head-only count queries / RPC counts — using
     // jobs.length / risks.length here capped the tile at the detail .limit(5).
-    const jobsCount  = jobsCountRes.status  === 'fulfilled' ? Number(jobsCountRes.value.count  || 0) : 0;
-    const risksCount = risksCountRes.status === 'fulfilled' ? Number(risksCountRes.value.count || 0) : 0;
 
     (function renderStats() {
       const statsEl = document.getElementById('oh-stats');
@@ -3558,7 +3634,14 @@
       // These are fetched once here (allSettled) and merged into the candidate
       // list so the rank/sort below stays single-source-of-truth.
       let amcPending = null, sensorAnomaly = null, sigAlert = null;
-      if (HIVE_ID) {
+      if (_dash) {
+        // RPC path: the three Today's-One-Thing signals are already in the
+        // consolidated payload — no extra round-trips. Preserve the AMC role
+        // gate (supervisors only, matching the legacy query branch below).
+        amcPending    = (HIVE_ROLE === 'supervisor') ? (_dash.amc_pending || null) : null;
+        sensorAnomaly = _dash.sensor_anomaly || null;
+        sigAlert      = _dash.signature_alert || null;
+      } else if (HIVE_ID) {
         try {
           const todayIso = new Date().toISOString().slice(0, 10);
           const [amcRes, anomRes, sigRes] = await Promise.allSettled([

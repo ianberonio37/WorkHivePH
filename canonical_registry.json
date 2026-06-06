@@ -2218,6 +2218,7 @@
         "asset-brain-query",
         "fmea-populator",
         "resume-extract",
+        "resume-polish",
         "temporal-rag-orchestrator",
         "visual-defect-capture",
         "voice-action-router"
@@ -2228,6 +2229,7 @@
         "asset-brain-query",
         "fmea-populator",
         "resume-extract",
+        "resume-polish",
         "temporal-rag-orchestrator",
         "visual-defect-capture",
         "voice-action-router"
@@ -6471,6 +6473,14 @@
       "comment": "",
       "called_by_surfaces": [],
       "called_by_edge_fns": []
+    },
+    "get_hive_dashboard": {
+      "defined_in": "20260606000000_get_hive_dashboard.sql",
+      "args": "p_hive_id   uuid,\n  p_day_start timestamptz DEFAULT date_trunc('day', now()",
+      "security_definer": true,
+      "comment": "Home (index.html) board fan-out collapse: returns all 11 canonical home signals in one jsonb round-trip. Membership-gated via auth.uid() (SECURITY DEFINER bypasses RLS). Reads the same v_*_truth views as the client loader so output is parity-equal. Hive mode only; solo home keeps its legacy path.",
+      "called_by_surfaces": [],
+      "called_by_edge_fns": []
     }
   },
   "surfaces": {
@@ -7085,7 +7095,7 @@
       ],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "size_kb": 70.7
+      "size_kb": 120.5
     },
     "shift-brain.html": {
       "tables_read": [
@@ -7369,7 +7379,7 @@
       ],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "loc": 344
+      "loc": 427
     },
     "_shared/redactPII.ts": {
       "tables_read": [],
@@ -7377,6 +7387,13 @@
       "rpcs_called": [],
       "edge_fns_invoked": [],
       "loc": 135
+    },
+    "_shared/resume-taxonomy.ts": {
+      "tables_read": [],
+      "tables_written": [],
+      "rpcs_called": [],
+      "edge_fns_invoked": [],
+      "loc": 141
     },
     "_shared/semantic-facts.ts": {
       "tables_read": [],
@@ -7934,14 +7951,18 @@
       ],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "loc": 202
+      "loc": 477
     },
     "resume-polish": {
-      "tables_read": [],
-      "tables_written": [],
+      "tables_read": [
+        "ai_rate_limits"
+      ],
+      "tables_written": [
+        "ai_rate_limits"
+      ],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "loc": 96
+      "loc": 242
     },
     "scheduled-agents": {
       "tables_read": [
