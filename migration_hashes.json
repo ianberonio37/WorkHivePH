@@ -195,5 +195,6 @@
   "20260603000000_resume_builder.sql": "53f32f7e2cf1c0b25bdee65946a94b1a415957230966b43ac225edce83a125d5",
   "20260606000000_get_hive_dashboard.sql": "d4a2ce7bbf7bfdf5c2ed70e07fe42db2b54dfa32b9eb23e5338826b6273a193f",
   "20260607000000_get_hive_board_dashboard.sql": "7402615ee2933becf349f026ef0bdcf9b66feb4f561283b86321e6e2c60cec3a",
-  "20260607000001_get_hive_board_dashboard_phase2.sql": "28a7e0a3acc6b3ac1cbed8f0bd9e4268db8089e53883137df83d85cb209d5f03"
+  "20260607000001_get_hive_board_dashboard_phase2.sql": "28a7e0a3acc6b3ac1cbed8f0bd9e4268db8089e53883137df83d85cb209d5f03",
+  "20260607000002_get_hive_board_dashboard_phase3.sql": "36ba1a7520ecb711880c8297064db858dd154091945fd6cc8b59e10bd1aefa5e"
 }

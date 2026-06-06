@@ -1703,10 +1703,17 @@ let _lastAdoption = null;
 
 async function loadMaturityStairway() {
   if (!HIVE_ID) return;
-  // 1. Try to read today's (or yesterday's) snapshot.
-  let { data: row } = await db.rpc('get_hive_readiness_current', { p_hive_id: HIVE_ID });
-  // RPC returns a SETOF row; supabase-js may give array or null
-  if (Array.isArray(row)) row = row[0] || null;
+  // 1. Try to read today's (or yesterday's) snapshot — from the board RPC
+  //    payload when present, else the get_hive_readiness_current RPC.
+  let row;
+  if (_board && 'readiness' in _board) {
+    row = _board.readiness || null;
+  } else {
+    const res = await db.rpc('get_hive_readiness_current', { p_hive_id: HIVE_ID });
+    row = res.data;
+    // RPC returns a SETOF row; supabase-js may give array or null
+    if (Array.isArray(row)) row = row[0] || null;
+  }
 
   // 2. If no snapshot OR it's stale (>24h), compute fresh. Service-role only;
   //    if RPC errors (e.g. anon perms), the read above will still hydrate the UI.
@@ -1878,10 +1885,14 @@ async function loadAdoptionCard() {
   }
 
   let row = null;
-  try {
-    const res = await db.rpc('get_adoption_risk_current', { p_hive_id: HIVE_ID });
-    row = Array.isArray(res.data) ? res.data[0] : res.data;
-  } catch (_) { /* empty-catch-allow: best-effort silent swallow */ }
+  if (_board && 'adoption' in _board) {
+    row = _board.adoption || null;
+  } else {
+    try {
+      const res = await db.rpc('get_adoption_risk_current', { p_hive_id: HIVE_ID });
+      row = Array.isArray(res.data) ? res.data[0] : res.data;
+    } catch (_) { /* empty-catch-allow: best-effort silent swallow */ }
+  }
 
   const isStale = !row
     || !row.computed_at
@@ -2864,10 +2875,16 @@ function setConn(state) {
 
 // ── STOCK ALERT (current worker's own inventory) ──
 async function checkStockAlert() {
-  const { data: inv } = await db.from('v_inventory_items_truth')
-    .select('part_name, qty_on_hand, min_qty')
-    .eq('worker_name', WORKER_NAME)
-    .eq('status', 'approved');
+  let inv;
+  if (_board) {
+    inv = _board.own_inventory || [];
+  } else {
+    const res = await db.from('v_inventory_items_truth')
+      .select('part_name, qty_on_hand, min_qty')
+      .eq('worker_name', WORKER_NAME)
+      .eq('status', 'approved');
+    inv = res.data;
+  }
   if (!inv || !inv.length) return;
   const out = inv.filter(i => i.qty_on_hand <= 0);
   const low = inv.filter(i => i.qty_on_hand > 0 && i.qty_on_hand <= i.min_qty);
@@ -2943,10 +2960,16 @@ async function buildNotifications() {
   _notifs = [];
 
   // Own stock issues
-  const { data: inv } = await db.from('v_inventory_items_truth')
-    .select('part_name, qty_on_hand, min_qty')
-    .eq('worker_name', WORKER_NAME)
-    .eq('status', 'approved');
+  let inv;
+  if (_board) {
+    inv = _board.own_inventory || [];
+  } else {
+    const res = await db.from('v_inventory_items_truth')
+      .select('part_name, qty_on_hand, min_qty')
+      .eq('worker_name', WORKER_NAME)
+      .eq('status', 'approved');
+    inv = res.data;
+  }
   (inv || []).forEach(i => {
     if (i.qty_on_hand <= 0) {
       pushNotif('stock-out', 'Out of stock', `${i.part_name} has 0 units remaining.`, 'inventory.html');
@@ -2956,16 +2979,22 @@ async function buildNotifications() {
   });
 
   // Open work orders older than 48 hours (scoped to current hive; include solo entries if no hive)
-  const cutoff = new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString();
-  let woQuery = db.from('v_logbook_truth')
-    .select('machine, date, created_at')
-    .eq('worker_name', WORKER_NAME)
-    .eq('status', 'Open')
-    .lt('created_at', cutoff);
-  if (HIVE_ID) woQuery = woQuery.or(`hive_id.eq.${HIVE_ID},hive_id.is.null`);
-  const { data: oldWOs } = await woQuery
-    .order('created_at', { ascending: false })
-    .limit(5);
+  let oldWOs;
+  if (_board) {
+    oldWOs = _board.own_old_wos || [];
+  } else {
+    const cutoff = new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString();
+    let woQuery = db.from('v_logbook_truth')
+      .select('machine, date, created_at')
+      .eq('worker_name', WORKER_NAME)
+      .eq('status', 'Open')
+      .lt('created_at', cutoff);
+    if (HIVE_ID) woQuery = woQuery.or(`hive_id.eq.${HIVE_ID},hive_id.is.null`);
+    const res = await woQuery
+      .order('created_at', { ascending: false })
+      .limit(5);
+    oldWOs = res.data;
+  }
   if (oldWOs && oldWOs.length) {
     pushNotif('open-wo', 'Open work orders',
       `${oldWOs.length} WO${oldWOs.length > 1 ? 's' : ''} open for 48+ hrs (${escHtml(oldWOs[0].machine)} and others).`,
@@ -3785,21 +3814,24 @@ async function loadTeamPulse() {
 
   const todayStart = new Date(); todayStart.setHours(0, 0, 0, 0);
 
-  const [jobsRes, stockRes] = await Promise.allSettled([
-    db.from('v_logbook_truth').select('*', { count: 'exact', head: true })
-      .eq('hive_id', HIVE_ID).gte('created_at', todayStart.toISOString()),
-    db.from('v_inventory_items_truth').select('id, qty_on_hand, min_qty')
-      .eq('hive_id', HIVE_ID).eq('status', 'approved'),
-  ]);
+  // Jobs-today is a since-local-midnight count (kept as its own HEAD query —
+  // the board RPC has no day-boundary param). Stock issues reuse the board's
+  // team_inventory (same hive-approved set) instead of a second inventory read.
+  const jobsRes = await db.from('v_logbook_truth').select('*', { count: 'exact', head: true })
+    .eq('hive_id', HIVE_ID).gte('created_at', todayStart.toISOString());
+  const jobsToday = jobsRes.count ?? '?';
 
-  const jobsToday = jobsRes.status === 'fulfilled' ? (jobsRes.value.count ?? 0) : '?';
-
-  let stockIssues = 0;
-  if (stockRes.status === 'fulfilled' && stockRes.value.data) {
-    stockIssues = stockRes.value.data.filter(i =>
-      (i.qty_on_hand ?? 0) <= 0 || ((i.min_qty ?? 0) > 0 && (i.qty_on_hand ?? 0) <= (i.min_qty ?? 0))
-    ).length;
+  let stockSrc;
+  if (_board && _board.team_inventory) {
+    stockSrc = _board.team_inventory;
+  } else {
+    const stockRes = await db.from('v_inventory_items_truth').select('qty_on_hand, min_qty')
+      .eq('hive_id', HIVE_ID).eq('status', 'approved');
+    stockSrc = stockRes.data || [];
   }
+  const stockIssues = (stockSrc || []).filter(i =>
+    (i.qty_on_hand ?? 0) <= 0 || ((i.min_qty ?? 0) > 0 && (i.qty_on_hand ?? 0) <= (i.min_qty ?? 0))
+  ).length;
 
   const _pjEl = document.getElementById('pulse-jobs-today');
   const _ppEl = document.getElementById('pulse-pm-overdue');

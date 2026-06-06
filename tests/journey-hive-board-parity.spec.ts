@@ -55,6 +55,24 @@ test('get_hive_board_dashboard equals the separate hive-board loader queries', a
       db.from('network_benchmarks').select('equipment_category').order('sample_hives', { ascending: false }).limit(10),
     ]);
 
+    // Phase 3: worker-scoped (caller derived the same way the RPC does) + readiness/adoption
+    const { data: { user } } = await db.auth.getUser();
+    const { data: prof } = await db.from('worker_profiles').select('display_name').eq('auth_uid', user?.id).maybeSingle();
+    const caller = prof?.display_name || '';
+    const since48 = new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString();
+    let oldWoQ = db.from('v_logbook_truth').select('machine, created_at')
+      .eq('worker_name', caller).eq('status', 'Open').lt('created_at', since48);
+    oldWoQ = oldWoQ.or(`hive_id.eq.${HIVE_ID},hive_id.is.null`);
+    const [ownInvRes, oldWoRes, readyRes, adoptRes] = await Promise.all([
+      db.from('v_inventory_items_truth').select('part_name, qty_on_hand, min_qty')
+        .eq('worker_name', caller).eq('status', 'approved'),
+      oldWoQ.order('created_at', { ascending: false }).limit(5),
+      db.rpc('get_hive_readiness_current', { p_hive_id: HIVE_ID }),
+      db.rpc('get_adoption_risk_current', { p_hive_id: HIVE_ID }),
+    ]);
+    const ready = Array.isArray(readyRes.data) ? readyRes.data[0] : readyRes.data;
+    const adopt = Array.isArray(adoptRes.data) ? adoptRes.data[0] : adoptRes.data;
+
     const pmCount = (arr: any[]) => ({
       overdue:  arr.filter(x => x.is_overdue).length,
       dueSoon:  arr.filter(x => !x.is_overdue && x.is_due_soon).length,
@@ -84,6 +102,10 @@ test('get_hive_board_dashboard equals the separate hive-board loader queries', a
         pat_keys:      (patRes.data || []).map((a: any) => `${a.machine}|${a.title}|${a.detected_at}`),
         bench_hive:    (benchHiveRes.data || []).map((h: any) => h.equipment_category),
         bench_net:     (benchNetRes.data || []).map((n: any) => n.equipment_category),
+        own_inv_keys:  (ownInvRes.data || []).map((i: any) => `${i.part_name}|${i.qty_on_hand}|${i.min_qty}`),
+        old_wo_keys:   (oldWoRes.data || []).map((w: any) => `${w.machine}|${w.created_at}`),
+        ready_score:   ready ? (ready.composite_score ?? null) : null,
+        adopt_score:   adopt ? (adopt.risk_score ?? null) : null,
       },
     };
   });
@@ -135,4 +157,10 @@ test('get_hive_board_dashboard equals the separate hive-board loader queries', a
   // benchmarks — same categories (hive + network)
   expect(sortStr((rpc.benchmarks?.hive || []).map((h: any) => h.equipment_category)), 'bench hive cats').toEqual(sortStr(sep.bench_hive));
   expect(sortStr((rpc.benchmarks?.network || []).map((n: any) => n.equipment_category)), 'bench net cats').toEqual(sortStr(sep.bench_net));
+
+  // ── Phase 3: worker-scoped + readiness/adoption ──
+  expect(sortStr((rpc.own_inventory || []).map((i: any) => `${i.part_name}|${i.qty_on_hand}|${i.min_qty}`)), 'own inventory').toEqual(sortStr(sep.own_inv_keys));
+  expect(sortStr((rpc.own_old_wos || []).map((w: any) => `${w.machine}|${w.created_at}`)), 'own old WOs').toEqual(sortStr(sep.old_wo_keys));
+  expect((rpc.readiness?.composite_score) ?? null, 'readiness composite').toBe(sep.ready_score);
+  expect((rpc.adoption?.risk_score) ?? null, 'adoption risk').toBe(sep.adopt_score);
 });
