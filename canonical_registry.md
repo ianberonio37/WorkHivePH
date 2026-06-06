@@ -7,7 +7,7 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 
 - Tables:        **145**
 - Views:         **49**
-- RPCs:          **77**
+- RPCs:          **78**
 - HTML surfaces: **46**
 - Edge fns:      **86**
 - Phantom tables (referenced in code, not in migrations): **0**
@@ -194,6 +194,7 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 | `get_adoption_risk_current` | p_hive_id uuid | yes | hive.html | — |
 | `get_downtime_pareto` | "p_hive_id" "uuid" DEFAULT NULL::"uuid", "p_worker" "text" D | no | — | analytics-orchestrator |
 | `get_failure_frequency` | "p_hive_id" "uuid" DEFAULT NULL::"uuid", "p_worker" "text" D | no | — | analytics-orchestrator |
+| `get_hive_board_dashboard` | p_hive_id uuid | yes | hive.html | — |
 | `get_hive_dashboard` | p_hive_id   uuid,   p_day_start timestamptz DEFAULT date_tru | yes | — | — |
 | `get_hive_readiness_current` | p_hive_id uuid | yes | hive.html | — |
 | `get_mtbf_by_machine` | "p_hive_id" "uuid" DEFAULT NULL::"uuid", "p_worker" "text" D | no | — | analytics-orchestrator, batch-risk-scoring |

@@ -6481,6 +6481,16 @@
       "comment": "Home (index.html) board fan-out collapse: returns all 11 canonical home signals in one jsonb round-trip. Membership-gated via auth.uid() (SECURITY DEFINER bypasses RLS). Reads the same v_*_truth views as the client loader so output is parity-equal. Hive mode only; solo home keeps its legacy path.",
       "called_by_surfaces": [],
       "called_by_edge_fns": []
+    },
+    "get_hive_board_dashboard": {
+      "defined_in": "20260607000000_get_hive_board_dashboard.sql",
+      "args": "p_hive_id uuid",
+      "security_definer": true,
+      "comment": "Hive Board (hive.html) fan-out collapse PHASE 1: members/feed/pm-health/team-stock/approval-queue in one jsonb round-trip. Membership-gated via auth.uid() (SECURITY DEFINER bypasses RLS). Reads the same canonical views/tables as the client loaders so output is parity-equal. Worker-scoped + analytics + readiness/adoption loaders remain on their own queries (Phase 2/3).",
+      "called_by_surfaces": [
+        "hive.html"
+      ],
+      "called_by_edge_fns": []
     }
   },
   "surfaces": {
@@ -6726,13 +6736,14 @@
         "compute_adoption_risk",
         "compute_hive_readiness",
         "get_adoption_risk_current",
+        "get_hive_board_dashboard",
         "get_hive_readiness_current"
       ],
       "edge_fns_invoked": [
         "ai-orchestrator",
         "benchmark-compute"
       ],
-      "size_kb": 204.9
+      "size_kb": 207.6
     },
     "index.html": {
       "tables_read": [],

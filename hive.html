@@ -1039,6 +1039,12 @@ let _pendingAssets      = [];
 let _pendingParts       = [];
 let _feedEntries        = [];
 let _feedDisplayCount   = 15;
+// Fan-out collapse (2026-06-07): get_hive_board_dashboard payload for the
+// hive-scoped plain-read loaders (members/feed/pm-health/team-stock/approvals).
+// Set once in initBoard before the loader fan-out; each loader reads its key
+// RPC-first and falls back to its own queries when null. See
+// [[project_fanout_rpc_collapse]].
+let _board              = null;
 const refreshPMHealth   = debounce(loadPMHealth,   2000);
 const refreshInventory  = debounce(async () => {
   await Promise.allSettled([checkStockAlert(), buildNotifications()]);
@@ -1634,6 +1640,20 @@ async function initBoard() {
   }
 
   updateSwitchButton();
+
+  // Fan-out collapse (2026-06-07): one get_hive_board_dashboard RPC feeds the
+  // five hive-scoped plain-read loaders (members/feed/pm-health/team-stock/
+  // approvals) below, instead of their ~10 separate reads. Best-effort: any
+  // error leaves _board null and every loader falls back to its own queries.
+  // Parity proven by tests/journey-hive-board-parity.spec.ts.
+  _board = null;
+  if (HIVE_ID) {
+    try {
+      const _r = await db.rpc('get_hive_board_dashboard', { p_hive_id: HIVE_ID });
+      if (!_r.error && _r.data) _board = _r.data;
+    } catch (_e) { /* empty-catch-allow: fall through to per-loader legacy queries */ }
+  }
+
   // allSettled: never rejects, so startPresence() is always reached even if one data load fails
   const _boardResults = await Promise.allSettled([checkStockAlert(), loadMembers(), loadFeed(), buildNotifications(), loadApprovalQueue(), loadPMHealth(), loadAuditLog(), loadTodaysBrief(), loadTeamPulse(), loadPatternAlerts(), loadBenchmarks(), loadMaturityStairway(), loadAdoptionCard(), loadOnboardingCard(), maybeShowIntentCapture(), loadKnowledgePipeline()]);
   _boardResults.forEach((r, i) => { if (r.status === 'rejected') console.error('initBoard step', i, 'failed:', r.reason); });
@@ -1643,6 +1663,11 @@ async function initBoard() {
   loadSupervisorSummary();
   // Team stock alert needs memberNames populated by loadMembers first
   checkTeamStockAlert();
+  // Consume-once: clear the prefetched board payload now that all initial-load
+  // consumers (the allSettled loaders + checkTeamStockAlert) have read it, so
+  // every LATER loader call (realtime refresh, post-kick/approve reloads)
+  // re-queries live data.
+  _board = null;
 
   // Silent backfill: stamp hive_id on pre-migration rows for all hive members
   runHiveIdBackfill();
@@ -2388,20 +2413,28 @@ async function maybeShowIntentCapture() {
 
 // ── MEMBERS ──
 async function loadMembers() {
-  const [membersRes, openJobsRes] = await Promise.all([
-    db.from('hive_members')
-      .select('worker_name, role, status')
-      .eq('hive_id', HIVE_ID)
-      .neq('status', 'kicked')
-      .order('joined_at'),
-    db.from('v_logbook_truth')
-      .select('worker_name')
-      .eq('hive_id', HIVE_ID)
-      .eq('status', 'Open')
-  ]);
+  let membersData, openJobsData;
+  if (_board) {
+    membersData  = _board.members || [];
+    openJobsData = _board.open_jobs_workers || [];
+  } else {
+    const [membersRes, openJobsRes] = await Promise.all([
+      db.from('hive_members')
+        .select('worker_name, role, status')
+        .eq('hive_id', HIVE_ID)
+        .neq('status', 'kicked')
+        .order('joined_at'),
+      db.from('v_logbook_truth')
+        .select('worker_name')
+        .eq('hive_id', HIVE_ID)
+        .eq('status', 'Open')
+    ]);
+    if (membersRes.error) { console.error('loadMembers:', membersRes.error.message); showToast('Could not load members. Check your connection.'); }
+    membersData  = membersRes.data  || [];
+    openJobsData = openJobsRes.data || [];
+  }
 
-  if (membersRes.error) { console.error('loadMembers:', membersRes.error.message); showToast('Could not load members. Check your connection.'); }
-  memberNames = (membersRes.data || []).map(m => m.worker_name);
+  memberNames = membersData.map(m => m.worker_name);
   const _smEl = document.getElementById('stat-members');
   _smEl.textContent = memberNames.length;
   if (window.hideZeroStat) hideZeroStat(_smEl, memberNames.length);
@@ -2410,12 +2443,12 @@ async function loadMembers() {
 
   // Count open jobs per worker
   const openByWorker = {};
-  (openJobsRes.data || []).forEach(r => {
+  openJobsData.forEach(r => {
     openByWorker[r.worker_name] = (openByWorker[r.worker_name] || 0) + 1;
   });
 
   const list = document.getElementById('members-list');
-  list.innerHTML = (membersRes.data || []).map(m => {
+  list.innerHTML = membersData.map(m => {
     const isMe    = m.worker_name === WORKER_NAME;
     const isSup   = m.role === 'supervisor';
     const canKick = HIVE_ROLE === 'supervisor' && !isMe;
@@ -2461,31 +2494,47 @@ async function loadFeed() {
   const feed    = document.getElementById('feed');
   const emptyEl = document.getElementById('feed-empty');
 
-  // Fetch logbook + pm_completions + open count in parallel
-  const [logRes, openRes, pmRes] = await Promise.all([
-    db.from('v_logbook_truth')
-      .select('id, worker_name, date, machine, category, problem, status, created_at')
-      .eq('hive_id', HIVE_ID)
-      .order('created_at', { ascending: false })
-      .limit(40),
-    db.from('v_logbook_truth')
-      .select('*', { count: 'exact', head: true })
-      .eq('hive_id', HIVE_ID)
-      .eq('status', 'Open'),
-    db.from('pm_completions')
-      .select('id, worker_name, asset_id, scope_item_id, status, completed_at, pm_assets(asset_name), pm_scope_items(item_text, frequency)')
-      .eq('hive_id', HIVE_ID)
-      .eq('status', 'done')
-      .order('completed_at', { ascending: false })
-      .limit(20)
-  ]);
+  // Fetch logbook + pm_completions + open count — from the board RPC payload
+  // when available (initial load), else three parallel queries.
+  let logData, openCount, pmData;
+  if (_board) {
+    logData   = _board.feed_logbook || [];
+    openCount = Number(_board.open_count || 0);
+    pmData    = _board.feed_pm || [];   // asset_name/item_text/frequency already flattened by the RPC
+  } else {
+    const [logRes, openRes, pmRes] = await Promise.all([
+      db.from('v_logbook_truth')
+        .select('id, worker_name, date, machine, category, problem, status, created_at')
+        .eq('hive_id', HIVE_ID)
+        .order('created_at', { ascending: false })
+        .limit(40),
+      db.from('v_logbook_truth')
+        .select('*', { count: 'exact', head: true })
+        .eq('hive_id', HIVE_ID)
+        .eq('status', 'Open'),
+      db.from('pm_completions')
+        .select('id, worker_name, asset_id, scope_item_id, status, completed_at, pm_assets(asset_name), pm_scope_items(item_text, frequency)')
+        .eq('hive_id', HIVE_ID)
+        .eq('status', 'done')
+        .order('completed_at', { ascending: false })
+        .limit(20)
+    ]);
+    logData   = logRes.data || [];
+    openCount = openRes.count || 0;
+    pmData    = (pmRes.data || []).map(e => ({
+      ...e,
+      asset_name: e.pm_assets?.asset_name || '',
+      item_text:  e.pm_scope_items?.item_text || '',
+      frequency:  e.pm_scope_items?.frequency || '',
+    }));
+  }
 
-  const logEntries       = (logRes.data   || []).map(e => ({ ...e, _type: 'logbook' }));
-  const pmEntries        = (pmRes.data    || []).map(e => ({
+  const logEntries       = logData.map(e => ({ ...e, _type: 'logbook' }));
+  const pmEntries        = pmData.map(e => ({
     ...e,
-    asset_name: e.pm_assets?.asset_name || '',
-    item_text:  e.pm_scope_items?.item_text || '',
-    frequency:  e.pm_scope_items?.frequency || '',
+    asset_name: e.asset_name || '',
+    item_text:  e.item_text  || '',
+    frequency:  e.frequency  || '',
     created_at: e.completed_at,
     _type: 'pm',
   }));
@@ -2497,7 +2546,7 @@ async function loadFeed() {
     .slice(0, 40);
 
   // Open work orders stat (exact count, not limited by fetch)
-  document.getElementById('stat-open').textContent = openRes.count || 0;
+  document.getElementById('stat-open').textContent = openCount;
 
   if (!merged.length) {
     // Fallback: if hive_id not yet on old entries, check by member names so existing hives aren't blank
@@ -2937,18 +2986,23 @@ async function loadPMHealth() {
   // Canonical: pm_scope_items_truth — bakes in is_overdue / is_due_soon
   // (14d window) per scope item using the standard frequency map. The 3-query
   // fan-out + per-item math loop collapses to a single read + count.
-  const [itemsRes, compsRes] = await Promise.all([
-    db.from('v_pm_scope_items_truth')
-      .select('scope_item_id, pm_asset_id, asset_name, is_overdue, is_due_soon')
-      .eq('hive_id', HIVE_ID),
-    db.from('pm_completions')
-      .select('scope_item_id, completed_at, worker_name')
-      .eq('hive_id', HIVE_ID).eq('status', 'done')
-      .order('completed_at', { ascending: false }),
-  ]);
-
-  const pmItems = itemsRes.data || [];
-  const pmComps = compsRes.data || [];
+  let pmItems, pmComps;
+  if (_board) {
+    pmItems = _board.pm_scope || [];
+    pmComps = [];  // completions only fed the (unused) weekComps local; skip the read on the RPC path
+  } else {
+    const [itemsRes, compsRes] = await Promise.all([
+      db.from('v_pm_scope_items_truth')
+        .select('scope_item_id, pm_asset_id, asset_name, is_overdue, is_due_soon')
+        .eq('hive_id', HIVE_ID),
+      db.from('pm_completions')
+        .select('scope_item_id, completed_at, worker_name')
+        .eq('hive_id', HIVE_ID).eq('status', 'done')
+        .order('completed_at', { ascending: false }),
+    ]);
+    pmItems = itemsRes.data || [];
+    pmComps = compsRes.data || [];
+  }
 
   if (!pmItems.length) return;
 
@@ -2994,11 +3048,19 @@ async function checkTeamStockAlert() {
   const others = memberNames.filter(n => n !== WORKER_NAME);
   if (!others.length) return;
 
-  const { data: inv } = await db.from('v_inventory_items_truth')
-    .select('worker_name, part_name, qty_on_hand, min_qty')
-    .eq('hive_id', HIVE_ID)
-    .eq('status', 'approved')
-    .in('worker_name', others);
+  let inv;
+  if (_board) {
+    // RPC returned all approved hive inventory; scope to the other members here.
+    const othersSet = new Set(others);
+    inv = (_board.team_inventory || []).filter(i => othersSet.has(i.worker_name));
+  } else {
+    const res = await db.from('v_inventory_items_truth')
+      .select('worker_name, part_name, qty_on_hand, min_qty')
+      .eq('hive_id', HIVE_ID)
+      .eq('status', 'approved')
+      .in('worker_name', others);
+    inv = res.data;
+  }
   if (!inv || !inv.length) return;
 
   // Build a flat list of problem items (item-first, worker is secondary context).
@@ -3052,12 +3114,17 @@ async function checkTeamStockAlert() {
 // ── APPROVAL QUEUE (supervisor only) ──
 async function loadApprovalQueue() {
   if (HIVE_ROLE !== 'supervisor') return;
-  const [assetsRes, partsRes] = await Promise.all([
-    db.from('asset_nodes').select('id, asset_id:tag, name, type:iso_class, location, criticality, hive_id, worker_name, status, submitted_by, created_at').eq('hive_id', HIVE_ID).eq('status', 'pending'),
-    db.from('v_inventory_items_truth').select('*').eq('hive_id', HIVE_ID).eq('status', 'pending')
-  ]);
-  _pendingAssets = assetsRes.data || [];
-  _pendingParts  = partsRes.data  || [];
+  if (_board) {
+    _pendingAssets = _board.pending_assets || [];
+    _pendingParts  = _board.pending_parts  || [];
+  } else {
+    const [assetsRes, partsRes] = await Promise.all([
+      db.from('asset_nodes').select('id, asset_id:tag, name, type:iso_class, location, criticality, hive_id, worker_name, status, submitted_by, created_at').eq('hive_id', HIVE_ID).eq('status', 'pending'),
+      db.from('v_inventory_items_truth').select('*').eq('hive_id', HIVE_ID).eq('status', 'pending')
+    ]);
+    _pendingAssets = assetsRes.data || [];
+    _pendingParts  = partsRes.data  || [];
+  }
   renderApprovalQueue();
 }
 
