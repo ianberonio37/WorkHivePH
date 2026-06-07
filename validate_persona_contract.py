@@ -95,7 +95,24 @@ SERVER_PERSONA_ADOPTION = {
     # contracts set no additionalProperties:false). See WORKHIVE_PERSONA_CONTRACT.md.
     "analytics-orchestrator": "narrated-specialist",
     "project-orchestrator":   "narrated-specialist",
+    # 2026-06-07 Phase 5 rotation 2: engineering-calc-agent narrates the report
+    # layer only (math stays bare, WAT split); shift-planner is an autonomous
+    # hive-level briefing so it signs the footer (amc pattern, hive persona).
+    "engineering-calc-agent": "narrated-specialist",
+    "shift-planner-orchestrator": "briefing-signature",
     "amc-orchestrator":       "briefing-signature",
+}
+
+# Intentionally NOT persona-adopted (Phase 5 decision, 2026-06-07) — documented
+# so a future session does not "close the gap" by force-fitting a narration:
+#   - intelligence-report:  a network/industry benchmarking report aggregated
+#     across ALL hives. No individual worker recipient, so a worker-voice
+#     narration is a category mismatch. Stays impersonal.
+#   - engineering-bom-sow:  a strict ~8000-token BOM/SOW document contract;
+#     adding a top-level field risks the downstream document schema. Stays bare.
+PERSONA_INTENTIONALLY_ABSENT = {
+    "intelligence-report":  "network industry report — no per-worker recipient",
+    "engineering-bom-sow":  "strict doc contract — extra field risks the schema",
 }
 
 

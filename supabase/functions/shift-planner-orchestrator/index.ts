@@ -33,6 +33,11 @@ import { getCorsHeaders } from "../_shared/cors.ts";
 // P1 roadmap 2026-05-26: envelope adoption (helper imported; success-path migration follows).
 import { beginRequest, ok, fail, recordModelHop } from "../_shared/envelope.ts";
 import { checkAIRateLimit, rateLimitedResponse } from "../_shared/rate-limit.ts";
+// Persona Contract: briefing-signature mode — the shift briefing is an
+// autonomous hive-level artifact (no per-worker context), so it wears the
+// persona only as a footer signature keyed off hives.preferred_persona,
+// exactly like amc-orchestrator. See WORKHIVE_PERSONA_CONTRACT.md.
+import { clampPersona, buildPersonaBlock } from "../_shared/persona.ts";
 
 // Warm module-scope Supabase client. Reused across request invocations
 // in the same warm container. Per-request createClient calls below are
@@ -135,6 +140,7 @@ async function fetchPartsPrestage(db: SupabaseClient, hiveId: string): Promise<A
 async function synthesizeBriefing(
   shiftWindow: string,
   payload: { risk_top: AnyRow[]; pms_due: AnyRow[]; carry_forward: AnyRow[]; parts_prestage: AnyRow[] },
+  hivePersona?: string | null,
 ): Promise<string> {
   // Compact summary strings to keep the prompt small.
   const compact = {
@@ -145,6 +151,12 @@ async function synthesizeBriefing(
     parts_prestage: payload.parts_prestage.slice(0, 8).map(r => `${r.part_name}|qty=${r.qty_on_hand}|min=${r.min_qty}`).join("\n"),
   };
 
+  // Persona Contract (briefing-signature): the briefing BODY stays the plain
+  // paragraph the model writes; the persona wears only the footer signature,
+  // keyed off the hive's preferred_persona. clampPersona falls back to
+  // DEFAULT_PERSONA so a hive that pre-dates the column still gets signed.
+  const hivePersonaKey = clampPersona(hivePersona);
+  const signedBy = buildPersonaBlock(hivePersonaKey, "briefing-signature");
   try {
     const text = await callAI(JSON.stringify(compact), {
       systemPrompt: BRIEFING_SYSTEM_PROMPT,
@@ -152,10 +164,10 @@ async function synthesizeBriefing(
       maxTokens:    BRIEFING_MAX_TOKENS,
       jsonMode:     false,
     });
-    return text.trim();
+    return `${text.trim()}\n\n${signedBy}`;
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
-    return `(Briefing synthesis unavailable: ${msg}). Risk: ${payload.risk_top.length}, PMs due: ${payload.pms_due.length}, carry-forward: ${payload.carry_forward.length}, low-stock parts: ${payload.parts_prestage.length}.`;
+    return `(Briefing synthesis unavailable: ${msg}). Risk: ${payload.risk_top.length}, PMs due: ${payload.pms_due.length}, carry-forward: ${payload.carry_forward.length}, low-stock parts: ${payload.parts_prestage.length}.\n\n${signedBy}`;
   }
 }
 
@@ -180,9 +192,15 @@ async function planForHive(
   const carry_forward  = results[2].status === "fulfilled" ? results[2].value : [];
   const parts_prestage = results[3].status === "fulfilled" ? results[3].value : [];
 
+  // Persona Contract: read the hive's preferred_persona so the briefing footer
+  // wears the right voice (autonomous hive-level brief, no per-worker context).
+  const { data: hiveRow } = await db.from("v_hives_truth")
+    .select("preferred_persona").eq("id", hiveId).maybeSingle();
+  const hivePersona = (hiveRow as Record<string, unknown> | null)?.preferred_persona as string | null;
+
   const briefing = await synthesizeBriefing(shiftWindow, {
     risk_top, pms_due, carry_forward, parts_prestage,
-  });
+  }, hivePersona);
 
   const payload = { risk_top, pms_due, carry_forward, parts_prestage };
   const counts = {

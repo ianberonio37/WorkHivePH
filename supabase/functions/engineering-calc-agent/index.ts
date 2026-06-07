@@ -3,6 +3,11 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
 // contract-allow: deterministic engineering calcs; not a brain output
 import { callAI } from "../_shared/ai-chain.ts";
+// Persona Contract: narrated-specialist mode — the report narrative gains a
+// `narration` field in the worker's persona voice (the formal report fields
+// stay professional). WAT split intact: the calc math is deterministic +
+// untouched; only this narrative layer wears the persona.
+import { clampPersona, buildPersonaBlock } from "../_shared/persona.ts";
 import { logAICost, estimateTokens } from "../_shared/cost-log.ts";
 import { getCorsHeaders } from "../_shared/cors.ts";
 // P1 roadmap 2026-05-26: envelope adoption (helper imported; success-path migration follows).
@@ -1554,8 +1559,9 @@ function calcHotWaterDemand(inputs: Record<string, number | string>): Record<str
 async function generateReportNarrative(
   calcType: string,
   inputs: Record<string, number | string>,
-  results: Record<string, unknown>
-): Promise<{ objective: string; assumptions: string; recommendations: string }> {
+  results: Record<string, unknown>,
+  persona?: unknown,
+): Promise<{ objective: string; assumptions: string; recommendations: string; narration?: string | null }> {
 
   const prompt = `You are a licensed Mechanical Engineer in the Philippines writing a professional design calculation report.
 Calculation type: ${calcType}
@@ -1571,15 +1577,24 @@ Respond in JSON format only:
 {
   "objective": "...",
   "assumptions": "...",
-  "recommendations": "..."
+  "recommendations": "...",
+  "narration": "1-2 sentence spoken summary in your persona's voice; quote the single headline design value verbatim. Plain prose, no markdown."
 }`;
 
+  // Persona Contract (narrated-specialist): the formal report fields stay
+  // professional; the persona wears ONLY the extra `narration` field. WAT
+  // split intact — the calc is already computed; this is the narrative layer.
+  const personaKey = clampPersona(persona);
+  const personaSystem = buildPersonaBlock(personaKey, "narrated-specialist");
   try {
-    const raw = await callAI(prompt, { temperature: 0.3, maxTokens: 512, jsonMode: true });
+    const raw = await callAI(prompt, { systemPrompt: personaSystem, temperature: 0.3, maxTokens: 640, jsonMode: true });
     if (raw && raw !== "{}") {
       const cleaned = raw.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
       const parsed = JSON.parse(cleaned);
-      if (parsed.objective && parsed.assumptions && parsed.recommendations) return parsed;
+      if (parsed.objective && parsed.assumptions && parsed.recommendations) {
+        if (parsed.narration) parsed.narration = String(parsed.narration).trim().slice(0, 280);
+        return parsed;
+      }
     }
   } catch { /* fall through to hardcoded fallback */ }
 
@@ -1869,6 +1884,7 @@ Respond in JSON format only:
       objective: `To determine the required ${calcType} design parameters for the subject project in accordance with applicable Philippine and international engineering standards.`,
       assumptions: "Standard Philippine tropical climate and code conditions applied. Safety factors as specified in the applicable standard have been applied to all computed values.",
       recommendations,
+      narration: null,
     };
   }
 }
@@ -5960,7 +5976,7 @@ serve(async (req) => {
   if (healthResp) return healthResp;
 
   try {
-    const { calc_type, inputs } = await req.json();
+    const { calc_type, inputs, persona } = await req.json();
 
     if (!calc_type || !inputs) {
       return new Response(
@@ -5987,7 +6003,7 @@ serve(async (req) => {
           const pyData = await pyRes.json();
           if (!pyData.not_implemented && pyData.results) {
             // Python handled it: run Groq narrative (stays in Deno) and return
-            const narrative = await generateReportNarrative(calc_type, inputs, pyData.results);
+            const narrative = await generateReportNarrative(calc_type, inputs, pyData.results, persona);
             return new Response(
               JSON.stringify({ results: pyData.results, narrative, source: "python" }),
               { headers: { ...corsHeaders, "Content-Type": "application/json" } }
@@ -6109,7 +6125,7 @@ serve(async (req) => {
       );
     }
 
-    const narrative = await generateReportNarrative(calc_type, inputs, results);
+    const narrative = await generateReportNarrative(calc_type, inputs, results, persona);
 
     return new Response(
       JSON.stringify({ results, narrative }),
