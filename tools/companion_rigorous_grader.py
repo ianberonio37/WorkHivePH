@@ -168,6 +168,196 @@ def is_clarify(text: str) -> bool:
     return any(re.search(p, lc) for p in CLARIFY_PATTERNS)
 
 
+# ─── Phase 8 §8.2 — Agent dimension: Tool Correctness grader (BFCL / tau-bench style) ───
+# DETERMINISTIC, no judge. Grades a companion turn's STRUCTURED route decision against the
+# Agent golden set (companion_agent_golden.json): exact route (intent kind) + required params.
+# These functions are pure + importable and obey the same independence rules as the rest of
+# this file (no companion imports, no LLM). The `observed` they take is a NORMALIZED dict the
+# runner extracts from the gateway route_result — the grader never reaches into gateway code.
+#   observed (single/negative): {"route": str|None, "params": dict, "confidence": float|None, "answer": str}
+#   observed (multi-step)      : [ <one observed dict per step> ]
+DEFAULT_WRITE_INTENTS = ("logbook.create", "inventory.deduct", "pm.complete")
+DEFAULT_CONFIDENCE_FLOOR = 0.5
+
+
+def _norm(v) -> str:
+    return str(v).strip().lower()
+
+
+def _num_eq(a, b) -> bool:
+    try:
+        return float(a) == float(b)
+    except (TypeError, ValueError):
+        return _norm(a) == _norm(b)
+
+
+def _match_parts(expected_parts, observed_parts) -> bool:
+    """parts_subset: every expected {part_name (contains), qty (eq)} has a matching observed part."""
+    if not isinstance(observed_parts, list):
+        return False
+    for ep in (expected_parts or []):
+        if not isinstance(ep, dict):
+            return False
+        epn = _norm(ep.get("part_name", ""))
+        eqty = ep.get("qty")
+        found = False
+        for op in observed_parts:
+            if not isinstance(op, dict):
+                continue
+            if epn and epn in _norm(op.get("part_name", "")) and (eqty is None or _num_eq(eqty, op.get("qty"))):
+                found = True
+                break
+        if not found:
+            return False
+    return True
+
+
+def match_param(expected, observed, mode: str = "auto") -> bool:
+    """Match one expected param value against the observed value under `mode`
+    (auto|exact|contains|eq|parts_subset). Conservative: a missing observed value never matches."""
+    if observed is None and not isinstance(expected, bool):
+        return False
+    if mode == "auto":
+        if isinstance(expected, bool) or isinstance(expected, (int, float)):
+            mode = "eq"
+        elif isinstance(expected, list):
+            mode = "parts_subset"
+        else:
+            mode = "contains"
+    if mode == "eq":
+        if isinstance(expected, bool):
+            return bool(observed) == expected
+        return _num_eq(expected, observed)
+    if mode == "exact":
+        return _norm(expected) == _norm(observed)
+    if mode == "contains":
+        return _norm(expected) in _norm(observed)
+    if mode == "parts_subset":
+        return _match_parts(expected, observed)
+    return False
+
+
+def grade_agent_params(expected_params: dict, observed_params: dict, param_match: dict | None = None) -> dict:
+    """All expected params are required. Returns matched/expected counts, pass flag, per-key detail."""
+    param_match = param_match or {}
+    observed_params = observed_params or {}
+    detail, matched = {}, 0
+    for k, ev in (expected_params or {}).items():
+        ok = match_param(ev, observed_params.get(k), param_match.get(k, "auto"))
+        detail[k] = ok
+        matched += 1 if ok else 0
+    n = len(expected_params or {})
+    return {"matched": matched, "expected": n, "params_pass": matched == n, "detail": detail}
+
+
+def grade_agent_step(step: dict, observed: dict | None) -> dict:
+    """Grade one positive route+params step. route exact-match + all params matched + not a must_not_route."""
+    obs = observed or {}
+    obs_route = obs.get("route")
+    exp_route = step.get("expected_route")
+    route_pass = (_norm(obs_route) == _norm(exp_route)) if exp_route is not None else (obs_route is None)
+    pr = grade_agent_params(step.get("expected_params"), obs.get("params"), step.get("param_match"))
+    blocked = [_norm(x) for x in (step.get("must_not_route") or [])]
+    must_not_pass = _norm(obs_route) not in blocked
+    verdict = "PASS" if (route_pass and pr["params_pass"] and must_not_pass) else "FAIL"
+    return {"route_pass": route_pass, "params": pr, "must_not_pass": must_not_pass,
+            "observed_route": obs_route, "expected_route": exp_route, "verdict": verdict}
+
+
+def grade_agent_negative(unit: dict, observed: dict | None,
+                         write_intents=DEFAULT_WRITE_INTENTS,
+                         confidence_floor: float = DEFAULT_CONFIDENCE_FLOOR) -> dict:
+    """Negative control: PASS iff the companion ABSTAINS from a confident write. A confident write =
+    route in write_intents with confidence None or >= floor. (Reads are not writes; clarify/refusal
+    text reinforces but a low-confidence intent already counts as abstaining per the router contract.)"""
+    obs = observed or {}
+    route = obs.get("route")
+    conf = obs.get("confidence")
+    writes = [_norm(w) for w in write_intents]
+    confident_write = (route is not None and _norm(route) in writes
+                       and (conf is None or float(conf) >= confidence_floor))
+    abstained = not confident_write
+    return {"observed_route": route, "confidence": conf, "confident_write": confident_write,
+            "abstained": abstained, "is_clarify": is_clarify(obs.get("answer", "")),
+            "is_refusal": is_refusal(obs.get("answer", "")),
+            "verdict": "PASS" if abstained else "FAIL"}
+
+
+def grade_agent_unit(unit: dict, observed,
+                     write_intents=DEFAULT_WRITE_INTENTS,
+                     confidence_floor: float = DEFAULT_CONFIDENCE_FLOOR) -> dict:
+    """Dispatch a golden unit (single_turn | multi_step | negative_control) to its grader.
+    `observed` is a dict for single/negative, a list (one per step) for multi-step."""
+    uid = unit.get("id")
+    cat = unit.get("category", "")
+    if cat == "agent_negative" or unit.get("expected_behavior") == "abstain":
+        return {"id": uid, "type": "negative", **grade_agent_negative(unit, observed, write_intents, confidence_floor)}
+    if unit.get("steps"):
+        obs_list = observed if isinstance(observed, list) else []
+        step_grades = [grade_agent_step(s, obs_list[i] if i < len(obs_list) else {})
+                       for i, s in enumerate(unit["steps"])]
+        chain_pass = bool(step_grades) and all(g["verdict"] == "PASS" for g in step_grades)
+        return {"id": uid, "type": "chain", "steps": step_grades,
+                "verdict": "PASS" if chain_pass else "FAIL"}
+    return {"id": uid, "type": "single", **grade_agent_step(unit, observed)}
+
+
+def _oracle_observed(unit: dict):
+    """Synthetic PERFECT observation for a unit (for the self-test): echoes expected route+params."""
+    if unit.get("category") == "agent_negative" or unit.get("expected_behavior") == "abstain":
+        return {"route": "unknown", "params": {}, "confidence": 0.0, "answer": "could you clarify which asset and what was done"}
+    if unit.get("steps"):
+        return [{"route": s.get("expected_route"), "params": dict(s.get("expected_params") or {}),
+                 "confidence": 0.9, "answer": "ok"} for s in unit["steps"]]
+    return {"route": unit.get("expected_route"), "params": dict(unit.get("expected_params") or {}),
+            "confidence": 0.9, "answer": "ok"}
+
+
+def _blind_observed(unit: dict):
+    """Synthetic BLIND observation (always a confident logbook.create, no params) — the negative
+    control's negative control: a rubber-stamp grader would pass these; a correct grader must not."""
+    blind = {"route": "logbook.create", "params": {}, "confidence": 0.9, "answer": "logged it"}
+    if unit.get("steps"):
+        return [dict(blind) for _ in unit["steps"]]
+    return dict(blind)
+
+
+def agent_grader_self_test(golden: dict) -> dict:
+    """Prove the Agent grader is correct AND negative-controlled, with NO live companion:
+      - against an ORACLE observation, every unit must PASS.
+      - against a BLIND observation (always confident logbook.create), every NEGATIVE control must
+        FAIL (the grader is not a rubber stamp) and overall pass-rate must drop.
+    Returns {ok, oracle_pass, blind_pass, total, negatives, blind_negatives_failed, problems}."""
+    write_intents = golden.get("write_intents", DEFAULT_WRITE_INTENTS)
+    floor = golden.get("confidence_floor", DEFAULT_CONFIDENCE_FLOOR)
+    units = list(golden.get("single_turn") or []) + list(golden.get("multi_step") or []) \
+        + list(golden.get("negative_controls") or [])
+    negatives = [u for u in units if u.get("category") == "agent_negative"]
+    problems = []
+    oracle_pass = blind_pass = 0
+    blind_neg_failed = 0
+    for u in units:
+        og = grade_agent_unit(u, _oracle_observed(u), write_intents, floor)
+        if og["verdict"] == "PASS":
+            oracle_pass += 1
+        else:
+            problems.append(f"oracle did not PASS {u.get('id')}: {og['verdict']}")
+        bg = grade_agent_unit(u, _blind_observed(u), write_intents, floor)
+        if bg["verdict"] == "PASS":
+            blind_pass += 1
+        if u.get("category") == "agent_negative" and bg["verdict"] == "FAIL":
+            blind_neg_failed += 1
+    if oracle_pass != len(units):
+        problems.append(f"oracle pass {oracle_pass}/{len(units)} (must be all)")
+    if negatives and blind_neg_failed != len(negatives):
+        problems.append(f"blind grader passed a negative control (failed only {blind_neg_failed}/{len(negatives)}) — grader is not discriminating")
+    if blind_pass >= oracle_pass:
+        problems.append(f"blind pass {blind_pass} >= oracle pass {oracle_pass} — grader does not discriminate")
+    return {"ok": not problems, "oracle_pass": oracle_pass, "blind_pass": blind_pass,
+            "total": len(units), "negatives": len(negatives),
+            "blind_negatives_failed": blind_neg_failed, "problems": problems}
+
+
 def grade_one(probe: dict) -> dict:
     """Apply rule-based grading to a single probe result."""
     answer = extract_answer_text(probe)

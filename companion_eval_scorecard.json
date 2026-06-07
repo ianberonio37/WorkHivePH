@@ -15,18 +15,18 @@
       "label": "Agent / tool-routing",
       "order": 1,
       "metric": "tool_correctness",
-      "metric_desc": "exact expected_route match + required params present, deterministic (BFCL / tau-bench style, NO judge). Multi-step chains scored on task completion.",
+      "metric_desc": "exact expected_route (intent kind) + required params present/correct, deterministic (BFCL / tau-bench style, NO judge). Multi-step chains pass iff all steps pass. Negative controls pass iff the companion abstains from a confident write.",
       "higher_is_better": true,
-      "grader": "tools/companion_rigorous_grader.py (route + params; extend in 8.2)",
-      "golden_set": "tools/companion_probe_bank.json (expected_route, expected_keywords_any, must_not_contain) + 8.1 multi-step chains",
-      "baseline_proxy": "ai_eval_baseline.json::scores.test.functionality (legacy proxy only; agent gets its OWN eval_dimension-native baseline at first freeze in 8.3)",
+      "grader": "tools/companion_rigorous_grader.py grade_agent_* (route exact + param match modes exact/contains/eq/parts_subset + negative-control abstention); harness tools/companion_agent_eval.py (--self-test proven negative-controlled, --observed grades real route_result). BUILT 8.2.",
+      "golden_set": "companion_agent_golden.json (12 single_turn route+expected_params, 3 multi_step chains, 4 negative_controls; grounded in voice-action-router intent kinds). BUILT 8.1.",
+      "baseline_proxy": "ai_eval_baseline.json::scores.test.functionality (legacy proxy only; agent gets its OWN eval_dimension-native baseline at first freeze in 8.3, scored by companion_agent_eval over a live flywheel run)",
       "tolerance": {
         "pass_rate_pp": 5.0
       },
       "gate": "tools/ai_eval_gate.py (8.3: G0 forward-only on locked-test)",
       "status": "pending",
       "blocking": false,
-      "notes": "Most-covered + most-deterministic dim -> built FIRST as the reusable template (8.1+8.2). 44 corpus units today (7 locked-test)."
+      "notes": "8.1+8.2 BUILT 2026-06-08 (golden set + deterministic grader + negative-controlled self-test). Pending -> active needs 8.3: a clean flywheel run through companion_agent_eval --observed to freeze the Agent baseline on the 10 locked-test agent units. Corpus: 68 agent units (10 locked-test)."
     },
     "rag": {
       "label": "RAG grounding + citations",
@@ -116,13 +116,13 @@
   },
   "coverage": {
     "_comment": "Live snapshot of corpus units per companion dimension, refreshed by `python tools/companion_eval_scorecard.py sync` from gate_eval_splits.json. Informational; the authoritative numbers are always recomputed live.",
-    "synced_ts": "2026-06-07T19:40:57+00:00",
+    "synced_ts": "2026-06-07T19:57:54+00:00",
     "by_dimension": {
       "agent": {
-        "train": 27,
-        "val": 14,
-        "test": 8,
-        "total": 49
+        "train": 40,
+        "val": 18,
+        "test": 10,
+        "total": 68
       },
       "rag": {
         "train": 0,

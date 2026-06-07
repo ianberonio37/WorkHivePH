@@ -6,15 +6,167 @@
     "val": 20,
     "test": 20
   },
-  "built_ts": "2026-06-07T19:40:57+00:00",
+  "built_ts": "2026-06-07T19:57:07+00:00",
   "counts": {
-    "train": 112,
-    "val": 46,
-    "test": 42
+    "train": 125,
+    "val": 50,
+    "test": 44
   },
-  "total": 200,
-  "test_seal": "041272b9d4cdaccf89d29d849122df7107e5dc0f0bd093206e8961c44e3047e6",
+  "total": 219,
+  "test_seal": "b5c9028b9143f7ef349035b7ff40f4dd0c4cbba5959723691dd49b9360322410",
   "items": {
+    "agent_golden:AG-01-log-hydraulic-p203": {
+      "id": "AG-01-log-hydraulic-p203",
+      "kind": "agent_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "train",
+      "eval_dimension": "agent"
+    },
+    "agent_golden:AG-02-log-preventive-cv12": {
+      "id": "AG-02-log-preventive-cv12",
+      "kind": "agent_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "test",
+      "eval_dimension": "agent"
+    },
+    "agent_golden:AG-03-inv-deduct-bearings": {
+      "id": "AG-03-inv-deduct-bearings",
+      "kind": "agent_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "train",
+      "eval_dimension": "agent"
+    },
+    "agent_golden:AG-04-pm-complete-ac5": {
+      "id": "AG-04-pm-complete-ac5",
+      "kind": "agent_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "train",
+      "eval_dimension": "agent"
+    },
+    "agent_golden:AG-05-asset-lookup-m101-status": {
+      "id": "AG-05-asset-lookup-m101-status",
+      "kind": "agent_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "train",
+      "eval_dimension": "agent"
+    },
+    "agent_golden:AG-06-log-loto-p7": {
+      "id": "AG-06-log-loto-p7",
+      "kind": "agent_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "val",
+      "eval_dimension": "agent"
+    },
+    "agent_golden:AG-07-inv-deduct-seals-gasket": {
+      "id": "AG-07-inv-deduct-seals-gasket",
+      "kind": "agent_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "val",
+      "eval_dimension": "agent"
+    },
+    "agent_golden:AG-08-asset-lookup-p203-history": {
+      "id": "AG-08-asset-lookup-p203-history",
+      "kind": "agent_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "train",
+      "eval_dimension": "agent"
+    },
+    "agent_golden:AG-09-log-parts-fan-ef12": {
+      "id": "AG-09-log-parts-fan-ef12",
+      "kind": "agent_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "train",
+      "eval_dimension": "agent"
+    },
+    "agent_golden:AG-10-pm-complete-bl22-grease": {
+      "id": "AG-10-pm-complete-bl22-grease",
+      "kind": "agent_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "train",
+      "eval_dimension": "agent"
+    },
+    "agent_golden:AG-11-query-mtbf": {
+      "id": "AG-11-query-mtbf",
+      "kind": "agent_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "train",
+      "eval_dimension": "agent"
+    },
+    "agent_golden:AG-12-log-rootcause-m101": {
+      "id": "AG-12-log-rootcause-m101",
+      "kind": "agent_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "train",
+      "eval_dimension": "agent"
+    },
+    "agent_golden:AG-NEG-01-offtopic-weather": {
+      "id": "AG-NEG-01-offtopic-weather",
+      "kind": "agent_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "val",
+      "eval_dimension": "agent"
+    },
+    "agent_golden:AG-NEG-02-vague-do-the-thing": {
+      "id": "AG-NEG-02-vague-do-the-thing",
+      "kind": "agent_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "train",
+      "eval_dimension": "agent"
+    },
+    "agent_golden:AG-NEG-03-ambiguous-which-pump": {
+      "id": "AG-NEG-03-ambiguous-which-pump",
+      "kind": "agent_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "train",
+      "eval_dimension": "agent"
+    },
+    "agent_golden:AG-NEG-04-bulk-mark-everything": {
+      "id": "AG-NEG-04-bulk-mark-everything",
+      "kind": "agent_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "train",
+      "eval_dimension": "agent"
+    },
+    "agent_golden:AGC-01-pull-then-log": {
+      "id": "AGC-01-pull-then-log",
+      "kind": "agent_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "test",
+      "eval_dimension": "agent"
+    },
+    "agent_golden:AGC-02-lookup-then-pm": {
+      "id": "AGC-02-lookup-then-pm",
+      "kind": "agent_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "val",
+      "eval_dimension": "agent"
+    },
+    "agent_golden:AGC-03-log-then-deduct": {
+      "id": "AGC-03-log-then-deduct",
+      "kind": "agent_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "train",
+      "eval_dimension": "agent"
+    },
     "canonical_question:analytics-mtbf-trend": {
       "id": "analytics-mtbf-trend",
       "kind": "canonical_question",

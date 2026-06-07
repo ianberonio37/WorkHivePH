@@ -52,6 +52,7 @@ SPLITS_PATH = ROOT / "gate_eval_splits.json"
 SPECS_DIR   = ROOT / "tests"
 PROBE_BANK  = TOOLS_DIR / "companion_probe_bank.json"
 CANON_EVALS = ROOT / "evals" / "canonical_questions.json"
+AGENT_GOLDEN = ROOT / "companion_agent_golden.json"   # Phase 8 §8.1 (Agent dimension)
 
 # Reuse the ONE taxonomy from the efficacy ledger (C1). The split tool and the ledger must
 # never drift apart on what "domain"/"dimension" mean.
@@ -71,7 +72,7 @@ except Exception:  # pragma: no cover — keep the tool runnable even if the led
 SALT       = "wh-gate-eval-splits-v1"   # change only with a deliberate full re-split
 TRAIN_PCT  = 60
 VAL_PCT    = 20   # test = the remaining 20
-KINDS      = ("spec", "companion_probe", "canonical_question")
+KINDS      = ("spec", "companion_probe", "canonical_question", "agent_golden")
 SPLITS     = ("train", "val", "test")
 
 GREEN = "\033[92m"; RED = "\033[91m"; YEL = "\033[93m"; CYAN = "\033[96m"; BOLD = "\033[1m"; RESET = "\033[0m"
@@ -144,6 +145,20 @@ def _enumerate_corpus() -> list[dict]:
                               "domain": "ai", "dimension": "functionality",
                               "eval_dimension": classify_companion_dimension(
                                   category=str(f.get("category", "")), unit_id=fid)})
+
+    # 4) Agent dimension golden set (Phase 8 §8.1) — single-turn route+params, multi-step chains,
+    #    and negative controls. Its own `kind` so the corpus keeps the flywheel probe bank distinct
+    #    from the BFCL-style structured golden set. eval_dimension is always 'agent'; the legacy
+    #    `dimension` is the AI functionality catch-all (these units are not in the frozen
+    #    ai_eval_results, so they never move the frozen functionality/safety baseline).
+    gold = _load_json(AGENT_GOLDEN) or {}
+    for section in ("single_turn", "multi_step", "negative_controls"):
+        for entry in (gold.get(section) or []):
+            gid = entry.get("id")
+            if gid:
+                units.append({"id": gid, "kind": "agent_golden",
+                              "domain": "ai", "dimension": "functionality",
+                              "eval_dimension": "agent"})
 
     return units
 
