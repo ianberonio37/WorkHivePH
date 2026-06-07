@@ -57,12 +57,16 @@ CANON_EVALS = ROOT / "evals" / "canonical_questions.json"
 # never drift apart on what "domain"/"dimension" mean.
 sys.path.insert(0, str(TOOLS_DIR))
 try:
-    from gate_efficacy_ledger import classify_domain_dimension, DOMAINS, DIMENSIONS
+    from gate_efficacy_ledger import (classify_domain_dimension, classify_companion_dimension,
+                                      DOMAINS, DIMENSIONS, COMPANION_DIMENSIONS)
 except Exception:  # pragma: no cover — keep the tool runnable even if the ledger moves
     DOMAINS    = ("general", "saas", "ai")
     DIMENSIONS = ("usability", "functionality", "adaptability", "internal_control", "safety", "cost")
+    COMPANION_DIMENSIONS = ("agent", "rag", "memory", "persona", "safety", "cost")
     def classify_domain_dimension(vid, label="", group="", overrides=None):
         return "general", "functionality"
+    def classify_companion_dimension(entry=None, *, category="", unit_id="", agent=""):
+        return "agent"
 
 SALT       = "wh-gate-eval-splits-v1"   # change only with a deliberate full re-split
 TRAIN_PCT  = 60
@@ -113,6 +117,10 @@ def _enumerate_corpus() -> list[dict]:
         units.append({"id": f"tests/{p.name}", "kind": "spec", "domain": dom, "dimension": dim})
 
     # 2) Companion probe bank (baseline + adversarial + held-out templates)
+    #    `dimension` stays on the validator/legacy axis (functionality|safety) so the FROZEN
+    #    ai_eval_baseline scoring never moves; `eval_dimension` is the Phase 8 companion axis
+    #    (agent|rag|memory|persona|safety) that the per-dimension scorecard/gates use. Adding
+    #    this field changes neither split assignment nor the test_seal (both key on id only).
     bank = _load_json(PROBE_BANK) or {}
     for section in ("baseline", "adversarial", "held_out_templates"):
         for entry in (bank.get(section) or []):
@@ -120,7 +128,8 @@ def _enumerate_corpus() -> list[dict]:
             if not pid:
                 continue
             dom, dim = _classify_probe(entry)
-            units.append({"id": pid, "kind": "companion_probe", "domain": dom, "dimension": dim})
+            units.append({"id": pid, "kind": "companion_probe", "domain": dom, "dimension": dim,
+                          "eval_dimension": classify_companion_dimension(entry)})
 
     # 3) Canonical LLM-judge eval fixtures (evals/canonical_questions.json) — the golden
     #    questions ai-eval-runner scores; AI-domain functionality. These are C2's native unit.
@@ -132,7 +141,9 @@ def _enumerate_corpus() -> list[dict]:
             fid = f.get("id")
             if fid:
                 units.append({"id": fid, "kind": "canonical_question",
-                              "domain": "ai", "dimension": "functionality"})
+                              "domain": "ai", "dimension": "functionality",
+                              "eval_dimension": classify_companion_dimension(
+                                  category=str(f.get("category", "")), unit_id=fid)})
 
     return units
 
@@ -167,6 +178,11 @@ def build() -> dict:
                 new_test.append(k)
         items[k] = {"id": u["id"], "kind": u["kind"], "domain": u["domain"],
                     "dimension": u["dimension"], "split": split}
+        # Phase 8 companion axis (only on companion-behaviour units; never on specs). Additive
+        # — recomputed each build from the unit, so re-running build backfills it without
+        # touching any split assignment or the test_seal.
+        if u.get("eval_dimension"):
+            items[k]["eval_dimension"] = u["eval_dimension"]
 
     dropped = [k for k in prev_items if k not in items]
     seal = _test_seal(items)
@@ -274,6 +290,21 @@ def report() -> None:
         n = sum(row.values())
         if n:
             print(f"    {dim:<18} train {row['train']:>4}  val {row['val']:>4}  test {row['test']:>4}   (n={n})")
+
+    # Phase 8 companion axis x split — only the companion-behaviour units carry eval_dimension.
+    # This is the coverage map the per-dimension scorecard/gates build on: a dim with 0 units
+    # on the locked-test split degrades-to-SKIP until 8.1 builds its golden set.
+    comp_units = [v for v in items.values() if v.get("eval_dimension")]
+    if comp_units:
+        print(f"\n{CYAN}{BOLD}  By companion dimension x split{RESET}  "
+              f"(Phase 8 axis · {len(comp_units)} probe/golden units)")
+        cdims = [d for d in COMPANION_DIMENSIONS if d != "cost"]
+        cdims += sorted({v.get("eval_dimension") for v in comp_units} - set(cdims))
+        for dim in cdims:
+            row = {s: sum(1 for v in comp_units if v.get("eval_dimension") == dim and v["split"] == s) for s in SPLITS}
+            n = sum(row.values())
+            flag = "" if row["test"] else f"  {YEL}(0 locked-test → SKIP until golden set){RESET}"
+            print(f"    {dim:<18} train {row['train']:>4}  val {row['val']:>4}  test {row['test']:>4}   (n={n}){flag}")
     print()
 
 

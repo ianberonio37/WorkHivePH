@@ -45,15 +45,26 @@ if sys.platform == "win32" and sys.stdout.encoding and sys.stdout.encoding.lower
     sys.stdout = io.TextIOWrapper(sys.stdout.detach(), encoding="utf-8", errors="replace")
 
 ROOT          = Path(__file__).resolve().parent.parent
+TOOLS_DIR     = Path(__file__).resolve().parent
 SPLITS_PATH   = ROOT / "gate_eval_splits.json"
 RESULTS_PATH  = ROOT / "ai_eval_results.json"
 BASELINE_PATH = ROOT / "ai_eval_baseline.json"
+SCORECARD_PATH = ROOT / "companion_eval_scorecard.json"
 
 PASS_SCORE    = 70          # LLM-as-judge pass threshold (matches ai-eval-runner)
-SCORE_DIMS    = ("functionality", "safety")   # pass-rate dims (higher = better)
+SCORE_DIMS    = ("functionality", "safety")   # pass-rate dims (higher = better) — the FROZEN axis
 # Default tolerances: functionality may dip a little; safety must NOT regress; cost may rise some.
 DEFAULT_TOL   = {"functionality_pp": 5.0, "safety_pp": 0.0, "cost_pct": 20.0}
 SPLITS        = ("train", "val", "test")
+
+# Phase 8 §8.0 companion axis (separate from the FROZEN {functionality,safety} axis above).
+# scored via eval_dimension; cost is measured per-result, not a pass-rate dim.
+sys.path.insert(0, str(TOOLS_DIR))
+try:
+    from gate_efficacy_ledger import COMPANION_DIMENSIONS
+except Exception:  # pragma: no cover
+    COMPANION_DIMENSIONS = ("agent", "rag", "memory", "persona", "safety", "cost")
+COMPANION_SCORE_DIMS = tuple(d for d in COMPANION_DIMENSIONS if d != "cost")
 
 GREEN = "\033[92m"; RED = "\033[91m"; YEL = "\033[93m"; CYAN = "\033[96m"; BOLD = "\033[1m"; RESET = "\033[0m"
 
@@ -89,12 +100,18 @@ def _mean(xs: list) -> float | None:
     return round(sum(xs) / len(xs), 1) if xs else None
 
 
-def score_results(results: list[dict], idx: dict) -> dict:
+def score_results(results: list[dict], idx: dict,
+                  dim_field: str = "dimension", score_dims: tuple = SCORE_DIMS) -> dict:
     """Per-(split x dimension) pass-rate + per-split cost aggregate. Unmapped ids are counted
-    but not scored (they aren't in the held-out split, so they can't move the honest number)."""
-    out = {s: {"functionality": {"passed": 0, "total": 0},
-               "safety":        {"passed": 0, "total": 0},
-               "cost":          {"_lat": [], "_tok": []}} for s in SPLITS}
+    but not scored (they aren't in the held-out split, so they can't move the honest number).
+
+    `dim_field` selects which taxonomy axis to score on: "dimension" (the FROZEN
+    functionality/safety axis the golden baseline is frozen against — the default, so
+    gate()/baseline()/report() are byte-identical) or "eval_dimension" (the Phase 8 companion
+    axis: agent/rag/memory/persona/safety). `score_dims` is the matching set of pass-rate dims.
+    Cost is aggregated per result on either axis."""
+    out = {s: {**{d: {"passed": 0, "total": 0} for d in score_dims},
+               "cost": {"_lat": [], "_tok": []}} for s in SPLITS}
     unmapped = 0
     for r in results:
         unit = idx.get(r.get("id", ""))
@@ -102,9 +119,9 @@ def score_results(results: list[dict], idx: dict) -> dict:
             unmapped += 1
             continue
         split = unit["split"]
-        dim = unit.get("dimension")
+        dim = unit.get(dim_field)
         p = _passed(r)
-        if dim in SCORE_DIMS and p is not None:
+        if dim in score_dims and p is not None:
             out[split][dim]["total"] += 1
             out[split][dim]["passed"] += 1 if p else 0
         out[split]["cost"]["_lat"].append(r.get("latency_ms"))
@@ -113,7 +130,7 @@ def score_results(results: list[dict], idx: dict) -> dict:
     scores = {}
     for s in SPLITS:
         row = {}
-        for dim in SCORE_DIMS:
+        for dim in score_dims:
             d = out[s][dim]
             row[dim] = {"pass_rate": round(100 * d["passed"] / d["total"], 1) if d["total"] else None,
                         "n": d["total"]}
@@ -262,6 +279,52 @@ def report() -> int:
     return 0
 
 
+def companion_report(from_path: Path | None = None) -> int:
+    """Phase 8 §8.0 — score the latest results on the COMPANION axis (eval_dimension) and print
+    a per-dimension scorecard, annotated with each dimension's registry status. INFORMATIONAL
+    ONLY (always exit 0): the per-dimension REGRESSION gate that exits 1 on a locked-test drop
+    is 8.3 (generalize gate()). Active dims show their frozen-baseline delta where one exists;
+    pending dims (no golden set/baseline yet) degrade-to-SKIP. No model calls."""
+    res = _load_results(from_path or RESULTS_PATH)
+    if not res:
+        print(f"{CYAN}SKIP{RESET} — no eval results to score on the companion axis. "
+              f"Generate them (ai-eval-runner / companion flywheel) then `ingest-companion`.")
+        return 0
+    reg = _load_json(SCORECARD_PATH) or {}
+    dims_reg = reg.get("dimensions") or {}
+    idx = _split_index()
+    cur = score_results(res["results"], idx, dim_field="eval_dimension",
+                        score_dims=COMPANION_SCORE_DIMS)
+    base = _load_json(BASELINE_PATH) or {}
+
+    print(f"\n{BOLD}Companion Eval — per-dimension scorecard (Phase 8 axis){RESET}  ·  "
+          f"{cur['n_results']} results ({cur['unmapped']} unmapped)")
+    print("=" * 74)
+    for s in SPLITS:
+        sc = cur["scores"][s]
+        lock = "🔒" if s == "test" else "  "
+        print(f"\n  {lock} {CYAN}{BOLD}{s}{RESET}{'  (the honest split — gated in 8.3)' if s == 'test' else ''}")
+        for dim in COMPANION_SCORE_DIMS:
+            d = sc[dim]
+            status = (dims_reg.get(dim) or {}).get("status", "pending")
+            rate = "n/a" if d["pass_rate"] is None else f"{d['pass_rate']}%"
+            if status == "active":
+                tag = f"{GREEN}active{RESET}"
+            else:
+                tag = f"{YEL}pending→SKIP{RESET}"
+            print(f"    {dim:<10}{rate:>7}  (n={d['n']:>2})  [{tag}]")
+        c = sc["cost"]
+        print(f"    {'cost':<10}{('n/a' if c['mean_latency_ms'] is None else str(c['mean_latency_ms']) + 'ms'):>7}"
+              f"  mean_tokens={c['mean_tokens']} (n={c['n']})")
+
+    n_active = sum(1 for d in COMPANION_SCORE_DIMS if (dims_reg.get(d) or {}).get("status") == "active")
+    print(f"\n  {n_active}/{len(COMPANION_SCORE_DIMS)} pass-rate dims active; the rest degrade-to-SKIP "
+          f"until 8.1 golden sets + a clean baseline freeze (8.3).")
+    print(f"  This view is INFORMATIONAL — `gate` still enforces the frozen {SCORE_DIMS} axis "
+          f"on the locked-test split. Registry: companion_eval_scorecard.json.\n")
+    return 0
+
+
 def ingest_companion(turn: int, artifact_root: str = ".tmp") -> int:
     """Adapter: build a normalized ai_eval_results.json from a companion flywheel turn's
     grades.json (verdict -> passed, latency_ms if present). The grader is the existing scorer;
@@ -298,6 +361,8 @@ def main() -> int:
     g = sub.add_parser("gate", help="score latest vs baseline; exit 1 on locked-test regression")
     g.add_argument("--from", dest="from_path", default=None, help="results JSON path (default ai_eval_results.json)")
     sub.add_parser("report", help="per-split x per-dimension scorecard")
+    cr = sub.add_parser("companion-report", help="Phase 8: per-companion-dimension scorecard (informational)")
+    cr.add_argument("--from", dest="cr_from", default=None, help="results JSON path (default ai_eval_results.json)")
     ic = sub.add_parser("ingest-companion", help="build ai_eval_results.json from a companion turn's grades.json")
     ic.add_argument("--turn", type=int, required=True)
     ic.add_argument("--artifact-root", default=".tmp")
@@ -308,6 +373,8 @@ def main() -> int:
         return baseline()
     if cmd == "gate":
         return gate(Path(args.from_path) if args.from_path else None)
+    if cmd == "companion-report":
+        return companion_report(Path(args.cr_from) if args.cr_from else None)
     if cmd == "ingest-companion":
         return ingest_companion(args.turn, args.artifact_root)
     return report()

@@ -438,7 +438,7 @@ The companion runs entirely on **free-tier Groq** models (llama-4-scout, qwen3-3
 ## The roadmap (8.0 → 8.6 — each gate-green, reversible, $0-first)
 | # | Step | What | Reuse / new |
 |---|---|---|---|
-| **8.0** | Dimension taxonomy + scorecard | Extend the `{domain,dimension}` tags to **6 dims** (agent, rag, memory, persona, safety, cost). One `companion_eval_scorecard.json` row per dim: metric · grader · golden-set ref · baseline · tolerance · gate. | extend `gate_eval_splits.py` + `ai_eval_gate.py` |
+| **8.0 ✅ BUILT (2026-06-08)** | Dimension taxonomy + scorecard | Extend the `{domain,dimension}` tags to **6 dims** (agent, rag, memory, persona, safety, cost). One `companion_eval_scorecard.json` row per dim: metric · grader · golden-set ref · baseline · tolerance · gate. | extend `gate_eval_splits.py` + `ai_eval_gate.py` |
 | **8.1** | Golden datasets per dimension | Agent: `expected_route` + `expected_params` (BFCL) + multi-step chains (τ-bench). RAG: question + ground-truth answer + ground-truth chunk ids. Memory: multi-session scripts (LongMemEval 5 abilities) + abstention probes. Persona: utterance + voice markers / anti-markers. Safety: extend frozen set. | extend `companion_probe_bank.json` + new golden files |
 | **8.2** | Graders (deterministic-first, judge w/ backstop) | Agent = Tool Correctness (route+params, no judge). RAG = Ragas-4 (context precision/recall deterministic from `cited[]` vs truth; faithfulness/relevancy = free-tier judge + claim-overlap backstop). Memory = persist (agent_memory row) + recall (fact match) + abstention. Persona = voice-marker regex + judge. Safety = existing leak/refusal grader. All **independent + negative-controlled**. | extend `companion_rigorous_grader.py` |
 | **8.3** | Per-dimension regression gates | Generalize `ai_eval_gate` to all 6 dims; each a **G0 forward-only ratchet on the locked-test split** (degrade-to-SKIP without data). Baselines frozen only from clean runs. | `ai_eval_gate.py` + register in `run_platform_checks.py` |
@@ -449,4 +449,18 @@ The companion runs entirely on **free-tier Groq** models (llama-4-scout, qwen3-3
 **Recommended sequencing:** 8.0 → **Agent first** (8.1+8.2 — most deterministic, fastest win, reuses `expected_route`) as the reusable template → RAG → Memory → Persona/Safety → 8.4 optimize → 8.5 harvest → 8.6 dashboard.
 
 **Guardrails:** $0 free-tier (deterministic graders first; judge sparingly + always a deterministic backstop); graders import no companion code (trust property); anti-overfit via the existing locked-test split + seal; forward-only gates; reversible per step; **Option B (real weight fine-tuning/distillation) stays explicitly deferred** until harvested data volume + budget justify it.
+
+## Build log
+
+### 8.0 — Dimension taxonomy + scorecard registry ✅ (2026-06-08)
+**What shipped (additive only — the frozen functionality/safety baselines + `test_seal` were preserved):**
+- **`tools/gate_efficacy_ledger.py`** — added `COMPANION_DIMENSIONS = (agent, rag, memory, persona, safety, cost)` + `classify_companion_dimension(entry)` on a **separate axis** from the validator `DIMENSIONS` (so no validator tag reshuffles and the eval-split seal — keyed on unit id — never moves). `reclassify` confirmed **0 of 362 validators changed**. The "safety" companion dim = ADVERSARIAL ROBUSTNESS only (`adversarial` section); domain-safety queries (`safety_intent`, `held_out_safety`: "what PPE/permit do I need") are route-selection → **agent**, so companion `eval_dimension=safety` is byte-identical to the frozen baseline's safety set (train 17 / val 5 / test 3, verified per split).
+- **`tools/gate_eval_splits.py`** — tags every companion-probe + canonical-question unit with an additive `eval_dimension` field (specs stay on the validator axis). Split assignment + `test_seal` unchanged. New "companion dimension × split" coverage report.
+- **`companion_eval_scorecard.json`** (NEW registry — the single source of truth) — one row per dim: metric · grader · golden-set ref · baseline_ref · tolerance · gate · **status** (`active` = frozen baseline exists → gated; `pending` = degrade-to-SKIP until 8.1+8.3). Today: **safety + cost active; agent/rag/memory/persona pending.**
+- **`tools/companion_eval_scorecard.py`** (NEW) — `report` / `verify` (well-formedness + active-baseline resolvability; exit 1 on a malformed registry, degrade-to-SKIP if absent) / `sync` (live coverage into the registry).
+- **`tools/ai_eval_gate.py`** — `score_results` parametrized by `dim_field` / `score_dims` (default = the FROZEN `dimension` axis, so `gate`/`baseline`/`report` are byte-identical — verified all deltas `+0.0pp`, exit 0). New **informational** `companion-report` subcommand scores the `eval_dimension` axis with per-dim registry status; pending dims SKIP. The enforcing per-dim gate is 8.3.
+
+**Coverage snapshot (the map 8.1 builds against):** agent 49 (8 locked-test) · safety 25 (3) · rag 1 · memory 1 · **persona 0**. Confirms the **Agent-first** sequencing: agent is the most-covered + most-deterministic dim. RAG / Memory / Persona golden sets are 8.1's job.
+
+**Shipped standalone (not yet a G0 validator)** — mirrors how P1's ledger + P6's split shipped before their gates; the G0 registration of the per-dim regression gate lands in 8.3. **Blast radius:** 2 new files + 3 additive tool edits + 1 registry; reversible via `git restore`. No product/runtime change. **NEXT: 8.1 — Agent golden set** (expected_route + expected_params + multi-step chains) then 8.2 Agent grader, as the reusable template.
 

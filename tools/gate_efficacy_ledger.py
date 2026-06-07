@@ -93,6 +93,60 @@ def _infer_origin(vid: str, overrides: dict) -> str:
 DOMAINS    = ("general", "saas", "ai")
 DIMENSIONS = ("usability", "functionality", "adaptability", "internal_control", "safety", "cost")
 
+# ── Phase 8 / Companion eval axis — a SEPARATE taxonomy from DIMENSIONS above ──────
+# DIMENSIONS classifies the GATE's own validators (the verdict contract). Phase 8 grades
+# the COMPANION's *behaviour* along its own four product dimensions + safety + cost. It is
+# kept on a distinct axis on purpose: adding companion dims must never reshuffle a single
+# validator tag, and (critically) must never move the eval-split `test_seal`, which keys on
+# unit id only. gate_eval_splits.py / ai_eval_gate.py / companion_eval_scorecard.json all
+# import THIS one vocabulary so the corpus, the scorer and the registry never drift apart.
+#   agent   — tool/route selection correctness (BFCL/τ-bench style; expected_route + params)
+#   rag     — grounding + citations (Ragas: faithfulness, relevancy, context precision/recall)
+#   memory  — cross-session recall + temporal reasoning + abstention (LongMemEval 5 abilities)
+#   persona — specialist voice markers / narration fidelity
+#   safety  — adversarial robustness (injection/jailbreak/PII/harmful) — the hard backstop
+#   cost    — latency / tokens (lower = better; measured per-result, not classified)
+COMPANION_DIMENSIONS = ("agent", "rag", "memory", "persona", "safety", "cost")
+
+# Companion-axis category hints (a probe-bank `category` is the primary signal). Checked
+# safety -> rag -> memory -> persona, default `agent` (route/tool selection is the most
+# common companion task and the one `expected_route` already exercises). Substring match
+# against `category + id + agent` lowercased.
+# NOTE: the "safety" dimension here means ADVERSARIAL ROBUSTNESS (the probe bank's `adversarial`
+# section: injection/jailbreak/harmful/PII/gibberish/...). It is deliberately NOT a bare
+# "safety" substring — DOMAIN safety queries (`safety_intent`, `held_out_safety`: "what PPE /
+# permit do I need for hot work") are route-selection tasks that go to the AGENT dimension, not
+# adversarial-safety. This keeps eval_dimension=safety EQUAL to the frozen baseline's safety set.
+_CD_SAFETY  = ("robustness", "injection", "jailbreak", "harmful", "pii", "gibberish",
+               "offtopic", "off_topic", "contradiction", "underspecified", "adversarial")
+_CD_RAG     = ("rag", "grounded", "grounding", "citation", "cited", "retrieval",
+               "knowledge_base", "knowledge-base", "faithful")
+_CD_MEMORY  = ("recall", "memory", "multi_session", "multi-session", "session", "remember",
+               "follow_up", "followup", "abstention", "temporal")
+_CD_PERSONA = ("persona", "voice_marker", "voice-marker", "narration", "tone", "briefing")
+
+
+def classify_companion_dimension(entry: dict | None = None, *, category: str = "",
+                                 unit_id: str = "", agent: str = "") -> str:
+    """Map ONE companion eval unit (a probe-bank entry or canonical fixture) to a single
+    companion dimension in {agent, rag, memory, persona, safety}. `cost` is measured per
+    result, never classified here. Deterministic, category-first, side-effect-free.
+
+    Pass either a probe dict via `entry` (uses its `category`/`id`/`agent`) or the fields
+    directly. Default is `agent` — route/tool selection is the dominant companion task and
+    the dimension `expected_route` already grades, so an untagged unit lands there honestly.
+    """
+    if entry:
+        category = category or str(entry.get("category", ""))
+        unit_id  = unit_id  or str(entry.get("id", ""))
+        agent    = agent    or str(entry.get("agent", ""))
+    txt = f"{category} {unit_id} {agent}".lower()
+    if any(h in txt for h in _CD_SAFETY):  return "safety"
+    if any(h in txt for h in _CD_RAG):     return "rag"
+    if any(h in txt for h in _CD_MEMORY):  return "memory"
+    if any(h in txt for h in _CD_PERSONA): return "persona"
+    return "agent"
+
 # domain hints (checked AI -> SaaS -> general; first hit wins)
 _AI_HINTS   = ("ai-", "ai_", "prompt", "rag", "companion", "model-router", "model_router",
                "embedding", "voice", "agent", "episodic", "semantic", "procedural",
@@ -254,7 +308,8 @@ def update(force: bool = False) -> dict:
             _rec["domain"], _rec["dimension"] = classify_domain_dimension(
                 _vid, _rec.get("label", ""), _rec.get("group", ""), dd_overrides)
 
-    ledger["taxonomy"] = {"domains": list(DOMAINS), "dimensions": list(DIMENSIONS)}
+    ledger["taxonomy"] = {"domains": list(DOMAINS), "dimensions": list(DIMENSIONS),
+                          "companion_dimensions": list(COMPANION_DIMENSIONS)}
     ledger["runs_observed"]   = run
     ledger["last_ingested_ts"] = ts
     ledger["last_run"] = {
@@ -368,7 +423,8 @@ def reclassify() -> dict:
         if rec.get("domain") != dom or rec.get("dimension") != dim:
             changed += 1
         rec["domain"], rec["dimension"] = dom, dim
-    ledger["taxonomy"] = {"domains": list(DOMAINS), "dimensions": list(DIMENSIONS)}
+    ledger["taxonomy"] = {"domains": list(DOMAINS), "dimensions": list(DIMENSIONS),
+                          "companion_dimensions": list(COMPANION_DIMENSIONS)}
     LEDGER_PATH.write_text(json.dumps(ledger, indent=2), encoding="utf-8")
     print(f"{GREEN}Reclassified{RESET} {len(ledger['validators'])} validators "
           f"({changed} changed) using {len(dd_overrides)} override(s).")
