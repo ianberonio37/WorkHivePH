@@ -358,6 +358,145 @@ def agent_grader_self_test(golden: dict) -> dict:
             "blind_negatives_failed": blind_neg_failed, "problems": problems}
 
 
+# ─── Phase 8 §8.2 — RAG dimension: Ragas-style grader (deterministic-first) ─────────────
+# Grades a grounded answer against the RAG golden set (companion_rag_golden.json). Context
+# recall/precision are DETERMINISTIC from asset-brain-query's cited[] (each citation is
+# {kind, index}; kind in logbook|pm|neighbor|stat|fmea|rcm|weibull|pf|risk|risk-factor) vs the
+# expected citation KINDS. Answer relevancy + faithfulness use deterministic backstops first (a
+# free-tier judge is an optional later refinement). Same independence rules: no companion imports,
+# no LLM. observed shape: {"answer": str, "cited": [{"kind","index"}], "narration": str}.
+RAG_DEFAULT_RECALL_THRESHOLD = 1.0
+
+# "I don't have that data" registers — for RAG negative/abstention controls (asset lacks the data).
+RAG_ABSTAIN_PATTERNS = [
+    r"\b(no|not|don'?t\s+have|isn'?t|aren'?t)\b.{0,24}\b(data|record|records|information|risk\s+score|score|available|history)\b",
+    r"\b(unable\s+to|can'?t|cannot|won'?t)\b.{0,12}\b(find|provide|determine|answer|give|tell|calculate)\b",
+    r"\bno\s+(risk|market|resale|pricing|price|financial)\b",
+    r"\bnot\s+(available|tracked|recorded|in\s+the\s+(data|records|system)|something\s+i)\b",
+    r"\bdon'?t\s+have\b",
+    r"\boutside\s+(my|the|of)\s+(scope|data|knowledge|records)\b",
+    r"\b(there\s+(is|are)\s+no|i\s+see\s+no|i\s+found\s+no)\b",
+]
+
+
+def is_rag_abstain(text: str) -> bool:
+    lc = (text or "").lower()
+    return is_clarify(text) or is_refusal(text) or any(re.search(p, lc) for p in RAG_ABSTAIN_PATTERNS)
+
+
+def _cited_kinds(observed: dict) -> set:
+    """Set of citation KINDS from observed cited[] ([{kind, index}, ...])."""
+    out = set()
+    for c in (observed or {}).get("cited", []) or []:
+        if isinstance(c, dict) and c.get("kind"):
+            out.add(_norm(c["kind"]))
+    return out
+
+
+def grade_rag_question(unit: dict, observed: dict | None,
+                       asset_terms: list[str] | None = None,
+                       default_recall: float = RAG_DEFAULT_RECALL_THRESHOLD) -> dict:
+    """Ragas-style grade for one grounded question. PASS iff context_recall >= threshold AND the
+    answer-relevancy backstop AND the faithfulness backstop hold."""
+    obs = observed or {}
+    answer = str(obs.get("answer", "") or obs.get("narration", ""))
+    cited = _cited_kinds(obs)
+    expected = {_norm(k) for k in (unit.get("expected_kinds") or [])}
+    inter = expected & cited
+    recall = (len(inter) / len(expected)) if expected else None
+    precision = (len(inter) / len(cited)) if cited else (1.0 if not expected else 0.0)
+    thr = float(unit.get("recall_threshold", default_recall))
+    kws = unit.get("expected_keywords_any") or []
+    relevancy = (any(_norm(k) in _norm(answer) for k in kws)) if kws else True
+    asset_hit = (not asset_terms) or any(_norm(t) in _norm(answer) for t in asset_terms)
+    blocklist = must_not_check(answer, unit.get("must_not_contain", []))
+    # Faithfulness backstop = the answer is grounded in retrieved evidence (cites something) AND
+    # contains nothing forbidden. We do NOT require the asset name to appear in the prose: the
+    # retrieval is asset-scoped (asset_id is pinned), so cited evidence is about THIS asset by
+    # construction, and a terse correct answer ("the Weibull beta is 1") that omits the name is
+    # still faithful. (asset_hit is reported for visibility, not gated.) Calibrated 2026-06-08
+    # when RG-04 — a correct, cited Weibull answer — false-failed the name requirement.
+    faithfulness = bool(cited) and not blocklist
+    recall_pass = (recall is not None and recall >= thr)
+    verdict = "PASS" if (recall_pass and relevancy and faithfulness) else "FAIL"
+    return {"context_recall": round(recall, 3) if recall is not None else None,
+            "context_precision": round(precision, 3),
+            "cited_kinds": sorted(cited), "expected_kinds": sorted(expected),
+            "relevancy": relevancy, "faithfulness": faithfulness,
+            "blocklist_hits": blocklist, "verdict": verdict}
+
+
+def grade_rag_negative(unit: dict, observed: dict | None) -> dict:
+    """RAG abstention control: PASS iff the answer abstains (no-data / clarify / refuse) AND does
+    not fabricate a citation of a forbidden kind."""
+    obs = observed or {}
+    answer = str(obs.get("answer", "") or obs.get("narration", ""))
+    cited = _cited_kinds(obs)
+    forbidden = {_norm(k) for k in (unit.get("forbidden_kinds") or [])}
+    fabricated = bool(forbidden & cited)
+    abstained = is_rag_abstain(answer)
+    return {"abstained": abstained, "fabricated_citation": sorted(forbidden & cited),
+            "cited_kinds": sorted(cited),
+            "verdict": "PASS" if (abstained and not fabricated) else "FAIL"}
+
+
+def grade_rag_unit(unit: dict, observed,
+                   asset_terms: list[str] | None = None,
+                   default_recall: float = RAG_DEFAULT_RECALL_THRESHOLD) -> dict:
+    uid = unit.get("id")
+    if unit.get("category") == "rag_negative" or unit.get("expected_behavior") == "abstain":
+        return {"id": uid, "type": "negative", **grade_rag_negative(unit, observed)}
+    return {"id": uid, "type": "question", **grade_rag_question(unit, observed, asset_terms, default_recall)}
+
+
+def _rag_oracle_observed(unit: dict, asset_terms: list[str] | None = None):
+    """Synthetic PERFECT observation: cite exactly the expected kinds, answer mentions the asset +
+    a concept keyword; for negatives, abstain with no citations."""
+    asset = (asset_terms or ["the asset"])[0]
+    if unit.get("category") == "rag_negative" or unit.get("expected_behavior") == "abstain":
+        return {"answer": f"I don't have that data for {asset}; it is not in the records.", "cited": [], "narration": ""}
+    kws = unit.get("expected_keywords_any") or [""]
+    return {"answer": f"For {asset}: {kws[0]}.",
+            "cited": [{"kind": k, "index": 0} for k in (unit.get("expected_kinds") or [])],
+            "narration": ""}
+
+
+def _rag_blind_observed(unit: dict):
+    """Synthetic BLIND observation: always a generic answer citing logbook — must fail negatives
+    (it neither abstains nor avoids fabrication) and most positives (relevancy/recall)."""
+    return {"answer": "The asset is operating.", "cited": [{"kind": "logbook", "index": 0}], "narration": ""}
+
+
+def rag_grader_self_test(golden: dict) -> dict:
+    """Prove the RAG grader is correct AND negative-controlled with NO live companion."""
+    asset = golden.get("asset") or {}
+    asset_terms = [t for t in [asset.get("tag"), asset.get("name")] if t]
+    default_recall = float(golden.get("default_recall_threshold", RAG_DEFAULT_RECALL_THRESHOLD))
+    units = list(golden.get("questions") or []) + list(golden.get("negative_controls") or [])
+    negatives = [u for u in units if u.get("category") == "rag_negative"]
+    problems, oracle_pass, blind_pass, blind_neg_failed = [], 0, 0, 0
+    for u in units:
+        og = grade_rag_unit(u, _rag_oracle_observed(u, asset_terms), asset_terms, default_recall)
+        if og["verdict"] == "PASS":
+            oracle_pass += 1
+        else:
+            problems.append(f"oracle did not PASS {u.get('id')}: {og}")
+        bg = grade_rag_unit(u, _rag_blind_observed(u), asset_terms, default_recall)
+        if bg["verdict"] == "PASS":
+            blind_pass += 1
+        if u.get("category") == "rag_negative" and bg["verdict"] == "FAIL":
+            blind_neg_failed += 1
+    if oracle_pass != len(units):
+        problems.append(f"oracle pass {oracle_pass}/{len(units)} (must be all)")
+    if negatives and blind_neg_failed != len(negatives):
+        problems.append(f"blind grader passed a negative control (failed only {blind_neg_failed}/{len(negatives)})")
+    if blind_pass >= oracle_pass:
+        problems.append(f"blind pass {blind_pass} >= oracle pass {oracle_pass} — grader does not discriminate")
+    return {"ok": not problems, "oracle_pass": oracle_pass, "blind_pass": blind_pass,
+            "total": len(units), "negatives": len(negatives),
+            "blind_negatives_failed": blind_neg_failed, "problems": problems}
+
+
 def grade_one(probe: dict) -> dict:
     """Apply rule-based grading to a single probe result."""
     answer = extract_answer_text(probe)

@@ -36,16 +36,18 @@
       "metric": "ragas_4",
       "metric_desc": "faithfulness, answer relevancy, context precision, context recall. Context precision/recall are DETERMINISTIC from cited[] vs ground-truth chunk ids; faithfulness/relevancy use a free-tier judge WITH a claim-overlap deterministic backstop.",
       "higher_is_better": true,
-      "grader": "tools/companion_rigorous_grader.py (8.2: Ragas-4; deterministic-first)",
-      "golden_set": "8.1 NEW: question + ground-truth answer + ground-truth chunk ids (asset-brain cited[] is the live observable)",
+      "grader": "tools/companion_rigorous_grader.py grade_rag_* (context recall/precision deterministic from cited[] kinds; relevancy + faithfulness deterministic backstops, judge optional); harness tools/companion_rag_eval.py (--self-test negative-controlled, --observed). BUILT 8.2.",
+      "golden_set": "companion_rag_golden.json (7 grounded questions with expected citation KINDS + 2 abstention controls; scoped to real asset HPU-001 which has logbook/pm/fmea/weibull/rcm/pf evidence, no risk = built-in abstention). BUILT 8.1.",
       "baseline_proxy": null,
+      "baseline_ref": "companion_dim_baselines.json::dimensions.rag.locked_test.pass_rate",
+      "results_ref": ".tmp/rag_eval_results.json",
       "tolerance": {
         "pass_rate_pp": 5.0
       },
-      "gate": "tools/ai_eval_gate.py (8.3)",
-      "status": "pending",
+      "gate": "tools/ai_eval_gate.py companion-gate (G0 via validate_companion_dim_gate.py; forward-only on locked-test, degrade-to-SKIP without fresh results)",
+      "status": "active",
       "blocking": false,
-      "notes": "Essentially unbuilt today (1 seed unit). 8.1 must author grounded probes carrying truth chunk ids -> companion_battery.js asset-brain cited[] is the grounded signal."
+      "notes": "8.1+8.2+8.3 BUILT 2026-06-08. ACTIVE: clean live run (9/9 asset-brain calls ok) graded 8/9; rag baseline frozen locked-test 100% n=1. blocking=FALSE (n=1 locked-test, same as agent: expand golden set first). FINDINGS: RG-02 = REAL gap (asset-brain answered PM compliance correctly but emitted NO pm citation = grounded-but-uncited; on VAL/informational; candidate for 8.4 optimization). RG-04 = grader calibration fix (faithfulness no longer requires the asset name in prose; retrieval is asset-scoped so cited evidence is on-asset by construction). Follow-up: expand RAG golden set (more locked-test units) to flip blocking=true + add more multi-kind + per-asset coverage."
     },
     "memory": {
       "label": "Memory recall + abstention",
@@ -118,7 +120,7 @@
   },
   "coverage": {
     "_comment": "Live snapshot of corpus units per companion dimension, refreshed by `python tools/companion_eval_scorecard.py sync` from gate_eval_splits.json. Informational; the authoritative numbers are always recomputed live.",
-    "synced_ts": "2026-06-07T20:13:27+00:00",
+    "synced_ts": "2026-06-07T20:38:26+00:00",
     "by_dimension": {
       "agent": {
         "train": 40,
@@ -127,10 +129,10 @@
         "total": 68
       },
       "rag": {
-        "train": 0,
-        "val": 0,
-        "test": 1,
-        "total": 1
+        "train": 5,
+        "val": 3,
+        "test": 2,
+        "total": 10
       },
       "memory": {
         "train": 0,

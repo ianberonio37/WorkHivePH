@@ -53,6 +53,7 @@ SPECS_DIR   = ROOT / "tests"
 PROBE_BANK  = TOOLS_DIR / "companion_probe_bank.json"
 CANON_EVALS = ROOT / "evals" / "canonical_questions.json"
 AGENT_GOLDEN = ROOT / "companion_agent_golden.json"   # Phase 8 §8.1 (Agent dimension)
+RAG_GOLDEN   = ROOT / "companion_rag_golden.json"     # Phase 8 §8.1 (RAG dimension)
 
 # Reuse the ONE taxonomy from the efficacy ledger (C1). The split tool and the ledger must
 # never drift apart on what "domain"/"dimension" mean.
@@ -72,7 +73,7 @@ except Exception:  # pragma: no cover — keep the tool runnable even if the led
 SALT       = "wh-gate-eval-splits-v1"   # change only with a deliberate full re-split
 TRAIN_PCT  = 60
 VAL_PCT    = 20   # test = the remaining 20
-KINDS      = ("spec", "companion_probe", "canonical_question", "agent_golden")
+KINDS      = ("spec", "companion_probe", "canonical_question", "agent_golden", "rag_golden")
 SPLITS     = ("train", "val", "test")
 
 GREEN = "\033[92m"; RED = "\033[91m"; YEL = "\033[93m"; CYAN = "\033[96m"; BOLD = "\033[1m"; RESET = "\033[0m"
@@ -159,6 +160,18 @@ def _enumerate_corpus() -> list[dict]:
                 units.append({"id": gid, "kind": "agent_golden",
                               "domain": "ai", "dimension": "functionality",
                               "eval_dimension": "agent"})
+
+    # 5) RAG dimension golden set (Phase 8 §8.1) — grounded questions + abstention controls.
+    #    Same additive contract as agent_golden: own kind, eval_dimension='rag', legacy
+    #    dimension = the AI functionality catch-all (not in the frozen ai_eval_results).
+    rgold = _load_json(RAG_GOLDEN) or {}
+    for section in ("questions", "negative_controls"):
+        for entry in (rgold.get(section) or []):
+            rid = entry.get("id")
+            if rid:
+                units.append({"id": rid, "kind": "rag_golden",
+                              "domain": "ai", "dimension": "functionality",
+                              "eval_dimension": "rag"})
 
     return units
 

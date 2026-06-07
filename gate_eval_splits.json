@@ -6,14 +6,14 @@
     "val": 20,
     "test": 20
   },
-  "built_ts": "2026-06-07T20:12:38+00:00",
+  "built_ts": "2026-06-07T20:38:25+00:00",
   "counts": {
-    "train": 126,
-    "val": 50,
-    "test": 44
+    "train": 132,
+    "val": 53,
+    "test": 45
   },
-  "total": 220,
-  "test_seal": "b5c9028b9143f7ef349035b7ff40f4dd0c4cbba5959723691dd49b9360322410",
+  "total": 230,
+  "test_seal": "a00f96b4670423e359e5b106fde9e1309b6dc4e3711f506db107d39f9693bad9",
   "items": {
     "agent_golden:AG-01-log-hydraulic-p203": {
       "id": "AG-01-log-hydraulic-p203",
@@ -774,6 +774,78 @@
       "dimension": "functionality",
       "split": "test",
       "eval_dimension": "memory"
+    },
+    "rag_golden:RG-01-failure-history": {
+      "id": "RG-01-failure-history",
+      "kind": "rag_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "val",
+      "eval_dimension": "rag"
+    },
+    "rag_golden:RG-02-pm-compliance": {
+      "id": "RG-02-pm-compliance",
+      "kind": "rag_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "val",
+      "eval_dimension": "rag"
+    },
+    "rag_golden:RG-03-fmea-modes": {
+      "id": "RG-03-fmea-modes",
+      "kind": "rag_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "train",
+      "eval_dimension": "rag"
+    },
+    "rag_golden:RG-04-weibull-reliability": {
+      "id": "RG-04-weibull-reliability",
+      "kind": "rag_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "val",
+      "eval_dimension": "rag"
+    },
+    "rag_golden:RG-05-rcm-strategy": {
+      "id": "RG-05-rcm-strategy",
+      "kind": "rag_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "test",
+      "eval_dimension": "rag"
+    },
+    "rag_golden:RG-06-pf-interval": {
+      "id": "RG-06-pf-interval",
+      "kind": "rag_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "train",
+      "eval_dimension": "rag"
+    },
+    "rag_golden:RG-07-combined-history-reliability": {
+      "id": "RG-07-combined-history-reliability",
+      "kind": "rag_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "train",
+      "eval_dimension": "rag"
+    },
+    "rag_golden:RG-NEG-01-no-risk-data": {
+      "id": "RG-NEG-01-no-risk-data",
+      "kind": "rag_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "train",
+      "eval_dimension": "rag"
+    },
+    "rag_golden:RG-NEG-02-out-of-scope": {
+      "id": "RG-NEG-02-out-of-scope",
+      "kind": "rag_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "train",
+      "eval_dimension": "rag"
     },
     "spec:tests/achievements.spec.ts": {
       "id": "tests/achievements.spec.ts",
@@ -1586,6 +1658,13 @@
       "domain": "general",
       "dimension": "functionality",
       "split": "val"
+    },
+    "spec:tests/rag-golden-capture.spec.ts": {
+      "id": "tests/rag-golden-capture.spec.ts",
+      "kind": "spec",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "train"
     },
     "spec:tests/report-sender.spec.ts": {
       "id": "tests/report-sender.spec.ts",
