@@ -177,6 +177,7 @@ _Cross-checked the roadmap above against the `ai-engineer` skill (internal doctr
 | **4** | **Tool invocation** | 🟡 med | Med-High | **Refined:** use the proven `voice-action-router` intent→tool map, NOT model-native function-calling. |
 | **5** | **Persona/standards consistency pass** | 🟢 low | Low | Unchanged, do last. |
 | **6 (later)** | **Proactive companion** | — | — | Microsoft "remember goals, report back" = our `agent_followups` (prospective layer) + `scheduled-agents`. Already half-built. |
+| **7 (capstone)** | **Comprehensive AI Playwright MCP** — agentic E2E critic that drives the unified Companion across all 32 surfaces and grades it against the 3 reference stacks (Agent / Memory / RAG). Full design in the appendix. | 🔴 high (proof) | Med | **Added 2026-06-07.** Verifies every ✅ in the rubric tables end-to-end; only meaningful AFTER Phases 1–5 wire the Companion. Test-only, no product change. |
 
 ### What research added beyond the original map
 - **Step 0 eval-gate** — the single most important addition; don't converge blind.
@@ -184,7 +185,7 @@ _Cross-checked the roadmap above against the `ai-engineer` skill (internal doctr
 - **Loud caution:** every source warns against over-engineering. You are **not** under-built — you're **fragmented at the front door**. The work is *wiring + retiring duplicates*, NOT a new agent framework.
 
 ### Revised one-line sequence
-> **0.** Freeze eval baseline → **1.** Unify memory on one identity key → **2.** Converge entry points behind `ai-gateway` → **3.** Fold Asset Brain + Coach into the in-context Companion → **4.** Wire tools via `voice-action-router` → **5.** Persona/standards pass → *(6. proactive layer, later)*. Each step gate-green, reversible, **eval-gated**.
+> **0.** Freeze eval baseline → **1.** Unify memory on one identity key → **2.** Converge entry points behind `ai-gateway` → **3.** Fold Asset Brain + Coach into the in-context Companion → **4.** Wire tools via `voice-action-router` → **5.** Persona/standards pass → *(6. proactive layer, later)* → **7.** Comprehensive AI Playwright MCP (grade the whole stack against the 3 rubrics). Each step gate-green, reversible, **eval-gated**.
 
 ### Sources
 [Anthropic — Building Effective Agents](https://www.anthropic.com/engineering/building-effective-agents) · [Microsoft Copilot Super App (Fortune)](https://fortune.com/2026/05/29/microsoft-working-on-super-app/) · [Windows Forum analysis](https://windowsforum.com/threads/microsoft-copilot-super-app-one-ai-workspace-to-end-fragmentation.420844/) · [LangGraph Supervisor (GitHub)](https://github.com/langchain-ai/langgraph-supervisor-py) · [LangChain multi-agent benchmarking](https://blog.langchain.com/benchmarking-multi-agent-architectures/) · [mem0 (GitHub)](https://github.com/mem0ai/mem0) · [MemOS (GitHub)](https://github.com/MemTensor/MemOS)
@@ -301,4 +302,93 @@ _Written during the autonomous run after reading `ai-gateway/index.ts`, `compani
 
 ## Cross-cutting follow-up surfaced by the flywheel (Step 0)
 **The eval gate's locked-test split is n=1** (only ~2 companion probes mapped to `test`). Before relying on the gate as a hard blocker, enlarge `companion_probe_bank.json` and/or aggregate multiple clean turns so 🔒test has ≥10 functionality + ≥10 safety probes. Until then, treat a gate FAIL as advisory + eyeball the per-probe diff. _This is the #1 infra task before the unification steps lean on the gate._
+
+> ✅ **RESOLVED 2026-06-07 (Step 0 done + committed):** bank enlarged 18→58, split rebuilt → 🔒test split is now **functionality 100% (n=6) / safety 100% (n=3)** (was n=1), baseline re-frozen v2. The "4% adversarial" scare was a grader false-negative (English-only refusal detector missed code-switched + varied refusals) — companion refuses all 25 adversarial probes with 0 leaks. The gate is now a meaningful hard blocker for Phases 1–7. See [[feedback_eval_refusal_detection_multilingual]].
+
+---
+
+## Coverage completeness — pages with NO AI surface (intentional, audited 2026-06-07)
+
+_Filesystem-verified: **39 root product pages + 39 static subpages**. Every page is classified. The pages below have ZERO AI surface (no `companion-launcher.js`, no AI edge-fn invoke — confirmed by grep) and are correctly OUT of Companion unification scope. Listed here so coverage is closed-loop, not implied — this closes the "did you cover all my pages?" audit gap._
+
+**Root pages with no AI surface (5) — observability / admin / internal:**
+| Page | What it is | Why no AI surface |
+|---|---|---|
+| `agentic-rag-observability.html` | RAG pipeline telemetry dashboard | Read-only; *observes* the AI, isn't itself an AI surface |
+| `llm-observability.html` | LLM cost / latency / token dashboard | Read-only telemetry |
+| `founder-console.html` | Founder admin console | Internal ops; no worker-facing AI |
+| `validator-catalog.html` | Gate validator catalog | Internal reference |
+| `parts-tracker.html` | Lightweight parts view | Structured CRUD; the AI for parts lives in `inventory.html` |
+
+**Home / marketing (1):** `index.html` — AI named in copy only; no chat bubble (deliberate, marketing page).
+
+**Static subpages (39) — SEO / legal / info, no AI:** `learn/` (34 articles + `index`), `about/`, `privacy-policy/`, `terms-of-service/`, `feedback/` (the feedback FAB is a form, not a chat).
+
+> **Coverage math:** 32 Tier-1 (floating Companion) + `assistant` (Tier 2) + `index` (home) + 5 no-AI = **39 root ✓**. Nothing unclassified. (`voice-journal` is counted in the 32 — it is both Tier 1 and a Tier 2 dedicated page.)
+
+---
+
+## Industry-rubric alignment — 3 reference stacks (added 2026-06-07)
+
+_Cross-checked WorkHive's AI architecture against three widely-circulated reference stacks (Rakesh Gohel: AI Agent Stack, AI Agent Memory Stack, RAG Architecture). Used as a **grading rubric**, not a build target — most layers already exist. The ✅'s below are asserted from this surface audit; **Phase 7 (below) is what verifies them end-to-end.**_
+
+### Rubric 1 — The AI Agent Stack (6 capability layers)
+| Layer | WorkHive today | State |
+|---|---|---|
+| RAG / Context | `agentic-rag-loop`, `semantic-search`, `temporal-rag-orchestrator`, `voice-embeddings` | ✅ |
+| Function Calling / Action | `voice-action-router` (deterministic intent→tool; **not** model-native FC — free-tier 8B unreliable at it) | 🟠 Phase 4 |
+| MCP / Access | MCP is **dev-side** only (Playwright/postgres/github/grafana/sentry/crawl4ai); the *product* Companion has no MCP access layer | ⚪ future |
+| CLI Tool / Control | N/A to the product (Claude Code's lane, not the worker's Companion) | — out of scope |
+| AI Agent / Orchestration | `ai-orchestrator` (7-agent fan-out: goal→plan→reason→choose-tool→execute) | ✅ |
+| A2A / Coordination | `ai-orchestrator` + `amc-orchestrator` (5 sub-agents), `shift-planner-orchestrator`, `project-orchestrator` | ✅ internal |
+
+### Rubric 2 — AI Agent Memory Stack (7 layers) — maps 1:1 to our built stack
+All keyed `${hive_id}:${worker_name}:${auth_uid}:${agent}`, injected by `ai-gateway`. See [[project_memory_stack_flywheel_2026_05_30]].
+| Layer (image) | WorkHive | State |
+|---|---|---|
+| 01 Working (FIFO window) | gateway 10-turn `agent_memory` window | ✅ |
+| 02 Episodic (retrievable) | episodic layer (T1) | ✅ |
+| 03 Semantic (distilled facts) | `semantic-fact-extractor` / `semantic-search` (T4) | ✅ |
+| 04 Procedural (skill library) | procedural memory (T5) | ✅ |
+| 05 Hierarchical (hot/warm/cold) | tiered + `cold-archive-query` (T3) | ✅ |
+| 06 Prospective (follow-ups) | `agent_followups` (T6) = the Phase 6 proactive layer | ✅ built, ⚪ unsurfaced |
+| 07 Shared (one truth) | verified-state / shared memory (T2) | ✅ |
+
+> **7/7 exist. The gap is access, not capability:** `assistant.html` bypasses the gateway → touches none of this. **Phase 1+2 fixes exactly this** (route it through the gateway → memory unifies for free).
+
+### Rubric 3 — RAG Architecture patterns (8 variants)
+| Pattern | WorkHive | State |
+|---|---|---|
+| Naive RAG | `semantic-search` baseline | ✅ |
+| Multimodal RAG | `visual-defect-capture` (photo), `equipment-label-ocr`, `voice-transcribe` | ✅ |
+| Graph RAG | `semantic_search_kg_facts` (knowledge-graph facts) | ✅ |
+| Hybrid RAG | vector + KG together | ✅ partial |
+| Adaptive RAG | `agentic-rag-loop` classifies query-context → routes | ✅ |
+| Agentic RAG | `agentic-rag-loop` + `ai-orchestrator` (short/long mem + ReAct/CoT + multi-agent) — **essentially our architecture** | ✅ |
+| HyDE | hypothetical-doc embedding | ⚪ not built |
+| Corrective RAG | grade-retrieval → web-fallback | 🟠 partial (we grade outputs, not retrievals) |
+
+> **6/8 implemented.** HyDE + Corrective are optional refinements, not missing foundations.
+
+**Net rubric read:** WorkHive is *not under-built* — Memory **7/7**, Agent-stack **4/6** (the 2 open = our Phase 4 + a future product-MCP layer), RAG **6/8**. The remaining work is **convergence + verification**, exactly the map's thesis. Don't build a new framework.
+
+---
+
+## Phase 7 (capstone) — Comprehensive AI Playwright MCP
+
+**Goal:** an **AI-driven** Playwright-MCP harness that drives the *real* unified Companion across all 32 surfaces and grades it against the 3 rubrics above with **grounded** assertions (observable side-effects, not vibes). This is the agentic evolution of the per-element Grounded Sweep critic ([[reference_holistic_critic_tooling]]), which is blind to whole-system behavior (it checks tap-targets + modal a11y, not "does the Companion deliver all 7 memory layers?").
+
+**Why capstone, not earlier:** it can only grade the *unified* Companion once Phases 1–5 wire it. Run before, and it merely re-documents the fragmentation already mapped.
+
+**Probe classes — every assertion checks an observable:**
+- **Agent-stack** — a tool-needing query actually hits `voice-action-router` (Action); a fan-out question reaches `ai-orchestrator` (Orchestration/A2A). Assert via the network request to the right edge fn.
+- **Memory-stack (the headline test)** — cross-surface memory proof: a statement made on `assistant.html` resurfaces in the floating widget on `logbook` (working→episodic→shared). Assert the `agent_memory` row exists for that `auth_uid` + same `session_key`. A follow-up fires (prospective).
+- **RAG-pattern** — an asset question grounds in `asset-brain` verified-state (Graph/Hybrid); a doc question hits `semantic-search` (Naive); a photo hits multimodal. Assert the *retrieved context*, not just the answer text.
+- **Safety carry-over** — re-run the frozen Step-0 companion eval probes through the unified front door; the 🔒test split must hold (no regression from convergence).
+
+**Grounding doctrine (carried from the Grounded Sweep):** Playwright MCP as a grounded observer; every claim tied to a DB row / edge-fn invoke / `session_key`; self-detects deploy + skips till live (like `journey-definer-rpc-hive-isolation.spec.ts`); blast-radius aware; findings → disposition queue, not auto-applied.
+
+**Deliverables:** `tests/journey-companion-comprehensive.spec.ts` (the agentic E2E critic) + `companion_stack_rubric.json` (the 3-rubric scorecard, G0-ratcheted like the sweep) + skill writeback (ai-engineer / qa-tester / realtime-engineer / multitenant-engineer).
+
+**Blast radius:** test-only (no product change). **Revert:** delete the spec + rubric file.
 

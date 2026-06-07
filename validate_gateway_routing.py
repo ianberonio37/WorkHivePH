@@ -61,7 +61,7 @@ EXPECTED_AGENTS = {
 # Specialists allowed to NOT appear in gateway routes (e.g., cron-only,
 # internal callers, scheduled-agents which is itself an orchestrator).
 GATEWAY_EXEMPT = {
-    "ai-orchestrator":          "deprecated direct orchestrator; superseded by gateway",
+    "ai-orchestrator":          "now reachable via the 'assistant' gateway agent (Phase 1+2 brain convergence); hive Coach still calls it directly pending Phase 3 migration",
     "scheduled-agents":         "cron-driven only; never invoked via user flow",
     "engineering-calc-agent":   "calc UI invokes directly; not a chat agent",
     "engineering-bom-sow":      "calc UI invokes directly; not a chat agent",

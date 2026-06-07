@@ -853,19 +853,30 @@ happens to know maintenance, not a manual.`;
           // 25s ceiling: orchestrator chain may hit Groq, Cerebras, OpenRouter
           // in sequence; total budget is bounded so the user gets a fallback
           // answer instead of an infinite spinner.
-          const orchRes = await fetchWithTimeout(`${SUPABASE_URL}/functions/v1/ai-orchestrator`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              question:    enrichedQuestion,
-              hive_id:     hiveId,
-              worker_name: workerName,
-            }),
-          }, 25000);
-          if (orchRes && orchRes.ok) {
-            const orchData = await orchRes.json();
-            if (orchData.answer && !orchData.error) reply = orchData.answer;
-          }
+          // Phase 1+2 (2026-06-07): route through ai-gateway (the ONE front
+          // door) instead of calling ai-orchestrator directly. db.functions.invoke
+          // auto-attaches the signed-in user's session JWT, so the gateway
+          // resolves the caller (auth gate + unified memory/persona/rate-limit)
+          // and forwards to ai-orchestrator internally. Unsigned callers get a
+          // 401 from the gateway -> error set -> we fall through to the personal
+          // assistant below (fail-open). Sending worker_name is no longer needed
+          // (the gateway resolves it from the JWT).
+          const gwInvoke = db.functions.invoke('ai-gateway', {
+            body: {
+              agent:   'assistant',
+              message: enrichedQuestion,
+              hive_id: hiveId,
+              context: { source: 'assistant-page' },
+            },
+          });
+          // Preserve the 25s ceiling: if the chain is slow, fall back to the
+          // personal assistant rather than hang behind the gateway's own 60s
+          // downstream budget.
+          const orchData = await Promise.race([
+            gwInvoke.then(r => (r && !r.error ? r.data : null)).catch(() => null),
+            new Promise(resolve => setTimeout(() => resolve(null), 25000)),
+          ]);
+          if (orchData && orchData.answer && !orchData.error) reply = orchData.answer;
         } catch { /* fall through */ /* empty-catch-allow: best-effort silent swallow */ }
 
         // ── Step 2: Fall back to personal assistant if orchestrator has no answer ──

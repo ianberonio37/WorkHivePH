@@ -431,6 +431,31 @@ function formatStructuredAnswer(obj: Record<string, unknown>, depth = 0): string
 
 // ── Entry point ───────────────────────────────────────────────────────────────
 
+// Gateway-path caller resolution (Phase 1+2, 2026-06-07). When ai-orchestrator
+// is reached THROUGH ai-gateway, the gateway redacts the real worker_name to
+// "<redacted>" before forwarding. Solo (no-hive) agents scope by worker_name,
+// so resolve the caller's real display_name from the forwarded user JWT. `db`
+// is the service-role client; getUser introspects the passed token (same
+// pattern as analytics-orchestrator + export-hive-data's checkSupervisor).
+// Returns null on the anon key / no session / invalid or expired token.
+async function resolveDisplayName(db: SupabaseClient, jwt: string): Promise<string | null> {
+  if (!jwt) return null;
+  try {
+    const { data: { user } } = await db.auth.getUser(jwt);
+    if (!user) return null;
+    // canonical-allow: solo/identity resolution. v_worker_truth is hive-scoped,
+    // so a hiveless (solo) caller has no row there — worker_profiles is the
+    // identity anchor for EVERY user and the only source that can resolve a
+    // solo caller's own display_name. Same exception as analytics-orchestrator
+    // + export-hive-data's checkSupervisor.
+    const { data: p } = await db.from("worker_profiles")
+      .select("display_name").eq("auth_uid", user.id).maybeSingle();
+    return (p?.display_name as string | undefined) || null;
+  } catch {
+    return null;
+  }
+}
+
 serve(async (req) => {
   const corsHeaders = getCorsHeaders(req);
   if (req.method === "OPTIONS") {
@@ -438,7 +463,12 @@ serve(async (req) => {
   }
 
   try {
-    const { question, hive_id, worker_name, mode } = await req.json();
+    const body = await req.json();
+    // Gateway shape adapter (Phase 1+2): the gateway forwards `message`, while
+    // direct callers send `question`. Accept either so both paths work.
+    const question = body.question ?? body.message;
+    const { hive_id, mode } = body;
+    let worker_name = body.worker_name;
 
     if (!question) {
       return new Response(
@@ -451,6 +481,17 @@ serve(async (req) => {
       Deno.env.get("SUPABASE_URL")!,
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
     );
+
+    // Resolve the real worker_name when reached through the gateway (it sends
+    // worker_name="<redacted>"). Hive-mode scoping uses hive_id and is
+    // unaffected; only solo callers need this. Best-effort — on failure we keep
+    // the body value, so a direct caller (real name, no `gateway` flag) is
+    // untouched.
+    if (body.gateway && (!worker_name || worker_name === "<redacted>") && !hive_id) {
+      const bearer = (req.headers.get("Authorization") || "").replace(/^Bearer\s+/i, "");
+      const resolved = await resolveDisplayName(db, bearer);
+      if (resolved) worker_name = resolved;
+    }
 
     const result = await orchestrate(question, hive_id || null, worker_name || null, db, mode || "chat");
 

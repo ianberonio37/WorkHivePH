@@ -111,7 +111,7 @@ const SEMANTIC_RECALL_AGENTS: Set<string> = new Set(["voice-journal"]);
 // semantic store (voice_journal_entries via journal-recall.ts); double-storing
 // would duplicate the journal into the shared agent memory bank.
 const EPISODIC_MEMORY_AGENTS: Set<string> = new Set([
-  "asset-brain", "analytics", "shift", "project",
+  "asset-brain", "analytics", "shift", "project", "assistant",
 ]);
 // How many durable memories to inject per turn. Small — these ride alongside
 // the 10-turn working memory and the budget is shared.
@@ -191,6 +191,15 @@ const AGENT_ROUTES: Record<string, { fn: string; description: string }> = {
   "voice-journal": {
     fn: "voice-journal-agent",
     description: "Multilingual voice journaling companion with rolling memory",
+  },
+  // Phase 1+2 (2026-06-07) brain convergence: route the full Work Assistant
+  // through the ONE front door so it shares memory + persona + rate-limit
+  // instead of bypassing to ai-orchestrator directly. The gateway forwards the
+  // caller's JWT; ai-orchestrator reads `message` (gateway shape) via adapter
+  // and resolves the real worker_name from that JWT for solo scoping.
+  "assistant": {
+    fn: "ai-orchestrator",
+    description: "Full multi-agent fan-out (failure/PM/inventory/shift/...) over the worker's own hive data",
   },
 };
 
