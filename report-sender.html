@@ -697,7 +697,7 @@
   </div><!-- /page -->
 
   <!-- Add Contact bottom sheet — must be in DOM before the <script> block runs -->
-  <div class="sheet-overlay" id="sheet-overlay" style="display:none">
+  <div class="sheet-overlay" id="sheet-overlay" role="dialog" aria-modal="true" aria-label="Add contact" style="display:none">
     <div class="bottom-sheet" id="contact-sheet">
       <div class="sheet-handle"></div>
       <div class="sheet-header">
@@ -1913,6 +1913,12 @@
     document.getElementById('sheet-overlay').addEventListener('click', (e) => {
       if (e.target === document.getElementById('sheet-overlay')) closeSheet();
     });
+
+    // Grounded Sweep C7 retrofit: dialog a11y bar on the Add-Contact bottom sheet
+    // (role/aria-modal/aria-label on the tag; whModalA11y adds ESC-close + Tab
+    // focus-trap + focus-restore; onClose = closeSheet). Wired here (not after the
+    // top-of-page utils.js) so it sits AFTER the sheet HTML — DOM-ordering safe.
+    if (window.whModalA11y) whModalA11y(document.getElementById('sheet-overlay'), { label: 'Add contact', onClose: closeSheet });
 
     // Label pill selection
     document.querySelectorAll('.label-pill').forEach(pill => {

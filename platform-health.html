@@ -597,7 +597,7 @@
 </div>
 
 <!-- ── Bottom sheet for backlog item detail on mobile ── -->
-<div class="bsheet-overlay" id="bsheet-overlay">
+<div class="bsheet-overlay" id="bsheet-overlay" role="dialog" aria-modal="true" aria-label="Details">
   <div class="bsheet-panel" id="bsheet-panel">
     <div class="bsheet-handle" onclick="closeBSheet()"></div>
     <div class="bsheet-header">
@@ -1017,6 +1017,17 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script src="utils.js"></script>
+<script>
+  // Grounded Sweep C7 retrofit: dialog a11y bar on the bottom-sheet overlay
+  // (role/aria-modal/aria-label on the tag; whModalA11y adds ESC-close + Tab
+  // focus-trap + focus-restore; onClose = the page's closeBSheet so body-overflow
+  // is also restored).
+  document.addEventListener('DOMContentLoaded', function () {
+    if (!window.whModalA11y) return;
+    var el = document.getElementById('bsheet-overlay');
+    if (el) whModalA11y(el, { label: 'Details', onClose: (typeof closeBSheet === 'function' ? closeBSheet : null) });
+  });
+</script>
 <script>
 // ── Platform Admin Gate ──────────────────────────────────────────────────────
 // Async DB check against marketplace_platform_admins. Until verified, the

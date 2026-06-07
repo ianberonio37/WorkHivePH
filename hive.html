@@ -873,7 +873,7 @@
       </div>
 
       <!-- Handover bottom sheet -->
-      <div id="handover-sheet" class="hidden fixed inset-0 z-50 flex items-end" style="background:rgba(0,0,0,0.75);backdrop-filter:blur(6px);">
+      <div id="handover-sheet" role="dialog" aria-modal="true" aria-label="Shift handover" class="hidden fixed inset-0 z-50 flex items-end" style="background:rgba(0,0,0,0.75);backdrop-filter:blur(6px);">
         <div class="sheet-inner w-full max-w-lg mx-auto">
           <div class="px-5 pt-5 pb-4 flex items-center justify-between" style="border-bottom:1px solid rgba(255,255,255,0.07);">
             <div>
@@ -964,7 +964,7 @@
 <div id="hive-toast" class="hidden fixed bottom-6 left-1/2 z-50 px-4 py-3 rounded-xl text-sm font-semibold text-white shadow-xl" style="transform:translateX(-50%); background:rgba(30,44,65,0.97); border:1px solid rgba(255,255,255,0.12); max-width:calc(100vw - 2rem); text-align:center; pointer-events:none;" role="alert" aria-live="polite"></div>
 
 <!-- Hive switcher modal -->
-<div id="modal-hive-switch" class="hidden fixed inset-0 z-50 flex items-end justify-center" style="background:rgba(0,0,0,0.6); backdrop-filter:blur(4px); padding-bottom:env(safe-area-inset-bottom);">
+<div id="modal-hive-switch" role="dialog" aria-modal="true" aria-label="Switch hive" class="hidden fixed inset-0 z-50 flex items-end justify-center" style="background:rgba(0,0,0,0.6); backdrop-filter:blur(4px); padding-bottom:env(safe-area-inset-bottom);">
   <div class="wh-card w-full max-w-lg p-6 mx-4 mb-6">
     <h3 class="text-lg font-black text-white mb-1">Your Hives</h3>
     <p class="text-xs text-white/40 mb-4">Switch between hives or join a new one.</p>
@@ -975,7 +975,7 @@
 </div>
 
 <!-- Supervisor leave modal -->
-<div id="modal-sup-leave" class="hidden fixed inset-0 z-50 flex items-end justify-center" style="background:rgba(0,0,0,0.6); backdrop-filter:blur(4px); padding-bottom:env(safe-area-inset-bottom);">
+<div id="modal-sup-leave" role="dialog" aria-modal="true" aria-label="Leave hive" class="hidden fixed inset-0 z-50 flex items-end justify-center" style="background:rgba(0,0,0,0.6); backdrop-filter:blur(4px); padding-bottom:env(safe-area-inset-bottom);">
   <div class="wh-card w-full max-w-lg p-6 mx-4 mb-6">
     <h3 class="text-lg font-black text-white mb-1">You're the Supervisor</h3>
     <p class="text-xs text-white/50 mb-5 leading-relaxed">Before you leave, you can transfer the supervisor role. Without a supervisor, no one can manage the hive or remove members.</p>
@@ -991,6 +991,19 @@
 <script src="utils.js"></script>
 <script src="wh-capture-validate.js"></script>
 <script src="nav-hub.js"></script>
+<script>
+  // Grounded Sweep C7 retrofit: dialog a11y bar on hive's 3 hand-rolled overlays
+  // (role/aria-modal/aria-label on each tag; whModalA11y adds Tab focus-trap +
+  // focus-restore + ESC-close — ESC clicks the Close control or falls back to the
+  // .hidden toggle these use, matching their existing close behavior).
+  document.addEventListener('DOMContentLoaded', function () {
+    if (!window.whModalA11y) return;
+    ['handover-sheet', 'modal-hive-switch', 'modal-sup-leave'].forEach(function (id) {
+      var el = document.getElementById(id);
+      if (el) whModalA11y(el);
+    });
+  });
+</script>
 <script>
 // ── SUPABASE SETUP ──
 const SUPABASE_URL = 'https://hzyvnjtisfgbksicrouu.supabase.co';

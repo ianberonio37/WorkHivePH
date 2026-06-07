@@ -227,7 +227,7 @@
   </main>
 
   <!-- Checklist review sheet — must be in DOM before the <script> block runs -->
-  <div class="sheet-overlay" id="review-sheet">
+  <div class="sheet-overlay" id="review-sheet" role="dialog" aria-modal="true" aria-label="Review extracted resume">
     <div class="sheet-panel" role="dialog" aria-modal="true" aria-labelledby="review-title">
       <div class="sheet-handle"></div>
       <h2 id="review-title" style="font-size:1rem;font-weight:700;color:#fff;margin-bottom:0.2rem;">Review what we found</h2>
@@ -243,7 +243,7 @@
   </div>
 
   <!-- My Resumes manager (named multiple resumes) -->
-  <div class="sheet-overlay" id="resume-manager">
+  <div class="sheet-overlay" id="resume-manager" role="dialog" aria-modal="true" aria-label="Saved resumes">
     <div class="sheet-panel" role="dialog" aria-modal="true" aria-labelledby="rm-title">
       <div class="sheet-handle"></div>
       <h2 id="rm-title" style="font-size:1rem;font-weight:700;color:#fff;margin-bottom:0.2rem;">📂 My Resumes</h2>

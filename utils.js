@@ -459,8 +459,16 @@ if (typeof window !== 'undefined' && !window.WH_STATUS_ENUMS) {
     function onKey(e) {
       if (e.key === 'Escape') {
         e.stopPropagation();
-        if (typeof opts.onClose === 'function') opts.onClose();
-        else { modalEl.classList.add('hidden'); modalEl.style.display = 'none'; }
+        if (typeof opts.onClose === 'function') { opts.onClose(); return; }
+        // No explicit close fn: click the modal's OWN close control so the page's
+        // real close logic runs (removes .open / adds .hidden / clears state) — no
+        // sticky inline display:none that would break the next open. Fall back to
+        // adding .hidden only if the modal has no close affordance.
+        var closer = null;
+        try { closer = modalEl.querySelector('[data-wh-close],[aria-label="Close" i],.modal-close,.sheet-close'); }
+        catch (_) { /* empty-catch-allow: querySelector case-flag unsupported */ }
+        if (closer) closer.click();
+        else modalEl.classList.add('hidden');
       } else if (e.key === 'Tab') {
         var f = focusables();
         if (!f.length) return;
