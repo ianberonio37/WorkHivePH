@@ -2167,6 +2167,21 @@ VALIDATORS = [
         "skip_if_fast": False,
     },
     {
+        # Step 7 capstone (Companion Stack Battery): the AI sibling of the UFAI
+        # sweep. Keeps companion_battery.js (window.__CSB) + the durable
+        # journey-companion-comprehensive.spec.ts wired, and forward-only
+        # ratchets the rubric's max_major_defects (the capstone's invariant: every
+        # HARD grounded proof — model_chain / agent_memory row / cited[] / no-leak
+        # — passes). Degrade-to-SKIP if the rubric isn't established yet.
+        "id":      "companion-stack",
+        "script":  "validate_companion_stack.py",
+        "args":    [],
+        "label":   "Companion Stack capstone self-coverage (Agent/Memory/RAG/Safety; forward-only on Major grounded defects)",
+        "group":   "Platform",
+        "report":  "companion_stack_report.json",
+        "skip_if_fast": False,
+    },
+    {
         # Grounded Sweep critique C7, promoted to a gate rule: forward-only DEBT
         # ratchet on hand-rolled modal a11y (role="dialog"+aria-modal). Baselines
         # today's debt (modal_a11y_baseline.json) so it doesn't break the gate,

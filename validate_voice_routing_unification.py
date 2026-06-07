@@ -1,12 +1,16 @@
 #!/usr/bin/env python3
 """
-Voice Routing Unification Validator (Phase 0)
+Voice Routing Unification Validator (Phase 0 + Companion Unification Step 4)
 
 Checks that voice-handler.js uses router output as canonical intent source,
 not duplicate _classifyDataIntent regex classifier.
 
 3 Layers:
-  L1: voice-action-router is invoked and result stored in routerData
+  L1: the voice action is routed THROUGH ai-gateway (agent:'voice-action') and
+      the gateway's structured passthrough (route_result) is unwrapped into the
+      canonical `routerData`. (Step 4 — was a direct
+      db.functions.invoke('voice-action-router') call before the front-door
+      convergence; the gateway now owns rate-limit + persona + PII for it.)
   L2: routerData is passed to _converseInline (not just unhandledKind)
   L3: _classifyDataIntent is removed or no longer called in conversational path
 """
@@ -35,22 +39,40 @@ def check_phase_0_unification():
     results = {"pass": 0, "fail": 0}
 
     # ─────────────────────────────────────────────────────────────────────────────
-    # L1: Router is invoked and output is stored
+    # L1: Voice action is routed THROUGH ai-gateway, and the gateway's structured
+    #     passthrough (route_result) is unwrapped into the canonical routerData.
+    #     (Companion Unification Step 4 — was a direct voice-action-router invoke.)
     # ─────────────────────────────────────────────────────────────────────────────
-    print("\n[L1] Router invocation and storage")
-    if "db.functions.invoke('voice-action-router'" in content:
-        print(f"  {GREEN}PASS{RESET} voice-action-router is invoked")
+    print("\n[L1] Voice action routed through ai-gateway")
+    routes_via_gateway = (
+        "db.functions.invoke('ai-gateway'" in content
+        and re.search(r"agent:\s*'voice-action'", content) is not None
+    )
+    if routes_via_gateway:
+        print(f"  {GREEN}PASS{RESET} voice action invoked via ai-gateway (agent:'voice-action')")
         results["pass"] += 1
     else:
-        print(f"  {RED}FAIL{RESET} voice-action-router invocation not found")
+        print(f"  {RED}FAIL{RESET} ai-gateway invocation with agent:'voice-action' not found")
         results["fail"] += 1
 
-    if "const { data: routerData, error: routerErr }" in content:
-        print(f"  {GREEN}PASS{RESET} Router result stored in routerData")
+    # The router's structured payload now arrives under the gateway envelope's
+    # route_result; voice-handler unwraps it into the canonical `routerData`
+    # that the rest of the flow (L2/L3) consumes.
+    if "route_result" in content and "const routerData = gw.route_result" in content:
+        print(f"  {GREEN}PASS{RESET} gateway route_result unwrapped into routerData")
         results["pass"] += 1
     else:
-        print(f"  {RED}FAIL{RESET} Router result not stored in routerData")
+        print(f"  {RED}FAIL{RESET} route_result not unwrapped into routerData")
         results["fail"] += 1
+
+    # The direct voice-action-router invoke must be GONE from the page (the
+    # gateway is now the only path) — guards against a silent re-bypass.
+    if "db.functions.invoke('voice-action-router'" in content:
+        print(f"  {RED}FAIL{RESET} stale direct voice-action-router invoke still present (must route via gateway)")
+        results["fail"] += 1
+    else:
+        print(f"  {GREEN}PASS{RESET} no direct voice-action-router bypass remains")
+        results["pass"] += 1
 
     # ─────────────────────────────────────────────────────────────────────────────
     # L2: Router output is passed to _converseInline (not just unhandledKind)

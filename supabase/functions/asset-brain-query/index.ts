@@ -482,8 +482,14 @@ serve(async (req) => {
 
   try {
     const body = await req.json().catch(() => ({}));
-    const question_raw = String(body.question || "").trim();
-    const asset_id     = String(body.asset_id || "").trim();
+    // Gateway shape adapter: ai-gateway forwards `message` + nests asset_id inside
+    // `context`, while direct asset-hub callers send `question` + top-level
+    // `asset_id`. Accept BOTH so the gateway's 'asset-brain' route works (it was
+    // registered but never functional until this adapter — capstone RAG finding
+    // 2026-06-07). hive_id is forwarded top-level by both.
+    const _ctx = (body.context && typeof body.context === "object") ? body.context : {}; // gateway adapter (capstone RAG fix)
+    const question_raw = String(body.question || body.message || "").trim();
+    const asset_id     = String(body.asset_id || _ctx.asset_id || "").trim();
     const hive_id      = String(body.hive_id || "").trim();
 
     if (!question_raw || !asset_id || !hive_id) {

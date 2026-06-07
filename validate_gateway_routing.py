@@ -57,6 +57,7 @@ EXPECTED_AGENTS = {
     "shift-planner-orchestrator": "shift planning; user-facing",
     "voice-logbook-entry":       "voice -> logbook entry; user-facing",
     "voice-report-intent":       "voice -> report sender; user-facing",
+    "voice-action-router":       "voice/text -> cross-page structured intents; user-facing (Companion Unification Step 4)",
 }
 # Specialists allowed to NOT appear in gateway routes (e.g., cron-only,
 # internal callers, scheduled-agents which is itself an orchestrator).

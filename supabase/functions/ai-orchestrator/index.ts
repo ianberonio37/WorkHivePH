@@ -308,7 +308,7 @@ Rules: name actual machines (use the exact IDs from the data). Be concrete — "
 Urgency levels: TODAY (safety/critical failure risk), THIS WEEK (high risk if ignored), MONITOR (watch closely).
 Respond only in JSON: { "actions": [{ "priority": 1, "action": "...", "machine": "...", "why": "...", "urgency": "TODAY|THIS WEEK|MONITOR" }] }`;
 
-async function orchestrate(question: string, hiveId: string | null, workerName: string | null, db: SupabaseClient, mode = "chat") {
+async function orchestrate(question: string, hiveId: string | null, workerName: string | null, db: SupabaseClient, mode = "chat", memoryBlock = "") {
 
   // Coach mode: always run 4 core agents, skip router
   let agentsToRun: string[];
@@ -372,9 +372,16 @@ async function orchestrate(question: string, hiveId: string | null, workerName: 
     `[${r.agent}]: ${JSON.stringify(r.result)}`
   ).join("\n\n");
 
+  // Conversation memory (working/recent-turns + summary) forwarded by ai-gateway
+  // as `memory`. Inject it so the synthesis honors prior turns — without this the
+  // assistant brain persists every turn (gateway saveTurn) but never RECALLS them
+  // (capstone Memory-pillar finding 2026-06-07: "no reference code to recall").
+  const memoryPrefix = memoryBlock && memoryBlock.trim()
+    ? `Conversation memory (earlier turns with this worker — use it to stay consistent and resolve references like "that machine" / "the code I gave you"):\n${memoryBlock}\n\n`
+    : "";
   const synthPrompt = semanticContext
-    ? `User question: "${question}"\n\nRelevant history from knowledge base:\n${semanticContext}\n\nAgent results:\n${resultsText}`
-    : `User question: "${question}"\n\nAgent results:\n${resultsText}`;
+    ? `${memoryPrefix}User question: "${question}"\n\nRelevant history from knowledge base:\n${semanticContext}\n\nAgent results:\n${resultsText}`
+    : `${memoryPrefix}User question: "${question}"\n\nAgent results:\n${resultsText}`;
 
   // Coach mode: use dedicated synthesis prompt, return action plan
   if (mode === "coach") {
@@ -468,6 +475,10 @@ serve(async (req) => {
     // direct callers send `question`. Accept either so both paths work.
     const question = body.question ?? body.message;
     const { hive_id, mode } = body;
+    // Gateway forwards the worker's recall window as `memory` (loadMemory +
+    // formatMemoryContext). Thread it into synthesis so the assistant brain
+    // honors prior turns (capstone Memory-pillar fix 2026-06-07).
+    const memoryBlock = typeof body.memory === "string" ? body.memory : "";
     let worker_name = body.worker_name;
 
     if (!question) {
@@ -527,7 +538,7 @@ serve(async (req) => {
       }
     }
 
-    const result = await orchestrate(question, hive_id || null, worker_name || null, db, mode || "chat");
+    const result = await orchestrate(question, hive_id || null, worker_name || null, db, mode || "chat", memoryBlock);
 
     return new Response(
       JSON.stringify(result),

@@ -387,6 +387,12 @@ All keyed `${hive_id}:${worker_name}:${auth_uid}:${agent}`, injected by `ai-gate
 
 ## Phase 7 (capstone) — Comprehensive AI Playwright MCP
 
+> ### ✅ BUILT 2026-06-07 — the "Companion Stack Battery" (sibling of the UFAI battery)
+> Shipped (LOCAL/uncommitted-pending-commit): **`companion_battery.js`** (`window.__CSB`, v0.4.0 — boot + `agentStack`/`memoryStack`/`ragStack`/`safety` + `critic` + cache-awareness), **`tests/journey-companion-comprehensive.spec.ts`** (durable driver: rate-limit `beforeAll`, self-skip-till-live, cached-tolerant), **`companion_stack_rubric.json`** (scorecard), **`validate_companion_stack.py`** (G0 `companion-stack`, forward-only on `max_major_defects`, registered in `run_platform_checks.py`). CRITIC candidates flow through the existing `ufai_ingest.py` → `sweep_critiques.json`.
+> **Live-verified via the Playwright MCP** (signed in, hive b0c619…): Agent (tool→`voice-action-router`, fanout→`ai-orchestrator`, model_chain-grounded) · Memory (persist hard-proof + cross-surface identity-keyed; recall soft) · RAG (asset-brain Graph/Hybrid `cited:4` + semantic-search Naive) · Safety (0 leaks) → **verdict major:0**.
+> **3 findings the capstone surfaced + fixed:** ai-orchestrator now honors the gateway-injected memory window (recall); the gateway `asset-brain` route never worked (body-shape) → adapter + `STRUCTURED_PASSTHROUGH_AGENTS` so `cited[]` survives; per-agent memory buckets dispositioned accept-by-design. See [[project_companion_unification]] + ai-engineer "Companion Stack Battery".
+> Note on "all 32 surfaces": the durable spec + battery parametrize by surface; memory/agent behavior is identity+agent-keyed (not page-keyed) so the proven distinct-brain results generalize to the widget surfaces that share the `voice-journal` agent. A literal 32-surface live MCP sweep is rate-limited to a few clean runs per reset — run in waves.
+
 **Goal:** an **AI-driven** Playwright-MCP harness that drives the *real* unified Companion across all 32 surfaces and grades it against the 3 rubrics above with **grounded** assertions (observable side-effects, not vibes). This is the agentic evolution of the per-element Grounded Sweep critic ([[reference_holistic_critic_tooling]]), which is blind to whole-system behavior (it checks tap-targets + modal a11y, not "does the Companion deliver all 7 memory layers?").
 
 **Why capstone, not earlier:** it can only grade the *unified* Companion once Phases 1–5 wire it. Run before, and it merely re-documents the fragmentation already mapped.

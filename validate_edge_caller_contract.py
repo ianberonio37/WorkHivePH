@@ -69,7 +69,7 @@ ORPHAN_OK_FUNCTIONS = {
     "send-report-email":         "Called from report-sender.html via direct fetch (matches FormData/streaming response pattern)",
     "semantic-search":           "Called by ai-orchestrator edge fn via direct fetch (server-to-server RAG path)",
     "voice-transcribe":          "Called by voice-action-router internally",
-    "voice-action-router":       "Called by voice-handler.js via direct fetch (not invoke pattern)",
+    "voice-action-router":       "Called by ai-gateway (server-to-server) via the 'voice-action' route since Companion Unification Step 4; voice-handler.js now invokes ai-gateway, not this fn directly",
     "voice-report-intent":       "Called by voice-handler.js via direct fetch",
     "failure-signature-scan":    "Cron-scheduled detection sweep",
     "parts-staging-recommender": "Cron-scheduled recommender",

@@ -86,6 +86,18 @@
       .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
   }
 
+  // Unwrap an ai-gateway response. The gateway's SUCCESS path returns the
+  // standard envelope { ok:true, data:{...}, trace_id, ... } (see
+  // _shared/envelope.ts), while its error / gibberish-guard paths return a FLAT
+  // { error } / { answer }. Return the inner payload for an enveloped success,
+  // else the body as-is. Without this, callers that read body.answer get
+  // undefined on success and silently fall through (a real bug we hit on the
+  // existing top-level reads). See [[project_companion_unification]].
+  function _unwrapGateway(body) {
+    if (body && body.ok === true && body.data && typeof body.data === 'object') return body.data;
+    return body || {};
+  }
+
   // ─── State ───────────────────────────────────────────────────────────────
   const handlers = {};            // kind -> async fn(intent, asset_resolution)
   let _stream = null;
@@ -570,24 +582,61 @@
       }
       _setTranscript(transcript);
 
-      // Step 2: voice-action-router
+      // Step 2: classify intent through ai-gateway (Companion Unification
+      // Step 4). We route the voice-action-router through the ONE front door
+      // (agent:'voice-action') instead of invoking it directly, so the call
+      // inherits the gateway's unified rate-limit (hive + per-user), persona
+      // resolution, PII redaction/hydration, and memory persistence for free.
+      // The gateway forwards page/asset/persona inside `context` and returns the
+      // router's STRUCTURED payload under `route_result` (see
+      // STRUCTURED_PASSTHROUGH_AGENTS in ai-gateway). db.functions.invoke
+      // auto-attaches the signed-in user's session JWT so the gateway can
+      // resolve the caller. See [[project_companion_unification]].
       _setStatus('Parsing intent...');
       const db = _getDb();
       if (!db) throw new Error('Supabase client not loaded');
-      const { data: routerData, error: routerErr } = await db.functions.invoke('voice-action-router', {
+      const { data: gwEnvelope, error: routerErr } = await db.functions.invoke('ai-gateway', {
         body: {
-          transcript,
+          agent:   'voice-action',
+          message: transcript,
           hive_id: ctx.hive_id,
-          context_page: _currentPage(),
-          context_asset_id: _currentAssetId(),
-          // Persona Contract: ctx.persona drives the narration field's
-          // voice. Gateway-hydrated default is used if absent.
-          persona: (typeof window.getPersona === 'function') ? window.getPersona() : undefined,
+          context: {
+            page:     _currentPage(),
+            asset_id: _currentAssetId(),
+            source:   'voice-handler',
+            // Persona Contract: drives the narration field's voice. The gateway
+            // defaults this to the caller's account persona when absent.
+            persona: (typeof window.getPersona === 'function') ? window.getPersona() : undefined,
+          },
         },
       });
       if (routerErr) throw new Error(routerErr.message || 'Router failed');
-      if (!routerData) throw new Error('Empty router response');
-      if (routerData.error) throw new Error(routerData.error);
+      const gw = _unwrapGateway(gwEnvelope);
+      if (!gw) throw new Error('Empty router response');
+      if (gw.error) throw new Error(gw.error);
+
+      // Gateway short-circuit: a conversational answer with NO structured
+      // route_result means the gateway handled it itself (gibberish guard /
+      // refusal / adaptive cache). Show that reply directly — do not spend a
+      // second AI call re-conversing about an utterance the gateway already
+      // declined to route.
+      if (!gw.route_result && gw.answer) {
+        const intentsEl = document.getElementById('wh-voice-intents');
+        if (intentsEl) intentsEl.innerHTML = '';
+        const cb = document.getElementById('wh-voice-confirm');
+        if (cb) cb.style.display = 'none';
+        _setResult(gw.answer, false);
+        if (typeof window.speakPersona === 'function') window.speakPersona(gw.answer);
+        _setStatus('');
+        return;
+      }
+
+      // route_result carries the router's full structured payload — same shape
+      // the direct call used to return ({ intents, mentioned_assets, narration,
+      // asset_resolution, remaining }), so all downstream code is unchanged.
+      // Mirror the gateway's `answer` into narration when the router omitted it.
+      const routerData = gw.route_result || { intents: [], narration: gw.answer || '' };
+      if (!routerData.narration && gw.answer) routerData.narration = gw.answer;
 
       // hasActionable = there's a structured intent we COULD dispatch
       // (logbook.create, inventory.use, etc.) — but only useful if the
@@ -7729,7 +7778,12 @@
       }, 25000);
       if (!resp)        throw new Error('Network timeout');
       if (!resp.ok)     throw new Error('Gateway error ' + resp.status);
-      const data = await resp.json();
+      // ai-gateway's success path wraps the payload in the standard envelope
+      // ({ ok, data:{answer}, ... }); its error/gibberish paths are flat.
+      // _unwrapGateway returns the inner payload on success so data.answer
+      // resolves — reading the raw body's top-level .answer was undefined on
+      // every successful turn (silent fail-through). See [[project_companion_unification]].
+      const data = _unwrapGateway(await resp.json());
       if (data && data.error) throw new Error(String(data.error));
       const answer = String((data && data.answer) || '').trim();
       if (!answer) {

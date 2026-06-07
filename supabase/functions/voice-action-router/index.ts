@@ -290,10 +290,20 @@ serve(async (req) => {
 
   try {
     const body = await req.json().catch(() => ({}));
-    const transcript_raw = String(body.transcript || "").trim();
+    // The gateway (Companion Unification Step 4) forwards `message` + `transcript`
+    // and nests page/asset/persona inside a `context` object, whereas direct
+    // callers send `transcript` + flat `context_page`/`context_asset_id`/`persona`.
+    // Accept BOTH shapes so this fn works direct AND behind ai-gateway.
+    const ctxObj = (body.context && typeof body.context === "object")
+      ? body.context as Record<string, unknown>
+      : {};
+    const viaGateway = body.gateway === true;
+    const transcript_raw = String(body.transcript || body.message || "").trim();
     const hive_id        = String(body.hive_id || "").trim();
-    const context_page   = body.context_page ? String(body.context_page).trim() : null;
-    const context_asset_id = body.context_asset_id ? String(body.context_asset_id).trim() : null;
+    const context_page   =
+      (body.context_page ? String(body.context_page) : (ctxObj.page ? String(ctxObj.page) : "")).trim() || null;
+    const context_asset_id =
+      (body.context_asset_id ? String(body.context_asset_id) : (ctxObj.asset_id ? String(ctxObj.asset_id) : "")).trim() || null;
 
     if (!transcript_raw) {
       return new Response(
@@ -317,12 +327,21 @@ serve(async (req) => {
     );
 
     // Rate limit gate FIRST. A rejected request must cost zero model tokens.
-    const rl = await checkAIRateLimit(db, hive_id, RATE_LIMIT_PER_HOUR);
-    if (!rl.allowed) {
-      return new Response(
-        JSON.stringify({ error: "AI call limit reached for this hive. Try again in an hour." }),
-        { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } },
-      );
+    // EXCEPTION: when invoked behind ai-gateway (gateway:true), the gateway has
+    // ALREADY gated this call ONCE (hive + per-user). Re-gating here would
+    // double-count the same request against the hive bucket. Skip our own gate
+    // on the gateway path and let the gateway own rate-limiting (Step 4: "inherit
+    // rate-limit for free"). Direct callers still get gated here.
+    let remaining = -1;
+    if (!viaGateway) {
+      const rl = await checkAIRateLimit(db, hive_id, RATE_LIMIT_PER_HOUR);
+      if (!rl.allowed) {
+        return new Response(
+          JSON.stringify({ error: "AI call limit reached for this hive. Try again in an hour." }),
+          { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+        );
+      }
+      remaining = rl.remaining;
     }
 
     // Build the prompt with page/asset context so the model can disambiguate
@@ -338,7 +357,12 @@ serve(async (req) => {
     // Persona Contract: prepend the narrated-specialist block so the
     // model returns its route JSON AND a `narration` field in the
     // chosen persona's voice. One chain call.
-    const personaKey = clampPersona((body as Record<string, unknown>).persona);
+    // Persona may arrive flat (direct caller: body.persona) or nested inside
+    // the gateway's context object (ctxObj.persona, which the gateway defaults to
+    // the caller's account-level preferred_persona). Two-step clamp->build is
+    // required by validate_persona_contract (it does not match a nested call).
+    const personaInput = (body as Record<string, unknown>).persona ?? ctxObj.persona;
+    const personaKey = clampPersona(personaInput);
     const personaBlock = buildPersonaBlock(personaKey, "narrated-specialist");
     const composedSystem = personaBlock + "\n\n" + ROUTER_SYSTEM;
 
@@ -385,7 +409,7 @@ serve(async (req) => {
       intents,
       mentioned_assets: mentioned,
       narration,
-      remaining: rl.remaining,
+      remaining,
     };
 
     if (candidates.length) {

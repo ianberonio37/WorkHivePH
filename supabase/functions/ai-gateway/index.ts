@@ -201,7 +201,32 @@ const AGENT_ROUTES: Record<string, { fn: string; description: string }> = {
     fn: "ai-orchestrator",
     description: "Full multi-agent fan-out (failure/PM/inventory/shift/...) over the worker's own hive data",
   },
+  // Step 4 (Companion Unification) — the cross-page voice/text TOOL router. The
+  // Companion mic/text invokes this through the ONE front door so it inherits
+  // rate-limit + persona + PII for free; the page then applies the returned
+  // structured intents. Unlike the conversational agents above, this specialist
+  // returns STRUCTURED output (intents[] / asset_resolution / narration), so it
+  // is registered in STRUCTURED_PASSTHROUGH_AGENTS below to survive the
+  // gateway's {answer}-only contract. See [[project_companion_unification]].
+  "voice-action": {
+    fn: "voice-action-router",
+    description: "Voice/text -> structured platform intents (logbook.create | inventory.deduct | pm.complete | asset.lookup | query.ask) the page applies",
+  },
 };
+
+// Agents whose UI consumes STRUCTURED output (intents, cards, citations) in
+// ADDITION to prose. For these the gateway is a TOOL front door, not a chat:
+// the conversational `answer` alone is insufficient. We pass the full specialist
+// payload through as `route_result` (PII-hydrated exactly like `answer`) so the
+// page can apply it. See ai-engineer skill: "the gateway's {answer} contract
+// DROPS structured payloads -- only conversational surfaces fold cleanly".
+// "voice-action" (router intents) was the first; "asset-brain" returns
+// { answer, cited[], narration } where `cited[]` is the RAG citation set — the
+// conversational {answer}-only contract would DROP it, so a future asset-hub
+// fold through the gateway would lose source chips (capstone RAG-pillar finding
+// 2026-06-07). Adding it makes the gateway citation-preserving; existing direct
+// asset-hub callers are unaffected (additive).
+const STRUCTURED_PASSTHROUGH_AGENTS: Set<string> = new Set(["voice-action", "asset-brain"]);
 
 interface GatewayRequest {
   agent:    string;
@@ -581,11 +606,16 @@ serve(async (req) => {
   // answer field; fall back to the raw text if shape is unexpected. Also
   // harvest any durable memories the specialist chose to emit (layer 02).
   let answer = agentRespText;
+  let parsedEnvelope: Record<string, unknown> | null = null;
   let specialistMemories: StoreInput[] = [];
   let specialistFollowups: RawFollowup[] = [];
   try {
-    const parsed = JSON.parse(agentRespText);
-    answer = String(parsed.answer ?? parsed.summary ?? parsed.message ?? agentRespText);
+    const parsed = JSON.parse(agentRespText) as Record<string, unknown>;
+    parsedEnvelope = parsed;
+    // `narration` is the conversational surface for narrated-specialist tools
+    // (voice-action-router has no `answer`/`summary`/`message`). Adding it LAST
+    // in the chain is safe for every other agent — answer/summary/message win.
+    answer = String(parsed.answer ?? parsed.summary ?? parsed.message ?? parsed.narration ?? agentRespText);
     // Specialists (or agentic-rag-loop's Checker, when one is in the path) may
     // return `memories: [{memory_type, content, importance?}]`. The shared
     // persistEpisodic clamps/validates/caps — we just pass them through.
@@ -602,6 +632,22 @@ serve(async (req) => {
 
   // Hydrate the answer (substitute placeholders back into real names).
   const hydratedAnswer = hydratePII(answer, hydrationMap);
+
+  // Structured passthrough for TOOL agents (voice-action-router). The default
+  // gateway contract returns `answer` only; a tool whose UI applies structured
+  // intents needs the full specialist payload. We hydrate the WHOLE payload
+  // (stringify -> hydratePII -> parse) so PII placeholders are restored
+  // everywhere in the nested structure, not just in `answer` — the single-string
+  // hydratePII above never reaches `intents[].params` / `narration`. Best-effort:
+  // if re-parse fails we pass the un-hydrated structure rather than drop it.
+  let routeResult: Record<string, unknown> | undefined;
+  if (STRUCTURED_PASSTHROUGH_AGENTS.has(agent) && parsedEnvelope) {
+    try {
+      routeResult = JSON.parse(hydratePII(JSON.stringify(parsedEnvelope), hydrationMap)) as Record<string, unknown>;
+    } catch {
+      routeResult = parsedEnvelope;
+    }
+  }
 
   // Persist the turn (best-effort; failures don't block response).
   // Forward selected context fields into meta so agent_memory can support
@@ -704,6 +750,9 @@ serve(async (req) => {
   return ok(ctx, {
     answer:    hydratedAnswer,
     agent,
+    // Additive: only present for STRUCTURED_PASSTHROUGH_AGENTS. Conversational
+    // callers ignore it; tool callers read it for the structured intents.
+    ...(routeResult ? { route_result: routeResult } : {}),
     usage:     { latency_ms: Date.now() - t0 },
   });
 });

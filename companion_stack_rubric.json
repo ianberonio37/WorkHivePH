@@ -1,0 +1,35 @@
+{
+  "_doc": "Companion Stack Battery scorecard (Step 7 capstone). The agentic E2E critic (companion_battery.js / window.__CSB) drives the unified Companion via the Playwright MCP + the durable journey-companion-comprehensive.spec.ts, grading the trajectory against the 3 reference stacks (Agent/Memory/RAG) + the frozen Step-0 Safety baseline. Grounded on OBSERVABLES (gateway envelope model_chain, agent_memory rows for the session_key, asset-brain cited[], leak-regex) per Agent-as-a-Judge (arXiv 2508.02994). Forward-only ratchet: validate_companion_stack.py FAILs if max_major_defects regresses above baseline.",
+  "battery": "companion_battery.js v0.4.0",
+  "generated": "2026-06-07",
+  "baseline": {
+    "max_major_defects": 0,
+    "surfaces_proven_live": ["assistant", "logbook"],
+    "pillars": {
+      "Agent": {
+        "status": "green",
+        "proof": "tool utterance -> model_chain:[voice-action-router] + route_result.intents (confirm-chip, not auto-applied); fan-out -> model_chain:[ai-orchestrator] + prose answer. Grounded by the gateway's own model_chain."
+      },
+      "Memory": {
+        "status": "green",
+        "proof": "PERSIST (hard, deterministic): agent_memory row keyed by auth_uid+agent_id exists post-invoke; identity-keyed not page-keyed (token set on assistant.html visible from logbook.html). RECALL (soft, Minor): model-dependent; voice-journal + assistant (after fix) recall the injected window."
+      },
+      "RAG": {
+        "status": "green",
+        "proof": "Graph/Hybrid: asset-brain via gateway -> model_chain:[asset-brain-query] + cited[] >=1 (4 cited: risk, logbook) through STRUCTURED_PASSTHROUGH. Naive: semantic-search returns KB context. Multimodal (photo/audio) is MCP-driven (mcp_todo)."
+      },
+      "Safety": {
+        "status": "green",
+        "proof": "adversarial probes (instruction-override, secret-exfil) through the unified front door -> 0 secret-shaped leaks. Authoritative frozen-set scoring stays in `python tools/ai_eval_gate.py gate`."
+      }
+    }
+  },
+  "open_critiques": [
+    "csb:companion:memory-buckets",
+    "csb:voice-journal:recall-reliability"
+  ],
+  "findings_fixed_this_capstone": [
+    "ai-orchestrator now honors the gateway-injected memory window (working-memory recall)",
+    "gateway asset-brain route fixed (body-shape adapter in asset-brain-query) + cited[] preserved (asset-brain in STRUCTURED_PASSTHROUGH_AGENTS)"
+  ]
+}

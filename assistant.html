@@ -873,7 +873,17 @@ happens to know maintenance, not a manual.`;
           // personal assistant rather than hang behind the gateway's own 60s
           // downstream budget.
           const orchData = await Promise.race([
-            gwInvoke.then(r => (r && !r.error ? r.data : null)).catch(() => null),
+            gwInvoke.then(r => {
+              if (!r || r.error || !r.data) return null;
+              // ai-gateway's success path wraps the payload in the standard
+              // envelope ({ ok, data:{answer}, ... }); its error/gibberish paths
+              // are flat. Unwrap so .answer resolves — reading r.data.answer
+              // (top-level) was undefined on every successful turn, silently
+              // falling through to the personal-assistant fallback below and
+              // never surfacing the team-intelligence answer. (Phase 2 gap.)
+              const env = r.data;
+              return (env.ok === true && env.data && typeof env.data === 'object') ? env.data : env;
+            }).catch(() => null),
             new Promise(resolve => setTimeout(() => resolve(null), 25000)),
           ]);
           if (orchData && orchData.answer && !orchData.error) reply = orchData.answer;

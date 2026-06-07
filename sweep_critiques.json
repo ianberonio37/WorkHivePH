@@ -1,6 +1,6 @@
 {
   "_README": "Machine feed of Grounded MCP Sweep harsh-critic recs (human-readable mirror: SWEEP_CRITIQUE_QUEUE.md). flywheel_orchestrator.py reads this and surfaces undispositioned entries in promotion_queue.md as an exploratory candidate class — so sweep findings flow through the SAME engine + disposition mechanism as the substrate miner. NOT recurrence-gated (a deliberate human critique is valid the first time it's raised). Dispose via promotion_dispositions.json using each entry's `key`.",
-  "generated": "2026-06-07T07:02:34.452735+00:00",
+  "generated": "2026-06-07T09:19:07.734798+00:00",
   "critiques": [
     {
       "key": "sweep:index:whshell-seam",
@@ -331,6 +331,28 @@
       "effort": "M",
       "flag": "DEFECT",
       "should_be": "CLS measured 0.08-0.13 on index home-dashboard (KPI tiles+alert) and inventory (27-row list) because content renders after the data fetch with no reserved space. Give list/tile containers a min-height / skeleton so the page doesn't reflow on data arrival. Generalizes sweep:index-dashboard:cls-tile-popin to the list pages. Timing-sensitive on local Flask -> confirm vs production-like load."
+    },
+    {
+      "key": "csb:companion:memory-buckets",
+      "page": "companion",
+      "wave": 1,
+      "title": "4 agent memory buckets behind one Companion face (assistant, voice-action, asset-brain, voice-journal)",
+      "pillar": "Memory",
+      "severity": "Minor",
+      "effort": "L",
+      "flag": "TASTE",
+      "should_be": "Memory is keyed per-agent (session_key includes :agent), so a fact told to one agent (e.g. assistant) does NOT surface when the worker chats with another (e.g. the voice-journal widget). This is intentional routing isolation, but to the user it is ONE face. Decide: accept (document the boundary) OR add a cross-agent shared-recall layer (episodic) so the Companion feels like one memory. Agent-as-a-Judge: grounded in the live bucketAgents observation, not a guess."
+    },
+    {
+      "key": "csb:voice-journal:recall-reliability",
+      "page": "companion",
+      "wave": 1,
+      "title": "voice-journal persisted the turn but did not recall it this run",
+      "pillar": "Memory",
+      "severity": "Minor",
+      "effort": "M",
+      "flag": "CONTENT",
+      "should_be": "The gateway persists + injects the recall window, but free-tier 8B recall is probabilistic for this agent. If reliable recall matters here, pin a stronger model for the synthesis turn or add an explicit memory section the prompt MUST quote. Track recall pass-rate across runs before acting."
     }
   ]
 }
