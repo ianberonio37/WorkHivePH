@@ -74,7 +74,7 @@ async function checkSupervisor(
   // Membership check via service-role bypass of RLS.
   const { data: member, error: memErr } = await db
     .from("v_worker_truth")
-    .select("role, status")
+    .select("role, hive_status")
     .eq("hive_id", hive_id)
     .eq("auth_uid", auth_uid)
     .maybeSingle();
@@ -84,7 +84,7 @@ async function checkSupervisor(
   if (!member) {
     return { ok: false, reason: "Caller is not a member of this hive" };
   }
-  if (member.status !== "active" || member.role !== "supervisor") {
+  if (member.hive_status !== "active" || member.role !== "supervisor") {
     return { ok: false, reason: "PDPA right-to-access requires active supervisor role" };
   }
   return { ok: true, auth_uid };

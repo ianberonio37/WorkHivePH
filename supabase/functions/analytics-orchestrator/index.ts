@@ -685,7 +685,7 @@ serve(async (req) => {
         // Canonical membership read via v_worker_truth (same source as
         // export-hive-data's checkSupervisor) — active member of this hive.
         const { data: _mem } = await db.from("v_worker_truth")
-          .select("status").eq("hive_id", hive_id).eq("auth_uid", _uid).eq("status", "active").maybeSingle();
+          .select("hive_status").eq("hive_id", hive_id).eq("auth_uid", _uid).eq("hive_status", "active").maybeSingle();
         if (!_mem) {
           return new Response(
             JSON.stringify({ error: "Caller is not an active member of this hive" }),
@@ -784,7 +784,7 @@ serve(async (req) => {
         let hiveMembers: string[] = [];
         if (hive_id) {
           const { data: members } = await db.from("v_worker_truth")
-            .select("worker_name").eq("hive_id", hive_id).eq("status", "active");
+            .select("worker_name").eq("hive_id", hive_id).eq("hive_status", "active");
           hiveMembers = (members || []).map((m: Record<string, string>) => m.worker_name).filter(Boolean);
         } else if (worker_name) {
           hiveMembers = [worker_name];
@@ -884,7 +884,7 @@ serve(async (req) => {
       let hiveMembers: string[] = [];
       if (hive_id) {
         const { data: members } = await db.from("v_worker_truth")
-          .select("worker_name").eq("hive_id", hive_id).eq("status", "active");
+          .select("worker_name").eq("hive_id", hive_id).eq("hive_status", "active");
         hiveMembers = (members || []).map((m: Record<string, string>) => m.worker_name).filter(Boolean);
       } else if (worker_name) {
         hiveMembers = [worker_name];

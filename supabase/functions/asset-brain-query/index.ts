@@ -512,8 +512,8 @@ serve(async (req) => {
         return jsonResponse({ error: "Authentication required" }, 401, corsHeaders);
       }
       const { data: _mem } = await db.from("v_worker_truth")
-        .select("status").eq("hive_id", hive_id).eq("auth_uid", _caller.id)
-        .eq("status", "active").maybeSingle();
+        .select("hive_status").eq("hive_id", hive_id).eq("auth_uid", _caller.id)
+        .eq("hive_status", "active").maybeSingle();
       if (!_mem) {
         return jsonResponse({ error: "Caller is not an active member of this hive" }, 403, corsHeaders);
       }
