@@ -121,6 +121,10 @@
   // ─── State ────────────────────────────────────────────────────────────────────
   let isOpen    = false;
   let isTyping  = false;
+  // Step 6 (proactive companion): DUE follow-ups pulled from the prospective
+  // memory queue (agent_followups, layer 06) on init. When non-empty the
+  // trigger wears a count badge and the panel greets with them on open.
+  let _proactiveNudges = [];  // [{ id, topic, detail }]
   // Phase Tier3.4 (2026-05-12): cross-page memory.
   // The widget now loads a global history key by default so conversations
   // started on one page carry forward to the next. Pages that call
@@ -235,6 +239,37 @@
           50%       { box-shadow: 0 4px 20px rgba(247,162,27,0.45), 0 0 0 10px rgba(247,162,27,0); }
         }
         #wh-ai-trigger svg { pointer-events: none; }
+
+        /* ── Proactive nudge badge (Step 6: proactive companion) ──
+           Painted when the worker has DUE follow-ups in agent_followups
+           (prospective memory, layer 06). Count badge top-right of the
+           avatar; a stronger attention pulse distinguishes "I have
+           something for you" from the idle ambient pulse. */
+        #wh-ai-nudge-badge {
+          position: absolute;
+          top: -2px;
+          right: -2px;
+          min-width: 18px;
+          height: 18px;
+          padding: 0 5px;
+          border-radius: 9px;
+          background: #E5484D;
+          color: #fff;
+          font-size: 11px;
+          font-weight: 700;
+          line-height: 18px;
+          text-align: center;
+          box-shadow: 0 0 0 2px #162032;
+          pointer-events: none;
+          display: none; /* shown only when there are due nudges */
+        }
+        #wh-ai-trigger.wh-has-nudge {
+          animation: wh-nudge-pulse 1.6s ease-in-out infinite;
+        }
+        @keyframes wh-nudge-pulse {
+          0%, 100% { box-shadow: 0 4px 20px rgba(229,72,77,0.5), 0 0 0 0 rgba(229,72,77,0.4); }
+          50%       { box-shadow: 0 4px 20px rgba(229,72,77,0.5), 0 0 0 12px rgba(229,72,77,0); }
+        }
 
         /* ── Tooltip ── */
         #wh-ai-tooltip {
@@ -485,6 +520,7 @@
       <button id="wh-ai-trigger" aria-label="Open companion">
         <span id="wh-ai-tooltip">Talk to your companion</span>
         <span id="wh-ai-trigger-avatar" style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;"></span>
+        <span id="wh-ai-nudge-badge" aria-hidden="true"></span>
       </button>
 
       <!-- Chat Panel -->
@@ -813,15 +849,115 @@ happens to know maintenance, not a manual.`;
     }
   }
 
+  // ─── Proactive companion (Step 6) ─────────────────────────────────────────────
+  // The prospective memory layer (agent_followups) was built + recalled-on-chat,
+  // but never surfaced UNLESS the worker happened to start a conversation. This
+  // closes the "⚪ unsurfaced" gap: on page load we PEEK the worker's own DUE
+  // follow-ups via the followups_read RLS policy (membership-gated; the migration
+  // built it "for any future client surface") and nudge them WITHOUT an LLM call.
+  //
+  // Dedup is client-side (wh_followup_seen) so a nudge shown once doesn't nag on
+  // every page load; durable server-side resolution still happens through the
+  // existing gateway recall (which flips status -> 'surfaced') the next time the
+  // worker actually converses with a follow-up agent. Best-effort throughout:
+  // any miss leaves the widget exactly as it was before.
+  const SEEN_KEY = 'wh_followup_seen';
+  const MAX_SEEN = 100;
+
+  function _seenFollowupIds() {
+    try { return JSON.parse(/* storage-key-allow: proactive follow-up dedup, id list */ localStorage.getItem(SEEN_KEY) || '[]'); }
+    catch { return []; }
+  }
+  function _markFollowupsSeen(ids) {
+    try {
+      const merged = Array.from(new Set([..._seenFollowupIds(), ...ids])).slice(-MAX_SEEN);
+      localStorage.setItem(SEEN_KEY, JSON.stringify(merged));
+    } catch { /* empty-catch-allow: best-effort silent swallow */ }
+  }
+
+  function _paintNudgeBadge() {
+    const badge   = document.getElementById('wh-ai-nudge-badge');
+    const trigger = document.getElementById('wh-ai-trigger');
+    if (!badge || !trigger) return;
+    const n = _proactiveNudges.length;
+    if (n > 0) {
+      badge.textContent = String(n > 9 ? '9+' : n);
+      badge.style.display = 'block';
+      trigger.classList.add('wh-has-nudge');
+    } else {
+      badge.style.display = 'none';
+      trigger.classList.remove('wh-has-nudge');
+    }
+  }
+
+  // Peek the worker's own DUE follow-ups (pending + due_at <= now). Read-only —
+  // does NOT mark them surfaced (a peek, not a consume), so an ignored nudge is
+  // not lost. Requires the page Supabase client + a hive + a resolved identity.
+  async function checkProactive() {
+    try {
+      const db = (typeof window !== 'undefined') ? window.WH_DB : null;
+      if (!db || !db.from) return;
+
+      const hiveId = (typeof window !== 'undefined' && window.localStorage)
+        ? (localStorage.getItem('wh_active_hive_id') || localStorage.getItem('wh_hive_id') || null)
+        : null;
+      if (!hiveId) return; // follow-ups surfaced client-side are hive-scoped (RLS needs hive membership)
+
+      const workerName = (typeof window.restoreIdentityFromSession === 'function')
+        ? await window.restoreIdentityFromSession(db)
+        : (localStorage.getItem('wh_last_worker') || '');
+      if (!workerName) return;
+
+      // canonical-allow: agent-infra prospective queue (agent_followups); no v_*_truth
+      // canonical view exists for it. Bounded (.limit) and personally scoped.
+      const { data, error } = await db.from('agent_followups')
+        .select('id, topic, detail, due_at')
+        .eq('hive_id', hiveId)
+        .eq('worker_name', workerName)
+        .eq('status', 'pending')
+        .lte('due_at', new Date().toISOString())
+        .order('due_at', { ascending: true })
+        .limit(5);
+      if (error || !Array.isArray(data) || !data.length) return;
+
+      const seen = new Set(_seenFollowupIds());
+      _proactiveNudges = data
+        .filter(r => r && r.id && !seen.has(r.id))
+        .map(r => ({ id: r.id, topic: String(r.topic || '').trim(), detail: String(r.detail || '').trim() }))
+        .filter(n => n.topic);
+      _paintNudgeBadge();
+    } catch (_) { /* empty-catch-allow: proactive surfacing is best-effort */ }
+  }
+
+  // Render the due follow-ups as a proactive greeting, then mark them seen so
+  // they don't re-nag. Templated (no LLM call, $0) — the real conversation runs
+  // through the gateway when the worker replies. Content is escaped by
+  // renderMarkdown inside addMessage, so DB text can't inject HTML.
+  function renderProactiveGreeting() {
+    if (!_proactiveNudges.length) return false;
+    const lines = _proactiveNudges
+      .map(n => n.detail ? `- **${n.topic}**: ${n.detail}` : `- **${n.topic}**`)
+      .join('\n');
+    addMessage('assistant',
+      `Hey, before anything. You asked me to check back on ${_proactiveNudges.length === 1 ? 'this' : 'a few things'}:\n\n${lines}\n\nStill relevant? Tell me where you're at and I'll pick it up.`);
+    _markFollowupsSeen(_proactiveNudges.map(n => n.id));
+    _proactiveNudges = [];
+    _paintNudgeBadge();
+    return true;
+  }
+
   // ─── Panel Toggle ─────────────────────────────────────────────────────────────
   function openPanel() {
     isOpen = true;
     document.getElementById('wh-ai-panel').classList.add('open');
 
-    // Show greeting on first open
+    // Show greeting on first open. A pending proactive nudge takes priority over
+    // the generic page greeting — that's the whole point of the proactive layer.
     const msgs = document.getElementById('wh-ai-messages');
     if (msgs.children.length === 0) {
-      addMessage('assistant', `Hi! I'm WorkHive AI. You're on the **${ctx.label}** page. ${ctx.hint} What do you need?`);
+      if (!renderProactiveGreeting()) {
+        addMessage('assistant', `Hi! I'm WorkHive AI. You're on the **${ctx.label}** page. ${ctx.hint} What do you need?`);
+      }
     }
     setTimeout(() => document.getElementById('wh-ai-input').focus(), 250);
   }
@@ -1042,6 +1178,11 @@ happens to know maintenance, not a manual.`;
     // Companion Streamline: repaint the persona avatar after a same-tab
     // persona flip (the storage event only fires for OTHER tabs).
     refreshPersona: renderPersonaAvatars,
+    // Step 6 (proactive companion): re-peek the prospective follow-up queue
+    // on demand (e.g. after a page action that may have enqueued one), and
+    // read the current due nudges (used by the comprehensive journey spec).
+    checkProactive: checkProactive,
+    getProactiveNudges: function () { return _proactiveNudges.slice(); },
   };
 
   // ─── Init ─────────────────────────────────────────────────────────────────────
@@ -1066,6 +1207,9 @@ happens to know maintenance, not a manual.`;
     }
     loadSavedPosition();
     wireEvents();
+    // Step 6: peek the prospective queue for DUE follow-ups and badge them.
+    // Deferred a tick so the page's Supabase client + identity have settled.
+    setTimeout(checkProactive, 1200);
   }
 
   if (document.readyState === 'loading') {

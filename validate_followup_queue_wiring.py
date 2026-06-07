@@ -15,6 +15,8 @@ semantic-fact/skill-library wiring. Forward-only: baseline 0 issues.
   W04  enqueue caps the batch + enforces a per-worker pending cap + validates via normalizeFollowup
   W05  ai-gateway imports the queue, declares FOLLOWUP_AGENTS, surfaces due items + enqueues envelope followups
   W06  matcher is scope-guarded + bounded (clampDueDays window; [] on no-scope)
+  W07  companion-launcher PROACTIVELY surfaces due follow-ups (Step 6): client peek
+       via the followups_read RLS policy, scoped + bounded, deduped, badge-painted
 """
 from __future__ import annotations
 import os, sys, glob
@@ -25,9 +27,10 @@ if sys.platform == "win32":
 
 from validator_utils import read_file, format_result
 
-MODULE  = os.path.join("supabase", "functions", "_shared", "followups.ts")
-GATEWAY = os.path.join("supabase", "functions", "ai-gateway", "index.ts")
-MIG_DIR = os.path.join("supabase", "migrations")
+MODULE   = os.path.join("supabase", "functions", "_shared", "followups.ts")
+GATEWAY  = os.path.join("supabase", "functions", "ai-gateway", "index.ts")
+LAUNCHER = "companion-launcher.js"   # Step 6: the proactive client surface
+MIG_DIR  = os.path.join("supabase", "migrations")
 
 
 def _flat(s: str) -> str: return s.replace(" ", "").replace("\n", "")
@@ -135,6 +138,43 @@ def check_bounded(src: str) -> list[dict]:
     return issues
 
 
+def check_proactive() -> list[dict]:
+    """
+    W07 — Step 6 proactive surfacing. The companion launcher must PEEK the
+    worker's own due follow-ups on load and badge them, so the prospective
+    layer is no longer "built but unsurfaced". The peek is a client read via
+    the followups_read RLS policy: it must be (a) scoped to the worker, (b)
+    due-filtered, (c) bounded, (d) deduped (so it doesn't nag every load), and
+    (e) painted onto a visible nudge surface. It must NOT mark rows surfaced
+    (a peek, not a consume — an ignored nudge must not be silently lost).
+    """
+    if not os.path.isfile(LAUNCHER):
+        return [{"check": "proactive", "reason": f"{LAUNCHER} not found"}]
+    src  = read_file(LAUNCHER) or ""
+    flat = _flat(src)
+    issues = []
+    if 'agent_followups' not in src:
+        issues.append({"check": "proactive", "reason": "companion-launcher must read agent_followups (the prospective queue)"})
+    if '.eq("status","pending")' not in flat and ".eq('status','pending')" not in flat:
+        issues.append({"check": "proactive", "reason": "proactive peek must filter status='pending'"})
+    if '.lte("due_at"' not in flat and ".lte('due_at'" not in flat:
+        issues.append({"check": "proactive", "reason": "proactive peek must be due-filtered (.lte(due_at, now))"})
+    if '.eq("worker_name"' not in flat and ".eq('worker_name'" not in flat:
+        issues.append({"check": "proactive", "reason": "proactive peek must be scoped to the worker (.eq(worker_name, ...))"})
+    if ".limit(" not in flat:
+        issues.append({"check": "proactive", "reason": "proactive peek must be bounded with .limit(...)"})
+    if "wh_followup_seen" not in src:
+        issues.append({"check": "proactive", "reason": "proactive surface must dedup shown nudges (wh_followup_seen) so it doesn't nag every load"})
+    if "wh-ai-nudge-badge" not in src:
+        issues.append({"check": "proactive", "reason": "proactive surface must paint a visible nudge badge (#wh-ai-nudge-badge)"})
+    # Peek, not consume: the client read must NOT flip rows to 'surfaced'
+    # (that is the gateway's job on a real conversation; a badge read that
+    # consumed would lose an ignored nudge).
+    if 'status:"surfaced"' in flat or "status:'surfaced'" in flat or '.update(' in flat:
+        issues.append({"check": "proactive", "reason": "proactive peek must be read-only (do not mark rows surfaced / .update from the client)"})
+    return issues
+
+
 CHECKS = [
     ("module",    "W01 followups.ts exists + exports enqueue/recall/format/normalize", check_module),
     ("migration", "W02 agent_followups migration + non-open RLS",                      check_migration),
@@ -142,6 +182,7 @@ CHECKS = [
     ("enqueue",   "W04 enqueue batch + pending caps + validation",                     lambda: check_enqueue(read_file(MODULE) or "")),
     ("gateway",   "W05 ai-gateway surfaces due + enqueues envelope followups",          check_gateway),
     ("bounded",   "W06 scope-guarded + due-window bounded",                            lambda: check_bounded(read_file(MODULE) or "")),
+    ("proactive", "W07 companion-launcher proactively surfaces due follow-ups",         check_proactive),
 ]
 
 
