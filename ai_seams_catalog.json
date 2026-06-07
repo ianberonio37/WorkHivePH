@@ -2,7 +2,7 @@
   "_meta": {
     "format_version": "1.0",
     "description": "C4 Phase 1 \u2014 AI seams catalog. SaaS\u2192AI / AI\u2192AI / AI\u2192tenant / AI\u2192quota call sites. Consumed by Phase 2a (seam contract tests), Phase 2b (meta-gate composition), and `validate_ai_seams_inventory.py` (forward-only ratchet).",
-    "generated_at": "2026-06-06T23:37:24Z",
+    "generated_at": "2026-06-07T00:28:38Z",
     "seam_count": 118,
     "by_kind": {
       "saas\u2192ai": 15,
@@ -538,7 +538,7 @@
       "caller": "analytics-orchestrator",
       "callee": "v_inventory_items_truth",
       "file": "supabase/functions/analytics-orchestrator/index.ts",
-      "line": 252,
+      "line": 266,
       "evidence": "const invQ = db.from(\"v_inventory_items_truth\")",
       "contract_test": null
     },
@@ -548,7 +548,7 @@
       "caller": "analytics-orchestrator",
       "callee": "v_inventory_transactions_truth",
       "file": "supabase/functions/analytics-orchestrator/index.ts",
-      "line": 145,
+      "line": 159,
       "evidence": "const txnQ = db.from(\"v_inventory_transactions_truth\")",
       "contract_test": null
     },
@@ -558,7 +558,7 @@
       "caller": "analytics-orchestrator",
       "callee": "v_logbook_truth",
       "file": "supabase/functions/analytics-orchestrator/index.ts",
-      "line": 133,
+      "line": 147,
       "evidence": "const oeeQ = db.from(\"v_logbook_truth\")     // canonical: logbook_truth",
       "contract_test": null
     },
@@ -568,7 +568,7 @@
       "caller": "analytics-orchestrator",
       "callee": "v_pm_compliance_truth",
       "file": "supabase/functions/analytics-orchestrator/index.ts",
-      "line": 104,
+      "line": 118,
       "evidence": "const { data } = await db.from(\"v_pm_compliance_truth\")",
       "contract_test": null
     },
@@ -578,7 +578,7 @@
       "caller": "analytics-orchestrator",
       "callee": "v_pm_scope_items_truth",
       "file": "supabase/functions/analytics-orchestrator/index.ts",
-      "line": 129,
+      "line": 143,
       "evidence": "const scopeQ = db.from(\"v_pm_scope_items_truth\").select(\"id, asset_id, frequency, item_text\");   // canonical",
       "contract_test": null
     },
@@ -588,7 +588,7 @@
       "caller": "analytics-orchestrator",
       "callee": "v_risk_truth",
       "file": "supabase/functions/analytics-orchestrator/index.ts",
-      "line": 336,
+      "line": 350,
       "evidence": "const { data } = await db.from(\"v_risk_truth\")",
       "contract_test": null
     },
@@ -598,7 +598,7 @@
       "caller": "analytics-orchestrator",
       "callee": "v_worker_skill_truth",
       "file": "supabase/functions/analytics-orchestrator/index.ts",
-      "line": 216,
+      "line": 230,
       "evidence": "const badgesQ = db.from(\"v_worker_skill_truth\")    // canonical: worker_skill_truth",
       "contract_test": null
     },
@@ -1098,7 +1098,7 @@
       "caller": "analytics.html",
       "callee": "analytics-orchestrator",
       "file": "analytics.html",
-      "line": 742,
+      "line": 747,
       "evidence": "const res = await fetch(`${SUPABASE_URL}/functions/v1/analytics-orchestrator`, {",
       "contract_test": null
     },

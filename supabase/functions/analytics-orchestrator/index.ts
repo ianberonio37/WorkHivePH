@@ -63,6 +63,20 @@ async function deriveWorkerFromJWT(
   }
 }
 
+// AuthZ helper (2026-06-07 cross-hive fix): resolve the caller's auth.uid from
+// the forwarded JWT. `db` is the service-role client, but getUser introspects
+// the passed token (same pattern as export-hive-data's checkSupervisor).
+// Returns null for the anon key / no session / invalid or expired token.
+async function resolveUserId(db: SupabaseClient, jwt: string): Promise<string | null> {
+  if (!jwt) return null;
+  try {
+    const { data: { user } } = await db.auth.getUser(jwt);
+    return user?.id || null;
+  } catch {
+    return null;
+  }
+}
+
 function dynLimit(periodDays: number, maxPerDay: number, hardCap = 5000): number {
   return Math.min(hardCap, Math.max(200, periodDays * maxPerDay));
 }
@@ -630,7 +644,7 @@ serve(async (req) => {
   if (healthResp) return healthResp;
 
   try {
-    const { phase, hive_id, worker_name, period_days, criticality, discipline } = await req.json();
+    let { phase, hive_id, worker_name, period_days, criticality, discipline } = await req.json();
 
     if (!phase) {
       return new Response(
@@ -643,6 +657,57 @@ serve(async (req) => {
       Deno.env.get("SUPABASE_URL")!,
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
     );
+
+    // ── AuthZ (2026-06-07 cross-hive fix) ─────────────────────────────────────
+    // This fn is verify_jwt=false and reads tenant data with the SERVICE ROLE
+    // (bypasses RLS), so it MUST re-authenticate the caller — otherwise anyone
+    // could POST a foreign hive_id and read that hive's analytics. Three cases:
+    //   - service_role bearer (trusted server-to-server, e.g. ai-gateway fallback)
+    //     -> allow.
+    //   - valid user JWT + hive_id -> require ACTIVE membership of that hive.
+    //   - valid user JWT + no hive (solo) -> derive the caller's own worker_name
+    //     from worker_profiles; never trust a client-supplied worker_name for a
+    //     cross-user read.
+    //   - no resolvable user (anon key / no session) -> 401.
+    const _authHeader = req.headers.get("authorization") || req.headers.get("Authorization") || "";
+    const _bearer = _authHeader.toLowerCase().startsWith("bearer ") ? _authHeader.slice(7).trim() : "";
+    const _serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
+    const _isServiceRole = Boolean(_bearer) && Boolean(_serviceKey) && _bearer === _serviceKey;
+    if (!_isServiceRole) {
+      const _uid = await resolveUserId(db, _bearer);
+      if (!_uid) {
+        return new Response(
+          JSON.stringify({ error: "Authentication required" }),
+          { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+      if (hive_id) {
+        // Canonical membership read via v_worker_truth (same source as
+        // export-hive-data's checkSupervisor) — active member of this hive.
+        const { data: _mem } = await db.from("v_worker_truth")
+          .select("status").eq("hive_id", hive_id).eq("auth_uid", _uid).eq("status", "active").maybeSingle();
+        if (!_mem) {
+          return new Response(
+            JSON.stringify({ error: "Caller is not an active member of this hive" }),
+            { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          );
+        }
+      } else {
+        // canonical-allow: solo mode (no hive_id) cannot use the hive-scoped
+        // v_worker_truth — a hiveless user has no row there. worker_profiles is
+        // the identity anchor for EVERY user, so it is the only source that can
+        // resolve a solo caller's own display_name.
+        const { data: _prof } = await db.from("worker_profiles")
+          .select("display_name").eq("auth_uid", _uid).maybeSingle();
+        if (!_prof?.display_name) {
+          return new Response(
+            JSON.stringify({ error: "No worker profile for caller" }),
+            { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          );
+        }
+        worker_name = _prof.display_name; // override client value — own data only
+      }
+    }
 
     // Rate-gate FIRST per ai-engineer skill — analytics report path triggers
     // a Groq synthesis call; without the gate a button-mash burns budget.

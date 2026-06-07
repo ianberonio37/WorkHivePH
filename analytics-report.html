@@ -592,12 +592,16 @@
         worker_name: WORKER_NAME,
         period_days: _period,
       };
+      // Cross-hive fix (2026-06-07): forward the USER's session JWT (not the anon
+      // key) so the orchestrator's hive-membership check passes for members.
+      var _sessRes = await db.auth.getSession();
+      var _tok = (_sessRes && _sessRes.data && _sessRes.data.session && _sessRes.data.session.access_token) || SUPABASE_KEY;
       var res = await fetch(url, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'apikey': SUPABASE_KEY,
-          'Authorization': 'Bearer ' + SUPABASE_KEY,
+          'Authorization': 'Bearer ' + _tok,
         },
         body: JSON.stringify(body),
       });
