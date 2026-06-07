@@ -86,10 +86,10 @@ async function deriveWorkerFromJWT(
     if (!user) return null;
     const { data: profile } = await adminClient
       .from("v_worker_truth")
-      .select("display_name")
+      .select("worker_name")
       .eq("auth_uid", user.id)
       .maybeSingle();
-    return profile?.display_name || user.email || null;
+    return profile?.worker_name || user.email || null;
   } catch {
     return null;
   }

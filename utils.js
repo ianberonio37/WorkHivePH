@@ -714,10 +714,10 @@ async function restoreIdentityFromSession(db) {
     const { data: { session } } = await db.auth.getSession();
     if (!session) return '';
     const { data: profile } = await db.from('v_worker_truth')
-      .select('display_name').eq('auth_uid', session.user.id).maybeSingle();
-    if (profile?.display_name) {
-      localStorage.setItem('wh_last_worker', profile.display_name);
-      return profile.display_name;
+      .select('worker_name').eq('auth_uid', session.user.id).maybeSingle();
+    if (profile?.worker_name) {
+      localStorage.setItem('wh_last_worker', profile.worker_name);
+      return profile.worker_name;
     }
   } catch (_) { /* empty-catch-allow: best-effort silent swallow */ }
   return '';
@@ -803,10 +803,10 @@ async function isPlatformAdmin(db) {
     const { data: { session } } = await db.auth.getSession();
     if (!session) return false;
     const { data: profile } = await db.from('v_worker_truth')
-      .select('display_name').eq('auth_uid', session.user.id).maybeSingle();
-    if (!profile || !profile.display_name) return false;
+      .select('worker_name').eq('auth_uid', session.user.id).maybeSingle();
+    if (!profile || !profile.worker_name) return false;
     const { data: admin } = await db.from('marketplace_platform_admins')
-      .select('worker_name').eq('worker_name', profile.display_name).maybeSingle();
+      .select('worker_name').eq('worker_name', profile.worker_name).maybeSingle();
     return !!admin;
   } catch (_) { return false; }
 }

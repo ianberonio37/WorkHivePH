@@ -90,6 +90,11 @@ SERVER_PERSONA_ADOPTION = {
     "visual-defect-capture":  "narrated-specialist",
     "voice-action-router":    "narrated-specialist",
     "asset-brain-query":      "narrated-specialist",
+    # 2026-06-07 Phase 5 persona pass: the two JSON specialists now emit a
+    # `narration` field in the worker's voice (additive; their output
+    # contracts set no additionalProperties:false). See WORKHIVE_PERSONA_CONTRACT.md.
+    "analytics-orchestrator": "narrated-specialist",
+    "project-orchestrator":   "narrated-specialist",
     "amc-orchestrator":       "briefing-signature",
 }
 

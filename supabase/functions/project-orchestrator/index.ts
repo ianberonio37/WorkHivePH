@@ -32,6 +32,10 @@ import { beginRequest, ok, fail, recordModelHop } from "../_shared/envelope.ts";
 // contract-allow: project write coordinator
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { callAI } from '../_shared/ai-chain.ts';
+// Persona Contract: narrated-specialist mode — each AI phase (narrative,
+// intent, lessons) gains a `narration` field in the worker's persona voice.
+// See WORKHIVE_PERSONA_CONTRACT.md.
+import { clampPersona, buildPersonaBlock } from '../_shared/persona.ts';
 import { loadMemory, saveTurn, formatMemoryContext } from "../_shared/memory.ts";
 import { logAICost, estimateTokens } from "../_shared/cost-log.ts";
 import { checkAIRateLimit, rateLimitedResponse } from '../_shared/rate-limit.ts';
@@ -70,6 +74,7 @@ async function runNarrative(
   db: ReturnType<typeof createClient>,
   project_id: string,
   hive_id: string,
+  persona?: unknown,
 ): Promise<Record<string, unknown>> {
   const [projRes, itemsRes, logsRes] = await Promise.all([
     db.from('v_project_truth').select('*').eq('id', project_id).eq('hive_id', hive_id).is('deleted_at', null).maybeSingle(),
@@ -137,7 +142,8 @@ Output schema:
 {
   "hero_finding":        "string. One sentence. Must include % and items_done/total",
   "executive_summary":   "string. 2-4 sentences. Must include progress %, blocker quote if any, next item",
-  "lessons_synthesis":   "string. 1-2 sentence pattern from blockers; null if no blockers"
+  "lessons_synthesis":   "string. 1-2 sentence pattern from blockers; null if no blockers",
+  "narration":           "string. 1-2 sentence spoken summary in your persona's voice; quote the progress % verbatim"
 }`;
 
   const userPrompt = `FACT PACK (the only source of truth):
@@ -145,9 +151,14 @@ ${JSON.stringify(factPack, null, 2)}
 
 Generate the JSON narrative.`;
 
+  // Persona Contract: narrated-specialist — prepend persona so the model also
+  // emits a `narration` field in the worker's voice. One chain call, additive.
+  const personaKey = clampPersona(persona);
+  const composedSystem = buildPersonaBlock(personaKey, 'narrated-specialist') + '\n\n' + systemPrompt;
+
   let aiResponse: string;
   try {
-    aiResponse = await callAI(userPrompt, { systemPrompt, temperature: 0.05, maxTokens: 800, jsonMode: true });
+    aiResponse = await callAI(userPrompt, { systemPrompt: composedSystem, temperature: 0.05, maxTokens: 800, jsonMode: true });
   } catch (e) {
     return { _unavailable: true, reason: `AI providers all failed: ${(e as Error).message}` };
   }
@@ -162,6 +173,7 @@ Generate the JSON narrative.`;
     hero_finding:      parsed.hero_finding || null,
     executive_summary: parsed.executive_summary || null,
     lessons_synthesis: parsed.lessons_synthesis || null,
+    narration:         String(parsed.narration || '').trim().slice(0, 280) || null,
     facts_used:        factPack,
     _ai_generated:     true,
     _ai_at:            new Date().toISOString(),
@@ -169,7 +181,7 @@ Generate the JSON narrative.`;
 }
 
 /* ── Phase: intent ──────────────────────────────────────────────────── */
-async function runIntent(transcript: string): Promise<Record<string, unknown>> {
+async function runIntent(transcript: string, persona?: unknown): Promise<Record<string, unknown>> {
   // Security: cap transcript length before passing to the LLM so a long
   // dictated prompt can't override the system prompt above. 500 chars
   // matches the canonical cap used in voice-logbook-entry +
@@ -212,21 +224,28 @@ Output schema:
   "asset_tag":    "<tag like PUMP-201 or null>",
   "duration_days": <integer or null>,
   "priority":     "low|medium|high|critical",
-  "description":  "<paraphrase of transcript intent in 1-2 sentences>"
+  "description":  "<paraphrase of transcript intent in 1-2 sentences>",
+  "narration":    "<1-2 sentence spoken confirmation in your persona's voice; name the project and start date if set>"
 }`;
 
   const userPrompt = `TRANSCRIPT: "${transcript}"
 
 Output the JSON payload.`;
 
+  const personaKey = clampPersona(persona);
+  const composedSystem = buildPersonaBlock(personaKey, 'narrated-specialist') + '\n\n' + systemPrompt;
+
   let aiResponse: string;
   try {
-    aiResponse = await callAI(userPrompt, { systemPrompt, temperature: 0.1, maxTokens: 400, jsonMode: true });
+    aiResponse = await callAI(userPrompt, { systemPrompt: composedSystem, temperature: 0.1, maxTokens: 500, jsonMode: true });
   } catch (e) {
     return { _unavailable: true, reason: `AI providers all failed: ${(e as Error).message}` };
   }
   try {
     const parsed = JSON.parse(aiResponse);
+    if (parsed && typeof parsed === 'object' && 'narration' in parsed) {
+      (parsed as Record<string, unknown>).narration = String((parsed as Record<string, unknown>).narration || '').trim().slice(0, 280);
+    }
     return { ...parsed, _ai_generated: true, _ai_at: new Date().toISOString() };
   } catch {
     return { _unavailable: true, reason: 'AI returned non-JSON', raw: aiResponse.slice(0, 200) };
@@ -238,6 +257,7 @@ async function runLessonsDraft(
   db: ReturnType<typeof createClient>,
   project_id: string,
   hive_id: string,
+  persona?: unknown,
 ): Promise<Record<string, unknown>> {
   const [projRes, logsRes] = await Promise.all([
     db.from('v_project_truth').select('project_code, name, project_type, status').eq('id', project_id).eq('hive_id', hive_id).is('deleted_at', null).maybeSingle(),
@@ -263,7 +283,7 @@ Rules:
 2. If the data shows no blockers, focus on what went well.
 3. If blockers dominate, focus on what to fix.
 4. Skip the bullet if the underlying data is too thin to support it.
-5. Output STRICT JSON: { "lessons_text": "string with newline-separated bullets" }`;
+5. Output STRICT JSON: { "lessons_text": "string with newline-separated bullets", "narration": "1-2 sentence spoken summary in your persona's voice" }`;
 
   const userPrompt = `Project: ${project.project_code} - ${project.name}
 Status: ${project.status}, type: ${project.project_type}
@@ -273,15 +293,18 @@ Recent notes (verbatim): ${JSON.stringify(notes.slice(0, 8))}
 
 Draft the lessons-learned bullets.`;
 
+  const personaKey = clampPersona(persona);
+  const composedSystem = buildPersonaBlock(personaKey, 'narrated-specialist') + '\n\n' + systemPrompt;
+
   let aiResponse: string;
   try {
-    aiResponse = await callAI(userPrompt, { systemPrompt, temperature: 0.25, maxTokens: 500, jsonMode: true });
+    aiResponse = await callAI(userPrompt, { systemPrompt: composedSystem, temperature: 0.25, maxTokens: 500, jsonMode: true });
   } catch (e) {
     return { _unavailable: true, reason: `AI providers all failed: ${(e as Error).message}` };
   }
   try {
     const parsed = JSON.parse(aiResponse);
-    return { lessons_text: parsed.lessons_text, _ai_generated: true, _ai_at: new Date().toISOString() };
+    return { lessons_text: parsed.lessons_text, narration: String(parsed.narration || '').trim().slice(0, 280) || null, _ai_generated: true, _ai_at: new Date().toISOString() };
   } catch {
     return { _unavailable: true, reason: 'AI returned non-JSON', raw: aiResponse.slice(0, 200) };
   }
@@ -296,7 +319,7 @@ serve(async (req: Request) => {
     return errJson('Method not allowed', 405, req);
   }
 
-  let body: { phase?: string; project_id?: string; hive_id?: string; transcript?: string };
+  let body: { phase?: string; project_id?: string; hive_id?: string; transcript?: string; persona?: unknown };
   try { body = await req.json(); }
   catch { return errJson('Invalid JSON body', 400, req); }
 
@@ -317,17 +340,17 @@ serve(async (req: Request) => {
   try {
     if (phase === 'narrative') {
       if (!body.project_id || !body.hive_id) return errJson('project_id and hive_id are required for narrative', 400, req);
-      const out = await runNarrative(db, body.project_id, body.hive_id);
+      const out = await runNarrative(db, body.project_id, body.hive_id, body.persona);
       return json(out, 200, req);
     }
     if (phase === 'intent') {
       if (!body.transcript) return errJson('transcript is required for intent', 400, req);
-      const out = await runIntent(body.transcript);
+      const out = await runIntent(body.transcript, body.persona);
       return json(out, 200, req);
     }
     if (phase === 'lessons_draft') {
       if (!body.project_id || !body.hive_id) return errJson('project_id and hive_id are required for lessons_draft', 400, req);
-      const out = await runLessonsDraft(db, body.project_id, body.hive_id);
+      const out = await runLessonsDraft(db, body.project_id, body.hive_id, body.persona);
       return json(out, 200, req);
     }
     return errJson(`Unknown phase '${phase}'. Available: narrative, intent, lessons_draft`, 400, req);

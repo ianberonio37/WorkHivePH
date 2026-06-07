@@ -11,6 +11,10 @@ import { beginRequest, ok, fail, recordModelHop } from "../_shared/envelope.ts";
 import { handleHealth } from "../_shared/health.ts";
 import { checkAIRateLimit, rateLimitedResponse } from "../_shared/rate-limit.ts";
 import { validateContract } from "../_shared/validate-contract.ts";
+// Persona Contract: narrated-specialist mode — the weekly action plan JSON
+// gains a `narration` field (1-2 sentences in the worker's persona voice).
+// See WORKHIVE_PERSONA_CONTRACT.md.
+import { clampPersona, buildPersonaBlock } from "../_shared/persona.ts";
 
 // ── Canonical agent contracts produced by this orchestrator ─────────────────
 // All response shapes below are registered in canonical_agent_contracts
@@ -54,10 +58,10 @@ async function deriveWorkerFromJWT(
     if (!user) return null;
     const { data: profile } = await adminClient
       .from("v_worker_truth")
-      .select("display_name")
+      .select("worker_name")
       .eq("auth_uid", user.id)
       .maybeSingle();
-    return profile?.display_name || user.email || null;
+    return profile?.worker_name || user.email || null;
   } catch {
     return null;
   }
@@ -379,6 +383,7 @@ async function callGroqSynthesis(
   hiveMembers: string[],
   canonicalRisk: Array<Record<string, unknown>>,
   db: SupabaseClient,
+  persona?: unknown,
 ): Promise<string> {
   const memberList = hiveMembers.length > 0
     ? `Your actual team members are: ${hiveMembers.join(", ")}. ONLY use these names — never invent names like John, Bob, or any other person not in this list.`
@@ -421,8 +426,17 @@ Format as JSON:
 {
   "summary": "one sentence overview tying together the most important phase signal",
   "this_week": ["action 1 with phase-linked reasoning", "action 2", ...],
-  "watch_list": ["machine or part to monitor + WHY (which phase signal flagged it)"]
+  "watch_list": ["machine or part to monitor + WHY (which phase signal flagged it)"],
+  "narration": "1-2 sentence spoken summary in your persona's voice; lead with the single most important signal and quote its KPI or asset code verbatim"
 }`;
+
+  // Persona Contract: narrated-specialist — prepend the persona block so the
+  // model ALSO emits a `narration` field in the worker's chosen voice. One
+  // chain call, no extra cost. Additive + contract-safe: analytics_action_plan_v1
+  // sets no additionalProperties:false, so the extra key validates clean.
+  const personaKey = clampPersona(persona);
+  const composedSystem =
+    buildPersonaBlock(personaKey, "narrated-specialist") + "\n\n" + systemPrompt;
 
   const desc = fullContext.descriptive  as Record<string, unknown> | null;
   const diag = fullContext.diagnostic   as Record<string, unknown> | null;
@@ -477,7 +491,7 @@ Format as JSON:
   const prompt = `4-phase analytics results:\n${JSON.stringify(redactPII(promptPayload), null, 2)}`;
 
   try {
-    const raw = await callAI(prompt, { systemPrompt, temperature: 0.3, maxTokens: 800, jsonMode: true });
+    const raw = await callAI(prompt, { systemPrompt: composedSystem, temperature: 0.3, maxTokens: 800, jsonMode: true });
     if (raw && raw !== "{}") {
       const parsed = JSON.parse(raw);
       // Tier C contract enforcement — refuse to ship action plan with the
@@ -489,10 +503,10 @@ Format as JSON:
         // recovers from a single hallucinated key rename.
         const fixPrompt =
           `Previous response failed the analytics_action_plan_v1 contract: ${JSON.stringify(v.errors)}\n` +
-          `Re-emit valid JSON matching exactly: { "summary": string, "this_week": string[], "watch_list": string[] }\n` +
+          `Re-emit valid JSON matching exactly: { "summary": string, "this_week": string[], "watch_list": string[], "narration": string }\n` +
           `Same data, corrected shape only.`;
         try {
-          const retry = await callAI(fixPrompt, { systemPrompt, temperature: 0.1, maxTokens: 800, jsonMode: true });
+          const retry = await callAI(fixPrompt, { systemPrompt: composedSystem, temperature: 0.1, maxTokens: 800, jsonMode: true });
           const retryParsed = JSON.parse(retry);
           const v2 = await validateContract(db, "analytics_action_plan_v1", retryParsed);
           if (v2.ok) return JSON.stringify(retryParsed);
@@ -644,7 +658,7 @@ serve(async (req) => {
   if (healthResp) return healthResp;
 
   try {
-    let { phase, hive_id, worker_name, period_days, criticality, discipline } = await req.json();
+    let { phase, hive_id, worker_name, period_days, criticality, discipline, persona } = await req.json();
 
     if (!phase) {
       return new Response(
@@ -796,6 +810,7 @@ serve(async (req) => {
             hiveMembers,
             canonicalRisk,
             db,
+            persona,
           );
           actionPlan = JSON.parse(raw);
         } catch (_e) { actionPlan = null; }
