@@ -84,6 +84,43 @@ Not an adjacent ritual; wired into the gate so it self-polices and feeds the pro
 | 6 | `integrations.html` | ☐ | ⚠ create | Internal Control | CMMS / SAP connectors |
 | 6 | `plant-connections.html` | ☐ | ⚠ create | Multitenant · Usability | Plant-to-plant networking |
 
+---
+
+## Critic pass — status per swept page (REFEREE ≠ CRITIC)
+
+The Progress table's ☑ tracks the **REFEREE** pass (conformance + deep audit). The
+**CRITIC** pass (SOP Phase 4.6 harsh-critic + 4.7 cross-page holistic) is tracked
+SEPARATELY here, because it lagged behind. Source of truth: `sweep_critiques.json`
+(per-page attribution) + `SWEEP_CRITIQUE_QUEUE.md`.
+
+| Page | REFEREE | CRITIC | Critiques logged |
+|---|---|---|---|
+| `resume.html` | ☑ | ☐ | 0 — predates the critic tooling |
+| `index.html` | ☑ | ☑ | 6 (full pass) |
+| `logbook.html` | ☑ | ◐ | 1 |
+| `inventory.html` | ☑ | ◐ | 1 |
+| `pm-scheduler.html` | ☑ | ☐ | 0 |
+| `dayplanner.html` | ☑ | ☐ | 0 |
+| `shift-brain.html` | ☑ | ☐ | 0 |
+| `voice-journal.html` | ☑ | ◐ | 1 |
+| (platform-wide / systemic) | — | — | 5 |
+
+**Open critic work (this IS roadmap, not done):**
+1. **Run the CRITIC pass** on the 4 pages with none — `pm-scheduler`, `dayplanner`,
+   `shift-brain`, `resume` — and deepen the ◐ partials (`logbook`/`inventory`/`voice-journal`).
+2. **Disposition the 14 OPEN critiques** in `sweep_critiques.json` (all `open` today):
+   accept→promote to a fix, or reject→close with a reason. Surfaced in `promotion_queue.md`.
+
+## Cross-Page Dedup — backlog (the Phase 4.7 holistic-critic output)
+
+The cross-page holistic critic's headline finding. Measured + gated, collapse deferred (a
+human design call — the "judgment fork").
+- **Measured:** `jscpd` → 73 clones / 5259 dup lines / **24.65% of platform HTML** (2026-06-07).
+- **Gated:** `validate_clone_debt.py` (G0 forward-only ratchet, baseline `clone_debt_baseline.json` = 73) blocks NEW copy-paste; collapsing ratchets it DOWN.
+- **Deferred collapse (targets, in order):** (1) the ~530-line `SUPABASE_URL`/script
+  boilerplate (`plant-connections` ↔ `shift-brain` + siblings) → a shared include;
+  (2) the "verdict + simple-card" block → one component. Each collapse → `--update-baseline` lower.
+
 ## Internal / Ops track (lighter "ops" battery, separate cadence — these are founder/admin surfaces, not the public web)
 `founder-console.html` · `platform-health.html` · `llm-observability.html` ·
 `agentic-rag-observability.html` · `validator-catalog.html` · `architecture.html`
