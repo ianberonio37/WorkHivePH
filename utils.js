@@ -401,6 +401,102 @@ if (typeof window !== 'undefined') window.fetchWithTimeout = fetchWithTimeout;
 //   whConfirm: resolves true (OK) / false (Cancel or Esc / backdrop click)
 //   whPrompt: resolves the entered string, or null if cancelled
 //
+// ── WH_STATUS_ENUMS — canonical per-table status enums (single source of truth) ──
+// Grounded Sweep critique W3 (status-enum-constants). Hand-typed status string
+// literals drift from the DB enum and silently miscount KPIs — the dayplanner
+// "overdue" bug compared schedule_items.item_status against the literal 'closed',
+// a value that does NOT exist in the enum (pending/in_progress/done/blocked/
+// skipped), so DONE items were counted as overdue (live 6 vs DB 3). Reference THIS
+// map instead of hand-typing status strings. validate_status_enum_drift.py asserts
+// it can never silently diverge from the canonical capture contract in
+// supabase/migrations (deterministic JS-constant-vs-DB comparison).
+if (typeof window !== 'undefined' && !window.WH_STATUS_ENUMS) {
+  window.WH_STATUS_ENUMS = {
+    // schedule_items.item_status — capture_contracts_wave2 migration. 'done' is the
+    // only terminal/closed state; everything else is OPEN (overdue if past due).
+    schedule_item: ['pending', 'in_progress', 'done', 'blocked', 'skipped'],
+  };
+}
+
+// ── whModalA11y — retrofit the dialog a11y bar onto a HAND-ROLLED modal ──────
+// Grounded Sweep critique C7 / W2. whConfirm/whPrompt build their dialog in JS
+// with the a11y bar already set; pages with static hand-rolled overlays (logbook,
+// pm-scheduler, dayplanner, …) skip it. This helper adds the bar to an existing
+// element WITHOUT touching its open/close call sites: it sets role=dialog +
+// aria-modal + an accessible name, then a MutationObserver watches the element's
+// class/style and — when it becomes visible — captures focus, traps Tab within
+// the panel, and wires ESC; when it hides, it restores focus to the opener.
+// Idempotent + opt-in. opts: { label?, labelledBy?, onClose? }.
+//   whModalA11y(document.getElementById('my-modal'), { label: 'Edit asset', onClose: closeMyModal });
+(function(){
+  if (typeof window === 'undefined' || window.whModalA11y) return;
+
+  var FOCUSABLE = 'a[href],button:not([disabled]),input:not([disabled]),' +
+                  'select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])';
+
+  window.whModalA11y = function whModalA11y(modalEl, opts) {
+    if (!modalEl || modalEl.__whModalA11y) return null;   // null el or already wired
+    opts = opts || {};
+    modalEl.__whModalA11y = true;
+
+    if (!modalEl.getAttribute('role'))       modalEl.setAttribute('role', 'dialog');
+    if (!modalEl.hasAttribute('aria-modal')) modalEl.setAttribute('aria-modal', 'true');
+    if (opts.labelledBy)                     modalEl.setAttribute('aria-labelledby', opts.labelledBy);
+    else if (opts.label && !modalEl.getAttribute('aria-label')) modalEl.setAttribute('aria-label', opts.label);
+
+    var lastFocus = null, keyBound = false;
+
+    function isOpen() {
+      if (modalEl.classList.contains('hidden')) return false;
+      var cs = window.getComputedStyle(modalEl);
+      return cs.display !== 'none' && cs.visibility !== 'hidden';
+    }
+    function focusables() {
+      return Array.prototype.filter.call(modalEl.querySelectorAll(FOCUSABLE), function(el) {
+        return el.offsetParent !== null || el.getClientRects().length > 0;
+      });
+    }
+    function onKey(e) {
+      if (e.key === 'Escape') {
+        e.stopPropagation();
+        if (typeof opts.onClose === 'function') opts.onClose();
+        else { modalEl.classList.add('hidden'); modalEl.style.display = 'none'; }
+      } else if (e.key === 'Tab') {
+        var f = focusables();
+        if (!f.length) return;
+        var first = f[0], last = f[f.length - 1];
+        if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+        else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+      }
+    }
+    function activate() {
+      if (keyBound) return;
+      keyBound = true;
+      lastFocus = document.activeElement;
+      document.addEventListener('keydown', onKey, true);
+      // Respect a page that already autofocused something inside the modal
+      // (e.g. dayplanner focuses #m-title) — only grab focus if it's outside.
+      setTimeout(function() {
+        if (!modalEl.contains(document.activeElement)) {
+          var f = focusables();
+          if (f.length) { try { f[0].focus(); } catch (_) { /* empty-catch-allow */ } }
+        }
+      }, 0);
+    }
+    function deactivate() {
+      if (!keyBound) return;
+      keyBound = false;
+      try { document.removeEventListener('keydown', onKey, true); } catch (_) { /* empty-catch-allow */ }
+      try { if (lastFocus && lastFocus.focus) lastFocus.focus(); } catch (_) { /* empty-catch-allow */ }
+    }
+
+    var obs = new MutationObserver(function() { isOpen() ? activate() : deactivate(); });
+    obs.observe(modalEl, { attributes: true, attributeFilter: ['class', 'style'] });
+    if (isOpen()) activate();   // already-open at wire time
+    return { activate: activate, deactivate: deactivate };
+  };
+})();
+
 // The modal mounts on document.body (so it works on any page without
 // per-page setup), traps focus, and disposes on resolve. ARIA: role="dialog"
 // + aria-labelledby + aria-modal so screen readers announce it.

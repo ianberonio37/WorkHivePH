@@ -43,19 +43,44 @@ BASELINE = ROOT / "modal_a11y_baseline.json"
 # excluded list in GROUNDED_SWEEP_ROADMAP.md).
 SKIP_RE = re.compile(r"(\.backup\d*\.html$|-test\.html$|index-v\d|index-hive-test|index-native-test|symbol-gallery)")
 
-# A modal overlay opening tag: a <div ...> whose attributes include an id or
-# class containing "modal" AND the full-screen overlay marker "fixed inset-0".
+# A modal overlay opening tag: a <div ...> that is full-bleed AND carries a
+# dialog token in its id/class. WIDENED (Grounded Sweep critique C12 / W2): the
+# original check keyed ONLY on the Tailwind marker "fixed inset-0", so overlays
+# built with an inline style="position:fixed;inset:0" (pm-scheduler #pm-edit-modal)
+# or a CSS overlay class (dayplanner .modal-overlay, pm-scheduler .sheet-overlay)
+# evaded the ratchet entirely. Now all three full-bleed forms are detected, and
+# the dialog token set includes "sheet"/"drawer"/"dialog" so bottom-sheets count.
 _DIV_OPEN = re.compile(r"<div\b[^>]*>", re.IGNORECASE)
+
+# CSS classes whose rule is a full-screen overlay (position:fixed; inset:0).
+_OVERLAY_CLASS_TOKENS = ("modal-overlay", "sheet-overlay", "drawer-overlay", "dialog-overlay")
+# id/class substrings that mark an element as a dialog/sheet (needs a name + a11y bar).
+_DIALOG_TOKENS = ("modal", "sheet", "dialog", "drawer")
+
+
+def _is_full_bleed(tag: str) -> bool:
+    """True if the tag renders as a full-screen overlay by any of the 3 means."""
+    if "fixed inset-0" in tag:                       # Tailwind utility
+        return True
+    m_cls = re.search(r'class="([^"]*)"', tag)
+    if m_cls and any(t in m_cls.group(1).lower() for t in _OVERLAY_CLASS_TOKENS):
+        return True
+    m_style = re.search(r'style="([^"]*)"', tag)     # inline position:fixed + inset:0
+    if m_style:
+        s = m_style.group(1).lower().replace(" ", "")
+        if "position:fixed" in s and ("inset:0" in s or ("top:0" in s and "left:0" in s)):
+            return True
+    return False
 
 
 def _is_modal_overlay(tag: str) -> bool:
-    if "fixed inset-0" not in tag:
+    if not _is_full_bleed(tag):
         return False
     m_id = re.search(r'id="([^"]*)"', tag)
     m_cls = re.search(r'class="([^"]*)"', tag)
-    has_modal_token = (m_id and "modal" in m_id.group(1).lower()) or \
-                      (m_cls and "modal" in m_cls.group(1).lower())
-    return bool(has_modal_token)
+    idv  = m_id.group(1).lower() if m_id else ""
+    clsv = m_cls.group(1).lower() if m_cls else ""
+    return any(t in idv or t in clsv for t in _DIALOG_TOKENS)
 
 
 def _is_a11y_compliant(tag: str) -> bool:

@@ -698,7 +698,7 @@
 </div>
 
 <!-- ── EDIT PM ASSET MODAL (supervisor only in hive mode) ── -->
-<div id="pm-edit-modal" style="display:none;position:fixed;inset:0;z-index:60;background:rgba(0,0,0,0.7);backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;padding:1rem;">
+<div id="pm-edit-modal" role="dialog" aria-modal="true" aria-label="Edit PM asset" style="display:none;position:fixed;inset:0;z-index:60;background:rgba(0,0,0,0.7);backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;padding:1rem;">
   <div class="wh-card w-full p-6 relative" style="max-width:420px;">
     <button onclick="closeEditPMAsset()" style="position:absolute;top:0.75rem;right:0.75rem;background:rgba(255,255,255,0.06);border:none;border-radius:0.5rem;width:44px;height:44px;color:rgba(255,255,255,0.4);cursor:pointer;font-size:1.1rem;">✕</button>
 
@@ -737,7 +737,7 @@
 </div>
 
 <!-- ── PM COMPLETION BOTTOM SHEET ── -->
-<div id="completion-sheet" class="sheet-overlay" onclick="sheetBackdropClick(event)">
+<div id="completion-sheet" class="sheet-overlay" role="dialog" aria-modal="true" aria-label="Complete PM" onclick="sheetBackdropClick(event)">
   <div class="sheet-panel">
     <div class="sheet-handle"></div>
 
@@ -2422,6 +2422,15 @@ window.addEventListener('beforeunload', () => {
 // BOOT
 // ─────────────────────────────────────
 init();
+
+// Dialog a11y bar (Grounded Sweep W2): role/aria-modal/aria-label live on each
+// modal tag; this adds ESC-close + Tab focus-trap + focus-restore via the shared
+// utils.js helper (pm-scheduler had ZERO keydown handling on its 3 overlays).
+if (window.whModalA11y) {
+  whModalA11y(document.getElementById('pm-edit-modal'),    { label: 'Edit PM asset', onClose: closeEditPMAsset });
+  whModalA11y(document.getElementById('completion-sheet'), { label: 'Complete PM',   onClose: closeSheet });
+  whModalA11y(document.getElementById('add-task-sheet'),   { label: 'Add PM task',    onClose: closeAddTaskSheet });
+}
 </script>
 
 <!--
@@ -2485,7 +2494,7 @@ init();
 <script src="companion-launcher.js"></script>
 
 <!-- ── ADD TASK BOTTOM SHEET ── -->
-<div id="add-task-sheet" class="sheet-overlay" onclick="addTaskBackdropClick(event)">
+<div id="add-task-sheet" class="sheet-overlay" role="dialog" aria-modal="true" aria-label="Add PM task" onclick="addTaskBackdropClick(event)">
   <div class="sheet-panel" style="max-height:82vh;overflow-y:auto;">
     <div class="sheet-handle"></div>
 

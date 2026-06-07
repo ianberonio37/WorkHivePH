@@ -2181,6 +2181,21 @@ VALIDATORS = [
         "skip_if_fast": False,
     },
     {
+        # Grounded Sweep critique W3 (status-enum-constants): deterministic guard
+        # that utils.js window.WH_STATUS_ENUMS never silently diverges from the
+        # canonical capture-contract enum in supabase/migrations. Prevents the class
+        # of bug where a hand-typed status literal (e.g. 'closed' vs the real
+        # pending/in_progress/done/blocked/skipped) miscounts a KPI — the dayplanner
+        # overdue bug. Source-vs-source compare, no page scan, zero false positives.
+        "id":      "status-enum-drift",
+        "script":  "validate_status_enum_drift.py",
+        "args":    [],
+        "label":   "Status-Enum Drift Guard (WH_STATUS_ENUMS == canonical DB enum; critique W3)",
+        "group":   "Platform",
+        "report":  "status_enum_drift_report.json",
+        "skip_if_fast": False,
+    },
+    {
         "id":      "provider-bypass",
         "script":  "validate_provider_bypass.py",
         "args":    [],

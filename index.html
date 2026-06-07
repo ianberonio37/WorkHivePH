@@ -2502,11 +2502,11 @@
     </div>
 
     <!-- Tabs: Sign In / Sign Up -->
-    <div class="flex mb-5 rounded-xl overflow-hidden" style="border:1px solid rgba(255,255,255,0.1);">
-      <button id="tab-signin" onclick="switchAuthTab('signin')"
+    <div class="flex mb-5 rounded-xl overflow-hidden" role="tablist" aria-label="Sign in or sign up" style="border:1px solid rgba(255,255,255,0.1);">
+      <button id="tab-signin" onclick="switchAuthTab('signin')" role="tab" aria-selected="true" aria-controls="panel-signin"
         class="flex-1 py-2.5 text-sm font-bold transition-colors"
         style="background:rgba(247,162,27,0.1); color:#F7A21B; border-right:1px solid rgba(255,255,255,0.1);">Sign In</button>
-      <button id="tab-signup" onclick="switchAuthTab('signup')"
+      <button id="tab-signup" onclick="switchAuthTab('signup')" role="tab" aria-selected="false" aria-controls="panel-signup"
         class="flex-1 py-2.5 text-sm font-semibold transition-colors"
         style="color:rgba(255,255,255,0.4);">Sign Up</button>
     </div>
@@ -2514,7 +2514,7 @@
     <!-- Sign In panel -->
     <!-- Wrapped in <form> so password managers attach autofill + save flow.
          onsubmit returns false because submitSignIn() handles the POST via JS. -->
-    <form id="panel-signin" onsubmit="event.preventDefault(); submitSignIn(); return false;">
+    <form id="panel-signin" role="tabpanel" aria-labelledby="tab-signin" onsubmit="event.preventDefault(); submitSignIn(); return false;">
       <div class="space-y-3 mb-3">
         <input id="si-username" type="text" placeholder="Username" autocomplete="username"
           class="w-full rounded-xl px-4 py-3 text-sm text-white outline-none"
@@ -2523,7 +2523,7 @@
           <input id="si-password" type="password" placeholder="Password" autocomplete="current-password"
             class="w-full rounded-xl px-4 py-3 text-sm text-white outline-none"
             style="background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.12); padding-right:44px;" />
-          <button type="button" onclick="togglePwd('si-password',this)" tabindex="-1"
+          <button type="button" onclick="togglePwd('si-password',this)" aria-pressed="false"
             style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:rgba(255,255,255,0.3);padding:4px;" aria-label="Show password">
             <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
           </button>
@@ -2547,7 +2547,7 @@
 
     <!-- Sign Up panel -->
     <!-- Wrapped in <form> for password manager save flow on new accounts. -->
-    <form id="panel-signup" class="hidden" onsubmit="event.preventDefault(); submitSignUp(); return false;">
+    <form id="panel-signup" class="hidden" role="tabpanel" aria-labelledby="tab-signup" onsubmit="event.preventDefault(); submitSignUp(); return false;">
       <div class="space-y-3 mb-3">
         <div>
           <input id="su-username" type="text" placeholder="Username (letters, numbers, underscores)" autocomplete="username"
@@ -2560,7 +2560,7 @@
           <input id="su-password" type="password" placeholder="Password (min 6 characters)" autocomplete="new-password"
             class="w-full rounded-xl px-4 py-3 text-sm text-white outline-none"
             style="background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.12); padding-right:44px;" />
-          <button type="button" onclick="togglePwd('su-password',this)" tabindex="-1"
+          <button type="button" onclick="togglePwd('su-password',this)" aria-pressed="false"
             style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:rgba(255,255,255,0.3);padding:4px;" aria-label="Show password">
             <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
           </button>
@@ -2569,7 +2569,7 @@
           <input id="su-confirm" type="password" placeholder="Repeat password" autocomplete="new-password"
             class="w-full rounded-xl px-4 py-3 text-sm text-white outline-none"
             style="background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.12); padding-right:44px;" />
-          <button type="button" onclick="togglePwd('su-confirm',this)" tabindex="-1"
+          <button type="button" onclick="togglePwd('su-confirm',this)" aria-pressed="false"
             style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:rgba(255,255,255,0.3);padding:4px;" aria-label="Show confirm password">
             <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
           </button>
@@ -2637,6 +2637,7 @@
         btn.style.background = active ? 'rgba(247,162,27,0.1)' : 'transparent';
         btn.style.color      = active ? '#F7A21B' : 'rgba(255,255,255,0.4)';
         btn.style.fontWeight = active ? '700' : '600';
+        btn.setAttribute('aria-selected', active ? 'true' : 'false');
       }
     });
     const firstInput = { signin: 'si-username', signup: 'su-username', guest: 'guest-input' }[tab];
@@ -2949,6 +2950,7 @@
     input.type = showing ? 'password' : 'text';
     btn.style.color = showing ? 'rgba(255,255,255,0.3)' : '#F7A21B';
     btn.setAttribute('aria-label', showing ? 'Show password' : 'Hide password');
+    btn.setAttribute('aria-pressed', showing ? 'false' : 'true');
   }
 
   // ── C2: Guest upgrade banner ──────────────────────────────────────────────
@@ -3018,6 +3020,16 @@
       menuMobile.classList.add('hidden');
     }
   });
+
+  // ── window.WHShell — read-only shell-state seam (parity with resume.html's
+  // window.WHResume; Grounded Sweep critique W5). Lets tests/sweeps read the
+  // shell's mode/identity/role without poking the DOM + localStorage directly. ──
+  window.WHShell = {
+    mode:     function () { return localStorage.getItem('wh_last_worker') ? 'dashboard' : 'landing'; },
+    identity: function () { return localStorage.getItem('wh_last_worker') || ''; },
+    role:     function () { return localStorage.getItem('wh_hive_role') || ''; },
+    hiveId:   function () { return localStorage.getItem('wh_active_hive_id') || localStorage.getItem('wh_hive_id') || ''; },
+  };
 
   window.addEventListener('DOMContentLoaded', async () => {
     const name = localStorage.getItem('wh_last_worker');
@@ -3805,13 +3817,13 @@
         // Empty / all-clear state.
         el.style.display = 'block';
         el/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = `
-          <a href="${role === 'supervisor' ? 'alert-hub.html' : 'pm-scheduler.html'}" class="oh-card"
+          <a href="${role === 'supervisor' ? 'alert-hub.html' : ((jobs.length === 0 && closedToday === 0) ? 'logbook.html' : 'pm-scheduler.html')}" class="oh-card"
              style="display:flex; align-items:center; gap:14px; padding:18px; text-decoration:none; border-left:3px solid #4ade80;">
             <div style="width:36px; height:36px; border-radius:50%; background:rgba(74,222,128,0.12); color:#4ade80; display:flex; align-items:center; justify-content:center; font-size:1.2rem; flex-shrink:0;">&#10003;</div>
             <div style="flex:1; min-width:0;">
               <p style="font-size:.6rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:#4ade80; margin:0 0 2px;">All clear</p>
               <p style="font-size:.92rem; font-weight:700; color:#F4F6FA; margin:0;">Nothing urgent right now.</p>
-              <p style="font-size:.72rem; color:rgba(255,255,255,.4); margin:3px 0 0;">${role === 'supervisor' ? 'Review the alert feed or the AMC daily brief.' : 'Plan your shift in the Day Planner.'}</p>
+              <p style="font-size:.72rem; color:rgba(255,255,255,.4); margin:3px 0 0;">${role === 'supervisor' ? 'Review the alert feed or the AMC daily brief.' : ((jobs.length === 0 && closedToday === 0) ? 'Log your first job to get started.' : 'Plan your shift in the Day Planner.')}</p>
             </div>
             <span style="font-size:.7rem; color:rgba(255,255,255,.4);">&#8594;</span>
           </a>`;
