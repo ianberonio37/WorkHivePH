@@ -271,6 +271,17 @@ _Written during the autonomous run after reading `ai-gateway/index.ts`, `compani
 
 **Blast radius:** medium (2 pages). **Revert:** git restore the 2 HTML files.
 
+> ### ⚠️ GROUNDED RE-SCOPE (2026-06-07) — Step 3 is NOT a clean "route through the gateway" swap
+> Reading the actual code revealed both surfaces return **rich, structured payloads that the gateway's `{ answer }` response contract DROPS**:
+> - **hive Coach** ([hive.html:3767](hive.html#L3767)) returns `{ actions: [{priority, urgency, machine, action, why}] }` rendered as urgency-colored cards — NOT prose. The gateway flattens every specialist response to `answer` (ai-gateway:579), so routing it through would render nothing.
+> - **asset-hub Asset Brain** ([asset-hub.html:3506-3522](asset-hub.html#L3506)) reads `data.answer` **+ `data.narration`** (TTS) **+ `data.cited`** (source chips) **+ `data.remaining`** (rate display). The gateway returns only `answer` → loses TTS, citations, and the rate counter.
+>
+> **So Step 3 needs a DESIGN DECISION (your call), not an autonomous swap:**
+> - **Option A — additive `data` passthrough on the gateway:** have ai-gateway include the specialist's full parsed payload as a new `data` field (backward-compatible — existing `.answer` callers unaffected), then point Coach at `resp.data.actions` and Asset Brain at `resp.data.{answer,narration,cited,remaining}`. **Caveat:** the gateway's `hydratePII` only runs on `answer`; structured fields would bypass PII restoration — needs a redaction pass over the passthrough.
+> - **Option B — treat them as secured Tier-3 STRUCTURED tools:** they aren't really chats. Keep them calling their fns directly, but secured by in-fn membership gates (Coach: ✅ done via the ai-orchestrator gate; Asset Brain: needs the same audit on `asset-brain-query`). Achieve the "Companion feel" via persona consistency (Step 5) + the widget's `setContext`, not by funneling structured tools through the chat gateway.
+>
+> **The security half of Step 3 is already delivered** for the Coach: the ai-orchestrator membership gate (commit after c4843ce) closes its cross-hive IDOR regardless of which option is chosen. The remaining decision is purely about the conversational-folding UX. Recommendation: **Option B for the Coach** (it's a structured tool), **Option A or `setContext` for Asset Brain** (it's genuinely conversational). See [[project_companion_unification]].
+
 ---
 
 ## Step 4 — Tool invocation via the proven `voice-action-router` intent map

@@ -482,15 +482,49 @@ serve(async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
     );
 
-    // Resolve the real worker_name when reached through the gateway (it sends
-    // worker_name="<redacted>"). Hive-mode scoping uses hive_id and is
-    // unaffected; only solo callers need this. Best-effort — on failure we keep
-    // the body value, so a direct caller (real name, no `gateway` flag) is
-    // untouched.
-    if (body.gateway && (!worker_name || worker_name === "<redacted>") && !hive_id) {
-      const bearer = (req.headers.get("Authorization") || "").replace(/^Bearer\s+/i, "");
-      const resolved = await resolveDisplayName(db, bearer);
-      if (resolved) worker_name = resolved;
+    // AuthZ gate (2026-06-07 cross-hive fix). ai-orchestrator reads hive data
+    // with the SERVICE-ROLE client (bypasses RLS), so it MUST re-authenticate
+    // the caller — otherwise anyone could POST a foreign hive_id and read that
+    // hive (cross-hive IDOR, the same class as the analytics-orchestrator leak
+    // fixed in 1e42617). Both real callers (assistant.html via ai-gateway,
+    // hive.html Coach) send the user's session JWT via db.functions.invoke.
+    // Cases:
+    //   - service_role bearer (trusted server-to-server, e.g. gateway fallback) -> allow
+    //   - user JWT + hive_id -> require ACTIVE membership of that hive (else 403)
+    //   - user JWT + solo (no hive_id) -> resolve own display_name for worker_name
+    //     scoping (the gateway redacts worker_name to "<redacted>")
+    const _bearer = (req.headers.get("Authorization") || "").replace(/^Bearer\s+/i, "");
+    const _serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
+    if (!(_bearer && _serviceKey && _bearer === _serviceKey)) {
+      const { data: { user: _caller } } = await db.auth.getUser(_bearer);
+      if (!_caller) {
+        return new Response(
+          JSON.stringify({ error: "Authentication required" }),
+          { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+      if (hive_id) {
+        const { data: _mem } = await db.from("v_worker_truth")
+          .select("status").eq("hive_id", hive_id).eq("auth_uid", _caller.id)
+          .eq("status", "active").maybeSingle();
+        if (!_mem) {
+          return new Response(
+            JSON.stringify({ error: "Caller is not an active member of this hive" }),
+            { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          );
+        }
+      } else {
+        // Solo caller (no hive): resolve the real display_name for worker_name
+        // scoping; the gateway sends "<redacted>".
+        const _name = await resolveDisplayName(db, _bearer);
+        if (!_name) {
+          return new Response(
+            JSON.stringify({ error: "No worker profile for caller" }),
+            { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          );
+        }
+        worker_name = _name;
+      }
     }
 
     const result = await orchestrate(question, hive_id || null, worker_name || null, db, mode || "chat");

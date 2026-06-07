@@ -498,7 +498,29 @@ serve(async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "",
     );
 
-    // Rate-limit gate is the FIRST thing per ai-engineer skill.
+    // AuthZ gate (2026-06-07 cross-hive fix): the service-role client bypasses
+    // RLS, so re-authenticate the caller BEFORE any read or rate-bucket touch —
+    // otherwise a foreign hive_id reads this hive's asset graph (cross-hive IDOR,
+    // the same class as the analytics-orchestrator + ai-orchestrator fixes). Both
+    // callers (asset-hub direct + ai-gateway 'asset-brain') send the user JWT via
+    // db.functions.invoke; the gateway's service-role fallback is the bypass.
+    const _bearer = (req.headers.get("Authorization") || "").replace(/^Bearer\s+/i, "");
+    const _serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
+    if (!(_bearer && _serviceKey && _bearer === _serviceKey)) {
+      const { data: { user: _caller } } = await db.auth.getUser(_bearer);
+      if (!_caller) {
+        return jsonResponse({ error: "Authentication required" }, 401, corsHeaders);
+      }
+      const { data: _mem } = await db.from("v_worker_truth")
+        .select("status").eq("hive_id", hive_id).eq("auth_uid", _caller.id)
+        .eq("status", "active").maybeSingle();
+      if (!_mem) {
+        return jsonResponse({ error: "Caller is not an active member of this hive" }, 403, corsHeaders);
+      }
+    }
+
+    // Rate-limit gate (after the auth gate so a foreign caller can't drain this
+    // hive's bucket; still before any model call, per ai-engineer skill).
     const rl = await checkAIRateLimit(db, hive_id, RATE_LIMIT_PER_HOUR);
     if (!rl.allowed) {
       return jsonResponse(
