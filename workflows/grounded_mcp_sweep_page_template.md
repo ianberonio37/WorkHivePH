@@ -39,6 +39,38 @@
 
 ## 3. UFAI batteries  (fill result + the NUMBER measured; mark BUG if it fails)
 
+### 3.0 The reusable battery (`ufai_battery.js`) — the FAST PATH that fills these tables
+`ufai_battery.js` (repo root) is ONE injectable that measures the 5 things the 1307-test
+L2 suite lacks — axe-core WCAG 2.2 AA · Core Web Vitals (LCP/INP/CLS) · focus-visible ·
+link-destination/prod-path · true-dpr tap/input geometry — and returns scored U/F/A/I +
+a flat DEFECT list. REUSE it; don't hand-measure what it already returns. It does NOT
+replace the L2 gate (role-permission / CRUD-DB-verified / concurrent / visual / smoke) —
+call those separately.
+
+**MCP recipe (per page, per role × experience):**
+```
+# 0. (Phase 0 preflight first — Flask fast-200, seed freshness)
+# 1. navigate + auth (see grounded_mcp_sweep.md "Auth"); seed wh_* identity keys.
+# 2. set TRUE-dpr mobile width to dodge the dpr trap:  browser_resize(width = 390*dpr, ...)
+# 3. install:  browser_evaluate(function = <paste the whole ufai_battery.js arrow fn>)
+# 4. boot   :  browser_evaluate("async () => await window.__UFAI.boot()")         # CDN libs + CWV observers
+# 5. run    :  browser_evaluate("async () => await window.__UFAI.run({pageId:'<page>', role:'<role>', experience:'<novice|experienced>'})")
+# 6. INP    :  drive ONE real click/fill, then  browser_evaluate("() => window.__UFAI.cwv()")
+# 7. repeat 1–6 per identity (signout=solo · wh_hive_role=worker · =supervisor)
+```
+
+**Output → table mapping:** `scores.U/F/A/I.metrics` fill the number columns; `defects[]`
+(each `{pillar,check,selector,measured,expected,fixHint,severity}`) are the REFEREE bugs to
+fix INLINE → record in §4; `critic.candidates[]` (TASTE/CONTENT) → `python ufai_ingest.py
+<dump.json>` merges them into `sweep_critiques.json` (you dispose) → record in §4b; `mcp_todo[]`
+lists what the battery CAN'T see from page JS (console history, network 4xx, the role×experience
+loop, page-specific canonical parity via `window.db`, offline/throttle) — do those by hand.
+
+**Pillar method map** (call individually if a full `run()` is too heavy):
+`__UFAI.usability()` (axe+tap+input+focus+overflow+CLS) · `__UFAI.functionality()` (F0-static
+wiring + prod-path-in-src + internal-link 200 + console-since-boot) · `__UFAI.adaptability()`
+(CWV) · `__UFAI.internalControl()` (secret-exposure + destructive/undo + source-chip + identity).
+
 ### Usability  (grounds in Frontend / Mobile-Maestro / Designer)
 | # | Scenario | Expected (grounded in) | Result + number |
 |---|---|---|---|

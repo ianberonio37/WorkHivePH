@@ -32,5 +32,19 @@
 
   "sweep:index:first-action-alignment": {"status": "approved", "note": "W6. Owner Q2 = APPROVE. Align verdict + primary CTA + onboarding ladder on ONE activating first action for a zero-data novice (Hick's law). Suggested canonical action: 'Log your first job' (data-creating activation); owner sets the final canonical action."},
 
-  "sweep:index:landing-cta-density": {"status": "rejected", "note": "W6 won't-fix. The critic itself says 57 CTAs on a logged-out marketing landing is 'likely FINE' (Jakob's law for marketing pages) and recommended no change without a conversion goal. Logged for honesty; reopen only if a conversion goal is set."}
+  "sweep:index:landing-cta-density": {"status": "rejected", "note": "W6 won't-fix. The critic itself says 57 CTAs on a logged-out marketing landing is 'likely FINE' (Jakob's law for marketing pages) and recommended no change without a conversion goal. Logged for honesty; reopen only if a conversion goal is set."},
+
+  "_UFAI_WAVE0_1_DISPOSITION_2026-06-07": "6 critiques from the C-battery re-sweep (Wave 0 index + Wave 1 logbook/inventory/pm-scheduler), dispositioned by the agent under owner's 'go for it' delegation. 5 approved / 0 rejected; 1 (overdue-KPI) approved-with-root-cause for an owner architecture call.",
+
+  "sweep:platform:header-logo-tap-aria": {"status": "approved", "note": "Fix PER-PAGE during each wave's sweep, NOT a blanket tool — the header markup varies too much (about/feedback wrap logo+brand-text in a flex <a> already >=44; community/hive ship a bare 28px <img>; some logos aren't links). A regex tool would mis-edit. Already fixed inline on index/logbook/inventory + pm-scheduler back-link; the battery catches it on every remaining page. Skip *-test.html."},
+
+  "sweep:pm-scheduler:overdue-kpi-vs-dashboard": {"status": "approved", "note": "ROOT-CAUSED (needs an OWNER architecture/labeling decision, NOT an auto-fix). 'PM Overdue' is sourced from TWO different canonical views: home dashboard pm_overdue_count = count(v_pm_compliance_truth WHERE is_due) = PER-ASSET (26); pm-scheduler #stat-overdue = count(v_pm_scope_items_truth WHERE is_overdue) = PER-SCOPE-ITEM. Different granularity under the SAME label -> latent cross-surface drift (the code itself documents a prior 21-vs-0 incident, only partially fixed). SOP Phase-4.7 mandate: collapse a KPI computed on >1 surface to ONE shared source, OR relabel so users see 'N assets need PM' vs 'N tasks overdue'. Owner picks unify-vs-relabel."},
+
+  "sweep:pm-scheduler:fab-obscured-conn-chip": {"status": "approved", "note": "Real Major (FAB 52x52 -> ~52x8 usable, obscured by the global #wh-conn-chip). Cross-element/shell positioning — fix in a focused batch: page FABs must sit ABOVE the global connection chip (consistent bottom offset) OR the conn-chip must not occupy the FAB corner. Likely affects every bottom-right-FAB page, so verify across pages before shipping; deferred from the per-page inline fixes for that reason."},
+
+  "sweep:platform:cls-list-popin": {"status": "approved", "note": "Approved, batch with sweep:index-dashboard:cls-tile-popin. Reserve space (min-height/skeleton) for async KPI tiles + list rows so the page doesn't reflow on data arrival (measured CLS 0.08-0.13 on dashboard + inventory). Medium effort, not blocking; do as one skeleton pass across data pages. Re-confirm vs a production-like load (local Flask inflates CLS)."},
+
+  "sweep:index-dashboard:cls-tile-popin": {"status": "approved", "note": "Same class as cls-list-popin — batch together. Home-dashboard KPI tiles + signature-alert banner pop in without reserved space."},
+
+  "sweep:platform:page-db-seam": {"status": "approved", "note": "Low-priority TASTE. Expose a read-only window.WH<Page>={db,get} (or surface the memoized window._whSupabaseClient) on data pages so grounded sweeps can read canonical parity in-browser like index(window.db)/resume(WHResume). Until then, parity falls back to cross-surface text match + the journey-hive-isolation spec. Deferred."}
 }

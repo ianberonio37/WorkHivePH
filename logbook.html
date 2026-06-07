@@ -269,13 +269,15 @@
     }
     .status-toggle label {
       flex: 1;
+      display: flex; align-items: center; justify-content: center;
+      min-height: 44px;
       text-align: center;
       padding: 0.6rem 0;
       font-size: 0.75rem;
       font-weight: 700;
       cursor: pointer;
       transition: background 0.2s, color 0.2s;
-      color: rgba(255,255,255,0.35);
+      color: rgba(255,255,255,0.55);
       user-select: none;
     }
     .status-toggle input { display: none; }
@@ -384,7 +386,7 @@
   <nav class="relative z-10 border-b border-white/[0.06]" style="background: rgba(22,32,50,0.85); backdrop-filter: blur(16px);">
     <div class="max-w-6xl mx-auto px-5 sm:px-8 h-14 flex items-center justify-between">
       <div class="flex items-center gap-3">
-        <a href="index.html">
+        <a href="index.html" class="flex items-center justify-center min-h-[44px] min-w-[44px]" aria-label="WorkHive home">
           <img src="brand_assets/workhive-logo-transparent.png" alt="WorkHive" class="h-8 w-auto" />
         </a>
         <div class="w-px h-4 bg-white/15"></div>
@@ -582,8 +584,8 @@
               </div>
 
               <div>
-                <label for="st-open" class="wh-label">Status</label>
-                <div class="status-toggle">
+                <span class="wh-label" id="status-grouplabel">Status</span>
+                <div class="status-toggle" role="radiogroup" aria-labelledby="status-grouplabel">
                   <input type="radio" name="f-status" id="st-open" value="Open" checked />
                   <label for="st-open">Open</label>
                   <input type="radio" name="f-status" id="st-closed" value="Closed" />

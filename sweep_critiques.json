@@ -1,6 +1,6 @@
 {
   "_README": "Machine feed of Grounded MCP Sweep harsh-critic recs (human-readable mirror: SWEEP_CRITIQUE_QUEUE.md). flywheel_orchestrator.py reads this and surfaces undispositioned entries in promotion_queue.md as an exploratory candidate class — so sweep findings flow through the SAME engine + disposition mechanism as the substrate miner. NOT recurrence-gated (a deliberate human critique is valid the first time it's raised). Dispose via promotion_dispositions.json using each entry's `key`.",
-  "generated": "2026-06-07T00:41:35.512175Z",
+  "generated": "2026-06-07T07:02:34.452735+00:00",
   "critiques": [
     {
       "key": "sweep:index:whshell-seam",
@@ -265,6 +265,72 @@
       "effort": "M",
       "flag": "DEFECT",
       "should_be": "HOLISTIC (Phase 4.7): every Wave-1 page's REFEREE fix bumped .btn-primary/.btn-ghost, but each page then shipped a DIFFERENT secondary interactive class below 44px — pm filter-chip(32), dayplanner btn-icon(28)/view-tab(31), shift-brain shift-pill(37)/back-btn(36), nav-hub mode-btn(26). The class list is open-ended, so reactive per-class fixes will always lag. Establish ONE platform rule: a base min-height:44px on all interactive roles (button/[role=button]/tab/chip/pill/icon-btn), or a shared .wh-tappable utility, enforced by validate_mobile extended to compute per-element box size (its current class-parse misses inline + novel classes — blind-spot #1/#2)."
+    },
+    {
+      "key": "sweep:index-dashboard:cls-tile-popin",
+      "page": "index.html",
+      "wave": 0,
+      "title": "Home dashboard CLS ~0.08-0.12 (KPI tiles/alert pop in without reserved space)",
+      "pillar": "A",
+      "severity": "Minor",
+      "effort": "M",
+      "flag": "DEFECT",
+      "should_be": "ops-home KPI tiles (open-jobs/risks/pm-overdue/low-stock) + the signature-alert banner shift layout as async get_hive_dashboard data lands -> CLS measured 0.077-0.116 (>0.1 'good'). Reserve space: give the tile grid + alert slot a min-height / skeleton placeholder so the dashboard does not reflow on data arrival. Timing-sensitive on local Flask (varies run-to-run); confirm against a production-like load. Measured by ufai_battery CWV buffered layout-shift."
+    },
+    {
+      "key": "sweep:platform:page-db-seam",
+      "page": "platform-wide",
+      "wave": 1,
+      "title": "Data pages don't expose their Supabase client (no live-parity seam)",
+      "pillar": "IC",
+      "severity": "Minor",
+      "effort": "M",
+      "flag": "TASTE",
+      "should_be": "logbook/inventory/pm-scheduler create their client inside a closure (not window). index exposes window.db; resume exposes window.WHResume. Add a read-only window.WH<Page>={db,get} (or reuse the memoized window._whSupabaseClient) so a grounded sweep can read canonical parity in-browser. Today parity falls back to cross-surface text match (e.g. inventory '3 low-stock' == dashboard RPC) + the journey-hive-isolation spec for RLS."
+    },
+    {
+      "key": "sweep:platform:header-logo-tap-aria",
+      "page": "platform-wide",
+      "wave": 1,
+      "title": "Header logo link is sub-44px + missing aria-label on many pages (copy-pasted)",
+      "pillar": "U",
+      "severity": "Minor",
+      "effort": "M",
+      "flag": "DEFECT",
+      "should_be": "The header `<a href=index.html><img class=h-8 w-auto></a>` ships ~28-36px (no flex/min-size) and often no aria-label, copy-pasted across ~40 pages. FIXED inline on index/logbook/inventory (flex items-center justify-center min-h/w-[44px] + aria-label='WorkHive home'). Roll the same fix across the remaining pages (or factor the header into a shared partial)."
+    },
+    {
+      "key": "sweep:pm-scheduler:fab-obscured-conn-chip",
+      "page": "pm-scheduler.html",
+      "wave": 1,
+      "title": "Add-asset FAB is obscured by the global connection chip (52x52 -> 52x8 usable)",
+      "pillar": "U",
+      "severity": "Major",
+      "effort": "S",
+      "flag": "DEFECT",
+      "should_be": "axe target-size: the .fab (bottom:calc(68px+safe-area), z-20) is partially covered by #wh-conn-chip/#wh-conn-label (the global online/offline chip), leaving only a 52x8px tappable sliver. Reposition one to clear the other (raise the FAB above the conn-chip, or move the conn-chip) — likely affects every page with a bottom-right FAB. Cross-element collision -> queued, not blind-repositioned."
+    },
+    {
+      "key": "sweep:pm-scheduler:overdue-kpi-vs-dashboard",
+      "page": "pm-scheduler.html",
+      "wave": 1,
+      "title": "pm-scheduler 'Overdue' KPI may not match dashboard pm_overdue_count (26)",
+      "pillar": "F",
+      "severity": "Major",
+      "effort": "M",
+      "flag": "DEFECT",
+      "should_be": "INVESTIGATE: the home dashboard's canonical get_hive_dashboard.pm_overdue_count=26 (task/item-level). pm-scheduler is asset-centric (31 assets, per-asset 'N tasks overdue' badges) and its 'Overdue' KPI read ~2 in this sweep. Confirm whether the two measure the SAME thing (then it's a cross-surface parity DEFECT to fix) or different UNITS (overdue assets vs overdue tasks -> relabel so the numbers don't look contradictory). Page client not window-exposed -> needs the page's own data path to ground."
+    },
+    {
+      "key": "sweep:platform:cls-list-popin",
+      "page": "platform-wide",
+      "wave": 1,
+      "title": "Async list/tile pop-in drives CLS >0.1 on data pages (dashboard + inventory)",
+      "pillar": "A",
+      "severity": "Minor",
+      "effort": "M",
+      "flag": "DEFECT",
+      "should_be": "CLS measured 0.08-0.13 on index home-dashboard (KPI tiles+alert) and inventory (27-row list) because content renders after the data fetch with no reserved space. Give list/tile containers a min-height / skeleton so the page doesn't reflow on data arrival. Generalizes sweep:index-dashboard:cls-tile-popin to the list pages. Timing-sensitive on local Flask -> confirm vs production-like load."
     }
   ]
 }

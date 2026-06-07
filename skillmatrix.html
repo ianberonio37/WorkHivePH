@@ -122,6 +122,9 @@
     /* ── Target stepper ── */
     .target-section { margin-bottom: 1.5rem; }
     .target-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; }
+    /* mobile: stepper rows need ~195px min-content each → 2 cols overflow a 371px viewport by 86px. Single column. */
+    @media (max-width: 480px) { .target-grid { grid-template-columns: 1fr; } }
+    #header-sub { color: #94A3B8; }  /* was inherited #7B8794 = 4.46:1 (fails AA); slate-400 passes */
     .target-item { display: flex; align-items: center; justify-content: space-between; background: rgba(22,32,50,0.4); border-radius: 0.75rem; padding: 0.6rem 0.75rem; }
     .target-name { font-size: 0.72rem; font-weight: 600; color: #F4F6FA; flex: 1; }
     .stepper { display: flex; align-items: center; gap: 0.35rem; }
@@ -132,6 +135,7 @@
       min-width: 44px; min-height: 44px;
     }
     .step-btn:active { background: rgba(255,255,255,0.15); }
+    .step-btn:focus-visible { outline: 2px solid #4A9FD4; outline-offset: 2px; }
     .step-btn:disabled { opacity: 0.3; cursor: not-allowed; }
     .step-val { font-size: 0.85rem; font-weight: 700; color: #fff; width: 18px; text-align: center; }
     .target-save-btn {

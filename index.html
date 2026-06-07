@@ -672,7 +672,7 @@
 
     /* ── Demoted secondary CTA text link ── */
     .cta-text-link {
-      display: inline-flex; align-items: center; gap: 6px;
+      display: inline-flex; align-items: center; gap: 6px; min-height: 44px;
       color: rgba(41,182,217,0.7); font-weight: 600; font-size: 1rem;
       transition: color .2s ease, gap .2s ease;
     }
@@ -930,7 +930,7 @@
 ═══════════════════════════════════════════════ -->
 <nav class="fixed top-0 left-0 right-0 z-50 border-b border-white/[0.06]" style="background: rgba(22,32,50,0.92); backdrop-filter: blur(16px);">
   <div class="max-w-7xl mx-auto px-5 sm:px-8 h-16 flex items-center justify-between">
-    <a href="index.html" class="flex-shrink-0" aria-label="WorkHive home">
+    <a href="index.html" class="flex-shrink-0 flex items-center justify-center min-h-[44px] min-w-[44px]" aria-label="WorkHive home">
       <img src="brand_assets/workhive-logo-transparent.png" alt="WorkHive" class="h-9 w-auto" />
     </a>
 
@@ -957,10 +957,10 @@
       <div class="relative user-menu-wrapper">
         <a href="#" onclick="openSignIn(event)" class="signin-btn btn-ghost text-sm py-2 px-5">Sign In</a>
         <div id="user-menu" class="hidden absolute right-0 top-10 rounded-xl py-2 w-44 z-50" style="background:#1a2535; border:1px solid rgba(255,255,255,0.1); box-shadow:0 8px 32px rgba(0,0,0,0.4);">
-          <p class="text-[11px] text-white/30 px-4 pb-1 uppercase tracking-widest">Signed in as</p>
+          <p class="text-[11px] text-white/60 px-4 pb-1 uppercase tracking-widest">Signed in as</p>
           <p id="user-menu-name" class="text-white text-sm font-bold px-4 pb-3 truncate"></p>
           <div style="border-top:1px solid rgba(255,255,255,0.07);" class="pt-1">
-            <button onclick="signOut()" class="w-full text-left px-4 py-2 text-xs text-white/40 hover:text-white/70 transition-colors">Sign out</button>
+            <button onclick="signOut()" class="w-full text-left px-4 py-2 text-xs text-white/60 hover:text-white/70 transition-colors">Sign out</button>
           </div>
         </div>
       </div>
@@ -972,10 +972,10 @@
       <div class="relative user-menu-wrapper-mobile">
         <a href="#" onclick="openSignIn(event)" class="signin-btn btn-ghost text-sm py-1.5 px-4">Sign In</a>
         <div id="user-menu-mobile" class="hidden absolute right-0 top-10 rounded-xl py-2 w-44 z-50" style="background:#1a2535; border:1px solid rgba(255,255,255,0.1); box-shadow:0 8px 32px rgba(0,0,0,0.4);">
-          <p class="text-[11px] text-white/30 px-4 pb-1 uppercase tracking-widest">Signed in as</p>
+          <p class="text-[11px] text-white/60 px-4 pb-1 uppercase tracking-widest">Signed in as</p>
           <p id="user-menu-name-mobile" class="text-white text-sm font-bold px-4 pb-3 truncate"></p>
           <div style="border-top:1px solid rgba(255,255,255,0.07);" class="pt-1">
-            <button onclick="signOut()" class="w-full text-left px-4 py-2 text-xs text-white/40 hover:text-white/70 transition-colors">Sign out</button>
+            <button onclick="signOut()" class="w-full text-left px-4 py-2 text-xs text-white/60 hover:text-white/70 transition-colors">Sign out</button>
           </div>
         </div>
       </div>
@@ -1030,7 +1030,7 @@
     #ops-home .oh-tile { display:flex; flex-direction:column; align-items:flex-start; padding:14px 16px; min-width:120px; flex:1; text-decoration:none; transition:transform .15s, border-color .15s; }
     #ops-home .oh-tile:hover { transform:translateY(-1px); border-color:rgba(255,255,255,0.18); }
     #ops-home .oh-tile-num { font-size:1.5rem; font-weight:800; line-height:1; }
-    #ops-home .oh-tile-lbl { font-size:.62rem; font-weight:700; text-transform:uppercase; letter-spacing:.06em; color:rgba(255,255,255,.4); margin-top:6px; }
+    #ops-home .oh-tile-lbl { font-size:.62rem; font-weight:700; text-transform:uppercase; letter-spacing:.06em; color:rgba(255,255,255,.6); margin-top:6px; }
     /* Primary action buttons (max 2 above the fold) */
     #ops-home .oh-action { display:flex; align-items:center; justify-content:center; gap:9px; padding:14px 16px; border-radius:12px; text-decoration:none; font-size:.85rem; font-weight:700; border:1px solid; transition:opacity .15s; min-height:48px; }
     #ops-home .oh-action:hover { opacity:.85; }
@@ -1058,7 +1058,7 @@
     <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-bottom:24px;">
       <div>
         <h2 id="oh-greeting" style="font-size:1.35rem; font-weight:800; color:#F4F6FA; margin:0 0 4px;"></h2>
-        <p id="oh-date" style="font-size:.72rem; color:rgba(255,255,255,.35); margin:0;"></p>
+        <p id="oh-date" style="font-size:.72rem; color:rgba(255,255,255,.6); margin:0;"></p>
       </div>
       <div style="display:flex; gap:8px; align-items:center; flex-shrink:0;">
         <!-- Persona Contract Phase 5: WorkHive companion picker. Persists
@@ -1071,7 +1071,7 @@
           <span aria-hidden="true">Companion: </span><span id="oh-persona-name">Zaniah</span>
         </button>
         <a href="hive.html" id="oh-hive-btn" style="display:none; font-size:.7rem; font-weight:700; padding:6px 14px; background:rgba(41,182,217,.12); color:#29B6D9; border:1px solid rgba(41,182,217,.25); border-radius:8px; text-decoration:none;" aria-label="Open hive board"></a>
-        <button onclick="signOut()" class="oh-signout" style="font-size:.7rem; font-weight:600; padding:6px 14px; background:rgba(255,255,255,.05); color:rgba(255,255,255,.45); border:1px solid rgba(255,255,255,.1); border-radius:8px; font-family:inherit; cursor:pointer;">Sign Out</button>
+        <button onclick="signOut()" class="oh-signout" style="font-size:.7rem; font-weight:600; padding:6px 14px; background:rgba(255,255,255,.05); color:rgba(255,255,255,.7); border:1px solid rgba(255,255,255,.1); border-radius:8px; font-family:inherit; cursor:pointer;">Sign Out</button>
       </div>
     </div>
 
@@ -1214,14 +1214,14 @@
 
         <!-- Try-a-tool-now row: zero-friction conversion path. Visitors play with a real tool before signing up. -->
         <div class="flex flex-wrap items-center gap-x-3 gap-y-2 mb-7 text-xs">
-          <span class="text-white/40 font-medium uppercase tracking-wider">Or try free:</span>
-          <a href="/logbook.html" class="text-orange-wh hover:text-white transition-colors font-semibold">Logbook</a>
+          <span class="text-white/60 font-medium uppercase tracking-wider">Or try free:</span>
+          <a href="/logbook.html" class="text-orange-wh hover:text-white transition-colors font-semibold inline-flex items-center min-h-[44px]">Logbook</a>
           <span class="text-white/15">·</span>
-          <a href="/pm-scheduler.html" class="text-orange-wh hover:text-white transition-colors font-semibold">PM Scheduler</a>
+          <a href="/pm-scheduler.html" class="text-orange-wh hover:text-white transition-colors font-semibold inline-flex items-center min-h-[44px]">PM Scheduler</a>
           <span class="text-white/15">·</span>
-          <a href="/engineering-design.html" class="text-orange-wh hover:text-white transition-colors font-semibold">Eng. Calculators</a>
+          <a href="/engineering-design.html" class="text-orange-wh hover:text-white transition-colors font-semibold inline-flex items-center min-h-[44px]">Eng. Calculators</a>
           <span class="text-white/15">·</span>
-          <a href="/assistant.html" class="text-orange-wh hover:text-white transition-colors font-semibold">AI Assistant</a>
+          <a href="/assistant.html" class="text-orange-wh hover:text-white transition-colors font-semibold inline-flex items-center min-h-[44px]">AI Assistant</a>
         </div>
 
         <!-- Trust chip row: 3 short proof points. DTI = authority, Free = pricing clincher, PDPA = data trust. -->
@@ -1245,13 +1245,13 @@
           <div>
             <p class="text-3xl font-black stat-orange leading-none">40-60%</p>
             <p class="text-xs text-white/45 font-medium mt-1 tracking-wide">Less Unplanned Downtime</p>
-            <p class="text-[10px] text-white/30 mt-0.5 tracking-wide">SMRP world-class benchmarks</p>
+            <p class="text-[10px] text-white/60 mt-0.5 tracking-wide">SMRP world-class benchmarks</p>
           </div>
           <div class="w-px bg-white/10"></div>
           <div>
             <p class="text-3xl font-black stat-blue leading-none">4 Gaps</p>
             <p class="text-xs text-white/45 font-medium mt-1 tracking-wide">Execution · Skills · Intelligence · Marketplace</p>
-            <p class="text-[10px] text-white/30 mt-0.5 tracking-wide">closed by one hive</p>
+            <p class="text-[10px] text-white/60 mt-0.5 tracking-wide">closed by one hive</p>
           </div>
         </div>
       </div>
@@ -1275,7 +1275,7 @@
               </div>
               <h2 class="font-black text-white text-lg leading-snug">Find your <span style="background: linear-gradient(135deg,#F7A21B,#FDB94A); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;">hive's stage</span></h2>
               <p class="text-[11px] text-white/45 mt-1 leading-relaxed">We don't replace your ERP or CMMS. We make digital tools actually work in your plant.</p>
-              <p class="text-[10px] text-white/30 mt-2 leading-relaxed">No predictions on insufficient data. No rigid workflows. No enterprise infrastructure assumed. Free at the worker tier forever.</p>
+              <p class="text-[10px] text-white/60 mt-2 leading-relaxed">No predictions on insufficient data. No rigid workflows. No enterprise infrastructure assumed. Free at the worker tier forever.</p>
             </div>
 
             <!-- Stage Cards Grid -->
@@ -1286,6 +1286,7 @@
                 .stage-card { cursor:pointer; transition: transform .18s, box-shadow .18s; position: relative; overflow: clip; }
                 .stage-card:hover  { transform: translateY(-2px); }
                 .stage-card:active { transform: scale(0.97); opacity: 0.85; }
+                .stage-card:focus-visible { outline: 2px solid #4A9FD4; outline-offset: 2px; }
                 .stage-hex-num {
                   width: 26px; height: 30px; flex-shrink: 0;
                   clip-path: polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%);
@@ -1413,32 +1414,32 @@
   <div class="max-w-7xl mx-auto px-5 sm:px-8">
     <p class="text-center text-xs text-white/60 font-medium uppercase tracking-widest mb-6">Designed for Philippine Industry</p>
     <div class="flex flex-wrap justify-center items-center gap-x-12 gap-y-4">
-      <div class="flex items-center gap-2.5 text-white/40 hover:text-white/60 transition-colors">
+      <div class="flex items-center gap-2.5 text-white/60 hover:text-white/60 transition-colors">
         <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M10.394 2.08a1 1 0 00-.788 0l-7 3a1 1 0 000 1.84L5.25 8.051a.999.999 0 01.356-.257l4-1.714a1 1 0 11.788 1.838L7.667 9.088l1.94.831a1 1 0 00.787 0l7-3a1 1 0 000-1.838l-7-3zM3.31 9.397L5 10.12v4.102a8.969 8.969 0 00-1.05-.174 1 1 0 01-.89-.89 11.115 11.115 0 01.25-3.762zm5.99 7.176A9.026 9.026 0 007 14.935v-3.957l1.818.78a3 3 0 002.364 0l5.508-2.361a11.026 11.026 0 01.25 3.762 1 1 0 01-.89.89 8.968 8.968 0 00-5.35 2.524 1 1 0 01-1.4 0zM6 18a1 1 0 001-1v-2.065a8.935 8.935 0 00-2-.712V17a1 1 0 001 1z"/></svg>
         <span class="text-sm font-medium">Manufacturing</span>
       </div>
       <div class="w-px h-5 bg-white/10 hidden sm:block"></div>
-      <div class="flex items-center gap-2.5 text-white/40 hover:text-white/60 transition-colors">
+      <div class="flex items-center gap-2.5 text-white/60 hover:text-white/60 transition-colors">
         <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clip-rule="evenodd"/></svg>
         <span class="text-sm font-medium">Energy &amp; Utilities</span>
       </div>
       <div class="w-px h-5 bg-white/10 hidden sm:block"></div>
-      <div class="flex items-center gap-2.5 text-white/40 hover:text-white/60 transition-colors">
+      <div class="flex items-center gap-2.5 text-white/60 hover:text-white/60 transition-colors">
         <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z"/></svg>
         <span class="text-sm font-medium">Food Processing</span>
       </div>
       <div class="w-px h-5 bg-white/10 hidden sm:block"></div>
-      <div class="flex items-center gap-2.5 text-white/40 hover:text-white/60 transition-colors">
+      <div class="flex items-center gap-2.5 text-white/60 hover:text-white/60 transition-colors">
         <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4 2a2 2 0 00-2 2v11a3 3 0 106 0V4a2 2 0 00-2-2H4zm1 14a1 1 0 100-2 1 1 0 000 2zm5-1.757l4.9-4.9a2 2 0 000-2.828L13.485 5.1a2 2 0 00-2.828 0L10 5.757v8.486zM16 18H9.071l6-6H16a2 2 0 012 2v2a2 2 0 01-2 2z" clip-rule="evenodd"/></svg>
         <span class="text-sm font-medium">Electronics</span>
       </div>
       <div class="w-px h-5 bg-white/10 hidden sm:block"></div>
-      <div class="flex items-center gap-2.5 text-white/40 hover:text-white/60 transition-colors">
+      <div class="flex items-center gap-2.5 text-white/60 hover:text-white/60 transition-colors">
         <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"/></svg>
         <span class="text-sm font-medium">Facilities &amp; BMS</span>
       </div>
       <div class="w-px h-5 bg-white/10 hidden sm:block"></div>
-      <div class="flex items-center gap-2.5 text-white/40 hover:text-white/60 transition-colors">
+      <div class="flex items-center gap-2.5 text-white/60 hover:text-white/60 transition-colors">
         <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M3 5a2 2 0 012-2h10a2 2 0 012 2v8a2 2 0 01-2 2h-2.22l.123.489.804.804A1 1 0 0113 18H7a1 1 0 01-.707-1.707l.804-.804L7.22 15H5a2 2 0 01-2-2V5zm5.771 7H5V5h10v7H8.771z" clip-rule="evenodd"/></svg>
         <span class="text-sm font-medium">Petrochemicals</span>
       </div>
@@ -1549,11 +1550,11 @@
         <div class="grid grid-cols-2 gap-3">
           <div class="rounded-xl px-4 py-3 border border-white/[0.06]" style="background: rgba(247,162,27,0.07);">
             <p class="text-orange-wh font-bold text-xl">40-60%</p>
-            <p class="text-white/40 text-xs mt-0.5">Less Unplanned Downtime Costs</p>
+            <p class="text-white/60 text-xs mt-0.5">Less Unplanned Downtime Costs</p>
           </div>
           <div class="rounded-xl px-4 py-3 border border-white/[0.06]" style="background: rgba(247,162,27,0.07);">
             <p class="text-orange-wh font-bold text-xl">4-8x</p>
-            <p class="text-white/40 text-xs mt-0.5">Cost Saved vs. Reactive Repair</p>
+            <p class="text-white/60 text-xs mt-0.5">Cost Saved vs. Reactive Repair</p>
           </div>
         </div>
       </div>
@@ -1573,11 +1574,11 @@
         <div class="grid grid-cols-2 gap-3">
           <div class="rounded-xl px-4 py-3 border border-white/[0.06]" style="background: rgba(41,182,217,0.07);">
             <p class="text-blue-wh font-bold text-xl">15-25%</p>
-            <p class="text-white/40 text-xs mt-0.5">Maintenance Labor Efficiency Gain</p>
+            <p class="text-white/60 text-xs mt-0.5">Maintenance Labor Efficiency Gain</p>
           </div>
           <div class="rounded-xl px-4 py-3 border border-white/[0.06]" style="background: rgba(41,182,217,0.07);">
             <p class="text-blue-wh font-bold text-xl">Data</p>
-            <p class="text-white/40 text-xs mt-0.5">Not Guesswork, for Every Assignment</p>
+            <p class="text-white/60 text-xs mt-0.5">Not Guesswork, for Every Assignment</p>
           </div>
         </div>
       </div>
@@ -1597,11 +1598,11 @@
         <div class="grid grid-cols-2 gap-3">
           <div class="rounded-xl px-4 py-3 border border-white/[0.06]" style="background: rgba(41,182,217,0.07);">
             <p class="text-blue-wh font-bold text-xl">60-80%</p>
-            <p class="text-white/40 text-xs mt-0.5">Less Knowledge Loss at Transitions</p>
+            <p class="text-white/60 text-xs mt-0.5">Less Knowledge Loss at Transitions</p>
           </div>
           <div class="rounded-xl px-4 py-3 border border-white/[0.06]" style="background: rgba(41,182,217,0.07);">
             <p class="text-blue-wh font-bold text-xl">∞</p>
-            <p class="text-white/40 text-xs mt-0.5">Compounding Organizational Memory</p>
+            <p class="text-white/60 text-xs mt-0.5">Compounding Organizational Memory</p>
           </div>
         </div>
       </div>
@@ -1621,11 +1622,11 @@
         <div class="grid grid-cols-2 gap-3">
           <div class="rounded-xl px-4 py-3 border border-white/[0.06]" style="background: rgba(247,162,27,0.07);">
             <p class="text-orange-wh font-bold text-xl">35%</p>
-            <p class="text-white/40 text-xs mt-0.5">Faster Time-to-Source Specialists</p>
+            <p class="text-white/60 text-xs mt-0.5">Faster Time-to-Source Specialists</p>
           </div>
           <div class="rounded-xl px-4 py-3 border border-white/[0.06]" style="background: rgba(247,162,27,0.07);">
             <p class="text-orange-wh font-bold text-xl">4 Pillars</p>
-            <p class="text-white/40 text-xs mt-0.5">Services, Parts, Training, Jobs</p>
+            <p class="text-white/60 text-xs mt-0.5">Services, Parts, Training, Jobs</p>
           </div>
         </div>
       </div>
@@ -1694,22 +1695,22 @@
         <div class="rounded-3xl p-7 border border-white/[0.08] card-orange" style="background: linear-gradient(145deg, rgba(247,162,27,0.12) 0%, rgba(31,46,69,0.8) 100%);">
           <p class="text-5xl font-black stat-orange mb-2">40-60%</p>
           <p class="text-sm font-semibold text-white mb-1">Less Downtime</p>
-          <p class="text-xs text-white/40 leading-relaxed">Reduction in unplanned downtime costs through predictive maintenance</p>
+          <p class="text-xs text-white/60 leading-relaxed">Reduction in unplanned downtime costs through predictive maintenance</p>
         </div>
         <div class="rounded-3xl p-7 border border-white/[0.08] card-glow" style="background: linear-gradient(145deg, rgba(41,182,217,0.12) 0%, rgba(31,46,69,0.8) 100%);">
           <p class="text-5xl font-black stat-blue mb-2">60-80%</p>
           <p class="text-sm font-semibold text-white mb-1">Knowledge Preserved</p>
-          <p class="text-xs text-white/40 leading-relaxed">Reduction in knowledge loss costs at workforce transitions</p>
+          <p class="text-xs text-white/60 leading-relaxed">Reduction in knowledge loss costs at workforce transitions</p>
         </div>
         <div class="rounded-3xl p-7 border border-white/[0.08] card-glow" style="background: linear-gradient(145deg, rgba(41,182,217,0.12) 0%, rgba(31,46,69,0.8) 100%);">
           <p class="text-5xl font-black stat-blue mb-2">15-25%</p>
           <p class="text-sm font-semibold text-white mb-1">Labor Efficiency</p>
-          <p class="text-xs text-white/40 leading-relaxed">Improvement in maintenance labor efficiency through AI-matched assignments</p>
+          <p class="text-xs text-white/60 leading-relaxed">Improvement in maintenance labor efficiency through AI-matched assignments</p>
         </div>
         <div class="rounded-3xl p-7 border border-white/[0.08] card-orange" style="background: linear-gradient(145deg, rgba(247,162,27,0.12) 0%, rgba(31,46,69,0.8) 100%);">
           <p class="text-5xl font-black stat-orange mb-2">35%</p>
           <p class="text-sm font-semibold text-white mb-1">Faster Sourcing</p>
-          <p class="text-xs text-white/40 leading-relaxed">Average reduction in time-to-source for specialized maintenance services</p>
+          <p class="text-xs text-white/60 leading-relaxed">Average reduction in time-to-source for specialized maintenance services</p>
         </div>
       </div>
 
@@ -2013,7 +2014,7 @@
       </select>
     </form>
 
-    <p class="text-xs text-white/30 mb-12">Free to join · Philippines-first · No spam, ever</p>
+    <p class="text-xs text-white/60 mb-12">Free to join · Philippines-first · No spam, ever</p>
 
     <div class="flex flex-wrap items-center justify-center gap-8 pt-8 border-t border-white/[0.07]">
       <div class="flex items-center gap-3">
@@ -2040,39 +2041,39 @@
     <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-10 mb-12">
       <div class="lg:col-span-2">
         <img src="brand_assets/workhive-logo-transparent.png" alt="WorkHive" class="h-10 w-auto mb-4" />
-        <p class="text-sm text-white/40 leading-relaxed max-w-xs">
+        <p class="text-sm text-white/60 leading-relaxed max-w-xs">
           The industrial intelligence hive for the Philippines. Closing the Execution, Skills,
           Intelligence, and Marketplace gaps that hold Filipino workers back.
         </p>
-        <p class="text-xs text-white/25 mt-4 font-medium">workhiveph.com · 2026</p>
+        <p class="text-xs text-white/60 mt-4 font-medium">workhiveph.com · 2026</p>
       </div>
       <div>
         <p class="text-xs font-semibold text-white/60 uppercase tracking-[0.12em] mb-4">Tools (Free)</p>
         <ul class="space-y-3">
-          <li><a href="/logbook.html"            class="text-sm text-white/40 hover:text-white/70 transition-colors">Maintenance Logbook</a></li>
-          <li><a href="/pm-scheduler.html"       class="text-sm text-white/40 hover:text-white/70 transition-colors">PM Scheduler</a></li>
-          <li><a href="/inventory.html"          class="text-sm text-white/40 hover:text-white/70 transition-colors">Spare-Parts Inventory</a></li>
-          <li><a href="/skillmatrix.html"        class="text-sm text-white/40 hover:text-white/70 transition-colors">Skill Matrix</a></li>
-          <li><a href="/engineering-design.html" class="text-sm text-white/40 hover:text-white/70 transition-colors">Engineering Calculators</a></li>
-          <li><a href="/assistant.html"          class="text-sm text-white/40 hover:text-white/70 transition-colors">AI Work Assistant</a></li>
-          <li><a href="/learn/"                  class="text-sm text-white/40 hover:text-white/70 transition-colors">Learn (24 free guides)</a></li>
+          <li><a href="/logbook.html"            class="text-sm text-white/60 hover:text-white/70 transition-colors inline-flex items-center min-h-[44px]">Maintenance Logbook</a></li>
+          <li><a href="/pm-scheduler.html"       class="text-sm text-white/60 hover:text-white/70 transition-colors inline-flex items-center min-h-[44px]">PM Scheduler</a></li>
+          <li><a href="/inventory.html"          class="text-sm text-white/60 hover:text-white/70 transition-colors inline-flex items-center min-h-[44px]">Spare-Parts Inventory</a></li>
+          <li><a href="/skillmatrix.html"        class="text-sm text-white/60 hover:text-white/70 transition-colors inline-flex items-center min-h-[44px]">Skill Matrix</a></li>
+          <li><a href="/engineering-design.html" class="text-sm text-white/60 hover:text-white/70 transition-colors inline-flex items-center min-h-[44px]">Engineering Calculators</a></li>
+          <li><a href="/assistant.html"          class="text-sm text-white/60 hover:text-white/70 transition-colors inline-flex items-center min-h-[44px]">AI Work Assistant</a></li>
+          <li><a href="/learn/"                  class="text-sm text-white/60 hover:text-white/70 transition-colors inline-flex items-center min-h-[44px]">Learn (24 free guides)</a></li>
         </ul>
       </div>
       <div>
         <p class="text-xs font-semibold text-white/60 uppercase tracking-[0.12em] mb-4">Company</p>
         <ul class="space-y-3">
-          <li><a href="/about/" class="text-sm text-white/40 hover:text-white/70 transition-colors">About</a></li>
-          <li><a href="mailto:admin@workhiveph.com" class="text-sm text-white/40 hover:text-white/70 transition-colors">Contact</a></li>
+          <li><a href="/about/" class="text-sm text-white/60 hover:text-white/70 transition-colors inline-flex items-center min-h-[44px]">About</a></li>
+          <li><a href="mailto:admin@workhiveph.com" class="text-sm text-white/60 hover:text-white/70 transition-colors inline-flex items-center min-h-[44px]">Contact</a></li>
         </ul>
-        <p class="text-xs text-white/30 mt-6">DTI Registered<br/>Business Name 8080496</p>
+        <p class="text-xs text-white/60 mt-6">DTI Registered<br/>Business Name 8080496</p>
       </div>
     </div>
 
     <div class="pt-8 border-t border-white/[0.06] flex flex-col sm:flex-row items-center justify-between gap-4">
-      <p class="text-xs text-white/25">© 2026 WorkHive Engineering Services. · workhiveph.com · Last updated <time datetime="2026-05-17">17 May 2026</time></p>
+      <p class="text-xs text-white/60">© 2026 WorkHive Engineering Services. · workhiveph.com · Last updated <time datetime="2026-05-17">17 May 2026</time></p>
       <div class="flex items-center gap-6">
-        <a href="/privacy-policy/" class="text-xs text-white/25 hover:text-white/50 transition-colors">Privacy Policy</a>
-        <a href="/terms-of-service/" class="text-xs text-white/25 hover:text-white/50 transition-colors">Terms of Service</a>
+        <a href="/privacy-policy/" class="text-xs text-white/60 hover:text-white/80 transition-colors inline-flex items-center min-h-[44px]">Privacy Policy</a>
+        <a href="/terms-of-service/" class="text-xs text-white/60 hover:text-white/80 transition-colors inline-flex items-center min-h-[44px]">Terms of Service</a>
       </div>
     </div>
   </div>
@@ -2230,7 +2231,7 @@
     <!-- popup top bar: stage tabs + close -->
     <div class="px-5 pt-5 pb-0 flex-shrink-0">
       <div class="flex items-center justify-between mb-4">
-        <p class="text-[10px] font-bold uppercase tracking-[0.15em] text-white/40">Your Growth Path</p>
+        <p class="text-[10px] font-bold uppercase tracking-[0.15em] text-white/60">Your Growth Path</p>
         <button onclick="closeStagePopup()" class="w-8 h-8 rounded-full flex items-center justify-center text-white/50 hover:text-white hover:bg-white/10 transition-colors" aria-label="Close">
           <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
         </button>
@@ -2238,19 +2239,19 @@
       <!-- stage tabs -->
       <div id="popup-tabs-row" class="grid grid-cols-4 gap-1.5 mb-5">
         <button onclick="switchPopupStage(1)" id="ptab-1" class="popup-tab rounded-xl px-2 py-2.5 text-center transition-all duration-200 border border-transparent">
-          <span class="text-[10px] font-bold block text-white/40 mb-0.5">01</span>
+          <span class="text-[10px] font-bold block text-white/60 mb-0.5">01</span>
           <span class="text-xs font-bold block text-white/60 leading-tight">Foundation</span>
         </button>
         <button onclick="switchPopupStage(2)" id="ptab-2" class="popup-tab rounded-xl px-2 py-2.5 text-center transition-all duration-200 border border-transparent">
-          <span class="text-[10px] font-bold block text-white/40 mb-0.5">02</span>
+          <span class="text-[10px] font-bold block text-white/60 mb-0.5">02</span>
           <span class="text-xs font-bold block text-white/60 leading-tight">Discipline</span>
         </button>
         <button onclick="switchPopupStage(3)" id="ptab-3" class="popup-tab rounded-xl px-2 py-2.5 text-center transition-all duration-200 border border-transparent">
-          <span class="text-[10px] font-bold block text-white/40 mb-0.5">03</span>
+          <span class="text-[10px] font-bold block text-white/60 mb-0.5">03</span>
           <span class="text-xs font-bold block text-white/60 leading-tight">Predictive</span>
         </button>
         <button onclick="switchPopupStage(4)" id="ptab-4" class="popup-tab rounded-xl px-2 py-2.5 text-center transition-all duration-200 border border-transparent">
-          <span class="text-[10px] font-bold block text-white/40 mb-0.5">04</span>
+          <span class="text-[10px] font-bold block text-white/60 mb-0.5">04</span>
           <span class="text-xs font-bold block text-white/60 leading-tight">Leader</span>
         </button>
       </div>
@@ -2382,7 +2383,7 @@
           <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="${s.color}" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="${t.icon}"/></svg>
         </div>
         <p class="font-bold text-white text-xs mb-1">${t.name}</p>
-        <p class="text-white/40 text-[11px] leading-relaxed">${t.desc}</p>
+        <p class="text-white/60 text-[11px] leading-relaxed">${t.desc}</p>
         ${isLink ? `<p class="text-[10px] font-semibold mt-2 flex items-center gap-1" style="color:${s.color}">Open Tool <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg></p>` : ''}
       </${closeTag}>`;
     }).join('');
@@ -2461,7 +2462,7 @@
   <script src="qr-scanner.js"></script>
 
 <!-- ── Sticky mobile CTA bar ── -->
-<div id="sticky-mobile-cta" class="md:hidden" aria-hidden="true">
+<div id="sticky-mobile-cta" class="md:hidden" aria-hidden="true" inert>
   <a href="#join" class="btn-primary text-sm w-full text-center block">Get Early Access: It's Free</a>
 </div>
 
@@ -2495,7 +2496,7 @@
 </style>
 <div id="signin-modal" class="fixed inset-0 z-50 flex items-center justify-center hidden" style="background:rgba(0,0,0,0.75); backdrop-filter:blur(10px);" role="dialog" aria-modal="true" aria-label="Sign in to WorkHive">
   <div class="relative rounded-2xl p-7 w-full max-w-sm mx-4" style="background:#1a2535; border:1px solid rgba(255,255,255,0.1); box-shadow:0 24px 80px rgba(0,0,0,0.5);">
-    <button onclick="closeSignIn()" class="absolute top-4 right-4 text-white/30 hover:text-white/70 transition-colors text-xl leading-none" aria-label="Close">&times;</button>
+    <button onclick="closeSignIn()" class="absolute top-4 right-4 text-white/60 hover:text-white/70 transition-colors text-xl leading-none" aria-label="Close">&times;</button>
 
     <div class="flex justify-center mb-5">
       <img src="brand_assets/workhive-logo-transparent.png" alt="WorkHive" class="h-9 w-auto" />
@@ -3172,14 +3173,21 @@
     const hero = document.querySelector('section');
     if (!hero) return;
     new IntersectionObserver(function(entries) {
-      cta.style.transform = entries[0].isIntersecting ? 'translateY(100%)' : 'translateY(0)';
-      cta.setAttribute('aria-hidden', entries[0].isIntersecting ? 'true' : 'false');
+      var hidden = entries[0].isIntersecting;
+      cta.style.transform = hidden ? 'translateY(100%)' : 'translateY(0)';
+      cta.setAttribute('aria-hidden', hidden ? 'true' : 'false');
+      cta.inert = hidden;  // WCAG 4.1.2: a hidden CTA must not be Tab-focusable (axe aria-hidden-focus)
     }, { threshold: 0.15 }).observe(hero);
   })();
 
-  /* ── Stage card micro-bounce ── */
-  if (!reducedMotion) {
-    document.querySelectorAll('.stage-card').forEach(function(card) {
+  /* ── Stage cards: keyboard a11y (WCAG 2.1.1 — onclick divs need role + key) + micro-bounce ── */
+  document.querySelectorAll('.stage-card').forEach(function(card) {
+    card.setAttribute('role', 'button');
+    if (!card.hasAttribute('tabindex')) card.setAttribute('tabindex', '0');
+    card.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); card.click(); }
+    });
+    if (!reducedMotion) {
       card.addEventListener('pointerdown', function() {
         this.style.transition = 'transform .12s ease';
         this.style.transform = 'scale(0.94)';
@@ -3190,8 +3198,8 @@
           this.style.transform = '';
         });
       });
-    });
-  }
+    }
+  });
 
   /* ── Nav active section highlight ── */
   const navLinks = document.querySelectorAll('.nav-link[href^="#"]');
