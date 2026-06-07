@@ -135,6 +135,37 @@ human design call — the "judgment fork").
   boilerplate (`plant-connections` ↔ `shift-brain` + siblings) → a shared include;
   (2) the "verdict + simple-card" block → one component. Each collapse → `--update-baseline` lower.
 
+## Performance / Scale — the missing 5th dimension (load + stress)  ·  flagged 2026-06-07
+
+User pushback (the "API Testing Types" rubric — Smoke/Functional/Integration/UI/Load/
+Stress/Security): the sweep + mega-gate cover **5 of 7 well** (Smoke = `validate_playwright_smoke`
++ SOP "Smoke ~30s" battery; Functional = journey specs + canonical-parity + formula
+contracts; Integration = edge contracts + `e2e_roles_runner` + Concurrent Edit; UI = the
+Grounded Sweep itself + visual regression; Security = `validate_xss`/`rls_strict`/
+`validate_definer_membership_gate`/`tenant_boundary` + adversarial probes). **Load + Stress
+is the real gap.**
+
+**Honest state (filesystem-graded, not a total void — worse: it's DORMANT):**
+- `tools/load_test.k6.js` EXISTS (4 capacity-aligned scenarios: voice 20vus, RAG burst,
+  logbook 100-concurrent, mixed 200-user) + `CAPACITY_PLAN.md` thresholds (p95<2s, err<1%).
+- BUT its own header says *"STUB rig … not wired into CI until staging exists"* — it has
+  **never been run** in any gate or sweep; grep of the SOP for `load|stress|k6` = **0 matches**.
+- **No stress scenario** (ramp-to-breakpoint); the 4 are all *expected* traffic.
+- Wrongly blocked on a "staging environment" — it can run against the **local** edge
+  stack today (`-e BASE_URL=http://127.0.0.1:54321`).
+- Root reason it slipped: the sweep's four pillars are **U·F·A·I** — there is **no
+  Performance/Scale pillar**. The sweep measures rect sizes/counts/parity, never
+  latency/throughput/error-rate under N concurrent users. And it's *page*-driven; the
+  **edge-fn APIs** get contract + security + functional coverage, never direct load/stress.
+
+**Build DEFERRED (owner call 2026-06-07 — "roadmap it, don't build yet").** When built:
+1. Run `load_test.k6.js` against the local edge stack now (capture p95/err vs CAPACITY_PLAN).
+2. Add a **stress** scenario (ramp VUs until p95/err breaches → find the breakpoint).
+3. Crystallize a `validate_load_*` threshold ratchet + a SOP "Performance/Scale" battery row,
+   so it joins the sweep instead of staying a dead file.
+- Caveat to bake in: local k6 ≠ prod (single Flask/Docker box, not CDN+managed-PG) — it
+  measures **relative regressions + breakpoints**, not absolute prod capacity. Needs `k6` installed.
+
 ## Internal / Ops track (lighter "ops" battery, separate cadence — these are founder/admin surfaces, not the public web)
 `founder-console.html` · `platform-health.html` · `llm-observability.html` ·
 `agentic-rag-observability.html` · `validator-catalog.html` · `architecture.html`

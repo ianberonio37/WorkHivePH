@@ -253,6 +253,7 @@ EXPLORATORY layer on top, and every finding crystallizes back INTO these gates:
 | **CRUD (~2 min, DB-VERIFIED)** | `flows/*_crud.py` via `/api/run-crud-tests` | **Functionality** - UI write -> QUERY Supabase -> assert the write actually LANDED (not just DOM). Use for every data-source/tenant page; the resume pilot was in-memory and did NOT need it. |
 | **UI Locks (Node ~6 min)** | the Node `tests/journey-*.spec.ts` suite | the L0->L2 crystallization target (lock the behavior) |
 | **Visual Regression (~3 min)** | `visual.py` flow | **Usability** - screenshot vs baseline diff per page/template/breakpoint |
+| **Load / Stress (DEFERRED stub)** | `tools/load_test.k6.js` (k6) + `CAPACITY_PLAN.md` thresholds (p95<2s, err<1%) | **Performance/Scale - the 5th dimension, NOT yet in U·F·A·I.** p95/throughput/error-rate under N concurrent users + a ramp-to-breakpoint *stress* run. DORMANT: the rig exists but has never been run, isn't wired into any gate, has no stress scenario, and was wrongly blocked on "staging" (it runs against the LOCAL edge stack: `-e BASE_URL=http://127.0.0.1:54321`). Build deferred (owner call 2026-06-07). See GROUNDED_SWEEP_ROADMAP.md "Performance / Scale". |
 Page inventory is grounded in `e2e_roles_runner.py:TIER_PAGES` (34 pages / 5 tiers -
 more complete than nav-hub's 28; reconcile the roadmap to it).
 
