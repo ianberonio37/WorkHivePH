@@ -65,6 +65,12 @@ DOC_TEXT_OK = {
     "ARCHITECTURE.html":      "RETIRED 2026-05-13 — archival doc",
     "architecture.html":      "RETIRED 2026-05-13 — archival doc",
     "WORKHIVE_PLATFORM_BOOK.md": "platform book / docs",
+    # Grounded-sweep test batteries: 'service_role' appears ONLY inside a secret-
+    # DETECTION regex (the Safety / Internal-Control pillar scans an AI answer for a
+    # leaked service_role-shaped value) — never as a key the code uses. Test-only
+    # tooling injected via the Playwright MCP, not shipped product code.
+    "ufai_battery.js":        "secret-detection regex in the UFAI battery (no key usage)",
+    "companion_battery.js":   "secret-detection regex in the Companion Stack battery (no key usage)",
 }
 
 # A JWT segment is base64url; the full 3-segment shape is very specific.

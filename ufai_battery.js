@@ -132,14 +132,14 @@
         const es = l.getEntries(); const last = es[es.length - 1];
         if (last) _state.cwv.LCP = round(last.renderTime || last.loadTime || last.startTime, 0);
       }).observe({ type: 'largest-contentful-paint', buffered: true });
-    } catch (_) {}
+    } catch (_) { /* empty-catch-allow: best-effort guard (test-only battery) */ }
     try {
       let cls = 0;
       new PerformanceObserver((l) => {
         for (const e of l.getEntries()) if (!e.hadRecentInput) cls += e.value;
         _state.cwv.CLS = round(cls, 3);
       }).observe({ type: 'layout-shift', buffered: true });
-    } catch (_) {}
+    } catch (_) { /* empty-catch-allow: best-effort guard (test-only battery) */ }
     try {
       const inter = {};
       new PerformanceObserver((l) => {
@@ -149,11 +149,11 @@
         const vals = Object.values(inter);
         if (vals.length) _state.cwv.INP = round(Math.max(...vals), 0);
       }).observe({ type: 'event', buffered: true, durationThreshold: 16 });
-    } catch (_) {}
+    } catch (_) { /* empty-catch-allow: best-effort guard (test-only battery) */ }
 
     // CDN libs — best effort; the battery degrades gracefully if blocked.
     let axe = !!window.axe, wv = false;
-    try { if (!axe) { await loadScript(AXE_CDN); axe = !!window.axe; } } catch (_) {}
+    try { if (!axe) { await loadScript(AXE_CDN); axe = !!window.axe; } } catch (_) { /* empty-catch-allow: best-effort guard (test-only battery) */ }
     try {
       const m = await import(/* webpackIgnore:true */ WV_CDN);
       window.__wv = m;
@@ -161,7 +161,7 @@
       m.onCLS((x) => { _state.cwv.CLS = round(x.value, 3); }, { reportAllChanges: true });
       m.onINP((x) => { _state.cwv.INP = round(x.value, 0); }, { reportAllChanges: true });
       wv = true;
-    } catch (_) {}
+    } catch (_) { /* empty-catch-allow: best-effort guard (test-only battery) */ }
 
     _state.booted = true;
     return { axe, webVitals: wv };
@@ -308,9 +308,9 @@
             `outline:${af.outlineStyle} ${af.outlineWidth}`, 'visible focus ring ≥2px on Tab (SC 2.4.11)',
             'add :focus-visible{outline:2px solid …;outline-offset:2px}', 'Minor'));
         }
-      } catch (_) {}
+      } catch (_) { /* empty-catch-allow: best-effort guard (test-only battery) */ }
     }
-    if (active && active.focus) try { active.focus({ preventScroll: true }); } catch (_) {}
+    if (active && active.focus) try { active.focus({ preventScroll: true }); } catch (_) { /* empty-catch-allow: best-effort guard (test-only battery) */ }
     metrics.focusVisible = { checked: focusables.length, missing: noFocusRing };
 
     // horizontal overflow at current viewport (true-dpr if MCP set physical width)
@@ -393,8 +393,10 @@
     await Promise.all([...hrefs].slice(0, 40).map(async (h) => {
       try {
         const url = new URL(h, location.href);
-        const r = await fetch(url.href, { method: 'HEAD' });
-        if (r.status >= 400) broken.push({ href: h, status: r.status });
+        // use the page's bounded fetch so a hung server can't strand the link sweep
+        const _f = (typeof window.fetchWithTimeout === 'function') ? window.fetchWithTimeout : ((u, o) => fetch(u, o));
+        const r = await _f(url.href, { method: 'HEAD' }, 5000);
+        if (r && r.status >= 400) broken.push({ href: h, status: r.status });
       } catch (e) { broken.push({ href: h, status: 'fetch-err' }); }
     }));
     for (const b of broken) defects.push(defect('F', 'broken-internal-link', null, `${b.href} → ${b.status}`, '200', 'fix or remove the dead internal link', 'Major'));
@@ -442,7 +444,7 @@
         const k = localStorage.key(i); const val = localStorage.getItem(k) || '';
         if (secretRe.test(val)) exposures.push({ where: 'localStorage:' + k, hit: val.match(secretRe)[0].slice(0, 12) + '…' });
       }
-    } catch (_) {}
+    } catch (_) { /* empty-catch-allow: best-effort guard (test-only battery) */ }
     const bodyTxt = document.body ? document.body.innerHTML : '';
     const m = bodyTxt.match(secretRe);
     if (m) exposures.push({ where: 'DOM', hit: m[0].slice(0, 12) + '…' });
@@ -473,7 +475,7 @@
     try {
       const lcp = performance.getEntriesByType('largest-contentful-paint').slice(-1)[0];
       if (lcp) _state.cwv.LCP = round(lcp.renderTime || lcp.loadTime || lcp.startTime, 0);
-    } catch (_) {}
+    } catch (_) { /* empty-catch-allow: best-effort guard (test-only battery) */ }
     const r = { ...(_state.cwv) };
     r.ratings = {
       LCP: r.LCP == null ? 'n/a' : r.LCP <= CWV_GOOD.LCP ? 'good' : r.LCP <= 4000 ? 'needs-improvement' : 'poor',

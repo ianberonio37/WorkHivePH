@@ -39,7 +39,7 @@
  * i.e. the surface went through the ONE door, not a bypass.
  *
  * USAGE (per surface, via Playwright whPage which has a REAL auth session):
- *   const r = await fetch('/workhive/companion_battery.js'); (0,eval)(await r.text())();
+ *   GET /workhive/companion_battery.js -> (0,eval)(responseText)()   // installs window.__CSB
  *   await window.__CSB.boot();
  *   await window.__CSB.run({ surface:'assistant', role:'supervisor', experience:'experienced' });
  *
@@ -102,7 +102,7 @@
     if (window.supabaseClient && window.supabaseClient.functions) return window.supabaseClient;
     if (_client) return _client;
     if (window.supabase && window.supabase.createClient) {
-      try { _client = window.supabase.createClient(SB_URL, SB_KEY); return _client; } catch (_) {}
+      try { _client = window.supabase.createClient(SB_URL, SB_KEY); return _client; } catch (_) { /* empty-catch-allow: best-effort guard (test-only battery) */ }
     }
     return null;
   }
@@ -142,7 +142,7 @@
         const t0 = now();
         let body = null;
         if (isFn) {
-          try { const b = args[1] && args[1].body; if (typeof b === 'string') body = JSON.parse(b); } catch (_) {}
+          try { const b = args[1] && args[1].body; if (typeof b === 'string') body = JSON.parse(b); } catch (_) { /* empty-catch-allow: best-effort guard (test-only battery) */ }
         }
         try {
           const resp = await orig(...args);
@@ -162,7 +162,7 @@
     const _db = db();
     let auth_uid = null;
     if (_db && _db.auth && _db.auth.getUser) {
-      try { const { data } = await _db.auth.getUser(); auth_uid = data && data.user ? data.user.id : null; } catch (_) {}
+      try { const { data } = await _db.auth.getUser(); auth_uid = data && data.user ? data.user.id : null; } catch (_) { /* empty-catch-allow: best-effort guard (test-only battery) */ }
     }
     const ls = (k) => { try { return localStorage.getItem(k); } catch (_) { return null; } };
     _state.identity = {
@@ -333,7 +333,7 @@
       try {
         const { data } = await _db.from('v_asset_truth').select('asset_id, tag').eq('hive_id', id.hive_id).limit(1);
         if (data && data.length) { aid = data[0].asset_id; atag = atag || data[0].tag; }
-      } catch (_) {}
+      } catch (_) { /* empty-catch-allow: best-effort guard (test-only battery) */ }
     }
     metrics.asset = { asset_id: aid ? '(set)' : null, tag: atag };
 
