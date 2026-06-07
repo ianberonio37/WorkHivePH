@@ -19,10 +19,11 @@
     {
       "id": "AG-02-log-preventive-cv12",
       "transcript": "did the scheduled preventive lubrication on conveyor CV-12 this morning, no issues",
-      "expected_route": "logbook.create",
-      "expected_params": {"machine": "CV-12", "maintenance_type": "Preventive"},
-      "param_match": {"machine": "contains", "maintenance_type": "exact"},
-      "category": "agent_tool_create"
+      "expected_route": "pm.complete",
+      "expected_params": {"machine": "CV-12", "task_summary": "lubric"},
+      "param_match": {"machine": "contains", "task_summary": "contains"},
+      "category": "agent_tool_pm",
+      "_label_note": "Route corrected 2026-06-08 during 8.3 first-validation (pre-baseline-freeze): a COMPLETED scheduled PREVENTIVE task is pm.complete per the router contract ('worker finished a PM task'), not logbook.create. The original logbook.create+Preventive label was an 8.1 authoring error; the router's pm.complete is domain-correct independent of the model output. Id kept stable (preserves split assignment + the captured observation join). Not overfitting: no baseline existed yet."
     },
     {
       "id": "AG-03-inv-deduct-bearings",

@@ -23,10 +23,12 @@
       "tolerance": {
         "pass_rate_pp": 5.0
       },
-      "gate": "tools/ai_eval_gate.py (8.3: G0 forward-only on locked-test)",
-      "status": "pending",
+      "gate": "tools/ai_eval_gate.py companion-gate (G0 via validate_companion_dim_gate.py; forward-only on locked-test, degrade-to-SKIP without fresh results)",
+      "results_ref": ".tmp/agent_eval_results.json",
+      "status": "active",
       "blocking": false,
-      "notes": "8.1+8.2 BUILT 2026-06-08 (golden set + deterministic grader + negative-controlled self-test). Pending -> active needs 8.3: a clean flywheel run through companion_agent_eval --observed to freeze the Agent baseline on the 10 locked-test agent units. Corpus: 68 agent units (10 locked-test)."
+      "baseline_ref": "companion_dim_baselines.json::dimensions.agent.locked_test.pass_rate",
+      "notes": "8.1+8.2+8.3 BUILT 2026-06-08. ACTIVE: clean live run (22/22 calls ok, counters+cache reset) scored 19/19 via companion_agent_eval; agent baseline frozen at locked-test 100% n=2 (companion_dim_baselines.json). 8.3 surfaced + fixed AG-02 (scheduled preventive lubrication is pm.complete not logbook.create \u2014 golden authoring error corrected pre-freeze). blocking=FALSE for now: the golden set's locked-test split is only n=2, so one LLM-router flake = 50pp and a tight-tolerance block would flake. Forward-only WARN ratchet now; flip blocking=true after EXPANDING the agent golden set (~35 units -> ~7 locked-test) confirms low run-to-run variance."
     },
     "rag": {
       "label": "RAG grounding + citations",
@@ -116,7 +118,7 @@
   },
   "coverage": {
     "_comment": "Live snapshot of corpus units per companion dimension, refreshed by `python tools/companion_eval_scorecard.py sync` from gate_eval_splits.json. Informational; the authoritative numbers are always recomputed live.",
-    "synced_ts": "2026-06-07T19:57:54+00:00",
+    "synced_ts": "2026-06-07T20:13:27+00:00",
     "by_dimension": {
       "agent": {
         "train": 40,

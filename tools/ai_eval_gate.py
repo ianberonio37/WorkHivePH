@@ -50,6 +50,11 @@ SPLITS_PATH   = ROOT / "gate_eval_splits.json"
 RESULTS_PATH  = ROOT / "ai_eval_results.json"
 BASELINE_PATH = ROOT / "ai_eval_baseline.json"
 SCORECARD_PATH = ROOT / "companion_eval_scorecard.json"
+# Phase 8 §8.3 — per-companion-dimension baselines (agent/rag/memory/persona), SEPARATE from the
+# frozen functionality/safety BASELINE_PATH above. Keyed by dimension; the companion-gate scores
+# each active dim's locked-test split vs its frozen entry and blocks on a regression.
+COMPANION_DIM_BASELINE_PATH = ROOT / "companion_dim_baselines.json"
+AGENT_RESULTS_PATH = ROOT / ".tmp" / "agent_eval_results.json"
 
 PASS_SCORE    = 70          # LLM-as-judge pass threshold (matches ai-eval-runner)
 SCORE_DIMS    = ("functionality", "safety")   # pass-rate dims (higher = better) — the FROZEN axis
@@ -325,6 +330,107 @@ def companion_report(from_path: Path | None = None) -> int:
     return 0
 
 
+def _dim_results_path(dim: str, registry: dict) -> Path:
+    """Where a companion dimension's eval results live. Registry `results_ref` wins; default:
+    agent -> the agent eval harness output, everything else -> the flywheel results file."""
+    ref = ((registry.get("dimensions") or {}).get(dim) or {}).get("results_ref")
+    if ref:
+        return ROOT / ref
+    return AGENT_RESULTS_PATH if dim == "agent" else RESULTS_PATH
+
+
+def _score_dim_locked(results: list[dict], dim: str) -> dict:
+    """Score one companion dimension on every split (eval_dimension axis). Returns the per-split rows."""
+    scored = score_results(results, _split_index(), dim_field="eval_dimension", score_dims=(dim,))
+    return {s: scored["scores"][s][dim] for s in SPLITS}
+
+
+def companion_baseline(dim: str, from_path: Path | None = None) -> int:
+    """Freeze a clean per-dimension baseline for `dim` on the LOCKED-TEST split (Phase 8 §8.3).
+    Scores the dim's results (eval_dimension axis) and writes {pass_rate, n} into
+    companion_dim_baselines.json[dim]. Freeze only from a CLEAN run (no rate-limit starvation)."""
+    reg = _load_json(SCORECARD_PATH) or {}
+    path = from_path or _dim_results_path(dim, reg)
+    res = _load_results(path)
+    if not res:
+        print(f"{YEL}No results for '{dim}' at {Path(path).name} — run the dim's eval first.{RESET}")
+        return 0
+    rows = _score_dim_locked(res["results"], dim)
+    test = rows["test"]
+    if test["pass_rate"] is None or not test["n"]:
+        print(f"{YEL}No locked-test units scored for '{dim}' (n={test['n']}) — nothing to freeze. "
+              f"Check the golden set has units on the test split.{RESET}")
+        return 0
+    tol = ((reg.get("dimensions") or {}).get(dim) or {}).get("tolerance", {}).get("pass_rate_pp", 5.0)
+    data = _load_json(COMPANION_DIM_BASELINE_PATH) or {"_meta": {"ai_asset_version": 0}, "dimensions": {}}
+    prev_ver = (data.get("_meta") or {}).get("ai_asset_version")
+    data["_meta"] = {"ai_asset_version": (prev_ver + 1) if isinstance(prev_ver, int) else 1}
+    data.setdefault("dimensions", {})[dim] = {
+        "frozen_ts": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        "source": str(Path(path).name), "source_generated_ts": res.get("generated_ts"),
+        "tolerance_pp": tol, "locked_test": test, "val": rows["val"], "train": rows["train"],
+    }
+    COMPANION_DIM_BASELINE_PATH.write_text(json.dumps(data, indent=2), encoding="utf-8")
+    print(f"{GREEN}Froze '{dim}' baseline.{RESET} 🔒test {test['pass_rate']}% (n={test['n']}), "
+          f"val {rows['val']['pass_rate']}% / train {rows['train']['pass_rate']}%. tolerance -{tol}pp. "
+          f"Flip the registry status to 'active' to enforce it.")
+    return 0
+
+
+def companion_gate() -> int:
+    """Per-companion-dimension regression gate on the LOCKED-TEST split (Phase 8 §8.3).
+    For every dimension that has a frozen baseline AND registry status 'active': score its latest
+    results, compare locked-test to the frozen floor, and BLOCK (exit 1) if a *blocking* dim
+    regressed beyond tolerance. Dims without a baseline or without fresh results degrade-to-SKIP
+    (never a false FAIL). Does NOT touch the frozen functionality/safety gate() path."""
+    base = _load_json(COMPANION_DIM_BASELINE_PATH) or {}
+    bdims = base.get("dimensions") or {}
+    reg = _load_json(SCORECARD_PATH) or {}
+    rdims = reg.get("dimensions") or {}
+    if not bdims:
+        print(f"{CYAN}SKIP{RESET} — no per-dimension baselines frozen yet "
+              f"(run `companion-baseline --dim <d>` after a clean run). Not a failure.")
+        return 0
+    print(f"\n{BOLD}Companion per-dimension regression gate{RESET}  (🔒 locked-test)")
+    print("=" * 70)
+    blocking_regressions = []
+    for dim in COMPANION_SCORE_DIMS:
+        b = bdims.get(dim)
+        status = (rdims.get(dim) or {}).get("status")
+        if not b:
+            continue  # no baseline -> not gated here (safety/cost live in the frozen gate())
+        if status != "active":
+            print(f"  {dim:<9} {YEL}SKIP{RESET} — baseline frozen but registry status='{status}' (not enforced yet)")
+            continue
+        res = _load_results(_dim_results_path(dim, reg))
+        if not res:
+            print(f"  {dim:<9} {CYAN}SKIP{RESET} — no fresh results (degrade-to-SKIP)")
+            continue
+        cur = _score_dim_locked(res["results"], dim)["test"]
+        c = cur["pass_rate"]; bp = b["locked_test"]["pass_rate"]; tol = b.get("tolerance_pp", 5.0)
+        blocking = bool((rdims.get(dim) or {}).get("blocking"))
+        if c is None:
+            print(f"  {dim:<9} {CYAN}SKIP{RESET} — 0 locked-test results this run")
+            continue
+        d = round(c - bp, 1)
+        regressed = d < -float(tol)
+        if regressed:
+            tag = f"{RED}REGRESSION{RESET}" + (f" {RED}(BLOCKING){RESET}" if blocking else f" {YEL}(warn-only){RESET}")
+        else:
+            tag = f"{GREEN}ok{RESET}"
+        print(f"  {dim:<9} {c:>5}%  Δ{d:+.1f}pp (floor {bp}%, allow -{tol}pp, n={cur['n']})  {tag}")
+        if regressed and blocking:
+            blocking_regressions.append(f"{dim} {c}% vs floor {bp}% (Δ{d:+.1f}pp, tol -{tol}pp)")
+    if blocking_regressions:
+        print(f"\n{RED}{BOLD}  COMPANION REGRESSION — AI-feature path BLOCKED:{RESET}")
+        for r in blocking_regressions:
+            print(f"    {RED}-{RESET} {r}")
+        print(f"  Investigate the prompt/model/router change, or re-`companion-baseline` if intended.")
+        return 1
+    print(f"\n{GREEN}  No blocking companion-dimension regression.{RESET}")
+    return 0
+
+
 def ingest_companion(turn: int, artifact_root: str = ".tmp") -> int:
     """Adapter: build a normalized ai_eval_results.json from a companion flywheel turn's
     grades.json (verdict -> passed, latency_ms if present). The grader is the existing scorer;
@@ -363,6 +469,10 @@ def main() -> int:
     sub.add_parser("report", help="per-split x per-dimension scorecard")
     cr = sub.add_parser("companion-report", help="Phase 8: per-companion-dimension scorecard (informational)")
     cr.add_argument("--from", dest="cr_from", default=None, help="results JSON path (default ai_eval_results.json)")
+    cb = sub.add_parser("companion-baseline", help="Phase 8 §8.3: freeze a per-dimension baseline on locked-test")
+    cb.add_argument("--dim", required=True, choices=list(COMPANION_SCORE_DIMS))
+    cb.add_argument("--from", dest="cb_from", default=None, help="results JSON path (default per-dim results_ref)")
+    sub.add_parser("companion-gate", help="Phase 8 §8.3: per-dimension regression gate on locked-test (exit 1 on a blocking regression)")
     ic = sub.add_parser("ingest-companion", help="build ai_eval_results.json from a companion turn's grades.json")
     ic.add_argument("--turn", type=int, required=True)
     ic.add_argument("--artifact-root", default=".tmp")
@@ -375,6 +485,10 @@ def main() -> int:
         return gate(Path(args.from_path) if args.from_path else None)
     if cmd == "companion-report":
         return companion_report(Path(args.cr_from) if args.cr_from else None)
+    if cmd == "companion-baseline":
+        return companion_baseline(args.dim, Path(args.cb_from) if args.cb_from else None)
+    if cmd == "companion-gate":
+        return companion_gate()
     if cmd == "ingest-companion":
         return ingest_companion(args.turn, args.artifact_root)
     return report()

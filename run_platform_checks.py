@@ -2087,6 +2087,23 @@ VALIDATORS = [
         "skip_if_fast": False,
     },
     {
+        # Phase 8 §8.3 of AI_SURFACE_MAP.md — the per-COMPANION-DIMENSION regression gate
+        # (agent/rag/memory/persona), sibling to ai-eval-regression (which gates the frozen
+        # functionality/safety axis). Wraps `tools/ai_eval_gate.py companion_gate()`: for each
+        # registry-`active` dim with a frozen baseline in companion_dim_baselines.json, score the
+        # dim's latest results on the LOCKED-TEST split and exit 1 only if a *blocking* dim
+        # regressed beyond tolerance. Degrade-to-SKIP (exit 0) without a baseline or fresh
+        # results. Agent shipped active+forward-only (blocking=false) at n=2 locked-test;
+        # flips blocking=true once the golden set is expanded. RAG/Memory/Persona join as built.
+        "id":      "companion-dim-gate",
+        "script":  "validate_companion_dim_gate.py",
+        "args":    [],
+        "label":   "Companion Per-Dimension Regression Gate (Phase 8 §8.3: agent/rag/memory/persona locked-test; degrade-to-SKIP without data)",
+        "group":   "Platform",
+        "report":  "companion_dim_baselines.json",
+        "skip_if_fast": False,
+    },
+    {
         # C4 Phase 1 of SELF_IMPROVING_GATE_ROADMAP.md — catalog the AI seams
         # (saas→ai / ai→ai / ai→tenant / ai→quota) and ratchet forward-only
         # on the inventory. "Per-domain green ≠ system green" — a seam bug

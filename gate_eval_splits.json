@@ -6,13 +6,13 @@
     "val": 20,
     "test": 20
   },
-  "built_ts": "2026-06-07T19:57:07+00:00",
+  "built_ts": "2026-06-07T20:12:38+00:00",
   "counts": {
-    "train": 125,
+    "train": 126,
     "val": 50,
     "test": 44
   },
-  "total": 219,
+  "total": 220,
   "test_seal": "b5c9028b9143f7ef349035b7ff40f4dd0c4cbba5959723691dd49b9360322410",
   "items": {
     "agent_golden:AG-01-log-hydraulic-p203": {
@@ -781,6 +781,13 @@
       "domain": "general",
       "dimension": "functionality",
       "split": "test"
+    },
+    "spec:tests/agent-golden-capture.spec.ts": {
+      "id": "tests/agent-golden-capture.spec.ts",
+      "kind": "spec",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "train"
     },
     "spec:tests/ai-quality.spec.ts": {
       "id": "tests/ai-quality.spec.ts",

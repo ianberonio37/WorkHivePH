@@ -81,13 +81,16 @@ def _coverage() -> dict:
 
 
 def _resolve_ref(ref: str):
-    """Resolve a 'file.json::a.b.c' dotted reference to a value (or None). Only the baseline
-    file is referenced today; the prefix is validated for safety."""
+    """Resolve a 'file.json::a.b.c' dotted reference to a value (or None). The file part is
+    honored (resolved relative to repo root) so a dim can point at ai_eval_baseline.json OR
+    companion_dim_baselines.json (the per-dimension baselines)."""
     if not isinstance(ref, str) or "::" not in ref:
         return None
-    _file, _, path = ref.partition("::")
-    base = _load_json(BASELINE_PATH) or {}
-    cur = base
+    fname, _, path = ref.partition("::")
+    doc = _load_json(ROOT / fname.strip())
+    if doc is None:
+        return None
+    cur = doc
     for key in path.split("."):
         if isinstance(cur, dict) and key in cur:
             cur = cur[key]
