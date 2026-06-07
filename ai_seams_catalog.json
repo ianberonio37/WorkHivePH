@@ -2,18 +2,18 @@
   "_meta": {
     "format_version": "1.0",
     "description": "C4 Phase 1 \u2014 AI seams catalog. SaaS\u2192AI / AI\u2192AI / AI\u2192tenant / AI\u2192quota call sites. Consumed by Phase 2a (seam contract tests), Phase 2b (meta-gate composition), and `validate_ai_seams_inventory.py` (forward-only ratchet).",
-    "generated_at": "2026-06-07T00:28:38Z",
-    "seam_count": 118,
+    "generated_at": "2026-06-07T04:06:20Z",
+    "seam_count": 119,
     "by_kind": {
-      "saas\u2192ai": 15,
+      "saas\u2192ai": 14,
       "ai\u2192ai": 1,
-      "ai\u2192tenant": 74,
+      "ai\u2192tenant": 76,
       "ai\u2192quota": 28
     },
     "ai_fn_count": 33,
     "contracts": {
       "covered": 0,
-      "uncovered": 118
+      "uncovered": 119
     }
   },
   "ai_fns": [
@@ -428,7 +428,7 @@
       "caller": "ai-gateway",
       "callee": "v_worker_truth",
       "file": "supabase/functions/ai-gateway/index.ts",
-      "line": 299,
+      "line": 308,
       "evidence": "const { data: profile } = await adminClient.from(\"v_worker_truth\")",
       "contract_test": null
     },
@@ -480,6 +480,16 @@
       "file": "supabase/functions/ai-orchestrator/index.ts",
       "line": 186,
       "evidence": "const skillsQ = db.from(\"v_worker_skill_truth\")  // canonical: worker_skill_truth",
+      "contract_test": null
+    },
+    {
+      "id": "ai\u2192tenant/ai-orchestrator\u2192v_worker_truth",
+      "kind": "ai\u2192tenant",
+      "caller": "ai-orchestrator",
+      "callee": "v_worker_truth",
+      "file": "supabase/functions/ai-orchestrator/index.ts",
+      "line": 507,
+      "evidence": "const { data: _mem } = await db.from(\"v_worker_truth\")",
       "contract_test": null
     },
     {
@@ -690,6 +700,16 @@
       "file": "supabase/functions/asset-brain-query/index.ts",
       "line": 320,
       "evidence": "db.from(\"v_weibull_truth\")",
+      "contract_test": null
+    },
+    {
+      "id": "ai\u2192tenant/asset-brain-query\u2192v_worker_truth",
+      "kind": "ai\u2192tenant",
+      "caller": "asset-brain-query",
+      "callee": "v_worker_truth",
+      "file": "supabase/functions/asset-brain-query/index.ts",
+      "line": 514,
+      "evidence": "const { data: _mem } = await db.from(\"v_worker_truth\")",
       "contract_test": null
     },
     {
@@ -1103,22 +1123,12 @@
       "contract_test": null
     },
     {
-      "id": "saas\u2192ai/assistant.html\u2192ai-orchestrator",
-      "kind": "saas\u2192ai",
-      "caller": "assistant.html",
-      "callee": "ai-orchestrator",
-      "file": "assistant.html",
-      "line": 856,
-      "evidence": "const orchRes = await fetchWithTimeout(`${SUPABASE_URL}/functions/v1/ai-orchestrator`, {",
-      "contract_test": null
-    },
-    {
       "id": "saas\u2192ai/companion-launcher.js\u2192ai-gateway",
       "kind": "saas\u2192ai",
       "caller": "companion-launcher.js",
       "callee": "ai-gateway",
       "file": "companion-launcher.js",
-      "line": 761,
+      "line": 763,
       "evidence": "const response = await fetcher(`${SUPABASE_URL}/functions/v1/ai-gateway`, {",
       "contract_test": null
     },
@@ -1128,7 +1138,7 @@
       "caller": "logbook.html",
       "callee": "embed-entry",
       "file": "logbook.html",
-      "line": 1780,
+      "line": 1794,
       "evidence": "await fetchWithTimeout(`${SUPABASE_URL}/functions/v1/embed-entry`, {",
       "contract_test": null
     },
@@ -1138,7 +1148,7 @@
       "caller": "pm-scheduler.html",
       "callee": "embed-entry",
       "file": "pm-scheduler.html",
-      "line": 1855,
+      "line": 1856,
       "evidence": "await fetchWithTimeout(`${SUPABASE_URL}/functions/v1/embed-entry`, {",
       "contract_test": null
     },
