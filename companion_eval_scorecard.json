@@ -55,16 +55,18 @@
       "metric": "longmemeval_5",
       "metric_desc": "5 abilities: information extraction, multi-session reasoning, temporal reasoning, knowledge updates, ABSTENTION (do not fabricate). Persist = agent_memory row written; recall = fact match across sessions; abstention = refuses to invent.",
       "higher_is_better": true,
-      "grader": "tools/companion_rigorous_grader.py (8.2: persist + recall + abstention checks)",
-      "golden_set": "8.1 NEW: multi-session scripts (LongMemEval-style) + abstention probes (agent_memory rows are the live observable, RLS-readable)",
+      "grader": "tools/companion_rigorous_grader.py grade_memory_* (recall = every required synonym group hit + no forbidden token; abstention = no-record / haven't-told / clarify / refuse register; deterministic, no judge, no companion imports); harness tools/companion_memory_eval.py (--self-test negative-controlled, --observed). BUILT 8.2.",
+      "golden_set": "companion_memory_golden.json (15 units: 3 extraction, 3 multi_session, 3 temporal, 2 knowledge_update, 4 abstention controls; grounded in the agent_memory persist->recall contract via UNIQUE-NONCE facts; agent='assistant' -> ai-orchestrator, which injects the gateway-forwarded memory_block into synthesis). BUILT 8.1.",
       "baseline_proxy": null,
+      "baseline_ref": "companion_dim_baselines.json::dimensions.memory.locked_test.pass_rate",
+      "results_ref": ".tmp/memory_eval_results.json",
       "tolerance": {
         "pass_rate_pp": 5.0
       },
-      "gate": "tools/ai_eval_gate.py (8.3)",
-      "status": "pending",
+      "gate": "tools/ai_eval_gate.py companion-gate (G0 via validate_companion_dim_gate.py; forward-only on locked-test, degrade-to-SKIP without fresh results)",
+      "status": "active",
       "blocking": false,
-      "notes": "Hardest dim (even GPT-4o scores 30-70% on LongMemEval). 1 seed unit today. Abstention is the safety-adjacent memory check: must NOT fabricate recall."
+      "notes": "8.1+8.2+8.3 BUILT 2026-06-08. ACTIVE: clean 2-phase live run (33/34 calls ok, 0 rate-limited; per-unit counter+cache reset keeps the heavy ai-orchestrator fan-out under the ~25/window cap) graded 13/15. memory baseline frozen locked-test 100% n=1 (MEM-TMP-03 'later event' temporal). blocking=FALSE (n=1 locked-test, same as agent/rag: expand golden set first). The 2-phase capture is the key shape: setup turns persist via saveTurn, then a fresh recall call (NO transcript carryover) answers from agent_memory alone, because the gateway is stateless server-side (reloads agent_memory every call). FINDINGS: (1) temporal 'current-value-after-supersede' recall has RUN-TO-RUN VARIANCE - MEM-TMP-02 recalled 'every two weeks' on run 1 but abstained 'couldn't find enough data' on run 2 (val/informational; a recall-robustness gap = 8.4 target). (2) all 4 abstention controls PASS clean (companion: 'no record of X, history only mentions...' - does NOT fabricate). (3) MEM-UP-01 hit a transient 502 (infra, not a memory miss). Follow-up: expand golden set (more locked-test units) to flip blocking=true; 8.4 should target the abstain-instead-of-recall temporal variance."
     },
     "persona": {
       "label": "Persona / voice fidelity",
@@ -120,7 +122,7 @@
   },
   "coverage": {
     "_comment": "Live snapshot of corpus units per companion dimension, refreshed by `python tools/companion_eval_scorecard.py sync` from gate_eval_splits.json. Informational; the authoritative numbers are always recomputed live.",
-    "synced_ts": "2026-06-07T20:38:26+00:00",
+    "synced_ts": "2026-06-07T20:59:28+00:00",
     "by_dimension": {
       "agent": {
         "train": 40,
@@ -135,10 +137,10 @@
         "total": 10
       },
       "memory": {
-        "train": 0,
-        "val": 0,
-        "test": 1,
-        "total": 1
+        "train": 9,
+        "val": 5,
+        "test": 2,
+        "total": 16
       },
       "persona": {
         "train": 0,

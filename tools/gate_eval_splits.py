@@ -54,6 +54,7 @@ PROBE_BANK  = TOOLS_DIR / "companion_probe_bank.json"
 CANON_EVALS = ROOT / "evals" / "canonical_questions.json"
 AGENT_GOLDEN = ROOT / "companion_agent_golden.json"   # Phase 8 §8.1 (Agent dimension)
 RAG_GOLDEN   = ROOT / "companion_rag_golden.json"     # Phase 8 §8.1 (RAG dimension)
+MEMORY_GOLDEN = ROOT / "companion_memory_golden.json" # Phase 8 §8.1 (Memory dimension)
 
 # Reuse the ONE taxonomy from the efficacy ledger (C1). The split tool and the ledger must
 # never drift apart on what "domain"/"dimension" mean.
@@ -73,7 +74,7 @@ except Exception:  # pragma: no cover — keep the tool runnable even if the led
 SALT       = "wh-gate-eval-splits-v1"   # change only with a deliberate full re-split
 TRAIN_PCT  = 60
 VAL_PCT    = 20   # test = the remaining 20
-KINDS      = ("spec", "companion_probe", "canonical_question", "agent_golden", "rag_golden")
+KINDS      = ("spec", "companion_probe", "canonical_question", "agent_golden", "rag_golden", "memory_golden")
 SPLITS     = ("train", "val", "test")
 
 GREEN = "\033[92m"; RED = "\033[91m"; YEL = "\033[93m"; CYAN = "\033[96m"; BOLD = "\033[1m"; RESET = "\033[0m"
@@ -172,6 +173,18 @@ def _enumerate_corpus() -> list[dict]:
                 units.append({"id": rid, "kind": "rag_golden",
                               "domain": "ai", "dimension": "functionality",
                               "eval_dimension": "rag"})
+
+    # 6) Memory dimension golden set (Phase 8 §8.1) — LongMemEval-style recall scripts +
+    #    abstention controls (all under one `scripts` section; negatives flagged by category).
+    #    Same additive contract as agent/rag_golden: own kind, eval_dimension='memory', legacy
+    #    dimension = the AI functionality catch-all (not in the frozen ai_eval_results).
+    mgold = _load_json(MEMORY_GOLDEN) or {}
+    for entry in (mgold.get("scripts") or []):
+        mid = entry.get("id")
+        if mid:
+            units.append({"id": mid, "kind": "memory_golden",
+                          "domain": "ai", "dimension": "functionality",
+                          "eval_dimension": "memory"})
 
     return units
 

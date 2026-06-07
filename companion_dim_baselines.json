@@ -1,6 +1,6 @@
 {
   "_meta": {
-    "ai_asset_version": 2
+    "ai_asset_version": 3
   },
   "dimensions": {
     "agent": {
@@ -37,6 +37,24 @@
       "train": {
         "pass_rate": 100.0,
         "n": 5
+      }
+    },
+    "memory": {
+      "frozen_ts": "2026-06-07T21:17:12+00:00",
+      "source": "memory_eval_results.json",
+      "source_generated_ts": "2026-06-07T21:15:36+00:00",
+      "tolerance_pp": 5.0,
+      "locked_test": {
+        "pass_rate": 100.0,
+        "n": 1
+      },
+      "val": {
+        "pass_rate": 80.0,
+        "n": 5
+      },
+      "train": {
+        "pass_rate": 88.9,
+        "n": 9
       }
     }
   }

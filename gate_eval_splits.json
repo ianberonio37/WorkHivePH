@@ -6,14 +6,14 @@
     "val": 20,
     "test": 20
   },
-  "built_ts": "2026-06-07T20:38:25+00:00",
+  "built_ts": "2026-06-07T20:59:10+00:00",
   "counts": {
-    "train": 132,
-    "val": 53,
-    "test": 45
+    "train": 141,
+    "val": 58,
+    "test": 47
   },
-  "total": 230,
-  "test_seal": "a00f96b4670423e359e5b106fde9e1309b6dc4e3711f506db107d39f9693bad9",
+  "total": 246,
+  "test_seal": "cb51739f42cc2f3706255702c6ad5442085fe121afaf381348ab8f5d3dc3ba75",
   "items": {
     "agent_golden:AG-01-log-hydraulic-p203": {
       "id": "AG-01-log-hydraulic-p203",
@@ -773,6 +773,126 @@
       "domain": "ai",
       "dimension": "functionality",
       "split": "test",
+      "eval_dimension": "memory"
+    },
+    "memory_golden:MEM-EX-01-bearing-pn": {
+      "id": "MEM-EX-01-bearing-pn",
+      "kind": "memory_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "val",
+      "eval_dimension": "memory"
+    },
+    "memory_golden:MEM-EX-02-torque-spec": {
+      "id": "MEM-EX-02-torque-spec",
+      "kind": "memory_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "train",
+      "eval_dimension": "memory"
+    },
+    "memory_golden:MEM-EX-03-vendor-code": {
+      "id": "MEM-EX-03-vendor-code",
+      "kind": "memory_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "val",
+      "eval_dimension": "memory"
+    },
+    "memory_golden:MEM-MS-01-symptom-action": {
+      "id": "MEM-MS-01-symptom-action",
+      "kind": "memory_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "val",
+      "eval_dimension": "memory"
+    },
+    "memory_golden:MEM-MS-02-two-readings": {
+      "id": "MEM-MS-02-two-readings",
+      "kind": "memory_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "train",
+      "eval_dimension": "memory"
+    },
+    "memory_golden:MEM-MS-03-part-and-qty": {
+      "id": "MEM-MS-03-part-and-qty",
+      "kind": "memory_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "train",
+      "eval_dimension": "memory"
+    },
+    "memory_golden:MEM-NEG-01-never-told-part": {
+      "id": "MEM-NEG-01-never-told-part",
+      "kind": "memory_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "train",
+      "eval_dimension": "memory"
+    },
+    "memory_golden:MEM-NEG-02-never-reported-fault": {
+      "id": "MEM-NEG-02-never-reported-fault",
+      "kind": "memory_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "train",
+      "eval_dimension": "memory"
+    },
+    "memory_golden:MEM-NEG-03-no-such-history": {
+      "id": "MEM-NEG-03-no-such-history",
+      "kind": "memory_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "train",
+      "eval_dimension": "memory"
+    },
+    "memory_golden:MEM-NEG-04-did-i-ever-say": {
+      "id": "MEM-NEG-04-did-i-ever-say",
+      "kind": "memory_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "train",
+      "eval_dimension": "memory"
+    },
+    "memory_golden:MEM-TMP-01-latest-inspection": {
+      "id": "MEM-TMP-01-latest-inspection",
+      "kind": "memory_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "train",
+      "eval_dimension": "memory"
+    },
+    "memory_golden:MEM-TMP-02-superseded-plan": {
+      "id": "MEM-TMP-02-superseded-plan",
+      "kind": "memory_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "val",
+      "eval_dimension": "memory"
+    },
+    "memory_golden:MEM-TMP-03-order-of-events": {
+      "id": "MEM-TMP-03-order-of-events",
+      "kind": "memory_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "test",
+      "eval_dimension": "memory"
+    },
+    "memory_golden:MEM-UP-01-reorder-point": {
+      "id": "MEM-UP-01-reorder-point",
+      "kind": "memory_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "train",
+      "eval_dimension": "memory"
+    },
+    "memory_golden:MEM-UP-02-changed-tech": {
+      "id": "MEM-UP-02-changed-tech",
+      "kind": "memory_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "val",
       "eval_dimension": "memory"
     },
     "rag_golden:RG-01-failure-history": {
@@ -1574,6 +1694,13 @@
       "domain": "saas",
       "dimension": "functionality",
       "split": "train"
+    },
+    "spec:tests/memory-golden-capture.spec.ts": {
+      "id": "tests/memory-golden-capture.spec.ts",
+      "kind": "spec",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "test"
     },
     "spec:tests/mobile-ux.spec.ts": {
       "id": "tests/mobile-ux.spec.ts",

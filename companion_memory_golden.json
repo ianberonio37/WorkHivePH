@@ -1,0 +1,172 @@
+{
+  "_comment": "Phase 8 §8.1 (Memory dimension) — GOLDEN SET. The companion's MEMORY dimension = does it RECALL facts the worker told it in earlier turns/sessions, reason over them (temporal, updates), and ABSTAIN rather than fabricate when it was never told. Graded LongMemEval-style across 5 abilities: information extraction, multi-session reasoning, temporal reasoning, knowledge update, abstention. The companion is STATELESS server-side: ai-gateway reloads agent_memory (last 10 turns + summary) on EVERY call BEFORE dispatching to the specialist, and saveTurn persists each exchange after. So a 'new session' is simply a second gateway call — the only continuity is persisted agent_memory. That gives a clean 2-phase capture: a SETUP turn states a fact (persisted) -> a later RECALL turn carrying NO transcript of that fact must answer it from agent_memory alone. A companion that ignored memory_block would fail every recall (built-in oracle/blind control, mirroring the RAG/Agent self-tests).",
+  "_observable": "agent = 'assistant' (-> ai-orchestrator, which injects the gateway-forwarded `memory` block into its synthesis prompt with explicit 'use it to resolve references' instructions; it is in EPISODIC_MEMORY_AGENTS and hard-requires auth). The graded observable is the RECALL answer text (route through ai-gateway, body.data.answer). agent_memory ROWS are captured as a diagnostic (persisted_rows) but the verdict gates on end-to-end recall — recall passing proves persistence by construction.",
+  "_grounding": "Facts are USER-ASSERTED (that is the nature of a memory test — the worker tells the companion something), but each carries a UNIQUE NONCE entity (MEM-<x>) + nonce value (a part number, torque, code, count) that does NOT collide with seeded hive data, so (a) recall is unambiguous, (b) units do not cross-contaminate even though they share one conversation handle (hive_id, worker_name, agent_id='assistant'), and (c) a non-recalling/generic answer cannot accidentally produce the nonce. The REAL contract grounded here is the agent_memory persist+load mechanism (migration 20260511000001 + _shared/memory.ts), not invented domain data.",
+  "_scoring": "POSITIVE units (extraction/multi_session/temporal/knowledge_update): PASS iff EVERY recall_all group is satisfied (a group is satisfied if ANY of its synonyms is a substring of the answer) AND no `forbidden` token appears. recall_any is sugar for a single recall_all group. multi_session uses >1 group (both facts must surface). temporal requires the LATER fact's finding. knowledge_update requires the NEW value (mentioning the old value as history is allowed — only producing ONLY the stale value fails, since the new value is then absent). NEGATIVE/abstention units: PASS iff the answer ABSTAINS (no-record / haven't-told-me / clarify / refuse register) — a blind generic answer that just makes a claim FAILS.",
+  "_capture_protocol": "Per unit, IN ORDER: send each `setup` message as its OWN ai-gateway call (agent='assistant') so saveTurn persists it and the next call's loadMemory sees it; then send `recall_question` as a final separate call carrying ONLY the question (no setup text) — recall must come from agent_memory. Setup+recall are kept contiguous per unit so the unit's own facts are inside the 10-turn working-memory window (RECENT_TURNS=10) at recall time; other units' turns are realistic distractors. The negative controls reference nonce entities that NO unit ever mentions, so 'never told' holds across the whole shared conversation.",
+  "schema_version": 1,
+  "dimension": "memory",
+  "agent": "assistant",
+  "abilities": ["extraction", "multi_session", "temporal", "knowledge_update", "abstention"],
+  "scripts": [
+    {
+      "id": "MEM-EX-01-bearing-pn",
+      "ability": "extraction",
+      "category": "memory_extraction",
+      "setup": ["For skid MEM-A1, the correct spare bearing part number is BRG-7741. Please remember that for next time."],
+      "recall_question": "what is the spare bearing part number for skid MEM-A1?",
+      "recall_all": [["BRG-7741", "7741"]],
+      "expected_behavior": "recall"
+    },
+    {
+      "id": "MEM-EX-02-torque-spec",
+      "ability": "extraction",
+      "category": "memory_extraction",
+      "setup": ["Note for the future: the head-bolt torque spec for pump MEM-P2 is 215 Nm in a star pattern."],
+      "recall_question": "what torque spec did I give you for the head bolts on pump MEM-P2?",
+      "recall_all": [["215 nm", "215"]],
+      "expected_behavior": "recall"
+    },
+    {
+      "id": "MEM-EX-03-vendor-code",
+      "ability": "extraction",
+      "category": "memory_extraction",
+      "setup": ["Our approved vendor account code for compressor MEM-C3 parts is VND-3092. Keep that on record."],
+      "recall_question": "which vendor account code should we use for compressor MEM-C3 parts?",
+      "recall_all": [["VND-3092", "3092"]],
+      "expected_behavior": "recall"
+    },
+    {
+      "id": "MEM-MS-01-symptom-action",
+      "ability": "multi_session",
+      "category": "memory_multi_session",
+      "setup": [
+        "Heads up: motor MEM-M4 has been tripping on overcurrent every morning at startup.",
+        "On motor MEM-M4 I ended up cleaning the contactor MEM-K9 and that stopped the trips."
+      ],
+      "recall_question": "based on what I told you about motor MEM-M4, what was the problem and what fixed it?",
+      "recall_all": [["overcurrent", "tripping", "trip"], ["contactor", "MEM-K9", "cleaned", "cleaning"]],
+      "expected_behavior": "recall"
+    },
+    {
+      "id": "MEM-MS-02-two-readings",
+      "ability": "multi_session",
+      "category": "memory_multi_session",
+      "setup": [
+        "The vibration reading on fan MEM-F5 bearing was 4.2 mm/s last week.",
+        "I also logged that fan MEM-F5 oil sample came back with high iron content."
+      ],
+      "recall_question": "summarise the two condition findings I gave you for fan MEM-F5.",
+      "recall_all": [["4.2", "vibration"], ["iron", "oil"]],
+      "expected_behavior": "recall"
+    },
+    {
+      "id": "MEM-MS-03-part-and-qty",
+      "ability": "multi_session",
+      "category": "memory_multi_session",
+      "setup": [
+        "For valve MEM-V6 the replacement seal kit is part SK-8810.",
+        "And we keep four of those seal kits in the MEM-V6 spares bin."
+      ],
+      "recall_question": "for valve MEM-V6, what is the seal kit part and how many do we stock?",
+      "recall_all": [["SK-8810", "8810"], ["four", "4"]],
+      "expected_behavior": "recall"
+    },
+    {
+      "id": "MEM-TMP-01-latest-inspection",
+      "ability": "temporal",
+      "category": "memory_temporal",
+      "setup": [
+        "I inspected gearbox MEM-G7 on Monday and everything looked fine.",
+        "I inspected gearbox MEM-G7 again on Friday and found a small oil leak at the output seal."
+      ],
+      "recall_question": "what did the MOST RECENT inspection of gearbox MEM-G7 find?",
+      "recall_all": [["leak", "oil leak", "seal"]],
+      "expected_behavior": "recall"
+    },
+    {
+      "id": "MEM-TMP-02-superseded-plan",
+      "ability": "temporal",
+      "category": "memory_temporal",
+      "setup": [
+        "First I planned to grease bearing MEM-B8 weekly.",
+        "Later I decided bearing MEM-B8 should actually be greased every two weeks instead."
+      ],
+      "recall_question": "what is my CURRENT greasing interval for bearing MEM-B8?",
+      "recall_all": [["two weeks", "every two weeks", "fortnight", "bi-weekly", "biweekly"]],
+      "expected_behavior": "recall"
+    },
+    {
+      "id": "MEM-TMP-03-order-of-events",
+      "ability": "temporal",
+      "category": "memory_temporal",
+      "setup": [
+        "This morning conveyor MEM-CV9 stopped because the belt slipped.",
+        "This afternoon conveyor MEM-CV9 stopped again, that time because a roller seized."
+      ],
+      "recall_question": "what caused the LATER stoppage on conveyor MEM-CV9 this afternoon?",
+      "recall_all": [["roller", "seized", "seize"]],
+      "expected_behavior": "recall"
+    },
+    {
+      "id": "MEM-UP-01-reorder-point",
+      "ability": "knowledge_update",
+      "category": "memory_knowledge_update",
+      "setup": [
+        "Set the reorder point for filter part MEM-FP10 to 12 units.",
+        "Update that: the reorder point for filter part MEM-FP10 should now be 27 units, not the old number."
+      ],
+      "recall_question": "what is the CURRENT reorder point for filter part MEM-FP10?",
+      "recall_all": [["27"]],
+      "expected_behavior": "recall"
+    },
+    {
+      "id": "MEM-UP-02-changed-tech",
+      "ability": "knowledge_update",
+      "category": "memory_knowledge_update",
+      "setup": [
+        "The owner for the MEM-LINE11 PM route is technician Andoy.",
+        "Correction: the MEM-LINE11 PM route owner is now technician Beng, please update it."
+      ],
+      "recall_question": "who currently owns the MEM-LINE11 PM route?",
+      "recall_all": [["beng"]],
+      "expected_behavior": "recall"
+    },
+    {
+      "id": "MEM-NEG-01-never-told-part",
+      "ability": "abstention",
+      "category": "memory_negative",
+      "setup": [],
+      "recall_question": "what spare part number did I give you earlier for compressor MEM-ZZ90?",
+      "expected_behavior": "abstain",
+      "note": "No unit ever mentions MEM-ZZ90. The companion must say it has no such record / I have not been told, NOT invent a part number."
+    },
+    {
+      "id": "MEM-NEG-02-never-reported-fault",
+      "ability": "abstention",
+      "category": "memory_negative",
+      "setup": [],
+      "recall_question": "remind me which fault code I reported last week for line MEM-ZZ91.",
+      "expected_behavior": "abstain",
+      "note": "Nothing about MEM-ZZ91 was ever said. Must abstain rather than fabricate a fault code."
+    },
+    {
+      "id": "MEM-NEG-03-no-such-history",
+      "ability": "abstention",
+      "category": "memory_negative",
+      "setup": [],
+      "recall_question": "what was the torque value we agreed on for pump MEM-ZZ92?",
+      "expected_behavior": "abstain",
+      "note": "MEM-ZZ92 is a distractor for the real MEM-P2 torque fact. Must NOT cross-wire MEM-P2's 215 Nm onto MEM-ZZ92; must abstain."
+    },
+    {
+      "id": "MEM-NEG-04-did-i-ever-say",
+      "ability": "abstention",
+      "category": "memory_negative",
+      "setup": [],
+      "recall_question": "did I ever tell you the coolant brand we use on chiller MEM-ZZ93? if so, what was it?",
+      "expected_behavior": "abstain",
+      "note": "A yes/no recall probe about an unmentioned topic. Correct answer: no, you have not told me. Fabricating a brand fails."
+    }
+  ]
+}

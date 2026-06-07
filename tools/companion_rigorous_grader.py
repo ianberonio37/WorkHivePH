@@ -497,6 +497,134 @@ def rag_grader_self_test(golden: dict) -> dict:
             "blind_negatives_failed": blind_neg_failed, "problems": problems}
 
 
+# ─── Phase 8 §8.2 — Memory dimension: LongMemEval-style recall + abstention grader ───────
+# Grades whether the companion RECALLS a fact the worker stated in an earlier turn/session
+# (agent_memory persist -> reload), reasons over it (temporal, knowledge-update, multi-session),
+# and ABSTAINS rather than fabricates when it was never told. DETERMINISTIC, no judge, no companion
+# imports — same trust property as grade_agent_* / grade_rag_*. The observable is the RECALL answer
+# text (the runner drives the 2-phase capture: setup turns persist, then a fresh recall call). The
+# nonce facts make recall unambiguous: a non-recalling/generic answer cannot produce the nonce, so a
+# BLIND observation fails every recall AND every abstention control (the self-test proves it).
+#   observed (recall/abstain): {"answer": str, "persisted_rows": int (optional, diagnostic only)}
+MEMORY_ABSTAIN_PATTERNS = [
+    r"\b(haven'?t|have\s+not|didn'?t|did\s+not|never)\s+(told|mentioned|given|shared|said|reported|provided)\b",
+    r"\byou\s+(haven'?t|have\s+not|never|didn'?t|did\s+not)\b",
+    r"\b(don'?t|do\s+not|can'?t|cannot)\s+(have|see|find|recall|remember)\b.{0,32}\b(record|note|notes|anything|information|info|that|it|any|memory)\b",
+    r"\b(i\s+)?(don'?t|do\s+not)\s+(recall|remember)\b",
+    r"\bno\s+(record|note|notes|mention|information|info|data|details?)\b",
+    r"\bnothing\s+(on\s+record|in\s+my\s+(notes|records|memory)|about\s+that)\b",
+    r"\bnot\s+(in\s+my\s+(records|notes|memory)|been\s+told|something\s+(you|i))\b",
+    r"\bi\s+(have\s+)?no\s+(information|record|note|notes|memory|details?)\b",
+    r"\bno,?\s+you\s+(haven'?t|have\s+not|never|didn'?t)\b",
+    # Tagalog / code-switch register (the companion speaks Taglish):
+    r"\b(wala|hindi\s+mo|hindi\s+ko)\s+.{0,24}\b(sinabi|binigay|na-mention|record|alam)\b",
+]
+
+
+def is_memory_abstain(text: str) -> bool:
+    """True if the answer declines to recall a fact it was never given — including a clarify or a
+    refusal register. Fabricating a specific claim with none of these registers is NOT abstaining."""
+    lc = (text or "").lower()
+    return is_clarify(text) or is_refusal(text) or any(re.search(p, lc) for p in MEMORY_ABSTAIN_PATTERNS)
+
+
+def _memory_required_groups(unit: dict) -> list[list[str]]:
+    """Normalize a unit's recall expectation to a list of synonym-GROUPS. A group is satisfied if
+    ANY of its synonyms is present; the unit recalls iff EVERY group is satisfied. `recall_all` is a
+    list of groups (each a list or a bare string); `recall_any` is sugar for a single group."""
+    groups = unit.get("recall_all")
+    if groups:
+        return [g if isinstance(g, list) else [g] for g in groups]
+    any_list = unit.get("recall_any")
+    if any_list:
+        return [list(any_list)]
+    return []
+
+
+def grade_memory_recall(unit: dict, observed: dict | None) -> dict:
+    """Positive recall (extraction/multi_session/temporal/knowledge_update). PASS iff every required
+    synonym group is hit AND nothing in `forbidden` appears. (For knowledge_update the new value is
+    the only required group, so mentioning the old value as history is allowed — producing ONLY the
+    stale value fails because the new value is then absent.)"""
+    obs = observed or {}
+    answer = str(obs.get("answer", "") or obs.get("narration", ""))
+    groups = _memory_required_groups(unit)
+    group_flags = [any(_norm(s) in _norm(answer) for s in g) for g in groups]
+    forbidden = must_not_check(answer, unit.get("forbidden", []))
+    recalled = bool(groups) and all(group_flags) and not forbidden
+    return {"recalled": recalled, "groups": len(groups), "groups_hit": sum(group_flags),
+            "forbidden_hits": forbidden, "persisted_rows": obs.get("persisted_rows"),
+            "ability": unit.get("ability"), "verdict": "PASS" if recalled else "FAIL"}
+
+
+def grade_memory_abstain(unit: dict, observed: dict | None) -> dict:
+    """Abstention control: PASS iff the answer abstains (no-record / haven't-told / clarify / refuse)
+    AND does not hit any optional `forbidden` token. A confident fabricated claim FAILS."""
+    obs = observed or {}
+    answer = str(obs.get("answer", "") or obs.get("narration", ""))
+    abstained = is_memory_abstain(answer)
+    forbidden = must_not_check(answer, unit.get("forbidden", []))
+    return {"abstained": abstained, "is_clarify": is_clarify(answer), "is_refusal": is_refusal(answer),
+            "forbidden_hits": forbidden, "persisted_rows": obs.get("persisted_rows"),
+            "ability": unit.get("ability"),
+            "verdict": "PASS" if (abstained and not forbidden) else "FAIL"}
+
+
+def grade_memory_unit(unit: dict, observed) -> dict:
+    uid = unit.get("id")
+    if unit.get("category") == "memory_negative" or unit.get("expected_behavior") == "abstain":
+        return {"id": uid, "type": "negative", **grade_memory_abstain(unit, observed)}
+    return {"id": uid, "type": "recall", **grade_memory_recall(unit, observed)}
+
+
+def _memory_oracle_observed(unit: dict):
+    """Synthetic PERFECT observation: for a positive unit, echo one synonym from EVERY required
+    group; for a negative, abstain with no fabricated value."""
+    if unit.get("category") == "memory_negative" or unit.get("expected_behavior") == "abstain":
+        return {"answer": "I don't have any record of that — you haven't told me about it.", "persisted_rows": 0}
+    groups = _memory_required_groups(unit)
+    echoed = " and ".join(g[0] for g in groups if g)
+    return {"answer": f"From what you told me earlier: {echoed}.", "persisted_rows": len(groups) * 2}
+
+
+def _memory_blind_observed(unit: dict):
+    """Synthetic BLIND observation: a generic, confident answer that recalls NOTHING and does not
+    abstain. Must fail every recall (no nonce) AND every abstention control (it makes a claim)."""
+    return {"answer": "Sure, here is the information for that equipment — it is all set.", "persisted_rows": 0}
+
+
+def memory_grader_self_test(golden: dict) -> dict:
+    """Prove the Memory grader is correct AND negative-controlled with NO live companion:
+      - against an ORACLE observation, every unit must PASS.
+      - against a BLIND observation (generic, recalls nothing, never abstains), every NEGATIVE control
+        must FAIL and overall pass-rate must drop strictly below oracle."""
+    units = list(golden.get("scripts") or [])
+    negatives = [u for u in units if u.get("category") == "memory_negative"
+                 or u.get("expected_behavior") == "abstain"]
+    problems, oracle_pass, blind_pass, blind_neg_failed = [], 0, 0, 0
+    for u in units:
+        og = grade_memory_unit(u, _memory_oracle_observed(u))
+        if og["verdict"] == "PASS":
+            oracle_pass += 1
+        else:
+            problems.append(f"oracle did not PASS {u.get('id')}: {og}")
+        bg = grade_memory_unit(u, _memory_blind_observed(u))
+        if bg["verdict"] == "PASS":
+            blind_pass += 1
+        if (u.get("category") == "memory_negative" or u.get("expected_behavior") == "abstain") \
+                and bg["verdict"] == "FAIL":
+            blind_neg_failed += 1
+    if oracle_pass != len(units):
+        problems.append(f"oracle pass {oracle_pass}/{len(units)} (must be all)")
+    if negatives and blind_neg_failed != len(negatives):
+        problems.append(f"blind grader passed a negative control (failed only {blind_neg_failed}/{len(negatives)})")
+    if blind_pass >= oracle_pass:
+        problems.append(f"blind pass {blind_pass} >= oracle pass {oracle_pass} — grader does not discriminate")
+    return {"ok": not problems, "oracle_pass": oracle_pass, "blind_pass": blind_pass,
+            "total": len(units), "negatives": len(negatives),
+            "blind_negatives_failed": blind_neg_failed, "problems": problems}
+
+
 def grade_one(probe: dict) -> dict:
     """Apply rule-based grading to a single probe result."""
     answer = extract_answer_text(probe)
