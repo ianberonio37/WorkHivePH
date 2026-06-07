@@ -409,3 +409,44 @@ All keyed `${hive_id}:${worker_name}:${auth_uid}:${agent}`, injected by `ai-gate
 
 **Blast radius:** test-only (no product change). **Revert:** delete the spec + rubric file.
 
+---
+
+# Phase 8 — Companion Eval & Optimization Harness ("fine-tuning/training across dimensions")
+
+**Added 2026-06-07** after Ian asked for "fine-tuning and training of all of these, for different dimensions, for the whole companion roadmap." **Ian's fork decisions:** approach = **eval-driven optimization** (NOT weight-training); dimensions = **all four** (Agent/tool-routing, RAG grounding+citations, Memory recall, Persona+Safety). Planned via skills + external GitHub/research synthesis (Ian's directive). **PLAN ONLY — nothing built yet.**
+
+## The reality that shapes everything
+The companion runs entirely on **free-tier Groq** models (llama-4-scout, qwen3-32b, llama-3.1-8b…). We don't own the weights and free-tier offers no custom fine-tuning, so "fine-tuning" cannot mean weight-training today. The achievable, high-leverage interpretation: **systematically improve the companion along each dimension by measuring against golden sets, optimizing the controllable surface (prompts / few-shot exemplars / RAG retrieval / model-chain order), and ratcheting wins** — "training the system, not the weights." This ALSO harvests the labeled corpus that real fine-tuning (deferred Option B) would later need, so it is the on-ramp, not a detour.
+
+## Reuse, don't rebuild (we are ~40% there)
+| Existing asset | Role in Phase 8 |
+|---|---|
+| `tools/ai_eval_gate.py` | per-(split×dimension) regression gate; exits 1 on a **locked-test** regression. Generalize from {functionality,safety,cost} to all 6 dims. |
+| `tools/gate_eval_splits.py` | train / validation / **locked-test** anti-overfit partition + tamper `test_seal`. The anti-overfit spine of the optimization loop. |
+| `tools/companion_rigorous_grader.py` | independent, no-LLM, rule-based grader (shares no code with the companion — the trust property). Extend per dimension. |
+| `tools/companion_probe_bank.json` | probes with `expected_route` + `expected_keywords` + `must_not_contain`. Extend to golden sets. |
+| `companion_battery.js` / `companion_stack_rubric.json` | live Agent/Memory/RAG **observables** (model_chain, agent_memory rows, cited[]). The grounded signal source. |
+| `ai-quality.html` + `ai_quality_log` + worker thumbs | production signal → corpus harvest (8.5) + the eval dashboard surface (8.6). |
+
+## External patterns adopted (skills + GitHub/research synthesis)
+- **DSPy / GEPA** ([stanfordnlp/dspy](https://github.com/stanfordnlp/dspy), [gepa-ai/gepa](https://github.com/gepa-ai/gepa), [dspy.GEPA](https://dspy.ai/api/optimizers/GEPA/overview/)) — **reflective prompt evolution via natural-language feedback on the trajectory**, black-box (no weights), Pareto selection; beats RL (GRPO) and MIPROv2 with ~35× fewer rollouts → **the optimization engine**, and "fewer rollouts" is exactly what makes it viable on free-tier. (Pattern, not necessarily the dep — a lightweight GEPA-inspired propose→A/B→ratchet loop fits our stack.)
+- **Ragas** ([explodinggradients/ragas](https://github.com/explodinggradients/ragas), [arXiv 2309.15217](https://arxiv.org/pdf/2309.15217)) — the 4 RAG metrics: **faithfulness, answer relevancy, context precision, context recall** → the RAG-dimension scorecard.
+- **BFCL / τ-bench / Agent-as-a-Judge** ([arXiv survey 2503.16416](https://arxiv.org/html/2503.16416v2), [arXiv 2508.02994]) — **deterministic Tool Correctness** (exact route + required params, NO judge) + multi-step **task completion** + 3-axis agent judging (completion / tool-selection rationale / planning) → the Agent-dimension grader. Research line: "deterministic checks are better for exact tool names, required params, expected outputs" — validates our rule-based-first approach.
+- **LongMemEval** ([xiaowu0162/LongMemEval](https://github.com/xiaowu0162/LongMemEval), [arXiv 2410.10813](https://arxiv.org/abs/2410.10813)) — **5 memory abilities**: information extraction, multi-session reasoning, temporal reasoning, knowledge updates, **abstention**. Even GPT-4o scores 30–70% → memory is the hardest dim; our golden set must probe all 5, especially cross-session recall + abstention (don't fabricate) → the Memory-dimension scorecard.
+- **promptfoo / DeepEval / Inspect AI** ([promptfoo](https://github.com/promptfoo/promptfoo), [DeepEval](https://github.com/confident-ai/deepeval), [Inspect](https://github.com/UKGovernmentBEIS/inspect_ai)) — harness shape: **deterministic assertions run FREE first; LLM-as-judge only where unavoidable** (it costs tokens). Standard production pattern = a red-team CI gate + a metric CI gate. We already have the CI-gate spine (`run_platform_checks.py` G0).
+
+## The roadmap (8.0 → 8.6 — each gate-green, reversible, $0-first)
+| # | Step | What | Reuse / new |
+|---|---|---|---|
+| **8.0** | Dimension taxonomy + scorecard | Extend the `{domain,dimension}` tags to **6 dims** (agent, rag, memory, persona, safety, cost). One `companion_eval_scorecard.json` row per dim: metric · grader · golden-set ref · baseline · tolerance · gate. | extend `gate_eval_splits.py` + `ai_eval_gate.py` |
+| **8.1** | Golden datasets per dimension | Agent: `expected_route` + `expected_params` (BFCL) + multi-step chains (τ-bench). RAG: question + ground-truth answer + ground-truth chunk ids. Memory: multi-session scripts (LongMemEval 5 abilities) + abstention probes. Persona: utterance + voice markers / anti-markers. Safety: extend frozen set. | extend `companion_probe_bank.json` + new golden files |
+| **8.2** | Graders (deterministic-first, judge w/ backstop) | Agent = Tool Correctness (route+params, no judge). RAG = Ragas-4 (context precision/recall deterministic from `cited[]` vs truth; faithfulness/relevancy = free-tier judge + claim-overlap backstop). Memory = persist (agent_memory row) + recall (fact match) + abstention. Persona = voice-marker regex + judge. Safety = existing leak/refusal grader. All **independent + negative-controlled**. | extend `companion_rigorous_grader.py` |
+| **8.3** | Per-dimension regression gates | Generalize `ai_eval_gate` to all 6 dims; each a **G0 forward-only ratchet on the locked-test split** (degrade-to-SKIP without data). Baselines frozen only from clean runs. | `ai_eval_gate.py` + register in `run_platform_checks.py` |
+| **8.4** | Optimization loop (the "training") | GEPA-style: run dim → grader emits per-failure NL feedback → reflective proposal of prompt/few-shot/RAG/chain variants → **A/B on the VALIDATION split** → accept iff val improves AND locked-test holds → ratchet. Anti-overfit by construction. | new `tools/companion_optimize.py` |
+| **8.5** | Continuous harvest | Wire `ai_quality_log` + worker thumbs → auto-grow golden corpus. **This is the labeled-data on-ramp to deferred Option B (real fine-tuning).** | new |
+| **8.6** | (capstone) Eval dashboard | Surface the 6-dim scorecard + trend in `ai-quality.html` / founder-console (per-hive AI quality already lives there). Closes the loop visibly. | extend `ai-quality.html` |
+
+**Recommended sequencing:** 8.0 → **Agent first** (8.1+8.2 — most deterministic, fastest win, reuses `expected_route`) as the reusable template → RAG → Memory → Persona/Safety → 8.4 optimize → 8.5 harvest → 8.6 dashboard.
+
+**Guardrails:** $0 free-tier (deterministic graders first; judge sparingly + always a deterministic backstop); graders import no companion code (trust property); anti-overfit via the existing locked-test split + seal; forward-only gates; reversible per step; **Option B (real weight fine-tuning/distillation) stays explicitly deferred** until harvested data volume + budget justify it.
+
