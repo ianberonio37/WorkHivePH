@@ -315,7 +315,7 @@
     </div>
 
     <div class="toc">
-      <h4>What's in this guide</h4>
+      <h4 aria-level="2">What's in this guide</h4>
       <ol>
         <li><a href="#why-calcs">Why every Philippine plant engineer needs design calculators</a></li>
         <li><a href="#disciplines">The 6 disciplines covered</a></li>
@@ -374,14 +374,14 @@
       <p>A real Philippine project: a 1,200 m2 BPO office in BGC needs HVAC duct sizing for a 100 kW total cooling load split across 4 zones.</p>
 
       <h3>Step 1: Calculate volume flow per branch</h3>
-      <pre>Q_total = 100 kW / (1.2 x 1.005 x 11 deg C delta T) = 7.5 m3/s
+      <pre tabindex="0">Q_total = 100 kW / (1.2 x 1.005 x 11 deg C delta T) = 7.5 m3/s
 Q per zone = 7.5 / 4 = 1.875 m3/s per branch</pre>
 
       <h3>Step 2: Pick a design friction rate</h3>
       <p>Office cooling, low-noise requirement: <code>fr = 1.0 Pa/m</code></p>
 
       <h3>Step 3: Apply the equal-friction formula</h3>
-      <pre>D = (K * Q^1.75 / fr)^(1/4.75)
+      <pre tabindex="0">D = (K * Q^1.75 / fr)^(1/4.75)
 With Philippine K = 0.01740:
 D = (0.01740 * 1.875^1.75 / 1.0)^(1/4.75)
 D = (0.01740 * 3.072 / 1.0)^0.2105
@@ -390,20 +390,20 @@ D = 0.541 m (541 mm equivalent round)</pre>
 
       <h3>Step 4: Convert to rectangular at 2:1 aspect ratio</h3>
       <p>Using ASHRAE De equation, target a:b = 2:1:</p>
-      <pre>De = 1.30 * (a*b)^0.625 / (a+b)^0.25
+      <pre tabindex="0">De = 1.30 * (a*b)^0.625 / (a+b)^0.25
 With a = 2b and De = 541 mm:
 541 = 1.30 * (2b^2)^0.625 / (3b)^0.25
 Solving: b ≈ 340 mm, a ≈ 680 mm
 Round up to standard: 350 mm x 700 mm</pre>
 
       <h3>Step 5: Recompute D_h for pressure-drop calc</h3>
-      <pre>D_h = 2 * 0.35 * 0.70 / (0.35 + 0.70) = 0.467 m (467 mm)
+      <pre tabindex="0">D_h = 2 * 0.35 * 0.70 / (0.35 + 0.70) = 0.467 m (467 mm)
 NOT 541 mm. Use 467 mm in Darcy-Weisbach.</pre>
       <p>If a junior engineer uses De (541 mm) instead of D_h (467 mm) in the pressure-drop calculation, the result is 15 percent low. The fan gets undersized. The plant runs the fan flat-out and still gets warm zones in Manila humidity. The WorkHive HVAC calculator catches this distinction automatically.</p>
 
       <div class="cta-box">
         <p class="cta-eyebrow">The tool this guide is about</p>
-        <h4>WorkHive Engineering Design replaces 30 minutes of spreadsheet work with 30 seconds</h4>
+        <h4 aria-level="3">WorkHive Engineering Design replaces 30 minutes of spreadsheet work with 30 seconds</h4>
         <p>30+ standards-referenced calculators across 6 disciplines. Each output is tagged with its applied standard (ASHRAE 2021, IEC 62305, NFPA 13, NSCP 2015, etc.) and Philippine tropical constants where they matter. PDF report ready for licensed PME or PEE sign-off. Saved designs build your engineering portfolio. Free at the worker tier forever.</p>
         <a href="/engineering-design.html" class="cta-btn">Open Engineering Design</a>
         <p class="cta-secondary">No hive yet? <a href="/#join">Join WorkHive</a> first (free, takes 30 seconds).</p>
@@ -531,7 +531,7 @@ NOT 541 mm. Use 467 mm in Darcy-Weisbach.</pre>
 </article>
 
 <footer class="py-10 border-t border-white/[0.06]" style="background: rgba(13,24,36,0.85);">
-  <div class="max-w-4xl mx-auto px-5 sm:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-white/35">
+  <div class="max-w-4xl mx-auto px-5 sm:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-white/60">
     <p>© 2026 WorkHive Platform · workhiveph.com · Last updated <time datetime="2026-05-17">17 May 2026</time></p>
     <div class="flex items-center gap-6">
       <a href="/" class="hover:text-white/60 transition-colors">Home</a>
@@ -542,6 +542,6 @@ NOT 541 mm. Use 467 mm in Darcy-Weisbach.</pre>
 </footer>
 
 
-<script defer src="/workhive/wh-feedback-fab.js"></script>
+<script defer src="../../wh-feedback-fab.js"></script>
 </body>
 </html>

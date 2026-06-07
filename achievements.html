@@ -86,7 +86,7 @@
       margin-bottom: 1.25rem;
     }
     .back-btn {
-      width: 36px; height: 36px; border-radius: 0.5rem; flex-shrink: 0;
+      width: 44px; height: 44px; border-radius: 0.5rem; flex-shrink: 0; /* tap-target floor */
       background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
       display: flex; align-items: center; justify-content: center;
       cursor: pointer; color: rgba(255,255,255,0.6); text-decoration: none;
@@ -322,7 +322,7 @@
     .verdict.empty   .verdict-icon { color:rgba(255,255,255,0.55); }
     .simple-row { display:grid; grid-template-columns:repeat(auto-fit, minmax(160px, 1fr)); gap:12px; margin-bottom:14px; }
     .simple-card { background:#162032; border:1px solid rgba(255,255,255,0.07); border-radius:12px; padding:14px 16px; }
-    .simple-card .sc-label { font-size:0.65rem; font-weight:700; color:rgba(255,255,255,0.4); text-transform:uppercase; letter-spacing:0.06em; }
+    .simple-card .sc-label { font-size:0.65rem; font-weight:700; color:rgba(255,255,255,0.6); text-transform:uppercase; letter-spacing:0.06em; }
     .simple-card .sc-hero  { font-size:1.5rem; font-weight:800; line-height:1.15; margin:4px 0 2px; color:#F4F6FA; }
     .simple-card .sc-sub   { font-size:0.7rem; color:rgba(255,255,255,0.55); line-height:1.4; }
     .simple-card .sc-tag   { display:inline-block; font-size:0.58rem; font-weight:800; letter-spacing:0.06em; text-transform:uppercase; padding:0.18rem 0.5rem; border-radius:999px; margin-top:7px; }
@@ -886,6 +886,13 @@
   }
   function closeLevelUpModal() {
     document.getElementById('levelup-overlay').classList.add('hidden');
+  }
+  // Grounded Sweep Wave 2 — runtime dialog a11y on the level-up modal (markup
+  // already has role/aria-modal/aria-labelledby): adds Tab focus-trap +
+  // focus-restore + ESC-close via the shared utils.js helper. ESC runs the real
+  // close path. Idempotent.
+  if (window.whModalA11y) {
+    whModalA11y(document.getElementById('levelup-overlay'), { onClose: closeLevelUpModal });
   }
 
   function handleLevelUp(achievementId, oldLevel, newLevel) {

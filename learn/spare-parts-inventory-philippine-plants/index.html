@@ -316,7 +316,7 @@
     </div>
 
     <div class="toc">
-      <h4>What's in this guide</h4>
+      <h4 aria-level="2">What's in this guide</h4>
       <ol>
         <li><a href="#why-storerooms-fail">Why most Philippine storerooms fail</a></li>
         <li><a href="#abc-analysis">ABC analysis explained with a worked example</a></li>
@@ -369,10 +369,10 @@
 
       <h2 id="reorder-point">The reorder point formula</h2>
       <p>For A items, the reorder point is the inventory level that triggers an automatic PO. The formula:</p>
-      <pre>Reorder Point = (Average Daily Usage × Lead Time in Days) + Safety Stock</pre>
+      <pre tabindex="0">Reorder Point = (Average Daily Usage × Lead Time in Days) + Safety Stock</pre>
       <p>Average Daily Usage and Lead Time both come from historical data, not from guesswork. If you have a digital logbook with parts-used entries, you already have the data. If you do not, this is one more reason to start a digital logbook (see <a href="/learn/start-digital-logbook-philippine-factory/">our 12-week rollout guide</a>).</p>
       <p>Safety Stock covers usage variability and supplier delays. A common rule:</p>
-      <pre>Safety Stock = (Max Daily Usage − Average Daily Usage) × Lead Time</pre>
+      <pre tabindex="0">Safety Stock = (Max Daily Usage − Average Daily Usage) × Lead Time</pre>
       <p>For B items, periodic review is enough: review weekly, order back up to a target level. For C items, visual review at the bin is enough: when the bin looks half-full, order more.</p>
 
       <h2 id="worked-example">Worked example: a bearing in a Cabuyao plant</h2>
@@ -384,7 +384,7 @@
         <li>Supplier lead time: 21 days (local supplier in Quezon City)</li>
       </ul>
       <p>Plug into the formulas:</p>
-      <pre>Average Daily Usage = 156 / 365 = 0.43 bearings/day
+      <pre tabindex="0">Average Daily Usage = 156 / 365 = 0.43 bearings/day
 Max Daily Usage     = 22 / 30 = 0.73 bearings/day
 Safety Stock        = (0.73 − 0.43) × 21 = 6.3 → round up to 7
 Reorder Point       = (0.43 × 21) + 7 = 9 + 7 = 16 bearings</pre>
@@ -392,7 +392,7 @@ Reorder Point       = (0.43 × 21) + 7 = 9 + 7 = 16 bearings</pre>
 
       <div class="cta-box">
         <p class="cta-eyebrow">The tool this guide is about</p>
-        <h4>WorkHive Inventory does ABC, FIFO, and reorder points out of the box</h4>
+        <h4 aria-level="3">WorkHive Inventory does ABC, FIFO, and reorder points out of the box</h4>
         <p>Every SKU has a date-received field for FIFO, an ABC class auto-computed from usage value, and a reorder-point alert wired to the supervisor's dashboard. The data comes from your WorkHive Logbook entries automatically; no double-entry. Free at the worker tier forever.</p>
         <a href="/inventory.html" class="cta-btn">Open the Inventory</a>
         <p class="cta-secondary">No hive yet? <a href="/#join">Join WorkHive</a> first (free, takes 30 seconds).</p>
@@ -480,7 +480,7 @@ Reorder Point       = (0.43 × 21) + 7 = 9 + 7 = 16 bearings</pre>
 </article>
 
 <footer class="py-10 border-t border-white/[0.06]" style="background: rgba(13,24,36,0.85);">
-  <div class="max-w-4xl mx-auto px-5 sm:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-white/35">
+  <div class="max-w-4xl mx-auto px-5 sm:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-white/60">
     <p>© 2026 WorkHive Platform · workhiveph.com · Last updated <time datetime="2026-05-17">17 May 2026</time></p>
     <div class="flex items-center gap-6">
       <a href="/" class="hover:text-white/60 transition-colors">Home</a>
@@ -491,6 +491,6 @@ Reorder Point       = (0.43 × 21) + 7 = 9 + 7 = 16 bearings</pre>
 </footer>
 
 
-<script defer src="/workhive/wh-feedback-fab.js"></script>
+<script defer src="../../wh-feedback-fab.js"></script>
 </body>
 </html>

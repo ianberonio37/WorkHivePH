@@ -238,6 +238,9 @@ TAP_TARGET_CSS_LOCKS = {
     "voice-journal.html":    [".filter-chip", ".persona-chip"],
     "companion-launcher.js": ["#wh-ai-send", "#wh-ai-mic", "#wh-ai-close"],
     "nav-hub.js":            [".wh-hub-mode-btn"],
+    # Wave 2 grounded sweep: result-primary-btn (.btn-primary) measured 28px live
+    # because it's empty until openResult() sets its label — the rule lacked a floor.
+    "skillmatrix.html":      [".btn-primary", ".btn-ghost"],
 }
 
 _HEIGHT_RE       = re.compile(r"(?:^|[;{\s])(min-height|height)\s*:\s*([\d.]+)(px|rem)", re.I)

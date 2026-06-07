@@ -96,6 +96,30 @@ def check_img_alt(pages):
 
 # ── Layer 2: Dialog accessibility ────────────────────────────────────────────
 
+def _match_in_comment(content, pos):
+    """True if `pos` sits inside an HTML comment <!-- -->, a JS/CSS block /* */,
+    or a JS // line comment. Prevents a `role="dialog"` mentioned in a code
+    COMMENT (documentation) from being scanned as a real element tag — the
+    false-positive that flagged skillmatrix's modal-a11y wiring comment."""
+    # HTML comment spanning pos
+    h = content.rfind("<!--", 0, pos)
+    if h != -1 and content.find("-->", h) > pos:
+        return True
+    # /* */ block (JS/CSS) spanning pos
+    b = content.rfind("/*", 0, pos)
+    if b != -1 and content.find("*/", b) > pos:
+        return True
+    # // line comment before pos on the same line (ignore the // in http://)
+    line_start = content.rfind("\n", 0, pos) + 1
+    prefix = content[line_start:pos]
+    sl = prefix.find("//")
+    while sl != -1:
+        if sl == 0 or prefix[sl - 1] != ":":
+            return True
+        sl = prefix.find("//", sl + 2)
+    return False
+
+
 def check_dialog_labels(pages):
     """role="dialog" without aria-labelledby means screen readers announce only
     "dialog" — no title, no context."""
@@ -105,6 +129,8 @@ def check_dialog_labels(pages):
         if content is None:
             continue
         for m in re.finditer(r'role=["\']dialog["\']', content):
+            if _match_in_comment(content, m.start()):
+                continue
             tag_start = content.rfind("<", 0, m.start())
             tag_end   = content.find(">", m.start())
             if tag_end == -1:
@@ -135,6 +161,8 @@ def check_dialog_aria_modal(pages):
         if content is None:
             continue
         for m in re.finditer(r'role=["\']dialog["\']', content):
+            if _match_in_comment(content, m.start()):
+                continue
             tag_start = content.rfind("<", 0, m.start())
             tag_end   = content.find(">", m.start())
             if tag_end == -1:

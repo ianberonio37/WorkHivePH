@@ -316,7 +316,7 @@
     </div>
 
     <div class="toc">
-      <h4>What's in this guide</h4>
+      <h4 aria-level="2">What's in this guide</h4>
       <ol>
         <li><a href="#project-vs-pm">Maintenance project versus routine PM</a></li>
         <li><a href="#why-fail">The 6 reasons projects blow over budget</a></li>
@@ -394,7 +394,7 @@
 
       <div class="cta-box">
         <p class="cta-eyebrow">The tool this guide is about</p>
-        <h4>WorkHive Project Manager runs the 6 steps end to end</h4>
+        <h4 aria-level="3">WorkHive Project Manager runs the 6 steps end to end</h4>
         <p>Project Manager has scope freeze tracking, critical-path Gantt, skill-matrix resource matching, risk register with named owners, per-asset cost allocation that feeds Asset Hub, daily standup template, and per-asset handback checklist. Contractors get scoped access to their assigned jobs. Suppliers see only their consumed parts. Free at the worker tier; SAP PS / Maximo Projects financial integration unlocks at Stage 2.</p>
         <a href="/project-manager.html" class="cta-btn">Open Project Manager</a>
         <p class="cta-secondary">No hive yet? <a href="/#join">Join WorkHive</a> first (free, takes 30 seconds).</p>
@@ -402,7 +402,7 @@
 
       <h2 id="critical-path">Critical path explained for plant projects</h2>
       <p>Critical path is the longest dependency chain through your schedule. Its duration sets the minimum total project duration. Example for a pump overhaul:</p>
-      <pre>
+      <pre tabindex="0">
 Job A: Drain and isolate pump          (4 hr)
 Job B: Disassemble                    (6 hr, after A)
 Job C: Inspect and clean              (8 hr, after B)
@@ -521,7 +521,7 @@ Non-critical: Job H "Touch up paint" (2 hr) can run any time after B
 </article>
 
 <footer class="py-10 border-t border-white/[0.06]" style="background: rgba(13,24,36,0.85);">
-  <div class="max-w-4xl mx-auto px-5 sm:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-white/35">
+  <div class="max-w-4xl mx-auto px-5 sm:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-white/60">
     <p>© 2026 WorkHive Platform · workhiveph.com · Last updated <time datetime="2026-05-17">17 May 2026</time></p>
     <div class="flex items-center gap-6">
       <a href="/" class="hover:text-white/60 transition-colors">Home</a>
@@ -532,6 +532,6 @@ Non-critical: Job H "Touch up paint" (2 hr) can run any time after B
 </footer>
 
 
-<script defer src="/workhive/wh-feedback-fab.js"></script>
+<script defer src="../../wh-feedback-fab.js"></script>
 </body>
 </html>

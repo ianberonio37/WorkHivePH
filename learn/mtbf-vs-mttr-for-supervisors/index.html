@@ -310,7 +310,7 @@
     </div>
 
     <div class="toc">
-      <h4>What's in this guide</h4>
+      <h4 aria-level="2">What's in this guide</h4>
       <ol>
         <li><a href="#two-metrics">The two metrics, side by side</a></li>
         <li><a href="#mtbf-formula">How to calculate MTBF (worked example)</a></li>
@@ -343,10 +343,10 @@
 
       <h2 id="mtbf-formula">How to calculate MTBF (worked example)</h2>
       <p>The formula:</p>
-      <pre>MTBF = Total Operating Time / Number of Failures</pre>
+      <pre tabindex="0">MTBF = Total Operating Time / Number of Failures</pre>
       <p><strong>Worked example: cooling tower pump motor at a Cabuyao food plant.</strong></p>
       <p>The pump runs 24 hours a day, 7 days a week. It ran continuously for the past 12 months except during failure events. During that year, it failed 8 times: 4 bearing failures, 2 motor winding faults, 1 coupling break, and 1 control panel issue.</p>
-      <pre>Total Calendar Hours    = 365 × 24 = 8,760 hr
+      <pre tabindex="0">Total Calendar Hours    = 365 × 24 = 8,760 hr
 Total Downtime          = 8 failures × avg 4 hr = 32 hr
 Total Operating Time    = 8,760 - 32 = 8,728 hr
 Number of Failures      = 8
@@ -363,10 +363,10 @@ MTBF                    = 8,728 / 8 = 1,091 hr (≈ 45 days)</pre>
 
       <h2 id="mttr-formula">How to calculate MTTR (worked example)</h2>
       <p>The formula:</p>
-      <pre>MTTR = Total Repair Time / Number of Repairs</pre>
+      <pre tabindex="0">MTTR = Total Repair Time / Number of Repairs</pre>
       <p><strong>Worked example: bottling line conveyor at a Pampanga beverage plant.</strong></p>
       <p>The conveyor had 12 breakdowns in the past year. The supervisor pulled the logbook entries with start and restart timestamps:</p>
-      <pre>Total Repair Time  = 38 hr (sum of all 12 events)
+      <pre tabindex="0">Total Repair Time  = 38 hr (sum of all 12 events)
 Number of Repairs  = 12
 MTTR               = 38 / 12 = 3.17 hr</pre>
       <p>Drilling into the 38 hours shows the typical Philippine-plant pattern:</p>
@@ -406,7 +406,7 @@ MTTR               = 38 / 12 = 3.17 hr</pre>
 
       <div class="cta-box">
         <p class="cta-eyebrow">The tool this guide is about</p>
-        <h4>WorkHive Analytics computes MTBF and MTTR per asset</h4>
+        <h4 aria-level="3">WorkHive Analytics computes MTBF and MTTR per asset</h4>
         <p>Every fault entry in the WorkHive Logbook (stop timestamp, restart timestamp, fault category, resolution notes) flows into the Analytics reliability dashboard. MTBF and MTTR are recomputed monthly per critical asset. No spreadsheets, no per-user CMMS license. Built for Stage 1 of the 4-stage path.</p>
         <a href="/analytics.html" class="cta-btn">Open Analytics</a>
         <p class="cta-secondary">No hive yet? <a href="/#join">Join WorkHive</a> first (free, takes 30 seconds).</p>
@@ -414,7 +414,7 @@ MTTR               = 38 / 12 = 3.17 hr</pre>
 
       <h2 id="availability">How MTBF and MTTR combine into Availability</h2>
       <p>Engineering availability is the cleanest combined metric:</p>
-      <pre>Availability = MTBF / (MTBF + MTTR)</pre>
+      <pre tabindex="0">Availability = MTBF / (MTBF + MTTR)</pre>
       <p>For the Cabuyao pump example: <code>1,091 / (1,091 + 4) = 99.6%</code></p>
       <p>That 99.6 percent looks excellent on paper, but the OEE on the production line that depends on this pump may still be 50 percent because the 4-hour repair always hits at the worst possible moment. Engineering availability does not capture criticality; it just captures up-time fraction.</p>
       <p>This is why MTBF and MTTR alone are not enough. They feed into OEE, RCM analysis, and PM strategy decisions. Use them as inputs, not as the final scorecard.</p>
@@ -505,7 +505,7 @@ MTTR               = 38 / 12 = 3.17 hr</pre>
 </article>
 
 <footer class="py-10 border-t border-white/[0.06]" style="background: rgba(13,24,36,0.85);">
-  <div class="max-w-4xl mx-auto px-5 sm:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-white/35">
+  <div class="max-w-4xl mx-auto px-5 sm:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-white/60">
     <p>© 2026 WorkHive Platform · workhiveph.com · Last updated <time datetime="2026-05-17">17 May 2026</time></p>
     <div class="flex items-center gap-6">
       <a href="/" class="hover:text-white/60 transition-colors">Home</a>
@@ -516,6 +516,6 @@ MTTR               = 38 / 12 = 3.17 hr</pre>
 </footer>
 
 
-<script defer src="/workhive/wh-feedback-fab.js"></script>
+<script defer src="../../wh-feedback-fab.js"></script>
 </body>
 </html>

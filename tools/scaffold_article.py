@@ -279,7 +279,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     </div>
 
     <div class="toc">
-      <h4>What's in this guide</h4>
+      <h4 aria-level="2">What's in this guide</h4>
       <ol>
 {TOC_HTML}
       </ol>
@@ -306,7 +306,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
 </article>
 
 <footer class="py-10 border-t border-white/[0.06]" style="background: rgba(13,24,36,0.85);">
-  <div class="max-w-5xl mx-auto px-5 sm:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-white/35">
+  <div class="max-w-5xl mx-auto px-5 sm:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-white/60">
     <p>Practical writing for the Philippine plant floor. Email <a href="mailto:admin@workhiveph.com" style="color:#5FCCE8;">admin@workhiveph.com</a> with corrections or contributions.</p>
     <div class="flex gap-5">
       <a href="/" class="hover:text-white/65 transition-colors">Home</a>

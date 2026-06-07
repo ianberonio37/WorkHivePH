@@ -2181,6 +2181,20 @@ VALIDATORS = [
         "skip_if_fast": False,
     },
     {
+        # Grounded Sweep (link-destination class): no committed resource attribute
+        # (<script src>, <link href>, <img src>, srcset, or <a href>) may hardcode
+        # the dev-only /workhive/ prefix. The local URL bridge only rewrites <a href>
+        # at runtime, so a committed /workhive/ in any src/link 404s in production.
+        # Caught the learn + legal feedback-FAB leak (41 pages dead in prod).
+        "id":      "prod-path-leak",
+        "script":  "validate_prod_path_leak.py",
+        "args":    [],
+        "label":   "Prod path leak (no committed /workhive/ resource paths — they 404 in production)",
+        "group":   "Platform",
+        "report":  None,
+        "skip_if_fast": False,
+    },
+    {
         # Grounded Sweep critique W3 (status-enum-constants): deterministic guard
         # that utils.js window.WH_STATUS_ENUMS never silently diverges from the
         # canonical capture-contract enum in supabase/migrations. Prevents the class

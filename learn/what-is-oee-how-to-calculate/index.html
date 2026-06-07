@@ -316,7 +316,7 @@
     </div>
 
     <div class="toc">
-      <h4>What's in this guide</h4>
+      <h4 aria-level="2">What's in this guide</h4>
       <ol>
         <li><a href="#what-oee-measures">What OEE actually measures</a></li>
         <li><a href="#formula">The OEE formula in plain language</a></li>
@@ -344,7 +344,7 @@
 
       <h2 id="formula">The OEE formula in plain language</h2>
       <p>The formula is:</p>
-      <pre>OEE = Availability × Performance × Quality</pre>
+      <pre tabindex="0">OEE = Availability × Performance × Quality</pre>
       <p>Where:</p>
       <ul>
         <li><code>Availability = Run Time / Planned Production Time</code></li>
@@ -358,30 +358,30 @@
       <p>Take a real Philippine plant scenario. A confectionery facility in Laguna runs a chocolate bar packaging line. The ideal rate at design speed is 60 bars per minute. They produce one product type, one packaging format, on an 8-hour shift.</p>
 
       <h3>Step 1: Planned Production Time</h3>
-      <pre>Shift length:           480 min
+      <pre tabindex="0">Shift length:           480 min
 Planned breaks:          20 min  (two 10-min breaks)
 Planned PM/changeover:   10 min
 Planned Production Time = 480 - 20 - 10 = 450 min</pre>
 
       <h3>Step 2: Run Time and Availability</h3>
       <p>During the shift, the line stopped 4 times: a wrapper jam (35 min), a sealer adjustment that ran long (20 min), waiting for the next batch of foil (25 min), and a power dip from Meralco (10 min). Total unplanned downtime: 90 minutes.</p>
-      <pre>Run Time = 450 - 90 = 360 min
+      <pre tabindex="0">Run Time = 450 - 90 = 360 min
 Availability = 360 / 450 = 0.80 (80%)</pre>
 
       <h3>Step 3: Performance</h3>
       <p>During the 360 minutes the line was running, it produced 17,280 bars. At the ideal rate (60 bars/min), it should have produced 360 × 60 = 21,600 bars.</p>
-      <pre>Actual Rate = 17,280 / 360 = 48 bars/min
+      <pre tabindex="0">Actual Rate = 17,280 / 360 = 48 bars/min
 Ideal Rate  = 60 bars/min
 Performance = 48 / 60 = 0.80 (80%)</pre>
 
       <h3>Step 4: Quality</h3>
       <p>The quality inspector pulled 1,728 bars with wrapping defects (sealed crooked, label off-center, foil torn). Those went to rework.</p>
-      <pre>Total Produced = 17,280 bars
+      <pre tabindex="0">Total Produced = 17,280 bars
 Good Units     = 17,280 - 1,728 = 15,552 bars
 Quality        = 15,552 / 17,280 = 0.90 (90%)</pre>
 
       <h3>Step 5: OEE</h3>
-      <pre>OEE = 0.80 × 0.80 × 0.90 = 0.576 (57.6%)</pre>
+      <pre tabindex="0">OEE = 0.80 × 0.80 × 0.90 = 0.576 (57.6%)</pre>
       <p>This is roughly the median Philippine plant. Not embarrassing, not impressive. The number itself is the starting line, not the finish line.</p>
 
       <h2 id="six-losses">The 6 big losses OEE catches</h2>
@@ -412,7 +412,7 @@ Quality        = 15,552 / 17,280 = 0.90 (90%)</pre>
 
       <div class="cta-box">
         <p class="cta-eyebrow">The tool this guide is about</p>
-        <h4>WorkHive Analytics computes OEE automatically</h4>
+        <h4 aria-level="3">WorkHive Analytics computes OEE automatically</h4>
         <p>Every shift entry in the WorkHive Logbook (run time, unplanned downtime reasons, units produced, defects) flows into Analytics as A × P × Q. Track per asset, per shift, per day. No spreadsheets, no SCADA, no per-user license. Free at the worker tier forever.</p>
         <a href="/analytics.html" class="cta-btn">Open Analytics</a>
         <p class="cta-secondary">No hive yet? <a href="/#join">Join WorkHive</a> first (free, takes 30 seconds).</p>
@@ -514,7 +514,7 @@ Quality        = 15,552 / 17,280 = 0.90 (90%)</pre>
 </article>
 
 <footer class="py-10 border-t border-white/[0.06]" style="background: rgba(13,24,36,0.85);">
-  <div class="max-w-4xl mx-auto px-5 sm:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-white/35">
+  <div class="max-w-4xl mx-auto px-5 sm:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-white/60">
     <p>© 2026 WorkHive Platform · workhiveph.com · Last updated <time datetime="2026-05-17">17 May 2026</time></p>
     <div class="flex items-center gap-6">
       <a href="/" class="hover:text-white/60 transition-colors">Home</a>
@@ -525,6 +525,6 @@ Quality        = 15,552 / 17,280 = 0.90 (90%)</pre>
 </footer>
 
 
-<script defer src="/workhive/wh-feedback-fab.js"></script>
+<script defer src="../../wh-feedback-fab.js"></script>
 </body>
 </html>

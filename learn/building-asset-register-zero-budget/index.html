@@ -316,7 +316,7 @@
     </div>
 
     <div class="toc">
-      <h4>What's in this guide</h4>
+      <h4 aria-level="2">What's in this guide</h4>
       <ol>
         <li><a href="#why-register">Why every plant needs a real asset register</a></li>
         <li><a href="#iso-14224">ISO 14224 hierarchy (and the simplified 5-level version)</a></li>
@@ -371,7 +371,7 @@
 
       <h3>Step 3: Apply naming convention (Days 9 to 13)</h3>
       <p>Pattern: <code>AREA-SYSTEM-ASSET-INSTANCE</code>. Examples:</p>
-      <pre>LIN1-CW-PMP-001    Line 1, Cooling Water, Pump, instance 001
+      <pre tabindex="0">LIN1-CW-PMP-001    Line 1, Cooling Water, Pump, instance 001
 UTL-CAS-CMP-002    Utility, Compressed Air, Compressor, instance 002
 WHS-LGT-PNL-005    Warehouse, Lighting, Panel, instance 005</pre>
       <p>Three rules: short (under 20 chars), consistent (no VIP exceptions), no spaces. Print the SOP on one page. Tag every existing asset before adding any new one.</p>
@@ -384,7 +384,7 @@ WHS-LGT-PNL-005    Warehouse, Lighting, Panel, instance 005</pre>
 
       <div class="cta-box">
         <p class="cta-eyebrow">The tool this guide is about</p>
-        <h4>WorkHive Asset Hub is the canonical asset register</h4>
+        <h4 aria-level="3">WorkHive Asset Hub is the canonical asset register</h4>
         <p>Asset Hub holds your ISO 14224-aligned hierarchy, photos, criticality, PM links, fault history, parts consumption, and skill-assignment matrix per asset. Every other WorkHive surface (Logbook, PM Scheduler, Inventory, Skill Matrix, Analytics, AI Assistant) reads from Asset Hub as the single source of truth. Free at the worker tier; scoped access for contractors and suppliers unlocks at Stage 2.</p>
         <a href="/asset-hub.html" class="cta-btn">Open Asset Hub</a>
         <p class="cta-secondary">No hive yet? <a href="/#join">Join WorkHive</a> first (free, takes 30 seconds).</p>
@@ -494,7 +494,7 @@ WHS-LGT-PNL-005    Warehouse, Lighting, Panel, instance 005</pre>
 </article>
 
 <footer class="py-10 border-t border-white/[0.06]" style="background: rgba(13,24,36,0.85);">
-  <div class="max-w-4xl mx-auto px-5 sm:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-white/35">
+  <div class="max-w-4xl mx-auto px-5 sm:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-white/60">
     <p>© 2026 WorkHive Platform · workhiveph.com · Last updated <time datetime="2026-05-17">17 May 2026</time></p>
     <div class="flex items-center gap-6">
       <a href="/" class="hover:text-white/60 transition-colors">Home</a>
@@ -505,6 +505,6 @@ WHS-LGT-PNL-005    Warehouse, Lighting, Panel, instance 005</pre>
 </footer>
 
 
-<script defer src="/workhive/wh-feedback-fab.js"></script>
+<script defer src="../../wh-feedback-fab.js"></script>
 </body>
 </html>

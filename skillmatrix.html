@@ -189,7 +189,7 @@
       cursor: pointer; flex-shrink: 0; display: flex; align-items: center; justify-content: center;
       min-width: 44px; min-height: 44px;
     }
-    .modal-body { overflow-y: auto; flex: 1; padding: 0 1.25rem 1.25rem; }
+    .modal-body { overflow-y: auto; overscroll-behavior: contain; flex: 1; padding: 0 1.25rem 1.25rem; }
     .modal-footer { padding: 0.75rem 1.25rem 1rem; border-top: 1px solid rgba(255,255,255,0.06); }
 
     /* ── Lesson modal ── */
@@ -206,6 +206,7 @@
       color: #162032; font-weight: 700; border: none; border-radius: 0.75rem;
       padding: 0.875rem 1.5rem; font-size: 0.875rem; cursor: pointer;
       font-family: 'Poppins', sans-serif; transition: all 0.2s;
+      min-height: 44px; /* tap-target floor — stays >=44 even when label is set later (result-primary-btn) */
     }
     .btn-primary:active { opacity: 0.75; transform: scale(0.98); }
     .btn-primary:disabled { opacity: 0.35; cursor: not-allowed; transform: none; }
@@ -214,6 +215,7 @@
       border: 1px solid rgba(255,255,255,0.12); border-radius: 0.75rem;
       padding: 0.75rem 1.5rem; font-size: 0.85rem; cursor: pointer;
       font-family: 'Poppins', sans-serif; transition: all 0.2s; margin-top: 0.5rem;
+      min-height: 44px; /* tap-target floor */
     }
     .btn-ghost:active { background: rgba(255,255,255,0.08); }
 
@@ -309,7 +311,7 @@
     .verdict.empty   .verdict-icon { color:rgba(255,255,255,0.55); }
     .simple-row { display:grid; grid-template-columns:repeat(auto-fit, minmax(160px, 1fr)); gap:12px; margin-bottom:14px; }
     .simple-card { background:#162032; border:1px solid rgba(255,255,255,0.07); border-radius:12px; padding:14px 16px; }
-    .simple-card .sc-label { font-size:0.65rem; font-weight:700; color:rgba(255,255,255,0.4); text-transform:uppercase; letter-spacing:0.06em; }
+    .simple-card .sc-label { font-size:0.65rem; font-weight:700; color:rgba(255,255,255,0.6); text-transform:uppercase; letter-spacing:0.06em; }
     .simple-card .sc-hero  { font-size:1.5rem; font-weight:800; line-height:1.15; margin:4px 0 2px; color:#F4F6FA; }
     .simple-card .sc-sub   { font-size:0.7rem; color:rgba(255,255,255,0.55); line-height:1.4; }
     .simple-card .sc-tag   { display:inline-block; font-size:0.58rem; font-weight:800; letter-spacing:0.06em; text-transform:uppercase; padding:0.18rem 0.5rem; border-radius:999px; margin-top:7px; }
@@ -1192,15 +1194,17 @@ document.getElementById('exam-next-btn').addEventListener('click', async () => {
   }
 });
 
-document.getElementById('exam-close-btn').addEventListener('click', () => {
-  // Save draft before closing
+function closeExam() {
+  // Save draft before closing (mirrors backdrop-close + ESC) so an in-progress
+  // exam can be resumed.
   if (!_examSubmitted && _activeDiscipline) {
     const draftKey = `wh_exam_draft_${WORKER_NAME}_${_activeDiscipline}_${_activeLevel}`;
     try { localStorage.setItem(draftKey, JSON.stringify({ answers: _examAnswers, currentQ: _currentQuestion })); } catch (_) { /* empty-catch-allow: best-effort silent swallow */ }
   }
   closeModal('exam-modal');
   resetExamFlow();
-});
+}
+document.getElementById('exam-close-btn').addEventListener('click', closeExam);
 
 async function submitExam() {
   _examSubmitted = true;
@@ -1374,6 +1378,21 @@ function closeModal(id) {
     }
   });
 });
+
+// ─── Modal a11y (Grounded Sweep Wave 2) ────────────────────────────────────────
+// The 3 modals already declare the dialog role + aria-modal in their markup; this adds
+// the RUNTIME dialog contract via the shared utils.js helper: Tab focus-trap +
+// focus-restore + ESC-to-close. These overlays open/close with the .open class
+// (opacity + pointer-events), which whModalA11y's isOpen() now understands. ESC
+// runs each modal's REAL close path (state reset + exam-draft save), identical to
+// its close button / backdrop tap — not a sticky display:none. Idempotent.
+if (window.whModalA11y) {
+  whModalA11y(document.getElementById('lesson-modal'), { onClose: closeLesson });
+  whModalA11y(document.getElementById('exam-modal'),   { onClose: closeExam });
+  whModalA11y(document.getElementById('result-modal'), {
+    onClose: () => { closeModal('result-modal'); resetExamFlow(); refreshMatrix(); },
+  });
+}
 
 // Plain-Read details toggle (Layer D — UX Contract)
 (function wireSmSummaryToggle() {

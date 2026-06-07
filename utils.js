@@ -76,7 +76,7 @@ function renderSourceChip(opts) {
   }
 
   return '<p class="wh-source-chip" '
-    + 'style="font-size:.62rem;color:rgba(255,255,255,0.4);margin:3px 0 0;line-height:1.35;">'
+    + 'style="font-size:.62rem;color:rgba(255,255,255,0.6);margin:3px 0 0;line-height:1.35;">'
     + parts.join(' &middot; ')
     + '</p>';
 }
@@ -271,13 +271,13 @@ function renderCompactStat(opts) {
 
   const inner =
     `<div style="display:flex;flex-direction:column;align-items:flex-start;gap:0.15rem;padding:0.5rem 0.85rem;min-width:84px;">` +
-      `<span style="font-size:0.6rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:rgba(255,255,255,0.4);">${escHtml(opts.label || '')}</span>` +
+      `<span style="font-size:0.6rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:rgba(255,255,255,0.6);">${escHtml(opts.label || '')}</span>` +
       `<span style="display:flex;align-items:baseline;gap:0.25rem;">` +
         (opts.icon ? `<span style="font-size:0.85rem;">${escHtml(opts.icon)}</span>` : '') +
         `<span style="font-size:1.05rem;font-weight:800;line-height:1;color:${color};">${escHtml(String(opts.value === undefined || opts.value === null ? '—' : opts.value))}</span>` +
         (opts.unit ? `<span style="font-size:0.7rem;color:rgba(255,255,255,0.45);">${escHtml(opts.unit)}</span>` : '') +
       `</span>` +
-      (opts.sublabel ? `<span style="font-size:0.6rem;color:rgba(255,255,255,0.4);">${escHtml(opts.sublabel)}</span>` : '') +
+      (opts.sublabel ? `<span style="font-size:0.6rem;color:rgba(255,255,255,0.6);">${escHtml(opts.sublabel)}</span>` : '') +
     `</div>`;
 
   if (opts.href) {
@@ -333,7 +333,7 @@ function renderAlertPreview(opts) {
   return `<a href="${escHtml(href)}" class="alert-preview" style="display:block;padding:0.6rem 0.8rem;margin-bottom:0.4rem;background:${s.bg};border-left:3px solid ${s.border};border-radius:0.5rem;text-decoration:none;color:inherit;">
     <div style="display:flex;align-items:baseline;justify-content:space-between;gap:0.5rem;margin-bottom:0.15rem;">
       <span style="font-size:0.7rem;font-weight:700;letter-spacing:0.04em;">${kindIcon} ${escHtml(opts.title || 'Alert')}</span>
-      <span style="font-size:0.6rem;color:rgba(255,255,255,0.4);white-space:nowrap;">${escHtml(s.label)}${rel ? ' · ' + escHtml(rel) : ''}</span>
+      <span style="font-size:0.6rem;color:rgba(255,255,255,0.6);white-space:nowrap;">${escHtml(s.label)}${rel ? ' · ' + escHtml(rel) : ''}</span>
     </div>
     ${opts.asset ? `<div style="font-size:0.62rem;color:rgba(255,255,255,0.5);">Asset: ${escHtml(opts.asset)}</div>` : ''}
     ${opts.message ? `<div style="font-size:0.65rem;color:rgba(255,255,255,0.55);margin-top:0.15rem;">${escHtml(opts.message)}</div>` : ''}
@@ -449,7 +449,16 @@ if (typeof window !== 'undefined' && !window.WH_STATUS_ENUMS) {
     function isOpen() {
       if (modalEl.classList.contains('hidden')) return false;
       var cs = window.getComputedStyle(modalEl);
-      return cs.display !== 'none' && cs.visibility !== 'hidden';
+      if (cs.display === 'none' || cs.visibility === 'hidden') return false;
+      // Opacity/pointer-events open pattern (skillmatrix .modal-overlay,
+      // marketplace/community .sheet-overlay, founder-console .fb-drawer-backdrop):
+      // the overlay STAYS display:flex and toggles a .open class that flips
+      // opacity + pointer-events. When closed it is pointer-events:none — detect
+      // that so we don't treat a fully-invisible overlay as permanently open and
+      // trap focus on page load. pointer-events flips instantly with the class;
+      // opacity is transitioned, so reading opacity would mis-fire mid-animation.
+      if (cs.pointerEvents === 'none') return false;
+      return true;
     }
     function focusables() {
       return Array.prototype.filter.call(modalEl.querySelectorAll(FOCUSABLE), function(el) {
