@@ -304,6 +304,8 @@
           background: none; border: none; color: rgba(255,255,255,0.4);
           cursor: pointer; font-size: 18px; line-height: 1; padding: 2px 4px;
           border-radius: 4px; transition: color 0.15s, background 0.15s;
+          min-width: 44px; min-height: 44px;
+          display: flex; align-items: center; justify-content: center;
         }
         #wh-ai-close:hover { color: #fff; background: rgba(255,255,255,0.08); }
 
@@ -426,7 +428,7 @@
         #wh-ai-input:focus { border-color: rgba(247,162,27,0.4); box-shadow: 0 0 0 3px rgba(247,162,27,0.07); }
         #wh-ai-input::placeholder { color: rgba(255,255,255,0.25); }
         #wh-ai-send {
-          width: 36px; height: 36px;
+          width: 44px; height: 44px;
           background: linear-gradient(135deg, #F7A21B, #FDB94A);
           border: none;
           border-radius: 10px;
@@ -442,7 +444,7 @@
 
         /* ── Mic button (Step A: unified entry point to voice-router) ── */
         #wh-ai-mic {
-          width: 36px; height: 36px;
+          width: 44px; height: 44px;
           background: linear-gradient(135deg, #29B6D9, #1f8aab);
           border: none;
           border-radius: 10px;

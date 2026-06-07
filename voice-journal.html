@@ -214,14 +214,15 @@
       padding: 0.3rem 0.75rem;
       font-size: 0.7rem; font-weight: 600;
       cursor: pointer;
-      min-height: 32px;
+      min-height: 44px;
+      display: inline-flex; align-items: center; justify-content: center;
     }
     .filter-chip:hover  { color: white; border-color: rgba(255,255,255,0.2); }
     .filter-chip:active { transform: scale(0.97); }
     .filter-chip.active {
       background: rgba(247,162,27,0.18); border-color: rgba(247,162,27,0.35); color: #ffcc7a;
     }
-    @media (max-width: 480px) { .filter-chip { min-height: 36px; padding: 0.45rem 0.95rem; } }
+    @media (max-width: 480px) { .filter-chip { min-height: 44px; padding: 0.45rem 0.95rem; } }
 
     .toast {
       position: fixed; left: 50%; bottom: 1.5rem;

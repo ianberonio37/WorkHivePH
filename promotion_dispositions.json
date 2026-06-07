@@ -1,3 +1,36 @@
 {
-  "_README": "Set a candidate key (e.g. 'rule:edge:imports_cors_shared' or 'sentinel:rls_open_policy') to {\"status\": \"approved|rejected|snoozed\", \"note\": \"...\"} to drop it from promotion_queue.md. The orchestrator never overwrites this file."
+  "_README": "Set a candidate key (e.g. 'rule:edge:imports_cors_shared' or 'sentinel:rls_open_policy') to {\"status\": \"approved|rejected|snoozed\", \"note\": \"...\"} to drop it from promotion_queue.md. The orchestrator never overwrites this file.",
+
+  "_SWEEP_DISPOSITION_2026-06-07": "24 Grounded-MCP-Sweep critiques dispositioned by owner. They collapse into 6 root-cause work items (W1 tap-target base rule, W2 modal-a11y retrofit, W3 status-enum guard, W4 index a11y, W5 WHShell seam, W6 judgment). 23 approved / 1 rejected. Owner steers: (Q1) tap-target rule = 44px EVERYWHERE, no exceptions incl. filter-chips; (Q2) #5 onboarding = align verdict+CTA+ladder on ONE first action.",
+
+  "sweep:platform-wide:interactive-min-height-rule": {"status": "approved", "note": "W1 PRIMARY. Establish one .wh-tappable base (min-height:44px on button/[role=button]/tab/chip/pill/icon-btn) + extend validate_mobile to compute PER-ELEMENT box size (current check_touch_targets is inline-style-only = BLIND SPOT #1/#2, structurally can't see class/padding-sized controls). Owner: 44px everywhere, NO exception list. Closes the whole class instead of chasing it per-page."},
+  "sweep:platform:companion-overlay-tap-targets": {"status": "approved", "note": "W1. Shared companion launcher/overlay (wh-ai-trigger 22px, mic/send 14px, close 9px) sub-44 on every page -> fix once in shell component to >=44px."},
+  "sweep:platform:global-search-44": {"status": "approved", "note": "W1. #wh-hub-global-search 42px -> 44px in shell header."},
+  "sweep:platform-wide:nav-hub-mode-btn-tap": {"status": "approved", "note": "W1. .wh-hub-mode-btn 83x26 ships in nav-hub.js -> sub-44 on every page; bump in shell."},
+  "sweep:index:onboarding-ladder-44": {"status": "approved", "note": "W1. #oh-onboarding ladder items 42px -> 44px (extend mobile rule)."},
+  "sweep:dayplanner:btn-icon-tap": {"status": "approved", "note": "W1. .btn-icon (sidebar collapse, prev/next date) 28-30px -> 44px; primary date nav below floor."},
+  "sweep:dayplanner:view-tab-tap": {"status": "approved", "note": "W1. .view-tab (DILO/WILO/MILO/YILO) 94x31 -> 44px; primary switcher."},
+  "sweep:shift-brain:shift-pill-tap": {"status": "approved", "note": "W1. .shift-pill (06-14/14-22/22-06) 140x37 -> 44px; primary shift selector."},
+  "sweep:shift-brain:back-btn-tap": {"status": "approved", "note": "W1. .back-btn 36x36 -> 44x44."},
+  "sweep:logbook:voice-btn-consistency": {"status": "approved", "note": "W1. Bake 44px into the shared .wh-tappable class so a dropped min-h utility can't shrink a header action (the Voice-Journal failure mode). = the base-rule work."},
+  "sweep:resume:dedupe-toggle-font": {"status": "approved", "note": "W1 (+a11y). promote-dedupe hit-area -> 44px via base rule; ALSO bump the 13.3px label to >=14px. Lone sub-spec control on an otherwise clean page."},
+  "sweep:inventory:min-height-unset-antipattern": {"status": "approved", "note": "W1. inline style=min-height:unset on .btn-* defeats the 44px default (inline beats media query, bites phones). Row icon buttons -> 44px hitbox; the per-element validate_mobile upgrade catches this inline-unset smell that the class check misses."},
+  "sweep:voicejournal:filter-chip-density": {"status": "approved", "note": "W1. Owner Q1 = 44px EVERYWHERE: voice-journal .filter-chip 36px -> 44px (overrides the prior 'deliberately compact' framing; one rule, no per-page drift)."},
+  "sweep:pm-scheduler:filter-chip-tap": {"status": "approved", "note": "W1. Owner Q1 = 44px EVERYWHERE: pm-scheduler status filter-chips 32px -> 44px. Resolves the chip-drift the critic flagged between this page and voice-journal."},
+
+  "sweep:platform:modal-a11y-helper": {"status": "approved", "note": "W2 PRIMARY. Build shared whModalA11y(modalEl,{onClose,labelledBy}) -> role=dialog+aria-modal+accessible-name+ESC-close+Tab-trap+focus-restore. Retrofit existing hand-rolled modals (logbook 8, index inline -> migrate). Ratchets validate_modal_a11y.py C7 debt baseline (13) down as modals are migrated."},
+  "sweep:platform:inline-styled-modals-evade-ratchet": {"status": "approved", "note": "W2. validate_modal_a11y.py keys on class='fixed inset-0' so inline style=position:fixed;inset:0 modals evade the C7 ratchet (pm-scheduler 3 modals w/ ZERO keydown handlers, dayplanner .modal-overlay). Widen validator to also match inline fixed/inset overlays, THEN retrofit with whModalA11y."},
+  "sweep:pm-scheduler:edit-modal-a11y": {"status": "approved", "note": "W2. #pm-edit-modal role=null/aria-modal=null/no ESC/no trap -> apply whModalA11y."},
+  "sweep:dayplanner:modal-a11y": {"status": "approved", "note": "W2. #modal/#modal-box role=null/aria-modal=null -> apply whModalA11y."},
+
+  "sweep:platform:status-enum-constants": {"status": "approved", "note": "W3. The dayplanner overdue bug (filter checked item_status!='closed' but schedule_items enum is done/in_progress/pending -> counted DONE as overdue, 6 vs 3 DB) was invisible to every static gate. Centralize per-table status enums in a shared JS constant + a validator that greps filter string-literals against the actual DB enum so a typo'd status can't silently miscount a KPI. High value (real bug already shipped+fixed; this is the systemic guard)."},
+
+  "sweep:index:pwd-reveal-keyboard": {"status": "approved", "note": "W4. Show/hide-password toggles (index.html:2509/2546/2555) are tabindex=-1 -> keyboard users can't reveal. WCAG 2.1.1. Fix: drop -1 (keep last in field tab order) OR labelled 'Show password' checkbox."},
+  "sweep:index:auth-tabs-aria": {"status": "approved", "note": "W4. #tab-signin/#tab-signup are plain buttons -> add role=tablist/tab/tabpanel + aria-selected (WAI-ARIA Tabs pattern). Dialog already has role+aria-modal from the Wave-0 fix."},
+
+  "sweep:index:whshell-seam": {"status": "approved", "note": "W5 (low priority, TASTE). Expose read-only window.WHShell={mode(),identity(),role()} for testability + cross-page consistency with sibling resume.html's window.WHResume."},
+
+  "sweep:index:first-action-alignment": {"status": "approved", "note": "W6. Owner Q2 = APPROVE. Align verdict + primary CTA + onboarding ladder on ONE activating first action for a zero-data novice (Hick's law). Suggested canonical action: 'Log your first job' (data-creating activation); owner sets the final canonical action."},
+
+  "sweep:index:landing-cta-density": {"status": "rejected", "note": "W6 won't-fix. The critic itself says 57 CTAs on a logged-out marketing landing is 'likely FINE' (Jakob's law for marketing pages) and recommended no change without a conversion goal. Logged for honesty; reopen only if a conversion goal is set."}
 }

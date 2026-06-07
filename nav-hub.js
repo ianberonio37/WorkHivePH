@@ -610,8 +610,13 @@
           border-radius: 10px;
           margin: 0 0 10px;
         }
+        /* W1 platform tap-target floor — opt-in base utility (Grounded Sweep critique
+           sweep:platform-wide:interactive-min-height-rule). 44px = gloved-hand minimum,
+           all viewports, no exceptions. Any new interactive control opts in via this class. */
+        .wh-tappable { min-height: 44px; min-width: 44px; }
         .wh-hub-mode-btn {
           flex: 1;
+          min-height: 44px;
           padding: 6px 4px;
           background: transparent;
           border: none;

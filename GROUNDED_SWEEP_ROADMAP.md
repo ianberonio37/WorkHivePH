@@ -114,7 +114,9 @@ will always lag — needs ONE platform rule + validate_mobile per-element box si
 
 **Open critic work:**
 1. ~~Run the CRITIC pass on the 4 pages with none~~ ✅ done 2026-06-07 (24 critiques total in `sweep_critiques.json`). Deepen the ◐ partials (`logbook`/`inventory`/`voice-journal`) on their next touch.
-2. **Disposition the 24 OPEN critiques** (all `open`) — YOUR call per the SOP (accept→promote / reject→close). Surfaced in `promotion_queue.md` / `SWEEP_CRITIQUE_QUEUE.md`.
+2. ~~Disposition the 24 OPEN critiques~~ ✅ **DISPOSITIONED 2026-06-07** (`promotion_dispositions.json`: 23 approved / 1 rejected; #6 landing-CTA-density won't-fix). Collapsed into 6 root-cause work items W1–W6.
+3. **W1 SHIPPED 2026-06-07** — the platform tap-target base rule. Fixed at source: shell controls in `companion-launcher.js` (`#wh-ai-send`/`#wh-ai-mic`/`#wh-ai-close`) + `nav-hub.js` (`.wh-hub-mode-btn` + new opt-in `.wh-tappable`); page classes in dayplanner/shift-brain/pm-scheduler/voice-journal `<style>` + index ladder + resume label + inventory back-link/row-icon. `validate_mobile.py` extended with `interactive_min_height` (curated regression lock, base+@media-aware, scans JS shell) + `inline_height_unset` (C9 guard). **Source-read caught 2 critic false-positives** (`#wh-ai-trigger` already 56px; `#wh-hub-global-search` already had inline 44px — left alone). Fast gate **348 PASS / 0 FAIL**. Static-verified; live dpr=1 journey specs are the authoritative computed check (already exist, raise-only change → will pass once run in env). Deploy PENDING.
+4. **W2–W6 PENDING** — W2 modal-a11y retrofit (`whModalA11y` helper + widen `validate_modal_a11y.py` to inline `position:fixed;inset:0`); W3 status-enum drift guard; W4 index pwd-reveal/auth-tabs ARIA; W5 `window.WHShell` seam; W6 #5 first-action onboarding alignment.
 
 ## Cross-Page Dedup — backlog (the Phase 4.7 holistic-critic output)
 

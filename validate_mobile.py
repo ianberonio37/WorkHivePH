@@ -215,6 +215,103 @@ def check_touch_targets(pages):
     return issues
 
 
+# Curated interactive selectors bumped to >=44px by the Grounded Sweep W1
+# tap-target base-rule pass (2026-06-07, critique sweep:platform-wide:interactive-
+# min-height-rule + per-page tap-target critiques). A static REGRESSION LOCK: each
+# must keep a >=44px height/min-height declared SOMEWHERE in its rule(s) — base OR a
+# @media bump — so a future edit can't silently shrink it again (the per-class
+# whack-a-mole the critic found). Shell components are scanned too because they ship
+# on every page (fix-once-platform-wide).
+#
+# DELIBERATELY NOT a broad "any interactive selector < 44" scan: TRUE per-element
+# computed box size (Tailwind padding, inline styles, novel/unlisted classes) is
+# beyond a static parser and is locked LIVE in the per-page journey specs at dpr=1
+# (journey-dayplanner/-shift-brain, journey-pm, journey-voice-journal, journey-shell-
+# mobile-a11y). This static layer is the cheap, env-free regression guard for the
+# named classes; the live specs are the authoritative computed check. (See the
+# mobile-maestro skill: "static is cheap+broad, the live spec catches what utility
+# classes hide.")
+TAP_TARGET_CSS_LOCKS = {
+    "dayplanner.html":       [".btn-icon", ".view-tab"],
+    "shift-brain.html":      [".shift-pill", ".back-btn"],
+    "pm-scheduler.html":     [".filter-chip"],
+    "voice-journal.html":    [".filter-chip", ".persona-chip"],
+    "companion-launcher.js": ["#wh-ai-send", "#wh-ai-mic", "#wh-ai-close"],
+    "nav-hub.js":            [".wh-hub-mode-btn"],
+}
+
+_HEIGHT_RE       = re.compile(r"(?:^|[;{\s])(min-height|height)\s*:\s*([\d.]+)(px|rem)", re.I)
+_HEIGHT_UNSET_RE = re.compile(r"(?:^|[;{\s])(?:min-)?height\s*:\s*unset", re.I)
+
+
+def _max_declared_height(rule_body):
+    """Largest px-equivalent height/min-height declared in a CSS rule body, or None."""
+    best = None
+    for m in _HEIGHT_RE.finditer(rule_body):
+        val, unit = float(m.group(2)), m.group(3).lower()
+        px = val * 16 if unit == "rem" else val
+        best = px if best is None else max(best, px)
+    return best
+
+
+def check_interactive_min_height(_pages):
+    """W1 tap-target regression lock — each curated interactive selector must keep a
+    >=44px height/min-height somewhere across its rule(s)."""
+    issues = []
+    for fname, selectors in TAP_TARGET_CSS_LOCKS.items():
+        content = read_file(fname)
+        if content is None:
+            continue
+        for sel in selectors:
+            # Match only the bare-selector rule(s): "sel { ... }" (and inside @media),
+            # NOT pseudo/compound variants like sel:hover / sel.active.
+            blocks = re.findall(re.escape(sel) + r"\s*\{([^}]*)\}", content)
+            if not blocks:
+                issues.append({"check": "interactive_min_height", "page": fname,
+                    "reason": (f"{fname}: tap-target lock selector '{sel}' not found — "
+                               f"renamed/removed? (W1 base-rule regression guard)")})
+                continue
+            if any(_HEIGHT_UNSET_RE.search(b) for b in blocks):
+                issues.append({"check": "interactive_min_height", "page": fname,
+                    "reason": (f"{fname}: '{sel}' sets height/min-height:unset — defeats the "
+                               f"{MIN_TOUCH_PX}px tap-target floor (W1 / critique C9)")})
+                continue
+            heights = [h for h in (_max_declared_height(b) for b in blocks) if h is not None]
+            if not heights:
+                issues.append({"check": "interactive_min_height", "page": fname,
+                    "reason": (f"{fname}: '{sel}' no longer declares any height/min-height — "
+                               f"W1 set a {MIN_TOUCH_PX}px floor; a later edit dropped it")})
+            elif max(heights) < MIN_TOUCH_PX:
+                issues.append({"check": "interactive_min_height", "page": fname,
+                    "reason": (f"{fname}: '{sel}' max declared height {max(heights):.0f}px < "
+                               f"{MIN_TOUCH_PX}px tap-target floor (W1 regression)")})
+    return issues
+
+
+def check_inline_height_unset(pages):
+    """Inline style="...(min-)height:unset" on a <button>/<a> defeats the class 44px
+    default (inline beats the media query — it bites phones). The C9 anti-pattern,
+    found+removed on inventory.html; this guards the whole platform forward."""
+    issues = []
+    for page in pages:
+        # engineering-design.html: desktop-only calculator with compact 28px row-delete
+        # icons — already exempted from the inline touch-target check above.
+        if page == "engineering-design.html":
+            continue
+        content = read_file(page)
+        if content is None:
+            continue
+        for i, line in enumerate(content.splitlines()):
+            if "<button" not in line and "<a " not in line:
+                continue
+            if re.search(r'style="[^"]*(?:min-)?height\s*:\s*unset', line, re.I):
+                issues.append({"check": "inline_height_unset", "page": page, "line": i + 1,
+                    "reason": (f"{page}:{i + 1} interactive element has inline (min-)height:unset "
+                               f"— defeats the {MIN_TOUCH_PX}px tap-target floor (inline beats the "
+                               f"media query); critique C9 / W1")})
+    return issues
+
+
 # ── Layer 3: GPU / animation safety ──────────────────────────────────────────
 
 def check_will_change_filter(pages):
@@ -488,6 +585,8 @@ CHECK_NAMES = [
     "input_font_size",
     "safe_area",
     "touch_targets",
+    "interactive_min_height",
+    "inline_height_unset",
     "will_change_filter",
     "body_animation_motion",
     "overscroll_behavior",
@@ -502,6 +601,8 @@ CHECK_LABELS = {
     "input_font_size":         "L1  .wh-input font-size >= 16px (iOS auto-zoom guard)",
     "safe_area":               "L2  Fixed bottom elements have safe-area-inset-bottom",
     "touch_targets":           "L2  No inline touch target below 44px",
+    "interactive_min_height":  "L2  W1 tap-target lock: curated interactive classes keep >=44px",
+    "inline_height_unset":     "L2  No inline (min-)height:unset on buttons/links (C9 anti-pattern)",
     "will_change_filter":      "L3  will-change:filter has mobile override (iOS GPU crash guard)",
     "body_animation_motion":   "L3  body animation has prefers-reduced-motion override",
     "overscroll_behavior":     "L4  Scrollable modal containers have overscroll-behavior:contain  [WARN]",
@@ -522,6 +623,8 @@ def main():
     all_issues += check_input_font_size(LIVE_PAGES)
     all_issues += check_safe_area(LIVE_PAGES)
     all_issues += check_touch_targets(LIVE_PAGES)
+    all_issues += check_interactive_min_height(LIVE_PAGES)
+    all_issues += check_inline_height_unset(LIVE_PAGES)
     all_issues += check_will_change_filter(LIVE_PAGES)
     all_issues += check_body_animation_reduced_motion(LIVE_PAGES)
     all_issues += check_overscroll_behavior(SCROLL_PAGES)
