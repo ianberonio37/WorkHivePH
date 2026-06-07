@@ -95,21 +95,26 @@ SEPARATELY here, because it lagged behind. Source of truth: `sweep_critiques.jso
 
 | Page | REFEREE | CRITIC | Critiques logged |
 |---|---|---|---|
-| `resume.html` | ☑ | ☐ | 0 — predates the critic tooling |
+| `resume.html` | ☑ | ☑ **2026-06-07** | 1 — pilot is structurally CLEAN (modals already role=dialog+aria-modal, buttons 44px); only a 13px dedupe-toggle label |
 | `index.html` | ☑ | ☑ | 6 (full pass) |
 | `logbook.html` | ☑ | ◐ | 1 |
 | `inventory.html` | ☑ | ◐ | 1 |
-| `pm-scheduler.html` | ☑ | ☐ | 0 |
-| `dayplanner.html` | ☑ | ☐ | 0 |
-| `shift-brain.html` | ☑ | ☐ | 0 |
+| `pm-scheduler.html` | ☑ | ☑ **2026-06-07** | 2 — filter-chips 32px + pm-edit-modal a11y |
+| `dayplanner.html` | ☑ | ☑ **2026-06-07** | 3 — btn-icon 28px + view-tab 31px + modal a11y |
+| `shift-brain.html` | ☑ | ☑ **2026-06-07** | 2 — shift-pill 37px + back-btn 36px |
 | `voice-journal.html` | ☑ | ◐ | 1 |
-| (platform-wide / systemic) | — | — | 5 |
+| (platform-wide / systemic) | — | — | 7 (+nav-hub mode-btn 26px, +the interactive-min-height rule) |
 
-**Open critic work (this IS roadmap, not done):**
-1. **Run the CRITIC pass** on the 4 pages with none — `pm-scheduler`, `dayplanner`,
-   `shift-brain`, `resume` — and deepen the ◐ partials (`logbook`/`inventory`/`voice-journal`).
-2. **Disposition the 14 OPEN critiques** in `sweep_critiques.json` (all `open` today):
-   accept→promote to a fix, or reject→close with a reason. Surfaced in `promotion_queue.md`.
+**CRITIC pass — now run on all 8 swept pages (2026-06-07).** The headline cross-page
+finding (`sweep:platform-wide:interactive-min-height-rule`): the REFEREE fix bumped
+`.btn-primary`/`.btn-ghost` to 44px per page, but each page then shipped a DIFFERENT
+secondary control class below 44px (pm `filter-chip`32 · dayplanner `btn-icon`28/`view-tab`31
+· shift-brain `shift-pill`37/`back-btn`36 · nav-hub `mode-btn`26). Reactive per-class fixes
+will always lag — needs ONE platform rule + validate_mobile per-element box sizing.
+
+**Open critic work:**
+1. ~~Run the CRITIC pass on the 4 pages with none~~ ✅ done 2026-06-07 (24 critiques total in `sweep_critiques.json`). Deepen the ◐ partials (`logbook`/`inventory`/`voice-journal`) on their next touch.
+2. **Disposition the 24 OPEN critiques** (all `open`) — YOUR call per the SOP (accept→promote / reject→close). Surfaced in `promotion_queue.md` / `SWEEP_CRITIQUE_QUEUE.md`.
 
 ## Cross-Page Dedup — backlog (the Phase 4.7 holistic-critic output)
 
