@@ -3029,6 +3029,17 @@ function formatDate(iso) {
     + ' · ' + d.toLocaleTimeString('en-PH', { hour: '2-digit', minute: '2-digit' });
 }
 
+// Header stat pills ("Your Repair Logbook") always reflect the worker's OWN
+// entries, in every view — including the supervisor team-feed default. Reads
+// _allEntries (the personal set), so callers must ensure it is loaded first.
+function updateStatPills() {
+  const allMachines = new Set(_allEntries.map(e => (e.machine || '').trim().toUpperCase()).filter(Boolean));
+  const openCount   = _allEntries.filter(e => (e.status || 'Open') === 'Open').length;
+  document.getElementById('total-count').textContent   = _allEntries.length;
+  document.getElementById('machine-count').textContent = allMachines.size;
+  document.getElementById('open-count').textContent    = openCount;
+}
+
 async function renderEntries(reload = true) {
   const teamPrompt = document.getElementById('team-prompt');
 
@@ -3066,14 +3077,10 @@ async function renderEntries(reload = true) {
       .some(f => f && f.toLowerCase().includes(query));
   });
 
-  // Stats always reflect personal entries (header cards say "My Logbook")
-  if (_viewMode !== 'team') {
-    const allMachines = new Set(_allEntries.map(e => (e.machine || '').trim().toUpperCase()).filter(Boolean));
-    const openCount   = _allEntries.filter(e => (e.status || 'Open') === 'Open').length;
-    document.getElementById('total-count').textContent   = _allEntries.length;
-    document.getElementById('machine-count').textContent = allMachines.size;
-    document.getElementById('open-count').textContent    = openCount;
-  }
+  // Stats always reflect personal entries (header cards say "Your Repair Logbook").
+  // In team mode the pills are kept current by the init-time personal load +
+  // updateStatPills(); they must NOT be overwritten by team-feed counts here.
+  if (_viewMode !== 'team') updateStatPills();
 
   const list      = document.getElementById('entries-list');
   const empty     = document.getElementById('empty-state');
@@ -5199,7 +5206,16 @@ document.getElementById('f-category').addEventListener('change', updateTasklistS
     restoreDraft();
   });
   loadInventoryForPicker();
-  if (_viewMode === 'mine') renderEntries();
+  if (_viewMode === 'mine') {
+    renderEntries();
+  } else {
+    // Supervisor team-feed default (setViewMode('team')) skips the personal
+    // load, which left the "Your Repair Logbook" stat pills showing a
+    // misleading 0 even for a worker with thousands of own entries. Load the
+    // personal set once here so the header counts are honest; the team feed
+    // itself stays search-gated.
+    loadEntries().then(updateStatPills);
+  }
   updateStatusToggle('f-status');
 })();
 
