@@ -842,7 +842,7 @@
   <!-- Edge editor modal (supervisor only) -->
   <div id="edge-modal" role="dialog" aria-modal="true" aria-labelledby="edge-modal-title">
     <div id="edge-modal-card">
-      <h3 id="edge-modal-title">Add an edge</h3>
+      <h2 id="edge-modal-title">Add an edge</h2>
       <label for="edge-type">Relationship</label>
       <select id="edge-type" data-select-placeholder-allow="graph edge type, parent_of is the most common edge">
         <option value="parent_of">parent_of (this asset contains another)</option>
@@ -865,7 +865,7 @@
   <!-- Phase R.2: FMEA failure-mode modal -->
   <div id="fmea-modal" role="dialog" aria-modal="true" aria-labelledby="fmea-modal-title">
     <div id="fmea-modal-card">
-      <h3 id="fmea-modal-title">Add failure mode</h3>
+      <h2 id="fmea-modal-title">Add failure mode</h2>
       <label for="fmea-function">Function (what should this asset do?)</label>
       <input id="fmea-function" type="text" placeholder="e.g. Maintain 2.5 bar discharge pressure" />
       <label for="fmea-failure-mode">Failure mode</label>
@@ -910,7 +910,7 @@
   <!-- Phase R.4: RCM strategy modal (JA1011 decision tree, simplified) -->
   <div id="rcm-modal" role="dialog" aria-modal="true" aria-labelledby="rcm-modal-title">
     <div id="rcm-modal-card">
-      <h3 id="rcm-modal-title">Set RCM strategy</h3>
+      <h2 id="rcm-modal-title">Set RCM strategy</h2>
       <div id="rcm-fmea-context" style="font-size:0.72rem; color:var(--muted); margin-bottom:0.85rem;"></div>
 
       <label for="rcm-decision">1. JA1011 decision (what task type does this failure deserve?)</label>
@@ -3126,6 +3126,7 @@
 </div>
 
 <header>
+  <!-- heading-allow: printable Reliability Report is a self-contained document (own window, window.print/close) and legitimately emits its own h1 -->
   <h1>Reliability Report — ${esc(node.tag || node.name || 'Untitled asset')}</h1>
   <div class="meta">
     <div><strong>Asset:</strong> ${esc(node.name || node.tag || '--')}</div>

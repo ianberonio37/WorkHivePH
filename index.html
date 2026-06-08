@@ -1081,8 +1081,8 @@
 
     <!-- Stat tiles. Only non-zero counts render; container hides entirely
          when all four are zero. Reads v_logbook_truth + v_risk_truth +
-         v_inventory_items_truth + v_pm_compliance_truth (declared in chip
-         inside More). -->
+         v_inventory_items_truth directly; PM Overdue comes via the
+         get_hive_dashboard RPC (declared in chip inside More). -->
     <div id="oh-stats" style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:18px;"></div>
 
     <!-- Two primary actions chosen by role; everything else lives in More. -->
@@ -3395,16 +3395,17 @@
     }
 
     // Source/window chip for the home-dashboard KPI strip. Single chip covers
-    // the four canonical sources the tiles read (logbook for Open Jobs, risk
-    // for Risk Alerts, inventory for Low Stock, PM compliance for PM Overdue).
+    // the canonical sources the tiles read (logbook for Open Jobs, risk for
+    // Risk Alerts, inventory for Low Stock; PM Overdue now flows through the
+    // get_hive_dashboard RPC fan-out, not a direct v_pm_compliance_truth read).
     const _ohChipEl = document.getElementById('oh-source-chip');
     if (_ohChipEl && typeof renderSourceChip === 'function') {
       _ohChipEl/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = renderSourceChip({
         freshness: HIVE_ID ? 'Live data' : 'Live (solo mode)',
-        source:    'v_logbook_truth + v_risk_truth + v_inventory_items_truth + v_pm_compliance_truth',
+        source:    'v_logbook_truth + v_risk_truth + v_inventory_items_truth · PM overdue via get_hive_dashboard',
         notes:     [
           'Risk: daily snapshot at 13:00 PHT',
-          'PM overdue: 30 days since last anchor',
+          'PM overdue: get_hive_dashboard.pm_overdue_count (distinct assets, 30-day anchor)',
           'Click any tile to open the dedicated surface',
         ],
       });

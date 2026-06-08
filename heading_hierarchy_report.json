@@ -1,7 +1,7 @@
 {
   "summary": {
     "pages_scanned": 30,
-    "total_issues": 2,
+    "total_issues": 0,
     "baseline": 0
   },
   "per_page": [
@@ -39,28 +39,17 @@
     {
       "page": "hive.html",
       "levels": [
+        2,
+        2,
+        2,
+        2,
+        2,
         1,
         2,
-        2,
-        2,
-        2,
-        1,
-        3,
         3,
         3
       ],
-      "issues": [
-        {
-          "kind": "multiple_h1",
-          "count": 2
-        },
-        {
-          "kind": "skip",
-          "from": 1,
-          "to": 3,
-          "idx": 6
-        }
-      ]
+      "issues": []
     },
     {
       "page": "logbook.html",
@@ -829,10 +818,10 @@
       "page": "asset-hub.html",
       "levels": [
         2,
-        3,
-        3,
-        3,
         1,
+        2,
+        2,
+        2,
         2,
         2,
         2,
