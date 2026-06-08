@@ -1,0 +1,262 @@
+- generic [active] [ref=e1]:
+  - main [ref=e2]:
+    - navigation [ref=e3]:
+      - generic [ref=e4]:
+        - link "WorkHive" [ref=e5] [cursor=pointer]:
+          - /url: index.html
+          - img [ref=e6]
+          - img "WorkHive" [ref=e8]
+        - generic [ref=e63]: Leandro Marquez
+    - generic [ref=e205]:
+      - generic [ref=e206]:
+        - button "Back" [ref=e207] [cursor=pointer]:
+          - img [ref=e208]
+          - text: Back
+        - generic [ref=e210]:
+          - button "Edit Asset" [ref=e211] [cursor=pointer]
+          - button "Delete Asset" [ref=e212] [cursor=pointer]
+      - generic [ref=e213]:
+        - generic [ref=e214]:
+          - generic [ref=e215]:
+            - heading "Siemens Simotics SD 200L" [level=2] [ref=e216]
+            - paragraph [ref=e217]: M-001 · Pump Pit 1
+          - generic [ref=e219]: Due Soon
+        - generic [ref=e220]:
+          - generic [ref=e222]: AC Motor
+          - generic [ref=e224]: Medium
+          - generic [ref=e225]: "Last anchor: Mar 20, 2026"
+      - button "+ Add Task" [ref=e226] [cursor=pointer]:
+        - generic [ref=e227]: + Add Task
+        - img [ref=e228]
+      - generic [ref=e230]:
+        - generic [ref=e231]:
+          - heading "PM Tasks" [level=3] [ref=e232]
+          - generic [ref=e233]: 3/5 on track
+        - generic [ref=e234]:
+          - generic [ref=e235]:
+            - generic [ref=e236]:
+              - generic [ref=e237]: M
+              - generic [ref=e238]: Monthly
+            - generic [ref=e240]:
+              - generic [ref=e241]:
+                - paragraph [ref=e242]: Vibration ISO 10816 reading
+                - generic [ref=e243]: On Track
+              - generic [ref=e244]:
+                - generic [ref=e245]:
+                  - generic [ref=e246]: "Last done: May 24, 2026"
+                  - generic [ref=e247]: "Next due: Jun 23, 2026 (Due in 14d)"
+                - button "Mark as completed today" [ref=e248] [cursor=pointer]:
+                  - img [ref=e249]
+          - generic [ref=e251]:
+            - generic [ref=e252]:
+              - generic [ref=e253]: Q
+              - generic [ref=e254]: Quarterly
+            - generic [ref=e256]:
+              - generic [ref=e257]:
+                - paragraph [ref=e258]: Bearing greasing per IEC schedule
+                - generic [ref=e259]: On Track
+              - generic [ref=e260]:
+                - generic [ref=e261]:
+                  - generic [ref=e262]: "Last done: Mar 28, 2026"
+                  - generic [ref=e263]: "Next due: Jun 26, 2026 (Due in 17d)"
+                - button "Mark as completed today" [ref=e264] [cursor=pointer]:
+                  - img [ref=e265]
+      - generic [ref=e267]:
+        - heading "Completion History" [level=3] [ref=e268]
+        - generic [ref=e269]:
+          - generic [ref=e272]:
+            - paragraph [ref=e273]: Visual + amp draw check
+            - paragraph [ref=e274]:
+              - text: Completed · Leandro Marquez · May 31, 2026
+              - text: "\"Minor adjustment made\""
+          - generic [ref=e277]:
+            - paragraph [ref=e278]: Vibration ISO 10816 reading
+            - paragraph [ref=e279]:
+              - text: Completed · Bryan Garcia · May 24, 2026
+              - text: "\"Within spec\""
+          - generic [ref=e282]:
+            - paragraph [ref=e283]: Visual + amp draw check
+            - paragraph [ref=e284]:
+              - text: Completed · Wilfredo Malabanan · May 23, 2026
+              - text: "\"Completed as scheduled\""
+          - generic [ref=e287]:
+            - paragraph [ref=e288]: Vibration ISO 10816 reading
+            - paragraph [ref=e289]: Completed · Bryan Garcia · May 22, 2026
+          - generic [ref=e292]:
+            - paragraph [ref=e293]: Visual + amp draw check
+            - paragraph [ref=e294]:
+              - text: Completed · Leandro Marquez · May 19, 2026
+              - text: "\"Completed as scheduled\""
+        - button "Load More" [ref=e296] [cursor=pointer]
+    - generic [ref=e49]:
+      - button "Dashboard" [ref=e50] [cursor=pointer]:
+        - img [ref=e51]
+        - text: Dashboard
+      - button "Add Asset" [ref=e53] [cursor=pointer]:
+        - img [ref=e54]
+        - text: Add Asset
+    - alert
+  - button "Connectivity status" [ref=e56] [cursor=pointer]:
+    - generic [ref=e58]: Online
+  - generic [ref=e59]:
+    - button "Open navigation hub" [ref=e60] [cursor=pointer]:
+      - generic: WorkHive
+      - img
+    - dialog "Navigation hub":
+      - generic:
+        - generic: WorkHive
+        - strong: WorkHive
+      - button "Open global search":
+        - img
+        - generic: Search assets, jobs, parts, PMs
+        - generic: ⌘K
+      - generic:
+        - generic:
+          - img
+        - searchbox "Search tools"
+        - generic: Ctrl K
+      - tablist "Tool view mode":
+        - tab "⊞ All":
+          - generic: ⊞
+          - text: All
+        - tab "🔧 Field" [selected]:
+          - generic: 🔧
+          - text: Field
+        - tab "👷 Supervisor":
+          - generic: 👷
+          - text: Supervisor
+        - tab "📐 Engineer":
+          - generic: 📐
+          - text: Engineer
+      - generic:
+        - paragraph: Recent
+        - generic:
+          - link "Home":
+            - /url: index.html
+            - generic:
+              - img
+            - generic: Home
+          - link "Logbook":
+            - /url: logbook.html
+            - generic:
+              - img
+            - generic: Logbook
+          - link "Inventory":
+            - /url: inventory.html
+            - generic:
+              - img
+            - generic: Inventory
+          - link "Day":
+            - /url: dayplanner.html
+            - generic:
+              - img
+            - generic: Day
+      - paragraph: All Tools
+      - region:
+        - link "Home":
+          - /url: index.html
+          - generic:
+            - img
+          - generic: Home
+        - paragraph: Field Work
+        - link "Logbook":
+          - /url: logbook.html
+          - generic:
+            - img
+          - generic: Logbook
+        - link "Inventory":
+          - /url: inventory.html
+          - generic:
+            - img
+          - generic: Inventory
+        - link "Day Planner":
+          - /url: dayplanner.html
+          - generic:
+            - img
+          - generic: Day Planner
+        - paragraph: Your Team
+        - link "PM Scheduler":
+          - /url: pm-scheduler.html
+          - generic:
+            - img
+          - generic: PM Scheduler
+        - link "Community":
+          - /url: community.html
+          - generic:
+            - img
+          - generic: Community
+        - paragraph: Intelligence
+        - link "AI Assistant":
+          - /url: assistant.html
+          - generic:
+            - img
+          - generic: AI Assistant
+        - paragraph: Grow
+        - link "Skill Matrix":
+          - /url: skillmatrix.html
+          - generic:
+            - img
+          - generic: Skill Matrix
+        - link "Resume Builder":
+          - /url: resume.html
+          - generic:
+            - img
+          - generic: Resume Builder
+        - link "Achievements":
+          - /url: achievements.html
+          - generic:
+            - img
+          - generic: Achievements
+        - paragraph: Connect
+        - link "Marketplace":
+          - /url: marketplace.html
+          - generic:
+            - img
+          - generic: Marketplace
+  - generic:
+    - button "Open companion":
+      - generic: Talk to your companion
+      - generic:
+        - img "Companion Hezekiah":
+          - img "Hezekiah"
+    - dialog "AI Assistant":
+      - generic:
+        - generic:
+          - img "Companion Hezekiah":
+            - img "Hezekiah"
+        - generic:
+          - strong: Hezekiah
+          - text: PM Scheduler
+        - button "Close": ✕
+      - generic:
+        - img
+        - text: "Context:"
+        - strong: PM Scheduler
+      - generic:
+        - button "Voice command":
+          - img
+        - textbox "Message":
+          - /placeholder: Ask anything…
+        - button "Send":
+          - img
+  - generic:
+    - button "Open companion":
+      - generic: Talk to your companion
+    - dialog "AI Assistant":
+      - generic:
+        - generic:
+          - strong: WorkHive AI
+          - text: PM Scheduler
+        - button "Close": ✕
+      - generic:
+        - img
+        - text: "Context:"
+        - strong: PM Scheduler
+      - generic:
+        - button "Voice command":
+          - img
+        - textbox "Message":
+          - /placeholder: Ask anything…
+        - button "Send":
+          - img
+  - button "Send feedback to WorkHive" [ref=e61] [cursor=pointer]: 💬

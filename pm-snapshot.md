@@ -1,0 +1,362 @@
+- generic [active] [ref=e1]:
+  - main [ref=e2]:
+    - navigation [ref=e3]:
+      - generic [ref=e4]:
+        - link "WorkHive" [ref=e5] [cursor=pointer]:
+          - /url: index.html
+          - img [ref=e6]
+          - img "WorkHive" [ref=e8]
+        - generic [ref=e63]: Leandro Marquez
+    - generic [ref=e9]:
+      - generic [ref=e10]:
+        - generic [ref=e11]:
+          - heading "PM Scheduler" [level=1] [ref=e12]
+          - paragraph [ref=e13]: Track all your equipment PM tasks in one place.
+          - paragraph [ref=e64]:
+            - paragraph [ref=e65]:
+              - text: "Live · refreshed on load · Source:"
+              - code [ref=e66]: pm_assets + pm_scope_items + pm_completions
+              - text: "· Overdue: last completion > interval days ago · Compliance = completions / scope in window · Stair 2 gate: 2 consecutive weeks >= 80% compliance (SMRP)"
+        - generic [ref=e14]:
+          - generic [ref=e15]: ⚠
+          - generic [ref=e16]:
+            - text: PM compliance is in the red
+            - generic [ref=e17]: 6 overdue assets — Reliability dimension is taking a hit on the Maturity Stairway.
+        - generic [ref=e18]:
+          - generic [ref=e19]:
+            - generic [ref=e20]: Overdue
+            - generic [ref=e21]: "6"
+            - generic [ref=e22]: 6 of 30 assets past due
+            - generic [ref=e23]: STACKING UP
+          - generic [ref=e24]:
+            - generic [ref=e25]: Due this week
+            - generic [ref=e26]: "15"
+            - generic [ref=e27]: 15 assets need PM this week
+            - generic [ref=e28]: BUSY WEEK
+          - generic [ref=e29]:
+            - generic [ref=e30]: On track
+            - generic [ref=e31]: "9"
+            - generic [ref=e32]: 9 of 30 assets on track · 30% compliance
+            - generic [ref=e33]: BELOW STAIR
+        - generic [ref=e34]:
+          - generic [ref=e35]: What to do next
+          - generic [ref=e36]: Filter to "Overdue" using the chips below and bulk-assign these PMs across the week. Every overdue PM is a penalty on your Reliability dimension.
+        - button "Show details" [ref=e37] [cursor=pointer]
+        - generic [ref=e38]:
+          - button "All" [ref=e39] [cursor=pointer]
+          - button "Overdue" [ref=e40] [cursor=pointer]
+          - button "Due Soon" [ref=e41] [cursor=pointer]
+          - button "On Track" [ref=e42] [cursor=pointer]
+        - combobox "Filter assets by category" [ref=e43]:
+          - option "All Categories" [selected]
+          - option "AC Motor"
+          - option "Air Compressor"
+          - option "Air Handling Unit"
+          - option "Bag Filter"
+          - option "Bucket Elevator"
+          - option "CNC Lathe"
+          - option "Centrifugal Pump"
+          - option "Chiller"
+          - option "Cooling Tower"
+          - option "Dust Collector"
+          - option "Forklift"
+          - option "Genset"
+          - option "Heat Exchanger"
+          - option "Overhead Crane"
+          - option "Press Brake"
+          - option "Slurry Pump"
+          - option "Steam Boiler"
+          - option "Submersible Pump"
+          - option "Transformer"
+          - option "VFD"
+        - generic [ref=e67]:
+          - button "Open PM details for Siemens Simotics SD 200L" [ref=e68] [cursor=pointer]:
+            - generic [ref=e69]:
+              - generic [ref=e70]:
+                - paragraph [ref=e71]: Siemens Simotics SD 200L
+                - paragraph [ref=e72]: M-001 · Pump Pit 1
+              - generic [ref=e73]: Due Soon
+            - generic [ref=e74]:
+              - generic [ref=e75]: AC Motor
+              - generic [ref=e76]: Medium
+            - paragraph [ref=e77]: "Next: Jun 18, 2026 (Insulation resistance test (Megger)...)"
+            - paragraph [ref=e80]: 5 PM tasks
+          - button "Open PM details for Warman AH 6/4" [ref=e81] [cursor=pointer]:
+            - generic [ref=e82]:
+              - generic [ref=e83]:
+                - paragraph [ref=e84]: Warman AH 6/4
+                - paragraph [ref=e85]: SP-001 · Compressor Room
+              - generic [ref=e86]: Due Soon
+            - generic [ref=e87]:
+              - generic [ref=e88]: Slurry Pump
+              - generic [ref=e89]: High
+            - paragraph [ref=e90]: "Next: Jun 17, 2026 (Annual functional test...)"
+            - paragraph [ref=e93]: 4 PM tasks
+          - button "Open PM details for Mazak QT-15N" [ref=e94] [cursor=pointer]:
+            - generic [ref=e95]:
+              - generic [ref=e96]:
+                - paragraph [ref=e97]: Mazak QT-15N
+                - paragraph [ref=e98]: LATH-001 · Production Line A
+              - generic [ref=e99]: Due Soon
+            - generic [ref=e100]:
+              - generic [ref=e101]: CNC Lathe
+              - generic [ref=e102]: Low
+            - paragraph [ref=e103]: "Next: Jun 8, 2026 (Annual functional test...)"
+            - paragraph [ref=e106]: 4 PM tasks
+          - button "Open PM details for Grundfos CR 95-3-2" [ref=e107] [cursor=pointer]:
+            - generic [ref=e108]:
+              - generic [ref=e109]:
+                - paragraph [ref=e110]: Grundfos CR 95-3-2
+                - paragraph [ref=e111]: P-001 · Compressor Room
+              - generic [ref=e112]: Overdue
+            - generic [ref=e113]:
+              - generic [ref=e114]: Centrifugal Pump
+              - generic [ref=e115]: Critical
+              - generic [ref=e116]: 1 task overdue
+            - paragraph [ref=e117]: "Next: Jun 5, 2026 (Performance test against curve...)"
+            - paragraph [ref=e120]: 6 PM tasks
+          - button "Open PM details for Beumer BE 250" [ref=e121] [cursor=pointer]:
+            - generic [ref=e122]:
+              - generic [ref=e123]:
+                - paragraph [ref=e124]: Beumer BE 250
+                - paragraph [ref=e125]: BE-001 · Workshop
+              - generic [ref=e126]: Overdue
+            - generic [ref=e127]:
+              - generic [ref=e128]: Bucket Elevator
+              - generic [ref=e129]: Critical
+              - generic [ref=e130]: 2 tasks overdue
+            - paragraph [ref=e131]: "Next: Jun 6, 2026 (Tighten loose fasteners...)"
+            - paragraph [ref=e134]: 4 PM tasks
+          - button "Open PM details for Carrier 39M" [ref=e135] [cursor=pointer]:
+            - generic [ref=e136]:
+              - generic [ref=e137]:
+                - paragraph [ref=e138]: Carrier 39M
+                - paragraph [ref=e139]: AHU-001 · Workshop
+              - generic [ref=e140]: On Track
+            - generic [ref=e141]:
+              - generic [ref=e142]: Air Handling Unit
+              - generic [ref=e143]: Medium
+            - paragraph [ref=e144]: "Next: Jul 5, 2026 (Lubricate per OEM spec...)"
+            - paragraph [ref=e147]: 4 PM tasks
+          - button "Open PM details for Marley NC8410" [ref=e148] [cursor=pointer]:
+            - generic [ref=e149]:
+              - generic [ref=e150]:
+                - paragraph [ref=e151]: Marley NC8410
+                - paragraph [ref=e152]: CT-001 · Yard - South
+              - generic [ref=e153]: Due Soon
+            - generic [ref=e154]:
+              - generic [ref=e155]: Cooling Tower
+              - generic [ref=e156]: Medium
+            - paragraph [ref=e157]: "Next: Jun 21, 2026 (Lubricate per OEM spec...)"
+            - paragraph [ref=e160]: 4 PM tasks
+          - button "Open PM details for Cleaver-Brooks CB-700-200" [ref=e161] [cursor=pointer]:
+            - generic [ref=e162]:
+              - generic [ref=e163]:
+                - paragraph [ref=e164]: Cleaver-Brooks CB-700-200
+                - paragraph [ref=e165]: BLR-001 · Yard - South
+              - generic [ref=e166]: Overdue
+            - generic [ref=e167]:
+              - generic [ref=e168]: Steam Boiler
+              - generic [ref=e169]: Critical
+              - generic [ref=e170]: 1 task overdue
+            - paragraph [ref=e171]: "Next: May 26, 2026 (Lubricate per OEM spec...)"
+            - paragraph [ref=e174]: 4 PM tasks
+          - button "Open PM details for Atlas Copco GA75+ VSD" [ref=e175] [cursor=pointer]:
+            - generic [ref=e176]:
+              - generic [ref=e177]:
+                - paragraph [ref=e178]: Atlas Copco GA75+ VSD
+                - paragraph [ref=e179]: AC-001 · Compressor Room
+              - generic [ref=e180]: Due Soon
+            - generic [ref=e181]:
+              - generic [ref=e182]: Air Compressor
+              - generic [ref=e183]: High
+            - paragraph [ref=e184]: "Next: Jun 17, 2026 (Replace separator element...)"
+            - paragraph [ref=e187]: 6 PM tasks
+          - button "Open PM details for Caterpillar 3516B" [ref=e188] [cursor=pointer]:
+            - generic [ref=e189]:
+              - generic [ref=e190]:
+                - paragraph [ref=e191]: Caterpillar 3516B
+                - paragraph [ref=e192]: GEN-001 · Compressor Room
+              - generic [ref=e193]: Due Soon
+            - generic [ref=e194]:
+              - generic [ref=e195]: Genset
+              - generic [ref=e196]: Medium
+            - paragraph [ref=e197]: "Next: Jun 22, 2026 (Oil level and quality,...)"
+            - paragraph [ref=e200]: 8 PM tasks
+        - generic [ref=e201]:
+          - button "Load More" [ref=e202] [cursor=pointer]
+          - paragraph [ref=e203]: Showing 10 of 30 assets
+      - button "Add asset" [ref=e45] [cursor=pointer]:
+        - img [ref=e46]
+    - generic [ref=e49]:
+      - button "Dashboard" [ref=e50] [cursor=pointer]:
+        - img [ref=e51]
+        - text: Dashboard
+      - button "Add Asset" [ref=e53] [cursor=pointer]:
+        - img [ref=e54]
+        - text: Add Asset
+    - alert
+  - button "Connectivity status" [ref=e56] [cursor=pointer]:
+    - generic [ref=e58]: Online
+  - generic [ref=e59]:
+    - button "Open navigation hub" [ref=e60] [cursor=pointer]:
+      - generic: WorkHive
+      - img
+    - dialog "Navigation hub":
+      - generic:
+        - generic: WorkHive
+        - strong: WorkHive
+      - button "Open global search":
+        - img
+        - generic: Search assets, jobs, parts, PMs
+        - generic: ⌘K
+      - generic:
+        - generic:
+          - img
+        - searchbox "Search tools"
+        - generic: Ctrl K
+      - tablist "Tool view mode":
+        - tab "⊞ All":
+          - generic: ⊞
+          - text: All
+        - tab "🔧 Field" [selected]:
+          - generic: 🔧
+          - text: Field
+        - tab "👷 Supervisor":
+          - generic: 👷
+          - text: Supervisor
+        - tab "📐 Engineer":
+          - generic: 📐
+          - text: Engineer
+      - generic:
+        - paragraph: Recent
+        - generic:
+          - link "Home":
+            - /url: index.html
+            - generic:
+              - img
+            - generic: Home
+          - link "Logbook":
+            - /url: logbook.html
+            - generic:
+              - img
+            - generic: Logbook
+          - link "Inventory":
+            - /url: inventory.html
+            - generic:
+              - img
+            - generic: Inventory
+          - link "Day":
+            - /url: dayplanner.html
+            - generic:
+              - img
+            - generic: Day
+      - paragraph: All Tools
+      - region:
+        - link "Home":
+          - /url: index.html
+          - generic:
+            - img
+          - generic: Home
+        - paragraph: Field Work
+        - link "Logbook":
+          - /url: logbook.html
+          - generic:
+            - img
+          - generic: Logbook
+        - link "Inventory":
+          - /url: inventory.html
+          - generic:
+            - img
+          - generic: Inventory
+        - link "Day Planner":
+          - /url: dayplanner.html
+          - generic:
+            - img
+          - generic: Day Planner
+        - paragraph: Your Team
+        - link "PM Scheduler":
+          - /url: pm-scheduler.html
+          - generic:
+            - img
+          - generic: PM Scheduler
+        - link "Community":
+          - /url: community.html
+          - generic:
+            - img
+          - generic: Community
+        - paragraph: Intelligence
+        - link "AI Assistant":
+          - /url: assistant.html
+          - generic:
+            - img
+          - generic: AI Assistant
+        - paragraph: Grow
+        - link "Skill Matrix":
+          - /url: skillmatrix.html
+          - generic:
+            - img
+          - generic: Skill Matrix
+        - link "Resume Builder":
+          - /url: resume.html
+          - generic:
+            - img
+          - generic: Resume Builder
+        - link "Achievements":
+          - /url: achievements.html
+          - generic:
+            - img
+          - generic: Achievements
+        - paragraph: Connect
+        - link "Marketplace":
+          - /url: marketplace.html
+          - generic:
+            - img
+          - generic: Marketplace
+  - generic:
+    - button "Open companion":
+      - generic: Talk to your companion
+      - generic:
+        - img "Companion Hezekiah":
+          - img "Hezekiah"
+    - dialog "AI Assistant":
+      - generic:
+        - generic:
+          - img "Companion Hezekiah":
+            - img "Hezekiah"
+        - generic:
+          - strong: Hezekiah
+          - text: PM Scheduler
+        - button "Close": ✕
+      - generic:
+        - img
+        - text: "Context:"
+        - strong: PM Scheduler
+      - generic:
+        - button "Voice command":
+          - img
+        - textbox "Message":
+          - /placeholder: Ask anything…
+        - button "Send":
+          - img
+  - generic:
+    - button "Open companion":
+      - generic: Talk to your companion
+    - dialog "AI Assistant":
+      - generic:
+        - generic:
+          - strong: WorkHive AI
+          - text: PM Scheduler
+        - button "Close": ✕
+      - generic:
+        - img
+        - text: "Context:"
+        - strong: PM Scheduler
+      - generic:
+        - button "Voice command":
+          - img
+        - textbox "Message":
+          - /placeholder: Ask anything…
+        - button "Send":
+          - img
+  - button "Send feedback to WorkHive" [ref=e61] [cursor=pointer]: 💬

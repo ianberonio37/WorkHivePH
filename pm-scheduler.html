@@ -1782,6 +1782,12 @@ async function submitCompletion() {
     ) || currentAsset.category;
     const logCat = PM_CAT_TO_LOG_CAT[taskPMCat] || PM_CAT_TO_LOG_CAT[currentAsset.category] || 'Mechanical';
     const logPayload = {
+      // logbook.id is TEXT, NOT NULL, with no DB default — the logbook uses
+      // client-generated ids (Date.now()+random). Omitting it made every
+      // "Save + Log in Logbook" insert fail 23502 (null id), so the PM
+      // completion saved but its logbook mirror never did. Generate one here,
+      // pm- prefixed for traceability.
+      id:               'pm-' + Date.now().toString() + Math.random().toString(36).slice(2),
       date:             now,
       machine:          currentAsset.asset_name,
       maintenance_type: 'Preventive Maintenance',
