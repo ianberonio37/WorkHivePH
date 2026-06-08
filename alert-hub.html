@@ -920,13 +920,19 @@
         .eq('hive_id', HIVE_ID)
         .limit(150),
 
-      // Canonical: pm_compliance_truth domain. The view replaces the
-      // pm_assets + pm_completions roll-up + Set + loop pattern below
-      // with a single query whose is_due flag answers "overdue?" directly.
-      db.from('v_pm_compliance_truth')
-        .select('asset_name, category, criticality, last_anchor_date, last_completion_at, completions_30d, days_since_last_completion, is_due')
+      // Canonical (2026-06-09): frequency-aware overdue per SCOPE ITEM via
+      // v_pm_scope_items_truth.is_overdue — the SAME source the Hive Board + PM
+      // Scheduler use. The old read of v_pm_compliance_truth.is_due (flat 30-day
+      // floor) OVER-ALERTED: is_due keys off last_anchor_date (not recent
+      // completions), so it flagged assets PM'd 2 days ago as "high overdue" and
+      // showed 26 where the canonical frequency-aware overdue is 6. Rolled up to
+      // distinct overdue ASSETS below; most-overdue scope item first.
+      db.from('v_pm_scope_items_truth')
+        .select('pm_asset_id, asset_name, asset_category, asset_criticality, next_due_date, days_until_due, last_completed_at, is_overdue')
         .eq('hive_id', HIVE_ID)
-        .limit(200),
+        .eq('is_overdue', true)
+        .order('days_until_due', { ascending: true })
+        .limit(500),
 
       db.from('automation_log')
         .select('job_name, status, detail, triggered_at')
@@ -999,22 +1005,27 @@
       }
     }
 
-    // PM overdue alerts via v_pm_compliance_truth.is_due (canonical).
-    // The view's is_due flag fires when the asset has never been completed
-    // OR last_anchor_date is older than 30 days, so we no longer need a
-    // separate pm_completions roll-up here.
+    // PM overdue alerts — frequency-aware, rolled up to distinct ASSETS (an
+    // asset is overdue if >=1 scope item is overdue), matching Hive Board + PM
+    // Scheduler. Rows arrive ordered most-overdue-first, so the first row per
+    // asset is its worst item. (2026-06-09; replaces the flat-30-day is_due
+    // over-alert that counted 26 incl. recently-completed assets.)
     if (pmAssetsRes.status === 'fulfilled') {
+      const _seenPmAsset = new Set();
       for (const r of (pmAssetsRes.value.data || [])) {
-        if (!r.is_due) continue;
-        const detail = (r.days_since_last_completion != null)
-          ? `${r.days_since_last_completion}d since last completion`
-          : 'No PM completion on record';
+        if (!r.is_overdue) continue;
+        const key = r.pm_asset_id || r.asset_name;
+        if (_seenPmAsset.has(key)) continue;   // one alert per asset (worst item)
+        _seenPmAsset.add(key);
+        const detail = (r.days_until_due != null && r.days_until_due < 0)
+          ? `PM ${Math.abs(r.days_until_due)}d overdue`
+          : 'PM overdue';
         all.push({
           kind: 'pm',
-          severity: (r.criticality === 'critical') ? 'critical' : 'high',
+          severity: (r.asset_criticality === 'critical') ? 'critical' : 'high',
           title: r.asset_name || 'Unnamed asset',
-          msg: `${detail} (${r.category || 'general'})`,
-          time: r.last_completion_at || pmCutoff,
+          msg: `${detail} (${r.asset_category || 'general'})`,
+          time: r.last_completed_at || pmCutoff,
           href: 'pm-scheduler.html',
           actionLabel: 'Open PM Scheduler',
         });
