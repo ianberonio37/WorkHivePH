@@ -643,6 +643,16 @@
       const payload = { auth_uid: _authUid, worker_name: WORKER_NAME, hive_id: HIVE_ID || null,
         title: resume.meta.title || 'My Resume', doc: resume, template: resume.meta.template || 'ats-plain' };
       try {
+        // Guard a STALE _resumeId (the doc was deleted, or the id was carried
+        // over from a different DB/local state): an UPDATE on a missing row
+        // silently affects 0 rows AND snapshotVersion's resume_versions insert
+        // FK-fails with a 409 — which the catch below would swallow into a
+        // permanent device-only save (cloud save quietly stops working). Verify
+        // the target exists first; if not, fall through to a fresh insert.
+        if (_resumeId) {
+          const { data: stillThere } = await db.from('resume_documents').select('id').eq('id', _resumeId).maybeSingle();
+          if (!stillThere) _resumeId = null;
+        }
         if (_resumeId) {
           await snapshotVersion('before save');
           const { error } = await db.from('resume_documents').update(payload).eq('id', _resumeId);

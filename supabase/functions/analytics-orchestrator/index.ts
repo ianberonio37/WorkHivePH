@@ -138,10 +138,18 @@ async function fetchDescriptiveData(
   const assetIds = (assets || []).map((a: Record<string, string>) => a.id);
 
   const completionsLimit = dynLimit(periodDays, 5 * Math.max(assetIds.length, 1) / 30, 5000);
-  const completionsQ = db.from("v_pm_compliance_truth")
+  // canonical-allow: the PM-compliance calc needs the raw per-completion LEDGER
+  // (each row's asset_id + scope_item_id + completed_at, to join completions to
+  // scope items). The per-asset v_pm_compliance_truth SUMMARY has none of those
+  // columns, so selecting them 400'd and Promise.allSettled swallowed it to an
+  // empty list — compliance computed as 0% despite real completions. There is
+  // no per-completion truth view; read pm_completions directly, hive-scoped.
+  const completionsQ = db.from("pm_completions")
     .select("asset_id, scope_item_id, completed_at, status, worker_name")
     .eq("status", "done").order("completed_at", { ascending: false })
     .limit(completionsLimit);
+  if (hiveId) completionsQ.eq("hive_id", hiveId);
+  else if (workerName) completionsQ.eq("worker_name", workerName);
   if (assetIds.length) completionsQ.in("asset_id", assetIds);
 
   const scopeQ = db.from("v_pm_scope_items_truth").select("id, asset_id, frequency, item_text");   // canonical

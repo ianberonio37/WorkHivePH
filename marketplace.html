@@ -795,8 +795,8 @@
 
     <div class="info-notice">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-      Listings are reviewed before publishing. KYB verification is required to receive payments.
-      <button type="button" onclick="handleSellerOnboard()" style="display:block;margin-top:0.5rem;background:none;border:none;color:#29B6D9;font-family:'Poppins',sans-serif;font-size:0.72rem;font-weight:600;cursor:pointer;padding:0;text-decoration:underline;">Connect Stripe to receive payments</button>
+      Listings are reviewed before publishing.<span id="seller-payments-notice"> KYB verification is required to receive payments.
+      <button type="button" onclick="handleSellerOnboard()" style="display:block;margin-top:0.5rem;background:none;border:none;color:#29B6D9;font-family:'Poppins',sans-serif;font-size:0.72rem;font-weight:600;cursor:pointer;padding:0;text-decoration:underline;">Connect Stripe to receive payments</button></span>
     </div>
 
     <!-- Quality score widget — updates in real time as the seller types -->
@@ -1830,7 +1830,7 @@
       } else if (total === 0) {
         text = 'No listings match your current filter. Clear the search box, switch section tab, or expand your price/location range.';
       } else if (mine === 0) {
-        text = `Browse the ${total} listing${total === 1 ? '' : 's'} below, or click + Post to add your own ${section} listing. Sellers with photos + KYB verification get 3× more inquiries.`;
+        text = `Browse the ${total} listing${total === 1 ? '' : 's'} below, or click + Post to add your own ${section} listing. Sellers with clear photos get 3× more inquiries.`;
       } else {
         text = `You have ${mine} live listing${mine === 1 ? '' : 's'} in the marketplace. Check your inbox for buyer inquiries — the faster you respond, the higher your seller rank climbs.`;
       }
@@ -2960,6 +2960,12 @@
     if (!PAYMENTS_ENABLED) {
       const ordersBtn = document.getElementById('btn-my-orders');
       if (ordersBtn) ordersBtn.style.display = 'none';
+      // Free platform: hide the vestigial "KYB / Connect Stripe to receive
+      // payments" seller-onboard notice (handleSellerOnboard → Stripe Connect).
+      // It escaped the PAYMENTS_ENABLED gate; the rest of the payments UI is
+      // already flag-gated. Stays in the DOM so flipping the flag re-enables it.
+      const payNotice = document.getElementById('seller-payments-notice');
+      if (payNotice) payNotice.style.display = 'none';
     } else {
       document.getElementById('btn-my-orders')?.addEventListener('click', openOrdersSheet);
     }
