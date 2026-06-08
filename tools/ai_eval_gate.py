@@ -37,6 +37,7 @@ from __future__ import annotations
 import argparse
 import io
 import json
+import math
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
@@ -377,12 +378,24 @@ def companion_baseline(dim: str, from_path: Path | None = None) -> int:
     return 0
 
 
+def _n_to_block(tol: float) -> int:
+    """Minimum locked-test n at which a SINGLE-unit flip (a 100/n pp swing on a free-tier LLM eval)
+    stays within tolerance — i.e. the smallest n for which one flaky unit can't trip the gate by
+    itself. n >= ceil(100 / tol). At tol=5pp that's n>=20. A dimension below this is self-throttled
+    to WARN even when blocking=true, so declaring blocking intent is safe before the corpus is large
+    enough (it auto-enforces once 8.5 harvest / golden expansion grows n). tol<=0 never auto-blocks
+    here (those dims gate via the frozen functionality/safety gate, not this per-dim gate)."""
+    return math.ceil(100.0 / tol) if tol and tol > 0 else 10 ** 9
+
+
 def companion_gate() -> int:
     """Per-companion-dimension regression gate on the LOCKED-TEST split (Phase 8 §8.3).
     For every dimension that has a frozen baseline AND registry status 'active': score its latest
     results, compare locked-test to the frozen floor, and BLOCK (exit 1) if a *blocking* dim
-    regressed beyond tolerance. Dims without a baseline or without fresh results degrade-to-SKIP
-    (never a false FAIL). Does NOT touch the frozen functionality/safety gate() path."""
+    regressed beyond tolerance AND its locked-test n is large enough to block without flaking
+    (n >= ceil(100/tol)). A blocking-intent dim whose n is still too small WARNs instead of FAILs
+    (self-throttle). Dims without a baseline or without fresh results degrade-to-SKIP (never a false
+    FAIL). Does NOT touch the frozen functionality/safety gate() path."""
     base = _load_json(COMPANION_DIM_BASELINE_PATH) or {}
     bdims = base.get("dimensions") or {}
     reg = _load_json(SCORECARD_PATH) or {}
@@ -412,15 +425,27 @@ def companion_gate() -> int:
         if c is None:
             print(f"  {dim:<9} {CYAN}SKIP{RESET} — 0 locked-test results this run")
             continue
+        n = cur["n"] or 0
+        n_needed = _n_to_block(tol)
+        # A blocking-INTENT dim only ENFORCES once its locked-test n can absorb a single-unit flake
+        # within tolerance; below that it self-throttles to WARN (the small-n lesson, as a gate rule).
+        n_ok = n >= n_needed
+        effective_block = blocking and n_ok
         d = round(c - bp, 1)
         regressed = d < -float(tol)
-        if regressed:
-            tag = f"{RED}REGRESSION{RESET}" + (f" {RED}(BLOCKING){RESET}" if blocking else f" {YEL}(warn-only){RESET}")
+        if regressed and effective_block:
+            tag = f"{RED}REGRESSION (BLOCKING){RESET}"
+        elif regressed and blocking:
+            tag = f"{YEL}REGRESSION (warn — n={n}<{n_needed} to block){RESET}"
+        elif regressed:
+            tag = f"{YEL}REGRESSION (warn-only){RESET}"
+        elif blocking and not n_ok:
+            tag = f"{GREEN}ok{RESET} {CYAN}(blocking@n>={n_needed}; now warn){RESET}"
         else:
             tag = f"{GREEN}ok{RESET}"
-        print(f"  {dim:<9} {c:>5}%  Δ{d:+.1f}pp (floor {bp}%, allow -{tol}pp, n={cur['n']})  {tag}")
-        if regressed and blocking:
-            blocking_regressions.append(f"{dim} {c}% vs floor {bp}% (Δ{d:+.1f}pp, tol -{tol}pp)")
+        print(f"  {dim:<9} {c:>5}%  Δ{d:+.1f}pp (floor {bp}%, allow -{tol}pp, n={n})  {tag}")
+        if regressed and effective_block:
+            blocking_regressions.append(f"{dim} {c}% vs floor {bp}% (Δ{d:+.1f}pp, tol -{tol}pp, n={n}>={n_needed})")
     if blocking_regressions:
         print(f"\n{RED}{BOLD}  COMPANION REGRESSION — AI-feature path BLOCKED:{RESET}")
         for r in blocking_regressions:

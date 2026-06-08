@@ -1686,9 +1686,20 @@
         const lt = b && b.locked_test ? b.locked_test : null;
         const pr = lt && lt.pass_rate != null ? lt.pass_rate : null;
         const floorStr = pr != null ? (pr + '%' + (lt.n != null ? ' (n=' + lt.n + ')' : '')) : '—';
-        const blk = d.blocking ? 'BLOCKS' : (status === 'active' ? 'warn' : '');
+        // Effective gate state (matches companion_gate's n-aware rule): a blocking-intent dim only
+        // ENFORCES once locked-test n can absorb a single-unit flake within tolerance (n >= ceil(100/tol)).
+        const tol = (d.tolerance && d.tolerance.pass_rate_pp) || 5;
+        const nNeeded = Math.ceil(100 / tol);
+        const n = lt && lt.n != null ? lt.n : null;
+        const effBlock = !!(d.blocking && n != null && n >= nNeeded);
+        // safety/cost have no per-dim companion baseline — they enforce via the frozen
+        // functionality/safety/cost gate, so label them 'frozen' here rather than a companion-gate state.
+        const blk = !b ? 'frozen'
+          : (effBlock ? 'BLOCKS'
+          : (d.blocking ? ('warn ' + (n != null ? n : '?') + '/' + nNeeded)
+          : (status === 'active' ? 'warn' : '')));
         const sTone = status === 'active' ? 'var(--green)' : 'rgba(255,255,255,0.4)';
-        const bTone = d.blocking ? 'var(--gold)' : 'var(--muted)';
+        const bTone = effBlock ? 'var(--gold)' : 'var(--muted)';
         return '<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border);font-size:.76rem;">'
           + '<span style="flex:1;font-weight:600;">' + escHtml(d.label || k) + '</span>'
           + '<span style="width:96px;text-align:right;color:var(--muted);font-size:.62rem;">' + escHtml(String(d.metric || '')) + '</span>'

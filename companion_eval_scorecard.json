@@ -2,6 +2,7 @@
   "_comment": "Phase 8 \u00a78.0 \u2014 Companion Eval & Optimization scorecard REGISTRY. The single source of truth for the companion's six evaluation dimensions. One row per dimension: what it measures, which grader scores it, where its golden set lives, which frozen baseline it gates against, the tolerance, and which gate enforces it. The companion axis is SEPARATE from the validator-ledger 'dimension' axis (usability/functionality/...) \u2014 it grades the COMPANION's behaviour, not the gate's own validators. The taxonomy is defined in tools/gate_efficacy_ledger.py (COMPANION_DIMENSIONS + classify_companion_dimension); the corpus is tagged on this axis via the 'eval_dimension' field in gate_eval_splits.json; the scorer is tools/ai_eval_gate.py (companion-report). Read/verify this file with tools/companion_eval_scorecard.py.",
   "_lifecycle": "status 'active' = a clean frozen baseline exists and the per-dimension gate scores+enforces it. status 'pending' = golden set / baseline not yet frozen -> the gate DEGRADES-TO-SKIP (never a false FAIL before the data exists). A pending dim flips to active only after 8.1 (golden set) + 8.2 (grader) + a clean baseline freeze on the locked-test split (8.3). Forward-only: a dim never silently leaves 'active'.",
   "_anti_overfit": "Every dimension gates ONLY on the locked-test split of gate_eval_splits.json (tamper-evident via test_seal). Baselines are frozen ONLY from clean runs (rate_limited ~0). val/train deltas are informational. This is the anti-overfit spine the 8.4 optimization loop ratchets against.",
+  "_blocking": "blocking=true declares ENFORCEMENT INTENT; it is SAFE to set before the corpus is large. companion_gate (8.3, n-aware) only EFFECTIVELY blocks a dimension when its locked-test n is large enough to absorb a single-unit flake within tolerance: n >= ceil(100 / tolerance_pp) (at 5pp that is n>=20). Below that the dim self-throttles to WARN even with blocking=true. So a blocking-intent dim auto-activates enforcement once 8.5 harvest / golden expansion grows its locked-test split past the threshold — no human has to remember to flip a flag. Today agent(n=2)/rag(n=1)/memory(n=1)/persona(n=4) are all blocking-intent but WARN (n<20). cost gates softly via the frozen gate, not here.",
   "version": 1,
   "phase": "8.0",
   "axis": "companion_eval",
@@ -26,7 +27,7 @@
       "gate": "tools/ai_eval_gate.py companion-gate (G0 via validate_companion_dim_gate.py; forward-only on locked-test, degrade-to-SKIP without fresh results)",
       "results_ref": ".tmp/agent_eval_results.json",
       "status": "active",
-      "blocking": false,
+      "blocking": true,
       "baseline_ref": "companion_dim_baselines.json::dimensions.agent.locked_test.pass_rate",
       "notes": "8.1+8.2+8.3 BUILT 2026-06-08. ACTIVE: clean live run (22/22 calls ok, counters+cache reset) scored 19/19 via companion_agent_eval; agent baseline frozen at locked-test 100% n=2 (companion_dim_baselines.json). 8.3 surfaced + fixed AG-02 (scheduled preventive lubrication is pm.complete not logbook.create \u2014 golden authoring error corrected pre-freeze). blocking=FALSE for now: the golden set's locked-test split is only n=2, so one LLM-router flake = 50pp and a tight-tolerance block would flake. Forward-only WARN ratchet now; flip blocking=true after EXPANDING the agent golden set (~35 units -> ~7 locked-test) confirms low run-to-run variance."
     },
@@ -46,7 +47,7 @@
       },
       "gate": "tools/ai_eval_gate.py companion-gate (G0 via validate_companion_dim_gate.py; forward-only on locked-test, degrade-to-SKIP without fresh results)",
       "status": "active",
-      "blocking": false,
+      "blocking": true,
       "notes": "8.1+8.2+8.3 BUILT 2026-06-08. ACTIVE: clean live run (9/9 asset-brain calls ok) graded 8/9; rag baseline frozen locked-test 100% n=1. blocking=FALSE (n=1 locked-test, same as agent: expand golden set first). FINDINGS: RG-02 = REAL gap (asset-brain answered PM compliance correctly but emitted NO pm citation = grounded-but-uncited; on VAL/informational; candidate for 8.4 optimization). RG-04 = grader calibration fix (faithfulness no longer requires the asset name in prose; retrieval is asset-scoped so cited evidence is on-asset by construction). Follow-up: expand RAG golden set (more locked-test units) to flip blocking=true + add more multi-kind + per-asset coverage."
     },
     "memory": {
@@ -65,7 +66,7 @@
       },
       "gate": "tools/ai_eval_gate.py companion-gate (G0 via validate_companion_dim_gate.py; forward-only on locked-test, degrade-to-SKIP without fresh results)",
       "status": "active",
-      "blocking": false,
+      "blocking": true,
       "notes": "8.1+8.2+8.3 BUILT 2026-06-08. ACTIVE: clean 2-phase live run (33/34 calls ok, 0 rate-limited; per-unit counter+cache reset keeps the heavy ai-orchestrator fan-out under the ~25/window cap) graded 13/15. memory baseline frozen locked-test 100% n=1 (MEM-TMP-03 'later event' temporal). blocking=FALSE (n=1 locked-test, same as agent/rag: expand golden set first). The 2-phase capture is the key shape: setup turns persist via saveTurn, then a fresh recall call (NO transcript carryover) answers from agent_memory alone, because the gateway is stateless server-side (reloads agent_memory every call). FINDINGS: (1) temporal 'current-value-after-supersede' recall has RUN-TO-RUN VARIANCE - MEM-TMP-02 recalled 'every two weeks' on run 1 but abstained 'couldn't find enough data' on run 2 (val/informational; a recall-robustness gap = 8.4 target). (2) all 4 abstention controls PASS clean (companion: 'no record of X, history only mentions...' - does NOT fabricate). (3) MEM-UP-01 hit a transient 502 (infra, not a memory miss). Follow-up: expand golden set (more locked-test units) to flip blocking=true; 8.4 should target the abstain-instead-of-recall temporal variance."
     },
     "persona": {
@@ -84,7 +85,7 @@
       },
       "gate": "tools/ai_eval_gate.py companion-gate (G0 via validate_companion_dim_gate.py; forward-only on locked-test, degrade-to-SKIP without fresh results)",
       "status": "active",
-      "blocking": false,
+      "blocking": true,
       "notes": "8.1+8.2+8.3 BUILT 2026-06-08. ACTIVE: clean live run (12/12 voice-journal calls ok, 0 rate-limited, per-unit counter+cache reset) graded 12/12. persona baseline frozen locked-test 100% n=4 (the strongest n of the four product dims). blocking=FALSE for now (run-to-run LLM voice variance; consistent with agent/rag/memory; flip after a couple of stable re-runs since n=4 is already gate-worthy). SURFACE: agent='voice-journal' (-> voice-journal-agent, conversational adopter) wears the FULL persona block and reads ctx.persona; the gateway honours a client-supplied context.persona (only defaults to the account persona when absent) so persona is per-call toggleable. The personas are sharply differentiated live: identity probes self-ID ('I'm Hezekiah/Zaniah'); register probes carry lane vocab (Hezekiah: red line/regrease/IR gun/Nm/cross-pattern/LOTO; Zaniah: planned-vs-reactive 41%/MTBF 9 days/watch line/pattern); BOTH bridges fired ('Specifics like that are Hezekiah's lane - want me to switch him in?'). FINDING: voice-journal replies contain em dashes despite the contract's no-em-dash rule (has_em_dash captured, informational; an 8.4/format target). Follow-up: expand golden + add a judge backstop for tone nuance to flip blocking=true."
     },
     "safety": {
@@ -119,7 +120,7 @@
       "gate": "tools/ai_eval_gate.py (already scores cost on the locked-test split)",
       "status": "active",
       "blocking": false,
-      "notes": "ALREADY ACTIVE: the frozen baseline carries per-split cost. May rise within +20% before flagging (free-tier latency is noisy)."
+      "notes": "ALREADY ACTIVE: the frozen baseline carries per-split cost. May rise within +20% before flagging (free-tier latency is noisy). blocking=false: cost is a soft +20% latency flag via the frozen gate, not a hard companion-gate block."
     }
   },
   "coverage": {
