@@ -304,10 +304,15 @@ BEGIN
     );
   ELSIF v_active_workers_7d < 5 OR v_pm_template_count < 5 THEN
     v_stair := 1;
-    v_blocker := format(
-      '%s of 5 active workers writing entries this week; %s of 5 PM templates registered.',
-      v_active_workers_7d, v_pm_template_count
-    );
+    -- Only list the criteria that are actually UNMET. Hardcoding both clauses
+    -- surfaced a satisfied criterion as a blocker (e.g. "30 of 5 PM templates
+    -- registered" when 30 >= 5 is met), which reads as nonsense in the UI.
+    v_blocker := nullif(trim(concat_ws(' ',
+      CASE WHEN v_active_workers_7d < 5
+        THEN format('%s of 5 active workers writing entries this week.', v_active_workers_7d) END,
+      CASE WHEN v_pm_template_count < 5
+        THEN format('%s of 5 PM templates registered.', v_pm_template_count) END
+    )), '');
   ELSIF v_pm_compliance_30d < 70 OR v_logbook_hygiene_pct < 80 OR v_supervisor_actions_7d < 5 THEN
     v_stair := 2;
     v_blocker := format(

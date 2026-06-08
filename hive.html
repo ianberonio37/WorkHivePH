@@ -521,7 +521,7 @@
           <ul style="margin:0;padding-left:20px;">
             <li><strong>Maturity stair</strong>: latest snapshot from <code>v_maturity_truth</code>. Hive must clear 5 dimension gates per stair (Reliability / Operations / Safety / People / Cost).</li>
             <li><strong>Adoption health</strong>: <code>compute_adoption_risk</code> RPC. Healthy &lt; 35, At Risk 35-65, Critical &gt; 65.</li>
-            <li><strong>Open issues</strong>: sum of open work orders (<code>v_logbook_truth</code>, status = Open) + PM overdue (<code>v_pm_compliance_truth</code>, 30d) + low stock (<code>v_inventory_items_truth</code>, qty_on_hand &le; reorder_point).</li>
+            <li><strong>Open issues</strong>: sum of open work orders (<code>v_logbook_truth</code>, status = Open) + PM-overdue ASSETS (<code>v_pm_scope_items_truth</code>, frequency-aware <code>is_overdue</code>; an asset counts once if &ge;1 of its scope items is overdue — matches PM Scheduler) + low stock (<code>v_inventory_items_truth</code>, qty_on_hand &le; reorder_point).</li>
             <li><strong>Verdict</strong>: red if Adoption is Critical OR &gt; 5 PMs overdue; amber if Adoption is At Risk OR any of (1-5 PMs overdue, &ge;10 open WOs, &ge;1 low-stock item); green when all clear.</li>
           </ul>
           <p style="margin-top:8px;color:rgba(255,255,255,0.55);font-size:11px;">Full breakdown (top risk reasons, champion candidate, stair dimensions) is in the Maturity Stairway + Engagement Cards below.</p>
@@ -3048,10 +3048,22 @@ async function loadPMHealth() {
 
   if (!pmItems.length) return;
 
-  let overdue = 0, dueSoon = 0;
+  // Canonical roll-up (2026-06-09): an ASSET is overdue if >=1 of its scope
+  // items is overdue; due-soon if not overdue and >=1 item is due soon. Count
+  // ASSETS, not items — this tile deep-links to PM Scheduler ("open PM Scheduler
+  // to triage"), which counts assets (6 of 30), so counting items here showed
+  // "9 overdue" vs the scheduler's "6" for the same hive. See maintenance-expert
+  // "count assets, not items" + analytics-engineer deep-link-granularity rule.
+  const _assetStatus = new Map();  // pm_asset_id -> 'overdue' | 'duesoon' (worst wins)
   for (const r of pmItems) {
-    if (r.is_overdue) overdue++;
-    else if (r.is_due_soon) dueSoon++;
+    const k = r.pm_asset_id || r.asset_name;
+    if (r.is_overdue) _assetStatus.set(k, 'overdue');
+    else if (r.is_due_soon && _assetStatus.get(k) !== 'overdue') _assetStatus.set(k, 'duesoon');
+  }
+  let overdue = 0, dueSoon = 0;
+  for (const v of _assetStatus.values()) {
+    if (v === 'overdue') overdue++;
+    else if (v === 'duesoon') dueSoon++;
   }
 
   // PM done this week (kept for the Team Pulse / activity card)
@@ -3065,7 +3077,7 @@ async function loadPMHealth() {
   // PM overdue alert banner
   if (overdue > 0) {
     document.getElementById('pm-overdue-text').textContent =
-      `${overdue} PM task${overdue > 1 ? 's' : ''} overdue across hive assets.`;
+      `${overdue} asset${overdue > 1 ? 's' : ''} with overdue PM across the hive.`;
     document.getElementById('pm-overdue-alert').classList.remove('hidden');
   }
 

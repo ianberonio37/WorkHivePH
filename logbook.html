@@ -3032,12 +3032,27 @@ function formatDate(iso) {
 // Header stat pills ("Your Repair Logbook") always reflect the worker's OWN
 // entries, in every view — including the supervisor team-feed default. Reads
 // _allEntries (the personal set), so callers must ensure it is loaded first.
-function updateStatPills() {
+async function updateStatPills() {
   const allMachines = new Set(_allEntries.map(e => (e.machine || '').trim().toUpperCase()).filter(Boolean));
-  const openCount   = _allEntries.filter(e => (e.status || 'Open') === 'Open').length;
-  document.getElementById('total-count').textContent   = _allEntries.length;
   document.getElementById('machine-count').textContent = allMachines.size;
-  document.getElementById('open-count').textContent    = openCount;
+  // total + open must reflect the worker's FULL history, not the capped 200-entry
+  // display window (loadEntries .limit(200)). Reading _allEntries.length froze a
+  // prolific user at "200 entries" forever and made "open" understate real
+  // backlog (e.g. 4 shown vs 8 actual — and contradicting the Hive Board's open
+  // count). Count via head queries, same worker+hive scope as loadEntries.
+  const _winOpen = _allEntries.filter(e => (e.status || 'Open') === 'Open').length;
+  try {
+    let qTotal = db.from('logbook').select('*', { count: 'exact', head: true }).eq('worker_name', WORKER_NAME);
+    let qOpen  = db.from('logbook').select('*', { count: 'exact', head: true }).eq('worker_name', WORKER_NAME).eq('status', 'Open');
+    if (HIVE_ID) { qTotal = qTotal.or(`hive_id.eq.${HIVE_ID},hive_id.is.null`); qOpen = qOpen.or(`hive_id.eq.${HIVE_ID},hive_id.is.null`); }
+    const [tRes, oRes] = await Promise.all([qTotal, qOpen]);
+    document.getElementById('total-count').textContent = (tRes.count ?? _allEntries.length);
+    document.getElementById('open-count').textContent  = (oRes.count ?? _winOpen);
+  } catch {
+    // Offline / count unavailable — fall back to the loaded window.
+    document.getElementById('total-count').textContent = _allEntries.length;
+    document.getElementById('open-count').textContent  = _winOpen;
+  }
 }
 
 async function renderEntries(reload = true) {

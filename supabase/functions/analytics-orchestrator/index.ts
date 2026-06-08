@@ -91,7 +91,15 @@ async function fetchDescriptiveData(
   workerName: string | null,
   periodDays: number
 ) {
-  const rpc = { p_hive_id: hiveId, p_worker: workerName, p_period_days: periodDays };
+  // SCOPE (2026-06-09): in HIVE mode the reliability RPCs (MTBF/MTTR/frequency/
+  // pareto/repeat) must compute from ALL hive faults — MTBF/MTTR are properties
+  // of the MACHINE, not of whoever logged the fault. Passing the caller's
+  // worker_name here scoped these to the viewer's own logged subset (a supervisor
+  // saw ~53% of hive faults: CT-001 2-of-7, downtime 650h-of-1217h) while the PM/
+  // OEE/txn queries below and get_oee_by_machine (no worker param) were already
+  // hive-wide — so one page mixed personal + hive-wide numbers. Only solo mode
+  // (no hive_id) scopes to the worker's own data.
+  const rpc = { p_hive_id: hiveId, p_worker: hiveId ? null : workerName, p_period_days: periodDays };
 
   // ── FAST PATH: 5 metrics via Postgres RPC (indexed, instant, no Python needed) ──
   // These replace Python in-memory computation for MTBF/MTTR/Pareto/Frequency/Repeat.
