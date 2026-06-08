@@ -1,0 +1,30 @@
+{
+  "generated_ts": "2026-06-08T19:39:34+00:00",
+  "dim": "rag",
+  "proposal": "OPT-RAG-04",
+  "decision": "REJECT",
+  "rule": "accept iff val pass-rate improves AND locked-test >= frozen floor (anti-overfit)",
+  "val": {
+    "baseline": 66.7,
+    "candidate": 66.7,
+    "improved": false
+  },
+  "locked_test": {
+    "candidate": 100.0,
+    "frozen_floor": 100.0,
+    "holds": true
+  },
+  "train": {
+    "baseline": 60.0,
+    "candidate": 80.0
+  },
+  "unit_flips": [
+    {
+      "id": "RG-07-combined-history-reliability",
+      "from": "FAIL",
+      "to": "PASS",
+      "split": "train"
+    }
+  ],
+  "disposition": "REVERT (done) \u2014 candidate did not earn acceptance; record finding for human disposition"
+}

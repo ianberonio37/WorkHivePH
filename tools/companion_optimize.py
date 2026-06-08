@@ -280,6 +280,80 @@ def cmd_propose(dim: str | None) -> int:
     return 0
 
 
+def _grade_by_split(dim: str, observed: dict, split_idx: dict) -> dict:
+    """Grade a captured observation map per split for one dim. Returns {split: {'passed','total','units':[...]}}."""
+    cfg = DIMS[dim]
+    golden = _load_json(ROOT / cfg["golden"]) or {}
+    out: dict = {}
+    for unit in _units(golden, cfg["sections"]):
+        uid = unit.get("id")
+        if uid not in observed:
+            continue
+        g = cfg["grade"](unit, observed[uid], golden)
+        s = split_idx.get(uid, "?")
+        b = out.setdefault(s, {"passed": 0, "total": 0, "units": []})
+        ok = g.get("verdict") == "PASS"
+        b["passed"] += 1 if ok else 0
+        b["total"] += 1
+        b["units"].append({"id": uid, "verdict": g.get("verdict")})
+    for s, b in out.items():
+        b["pass_rate"] = round(100 * b["passed"] / b["total"], 1) if b["total"] else None
+    return out
+
+
+def cmd_ab(dim: str, baseline_path: str, candidate_path: str, proposal_id: str | None) -> int:
+    """8.4b — the MEASURED ratchet DECISION. Grades a baseline vs a candidate observation (captured
+    by the agent: apply variant to the local edge fn -> recapture -> revert) and ACCEPTS the candidate
+    iff the VALIDATION pass-rate improves AND the locked-test pass-rate stays >= its frozen floor.
+    Anti-overfit by construction: a candidate that doesn't move val, or that dents the locked-test,
+    is REJECTED. Writes companion_ab_results.json. Does NOT apply/keep any edge-fn change."""
+    split_idx = _split_index()
+    base = _load_json(ROOT / baseline_path)
+    cand = _load_json(ROOT / candidate_path)
+    if not isinstance(base, dict) or not isinstance(cand, dict):
+        print(f"{RED}baseline/candidate observation map(s) not found.{RESET}")
+        return 1
+    bsplit = _grade_by_split(dim, base, split_idx)
+    csplit = _grade_by_split(dim, cand, split_idx)
+    floors = _load_json(ROOT / "companion_dim_baselines.json") or {}
+    floor = (((floors.get("dimensions") or {}).get(dim) or {}).get("locked_test") or {}).get("pass_rate")
+    val_b = (bsplit.get("val") or {}).get("pass_rate")
+    val_c = (csplit.get("val") or {}).get("pass_rate")
+    test_c = (csplit.get("test") or {}).get("pass_rate")
+    val_improved = (val_b is not None and val_c is not None and val_c > val_b)
+    test_holds = (floor is None or (test_c is not None and test_c >= floor))
+    accept = bool(val_improved and test_holds)
+    # per-unit flips
+    bmap = {u["id"]: u["verdict"] for s in bsplit.values() for u in s["units"]}
+    cmap = {u["id"]: u["verdict"] for s in csplit.values() for u in s["units"]}
+    flips = [{"id": k, "from": bmap[k], "to": cmap.get(k), "split": split_idx.get(k, "?")}
+             for k in bmap if cmap.get(k) != bmap[k]]
+    result = {
+        "generated_ts": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        "dim": dim, "proposal": proposal_id,
+        "decision": "ACCEPT" if accept else "REJECT",
+        "rule": "accept iff val pass-rate improves AND locked-test >= frozen floor (anti-overfit)",
+        "val": {"baseline": val_b, "candidate": val_c, "improved": val_improved},
+        "locked_test": {"candidate": test_c, "frozen_floor": floor, "holds": test_holds},
+        "train": {"baseline": (bsplit.get("train") or {}).get("pass_rate"),
+                  "candidate": (csplit.get("train") or {}).get("pass_rate")},
+        "unit_flips": flips,
+        "disposition": ("keep + deploy-dispose the diff" if accept
+                        else "REVERT (done) — candidate did not earn acceptance; record finding for human disposition"),
+    }
+    (ROOT / "companion_ab_results.json").write_text(json.dumps(result, indent=2), encoding="utf-8")
+    tag = f"{GREEN}ACCEPT{RESET}" if accept else f"{YEL}REJECT{RESET}"
+    print(f"\n{BOLD}Measured A/B — {dim}{f' / {proposal_id}' if proposal_id else ''}{RESET}   decision: {tag}")
+    print("=" * 70)
+    print(f"  val        {val_b}% -> {val_c}%   (improved={val_improved})")
+    print(f"  locked-test {test_c}%  (floor {floor}%, holds={test_holds})")
+    print(f"  train      {result['train']['baseline']}% -> {result['train']['candidate']}%  (not an accept criterion)")
+    if flips:
+        print(f"  flips: " + ", ".join(f"{f['id']}[{f['split']}] {f['from']}->{f['to']}" for f in flips))
+    print(f"  -> companion_ab_results.json   ({result['disposition']})")
+    return 0
+
+
 def self_test() -> int:
     """Prove the reflector fires the right signature on a synthetic failure per dim (no live model)."""
     cases = [
@@ -322,11 +396,18 @@ def main() -> int:
     for name in ("reflect", "propose"):
         sp = sub.add_parser(name)
         sp.add_argument("--dim", default=None, choices=list(DIMS))
+    ab = sub.add_parser("ab", help="8.4b: grade baseline vs candidate observation -> accept/reject (anti-overfit)")
+    ab.add_argument("--dim", required=True, choices=list(DIMS))
+    ab.add_argument("--baseline", required=True, help="path to the baseline observation map (relative to repo root)")
+    ab.add_argument("--candidate", required=True, help="path to the candidate observation map")
+    ab.add_argument("--proposal", default=None, help="proposal id this A/B tests (e.g. OPT-RAG-04)")
     args = ap.parse_args()
     if args.cmd == "reflect":
         return cmd_reflect(args.dim)
     if args.cmd == "propose":
         return cmd_propose(args.dim)
+    if args.cmd == "ab":
+        return cmd_ab(args.dim, args.baseline, args.candidate, args.proposal)
     return self_test()
 
 
