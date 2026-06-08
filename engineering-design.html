@@ -92,10 +92,14 @@
     /* Page tabs */
     .page-tab {
       padding: 0.5rem 0.75rem;
+      min-height: 44px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
       border-radius: 0.625rem;
       font-size: 0.8rem;
       font-weight: 500;
-      color: rgba(255,255,255,0.5);
+      color: rgba(255,255,255,0.6);
       cursor: pointer;
       transition: all 0.2s;
       border: none;
@@ -179,7 +183,7 @@
 
     /* Input label */
     .field-label { font-size: 0.78rem; font-weight: 500; color: rgba(255,255,255,0.5); margin-bottom: 0.35rem; }
-    .field-unit { font-size: 0.8rem; color: rgba(255,255,255,0.4); margin-left: 0.5rem; }
+    .field-unit { font-size: 0.8rem; color: rgba(255,255,255,0.6); margin-left: 0.5rem; }
 
     /* Input with unit suffix */
     .input-group { position: relative; }
@@ -485,7 +489,7 @@
       display: inline-flex; align-items: center; gap: 6px;
       background: rgba(42,61,88,0.7);
       border: 1px solid rgba(255,255,255,0.1);
-      border-radius: 999px; padding: 5px 12px;
+      border-radius: 999px; padding: 5px 12px; min-height: 44px;
       font-size: 0.75rem; color: rgba(255,255,255,0.7);
       cursor: pointer; white-space: nowrap;
       transition: border-color 0.2s, background 0.2s;
@@ -501,7 +505,7 @@
       grid-column: 1 / -1;
       font-size: 0.7rem; font-weight: 700;
       text-transform: uppercase; letter-spacing: 0.1em;
-      color: rgba(255,255,255,0.25);
+      color: rgba(255,255,255,0.6);
       padding: 0.5rem 0 0.25rem;
       border-bottom: 1px solid rgba(255,255,255,0.06);
       margin-top: 0.25rem;
@@ -511,7 +515,7 @@
     /* Search result discipline tag */
     .calc-disc-tag {
       font-size: 0.65rem; font-weight: 600;
-      color: rgba(255,255,255,0.3);
+      color: rgba(255,255,255,0.6);
       background: rgba(255,255,255,0.06);
       border-radius: 4px; padding: 1px 5px;
       margin-left: auto; flex-shrink: 0;
@@ -550,10 +554,10 @@
   <div style="background:rgba(22,32,50,0.8);border-bottom:1px solid rgba(255,255,255,0.07);backdrop-filter:blur(12px);" class="sticky top-0 z-40">
     <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
       <div class="flex items-center gap-3">
-        <a href="index.html" style="color:rgba(255,255,255,0.4);font-size:0.8rem;text-decoration:none;" class="hidden sm:block">← Back</a>
+        <a href="index.html" style="color:rgba(255,255,255,0.6);font-size:0.8rem;text-decoration:none;" class="hidden sm:block">← Back</a>
         <div>
           <div class="font-bold text-sm" style="color:#F7A21B;">Engineering Design</div>
-          <div class="text-xs" style="color:rgba(255,255,255,0.4);">Design Calculation Tool</div>
+          <div class="text-xs" style="color:rgba(255,255,255,0.6);">Design Calculation Tool</div>
           <p id="eng-source-chip" style="margin-top:2px;"></p>
         </div>
       </div>
@@ -574,7 +578,7 @@
       <div class="step-dot" id="dot-2"></div>
       <div class="step-dot" id="dot-3"></div>
       <div class="step-dot" id="dot-4"></div>
-      <span class="text-xs ml-2" style="color:rgba(255,255,255,0.4);" id="step-label">Step 1 of 4: Select Discipline</span>
+      <span class="text-xs ml-2" style="color:rgba(255,255,255,0.6);" id="step-label">Step 1 of 4: Select Discipline</span>
     </div>
 
     <div class="flex flex-col lg:flex-row gap-6">
@@ -618,7 +622,7 @@
         <div class="card p-5" id="step3-card" style="opacity:0.5;pointer-events:none;">
           <div class="text-xs font-600 mb-3" style="color:#F7A21B;text-transform:uppercase;letter-spacing:0.08em;">Step 3: Project &amp; Inputs</div>
           <div id="input-form-area">
-            <p class="text-sm" style="color:rgba(255,255,255,0.3);">Select a calculation type first.</p>
+            <p class="text-sm" style="color:rgba(255,255,255,0.6);">Select a calculation type first.</p>
           </div>
         </div>
 
@@ -637,7 +641,7 @@
         <div id="report-empty" class="card p-10 text-center" style="min-height:400px;display:flex;flex-direction:column;align-items:center;justify-content:center;">
           <div style="font-size:3rem;margin-bottom:1rem;">📐</div>
           <div class="font-semibold text-lg mb-2">No Report Yet</div>
-          <div class="text-sm" style="color:rgba(255,255,255,0.4);">Fill in the inputs on the left and click<br><strong style="color:#F7A21B;">Run Calculation</strong> to generate your report.</div>
+          <div class="text-sm" style="color:rgba(255,255,255,0.6);">Fill in the inputs on the left and click<br><strong style="color:#F7A21B;">Run Calculation</strong> to generate your report.</div>
         </div>
 
         <!-- Loading state -->
@@ -678,7 +682,7 @@
             <div class="card p-4 flex flex-col sm:flex-row items-start sm:items-center gap-3">
               <div class="flex-1">
                 <div class="font-semibold text-sm" style="color:#F7A21B;">📋 Generate BOM + Scope of Works</div>
-                <div class="text-xs mt-0.5" style="color:rgba(255,255,255,0.4);">AI will generate a standard procurement list and contractor scope from this calculation result</div>
+                <div class="text-xs mt-0.5" style="color:rgba(255,255,255,0.6);">AI will generate a standard procurement list and contractor scope from this calculation result</div>
               </div>
               <button onclick="generateBomSowChecklist()" class="btn-primary text-sm py-2 px-5 whitespace-nowrap flex-shrink-0">Generate</button>
             </div>
@@ -688,7 +692,7 @@
           <div id="bom-loading" class="hidden card p-8 text-center mt-4">
             <div class="spinner mx-auto mb-3" style="width:32px;height:32px;border-width:3px;border-color:rgba(247,162,27,0.2);border-top-color:#F7A21B;"></div>
             <div class="font-semibold text-sm mb-1">Generating standard items...</div>
-            <div class="text-xs" style="color:rgba(255,255,255,0.4);">AI is preparing BOM and SOW from your calculation results</div>
+            <div class="text-xs" style="color:rgba(255,255,255,0.6);">AI is preparing BOM and SOW from your calculation results</div>
           </div>
 
           <!-- Checklist panel -->
@@ -756,7 +760,7 @@
             <div class="card p-4 flex flex-col sm:flex-row items-start sm:items-center gap-3">
               <div class="flex-1">
                 <div class="font-semibold text-sm" style="color:#F7A21B;">📐 Generate System Diagram</div>
-                <div class="text-xs mt-0.5" id="drawing-trigger-desc" style="color:rgba(255,255,255,0.4);">Generates a system diagram from your calculation results</div>
+                <div class="text-xs mt-0.5" id="drawing-trigger-desc" style="color:rgba(255,255,255,0.6);">Generates a system diagram from your calculation results</div>
               </div>
               <button onclick="generateDrawing()" class="btn-primary text-sm py-2 px-5 whitespace-nowrap flex-shrink-0">Generate</button>
             </div>
@@ -766,7 +770,7 @@
           <div id="drawing-loading" class="hidden card p-8 text-center mt-4">
             <div class="spinner mx-auto mb-3" style="width:32px;height:32px;border-width:3px;border-color:rgba(247,162,27,0.2);border-top-color:#F7A21B;"></div>
             <div class="font-semibold text-sm mb-1">Building diagram...</div>
-            <div class="text-xs" style="color:rgba(255,255,255,0.4);">Generating HVAC system schematic</div>
+            <div class="text-xs" style="color:rgba(255,255,255,0.6);">Generating HVAC system schematic</div>
           </div>
 
           <!-- Drawing output -->
@@ -796,11 +800,11 @@
     <div class="flex items-center justify-between mb-4">
       <div>
         <h2 class="font-bold text-lg">Calculation History</h2>
-        <p class="text-sm" style="color:rgba(255,255,255,0.4);">All saved calculations for your hive</p>
+        <p class="text-sm" style="color:rgba(255,255,255,0.6);">All saved calculations for your hive</p>
       </div>
     </div>
     <div id="history-list">
-      <div class="text-center py-16" style="color:rgba(255,255,255,0.3);">
+      <div class="text-center py-16" style="color:rgba(255,255,255,0.6);">
         <div style="font-size:2rem;margin-bottom:0.75rem;">📋</div>
         <div>No saved calculations yet.</div>
       </div>
@@ -900,7 +904,7 @@ function renderRecentCalcs() {
     if (!recents.length) { row.style.display = 'none'; return; }
     row.style.display = 'block';
     row/* xss-allow: hardcoded option list / numeric value, no user input */ .innerHTML = `
-      <div class="text-xs font-semibold mb-2" style="color:rgba(255,255,255,0.3);text-transform:uppercase;letter-spacing:0.08em;">Recent</div>
+      <div class="text-xs font-semibold mb-2" style="color:rgba(255,255,255,0.6);text-transform:uppercase;letter-spacing:0.08em;">Recent</div>
       <div style="display:flex;gap:8px;flex-wrap:wrap;">
         ${recents.map(ct => `<button class="recent-chip" onclick="quickSelectCalc('${ct.id.replace(/'/g,"\\'")}')">
           ${ct.icon} ${ct.id}
@@ -3501,7 +3505,7 @@ function selectDiscipline(disc) {
   renderCalcTypes();
   setStep(2);
   // Reset form & report
-  document.getElementById('input-form-area').innerHTML = '<p class="text-sm" style="color:rgba(255,255,255,0.3);">Select a calculation type first.</p>';
+  document.getElementById('input-form-area').innerHTML = '<p class="text-sm" style="color:rgba(255,255,255,0.6);">Select a calculation type first.</p>';
   showEmpty();
 }
 
@@ -3515,10 +3519,10 @@ function makeCalcCard(ct, showDisc) {
       <span style="font-size:1.2rem;flex-shrink:0;">${ct.icon}</span>
       <div class="min-w-0 flex-1">
         <div class="font-semibold text-sm">${ct.id}</div>
-        <div class="calc-desc text-xs" style="color:rgba(255,255,255,0.4);">${ct.desc}</div>
+        <div class="calc-desc text-xs" style="color:rgba(255,255,255,0.6);">${ct.desc}</div>
       </div>
       ${showDisc ? `<span class="calc-disc-tag">${ct._disc || ''}</span>` : ''}
-      ${!ct.available ? '<span class="ml-auto text-xs px-2 py-0.5 rounded-full flex-shrink-0" style="background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.3);">Soon</span>' : ''}
+      ${!ct.available ? '<span class="ml-auto text-xs px-2 py-0.5 rounded-full flex-shrink-0" style="background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.6);">Soon</span>' : ''}
     </div>`;
   if (ct.available) div.onclick = () => selectCalcType(ct.id);
   return div;
@@ -4985,7 +4989,7 @@ function renderInputForm(calcType) {
       <div class="grid grid-cols-2 gap-3 mb-4">
         <div>
           <div class="field-label">Rainfall Intensity</div>
-          <div style="font-size:0.72rem;color:rgba(255,255,255,0.4);margin-bottom:0.3rem;">Auto-filled from PAGASA Metro Manila IDF. Override for other locations.</div>
+          <div style="font-size:0.72rem;color:rgba(255,255,255,0.6);margin-bottom:0.3rem;">Auto-filled from PAGASA Metro Manila IDF. Override for other locations.</div>
           <div class="input-group">
             <input aria-label="Rainfall Intensity" id="f-sd-intensity" class="wh-input" type="number" value="75" min="10" step="1" />
             <span class="input-unit">mm/hr</span>
@@ -5061,7 +5065,7 @@ function renderInputForm(calcType) {
       <div class="grid grid-cols-2 gap-3 mb-4">
         <div>
           <div class="field-label">Meals per Day</div>
-          <div style="font-size:0.72rem;color:rgba(255,255,255,0.4);margin-bottom:0.3rem;">Used to estimate daily grease load and cleaning interval.</div>
+          <div style="font-size:0.72rem;color:rgba(255,255,255,0.6);margin-bottom:0.3rem;">Used to estimate daily grease load and cleaning interval.</div>
           <div class="input-group">
             <input aria-label="Meals per Day" id="f-gt-meals" class="wh-input" type="number" value="200" min="1" step="1" />
             <span class="input-unit">meals/day</span>
@@ -5069,7 +5073,7 @@ function renderInputForm(calcType) {
         </div>
         <div>
           <div class="field-label">Simultaneous Use Factor</div>
-          <div style="font-size:0.72rem;color:rgba(255,255,255,0.4);margin-bottom:0.3rem;">PDI BH-201 default: 0.75</div>
+          <div style="font-size:0.72rem;color:rgba(255,255,255,0.6);margin-bottom:0.3rem;">PDI BH-201 default: 0.75</div>
           <div class="input-group">
             <input aria-label="Simultaneous Use Factor" id="f-gt-suf" class="wh-input" type="number" value="0.75" min="0.50" max="1.0" step="0.01" />
             <span class="input-unit">SUF</span>
@@ -5574,7 +5578,7 @@ function renderInputForm(calcType) {
 
       <div class="mb-4">
         <div class="field-label">Cable Schedule</div>
-        <div style="display:grid;grid-template-columns:2fr 80px 60px 80px 28px;gap:0.35rem;margin-bottom:0.35rem;font-size:0.72rem;color:rgba(255,255,255,0.4);padding:0 0.25rem;">
+        <div style="display:grid;grid-template-columns:2fr 80px 60px 80px 28px;gap:0.35rem;margin-bottom:0.35rem;font-size:0.72rem;color:rgba(255,255,255,0.6);padding:0 0.25rem;">
           <div>Description</div><div style="text-align:center;">OD (mm)</div><div style="text-align:center;">Qty</div><div style="text-align:center;">kg/m (opt)</div><div></div>
         </div>
         <div id="ct-cable-list" style="display:flex;flex-direction:column;gap:0.35rem;margin-bottom:0.5rem;"></div>
@@ -5653,7 +5657,7 @@ function renderInputForm(calcType) {
 
       <div class="mb-4">
         <div class="field-label">Load Schedule</div>
-        <div style="display:grid;grid-template-columns:3fr 70px 55px 50px 28px;gap:0.35rem;margin-bottom:0.35rem;font-size:0.72rem;color:rgba(255,255,255,0.4);padding:0 0.25rem;">
+        <div style="display:grid;grid-template-columns:3fr 70px 55px 50px 28px;gap:0.35rem;margin-bottom:0.35rem;font-size:0.72rem;color:rgba(255,255,255,0.6);padding:0 0.25rem;">
           <div>Description</div><div style="text-align:center;">VA/unit</div><div style="text-align:center;">PF</div><div style="text-align:center;">Qty</div><div></div>
         </div>
         <div id="ups-load-list" style="display:flex;flex-direction:column;gap:0.35rem;margin-bottom:0.5rem;"></div>
@@ -5983,7 +5987,7 @@ function renderInputForm(calcType) {
 
       <div class="mb-4">
         <div class="field-label">Duct Segment Schedule</div>
-        <div style="display:grid;grid-template-columns:2fr 70px 70px 100px 28px;gap:0.35rem;margin-bottom:0.35rem;font-size:0.72rem;color:rgba(255,255,255,0.4);padding:0 0.25rem;">
+        <div style="display:grid;grid-template-columns:2fr 70px 70px 100px 28px;gap:0.35rem;margin-bottom:0.35rem;font-size:0.72rem;color:rgba(255,255,255,0.6);padding:0 0.25rem;">
           <div>Segment</div><div style="text-align:center;">Flow L/s</div><div style="text-align:center;">Length m</div><div style="text-align:center;">Type</div><div></div>
         </div>
         <div id="duct-seg-list" style="display:flex;flex-direction:column;gap:0.35rem;margin-bottom:0.5rem;"></div>
@@ -6136,7 +6140,7 @@ function renderInputForm(calcType) {
 
       <div class="mb-4">
         <div class="field-label">Room / Zone Schedule</div>
-        <div style="display:grid;grid-template-columns:2fr 65px 80px 55px 28px;gap:0.35rem;margin-bottom:0.35rem;font-size:0.72rem;color:rgba(255,255,255,0.4);padding:0 0.25rem;">
+        <div style="display:grid;grid-template-columns:2fr 65px 80px 55px 28px;gap:0.35rem;margin-bottom:0.35rem;font-size:0.72rem;color:rgba(255,255,255,0.6);padding:0 0.25rem;">
           <div>Room / Zone Name</div><div style="text-align:center;">Area (m²)</div><div style="text-align:center;">Load (kW)</div><div style="text-align:center;">Qty</div><div></div>
         </div>
         <div id="fcu-room-list" style="display:flex;flex-direction:column;gap:0.35rem;margin-bottom:0.5rem;"></div>
@@ -6203,7 +6207,7 @@ function renderInputForm(calcType) {
 
       <div class="mb-4">
         <div class="field-label">Refrigerant Line Schedule</div>
-        <div style="display:grid;grid-template-columns:2fr 120px 70px 28px;gap:0.35rem;margin-bottom:0.35rem;font-size:0.72rem;color:rgba(255,255,255,0.4);padding:0 0.25rem;">
+        <div style="display:grid;grid-template-columns:2fr 120px 70px 28px;gap:0.35rem;margin-bottom:0.35rem;font-size:0.72rem;color:rgba(255,255,255,0.6);padding:0 0.25rem;">
           <div>Line Name</div><div style="text-align:center;">Line Type</div><div style="text-align:center;">Equiv. Length (m)</div><div></div>
         </div>
         <div id="refrig-line-list" style="display:flex;flex-direction:column;gap:0.35rem;margin-bottom:0.5rem;"></div>
@@ -6592,7 +6596,7 @@ function renderInputForm(calcType) {
       </div>
 
       <div style="font-size:0.78rem;color:#F7A21B;font-weight:600;margin-bottom:0.5rem;margin-top:0.25rem;">Detection Devices</div>
-      <div style="display:grid;grid-template-columns:1fr 70px;gap:0.4rem;align-items:center;font-size:0.75rem;color:rgba(255,255,255,0.4);margin-bottom:0.3rem;padding:0 0.25rem;">
+      <div style="display:grid;grid-template-columns:1fr 70px;gap:0.4rem;align-items:center;font-size:0.75rem;color:rgba(255,255,255,0.6);margin-bottom:0.3rem;padding:0 0.25rem;">
         <div>Device Type (standby mA / alarm mA)</div><div style="text-align:center;">Count</div>
       </div>
       ${[
@@ -6633,7 +6637,7 @@ function renderInputForm(calcType) {
       </div>
 
       <div class="mb-4">
-        <div class="field-label">Building Type <span style="color:rgba(255,255,255,0.3);font-size:0.7rem;">(sets minimum pressure differential)</span></div>
+        <div class="field-label">Building Type <span style="color:rgba(255,255,255,0.6);font-size:0.7rem;">(sets minimum pressure differential)</span></div>
         <div class="toggle-group" id="tg-bldg-type">
           <button class="toggle-btn active" data-val="Sprinklered" onclick="toggle('tg-bldg-type','Sprinklered');applyPressDefaults('Sprinklered')">Sprinklered (min 12.5 Pa)</button>
           <button class="toggle-btn" data-val="Non-Sprinklered" onclick="toggle('tg-bldg-type','Non-Sprinklered');applyPressDefaults('Non-Sprinklered')">Non-Sprinklered (min 25 Pa)</button>
@@ -6656,7 +6660,7 @@ function renderInputForm(calcType) {
       </div>
 
       <div class="mb-4">
-        <div class="field-label">Door Fit / Seal Quality <span style="color:rgba(255,255,255,0.3);font-size:0.7rem;">(NFPA 92 Table B.1 leakage area)</span></div>
+        <div class="field-label">Door Fit / Seal Quality <span style="color:rgba(255,255,255,0.6);font-size:0.7rem;">(NFPA 92 Table B.1 leakage area)</span></div>
         <div class="toggle-group" id="tg-door-fit">
           <button class="toggle-btn" data-val="Tight" onclick="toggle('tg-door-fit','Tight')">Tight (0.019 m²: brush seals)</button>
           <button class="toggle-btn active" data-val="Average" onclick="toggle('tg-door-fit','Average')">Average (0.039 m²: standard)</button>
@@ -6666,7 +6670,7 @@ function renderInputForm(calcType) {
 
       <div class="grid grid-cols-2 gap-3 mb-4">
         <div>
-          <div class="field-label">Design Pressure Differential <span style="color:rgba(255,255,255,0.3);font-size:0.7rem;">(max 87 Pa)</span></div>
+          <div class="field-label">Design Pressure Differential <span style="color:rgba(255,255,255,0.6);font-size:0.7rem;">(max 87 Pa)</span></div>
           <div class="input-group">
             <input aria-label="Design Pressure Differential" id="f-delta-p" class="wh-input" type="number" value="25" min="12" max="87" />
             <span class="input-unit">Pa</span>
@@ -6839,7 +6843,7 @@ function renderInputForm(calcType) {
         </div>
       </div>
       <div style="font-size:0.78rem;color:#F7A21B;font-weight:600;margin-bottom:0.5rem;">Harmonic Components (% of I₁)</div>
-      <div style="display:grid;grid-template-columns:auto 1fr 90px;gap:0.4rem;align-items:center;font-size:0.74rem;color:rgba(255,255,255,0.4);margin-bottom:0.3rem;padding:0 0.25rem;">
+      <div style="display:grid;grid-template-columns:auto 1fr 90px;gap:0.4rem;align-items:center;font-size:0.74rem;color:rgba(255,255,255,0.6);margin-bottom:0.3rem;padding:0 0.25rem;">
         <div>Order</div><div>Description</div><div style="text-align:center;">% of I₁</div>
       </div>
       ${[
@@ -6873,7 +6877,7 @@ function renderInputForm(calcType) {
       </div>
 
       <div class="mb-4">
-        <div class="field-label">Occupancy Hazard Classification <span style="color:rgba(255,255,255,0.3);font-size:0.7rem;">(NFPA 13: auto-fills design parameters)</span></div>
+        <div class="field-label">Occupancy Hazard Classification <span style="color:rgba(255,255,255,0.6);font-size:0.7rem;">(NFPA 13: auto-fills design parameters)</span></div>
         <div class="toggle-group" id="tg-hazard">
           ${[
             ['Light Hazard',       'Office, hotel, school'],
@@ -6889,14 +6893,14 @@ function renderInputForm(calcType) {
 
       <div class="grid grid-cols-2 gap-3 mb-4">
         <div>
-          <div class="field-label">Design Area <span style="color:rgba(255,255,255,0.3);font-size:0.7rem;">(auto-filled)</span></div>
+          <div class="field-label">Design Area <span style="color:rgba(255,255,255,0.6);font-size:0.7rem;">(auto-filled)</span></div>
           <div class="input-group">
             <input aria-label="Design Area" id="f-design-area" class="wh-input" type="number" value="139" min="1" />
             <span class="input-unit">m²</span>
           </div>
         </div>
         <div>
-          <div class="field-label">Design Density <span style="color:rgba(255,255,255,0.3);font-size:0.7rem;">(auto-filled)</span></div>
+          <div class="field-label">Design Density <span style="color:rgba(255,255,255,0.6);font-size:0.7rem;">(auto-filled)</span></div>
           <div class="input-group">
             <input aria-label="Design Density" id="f-density" class="wh-input" type="number" value="6.1" min="0.1" step="0.1" />
             <span class="input-unit">mm/min</span>
@@ -6906,14 +6910,14 @@ function renderInputForm(calcType) {
 
       <div class="grid grid-cols-2 gap-3 mb-4">
         <div>
-          <div class="field-label">Coverage per Sprinkler Head <span style="color:rgba(255,255,255,0.3);font-size:0.7rem;">(auto-filled)</span></div>
+          <div class="field-label">Coverage per Sprinkler Head <span style="color:rgba(255,255,255,0.6);font-size:0.7rem;">(auto-filled)</span></div>
           <div class="input-group">
             <input aria-label="Coverage per Sprinkler Head" id="f-coverage" class="wh-input" type="number" value="12.1" min="1" step="0.1" />
             <span class="input-unit">m²/head</span>
           </div>
         </div>
         <div>
-          <div class="field-label">Hose Stream Allowance <span style="color:rgba(255,255,255,0.3);font-size:0.7rem;">(auto-filled)</span></div>
+          <div class="field-label">Hose Stream Allowance <span style="color:rgba(255,255,255,0.6);font-size:0.7rem;">(auto-filled)</span></div>
           <div class="input-group">
             <input aria-label="Hose Stream Allowance" id="f-hose" class="wh-input" type="number" value="500" min="0" />
             <span class="input-unit">L/min</span>
@@ -7028,7 +7032,7 @@ function renderInputForm(calcType) {
           </div>
         </div>
         <div>
-          <div class="field-label">Pipe Diameter <span style="color:rgba(255,255,255,0.3);font-size:0.7rem;">(0 = auto)</span></div>
+          <div class="field-label">Pipe Diameter <span style="color:rgba(255,255,255,0.6);font-size:0.7rem;">(0 = auto)</span></div>
           <div class="input-group">
             <input aria-label="0" id="f-fp-pipe-dia" class="wh-input" type="number" placeholder="0" min="0" value="0" />
             <span class="input-unit">mm</span>
@@ -7360,7 +7364,7 @@ function renderInputForm(calcType) {
       </div>
 
       <div class="mb-4">
-        <div class="field-label">Chiller Type <span style="color:rgba(255,255,255,0.4);font-size:0.75rem;">determines ASHRAE 90.1 minimum COP</span></div>
+        <div class="field-label">Chiller Type <span style="color:rgba(255,255,255,0.6);font-size:0.75rem;">determines ASHRAE 90.1 minimum COP</span></div>
         <div class="toggle-group" id="tg-chiller-type">
           <button class="toggle-btn active" data-val="Centrifugal" onclick="toggle('tg-chiller-type','Centrifugal')">Centrifugal</button>
           <button class="toggle-btn" data-val="Screw" onclick="toggle('tg-chiller-type','Screw')">Screw</button>
@@ -7390,7 +7394,7 @@ function renderInputForm(calcType) {
 
       <div class="grid grid-cols-2 gap-3 mb-4">
         <div>
-          <div class="field-label">CW Supply Temp <span style="color:rgba(255,255,255,0.4);font-size:0.75rem;">from cooling tower</span></div>
+          <div class="field-label">CW Supply Temp <span style="color:rgba(255,255,255,0.6);font-size:0.75rem;">from cooling tower</span></div>
           <div class="toggle-group" id="tg-cw-supply">
             <button class="toggle-btn active" data-val="29" onclick="toggle('tg-cw-supply','29')">29°C (PH std)</button>
             <button class="toggle-btn" data-val="30" onclick="toggle('tg-cw-supply','30')">30°C</button>
@@ -7398,7 +7402,7 @@ function renderInputForm(calcType) {
           </div>
         </div>
         <div>
-          <div class="field-label">CW Return Temp <span style="color:rgba(255,255,255,0.4);font-size:0.75rem;">to cooling tower</span></div>
+          <div class="field-label">CW Return Temp <span style="color:rgba(255,255,255,0.6);font-size:0.75rem;">to cooling tower</span></div>
           <div class="toggle-group" id="tg-cw-return">
             <button class="toggle-btn" data-val="34" onclick="toggle('tg-cw-return','34')">34°C (5°C ΔT)</button>
             <button class="toggle-btn active" data-val="35" onclick="toggle('tg-cw-return','35')">35°C (6°C ΔT)</button>
@@ -7409,7 +7413,7 @@ function renderInputForm(calcType) {
 
       <div class="grid grid-cols-2 gap-3 mb-4">
         <div>
-          <div class="field-label">COP <span style="color:rgba(255,255,255,0.4);font-size:0.75rem;">water-cooled is higher than air-cooled</span></div>
+          <div class="field-label">COP <span style="color:rgba(255,255,255,0.6);font-size:0.75rem;">water-cooled is higher than air-cooled</span></div>
           <div class="input-group">
             <input aria-label="COP water-cooled is higher than air-cooled" id="f-cop" class="wh-input" type="number" value="5.5" min="2.0" max="9.0" step="0.1" />
             <span class="input-unit">—</span>
@@ -7435,7 +7439,7 @@ function renderInputForm(calcType) {
       </div>
 
       <div class="mb-4">
-        <div class="field-label">IPLV / NPLV <span style="color:rgba(255,255,255,0.4);font-size:0.75rem;">from AHRI 550/590 chiller datasheet: leave blank if not yet available</span></div>
+        <div class="field-label">IPLV / NPLV <span style="color:rgba(255,255,255,0.6);font-size:0.75rem;">from AHRI 550/590 chiller datasheet: leave blank if not yet available</span></div>
         <div class="input-group">
           <input aria-label="e.g. 6.5" id="f-iplv" class="wh-input" type="number" placeholder="e.g. 6.5" min="1.0" max="15.0" step="0.01" />
           <span class="input-unit">—</span>
@@ -7468,7 +7472,7 @@ function renderInputForm(calcType) {
       </div>
 
       <div class="mb-4">
-        <div class="field-label">Design Ambient Temperature <span style="color:rgba(255,255,255,0.4);font-size:0.75rem;">Philippine climate: use 35°C</span></div>
+        <div class="field-label">Design Ambient Temperature <span style="color:rgba(255,255,255,0.6);font-size:0.75rem;">Philippine climate: use 35°C</span></div>
         <div class="toggle-group" id="tg-ambient">
           <button class="toggle-btn" data-val="30" onclick="toggle('tg-ambient','30')">30°C (mild)</button>
           <button class="toggle-btn" data-val="33" onclick="toggle('tg-ambient','33')">33°C (moderate)</button>
@@ -7498,7 +7502,7 @@ function renderInputForm(calcType) {
 
       <div class="grid grid-cols-2 gap-3 mb-4">
         <div>
-          <div class="field-label">COP (Coefficient of Performance) <span style="color:rgba(255,255,255,0.4);font-size:0.75rem;">ASHRAE min: 2.84</span></div>
+          <div class="field-label">COP (Coefficient of Performance) <span style="color:rgba(255,255,255,0.6);font-size:0.75rem;">ASHRAE min: 2.84</span></div>
           <div class="input-group">
             <input aria-label="COP (Coefficient of Performance) ASHRAE min: 2.84" id="f-cop" class="wh-input" type="number" value="3.0" min="1.5" max="6.0" step="0.1" />
             <span class="input-unit">—</span>
@@ -7524,7 +7528,7 @@ function renderInputForm(calcType) {
       </div>
 
       <div class="mb-4">
-        <div class="field-label">IPLV / NPLV <span style="color:rgba(255,255,255,0.4);font-size:0.75rem;">from AHRI 550/590 chiller datasheet: leave blank if not yet available</span></div>
+        <div class="field-label">IPLV / NPLV <span style="color:rgba(255,255,255,0.6);font-size:0.75rem;">from AHRI 550/590 chiller datasheet: leave blank if not yet available</span></div>
         <div class="input-group">
           <input aria-label="e.g. 3.6" id="f-iplv" class="wh-input" type="number" placeholder="e.g. 3.6" min="1.0" max="10.0" step="0.01" />
           <span class="input-unit">—</span>
@@ -7549,7 +7553,7 @@ function renderInputForm(calcType) {
       </div>
 
       <div class="mb-4">
-        <div class="field-label">Space Type <span style="color:rgba(255,255,255,0.4);font-size:0.75rem;">sets default SHR</span></div>
+        <div class="field-label">Space Type <span style="color:rgba(255,255,255,0.6);font-size:0.75rem;">sets default SHR</span></div>
         <div class="toggle-group" id="tg-space-type">
           <button class="toggle-btn active" data-val="Office" onclick="toggle('tg-space-type','Office');setAHUDefaults()">Office</button>
           <button class="toggle-btn" data-val="Conference" onclick="toggle('tg-space-type','Conference');setAHUDefaults()">Conference</button>
@@ -7607,7 +7611,7 @@ function renderInputForm(calcType) {
 
       <div class="grid grid-cols-2 gap-3 mb-4">
         <div>
-          <div class="field-label">Outside Air %  <span style="color:rgba(255,255,255,0.4);font-size:0.75rem;">ASHRAE 62.1</span></div>
+          <div class="field-label">Outside Air %  <span style="color:rgba(255,255,255,0.6);font-size:0.75rem;">ASHRAE 62.1</span></div>
           <div class="toggle-group" id="tg-oa-pct">
             <button class="toggle-btn" data-val="10" onclick="toggle('tg-oa-pct','10')">10% (low)</button>
             <button class="toggle-btn active" data-val="20" onclick="toggle('tg-oa-pct','20')">20% (office)</button>
@@ -7666,14 +7670,14 @@ function renderInputForm(calcType) {
 
       <div class="grid grid-cols-2 gap-3 mb-4">
         <div>
-          <div class="field-label">Floor Area <span style="color:rgba(255,255,255,0.4);font-size:0.75rem;">for ACH check</span></div>
+          <div class="field-label">Floor Area <span style="color:rgba(255,255,255,0.6);font-size:0.75rem;">for ACH check</span></div>
           <div class="input-group">
             <input aria-label="Floor Area for ACH check" id="f-floor-area" class="wh-input" type="number" value="0" min="0" step="1" />
             <span class="input-unit">m²</span>
           </div>
         </div>
         <div>
-          <div class="field-label">Ceiling Height <span style="color:rgba(255,255,255,0.4);font-size:0.75rem;">for ACH check</span></div>
+          <div class="field-label">Ceiling Height <span style="color:rgba(255,255,255,0.6);font-size:0.75rem;">for ACH check</span></div>
           <div class="toggle-group" id="tg-ceiling">
             <button class="toggle-btn" data-val="2.7" onclick="toggle('tg-ceiling','2.7')">2.7m (low)</button>
             <button class="toggle-btn active" data-val="3.0" onclick="toggle('tg-ceiling','3.0')">3.0m (std)</button>
@@ -7683,7 +7687,7 @@ function renderInputForm(calcType) {
       </div>
 
       <div class="mb-4">
-        <div class="field-label">Number of Occupants <span style="color:rgba(255,255,255,0.4);font-size:0.75rem;">for ASHRAE 62.1 OA check (0 = skip)</span></div>
+        <div class="field-label">Number of Occupants <span style="color:rgba(255,255,255,0.6);font-size:0.75rem;">for ASHRAE 62.1 OA check (0 = skip)</span></div>
         <div class="input-group">
           <input aria-label="Number of Occupants for ASHRAE 62.1 OA check" id="f-persons" class="wh-input" type="number" value="0" min="0" step="1" />
           <span class="input-unit">persons</span>
@@ -7732,7 +7736,7 @@ function renderInputForm(calcType) {
             </div>
           </div>
           <div>
-            <div class="field-label">Chiller COP <span style="color:rgba(255,255,255,0.4);font-size:0.75rem;">at design conditions</span></div>
+            <div class="field-label">Chiller COP <span style="color:rgba(255,255,255,0.6);font-size:0.75rem;">at design conditions</span></div>
             <div class="toggle-group" id="tg-chiller-cop">
               <button class="toggle-btn" data-val="3.5" onclick="toggle('tg-chiller-cop','3.5')">3.5 (screw)</button>
               <button class="toggle-btn active" data-val="4.5" onclick="toggle('tg-chiller-cop','4.5')">4.5 (standard)</button>
@@ -7789,7 +7793,7 @@ function renderInputForm(calcType) {
           </div>
         </div>
         <div>
-          <div class="field-label">L/G Ratio <span style="color:rgba(255,255,255,0.4);font-size:0.75rem;">liq/gas mass</span></div>
+          <div class="field-label">L/G Ratio <span style="color:rgba(255,255,255,0.6);font-size:0.75rem;">liq/gas mass</span></div>
           <div class="toggle-group" id="tg-lg-ratio">
             <button class="toggle-btn" data-val="1.0" onclick="toggle('tg-lg-ratio','1.0')">1.0 (high airflow)</button>
             <button class="toggle-btn active" data-val="1.2" onclick="toggle('tg-lg-ratio','1.2')">1.2 (standard)</button>
@@ -7827,7 +7831,7 @@ function renderInputForm(calcType) {
           </div>
         </div>
         <div>
-          <div class="field-label">Service Factor (Ks) <span style="color:rgba(255,255,255,0.3);font-size:0.7rem;">RMA IP-20</span></div>
+          <div class="field-label">Service Factor (Ks) <span style="color:rgba(255,255,255,0.6);font-size:0.7rem;">RMA IP-20</span></div>
           <div class="toggle-group" id="tg-ks">
             <button class="toggle-btn" data-val="1.0" onclick="toggle('tg-ks','1.0')">1.0: Uniform (pump)</button>
             <button class="toggle-btn active" data-val="1.2" onclick="toggle('tg-ks','1.2')">1.2: Moderate (fan)</button>
@@ -7857,7 +7861,7 @@ function renderInputForm(calcType) {
 
       <div class="grid grid-cols-2 gap-3 mb-4">
         <div>
-          <div class="field-label">Belt Section <span style="color:rgba(255,255,255,0.3);font-size:0.7rem;">(classical)</span></div>
+          <div class="field-label">Belt Section <span style="color:rgba(255,255,255,0.6);font-size:0.7rem;">(classical)</span></div>
           <div class="toggle-group" id="tg-belt-section">
             <button class="toggle-btn" data-val="A" onclick="toggle('tg-belt-section','A');applyBeltDefaults('A')">A (light)</button>
             <button class="toggle-btn active" data-val="B" onclick="toggle('tg-belt-section','B');applyBeltDefaults('B')">B (medium)</button>
@@ -7875,7 +7879,7 @@ function renderInputForm(calcType) {
       </div>
 
       <div class="mb-4">
-        <div class="field-label">Center Distance <span style="color:rgba(255,255,255,0.3);font-size:0.7rem;">(shaft to shaft)</span></div>
+        <div class="field-label">Center Distance <span style="color:rgba(255,255,255,0.6);font-size:0.7rem;">(shaft to shaft)</span></div>
         <div class="input-group">
           <input aria-label="Center Distance" id="f-center-dist" class="wh-input" type="number" value="500" min="100" step="10" />
           <span class="input-unit">mm</span>
@@ -7908,7 +7912,7 @@ function renderInputForm(calcType) {
 
       <div class="grid grid-cols-2 gap-3 mb-4">
         <div>
-          <div class="field-label">Dynamic Load Rating (C) <span style="color:rgba(255,255,255,0.3);font-size:0.7rem;">from catalog</span></div>
+          <div class="field-label">Dynamic Load Rating (C) <span style="color:rgba(255,255,255,0.6);font-size:0.7rem;">from catalog</span></div>
           <div class="input-group">
             <input aria-label="Dynamic Load Rating (C) from catalog" id="f-C-rating" class="wh-input" type="number" value="25.5" min="0.1" step="0.1" />
             <span class="input-unit">kN</span>
@@ -7932,7 +7936,7 @@ function renderInputForm(calcType) {
           </div>
         </div>
         <div>
-          <div class="field-label">Axial Load (Fa) <span style="color:rgba(255,255,255,0.3);font-size:0.7rem;">(0 if none)</span></div>
+          <div class="field-label">Axial Load (Fa) <span style="color:rgba(255,255,255,0.6);font-size:0.7rem;">(0 if none)</span></div>
           <div class="input-group">
             <input aria-label="Axial Load (Fa)" id="f-Fa" class="wh-input" type="number" value="0" min="0" step="0.1" />
             <span class="input-unit">kN</span>
@@ -7959,7 +7963,7 @@ function renderInputForm(calcType) {
       </div>
 
       <div class="mb-4">
-        <div class="field-label">Bearing Number <span style="color:rgba(255,255,255,0.3);font-size:0.7rem;">(optional: for report reference)</span></div>
+        <div class="field-label">Bearing Number <span style="color:rgba(255,255,255,0.6);font-size:0.7rem;">(optional: for report reference)</span></div>
         <input aria-label="e.g. SKF 6308, FAG 22216, NSK 6210" id="f-bearing-no" class="wh-input" placeholder="e.g. SKF 6308, FAG 22216, NSK 6210" />
       </div>
 
@@ -8001,7 +8005,7 @@ function renderInputForm(calcType) {
 
       <div class="grid grid-cols-2 gap-3 mb-4">
         <div>
-          <div class="field-label">Transverse Load (F) <span style="color:rgba(255,255,255,0.3);font-size:0.7rem;">belt / gear force</span></div>
+          <div class="field-label">Transverse Load (F) <span style="color:rgba(255,255,255,0.6);font-size:0.7rem;">belt / gear force</span></div>
           <div class="input-group">
             <input aria-label="Transverse Load (F) belt / gear force" id="f-transverse-load" class="wh-input" type="number" value="2000" min="0" />
             <span class="input-unit">N</span>
@@ -8035,7 +8039,7 @@ function renderInputForm(calcType) {
           </div>
         </div>
         <div>
-          <div class="field-label">Loading / Shock Type <span style="color:rgba(255,255,255,0.3);font-size:0.7rem;">ASME B106.1M</span></div>
+          <div class="field-label">Loading / Shock Type <span style="color:rgba(255,255,255,0.6);font-size:0.7rem;">ASME B106.1M</span></div>
           <div class="toggle-group" id="tg-shock">
             <button class="toggle-btn" data-val="Steady" onclick="toggle('tg-shock','Steady')">Steady (Kb=1.0, Kt=1.0)</button>
             <button class="toggle-btn active" data-val="Minor" onclick="toggle('tg-shock','Minor')">Minor shock (Kb=1.5, Kt=1.0)</button>
@@ -8086,7 +8090,7 @@ function renderInputForm(calcType) {
 
       <div class="grid grid-cols-2 gap-3 mb-4">
         <div>
-          <div class="field-label">Nut Factor (K) <span style="color:rgba(255,255,255,0.3);font-size:0.7rem;">friction condition</span></div>
+          <div class="field-label">Nut Factor (K) <span style="color:rgba(255,255,255,0.6);font-size:0.7rem;">friction condition</span></div>
           <div class="toggle-group" id="tg-nut-factor">
             <button class="toggle-btn" data-val="0.11" onclick="toggle('tg-nut-factor','0.11')">0.11: MoS₂ grease</button>
             <button class="toggle-btn" data-val="0.13" onclick="toggle('tg-nut-factor','0.13')">0.13: Machine oil</button>
@@ -8151,14 +8155,14 @@ function renderInputForm(calcType) {
           <div class="input-group"><input aria-label="Span / Length" id="f-span-m" class="wh-input" type="number" value="6" min="0.5" step="0.1"/><span class="input-unit">m</span></div>
         </div>
         <div>
-          <div class="field-label">UDL w (kN/m) <span style="color:rgba(255,255,255,0.3);font-size:0.7rem;">for deflection</span></div>
+          <div class="field-label">UDL w (kN/m) <span style="color:rgba(255,255,255,0.6);font-size:0.7rem;">for deflection</span></div>
           <div class="input-group"><input aria-label="UDL w (kN/m) for deflection" id="f-w-udl" class="wh-input" type="number" value="30" min="0"/><span class="input-unit">kN/m</span></div>
         </div>
       </div>
       <div class="grid grid-cols-3 gap-3 mb-4">
         <div><div class="field-label">M<sub>u</sub> (kN·m)</div><div class="input-group"><input aria-label="M u" id="f-Mu" class="wh-input" type="number" value="180" min="0"/><span class="input-unit">kN·m</span></div></div>
         <div><div class="field-label">V<sub>u</sub> (kN)</div><div class="input-group"><input aria-label="V u" id="f-Vu" class="wh-input" type="number" value="90" min="0"/><span class="input-unit">kN</span></div></div>
-        <div><div class="field-label">P<sub>u</sub> (kN) <span style="color:rgba(255,255,255,0.3);font-size:0.7rem;">columns</span></div><div class="input-group"><input aria-label="P u (kN) columns" id="f-Pu" class="wh-input" type="number" value="500" min="0"/><span class="input-unit">kN</span></div></div>
+        <div><div class="field-label">P<sub>u</sub> (kN) <span style="color:rgba(255,255,255,0.6);font-size:0.7rem;">columns</span></div><div class="input-group"><input aria-label="P u (kN) columns" id="f-Pu" class="wh-input" type="number" value="500" min="0"/><span class="input-unit">kN</span></div></div>
       </div>
       <div class="mb-4">
         <div class="field-label">Steel Grade</div>
@@ -8809,7 +8813,7 @@ function addDrainFixtureRow(defaultType = 'Water Closet', defaultQty = 1) {
       <input id="drain-dfu-${id}" aria-label="Drain DFU" class="wh-input py-2" type="number" value="${DRAIN_DFU_VALUES[defaultType]||0}" min="0" style="padding:0.5rem 0.4rem;" />
       <span class="input-unit" style="font-size:0.65rem;">DFU</span>
     </div>
-    <div style="font-size:0.7rem;color:rgba(255,255,255,0.3);text-align:center;" id="drain-total-${id}">x${defaultQty}</div>
+    <div style="font-size:0.7rem;color:rgba(255,255,255,0.6);text-align:center;" id="drain-total-${id}">x${defaultQty}</div>
     <button onclick="document.getElementById('drain-row-${id}').remove()" style="background:rgba(220,50,50,0.15);border:1px solid rgba(220,50,50,0.3);border-radius:0.4rem;color:rgba(220,50,50,0.8);width:28px;height:28px;cursor:pointer;font-size:0.9rem;flex-shrink:0;">x</button>
   `;
   document.getElementById('drain-fixture-list').appendChild(row);
@@ -16649,24 +16653,24 @@ function renderLightingDesignReport(inputs, results, narrative) {
 
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem;">
         <div style="background:#162032;color:#fff;padding:1rem;border-radius:0.75rem;text-align:center;">
-          <div style="font-size:0.7rem;opacity:0.6;text-transform:uppercase;margin-bottom:0.25rem;">No. of Luminaires</div>
+          <div style="font-size:0.7rem;color:rgba(255,255,255,0.8);text-transform:uppercase;margin-bottom:0.25rem;">No. of Luminaires</div>
           <div style="font-size:1.8rem;font-weight:800;color:#F7A21B;">${r.N_fixtures}</div>
-          <div style="font-size:0.68rem;opacity:0.5;">${inputs.fixture_type}</div>
+          <div style="font-size:0.68rem;color:rgba(255,255,255,0.72);">${inputs.fixture_type}</div>
         </div>
         <div style="background:#162032;color:#fff;padding:1rem;border-radius:0.75rem;text-align:center;">
-          <div style="font-size:0.7rem;opacity:0.6;text-transform:uppercase;margin-bottom:0.25rem;">Achieved Illuminance</div>
+          <div style="font-size:0.7rem;color:rgba(255,255,255,0.8);text-transform:uppercase;margin-bottom:0.25rem;">Achieved Illuminance</div>
           <div style="font-size:1.8rem;font-weight:800;color:#F7A21B;">${r.E_actual_lux}</div>
-          <div style="font-size:0.68rem;opacity:0.5;">lux (target: ${inputs.target_lux} lux)</div>
+          <div style="font-size:0.68rem;color:rgba(255,255,255,0.72);">lux (target: ${inputs.target_lux} lux)</div>
         </div>
         <div style="background:#1F2E45;color:#fff;padding:1rem;border-radius:0.75rem;text-align:center;">
-          <div style="font-size:0.7rem;opacity:0.6;text-transform:uppercase;margin-bottom:0.25rem;">Total Lighting Load</div>
+          <div style="font-size:0.7rem;color:rgba(255,255,255,0.8);text-transform:uppercase;margin-bottom:0.25rem;">Total Lighting Load</div>
           <div style="font-size:1.8rem;font-weight:800;color:#29B6D9;">${r.total_kW} kW</div>
-          <div style="font-size:0.68rem;opacity:0.5;">${r.total_watts} W total</div>
+          <div style="font-size:0.68rem;color:rgba(255,255,255,0.72);">${r.total_watts} W total</div>
         </div>
         <div style="background:#1F2E45;color:#fff;padding:1rem;border-radius:0.75rem;text-align:center;">
-          <div style="font-size:0.7rem;opacity:0.6;text-transform:uppercase;margin-bottom:0.25rem;">Lighting Power Density</div>
+          <div style="font-size:0.7rem;color:rgba(255,255,255,0.8);text-transform:uppercase;margin-bottom:0.25rem;">Lighting Power Density</div>
           <div style="font-size:1.8rem;font-weight:800;color:#29B6D9;">${r.lpd_W_m2}</div>
-          <div style="font-size:0.68rem;opacity:0.5;">W/m² (Room Cavity Ratio: ${r.RCR})</div>
+          <div style="font-size:0.68rem;color:rgba(255,255,255,0.72);">W/m² (Room Cavity Ratio: ${r.RCR})</div>
         </div>
       </div>
 
@@ -16781,9 +16785,9 @@ function renderShortCircuitReport(inputs, results, narrative) {
 
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem;">
         <div style="background:#162032;color:#fff;padding:1rem;border-radius:0.75rem;text-align:center;">
-          <div style="font-size:0.7rem;opacity:0.6;text-transform:uppercase;margin-bottom:0.25rem;">Available Fault Current</div>
+          <div style="font-size:0.7rem;color:rgba(255,255,255,0.8);text-transform:uppercase;margin-bottom:0.25rem;">Available Fault Current</div>
           <div style="font-size:1.8rem;font-weight:800;color:#F7A21B;">${r.Isc_kA} kA</div>
-          <div style="font-size:0.68rem;opacity:0.5;">3-phase symmetrical rms</div>
+          <div style="font-size:0.68rem;color:rgba(255,255,255,0.72);">3-phase symmetrical rms</div>
         </div>
         <div style="background:${icPass?'#16a34a':'#dc2626'};color:#fff;padding:1rem;border-radius:0.75rem;text-align:center;">
           <div style="font-size:0.7rem;opacity:0.8;text-transform:uppercase;margin-bottom:0.25rem;">Breaker IC Check</div>
@@ -16791,14 +16795,14 @@ function renderShortCircuitReport(inputs, results, narrative) {
           <div style="font-size:0.68rem;opacity:0.8;">${inputs.breaker_ic_kA} kA installed vs ${r.Isc_kA} kA required</div>
         </div>
         <div style="background:#1F2E45;color:#fff;padding:1rem;border-radius:0.75rem;text-align:center;">
-          <div style="font-size:0.7rem;opacity:0.6;text-transform:uppercase;margin-bottom:0.25rem;">Peak Asymmetrical</div>
+          <div style="font-size:0.7rem;color:rgba(255,255,255,0.8);text-transform:uppercase;margin-bottom:0.25rem;">Peak Asymmetrical</div>
           <div style="font-size:1.8rem;font-weight:800;color:#29B6D9;">${r.Ipeak_kA} kA</div>
-          <div style="font-size:0.68rem;opacity:0.5;">1.8 × Isc (IEC 60909)</div>
+          <div style="font-size:0.68rem;color:rgba(255,255,255,0.72);">1.8 × Isc (IEC 60909)</div>
         </div>
         <div style="background:#1F2E45;color:#fff;padding:1rem;border-radius:0.75rem;text-align:center;">
-          <div style="font-size:0.7rem;opacity:0.6;text-transform:uppercase;margin-bottom:0.25rem;">Total Z at Panel</div>
+          <div style="font-size:0.7rem;color:rgba(255,255,255,0.8);text-transform:uppercase;margin-bottom:0.25rem;">Total Z at Panel</div>
           <div style="font-size:1.8rem;font-weight:800;color:#29B6D9;">${r.Z_total_ohm} Ω</div>
-          <div style="font-size:0.68rem;opacity:0.5;">Xfmr + Cable impedance</div>
+          <div style="font-size:0.68rem;color:rgba(255,255,255,0.72);">Xfmr + Cable impedance</div>
         </div>
       </div>
 
@@ -28759,7 +28763,7 @@ function collectBomFromPreview() {
 // ─── Load history ──────────────────────────────────────────────────────────────
 async function loadHistory() {
   const list = document.getElementById('history-list');
-  list.innerHTML = '<div class="text-center py-8" style="color:rgba(255,255,255,0.3);">Loading...</div>';
+  list.innerHTML = '<div class="text-center py-8" style="color:rgba(255,255,255,0.6);">Loading...</div>';
 
   const { data, error } = await db
     .from('engineering_calcs')
@@ -28769,7 +28773,7 @@ async function loadHistory() {
     .limit(50);
 
   if (error || !data?.length) {
-    list/* xss-allow: hardcoded option list / numeric value, no user input */ .innerHTML = `<div class="text-center py-16" style="color:rgba(255,255,255,0.3);">
+    list/* xss-allow: hardcoded option list / numeric value, no user input */ .innerHTML = `<div class="text-center py-16" style="color:rgba(255,255,255,0.6);">
       <div style="font-size:2rem;margin-bottom:0.75rem;">📋</div>
       <div>No saved calculations yet.</div>
     </div>`;
@@ -28788,11 +28792,11 @@ async function loadHistory() {
         <div class="flex items-start justify-between gap-3">
           <div class="flex-1 min-w-0">
             <div class="font-semibold text-sm truncate">${escHtml(row.project_name || 'Untitled')}</div>
-            <div class="text-xs mt-0.5" style="color:rgba(255,255,255,0.4);">${escHtml(row.calc_type)} &nbsp;·&nbsp; ${escHtml(row.discipline)}</div>
+            <div class="text-xs mt-0.5" style="color:rgba(255,255,255,0.6);">${escHtml(row.calc_type)} &nbsp;·&nbsp; ${escHtml(row.discipline)}</div>
             ${summary ? `<div class="text-xs mt-1" style="color:#F7A21B;font-weight:600;">Result: ${escHtml(summary)}</div>` : ''}
           </div>
           <div class="text-right flex-shrink-0">
-            <div class="text-xs" style="color:rgba(255,255,255,0.3);">${dt}</div>
+            <div class="text-xs" style="color:rgba(255,255,255,0.6);">${dt}</div>
             <div class="flex gap-2 mt-2">
               <button class="btn-ghost text-xs py-1 px-3" onclick='viewHistoryReport(${JSON.stringify(row).replace(/'/g,"&#39;")})'>View</button>
               <button class="btn-ghost text-xs py-1 px-3" style="border-color:rgba(239,68,68,0.3);color:rgba(239,68,68,0.7);" onclick="deleteCalc('${row.id}')">Delete</button>
@@ -28975,7 +28979,7 @@ function switchBomTab(tab) {
 function renderBomChecklist() {
   const container = document.getElementById('bom-items-list');
   if (!_bomItems.length) {
-    container.innerHTML = '<div class="text-sm text-center py-4" style="color:rgba(255,255,255,0.3);">No items yet. Click + Add Item.</div>';
+    container.innerHTML = '<div class="text-sm text-center py-4" style="color:rgba(255,255,255,0.6);">No items yet. Click + Add Item.</div>';
     return;
   }
   container.innerHTML = _bomItems.map((item, i) => `
@@ -29033,7 +29037,7 @@ function addBomRow() {
 function renderSowChecklist() {
   const container = document.getElementById('sow-sections-list');
   if (!_sowSections.length) {
-    container.innerHTML = '<div class="text-sm text-center py-4" style="color:rgba(255,255,255,0.3);">No sections yet.</div>';
+    container.innerHTML = '<div class="text-sm text-center py-4" style="color:rgba(255,255,255,0.6);">No sections yet.</div>';
     return;
   }
   /* xss-allow: SOW checklist ternary outputs hardcoded CSS class, user-controlled labels passed through escHtml() in inner spans */
@@ -29046,7 +29050,7 @@ function renderSowChecklist() {
           <span class="text-xs font-semibold" style="color:#F7A21B;">${escHtml(sec.section_no || '')}</span>
           <span class="text-sm font-semibold ml-1" style="color:rgba(255,255,255,0.85);">${escHtml(sec.title || '')}</span>
         </div>
-        <span class="text-xs" style="color:rgba(255,255,255,0.3);" id="sow-toggle-icon-${i}">▼</span>
+        <span class="text-xs" style="color:rgba(255,255,255,0.6);" id="sow-toggle-icon-${i}">▼</span>
       </div>
       <div class="sow-item-body" id="sow-body-${i}" style="display:none;">
         <textarea class="bom-item-input" style="width:100%;min-height:64px;resize:vertical;padding:0.4rem 0.55rem;font-size:0.76rem;"

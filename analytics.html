@@ -37,7 +37,7 @@
     /* ── Header ── */
     .page-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; margin-bottom: 1.25rem; }
     .page-header h1 { font-size: 1.4rem; font-weight: 800; color: #fff; line-height: 1.2; }
-    .page-header p { font-size: 0.75rem; color: #7B8794; margin-top: 0.2rem; }
+    .page-header p { font-size: 0.75rem; color: #9aa6b3; margin-top: 0.2rem; }
     .header-badge { font-size: 0.6rem; font-weight: 700; padding: 0.2rem 0.5rem; border-radius: 999px; background: rgba(167,139,250,0.15); color: #a78bfa; border: 1px solid rgba(167,139,250,0.3); white-space: nowrap; margin-top: 0.25rem; }
 
     /* ── Period selector ── */
@@ -46,14 +46,14 @@
       font-family: 'Poppins', sans-serif; font-size: 0.72rem; font-weight: 600;
       padding: 0.4rem 0.875rem; border-radius: 999px; cursor: pointer; transition: all 0.15s;
       background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.5);
-      min-height: 36px;
+      min-height: 44px;
     }
     .period-btn.active { background: rgba(167,139,250,0.15); border-color: rgba(167,139,250,0.4); color: #a78bfa; }
     .refresh-btn {
       font-family: 'Poppins', sans-serif; font-size: 0.72rem; font-weight: 600;
       padding: 0.4rem 0.875rem; border-radius: 999px; cursor: pointer; transition: all 0.2s;
       background: rgba(167,139,250,0.1); border: 1px solid rgba(167,139,250,0.25); color: #a78bfa;
-      min-height: 36px; margin-left: auto; display: flex; align-items: center; gap: 0.35rem;
+      min-height: 44px; margin-left: auto; display: flex; align-items: center; gap: 0.35rem;
     }
     .refresh-btn:hover { background: rgba(167,139,250,0.18); }
     .refresh-btn:disabled { opacity: 0.4; cursor: not-allowed; }
@@ -74,12 +74,12 @@
     .filter-group { display: flex; flex-wrap: wrap; gap: 0.35rem; align-items: center; }
     .filter-label {
       font-size: 0.6rem; font-weight: 700; letter-spacing: 0.07em;
-      text-transform: uppercase; color: rgba(255,255,255,0.35);
+      text-transform: uppercase; color: rgba(255,255,255,0.6);
       margin-right: 0.5rem; flex-shrink: 0;
       min-width: 80px;
     }
     .filter-chip {
-      min-height: 32px;             /* visual; full row remains tappable */
+      min-height: 44px; min-width: 44px;   /* WCAG 2.5.8 / owner 44px tap rule */
       padding: 0.35rem 0.7rem;
       border-radius: 999px;
       background: rgba(255,255,255,0.04);
@@ -118,8 +118,8 @@
     .phase-tab {
       font-family: 'Poppins', sans-serif; font-size: 0.72rem; font-weight: 600;
       padding: 0.5rem 0.875rem; border-radius: 0.625rem; cursor: pointer; white-space: nowrap;
-      background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); color: rgba(255,255,255,0.4);
-      transition: all 0.15s; min-height: 36px;
+      background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); color: rgba(255,255,255,0.6);
+      transition: all 0.15s; min-height: 44px;
     }
     .phase-tab.active { background: rgba(167,139,250,0.12); border-color: rgba(167,139,250,0.35); color: #a78bfa; }
     .phase-tab.soon { opacity: 0.4; cursor: not-allowed; }
@@ -131,7 +131,7 @@
       margin-bottom: 1rem;
     }
     .card-title { font-size: 0.72rem; font-weight: 700; color: rgba(255,255,255,0.35); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem; }
-    .card-standard { font-size: 0.6rem; color: rgba(255,255,255,0.2); font-weight: 500; }
+    .card-standard { font-size: 0.6rem; color: rgba(255,255,255,0.6); font-weight: 500; }
 
     /* ── Tables ── */
     .data-table { width: 100%; border-collapse: collapse; font-size: 0.75rem; }
@@ -250,7 +250,7 @@
       font-family:inherit; font-size:0.72rem; font-weight:600;
       padding:0.35rem 0.875rem; border-radius:999px; cursor:pointer;
       background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08);
-      color:rgba(255,255,255,0.4); transition:all 0.15s; min-height:34px;
+      color:rgba(255,255,255,0.6); transition:all 0.15s; min-height:44px;
     }
     .role-btn.active { background:rgba(41,182,217,0.12); border-color:rgba(41,182,217,0.3); color:#29B6D9; }
     .role-btn .role-icon { margin-right:0.25rem; }
@@ -311,7 +311,7 @@
     /* Plain-Read summary (Layer D — UX Contract) */
     .verdict { display:flex; align-items:center; gap:12px; padding:14px 16px; margin-bottom:14px; border-radius:12px; border:1px solid; }
     .verdict-icon { font-size:1.5rem; line-height:1; font-weight:800; }
-    .verdict-text { font-size:0.9rem; font-weight:700; line-height:1.35; }
+    .verdict-text { font-size:0.9rem; font-weight:700; line-height:1.35; color:rgba(255,255,255,0.92); }
     .verdict-text small { display:block; font-size:0.72rem; font-weight:500; color:rgba(255,255,255,0.65); margin-top:3px; }
     .verdict.healthy { background:rgba(74,222,128,0.07);  border-color:rgba(74,222,128,0.3); }
     .verdict.healthy .verdict-icon { color:#4ade80; }
@@ -377,6 +377,14 @@
       <span id="refresh-label">Refresh</span>
     </button>
 
+    <!-- Recompute risk (Predictive phase, supervisors): risk scores are written by
+         the daily 13:00 PHT cron; this triggers an on-demand recompute for THIS hive
+         so predictive numbers can refresh now. Shown only on Predictive for supervisors. -->
+    <button class="refresh-btn" id="recompute-risk-btn" onclick="recomputeRiskScores()" title="Recompute this hive's risk scores now — instead of waiting for the daily 13:00 PHT run" style="display:none;">
+      <span id="recompute-risk-icon">↻</span>
+      <span id="recompute-risk-label">Recompute risk</span>
+    </button>
+
     <!-- Phase B merge: report tools now live as buttons inside Analytics, not as separate nav items -->
     <a href="analytics-report.html" class="refresh-btn" id="report-pdf-btn" title="Open the print-ready Analytics Report" style="text-decoration:none;">
       📄 <span style="margin-left:4px;">PDF Report</span>
@@ -418,21 +426,21 @@
         <div class="sc-hero" id="an-oee-hero">—</div>
         <div class="sc-sub" id="an-oee-sub">Loading...</div>
         <span class="sc-tag" id="an-oee-tag">—</span>
-        <small style="display:block;font-size:.55rem;color:rgba(255,255,255,0.4);margin-top:4px;">ISO 22400-2:2014 §5.5 · partial (A × Q) until ideal cycle time captured</small>
+        <small style="display:block;font-size:.55rem;color:rgba(255,255,255,0.6);margin-top:4px;">ISO 22400-2:2014 §5.5 · partial (A × Q) until ideal cycle time captured</small>
       </div>
       <div class="simple-card tag-grey" id="an-card-mtbf" data-rag-tile="analytics:mtbf" data-rag-label="Worst MTBF (partial)">
         <div class="sc-label">Worst MTBF (partial)</div>
         <div class="sc-hero" id="an-mtbf-hero">—</div>
         <div class="sc-sub" id="an-mtbf-sub">Loading...</div>
         <span class="sc-tag" id="an-mtbf-tag">—</span>
-        <small style="display:block;font-size:.55rem;color:rgba(255,255,255,0.4);margin-top:4px;">ISO 14224:2016 §9.3 · partial: calendar time (not operating time)</small>
+        <small style="display:block;font-size:.55rem;color:rgba(255,255,255,0.6);margin-top:4px;">ISO 14224:2016 §9.3 · partial: calendar time (not operating time)</small>
       </div>
       <div class="simple-card tag-grey" id="an-card-pm" data-rag-tile="analytics:pm_compliance" data-rag-label="PM compliance (30d approx)">
         <div class="sc-label">PM compliance (30d approx)</div>
         <div class="sc-hero" id="an-pm-hero">—</div>
         <div class="sc-sub" id="an-pm-sub">Loading...</div>
         <span class="sc-tag" id="an-pm-tag">—</span>
-        <small style="display:block;font-size:.55rem;color:rgba(255,255,255,0.4);margin-top:4px;">SMRP Best Practices v5.0 §2.1.1 · partial: 30-day floor approximation</small>
+        <small style="display:block;font-size:.55rem;color:rgba(255,255,255,0.6);margin-top:4px;">SMRP Best Practices v5.0 §2.1.1 · partial: 30-day floor approximation</small>
       </div>
     </div>
     <div class="action-card">
@@ -470,7 +478,7 @@
   <!-- Status bar: last updated + loading indicator -->
   <div id="status-bar" style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.75rem;min-height:20px;">
     <span id="status-dot" style="width:8px;height:8px;border-radius:50%;background:#4ade80;flex-shrink:0;display:none;"></span>
-    <span id="status-text" style="font-size:0.68rem;color:rgba(255,255,255,0.3);"></span>
+    <span id="status-text" style="font-size:0.68rem;color:rgba(255,255,255,0.6);"></span>
     <div id="status-spinner" class="spinner" style="width:14px;height:14px;border-width:2px;border-color:rgba(167,139,250,0.2);border-top-color:#a78bfa;display:none;"></div>
   </div>
 
@@ -524,7 +532,7 @@
     data-rag-label="Per-machine analytics results">
     <div class="card" style="padding:2rem;text-align:center;">
       <div class="spinner" style="width:32px;height:32px;border-width:3px;border-color:rgba(167,139,250,0.15);border-top-color:#a78bfa;margin:0 auto 1rem;"></div>
-      <p style="font-size:0.8rem;color:rgba(255,255,255,0.3);">Loading analytics...</p>
+      <p style="font-size:0.8rem;color:rgba(255,255,255,0.6);">Loading analytics...</p>
     </div>
   </div>
 
@@ -653,6 +661,13 @@
       banner/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = `<span>${icons[phase]||'📊'}</span><span>${PHASE_BANNERS[phase]}</span>`;
     }
 
+    // Recompute-risk button: only on Predictive, only for supervisors (2026-06-08).
+    // Risk scores feeding Predictive come from the daily cron snapshot; supervisors
+    // can recompute on demand here instead of waiting for 13:00 PHT.
+    const _rcBtn = document.getElementById('recompute-risk-btn');
+    if (_rcBtn) _rcBtn.style.display =
+      (phase === 'predictive' && HIVE_ROLE === 'supervisor' && HIVE_ID) ? 'inline-flex' : 'none';
+
     // Instant switch from cache if available
     if (_cache[phase]) {
       renderPhase(phase, _cache[phase]);
@@ -661,6 +676,37 @@
       // Phase not loaded yet — show skeleton and fetch it
       showSkeleton();
       fetchPhase(phase);
+    }
+  }
+
+  // ── On-demand risk recompute (Predictive, supervisors) — 2026-06-08 ─────────
+  // Risk scores (asset_risk_scores → v_risk_truth, surfaced in the Predictive
+  // phase) are written by the daily 13:00 PHT cron. This triggers a single-hive
+  // recompute via batch-risk-scoring (hive-membership-gated server-side), then
+  // invalidates + re-fetches the Predictive phase so numbers refresh immediately.
+  // functions.invoke auto-attaches the user's session JWT for the authZ gate.
+  async function recomputeRiskScores() {
+    if (!HIVE_ID) return;
+    const btn = document.getElementById('recompute-risk-btn');
+    const lbl = document.getElementById('recompute-risk-label');
+    if (btn && btn.disabled) return;
+    const orig = lbl ? lbl.textContent : 'Recompute risk';
+    if (btn) btn.disabled = true;
+    if (lbl) lbl.textContent = 'Recomputing…';
+    try {
+      const { data, error } = await db.functions.invoke('batch-risk-scoring', { body: { hive_id: HIVE_ID } });
+      if (error) throw error;
+      if (data && data.error) throw new Error(data.error);
+      _cache.predictive = null; _cacheTime.predictive = null;   // freshly written → drop stale cache
+      await fetchPhase('predictive');
+      if (lbl) lbl.textContent = '✓ Updated';
+      showToast('Risk scores recomputed for this hive');
+    } catch (err) {
+      console.warn('[analytics] recompute risk failed:', (err && err.message) || err);
+      if (lbl) lbl.textContent = '⚠ Try again';
+      showToast('Recompute failed — check console');
+    } finally {
+      setTimeout(() => { if (lbl) lbl.textContent = orig; if (btn) btn.disabled = false; }, 2600);
     }
   }
 
@@ -863,7 +909,7 @@
         <div class="spinner" style="width:40px;height:40px;border-width:3px;border-color:rgba(167,139,250,0.15);border-top-color:#a78bfa;margin-bottom:1.25rem;"></div>
         <div style="color:#a78bfa;font-size:0.7rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;margin-bottom:0.6rem;">WorkHive Analytics AI</div>
         <div id="loading-status-msg" style="font-size:0.85rem;font-weight:600;color:#fff;min-height:1.4rem;transition:opacity 0.4s;margin-bottom:0.4rem;">Loading...</div>
-        <div style="font-size:0.7rem;color:rgba(255,255,255,0.3);margin-bottom:1rem;">ISO 14224 standards-grade analysis</div>
+        <div style="font-size:0.7rem;color:rgba(255,255,255,0.6);margin-bottom:1rem;">ISO 14224 standards-grade analysis</div>
         <div style="display:flex;gap:0.5rem;">
           <div style="width:7px;height:7px;border-radius:50%;background:#a78bfa;animation:dotPulse 1.4s ease-in-out infinite;"></div>
           <div style="width:7px;height:7px;border-radius:50%;background:#a78bfa;animation:dotPulse 1.4s ease-in-out 0.2s infinite;"></div>
@@ -887,7 +933,7 @@
     const period = data.period_days || _period;
     const gen = data.generated_at ? new Date(data.generated_at).toLocaleString('en-PH') : '';
 
-    let html = `<p style="font-size:0.68rem;color:rgba(255,255,255,0.2);margin-bottom:1rem;">
+    let html = `<p style="font-size:0.68rem;color:rgba(255,255,255,0.6);margin-bottom:1rem;">
       Generated: ${escHtml(gen)} · Period: last ${period} days
     </p>`;
 
@@ -1089,7 +1135,7 @@
     if (!d?.oee_by_asset?.length) return `<div class="card">
       <div class="card-title">OEE — Overall Equipment Effectiveness <span class="card-standard">ISO 22400-2:2014 · partial (Availability × Quality)</span></div>
       <div class="empty" style="padding:1rem 0;">${escHtml(d?.note || 'No production_output data yet. Fill Quick Readings and production units in Breakdown entries.')}</div>
-      <p style="font-size:0.62rem;color:rgba(255,255,255,0.35);margin-top:0.5rem;">Full OEE = Availability × Performance × Quality. Performance requires per-asset ideal cycle time (not yet captured). Until then the platform reports the partial form.</p>
+      <p style="font-size:0.62rem;color:rgba(255,255,255,0.6);margin-top:0.5rem;">Full OEE = Availability × Performance × Quality. Performance requires per-asset ideal cycle time (not yet captured). Until then the platform reports the partial form.</p>
     </div>`;
     const rows = d.oee_by_asset.map(r => {
       const oee = r.oee_pct;
@@ -1107,7 +1153,7 @@
         <thead><tr><th>Machine</th><th class="num">Availability</th><th class="num">Quality</th><th class="num">OEE (partial)</th></tr></thead>
         <tbody>${rows}</tbody>
       </table>
-      <p style="font-size:0.62rem;color:rgba(255,255,255,0.35);margin-top:0.5rem;">Full OEE = <strong>Availability × Performance × Quality</strong>. Performance dimension pending per-asset ideal cycle time capture; this card shows the partial (A × Q) until that fuel field lands. 🟢 ≥85% World class · 🟡 ≥65% Typical · 🔴 &lt;65% Needs attention.</p>
+      <p style="font-size:0.62rem;color:rgba(255,255,255,0.6);margin-top:0.5rem;">Full OEE = <strong>Availability × Performance × Quality</strong>. Performance dimension pending per-asset ideal cycle time capture; this card shows the partial (A × Q) until that fuel field lands. 🟢 ≥85% World class · 🟡 ≥65% Typical · 🔴 &lt;65% Needs attention.</p>
     </div>`;
   }
 
@@ -1371,7 +1417,7 @@
         <div class="card-title">Repeat Failure Count <span class="card-standard">ISO 14224:2016</span></div>
         <div class="empty" style="padding:1rem 0;">
           <span style="color:#4ade80;">✓ No repeat failures detected.</span><br>
-          <span style="font-size:0.68rem;color:rgba(255,255,255,0.2);margin-top:0.25rem;display:block;">Same root cause on same machine ≥ 2 times indicates ineffective repair.</span>
+          <span style="font-size:0.68rem;color:rgba(255,255,255,0.6);margin-top:0.25rem;display:block;">Same root cause on same machine ≥ 2 times indicates ineffective repair.</span>
         </div>
       </div>`;
     }
@@ -1389,7 +1435,7 @@
     return `<div class="card">
       <div class="card-title">Repeat Failure Count <span class="card-standard">ISO 14224:2016 · ${d.repeat_pair_count} repeat pair(s) found</span></div>
       ${list}
-      <p style="font-size:0.65rem;color:rgba(255,255,255,0.2);margin-top:0.75rem;">${escHtml(d.note || '')}</p>
+      <p style="font-size:0.65rem;color:rgba(255,255,255,0.6);margin-top:0.75rem;">${escHtml(d.note || '')}</p>
     </div>`;
   }
 
@@ -1398,7 +1444,7 @@
     _kpiCardId = 0;
     const panel = document.getElementById('results-panel');
     const gen = data.generated_at ? new Date(data.generated_at).toLocaleString('en-PH') : '';
-    let html = `<p style="font-size:0.68rem;color:rgba(255,255,255,0.2);margin-bottom:1rem;">Generated: ${escHtml(gen)} · Period: last ${data.period_days} days</p>`;
+    let html = `<p style="font-size:0.68rem;color:rgba(255,255,255,0.6);margin-bottom:1rem;">Generated: ${escHtml(gen)} · Period: last ${data.period_days} days</p>`;
     // Order: root causes → recurrence → correlations (strategic→tactical) → taxonomy → QA
     html += renderFailureModeDistribution(data.failure_mode_distribution);  // top "why" signal
     html += renderRepeatFailureClustering(data.repeat_failure_clustering);  // root cause × machine = clearest action
@@ -1432,7 +1478,7 @@
     return `<div class="card">
       <div class="card-title">RCM Consequence Classification <span class="card-standard">SAE JA1011 §5.4 · ${d.coverage_pct}% coverage</span></div>
       ${bars}
-      <p style="font-size:0.65rem;color:rgba(255,255,255,0.2);margin-top:0.5rem;">${d.recorded_count} of ${d.total_failures} failures have consequence recorded. Coverage improves as team fills impact level on Breakdown entries.</p>
+      <p style="font-size:0.65rem;color:rgba(255,255,255,0.6);margin-top:0.5rem;">${d.recorded_count} of ${d.total_failures} failures have consequence recorded. Coverage improves as team fills impact level on Breakdown entries.</p>
     </div>`;
   }
 
@@ -1450,7 +1496,7 @@
     return `<div class="card">
       <div class="card-title">Failure Mode Distribution <span class="card-standard">ISO 14224:2016 · ${d.total_failures} total failures</span></div>
       ${bars}
-      <p style="font-size:0.65rem;color:rgba(255,255,255,0.2);margin-top:0.5rem;">Top mode: <strong style="color:#a78bfa">${escHtml(d.top_root_cause || '—')}</strong> accounts for ${d.top_root_cause_pct || 0}% of all failures.</p>
+      <p style="font-size:0.65rem;color:rgba(255,255,255,0.6);margin-top:0.5rem;">Top mode: <strong style="color:#a78bfa">${escHtml(d.top_root_cause || '—')}</strong> accounts for ${d.top_root_cause_pct || 0}% of all failures.</p>
     </div>`;
   }
 
@@ -1468,7 +1514,7 @@
           <div class="stat-tile"><div class="val" style="color:${sig ? '#f87171' : '#4ade80'}">${sig ? 'YES' : 'NO'}</div><div class="label">Significant?</div></div>
         </div>` : ''}
       <p style="font-size:0.75rem;color:rgba(255,255,255,0.6);line-height:1.5;">${escHtml(d.interpretation || d.note || '')}</p>
-      ${d.data_points ? `<p style="font-size:0.65rem;color:rgba(255,255,255,0.2);margin-top:0.5rem;">${d.data_points} machines analysed</p>` : ''}
+      ${d.data_points ? `<p style="font-size:0.65rem;color:rgba(255,255,255,0.6);margin-top:0.5rem;">${d.data_points} machines analysed</p>` : ''}
     </div>`;
   }
 
@@ -1483,7 +1529,7 @@
           <span class="${cls}" style="font-size:0.72rem;font-weight:700;">r = ${disc.correlation} ${sig ? '✓' : ''}</span>
         </div>
         <p style="font-size:0.7rem;color:rgba(255,255,255,0.5);">${escHtml(disc.interpretation)}</p>
-        ${disc.by_level.map(l => `<span style="font-size:0.65rem;color:rgba(255,255,255,0.35);margin-right:0.75rem;">L${l.level}: ${l.avg_mttr}h avg</span>`).join('')}
+        ${disc.by_level.map(l => `<span style="font-size:0.65rem;color:rgba(255,255,255,0.6);margin-right:0.75rem;">L${l.level}: ${l.avg_mttr}h avg</span>`).join('')}
       </div>`;
     }).join('');
     return `<div class="card">
@@ -1507,7 +1553,7 @@
         <div class="stat-tile"><div class="val">${d.median_mttr_h}h</div><div class="label">Median MTTR</div></div>
       </div>
       ${rows ? `<!-- table-name-allow: maintenance analytics data table --> <table class="data-table"><thead><tr><th>Machine</th><th class="num">Downtime</th><th class="num">Above avg</th><th>Date</th></tr></thead><tbody>${rows}</tbody></table>` : ''}
-      <p style="font-size:0.65rem;color:rgba(255,255,255,0.2);margin-top:0.75rem;">${escHtml(d.note || '')}</p>
+      <p style="font-size:0.65rem;color:rgba(255,255,255,0.6);margin-top:0.75rem;">${escHtml(d.note || '')}</p>
     </div>`;
   }
 
@@ -1521,7 +1567,7 @@
     return `<div class="card">
       <div class="card-title">Repeat Failure Clustering <span class="card-standard">ISO 14224:2016 · ${d.systemic_count} systemic issue(s)</span></div>
       ${systemic || '<p style="font-size:0.75rem;color:#4ade80;">✓ No systemic failures detected across machines.</p>'}
-      <p style="font-size:0.65rem;color:rgba(255,255,255,0.2);margin-top:0.75rem;">${escHtml(d.insight || '')}</p>
+      <p style="font-size:0.65rem;color:rgba(255,255,255,0.6);margin-top:0.75rem;">${escHtml(d.insight || '')}</p>
     </div>`;
   }
 
@@ -1550,7 +1596,7 @@
     _kpiCardId = 0;
     const panel = document.getElementById('results-panel');
     const gen = data.generated_at ? new Date(data.generated_at).toLocaleString('en-PH') : '';
-    let html = `<p style="font-size:0.68rem;color:rgba(255,255,255,0.2);margin-bottom:1rem;">Generated: ${escHtml(gen)} · Period: last ${data.period_days} days</p>`;
+    let html = `<p style="font-size:0.68rem;color:rgba(255,255,255,0.6);margin-bottom:1rem;">Generated: ${escHtml(gen)} · Period: last ${data.period_days} days</p>`;
     // Order: trend → specific predictions → triage → realtime sensors → schedule → supply → leading indicator
     html += renderFailureTrend(data.failure_trend);                  // high-altitude direction
     html += renderNextFailureDates(data.next_failure_dates);         // specific assets + dates — most actionable
@@ -1643,7 +1689,7 @@
     return `<div class="card">
       <div class="card-title">Anomaly Baseline Detection <span class="card-standard">ISO 7870-2 SPC · ${d.machines_tracked} machine(s) · ${d.anomaly_count} alert(s)</span><!-- native-dialog-allow: literal text in HTML string, not a function call --></div>
       ${anomalyHtml}
-      <p style="font-size:0.62rem;color:rgba(255,255,255,0.25);margin:0.75rem 0 0.4rem;text-transform:uppercase;letter-spacing:0.06em;font-weight:600;">Baseline reference (top 8 by sample count)</p>
+      <p style="font-size:0.62rem;color:rgba(255,255,255,0.6);margin:0.75rem 0 0.4rem;text-transform:uppercase;letter-spacing:0.06em;font-weight:600;">Baseline reference (top 8 by sample count)</p>
       ${baselineList}
     </div>`;
   }
@@ -1723,10 +1769,10 @@
         }
         const dateColor = isOverdue ? '#f87171' : p.risk === 'MEDIUM' ? '#F7A21B' : 'rgba(255,255,255,0.6)';
         const dateLabel = isOverdue ? `${escHtml(p.predicted_next)} ← past` : escHtml(p.predicted_next);
-        return `<tr style="${isSuspect ? 'opacity:0.6;' : ''}">
+        return `<tr style="${isSuspect ? 'background:rgba(247,162,27,0.06);' : ''}">
           <td class="machine-name">${escHtml(p.machine)}${isSuspect ? ' <span style="font-size:0.6rem;color:#F7A21B;">⚠</span>' : ''}</td>
           <td class="num" style="color:${isSuspect?'#F7A21B':'rgba(255,255,255,0.6)'};">${p.mtbf_days}d</td>
-          <td class="num" style="color:rgba(255,255,255,0.5);">${escHtml(p.last_failure)}</td>
+          <td class="num" style="color:rgba(255,255,255,0.6);">${escHtml(p.last_failure)}</td>
           <td class="num" style="color:${dateColor};font-size:0.72rem;">${dateLabel}</td>
           <td>${statusHtml}</td>
         </tr>`;
@@ -1745,7 +1791,7 @@
       detail: `
         ${list}
         ${suspectCount > 0 ? `<p style="font-size:0.65rem;color:#F7A21B;margin-top:0.75rem;">⚠ ${suspectCount} machine(s) with MTBF < 1 day — likely multiple failures logged in same shift. Review logbook entries for data accuracy.</p>` : ''}
-        <p style="font-size:0.62rem;color:rgba(255,255,255,0.2);margin-top:0.5rem;">Past dates mean the machine was due to fail again based on MTBF — check if a new failure was logged or if the machine is overdue for inspection.</p>`,
+        <p style="font-size:0.62rem;color:rgba(255,255,255,0.6);margin-top:0.5rem;">Past dates mean the machine was due to fail again based on MTBF — check if a new failure was logged or if the machine is overdue for inspection.</p>`,
       legend: 'Prediction = last logged failure date + mean interval between historical failures. Requires ≥ 2 failures per machine.',
     });
   }
@@ -1790,7 +1836,7 @@
         return `<div style="display:flex;justify-content:space-between;align-items:center;padding:0.5rem 0;border-bottom:1px solid rgba(255,255,255,0.04);">
           <div style="flex:1;min-width:0;">
             <p style="font-size:0.73rem;color:rgba(255,255,255,0.75);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escHtml(t.task)}</p>
-            <p style="font-size:0.62rem;color:rgba(255,255,255,0.3);margin-top:0.1rem;">${escHtml(t.frequency)} · Last: ${escHtml(t.last_done)}</p>
+            <p style="font-size:0.62rem;color:rgba(255,255,255,0.6);margin-top:0.1rem;">${escHtml(t.frequency)} · Last: ${escHtml(t.last_done)}</p>
           </div>
           <span style="font-size:0.68rem;font-weight:700;color:${tc};white-space:nowrap;margin-left:0.75rem;flex-shrink:0;">${escHtml(t.status)}</span>
         </div>`;
@@ -1802,9 +1848,9 @@
             <span style="width:8px;height:8px;border-radius:50%;background:${assetColor};flex-shrink:0;"></span>
             <span style="font-size:0.8rem;font-weight:700;color:#fff;text-align:left;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escHtml(assetName)}</span>
             ${badge}
-            <span style="font-size:0.65rem;color:rgba(255,255,255,0.3);">${tasks.length} task${tasks.length!==1?'s':''}</span>
+            <span style="font-size:0.65rem;color:rgba(255,255,255,0.6);">${tasks.length} task${tasks.length!==1?'s':''}</span>
           </div>
-          <span id="${id}-chev" style="font-size:0.65rem;color:rgba(255,255,255,0.25);transition:transform 0.25s;flex-shrink:0;margin-left:0.5rem;${autoOpen?'transform:rotate(180deg)':''}">▼</span>
+          <span id="${id}-chev" style="font-size:0.65rem;color:rgba(255,255,255,0.6);transition:transform 0.25s;flex-shrink:0;margin-left:0.5rem;${autoOpen?'transform:rotate(180deg)':''}">▼</span>
         </button>
         <div id="${id}" style="max-height:${autoOpen?'800px':'0'};overflow:hidden;transition:max-height 0.3s ease;padding:${autoOpen?'0 1rem':'0'};background:rgba(22,32,50,0.4);">
           <div style="padding-bottom:0.5rem;">${taskRows}</div>
@@ -1920,7 +1966,7 @@
     _kpiCardId = 0;
     const panel = document.getElementById('results-panel');
     const gen = data.generated_at ? new Date(data.generated_at).toLocaleString('en-PH') : '';
-    let html = `<p style="font-size:0.68rem;color:rgba(255,255,255,0.2);margin-bottom:1rem;">Generated: ${escHtml(gen)} · Period: last ${data.period_days} days</p>`;
+    let html = `<p style="font-size:0.68rem;color:rgba(255,255,255,0.6);margin-bottom:1rem;">Generated: ${escHtml(gen)} · Period: last ${data.period_days} days</p>`;
     // Order: AI synthesis → triage → this-week ops actions → scheduling change → HR development
     if (data.action_plan) html += renderActionPlan(data.action_plan);  // cross-phase synthesis
     html += renderPriorityRanking(data.priority_ranking);              // which assets to attack first
@@ -1939,7 +1985,7 @@
       <div class="card-title" style="color:#a78bfa;">⚡ AI Action Plan <span class="card-standard">WorkHive AI · ISO 55000:2014</span></div>
       ${plan.summary ? `<p style="font-size:0.8rem;font-weight:600;color:#fff;margin-bottom:0.75rem;">${escHtml(plan.summary)}</p>` : ''}
       <ul style="padding-left:1.25rem;font-size:0.75rem;line-height:1.7;">${items}</ul>
-      ${watchItems ? `<div style="margin-top:0.75rem;"><p style="font-size:0.65rem;color:rgba(255,255,255,0.3);margin-bottom:0.4rem;">Watch list:</p>${watchItems}</div>` : ''}
+      ${watchItems ? `<div style="margin-top:0.75rem;"><p style="font-size:0.65rem;color:rgba(255,255,255,0.6);margin-bottom:0.4rem;">Watch list:</p>${watchItems}</div>` : ''}
     </div>`;
   }
 
@@ -1966,7 +2012,7 @@
     return `<div class="card">
       <div class="card-title">Priority Maintenance Ranking <span class="card-standard">ISO 55001 · 🔴 ${d.p1_count} P1 · 🟡 ${d.p2_count} P2</span></div>
       ${list}
-      <p style="font-size:0.62rem;color:rgba(255,255,255,0.2);margin-top:0.5rem;">Score = Criticality × Failure count × Avg downtime. P1 ≥ 150, P2 ≥ 60.</p>
+      <p style="font-size:0.62rem;color:rgba(255,255,255,0.6);margin-top:0.5rem;">Score = Criticality × Failure count × Avg downtime. P1 ≥ 150, P2 ≥ 60.</p>
     </div>`;
   }
 

@@ -109,7 +109,7 @@
     .btn-danger {
       min-height: 44px;
       background: transparent;
-      color: #ef4444;
+      color: #f87171;
       font-weight: 600;
       border-radius: 0.75rem;
       padding: 0.5rem 1rem;
@@ -125,7 +125,7 @@
       min-height: 44px;
       background: none;
       border: none;
-      color: rgba(255,255,255,0.4);
+      color: rgba(255,255,255,0.6);
       font-size: 0.75rem;
       cursor: pointer;
       display: inline-flex;
@@ -276,15 +276,15 @@
 <!-- ── NAV ── -->
 <nav class="fixed top-0 left-0 right-0 z-30" style="background:rgba(22,32,50,0.92); border-bottom:1px solid rgba(255,255,255,0.06); backdrop-filter:blur(12px); padding-top:env(safe-area-inset-top);">
   <div class="max-w-2xl mx-auto px-5 h-14 flex items-center justify-between">
-    <a href="index.html" class="flex items-center gap-2 text-white/40 hover:text-white/70 transition-colors text-sm">
+    <a href="index.html" class="flex items-center gap-2 text-white/60 hover:text-white/70 transition-colors text-sm min-h-[44px]">
       <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
       <img src="brand_assets/workhive-logo-transparent.png" alt="WorkHive" class="h-7 w-auto" />
     </a>
     <div class="flex items-center gap-3">
-      <span id="nav-worker" class="text-xs text-white/40 truncate max-w-[120px]"></span>
+      <span id="nav-worker" class="text-xs text-white/60 truncate max-w-[120px]"></span>
       <!-- Notification bell -->
       <div class="relative" id="notif-wrapper" style="display:none;">
-        <button id="notif-bell" title="Notifications" aria-label="Notifications" style="position:relative; background:none; border:none; cursor:pointer; padding:6px; color:rgba(255,255,255,0.4); min-height:44px; min-width:44px; display:flex; align-items:center; justify-content:center;">
+        <button id="notif-bell" title="Notifications" aria-label="Notifications" style="position:relative; background:none; border:none; cursor:pointer; padding:6px; color:rgba(255,255,255,0.6); min-height:44px; min-width:44px; display:flex; align-items:center; justify-content:center;">
           <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
           </svg>
@@ -294,7 +294,7 @@
         <div id="notif-panel" class="hidden" style="position:absolute; top:calc(100% + 4px); right:0; width:300px; background:rgba(22,32,50,0.98); border:1px solid rgba(255,255,255,0.1); border-radius:1rem; box-shadow:0 8px 32px rgba(0,0,0,0.5); backdrop-filter:blur(12px); z-index:100; overflow:hidden;">
           <div class="px-4 pt-3 pb-2 border-b border-white/[0.07] flex items-center justify-between">
             <p class="text-xs font-bold text-white/70">Notifications</p>
-            <button id="notif-mark-read" style="background:none;border:none;cursor:pointer;font-size:0.65rem;font-weight:600;color:rgba(255,255,255,0.3);">Mark all read</button>
+            <button id="notif-mark-read" style="background:none;border:none;cursor:pointer;font-size:0.65rem;font-weight:600;color:rgba(255,255,255,0.6);">Mark all read</button>
           </div>
           <div id="notif-list" class="py-2" style="max-height:320px; overflow-y:auto;"></div>
         </div>
@@ -316,7 +316,7 @@
           </svg>
         </div>
         <h1 class="text-2xl font-black text-white mb-2">Your Hive</h1>
-        <p class="text-sm text-white/40 mb-8 leading-relaxed">Join or create a team to share work, see who's active, and track your hive's jobs in real time.</p>
+        <p class="text-sm text-white/60 mb-8 leading-relaxed">Join or create a team to share work, see who's active, and track your hive's jobs in real time.</p>
         <div class="flex flex-col gap-3">
           <button id="btn-go-create" class="btn-primary">Create a Hive</button>
           <button id="btn-go-join" class="btn-ghost">Join with Code</button>
@@ -332,8 +332,8 @@
           Back
         </button>
         <h2 class="text-xl font-black text-white mb-1">Create Your Hive</h2>
-        <p class="text-xs text-white/40 mb-6 leading-relaxed">Name your team. You'll get a 6-character code to share with your crew at briefing.</p>
-        <label for="hive-name-input" class="block text-xs font-semibold text-white/50 uppercase tracking-widest mb-2">Hive Name</label>
+        <p class="text-xs text-white/60 mb-6 leading-relaxed">Name your team. You'll get a 6-character code to share with your crew at briefing.</p>
+        <label for="hive-name-input" class="block text-xs font-semibold text-white/60 uppercase tracking-widest mb-2">Hive Name</label>
         <input id="hive-name-input" type="text" placeholder="e.g. Electrical Team A" maxlength="40" class="wh-input mb-2" autocomplete="off" />
         <p id="create-error" class="text-xs text-red-400 mb-3 hidden">Please enter a hive name.</p>
         <button id="btn-submit-create" class="btn-primary mt-2">Create Hive</button>
@@ -346,11 +346,11 @@
         <div class="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-5" style="background:rgba(34,197,94,0.15); border:1px solid rgba(34,197,94,0.3);">
           <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="#4ade80" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
         </div>
-        <p class="text-[11px] font-semibold text-white/40 uppercase tracking-widest mb-1">Hive Created</p>
+        <p class="text-[11px] font-semibold text-white/60 uppercase tracking-widest mb-1">Hive Created</p>
         <h2 id="code-hive-name" class="text-xl font-black text-white mb-6"></h2>
-        <p class="text-xs text-white/50 mb-3">Share this code with your team:</p>
+        <p class="text-xs text-white/60 mb-3">Share this code with your team:</p>
         <div class="code-display mb-4" id="code-value"></div>
-        <p class="text-[11px] text-white/30 mb-8 leading-relaxed">Read it at briefing or post it in your group chat. Members enter this code to join your hive.</p>
+        <p class="text-[11px] text-white/60 mb-8 leading-relaxed">Read it at briefing or post it in your group chat. Members enter this code to join your hive.</p>
         <button id="btn-enter-board" class="btn-primary">Go to Live Board →</button>
       </div>
     </div>
@@ -363,8 +363,8 @@
           Back
         </button>
         <h2 class="text-xl font-black text-white mb-1">Join a Hive</h2>
-        <p class="text-xs text-white/40 mb-6 leading-relaxed">Enter the 6-character code your supervisor gave you.</p>
-        <label for="join-code-input" class="block text-xs font-semibold text-white/50 uppercase tracking-widest mb-2">Invite Code</label>
+        <p class="text-xs text-white/60 mb-6 leading-relaxed">Enter the 6-character code your supervisor gave you.</p>
+        <label for="join-code-input" class="block text-xs font-semibold text-white/60 uppercase tracking-widest mb-2">Invite Code</label>
         <input id="join-code-input" type="text" placeholder="ABC123" maxlength="6" autocomplete="off" autocapitalize="characters"
           class="wh-input mb-2 text-center font-black tracking-widest uppercase"
           style="font-size:1.5rem; letter-spacing:0.35em;" />
@@ -379,23 +379,23 @@
         <div class="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-5" style="background:rgba(34,197,94,0.15); border:1px solid rgba(34,197,94,0.3);">
           <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="#4ade80" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
         </div>
-        <p class="text-[11px] font-semibold text-white/40 uppercase tracking-widest mb-1">You're In</p>
+        <p class="text-[11px] font-semibold text-white/60 uppercase tracking-widest mb-1">You're In</p>
         <h2 id="welcome-hive-name" class="text-xl font-black text-white mb-2"></h2>
-        <p class="text-xs text-white/40 mb-6 leading-relaxed">Your records are now visible to your team:</p>
+        <p class="text-xs text-white/60 mb-6 leading-relaxed">Your records are now visible to your team:</p>
 
         <div class="flex gap-3 mb-6">
           <div class="welcome-stat">
             <p class="text-2xl font-black text-white" id="welcome-log-count">—</p>
-            <p class="text-[11px] text-white/40 mt-1">Logbook Entries</p>
+            <p class="text-[11px] text-white/60 mt-1">Logbook Entries</p>
           </div>
           <div class="welcome-stat">
             <p class="text-2xl font-black text-white" id="welcome-parts-count">—</p>
-            <p class="text-[11px] text-white/40 mt-1">Jobs Closed</p>
+            <p class="text-[11px] text-white/60 mt-1">Jobs Closed</p>
           </div>
         </div>
 
         <div class="rounded-xl p-3 mb-6 text-left" style="background:rgba(41,182,217,0.06); border:1px solid rgba(41,182,217,0.15);">
-          <p class="text-[11px] text-white/50 leading-relaxed">
+          <p class="text-[11px] text-white/60 leading-relaxed">
             Your registered assets and inventory items stay on this device for now. They'll sync to the hive in Stage 2.
           </p>
         </div>
@@ -412,9 +412,9 @@
         <div>
           <div class="flex items-center gap-2 mb-1">
             <span class="conn-dot reconnecting" id="conn-dot"></span>
-            <span id="conn-label" class="text-xs text-white/40 font-semibold">Connecting...</span>
+            <span id="conn-label" class="text-xs text-white/60 font-semibold">Connecting...</span>
           </div>
-          <h2 class="text-2xl font-black text-white" id="board-hive-name"></h2>
+          <h1 class="text-2xl font-black text-white" id="board-hive-name">Hive Board</h1>
           <div id="hive-role-tag" class="mt-1 hidden">
             <span class="supervisor-tag">
               <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
@@ -453,7 +453,7 @@
           <button id="btn-show-code" class="hidden text-xs font-semibold" style="color:#29B6D9; background:none; border:none; cursor:pointer; min-height:44px; padding:0.5rem 0;">
             Show Invite Code
           </button>
-          <button id="btn-switch-hive" class="hidden text-xs font-semibold" style="color:rgba(255,255,255,0.35); background:none; border:none; cursor:pointer; min-height:44px; padding:0.5rem 0;">
+          <button id="btn-switch-hive" class="hidden text-xs font-semibold" style="color:rgba(255,255,255,0.6); background:none; border:none; cursor:pointer; min-height:44px; padding:0.5rem 0;">
             Switch Hive
           </button>
         </div>
@@ -461,16 +461,16 @@
 
       <!-- Invite code strip (supervisor only, toggleable) -->
       <div id="code-strip" class="hidden wh-card p-4 mb-5 text-center">
-        <p class="text-[11px] text-white/40 mb-2">Share this code with your team:</p>
+        <p class="text-[11px] text-white/60 mb-2">Share this code with your team:</p>
         <div class="code-display" id="code-strip-value" style="font-size:1.5rem; padding:0.75rem 1rem;"></div>
-        <p class="text-[11px] text-white/25 mt-2">Anyone with this code can join your hive.</p>
+        <p class="text-[11px] text-white/60 mt-2">Anyone with this code can join your hive.</p>
       </div>
 
       <!-- Presence bar -->
       <div class="mb-4">
-        <p class="text-[11px] font-semibold text-white/30 uppercase tracking-widest mb-2">On Shift Now</p>
+        <p class="text-[11px] font-semibold text-white/60 uppercase tracking-widest mb-2">On Shift Now</p>
         <div id="presence-bar" class="flex gap-2 overflow-x-auto pb-1">
-          <span class="presence-chip" style="color:rgba(255,255,255,0.2); font-style:italic;">Connecting...</span>
+          <span class="presence-chip" style="color:rgba(255,255,255,0.6); font-style:italic;">Connecting...</span>
         </div>
       </div>
 
@@ -532,11 +532,11 @@
       <div class="grid grid-cols-2 gap-3 mb-4">
         <div class="wh-card p-4 text-center">
           <p class="text-2xl font-black text-white" id="stat-open">&#8212;</p>
-          <p class="text-[11px] text-white/40 mt-1">Open Work Orders</p>
+          <p class="text-[11px] text-white/60 mt-1">Open Work Orders</p>
         </div>
         <div class="wh-card p-4 text-center">
           <p class="text-2xl font-black" style="color:#29B6D9" id="stat-members">&#8212;</p>
-          <p class="text-[11px] text-white/40 mt-1">Team Members</p>
+          <p class="text-[11px] text-white/60 mt-1">Team Members</p>
         </div>
       </div>
 
@@ -556,7 +556,7 @@
             <div style="display:flex; align-items:center; gap:10px;">
               <span id="stair-badge" style="display:inline-flex; align-items:center; gap:6px; padding:4px 10px; border-radius:999px; font-size:10px; font-weight:800; letter-spacing:0.06em; text-transform:uppercase; background:rgba(74,159,212,0.18); color:#7DCFFF;">Stair 0 · Paper</span>
               <span id="stair-composite" style="font-size:1.7rem; font-weight:900; color:#F4F6FA; line-height:1;">--</span>
-              <span style="font-size:11px; color:rgba(255,255,255,0.4); letter-spacing:0.04em;">/100 readiness</span>
+              <span style="font-size:11px; color:rgba(255,255,255,0.6); letter-spacing:0.04em;">/100 readiness</span>
             </div>
             <button id="stair-explain-btn" type="button" style="background:rgba(255,255,255,0.04); color:rgba(255,255,255,0.55); border:1px solid rgba(255,255,255,0.08); border-radius:8px; padding:10px 16px; font-family:inherit; font-size:11px; font-weight:600; cursor:pointer; min-height:44px; min-width:44px;">Why?</button>
           </div>
@@ -628,22 +628,22 @@
           <h3 style="margin:0 0 0.5rem; font-size:1.05rem; font-weight:800; letter-spacing:0.02em;">Why are you here?</h3>
           <p style="margin:0 0 1rem; font-size:0.78rem; color:rgba(255,255,255,0.65); line-height:1.5;">One quick question so WorkHive can prioritise the right tools for your hive. Pick the one that matters most.</p>
           <div role="radiogroup" style="display:grid; gap:0.4rem; margin-bottom:0.8rem;">
-            <label class="ic-opt" style="display:flex; align-items:center; gap:0.5rem; padding:0.6rem 0.7rem; border:1px solid rgba(255,255,255,0.08); border-radius:0.5rem; cursor:pointer; font-size:0.78rem;">
+            <label class="ic-opt" style="display:flex; align-items:center; gap:0.5rem; padding:0.6rem 0.7rem; border:1px solid rgba(255,255,255,0.08); border-radius:0.5rem; cursor:pointer; font-size:0.78rem; min-height:44px;">
               <input type="radio" name="intent-primary" value="predictive" style="accent-color:#F7A21B;"> Predictive maintenance: stop failures before they happen
             </label>
-            <label class="ic-opt" style="display:flex; align-items:center; gap:0.5rem; padding:0.6rem 0.7rem; border:1px solid rgba(255,255,255,0.08); border-radius:0.5rem; cursor:pointer; font-size:0.78rem;">
+            <label class="ic-opt" style="display:flex; align-items:center; gap:0.5rem; padding:0.6rem 0.7rem; border:1px solid rgba(255,255,255,0.08); border-radius:0.5rem; cursor:pointer; font-size:0.78rem; min-height:44px;">
               <input type="radio" name="intent-primary" value="downtime" style="accent-color:#F7A21B;"> Reduce downtime: get production running faster
             </label>
-            <label class="ic-opt" style="display:flex; align-items:center; gap:0.5rem; padding:0.6rem 0.7rem; border:1px solid rgba(255,255,255,0.08); border-radius:0.5rem; cursor:pointer; font-size:0.78rem;">
+            <label class="ic-opt" style="display:flex; align-items:center; gap:0.5rem; padding:0.6rem 0.7rem; border:1px solid rgba(255,255,255,0.08); border-radius:0.5rem; cursor:pointer; font-size:0.78rem; min-height:44px;">
               <input type="radio" name="intent-primary" value="training" style="accent-color:#F7A21B;"> Train workers: skill matrix + knowledge capture
             </label>
-            <label class="ic-opt" style="display:flex; align-items:center; gap:0.5rem; padding:0.6rem 0.7rem; border:1px solid rgba(255,255,255,0.08); border-radius:0.5rem; cursor:pointer; font-size:0.78rem;">
+            <label class="ic-opt" style="display:flex; align-items:center; gap:0.5rem; padding:0.6rem 0.7rem; border:1px solid rgba(255,255,255,0.08); border-radius:0.5rem; cursor:pointer; font-size:0.78rem; min-height:44px;">
               <input type="radio" name="intent-primary" value="compliance" style="accent-color:#F7A21B;"> Compliance: PSME, DOLE, ISO 14224 evidence
             </label>
-            <label class="ic-opt" style="display:flex; align-items:center; gap:0.5rem; padding:0.6rem 0.7rem; border:1px solid rgba(255,255,255,0.08); border-radius:0.5rem; cursor:pointer; font-size:0.78rem;">
+            <label class="ic-opt" style="display:flex; align-items:center; gap:0.5rem; padding:0.6rem 0.7rem; border:1px solid rgba(255,255,255,0.08); border-radius:0.5rem; cursor:pointer; font-size:0.78rem; min-height:44px;">
               <input type="radio" name="intent-primary" value="cmms_replace" style="accent-color:#F7A21B;"> Replace our spreadsheets / CMMS
             </label>
-            <label class="ic-opt" style="display:flex; align-items:center; gap:0.5rem; padding:0.6rem 0.7rem; border:1px solid rgba(255,255,255,0.08); border-radius:0.5rem; cursor:pointer; font-size:0.78rem;">
+            <label class="ic-opt" style="display:flex; align-items:center; gap:0.5rem; padding:0.6rem 0.7rem; border:1px solid rgba(255,255,255,0.08); border-radius:0.5rem; cursor:pointer; font-size:0.78rem; min-height:44px;">
               <input type="radio" name="intent-primary" value="other" style="accent-color:#F7A21B;"> Something else
             </label>
           </div>
@@ -673,7 +673,7 @@
             <div style="display:flex; align-items:center; gap:10px;">
               <span id="adoption-tier-badge" style="display:inline-flex; align-items:center; gap:6px; padding:4px 10px; border-radius:999px; font-size:10px; font-weight:800; letter-spacing:0.06em; text-transform:uppercase; background:rgba(74,222,128,0.18); color:#4ade80;">Healthy</span>
               <span id="adoption-risk-score" style="font-size:1.7rem; font-weight:900; color:#F4F6FA; line-height:1;">--</span>
-              <span style="font-size:11px; color:rgba(255,255,255,0.4); letter-spacing:0.04em;" title="WorkHive Adoption Risk — platform-internal composite (Phase 3 Adoption Observability)">/100 composite risk · WorkHive Adoption Risk</span>
+              <span style="font-size:11px; color:rgba(255,255,255,0.6); letter-spacing:0.04em;" title="WorkHive Adoption Risk — platform-internal composite (Phase 3 Adoption Observability)">/100 composite risk · WorkHive Adoption Risk</span>
             </div>
             <button id="adoption-explain-btn" type="button" style="background:rgba(255,255,255,0.04); color:rgba(255,255,255,0.55); border:1px solid rgba(255,255,255,0.08); border-radius:8px; padding:10px 16px; font-family:inherit; font-size:11px; font-weight:600; cursor:pointer; min-height:44px; min-width:44px;">Why?</button>
           </div>
@@ -740,7 +740,7 @@
           <div class="flex-1 min-w-0">
             <p class="text-xs font-bold text-red-400 mb-0.5">PM Tasks Overdue</p>
             <p class="text-xs text-white/60" id="pm-overdue-text"></p>
-            <a href="pm-scheduler.html" class="text-xs font-semibold mt-1.5 inline-block" style="color:#f87171;">Open PM Scheduler &#8594;</a>
+            <a href="pm-scheduler.html" class="text-xs font-semibold mt-1.5" style="color:#f87171;min-height:44px;display:inline-flex;align-items:center;">Open PM Scheduler &#8594;</a>
           </div>
         </div>
       </div>
@@ -753,7 +753,7 @@
           <div class="flex-1 min-w-0">
             <p class="text-xs font-bold text-orange-wh mb-0.5">Your Stock Alert</p>
             <p class="text-xs text-white/60" id="stock-alert-text"></p>
-            <a href="inventory.html" class="text-xs font-semibold mt-1.5 inline-block" style="color:#F7A21B;">View Inventory &#8594;</a>
+            <a href="inventory.html" class="text-xs font-semibold mt-1.5" style="color:#F7A21B; display:inline-flex; align-items:center; min-height:44px;">View Inventory &#8594;</a>
           </div>
         </div>
       </div>
@@ -766,7 +766,7 @@
           <p class="text-xs font-bold text-red-400">Team Stock Issues</p>
         </div>
         <div id="team-stock-list" class="flex flex-col gap-2"></div>
-        <a href="inventory.html" class="text-[11px] font-semibold mt-2 inline-block" style="color:#f87171;">View your inventory &#8594;</a>
+        <a href="inventory.html" class="text-[11px] font-semibold mt-2" style="color:#f87171;min-height:44px;display:inline-flex;align-items:center;">View your inventory &#8594;</a>
       </div>
 
       <!-- Today's Brief (AI, auto-loaded, 8h cache). Source chip anchors
@@ -774,13 +774,13 @@
            types that produce them. Populated by loadTodaysBrief(). -->
       <div id="todays-brief-panel" class="hidden mb-5">
         <div class="flex items-center justify-between mb-2">
-          <p class="text-[11px] font-semibold text-white/30 uppercase tracking-widest">Today's Brief</p>
+          <p class="text-[11px] font-semibold text-white/60 uppercase tracking-widest">Today's Brief</p>
           <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full" style="background:rgba(248,113,113,0.12);color:#f87171;">AI</span>
         </div>
         <div class="wh-card p-4">
           <p id="todays-brief-source-chip" style="margin:0 0 8px;"></p>
           <div id="todays-brief-content">
-            <p class="text-xs text-white/30">Loading...</p>
+            <p class="text-xs text-white/60">Loading...</p>
           </div>
         </div>
       </div>
@@ -792,13 +792,13 @@
         <button id="coach-toggle-btn" type="button" aria-expanded="false" aria-controls="coach-body"
           style="width:100%; display:flex; align-items:center; justify-content:space-between; gap:8px; padding:12px 16px; background:rgba(167,139,250,0.06); color:#a78bfa; border:1px solid rgba(167,139,250,0.25); border-radius:12px; font-family:inherit; font-size:0.82rem; font-weight:700; cursor:pointer; min-height:44px;">
           <span style="display:flex; align-items:center; gap:8px;">
-            <span style="font-size:10px; font-weight:800; letter-spacing:0.06em; text-transform:uppercase; opacity:0.6;">AI</span>
+            <span style="font-size:10px; font-weight:800; letter-spacing:0.06em; text-transform:uppercase; opacity:0.95;">AI</span>
             Ask the Reliability Coach
           </span>
           <span id="coach-toggle-icon" style="font-size:0.7rem; opacity:0.7;">&#9656;</span>
         </button>
         <div id="coach-body" class="wh-card p-4 mt-2" style="display:none;">
-          <p class="text-[11px] text-white/40 mb-3">Ask about your plant's maintenance priorities. The coach analyzes failure history, PM status, inventory, and predictions to give you 3 specific actions.</p>
+          <p class="text-[11px] text-white/60 mb-3">Ask about your plant's maintenance priorities. The coach analyzes failure history, PM status, inventory, and predictions to give you 3 specific actions.</p>
           <!-- Source chip — anchors the coach's actions to the edge fn
                + data slices it reads, so the supervisor can audit the
                recommendations. Populated by askCoach() on each invocation. -->
@@ -816,14 +816,14 @@
            auditable. Populated by loadBenchmarks(). -->
       <div id="benchmark-panel" class="hidden mb-5">
         <div class="flex items-center justify-between mb-2">
-          <p class="text-[11px] font-semibold text-white/30 uppercase tracking-widest">Network Benchmark</p>
+          <p class="text-[11px] font-semibold text-white/60 uppercase tracking-widest">Network Benchmark</p>
           <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full" style="background:rgba(41,182,217,0.12);color:#29B6D9;">WorkHive Network</span>
         </div>
         <div class="wh-card p-4">
-          <p class="text-[11px] text-white/40 mb-3">How your plant compares to similar plants on WorkHive. Anonymized — no individual plants are identified.</p>
+          <p class="text-[11px] text-white/60 mb-3">How your plant compares to similar plants on WorkHive. Anonymized — no individual plants are identified.</p>
           <p id="benchmark-source-chip" style="margin:0 0 8px;"></p>
           <div id="benchmark-content">
-            <p class="text-xs text-white/30">Loading benchmarks...</p>
+            <p class="text-xs text-white/60">Loading benchmarks...</p>
           </div>
         </div>
       </div>
@@ -834,7 +834,7 @@
            alert; populated in loadPatternAlerts(). -->
       <div id="pattern-alerts-panel" class="hidden mb-5">
         <div class="flex items-center justify-between mb-2">
-          <p class="text-[11px] font-semibold text-white/30 uppercase tracking-widest">Pattern Alerts</p>
+          <p class="text-[11px] font-semibold text-white/60 uppercase tracking-widest">Pattern Alerts</p>
           <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full" style="background:rgba(248,113,113,0.12);color:#f87171;">Pre-failure</span>
         </div>
         <p id="pattern-alerts-source-chip" style="margin:0 0 8px;"></p>
@@ -843,13 +843,13 @@
 
       <!-- Hive Activity (hero) -->
       <div class="flex items-center justify-between mb-3">
-        <p class="text-[11px] font-semibold text-white/30 uppercase tracking-widest">Hive Activity</p>
-        <span class="text-[11px] text-white/20">Live</span>
+        <p class="text-[11px] font-semibold text-white/60 uppercase tracking-widest">Hive Activity</p>
+        <span class="text-[11px] text-white/60">Live</span>
       </div>
       <div id="feed-empty" class="hidden wh-card p-8 text-center">
         <svg class="w-8 h-8 mx-auto mb-3 text-white/10" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
-        <p class="text-sm text-white/30">No activity yet in this hive.</p>
-        <p class="text-xs text-white/20 mt-1">Logbook entries from team members will appear here.</p>
+        <p class="text-sm text-white/60">No activity yet in this hive.</p>
+        <p class="text-xs text-white/60 mt-1">Logbook entries from team members will appear here.</p>
       </div>
       <div id="feed" class="flex flex-col gap-3"></div>
       <div id="feed-more" class="hidden mt-3">
@@ -862,9 +862,9 @@
            handover covered. Populated by generateHandover(). -->
       <div id="handover-panel" class="hidden mt-5 mb-5">
         <div class="flex items-center justify-between mb-2">
-          <p class="text-[11px] font-semibold text-white/30 uppercase tracking-widest">Shift Handover</p>
+          <p class="text-[11px] font-semibold text-white/60 uppercase tracking-widest">Shift Handover</p>
         </div>
-        <p class="text-xs mb-3" style="color:rgba(255,255,255,0.35);">Auto-generates a summary of this shift — completed jobs, open items, LOTO alerts, and watch list — ready to share with the next team.</p>
+        <p class="text-xs mb-3" style="color:rgba(255,255,255,0.6);">Auto-generates a summary of this shift — completed jobs, open items, LOTO alerts, and watch list — ready to share with the next team.</p>
         <p id="handover-source-chip" style="margin:0 0 8px;"></p>
         <button class="handover-btn" onclick="generateHandover()">
           <svg class="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
@@ -878,7 +878,7 @@
           <div class="px-5 pt-5 pb-4 flex items-center justify-between" style="border-bottom:1px solid rgba(255,255,255,0.07);">
             <div>
               <p class="font-black text-white text-base" id="ho-title">Shift Handover Report</p>
-              <p class="text-xs mt-0.5" style="color:rgba(255,255,255,0.35);" id="ho-meta"></p>
+              <p class="text-xs mt-0.5" style="color:rgba(255,255,255,0.6);" id="ho-meta"></p>
             </div>
             <button onclick="document.getElementById('handover-sheet').classList.add('hidden')" aria-label="Close handover sheet" class="w-8 h-8 rounded-full flex items-center justify-center" style="background:rgba(255,255,255,0.08);border:none;cursor:pointer;color:rgba(255,255,255,0.5);">&#x2715;</button>
           </div>
@@ -899,19 +899,19 @@
            PM overdue + stock issues from the canonical truth views;
            source chip anchors them so the supervisor can reconcile. -->
       <div id="team-pulse-panel" class="hidden mb-5">
-        <p class="text-[11px] font-semibold text-white/30 uppercase tracking-widest mb-2">Team Pulse</p>
+        <p class="text-[11px] font-semibold text-white/60 uppercase tracking-widest mb-2">Team Pulse</p>
         <div class="grid grid-cols-3 gap-2">
           <div class="rounded-xl p-3 text-center" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);">
             <p class="text-xl font-black text-white" id="pulse-jobs-today">&#8212;</p>
-            <p class="text-[10px] text-white/35 mt-0.5 leading-tight">Jobs Today</p>
+            <p class="text-[10px] text-white/60 mt-0.5 leading-tight">Jobs Today</p>
           </div>
           <div class="rounded-xl p-3 text-center" style="background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.18);" title="SMRP 2.1.1 partial — 30-day floor approximation">
             <p class="text-xl font-black text-red-400" id="pulse-pm-overdue">&#8212;</p>
-            <p class="text-[10px] text-white/35 mt-0.5 leading-tight">PMs Overdue<br/><span style="font-size:9px; color:rgba(255,255,255,0.3);">(30d approximation)</span></p>
+            <p class="text-[10px] text-white/60 mt-0.5 leading-tight">PMs Overdue<br/><span style="font-size:9px; color:rgba(255,255,255,0.6);">(30d approximation)</span></p>
           </div>
           <div class="rounded-xl p-3 text-center" style="background:rgba(247,162,27,0.06);border:1px solid rgba(247,162,27,0.18);">
             <p class="text-xl font-black" style="color:#F7A21B;" id="pulse-stock-issues">&#8212;</p>
-            <p class="text-[10px] text-white/35 mt-0.5 leading-tight">Stock Issues</p>
+            <p class="text-[10px] text-white/60 mt-0.5 leading-tight">Stock Issues</p>
           </div>
         </div>
         <p id="team-pulse-source-chip" style="margin:8px 0 0;"></p>
@@ -920,13 +920,13 @@
       <!-- Approval Queue (supervisor only, always open) -->
       <div id="approval-queue" class="hidden mb-5">
         <div class="flex items-center gap-2 mb-2">
-          <p class="text-[11px] font-semibold text-white/30 uppercase tracking-widest">Approval Queue</p>
+          <p class="text-[11px] font-semibold text-white/60 uppercase tracking-widest">Approval Queue</p>
           <span id="approval-badge" class="hidden text-[10px] font-black px-1.5 py-0.5 rounded-full" style="background:#F7A21B;color:#162032;min-width:18px;text-align:center;"></span>
         </div>
         <div id="approval-body">
           <div id="approval-list" class="flex flex-col gap-2"></div>
           <div id="approval-empty" class="hidden rounded-xl p-4 text-center" style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);">
-            <p class="text-xs text-white/30">All caught up: no pending items.</p>
+            <p class="text-xs text-white/60">All caught up: no pending items.</p>
           </div>
         </div>
       </div>
@@ -934,8 +934,8 @@
       <!-- Roster -->
       <div class="mb-5">
         <div class="flex items-center justify-between mb-2">
-          <p class="text-[11px] font-semibold text-white/30 uppercase tracking-widest">Roster</p>
-          <button id="btn-toggle-members" style="color:#29B6D9; background:none; border:none; cursor:pointer; font-size:0.75rem; font-weight:600; min-height:44px; padding:0.5rem 0;">Show</button>
+          <p class="text-[11px] font-semibold text-white/60 uppercase tracking-widest">Roster</p>
+          <button id="btn-toggle-members" style="color:#29B6D9; background:none; border:none; cursor:pointer; font-size:0.75rem; font-weight:600; min-height:44px; min-width:44px; padding:0.5rem 0.5rem;">Show</button>
         </div>
         <div id="members-list" style="display:none; flex-direction:column; gap:0.5rem;"></div>
       </div>
@@ -943,13 +943,13 @@
       <!-- Audit Log (supervisor only) -->
       <div id="audit-log-section" class="hidden mb-5">
         <div class="flex items-center justify-between mb-2">
-          <p class="text-[11px] font-semibold text-white/30 uppercase tracking-widest">Supervisor Action Log</p>
-          <button id="btn-toggle-audit" style="color:#29B6D9;background:none;border:none;cursor:pointer;font-size:0.75rem;font-weight:600;min-height:44px;padding:0.5rem 0;">Hide</button>
+          <p class="text-[11px] font-semibold text-white/60 uppercase tracking-widest">Supervisor Action Log</p>
+          <button id="btn-toggle-audit" style="color:#29B6D9;background:none;border:none;cursor:pointer;font-size:0.75rem;font-weight:600;min-height:44px;min-width:44px;padding:0.5rem 0.5rem;">Hide</button>
         </div>
         <div id="audit-log-body">
           <div id="audit-log-list" class="flex flex-col gap-2"></div>
           <div id="audit-log-empty" class="hidden rounded-xl p-4 text-center" style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);">
-            <p class="text-xs text-white/30">No supervisor actions recorded yet.</p>
+            <p class="text-xs text-white/60">No supervisor actions recorded yet.</p>
           </div>
         </div>
       </div>
@@ -967,7 +967,7 @@
 <div id="modal-hive-switch" role="dialog" aria-modal="true" aria-label="Switch hive" class="hidden fixed inset-0 z-50 flex items-end justify-center" style="background:rgba(0,0,0,0.6); backdrop-filter:blur(4px); padding-bottom:env(safe-area-inset-bottom);">
   <div class="wh-card w-full max-w-lg p-6 mx-4 mb-6">
     <h3 class="text-lg font-black text-white mb-1">Your Hives</h3>
-    <p class="text-xs text-white/40 mb-4">Switch between hives or join a new one.</p>
+    <p class="text-xs text-white/60 mb-4">Switch between hives or join a new one.</p>
     <div id="hive-switch-list" class="flex flex-col gap-2 mb-4"></div>
     <button id="btn-hive-switch-join" class="btn-ghost mb-2">Join Another Hive</button>
     <button id="btn-hive-switch-cancel" class="btn-text" style="display:block;text-align:center;width:100%;">Cancel</button>
@@ -978,8 +978,8 @@
 <div id="modal-sup-leave" role="dialog" aria-modal="true" aria-label="Leave hive" class="hidden fixed inset-0 z-50 flex items-end justify-center" style="background:rgba(0,0,0,0.6); backdrop-filter:blur(4px); padding-bottom:env(safe-area-inset-bottom);">
   <div class="wh-card w-full max-w-lg p-6 mx-4 mb-6">
     <h3 class="text-lg font-black text-white mb-1">You're the Supervisor</h3>
-    <p class="text-xs text-white/50 mb-5 leading-relaxed">Before you leave, you can transfer the supervisor role. Without a supervisor, no one can manage the hive or remove members.</p>
-    <label for="sup-transfer-select" class="block text-xs font-semibold text-white/50 uppercase tracking-widest mb-2">Transfer role to</label>
+    <p class="text-xs text-white/60 mb-5 leading-relaxed">Before you leave, you can transfer the supervisor role. Without a supervisor, no one can manage the hive or remove members.</p>
+    <label for="sup-transfer-select" class="block text-xs font-semibold text-white/60 uppercase tracking-widest mb-2">Transfer role to</label>
     <select id="sup-transfer-select" class="wh-input mb-4"></select>
     <button id="btn-sup-transfer-leave" class="btn-primary mb-3">Transfer &amp; Leave</button>
     <button id="btn-sup-leave-anyway" class="btn-ghost mb-3">Leave Without Transferring</button>
@@ -1139,10 +1139,10 @@ function buildFeedCard(entry, isNew) {
           <span class="text-xs font-bold text-white/80" data-worker-name="${workerName}">${workerName}</span>
           <span class="status-badge ${statusCls}">${escHtml(status)}</span>
           ${cat ? `<span class="cat-badge" style="${catStyle(entry.category)}">${cat}</span>` : ''}
-          <span class="text-[11px] text-white/25 ml-auto">${time}</span>
+          <span class="text-[11px] text-white/60 ml-auto">${time}</span>
         </div>
         <p class="text-sm font-semibold text-white">${machine}</p>
-        ${problem ? `<p class="text-xs text-white/50 mt-0.5 leading-relaxed" style="overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;">${problem}</p>` : ''}
+        ${problem ? `<p class="text-xs text-white/60 mt-0.5 leading-relaxed" style="overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;">${problem}</p>` : ''}
       </div>
     </div>
   </div>`;
@@ -1170,11 +1170,11 @@ function buildPartsCard(record, isNew) {
           <span class="text-xs font-bold text-white/80" data-worker-name="${workerName}">${workerName}</span>
           <span class="status-badge" style="background:rgba(41,182,217,0.15);color:#5fcce8;">Parts Used</span>
           ${jobType ? `<span class="cat-badge" style="background:rgba(41,182,217,0.1);color:#60a5fa;">${jobType}</span>` : ''}
-          <span class="text-[11px] text-white/25 ml-auto">${time}</span>
+          <span class="text-[11px] text-white/60 ml-auto">${time}</span>
         </div>
         <p class="text-sm font-semibold text-white">${jobRef}</p>
-        ${partSummary ? `<p class="text-xs text-white/50 mt-0.5">${partSummary}</p>` : ''}
-        <p class="text-[11px] text-white/30 mt-0.5">${parts.length} part${parts.length !== 1 ? 's' : ''} used</p>
+        ${partSummary ? `<p class="text-xs text-white/60 mt-0.5">${partSummary}</p>` : ''}
+        <p class="text-[11px] text-white/60 mt-0.5">${parts.length} part${parts.length !== 1 ? 's' : ''} used</p>
       </div>
     </div>
   </div>`;
@@ -1203,12 +1203,12 @@ function buildPMCard(record, isNew) {
         <div class="flex items-center gap-2 flex-wrap mb-1">
           <span class="text-xs font-bold text-white/80" data-worker-name="${workerName}">${workerName}</span>
           <span class="status-badge" style="background:rgba(247,162,27,0.12);color:#F7A21B;">PM Done</span>
-          ${freq ? `<span class="cat-badge" style="background:${freqCls[freq] || 'rgba(255,255,255,0.06);color:rgba(255,255,255,0.4)'};">${freqMap[freq] || freq}</span>` : ''}
-          <span class="text-[11px] text-white/25 ml-auto">${time}</span>
+          ${freq ? `<span class="cat-badge" style="background:${freqCls[freq] || 'rgba(255,255,255,0.06);color:rgba(255,255,255,0.6)'};">${freqMap[freq] || freq}</span>` : ''}
+          <span class="text-[11px] text-white/60 ml-auto">${time}</span>
         </div>
         <p class="text-sm font-semibold text-white/90 truncate">${assetName}</p>
-        <p class="text-xs text-white/50 truncate mt-0.5">${itemText}</p>
-        <a href="pm-scheduler.html" class="text-[11px] font-semibold mt-1 inline-block" style="color:#F7A21B;">View in PM Scheduler →</a>
+        <p class="text-xs text-white/60 truncate mt-0.5">${itemText}</p>
+        <a href="pm-scheduler.html" class="text-[11px] font-semibold mt-1" style="color:#F7A21B;min-height:44px;display:inline-flex;align-items:center;">View in PM Scheduler →</a>
       </div>
     </div>
   </div>`;
@@ -1616,7 +1616,7 @@ document.getElementById('btn-show-code').addEventListener('click', () => {
 
 // ── BOARD INIT ──
 async function initBoard() {
-  document.getElementById('board-hive-name').textContent = escHtml(HIVE_NAME);
+  document.getElementById('board-hive-name').textContent = HIVE_NAME || 'Hive Board'; // textContent is XSS-safe (no HTML parse); escHtml would double-escape. Fallback keeps the h1 non-empty (a11y).
 
   // Source/window chip for the Hive Board KPI strip. Single chip covers the
   // three canonical sources the board reads (logbook for Open Work, PM compliance
@@ -2315,7 +2315,7 @@ async function loadKnowledgePipeline() {
         <div style="font-size:0.58rem; font-weight:700; letter-spacing:0.05em; text-transform:uppercase; color:rgba(255,255,255,0.5); margin-bottom:4px;">${e(KIND_LABEL[r.kind] || r.kind)}</div>
         <div style="display:flex; align-items:baseline; gap:4px;">
           <span style="font-size:1.1rem; font-weight:800; color:${color};">${pct}%</span>
-          <span style="font-size:0.6rem; color:rgba(255,255,255,0.4);">embedded</span>
+          <span style="font-size:0.6rem; color:rgba(255,255,255,0.6);">embedded</span>
         </div>
         <div style="font-size:0.58rem; color:rgba(255,255,255,0.45); margin-top:3px;">
           ${e(String(r.embedded_rows || 0))} / ${e(String(r.total_rows || 0))} rows
@@ -2479,12 +2479,12 @@ async function loadMembers() {
     const openJobs = openByWorker[m.worker_name] || 0;
     const workloadColor = openJobs >= 5 ? '#f87171' : openJobs >= 3 ? '#F7A21B' : '#4ade80';
     const workloadBadge = openJobs > 0
-      ? `<span class="text-[10px] font-black px-2 py-0.5 rounded-full flex-shrink-0" style="background:rgba(255,255,255,0.06);color:${workloadColor};">${openJobs} open</span>`
-      : `<span class="text-[10px] text-white/20 flex-shrink-0">clear</span>`;
+      ? `<span class="text-[10px] font-black px-2 py-0.5 rounded-full flex-shrink-0" style="background:rgba(0,0,0,0.28);color:${workloadColor};">${openJobs} open</span>`
+      : `<span class="text-[10px] text-white/60 flex-shrink-0">clear</span>`;
     return `<div class="flex items-center gap-3 p-3 rounded-xl" style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.06); margin-bottom:0.5rem;">
       <div style="flex-shrink:0;padding-bottom:${(memberTiers[m.worker_name]||0)>0?'8px':'0'}">${renderWorkerAvatar(m.worker_name, memberTiers[m.worker_name] || 0, 32)}</div>
       <div class="flex-1 min-w-0">
-        <p class="text-sm font-semibold text-white truncate">${escHtml(m.worker_name)}${isMe ? ' <span style="color:rgba(255,255,255,0.3);font-size:0.65rem;">(you)</span>' : ''}</p>
+        <p class="text-sm font-semibold text-white truncate">${escHtml(m.worker_name)}${isMe ? ' <span style="color:rgba(255,255,255,0.6);font-size:0.65rem;">(you)</span>' : ''}</p>
         ${isSup ? '<span class="supervisor-tag" style="font-size:0.55rem; padding:1px 6px; margin-top:2px; display:inline-flex;">Supervisor</span>' : ''}
       </div>
       ${workloadBadge}
@@ -2668,7 +2668,7 @@ function _openWorkerProfileDrawer(workerName) {
         '&times;' +
       '</button>' +
     '</div>' +
-    '<p style="font-size:.72rem; color:rgba(255,255,255,.4); margin:2px 0 16px;">Loading profile&hellip;</p>' +
+    '<p style="font-size:.72rem; color:rgba(255,255,255,.6); margin:2px 0 16px;">Loading profile&hellip;</p>' +
     '<div id="wh-wp-body" style="display:flex; flex-direction:column; gap:12px;"></div>';
   drawer.style.display = 'flex';
 
@@ -2699,25 +2699,25 @@ function _openWorkerProfileDrawer(workerName) {
           '<p style="font-size:.82rem; font-weight:700; color:#F4F6FA; margin:0;">' + xp + '</p>' +
         '</div>' +
         '<div style="padding:10px 12px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:10px;">' +
-          '<p style="font-size:.55rem; font-weight:700; text-transform:uppercase; letter-spacing:.07em; color:rgba(255,255,255,0.4); margin:0 0 2px;">Role</p>' +
+          '<p style="font-size:.55rem; font-weight:700; text-transform:uppercase; letter-spacing:.07em; color:rgba(255,255,255,0.6); margin:0 0 2px;">Role</p>' +
           '<p style="font-size:.82rem; font-weight:700; color:#F4F6FA; margin:0; text-transform:capitalize;">' + escHtml(role) + '</p>' +
         '</div>' +
         '<div style="padding:10px 12px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:10px;">' +
-          '<p style="font-size:.55rem; font-weight:700; text-transform:uppercase; letter-spacing:.07em; color:rgba(255,255,255,0.4); margin:0 0 2px;">Joined</p>' +
+          '<p style="font-size:.55rem; font-weight:700; text-transform:uppercase; letter-spacing:.07em; color:rgba(255,255,255,0.6); margin:0 0 2px;">Joined</p>' +
           '<p style="font-size:.82rem; font-weight:700; color:#F4F6FA; margin:0;">' + escHtml(joined) + '</p>' +
         '</div>' +
       '</div>' +
       '<div>' +
-        '<p style="font-size:.55rem; font-weight:700; text-transform:uppercase; letter-spacing:.07em; color:rgba(255,255,255,0.4); margin:14px 0 6px;">Recent activity</p>' +
+        '<p style="font-size:.55rem; font-weight:700; text-transform:uppercase; letter-spacing:.07em; color:rgba(255,255,255,0.6); margin:14px 0 6px;">Recent activity</p>' +
         (recent.length
           ? recent.map(r =>
               '<div style="padding:8px 10px; background:rgba(255,255,255,0.03); border-radius:8px; margin-bottom:6px;">' +
                 '<p style="font-size:.78rem; font-weight:600; color:#F4F6FA; margin:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">' + escHtml(r.machine || 'Unknown machine') + '</p>' +
                 '<p style="font-size:.66rem; color:rgba(255,255,255,0.5); margin:2px 0 0;">' + escHtml(r.problem || '(no problem note)') + '</p>' +
-                '<p style="font-size:.6rem; color:rgba(255,255,255,0.35); margin:2px 0 0;">' + (r.created_at ? new Date(r.created_at).toLocaleDateString() : '-') + ' &middot; ' + escHtml(r.status || 'Open') + '</p>' +
+                '<p style="font-size:.6rem; color:rgba(255,255,255,0.6); margin:2px 0 0;">' + (r.created_at ? new Date(r.created_at).toLocaleDateString() : '-') + ' &middot; ' + escHtml(r.status || 'Open') + '</p>' +
               '</div>'
             ).join('')
-          : '<p style="font-size:.72rem; color:rgba(255,255,255,0.35); margin:0;">No recent logbook entries.</p>') +
+          : '<p style="font-size:.72rem; color:rgba(255,255,255,0.6); margin:0;">No recent logbook entries.</p>') +
       '</div>';
     const sub = panel.querySelector('p:nth-of-type(1) + p');
     if (sub) sub.style.display = 'none';
@@ -2727,14 +2727,14 @@ function _openWorkerProfileDrawer(workerName) {
 function renderPresenceFallback() {
   const bar = document.getElementById('presence-bar');
   if (!memberNames.length) {
-    bar.innerHTML = '<span class="presence-chip" style="color:rgba(255,255,255,0.2);font-style:italic;">Members offline</span>';
+    bar.innerHTML = '<span class="presence-chip" style="color:rgba(255,255,255,0.6);font-style:italic;">Members offline</span>';
     return;
   }
   bar.innerHTML = memberNames.map(name => {
     const isMe = name === WORKER_NAME;
     return `<div class="presence-chip" role="button" tabindex="0" style="cursor:pointer; min-height:44px;" onclick="_openWorkerProfileDrawer('${escHtml(name).replace(/'/g,"\\'")}')">
       <span class="presence-dot offline"></span>
-      ${escHtml(name)}${isMe ? '&nbsp;<span style="color:rgba(255,255,255,0.3);font-size:0.6rem">(you)</span>' : ''}
+      ${escHtml(name)}${isMe ? '&nbsp;<span style="color:rgba(255,255,255,0.6);font-size:0.6rem">(you)</span>' : ''}
     </div>`;
   }).join('');
 }
@@ -2745,7 +2745,7 @@ function renderPresence() {
   const bar       = document.getElementById('presence-bar');
 
   if (!onlineKeys.length) {
-    bar.innerHTML = '<span class="presence-chip" style="color:rgba(255,255,255,0.2);font-style:italic;">No one online yet</span>';
+    bar.innerHTML = '<span class="presence-chip" style="color:rgba(255,255,255,0.6);font-style:italic;">No one online yet</span>';
     return;
   }
 
@@ -2754,7 +2754,7 @@ function renderPresence() {
     const isMe = key === WORKER_NAME;
     return `<div class="presence-chip" role="button" tabindex="0" style="cursor:pointer; min-height:44px;" onclick="_openWorkerProfileDrawer('${name.replace(/'/g,"\\'")}')">
       <span class="presence-dot online"></span>
-      ${name}${isMe ? '&nbsp;<span style="color:rgba(255,255,255,0.3);font-size:0.6rem">(you)</span>' : ''}
+      ${name}${isMe ? '&nbsp;<span style="color:rgba(255,255,255,0.6);font-size:0.6rem">(you)</span>' : ''}
     </div>`;
   }).join('');
 }
@@ -2926,7 +2926,7 @@ function renderNotifs() {
 
   const list = document.getElementById('notif-list');
   if (!_notifs.length) {
-    list.innerHTML = '<p class="text-xs text-white/30 text-center py-6">No notifications yet.</p>';
+    list.innerHTML = '<p class="text-xs text-white/60 text-center py-6">No notifications yet.</p>';
     return;
   }
 
@@ -3143,11 +3143,11 @@ async function checkTeamStockAlert() {
     return `<div class="flex items-center gap-2">
       <span style="width:8px;height:8px;border-radius:50%;background:${dotColor};flex-shrink:0;"></span>
       <span class="text-xs text-white font-semibold flex-1" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escHtml(it.part_name)}</span>
-      <span class="text-[10px] text-white/40">${escHtml(it.worker_name)}</span>
+      <span class="text-[10px] text-white/60">${escHtml(it.worker_name)}</span>
       <span class="text-[10px] font-bold px-2 py-0.5 rounded-full" style="background:${tagBg};color:${tagFg};">${tagText}</span>
     </div>`;
   }).join('') + (hidden > 0
-    ? `<div class="text-[10px] text-white/40 mt-1">+${hidden} more — view inventory for the full list</div>`
+    ? `<div class="text-[10px] text-white/60 mt-1">+${hidden} more — view inventory for the full list</div>`
     : '');
 
   document.getElementById('team-stock-alert').classList.remove('hidden');
@@ -3196,7 +3196,7 @@ function renderApprovalQueue() {
         <span class="text-[10px] font-bold px-1.5 py-0.5 rounded-full flex-shrink-0 mt-0.5" style="background:rgba(41,182,217,0.12);color:#29B6D9;border:1px solid rgba(41,182,217,0.2);">ASSET</span>
         <div class="flex-1 min-w-0">
           <p class="text-xs font-bold text-white">${escHtml(a.asset_id)}${a.name ? ': ' + escHtml(a.name) : ''}</p>
-          <p class="text-[11px] text-white/40">by ${escHtml(a.submitted_by || a.worker_name)} · ${a.criticality ? escHtml(a.criticality) : 'No criticality set'}${a.location ? ' · ' + escHtml(a.location) : ''}</p>
+          <p class="text-[11px] text-white/60">by ${escHtml(a.submitted_by || a.worker_name)} · ${a.criticality ? escHtml(a.criticality) : 'No criticality set'}${a.location ? ' · ' + escHtml(a.location) : ''}</p>
         </div>
       </div>
       <div class="flex gap-2">
@@ -3211,7 +3211,7 @@ function renderApprovalQueue() {
         <span class="text-[10px] font-bold px-1.5 py-0.5 rounded-full flex-shrink-0 mt-0.5" style="background:rgba(139,92,246,0.12);color:#a78bfa;border:1px solid rgba(139,92,246,0.2);">PART</span>
         <div class="flex-1 min-w-0">
           <p class="text-xs font-bold text-white">${escHtml(p.part_number)}: ${escHtml(p.part_name)}</p>
-          <p class="text-[11px] text-white/40">by ${escHtml(p.submitted_by || p.worker_name)} · Qty: ${p.qty_on_hand}${p.category ? ' · ' + escHtml(p.category) : ''}</p>
+          <p class="text-[11px] text-white/60">by ${escHtml(p.submitted_by || p.worker_name)} · Qty: ${p.qty_on_hand}${p.category ? ' · ' + escHtml(p.category) : ''}</p>
         </div>
       </div>
       <div class="flex gap-2">
@@ -3442,7 +3442,7 @@ async function loadAuditLog() {
       <span class="text-sm font-black flex-shrink-0 mt-0.5" style="color:${cfg.color};width:16px;text-align:center;">${cfg.icon}</span>
       <div class="flex-1 min-w-0">
         <p class="text-xs font-semibold text-white/80">${escHtml(cfg.label)} <span class="font-black text-white">${escHtml(row.target_name || '')}</span>${sub}</p>
-        <p class="text-[10px] text-white/30 mt-0.5">${escHtml(row.actor)} · ${when}</p>
+        <p class="text-[10px] text-white/60 mt-0.5">${escHtml(row.actor)} · ${when}</p>
       </div>
     </div>`;
   }).join('');
@@ -3545,7 +3545,7 @@ async function loadTodaysBrief() {
       <p class="text-xs text-white/70 leading-relaxed">${b.text}</p>
     </div>`
   ).join('');
-  if (ageText) html += `<p class="text-[10px] text-white/20 mt-2">Updated ${escHtml(ageText)}</p>`;
+  if (ageText) html += `<p class="text-[10px] text-white/60 mt-2">Updated ${escHtml(ageText)}</p>`;
 
   el.innerHTML = html;
   try { sessionStorage.setItem(cacheKey, JSON.stringify({ html, ts: Date.now() })); } catch { /* empty-catch-allow: best-effort silent swallow */ }
@@ -3614,8 +3614,8 @@ async function loadPatternAlerts() {
           <div style="flex:1;">
             <div class="flex items-center gap-2 mb-1">
               <span class="text-[10px] font-bold px-2 py-0.5 rounded-full" style="background:${color}22;color:${color};">${escHtml(label)}</span>
-              <span class="text-[10px] text-white/30">${escHtml(a.machine)}</span>
-              <span class="text-[10px] text-white/20">${dt}</span>
+              <span class="text-[10px] text-white/60">${escHtml(a.machine)}</span>
+              <span class="text-[10px] text-white/60">${dt}</span>
             </div>
             <p class="text-[12px] font-semibold text-white/90 mb-1">${escHtml(a.title)}</p>
             ${a.detail ? `<p class="text-[11px] text-white/55 leading-snug">${escHtml(a.detail)}</p>` : ''}
@@ -3706,7 +3706,7 @@ async function loadBenchmarks() {
       html += '<div style="display:grid; grid-template-columns:1fr auto; gap:8px; padding:8px 0; border-bottom:1px solid rgba(255,255,255,0.05); align-items:center;">'
         + '<div>'
         + '<p style="font-size:.78rem; font-weight:600; color:rgba(255,255,255,0.85);">' + escHtml(h.equipment_category) + '</p>'
-        + '<p style="font-size:.67rem; color:rgba(255,255,255,0.35); margin-top:1px;">Network avg: ' + escHtml(netAvg) + (netTop ? ' · Top 25%: ' + escHtml(netTop) : '') + (net.sample_hives ? ' · ' + net.sample_hives + ' plants' : '') + '</p>'
+        + '<p style="font-size:.67rem; color:rgba(255,255,255,0.6); margin-top:1px;">Network avg: ' + escHtml(netAvg) + (netTop ? ' · Top 25%: ' + escHtml(netTop) : '') + (net.sample_hives ? ' · ' + net.sample_hives + ' plants' : '') + '</p>'
         + '</div>'
         + '<div style="text-align:right;">'
         + '<p style="font-size:.88rem; font-weight:800; color:' + color + ';">' + escHtml(myMTBF) + '</p>'
@@ -3761,7 +3761,7 @@ async function askCoach() {
   btn.disabled    = true;
   btn.textContent = '...';
   result.style.display = 'block';
-  result.innerHTML = '<p style="color:rgba(255,255,255,0.3); font-size:0.78rem;">Analyzing your plant data...</p>';
+  result.innerHTML = '<p style="color:rgba(255,255,255,0.6); font-size:0.78rem;">Analyzing your plant data...</p>';
 
   try {
     const { data, error } = await db.functions.invoke('ai-orchestrator', {
@@ -3771,7 +3771,7 @@ async function askCoach() {
 
     const actions = data?.actions;
     if (!actions || !actions.length) {
-      result.innerHTML = '<p style="color:rgba(255,255,255,0.4); font-size:0.78rem;">Not enough data yet to generate recommendations. Keep logging maintenance entries.</p>';
+      result.innerHTML = '<p style="color:rgba(255,255,255,0.6); font-size:0.78rem;">Not enough data yet to generate recommendations. Keep logging maintenance entries.</p>';
       return;
     }
 
@@ -3780,9 +3780,9 @@ async function askCoach() {
       const uc = urgencyColor[a.urgency] || '#a78bfa';
       return `<div style="border-left:2px solid ${uc}; padding:8px 12px; margin-bottom:8px; background:rgba(0,0,0,0.2); border-radius:0 8px 8px 0;">
         <div style="display:flex; align-items:center; gap:8px; margin-bottom:4px;">
-          <span style="font-size:0.7rem; font-weight:800; color:rgba(255,255,255,0.3);">#${a.priority}</span>
+          <span style="font-size:0.7rem; font-weight:800; color:rgba(255,255,255,0.6);">#${a.priority}</span>
           <span style="font-size:0.65rem; font-weight:700; padding:2px 8px; border-radius:999px; background:${uc}22; color:${uc};">${escHtml(a.urgency || '')}</span>
-          ${a.machine ? `<span style="font-size:0.68rem; color:rgba(255,255,255,0.4);">${escHtml(a.machine)}</span>` : ''}
+          ${a.machine ? `<span style="font-size:0.68rem; color:rgba(255,255,255,0.6);">${escHtml(a.machine)}</span>` : ''}
         </div>
         <p style="font-size:0.8rem; font-weight:600; color:rgba(255,255,255,0.9); margin-bottom:3px;">${escHtml(a.action || '')}</p>
         ${a.why ? `<p style="font-size:0.72rem; color:rgba(255,255,255,0.45);">${escHtml(a.why)}</p>` : ''}
@@ -3901,7 +3901,7 @@ document.getElementById('btn-switch-hive').addEventListener('click', () => {
       <div class="avatar-initial">${escHtml(h.name[0]?.toUpperCase() || '?')}</div>
       <div class="flex-1 min-w-0">
         <p class="text-sm font-bold text-white truncate">${escHtml(h.name)}</p>
-        <p class="text-[11px] text-white/35 capitalize">${escHtml(h.role)}</p>
+        <p class="text-[11px] text-white/60 capitalize">${escHtml(h.role)}</p>
       </div>
       ${isActive ? '<span class="text-[10px] font-bold" style="color:#29B6D9;">Active</span>' : ''}
     </button>`;
@@ -4011,7 +4011,7 @@ function generateHandover() {
   let html = '';
 
   html += `<div class="ho-section">
-    <p class="ho-label" style="color:rgba(255,255,255,0.3);">📊 Shift Snapshot</p>
+    <p class="ho-label" style="color:rgba(255,255,255,0.6);">📊 Shift Snapshot</p>
     <p style="font-size:0.75rem;color:rgba(255,255,255,0.5);margin:0;">${escHtml(_hoKpi)}</p>
   </div>`;
 
@@ -4027,15 +4027,15 @@ function generateHandover() {
   html += `<div class="ho-section">
     <p class="ho-label" style="color:#4ade80;">✅ Completed This Shift (${completed.length})</p>
     ${completed.length ? completed.slice(0, 8).map(e =>
-      `<div class="ho-item"><span style="color:#4ade80;flex-shrink:0;">✓</span><span>${escHtml(e.machine || '—')}${e.worker_name ? ' · <em style="color:rgba(255,255,255,0.4)">' + escHtml(e.worker_name) + '</em>' : ''}</span></div>`
-    ).join('') : '<p class="text-xs" style="color:rgba(255,255,255,0.3);">Nothing closed this shift.</p>'}
+      `<div class="ho-item"><span style="color:#4ade80;flex-shrink:0;">✓</span><span>${escHtml(e.machine || '—')}${e.worker_name ? ' · <em style="color:rgba(255,255,255,0.6)">' + escHtml(e.worker_name) + '</em>' : ''}</span></div>`
+    ).join('') : '<p class="text-xs" style="color:rgba(255,255,255,0.6);">Nothing closed this shift.</p>'}
   </div>`;
 
   html += `<div class="ho-section">
     <p class="ho-label" style="color:#f87171;">🔴 Opened This Shift (${openThisShift.length})</p>
     ${openThisShift.length ? openThisShift.slice(0, 6).map(e =>
-      `<div class="ho-item"><span style="color:#F7A21B;flex-shrink:0;">•</span><span>${escHtml(e.machine || '—')}${e.problem ? ' — <em style="color:rgba(255,255,255,0.4)">' + escHtml(e.problem.slice(0, 50)) + '</em>' : ''}</span></div>`
-    ).join('') : '<p class="text-xs" style="color:rgba(255,255,255,0.3);">No new jobs this shift.</p>'}
+      `<div class="ho-item"><span style="color:#F7A21B;flex-shrink:0;">•</span><span>${escHtml(e.machine || '—')}${e.problem ? ' — <em style="color:rgba(255,255,255,0.6)">' + escHtml(e.problem.slice(0, 50)) + '</em>' : ''}</span></div>`
+    ).join('') : '<p class="text-xs" style="color:rgba(255,255,255,0.6);">No new jobs this shift.</p>'}
   </div>`;
 
   if (carryForward.length) {
@@ -4043,7 +4043,7 @@ function generateHandover() {
       <p class="ho-label" style="color:#f87171;">🔁 Carry-Forward — Previous Shifts (${carryForward.length})${overdue.length ? ' · ' + overdue.length + ' overdue' : ''}</p>
       ${carryForward.slice(0, 8).map(e => {
         const isOD = (now - new Date(e.created_at || e.date)) > 3 * 86400000; // time-window-allow: 3d = OPEN logbook entry triage SLA (same as line 3840)
-        return `<div class="ho-item"><span style="color:${isOD ? '#ef4444' : '#F7A21B'};flex-shrink:0;">${isOD ? '⚠️' : '•'}</span><span>${escHtml(e.machine || '—')}${e.problem ? ' — <em style="color:rgba(255,255,255,0.4)">' + escHtml(e.problem.slice(0, 50)) + '</em>' : ''}</span></div>`;
+        return `<div class="ho-item"><span style="color:${isOD ? '#ef4444' : '#F7A21B'};flex-shrink:0;">${isOD ? '⚠️' : '•'}</span><span>${escHtml(e.machine || '—')}${e.problem ? ' — <em style="color:rgba(255,255,255,0.6)">' + escHtml(e.problem.slice(0, 50)) + '</em>' : ''}</span></div>`;
       }).join('')}
     </div>`;
   }

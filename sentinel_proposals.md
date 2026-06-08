@@ -5,7 +5,7 @@ the platform should obey - and currently no Playwright spec exercises it.
 
 **Check coverage:** 91.4% (255 of 279 per-page checks - HONEST behavioral coverage)
 **Topic coverage:** 100.0% (36 of 36 per-page validators - loose, validator-level)
-**Raw coverage:** 82.7% (272 of 329 validators)
+**Raw coverage:** 82.8% (275 of 332 validators)
 
 Each section below groups uncovered checks by validator. Use the per-check
 list as your test backlog - one scenario per check, not one scenario per
@@ -258,12 +258,10 @@ layer; no Playwright scenario is needed.
 - `validate_digital_twin.py` (6 checks) - validate_digital_twin
 - `validate_drop_if_exists.py` (1 checks) - validate_drop_if_exists
 - `validate_duplicate_html_id.py` (1 checks) - validate_duplicate_html_id
-- `validate_edge_config.py` (4 checks) - validate_edge_config
-- `validate_edge_import_exports.py` (1 checks) - validate_edge_import_exports
 - `validate_em_dash.py` (1 checks) - validate_em_dash
 - `validate_fields.py` (no named checks) - validate_fields
 - `validate_fk_on_delete.py` (1 checks) - validate_fk_on_delete
-- `validate_followup_queue_wiring.py` (6 checks) - validate_followup_queue_wiring
+- `validate_followup_queue_wiring.py` (7 checks) - validate_followup_queue_wiring
 - `validate_ga4_coverage.py` (4 checks) - validate_ga4_coverage
 - `validate_gateway_coverage.py` (4 checks) - validate_gateway_coverage
 - `validate_industry_defining.py` (8 checks) - validate_industry_defining.py — Phase 6 of STRATEGIC_ROADMAP.
@@ -281,6 +279,7 @@ layer; no Playwright scenario is needed.
 - `validate_pii_egress.py` (4 checks) - validate_pii_egress
 - `validate_playwright_coverage.py` (4 checks) - validate_playwright_coverage
 - `validate_playwright_staleness.py` (3 checks) - validate_playwright_staleness
+- `validate_prod_path_leak.py` (no named checks) - validate_prod_path_leak
 - `validate_render_budget.py` (1 checks) - validate_render_budget
 - `validate_reproducible_build_pin.py` (1 checks) - validate_reproducible_build_pin
 - `validate_reset_coverage.py` (2 checks) - validate_reset_coverage
@@ -290,6 +289,7 @@ layer; no Playwright scenario is needed.
 - `validate_sentinel_baseline.py` (no named checks) - validate_sentinel_baseline.py - forward-only ratchet on sentinel coverage.
 - `validate_sitemap_sync.py` (3 checks) - validate_sitemap_sync
 - `validate_soft_delete.py` (1 checks) - validate_soft_delete
+- `validate_status_enum_drift.py` (no named checks) - validate_status_enum_drift
 - `validate_supabase_object_existence.py` (1 checks) - validate_supabase_object_existence
 - `validate_supabase_singleton.py` (2 checks) - validate_supabase_singleton
 - `validate_tester_coverage.py` (no named checks) - validate_tester_coverage

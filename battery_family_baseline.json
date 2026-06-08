@@ -1,0 +1,8 @@
+{
+  "component_missing_required": 0,
+  "candidates_total": 11,
+  "ia_candidates": 11,
+  "component_candidates": 0,
+  "generated": "2026-06-08T07:28:50.543513+00:00",
+  "_doc": "Mega Gate G3 (battery family) frozen baseline. Rule B: only moves down. run_battery_family.py --gate ratchets against this."
+}

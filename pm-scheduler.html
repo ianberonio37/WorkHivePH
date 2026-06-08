@@ -134,6 +134,7 @@
       border-left-width: 4px;
     }
     .asset-card:hover { border-color: rgba(255,255,255,0.18); transform: translateY(-1px); }
+    .asset-card:focus-visible { outline: 2px solid #F7A21B; outline-offset: 2px; }
     .asset-card.overdue  { border-left-color: #ef4444; }
     .asset-card.duesoon  { border-left-color: #fbbf24; }
     .asset-card.ontrack  { border-left-color: #4ade80; }
@@ -1428,7 +1429,9 @@ function renderDashboard() {
       : 'No scheduled tasks';
 
     return `
-      <div class="asset-card ${asset.overall}" onclick="openDetail('${asset.id}')">
+      <div class="asset-card ${asset.overall}" onclick="openDetail('${asset.id}')"
+           role="button" tabindex="0" aria-label="Open PM details for ${escHtml(asset.asset_name)}"
+           onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}">
         <div class="flex items-start justify-between gap-3 mb-2">
           <div class="flex-1 min-w-0">
             <p class="font-bold text-base leading-tight truncate">${escHtml(asset.asset_name)}</p>

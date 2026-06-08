@@ -86,7 +86,7 @@
     /* Page header */
     .page-header { margin-bottom: 1.25rem; }
     .page-header h1 { font-size: 1.5rem; font-weight: 800; }
-    .page-header p { font-size: 0.8rem; color: #7B8794; margin-top: 0.2rem; }
+    .page-header p { font-size: 0.8rem; color: #9aa6b3; margin-top: 0.2rem; }
 
     /* Section tabs */
     .section-tabs {
@@ -96,8 +96,8 @@
       border-radius: 0.75rem; padding: 0.375rem;
     }
     .section-tab {
-      flex: 1; padding: 0.6rem 0.75rem; border: none; border-radius: 0.5rem;
-      background: transparent; color: #7B8794;
+      flex: 1; min-height: 44px; padding: 0.6rem 0.75rem; border: none; border-radius: 0.5rem;
+      background: transparent; color: #9aa6b3;
       font-family: 'Poppins', sans-serif; font-size: 0.8rem; font-weight: 600;
       cursor: pointer; transition: all 0.2s;
       display: flex; align-items: center; justify-content: center; gap: 0.4rem;
@@ -127,7 +127,7 @@
     /* Search + filter */
     .search-row { display: flex; gap: 0.5rem; margin-bottom: 0.75rem; }
     .search-wrap { flex: 1; position: relative; }
-    .search-wrap svg { position: absolute; left: 0.75rem; top: 50%; transform: translateY(-50%); color: #7B8794; pointer-events: none; }
+    .search-wrap svg { position: absolute; left: 0.75rem; top: 50%; transform: translateY(-50%); color: #9aa6b3; pointer-events: none; }
     .search-input {
       width: 100%; padding: 0.6rem 0.75rem 0.6rem 2.25rem;
       background: rgba(22,32,50,0.6); border: 1px solid rgba(255,255,255,0.1);
@@ -135,7 +135,7 @@
       font-family: 'Poppins', sans-serif; font-size: 1rem;
     }
     .search-input:focus { outline: none; border-color: rgba(247,162,27,0.4); }
-    .search-input::placeholder { color: #7B8794; }
+    .search-input::placeholder { color: #9aa6b3; }
     .btn-filter {
       padding: 0.6rem 0.875rem;
       background: rgba(22,32,50,0.6); border: 1px solid rgba(255,255,255,0.1);
@@ -152,17 +152,18 @@
       border-radius: 0.625rem; margin-bottom: 0.75rem;
     }
     .price-filter.show { display: block; }
-    .price-filter > label { font-size: 0.72rem; color: #7B8794; margin-bottom: 0.4rem; display: block; }
+    .price-filter > label { font-size: 0.72rem; color: #9aa6b3; margin-bottom: 0.4rem; display: block; }
     .price-range-row { display: flex; gap: 0.5rem; align-items: center; }
     .price-range-row input { flex: 1; }
-    .price-range-sep { color: #7B8794; font-size: 0.8rem; }
+    .price-range-sep { color: #9aa6b3; font-size: 0.8rem; }
 
     /* Filter chips */
     .filter-row { display: flex; gap: 0.4rem; flex-wrap: wrap; margin-bottom: 1rem; }
     .filter-chip {
+      display: inline-flex; align-items: center; justify-content: center; min-height: 44px; min-width: 44px;
       padding: 0.3rem 0.75rem; border-radius: 999px;
       border: 1px solid rgba(255,255,255,0.12);
-      background: rgba(22,32,50,0.5); color: #7B8794;
+      background: rgba(22,32,50,0.5); color: #9aa6b3;
       font-size: 0.72rem; font-family: 'Poppins', sans-serif; cursor: pointer;
       transition: all 0.15s;
     }
@@ -171,7 +172,7 @@
     }
 
     /* Listings info */
-    .listings-info { font-size: 0.75rem; color: #7B8794; margin-bottom: 0.75rem; }
+    .listings-info { font-size: 0.75rem; color: #9aa6b3; margin-bottom: 0.75rem; }
     .listings-info span { color: #F7A21B; font-weight: 600; }
 
     /* Listing grid */
@@ -194,7 +195,7 @@
       width: 100%; aspect-ratio: 4 / 3;
       background: linear-gradient(135deg, rgba(42,61,88,0.8), rgba(22,32,50,0.9));
       display: flex; align-items: center; justify-content: center;
-      color: #7B8794; position: relative; overflow: hidden;
+      color: #9aa6b3; position: relative; overflow: hidden;
     }
     .card-image img { width: 100%; height: 100%; object-fit: cover; display: block; }
     .card-badges { position: absolute; top: 0.5rem; left: 0.5rem; display: flex; gap: 0.3rem; flex-wrap: wrap; }
@@ -256,11 +257,11 @@
     .card-meta { display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap; margin-bottom: 0.5rem; }
     .cat-chip {
       padding: 0.15rem 0.5rem; border-radius: 999px; font-size: 0.65rem; font-weight: 600;
-      background: rgba(255,255,255,0.06); color: #7B8794; border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.06); color: #9aa6b3; border: 1px solid rgba(255,255,255,0.08);
     }
     .cond-chip { padding: 0.15rem 0.5rem; border-radius: 999px; font-size: 0.65rem; font-weight: 600; }
     .cond-chip.new   { background: rgba(74,222,128,0.1); color: #4ade80; border: 1px solid rgba(74,222,128,0.2); }
-    .cond-chip.used  { background: rgba(255,255,255,0.06); color: #7B8794; border: 1px solid rgba(255,255,255,0.1); }
+    .cond-chip.used  { background: rgba(255,255,255,0.06); color: #9aa6b3; border: 1px solid rgba(255,255,255,0.1); }
     .cond-chip.refurb { background: rgba(251,191,36,0.1); color: #fbbf24; border: 1px solid rgba(251,191,36,0.2); }
 
     /* Card footer */
@@ -275,9 +276,9 @@
       display: flex; align-items: center; justify-content: center;
       font-size: 0.6rem; font-weight: 700; color: #F7A21B;
     }
-    .seller-name { font-size: 0.7rem; color: #7B8794; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 80px; }
+    .seller-name { font-size: 0.7rem; color: #9aa6b3; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 80px; }
     .stars { color: #F7A21B; font-size: 0.7rem; letter-spacing: -1px; }
-    .rating-val { font-size: 0.7rem; color: #7B8794; }
+    .rating-val { font-size: 0.7rem; color: #9aa6b3; }
     .btn-view {
       padding: 0.35rem 0.75rem; border-radius: 0.5rem; cursor: pointer;
       background: rgba(247,162,27,0.1); border: 1px solid rgba(247,162,27,0.25);
@@ -294,7 +295,7 @@
     .skel-card { border-radius: 1rem; overflow: hidden; border: 1px solid rgba(255,255,255,0.05); background: linear-gradient(145deg, rgba(42,61,88,0.3), rgba(31,46,69,0.5)); }
 
     /* Empty state */
-    .empty-state { grid-column: 1 / -1; text-align: center; padding: 3rem 1rem; color: #7B8794; }
+    .empty-state { grid-column: 1 / -1; text-align: center; padding: 3rem 1rem; color: #9aa6b3; }
     .empty-state svg { opacity: 0.25; margin-bottom: 1rem; }
     .empty-state h3 { font-size: 1rem; font-weight: 700; color: #F4F6FA; margin-bottom: 0.4rem; }
     .empty-state p { font-size: 0.8rem; }
@@ -337,12 +338,12 @@
     .btn-close-sheet {
       width: 32px; height: 32px; border-radius: 50%;
       background: rgba(255,255,255,0.06); border: none; cursor: pointer;
-      display: flex; align-items: center; justify-content: center; color: #7B8794;
+      display: flex; align-items: center; justify-content: center; color: #9aa6b3;
     }
 
     /* Form elements */
     .form-group { margin-bottom: 1rem; }
-    .form-label { font-size: 0.75rem; font-weight: 600; color: #7B8794; margin-bottom: 0.4rem; display: block; }
+    .form-label { font-size: 0.75rem; font-weight: 600; color: #9aa6b3; margin-bottom: 0.4rem; display: block; }
     .wh-input {
       width: 100%; padding: 0.65rem 0.875rem;
       background: rgba(22,32,50,0.7); border: 1px solid rgba(255,255,255,0.1);
@@ -350,7 +351,7 @@
       font-family: 'Poppins', sans-serif; font-size: 1rem;
     }
     .wh-input:focus { outline: none; border-color: rgba(247,162,27,0.4); }
-    .wh-input::placeholder { color: #7B8794; }
+    .wh-input::placeholder { color: #9aa6b3; }
     .wh-select {
       width: 100%; padding: 0.65rem 0.875rem;
       background: rgba(22,32,50,0.7); border: 1px solid rgba(255,255,255,0.1);
@@ -367,7 +368,7 @@
       resize: vertical; min-height: 80px;
     }
     .wh-textarea:focus { outline: none; border-color: rgba(247,162,27,0.4); }
-    .wh-textarea::placeholder { color: #7B8794; }
+    .wh-textarea::placeholder { color: #9aa6b3; }
     .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
     @media (max-width: 400px) { .form-row { grid-template-columns: 1fr; } }
 
@@ -376,7 +377,7 @@
     .section-toggle-btn {
       flex: 1; padding: 0.5rem; text-align: center;
       background: rgba(22,32,50,0.5); border: 1px solid rgba(255,255,255,0.1);
-      border-radius: 0.5rem; color: #7B8794;
+      border-radius: 0.5rem; color: #9aa6b3;
       font-size: 0.72rem; font-weight: 600; font-family: 'Poppins', sans-serif; cursor: pointer;
       transition: all 0.15s;
     }
@@ -413,14 +414,14 @@
       width: 100%; aspect-ratio: 16 / 9;
       background: linear-gradient(135deg, rgba(42,61,88,0.8), rgba(22,32,50,0.9));
       border-radius: 0.75rem; margin-bottom: 1rem;
-      display: flex; align-items: center; justify-content: center; color: #7B8794; overflow: hidden;
+      display: flex; align-items: center; justify-content: center; color: #9aa6b3; overflow: hidden;
     }
     .detail-image img { width: 100%; height: 100%; object-fit: cover; display: block; }
     .detail-price { font-size: 1.5rem; font-weight: 800; color: #F7A21B; margin-bottom: 0.25rem; }
     .detail-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 0.75rem; line-height: 1.3; }
     .detail-section { margin-bottom: 1.25rem; }
     .detail-section-label {
-      font-size: 0.72rem; font-weight: 600; color: #7B8794; text-transform: uppercase;
+      font-size: 0.72rem; font-weight: 600; color: #9aa6b3; text-transform: uppercase;
       letter-spacing: 0.05em; margin-bottom: 0.5rem;
     }
     .detail-description { font-size: 0.82rem; color: #b0b8c4; line-height: 1.6; }
@@ -440,7 +441,7 @@
     }
     .seller-card-info { flex: 1; min-width: 0; }
     .seller-card-name { font-size: 0.88rem; font-weight: 700; }
-    .seller-card-meta { font-size: 0.7rem; color: #7B8794; margin-top: 0.15rem; }
+    .seller-card-meta { font-size: 0.7rem; color: #9aa6b3; margin-top: 0.15rem; }
     .seller-badges { display: flex; gap: 0.35rem; margin-top: 0.35rem; flex-wrap: wrap; }
 
     /* Reviews */
@@ -448,7 +449,7 @@
     .review-item:last-child { border-bottom: none; }
     .review-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.35rem; }
     .review-author { font-size: 0.78rem; font-weight: 600; }
-    .review-date { font-size: 0.7rem; color: #7B8794; }
+    .review-date { font-size: 0.7rem; color: #9aa6b3; }
     .review-text { font-size: 0.78rem; color: #b0b8c4; line-height: 1.5; }
 
     /* Info notice */
@@ -627,23 +628,23 @@
       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
       <span id="txt-total-listings">0 listings</span>
     </div>
-    <button id="btn-my-watchlist" style="background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.25);border-radius:999px;color:#f87171;font-family:'Poppins',sans-serif;font-size:0.7rem;font-weight:600;padding:0.2rem 0.65rem;cursor:pointer;display:inline-flex;align-items:center;gap:0.3rem;" aria-label="My Watchlist">
+    <button id="btn-my-watchlist" style="background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.25);border-radius:999px;color:#f87171;font-family:'Poppins',sans-serif;font-size:0.7rem;font-weight:600;min-height:44px;padding:0.2rem 0.65rem;cursor:pointer;display:inline-flex;align-items:center;gap:0.3rem;" aria-label="My Watchlist">
       <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
       Watchlist
     </button>
-    <button id="btn-saved-searches" style="background:rgba(167,139,250,0.08);border:1px solid rgba(167,139,250,0.25);border-radius:999px;color:#a78bfa;font-family:'Poppins',sans-serif;font-size:0.7rem;font-weight:600;padding:0.2rem 0.65rem;cursor:pointer;display:inline-flex;align-items:center;gap:0.3rem;" aria-label="Saved Searches">
+    <button id="btn-saved-searches" style="background:rgba(167,139,250,0.08);border:1px solid rgba(167,139,250,0.25);border-radius:999px;color:#a78bfa;font-family:'Poppins',sans-serif;font-size:0.7rem;font-weight:600;min-height:44px;padding:0.2rem 0.65rem;cursor:pointer;display:inline-flex;align-items:center;gap:0.3rem;" aria-label="Saved Searches">
       <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><polygon points="19 21 12 17 5 21 5 5 19 5 19 21"/></svg>
       Searches
     </button>
-    <a href="marketplace-seller.html" style="background:rgba(41,182,217,0.08);border:1px solid rgba(41,182,217,0.25);border-radius:999px;color:#29B6D9;font-family:'Poppins',sans-serif;font-size:0.7rem;font-weight:600;padding:0.2rem 0.65rem;text-decoration:none;display:inline-flex;align-items:center;gap:0.3rem;" aria-label="My Listings">
+    <a href="marketplace-seller.html" style="background:rgba(41,182,217,0.08);border:1px solid rgba(41,182,217,0.25);border-radius:999px;color:#29B6D9;font-family:'Poppins',sans-serif;font-size:0.7rem;font-weight:600;min-height:44px;padding:0.2rem 0.65rem;text-decoration:none;display:inline-flex;align-items:center;gap:0.3rem;" aria-label="My Listings">
       <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
       My Listings
     </a>
-    <a id="btn-admin-link" href="marketplace-admin.html" style="display:none;background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.25);border-radius:999px;color:#f87171;font-family:'Poppins',sans-serif;font-size:0.7rem;font-weight:600;padding:0.2rem 0.65rem;text-decoration:none;align-items:center;gap:0.3rem;" aria-label="Marketplace Admin">
+    <a id="btn-admin-link" href="marketplace-admin.html" style="display:none;background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.25);border-radius:999px;color:#f87171;font-family:'Poppins',sans-serif;font-size:0.7rem;font-weight:600;min-height:44px;padding:0.2rem 0.65rem;text-decoration:none;align-items:center;gap:0.3rem;" aria-label="Marketplace Admin">
       <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 0-14.14 0"/><path d="M4.93 19.07a10 10 0 0 0 14.14 0"/></svg>
       Admin
     </a>
-    <button id="btn-my-orders" style="background:rgba(247,162,27,0.1);border:1px solid rgba(247,162,27,0.25);border-radius:999px;color:#F7A21B;font-family:'Poppins',sans-serif;font-size:0.7rem;font-weight:600;padding:0.2rem 0.65rem;cursor:pointer;display:flex;align-items:center;gap:0.3rem;" aria-label="My Orders">
+    <button id="btn-my-orders" style="background:rgba(247,162,27,0.1);border:1px solid rgba(247,162,27,0.25);border-radius:999px;color:#F7A21B;font-family:'Poppins',sans-serif;font-size:0.7rem;font-weight:600;min-height:44px;padding:0.2rem 0.65rem;cursor:pointer;display:flex;align-items:center;gap:0.3rem;" aria-label="My Orders">
       <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
       My Orders
     </button>
@@ -701,11 +702,11 @@
 <div id="compare-bar" style="display:none;position:fixed;left:0;right:0;bottom:0;z-index:90;padding:0.875rem 1rem calc(0.875rem + env(safe-area-inset-bottom));background:linear-gradient(180deg,rgba(15,25,35,0.85),rgba(15,25,35,0.98));backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-top:1px solid rgba(247,162,27,0.2);">
   <div style="max-width:880px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:0.75rem;flex-wrap:wrap;">
     <div style="font-size:0.85rem;font-weight:700;color:#F4F6FA;">
-      <span id="compare-count">0</span> <span style="color:#7B8794;font-weight:600;">selected</span>
-      <span style="font-size:0.7rem;color:#7B8794;font-weight:400;display:block;margin-top:0.15rem;">Tap up to 5 listings to request quotes</span>
+      <span id="compare-count">0</span> <span style="color:#9aa6b3;font-weight:600;">selected</span>
+      <span style="font-size:0.7rem;color:#9aa6b3;font-weight:400;display:block;margin-top:0.15rem;">Tap up to 5 listings to request quotes</span>
     </div>
     <div style="display:flex;gap:0.5rem;">
-      <button id="btn-compare-clear" style="padding:0.55rem 0.875rem;border-radius:0.5rem;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:#7B8794;font-family:'Poppins',sans-serif;font-size:0.78rem;font-weight:600;cursor:pointer;">Clear</button>
+      <button id="btn-compare-clear" style="padding:0.55rem 0.875rem;border-radius:0.5rem;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:#9aa6b3;font-family:'Poppins',sans-serif;font-size:0.78rem;font-weight:600;cursor:pointer;">Clear</button>
       <button id="btn-compare-rfq" style="padding:0.55rem 1rem;border-radius:0.5rem;background:linear-gradient(135deg,#F7A21B,#FDB94A);border:none;color:#0f1923;font-family:'Poppins',sans-serif;font-size:0.85rem;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:0.4rem;">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
         Request Quotes
@@ -778,14 +779,14 @@
       <label for="post-image-file" class="form-label">Photo (recommended)</label>
       <div id="post-image-zone" style="position:relative;border:2px dashed rgba(255,255,255,0.15);border-radius:0.625rem;padding:1.25rem;text-align:center;cursor:pointer;transition:border-color 0.15s;">
         <input type="file" id="post-image-file" accept="image/jpeg,image/jpg,image/png,image/webp" style="position:absolute;inset:0;opacity:0;cursor:pointer;" aria-label="Choose listing photo" />
-        <div id="post-image-empty" style="color:#7B8794;">
+        <div id="post-image-empty" style="color:#9aa6b3;">
           <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin-bottom:0.4rem;"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
           <div style="font-size:0.78rem;font-weight:600;color:#F4F6FA;">Tap to add a photo</div>
           <div style="font-size:0.7rem;margin-top:0.2rem;">JPEG, PNG or WebP up to 5MB. Listings with photos get 3× more inquiries.</div>
         </div>
         <div id="post-image-preview" style="display:none;">
           <img id="post-image-preview-img" alt="Preview" style="max-width:100%;max-height:200px;border-radius:0.5rem;display:block;margin:0 auto;" />
-          <div id="post-image-status" style="font-size:0.7rem;color:#7B8794;margin-top:0.5rem;"></div>
+          <div id="post-image-status" style="font-size:0.7rem;color:#9aa6b3;margin-top:0.5rem;"></div>
           <button type="button" id="post-image-remove" style="margin-top:0.5rem;padding:0.35rem 0.75rem;background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.25);border-radius:0.5rem;color:#f87171;font-family:'Poppins',sans-serif;font-size:0.7rem;font-weight:600;cursor:pointer;">Remove photo</button>
         </div>
       </div>
@@ -802,12 +803,12 @@
     <div id="quality-widget" style="margin-bottom:1rem;padding:0.875rem;background:rgba(22,32,50,0.5);border:1px solid rgba(255,255,255,0.07);border-radius:0.75rem;">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.5rem;">
         <span style="font-size:0.78rem;font-weight:700;" title="WorkHive Marketplace Seller Score — platform-internal listing-quality composite (0-100)">Listing quality · WorkHive Marketplace Seller Score</span>
-        <span id="quality-score-num" style="font-size:0.95rem;font-weight:800;color:#7B8794;">0 / 100</span>
+        <span id="quality-score-num" style="font-size:0.95rem;font-weight:800;color:#9aa6b3;">0 / 100</span>
       </div>
       <div style="height:6px;background:rgba(255,255,255,0.07);border-radius:999px;overflow:hidden;">
         <div id="quality-bar" style="height:100%;width:0%;background:#f87171;transition:width 0.3s,background 0.3s;"></div>
       </div>
-      <div id="quality-tips" style="margin-top:0.625rem;font-size:0.7rem;color:#7B8794;line-height:1.6;"></div>
+      <div id="quality-tips" style="margin-top:0.625rem;font-size:0.7rem;color:#9aa6b3;line-height:1.6;"></div>
     </div>
 
     <button type="submit" class="btn-primary" id="btn-submit-post">Post Listing</button>
@@ -880,7 +881,7 @@
     </button>
   </div>
   <div id="orders-content">
-    <div style="text-align:center;padding:2rem 1rem;color:#7B8794;">
+    <div style="text-align:center;padding:2rem 1rem;color:#9aa6b3;">
       <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.3"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
       <p style="margin-top:0.75rem;font-size:0.82rem;">Loading orders…</p>
     </div>
@@ -903,7 +904,7 @@
   <!-- Save current panel — only shown when at least one filter is active -->
   <div id="save-current-panel" style="display:none;background:rgba(41,182,217,0.06);border:1px solid rgba(41,182,217,0.18);border-radius:0.75rem;padding:0.875rem;margin-bottom:1rem;">
     <div style="font-size:0.78rem;font-weight:700;margin-bottom:0.5rem;color:#29B6D9;">Save current search</div>
-    <div id="save-current-summary" style="font-size:0.72rem;color:#7B8794;margin-bottom:0.625rem;line-height:1.5;"></div>
+    <div id="save-current-summary" style="font-size:0.72rem;color:#9aa6b3;margin-bottom:0.625rem;line-height:1.5;"></div>
     <div class="form-group" style="margin-bottom:0.625rem;">
       <input aria-label="Name this search (e.g. HVAC Manila)" class="wh-input" type="text" id="save-search-name" placeholder="Name this search (e.g. HVAC Manila)" maxlength="60" style="font-size:1rem;" />
     </div>
@@ -914,7 +915,7 @@
   </div>
 
   <div id="saved-searches-content">
-    <div style="text-align:center;padding:2rem 1rem;color:#7B8794;">
+    <div style="text-align:center;padding:2rem 1rem;color:#9aa6b3;">
       <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.3"><polygon points="19 21 12 17 5 21 5 5 19 5 19 21"/></svg>
       <p style="margin-top:0.75rem;font-size:0.82rem;">Loading saved searches…</p>
     </div>
@@ -971,7 +972,7 @@
     </button>
   </div>
   <div id="watchlist-content">
-    <div style="text-align:center;padding:2rem 1rem;color:#7B8794;">
+    <div style="text-align:center;padding:2rem 1rem;color:#9aa6b3;">
       <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.3"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
       <p style="margin-top:0.75rem;font-size:0.82rem;">Loading saved listings…</p>
     </div>
@@ -1034,13 +1035,13 @@
     <input type="hidden" id="review-order-id" value="" />
     <input type="hidden" id="review-listing-id" value="" />
     <div style="margin-bottom:1rem;">
-      <div style="font-size:0.75rem;font-weight:600;color:#7B8794;margin-bottom:0.5rem;">Your rating</div>
+      <div style="font-size:0.75rem;font-weight:600;color:#9aa6b3;margin-bottom:0.5rem;">Your rating</div>
       <div id="star-rating" style="display:flex;gap:0.5rem;" role="group" aria-label="Star rating">
-        <button type="button" class="star-btn" data-star="1" aria-label="1 star" style="font-size:2rem;background:none;border:none;cursor:pointer;color:#7B8794;transition:color 0.1s;line-height:1;">★</button>
-        <button type="button" class="star-btn" data-star="2" aria-label="2 stars" style="font-size:2rem;background:none;border:none;cursor:pointer;color:#7B8794;transition:color 0.1s;line-height:1;">★</button>
-        <button type="button" class="star-btn" data-star="3" aria-label="3 stars" style="font-size:2rem;background:none;border:none;cursor:pointer;color:#7B8794;transition:color 0.1s;line-height:1;">★</button>
-        <button type="button" class="star-btn" data-star="4" aria-label="4 stars" style="font-size:2rem;background:none;border:none;cursor:pointer;color:#7B8794;transition:color 0.1s;line-height:1;">★</button>
-        <button type="button" class="star-btn" data-star="5" aria-label="5 stars" style="font-size:2rem;background:none;border:none;cursor:pointer;color:#7B8794;transition:color 0.1s;line-height:1;">★</button>
+        <button type="button" class="star-btn" data-star="1" aria-label="1 star" style="font-size:2rem;background:none;border:none;cursor:pointer;color:#9aa6b3;transition:color 0.1s;line-height:1;">★</button>
+        <button type="button" class="star-btn" data-star="2" aria-label="2 stars" style="font-size:2rem;background:none;border:none;cursor:pointer;color:#9aa6b3;transition:color 0.1s;line-height:1;">★</button>
+        <button type="button" class="star-btn" data-star="3" aria-label="3 stars" style="font-size:2rem;background:none;border:none;cursor:pointer;color:#9aa6b3;transition:color 0.1s;line-height:1;">★</button>
+        <button type="button" class="star-btn" data-star="4" aria-label="4 stars" style="font-size:2rem;background:none;border:none;cursor:pointer;color:#9aa6b3;transition:color 0.1s;line-height:1;">★</button>
+        <button type="button" class="star-btn" data-star="5" aria-label="5 stars" style="font-size:2rem;background:none;border:none;cursor:pointer;color:#9aa6b3;transition:color 0.1s;line-height:1;">★</button>
       </div>
       <input type="hidden" id="review-rating" value="0" />
     </div>
@@ -1325,7 +1326,7 @@
       list/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = selected.map(item => `
         <div style="display:flex;align-items:center;gap:0.5rem;padding:0.4rem;background:rgba(255,255,255,0.04);border-radius:0.4rem;font-size:0.72rem;">
           <span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#F4F6FA;">${e(item.title)}</span>
-          <span style="color:#7B8794;white-space:nowrap;">${e(item.seller_name || 'Seller')}</span>
+          <span style="color:#9aa6b3;white-space:nowrap;">${e(item.seller_name || 'Seller')}</span>
         </div>`).join('');
     }
     if (nameEl && WORKER_NAME && !nameEl.value) nameEl.value = WORKER_NAME;
@@ -1423,7 +1424,7 @@
 
       const items = data || [];
       if (!items.length) {
-        content/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = `<div style="text-align:center;padding:2rem 1rem;color:#7B8794;">
+        content/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = `<div style="text-align:center;padding:2rem 1rem;color:#9aa6b3;">
           <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.3"><polygon points="19 21 12 17 5 21 5 5 19 5 19 21"/></svg>
           <h2 style="font-size:0.95rem;font-weight:700;color:#F4F6FA;margin:0.625rem 0 0.4rem;">No saved searches</h2>
           <p style="font-size:0.78rem;">Set filters above and save them here for quick reuse.</p>
@@ -1446,7 +1447,7 @@
               <span style="font-size:0.85rem;font-weight:700;">${e(s.search_name)}</span>
               ${s.email ? '<span style="font-size:0.62rem;color:#a78bfa;background:rgba(167,139,250,0.12);border:1px solid rgba(167,139,250,0.25);border-radius:999px;padding:0.1rem 0.45rem;">✉ Alerts on</span>' : ''}
             </div>
-            <div style="font-size:0.72rem;color:#7B8794;margin-bottom:0.625rem;">${e(pieces.join(' · ') || 'All listings')}</div>
+            <div style="font-size:0.72rem;color:#9aa6b3;margin-bottom:0.625rem;">${e(pieces.join(' · ') || 'All listings')}</div>
             <div style="display:flex;gap:0.4rem;">
               <button class="btn-apply-search" data-id="${e(s.id)}" data-section="${e(s.section || 'parts')}" data-cat="${e(s.category || 'All')}" data-q="${e(s.query_text || '')}" data-min="${s.price_min ?? ''}" data-max="${s.price_max ?? ''}"
                 style="padding:0.4rem 0.875rem;border-radius:0.5rem;border:1px solid rgba(247,162,27,0.3);background:rgba(247,162,27,0.1);color:#F7A21B;font-family:'Poppins',sans-serif;font-size:0.72rem;font-weight:600;cursor:pointer;">Apply</button>
@@ -1635,7 +1636,7 @@
       const ids = Array.from(_watchlist);
       if (!ids.length) {
         content/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = `
-          <div style="text-align:center;padding:2.5rem 1rem;color:#7B8794;">
+          <div style="text-align:center;padding:2.5rem 1rem;color:#9aa6b3;">
             <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.3"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
             <h3 style="font-size:0.95rem;font-weight:700;color:#F4F6FA;margin:0.625rem 0 0.4rem;">No saved listings</h3>
             <p style="font-size:0.78rem;">Tap the heart on any listing to save it for later.</p>
@@ -1653,7 +1654,7 @@
 
       const items = data || [];
       if (!items.length) {
-        content/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = `<p style="font-size:0.78rem;color:#7B8794;padding:1rem 0;">Saved listings are no longer available.</p>`;
+        content/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = `<p style="font-size:0.78rem;color:#9aa6b3;padding:1rem 0;">Saved listings are no longer available.</p>`;
         return;
       }
 
@@ -1665,11 +1666,11 @@
           <div style="display:flex;gap:0.75rem;padding:0.75rem 0;border-bottom:1px solid rgba(255,255,255,0.05);${removed ? 'opacity:0.6;' : ''}">
             <div style="width:60px;height:60px;border-radius:0.5rem;flex-shrink:0;background:rgba(42,61,88,0.8);display:flex;align-items:center;justify-content:center;overflow:hidden;">
               ${hasImg ? `<img src="${e(item.image_url)}" alt="${e(item.title)}" style="width:100%;height:100%;object-fit:cover;" />`
-                       : `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#7B8794" stroke-width="1.5" opacity="0.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>`}
+                       : `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#9aa6b3" stroke-width="1.5" opacity="0.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>`}
             </div>
             <div style="flex:1;min-width:0;">
               <div style="font-size:0.82rem;font-weight:700;line-height:1.3;margin-bottom:0.2rem;">${e(item.title)}</div>
-              <div style="font-size:0.7rem;color:#7B8794;">
+              <div style="font-size:0.7rem;color:#9aa6b3;">
                 ${e(fmtPrice(item.price))} &nbsp;·&nbsp; ${e(item.section)} &nbsp;·&nbsp; ${e(item.seller_name || 'Seller')}
                 ${removed ? `<br><span style="color:#f87171;">No longer available</span>` : ''}
               </div>
@@ -2053,7 +2054,7 @@
       sellerProfile = sp;
     } catch (_) { sellerProfile = null; }
 
-    let reviewsHtml = '<p style="font-size:0.78rem;color:#7B8794;">No reviews yet.</p>';
+    let reviewsHtml = '<p style="font-size:0.78rem;color:#9aa6b3;">No reviews yet.</p>';
     try {
       const { data: reviews } = await db
         .from('marketplace_reviews')
@@ -2133,13 +2134,13 @@
                   out.push(`<span style="display:inline-flex;align-items:center;gap:0.2rem;padding:0.2rem 0.5rem;border-radius:999px;font-size:0.62rem;font-weight:700;background:rgba(247,162,27,0.15);color:#F7A21B;border:1px solid rgba(247,162,27,0.3);">★ Top Rated</span>`);
                 }
                 if (!out.length) {
-                  out.push(`<span class="cat-chip" style="font-size:0.62rem;color:#7B8794;">Unverified</span>`);
+                  out.push(`<span class="cat-chip" style="font-size:0.62rem;color:#9aa6b3;">Unverified</span>`);
                 }
                 return out.join('');
               })()}
             </div>
             ${sellerProfile?.cert_verified && sellerProfile?.certifications
-              ? `<div style="margin-top:0.5rem;font-size:0.7rem;color:#7B8794;line-height:1.5;"><strong style="color:#a78bfa;">Certifications:</strong> ${e((sellerProfile.certifications || '').split('\n').filter(c => c.trim()).join(' · '))}</div>`
+              ? `<div style="margin-top:0.5rem;font-size:0.7rem;color:#9aa6b3;line-height:1.5;"><strong style="color:#a78bfa;">Certifications:</strong> ${e((sellerProfile.certifications || '').split('\n').filter(c => c.trim()).join(' · '))}</div>`
               : ''}
           </div>
         </div>
@@ -2362,7 +2363,7 @@
     if (urlInput)   urlInput.value   = '';
     if (emptyView)   emptyView.style.display   = 'block';
     if (previewView) previewView.style.display = 'none';
-    if (statusEl)   { statusEl.style.color = '#7B8794'; statusEl.textContent = ''; }
+    if (statusEl)   { statusEl.style.color = '#9aa6b3'; statusEl.textContent = ''; }
   }
 
   /* ============================================================
@@ -2584,7 +2585,7 @@
      MY ORDERS — buyer order history + escrow release
   ============================================================ */
   const STATUS_LABEL = {
-    pending_payment: { label: 'Awaiting Payment', color: '#7B8794' },
+    pending_payment: { label: 'Awaiting Payment', color: '#9aa6b3' },
     escrow_hold:     { label: 'Paid — Awaiting Receipt', color: '#29B6D9' },
     buyer_confirmed: { label: 'Receipt Confirmed', color: '#4ade80' },
     released:        { label: 'Complete', color: '#4ade80' },
@@ -2608,7 +2609,7 @@
       if (error) throw error;
 
       if (!orders || !orders.length) {
-        content/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = `<div style="text-align:center;padding:2rem 1rem;color:#7B8794;">
+        content/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = `<div style="text-align:center;padding:2rem 1rem;color:#9aa6b3;">
           <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.3"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
           <p style="margin-top:0.75rem;font-size:0.82rem;">No orders yet.</p>
         </div>`;
@@ -2617,7 +2618,7 @@
 
       const e = escHtml;
       content/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = orders.map(ord => {
-        const st = STATUS_LABEL[ord.status] || { label: ord.status, color: '#7B8794' };
+        const st = STATUS_LABEL[ord.status] || { label: ord.status, color: '#9aa6b3' };
         const canConfirm  = ord.status === 'escrow_hold';
         const canDispute  = ord.status === 'escrow_hold';
         const canReview   = ord.status === 'released' && !ord.reviewed_at;
@@ -2634,7 +2635,7 @@
               </span>
               <span style="font-size:0.65rem;font-weight:600;padding:0.15rem 0.5rem;border-radius:999px;background:rgba(255,255,255,0.06);color:${e(st.color)};">${e(st.label)}</span>
             </div>
-            <div style="font-size:0.72rem;color:#7B8794;margin-bottom:0.35rem;">
+            <div style="font-size:0.72rem;color:#9aa6b3;margin-bottom:0.35rem;">
               Seller: ${e(ord.seller_name)} &nbsp;·&nbsp; ${e(timeAgo(ord.created_at))}
               ${releaseDate && canConfirm ? `<br>Auto-releases: ${e(releaseDate)}` : ''}
             </div>
@@ -2813,7 +2814,7 @@
 
     /* Reset star colours */
     document.querySelectorAll('.star-btn').forEach(btn => {
-      btn.style.color = '#7B8794';
+      btn.style.color = '#9aa6b3';
     });
 
     /* Wire star buttons */
@@ -2822,7 +2823,7 @@
         _reviewRating = parseInt(btn.dataset.star || '0', 10);
         if (ratingInput) ratingInput.value = String(_reviewRating);
         document.querySelectorAll('.star-btn').forEach(b => {
-          b.style.color = parseInt(b.dataset.star || '0', 10) <= _reviewRating ? '#F7A21B' : '#7B8794';
+          b.style.color = parseInt(b.dataset.star || '0', 10) <= _reviewRating ? '#F7A21B' : '#9aa6b3';
         });
       });
     });

@@ -199,5 +199,7 @@
   "20260607000002_get_hive_board_dashboard_phase3.sql": "36ba1a7520ecb711880c8297064db858dd154091945fd6cc8b59e10bd1aefa5e",
   "20260607000003_definer_hive_membership_gates.sql": "af6f46753460d79f62ba78664b5ec97a6c6515e9564269a4b64e6d4dadd63967",
   "20260607000004_definer_revoke_service_role_only.sql": "21a0832d62e4aecfd8bcb9bab34a3611389a8bf1220f45181e827b6d8a7da89d",
-  "20260607000005_definer_hive_membership_gates_batch2.sql": "d29f3bff560174eff65269c3061d1079a23f131ee88a13a0518da8e9f556b60c"
+  "20260607000005_definer_hive_membership_gates_batch2.sql": "d29f3bff560174eff65269c3061d1079a23f131ee88a13a0518da8e9f556b60c",
+  "20260607000006_export_hive_data_service_role_only.sql": "1bed2f970eaf89e8506dba8a8bb7a7490d45ea3f2d2b42c7a35c3774aec7641a",
+  "20260607000007_get_hive_dashboard_pm_overdue_unify.sql": "409bea255fdf6dc2bdaada848af30690b059e4ea36c44afebf2c9d760253f397"
 }

@@ -3,6 +3,7 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 // contract: health_score_v1 (canonical_agent_contracts; consumers: predictive.html, asset-hub.html, analytics.html, shift-brain.html)
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { getCorsHeaders } from "../_shared/cors.ts";
+import { checkAIRateLimit, rateLimitedResponse } from "../_shared/rate-limit.ts";
 // P1 roadmap 2026-05-26: envelope adoption (helper imported; success-path migration follows).
 import { beginRequest, ok, fail, recordModelHop } from "../_shared/envelope.ts";
 import { validateContract } from "../_shared/validate-contract.ts";
@@ -37,6 +38,79 @@ serve(async (req) => {
 
   try {
     const db = createClient(SUPABASE_URL, SERVICE_KEY);
+
+    // ── Caller classification ────────────────────────────────────────────────
+    // The daily pg_cron invokes with the service-role key and body `{}` → scores
+    // EVERY hive. The on-demand path (a supervisor's "Recompute now" button, added
+    // 2026-06-08) invokes with the user's JWT + `{ hive_id }` → scores ONLY that
+    // hive after an authZ gate. This removes the once-a-day refresh friction
+    // (risk scores were previously only ever written by the cron) while keeping
+    // the daily batch as the zero-touch baseline.
+    const bearer = (req.headers.get("Authorization") || "").replace(/^Bearer\s+/i, "");
+    const isService = !!(bearer && SERVICE_KEY && bearer === SERVICE_KEY);
+    let reqHiveId: string | null = null;
+    try { reqHiveId = ((await req.json()) as { hive_id?: string })?.hive_id ?? null; } catch (_) { reqHiveId = null; }
+
+    // ── On-demand single-hive recompute ──────────────────────────────────────
+    if (reqHiveId) {
+      // AuthZ: the service-role client bypasses RLS, so without this gate a
+      // foreign caller could recompute (and charge per-asset AI compute to) ANY
+      // hive — a cross-hive IDOR + cost-abuse vector. Require an ACTIVE
+      // SUPERVISOR of this hive (cron/service-role skips). Same gate class as
+      // asset-brain-query / the DEFINER-membership hardening.
+      if (!isService) {
+        const { data: { user: caller } } = await db.auth.getUser(bearer);
+        if (!caller) {
+          return new Response(JSON.stringify({ error: "Authentication required" }), {
+            status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
+        }
+        const { data: mem } = await db.from("v_worker_truth")
+          .select("role").eq("hive_id", reqHiveId).eq("auth_uid", caller.id)
+          .eq("hive_status", "active").maybeSingle();
+        if (!mem || mem.role !== "supervisor") {
+          return new Response(
+            JSON.stringify({ error: "Only an active supervisor of this hive can recompute risk scores." }),
+            { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+          );
+        }
+      }
+      // Rate-limit backstop (AFTER authZ so a foreign caller can't drain the
+      // bucket). On-demand recompute fans out to the Python API per asset, so it
+      // is not free; the per-hive AI limiter caps hammering. Local dev sets
+      // WH_RATE_LIMIT_OVERRIDE → unthrottled while testing.
+      const rl = await checkAIRateLimit(db, reqHiveId);
+      if (!rl.allowed) return rateLimitedResponse(corsHeaders);
+
+      const { data: oneHive, error: oneErr } = await db
+        .from("v_hives_truth").select("id, name").eq("id", reqHiveId).maybeSingle();
+      if (oneErr) throw new Error(`Hive fetch: ${oneErr.message}`);
+      if (!oneHive) {
+        return new Response(JSON.stringify({ error: "Hive not found" }), {
+          status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      const result = await scoreHive(db, oneHive);
+      await db.from("automation_log").insert({
+        job_name: "batch-risk-scoring",
+        status:   "success",
+        detail:   `On-demand recompute (hive ${oneHive.name || reqHiveId}): ${JSON.stringify(result).slice(0, 200)}`,
+      }).then(({ error }) => { if (error) console.warn("audit log:", error.message); });
+      return new Response(JSON.stringify({ ok: true, on_demand: true, ...result }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    // ── Daily all-hives batch (cron / service-role ONLY) ─────────────────────
+    // Without a hive_id this scores EVERY hive — an expensive full scan that must
+    // never be triggerable by an ordinary authed caller. Gate to the service-role
+    // key (the grant IS the boundary, per the DEFINER-membership hardening).
+    if (!isService) {
+      return new Response(
+        JSON.stringify({ error: "The full batch is service-role only. Pass { hive_id } to recompute a single hive." }),
+        { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+      );
+    }
 
     // Fetch all hives that have at least one pm_asset (active hives only)
     const { data: hives, error: hivesErr } = await db

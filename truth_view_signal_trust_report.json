@@ -3,7 +3,7 @@
     "view_column_pairs": 336,
     "at_risk": 0,
     "review": 9,
-    "files_scanned": 204
+    "files_scanned": 209
   },
   "pairs": [
     {
@@ -638,6 +638,11 @@
       "column": "asset_id",
       "consumers": [
         {
+          "file": "companion_battery.js",
+          "shape": "direct",
+          "smells": []
+        },
+        {
           "file": "supabase/functions/asset-brain-query/index.ts",
           "shape": "direct",
           "smells": []
@@ -1129,6 +1134,11 @@
       "view": "v_asset_truth",
       "column": "tag",
       "consumers": [
+        {
+          "file": "companion_battery.js",
+          "shape": "direct",
+          "smells": []
+        },
         {
           "file": "search-overlay.js",
           "shape": "direct",
@@ -1858,6 +1868,11 @@
       "consumers": [
         {
           "file": "supabase/functions/amc-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/shift-planner-orchestrator/index.ts",
           "shape": "direct",
           "smells": []
         }
@@ -4707,11 +4722,6 @@
           "smells": []
         },
         {
-          "file": "index.html",
-          "shape": "direct",
-          "smells": []
-        },
-        {
           "file": "logbook.html",
           "shape": "direct",
           "smells": []
@@ -4781,11 +4791,6 @@
         },
         {
           "file": "assistant.html",
-          "shape": "direct",
-          "smells": []
-        },
-        {
-          "file": "index.html",
           "shape": "direct",
           "smells": []
         },
@@ -4980,11 +4985,6 @@
           "smells": []
         },
         {
-          "file": "index.html",
-          "shape": "direct",
-          "smells": []
-        },
-        {
           "file": "supabase/functions/amc-orchestrator/index.ts",
           "shape": "direct",
           "smells": []
@@ -5061,11 +5061,6 @@
       "view": "v_pm_compliance_truth",
       "column": "pm_asset_id",
       "consumers": [
-        {
-          "file": "index.html",
-          "shape": "direct",
-          "smells": []
-        },
         {
           "file": "logbook.html",
           "shape": "direct",
@@ -5226,6 +5221,19 @@
     },
     {
       "view": "v_pm_scope_items_truth",
+      "column": "asset_criticality",
+      "consumers": [
+        {
+          "file": "index.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_pm_scope_items_truth",
       "column": "asset_id",
       "consumers": [
         {
@@ -5267,6 +5275,24 @@
       "consumers": [
         {
           "file": "hive.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "index.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_pm_scope_items_truth",
+      "column": "asset_tag",
+      "consumers": [
+        {
+          "file": "index.html",
           "shape": "direct",
           "smells": []
         }
@@ -5414,6 +5440,11 @@
           "smells": []
         },
         {
+          "file": "index.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
           "file": "logbook.html",
           "shape": "mapped_enum",
           "smells": [
@@ -5527,6 +5558,11 @@
       "consumers": [
         {
           "file": "hive.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "index.html",
           "shape": "direct",
           "smells": []
         }
@@ -7239,34 +7275,6 @@
     },
     {
       "view": "v_worker_truth",
-      "column": "display_name",
-      "consumers": [
-        {
-          "file": "supabase/functions/ai-gateway/index.ts",
-          "shape": "direct",
-          "smells": []
-        },
-        {
-          "file": "supabase/functions/analytics-orchestrator/index.ts",
-          "shape": "direct",
-          "smells": []
-        },
-        {
-          "file": "supabase/functions/voice-logbook-entry/index.ts",
-          "shape": "direct",
-          "smells": []
-        },
-        {
-          "file": "utils.js",
-          "shape": "direct",
-          "smells": []
-        }
-      ],
-      "smells": [],
-      "risk": "OK"
-    },
-    {
-      "view": "v_worker_truth",
       "column": "hive_status",
       "consumers": [
         {
@@ -7276,6 +7284,26 @@
         },
         {
           "file": "shift-brain.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/ai-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/analytics-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/asset-brain-query/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/export-hive-data/index.ts",
           "shape": "direct",
           "smells": []
         }
@@ -7331,19 +7359,6 @@
     },
     {
       "view": "v_worker_truth",
-      "column": "status",
-      "consumers": [
-        {
-          "file": "supabase/functions/export-hive-data/index.ts",
-          "shape": "direct",
-          "smells": []
-        }
-      ],
-      "smells": [],
-      "risk": "OK"
-    },
-    {
-      "view": "v_worker_truth",
       "column": "worker_name",
       "consumers": [
         {
@@ -7358,6 +7373,11 @@
         },
         {
           "file": "index.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/ai-gateway/index.ts",
           "shape": "direct",
           "smells": []
         },
@@ -7378,6 +7398,16 @@
         },
         {
           "file": "supabase/functions/platform-gateway/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/voice-logbook-entry/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "utils.js",
           "shape": "direct",
           "smells": []
         },

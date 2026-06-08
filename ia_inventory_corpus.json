@@ -1,0 +1,2533 @@
+{
+  "_doc": "Phase 1 cross-page IA redundancy corpus. SURFACE-only; Phase 2 rubric reads this.",
+  "minPages": 2,
+  "liveMerged": 5,
+  "pagesSurveyed": [
+    "achievements.html",
+    "ai-quality.html",
+    "alert-hub.html",
+    "analytics-report.html",
+    "analytics.html",
+    "asset-hub.html",
+    "assistant.html",
+    "audit-log.html",
+    "community.html",
+    "dayplanner.html",
+    "engineering-design.html",
+    "hive.html",
+    "index.html",
+    "integrations.html",
+    "inventory.html",
+    "logbook.html",
+    "marketplace.html",
+    "ph-intelligence.html",
+    "plant-connections.html",
+    "pm-scheduler.html",
+    "predictive.html",
+    "project-manager.html",
+    "project-report.html",
+    "report-sender.html",
+    "resume.html",
+    "shift-brain.html",
+    "skillmatrix.html",
+    "voice-journal.html"
+  ],
+  "corpus": {
+    "achievements.html": {
+      "page": "achievements.html",
+      "infoUnits": [
+        {
+          "kind": "rag-tile",
+          "unitId": "achievements:xp_this_week",
+          "keySuffix": "xp_this_week",
+          "label": "XP this week",
+          "labelKey": "xp this week",
+          "keyKey": "xp this week",
+          "fingerprint": "xp this week",
+          "theme": null
+        },
+        {
+          "kind": "rag-tile",
+          "unitId": "achievements:active_domains",
+          "keySuffix": "active_domains",
+          "label": "Active domains",
+          "labelKey": "active domains",
+          "keyKey": "active domains",
+          "fingerprint": "active domains",
+          "theme": null
+        },
+        {
+          "kind": "rag-tile",
+          "unitId": "achievements:total_level",
+          "keySuffix": "total_level",
+          "label": "Total level",
+          "labelKey": "total level",
+          "keyKey": "total level",
+          "fingerprint": "total level",
+          "theme": null
+        },
+        {
+          "kind": "rag-tile",
+          "unitId": "achievements:detail_panel",
+          "keySuffix": "detail_panel",
+          "label": "Achievements detail",
+          "labelKey": "achievements detail",
+          "keyKey": "detail panel",
+          "fingerprint": "achievements detail",
+          "theme": "detail breakdown panel"
+        },
+        {
+          "kind": "rag-tile",
+          "unitId": "achievements:composite_score",
+          "keySuffix": "composite_score",
+          "label": "Composite skill score",
+          "labelKey": "composite skill score",
+          "keyKey": "composite score",
+          "fingerprint": "composite skill score",
+          "theme": null
+        },
+        {
+          "kind": "rag-tile",
+          "unitId": "achievements:active_domains_stat",
+          "keySuffix": "active_domains_stat",
+          "label": "Active domains stat",
+          "labelKey": "active domains stat",
+          "keyKey": "active domains stat",
+          "fingerprint": "active domains stat",
+          "theme": null
+        },
+        {
+          "kind": "rag-tile",
+          "unitId": "achievements:top_domain",
+          "keySuffix": "top_domain",
+          "label": "Top skill domain",
+          "labelKey": "top skill domain",
+          "keyKey": "top domain",
+          "fingerprint": "top skill domain",
+          "theme": null
+        }
+      ],
+      "links": [],
+      "onclickFns": [
+        "closeLevelUpModal",
+        "toggleDomain"
+      ],
+      "structural": {
+        "simpleCardBlocks": 3,
+        "sumCardBlocks": 0,
+        "hasDetailPanel": true
+      },
+      "source": "static"
+    },
+    "ai-quality.html": {
+      "page": "ai-quality.html",
+      "infoUnits": [],
+      "links": [],
+      "onclickFns": [],
+      "structural": {
+        "simpleCardBlocks": 3,
+        "sumCardBlocks": 4,
+        "hasDetailPanel": false
+      },
+      "source": "static"
+    },
+    "alert-hub.html": {
+      "page": "alert-hub.html",
+      "infoUnits": [
+        {
+          "kind": "rag-tile",
+          "unitId": "alert-hub:high_severity_alerts",
+          "keySuffix": "high_severity_alerts",
+          "label": "High-severity alerts",
+          "labelKey": "high severity alerts",
+          "keyKey": "high severity alerts",
+          "fingerprint": "high severity alerts",
+          "theme": "risk / hot / critical"
+        },
+        {
+          "kind": "rag-tile",
+          "unitId": "alert-hub:anomaly_signals",
+          "keySuffix": "anomaly_signals",
+          "label": "Anomaly signals",
+          "labelKey": "anomaly signals",
+          "keyKey": "anomaly signals",
+          "fingerprint": "anomaly signals",
+          "theme": "risk / hot / critical"
+        },
+        {
+          "kind": "rag-tile",
+          "unitId": "alert-hub:amc_daily_brief",
+          "keySuffix": "amc_daily_brief",
+          "label": "AMC daily brief",
+          "labelKey": "amc daily brief",
+          "keyKey": "amc daily brief",
+          "fingerprint": "amc daily brief",
+          "theme": null
+        },
+        {
+          "kind": "rag-tile",
+          "unitId": "alert-hub:detail_panel",
+          "keySuffix": "detail_panel",
+          "label": "Alert detail breakdown",
+          "labelKey": "alert detail breakdown",
+          "keyKey": "detail panel",
+          "fingerprint": "alert detail breakdown",
+          "theme": "detail breakdown panel"
+        },
+        {
+          "kind": "rag-tile",
+          "unitId": "alert-hub:amc_assets",
+          "keySuffix": "amc_assets",
+          "label": "AMC assets checked",
+          "labelKey": "amc assets checked",
+          "keyKey": "amc assets",
+          "fingerprint": "amc assets checked",
+          "theme": null
+        },
+        {
+          "kind": "rag-tile",
+          "unitId": "alert-hub:amc_pms",
+          "keySuffix": "amc_pms",
+          "label": "AMC PMs flagged",
+          "labelKey": "amc pms flagged",
+          "keyKey": "amc pms",
+          "fingerprint": "amc pms flagged",
+          "theme": null
+        },
+        {
+          "kind": "rag-tile",
+          "unitId": "alert-hub:amc_parts",
+          "keySuffix": "amc_parts",
+          "label": "AMC parts at risk",
+          "labelKey": "amc parts at risk",
+          "keyKey": "amc parts",
+          "fingerprint": "amc parts at risk",
+          "theme": "risk / hot / critical"
+        },
+        {
+          "kind": "rag-tile",
+          "unitId": "alert-hub:amc_crew",
+          "keySuffix": "amc_crew",
+          "label": "AMC crew alerts",
+          "labelKey": "amc crew alerts",
+          "keyKey": "amc crew",
+          "fingerprint": "amc crew alerts",
+          "theme": null
+        }
+      ],
+      "links": [
+        {
+          "dest": "hive.html",
+          "text": "Open Hive Board"
+        }
+      ],
+      "onclickFns": [
+        "loadMoreAlerts"
+      ],
+      "structural": {
+        "simpleCardBlocks": 3,
+        "sumCardBlocks": 0,
+        "hasDetailPanel": true
+      },
+      "source": "static"
+    },
+    "analytics-report.html": {
+      "page": "analytics-report.html",
+      "infoUnits": [],
+      "links": [],
+      "onclickFns": [
+        "generateReport",
+        "saveAsPdf",
+        "setPeriod",
+        "setRole"
+      ],
+      "structural": {
+        "simpleCardBlocks": 0,
+        "sumCardBlocks": 0,
+        "hasDetailPanel": false
+      },
+      "source": "static"
+    },
+    "analytics.html": {
+      "page": "analytics.html",
+      "infoUnits": [
+        {
+          "kind": "rag-tile",
+          "unitId": "analytics:oee",
+          "keySuffix": "oee",
+          "label": "OEE (avg, partial)",
+          "labelKey": "oee avg partial",
+          "keyKey": "oee",
+          "fingerprint": "oee avg partial",
+          "theme": null
+        },
+        {
+          "kind": "rag-tile",
+          "unitId": "analytics:mtbf",
+          "keySuffix": "mtbf",
+          "label": "Worst MTBF (partial)",
+          "labelKey": "worst mtbf partial",
+          "keyKey": "mtbf",
+          "fingerprint": "worst mtbf partial",
+          "theme": null
+        },
+        {
+          "kind": "rag-tile",
+          "unitId": "analytics:pm_compliance",
+          "keySuffix": "pm_compliance",
+          "label": "PM compliance (30d approx)",
+          "labelKey": "pm compliance 30d approx",
+          "keyKey": "pm compliance",
+          "fingerprint": "pm compliance 30d approx",
+          "theme": null
+        },
+        {
+          "kind": "rag-tile",
+          "unitId": "analytics:detail_panel",
+          "keySuffix": "detail_panel",
+          "label": "Analytics detail breakdown",
+          "labelKey": "analytics detail breakdown",
+          "keyKey": "detail panel",
+          "fingerprint": "analytics detail breakdown",
+          "theme": "detail breakdown panel"
+        },
+        {
+          "kind": "rag-tile",
+          "unitId": "analytics:results_panel",
+          "keySuffix": "results_panel",
+          "label": "Per-machine analytics results",
+          "labelKey": "per machine analytics results",
+          "keyKey": "results panel",
+          "fingerprint": "per machine analytics results",
+          "theme": null
+        }
+      ],
+      "links": [
+        {
+          "dest": "analytics-report.html",
+          "text": "\ud83d\udcc4 PDF Report"
+        },
+        {
+          "dest": "report-sender.html",
+          "text": "\u2709\ufe0f Send"
+        },
+        {
+          "dest": "predictive.html",
+          "text": "\ud83d\udd2e Predictive"
+        },
+        {
+          "dest": "shift-brain.html",
+          "text": "\ud83e\udde0 Shift Brain"
+        },
+        {
+          "dest": "ph-intelligence.html",
+          "text": "\ud83c\udf0f Network View"
+        }
+      ],
+      "onclickFns": [
+        "recomputeRiskScores",
+        "refreshAll",
+        "resetFilters",
+        "setFilter",
+        "setPeriod",
+        "setPhase",
+        "setRole",
+        "togglePMAsset",
+        "toggleShowAll"
+      ],
+      "structural": {
+        "simpleCardBlocks": 3,
+        "sumCardBlocks": 0,
+        "hasDetailPanel": true
+      },
+      "source": "static"
+    },
+    "asset-hub.html": {
+      "page": "asset-hub.html",
+      "infoUnits": [
+        {
+          "kind": "rag-tile",
+          "unitId": "asset-hub:total_assets",
+          "keySuffix": "total_assets",
+          "label": "Total assets",
+          "labelKey": "total assets",
+          "keyKey": "total assets",
+          "fingerprint": "total assets",
+          "theme": null
+        },
+        {
+          "kind": "rag-tile",
+          "unitId": "asset-hub:critical_assets",
+          "keySuffix": "critical_assets",
+          "label": "Critical assets",
+          "labelKey": "critical assets",
+          "keyKey": "critical assets",
+          "fingerprint": "critical assets",
+          "theme": "risk / hot / critical"
+        },
+        {
+          "kind": "rag-tile",
+          "unitId": "asset-hub:pending_approval",
+          "keySuffix": "pending_approval",
+          "label": "Pending approval",
+          "labelKey": "pending approval",
+          "keyKey": "pending approval",
+          "fingerprint": "pending approval",
+          "theme": "pending approval"
+        },
+        {
+          "kind": "rag-tile",
+          "unitId": "asset-hub:detail_panel",
+          "keySuffix": "detail_panel",
+          "label": "Asset detail breakdown",
+          "labelKey": "asset detail breakdown",
+          "keyKey": "detail panel",
+          "fingerprint": "asset detail breakdown",
+          "theme": "detail breakdown panel"
+        },
+        {
+          "kind": "rag-tile",
+          "unitId": "asset-hub:logbook_count",
+          "keySuffix": "logbook_count",
+          "label": "Asset logbook entries",
+          "labelKey": "asset logbook entries",
+          "keyKey": "logbook count",
+          "fingerprint": "asset logbook entries",
+          "theme": null
+        },
+        {
+          "kind": "rag-tile",
+          "unitId": "asset-hub:pm_count",
+          "keySuffix": "pm_count",
+          "label": "Asset PM completions",
+          "labelKey": "asset pm completions",
+          "keyKey": "pm count",
+          "fingerprint": "asset pm completions",
+          "theme": null
+        },
+        {
+          "kind": "rag-tile",
+          "unitId": "asset-hub:last_failure",
+          "keySuffix": "last_failure",
+          "label": "Asset last failure",
+          "labelKey": "asset last failure",
+          "keyKey": "last failure",
+          "fingerprint": "asset last failure",
+          "theme": null
+        },
+        {
+          "kind": "rag-tile",
+          "unitId": "asset-hub:rcm_edges",
+          "keySuffix": "rcm_edges",
+          "label": "Asset RCM edges",
+          "labelKey": "asset rcm edges",
+          "keyKey": "rcm edges",
+          "fingerprint": "asset rcm edges",
+          "theme": null
+        },
+        {
+          "kind": "kpi-untagged",
+          "unitId": "page:(untagged)",
+          "keySuffix": null,
+          "label": "Logbook entries",
+          "value": "0",
+          "labelKey": "logbook entries",
+          "keyKey": null,
+          "fingerprint": "logbook entries",
+          "theme": null,
+          "_live": true
+        },
+        {
+          "kind": "kpi-untagged",
+          "unitId": "page:(untagged)",
+          "keySuffix": null,
+          "label": "PM completed",
+          "value": "0",
+          "labelKey": "pm completed",
+          "keyKey": null,
+          "fingerprint": "pm completed",
+          "theme": null,
+          "_live": true
+        },
+        {
+          "kind": "kpi-untagged",
+          "unitId": "page:(untagged)",
+          "keySuffix": null,
+          "label": "Last failure",
+          "value": "never",
+          "labelKey": "last failure",
+          "keyKey": null,
+          "fingerprint": "last failure",
+          "theme": null,
+          "_live": true
+        },
+        {
+          "kind": "kpi-untagged",
+          "unitId": "page:(untagged)",
+          "keySuffix": null,
+          "label": "Edges",
+          "value": "0",
+          "labelKey": "edges",
+          "keyKey": null,
+          "fingerprint": "edges",
+          "theme": null,
+          "_live": true
+        }
+      ],
+      "links": [
+        {
+          "dest": "hive.html",
+          "text": "Go to Hive"
+        },
+        {
+          "dest": "hive.html",
+          "text": ""
+        },
+        {
+          "dest": "marketplace.html",
+          "text": "All listings &rsaquo;"
+        },
+        {
+          "dest": "marketplace.html",
+          "text": "${e(r.section || 'parts')} ${e(r.title |"
+        }
+      ],
+      "onclickFns": [
+        "loadMoreAssets"
+      ],
+      "structural": {
+        "simpleCardBlocks": 3,
+        "sumCardBlocks": 0,
+        "hasDetailPanel": true
+      },
+      "source": "static",
+      "liveAffordances": []
+    },
+    "assistant.html": {
+      "page": "assistant.html",
+      "infoUnits": [],
+      "links": [],
+      "onclickFns": [
+        "clearChat",
+        "handleBack",
+        "sendMessage",
+        "startChat",
+        "switchAssistantTab"
+      ],
+      "structural": {
+        "simpleCardBlocks": 0,
+        "sumCardBlocks": 0,
+        "hasDetailPanel": false
+      },
+      "source": "static"
+    },
+    "audit-log.html": {
+      "page": "audit-log.html",
+      "infoUnits": [],
+      "links": [
+        {
+          "dest": "hive.html",
+          "text": "Open Hive Board"
+        },
+        {
+          "dest": "index.html",
+          "text": "Back to Home"
+        }
+      ],
+      "onclickFns": [
+        "loadMoreAudit"
+      ],
+      "structural": {
+        "simpleCardBlocks": 0,
+        "sumCardBlocks": 0,
+        "hasDetailPanel": false
+      },
+      "source": "static"
+    },
+    "community.html": {
+      "page": "community.html",
+      "infoUnits": [],
+      "links": [
+        {
+          "dest": "index.html",
+          "text": ""
+        }
+      ],
+      "onclickFns": [
+        "closeComposer",
+        "closeReport",
+        "closeThread",
+        "copyThreadLink",
+        "deletePost",
+        "loadMoreGlobalPosts",
+        "loadMorePosts",
+        "openComposer",
+        "openEditor",
+        "openReport",
+        "openThread",
+        "setFilter",
+        "submitPost",
+        "submitReply",
+        "submitReport",
+        "switchTab",
+        "toggleFlag",
+        "togglePin",
+        "togglePublic",
+        "toggleReaction"
+      ],
+      "structural": {
+        "simpleCardBlocks": 0,
+        "sumCardBlocks": 0,
+        "hasDetailPanel": false
+      },
+      "source": "static"
+    },
+    "dayplanner.html": {
+      "page": "dayplanner.html",
+      "infoUnits": [
+        {
+          "kind": "rag-tile",
+          "unitId": "dayplanner:today_count",
+          "keySuffix": "today_count",
+          "label": "Tasks today",
+          "labelKey": "tasks today",
+          "keyKey": "today count",
+          "fingerprint": "tasks today",
+          "theme": "due soon / upcoming"
+        },
+        {
+          "kind": "rag-tile",
+          "unitId": "dayplanner:week_count",
+          "keySuffix": "week_count",
+          "label": "Tasks this week",
+          "labelKey": "tasks this week",
+          "keyKey": "week count",
+          "fingerprint": "tasks this week",
+          "theme": "due soon / upcoming"
+        },
+        {
+          "kind": "rag-tile",
+          "unitId": "dayplanner:overdue_count",
+          "keySuffix": "overdue_count",
+          "label": "Overdue tasks",
+          "labelKey": "overdue tasks",
+          "keyKey": "overdue count",
+          "fingerprint": "overdue tasks",
+          "theme": "late / overdue"
+        },
+        {
+          "kind": "rag-tile",
+          "unitId": "dayplanner:detail_panel",
+          "keySuffix": "detail_panel",
+          "label": "Day planner detail",
+          "labelKey": "day planner detail",
+          "keyKey": "detail panel",
+          "fingerprint": "day planner detail",
+          "theme": "detail breakdown panel"
+        }
+      ],
+      "links": [
+        {
+          "dest": "index.html",
+          "text": ""
+        }
+      ],
+      "onclickFns": [
+        "closeModal",
+        "deleteScheduleItem",
+        "goToDilDay",
+        "goToday",
+        "navigate",
+        "onMiloClick",
+        "onSlotClick",
+        "onYiloMonthClick",
+        "openAddModal",
+        "openEditModal",
+        "saveScheduleItem",
+        "selectLogbookItem",
+        "setItemStatus",
+        "switchView",
+        "toggleSidebar"
+      ],
+      "structural": {
+        "simpleCardBlocks": 3,
+        "sumCardBlocks": 0,
+        "hasDetailPanel": true
+      },
+      "source": "static",
+      "liveAffordances": [
+        {
+          "kind": "cta",
+          "label": "DILO",
+          "dest": "switchView()",
+          "destKind": "fn"
+        },
+        {
+          "kind": "cta",
+          "label": "WILO",
+          "dest": "switchView()",
+          "destKind": "fn"
+        },
+        {
+          "kind": "cta",
+          "label": "MILO",
+          "dest": "switchView()",
+          "destKind": "fn"
+        }
+      ]
+    },
+    "engineering-design.html": {
+      "page": "engineering-design.html",
+      "infoUnits": [],
+      "links": [
+        {
+          "dest": "hive.html",
+          "text": "Go to Hive Setup"
+        },
+        {
+          "dest": "index.html",
+          "text": "\u2190 Back"
+        }
+      ],
+      "onclickFns": [
+        "addBomRow",
+        "addCTCableRow",
+        "addDrainFixtureRow",
+        "addDuctSegRow",
+        "addFCURoomRow",
+        "addFixtureRow",
+        "addGTFixtureRow",
+        "addGenLoadRow",
+        "addLoadRow",
+        "addRefrigLineRow",
+        "addSowRow",
+        "addToolRow",
+        "addUPSLoadRow",
+        "addUseRow",
+        "backToChecklist",
+        "deleteBomRow",
+        "deleteCalc",
+        "downloadBomCsv",
+        "downloadBomDocPdf",
+        "downloadDiagramSVG",
+        "downloadDrawingPdf",
+        "downloadSowPdf",
+        "generateBomSowChecklist",
+        "generateDocuments",
+        "generateDrawing",
+        "printReport",
+        "quickSelectCalc",
+        "regenerateDrawing",
+        "runCalculation",
+        "saveCalc",
+        "saveWithBomSow",
+        "selectDiscipline",
+        "setPVLocation",
+        "switchBomTab",
+        "switchTab",
+        "toggle",
+        "toggleSVGEdit",
+        "toggleSowExpand"
+      ],
+      "structural": {
+        "simpleCardBlocks": 0,
+        "sumCardBlocks": 0,
+        "hasDetailPanel": false
+      },
+      "source": "static"
+    },
+    "hive.html": {
+      "page": "hive.html",
+      "infoUnits": [
+        {
+          "kind": "rag-tile",
+          "unitId": "hive:maturity_stair",
+          "keySuffix": "maturity_stair",
+          "label": "Hive maturity stair",
+          "labelKey": "hive maturity stair",
+          "keyKey": "maturity stair",
+          "fingerprint": "hive maturity stair",
+          "theme": null
+        },
+        {
+          "kind": "rag-tile",
+          "unitId": "hive:adoption_health",
+          "keySuffix": "adoption_health",
+          "label": "Adoption health",
+          "labelKey": "adoption health",
+          "keyKey": "adoption health",
+          "fingerprint": "adoption health",
+          "theme": null
+        },
+        {
+          "kind": "rag-tile",
+          "unitId": "hive:open_issues",
+          "keySuffix": "open_issues",
+          "label": "Open issues",
+          "labelKey": "open issues",
+          "keyKey": "open issues",
+          "fingerprint": "open issues",
+          "theme": null
+        },
+        {
+          "kind": "rag-tile",
+          "unitId": "hive:detail_panel",
+          "keySuffix": "detail_panel",
+          "label": "Hive supervisor detail",
+          "labelKey": "hive supervisor detail",
+          "keyKey": "detail panel",
+          "fingerprint": "hive supervisor detail",
+          "theme": "detail breakdown panel"
+        }
+      ],
+      "links": [
+        {
+          "dest": "index.html",
+          "text": ""
+        },
+        {
+          "dest": "audit-log.html",
+          "text": "Audit Log &#8594;"
+        },
+        {
+          "dest": "ai-quality.html",
+          "text": "AI Quality &#8594;"
+        },
+        {
+          "dest": "plant-connections.html",
+          "text": "Plant Connections &#8594;"
+        },
+        {
+          "dest": "pm-scheduler.html",
+          "text": "Open PM Scheduler &#8594;"
+        },
+        {
+          "dest": "inventory.html",
+          "text": "View Inventory &#8594;"
+        },
+        {
+          "dest": "inventory.html",
+          "text": "View your inventory &#8594;"
+        },
+        {
+          "dest": "pm-scheduler.html",
+          "text": "View in PM Scheduler \u2192"
+        }
+      ],
+      "onclickFns": [
+        "_openWorkerProfileDrawer",
+        "approveItem",
+        "askCoach",
+        "copyHandover",
+        "generateHandover",
+        "kickMember",
+        "loadMoreFeed",
+        "printHandover",
+        "rejectItem",
+        "switchToHive"
+      ],
+      "structural": {
+        "simpleCardBlocks": 3,
+        "sumCardBlocks": 0,
+        "hasDetailPanel": true
+      },
+      "source": "static"
+    },
+    "index.html": {
+      "page": "index.html",
+      "infoUnits": [],
+      "links": [
+        {
+          "dest": "index.html",
+          "text": ""
+        },
+        {
+          "dest": "hive.html",
+          "text": ""
+        },
+        {
+          "dest": "logbook.html",
+          "text": "Log a Job"
+        },
+        {
+          "dest": "pm-scheduler.html",
+          "text": "PM Scheduler"
+        },
+        {
+          "dest": "analytics.html",
+          "text": "Analytics"
+        },
+        {
+          "dest": "assistant.html",
+          "text": "Ask AI"
+        },
+        {
+          "dest": "voice-journal.html",
+          "text": "Voice Journal"
+        },
+        {
+          "dest": "logbook.html",
+          "text": "Logbook"
+        },
+        {
+          "dest": "pm-scheduler.html",
+          "text": "PM Scheduler"
+        },
+        {
+          "dest": "engineering-design.html",
+          "text": "Eng. Calculators"
+        },
+        {
+          "dest": "assistant.html",
+          "text": "AI Assistant"
+        },
+        {
+          "dest": "logbook.html",
+          "text": "Maintenance Logbook"
+        },
+        {
+          "dest": "pm-scheduler.html",
+          "text": "PM Scheduler"
+        },
+        {
+          "dest": "inventory.html",
+          "text": "Spare-Parts Inventory"
+        },
+        {
+          "dest": "skillmatrix.html",
+          "text": "Skill Matrix"
+        },
+        {
+          "dest": "engineering-design.html",
+          "text": "Engineering Calculators"
+        },
+        {
+          "dest": "assistant.html",
+          "text": "AI Work Assistant"
+        },
+        {
+          "dest": "asset-hub.html",
+          "text": "All assets \u2192"
+        },
+        {
+          "dest": "logbook.html",
+          "text": "\u2192"
+        }
+      ],
+      "onclickFns": [
+        "closeSignIn",
+        "closeStagePopup",
+        "dismissUpgradeBanner",
+        "openAllToolsPopup",
+        "openSignIn",
+        "openStagePopup",
+        "signInWithSSO",
+        "signOut",
+        "submitSignIn",
+        "submitSignUp",
+        "switchAuthTab",
+        "switchPopupStage",
+        "togglePersona",
+        "togglePwd",
+        "triggerInstall",
+        "upgradeToAccount"
+      ],
+      "structural": {
+        "simpleCardBlocks": 0,
+        "sumCardBlocks": 0,
+        "hasDetailPanel": false
+      },
+      "source": "static"
+    },
+    "integrations.html": {
+      "page": "integrations.html",
+      "infoUnits": [
+        {
+          "kind": "rag-tile",
+          "unitId": "integrations:active",
+          "keySuffix": "active",
+          "label": "Active integrations",
+          "labelKey": "active integrations",
+          "keyKey": "active",
+          "fingerprint": "active integrations",
+          "theme": null
+        },
+        {
+          "kind": "rag-tile",
+          "unitId": "integrations:stale",
+          "keySuffix": "stale",
+          "label": "Stale syncs",
+          "labelKey": "stale syncs",
+          "keyKey": "stale",
+          "fingerprint": "stale syncs",
+          "theme": null
+        },
+        {
+          "kind": "rag-tile",
+          "unitId": "integrations:disabled",
+          "keySuffix": "disabled",
+          "label": "Disabled integrations",
+          "labelKey": "disabled integrations",
+          "keyKey": "disabled",
+          "fingerprint": "disabled integrations",
+          "theme": null
+        },
+        {
+          "kind": "rag-tile",
+          "unitId": "integrations:detail_panel",
+          "keySuffix": "detail_panel",
+          "label": "Integrations detail",
+          "labelKey": "integrations detail",
+          "keyKey": "detail panel",
+          "fingerprint": "integrations detail",
+          "theme": "detail breakdown panel"
+        },
+        {
+          "kind": "rag-tile",
+          "unitId": "integrations:api_config",
+          "keySuffix": "api_config",
+          "label": "API configuration",
+          "labelKey": "api configuration",
+          "keyKey": "api config",
+          "fingerprint": "api configuration",
+          "theme": null
+        },
+        {
+          "kind": "rag-tile",
+          "unitId": "integrations:sync_log",
+          "keySuffix": "sync_log",
+          "label": "Sync log",
+          "labelKey": "sync log",
+          "keyKey": "sync log",
+          "fingerprint": "sync log",
+          "theme": null
+        }
+      ],
+      "links": [
+        {
+          "dest": "hive.html",
+          "text": "Go to Hive Board"
+        },
+        {
+          "dest": "hive.html",
+          "text": "View Hive Dashboard"
+        },
+        {
+          "dest": "ph-intelligence.html",
+          "text": "View Latest Intelligence Report \u2192"
+        }
+      ],
+      "onclickFns": [
+        "autoSuggestMapping",
+        "dismissGuide",
+        "editConfig",
+        "generateApiKey",
+        "goStep",
+        "loadConflicts",
+        "resetWizard",
+        "resolveConflict",
+        "revokeKey",
+        "rollbackBatch",
+        "runSync",
+        "saveSyncConfig",
+        "selectEntity",
+        "selectSource",
+        "startImport",
+        "switchTab",
+        "testSyncConfig"
+      ],
+      "structural": {
+        "simpleCardBlocks": 3,
+        "sumCardBlocks": 0,
+        "hasDetailPanel": true
+      },
+      "source": "static"
+    },
+    "inventory.html": {
+      "page": "inventory.html",
+      "infoUnits": [
+        {
+          "kind": "rag-tile",
+          "unitId": "inventory:out_of_stock",
+          "keySuffix": "out_of_stock",
+          "label": "Out of stock",
+          "labelKey": "out of stock",
+          "keyKey": "out of stock",
+          "fingerprint": "out of stock",
+          "theme": "stock / inventory level"
+        },
+        {
+          "kind": "rag-tile",
+          "unitId": "inventory:low_stock",
+          "keySuffix": "low_stock",
+          "label": "Low stock",
+          "labelKey": "low stock",
+          "keyKey": "low stock",
+          "fingerprint": "low stock",
+          "theme": "stock / inventory level"
+        },
+        {
+          "kind": "rag-tile",
+          "unitId": "inventory:pending_approval",
+          "keySuffix": "pending_approval",
+          "label": "Pending approval",
+          "labelKey": "pending approval",
+          "keyKey": "pending approval",
+          "fingerprint": "pending approval",
+          "theme": "pending approval"
+        },
+        {
+          "kind": "rag-tile",
+          "unitId": "inventory:detail_panel",
+          "keySuffix": "detail_panel",
+          "label": "Inventory detail breakdown",
+          "labelKey": "inventory detail breakdown",
+          "keyKey": "detail panel",
+          "fingerprint": "inventory detail breakdown",
+          "theme": "detail breakdown panel"
+        }
+      ],
+      "links": [
+        {
+          "dest": "index.html",
+          "text": ""
+        },
+        {
+          "dest": "index.html",
+          "text": "\u2190 Back to Basic Worker"
+        }
+      ],
+      "onclickFns": [
+        "closeDetailModal",
+        "confirmDeleteItem",
+        "loadMoreInventory",
+        "openDetailModal",
+        "openRestockModal",
+        "openUseModal"
+      ],
+      "structural": {
+        "simpleCardBlocks": 3,
+        "sumCardBlocks": 0,
+        "hasDetailPanel": true
+      },
+      "source": "static",
+      "liveAffordances": []
+    },
+    "logbook.html": {
+      "page": "logbook.html",
+      "infoUnits": [],
+      "links": [
+        {
+          "dest": "index.html",
+          "text": ""
+        },
+        {
+          "dest": "index.html",
+          "text": "\u2190 Back to Basic Worker"
+        },
+        {
+          "dest": "hive.html",
+          "text": "Go to WorkHive Board"
+        },
+        {
+          "dest": "voice-journal.html",
+          "text": "Voice Journal"
+        }
+      ],
+      "onclickFns": [
+        "cancelEditMode",
+        "closeEditAsset",
+        "confirmDelete",
+        "deleteAsset",
+        "loadMoreLogbook",
+        "openAssetDetail",
+        "openEditAsset",
+        "openEditModal",
+        "openModal",
+        "saveEditAsset",
+        "searchTeam",
+        "selectConsequence",
+        "selectRootCauseChip",
+        "startSmartVoice",
+        "stepGo",
+        "toggleExtras",
+        "togglePMOnTrack"
+      ],
+      "structural": {
+        "simpleCardBlocks": 0,
+        "sumCardBlocks": 0,
+        "hasDetailPanel": false
+      },
+      "source": "static"
+    },
+    "marketplace.html": {
+      "page": "marketplace.html",
+      "infoUnits": [
+        {
+          "kind": "rag-tile",
+          "unitId": "marketplace:listings_in_view",
+          "keySuffix": "listings_in_view",
+          "label": "Listings in view",
+          "labelKey": "listings in view",
+          "keyKey": "listings in view",
+          "fingerprint": "listings in view",
+          "theme": null
+        },
+        {
+          "kind": "rag-tile",
+          "unitId": "marketplace:my_listings",
+          "keySuffix": "my_listings",
+          "label": "My listings",
+          "labelKey": "my listings",
+          "keyKey": "my listings",
+          "fingerprint": "my listings",
+          "theme": null
+        },
+        {
+          "kind": "rag-tile",
+          "unitId": "marketplace:current_tab",
+          "keySuffix": "current_tab",
+          "label": "Current tab",
+          "labelKey": "current tab",
+          "keyKey": "current tab",
+          "fingerprint": "current tab",
+          "theme": null
+        },
+        {
+          "kind": "rag-tile",
+          "unitId": "marketplace:detail_panel",
+          "keySuffix": "detail_panel",
+          "label": "Marketplace detail",
+          "labelKey": "marketplace detail",
+          "keyKey": "detail panel",
+          "fingerprint": "marketplace detail",
+          "theme": "detail breakdown panel"
+        },
+        {
+          "kind": "rag-tile",
+          "unitId": "marketplace:listing_grid",
+          "keySuffix": "listing_grid",
+          "label": "Marketplace listing grid",
+          "labelKey": "marketplace listing grid",
+          "keyKey": "listing grid",
+          "fingerprint": "marketplace listing grid",
+          "theme": null
+        }
+      ],
+      "links": [
+        {
+          "dest": "marketplace-seller.html",
+          "text": "My Listings"
+        },
+        {
+          "dest": "marketplace-admin.html",
+          "text": "Admin"
+        },
+        {
+          "dest": "marketplace-seller-profile.html",
+          "text": "${renderWorkerAvatar(item.seller_name ||"
+        },
+        {
+          "dest": "marketplace-seller-profile.html",
+          "text": "View profile \u2192"
+        }
+      ],
+      "onclickFns": [
+        "handleSellerOnboard"
+      ],
+      "structural": {
+        "simpleCardBlocks": 3,
+        "sumCardBlocks": 0,
+        "hasDetailPanel": true
+      },
+      "source": "static"
+    },
+    "ph-intelligence.html": {
+      "page": "ph-intelligence.html",
+      "infoUnits": [
+        {
+          "kind": "rag-tile",
+          "unitId": "ph-intelligence:plants_in_network",
+          "keySuffix": "plants_in_network",
+          "label": "Plants in network",
+          "labelKey": "plants in network",
+          "keyKey": "plants in network",
+          "fingerprint": "plants in network",
+          "theme": null
+        },
+        {
+          "kind": "rag-tile",
+          "unitId": "ph-intelligence:top_failure_cause",
+          "keySuffix": "top_failure_cause",
+          "label": "Top failure cause",
+          "labelKey": "top failure cause",
+          "keyKey": "top failure cause",
+          "fingerprint": "top failure cause",
+          "theme": null
+        },
+        {
+          "kind": "rag-tile",
+          "unitId": "ph-intelligence:report_freshness",
+          "keySuffix": "report_freshness",
+          "label": "Report freshness",
+          "labelKey": "report freshness",
+          "keyKey": "report freshness",
+          "fingerprint": "report freshness",
+          "theme": null
+        },
+        {
+          "kind": "rag-tile",
+          "unitId": "ph-intelligence:detail_panel",
+          "keySuffix": "detail_panel",
+          "label": "PH Intelligence detail",
+          "labelKey": "ph intelligence detail",
+          "keyKey": "detail panel",
+          "fingerprint": "ph intelligence detail",
+          "theme": "detail breakdown panel"
+        }
+      ],
+      "links": [
+        {
+          "dest": "integrations.html",
+          "text": "Integrations \u2192 API Keys"
+        },
+        {
+          "dest": "integrations.html",
+          "text": "Import Your CMMS Data"
+        }
+      ],
+      "onclickFns": [
+        "generateReport"
+      ],
+      "structural": {
+        "simpleCardBlocks": 3,
+        "sumCardBlocks": 0,
+        "hasDetailPanel": true
+      },
+      "source": "static"
+    },
+    "plant-connections.html": {
+      "page": "plant-connections.html",
+      "infoUnits": [],
+      "links": [
+        {
+          "dest": "integrations.html",
+          "text": "CMMS Integration"
+        }
+      ],
+      "onclickFns": [],
+      "structural": {
+        "simpleCardBlocks": 1,
+        "sumCardBlocks": 0,
+        "hasDetailPanel": false
+      },
+      "source": "static"
+    },
+    "pm-scheduler.html": {
+      "page": "pm-scheduler.html",
+      "infoUnits": [
+        {
+          "kind": "rag-tile",
+          "unitId": "pm-scheduler:overdue",
+          "keySuffix": "overdue",
+          "label": "Overdue PMs",
+          "labelKey": "overdue pms",
+          "keyKey": "overdue",
+          "fingerprint": "overdue pms",
+          "theme": "late / overdue"
+        },
+        {
+          "kind": "rag-tile",
+          "unitId": "pm-scheduler:due_soon",
+          "keySuffix": "due_soon",
+          "label": "Due this week",
+          "labelKey": "due this week",
+          "keyKey": "due soon",
+          "fingerprint": "due this week",
+          "theme": "due soon / upcoming"
+        },
+        {
+          "kind": "rag-tile",
+          "unitId": "pm-scheduler:on_track",
+          "keySuffix": "on_track",
+          "label": "On track",
+          "labelKey": "on track",
+          "keyKey": "on track",
+          "fingerprint": "on track",
+          "theme": "healthy / on-track"
+        },
+        {
+          "kind": "rag-tile",
+          "unitId": "pm-scheduler:detail_panel",
+          "keySuffix": "detail_panel",
+          "label": "PM detail breakdown",
+          "labelKey": "pm detail breakdown",
+          "keyKey": "detail panel",
+          "fingerprint": "pm detail breakdown",
+          "theme": "detail breakdown panel"
+        }
+      ],
+      "links": [
+        {
+          "dest": "index.html",
+          "text": ""
+        }
+      ],
+      "onclickFns": [
+        "addCustomItem",
+        "addTaskBackdropClick",
+        "closeAddTaskSheet",
+        "closeEditPMAsset",
+        "closeSheet",
+        "confirmDeleteAsset",
+        "goAddAsset",
+        "goBack",
+        "goStep",
+        "loadMoreHistory",
+        "loadMorePM",
+        "markDone",
+        "openAddTaskSheet",
+        "openDetail",
+        "openEditPMAsset",
+        "pickRegisteredAsset",
+        "pickTaskChip",
+        "removeCustomItem",
+        "saveAsset",
+        "saveEditPMAsset",
+        "saveNewTask",
+        "selectTmplCat",
+        "setCrit",
+        "sheetBackdropClick",
+        "showScreen",
+        "submitCompletion",
+        "toggleScopeItem"
+      ],
+      "structural": {
+        "simpleCardBlocks": 3,
+        "sumCardBlocks": 0,
+        "hasDetailPanel": true
+      },
+      "source": "static",
+      "liveAffordances": [
+        {
+          "kind": "cta",
+          "label": "Add asset",
+          "dest": "goAddAsset()",
+          "destKind": "fn"
+        },
+        {
+          "kind": "cta",
+          "label": "Dashboard",
+          "dest": "showScreen()",
+          "destKind": "fn"
+        }
+      ]
+    },
+    "predictive.html": {
+      "page": "predictive.html",
+      "infoUnits": [
+        {
+          "kind": "rag-tile",
+          "unitId": "predictive:hot_assets",
+          "keySuffix": "hot_assets",
+          "label": "Hot assets",
+          "labelKey": "hot assets",
+          "keyKey": "hot assets",
+          "fingerprint": "hot assets",
+          "theme": "risk / hot / critical"
+        },
+        {
+          "kind": "rag-tile",
+          "unitId": "predictive:healthy_assets",
+          "keySuffix": "healthy_assets",
+          "label": "Healthy assets",
+          "labelKey": "healthy assets",
+          "keyKey": "healthy assets",
+          "fingerprint": "healthy assets",
+          "theme": "healthy / on-track"
+        },
+        {
+          "kind": "rag-tile",
+          "unitId": "predictive:earliest_forecast",
+          "keySuffix": "earliest_forecast",
+          "label": "Earliest forecast failure",
+          "labelKey": "earliest forecast failure",
+          "keyKey": "earliest forecast",
+          "fingerprint": "earliest forecast failure",
+          "theme": null
+        },
+        {
+          "kind": "rag-tile",
+          "unitId": "predictive:detail_panel",
+          "keySuffix": "detail_panel",
+          "label": "Predictive detail breakdown",
+          "labelKey": "predictive detail breakdown",
+          "keyKey": "detail panel",
+          "fingerprint": "predictive detail breakdown",
+          "theme": "detail breakdown panel"
+        },
+        {
+          "kind": "rag-tile",
+          "unitId": "predictive:risk_ranking",
+          "keySuffix": "risk_ranking",
+          "label": "Risk ranking table",
+          "labelKey": "risk ranking table",
+          "keyKey": "risk ranking",
+          "fingerprint": "risk ranking table",
+          "theme": "risk / hot / critical"
+        },
+        {
+          "kind": "rag-tile",
+          "unitId": "predictive:risk_heatmap",
+          "keySuffix": "risk_heatmap",
+          "label": "Risk heatmap",
+          "labelKey": "risk heatmap",
+          "keyKey": "risk heatmap",
+          "fingerprint": "risk heatmap",
+          "theme": "risk / hot / critical"
+        },
+        {
+          "kind": "rag-tile",
+          "unitId": "predictive:mtbf_trend",
+          "keySuffix": "mtbf_trend",
+          "label": "MTBF trend panel",
+          "labelKey": "mtbf trend panel",
+          "keyKey": "mtbf trend",
+          "fingerprint": "mtbf trend panel",
+          "theme": null
+        }
+      ],
+      "links": [
+        {
+          "dest": "asset-hub.html",
+          "text": "Asset Hub"
+        },
+        {
+          "dest": "asset-hub.html",
+          "text": "Open Asset Hub \u2192"
+        }
+      ],
+      "onclickFns": [],
+      "structural": {
+        "simpleCardBlocks": 3,
+        "sumCardBlocks": 4,
+        "hasDetailPanel": true
+      },
+      "source": "static"
+    },
+    "project-manager.html": {
+      "page": "project-manager.html",
+      "infoUnits": [
+        {
+          "kind": "rag-tile",
+          "unitId": "project-manager:project_list",
+          "keySuffix": "project_list",
+          "label": "Project list view",
+          "labelKey": "project list view",
+          "keyKey": "project list",
+          "fingerprint": "project list view",
+          "theme": null
+        },
+        {
+          "kind": "rag-tile",
+          "unitId": "project-manager:active_projects",
+          "keySuffix": "active_projects",
+          "label": "Active projects",
+          "labelKey": "active projects",
+          "keyKey": "active projects",
+          "fingerprint": "active projects",
+          "theme": null
+        },
+        {
+          "kind": "rag-tile",
+          "unitId": "project-manager:past_end_date",
+          "keySuffix": "past_end_date",
+          "label": "Past end date",
+          "labelKey": "past end date",
+          "keyKey": "past end date",
+          "fingerprint": "past end date",
+          "theme": "late / overdue"
+        },
+        {
+          "kind": "rag-tile",
+          "unitId": "project-manager:on_hold_planning",
+          "keySuffix": "on_hold_planning",
+          "label": "On hold or planning",
+          "labelKey": "on hold or planning",
+          "keyKey": "on hold planning",
+          "fingerprint": "on hold or planning",
+          "theme": null
+        },
+        {
+          "kind": "rag-tile",
+          "unitId": "project-manager:project_cards",
+          "keySuffix": "project_cards",
+          "label": "Project card grid",
+          "labelKey": "project card grid",
+          "keyKey": "project cards",
+          "fingerprint": "project card grid",
+          "theme": null
+        }
+      ],
+      "links": [
+        {
+          "dest": "hive.html",
+          "text": "Go to Hive"
+        },
+        {
+          "dest": "project-report.html",
+          "text": "\ud83d\udcc4 Print Report"
+        },
+        {
+          "dest": "project-report.html",
+          "text": "\ud83d\udcc4 Print report"
+        }
+      ],
+      "onclickFns": [
+        "ackLog",
+        "aiDraftLessons",
+        "approveCO",
+        "cancelCO",
+        "closeDetail",
+        "closeModal",
+        "cycleScopeStatus",
+        "deleteProject",
+        "linkSuggested",
+        "loadMorePm",
+        "markComplete",
+        "markStatus",
+        "openAIIntentModal",
+        "openAddRole",
+        "openDetail",
+        "openEditProject",
+        "openEditScope",
+        "openModal",
+        "openNewCO",
+        "openNewProject",
+        "openNewScope",
+        "openProgressLog",
+        "rejectCO",
+        "removeLink",
+        "removeRole",
+        "runAIIntent",
+        "saveLessons",
+        "saveLink",
+        "setActivePane",
+        "toggleGroup",
+        "wizardAddCustomItem",
+        "wizardBack",
+        "wizardNext",
+        "wizardPickTemplate",
+        "wizardPickType",
+        "wizardRemoveItem",
+        "wizardSubmit"
+      ],
+      "structural": {
+        "simpleCardBlocks": 3,
+        "sumCardBlocks": 0,
+        "hasDetailPanel": false
+      },
+      "source": "static",
+      "liveAffordances": [
+        {
+          "kind": "cta",
+          "label": "Print Report",
+          "dest": "project-report.html",
+          "destKind": "page"
+        },
+        {
+          "kind": "cta",
+          "label": "+ New project",
+          "dest": "openNewProject()",
+          "destKind": "fn"
+        }
+      ]
+    },
+    "project-report.html": {
+      "page": "project-report.html",
+      "infoUnits": [],
+      "links": [
+        {
+          "dest": "project-manager.html",
+          "text": "&larr; Back"
+        },
+        {
+          "dest": "project-manager.html",
+          "text": "Go to Project Manager"
+        }
+      ],
+      "onclickFns": [
+        "aiGenerateNarrative",
+        "saveAsPdf"
+      ],
+      "structural": {
+        "simpleCardBlocks": 0,
+        "sumCardBlocks": 0,
+        "hasDetailPanel": false
+      },
+      "source": "static"
+    },
+    "report-sender.html": {
+      "page": "report-sender.html",
+      "infoUnits": [
+        {
+          "kind": "rag-tile",
+          "unitId": "report-sender:reports_selected",
+          "keySuffix": "reports_selected",
+          "label": "Reports selected",
+          "labelKey": "reports selected",
+          "keyKey": "reports selected",
+          "fingerprint": "reports selected",
+          "theme": null
+        },
+        {
+          "kind": "rag-tile",
+          "unitId": "report-sender:recipients",
+          "keySuffix": "recipients",
+          "label": "Recipients",
+          "labelKey": "recipients",
+          "keyKey": "recipients",
+          "fingerprint": "recipients",
+          "theme": null
+        },
+        {
+          "kind": "rag-tile",
+          "unitId": "report-sender:saved_contacts",
+          "keySuffix": "saved_contacts",
+          "label": "Saved contacts",
+          "labelKey": "saved contacts",
+          "keyKey": "saved contacts",
+          "fingerprint": "saved contacts",
+          "theme": null
+        },
+        {
+          "kind": "rag-tile",
+          "unitId": "report-sender:detail_panel",
+          "keySuffix": "detail_panel",
+          "label": "Report sender detail",
+          "labelKey": "report sender detail",
+          "keyKey": "detail panel",
+          "fingerprint": "report sender detail",
+          "theme": "detail breakdown panel"
+        }
+      ],
+      "links": [],
+      "onclickFns": [],
+      "structural": {
+        "simpleCardBlocks": 3,
+        "sumCardBlocks": 0,
+        "hasDetailPanel": true
+      },
+      "source": "static"
+    },
+    "resume.html": {
+      "page": "resume.html",
+      "infoUnits": [],
+      "links": [],
+      "onclickFns": [],
+      "structural": {
+        "simpleCardBlocks": 0,
+        "sumCardBlocks": 0,
+        "hasDetailPanel": false
+      },
+      "source": "static"
+    },
+    "shift-brain.html": {
+      "page": "shift-brain.html",
+      "infoUnits": [
+        {
+          "kind": "rag-tile",
+          "unitId": "shift-brain:top_risk_this_shift",
+          "keySuffix": "top_risk_this_shift",
+          "label": "Top risk this shift",
+          "labelKey": "top risk this shift",
+          "keyKey": "top risk this shift",
+          "fingerprint": "top risk this shift",
+          "theme": "risk / hot / critical"
+        },
+        {
+          "kind": "rag-tile",
+          "unitId": "shift-brain:pms_due",
+          "keySuffix": "pms_due",
+          "label": "PMs due",
+          "labelKey": "pms due",
+          "keyKey": "pms due",
+          "fingerprint": "pms due",
+          "theme": "due soon / upcoming"
+        },
+        {
+          "kind": "rag-tile",
+          "unitId": "shift-brain:carry_forward",
+          "keySuffix": "carry_forward",
+          "label": "Carry-forward",
+          "labelKey": "carry forward",
+          "keyKey": "carry forward",
+          "fingerprint": "carry forward",
+          "theme": null
+        },
+        {
+          "kind": "rag-tile",
+          "unitId": "shift-brain:detail_panel",
+          "keySuffix": "detail_panel",
+          "label": "Shift brain detail",
+          "labelKey": "shift brain detail",
+          "keyKey": "detail panel",
+          "fingerprint": "shift brain detail",
+          "theme": "detail breakdown panel"
+        }
+      ],
+      "links": [
+        {
+          "dest": "hive.html",
+          "text": "Go to Hive"
+        },
+        {
+          "dest": "hive.html",
+          "text": ""
+        }
+      ],
+      "onclickFns": [],
+      "structural": {
+        "simpleCardBlocks": 3,
+        "sumCardBlocks": 0,
+        "hasDetailPanel": true
+      },
+      "source": "static"
+    },
+    "skillmatrix.html": {
+      "page": "skillmatrix.html",
+      "infoUnits": [
+        {
+          "kind": "rag-tile",
+          "unitId": "skillmatrix:on_target",
+          "keySuffix": "on_target",
+          "label": "On target workers",
+          "labelKey": "on target workers",
+          "keyKey": "on target",
+          "fingerprint": "on target workers",
+          "theme": "healthy / on-track"
+        },
+        {
+          "kind": "rag-tile",
+          "unitId": "skillmatrix:quizzes_available",
+          "keySuffix": "quizzes_available",
+          "label": "Quizzes available",
+          "labelKey": "quizzes available",
+          "keyKey": "quizzes available",
+          "fingerprint": "quizzes available",
+          "theme": null
+        },
+        {
+          "kind": "rag-tile",
+          "unitId": "skillmatrix:total_badges",
+          "keySuffix": "total_badges",
+          "label": "Total badges earned",
+          "labelKey": "total badges earned",
+          "keyKey": "total badges",
+          "fingerprint": "total badges earned",
+          "theme": null
+        },
+        {
+          "kind": "rag-tile",
+          "unitId": "skillmatrix:detail_panel",
+          "keySuffix": "detail_panel",
+          "label": "Skill matrix detail",
+          "labelKey": "skill matrix detail",
+          "keyKey": "detail panel",
+          "fingerprint": "skill matrix detail",
+          "theme": "detail breakdown panel"
+        }
+      ],
+      "links": [],
+      "onclickFns": [],
+      "structural": {
+        "simpleCardBlocks": 3,
+        "sumCardBlocks": 0,
+        "hasDetailPanel": true
+      },
+      "source": "static"
+    },
+    "voice-journal.html": {
+      "page": "voice-journal.html",
+      "infoUnits": [],
+      "links": [
+        {
+          "dest": "index.html",
+          "text": "Sign in"
+        }
+      ],
+      "onclickFns": [
+        "loadMoreVoice"
+      ],
+      "structural": {
+        "simpleCardBlocks": 0,
+        "sumCardBlocks": 0,
+        "hasDetailPanel": false
+      },
+      "source": "static"
+    }
+  },
+  "groups": {
+    "info_redundancy_by_label": [
+      {
+        "key": "pending approval",
+        "pageCount": 2,
+        "pages": [
+          "asset-hub.html",
+          "inventory.html"
+        ],
+        "labels": [
+          "Pending approval"
+        ],
+        "units": [
+          {
+            "page": "asset-hub.html",
+            "unitId": "asset-hub:pending_approval",
+            "label": "Pending approval"
+          },
+          {
+            "page": "inventory.html",
+            "unitId": "inventory:pending_approval",
+            "label": "Pending approval"
+          }
+        ]
+      }
+    ],
+    "info_redundancy_by_key": [
+      {
+        "key": "detail panel",
+        "pageCount": 15,
+        "pages": [
+          "achievements.html",
+          "alert-hub.html",
+          "analytics.html",
+          "asset-hub.html",
+          "dayplanner.html",
+          "hive.html",
+          "integrations.html",
+          "inventory.html",
+          "marketplace.html",
+          "ph-intelligence.html",
+          "pm-scheduler.html",
+          "predictive.html",
+          "report-sender.html",
+          "shift-brain.html",
+          "skillmatrix.html"
+        ],
+        "labels": [
+          "Achievements detail",
+          "Alert detail breakdown",
+          "Analytics detail breakdown",
+          "Asset detail breakdown",
+          "Day planner detail",
+          "Hive supervisor detail",
+          "Integrations detail",
+          "Inventory detail breakdown",
+          "Marketplace detail",
+          "PH Intelligence detail",
+          "PM detail breakdown",
+          "Predictive detail breakdown",
+          "Report sender detail",
+          "Shift brain detail",
+          "Skill matrix detail"
+        ],
+        "units": [
+          {
+            "page": "achievements.html",
+            "unitId": "achievements:detail_panel",
+            "label": "Achievements detail"
+          },
+          {
+            "page": "alert-hub.html",
+            "unitId": "alert-hub:detail_panel",
+            "label": "Alert detail breakdown"
+          },
+          {
+            "page": "analytics.html",
+            "unitId": "analytics:detail_panel",
+            "label": "Analytics detail breakdown"
+          },
+          {
+            "page": "asset-hub.html",
+            "unitId": "asset-hub:detail_panel",
+            "label": "Asset detail breakdown"
+          },
+          {
+            "page": "dayplanner.html",
+            "unitId": "dayplanner:detail_panel",
+            "label": "Day planner detail"
+          },
+          {
+            "page": "hive.html",
+            "unitId": "hive:detail_panel",
+            "label": "Hive supervisor detail"
+          },
+          {
+            "page": "integrations.html",
+            "unitId": "integrations:detail_panel",
+            "label": "Integrations detail"
+          },
+          {
+            "page": "inventory.html",
+            "unitId": "inventory:detail_panel",
+            "label": "Inventory detail breakdown"
+          },
+          {
+            "page": "marketplace.html",
+            "unitId": "marketplace:detail_panel",
+            "label": "Marketplace detail"
+          },
+          {
+            "page": "ph-intelligence.html",
+            "unitId": "ph-intelligence:detail_panel",
+            "label": "PH Intelligence detail"
+          },
+          {
+            "page": "pm-scheduler.html",
+            "unitId": "pm-scheduler:detail_panel",
+            "label": "PM detail breakdown"
+          },
+          {
+            "page": "predictive.html",
+            "unitId": "predictive:detail_panel",
+            "label": "Predictive detail breakdown"
+          },
+          {
+            "page": "report-sender.html",
+            "unitId": "report-sender:detail_panel",
+            "label": "Report sender detail"
+          },
+          {
+            "page": "shift-brain.html",
+            "unitId": "shift-brain:detail_panel",
+            "label": "Shift brain detail"
+          },
+          {
+            "page": "skillmatrix.html",
+            "unitId": "skillmatrix:detail_panel",
+            "label": "Skill matrix detail"
+          }
+        ]
+      },
+      {
+        "key": "pending approval",
+        "pageCount": 2,
+        "pages": [
+          "asset-hub.html",
+          "inventory.html"
+        ],
+        "labels": [
+          "Pending approval"
+        ],
+        "units": [
+          {
+            "page": "asset-hub.html",
+            "unitId": "asset-hub:pending_approval",
+            "label": "Pending approval"
+          },
+          {
+            "page": "inventory.html",
+            "unitId": "inventory:pending_approval",
+            "label": "Pending approval"
+          }
+        ]
+      }
+    ],
+    "info_theme_clusters": [
+      {
+        "key": "detail breakdown panel",
+        "pageCount": 15,
+        "pages": [
+          "achievements.html",
+          "alert-hub.html",
+          "analytics.html",
+          "asset-hub.html",
+          "dayplanner.html",
+          "hive.html",
+          "integrations.html",
+          "inventory.html",
+          "marketplace.html",
+          "ph-intelligence.html",
+          "pm-scheduler.html",
+          "predictive.html",
+          "report-sender.html",
+          "shift-brain.html",
+          "skillmatrix.html"
+        ],
+        "labels": [
+          "Achievements detail",
+          "Alert detail breakdown",
+          "Analytics detail breakdown",
+          "Asset detail breakdown",
+          "Day planner detail",
+          "Hive supervisor detail",
+          "Integrations detail",
+          "Inventory detail breakdown",
+          "Marketplace detail",
+          "PH Intelligence detail",
+          "PM detail breakdown",
+          "Predictive detail breakdown",
+          "Report sender detail",
+          "Shift brain detail",
+          "Skill matrix detail"
+        ],
+        "units": [
+          {
+            "page": "achievements.html",
+            "unitId": "achievements:detail_panel",
+            "label": "Achievements detail"
+          },
+          {
+            "page": "alert-hub.html",
+            "unitId": "alert-hub:detail_panel",
+            "label": "Alert detail breakdown"
+          },
+          {
+            "page": "analytics.html",
+            "unitId": "analytics:detail_panel",
+            "label": "Analytics detail breakdown"
+          },
+          {
+            "page": "asset-hub.html",
+            "unitId": "asset-hub:detail_panel",
+            "label": "Asset detail breakdown"
+          },
+          {
+            "page": "dayplanner.html",
+            "unitId": "dayplanner:detail_panel",
+            "label": "Day planner detail"
+          },
+          {
+            "page": "hive.html",
+            "unitId": "hive:detail_panel",
+            "label": "Hive supervisor detail"
+          },
+          {
+            "page": "integrations.html",
+            "unitId": "integrations:detail_panel",
+            "label": "Integrations detail"
+          },
+          {
+            "page": "inventory.html",
+            "unitId": "inventory:detail_panel",
+            "label": "Inventory detail breakdown"
+          },
+          {
+            "page": "marketplace.html",
+            "unitId": "marketplace:detail_panel",
+            "label": "Marketplace detail"
+          },
+          {
+            "page": "ph-intelligence.html",
+            "unitId": "ph-intelligence:detail_panel",
+            "label": "PH Intelligence detail"
+          },
+          {
+            "page": "pm-scheduler.html",
+            "unitId": "pm-scheduler:detail_panel",
+            "label": "PM detail breakdown"
+          },
+          {
+            "page": "predictive.html",
+            "unitId": "predictive:detail_panel",
+            "label": "Predictive detail breakdown"
+          },
+          {
+            "page": "report-sender.html",
+            "unitId": "report-sender:detail_panel",
+            "label": "Report sender detail"
+          },
+          {
+            "page": "shift-brain.html",
+            "unitId": "shift-brain:detail_panel",
+            "label": "Shift brain detail"
+          },
+          {
+            "page": "skillmatrix.html",
+            "unitId": "skillmatrix:detail_panel",
+            "label": "Skill matrix detail"
+          }
+        ]
+      },
+      {
+        "key": "risk / hot / critical",
+        "pageCount": 4,
+        "pages": [
+          "alert-hub.html",
+          "asset-hub.html",
+          "predictive.html",
+          "shift-brain.html"
+        ],
+        "labels": [
+          "AMC parts at risk",
+          "Anomaly signals",
+          "Critical assets",
+          "High-severity alerts",
+          "Hot assets",
+          "Risk heatmap",
+          "Risk ranking table",
+          "Top risk this shift"
+        ],
+        "units": [
+          {
+            "page": "alert-hub.html",
+            "unitId": "alert-hub:high_severity_alerts",
+            "label": "High-severity alerts"
+          },
+          {
+            "page": "alert-hub.html",
+            "unitId": "alert-hub:anomaly_signals",
+            "label": "Anomaly signals"
+          },
+          {
+            "page": "alert-hub.html",
+            "unitId": "alert-hub:amc_parts",
+            "label": "AMC parts at risk"
+          },
+          {
+            "page": "asset-hub.html",
+            "unitId": "asset-hub:critical_assets",
+            "label": "Critical assets"
+          },
+          {
+            "page": "predictive.html",
+            "unitId": "predictive:hot_assets",
+            "label": "Hot assets"
+          },
+          {
+            "page": "predictive.html",
+            "unitId": "predictive:risk_ranking",
+            "label": "Risk ranking table"
+          },
+          {
+            "page": "predictive.html",
+            "unitId": "predictive:risk_heatmap",
+            "label": "Risk heatmap"
+          },
+          {
+            "page": "shift-brain.html",
+            "unitId": "shift-brain:top_risk_this_shift",
+            "label": "Top risk this shift"
+          }
+        ]
+      },
+      {
+        "key": "due soon / upcoming",
+        "pageCount": 3,
+        "pages": [
+          "dayplanner.html",
+          "pm-scheduler.html",
+          "shift-brain.html"
+        ],
+        "labels": [
+          "Due this week",
+          "PMs due",
+          "Tasks this week",
+          "Tasks today"
+        ],
+        "units": [
+          {
+            "page": "dayplanner.html",
+            "unitId": "dayplanner:today_count",
+            "label": "Tasks today"
+          },
+          {
+            "page": "dayplanner.html",
+            "unitId": "dayplanner:week_count",
+            "label": "Tasks this week"
+          },
+          {
+            "page": "pm-scheduler.html",
+            "unitId": "pm-scheduler:due_soon",
+            "label": "Due this week"
+          },
+          {
+            "page": "shift-brain.html",
+            "unitId": "shift-brain:pms_due",
+            "label": "PMs due"
+          }
+        ]
+      },
+      {
+        "key": "healthy / on-track",
+        "pageCount": 3,
+        "pages": [
+          "pm-scheduler.html",
+          "predictive.html",
+          "skillmatrix.html"
+        ],
+        "labels": [
+          "Healthy assets",
+          "On target workers",
+          "On track"
+        ],
+        "units": [
+          {
+            "page": "pm-scheduler.html",
+            "unitId": "pm-scheduler:on_track",
+            "label": "On track"
+          },
+          {
+            "page": "predictive.html",
+            "unitId": "predictive:healthy_assets",
+            "label": "Healthy assets"
+          },
+          {
+            "page": "skillmatrix.html",
+            "unitId": "skillmatrix:on_target",
+            "label": "On target workers"
+          }
+        ]
+      },
+      {
+        "key": "late / overdue",
+        "pageCount": 3,
+        "pages": [
+          "dayplanner.html",
+          "pm-scheduler.html",
+          "project-manager.html"
+        ],
+        "labels": [
+          "Overdue PMs",
+          "Overdue tasks",
+          "Past end date"
+        ],
+        "units": [
+          {
+            "page": "dayplanner.html",
+            "unitId": "dayplanner:overdue_count",
+            "label": "Overdue tasks"
+          },
+          {
+            "page": "pm-scheduler.html",
+            "unitId": "pm-scheduler:overdue",
+            "label": "Overdue PMs"
+          },
+          {
+            "page": "project-manager.html",
+            "unitId": "project-manager:past_end_date",
+            "label": "Past end date"
+          }
+        ]
+      },
+      {
+        "key": "pending approval",
+        "pageCount": 2,
+        "pages": [
+          "asset-hub.html",
+          "inventory.html"
+        ],
+        "labels": [
+          "Pending approval"
+        ],
+        "units": [
+          {
+            "page": "asset-hub.html",
+            "unitId": "asset-hub:pending_approval",
+            "label": "Pending approval"
+          },
+          {
+            "page": "inventory.html",
+            "unitId": "inventory:pending_approval",
+            "label": "Pending approval"
+          }
+        ]
+      }
+    ],
+    "affordance_overlap_destinations": [
+      {
+        "dest": "hive.html",
+        "pageCount": 9,
+        "pages": [
+          "alert-hub.html",
+          "asset-hub.html",
+          "audit-log.html",
+          "engineering-design.html",
+          "index.html",
+          "integrations.html",
+          "logbook.html",
+          "project-manager.html",
+          "shift-brain.html"
+        ]
+      },
+      {
+        "dest": "index.html",
+        "pageCount": 9,
+        "pages": [
+          "audit-log.html",
+          "community.html",
+          "dayplanner.html",
+          "engineering-design.html",
+          "hive.html",
+          "inventory.html",
+          "logbook.html",
+          "pm-scheduler.html",
+          "voice-journal.html"
+        ]
+      },
+      {
+        "dest": "asset-hub.html",
+        "pageCount": 2,
+        "pages": [
+          "index.html",
+          "predictive.html"
+        ]
+      },
+      {
+        "dest": "integrations.html",
+        "pageCount": 2,
+        "pages": [
+          "ph-intelligence.html",
+          "plant-connections.html"
+        ]
+      },
+      {
+        "dest": "inventory.html",
+        "pageCount": 2,
+        "pages": [
+          "hive.html",
+          "index.html"
+        ]
+      },
+      {
+        "dest": "ph-intelligence.html",
+        "pageCount": 2,
+        "pages": [
+          "analytics.html",
+          "integrations.html"
+        ]
+      },
+      {
+        "dest": "pm-scheduler.html",
+        "pageCount": 2,
+        "pages": [
+          "hive.html",
+          "index.html"
+        ]
+      },
+      {
+        "dest": "voice-journal.html",
+        "pageCount": 2,
+        "pages": [
+          "index.html",
+          "logbook.html"
+        ]
+      }
+    ],
+    "affordance_shared_handlers": [
+      {
+        "fn": "switchTab",
+        "pageCount": 3,
+        "pages": [
+          "community.html",
+          "engineering-design.html",
+          "integrations.html"
+        ]
+      }
+    ],
+    "presentational": {
+      "jscpd": {
+        "clones": 70,
+        "duplicatedLines": 5242,
+        "percentage": 27.5
+      },
+      "detail_panel_family": {
+        "pageCount": 15,
+        "pages": [
+          "achievements.html",
+          "alert-hub.html",
+          "analytics.html",
+          "asset-hub.html",
+          "dayplanner.html",
+          "hive.html",
+          "integrations.html",
+          "inventory.html",
+          "marketplace.html",
+          "ph-intelligence.html",
+          "pm-scheduler.html",
+          "predictive.html",
+          "report-sender.html",
+          "shift-brain.html",
+          "skillmatrix.html"
+        ]
+      },
+      "simple_card_family": [
+        {
+          "page": "achievements.html",
+          "blocks": 3
+        },
+        {
+          "page": "ai-quality.html",
+          "blocks": 3
+        },
+        {
+          "page": "alert-hub.html",
+          "blocks": 3
+        },
+        {
+          "page": "analytics.html",
+          "blocks": 3
+        },
+        {
+          "page": "asset-hub.html",
+          "blocks": 3
+        },
+        {
+          "page": "dayplanner.html",
+          "blocks": 3
+        },
+        {
+          "page": "hive.html",
+          "blocks": 3
+        },
+        {
+          "page": "integrations.html",
+          "blocks": 3
+        },
+        {
+          "page": "inventory.html",
+          "blocks": 3
+        },
+        {
+          "page": "marketplace.html",
+          "blocks": 3
+        },
+        {
+          "page": "ph-intelligence.html",
+          "blocks": 3
+        },
+        {
+          "page": "pm-scheduler.html",
+          "blocks": 3
+        },
+        {
+          "page": "predictive.html",
+          "blocks": 3
+        },
+        {
+          "page": "project-manager.html",
+          "blocks": 3
+        },
+        {
+          "page": "report-sender.html",
+          "blocks": 3
+        },
+        {
+          "page": "shift-brain.html",
+          "blocks": 3
+        },
+        {
+          "page": "skillmatrix.html",
+          "blocks": 3
+        }
+      ],
+      "sum_card_family": {
+        "pageCount": 2,
+        "pages": [
+          "ai-quality.html",
+          "predictive.html"
+        ]
+      }
+    }
+  }
+}

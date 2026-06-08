@@ -1,0 +1,5 @@
+{
+  "_doc": "Component battery critic candidates (sweep_critiques schema). Route: python ufai_ingest.py component_consistency_candidates.json",
+  "generated": "2026-06-08T07:30:52.312892+00:00",
+  "candidates": []
+}

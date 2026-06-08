@@ -1,0 +1,127 @@
+{
+  "_doc": "Phase 2 IA-streamlining critic candidates (sweep_critiques schema). Route via: python ufai_ingest.py ia_streamlining_candidates.json. Engine proposes, you dispose.",
+  "generated": "2026-06-08T09:26:37.178845+00:00",
+  "candidates": [
+    {
+      "key": "sweep:ia:relabel:pending-approval",
+      "page": "asset-hub.html",
+      "wave": 0,
+      "title": "\"Pending approval\" means different things on asset-hub, inventory",
+      "pillar": "IA",
+      "severity": "Minor",
+      "effort": "M",
+      "flag": "TASTE",
+      "should_be": "Same LABEL \"Pending approval\" but different SUBJECTS (assets, parts) — same-named ≠ same-derivation. Do NOT consolidate; DISAMBIGUATE the labels (e.g. \"Pending approval\" → per-page \"Pending approval (assets)\"). Surfaced by the IA streamlining survey (Phase 2)."
+    },
+    {
+      "key": "sweep:ia:theme:risk-hot-critical",
+      "page": "alert-hub.html",
+      "wave": 0,
+      "title": "\"risk / hot / critical\" job served 4 ways across pages",
+      "pillar": "IA",
+      "severity": "Minor",
+      "effort": "M",
+      "flag": "TASTE",
+      "should_be": "4 pages answer the \"risk / hot / critical\" job a different way: High-severity alerts (alert-hub); Anomaly signals (alert-hub); AMC parts at risk (alert-hub); Critical assets (asset-hub); Hot assets (predictive); Risk ranking table (predictive); Risk heatmap (predictive); Top risk this shift (shift-brain). Hick's Law — multiple entry points to one job slow the user. Likely canonical home → predictive, others deep-link. REVIEW: confirm one job (merge) vs legitimately distinct role/context views (e.g. PM-overdue ≠ project-overdue) before acting."
+    },
+    {
+      "key": "sweep:ia:theme:due-soon-upcoming",
+      "page": "dayplanner.html",
+      "wave": 0,
+      "title": "\"due soon / upcoming\" job served 3 ways across pages",
+      "pillar": "IA",
+      "severity": "Minor",
+      "effort": "M",
+      "flag": "TASTE",
+      "should_be": "3 pages answer the \"due soon / upcoming\" job a different way: Tasks today (dayplanner); Tasks this week (dayplanner); Due this week (pm-scheduler); PMs due (shift-brain). Hick's Law — multiple entry points to one job slow the user. Likely canonical home → pm-scheduler, others deep-link. REVIEW: confirm one job (merge) vs legitimately distinct role/context views (e.g. PM-overdue ≠ project-overdue) before acting."
+    },
+    {
+      "key": "sweep:ia:theme:healthy-on-track",
+      "page": "pm-scheduler.html",
+      "wave": 0,
+      "title": "\"healthy / on-track\" job served 3 ways across pages",
+      "pillar": "IA",
+      "severity": "Minor",
+      "effort": "M",
+      "flag": "TASTE",
+      "should_be": "3 pages answer the \"healthy / on-track\" job a different way: On track (pm-scheduler); Healthy assets (predictive); On target workers (skillmatrix). Hick's Law — multiple entry points to one job slow the user. Likely canonical home → — (human picks), others deep-link. REVIEW: confirm one job (merge) vs legitimately distinct role/context views (e.g. PM-overdue ≠ project-overdue) before acting."
+    },
+    {
+      "key": "sweep:ia:theme:late-overdue",
+      "page": "dayplanner.html",
+      "wave": 0,
+      "title": "\"late / overdue\" job served 3 ways across pages",
+      "pillar": "IA",
+      "severity": "Minor",
+      "effort": "M",
+      "flag": "TASTE",
+      "should_be": "3 pages answer the \"late / overdue\" job a different way: Overdue tasks (dayplanner); Overdue PMs (pm-scheduler); Past end date (project-manager). Hick's Law — multiple entry points to one job slow the user. Likely canonical home → pm-scheduler, others deep-link. REVIEW: confirm one job (merge) vs legitimately distinct role/context views (e.g. PM-overdue ≠ project-overdue) before acting."
+    },
+    {
+      "key": "sweep:ia:affordance:asset-hub",
+      "page": "index.html",
+      "wave": 0,
+      "title": "\"asset-hub\" linked from 2 page bodies beyond the nav",
+      "pillar": "IA",
+      "severity": "Minor",
+      "effort": "M",
+      "flag": "TASTE",
+      "should_be": "Deep page \"asset-hub\" reached from 2 page bodies BEYOND the global nav (index, predictive). Hick's Law — confirm each extra path earns its place; otherwise rely on the nav + one contextual link."
+    },
+    {
+      "key": "sweep:ia:affordance:integrations",
+      "page": "ph-intelligence.html",
+      "wave": 0,
+      "title": "\"integrations\" linked from 2 page bodies beyond the nav",
+      "pillar": "IA",
+      "severity": "Minor",
+      "effort": "M",
+      "flag": "TASTE",
+      "should_be": "Deep page \"integrations\" reached from 2 page bodies BEYOND the global nav (ph-intelligence, plant-connections). Hick's Law — confirm each extra path earns its place; otherwise rely on the nav + one contextual link."
+    },
+    {
+      "key": "sweep:ia:affordance:inventory",
+      "page": "hive.html",
+      "wave": 0,
+      "title": "\"inventory\" linked from 2 page bodies beyond the nav",
+      "pillar": "IA",
+      "severity": "Minor",
+      "effort": "M",
+      "flag": "TASTE",
+      "should_be": "Deep page \"inventory\" reached from 2 page bodies BEYOND the global nav (hive, index). Hick's Law — confirm each extra path earns its place; otherwise rely on the nav + one contextual link."
+    },
+    {
+      "key": "sweep:ia:affordance:ph-intelligence",
+      "page": "analytics.html",
+      "wave": 0,
+      "title": "\"ph-intelligence\" linked from 2 page bodies beyond the nav",
+      "pillar": "IA",
+      "severity": "Minor",
+      "effort": "M",
+      "flag": "TASTE",
+      "should_be": "Deep page \"ph-intelligence\" reached from 2 page bodies BEYOND the global nav (analytics, integrations). Hick's Law — confirm each extra path earns its place; otherwise rely on the nav + one contextual link."
+    },
+    {
+      "key": "sweep:ia:affordance:pm-scheduler",
+      "page": "hive.html",
+      "wave": 0,
+      "title": "\"pm-scheduler\" linked from 2 page bodies beyond the nav",
+      "pillar": "IA",
+      "severity": "Minor",
+      "effort": "M",
+      "flag": "TASTE",
+      "should_be": "Deep page \"pm-scheduler\" reached from 2 page bodies BEYOND the global nav (hive, index). Hick's Law — confirm each extra path earns its place; otherwise rely on the nav + one contextual link."
+    },
+    {
+      "key": "sweep:ia:affordance:voice-journal",
+      "page": "index.html",
+      "wave": 0,
+      "title": "\"voice-journal\" linked from 2 page bodies beyond the nav",
+      "pillar": "IA",
+      "severity": "Minor",
+      "effort": "M",
+      "flag": "TASTE",
+      "should_be": "Deep page \"voice-journal\" reached from 2 page bodies BEYOND the global nav (index, logbook). Hick's Law — confirm each extra path earns its place; otherwise rely on the nav + one contextual link."
+    }
+  ]
+}

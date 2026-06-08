@@ -1,13 +1,27 @@
 {
   "summary": {
     "pages_scanned": 30,
-    "total_issues": 0,
+    "total_issues": 1,
     "baseline": 0
   },
   "per_page": [
     {
       "page": "index.html",
-      "issues": []
+      "issues": [
+        {
+          "source": "v_logbook_truth + v_risk_truth + v_inventory_items_truth + v_pm_compliance_truth",
+          "claimed": [
+            "v_inventory_items_truth",
+            "v_logbook_truth",
+            "v_pm_compliance_truth",
+            "v_risk_truth"
+          ],
+          "missing": [
+            "v_pm_compliance_truth"
+          ],
+          "char_offset": 192068
+        }
+      ]
     },
     {
       "page": "hive.html",

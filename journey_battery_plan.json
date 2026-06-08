@@ -1,0 +1,101 @@
+{
+  "_doc": "③ Journey battery plan. Drive with journey_battery.js / window.__JOURNEY in Playwright MCP.",
+  "journeys": [
+    {
+      "id": "overdue-continuity",
+      "name": "Find what maintenance is due/overdue (does the count agree across the pages a worker sees?)",
+      "persona": "field/novice",
+      "steps": [
+        {
+          "page": "pm-scheduler.html",
+          "tile": "pm-scheduler:overdue",
+          "kpi": "overdue",
+          "selector": "[data-rag-tile=\"pm-scheduler:overdue\"] .sc-hero",
+          "label": "Overdue PMs",
+          "exists": true
+        },
+        {
+          "page": "dayplanner.html",
+          "tile": "dayplanner:overdue_count",
+          "kpi": "overdue",
+          "selector": "[data-rag-tile=\"dayplanner:overdue_count\"] .sc-hero",
+          "label": "Overdue tasks",
+          "exists": true
+        }
+      ],
+      "expect": "agree",
+      "tests": "Phase-3 'due/overdue' AMBIGUITY OF SOURCE — the overdue count is derived two ways (per-asset v_pm_compliance_truth vs per-scope-item v_pm_scope_items_truth).",
+      "candidates": [
+        "sweep:ia:theme:late-overdue",
+        "sweep:ia:theme:due-soon-upcoming"
+      ],
+      "all_tiles_exist": true
+    },
+    {
+      "id": "risk-continuity",
+      "name": "Find the highest-risk asset (do the risk lenses agree?)",
+      "persona": "supervisor/novice",
+      "steps": [
+        {
+          "page": "predictive.html",
+          "tile": "predictive:hot_assets",
+          "kpi": "at_risk",
+          "selector": "[data-rag-tile=\"predictive:hot_assets\"] .sc-hero",
+          "label": "Hot assets",
+          "exists": true
+        },
+        {
+          "page": "asset-hub.html",
+          "tile": "asset-hub:critical_assets",
+          "kpi": "at_risk",
+          "selector": "[data-rag-tile=\"asset-hub:critical_assets\"] .sc-hero",
+          "label": "Critical assets",
+          "exists": true
+        },
+        {
+          "page": "alert-hub.html",
+          "tile": "alert-hub:high_severity_alerts",
+          "kpi": "at_risk",
+          "selector": "[data-rag-tile=\"alert-hub:high_severity_alerts\"] .sc-hero",
+          "label": "High-severity alerts",
+          "exists": true
+        }
+      ],
+      "expect": "agree",
+      "tests": "Phase-3 'top risk' AMBIGUITY + CANONICAL UNREACHABLE (predictive is hidden). Risk is shown as hot assets / critical assets / high-severity alerts — confirm whether these are one number or three legitimately different lenses.",
+      "candidates": [
+        "sweep:ia:theme:risk-hot-critical"
+      ],
+      "all_tiles_exist": true
+    },
+    {
+      "id": "approvals-distinct",
+      "name": "See what's waiting for my approval (assets vs parts — SHOULD these differ?)",
+      "persona": "supervisor/novice",
+      "steps": [
+        {
+          "page": "asset-hub.html",
+          "tile": "asset-hub:pending_approval",
+          "kpi": "pending_approval",
+          "selector": "[data-rag-tile=\"asset-hub:pending_approval\"] .sc-hero",
+          "label": "Pending approval",
+          "exists": true
+        },
+        {
+          "page": "inventory.html",
+          "tile": "inventory:pending_approval",
+          "kpi": "pending_approval",
+          "selector": "[data-rag-tile=\"inventory:pending_approval\"] .sc-hero",
+          "label": "Pending approval",
+          "exists": true
+        }
+      ],
+      "expect": "drift-confirms-distinct",
+      "tests": "Phase-2 RELABEL — same label 'Pending approval' on two pages with DIFFERENT subjects (assets vs parts). A drift here is the EXPECTED proof they are distinct units (relabel, don't consolidate); agreement would be a coincidence, not a contract.",
+      "candidates": [
+        "sweep:ia:relabel:pending-approval"
+      ],
+      "all_tiles_exist": true
+    }
+  ]
+}

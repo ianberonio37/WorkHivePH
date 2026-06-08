@@ -1,6 +1,6 @@
 {
   "summary": {
-    "specs_scanned": 24,
+    "specs_scanned": 26,
     "total_lookups": 141,
     "total_drift": 2,
     "baseline": 2
@@ -65,6 +65,16 @@
         "inventory.html",
         "inventory.html",
         "inventory.html"
+      ],
+      "misses": []
+    },
+    {
+      "spec": "journey-companion-comprehensive.spec.ts",
+      "targets": [
+        "assistant.html",
+        "assistant.html",
+        "logbook.html",
+        "logbook.html"
       ],
       "misses": []
     },
@@ -154,6 +164,13 @@
       "spec": "journey-home-fanout-parity.spec.ts",
       "targets": [
         "index.html"
+      ],
+      "misses": []
+    },
+    {
+      "spec": "journey-orchestrator-edge-fn-hive-isolation.spec.ts",
+      "targets": [
+        "hive.html"
       ],
       "misses": []
     },

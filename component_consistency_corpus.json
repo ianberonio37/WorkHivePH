@@ -1,0 +1,1326 @@
+{
+  "_doc": "① Component battery corpus. Static spine; live DOM confirm = __UFAI.component().",
+  "pages": [
+    "achievements.html",
+    "ai-quality.html",
+    "alert-hub.html",
+    "analytics-report.html",
+    "analytics.html",
+    "asset-hub.html",
+    "assistant.html",
+    "audit-log.html",
+    "community.html",
+    "dayplanner.html",
+    "engineering-design.html",
+    "hive.html",
+    "index.html",
+    "integrations.html",
+    "inventory.html",
+    "logbook.html",
+    "marketplace.html",
+    "ph-intelligence.html",
+    "plant-connections.html",
+    "pm-scheduler.html",
+    "predictive.html",
+    "project-manager.html",
+    "project-report.html",
+    "report-sender.html",
+    "resume.html",
+    "shift-brain.html",
+    "skillmatrix.html",
+    "voice-journal.html"
+  ],
+  "corpus": {
+    "achievements.html": {
+      "page": "achievements.html",
+      "primitives": {
+        "simple-card": [
+          {
+            "shape": [
+              "sc-hero",
+              "sc-label",
+              "sc-sub",
+              "sc-tag"
+            ],
+            "missing_required": [],
+            "modifiers": [
+              "tag-grey"
+            ]
+          },
+          {
+            "shape": [
+              "sc-hero",
+              "sc-label",
+              "sc-sub",
+              "sc-tag"
+            ],
+            "missing_required": [],
+            "modifiers": [
+              "tag-grey"
+            ]
+          },
+          {
+            "shape": [
+              "sc-hero",
+              "sc-label",
+              "sc-sub",
+              "sc-tag"
+            ],
+            "missing_required": [],
+            "modifiers": [
+              "tag-grey"
+            ]
+          }
+        ],
+        "sum-card": []
+      },
+      "census": {
+        "view-tab": 0,
+        "filter-chip": 0,
+        "phase-tab": 0,
+        "shift-pill": 0,
+        "chip": 0,
+        "pill": 0,
+        "stepper": 0
+      },
+      "capabilities": []
+    },
+    "ai-quality.html": {
+      "page": "ai-quality.html",
+      "primitives": {
+        "simple-card": [
+          {
+            "shape": [
+              "sc-hero",
+              "sc-label",
+              "sc-sub",
+              "sc-tag"
+            ],
+            "missing_required": [],
+            "modifiers": [
+              "tag-${trust.tone}"
+            ]
+          },
+          {
+            "shape": [
+              "sc-hero",
+              "sc-label",
+              "sc-sub",
+              "sc-tag"
+            ],
+            "missing_required": [],
+            "modifiers": [
+              "tag-${cost.tone}"
+            ]
+          },
+          {
+            "shape": [
+              "sc-hero",
+              "sc-label",
+              "sc-sub",
+              "sc-tag"
+            ],
+            "missing_required": [],
+            "modifiers": [
+              "tag-${timeSaved.tone}"
+            ]
+          }
+        ],
+        "sum-card": [
+          {
+            "shape": [
+              "sl",
+              "sn"
+            ],
+            "missing_required": [],
+            "modifiers": []
+          },
+          {
+            "shape": [
+              "sl",
+              "sn"
+            ],
+            "missing_required": [],
+            "modifiers": []
+          },
+          {
+            "shape": [
+              "sl",
+              "sn"
+            ],
+            "missing_required": [],
+            "modifiers": []
+          },
+          {
+            "shape": [
+              "sl",
+              "sn"
+            ],
+            "missing_required": [],
+            "modifiers": []
+          }
+        ]
+      },
+      "census": {
+        "view-tab": 0,
+        "filter-chip": 0,
+        "phase-tab": 0,
+        "shift-pill": 0,
+        "chip": 0,
+        "pill": 0,
+        "stepper": 0
+      },
+      "capabilities": []
+    },
+    "alert-hub.html": {
+      "page": "alert-hub.html",
+      "primitives": {
+        "simple-card": [
+          {
+            "shape": [
+              "sc-hero",
+              "sc-label",
+              "sc-sub",
+              "sc-tag"
+            ],
+            "missing_required": [],
+            "modifiers": [
+              "tag-grey"
+            ]
+          },
+          {
+            "shape": [
+              "sc-hero",
+              "sc-label",
+              "sc-sub",
+              "sc-tag"
+            ],
+            "missing_required": [],
+            "modifiers": [
+              "tag-grey"
+            ]
+          },
+          {
+            "shape": [
+              "sc-hero",
+              "sc-label",
+              "sc-sub",
+              "sc-tag"
+            ],
+            "missing_required": [],
+            "modifiers": [
+              "tag-grey"
+            ]
+          }
+        ],
+        "sum-card": []
+      },
+      "census": {
+        "view-tab": 0,
+        "filter-chip": 0,
+        "phase-tab": 0,
+        "shift-pill": 0,
+        "chip": 0,
+        "pill": 0,
+        "stepper": 0
+      },
+      "capabilities": [
+        "alert_dashboard"
+      ]
+    },
+    "analytics-report.html": {
+      "page": "analytics-report.html",
+      "primitives": {
+        "simple-card": [],
+        "sum-card": []
+      },
+      "census": {
+        "view-tab": 0,
+        "filter-chip": 0,
+        "phase-tab": 0,
+        "shift-pill": 0,
+        "chip": 0,
+        "pill": 0,
+        "stepper": 0
+      },
+      "capabilities": []
+    },
+    "analytics.html": {
+      "page": "analytics.html",
+      "primitives": {
+        "simple-card": [
+          {
+            "shape": [
+              "sc-hero",
+              "sc-label",
+              "sc-sub",
+              "sc-tag"
+            ],
+            "missing_required": [],
+            "modifiers": [
+              "tag-grey"
+            ]
+          },
+          {
+            "shape": [
+              "sc-hero",
+              "sc-label",
+              "sc-sub",
+              "sc-tag"
+            ],
+            "missing_required": [],
+            "modifiers": [
+              "tag-grey"
+            ]
+          },
+          {
+            "shape": [
+              "sc-hero",
+              "sc-label",
+              "sc-sub",
+              "sc-tag"
+            ],
+            "missing_required": [],
+            "modifiers": [
+              "tag-grey"
+            ]
+          }
+        ],
+        "sum-card": []
+      },
+      "census": {
+        "view-tab": 0,
+        "filter-chip": 12,
+        "phase-tab": 4,
+        "shift-pill": 0,
+        "chip": 0,
+        "pill": 0,
+        "stepper": 0
+      },
+      "capabilities": []
+    },
+    "asset-hub.html": {
+      "page": "asset-hub.html",
+      "primitives": {
+        "simple-card": [
+          {
+            "shape": [
+              "sc-hero",
+              "sc-label",
+              "sc-sub",
+              "sc-tag"
+            ],
+            "missing_required": [],
+            "modifiers": [
+              "tag-grey"
+            ]
+          },
+          {
+            "shape": [
+              "sc-hero",
+              "sc-label",
+              "sc-sub",
+              "sc-tag"
+            ],
+            "missing_required": [],
+            "modifiers": [
+              "tag-grey"
+            ]
+          },
+          {
+            "shape": [
+              "sc-hero",
+              "sc-label",
+              "sc-sub",
+              "sc-tag"
+            ],
+            "missing_required": [],
+            "modifiers": [
+              "tag-grey"
+            ]
+          }
+        ],
+        "sum-card": []
+      },
+      "census": {
+        "view-tab": 0,
+        "filter-chip": 0,
+        "phase-tab": 0,
+        "shift-pill": 0,
+        "chip": 0,
+        "pill": 0,
+        "stepper": 0
+      },
+      "capabilities": []
+    },
+    "assistant.html": {
+      "page": "assistant.html",
+      "primitives": {
+        "simple-card": [],
+        "sum-card": []
+      },
+      "census": {
+        "view-tab": 0,
+        "filter-chip": 0,
+        "phase-tab": 0,
+        "shift-pill": 0,
+        "chip": 0,
+        "pill": 0,
+        "stepper": 0
+      },
+      "capabilities": []
+    },
+    "audit-log.html": {
+      "page": "audit-log.html",
+      "primitives": {
+        "simple-card": [],
+        "sum-card": []
+      },
+      "census": {
+        "view-tab": 0,
+        "filter-chip": 0,
+        "phase-tab": 0,
+        "shift-pill": 0,
+        "chip": 0,
+        "pill": 0,
+        "stepper": 0
+      },
+      "capabilities": []
+    },
+    "community.html": {
+      "page": "community.html",
+      "primitives": {
+        "simple-card": [],
+        "sum-card": []
+      },
+      "census": {
+        "view-tab": 0,
+        "filter-chip": 5,
+        "phase-tab": 0,
+        "shift-pill": 0,
+        "chip": 0,
+        "pill": 0,
+        "stepper": 0
+      },
+      "capabilities": []
+    },
+    "dayplanner.html": {
+      "page": "dayplanner.html",
+      "primitives": {
+        "simple-card": [
+          {
+            "shape": [
+              "sc-hero",
+              "sc-label",
+              "sc-sub",
+              "sc-tag"
+            ],
+            "missing_required": [],
+            "modifiers": [
+              "tag-grey"
+            ]
+          },
+          {
+            "shape": [
+              "sc-hero",
+              "sc-label",
+              "sc-sub",
+              "sc-tag"
+            ],
+            "missing_required": [],
+            "modifiers": [
+              "tag-grey"
+            ]
+          },
+          {
+            "shape": [
+              "sc-hero",
+              "sc-label",
+              "sc-sub",
+              "sc-tag"
+            ],
+            "missing_required": [],
+            "modifiers": [
+              "tag-grey"
+            ]
+          }
+        ],
+        "sum-card": []
+      },
+      "census": {
+        "view-tab": 4,
+        "filter-chip": 0,
+        "phase-tab": 0,
+        "shift-pill": 0,
+        "chip": 0,
+        "pill": 0,
+        "stepper": 0
+      },
+      "capabilities": []
+    },
+    "engineering-design.html": {
+      "page": "engineering-design.html",
+      "primitives": {
+        "simple-card": [],
+        "sum-card": []
+      },
+      "census": {
+        "view-tab": 0,
+        "filter-chip": 0,
+        "phase-tab": 0,
+        "shift-pill": 0,
+        "chip": 0,
+        "pill": 0,
+        "stepper": 0
+      },
+      "capabilities": []
+    },
+    "hive.html": {
+      "page": "hive.html",
+      "primitives": {
+        "simple-card": [
+          {
+            "shape": [
+              "sc-hero",
+              "sc-label",
+              "sc-sub",
+              "sc-tag"
+            ],
+            "missing_required": [],
+            "modifiers": [
+              "tag-grey"
+            ]
+          },
+          {
+            "shape": [
+              "sc-hero",
+              "sc-label",
+              "sc-sub",
+              "sc-tag"
+            ],
+            "missing_required": [],
+            "modifiers": [
+              "tag-grey"
+            ]
+          },
+          {
+            "shape": [
+              "sc-hero",
+              "sc-label",
+              "sc-sub",
+              "sc-tag"
+            ],
+            "missing_required": [],
+            "modifiers": [
+              "tag-grey"
+            ]
+          }
+        ],
+        "sum-card": []
+      },
+      "census": {
+        "view-tab": 0,
+        "filter-chip": 0,
+        "phase-tab": 0,
+        "shift-pill": 0,
+        "chip": 0,
+        "pill": 0,
+        "stepper": 0
+      },
+      "capabilities": []
+    },
+    "index.html": {
+      "page": "index.html",
+      "primitives": {
+        "simple-card": [],
+        "sum-card": []
+      },
+      "census": {
+        "view-tab": 0,
+        "filter-chip": 0,
+        "phase-tab": 0,
+        "shift-pill": 0,
+        "chip": 0,
+        "pill": 0,
+        "stepper": 0
+      },
+      "capabilities": []
+    },
+    "integrations.html": {
+      "page": "integrations.html",
+      "primitives": {
+        "simple-card": [
+          {
+            "shape": [
+              "sc-hero",
+              "sc-label",
+              "sc-sub",
+              "sc-tag"
+            ],
+            "missing_required": [],
+            "modifiers": [
+              "tag-grey"
+            ]
+          },
+          {
+            "shape": [
+              "sc-hero",
+              "sc-label",
+              "sc-sub",
+              "sc-tag"
+            ],
+            "missing_required": [],
+            "modifiers": [
+              "tag-grey"
+            ]
+          },
+          {
+            "shape": [
+              "sc-hero",
+              "sc-label",
+              "sc-sub",
+              "sc-tag"
+            ],
+            "missing_required": [],
+            "modifiers": [
+              "tag-grey"
+            ]
+          }
+        ],
+        "sum-card": []
+      },
+      "census": {
+        "view-tab": 0,
+        "filter-chip": 0,
+        "phase-tab": 0,
+        "shift-pill": 0,
+        "chip": 0,
+        "pill": 0,
+        "stepper": 0
+      },
+      "capabilities": []
+    },
+    "inventory.html": {
+      "page": "inventory.html",
+      "primitives": {
+        "simple-card": [
+          {
+            "shape": [
+              "sc-hero",
+              "sc-label",
+              "sc-sub",
+              "sc-tag"
+            ],
+            "missing_required": [],
+            "modifiers": [
+              "tag-grey"
+            ]
+          },
+          {
+            "shape": [
+              "sc-hero",
+              "sc-label",
+              "sc-sub",
+              "sc-tag"
+            ],
+            "missing_required": [],
+            "modifiers": [
+              "tag-grey"
+            ]
+          },
+          {
+            "shape": [
+              "sc-hero",
+              "sc-label",
+              "sc-sub",
+              "sc-tag"
+            ],
+            "missing_required": [],
+            "modifiers": [
+              "tag-grey"
+            ]
+          }
+        ],
+        "sum-card": []
+      },
+      "census": {
+        "view-tab": 0,
+        "filter-chip": 0,
+        "phase-tab": 0,
+        "shift-pill": 0,
+        "chip": 0,
+        "pill": 0,
+        "stepper": 0
+      },
+      "capabilities": []
+    },
+    "logbook.html": {
+      "page": "logbook.html",
+      "primitives": {
+        "simple-card": [],
+        "sum-card": []
+      },
+      "census": {
+        "view-tab": 0,
+        "filter-chip": 0,
+        "phase-tab": 0,
+        "shift-pill": 0,
+        "chip": 0,
+        "pill": 0,
+        "stepper": 0
+      },
+      "capabilities": []
+    },
+    "marketplace.html": {
+      "page": "marketplace.html",
+      "primitives": {
+        "simple-card": [
+          {
+            "shape": [
+              "sc-hero",
+              "sc-label",
+              "sc-sub",
+              "sc-tag"
+            ],
+            "missing_required": [],
+            "modifiers": [
+              "tag-grey"
+            ]
+          },
+          {
+            "shape": [
+              "sc-hero",
+              "sc-label",
+              "sc-sub",
+              "sc-tag"
+            ],
+            "missing_required": [],
+            "modifiers": [
+              "tag-grey"
+            ]
+          },
+          {
+            "shape": [
+              "sc-hero",
+              "sc-label",
+              "sc-sub",
+              "sc-tag"
+            ],
+            "missing_required": [],
+            "modifiers": [
+              "tag-grey"
+            ]
+          }
+        ],
+        "sum-card": []
+      },
+      "census": {
+        "view-tab": 0,
+        "filter-chip": 0,
+        "phase-tab": 0,
+        "shift-pill": 0,
+        "chip": 0,
+        "pill": 0,
+        "stepper": 0
+      },
+      "capabilities": []
+    },
+    "ph-intelligence.html": {
+      "page": "ph-intelligence.html",
+      "primitives": {
+        "simple-card": [
+          {
+            "shape": [
+              "sc-hero",
+              "sc-label",
+              "sc-sub",
+              "sc-tag"
+            ],
+            "missing_required": [],
+            "modifiers": [
+              "tag-grey"
+            ]
+          },
+          {
+            "shape": [
+              "sc-hero",
+              "sc-label",
+              "sc-sub",
+              "sc-tag"
+            ],
+            "missing_required": [],
+            "modifiers": [
+              "tag-grey"
+            ]
+          },
+          {
+            "shape": [
+              "sc-hero",
+              "sc-label",
+              "sc-sub",
+              "sc-tag"
+            ],
+            "missing_required": [],
+            "modifiers": [
+              "tag-grey"
+            ]
+          }
+        ],
+        "sum-card": []
+      },
+      "census": {
+        "view-tab": 0,
+        "filter-chip": 0,
+        "phase-tab": 0,
+        "shift-pill": 0,
+        "chip": 0,
+        "pill": 0,
+        "stepper": 0
+      },
+      "capabilities": []
+    },
+    "plant-connections.html": {
+      "page": "plant-connections.html",
+      "primitives": {
+        "simple-card": [
+          {
+            "shape": [
+              "sc-hero",
+              "sc-label",
+              "sc-sub",
+              "sc-tag"
+            ],
+            "missing_required": [],
+            "modifiers": [
+              "tag-${c.tone}"
+            ]
+          }
+        ],
+        "sum-card": []
+      },
+      "census": {
+        "view-tab": 0,
+        "filter-chip": 0,
+        "phase-tab": 0,
+        "shift-pill": 0,
+        "chip": 0,
+        "pill": 8,
+        "stepper": 0
+      },
+      "capabilities": []
+    },
+    "pm-scheduler.html": {
+      "page": "pm-scheduler.html",
+      "primitives": {
+        "simple-card": [
+          {
+            "shape": [
+              "sc-hero",
+              "sc-label",
+              "sc-sub",
+              "sc-tag"
+            ],
+            "missing_required": [],
+            "modifiers": [
+              "tag-grey"
+            ]
+          },
+          {
+            "shape": [
+              "sc-hero",
+              "sc-label",
+              "sc-sub",
+              "sc-tag"
+            ],
+            "missing_required": [],
+            "modifiers": [
+              "tag-grey"
+            ]
+          },
+          {
+            "shape": [
+              "sc-hero",
+              "sc-label",
+              "sc-sub",
+              "sc-tag"
+            ],
+            "missing_required": [],
+            "modifiers": [
+              "tag-grey"
+            ]
+          }
+        ],
+        "sum-card": []
+      },
+      "census": {
+        "view-tab": 0,
+        "filter-chip": 4,
+        "phase-tab": 0,
+        "shift-pill": 0,
+        "chip": 0,
+        "pill": 0,
+        "stepper": 0
+      },
+      "capabilities": []
+    },
+    "predictive.html": {
+      "page": "predictive.html",
+      "primitives": {
+        "simple-card": [
+          {
+            "shape": [
+              "sc-hero",
+              "sc-label",
+              "sc-sub",
+              "sc-tag"
+            ],
+            "missing_required": [],
+            "modifiers": [
+              "tag-grey"
+            ]
+          },
+          {
+            "shape": [
+              "sc-hero",
+              "sc-label",
+              "sc-sub",
+              "sc-tag"
+            ],
+            "missing_required": [],
+            "modifiers": [
+              "tag-grey"
+            ]
+          },
+          {
+            "shape": [
+              "sc-hero",
+              "sc-label",
+              "sc-sub",
+              "sc-tag"
+            ],
+            "missing_required": [],
+            "modifiers": [
+              "tag-grey"
+            ]
+          }
+        ],
+        "sum-card": [
+          {
+            "shape": [
+              "sl",
+              "sn"
+            ],
+            "missing_required": [],
+            "modifiers": [
+              "critical"
+            ]
+          },
+          {
+            "shape": [
+              "sl",
+              "sn"
+            ],
+            "missing_required": [],
+            "modifiers": [
+              "high"
+            ]
+          },
+          {
+            "shape": [
+              "sl",
+              "sn"
+            ],
+            "missing_required": [],
+            "modifiers": [
+              "medium"
+            ]
+          },
+          {
+            "shape": [
+              "sl",
+              "sn"
+            ],
+            "missing_required": [],
+            "modifiers": [
+              "low"
+            ]
+          }
+        ]
+      },
+      "census": {
+        "view-tab": 0,
+        "filter-chip": 0,
+        "phase-tab": 0,
+        "shift-pill": 0,
+        "chip": 0,
+        "pill": 0,
+        "stepper": 0
+      },
+      "capabilities": [
+        "display_count_chip"
+      ]
+    },
+    "project-manager.html": {
+      "page": "project-manager.html",
+      "primitives": {
+        "simple-card": [
+          {
+            "shape": [
+              "sc-hero",
+              "sc-label",
+              "sc-sub",
+              "sc-tag"
+            ],
+            "missing_required": [],
+            "modifiers": [
+              "tag-grey"
+            ]
+          },
+          {
+            "shape": [
+              "sc-hero",
+              "sc-label",
+              "sc-sub",
+              "sc-tag"
+            ],
+            "missing_required": [],
+            "modifiers": [
+              "tag-grey"
+            ]
+          },
+          {
+            "shape": [
+              "sc-hero",
+              "sc-label",
+              "sc-sub",
+              "sc-tag"
+            ],
+            "missing_required": [],
+            "modifiers": [
+              "tag-grey"
+            ]
+          }
+        ],
+        "sum-card": []
+      },
+      "census": {
+        "view-tab": 0,
+        "filter-chip": 0,
+        "phase-tab": 0,
+        "shift-pill": 0,
+        "chip": 0,
+        "pill": 0,
+        "stepper": 0
+      },
+      "capabilities": []
+    },
+    "project-report.html": {
+      "page": "project-report.html",
+      "primitives": {
+        "simple-card": [],
+        "sum-card": []
+      },
+      "census": {
+        "view-tab": 0,
+        "filter-chip": 0,
+        "phase-tab": 0,
+        "shift-pill": 0,
+        "chip": 0,
+        "pill": 0,
+        "stepper": 0
+      },
+      "capabilities": []
+    },
+    "report-sender.html": {
+      "page": "report-sender.html",
+      "primitives": {
+        "simple-card": [
+          {
+            "shape": [
+              "sc-hero",
+              "sc-label",
+              "sc-sub",
+              "sc-tag"
+            ],
+            "missing_required": [],
+            "modifiers": [
+              "tag-grey"
+            ]
+          },
+          {
+            "shape": [
+              "sc-hero",
+              "sc-label",
+              "sc-sub",
+              "sc-tag"
+            ],
+            "missing_required": [],
+            "modifiers": [
+              "tag-grey"
+            ]
+          },
+          {
+            "shape": [
+              "sc-hero",
+              "sc-label",
+              "sc-sub",
+              "sc-tag"
+            ],
+            "missing_required": [],
+            "modifiers": [
+              "tag-grey"
+            ]
+          }
+        ],
+        "sum-card": []
+      },
+      "census": {
+        "view-tab": 0,
+        "filter-chip": 0,
+        "phase-tab": 0,
+        "shift-pill": 0,
+        "chip": 0,
+        "pill": 0,
+        "stepper": 0
+      },
+      "capabilities": []
+    },
+    "resume.html": {
+      "page": "resume.html",
+      "primitives": {
+        "simple-card": [],
+        "sum-card": []
+      },
+      "census": {
+        "view-tab": 0,
+        "filter-chip": 0,
+        "phase-tab": 0,
+        "shift-pill": 0,
+        "chip": 0,
+        "pill": 0,
+        "stepper": 0
+      },
+      "capabilities": []
+    },
+    "shift-brain.html": {
+      "page": "shift-brain.html",
+      "primitives": {
+        "simple-card": [
+          {
+            "shape": [
+              "sc-hero",
+              "sc-label",
+              "sc-sub",
+              "sc-tag"
+            ],
+            "missing_required": [],
+            "modifiers": [
+              "tag-grey"
+            ]
+          },
+          {
+            "shape": [
+              "sc-hero",
+              "sc-label",
+              "sc-sub",
+              "sc-tag"
+            ],
+            "missing_required": [],
+            "modifiers": [
+              "tag-grey"
+            ]
+          },
+          {
+            "shape": [
+              "sc-hero",
+              "sc-label",
+              "sc-sub",
+              "sc-tag"
+            ],
+            "missing_required": [],
+            "modifiers": [
+              "tag-grey"
+            ]
+          }
+        ],
+        "sum-card": []
+      },
+      "census": {
+        "view-tab": 0,
+        "filter-chip": 0,
+        "phase-tab": 0,
+        "shift-pill": 3,
+        "chip": 0,
+        "pill": 0,
+        "stepper": 0
+      },
+      "capabilities": []
+    },
+    "skillmatrix.html": {
+      "page": "skillmatrix.html",
+      "primitives": {
+        "simple-card": [
+          {
+            "shape": [
+              "sc-hero",
+              "sc-label",
+              "sc-sub",
+              "sc-tag"
+            ],
+            "missing_required": [],
+            "modifiers": [
+              "tag-grey"
+            ]
+          },
+          {
+            "shape": [
+              "sc-hero",
+              "sc-label",
+              "sc-sub",
+              "sc-tag"
+            ],
+            "missing_required": [],
+            "modifiers": [
+              "tag-grey"
+            ]
+          },
+          {
+            "shape": [
+              "sc-hero",
+              "sc-label",
+              "sc-sub",
+              "sc-tag"
+            ],
+            "missing_required": [],
+            "modifiers": [
+              "tag-grey"
+            ]
+          }
+        ],
+        "sum-card": []
+      },
+      "census": {
+        "view-tab": 0,
+        "filter-chip": 0,
+        "phase-tab": 0,
+        "shift-pill": 0,
+        "chip": 0,
+        "pill": 0,
+        "stepper": 1
+      },
+      "capabilities": []
+    },
+    "voice-journal.html": {
+      "page": "voice-journal.html",
+      "primitives": {
+        "simple-card": [],
+        "sum-card": []
+      },
+      "census": {
+        "view-tab": 0,
+        "filter-chip": 2,
+        "phase-tab": 0,
+        "shift-pill": 0,
+        "chip": 0,
+        "pill": 0,
+        "stepper": 0
+      },
+      "capabilities": [
+        "audio_tts_browser"
+      ]
+    }
+  },
+  "groups": {
+    "primitives": {
+      "simple-card": {
+        "label": "KPI tile (.simple-card)",
+        "instances": 52,
+        "modal_shape": [
+          "sc-hero",
+          "sc-label",
+          "sc-sub",
+          "sc-tag"
+        ],
+        "modal_count": 52,
+        "distinct_shapes": 1,
+        "minority_shapes": [],
+        "missing_required": []
+      },
+      "sum-card": {
+        "label": "Count-chip summary (.sum-card → .sn/.sl)",
+        "instances": 8,
+        "modal_shape": [
+          "sl",
+          "sn"
+        ],
+        "modal_count": 8,
+        "distinct_shapes": 1,
+        "minority_shapes": [],
+        "missing_required": []
+      }
+    },
+    "capabilities": {
+      "alert_dashboard": [
+        "alert-hub"
+      ],
+      "display_count_chip": [
+        "predictive"
+      ],
+      "audio_tts_browser": [
+        "voice-journal"
+      ]
+    },
+    "capability_dedup": {
+      "clones": null,
+      "note": null
+    },
+    "census": {
+      "view-tab": {
+        "pages": 1,
+        "total": 4,
+        "by_page": {
+          "dayplanner": 4
+        }
+      },
+      "filter-chip": {
+        "pages": 4,
+        "total": 23,
+        "by_page": {
+          "analytics": 12,
+          "community": 5,
+          "pm-scheduler": 4,
+          "voice-journal": 2
+        }
+      },
+      "phase-tab": {
+        "pages": 1,
+        "total": 4,
+        "by_page": {
+          "analytics": 4
+        }
+      },
+      "shift-pill": {
+        "pages": 1,
+        "total": 3,
+        "by_page": {
+          "shift-brain": 3
+        }
+      },
+      "pill": {
+        "pages": 1,
+        "total": 8,
+        "by_page": {
+          "plant-connections": 8
+        }
+      },
+      "stepper": {
+        "pages": 1,
+        "total": 1,
+        "by_page": {
+          "skillmatrix": 1
+        }
+      }
+    },
+    "candidates": []
+  }
+}

@@ -75,13 +75,13 @@
       width:28px; height:28px; border-radius:50%; display:flex; align-items:center;
       justify-content:center; font-size:0.72rem; font-weight:700; flex-shrink:0;
       transition:all 0.25s; background:rgba(255,255,255,0.06);
-      border:2px solid rgba(255,255,255,0.15); color:rgba(255,255,255,0.35);
+      border:2px solid rgba(255,255,255,0.15); color:rgba(255,255,255,0.6);
     }
     .step-dot.active  { background:rgba(247,162,27,0.2); border-color:#F7A21B; color:#F7A21B; }
     .step-dot.done    { background:rgba(247,162,27,0.15); border-color:rgba(247,162,27,0.5); color:#F7A21B; }
     .step-line        { flex:1; height:2px; background:rgba(255,255,255,0.08); margin:0 4px; }
     .step-line.done   { background:rgba(247,162,27,0.35); }
-    .step-label       { font-size:0.7rem; font-weight:600; color:rgba(255,255,255,0.35);
+    .step-label       { font-size:0.7rem; font-weight:600; color:rgba(255,255,255,0.6);
                          text-transform:uppercase; letter-spacing:0.06em; margin-bottom:1rem; }
     .step-panel       { display:none; }
     .step-panel.active{ display:block; }
@@ -134,7 +134,7 @@
     }
     .consequence-icon { font-size: 1.1rem; line-height: 1; }
     .consequence-title { font-size: 0.75rem; font-weight: 700; color: inherit; }
-    .consequence-desc  { font-size: 0.62rem; color: rgba(255,255,255,0.35); font-weight: 400; }
+    .consequence-desc  { font-size: 0.62rem; color: rgba(255,255,255,0.6); font-weight: 400; }
     .consequence-btn.selected .consequence-desc { color: inherit; opacity: 0.7; }
 
     /* ── Root cause chips ── */
@@ -291,7 +291,10 @@
     }
 
     /* Empty state */
-    .empty-state { opacity: 0.4; }
+    /* No container opacity — a <1 opacity multiplies into descendant text alpha and
+       breaks AA contrast (e.g. text-white/60 → effective 0.24). Muting now lives in the
+       text colors (text-white/60) + icon (text-white/20). See #team-prompt precedent. */
+    .empty-state { opacity: 1; }
 
     /* Label */
     .wh-label {
@@ -393,7 +396,7 @@
         <span class="text-xs font-semibold text-white/50 uppercase tracking-widest">Digital Logbook</span>
       </div>
       <div class="flex items-center gap-3">
-        <span id="sync-badge" class="stat-pill text-white/40 hidden">
+        <span id="sync-badge" class="stat-pill text-white/60 hidden">
           <span class="inline-block w-1.5 h-1.5 rounded-full bg-green-400 mr-1.5"></span>Saved to cloud
         </span>
         <a href="index.html#evolution" class="btn-secondary text-xs py-2 px-4">← Back to Basic Worker</a>
@@ -427,9 +430,9 @@
           <p class="text-sm text-white/45 mt-1">Every job you log builds your skill profile and plant knowledge base.</p>
         </div>
         <div class="flex items-center gap-2 flex-wrap">
-          <span class="stat-pill"><span id="total-count" class="text-orange-wh font-bold">0</span> <span class="text-white/40">entries</span></span>
-          <span class="stat-pill"><span id="machine-count" class="text-blue-wh font-bold">0</span> <span class="text-white/40">machines</span></span>
-          <span class="stat-pill"><span id="open-count" class="text-red-400 font-bold">0</span> <span class="text-white/40">open</span></span>
+          <span class="stat-pill"><span id="total-count" class="text-orange-wh font-bold">0</span> <span class="text-white/60">entries</span></span>
+          <span class="stat-pill"><span id="machine-count" class="text-blue-wh font-bold">0</span> <span class="text-white/60">machines</span></span>
+          <span class="stat-pill"><span id="open-count" class="text-red-400 font-bold">0</span> <span class="text-white/60">open</span></span>
           <button id="open-asset-modal-btn" class="btn-secondary text-xs py-1.5 px-3 flex items-center gap-1.5 min-h-[44px]">
             <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
             Register Asset
@@ -546,7 +549,7 @@
                 <div style="display:flex; gap:8px; align-items:stretch;">
                   <button type="button" id="asset-picker-btn" class="wh-input text-left flex items-center justify-between gap-2" style="cursor:pointer; min-height:44px; flex:1;">
                     <span id="asset-picker-label" class="truncate flex-1 text-sm" style="color:rgba(255,255,255,0.25);">Select or search asset...</span>
-                    <svg class="w-4 h-4 flex-shrink-0" style="color:rgba(255,255,255,0.3)" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+                    <svg class="w-4 h-4 flex-shrink-0" style="color:rgba(255,255,255,0.6)" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
                   </button>
                   <!-- Phase E.3d: Scan to find/select an asset by physical tag -->
                   <button type="button" id="logbook-scan-btn" aria-label="Scan equipment tag with camera"
@@ -595,7 +598,7 @@
 
               <!-- Phase E.4: Work Order workflow state (opt-in; legacy NULL = use Status only) -->
               <div id="wo-state-wrap">
-                <label for="f-wo-state" class="wh-label">Workflow State <span style="color:rgba(255,255,255,0.35);font-size:0.625rem;font-weight:600;text-transform:none;">optional</span></label>
+                <label for="f-wo-state" class="wh-label">Workflow State <span style="color:rgba(255,255,255,0.6);font-size:0.625rem;font-weight:600;text-transform:none;">optional</span></label>
                 <select id="f-wo-state" class="wh-input">
                   <option value="">— None (use Status only) —</option>
                   <option value="requested">Requested</option>
@@ -742,7 +745,7 @@
                 <div id="readings-section" class="hidden">
                   <label class="wh-label flex items-center gap-1.5">
                     Quick Readings
-                    <span style="font-size:0.6rem;color:rgba(255,255,255,0.3);font-weight:500;text-transform:none;letter-spacing:0;">optional — unlocks anomaly detection</span>
+                    <span style="font-size:0.6rem;color:rgba(255,255,255,0.6);font-weight:500;text-transform:none;letter-spacing:0;">optional — unlocks anomaly detection</span>
                   </label>
                   <div id="readings-fields" class="grid grid-cols-2 gap-2"></div>
                 </div>
@@ -771,7 +774,7 @@
                 <div id="production-section" class="hidden">
                   <label for="f-good-units" class="wh-label flex items-center gap-1.5">
                     Production this shift
-                    <span style="font-size:0.6rem;color:rgba(255,255,255,0.3);font-weight:500;text-transform:none;letter-spacing:0;">optional — unlocks OEE</span>
+                    <span style="font-size:0.6rem;color:rgba(255,255,255,0.6);font-weight:500;text-transform:none;letter-spacing:0;">optional — unlocks OEE</span>
                   </label>
                   <div class="grid grid-cols-2 gap-2">
                     <div>
@@ -845,7 +848,7 @@
                   <p class="text-[11px] font-bold uppercase tracking-widest" style="color:#F7A21B;">PM Tasks for this Asset</p>
                   <span id="pm-tasks-count" class="text-[11px] text-white/30"></span>
                 </div>
-                <p class="text-[11px] text-white/40 mb-3">Tick the PM tasks you completed during this job. They will be marked done and their schedules updated.</p>
+                <p class="text-[11px] text-white/60 mb-3">Tick the PM tasks you completed during this job. They will be marked done and their schedules updated.</p>
                 <div id="pm-tasks-list" class="flex flex-col gap-2"></div>
               </div>
             </div>
@@ -907,7 +910,7 @@
         <div class="card p-4 mb-4">
           <div class="flex flex-col sm:flex-row gap-3">
             <div class="relative flex-1">
-              <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/25" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/60" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
               </svg>
               <input aria-label="Search machine, failure, keyword..." id="search-input" type="text" class="wh-input pl-9" placeholder="Search machine, failure, keyword..." />
@@ -958,7 +961,7 @@
         <!-- Load More -->
         <div id="logbook-load-more-wrap" class="hidden mt-1 pb-4">
           <button onclick="loadMoreLogbook()" class="w-full py-3 rounded-xl text-sm font-semibold" style="background:rgba(247,162,27,0.1);color:#F7A21B;border:1px solid rgba(247,162,27,0.3);">Load More</button>
-          <p id="logbook-count-label" class="text-center text-xs mt-2" style="color:rgba(255,255,255,0.3);"></p>
+          <p id="logbook-count-label" class="text-center text-xs mt-2" style="color:rgba(255,255,255,0.6);"></p>
         </div>
 
         <!-- Empty state -->
@@ -966,8 +969,8 @@
           <svg class="w-12 h-12 mx-auto mb-4 text-white/20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
             <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
           </svg>
-          <p class="text-sm text-white/40 font-medium">No entries yet.</p>
-          <p class="text-xs text-white/25 mt-1">Log your first repair to get started.</p>
+          <p class="text-sm text-white/60 font-medium">No entries yet.</p>
+          <p class="text-xs text-white/60 mt-1">Log your first repair to get started.</p>
         </div>
 
         <!-- No results state -->
@@ -975,7 +978,7 @@
           <svg class="w-10 h-10 mx-auto mb-3 text-white/20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
             <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
           </svg>
-          <p class="text-sm text-white/40">No entries match your search.</p>
+          <p class="text-sm text-white/60">No entries match your search.</p>
         </div>
 
         <!-- Team prompt: shown in team mode before first search -->
@@ -1005,7 +1008,7 @@
   <!-- ── DETAIL MODAL ── -->
   <div id="modal" role="dialog" aria-modal="true" aria-label="Logbook entry" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4" style="background: rgba(0,0,0,0.7); backdrop-filter: blur(6px);">
     <div class="card w-full max-w-lg max-h-[85vh] overflow-y-auto p-7 relative">
-      <button id="modal-close" class="absolute top-3 right-3 w-11 h-11 rounded-lg flex items-center justify-center text-white/40 hover:text-white/80 transition-colors" style="background: rgba(255,255,255,0.06);" aria-label="Close">
+      <button id="modal-close" class="absolute top-3 right-3 w-11 h-11 rounded-lg flex items-center justify-center text-white/60 hover:text-white/80 transition-colors" style="background: rgba(255,255,255,0.06);" aria-label="Close">
         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
       </button>
       <div id="modal-content"></div>
@@ -1015,7 +1018,7 @@
 <!-- ── ASSET REGISTRY MODAL ── -->
 <div id="asset-modal" role="dialog" aria-modal="true" aria-label="Add asset" class="fixed inset-0 z-50 hidden items-center justify-center p-4" style="display:none; background: rgba(0,0,0,0.7); backdrop-filter: blur(6px);">
   <div class="card w-full max-w-md max-h-[88vh] overflow-y-auto p-7 relative">
-    <button id="asset-modal-close" class="absolute top-3 right-3 w-11 h-11 rounded-lg flex items-center justify-center text-white/40 hover:text-white/80 transition-colors" style="background: rgba(255,255,255,0.06);" aria-label="Close">
+    <button id="asset-modal-close" class="absolute top-3 right-3 w-11 h-11 rounded-lg flex items-center justify-center text-white/60 hover:text-white/80 transition-colors" style="background: rgba(255,255,255,0.06);" aria-label="Close">
       <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
     </button>
 
@@ -1045,24 +1048,24 @@
         <div>
           <label for="a-asset-id" class="wh-label">Asset ID <span class="text-orange-wh text-[10px] normal-case font-semibold">required</span></label>
           <input aria-label="e.g. PUMP-001, CONV-A03, MOTOR-12" id="a-asset-id" type="text" class="wh-input" placeholder="e.g. PUMP-001, CONV-A03, MOTOR-12" autocomplete="off" />
-          <p class="text-[10px] text-white/25 mt-1">Use a unique code you already use on the plant floor.</p>
+          <p class="text-[10px] text-white/60 mt-1">Use a unique code you already use on the plant floor.</p>
         </div>
         <div>
-          <label for="a-name" class="wh-label">Asset Name <span class="text-white/25 font-normal normal-case">(optional)</span></label>
+          <label for="a-name" class="wh-label">Asset Name <span class="text-white/60 font-normal normal-case">(optional)</span></label>
           <input aria-label="e.g. Cooling Water Pump, Line 3 Conveyor" id="a-name" type="text" class="wh-input" placeholder="e.g. Cooling Water Pump, Line 3 Conveyor" autocomplete="off" />
         </div>
         <div class="grid grid-cols-2 gap-3">
           <div>
-            <label for="a-manufacturer" class="wh-label">Manufacturer <span class="text-white/25 font-normal normal-case">(optional)</span></label>
+            <label for="a-manufacturer" class="wh-label">Manufacturer <span class="text-white/60 font-normal normal-case">(optional)</span></label>
             <input aria-label="e.g. ABB, Mitsubishi, Siemens" id="a-manufacturer" type="text" class="wh-input" placeholder="e.g. ABB, Mitsubishi" autocomplete="off" />
           </div>
           <div>
-            <label for="a-model" class="wh-label">Model <span class="text-white/25 font-normal normal-case">(optional)</span></label>
+            <label for="a-model" class="wh-label">Model <span class="text-white/60 font-normal normal-case">(optional)</span></label>
             <input aria-label="e.g. ACS580-01-046A-4" id="a-model" type="text" class="wh-input" placeholder="e.g. ACS580-01-046A-4" autocomplete="off" />
           </div>
         </div>
         <div>
-          <label for="a-serial-no" class="wh-label">Serial Number <span class="text-white/25 font-normal normal-case">(optional)</span></label>
+          <label for="a-serial-no" class="wh-label">Serial Number <span class="text-white/60 font-normal normal-case">(optional)</span></label>
           <input aria-label="Serial number printed on the equipment nameplate" id="a-serial-no" type="text" class="wh-input" placeholder="e.g. AB22-987654" autocomplete="off" />
         </div>
         <div>
@@ -1070,7 +1073,7 @@
                field that unlocks full OEE (Availability × Performance × Quality).
                When NULL the platform reports the partial form (A × Q). Unit:
                seconds per unit produced (ISO 22400-2 §3.4.18). -->
-          <label for="a-ideal-cycle-time" class="wh-label">Ideal Cycle Time <span class="text-white/25 font-normal normal-case">(seconds per unit — unlocks full OEE)</span></label>
+          <label for="a-ideal-cycle-time" class="wh-label">Ideal Cycle Time <span class="text-white/60 font-normal normal-case">(seconds per unit — unlocks full OEE)</span></label>
           <input aria-label="Seconds per unit at planned ideal cycle. Leave blank if no planned rate." id="a-ideal-cycle-time" name="ideal_cycle_time_seconds" type="number" step="0.01" min="0" class="wh-input" placeholder="e.g. 6 (600 units/hour line)" autocomplete="off" />
         </div>
         <div>
@@ -1091,11 +1094,11 @@
           </select>
         </div>
         <div>
-          <label for="a-location" class="wh-label">Location / Area <span class="text-white/25 font-normal normal-case">(optional)</span></label>
+          <label for="a-location" class="wh-label">Location / Area <span class="text-white/60 font-normal normal-case">(optional)</span></label>
           <input aria-label="e.g. Line 1, Utility Room, Boiler Bay" id="a-location" type="text" class="wh-input" placeholder="e.g. Line 1, Utility Room, Boiler Bay" autocomplete="off" />
         </div>
         <div>
-          <label class="wh-label">Criticality <span class="text-white/25 font-normal normal-case">(if this asset fails, impact is...)</span></label>
+          <label class="wh-label">Criticality <span class="text-white/60 font-normal normal-case">(if this asset fails, impact is...)</span></label>
           <div class="grid grid-cols-3 gap-2 mt-1">
             <label class="criticality-btn" id="crit-btn-Critical">
               <input type="radio" name="a-criticality" value="Critical" class="hidden" />
@@ -1132,7 +1135,7 @@
 <!-- Asset Edit Modal -->
 <div id="asset-edit-modal" role="dialog" aria-modal="true" aria-label="Edit asset" class="fixed inset-0 z-50 items-center justify-center p-4" style="display:none; background: rgba(0,0,0,0.7); backdrop-filter: blur(6px);">
   <div class="card w-full max-w-md p-6 relative">
-    <button onclick="closeEditAsset()" class="absolute top-3 right-3 w-11 h-11 rounded-lg flex items-center justify-center text-white/40 hover:text-white/80 transition-colors" style="background: rgba(255,255,255,0.06);" aria-label="Close">
+    <button onclick="closeEditAsset()" class="absolute top-3 right-3 w-11 h-11 rounded-lg flex items-center justify-center text-white/60 hover:text-white/80 transition-colors" style="background: rgba(255,255,255,0.06);" aria-label="Close">
       <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
     </button>
     <h3 class="font-bold text-base text-white mb-4 pr-8">Edit Asset</h3>
@@ -1140,23 +1143,23 @@
     <input type="hidden" id="edit-asset-id">
 
     <div class="mb-3">
-      <label for="edit-asset-asset-id" class="block text-xs text-white/40 mb-1">Asset ID / Tag</label>
+      <label for="edit-asset-asset-id" class="block text-xs text-white/60 mb-1">Asset ID / Tag</label>
       <input id="edit-asset-asset-id" type="text" class="wh-input w-full" placeholder="e.g. PUMP-001">
     </div>
     <div class="mb-3">
-      <label for="edit-asset-name" class="block text-xs text-white/40 mb-1">Asset Name</label>
+      <label for="edit-asset-name" class="block text-xs text-white/60 mb-1">Asset Name</label>
       <input id="edit-asset-name" type="text" class="wh-input w-full" placeholder="e.g. Cooling Water Pump">
     </div>
     <div class="mb-3">
-      <label for="edit-asset-type" class="block text-xs text-white/40 mb-1">Type</label>
+      <label for="edit-asset-type" class="block text-xs text-white/60 mb-1">Type</label>
       <input id="edit-asset-type" type="text" class="wh-input w-full" placeholder="e.g. Centrifugal Pump">
     </div>
     <div class="mb-3">
-      <label for="edit-asset-location" class="block text-xs text-white/40 mb-1">Location</label>
+      <label for="edit-asset-location" class="block text-xs text-white/60 mb-1">Location</label>
       <input id="edit-asset-location" type="text" class="wh-input w-full" placeholder="e.g. Building A, Level 2">
     </div>
     <div class="mb-4">
-      <label for="edit-asset-criticality" class="block text-xs text-white/40 mb-1">Criticality</label>
+      <label for="edit-asset-criticality" class="block text-xs text-white/60 mb-1">Criticality</label>
       <select id="edit-asset-criticality" class="wh-input w-full">
         <option value="">-- Select --</option>
         <option value="Critical">Critical</option>
@@ -1178,7 +1181,7 @@
 <!-- Asset Detail Modal -->
 <div id="asset-detail-modal" role="dialog" aria-modal="true" aria-label="Asset details" class="fixed inset-0 z-50 hidden items-center justify-center p-4" style="display:none; background: rgba(0,0,0,0.7); backdrop-filter: blur(6px);">
   <div class="card w-full max-w-md max-h-[88vh] overflow-y-auto p-6 relative">
-    <button id="asset-detail-close" class="absolute top-3 right-3 w-11 h-11 rounded-lg flex items-center justify-center text-white/40 hover:text-white/80 transition-colors" style="background: rgba(255,255,255,0.06);" aria-label="Close">
+    <button id="asset-detail-close" class="absolute top-3 right-3 w-11 h-11 rounded-lg flex items-center justify-center text-white/60 hover:text-white/80 transition-colors" style="background: rgba(255,255,255,0.06);" aria-label="Close">
       <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
     </button>
 
@@ -1227,7 +1230,7 @@
       <div class="flex items-center justify-between">
         <div>
           <h3 class="font-bold text-sm text-white">Work Tasklist</h3>
-          <p id="tasklist-modal-subtitle" class="text-[11px] text-white/40 mt-0.5"></p>
+          <p id="tasklist-modal-subtitle" class="text-[11px] text-white/60 mt-0.5"></p>
         </div>
         <button id="tasklist-modal-close" class="w-11 h-11 rounded-lg flex items-center justify-center flex-shrink-0" style="background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.4);" aria-label="Close">
           <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
@@ -1236,7 +1239,7 @@
     </div>
     <div id="tasklist-modal-items" class="overflow-y-auto p-4 flex-1 flex flex-col gap-2"></div>
     <div class="p-4 border-t flex-shrink-0" style="border-color:rgba(255,255,255,0.07);">
-      <label for="tasklist-modal-note" class="block text-[11px] font-semibold text-white/40 uppercase tracking-widest mb-2">Add Note <span class="normal-case font-normal">(optional)</span></label>
+      <label for="tasklist-modal-note" class="block text-[11px] font-semibold text-white/60 uppercase tracking-widest mb-2">Add Note <span class="normal-case font-normal">(optional)</span></label>
       <textarea aria-label="Additional steps, observations, or deviations from procedure..." id="tasklist-modal-note" class="wh-input mb-3" rows="2" placeholder="Additional steps, observations, or deviations from procedure..."></textarea>
       <button id="tasklist-modal-done" class="btn-primary w-full">Done: Back to Logbook</button>
     </div>
@@ -1466,7 +1469,7 @@ async function searchTeam(append = false) {
     _teamSearched = true;
     document.getElementById('team-prompt').classList.add('hidden');
     document.getElementById('entries-list').innerHTML =
-      '<div class="text-center py-10 text-xs" style="color:rgba(255,255,255,0.3);">Searching team entries...</div>';
+      '<div class="text-center py-10 text-xs" style="color:rgba(255,255,255,0.6);">Searching team entries...</div>';
   }
 
   const rawSearch = document.getElementById('search-input').value.trim();
@@ -2240,8 +2243,8 @@ function renderAssetList() {
         <svg class="w-10 h-10 mx-auto mb-3 text-white/20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
           <path stroke-linecap="round" stroke-linejoin="round" d="M9 3H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V5a2 2 0 00-2-2h-4M9 3a2 2 0 002 2h2a2 2 0 002-2M9 3a2 2 0 012-2h2a2 2 0 012 2"/>
         </svg>
-        <p class="text-sm text-white/40">No assets registered yet.</p>
-        <p class="text-xs text-white/25 mt-1">Register assets to keep your log entries consistent.</p>
+        <p class="text-sm text-white/60">No assets registered yet.</p>
+        <p class="text-xs text-white/60 mt-1">Register assets to keep your log entries consistent.</p>
       </div>`;
     return;
   }
@@ -2375,7 +2378,7 @@ function renderDetailStocked(items) {
       <div class="flex items-start justify-between gap-2">
         <div class="flex-1 min-w-0">
           <p class="text-sm font-semibold text-white truncate">${escHtml(i.part_name)}</p>
-          ${i.part_number  ? `<p class="text-[11px] text-white/40">${escHtml(i.part_number)}</p>` : ''}
+          ${i.part_number  ? `<p class="text-[11px] text-white/60">${escHtml(i.part_number)}</p>` : ''}
           ${i.bin_location ? `<p class="text-[11px] text-white/30 mt-0.5">Bin: ${escHtml(i.bin_location)}</p>` : ''}
         </div>
         <div class="text-right flex-shrink-0">
@@ -2413,7 +2416,7 @@ function renderDetailConsumption(txns, itemsList) {
       <div class="flex items-start justify-between gap-2">
         <div class="flex-1 min-w-0">
           <p class="text-sm font-semibold text-white">${name}</p>
-          ${jobRef ? `<p class="text-[11px] text-white/40 mt-0.5">Job: ${jobRef}</p>` : ''}
+          ${jobRef ? `<p class="text-[11px] text-white/60 mt-0.5">Job: ${jobRef}</p>` : ''}
           ${note   ? `<p class="text-[11px] text-white/30">${note}</p>` : ''}
         </div>
         <div class="text-right flex-shrink-0">
@@ -2456,7 +2459,7 @@ function renderDetailFaultHistory(entries) {
           ${e.category ? `<span class="text-[10px] font-semibold px-2 py-0.5 rounded-full" style="background:rgba(255,255,255,0.06);color:${catColor};">${escHtml(e.category)}</span>` : ''}
           ${e.maintenance_type ? `<span class="text-[10px] text-white/30">${escHtml(e.maintenance_type)}</span>` : ''}
         </div>
-        <span class="text-[11px] text-white/25 flex-shrink-0">${date}</span>
+        <span class="text-[11px] text-white/60 flex-shrink-0">${date}</span>
       </div>
       ${e.problem ? `<p class="text-xs text-white/60 leading-relaxed" style="overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;">${escHtml(e.problem)}</p>` : ''}
     </div>`;
@@ -2513,7 +2516,7 @@ function renderAssetPickerList(query) {
 
   if (filtered.length === 0) {
     list.innerHTML = `<div class="text-center py-8">
-      <p class="text-sm" style="color:rgba(255,255,255,0.3);">${q ? 'No assets match &quot;' + escHtml(query) + '&quot;' : 'No assets registered yet.'}</p>
+      <p class="text-sm" style="color:rgba(255,255,255,0.6);">${q ? 'No assets match &quot;' + escHtml(query) + '&quot;' : 'No assets registered yet.'}</p>
       <p class="text-xs mt-1" style="color:rgba(255,255,255,0.2);">Use the button below to register this asset.</p>
     </div>`;
     return;
@@ -2527,7 +2530,7 @@ function renderAssetPickerList(query) {
       <div class="flex items-center gap-2">
         <div class="flex-1 min-w-0">
           <p class="text-sm font-semibold text-white">${label}</p>
-          ${a.location ? '<p class="text-xs mt-0.5" style="color:rgba(255,255,255,0.3);">' + escHtml(a.location) + '</p>' : ''}
+          ${a.location ? '<p class="text-xs mt-0.5" style="color:rgba(255,255,255,0.6);">' + escHtml(a.location) + '</p>' : ''}
         </div>
         ${criticalityBadge(a.criticality)}
       </div>
@@ -2566,7 +2569,7 @@ async function loadMachineHistory(machineId) {
   if (!wrap || !content || !machineId) return;
 
   wrap.style.display = 'none';
-  content.innerHTML  = '<p style="color:rgba(255,255,255,0.3); padding:8px 2px;">Loading history...</p>';
+  content.innerHTML  = '<p style="color:rgba(255,255,255,0.6); padding:8px 2px;">Loading history...</p>';
 
   try {
     const q = db.from('fault_knowledge')
@@ -2589,9 +2592,9 @@ async function loadMachineHistory(machineId) {
         ? new Date(r.created_at).toLocaleDateString('en-PH', { year: '2-digit', month: 'short', day: 'numeric' })
         : '';
       return '<div style="border-top:1px solid rgba(255,255,255,0.06); padding:10px 2px 6px;">'
-        + (r.problem  ? '<p style="color:rgba(255,255,255,0.75); margin-bottom:3px;"><span style="color:rgba(255,255,255,0.3); font-size:0.65rem; text-transform:uppercase; letter-spacing:0.05em;">Problem</span><br>' + escHtml(r.problem) + '</p>' : '')
-        + (r.root_cause ? '<p style="color:#F7A21B; margin-bottom:3px; font-size:0.7rem;"><span style="color:rgba(255,255,255,0.3); font-size:0.65rem; text-transform:uppercase; letter-spacing:0.05em;">Root cause</span><br>' + escHtml(r.root_cause) + '</p>' : '')
-        + (r.action   ? '<p style="color:#4ade80; margin-bottom:3px; font-size:0.7rem;"><span style="color:rgba(255,255,255,0.3); font-size:0.65rem; text-transform:uppercase; letter-spacing:0.05em;">Fixed by</span><br>' + escHtml(r.action) + '</p>' : '')
+        + (r.problem  ? '<p style="color:rgba(255,255,255,0.75); margin-bottom:3px;"><span style="color:rgba(255,255,255,0.6); font-size:0.65rem; text-transform:uppercase; letter-spacing:0.05em;">Problem</span><br>' + escHtml(r.problem) + '</p>' : '')
+        + (r.root_cause ? '<p style="color:#F7A21B; margin-bottom:3px; font-size:0.7rem;"><span style="color:rgba(255,255,255,0.6); font-size:0.65rem; text-transform:uppercase; letter-spacing:0.05em;">Root cause</span><br>' + escHtml(r.root_cause) + '</p>' : '')
+        + (r.action   ? '<p style="color:#4ade80; margin-bottom:3px; font-size:0.7rem;"><span style="color:rgba(255,255,255,0.6); font-size:0.65rem; text-transform:uppercase; letter-spacing:0.05em;">Fixed by</span><br>' + escHtml(r.action) + '</p>' : '')
         + (r.knowledge ? '<p style="color:rgba(255,255,255,0.45); font-size:0.68rem; font-style:italic;">' + escHtml(r.knowledge) + '</p>' : '')
         + '<p style="color:rgba(255,255,255,0.2); font-size:0.65rem; margin-top:4px;">'
         + (r.worker_name ? escHtml(r.worker_name) + ' · ' : '') + dt + '</p>'
@@ -2750,12 +2753,13 @@ async function renderReadingsFields(category) {
 
   fields.innerHTML = defs.map(d => `
     <div>
-      <label class="block text-[10px] text-white/35 font-semibold mb-1">${escHtml(d.label)} <span class="text-white/20">(${escHtml(d.unit)})</span></label>
+      <label for="reading-${escHtml(d.key)}" class="block text-[10px] text-white/35 font-semibold mb-1">${escHtml(d.label)} <span class="text-white/20">(${escHtml(d.unit)})</span></label>
       <input type="number" step="any" class="wh-input py-2"
              id="reading-${escHtml(d.key)}"
              data-key="${escHtml(d.key)}" data-unit="${escHtml(d.unit)}"
+             aria-label="${escHtml(d.label)} (${escHtml(d.unit)})"
              placeholder="${escHtml(d.placeholder)}"
-             style="padding:0.6rem 0.75rem;font-size:0.875rem;" />
+             style="padding:0.6rem 0.75rem;font-size:1rem;" />
     </div>`).join('');
 
   section.classList.remove('hidden');
@@ -2865,17 +2869,22 @@ document.getElementById('logbook-scan-btn')?.addEventListener('click', function 
   window.WHQRScanner.open({
     title: 'Scan equipment tag',
     onResult: function (text) {
-      // Try to match against a registered asset (assets array is loaded by loadAssets)
+      // Try to match against a registered asset. loadAssets() returns _assets
+      // rows shaped {id (uuid), asset_id (tag e.g. "M-001"), name, ...} — the
+      // scan value is whatever the tag encodes (the tag code is the natural
+      // choice). Match on tag / uuid / name (camelCase a.assetId/a.assetRefId
+      // never existed on these rows — old bug: scan never matched a tag).
       const assets = (typeof loadAssets === 'function' ? loadAssets() : []) || [];
-      const lower = text.toLowerCase();
+      const lower = text.trim().toLowerCase();
       const match = assets.find(a =>
-        (a.assetId && a.assetId.toLowerCase() === lower) ||
-        (a.assetRefId && a.assetRefId.toLowerCase() === lower) ||
-        (a.name && a.name.toLowerCase() === lower)
+        (a.asset_id && String(a.asset_id).toLowerCase() === lower) ||
+        (a.id && String(a.id).toLowerCase() === lower) ||
+        (a.name && String(a.name).toLowerCase() === lower)
       );
       if (match && typeof selectAsset === 'function') {
-        selectAsset(match.assetId, match.name, match.assetRefId);
-        showToast(`Selected ${match.name || match.assetId}`);
+        // selectAsset(tag, name, nodeUuid) — mirrors the picker button wiring.
+        selectAsset(match.asset_id, match.name, match.id);
+        showToast(`Selected ${match.name || match.asset_id}`);
       } else {
         // No match — open the picker with the scan text as the search query
         openAssetPicker();
@@ -3233,7 +3242,7 @@ async function openModal(id) {
       <svg class="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="${entry.tasklist_acknowledged ? '#4ade80' : 'rgba(255,255,255,0.2)'}" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
       <div class="flex-1 min-w-0">
         <span class="text-xs font-semibold" style="color:${entry.tasklist_acknowledged ? '#4ade80' : 'rgba(255,255,255,0.3)'};">${entry.tasklist_acknowledged ? 'Work tasklist read' : 'Tasklist not acknowledged'}</span>
-        ${entry.tasklist_note ? `<p class="text-[10px] text-white/40 mt-0.5 truncate">${escHtml(entry.tasklist_note)}</p>` : ''}
+        ${entry.tasklist_note ? `<p class="text-[10px] text-white/60 mt-0.5 truncate">${escHtml(entry.tasklist_note)}</p>` : ''}
       </div>
     </div>` : ''}
 
@@ -3268,7 +3277,7 @@ function renderEditParts() {
       </div>
       <input type="number" min="0.1" step="0.1" value="${p.qty}" aria-label="Quantity used" class="wh-input w-16 text-center px-1 py-1" style="font-size:1rem;"
         onchange="_editPartsUsed[${i}].qty = parseFloat(this.value) || 1" />
-      <span class="text-[10px] text-white/40">${escHtml(p.unit || 'pcs')}</span>
+      <span class="text-[10px] text-white/60">${escHtml(p.unit || 'pcs')}</span>
       <button onclick="_editPartsUsed.splice(${i},1); renderEditParts();"
         class="w-7 h-7 rounded flex items-center justify-center flex-shrink-0" style="background:rgba(239,68,68,0.1);color:#f87171;" aria-label="Remove">
         <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
@@ -3780,7 +3789,7 @@ function renderPMTasksPanel() {
     html += `
       <button type="button" onclick="togglePMOnTrack()"
         class="w-full flex items-center justify-between px-2.5 py-2 rounded-xl mt-1 transition-colors"
-        style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);color:rgba(255,255,255,0.35);font-size:12px;">
+        style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);color:rgba(255,255,255,0.6);font-size:12px;">
         <span>${onTrack.length} task${onTrack.length === 1 ? '' : 's'} on track</span>
         <svg style="width:14px;height:14px;transform:${chevron};transition:transform 0.2s;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
           <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
@@ -4273,7 +4282,7 @@ function applySmartVoiceFill(e, transcript) {
     html += `<p style="color:#29B6D9; font-size:.72rem;">📢 Supervisor note: ${escHtml(e.supervisor_alert)}</p>`;
   }
 
-  html += `<button onclick="document.getElementById('vf-result').style.display='none';" style="margin-top:8px; font-size:.68rem; color:rgba(255,255,255,0.3); background:none; border:none; cursor:pointer; font-family:inherit;">Dismiss</button>`;
+  html += `<button onclick="document.getElementById('vf-result').style.display='none';" style="margin-top:8px; font-size:.68rem; color:rgba(255,255,255,0.6); background:none; border:none; cursor:pointer; font-family:inherit;">Dismiss</button>`;
 
   resultDiv.innerHTML = html;
   resultDiv.style.display = 'block';
@@ -4504,7 +4513,7 @@ function vdcApplyDraft(payload) {
         `Confidence: ${confPct}%` +
       `</p>` +
       tagLine +
-      `<button type="button" onclick="document.getElementById('vdc-result').style.display='none';" style="margin-top:8px; font-size:.68rem; color:rgba(255,255,255,0.3); background:none; border:none; cursor:pointer; font-family:inherit;">Dismiss</button>`;
+      `<button type="button" onclick="document.getElementById('vdc-result').style.display='none';" style="margin-top:8px; font-size:.68rem; color:rgba(255,255,255,0.6); background:none; border:none; cursor:pointer; font-family:inherit;">Dismiss</button>`;
     resultDiv.style.display = 'block';
   }
 
@@ -4975,7 +4984,7 @@ function renderPartsPickerList(query) {
 
   if (filtered.length === 0) {
     list.innerHTML = `<div class="text-center py-8">
-      <p class="text-sm" style="color:rgba(255,255,255,0.3);">${q ? 'No parts match &quot;' + escHtml(query) + '&quot;' : 'No inventory items yet.'}</p>
+      <p class="text-sm" style="color:rgba(255,255,255,0.6);">${q ? 'No parts match &quot;' + escHtml(query) + '&quot;' : 'No inventory items yet.'}</p>
       <p class="text-xs mt-1" style="color:rgba(255,255,255,0.2);">Use the button below to register this part in Inventory.</p>
     </div>`;
     return;
@@ -4993,11 +5002,11 @@ function renderPartsPickerList(query) {
       <div class="flex items-center justify-between gap-2">
         <div class="flex-1 min-w-0">
           <p class="text-sm font-semibold text-white">${escHtml(i.part_name)}</p>
-          ${i.part_number ? '<p class="text-xs mt-0.5" style="color:rgba(255,255,255,0.35);">' + escHtml(i.part_number) + '</p>' : ''}
+          ${i.part_number ? '<p class="text-xs mt-0.5" style="color:rgba(255,255,255,0.6);">' + escHtml(i.part_number) + '</p>' : ''}
         </div>
         <div class="text-right flex-shrink-0">
-          <p class="text-sm font-bold" style="color:${qtyColor}">${i.qty_on_hand} <span class="text-xs font-normal" style="color:rgba(255,255,255,0.3);">${escHtml(i.unit || 'pcs')}</span></p>
-          ${alreadyAdded ? '<p class="text-[10px]" style="color:rgba(255,255,255,0.3);">Added</p>' : ''}
+          <p class="text-sm font-bold" style="color:${qtyColor}">${i.qty_on_hand} <span class="text-xs font-normal" style="color:rgba(255,255,255,0.6);">${escHtml(i.unit || 'pcs')}</span></p>
+          ${alreadyAdded ? '<p class="text-[10px]" style="color:rgba(255,255,255,0.6);">Added</p>' : ''}
         </div>
       </div>
     </button>`;
@@ -5028,7 +5037,7 @@ function renderSelectedParts() {
     <div class="flex items-center gap-2 rounded-xl px-3 py-2.5" style="background:rgba(41,182,217,0.06); border:1px solid rgba(41,182,217,0.15);">
       <div class="flex-1 min-w-0">
         <p class="text-xs font-semibold text-white truncate">${escHtml(p.partName)}</p>
-        ${p.partNumber ? '<p class="text-[10px]" style="color:rgba(255,255,255,0.35);">' + escHtml(p.partNumber) + '</p>' : ''}
+        ${p.partNumber ? '<p class="text-[10px]" style="color:rgba(255,255,255,0.6);">' + escHtml(p.partNumber) + '</p>' : ''}
       </div>
       <div class="flex items-center gap-1.5 flex-shrink-0">
         <span class="text-[10px]" style="color:rgba(255,255,255,0.4);">Qty:</span>
@@ -5072,7 +5081,7 @@ function renderOpenJobs(entries) {
 
   const displayed = openEntries.slice(0, 3);
   const overflowMsg = openEntries.length > 3
-    ? `<p class="text-[11px] text-center mt-1" style="color:rgba(255,255,255,0.3);">+${openEntries.length - 3} more: use the "Open" filter below</p>`
+    ? `<p class="text-[11px] text-center mt-1" style="color:rgba(255,255,255,0.6);">+${openEntries.length - 3} more: use the "Open" filter below</p>`
     : '';
   list.innerHTML = displayed.map(e => `
     <div class="rounded-xl p-3 mb-2 cursor-pointer" style="background:rgba(239,68,68,0.06); border:1px solid rgba(239,68,68,0.15);"
@@ -5084,7 +5093,7 @@ function renderOpenJobs(entries) {
           ${e.problem ? '<p class="text-xs mt-0.5 truncate" style="color:rgba(255,255,255,0.4);">' + escHtml(e.problem) + '</p>' : ''}
         </div>
         <div class="text-right flex-shrink-0 ml-2">
-          <p class="text-[10px]" style="color:rgba(255,255,255,0.3);">${e.date ? new Date(e.date).toLocaleDateString('en-PH', { month:'short', day:'numeric' }) : ''}</p>
+          <p class="text-[10px]" style="color:rgba(255,255,255,0.6);">${e.date ? new Date(e.date).toLocaleDateString('en-PH', { month:'short', day:'numeric' }) : ''}</p>
           <p class="text-[10px] font-bold mt-0.5" style="color:#f87171;">Open</p>
         </div>
       </div>

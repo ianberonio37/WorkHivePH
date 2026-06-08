@@ -1019,8 +1019,8 @@
 <div id="ops-home" style="display:none; padding-top:64px; min-height:100vh; background:#0f1923; font-family:'Poppins',sans-serif; position:relative; z-index:1;">
   <style>
     #ops-home .oh-card { background:rgba(22,32,50,0.85); border:1px solid rgba(255,255,255,0.07); border-radius:12px; }
-    #ops-home .oh-sec-lbl { font-size:.62rem; font-weight:700; text-transform:uppercase; letter-spacing:.07em; color:rgba(255,255,255,.3); margin:0 0 10px; }
-    #ops-home .oh-job-row { display:flex; align-items:center; gap:10px; padding:10px 14px; background:rgba(255,255,255,.03); border:1px solid rgba(255,255,255,.06); border-radius:10px; }
+    #ops-home .oh-sec-lbl { font-size:.62rem; font-weight:700; text-transform:uppercase; letter-spacing:.07em; color:rgba(255,255,255,.6); margin:0 0 10px; }
+    #ops-home .oh-job-row { display:flex; align-items:center; gap:10px; padding:10px 14px; background:rgba(255,255,255,.03); border:1px solid rgba(255,255,255,.06); border-radius:10px; min-height:44px; }
     #ops-home .oh-badge { font-size:.55rem; font-weight:800; text-transform:uppercase; letter-spacing:.05em; padding:.2rem .5rem; border-radius:6px; }
     #ops-home .oh-badge-open { background:rgba(251,146,60,.15); color:#fb923c; }
     #ops-home .oh-badge-crit, #ops-home .oh-badge-critical { background:rgba(248,113,113,.15); color:#f87171; }
@@ -1041,13 +1041,13 @@
     #ops-home .oh-more { background:transparent; border:1px solid rgba(255,255,255,0.07); border-radius:12px; padding:0; overflow:hidden; }
     #ops-home .oh-more > summary { list-style:none; padding:14px 18px; cursor:pointer; font-size:.78rem; font-weight:700; color:rgba(255,255,255,.6); display:flex; align-items:center; gap:8px; }
     #ops-home .oh-more > summary::-webkit-details-marker { display:none; }
-    #ops-home .oh-more > summary::before { content:"▸"; transition:transform .15s; color:rgba(255,255,255,.4); }
+    #ops-home .oh-more > summary::before { content:"▸"; transition:transform .15s; color:rgba(255,255,255,.6); }
     #ops-home .oh-more[open] > summary::before { transform:rotate(90deg); }
     #ops-home .oh-more-body { padding:6px 18px 18px; display:flex; flex-direction:column; gap:18px; }
     /* Hive activity strip (inside More) */
     #ops-home .oh-activity { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
     #ops-home .oh-activity .ac-num { font-size:1.3rem; font-weight:800; display:block; line-height:1.05; }
-    #ops-home .oh-activity .ac-lbl { font-size:0.55rem; font-weight:600; color:rgba(255,255,255,.4); text-transform:uppercase; letter-spacing:.05em; margin-top:3px; display:block; }
+    #ops-home .oh-activity .ac-lbl { font-size:0.55rem; font-weight:600; color:rgba(255,255,255,.6); text-transform:uppercase; letter-spacing:.05em; margin-top:3px; display:block; }
     #ops-home .oh-tools-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:10px; }
     @media(max-width:500px){ #ops-home .oh-tile { min-width:0; flex-basis:calc(50% - 5px); } }
   </style>
@@ -1308,7 +1308,7 @@
               </style>
 
               <!-- Label above grid -->
-              <p style="font-size:9.5px;color:rgba(255,255,255,0.3);text-align:center;letter-spacing:0.1em;margin-bottom:12px;font-weight:600;">Every hive grows in 4 stages · Every stage unlocks tools</p>
+              <p style="font-size:9.5px;color:rgba(255,255,255,0.6);text-align:center;letter-spacing:0.1em;margin-bottom:12px;font-weight:600;">Every hive grows in 4 stages · Every stage unlocks tools</p>
 
               <style>
                 .stage-meta { font-size:9px; color:rgba(255,255,255,0.5); line-height:1.5; margin-top:8px; padding-top:8px; border-top:1px dotted rgba(255,255,255,0.08); }
@@ -2473,7 +2473,7 @@
   <div style="background:rgba(22,32,50,0.97); border:1px solid rgba(247,162,27,0.3); border-radius:999px; padding:10px 18px; display:flex; align-items:center; gap:10px; box-shadow:0 8px 32px rgba(0,0,0,0.4); font-size:0.78rem;">
     <span style="color:rgba(255,255,255,0.6);">Signed in as <strong id="upgrade-banner-name" style="color:white;"></strong></span>
     <button onclick="upgradeToAccount()" style="background:#F7A21B; color:#162032; border:none; border-radius:999px; padding:5px 14px; font-size:0.75rem; font-weight:700; cursor:pointer;">Secure account →</button>
-    <button onclick="dismissUpgradeBanner()" style="background:transparent; border:none; color:rgba(255,255,255,0.3); cursor:pointer; font-size:1rem; line-height:1; padding:0 2px;" aria-label="Close">&times;</button>
+    <button onclick="dismissUpgradeBanner()" style="background:transparent; border:none; color:rgba(255,255,255,0.6); cursor:pointer; font-size:1rem; line-height:1; padding:0 2px;" aria-label="Close">&times;</button>
   </div>
 </div>
 
@@ -2509,7 +2509,7 @@
         style="background:rgba(247,162,27,0.1); color:#F7A21B; border-right:1px solid rgba(255,255,255,0.1);">Sign In</button>
       <button id="tab-signup" onclick="switchAuthTab('signup')" role="tab" aria-selected="false" aria-controls="panel-signup"
         class="flex-1 py-2.5 text-sm font-semibold transition-colors"
-        style="color:rgba(255,255,255,0.4);">Sign Up</button>
+        style="color:rgba(255,255,255,0.6);">Sign Up</button>
     </div>
 
     <!-- Sign In panel -->
@@ -2525,7 +2525,7 @@
             class="w-full rounded-xl px-4 py-3 text-sm text-white outline-none"
             style="background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.12); padding-right:44px;" />
           <button type="button" onclick="togglePwd('si-password',this)" aria-pressed="false"
-            style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:rgba(255,255,255,0.3);padding:4px;" aria-label="Show password">
+            style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:rgba(255,255,255,0.6);padding:4px;" aria-label="Show password">
             <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
           </button>
         </div>
@@ -2562,7 +2562,7 @@
             class="w-full rounded-xl px-4 py-3 text-sm text-white outline-none"
             style="background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.12); padding-right:44px;" />
           <button type="button" onclick="togglePwd('su-password',this)" aria-pressed="false"
-            style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:rgba(255,255,255,0.3);padding:4px;" aria-label="Show password">
+            style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:rgba(255,255,255,0.6);padding:4px;" aria-label="Show password">
             <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
           </button>
         </div>
@@ -2571,7 +2571,7 @@
             class="w-full rounded-xl px-4 py-3 text-sm text-white outline-none"
             style="background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.12); padding-right:44px;" />
           <button type="button" onclick="togglePwd('su-confirm',this)" aria-pressed="false"
-            style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:rgba(255,255,255,0.3);padding:4px;" aria-label="Show confirm password">
+            style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:rgba(255,255,255,0.6);padding:4px;" aria-label="Show confirm password">
             <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
           </button>
         </div>
@@ -2590,7 +2590,7 @@
     <div id="panel-guest" class="hidden">
       <div style="text-align:center; padding:1rem 0;">
         <p style="color:rgba(255,255,255,0.6); font-size:0.875rem; margin-bottom:0.5rem;">Account required</p>
-        <p style="color:rgba(255,255,255,0.35); font-size:0.75rem; line-height:1.5; margin-bottom:1.25rem;">
+        <p style="color:rgba(255,255,255,0.6); font-size:0.75rem; line-height:1.5; margin-bottom:1.25rem;">
           WorkHive now requires an account to protect your data. Sign up: it takes 30 seconds.
         </p>
         <button onclick="switchAuthTab('signup')" style="background:#F7A21B;color:#162032;border:none;border-radius:0.75rem;padding:0.75rem 2rem;font-size:0.875rem;font-weight:700;cursor:pointer;">
@@ -3493,16 +3493,20 @@
         .eq(scopeFilter.col, scopeFilter.val)
         .limit(100), // limit-as-count-allow: low-stock tile is rare; 100 covers typical PH plant inventory. TODO: head-count if a hive ever exceeds.
 
-      // PM compliance via canonical (v_pm_compliance_truth) when in a hive.
-      // The view exposes is_due directly, so the per-asset roll-up below
-      // collapses to a single .filter(a => a.is_due). Solo-worker mode
-      // falls back to pm_assets because the view is hive-scoped only.
+      // PM overdue via the frequency-aware canonical PER-SCOPE-ITEM view in a
+      // hive — the SAME is_overdue signal pm-scheduler #stat-overdue and the
+      // get_hive_dashboard RPC use. Pre-filtered to is_overdue rows; the count
+      // below dedupes to DISTINCT assets. (Was v_pm_compliance_truth.is_due —
+      // a flat-30-day anchor proxy that over-counted 26 vs the true 4.)
+      // Solo-worker mode falls back to pm_assets because the truth view is
+      // hive-scoped only.
       HIVE_ID
-        ? db.from('v_pm_compliance_truth')
-            .select('pm_asset_id, asset_name, category, is_due')
+        ? db.from('v_pm_scope_items_truth')
+            .select('pm_asset_id, asset_name, asset_tag, asset_criticality, is_overdue')
             .eq('hive_id', HIVE_ID)
-            .limit(200) // limit-as-count-allow: PM-asset roster is bounded; 200 covers expected hive scale. TODO: head-count if exceeded.
-        // canonical-allow: solo-mode fallback (v_pm_compliance_truth is hive-scoped only)
+            .eq('is_overdue', true)
+            .limit(2000) // limit-as-count-allow: overdue scope items only; 2000 covers expected hive scale. TODO: head-count if exceeded.
+        // canonical-allow: solo-mode fallback (truth views are hive-scoped only)
         : db.from('pm_assets')
             .select('id, asset_name, category')
             .eq(scopeFilter.col, scopeFilter.val)
@@ -3569,36 +3573,37 @@
       // bug — view-side definition is the single source of truth.
       lowStock = invRaw.filter(i => i.is_low_stock === true);
 
-      // PM Overdue. In hive mode the canonical view already carries the is_due
-      // flag (last_anchor_date older than 30d OR never completed), so we just
-      // count. In solo mode we still need to fetch completions and compute
-      // client-side because the view does not cover worker_name scope.
+      // PM Overdue. In hive mode pmAssets holds the OVERDUE scope-item rows
+      // from v_pm_scope_items_truth (frequency-aware is_overdue); dedupe to
+      // DISTINCT assets so this matches pm-scheduler #stat-overdue and the
+      // get_hive_dashboard RPC exactly. (Was v_pm_compliance_truth.is_due — a
+      // flat-30-day anchor proxy that over-counted 26 vs the true 4 and
+      // mis-flagged long-frequency PMs.) Solo mode has no hive scope on the
+      // truth view, so it still computes per-asset from completions.
       pmOverdueCount = 0;
-      if (pmAssets.length > 0) {
-        if (HIVE_ID) {
-          pmOverdueCount = pmAssets.filter(a => a.is_due).length;
-        } else {
-          const assetIds = pmAssets.map(a => a.id).filter(Boolean);
-          try {
-            // canonical-allow: solo-mode fallback — v_pm_compliance_truth is hive-scoped only;
-            // need individual completion rows to compute per-asset cutoff client-side
-            const { data: comps } = await db.from('pm_completions')
-              .select('asset_id, completed_at')
-              .in('asset_id', assetIds)
-              .eq('status', 'done')
-              .order('completed_at', { ascending: false })
-              .limit(500);
-            const lastByAsset = {};
-            (comps || []).forEach(c => {
-              if (!lastByAsset[c.asset_id]) lastByAsset[c.asset_id] = new Date(c.completed_at).getTime();
-            });
-            const cutoff = Date.now() - 30 * 86400000; // time-window-allow: 30d = PM-cycle gap (asset not serviced in a month), distinct from 3d open-issue triage
-            pmOverdueCount = pmAssets.filter(a => {
-              const last = lastByAsset[a.id];
-              return !last || last < cutoff;
-            }).length;
-          } catch (_) { /* empty-catch-allow: best-effort silent swallow */ }
-        }
+      if (HIVE_ID) {
+        pmOverdueCount = new Set(pmAssets.map(a => a.pm_asset_id)).size;
+      } else if (pmAssets.length > 0) {
+        const assetIds = pmAssets.map(a => a.id).filter(Boolean);
+        try {
+          // canonical-allow: solo-mode fallback — truth view is hive-scoped only;
+          // need individual completion rows to compute per-asset cutoff client-side
+          const { data: comps } = await db.from('pm_completions')
+            .select('asset_id, completed_at')
+            .in('asset_id', assetIds)
+            .eq('status', 'done')
+            .order('completed_at', { ascending: false })
+            .limit(500);
+          const lastByAsset = {};
+          (comps || []).forEach(c => {
+            if (!lastByAsset[c.asset_id]) lastByAsset[c.asset_id] = new Date(c.completed_at).getTime();
+          });
+          const cutoff = Date.now() - 30 * 86400000; // time-window-allow: 30d = PM-cycle gap (asset not serviced in a month), distinct from 3d open-issue triage
+          pmOverdueCount = pmAssets.filter(a => {
+            const last = lastByAsset[a.id];
+            return !last || last < cutoff;
+          }).length;
+        } catch (_) { /* empty-catch-allow: best-effort silent swallow */ }
       }
     }
 
@@ -3764,14 +3769,20 @@
       }
       // 2) PM overdue on a critical asset (supervisor only: workers act on
       //    their stack, supervisor acts on the next overdue critical).
-      if (role === 'supervisor' && HIVE_ID && pmAssets.length) {
-        const critPM = pmAssets.find(a => a.is_due && (a.criticality === 'critical'));
+      if (role === 'supervisor' && HIVE_ID) {
+        // Top critical asset with an OVERDUE scope item. RPC path: the
+        // consolidated payload carries it (critical_pm_overdue) so this nudge
+        // works without the legacy pmAssets list. Fallback path: pick the first
+        // critical from the overdue scope-item rows pmAssets holds.
+        const critPM = _dash
+          ? (_dash.critical_pm_overdue || null)
+          : pmAssets.find(a => (a.asset_criticality || '').toLowerCase() === 'critical');
         if (critPM) {
           candidates.push({
             rank: 90,
             tone: 'high', accent: '#fb923c',
             label: 'Critical PM Overdue',
-            headline: `${critPM.asset_name || critPM.tag_id || 'Asset'}: PM due`,
+            headline: `${critPM.asset_name || critPM.asset_tag || 'Asset'}: PM due`,
             detail: 'Schedule the technician before the next shift.',
             cta: 'Open PM Scheduler',
             href: 'pm-scheduler.html',
@@ -3831,9 +3842,9 @@
             <div style="flex:1; min-width:0;">
               <p style="font-size:.6rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:#4ade80; margin:0 0 2px;">All clear</p>
               <p style="font-size:.92rem; font-weight:700; color:#F4F6FA; margin:0;">Nothing urgent right now.</p>
-              <p style="font-size:.72rem; color:rgba(255,255,255,.4); margin:3px 0 0;">${role === 'supervisor' ? 'Review the alert feed or the AMC daily brief.' : ((jobs.length === 0 && closedToday === 0) ? 'Log your first job to get started.' : 'Plan your shift in the Day Planner.')}</p>
+              <p style="font-size:.72rem; color:rgba(255,255,255,.6); margin:3px 0 0;">${role === 'supervisor' ? 'Review the alert feed or the AMC daily brief.' : ((jobs.length === 0 && closedToday === 0) ? 'Log your first job to get started.' : 'Plan your shift in the Day Planner.')}</p>
             </div>
-            <span style="font-size:.7rem; color:rgba(255,255,255,.4);">&#8594;</span>
+            <span style="font-size:.7rem; color:rgba(255,255,255,.6);">&#8594;</span>
           </a>`;
         return;
       }
@@ -3894,7 +3905,7 @@
               <p style="font-size:.78rem; font-weight:600; color:rgba(255,255,255,.7); margin:2px 0 0;">Finish these three steps to unlock the platform.</p>
             </div>
             <button type="button" onclick="(function(){ try{localStorage.setItem('wh_onboarding_dismissed','1');}catch(_){ /* empty-catch-allow: best-effort silent swallow */ }; document.getElementById('oh-onboarding').style.display='none'; })()"
-                    style="font-size:.62rem; color:rgba(255,255,255,.35); background:none; border:none; cursor:pointer; padding:6px 8px; min-height:44px;">
+                    style="font-size:.62rem; color:rgba(255,255,255,.6); background:none; border:none; cursor:pointer; padding:6px 8px; min-height:44px;">
               Dismiss &times;
             </button>
           </div>
@@ -3923,7 +3934,7 @@
         <div class="oh-card" style="padding:14px 16px; border-left:3px solid #f87171;">
           <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;">
             <p style="font-size:.62rem; font-weight:700; text-transform:uppercase; letter-spacing:.07em; color:#f87171; margin:0;">Top At-Risk Assets</p>
-            <a href="asset-hub.html" style="font-size:.62rem; color:rgba(255,255,255,.4); text-decoration:none;">All assets →</a>
+            <a href="asset-hub.html" style="font-size:.62rem; color:rgba(255,255,255,.6); text-decoration:none; display:inline-flex; align-items:center; min-height:44px;">All assets →</a>
           </div>
           <div style="display:flex; flex-direction:column; gap:8px;">
             ${top3.map(r => {
@@ -3936,7 +3947,7 @@
                   <span style="font-size:.78rem; font-weight:600; color:#F4F6FA; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${escHtml(r.asset_name)}</span>
                 </div>
                 <div style="display:flex; align-items:center; gap:10px; flex-shrink:0;">
-                  <span style="font-size:.65rem; color:rgba(255,255,255,.35); white-space:nowrap;">${escHtml(mtbf)}</span>
+                  <span style="font-size:.65rem; color:rgba(255,255,255,.6); white-space:nowrap;">${escHtml(mtbf)}</span>
                   <span style="font-size:.72rem; font-weight:800; color:#f87171;">${pct}%</span>
                 </div>
               </a>`;
@@ -3974,7 +3985,7 @@
         jobsEl/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = `<div class="oh-card" style="text-align:center; padding:24px 20px;">
           <div style="font-size:1.4rem; margin-bottom:6px;">✓</div>
           <div style="font-size:.82rem; font-weight:700; color:#4ade80; margin-bottom:4px;">All clear</div>
-          <div style="font-size:.7rem; color:rgba(255,255,255,.4);">No open jobs right now. Tap <strong style="color:#F7A21B;">+ Log a Job</strong> below if a fault comes up.</div>
+          <div style="font-size:.7rem; color:rgba(255,255,255,.6);">No open jobs right now. Tap <strong style="color:#F7A21B;">+ Log a Job</strong> below if a fault comes up.</div>
         </div>`;
       } else {
         jobsEl/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = jobs.map(j => {
@@ -3983,10 +3994,10 @@
           return `<div class="oh-job-row">
             <div style="flex:1; min-width:0;">
               <div style="font-size:.82rem; font-weight:700; color:#F4F6FA; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${escHtml(j.machine || 'Unknown machine')}</div>
-              <div style="font-size:.65rem; color:rgba(255,255,255,.35); margin-top:2px;">${escHtml(cat)}${ts ? ' · ' + _timeAgo(ts) : ''}</div>
+              <div style="font-size:.65rem; color:rgba(255,255,255,.6); margin-top:2px;">${escHtml(cat)}${ts ? ' · ' + _timeAgo(ts) : ''}</div>
             </div>
             <span class="oh-badge oh-badge-open">Open</span>
-            <a href="logbook.html" style="font-size:.65rem; color:rgba(255,255,255,.3); text-decoration:none; flex-shrink:0;">→</a>
+            <a href="logbook.html" aria-label="View in logbook" style="font-size:.65rem; color:rgba(255,255,255,.6); text-decoration:none; flex-shrink:0; min-width:44px; min-height:44px; display:inline-flex; align-items:center; justify-content:center; margin:-10px -8px -10px 0;">→</a>
           </div>`;
         }).join('');
       }
@@ -4004,7 +4015,7 @@
               <div style="font-size:.72rem; font-weight:600; background:rgba(251,146,60,.08); border:1px solid rgba(251,146,60,.2); border-radius:6px; padding:.25rem .6rem; color:rgba(255,255,255,.7);">
                 ${escHtml(i.part_name)} <span style="color:#fb923c;">(${Number(i.qty_on_hand)})</span>
               </div>`).join('')}
-            ${lowStock.length > 8 ? `<div style="font-size:.7rem; color:rgba(255,255,255,.3); padding:.25rem .6rem;">+${lowStock.length - 8} more</div>` : ''}
+            ${lowStock.length > 8 ? `<div style="font-size:.7rem; color:rgba(255,255,255,.6); padding:.25rem .6rem;">+${lowStock.length - 8} more</div>` : ''}
           </div>
         </div>`;
     }

@@ -16,7 +16,7 @@
         "v_amc_truth",
         "v_inventory_items_truth",
         "v_logbook_truth",
-        "v_pm_compliance_truth",
+        "v_pm_scope_items_truth",
         "v_risk_truth",
         "v_sensor_truth",
         "v_worker_truth",
@@ -52,67 +52,67 @@
         {
           "table": "hive_readiness",
           "allowed": true,
-          "offset": 96535
+          "offset": 97630
         },
         {
           "table": "hive_adoption_score",
           "allowed": true,
-          "offset": 103580
+          "offset": 104675
         },
         {
           "table": "logbook",
           "allowed": false,
-          "offset": 141140
+          "offset": 142235
         },
         {
           "table": "logbook",
           "allowed": false,
-          "offset": 141557
+          "offset": 142652
         },
         {
           "table": "logbook",
           "allowed": false,
-          "offset": 142682
+          "offset": 143777
         },
         {
           "table": "pm_completions",
           "allowed": false,
-          "offset": 143514
+          "offset": 144609
         },
         {
           "table": "inventory_items",
           "allowed": false,
-          "offset": 144976
+          "offset": 146071
         },
         {
           "table": "asset_nodes",
           "allowed": false,
-          "offset": 164452
+          "offset": 165547
         },
         {
           "table": "asset_nodes",
           "allowed": false,
-          "offset": 164907
+          "offset": 166002
         },
         {
           "table": "inventory_items",
           "allowed": false,
-          "offset": 165585
+          "offset": 166680
         },
         {
           "table": "inventory_items",
           "allowed": false,
-          "offset": 166048
+          "offset": 167143
         },
         {
           "table": "asset_nodes",
           "allowed": false,
-          "offset": 167207
+          "offset": 168302
         },
         {
           "table": "inventory_items",
           "allowed": false,
-          "offset": 167620
+          "offset": 168715
         }
       ],
       "drift": []
@@ -173,7 +173,7 @@
         {
           "table": "pm_completions",
           "allowed": false,
-          "offset": 63353
+          "offset": 63574
         }
       ],
       "drift": []
@@ -472,7 +472,7 @@
         {
           "table": "worker_achievements",
           "allowed": false,
-          "offset": 43875
+          "offset": 44285
         }
       ],
       "drift": []

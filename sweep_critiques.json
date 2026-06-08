@@ -1,6 +1,6 @@
 {
   "_README": "Machine feed of Grounded MCP Sweep harsh-critic recs (human-readable mirror: SWEEP_CRITIQUE_QUEUE.md). flywheel_orchestrator.py reads this and surfaces undispositioned entries in promotion_queue.md as an exploratory candidate class — so sweep findings flow through the SAME engine + disposition mechanism as the substrate miner. NOT recurrence-gated (a deliberate human critique is valid the first time it's raised). Dispose via promotion_dispositions.json using each entry's `key`.",
-  "generated": "2026-06-07T09:19:07.734798+00:00",
+  "generated": "2026-06-08T09:59:45.399454+00:00",
   "critiques": [
     {
       "key": "sweep:index:whshell-seam",
@@ -353,6 +353,304 @@
       "effort": "M",
       "flag": "CONTENT",
       "should_be": "The gateway persists + injects the recall window, but free-tier 8B recall is probabilistic for this agent. If reliable recall matters here, pin a stronger model for the synthesis turn or add an explicit memory section the prompt MUST quote. Track recall pass-rate across runs before acting."
+    },
+    {
+      "key": "sweep:marketplace:cta-density",
+      "page": "marketplace.html",
+      "wave": 0,
+      "title": "85 visible CTAs on the page",
+      "pillar": "U",
+      "severity": "Polish",
+      "effort": "L",
+      "flag": "TASTE",
+      "should_be": "Hick's law: high choice count slows decisions. Marketplace browse is arguably Jakob-acceptable (users expect many listings), but confirm the toolbar/filter density isn't competing with the listing grid for attention. Agent to judge."
+    },
+    {
+      "key": "sweep:marketplace:dup-affordance-save-to-watchlist",
+      "page": "marketplace.html",
+      "wave": 0,
+      "title": "\"save to watchlist\" reachable 13x on this page",
+      "pillar": "U/IA",
+      "severity": "Minor",
+      "effort": "M",
+      "flag": "TASTE",
+      "should_be": "Per-listing watchlist action x13 — legitimate per-row repetition (one per listing card). Likely NOT a defect; confirm it's a per-card action, not a global dup."
+    },
+    {
+      "key": "sweep:marketplace:dup-affordance-view",
+      "page": "marketplace.html",
+      "wave": 0,
+      "title": "\"view\" reachable 13x on this page",
+      "pillar": "U/IA",
+      "severity": "Minor",
+      "effort": "M",
+      "flag": "TASTE",
+      "should_be": "Per-listing 'view' x13 — per-row action, likely legitimate. Confirm vs. a redundant global control."
+    },
+    {
+      "key": "sweep:marketplace:dup-affordance-rb-romeo-beltran",
+      "page": "marketplace.html",
+      "wave": 0,
+      "title": "seller avatar/name reachable 3x on this page",
+      "pillar": "U/IA",
+      "severity": "Minor",
+      "effort": "M",
+      "flag": "TASTE",
+      "should_be": "Same seller appears on 3 listing cards — legitimate (that seller has 3 listings). Not a defect."
+    },
+    {
+      "key": "sweep:marketplace:dup-affordance-close",
+      "page": "marketplace.html",
+      "wave": 0,
+      "title": "\"close\" reachable 9x on this page",
+      "pillar": "U/IA",
+      "severity": "Minor",
+      "effort": "M",
+      "flag": "TASTE",
+      "should_be": "9 close buttons = the 9 hidden sheets/modals each carry their own close. Legitimate (one per modal); confirm none are duplicated within a single open modal."
+    },
+    {
+      "key": "sweep:ia:relabel:pending-approval",
+      "page": "asset-hub.html",
+      "wave": 0,
+      "title": "\"Pending approval\" means different things on asset-hub, inventory",
+      "pillar": "IA",
+      "severity": "Minor",
+      "effort": "M",
+      "flag": "TASTE",
+      "should_be": "Same LABEL \"Pending approval\" but different SUBJECTS (assets, parts) — same-named ≠ same-derivation. Do NOT consolidate; DISAMBIGUATE the labels (e.g. \"Pending approval\" → per-page \"Pending approval (assets)\"). Surfaced by the IA streamlining survey (Phase 2)."
+    },
+    {
+      "key": "sweep:ia:theme:risk-hot-critical",
+      "page": "alert-hub.html",
+      "wave": 0,
+      "title": "\"risk / hot / critical\" job served 4 ways across pages",
+      "pillar": "IA",
+      "severity": "Minor",
+      "effort": "M",
+      "flag": "TASTE",
+      "should_be": "4 pages answer the \"risk / hot / critical\" job a different way: High-severity alerts (alert-hub); Anomaly signals (alert-hub); AMC parts at risk (alert-hub); Critical assets (asset-hub); Hot assets (predictive); Risk ranking table (predictive); Risk heatmap (predictive); Top risk this shift (shift-brain). Hick's Law — multiple entry points to one job slow the user. Likely canonical home → predictive, others deep-link. REVIEW: confirm one job (merge) vs legitimately distinct role/context views (e.g. PM-overdue ≠ project-overdue) before acting."
+    },
+    {
+      "key": "sweep:ia:theme:due-soon-upcoming",
+      "page": "dayplanner.html",
+      "wave": 0,
+      "title": "\"due soon / upcoming\" job served 3 ways across pages",
+      "pillar": "IA",
+      "severity": "Minor",
+      "effort": "M",
+      "flag": "TASTE",
+      "should_be": "3 pages answer the \"due soon / upcoming\" job a different way: Tasks today (dayplanner); Tasks this week (dayplanner); Due this week (pm-scheduler); PMs due (shift-brain). Hick's Law — multiple entry points to one job slow the user. Likely canonical home → pm-scheduler, others deep-link. REVIEW: confirm one job (merge) vs legitimately distinct role/context views (e.g. PM-overdue ≠ project-overdue) before acting."
+    },
+    {
+      "key": "sweep:ia:theme:healthy-on-track",
+      "page": "pm-scheduler.html",
+      "wave": 0,
+      "title": "\"healthy / on-track\" job served 3 ways across pages",
+      "pillar": "IA",
+      "severity": "Minor",
+      "effort": "M",
+      "flag": "TASTE",
+      "should_be": "3 pages answer the \"healthy / on-track\" job a different way: On track (pm-scheduler); Healthy assets (predictive); On target workers (skillmatrix). Hick's Law — multiple entry points to one job slow the user. Likely canonical home → — (human picks), others deep-link. REVIEW: confirm one job (merge) vs legitimately distinct role/context views (e.g. PM-overdue ≠ project-overdue) before acting."
+    },
+    {
+      "key": "sweep:ia:theme:late-overdue",
+      "page": "dayplanner.html",
+      "wave": 0,
+      "title": "\"late / overdue\" job served 3 ways across pages",
+      "pillar": "IA",
+      "severity": "Minor",
+      "effort": "M",
+      "flag": "TASTE",
+      "should_be": "3 pages answer the \"late / overdue\" job a different way: Overdue tasks (dayplanner); Overdue PMs (pm-scheduler); Past end date (project-manager). Hick's Law — multiple entry points to one job slow the user. Likely canonical home → pm-scheduler, others deep-link. REVIEW: confirm one job (merge) vs legitimately distinct role/context views (e.g. PM-overdue ≠ project-overdue) before acting."
+    },
+    {
+      "key": "sweep:ia:affordance:asset-hub",
+      "page": "index.html",
+      "wave": 0,
+      "title": "\"asset-hub\" linked from 2 page bodies beyond the nav",
+      "pillar": "IA",
+      "severity": "Minor",
+      "effort": "M",
+      "flag": "TASTE",
+      "should_be": "Deep page \"asset-hub\" reached from 2 page bodies BEYOND the global nav (index, predictive). Hick's Law — confirm each extra path earns its place; otherwise rely on the nav + one contextual link."
+    },
+    {
+      "key": "sweep:ia:affordance:integrations",
+      "page": "ph-intelligence.html",
+      "wave": 0,
+      "title": "\"integrations\" linked from 2 page bodies beyond the nav",
+      "pillar": "IA",
+      "severity": "Minor",
+      "effort": "M",
+      "flag": "TASTE",
+      "should_be": "Deep page \"integrations\" reached from 2 page bodies BEYOND the global nav (ph-intelligence, plant-connections). Hick's Law — confirm each extra path earns its place; otherwise rely on the nav + one contextual link."
+    },
+    {
+      "key": "sweep:ia:affordance:inventory",
+      "page": "hive.html",
+      "wave": 0,
+      "title": "\"inventory\" linked from 2 page bodies beyond the nav",
+      "pillar": "IA",
+      "severity": "Minor",
+      "effort": "M",
+      "flag": "TASTE",
+      "should_be": "Deep page \"inventory\" reached from 2 page bodies BEYOND the global nav (hive, index). Hick's Law — confirm each extra path earns its place; otherwise rely on the nav + one contextual link."
+    },
+    {
+      "key": "sweep:ia:affordance:ph-intelligence",
+      "page": "analytics.html",
+      "wave": 0,
+      "title": "\"ph-intelligence\" linked from 2 page bodies beyond the nav",
+      "pillar": "IA",
+      "severity": "Minor",
+      "effort": "M",
+      "flag": "TASTE",
+      "should_be": "Deep page \"ph-intelligence\" reached from 2 page bodies BEYOND the global nav (analytics, integrations). Hick's Law — confirm each extra path earns its place; otherwise rely on the nav + one contextual link."
+    },
+    {
+      "key": "sweep:ia:affordance:pm-scheduler",
+      "page": "hive.html",
+      "wave": 0,
+      "title": "\"pm-scheduler\" linked from 2 page bodies beyond the nav",
+      "pillar": "IA",
+      "severity": "Minor",
+      "effort": "M",
+      "flag": "TASTE",
+      "should_be": "Deep page \"pm-scheduler\" reached from 2 page bodies BEYOND the global nav (hive, index). Hick's Law — confirm each extra path earns its place; otherwise rely on the nav + one contextual link."
+    },
+    {
+      "key": "sweep:ia:affordance:voice-journal",
+      "page": "index.html",
+      "wave": 0,
+      "title": "\"voice-journal\" linked from 2 page bodies beyond the nav",
+      "pillar": "IA",
+      "severity": "Minor",
+      "effort": "M",
+      "flag": "TASTE",
+      "should_be": "Deep page \"voice-journal\" reached from 2 page bodies BEYOND the global nav (index, logbook). Hick's Law — confirm each extra path earns its place; otherwise rely on the nav + one contextual link."
+    },
+    {
+      "key": "sweep:shell:fab-occluded-by-conn-chip",
+      "page": "pm-scheduler.html",
+      "wave": 0,
+      "title": "Page .fab occluded by the global Online connectivity chip (axe target-size, serious)",
+      "pillar": "U/Mobile",
+      "severity": "Major",
+      "effort": "M",
+      "flag": "TASTE",
+      "should_be": "CSS-390 mobile: the page .fab (z:20, bottom:68px, bottom-right) is sandwiched by GLOBAL shell elements — #wh-conn-chip (persistent \"Online\" status, z:9998) covers its top + #wh-hub covers its bottom — leaving only a 52x8px clickable strip -> axe target-size SERIOUS (partially obscured; safe clickable diameter 0px). Cross-cutting: affects EVERY page with a bottom-right FAB (inventory/asset-hub/etc). Not a one-page tweak: define a stacking/offset CONTRACT for the shell bottom-right cluster (conn-chip + hub) so page FABs clear it — e.g. expose a --wh-shell-bottom-inset CSS var the .fab bottom respects, OR move the FAB bottom-left on mobile, OR have the shell reserve its zone. Designer/Frontend decision. Pinned cause: persistent Online chip at z:9998 over FAB at z:20."
+    },
+    {
+      "key": "sweep:marketplace:vestigial-stripe-ui",
+      "page": "marketplace.html",
+      "wave": 0,
+      "title": "Remove vestigial Stripe/payments UI — platform is FREE (no Stripe)",
+      "pillar": "Product/Content",
+      "severity": "Major",
+      "effort": "M",
+      "flag": "CONTENT",
+      "should_be": "WorkHive is a FREE platform, not using Stripe. marketplace.html ships a vestigial monetization path: the \"Connect Stripe to receive payments\" button -> handleSellerOnboard() -> POST marketplace-connect-onboard (Stripe Connect onboarding). The fn is closure-scoped so the button currently no-ops (harmless). REMOVE or hide the whole Stripe/payments path (the button + handleSellerOnboard + any seller-payout/Connect UI) rather than wiring it up. (The battery flagged it as onclick->undefined-fn; the correct product fix is removal, not activation. A prior \"fix\" that exposed the fn on window was REVERTED.) Human disposes which UI to cut. See memory project-free-platform-no-stripe."
+    },
+    {
+      "key": "sweep:ia:relabel:overdue-asset-vs-task",
+      "page": "pm-scheduler,dayplanner",
+      "title": "Same 'Overdue' label counts DIFFERENT units across pages (assets vs tasks)",
+      "pillar": "C",
+      "severity": "Major",
+      "flag": "JOURNEY altitude live-drift (journey_battery.js, supervisor): pm-scheduler:overdue = 2 (per-ASSET, v_pm_compliance_truth) vs dayplanner:overdue_count = 3 (per-SCOPE-ITEM, sub='3 items past their scheduled date', data-rag-label='Overdue tasks'). Both numerically CORRECT for their own derivation (an asset can hold multiple overdue tasks: 2 assets / 3 tasks). NOT a stale-value/math bug. The VISIBLE .sc-label renders bare 'Overdue' on BOTH, so a field worker sees 2 vs 3 under one word and is confused = the Phase-3 'ambiguity of source' finding, now executable.",
+      "should_be": "RELABEL the visible .sc-label to differentiate the unit, e.g. pm-scheduler 'Overdue assets' (or 'Assets w/ overdue PM') + dayplanner 'Overdue tasks' (canonical data-rag-label ALREADY says 'Overdue tasks' — render it). DIFFERENTIATE, do NOT consolidate (two legitimate metrics) and do NOT 'fix the math'. Corroborates sweep:ia:theme:late-overdue + sweep:ia:theme:due-soon-upcoming. Human disposes wording.",
+      "source": "journey-battery",
+      "corroborates": [
+        "sweep:ia:theme:late-overdue",
+        "sweep:ia:theme:due-soon-upcoming"
+      ],
+      "wave": 0,
+      "effort": "M"
+    },
+    {
+      "key": "sweep:ia:semantic:consolidate:unify-pending-approval-counts",
+      "page": "asset-hub.html,inventory.html",
+      "title": "Unify pending approval counts",
+      "pillar": "IA",
+      "severity": "Major",
+      "flag": "[SEMANTIC CRITIC · CONSOLIDATE · conf=high] units=['asset-hub:pending_approval', 'inventory:pending_approval'] · CONFUSION: Technicians see two separate 'Pending approval' numbers and wonder if they refer to the same set of items.",
+      "should_be": "Create a single approvals dashboard; surface the combined count and provide filters for assets vs inventory. (canonical_home=asset-hub.html). Human disposes; if confidence<high VERIFY same-derivation first.",
+      "source": "ia-semantic-critic",
+      "wave": 0,
+      "effort": "M"
+    },
+    {
+      "key": "sweep:ia:semantic:relabel:distinguish-pm-due-vs-task-due",
+      "page": "pm-scheduler.html,dayplanner.html",
+      "title": "Distinguish PM due vs task due",
+      "pillar": "C",
+      "severity": "Major",
+      "flag": "[SEMANTIC CRITIC · RELABEL · conf=high] units=['pm-scheduler:due_soon', 'dayplanner:week_count'] · CONFUSION: Both tiles read 'Due this week', causing techs to mix up preventive maintenance jobs with daily tasks.",
+      "should_be": "Rename pm-scheduler:due_soon to 'PMs due this week' and dayplanner:week_count to 'Tasks due this week'. (canonical_home=n/a). Human disposes; if confidence<high VERIFY same-derivation first.",
+      "source": "ia-semantic-critic",
+      "wave": 0,
+      "effort": "M"
+    },
+    {
+      "key": "sweep:ia:semantic:relabel:clarify-shift-risk-vs-system-alerts",
+      "page": "shift-brain.html,alert-hub.html",
+      "title": "Clarify shift risk vs system alerts",
+      "pillar": "C",
+      "severity": "Minor",
+      "flag": "[SEMANTIC CRITIC · RELABEL · conf=medium] units=['shift-brain:top_risk_this_shift', 'alert-hub:high_severity_alerts'] · CONFUSION: Both tiles use risk language; users may think a shift‑risk entry is the same as a high‑severity system alert.",
+      "should_be": "Rename shift-brain:top_risk_this_shift to 'Shift‑specific top risk' and keep alert-hub label as 'System high‑severity alerts'. (canonical_home=n/a). Human disposes; if confidence<high VERIFY same-derivation first.",
+      "source": "ia-semantic-critic",
+      "wave": 0,
+      "effort": "M"
+    },
+    {
+      "key": "sweep:ia:semantic:relabel:differentiate-asset-risk-categories",
+      "page": "asset-hub.html,predictive.html",
+      "title": "Differentiate asset risk categories",
+      "pillar": "C",
+      "severity": "Minor",
+      "flag": "[SEMANTIC CRITIC · RELABEL · conf=medium] units=['asset-hub:critical_assets', 'predictive:hot_assets'] · CONFUSION: Both show 'critical/hot' assets, leading supervisors to think they are the same list.",
+      "should_be": "Rename asset-hub:critical_assets to 'AMC‑flagged critical assets' and predictive:hot_assets to 'Forecasted hot assets'. (canonical_home=n/a). Human disposes; if confidence<high VERIFY same-derivation first.",
+      "source": "ia-semantic-critic",
+      "wave": 0,
+      "effort": "M"
+    },
+    {
+      "key": "sweep:ia:semantic:remove:eliminate-marketplace-ui-state-tile",
+      "page": "marketplace.html",
+      "title": "Eliminate marketplace UI state tile",
+      "pillar": "IA",
+      "severity": "Polish",
+      "flag": "[SEMANTIC CRITIC · REMOVE · conf=high] units=['marketplace:current_tab'] · CONFUSION: The 'Current tab' tile shows UI navigation state, which adds no operational value and confuses users about its purpose.",
+      "should_be": "Delete this tile; UI should indicate active tab visually. (canonical_home=n/a). Human disposes; if confidence<high VERIFY same-derivation first.",
+      "source": "ia-semantic-critic",
+      "wave": 0,
+      "effort": "M"
+    },
+    {
+      "key": "sweep:ia:semantic:remove:deduplicate-marketplace-listings-view",
+      "page": "marketplace.html",
+      "title": "Deduplicate marketplace listings view",
+      "pillar": "IA",
+      "severity": "Minor",
+      "flag": "[SEMANTIC CRITIC · REMOVE · conf=high] units=['marketplace:listing_grid'] · CONFUSION: Both 'Listings in view' and 'Marketplace listing grid' display the same set of listings, causing double counting.",
+      "should_be": "Keep one tile (e.g., 'Listings in view') and remove the duplicate grid tile. (canonical_home=n/a). Human disposes; if confidence<high VERIFY same-derivation first.",
+      "source": "ia-semantic-critic",
+      "wave": 0,
+      "effort": "M"
+    },
+    {
+      "key": "sweep:platform-wide:form-label-association",
+      "page": "resume.html,logbook.html,inventory.html,project-manager.html,pm-scheduler.html,integrations.html,engineering-design.html,marketplace.html,report-sender.html,community.html,dayplanner.html",
+      "title": "Form fields lack PROGRAMMATIC labels (visible label, no for/id) — platform-wide W-form",
+      "pillar": "U",
+      "severity": "Major",
+      "flag": "NEW battery method __UFAI.formAudit() (Gap 2) found 16 unlabeled fields on resume (now 9 after the basicsField template fix). The pattern is <div class=field><label>X</label><input class=wh-input></div> — a VISIBLE label with NO for + input with NO id, so they are not programmatically associated; a screen reader reads each field as anonymous (or just the placeholder, which vanishes on focus). The .field/.wh-input/.wh-label pattern recurs across 15 HTML files (851 occurrences). Also caught: email rendered as type=text (wrong mobile keyboard / no validation) + missing autocomplete on identity fields.",
+      "should_be": "W-form (mirror W1 tap-target = one systemic fix, not per-field): fix the SHARED form-field render templates to emit id+for (programmatic label) + the right input type derived from the field key (email->type=email, phone->tel, qty->number) + autocomplete on name/email/phone. Where fields are static HTML, a one-time linkFieldLabels() helper (generate id, set label[for]) covers them; for JS-rendered fields fix the template (as resume basicsField was). THEN add __UFAI.formAudit() to the L2 gate so it cannot regress. DOWNPAYMENT done: resume basicsField (7 fields: name/headline/email/phone/city/region/summary) now labeled+typed+verified. REMAINING: resume section editors (experience/education/skills ~9 fields) + the other ~14 pages.",
+      "source": "ufai-battery-formAudit",
+      "wave": 0,
+      "effort": "M"
     }
   ]
 }

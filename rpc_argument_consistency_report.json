@@ -1,6 +1,6 @@
 {
   "summary": {
-    "files_scanned": 141,
+    "files_scanned": 143,
     "total_calls": 32,
     "total_drift": 1,
     "baseline": 1,
@@ -136,6 +136,10 @@
       "issues": []
     },
     {
+      "file": "companion_battery.js",
+      "issues": []
+    },
+    {
       "file": "connectivity-widget.js",
       "issues": []
     },
@@ -189,6 +193,10 @@
     },
     {
       "file": "skill-content.js",
+      "issues": []
+    },
+    {
+      "file": "ufai_battery.js",
       "issues": []
     },
     {

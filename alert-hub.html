@@ -24,7 +24,7 @@
       --bg: #0f1923; --surface: #162032; --card: #1d2e44;
       --gold: #F7A21B; --blue: #29B6D9; --green: #4ade80;
       --red: #f87171; --amber: #fb923c; --yellow: #facc15; --purple: #a78bfa;
-      --text: #F4F6FA; --muted: rgba(255,255,255,0.4);
+      --text: #F4F6FA; --muted: rgba(255,255,255,0.6);
       --border: rgba(255,255,255,0.07);
     }
     body { font-family: system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding-bottom: 90px; }
@@ -38,7 +38,7 @@
     .filter-row { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px; }
     .chip {
       display: inline-flex; align-items: center; gap: 6px;
-      padding: 6px 12px; background: rgba(22,32,50,0.85);
+      padding: 6px 12px; min-height: 44px; background: rgba(22,32,50,0.85);
       border: 1px solid var(--border); border-radius: 999px;
       font-family: inherit; font-size: .72rem; font-weight: 600;
       color: rgba(255,255,255,0.6); cursor: pointer;
@@ -50,7 +50,7 @@
       font-size: .58rem; font-weight: 800; padding: 1px 7px;
       border-radius: 999px; background: rgba(255,255,255,0.08);
     }
-    .chip.active .chip-count { background: rgba(247,162,27,0.25); color: var(--gold); }
+    .chip.active .chip-count { background: rgba(0,0,0,0.35); color: var(--gold); }
 
     /* Feed */
     .feed { display: flex; flex-direction: column; gap: 8px; }
@@ -77,7 +77,7 @@
     .alert-time { font-size: .65rem; color: var(--muted); flex-shrink: 0; }
     .alert-msg { font-size: .75rem; color: rgba(255,255,255,0.6); line-height: 1.4; margin-top: 2px; }
     .alert-action {
-      display: inline-flex; align-items: center; gap: 4px;
+      display: inline-flex; align-items: center; gap: 4px; min-height: 44px;
       font-size: .65rem; font-weight: 700; color: var(--gold);
       text-decoration: none; margin-top: 8px;
       padding: 4px 10px; border: 1px solid rgba(247,162,27,0.25);
@@ -328,7 +328,7 @@
       <div class="empty-sub">No active alerts in your hive right now.</div>
     </div>
     <div id="alert-load-more-wrap" class="hidden" style="margin-top:0.25rem;padding-bottom:1rem;">
-      <button onclick="loadMoreAlerts()" style="width:100%;padding:0.75rem;border-radius:0.75rem;font-size:0.875rem;font-weight:600;background:rgba(247,162,27,0.1);color:#F7A21B;border:1px solid rgba(247,162,27,0.3);cursor:pointer;">Load More</button>
+      <button onclick="loadMoreAlerts()" style="width:100%;min-height:44px;padding:0.75rem;border-radius:0.75rem;font-size:0.875rem;font-weight:600;background:rgba(247,162,27,0.1);color:#F7A21B;border:1px solid rgba(247,162,27,0.3);cursor:pointer;">Load More</button>
     </div>
     <div id="footer-meta" class="footer-meta"></div>
   </div>

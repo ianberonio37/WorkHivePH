@@ -1034,7 +1034,10 @@ function renderDILO() {
   // Hour lines (clickable)
   for (let h = 0; h < 24; h++) {
     const slotH = String(h).padStart(2, '0');
-    html += `<div onclick="onSlotClick('${ymd}','${slotH}:00')"
+    const slotLabel = h === 0 ? '12 AM' : h < 12 ? `${h} AM` : h === 12 ? '12 PM' : `${h-12} PM`;
+    html += `<div onclick="onSlotClick('${ymd}','${slotH}:00')" class="dp-slot" role="button" tabindex="0"
+      aria-label="Add task at ${slotLabel}"
+      onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}"
       style="position:absolute;top:${h * SLOT_H}px;left:0;right:0;height:${SLOT_H}px;
              border-top:1px solid rgba(255,255,255,0.05);cursor:pointer;transition:background 0.15s;z-index:0"
       onmouseenter="this.style.background='rgba(247,162,27,0.03)'"
@@ -1172,9 +1175,13 @@ function renderWILO() {
     html += `<div style="position:relative;height:${totalH}px;border-left:1px solid rgba(255,255,255,0.04);${isToday ? 'background:rgba(247,162,27,0.015)' : ''}">`;
 
     // Hour lines
+    const dayLabel = day.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
     for (let h = 0; h < 24; h++) {
       const slotH = String(h).padStart(2,'0');
-      html += `<div onclick="onSlotClick('${ymd}','${slotH}:00')"
+      const slotLabel = h === 0 ? '12 AM' : h < 12 ? `${h} AM` : h === 12 ? '12 PM' : `${h-12} PM`;
+      html += `<div onclick="onSlotClick('${ymd}','${slotH}:00')" class="dp-slot" role="button" tabindex="0"
+        aria-label="Add task on ${dayLabel} at ${slotLabel}"
+        onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}"
         style="position:absolute;top:${h*WILO_SLOT_H}px;left:0;right:0;height:${WILO_SLOT_H}px;
                border-top:1px solid rgba(255,255,255,0.04);cursor:pointer;z-index:0"
         onmouseenter="this.style.background='rgba(247,162,27,0.04)'"
@@ -1564,6 +1571,8 @@ document.addEventListener('keydown', e => {
     transition:transform .25s ease-out; pointer-events:none; }
   .dp-toast.show { transform:translateX(-50%) translateY(0); }
   .dp-toast.error { border-color:rgba(248,113,113,.4); background:rgba(127,29,29,.9); }
+  /* Keyboard focus ring for the clickable hour slots (a11y: WCAG 2.4.7) */
+  .dp-slot:focus-visible { outline:2px solid #F7A21B; outline-offset:-2px; background:rgba(247,162,27,0.06); }
 </style>
   <script src="offline-banner.js"></script>
   <script defer src="offline-queue.js"></script>

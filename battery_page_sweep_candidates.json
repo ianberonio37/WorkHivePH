@@ -1,0 +1,15 @@
+{
+  "candidates": [
+    {
+      "key": "sweep:marketplace:vestigial-stripe-ui",
+      "page": "marketplace.html",
+      "wave": 0,
+      "title": "Remove vestigial Stripe/payments UI — platform is FREE (no Stripe)",
+      "pillar": "Product/Content",
+      "severity": "Major",
+      "effort": "M",
+      "flag": "CONTENT",
+      "should_be": "WorkHive is a FREE platform, not using Stripe. marketplace.html ships a vestigial monetization path: the \"Connect Stripe to receive payments\" button -> handleSellerOnboard() -> POST marketplace-connect-onboard (Stripe Connect onboarding). The fn is closure-scoped so the button currently no-ops (harmless). REMOVE or hide the whole Stripe/payments path (the button + handleSellerOnboard + any seller-payout/Connect UI) rather than wiring it up. (The battery flagged it as onclick->undefined-fn; the correct product fix is removal, not activation. A prior \"fix\" that exposed the fn on window was REVERTED.) Human disposes which UI to cut. See memory project-free-platform-no-stripe."
+    }
+  ]
+}

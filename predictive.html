@@ -24,7 +24,7 @@
       --bg: #0f1923; --surface: #162032; --card: #1d2e44;
       --gold: #F7A21B; --blue: #29B6D9; --green: #4ade80;
       --red: #f87171; --amber: #fb923c; --yellow: #facc15; --purple: #a78bfa;
-      --text: #F4F6FA; --muted: rgba(255,255,255,0.4);
+      --text: #F4F6FA; --muted: rgba(255,255,255,0.6);
       --border: rgba(255,255,255,0.07);
     }
     body { font-family: system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding-bottom: 90px; }
@@ -48,7 +48,7 @@
 
     /* Tabs */
     .tabs { display: flex; gap: 4px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 4px; margin-bottom: 20px; }
-    .tab { flex: 1; padding: 9px 6px; border: none; background: transparent; color: var(--muted); font-family: inherit; font-size: .76rem; font-weight: 600; border-radius: 9px; cursor: pointer; transition: all .15s; text-align: center; }
+    .tab { flex: 1; min-height: 44px; padding: 9px 6px; border: none; background: transparent; color: var(--muted); font-family: inherit; font-size: .76rem; font-weight: 600; border-radius: 9px; cursor: pointer; transition: all .15s; text-align: center; }
     .tab.active { background: var(--card); color: var(--text); }
 
     /* Panel */
@@ -160,7 +160,12 @@
       <div class="page-title">Predictive Maintenance</div>
       <p id="wh-source-chip"></p>
     </div>
-    <span id="model-chip" class="model-chip">Loading...</span>
+    <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+      <button id="recompute-btn" type="button"
+        title="Recompute risk scores for your hive now — instead of waiting for the daily 13:00 PHT run"
+        style="display:none; align-items:center; gap:6px; min-height:44px; padding:0 14px; border-radius:8px; cursor:pointer; font-size:0.72rem; font-weight:700; font-family:inherit; background:rgba(167,139,250,0.15); color:#a78bfa; border:1px solid rgba(167,139,250,0.4); white-space:nowrap;">↻ Recompute now</button>
+      <span id="model-chip" class="model-chip">Loading...</span>
+    </div>
   </div>
 
   <!-- Phase B migration notice: per-asset risk now lives in Asset Hub. This page
@@ -173,7 +178,7 @@
       <a href="asset-hub.html" style="color:#a78bfa; font-weight:700; text-decoration:underline;">Asset Hub</a>.
       Click any asset name below to jump to its full 360 view.
     </div>
-    <a href="asset-hub.html" style="background:rgba(167,139,250,0.15); color:#a78bfa; border:1px solid rgba(167,139,250,0.4); border-radius:8px; padding:6px 12px; font-size:0.7rem; font-weight:700; text-decoration:none; white-space:nowrap;">Open Asset Hub →</a>
+    <a href="asset-hub.html" style="background:rgba(167,139,250,0.15); color:#a78bfa; border:1px solid rgba(167,139,250,0.4); border-radius:8px; padding:6px 12px; min-height:44px; display:inline-flex; align-items:center; font-size:0.7rem; font-weight:700; text-decoration:none; white-space:nowrap;">Open Asset Hub →</a>
   </div>
 
   <!-- Plain-Read summary (Layer D — UX Contract).
@@ -219,7 +224,7 @@
       <li><strong>Earliest forecast</strong>: smallest <code>days_until_failure</code> across the fleet — the asset the model expects to fail first.</li>
       <li><strong>Verdict</strong>: red if 3+ critical OR days_until_failure &lt; 14; amber if any critical/high OR forecast &lt; 30 days; green when fleet is mostly low-risk.</li>
     </ul>
-    <p style="margin-top:8px;color:rgba(255,255,255,0.55);font-size:11px;">Scores recompute daily at 13:00 PHT. Switch tabs below for Risk Ranking, Health Heatmap, or Failure Trend drilldowns.</p>
+    <p style="margin-top:8px;color:rgba(255,255,255,0.55);font-size:11px;">Scores recompute daily at 13:00 PHT — supervisors can also tap <strong>Recompute now</strong> (top of page) to refresh this hive on demand. Switch tabs below for Risk Ranking, Health Heatmap, or Failure Trend drilldowns.</p>
   </div>
 
   <!-- Summary row -->
@@ -379,6 +384,39 @@
   // ── Init ──────────────────────────────────────────────────────────────────────
   await Promise.allSettled([loadScores(), loadTrend()]);
   setupTabs();
+
+  // ── Recompute-now (supervisor) — on-demand risk recompute (2026-06-08) ─────
+  // Risk scores were previously ONLY ever written by the 13:00 PHT daily cron,
+  // so there was no way to refresh predictive numbers before the next run (the
+  // "once a day" friction). Supervisors can now recompute THIS hive on demand
+  // via batch-risk-scoring (hive-membership-gated server-side; the daily batch
+  // is unchanged). functions.invoke auto-attaches the user's session JWT.
+  (function wireRecompute() {
+    const btn = document.getElementById('recompute-btn');
+    if (!btn) return;
+    const HIVE_ROLE = localStorage.getItem('wh_hive_role') || '';
+    if (HIVE_ROLE !== 'supervisor' || !HIVE_ID) return;  // supervisors only
+    btn.style.display = 'inline-flex';
+    btn.addEventListener('click', async () => {
+      if (btn.disabled) return;
+      const orig = btn.textContent;
+      btn.disabled = true;
+      btn.textContent = '↻ Recomputing…';
+      try {
+        const { data, error } = await db.functions.invoke('batch-risk-scoring', { body: { hive_id: HIVE_ID } });
+        if (error) throw error;
+        if (data && data.error) throw new Error(data.error);
+        await loadScores();                                   // re-fetch the freshly-written v_risk_truth
+        try { await loadTrend(); } catch (_) { /* trend is best-effort */ }
+        btn.textContent = '✓ Updated';
+      } catch (err) {
+        console.warn('[predictive] recompute failed:', (err && err.message) || err);
+        btn.textContent = '⚠ Try again';
+      } finally {
+        setTimeout(() => { btn.textContent = orig; btn.disabled = false; }, 2600);
+      }
+    });
+  })();
 
   // Plain-Read details toggle (Layer D — UX Contract)
   (function wirePrSummaryToggle() {

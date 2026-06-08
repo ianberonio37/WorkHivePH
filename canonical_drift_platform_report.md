@@ -6,12 +6,12 @@ the class that produces _two pages, two numbers_ inconsistency.
 
 ## Summary
 
-- Files scanned: **184**
+- Files scanned: **187**
 - KPI-rendering pages: **78**
 - Pages with local truth-math (FREQ_DAYS / calcNextDue / ...): **0**
 - **TIER A drift pages** (user-facing KPI surface): **0**
 - TIER B drift pages (internal / shared JS): **0**
-- Canonical reads: 287 · Drift: 0 · Gap: 52 · Allowed: 140
+- Canonical reads: 292 · Drift: 0 · Gap: 52 · Allowed: 142
 
 ## Gap tables (no `v_*_truth` yet — next-build queue)
 

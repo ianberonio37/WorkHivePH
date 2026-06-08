@@ -1,6 +1,6 @@
 {
-  "clones": 73,
-  "duplicatedLines": 5259,
-  "percentage": 24.65,
-  "note": "forward-only ratchet; collapse duplication then --update-baseline to lower"
+  "clones": 70,
+  "duplicatedLines": 5242,
+  "percentage": 27.5,
+  "note": "forward-only ratchet; tightened automatically on reduction"
 }

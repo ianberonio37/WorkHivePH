@@ -37,7 +37,7 @@
     .page { position: relative; z-index: 1; max-width: 720px; margin: 0 auto; padding: 1.5rem 1rem; }
     .page-header { margin-bottom: 1rem; }
     .page-header h1 { font-size: 1.5rem; font-weight: 800; color: #fff; display: flex; align-items: center; gap: 0.5rem; }
-    .page-header p { font-size: 0.8rem; color: #7B8794; margin-top: 0.25rem; }
+    .page-header p { font-size: 0.8rem; color: #9AA8B6; margin-top: 0.25rem; }
     .ctx-pill { display: inline-flex; align-items: center; gap: 0.3rem; font-size: 0.68rem; font-weight: 600; color: #29B6D9;
       background: rgba(41,182,217,0.1); border: 1px solid rgba(41,182,217,0.25); border-radius: 999px; padding: 0.2rem 0.6rem; margin-top: 0.5rem; }
 
@@ -479,10 +479,15 @@
     function basicsField(f, label, val, ph, type) {
       const src = resume.basics._src && resume.basics._src[f];
       const chip = src ? ' ' + srcChip(src) : '';
+      const fid = 'rb-field-' + f;                       // programmatic label↔control link (a11y)
+      const TYPE = { email: 'email', phone: 'tel', website: 'url', url: 'url' };
+      const AC   = { email: 'email', phone: 'tel', name: 'name', city: 'address-level2', region: 'address-level1' };
+      const itype = TYPE[f] || 'text';                   // right mobile keyboard + validation
+      const ac = AC[f] ? ` autocomplete="${AC[f]}"` : '';
       const input = type === 'area'
-        ? `<textarea class="wh-input" data-basics="${f}" placeholder="${escHtml(ph)}" rows="3">${escHtml(val)}</textarea>`
-        : `<input class="wh-input" data-basics="${f}" placeholder="${escHtml(ph)}" value="${escHtml(val)}" />`;
-      return `<div class="field"><label>${escHtml(label)}${chip}</label>${input}</div>`;
+        ? `<textarea id="${fid}" class="wh-input" data-basics="${f}" placeholder="${escHtml(ph)}" rows="3">${escHtml(val)}</textarea>`
+        : `<input id="${fid}" type="${itype}"${ac} class="wh-input" data-basics="${f}" placeholder="${escHtml(ph)}" value="${escHtml(val)}" />`;
+      return `<div class="field"><label for="${fid}">${escHtml(label)}${chip}</label>${input}</div>`;
     }
 
     function renderBasics() {

@@ -19,6 +19,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <link rel="preconnect" href="https://hzyvnjtisfgbksicrouu.supabase.co" />
   <script src="utils.js"></script>
+  <script src="asset-qr.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
@@ -57,13 +58,13 @@
     /* Header */
     .page-header { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem; }
     .back-btn {
-      width: 36px; height: 36px; border-radius: 0.5rem; flex-shrink: 0;
+      width: 44px; height: 44px; border-radius: 0.5rem; flex-shrink: 0;
       background: rgba(255,255,255,0.06); border: 1px solid var(--border);
       display: flex; align-items: center; justify-content: center;
       cursor: pointer; color: var(--muted); text-decoration: none;
     }
     .back-btn:hover { background: rgba(255,255,255,0.1); }
-    .page-title { font-size: 1.05rem; font-weight: 700; }
+    .page-title { font-size: 1.05rem; font-weight: 700; margin: 0; }
     .page-sub { font-size: 0.72rem; color: var(--muted); margin-top: 2px; }
 
     /* Hive gate */
@@ -85,7 +86,7 @@
       display: flex; gap: 0.5rem; margin-bottom: 1rem;
     }
     .search-input {
-      flex: 1; height: 42px; border-radius: 0.6rem;
+      flex: 1; height: 44px; border-radius: 0.6rem;
       background: rgba(255,255,255,0.04); border: 1px solid var(--border);
       color: #F4F6FA; padding: 0 0.85rem;
       font-size: 16px; /* iOS auto-zoom rule */
@@ -226,7 +227,7 @@
       margin-top: 0.55rem;
       background: rgba(247,162,27,0.15); border: 1px solid rgba(247,162,27,0.35);
       color: var(--orange-wh); border-radius: 0.55rem;
-      padding: 6px 12px; font-size: 0.75rem; font-weight: 600;
+      padding: 6px 12px; min-height: 44px; font-size: 0.75rem; font-weight: 600;
       cursor: pointer; font-family: inherit;
     }
     .add-edge-btn:hover { background: rgba(247,162,27,0.25); }
@@ -234,7 +235,7 @@
     /* Phase R.2: Reliability tab strip + FMEA rows */
     .rel-tab {
       flex: 1;
-      min-height: 36px;
+      min-height: 44px;
       padding: 6px 10px;
       background: rgba(255,255,255,0.03);
       border: 1px solid var(--border);
@@ -249,6 +250,9 @@
     }
     .rel-tab.active   { background: rgba(167,139,250,0.18); color: #a78bfa; border-color: rgba(167,139,250,0.45); }
     .rel-tab[disabled] { opacity: 0.45; cursor: not-allowed; }
+    /* FMEA mode + RCM strategy strip action buttons (Approve/Delete/Edit/Set
+       strategy/Push to PM) — rendered inline; ensure a ≥44px tap target. */
+    .fmea-row button, .rcm-strip button { min-height: 44px; }
 
     .fmea-row {
       background: rgba(255,255,255,0.03);
@@ -466,7 +470,7 @@
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
       </a>
       <div>
-        <div class="page-title" id="page-title">Asset Hub</div>
+        <h1 class="page-title" id="page-title">Asset Hub</h1>
         <div class="page-sub" id="page-sub">360 view of any equipment in your hive</div>
         <p id="wh-page-source-chip"></p>
       </div>
@@ -539,7 +543,7 @@
         No approved assets in this hive yet. Add equipment via PM Scheduler or Inventory and they will surface here once approved.
       </div>
       <div id="asset-load-more-wrap" class="hidden" style="margin-top:0.25rem;padding-bottom:1rem;">
-        <button onclick="loadMoreAssets()" style="width:100%;padding:0.75rem;border-radius:0.75rem;font-size:0.875rem;font-weight:600;background:rgba(247,162,27,0.1);color:#F7A21B;border:1px solid rgba(247,162,27,0.3);cursor:pointer;">Load More</button>
+        <button onclick="loadMoreAssets()" style="width:100%;min-height:44px;padding:0.75rem;border-radius:0.75rem;font-size:0.875rem;font-weight:600;background:rgba(247,162,27,0.1);color:#F7A21B;border:1px solid rgba(247,162,27,0.3);cursor:pointer;">Load More</button>
       </div>
 
       <!-- Supervisor-only: pending asset_nodes approval queue. Hidden when there are
@@ -566,10 +570,13 @@
             <span class="dot"></span><span id="live-chip-text">offline</span>
           </span>
         </div>
-        <div style="margin-top:0.6rem;display:flex;gap:0.5rem;flex-wrap:wrap;">
+        <div style="margin-top:0.6rem;display:flex;gap:0.5rem;flex-wrap:wrap;align-items:center;">
           <span class="crit-pill" id="detail-crit"></span>
           <span class="crit-pill" id="detail-level" style="background:rgba(255,255,255,0.08);color:var(--muted);"></span>
           <span class="crit-pill" id="detail-location" style="background:rgba(255,255,255,0.08);color:var(--muted);display:none;"></span>
+          <!-- Generate the scannable tag (the other half of the scan loop) -->
+          <button type="button" id="detail-qr-btn" aria-label="Print a scannable QR tag for this asset"
+            style="display:none;align-items:center;gap:5px;min-height:36px;padding:0 12px;border-radius:8px;cursor:pointer;font-size:0.72rem;font-weight:700;font-family:inherit;background:rgba(247,162,27,0.15);color:#F7A21B;border:1px solid rgba(247,162,27,0.4);">⤓ Print QR tag</button>
         </div>
       </div>
 
@@ -705,24 +712,24 @@
         <div id="rel-panel-pf" style="display:none;">
           <div id="pf-form" style="display:flex; flex-direction:column; gap:8px; padding:0.6rem; background:rgba(255,255,255,0.02); border:1px solid var(--border); border-radius:0.55rem;">
             <label for="pf-parameter" style="font-size:.65rem; color:var(--muted); text-transform:uppercase; letter-spacing:.05em;">Parameter</label>
-            <select id="pf-parameter" style="height:42px; border-radius:0.45rem; background:rgba(255,255,255,0.04); border:1px solid var(--border); color:#F4F6FA; padding:0 0.6rem; font-size:16px;"></select>
+            <select id="pf-parameter" style="height:44px; border-radius:0.45rem; background:rgba(255,255,255,0.04); border:1px solid var(--border); color:#F4F6FA; padding:0 0.6rem; font-size:16px;"></select>
             <div style="display:flex; gap:8px;">
               <div style="flex:1;">
                 <label for="pf-p-threshold" style="font-size:.65rem; color:var(--muted); text-transform:uppercase; letter-spacing:.05em;">P (warning)</label>
-                <input id="pf-p-threshold" type="number" step="0.01" placeholder="e.g. 4.5" style="width:100%; height:42px; border-radius:0.45rem; background:rgba(255,255,255,0.04); border:1px solid var(--border); color:#F4F6FA; padding:0 0.6rem; font-size:16px;" />
+                <input id="pf-p-threshold" type="number" step="0.01" placeholder="e.g. 4.5" style="width:100%; height:44px; border-radius:0.45rem; background:rgba(255,255,255,0.04); border:1px solid var(--border); color:#F4F6FA; padding:0 0.6rem; font-size:16px;" />
               </div>
               <div style="flex:1;">
                 <label for="pf-f-threshold" style="font-size:.65rem; color:var(--muted); text-transform:uppercase; letter-spacing:.05em;">F (failure)</label>
-                <input id="pf-f-threshold" type="number" step="0.01" placeholder="e.g. 7.1" style="width:100%; height:42px; border-radius:0.45rem; background:rgba(255,255,255,0.04); border:1px solid var(--border); color:#F4F6FA; padding:0 0.6rem; font-size:16px;" />
+                <input id="pf-f-threshold" type="number" step="0.01" placeholder="e.g. 7.1" style="width:100%; height:44px; border-radius:0.45rem; background:rgba(255,255,255,0.04); border:1px solid var(--border); color:#F4F6FA; padding:0 0.6rem; font-size:16px;" />
               </div>
             </div>
             <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
               <label for="pf-direction" style="font-size:.65rem; color:var(--muted); text-transform:uppercase; letter-spacing:.05em;">Direction</label>
-              <select id="pf-direction" style="height:36px; border-radius:0.45rem; background:rgba(255,255,255,0.04); border:1px solid var(--border); color:#F4F6FA; padding:0 0.55rem; font-size:14px;" data-select-placeholder-allow="filter UI, default direction intentional">
+              <select id="pf-direction" style="height:44px; border-radius:0.45rem; background:rgba(255,255,255,0.04); border:1px solid var(--border); color:#F4F6FA; padding:0 0.55rem; font-size:16px;" data-select-placeholder-allow="filter UI, default direction intentional">
                 <option value="above">above (rising = bad)</option>
                 <option value="below">below (falling = bad)</option>
               </select>
-              <label style="display:inline-flex; align-items:center; gap:6px; font-size:.7rem; color:var(--muted); cursor:pointer;">
+              <label style="display:inline-flex; align-items:center; gap:6px; min-height:44px; font-size:.7rem; color:var(--muted); cursor:pointer;">
                 <input id="pf-safety-critical" type="checkbox" style="width:16px; height:16px;" />
                 Safety-critical (use P-F/3)
               </label>
@@ -1436,6 +1443,19 @@
 
       if (tagEl)  tagEl.textContent  = node.tag || node.name || 'Untitled';
       if (nameEl) nameEl.textContent = node.name || '';
+
+      // Print QR tag — encodes the asset TAG (the value logbook's scanner matches
+      // on asset.asset_id), closing the generate -> scan -> select round-trip.
+      const qrBtn = document.getElementById('detail-qr-btn');
+      if (qrBtn) {
+        const tagCode = node.tag || node.name || '';
+        qrBtn.style.display = tagCode ? 'inline-flex' : 'none';
+        qrBtn.onclick = function () {
+          if (!window.WHAssetQR) { showToast('QR generator still loading — try again.'); return; }
+          WHAssetQR.printTag(tagCode, node.name, node.location)
+            .catch(function (e) { showToast((e && e.message) || 'Could not generate the QR tag.'); });
+        };
+      }
       if (critEl) {
         critEl.textContent = node.criticality || 'medium';
         critEl.className   = critClass(node.criticality);

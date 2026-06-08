@@ -1,7 +1,7 @@
 {
   "summary": {
-    "files_scanned": 55,
-    "total_calls": 25,
+    "files_scanned": 57,
+    "total_calls": 27,
     "total_drift": 0,
     "baseline": 0,
     "edge_fns_known": 59
@@ -136,6 +136,10 @@
       "broken": []
     },
     {
+      "page": "companion_battery.js",
+      "broken": []
+    },
+    {
       "page": "connectivity-widget.js",
       "broken": []
     },
@@ -189,6 +193,10 @@
     },
     {
       "page": "skill-content.js",
+      "broken": []
+    },
+    {
+      "page": "ufai_battery.js",
       "broken": []
     },
     {

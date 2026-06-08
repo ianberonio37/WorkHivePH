@@ -88,7 +88,7 @@ CANONICAL / DRIFT / GAP / ALLOWED. Run by `tools/audit_calm_dashboard_canonical.
 
 ### `index.html` — ✅ compliant
 
-**Canonical** (8): `v_alert_truth`, `v_amc_truth`, `v_inventory_items_truth`, `v_logbook_truth`, `v_pm_compliance_truth`, `v_risk_truth`, `v_sensor_truth`, `v_worker_truth`
+**Canonical** (8): `v_alert_truth`, `v_amc_truth`, `v_inventory_items_truth`, `v_logbook_truth`, `v_pm_scope_items_truth`, `v_risk_truth`, `v_sensor_truth`, `v_worker_truth`
 **Allowed raw** (4): `early_access_emails`, `pm_assets`, `pm_completions`, `worker_profiles`
 
 ### `ph-intelligence.html` — ✅ compliant

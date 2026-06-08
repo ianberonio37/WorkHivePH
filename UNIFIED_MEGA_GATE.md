@@ -23,22 +23,26 @@ The original 3-layer model below describes Layer 0 / Layer 1 (WorkHive Tester) /
 | **GH** | Hardening Loop | Layer 2 finding → seeder + validator (the bug becomes the gate) | `/harden` skill, `tools/hardening_auto_trigger.py` | on-demand |
 | **GS** | Sentinel | Layer 0 rule → Playwright scenario (every TIER 1 rule has ≥2 anchored tests) | `sentinels/multi_scenario_per_rule.py` (0 gaps) | ~15 sec |
 | **G2** | Comprehensive E2E | 60+ Playwright specs, 5 tiers, ~375 scenarios | All TIER 1 rules anchored | ~90 sec Tier 1; ~5-15 min full |
+| **G3** | UFAI Battery (UX / quality audit) | Multi-altitude live+headless battery — component·page·journey·platform — measuring what scenario gates don't assert: a11y (axe), CWV, focus, prod-path, IA redundancy, component-shape consistency. **Referee fixes inline, critic surfaces→dispose.** | `tools/run_battery_family.py --gate` (headless ratchet vs `battery_family_baseline.json`) + `__UFAI`/`__JOURNEY`/`__CSB` live; spec = `BATTERY_ARCHITECTURE.md`, rollout = `BATTERY_ROADMAP.md` | ~5 sec headless gate; live waves on cadence |
 
 ### Bridges + flow
 
 ```
-  G-1.5  ──────►  G-1  ──────►  G0  ──────►  G2
-SUBSTRATE   AUTODISCOVER   GUARDIAN     PLAYWRIGHT
-                                 ▲           │
-                                 │           ▼
-                              GH HARDEN  GS SENTINEL
-                              (L2 → L0)  (L0 → L2)
+  G-1.5  ──────►  G-1  ──────►  G0  ──────►  G2  ──────►  G3
+SUBSTRATE   AUTODISCOVER   GUARDIAN     PLAYWRIGHT      BATTERY
+                                 ▲           │              │
+                                 │           ▼              ▼
+                              GH HARDEN  GS SENTINEL   G3 findings →
+                              (L2 → L0)  (L0 → L2)     GH (DEFECT→G0 validator)
+                                                       + critic→sweep_critiques→dispose
 ```
 
 The **hardening loop** (GH) and **sentinel** (GS) are the bidirectional bridges that make the gate self-improving. Every flywheel turn moves rules through both bridges:
 
 - A failing L2 scenario → Hardening Loop → new L0 validator → next turn catches the bug class earlier
 - A new L0 validator → Sentinel → proposed L2 scenario → next turn covers it behaviorally
+
+**G3 is a DISCOVERY source feeding the same bridges, not a parallel world.** The battery is broader than G2 (4 altitudes; a11y/CWV/IA/component pillars) but its critic half is deliberately non-gating — so it does NOT replace G2 (the committed functional gate). Instead: a stable G3 **DEFECT** hardens DOWN into a G0 validator via GH (e.g. the battery's prod-path-leak check already became `validate_prod_path_leak.py`); a G3 **journey-continuity** check graduates into a committed G2 spec; the G3 **critic** candidates flow to `sweep_critiques.json` → `promotion_queue.md` → disposed. The headless `--gate` ratchet (Rule B: `battery_family_baseline.json` only moves down) makes G3 a real pre-commit gate without blocking on already-surfaced findings.
 
 ### Coverage matrix
 
@@ -429,8 +433,9 @@ python e2e_runner.py --page logbook --path write
 # Before git commit
 python run_platform_checks.py --fast
 python e2e_runner.py --tier 1                    # Fastest comprehensive check
+python tools/run_battery_family.py --gate        # G3 battery ratchet (~5 sec headless)
 
-# If FAIL, fix + retry both commands
+# If FAIL, fix + retry the commands
 # If PASS, commit
 ```
 
@@ -509,10 +514,17 @@ python e2e_runner.py --page logbook --path write  # Single page, single path, ~5
 python e2e_runner.py --page logbook --path write --report  # With markdown report
 python e2e_runner.py --mobile                     # Mobile viewport tests only
 
+# ──── G3: UFAI Battery (UX / quality audit) ─────────────────────
+python tools/run_battery_family.py               # run all altitudes, surface candidates
+python tools/run_battery_family.py --gate         # forward-only ratchet (pre-commit, ~5 sec)
+python tools/run_battery_family.py --update-baseline   # re-freeze after accepting new findings
+# live half (cadence per BATTERY_ROADMAP.md): __UFAI.run / __UFAI.component / __JOURNEY via Playwright MCP
+
 # ──── UNIFIED MEGA GATE (All Layers) ──────────────────────────
 # Recommended: Run in sequence
 python run_platform_checks.py --fast && \
 python e2e_runner.py --tier 1 && \
+python tools/run_battery_family.py --gate && \
 echo "✓ Mega Gate PASS - Ready to commit"
 ```
 

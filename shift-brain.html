@@ -322,6 +322,33 @@
     let HIVE_ID   = localStorage.getItem('wh_active_hive_id') || localStorage.getItem('wh_hive_id') || '';
     let HIVE_ROLE = localStorage.getItem('wh_hive_role') || '';
 
+    // Synchronous pre-paint board reveal for members: lay out #page-wrap AND
+    // render its source chip at first paint, so neither the display:none->block
+    // reveal nor the chip injection causes layout shift (was CLS 1.13 — the
+    // reveal=1.02 + chip-push=0.12). HIVE_ID is known synchronously from
+    // localStorage, so non-members stay hidden (init() shows the hive-gate); a
+    // late membership failure re-hides it (rare, acceptable shift).
+    // source-chip-allow: the chip documents the upstream canonical sources the
+    // shift-planner-orchestrator drew from (v_risk_truth + pm_scope_items) so
+    // supervisors can trace any tile back to its fuel.
+    (function revealBoardEarly() {
+      if (!HIVE_ID) return;
+      const _pw = document.getElementById('page-wrap');
+      if (_pw) _pw.style.display = 'block';
+      const _sbChip = document.getElementById('shift-source-chip');
+      if (_sbChip && typeof renderSourceChip === 'function') {
+        _sbChip.innerHTML = renderSourceChip({
+          freshness: 'Live · shift plan generated on load',
+          source:    'shift_plans + v_risk_truth + pm_scope_items',
+          notes:     [
+            'Risk threshold: assets above the hive\'s risk score cutoff',
+            'PM window: scope items due within the 8-hour shift block',
+            'Carry-forward: open items from prior shift that weren\'t closed',
+          ],
+        });
+      }
+    })();
+
     let _activeWindow = currentShiftWindow();
     let _activePlan = null;
 
@@ -715,25 +742,12 @@
         return;
       }
 
-      // source-chip-allow: page reads shift_plans (pre-aggregated by the
-      // shift-planner-orchestrator edge fn); the chip documents the upstream
-      // canonical sources the orchestrator drew from (v_risk_truth +
-      // pm_scope_items) so supervisors can trace any tile back to its fuel.
-      const _sbChip = document.getElementById('shift-source-chip');
-      if (_sbChip && typeof renderSourceChip === 'function') {
-        _sbChip.innerHTML = renderSourceChip({
-          freshness: 'Live · shift plan generated on load',
-          source:    'shift_plans + v_risk_truth + pm_scope_items',
-          notes:     [
-            'Risk threshold: assets above the hive\'s risk score cutoff',
-            'PM window: scope items due within the 8-hour shift block',
-            'Carry-forward: open items from prior shift that weren\'t closed',
-          ],
-        });
-      }
+      // Source chip + #page-wrap reveal happen synchronously at parse time
+      // (revealBoardEarly above) to avoid layout shift — no chip render here.
 
       const ok = await validateHiveMembership();
       if (!ok) {
+        document.getElementById('page-wrap').style.display = 'none';
         document.getElementById('hive-gate').style.display = 'flex';
         _setShiftVerdict('Hive access required', 'Sign in to your hive to view shift readiness.');
         return;

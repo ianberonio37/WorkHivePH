@@ -99,16 +99,19 @@ function renderSourceChip(opts) {
 //
 // Skill alignment: architect (parallel-cutover pattern), data-engineer
 // (narrow .maybeSingle lookup, hive-scoped match), KPI_ENGINE.md Phase 5b.
-async function resolveAssetNodeId(db, hiveId, legacyAssetId) {
-  if (!db || !hiveId || !legacyAssetId) return null;
+async function resolveAssetNodeId(db, hiveId, assetIdOrLegacy) {
+  if (!db || !hiveId || !assetIdOrLegacy) return null;
+  // The Phase 5c asset picker passes the canonical asset_nodes uuid (exposed by
+  // the view as `asset_id`); older callers may still pass a legacy text id
+  // (`legacy_asset_id`). Match on whichever the value looks like.
+  // IMPORTANT: v_asset_truth renames asset_nodes.id -> asset_id, so select('id')
+  // / eq('id') 400s ("column v_asset_truth.id does not exist"). Always asset_id.
+  const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(String(assetIdOrLegacy));
   try {
-    // canonical-allow: bridge helper needs the legacy_asset_id column on the raw graph table
-    const { data } = await db.from('v_asset_truth')
-      .select('id')
-      .eq('hive_id', hiveId)
-      .eq('legacy_asset_id', legacyAssetId)
-      .maybeSingle();
-    return data?.id || null;
+    let q = db.from('v_asset_truth').select('asset_id').eq('hive_id', hiveId);
+    q = isUuid ? q.eq('asset_id', assetIdOrLegacy) : q.eq('legacy_asset_id', assetIdOrLegacy);
+    const { data } = await q.maybeSingle();
+    return data?.asset_id || null;
   } catch (_) {
     return null;
   }
@@ -120,10 +123,11 @@ async function resolveAssetNodeId(db, hiveId, legacyAssetId) {
 async function resolveLegacyAssetId(db, assetNodeId) {
   if (!db || !assetNodeId) return null;
   try {
-    // canonical-allow: bridge helper needs the legacy_asset_id column on the raw graph table
+    // v_asset_truth renames asset_nodes.id -> asset_id; filtering eq('id') 400s
+    // ("column v_asset_truth.id does not exist"). The canonical uuid is asset_id.
     const { data } = await db.from('v_asset_truth')
       .select('legacy_asset_id')
-      .eq('id', assetNodeId)
+      .eq('asset_id', assetNodeId)
       .maybeSingle();
     return data?.legacy_asset_id || null;
   } catch (_) {

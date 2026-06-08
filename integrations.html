@@ -23,7 +23,7 @@
       --bg: #0f1923; --surface: #162032; --card: #1d2e44;
       --gold: #F7A21B; --blue: #29B6D9; --green: #4ade80;
       --red: #f87171; --purple: #a78bfa;
-      --text: #F4F6FA; --muted: rgba(255,255,255,0.4);
+      --text: #F4F6FA; --muted: rgba(255,255,255,0.6);
       --border: rgba(255,255,255,0.07);
     }
     body { font-family: 'Poppins', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding-bottom: 80px; }
@@ -52,8 +52,8 @@
     }
     .step-dot.active   .step-num { background: rgba(247,162,27,0.15); color: var(--gold); border-color: rgba(247,162,27,0.4); }
     .step-dot.done     .step-num { background: rgba(74,222,128,0.15); color: var(--green); border-color: rgba(74,222,128,0.4); }
-    .step-label { font-size: .6rem; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; margin-top: 4px; color: rgba(255,255,255,0.2); }
-    .step-dot.active .step-label, .step-dot.done .step-label { color: rgba(255,255,255,0.5); }
+    .step-label { font-size: .6rem; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; margin-top: 4px; color: rgba(255,255,255,0.6); }
+    .step-dot.active .step-label, .step-dot.done .step-label { color: rgba(255,255,255,0.85); }
     .step-line { flex: 1; height: 1px; background: rgba(255,255,255,0.06); margin: 0 8px; margin-bottom: 14px; }
     .step-dot.done .step-line-after { background: rgba(74,222,128,0.3); }
     .step-inner { display: flex; flex-direction: column; align-items: center; }
@@ -226,7 +226,7 @@
     <div style="background:rgba(247,162,27,0.06); border:1px solid rgba(247,162,27,0.18); border-radius:14px; padding:18px 20px;">
       <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:14px;">
         <p style="font-size:.78rem; font-weight:700; color:var(--gold); text-transform:uppercase; letter-spacing:.06em;">How to connect your CMMS</p>
-        <button onclick="dismissGuide()" style="background:none; border:none; color:var(--muted); font-size:.75rem; cursor:pointer; font-family:inherit;">Dismiss</button>
+        <button onclick="dismissGuide()" style="background:none; border:none; color:var(--muted); font-size:.75rem; cursor:pointer; font-family:inherit; min-height:44px; display:inline-flex; align-items:center; padding:0 6px; margin-right:-6px;">Dismiss</button>
       </div>
       <div style="display:flex; gap:0; align-items:stretch; flex-wrap:wrap;">
 
@@ -237,7 +237,7 @@
             <p style="font-size:.75rem; font-weight:700; color:var(--gold);">Import File</p>
           </div>
           <p style="font-size:.7rem; color:rgba(255,255,255,0.55); line-height:1.5;">Have historical data in SAP, Maximo, or any CMMS? Export it as a CSV and upload it here. This is a one-time catch-up — brings your full maintenance history into WorkHive on day one.</p>
-          <button onclick="switchTab('import')" style="margin-top:10px; width:100%; padding:6px; background:rgba(247,162,27,0.12); color:var(--gold); border:1px solid rgba(247,162,27,0.3); border-radius:7px; font-size:.7rem; font-weight:600; cursor:pointer; font-family:inherit;">Start here →</button>
+          <button onclick="switchTab('import')" style="margin-top:10px; width:100%; padding:6px; min-height:44px; background:rgba(247,162,27,0.12); color:var(--gold); border:1px solid rgba(247,162,27,0.3); border-radius:7px; font-size:.7rem; font-weight:600; cursor:pointer; font-family:inherit;">Start here →</button>
         </div>
 
         <!-- Arrow -->
@@ -250,7 +250,7 @@
             <p style="font-size:.75rem; font-weight:700; color:var(--blue);">Live Sync</p>
           </div>
           <p style="font-size:.7rem; color:rgba(255,255,255,0.55); line-height:1.5;">After importing history, set up Live Sync so new work orders from SAP flow in automatically every day — no more CSV exports. WorkHive also pushes completed jobs back to SAP so both systems stay in sync.</p>
-          <button onclick="switchTab('sync')" style="margin-top:10px; width:100%; padding:6px; background:rgba(41,182,217,0.1); color:var(--blue); border:1px solid rgba(41,182,217,0.3); border-radius:7px; font-size:.7rem; font-weight:600; cursor:pointer; font-family:inherit;">Set up sync →</button>
+          <button onclick="switchTab('sync')" style="margin-top:10px; width:100%; padding:6px; min-height:44px; background:rgba(41,182,217,0.1); color:var(--blue); border:1px solid rgba(41,182,217,0.3); border-radius:7px; font-size:.7rem; font-weight:600; cursor:pointer; font-family:inherit;">Set up sync →</button>
         </div>
 
         <!-- Arrow -->
@@ -263,7 +263,7 @@
             <p style="font-size:.75rem; font-weight:700; color:var(--purple);">API Keys</p>
           </div>
           <p style="font-size:.7rem; color:rgba(255,255,255,0.55); line-height:1.5;">Optional. Generate keys so your Power BI dashboards, custom apps, or engineering tools can pull WorkHive benchmark data directly via the Intelligence API — without giving anyone raw database access.</p>
-          <button onclick="switchTab('api')" style="margin-top:10px; width:100%; padding:6px; background:rgba(167,139,250,0.1); color:var(--purple); border:1px solid rgba(167,139,250,0.3); border-radius:7px; font-size:.7rem; font-weight:600; cursor:pointer; font-family:inherit;">Manage keys →</button>
+          <button onclick="switchTab('api')" style="margin-top:10px; width:100%; padding:6px; min-height:44px; background:rgba(167,139,250,0.1); color:var(--purple); border:1px solid rgba(167,139,250,0.3); border-radius:7px; font-size:.7rem; font-weight:600; cursor:pointer; font-family:inherit;">Manage keys →</button>
         </div>
 
       </div>
@@ -272,9 +272,9 @@
 
   <!-- Mode tabs -->
   <div style="display:flex; gap:8px; margin-bottom:1.5rem; border-bottom:1px solid var(--border); padding-bottom:0;">
-    <button id="tab-import" onclick="switchTab('import')" style="padding:10px 18px; background:none; border:none; border-bottom:2px solid var(--gold); color:var(--gold); font-family:inherit; font-size:.85rem; font-weight:700; cursor:pointer;">Import File</button>
-    <button id="tab-sync"   onclick="switchTab('sync')"   style="padding:10px 18px; background:none; border:none; border-bottom:2px solid transparent; color:rgba(255,255,255,0.4); font-family:inherit; font-size:.85rem; font-weight:600; cursor:pointer;">Live Sync</button>
-    <button id="tab-api"    onclick="switchTab('api')"    style="padding:10px 18px; background:none; border:none; border-bottom:2px solid transparent; color:rgba(255,255,255,0.4); font-family:inherit; font-size:.85rem; font-weight:600; cursor:pointer;">API Keys</button>
+    <button id="tab-import" onclick="switchTab('import')" style="padding:12px 18px; background:none; border:none; border-bottom:2px solid var(--gold); color:var(--gold); font-family:inherit; font-size:.85rem; font-weight:700; cursor:pointer;">Import File</button>
+    <button id="tab-sync"   onclick="switchTab('sync')"   style="padding:12px 18px; background:none; border:none; border-bottom:2px solid transparent; color:rgba(255,255,255,0.6); font-family:inherit; font-size:.85rem; font-weight:600; cursor:pointer;">Live Sync</button>
+    <button id="tab-api"    onclick="switchTab('api')"    style="padding:12px 18px; background:none; border:none; border-bottom:2px solid transparent; color:rgba(255,255,255,0.6); font-family:inherit; font-size:.85rem; font-weight:600; cursor:pointer;">API Keys</button>
   </div>
 
   <!-- Header -->
@@ -1472,7 +1472,7 @@
       if (!btn) return;
       const active = t === tab;
       btn.style.borderBottomColor = active ? tabs[t] : 'transparent';
-      btn.style.color             = active ? tabs[t] : 'rgba(255,255,255,0.4)';
+      btn.style.color             = active ? tabs[t] : 'rgba(255,255,255,0.6)';
     });
     if (tab === 'sync') { loadSyncConfigs(); }
     if (tab === 'api')  loadApiKeys();

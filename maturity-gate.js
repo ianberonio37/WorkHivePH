@@ -168,13 +168,13 @@
         ${altLine}
         <div style="display:flex;gap:8px;margin-top:18px;flex-wrap:wrap;">
           <a href="${esc(opts.linkBack || 'hive.html')}#maturity-stairway-card"
-             style="display:inline-block;padding:10px 18px;border-radius:10px;
+             style="display:inline-flex;align-items:center;min-height:44px;padding:10px 18px;border-radius:10px;
                     background:linear-gradient(135deg,#F7A21B,#FDB94A);color:#162032;
                     font-size:12px;font-weight:800;text-decoration:none;">
             Open Maturity Stairway →
           </a>
           <a href="hive.html"
-             style="display:inline-block;padding:10px 18px;border-radius:10px;
+             style="display:inline-flex;align-items:center;min-height:44px;padding:10px 18px;border-radius:10px;
                     background:rgba(255,255,255,0.04);color:rgba(255,255,255,0.65);
                     border:1px solid rgba(255,255,255,0.08);
                     font-size:12px;font-weight:700;text-decoration:none;">

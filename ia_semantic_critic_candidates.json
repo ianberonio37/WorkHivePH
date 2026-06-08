@@ -1,0 +1,62 @@
+[
+  {
+    "key": "sweep:ia:semantic:consolidate:unify-pending-approval-counts",
+    "page": "asset-hub.html,inventory.html",
+    "title": "Unify pending approval counts",
+    "pillar": "IA",
+    "severity": "Major",
+    "flag": "[SEMANTIC CRITIC · CONSOLIDATE · conf=high] units=['asset-hub:pending_approval', 'inventory:pending_approval'] · CONFUSION: Technicians see two separate 'Pending approval' numbers and wonder if they refer to the same set of items.",
+    "should_be": "Create a single approvals dashboard; surface the combined count and provide filters for assets vs inventory. (canonical_home=asset-hub.html). Human disposes; if confidence<high VERIFY same-derivation first.",
+    "source": "ia-semantic-critic"
+  },
+  {
+    "key": "sweep:ia:semantic:relabel:distinguish-pm-due-vs-task-due",
+    "page": "pm-scheduler.html,dayplanner.html",
+    "title": "Distinguish PM due vs task due",
+    "pillar": "C",
+    "severity": "Major",
+    "flag": "[SEMANTIC CRITIC · RELABEL · conf=high] units=['pm-scheduler:due_soon', 'dayplanner:week_count'] · CONFUSION: Both tiles read 'Due this week', causing techs to mix up preventive maintenance jobs with daily tasks.",
+    "should_be": "Rename pm-scheduler:due_soon to 'PMs due this week' and dayplanner:week_count to 'Tasks due this week'. (canonical_home=n/a). Human disposes; if confidence<high VERIFY same-derivation first.",
+    "source": "ia-semantic-critic"
+  },
+  {
+    "key": "sweep:ia:semantic:relabel:clarify-shift-risk-vs-system-alerts",
+    "page": "shift-brain.html,alert-hub.html",
+    "title": "Clarify shift risk vs system alerts",
+    "pillar": "C",
+    "severity": "Minor",
+    "flag": "[SEMANTIC CRITIC · RELABEL · conf=medium] units=['shift-brain:top_risk_this_shift', 'alert-hub:high_severity_alerts'] · CONFUSION: Both tiles use risk language; users may think a shift‑risk entry is the same as a high‑severity system alert.",
+    "should_be": "Rename shift-brain:top_risk_this_shift to 'Shift‑specific top risk' and keep alert-hub label as 'System high‑severity alerts'. (canonical_home=n/a). Human disposes; if confidence<high VERIFY same-derivation first.",
+    "source": "ia-semantic-critic"
+  },
+  {
+    "key": "sweep:ia:semantic:relabel:differentiate-asset-risk-categories",
+    "page": "asset-hub.html,predictive.html",
+    "title": "Differentiate asset risk categories",
+    "pillar": "C",
+    "severity": "Minor",
+    "flag": "[SEMANTIC CRITIC · RELABEL · conf=medium] units=['asset-hub:critical_assets', 'predictive:hot_assets'] · CONFUSION: Both show 'critical/hot' assets, leading supervisors to think they are the same list.",
+    "should_be": "Rename asset-hub:critical_assets to 'AMC‑flagged critical assets' and predictive:hot_assets to 'Forecasted hot assets'. (canonical_home=n/a). Human disposes; if confidence<high VERIFY same-derivation first.",
+    "source": "ia-semantic-critic"
+  },
+  {
+    "key": "sweep:ia:semantic:remove:eliminate-marketplace-ui-state-tile",
+    "page": "marketplace.html",
+    "title": "Eliminate marketplace UI state tile",
+    "pillar": "IA",
+    "severity": "Polish",
+    "flag": "[SEMANTIC CRITIC · REMOVE · conf=high] units=['marketplace:current_tab'] · CONFUSION: The 'Current tab' tile shows UI navigation state, which adds no operational value and confuses users about its purpose.",
+    "should_be": "Delete this tile; UI should indicate active tab visually. (canonical_home=n/a). Human disposes; if confidence<high VERIFY same-derivation first.",
+    "source": "ia-semantic-critic"
+  },
+  {
+    "key": "sweep:ia:semantic:remove:deduplicate-marketplace-listings-view",
+    "page": "marketplace.html",
+    "title": "Deduplicate marketplace listings view",
+    "pillar": "IA",
+    "severity": "Minor",
+    "flag": "[SEMANTIC CRITIC · REMOVE · conf=high] units=['marketplace:listing_grid'] · CONFUSION: Both 'Listings in view' and 'Marketplace listing grid' display the same set of listings, causing double counting.",
+    "should_be": "Keep one tile (e.g., 'Listings in view') and remove the duplicate grid tile. (canonical_home=n/a). Human disposes; if confidence<high VERIFY same-derivation first.",
+    "source": "ia-semantic-critic"
+  }
+]

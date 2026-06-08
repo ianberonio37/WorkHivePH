@@ -1,6 +1,6 @@
-# Flywheel Turn #84
+# Flywheel Turn #101
 
-_2026-06-07T11:35:43_
+_2026-06-07T22:30:57_
 
 ## Layer deltas
 
@@ -9,8 +9,8 @@ _2026-06-07T11:35:43_
 | L-1   | cluster proposals       | 0 | 0 | · |
 | L-1.5 | rules in manifest       | 46 | 46 | · |
 | L0    | baselines tracked       | 94 | 94 | · |
-| L0    | total locked count      | 365 | 365 | · |
-| L2    | sentinel parity cases   | 33 | 33 | · |
+| L0    | total locked count      | 350 | 350 | · |
+| L2    | sentinel parity cases   | 35 | 35 | · |
 | L13   | stale walkthroughs      | 0 | 0 | · |
 
 ## No ratchets or regressions this turn — platform stable.

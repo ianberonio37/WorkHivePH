@@ -45,7 +45,7 @@
       outline: none; transition: border-color 0.2s; -webkit-appearance: none;
     }
     .wh-input:focus { border-color: rgba(247,162,27,0.5); }
-    .wh-input::placeholder { color: rgba(255,255,255,0.3); }
+    .wh-input::placeholder { color: rgba(255,255,255,0.6); }
 
     /* ── Buttons ── */
     .btn-primary {
@@ -62,12 +62,12 @@
       border-radius: 0.75rem; padding: 0.75rem 1.5rem; font-size: 0.875rem;
       border: 1px solid rgba(255,255,255,0.15); cursor: pointer; transition: all 0.2s;
     }
-    .btn-ghost:hover { border-color: rgba(255,255,255,0.4); color: white; }
+    .btn-ghost:hover { border-color: rgba(255,255,255,0.6); color: white; }
     .btn-ghost:active { transform: scale(0.98); }
 
     .btn-icon {
       min-height: 44px; min-width: 44px; background: transparent; border: none;
-      border-radius: 0.5rem; color: rgba(255,255,255,0.4); cursor: pointer;
+      border-radius: 0.5rem; color: rgba(255,255,255,0.6); cursor: pointer;
       display: inline-flex; align-items: center; justify-content: center;
       transition: all 0.15s; padding: 0.5rem;
     }
@@ -99,13 +99,13 @@
       display: inline-flex; align-items: center; gap: 5px;
       padding: 6px 14px; border-radius: 999px; font-size: 0.75rem; font-weight: 600;
       border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.05);
-      color: rgba(255,255,255,0.5); cursor: pointer; white-space: nowrap;
-      transition: all 0.15s; min-height: 36px;
+      color: rgba(255,255,255,0.65); cursor: pointer; white-space: nowrap;
+      transition: all 0.15s; min-height: 44px;
     }
-    .filter-chip:hover { border-color: rgba(255,255,255,0.25); color: rgba(255,255,255,0.8); }
+    .filter-chip:hover { border-color: rgba(255,255,255,0.6); color: rgba(255,255,255,0.8); }
     .filter-chip.active { background: rgba(247,162,27,0.15); border-color: rgba(247,162,27,0.4); color: #F7A21B; }
-    .filter-chip.cat-safety.active     { background: rgba(239,68,68,0.12); border-color: rgba(239,68,68,0.4); color: #f87171; }
-    .filter-chip.cat-technical.active  { background: rgba(41,182,217,0.12); border-color: rgba(41,182,217,0.4); color: #29B6D9; }
+    .filter-chip.cat-safety.active     { background: rgba(239,68,68,0.12); border-color: rgba(239,68,68,0.4); color: #fca5a5; }
+    .filter-chip.cat-technical.active  { background: rgba(41,182,217,0.12); border-color: rgba(41,182,217,0.4); color: #6fd3ef; }
     .filter-chip.cat-announce.active   { background: rgba(168,85,247,0.12); border-color: rgba(168,85,247,0.4); color: #c084fc; }
 
     /* ── Post cards ── */
@@ -128,9 +128,9 @@
       display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 999px;
       font-size: 0.6rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;
     }
-    .cat-general     { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.5); }
-    .cat-safety      { background: rgba(239,68,68,0.15); color: #f87171; }
-    .cat-technical   { background: rgba(41,182,217,0.12); color: #29B6D9; }
+    .cat-general     { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.65); }
+    .cat-safety      { background: rgba(239,68,68,0.15); color: #fca5a5; }
+    .cat-technical   { background: rgba(41,182,217,0.12); color: #6fd3ef; }
     .cat-announcement{ background: rgba(168,85,247,0.12); color: #c084fc; }
     .badge-pinned    { background: rgba(247,162,27,0.15); color: #F7A21B; }
     .badge-mod       { background: rgba(239,68,68,0.12); color: #fca5a5; }
@@ -149,8 +149,8 @@
       display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px;
       border-radius: 999px; font-size: 0.75rem; font-weight: 600;
       background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08);
-      color: rgba(255,255,255,0.5); cursor: pointer; transition: all 0.15s;
-      min-height: 30px;
+      color: rgba(255,255,255,0.6); cursor: pointer; transition: all 0.15s;
+      min-height: 44px;
     }
     .reaction-btn:hover  { background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.8); }
     .reaction-btn.active { background: rgba(247,162,27,0.15); border-color: rgba(247,162,27,0.35); color: #F7A21B; }
@@ -166,7 +166,7 @@
       border-bottom: 1px solid rgba(255,255,255,0.04);
     }
     .lb-row:last-child { border-bottom: none; }
-    .lb-rank { width: 22px; text-align: center; font-size: 0.75rem; font-weight: 800; color: rgba(255,255,255,0.3); flex-shrink: 0; }
+    .lb-rank { width: 22px; text-align: center; font-size: 0.75rem; font-weight: 800; color: rgba(255,255,255,0.6); flex-shrink: 0; }
     .lb-rank.gold   { color: #F7A21B; }
     .lb-rank.silver { color: #94a3b8; }
     .lb-rank.bronze { color: #b45309; }
@@ -190,7 +190,7 @@
     /* ── Mod queue tab ── */
     .tab-btn {
       flex: 1; padding: 0.6rem 0.5rem; border: none; background: transparent;
-      color: rgba(255,255,255,0.4); font-size: 0.8rem; font-weight: 600;
+      color: rgba(255,255,255,0.6); font-size: 0.8rem; font-weight: 600;
       border-bottom: 2px solid transparent; cursor: pointer; transition: all 0.15s;
       min-height: 44px;
     }
@@ -303,16 +303,16 @@
 <!-- ── NAV ── -->
 <nav class="fixed top-0 left-0 right-0 z-30" style="background:rgba(22,32,50,0.92); border-bottom:1px solid rgba(255,255,255,0.06); backdrop-filter:blur(12px); padding-top:env(safe-area-inset-top);">
   <div style="max-width:900px; margin:0 auto; padding:0 1.25rem; height:56px; display:flex; align-items:center; justify-content:space-between;">
-    <a href="index.html" style="display:flex; align-items:center; gap:8px; color:rgba(255,255,255,0.4); text-decoration:none; font-size:0.875rem; transition:color 0.2s;" onmouseover="this.style.color='rgba(255,255,255,0.8)'" onmouseout="this.style.color='rgba(255,255,255,0.4)'">
+    <a href="index.html" style="display:flex; align-items:center; gap:8px; min-height:44px; color:rgba(255,255,255,0.6); text-decoration:none; font-size:0.875rem; transition:color 0.2s;" onmouseover="this.style.color='rgba(255,255,255,0.8)'" onmouseout="this.style.color='rgba(255,255,255,0.6)'">
       <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
       <img src="brand_assets/workhive-logo-transparent.png" alt="WorkHive" style="height:28px; width:auto;" />
     </a>
     <div style="display:flex; align-items:center; gap:12px;">
       <div role="status" aria-live="polite" aria-atomic="true" style="display:flex; align-items:center; gap:6px;">
         <div class="conn-dot offline" id="conn-dot" aria-hidden="true"></div>
-        <span id="conn-label" style="font-size:0.7rem; color:rgba(255,255,255,0.35);">Connecting…</span>
+        <span id="conn-label" style="font-size:0.7rem; color:rgba(255,255,255,0.6);">Connecting…</span>
       </div>
-      <span id="nav-worker" style="font-size:0.75rem; color:rgba(255,255,255,0.4); max-width:120px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;"></span>
+      <span id="nav-worker" style="font-size:0.75rem; color:rgba(255,255,255,0.6); max-width:120px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;"></span>
     </div>
   </div>
 </nav>
@@ -326,7 +326,7 @@
 <!-- ── UNDO TOAST (soft-delete recovery, 5s window) ── -->
 <div id="undo-toast" class="hidden" role="alert" aria-live="polite">
   <span id="undo-toast-text"></span>
-  <button id="undo-toast-btn" type="button">Undo</button>
+  <button id="undo-toast-btn" type="button" style="min-height:44px;">Undo</button>
 </div>
 
 <!-- ── MAIN ── -->
@@ -338,7 +338,7 @@
     <!-- Page header -->
     <div style="margin-bottom:1.25rem;">
       <h1 style="font-size:1.5rem; font-weight:800; margin:0 0 2px;">Community</h1>
-      <p id="hive-name-label" style="font-size:0.8rem; color:rgba(255,255,255,0.4); margin:0;">Your hive's discussion board</p>
+      <p id="hive-name-label" style="font-size:0.8rem; color:rgba(255,255,255,0.6); margin:0;">Your hive's discussion board</p>
       <p id="community-source-chip" style="margin-top:3px;"></p>
     </div>
 
@@ -380,7 +380,7 @@
           <div id="feed-list" style="display:none; display:flex; flex-direction:column; gap:0.75rem;"></div>
           <div id="feed-load-more" style="display:none; justify-content:center; padding:0.75rem 0;">
             <button id="btn-load-more-posts" onclick="loadMorePosts()"
-              style="background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); color:rgba(255,255,255,0.7); border-radius:0.625rem; padding:0.6rem 1.25rem; font-size:0.8rem; cursor:pointer; transition:background 0.15s;">
+              style="background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); color:rgba(255,255,255,0.7); border-radius:0.625rem; padding:0.6rem 1.25rem; min-height:44px; font-size:0.8rem; cursor:pointer; transition:background 0.15s;">
               Load more posts
             </button>
           </div>
@@ -388,13 +388,13 @@
 
         <!-- Global feed panel (D Phase 2 — public posts from all hives) -->
         <div id="panel-global" style="display:none; flex-direction:column; gap:0.75rem;">
-          <p style="font-size:0.75rem; color:rgba(255,255,255,0.3); margin:0 0 0.5rem; text-align:center;">
+          <p style="font-size:0.75rem; color:rgba(255,255,255,0.6); margin:0 0 0.5rem; text-align:center;">
             Public posts from all WorkHive teams · Read-only outside your hive
           </p>
           <div id="global-list" style="display:flex; flex-direction:column; gap:0.75rem;"></div>
           <div id="global-load-more" style="display:none; justify-content:center; padding:0.75rem 0;">
             <button id="btn-load-more-global" onclick="loadMoreGlobalPosts()"
-              style="background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); color:rgba(255,255,255,0.7); border-radius:0.625rem; padding:0.6rem 1.25rem; font-size:0.8rem; cursor:pointer;">
+              style="background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); color:rgba(255,255,255,0.7); border-radius:0.625rem; padding:0.6rem 1.25rem; min-height:44px; font-size:0.8rem; cursor:pointer;">
               Load more
             </button>
           </div>
@@ -410,29 +410,29 @@
       <div>
         <!-- My profile card -->
         <div class="wh-card" style="padding:1.25rem; margin-bottom:1rem;" id="profile-card">
-          <p style="font-size:0.65rem; font-weight:800; text-transform:uppercase; letter-spacing:0.1em; color:rgba(255,255,255,0.35); margin:0 0 0.75rem;">Your Profile</p>
+          <p style="font-size:0.65rem; font-weight:800; text-transform:uppercase; letter-spacing:0.1em; color:rgba(255,255,255,0.6); margin:0 0 0.75rem;">Your Profile</p>
           <div style="display:flex; align-items:center; gap:12px;">
             <div id="profile-avatar" style="flex-shrink:0;padding-bottom:10px;"></div>
             <div style="flex:1; min-width:0;">
               <p id="profile-name" style="font-size:0.9rem; font-weight:700; margin:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;"></p>
-              <p id="profile-role" style="font-size:0.7rem; color:rgba(255,255,255,0.4); margin:0; text-transform:capitalize;"></p>
+              <p id="profile-role" style="font-size:0.7rem; color:rgba(255,255,255,0.6); margin:0; text-transform:capitalize;"></p>
             </div>
           </div>
           <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:1rem;">
             <div style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.06); border-radius:0.625rem; padding:0.75rem; text-align:center;">
               <p id="profile-posts" style="font-size:1.25rem; font-weight:800; margin:0; color:#F7A21B;">—</p>
-              <p style="font-size:0.65rem; color:rgba(255,255,255,0.4); margin:0; margin-top:2px;">Posts</p>
+              <p style="font-size:0.65rem; color:rgba(255,255,255,0.6); margin:0; margin-top:2px;">Posts</p>
             </div>
             <div style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.06); border-radius:0.625rem; padding:0.75rem; text-align:center;">
               <p id="profile-xp" style="font-size:1.25rem; font-weight:800; margin:0; color:#29B6D9;">—</p>
-              <p style="font-size:0.65rem; color:rgba(255,255,255,0.4); margin:0; margin-top:2px;">Community XP</p>
+              <p style="font-size:0.65rem; color:rgba(255,255,255,0.6); margin:0; margin-top:2px;">Community XP</p>
             </div>
           </div>
         </div>
 
         <!-- Leaderboard -->
         <div class="wh-card" style="padding:1.25rem;" id="leaderboard-card">
-          <p style="font-size:0.65rem; font-weight:800; text-transform:uppercase; letter-spacing:0.1em; color:rgba(255,255,255,0.35); margin:0 0 0.75rem;">Top Posters</p>
+          <p style="font-size:0.65rem; font-weight:800; text-transform:uppercase; letter-spacing:0.1em; color:rgba(255,255,255,0.6); margin:0 0 0.75rem;">Top Posters</p>
           <div id="leaderboard-list">
             <div style="height:16px; width:80%; border-radius:4px;" class="skeleton"></div>
             <div style="height:16px; width:70%; border-radius:4px; margin-top:10px;" class="skeleton"></div>
@@ -462,7 +462,7 @@
       </button>
     </div>
 
-    <label style="display:block; font-size:0.7rem; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; color:rgba(255,255,255,0.4); margin-bottom:6px;">Category</label>
+    <label style="display:block; font-size:0.7rem; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; color:rgba(255,255,255,0.6); margin-bottom:6px;">Category</label>
     <select id="post-category" class="wh-input" style="margin-bottom:1rem; cursor:pointer;" aria-label="Post category" data-select-placeholder-allow="default 'General' category is the broadest, safe default">
       <option value="general">General</option>
       <option value="safety">Safety</option>
@@ -475,22 +475,22 @@
       <input type="checkbox" id="post-public" style="width:18px; height:18px; flex-shrink:0; cursor:pointer; accent-color:#4ade80;" aria-label="Share publicly with all WorkHive teams" />
       <span style="flex:1; font-size:0.8rem; color:rgba(255,255,255,0.85);">
         🌐 Share with all WorkHive teams
-        <span style="display:block; font-size:0.65rem; color:rgba(255,255,255,0.45); font-weight:400; margin-top:2px;">Public posts appear on the Global tab for every hive.</span>
+        <span style="display:block; font-size:0.65rem; color:rgba(255,255,255,0.6); font-weight:400; margin-top:2px;">Public posts appear on the Global tab for every hive.</span>
       </span>
     </label>
 
-    <label style="display:block; font-size:0.7rem; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; color:rgba(255,255,255,0.4); margin-bottom:6px;">Message</label>
+    <label style="display:block; font-size:0.7rem; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; color:rgba(255,255,255,0.6); margin-bottom:6px;">Message</label>
     <div style="position:relative;">
       <textarea id="post-content" class="wh-input" rows="4" placeholder="What's on your mind? Type @ to mention a teammate." maxlength="2000" aria-label="Post content" style="resize:vertical; min-height:100px;"></textarea>
       <div id="mention-dropdown" role="listbox" aria-label="Mention suggestions"></div>
     </div>
-    <p id="post-char-count" style="text-align:right; font-size:0.7rem; color:rgba(255,255,255,0.3); margin:4px 0 1rem;">0 / 2000</p>
+    <p id="post-char-count" style="text-align:right; font-size:0.7rem; color:rgba(255,255,255,0.6); margin:4px 0 1rem;">0 / 2000</p>
 
     <details style="margin-bottom:1rem; padding:0.65rem 0.85rem; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:0.625rem; font-size:0.78rem; color:rgba(255,255,255,0.7);">
       <summary style="cursor:pointer; font-weight:600; color:rgba(255,255,255,0.85); list-style:none; display:flex; align-items:center; gap:6px;">
         <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
         Community guidelines
-        <span style="margin-left:auto; font-size:0.65rem; color:rgba(255,255,255,0.4); font-weight:400;">tap to read</span>
+        <span style="margin-left:auto; font-size:0.65rem; color:rgba(255,255,255,0.6); font-weight:400;">tap to read</span>
       </summary>
       <ul style="margin:0.6rem 0 0; padding-left:1.2rem; line-height:1.55;">
         <li>Be respectful — no harassment, bullying, or personal attacks.</li>
@@ -539,11 +539,11 @@
       </button>
     </div>
 
-    <p style="font-size:0.78rem; color:rgba(255,255,255,0.55); margin:0 0 1rem; line-height:1.5;">
+    <p style="font-size:0.78rem; color:rgba(255,255,255,0.7); margin:0 0 1rem; line-height:1.5;">
       Send this post to your supervisor for review. Your name and reason will be recorded in the audit log.
     </p>
 
-    <label style="display:block; font-size:0.7rem; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; color:rgba(255,255,255,0.4); margin-bottom:6px;">Reason</label>
+    <label style="display:block; font-size:0.7rem; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; color:rgba(255,255,255,0.6); margin-bottom:6px;">Reason</label>
     <select id="report-reason" class="wh-input" style="margin-bottom:1rem; cursor:pointer;" aria-label="Reason for report" data-select-placeholder-allow="report-reason picker is required field with submit button; UX guards against silent send">
       <option value="harassment">Harassment or bullying</option>
       <option value="unsafe">Unsafe or wrong information</option>
@@ -551,9 +551,9 @@
       <option value="other">Other</option>
     </select>
 
-    <label style="display:block; font-size:0.7rem; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; color:rgba(255,255,255,0.4); margin-bottom:6px;">Details (optional)</label>
+    <label style="display:block; font-size:0.7rem; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; color:rgba(255,255,255,0.6); margin-bottom:6px;">Details (optional)</label>
     <textarea id="report-details" class="wh-input" rows="3" maxlength="500" placeholder="Any extra context for your supervisor…" aria-label="Report details" style="resize:vertical; min-height:80px;"></textarea>
-    <p id="report-char-count" style="text-align:right; font-size:0.7rem; color:rgba(255,255,255,0.3); margin:4px 0 1rem;">0 / 500</p>
+    <p id="report-char-count" style="text-align:right; font-size:0.7rem; color:rgba(255,255,255,0.6); margin:4px 0 1rem;">0 / 500</p>
 
     <button id="btn-submit-report" class="btn-primary" style="width:100%;" onclick="submitReport()">Send Report</button>
   </div>
@@ -791,7 +791,7 @@
       .limit(10);
 
     if (error || !data || data.length === 0) {
-      el.innerHTML = '<p style="font-size:0.78rem; color:rgba(255,255,255,0.3); text-align:center; padding:1rem 0;">No activity yet.</p>';
+      el.innerHTML = '<p style="font-size:0.78rem; color:rgba(255,255,255,0.6); text-align:center; padding:1rem 0;">No activity yet.</p>';
       return;
     }
 
@@ -894,7 +894,7 @@
       if (isFiltered) {
         el.innerHTML = `<div class="empty-state">
           <svg width="48" height="48" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-          <p style="color:rgba(255,255,255,0.4); font-size:0.875rem;">No posts match your search or filter.</p>
+          <p style="color:rgba(255,255,255,0.6); font-size:0.875rem;">No posts match your search or filter.</p>
         </div>`;
       } else {
         // First-time / fresh-hive welcome with a clear CTA + how-to
@@ -1021,7 +1021,7 @@
           <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap; margin-bottom:4px;">
             <span style="font-size:0.8rem; font-weight:700;">${escHtml(p.author_name)}</span>
             ${catBadge}${pinnedBadge}${flaggedBadge}${publicBadge}
-            <span style="font-size:0.7rem; color:rgba(255,255,255,0.3); margin-left:auto;">${escHtml(timeAgo)}${p.edited_at ? ' · <span style="font-style:italic;">edited</span>' : ''}</span>
+            <span style="font-size:0.7rem; color:rgba(255,255,255,0.6); margin-left:auto;">${escHtml(timeAgo)}${p.edited_at ? ' · <span style="font-style:italic;">edited</span>' : ''}</span>
           </div>
           <p style="font-size:0.85rem; line-height:1.55; color:rgba(255,255,255,0.82); margin:0 0 0.75rem; word-break:break-word;">${renderContentWithMentions(p.content, p.mentions)}</p>
           <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
@@ -1148,7 +1148,7 @@
     if (activeTab !== 'mod') return;
     const el = document.getElementById('mod-list');
     if (flagged.length === 0) {
-      el.innerHTML = '<div class="empty-state"><p style="color:rgba(255,255,255,0.4); font-size:0.875rem;">No flagged posts.</p></div>';
+      el.innerHTML = '<div class="empty-state"><p style="color:rgba(255,255,255,0.6); font-size:0.875rem;">No flagged posts.</p></div>';
       return;
     }
     el.innerHTML = [...pinnedPosts, ...allPosts].filter(p => p.flagged).map(p => renderPostCard(p)).join('');
@@ -1163,7 +1163,7 @@
     _globalHasMore  = true;
 
     const el = document.getElementById('global-list');
-    el.innerHTML = '<p style="font-size:0.78rem; color:rgba(255,255,255,0.3); text-align:center; padding:1rem 0;">Loading…</p>';
+    el.innerHTML = '<p style="font-size:0.78rem; color:rgba(255,255,255,0.6); text-align:center; padding:1rem 0;">Loading…</p>';
 
     const { data, error } = await db.from('v_community_posts_truth')
       .select('id, hive_id, author_name, content, category, created_at, edited_at, mentions, deleted_at, hive_name')
@@ -1171,7 +1171,7 @@
       .order('created_at', { ascending: false }).limit(20);
 
     if (error || !data || data.length === 0) {
-      el.innerHTML = '<p style="font-size:0.78rem; color:rgba(255,255,255,0.3); text-align:center; padding:1rem 0;">No public posts yet. Supervisors can make posts public from the Feed tab.</p>';
+      el.innerHTML = '<p style="font-size:0.78rem; color:rgba(255,255,255,0.6); text-align:center; padding:1rem 0;">No public posts yet. Supervisors can make posts public from the Feed tab.</p>';
       document.getElementById('global-load-more').style.display = 'none';
       return;
     }
@@ -1238,12 +1238,12 @@
           <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap; margin-bottom:4px;">
             <span style="font-size:0.8rem; font-weight:700;">${escHtml(p.author_name)}</span>
             <span class="cat-badge ${catClass}">${escHtml(catLabel)}</span>
-            <span style="font-size:0.7rem; color:rgba(255,255,255,0.3); margin-left:auto;">${escHtml(timeAgo)}${p.edited_at ? ' · <span style="font-style:italic;">edited</span>' : ''}</span>
+            <span style="font-size:0.7rem; color:rgba(255,255,255,0.6); margin-left:auto;">${escHtml(timeAgo)}${p.edited_at ? ' · <span style="font-style:italic;">edited</span>' : ''}</span>
           </div>
           <p style="font-size:0.85rem; line-height:1.55; color:rgba(255,255,255,0.82); margin:0 0 0.5rem; word-break:break-word;">${renderContentWithMentions(p.content, p.mentions)}</p>
-          <div style="font-size:0.7rem; color:rgba(255,255,255,0.25); margin-bottom:0.5rem; display:flex; align-items:center; gap:4px;">
+          <div style="font-size:0.7rem; color:rgba(255,255,255,0.6); margin-bottom:0.5rem; display:flex; align-items:center; gap:4px;">
             <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
-            From <strong style="color:rgba(255,255,255,0.45); margin-left:2px;">${escHtml(hiveName)}</strong>
+            From <strong style="color:rgba(255,255,255,0.6); margin-left:2px;">${escHtml(hiveName)}</strong>
           </div>
           <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
             ${rxBtn('thumbs_up','Thumbs up','👍')}
@@ -1576,7 +1576,7 @@
 
     document.getElementById('thread-title').textContent = 'Thread';
     document.getElementById('thread-post').innerHTML = renderPostCard(post);
-    document.getElementById('thread-replies').innerHTML = '<p style="font-size:0.78rem; color:rgba(255,255,255,0.3);">Loading replies…</p>';
+    document.getElementById('thread-replies').innerHTML = '<p style="font-size:0.78rem; color:rgba(255,255,255,0.6);">Loading replies…</p>';
     document.getElementById('reply-content').value = '';
     document.getElementById('thread-overlay').classList.add('open');
     if (_focusTrapCleanup) _focusTrapCleanup();
@@ -1630,7 +1630,7 @@
     const el = document.getElementById('thread-replies');
     if (error) { el.innerHTML = '<p style="color:rgba(239,68,68,0.7); font-size:0.78rem;">Could not load replies.</p>'; return; }
     if (!data || data.length === 0) {
-      el.innerHTML = '<p style="font-size:0.78rem; color:rgba(255,255,255,0.3);">No replies yet. Start the conversation.</p>';
+      el.innerHTML = '<p style="font-size:0.78rem; color:rgba(255,255,255,0.6);">No replies yet. Start the conversation.</p>';
       return;
     }
     const replyAuthors = [...new Set(data.map(r => r.author_name).filter(Boolean))];
@@ -1644,7 +1644,7 @@
           <div style="flex:1; min-width:0;">
             <div style="display:flex; align-items:center; gap:6px; margin-bottom:2px;">
               <span style="font-size:0.75rem; font-weight:700;">${escHtml(r.author_name)}</span>
-              <span style="font-size:0.65rem; color:rgba(255,255,255,0.3);">${escHtml(formatTimeAgo(r.created_at))}</span>
+              <span style="font-size:0.65rem; color:rgba(255,255,255,0.6);">${escHtml(formatTimeAgo(r.created_at))}</span>
             </div>
             <p style="font-size:0.82rem; line-height:1.5; color:rgba(255,255,255,0.78); margin:0; word-break:break-word;">${escHtml(r.content)}</p>
           </div>
@@ -1711,7 +1711,7 @@
       const initials = m.worker_name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
       return `<div class="presence-chip">
         <div class="presence-dot online"></div>
-        <div style="width:20px; height:20px; border-radius:50%; background:rgba(41,182,217,0.2); border:1px solid rgba(41,182,217,0.3); display:flex; align-items:center; justify-content:center; font-size:0.6rem; font-weight:700; color:#29B6D9; flex-shrink:0;">${escHtml(initials)}</div>
+        <div style="width:20px; height:20px; border-radius:50%; background:rgba(41,182,217,0.2); border:1px solid rgba(41,182,217,0.3); display:flex; align-items:center; justify-content:center; font-size:0.6rem; font-weight:700; color:#7dd3fc; flex-shrink:0;">${escHtml(initials)}</div>
         <span>${escHtml(m.worker_name)}</span>
       </div>`;
     }).join('');
@@ -2016,7 +2016,7 @@
                    onmousedown="event.preventDefault(); selectMention(${i});">
         <div class="avatar-initial">${escHtml(initials)}</div>
         <span>${escHtml(m.worker_name)}</span>
-        <span style="margin-left:auto; font-size:0.65rem; color:rgba(255,255,255,0.4); text-transform:capitalize;">${escHtml(m.role || 'worker')}</span>
+        <span style="margin-left:auto; font-size:0.65rem; color:rgba(255,255,255,0.6); text-transform:capitalize;">${escHtml(m.role || 'worker')}</span>
       </div>`;
     }).join('');
     el.classList.add('open');

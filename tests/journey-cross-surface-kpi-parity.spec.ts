@@ -92,6 +92,67 @@ test.describe('cross-surface KPI parity', () => {
     }
   });
 
+  test('check_pm_overdue_magnitude: get_hive_dashboard.pm_overdue_count == DISTINCT overdue assets', async ({ whPage }) => {
+    // Locks the 2026-06-07 unify fix. The home (index.html) "PM Overdue" tile is
+    // RPC-driven (get_hive_dashboard.pm_overdue_count) and links straight to
+    // pm-scheduler, so it must equal pm-scheduler #stat-overdue — i.e. the count
+    // of DISTINCT assets with an overdue scope item in the frequency-aware
+    // canonical view. The direction-only invariant above slept through a 26-vs-4
+    // magnitude gap (the tile read v_pm_compliance_truth.is_due, a flat-30-day
+    // anchor proxy). This asserts the wiring EXACTLY, so a revert is caught.
+    await whPage.goto(SCHED_URL, { waitUntil: 'domcontentloaded' });
+
+    const { rpcOverdue, canonicalOverdue } = await whPage.evaluate(async () => {
+      const hiveId = localStorage.getItem('wh_active_hive_id') || localStorage.getItem('wh_hive_id');
+      // @ts-expect-error db is a global hydrated by utils.js
+      const { data: dash } = await db.rpc('get_hive_dashboard', { p_hive_id: hiveId });
+      // @ts-expect-error db is a global hydrated by utils.js
+      const { data: rows } = await db.from('v_pm_scope_items_truth')
+        .select('pm_asset_id, is_overdue')
+        .eq('hive_id', hiveId)
+        .eq('is_overdue', true)
+        .limit(5000);
+      const distinct = new Set((rows || []).map((r: { pm_asset_id: string }) => r.pm_asset_id)).size;
+      return { rpcOverdue: Number(dash?.pm_overdue_count ?? -1), canonicalOverdue: distinct };
+    });
+
+    expect(
+      rpcOverdue,
+      `get_hive_dashboard.pm_overdue_count = ${rpcOverdue} but v_pm_scope_items_truth has ${canonicalOverdue} ` +
+      `distinct overdue assets — the home "PM Overdue" tile has drifted from the frequency-aware canonical view. ` +
+      `Do NOT revert it to v_pm_compliance_truth.is_due (that was the inflated 26-vs-4 bug).`,
+    ).toBe(canonicalOverdue);
+  });
+
+  test('check_critical_pm_overdue_integrity: nudge asset is genuinely overdue + critical', async ({ whPage }) => {
+    // Guards the 2026-06-07 fix that added get_hive_dashboard.critical_pm_overdue
+    // (drives the home "Critical PM Overdue" nudge, previously dead on the RPC
+    // path). Also locks the case-insensitive criticality match: the seed stores
+    // title-case 'Critical', so an `= 'critical'` filter silently returns nothing.
+    // When the field is present it MUST be a real is_overdue + critical asset.
+    await whPage.goto(SCHED_URL, { waitUntil: 'domcontentloaded' });
+    const { crit, isRealCritOverdue } = await whPage.evaluate(async () => {
+      const hiveId = localStorage.getItem('wh_active_hive_id') || localStorage.getItem('wh_hive_id');
+      // @ts-expect-error db is a global hydrated by utils.js
+      const { data: dash } = await db.rpc('get_hive_dashboard', { p_hive_id: hiveId });
+      const c = dash?.critical_pm_overdue || null;
+      if (!c) return { crit: null, isRealCritOverdue: true }; // no critical-overdue asset is a valid state
+      // @ts-expect-error db is a global hydrated by utils.js
+      const { data: rows } = await db.from('v_pm_scope_items_truth')
+        .select('asset_name, is_overdue, asset_criticality')
+        .eq('hive_id', hiveId)
+        .eq('pm_asset_id', c.pm_asset_id)
+        .eq('is_overdue', true);
+      const ok = (rows || []).some((r: { asset_criticality: string }) => (r.asset_criticality || '').toLowerCase() === 'critical');
+      return { crit: c.asset_name as string, isRealCritOverdue: ok };
+    });
+    expect(
+      isRealCritOverdue,
+      `get_hive_dashboard.critical_pm_overdue returned "${crit}" but it is not an is_overdue + critical asset — ` +
+      `the nudge would point at the wrong asset (check the case-insensitive criticality match).`,
+    ).toBe(true);
+  });
+
   // The Team Pulse / verdict tiles on hive.html follow the Calm Dashboard
   // Contract — when the count is 0 the tile dims to `—` and the locator's
   // `state: 'visible'` waits time out. Reading via the page's `db` client

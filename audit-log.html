@@ -20,7 +20,7 @@
       --bg: #0f1923; --surface: #162032; --card: #1d2e44;
       --gold: #F7A21B; --blue: #29B6D9; --green: #4ade80;
       --red: #f87171; --amber: #fb923c; --yellow: #facc15; --purple: #a78bfa;
-      --text: #F4F6FA; --muted: rgba(255,255,255,0.4);
+      --text: #F4F6FA; --muted: rgba(255,255,255,0.6);
       --border: rgba(255,255,255,0.07);
     }
     body { font-family: system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding-bottom: 90px; }
@@ -40,7 +40,7 @@
       border: 1px solid var(--border); border-radius: 999px;
       font-family: inherit; font-size: .72rem; font-weight: 600;
       color: rgba(255,255,255,0.6); cursor: pointer;
-      transition: all .15s; min-height: 32px;
+      transition: all .15s; min-height: 44px;
     }
     .chip:hover { color: var(--text); border-color: rgba(255,255,255,0.18); }
     .chip.active { background: rgba(247,162,27,0.15); color: var(--gold); border-color: rgba(247,162,27,0.3); }
@@ -50,7 +50,7 @@
       border: 1px solid var(--border); border-radius: 8px;
       color: var(--text); font-family: inherit;
       font-size: 16px; /* iOS auto-zoom guard — never go below 16px on inputs */
-      padding: 8px 12px; min-height: 40px;
+      padding: 8px 12px; min-height: 44px;
     }
     .filter-input { flex: 1; min-width: 160px; }
     .filter-select { min-width: 130px; }
@@ -61,14 +61,14 @@
       padding: 8px 14px; background: rgba(74,222,128,0.12);
       color: var(--green); border: 1px solid rgba(74,222,128,0.3);
       border-radius: 8px; font-size: .75rem; font-weight: 700;
-      cursor: pointer; min-height: 40px;
+      cursor: pointer; min-height: 44px;
     }
     .btn-export:hover { background: rgba(74,222,128,0.18); }
     .btn-clear {
       padding: 8px 14px; background: transparent;
       color: var(--muted); border: 1px solid var(--border);
       border-radius: 8px; font-size: .72rem; font-weight: 600;
-      cursor: pointer; min-height: 40px;
+      cursor: pointer; min-height: 44px;
     }
     .btn-clear:hover { color: var(--text); border-color: rgba(255,255,255,0.18); }
 
@@ -228,7 +228,7 @@
       <div class="empty-sub">Use the "Clear filters" button above to see all entries.</div>
     </div>
     <div id="audit-load-more-wrap" class="hidden" style="margin-top:0.25rem;padding-bottom:1rem;">
-      <button onclick="loadMoreAudit()" style="width:100%;padding:0.75rem;border-radius:0.75rem;font-size:0.875rem;font-weight:600;background:rgba(247,162,27,0.1);color:#F7A21B;border:1px solid rgba(247,162,27,0.3);cursor:pointer;">Load More</button>
+      <button onclick="loadMoreAudit()" style="width:100%;padding:0.75rem;min-height:44px;border-radius:0.75rem;font-size:0.875rem;font-weight:600;background:rgba(247,162,27,0.1);color:#F7A21B;border:1px solid rgba(247,162,27,0.3);cursor:pointer;">Load More</button>
     </div>
     <div id="footer-meta" class="footer-meta"></div>
   </div>
