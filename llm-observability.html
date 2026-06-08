@@ -87,6 +87,7 @@
   </main>
 
 <!-- Use existing Supabase singleton from the app -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="utils.js"></script>
 <script>
 (async function () {
@@ -106,7 +107,13 @@
 
     let supabase = null;
     try {
-      supabase = (window.whSupabase && window.whSupabase()) || null;
+      // Canonical singleton (utils.js getDb). The /workhive/ dev-bridge rewrites
+      // this prod URL to the local Supabase when served locally. Fixed 2026-06-09:
+      // page previously called window.whSupabase() (which never existed) and omitted
+      // the @supabase/supabase-js CDN, so it was permanently stuck on "Loading…".
+      const SUPABASE_URL = 'https://hzyvnjtisfgbksicrouu.supabase.co';
+      const SUPABASE_KEY = 'sb_publishable_ePj-suLMwkMRVDH6eM6S8g_R0rZVbMZ';
+      supabase = window.getDb(SUPABASE_URL, SUPABASE_KEY);
     } catch (_) { /* fall through */ void 0; }
     if (!supabase) {
       document.getElementById('meta').textContent = 'Supabase client not initialized — open via /workhive/llm-observability.html with utils.js loaded.';
