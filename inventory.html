@@ -666,7 +666,16 @@ function saveInventory(arr) {
   arr.forEach(item => {
     const old = prev.find(o => o.id === item.id);
     if (!old || JSON.stringify(old) !== JSON.stringify(item)) {
-      db.from('inventory_items').upsert({ ...item, worker_name: item.worker_name || WORKER_NAME, auth_uid: _authUid || null })
+      // Items are loaded from v_inventory_items_truth, which exposes derived
+      // read-only signals (is_out_of_stock / is_low_stock / is_critical_low)
+      // and reorder_point that do NOT exist as columns on the base
+      // inventory_items table. Spreading the whole item into the upsert made
+      // PostgREST reject it 400 ("Could not find the 'is_critical_low' column"),
+      // which silently dropped the qty_on_hand write on every Use/Restock —
+      // the transaction logged but stock never decremented. Strip the
+      // view-only fields before persisting.
+      const { is_out_of_stock, is_low_stock, is_critical_low, reorder_point, ...row } = item;
+      db.from('inventory_items').upsert({ ...row, worker_name: row.worker_name || WORKER_NAME, auth_uid: _authUid || null })
         .then(({ error }) => { if (error) { console.error('inv sync:', error.message); showToast('Inventory save failed: ' + error.message); } });
     }
   });
@@ -1292,7 +1301,9 @@ function submitUse() {
   items[idx].qty_on_hand -= qty;
   items[idx].updated_at   = new Date().toISOString();
   saveInventory(items);
-  addTransaction(activeItemId, 'use', -qty, items[idx].qty_on_hand, document.getElementById('use-job-ref').value.trim());
+  // The Use modal captures a Job Reference (for the audit trail), not a free
+  // note — route it to the dedicated job_ref column, not note.
+  addTransaction(activeItemId, 'use', -qty, items[idx].qty_on_hand, '', document.getElementById('use-job-ref').value.trim());
 
   const st = stockStatus(items[idx]);
   closeUseModal();
@@ -1345,7 +1356,7 @@ function submitRestock() {
 // ────────────────────────────────────────────
 // TRANSACTIONS (append-only audit trail)
 // ────────────────────────────────────────────
-function addTransaction(itemId, type, qtyChange, qtyAfter, note) {
+function addTransaction(itemId, type, qtyChange, qtyAfter, note, jobRef) {
   const txns = loadTransactions();
   txns.push({
     id:          Date.now().toString() + Math.random().toString(36).slice(2, 6),
@@ -1354,6 +1365,7 @@ function addTransaction(itemId, type, qtyChange, qtyAfter, note) {
     qty_change:  qtyChange,
     qty_after:   qtyAfter,
     note:        note || '',
+    job_ref:     jobRef || null,
     worker_name: WORKER_NAME,
     hive_id:     HIVE_ID || null,
     created_at:  new Date().toISOString(),
