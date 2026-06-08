@@ -1,0 +1,137 @@
+{
+  "_comment": "Phase 8 §8.1 (Persona dimension) — GOLDEN SET. The companion's PERSONA dimension = does the reply wear the SELECTED persona's voice (Hezekiah = TECHNICAL EXPERT / Zaniah = STRATEGIST) and NOT the other one's? Graded voice_markers-style: deterministic presence of the persona's signature markers + absence of the wrong-persona self-identification, regex-first (a free-tier judge is a later refinement for tone nuance, with the marker-count as the backstop). Grounded in the REAL persona contract: supabase/functions/_shared/persona.ts PERSONAS{hezekiah,zaniah} (name, tone, examples, DOMAIN_LENS) + validate_persona_contract.py lane keywords. Persona is per-call TOGGLEABLE: ai-gateway keeps a client-supplied context.persona (only defaults to the account persona when none is supplied), so each probe sets context.persona explicitly. The observable surface is agent='voice-journal' (-> voice-journal-agent), the CONVERSATIONAL adopter: it reads ctx.persona ('ctx.persona wins — per-call override'), wears the FULL persona block (tone + DOMAIN_LENS + examples), and returns a prose reply as body.data.answer. It is a single LLM call (no fan-out), so it is light on the rate limit.",
+  "_scoring": "PASS iff EVERY markers_all group is satisfied (a group is satisfied if ANY of its synonyms is a substring of the reply, case-insensitive) AND no `anti_markers` token appears (the wrong-persona SELF-identification, e.g. a Hezekiah probe whose reply says 'I'm Zaniah'). The persona NAME is the strongest, contract-guaranteed, toggleable marker (every mode answers 'are you AI?' with 'I'm {Name}, your WorkHive companion. AI, but warm.'); lane vocabulary (Hezekiah: torque/LOTO/IR-gun/PPE/Nm/degC; Zaniah: OEE/MTBF/backlog/planned-vs-reactive/recurrence/pattern) and lane BRIDGES are the secondary register signals. Naming the OTHER persona while BRIDGING is allowed (Hezekiah: 'that's Zaniah's lane') — only a wrong-persona SELF-id is an anti-marker.",
+  "_negative_control": "The grader's discrimination is proven against a BLIND observation: a generic, voice-less reply ('Thanks for sharing that with me.') carries neither persona's name nor any lane marker, so it FAILS every positive unit. A correct grader must score the blind strictly below the oracle (which echoes each unit's required markers). Persona has no must-abstain class, so the negative control is this voice-less blind reply, asserted in the self-test (not separate golden units).",
+  "_capture_protocol": "Per unit, ONE ai-gateway call: agent='voice-journal', message=utterance, context={persona:<unit.persona>, lang:<unit.lang|'auto'>}, hive_id. Capture body.data.answer as observed.answer. Persona is independent per call (the gateway honours the supplied context.persona), so units do not need isolation.",
+  "schema_version": 1,
+  "dimension": "persona",
+  "agent": "voice-journal",
+  "personas": {
+    "hezekiah": { "name": "Hezekiah", "lens": "technical-expert" },
+    "zaniah": { "name": "Zaniah", "lens": "strategist" }
+  },
+  "probes": [
+    {
+      "id": "PR-HEZ-ID-01",
+      "persona": "hezekiah",
+      "ability": "identity",
+      "category": "persona_identity",
+      "utterance": "Quick question before I log anything, who am I actually talking to here, are you an AI?",
+      "markers_all": [["hezekiah"]],
+      "anti_markers": ["i'm zaniah", "i am zaniah", "this is zaniah"],
+      "expected_behavior": "voice"
+    },
+    {
+      "id": "PR-HEZ-ID-02",
+      "persona": "hezekiah",
+      "ability": "identity",
+      "category": "persona_identity",
+      "utterance": "Hoy, sino ka ba talaga? Introduce yourself please.",
+      "markers_all": [["hezekiah"]],
+      "anti_markers": ["i'm zaniah", "i am zaniah", "this is zaniah"],
+      "expected_behavior": "voice"
+    },
+    {
+      "id": "PR-ZAN-ID-01",
+      "persona": "zaniah",
+      "ability": "identity",
+      "category": "persona_identity",
+      "utterance": "Quick question before I log anything, who am I actually talking to here, are you an AI?",
+      "markers_all": [["zaniah"]],
+      "anti_markers": ["i'm hezekiah", "i am hezekiah", "this is hezekiah"],
+      "expected_behavior": "voice"
+    },
+    {
+      "id": "PR-ZAN-ID-02",
+      "persona": "zaniah",
+      "ability": "identity",
+      "category": "persona_identity",
+      "utterance": "Hoy, sino ka ba talaga? Introduce yourself please.",
+      "markers_all": [["zaniah"]],
+      "anti_markers": ["i'm hezekiah", "i am hezekiah", "this is hezekiah"],
+      "expected_behavior": "voice"
+    },
+    {
+      "id": "PR-HEZ-REG-01",
+      "persona": "hezekiah",
+      "ability": "register",
+      "category": "persona_register",
+      "utterance": "Bearing's running hot on Pump P-203, around 78 degrees C, parang mainit na.",
+      "markers_all": [["regrease", "lube", "ir gun", "ir-gun", "housing", "red line", "loto", "bearing", "80", "threshold", "log it"]],
+      "anti_markers": ["i'm zaniah", "i am zaniah"],
+      "expected_behavior": "voice"
+    },
+    {
+      "id": "PR-HEZ-REG-02",
+      "persona": "hezekiah",
+      "ability": "register",
+      "category": "persona_register",
+      "utterance": "What torque should I use for the M20 anchor bolts on the P-203 baseplate?",
+      "markers_all": [["nm", "torque", "cross-pattern", "cross pattern", "grade 8.8", "dry", "lubricated", "passes", "manual"]],
+      "anti_markers": ["i'm zaniah", "i am zaniah"],
+      "expected_behavior": "voice"
+    },
+    {
+      "id": "PR-HEZ-REG-03",
+      "persona": "hezekiah",
+      "ability": "register",
+      "category": "persona_register",
+      "utterance": "Compressor C-01 tripped again, sira na naman, ano gagawin ko?",
+      "markers_all": [["loto", "failure mode", "logbook", "unloader", "bearing", "seal", "trip code", "lockout", "secure"]],
+      "anti_markers": ["i'm zaniah", "i am zaniah"],
+      "expected_behavior": "voice"
+    },
+    {
+      "id": "PR-ZAN-REG-01",
+      "persona": "zaniah",
+      "ability": "register",
+      "category": "persona_register",
+      "utterance": "We've had four breakdowns this week, parang masyadong nadadagdagan ang reactive work.",
+      "markers_all": [["planned-vs-reactive", "planned vs reactive", "reactive", "pattern", "recurrence", "recurring", "root-cause", "root cause", "supervisor", "trend", "weekly", "escalat"]],
+      "anti_markers": ["i'm hezekiah", "i am hezekiah"],
+      "expected_behavior": "voice"
+    },
+    {
+      "id": "PR-ZAN-REG-02",
+      "persona": "zaniah",
+      "ability": "register",
+      "category": "persona_register",
+      "utterance": "Should we just replace Compressor C-01 or keep fixing it?",
+      "markers_all": [["mtbf", "trend", "cost", "watch line", "pattern", "supervisor", "case", "downtime", "replacement", "escalat"]],
+      "anti_markers": ["i'm hezekiah", "i am hezekiah"],
+      "expected_behavior": "voice"
+    },
+    {
+      "id": "PR-ZAN-REG-03",
+      "persona": "zaniah",
+      "ability": "register",
+      "category": "persona_register",
+      "utterance": "Is Pump P-203 becoming a problem asset for us this month?",
+      "markers_all": [["recurrence", "recurring", "pattern", "planned-vs-reactive", "planned vs reactive", "mtbf", "deep-dive", "deep dive", "supervisor", "trend", "review", "escalat"]],
+      "anti_markers": ["i'm hezekiah", "i am hezekiah"],
+      "expected_behavior": "voice"
+    },
+    {
+      "id": "PR-HEZ-BRG-01",
+      "persona": "hezekiah",
+      "ability": "bridge",
+      "category": "persona_bridge",
+      "utterance": "Honestly, is P-203 turning into a pattern, and should we plan to replace it this quarter?",
+      "markers_all": [["zaniah", "pattern", "strategic", "supervisor", "switch her in", "bigger picture", "planning"]],
+      "anti_markers": ["i'm zaniah", "i am zaniah"],
+      "expected_behavior": "voice",
+      "note": "Off-lane (strategic) question to the TECHNICAL persona. The DOMAIN_LENS reactive-bridge should hand off to Zaniah ('that's more Zaniah's lane'). Mentioning Zaniah here is a CORRECT bridge, not an anti-marker; the anti-marker is only a Hezekiah-as-Zaniah self-id."
+    },
+    {
+      "id": "PR-ZAN-BRG-01",
+      "persona": "zaniah",
+      "ability": "bridge",
+      "category": "persona_bridge",
+      "utterance": "Forget the trends for a sec, just tell me the exact torque and the LOTO order for the P-203 baseplate bolts.",
+      "markers_all": [["hezekiah", "torque", "specifics", "switch him in", "his lane", "sop", "loto"]],
+      "anti_markers": ["i'm hezekiah", "i am hezekiah"],
+      "expected_behavior": "voice",
+      "note": "Off-lane (technical) question to the STRATEGIST persona. The DOMAIN_LENS reactive-bridge should hand off to Hezekiah ('specifics like that are Hezekiah's lane'). Mentioning Hezekiah is a CORRECT bridge."
+    }
+  ]
+}

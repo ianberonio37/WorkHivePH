@@ -6,14 +6,14 @@
     "val": 20,
     "test": 20
   },
-  "built_ts": "2026-06-07T20:59:10+00:00",
+  "built_ts": "2026-06-08T06:52:12+00:00",
   "counts": {
-    "train": 141,
-    "val": 58,
-    "test": 47
+    "train": 147,
+    "val": 61,
+    "test": 51
   },
-  "total": 246,
-  "test_seal": "cb51739f42cc2f3706255702c6ad5442085fe121afaf381348ab8f5d3dc3ba75",
+  "total": 259,
+  "test_seal": "469b051db4ff408a07c24c5db37e894452cb8992649630dff43b8a27efec9d7d",
   "items": {
     "agent_golden:AG-01-log-hydraulic-p203": {
       "id": "AG-01-log-hydraulic-p203",
@@ -895,6 +895,102 @@
       "split": "val",
       "eval_dimension": "memory"
     },
+    "persona_golden:PR-HEZ-BRG-01": {
+      "id": "PR-HEZ-BRG-01",
+      "kind": "persona_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "val",
+      "eval_dimension": "persona"
+    },
+    "persona_golden:PR-HEZ-ID-01": {
+      "id": "PR-HEZ-ID-01",
+      "kind": "persona_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "train",
+      "eval_dimension": "persona"
+    },
+    "persona_golden:PR-HEZ-ID-02": {
+      "id": "PR-HEZ-ID-02",
+      "kind": "persona_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "val",
+      "eval_dimension": "persona"
+    },
+    "persona_golden:PR-HEZ-REG-01": {
+      "id": "PR-HEZ-REG-01",
+      "kind": "persona_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "val",
+      "eval_dimension": "persona"
+    },
+    "persona_golden:PR-HEZ-REG-02": {
+      "id": "PR-HEZ-REG-02",
+      "kind": "persona_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "test",
+      "eval_dimension": "persona"
+    },
+    "persona_golden:PR-HEZ-REG-03": {
+      "id": "PR-HEZ-REG-03",
+      "kind": "persona_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "test",
+      "eval_dimension": "persona"
+    },
+    "persona_golden:PR-ZAN-BRG-01": {
+      "id": "PR-ZAN-BRG-01",
+      "kind": "persona_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "train",
+      "eval_dimension": "persona"
+    },
+    "persona_golden:PR-ZAN-ID-01": {
+      "id": "PR-ZAN-ID-01",
+      "kind": "persona_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "test",
+      "eval_dimension": "persona"
+    },
+    "persona_golden:PR-ZAN-ID-02": {
+      "id": "PR-ZAN-ID-02",
+      "kind": "persona_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "train",
+      "eval_dimension": "persona"
+    },
+    "persona_golden:PR-ZAN-REG-01": {
+      "id": "PR-ZAN-REG-01",
+      "kind": "persona_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "test",
+      "eval_dimension": "persona"
+    },
+    "persona_golden:PR-ZAN-REG-02": {
+      "id": "PR-ZAN-REG-02",
+      "kind": "persona_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "train",
+      "eval_dimension": "persona"
+    },
+    "persona_golden:PR-ZAN-REG-03": {
+      "id": "PR-ZAN-REG-03",
+      "kind": "persona_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "train",
+      "eval_dimension": "persona"
+    },
     "rag_golden:RG-01-failure-history": {
       "id": "RG-01-failure-history",
       "kind": "rag_golden",
@@ -1715,6 +1811,13 @@
       "domain": "general",
       "dimension": "functionality",
       "split": "val"
+    },
+    "spec:tests/persona-golden-capture.spec.ts": {
+      "id": "tests/persona-golden-capture.spec.ts",
+      "kind": "spec",
+      "domain": "general",
+      "dimension": "functionality",
+      "split": "train"
     },
     "spec:tests/ph-intelligence.spec.ts": {
       "id": "tests/ph-intelligence.spec.ts",

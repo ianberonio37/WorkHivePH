@@ -625,6 +625,81 @@ def memory_grader_self_test(golden: dict) -> dict:
             "blind_negatives_failed": blind_neg_failed, "problems": problems}
 
 
+# ─── Phase 8 §8.2 — Persona dimension: voice-marker fidelity grader (deterministic-first) ───────
+# Grades whether a reply wears the SELECTED persona's voice (Hezekiah=technical / Zaniah=strategist)
+# and not the other's. DETERMINISTIC: presence of the persona's signature markers (name + lane
+# vocabulary + bridges) + absence of the wrong-persona SELF-identification. No judge, no companion
+# imports (the trust property). The persona NAME is the strongest contract-guaranteed marker; lane
+# vocab/bridges are the secondary register signals. observed shape: {"answer": str}.
+EM_DASH = "—"
+
+
+def _persona_required_groups(unit: dict) -> list[list[str]]:
+    """Normalize a persona unit's `markers_all` to a list of synonym-GROUPS (each a list or bare
+    string). The reply wears the voice iff EVERY group is satisfied (any synonym present)."""
+    groups = unit.get("markers_all")
+    if groups:
+        return [g if isinstance(g, list) else [g] for g in groups]
+    one = unit.get("markers_any")
+    if one:
+        return [list(one)]
+    return []
+
+
+def grade_persona_unit(unit: dict, observed: dict | None) -> dict:
+    """PASS iff every markers_all group is satisfied AND no anti_marker (wrong-persona self-id)
+    appears. has_em_dash is reported (the contract bans em dashes in prose) but not gated here."""
+    obs = observed or {}
+    answer = str(obs.get("answer", "") or obs.get("narration", ""))
+    groups = _persona_required_groups(unit)
+    group_flags = [any(_norm(s) in _norm(answer) for s in g) for g in groups]
+    anti = must_not_check(answer, unit.get("anti_markers", []))
+    voiced = bool(groups) and all(group_flags) and not anti
+    return {"id": unit.get("id"), "type": "voice", "persona": unit.get("persona"),
+            "ability": unit.get("ability"), "groups": len(groups), "groups_hit": sum(group_flags),
+            "anti_markers_hit": anti, "has_em_dash": EM_DASH in answer,
+            "verdict": "PASS" if voiced else "FAIL"}
+
+
+def _persona_oracle_observed(unit: dict):
+    """Synthetic PERFECT observation: echo one synonym from EVERY required group in the persona voice."""
+    groups = _persona_required_groups(unit)
+    echoed = ". ".join(g[0] for g in groups if g)
+    name = ((unit.get("persona") or "").capitalize())
+    return {"answer": f"I'm {name}, your WorkHive companion. {echoed}."}
+
+
+def _persona_blind_observed(unit: dict):
+    """Synthetic BLIND observation: a generic, voice-less reply that carries no persona name or lane
+    marker — must fail every positive unit (the persona negative control)."""
+    return {"answer": "Thanks for sharing that with me. Noted."}
+
+
+def persona_grader_self_test(golden: dict) -> dict:
+    """Prove the Persona grader is correct AND discriminating with NO live companion:
+      - against an ORACLE observation, every unit must PASS.
+      - against a BLIND (voice-less) observation, every unit must FAIL (blind_pass == 0 < oracle)."""
+    units = list(golden.get("probes") or [])
+    problems, oracle_pass, blind_pass = [], 0, 0
+    for u in units:
+        og = grade_persona_unit(u, _persona_oracle_observed(u))
+        if og["verdict"] == "PASS":
+            oracle_pass += 1
+        else:
+            problems.append(f"oracle did not PASS {u.get('id')}: {og}")
+        bg = grade_persona_unit(u, _persona_blind_observed(u))
+        if bg["verdict"] == "PASS":
+            blind_pass += 1
+    if oracle_pass != len(units):
+        problems.append(f"oracle pass {oracle_pass}/{len(units)} (must be all)")
+    if blind_pass != 0:
+        problems.append(f"blind grader passed {blind_pass} voice-less unit(s) — grader is not discriminating")
+    if blind_pass >= oracle_pass:
+        problems.append(f"blind pass {blind_pass} >= oracle pass {oracle_pass} — grader does not discriminate")
+    return {"ok": not problems, "oracle_pass": oracle_pass, "blind_pass": blind_pass,
+            "total": len(units), "negatives": 0, "blind_negatives_failed": 0, "problems": problems}
+
+
 def grade_one(probe: dict) -> dict:
     """Apply rule-based grading to a single probe result."""
     answer = extract_answer_text(probe)

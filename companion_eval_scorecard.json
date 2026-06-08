@@ -74,16 +74,18 @@
       "metric": "voice_markers",
       "metric_desc": "presence of specialist voice markers / narration signature + absence of anti-markers (off-persona phrasing), deterministic regex first; a free-tier judge only for tone nuance with a marker-count backstop.",
       "higher_is_better": true,
-      "grader": "tools/companion_rigorous_grader.py (8.2: voice-marker regex + judge backstop)",
-      "golden_set": "8.1 NEW: utterance + expected voice markers + anti-markers (validate_persona_contract surfaces are the source of truth for each specialist's signature)",
+      "grader": "tools/companion_rigorous_grader.py grade_persona_* (every markers_all group hit + no wrong-persona SELF-id anti_marker; deterministic regex, no judge, no companion imports; has_em_dash reported not gated); harness tools/companion_persona_eval.py (--self-test discriminating, --observed). BUILT 8.2.",
+      "golden_set": "companion_persona_golden.json (12 probes: identity/register/bridge x Hezekiah/Zaniah; grounded in _shared/persona.ts PERSONAS + validate_persona_contract lane keywords; persona toggled per-call via context.persona). BUILT 8.1.",
       "baseline_proxy": null,
+      "baseline_ref": "companion_dim_baselines.json::dimensions.persona.locked_test.pass_rate",
+      "results_ref": ".tmp/persona_eval_results.json",
       "tolerance": {
         "pass_rate_pp": 5.0
       },
-      "gate": "tools/ai_eval_gate.py (8.3)",
-      "status": "pending",
+      "gate": "tools/ai_eval_gate.py companion-gate (G0 via validate_companion_dim_gate.py; forward-only on locked-test, degrade-to-SKIP without fresh results)",
+      "status": "active",
       "blocking": false,
-      "notes": "No corpus units today (0 locked-test -> SKIP). 8.1 must author persona probes from the registered narrated-specialist surfaces."
+      "notes": "8.1+8.2+8.3 BUILT 2026-06-08. ACTIVE: clean live run (12/12 voice-journal calls ok, 0 rate-limited, per-unit counter+cache reset) graded 12/12. persona baseline frozen locked-test 100% n=4 (the strongest n of the four product dims). blocking=FALSE for now (run-to-run LLM voice variance; consistent with agent/rag/memory; flip after a couple of stable re-runs since n=4 is already gate-worthy). SURFACE: agent='voice-journal' (-> voice-journal-agent, conversational adopter) wears the FULL persona block and reads ctx.persona; the gateway honours a client-supplied context.persona (only defaults to the account persona when absent) so persona is per-call toggleable. The personas are sharply differentiated live: identity probes self-ID ('I'm Hezekiah/Zaniah'); register probes carry lane vocab (Hezekiah: red line/regrease/IR gun/Nm/cross-pattern/LOTO; Zaniah: planned-vs-reactive 41%/MTBF 9 days/watch line/pattern); BOTH bridges fired ('Specifics like that are Hezekiah's lane - want me to switch him in?'). FINDING: voice-journal replies contain em dashes despite the contract's no-em-dash rule (has_em_dash captured, informational; an 8.4/format target). Follow-up: expand golden + add a judge backstop for tone nuance to flip blocking=true."
     },
     "safety": {
       "label": "Safety / adversarial robustness",
@@ -122,7 +124,7 @@
   },
   "coverage": {
     "_comment": "Live snapshot of corpus units per companion dimension, refreshed by `python tools/companion_eval_scorecard.py sync` from gate_eval_splits.json. Informational; the authoritative numbers are always recomputed live.",
-    "synced_ts": "2026-06-07T20:59:28+00:00",
+    "synced_ts": "2026-06-08T06:52:12+00:00",
     "by_dimension": {
       "agent": {
         "train": 40,
@@ -143,10 +145,10 @@
         "total": 16
       },
       "persona": {
-        "train": 0,
-        "val": 0,
-        "test": 0,
-        "total": 0
+        "train": 5,
+        "val": 3,
+        "test": 4,
+        "total": 12
       },
       "safety": {
         "train": 17,
