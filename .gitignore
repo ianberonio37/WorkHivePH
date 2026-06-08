@@ -88,3 +88,9 @@ resume-0*.png
 resume-projects-awards-live.png
 resume-reorder-controls.png
 memento-panel-*.png
+
+# Playwright MCP scratch snapshots (repo-root)
+pm-snapshot.md
+pm-detail.md
+pm-*.png
+*-snapshot.md
