@@ -781,6 +781,24 @@
             </div>
           </section>
 
+          <!-- Phase 8 §8.6: the Companion Eval & Optimization scorecard. Reads the
+               committed harness artifacts (companion_eval_scorecard.json + frozen
+               baselines + latest A/B + optimization proposals) — platform-wide eval
+               health, not hive-scoped, so it lives on the admin console. -->
+          <section class="panel" id="companion-eval">
+            <div class="panel-hdr">
+              <span class="rag-dot" id="rag-companion-eval"></span>
+              <div style="flex:1">
+                <h2>Companion Eval (Phase 8)</h2>
+                <div class="panel-sub">Per-dimension eval gates: locked-test pass-rate vs frozen floor</div>
+              </div>
+              <span class="updated" id="companion-eval-updated">—</span>
+            </div>
+            <div class="panel-body">
+              <div id="companion-eval-content"><!-- populated by renderCompanionEval() --></div>
+            </div>
+          </section>
+
         </div>
       </div>
 
@@ -1028,7 +1046,7 @@
 
       try {
         // All 8 panels + Hero feeders fetched in parallel (Promise.all = ~1-2s total)
-        const [tech, dau14, aicost, hives, mau, heatmap, maturity, pareto, mkt, aiprov, audit, memento] = await Promise.all([
+        const [tech, dau14, aicost, hives, mau, heatmap, maturity, pareto, mkt, aiprov, audit, memento, ceval] = await Promise.all([
           fetchTechHealth(ctrl.signal),
           fetchDau14d(),         // 14d sparkline + today's DAU
           fetchAiCostToday(),
@@ -1041,10 +1059,12 @@
           fetchAiCostByProvider(),
           fetchAuditFeed(),
           fetchMementoHealth(ctrl.signal),
+          fetchCompanionEval(),
         ]);
         renderHero({ tech, dau: dau14, aicost, hives, mau });
         renderTechHealth(tech);
         renderMementoHealth(memento);
+        renderCompanionEval(ceval);
         renderGrowthPulse(dau14, mau);
         renderHeatmap(heatmap);
         renderMaturity(maturity);
@@ -1089,6 +1109,26 @@
         if (e && e.name === 'AbortError') throw e;
         return { _error: e && e.message || 'fetch failed' };
       }
+    }
+
+    // Companion Eval (Phase 8 §8.6): read the committed harness artifacts at repo
+    // root (served under /workhive/ like platform_health.json). All best-effort —
+    // the scorecard is required; baselines / A/B / proposals degrade gracefully.
+    async function fetchCompanionEval() {
+      const get = async (f) => {
+        try {
+          const r = await fetchWithTimeout(f + '?ts=' + Date.now(), {}, 10000);
+          return r.ok ? await r.json() : null;
+        } catch (_) { return null; }
+      };
+      const [scorecard, baselines, ab, proposals] = await Promise.all([
+        get('companion_eval_scorecard.json'),
+        get('companion_dim_baselines.json'),
+        get('companion_ab_results.json'),
+        get('companion_optimization_proposals.json'),
+      ]);
+      if (!scorecard) return { _error: 'companion_eval_scorecard.json not reachable' };
+      return { scorecard, baselines, ab, proposals };
     }
 
     // Memento health: read memento_health.json (artifact written by Stop hook).
@@ -1620,6 +1660,75 @@
     // Memento Memory Cache (P6) — surfaces local retrieval health.
     // honesty doctrine: if retrievals_today < 10, gated metrics show
     // "still warming up" instead of unreliable numbers.
+    // Phase 8 §8.6 — render the Companion Eval scorecard from the committed artifacts.
+    function renderCompanionEval(data) {
+      const el  = document.getElementById('companion-eval-content');
+      const upd = document.getElementById('companion-eval-updated');
+      const dot = document.getElementById('rag-companion-eval');
+      if (!data || data._error) {
+        el.innerHTML = '<div class="honest-empty"><div class="hetitle">Companion Eval unavailable</div>'
+          + '<p>Could not load <code>companion_eval_scorecard.json</code>: '
+          + escHtml(data && data._error || 'unknown') + '</p>'
+          + '<div class="hewhy">Run <code>python tools/companion_eval_scorecard.py report</code> locally; the artifacts are committed at repo root.</div></div>';
+        upd.textContent = '—';
+        if (dot) dot.className = 'rag-dot warn';
+        return;
+      }
+      const dims = (data.scorecard && data.scorecard.dimensions) || {};
+      const baseDims = (data.baselines && data.baselines.dimensions) || {};
+      const order = Object.keys(dims).sort((a, b) => (dims[a].order || 99) - (dims[b].order || 99));
+      let active = 0, pending = 0;
+      const rows = order.map(k => {
+        const d = dims[k] || {};
+        const b = baseDims[k];
+        const status = d.status || 'pending';
+        if (status === 'active') active++; else pending++;
+        const lt = b && b.locked_test ? b.locked_test : null;
+        const pr = lt && lt.pass_rate != null ? lt.pass_rate : null;
+        const floorStr = pr != null ? (pr + '%' + (lt.n != null ? ' (n=' + lt.n + ')' : '')) : '—';
+        const blk = d.blocking ? 'BLOCKS' : (status === 'active' ? 'warn' : '');
+        const sTone = status === 'active' ? 'var(--green)' : 'rgba(255,255,255,0.4)';
+        const bTone = d.blocking ? 'var(--gold)' : 'var(--muted)';
+        return '<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border);font-size:.76rem;">'
+          + '<span style="flex:1;font-weight:600;">' + escHtml(d.label || k) + '</span>'
+          + '<span style="width:96px;text-align:right;color:var(--muted);font-size:.62rem;">' + escHtml(String(d.metric || '')) + '</span>'
+          + '<span style="width:92px;text-align:right;font-variant-numeric:tabular-nums;">' + escHtml(floorStr) + '</span>'
+          + '<span style="width:58px;text-align:right;font-weight:700;color:' + sTone + ';">' + escHtml(status) + '</span>'
+          + '<span style="width:48px;text-align:right;font-size:.6rem;color:' + bTone + ';">' + escHtml(blk) + '</span>'
+          + '</div>';
+      }).join('');
+      let abHtml = '';
+      const a = data.ab;
+      if (a && a.decision) {
+        const acc = a.decision === 'ACCEPT';
+        const vb = a.val && a.val.baseline != null ? a.val.baseline : '—';
+        const vc = a.val && a.val.candidate != null ? a.val.candidate : '—';
+        const tc = a.locked_test && a.locked_test.candidate != null ? a.locked_test.candidate : '—';
+        abHtml = '<div style="margin-top:10px;font-size:.7rem;color:var(--muted);">Last A/B (' + escHtml(a.dim || '')
+          + (a.proposal ? (' · ' + escHtml(a.proposal)) : '') + '): <strong style="color:'
+          + (acc ? 'var(--green)' : 'var(--yellow)') + '">' + escHtml(a.decision) + '</strong> — val '
+          + escHtml(String(vb)) + '% to ' + escHtml(String(vc)) + '%, locked-test ' + escHtml(String(tc)) + '%</div>';
+      }
+      let propHtml = '';
+      const pr2 = data.proposals;
+      if (pr2 && Array.isArray(pr2.proposals)) {
+        const realN = pr2.proposals.filter(p => !p.info_only).length;
+        propHtml = '<div style="margin-top:4px;font-size:.7rem;color:var(--muted);">Optimization proposals: '
+          + escHtml(String(pr2.count != null ? pr2.count : pr2.proposals.length)) + ' open ('
+          + escHtml(String(realN)) + ' actionable)</div>';
+      }
+      el.innerHTML = '<div style="font-size:.72rem;margin-bottom:8px;"><strong style="color:var(--text);">'
+        + active + '/' + (active + pending) + ' dimensions active</strong>'
+        + (pending ? '<span style="color:var(--muted);"> · ' + pending + ' pending</span>' : '') + '</div>'
+        + '<div style="display:flex;font-size:.56rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;padding-bottom:4px;">'
+        + '<span style="flex:1;">Dimension</span><span style="width:96px;text-align:right;">Metric</span>'
+        + '<span style="width:92px;text-align:right;">floor</span><span style="width:58px;text-align:right;">Status</span>'
+        + '<span style="width:48px;text-align:right;">Gate</span></div>'
+        + rows + abHtml + propHtml;
+      upd.textContent = 'companion_eval_scorecard.json';
+      if (dot) dot.className = 'rag-dot' + (pending ? ' warn' : '');
+    }
+
     function renderMementoHealth(m) {
       const el  = document.getElementById('memento-content');
       const upd = document.getElementById('memento-updated');
