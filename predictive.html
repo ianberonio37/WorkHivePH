@@ -516,14 +516,22 @@
       healthy === 0 ? 'NO DATA' : healthy >= total * 0.6 ? 'MOSTLY HEALTHY' : 'MIXED',
       healthy === 0 ? 'grey' : healthy >= total * 0.6 ? 'green' : 'amber'
     );
+    // A negative days_until_failure = the predicted failure date already passed,
+    // i.e. the asset is OVERDUE for intervention — not "failing in -26 days"
+    // (2026-06-09). Format negatives as "Nd overdue" and phrase sentences as
+    // past-due rather than rendering a literal minus sign.
+    const fcDaysLabel = (d) => d < 0 ? `${Math.abs(d)}d overdue` : `${d}d`;
+    const fcSentence  = (asset, d) => d < 0
+      ? `${asset || 'One asset'} is overdue — its forecast failure date passed ${Math.abs(d)} day${Math.abs(d) === 1 ? '' : 's'} ago. Schedule intervention now.`
+      : `${asset || 'One asset'} is forecast to fail in ${d} day${d === 1 ? '' : 's'}. Schedule a condition-based check before the next shift.`;
     if (soonest == null) {
       setCard('soonest', '—', 'No failure forecast available yet', 'NO DATA', 'grey');
     } else {
       const sub = soonestAsset ? `${soonestAsset} forecast first` : 'Earliest predicted failure window';
       setCard('soonest',
-        `${soonest}d`,
+        fcDaysLabel(soonest),
         sub,
-        soonest < 14 ? 'IMMINENT' : soonest < 30 ? 'NEAR-TERM' : 'COMFORTABLE',
+        soonest < 0 ? 'OVERDUE' : soonest < 14 ? 'IMMINENT' : soonest < 30 ? 'NEAR-TERM' : 'COMFORTABLE',
         soonest < 14 ? 'red' : soonest < 30 ? 'amber' : 'green'
       );
     }
@@ -533,10 +541,10 @@
       tone = 'attn'; label = 'Fleet risk is high';
       sub  = counts.critical >= 3
               ? `${counts.critical} critical-risk assets — start root-cause reviews immediately.`
-              : `${soonestAsset || 'One asset'} forecast to fail within ${soonest} days. Schedule intervention.`;
+              : fcSentence(soonestAsset, soonest);
     } else if (hot > 0 || (soonest != null && soonest < 30)) {
       tone = 'watch'; label = 'Fleet is climbing — manageable';
-      sub  = `${hot} hot asset${hot === 1 ? '' : 's'} · ${total} total · earliest forecast ${soonest != null ? soonest + 'd' : 'n/a'}.`;
+      sub  = `${hot} hot asset${hot === 1 ? '' : 's'} · ${total} total · earliest forecast ${soonest != null ? fcDaysLabel(soonest) : 'n/a'}.`;
     } else if (total === 0) {
       tone = 'empty'; label = 'No risk scores yet';
       sub  = 'Scores generate daily at 13:00 PHT once your hive has 30+ logbook entries.';
@@ -558,7 +566,7 @@
       } else if (counts.critical >= 3) {
         text = `${counts.critical} critical assets. Open the Risk Ranking tab below, click each top-of-list asset, and start a root-cause review in its 360° view.`;
       } else if (soonest != null && soonest < 14) {
-        text = `${soonestAsset || 'One asset'} is forecast to fail in ${soonest} days. Schedule a condition-based check or planned intervention before the next shift.`;
+        text = fcSentence(soonestAsset, soonest);
       } else if (hot > 0) {
         text = `${hot} asset${hot === 1 ? '' : 's'} above the High threshold. Filter Risk Ranking to "High+" and walk through the top 5 — usually a couple of shared parts or a common discipline driver.`;
       } else {

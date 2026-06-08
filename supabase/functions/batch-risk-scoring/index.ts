@@ -279,10 +279,20 @@ async function scoreHive(
       if (resp.ok) {
         const data = await resp.json();
         const scores = data?.health_scores?.health_scores ?? [];
-        healthScores = scores;
-        // Python API returns model_version in each prediction row (ml-v1 or rules-v1)
-        if (scores.length > 0 && scores[0]?.model_version) {
-          modelVersion = scores[0].model_version;
+        // ADOPT the Python result ONLY when it is the genuine ML upgrade (ml-*).
+        // The Python predictive path currently returns an older 'rules-v1' scorer
+        // that is INFERIOR to the TS rules-v2 composite below: it omits
+        // days_until_failure (breaking the Predictive forecast tiles -> "26d
+        // overdue"/EARLIEST FORECAST go blank) and inflates the risk distribution
+        // (2 high -> 24 high on the same hive). The documented intent is "rules-v2
+        // is the trustworthy default; the Python path stays for the future ML
+        // upgrade" — but the old code adopted ANY Python result whenever
+        // PYTHON_URL was set (prod always has it), so prod risk was silently
+        // rules-v1. Fall through to rules-v2 unless Python delivers ml-*. (2026-06-09)
+        const pyVersion = scores.length > 0 ? String(scores[0]?.model_version || "") : "";
+        if (scores.length > 0 && pyVersion.startsWith("ml-")) {
+          healthScores = scores;
+          modelVersion = pyVersion;
         }
       }
     } catch (err) {
