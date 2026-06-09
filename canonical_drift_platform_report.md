@@ -11,7 +11,7 @@ the class that produces _two pages, two numbers_ inconsistency.
 - Pages with local truth-math (FREQ_DAYS / calcNextDue / ...): **0**
 - **TIER A drift pages** (user-facing KPI surface): **0**
 - TIER B drift pages (internal / shared JS): **0**
-- Canonical reads: 292 · Drift: 0 · Gap: 52 · Allowed: 142
+- Canonical reads: 292 · Drift: 0 · Gap: 53 · Allowed: 146
 
 ## Gap tables (no `v_*_truth` yet — next-build queue)
 
@@ -46,4 +46,4 @@ the class that produces _two pages, two numbers_ inconsistency.
 | `sso_configs` | 1 |
 | `x` | 1 |
 | `resume_versions` | 1 |
-| `shift_plans` | 1 |
+| `resume_documents` | 1 |

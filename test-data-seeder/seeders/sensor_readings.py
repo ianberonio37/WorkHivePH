@@ -99,7 +99,11 @@ def seed_sensor_readings(client, log, ctx: dict) -> dict:
                         "hive_id":      hive_id,
                         "asset_id":     asset_id,
                         "parameter":    param_name,
-                        "sensor_type":  prof["sensor_type"],
+                        # NOTE: 'sensor_type' was DROPPED from sensor_readings on
+                        # 2026-05-20 (20260520000008_drop_phantom_columns) but this
+                        # seeder kept inserting it -> every insert 400'd with
+                        # PGRST204 and sensor_readings seeded 0 rows (starving
+                        # predictive/analytics). Column removed from the insert.
                         "unit":         prof["unit"],
                         "quality_flag": quality,
                         "value":        round(float(v), 3),

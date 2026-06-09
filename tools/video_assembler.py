@@ -41,6 +41,20 @@ LOGO_PAD_PX    = 22
 # ── FFmpeg binary (bundled with imageio_ffmpeg) ───────────────────────────────
 
 def _ffmpeg_exe() -> str:
+    # imageio_ffmpeg.get_ffmpeg_exe() can HANG on some machines (a network /
+    # binary-resolution wait that never returns), which silently stalls the whole
+    # video pipeline. Prefer an explicit env override, then a local shim, then a
+    # PATH ffmpeg, and only fall back to imageio_ffmpeg as a last resort.
+    import shutil
+    env = os.environ.get("IMAGEIO_FFMPEG_EXE")
+    if env and Path(env).exists():
+        return env
+    shim = ROOT / ".tmp/_ffmpeg_shim/ffmpeg.exe"
+    if shim.exists():
+        return str(shim)
+    found = shutil.which("ffmpeg")
+    if found:
+        return found
     try:
         import imageio_ffmpeg
         return imageio_ffmpeg.get_ffmpeg_exe()
@@ -123,6 +137,16 @@ def _ensure_ffmpeg_on_path():
     import shutil
     if shutil.which("ffmpeg"):
         return
+    # Prefer an explicit env override or an already-built local shim over
+    # imageio_ffmpeg.get_ffmpeg_exe() (which can hang on some machines).
+    env_exe = os.environ.get("IMAGEIO_FFMPEG_EXE")
+    if env_exe and Path(env_exe).exists():
+        os.environ["PATH"] = str(Path(env_exe).parent) + os.pathsep + os.environ.get("PATH", "")
+        return
+    _existing_shim = ROOT / ".tmp/_ffmpeg_shim/ffmpeg.exe"
+    if _existing_shim.exists():
+        os.environ["PATH"] = str(_existing_shim.parent) + os.pathsep + os.environ.get("PATH", "")
+        return
     try:
         import imageio_ffmpeg
         bundled  = Path(imageio_ffmpeg.get_ffmpeg_exe())
@@ -188,9 +212,10 @@ def assemble(
     idea_id:        str,
     voice_key:      str  = "james",
     music_path:     Path = None,
-    scene_clip:     Path = None,       # Kling/Pexels scene → full background, UI = overlay
+    scene_clip:     Path = None,       # Kling/Pexels/Remotion scene → full background, UI = overlay
     hook_clip:      Path = None,       # hook clip prepended before UI recording
     recording_file: Path = None,       # explicit recording override (skip auto-pick)
+    avatar_clip:    Path = None,       # lip-synced brand-persona narrator → circular corner bubble
     captions:       bool = True,
     output_path:    Path = None,
 ) -> Path:
@@ -247,8 +272,11 @@ def assemble(
     tmp = Path(tempfile.mkdtemp())
 
     # ── Step 1: Normalise UI recording to mp4 ────────────────────────────────
+    # -ss 1.4 trims the brief blank/white first frames a screen-record starts with
+    # (about:blank before the feature page paints).
     norm_video = tmp / "recording_norm.mp4"
     _run_ffmpeg([
+        "-ss", "1.4",
         "-i", str(recording),
         "-vf", "scale=1280:900:force_original_aspect_ratio=decrease,pad=1280:900:(ow-iw)/2:(oh-ih)/2",
         "-c:v", "libx264", "-preset", "fast", "-crf", "23",
@@ -310,6 +338,36 @@ def assemble(
             str(combined),
         ], "concat hook + recording")
         main_video = combined
+
+    # ── Step 2.5: Brand-persona narrator bubble (avatar) ─────────────────────
+    # A lip-synced persona (Wav2Lip) becomes a circular presenter bubble in the
+    # bottom-left, persistent for the whole video. Its own audio is dropped — the
+    # narration mp3 stays the master clock, and since the avatar was generated
+    # FROM that narration, the lips stay in sync.
+    if avatar_clip and avatar_clip.exists():
+        av_video = tmp / "with_avatar.mp4"
+        D  = 200            # avatar bubble diameter
+        R  = D + 12         # orange ring diameter
+        dc = D // 2
+        rc = R // 2
+        _run_ffmpeg([
+            "-i", str(main_video),    # [0] composited scene + UI
+            "-i", str(avatar_clip),   # [1] lip-synced persona
+            "-filter_complex",
+            f"[1:v]scale={D}:{D},format=rgba,"
+            f"geq=r='r(X,Y)':g='g(X,Y)':b='b(X,Y)':"
+            f"a='if(gt((X-{dc})*(X-{dc})+(Y-{dc})*(Y-{dc}),{dc*dc}),0,255)'[avc];"
+            f"color=c=0xF7A21B:s={R}x{R}:d={narr_dur:.2f},format=rgba,"
+            f"geq=r='r(X,Y)':g='g(X,Y)':b='b(X,Y)':"
+            f"a='if(gt((X-{rc})*(X-{rc})+(Y-{rc})*(Y-{rc}),{rc*rc}),0,255)'[ring];"
+            "[ring][avc]overlay=(W-w)/2:(H-h)/2[bub];"
+            "[0:v][bub]overlay=40:H-h-40[vid]",
+            "-map", "[vid]",
+            "-c:v", "libx264", "-preset", "fast", "-crf", "22",
+            "-t", str(narr_dur),
+            str(av_video),
+        ], "overlay brand-persona narrator bubble")
+        main_video = av_video
 
     # ── Step 3: Mix audio (narration + music) ────────────────────────────────
     silent_mp4 = tmp / "with_audio.mp4"

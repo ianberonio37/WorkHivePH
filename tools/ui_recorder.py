@@ -23,7 +23,17 @@ import requests as _requests
 from pathlib import Path
 from datetime import datetime
 
+# Windows consoles default to cp1252 and choke on the arrows (→) in demo step
+# logs, crashing the recorder mid-run. Force UTF-8 with a tolerant handler.
+for _stream in (sys.stdout, sys.stderr):
+    try:
+        _stream.reconfigure(encoding="utf-8", errors="replace")
+    except Exception:
+        pass
+
 ROOT           = Path(__file__).parent.parent
+if str(ROOT) not in sys.path:          # so `from tools.X import Y` works standalone
+    sys.path.insert(0, str(ROOT))
 RECORDINGS_DIR = ROOT / ".tmp/ui_recordings"
 WORKHIVE_URL   = os.getenv("WORKHIVE_URL", "http://127.0.0.1:5000")
 DEFAULT_PASS   = "test1234"
@@ -109,6 +119,49 @@ def _sign_in(page, log=print):
         log(f"  hive injected: {hive_id}")
     else:
         log(f"  [WARN] no hive found for {worker} — pages may show empty state")
+
+
+def _authed_storage_state(browser, username, display_name, hive_id, log=print):
+    """
+    Sign in FOR REAL in a throwaway context and return a storage_state carrying a
+    live Supabase session (sb-*-auth-token) + the active hive.
+
+    Why: feature pages (skillmatrix, logbook, pm-scheduler, …) gate on a real auth
+    session — `if (!authUid) location.href='index.html?signin=1'`. localStorage
+    identity alone is NOT enough, so the old recorder (localStorage-only) got
+    bounced to the dashboard. Opening the RECORDED context from this storage_state
+    means it's already authed → the demo lands on the real feature, no redirect,
+    no sign-in footage, no blank intro.
+    """
+    ctx = browser.new_context(viewport={"width": 1280, "height": 900})
+    pg = ctx.new_page()
+    try:
+        pg.goto(f"{WORKHIVE_URL}/workhive/index.html?signin=1", wait_until="domcontentloaded")
+        try:
+            pg.wait_for_selector("#si-username", timeout=10000, state="visible")
+            pg.fill("#si-username", username)
+            pg.fill("#si-password", DEFAULT_PASS)
+            pg.click("#si-btn")
+        except Exception as exc:
+            log(f"  [WARN] sign-in modal didn't appear ({exc})")
+        # Wait for the real Supabase session token to land in localStorage.
+        try:
+            pg.wait_for_function(
+                "() => Object.keys(localStorage).some(k => k.startsWith('sb-') && k.includes('auth-token'))",
+                timeout=15000,
+            )
+            log("  signed in — Supabase session established")
+        except Exception:
+            log("  [WARN] no Supabase session token after sign-in; feature pages may redirect")
+        # Pin the active hive so feature pages render real data instead of empty state.
+        pg.evaluate(
+            "(h) => { localStorage.setItem('wh_active_hive_id', h); localStorage.setItem('wh_hive_id', h); }",
+            hive_id,
+        )
+        pg.wait_for_timeout(400)
+        return ctx.storage_state()
+    finally:
+        ctx.close()
 
 
 # ── Timing helpers ────────────────────────────────────────────────────────────
@@ -516,15 +569,26 @@ def demo_logbook(page):
         except Exception:
             pass
 
+    # logbook.html is a module — selectAsset is exposed on window only AFTER the
+    # module + asset list finish loading. The old code called it too early
+    # ("ReferenceError: selectAsset is not defined"). Wait for it, then call it
+    # via window.* explicitly.
+    try:
+        page.wait_for_function("() => typeof window.selectAsset === 'function'", timeout=12000)
+    except Exception:
+        print("     [WARN] selectAsset not ready after 12s")
     if asset:
         asset_id   = asset.get("id", "")
         asset_name = asset.get("asset_name", "Machine A")
-        asset_ref  = asset.get("asset_ref", "")
-        page.evaluate(f"selectAsset('{asset_id}', '{asset_name}', '{asset_ref}')")
+        asset_ref  = asset.get("asset_ref", "") or ""
+        page.evaluate(
+            "(a) => window.selectAsset(a.id, a.name, a.ref || null)",
+            {"id": asset_id, "name": asset_name, "ref": asset_ref},
+        )
         print(f"     selected: {asset_name}")
     else:
         # Fallback: use asset ref directly (like the test uses TEST_MACHINE = "P-001")
-        page.evaluate("selectAsset('P-001', 'Pump P-001', null)")
+        page.evaluate("() => window.selectAsset('P-001', 'Pump P-001', null)")
     page.wait_for_timeout(1500)
     pause(page, 2000, "machine selected — past failures and PM history auto-load")
 
@@ -1286,12 +1350,7 @@ def record(feature_key: str, output_path: Path = None, headless: bool = False) -
             headless=headless,
             args=["--start-maximized"] if not headless else [],
         )
-        context = browser.new_context(
-            viewport={"width": 1280, "height": 900},
-            record_video_dir=str(video_dir),
-            record_video_size={"width": 1280, "height": 900},
-        )
-        # Resolve auth values BEFORE opening the browser
+        # Resolve auth values first.
         username, display_name = _get_test_worker()
         hive_id = _get_worker_hive(display_name)
         print(f"  Auth: {display_name} / hive: {hive_id or 'none'}")
@@ -1302,24 +1361,26 @@ def record(feature_key: str, output_path: Path = None, headless: bool = False) -
                 "Make sure the WorkHive Tester has seeded data."
             )
 
-        # Inject ALL auth values before every page load via init script.
-        # This bypasses the sign-in modal and prevents membership re-check redirects.
-        # Also freezes localStorage.removeItem for hive keys so pages can't strip them.
-        context.add_init_script(f"""
-            (function() {{
-                // Set auth values before any page code runs
-                localStorage.setItem('wh_last_worker',     '{display_name}');
-                localStorage.setItem('wh_worker_name',     '{display_name}');
-                localStorage.setItem('wh_active_hive_id',  '{hive_id}');
-                localStorage.setItem('wh_hive_id',         '{hive_id}');
+        # Establish a REAL Supabase session in a throwaway context, then open the
+        # RECORDED context already-authed via storage_state. Feature pages require a
+        # real session; localStorage alone gets bounced to the dashboard.
+        storage = _authed_storage_state(browser, username, display_name, hive_id)
 
-                // Freeze hive keys — prevent membership checks from removing them
+        context = browser.new_context(
+            viewport={"width": 1280, "height": 900},
+            storage_state=storage,
+            record_video_dir=str(video_dir),
+            record_video_size={"width": 1280, "height": 900},
+        )
+        # Freeze hive keys so a mid-demo membership re-check can't strip them.
+        context.add_init_script("""
+            (function() {
                 const _remove = localStorage.removeItem.bind(localStorage);
-                localStorage.removeItem = function(key) {{
+                localStorage.removeItem = function(key) {
                     if (key === 'wh_active_hive_id' || key === 'wh_hive_id') return;
                     return _remove(key);
-                }};
-            }})();
+                };
+            })();
         """)
 
         page = context.new_page()

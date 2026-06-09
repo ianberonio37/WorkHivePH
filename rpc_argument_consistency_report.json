@@ -1,10 +1,10 @@
 {
   "summary": {
-    "files_scanned": 143,
-    "total_calls": 32,
-    "total_drift": 1,
-    "baseline": 1,
-    "rpcs_known": 78
+    "files_scanned": 146,
+    "total_calls": 31,
+    "total_drift": 0,
+    "baseline": 0,
+    "rpcs_known": 79
   },
   "per_file": [
     {
@@ -128,6 +128,14 @@
       "issues": []
     },
     {
+      "file": "analytics_correctness.js",
+      "issues": []
+    },
+    {
+      "file": "asset-qr.js",
+      "issues": []
+    },
+    {
       "file": "button-lock.js",
       "issues": []
     },
@@ -153,6 +161,10 @@
     },
     {
       "file": "form-autosave.js",
+      "issues": []
+    },
+    {
+      "file": "journey_battery.js",
       "issues": []
     },
     {
@@ -205,12 +217,7 @@
     },
     {
       "file": "voice-handler.js",
-      "issues": [
-        {
-          "rpc": "record_ai_reply_rating",
-          "issue": "missing_rpc"
-        }
-      ]
+      "issues": []
     },
     {
       "file": "wh-capture-validate.js",

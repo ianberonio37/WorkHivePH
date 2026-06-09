@@ -1,11 +1,18 @@
 {
   "summary": {
-    "specs_scanned": 26,
+    "specs_scanned": 30,
     "total_lookups": 141,
     "total_drift": 2,
     "baseline": 2
   },
   "per_file": [
+    {
+      "spec": "agent-golden-capture.spec.ts",
+      "targets": [
+        "index.html"
+      ],
+      "misses": []
+    },
     {
       "spec": "alert-hub-amc.spec.ts",
       "targets": [
@@ -305,10 +312,31 @@
       "misses": []
     },
     {
+      "spec": "memory-golden-capture.spec.ts",
+      "targets": [
+        "index.html"
+      ],
+      "misses": []
+    },
+    {
+      "spec": "persona-golden-capture.spec.ts",
+      "targets": [
+        "index.html"
+      ],
+      "misses": []
+    },
+    {
       "spec": "pm-scheduler.spec.ts",
       "targets": [
         "pm-scheduler.html",
         "pm-scheduler.html"
+      ],
+      "misses": []
+    },
+    {
+      "spec": "rag-golden-capture.spec.ts",
+      "targets": [
+        "index.html"
       ],
       "misses": []
     }

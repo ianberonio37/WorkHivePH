@@ -180,6 +180,7 @@
       "page": "engineering-design.html",
       "levels": [
         2,
+        1,
         2,
         2,
         3,
@@ -776,7 +777,9 @@
     },
     {
       "page": "predictive.html",
-      "levels": [],
+      "levels": [
+        1
+      ],
       "issues": []
     },
     {
@@ -811,7 +814,9 @@
     },
     {
       "page": "achievements.html",
-      "levels": [],
+      "levels": [
+        1
+      ],
       "issues": []
     },
     {
@@ -833,13 +838,15 @@
     {
       "page": "shift-brain.html",
       "levels": [
-        2
+        2,
+        1
       ],
       "issues": []
     },
     {
       "page": "alert-hub.html",
       "levels": [
+        1,
         2
       ],
       "issues": []
@@ -847,6 +854,7 @@
     {
       "page": "audit-log.html",
       "levels": [
+        1,
         2,
         2
       ],
@@ -855,6 +863,7 @@
     {
       "page": "voice-journal.html",
       "levels": [
+        1,
         2
       ],
       "issues": []

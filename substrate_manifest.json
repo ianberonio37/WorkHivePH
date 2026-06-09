@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-06-07T10:34:03.257920+00:00",
+  "generated_at": "2026-06-09T10:54:40.704759+00:00",
   "sources": 13,
   "present": 13,
   "absent": 0,
@@ -12,7 +12,7 @@
         {
           "feature": "imports_cors_shared",
           "anti_pattern": false,
-          "conformance": 0.982,
+          "conformance": 0.983,
           "outlier_count": 1,
           "outliers": [
             "marketplace-webhook"
@@ -21,7 +21,7 @@
         {
           "feature": "cors_headers_first_in_handler",
           "anti_pattern": false,
-          "conformance": 0.982,
+          "conformance": 0.983,
           "outlier_count": 1,
           "outliers": [
             "walkthrough-analyzer"
@@ -30,7 +30,7 @@
         {
           "feature": "wraps_handler_in_try",
           "anti_pattern": false,
-          "conformance": 0.964,
+          "conformance": 0.966,
           "outlier_count": 2,
           "outliers": [
             "marketplace-webhook",
@@ -40,7 +40,7 @@
         {
           "feature": "imports_supabase_esm",
           "anti_pattern": false,
-          "conformance": 0.893,
+          "conformance": 0.898,
           "outlier_count": 6,
           "outliers": [
             "engineering-bom-sow",
@@ -54,7 +54,7 @@
         {
           "feature": "reads_supabase_url_env",
           "anti_pattern": false,
-          "conformance": 0.893,
+          "conformance": 0.898,
           "outlier_count": 6,
           "outliers": [
             "engineering-bom-sow",
@@ -68,7 +68,7 @@
         {
           "feature": "reads_service_role_env",
           "anti_pattern": false,
-          "conformance": 0.893,
+          "conformance": 0.898,
           "outlier_count": 6,
           "outliers": [
             "engineering-bom-sow",
@@ -81,7 +81,7 @@
         }
       ],
       "summary": {
-        "fns_scanned": 56,
+        "fns_scanned": 59,
         "features_extracted": 35,
         "promotion_candidates": 6
       },
@@ -93,8 +93,17 @@
       "present": true,
       "proposals": [
         {
+          "feature": "has_h1",
+          "conformance": 0.95,
+          "outlier_count": 2,
+          "outliers": [
+            "marketplace-seller-profile.html",
+            "marketplace-seller.html"
+          ]
+        },
+        {
           "feature": "has_meta_description",
-          "conformance": 0.923,
+          "conformance": 0.925,
           "outlier_count": 3,
           "outliers": [
             "architecture.html",
@@ -104,7 +113,18 @@
         },
         {
           "feature": "loads_utils_js",
-          "conformance": 0.897,
+          "conformance": 0.9,
+          "outlier_count": 4,
+          "outliers": [
+            "architecture.html",
+            "parts-tracker.html",
+            "symbol-gallery.html",
+            "validator-catalog.html"
+          ]
+        },
+        {
+          "feature": "loads_supabase_cdn",
+          "conformance": 0.9,
           "outlier_count": 4,
           "outliers": [
             "architecture.html",
@@ -115,35 +135,10 @@
         },
         {
           "feature": "has_manifest_link",
-          "conformance": 0.872,
+          "conformance": 0.875,
           "outlier_count": 5,
           "outliers": [
             "architecture.html",
-            "llm-observability.html",
-            "parts-tracker.html",
-            "symbol-gallery.html",
-            "validator-catalog.html"
-          ]
-        },
-        {
-          "feature": "loads_supabase_cdn",
-          "conformance": 0.872,
-          "outlier_count": 5,
-          "outliers": [
-            "architecture.html",
-            "llm-observability.html",
-            "parts-tracker.html",
-            "symbol-gallery.html",
-            "validator-catalog.html"
-          ]
-        },
-        {
-          "feature": "uses_createclient",
-          "conformance": 0.846,
-          "outlier_count": 6,
-          "outliers": [
-            "architecture.html",
-            "index.html",
             "llm-observability.html",
             "parts-tracker.html",
             "symbol-gallery.html",
@@ -152,7 +147,7 @@
         },
         {
           "feature": "calls_eschtml",
-          "conformance": 0.846,
+          "conformance": 0.85,
           "outlier_count": 6,
           "outliers": [
             "alert-hub.html",
@@ -165,7 +160,7 @@
         }
       ],
       "summary": {
-        "pages_scanned": 39,
+        "pages_scanned": 40,
         "features_extracted": 40,
         "promotion_candidates": 6
       },
@@ -178,15 +173,16 @@
       "proposals": [
         {
           "feature": "has_header_comment",
-          "conformance": 0.995,
-          "outlier_count": 1,
+          "conformance": 0.99,
+          "outlier_count": 2,
           "outliers": [
-            "20260422192855_remote_commit.sql"
+            "20260422192855_remote_commit.sql",
+            "20260609000005_fix_readiness_blocker_summary.sql"
           ]
         }
       ],
       "summary": {
-        "files_scanned": 188,
+        "files_scanned": 209,
         "features_extracted": 22,
         "promotion_candidates": 1
       },
@@ -223,7 +219,7 @@
       "proposals": [
         {
           "feature": "has_main_guard",
-          "conformance": 0.987,
+          "conformance": 0.988,
           "outlier_count": 4,
           "outliers": [
             "validate_bom_sow.py",
@@ -234,7 +230,7 @@
         }
       ],
       "summary": {
-        "files_scanned": 311,
+        "files_scanned": 334,
         "features_extracted": 20,
         "promotion_candidates": 1
       },
@@ -244,24 +240,13 @@
       "label": "JS module patterns",
       "file": "js_module_pattern_mining_report.json",
       "present": true,
-      "proposals": [
-        {
-          "feature": "wraps_in_iife",
-          "conformance": 0.88,
-          "outlier_count": 3,
-          "outliers": [
-            "drawing-symbols.js",
-            "skill-content.js",
-            "utils.js"
-          ]
-        }
-      ],
+      "proposals": [],
       "summary": {
-        "files_scanned": 25,
+        "files_scanned": 30,
         "features_extracted": 16,
-        "promotion_candidates": 1
+        "promotion_candidates": 0
       },
-      "proposal_count": 1
+      "proposal_count": 0
     },
     {
       "label": "Python tool patterns",
@@ -270,7 +255,7 @@
       "proposals": [
         {
           "feature": "has_print_calls",
-          "conformance": 0.952,
+          "conformance": 0.96,
           "outlier_count": 7,
           "outliers": [
             "analyze_walkthrough_new.py",
@@ -284,7 +269,7 @@
         }
       ],
       "summary": {
-        "files_scanned": 145,
+        "files_scanned": 173,
         "features_extracted": 22,
         "promotion_candidates": 1
       },
@@ -338,10 +323,10 @@
         "truth_math_pages": 0,
         "tier_a_pages": 0,
         "tier_b_pages": 0,
-        "total_canonical_reads": 290,
+        "total_canonical_reads": 292,
         "total_drift_reads": 0,
-        "total_gap_reads": 52,
-        "total_allowed_reads": 142
+        "total_gap_reads": 54,
+        "total_allowed_reads": 145
       }
     },
     {

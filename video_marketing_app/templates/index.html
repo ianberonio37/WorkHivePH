@@ -710,6 +710,20 @@
       font-size: 0.7rem;
       font-family: 'Poppins', sans-serif;
     }
+    .ap-toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      background: rgba(22,32,50,0.85);
+      border: 1px solid rgba(255,255,255,0.14);
+      border-radius: 0.4rem;
+      color: #cdd7e6;
+      padding: 0.3rem 0.55rem;
+      font-size: 0.68rem;
+      cursor: pointer;
+      user-select: none;
+    }
+    .ap-toggle input { accent-color: #F7A21B; cursor: pointer; margin: 0; }
     .btn-autoproduce {
       background: linear-gradient(135deg, #F7A21B 0%, #D88A0E 100%);
       border: none;
@@ -1986,6 +2000,12 @@
           '</div>' +
           '<div class="auto-produce-controls">' +
             '<select id="apVoice-' + ideaId + '">' + voiceOpts + '</select>' +
+            '<label class="ap-toggle" title="On-brand WorkHive motion background instead of generic Pexels stock">' +
+              '<input type="checkbox" id="apScene-' + ideaId + '" checked> Branded BG' +
+            '</label>' +
+            '<label class="ap-toggle" title="James/Rosa talking-head narrator bubble. Lip-synced locally — adds ~10-20 min per video on CPU.">' +
+              '<input type="checkbox" id="apAvatar-' + ideaId + '"> Avatar narrator' +
+            '</label>' +
             '<button class="btn-autoproduce" id="apBtn-' + ideaId + '" onclick="autoProduce(\'' + ideaId + '\')">Auto-Produce</button>' +
           '</div>' +
         '</div>' +
@@ -2001,8 +2021,12 @@
   async function autoProduce(ideaId) {
     const btn       = document.getElementById('apBtn-' + ideaId);
     const voiceSel  = document.getElementById('apVoice-' + ideaId);
+    const sceneEl   = document.getElementById('apScene-' + ideaId);
+    const avatarEl  = document.getElementById('apAvatar-' + ideaId);
     const messageEl = document.getElementById('apMessage-' + ideaId);
-    const voice     = voiceSel ? voiceSel.value : 'james';
+    const voice       = voiceSel ? voiceSel.value : 'james';
+    const sceneSource = (sceneEl && sceneEl.checked) ? 'remotion' : 'pexels';
+    const avatar      = !!(avatarEl && avatarEl.checked);
 
     // Reset all step states
     PIPELINE_STAGES.forEach(s => {
@@ -2018,7 +2042,7 @@
       const r = await fetch('/api/ideas/' + ideaId + '/produce-all', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify({ voice: voice }),
+        body:    JSON.stringify({ voice: voice, scene_source: sceneSource, avatar: avatar }),
       });
       const data = await r.json();
       if (!data.success) throw new Error(data.error || 'Failed to start');

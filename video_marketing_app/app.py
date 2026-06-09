@@ -1058,13 +1058,24 @@ def _stage_recording(idea):
     return record(feature, headless=True)
 
 
-def _stage_scene(idea):
+def _stage_scene(idea, scene_source=None):
     """
-    Always re-download fresh Pexels clips on every Auto-Produce.
-    The /scene/auto route uses randomized queries + pagination + sampling so
-    re-runs don't recycle the same footage. The combined .mp4 overwrites the
-    previous one to keep disk usage bounded.
+    Scene background source. Per-request `scene_source` (from the dashboard toggle)
+    wins; otherwise falls back to the SCENE_SOURCE env default.
+
+    'remotion' → render an on-brand, data-driven WorkHive background (the new way).
+    'pexels'   → (default) download fresh stock footage from Pexels.
+
+    Remotion failures fall back to Pexels so a render hiccup never blocks a video.
     """
+    source = (scene_source or os.getenv("SCENE_SOURCE", "pexels")).lower()
+    if source == "remotion":
+        try:
+            from tools.render_remotion_scene import render_branded_scene
+            return render_branded_scene(idea)
+        except Exception as exc:
+            print(f"  [scene] Remotion render failed ({exc}); falling back to Pexels")
+
     if not os.getenv("PEXELS_API_KEY"):
         return None
     with app.test_client() as client:
@@ -1090,7 +1101,21 @@ def _stage_music(idea):
         return None
 
 
-def _stage_assemble(idea, voice_key, recording_path, scene_path, music_path):
+def _stage_avatar(idea, voice_key, enabled=None):
+    """
+    Optional brand-persona NARRATOR bubble (Wav2Lip lip-sync). `enabled` comes from
+    the dashboard toggle; when None it falls back to AVATAR_NARRATOR env. A full-length
+    avatar is ~10-20 min on CPU. Returns the avatar mp4 path, or None when off/failed.
+    """
+    if enabled is None:
+        enabled = os.getenv("AVATAR_NARRATOR", "").lower() in ("1", "true", "yes", "on")
+    if not enabled:
+        return None
+    from tools.avatar_narrator import generate_avatar
+    return generate_avatar(idea["id"], voice_key)
+
+
+def _stage_assemble(idea, voice_key, recording_path, scene_path, music_path, avatar_path=None):
     from tools.video_assembler import assemble
     return assemble(
         idea_id        = idea["id"],
@@ -1098,6 +1123,7 @@ def _stage_assemble(idea, voice_key, recording_path, scene_path, music_path):
         recording_file = recording_path,
         scene_clip     = scene_path,
         music_path     = music_path,
+        avatar_clip    = avatar_path,
         captions       = True,
     )
 
@@ -1118,8 +1144,12 @@ def _stage_platform_pack(idea):
     return result["md_file"]
 
 
-def _run_pipeline(job_id, idea_id, voice_key):
-    """Background worker — runs the full pipeline and updates job state."""
+def _run_pipeline(job_id, idea_id, voice_key, scene_source=None, avatar=None):
+    """Background worker — runs the full pipeline and updates job state.
+
+    scene_source / avatar come from the dashboard toggles (per-request); when None
+    they fall back to the SCENE_SOURCE / AVATAR_NARRATOR env defaults.
+    """
     try:
         data = load_backlog()
         idea = next((i for i in data["ideas"] if i["id"] == idea_id), None)
@@ -1144,11 +1174,14 @@ def _run_pipeline(job_id, idea_id, voice_key):
         recording_path = _stage_recording(idea)   # raises on any failure
         _job_log(job_id, f"recording: {recording_path.name}")
 
-        # ── 4. Scene clip (Pexels) ───────────────────────────────────────
+        # ── 4. Scene clip (Remotion branded BG or Pexels stock) ──────────
+        _scene_src = (scene_source or os.getenv("SCENE_SOURCE", "pexels")).lower()
         _job_set(job_id, stage="scene",
-                 message="Downloading background scene clips from Pexels...")
+                 message=("Rendering branded WorkHive background (Remotion)..."
+                          if _scene_src == "remotion"
+                          else "Downloading background scene clips from Pexels..."))
         try:
-            scene_path = _stage_scene(idea)
+            scene_path = _stage_scene(idea, scene_source)
             _job_log(job_id, f"scene: {scene_path.name if scene_path else 'skipped (no PEXELS_API_KEY)'}")
         except Exception as exc:
             _job_log(job_id, f"scene skipped: {exc}")
@@ -1160,10 +1193,25 @@ def _run_pipeline(job_id, idea_id, voice_key):
         music_path = _stage_music(idea)
         _job_log(job_id, f"music: {music_path.name if music_path else 'skipped'}")
 
+        # ── 5.5 Brand-persona narrator (optional, Wav2Lip) ───────────────
+        avatar_enabled = avatar if avatar is not None else (
+            os.getenv("AVATAR_NARRATOR", "").lower() in ("1", "true", "yes", "on")
+        )
+        avatar_path = None
+        if avatar_enabled:
+            _job_set(job_id, stage="assemble",
+                     message="Rendering brand-persona narrator with Wav2Lip (~10-20 min on CPU)...")
+            try:
+                avatar_path = _stage_avatar(idea, voice_key, enabled=True)
+                _job_log(job_id, f"avatar: {avatar_path.name if avatar_path else 'skipped'}")
+            except Exception as exc:
+                _job_log(job_id, f"avatar skipped: {exc}")
+                avatar_path = None
+
         # ── 6. Assemble ──────────────────────────────────────────────────
         _job_set(job_id, stage="assemble",
                  message="Assembling final video with captions (FFmpeg + Whisper)...")
-        out_path = _stage_assemble(idea, voice_key, recording_path, scene_path, music_path)
+        out_path = _stage_assemble(idea, voice_key, recording_path, scene_path, music_path, avatar_path)
         _job_log(job_id, f"assembled: {out_path.name}")
 
         # ── 7. Platform pack (8-platform social copy) ────────────────────
@@ -1298,8 +1346,10 @@ Write the full script using exactly this structure:
 
 @app.route("/api/ideas/<idea_id>/produce-all", methods=["POST"])
 def produce_all(idea_id):
-    body      = request.get_json(silent=True) or {}
-    voice_key = body.get("voice", "james")
+    body         = request.get_json(silent=True) or {}
+    voice_key    = body.get("voice", "james")
+    scene_source = body.get("scene_source")   # 'remotion' | 'pexels' | None → env default
+    avatar       = body.get("avatar")          # bool | None → env default
 
     data = load_backlog()
     idea = next((i for i in data["ideas"] if i["id"] == idea_id), None)
@@ -1323,7 +1373,7 @@ def produce_all(idea_id):
 
     threading.Thread(
         target=_run_pipeline,
-        args=(job_id, idea_id, voice_key),
+        args=(job_id, idea_id, voice_key, scene_source, avatar),
         daemon=True,
     ).start()
 

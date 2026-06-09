@@ -89,6 +89,26 @@ VALIDATORS = [
         "severity": "blocker",
     },
     {
+        "id":      "gate-observability",
+        "script":  "validate_gate_observability.py",
+        "args":    [],
+        "label":   "Gate Observability (Mega Gate persists a durable log + verdict on every terminal path)",
+        "group":   "Platform",
+        "report":  "gate_observability_report.json",
+        "skip_if_fast": False,
+        "severity": "blocker",
+    },
+    {
+        "id":      "seeder-insert-columns",
+        "script":  "validate_seeder_insert_columns.py",
+        "args":    [],
+        "label":   "Seeder Insert-Columns (forward-only: no NEW seeder writes a column absent from the live table)",
+        "group":   "Platform",
+        "report":  "seeder_insert_columns_report.json",
+        "skip_if_fast": False,
+        "severity": "blocker",
+    },
+    {
         "id":      "tester-coverage",
         "script":  "validate_tester_coverage.py",
         "args":    [],
@@ -3392,6 +3412,15 @@ VALIDATORS = [
     {"id": "rls-strict",                   "script": "validate_rls_strict.py",                   "args": [], "label": "RLS Strict Baseline (L0 ratchet over mine_rls_policies: USING(true) + WITH CHECK(true) frozen at baseline)",         "group": "P1 Roadmap", "report": "rls_policy_mining_report.json",            "skip_if_fast": False, "severity": "regression", "parallel_safe": True},
     {"id": "envelope-return-shape",        "script": "validate_envelope_return_shape.py",        "args": [], "label": "Envelope Return-Shape Adoption (true adoption: fns that actually call ok(ctx, ...); floor ratchet)",                 "group": "P1 Roadmap", "report": "envelope_return_shape_report.json",        "skip_if_fast": False, "severity": "warn",       "parallel_safe": True},
     {"id": "memento-catalog-citations",    "script": os.path.join("tools", "memento_catalog_citation_validator.py"), "args": [], "label": "Memento Pattern-Catalog Citation Rot (reference_pattern_catalog.md citations all resolve on disk or via the index)", "group": "Platform",   "report": None,                                          "skip_if_fast": False, "severity": "regression", "parallel_safe": True},
+    {
+        "id":      "visual_defect_confidence",
+        "script":  "tools/validate_visual_defect_confidence.py",
+        "args":    [],
+        "label":   "AI Self-Improvement: Visual Defect Confidence",
+        "group":   "AI Validation",
+        "report":  None,
+        "skip_if_fast": False,
+    },
 ]
 
 PYTHON_API_URL  = "https://engineering-calc-api.onrender.com/calculate"

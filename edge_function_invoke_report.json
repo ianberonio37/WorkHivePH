@@ -1,7 +1,7 @@
 {
   "summary": {
-    "files_scanned": 57,
-    "total_calls": 27,
+    "files_scanned": 60,
+    "total_calls": 29,
     "total_drift": 0,
     "baseline": 0,
     "edge_fns_known": 59
@@ -128,6 +128,14 @@
       "broken": []
     },
     {
+      "page": "analytics_correctness.js",
+      "broken": []
+    },
+    {
+      "page": "asset-qr.js",
+      "broken": []
+    },
+    {
       "page": "button-lock.js",
       "broken": []
     },
@@ -153,6 +161,10 @@
     },
     {
       "page": "form-autosave.js",
+      "broken": []
+    },
+    {
+      "page": "journey_battery.js",
       "broken": []
     },
     {

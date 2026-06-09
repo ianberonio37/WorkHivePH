@@ -1,6 +1,6 @@
 # SQL Migration Pattern Mining Report
 
-- Files scanned: **188**
+- Files scanned: **209**
 - Features extracted: **22**
 - Promotion threshold: >= 80% conformance, <= 8 outliers
 - Promotion candidates: **1**
@@ -9,31 +9,31 @@
 
 | Feature | Conformance | Outlier count |
 |---|---:|---:|
-| `has_header_comment` | 99% | 1 |
+| `has_header_comment` | 99% | 2 |
 
 ## Full conformance ranking
 
 | Feature | Conformance | Positive / Total |
 |---|---:|---|
-| `filename_dated` | 100% | 188 / 188 |
-| `has_header_comment` | 99% | 187 / 188 |
-| `targets_public_schema` | 67% | 127 / 188 |
-| `uses_create_if_not_exists` | 49% | 93 / 188 |
-| `creates_index` | 48% | 92 / 188 |
-| `uses_created_at_col` | 46% | 88 / 188 |
-| `drops_before_create` | 37% | 71 / 188 |
-| `uses_create_or_replace` | 35% | 67 / 188 |
-| `wraps_in_transaction` | 35% | 66 / 188 |
-| `declares_foreign_key` | 33% | 62 / 188 |
-| `has_on_delete_clause` | 31% | 60 / 188 |
-| `creates_policy` | 30% | 58 / 188 |
-| `enables_rls` | 27% | 52 / 188 |
-| `uses_uuid_pk` | 26% | 49 / 188 |
-| `creates_function` | 25% | 48 / 188 |
-| `uses_security_definer` | 20% | 39 / 188 |
-| `uses_updated_at_col` | 19% | 36 / 188 |
-| `sets_search_path` | 18% | 34 / 188 |
-| `has_comment_on_table` | 12% | 24 / 188 |
-| `creates_trigger` | 9% | 17 / 188 |
-| `has_comment_on_column` | 6% | 13 / 188 |
-| `has_banner_header` | 3% | 6 / 188 |
+| `filename_dated` | 100% | 209 / 209 |
+| `has_header_comment` | 99% | 207 / 209 |
+| `targets_public_schema` | 70% | 148 / 209 |
+| `uses_created_at_col` | 47% | 99 / 209 |
+| `uses_create_if_not_exists` | 46% | 98 / 209 |
+| `creates_index` | 46% | 98 / 209 |
+| `uses_create_or_replace` | 39% | 82 / 209 |
+| `wraps_in_transaction` | 38% | 81 / 209 |
+| `drops_before_create` | 35% | 74 / 209 |
+| `declares_foreign_key` | 31% | 65 / 209 |
+| `has_on_delete_clause` | 30% | 63 / 209 |
+| `creates_function` | 29% | 62 / 209 |
+| `creates_policy` | 29% | 61 / 209 |
+| `enables_rls` | 26% | 55 / 209 |
+| `uses_uuid_pk` | 24% | 52 / 209 |
+| `uses_security_definer` | 24% | 51 / 209 |
+| `sets_search_path` | 22% | 47 / 209 |
+| `uses_updated_at_col` | 18% | 39 / 209 |
+| `has_comment_on_table` | 12% | 26 / 209 |
+| `creates_trigger` | 9% | 19 / 209 |
+| `has_comment_on_column` | 6% | 13 / 209 |
+| `has_banner_header` | 4% | 10 / 209 |

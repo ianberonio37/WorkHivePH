@@ -1261,7 +1261,9 @@
         "logbook.html",
         "pm-scheduler.html"
       ],
-      "read_by_edge_fns": [],
+      "read_by_edge_fns": [
+        "analytics-orchestrator"
+      ],
       "written_by_edge_fns": []
     },
     "pm_knowledge": {
@@ -1595,7 +1597,10 @@
       "written_by_surfaces": [
         "voice-journal.html"
       ],
-      "read_by_edge_fns": [],
+      "read_by_edge_fns": [
+        "ai-orchestrator",
+        "analytics-orchestrator"
+      ],
       "written_by_edge_fns": []
     },
     "projects": {
@@ -5128,6 +5133,41 @@
       ],
       "read_by_edge_fns": [],
       "written_by_edge_fns": []
+    },
+    "ai_reply_feedback": {
+      "defined_in": "20260609000006_ai_reply_feedback.sql",
+      "columns": [
+        "id",
+        "hive_id",
+        "auth_uid",
+        "worker_name",
+        "agent",
+        "source",
+        "page",
+        "persona",
+        "question",
+        "answer",
+        "rating",
+        "created_at"
+      ],
+      "rls_enabled": true,
+      "grants": {
+        "authenticated": [
+          "SELECT",
+          "INSERT"
+        ]
+      },
+      "realtime_published": false,
+      "comment": "",
+      "read_by_surfaces": [
+        "ai-quality.html",
+        "assistant.html"
+      ],
+      "written_by_surfaces": [
+        "assistant.html"
+      ],
+      "read_by_edge_fns": [],
+      "written_by_edge_fns": []
     }
   },
   "views": {
@@ -5217,7 +5257,6 @@
     "v_pm_compliance_truth": {
       "defined_in": "20260509000004_v_pm_compliance_truth.sql",
       "read_by_surfaces": [
-        "alert-hub.html",
         "assistant.html",
         "hive.html",
         "logbook.html"
@@ -5361,6 +5400,7 @@
     "v_pm_scope_items_truth": {
       "defined_in": "20260510000004_v_pm_scope_items_truth.sql",
       "read_by_surfaces": [
+        "alert-hub.html",
         "hive.html",
         "logbook.html",
         "pm-scheduler.html"
@@ -5424,7 +5464,10 @@
       ],
       "read_by_edge_fns": [
         "ai-gateway",
+        "ai-orchestrator",
         "analytics-orchestrator",
+        "asset-brain-query",
+        "batch-risk-scoring",
         "cmms-sync",
         "cmms-webhook-receiver",
         "export-hive-data",
@@ -6478,7 +6521,7 @@
       "defined_in": "20260606000000_get_hive_dashboard.sql",
       "args": "p_hive_id   uuid,\n  p_day_start timestamptz DEFAULT date_trunc('day', now()",
       "security_definer": true,
-      "comment": "Home (index.html) board fan-out collapse: returns all 11 canonical home signals in one jsonb round-trip. Membership-gated via auth.uid() (SECURITY DEFINER bypasses RLS). Reads the same v_*_truth views as the client loader so output is parity-equal. Hive mode only; solo home keeps its legacy path.",
+      "comment": "Home (index.html) board fan-out collapse: returns all 12 canonical home signals in one jsonb round-trip. Membership-gated via auth.uid() (SECURITY DEFINER bypasses RLS). Reads the same v_*_truth views as the client loader so output is parity-equal. pm_overdue_count = DISTINCT assets with an overdue scope item from v_pm_scope_items_truth (frequency-aware), matching pm-scheduler #stat-overdue; unified 2026-06-07 from the old v_pm_compliance_truth.is_due flat-30-day proxy. critical_pm_overdue = top critical asset with an overdue scope item (drives the Today's-One-Thing nudge). Hive mode only; solo home keeps its legacy path.",
       "called_by_surfaces": [],
       "called_by_edge_fns": []
     },
@@ -6490,6 +6533,14 @@
       "called_by_surfaces": [
         "hive.html"
       ],
+      "called_by_edge_fns": []
+    },
+    "enforce_ai_reply_feedback_daily_limit": {
+      "defined_in": "20260609000006_ai_reply_feedback.sql",
+      "args": "",
+      "security_definer": true,
+      "comment": "",
+      "called_by_surfaces": [],
       "called_by_edge_fns": []
     }
   },
@@ -6503,7 +6554,7 @@
       "tables_written": [],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "size_kb": 47.1
+      "size_kb": 47.6
     },
     "agentic-rag-observability.html": {
       "tables_read": [
@@ -6516,12 +6567,13 @@
     },
     "ai-quality.html": {
       "tables_read": [
-        "ai_cost_log"
+        "ai_cost_log",
+        "ai_reply_feedback"
       ],
       "tables_written": [],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "size_kb": 29.6
+      "size_kb": 30.8
     },
     "alert-hub.html": {
       "tables_read": [
@@ -6533,7 +6585,7 @@
         "parts_staging_recommendations",
         "v_anomaly_truth",
         "v_inventory_items_truth",
-        "v_pm_compliance_truth",
+        "v_pm_scope_items_truth",
         "v_risk_truth"
       ],
       "tables_written": [
@@ -6545,7 +6597,7 @@
         "compute_anomaly_signals"
       ],
       "edge_fns_invoked": [],
-      "size_kb": 66.8
+      "size_kb": 67.6
     },
     "analytics-report.html": {
       "tables_read": [
@@ -6554,14 +6606,16 @@
       "tables_written": [],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "size_kb": 80.8
+      "size_kb": 81.2
     },
     "analytics.html": {
       "tables_read": [],
       "tables_written": [],
       "rpcs_called": [],
-      "edge_fns_invoked": [],
-      "size_kb": 132.8
+      "edge_fns_invoked": [
+        "batch-risk-scoring"
+      ],
+      "size_kb": 135.9
     },
     "architecture.html": {
       "tables_read": [],
@@ -6614,10 +6668,11 @@
         "pf-calculator",
         "weibull-fitter"
       ],
-      "size_kb": 181.1
+      "size_kb": 182.7
     },
     "assistant.html": {
       "tables_read": [
+        "ai_reply_feedback",
         "schedule_items",
         "v_inventory_items_truth",
         "v_logbook_truth",
@@ -6625,10 +6680,14 @@
         "v_skill_badges_truth",
         "voice_journal_entries"
       ],
-      "tables_written": [],
+      "tables_written": [
+        "ai_reply_feedback"
+      ],
       "rpcs_called": [],
-      "edge_fns_invoked": [],
-      "size_kb": 53.8
+      "edge_fns_invoked": [
+        "ai-gateway"
+      ],
+      "size_kb": 59.3
     },
     "audit-log.html": {
       "tables_read": [
@@ -6637,7 +6696,7 @@
       "tables_written": [],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "size_kb": 25.7
+      "size_kb": 25.8
     },
     "community.html": {
       "tables_read": [
@@ -6657,7 +6716,7 @@
       ],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "size_kb": 109.2
+      "size_kb": 109.3
     },
     "dayplanner.html": {
       "tables_read": [
@@ -6671,7 +6730,7 @@
       ],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "size_kb": 82.4
+      "size_kb": 84.5
     },
     "engineering-design.html": {
       "tables_read": [
@@ -6685,7 +6744,7 @@
         "engineering-bom-sow",
         "engineering-calc-agent"
       ],
-      "size_kb": 2228.4
+      "size_kb": 2228.8
     },
     "founder-console.html": {
       "tables_read": [
@@ -6702,7 +6761,7 @@
       ],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "size_kb": 105.8
+      "size_kb": 113.1
     },
     "hive.html": {
       "tables_read": [
@@ -6743,7 +6802,7 @@
         "ai-orchestrator",
         "benchmark-compute"
       ],
-      "size_kb": 209.1
+      "size_kb": 211.3
     },
     "index.html": {
       "tables_read": [],
@@ -6783,7 +6842,7 @@
       "edge_fns_invoked": [
         "cmms-sync"
       ],
-      "size_kb": 110.5
+      "size_kb": 110.7
     },
     "inventory.html": {
       "tables_read": [
@@ -6804,7 +6863,7 @@
       ],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "size_kb": 95.9
+      "size_kb": 97.8
     },
     "llm-observability.html": {
       "tables_read": [
@@ -6813,7 +6872,7 @@
       "tables_written": [],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "size_kb": 11.9
+      "size_kb": 12.5
     },
     "logbook.html": {
       "tables_read": [
@@ -6851,7 +6910,7 @@
         "visual-defect-capture",
         "voice-logbook-entry"
       ],
-      "size_kb": 271.4
+      "size_kb": 275.4
     },
     "marketplace-admin.html": {
       "tables_read": [
@@ -6939,7 +6998,7 @@
         "increment_listing_view"
       ],
       "edge_fns_invoked": [],
-      "size_kb": 157.6
+      "size_kb": 159.9
     },
     "parts-tracker.html": {
       "tables_read": [],
@@ -6972,7 +7031,7 @@
       "tables_written": [],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "size_kb": 32.4
+      "size_kb": 32.5
     },
     "platform-health.html": {
       "tables_read": [
@@ -6981,7 +7040,7 @@
       "tables_written": [],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "size_kb": 125.4
+      "size_kb": 126.0
     },
     "pm-scheduler.html": {
       "tables_read": [
@@ -7006,7 +7065,7 @@
       ],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "size_kb": 120.9
+      "size_kb": 122.4
     },
     "predictive.html": {
       "tables_read": [
@@ -7015,9 +7074,10 @@
       "tables_written": [],
       "rpcs_called": [],
       "edge_fns_invoked": [
-        "analytics-orchestrator"
+        "analytics-orchestrator",
+        "batch-risk-scoring"
       ],
-      "size_kb": 39.3
+      "size_kb": 44.1
     },
     "project-manager.html": {
       "tables_read": [
@@ -7054,7 +7114,7 @@
         "project-orchestrator",
         "project-progress"
       ],
-      "size_kb": 156.4
+      "size_kb": 156.5
     },
     "project-report.html": {
       "tables_read": [
@@ -7068,7 +7128,7 @@
       "edge_fns_invoked": [
         "project-orchestrator"
       ],
-      "size_kb": 29.3
+      "size_kb": 29.8
     },
     "public-feed.html": {
       "tables_read": [
@@ -7089,7 +7149,7 @@
       ],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "size_kb": 85.3
+      "size_kb": 85.9
     },
     "resume.html": {
       "tables_read": [
@@ -7106,7 +7166,7 @@
       ],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "size_kb": 120.5
+      "size_kb": 121.8
     },
     "shift-brain.html": {
       "tables_read": [
@@ -7120,7 +7180,7 @@
       "edge_fns_invoked": [
         "shift-planner-orchestrator"
       ],
-      "size_kb": 39.2
+      "size_kb": 40.2
     },
     "skillmatrix.html": {
       "tables_read": [
@@ -7136,7 +7196,7 @@
       ],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "size_kb": 63.2
+      "size_kb": 64.8
     },
     "symbol-gallery.html": {
       "tables_read": [],
@@ -7165,7 +7225,28 @@
       "edge_fns_invoked": [
         "ai-gateway"
       ],
-      "size_kb": 44.1
+      "size_kb": 44.5
+    },
+    "props.html": {
+      "tables_read": [],
+      "tables_written": [],
+      "rpcs_called": [],
+      "edge_fns_invoked": [],
+      "size_kb": 2.5
+    },
+    "tslib.es6.html": {
+      "tables_read": [],
+      "tables_written": [],
+      "rpcs_called": [],
+      "edge_fns_invoked": [],
+      "size_kb": 0.0
+    },
+    "tslib.html": {
+      "tables_read": [],
+      "tables_written": [],
+      "rpcs_called": [],
+      "edge_fns_invoked": [],
+      "size_kb": 0.0
     },
     "findings.html": {
       "tables_read": [],
@@ -7492,7 +7573,7 @@
       "tables_written": [],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "loc": 672
+      "loc": 728
     },
     "ai-orchestrator": {
       "tables_read": [
@@ -7500,12 +7581,14 @@
         "v_logbook_truth",
         "v_pm_compliance_truth",
         "v_worker_assignment_truth",
-        "v_worker_skill_truth"
+        "v_worker_skill_truth",
+        "v_worker_truth",
+        "worker_profiles"
       ],
       "tables_written": [],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "loc": 386
+      "loc": 470
     },
     "amc-orchestrator": {
       "tables_read": [
@@ -7527,6 +7610,7 @@
     "analytics-orchestrator": {
       "tables_read": [
         "engineering_calcs",
+        "pm_completions",
         "v_inventory_items_truth",
         "v_inventory_transactions_truth",
         "v_logbook_truth",
@@ -7534,7 +7618,8 @@
         "v_pm_scope_items_truth",
         "v_risk_truth",
         "v_worker_skill_truth",
-        "v_worker_truth"
+        "v_worker_truth",
+        "worker_profiles"
       ],
       "tables_written": [],
       "rpcs_called": [
@@ -7546,7 +7631,7 @@
         "get_repeat_failures"
       ],
       "edge_fns_invoked": [],
-      "loc": 802
+      "loc": 907
     },
     "asset-brain-query": {
       "tables_read": [
@@ -7559,14 +7644,15 @@
         "v_pm_compliance_truth",
         "v_rcm_truth",
         "v_risk_truth",
-        "v_weibull_truth"
+        "v_weibull_truth",
+        "v_worker_truth"
       ],
       "tables_written": [
         "ai_rate_limits"
       ],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "loc": 541
+      "loc": 568
     },
     "batch-risk-scoring": {
       "tables_read": [
@@ -7580,7 +7666,8 @@
         "v_logbook_truth",
         "v_pm_compliance_truth",
         "v_pm_scope_items_truth",
-        "v_weibull_truth"
+        "v_weibull_truth",
+        "v_worker_truth"
       ],
       "tables_written": [
         "asset_risk_scores",
@@ -7590,7 +7677,7 @@
         "get_mtbf_by_machine"
       ],
       "edge_fns_invoked": [],
-      "loc": 582
+      "loc": 662
     },
     "benchmark-compute": {
       "tables_read": [
@@ -7701,7 +7788,7 @@
       "tables_written": [],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "loc": 5379
+      "loc": 5395
     },
     "equipment-label-ocr": {
       "tables_read": [
@@ -7937,7 +8024,7 @@
       "tables_written": [],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "loc": 301
+      "loc": 321
     },
     "project-progress": {
       "tables_read": [
@@ -8055,7 +8142,7 @@
       ],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "loc": 253
+      "loc": 270
     },
     "temporal-rag-orchestrator": {
       "tables_read": [
@@ -8115,7 +8202,7 @@
       ],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "loc": 356
+      "loc": 380
     },
     "voice-embeddings": {
       "tables_read": [],

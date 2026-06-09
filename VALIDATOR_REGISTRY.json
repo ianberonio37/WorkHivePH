@@ -1,8 +1,8 @@
 {
-  "timestamp": "2026-05-19T18:50:56.575938",
-  "total_findings": 14,
-  "validators_generated": 14,
-  "validators_registered": 14,
+  "timestamp": "2026-06-09T22:37:32.931346",
+  "total_findings": 20,
+  "validators_generated": 20,
+  "validators_registered": 20,
   "findings": [
     {
       "finding_id": "FINDING-20260517212005-M-00",
@@ -73,6 +73,36 @@
       "finding_id": "FINDING-20260519185054-S-01",
       "finding_type": "incomplete_data",
       "surface": "SHIFT_BRAIN"
+    },
+    {
+      "finding_id": "FINDING-20260609211135-A-00",
+      "finding_type": "incomplete_data",
+      "surface": "ANALYTICS"
+    },
+    {
+      "finding_id": "FINDING-20260609211135-A-01",
+      "finding_type": "format_error",
+      "surface": "ANALYTICS"
+    },
+    {
+      "finding_id": "FINDING-20260609211135-A-02",
+      "finding_type": "latency_high",
+      "surface": "ANALYTICS"
+    },
+    {
+      "finding_id": "FINDING-20260609223732-A-00",
+      "finding_type": "incomplete_data",
+      "surface": "ANALYTICS"
+    },
+    {
+      "finding_id": "FINDING-20260609223732-A-01",
+      "finding_type": "confidence_low",
+      "surface": "ANALYTICS"
+    },
+    {
+      "finding_id": "FINDING-20260609223732-A-02",
+      "finding_type": "latency_high",
+      "surface": "ANALYTICS"
     }
   ]
 }

@@ -1,9 +1,9 @@
 {
   "summary": {
-    "view_column_pairs": 336,
+    "view_column_pairs": 335,
     "at_risk": 0,
     "review": 9,
-    "files_scanned": 209
+    "files_scanned": 212
   },
   "pairs": [
     {
@@ -669,6 +669,11 @@
         },
         {
           "file": "supabase/functions/weibull-fitter/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "utils.js",
           "shape": "direct",
           "smells": []
         }
@@ -4674,11 +4679,6 @@
           "smells": []
         },
         {
-          "file": "supabase/functions/analytics-orchestrator/index.ts",
-          "shape": "direct",
-          "smells": []
-        },
-        {
           "file": "supabase/functions/asset-brain-query/index.ts",
           "shape": "direct",
           "smells": []
@@ -4706,11 +4706,6 @@
       "view": "v_pm_compliance_truth",
       "column": "asset_name",
       "consumers": [
-        {
-          "file": "alert-hub.html",
-          "shape": "direct",
-          "smells": []
-        },
         {
           "file": "assistant.html",
           "shape": "direct",
@@ -4785,11 +4780,6 @@
       "column": "category",
       "consumers": [
         {
-          "file": "alert-hub.html",
-          "shape": "direct",
-          "smells": []
-        },
-        {
           "file": "assistant.html",
           "shape": "direct",
           "smells": []
@@ -4863,11 +4853,6 @@
           "smells": []
         },
         {
-          "file": "supabase/functions/analytics-orchestrator/index.ts",
-          "shape": "direct",
-          "smells": []
-        },
-        {
           "file": "supabase/functions/asset-brain-query/index.ts",
           "shape": "direct",
           "smells": []
@@ -4896,11 +4881,6 @@
       "column": "completions_30d",
       "consumers": [
         {
-          "file": "alert-hub.html",
-          "shape": "direct",
-          "smells": []
-        },
-        {
           "file": "voice-handler.js",
           "shape": "direct",
           "smells": []
@@ -4913,11 +4893,6 @@
       "view": "v_pm_compliance_truth",
       "column": "criticality",
       "consumers": [
-        {
-          "file": "alert-hub.html",
-          "shape": "direct",
-          "smells": []
-        },
         {
           "file": "search-overlay.js",
           "shape": "direct",
@@ -4952,11 +4927,6 @@
       "column": "days_since_last_completion",
       "consumers": [
         {
-          "file": "alert-hub.html",
-          "shape": "direct",
-          "smells": []
-        },
-        {
           "file": "supabase/functions/amc-orchestrator/index.ts",
           "shape": "direct",
           "smells": []
@@ -4979,11 +4949,6 @@
       "view": "v_pm_compliance_truth",
       "column": "is_due",
       "consumers": [
-        {
-          "file": "alert-hub.html",
-          "shape": "direct",
-          "smells": []
-        },
         {
           "file": "supabase/functions/amc-orchestrator/index.ts",
           "shape": "direct",
@@ -5008,11 +4973,6 @@
       "column": "last_anchor_date",
       "consumers": [
         {
-          "file": "alert-hub.html",
-          "shape": "direct",
-          "smells": []
-        },
-        {
           "file": "supabase/functions/hierarchical-summarizer/index.ts",
           "shape": "direct",
           "smells": []
@@ -5024,19 +4984,6 @@
         },
         {
           "file": "voice-handler.js",
-          "shape": "direct",
-          "smells": []
-        }
-      ],
-      "smells": [],
-      "risk": "OK"
-    },
-    {
-      "view": "v_pm_compliance_truth",
-      "column": "last_completion_at",
-      "consumers": [
-        {
-          "file": "alert-hub.html",
           "shape": "direct",
           "smells": []
         }
@@ -5100,11 +5047,6 @@
       "column": "scope_item_id",
       "consumers": [
         {
-          "file": "supabase/functions/analytics-orchestrator/index.ts",
-          "shape": "direct",
-          "smells": []
-        },
-        {
           "file": "supabase/functions/asset-brain-query/index.ts",
           "shape": "direct",
           "smells": []
@@ -5127,11 +5069,6 @@
       "view": "v_pm_compliance_truth",
       "column": "status",
       "consumers": [
-        {
-          "file": "supabase/functions/analytics-orchestrator/index.ts",
-          "shape": "direct",
-          "smells": []
-        },
         {
           "file": "supabase/functions/batch-risk-scoring/index.ts",
           "shape": "direct",
@@ -5184,11 +5121,6 @@
       "column": "worker_name",
       "consumers": [
         {
-          "file": "supabase/functions/analytics-orchestrator/index.ts",
-          "shape": "direct",
-          "smells": []
-        },
-        {
           "file": "supabase/functions/asset-brain-query/index.ts",
           "shape": "direct",
           "smells": []
@@ -5221,8 +5153,26 @@
     },
     {
       "view": "v_pm_scope_items_truth",
+      "column": "asset_category",
+      "consumers": [
+        {
+          "file": "alert-hub.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_pm_scope_items_truth",
       "column": "asset_criticality",
       "consumers": [
+        {
+          "file": "alert-hub.html",
+          "shape": "direct",
+          "smells": []
+        },
         {
           "file": "index.html",
           "shape": "direct",
@@ -5274,6 +5224,11 @@
       "column": "asset_name",
       "consumers": [
         {
+          "file": "alert-hub.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
           "file": "hive.html",
           "shape": "direct",
           "smells": []
@@ -5317,6 +5272,11 @@
       "view": "v_pm_scope_items_truth",
       "column": "days_until_due",
       "consumers": [
+        {
+          "file": "alert-hub.html",
+          "shape": "direct",
+          "smells": []
+        },
         {
           "file": "logbook.html",
           "shape": "direct",
@@ -5435,6 +5395,11 @@
       "column": "is_overdue",
       "consumers": [
         {
+          "file": "alert-hub.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
           "file": "hive.html",
           "shape": "direct",
           "smells": []
@@ -5509,6 +5474,11 @@
       "column": "last_completed_at",
       "consumers": [
         {
+          "file": "alert-hub.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
           "file": "pm-scheduler.html",
           "shape": "direct",
           "smells": []
@@ -5535,6 +5505,11 @@
       "column": "next_due_date",
       "consumers": [
         {
+          "file": "alert-hub.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
           "file": "logbook.html",
           "shape": "direct",
           "smells": [
@@ -5556,6 +5531,11 @@
       "view": "v_pm_scope_items_truth",
       "column": "pm_asset_id",
       "consumers": [
+        {
+          "file": "alert-hub.html",
+          "shape": "direct",
+          "smells": []
+        },
         {
           "file": "hive.html",
           "shape": "direct",
@@ -6781,19 +6761,6 @@
     },
     {
       "view": "v_skill_badges_truth",
-      "column": "badge_key",
-      "consumers": [
-        {
-          "file": "assistant.html",
-          "shape": "direct",
-          "smells": []
-        }
-      ],
-      "smells": [],
-      "risk": "OK"
-    },
-    {
-      "view": "v_skill_badges_truth",
       "column": "discipline",
       "consumers": [
         {
@@ -7345,6 +7312,11 @@
         },
         {
           "file": "shift-brain.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/batch-risk-scoring/index.ts",
           "shape": "direct",
           "smells": []
         },

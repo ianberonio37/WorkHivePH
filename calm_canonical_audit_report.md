@@ -6,10 +6,10 @@ CANONICAL / DRIFT / GAP / ALLOWED. Run by `tools/audit_calm_dashboard_canonical.
 ## Summary
 
 - Calm-opted-in pages: **15**
-- Fully compliant pages (0 drift + 0 gap): **15** (100%)
+- Fully compliant pages (0 drift + 0 gap): **14** (93%)
 - Canonical reads (✅): **40**
 - Drift reads (⚠️ wrapper exists, page reads raw): **0**
-- Gap reads (❌ no wrapper exists yet): **0**
+- Gap reads (❌ no wrapper exists yet): **1**
 - Allowed reads (legitimate raw): **51**
 - Truth views in registry: **39**
 
@@ -19,7 +19,7 @@ CANONICAL / DRIFT / GAP / ALLOWED. Run by `tools/audit_calm_dashboard_canonical.
 |---|---:|---:|---:|---:|:---:|:---:|
 | `achievements.html` | 2 | 0 | 0 | 1 | ✓ | ✅ |
 | `agentic-rag-observability.html` | 0 | 0 | 0 | 1 | — | ✅ |
-| `ai-quality.html` | 0 | 0 | 0 | 1 | ✓ | ✅ |
+| `ai-quality.html` | 0 | 0 | 1 | 1 | ✓ | ❌ |
 | `alert-hub.html` | 4 | 0 | 0 | 6 | ✓ | ✅ |
 | `analytics.html` | 0 | 0 | 0 | 0 | ✓ | ✅ |
 | `asset-hub.html` | 10 | 0 | 0 | 13 | ✓ | ✅ |
@@ -37,6 +37,7 @@ CANONICAL / DRIFT / GAP / ALLOWED. Run by `tools/audit_calm_dashboard_canonical.
 
 | Raw table | Pages reading it | Suggested wrapper |
 |---|---:|---|
+| `ai_reply_feedback` | 1 | `v_ai_reply_feedback_truth` (suggested) |
 
 ## Top DRIFT tables (wrapper exists, pages still reading raw)
 
@@ -54,13 +55,14 @@ CANONICAL / DRIFT / GAP / ALLOWED. Run by `tools/audit_calm_dashboard_canonical.
 
 **Allowed raw** (1): `agentic_rag_traces`
 
-### `ai-quality.html` — ✅ compliant
+### `ai-quality.html` — ❌ not compliant
 
+**Gap** (1): `ai_reply_feedback`
 **Allowed raw** (1): `ai_cost_log`
 
 ### `alert-hub.html` — ✅ compliant
 
-**Canonical** (4): `v_anomaly_truth`, `v_inventory_items_truth`, `v_pm_compliance_truth`, `v_risk_truth`
+**Canonical** (4): `v_anomaly_truth`, `v_inventory_items_truth`, `v_pm_scope_items_truth`, `v_risk_truth`
 **Allowed raw** (6): `amc_briefings`, `anomaly_signals`, `automation_log`, `failure_signature_alerts`, `hive_audit_log`, `parts_staging_recommendations`
 
 ### `analytics.html` — ✅ compliant

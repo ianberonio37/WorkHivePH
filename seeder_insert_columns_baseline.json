@@ -1,0 +1,12 @@
+{
+  "count": 7,
+  "mismatches": [
+    "amc.py:amc_briefings.amc_briefings_count",
+    "client_hive.py:worker_profiles.hive_id",
+    "client_hive.py:worker_profiles.role",
+    "client_hive.py:worker_profiles.status",
+    "client_hive.py:worker_profiles.worker_name",
+    "cmms_bridge.py:inventory_items.linked_asset_ids",
+    "cmms_bridge.py:logbook.asset_ref_id"
+  ]
+}

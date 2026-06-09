@@ -1,5 +1,4 @@
 {
-  "drift": 1,
-  "established": true,
-  "note": "rebaselined 2026-05-21: voice-handler.js calls record_ai_reply_rating RPC pending migration. Forward-only watch holds at 1."
+  "drift": 0,
+  "tightened": true
 }

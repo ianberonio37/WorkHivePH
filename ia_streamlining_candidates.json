@@ -1,6 +1,6 @@
 {
   "_doc": "Phase 2 IA-streamlining critic candidates (sweep_critiques schema). Route via: python ufai_ingest.py ia_streamlining_candidates.json. Engine proposes, you dispose.",
-  "generated": "2026-06-08T09:26:37.178845+00:00",
+  "generated": "2026-06-09T13:56:32.340758+00:00",
   "candidates": [
     {
       "key": "sweep:ia:relabel:pending-approval",

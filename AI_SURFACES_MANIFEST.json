@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "last_scan": "2026-05-21T07:47:20.525168",
+  "last_scan": "2026-06-09T22:33:50.376008",
   "surfaces": {
     "achievements.html": {
       "verdict_labels": [
@@ -18,6 +18,21 @@
       "ai_calls": [],
       "interactive": false,
       "ai_score": 6
+    },
+    "agentic-rag-observability.html": {
+      "verdict_labels": [
+        "obs-verdict-label"
+      ],
+      "verdict_boxes": [
+        "obs-verdict"
+      ],
+      "summary_blocks": [],
+      "source_chips": [],
+      "edge_functions": [],
+      "ai_rpcs": [],
+      "ai_calls": [],
+      "interactive": false,
+      "ai_score": 5
     },
     "alert-hub.html": {
       "verdict_labels": [
@@ -102,15 +117,14 @@
       ],
       "source_chips": [],
       "edge_functions": [
-        "semantic-search",
-        "ai-orchestrator"
+        "semantic-search"
       ],
       "ai_rpcs": [],
       "ai_calls": [
         "callAI/gateway"
       ],
       "interactive": true,
-      "ai_score": 14
+      "ai_score": 10
     },
     "dayplanner.html": {
       "verdict_labels": [
@@ -214,8 +228,8 @@
       "summary_blocks": [],
       "source_chips": [],
       "edge_functions": [
-        "marketplace-connect-status",
-        "marketplace-connect-onboard"
+        "marketplace-connect-onboard",
+        "marketplace-connect-status"
       ],
       "ai_rpcs": [],
       "ai_calls": [],
@@ -236,9 +250,9 @@
         "marketplace-source-chip"
       ],
       "edge_functions": [
-        "marketplace-release",
+        "marketplace-connect-onboard",
         "marketplace-checkout",
-        "marketplace-connect-onboard"
+        "marketplace-release"
       ],
       "ai_rpcs": [],
       "ai_calls": [],
@@ -327,15 +341,31 @@
         "report-sender-source-chip"
       ],
       "edge_functions": [
+        "scheduled-agents",
         "voice-transcribe",
         "send-report-email",
-        "scheduled-agents",
         "voice-report-intent"
       ],
       "ai_rpcs": [],
       "ai_calls": [],
       "interactive": true,
       "ai_score": 25
+    },
+    "resume.html": {
+      "verdict_labels": [],
+      "verdict_boxes": [],
+      "summary_blocks": [
+        "btn-summary"
+      ],
+      "source_chips": [],
+      "edge_functions": [
+        "resume-polish",
+        "resume-extract"
+      ],
+      "ai_rpcs": [],
+      "ai_calls": [],
+      "interactive": false,
+      "ai_score": 9
     },
     "shift-brain.html": {
       "verdict_labels": [
@@ -389,6 +419,8 @@
     }
   },
   "edge_functions": [
+    "agent-memory-store",
+    "agentic-rag-loop",
     "ai-eval-runner",
     "ai-gateway",
     "ai-orchestrator",
@@ -400,6 +432,8 @@
     "cmms-push-completion",
     "cmms-sync",
     "cmms-webhook-receiver",
+    "cold-archive-query",
+    "data-fabric-normalizer",
     "embed-entry",
     "engineering-bom-sow",
     "engineering-calc-agent",
@@ -407,6 +441,7 @@
     "export-hive-data",
     "failure-signature-scan",
     "fmea-populator",
+    "hierarchical-summarizer",
     "intelligence-api",
     "intelligence-report",
     "marketplace-checkout",
@@ -421,11 +456,15 @@
     "platform-scraper",
     "project-orchestrator",
     "project-progress",
+    "resume-extract",
+    "resume-polish",
     "scheduled-agents",
+    "semantic-fact-extractor",
     "semantic-search",
     "send-report-email",
     "sensor-readings-ingest",
     "shift-planner-orchestrator",
+    "temporal-rag-orchestrator",
     "trigger-ml-retrain",
     "tts-speak",
     "visual-defect-capture",

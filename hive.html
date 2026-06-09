@@ -2437,6 +2437,7 @@ async function maybeShowIntentCapture() {
 
 // ── MEMBERS ──
 async function loadMembers() {
+  if (!HIVE_ID) return;   // guard: no active hive -> don't fire hive_id=eq."" queries (400 invalid-uuid). Matches loadReadiness/loadAdoption/etc.
   let membersData, openJobsData;
   if (_board) {
     membersData  = _board.members || [];

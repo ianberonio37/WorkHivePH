@@ -1,4 +1,4 @@
-# Substrate Manifest — 2026-06-07T10:34:03.257920+00:00
+# Substrate Manifest — 2026-06-09T10:54:40.704759+00:00
 
 **Aggregates 13 pattern-miner + drift-detector outputs into one view.**
 
@@ -14,7 +14,7 @@
 | Migration patterns | yes | `proposal_count`: 1 |
 | Seeder patterns | yes | `proposal_count`: 1 |
 | Validator patterns | yes | `proposal_count`: 1 |
-| JS module patterns | yes | `proposal_count`: 1 |
+| JS module patterns | yes | `proposal_count`: 0 |
 | Python tool patterns | yes | `proposal_count`: 1 |
 | Skill rules | yes | — |
 | Test page drift | yes | `warnings`: [] |

@@ -459,6 +459,17 @@
           : 'Your supervisor has not published a briefing yet. Check back at shift start.';
         if (vIcon) vIcon.textContent = '·';
         if (vBox)  { vBox.classList.remove('healthy','watch','attn'); vBox.classList.add('empty'); }
+        // The 3 summary cards (Top risk / PMs due / Carry-forward) live in
+        // .simple-row, NOT .section-card, so the hide loop above does not reach
+        // them — without this they stay stuck on their "Loading..." placeholder
+        // whenever there is no plan for the window (or the query degraded).
+        ['risk', 'pms', 'carry'].forEach(name => {
+          const h = document.getElementById('sb-' + name + '-hero'); if (h) h.textContent = '—';
+          const s = document.getElementById('sb-' + name + '-sub');  if (s) s.textContent = 'No plan yet for this window';
+          const t = document.getElementById('sb-' + name + '-tag');  if (t) t.textContent = '—';
+          const card = document.getElementById('sb-card-' + name);
+          if (card) { card.classList.remove('tag-green', 'tag-amber', 'tag-red'); card.classList.add('tag-grey'); }
+        });
         return;
       }
 

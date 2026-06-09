@@ -206,5 +206,6 @@
   "20260609000002_fix_community_post_xp_search_path.sql": "85ff8ae77e3cd598c3c4488c303eb4efc902b6c9923edd0bfe1c19c3db937b8b",
   "20260609000003_fix_community_xp_helpers_search_path.sql": "60eac35b7a403983f6f84a622779b06fd9f26a5b5cb108e3857547c0304b8df4",
   "20260609000004_fix_schedule_item_v1_category_enum.sql": "4255a5ab3020268224ab6d8bed0e2931abf78f595c0fe70c887928fd9a180fc2",
-  "20260609000005_fix_readiness_blocker_summary.sql": "ad967f147a294e1eb812fc8b661ec93f9967e9e51362ffd6cf09ddf730d02cb1"
+  "20260609000005_fix_readiness_blocker_summary.sql": "ad967f147a294e1eb812fc8b661ec93f9967e9e51362ffd6cf09ddf730d02cb1",
+  "20260609000006_ai_reply_feedback.sql": "d92225b63512f4472bf1ab27b2ff27cd586881e1bff5b8183fe175d922ecd874"
 }
