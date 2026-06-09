@@ -142,7 +142,11 @@
 </head>
 <body>
 
-<div id="ar-print-wrapper">
+<!-- role=region + label: this report wrapper must stay a direct body child (print
+     CSS body > *:not(#ar-print-wrapper)), so it can't be wrapped in <main>; and a
+     <main> is injected dynamically by the shell, so role="main" here duplicates it.
+     A labelled region is a valid landmark that satisfies axe 'region'. -->
+<div id="ar-print-wrapper" role="region" aria-label="Project report">
   <div class="doc-cover">
     <span class="pcode" id="cov-code">PROJECT</span>
     <h1 class="ptitle" id="cov-title">Project Report</h1>

@@ -68,6 +68,7 @@ def main() -> int:
         issues.extend(_check_file(path))
     for path in sorted(ROOT.glob("*.js")):
         if path.name == "sw.js": continue  # minified-ish service worker
+        if "_battery" in path.name: continue  # QA test batteries (journey/companion/ufai) — injected for testing, not production error-handling
         files_scanned += 1
         issues.extend(_check_file(path))
 

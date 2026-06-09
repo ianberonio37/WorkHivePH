@@ -76,6 +76,17 @@ ALLOWED_MULTI_COMMIT = {
     # Local Supabase re-applied via `supabase migration up --local` after each fix;
     # production deploys should use these in-place edits as well since the
     # migrations weren't applied in any environment.
+    # ── 2026-06-09 readiness blocker fix — REVERTED to byte-identical original ──
+    # The deep-walk fixed the Stair-1 "satisfied-criterion-as-blocker" bug (e.g.
+    # "30 of 5 PM templates registered") by editing this already-applied file in
+    # 593a5c4 — a mistake. The edit was then REVERTED, so this file is byte-identical
+    # to its first commit (70314ba7); the real fix lives in the forward migration
+    # 20260609000005_fix_readiness_blocker_summary.sql (CREATE OR REPLACE). The
+    # immutability INVARIANT holds (current content == first version); only the git
+    # history carries a benign reverted touch. Allowlisted to document that.
+    "20260513000001_hive_readiness.sql":
+        "2026-06-09 reverted to byte-identical first-commit content; real fix in "
+        "forward migration 20260609000005. Benign reverted touch in git history.",
     "20260516000001_agent_memory_phase2.sql":
         "2026-05-20 self-heal: additive ALTER TABLE ADD COLUMN IF NOT EXISTS "
         "for Phase 2 columns (session_id, turn_num, etc.) to coexist with the "

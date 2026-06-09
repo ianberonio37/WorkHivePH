@@ -436,7 +436,7 @@
         if (error) throw error;
         if (data && data.error) throw new Error(data.error);
         await loadScores();                                   // re-fetch the freshly-written v_risk_truth
-        try { await loadTrend(); } catch (_) { /* trend is best-effort */ }
+        try { await loadTrend(); } catch (_) { console.debug('[predictive] trend refresh skipped (best-effort)'); }
         btn.textContent = '✓ Updated';
       } catch (err) {
         console.warn('[predictive] recompute failed:', (err && err.message) || err);
