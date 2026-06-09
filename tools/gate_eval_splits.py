@@ -92,10 +92,24 @@ def _load_json(p: Path):
         return None
 
 
+def _is_derived(unit_id: str) -> bool:
+    """A unit DERIVED from another (a perturbation/rephrasing of an existing seed) carries the
+    `-pz-` provenance tag emitted by tools/companion_perturb.py --emit (e.g. DOM-G5-pz-typo)."""
+    return "-pz-" in unit_id
+
+
 def _assign_split(kind: str, unit_id: str) -> str:
-    """Deterministic salted-hash bucket -> split. Stable across runs and machines."""
+    """Deterministic salted-hash bucket -> split. Stable across runs and machines.
+
+    ANTI-OVERFIT INVARIANT: a perturbation-DERIVED unit (`-pz-`) is STRUCTURALLY barred from the
+    locked-test split. It is a rephrasing of a seed the prompt may have been tuned against, so
+    scoring it as 'held-out' would leak the honest number. Derived units hash into train/val ONLY
+    (never test) — making "perturbations grow train/val, never locked-test" a CODE rule, not a
+    convention a human could forget. Genuinely-new held-out questions (no `-pz-`) still split 60/20/20."""
     h = hashlib.sha1(f"{SALT}:{kind}:{unit_id}".encode("utf-8")).hexdigest()
     bucket = int(h, 16) % 100
+    if _is_derived(unit_id):
+        return "train" if bucket < 75 else "val"   # 75/25 train:val, never test
     if bucket < TRAIN_PCT:
         return "train"
     if bucket < TRAIN_PCT + VAL_PCT:

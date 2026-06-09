@@ -1,7 +1,7 @@
 {
   "_comment": "Domain-correctness golden set (Probe Taxonomy family G). Is the companion's maintenance advice actually RIGHT? Each unit: markers_all = synonym GROUPS that a correct answer must ALL hit; anti_markers = wrong-domain phrases that must be ABSENT (wrong standard / absurd number / wrong definition). Graded by tools/companion_rigorous_grader.py grade_domain_unit (deterministic, no judge). Grounded in maintenance-expert + ISO 14224 (MTBF/MTTR), ISO 22400 / Nakajima TPM (OEE), SMRP/RCM (PM), PEC 2017 (PH standards). probe_type ties each unit to companion_probe_taxonomy.json so the `probes` coverage layer counts family G as covered.",
   "dimension": "domain",
-  "version": 1,
+  "version": 2,
   "created": "2026-06-09",
   "probes": [
     {
@@ -11,12 +11,33 @@
       "ability": "mtbf_mttr_definition",
       "question": "How do you compute MTBF from my maintenance logs, and how is it different from MTTR?",
       "markers_all": [
-        ["mean time between failures", "mtbf"],
-        ["total operating time", "operating hours", "uptime", "total uptime"],
-        ["number of failures", "failure count", "divided by the number", "/ number of failures"],
-        ["mean time to repair", "mttr", "repair time"]
+        [
+          "mean time between failures",
+          "mtbf"
+        ],
+        [
+          "total operating time",
+          "operating hours",
+          "uptime",
+          "total uptime"
+        ],
+        [
+          "number of failures",
+          "failure count",
+          "divided by the number",
+          "/ number of failures"
+        ],
+        [
+          "mean time to repair",
+          "mttr",
+          "repair time"
+        ]
       ],
-      "anti_markers": ["mtbf is the average repair time", "mtbf measures repair", "mtbf and mttr are the same"]
+      "anti_markers": [
+        "mtbf is the average repair time",
+        "mtbf measures repair",
+        "mtbf and mttr are the same"
+      ]
     },
     {
       "id": "DOM-G2",
@@ -25,13 +46,37 @@
       "ability": "oee_availability_derivation",
       "question": "What is OEE, and how is the availability inside OEE different from reliability availability?",
       "markers_all": [
-        ["overall equipment effectiveness", "oee"],
-        ["availability x performance x quality", "availability × performance × quality", "availability, performance, and quality", "performance and quality"],
-        ["iso 22400", "nakajima", "tpm"],
-        ["planned production time", "loading time", "scheduled time"],
-        ["reliability availability", "iso 14224", "uptime / (uptime + downtime)", "uptime divided by"]
+        [
+          "overall equipment effectiveness",
+          "oee"
+        ],
+        [
+          "availability x performance x quality",
+          "availability × performance × quality",
+          "availability, performance, and quality",
+          "performance and quality"
+        ],
+        [
+          "iso 22400",
+          "nakajima",
+          "tpm"
+        ],
+        [
+          "planned production time",
+          "loading time",
+          "scheduled time"
+        ],
+        [
+          "reliability availability",
+          "iso 14224",
+          "uptime / (uptime + downtime)",
+          "uptime divided by"
+        ]
       ],
-      "anti_markers": ["availability is the same in both", "oee availability equals reliability availability"]
+      "anti_markers": [
+        "availability is the same in both",
+        "oee availability equals reliability availability"
+      ]
     },
     {
       "id": "DOM-G3",
@@ -40,12 +85,33 @@
       "ability": "pm_strategy",
       "question": "What PM frequency and scope would you set for a critical centrifugal pump?",
       "markers_all": [
-        ["lubrication", "grease", "lube"],
-        ["vibration", "alignment", "bearing"],
-        ["monthly", "quarterly", "frequency"],
-        ["criticality", "critical", "rcm", "condition"]
+        [
+          "lubrication",
+          "grease",
+          "lube"
+        ],
+        [
+          "vibration",
+          "alignment",
+          "bearing"
+        ],
+        [
+          "monthly",
+          "quarterly",
+          "frequency"
+        ],
+        [
+          "criticality",
+          "critical",
+          "rcm",
+          "condition"
+        ]
       ],
-      "anti_markers": ["run to failure for a critical pump", "no pm needed", "annual lubrication only"]
+      "anti_markers": [
+        "run to failure for a critical pump",
+        "no pm needed",
+        "annual lubrication only"
+      ]
     },
     {
       "id": "DOM-G4",
@@ -54,11 +120,28 @@
       "ability": "failure_mode_reasoning",
       "question": "Why does a centrifugal pump keep cavitating, and what should I check?",
       "markers_all": [
-        ["cavitation", "vapor", "bubbles"],
-        ["npsh", "net positive suction head", "suction pressure", "suction"],
-        ["impeller", "erosion", "damage"]
+        [
+          "cavitation",
+          "vapor",
+          "bubbles"
+        ],
+        [
+          "npsh",
+          "net positive suction head",
+          "suction pressure",
+          "suction"
+        ],
+        [
+          "impeller",
+          "erosion",
+          "damage"
+        ]
       ],
-      "anti_markers": ["cavitation is an electrical fault", "caused by overvoltage", "fix it by increasing the motor speed"]
+      "anti_markers": [
+        "cavitation is an electrical fault",
+        "caused by overvoltage",
+        "fix it by increasing the motor speed"
+      ]
     },
     {
       "id": "DOM-G5",
@@ -67,9 +150,19 @@
       "ability": "standards_citation",
       "question": "Which standard governs electrical panel working clearances in the Philippines?",
       "markers_all": [
-        ["philippine electrical code", "pec 2017", "pec"]
+        [
+          "philippine electrical code",
+          "pec 2017",
+          "pec"
+        ]
       ],
-      "anti_markers": ["nfpa governs panel clearances", "ashrae", "nec governs", "national electrical code of the united states", "uk wiring regulations"]
+      "anti_markers": [
+        "nfpa governs panel clearances",
+        "ashrae",
+        "nec governs",
+        "national electrical code of the united states",
+        "uk wiring regulations"
+      ]
     },
     {
       "id": "DOM-G6",
@@ -78,10 +171,307 @@
       "ability": "number_sanity",
       "question": "My logs say a pump's MTBF is 5 minutes. Is that right?",
       "markers_all": [
-        ["unrealistic", "not realistic", "implausible", "too low", "extremely low", "way too low", "suspicious", "data error", "check your data", "seems wrong", "likely an error", "not minutes"],
-        ["mtbf", "mean time between failures"]
+        [
+          "unrealistic",
+          "not realistic",
+          "implausible",
+          "too low",
+          "extremely low",
+          "way too low",
+          "suspicious",
+          "data error",
+          "check your data",
+          "seems wrong",
+          "likely an error",
+          "not minutes"
+        ],
+        [
+          "mtbf",
+          "mean time between failures"
+        ]
       ],
-      "anti_markers": ["yes, 5 minutes is a normal mtbf", "that is a healthy mtbf", "5 minutes is fine"]
+      "anti_markers": [
+        "yes, 5 minutes is a normal mtbf",
+        "that is a healthy mtbf",
+        "5 minutes is fine"
+      ]
+    },
+    {
+      "id": "DOM-G1-pz-casing",
+      "probe_type": "G1",
+      "dimension": "domain",
+      "ability": "mtbf_mttr_definition",
+      "question": "how do you compute mtbf from my maintenance logs, and how is it different from mttr",
+      "markers_all": [
+        [
+          "mean time between failures",
+          "mtbf"
+        ],
+        [
+          "total operating time",
+          "operating hours",
+          "uptime",
+          "total uptime"
+        ],
+        [
+          "number of failures",
+          "failure count",
+          "divided by the number",
+          "/ number of failures"
+        ],
+        [
+          "mean time to repair",
+          "mttr",
+          "repair time"
+        ]
+      ],
+      "anti_markers": [
+        "mtbf is the average repair time",
+        "mtbf measures repair",
+        "mtbf and mttr are the same"
+      ],
+      "parent_id": "DOM-G1",
+      "perturbation": "casing",
+      "source": "perturb_harvest_2026-06-10"
+    },
+    {
+      "id": "DOM-G1-pz-filler",
+      "probe_type": "G1",
+      "dimension": "domain",
+      "ability": "mtbf_mttr_definition",
+      "question": "ah, eto, How do you compute MTBF from my maintenance logs, and how is it different from MTTR?",
+      "markers_all": [
+        [
+          "mean time between failures",
+          "mtbf"
+        ],
+        [
+          "total operating time",
+          "operating hours",
+          "uptime",
+          "total uptime"
+        ],
+        [
+          "number of failures",
+          "failure count",
+          "divided by the number",
+          "/ number of failures"
+        ],
+        [
+          "mean time to repair",
+          "mttr",
+          "repair time"
+        ]
+      ],
+      "anti_markers": [
+        "mtbf is the average repair time",
+        "mtbf measures repair",
+        "mtbf and mttr are the same"
+      ],
+      "parent_id": "DOM-G1",
+      "perturbation": "filler",
+      "source": "perturb_harvest_2026-06-10"
+    },
+    {
+      "id": "DOM-G5-pz-casing",
+      "probe_type": "G5",
+      "dimension": "domain",
+      "ability": "standards_citation",
+      "question": "which standard governs electrical panel working clearances in the philippines",
+      "markers_all": [
+        [
+          "philippine electrical code",
+          "pec 2017",
+          "pec"
+        ]
+      ],
+      "anti_markers": [
+        "nfpa governs panel clearances",
+        "ashrae",
+        "nec governs",
+        "national electrical code of the united states",
+        "uk wiring regulations"
+      ],
+      "parent_id": "DOM-G5",
+      "perturbation": "casing",
+      "source": "perturb_harvest_2026-06-10"
+    },
+    {
+      "id": "DOM-G5-pz-filler",
+      "probe_type": "G5",
+      "dimension": "domain",
+      "ability": "standards_citation",
+      "question": "hmm, so, Which standard governs electrical panel working clearances in the Philippines?",
+      "markers_all": [
+        [
+          "philippine electrical code",
+          "pec 2017",
+          "pec"
+        ]
+      ],
+      "anti_markers": [
+        "nfpa governs panel clearances",
+        "ashrae",
+        "nec governs",
+        "national electrical code of the united states",
+        "uk wiring regulations"
+      ],
+      "parent_id": "DOM-G5",
+      "perturbation": "filler",
+      "source": "perturb_harvest_2026-06-10"
+    },
+    {
+      "id": "DOM-G5-pz-distractor",
+      "probe_type": "G5",
+      "dimension": "domain",
+      "ability": "standards_citation",
+      "question": "oh and traffic was crazy this morning, anyway Which standard governs electrical panel working clearances in the Philippines?",
+      "markers_all": [
+        [
+          "philippine electrical code",
+          "pec 2017",
+          "pec"
+        ]
+      ],
+      "anti_markers": [
+        "nfpa governs panel clearances",
+        "ashrae",
+        "nec governs",
+        "national electrical code of the united states",
+        "uk wiring regulations"
+      ],
+      "parent_id": "DOM-G5",
+      "perturbation": "distractor",
+      "source": "perturb_harvest_2026-06-10"
+    },
+    {
+      "id": "DOM-G5-pz-typo",
+      "probe_type": "G5",
+      "dimension": "domain",
+      "ability": "standards_citation",
+      "question": "Which stadnard governs electrical paenl working clearances in the Philippines?",
+      "markers_all": [
+        [
+          "philippine electrical code",
+          "pec 2017",
+          "pec"
+        ]
+      ],
+      "anti_markers": [
+        "nfpa governs panel clearances",
+        "ashrae",
+        "nec governs",
+        "national electrical code of the united states",
+        "uk wiring regulations"
+      ],
+      "parent_id": "DOM-G5",
+      "perturbation": "typo",
+      "source": "perturb_harvest_2026-06-10"
+    },
+    {
+      "id": "DOM-G6-pz-casing",
+      "probe_type": "G6",
+      "dimension": "domain",
+      "ability": "number_sanity",
+      "question": "my logs say a pump's mtbf is 5 minutes. is that right",
+      "markers_all": [
+        [
+          "unrealistic",
+          "not realistic",
+          "implausible",
+          "too low",
+          "extremely low",
+          "way too low",
+          "suspicious",
+          "data error",
+          "check your data",
+          "seems wrong",
+          "likely an error",
+          "not minutes"
+        ],
+        [
+          "mtbf",
+          "mean time between failures"
+        ]
+      ],
+      "anti_markers": [
+        "yes, 5 minutes is a normal mtbf",
+        "that is a healthy mtbf",
+        "5 minutes is fine"
+      ],
+      "parent_id": "DOM-G6",
+      "perturbation": "casing",
+      "source": "perturb_harvest_2026-06-10"
+    },
+    {
+      "id": "DOM-G6-pz-filler",
+      "probe_type": "G6",
+      "dimension": "domain",
+      "ability": "number_sanity",
+      "question": "ah, eto, My logs say a pump's MTBF is 5 minutes. Is that right?",
+      "markers_all": [
+        [
+          "unrealistic",
+          "not realistic",
+          "implausible",
+          "too low",
+          "extremely low",
+          "way too low",
+          "suspicious",
+          "data error",
+          "check your data",
+          "seems wrong",
+          "likely an error",
+          "not minutes"
+        ],
+        [
+          "mtbf",
+          "mean time between failures"
+        ]
+      ],
+      "anti_markers": [
+        "yes, 5 minutes is a normal mtbf",
+        "that is a healthy mtbf",
+        "5 minutes is fine"
+      ],
+      "parent_id": "DOM-G6",
+      "perturbation": "filler",
+      "source": "perturb_harvest_2026-06-10"
+    },
+    {
+      "id": "DOM-G6-pz-typo",
+      "probe_type": "G6",
+      "dimension": "domain",
+      "ability": "number_sanity",
+      "question": "My logs say a pmup's MTBF is 5 minutes. Is that rgiht?",
+      "markers_all": [
+        [
+          "unrealistic",
+          "not realistic",
+          "implausible",
+          "too low",
+          "extremely low",
+          "way too low",
+          "suspicious",
+          "data error",
+          "check your data",
+          "seems wrong",
+          "likely an error",
+          "not minutes"
+        ],
+        [
+          "mtbf",
+          "mean time between failures"
+        ]
+      ],
+      "anti_markers": [
+        "yes, 5 minutes is a normal mtbf",
+        "that is a healthy mtbf",
+        "5 minutes is fine"
+      ],
+      "parent_id": "DOM-G6",
+      "perturbation": "typo",
+      "source": "perturb_harvest_2026-06-10"
     }
   ]
 }
