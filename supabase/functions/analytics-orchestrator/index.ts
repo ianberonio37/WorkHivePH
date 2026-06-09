@@ -145,7 +145,18 @@ async function fetchDescriptiveData(
   }
   const assetIds = (assets || []).map((a: Record<string, string>) => a.id);
 
-  const completionsLimit = dynLimit(periodDays, 5 * Math.max(assetIds.length, 1) / 30, 5000);
+  // 2026-06-09: the completions fetch MUST cover every IN-PERIOD completion the
+  // compliance calc will count (calc_pm_compliance only looks at completed_at >=
+  // now-period_days). The old cap = dynLimit(periodDays, 5*assets/30) floored to
+  // 200, with NO date filter, fetched only the 200 most-recent done-completions
+  // across all time — so a busy hive (e.g. 343 completions/30d) had ~143 in-period
+  // completions TRUNCATED, undercounting PM compliance ~10pp (live 61.9% vs true
+  // 72.5%). Fix: (a) date-filter to the period so the fetch matches the calc's
+  // window (no wasted out-of-period rows), and (b) scale the cap to ~1 completion
+  // per asset per day (periodDays * assets), which comfortably covers realistic
+  // PM volume; the calc's per-item min(done, due_count) bounds the rest.
+  const completionsCutoff = new Date(Date.now() - periodDays * 86400000).toISOString();
+  const completionsLimit = dynLimit(periodDays, Math.max(assetIds.length, 1), 5000);
   // canonical-allow: the PM-compliance calc needs the raw per-completion LEDGER
   // (each row's asset_id + scope_item_id + completed_at, to join completions to
   // scope items). The per-asset v_pm_compliance_truth SUMMARY has none of those
@@ -154,7 +165,8 @@ async function fetchDescriptiveData(
   // no per-completion truth view; read pm_completions directly, hive-scoped.
   const completionsQ = db.from("pm_completions")
     .select("asset_id, scope_item_id, completed_at, status, worker_name")
-    .eq("status", "done").order("completed_at", { ascending: false })
+    .eq("status", "done").gte("completed_at", completionsCutoff)
+    .order("completed_at", { ascending: false })
     .limit(completionsLimit);
   if (hiveId) completionsQ.eq("hive_id", hiveId);
   else if (workerName) completionsQ.eq("worker_name", workerName);
