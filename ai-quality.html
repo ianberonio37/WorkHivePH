@@ -180,13 +180,16 @@
       const host = document.getElementById('content');
       host.innerHTML = renderLoadingState();
 
-      // Quality signals (schema_compliance + user_feedback) live on
-      // ai_cost_log itself per the 2026-05-11 extensions migration. One
-      // SELECT keeps the dashboard cheap and avoids a separate timeline
-      // join. The ai_quality_log table tracks eval-fixture results, not
-      // per-call telemetry, and is intentionally not read from this page.
-      const costRows = await loadCostLog();
-      const summary = aggregate(costRows);
+      // Cost/fallback/schema signals live on ai_cost_log (the 2026-05-11
+      // extensions migration). Worker THUMBS, however, now live on
+      // ai_reply_feedback (migration 20260609000006) — the one client-
+      // writable sink that carries the question text for the 8.5 harvest.
+      // The legacy ai_cost_log.user_feedback column was never populated (its
+      // write path was a no-op: missing RPC + RLS-denied UPDATE), so reading
+      // thumbs from it always showed "no ratings yet". We read both: cost
+      // from ai_cost_log, thumbs from ai_reply_feedback.
+      const [costRows, feedbackRows] = await Promise.all([loadCostLog(), loadReplyFeedback()]);
+      const summary = aggregate(costRows, feedbackRows);
       // Simple-by-default 2026-05-13: manager dashboard up top, engineering
       // details collapsed behind a toggle. Tradeoff: the page now answers
       // "is AI helping?" in one glance instead of forcing the supervisor
@@ -393,9 +396,27 @@
       } catch (_) { return []; }
     }
 
-    // Build per-fn aggregates + a top-level summary. Quality signals
-    // (schema_compliance + user_feedback) are read off the same rows.
-    function aggregate(costRows) {
+    // Worker thumbs (👍/👎) for this hive over the 30-day window. Reads
+    // ai_reply_feedback (rating: -1 down / +1 up) — the live, client-writable
+    // feedback sink shared by the floating launcher, the voice bubble, and the
+    // Chat assistant. RLS: any active hive member may read the hive's feedback,
+    // so the supervisor sees the whole team's ratings here.
+    async function loadReplyFeedback() {
+      try {
+        const sinceIso = new Date(Date.now() - 30 * 86400 * 1000).toISOString();
+        const { data } = await db.from('ai_reply_feedback')
+          .select('rating, agent, created_at')
+          .eq('hive_id', HIVE_ID)
+          .gte('created_at', sinceIso)
+          .order('created_at', { ascending: false })
+          .limit(5000);
+        return data || [];
+      } catch (_) { return []; }
+    }
+
+    // Build per-fn aggregates + a top-level summary. Cost/schema signals come
+    // from ai_cost_log rows; worker thumbs come from ai_reply_feedback rows.
+    function aggregate(costRows, feedbackRows) {
       const fnMap = new Map();
       let totalCost = 0;
       let totalCalls = 0;
@@ -419,17 +440,20 @@
         fnMap.set(k, f);
       }
 
-      // Quality overlay (same rows as cost — schema_compliance + user_feedback
-      // are columns on ai_cost_log per the 2026-05-11 extensions migration).
+      // Schema compliance stays on ai_cost_log rows (the 2026-05-11 columns).
       let schemaOk = 0, schemaTotal = 0;
-      let thumbsUp = 0, thumbsDown = 0;
       for (const q of costRows) {
         if (q.schema_compliance != null) {
           schemaTotal += 1;
           if (q.schema_compliance === true) schemaOk += 1;
         }
-        if (q.user_feedback === 1)  thumbsUp += 1;
-        if (q.user_feedback === -1) thumbsDown += 1;
+      }
+      // Worker thumbs come from ai_reply_feedback (rating -1/+1), not the
+      // never-populated ai_cost_log.user_feedback column.
+      let thumbsUp = 0, thumbsDown = 0;
+      for (const q of (feedbackRows || [])) {
+        if (q.rating === 1)  thumbsUp += 1;
+        if (q.rating === -1) thumbsDown += 1;
       }
 
       // ROI: very honest. Predicted savings = sum of resolved logbook downtime_hours

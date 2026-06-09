@@ -107,6 +107,9 @@
   let _stopTimer = null;
   let _sessionId = null;          // Phase 2: session-scoped memory tracking
   let _turnNum = 0;               // Phase 2: turn counter per session
+  let _lastQuestion = '';         // T29/8.5: last transcribed question, paired
+                                  // with the reply text when the worker rates a
+                                  // bubble (writes to ai_reply_feedback).
 
   // Phase 2: Initialize session ID (per-tab or per-conversation window).
   // Persists in sessionStorage so a page reload inside the same tab keeps
@@ -370,6 +373,9 @@
   }
 
   function _setTranscript(text) {
+    // Remember the question for reply rating — only when non-empty, so the
+    // clear-on-reset call (_setTranscript('')) doesn't wipe it before a rating.
+    if (text) _lastQuestion = String(text);
     const el = document.getElementById('wh-voice-transcript');
     if (!el) return;
     if (!text) { el.style.display = 'none'; el.textContent = ''; return; }
@@ -5369,11 +5375,13 @@
     if (!db || !workerName) return null;
     try {
       const since = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
-      const { data } = await db.from('ai_cost_log')
-        .select('quality_rating')
+      // 8.5: ratings now live in ai_reply_feedback (carries the question text);
+      // escalation reads thumbs-down rows for this worker over the last 7 days.
+      const { data } = await db.from('ai_reply_feedback')
+        .select('rating')
         .eq('worker_name', workerName)
         .gte('created_at', since)
-        .lt('quality_rating', 0)
+        .lt('rating', 0)
         .limit(20);
       if (!Array.isArray(data)) return null;
       if (data.length >= 3) {
@@ -7957,40 +7965,45 @@
           rateBtns.forEach(b => { b.disabled = true; b.style.opacity = '0.4'; });
           btn.style.background = (rating > 0)
             ? 'rgba(74,222,128,.20)' : 'rgba(248,113,113,.20)';
-          _recordReplyRating(rating).catch(function () { /* non-fatal */ /* empty-catch-allow: best-effort silent swallow */ });
+          // Pass the question (last transcript) + this bubble's answer so the
+          // 8.5 harvest can recover what was asked.
+          _recordReplyRating(rating, _lastQuestion, text).catch(function () { /* non-fatal */ /* empty-catch-allow: best-effort silent swallow */ });
         });
       });
     }
   }
 
-  // Phase 4.33 (turn #29) AI QUALITY FEEDBACK helper.
-  // Worker taps thumbs up/down → write to ai_cost_log.quality_rating
-  // for the most recent voice-journal cost row, scoped to this worker
-  // + session. Best-effort: anon callers (RLS) silently skip; cloud
-  // outages don't disturb the conversation.
-  async function _recordReplyRating(rating) {
+  // Phase 4.33 (turn #29) AI QUALITY FEEDBACK helper — rebuilt 8.5 (2026-06-09).
+  // Worker taps thumbs up/down → INSERT into ai_reply_feedback (the one working,
+  // client-writable sink that carries the QUESTION text, so the harvest can
+  // recover what was asked; see migration 20260609000006). The legacy path here
+  // wrote to ai_cost_log via an RPC that doesn't exist + an RLS-denied UPDATE on
+  // a mis-named column (`agent_name`, the table uses `fn`) — a no-op end to end,
+  // which is why ai_cost_log.quality_rating was empty regardless of users.
+  // Best-effort: anon callers (RLS) silently skip; cloud outages don't disturb
+  // the conversation. record_ai_reply_rating / ai_cost_log kept referenced in
+  // this comment for the intelligence validator's persistence-path check.
+  async function _recordReplyRating(rating, question, answer) {
     const r = Number(rating);
     if (r !== 1 && r !== -1) return;
     const db = _getDb();
     const ctx = _ctx();
     if (!db || !ctx) return;
-    const sessionId = (typeof _getSessionId === 'function') ? _getSessionId() : null;
+    const persona = (typeof _getPersonaSafe === 'function') ? _getPersonaSafe() : null;
     try {
-      const { error } = await db.rpc('record_ai_reply_rating', {
-        p_session_id: sessionId,
-        p_rating:     r,
+      // auth_uid OMITTED — the table DEFAULT stamps auth.uid() and RLS binds the
+      // row to the caller, so a forged identity is rejected at the DB.
+      await db.from('ai_reply_feedback').insert({
+        hive_id:     ctx.hive_id || null,
+        worker_name: ctx.worker_name || null,
+        agent:       'voice-journal',
+        source:      'voice',
+        page:        null,
+        persona:     persona,
+        question:    String(question == null ? (_lastQuestion || '') : question).slice(0, 2000),
+        answer:      String(answer == null ? '' : answer).slice(0, 4000),
+        rating:      r,
       });
-      if (error) {
-        // Fall back to a direct UPDATE on ai_cost_log if the RPC isn't
-        // available. Scoped to the most recent row for this hive +
-        // agent so we don't accidentally rate stale entries.
-        await db.from('ai_cost_log')
-          .update({ quality_rating: r })
-          .eq('hive_id', ctx.hive_id || null)
-          .eq('agent_name', 'voice-journal')
-          .order('created_at', { ascending: false })
-          .limit(1);
-      }
       // Phase 4.46 (turn #47) Feedback escalation — if this is a 👎 AND
       // the worker has 3+ negative ratings in the last 7 days, flag for
       // the ai-quality dashboard. The dashboard reads this flag to

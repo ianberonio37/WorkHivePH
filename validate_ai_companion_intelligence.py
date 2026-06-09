@@ -117,7 +117,16 @@ def check_voice_shortcut(c: str) -> list[dict]:
 
 
 def check_quality_feedback(c: str) -> list[dict]:
-    """T29 — _recordReplyRating + thumbs UI in reply bubble + ai_cost_log target."""
+    """T29 — _recordReplyRating + thumbs UI + a WORKING, harvestable rating sink.
+
+    Updated 8.5 (2026-06-09): the original target (ai_cost_log.quality_rating via
+    RPC record_ai_reply_rating) was a no-op end to end — the RPC was never
+    migrated and the fallback UPDATE was RLS-denied on a mis-named column, so
+    ratings vanished AND ai_cost_log has no question column for the harvest. The
+    working sink is now public.ai_reply_feedback (client-writable, carries the
+    question text). The check requires it, and requires the helper to thread the
+    question through so the harvest can recover what was asked.
+    """
     issues: list[dict] = []
     if "_recordReplyRating" not in c:
         issues.append({"check": "quality_feedback",
@@ -125,12 +134,12 @@ def check_quality_feedback(c: str) -> list[dict]:
     if "data-rate" not in c:
         issues.append({"check": "quality_feedback",
                        "reason": "Reply bubble has no data-rate buttons — workers can't rate replies in one tap."})
-    if "ai_cost_log" not in c and "record_ai_reply_rating" not in c:
+    if "ai_reply_feedback" not in c:
         issues.append({"check": "quality_feedback",
-                       "reason": "Rating helper does not target ai_cost_log (direct UPDATE) or record_ai_reply_rating (RPC) — ratings vanish."})
-    if "quality_rating" not in c:
+                       "reason": "Rating helper does not target ai_reply_feedback — the only working, client-writable sink that carries the question text. (ai_cost_log/record_ai_reply_rating were no-ops; see migration 20260609000006.)"})
+    if "question" not in c:
         issues.append({"check": "quality_feedback",
-                       "reason": "Rating helper does not write to a quality_rating field — ratings would be uncorrelated with the cost-log row."})
+                       "reason": "Rating write does not include the question — the 8.5 harvest can't turn a thumbs-down into a golden candidate without knowing what was asked."})
     return issues
 
 
@@ -215,7 +224,7 @@ CHECK_LABELS = {
     "repeated_issue_surface": "T26 _fetchRepeatedIssueFlag queries v_logbook_truth + 'REPEATED ISSUES' anchor",
     "standards_lookup":       "T27 _detectStandardsMention + ISO/SAE/SMRP vocabulary + STANDARDS QUERY anchor",
     "voice_shortcut":         "T28 _isVoiceShortcut covers logbook/analytics/inventory + call-site navigates",
-    "quality_feedback":       "T29 _recordReplyRating + data-rate thumbs UI + ai_cost_log target",
+    "quality_feedback":       "T29 _recordReplyRating + data-rate thumbs UI + ai_reply_feedback sink (carries question for 8.5 harvest)",
     "discipline_biasing":     "T30 WORKER DISCIPLINE anchor reads workerDiscipline value",
     "goodbye":                "T31 _isGoodbye covers PH closers (tapos / wala na) + call-site clean exit",
     "confidence_calibration": "T32 CONFIDENCE CALIBRATION anchor instructs model to hedge on small samples",

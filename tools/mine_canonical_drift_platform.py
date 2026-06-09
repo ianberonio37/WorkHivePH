@@ -111,6 +111,7 @@ LEGITIMATE_RAW: dict[str, str] = {
     "automation_log":                "system-internal cron log",
     "ai_cost_log":                   "founder/admin surface only",
     "ai_quality_log":                "internal eval data",
+    "ai_reply_feedback":             "AI reply feedback log (8.5 harvest); read by ai-quality dashboard + companion_harvest, not a user-facing KPI; no v_*_truth view",
     "ai_rate_limits":                "internal quota state",
     "analytics_events":              "internal admin telemetry; founder-console-only surface",
     "parts_staging_recommendations": "ML output table; one-way write from edge fn + read by a single dashboard tile",

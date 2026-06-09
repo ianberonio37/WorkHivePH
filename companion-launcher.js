@@ -645,6 +645,94 @@
       if (_ragContext?.key) _saveHistoryFor(_ragContext.key, history);
       else _saveHistoryFor(GLOBAL_HISTORY_KEY, history);
     }
+    return div;  // caller (handleSend) attaches thumbs feedback to live replies
+  }
+
+  // ─── AI quality feedback (8.5 harvest signal) ────────────────────────────────
+  // The floating companion is the most-used TYPED companion surface (~32 pages),
+  // but until now it shipped NO 👍/👎 affordance — so the harvest pipeline
+  // (tools/companion_harvest.py: thumbs-down → golden eval candidates) had no
+  // signal source on the surface workers actually type into. These two helpers
+  // mirror the voice bubble's thumbs, writing to the ONE working, client-writable
+  // sink that carries the question text: public.ai_reply_feedback. (The legacy
+  // voice path wrote to ai_cost_log via a missing RPC + an RLS-denied UPDATE on a
+  // mis-named column — a no-op end to end; see migration 20260609000006.)
+  //
+  // Best-effort throughout: anon/RLS denials, offline, or a missing table never
+  // disturb the conversation. The rating is one-shot per reply.
+  async function _recordReplyFeedback(rating, question, answer) {
+    const r = Number(rating);
+    if (r !== 1 && r !== -1) return;
+    const db = (typeof window !== 'undefined') ? window.WH_DB : null;
+    if (!db || !db.from) return;
+    const hiveId = (typeof window !== 'undefined' && window.localStorage)
+      ? (localStorage.getItem('wh_active_hive_id') || localStorage.getItem('wh_hive_id') || null)
+      : null;
+    const workerName = (typeof window !== 'undefined' && window.localStorage)
+      ? (localStorage.getItem('wh_last_worker') || null)
+      : null;
+    const personaName = (typeof window.getCurrentPersona === 'function')
+      ? window.getCurrentPersona()
+      : (/* storage-key-allow: persona pref */ localStorage.getItem('wh_persona') || 'zaniah');
+    try {
+      // auth_uid is intentionally OMITTED — the table DEFAULT stamps it to
+      // auth.uid() and the RLS WITH CHECK binds the row to the caller, so a
+      // forged identity is rejected at the DB. We only send the human-readable
+      // worker_name for harvest reports.
+      await db.from('ai_reply_feedback').insert({
+        hive_id:     hiveId,
+        worker_name: workerName,
+        agent:       config.agent,
+        source:      'floating',
+        page:        (ctx && ctx.page) || null,
+        persona:     personaName,
+        question:    String(question == null ? '' : question).slice(0, 2000),
+        answer:      String(answer == null ? '' : answer).slice(0, 4000),
+        rating:      r,
+      });
+    } catch (_) { /* non-fatal — feedback is best-effort */ /* empty-catch-allow: best-effort silent swallow */ }
+  }
+
+  // Append a one-tap 👍/👎 row under a live assistant reply and wire it to
+  // _recordReplyFeedback. Built via DOM (not innerHTML) so the XSS validator is
+  // satisfied and the captured question/answer are never treated as raw HTML.
+  function _attachFeedback(msgEl, question, answer) {
+    if (!msgEl || !msgEl.parentNode) return;
+    const row = document.createElement('div');
+    row.className = 'wh-msg-rate';
+    row.style.cssText = 'align-self:flex-start;display:flex;gap:6px;align-items:center;margin:-4px 0 2px 4px;';
+
+    function mkBtn(rating, glyph, label) {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.setAttribute('data-rate', String(rating));
+      b.setAttribute('aria-label', label);
+      b.textContent = glyph;
+      b.style.cssText = 'background:transparent;border:1px solid rgba(255,255,255,.14);' +
+        'color:rgba(255,255,255,.5);border-radius:50%;width:26px;height:26px;line-height:1;' +
+        'cursor:pointer;font-size:.78rem;display:flex;align-items:center;justify-content:center;' +
+        'transition:background .15s,opacity .15s;';
+      return b;
+    }
+    const up   = mkBtn(1,  '👍', 'Helpful reply');
+    const down = mkBtn(-1, '👎', 'Unhelpful reply');
+    row.appendChild(up);
+    row.appendChild(down);
+
+    // One-shot: once rated, both buttons disable so the worker can't double-vote.
+    [up, down].forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        const rating = Number(btn.getAttribute('data-rate')) || 0;
+        [up, down].forEach(b => { b.disabled = true; b.style.opacity = '0.45'; b.style.cursor = 'default'; });
+        btn.style.background = (rating > 0) ? 'rgba(74,222,128,.22)' : 'rgba(248,113,113,.22)';
+        _recordReplyFeedback(rating, question, answer);
+      });
+    });
+
+    // Place the rate row directly after the reply bubble.
+    msgEl.parentNode.insertBefore(row, msgEl.nextSibling);
+    const msgs = document.getElementById('wh-ai-messages');
+    if (msgs) msgs.scrollTop = msgs.scrollHeight;
   }
 
   function showTyping() {
@@ -832,15 +920,21 @@ happens to know maintenance, not a manual.`;
 
     try {
       let reply;
+      let liveReply = false;
       if (config.apiEnabled && config.agent) {
         reply = await callAPI(message);
+        liveReply = true;
       } else {
         // Demo mode — simulate delay
         await new Promise(r => setTimeout(r, 900 + Math.random() * 600));
         reply = getMockResponse(ctx.page);
       }
       hideTyping();
-      addMessage('assistant', reply);
+      const replyEl = addMessage('assistant', reply);
+      // Thumbs feedback only on REAL gateway replies — never on mock/demo
+      // responses (rating canned text would poison the harvest). Greetings and
+      // proactive nudges go through addMessage directly and stay thumbs-free.
+      if (liveReply && reply) _attachFeedback(replyEl, message, reply);
       maybeAddBridgeButton(message, reply);
     } catch (err) {
       hideTyping();

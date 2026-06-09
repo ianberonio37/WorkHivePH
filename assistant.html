@@ -774,6 +774,73 @@ happens to know maintenance, not a manual.`;
       wrap/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = `<div class="bubble-assistant">${formatted}</div>`;
       container.appendChild(wrap);
       scrollToBottom();
+      return wrap;  // caller attaches thumbs feedback to live replies
+    }
+
+    // ── AI quality feedback (8.5 harvest) ─────────────────────────
+    // The Chat tab is the 3rd typed companion surface; like the floating
+    // launcher + voice bubble it now ships 👍/👎, writing to ai_reply_feedback
+    // (the one client-writable sink that carries the question text for the
+    // harvest; migration 20260609000006). Best-effort: anon/RLS/offline never
+    // disturb the chat. One-shot per reply.
+    async function _recordChatFeedback(rating, question, answer) {
+      const r = Number(rating);
+      if (r !== 1 && r !== -1) return;
+      if (!db || !db.from) return;
+      const hiveId = localStorage.getItem('wh_active_hive_id') || localStorage.getItem('wh_hive_id') || null;
+      const personaName = (typeof window.getCurrentPersona === 'function')
+        ? window.getCurrentPersona()
+        : (/* storage-key-allow: persona pref */ localStorage.getItem('wh_persona') || 'zaniah');
+      try {
+        // auth_uid OMITTED — the table DEFAULT stamps auth.uid() and RLS binds
+        // the row to the caller, so a forged identity is rejected at the DB.
+        await db.from('ai_reply_feedback').insert({
+          hive_id:     hiveId,
+          worker_name: (typeof workerName === 'string' && workerName) ? workerName : null,
+          agent:       'assistant',
+          source:      'chat',
+          page:        'assistant',
+          persona:     personaName,
+          question:    String(question == null ? '' : question).slice(0, 2000),
+          answer:      String(answer == null ? '' : answer).slice(0, 4000),
+          rating:      r,
+        });
+      } catch (_) { /* non-fatal — feedback is best-effort */ /* empty-catch-allow: best-effort silent swallow */ }
+    }
+
+    // Append a one-tap 👍/👎 row under a live assistant reply. Built via DOM
+    // (not innerHTML) so the captured question/answer are never raw HTML.
+    function _attachChatFeedback(wrapEl, question, answer) {
+      if (!wrapEl) return;
+      const row = document.createElement('div');
+      row.className = 'flex justify-start gap-2 fade-up';
+      row.style.cssText = 'margin:-2px 0 4px 4px;align-items:center;';
+      function mkBtn(rating, glyph, label) {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.setAttribute('data-rate', String(rating));
+        b.setAttribute('aria-label', label);
+        b.title = label;
+        b.textContent = glyph;
+        b.style.cssText = 'background:transparent;border:1px solid var(--border,rgba(0,0,0,.15));' +
+          'color:var(--muted,#888);border-radius:50%;width:28px;height:28px;line-height:1;' +
+          'cursor:pointer;font-size:.85rem;display:flex;align-items:center;justify-content:center;' +
+          'transition:background .15s,opacity .15s;';
+        return b;
+      }
+      const up   = mkBtn(1,  '👍', 'Helpful reply');
+      const down = mkBtn(-1, '👎', 'Unhelpful reply');
+      row.appendChild(up); row.appendChild(down);
+      [up, down].forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          const rating = Number(btn.getAttribute('data-rate')) || 0;
+          [up, down].forEach(b => { b.disabled = true; b.style.opacity = '0.45'; b.style.cursor = 'default'; });
+          btn.style.background = (rating > 0) ? 'rgba(74,222,128,.22)' : 'rgba(248,113,113,.22)';
+          _recordChatFeedback(rating, question, answer);
+        });
+      });
+      wrapEl.insertAdjacentElement('afterend', row);
+      scrollToBottom();
     }
 
     function addTypingIndicator() {
@@ -938,7 +1005,11 @@ happens to know maintenance, not a manual.`;
 
         removeTypingIndicator();
         sessionMessages.push({ role: 'assistant', content: reply });
-        addAssistantBubble(reply);
+        // Thumbs only on REAL replies (this path) — never on greetings, the
+        // clear-chat line, or the error bubble below (rating canned/error text
+        // would poison the harvest). `text` holds the question for this turn.
+        const replyEl = addAssistantBubble(reply);
+        if (reply) _attachChatFeedback(replyEl, text, reply);
 
       } catch (err) {
         removeTypingIndicator();

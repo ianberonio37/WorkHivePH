@@ -1,0 +1,81 @@
+{
+  "generated_at": "2026-06-09T12:22:37+00:00",
+  "total_probe_types": 69,
+  "live_tagged": 21,
+  "estimated_covered": 26,
+  "missing_families": [],
+  "by_family": {
+    "A": {
+      "label": "Agent / tool-routing (BFCL v3 + RAGAS tool metrics)",
+      "total": 10,
+      "have": 4,
+      "partial": 1,
+      "missing": 5,
+      "live": 0
+    },
+    "B": {
+      "label": "RAG grounding + citations (RAGAS Dec-2025)",
+      "total": 10,
+      "have": 3,
+      "partial": 1,
+      "missing": 6,
+      "live": 0
+    },
+    "C": {
+      "label": "Memory recall + abstention (LongMemEval 5 abilities)",
+      "total": 9,
+      "have": 5,
+      "partial": 0,
+      "missing": 4,
+      "live": 0
+    },
+    "D": {
+      "label": "Persona / voice fidelity",
+      "total": 7,
+      "have": 4,
+      "partial": 1,
+      "missing": 2,
+      "live": 0
+    },
+    "E": {
+      "label": "Safety / adversarial (OWASP LLM Top 10 2025 + promptfoo)",
+      "total": 10,
+      "have": 4,
+      "partial": 1,
+      "missing": 5,
+      "live": 3
+    },
+    "F": {
+      "label": "Robustness (RAGAS noise sensitivity + real input conditions)",
+      "total": 7,
+      "have": 0,
+      "partial": 0,
+      "missing": 7,
+      "live": 7
+    },
+    "G": {
+      "label": "Domain correctness (maintenance-expert)",
+      "total": 6,
+      "have": 0,
+      "partial": 0,
+      "missing": 6,
+      "live": 6
+    },
+    "H": {
+      "label": "Doctrine / guardrails (WorkHive doctrine; folded into safety/persona)",
+      "total": 5,
+      "have": 0,
+      "partial": 0,
+      "missing": 5,
+      "live": 5
+    },
+    "I": {
+      "label": "Operational resilience (folded into cost/ops)",
+      "total": 5,
+      "have": 0,
+      "partial": 2,
+      "missing": 3,
+      "live": 0
+    }
+  }
+}

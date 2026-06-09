@@ -51,6 +51,11 @@ supabase/migrations_archived/
 # Release gate per-machine state
 .last-gate-pass
 
+# Companion Dev Tool (companion_dev.py) per-machine run state
+# (the substrate MANIFEST is tracked like substrate_manifest.json; these are not)
+.last-companion-gate-pass
+companion_dev_runs.jsonl
+
 # Platform Guardian — generated on every run, no need to track history
 platform_health.json
 platform_baseline.json

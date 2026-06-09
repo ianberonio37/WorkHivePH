@@ -1389,11 +1389,37 @@
     </div>
   </div>
 
+  <!-- ═══ PIPELINE MAP — the full 7-layer Unified Mega Gate ═══ -->
+  <div class="card"
+       data-tip-title="🗺️ Unified Mega Gate — 7 layers"
+       data-tip="The whole gate in pipeline order. 5 forward layers (G-1.5 → G-1 → G0 → G2 → G3) plus 2 self-improving bridges: GH Hardening (L2→L0, a bug becomes a validator) and GS Sentinel (L0→L2, a validator becomes a scenario). Each card below runs one layer.">
+    <div class="section-head-row">
+      <h3 class="action-section-title">🗺️ The Unified Mega Gate — 7 layers</h3>
+      <span class="action-section-hint">Every gate below, in flow order. Two bridges keep it self-improving.</span>
+    </div>
+    <div style="display:flex; flex-wrap:wrap; gap:6px; align-items:center; margin-top:10px; font-size:0.66rem; font-weight:600;">
+      <span style="padding:4px 9px; border-radius:99px; background:rgba(167,139,250,0.12); border:1px solid rgba(167,139,250,0.35); color:#a78bfa;">G-1.5 Substrate</span>
+      <span style="color:rgba(255,255,255,0.3);">→</span>
+      <span style="padding:4px 9px; border-radius:99px; background:rgba(41,182,217,0.12); border:1px solid rgba(41,182,217,0.35); color:#29B6D9;">G-1 Auto-discovery</span>
+      <span style="color:rgba(255,255,255,0.3);">→</span>
+      <span style="padding:4px 9px; border-radius:99px; background:rgba(96,165,250,0.12); border:1px solid rgba(96,165,250,0.4); color:#60a5fa;">G0 Guardian</span>
+      <span style="color:rgba(255,255,255,0.3);">→</span>
+      <span style="padding:4px 9px; border-radius:99px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.18); color:rgba(255,255,255,0.85);">G2 E2E</span>
+      <span style="color:rgba(255,255,255,0.3);">→</span>
+      <span style="padding:4px 9px; border-radius:99px; background:rgba(232,121,249,0.12); border:1px solid rgba(232,121,249,0.4); color:#e879f9;">G3 Battery</span>
+    </div>
+    <div style="display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin-top:8px; font-size:0.6rem; color:rgba(255,255,255,0.5);">
+      <span>Bridges (self-improving):</span>
+      <span style="padding:3px 8px; border-radius:99px; background:rgba(247,162,27,0.1); border:1px solid rgba(247,162,27,0.3); color:#F7A21B;">⟲ GH Hardening · L2→L0</span>
+      <span style="padding:3px 8px; border-radius:99px; background:rgba(74,222,128,0.1); border:1px solid rgba(74,222,128,0.3); color:#4ade80;">🛰️ GS Sentinel · L0→L2</span>
+    </div>
+  </div>
+
   <!-- ═══ MEGA GATE (run everything before prod) ═══ -->
   <div class="card">
     <div class="section-head-row">
       <h3 class="action-section-title">🚀 Mega Gate — Run Everything</h3>
-      <span class="action-section-hint">All layers + AI loop. One click. Use before prod.</span>
+      <span class="action-section-hint">All 7 layers + AI loop. One click. Use before prod.</span>
     </div>
     <div class="button-grid">
       <button class="seed-btn mega-btn" data-action="run-mega-gate"
@@ -1404,25 +1430,124 @@
     <details class="section-help">
       <summary>What's inside the Mega Gate?</summary>
       <div class="help-body">
-        <b>Layer 0</b> Static validators (schema, RLS, XSS, admin gates, etc.) ·
-        <b>Layer 1</b> Data Tests (DB integrity) ·
-        <b>Layer 2</b> Playwright E2E (smoke, roles, concurrent, visual, CRUD) ·
+        <b>G0</b> Static validators (schema, RLS, XSS, admin gates, etc.) ·
+        <b>Data</b> Tests (DB integrity) ·
+        <b>G2</b> Playwright E2E (smoke, roles, concurrent, visual, CRUD) ·
         <b>AI Prompt Regression</b> (Groq) ·
-        <b>AI Self-Improvement Loop</b> (Layers -1 to 4: surface discovery, auto-scenarios, Groq diagnostics, validator generation).
+        <b>AI Self-Improvement Loop</b> (surface discovery, auto-scenarios, Groq diagnostics, validator generation) ·
+        <b>G3 UFAI Battery</b> (<code>--with-battery</code> ratchet — a11y / CWV / IA / component drift).
+        <br><span style="color:rgba(255,255,255,0.5);">Runs <code>release_gate.py --with-ai --with-visual --with-perf --with-ai-deep --with-battery</code>.
+        Upstream <b>G-1.5 Substrate</b> + <b>G-1 Auto-discovery</b> are their own cards below (advisory / fast, not bundled here).</span>
       </div>
     </details>
+  </div>
+
+  <!-- ═══ G-1.5 SUBSTRATE — pattern miners (upstream of Layer 0) ═══ -->
+  <div class="card" style="border-color: rgba(167,139,250,0.3);">
+    <div class="section-head-row" style="border-bottom: 1px dashed rgba(167,139,250,0.3);">
+      <h3 class="action-section-title" style="color:#a78bfa;">🧬 G-1.5 — Substrate
+        <span style="font-size:0.6rem; font-weight:600; padding:2px 7px; background:rgba(167,139,250,0.15); border:1px solid rgba(167,139,250,0.3); border-radius:99px; vertical-align:middle; margin-left:6px; letter-spacing:0.02em;">PRE-ARCH</span></h3>
+      <span class="action-section-hint">Pattern miners. Catches code-SHAPE drift before it's a bug.</span>
+    </div>
+    <div class="button-grid" style="margin-top:10px;">
+      <button class="seed-btn" data-action="run-substrate"
+        style="background:rgba(167,139,250,0.1); border-color:rgba(167,139,250,0.35); color:#a78bfa;"
+        data-tip-title="🧬 Substrate miners"
+        data-tip="Runs every pattern miner (edge / html / migration / js-module / python-tool / validator / seeder / skill-rules / canonical-registry) then aggregates substrate_manifest.json. Informational — surfaces emerging code-shape drift + pending proposals. Never blocks."
+        data-tip-foot="✅ CLICK AFTER: a batch of new files (pages, edge fns, validators) — to see what shapes are drifting.&#10;ℹ️ Advisory layer: exit 0 even with findings.">🧬 Run Substrate Miners · ~30-60s</button>
+    </div>
+  </div>
+
+  <!-- ═══ G-1 AUTO-DISCOVERY — registration gaps (upstream of Layer 0) ═══ -->
+  <div class="card" style="border-color: rgba(41,182,217,0.3);">
+    <div class="section-head-row" style="border-bottom: 1px dashed rgba(41,182,217,0.3);">
+      <h3 class="action-section-title" style="color:#29B6D9;">🔭 G-1 — Auto-discovery
+        <span style="font-size:0.6rem; font-weight:600; padding:2px 7px; background:rgba(41,182,217,0.15); border:1px solid rgba(41,182,217,0.3); border-radius:99px; vertical-align:middle; margin-left:6px; letter-spacing:0.02em;">REGISTRATION</span></h3>
+      <span class="action-section-hint">"We forgot to wire this in." Detects unregistered surfaces.</span>
+    </div>
+    <div class="button-grid" style="margin-top:10px;">
+      <button class="seed-btn" data-action="run-autodiscovery"
+        style="background:rgba(41,182,217,0.1); border-color:rgba(41,182,217,0.35); color:#29B6D9;"
+        data-tip-title="🔭 Auto-discovery"
+        data-tip="Runs validate_auto_discovery.py — auto-detects new HTML pages, edge functions, and validators, then checks each is registered (nav-hub, config.toml, run_platform_checks VALIDATORS, etc.). Catches the gap where a new surface exists but was never wired into the platform."
+        data-tip-foot="✅ CLICK AFTER: adding a new page, edge function, or validator — before relying on the rest of the gate to cover it.">🔭 Run Auto-discovery · ~20s</button>
+    </div>
+  </div>
+
+  <!-- ═══ AI COMPANION DEV TOOL — the companion's Mega Gate (COMPANION_DEV_TOOL.md Phase B) ═══ -->
+  <div class="card" style="border:1px solid rgba(167,139,250,0.35);"
+       data-tip-title="🤖 AI Companion Dev Tool"
+       data-tip="The SAME machine as the Unified Mega Gate, pointed at the COMPANION's behaviour instead of platform code. Live thumbs (ai_reply_feedback) are the mine, golden sets are the checks, the locked-test split is the forward-only anti-overfit ratchet, the optimizer turns failures into fixes. One front door: tools/companion_dev.py. Offline-first ($0, no DB/model) — the live capture + measured A/B are separate, opt-in.">
+    <div class="section-head-row">
+      <h3 class="action-section-title" style="color:#a78bfa;">🤖 AI Companion Dev Tool — the companion's Mega Gate</h3>
+      <span class="action-section-hint">Self-improving closed loop · offline-first · <code>tools/companion_dev.py</code></span>
+    </div>
+    <!-- layer pipeline chips (mirror the platform 7-layer map) -->
+    <div style="display:flex; flex-wrap:wrap; gap:6px; font-size:11px; margin:6px 0 12px;">
+      <span style="padding:4px 9px; border-radius:99px; background:rgba(167,139,250,0.12); border:1px solid rgba(167,139,250,0.35); color:#a78bfa;">G-1.5 Substrate</span>
+      <span style="align-self:center; color:#64748b;">→</span>
+      <span style="padding:4px 9px; border-radius:99px; background:rgba(41,182,217,0.12); border:1px solid rgba(41,182,217,0.35); color:#29B6D9;">G-1 Discover</span>
+      <span style="align-self:center; color:#64748b;">→</span>
+      <span style="padding:4px 9px; border-radius:99px; background:rgba(74,222,128,0.12); border:1px solid rgba(74,222,128,0.35); color:#4ade80;">G0 Gate</span>
+      <span style="align-self:center; color:#64748b;">→</span>
+      <span style="padding:4px 9px; border-radius:99px; background:rgba(247,162,27,0.12); border:1px solid rgba(247,162,27,0.35); color:#F7A21B;">G1/G2 Eval</span>
+      <span style="align-self:center; color:#64748b;">→</span>
+      <span style="padding:4px 9px; border-radius:99px; background:rgba(232,121,249,0.12); border:1px solid rgba(232,121,249,0.35); color:#e879f9;">G3 Optimize</span>
+    </div>
+    <div class="button-grid">
+      <button class="seed-btn" data-action="companion-status"
+        data-tip-title="📊 Status"
+        data-tip="One-glance dashboard: the 6-dimension scorecard (locked-test % + n + effective gate state warn N/20 / BLOCKS / frozen), the harvest queue, the last A/B verdict, and the last mega run. Pure read, $0."
+        data-tip-foot="✅ CLICK ANYTIME: to see where the companion loop stands.">📊 Status (scorecard + queue)</button>
+      <button class="seed-btn" data-action="companion-substrate"
+        data-tip-title="🧬 G-1.5 Substrate"
+        data-tip="Aggregate the mine into companion_substrate_manifest.json: golden corpus per dim, harvest candidate counts, live-observable pillars, optimization state. Mirror of substrate_manifest.json. $0, offline."
+        data-tip-foot="✅ CLICK AFTER: a harvest, to refresh the manifest.">🧬 Substrate (G-1.5)</button>
+      <button class="seed-btn" data-action="companion-discover"
+        data-tip-title="🔭 G-1 Discover"
+        data-tip="Coverage check: every dimension must resolve to its golden set, grader, eval harness, and (for product dims) a frozen baseline. Exit 1 on an orphan (incl. an orphan golden file no dim claims). $0."
+        data-tip-foot="✅ CLICK AFTER: adding a dimension or golden set.">🔭 Discover (G-1)</button>
+      <button class="seed-btn" data-action="companion-probes"
+        data-tip-title="🎛️ Probe coverage"
+        data-tip="How much of the companion architecture do we actually EXERCISE? Reads companion_probe_taxonomy.json (~69 grounded probe types across 9 families: Agent/RAG/Memory/Persona/Safety + Robustness/Domain/Doctrine/Operational) and counts how many have a golden unit (probe_type tag). Surfaces the depth gap + missing families. The forward-only 'we ask N of 69 types' number. $0."
+        data-tip-foot="✅ CLICK: to see the depth gap (missing families) the corpus still needs.">🎛️ Probe coverage</button>
+      <button class="seed-btn" data-action="companion-gate"
+        data-tip-title="🛡️ G0 Gate"
+        data-tip="Per-dimension locked-test regression gate (ai_eval_gate companion-gate) + scorecard registry verify. Forward-only, n-aware (a dim only BLOCKS at n≥20; below that it WARNs). Exit 1 on a blocking regression. $0."
+        data-tip-foot="✅ CLICK AFTER: any eval run, before trusting a change.">🛡️ Gate (G0)</button>
+      <button class="seed-btn" data-action="companion-eval"
+        data-tip-title="🎯 G1/G2 Eval (graders)"
+        data-tip="Run each dimension's grader --self-test (oracle all-pass, blind all-fail = trustworthy). The $0 trust property. (Live capture through ai-gateway is the heavier, opt-in arm — run the *-golden-capture.spec.ts specs.)"
+        data-tip-foot="✅ CLICK AFTER: editing a grader or golden set.">🎯 Eval graders (G1/G2)</button>
+      <button class="seed-btn" data-action="companion-optimize"
+        data-tip-title="🛠️ G3 Optimize"
+        data-tip="GEPA reflect → propose: re-grade captured observations, turn each failure into a concrete prompt/RAG/chain proposal (companion_optimization_proposals.json, human-disposed). The measured A/B (mutates a local edge fn) stays manual. $0."
+        data-tip-foot="✅ CLICK AFTER: an eval surfaces failures.">🛠️ Optimize (G3)</button>
+    </div>
+    <details style="margin-top:10px;">
+      <summary style="cursor:pointer; color:#a78bfa; font-size:12px;">🤖 Run the whole closed loop (Mega)</summary>
+      <div class="button-grid" style="margin-top:8px;">
+        <button class="seed-btn" data-action="companion-mega"
+          data-tip-title="🤖 Companion Mega Gate"
+          data-tip="Run the whole offline closed loop in order: substrate → discover → gate → graders self-test → scorecard verify → write .last-companion-gate-pass + persist the run. One FAIL blocks. $0, no DB/model."
+          data-tip-foot="✅ CLICK: to validate the entire companion loop in one shot.">🤖 Companion Mega · ~15s</button>
+      </div>
+    </details>
+    <p class="action-section-hint" style="margin-top:8px;">
+      Hub doc: <code>COMPANION_DEV_TOOL.md</code>. The mine = the live 👍/👎 on the floating launcher, voice bubble, and Chat tab → <code>ai_reply_feedback</code> → <code>harvest</code>.
+    </p>
   </div>
 
   <!-- ═══ LAYER 0 — STATIC VALIDATORS (no browser) ═══ -->
   <div class="card">
     <div class="section-head-row">
-      <h3 class="action-section-title">🛡️ Layer 0 — Static Validators</h3>
+      <h3 class="action-section-title">🛡️ G0 / Layer 0 — Static Validators</h3>
       <span class="action-section-hint">Code + schema checks. No browser. Fastest layer.</span>
     </div>
     <div class="button-grid">
-      <button class="seed-btn" data-action="run-gate"
+      <button class="seed-btn" data-action="run-fast-guardian"
         data-tip-title="🛡️ Fast Guardian"
-        data-tip="Static code checks: schema, RLS, XSS, admin gates, logbook integrity, AI gateway, mobile UX, function security."
+        data-tip="Static validators ONLY (run_platform_checks.py --fast): schema, RLS, XSS, admin gates, logbook integrity, AI gateway, mobile UX, function security. No browser, no reseed."
         data-tip-foot="✅ CLICK AFTER: any code change (HTML / JS / migrations).&#10;👉 This is your DEFAULT pre-commit gate. Should pass before `git add`.">🛡️ Fast Guardian (all validators · ~90s)</button>
       <button class="seed-btn" data-action="run-gate-ai"
         data-tip-title="🤖 + AI Prompt Regression"
@@ -1770,11 +1895,49 @@
             <tr><td>New v_*_truth view / formula contract / Tier-S standard</td><td>🎬 Smoke Tests (chip + view reachability) + 🛡️ UI Locks (full canonical contract)</td></tr>
             <tr><td>Calm Dashboard refactor (verdict / details / hide-zero)</td><td>🛡️ UI Locks (behaviour spec) + 📷 Visual Regression (chip pixel-stable)</td></tr>
             <tr><td>Partial-variant formula label edit</td>   <td>🎬 Smoke Tests (catches missing honesty marker before deploy)</td></tr>
+            <tr><td>a11y / focus / CWV / IA copy / component shape</td><td>🔬 UFAI Battery (G3)</td></tr>
             <tr><td>About to deploy to prod</td>             <td>🚀 Mega Gate (everything)</td></tr>
           </tbody>
         </table>
         <br>
         <b>Rule of thumb:</b> the smallest gate that covers what you changed. Skip the big ones during inner-loop iteration.
+      </div>
+    </details>
+  </div>
+
+  <!-- ═══ LAYER 3 — UFAI BATTERY (G3, live + headless) ═══ -->
+  <div class="card" style="border-color: rgba(232,121,249,0.32);">
+    <div class="section-head-row" style="border-bottom: 1px dashed rgba(232,121,249,0.3);">
+      <h3 class="action-section-title" style="color:#e879f9;">🔬 Layer 3 — UFAI Battery
+        <span style="font-size:0.6rem; font-weight:600; padding:2px 7px; background:rgba(232,121,249,0.15); border:1px solid rgba(232,121,249,0.32); border-radius:99px; vertical-align:middle; margin-left:6px; letter-spacing:0.02em;">G3</span></h3>
+      <span class="action-section-hint">What scenarios don't assert: a11y · CWV · focus · IA · component drift.</span>
+    </div>
+    <div class="button-grid" style="margin-top:10px;">
+      <button class="seed-btn" data-action="run-battery"
+        style="background:rgba(232,121,249,0.1); border-color:rgba(232,121,249,0.35); color:#e879f9;"
+        data-tip-title="🔬 UFAI Battery (G3 ratchet)"
+        data-tip="Headless forward-only ratchet: run_battery_family.py --gate. Compares against battery_family_baseline.json and fails only on a real regression (a new undisposed critic candidate, or a primitive that lost a required sub-part). Surfaces what G2 scenarios can't: axe a11y, Core Web Vitals, focus order, prod-path leaks, IA redundancy, component-shape drift."
+        data-tip-foot="✅ CLICK AFTER: a11y / focus / CWV / layout / IA-copy / component work.&#10;ℹ️ Also runs inside the Mega Gate (--with-battery). Live waves are driven separately via Playwright MCP.">🔬 Run UFAI Battery (G3 · ~5s)</button>
+    </div>
+    <details class="section-help" style="margin-top:10px;">
+      <summary style="font-size:0.75rem;">What does the battery check? (4 altitudes · 4 engines)</summary>
+      <div class="help-body" style="font-size:0.75rem;">
+        <div class="loop-flow" style="display:flex; flex-wrap:wrap; gap:6px; margin:8px 0; align-items:center;">
+          <span style="padding:4px 8px; background:rgba(232,121,249,0.08); border:1px solid rgba(232,121,249,0.25); border-radius:6px; font-size:0.7rem; color:#e879f9;">① Component</span>
+          <span style="color:rgba(255,255,255,0.3);">→</span>
+          <span style="padding:4px 8px; background:rgba(232,121,249,0.08); border:1px solid rgba(232,121,249,0.25); border-radius:6px; font-size:0.7rem; color:#e879f9;">② Page</span>
+          <span style="color:rgba(255,255,255,0.3);">→</span>
+          <span style="padding:4px 8px; background:rgba(232,121,249,0.08); border:1px solid rgba(232,121,249,0.25); border-radius:6px; font-size:0.7rem; color:#e879f9;">③ Journey</span>
+          <span style="color:rgba(255,255,255,0.3);">→</span>
+          <span style="padding:4px 8px; background:rgba(232,121,249,0.08); border:1px solid rgba(232,121,249,0.25); border-radius:6px; font-size:0.7rem; color:#e879f9;">④ Platform</span>
+        </div>
+        <b>Live engines</b> (driven via Playwright MCP): <code>__UFAI</code> (page referee — U/F/A/I/C pillars) ·
+        <code>__JOURNEY</code> (cross-page state + number + action continuity) ·
+        <code>__CSB</code> (AI behaviour — Agent/Memory/RAG/Safety) ·
+        <code>__ANALYTICS_PARITY</code> (33 per-tile rendered==oracle).<br>
+        <b>This button</b> runs the headless ④ platform ratchet (<code>run_battery_family.py --gate</code>) — the part that joins the Mega Gate.
+        A stable DEFECT hardens DOWN into a G0 validator (via GH); the critic candidates flow to <code>sweep_critiques.json</code> for disposition.<br>
+        <b>When:</b> after any a11y / focus / CWV / IA-copy / component change. Spec: <code>BATTERY_ARCHITECTURE.md</code> + <code>BATTERY_LAYER3_MANIFEST.md</code>.
       </div>
     </details>
   </div>
@@ -2354,11 +2517,16 @@
     else if (action === 'run-flows') url = '/api/run-flows';
     else if (action === 'run-playwright-node') url = '/api/run-playwright-node';
     else if (action === 'run-crud-tests') url = '/api/run-crud-tests';
+    else if (action === 'run-fast-guardian') url = '/api/run-fast-guardian';
     else if (action === 'run-gate') url = '/api/run-gate';
     else if (action === 'run-gate-ai') url = '/api/run-gate-ai';
     else if (action === 'run-ai-loop') url = '/api/run-ai-loop';
     else if (action === 'run-gate-visual') url = '/api/run-gate-visual';
     else if (action === 'run-mega-gate') url = '/api/run-mega-gate';
+    else if (action === 'run-substrate') url = '/api/run-substrate';
+    else if (action === 'run-autodiscovery') url = '/api/run-autodiscovery';
+    else if (action === 'run-battery') url = '/api/run-battery';
+    else if (action.startsWith('companion-')) url = '/api/companion/' + action.slice('companion-'.length);
     else if (action === 'run-roles') url = '/api/run-roles';
     else if (action === 'run-concurrent') url = '/api/run-concurrent';
     else url = '/api/seed/' + action;

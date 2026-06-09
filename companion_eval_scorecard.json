@@ -88,6 +88,44 @@
       "blocking": true,
       "notes": "8.1+8.2+8.3 BUILT 2026-06-08. ACTIVE: clean live run (12/12 voice-journal calls ok, 0 rate-limited, per-unit counter+cache reset) graded 12/12. persona baseline frozen locked-test 100% n=4 (the strongest n of the four product dims). blocking=FALSE for now (run-to-run LLM voice variance; consistent with agent/rag/memory; flip after a couple of stable re-runs since n=4 is already gate-worthy). SURFACE: agent='voice-journal' (-> voice-journal-agent, conversational adopter) wears the FULL persona block and reads ctx.persona; the gateway honours a client-supplied context.persona (only defaults to the account persona when absent) so persona is per-call toggleable. The personas are sharply differentiated live: identity probes self-ID ('I'm Hezekiah/Zaniah'); register probes carry lane vocab (Hezekiah: red line/regrease/IR gun/Nm/cross-pattern/LOTO; Zaniah: planned-vs-reactive 41%/MTBF 9 days/watch line/pattern); BOTH bridges fired ('Specifics like that are Hezekiah's lane - want me to switch him in?'). FINDING: voice-journal replies contain em dashes despite the contract's no-em-dash rule (has_em_dash captured, informational; an 8.4/format target). Follow-up: expand golden + add a judge backstop for tone nuance to flip blocking=true."
     },
+    "domain": {
+      "label": "Domain correctness",
+      "order": 7,
+      "metric": "domain_correctness",
+      "metric_desc": "Is the maintenance advice actually RIGHT? Required domain facts/keywords present (MTBF/MTTR per ISO 14224, OEE/availability per ISO 22400/Nakajima, PM strategy per SMRP/RCM, failure-mode reasoning, standards-citation accuracy) + no wrong-standard / absurd-number anti-markers. Deterministic markers first; a free-tier judge only for nuance with a marker backstop.",
+      "higher_is_better": true,
+      "grader": "tools/companion_rigorous_grader.py grade_domain_* (required markers present + anti-markers absent; no judge); harness tools/companion_domain_eval.py (--self-test negative-controlled). Probe family G.",
+      "golden_set": "companion_domain_golden.json (G1 MTBF/MTTR, G2 OEE/availability, G3 PM strategy, G4 failure-mode, G5 standards-citation, G6 number-sanity; grounded in maintenance-expert + ISO 14224/22400/SMRP). NEW 2026-06-09.",
+      "baseline_proxy": null,
+      "baseline_ref": "companion_dim_baselines.json::dimensions.domain.locked_test.pass_rate",
+      "results_ref": ".tmp/domain_eval_results.json",
+      "tolerance": {
+        "pass_rate_pp": 5.0
+      },
+      "gate": "tools/ai_eval_gate.py companion-gate (G0; forward-only on locked-test, degrade-to-SKIP without fresh results)",
+      "status": "pending",
+      "blocking": true,
+      "notes": "NEW dim 2026-06-09 (Probe Taxonomy family G). status=pending until a clean baseline is frozen on the locked-test split. The highest user-trust dim: the companion gives industrial maintenance advice, so being RIGHT (per ISO/SMRP) matters as much as being grounded. Deterministic-first grading (required domain markers + wrong-standard/absurd-number anti-markers)."
+    },
+    "robustness": {
+      "label": "Robustness (noise / Taglish)",
+      "order": 8,
+      "metric": "robustness_invariance",
+      "metric_desc": "Does the companion stay correct/on-topic under real PH input conditions? typos / STT noise, code-switching (Taglish), paraphrase invariance, distractor robustness (RAGAS noise sensitivity), empty/garbage input, very long input, other PH languages. Graded by reusing the agent/rag graders on PERTURBED inputs (same expected answer, noisy question).",
+      "higher_is_better": true,
+      "grader": "tools/companion_rigorous_grader.py (reuses grade_agent_*/grade_rag_* on perturbed inputs) + robustness markers; harness tools/companion_robustness_eval.py (--self-test). Probe family F.",
+      "golden_set": "companion_robustness_golden.json (F1 typos, F2 Taglish, F3 paraphrase-invariance, F4 distractor, F5 garbage/noise, F6 long-input, F7 Cebuano/Ilocano). NEW (planned 2026-06-09).",
+      "baseline_proxy": null,
+      "baseline_ref": "companion_dim_baselines.json::dimensions.robustness.locked_test.pass_rate",
+      "results_ref": ".tmp/robustness_eval_results.json",
+      "tolerance": {
+        "pass_rate_pp": 5.0
+      },
+      "gate": "tools/ai_eval_gate.py companion-gate (G0; forward-only on locked-test, degrade-to-SKIP without fresh results)",
+      "status": "pending",
+      "blocking": true,
+      "notes": "NEW dim 2026-06-09 (Probe Taxonomy family F). status=pending until golden set + baseline exist. Grades real Filipino input conditions (Taglish, STT typos, distractors) — a paraphrase/noise that flips the answer is a robustness defect. Reuses the agent/rag graders on perturbed inputs."
+    },
     "safety": {
       "label": "Safety / adversarial robustness",
       "order": 5,

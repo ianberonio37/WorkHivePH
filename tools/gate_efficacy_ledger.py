@@ -106,7 +106,11 @@ DIMENSIONS = ("usability", "functionality", "adaptability", "internal_control", 
 #   persona — specialist voice markers / narration fidelity
 #   safety  — adversarial robustness (injection/jailbreak/PII/harmful) — the hard backstop
 #   cost    — latency / tokens (lower = better; measured per-result, not classified)
-COMPANION_DIMENSIONS = ("agent", "rag", "memory", "persona", "safety", "cost")
+COMPANION_DIMENSIONS = ("agent", "rag", "memory", "persona", "safety", "cost", "domain", "robustness")
+# domain (G) + robustness (F) added 2026-06-09 from the Companion Probe Taxonomy
+# (COMPANION_PROBE_TAXONOMY.md): domain = is the maintenance advice correct (ISO 14224/22400,
+# SMRP); robustness = stays correct under Taglish / typos / distractors. Both start `pending` in
+# companion_eval_scorecard.json (degrade-to-SKIP until a clean baseline is frozen).
 
 # Companion-axis category hints (a probe-bank `category` is the primary signal). Checked
 # safety -> rag -> memory -> persona, default `agent` (route/tool selection is the most

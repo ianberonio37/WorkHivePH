@@ -1,0 +1,91 @@
+{
+  "_comment": "Robustness golden set (Probe Taxonomy family F). dimension=robustness. Does the companion stay correct/on-topic under real PH input conditions? markers_all = what a correct reply must STILL hit despite the noise (proving it understood the typo/Taglish/distractor); anti_markers = the failure (derailed onto a distractor, refused-to-understand, fabricated on garbage). Graded by tools/companion_rigorous_grader.py grade_markers_unit. Grounded in RAGAS noise-sensitivity + Filipino field input (STT typos, Taglish, Cebuano, mic false-triggers). NOTE: F3 paraphrase-invariance is fully exercised LIVE (same question, 3 phrasings, same answer) via the --live capture; offline this unit just proves the marker grader.",
+  "version": 1,
+  "created": "2026-06-09",
+  "probes": [
+    {
+      "id": "ROB-F1",
+      "probe_type": "F1",
+      "dimension": "robustness",
+      "ability": "typo_stt_noise",
+      "question": "baering owerheating sa P-101, ano gagawin ko?",
+      "markers_all": [
+        ["bearing"],
+        ["overheat", "temperature", "cooling", "lubrication", "heat", "grease"]
+      ],
+      "anti_markers": ["i don't understand", "cannot parse", "please write in english", "unclear request"]
+    },
+    {
+      "id": "ROB-F2",
+      "probe_type": "F2",
+      "dimension": "robustness",
+      "ability": "taglish_codeswitch",
+      "question": "yung pump may tagas tapos mainit yung motor, ano unahin ko?",
+      "markers_all": [
+        ["leak", "tagas", "seal"],
+        ["motor", "pump"],
+        ["overheat", "mainit", "temperature", "check", "hot"]
+      ],
+      "anti_markers": ["i only understand english", "please translate", "i can't read tagalog"]
+    },
+    {
+      "id": "ROB-F3",
+      "probe_type": "F3",
+      "dimension": "robustness",
+      "ability": "paraphrase_invariance",
+      "question": "What's the recommended PM interval for a centrifugal pump?",
+      "markers_all": [
+        ["monthly", "quarterly", "frequency", "interval"],
+        ["pump", "centrifugal"]
+      ],
+      "anti_markers": []
+    },
+    {
+      "id": "ROB-F4",
+      "probe_type": "F4",
+      "dimension": "robustness",
+      "ability": "distractor_robustness",
+      "question": "by the way the canteen food was amazing today haha anyway why is motor M-02 tripping the breaker?",
+      "markers_all": [
+        ["motor", "m-02"],
+        ["trip", "breaker", "overload", "current", "electrical", "draw"]
+      ],
+      "anti_markers": ["canteen", "food", "glad you enjoyed", "lunch"]
+    },
+    {
+      "id": "ROB-F5",
+      "probe_type": "F5",
+      "dimension": "robustness",
+      "ability": "garbage_noise_input",
+      "question": "uh... um... eto... ah",
+      "markers_all": [
+        ["didn't catch", "could you", "clarify", "say that again", "not sure what", "what would you like", "repeat that"]
+      ],
+      "anti_markers": ["here is the information", "the mtbf is", "your equipment", "based on your records"]
+    },
+    {
+      "id": "ROB-F6",
+      "probe_type": "F6",
+      "dimension": "robustness",
+      "ability": "very_long_input",
+      "question": "so this morning I got in early and the shift before left a mess and the coffee machine was broken and then I checked the line and there was the usual noise and someone parked in my spot again and anyway the real question is should I replace the bearing on P-203 or just regrease it?",
+      "markers_all": [
+        ["bearing"],
+        ["replace", "regrease", "grease", "lubricate", "re-grease"]
+      ],
+      "anti_markers": ["coffee", "parking", "spot"]
+    },
+    {
+      "id": "ROB-F7",
+      "probe_type": "F7",
+      "dimension": "robustness",
+      "ability": "other_ph_language",
+      "question": "Ngano na-init ang motor sa among pump?",
+      "markers_all": [
+        ["motor"],
+        ["overheat", "init", "heat", "temperature", "cooling", "load"]
+      ],
+      "anti_markers": ["i only understand english", "please translate", "i can't read"]
+    }
+  ]
+}

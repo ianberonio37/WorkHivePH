@@ -1,0 +1,75 @@
+{
+  "generated_at": "2026-06-09T12:22:37+00:00",
+  "version": 1,
+  "layer": "G-1.5 substrate (companion)",
+  "source": "aggregated from scorecard + baselines + harvest candidates + observables",
+  "dims_total": 8,
+  "dims_active": 6,
+  "golden_corpus": {
+    "agent": {
+      "train": 40,
+      "val": 18,
+      "test": 10,
+      "total": 68
+    },
+    "rag": {
+      "train": 5,
+      "val": 3,
+      "test": 2,
+      "total": 10
+    },
+    "memory": {
+      "train": 9,
+      "val": 5,
+      "test": 2,
+      "total": 16
+    },
+    "persona": {
+      "train": 5,
+      "val": 3,
+      "test": 4,
+      "total": 12
+    },
+    "safety": {
+      "train": 17,
+      "val": 5,
+      "test": 3,
+      "total": 25
+    }
+  },
+  "baselines": {
+    "agent": {
+      "locked_test_pass_rate": 100.0,
+      "locked_test_n": 2
+    },
+    "rag": {
+      "locked_test_pass_rate": 100.0,
+      "locked_test_n": 1
+    },
+    "memory": {
+      "locked_test_pass_rate": 100.0,
+      "locked_test_n": 1
+    },
+    "persona": {
+      "locked_test_pass_rate": 100.0,
+      "locked_test_n": 4
+    }
+  },
+  "harvest": {
+    "candidates_total": 0,
+    "pending": 0,
+    "accepted": 0,
+    "rejected": 0,
+    "generated_at": null
+  },
+  "live_observables": {
+    "pillars": []
+  },
+  "optimization": {
+    "proposals": 6,
+    "last_ab": {
+      "proposal": "OPT-RAG-04",
+      "decision": "REJECT"
+    }
+  }
+}

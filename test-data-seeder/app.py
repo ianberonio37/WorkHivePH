@@ -929,6 +929,30 @@ def api_run_gate():
     return jsonify({"started": True})
 
 
+@app.route("/api/run-fast-guardian", methods=["POST"])
+def api_run_fast_guardian():
+    """G0 Fast Guardian ONLY — static validators, no browser, no reseed (~90s).
+
+    What the Layer-0 'Fast Guardian' card actually promises
+    (run_platform_checks.py --fast). The heavier /api/run-gate runs the FULL
+    release gate (reseed + Playwright UI, ~40 min) — wiring the card to that was
+    a mislabel found in the live MCP gate drive (2026-06-09).
+    """
+    if JOB_STATE["running"]:
+        return jsonify({"error": "another job is running"}), 409
+
+    def _run(client, log):
+        script = WORKHIVE_ROOT / "run_platform_checks.py"
+        if not script.exists():
+            log(f"ERROR: run_platform_checks.py not found at {script}")
+            return {"exit_code": 1}
+        rc = _run_root_cmd([sys.executable, "-u", str(script), "--fast"], log)
+        return {"exit_code": rc}
+
+    _run_job("fast_guardian", _run)
+    return jsonify({"started": True})
+
+
 @app.route("/api/run-gate-ai", methods=["POST"])
 def api_run_gate_ai():
     """Runs the full release gate WITH AI Full pack (adds Groq API calls)."""
@@ -985,6 +1009,170 @@ def api_run_ai_loop():
     return jsonify({"started": True})
 
 
+# ── Upstream + downstream gate layers (G-1.5 / G-1 / G3) ────────────────────
+# These three round out the panel to the full 7-layer Unified Mega Gate. They
+# run scripts that live at WORKHIVE_ROOT (not under test-data-seeder/), so they
+# use _run_root_cmd rather than the seeder-local _run_subprocess helper.
+def _run_root_cmd(cmd, log) -> int:
+    """Stream a subprocess rooted at WORKHIVE_ROOT; return its exit code."""
+    import re as _re
+    ansi = _re.compile(r"\x1b\[[0-9;]*m")
+    try:
+        proc = subprocess.Popen(
+            cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+            cwd=str(WORKHIVE_ROOT), bufsize=1, text=True,
+            encoding="utf-8", errors="replace",
+        )
+    except Exception as e:
+        log(f"ERROR: failed to launch {cmd!r}: {type(e).__name__}: {e}")
+        return 1
+    for line in proc.stdout:
+        clean = ansi.sub("", line.rstrip())
+        if clean:
+            log(clean)
+    proc.wait()
+    return proc.returncode
+
+
+# The 9 pattern miners with proven no-arg run endpoints (mirrors edge/html
+# standalone + the _MINING_CLUSTERS factory below). Run these, then aggregate.
+_SUBSTRATE_MINERS = [
+    "tools/mine_edge_patterns.py",
+    "tools/mine_html_patterns.py",
+    "tools/mine_js_module_patterns.py",
+    "tools/mine_migration_patterns.py",
+    "tools/mine_python_tool_patterns.py",
+    "tools/mine_validator_patterns.py",
+    "tools/mine_seeder_patterns.py",
+    "tools/mine_skill_rules.py",
+    "tools/mine_canonical_registry.py",
+]
+
+
+@app.route("/api/run-substrate", methods=["POST"])
+def api_run_substrate():
+    """G-1.5 Substrate: run every pattern miner, then aggregate the manifest.
+
+    Informational layer (exit 0 even with findings) — surfaces code-SHAPE drift
+    before it becomes a bug. ~30-60s.
+    """
+    if JOB_STATE["running"]:
+        return jsonify({"error": "another job is running"}), 409
+
+    def _run(client, log):
+        worst = 0
+        ran = 0
+        for rel in _SUBSTRATE_MINERS:
+            script = WORKHIVE_ROOT / rel
+            if not script.exists():
+                log(f"  (skip: {rel} not found)")
+                continue
+            log(f"── miner: {Path(rel).name} ──")
+            rc = _run_root_cmd([sys.executable, "-u", str(script)], log)
+            ran += 1
+            if rc != 0:
+                worst = rc
+                log(f"  ({Path(rel).name} exited {rc} — continuing)")
+        agg = WORKHIVE_ROOT / "tools" / "build_substrate_manifest.py"
+        if agg.exists():
+            log("── aggregating substrate_manifest.json ──")
+            _run_root_cmd([sys.executable, "-u", str(agg)], log)
+        else:
+            log("WARN: tools/build_substrate_manifest.py not found — skipping aggregate")
+        log(f"Substrate: ran {ran} miners + aggregator.")
+        return {"exit_code": worst}
+
+    _run_job("run_substrate", _run)
+    return jsonify({"started": True})
+
+
+@app.route("/api/run-autodiscovery", methods=["POST"])
+def api_run_autodiscovery():
+    """G-1 Auto-discovery: registration-gap check (validate_auto_discovery.py).
+
+    Catches new pages / edge fns / validators that were never wired in. ~20s.
+    """
+    if JOB_STATE["running"]:
+        return jsonify({"error": "another job is running"}), 409
+
+    def _run(client, log):
+        script = WORKHIVE_ROOT / "validate_auto_discovery.py"
+        if not script.exists():
+            log(f"ERROR: validate_auto_discovery.py not found at {script}")
+            return {"exit_code": 1}
+        rc = _run_root_cmd([sys.executable, "-u", str(script)], log)
+        return {"exit_code": rc}
+
+    _run_job("run_autodiscovery", _run)
+    return jsonify({"started": True})
+
+
+@app.route("/api/run-battery", methods=["POST"])
+def api_run_battery():
+    """G3 UFAI Battery: forward-only ratchet (tools/run_battery_family.py --gate).
+
+    The multi-altitude UX/a11y/IA/component audit. Headless gate ~5s; exits 0 at
+    or under baseline, 1 on regression (Mega Gate Rule B).
+    """
+    if JOB_STATE["running"]:
+        return jsonify({"error": "another job is running"}), 409
+
+    def _run(client, log):
+        script = WORKHIVE_ROOT / "tools" / "run_battery_family.py"
+        if not script.exists():
+            log(f"ERROR: tools/run_battery_family.py not found at {script}")
+            return {"exit_code": 1}
+        rc = _run_root_cmd([sys.executable, "-u", str(script), "--gate"], log)
+        return {"exit_code": rc}
+
+    _run_job("run_battery", _run)
+    return jsonify({"started": True})
+
+
+# ── Companion Dev Tool (companion_dev.py) — the AI Companion's Mega Gate ──────
+# Phase B of COMPANION_DEV_TOOL.md: a cockpit pane mirroring the 7-layer Mega
+# Gate pane, but the subject under test is the COMPANION's behaviour. Each route
+# streams `python tools/companion_dev.py <subcmd>` via _run_root_cmd (the tool
+# lives at WORKHIVE_ROOT). Offline-first layers (status/substrate/discover/gate/
+# eval/optimize/mega-default) are $0 and need no DB or model.
+def _companion_job(job_name, subargs):
+    """Return a _run(client, log) that streams companion_dev.py <subargs>."""
+    def _run(client, log):
+        script = WORKHIVE_ROOT / "tools" / "companion_dev.py"
+        if not script.exists():
+            log(f"ERROR: tools/companion_dev.py not found at {script}")
+            return {"exit_code": 1}
+        rc = _run_root_cmd([sys.executable, "-u", str(script), *subargs], log)
+        return {"exit_code": rc}
+    return _run
+
+
+# subcmd -> (job name, argv tail). Drives both the routes and the panel cards.
+_COMPANION_LAYERS = {
+    "status":    ("companion_status",    ["status"]),
+    "substrate": ("companion_substrate", ["substrate"]),   # G-1.5
+    "discover":  ("companion_discover",  ["discover"]),     # G-1
+    "probes":    ("companion_probes",    ["probes"]),       # probe-type coverage (depth signal)
+    "gate":      ("companion_gate",      ["gate"]),         # G0
+    "eval":      ("companion_eval",      ["eval"]),         # G1+G2 (grader self-tests, $0)
+    "optimize":  ("companion_optimize",  ["optimize"]),     # G3 (reflect -> propose)
+    "mega":      ("companion_mega",      ["mega"]),         # full closed loop
+}
+
+
+@app.route("/api/companion/<layer>", methods=["POST"])
+def api_companion_layer(layer):
+    """Run one Companion Dev Tool layer (status/substrate/discover/gate/eval/optimize/mega)."""
+    spec = _COMPANION_LAYERS.get(layer)
+    if not spec:
+        return jsonify({"error": f"unknown companion layer {layer!r}"}), 404
+    if JOB_STATE["running"]:
+        return jsonify({"error": "another job is running"}), 409
+    job_name, subargs = spec
+    _run_job(job_name, _companion_job(job_name, subargs))
+    return jsonify({"started": True})
+
+
 @app.route("/api/run-gate-visual", methods=["POST"])
 def api_run_gate_visual():
     """Gate + visual regression only (no AI, no perf). Faster than Mega Gate.
@@ -1011,7 +1199,7 @@ def api_run_mega_gate():
         return jsonify({"error": "another job is running"}), 409
     _run_job(
         "mega_gate",
-        _run_release_gate(["--with-ai", "--with-visual", "--with-perf", "--with-ai-deep"]),
+        _run_release_gate(["--with-ai", "--with-visual", "--with-perf", "--with-ai-deep", "--with-battery"]),
     )
     return jsonify({"started": True})
 
