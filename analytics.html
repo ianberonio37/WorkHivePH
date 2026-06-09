@@ -2366,7 +2366,7 @@
           `<option value="${escHtml(a)}">${escHtml(a)} (${assetMap[a].length})</option>`
         )).join('');
       rows.push(`<div class="role-row" style="padding-left:0.5rem;">
-        <select class="pm-asset-select" onchange="filterPMTasks(this.value)">
+        <select class="pm-asset-select" aria-label="Filter PM tasks by asset" onchange="filterPMTasks(this.value)">
           ${opts}
         </select>
       </div>`);
