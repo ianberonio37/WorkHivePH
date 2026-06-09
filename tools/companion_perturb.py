@@ -241,7 +241,10 @@ def _sampled_verdict(unit: dict, question: str, conn, samples: int, pace: float,
 
 
 def run_live(golden_path: Path, dim: str, types: list[str], samples: int, pace: float,
-             no_reset: bool, gate: str, emit: bool) -> int:
+             no_reset: bool, gate: str, emit: bool, label: str | None = None) -> int:
+    # `label` names the output artifacts (family key) so doctrine + safety_gaps — both dim="safety" —
+    # don't clobber each other's report/candidate files in a multi-family harvest.
+    label = label or dim
     golden = json.loads(golden_path.read_text(encoding="utf-8"))
     units = [u for u in (golden.get("probes") or golden.get("units") or []) if _marker_tokens(u)]
     if not units:
@@ -299,7 +302,7 @@ def run_live(golden_path: Path, dim: str, types: list[str], samples: int, pace: 
         "units": report_units,
     }
     OUT_DIR.mkdir(parents=True, exist_ok=True)
-    out_path = OUT_DIR / f"{dim}_perturb_report.json"
+    out_path = OUT_DIR / f"{label}_perturb_report.json"
     out_path.write_text(json.dumps(report, indent=2), encoding="utf-8")
 
     print(f"\n  {BOLD}mean invariance {mean_inv}%{RESET}  ·  mean pass {mean_pass}%  ·  {n_calls} calls")
@@ -309,7 +312,7 @@ def run_live(golden_path: Path, dim: str, types: list[str], samples: int, pace: 
         print(f"  {YEL}noisy (run-to-run variance > {VARIANCE_NOISY}): {', '.join(noisy)}{RESET}")
     print(f"  -> {out_path.relative_to(ROOT)}")
     if emit and candidates:
-        cand_path = OUT_DIR / "companion_perturb_candidates.json"
+        cand_path = OUT_DIR / f"{label}_perturb_candidates.json"   # per-family so a multi-family harvest doesn't clobber
         cand_path.write_text(json.dumps({
             "_comment": "PASSing perturbation variants — corpus-growth CANDIDATES, human-disposed. "
                         "split is train/val ONLY; NEVER promote a perturbation into the locked-test "
@@ -454,7 +457,7 @@ def main() -> int:
 
     if args.live:
         return run_live(golden_path, dim, types, max(1, args.samples), args.pace,
-                        args.no_reset, args.gate, args.emit)
+                        args.no_reset, args.gate, args.emit, label=args.family)
     return self_test(golden_path, types)
 
 
