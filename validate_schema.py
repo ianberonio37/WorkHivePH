@@ -332,7 +332,8 @@ def check_pages_in_scope():
         if fname in live_set:
             continue
         if any(s in fname for s in ["-test", ".backup", "platform-health", "guardian",
-                                     "parts-tracker", "symbol-gallery", "architecture"]):
+                                     "parts-tracker", "symbol-gallery", "architecture",
+                                     "_battery"]):  # QA test batteries (companion/ufai/journey) — injected for testing, not live pages
             continue
         content = read_file(fname)
         if content and "db.from(" in content:
