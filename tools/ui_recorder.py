@@ -621,6 +621,14 @@ def demo_logbook(page):
               delay=60)
     page.wait_for_timeout(500)
 
+    # #f-knowledge lives inside the collapsed "Add details" drawer — open it first,
+    # otherwise the field is hidden and slow_type's :visible match finds nothing.
+    page.evaluate(
+        "() => { const d = document.getElementById('extras-drawer');"
+        " if (d && !d.classList.contains('open') && typeof window.toggleExtras === 'function') window.toggleExtras(); }"
+    )
+    page.wait_for_timeout(700)
+
     slow_type(page, "#f-knowledge",
               "Check tensioner every 500 hrs. Replace bearing at first vibration sign. "
               "Correct torque is 45 Nm — NOT 40 Nm as per old manual.",
