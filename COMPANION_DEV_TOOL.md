@@ -236,11 +236,24 @@ Verified: `--self-test` PASS (tools resolve, scorecard well-formed, manifest bui
   `train − locked_test` gap column (flags `overfit-smell` at ≥ +15pp; today all dims ≤ 0pp = no overfit,
   small-n where locked-test sits at/above train), and `companion_perturb --self-test` runs as its own
   `perturb` layer in `mega` (PASS, offline). Local/uncommitted at build time.
-- **NEXT (when desired):** confirm SEC-E5 (flat gap) + SEC-E7 (noisy refusal) with a general doctrine
-  line, then re-freeze; run `--live` perturb across all families with `--samples 3 --emit` to harvest
-  stable PASS variants (`.tmp/companion_perturb_candidates.json`, train/val ONLY, never locked-test)
-  toward the n≥20 gate threshold; §9 #5 (grade RAG `cited[]` faithfulness) is the open deepening;
-  ROB-F4/F5 + DOM-G2/G4 remain optimization targets.
+- **2026-06-10 — §9 #5 (faithfulness) shipped + ALL SIX absorptions done.** RAG grader now labels
+  `faithfulness_smell` (`right_answer_wrong_reason` = relevant but ungrounded = memorization tell, fix =
+  retrieval not the prompt; also `fabricated` / `grounded_but_irrelevant`). Self-test has a faithfulness
+  CONTROL (relevant-but-uncited must FAIL + be labeled) caught 7/7; surfaced in `companion_rag_eval`.
+  Commit `4c83bf4`. mega PASS.
+- **2026-06-10 — `--live --emit` harvest across all 4 families.** 39 train/val candidates emitted
+  (domain 12 · doctrine 16 · robustness 6 · safety_gaps 5) to `.tmp/<family>_perturb_candidates.json`
+  (per-family naming, commit `976179d`; gitignored; **human-disposed, NEVER locked-test**). Run at
+  `--samples 1` = NOISY: several seeds (SEC-E2, SEC-E5, ROB-F1/F3/F7) showed seed=FAIL on a single draw
+  even though a 5-sample re-check confirmed **SEC-E2 + SEC-E5 are 4/5 PASS = majority-PASS** (the fixes
+  HOLD; the free-tier model just flips ~1-in-5 on identical input). Lesson reinforced: read harvest
+  verdicts as noisy first-pass material, not gate truth. Candidates are phrasing-diversity for train/val,
+  NOT locked-test growth (perturbations derive from tuned-against seeds), so they don't move the n≥20
+  threshold — that still needs genuinely new held-out questions.
+- **NEXT (when desired):** Ian to DISPOSE the 39 perturb candidates (promote good ones to train/val via
+  the harvest path); grow LOCKED-TEST past n≥20 with NEW human-authored held-out questions to flip
+  WARN→BLOCK; ROB-F4/F5 + DOM-G2/G4 remain optimization targets (use `--samples 3 --gate worst` for any
+  safety-critical re-check, given the ~1-in-5 model variance).
 
 ---
 
