@@ -201,5 +201,10 @@
   "20260607000004_definer_revoke_service_role_only.sql": "21a0832d62e4aecfd8bcb9bab34a3611389a8bf1220f45181e827b6d8a7da89d",
   "20260607000005_definer_hive_membership_gates_batch2.sql": "d29f3bff560174eff65269c3061d1079a23f131ee88a13a0518da8e9f556b60c",
   "20260607000006_export_hive_data_service_role_only.sql": "1bed2f970eaf89e8506dba8a8bb7a7490d45ea3f2d2b42c7a35c3774aec7641a",
-  "20260607000007_get_hive_dashboard_pm_overdue_unify.sql": "409bea255fdf6dc2bdaada848af30690b059e4ea36c44afebf2c9d760253f397"
+  "20260607000007_get_hive_dashboard_pm_overdue_unify.sql": "409bea255fdf6dc2bdaada848af30690b059e4ea36c44afebf2c9d760253f397",
+  "20260609000001_readd_hive_readiness_audit_columns.sql": "5186c8cce372bd8c4eb67d8324e30a6b603d5f54760218b9db832c6dd6900db2",
+  "20260609000002_fix_community_post_xp_search_path.sql": "85ff8ae77e3cd598c3c4488c303eb4efc902b6c9923edd0bfe1c19c3db937b8b",
+  "20260609000003_fix_community_xp_helpers_search_path.sql": "60eac35b7a403983f6f84a622779b06fd9f26a5b5cb108e3857547c0304b8df4",
+  "20260609000004_fix_schedule_item_v1_category_enum.sql": "4255a5ab3020268224ab6d8bed0e2931abf78f595c0fe70c887928fd9a180fc2",
+  "20260609000005_fix_readiness_blocker_summary.sql": "ad967f147a294e1eb812fc8b661ec93f9967e9e51362ffd6cf09ddf730d02cb1"
 }
