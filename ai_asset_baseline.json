@@ -3,8 +3,8 @@
     "asset_count": 5,
     "description": "C5: versioned baseline of AI assets. Validator FAILs if file hash moves without version bump.",
     "format_version": "1.0",
-    "last_evaluated": "2026-06-09T21:28:16Z",
-    "test_seal": "c9c49f0e024bed73"
+    "last_evaluated": "2026-06-09T22:17:07Z",
+    "test_seal": "d2bbf9c7010ff8f5"
   },
   "assets": {
     "ai-eval-runner.judge": {
@@ -64,7 +64,7 @@
       "sha256": "2197c087bf7f959f457d426e98039d31ba4b2ddd0322fc2eb277cab8c618173c"
     },
     "shared.persona": {
-      "current_version": 2,
+      "current_version": 3,
       "file": "supabase/functions/_shared/persona.ts",
       "history": [
         {
@@ -76,11 +76,16 @@
           "recorded_at": "2026-06-09T21:28:16Z",
           "sha256": "62e08a4f8a1befcf6c4cd2f060fee1f4586a078e1130cae9b80cbe8d7c77bec7",
           "version": 2
+        },
+        {
+          "recorded_at": "2026-06-09T22:17:07Z",
+          "sha256": "61df6ec654c9c9c595ec40ef52de72acc10504b7aca7de68f27194ed3f8de538",
+          "version": 3
         }
       ],
       "kind": "ts",
       "owner": "ai-engineer",
-      "sha256": "62e08a4f8a1befcf6c4cd2f060fee1f4586a078e1130cae9b80cbe8d7c77bec7"
+      "sha256": "61df6ec654c9c9c595ec40ef52de72acc10504b7aca7de68f27194ed3f8de538"
     }
   }
 }
