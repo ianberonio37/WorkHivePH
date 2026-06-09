@@ -419,11 +419,25 @@ def grade_rag_question(unit: dict, observed: dict | None,
     faithfulness = bool(cited) and not blocklist
     recall_pass = (recall is not None and recall >= thr)
     verdict = "PASS" if (recall_pass and relevancy and faithfulness) else "FAIL"
+    # §9 #5 (grokking — grade the PROCESS, not just the answer): label WHY a unit is unfaithful so a
+    # FAIL is actionable. The headline smell is "right answer, wrong reason" — the answer STATES the
+    # expected concept (relevancy) but did NOT retrieve the evidence for it (recall below threshold):
+    # the model knew it from pretraining, not from the hive's records. That is a memorization tell, and
+    # its fix is retrieval/citation, NOT the knowledge prompt — a different fix from a plain wrong
+    # answer. (Deterministic, no judge: we compare the answer's relevancy against what it cited.)
+    if blocklist:
+        smell = "fabricated"                       # asserted something the evidence forbids
+    elif relevancy and not recall_pass:
+        smell = "right_answer_wrong_reason"        # correct-sounding but ungrounded = memorization smell
+    elif recall_pass and not relevancy:
+        smell = "grounded_but_irrelevant"          # retrieved the evidence then ignored it
+    else:
+        smell = None
     return {"context_recall": round(recall, 3) if recall is not None else None,
             "context_precision": round(precision, 3),
             "cited_kinds": sorted(cited), "expected_kinds": sorted(expected),
-            "relevancy": relevancy, "faithfulness": faithfulness,
-            "blocklist_hits": blocklist, "verdict": verdict}
+            "relevancy": relevancy, "groundedness": recall_pass, "faithfulness": faithfulness,
+            "faithfulness_smell": smell, "blocklist_hits": blocklist, "verdict": verdict}
 
 
 def grade_rag_negative(unit: dict, observed: dict | None) -> dict:
@@ -467,14 +481,23 @@ def _rag_blind_observed(unit: dict):
     return {"answer": "The asset is operating.", "cited": [{"kind": "logbook", "index": 0}], "narration": ""}
 
 
+def _rag_unfaithful_observed(unit: dict, asset_terms: list[str] | None = None):
+    """Synthetic 'right answer, wrong reason' observation (§9 #5): STATE the expected concept (so the
+    answer is RELEVANT) but cite NOTHING (so it is UNGROUNDED). A process-aware grader must FAIL it AND
+    label it right_answer_wrong_reason — a memorization tell a words-only grader would miss."""
+    kws = unit.get("expected_keywords_any") or ["the value"]
+    return {"answer": f"{kws[0]}.", "cited": [], "narration": ""}
+
+
 def rag_grader_self_test(golden: dict) -> dict:
-    """Prove the RAG grader is correct AND negative-controlled with NO live companion."""
+    """Prove the RAG grader is correct AND negative-controlled AND faithfulness-aware, NO live companion."""
     asset = golden.get("asset") or {}
     asset_terms = [t for t in [asset.get("tag"), asset.get("name")] if t]
     default_recall = float(golden.get("default_recall_threshold", RAG_DEFAULT_RECALL_THRESHOLD))
     units = list(golden.get("questions") or []) + list(golden.get("negative_controls") or [])
     negatives = [u for u in units if u.get("category") == "rag_negative"]
     problems, oracle_pass, blind_pass, blind_neg_failed = [], 0, 0, 0
+    faith_total = faith_caught = 0
     for u in units:
         og = grade_rag_unit(u, _rag_oracle_observed(u, asset_terms), asset_terms, default_recall)
         if og["verdict"] == "PASS":
@@ -486,15 +509,29 @@ def rag_grader_self_test(golden: dict) -> dict:
             blind_pass += 1
         if u.get("category") == "rag_negative" and bg["verdict"] == "FAIL":
             blind_neg_failed += 1
+        # §9 #5 — the faithfulness control: a relevant-but-ungrounded answer must FAIL and be LABELLED
+        # right_answer_wrong_reason (positive grounded questions only — negatives have no expected_kinds).
+        if u.get("expected_kinds") and not (u.get("category") == "rag_negative" or u.get("expected_behavior") == "abstain"):
+            faith_total += 1
+            fg = grade_rag_unit(u, _rag_unfaithful_observed(u, asset_terms), asset_terms, default_recall)
+            if fg["verdict"] == "FAIL" and fg.get("faithfulness_smell") == "right_answer_wrong_reason":
+                faith_caught += 1
+            else:
+                problems.append(f"faithfulness smell not caught for {u.get('id')}: "
+                                f"verdict={fg['verdict']} smell={fg.get('faithfulness_smell')}")
     if oracle_pass != len(units):
         problems.append(f"oracle pass {oracle_pass}/{len(units)} (must be all)")
     if negatives and blind_neg_failed != len(negatives):
         problems.append(f"blind grader passed a negative control (failed only {blind_neg_failed}/{len(negatives)})")
     if blind_pass >= oracle_pass:
         problems.append(f"blind pass {blind_pass} >= oracle pass {oracle_pass} — grader does not discriminate")
+    if faith_total and faith_caught != faith_total:
+        problems.append(f"faithfulness grader caught only {faith_caught}/{faith_total} right-answer-wrong-reason cases")
     return {"ok": not problems, "oracle_pass": oracle_pass, "blind_pass": blind_pass,
             "total": len(units), "negatives": len(negatives),
-            "blind_negatives_failed": blind_neg_failed, "problems": problems}
+            "blind_negatives_failed": blind_neg_failed,
+            "faithfulness_total": faith_total, "faithfulness_caught": faith_caught,
+            "problems": problems}
 
 
 # ─── Phase 8 §8.2 — Memory dimension: LongMemEval-style recall + abstention grader ───────

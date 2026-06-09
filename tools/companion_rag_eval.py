@@ -70,6 +70,8 @@ def self_test() -> int:
     print(f"  oracle observation : {r['oracle_pass']}/{r['total']} PASS  (must be all)")
     print(f"  blind  observation : {r['blind_pass']}/{r['total']} PASS  (must be < oracle; negatives all FAIL)")
     print(f"  blind fails negatives: {r['blind_negatives_failed']}/{r['negatives']}")
+    print(f"  faithfulness control : {r.get('faithfulness_caught', 0)}/{r.get('faithfulness_total', 0)} "
+          f"right-answer-wrong-reason caught (§9 #5 — relevant but ungrounded must FAIL)")
     if r["ok"]:
         print(f"\n{GREEN}OK{RESET}  grader is correct AND negative-controlled.")
         print("=" * 64)
@@ -107,15 +109,22 @@ def grade_observed(observed_path: Path, out_path: Path) -> int:
                         "category": unit.get("category", ""), "type": g.get("type"),
                         "verdict": g["verdict"],
                         "context_recall": g.get("context_recall"),
-                        "context_precision": g.get("context_precision")})
+                        "context_precision": g.get("context_precision"),
+                        "groundedness": g.get("groundedness"),
+                        "faithfulness_smell": g.get("faithfulness_smell")})
 
     out = {"generated_ts": datetime.now(timezone.utc).isoformat(timespec="seconds"),
            "source": "companion_rag_eval", "dimension": "rag", "results": results}
     out_path.parent.mkdir(parents=True, exist_ok=True)
     out_path.write_text(json.dumps(out, indent=2), encoding="utf-8")
     rate = round(100 * passed / graded, 1) if graded else None
+    # §9 #5 — surface the "right answer, wrong reason" memorization smell separately from plain misses:
+    # these FAILs were RELEVANT but UNGROUNDED, so the fix is retrieval/citation, not the knowledge prompt.
+    raww = [r["id"] for r in results if r.get("faithfulness_smell") == "right_answer_wrong_reason"]
     print(f"\n{BOLD}RAG eval (observed){RESET}  ·  {graded} graded ({missing} had no observation)")
     print(f"  pass {passed}/{graded}" + (f"  ({rate}%)" if rate is not None else ""))
+    if raww:
+        print(f"  {YEL}right-answer-wrong-reason (ungrounded, fix retrieval): {', '.join(raww)}{RESET}")
     print(f"  -> {out_path.relative_to(ROOT) if out_path.is_relative_to(ROOT) else out_path}")
     print(f"  (feed to ai_eval_gate.py once the RAG baseline is frozen in 8.3)")
     return 0

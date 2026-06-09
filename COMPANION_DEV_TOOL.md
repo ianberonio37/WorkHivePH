@@ -283,7 +283,7 @@ so it fabricated. The fix moved the boundary ("you can't see records here — do
 | 2 | A memorizer fails on rephrased inputs | **Perturbation-invariance generator** — write ONE golden Q, auto-spawn k variants (typo/Taglish/Cebuano/distractor/reorder), require the SAME verdict; "invariance %" = the generalization score. Scales the corpus multiplicatively FROM PRINCIPLES (the answer to "millions of scenarios") | ✅ **BUILT** `tools/companion_perturb.py` (self-test green ×4 fams; live smoke caught SEC-E7 noisy refusal) |
 | 3 | The signal is the train–test GAP closing | Track `train_pass − locked_test_pass` per dim as an **overfitting gauge**; flag a large gap | ✅ **BUILT** — `gap` column in `companion_dev.py status` (flags `overfit-smell` at ≥ +15pp) |
 | 4 | One good measurement ≠ understanding | **Multi-sample the locked-test** (k=3–5/unit), gate on worst-case/majority, report per-unit variance (high variance = not robustly learned). De-noises the `ROB-F6` flip we hit | ✅ **BUILT** `--samples K` + `--gate worst\|majority` in `companion_perturb.py` (caught SEC-E7 noisy) |
-| 5 | Generalization found by looking INSIDE (circuits) | Can't see weights, but grade the **process**: `model_chain` / `cited[]` / `agent_memory`. Right-answer-wrong-reason (grounded-but-uncited) is a memorization smell — grade faithfulness, not just correctness | ✅ partial (RAG `cited[]`) → extend |
+| 5 | Generalization found by looking INSIDE (circuits) | Can't see weights, but grade the **process**: `model_chain` / `cited[]` / `agent_memory`. Right-answer-wrong-reason (grounded-but-uncited) is a memorization smell — grade faithfulness, not just correctness | ✅ **BUILT** — RAG grader now labels `faithfulness_smell` (`right_answer_wrong_reason` = relevant but ungrounded), self-test catches 7/7, surfaced in `companion_rag_eval` |
 | 6 | Regularization drives the SIMPLEST rule | Our regularizer = a **principle-based, SHORT prompt**. Fix a failed probe with a general doctrine line, NOT a per-scenario patch (scenario rules in the prompt = overfitting the prompt). `DOC-H4` fix was the right shape: one doctrine line | ✅ process rule — make explicit |
 
 **Build status:** #2 `tools/companion_perturb.py` (perturbation-invariance generator) ✅ **BUILT
@@ -291,8 +291,9 @@ so it fabricated. The fix moved the boundary ("you can't see records here — do
 marker graders, and its `--emit` writes PASSing variants as train/val candidates (NEVER locked-test)
 toward the n≥20 gate threshold. #3 (the train−locked_test `gap` column) ✅ **BUILT** in
 `companion_dev.py status`, and `companion_perturb --self-test` is ✅ **wired into the mega gate** as
-its own `perturb` layer (mega PASS, offline). Absorptions #1–#4 + #6 are now shipped; #5 (grade the
-process — extend RAG `cited[]` faithfulness) remains the open deepening.
+its own `perturb` layer (mega PASS, offline). **All six absorptions are now
+shipped** — #5 grades the process via the RAG `faithfulness_smell` label (`right_answer_wrong_reason`
+= the answer states the concept but cited no evidence for it; deterministic, self-test-locked at 7/7).
 
 **One place real grokking WOULD apply:** if we ever fine-tune a small open model (e.g. a LoRA on
 maintenance Q&A to cut the Groq dependency), then weight decay + the train/val/test discipline +
