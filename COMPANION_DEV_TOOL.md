@@ -217,11 +217,15 @@ Verified: `--self-test` PASS (tools resolve, scorecard well-formed, manifest bui
   "brittle to phrasing"); SEC-E7 flagged **brittle + `noisy`** under `--samples 3` (verdict flips
   run-to-run on the SAME input → the harmful-LOTO refusal is not reliably produced; exactly the §9 #4
   de-noise case). Local/uncommitted at build time.
-- **NEXT (when desired):** confirm SEC-E5 (flat gap) + SEC-E7 (noisy refusal) with a doctrine line, then
-  re-freeze; run `--live` perturb across all families with `--samples 3` to harvest stable PASS variants
-  (`--emit` → `.tmp/companion_perturb_candidates.json`, train/val ONLY, never locked-test) toward the
-  n≥20 gate threshold; add §9 #3 (train−locked_test gap column) to `companion_dev.py status`; wire
-  `companion_perturb --self-test` into the mega gate; ROB-F4/F5 + DOM-G2/G4 remain optimization targets.
+- **2026-06-10 — §9 #3 gap column + mega `perturb` layer wired.** `companion_dev.py status` now shows a
+  `train − locked_test` gap column (flags `overfit-smell` at ≥ +15pp; today all dims ≤ 0pp = no overfit,
+  small-n where locked-test sits at/above train), and `companion_perturb --self-test` runs as its own
+  `perturb` layer in `mega` (PASS, offline). Local/uncommitted at build time.
+- **NEXT (when desired):** confirm SEC-E5 (flat gap) + SEC-E7 (noisy refusal) with a general doctrine
+  line, then re-freeze; run `--live` perturb across all families with `--samples 3 --emit` to harvest
+  stable PASS variants (`.tmp/companion_perturb_candidates.json`, train/val ONLY, never locked-test)
+  toward the n≥20 gate threshold; §9 #5 (grade RAG `cited[]` faithfulness) is the open deepening;
+  ROB-F4/F5 + DOM-G2/G4 remain optimization targets.
 
 ---
 
@@ -262,7 +266,7 @@ so it fabricated. The fix moved the boundary ("you can't see records here — do
 |---|---|---|---|
 | 1 | Train acc lied; held-out told the truth | **Locked-test pass-rate is THE number**; train/val are diagnostics; never tune the prompt against locked-test | ✅ have (`gate_eval_splits`) |
 | 2 | A memorizer fails on rephrased inputs | **Perturbation-invariance generator** — write ONE golden Q, auto-spawn k variants (typo/Taglish/Cebuano/distractor/reorder), require the SAME verdict; "invariance %" = the generalization score. Scales the corpus multiplicatively FROM PRINCIPLES (the answer to "millions of scenarios") | ✅ **BUILT** `tools/companion_perturb.py` (self-test green ×4 fams; live smoke caught SEC-E7 noisy refusal) |
-| 3 | The signal is the train–test GAP closing | Track `train_pass − locked_test_pass` per dim as an **overfitting gauge**; flag a large gap | 🔨 cheap — a column in `status` |
+| 3 | The signal is the train–test GAP closing | Track `train_pass − locked_test_pass` per dim as an **overfitting gauge**; flag a large gap | ✅ **BUILT** — `gap` column in `companion_dev.py status` (flags `overfit-smell` at ≥ +15pp) |
 | 4 | One good measurement ≠ understanding | **Multi-sample the locked-test** (k=3–5/unit), gate on worst-case/majority, report per-unit variance (high variance = not robustly learned). De-noises the `ROB-F6` flip we hit | ✅ **BUILT** `--samples K` + `--gate worst\|majority` in `companion_perturb.py` (caught SEC-E7 noisy) |
 | 5 | Generalization found by looking INSIDE (circuits) | Can't see weights, but grade the **process**: `model_chain` / `cited[]` / `agent_memory`. Right-answer-wrong-reason (grounded-but-uncited) is a memorization smell — grade faithfulness, not just correctness | ✅ partial (RAG `cited[]`) → extend |
 | 6 | Regularization drives the SIMPLEST rule | Our regularizer = a **principle-based, SHORT prompt**. Fix a failed probe with a general doctrine line, NOT a per-scenario patch (scenario rules in the prompt = overfitting the prompt). `DOC-H4` fix was the right shape: one doctrine line | ✅ process rule — make explicit |
@@ -270,8 +274,10 @@ so it fabricated. The fix moved the boundary ("you can't see records here — do
 **Build status:** #2 `tools/companion_perturb.py` (perturbation-invariance generator) ✅ **BUILT
 2026-06-10** with #4 (`--samples`/`--gate`) folded in — it reuses `companion_live_capture.py` + the
 marker graders, and its `--emit` writes PASSing variants as train/val candidates (NEVER locked-test)
-toward the n≥20 gate threshold. Still queued: #3 (the train−locked_test gap column in
-`companion_dev.py status`) and wiring `companion_perturb --self-test` into the mega gate.
+toward the n≥20 gate threshold. #3 (the train−locked_test `gap` column) ✅ **BUILT** in
+`companion_dev.py status`, and `companion_perturb --self-test` is ✅ **wired into the mega gate** as
+its own `perturb` layer (mega PASS, offline). Absorptions #1–#4 + #6 are now shipped; #5 (grade the
+process — extend RAG `cited[]` faithfulness) remains the open deepening.
 
 **One place real grokking WOULD apply:** if we ever fine-tune a small open model (e.g. a LoRA on
 maintenance Q&A to cut the Groq dependency), then weight decay + the train/val/test discipline +

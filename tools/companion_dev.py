@@ -75,8 +75,12 @@ OPTIMIZE = TOOLS / "companion_optimize.py"
 GATE = TOOLS / "ai_eval_gate.py"
 SCORECARD_TOOL = TOOLS / "companion_eval_scorecard.py"
 GRADER = TOOLS / "companion_rigorous_grader.py"
+PERTURB = TOOLS / "companion_perturb.py"   # §9 #2 perturbation-invariance generator (self-test = offline metric check)
 DIM_EVAL = {d: TOOLS / f"companion_{d}_eval.py" for d in ("agent", "rag", "memory", "persona", "domain", "robustness")}
 PRODUCT_DIMS = ("agent", "rag", "memory", "persona", "domain", "robustness")
+
+# §9 #3 overfitting gauge: train pass-rate exceeding locked-test by this many pp is a memorization smell.
+OVERFIT_GAP_PP = 15.0
 
 GREEN = "\033[92m"; RED = "\033[91m"; YEL = "\033[93m"; CYAN = "\033[96m"; BOLD = "\033[1m"; RESET = "\033[0m"
 
@@ -418,16 +422,30 @@ def cmd_status() -> int:
     n_active = sum(1 for d in dims.values() if d.get("status") == "active")
     banner(f"COMPANION DEV — STATUS  ({n_active}/{len(dims)} dims active)", "cyan")
 
-    print(f"  {BOLD}Dimension          status   locked-test     gate{RESET}")
+    print(f"  {BOLD}Dimension          status   locked-test    train        gap     gate{RESET}")
     for name, obj in sorted(dims.items(), key=lambda kv: kv[1].get("order", 99)):
-        b = bl_dims.get(name, {}).get("locked_test", {}) if name in bl_dims else {}
+        bd = bl_dims.get(name, {}) if name in bl_dims else {}
+        b = bd.get("locked_test", {})
         pr = b.get("pass_rate")
         n = b.get("n")
         lt = f"{pr:.0f}% (n={n})" if pr is not None else "—"
+        # §9 #3 overfitting gauge: train_pass − locked_test_pass. A large POSITIVE gap (train >>
+        # held-out) is the memorization smell; a negative/zero gap is fine (locked-test is honest).
+        tb = bd.get("train", {})
+        tr = tb.get("pass_rate")
+        tn = tb.get("n")
+        train_s = f"{tr:.0f}% (n={tn})" if tr is not None else "—"
+        gap = (tr - pr) if (tr is not None and pr is not None) else None
+        if gap is None:
+            gap_s = "—"
+        else:
+            gap_s = f"{'+' if gap >= 0 else '-'}{abs(gap):.0f}pp"
+        overfit = gap is not None and gap >= OVERFIT_GAP_PP
+        warn = f"  {YEL}overfit-smell{RESET}" if overfit else ""
         eff = _effective_gate_state(name, obj, bl_dims)
         st = obj.get("status", "?")
         stc = GREEN if st == "active" else YEL
-        print(f"  {name:<17} {stc}{st:<8}{RESET} {lt:<15} {eff}")
+        print(f"  {name:<17} {stc}{st:<8}{RESET} {lt:<14} {train_s:<12} {gap_s:<7} {eff}{warn}")
 
     # Harvest queue
     cand = _load(CANDIDATES)
@@ -537,6 +555,12 @@ def cmd_mega(args) -> int:
             grok = grok and o
     layers.append(("graders", grok, f"{sum(1 for d in PRODUCT_DIMS if DIM_EVAL[d].exists())} dim self-tests")); print()
 
+    # perturbation-invariance metric self-test (§9 #2, offline) — proves the generator emits
+    # intent-preserving variants AND the invariance metric separates a generalizer from a memorizer.
+    if PERTURB.exists():
+        pzok, _ = run_tool([PERTURB, "--self-test"], "perturb-invariance self-test (generalizer 100% vs memorizer 0%)")
+        layers.append(("perturb", pzok, "invariance metric discriminates")); print()
+
     vok, _ = run_tool([SCORECARD_TOOL, "verify"], "scorecard registry verify")
     layers.append(("scorecard", vok, "registry well-formed")); print()
 
@@ -589,7 +613,7 @@ def cmd_self_test() -> int:
     fails: list[str] = []
 
     # 1. every orchestrated tool + grader exists
-    for t in [HARVEST, OPTIMIZE, GATE, SCORECARD_TOOL, GRADER, *DIM_EVAL.values()]:
+    for t in [HARVEST, OPTIMIZE, GATE, SCORECARD_TOOL, GRADER, PERTURB, *DIM_EVAL.values()]:
         if not t.exists():
             fails.append(f"missing tool: {t.relative_to(ROOT)}")
 
