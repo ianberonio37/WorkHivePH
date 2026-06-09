@@ -363,16 +363,45 @@
   // Predictive Maintenance gates at Stair 3 (Predictive-Ready). If the hive
   // is below that stair, we refuse to render risk scores that would mislead
   // the worker. Doctrine: "predictive analytics on insufficient data lies."
+  // 2026-06-09: gate on REAL DATA, not just the maturity stair. batch-risk-scoring
+  // does NOT fabricate — it only writes scores for assets with enough actual fault
+  // history (insufficient-data assets are flagged, never invented). So if
+  // v_risk_truth already has scores for this hive, the old hard Stair-3 gate was
+  // HIDING genuinely-computed risk (e.g. 2 high-risk machines) and contradicting
+  // the Analytics > Predictive phase, which shows them ungated. Doctrine preserved:
+  // when there is truly nothing computed yet, we still show the honest empty state.
+  let _maturityNote = null;
   if (HIVE_ID && window.checkMaturityGate && window.renderMaturityHonestEmpty) {
     const gate = await window.checkMaturityGate(db, HIVE_ID, 3);
     if (gate.blocked) {
-      const mainEl = document.querySelector('main') || document.body;
-      window.renderMaturityHonestEmpty(mainEl, gate, {
-        pageName: 'Predictive Maintenance',
-        why: 'Predictive analytics on insufficient data lies. WorkHive refuses to fabricate risk scores when your hive has not yet accumulated 90+ days of corrective history OR connected a live sensor feed. We surface the gap honestly instead of producing a chart of garbage.',
-        alternateSuggestion: 'use the Alert Hub for PM-due + stock alerts (those work at any stair), and grow your logbook discipline. The day you cross 90 days of history OR connect a sensor bridge, this page activates.',
-      });
-      return;
+      let riskCount = 0;
+      try {
+        const { count } = await db.from('v_risk_truth')
+          .select('asset_id', { count: 'exact', head: true }).eq('hive_id', HIVE_ID);
+        riskCount = count || 0;
+      } catch (_) { riskCount = 0; }
+      if (!riskCount) {
+        const mainEl = document.querySelector('main') || document.body;
+        window.renderMaturityHonestEmpty(mainEl, gate, {
+          pageName: 'Predictive Maintenance',
+          why: 'Predictive analytics on insufficient data lies. WorkHive refuses to fabricate risk scores until the engine has scored at least one asset from your logged corrective history. We surface the gap honestly instead of producing a chart of garbage.',
+          alternateSuggestion: 'use the Alert Hub for PM-due + stock alerts (those work at any stair), and keep logging breakdowns — the risk engine scores assets automatically as fault history accumulates.',
+        });
+        return;
+      }
+      _maturityNote = gate;  // real scores exist → render them, with a maturity banner
+    }
+  }
+  // Maturity banner: real scores below Stair 3 are honest (computed from logged
+  // history) but coverage improves as the hive matures — say so, don't hide them.
+  if (_maturityNote) {
+    const mainEl = document.querySelector('main');
+    if (mainEl) {
+      const b = document.createElement('div');
+      b.setAttribute('role', 'status');
+      b.style.cssText = 'margin:12px 0;padding:10px 14px;border-radius:10px;background:rgba(255,184,0,0.12);border:1px solid rgba(255,184,0,0.28);color:#FDB94A;font-size:12px;line-height:1.5;';
+      b.textContent = `Stair ${_maturityNote.currentStair} · ${_maturityNote.currentStairName} — these risk scores are computed from your real logged history (the engine scores only assets with enough fault data, it does not invent). Coverage and confidence grow as the hive matures: ${_maturityNote.blockerSummary || ''}`;
+      mainEl.insertBefore(b, mainEl.firstChild);
     }
   }
 
