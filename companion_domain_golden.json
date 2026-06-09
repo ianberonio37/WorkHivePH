@@ -1,7 +1,7 @@
 {
   "_comment": "Domain-correctness golden set (Probe Taxonomy family G). Is the companion's maintenance advice actually RIGHT? Each unit: markers_all = synonym GROUPS that a correct answer must ALL hit; anti_markers = wrong-domain phrases that must be ABSENT (wrong standard / absurd number / wrong definition). Graded by tools/companion_rigorous_grader.py grade_domain_unit (deterministic, no judge). Grounded in maintenance-expert + ISO 14224 (MTBF/MTTR), ISO 22400 / Nakajima TPM (OEE), SMRP/RCM (PM), PEC 2017 (PH standards). probe_type ties each unit to companion_probe_taxonomy.json so the `probes` coverage layer counts family G as covered.",
   "dimension": "domain",
-  "version": 3,
+  "version": 4,
   "created": "2026-06-09",
   "probes": [
     {
@@ -683,7 +683,15 @@
           "weekly",
           "hours",
           "periodic",
-          "quarterly"
+          "quarterly",
+          "annually",
+          "regularly",
+          "routine",
+          "scheduled",
+          "schedule",
+          "due date",
+          "interval",
+          "running hours"
         ]
       ],
       "anti_markers": [
@@ -692,7 +700,8 @@
         "only service it when it fails",
         "gensets are maintenance-free"
       ],
-      "source": "heldout_batch_2026-06-10"
+      "source": "heldout_batch_2026-06-10",
+      "marker_calibrated": "2026-06-10 group3 widened to the companion's real cadence register (routine/due-date/scheduler) after a live capture false-failed a substantively-correct answer"
     },
     {
       "id": "DOM-G4b",
