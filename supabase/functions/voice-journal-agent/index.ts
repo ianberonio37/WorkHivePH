@@ -178,6 +178,11 @@ serve(async (req) => {
     });
 
     const trimmed = String(answer || "").trim();
+    // Deterministic no-em-dash enforcement (OPT-PERSONA-04). The conversational persona rule bans em
+    // dashes, but the LLM violates it probabilistically run-to-run; WAT says enforce a must-be-exact
+    // output rule in CODE, not by re-asking the model. Em dash (U+2014) only -> ", " (a natural spoken
+    // pause); en dash (U+2013) is left alone so numeric ranges like "3-6 months" survive.
+    const clean = trimmed.replace(/\s*—\s*/g, ", ").replace(/,\s*,/g, ",").trim();
     const latency = Date.now() - t0;
     const hiveIdForLog =
       typeof body.hive_id === "string" && body.hive_id ? body.hive_id : null;
@@ -200,7 +205,7 @@ serve(async (req) => {
       return json(corsHeaders, 502, { error: "Empty answer from AI chain" });
     }
 
-    return json(corsHeaders, 200, { answer: trimmed, lang } satisfies AgentResponse);
+    return json(corsHeaders, 200, { answer: clean, lang } satisfies AgentResponse);
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
     if (_whWarmClient) {
