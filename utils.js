@@ -452,6 +452,12 @@ if (typeof window !== 'undefined' && !window.WH_STATUS_ENUMS) {
 
     function isOpen() {
       if (modalEl.classList.contains('hidden')) return false;
+      // .sheet content panels (marketplace/community) slide via transform and
+      // toggle a .open class; when closed they stay display:block + pointer-
+      // events:auto (just translated off-screen), so the generic checks below
+      // can't see "closed". Treat a transform-slide .sheet without .open as
+      // closed, else whModalA11y would trap focus on page load. (2026-06-09)
+      if (modalEl.classList.contains('sheet') && !modalEl.classList.contains('open')) return false;
       var cs = window.getComputedStyle(modalEl);
       if (cs.display === 'none' || cs.visibility === 'hidden') return false;
       // Opacity/pointer-events open pattern (skillmatrix .modal-overlay,

@@ -2240,6 +2240,27 @@
     document.body.style.overflow = '';
   }
 
+  // A11y (2026-06-09): the dialog role sat on the EMPTY .sheet-overlay backdrop
+  // while the actual content lives in the sibling .sheet — so axe 'region' flagged
+  // the sheet content as outside any landmark, and nothing trapped focus. Move the
+  // dialog semantics onto the content .sheet and wire whModalA11y (focus-trap +
+  // ESC + focus restore via utils.js). Done in one JS pass so all 9 sheets are
+  // covered without 18 hand edits. whModalA11y detects the .sheet's .open class.
+  (function wireSheetA11y() {
+    ['post', 'detail', 'inquiry', 'orders', 'saved-searches', 'rfq', 'watchlist', 'dispute', 'review'].forEach(function (name) {
+      var overlay = document.getElementById('overlay-' + name);
+      var sheet   = document.getElementById('sheet-' + name);
+      if (!sheet) return;
+      if (overlay) { overlay.removeAttribute('role'); overlay.removeAttribute('aria-modal'); overlay.removeAttribute('aria-labelledby'); }
+      sheet.setAttribute('role', 'dialog');
+      sheet.setAttribute('aria-modal', 'true');
+      var titleEl = sheet.querySelector('.sheet-title');
+      if (titleEl) { if (!titleEl.id) titleEl.id = 'title-sheet-' + name; sheet.setAttribute('aria-labelledby', titleEl.id); }
+      else if (!sheet.getAttribute('aria-label')) sheet.setAttribute('aria-label', 'Dialog');
+      if (typeof window.whModalA11y === 'function') window.whModalA11y(sheet, { onClose: function () { closeSheet(name); } });
+    });
+  })();
+
   function openPostSheet() {
     populateCategorySelect(_section);
     openSheet('post');
