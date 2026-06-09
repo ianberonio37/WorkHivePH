@@ -1,7 +1,7 @@
 {
   "_comment": "Domain-correctness golden set (Probe Taxonomy family G). Is the companion's maintenance advice actually RIGHT? Each unit: markers_all = synonym GROUPS that a correct answer must ALL hit; anti_markers = wrong-domain phrases that must be ABSENT (wrong standard / absurd number / wrong definition). Graded by tools/companion_rigorous_grader.py grade_domain_unit (deterministic, no judge). Grounded in maintenance-expert + ISO 14224 (MTBF/MTTR), ISO 22400 / Nakajima TPM (OEE), SMRP/RCM (PM), PEC 2017 (PH standards). probe_type ties each unit to companion_probe_taxonomy.json so the `probes` coverage layer counts family G as covered.",
   "dimension": "domain",
-  "version": 4,
+  "version": 5,
   "created": "2026-06-09",
   "probes": [
     {
@@ -183,7 +183,25 @@
           "check your data",
           "seems wrong",
           "likely an error",
-          "not minutes"
+          "not minutes",
+          "red flag",
+          "way too",
+          "way below",
+          "way above",
+          "way off",
+          "can't be right",
+          "cannot be right",
+          "no way",
+          "alarming",
+          "fire drill",
+          "fire alarm",
+          "that's not a number",
+          "not a number",
+          "doesn't add up",
+          "off the charts",
+          "breakdown every",
+          "full meltdown",
+          "meltdown"
         ],
         [
           "mtbf",
@@ -194,7 +212,8 @@
         "yes, 5 minutes is a normal mtbf",
         "that is a healthy mtbf",
         "5 minutes is fine"
-      ]
+      ],
+      "marker_calibrated": "2026-06-10 group1 widened to the companion persona-voice absurdity register (red-flag/fire-drill/way-below) after live capture showed correct answers in non-clinical voice"
     },
     {
       "id": "DOM-G1-pz-casing",
@@ -387,7 +406,25 @@
           "check your data",
           "seems wrong",
           "likely an error",
-          "not minutes"
+          "not minutes",
+          "red flag",
+          "way too",
+          "way below",
+          "way above",
+          "way off",
+          "can't be right",
+          "cannot be right",
+          "no way",
+          "alarming",
+          "fire drill",
+          "fire alarm",
+          "that's not a number",
+          "not a number",
+          "doesn't add up",
+          "off the charts",
+          "breakdown every",
+          "full meltdown",
+          "meltdown"
         ],
         [
           "mtbf",
@@ -401,7 +438,8 @@
       ],
       "parent_id": "DOM-G6",
       "perturbation": "casing",
-      "source": "perturb_harvest_2026-06-10"
+      "source": "perturb_harvest_2026-06-10",
+      "marker_calibrated": "2026-06-10 group1 widened to the companion persona-voice absurdity register (red-flag/fire-drill/way-below) after live capture showed correct answers in non-clinical voice"
     },
     {
       "id": "DOM-G6-pz-filler",
@@ -422,7 +460,25 @@
           "check your data",
           "seems wrong",
           "likely an error",
-          "not minutes"
+          "not minutes",
+          "red flag",
+          "way too",
+          "way below",
+          "way above",
+          "way off",
+          "can't be right",
+          "cannot be right",
+          "no way",
+          "alarming",
+          "fire drill",
+          "fire alarm",
+          "that's not a number",
+          "not a number",
+          "doesn't add up",
+          "off the charts",
+          "breakdown every",
+          "full meltdown",
+          "meltdown"
         ],
         [
           "mtbf",
@@ -436,7 +492,8 @@
       ],
       "parent_id": "DOM-G6",
       "perturbation": "filler",
-      "source": "perturb_harvest_2026-06-10"
+      "source": "perturb_harvest_2026-06-10",
+      "marker_calibrated": "2026-06-10 group1 widened to the companion persona-voice absurdity register (red-flag/fire-drill/way-below) after live capture showed correct answers in non-clinical voice"
     },
     {
       "id": "DOM-G6-pz-typo",
@@ -457,7 +514,25 @@
           "check your data",
           "seems wrong",
           "likely an error",
-          "not minutes"
+          "not minutes",
+          "red flag",
+          "way too",
+          "way below",
+          "way above",
+          "way off",
+          "can't be right",
+          "cannot be right",
+          "no way",
+          "alarming",
+          "fire drill",
+          "fire alarm",
+          "that's not a number",
+          "not a number",
+          "doesn't add up",
+          "off the charts",
+          "breakdown every",
+          "full meltdown",
+          "meltdown"
         ],
         [
           "mtbf",
@@ -471,7 +546,8 @@
       ],
       "parent_id": "DOM-G6",
       "perturbation": "typo",
-      "source": "perturb_harvest_2026-06-10"
+      "source": "perturb_harvest_2026-06-10",
+      "marker_calibrated": "2026-06-10 group1 widened to the companion persona-voice absurdity register (red-flag/fire-drill/way-below) after live capture showed correct answers in non-clinical voice"
     },
     {
       "id": "DOM-G1b",
@@ -839,7 +915,24 @@
           "seems wrong",
           "likely an error",
           "can't be right",
-          "not days"
+          "not days",
+          "red flag",
+          "way too",
+          "way below",
+          "way above",
+          "way off",
+          "cannot be right",
+          "no way",
+          "alarming",
+          "fire drill",
+          "fire alarm",
+          "that's not a number",
+          "not a number",
+          "doesn't add up",
+          "off the charts",
+          "breakdown every",
+          "full meltdown",
+          "meltdown"
         ],
         [
           "mttr",
@@ -853,7 +946,8 @@
         "45 days is fine",
         "45 days sounds about right"
       ],
-      "source": "heldout_batch_2026-06-10"
+      "source": "heldout_batch_2026-06-10",
+      "marker_calibrated": "2026-06-10 group1 widened to the companion persona-voice absurdity register (red-flag/fire-drill/way-below) after live capture showed correct answers in non-clinical voice"
     },
     {
       "id": "DOM-G6c",
@@ -873,7 +967,25 @@
           "miscalculation",
           "can't be right",
           "error in",
-          "capped at 100"
+          "capped at 100",
+          "red flag",
+          "way too",
+          "way below",
+          "way above",
+          "way off",
+          "cannot be right",
+          "no way",
+          "not realistic",
+          "alarming",
+          "fire drill",
+          "fire alarm",
+          "that's not a number",
+          "not a number",
+          "doesn't add up",
+          "off the charts",
+          "breakdown every",
+          "full meltdown",
+          "meltdown"
         ],
         [
           "oee",
@@ -886,7 +998,8 @@
         "130% is great",
         "130% means very efficient"
       ],
-      "source": "heldout_batch_2026-06-10"
+      "source": "heldout_batch_2026-06-10",
+      "marker_calibrated": "2026-06-10 group1 widened to the companion persona-voice absurdity register (red-flag/fire-drill/way-below) after live capture showed correct answers in non-clinical voice"
     }
   ]
 }
