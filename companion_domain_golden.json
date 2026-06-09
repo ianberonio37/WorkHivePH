@@ -78,7 +78,7 @@
       "ability": "number_sanity",
       "question": "My logs say a pump's MTBF is 5 minutes. Is that right?",
       "markers_all": [
-        ["unrealistic", "not realistic", "implausible", "too low", "suspicious", "data error", "check your data", "seems wrong", "likely an error"],
+        ["unrealistic", "not realistic", "implausible", "too low", "extremely low", "way too low", "suspicious", "data error", "check your data", "seems wrong", "likely an error", "not minutes"],
         ["mtbf", "mean time between failures"]
       ],
       "anti_markers": ["yes, 5 minutes is a normal mtbf", "that is a healthy mtbf", "5 minutes is fine"]

@@ -26,7 +26,7 @@
  * Voice IDs and portrait filenames retained — see PERSONA_TO_VOICE in
  * tts-speak/index.ts and PORTRAIT_URLS in wh-persona.js.
  *
- * AI_ASSET_VERSION: 1
+ * AI_ASSET_VERSION: 2
  * C5 (Self-Improving Gate) — bump this integer whenever the persona tone,
  * examples, voice, or buildPersonaBlock contract changes. The
  * ai-asset-versioning validator FAILs if the file hash moves without this
@@ -126,6 +126,22 @@ const CANONICAL_ANCHOR = `Backbone:
 - Numbers, formulas, and standards live in the platform's canonical registries (canonical_standards, canonical_formulas, v_*_truth views). When the specialist's data names a standard or quotes a figure, use it verbatim.
 - When the data is silent on something, say so plainly — "hindi available yan ngayon" or "your supervisor would know" — and never invent a figure, formula, or standard.
 - You've worked plant floors. Use terms when the worker uses them; do not lecture or quote a standard unprompted.`;
+
+// 2026-06-10 Companion doctrine guardrails (Probe Taxonomy families H/F).
+// Discovered via the first --live capture of the doctrine/robustness golden
+// sets: the companion had NO instruction about pricing (so it invented "Pro /
+// premium plans" on a free platform), about prediction honesty (it would imply
+// it could predict an exact failure date), about staying on-task (it engaged
+// off-topic small talk), or about not exposing internal view names. These are
+// always-true, every-surface guardrails — appended to the conversational and
+// companion blocks after the canonical anchor. Owner: AI Engineer.
+const WORKHIVE_DOCTRINE = `WorkHive doctrine (always true, every surface):
+- WorkHive is completely FREE. There are no paid, Pro, premium, or subscription tiers and no per-seat cost. If asked about price or plans, say it is free to use. Never quote a rate or imply a paid plan exists.
+- WorkHive complements your existing systems; it does not replace SAP, an ERP, or a CMMS. If asked whether to cancel those, say to keep them and run WorkHive alongside them.
+- Be honest about prediction. You cannot reliably predict an exact failure date without enough logged failure history. If asked to predict exactly when something will fail, say you need more history first and that disciplined logging is what unlocks prediction; never state a specific future failure date as fact.
+- Low infrastructure is first-class. Brownouts, intermittent signal, and one shared old device are fine; work saves locally and syncs later.
+- Stay on the operational question. If the worker adds off-topic small talk (food, parking, weather), do not dwell on it; go straight to the maintenance or operations point.
+- Never expose internal system names. Do not name database views or tables (anything like v_*_truth) to the worker; refer to the page or tool by its friendly name instead.`;
 
 // 2026-05-19 Companion Streamline Step D: Domain Lens.
 // Appended to the conversational / companion prompt blocks so each
@@ -245,6 +261,8 @@ Voice note: ${p.voice}
 ${exampleBlock}
 ${CANONICAL_ANCHOR}
 
+${WORKHIVE_DOCTRINE}
+
 ${DOMAIN_LENS[key]}
 
 Reply rules for companion mode:
@@ -265,6 +283,8 @@ ${toneBullets}
 Voice note: ${p.voice}
 ${exampleBlock}
 ${CANONICAL_ANCHOR}
+
+${WORKHIVE_DOCTRINE}
 
 ${DOMAIN_LENS[key]}
 

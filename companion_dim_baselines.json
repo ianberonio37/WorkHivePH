@@ -1,6 +1,6 @@
 {
   "_meta": {
-    "ai_asset_version": 4
+    "ai_asset_version": 6
   },
   "dimensions": {
     "agent": {
@@ -73,6 +73,42 @@
       "train": {
         "pass_rate": 100.0,
         "n": 5
+      }
+    },
+    "domain": {
+      "frozen_ts": "2026-06-09T13:17:03+00:00",
+      "source": "domain_eval_results.json",
+      "source_generated_ts": "2026-06-09T13:12:21+00:00",
+      "tolerance_pp": 5.0,
+      "locked_test": {
+        "pass_rate": 100.0,
+        "n": 1
+      },
+      "val": {
+        "pass_rate": 100.0,
+        "n": 2
+      },
+      "train": {
+        "pass_rate": 33.3,
+        "n": 3
+      }
+    },
+    "robustness": {
+      "frozen_ts": "2026-06-09T13:17:04+00:00",
+      "source": "robustness_eval_results.json",
+      "source_generated_ts": "2026-06-09T13:12:22+00:00",
+      "tolerance_pp": 5.0,
+      "locked_test": {
+        "pass_rate": 50.0,
+        "n": 2
+      },
+      "val": {
+        "pass_rate": 100.0,
+        "n": 2
+      },
+      "train": {
+        "pass_rate": 33.3,
+        "n": 3
       }
     }
   }

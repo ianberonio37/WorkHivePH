@@ -6,14 +6,14 @@
     "val": 20,
     "test": 20
   },
-  "built_ts": "2026-06-08T06:52:12+00:00",
+  "built_ts": "2026-06-09T13:16:48+00:00",
   "counts": {
-    "train": 147,
-    "val": 61,
-    "test": 51
+    "train": 153,
+    "val": 66,
+    "test": 54
   },
-  "total": 259,
-  "test_seal": "469b051db4ff408a07c24c5db37e894452cb8992649630dff43b8a27efec9d7d",
+  "total": 273,
+  "test_seal": "847fe14136746ba3a07a5c0984a7b5e46c2420f34795df017f5659e7e053f023",
   "items": {
     "agent_golden:AG-01-log-hydraulic-p203": {
       "id": "AG-01-log-hydraulic-p203",
@@ -775,6 +775,54 @@
       "split": "test",
       "eval_dimension": "memory"
     },
+    "domain_golden:DOM-G1": {
+      "id": "DOM-G1",
+      "kind": "domain_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "val",
+      "eval_dimension": "domain"
+    },
+    "domain_golden:DOM-G2": {
+      "id": "DOM-G2",
+      "kind": "domain_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "train",
+      "eval_dimension": "domain"
+    },
+    "domain_golden:DOM-G3": {
+      "id": "DOM-G3",
+      "kind": "domain_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "train",
+      "eval_dimension": "domain"
+    },
+    "domain_golden:DOM-G4": {
+      "id": "DOM-G4",
+      "kind": "domain_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "train",
+      "eval_dimension": "domain"
+    },
+    "domain_golden:DOM-G5": {
+      "id": "DOM-G5",
+      "kind": "domain_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "val",
+      "eval_dimension": "domain"
+    },
+    "domain_golden:DOM-G6": {
+      "id": "DOM-G6",
+      "kind": "domain_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "test",
+      "eval_dimension": "domain"
+    },
     "memory_golden:MEM-EX-01-bearing-pn": {
       "id": "MEM-EX-01-bearing-pn",
       "kind": "memory_golden",
@@ -1062,6 +1110,62 @@
       "dimension": "functionality",
       "split": "train",
       "eval_dimension": "rag"
+    },
+    "robustness_golden:ROB-F1": {
+      "id": "ROB-F1",
+      "kind": "robustness_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "test",
+      "eval_dimension": "robustness"
+    },
+    "robustness_golden:ROB-F2": {
+      "id": "ROB-F2",
+      "kind": "robustness_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "val",
+      "eval_dimension": "robustness"
+    },
+    "robustness_golden:ROB-F3": {
+      "id": "ROB-F3",
+      "kind": "robustness_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "val",
+      "eval_dimension": "robustness"
+    },
+    "robustness_golden:ROB-F4": {
+      "id": "ROB-F4",
+      "kind": "robustness_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "test",
+      "eval_dimension": "robustness"
+    },
+    "robustness_golden:ROB-F5": {
+      "id": "ROB-F5",
+      "kind": "robustness_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "train",
+      "eval_dimension": "robustness"
+    },
+    "robustness_golden:ROB-F6": {
+      "id": "ROB-F6",
+      "kind": "robustness_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "train",
+      "eval_dimension": "robustness"
+    },
+    "robustness_golden:ROB-F7": {
+      "id": "ROB-F7",
+      "kind": "robustness_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "train",
+      "eval_dimension": "robustness"
     },
     "spec:tests/achievements.spec.ts": {
       "id": "tests/achievements.spec.ts",
@@ -1510,6 +1614,13 @@
       "domain": "general",
       "dimension": "functionality",
       "split": "train"
+    },
+    "spec:tests/journey-l3-interface-reinforcement.spec.ts": {
+      "id": "tests/journey-l3-interface-reinforcement.spec.ts",
+      "kind": "spec",
+      "domain": "general",
+      "dimension": "functionality",
+      "split": "val"
     },
     "spec:tests/journey-logbook.spec.ts": {
       "id": "tests/journey-logbook.spec.ts",

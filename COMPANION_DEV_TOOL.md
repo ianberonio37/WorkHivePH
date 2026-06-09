@@ -191,8 +191,23 @@ Verified: `--self-test` PASS (tools resolve, scorecard well-formed, manifest bui
   `none yet → 2 pending` → disposed 1 accepted → `promote` → staging skeleton marked
   `train_or_val_ONLY`/`_needs_labeling` (never locked-test) → cleaned up to baseline. All
   **local/uncommitted, deploy-PENDING**.
-- **NEXT (when desired):** grow a dim's locked-test past n≥20 (via harvest→dispose→label→
-  gate_eval_splits) to watch a dim auto-flip WARN→BLOCK; OR commit + deploy the batch.
+- **2026-06-10 — `--live` capture DONE + first real companion bug FIXED + domain/robustness ACTIVE.**
+  New headless `tools/companion_live_capture.py` (anon `voice-journal` POST + psycopg2 counter reset +
+  `.data.answer` unwrap — the no-browser twin of the golden-capture specs) captured all 4 new families
+  **0/21 rate-limited**. Honest first scores (domain 3/6, robustness 4/7, doctrine 1/5, safety-gaps 0/3)
+  → legit grader calibration (real-phrasing synonyms; oracle-all/blind-0 self-test still discriminates;
+  `SEC-E2` anti-marker "ignore safety" was a quoted-attack FALSE-positive). Found + FIXED **DOC-H4**: the
+  companion invented paid "Pro/premium plans" on a FREE platform because the prompt had **no pricing
+  doctrine** — new `WORKHIVE_DOCTRINE` block in `_shared/persona.ts` (+ a grounding rule in
+  `voice-journal-agent` for the DB-less surface; `AI_ASSET_VERSION` 1→2; `_shared` edit needs an
+  edge-runtime restart); doctrine 1/5→**5/5**. Froze `domain` (🔒100% n=1) + `robustness` (🔒50% n=2)
+  on the locked-test split, wired both into `gate_eval_splits.py` (new KINDS + enumerators), flipped
+  pending→active. `mega` PASS, **8/8 dims active**. All local/uncommitted, deploy-PENDING. See §9 +
+  memory `project_companion_live_capture_2026_06_10`.
+- **NEXT (when desired):** build the §9 grokking-informed practices (the perturbation-invariance
+  generator FIRST); grow domain/robustness locked-test past n≥20 to auto-flip WARN→BLOCK; ROB-F4/F5
+  + DOM-G2/G4 are optimization targets; OR commit + deploy the batch (persona.ts may need an
+  `ai_asset_baseline.py` refresh for the pre-commit gate).
 
 ---
 
@@ -200,3 +215,49 @@ Verified: `--self-test` PASS (tools resolve, scorecard well-formed, manifest bui
 
 - **Phase B form** — confirm whether the web cockpit is wanted now or after Phase A proves out (Ian leaned "same structure as the Mega Gate," which has both CLI + panel).
 - **Deploy posture** — the whole loop runs LOCALLY (capture/optimize via local Supabase + edge runtime). Deploy is only ever "go live," never "to verify" (per [[feedback_local_runtime_verify_no_deploy]]).
+
+---
+
+## 9. Grokking-informed practices (2026-06-10)
+
+Source: a session discussion of **grokking** — delayed generalization (Power et al. 2022,
+[arXiv:2201.02177](https://arxiv.org/abs/2201.02177); Nanda et al. mechanistic-interpretability
+follow-up, arXiv:2301.05217; Grokfast [arXiv:2405.20233](https://arxiv.org/pdf/2405.20233),
+repo `ironjr/grokfast`).
+
+**The honest reframe.** Grokking is a **training-time / weights** phenomenon (train accuracy
+saturates early while held-out accuracy stays at chance, then *suddenly* generalizes as weight
+decay drives the net off the memorizing solution onto the rule). Our companion is a **frozen API
+model** (Groq `llama-4-scout`) — we do **not** train its weights, so we cannot "induce grokking"
+in it. Chasing that would be a category error.
+
+**Why the principle still steers us.** The generalization is already paid for by the foundation
+model's pretraining — that is *why* we don't enumerate a million scenarios. Our job is to supply
+the few things it can't know (**principles/doctrine + grounding**) and then **measure
+generalization** the way grokking taught us to: on **held-out / perturbed / multi-sampled**
+inputs, never on the data we authored against. This is the philosophy of the whole tool, and it
+answers the standing constraint *"millions of scenarios, no time to hand-write them."*
+
+**The boundary that must stay honest** (WAT): deterministic CODE for anything that must be exact
+(numbers from `v_*_truth`, safety steps, hive isolation) = *good* memorization that must never
+hallucinate; LLM + doctrine for the open-ended. Today's `DOC-H4` / KPI-fabrication bug was a
+**misplaced boundary** — `voice-journal` was told to "quote KPIs verbatim" but had no DB access,
+so it fabricated. The fix moved the boundary ("you can't see records here — don't invent them").
+
+| # | Grokking principle | Companion-dev practice | Status |
+|---|---|---|---|
+| 1 | Train acc lied; held-out told the truth | **Locked-test pass-rate is THE number**; train/val are diagnostics; never tune the prompt against locked-test | ✅ have (`gate_eval_splits`) |
+| 2 | A memorizer fails on rephrased inputs | **Perturbation-invariance generator** — write ONE golden Q, auto-spawn k variants (typo/Taglish/Cebuano/distractor/reorder), require the SAME verdict; "invariance %" = the generalization score. Scales the corpus multiplicatively FROM PRINCIPLES (the answer to "millions of scenarios") | 🔨 **BUILD FIRST** — `tools/companion_perturb.py` |
+| 3 | The signal is the train–test GAP closing | Track `train_pass − locked_test_pass` per dim as an **overfitting gauge**; flag a large gap | 🔨 cheap — a column in `status` |
+| 4 | One good measurement ≠ understanding | **Multi-sample the locked-test** (k=3–5/unit), gate on worst-case/majority, report per-unit variance (high variance = not robustly learned). De-noises the `ROB-F6` flip we hit | 🔨 small — `--samples` on `companion_live_capture.py` |
+| 5 | Generalization found by looking INSIDE (circuits) | Can't see weights, but grade the **process**: `model_chain` / `cited[]` / `agent_memory`. Right-answer-wrong-reason (grounded-but-uncited) is a memorization smell — grade faithfulness, not just correctness | ✅ partial (RAG `cited[]`) → extend |
+| 6 | Regularization drives the SIMPLEST rule | Our regularizer = a **principle-based, SHORT prompt**. Fix a failed probe with a general doctrine line, NOT a per-scenario patch (scenario rules in the prompt = overfitting the prompt). `DOC-H4` fix was the right shape: one doctrine line | ✅ process rule — make explicit |
+
+**Queued build (when desired):** #2 `tools/companion_perturb.py` (perturbation-invariance
+generator) FIRST — it reuses `companion_live_capture.py` + the marker graders + `gate_eval_splits`,
+and its perturbations are legitimate train/val growth toward the n≥20 gate threshold. Add #3 (gap
+column) and #4 (`--samples`) as near-free riders.
+
+**One place real grokking WOULD apply:** if we ever fine-tune a small open model (e.g. a LoRA on
+maintenance Q&A to cut the Groq dependency), then weight decay + the train/val/test discipline +
+Grokfast become directly usable on the weights.

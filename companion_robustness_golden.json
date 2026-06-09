@@ -71,7 +71,7 @@
       "question": "so this morning I got in early and the shift before left a mess and the coffee machine was broken and then I checked the line and there was the usual noise and someone parked in my spot again and anyway the real question is should I replace the bearing on P-203 or just regrease it?",
       "markers_all": [
         ["bearing"],
-        ["replace", "regrease", "grease", "lubricate", "re-grease"]
+        ["replace", "regrease", "regreasing", "grease", "greasing", "lubricate", "re-grease"]
       ],
       "anti_markers": ["coffee", "parking", "spot"]
     },

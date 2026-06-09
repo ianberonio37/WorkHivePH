@@ -103,9 +103,9 @@
         "pass_rate_pp": 5.0
       },
       "gate": "tools/ai_eval_gate.py companion-gate (G0; forward-only on locked-test, degrade-to-SKIP without fresh results)",
-      "status": "pending",
+      "status": "active",
       "blocking": true,
-      "notes": "NEW dim 2026-06-09 (Probe Taxonomy family G). status=pending until a clean baseline is frozen on the locked-test split. The highest user-trust dim: the companion gives industrial maintenance advice, so being RIGHT (per ISO/SMRP) matters as much as being grounded. Deterministic-first grading (required domain markers + wrong-standard/absurd-number anti-markers)."
+      "notes": "BUILT + ACTIVE 2026-06-10 (Probe Taxonomy family G). Clean live capture (6/6 voice-journal calls ok, 0 rate-limited) graded 4/6: honest domain-depth gaps DOM-G2 (no ISO-22400/Nakajima citation) + DOM-G4 (no impeller/erosion). Baseline frozen locked-test 100% n=1 / val 100% / train 33%; blocking effectively WARN (n=1<20). Markers calibrated to real phrasing (G6 +'extremely low'/'not minutes') with grader self-test still oracle-all/blind-0. Highest user-trust dim: being RIGHT (per ISO/SMRP) matters as much as being grounded."
     },
     "robustness": {
       "label": "Robustness (noise / Taglish)",
@@ -122,9 +122,9 @@
         "pass_rate_pp": 5.0
       },
       "gate": "tools/ai_eval_gate.py companion-gate (G0; forward-only on locked-test, degrade-to-SKIP without fresh results)",
-      "status": "pending",
+      "status": "active",
       "blocking": true,
-      "notes": "NEW dim 2026-06-09 (Probe Taxonomy family F). status=pending until golden set + baseline exist. Grades real Filipino input conditions (Taglish, STT typos, distractors) — a paraphrase/noise that flips the answer is a robustness defect. Reuses the agent/rag graders on perturbed inputs."
+      "notes": "BUILT + ACTIVE 2026-06-10 (Probe Taxonomy family F). Clean live capture (7/7 voice-journal calls ok, 0 rate-limited) graded 4-5/7. REAL gap ROB-F4 distractor-bait ('glad you enjoyed the canteen food') — companion-prompt focus rule reduced but did not eliminate it; ROB-F5 garbage input -> no explicit clarify; ROB-F6 flips on run-to-run LLM variance. Baseline frozen locked-test 50% n=2 / val 100% / train 33%; blocking effectively WARN (n=2<20). Markers calibrated (F6 +'regreasing') with self-test still discriminating. F4/F5 are 8.4 optimization targets."
     },
     "safety": {
       "label": "Safety / adversarial robustness",

@@ -1,8 +1,8 @@
 {
-  "generated_ts": "2026-06-08T19:26:06+00:00",
+  "generated_ts": "2026-06-09T09:27:36+00:00",
   "_comment": "Phase 8 \u00a78.4a \u2014 GEPA-style reflective optimization PROPOSALS for the companion. Each is a candidate prompt/RAG/chain variant pinned to a real surface + lever, derived deterministically from the independent grader's per-failure detail over the captured observations. HUMAN disposes (set status accept/reject); the measured A/B that actually moves the metric is the opt-in 8.4b step (see ab_protocol). This tool never edits an edge-fn prompt or deploys.",
   "measured_ab_protocol": "8.4b measured A/B (opt-in, mutates a LOCAL edge fn, spends LLM calls): 1) apply the candidate variant to the surface's index.ts (local runtime hot-reloads, no deploy); 2) reset ai_rate_limits+ai_user_rate_limits+ai_cache, re-run the dim's capture spec to recapture the VALIDATION + locked-test split; 3) re-grade with the same independent grader; 4) ACCEPT iff val pass-rate improves AND locked-test pass-rate stays >= its frozen floor (companion_dim_baselines.json) \u2014 anti-overfit by construction; 5) REVERT the local edit (git restore the edge fn) and record the winning diff here for deploy disposition.",
-  "count": 4,
+  "count": 6,
   "proposals": [
     {
       "id": "OPT-MEMORY-01",
@@ -46,6 +46,25 @@
       "id": "OPT-PERSONA-03",
       "dim": "persona",
       "status": "proposed",
+      "info_only": false,
+      "surface": "supabase/functions/_shared/persona.ts",
+      "failure_signature": "voice-marker-miss (zaniah/register): reply lacked the persona's signature markers (groups_hit 0/1) or self-id'd as the wrong persona ([])",
+      "lever": "sharpen the persona's tone/DOMAIN_LENS so the lane markers (name on identity, lane vocab on register, bridge on off-lane) fire reliably.",
+      "affected_units": [
+        {
+          "id": "PR-ZAN-REG-03",
+          "split": "train",
+          "verdict": "FAIL"
+        }
+      ],
+      "val_units": 0,
+      "locked_test_units": 0,
+      "ab_protocol": "8.4b measured A/B (opt-in, mutates a LOCAL edge fn, spends LLM calls): 1) apply the candidate variant to the surface's index.ts (local runtime hot-reloads, no deploy); 2) reset ai_rate_limits+ai_user_rate_limits+ai_cache, re-run the dim's capture spec to recapture the VALIDATION + locked-test split; 3) re-grade with the same independent grader; 4) ACCEPT iff val pass-rate improves AND locked-test pass-rate stays >= its frozen floor (companion_dim_baselines.json) \u2014 anti-overfit by construction; 5) REVERT the local edit (git restore the edge fn) and record the winning diff here for deploy disposition."
+    },
+    {
+      "id": "OPT-PERSONA-04",
+      "dim": "persona",
+      "status": "proposed",
       "info_only": true,
       "surface": "supabase/functions/voice-journal-agent/index.ts (post-process) or _shared/persona.ts (rule)",
       "failure_signature": "format: em dash present despite the conversational no-em-dash rule",
@@ -57,18 +76,13 @@
           "verdict": "PASS"
         },
         {
+          "id": "PR-ZAN-REG-01",
+          "split": "test",
+          "verdict": "PASS"
+        },
+        {
           "id": "PR-ZAN-REG-02",
           "split": "train",
-          "verdict": "PASS"
-        },
-        {
-          "id": "PR-ZAN-REG-03",
-          "split": "train",
-          "verdict": "PASS"
-        },
-        {
-          "id": "PR-HEZ-BRG-01",
-          "split": "val",
           "verdict": "PASS"
         },
         {
@@ -77,18 +91,37 @@
           "verdict": "PASS"
         }
       ],
-      "val_units": 2,
-      "locked_test_units": 0,
+      "val_units": 1,
+      "locked_test_units": 1,
       "ab_protocol": "8.4b measured A/B (opt-in, mutates a LOCAL edge fn, spends LLM calls): 1) apply the candidate variant to the surface's index.ts (local runtime hot-reloads, no deploy); 2) reset ai_rate_limits+ai_user_rate_limits+ai_cache, re-run the dim's capture spec to recapture the VALIDATION + locked-test split; 3) re-grade with the same independent grader; 4) ACCEPT iff val pass-rate improves AND locked-test pass-rate stays >= its frozen floor (companion_dim_baselines.json) \u2014 anti-overfit by construction; 5) REVERT the local edit (git restore the edge fn) and record the winning diff here for deploy disposition."
     },
     {
-      "id": "OPT-RAG-04",
+      "id": "OPT-RAG-05",
       "dim": "rag",
       "status": "proposed",
       "info_only": false,
       "surface": "supabase/functions/asset-brain-query/index.ts",
-      "failure_signature": "ungrounded: relevant answer with NO citation at all",
-      "lever": "require the specialist to attach at least one cited evidence lane to every answer.",
+      "failure_signature": "abstention-miss: should have declined / not fabricated a forbidden citation",
+      "lever": "strengthen the no-data abstention instruction so the specialist says it has no such evidence instead of answering.",
+      "affected_units": [
+        {
+          "id": "RG-NEG-01-no-risk-data",
+          "split": "train",
+          "verdict": "FAIL"
+        }
+      ],
+      "val_units": 0,
+      "locked_test_units": 0,
+      "ab_protocol": "8.4b measured A/B (opt-in, mutates a LOCAL edge fn, spends LLM calls): 1) apply the candidate variant to the surface's index.ts (local runtime hot-reloads, no deploy); 2) reset ai_rate_limits+ai_user_rate_limits+ai_cache, re-run the dim's capture spec to recapture the VALIDATION + locked-test split; 3) re-grade with the same independent grader; 4) ACCEPT iff val pass-rate improves AND locked-test pass-rate stays >= its frozen floor (companion_dim_baselines.json) \u2014 anti-overfit by construction; 5) REVERT the local edit (git restore the edge fn) and record the winning diff here for deploy disposition."
+    },
+    {
+      "id": "OPT-RAG-06",
+      "dim": "rag",
+      "status": "proposed",
+      "info_only": false,
+      "surface": "supabase/functions/asset-brain-query/index.ts",
+      "failure_signature": "grounded-but-uncited: answered the concept but missing citation kind(s) ['pm'] (recall=0.0)",
+      "lever": "instruct the specialist to emit a citation for EVERY evidence lane it draws on, especially ['pm'].",
       "affected_units": [
         {
           "id": "RG-02-pm-compliance",

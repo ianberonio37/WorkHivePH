@@ -1,10 +1,10 @@
 {
-  "generated_at": "2026-06-09T12:22:37+00:00",
+  "generated_at": "2026-06-09T13:18:24+00:00",
   "version": 1,
   "layer": "G-1.5 substrate (companion)",
   "source": "aggregated from scorecard + baselines + harvest candidates + observables",
   "dims_total": 8,
-  "dims_active": 6,
+  "dims_active": 8,
   "golden_corpus": {
     "agent": {
       "train": 40,
@@ -53,6 +53,14 @@
     "persona": {
       "locked_test_pass_rate": 100.0,
       "locked_test_n": 4
+    },
+    "domain": {
+      "locked_test_pass_rate": 100.0,
+      "locked_test_n": 1
+    },
+    "robustness": {
+      "locked_test_pass_rate": 50.0,
+      "locked_test_n": 2
     }
   },
   "harvest": {

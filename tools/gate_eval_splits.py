@@ -56,6 +56,8 @@ AGENT_GOLDEN = ROOT / "companion_agent_golden.json"   # Phase 8 §8.1 (Agent dim
 RAG_GOLDEN   = ROOT / "companion_rag_golden.json"     # Phase 8 §8.1 (RAG dimension)
 MEMORY_GOLDEN = ROOT / "companion_memory_golden.json" # Phase 8 §8.1 (Memory dimension)
 PERSONA_GOLDEN = ROOT / "companion_persona_golden.json" # Phase 8 §8.1 (Persona dimension)
+DOMAIN_GOLDEN = ROOT / "companion_domain_golden.json"   # Probe Taxonomy family G (Domain correctness)
+ROBUSTNESS_GOLDEN = ROOT / "companion_robustness_golden.json"  # Probe Taxonomy family F (Robustness)
 
 # Reuse the ONE taxonomy from the efficacy ledger (C1). The split tool and the ledger must
 # never drift apart on what "domain"/"dimension" mean.
@@ -75,7 +77,7 @@ except Exception:  # pragma: no cover — keep the tool runnable even if the led
 SALT       = "wh-gate-eval-splits-v1"   # change only with a deliberate full re-split
 TRAIN_PCT  = 60
 VAL_PCT    = 20   # test = the remaining 20
-KINDS      = ("spec", "companion_probe", "canonical_question", "agent_golden", "rag_golden", "memory_golden", "persona_golden")
+KINDS      = ("spec", "companion_probe", "canonical_question", "agent_golden", "rag_golden", "memory_golden", "persona_golden", "domain_golden", "robustness_golden")
 SPLITS     = ("train", "val", "test")
 
 GREEN = "\033[92m"; RED = "\033[91m"; YEL = "\033[93m"; CYAN = "\033[96m"; BOLD = "\033[1m"; RESET = "\033[0m"
@@ -197,6 +199,28 @@ def _enumerate_corpus() -> list[dict]:
             units.append({"id": pid, "kind": "persona_golden",
                           "domain": "ai", "dimension": "functionality",
                           "eval_dimension": "persona"})
+
+    # 8) Domain dimension golden set (Probe Taxonomy family G) — maintenance-correctness probes
+    #    (one `probes` section). Same additive contract: own kind, eval_dimension='domain',
+    #    legacy dimension = the AI functionality catch-all (not in the frozen results).
+    dgold = _load_json(DOMAIN_GOLDEN) or {}
+    for entry in (dgold.get("probes") or []):
+        did = entry.get("id")
+        if did:
+            units.append({"id": did, "kind": "domain_golden",
+                          "domain": "ai", "dimension": "functionality",
+                          "eval_dimension": "domain"})
+
+    # 9) Robustness dimension golden set (Probe Taxonomy family F) — noise/Taglish/distractor
+    #    probes (one `probes` section). Same additive contract: own kind,
+    #    eval_dimension='robustness', legacy dimension = the AI functionality catch-all.
+    rbgold = _load_json(ROBUSTNESS_GOLDEN) or {}
+    for entry in (rbgold.get("probes") or []):
+        rbid = entry.get("id")
+        if rbid:
+            units.append({"id": rbid, "kind": "robustness_golden",
+                          "domain": "ai", "dimension": "functionality",
+                          "eval_dimension": "robustness"})
 
     return units
 
