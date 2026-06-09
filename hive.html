@@ -1626,10 +1626,10 @@ async function initBoard() {
   if (_chipEl && typeof renderSourceChip === 'function') {
     _chipEl.innerHTML = renderSourceChip({
       freshness: 'Live data',
-      source:    'v_logbook_truth + v_pm_compliance_truth + v_inventory_items_truth',
+      source:    'v_logbook_truth + v_pm_scope_items_truth + v_inventory_items_truth',
       notes:     [
         'Open Work: status = Open',
-        'PM overdue: 30 days since last anchor',
+        'PM overdue: frequency-aware is_overdue, rolled up to assets (matches PM Scheduler)',
         'Low stock: qty_on_hand <= reorder_point',
       ],
     });

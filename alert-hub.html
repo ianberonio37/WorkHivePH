@@ -341,11 +341,13 @@
 (async function () {
   'use strict';
 
-  // Source/window chip — Alert Hub is live-data + a 30-day PM floor.
+  // Source/window chip — Alert Hub is live-data; PM overdue is frequency-aware
+  // (v_pm_scope_items_truth.is_overdue, asset roll-up), NOT a flat 30-day floor.
+  // (The flat is_due read was retired 2026-06-09; see loadPMAlerts comment.)
   document.getElementById('wh-source-chip').innerHTML = renderSourceChip({
     freshness: 'Live data',
     source:    'v_risk_truth',
-    notes:     ['PM overdue threshold: 30 days since last anchor'],
+    notes:     ['PM overdue: frequency-aware is_overdue (v_pm_scope_items_truth), rolled up to assets — matches PM Scheduler'],
   });
 
   const SUPABASE_URL = 'https://hzyvnjtisfgbksicrouu.supabase.co';
