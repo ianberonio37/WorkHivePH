@@ -3180,7 +3180,7 @@
     }, { threshold: 0.15 }).observe(hero);
   })();
 
-  /* ── Stage cards: keyboard a11y (WCAG 2.1.1 — onclick divs need role + key) + micro-bounce ── */
+  /* ── Stage cards: keyboard a11y (WCAG 2.1.1 - onclick divs need role + key) + micro-bounce ── */
   document.querySelectorAll('.stage-card').forEach(function(card) {
     card.setAttribute('role', 'button');
     if (!card.hasAttribute('tabindex')) card.setAttribute('tabindex', '0');
