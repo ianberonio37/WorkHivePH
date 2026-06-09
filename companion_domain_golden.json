@@ -1,7 +1,7 @@
 {
   "_comment": "Domain-correctness golden set (Probe Taxonomy family G). Is the companion's maintenance advice actually RIGHT? Each unit: markers_all = synonym GROUPS that a correct answer must ALL hit; anti_markers = wrong-domain phrases that must be ABSENT (wrong standard / absurd number / wrong definition). Graded by tools/companion_rigorous_grader.py grade_domain_unit (deterministic, no judge). Grounded in maintenance-expert + ISO 14224 (MTBF/MTTR), ISO 22400 / Nakajima TPM (OEE), SMRP/RCM (PM), PEC 2017 (PH standards). probe_type ties each unit to companion_probe_taxonomy.json so the `probes` coverage layer counts family G as covered.",
   "dimension": "domain",
-  "version": 2,
+  "version": 3,
   "created": "2026-06-09",
   "probes": [
     {
@@ -472,6 +472,412 @@
       "parent_id": "DOM-G6",
       "perturbation": "typo",
       "source": "perturb_harvest_2026-06-10"
+    },
+    {
+      "id": "DOM-G1b",
+      "probe_type": "G1",
+      "dimension": "domain",
+      "ability": "mtbf_mttr_definition",
+      "question": "What's the difference between MTBF and MTTF, and when would you use each?",
+      "markers_all": [
+        [
+          "mtbf",
+          "mean time between failures"
+        ],
+        [
+          "mttf",
+          "mean time to failure"
+        ],
+        [
+          "repairable"
+        ],
+        [
+          "non-repairable",
+          "not repairable",
+          "replaced",
+          "one-time",
+          "cannot be repaired",
+          "discarded"
+        ]
+      ],
+      "anti_markers": [
+        "mtbf and mttf are the same",
+        "mttf is for repairable",
+        "mtbf is for non-repairable items"
+      ],
+      "source": "heldout_batch_2026-06-10"
+    },
+    {
+      "id": "DOM-G1c",
+      "probe_type": "G1",
+      "dimension": "domain",
+      "ability": "mtbf_mttr_definition",
+      "question": "How do I calculate availability for a machine from its uptime and downtime?",
+      "markers_all": [
+        [
+          "uptime",
+          "mtbf",
+          "operating time"
+        ],
+        [
+          "downtime",
+          "mttr",
+          "repair time"
+        ],
+        [
+          "uptime / (uptime + downtime)",
+          "mtbf / (mtbf + mttr)",
+          "divided by",
+          "ratio of",
+          "over the total",
+          "/ (uptime"
+        ]
+      ],
+      "anti_markers": [
+        "availability is uptime minus downtime",
+        "availability is the same as oee",
+        "availability equals mtbf"
+      ],
+      "source": "heldout_batch_2026-06-10"
+    },
+    {
+      "id": "DOM-G2b",
+      "probe_type": "G2",
+      "dimension": "domain",
+      "ability": "oee_availability_derivation",
+      "question": "A bottling line is scheduled 8 hours, loses 1 hour to breakdowns, runs at 90% of rated speed, and 4% of bottles are rejects. Walk me through its OEE.",
+      "markers_all": [
+        [
+          "availability",
+          "available time"
+        ],
+        [
+          "performance",
+          "speed",
+          "rate"
+        ],
+        [
+          "quality",
+          "good count",
+          "yield",
+          "reject"
+        ],
+        [
+          "multiply",
+          "multiplied",
+          "product of",
+          "times",
+          "×",
+          " x "
+        ]
+      ],
+      "anti_markers": [
+        "add the three",
+        "sum of availability",
+        "average of the three",
+        "availability plus performance"
+      ],
+      "source": "heldout_batch_2026-06-10"
+    },
+    {
+      "id": "DOM-G2c",
+      "probe_type": "G2",
+      "dimension": "domain",
+      "ability": "oee_availability_derivation",
+      "question": "What are the Six Big Losses in TPM and how do they map onto OEE?",
+      "markers_all": [
+        [
+          "six big losses"
+        ],
+        [
+          "breakdown",
+          "setup",
+          "adjustment",
+          "idling",
+          "minor stop",
+          "reduced speed",
+          "defect",
+          "rework",
+          "startup",
+          "yield"
+        ],
+        [
+          "availability",
+          "performance",
+          "quality"
+        ],
+        [
+          "nakajima",
+          "tpm"
+        ]
+      ],
+      "anti_markers": [
+        "there are three big losses",
+        "six sigma losses",
+        "the six losses are all availability"
+      ],
+      "source": "heldout_batch_2026-06-10"
+    },
+    {
+      "id": "DOM-G3b",
+      "probe_type": "G3",
+      "dimension": "domain",
+      "ability": "pm_strategy",
+      "question": "What PM scope and frequency would you set for a reciprocating air compressor?",
+      "markers_all": [
+        [
+          "air filter",
+          "intake filter",
+          "oil",
+          "lubrication",
+          "lube"
+        ],
+        [
+          "belt",
+          "valve",
+          "intercooler",
+          "drain",
+          "condensate",
+          "bearing"
+        ],
+        [
+          "hours",
+          "weekly",
+          "monthly",
+          "quarterly",
+          "running hours"
+        ]
+      ],
+      "anti_markers": [
+        "run to failure",
+        "no pm needed",
+        "annual oil change only",
+        "compressors don't need pm"
+      ],
+      "source": "heldout_batch_2026-06-10"
+    },
+    {
+      "id": "DOM-G3c",
+      "probe_type": "G3",
+      "dimension": "domain",
+      "ability": "pm_strategy",
+      "question": "What preventive maintenance would you schedule for a standby diesel generator?",
+      "markers_all": [
+        [
+          "oil",
+          "fuel",
+          "coolant",
+          "battery",
+          "lubrication"
+        ],
+        [
+          "load test",
+          "run test",
+          "exercise",
+          "no-load run",
+          "test run",
+          "crank"
+        ],
+        [
+          "monthly",
+          "weekly",
+          "hours",
+          "periodic",
+          "quarterly"
+        ]
+      ],
+      "anti_markers": [
+        "run to failure",
+        "no pm needed",
+        "only service it when it fails",
+        "gensets are maintenance-free"
+      ],
+      "source": "heldout_batch_2026-06-10"
+    },
+    {
+      "id": "DOM-G4b",
+      "probe_type": "G4",
+      "dimension": "domain",
+      "ability": "failure_mode_reasoning",
+      "question": "A motor bearing keeps running hot. Why, and what should I check?",
+      "markers_all": [
+        [
+          "bearing"
+        ],
+        [
+          "lubrication",
+          "grease",
+          "over-greasing",
+          "under-greasing",
+          "lube",
+          "over greasing"
+        ],
+        [
+          "misalignment",
+          "alignment",
+          "overload",
+          "load",
+          "preload",
+          "looseness"
+        ]
+      ],
+      "anti_markers": [
+        "just add more grease",
+        "it's a plc fault",
+        "that's a normal bearing temperature, ignore it",
+        "caused by low voltage only"
+      ],
+      "source": "heldout_batch_2026-06-10"
+    },
+    {
+      "id": "DOM-G4c",
+      "probe_type": "G4",
+      "dimension": "domain",
+      "ability": "failure_mode_reasoning",
+      "question": "A motor trips its overload almost as soon as it starts. What are the likely causes and what should I check?",
+      "markers_all": [
+        [
+          "overload",
+          "current",
+          "draw",
+          "amps"
+        ],
+        [
+          "winding",
+          "short",
+          "insulation",
+          "ground fault",
+          "locked rotor",
+          "mechanical",
+          "jam",
+          "seized",
+          "bearing"
+        ],
+        [
+          "check",
+          "measure",
+          "megger",
+          "inspect",
+          "test"
+        ]
+      ],
+      "anti_markers": [
+        "just increase the breaker size",
+        "bypass the overload relay",
+        "it's only a software bug",
+        "reset and ignore it"
+      ],
+      "source": "heldout_batch_2026-06-10"
+    },
+    {
+      "id": "DOM-G5b",
+      "probe_type": "G5",
+      "dimension": "domain",
+      "ability": "standards_citation",
+      "question": "Which standard defines how to collect and classify equipment reliability and failure data?",
+      "markers_all": [
+        [
+          "iso 14224",
+          "14224"
+        ]
+      ],
+      "anti_markers": [
+        "iso 22400 defines failure data",
+        "pec governs reliability data",
+        "ashrae",
+        "nfpa governs failure data"
+      ],
+      "source": "heldout_batch_2026-06-10"
+    },
+    {
+      "id": "DOM-G5c",
+      "probe_type": "G5",
+      "dimension": "domain",
+      "ability": "standards_citation",
+      "question": "Which standard governs the design of a lightning protection system?",
+      "markers_all": [
+        [
+          "iec 62305",
+          "62305",
+          "pec 2017"
+        ]
+      ],
+      "anti_markers": [
+        "nfpa 780",
+        "iso 14224 governs lightning",
+        "ashrae governs lightning",
+        "ul 96 is the design standard"
+      ],
+      "source": "heldout_batch_2026-06-10"
+    },
+    {
+      "id": "DOM-G6b",
+      "probe_type": "G6",
+      "dimension": "domain",
+      "ability": "number_sanity",
+      "question": "My logs say the forklift's MTTR for a tyre change is 45 days. Is that right?",
+      "markers_all": [
+        [
+          "unrealistic",
+          "not realistic",
+          "implausible",
+          "too high",
+          "way too high",
+          "way too long",
+          "suspicious",
+          "data error",
+          "check your data",
+          "seems wrong",
+          "likely an error",
+          "can't be right",
+          "not days"
+        ],
+        [
+          "mttr",
+          "repair time",
+          "mean time to repair"
+        ]
+      ],
+      "anti_markers": [
+        "yes, 45 days is normal",
+        "that is a healthy mttr",
+        "45 days is fine",
+        "45 days sounds about right"
+      ],
+      "source": "heldout_batch_2026-06-10"
+    },
+    {
+      "id": "DOM-G6c",
+      "probe_type": "G6",
+      "dimension": "domain",
+      "ability": "number_sanity",
+      "question": "My dashboard shows an OEE of 130%. Is that possible?",
+      "markers_all": [
+        [
+          "not possible",
+          "impossible",
+          "can't exceed 100",
+          "cannot exceed 100",
+          "over 100",
+          "above 100",
+          "data error",
+          "miscalculation",
+          "can't be right",
+          "error in",
+          "capped at 100"
+        ],
+        [
+          "oee",
+          "overall equipment effectiveness"
+        ]
+      ],
+      "anti_markers": [
+        "yes, 130% is possible",
+        "that's an excellent oee",
+        "130% is great",
+        "130% means very efficient"
+      ],
+      "source": "heldout_batch_2026-06-10"
     }
   ]
 }

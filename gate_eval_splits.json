@@ -6,14 +6,14 @@
     "val": 20,
     "test": 20
   },
-  "built_ts": "2026-06-09T23:09:05+00:00",
+  "built_ts": "2026-06-09T23:17:00+00:00",
   "counts": {
-    "train": 164,
-    "val": 68,
-    "test": 54
+    "train": 177,
+    "val": 73,
+    "test": 56
   },
-  "total": 286,
-  "test_seal": "847fe14136746ba3a07a5c0984a7b5e46c2420f34795df017f5659e7e053f023",
+  "total": 306,
+  "test_seal": "300e12b39d4d46863c484244d5056a8d30ec2aef694695646756d1395f3e7f27",
   "items": {
     "agent_golden:AG-01-log-hydraulic-p203": {
       "id": "AG-01-log-hydraulic-p203",
@@ -799,12 +799,44 @@
       "split": "train",
       "eval_dimension": "domain"
     },
+    "domain_golden:DOM-G1b": {
+      "id": "DOM-G1b",
+      "kind": "domain_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "train",
+      "eval_dimension": "domain"
+    },
+    "domain_golden:DOM-G1c": {
+      "id": "DOM-G1c",
+      "kind": "domain_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "train",
+      "eval_dimension": "domain"
+    },
     "domain_golden:DOM-G2": {
       "id": "DOM-G2",
       "kind": "domain_golden",
       "domain": "ai",
       "dimension": "functionality",
       "split": "train",
+      "eval_dimension": "domain"
+    },
+    "domain_golden:DOM-G2b": {
+      "id": "DOM-G2b",
+      "kind": "domain_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "train",
+      "eval_dimension": "domain"
+    },
+    "domain_golden:DOM-G2c": {
+      "id": "DOM-G2c",
+      "kind": "domain_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "val",
       "eval_dimension": "domain"
     },
     "domain_golden:DOM-G3": {
@@ -815,8 +847,40 @@
       "split": "train",
       "eval_dimension": "domain"
     },
+    "domain_golden:DOM-G3b": {
+      "id": "DOM-G3b",
+      "kind": "domain_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "val",
+      "eval_dimension": "domain"
+    },
+    "domain_golden:DOM-G3c": {
+      "id": "DOM-G3c",
+      "kind": "domain_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "test",
+      "eval_dimension": "domain"
+    },
     "domain_golden:DOM-G4": {
       "id": "DOM-G4",
+      "kind": "domain_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "train",
+      "eval_dimension": "domain"
+    },
+    "domain_golden:DOM-G4b": {
+      "id": "DOM-G4b",
+      "kind": "domain_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "val",
+      "eval_dimension": "domain"
+    },
+    "domain_golden:DOM-G4c": {
+      "id": "DOM-G4c",
       "kind": "domain_golden",
       "domain": "ai",
       "dimension": "functionality",
@@ -863,6 +927,22 @@
       "split": "val",
       "eval_dimension": "domain"
     },
+    "domain_golden:DOM-G5b": {
+      "id": "DOM-G5b",
+      "kind": "domain_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "train",
+      "eval_dimension": "domain"
+    },
+    "domain_golden:DOM-G5c": {
+      "id": "DOM-G5c",
+      "kind": "domain_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "val",
+      "eval_dimension": "domain"
+    },
     "domain_golden:DOM-G6": {
       "id": "DOM-G6",
       "kind": "domain_golden",
@@ -889,6 +969,22 @@
     },
     "domain_golden:DOM-G6-pz-typo": {
       "id": "DOM-G6-pz-typo",
+      "kind": "domain_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "train",
+      "eval_dimension": "domain"
+    },
+    "domain_golden:DOM-G6b": {
+      "id": "DOM-G6b",
+      "kind": "domain_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "val",
+      "eval_dimension": "domain"
+    },
+    "domain_golden:DOM-G6c": {
+      "id": "DOM-G6c",
       "kind": "domain_golden",
       "domain": "ai",
       "dimension": "functionality",
@@ -1191,6 +1287,22 @@
       "split": "test",
       "eval_dimension": "robustness"
     },
+    "robustness_golden:ROB-F1b": {
+      "id": "ROB-F1b",
+      "kind": "robustness_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "train",
+      "eval_dimension": "robustness"
+    },
+    "robustness_golden:ROB-F1c": {
+      "id": "ROB-F1c",
+      "kind": "robustness_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "train",
+      "eval_dimension": "robustness"
+    },
     "robustness_golden:ROB-F2": {
       "id": "ROB-F2",
       "kind": "robustness_golden",
@@ -1223,12 +1335,28 @@
       "split": "train",
       "eval_dimension": "robustness"
     },
+    "robustness_golden:ROB-F2b": {
+      "id": "ROB-F2b",
+      "kind": "robustness_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "train",
+      "eval_dimension": "robustness"
+    },
     "robustness_golden:ROB-F3": {
       "id": "ROB-F3",
       "kind": "robustness_golden",
       "domain": "ai",
       "dimension": "functionality",
       "split": "val",
+      "eval_dimension": "robustness"
+    },
+    "robustness_golden:ROB-F3b": {
+      "id": "ROB-F3b",
+      "kind": "robustness_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "test",
       "eval_dimension": "robustness"
     },
     "robustness_golden:ROB-F4": {
@@ -1247,8 +1375,24 @@
       "split": "train",
       "eval_dimension": "robustness"
     },
+    "robustness_golden:ROB-F4b": {
+      "id": "ROB-F4b",
+      "kind": "robustness_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "train",
+      "eval_dimension": "robustness"
+    },
     "robustness_golden:ROB-F5": {
       "id": "ROB-F5",
+      "kind": "robustness_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "train",
+      "eval_dimension": "robustness"
+    },
+    "robustness_golden:ROB-F5b": {
+      "id": "ROB-F5b",
       "kind": "robustness_golden",
       "domain": "ai",
       "dimension": "functionality",
@@ -1263,8 +1407,24 @@
       "split": "train",
       "eval_dimension": "robustness"
     },
+    "robustness_golden:ROB-F6b": {
+      "id": "ROB-F6b",
+      "kind": "robustness_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "train",
+      "eval_dimension": "robustness"
+    },
     "robustness_golden:ROB-F7": {
       "id": "ROB-F7",
+      "kind": "robustness_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "train",
+      "eval_dimension": "robustness"
+    },
+    "robustness_golden:ROB-F7b": {
+      "id": "ROB-F7b",
       "kind": "robustness_golden",
       "domain": "ai",
       "dimension": "functionality",

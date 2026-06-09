@@ -1,6 +1,6 @@
 {
   "_comment": "Robustness golden set (Probe Taxonomy family F). dimension=robustness. Does the companion stay correct/on-topic under real PH input conditions? markers_all = what a correct reply must STILL hit despite the noise (proving it understood the typo/Taglish/distractor); anti_markers = the failure (derailed onto a distractor, refused-to-understand, fabricated on garbage). Graded by tools/companion_rigorous_grader.py grade_markers_unit. Grounded in RAGAS noise-sensitivity + Filipino field input (STT typos, Taglish, Cebuano, mic false-triggers). NOTE: F3 paraphrase-invariance is fully exercised LIVE (same question, 3 phrasings, same answer) via the --live capture; offline this unit just proves the marker grader.",
-  "version": 2,
+  "version": 3,
   "created": "2026-06-09",
   "probes": [
     {
@@ -309,6 +309,231 @@
       "parent_id": "ROB-F4",
       "perturbation": "casing",
       "source": "perturb_harvest_2026-06-10"
+    },
+    {
+      "id": "ROB-F1b",
+      "probe_type": "F1",
+      "dimension": "robustness",
+      "ability": "typo_stt_noise",
+      "question": "conpresor presure keeps dropng, wat shud i chek?",
+      "markers_all": [
+        [
+          "compressor",
+          "pressure"
+        ],
+        [
+          "leak",
+          "filter",
+          "valve",
+          "seal",
+          "check",
+          "unloader",
+          "gauge"
+        ]
+      ],
+      "anti_markers": [
+        "i don't understand",
+        "cannot parse",
+        "please write in english",
+        "unclear request"
+      ],
+      "source": "heldout_batch_2026-06-10"
+    },
+    {
+      "id": "ROB-F1c",
+      "probe_type": "F1",
+      "dimension": "robustness",
+      "ability": "typo_stt_noise",
+      "question": "moter beaing runing hot, wat to do?",
+      "markers_all": [
+        [
+          "motor",
+          "bearing"
+        ],
+        [
+          "lubrication",
+          "grease",
+          "alignment",
+          "overload",
+          "cooling",
+          "heat",
+          "check",
+          "lube"
+        ]
+      ],
+      "anti_markers": [
+        "i don't understand",
+        "cannot parse",
+        "please write in english",
+        "unclear request"
+      ],
+      "source": "heldout_batch_2026-06-10"
+    },
+    {
+      "id": "ROB-F2b",
+      "probe_type": "F2",
+      "dimension": "robustness",
+      "ability": "taglish_codeswitch",
+      "question": "yung gearbox umiingay, parang butil-butil sa loob, kailangan ko bang i-check yung bearing?",
+      "markers_all": [
+        [
+          "gearbox",
+          "bearing",
+          "gear"
+        ],
+        [
+          "noise",
+          "ingay",
+          "wear",
+          "check",
+          "vibration",
+          "inspect"
+        ]
+      ],
+      "anti_markers": [
+        "i only understand english",
+        "please translate",
+        "i can't read tagalog"
+      ],
+      "source": "heldout_batch_2026-06-10"
+    },
+    {
+      "id": "ROB-F3b",
+      "probe_type": "F3",
+      "dimension": "robustness",
+      "ability": "paraphrase_invariance",
+      "question": "How often should a cooling tower be serviced?",
+      "markers_all": [
+        [
+          "cooling tower",
+          "tower"
+        ],
+        [
+          "monthly",
+          "quarterly",
+          "weekly",
+          "frequency",
+          "interval",
+          "regularly"
+        ]
+      ],
+      "anti_markers": [],
+      "source": "heldout_batch_2026-06-10"
+    },
+    {
+      "id": "ROB-F4b",
+      "probe_type": "F4",
+      "dimension": "robustness",
+      "ability": "distractor_robustness",
+      "question": "kuya payday na bukas haha anyway bakit lagi nag-ttrip yung breaker ng aircon compressor?",
+      "markers_all": [
+        [
+          "breaker",
+          "trip"
+        ],
+        [
+          "compressor",
+          "aircon"
+        ],
+        [
+          "overload",
+          "current",
+          "short",
+          "electrical",
+          "draw",
+          "load"
+        ]
+      ],
+      "anti_markers": [
+        "payday",
+        "sweldo",
+        "salary",
+        "happy payday"
+      ],
+      "source": "heldout_batch_2026-06-10"
+    },
+    {
+      "id": "ROB-F5b",
+      "probe_type": "F5",
+      "dimension": "robustness",
+      "ability": "garbage_noise_input",
+      "question": "ha... ano... test test... ayan",
+      "markers_all": [
+        [
+          "didn't catch",
+          "could you",
+          "clarify",
+          "say that again",
+          "not sure what",
+          "what would you like",
+          "repeat that",
+          "anything specific"
+        ]
+      ],
+      "anti_markers": [
+        "here is the information",
+        "the mtbf is",
+        "your equipment",
+        "based on your records"
+      ],
+      "source": "heldout_batch_2026-06-10"
+    },
+    {
+      "id": "ROB-F6b",
+      "probe_type": "F6",
+      "dimension": "robustness",
+      "ability": "very_long_input",
+      "question": "ok so before anything the canteen ran out of rice again and the new trainee keeps leaving tools everywhere and my locker key went missing and the aircon in the office is dead but never mind all that, the real thing is the gearbox on conveyor C-12 has been whining for a week now, should I rebuild it or just replace the whole unit?",
+      "markers_all": [
+        [
+          "gearbox",
+          "c-12",
+          "conveyor"
+        ],
+        [
+          "rebuild",
+          "replace",
+          "overhaul",
+          "recondition",
+          "swap",
+          "new unit"
+        ]
+      ],
+      "anti_markers": [
+        "canteen",
+        "rice",
+        "locker",
+        "trainee"
+      ],
+      "source": "heldout_batch_2026-06-10"
+    },
+    {
+      "id": "ROB-F7b",
+      "probe_type": "F7",
+      "dimension": "robustness",
+      "ability": "other_ph_language",
+      "question": "Nganong kanunay ma-trip ang breaker sa among air compressor?",
+      "markers_all": [
+        [
+          "breaker",
+          "compressor"
+        ],
+        [
+          "trip",
+          "overload",
+          "current",
+          "electrical",
+          "load",
+          "short",
+          "draw"
+        ]
+      ],
+      "anti_markers": [
+        "i only understand english",
+        "please translate",
+        "i can't read"
+      ],
+      "source": "heldout_batch_2026-06-10"
     }
   ]
 }
