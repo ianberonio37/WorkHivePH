@@ -148,9 +148,9 @@
             ${esc(opts.pageName || 'This surface')} unlocks at Stair ${esc(String(gate.requiredStair))} — ${esc(gate.requiredStairName)}
           </span>
         </div>
-        <h2 style="font-size:1.15rem;font-weight:800;color:#F4F6FA;margin:6px 0 12px;">
+        <h1 style="font-size:1.15rem;font-weight:800;color:#F4F6FA;margin:6px 0 12px;">
           We won't fake this.
-        </h2>
+        </h1>
         <p style="font-size:13px;color:rgba(255,255,255,0.75);line-height:1.6;margin:0 0 14px;">
           ${esc(opts.why || 'Producing this output on insufficient data would mislead you. WorkHive surfaces the gap honestly instead.')}
         </p>
