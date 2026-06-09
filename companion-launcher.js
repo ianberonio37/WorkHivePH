@@ -783,7 +783,11 @@ happens to know maintenance, not a manual.`;
       if (error) throw new Error(error.message || 'Gateway failed');
       if (!data)  throw new Error('Empty gateway response');
       if (data.error) throw new Error(data.error);
-      return String(data.answer || '').trim();
+      // ai-gateway nests the reply under .data (envelope: { ok, data:{answer}, ... }).
+      // Reading top-level data.answer returned undefined -> empty string -> the floating
+      // companion rendered NOTHING on every question despite a 200. Unwrap .data.answer
+      // first, fall back to a flat .answer for any legacy/flat response shape.
+      return String((data && data.data && data.data.answer) || (data && data.answer) || '').trim();
     }
 
     const SUPABASE_URL = (typeof window !== 'undefined' && window.WH_SUPABASE_URL)
