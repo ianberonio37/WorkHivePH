@@ -683,7 +683,10 @@
   <div class="listings-info" id="listings-info"></div>
 
   <!-- Grid -->
-  <div class="listing-grid" id="listing-grid" role="list"
+  <!-- role=feed (not list): children are <article> cards; article is not a valid
+       listitem, so the list/listitem pairing tripped axe aria-allowed-role.
+       feed is the WAI-ARIA pattern for a scrollable set of article cards. -->
+  <div class="listing-grid" id="listing-grid" role="feed" aria-label="Marketplace listings"
     data-rag-tile="marketplace:listing_grid"
     data-rag-label="Marketplace listing grid"></div>
 
@@ -1710,7 +1713,7 @@
 
     const isSelected = _compareSet.has(item.id);
     return `
-      <article class="listing-card${_compareMode && isSelected ? ' compare-selected' : ''}" role="listitem" data-id="${e(item.id)}">
+      <article class="listing-card${_compareMode && isSelected ? ' compare-selected' : ''}" data-id="${e(item.id)}">
         <div class="card-image">
           ${hasImg
             ? `<img src="${e(item.image_url)}" alt="${e(item.title)}" loading="lazy" />`
