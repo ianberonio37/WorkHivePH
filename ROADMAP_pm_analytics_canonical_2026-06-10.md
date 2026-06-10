@@ -6,6 +6,17 @@ Every number should be **calculated once in one place** and **shown the same eve
 heavy screens should show a **saved result + a Refresh button** instead of recalculating every
 time you open them.
 
+## How "compute once a day" works (no scheduled job needed)
+For anything a **person looks at** (Analytics, Shift Handover, dashboards), the simple model is:
+the **first person to open it each day** triggers the calculation → it's **saved** → everyone else
+that day sees the saved copy → the **Refresh button** forces a new one. No timer, no `pg_cron`.
+
+**We only need `pg_cron` (a scheduled job) for things that must happen when nobody is looking** —
+i.e. **sending a notification** (overdue-PM email, low-stock alert, "handover ready" push). A page a
+human opens never needs a timer; a notification that must *find* the human does.
+*(Trade-off of the lazy model: the first visitor each day waits ~10–30s while it computes once. A
+tiny pre-warm job is an optional nicety, not a requirement.)*
+
 ---
 
 ## Phase 0 — DONE this session ✅
@@ -29,12 +40,13 @@ Analytics is the only one that doesn't.
 
 **Do:**
 1. Save each Analytics result to a table when it runs.
-2. Page opens → show the **last saved result instantly** with a "Computed 6h ago" label.
-3. The **Refresh button** is the only thing that recalculates.
-4. A nightly job refreshes it automatically, so mornings are fresh without a click.
+2. Page opens → if today's result already exists, show it **instantly** with a "Computed 6h ago"
+   label. If it's the first open of the day, compute once (spinner), save, show.
+3. The **Refresh button** is the only thing that forces a fresh recalculation.
+4. **No scheduled job.** (Optional later: a tiny pre-warm so the first visitor isn't the one who waits.)
 
-**Done when:** Opening Analytics is instant, shows when it was last computed, and only Refresh
-recomputes. (This is the first thing you'll actually *see* change.)
+**Done when:** Opening Analytics shows the saved result (instant after the first daily view), shows
+when it was last computed, and only Refresh recomputes. (This is the first thing you'll actually *see* change.)
 
 ---
 
@@ -42,9 +54,13 @@ recomputes. (This is the first thing you'll actually *see* change.)
 **Problem:** Handover should be a daily routine, not something recalculated on page load.
 
 **Do:**
-1. Generate the handover **once per shift** automatically (06:00 / 14:00 / 22:00).
-2. **Carry forward:** anything that happens during a shift (new job, PM done, new risk) rolls
-   into the **next** shift's handover automatically.
+1. Generate the handover **once per shift** — same lazy model: the first person to open it in a
+   new shift generates it (seeded from the previous shift's open items), and it's saved for the rest
+   of that shift.
+2. **Carry forward:** anything that happens during a shift (new job, PM done, new risk) rolls into
+   the **next** shift's handover automatically.
+3. *(Only the optional "handover ready" notification at shift change needs `pg_cron` — the page
+   itself does not.)*
 
 **Done when:** Each shift opens to a ready handover that already includes the previous shift's
 open items — nothing dropped at handoff.
@@ -131,10 +147,14 @@ do duplicate copies agree). 4 meta-gaps → closed/closing via: `validate_freque
 (done), a KPI source-parity validator (Phase 5), extend source-chip-truth, contract-violation ratchet.
 
 ### Compute model (Phase 1/2) — grounded
-Already snapshot: `amc_briefings`, `ai_reports`, `hive_readiness`, `hive_adoption_score`,
-`v_risk_truth` (daily 13:00 PHT). Outlier: analytics-orchestrator recomputes on every load → give it
-an `analytics_snapshots` table + Refresh + nightly cron. Shift handover → `shift_handovers` snapshot
-at shift boundaries with carry-forward.
+Default = **lazy daily compute-on-first-view + cache + Refresh** (no cron). The first request per
+(hive, day) computes + stores in `analytics_snapshots`; later requests read it; Refresh forces a new
+row. Same for `shift_handovers` (compute-on-first-view per shift, seeded from prior shift's open
+items). Already-snapshot surfaces (`amc_briefings`, `ai_reports`, `hive_readiness`,
+`hive_adoption_score`, `v_risk_truth` @ 13:00 PHT) can keep their current cadence or move to the same
+lazy model. **`pg_cron` is reserved for the NOTIFICATION layer only** — unattended pushes (overdue-PM
+email, low-stock alert, "handover ready") that must fire with no one on a page. Optional pre-warm cron
+is a latency nicety, not a requirement.
 
 ### Reconciliation (Phase 3) — data flow
 Engine (orchestrator + batch-risk ML + AMC) writes canonical snapshots → alert-hub, asset-hub,
