@@ -161,3 +161,95 @@ gate invariant — which is what would have prevented F4 entirely.
   validator is the safety net, but de-duplication is the cure.
 - **Honesty surfaced a process bug in me:** I told Ian "all weekly PMs completed same day" — false
   (they were staggered). Verify the premise before proposing the fix. (Already in memory.)
+
+---
+
+## 8. Compute model — snapshot + refresh, NOT live-recompute-on-load (Ian, 2026-06-10)
+
+**Principle:** heavy intelligence should render the **last computed snapshot** instantly, refresh on a
+**schedule (pg_cron)**, and recompute on **explicit user "Refresh"** — never recompute on every page
+visit. The infra mostly exists; the job is to make the cadence *consistent* and stop the one outlier
+from recomputing on load.
+
+**Current cadence (grounded against live tables):**
+
+| Surface | Today | Target |
+|---|---|---|
+| Predictive risk (`v_risk_truth`) | ✅ daily snapshot (batch-risk-scoring @ 13:00 PHT) | keep |
+| AMC daily brief (`amc_briefings`) | ✅ snapshot table | keep; render daily |
+| AI analytics narratives (`ai_reports`) | ✅ snapshot table | keep |
+| Readiness (`hive_readiness`) / Adoption (`hive_adoption_score`) | ✅ daily snapshot | keep |
+| **Analytics 4 phases (orchestrator)** | ❌ **recomputes live on EVERY page load** (descriptive/diagnostic/predictive/prescriptive each hit Python/RPCs) | **snapshot + Refresh button** |
+| alert-hub | auto-refresh ~1 min | review: snapshot + manual refresh is enough |
+| hive board readiness | realtime subscription | keep realtime for the cheap live bits |
+
+**Action (A1): Analytics snapshot table + read-snapshot-render.**
+- New `analytics_snapshots(hive_id, phase, period_days, payload jsonb, computed_at)` (or reuse `ai_reports`).
+- `analytics.html` loads the latest snapshot for (hive, phase, period) and renders instantly with a
+  "Computed <relative time> · Refresh" chip. The existing **🔄 Refresh** button (already on the page)
+  is the ONLY thing that recomputes + re-stores. No fetch-on-tab-switch.
+- pg_cron `analytics-snapshot-daily` recomputes all phases per active hive overnight so the morning
+  view is fresh without a click.
+- Matches the Architect skill rule: *"Scheduled jobs write results to a `_reports` table so the UI
+  displays them without re-running the expensive query on every page load."* This also removes the
+  page's dependency on the Python API being up at view-time.
+
+**Action (A2): Shift handover — daily render + carry-forward.**
+- Handover is generated once per **shift boundary** (pg_cron `shift-handover-06/14/22`, already the
+  documented standard) into a `shift_handovers` snapshot, NOT recomputed on page load.
+- **Carry-forward rule (Ian):** any update made during a shift (new open WO, PM done, risk change)
+  automatically rolls into the *next* shift's handover — the next snapshot seeds from the prior
+  shift's open items + deltas, so nothing is dropped at handoff. The succeeding shift opens to an
+  already-rendered brief.
+- shift-brain renders the latest `shift_handovers` row + a manual "Regenerate" for ad-hoc.
+
+---
+
+## 9. Unified intelligence reconciliation + feedback loop (Ian, 2026-06-10)
+
+**The chain Ian named:** `AMC → AI analytics → alert-hub → asset-brain → home dashboard → hive
+dashboard → predictive ML`, where user changes **feed back to the analytics engine**. Today these are
+semi-independent; the target is **one engine writes canonical signals, every surface reads them, and
+actions loop back** — the §6 "read-don't-recompute" thesis made into a closed loop.
+
+```
+                 ┌─────────────────── ANALYTICS ENGINE ───────────────────┐
+   pm_completions │  orchestrator (descriptive/diagnostic/                 │
+   logbook entries│   predictive/prescriptive)  +  batch-risk-scoring ML   │
+   sensor_readings│   +  AMC synthesis  +  ai_reports narrative            │
+   inventory tx  →│                                                        │
+        ▲         └──────── writes CANONICAL SNAPSHOTS (one source) ───────┘
+        │                                   │
+        │ FEEDBACK                          │ READ (never recompute)
+        │ (completions, thumbs,    ┌────────┼─────────┬──────────┬─────────────┐
+        │  false-positive marks)   ▼        ▼         ▼          ▼             ▼
+        │                       v_risk   analytics  amc_brief  hive_readiness  ai_reports
+        │                       _truth   _snapshots                            
+        │                          │        │         │          │             │
+        └──────────── consumed by ─┴────────┴─────────┴──────────┴─────────────┘
+                          alert-hub · asset-brain(asset-hub 360) · home tile ·
+                          hive board · predictive.html · pm-scheduler
+```
+
+**Reconciliation work items:**
+- **R1 — one alert composer.** alert-hub AND hive-board both compose risk+PM+stock+pattern. Extract
+  ONE composer (RPC/edge fn over the canonical snapshots); both render it. Removes the second
+  derivation (the F4 class) and makes the counts identical by construction.
+- **R2 — asset-brain is the per-asset projection of the same signals.** asset-hub 360 already reads
+  `v_risk_truth + v_logbook_truth + v_fmea_truth + v_weibull_truth`. Ensure alert-hub "Open in Asset
+  Hub" deep-links carry the same risk_score the feed showed (no recompute on the asset page).
+- **R3 — dashboards read the engine, not the raw.** home tile + hive board already use
+  `get_hive_dashboard`; extend that RPC (or a sibling) to also surface the AMC headline + the
+  analytics snapshot KPIs so the dashboards never recompute.
+- **R4 — predictive ML feedback.** When a supervisor acts on a risk (does the PM, marks a
+  false-positive, logs a failure), that must feed the next batch-risk-scoring run (it already reads
+  logbook/pm_completions; add an explicit "dismiss/confirm risk" signal table the ML consumes).
+  Pair with the existing `ai_reply_feedback` thumbs loop for the AI narratives.
+- **R5 — KPI source registry (ties to §3.A).** Register every KPI → its canonical snapshot/RPC.
+  The gate then enforces every surface in this chain READS its registered source. This is what makes
+  the reconciliation durable instead of a one-time cleanup.
+
+**Sequence (proposed):** A1 analytics-snapshot (immediate UX + robustness win) → R5 KPI registry +
+§3.A validator (locks "read-don't-recompute") → R1 one alert composer → retire predictive.html (§6.1)
+→ A2 shift-handover carry-forward → R4 ML feedback signal. Each step is independently shippable and
+gate-guarded.
