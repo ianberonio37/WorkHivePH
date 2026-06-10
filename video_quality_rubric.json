@@ -1,0 +1,77 @@
+{
+  "rubric": "video_quality (Creative Quality Gate)",
+  "axes": [
+    "hook",
+    "structure",
+    "craft",
+    "brand"
+  ],
+  "checks": [
+    {
+      "id": "hook_present",
+      "axis": "hook",
+      "blocking": true
+    },
+    {
+      "id": "shots_first_5s",
+      "axis": "hook",
+      "blocking": false
+    },
+    {
+      "id": "hook_punchy",
+      "axis": "hook",
+      "blocking": false
+    },
+    {
+      "id": "structure_abcd",
+      "axis": "structure",
+      "blocking": true
+    },
+    {
+      "id": "cta_present",
+      "axis": "structure",
+      "blocking": true
+    },
+    {
+      "id": "brand_in_5s",
+      "axis": "structure",
+      "blocking": false
+    },
+    {
+      "id": "message_overlays",
+      "axis": "craft",
+      "blocking": true
+    },
+    {
+      "id": "kinetic_length",
+      "axis": "craft",
+      "blocking": false
+    },
+    {
+      "id": "style_variety",
+      "axis": "craft",
+      "blocking": false
+    },
+    {
+      "id": "duration_band",
+      "axis": "craft",
+      "blocking": true
+    },
+    {
+      "id": "brand_colors",
+      "axis": "brand",
+      "blocking": false
+    }
+  ],
+  "length_band": [
+    12.0,
+    60.0,
+    75.0
+  ],
+  "sources": [
+    "Google ABCD (Think with Google)",
+    "Wistia State of Video",
+    "Meta sound-off/caption guidance",
+    "short-form 3s-hook research"
+  ]
+}

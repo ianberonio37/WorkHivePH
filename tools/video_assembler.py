@@ -74,6 +74,27 @@ def _run_ffmpeg(args: list, label: str = ""):
 
 # ── Asset discovery ───────────────────────────────────────────────────────────
 
+def make_vertical(final_mp4: Path, out_path: Path = None) -> Path:
+    """9:16 social variant (Reels/Stories/TikTok — the placement-spanning format).
+    Blurred-fill background + the sharp 16:9 master centered; audio copied.
+    Fast single ffmpeg pass; the burned captions stay in the sharp center band."""
+    final_mp4 = Path(final_mp4)
+    if out_path is None:
+        out_path = final_mp4.with_name(final_mp4.stem + "_vertical.mp4")
+    _run_ffmpeg([
+        "-i", str(final_mp4),
+        "-filter_complex",
+        "[0:v]scale=1080:1920:force_original_aspect_ratio=increase,"
+        "crop=1080:1920,gblur=sigma=18,eq=brightness=-0.12[bg];"
+        "[0:v]scale=1080:-2[fg];"
+        "[bg][fg]overlay=(W-w)/2:(H-h)/2",
+        "-c:v", "libx264", "-preset", "fast", "-crf", "22",
+        "-c:a", "copy",
+        str(out_path),
+    ], "export 9:16 vertical variant")
+    return out_path
+
+
 def find_narration(idea_id: str, voice_key: str = "james") -> Path | None:
     p = VOICE_DIR / f"{idea_id}_{voice_key}.mp3"
     return p if p.exists() else None
@@ -161,24 +182,113 @@ def _ensure_ffmpeg_on_path():
         print(f"  [WARN] ffmpeg shim setup failed: {exc}")
 
 
-def generate_srt(narration_path: Path, out_srt: Path, model_size: str = "tiny") -> bool:
-    """Transcribe narration and write an SRT file. Returns True on success."""
+_BRAND_CASE = [
+    (re.compile(r"work\s?hives?\s?ph\.?\s?com", re.I), "workhiveph.com"),
+    (re.compile(r"work\s?hives\b", re.I), "WorkHive"),
+    (re.compile(r"workhive\b", re.I), "WorkHive"),
+]
+
+
+def _brand_case(text: str) -> str:
+    """Deterministic brand casing on caption text (Whisper writes 'Workhive' /
+    'work hives.com' no matter what the prompt says)."""
+    for rx, rep in _BRAND_CASE:
+        text = rx.sub(rep, text)
+    return text
+
+
+CAPTION_MAX_WORDS = 6   # one short kinetic chunk at a time (social-native pacing)
+
+_CLAUSE_SPLIT = re.compile(r"(?<=[,.!?;:])\s+")
+
+
+def _chunk_segment(seg: dict) -> list[tuple[float, float, str]]:
+    """Split one Whisper segment into short caption chunks: first on CLAUSE
+    boundaries (so a chunk never cuts mid-phrase like 'So next I…'), then cap
+    each clause at ≤CAPTION_MAX_WORDS. Time is distributed by word count."""
+    words_all = seg["text"].split()
+    if not words_all:
+        return []
+    pieces: list[list[str]] = []
+    for clause in _CLAUSE_SPLIT.split(seg["text"].strip()):
+        cw = clause.split()
+        for i in range(0, len(cw), CAPTION_MAX_WORDS):
+            piece = cw[i:i + CAPTION_MAX_WORDS]
+            if piece:
+                pieces.append(piece)
+    # merge tiny clause-tails (a lone 'trips,' flashing for 0.3s looks glitchy)
+    merged: list[list[str]] = []
+    for p in pieces:
+        if merged and (len(p) <= 2 or len(merged[-1]) <= 2) and len(merged[-1]) + len(p) <= CAPTION_MAX_WORDS + 2:
+            merged[-1] = merged[-1] + p
+        else:
+            merged.append(p)
+    pieces = merged
+    span = max(0.2, float(seg["end"]) - float(seg["start"]))
+    total = sum(len(p) for p in pieces) or 1
+    out, t = [], float(seg["start"])
+    for p in pieces:
+        d = span * (len(p) / total)
+        out.append((t, t + d, " ".join(p)))
+        t += d
+    return out
+
+
+def _align_to_source(seg_text: str, source_words: list[str]) -> str:
+    """Replace a Whisper guess with the matching span of the REAL narration.
+
+    We WROTE the narration — Whisper's job is timing, not words. For each
+    transcribed segment, find the best-matching window of source words
+    (difflib ratio); replace when confident. Kills mishears like
+    'tracked'→'trapped' and 'So next time'→'So next I' at the root."""
+    import difflib
+    sw = seg_text.split()
+    if not sw or not source_words:
+        return seg_text
+    target = " ".join(w.lower().strip(".,!?;:") for w in sw)
+    best, best_r = None, 0.55     # confidence floor — below it keep Whisper's text
+    for n in (len(sw) - 1, len(sw), len(sw) + 1, len(sw) + 2):
+        if n < 1:
+            continue
+        for i in range(0, max(1, len(source_words) - n + 1)):
+            cand = source_words[i:i + n]
+            r = difflib.SequenceMatcher(
+                None, target, " ".join(w.lower().strip(".,!?;:") for w in cand)).ratio()
+            if r > best_r:
+                best, best_r = " ".join(cand), r
+    return best or seg_text
+
+
+def generate_srt(narration_path: Path, out_srt: Path, model_size: str = "base",
+                 align_text: str = None) -> bool:
+    """Transcribe narration and write an SRT file. Returns True on success.
+    align_text = the REAL narration script; when given, caption words come from
+    the source and Whisper provides only the timing."""
     try:
         _ensure_ffmpeg_on_path()
         import whisper
         print(f"  Whisper: transcribing narration ({model_size} model)...")
         model  = whisper.load_model(model_size)
-        result = model.transcribe(str(narration_path), fp16=False, language="en")
+        result = model.transcribe(str(narration_path), fp16=False, language="en",
+                                  initial_prompt=WHISPER_PROMPT)
 
-        srt_lines = []
-        for i, seg in enumerate(result["segments"], 1):
-            start = _srt_time(seg["start"])
-            end   = _srt_time(seg["end"])
-            text  = seg["text"].strip()
-            srt_lines.append(f"{i}\n{start} --> {end}\n{text}\n")
+        source_words = (align_text or "").split()
+        aligned = 0
+        srt_lines, n = [], 0
+        for seg in result["segments"]:
+            if source_words:
+                fixed = _align_to_source(seg["text"].strip(), source_words)
+                if fixed != seg["text"].strip():
+                    aligned += 1
+                seg = {**seg, "text": fixed}
+            for (cs, ce, ctext) in _chunk_segment(seg):
+                n += 1
+                srt_lines.append(f"{n}\n{_srt_time(cs)} --> {_srt_time(ce)}\n{_brand_case(ctext.strip())}\n")
 
         out_srt.write_text("\n".join(srt_lines), encoding="utf-8")
-        print(f"  Captions: {len(result['segments'])} segments written to {out_srt.name}")
+        print(f"  Captions: {len(result['segments'])} segments → {n} clause chunks"
+              + (f" ({aligned} aligned to the script source)" if source_words else "")
+              + f" → {out_srt.name}")
         return True
 
     except Exception as exc:
@@ -198,11 +308,25 @@ def _srt_time(seconds: float) -> str:
 
 # WorkHive brand: white text, orange outline, Poppins-like bold
 CAPTION_STYLE = (
-    "FontName=Arial,FontSize=20,Bold=1,"
+    # libass scales FontSize by video-height/PlayResY(288): 22 ≈ 69px at 900p —
+    # comfortably above the ≥48px@1080 sound-off readability bar (Meta guidance;
+    # 85% of social video plays muted).
+    # NOTE: ASS colours are &H00BBGGRR (byte-swapped). '&H00D88A0E' rendered BLUE
+    # (D8 blue / 8A green / 0E red) — caught by frame inspection 2026-06-10.
+    # Brand orange #D88A0E in ASS byte order = &H000E8AD8.
+    "FontName=Arial,FontSize=22,Bold=1,"
     "PrimaryColour=&H00FFFFFF,"      # white text
-    "OutlineColour=&H00D88A0E,"      # orange outline (#D88A0E)
-    "BorderStyle=1,Outline=2,Shadow=0,"
-    "Alignment=2,MarginV=40"         # bottom-center
+    "OutlineColour=&H000E8AD8,"      # orange outline (#D88A0E in BGR)
+    "BorderStyle=1,Outline=2,Shadow=1,"
+    "Alignment=2,MarginV=40"         # bottom-center, inside the caption-safe band
+)
+
+# Whisper mis-hears brand words on PH-accented narration ("workhiveph.com" →
+# "work hives.com", "tracked" → "trapped"). The initial prompt biases decoding
+# toward the real platform vocabulary.
+WHISPER_PROMPT = (
+    "WorkHive, workhiveph.com, logbook, PM, preventive maintenance, downtime, "
+    "MTBF, OEE, hive, dashboard, tracked, spare parts, plant, supervisor, technician."
 )
 
 
@@ -218,6 +342,8 @@ def assemble(
     avatar_clip:    Path = None,       # lip-synced brand-persona narrator → circular corner bubble
     captions:       bool = True,
     output_path:    Path = None,
+    pip_windows:    dict = None,       # {'demo': (s,e), 'cta_start': s} → dynamic PiP emphasis
+    brand_logo:     bool = True,       # False when the scene is a branded Remotion render (one-logo policy)
 ) -> Path:
     """
     Assemble all assets into a final .mp4.
@@ -306,19 +432,50 @@ def assemble(
         ], "normalise scene clip (loop to fill if short)")
 
         pip_video = tmp / "pip.mp4"
-        # UI overlay: 38% width, dark navy border, bottom-right corner
+        # Dynamic PiP emphasis (the 90/10 product-dominant rule):
+        #   • normal beats  → 38% bottom-right corner (thin orange frame so the
+        #     dark UI pops off the navy scene — was navy-on-navy, invisible)
+        #   • the DEMO beat → the UI becomes the HERO: 62%, centered
+        #   • CTA beats     → PiP hidden entirely (fixes the EndCard collision)
+        # Falls back to the static 38% overlay when no windows are provided.
+        win = pip_windows or {}
+        demo = win.get("demo")
+        cta_s = win.get("cta_start")
+
+        def _and(*exprs):
+            live = [e for e in exprs if e]
+            return "*".join(live) if live else "1"
+
+        small_en = _and(
+            f"(lt(t\\,{demo[0]:.2f})+gte(t\\,{demo[1]:.2f}))" if demo else "",
+            f"lt(t\\,{cta_s:.2f})" if cta_s is not None else "",
+        )
+        big_en = f"between(t\\,{demo[0]:.2f}\\,{demo[1]:.2f})" if demo else "0"
+
+        if demo or cta_s is not None:
+            print(f"  PiP windows: demo={demo}  cta_start={cta_s}  (hero 62% during demo, hidden on CTA)")
+            filter_c = (
+                "[1:v]split[u1][u2];"
+                "[u1]scale=trunc(iw*0.38/2)*2:-2,pad=iw+6:ih+6:3:3:color=0xF7A21B[small];"
+                "[u2]scale=trunc(iw*0.62/2)*2:-2,pad=iw+8:ih+8:4:4:color=0xF7A21B[big];"
+                f"[0:v][small]overlay=W-w-24:H-h-24:enable='{small_en}'[v1];"
+                f"[v1][big]overlay=(W-w)/2:(H-h)/2:enable='{big_en}'[vid]"
+            )
+        else:
+            filter_c = (
+                "[1:v]scale=trunc(iw*0.38/2)*2:-2[ui_s];"
+                "[ui_s]pad=iw+6:ih+6:3:3:color=0xF7A21B[ui_b];"
+                "[0:v][ui_b]overlay=W-w-24:H-h-24[vid]"
+            )
         _run_ffmpeg([
             "-i", str(norm_scene),   # [0] background scene
             "-i", str(norm_video),   # [1] UI overlay
-            "-filter_complex",
-            "[1:v]scale=trunc(iw*0.38/2)*2:-2[ui_s];"
-            "[ui_s]pad=iw+10:ih+10:5:5:color=0x162032[ui_b];"
-            "[0:v][ui_b]overlay=W-w-24:H-h-24[vid]",
+            "-filter_complex", filter_c,
             "-map", "[vid]",
             "-c:v", "libx264", "-preset", "fast", "-crf", "22",
             "-t", str(narr_dur),
             str(pip_video),
-        ], "compose PiP: scene + UI overlay")
+        ], "compose PiP: scene + UI overlay (dynamic emphasis)")
         main_video = pip_video
 
     # ── Step 3: Prepend hook clip if provided ────────────────────────────────
@@ -406,8 +563,24 @@ def assemble(
         output_path = ASSEMBLED_DIR / f"{safe_id}_{ts}.mp4"
 
     srt_path     = tmp / "captions.srt"
-    has_captions = captions and generate_srt(narration, srt_path)
-    has_logo     = LOGO_PATH.exists()
+    # Captions: words from the SCRIPT (source of truth), Whisper for timing only.
+    align_text = None
+    try:
+        sf = idea.get("script_file")
+        if sf and Path(sf).exists():
+            import sys as _sys
+            _t = str(Path(__file__).resolve().parent)
+            if _t not in _sys.path:
+                _sys.path.insert(0, _t)
+            from storyboard import parse_script_beats
+            beats, _rng = parse_script_beats(Path(sf).read_text(encoding="utf-8"))
+            align_text = " ".join(b["narration"] for b in beats if b.get("narration"))
+    except Exception as _exc:
+        print(f"  [captions] script alignment unavailable ({_exc}) — Whisper text as-is")
+    has_captions = captions and generate_srt(narration, srt_path, align_text=align_text)
+    # One-logo policy: a branded Remotion scene already carries the wordmark —
+    # the watermark overlay is only for unbranded (Pexels) footage.
+    has_logo     = LOGO_PATH.exists() and brand_logo
 
     if has_captions and has_logo:
         # Captions + logo watermark in one pass

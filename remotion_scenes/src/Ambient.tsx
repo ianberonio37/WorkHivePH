@@ -1,5 +1,10 @@
 import React from 'react';
 import {AbsoluteFill, useCurrentFrame, useVideoConfig} from 'remotion';
+import {loadFont} from '@remotion/google-fonts/Poppins';
+
+// Brand font GUARANTEED at render time (previously relied on Poppins being
+// installed on the render box -- silent Segoe UI fallback otherwise).
+const {fontFamily: POPPINS} = loadFont('normal', {weights: ['400', '600', '700', '800', '900']});
 
 // ── WorkHive brand palette (shared) ─────────────────────────────────────────
 export const NAVY_DEEP = '#0E1726';
@@ -7,14 +12,14 @@ export const NAVY = '#162032';
 export const ORANGE = '#F7A21B';
 export const ORANGE_LT = '#FDB94A';
 export const ORANGE_DK = '#D88A0E';
-export const FONT = '"Poppins","Segoe UI",system-ui,-apple-system,sans-serif';
+export const FONT = `"${POPPINS}","Segoe UI",system-ui,-apple-system,sans-serif`;
 
 /**
  * Ambient — the shared WorkHive backdrop for every animated scene style:
  * navy radial gradient + drifting dot grid + rising particles + wordmark +
  * brand bar. Continuous/periodic motion so the assembler's loop stays smooth.
  */
-export const Ambient: React.FC<{wordmark?: boolean}> = ({wordmark = true}) => {
+export const Ambient: React.FC<{wordmark?: boolean}> = ({wordmark = false}) => {
   const frame = useCurrentFrame();
   const {width, height, fps} = useVideoConfig();
   const t = frame / fps;

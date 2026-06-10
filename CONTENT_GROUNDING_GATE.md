@@ -117,4 +117,59 @@ A mature SEO/AEO/GEO layer already exists. The Content Grounding Gate **wraps an
 ## Definition of done
 A platform revamp (rename/add/remove a feature, change a flow, ship/retire an article) makes, **without a human mining or hand-editing**: the catalog update on next derive; every outward surface that referenced the change flagged as drift by the gate; a regeneration candidate queued for human dispose; the 4-axis scorecard reflect the dip — and after regen, the gate goes green again.
 
+---
+
+## Next layer — Capability / claim grounding (the provenance chain)  [added 2026-06-10]
+
+**Status:** P0–P5 shipped + deepwalk-verified (catalog · substrate/discover · drift gate · front door/cockpit · loop · riders). This section specs the **next** layer, from Ian's refinement.
+
+P0–P5 ground feature **identity** — does the feature *exist*, is it *named* right, does the *route* resolve, do the *counts* match (`feature_drift` / `count_drift` / `link_drift`). The deeper drift Ian observed lives one level down: **product claims** — the flow / how-to / capability / interconnection copy ("in WorkHive you tap X and it auto-generates Y") — which must trace to a real platform page **or they invent**. This is the `Capability drift` row already in the taxonomy above, now operationalized.
+
+### The provenance chain (ground flows downward; each layer cites the one below)
+```
+PLATFORM PAGES  (the only ground truth: real UI, real flows, real interconnections)
+   │ evidence extracted from the real DOM
+   ▼
+PLATFORM CATALOG  + per-feature EVIDENCE block   ← the capability source of truth
+   │ grounds the product-claim half
+   ▼
+LEARN ARTICLES   (general knowledge  +  product how-to)
+   │ grounds ideas + scripts
+   ▼
+VIDEO IDEAS / SCRIPTS
+```
+Correction to today's wiring: video ideas currently read `platform_intel.loop_role` (hand-written), and the catalog's `capability` field is that same copy — **two independent hand-authored sources that can each drift.** This layer collapses them: the **page is the source**, `loop_role` / landing copy / article how-to become *derived, checked claims* — not sources.
+
+### Two claim classes (classify BEFORE grounding — this prevents false positives)
+| Class | Provenance | Grounded vs platform? |
+|---|---|---|
+| **Domain / general knowledge** (OEE formula, ISO 14224, "PM prevents failures") | external standards | **No** — only checked for correctness; left general |
+| **Product claim** (flow / how-to / capability / UI / interconnection) | the actual page | **Yes** — or it's invented |
+
+Drift concentrates in the product-claim class. The classifier is the safety valve: it stops the gate "correcting" your ISO citations.
+
+### New substrate — page evidence (`tools/page_evidence.py`)
+Per feature page, extract from the real DOM/HTML the page's *actual affordances*: headings (h1–h3), button/CTA/`data-action` labels, form-field labels, real outbound links (the TRUE `connects_to`), section/output labels. Folded into the catalog as `feature["evidence"]`. Deterministic + offline (parses the `.html`); Playwright augments only for the e2e verification, never as a gate runtime dep.
+
+### New drift check — `capability_drift` (in `content_grounding_gate.py`, ratcheted)
+For each article + the landing page:
+1. **Classify** each sentence: product-claim vs general-knowledge (heuristic: names a WorkHive feature/affordance + an action/capability verb → product; cites a standard / defines a term → general).
+2. **Ground** each product claim against the mapped feature's evidence:
+   - **Tier 1 — deterministic:** claimed affordance token ∈ evidence actions/headings; claimed interconnection ∈ evidence links/`connects_to`.
+   - **Tier 2 — LLM-judge faithfulness (opt-in, free-tier):** given ONLY the evidence, rule each fuzzy flow claim `supported / unsupported / general` — the `faithfulness_smell` machine from `COMPANION_DEV_TOOL.md` (relevant-but-ungrounded = the invention tell).
+3. An unsupported product claim = `capability_drift`. **Conservative:** prefer false-negative over false-positive — never flag general knowledge.
+
+### Both ends of the chain
+- **Generation-time** (born grounded): feed the article / idea / script generator the page evidence as the *only* product-claim source; require it to tag general vs product and **cite the page/flow per product claim** ("Grounded in: `/logbook.html`") — the product-half analog of the existing "Sources:" line.
+- **Drift-time** (doesn't rot later): the gate re-checks the existing library's product claims against the *current* evidence on every platform change (the two failure modes — born-wrong + rotted-later — both heal here).
+
+### Build sequence (each Playwright-deepwalked) — BUILT 2026-06-10
+- **B1 ✅** `tools/page_evidence.py` → `page_evidence.json` (28 pages, 701 real affordances) + `--self-test`. Deepwalk: extracted evidence == rendered DOM (logbook "Log a Repair"/"Register Asset"/links-to voice-journal all real).
+- **B2 ✅** `capability_drift` check in `content_grounding_gate.py` (CHECK_ORDER[8]). **Tier-1 deterministic** (conservative: flag a WorkHive-attributed capability claim whose distinctive content exists NOWHERE on the platform — 5 baselined, 0 false-positive on grounded prose). **Tier-2 opt-in LLM judge** (`use_llm=True` / `CONTENT_LLM_JUDGE=1`): pre-filter to ≥2 platform-absent tokens → per-sentence free-tier judge (reliable on focused/claim-dense text; batch index-mapping was not). Self-test teeth + Playwright flag↔absence both verified. **Honest boundary:** terse-UI-vocab vs descriptive-prose mismatch means token rules can't reliably catch a *mixed* real+invented sentence buried in a long article — there, born-grounded generation (B3) + the Tier-1 baseline are the defense; Tier-2 is for focused text.
+- **B3 ✅** Grounding wired into the PRODUCTION `tools/article_generator.py`: the page-evidence affordances are injected into the per-section prompt as the only product-claim source, and `verify_grounding()` reports born-wrong claims. A real generated logbook article came out **born grounded (0 ungrounded, 1719 words)**.
+- **B4 ✅** Grounding wired into `video_marketing_app/app.py` `_build_script_prompt` (`_evidence_block_for_feature`) + post-gen verify. Live: idea_015 → a **born-grounded script (0 ungrounded UI claims)**.
+- **B5/B6 ✅** End-to-end through the LIVE pipeline: real article (born grounded) → gate grounds it → focused negative control (invented capability) flagged by Tier-2 → fresh idea + grounded script via the app → **full `produce-all`** (grounded script → voice → catalog-derived storyboard journey → background → recording → assembled mp4). Playwright confirmed the claimed affordances exist in the live page DOM.
+
+Key files: `tools/page_evidence.py`, `content_grounding_gate.py` (`capability_drift`, `capability_issues_for_text`, Tier-2 judge), `tools/article_generator.py` (section-prompt grounding), `video_marketing_app/app.py` (`_evidence_block_for_feature`).
+
 > Companion-tool analog: `COMPANION_DEV_TOOL.md`. Gate roadmap: `SELF_IMPROVING_GATE_ROADMAP.md`. SEO surfaces: `SEO_AEO_GEO_ROADMAP.md`. Inward canonical pattern: `CANONICAL_SOURCES_AUDIT.md`.

@@ -151,6 +151,53 @@ def coverage_api():
     })
 
 
+# ── Article anchoring (the agreed provenance chain) ───────────────────────────
+# Ideas anchor on the LEARN ARTICLES (themselves grounded in the platform pages),
+# not on hand-written marketing copy. For each idea slot's feature we pull its
+# best-mapped article and inject a digest as the PRIMARY source.
+def _article_digest_for_feature(feature_name: str):
+    """Return (slug, digest_text) for the feature's best learn article, or
+    (None, '') when the feature has no article yet (the gate flags that gap)."""
+    try:
+        import sys as _sys
+        import re as _re
+        _troot = str(Path(__file__).resolve().parent.parent / "tools")
+        if _troot not in _sys.path:
+            _sys.path.insert(0, _troot)
+        import platform_catalog as _pc
+        cat = _pc.build_catalog()
+        fid = _pc._resolve_label_to_feature(feature_name or "", cat["features"])
+        if not fid:
+            return None, ""
+        # rank: maps_to beats referenced; a slug/title naming the feature beats one that merely mentions it
+        cands = []
+        for a in cat["articles"]:
+            if a.get("maps_to") == fid:
+                score = 10
+            elif fid in (a.get("features_referenced") or []):
+                score = 1
+            else:
+                continue
+            if fid.replace("-", " ") in a["slug"].replace("-", " "):
+                score += 5
+            if fid.replace("-", " ") in (a.get("title") or "").lower():
+                score += 3
+            cands.append((score, a))
+        if not cands:
+            return None, ""
+        a = max(cands, key=lambda x: x[0])[1]
+        root = Path(__file__).resolve().parent.parent
+        body = (root / "learn" / a["slug"] / "index.html").read_text(encoding="utf-8")
+        body = _re.sub(r"<script[^>]*>.*?</script>", " ", body, flags=_re.S)
+        h2s = [_re.sub(r"<[^>]+>", "", h).strip() for h in _re.findall(r"<h2[^>]*>(.*?)</h2>", body, _re.S)][:7]
+        text = _re.sub(r"\s+", " ", _re.sub(r"<[^>]+>", " ", body))
+        digest = (f'ARTICLE "{a["title"]}" (/learn/{a["slug"]}/): {text[:850]} '
+                  f'Sections: {"; ".join(h2s)}')
+        return a["slug"], digest
+    except Exception:
+        return None, ""
+
+
 @app.route("/api/ideas/generate", methods=["POST"])
 def generate_ideas():
     n       = request.json.get("n", 5)
@@ -172,14 +219,19 @@ def generate_ideas():
     #    within a single generation batch.
     import random as _r
     feature_constraint = ""
+    slot_articles = []   # per-slot source_article provenance (the chain anchor)
     if feature and feature in FEATURE_ECOSYSTEM:
         # Explicit override: all N ideas use this feature
         feat_info = get_feature_info(feature)
         connects  = ", ".join(feat_info.get("connects_to", [])[:3])
+        a_slug, a_digest = _article_digest_for_feature(feature)
+        slot_articles = [a_slug] * n
         feature_constraint = (
             f"\n\nFORCED FEATURE: ALL {n} ideas must focus on '{feature}'.\n"
             f"Loop role: {feat_info.get('loop_role','')}\n"
             f"Connected features to mention in Ripple step: {connects}\n"
+            + (f"\nPRIMARY SOURCE — anchor every idea in THIS article, do not invent beyond it:\n{a_digest}\n"
+               if a_digest else "")
         )
     else:
         # Auto-distribute: prioritise uncovered, never repeat in one batch
@@ -204,11 +256,15 @@ def generate_ideas():
         for i, feat in enumerate(assigned, 1):
             info     = get_feature_info(feat)
             connects = ", ".join(info.get("connects_to", [])[:3])
+            a_slug, a_digest = _article_digest_for_feature(feat)
+            slot_articles.append(a_slug)
             slots.append(
                 f"  IDEA {i} — Feature: '{feat}'\n"
                 f"           Loop role: {info.get('loop_role','')}\n"
                 f"           Ripple options: {connects}\n"
                 f"           Audience: {', '.join(info.get('audience',['Field Technician']))}"
+                + (f"\n           PRIMARY SOURCE — anchor idea {i} in THIS article, do not invent beyond it:\n"
+                   f"           {a_digest[:1100]}" if a_digest else "")
             )
         feature_constraint = (
             f"\n\nFEATURE ASSIGNMENTS (NON-NEGOTIABLE — every idea MUST target its assigned feature):\n"
@@ -284,6 +340,7 @@ Return ONLY a valid JSON array of {n} objects in the SAME ORDER as the assignmen
                 "status":           "idea",
                 "created_at":       str(date.today()),
                 "script_file":      None,
+                "source_article":   (slot_articles[slot_idx] if slot_idx < len(slot_articles) else None),
             }
             data["ideas"].append(new_idea)
             added.append(new_idea)
@@ -315,8 +372,25 @@ def generate_script(idea_id):
     prompt = _build_script_prompt(idea, platform_ctx, ripple_hints, dur_secs)
 
     try:
-        content = ai_call(prompt, high_quality=True)
+        content = _strip_think(ai_call(prompt, high_quality=True))
         ofile.write_text(content, encoding="utf-8")
+
+        # Capability grounding (Content Grounding Gate): flag any on-screen UI
+        # claim in the script the tool page has no real affordance for.
+        ungrounded = []
+        try:
+            _evb, _fid = _evidence_block_for_feature(idea.get("solution_feature", ""))
+            if _fid:
+                import sys as _sys
+                _troot = str(Path(__file__).resolve().parent.parent / "tools")
+                if _troot not in _sys.path:
+                    _sys.path.insert(0, _troot)
+                import content_grounding_gate as _cg
+                ungrounded = [u["claim"] for u in _cg.capability_issues_for_text(content, _fid)]
+                if ungrounded:
+                    print(f"  [grounding] script {idea_id}: {len(ungrounded)} ungrounded UI claim(s) flagged")
+        except Exception:
+            pass
 
         for i in data["ideas"]:
             if i["id"] == idea_id:
@@ -324,7 +398,8 @@ def generate_script(idea_id):
                 i["script_file"] = str(ofile)
         save_backlog(data)
 
-        return jsonify({"success": True, "content": content, "file": str(ofile)})
+        return jsonify({"success": True, "content": content, "file": str(ofile),
+                        "ungrounded_claims": ungrounded})
 
     except Exception as exc:
         import traceback; traceback.print_exc()
@@ -496,11 +571,19 @@ def _extract_music_direction(script_content: str) -> str:
 def _generate_tts_sync(text: str, voice_id: str, out_path: Path):
     """
     Synchronous TTS generation using the resilient tts_engine module:
-    Edge TTS subprocess (timeout-protected) -> gTTS fallback.
-    No asyncio in Flask threads. Raises RuntimeError if both providers fail.
+    Edge TTS subprocess (timeout-protected), with an OPT-IN gTTS placeholder
+    fallback. No asyncio in Flask threads. Raises RuntimeError if Edge fails and
+    the fallback is disabled (or also fails).
+
+    The fallback is OFF by default so a produce never silently swaps the chosen
+    voice. Enable it during an Edge TTS outage with the env flag:
+        WORKHIVE_ALLOW_FALLBACK_VOICE=1
+    A clearly-labelled <out>.VOICE_FALLBACK.txt marker is written when it fires.
     """
+    import os
     from tools.tts_engine import generate_tts
-    return generate_tts(text, voice_id, out_path)
+    allow = os.getenv("WORKHIVE_ALLOW_FALLBACK_VOICE", "").strip().lower() in ("1", "true", "yes", "on")
+    return generate_tts(text, voice_id, out_path, allow_fallback_voice=allow)
 
 
 @app.route("/api/voices")
@@ -1010,7 +1093,24 @@ def _stage_script(idea):
     ripple_hints = ", ".join(feat_info.get("connects_to", [])[:3])
 
     prompt = _build_script_prompt(idea, platform_ctx, ripple_hints, dur_secs)
-    content = ai_call(prompt, high_quality=True)
+    content = _strip_think(ai_call(prompt, high_quality=True))
+
+    # Hook A/B (test, don't guess): 2 challenger hooks, judge picks the winner.
+    # Fail-soft; disable with HOOK_AB=0.
+    if os.getenv("HOOK_AB", "1").strip().lower() not in ("0", "false", "no", "off"):
+        try:
+            import sys as _sys
+            _troot = str(Path(__file__).resolve().parent.parent / "tools")
+            if _troot not in _sys.path:
+                _sys.path.insert(0, _troot)
+            from hook_lab import improve_hook
+            content, hook_report = improve_hook(content, idea)
+            if hook_report.get("ran"):
+                scores = [c["score"] for c in hook_report.get("candidates", [])]
+                print(f"  [hook A/B] scores={scores} winner={hook_report.get('winner')}")
+        except Exception as exc:
+            print(f"  [hook A/B] skipped: {exc}")
+
     ofile.write_text(content, encoding="utf-8")
 
     data = load_backlog()
@@ -1132,7 +1232,24 @@ def _stage_avatar(idea, voice_key, enabled=None):
     return generate_avatar(idea["id"], voice_key)
 
 
-def _stage_assemble(idea, voice_key, recording_path, scene_path, music_path, avatar_path=None):
+def _pip_windows_from_storyboard(storyboard):
+    """Cumulative beat times -> {'demo': (s,e), 'cta_start': s} for the assembler's
+    dynamic PiP emphasis (UI hero on the demo beat, hidden on the CTA end card)."""
+    if not storyboard or not storyboard.get("segments"):
+        return None
+    win, acc = {}, 0.0
+    for s in storyboard["segments"]:
+        sec = float(s.get("seconds", 0))
+        if "demo" not in win and s.get("ui", {}).get("action") == "demo":
+            win["demo"] = (round(acc, 2), round(acc + sec, 2))
+        if "cta_start" not in win and s.get("section") == "cta":
+            win["cta_start"] = round(acc, 2)
+        acc += sec
+    return win or None
+
+
+def _stage_assemble(idea, voice_key, recording_path, scene_path, music_path, avatar_path=None,
+                    storyboard=None, scene_branded=False):
     from tools.video_assembler import assemble
     return assemble(
         idea_id        = idea["id"],
@@ -1142,6 +1259,8 @@ def _stage_assemble(idea, voice_key, recording_path, scene_path, music_path, ava
         music_path     = music_path,
         avatar_clip    = avatar_path,
         captions       = True,
+        pip_windows    = _pip_windows_from_storyboard(storyboard),
+        brand_logo     = True,   # the hex logo top-right is Ian's preferred mark; scenes carry no wordmark
     )
 
 
@@ -1242,8 +1361,37 @@ def _run_pipeline(job_id, idea_id, voice_key, scene_source=None, avatar=None):
         # ── 6. Assemble ──────────────────────────────────────────────────
         _job_set(job_id, stage="assemble",
                  message="Assembling final video with captions (FFmpeg + Whisper)...")
-        out_path = _stage_assemble(idea, voice_key, recording_path, scene_path, music_path, avatar_path)
+        out_path = _stage_assemble(idea, voice_key, recording_path, scene_path, music_path, avatar_path,
+                                   storyboard=storyboard,
+                                   scene_branded=(_scene_src == 'remotion' and scene_path is not None))
         _job_log(job_id, f"assembled: {out_path.name}")
+
+        # ── 6.2 Multi-format: 9:16 vertical for Reels/Stories/TikTok ─────
+        vertical_path = None
+        try:
+            from tools.video_assembler import make_vertical
+            vertical_path = make_vertical(out_path)
+            _job_log(job_id, f"vertical: {vertical_path.name}")
+        except Exception as exc:
+            _job_log(job_id, f"vertical skipped: {exc}")
+
+        # ── 6.5 Creative Quality Gate — score the produced video ─────────
+        # The 4th sibling gate: is the video GOOD (ABCD · hook · silent-first ·
+        # length · brand)? Non-fatal — it scores + advises, never blocks a
+        # produce mid-flight; the score rides into the job result.
+        creative = None
+        try:
+            import sys as _sys
+            _troot = str(Path(__file__).resolve().parent.parent / "tools")
+            if _troot not in _sys.path:
+                _sys.path.insert(0, _troot)
+            import video_quality_gate as _vqg
+            creative = _vqg.score_idea(idea["id"])
+            tofix = creative["blocking_fails"] or [r["check"] for r in creative["checks"] if r["status"] == "FAIL"]
+            _job_log(job_id, f"creative score: {creative['score']}/100 ({creative['verdict']})"
+                     + (f" — improve: {', '.join(tofix[:3])}" if tofix else " — clean"))
+        except Exception as exc:
+            _job_log(job_id, f"creative score skipped: {exc}")
 
         # ── 7. Platform pack (8-platform social copy) ────────────────────
         _job_set(job_id, stage="platform_pack",
@@ -1261,10 +1409,13 @@ def _run_pipeline(job_id, idea_id, voice_key, scene_source=None, avatar=None):
                  stage         = "done",
                  status        = "complete",
                  message       = "Production complete!",
-                 output        = str(out_path),
-                 download      = f"/api/assembled/{out_path.name}",
-                 size_mb       = size_mb,
-                 platform_pack = f"/api/ideas/{idea['id']}/platform-pack" if pack_path else None)
+                 output         = str(out_path),
+                 download       = f"/api/assembled/{out_path.name}",
+                 size_mb        = size_mb,
+                 creative_score = (creative or {}).get("score"),
+                 creative_verdict = (creative or {}).get("verdict"),
+                 creative_axes  = (creative or {}).get("axes"),
+                 platform_pack  = f"/api/ideas/{idea['id']}/platform-pack" if pack_path else None)
 
     except Exception as exc:
         import traceback
@@ -1275,13 +1426,56 @@ def _run_pipeline(job_id, idea_id, voice_key, scene_source=None, avatar=None):
                  message = f"Failed at '{PIPELINE_JOBS.get(job_id,{}).get('stage','?')}': {exc}")
 
 
+def _evidence_block_for_feature(feature_name: str):
+    """Resolve a solution_feature name to its real page affordances (Content
+    Grounding Gate). Returns (grounding_block_text, feature_id). The on-screen
+    WorkHive UI a script depicts must trace to these — not invented."""
+    try:
+        import sys as _sys
+        _troot = str(Path(__file__).resolve().parent.parent / "tools")
+        if _troot not in _sys.path:
+            _sys.path.insert(0, _troot)
+        import platform_catalog as _pc
+        import page_evidence as _pe
+        cat = _pc.build_catalog()
+        fid = _pc._resolve_label_to_feature(feature_name or "", cat["features"])
+        if not fid:
+            return "", None
+        ev = _pe.load_evidence().get(fid)
+        if not ev:
+            return "", fid
+        block = (
+            f"\nREAL UI AFFORDANCES of the {feature_name} page ({ev['route']}) — when a SHOT or "
+            f"TEXT OVERLAY depicts the WorkHive screen, show ONLY these (do NOT invent UI, buttons, "
+            f"tabs, or capabilities the page does not have):\n"
+            f"  Headings:        {ev.get('headings', [])[:12]}\n"
+            f"  Buttons/actions: {ev.get('actions', [])[:16]}\n"
+            f"  Tabs:            {ev.get('tabs', [])[:8]}\n"
+            f"  Connects to:     {ev.get('links_to', [])}\n"
+            f"(Real plant pain, domain facts, and emotional framing are unrestricted — only the "
+            f"on-screen WorkHive UI must match the real page.)\n"
+        )
+        return block, fid
+    except Exception:
+        return "", None
+
+
+def _strip_think(text: str) -> str:
+    """Free-tier reasoning models occasionally leak a <think>…</think> block into
+    the output. Caught live by the capability-grounding gate on idea_017 — strip
+    it before the script hits disk (it pollutes hook A/B + the platform pack)."""
+    return re.sub(r"<think>.*?</think>\s*", "", text or "", flags=re.DOTALL | re.I)
+
+
 def _build_script_prompt(idea, platform_ctx, ripple_hints, dur_secs):
     """Assemble the script prompt — kept here so both the orchestrator and the
     /script route can call it without duplication."""
+    _ev_block, _ = _evidence_block_for_feature(idea.get("solution_feature", ""))
     return f"""{platform_ctx}
 
 You are a creative director writing a production-ready script for a WorkHive ad video.
 RIPPLE FEATURES TO MENTION: {ripple_hints}
+{_ev_block}
 
 LANGUAGE: PLAIN SIMPLE ENGLISH ONLY.
 - No Tagalog, no Taglish, no Filipino slang, no code-switching anywhere in the script.
@@ -1298,6 +1492,12 @@ IDEA BRIEF:
 - Emotion:  {idea['emotion']}
 - Duration: {idea['duration']}
 - Type:     {idea['video_type']}
+
+HOOK RULES (research-backed — the first 3 seconds decide reach):
+- The Hook NARRATION must be ONE short punchy sentence (max 10 words) any plant worker FEELS instantly.
+- The Hook TEXT OVERLAY must be ≤6 words — a pattern-interrupt (a sharp pain, a surprising number, or a bold claim). NOT a description.
+- Name WorkHive or the feature within the first 5 seconds (Brand early).
+- The CTA section must end on a clear single action: "Free at workhiveph.com".
 
 Write the full script using exactly this structure:
 

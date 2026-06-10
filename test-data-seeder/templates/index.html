@@ -1538,6 +1538,89 @@
     </p>
   </div>
 
+  <!-- ═══ CONTENT GROUNDING GATE — the 3rd sibling Mega Gate (CONTENT_GROUNDING_GATE.md) ═══ -->
+  <div class="card" style="border:1px solid rgba(41,182,217,0.35);"
+       data-tip-title="🌐 Content Grounding Gate"
+       data-tip="The SAME machine as the Unified Mega Gate, pointed OUTWARD at every public surface (landing, /learn, SEO/AEO/GEO, video) instead of platform code. Source of truth = the auto-derived Platform Catalog (platform_catalog.json, from nav + platform_intel + learn + public surfaces). Drift = content ↔ platform mismatch. One front door: tools/content_dev.py. Offline-first ($0, no DB/model)."
+       data-tip-foot="✅ CLICK AFTER: renaming/adding/removing a feature, shipping/retiring an article, or any landing/SEO copy change.">
+    <div class="section-head-row">
+      <h3 class="action-section-title" style="color:#29B6D9;">🌐 Content Grounding Gate — the 3rd sibling Mega Gate</h3>
+      <span class="action-section-hint">Keeps outward content true to the ever-evolving platform · <code>tools/content_dev.py</code></span>
+    </div>
+    <!-- layer pipeline chips (mirror the platform Mega-Gate map, pointed outward) -->
+    <div style="display:flex; flex-wrap:wrap; gap:6px; font-size:11px; margin:6px 0 12px;">
+      <span style="padding:4px 9px; border-radius:99px; background:rgba(167,139,250,0.12); border:1px solid rgba(167,139,250,0.35); color:#a78bfa;">G-1.5 Catalog + Substrate</span>
+      <span style="align-self:center; color:#64748b;">→</span>
+      <span style="padding:4px 9px; border-radius:99px; background:rgba(41,182,217,0.12); border:1px solid rgba(41,182,217,0.35); color:#29B6D9;">G-1 Discover</span>
+      <span style="align-self:center; color:#64748b;">→</span>
+      <span style="padding:4px 9px; border-radius:99px; background:rgba(74,222,128,0.12); border:1px solid rgba(74,222,128,0.35); color:#4ade80;">G0 Drift Gate</span>
+      <span style="align-self:center; color:#64748b;">→</span>
+      <span style="padding:4px 9px; border-radius:99px; background:rgba(247,162,27,0.12); border:1px solid rgba(247,162,27,0.35); color:#F7A21B;">Mega · 4-axis</span>
+    </div>
+    <div class="button-grid">
+      <button class="seed-btn" data-action="content-status"
+        data-tip-title="📊 Status"
+        data-tip="One-glance 4-axis scorecard (freshness · coverage · correctness · grounding) computed live from the catalog + discover + drift gate, plus the drift/orphan/gap/learn-hub-unlisted signals and the last mega run. Pure read, $0."
+        data-tip-foot="✅ CLICK ANYTIME: to see where outward content stands vs the live platform.">📊 Status (4-axis scorecard)</button>
+      <button class="seed-btn" data-action="content-substrate"
+        data-tip-title="🧬 G-1.5 Substrate"
+        data-tip="Re-derive platform_catalog.json (the keystone — auto-derived from nav registry + platform_intel + 36 learn articles + index/sitemap/llms.txt/JSON-LD) and aggregate content_substrate_manifest.json across all 4 surfaces. $0, offline."
+        data-tip-foot="✅ CLICK AFTER: any platform change (new page, renamed feature, new article).">🧬 Substrate (G-1.5)</button>
+      <button class="seed-btn" data-action="content-discover"
+        data-tip-title="🔭 G-1 Discover"
+        data-tip="Coverage / orphans / gaps: every content claim must resolve to a real catalog feature (orphans = drift), every marketed feature should have content (gaps = SEO opportunity), and every article on disk should be linked from the learn hub. $0."
+        data-tip-foot="✅ CLICK AFTER: editing llms.txt, JSON-LD, or the learn hub.">🔭 Discover (G-1)</button>
+      <button class="seed-btn" data-action="content-gate"
+        data-tip-title="🛡️ G0 Drift Gate"
+        data-tip="Forward-only ratcheted drift validators: feature-drift, count-drift (e.g. '24 guides' vs 36 live), link-drift, learn-hub-unlisted, sitemap-drift, JSON-LD featureList⊆catalog, freshness. Does NOT block on pre-existing drift; FAILs on NEW drift. Exit 1 on regression. $0."
+        data-tip-foot="✅ CLICK AFTER: any landing/SEO/article change, before trusting it.">🛡️ Drift Gate (G0)</button>
+      <button class="seed-btn" data-action="content-harvest"
+        data-tip-title="🌾 G3 Harvest"
+        data-tip="Turn current drift into regeneration CANDIDATES (content_harvest_candidates.json). Each is a PROPOSAL a human disposes; re-harvest MERGES (never clobbers a disposition). $0."
+        data-tip-foot="✅ CLICK AFTER: the drift gate surfaces drift you intend to fix.">🌾 Harvest (G3)</button>
+      <button class="seed-btn" data-action="content-dispose"
+        data-tip-title="🗂️ G3 Dispose"
+        data-tip="The triage queue: every harvested candidate grouped by pending / accepted / rejected, with the catalog-grounded action proposed for each. Accept/reject is a CLI human act (dispose --id … --accept). $0."
+        data-tip-foot="✅ CLICK: to review what the loop wants to regenerate.">🗂️ Dispose queue (G3)</button>
+      <button class="seed-btn" data-action="content-regenerate"
+        data-tip-title="♻️ G3 Regenerate"
+        data-tip="Drive catalog-grounded generators to PROPOSE the fixes (corrected count, learn-hub additions, sitemap entries, JSON-LD featureList) into .tmp/content_regen/ — STAGING ONLY, forward-only, nothing applied to a live surface. Review + apply by hand, then re-run the gate to ratchet the baseline down. $0."
+        data-tip-foot="✅ CLICK AFTER: disposing candidates — emits the proposals to review.">♻️ Regenerate (G3)</button>
+    </div>
+    <details style="margin-top:10px;">
+      <summary style="cursor:pointer; color:#29B6D9; font-size:12px;">🌐 Run the whole closed loop (Mega)</summary>
+      <div class="button-grid" style="margin-top:8px;">
+        <button class="seed-btn" data-action="content-mega"
+          data-tip-title="🌐 Content Mega Gate"
+          data-tip="Run the whole offline loop in order: substrate (catalog + manifest) → discover (coverage/orphans/gaps) → drift gate (ratchet) → tool self-tests → write the 4-axis scorecard + .last-content-gate-pass. One FAIL blocks. $0, no DB/model."
+          data-tip-foot="✅ CLICK: to validate the entire content-grounding loop in one shot.">🌐 Content Mega · ~10s</button>
+      </div>
+    </details>
+    <p class="action-section-hint" style="margin-top:8px;">
+      Hub doc: <code>CONTENT_GROUNDING_GATE.md</code>. Also folded into the one-click <strong>Mega Gate</strong> button (<code>--with-content</code>), like the UFAI Battery.
+    </p>
+  </div>
+
+  <!-- ═══ CREATIVE QUALITY GATE — the 4th sibling (marketing-video craft) ═══ -->
+  <div class="card" style="border:1px solid rgba(247,162,27,0.35);"
+       data-tip-title="🎬 Creative Quality Gate"
+       data-tip="The 4th sibling gate: Mega=code, Companion=AI behaviour, Content=truth, CREATIVE=craft. Scores the most recently produced marketing video against the research-backed playbook: Google ABCD (Attract/Brand/Connect/Direct), the 3-second hook, silent-first on-screen message (85% watch muted), length sweet spot (<60s), kinetic headline length, style variety, and a FRAME-SAMPLED brand-colour check on the actual mp4. 4-axis scorecard hook · structure · craft · brand; blocking checks (no hook / no CTA / no message / out-of-band length) verdict BLOCK. $0, offline."
+       data-tip-foot="✅ CLICK AFTER: any produce-all — see whether the video is GOOD, not just true.">
+    <div class="section-head-row">
+      <h3 class="action-section-title" style="color:#F7A21B;">🎬 Creative Quality Gate — is the video GOOD?</h3>
+      <span class="action-section-hint">ABCD · 3s hook · silent-first · brand · <code>tools/video_quality_gate.py</code></span>
+    </div>
+    <div class="button-grid">
+      <button class="seed-btn" data-action="video-quality"
+        data-tip-title="🎬 Score latest video"
+        data-tip="Runs `video_quality_gate.py score --latest`: rebuilds the narration-driven storyboard, runs the 11 deterministic checks (hook beat ≤5s, 2+ shots in first 5s, ABCD sections, CTA end card, every beat carries an on-screen message, headlines ≤7 words, style variety, duration band, frame-sampled brand colours) and prints the 4-axis creative scorecard + verdict. $0."
+        data-tip-foot="✅ CLICK: right after a produce — the gate tells you exactly what to improve.">🎬 Score latest produced video</button>
+    </div>
+    <p class="action-section-hint" style="margin-top:8px;">
+      Also runs automatically inside every <code>produce-all</code> (the job result carries <code>creative_score</code> + <code>creative_verdict</code>).
+    </p>
+  </div>
+
   <!-- ═══ LAYER 0 — STATIC VALIDATORS (no browser) ═══ -->
   <div class="card">
     <div class="section-head-row">
@@ -2527,6 +2610,8 @@
     else if (action === 'run-autodiscovery') url = '/api/run-autodiscovery';
     else if (action === 'run-battery') url = '/api/run-battery';
     else if (action.startsWith('companion-')) url = '/api/companion/' + action.slice('companion-'.length);
+    else if (action.startsWith('content-')) url = '/api/content/' + action.slice('content-'.length);
+    else if (action === 'video-quality') url = '/api/video-quality';
     else if (action === 'run-roles') url = '/api/run-roles';
     else if (action === 'run-concurrent') url = '/api/run-concurrent';
     else url = '/api/seed/' + action;

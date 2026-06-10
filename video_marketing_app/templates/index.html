@@ -546,6 +546,28 @@
 
     .empty-msg { text-align: center; padding: 2rem; color: var(--steel); font-size: 0.78rem; line-height: 1.6; }
 
+    /* ── De-clutter drawers (progressive disclosure, 2026-06-10) ── */
+    .kit-drawer {
+      margin: .65rem 0;
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: .75rem;
+      background: rgba(22,32,50,.45);
+    }
+    .kit-drawer > summary {
+      cursor: pointer; list-style: none;
+      padding: .65rem .9rem;
+      font-size: .8rem; font-weight: 600; color: rgba(255,255,255,.75);
+      user-select: none;
+    }
+    .kit-drawer > summary::before { content: '▸ '; color: #F7A21B; }
+    .kit-drawer[open] > summary::before { content: '▾ '; }
+    .kit-drawer[open] { background: rgba(22,32,50,.65); }
+    .kit-drawer > :not(summary) { padding: 0 .75rem .75rem; }
+    .badge.b-source {
+      background: rgba(41,182,217,.14); color: #5FCCE8;
+      border: 1px solid rgba(41,182,217,.35); text-decoration: none;
+    }
+
     /* ── Production Kit ── */
     .kit-section {
       background: rgba(22,32,50,0.55);
@@ -1128,6 +1150,10 @@
         '<span class="badge b-' + (idea.video_type || 'storytelling') + '">' + esc(idea.video_type) + '</span>' +
         '<span class="badge b-muted">' + esc(idea.duration) + '</span>' +
         '<span class="badge b-muted">' + esc(idea.created_at) + '</span>' +
+        (idea.source_article
+          ? '<a class="badge b-source" href="/workhive/learn/' + esc(idea.source_article) + '/" target="_blank" ' +
+            'title="This idea is anchored in this learn article (provenance chain)">📄 from: ' + esc(idea.source_article) + '</a>'
+          : '') +
       '</div>' +
 
       '<div class="info-grid">' +
@@ -1544,6 +1570,9 @@
       renderAssembleCard(ideaId),
     ].join('');
 
+    // Progressive disclosure (de-clutter 2026-06-10): Auto-Produce is THE
+    // action; the long-form lane and the per-step manual kit live behind
+    // collapsed drawers. One primary CTA per view — designer doctrine.
     return (
       '<div class="kit-section">' +
         '<div class="kit-header">' +
@@ -1551,8 +1580,14 @@
           '<span class="kit-free-badge">100% Free Stack</span>' +
         '</div>' +
         renderAutoProduceCard(ideaId) +
-        renderNotebookLMCard(ideaId) +
-        '<div class="kit-grid">' + html + '</div>' +
+        '<details class="kit-drawer">' +
+          '<summary>📓 Long-form lane — podcasts, cinematic, blog (NotebookLM)</summary>' +
+          renderNotebookLMCard(ideaId) +
+        '</details>' +
+        '<details class="kit-drawer">' +
+          '<summary>🔧 Manual steps — Auto-Produce runs all of these for you</summary>' +
+          '<div class="kit-grid">' + html + '</div>' +
+        '</details>' +
       '</div>'
     );
   }
@@ -2716,13 +2751,16 @@
     // First render: show "Generate" button (force=false so we don't burn AI
     // calls on the user's first visit if no pack exists yet).
     z.innerHTML =
-      '<div class="script-panel" style="margin-top:1rem">' +
-        '<div class="script-top">' +
-          '<span class="script-top-label">Platform Pack &mdash; 8 platforms, 1 click</span>' +
-          '<button class="btn-ghost" style="font-size:.7rem;padding:.3rem .7rem" id="packGenBtn-' + ideaId + '" onclick="generatePlatformPack(\'' + ideaId + '\', false)">Generate Platform Pack</button>' +
+      '<details class="kit-drawer" style="margin-top:1rem">' +
+        '<summary>📣 Distribution — platform pack (8 platforms, 1 click)</summary>' +
+        '<div class="script-panel" style="margin-top:.6rem">' +
+          '<div class="script-top">' +
+            '<span class="script-top-label">Platform Pack &mdash; 8 platforms, 1 click</span>' +
+            '<button class="btn-ghost" style="font-size:.7rem;padding:.3rem .7rem" id="packGenBtn-' + ideaId + '" onclick="generatePlatformPack(\'' + ideaId + '\', false)">Generate Platform Pack</button>' +
+          '</div>' +
+          '<div class="script-body" id="packBody-' + ideaId + '" style="padding:.8rem 1rem;font-size:.78rem;color:var(--steel)">Click Generate above to produce ready-to-paste copy for 8 platforms (Facebook, LinkedIn, YouTube, TikTok, Reddit, X, plus extras). Uses the free AI fallback chain. Takes ~60-90 seconds. Re-runs reuse the cached pack unless you regenerate.</div>' +
         '</div>' +
-        '<div class="script-body" id="packBody-' + ideaId + '" style="padding:.8rem 1rem;font-size:.78rem;color:var(--steel)">Click Generate above to produce ready-to-paste copy for 8 platforms (Facebook, LinkedIn, YouTube, TikTok, Reddit, X, plus extras). Uses the free AI fallback chain. Takes ~60-90 seconds. Re-runs reuse the cached pack unless you regenerate.</div>' +
-      '</div>';
+      '</details>';
 
     // Try cached fetch (no AI call) so existing packs render automatically.
     try {

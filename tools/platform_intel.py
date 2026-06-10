@@ -182,6 +182,13 @@ FEATURE_ECOSYSTEM = {
         "loop_role":    "Coordination layer. Long-running maintenance projects (overhauls, shutdowns, capex) tracked end-to-end with milestones, parts staging, skill assignments.",
         "audience":     ["Plant Manager", "Engineer"],
     },
+    "Resume Builder": {
+        "connects_to": ["Skill Matrix", "Maintenance Logbook", "Achievements"],
+        "tables":       ["resumes"],
+        "edge_fns":     ["resume-extract", "resume-polish"],
+        "loop_role":    "Career layer. Turns real logged work and verified skills into an ATS-ready resume. Every repair you log becomes proof on paper - career protection in the AI era.",
+        "audience":     ["Field Technician", "Engineer", "OFW-track Engineer"],
+    },
     "Audit Log & Compliance": {
         "connects_to": ["Maintenance Logbook", "PM Checklist", "Inventory Management", "Hive Dashboard", "CMMS Integrations"],
         "tables":       ["cmms_audit_log", "hive_audit_log"],

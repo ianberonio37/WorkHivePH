@@ -97,6 +97,9 @@ def _segment_props(seg: dict) -> dict:
         "headline": seg["headline"],
         "subhead": seg["subhead"],
     }
+    # cta beats route to the branded EndCard in Storyboard.tsx (Direct in ABCD)
+    if seg.get("section") == "cta":
+        p["section"] = "cta"
     if seg["style"] == "kinetic":
         p["phrases"] = seg.get("phrases", [])
     elif seg["style"] == "infographic":

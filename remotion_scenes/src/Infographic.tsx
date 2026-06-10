@@ -1,6 +1,7 @@
 import React from 'react';
 import {interpolate, spring, useCurrentFrame, useVideoConfig} from 'remotion';
 import {Ambient, ORANGE, ORANGE_LT, ORANGE_DK, NAVY, NAVY_DEEP, FONT} from './Ambient';
+import {KineticHeadline} from './KineticHeadline';
 
 type Stat = {value: string; label: string; dir?: 'up' | 'down' | 'flat'};
 type Props = {
@@ -37,11 +38,9 @@ export const WorkHiveInfographic: React.FC<Props> = ({headline, subhead, stats})
         <div style={{color: ORANGE, fontWeight: 700, fontSize: 15, letterSpacing: 4, fontFamily: FONT}}>
           {subhead.toUpperCase()}
         </div>
-        <div style={{
-          marginTop: 8, color: '#fff', fontWeight: 800, fontSize: 46, lineHeight: 1.06, fontFamily: FONT,
-          opacity: titleIn, transform: `translateY(${interpolate(titleIn, [0, 1], [22, 0])}px)`,
-          textShadow: '0 4px 24px rgba(0,0,0,.5)',
-        }}>{headline}</div>
+        <div style={{marginTop: 8}}>
+          <KineticHeadline text={headline} size={46} maxWidth={660} position="static" />
+        </div>
       </div>
 
       {/* stat cards */}

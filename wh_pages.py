@@ -65,6 +65,9 @@ LEARN_ARTICLES = [
     ("ai-quality-and-roi-stage-2-plants",                 "Measuring AI Quality and ROI for Stage 2+ Industrial Plants",     "/analytics-report.html",    "Analytics"),
     ("sensor-cmms-gateway-operations",                    "Sensor and CMMS Gateway Operations for Industrial Plants",        "/hive.html",                "Hive"),
     ("ph-industrial-benchmarks-intelligence",             "PH Industrial Benchmarks and Intelligence Reports (Free)",        "/analytics-report.html",    "Analytics"),
+    # Gap found by the Content Grounding Gate 2026-06-10: Resume Builder had no
+    # article and was invisible to SEO/GEO (nav-only uncovered).
+    ("resume-builder-for-filipino-industrial-workers",    "Build an ATS-Ready Resume from Your Plant Work History",          "/resume.html",              "Resume Builder"),
 
     # ── Wave 2 (2026-05-18): methodology + career + sector + compliance ───────
     ("reliability-centered-maintenance-philippine-plants","Reliability-Centered Maintenance (RCM) for Philippine Plants",    "/pm-scheduler.html",        "PM Scheduler"),

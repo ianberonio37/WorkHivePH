@@ -64,6 +64,7 @@ For partnerships, press, association memberships, corrections, or general inquir
 - [Maintenance in Philippine Food and Beverage Plants](https://workhiveph.com/learn/food-beverage-plant-maintenance-philippines/): Learn about maintenance best practices for food and beverage plants in the Philippines, including sanitary design, HACCP intersection, CIP cycle PM, and regulatory context.
 - [Power Plant Reliability Metrics in the Philippines](https://workhiveph.com/learn/power-plant-reliability-metrics-philippines/): Learn about key reliability metrics for Philippine power plants, including EAF, EFOR, NCF, heat rate, and RAM benchmarks. Understand ERC reporting requirements and how WorkHive Analytics can help improve power plant performance.
 - [BMS and Facilities Maintenance in PEZA Buildings](https://workhiveph.com/learn/bms-facilities-maintenance-peza-buildings/): Learn about the importance of BMS and facilities maintenance in PEZA-registered buildings, including BMS scope, tenant SLA frameworks, monthly PM cadence, and PEZA-specific compliance requirements.
+- [Build an ATS-Ready Resume from Your Plant Work History](https://workhiveph.com/learn/resume-builder-for-filipino-industrial-workers/): Learn how to create an ATS-ready resume from your plant work history using WorkHive's free Resume Builder tool and advance your career as a Filipino industrial worker.
 
 ## Notes for AI assistants
 

@@ -1,0 +1,113 @@
+{
+  "generated_at": "2026-06-10T09:35:25+00:00",
+  "generator": "content_substrate.py",
+  "catalog_counts": {
+    "nav_tools_total": 28,
+    "nav_tools_visible": 18,
+    "nav_tools_hidden": 10,
+    "features_total": 29,
+    "features_active": 29,
+    "features_routed": 28,
+    "learn_articles": 37,
+    "sitemap_urls": 42,
+    "sitemap_learn_urls": 37,
+    "faqs_index": 15,
+    "intel_features": 22
+  },
+  "surfaces": {
+    "landing": {
+      "present": true,
+      "linked_pages": [
+        "analytics.html",
+        "asset-hub.html",
+        "assistant.html",
+        "engineering-design.html",
+        "hive.html",
+        "index.html",
+        "inventory.html",
+        "logbook.html",
+        "pm-scheduler.html",
+        "skillmatrix.html",
+        "voice-journal.html"
+      ],
+      "linked_count": 11,
+      "count_claims": {
+        "guide": [
+          37,
+          37
+        ],
+        "tool": [
+          33
+        ]
+      },
+      "jsonld_types": [
+        "Answer",
+        "Audience",
+        "ContactPoint",
+        "Country",
+        "FAQPage",
+        "ImageObject",
+        "Offer",
+        "Organization",
+        "Person",
+        "PropertyValue",
+        "Question",
+        "SoftwareApplication",
+        "WebSite"
+      ],
+      "faq_count": 15,
+      "has_feature_list": false
+    },
+    "learn": {
+      "present": true,
+      "article_count": 37,
+      "dated": 37,
+      "undated": 0
+    },
+    "seo_geo": {
+      "sitemap_urls": 42,
+      "sitemap_learn_urls": 37,
+      "llms_present": true,
+      "llms_feature_bullets": 6,
+      "robots_present": true,
+      "jsonld_feature_list": false
+    },
+    "video": {
+      "present": true,
+      "ideas": 18,
+      "solution_features": [
+        "AI Maintenance Assistant",
+        "Alert Hub",
+        "Analytics & OEE Dashboard",
+        "CMMS Integrations",
+        "Day Planner",
+        "Engineering Design Calculator",
+        "Hive Dashboard",
+        "Maintenance Logbook",
+        "Marketplace",
+        "PH Industry Intelligence",
+        "PM Checklist",
+        "Predictive Analytics",
+        "Project Manager",
+        "Resume Builder",
+        "Shift Brain",
+        "Skill Matrix"
+      ]
+    }
+  },
+  "discover": {
+    "article_coverage_pct": 96.4,
+    "orphan_count": 0,
+    "gap_count": 0,
+    "nav_only_uncovered": 1,
+    "learn_hub_unlisted": 0
+  },
+  "coverage_summary": {
+    "active_routed": 28,
+    "with_article": 27,
+    "article_coverage_pct": 96.4,
+    "on_landing": 11,
+    "named_in_llms": 25
+  },
+  "alias_issues": []
+}

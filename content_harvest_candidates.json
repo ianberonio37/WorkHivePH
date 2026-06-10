@@ -1,0 +1,186 @@
+{
+  "generated_at": "2026-06-10T06:51:14+00:00",
+  "candidates": [
+    {
+      "id": "CG-25e6badf4d",
+      "check": "capability_drift",
+      "payload": "Document any retuning in WorkHive Alert Hub with the reasoning.",
+      "reason": "'predictive-alert-thresholds-plants' attributes a capability to Alert Hub whose distinctive content (['document', 'reasoning', 'retuning']) exists NOWHERE on the real platform",
+      "action": "Reword/remove the WorkHive capability claim the page does not support",
+      "generator": "manual",
+      "status": "pending",
+      "harvested_at": "2026-06-10T06:51:13+00:00"
+    },
+    {
+      "id": "CG-4a69f468bc",
+      "check": "capability_drift",
+      "payload": "WorkHive platform positioning, \"Four Gaps One Hive\" with Audit Log as the compliance accelerator.",
+      "reason": "'dole-iso-audit-trail-from-logbook' attributes a capability to Audit Log & Compliance whose distinctive content (['accelerator', 'platform', 'positioning']) exists NOWHERE on the real platform",
+      "action": "Reword/remove the WorkHive capability claim the page does not support",
+      "generator": "manual",
+      "status": "pending",
+      "harvested_at": "2026-06-10T06:51:13+00:00"
+    },
+    {
+      "id": "CG-4fb56dd1f4",
+      "check": "capability_drift",
+      "payload": "Achievements track documented behaviours and outcomes.",
+      "reason": "'gamifying-maintenance-for-engagement' attributes a capability to Achievements whose distinctive content (['behaviours', 'documented', 'outcomes']) exists NOWHERE on the real platform",
+      "action": "Reword/remove the WorkHive capability claim the page does not support",
+      "generator": "manual",
+      "status": "pending",
+      "harvested_at": "2026-06-10T06:51:13+00:00"
+    },
+    {
+      "id": "CG-acd4319f45",
+      "check": "capability_drift",
+      "payload": "The WorkHive HVAC calculator catches this distinction automatically.",
+      "reason": "'free-engineering-calculators-philippine-plants' attributes a capability to Engineering Design Calculator whose distinctive content (['catches', 'distinction']) exists NOWHERE on the real platform",
+      "action": "Reword/remove the WorkHive capability claim the page does not support",
+      "generator": "manual",
+      "status": "pending",
+      "harvested_at": "2026-06-10T06:51:13+00:00"
+    },
+    {
+      "id": "CG-fe0e2a1a79",
+      "check": "capability_drift",
+      "payload": "The AI Quality + ROI dashboard exists to make AI value measurable.",
+      "reason": "'ai-quality-and-roi-stage-2-plants' attributes a capability to AI Quality + ROI whose distinctive content (['exists', 'measurable', 'value']) exists NOWHERE on the real platform",
+      "action": "Reword/remove the WorkHive capability claim the page does not support",
+      "generator": "manual",
+      "status": "pending",
+      "harvested_at": "2026-06-10T06:51:13+00:00"
+    },
+    {
+      "id": "CG-581a1a9ea2",
+      "check": "count_drift",
+      "payload": "24 guides",
+      "reason": "index.html claims 24 guides but 36 articles are live",
+      "action": "Update the homepage count claim to the live article count",
+      "generator": "index_count",
+      "status": "pending",
+      "harvested_at": "2026-06-10T06:00:31+00:00"
+    },
+    {
+      "id": "CG-29e3f54657",
+      "check": "learn_hub_unlisted",
+      "payload": "ra-11285-energy-efficiency-plant-checklist",
+      "reason": "article 'ra-11285-energy-efficiency-plant-checklist' exists on disk but is not linked from the learn hub",
+      "action": "Add the unlisted article(s) to the learn hub from the catalog",
+      "generator": "learn_hub",
+      "status": "accepted",
+      "harvested_at": "2026-06-10T06:00:31+00:00",
+      "disposed_at": "2026-06-10T06:51:13+00:00"
+    },
+    {
+      "id": "CG-369cef9810",
+      "check": "learn_hub_unlisted",
+      "payload": "thermography-for-pm-philippine-plants",
+      "reason": "article 'thermography-for-pm-philippine-plants' exists on disk but is not linked from the learn hub",
+      "action": "Add the unlisted article(s) to the learn hub from the catalog",
+      "generator": "learn_hub",
+      "status": "pending",
+      "harvested_at": "2026-06-10T06:00:31+00:00"
+    },
+    {
+      "id": "CG-44646733c2",
+      "check": "learn_hub_unlisted",
+      "payload": "vibration-analysis-on-a-phone-budget",
+      "reason": "article 'vibration-analysis-on-a-phone-budget' exists on disk but is not linked from the learn hub",
+      "action": "Add the unlisted article(s) to the learn hub from the catalog",
+      "generator": "learn_hub",
+      "status": "pending",
+      "harvested_at": "2026-06-10T06:00:31+00:00"
+    },
+    {
+      "id": "CG-715205feb9",
+      "check": "learn_hub_unlisted",
+      "payload": "power-plant-reliability-metrics-philippines",
+      "reason": "article 'power-plant-reliability-metrics-philippines' exists on disk but is not linked from the learn hub",
+      "action": "Add the unlisted article(s) to the learn hub from the catalog",
+      "generator": "learn_hub",
+      "status": "pending",
+      "harvested_at": "2026-06-10T06:00:31+00:00"
+    },
+    {
+      "id": "CG-7e7a8279e8",
+      "check": "learn_hub_unlisted",
+      "payload": "reliability-centered-maintenance-philippine-plants",
+      "reason": "article 'reliability-centered-maintenance-philippine-plants' exists on disk but is not linked from the learn hub",
+      "action": "Add the unlisted article(s) to the learn hub from the catalog",
+      "generator": "learn_hub",
+      "status": "pending",
+      "harvested_at": "2026-06-10T06:00:31+00:00"
+    },
+    {
+      "id": "CG-8bd16b7259",
+      "check": "learn_hub_unlisted",
+      "payload": "psme-iiee-piche-which-association-to-join",
+      "reason": "article 'psme-iiee-piche-which-association-to-join' exists on disk but is not linked from the learn hub",
+      "action": "Add the unlisted article(s) to the learn hub from the catalog",
+      "generator": "learn_hub",
+      "status": "pending",
+      "harvested_at": "2026-06-10T06:00:31+00:00"
+    },
+    {
+      "id": "CG-9c6595aba0",
+      "check": "learn_hub_unlisted",
+      "payload": "loto-procedures-dole-oshs-template",
+      "reason": "article 'loto-procedures-dole-oshs-template' exists on disk but is not linked from the learn hub",
+      "action": "Add the unlisted article(s) to the learn hub from the catalog",
+      "generator": "learn_hub",
+      "status": "pending",
+      "harvested_at": "2026-06-10T06:00:31+00:00"
+    },
+    {
+      "id": "CG-9d6afcd40e",
+      "check": "learn_hub_unlisted",
+      "payload": "bms-facilities-maintenance-peza-buildings",
+      "reason": "article 'bms-facilities-maintenance-peza-buildings' exists on disk but is not linked from the learn hub",
+      "action": "Add the unlisted article(s) to the learn hub from the catalog",
+      "generator": "learn_hub",
+      "status": "pending",
+      "harvested_at": "2026-06-10T06:00:31+00:00"
+    },
+    {
+      "id": "CG-9e9e68f378",
+      "check": "learn_hub_unlisted",
+      "payload": "food-beverage-plant-maintenance-philippines",
+      "reason": "article 'food-beverage-plant-maintenance-philippines' exists on disk but is not linked from the learn hub",
+      "action": "Add the unlisted article(s) to the learn hub from the catalog",
+      "generator": "learn_hub",
+      "status": "pending",
+      "harvested_at": "2026-06-10T06:00:31+00:00"
+    },
+    {
+      "id": "CG-b7d3cf2686",
+      "check": "learn_hub_unlisted",
+      "payload": "fmea-worked-example-philippine-bottling-line",
+      "reason": "article 'fmea-worked-example-philippine-bottling-line' exists on disk but is not linked from the learn hub",
+      "action": "Add the unlisted article(s) to the learn hub from the catalog",
+      "generator": "learn_hub",
+      "status": "pending",
+      "harvested_at": "2026-06-10T06:00:31+00:00"
+    },
+    {
+      "id": "CG-c603ee3c38",
+      "check": "learn_hub_unlisted",
+      "payload": "ofw-engineer-portable-portfolio",
+      "reason": "article 'ofw-engineer-portable-portfolio' exists on disk but is not linked from the learn hub",
+      "action": "Add the unlisted article(s) to the learn hub from the catalog",
+      "generator": "learn_hub",
+      "status": "pending",
+      "harvested_at": "2026-06-10T06:00:31+00:00"
+    },
+    {
+      "id": "CG-d30c5e138b",
+      "check": "learn_hub_unlisted",
+      "payload": "tesda-nc-mapping-to-skill-matrix",
+      "reason": "article 'tesda-nc-mapping-to-skill-matrix' exists on disk but is not linked from the learn hub",
+      "action": "Add the unlisted article(s) to the learn hub from the catalog",
+      "generator": "learn_hub",
+      "status": "pending",
+      "harvested_at": "2026-06-10T06:00:31+00:00"
+    }
+  ]
+}

@@ -1,6 +1,7 @@
 import React from 'react';
 import {interpolate, spring, useCurrentFrame, useVideoConfig} from 'remotion';
 import {Ambient, ORANGE, ORANGE_DK, NAVY, NAVY_DEEP, FONT} from './Ambient';
+import {KineticHeadline} from './KineticHeadline';
 
 type Props = {
   headline: string;
@@ -19,11 +20,13 @@ export const WorkHiveMindmap: React.FC<Props> = ({headline, subhead, nodes}) => 
   const {fps} = useVideoConfig();
   const t = frame / fps;
 
-  const hub = (subhead.includes('·') ? subhead.split('·').pop()! : headline).trim().slice(0, 22);
+  // subhead IS the feature name now (the "WorkHive · " prefix was dropped —
+  // the brand was appearing 4× per frame); keep the legacy split as fallback.
+  const hub = (subhead.includes('·') ? subhead.split('·').pop()! : (subhead || headline)).trim().slice(0, 22);
   const list = (nodes && nodes.length ? nodes : ['Faster', 'Clearer', 'Safer']).slice(0, 5);
 
-  const CX = 300, CY = 372, R = 232;
-  const hubIn = spring({frame: frame - 6, fps, config: {damping: 14, mass: 0.6}});
+  const CX = 300, CY = 350, R = 200;   // fan stays above the caption-safe band
+  const hubIn = spring({frame: frame - 2, fps, config: {damping: 14, mass: 0.6}});
 
   const positioned = list.map((label, i) => {
     const span = list.length > 1 ? 110 : 0;                 // total degrees fanned
@@ -34,17 +37,15 @@ export const WorkHiveMindmap: React.FC<Props> = ({headline, subhead, nodes}) => 
       label,
       x: CX + Math.cos(a) * R + fx,
       y: CY + Math.sin(a) * R + fy,
-      start: 16 + i * 9,
+      start: 6 + i * 6,   // nodes appear fast — no dead first half-second on a beat cut
     };
   });
 
   return (
     <>
       <Ambient />
-      {/* title top-left */}
-      <div style={{position: 'absolute', left: 100, top: 124, maxWidth: 260,
-        color: '#fff', fontWeight: 800, fontSize: 32, lineHeight: 1.05, fontFamily: FONT,
-        textShadow: '0 4px 24px rgba(0,0,0,.5)'}}>{headline}</div>
+      {/* title top-left — word-by-word kinetic reveal (silent-first) */}
+      <KineticHeadline text={headline} x={100} y={124} size={32} maxWidth={260} />
 
       <svg width="100%" height="100%" style={{position: 'absolute', inset: 0}}>
         {/* links draw in */}

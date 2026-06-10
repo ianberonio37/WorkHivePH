@@ -76,6 +76,7 @@ FEATURE_KEYWORDS: list[tuple[str, str, str]] = [
     (r"audit log|compliance|regulator|traceab", "audit_log", "Audit Log & Compliance"),
     (r"dashboard|supervisor|whole plant|at a glance", "hive_dashboard", "Hive Dashboard"),
     (r"engineering (design|calc)|pump sizing|tdh|standard", "engineering_calc", "Engineering Design Calculator"),
+    (r"resume|cv|curriculum vitae|ats|job applic|portfolio", "resume_builder", "Resume Builder"),
 ]
 
 # Feature display name → journey key (for the idea's primary solution_feature).
@@ -101,6 +102,7 @@ FEATURE_NAME_TO_KEY = {
     "Audit Log & Compliance": "audit_log",
     "Hive Dashboard": "hive_dashboard",
     "Engineering Design Calculator": "engineering_calc",
+    "Resume Builder": "resume_builder",
 }
 
 # Journey keys whose narrative is a "how it all connects" ecosystem story —
@@ -336,8 +338,11 @@ def build_storyboard(idea: dict, narration_path: Path | None = None,
         if not key:
             key, label = primary_key, primary_label
         action = "demo" if (beat["section"] == "solution" and key == primary_key and i == _first_solution_idx(beats)) else "visit"
-        headline = (beat.get("overlay") or beat.get("narration") or primary_label)[:60]
-        subhead = f"WorkHive · {label or primary_label}"[:42]
+        # ≤7 words (kinetic-readable on a muted feed), never ending mid-clause.
+        headline = _clamp_headline(beat.get("overlay") or beat.get("narration") or primary_label)
+        # Feature name only — the scene already shows the WorkHive wordmark
+        # (was "WorkHive · X": the brand appeared 4× in one frame).
+        subhead = (label or primary_label)[:42]
         segments.append({
             "i": i,
             "section": beat["section"],
@@ -360,6 +365,11 @@ def build_storyboard(idea: dict, narration_path: Path | None = None,
         drift = target_frames - frame_acc
         segments[-1]["frames"] = max(FPS, segments[-1]["frames"] + drift)
 
+    # ABCD enforcement (Creative Quality Gate): ≤3s pattern-interrupt hook with
+    # 2+ shots in the first 5s, and a guaranteed branded CTA end card. Operates
+    # on frames only — the narration audio remains the master clock.
+    segments = _enforce_abcd(segments, primary_label)
+
     return {
         "idea_id": idea.get("id"),
         "title": idea.get("title"),
@@ -377,6 +387,105 @@ def _first_solution_idx(beats: list[dict]) -> int:
         if b["section"] == "solution":
             return i
     return -1
+
+
+# ── ABCD enforcement (research-backed structure, measured by the gate) ─────────
+# Google ABCD: 2+ shots in the first 5s, brand early, a clear Direct/CTA close.
+# 3-second-hook research: viewers who survive 3s are 65% likelier to reach 10s.
+
+_HOOK_PUNCH_S = 2.7      # the pattern-interrupt punch length
+_CTA_CARD_S = 3.0        # the branded end card length
+
+
+_PUNCH_TRAILING_STOP = {"and", "or", "the", "a", "an", "to", "of", "for", "with", "but", "your", "in", "on"}
+
+
+def _clamp_headline(text: str, max_words: int = 7) -> str:
+    """≤max_words, trailing connectives trimmed (Creative Gate kinetic_length)."""
+    words = (text or "WorkHive").strip().split()[:max_words]
+    while words and words[-1].lower().strip(".,!?") in _PUNCH_TRAILING_STOP:
+        words.pop()
+    return " ".join(words)[:60].strip() or "WorkHive"
+
+
+def _punch_line(seg: dict) -> str:
+    """A tight ≤5-word cut of the hook line for the 3-second punch. Trailing
+    connectives are trimmed so the punch never ends mid-clause ("…time and")."""
+    src = (seg.get("overlay") or seg.get("headline") or "WorkHive").strip()
+    words = src.split()[:5]
+    while words and words[-1].lower().strip(".,!?") in _PUNCH_TRAILING_STOP:
+        words.pop()
+    return " ".join(words)[:42].strip() or "WorkHive"
+
+
+def _other_style(avoid: set) -> str:
+    for s in STYLES:
+        if s not in avoid:
+            return s
+    return STYLES[0]
+
+
+def _enforce_abcd(segments: list[dict], primary_label: str) -> list[dict]:
+    """Post-process the beat list so EVERY video meets the ABCD floor:
+
+    1. HOOK: if the opening hook beat runs past ~3.5s, split it into a ≤3s
+       pattern-interrupt punch (tight line, different style) + the remainder —
+       giving 2+ shots inside the first 5 seconds.
+    2. CTA: if the script produced no CTA beat, carve the last ~3s into a
+       branded end card (Direct) — never ship without a close.
+    Frame totals are preserved exactly (narration = master clock)."""
+    if not segments:
+        return segments
+
+    out = list(segments)
+
+    # 1 — hook split
+    first = out[0]
+    if first.get("section") == "hook" and first["frames"] > round(3.5 * FPS):
+        punch_frames = round(_HOOK_PUNCH_S * FPS)
+        rest_frames = first["frames"] - punch_frames
+        if rest_frames >= FPS:
+            rest_style = _other_style({first["style"], out[1]["style"] if len(out) > 1 else ""})
+            punch = dict(first)
+            punch.update({
+                "frames": punch_frames, "seconds": round(punch_frames / FPS, 2),
+                "headline": _punch_line(first),
+                "phrases": [_punch_line(first)],
+            })
+            rest = dict(first)
+            rest.update({
+                "frames": rest_frames, "seconds": round(rest_frames / FPS, 2),
+                "style": rest_style,
+            })
+            out[0:1] = [punch, rest]
+
+    # 2 — guaranteed CTA end card
+    if not any(s.get("section") == "cta" for s in out):
+        last = out[-1]
+        cta_frames = round(_CTA_CARD_S * FPS)
+        if last["frames"] >= cta_frames + FPS:
+            last["frames"] -= cta_frames
+            last["seconds"] = round(last["frames"] / FPS, 2)
+        else:
+            cta_frames = last["frames"]
+            out.pop()
+        out.append({
+            "i": -1, "section": "cta",
+            "narration": last.get("narration", ""),
+            "overlay": "Free at workhiveph.com",
+            "seconds": round(cta_frames / FPS, 2), "frames": cta_frames,
+            "style": "kinetic",
+            "headline": "Free at workhiveph.com",
+            "subhead": primary_label[:42],
+            "phrases": ["Free forever", "workhiveph.com"],
+            "stats": [{"value": "100%", "label": "Free to start", "dir": "up"}],
+            "nodes": [primary_label],
+            "ui": dict(last.get("ui", {"feature": primary_label, "journey": None, "action": "visit"})),
+        })
+
+    for i, s in enumerate(out):
+        s["i"] = i
+    return out
 
 
 # ── CLI (verification) ────────────────────────────────────────────────────────

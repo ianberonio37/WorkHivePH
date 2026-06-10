@@ -6,6 +6,7 @@ import {
   useCurrentFrame,
   useVideoConfig,
 } from 'remotion';
+import {KineticHeadline} from './KineticHeadline';
 
 // ── WorkHive brand palette ──────────────────────────────────────────────────
 const NAVY_DEEP = '#0E1726';
@@ -13,7 +14,7 @@ const NAVY = '#162032';
 const ORANGE = '#F7A21B';
 const ORANGE_LT = '#FDB94A';
 const ORANGE_DK = '#D88A0E';
-const FONT = '"Poppins","Segoe UI",system-ui,-apple-system,sans-serif';
+import {FONT} from './Ambient';
 
 type Props = {
   headline: string;
@@ -40,11 +41,11 @@ export const WorkHiveMotionBG: React.FC<Props> = ({headline, subhead}) => {
 
   // ── Live bar chart (oscillating), lower-left ──────────────────────────────
   const BAR_N = 6;
-  const barW = 30, barGap = 16, barX0 = 96, barBaseY = 600, barTrack = 150;
+  const barW = 30, barGap = 16, barX0 = 96, barBaseY = 530, barTrack = 150;
   const bars = Array.from({length: BAR_N}, (_, i) => 36 + (0.5 + 0.5 * Math.sin(t * 1.5 + i * 0.85)) * (barTrack - 36));
 
   // ── Scrolling area/line chart, centre ─────────────────────────────────────
-  const LW = 250, LH = 92, lx = 392, ly = 470;
+  const LW = 250, LH = 92, lx = 392, ly = 400;
   const pts: string[] = [];
   for (let x = 0; x <= LW; x += 7) {
     const phase = (x / LW) * Math.PI * 4 - t * 2.2;
@@ -55,7 +56,7 @@ export const WorkHiveMotionBG: React.FC<Props> = ({headline, subhead}) => {
   const areaPath = `M 0,${LH} L ${pts.join(' L ')} L ${LW},${LH} Z`;
 
   // ── Sweeping ring gauge, lower-right of the strip (still left of UI PiP) ───
-  const gR = 62, gCx = 700, gCy = 512, gC = 2 * Math.PI * gR;
+  const gR = 62, gCx = 700, gCy = 442, gC = 2 * Math.PI * gR;
   const gPct = 0.5 + 0.42 * Math.sin(t * 0.9);
   const gNum = Math.round(gPct * 100);
 
@@ -90,18 +91,9 @@ export const WorkHiveMotionBG: React.FC<Props> = ({headline, subhead}) => {
         }} />
       ))}
 
-      {/* Wordmark */}
-      <div style={{position: 'absolute', left: 96, top: 80, fontWeight: 800, fontSize: 30}}>
-        <span style={{color: ORANGE}}>Work</span><span style={{color: '#fff'}}>Hive</span>
-      </div>
-
-      {/* Headline + tag, top-left */}
+      {/* Headline + tag, top-left — word-by-word kinetic reveal (silent-first) */}
       <div style={{position: 'absolute', left: 96, top: 158, maxWidth: 600}}>
-        <div style={{
-          color: '#fff', fontWeight: 800, fontSize: 52, lineHeight: 1.05,
-          opacity: titleIn, transform: `translateY(${interpolate(titleIn, [0, 1], [24, 0])}px)`,
-          textShadow: '0 4px 24px rgba(0,0,0,.5)',
-        }}>{headline}</div>
+        <KineticHeadline text={headline} size={52} maxWidth={600} position="static" />
         <div style={{
           marginTop: 16, display: 'inline-block', padding: '7px 16px', borderRadius: 22,
           background: `linear-gradient(90deg, ${ORANGE} 0%, ${ORANGE_DK} 100%)`,
@@ -111,7 +103,7 @@ export const WorkHiveMotionBG: React.FC<Props> = ({headline, subhead}) => {
       </div>
 
       {/* LIVE pulse label above the strip */}
-      <div style={{position: 'absolute', left: 96, top: 408, display: 'flex', alignItems: 'center', gap: 8}}>
+      <div style={{position: 'absolute', left: 96, top: 338, display: 'flex', alignItems: 'center', gap: 8}}>
         <div style={{
           width: 11, height: 11, borderRadius: '50%', background: ORANGE,
           opacity: 0.4 + 0.6 * (0.5 + 0.5 * Math.sin(t * 4)), boxShadow: `0 0 12px ${ORANGE}`,

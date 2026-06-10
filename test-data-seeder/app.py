@@ -1173,6 +1173,71 @@ def api_companion_layer(layer):
     return jsonify({"started": True})
 
 
+# ── Content Grounding Gate (content_dev.py) — the 3rd sibling Mega Gate ───────
+# The OUTWARD analog of the inward Mega Gate: subject under test is every
+# outward-facing surface (landing / learn / SEO-AEO-GEO / video), source of
+# truth is the auto-derived Platform Catalog. Each route streams
+# `python tools/content_dev.py <subcmd>` via _run_root_cmd. All layers are $0
+# and need no DB or model (catalog + surfaces are read off disk).
+def _content_job(job_name, subargs):
+    """Return a _run(client, log) that streams content_dev.py <subargs>."""
+    def _run(client, log):
+        script = WORKHIVE_ROOT / "tools" / "content_dev.py"
+        if not script.exists():
+            log(f"ERROR: tools/content_dev.py not found at {script}")
+            return {"exit_code": 1}
+        rc = _run_root_cmd([sys.executable, "-u", str(script), *subargs], log)
+        return {"exit_code": rc}
+    return _run
+
+
+# subcmd -> (job name, argv tail). Drives both the routes and the panel cards.
+_CONTENT_LAYERS = {
+    "status":     ("content_status",     ["status"]),
+    "substrate":  ("content_substrate",  ["substrate"]),    # G-1.5  catalog + manifest
+    "discover":   ("content_discover",   ["discover"]),     # G-1    coverage / orphans / gaps
+    "gate":       ("content_gate",       ["gate"]),         # G0     drift validators (ratchet)
+    "harvest":    ("content_harvest",    ["harvest"]),      # G3     drift -> candidates
+    "dispose":    ("content_dispose",    ["dispose"]),      # G3     triage queue
+    "regenerate": ("content_regenerate", ["regenerate"]),  # G3     catalog-grounded proposals -> staging
+    "mega":       ("content_mega",       ["mega"]),         # full closed loop + scorecard
+}
+
+
+# ── Creative Quality Gate (video_quality_gate.py) — the 4th sibling gate ──────
+# Scores the most recently produced marketing video on research-backed craft
+# (ABCD · 3s-hook · silent-first · length · brand). $0, offline (storyboard +
+# script + frame sampling of the assembled mp4).
+@app.route("/api/video-quality", methods=["POST"])
+def api_video_quality():
+    if JOB_STATE["running"]:
+        return jsonify({"error": "another job is running"}), 409
+
+    def _run(client, log):
+        script = WORKHIVE_ROOT / "tools" / "video_quality_gate.py"
+        if not script.exists():
+            log(f"ERROR: tools/video_quality_gate.py not found at {script}")
+            return {"exit_code": 1}
+        rc = _run_root_cmd([sys.executable, "-u", str(script), "score", "--latest"], log)
+        return {"exit_code": rc}
+
+    _run_job("video_quality", _run)
+    return jsonify({"started": True})
+
+
+@app.route("/api/content/<layer>", methods=["POST"])
+def api_content_layer(layer):
+    """Run one Content Grounding Gate layer (status/substrate/discover/gate/mega)."""
+    spec = _CONTENT_LAYERS.get(layer)
+    if not spec:
+        return jsonify({"error": f"unknown content layer {layer!r}"}), 404
+    if JOB_STATE["running"]:
+        return jsonify({"error": "another job is running"}), 409
+    job_name, subargs = spec
+    _run_job(job_name, _content_job(job_name, subargs))
+    return jsonify({"started": True})
+
+
 @app.route("/api/run-gate-visual", methods=["POST"])
 def api_run_gate_visual():
     """Gate + visual regression only (no AI, no perf). Faster than Mega Gate.
@@ -1199,7 +1264,7 @@ def api_run_mega_gate():
         return jsonify({"error": "another job is running"}), 409
     _run_job(
         "mega_gate",
-        _run_release_gate(["--with-ai", "--with-visual", "--with-perf", "--with-ai-deep", "--with-battery"]),
+        _run_release_gate(["--with-ai", "--with-visual", "--with-perf", "--with-ai-deep", "--with-battery", "--with-content"]),
     )
     return jsonify({"started": True})
 

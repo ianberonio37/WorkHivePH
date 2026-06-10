@@ -1,0 +1,2602 @@
+{
+  "generator": "platform_catalog.py",
+  "version": 1,
+  "generated_at": "2026-06-10T09:35:25+00:00",
+  "features": [
+    {
+      "id": "index",
+      "name": "Home",
+      "route": "index.html",
+      "url": "/",
+      "status": "active",
+      "capability": "",
+      "connects_to": [],
+      "tables": [],
+      "edge_fns": [],
+      "audience": [],
+      "nav_label": "Home",
+      "nav_section": null,
+      "nav_hidden": false,
+      "nav_roles": [],
+      "journey_key": "index",
+      "sources": [
+        "nav"
+      ],
+      "articles": [
+        "ai-quality-and-roi-stage-2-plants",
+        "ai-work-assistant-maintenance-technicians",
+        "bms-facilities-maintenance-peza-buildings",
+        "building-asset-register-zero-budget",
+        "connecting-workhive-to-sap-maximo-cmms",
+        "dilo-wilo-day-planner-supervisors",
+        "dole-iso-audit-trail-from-logbook",
+        "fmea-worked-example-philippine-bottling-line",
+        "food-beverage-plant-maintenance-philippines",
+        "free-engineering-calculators-philippine-plants",
+        "free-pm-checklist-templates",
+        "gamifying-maintenance-for-engagement",
+        "industrial-community-of-practice-philippines",
+        "industrial-marketplace-philippine-specialists",
+        "joining-and-growing-your-hive",
+        "loto-procedures-dole-oshs-template",
+        "maintenance-project-planning-template",
+        "maintenance-shift-handover-template",
+        "mtbf-vs-mttr-for-supervisors",
+        "ofw-engineer-portable-portfolio",
+        "ph-industrial-benchmarks-intelligence",
+        "power-plant-reliability-metrics-philippines",
+        "predictive-alert-thresholds-plants",
+        "predictive-maintenance-on-a-budget-philippines",
+        "psme-iiee-piche-which-association-to-join",
+        "ra-11285-energy-efficiency-plant-checklist",
+        "reliability-centered-maintenance-philippine-plants",
+        "resume-builder-for-filipino-industrial-workers",
+        "sensor-cmms-gateway-operations",
+        "skill-matrix-for-maintenance-technicians",
+        "spare-parts-inventory-philippine-plants",
+        "start-digital-logbook-philippine-factory",
+        "tesda-nc-mapping-to-skill-matrix",
+        "thermography-for-pm-philippine-plants",
+        "vibration-analysis-on-a-phone-budget",
+        "voice-to-text-maintenance-philippine-plant-floor",
+        "what-is-oee-how-to-calculate"
+      ]
+    },
+    {
+      "id": "logbook",
+      "name": "Maintenance Logbook",
+      "route": "logbook.html",
+      "url": "/logbook.html",
+      "status": "active",
+      "capability": "Foundation layer. Every repair, every failure, every fix recorded — by typing, by voice, or by voice command. Without it everything else is guesswork.",
+      "connects_to": [
+        "AI Maintenance Assistant",
+        "Shift Handover Report",
+        "PM Checklist",
+        "Community Forum",
+        "Asset Brain",
+        "Achievements",
+        "Predictive Analytics",
+        "Audit Log & Compliance"
+      ],
+      "tables": [
+        "logbook"
+      ],
+      "edge_fns": [
+        "failure-signature-scan",
+        "embed-entry",
+        "voice-logbook-entry",
+        "voice-transcribe",
+        "voice-action-router"
+      ],
+      "audience": [
+        "Field Technician",
+        "Supervisor",
+        "Plant Manager"
+      ],
+      "nav_label": "Logbook",
+      "nav_section": "Field Work",
+      "nav_hidden": false,
+      "nav_roles": [
+        "field",
+        "supervisor"
+      ],
+      "journey_key": "logbook",
+      "sources": [
+        "nav",
+        "intel"
+      ],
+      "articles": [
+        "ai-quality-and-roi-stage-2-plants",
+        "ai-work-assistant-maintenance-technicians",
+        "building-asset-register-zero-budget",
+        "connecting-workhive-to-sap-maximo-cmms",
+        "dilo-wilo-day-planner-supervisors",
+        "dole-iso-audit-trail-from-logbook",
+        "free-engineering-calculators-philippine-plants",
+        "free-pm-checklist-templates",
+        "gamifying-maintenance-for-engagement",
+        "industrial-community-of-practice-philippines",
+        "industrial-marketplace-philippine-specialists",
+        "joining-and-growing-your-hive",
+        "maintenance-project-planning-template",
+        "maintenance-shift-handover-template",
+        "mtbf-vs-mttr-for-supervisors",
+        "ofw-engineer-portable-portfolio",
+        "ph-industrial-benchmarks-intelligence",
+        "power-plant-reliability-metrics-philippines",
+        "predictive-alert-thresholds-plants",
+        "predictive-maintenance-on-a-budget-philippines",
+        "resume-builder-for-filipino-industrial-workers",
+        "sensor-cmms-gateway-operations",
+        "skill-matrix-for-maintenance-technicians",
+        "spare-parts-inventory-philippine-plants",
+        "start-digital-logbook-philippine-factory",
+        "voice-to-text-maintenance-philippine-plant-floor",
+        "what-is-oee-how-to-calculate"
+      ]
+    },
+    {
+      "id": "inventory",
+      "name": "Inventory Management",
+      "route": "inventory.html",
+      "url": "/inventory.html",
+      "status": "active",
+      "capability": "Readiness layer. Maintenance only works if the part is there. Low stock alerts before surprises happen — and Auto-Staging now reserves parts in advance for predicted failures.",
+      "connects_to": [
+        "PM Checklist",
+        "Marketplace",
+        "Hive Dashboard",
+        "Predictive Analytics",
+        "Shift Brain",
+        "Alert Hub"
+      ],
+      "tables": [
+        "inventory_items",
+        "inventory_transactions",
+        "parts_staged_reservations"
+      ],
+      "edge_fns": [],
+      "audience": [
+        "Supervisor",
+        "Plant Manager"
+      ],
+      "nav_label": "Inventory",
+      "nav_section": "Field Work",
+      "nav_hidden": false,
+      "nav_roles": [
+        "field",
+        "supervisor"
+      ],
+      "journey_key": "inventory",
+      "sources": [
+        "nav",
+        "intel"
+      ],
+      "articles": [
+        "ai-work-assistant-maintenance-technicians",
+        "building-asset-register-zero-budget",
+        "connecting-workhive-to-sap-maximo-cmms",
+        "dilo-wilo-day-planner-supervisors",
+        "dole-iso-audit-trail-from-logbook",
+        "gamifying-maintenance-for-engagement",
+        "industrial-marketplace-philippine-specialists",
+        "maintenance-project-planning-template",
+        "mtbf-vs-mttr-for-supervisors",
+        "sensor-cmms-gateway-operations",
+        "skill-matrix-for-maintenance-technicians",
+        "spare-parts-inventory-philippine-plants",
+        "start-digital-logbook-philippine-factory",
+        "tesda-nc-mapping-to-skill-matrix",
+        "what-is-oee-how-to-calculate"
+      ]
+    },
+    {
+      "id": "dayplanner",
+      "name": "Day Planner",
+      "route": "dayplanner.html",
+      "url": "/dayplanner.html",
+      "status": "active",
+      "capability": "Scheduling layer. Right person, right task, right time. Plans the week so PMs never pile up.",
+      "connects_to": [
+        "PM Checklist",
+        "Skill Matrix",
+        "Shift Handover Report",
+        "Shift Brain"
+      ],
+      "tables": [
+        "dayplanner_events"
+      ],
+      "edge_fns": [],
+      "audience": [
+        "Supervisor",
+        "Plant Manager"
+      ],
+      "nav_label": "Day Planner",
+      "nav_section": "Field Work",
+      "nav_hidden": false,
+      "nav_roles": [
+        "field",
+        "supervisor"
+      ],
+      "journey_key": "dayplanner",
+      "sources": [
+        "nav",
+        "intel"
+      ],
+      "articles": [
+        "bms-facilities-maintenance-peza-buildings",
+        "building-asset-register-zero-budget",
+        "dilo-wilo-day-planner-supervisors",
+        "fmea-worked-example-philippine-bottling-line",
+        "food-beverage-plant-maintenance-philippines",
+        "free-pm-checklist-templates",
+        "joining-and-growing-your-hive",
+        "loto-procedures-dole-oshs-template",
+        "maintenance-project-planning-template",
+        "maintenance-shift-handover-template",
+        "mtbf-vs-mttr-for-supervisors",
+        "ofw-engineer-portable-portfolio",
+        "power-plant-reliability-metrics-philippines",
+        "psme-iiee-piche-which-association-to-join",
+        "ra-11285-energy-efficiency-plant-checklist",
+        "reliability-centered-maintenance-philippine-plants",
+        "resume-builder-for-filipino-industrial-workers",
+        "skill-matrix-for-maintenance-technicians",
+        "tesda-nc-mapping-to-skill-matrix",
+        "thermography-for-pm-philippine-plants",
+        "vibration-analysis-on-a-phone-budget"
+      ]
+    },
+    {
+      "id": "hive",
+      "name": "Hive Dashboard",
+      "route": "hive.html",
+      "url": "/hive.html",
+      "status": "active",
+      "capability": "Visibility layer. The manager sees everything in real time: open work, downtime, PM rate, all in one screen.",
+      "connects_to": [
+        "Maintenance Logbook",
+        "PM Checklist",
+        "Inventory Management",
+        "Skill Matrix",
+        "Analytics & OEE Dashboard",
+        "Alert Hub"
+      ],
+      "tables": [
+        "hive_analytics_cache",
+        "hive_audit_log"
+      ],
+      "edge_fns": [
+        "analytics-orchestrator",
+        "benchmark-compute"
+      ],
+      "audience": [
+        "Supervisor",
+        "Plant Manager"
+      ],
+      "nav_label": "WorkHive",
+      "nav_section": "Your Team",
+      "nav_hidden": false,
+      "nav_roles": [
+        "supervisor"
+      ],
+      "journey_key": "hive",
+      "sources": [
+        "nav",
+        "intel"
+      ],
+      "articles": [
+        "ai-quality-and-roi-stage-2-plants",
+        "bms-facilities-maintenance-peza-buildings",
+        "building-asset-register-zero-budget",
+        "dole-iso-audit-trail-from-logbook",
+        "free-pm-checklist-templates",
+        "joining-and-growing-your-hive",
+        "maintenance-shift-handover-template",
+        "mtbf-vs-mttr-for-supervisors",
+        "predictive-maintenance-on-a-budget-philippines",
+        "sensor-cmms-gateway-operations",
+        "skill-matrix-for-maintenance-technicians",
+        "spare-parts-inventory-philippine-plants",
+        "start-digital-logbook-philippine-factory"
+      ]
+    },
+    {
+      "id": "pm-scheduler",
+      "name": "PM Checklist",
+      "route": "pm-scheduler.html",
+      "url": "/pm-scheduler.html",
+      "status": "active",
+      "capability": "Prevention layer. Stops failures before they happen. Each completed PM feeds the logbook, the dashboard, and the shift plan.",
+      "connects_to": [
+        "Inventory Management",
+        "Maintenance Logbook",
+        "Hive Dashboard",
+        "Skill Matrix",
+        "Shift Brain",
+        "Asset Brain",
+        "Achievements"
+      ],
+      "tables": [
+        "pm_assets",
+        "pm_completions",
+        "pm_scope_items"
+      ],
+      "edge_fns": [],
+      "audience": [
+        "Field Technician",
+        "Supervisor"
+      ],
+      "nav_label": "PM Scheduler",
+      "nav_section": "Your Team",
+      "nav_hidden": false,
+      "nav_roles": [
+        "field",
+        "supervisor"
+      ],
+      "journey_key": "pm_scheduler",
+      "sources": [
+        "nav",
+        "intel"
+      ],
+      "articles": [
+        "building-asset-register-zero-budget",
+        "dilo-wilo-day-planner-supervisors",
+        "free-pm-checklist-templates",
+        "gamifying-maintenance-for-engagement",
+        "maintenance-project-planning-template",
+        "maintenance-shift-handover-template",
+        "predictive-maintenance-on-a-budget-philippines",
+        "skill-matrix-for-maintenance-technicians"
+      ]
+    },
+    {
+      "id": "community",
+      "name": "Community Forum",
+      "route": "community.html",
+      "url": "/community.html",
+      "status": "active",
+      "capability": "Knowledge layer. Plant workers sharing solutions. Best answers feed the AI and the knowledge base.",
+      "connects_to": [
+        "AI Maintenance Assistant",
+        "Maintenance Logbook",
+        "Achievements"
+      ],
+      "tables": [
+        "community_posts",
+        "community_replies",
+        "community_xp"
+      ],
+      "edge_fns": [],
+      "audience": [
+        "Field Technician",
+        "Engineer"
+      ],
+      "nav_label": "Community",
+      "nav_section": "Your Team",
+      "nav_hidden": false,
+      "nav_roles": [],
+      "journey_key": "community",
+      "sources": [
+        "nav",
+        "intel"
+      ],
+      "articles": [
+        "industrial-community-of-practice-philippines",
+        "maintenance-project-planning-template",
+        "psme-iiee-piche-which-association-to-join",
+        "start-digital-logbook-philippine-factory"
+      ]
+    },
+    {
+      "id": "analytics-report",
+      "name": "Analytics Report",
+      "route": "analytics-report.html",
+      "url": "/analytics-report.html",
+      "status": "active",
+      "capability": "",
+      "connects_to": [],
+      "tables": [],
+      "edge_fns": [],
+      "audience": [],
+      "nav_label": "Analytics Report",
+      "nav_section": "Intelligence",
+      "nav_hidden": true,
+      "nav_roles": [
+        "supervisor",
+        "engineer"
+      ],
+      "journey_key": "analytics_report",
+      "sources": [
+        "nav"
+      ],
+      "articles": [
+        "ai-quality-and-roi-stage-2-plants",
+        "free-engineering-calculators-philippine-plants",
+        "maintenance-shift-handover-template",
+        "ph-industrial-benchmarks-intelligence",
+        "power-plant-reliability-metrics-philippines",
+        "predictive-alert-thresholds-plants",
+        "spare-parts-inventory-philippine-plants",
+        "start-digital-logbook-philippine-factory"
+      ]
+    },
+    {
+      "id": "analytics",
+      "name": "Analytics & OEE Dashboard",
+      "route": "analytics.html",
+      "url": "/analytics.html",
+      "status": "active",
+      "capability": "Insight layer. Turns raw maintenance data into OEE, MTBF, downtime trends across 4 phases — Descriptive, Diagnostic, Predictive, Prescriptive.",
+      "connects_to": [
+        "Maintenance Logbook",
+        "PM Checklist",
+        "Predictive Analytics",
+        "Hive Dashboard",
+        "PH Industry Intelligence"
+      ],
+      "tables": [
+        "hive_analytics_cache",
+        "logbook"
+      ],
+      "edge_fns": [
+        "analytics-orchestrator",
+        "benchmark-compute"
+      ],
+      "audience": [
+        "Plant Manager",
+        "Supervisor",
+        "Engineer"
+      ],
+      "nav_label": "Analytics",
+      "nav_section": "Intelligence",
+      "nav_hidden": false,
+      "nav_roles": [
+        "supervisor",
+        "engineer"
+      ],
+      "journey_key": "analytics",
+      "sources": [
+        "nav",
+        "intel"
+      ],
+      "articles": [
+        "ai-quality-and-roi-stage-2-plants",
+        "building-asset-register-zero-budget",
+        "dole-iso-audit-trail-from-logbook",
+        "free-pm-checklist-templates",
+        "joining-and-growing-your-hive",
+        "maintenance-shift-handover-template",
+        "mtbf-vs-mttr-for-supervisors",
+        "predictive-maintenance-on-a-budget-philippines",
+        "sensor-cmms-gateway-operations",
+        "skill-matrix-for-maintenance-technicians",
+        "spare-parts-inventory-philippine-plants",
+        "start-digital-logbook-philippine-factory"
+      ]
+    },
+    {
+      "id": "predictive",
+      "name": "Predictive Analytics",
+      "route": "predictive.html",
+      "url": "/predictive.html",
+      "status": "active",
+      "capability": "Foresight layer. ML scores every asset by failure risk, real reliability math (Weibull, P-F intervals, FMEA) backs the model, and Auto-Staging reserves the parts before the failure happens. Predict, prepare, prevent.",
+      "connects_to": [
+        "Maintenance Logbook",
+        "Inventory Management",
+        "Asset Brain",
+        "Alert Hub",
+        "Analytics & OEE Dashboard"
+      ],
+      "tables": [
+        "asset_risk_scores",
+        "logbook",
+        "inventory_transactions",
+        "parts_staged_reservations"
+      ],
+      "edge_fns": [
+        "batch-risk-scoring",
+        "trigger-ml-retrain",
+        "parts-staging-recommender",
+        "weibull-fitter",
+        "pf-calculator",
+        "fmea-populator"
+      ],
+      "audience": [
+        "Plant Manager",
+        "Supervisor",
+        "Engineer"
+      ],
+      "nav_label": "Predictive ML",
+      "nav_section": "Intelligence",
+      "nav_hidden": true,
+      "nav_roles": [
+        "supervisor",
+        "engineer"
+      ],
+      "journey_key": "predictive",
+      "sources": [
+        "nav",
+        "intel"
+      ],
+      "articles": [
+        "ai-quality-and-roi-stage-2-plants",
+        "ai-work-assistant-maintenance-technicians",
+        "building-asset-register-zero-budget",
+        "connecting-workhive-to-sap-maximo-cmms",
+        "dilo-wilo-day-planner-supervisors",
+        "dole-iso-audit-trail-from-logbook",
+        "free-engineering-calculators-philippine-plants",
+        "free-pm-checklist-templates",
+        "gamifying-maintenance-for-engagement",
+        "industrial-community-of-practice-philippines",
+        "industrial-marketplace-philippine-specialists",
+        "joining-and-growing-your-hive",
+        "maintenance-project-planning-template",
+        "maintenance-shift-handover-template",
+        "mtbf-vs-mttr-for-supervisors",
+        "ph-industrial-benchmarks-intelligence",
+        "predictive-alert-thresholds-plants",
+        "predictive-maintenance-on-a-budget-philippines",
+        "sensor-cmms-gateway-operations",
+        "skill-matrix-for-maintenance-technicians",
+        "spare-parts-inventory-philippine-plants",
+        "start-digital-logbook-philippine-factory",
+        "voice-to-text-maintenance-philippine-plant-floor",
+        "what-is-oee-how-to-calculate"
+      ]
+    },
+    {
+      "id": "ai-quality",
+      "name": "AI Quality + ROI",
+      "route": "ai-quality.html",
+      "url": "/ai-quality.html",
+      "status": "active",
+      "capability": "",
+      "connects_to": [],
+      "tables": [],
+      "edge_fns": [],
+      "audience": [],
+      "nav_label": "AI Quality + ROI",
+      "nav_section": "Intelligence",
+      "nav_hidden": true,
+      "nav_roles": [
+        "supervisor"
+      ],
+      "journey_key": "ai_quality",
+      "sources": [
+        "nav"
+      ],
+      "articles": [
+        "ai-quality-and-roi-stage-2-plants",
+        "ai-work-assistant-maintenance-technicians",
+        "bms-facilities-maintenance-peza-buildings",
+        "building-asset-register-zero-budget",
+        "connecting-workhive-to-sap-maximo-cmms",
+        "dilo-wilo-day-planner-supervisors",
+        "dole-iso-audit-trail-from-logbook",
+        "food-beverage-plant-maintenance-philippines",
+        "free-engineering-calculators-philippine-plants",
+        "free-pm-checklist-templates",
+        "gamifying-maintenance-for-engagement",
+        "industrial-community-of-practice-philippines",
+        "industrial-marketplace-philippine-specialists",
+        "joining-and-growing-your-hive",
+        "maintenance-project-planning-template",
+        "maintenance-shift-handover-template",
+        "mtbf-vs-mttr-for-supervisors",
+        "ph-industrial-benchmarks-intelligence",
+        "predictive-alert-thresholds-plants",
+        "predictive-maintenance-on-a-budget-philippines",
+        "sensor-cmms-gateway-operations",
+        "skill-matrix-for-maintenance-technicians",
+        "spare-parts-inventory-philippine-plants",
+        "start-digital-logbook-philippine-factory",
+        "voice-to-text-maintenance-philippine-plant-floor",
+        "what-is-oee-how-to-calculate"
+      ]
+    },
+    {
+      "id": "plant-connections",
+      "name": "Plant Connections",
+      "route": "plant-connections.html",
+      "url": "/plant-connections.html",
+      "status": "active",
+      "capability": "",
+      "connects_to": [],
+      "tables": [],
+      "edge_fns": [],
+      "audience": [],
+      "nav_label": "Plant Connections",
+      "nav_section": "Operations",
+      "nav_hidden": true,
+      "nav_roles": [
+        "supervisor"
+      ],
+      "journey_key": "plant_connections",
+      "sources": [
+        "nav"
+      ],
+      "articles": [
+        "ai-quality-and-roi-stage-2-plants",
+        "ai-work-assistant-maintenance-technicians",
+        "bms-facilities-maintenance-peza-buildings",
+        "building-asset-register-zero-budget",
+        "connecting-workhive-to-sap-maximo-cmms",
+        "dilo-wilo-day-planner-supervisors",
+        "dole-iso-audit-trail-from-logbook",
+        "free-engineering-calculators-philippine-plants",
+        "free-pm-checklist-templates",
+        "gamifying-maintenance-for-engagement",
+        "industrial-community-of-practice-philippines",
+        "industrial-marketplace-philippine-specialists",
+        "joining-and-growing-your-hive",
+        "maintenance-project-planning-template",
+        "maintenance-shift-handover-template",
+        "mtbf-vs-mttr-for-supervisors",
+        "ph-industrial-benchmarks-intelligence",
+        "predictive-alert-thresholds-plants",
+        "predictive-maintenance-on-a-budget-philippines",
+        "psme-iiee-piche-which-association-to-join",
+        "sensor-cmms-gateway-operations",
+        "skill-matrix-for-maintenance-technicians",
+        "spare-parts-inventory-philippine-plants",
+        "start-digital-logbook-philippine-factory",
+        "thermography-for-pm-philippine-plants",
+        "voice-to-text-maintenance-philippine-plant-floor",
+        "what-is-oee-how-to-calculate"
+      ]
+    },
+    {
+      "id": "assistant",
+      "name": "AI Maintenance Assistant",
+      "route": "assistant.html",
+      "url": "/assistant.html",
+      "status": "active",
+      "capability": "Intelligence layer. Turns recorded data into answers. The more the logbook grows, the smarter the AI gets.",
+      "connects_to": [
+        "Maintenance Logbook",
+        "PM Checklist",
+        "Skill Matrix",
+        "Asset Brain"
+      ],
+      "tables": [
+        "logbook",
+        "fault_knowledge",
+        "pm_knowledge"
+      ],
+      "edge_fns": [
+        "ai-orchestrator",
+        "semantic-search",
+        "scheduled-agents"
+      ],
+      "audience": [
+        "Field Technician",
+        "Engineer",
+        "Plant Manager"
+      ],
+      "nav_label": "AI Assistant",
+      "nav_section": "Intelligence",
+      "nav_hidden": false,
+      "nav_roles": [],
+      "journey_key": "assistant",
+      "sources": [
+        "nav",
+        "intel"
+      ],
+      "articles": [
+        "ai-quality-and-roi-stage-2-plants",
+        "ai-work-assistant-maintenance-technicians",
+        "building-asset-register-zero-budget",
+        "connecting-workhive-to-sap-maximo-cmms",
+        "dilo-wilo-day-planner-supervisors",
+        "dole-iso-audit-trail-from-logbook",
+        "free-engineering-calculators-philippine-plants",
+        "free-pm-checklist-templates",
+        "gamifying-maintenance-for-engagement",
+        "industrial-community-of-practice-philippines",
+        "industrial-marketplace-philippine-specialists",
+        "joining-and-growing-your-hive",
+        "maintenance-project-planning-template",
+        "maintenance-shift-handover-template",
+        "mtbf-vs-mttr-for-supervisors",
+        "ph-industrial-benchmarks-intelligence",
+        "predictive-alert-thresholds-plants",
+        "predictive-maintenance-on-a-budget-philippines",
+        "sensor-cmms-gateway-operations",
+        "skill-matrix-for-maintenance-technicians",
+        "spare-parts-inventory-philippine-plants",
+        "start-digital-logbook-philippine-factory",
+        "voice-to-text-maintenance-philippine-plant-floor",
+        "what-is-oee-how-to-calculate"
+      ]
+    },
+    {
+      "id": "ph-intelligence",
+      "name": "PH Industry Intelligence",
+      "route": "ph-intelligence.html",
+      "url": "/ph-intelligence.html",
+      "status": "active",
+      "capability": "Benchmark layer. Compares your plant's KPIs against Philippine industry peers. Shows where you lead and where you lag.",
+      "connects_to": [
+        "Hive Dashboard",
+        "Analytics & OEE Dashboard",
+        "Marketplace"
+      ],
+      "tables": [
+        "ph_intelligence_reports"
+      ],
+      "edge_fns": [
+        "intelligence-report",
+        "intelligence-api"
+      ],
+      "audience": [
+        "Plant Manager"
+      ],
+      "nav_label": "PH Intelligence",
+      "nav_section": "Intelligence",
+      "nav_hidden": true,
+      "nav_roles": [
+        "supervisor",
+        "engineer"
+      ],
+      "journey_key": "ph_intelligence",
+      "sources": [
+        "nav",
+        "intel"
+      ],
+      "articles": [
+        "ai-quality-and-roi-stage-2-plants",
+        "building-asset-register-zero-budget",
+        "connecting-workhive-to-sap-maximo-cmms",
+        "free-pm-checklist-templates",
+        "industrial-marketplace-philippine-specialists",
+        "maintenance-shift-handover-template",
+        "mtbf-vs-mttr-for-supervisors",
+        "ph-industrial-benchmarks-intelligence",
+        "spare-parts-inventory-philippine-plants",
+        "start-digital-logbook-philippine-factory",
+        "what-is-oee-how-to-calculate"
+      ]
+    },
+    {
+      "id": "asset-hub",
+      "name": "Asset Brain",
+      "route": "asset-hub.html",
+      "url": "/asset-hub.html",
+      "status": "active",
+      "capability": "Asset memory layer. Every machine's full lifetime in one Asset 360 view — failures, PMs, parts, sister assets, parent plant. ISO 14224 hierarchy.",
+      "connects_to": [
+        "Maintenance Logbook",
+        "PM Checklist",
+        "Predictive Analytics",
+        "Engineering Design Calculator",
+        "AI Maintenance Assistant"
+      ],
+      "tables": [
+        "asset_nodes",
+        "asset_edges",
+        "asset_brain_overview"
+      ],
+      "edge_fns": [
+        "asset-brain-query"
+      ],
+      "audience": [
+        "Engineer",
+        "Plant Manager",
+        "Field Technician"
+      ],
+      "nav_label": "Asset Hub",
+      "nav_section": "Intelligence",
+      "nav_hidden": false,
+      "nav_roles": [
+        "supervisor",
+        "engineer"
+      ],
+      "journey_key": "asset_hub",
+      "sources": [
+        "nav",
+        "intel"
+      ],
+      "articles": [
+        "ai-quality-and-roi-stage-2-plants",
+        "ai-work-assistant-maintenance-technicians",
+        "building-asset-register-zero-budget",
+        "connecting-workhive-to-sap-maximo-cmms",
+        "dilo-wilo-day-planner-supervisors",
+        "dole-iso-audit-trail-from-logbook",
+        "free-engineering-calculators-philippine-plants",
+        "free-pm-checklist-templates",
+        "gamifying-maintenance-for-engagement",
+        "industrial-community-of-practice-philippines",
+        "industrial-marketplace-philippine-specialists",
+        "joining-and-growing-your-hive",
+        "maintenance-project-planning-template",
+        "maintenance-shift-handover-template",
+        "mtbf-vs-mttr-for-supervisors",
+        "ph-industrial-benchmarks-intelligence",
+        "predictive-alert-thresholds-plants",
+        "predictive-maintenance-on-a-budget-philippines",
+        "sensor-cmms-gateway-operations",
+        "skill-matrix-for-maintenance-technicians",
+        "spare-parts-inventory-philippine-plants",
+        "start-digital-logbook-philippine-factory",
+        "voice-to-text-maintenance-philippine-plant-floor",
+        "what-is-oee-how-to-calculate"
+      ]
+    },
+    {
+      "id": "alert-hub",
+      "name": "Alert Hub",
+      "route": "alert-hub.html",
+      "url": "/alert-hub.html",
+      "status": "active",
+      "capability": "Attention layer. One inbox for everything that needs action: critical risk spikes, overdue PMs, low stock, failure signature alerts.",
+      "connects_to": [
+        "Predictive Analytics",
+        "PM Checklist",
+        "Inventory Management",
+        "Maintenance Logbook"
+      ],
+      "tables": [
+        "alert_log"
+      ],
+      "edge_fns": [
+        "scheduled-agents",
+        "failure-signature-scan"
+      ],
+      "audience": [
+        "Supervisor",
+        "Plant Manager",
+        "Field Technician"
+      ],
+      "nav_label": "Alert Hub",
+      "nav_section": "Intelligence",
+      "nav_hidden": false,
+      "nav_roles": [
+        "supervisor"
+      ],
+      "journey_key": "alert_hub",
+      "sources": [
+        "nav",
+        "intel"
+      ],
+      "articles": [
+        "ai-quality-and-roi-stage-2-plants",
+        "ai-work-assistant-maintenance-technicians",
+        "bms-facilities-maintenance-peza-buildings",
+        "building-asset-register-zero-budget",
+        "connecting-workhive-to-sap-maximo-cmms",
+        "dilo-wilo-day-planner-supervisors",
+        "dole-iso-audit-trail-from-logbook",
+        "free-engineering-calculators-philippine-plants",
+        "free-pm-checklist-templates",
+        "gamifying-maintenance-for-engagement",
+        "industrial-community-of-practice-philippines",
+        "industrial-marketplace-philippine-specialists",
+        "joining-and-growing-your-hive",
+        "maintenance-project-planning-template",
+        "maintenance-shift-handover-template",
+        "mtbf-vs-mttr-for-supervisors",
+        "ph-industrial-benchmarks-intelligence",
+        "predictive-alert-thresholds-plants",
+        "predictive-maintenance-on-a-budget-philippines",
+        "sensor-cmms-gateway-operations",
+        "skill-matrix-for-maintenance-technicians",
+        "spare-parts-inventory-philippine-plants",
+        "start-digital-logbook-philippine-factory",
+        "vibration-analysis-on-a-phone-budget",
+        "voice-to-text-maintenance-philippine-plant-floor",
+        "what-is-oee-how-to-calculate"
+      ]
+    },
+    {
+      "id": "audit-log",
+      "name": "Audit Log & Compliance",
+      "route": "audit-log.html",
+      "url": "/audit-log.html",
+      "status": "active",
+      "capability": "Trust layer. Every supervisor action and worker action recorded with timestamp + actor. Auditable for ISO/regulator review, transparent for the team, defensible if anything is ever questioned.",
+      "connects_to": [
+        "Maintenance Logbook",
+        "PM Checklist",
+        "Inventory Management",
+        "Hive Dashboard",
+        "CMMS Integrations"
+      ],
+      "tables": [
+        "cmms_audit_log",
+        "hive_audit_log"
+      ],
+      "edge_fns": [],
+      "audience": [
+        "Plant Manager",
+        "Supervisor",
+        "Compliance Officer"
+      ],
+      "nav_label": "Audit Log",
+      "nav_section": "Intelligence",
+      "nav_hidden": true,
+      "nav_roles": [
+        "supervisor"
+      ],
+      "journey_key": "audit_log",
+      "sources": [
+        "nav",
+        "intel"
+      ],
+      "articles": [
+        "building-asset-register-zero-budget",
+        "dilo-wilo-day-planner-supervisors",
+        "dole-iso-audit-trail-from-logbook",
+        "free-engineering-calculators-philippine-plants",
+        "free-pm-checklist-templates",
+        "gamifying-maintenance-for-engagement",
+        "industrial-marketplace-philippine-specialists",
+        "joining-and-growing-your-hive",
+        "loto-procedures-dole-oshs-template",
+        "ph-industrial-benchmarks-intelligence",
+        "predictive-maintenance-on-a-budget-philippines",
+        "ra-11285-energy-efficiency-plant-checklist",
+        "start-digital-logbook-philippine-factory",
+        "voice-to-text-maintenance-philippine-plant-floor"
+      ]
+    },
+    {
+      "id": "voice-journal",
+      "name": "Voice Journal",
+      "route": "voice-journal.html",
+      "url": "/voice-journal.html",
+      "status": "active",
+      "capability": "",
+      "connects_to": [],
+      "tables": [],
+      "edge_fns": [],
+      "audience": [],
+      "nav_label": "Voice Journal",
+      "nav_section": "Intelligence",
+      "nav_hidden": true,
+      "nav_roles": [],
+      "journey_key": "voice_journal",
+      "sources": [
+        "nav"
+      ],
+      "articles": [
+        "ai-quality-and-roi-stage-2-plants",
+        "ai-work-assistant-maintenance-technicians",
+        "building-asset-register-zero-budget",
+        "connecting-workhive-to-sap-maximo-cmms",
+        "dilo-wilo-day-planner-supervisors",
+        "dole-iso-audit-trail-from-logbook",
+        "free-engineering-calculators-philippine-plants",
+        "free-pm-checklist-templates",
+        "gamifying-maintenance-for-engagement",
+        "industrial-community-of-practice-philippines",
+        "industrial-marketplace-philippine-specialists",
+        "joining-and-growing-your-hive",
+        "maintenance-project-planning-template",
+        "maintenance-shift-handover-template",
+        "mtbf-vs-mttr-for-supervisors",
+        "ph-industrial-benchmarks-intelligence",
+        "predictive-alert-thresholds-plants",
+        "predictive-maintenance-on-a-budget-philippines",
+        "sensor-cmms-gateway-operations",
+        "skill-matrix-for-maintenance-technicians",
+        "spare-parts-inventory-philippine-plants",
+        "start-digital-logbook-philippine-factory",
+        "vibration-analysis-on-a-phone-budget",
+        "voice-to-text-maintenance-philippine-plant-floor",
+        "what-is-oee-how-to-calculate"
+      ]
+    },
+    {
+      "id": "shift-brain",
+      "name": "Shift Brain",
+      "route": "shift-brain.html",
+      "url": "/shift-brain.html",
+      "status": "active",
+      "capability": "Shift intelligence layer. AI generates the next shift's plan before sign-on: top risks, due PMs, carry-overs from previous shift, parts to pre-stage, who does what.",
+      "connects_to": [
+        "Shift Handover Report",
+        "PM Checklist",
+        "Predictive Analytics",
+        "Day Planner",
+        "Inventory Management"
+      ],
+      "tables": [
+        "shift_plans"
+      ],
+      "edge_fns": [
+        "shift-planner-orchestrator"
+      ],
+      "audience": [
+        "Supervisor",
+        "Plant Manager"
+      ],
+      "nav_label": "Shift Brain",
+      "nav_section": "Intelligence",
+      "nav_hidden": true,
+      "nav_roles": [],
+      "journey_key": "shift_brain",
+      "sources": [
+        "nav",
+        "intel"
+      ],
+      "articles": [
+        "ai-quality-and-roi-stage-2-plants",
+        "ai-work-assistant-maintenance-technicians",
+        "building-asset-register-zero-budget",
+        "connecting-workhive-to-sap-maximo-cmms",
+        "dilo-wilo-day-planner-supervisors",
+        "dole-iso-audit-trail-from-logbook",
+        "free-engineering-calculators-philippine-plants",
+        "free-pm-checklist-templates",
+        "gamifying-maintenance-for-engagement",
+        "industrial-community-of-practice-philippines",
+        "industrial-marketplace-philippine-specialists",
+        "joining-and-growing-your-hive",
+        "maintenance-project-planning-template",
+        "maintenance-shift-handover-template",
+        "mtbf-vs-mttr-for-supervisors",
+        "ph-industrial-benchmarks-intelligence",
+        "predictive-alert-thresholds-plants",
+        "predictive-maintenance-on-a-budget-philippines",
+        "sensor-cmms-gateway-operations",
+        "skill-matrix-for-maintenance-technicians",
+        "spare-parts-inventory-philippine-plants",
+        "start-digital-logbook-philippine-factory",
+        "voice-to-text-maintenance-philippine-plant-floor",
+        "what-is-oee-how-to-calculate"
+      ]
+    },
+    {
+      "id": "engineering-design",
+      "name": "Engineering Design Calculator",
+      "route": "engineering-design.html",
+      "url": "/engineering-design.html",
+      "status": "active",
+      "capability": "Standards layer. Every calculation done to Philippine engineering standards. Results saved as permanent reference.",
+      "connects_to": [
+        "Maintenance Logbook",
+        "Asset Brain",
+        "Project Manager"
+      ],
+      "tables": [
+        "calc_knowledge",
+        "bom_knowledge"
+      ],
+      "edge_fns": [
+        "engineering-calc-agent",
+        "engineering-bom-sow"
+      ],
+      "audience": [
+        "Engineer",
+        "Plant Manager"
+      ],
+      "nav_label": "Eng. Design",
+      "nav_section": "Build & Projects",
+      "nav_hidden": false,
+      "nav_roles": [
+        "engineer"
+      ],
+      "journey_key": "engineering_design",
+      "sources": [
+        "nav",
+        "intel"
+      ],
+      "articles": [
+        "free-engineering-calculators-philippine-plants"
+      ]
+    },
+    {
+      "id": "project-manager",
+      "name": "Project Manager",
+      "route": "project-manager.html",
+      "url": "/project-manager.html",
+      "status": "active",
+      "capability": "Coordination layer. Long-running maintenance projects (overhauls, shutdowns, capex) tracked end-to-end with milestones, parts staging, skill assignments.",
+      "connects_to": [
+        "Maintenance Logbook",
+        "Inventory Management",
+        "Skill Matrix",
+        "Engineering Design Calculator"
+      ],
+      "tables": [
+        "projects",
+        "project_tasks"
+      ],
+      "edge_fns": [
+        "project-orchestrator",
+        "project-progress"
+      ],
+      "audience": [
+        "Plant Manager",
+        "Engineer"
+      ],
+      "nav_label": "Project Manager",
+      "nav_section": "Build & Projects",
+      "nav_hidden": false,
+      "nav_roles": [
+        "supervisor",
+        "engineer"
+      ],
+      "journey_key": "project_manager",
+      "sources": [
+        "nav",
+        "intel"
+      ],
+      "articles": [
+        "ai-quality-and-roi-stage-2-plants",
+        "ai-work-assistant-maintenance-technicians",
+        "building-asset-register-zero-budget",
+        "connecting-workhive-to-sap-maximo-cmms",
+        "dilo-wilo-day-planner-supervisors",
+        "dole-iso-audit-trail-from-logbook",
+        "free-engineering-calculators-philippine-plants",
+        "free-pm-checklist-templates",
+        "gamifying-maintenance-for-engagement",
+        "industrial-community-of-practice-philippines",
+        "industrial-marketplace-philippine-specialists",
+        "joining-and-growing-your-hive",
+        "maintenance-project-planning-template",
+        "maintenance-shift-handover-template",
+        "mtbf-vs-mttr-for-supervisors",
+        "ph-industrial-benchmarks-intelligence",
+        "predictive-alert-thresholds-plants",
+        "predictive-maintenance-on-a-budget-philippines",
+        "resume-builder-for-filipino-industrial-workers",
+        "sensor-cmms-gateway-operations",
+        "skill-matrix-for-maintenance-technicians",
+        "spare-parts-inventory-philippine-plants",
+        "start-digital-logbook-philippine-factory",
+        "voice-to-text-maintenance-philippine-plant-floor",
+        "what-is-oee-how-to-calculate"
+      ]
+    },
+    {
+      "id": "project-report",
+      "name": "Project Report",
+      "route": "project-report.html",
+      "url": "/project-report.html",
+      "status": "active",
+      "capability": "",
+      "connects_to": [],
+      "tables": [],
+      "edge_fns": [],
+      "audience": [],
+      "nav_label": "Project Report",
+      "nav_section": "Build & Projects",
+      "nav_hidden": true,
+      "nav_roles": [
+        "supervisor",
+        "engineer"
+      ],
+      "journey_key": "project_report",
+      "sources": [
+        "nav"
+      ],
+      "articles": [
+        "ai-quality-and-roi-stage-2-plants",
+        "free-engineering-calculators-philippine-plants",
+        "maintenance-shift-handover-template",
+        "ph-industrial-benchmarks-intelligence",
+        "predictive-alert-thresholds-plants",
+        "resume-builder-for-filipino-industrial-workers",
+        "spare-parts-inventory-philippine-plants",
+        "start-digital-logbook-philippine-factory"
+      ]
+    },
+    {
+      "id": "skillmatrix",
+      "name": "Skill Matrix",
+      "route": "skillmatrix.html",
+      "url": "/skillmatrix.html",
+      "status": "active",
+      "capability": "Competency layer. Knows who can do what. Prevents assigning a job to someone untrained. Identifies gaps before they become safety risks.",
+      "connects_to": [
+        "PM Checklist",
+        "Day Planner",
+        "AI Maintenance Assistant",
+        "Achievements",
+        "Project Manager"
+      ],
+      "tables": [
+        "skill_profiles",
+        "skill_badges"
+      ],
+      "edge_fns": [],
+      "audience": [
+        "Supervisor",
+        "Plant Manager"
+      ],
+      "nav_label": "Skill Matrix",
+      "nav_section": "Grow",
+      "nav_hidden": false,
+      "nav_roles": [],
+      "journey_key": "skillmatrix",
+      "sources": [
+        "nav",
+        "intel"
+      ],
+      "articles": [
+        "ai-work-assistant-maintenance-technicians",
+        "building-asset-register-zero-budget",
+        "connecting-workhive-to-sap-maximo-cmms",
+        "dilo-wilo-day-planner-supervisors",
+        "free-engineering-calculators-philippine-plants",
+        "free-pm-checklist-templates",
+        "gamifying-maintenance-for-engagement",
+        "industrial-marketplace-philippine-specialists",
+        "joining-and-growing-your-hive",
+        "maintenance-project-planning-template",
+        "mtbf-vs-mttr-for-supervisors",
+        "ofw-engineer-portable-portfolio",
+        "predictive-maintenance-on-a-budget-philippines",
+        "resume-builder-for-filipino-industrial-workers",
+        "skill-matrix-for-maintenance-technicians",
+        "tesda-nc-mapping-to-skill-matrix",
+        "what-is-oee-how-to-calculate"
+      ]
+    },
+    {
+      "id": "resume",
+      "name": "Resume Builder",
+      "route": "resume.html",
+      "url": "/resume.html",
+      "status": "active",
+      "capability": "Career layer. Turns real logged work and verified skills into an ATS-ready resume. Every repair you log becomes proof on paper - career protection in the AI era.",
+      "connects_to": [
+        "Skill Matrix",
+        "Maintenance Logbook",
+        "Achievements"
+      ],
+      "tables": [
+        "resumes"
+      ],
+      "edge_fns": [
+        "resume-extract",
+        "resume-polish"
+      ],
+      "audience": [
+        "Field Technician",
+        "Engineer",
+        "OFW-track Engineer"
+      ],
+      "nav_label": "Resume Builder",
+      "nav_section": "Grow",
+      "nav_hidden": false,
+      "nav_roles": [],
+      "journey_key": "resume",
+      "sources": [
+        "nav",
+        "intel"
+      ],
+      "articles": [
+        "resume-builder-for-filipino-industrial-workers"
+      ]
+    },
+    {
+      "id": "achievements",
+      "name": "Achievements",
+      "route": "achievements.html",
+      "url": "/achievements.html",
+      "status": "active",
+      "capability": "Recognition layer. Levels, XP, and badges for every closed logbook entry, completed PM, helpful community answer. Makes maintenance work feel like progress.",
+      "connects_to": [
+        "Maintenance Logbook",
+        "Skill Matrix",
+        "Community Forum",
+        "PM Checklist"
+      ],
+      "tables": [
+        "achievements",
+        "skill_badges"
+      ],
+      "edge_fns": [],
+      "audience": [
+        "Field Technician",
+        "Engineer"
+      ],
+      "nav_label": "Achievements",
+      "nav_section": "Grow",
+      "nav_hidden": false,
+      "nav_roles": [],
+      "journey_key": "achievements",
+      "sources": [
+        "nav",
+        "intel"
+      ],
+      "articles": [
+        "ai-quality-and-roi-stage-2-plants",
+        "ai-work-assistant-maintenance-technicians",
+        "building-asset-register-zero-budget",
+        "connecting-workhive-to-sap-maximo-cmms",
+        "dilo-wilo-day-planner-supervisors",
+        "dole-iso-audit-trail-from-logbook",
+        "free-engineering-calculators-philippine-plants",
+        "free-pm-checklist-templates",
+        "gamifying-maintenance-for-engagement",
+        "industrial-community-of-practice-philippines",
+        "industrial-marketplace-philippine-specialists",
+        "joining-and-growing-your-hive",
+        "maintenance-project-planning-template",
+        "maintenance-shift-handover-template",
+        "mtbf-vs-mttr-for-supervisors",
+        "ofw-engineer-portable-portfolio",
+        "ph-industrial-benchmarks-intelligence",
+        "predictive-alert-thresholds-plants",
+        "predictive-maintenance-on-a-budget-philippines",
+        "resume-builder-for-filipino-industrial-workers",
+        "sensor-cmms-gateway-operations",
+        "skill-matrix-for-maintenance-technicians",
+        "spare-parts-inventory-philippine-plants",
+        "start-digital-logbook-philippine-factory",
+        "voice-to-text-maintenance-philippine-plant-floor",
+        "what-is-oee-how-to-calculate"
+      ]
+    },
+    {
+      "id": "marketplace",
+      "name": "Marketplace",
+      "route": "marketplace.html",
+      "url": "/marketplace.html",
+      "status": "active",
+      "capability": "Supply layer. When inventory hits critical, the marketplace connects you to verified sellers across Philippine plants.",
+      "connects_to": [
+        "Inventory Management",
+        "PH Industry Intelligence"
+      ],
+      "tables": [
+        "marketplace_sellers",
+        "marketplace_orders"
+      ],
+      "edge_fns": [
+        "marketplace-checkout",
+        "marketplace-webhook",
+        "marketplace-connect-onboard",
+        "marketplace-connect-status",
+        "marketplace-release"
+      ],
+      "audience": [
+        "Supervisor",
+        "Plant Manager"
+      ],
+      "nav_label": "Marketplace",
+      "nav_section": "Connect",
+      "nav_hidden": false,
+      "nav_roles": [],
+      "journey_key": "marketplace",
+      "sources": [
+        "nav",
+        "intel"
+      ],
+      "articles": [
+        "ai-quality-and-roi-stage-2-plants",
+        "ai-work-assistant-maintenance-technicians",
+        "building-asset-register-zero-budget",
+        "connecting-workhive-to-sap-maximo-cmms",
+        "dilo-wilo-day-planner-supervisors",
+        "dole-iso-audit-trail-from-logbook",
+        "free-engineering-calculators-philippine-plants",
+        "free-pm-checklist-templates",
+        "gamifying-maintenance-for-engagement",
+        "industrial-community-of-practice-philippines",
+        "industrial-marketplace-philippine-specialists",
+        "joining-and-growing-your-hive",
+        "maintenance-project-planning-template",
+        "maintenance-shift-handover-template",
+        "mtbf-vs-mttr-for-supervisors",
+        "ph-industrial-benchmarks-intelligence",
+        "predictive-alert-thresholds-plants",
+        "predictive-maintenance-on-a-budget-philippines",
+        "sensor-cmms-gateway-operations",
+        "skill-matrix-for-maintenance-technicians",
+        "spare-parts-inventory-philippine-plants",
+        "start-digital-logbook-philippine-factory",
+        "voice-to-text-maintenance-philippine-plant-floor",
+        "what-is-oee-how-to-calculate"
+      ]
+    },
+    {
+      "id": "report-sender",
+      "name": "Report Sender",
+      "route": "report-sender.html",
+      "url": "/report-sender.html",
+      "status": "active",
+      "capability": "",
+      "connects_to": [],
+      "tables": [],
+      "edge_fns": [],
+      "audience": [],
+      "nav_label": "Report Sender",
+      "nav_section": "Connect",
+      "nav_hidden": true,
+      "nav_roles": [
+        "supervisor"
+      ],
+      "journey_key": "report_sender",
+      "sources": [
+        "nav"
+      ],
+      "articles": []
+    },
+    {
+      "id": "integrations",
+      "name": "CMMS Integrations",
+      "route": "integrations.html",
+      "url": "/integrations.html",
+      "status": "active",
+      "capability": "Bridge layer. Two-way sync with SAP PM, IBM Maximo, Fiix and other CMMS systems. Use WorkHive without abandoning existing investment.",
+      "connects_to": [
+        "Maintenance Logbook",
+        "PM Checklist",
+        "Inventory Management",
+        "Asset Brain"
+      ],
+      "tables": [],
+      "edge_fns": [
+        "cmms-sync",
+        "cmms-push-completion",
+        "cmms-webhook-receiver"
+      ],
+      "audience": [
+        "Plant Manager",
+        "IT/OT Manager"
+      ],
+      "nav_label": "CMMS Integration",
+      "nav_section": "Connect",
+      "nav_hidden": false,
+      "nav_roles": [
+        "supervisor"
+      ],
+      "journey_key": "integrations",
+      "sources": [
+        "nav",
+        "intel"
+      ],
+      "articles": [
+        "building-asset-register-zero-budget",
+        "connecting-workhive-to-sap-maximo-cmms",
+        "maintenance-project-planning-template",
+        "sensor-cmms-gateway-operations"
+      ]
+    },
+    {
+      "id": "shift-handover-report",
+      "name": "Shift Handover Report",
+      "route": null,
+      "url": null,
+      "status": "active",
+      "capability": "Continuity layer. Nothing falls through the cracks between shifts. Open issues, hot machines, pending PMs all transferred.",
+      "connects_to": [
+        "Maintenance Logbook",
+        "PM Checklist",
+        "Shift Brain"
+      ],
+      "tables": [
+        "logbook"
+      ],
+      "edge_fns": [],
+      "audience": [
+        "Supervisor",
+        "Field Technician"
+      ],
+      "nav_label": null,
+      "nav_section": null,
+      "nav_hidden": false,
+      "nav_roles": [],
+      "journey_key": "shift_handover_report",
+      "sources": [
+        "intel"
+      ],
+      "articles": [
+        "maintenance-shift-handover-template",
+        "start-digital-logbook-philippine-factory"
+      ]
+    }
+  ],
+  "articles": [
+    {
+      "slug": "ai-quality-and-roi-stage-2-plants",
+      "title": "Measuring AI Quality and ROI for Stage 2+ Industrial Plants",
+      "url": "/learn/ai-quality-and-roi-stage-2-plants/",
+      "date_modified": "2026-05-17",
+      "maps_to": "ai-quality",
+      "maps_to_label": "AI Quality + ROI",
+      "features_referenced": [
+        "index",
+        "logbook",
+        "hive",
+        "analytics-report",
+        "analytics",
+        "predictive",
+        "ai-quality",
+        "plant-connections",
+        "assistant",
+        "ph-intelligence",
+        "asset-hub",
+        "alert-hub",
+        "voice-journal",
+        "shift-brain",
+        "project-manager",
+        "project-report",
+        "achievements",
+        "marketplace"
+      ]
+    },
+    {
+      "slug": "ai-work-assistant-maintenance-technicians",
+      "title": "AI Work Assistant for Every Industrial Worker (Plain-English Guide)",
+      "url": "/learn/ai-work-assistant-maintenance-technicians/",
+      "date_modified": "2026-05-17",
+      "maps_to": "assistant",
+      "maps_to_label": "AI Assistant",
+      "features_referenced": [
+        "index",
+        "logbook",
+        "inventory",
+        "predictive",
+        "ai-quality",
+        "plant-connections",
+        "assistant",
+        "asset-hub",
+        "alert-hub",
+        "voice-journal",
+        "shift-brain",
+        "project-manager",
+        "skillmatrix",
+        "achievements",
+        "marketplace"
+      ]
+    },
+    {
+      "slug": "bms-facilities-maintenance-peza-buildings",
+      "title": "BMS and Facilities Maintenance in PEZA Buildings",
+      "url": "/learn/bms-facilities-maintenance-peza-buildings/",
+      "date_modified": "2026-05-18",
+      "maps_to": null,
+      "maps_to_label": null,
+      "features_referenced": [
+        "index",
+        "dayplanner",
+        "hive",
+        "ai-quality",
+        "plant-connections",
+        "alert-hub"
+      ]
+    },
+    {
+      "slug": "building-asset-register-zero-budget",
+      "title": "Building an Asset Register from Scratch (Zero-Budget, ISO 14224)",
+      "url": "/learn/building-asset-register-zero-budget/",
+      "date_modified": "2026-05-17",
+      "maps_to": "asset-hub",
+      "maps_to_label": "Asset Hub",
+      "features_referenced": [
+        "index",
+        "logbook",
+        "inventory",
+        "dayplanner",
+        "hive",
+        "pm-scheduler",
+        "analytics",
+        "predictive",
+        "ai-quality",
+        "plant-connections",
+        "assistant",
+        "ph-intelligence",
+        "asset-hub",
+        "alert-hub",
+        "audit-log",
+        "voice-journal",
+        "shift-brain",
+        "project-manager",
+        "skillmatrix",
+        "achievements",
+        "marketplace",
+        "integrations"
+      ]
+    },
+    {
+      "slug": "connecting-workhive-to-sap-maximo-cmms",
+      "title": "Connecting WorkHive to SAP, IBM Maximo, and Other CMMS",
+      "url": "/learn/connecting-workhive-to-sap-maximo-cmms/",
+      "date_modified": "2026-05-17",
+      "maps_to": "integrations",
+      "maps_to_label": "CMMS Integration",
+      "features_referenced": [
+        "index",
+        "logbook",
+        "inventory",
+        "predictive",
+        "ai-quality",
+        "plant-connections",
+        "assistant",
+        "ph-intelligence",
+        "asset-hub",
+        "alert-hub",
+        "voice-journal",
+        "shift-brain",
+        "project-manager",
+        "skillmatrix",
+        "achievements",
+        "marketplace",
+        "integrations"
+      ]
+    },
+    {
+      "slug": "dilo-wilo-day-planner-supervisors",
+      "title": "DILO, WILO, MILO, YILO: Day Planner for Supervisors, Engineers, and Planners",
+      "url": "/learn/dilo-wilo-day-planner-supervisors/",
+      "date_modified": "2026-05-17",
+      "maps_to": "dayplanner",
+      "maps_to_label": "Day Planner",
+      "features_referenced": [
+        "index",
+        "logbook",
+        "inventory",
+        "dayplanner",
+        "pm-scheduler",
+        "predictive",
+        "ai-quality",
+        "plant-connections",
+        "assistant",
+        "asset-hub",
+        "alert-hub",
+        "audit-log",
+        "voice-journal",
+        "shift-brain",
+        "project-manager",
+        "skillmatrix",
+        "achievements",
+        "marketplace"
+      ]
+    },
+    {
+      "slug": "dole-iso-audit-trail-from-logbook",
+      "title": "DOLE OSHS and ISO Audit Trail from Your Logbook",
+      "url": "/learn/dole-iso-audit-trail-from-logbook/",
+      "date_modified": "2026-05-17",
+      "maps_to": "audit-log",
+      "maps_to_label": "Audit Log",
+      "features_referenced": [
+        "index",
+        "logbook",
+        "inventory",
+        "hive",
+        "analytics",
+        "predictive",
+        "ai-quality",
+        "plant-connections",
+        "assistant",
+        "asset-hub",
+        "alert-hub",
+        "audit-log",
+        "voice-journal",
+        "shift-brain",
+        "project-manager",
+        "achievements",
+        "marketplace"
+      ]
+    },
+    {
+      "slug": "fmea-worked-example-philippine-bottling-line",
+      "title": "FMEA Worked Example: a Philippine Bottling Line",
+      "url": "/learn/fmea-worked-example-philippine-bottling-line/",
+      "date_modified": "2026-05-18",
+      "maps_to": null,
+      "maps_to_label": null,
+      "features_referenced": [
+        "index",
+        "dayplanner"
+      ]
+    },
+    {
+      "slug": "food-beverage-plant-maintenance-philippines",
+      "title": "Maintenance in Philippine Food and Beverage Plants",
+      "url": "/learn/food-beverage-plant-maintenance-philippines/",
+      "date_modified": "2026-05-18",
+      "maps_to": null,
+      "maps_to_label": null,
+      "features_referenced": [
+        "index",
+        "dayplanner",
+        "ai-quality"
+      ]
+    },
+    {
+      "slug": "free-engineering-calculators-philippine-plants",
+      "title": "Free Engineering Design Calculators for Philippine Plants",
+      "url": "/learn/free-engineering-calculators-philippine-plants/",
+      "date_modified": "2026-05-17",
+      "maps_to": "engineering-design",
+      "maps_to_label": "Engineering Design",
+      "features_referenced": [
+        "index",
+        "logbook",
+        "analytics-report",
+        "predictive",
+        "ai-quality",
+        "plant-connections",
+        "assistant",
+        "asset-hub",
+        "alert-hub",
+        "audit-log",
+        "voice-journal",
+        "shift-brain",
+        "engineering-design",
+        "project-manager",
+        "project-report",
+        "skillmatrix",
+        "achievements",
+        "marketplace"
+      ]
+    },
+    {
+      "slug": "free-pm-checklist-templates",
+      "title": "Free PM Checklist Templates for Industrial Maintenance",
+      "url": "/learn/free-pm-checklist-templates/",
+      "date_modified": "2026-05-17",
+      "maps_to": "pm-scheduler",
+      "maps_to_label": "PM Scheduler",
+      "features_referenced": [
+        "index",
+        "logbook",
+        "dayplanner",
+        "hive",
+        "pm-scheduler",
+        "analytics",
+        "predictive",
+        "ai-quality",
+        "plant-connections",
+        "assistant",
+        "ph-intelligence",
+        "asset-hub",
+        "alert-hub",
+        "audit-log",
+        "voice-journal",
+        "shift-brain",
+        "project-manager",
+        "skillmatrix",
+        "achievements",
+        "marketplace"
+      ]
+    },
+    {
+      "slug": "gamifying-maintenance-for-engagement",
+      "title": "Gamifying Maintenance for Technician Engagement (PH Plants)",
+      "url": "/learn/gamifying-maintenance-for-engagement/",
+      "date_modified": "2026-05-17",
+      "maps_to": "achievements",
+      "maps_to_label": "Achievements",
+      "features_referenced": [
+        "index",
+        "logbook",
+        "inventory",
+        "pm-scheduler",
+        "predictive",
+        "ai-quality",
+        "plant-connections",
+        "assistant",
+        "asset-hub",
+        "alert-hub",
+        "audit-log",
+        "voice-journal",
+        "shift-brain",
+        "project-manager",
+        "skillmatrix",
+        "achievements",
+        "marketplace"
+      ]
+    },
+    {
+      "slug": "industrial-community-of-practice-philippines",
+      "title": "Industrial Community of Practice for Philippine Plant Teams",
+      "url": "/learn/industrial-community-of-practice-philippines/",
+      "date_modified": "2026-05-17",
+      "maps_to": "community",
+      "maps_to_label": "Community",
+      "features_referenced": [
+        "index",
+        "logbook",
+        "community",
+        "predictive",
+        "ai-quality",
+        "plant-connections",
+        "assistant",
+        "asset-hub",
+        "alert-hub",
+        "voice-journal",
+        "shift-brain",
+        "project-manager",
+        "achievements",
+        "marketplace"
+      ]
+    },
+    {
+      "slug": "industrial-marketplace-philippine-specialists",
+      "title": "Industrial Marketplace for Philippine Specialists, Parts, and Services",
+      "url": "/learn/industrial-marketplace-philippine-specialists/",
+      "date_modified": "2026-05-17",
+      "maps_to": "marketplace",
+      "maps_to_label": "Marketplace",
+      "features_referenced": [
+        "index",
+        "logbook",
+        "inventory",
+        "predictive",
+        "ai-quality",
+        "plant-connections",
+        "assistant",
+        "ph-intelligence",
+        "asset-hub",
+        "alert-hub",
+        "audit-log",
+        "voice-journal",
+        "shift-brain",
+        "project-manager",
+        "skillmatrix",
+        "achievements",
+        "marketplace"
+      ]
+    },
+    {
+      "slug": "joining-and-growing-your-hive",
+      "title": "Joining and Growing Your WorkHive Hive (Multi-Tenant Guide)",
+      "url": "/learn/joining-and-growing-your-hive/",
+      "date_modified": "2026-05-17",
+      "maps_to": "hive",
+      "maps_to_label": "Hive",
+      "features_referenced": [
+        "index",
+        "logbook",
+        "dayplanner",
+        "hive",
+        "analytics",
+        "predictive",
+        "ai-quality",
+        "plant-connections",
+        "assistant",
+        "asset-hub",
+        "alert-hub",
+        "audit-log",
+        "voice-journal",
+        "shift-brain",
+        "project-manager",
+        "skillmatrix",
+        "achievements",
+        "marketplace"
+      ]
+    },
+    {
+      "slug": "loto-procedures-dole-oshs-template",
+      "title": "Lock-Out Tag-Out (LOTO) Procedures: DOLE OSHS Template",
+      "url": "/learn/loto-procedures-dole-oshs-template/",
+      "date_modified": "2026-05-18",
+      "maps_to": null,
+      "maps_to_label": null,
+      "features_referenced": [
+        "index",
+        "dayplanner",
+        "audit-log"
+      ]
+    },
+    {
+      "slug": "maintenance-project-planning-template",
+      "title": "Maintenance Project Planning (Free Template for Philippine Plants)",
+      "url": "/learn/maintenance-project-planning-template/",
+      "date_modified": "2026-05-17",
+      "maps_to": "project-manager",
+      "maps_to_label": "Project Manager",
+      "features_referenced": [
+        "index",
+        "logbook",
+        "inventory",
+        "dayplanner",
+        "pm-scheduler",
+        "community",
+        "predictive",
+        "ai-quality",
+        "plant-connections",
+        "assistant",
+        "asset-hub",
+        "alert-hub",
+        "voice-journal",
+        "shift-brain",
+        "project-manager",
+        "skillmatrix",
+        "achievements",
+        "marketplace",
+        "integrations"
+      ]
+    },
+    {
+      "slug": "maintenance-shift-handover-template",
+      "title": "How to Write a Maintenance Shift Handover (Template Included)",
+      "url": "/learn/maintenance-shift-handover-template/",
+      "date_modified": "2026-05-17",
+      "maps_to": "shift-brain",
+      "maps_to_label": "Shift Brain",
+      "features_referenced": [
+        "index",
+        "logbook",
+        "dayplanner",
+        "hive",
+        "pm-scheduler",
+        "analytics-report",
+        "analytics",
+        "predictive",
+        "ai-quality",
+        "plant-connections",
+        "assistant",
+        "ph-intelligence",
+        "asset-hub",
+        "alert-hub",
+        "voice-journal",
+        "shift-brain",
+        "project-manager",
+        "project-report",
+        "achievements",
+        "marketplace",
+        "shift-handover-report"
+      ]
+    },
+    {
+      "slug": "mtbf-vs-mttr-for-supervisors",
+      "title": "MTBF vs MTTR for Supervisors, Engineers, and Planners",
+      "url": "/learn/mtbf-vs-mttr-for-supervisors/",
+      "date_modified": "2026-05-17",
+      "maps_to": null,
+      "maps_to_label": null,
+      "features_referenced": [
+        "index",
+        "logbook",
+        "inventory",
+        "dayplanner",
+        "hive",
+        "analytics",
+        "predictive",
+        "ai-quality",
+        "plant-connections",
+        "assistant",
+        "ph-intelligence",
+        "asset-hub",
+        "alert-hub",
+        "voice-journal",
+        "shift-brain",
+        "project-manager",
+        "skillmatrix",
+        "achievements",
+        "marketplace"
+      ]
+    },
+    {
+      "slug": "ofw-engineer-portable-portfolio",
+      "title": "How OFW-Track Engineers Build a Portable Maintenance Portfolio",
+      "url": "/learn/ofw-engineer-portable-portfolio/",
+      "date_modified": "2026-05-18",
+      "maps_to": null,
+      "maps_to_label": null,
+      "features_referenced": [
+        "index",
+        "logbook",
+        "dayplanner",
+        "skillmatrix",
+        "achievements"
+      ]
+    },
+    {
+      "slug": "ph-industrial-benchmarks-intelligence",
+      "title": "PH Industrial Benchmarks and Intelligence Reports (Free)",
+      "url": "/learn/ph-industrial-benchmarks-intelligence/",
+      "date_modified": "2026-05-17",
+      "maps_to": "ph-intelligence",
+      "maps_to_label": "PH Intelligence",
+      "features_referenced": [
+        "index",
+        "logbook",
+        "analytics-report",
+        "predictive",
+        "ai-quality",
+        "plant-connections",
+        "assistant",
+        "ph-intelligence",
+        "asset-hub",
+        "alert-hub",
+        "audit-log",
+        "voice-journal",
+        "shift-brain",
+        "project-manager",
+        "project-report",
+        "achievements",
+        "marketplace"
+      ]
+    },
+    {
+      "slug": "power-plant-reliability-metrics-philippines",
+      "title": "Power Plant Reliability Metrics in the Philippines",
+      "url": "/learn/power-plant-reliability-metrics-philippines/",
+      "date_modified": "2026-05-18",
+      "maps_to": null,
+      "maps_to_label": null,
+      "features_referenced": [
+        "index",
+        "logbook",
+        "dayplanner",
+        "analytics-report"
+      ]
+    },
+    {
+      "slug": "predictive-alert-thresholds-plants",
+      "title": "Predictive Alert Thresholds for Industrial Plants (Practical Guide)",
+      "url": "/learn/predictive-alert-thresholds-plants/",
+      "date_modified": "2026-05-17",
+      "maps_to": "alert-hub",
+      "maps_to_label": "Alert Hub",
+      "features_referenced": [
+        "index",
+        "logbook",
+        "analytics-report",
+        "predictive",
+        "ai-quality",
+        "plant-connections",
+        "assistant",
+        "asset-hub",
+        "alert-hub",
+        "voice-journal",
+        "shift-brain",
+        "project-manager",
+        "project-report",
+        "achievements",
+        "marketplace"
+      ]
+    },
+    {
+      "slug": "predictive-maintenance-on-a-budget-philippines",
+      "title": "Predictive Maintenance on a Budget (Philippines)",
+      "url": "/learn/predictive-maintenance-on-a-budget-philippines/",
+      "date_modified": "2026-05-17",
+      "maps_to": "predictive",
+      "maps_to_label": "Predictive Maintenance",
+      "features_referenced": [
+        "index",
+        "logbook",
+        "hive",
+        "pm-scheduler",
+        "analytics",
+        "predictive",
+        "ai-quality",
+        "plant-connections",
+        "assistant",
+        "asset-hub",
+        "alert-hub",
+        "audit-log",
+        "voice-journal",
+        "shift-brain",
+        "project-manager",
+        "skillmatrix",
+        "achievements",
+        "marketplace"
+      ]
+    },
+    {
+      "slug": "psme-iiee-piche-which-association-to-join",
+      "title": "PSME, IIEE, PIChE: Which Philippine Engineering Association?",
+      "url": "/learn/psme-iiee-piche-which-association-to-join/",
+      "date_modified": "2026-05-18",
+      "maps_to": null,
+      "maps_to_label": null,
+      "features_referenced": [
+        "index",
+        "dayplanner",
+        "community",
+        "plant-connections"
+      ]
+    },
+    {
+      "slug": "ra-11285-energy-efficiency-plant-checklist",
+      "title": "RA 11285 Energy Efficiency: a Plant-Floor Compliance Checklist",
+      "url": "/learn/ra-11285-energy-efficiency-plant-checklist/",
+      "date_modified": "2026-05-18",
+      "maps_to": null,
+      "maps_to_label": null,
+      "features_referenced": [
+        "index",
+        "dayplanner",
+        "audit-log"
+      ]
+    },
+    {
+      "slug": "reliability-centered-maintenance-philippine-plants",
+      "title": "Reliability-Centered Maintenance (RCM) for Philippine Plants",
+      "url": "/learn/reliability-centered-maintenance-philippine-plants/",
+      "date_modified": "2026-05-18",
+      "maps_to": null,
+      "maps_to_label": null,
+      "features_referenced": [
+        "index",
+        "dayplanner"
+      ]
+    },
+    {
+      "slug": "resume-builder-for-filipino-industrial-workers",
+      "title": "Build an ATS-Ready Resume from Your Plant Work History",
+      "url": "/learn/resume-builder-for-filipino-industrial-workers/",
+      "date_modified": "2026-06-10",
+      "maps_to": null,
+      "maps_to_label": null,
+      "features_referenced": [
+        "index",
+        "logbook",
+        "dayplanner",
+        "project-manager",
+        "project-report",
+        "skillmatrix",
+        "resume",
+        "achievements"
+      ]
+    },
+    {
+      "slug": "sensor-cmms-gateway-operations",
+      "title": "Sensor and CMMS Gateway Operations for Industrial Plants",
+      "url": "/learn/sensor-cmms-gateway-operations/",
+      "date_modified": "2026-05-17",
+      "maps_to": "plant-connections",
+      "maps_to_label": "Plant Connections",
+      "features_referenced": [
+        "index",
+        "logbook",
+        "inventory",
+        "hive",
+        "analytics",
+        "predictive",
+        "ai-quality",
+        "plant-connections",
+        "assistant",
+        "asset-hub",
+        "alert-hub",
+        "voice-journal",
+        "shift-brain",
+        "project-manager",
+        "achievements",
+        "marketplace",
+        "integrations"
+      ]
+    },
+    {
+      "slug": "skill-matrix-for-maintenance-technicians",
+      "title": "How to Build a Skill Matrix for Industrial Workers (Field, Engineering, Contractor)",
+      "url": "/learn/skill-matrix-for-maintenance-technicians/",
+      "date_modified": "2026-05-17",
+      "maps_to": "skillmatrix",
+      "maps_to_label": "Skill Matrix",
+      "features_referenced": [
+        "index",
+        "logbook",
+        "inventory",
+        "dayplanner",
+        "hive",
+        "pm-scheduler",
+        "analytics",
+        "predictive",
+        "ai-quality",
+        "plant-connections",
+        "assistant",
+        "asset-hub",
+        "alert-hub",
+        "voice-journal",
+        "shift-brain",
+        "project-manager",
+        "skillmatrix",
+        "achievements",
+        "marketplace"
+      ]
+    },
+    {
+      "slug": "spare-parts-inventory-philippine-plants",
+      "title": "Spare Parts Inventory for Philippine Plants (ABC, FIFO, Reorder Points)",
+      "url": "/learn/spare-parts-inventory-philippine-plants/",
+      "date_modified": "2026-05-17",
+      "maps_to": "inventory",
+      "maps_to_label": "Inventory",
+      "features_referenced": [
+        "index",
+        "logbook",
+        "inventory",
+        "hive",
+        "analytics-report",
+        "analytics",
+        "predictive",
+        "ai-quality",
+        "plant-connections",
+        "assistant",
+        "ph-intelligence",
+        "asset-hub",
+        "alert-hub",
+        "voice-journal",
+        "shift-brain",
+        "project-manager",
+        "project-report",
+        "achievements",
+        "marketplace"
+      ]
+    },
+    {
+      "slug": "start-digital-logbook-philippine-factory",
+      "title": "How to Start a Digital Logbook in a Philippine Factory",
+      "url": "/learn/start-digital-logbook-philippine-factory/",
+      "date_modified": "2026-05-17",
+      "maps_to": null,
+      "maps_to_label": null,
+      "features_referenced": [
+        "index",
+        "logbook",
+        "inventory",
+        "hive",
+        "community",
+        "analytics-report",
+        "analytics",
+        "predictive",
+        "ai-quality",
+        "plant-connections",
+        "assistant",
+        "ph-intelligence",
+        "asset-hub",
+        "alert-hub",
+        "audit-log",
+        "voice-journal",
+        "shift-brain",
+        "project-manager",
+        "project-report",
+        "achievements",
+        "marketplace",
+        "shift-handover-report"
+      ]
+    },
+    {
+      "slug": "tesda-nc-mapping-to-skill-matrix",
+      "title": "Mapping TESDA NC II and NC III to Your Skill Matrix",
+      "url": "/learn/tesda-nc-mapping-to-skill-matrix/",
+      "date_modified": "2026-05-18",
+      "maps_to": null,
+      "maps_to_label": null,
+      "features_referenced": [
+        "index",
+        "inventory",
+        "dayplanner",
+        "skillmatrix"
+      ]
+    },
+    {
+      "slug": "thermography-for-pm-philippine-plants",
+      "title": "Thermography for Preventive Maintenance in Philippine Plants",
+      "url": "/learn/thermography-for-pm-philippine-plants/",
+      "date_modified": "2026-05-18",
+      "maps_to": null,
+      "maps_to_label": null,
+      "features_referenced": [
+        "index",
+        "dayplanner",
+        "plant-connections"
+      ]
+    },
+    {
+      "slug": "vibration-analysis-on-a-phone-budget",
+      "title": "Vibration Analysis on a Phone Budget (Philippine PdM)",
+      "url": "/learn/vibration-analysis-on-a-phone-budget/",
+      "date_modified": "2026-05-18",
+      "maps_to": null,
+      "maps_to_label": null,
+      "features_referenced": [
+        "index",
+        "dayplanner",
+        "alert-hub",
+        "voice-journal"
+      ]
+    },
+    {
+      "slug": "voice-to-text-maintenance-philippine-plant-floor",
+      "title": "Voice-to-Text on the Philippine Plant Floor (Filipino, English, Taglish)",
+      "url": "/learn/voice-to-text-maintenance-philippine-plant-floor/",
+      "date_modified": "2026-05-17",
+      "maps_to": "voice-journal",
+      "maps_to_label": "Voice Journal",
+      "features_referenced": [
+        "index",
+        "logbook",
+        "predictive",
+        "ai-quality",
+        "plant-connections",
+        "assistant",
+        "asset-hub",
+        "alert-hub",
+        "audit-log",
+        "voice-journal",
+        "shift-brain",
+        "project-manager",
+        "achievements",
+        "marketplace"
+      ]
+    },
+    {
+      "slug": "what-is-oee-how-to-calculate",
+      "title": "What is OEE and How Do I Calculate It? (Worked Philippine Example)",
+      "url": "/learn/what-is-oee-how-to-calculate/",
+      "date_modified": "2026-05-17",
+      "maps_to": null,
+      "maps_to_label": null,
+      "features_referenced": [
+        "index",
+        "logbook",
+        "inventory",
+        "predictive",
+        "ai-quality",
+        "plant-connections",
+        "assistant",
+        "ph-intelligence",
+        "asset-hub",
+        "alert-hub",
+        "voice-journal",
+        "shift-brain",
+        "project-manager",
+        "skillmatrix",
+        "achievements",
+        "marketplace"
+      ]
+    }
+  ],
+  "public_surface": {
+    "index": {
+      "present": true,
+      "jsonld_types": [
+        "Answer",
+        "Audience",
+        "ContactPoint",
+        "Country",
+        "FAQPage",
+        "ImageObject",
+        "Offer",
+        "Organization",
+        "Person",
+        "PropertyValue",
+        "Question",
+        "SoftwareApplication",
+        "WebSite"
+      ],
+      "feature_list": [],
+      "has_feature_list": false,
+      "faq_count": 15,
+      "faq_questions": [
+        "What is WorkHive?",
+        "Is WorkHive really free?",
+        "Who is WorkHive for?",
+        "What tools does WorkHive include?",
+        "Does WorkHive work offline?",
+        "Does WorkHive replace SAP, IBM Maximo, or my CMMS?",
+        "How is my plant's data kept private?",
+        "Does WorkHive work on mobile?",
+        "What languages does WorkHive support?",
+        "How do I sign up?",
+        "How do I start today, before my plant is provisioned?",
+        "What if my plant still uses pen and paper logbooks?",
+        "Can I use WorkHive on my own without my supervisor knowing?",
+        "How long until my plant sees results?",
+        "Will WorkHive run on my old Android phone with patchy data?"
+      ],
+      "count_claims": {
+        "guide": [
+          37,
+          37
+        ],
+        "tool": [
+          33
+        ]
+      },
+      "software_description": "Free industrial intelligence tools for every worker, from field to management: logbook, PM checklist, inventory management, skill matrix, and AI work assistant."
+    },
+    "sitemap": {
+      "present": true,
+      "urls": [
+        "https://workhiveph.com/",
+        "https://workhiveph.com/learn/",
+        "https://workhiveph.com/about/",
+        "https://workhiveph.com/privacy-policy/",
+        "https://workhiveph.com/terms-of-service/",
+        "https://workhiveph.com/learn/start-digital-logbook-philippine-factory/",
+        "https://workhiveph.com/learn/what-is-oee-how-to-calculate/",
+        "https://workhiveph.com/learn/mtbf-vs-mttr-for-supervisors/",
+        "https://workhiveph.com/learn/maintenance-shift-handover-template/",
+        "https://workhiveph.com/learn/spare-parts-inventory-philippine-plants/",
+        "https://workhiveph.com/learn/free-pm-checklist-templates/",
+        "https://workhiveph.com/learn/skill-matrix-for-maintenance-technicians/",
+        "https://workhiveph.com/learn/dilo-wilo-day-planner-supervisors/",
+        "https://workhiveph.com/learn/free-engineering-calculators-philippine-plants/",
+        "https://workhiveph.com/learn/ai-work-assistant-maintenance-technicians/",
+        "https://workhiveph.com/learn/predictive-maintenance-on-a-budget-philippines/",
+        "https://workhiveph.com/learn/connecting-workhive-to-sap-maximo-cmms/",
+        "https://workhiveph.com/learn/voice-to-text-maintenance-philippine-plant-floor/",
+        "https://workhiveph.com/learn/building-asset-register-zero-budget/",
+        "https://workhiveph.com/learn/maintenance-project-planning-template/",
+        "https://workhiveph.com/learn/joining-and-growing-your-hive/",
+        "https://workhiveph.com/learn/industrial-community-of-practice-philippines/",
+        "https://workhiveph.com/learn/gamifying-maintenance-for-engagement/",
+        "https://workhiveph.com/learn/industrial-marketplace-philippine-specialists/",
+        "https://workhiveph.com/learn/predictive-alert-thresholds-plants/",
+        "https://workhiveph.com/learn/dole-iso-audit-trail-from-logbook/",
+        "https://workhiveph.com/learn/ai-quality-and-roi-stage-2-plants/",
+        "https://workhiveph.com/learn/sensor-cmms-gateway-operations/",
+        "https://workhiveph.com/learn/ph-industrial-benchmarks-intelligence/",
+        "https://workhiveph.com/learn/reliability-centered-maintenance-philippine-plants/",
+        "https://workhiveph.com/learn/fmea-worked-example-philippine-bottling-line/",
+        "https://workhiveph.com/learn/loto-procedures-dole-oshs-template/",
+        "https://workhiveph.com/learn/vibration-analysis-on-a-phone-budget/",
+        "https://workhiveph.com/learn/thermography-for-pm-philippine-plants/",
+        "https://workhiveph.com/learn/ra-11285-energy-efficiency-plant-checklist/",
+        "https://workhiveph.com/learn/tesda-nc-mapping-to-skill-matrix/",
+        "https://workhiveph.com/learn/ofw-engineer-portable-portfolio/",
+        "https://workhiveph.com/learn/psme-iiee-piche-which-association-to-join/",
+        "https://workhiveph.com/learn/food-beverage-plant-maintenance-philippines/",
+        "https://workhiveph.com/learn/power-plant-reliability-metrics-philippines/",
+        "https://workhiveph.com/learn/bms-facilities-maintenance-peza-buildings/",
+        "https://workhiveph.com/learn/resume-builder-for-filipino-industrial-workers/"
+      ],
+      "count": 42,
+      "learn_count": 37
+    },
+    "llms_txt": {
+      "present": true,
+      "feature_bullets": [
+        "Digital logbook",
+        "PM scheduler",
+        "Inventory management",
+        "Skill matrix",
+        "Engineering design calculators",
+        "AI work assistant"
+      ],
+      "articles": [
+        "start-digital-logbook-philippine-factory",
+        "what-is-oee-how-to-calculate",
+        "mtbf-vs-mttr-for-supervisors",
+        "maintenance-shift-handover-template",
+        "spare-parts-inventory-philippine-plants",
+        "free-pm-checklist-templates",
+        "skill-matrix-for-maintenance-technicians",
+        "dilo-wilo-day-planner-supervisors",
+        "free-engineering-calculators-philippine-plants",
+        "ai-work-assistant-maintenance-technicians",
+        "predictive-maintenance-on-a-budget-philippines",
+        "connecting-workhive-to-sap-maximo-cmms",
+        "voice-to-text-maintenance-philippine-plant-floor",
+        "building-asset-register-zero-budget",
+        "maintenance-project-planning-template",
+        "joining-and-growing-your-hive",
+        "industrial-community-of-practice-philippines",
+        "gamifying-maintenance-for-engagement",
+        "industrial-marketplace-philippine-specialists",
+        "predictive-alert-thresholds-plants",
+        "dole-iso-audit-trail-from-logbook",
+        "ai-quality-and-roi-stage-2-plants",
+        "sensor-cmms-gateway-operations",
+        "ph-industrial-benchmarks-intelligence",
+        "reliability-centered-maintenance-philippine-plants",
+        "fmea-worked-example-philippine-bottling-line",
+        "loto-procedures-dole-oshs-template",
+        "vibration-analysis-on-a-phone-budget",
+        "thermography-for-pm-philippine-plants",
+        "ra-11285-energy-efficiency-plant-checklist",
+        "tesda-nc-mapping-to-skill-matrix",
+        "ofw-engineer-portable-portfolio",
+        "psme-iiee-piche-which-association-to-join",
+        "food-beverage-plant-maintenance-philippines",
+        "power-plant-reliability-metrics-philippines",
+        "bms-facilities-maintenance-peza-buildings",
+        "resume-builder-for-filipino-industrial-workers"
+      ],
+      "maps": {
+        "maintenance-shift-handover-template": {
+          "label": "Shift Brain",
+          "feature_id": "shift-brain"
+        },
+        "spare-parts-inventory-philippine-plants": {
+          "label": "Inventory",
+          "feature_id": "inventory"
+        },
+        "free-pm-checklist-templates": {
+          "label": "PM Scheduler",
+          "feature_id": "pm-scheduler"
+        },
+        "skill-matrix-for-maintenance-technicians": {
+          "label": "Skill Matrix",
+          "feature_id": "skillmatrix"
+        },
+        "dilo-wilo-day-planner-supervisors": {
+          "label": "Day Planner",
+          "feature_id": "dayplanner"
+        },
+        "free-engineering-calculators-philippine-plants": {
+          "label": "Engineering Design",
+          "feature_id": "engineering-design"
+        },
+        "ai-work-assistant-maintenance-technicians": {
+          "label": "AI Assistant",
+          "feature_id": "assistant"
+        },
+        "predictive-maintenance-on-a-budget-philippines": {
+          "label": "Predictive Maintenance",
+          "feature_id": "predictive"
+        },
+        "connecting-workhive-to-sap-maximo-cmms": {
+          "label": "CMMS Integration",
+          "feature_id": "integrations"
+        },
+        "voice-to-text-maintenance-philippine-plant-floor": {
+          "label": "Voice Journal",
+          "feature_id": "voice-journal"
+        },
+        "building-asset-register-zero-budget": {
+          "label": "Asset Hub",
+          "feature_id": "asset-hub"
+        },
+        "maintenance-project-planning-template": {
+          "label": "Project Manager",
+          "feature_id": "project-manager"
+        },
+        "joining-and-growing-your-hive": {
+          "label": "Hive",
+          "feature_id": "hive"
+        },
+        "industrial-community-of-practice-philippines": {
+          "label": "Community",
+          "feature_id": "community"
+        },
+        "gamifying-maintenance-for-engagement": {
+          "label": "Achievements",
+          "feature_id": "achievements"
+        },
+        "industrial-marketplace-philippine-specialists": {
+          "label": "Marketplace",
+          "feature_id": "marketplace"
+        },
+        "predictive-alert-thresholds-plants": {
+          "label": "Alert Hub",
+          "feature_id": "alert-hub"
+        },
+        "dole-iso-audit-trail-from-logbook": {
+          "label": "Audit Log",
+          "feature_id": "audit-log"
+        },
+        "ai-quality-and-roi-stage-2-plants": {
+          "label": "AI Quality + ROI",
+          "feature_id": "ai-quality"
+        },
+        "sensor-cmms-gateway-operations": {
+          "label": "Plant Connections",
+          "feature_id": "plant-connections"
+        },
+        "ph-industrial-benchmarks-intelligence": {
+          "label": "PH Intelligence",
+          "feature_id": "ph-intelligence"
+        }
+      }
+    },
+    "robots_txt": {
+      "present": true
+    }
+  },
+  "counts": {
+    "nav_tools_total": 28,
+    "nav_tools_visible": 18,
+    "nav_tools_hidden": 10,
+    "features_total": 29,
+    "features_active": 29,
+    "features_routed": 28,
+    "learn_articles": 37,
+    "sitemap_urls": 42,
+    "sitemap_learn_urls": 37,
+    "faqs_index": 15,
+    "intel_features": 22
+  },
+  "alias_issues": []
+}

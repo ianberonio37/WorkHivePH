@@ -1,6 +1,7 @@
 import React from 'react';
 import {interpolate, spring, useCurrentFrame, useVideoConfig} from 'remotion';
 import {Ambient, ORANGE, ORANGE_LT, NAVY_DEEP, FONT} from './Ambient';
+import {accentIndex} from './KineticHeadline';
 
 type Props = {
   headline: string;
@@ -24,6 +25,7 @@ export const WorkHiveKinetic: React.FC<Props> = ({headline, subhead, phrases}) =
   const local = frame % PER;
   const outStart = PER - 14;
   const words = list[idx].split(' ');
+  const accentAt = accentIndex(words);
 
   // sweeping underline
   const ulIn = spring({frame: local - 6, fps, config: {damping: 16, mass: 0.7}});
@@ -37,32 +39,35 @@ export const WorkHiveKinetic: React.FC<Props> = ({headline, subhead, phrases}) =
         {subhead.toUpperCase()}
       </div>
 
-      {/* animated phrase */}
-      <div style={{position: 'absolute', left: 100, top: 250, maxWidth: 720, display: 'flex', flexWrap: 'wrap', gap: '0 18px'}}>
-        {words.map((w, i) => {
-          const wIn = spring({frame: local - 4 - i * 4, fps, config: {damping: 16, mass: 0.55}});
-          const wOut = local > outStart ? interpolate(local, [outStart, PER], [1, 0]) : 1;
-          const accent = w.replace(/[^A-Za-z]/g, '').length > 3 && i % 3 === 1;
-          return (
-            <span key={i} style={{
-              display: 'inline-block',
-              color: accent ? ORANGE_LT : '#fff',
-              fontWeight: 800, fontSize: 66, lineHeight: 1.1, fontFamily: FONT,
-              opacity: wIn * wOut,
-              transform: `translateY(${interpolate(wIn, [0, 1], [44, 0])}px)`,
-              textShadow: '0 4px 26px rgba(0,0,0,.55)',
-            }}>{w}</span>
-          );
-        })}
+      {/* animated phrase + sweeping underline — ONE flex column so the line
+          always flows BELOW the text block (the absolute y-guess struck through
+          the second line when long words wrapped; frame critique 2026-06-10) */}
+      <div style={{position: 'absolute', left: 100, top: 250, maxWidth: 720,
+                   display: 'flex', flexDirection: 'column', alignItems: 'flex-start'}}>
+        <div style={{display: 'flex', flexWrap: 'wrap', gap: '0 18px'}}>
+          {words.map((w, i) => {
+            const wIn = spring({frame: local - 4 - i * 4, fps, config: {damping: 16, mass: 0.55}});
+            const wOut = local > outStart ? interpolate(local, [outStart, PER], [1, 0]) : 1;
+            const accent = i === accentAt;
+            return (
+              <span key={i} style={{
+                display: 'inline-block',
+                color: accent ? ORANGE_LT : '#fff',
+                fontWeight: 800, fontSize: 66, lineHeight: 1.1, fontFamily: FONT,
+                opacity: wIn * wOut,
+                transform: `translateY(${interpolate(wIn, [0, 1], [44, 0])}px)`,
+                textShadow: '0 4px 26px rgba(0,0,0,.55)',
+              }}>{w}</span>
+            );
+          })}
+        </div>
+        <div style={{
+          marginTop: 10,
+          height: 6, width: interpolate(ulIn, [0, 1], [0, 360]) * ulOut, maxWidth: 520,
+          background: `linear-gradient(90deg, ${ORANGE} 0%, ${ORANGE_LT} 100%)`, borderRadius: 4,
+          opacity: ulOut,
+        }} />
       </div>
-
-      {/* sweeping underline */}
-      <div style={{
-        position: 'absolute', left: 102, top: 250 + 86 * Math.min(2, Math.ceil(words.length / 4)) + 8,
-        height: 6, width: interpolate(ulIn, [0, 1], [0, 360]) * ulOut, maxWidth: 520,
-        background: `linear-gradient(90deg, ${ORANGE} 0%, ${ORANGE_LT} 100%)`, borderRadius: 4,
-        opacity: ulOut,
-      }} />
 
       {/* progress dots */}
       <div style={{position: 'absolute', left: 102, bottom: 120, display: 'flex', gap: 8}}>

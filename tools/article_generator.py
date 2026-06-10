@@ -34,6 +34,59 @@ from pathlib import Path
 from tools.ai_chain import call_ai_chain
 from wh_pages import article_tool_map
 
+
+# ── Capability grounding (Content Grounding Gate, generation-time) ─────────────
+# The article's PRODUCT claims (how to use the tool / the flow) must trace to the
+# tool page's REAL affordances — not invented. We pull the page evidence for the
+# article's mapped tool and feed it into the section prompt as the only allowed
+# source for product claims, then verify the drafted body against the live
+# capability-grounding check. General/domain knowledge is unrestricted.
+def _evidence_for_slug(slug: str):
+    """Return (feature_id, evidence_block_text) for the article's tool, else (None, '')."""
+    try:
+        import sys as _sys
+        from pathlib import Path as _Path
+        _t = _Path(__file__).resolve().parent
+        if str(_t) not in _sys.path:
+            _sys.path.insert(0, str(_t))
+        import platform_catalog as _pc
+        import page_evidence as _pe
+        tool_url = (article_tool_map().get(slug) or ("",))[0]
+        route = re.sub(r"^/", "", tool_url or "").split("?")[0].split("#")[0]
+        if not route.endswith(".html"):
+            return None, ""
+        fid = _pc._href_stem(route)
+        ev = _pe.load_evidence().get(fid)
+        if not ev:
+            return None, ""
+        block = (
+            f"REAL PAGE AFFORDANCES for {slug}'s tool (page {ev['route']}) — the ONLY "
+            f"things you may claim the tool can do:\n"
+            f"  Headings:        {ev.get('headings', [])[:14]}\n"
+            f"  Buttons/actions: {ev.get('actions', [])[:18]}\n"
+            f"  Fields:          {ev.get('fields', [])[:12]}\n"
+            f"  Tabs:            {ev.get('tabs', [])[:10]}\n"
+            f"  Connects to:     {ev.get('links_to', [])}"
+        )
+        return fid, block
+    except Exception:
+        return None, ""
+
+
+def verify_grounding(article: dict, slug: str) -> list:
+    """Run the capability-grounding check on a generated article's body. Returns
+    the list of ungrounded (born-wrong) product claims — empty = grounded."""
+    fid, _ = _evidence_for_slug(slug)
+    if not fid:
+        return []
+    try:
+        import content_grounding_gate as _cg
+        body = (article.get("intro", "") + " "
+                + " ".join(p for s in article.get("sections", []) for p in s.get("paragraphs", [])))
+        return _cg.capability_issues_for_text(body, fid)
+    except Exception:
+        return []
+
 # Banned phrases shared with platform_pack — corporate-speak that degrades AEO
 # answer-extraction quality.
 BANNED_PHRASES = [
@@ -369,6 +422,17 @@ Return ONLY this JSON, no markdown fence, no preamble:
 def _build_section_prompt(slug, title, tool_name, brief,
                            section_id, section_h2, section_brief,
                            prev_section_summary=""):
+    _fid, _evidence_block = _evidence_for_slug(slug)
+    grounding_rule = ""
+    if _evidence_block:
+        grounding_rule = (
+            f"\n- PRODUCT-CLAIM GROUNDING (most important): when you describe how to USE "
+            f"{tool_name} in WorkHive — the flow, the screens, the buttons, what the tool "
+            f"actually does — reference ONLY the real affordances listed below. Do NOT invent "
+            f"buttons, screens, tabs, or capabilities the page does not have. (General/domain "
+            f"knowledge — standards, formulas, best practice — is NOT restricted; write it freely.)\n"
+            f"{_evidence_block}"
+        )
     return f"""You are drafting ONE section of the WorkHive /learn/ article "{title}".
 
 CONTEXT:
@@ -379,7 +443,7 @@ CONTEXT:
 {prev_section_summary}
 
 HARD RULES for this section's paragraphs:
-- Plain simple English only. NO Tagalog. NO banned phrases (are you tired of, discover how, unlock real insights, sign up now, learn more about, game-changer, revolutionize, leverage, in today's, optimize your plant's performance).
+- Plain simple English only. NO Tagalog. NO banned phrases (are you tired of, discover how, unlock real insights, sign up now, learn more about, game-changer, revolutionize, leverage, in today's, optimize your plant's performance).{grounding_rule}
 - MUST include at least ONE concrete Philippine anchor: a real PH plant location (Calabarzon, Cabuyao, PEZA, Mindanao, Batangas, Bulacan, Subic, Davao, Pampanga), a PHP cost figure (PHP 180,000), a 24-hour shift time (02:30, 14:45), a Filipino role title (plant supervisor, shift in-charge, maintenance planner), or a specific equipment ID (Pump P-204B, Boiler B-1, Conveyor #2, AHU-3).
 - Length: 4-6 paragraphs, each 70-130 words. Total section body should be 350-600 words.
 - Mention "{tool_name}" by name at least once where naturally relevant.
@@ -588,6 +652,17 @@ def generate_article(slug: str, title: str, tool_name: str, brief: str) -> dict:
     # bring the article to a passing state)
     issues = _validate(article, tool_name)
     issues.extend(section_warnings)
+
+    # Capability grounding (Content Grounding Gate): flag any product claim the
+    # tool page has no real affordance for — a born-wrong claim to review.
+    ungrounded = verify_grounding(article, slug)
+    article["_ungrounded_claims"] = [u["claim"] for u in ungrounded]
+    if ungrounded:
+        print(f"  [grounding] {len(ungrounded)} product claim(s) NOT grounded in {slug}'s page "
+              f"affordances (born-wrong — review):")
+        for u in ungrounded[:4]:
+            print(f"     ! {u['claim'][:110]}")
+
     article["_remaining_warnings"] = issues
     article["_scrubbed_phrases"]   = scrubbed
 

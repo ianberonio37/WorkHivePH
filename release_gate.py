@@ -70,6 +70,7 @@ WITH_VISUAL = "--with-visual" in sys.argv
 WITH_PERF = "--with-perf" in sys.argv
 WITH_AI_DEEP = "--with-ai-deep" in sys.argv
 WITH_BATTERY = "--with-battery" in sys.argv   # G3 UFAI battery ratchet (Mega Gate)
+WITH_CONTENT = "--with-content" in sys.argv   # Content Grounding Gate (the 3rd sibling)
 
 
 def py_for(path: Path) -> str:
@@ -280,6 +281,25 @@ def phase_battery() -> tuple[bool, dict]:
     return (rc == 0, {"summary": summary, "lines": lines})
 
 
+def phase_content() -> tuple[bool, dict]:
+    """Phase 6: Content Grounding Gate — the 3rd sibling, forward-only ratchet.
+
+    Runs tools/content_dev.py gate (the front door's G0 layer:
+    content_grounding_gate.py). Catches outward-content↔platform drift —
+    a renamed/removed feature in copy, a stale count claim, a dead internal
+    link, an article on disk unlinked from the learn hub. Ratcheted: it does
+    NOT block on pre-existing drift but FAILs on NEW drift. Headless (~3s, no
+    server/DB/model). Gated behind --with-content like phase_battery behind
+    --with-battery, so it runs in the Mega Gate but not the lighter Release Gate.
+    """
+    if not WITH_CONTENT:
+        return (True, {"summary": "skipped (no --with-content)", "lines": []})
+    step("Phase 6: Content Grounding Gate (content_dev.py gate)")
+    rc, summary, lines = run_subprocess(
+        [sys.executable, "tools/content_dev.py", "gate"], cwd=ROOT)
+    return (rc == 0, {"summary": summary, "lines": lines})
+
+
 # ── Verdict ───────────────────────────────────────────────────────────────
 
 def get_head_sha() -> str:
@@ -453,12 +473,14 @@ def main() -> int:
     ai_deep_ok, ai_deep_res = phase_ai_deep()
     print()
     battery_ok, battery_res = phase_battery()
+    print()
+    content_ok, content_res = phase_content()
 
-    results = {"static": static_res, "data": data_res, "ui": ui_res, "ai_deep": ai_deep_res, "battery": battery_res}
-    layer_oks = {"static": static_ok, "data": data_ok, "ui": ui_ok, "ai_deep": ai_deep_ok, "battery": battery_ok}
-    all_pass = static_ok and data_ok and ui_ok and ai_deep_ok and battery_ok
+    results = {"static": static_res, "data": data_res, "ui": ui_res, "ai_deep": ai_deep_res, "battery": battery_res, "content": content_res}
+    layer_oks = {"static": static_ok, "data": data_ok, "ui": ui_ok, "ai_deep": ai_deep_ok, "battery": battery_ok, "content": content_ok}
+    all_pass = static_ok and data_ok and ui_ok and ai_deep_ok and battery_ok and content_ok
 
-    layer_results = {"static": static_res, "data": data_res, "ui": ui_res, "ai_deep": ai_deep_res, "battery": battery_res}
+    layer_results = {"static": static_res, "data": data_res, "ui": ui_res, "ai_deep": ai_deep_res, "battery": battery_res, "content": content_res}
 
     if all_pass:
         banner("GATE PASS — safe to deploy", "green")
@@ -478,6 +500,7 @@ def main() -> int:
             ("ui", ui_res, ui_ok),
             ("ai_deep", ai_deep_res, ai_deep_ok),
             ("battery", battery_res, battery_ok),
+            ("content", content_res, content_ok),
         ]:
             mark = "PASS" if passed else "FAIL"
             print(f"  {label}: {mark} — {res['summary'] or '(no summary)'}")

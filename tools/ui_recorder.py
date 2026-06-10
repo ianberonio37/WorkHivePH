@@ -1435,7 +1435,11 @@ def record(feature_key: str, output_path: Path = None, headless: bool = False) -
 # Assistant → Shift Handover, the screen moves with it.
 
 # Landing URL per storyboard journey key.
-JOURNEY_URLS = {
+# Resilience fallback ONLY. The live values are read from the Platform Catalog
+# (platform_catalog.build_journey_index) so a page rename flows into the journey
+# automatically instead of silently 404-ing the recording. This literal is used
+# only if the catalog can't be imported (e.g. a bare offline run).
+_JOURNEY_URLS_FALLBACK = {
     "logbook":          "/workhive/logbook.html",
     "shift_handover":   "/workhive/logbook.html",
     "ai_assistant":     "/workhive/assistant.html",
@@ -1458,6 +1462,27 @@ JOURNEY_URLS = {
     "hive_dashboard":   "/workhive/hive.html",
     "engineering_calc": "/workhive/engineering-design.html",
 }
+
+
+def _load_journey_urls() -> dict:
+    """Read live journey routes from the Platform Catalog; fall back to the
+    frozen literal only if the catalog is unavailable."""
+    try:
+        try:
+            from platform_catalog import build_journey_index   # run as a script (tools on path)
+        except ImportError:
+            from tools.platform_catalog import build_journey_index  # imported as a package
+        idx = build_journey_index()
+        urls = {k: v["url"] for k, v in idx.items()}
+        # keep any fallback-only keys the catalog couldn't resolve
+        for k, v in _JOURNEY_URLS_FALLBACK.items():
+            urls.setdefault(k, v)
+        return urls
+    except Exception:
+        return dict(_JOURNEY_URLS_FALLBACK)
+
+
+JOURNEY_URLS = _load_journey_urls()
 
 
 def _pad_to_deadline(page, deadline: float):
