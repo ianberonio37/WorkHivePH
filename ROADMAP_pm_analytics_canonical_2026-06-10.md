@@ -6,16 +6,22 @@ Every number should be **calculated once in one place** and **shown the same eve
 heavy screens should show a **saved result + a Refresh button** instead of recalculating every
 time you open them.
 
-## How "compute once a day" works (no scheduled job needed)
-For anything a **person looks at** (Analytics, Shift Handover, dashboards), the simple model is:
-the **first person to open it each day** triggers the calculation → it's **saved** → everyone else
-that day sees the saved copy → the **Refresh button** forces a new one. No timer, no `pg_cron`.
+## How "compute once a day" works — and NO pg_cron (Ian's call, 2026-06-10)
+**Decision: we are not using `pg_cron` (scheduled jobs) anywhere right now.** Everything computes
+**on view**: the **first person to open a page each day** triggers the calculation → it's **saved** →
+everyone else that day sees the saved copy → the **Refresh button** forces a new one.
 
-**We only need `pg_cron` (a scheduled job) for things that must happen when nobody is looking** —
-i.e. **sending a notification** (overdue-PM email, low-stock alert, "handover ready" push). A page a
-human opens never needs a timer; a notification that must *find* the human does.
-*(Trade-off of the lazy model: the first visitor each day waits ~10–30s while it computes once. A
-tiny pre-warm job is an optional nicety, not a requirement.)*
+What this means for the things that *would* normally use a timer:
+- **In-app alerts** (the "needs attention" banners, Alert Hub) — already computed when you open the
+  page. No timer needed. ✅
+- **Event-driven reactions** (low-stock when stock changes, asset-approved toast) — if we want these,
+  use a **DB webhook** (fires the instant a row changes — *not* a schedule). Still no `pg_cron`.
+- **Scheduled emails/push to people not in the app** (e.g. a 6am overdue-PM email) — **deferred.**
+  This is the *only* thing that genuinely needs a timer, and we're choosing not to build it yet.
+
+*(Trade-off of compute-on-view: the first visitor each day waits ~10–30s while it computes once.
+Acceptable for now; a pre-warm option exists later if it ever annoys you — still without committing
+to scheduled jobs.)*
 
 ---
 
@@ -59,8 +65,8 @@ when it was last computed, and only Refresh recomputes. (This is the first thing
    of that shift.
 2. **Carry forward:** anything that happens during a shift (new job, PM done, new risk) rolls into
    the **next** shift's handover automatically.
-3. *(Only the optional "handover ready" notification at shift change needs `pg_cron` — the page
-   itself does not.)*
+3. *(No `pg_cron`. A "handover ready" push notification is deferred — the page generating itself
+   on first view is enough.)*
 
 **Done when:** Each shift opens to a ready handover that already includes the previous shift's
 open items — nothing dropped at handoff.
@@ -152,9 +158,9 @@ Default = **lazy daily compute-on-first-view + cache + Refresh** (no cron). The 
 row. Same for `shift_handovers` (compute-on-first-view per shift, seeded from prior shift's open
 items). Already-snapshot surfaces (`amc_briefings`, `ai_reports`, `hive_readiness`,
 `hive_adoption_score`, `v_risk_truth` @ 13:00 PHT) can keep their current cadence or move to the same
-lazy model. **`pg_cron` is reserved for the NOTIFICATION layer only** — unattended pushes (overdue-PM
-email, low-stock alert, "handover ready") that must fire with no one on a page. Optional pre-warm cron
-is a latency nicety, not a requirement.
+lazy model. **No `pg_cron` for now (Ian, 2026-06-10).** In-app alerts compute on view; event-driven
+reactions (low-stock-on-change) use DB webhooks (instant, not scheduled) if/when wanted; unattended
+scheduled email/push is deferred. Optional pre-warm is a future latency nicety, still timer-free.
 
 ### Reconciliation (Phase 3) — data flow
 Engine (orchestrator + batch-risk ML + AMC) writes canonical snapshots → alert-hub, asset-hub,
