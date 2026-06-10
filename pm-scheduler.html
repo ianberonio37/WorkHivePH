@@ -393,7 +393,7 @@
         <li><strong>Overdue</strong>: scope items where today &gt; last completion + frequency (Monthly=30, Quarterly=90, Semi-Annual=180, Yearly=365 days).</li>
         <li><strong>Due this week</strong>: scope items whose next due date falls within the next 14 days.</li>
         <li><strong>On track</strong>: everything else, including items with no completion history yet.</li>
-        <li><strong>Compliance %</strong>: on-track / total scope items across your hive's assets.</li>
+        <li><strong>Compliance %</strong>: SMRP Metric 2.1.1 — PM occurrences completed on schedule / occurrences due in the window (frequency-aware), via the canonical <code>get_pm_compliance_smrp</code> RPC (same value Analytics shows). This is the Stair-2 gate metric, distinct from the "on track now" snapshot count.</li>
       </ul>
       <p style="margin-top:8px;color:rgba(255,255,255,0.55);font-size:11px;">PM compliance feeds the Reliability dimension of your Maturity Stairway. Two consecutive weeks &gt; 80% is the gate to Stair 2.</p>
     </div>
@@ -1022,6 +1022,7 @@ let currentAsset          = null;
 let _pmAssetUpdatedAt     = null; // updated_at snapshot for optimistic lock
 let currentScreen    = 'dashboard';
 let pmRealtimeChannel = null;
+let pmSmrpCompliance = null; // canonical SMRP 2.1.1 overall_pct from get_pm_compliance_smrp RPC (same source as Analytics)
 let _pmDisplayCount  = 10;
 function loadMorePM() { _pmDisplayCount += 10; renderDashboard(); }
 
@@ -1222,6 +1223,16 @@ async function loadData() {
   scopeItems  = itemsRes.data || [];
   completions = compRes.data  || [];
 
+  // Canonical SMRP 2.1.1 compliance (completed/scheduled, frequency-aware) from
+  // the single source of truth shared with Analytics — NOT on-track/total, which
+  // is a different metric. Stair-2 gate keys off THIS value.
+  pmSmrpCompliance = null;
+  if (HIVE_ID) {
+    const { data: smrp, error: smrpErr } =
+      await db.rpc('get_pm_compliance_smrp', { p_hive_id: HIVE_ID, p_period_days: 90 });
+    if (!smrpErr && smrp && smrp.overall_pct != null) pmSmrpCompliance = smrp.overall_pct;
+  }
+
   // Populate category filter
   const cats = [...new Set(assets.map(a => a.category))].sort();
   const sel  = document.getElementById('cat-filter');
@@ -1287,7 +1298,13 @@ function getEnrichedItems(assetId) {
 // verdict + 3 cards + recommendation. Asset-level rollup, not scope-item.
 function renderPMSummary(enriched, overdue, duesoon, ontrack) {
   const total = enriched.length;
-  const compliance = total === 0 ? null : Math.round((ontrack / total) * 100);
+  // Compliance = canonical SMRP 2.1.1 (completed/scheduled, frequency-aware) from
+  // get_pm_compliance_smrp — the SAME number Analytics shows, and what the Stair-2
+  // gate keys off. This is NOT the on-track snapshot (ontrack/total): a hive can
+  // have 0 assets on track THIS instant (all weekly PMs due) yet 88% historical
+  // compliance. Fall back to the on-track ratio only if the RPC is unavailable.
+  const compliance = pmSmrpCompliance != null ? Math.round(pmSmrpCompliance)
+                   : total === 0 ? null : Math.round((ontrack / total) * 100);
 
   // Hero numbers are already set on #stat-{name} above; this helper only
   // touches the sub-line, tag pill, and tone class on the card wrapper.
@@ -1319,7 +1336,7 @@ function renderPMSummary(enriched, overdue, duesoon, ontrack) {
   // ladder: STAIR-READY / BUILDING / BELOW STAIR. "LOW" by itself read
   // as ambiguous (low what?) — walkthrough 2026-05-14.
   const subText = total === 0 ? 'No assets in scope yet'
-                : `${ontrack} of ${total} assets on track · ${compliance}% compliance`;
+                : `${ontrack} of ${total} on track now · ${compliance}% PM compliance (SMRP)`;
   const tag = total === 0 ? 'NO DATA' : compliance >= 80 ? 'STAIR-READY' : compliance >= 60 ? 'BUILDING' : 'BELOW STAIR';
   const tone = total === 0 ? 'grey' : compliance >= 80 ? 'green' : compliance >= 60 ? 'amber' : 'red';
   setCard('ontrack', subText, tag, tone);

@@ -917,6 +917,22 @@ serve(async (req) => {
       period_days: periodDays,
     });
 
+    // Single source of truth for PM compliance: override the Python calc with the
+    // canonical get_pm_compliance_smrp RPC, so Analytics and pm-scheduler.html read
+    // the SAME SMRP 2.1.1 value (completed/scheduled, frequency-aware via
+    // v_pm_scope_items_truth.frequency_days) and can never drift apart. Bonus:
+    // compliance now survives even if the Python API is unreachable.
+    if (phase === "descriptive" && hive_id && !results.error) {
+      try {
+        const { data: smrp } = await db.rpc("get_pm_compliance_smrp", {
+          p_hive_id: hive_id, p_period_days: periodDays,
+        });
+        if (smrp && (smrp as Record<string, unknown>).overall_pct != null) {
+          results.pm_compliance = smrp;
+        }
+      } catch (_e) { /* keep the Python value as fallback */ }
+    }
+
     // For prescriptive phase — add Groq synthesis as action plan.
     // The synthesis now reasons across ALL 4 phases (descriptive/diagnostic/
     // predictive/prescriptive), not just prescriptive recommendations. We
