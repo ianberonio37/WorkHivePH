@@ -1,5 +1,5 @@
 {
-  "generated_ts": "2026-06-09T09:27:36+00:00",
+  "generated_ts": "2026-06-10T02:24:02+00:00",
   "_comment": "Phase 8 \u00a78.4a \u2014 GEPA-style reflective optimization PROPOSALS for the companion. Each is a candidate prompt/RAG/chain variant pinned to a real surface + lever, derived deterministically from the independent grader's per-failure detail over the captured observations. HUMAN disposes (set status accept/reject); the measured A/B that actually moves the metric is the opt-in 8.4b step (see ab_protocol). This tool never edits an edge-fn prompt or deploys.",
   "measured_ab_protocol": "8.4b measured A/B (opt-in, mutates a LOCAL edge fn, spends LLM calls): 1) apply the candidate variant to the surface's index.ts (local runtime hot-reloads, no deploy); 2) reset ai_rate_limits+ai_user_rate_limits+ai_cache, re-run the dim's capture spec to recapture the VALIDATION + locked-test split; 3) re-grade with the same independent grader; 4) ACCEPT iff val pass-rate improves AND locked-test pass-rate stays >= its frozen floor (companion_dim_baselines.json) \u2014 anti-overfit by construction; 5) REVERT the local edit (git restore the edge fn) and record the winning diff here for deploy disposition.",
   "count": 6,
