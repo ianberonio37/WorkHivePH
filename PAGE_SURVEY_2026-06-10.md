@@ -109,3 +109,26 @@ already behave this way.
 
 > Next: turn this into the **detailed roadmap** — each phase now scoped to the *specific* pages above,
 > not vague "screens."
+
+---
+
+## Local data-state (walk grounding, 2026-06-10) — which pages have data to show
+Checked the tables these pages read. **Empty locally** (page renders an empty/placeholder state):
+| Table (rows) | Page(s) | Is it a bug? |
+|---|---|---|
+| `ai_cost_log` 0 · `ai_quality_log` 0 · `ai_audit_log` 0 · `ai_reply_feedback` 0 | ai-quality, llm-observability, agentic-rag-observability | **No AI usage is logged locally** — not a wrong-table bug; the seeder seeds no AI logs. These pages can't be walked/demoed until sample logs exist. → seed AI logs OR treat as prod-only. |
+| `amc_briefings` 0 | hive board "AMC daily brief" | Shows "None today" gracefully. Under the no-cron model, AMC should **generate on first view** (Phase 3). |
+| `shift_plans` 0 | shift-brain | No-plan state (where the prior stuck-loader bug lived). Phase 2 generates-on-view. |
+| `integration_configs` 0 | integrations, plant-connections | Empty connectors view — by design until a CMMS is linked. |
+| `ph_intelligence_reports` 0 | ph-intelligence | Generates on demand (heavy). |
+| `hive_audit_log` 1 | audit-log | Sparse (1 row). |
+
+**Have data:** community 49 · marketplace 27 · projects 12 · skill_profiles 15 · skill_badges 134.
+
+**Implication for the roadmap:** (1) the AI-health trio (Phase 4 merge) also needs **seeded AI logs** to
+be testable; (2) AMC + shift-handover empties confirm the **compute/generate-on-view** direction
+(Phases 1–3); (3) integrations/ph-intelligence empties are by-design-until-used.
+
+**NOTE:** live operate-it verification (clicks, render, stuck-loaders) for the ~14 ⬜ pages is **pending**
+— the Playwright MCP browser is holding a stale handle this session (needs an MCP restart). The findings
+above are from DB + code grounding (the method that caught this session's headline bug).
