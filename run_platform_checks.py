@@ -109,6 +109,16 @@ VALIDATORS = [
         "severity": "blocker",
     },
     {
+        "id":      "frequency-map-consistency",
+        "script":  "validate_frequency_map_consistency.py",
+        "args":    [],
+        "label":   "Frequency-Map Consistency (every PM frequency maps to its canonical interval days; live view + code copies agree)",
+        "group":   "Platform",
+        "report":  "frequency_map_consistency_report.json",
+        "skip_if_fast": False,
+        "severity": "blocker",
+    },
+    {
         "id":      "tester-coverage",
         "script":  "validate_tester_coverage.py",
         "args":    [],

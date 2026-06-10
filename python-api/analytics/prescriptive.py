@@ -51,7 +51,18 @@ CRITICALITY_WEIGHT = {
     # interpretable until reseed picks up the canonical labels.
     "Major": 3, "Minor": 2,
 }
-FREQ_DAYS = {"Monthly": 30, "Quarterly": 90, "Semi-Annual": 180, "Yearly": 365}
+# Canonical frequency -> interval-days map. Keys are LOWERCASE; look up via
+# FREQ_DAYS.get(str(freq).strip().lower(), 30) to absorb the seeder/UI vocabulary
+# (Weekly / Semi-annual / Annual) + legacy labels (Semi-Annual / Yearly). Matches
+# descriptive.py.freq_days_canonical and v_pm_scope_items_truth.frequency_days.
+# (2026-06-10) The old {Monthly,Quarterly,Semi-Annual,Yearly} map silently sent
+# Weekly/Semi-annual/Annual to the 30-day default — same drift the view had.
+FREQ_DAYS = {
+    "daily": 1, "weekly": 7, "biweekly": 14, "fortnightly": 14,
+    "monthly": 30, "quarterly": 90,
+    "semi-annual": 180, "semiannual": 180, "semi annual": 180,
+    "annual": 365, "yearly": 365,
+}
 
 
 # ── 1. Priority Maintenance Ranking — ISO 55001 ───────────────────────────────
@@ -216,7 +227,7 @@ def calc_pm_interval_optimization(
         scope_intervals = []
         for _, item in s_group.iterrows():
             freq = item.get("frequency", "Monthly")
-            scope_intervals.append((freq, FREQ_DAYS.get(freq, 30)))
+            scope_intervals.append((freq, FREQ_DAYS.get(str(freq).strip().lower(), 30)))
         if not scope_intervals:
             continue
 
