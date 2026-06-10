@@ -78,13 +78,57 @@ def _props_for(spec: dict) -> dict:
 
 
 def render_branded_scene(idea: dict) -> Path:
-    """Pipeline entry: art-direct + render the adaptive scene for an idea."""
+    """Pipeline entry: art-direct + render a SINGLE adaptive scene for an idea.
+    Kept for back-compat / fallback; the storyboard path is preferred."""
     from tools.scene_director import direct_scene
     spec = direct_scene(idea)
     comp = STYLE_COMPOSITION.get(spec["style"], "WorkHiveMotionBG")
     print(f"  Scene director -> style={spec['style']}  headline='{spec['headline']}'")
     out = SCENES_DIR / f"{idea['id']}_remotion.mp4"
     return render_scene(comp, _props_for(spec), out)
+
+
+def _segment_props(seg: dict) -> dict:
+    """Trim a storyboard segment to just what its style consumes (keeps the
+    --props CLI argument small)."""
+    p = {
+        "style": seg["style"],
+        "frames": int(seg["frames"]),
+        "headline": seg["headline"],
+        "subhead": seg["subhead"],
+    }
+    if seg["style"] == "kinetic":
+        p["phrases"] = seg.get("phrases", [])
+    elif seg["style"] == "infographic":
+        p["stats"] = seg.get("stats", [])
+    elif seg["style"] == "mindmap":
+        p["nodes"] = seg.get("nodes", [])
+    return p
+
+
+def render_storyboard_scene(idea: dict, storyboard: dict = None,
+                            narration_path: Path = None) -> Path:
+    """Pipeline entry: render the FULL narration-driven sequence in one pass.
+
+    Each beat plays its own animated style back-to-back (no looped single clip),
+    and the total length is the sum of segment frames — which the storyboard sets
+    to the narration's exact running time. Falls back to a single branded scene if
+    the storyboard has no segments.
+    """
+    if storyboard is None:
+        from tools.storyboard import build_storyboard
+        storyboard = build_storyboard(idea, narration_path=narration_path)
+
+    segments = storyboard.get("segments") or []
+    if not segments:
+        print("  [storyboard] no segments — falling back to single branded scene")
+        return render_branded_scene(idea)
+
+    props = {"segments": [_segment_props(s) for s in segments]}
+    styles = "+".join(s["style"][:3] for s in segments)
+    print(f"  Storyboard -> {len(segments)} beats [{styles}]  {storyboard.get('total_seconds')}s")
+    out = SCENES_DIR / f"{idea['id']}_storyboard.mp4"
+    return render_scene("WorkHiveStoryboard", props, out)
 
 
 def _load_idea(idea_id: str) -> dict:
@@ -98,13 +142,20 @@ def _load_idea(idea_id: str) -> dict:
 if __name__ == "__main__":
     ap = argparse.ArgumentParser(description="Render an adaptive WorkHive Remotion scene")
     ap.add_argument("--idea", help="Idea ID (art-directs style + content from the backlog/script)")
+    ap.add_argument("--storyboard", action="store_true",
+                    help="With --idea: render the full narration-driven sequence (many beats/styles)")
+    ap.add_argument("--voice", default="james", help="Voice key (locates the narration mp3 for timing)")
     ap.add_argument("--headline")
     ap.add_argument("--subhead", default="WorkHive")
     ap.add_argument("--style", choices=sorted(STYLE_COMPOSITION), help="Force a style (with --headline)")
     ap.add_argument("--out")
     args = ap.parse_args()
 
-    if args.idea:
+    if args.idea and args.storyboard:
+        idea = _load_idea(args.idea)
+        narr = ROOT / ".tmp/voice_files" / f"{args.idea}_{args.voice}.mp3"
+        path = render_storyboard_scene(idea, narration_path=narr if narr.exists() else None)
+    elif args.idea:
         idea = _load_idea(args.idea)
         path = render_branded_scene(idea)
     elif args.headline:

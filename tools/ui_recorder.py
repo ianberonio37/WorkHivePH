@@ -18,6 +18,7 @@ Features:
 
 import os
 import sys
+import time
 import argparse
 import requests as _requests
 from pathlib import Path
@@ -313,11 +314,13 @@ def demo_ai_assistant(page):
     pause(page, 800)
 
     print("  [3/5] Sending — AI pulls from logbook data...")
-    send_btn = page.locator("button:has-text('Send')").first
+    # #send-btn is the chat send; a generic has-text('Send') match grabs the
+    # hidden "Send feedback" widget present on every page and hangs.
+    send_btn = page.locator("#send-btn:visible").first
     if send_btn.count():
         send_btn.click()
     else:
-        page.keyboard.press("Enter")
+        page.evaluate("() => { if (typeof sendMessage === 'function') sendMessage(); }")
     page.wait_for_timeout(1000)
 
     print("  [4/5] Waiting for AI response (up to 45s — same as test)...")
@@ -1424,6 +1427,302 @@ def record(feature_key: str, output_path: Path = None, headless: bool = False) -
     return saved_path
 
 
+# ── Narration-aligned JOURNEY recorder ────────────────────────────────────────
+#
+# Instead of one canned per-feature demo, the journey walks the pages the
+# narration actually names, in order, each beat time-boxed to its slice of the
+# narration (see tools/storyboard.py). So when the voiceover moves Logbook → AI
+# Assistant → Shift Handover, the screen moves with it.
+
+# Landing URL per storyboard journey key.
+JOURNEY_URLS = {
+    "logbook":          "/workhive/logbook.html",
+    "shift_handover":   "/workhive/logbook.html",
+    "ai_assistant":     "/workhive/assistant.html",
+    "pm_checklist":     "/workhive/pm-scheduler.html",
+    "inventory":        "/workhive/inventory.html",
+    "predictive":       "/workhive/predictive.html",
+    "analytics":        "/workhive/analytics.html",
+    "skill_matrix":     "/workhive/skillmatrix.html",
+    "marketplace":      "/workhive/marketplace.html",
+    "community":        "/workhive/community.html",
+    "day_planner":      "/workhive/dayplanner.html",
+    "asset_brain":      "/workhive/asset-hub.html",
+    "shift_brain":      "/workhive/shift-brain.html",
+    "achievements":     "/workhive/achievements.html",
+    "alert_hub":        "/workhive/alert-hub.html",
+    "ph_intelligence":  "/workhive/ph-intelligence.html",
+    "integrations":     "/workhive/integrations.html",
+    "project_manager":  "/workhive/project-manager.html",
+    "audit_log":        "/workhive/audit-log.html",
+    "hive_dashboard":   "/workhive/hive.html",
+    "engineering_calc": "/workhive/engineering-design.html",
+}
+
+
+def _pad_to_deadline(page, deadline: float):
+    """Hold until the beat's ABSOLUTE deadline (monotonic seconds) with a gentle
+    reveal scroll so the page never freezes between interactions. Pacing against a
+    shared timeline (not a per-beat stopwatch) means a beat that overran on nav
+    simply gets a shorter pad here — and a later beat catches up — so the whole
+    journey stays locked to the narration length instead of drifting longer."""
+    direction = 1
+    while True:
+        remain = deadline - time.monotonic()
+        if remain <= 0.25:
+            break
+        page.mouse.wheel(0, 150 * direction)
+        direction = -direction
+        page.wait_for_timeout(int(min(remain, 1.5) * 1000))
+
+
+# ── Per-feature signature interactions (compact + budget-aware) ────────────────
+# Each does ONE representative action so the page feels alive, then returns; the
+# step runner pads whatever time is left. All are guarded — a missing selector
+# degrades to a plain page view, never a crash.
+
+def _sig_ai_assistant(page, budget_s):
+    chat = page.locator("#chat-input, textarea[placeholder*='ask' i]").first
+    if chat.count():
+        chat.click()
+        q = "Why does Pump 3 keep overloading?"
+        for ch in q:
+            page.keyboard.type(ch)
+            page.wait_for_timeout(min(70, int(budget_s * 1000 / max(1, len(q) * 3))))
+        # The real assistant send is #send-btn → sendMessage(); a generic
+        # has-text('Send') match grabs the hidden "Send feedback" widget on every
+        # page and blocks. Prefer the specific button, then a JS call.
+        send = page.locator("#send-btn:visible").first
+        if send.count():
+            send.click()
+        else:
+            page.evaluate("() => { if (typeof sendMessage === 'function') sendMessage(); }")
+
+
+def _sig_logbook(page, budget_s):
+    try:
+        page.wait_for_function("() => typeof window.selectAsset === 'function'", timeout=8000)
+    except Exception:
+        return
+    asset = None
+    hive_id = page.evaluate("localStorage.getItem('wh_active_hive_id') || ''")
+    if hive_id:
+        try:
+            from tools.platform_intel import _sb_get
+            rows = _sb_get("assets", select="id,asset_name,asset_ref",
+                           params={"hive_id": f"eq.{hive_id}", "status": "eq.approved"}, limit=1)
+            asset = rows[0] if rows else None
+        except Exception:
+            pass
+    if asset:
+        page.evaluate("(a) => window.selectAsset(a.id, a.name, a.ref || null)",
+                      {"id": asset.get("id", ""), "name": asset.get("asset_name", "Machine A"),
+                       "ref": asset.get("asset_ref", "") or ""})
+    else:
+        page.evaluate("() => window.selectAsset('P-001', 'Pump P-001', null)")
+    page.wait_for_timeout(900)
+    try:
+        page.evaluate("document.getElementById('f-maint-type').value = 'Breakdown / Corrective'")
+        page.evaluate("stepGo(2)")
+        page.wait_for_timeout(700)
+        slow_type(page, "#f-problem", "Belt slipping at startup. Third time this month.", delay=45)
+    except Exception:
+        pass
+
+
+def _sig_shift_handover(page, budget_s):
+    h = page.locator("[data-tab='handover'], button:has-text('Handover'), a:has-text('Handover'), #handover-tab").first
+    if h.count():
+        h.click(); page.wait_for_timeout(1500)
+    gen = page.locator("button:has-text('Generate'), button:has-text('Handover Report'), button:has-text('Create Handover')").first
+    if gen.count():
+        gen.click(); page.wait_for_timeout(2000)
+
+
+def _sig_pm(page, budget_s):
+    a = page.locator("[data-asset-id]").first
+    if a.count():
+        a.scroll_into_view_if_needed(); a.click(); page.wait_for_timeout(1200)
+
+
+def _sig_inventory(page, budget_s):
+    s = page.locator("#inv-search, input[placeholder*='search' i]").first
+    if s.count():
+        s.click()
+        for ch in "bearing":
+            page.keyboard.type(ch); page.wait_for_timeout(90)
+
+
+def _sig_analytics(page, budget_s):
+    for label in ("Diagnostic", "Predictive", "Prescriptive"):
+        tab = page.locator(f"button:has-text('{label}'), [data-phase='{label.lower()}'], a:has-text('{label}')").first
+        if tab.count():
+            tab.click(); page.wait_for_timeout(int(min(budget_s, 5) * 1000 / 3))
+
+
+def _sig_predictive(page, budget_s):
+    page.mouse.wheel(0, 320); page.wait_for_timeout(1200)
+    heat = page.locator("[data-panel='panel-heatmap'], button:has-text('Heatmap')").first
+    if heat.count():
+        heat.click(); page.wait_for_timeout(1200)
+
+
+def _sig_skill_matrix(page, budget_s):
+    d = page.locator("[data-discipline], button:has-text('Mechanical')").first
+    if d.count():
+        d.click(); page.wait_for_timeout(1200)
+
+
+def _sig_marketplace(page, budget_s):
+    s = page.locator("input[type='search'], #marketplace-search, input[placeholder*='search' i]").first
+    if s.count():
+        s.fill("bearing"); page.wait_for_timeout(1200)
+
+
+def _sig_community(page, budget_s):
+    page.mouse.wheel(0, 300); page.wait_for_timeout(1000)
+    post = page.locator("[data-post-id], .community-post, .post-card").first
+    if post.count():
+        post.scroll_into_view_if_needed(); post.click(); page.wait_for_timeout(1500)
+
+
+_SIGNATURE = {
+    "ai_assistant":   _sig_ai_assistant,
+    "logbook":        _sig_logbook,
+    "shift_handover": _sig_shift_handover,
+    "pm_checklist":   _sig_pm,
+    "inventory":      _sig_inventory,
+    "analytics":      _sig_analytics,
+    "predictive":     _sig_predictive,
+    "skill_matrix":   _sig_skill_matrix,
+    "marketplace":    _sig_marketplace,
+    "community":      _sig_community,
+}
+
+
+def _journey_step(page, key: str, budget_s: float, fresh: bool, deadline: float, log=print):
+    """Run one beat: navigate to the feature (only when it changes) + a signature
+    action, then hold until this beat's absolute `deadline`. Pacing to the shared
+    deadline keeps the whole journey ≈ the narration length (nav overhead on one
+    beat is absorbed by the next), so the assembler trims ~nothing."""
+    if fresh:
+        url = JOURNEY_URLS.get(key, "/workhive/hive.html")
+        log(f"    → {key or 'hold'}  ({budget_s:.1f}s)  {url}")
+        try:
+            # domcontentloaded (not networkidle): WorkHive pages hold open realtime
+            # sockets so networkidle stalls for seconds; the page paints + the beat
+            # hold gives data time to load anyway.
+            page.goto(f"{WORKHIVE_URL}{url}", wait_until="domcontentloaded", timeout=15000)
+        except Exception as exc:
+            log(f"      [WARN] nav failed: {exc}")
+        page.wait_for_timeout(700)
+        sig = _SIGNATURE.get(key)
+        # only run the signature if there's enough time left before the deadline
+        if sig and (deadline - time.monotonic()) >= 3:
+            try:
+                sig(page, max(1.0, deadline - time.monotonic() - 1.0))
+            except Exception as exc:
+                log(f"      [WARN] signature {key} failed: {exc}")
+    else:
+        log(f"    · hold {key or '-'}  ({budget_s:.1f}s)")
+    _pad_to_deadline(page, deadline)
+
+
+def record_journey(idea: dict, storyboard: dict, headless: bool = True,
+                   output_path: Path = None, log=print) -> Path:
+    """
+    Record a narration-aligned multi-feature journey for an idea.
+
+    Walks storyboard.segments in order: each beat navigates to the page the
+    narration is talking about (only re-navigating when the feature changes) and
+    holds for that beat's time slice, so the final recording's running order
+    mirrors the voiceover. Saved under the PRIMARY feature's key so
+    find_latest_recording() / the assembler pick it up.
+    """
+    from playwright.sync_api import sync_playwright
+
+    if not _tester_is_running():
+        raise RuntimeError(
+            f"WorkHive Tester is not running at {WORKHIVE_URL}. Start it and retry."
+        )
+
+    segments = storyboard.get("segments") or []
+    if not segments:
+        raise RuntimeError("Storyboard has no segments — cannot record a journey.")
+
+    primary_feature = storyboard.get("primary_feature") or idea.get("solution_feature", "feature")
+    order = " → ".join(dict.fromkeys(s["ui"]["journey"] for s in segments if s["ui"].get("journey")))
+    log(f"\nJourney recording: {idea.get('id')}  ({len(segments)} beats)")
+    log(f"  Path: {order}")
+
+    RECORDINGS_DIR.mkdir(parents=True, exist_ok=True)
+    ts       = datetime.now().strftime("%Y%m%d_%H%M%S")
+    safe_key = primary_feature.lower().replace(" ", "_").replace("/", "_")[:30]
+    video_dir = RECORDINGS_DIR / f"{safe_key}_{ts}"
+    video_dir.mkdir(parents=True, exist_ok=True)
+
+    saved_path = None
+    with sync_playwright() as p:
+        browser = p.chromium.launch(
+            headless=headless, args=["--start-maximized"] if not headless else [])
+        username, display_name = _get_test_worker()
+        hive_id = _get_worker_hive(display_name)
+        log(f"  Auth: {display_name} / hive: {hive_id or 'none'}")
+        if not hive_id:
+            raise RuntimeError(f"No hive found for worker '{display_name}'.")
+
+        storage = _authed_storage_state(browser, username, display_name, hive_id, log=log)
+        context = browser.new_context(
+            viewport={"width": 1280, "height": 900},
+            storage_state=storage,
+            record_video_dir=str(video_dir),
+            record_video_size={"width": 1280, "height": 900},
+        )
+        context.add_init_script("""
+            (function() {
+                const _remove = localStorage.removeItem.bind(localStorage);
+                localStorage.removeItem = function(key) {
+                    if (key === 'wh_active_hive_id' || key === 'wh_hive_id') return;
+                    return _remove(key);
+                };
+            })();
+        """)
+        page = context.new_page()
+        page.on("console", lambda msg: None)
+        # Cap per-action waits so a missing/hidden selector fails fast instead of
+        # eating a whole beat's time budget (a 30s default click-timeout would
+        # desync the journey from the narration). Navigation keeps its own 20s.
+        page.set_default_timeout(3500)
+
+        try:
+            page.wait_for_timeout(500)
+            cur_key = None
+            t0 = time.monotonic()      # absolute journey clock
+            cum = 0.0                  # cumulative budget = running deadline offset
+            for seg in segments:
+                key = seg["ui"].get("journey")
+                budget = float(seg.get("seconds", 4) or 4)
+                cum += budget
+                _journey_step(page, key, budget, fresh=(key != cur_key),
+                              deadline=t0 + cum, log=log)
+                cur_key = key
+            log("\n  Journey complete. Saving video...")
+            page.wait_for_timeout(1200)
+        finally:
+            context.close()
+            browser.close()
+
+    webm_files = list(video_dir.glob("*.webm"))
+    if webm_files:
+        final_name = output_path or (RECORDINGS_DIR / f"{safe_key}_{ts}.webm")
+        webm_files[0].rename(final_name)
+        saved_path = final_name
+        log(f"  Saved: {saved_path.name}  ({saved_path.stat().st_size // 1024} KB)")
+    else:
+        log("  [WARN] No .webm produced.")
+    return saved_path
+
+
 # ── CLI ───────────────────────────────────────────────────────────────────────
 
 if __name__ == "__main__":
@@ -1434,6 +1733,9 @@ if __name__ == "__main__":
     parser.add_argument("--worker", default=None, help="Worker name to inject")
     parser.add_argument("--headless", action="store_true", help="Run headless (no visible browser)")
     parser.add_argument("--list", action="store_true", help="List available features")
+    parser.add_argument("--journey", metavar="IDEA_ID",
+                        help="Record a narration-aligned multi-feature journey for this idea")
+    parser.add_argument("--voice", default="james", help="Voice key (locates narration mp3 for beat timing)")
     args = parser.parse_args()
 
     if args.list:
@@ -1446,6 +1748,21 @@ if __name__ == "__main__":
         WORKHIVE_URL = args.url
     if args.worker:
         WORKHIVE_WORKER = args.worker
+
+    if args.journey:
+        import json as _json
+        from tools.storyboard import build_storyboard
+        _bk = _json.loads((ROOT / ".tmp/video_ideas_backlog.json").read_text(encoding="utf-8"))
+        _idea = next((i for i in _bk["ideas"] if i["id"] == args.journey), None)
+        if not _idea:
+            print(f"Idea '{args.journey}' not found in backlog"); sys.exit(1)
+        _narr = ROOT / ".tmp/voice_files" / f"{args.journey}_{args.voice}.mp3"
+        _sb = build_storyboard(_idea, narration_path=_narr if _narr.exists() else None)
+        result = record_journey(_idea, _sb, headless=args.headless)
+        if result:
+            print(f"\nDone. Journey recording:\n  {result}")
+            sys.exit(0)
+        print("\nJourney recording failed."); sys.exit(1)
 
     result = record(args.feature, headless=args.headless)
     if result:

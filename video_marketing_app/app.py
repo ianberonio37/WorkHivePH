@@ -1040,13 +1040,24 @@ def _stage_voice(idea, voice_key):
     return out_file
 
 
-def _stage_recording(idea):
-    """Reuse the most recent recording for this feature if one exists,
-    otherwise auto-record headlessly via Playwright."""
-    from tools.ui_recorder import record, DEMOS
+def _stage_recording(idea, storyboard=None):
+    """Record the UI demo.
+
+    With a storyboard, record a FRESH narration-aligned multi-feature journey
+    (the screen follows what the voiceover is saying, beat by beat) — never reuse
+    a stale clip, since the journey is specific to this narration. Without one,
+    fall back to reusing the latest recording or the canned per-feature demo."""
+    from tools.ui_recorder import record, record_journey, DEMOS
     from tools.video_assembler import find_latest_recording
 
-    feature  = idea.get("solution_feature", "")
+    feature = idea.get("solution_feature", "")
+
+    if storyboard and storyboard.get("segments"):
+        try:
+            return record_journey(idea, storyboard, headless=True)
+        except Exception as exc:
+            print(f"  [recording] journey failed ({exc}); falling back to canned demo")
+
     existing = find_latest_recording(feature)
     if existing and existing.exists():
         return existing
@@ -1058,12 +1069,15 @@ def _stage_recording(idea):
     return record(feature, headless=True)
 
 
-def _stage_scene(idea, scene_source=None):
+def _stage_scene(idea, scene_source=None, storyboard=None):
     """
     Scene background source. Per-request `scene_source` (from the dashboard toggle)
     wins; otherwise falls back to the SCENE_SOURCE env default.
 
-    'remotion' → render an on-brand, data-driven WorkHive background (the new way).
+    'remotion' → render an on-brand, data-driven WorkHive background. With a
+                 storyboard this is the narration-driven SEQUENCE (many beats /
+                 styles in one render, sized to the narration — no looping);
+                 without one, a single branded scene.
     'pexels'   → (default) download fresh stock footage from Pexels.
 
     Remotion failures fall back to Pexels so a render hiccup never blocks a video.
@@ -1071,6 +1085,9 @@ def _stage_scene(idea, scene_source=None):
     source = (scene_source or os.getenv("SCENE_SOURCE", "pexels")).lower()
     if source == "remotion":
         try:
+            if storyboard and storyboard.get("segments"):
+                from tools.render_remotion_scene import render_storyboard_scene
+                return render_storyboard_scene(idea, storyboard=storyboard)
             from tools.render_remotion_scene import render_branded_scene
             return render_branded_scene(idea)
         except Exception as exc:
@@ -1167,11 +1184,25 @@ def _run_pipeline(job_id, idea_id, voice_key, scene_source=None, avatar=None):
         narration_path = _stage_voice(idea, voice_key)
         _job_log(job_id, f"voice: {narration_path.name}")
 
+        # ── 2.5 Storyboard — the narration-derived plan that drives BOTH the
+        #      UI journey AND the animated background, so the screen and the
+        #      voiceover tell the same story, beat by beat. ────────────────
+        storyboard = None
+        try:
+            from tools.storyboard import build_storyboard
+            storyboard = build_storyboard(idea, narration_path=narration_path)
+            _order = " → ".join(dict.fromkeys(
+                s["ui"]["journey"] for s in storyboard["segments"] if s["ui"].get("journey")))
+            _job_log(job_id, f"storyboard: {len(storyboard['segments'])} beats · {_order}")
+        except Exception as exc:
+            _job_log(job_id, f"storyboard skipped ({exc}); using canned demo + single scene")
+
         # ── 3. UI recording (fail-fast — don't waste time on scene/music
         #      if the recording can't happen at all) ────────────────────
         _job_set(job_id, stage="recording",
-                 message="Recording WorkHive UI demo (Playwright)...")
-        recording_path = _stage_recording(idea)   # raises on any failure
+                 message=("Recording narration-aligned WorkHive journey (Playwright)..."
+                          if storyboard else "Recording WorkHive UI demo (Playwright)..."))
+        recording_path = _stage_recording(idea, storyboard=storyboard)   # raises on any failure
         _job_log(job_id, f"recording: {recording_path.name}")
 
         # ── 4. Scene clip (Remotion branded BG or Pexels stock) ──────────
@@ -1181,7 +1212,7 @@ def _run_pipeline(job_id, idea_id, voice_key, scene_source=None, avatar=None):
                           if _scene_src == "remotion"
                           else "Downloading background scene clips from Pexels..."))
         try:
-            scene_path = _stage_scene(idea, scene_source)
+            scene_path = _stage_scene(idea, scene_source, storyboard=storyboard)
             _job_log(job_id, f"scene: {scene_path.name if scene_path else 'skipped (no PEXELS_API_KEY)'}")
         except Exception as exc:
             _job_log(job_id, f"scene skipped: {exc}")

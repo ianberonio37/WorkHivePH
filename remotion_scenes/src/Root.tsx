@@ -6,6 +6,7 @@ import {WorkHiveMotionBG} from './MotionBG';
 import {WorkHiveKinetic} from './Kinetic';
 import {WorkHiveInfographic} from './Infographic';
 import {WorkHiveMindmap} from './Mindmap';
+import {WorkHiveStoryboard, calculateStoryboardMetadata} from './Storyboard';
 
 // 1280x720 matches what video_assembler.py normalises the scene clip to,
 // so this renders straight into the existing scene_clip slot with no rescale.
@@ -93,6 +94,28 @@ export const RemotionRoot: React.FC = () => {
         headline: 'It all connects',
         subhead: 'WorkHive · Hive Dashboard',
         nodes: ['Logbook', 'PM Checklist', 'Inventory', 'Alerts'],
+      }}
+    />
+    {/* The narration-driven sequence: many beats, many styles, one render.
+        durationInFrames is computed from the segments (see calculateMetadata),
+        so the pipeline sizes it to the exact narration length — no looping. */}
+    <Composition
+      id="WorkHiveStoryboard"
+      component={WorkHiveStoryboard}
+      fps={30}
+      width={1280}
+      height={720}
+      calculateMetadata={calculateStoryboardMetadata}
+      defaultProps={{
+        segments: [
+          {style: 'kinetic', frames: 90, headline: '3am. Another breakdown.', subhead: 'WorkHive · Logbook',
+            phrases: ['3am. Another breakdown.', 'Nobody knows.', 'Again.']},
+          {style: 'dashboard', frames: 120, headline: 'No records. No answers.', subhead: 'WorkHive · Logbook'},
+          {style: 'infographic', frames: 120, headline: 'Simple. Fast. Accurate.', subhead: 'WorkHive · Logbook',
+            stats: [{value: '100%', label: 'Captured', dir: 'up'}, {value: '24/7', label: 'Searchable', dir: 'flat'}]},
+          {style: 'mindmap', frames: 120, headline: 'It all connects', subhead: 'WorkHive · Logbook',
+            nodes: ['Logbook', 'AI Assistant', 'Handover', 'PM']},
+        ],
       }}
     />
     </>

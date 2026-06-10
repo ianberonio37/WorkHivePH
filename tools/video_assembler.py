@@ -290,14 +290,20 @@ def assemble(
     main_video = norm_video
     if scene_clip and scene_clip.exists():
         norm_scene = tmp / "scene_norm.mp4"
+        # Fill the narration with INPUT-side -stream_loop (re-reads the file from
+        # disk) NOT the `loop` video filter: that filter buffers every looped frame
+        # in RAM, and at size=32767 it's a ~45GB allocation that OOMs on a busy box
+        # (ffmpeg ENOMEM -12, "Cannot allocate memory"). With -t, a full-length
+        # storyboard scene never actually loops; a short Pexels clip repeats cheaply.
         _run_ffmpeg([
+            "-stream_loop", "-1",
             "-i", str(scene_clip),
-            "-vf", "scale=1280:720:force_original_aspect_ratio=decrease,pad=1280:720:(ow-iw)/2:(oh-ih)/2,loop=-1:size=32767",
+            "-vf", "scale=1280:720:force_original_aspect_ratio=decrease,pad=1280:720:(ow-iw)/2:(oh-ih)/2",
             "-c:v", "libx264", "-preset", "fast", "-crf", "23",
             "-an",
             "-t", str(narr_dur),
             str(norm_scene),
-        ], "normalise scene clip (loop if short)")
+        ], "normalise scene clip (loop to fill if short)")
 
         pip_video = tmp / "pip.mp4"
         # UI overlay: 38% width, dark navy border, bottom-right corner
@@ -376,9 +382,9 @@ def assemble(
         _run_ffmpeg([
             "-i", str(main_video),
             "-i", str(narration),
-            "-i", str(music_path),
+            "-stream_loop", "-1", "-i", str(music_path),   # loop music from disk, not via aloop's in-RAM sample buffer (same OOM class as the scene loop)
             "-filter_complex",
-            "[1:a]volume=1.0[narr];[2:a]volume=0.15,aloop=loop=-1:size=2e+09[music];"
+            "[1:a]volume=1.0[narr];[2:a]volume=0.15[music];"
             "[narr][music]amix=inputs=2:duration=first:dropout_transition=1[audio]",
             "-map", "0:v", "-map", "[audio]",
             "-c:v", "copy", "-c:a", "aac", "-b:a", "192k",
