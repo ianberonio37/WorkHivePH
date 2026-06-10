@@ -76,6 +76,7 @@ GATE = TOOLS / "ai_eval_gate.py"
 SCORECARD_TOOL = TOOLS / "companion_eval_scorecard.py"
 GRADER = TOOLS / "companion_rigorous_grader.py"
 PERTURB = TOOLS / "companion_perturb.py"   # §9 #2 perturbation-invariance generator (self-test = offline metric check)
+JUDGE = TOOLS / "companion_judge.py"       # cross-model LLM judge for JUDGMENT probes (live calibration = --self-test)
 DIM_EVAL = {d: TOOLS / f"companion_{d}_eval.py" for d in ("agent", "rag", "memory", "persona", "domain", "robustness")}
 PRODUCT_DIMS = ("agent", "rag", "memory", "persona", "domain", "robustness")
 
@@ -613,7 +614,7 @@ def cmd_self_test() -> int:
     fails: list[str] = []
 
     # 1. every orchestrated tool + grader exists
-    for t in [HARVEST, OPTIMIZE, GATE, SCORECARD_TOOL, GRADER, PERTURB, *DIM_EVAL.values()]:
+    for t in [HARVEST, OPTIMIZE, GATE, SCORECARD_TOOL, GRADER, PERTURB, JUDGE, *DIM_EVAL.values()]:
         if not t.exists():
             fails.append(f"missing tool: {t.relative_to(ROOT)}")
 

@@ -781,8 +781,9 @@ def _domain_blind_observed(unit: dict):
 def domain_grader_self_test(golden: dict) -> dict:
     """Prove the Domain grader is correct AND discriminating with NO live companion:
       - ORACLE (echoes the right domain facts) must PASS every unit.
-      - BLIND (content-free) must FAIL every unit (blind_pass == 0)."""
-    units = list(golden.get("probes") or golden.get("units") or [])
+      - BLIND (content-free) must FAIL every unit (blind_pass == 0).
+    JUDGMENT-graded units (grader='judge') are SKIPPED — proven by judgment_grader_self_test instead."""
+    units = [u for u in (golden.get("probes") or golden.get("units") or []) if not is_judgment_unit(u)]
     problems, oracle_pass, blind_pass = [], 0, 0
     for u in units:
         og = grade_domain_unit(u, _domain_oracle_observed(u))
@@ -821,8 +822,9 @@ def grade_markers_unit(unit: dict, observed: dict | None) -> dict:
 
 def markers_grader_self_test(golden: dict) -> dict:
     """ORACLE (echoes the required markers) must PASS every unit; BLIND (content-free)
-    must FAIL every unit. Proves the marker grader is correct + discriminating, no model."""
-    units = list(golden.get("probes") or golden.get("units") or [])
+    must FAIL every unit. Proves the marker grader is correct + discriminating, no model.
+    JUDGMENT-graded units (grader='judge') are SKIPPED here — they're proven by judgment_grader_self_test."""
+    units = [u for u in (golden.get("probes") or golden.get("units") or []) if not is_judgment_unit(u)]
     problems, oracle_pass, blind_pass = [], 0, 0
     for u in units:
         if grade_markers_unit(u, _domain_oracle_observed(u))["verdict"] == "PASS":
@@ -837,6 +839,90 @@ def markers_grader_self_test(golden: dict) -> dict:
         problems.append(f"blind grader passed {blind_pass} content-free unit(s) — not discriminating")
     return {"ok": not problems, "oracle_pass": oracle_pass, "blind_pass": blind_pass,
             "total": len(units), "negatives": 0, "blind_negatives_failed": 0, "problems": problems}
+
+
+# ── JUDGMENT-probe grading (cross-model LLM judge for open-ended-JUDGMENT probes) ──────────────
+# CLINICAL-FACT probes (a formula, an ISO number, NPSH) grade well by substring markers. JUDGMENT
+# probes ("is this number plausible?", "is this PM answer complete?") do NOT — the companion voices the
+# judgment in open-ended Taglish persona metaphor no fixed substring list can enumerate ("that's not a
+# number, that's a fire drill"; "that's a supply-chain saga"). See reference_companion_grader_fit. A unit
+# opts in with `"grader": "judge"` + a `"judge_rubric"`. The cross-model judge is companion_judge.judge_pass
+# (a DIFFERENT provider than the companion — cross-model scoring); it is INJECTED as `judge_fn` so this
+# file stays import-light and the OFFLINE self-test uses a deterministic MOCK (no LLM). anti_markers stay a
+# DETERMINISTIC backstop that FAILs the unit WITHOUT the judge — a reply that affirms the wrong value can
+# never be rescued by a lenient judge (fail-closed on the dangerous case).
+
+def is_judgment_unit(unit: dict) -> bool:
+    return str((unit or {}).get("grader", "")).lower() == "judge"
+
+
+def grade_judgment_unit(unit: dict, observed: dict | None, judge_fn=None) -> dict:
+    obs = observed or {}
+    answer = str(obs.get("answer", "") or obs.get("narration", ""))
+    anti = must_not_check(answer, unit.get("anti_markers", []))
+    if anti:  # deterministic backstop — affirming the wrong value fails, judge never consulted
+        return {"id": unit.get("id"), "type": "judgment", "probe_type": unit.get("probe_type"),
+                "anti_markers_hit": anti, "judge": None, "verdict": "FAIL"}
+    if not answer.strip():
+        return {"id": unit.get("id"), "type": "judgment", "probe_type": unit.get("probe_type"),
+                "anti_markers_hit": [], "judge": {"verdict": "FAIL", "reason": "empty"}, "verdict": "FAIL"}
+    if judge_fn is None:
+        from companion_judge import judge_pass as judge_fn  # lazy import keeps the offline path LLM-free
+    j = judge_fn(unit.get("question", ""), answer, unit.get("judge_rubric", ""))
+    v = "PASS" if (isinstance(j, dict) and str(j.get("verdict", "")).upper() == "PASS") else "FAIL"
+    return {"id": unit.get("id"), "type": "judgment", "probe_type": unit.get("probe_type"),
+            "anti_markers_hit": [], "judge": j, "verdict": v}
+
+
+def grade_domain_or_judgment(unit: dict, observed: dict | None, judge_fn=None) -> dict:
+    """Dispatch: JUDGMENT probes (grader='judge') -> LLM judge; everything else -> substring markers."""
+    if is_judgment_unit(unit):
+        return grade_judgment_unit(unit, observed, judge_fn)
+    return grade_markers_unit(unit, observed)
+
+
+def _mock_judge(question: str, answer: str, rubric: str) -> dict:
+    """Deterministic stand-in for the LLM judge in the OFFLINE self-test: PASSes iff the answer carries
+    the oracle sentinel. Proves the grader WIRING (dispatch + anti backstop) with no model. The LIVE
+    judge prompt is calibrated separately by `companion_judge.py --self-test`."""
+    return {"verdict": "PASS" if "<<correct>>" in answer.lower() else "FAIL", "score": 100, "reason": "mock"}
+
+
+def judgment_grader_self_test(golden: dict, judge_fn=None) -> dict:
+    """Offline (mock-judge) proof the JUDGMENT grader is wired right:
+      - ORACLE (sentinel answer, mock->PASS) PASSes every judge unit;
+      - BLIND (no sentinel, mock->FAIL) FAILs every judge unit;
+      - the anti_markers BACKSTOP fails an answer that affirms the wrong value EVEN WHEN the mock judge
+        would PASS it (a lenient judge can never override the deterministic safety backstop)."""
+    judge_fn = judge_fn or _mock_judge
+    units = [u for u in (golden.get("probes") or golden.get("units") or []) if is_judgment_unit(u)]
+    problems, oracle_pass, blind_pass, backstop_ok, backstop_n = [], 0, 0, 0, 0
+    for u in units:
+        og = grade_judgment_unit(u, {"answer": "<<CORRECT>> " + (u.get("question", "") or "")}, judge_fn)
+        if og["verdict"] == "PASS":
+            oracle_pass += 1
+        else:
+            problems.append(f"oracle did not PASS {u.get('id')}")
+        bg = grade_judgment_unit(u, {"answer": "hmm, not really sure about that"}, judge_fn)
+        if bg["verdict"] == "PASS":
+            blind_pass += 1
+        antis = u.get("anti_markers") or []
+        if antis:
+            backstop_n += 1
+            ag = grade_judgment_unit(u, {"answer": "<<CORRECT>> " + antis[0]}, judge_fn)
+            if ag["verdict"] == "FAIL" and ag.get("anti_markers_hit"):
+                backstop_ok += 1
+            else:
+                problems.append(f"anti-marker backstop failed for {u.get('id')}")
+    if units and oracle_pass != len(units):
+        problems.append(f"oracle pass {oracle_pass}/{len(units)} (must be all)")
+    if blind_pass != 0:
+        problems.append(f"blind judge passed {blind_pass} content-free unit(s) — not discriminating")
+    if backstop_n and backstop_ok != backstop_n:
+        problems.append(f"anti backstop held only {backstop_ok}/{backstop_n}")
+    return {"ok": not problems, "oracle_pass": oracle_pass, "blind_pass": blind_pass,
+            "total": len(units), "negatives": 0, "blind_negatives_failed": 0,
+            "backstop_ok": backstop_ok, "backstop_n": backstop_n, "problems": problems}
 
 
 def grade_one(probe: dict) -> dict:

@@ -36,7 +36,8 @@ TOOLS_DIR = Path(__file__).resolve().parent
 GOLDEN_PATH = ROOT / "companion_domain_golden.json"
 
 sys.path.insert(0, str(TOOLS_DIR))
-from companion_rigorous_grader import grade_domain_unit, domain_grader_self_test
+from companion_rigorous_grader import (domain_grader_self_test, grade_domain_or_judgment,
+                                       judgment_grader_self_test, is_judgment_unit)
 
 GREEN = "\033[92m"; RED = "\033[91m"; YEL = "\033[93m"; CYAN = "\033[96m"; BOLD = "\033[1m"; RESET = "\033[0m"
 
@@ -59,17 +60,21 @@ def self_test() -> int:
     if not golden:
         print(f"{YEL}No companion_domain_golden.json — Domain golden set not built here.{RESET}")
         return 0
-    r = domain_grader_self_test(golden)
-    print(f"\n{BOLD}Domain grader self-test{RESET}  ·  {r['total']} golden units")
+    r = domain_grader_self_test(golden)      # substring (CLINICAL-FACT) units — judge units skipped
+    j = judgment_grader_self_test(golden)    # JUDGMENT units — offline MOCK judge (no LLM)
+    ok = r["ok"] and j["ok"]
+    print(f"\n{BOLD}Domain grader self-test{RESET}  ·  {r['total']} substring + {j['total']} judgment units")
     print("=" * 64)
-    print(f"  oracle observation : {r['oracle_pass']}/{r['total']} PASS  (must be all)")
-    print(f"  blind  observation : {r['blind_pass']}/{r['total']} PASS  (must be 0 — content-free)")
-    if r["ok"]:
-        print(f"\n{GREEN}OK{RESET}  grader is correct AND discriminating.")
+    print(f"  substring  oracle {r['oracle_pass']}/{r['total']} PASS · blind {r['blind_pass']}/{r['total']} PASS (must be 0)")
+    print(f"  judgment   oracle {j['oracle_pass']}/{j['total']} PASS · blind {j['blind_pass']}/{j['total']} (must be 0) · "
+          f"anti-backstop {j['backstop_ok']}/{j['backstop_n']}")
+    if ok:
+        print(f"\n{GREEN}OK{RESET}  substring + judgment graders correct AND discriminating "
+              f"(judgment via MOCK; live judge calibrated by companion_judge.py --self-test).")
         print("=" * 64)
         return 0
     print(f"\n{RED}FAIL{RESET}  grader self-test problems:")
-    for p in r["problems"]:
+    for p in (r["problems"] + j["problems"]):
         print(f"  - {p}")
     print("=" * 64)
     return 1
@@ -91,14 +96,15 @@ def grade_observed(observed_path: Path, out_path: Path) -> int:
         if uid not in observed_map:
             missing += 1
             continue
-        g = grade_domain_unit(unit, observed_map[uid])
+        g = grade_domain_or_judgment(unit, observed_map[uid])   # judge units -> live cross-model judge
         graded += 1
         is_pass = g["verdict"] == "PASS"
         passed += 1 if is_pass else 0
+        jr = (g.get("judge") or {}).get("reason") if isinstance(g.get("judge"), dict) else None
         results.append({"id": uid, "passed": is_pass, "score": 100 if is_pass else 0,
                         "type": g.get("type"), "probe_type": unit.get("probe_type"),
                         "ability": unit.get("ability"), "verdict": g["verdict"],
-                        "anti_markers_hit": g.get("anti_markers_hit")})
+                        "anti_markers_hit": g.get("anti_markers_hit"), "judge_reason": jr})
 
     out = {"generated_ts": datetime.now(timezone.utc).isoformat(timespec="seconds"),
            "source": "companion_domain_eval", "dimension": "domain", "results": results}

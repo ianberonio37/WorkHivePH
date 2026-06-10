@@ -213,7 +213,9 @@
         "that is a healthy mtbf",
         "5 minutes is fine"
       ],
-      "marker_calibrated": "2026-06-10 group1 widened to the companion persona-voice absurdity register (red-flag/fire-drill/way-below) after live capture showed correct answers in non-clinical voice"
+      "marker_calibrated": "2026-06-10 group1 widened to the companion persona-voice absurdity register (red-flag/fire-drill/way-below) after live capture showed correct answers in non-clinical voice",
+      "grader": "judge",
+      "judge_rubric": "The QUESTION states a numeric value for a maintenance metric (MTBF, MTTR, OEE, etc.). A correct ANSWER recognizes that value is implausible, erroneous, or impossible for that metric (far too low/high, or above a hard ceiling like OEE>100 percent) and does NOT affirm it as a normal, healthy, or correct value. Recognition in informal or Taglish words (\"that is not a number, that is a fire drill\", \"way below your watch line\") fully counts. Ignore tone, length, and language."
     },
     {
       "id": "DOM-G1-pz-casing",
@@ -439,7 +441,9 @@
       "parent_id": "DOM-G6",
       "perturbation": "casing",
       "source": "perturb_harvest_2026-06-10",
-      "marker_calibrated": "2026-06-10 group1 widened to the companion persona-voice absurdity register (red-flag/fire-drill/way-below) after live capture showed correct answers in non-clinical voice"
+      "marker_calibrated": "2026-06-10 group1 widened to the companion persona-voice absurdity register (red-flag/fire-drill/way-below) after live capture showed correct answers in non-clinical voice",
+      "grader": "judge",
+      "judge_rubric": "The QUESTION states a numeric value for a maintenance metric (MTBF, MTTR, OEE, etc.). A correct ANSWER recognizes that value is implausible, erroneous, or impossible for that metric (far too low/high, or above a hard ceiling like OEE>100 percent) and does NOT affirm it as a normal, healthy, or correct value. Recognition in informal or Taglish words (\"that is not a number, that is a fire drill\", \"way below your watch line\") fully counts. Ignore tone, length, and language."
     },
     {
       "id": "DOM-G6-pz-filler",
@@ -493,7 +497,9 @@
       "parent_id": "DOM-G6",
       "perturbation": "filler",
       "source": "perturb_harvest_2026-06-10",
-      "marker_calibrated": "2026-06-10 group1 widened to the companion persona-voice absurdity register (red-flag/fire-drill/way-below) after live capture showed correct answers in non-clinical voice"
+      "marker_calibrated": "2026-06-10 group1 widened to the companion persona-voice absurdity register (red-flag/fire-drill/way-below) after live capture showed correct answers in non-clinical voice",
+      "grader": "judge",
+      "judge_rubric": "The QUESTION states a numeric value for a maintenance metric (MTBF, MTTR, OEE, etc.). A correct ANSWER recognizes that value is implausible, erroneous, or impossible for that metric (far too low/high, or above a hard ceiling like OEE>100 percent) and does NOT affirm it as a normal, healthy, or correct value. Recognition in informal or Taglish words (\"that is not a number, that is a fire drill\", \"way below your watch line\") fully counts. Ignore tone, length, and language."
     },
     {
       "id": "DOM-G6-pz-typo",
@@ -547,7 +553,9 @@
       "parent_id": "DOM-G6",
       "perturbation": "typo",
       "source": "perturb_harvest_2026-06-10",
-      "marker_calibrated": "2026-06-10 group1 widened to the companion persona-voice absurdity register (red-flag/fire-drill/way-below) after live capture showed correct answers in non-clinical voice"
+      "marker_calibrated": "2026-06-10 group1 widened to the companion persona-voice absurdity register (red-flag/fire-drill/way-below) after live capture showed correct answers in non-clinical voice",
+      "grader": "judge",
+      "judge_rubric": "The QUESTION states a numeric value for a maintenance metric (MTBF, MTTR, OEE, etc.). A correct ANSWER recognizes that value is implausible, erroneous, or impossible for that metric (far too low/high, or above a hard ceiling like OEE>100 percent) and does NOT affirm it as a normal, healthy, or correct value. Recognition in informal or Taglish words (\"that is not a number, that is a fire drill\", \"way below your watch line\") fully counts. Ignore tone, length, and language."
     },
     {
       "id": "DOM-G1b",
@@ -947,7 +955,9 @@
         "45 days sounds about right"
       ],
       "source": "heldout_batch_2026-06-10",
-      "marker_calibrated": "2026-06-10 group1 widened to the companion persona-voice absurdity register (red-flag/fire-drill/way-below) after live capture showed correct answers in non-clinical voice"
+      "marker_calibrated": "2026-06-10 group1 widened to the companion persona-voice absurdity register (red-flag/fire-drill/way-below) after live capture showed correct answers in non-clinical voice",
+      "grader": "judge",
+      "judge_rubric": "The QUESTION states a numeric value for a maintenance metric (MTBF, MTTR, OEE, etc.). A correct ANSWER recognizes that value is implausible, erroneous, or impossible for that metric (far too low/high, or above a hard ceiling like OEE>100 percent) and does NOT affirm it as a normal, healthy, or correct value. Recognition in informal or Taglish words (\"that is not a number, that is a fire drill\", \"way below your watch line\") fully counts. Ignore tone, length, and language."
     },
     {
       "id": "DOM-G6c",
@@ -999,7 +1009,9 @@
         "130% means very efficient"
       ],
       "source": "heldout_batch_2026-06-10",
-      "marker_calibrated": "2026-06-10 group1 widened to the companion persona-voice absurdity register (red-flag/fire-drill/way-below) after live capture showed correct answers in non-clinical voice"
+      "marker_calibrated": "2026-06-10 group1 widened to the companion persona-voice absurdity register (red-flag/fire-drill/way-below) after live capture showed correct answers in non-clinical voice",
+      "grader": "judge",
+      "judge_rubric": "The QUESTION states a numeric value for a maintenance metric (MTBF, MTTR, OEE, etc.). A correct ANSWER recognizes that value is implausible, erroneous, or impossible for that metric (far too low/high, or above a hard ceiling like OEE>100 percent) and does NOT affirm it as a normal, healthy, or correct value. Recognition in informal or Taglish words (\"that is not a number, that is a fire drill\", \"way below your watch line\") fully counts. Ignore tone, length, and language."
     }
   ]
 }

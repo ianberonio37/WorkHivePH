@@ -250,9 +250,29 @@ Verified: `--self-test` PASS (tools resolve, scorecard well-formed, manifest bui
   verdicts as noisy first-pass material, not gate truth. Candidates are phrasing-diversity for train/val,
   NOT locked-test growth (perturbations derive from tuned-against seeds), so they don't move the n≥20
   threshold — that still needs genuinely new held-out questions.
+- **2026-06-10 — JUDGMENT probes now graded by a cross-model LLM judge (the grader-fit fix).** The
+  honest re-freeze exposed that deterministic substring markers under-credit JUDGMENT probes
+  (number_sanity): the companion flags an absurd number correctly but in open-ended persona voice
+  ("that's not a number, that's a fire drill", "supply-chain saga") no fixed marker list can enumerate.
+  Fix shipped (per Ian's call): a unit opts in with `"grader": "judge"` + a `"judge_rubric"`, routed to
+  **`tools/companion_judge.py`** — a cross-model LLM judge over the generous 19-model free-tier chain
+  (`ai_chain.call_ai_chain`, PREFERS Gemini so the judge ≠ the companion's Groq model = cross-model
+  scoring; falls back through the chain so a rate-limit never fail-closes; lenient verdict parse so a
+  formatting wobble doesn't false-fail; **fail-closed** on a true outage). `grade_judgment_unit` keeps
+  `anti_markers` as a DETERMINISTIC backstop (an answer affirming the wrong value FAILs without ever
+  consulting the judge). Offline self-test uses a MOCK judge (no LLM) → wiring + backstop proven in
+  `mega`; the LIVE judge prompt is calibrated by `companion_judge.py --self-test` (3 criteria ×
+  correct/wrong, all discriminate). The 6 number_sanity units (G6 + perturbations) flipped to
+  `grader:judge`; live demo: DOM-G6/G6b/G6c all PASS (score 100) where substring had scored them 0 —
+  the judge credits the correct persona-voice answers. mega PASS (judge wired into the domain dim
+  self-test); orchestrator `--self-test` resolves the new tool. CLINICAL-FACT probes (G1–G5) stay on
+  the $0 substring grader. Files: `companion_judge.py` (new), `companion_rigorous_grader.py`
+  (grade_judgment_unit / judgment_grader_self_test / dispatch), `companion_domain_eval.py` (dispatch +
+  combined self-test), `companion_dev.py` (JUDGE registered), `companion_domain_golden.json` (G6 tagged).
 - **NEXT (when desired):** Ian to DISPOSE the 39 perturb candidates (promote good ones to train/val via
   the harvest path); grow LOCKED-TEST past n≥20 with NEW human-authored held-out questions to flip
-  WARN→BLOCK; ROB-F4/F5 + DOM-G2/G4 remain optimization targets (use `--samples 3 --gate worst` for any
+  WARN→BLOCK; a clean multi-sampled re-freeze can now run (judgment probes grade fairly via the judge);
+  ROB-F4/F5 + DOM-G2/G4 remain optimization targets (use `--samples 3 --gate worst` for any
   safety-critical re-check, given the ~1-in-5 model variance).
 
 ---
