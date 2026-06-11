@@ -198,7 +198,17 @@
       <p>Based on the RPN, we can prioritize the top 3 failure modes to address first. Let's say the top 3 failure modes for our bottling line filler are pump failure (RPN = 96), conveyor belt failure (RPN = 80), and electrical control failure (RPN = 72). By focusing on these high-priority failure modes, the plant can reduce downtime and increase overall efficiency. Asset Hub provides a platform for storing and tracking FMEA worksheets, making it easier to review and update the analysis over time. For instance, during a 24-hour shift, a failure at 02:30 could impact production until 14:45, causing significant losses.</p>
       <h2 id="calculating-rpn">Calculating RPN</h2>
       <p>To calculate the Risk Priority Number (RPN) for each failure mode, we multiply three key ratings: Severity, Occurrence, and Detection. At the Calabarzon bottling line in Cabuyao, Laguna, a plant supervisor would want to prioritize failure modes with the highest RPN values. In Asset Hub, these ratings are scored on a scale of 1-10, with 10 being the most severe, frequent, or difficult to detect.</p>
-      <p>For example, let's consider the filler machine at the Cabuyao bottling line, which operates 24/7. If a failure mode has a Severity rating of 8 (resulting in PHP 180,000 in lost production per hour), an Occurrence rating of 4 (failing 1 in 100 shifts), and a Detection rating of 3 (difficult to detect, with a 30-minute delay), its RPN would be 96 (8 x 4 x 3). The shift in-charge would use this data to prioritize maintenance tasks.</p>
+      <p>For example, consider the filler machine at the Cabuyao bottling line, which operates 24/7:</p>
+      <table>
+        <thead><tr><th>Rating</th><th>Value</th><th>Basis</th></tr></thead>
+        <tbody>
+          <tr><td>Severity</td><td>8</td><td>PHP 180,000 in lost production per hour</td></tr>
+          <tr><td>Occurrence</td><td>4</td><td>fails 1 in 100 shifts</td></tr>
+          <tr><td>Detection</td><td>3</td><td>difficult to detect, 30-minute delay</td></tr>
+          <tr><td><strong>RPN</strong></td><td><strong>96</strong></td><td>8 x 4 x 3</td></tr>
+        </tbody>
+      </table>
+      <p>The shift in-charge would use this data to prioritize maintenance tasks.</p>
       <p>In Asset Hub, you can easily calculate RPN values for each failure mode using our FMEA worksheet template. Simply input the ratings for Severity, Occurrence, and Detection, and the tool will compute the RPN value for you. This helps maintenance planners in Philippine plants like Calabarzon focus on the most critical failure modes and schedule proactive maintenance during off-peak hours, such as between 02:30 and 14:45.</p>
       <p>By prioritizing failure modes with high RPN values, plant teams can efficiently allocate resources and minimize downtime costs. For instance, if Pump P-204B at the bottling line has a high RPN value, the maintenance team can schedule a replacement during a planned shutdown, reducing the likelihood of unexpected failures and costly repairs.</p>
       <h2 id="prioritizing-failure-modes">Prioritizing Failure Modes</h2>

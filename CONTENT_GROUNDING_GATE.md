@@ -172,4 +172,20 @@ For each article + the landing page:
 
 Key files: `tools/page_evidence.py`, `content_grounding_gate.py` (`capability_drift`, `capability_issues_for_text`, Tier-2 judge), `tools/article_generator.py` (section-prompt grounding), `video_marketing_app/app.py` (`_evidence_block_for_feature`).
 
+## Readability drift — padding is a drift class too (BUILT 2026-06-10)
+
+**The lesson (resume article, first AI-scaffolded one):** the generator's old rules — 1500-word FLOOR ("if you hit 1300 you are NOT done"), `<p>`-only sections (`No <ul>, no <ol>, no <strong>`), the same 5 hand-listed PH props in every prompt, and per-section independent calls receiving the same affordance evidence — mathematically produced an overwhelming article: 26 dense paragraphs, the same control ('Auto-fill from my WorkHive data') walked through in 5 of 6 sections, zero tables/callouts/figures, plus topic-irrelevant sources (ISO 14224 on a resume article). Grounded ≠ readable. Research basis: NN/g (users read 20-28% of words; concise+scannable = 124% better usability), Infogram (dwell +62% with a data visualization).
+
+### Two new ratcheted checks (CHECK_ORDER[9..10], same forward-only engine, synthetic teeth)
+- **`affordance_repetition`** — an article that mentions the SAME real >=2-word control label in **3+ body sections** is padding, not teaching. Explain once, reference thereafter. (Body region = `prose-wh` → `id="faq"`, all 37 articles carry both markers.)
+- **`wall_of_text`** — body **>700 words with ZERO structural elements** (table / ol / ul / figure / h3 / callout). 12 Wave-2 prose-only articles baselined; new articles can't be born as walls.
+
+### Born-concise generation (the other end of the chain, mirrors born-grounded)
+`article_generator.py`: word **band** 850–1500 (floor AND ceiling, "trim don't pad"); skeleton assigns each section a `block` hint (steps/table/callout/none, 2-4 per article) + may propose 1-2 **figures**; section calls get a rotating PH-anchor pool + an accumulated **ALREADY EXPLAINED affordance list** (kills cross-section re-explanation); audience exactly 6; sources must be topic-relevant; em-dash scrub in the banned-phrase table.
+
+### Figures — `tools/article_viz.py` (deterministic matplotlib → brand SVG)
+WAT split: AI proposes the figure spec, Python draws it. Kinds: `step_flow` (platform flows — steps MUST pass capability grounding), `scan_path` / `bar` (**refuse without a `source` citation** — figures obey the same truth doctrine as prose). Brand palette, transparent bg, text-as-path SVG into `learn/<slug>/fig-*.svg`; scaffold injects `<figure class="article-fig">`. First-ever charts in the learn hub (0 of 37 articles had any).
+
+Reference rewrite: `learn/resume-builder-for-filipino-industrial-workers/` — 858 body words (was 2011), 5-min read, scan-path + flow figures, provenance table, worked-example callout, real sources. Gate: `affordance_repetition` current=0 (the rewrite fixed the only offender before the check landed; it now stands guard).
+
 > Companion-tool analog: `COMPANION_DEV_TOOL.md`. Gate roadmap: `SELF_IMPROVING_GATE_ROADMAP.md`. SEO surfaces: `SEO_AEO_GEO_ROADMAP.md`. Inward canonical pattern: `CANONICAL_SOURCES_AUDIT.md`.

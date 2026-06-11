@@ -165,6 +165,8 @@ BANNED_PHRASE_REPLACEMENTS = [
     (re.compile(r"\bhave you ever struggled\b", re.IGNORECASE),
      "if you've dealt",
      "have you ever struggled"),
+    # Platform style rule (seo-content skill): no em dashes in any emitted copy.
+    (re.compile(r"\s*—\s*"), ", ", "em dash"),
 ]
 
 # Tagalog markers that violate "plain simple English only" rule.
@@ -175,12 +177,26 @@ TAGALOG_RE = re.compile(
     re.IGNORECASE,
 )
 
-# Minimum word count for the BODY (excluding intro, audience, FAQ, sources).
-# Below this the article reads as thin and underperforms on dwell time.
-MIN_BODY_WORDS = 1500
-MIN_TOTAL_WORDS = 1800
+# Body word BAND (excluding intro, audience, FAQ, sources). The 2026-06-10
+# resume-article lesson: the old 1500+ floor ("if you hit 1300 you are NOT
+# done") manufactured padding — the same buttons re-explained in 4 sections.
+# NN/g: users read ~20-28% of words; concise + scannable measured 124% better
+# usability. Concise band with structure beats a long wall of text.
+MIN_BODY_WORDS = 850
+MAX_BODY_WORDS = 1500          # above this we warn: trim, don't pad
+MIN_TOTAL_WORDS = 1100
 MIN_FAQ_COUNT = 6
 MIN_AUDIENCE_ROLES = 6
+MAX_AUDIENCE_ROLES = 8         # 12 audiences = no audience; trim hard
+
+# Rotating PH-anchor pools: each section gets ONE pool so the same five props
+# (Pump P-204B, PHP 180,000, Cabuyao...) stop appearing in every paragraph.
+PH_ANCHOR_POOLS = [
+    "a real PH plant location (Calabarzon, Cabuyao, Batangas, Bulacan, Subic, Davao, Pampanga, a PEZA zone)",
+    "a Filipino role title (plant supervisor, shift in-charge, maintenance planner, reliability engineer)",
+    "a 24-hour shift time (06:00, 14:00, 22:00) or a PHP cost figure",
+    "a specific equipment ID (Pump P-204B, Boiler B-1, Conveyor #2, AHU-3, Compressor C-301)",
+]
 
 
 def _build_prompt(slug: str, title: str, tool_name: str, brief: str,
@@ -274,6 +290,42 @@ def _word_count(text: str) -> int:
     return len(re.findall(r"\b\w+\b", text or ""))
 
 
+_NORM_RE = re.compile(r"[^a-z0-9]+")
+
+
+def _norm_label(s: str) -> str:
+    """Normalize an affordance label for repetition matching: lowercase,
+    emoji/punctuation collapsed to single spaces."""
+    return _NORM_RE.sub(" ", (s or "").lower()).strip()
+
+
+def _affordance_labels(slug: str) -> list:
+    """Substantial (>=2-word) affordance labels of the article's tool page,
+    normalized. Used to track which controls a section already explained."""
+    try:
+        import sys as _sys
+        from pathlib import Path as _Path
+        _t = _Path(__file__).resolve().parent
+        if str(_t) not in _sys.path:
+            _sys.path.insert(0, str(_t))
+        import page_evidence as _pe
+        fid, _ = _evidence_for_slug(slug)
+        ev = _pe.load_evidence().get(fid) if fid else None
+        if not ev:
+            return []
+        labels = set()
+        for bucket in ("actions", "fields"):
+            for item in ev.get(bucket, []):
+                if "$" in item or "{" in item:        # template fragments, not labels
+                    continue
+                norm = _norm_label(item)
+                if len(norm.split()) >= 2:
+                    labels.add(norm)
+        return sorted(labels)
+    except Exception:
+        return []
+
+
 def _has_banned(text: str) -> list:
     low = (text or "").lower()
     return [b for b in BANNED_PHRASES if b in low]
@@ -321,6 +373,15 @@ def _validate(article: dict, tool_name: str) -> list:
     if body_words < MIN_BODY_WORDS:
         issues.append(f"body word count {body_words} below {MIN_BODY_WORDS}+. "
                       f"Add another section or expand existing ones.")
+    elif body_words > MAX_BODY_WORDS:
+        issues.append(f"body word count {body_words} above {MAX_BODY_WORDS}: trim, "
+                      f"don't pad. Readers scan; concise + structured wins.")
+
+    n_blocks = sum(1 for s in article.get("sections", []) for p in s.get("paragraphs", [])
+                   for tag in ("<ol", "<ul", "<table", 'class="callout"', "<figure") if tag in p)
+    if n_blocks == 0:
+        issues.append("article has ZERO structural blocks (table/steps/callout/figure): "
+                      "wall of text. At least 2 sections need one.")
 
     if tool_mentions < 2:
         issues.append(f"body mentions '{tool_name}' only {tool_mentions} time(s); "
@@ -392,12 +453,15 @@ ARTICLE:
 - Brief: {brief}
 
 HARD RULES:
-- Language: plain simple English ONLY. NO Tagalog (kumusta, mga, ka-, pwede, naman, talaga, etc.).
+- Language: plain simple English ONLY. NO Tagalog (kumusta, mga, ka-, pwede, naman, talaga, etc.). NO em dashes anywhere; use commas or colons.
 - NO banned phrases: are you tired of, discover how, unlock real insights, sign up now, learn more about, game-changer, revolutionize, leverage, in today's, in this article we'll explore, optimize your plant's performance, have you ever struggled.
-- Audience block: 6-8 distinct role descriptions, one sentence each, spanning the full WorkHive audience (field workers, technicians, supervisors, engineers, planners, managers, suppliers, contractors, auditors, officers, directors, analysts, OFW-track, graduates, upskillers).
-- TOC: 5-7 entries that mirror the section headings exactly.
+- Audience block: exactly 6 distinct role descriptions, one sentence each, the 6 MOST relevant to this topic (field workers, technicians, supervisors, engineers, planners, managers, suppliers, contractors, auditors, officers, directors, analysts, OFW-track, graduates, upskillers).
+- TOC: 5-6 entries that mirror the section headings exactly.
+- SECTIONS COVER DISTINCT TERRITORY: each section answers ONE question the others do not. The platform tool's flow is walked through in ONE section only; other sections may reference a button by name but never re-explain it.
+- SCANNABILITY: give each section a "block" hint, the ONE structural element that would make it scannable: "steps" (numbered how-to list), "table" (comparison or mapping), "callout" (one worked example), or "none" (short prose only). At least 2 and at most 4 sections should have a non-"none" block.
+- FIGURES: propose 1-2 figures where a diagram says it faster than prose. Allowed kinds: "step_flow" (a real platform flow: steps MUST be the page's real controls/actions), "scan_path" (reading-order story, needs a "source" citation), "bar" (real cited numbers only, needs "source"). Each figure names the section it belongs to.
 - FAQ: 6+ questions a Filipino plant worker would actually ask. Each answer 2-4 sentences with at least one PH-specific element.
-- Sources: 3-6 real-looking citations (PH standards: DOLE OSHS, IIEE Code; international: ISO 14224, SMRP CMRP BoK; named studies). Be specific with section numbers where appropriate.
+- Sources: 3-5 citations DIRECTLY relevant to THIS topic. Cite maintenance standards (ISO 14224, SMRP CMRP BoK, DOLE OSHS) ONLY when the topic is maintenance/safety/reliability; for career, community, or marketplace topics cite topic-appropriate references (named studies, official PH frameworks like TESDA, open schemas). Never pad with an unrelated standard.
 - Keywords: 8-12 comma-separated terms.
 - Description: ONE sentence ~150 chars for meta description + OG tag.
 
@@ -405,11 +469,15 @@ Return ONLY this JSON, no markdown fence, no preamble:
 
 {{
   "intro":       "2-3 sentences. The short-answer callout.",
-  "audience":    ["role description 1", "role description 2", ...],
+  "audience":    ["role description 1", ...exactly 6],
   "toc":         [["anchor-1", "Section 1 label"], ...],
   "sections":    [
-    {{ "id": "anchor-1", "h2": "Section 1 heading", "brief": "1-2 sentence brief on what this section will cover when drafted" }},
+    {{ "id": "anchor-1", "h2": "Section 1 heading", "brief": "1-2 sentence brief on what this section will cover when drafted", "block": "steps|table|callout|none" }},
     ...
+  ],
+  "figures":     [
+    {{ "section_id": "anchor-1", "kind": "step_flow", "title": "...", "steps": ["real control 1", "real control 2", ...] }},
+    {{ "section_id": "anchor-2", "kind": "bar", "title": "...", "labels": ["..."], "values": [1.0], "unit": "s", "source": "Named study (year)" }}
   ],
   "faq":         [{{ "q": "...", "a": "..." }}, ...],
   "sources":     ["citation 1", ...],
@@ -419,9 +487,21 @@ Return ONLY this JSON, no markdown fence, no preamble:
 """
 
 
+_BLOCK_GUIDE = {
+    "steps":   ('ONE <ol> with 3-6 <li> steps (each step may use <strong> for a real '
+                'control name). This is the ONLY place the tool flow is walked through.'),
+    "table":   ('ONE <table> with <thead>/<tbody>, 2 columns, 3-5 rows: a mapping or '
+                'comparison that replaces two paragraphs of prose.'),
+    "callout": ('ONE <div class="callout"><strong>Worked example:</strong> ...</div> '
+                'with a single concrete PH scenario in 2-4 sentences.'),
+    "none":    "no structural block: short prose only.",
+}
+
+
 def _build_section_prompt(slug, title, tool_name, brief,
                            section_id, section_h2, section_brief,
-                           prev_section_summary=""):
+                           prev_section_summary="", block_hint="none",
+                           anchor_pool=None, explained_affordances=None):
     _fid, _evidence_block = _evidence_for_slug(slug)
     grounding_rule = ""
     if _evidence_block:
@@ -433,6 +513,16 @@ def _build_section_prompt(slug, title, tool_name, brief,
             f"knowledge — standards, formulas, best practice — is NOT restricted; write it freely.)\n"
             f"{_evidence_block}"
         )
+    dedupe_rule = ""
+    if explained_affordances:
+        dedupe_rule = (
+            "\n- ALREADY EXPLAINED in earlier sections (do NOT re-explain or walk through "
+            "again; at most reference the name in passing): "
+            + "; ".join(sorted(explained_affordances)[:12]))
+    anchor_rule = anchor_pool or (
+        "a real PH plant location, a Filipino role title, a PHP cost figure, "
+        "a 24-hour shift time, or a specific equipment ID")
+    block_rule = _BLOCK_GUIDE.get(block_hint or "none", _BLOCK_GUIDE["none"])
     return f"""You are drafting ONE section of the WorkHive /learn/ article "{title}".
 
 CONTEXT:
@@ -443,20 +533,20 @@ CONTEXT:
 {prev_section_summary}
 
 HARD RULES for this section's paragraphs:
-- Plain simple English only. NO Tagalog. NO banned phrases (are you tired of, discover how, unlock real insights, sign up now, learn more about, game-changer, revolutionize, leverage, in today's, optimize your plant's performance).{grounding_rule}
-- MUST include at least ONE concrete Philippine anchor: a real PH plant location (Calabarzon, Cabuyao, PEZA, Mindanao, Batangas, Bulacan, Subic, Davao, Pampanga), a PHP cost figure (PHP 180,000), a 24-hour shift time (02:30, 14:45), a Filipino role title (plant supervisor, shift in-charge, maintenance planner), or a specific equipment ID (Pump P-204B, Boiler B-1, Conveyor #2, AHU-3).
-- Length: 4-6 paragraphs, each 70-130 words. Total section body should be 350-600 words.
+- Plain simple English only. NO Tagalog. NO em dashes (use commas or colons). NO banned phrases (are you tired of, discover how, unlock real insights, sign up now, learn more about, game-changer, revolutionize, leverage, in today's, optimize your plant's performance).{grounding_rule}{dedupe_rule}
+- MUST include at least ONE concrete Philippine anchor. THIS section's anchor flavour: {anchor_rule}. Use it once; do not stack three anchors into one paragraph.
+- Length: 2-3 paragraphs, each 60-110 words. Total section prose 150-300 words. Concise wins: readers scan, they do not read. Say it once, specifically, then stop.
+- Structural block for THIS section: {block_rule}
 - Mention "{tool_name}" by name at least once where naturally relevant.
-- Style: HTML <p> tags only. No <ul>, no <ol>, no <strong>. Just paragraphs.
+- Style: HTML <p> paragraphs plus the one structural block above (if any). <strong> is allowed for real control names and key terms.
 - Tone: peer-to-peer engineer-to-engineer, like writing for the SMRP magazine but rooted in Philippine plant-floor reality.
 
-Return ONLY a JSON array of HTML paragraph strings, no markdown fence, no preamble:
+Return ONLY a JSON array of HTML strings (each item one <p> or the one structural block), no markdown fence, no preamble:
 
 [
-  "<p>First paragraph with PH anchor and tool mention.</p>",
+  "<p>First paragraph with this section's PH anchor.</p>",
   "<p>Second paragraph.</p>",
-  "<p>Third paragraph.</p>",
-  "<p>Fourth paragraph.</p>"
+  "<ol><li>...</li></ol>"
 ]
 """
 
@@ -552,20 +642,60 @@ def _scrub_banned_phrases(article: dict) -> dict:
 
 
 def _validate_section_paragraphs(paragraphs, tool_name):
-    """Validate one section's paragraphs. Returns list of issue strings."""
+    """Validate one section's items (paragraphs + at most one structural block)."""
     issues = []
-    if not isinstance(paragraphs, list) or len(paragraphs) < 3:
-        return [f"section returned {len(paragraphs) if isinstance(paragraphs, list) else 0} paragraphs, need 4+"]
+    if not isinstance(paragraphs, list) or len(paragraphs) < 2:
+        return [f"section returned {len(paragraphs) if isinstance(paragraphs, list) else 0} items, need 2+"]
     text = " ".join(paragraphs)
     word_count = _word_count(text)
-    if word_count < 280:
-        issues.append(f"section body {word_count} words, need 350+")
+    if word_count < 110:
+        issues.append(f"section body {word_count} words, need 150+")
+    if word_count > 480:
+        issues.append(f"section body {word_count} words, trim to <=300 prose words: say it once, then stop")
+    blocks = sum(1 for p in paragraphs
+                 for tag in ("<ol", "<ul", "<table", 'class="callout"') if tag in p)
+    if blocks > 2:
+        issues.append(f"section has {blocks} structural blocks, at most ONE per section")
+    if "—" in text:
+        issues.append("section contains em dashes; use commas or colons")
     banned = _has_banned(text)
     if banned:
         issues.append(f"section uses banned phrase(s) {banned}")
     if _has_tagalog(text):
         issues.append(f"section contains Tagalog: {_has_tagalog(text)}")
     return issues
+
+
+def _validated_figures(figures, slug: str) -> list:
+    """Keep only renderable, grounded figure specs from the skeleton:
+    valid kind; stat kinds (bar/scan_path) must carry a source; step_flow
+    text must pass the capability-grounding check (real controls only)."""
+    try:
+        from article_viz import KINDS, figure_text
+    except ImportError:
+        from tools.article_viz import KINDS, figure_text
+    kept = []
+    for spec in (figures or [])[:2]:
+        if not isinstance(spec, dict) or spec.get("kind") not in KINDS:
+            continue
+        if spec["kind"] in ("bar", "scan_path") and not spec.get("source"):
+            print(f"  [figures] dropped {spec.get('kind')} '{spec.get('title', '?')[:40]}': no source citation")
+            continue
+        if spec["kind"] == "step_flow":
+            fid, _ = _evidence_for_slug(slug)
+            if fid:
+                try:
+                    import content_grounding_gate as _cg
+                    bad = _cg.capability_issues_for_text(
+                        f"WorkHive lets you {figure_text(spec)}", fid)
+                    if bad:
+                        print(f"  [figures] dropped step_flow '{spec.get('title', '?')[:40]}': "
+                              f"{len(bad)} ungrounded step(s)")
+                        continue
+                except Exception:
+                    pass
+        kept.append(spec)
+    return kept
 
 
 def generate_article(slug: str, title: str, tool_name: str, brief: str) -> dict:
@@ -583,15 +713,21 @@ def generate_article(slug: str, title: str, tool_name: str, brief: str) -> dict:
     drafted_sections = []
     section_warnings = []
     prev_summary = ""
+    affordances = _affordance_labels(slug)
+    explained: set = set()          # affordances already walked through
 
     for i, s in enumerate(sections, 1):
         time.sleep(2.5)   # pace under Groq rate ceiling
         sid, sh2, sbrief = s.get("id", f"sec-{i}"), s.get("h2", "?"), s.get("brief", "")
-        print(f"    [{i}/{len(sections)}] {sh2[:60]}")
+        block_hint = s.get("block", "none")
+        anchor_pool = PH_ANCHOR_POOLS[(i - 1) % len(PH_ANCHOR_POOLS)]
+        print(f"    [{i}/{len(sections)}] {sh2[:60]} (block={block_hint})")
         try:
             paragraphs = _ai_array(_build_section_prompt(
                 slug, title, tool_name, brief,
                 sid, sh2, sbrief, prev_summary,
+                block_hint=block_hint, anchor_pool=anchor_pool,
+                explained_affordances=explained,
             ))
         except Exception as exc:
             print(f"       FAIL: {exc}; using brief as fallback paragraph")
@@ -606,11 +742,13 @@ def generate_article(slug: str, title: str, tool_name: str, brief: str) -> dict:
             try:
                 fb = ("\n\nPREVIOUS ATTEMPT FAILED:\n  - "
                       + "\n  - ".join(issues)
-                      + "\n\nFix every issue. Write LONGER paragraphs. "
-                        "Use PH anchors. Strip banned phrases.")
+                      + "\n\nFix every issue. Stay inside the 150-300 word band. "
+                        "Use this section's PH anchor flavour. Strip banned phrases.")
                 paragraphs_v2 = _ai_array(_build_section_prompt(
                     slug, title, tool_name, brief,
                     sid, sh2, sbrief, prev_summary + fb,
+                    block_hint=block_hint, anchor_pool=anchor_pool,
+                    explained_affordances=explained,
                 ))
                 issues_v2 = _validate_section_paragraphs(paragraphs_v2, tool_name)
                 if len(issues_v2) < len(issues):
@@ -622,6 +760,10 @@ def generate_article(slug: str, title: str, tool_name: str, brief: str) -> dict:
                 section_warnings.extend([f"'{sh2}': {i}" for i in issues])
 
         drafted_sections.append({"id": sid, "h2": sh2, "paragraphs": paragraphs})
+        # track which real controls this section walked through, so later
+        # sections are told not to re-explain them (the resume-article lesson)
+        sec_norm = _norm_label(" ".join(paragraphs))
+        explained |= {a for a in affordances if a in sec_norm}
         prev_summary = (
             f"\nPREVIOUS SECTIONS (just for continuity, do not repeat): "
             + ", ".join(s["h2"] for s in drafted_sections)
@@ -630,9 +772,10 @@ def generate_article(slug: str, title: str, tool_name: str, brief: str) -> dict:
     # Assemble the final article dict
     article = {
         "intro":       skeleton.get("intro", ""),
-        "audience":    skeleton.get("audience", []),
+        "audience":    skeleton.get("audience", [])[:MAX_AUDIENCE_ROLES],
         "toc":         skeleton.get("toc", []),
         "sections":    drafted_sections,
+        "figures":     _validated_figures(skeleton.get("figures", []), slug),
         "faq":         skeleton.get("faq", []),
         "sources":     skeleton.get("sources", []),
         "keywords":    skeleton.get("keywords", ""),

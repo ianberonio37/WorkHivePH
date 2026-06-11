@@ -7,8 +7,10 @@
     "sitemap_drift": 0,
     "schema_featurelist": 0,
     "undated_articles": 0,
-    "capability_drift": 5
+    "capability_drift": 0,
+    "affordance_repetition": 0,
+    "wall_of_text": 0
   },
   "established": "2026-06-10T06:51:10+00:00",
-  "last_run": "2026-06-10T09:35:29+00:00"
+  "last_run": "2026-06-11T07:25:44+00:00"
 }

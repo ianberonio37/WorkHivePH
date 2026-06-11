@@ -68,7 +68,7 @@ REPORT_PATH = ROOT / "content_grounding_report.json"
 CHECK_ORDER = [
     "feature_drift", "count_drift", "link_drift",
     "learn_hub_unlisted", "sitemap_drift", "schema_featurelist", "undated_articles",
-    "capability_drift",
+    "capability_drift", "affordance_repetition", "wall_of_text",
 ]
 
 # Verbs that mark a sentence as ATTRIBUTING a capability to the product (vs stating
@@ -174,6 +174,96 @@ def _capability_drift_issues(cat: dict, evidence: dict) -> list:
                     "reason": f"'{a['slug']}' attributes a capability to {f.get('name', fid)} whose "
                               f"distinctive content ({sorted(distinctive)[:5]}) exists NOWHERE on the real platform",
                 })
+    return issues
+
+
+# ── Readability drift (the 2026-06-10 resume-article lesson) ─────────────────
+# Padding is a drift class: the generator's old 1500-word floor + paragraphs-only
+# rule produced articles that re-explained the same real controls in 4 sections
+# and carried zero scannable structure. Both are measurable, so both are gated.
+
+_PROSE_START = re.compile(r'class="prose-wh"')
+_H2_SPLIT = re.compile(r"<h2\b")
+_NORM_RE = re.compile(r"[^a-z0-9]+")
+_STRUCT_TAGS = ("<table", "<ol", "<ul", "<figure", "<h3", 'class="callout"')
+_WALL_MIN_WORDS = 700      # short articles can be pure prose; long ones cannot
+_REPEAT_MAX_SECTIONS = 2   # an affordance may appear in at most 2 body sections
+
+
+def _norm_text(s: str) -> str:
+    return _NORM_RE.sub(" ", (s or "").lower()).strip()
+
+
+def _article_prose_region(slug: str) -> str:
+    """The article's BODY region: from the prose-wh wrapper to the FAQ heading.
+    Excludes head/nav/TOC/audience (before) and FAQ/sources/footer (after).
+    Every live article carries both markers (verified across all 37)."""
+    body = pc._read(pc.LEARN_DIR / slug / "index.html")
+    m = _PROSE_START.search(body)
+    if not m:
+        return ""
+    start = m.end()
+    end = body.find('id="faq"', start)
+    return body[start:end if end != -1 else len(body)]
+
+
+def _substantial_affordances(ev: dict) -> list:
+    """The page's >=2-word control labels (actions + fields), normalized.
+    Template fragments (contain $ or {) are not labels."""
+    labels = set()
+    for bucket in ("actions", "fields"):
+        for item in ev.get(bucket, []):
+            if "$" in item or "{" in item:
+                continue
+            norm = _norm_text(item)
+            if len(norm.split()) >= 2:
+                labels.add(norm)
+    return sorted(labels)
+
+
+def _affordance_repetition_issues(cat: dict, evidence: dict) -> list:
+    """An article that walks through the SAME real control in 3+ body sections
+    is padding, not teaching (the resume article explained 'Auto-fill from my
+    WorkHive data' in 5 of 6 sections). Explain once, reference thereafter."""
+    issues = []
+    for a in cat["articles"]:
+        fid = a.get("maps_to")
+        ev = evidence.get(fid) if fid else None
+        if not ev:
+            continue
+        region = _article_prose_region(a["slug"])
+        if not region:
+            continue
+        sec_norms = [_norm_text(pe._TAG.sub(" ", chunk))
+                     for chunk in _H2_SPLIT.split(region) if chunk.strip()]
+        for label in _substantial_affordances(ev):
+            hits = sum(1 for sn in sec_norms if label in sn)
+            if hits > _REPEAT_MAX_SECTIONS:
+                issues.append({
+                    "article": a["slug"], "affordance": label, "sections": hits,
+                    "reason": f"'{a['slug']}' re-explains control '{label}' in {hits} body "
+                              f"sections (max {_REPEAT_MAX_SECTIONS}): explain once, reference thereafter",
+                })
+    return issues
+
+
+def _wall_of_text_issues(articles: list) -> list:
+    """A long article body with ZERO scannable structure (no table, list,
+    callout, figure, or h3) reads as a wall. NN/g: users read ~20-28% of words;
+    structure is what lets the other 72% still land."""
+    issues = []
+    for a in articles:
+        region = _article_prose_region(a["slug"])
+        if not region:
+            continue
+        words = len(re.findall(r"\b\w+\b", pe._TAG.sub(" ", _SCRIPT_STYLE.sub(" ", region))))
+        n_struct = sum(region.count(t) for t in _STRUCT_TAGS)
+        if words > _WALL_MIN_WORDS and n_struct == 0:
+            issues.append({
+                "article": a["slug"], "body_words": words,
+                "reason": f"'{a['slug']}' body is {words} words with ZERO structural elements "
+                          f"(table/list/callout/figure/h3): wall of text",
+            })
     return issues
 
 
@@ -371,6 +461,15 @@ def run_checks() -> dict:
     issues = _capability_drift_issues(cat, evidence)
     checks["capability_drift"] = {"count": len(issues), "issues": issues}
 
+    # 9. affordance_repetition — the same real control walked through in 3+
+    #    body sections = padding drift (the 2026-06-10 resume-article lesson).
+    issues = _affordance_repetition_issues(cat, evidence)
+    checks["affordance_repetition"] = {"count": len(issues), "issues": issues}
+
+    # 10. wall_of_text — long body, zero scannable structure.
+    issues = _wall_of_text_issues(cat["articles"])
+    checks["wall_of_text"] = {"count": len(issues), "issues": issues}
+
     return checks
 
 
@@ -532,6 +631,38 @@ def self_test() -> int:
     flagged = {i["article"] for i in synth_issues}
     check("_invented_probe" in flagged, "capability_drift FLAGS an invented WorkHive capability (dentist/espresso)")
     check("_grounded_probe" not in flagged, "capability_drift does NOT flag a grounded claim (log repair / register asset)")
+
+    # affordance_repetition + wall_of_text teeth: SYNTHETIC article regions
+    # (monkeypatched _article_prose_region), never live-drift dependent.
+    synth_cat2 = {
+        "features": [{"id": "logbook", "name": "Maintenance Logbook", "nav_label": "Logbook", "route": "logbook.html"}],
+        "articles": [
+            {"slug": "_repeat_probe", "maps_to": "logbook"},
+            {"slug": "_concise_probe", "maps_to": "logbook"},
+        ],
+    }
+    synth_ev2 = {"logbook": {"route": "logbook.html", "headings": [], "tabs": [], "links_to": [],
+                             "actions": ["Register Asset", "Analyze with AI"], "fields": [], "vocab": []}}
+    sec_repeat = "<h2>A</h2><p>Tap Register Asset to begin.</p>"
+    regions = {
+        "_repeat_probe": sec_repeat * 4,                       # same control in 4 sections
+        "_concise_probe": sec_repeat + "<h2>B</h2><p>Reference Register Asset by name only here is fine in a second section.</p><h2>C</h2><p>Other content.</p>",
+        "_wall_probe": "<h2>A</h2>" + "<p>" + ("word " * 800) + "</p>",
+        "_scannable_probe": "<h2>A</h2><table><tr><td>x</td></tr></table>" + "<p>" + ("word " * 800) + "</p>",
+    }
+    saved_region = globals()["_article_prose_region"]
+    globals()["_article_prose_region"] = lambda slug: regions.get(slug, "")
+    try:
+        rep_issues = _affordance_repetition_issues(synth_cat2, synth_ev2)
+        wall_issues = _wall_of_text_issues([{"slug": "_wall_probe"}, {"slug": "_scannable_probe"}])
+    finally:
+        globals()["_article_prose_region"] = saved_region
+    rep_flagged = {i["article"] for i in rep_issues}
+    check("_repeat_probe" in rep_flagged, "affordance_repetition FLAGS a control re-explained in 4 sections")
+    check("_concise_probe" not in rep_flagged, "affordance_repetition allows explain-once + one reference")
+    wall_flagged = {i["article"] for i in wall_issues}
+    check("_wall_probe" in wall_flagged, "wall_of_text FLAGS 800 structureless words")
+    check("_scannable_probe" not in wall_flagged, "wall_of_text passes the same length WITH structure")
 
     # Strict mode must FAIL while real drift exists (teeth), and report total_drift.
     rc_strict, rep_strict = evaluate(strict=True)

@@ -49,19 +49,19 @@
         "mainEntityOfPage": "https://workhiveph.com/learn/resume-builder-for-filipino-industrial-workers/",
         "inLanguage": "en-PH",
         "articleSection": "Maintenance",
-        "wordCount": 2011,
+        "wordCount": 858,
         "keywords": "resume builder, ATS-ready resume, Filipino industrial workers, plant work history, skills matrix, logbook, career advancement, maintenance and reliability, industrial workforce"
       },
       {
         "@type": "FAQPage",
         "@id": "https://workhiveph.com/learn/resume-builder-for-filipino-industrial-workers/#faq",
         "mainEntity": [
-          { "@type": "Question", "name": "What is an ATS and why is it important for my resume?", "acceptedAnswer": { "@type": "Answer", "text": "An Applicant Tracking System (ATS) is software used by employers to screen and filter resumes. Having an ATS-ready resume ensures it can be read and parsed correctly." } },
-          { "@type": "Question", "name": "How do I access WorkHive's Resume Builder?", "acceptedAnswer": { "@type": "Answer", "text": "You can access the Resume Builder tool for free on WorkHive's website. Simply create an account and navigate to the Resume Builder section." } },
-          { "@type": "Question", "name": "What if I don't have a current resume to upload?", "acceptedAnswer": { "@type": "Answer", "text": "You can start fresh with the Resume Builder tool and enter your work history and skills manually." } },
-          { "@type": "Question", "name": "How does the AI-powered Resume Builder work?", "acceptedAnswer": { "@type": "Answer", "text": "The AI-powered Resume Builder uses natural language processing to extract and polish your work history and skills from your uploaded resume or manual entries." } },
-          { "@type": "Question", "name": "Can I edit my resume after it's been generated?", "acceptedAnswer": { "@type": "Answer", "text": "Yes, every line of your resume stays editable with provenance, allowing you to make changes as needed." } },
-          { "@type": "Question", "name": "Is my resume data secure?", "acceptedAnswer": { "@type": "Answer", "text": "Yes, WorkHive prioritizes data security and confidentiality, ensuring your resume data is protected." } }
+          { "@type": "Question", "name": "What is an ATS and why does it matter for my resume?", "acceptedAnswer": { "@type": "Answer", "text": "An applicant tracking system is software that screens resumes before a recruiter reads them. It parses your file into fields and matches keywords from the job ad. A clean, plain layout parses correctly; heavy styling can turn your experience into unreadable text." } },
+          { "@type": "Question", "name": "How do I open WorkHive's Resume Builder?", "acceptedAnswer": { "@type": "Answer", "text": "It is free on WorkHive at the worker tier. Open the Resume Builder page in any browser, including a phone browser. No payment is needed." } },
+          { "@type": "Question", "name": "What if I don't have a current resume to upload?", "acceptedAnswer": { "@type": "Answer", "text": "Start with New blank resume, or tap Auto-fill from my WorkHive data to build from your Logbook and Skill Matrix. You can also photograph a paper resume or certificates and the AI extracts the text." } },
+          { "@type": "Question", "name": "How does the AI-powered Resume Builder work?", "acceptedAnswer": { "@type": "Answer", "text": "It extracts your history from uploads, photos, or your WorkHive data, then drafts wording you can polish. You review everything it found before it lands in the resume." } },
+          { "@type": "Question", "name": "Can I edit my resume after it's been generated?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. Every line stays editable with provenance, and Undo reverses a change you did not mean to make." } },
+          { "@type": "Question", "name": "Is my resume data private?", "acceptedAnswer": { "@type": "Answer", "text": "Your resume lives in your WorkHive account and is not shared with employers or other members. You can download a JSON copy any time and keep it offline." } }
         ]
       },
       {
@@ -107,6 +107,14 @@
     .prose-wh strong { color: #F4F6FA; }
     .prose-wh a { color: #5FCCE8; text-decoration: underline; text-underline-offset: 3px; }
     .prose-wh ol, .prose-wh ul { color: rgba(244,246,250,0.78); padding-left: 1.4rem; margin: 0.85rem 0; line-height: 1.75; }
+    .prose-wh table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 0.95rem; }
+    .prose-wh th, .prose-wh td { padding: 12px 14px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.08); }
+    .prose-wh th { background: rgba(31,46,69,0.6); font-weight: 700; color: #F4F6FA; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; }
+    .callout { background: rgba(41,182,217,0.06); border-left: 3px solid #29B6D9; border-radius: 8px; padding: 18px 22px; margin: 2rem 0; font-size: 0.98rem; line-height: 1.7; color: rgba(244,246,250,0.78); }
+    .callout strong { color: #5FCCE8; }
+    .article-fig { margin: 1.75rem 0; }
+    .article-fig img { width: 100%; height: auto; display: block; }
+    .article-fig figcaption { margin-top: 8px; font-size: 0.85rem; color: rgba(244,246,250,0.55); line-height: 1.55; }
     .tool-cta { background: linear-gradient(135deg, rgba(247,162,27,0.14), rgba(247,162,27,0.04)); border: 1px solid rgba(247,162,27,0.32); border-radius: 14px; padding: 22px 26px; margin: 2.25rem 0; }
     .tool-cta a { display: inline-block; margin-top: 10px; background: linear-gradient(135deg, #F7A21B, #FDB94A); color: #162032; font-weight: 700; padding: 10px 22px; border-radius: 10px; text-decoration: none; transition: transform 0.15s; }
     .tool-cta a:hover { transform: translateY(-1px); }
@@ -154,74 +162,90 @@
       <span class="opacity-40">·</span>
       <time datetime="2026-06-10">10 June 2026</time>
       <span class="opacity-40">·</span>
-      <span>9 min read</span>
+      <span>5 min read</span>
     </div>
 
-    <div class="answer-first"><strong>Short answer:</strong> As a Filipino industrial worker, having a strong resume is crucial for career advancement and protection in the AI era. With WorkHive's free Resume Builder, you can turn your plant work history into an ATS-ready resume. Learn how to create a polished and effective resume with our tool.</div>
+    <div class="answer-first"><strong>Short answer:</strong> Your years on the plant floor are already a resume; they are just scattered across logbooks, certificates, and memory. WorkHive's free Resume Builder pulls that history from your Logbook and Skill Matrix, lets you edit every line, and exports a plain PDF that applicant tracking systems can actually read.</div>
 
     <div class="audience-block">
       <p class="audience-label">Who this is for</p>
       <ul>
-        <li>Field workers looking to upskill and reskill</li>
-        <li>Technicians seeking to advance to supervisory roles</li>
-        <li>Supervisors aiming to transition to engineering or planning positions</li>
-        <li>Engineers looking to move into management or specialist roles</li>
-        <li>Planners and schedulers seeking to optimize plant operations</li>
-        <li>Managers and directors overseeing plant maintenance and reliability</li>
-        <li>Suppliers and contractors working with industrial clients</li>
-        <li>Auditors and officers ensuring compliance with PH regulations</li>
-        <li>Directors and analysts driving business growth and strategy</li>
-        <li>OFW-track professionals seeking to return to the Philippines</li>
-        <li>Graduates and upskillers entering the industrial workforce</li>
-        <li>Maintenance and reliability professionals seeking career advancement</li>
+        <li>Technicians applying for supervisory or specialist roles</li>
+        <li>Shift in-charges and supervisors formalizing years of unwritten experience</li>
+        <li>OFW-track workers applying overseas with proof of real fault history</li>
+        <li>New graduates with training certificates but a thin work section</li>
+        <li>Planners and engineers tailoring one history to different postings</li>
+        <li>Workers whose certificates exist only on paper</li>
       </ul>
     </div>
 
     <div class="toc">
       <h4 aria-level="2">What's in this guide</h4>
       <ol>
-        <li><a href="#getting-started">Getting Started with WorkHive's Resume Builder</a></li>
-        <li><a href="#resume-building">Building Your ATS-Ready Resume</a></li>
-        <li><a href="#skill-matrix">Leveraging the Skill Matrix for Relevant Skills</a></li>
-        <li><a href="#logbook">Utilizing Your Logbook for Work History</a></li>
-        <li><a href="#exporting">Exporting Your Polished Resume</a></li>
-        <li><a href="#tips">Tips for Effective Resume Building</a></li>
+        <li><a href="#why-ats">Seven seconds to make the cut</a></li>
+        <li><a href="#the-flow">The whole flow, once</a></li>
+        <li><a href="#evidence">Where each resume line comes from</a></li>
+        <li><a href="#tailoring">Tailor to the job ad, not to a template</a></li>
+        <li><a href="#exporting">Export ATS-plain</a></li>
+        <li><a href="#tips">Five habits that beat a better-looking resume</a></li>
       </ol>
     </div>
 
     <div class="prose-wh">
-      <h2 id="getting-started">Getting Started with WorkHive's Resume Builder</h2>
-      <p>To create an ATS-ready resume from your plant work history, start by accessing WorkHive's Resume Builder tool. Click on the '📄 Resume / CV Builder' heading to begin. If you have an existing resume, you can upload it to the tool. For example, let's say you're a maintenance planner from Calabarzon, with experience working at the PEZA industrial zone. You can upload your old resume and let the AI do the heavy lifting.</p>
-      <p>Once you're in the Resume Builder, you'll see an option to '✨ Auto-fill from my WorkHive data'. This feature uses your logged work from the Logbook and skills from the Skill Matrix to populate your resume. If you're a shift in-charge at a plant in Batangas, working 24-hour shifts, this can save you a lot of time. The AI will extract and polish your entries, making it easier to showcase your experience.</p>
-      <p>Every line in your resume stays editable, with provenance, so you can review and make changes as needed. For instance, if you want to highlight your experience with specific equipment like Pump P-204B or Boiler B-1, you can easily do so. The Resume Builder tool also allows you to '✨ Polish my experience wording' to ensure your resume sounds professional and impressive.</p>
-      <p>When you're satisfied with your resume, you can '👁 Preview & Export' it as a clean, ATS-safe PDF. This is especially useful if you're applying for a job that requires a specific format. For example, if you're applying for a plant supervisor role in Bulacan, with a salary range of PHP 180,000, you can tailor your resume to match the job requirements. With WorkHive's Resume Builder, you can create a strong foundation for your resume and increase your chances of getting noticed by hiring managers.</p>
-      <h2 id="resume-building">Building Your ATS-Ready Resume</h2>
-      <p>As a Filipino industrial worker, you can turn your plant work history into a professional resume with WorkHive's free Resume Builder. For example, let's say you work as a maintenance technician at a plant in Cabuyao, Laguna. You can upload your old resume or start fresh with the Resume Builder. The tool will guide you through the process of creating an ATS-ready resume.</p>
-      <p>Click the '✨ Auto-fill from my WorkHive data' button to let the Resume Builder extract and polish your work history and skills. The AI-powered tool will review your logged work from the Logbook and skills from the Skill Matrix to create a draft resume. You can then review and edit the content to ensure it accurately reflects your experience and qualifications.</p>
-      <p>The Resume Builder allows you to tailor your resume to a specific job by pasting the job description into the 'Tailor to a job' field. This feature helps you match your skills and experience to the requirements of the job. For instance, if you're applying for a shift in-charge position at a plant in Bulacan, you can paste the job ad and the Resume Builder will suggest relevant skills and experience to highlight.</p>
-      <p>Once you're satisfied with your resume, click the '👁 Preview & Export' button to review and download your ATS-ready resume as a PDF. You can also use the '✨ Polish my experience wording' button to refine your work experience descriptions. The Resume Builder is designed to help you create a professional resume that showcases your skills and experience, making it easier to land your next job in the Philippines, whether it's in Pampanga, Davao, or elsewhere.</p>
-      <h2 id="skill-matrix">Leveraging the Skill Matrix for Relevant Skills</h2>
-      <p>WorkHive’s Skill Matrix helps you map your plant experience to job-specific skills. For example, if you’re a maintenance planner in Batangas managing equipment like Pump P-204B, the matrix flags technical skills (e.g., preventive maintenance) and soft skills (e.g., shift coordination). In Resume Builder, upload your old resume or start fresh. Click ‘✨ Auto-fill from my WorkHive data’ to pull logged skills from your Logbook. This ensures your resume reflects real tasks, like troubleshooting Boiler B-1 during 14:45 shifts, without guesswork.</p>
-      <p>The Skill Matrix filters skills by relevance. If you’re targeting a plant supervisor role in Calabarzon, it highlights leadership skills (e.g., team training) and technical skills (e.g., SCADA systems). Use the ‘Tailor to a job’ field to paste a job ad—Resume Builder cross-references the matrix with keywords. For instance, if a Cabuyao job emphasizes safety compliance, the tool suggests adding OSHA standards or ISO certifications from your history. This avoids generic phrases and matches ATS scanners.</p>
-      <p>Skills from the matrix integrate with your experience entries. Suppose you led a Conveyor #2 upgrade at a PEZA facility. Resume Builder’s AI polishes this into a bullet like, ‘Directed retrofit of Conveyor #2, improving throughput by 15%.’ The Skill Matrix ensures terms like ‘directed’ and ‘retrofit’ align with industry standards. You can edit any line manually, but the matrix auto-suggests synonyms (e.g., ‘managed’ → ‘orchestrated’) to pass ATS filters while keeping your voice.</p>
-      <p>For roles requiring 24/7 shifts, the matrix notes availability as a soft skill. If your Logbook shows 02:30 emergency repairs at a Bulacan plant, Resume Builder frames this as ‘experienced in night-shift operations.’ Avoid duplicating achievements: if you list an award for reducing downtime, the matrix won’t duplicate it as a bullet. Use the ‘Promote, don’t duplicate’ toggle to keep your resume lean. Finally, export an ATS-safe PDF with ‘ATS-plain’ formatting—no fancy fonts, just clean text for scanners.</p>
-      <h2 id="logbook">Utilizing Your Logbook for Work History</h2>
-      <p>As a plant supervisor at the PEZA-accredited factory in Cabuyao, Laguna, your experience is valuable but scattered across different projects and equipment, such as Pump P-204B and Boiler B-1. To organize and showcase your work history effectively, use the Logbook feature in WorkHive's Resume Builder. This tool allows you to track and record your work activities, including shift times (02:30 AM maintenance checks) and equipment maintenance tasks, in a structured and easily accessible way.</p>
-      <p>Start by logging your work history in the Logbook. For each entry, include details such as the project or equipment name, your role, and the tasks you performed. This will help you identify patterns and areas where you can highlight your skills and achievements. You can also use the Logbook to track your work hours and costs, such as the PHP 180,000 spent on maintenance projects last quarter.</p>
-      <p>Once you have logged your work history, you can import the data into your Resume Builder. The tool will automatically extract and organize the information into a clean and ATS-safe format. You can then review and edit the entries to ensure they accurately reflect your experience and skills. Use the '✨ Auto-fill from my WorkHive data' button to populate your resume with the logged information.</p>
-      <p>When using the Resume Builder, remember to tailor your resume to each job you apply for. Use the 'Paste the job description here, then tap Tailor' feature to highlight the skills and experiences that match the job requirements. This will increase your chances of getting noticed by the hiring manager and passing the ATS screening.</p>
-      <p>Finally, use the 'Preview & Export' button to review your resume in ATS-plain format and make any necessary adjustments. You can also use the 'Check my match score for this job' feature to see how well your resume matches the job requirements. With the Resume Builder, you can easily create an ATS-ready resume that showcases your experience and skills as a plant supervisor in the Philippines.</p>
-      <h2 id="exporting">Exporting Your Polished Resume</h2>
-      <p>When the last bullet point is polished and the summary reads like a shift in‑charge report from Cabuyao in Calabarzon, the Resume Builder is ready for the final step. The interface shows a blue button labeled "👁 Preview & Export" at the bottom of the screen. Clicking it opens a clean preview that mirrors what an applicant tracking system will see. This preview is your last chance to verify that the work history from Pump P-204B to the night shift at 02:30 is displayed exactly as you intend before you create the PDF.</p>
-      <p>In the preview window, the tool highlights a small checkbox called "ATS-plain". Selecting this option tells the Resume Builder to strip any hidden tables or styling that could confuse an ATS parser. After you confirm the layout, the system instantly generates a PDF file that contains only plain text, standard headings, and simple bullet points. The PDF is saved on your device and also appears under the "📂 My Resumes" folder for quick access later.</p>
-      <p>The exported PDF is deliberately simple: no embedded fonts, no background colors, and no extra columns that some word processors add automatically. This simplicity ensures that when a recruiter at a Batangas refinery runs the file through their ATS, the match score reflects the true relevance of your experience, such as maintaining Boiler B-1 or supervising a 14:45 shift crew. You can open the PDF in any reader to double‑check that the line spacing and headings remain intact.</p>
-      <p>If you notice a typo or want to adjust a skill after the preview, the Resume Builder lets you return to the editor with the "↩ Undo" button. Make the change, then hit "💾 Save" to keep the updated version. You can repeat the preview step as many times as needed, and each time the "ATS-plain" export will reflect the latest edits. This loop guarantees that the final PDF matches the exact wording you approved.</p>
-      <p>Finally, keep a copy of the ATS‑safe PDF in a folder labeled "Plant Supervisor" for future applications. You might attach it to a job posting that offers PHP 180,000 per year for a maintenance planner role in Subic. Having a ready‑to‑send, clean PDF saves time and reduces the risk of formatting errors that could drop your resume before a human ever reads it.</p>
-      <h2 id="tips">Tips for Effective Resume Building</h2>
-      <p>Start by tailoring your resume to the exact job you want. For example, if you’re applying for a maintenance planner role in Batangas, paste the job ad into Resume Builder’s ‘Tailor to a job’ field. Tap ‘Tailor my resume to this job’ to auto-adjust keywords like ‘Pump P-204B maintenance’ or ‘shift optimization’ to match what hiring managers in Calabarzon plants look for. This ensures your experience with equipment like Boiler B-1 or Conveyor #2 aligns with ATS scans for local roles.</p>
-      <p>Quantify achievements instead of listing duties. If you reduced downtime by 15% at a Cabuyao factory, phrase it as ‘Saved PHP 180,000 annually by optimizing Pump P-204B maintenance schedules.’ Use the ‘Polish my experience wording’ button to turn vague statements into clear, measurable results. Avoid duplicating this achievement in both a ‘Projects’ section and a bullet point—Resume Builder’s ‘Promote, don’t duplicate’ toggle helps you avoid redundancy while keeping your ATS compliance intact.</p>
-      <p>Highlight skills from WorkHive’s Skill Matrix that match your target role. If you’re targeting a shift in-charge position in Bulacan, include skills like ‘AHU-3 troubleshooting’ or ‘24/7 shift coordination.’ These terms appear in local plant job postings and pass ATS filters. For example, if you led a team during 14:45–02:30 shifts, detail how you managed handovers between day and night crews—this shows operational rigor valued in Philippine industrial roles.</p>
-      <p>Use your Logbook entries to fill gaps in your resume. If you repaired Conveyor #2 at a Davao facility but didn’t document it in your old resume, upload those logs to Resume Builder. The ‘Auto-fill from my WorkHive data’ button pulls in timestamped details, like ‘Restored 98% efficiency to AHU-3 after root-cause analysis on 08/15/2023.’ This adds specificity ATS systems favor while proving your hands-on experience in Philippine plant environments.</p>
+      <h2 id="why-ats">Seven seconds to make the cut</h2>
+      <p>An applicant tracking system, or ATS, is the software most employers use to filter resumes before a person reads them. It parses your file into fields and scans for job titles, dates, and keywords from the job ad. If your resume is a scanned image or a styled two-column layout, the parser often reads garbage, and your application stops there.</p>
+      <p>Even when you pass the software, the human pass is short. Eye-tracking research clocks a recruiter's first look at about 7.4 seconds. A recruiter screening for a Batangas refinery is not reading your paragraph about teamwork in those seconds. They check your current title, your previous role and dates, then your education, in that order.</p>
+      <figure class="article-fig">
+        <img src="fig-scan-path.svg" alt="Diagram of a resume page with four numbered fixation points showing the order a recruiter scans it: current job title and company first, then previous role and dates, then education, then keywords that match the job ad." width="660" height="430" loading="lazy" />
+        <figcaption>Where a recruiter's eyes go in the first 7.4 seconds. Source: Ladders, Inc. Eye-Tracking Study (2018).</figcaption>
+      </figure>
+      <h2 id="the-flow">The whole flow, once</h2>
+      <p>The Resume Builder is one page and the entire flow is five moves. Nothing needs a desktop; technicians do this from a phone after a 14:00 to 22:00 shift.</p>
+      <ol>
+        <li><strong>Start.</strong> Upload a resume, tap <strong>New blank resume</strong>, or take photos of a paper resume and certificates; the AI extracts the text from images too.</li>
+        <li><strong>Auto-fill.</strong> Tap <strong>✨ Auto-fill from my WorkHive data</strong> to pull logged work from your Logbook and verified skills from your Skill Matrix.</li>
+        <li><strong>Review.</strong> The builder shows what it found. Every line stays editable, each entry shows where it came from, and <strong>↩ Undo</strong> covers mistakes.</li>
+        <li><strong>Tailor.</strong> Paste a job ad into <strong>Tailor to a job</strong>, then check your match score for that posting.</li>
+        <li><strong>Export.</strong> <strong>👁 Preview &amp; Export</strong> with ATS-plain on; download a PDF or Word .docx, print it, or keep a JSON copy.</li>
+      </ol>
+      <figure class="article-fig">
+        <img src="fig-builder-flow.svg" alt="Five-step flow diagram of the Resume Builder: upload or start from WorkHive data, auto-fill from logged work and Skill Matrix, review and edit any line, tailor to a job ad and check the match score, then preview and export an ATS-plain PDF." width="660" height="470" loading="lazy" />
+        <figcaption>The full Resume Builder loop. Each step is a real control on the page, so what you read here is what you will see.</figcaption>
+      </figure>
+      <p>That is the entire loop. The two steps people get wrong are what to feed the auto-fill and how to tailor without keyword stuffing; the next two sections cover exactly those.</p>
+      <h2 id="evidence">Where each resume line comes from</h2>
+      <p>The builder does not invent experience. Every line traces to something you already recorded on WorkHive or typed yourself. That provenance is what makes it fast for someone who never kept a resume current but has years of real work behind them.</p>
+      <table>
+        <thead>
+          <tr><th>You recorded it as</th><th>It becomes</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Logbook entries: faults fixed, PMs done, a 22:00 changeover repair on Conveyor #2</td><td>Work-experience bullets with real dates</td></tr>
+          <tr><td>Skill Matrix badges: competencies verified by your supervisor</td><td>A skills section worded in job-ad terms</td></tr>
+          <tr><td>Photos of paper certificates: TESDA NCs, safety and equipment training</td><td>A certifications section, typed out by the AI</td></tr>
+          <tr><td>Anything you type or edit by hand</td><td>Stays exactly as you wrote it</td></tr>
+        </tbody>
+      </table>
+      <p>If your plant history is thin on WorkHive, start logging now. A maintenance planner in Cabuyao who logs daily has a resume that updates itself; <strong>✨ Polish my experience wording</strong> then turns raw entries into clean bullets without changing the facts.</p>
+      <h2 id="tailoring">Tailor to the job ad, not to a template</h2>
+      <p>Generic resumes lose on keywords. Paste the job description into the <strong>Tailor to a job</strong> field and the builder compares your content against what the ad asks for, scores the match, and suggests skills to surface. Keep only the suggestions that are true. The score tells you what to make explicit; it is not an invitation to claim work you have not done.</p>
+      <div class="callout"><strong>Worked example:</strong> a Davao food-plant ad asks for preventive maintenance of air-handling units. Your Logbook holds 14 months of AHU-3 filter and belt PMs. Tailoring surfaces that history as a skills line and a dated bullet, and your match score shows the gap closing. Need a cover letter for the same posting? <strong>✍ Draft a cover letter</strong> writes one from the same evidence.</div>
+      <h2 id="exporting">Export ATS-plain</h2>
+      <p>When the preview reads right, export with the <strong>ATS-plain</strong> option on. It keeps your text and strips the styling that breaks parsers:</p>
+      <ul>
+        <li>standard headings in a single column, no tables or graphics in the output</li>
+        <li>plain fonts with no embedded styling for the parser to choke on</li>
+        <li>the same wording you approved on screen, nothing reformatted behind your back</li>
+      </ul>
+      <p>You get a PDF or Word .docx for online applications, Print for a walk-in at a Subic contractor, and a JSON copy of your data that no website can lock away from you. Saved versions live in <strong>📂 My Resumes</strong>, so you can keep one resume per target role and re-tailor each one in minutes.</p>
+      <h2 id="tips">Five habits that beat a better-looking resume</h2>
+      <ol>
+        <li><strong>Quantify.</strong> "Cut filler changeover downtime by 18 minutes" beats "responsible for maintenance" in any shift in-charge application. Pull the numbers from your Logbook.</li>
+        <li><strong>Use the ad's own words where they are true.</strong> ATS matching rewards keywords in context, not clever synonyms.</li>
+        <li><strong>Promote, don't duplicate.</strong> When an achievement becomes a Project or an Award, the builder's toggle keeps it from also appearing as a duplicate bullet.</li>
+        <li><strong>Keep it to two pages.</strong> The same eye-tracking research found dense, crammed pages got skipped, not studied.</li>
+        <li><strong>Update after every project, not before every application.</strong> Log the work when it happens and the resume is always one Auto-fill away.</li>
+      </ol>
 
       <div class="tool-cta">
         <p style="margin:0; font-size:0.95rem; color:rgba(244,246,250,0.85);"><strong>Open the tool:</strong> Resume Builder is the WorkHive surface this guide funnels into. It is free at the worker tier, works offline, and is built for Philippine plants.</p>
@@ -229,19 +253,19 @@
       </div>
 
       <h2 id="faq">Frequently asked questions</h2>
-      <details class="faq-item"><summary>What is an ATS and why is it important for my resume?</summary><div class="faq-answer">An Applicant Tracking System (ATS) is software used by employers to screen and filter resumes. Having an ATS-ready resume ensures it can be read and parsed correctly.</div></details>
-      <details class="faq-item"><summary>How do I access WorkHive's Resume Builder?</summary><div class="faq-answer">You can access the Resume Builder tool for free on WorkHive's website. Simply create an account and navigate to the Resume Builder section.</div></details>
-      <details class="faq-item"><summary>What if I don't have a current resume to upload?</summary><div class="faq-answer">You can start fresh with the Resume Builder tool and enter your work history and skills manually.</div></details>
-      <details class="faq-item"><summary>How does the AI-powered Resume Builder work?</summary><div class="faq-answer">The AI-powered Resume Builder uses natural language processing to extract and polish your work history and skills from your uploaded resume or manual entries.</div></details>
-      <details class="faq-item"><summary>Can I edit my resume after it's been generated?</summary><div class="faq-answer">Yes, every line of your resume stays editable with provenance, allowing you to make changes as needed.</div></details>
-      <details class="faq-item"><summary>Is my resume data secure?</summary><div class="faq-answer">Yes, WorkHive prioritizes data security and confidentiality, ensuring your resume data is protected.</div></details>
+      <details class="faq-item"><summary>What is an ATS and why does it matter for my resume?</summary><div class="faq-answer">An applicant tracking system is software that screens resumes before a recruiter reads them. It parses your file into fields and matches keywords from the job ad. A clean, plain layout parses correctly; heavy styling can turn your experience into unreadable text.</div></details>
+      <details class="faq-item"><summary>How do I open WorkHive's Resume Builder?</summary><div class="faq-answer">It is free on WorkHive at the worker tier. Open the Resume Builder page in any browser, including a phone browser. No payment is needed.</div></details>
+      <details class="faq-item"><summary>What if I don't have a current resume to upload?</summary><div class="faq-answer">Start with New blank resume, or tap Auto-fill from my WorkHive data to build from your Logbook and Skill Matrix. You can also photograph a paper resume or certificates and the AI extracts the text.</div></details>
+      <details class="faq-item"><summary>How does the AI-powered Resume Builder work?</summary><div class="faq-answer">It extracts your history from uploads, photos, or your WorkHive data, then drafts wording you can polish. You review everything it found before it lands in the resume.</div></details>
+      <details class="faq-item"><summary>Can I edit my resume after it's been generated?</summary><div class="faq-answer">Yes. Every line stays editable with provenance, and Undo reverses a change you did not mean to make.</div></details>
+      <details class="faq-item"><summary>Is my resume data private?</summary><div class="faq-answer">Your resume lives in your WorkHive account and is not shared with employers or other members. You can download a JSON copy any time and keep it offline.</div></details>
 
       <h2 id="sources">Sources</h2>
       <ul class="sources-list">
-        <li>DOLE OSHS: Guidelines for Occupational Safety and Health in the Philippines</li>
-        <li>IIEE Code: Code of Ethics for Professional Engineers and Technologists</li>
-        <li>ISO 14224:2016: Petroleum, Petrochemical and Natural Gas Industries - Reliability, Availability and Maintainability (RAM) Data Exchange</li>
-        <li>SMRP CMRP BoK: Certified Maintenance and Reliability Professional Body of Knowledge</li>
+        <li>Ladders, Inc. Eye-Tracking Study (2018): recruiters average 7.4 seconds on an initial resume screen</li>
+        <li>JSON Resume open schema (jsonresume.org): the structured-resume data model the builder exports</li>
+        <li>Harvard University career services: Resumes and Cover Letters guide, on quantified accomplishment statements</li>
+        <li>TESDA National Certification framework (NC I to NC IV): the credential levels Filipino industrial workers list under certifications</li>
       </ul>
     </div>
 

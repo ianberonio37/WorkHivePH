@@ -1,16 +1,16 @@
 {
-  "generated_at": "2026-06-10T09:35:30+00:00",
+  "generated_at": "2026-06-11T07:25:57+00:00",
   "axes": {
     "freshness": 100.0,
-    "coverage": 96.4,
-    "correctness": 87.5,
+    "coverage": 96.3,
+    "correctness": 100.0,
     "grounding": 100.0
   },
   "signals": {
     "articles": 37,
     "undated": 0,
-    "total_drift": 5,
-    "drift_checks_clean": "7/8",
+    "total_drift": 0,
+    "drift_checks_clean": "10/10",
     "orphans": 0,
     "gaps": 0,
     "learn_hub_unlisted": 0

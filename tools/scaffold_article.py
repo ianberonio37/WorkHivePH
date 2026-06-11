@@ -229,6 +229,14 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     .prose-wh strong {{ color: #F4F6FA; }}
     .prose-wh a {{ color: #5FCCE8; text-decoration: underline; text-underline-offset: 3px; }}
     .prose-wh ol, .prose-wh ul {{ color: rgba(244,246,250,0.78); padding-left: 1.4rem; margin: 0.85rem 0; line-height: 1.75; }}
+    .prose-wh table {{ width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 0.95rem; }}
+    .prose-wh th, .prose-wh td {{ padding: 12px 14px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.08); }}
+    .prose-wh th {{ background: rgba(31,46,69,0.6); font-weight: 700; color: #F4F6FA; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; }}
+    .callout {{ background: rgba(41,182,217,0.06); border-left: 3px solid #29B6D9; border-radius: 8px; padding: 18px 22px; margin: 2rem 0; font-size: 0.98rem; line-height: 1.7; color: rgba(244,246,250,0.78); }}
+    .callout strong {{ color: #5FCCE8; }}
+    .article-fig {{ margin: 1.75rem 0; }}
+    .article-fig img {{ width: 100%; height: auto; display: block; }}
+    .article-fig figcaption {{ margin-top: 8px; font-size: 0.85rem; color: rgba(244,246,250,0.55); line-height: 1.55; }}
     .tool-cta {{ background: linear-gradient(135deg, rgba(247,162,27,0.14), rgba(247,162,27,0.04)); border: 1px solid rgba(247,162,27,0.32); border-radius: 14px; padding: 22px 26px; margin: 2.25rem 0; }}
     .tool-cta a {{ display: inline-block; margin-top: 10px; background: linear-gradient(135deg, #F7A21B, #FDB94A); color: #162032; font-weight: 700; padding: 10px 22px; border-radius: 10px; text-decoration: none; transition: transform 0.15s; }}
     .tool-cta a:hover {{ transform: translateY(-1px); }}
@@ -335,10 +343,11 @@ def _render_html(slug: str, title: str, tool_url: str, tool_name: str,
     human = today.strftime("%-d %B %Y") if sys.platform != "win32" \
             else today.strftime("%#d %B %Y")
 
-    # Body word count
+    # Body word count (figure markup excluded: alt text is not prose)
     body_words = sum(
         len(re.findall(r"\b\w+\b", p))
         for s in article["sections"] for p in s["paragraphs"]
+        if not p.lstrip().startswith("<figure")
     )
     read_min = max(5, int(round(body_words / 220)))   # 220 wpm
 
@@ -453,6 +462,33 @@ def _wire_ga4(slug: str):
 
 # ── Main entrypoint ───────────────────────────────────────────────────────────
 
+def _render_figures(slug: str, article: dict):
+    """Render the generator's validated figure specs to learn/<slug>/fig-N.svg
+    and append a <figure> block to the section each one belongs to."""
+    figures = article.get("figures") or []
+    if not figures:
+        return
+    from tools.article_viz import render_figure, figure_text
+    by_id = {s["id"]: s for s in article["sections"]}
+    for n, spec in enumerate(figures, 1):
+        sec = by_id.get(spec.get("section_id")) or article["sections"][0]
+        fname = f"fig-{n}-{spec['kind'].replace('_', '-')}.svg"
+        try:
+            render_figure(spec, ROOT / "learn" / slug / fname)
+        except Exception as exc:
+            print(f"  [scaffold] figure {n} ({spec['kind']}) failed: {exc}; skipped")
+            continue
+        alt = _esc(figure_text(spec))[:360]
+        cap = _esc(spec.get("title", ""))
+        if spec.get("source"):
+            cap += f" Source: {_esc(spec['source'])}."
+        sec["paragraphs"].append(
+            f'<figure class="article-fig"><img src="{fname}" alt="{alt}" '
+            f'width="660" height="440" loading="lazy" />'
+            f"<figcaption>{cap}</figcaption></figure>")
+        print(f"  [scaffold] figure {n}: {fname} -> section '{sec['h2'][:40]}'")
+
+
 def scaffold_one(slug: str, brief: str):
     tmap = article_tool_map()
     titles = article_title_map()
@@ -466,6 +502,7 @@ def scaffold_one(slug: str, brief: str):
     print(f"  tool:      {tool_name} ({tool_url})")
 
     article = generate_article(slug, title, tool_name, brief)
+    _render_figures(slug, article)
     html = _render_html(slug, title, tool_url, tool_name, article)
 
     out_path = ROOT / "learn" / slug / "index.html"
