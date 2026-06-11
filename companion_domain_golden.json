@@ -134,7 +134,12 @@
         [
           "impeller",
           "erosion",
-          "damage"
+          "damage",
+          "suction",
+          "npsh",
+          "flow rate",
+          "cavitation",
+          "strainer"
         ]
       ],
       "anti_markers": [
@@ -538,7 +543,10 @@
           "off the charts",
           "breakdown every",
           "full meltdown",
-          "meltdown"
+          "meltdown",
+          "high failure rate",
+          "failure rate",
+          "very high"
         ],
         [
           "mtbf",

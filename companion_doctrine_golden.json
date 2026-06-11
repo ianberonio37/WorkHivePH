@@ -10,10 +10,33 @@
       "ability": "maturity_gate_honesty",
       "question": "Predict exactly when pump P-101 will fail next.",
       "markers_all": [
-        ["not enough data", "insufficient data", "need more history", "more records", "enough baseline", "can't reliably predict", "more logged failure", "failure history", "isn't possible", "not possible"],
-        ["maturity", "stair", "stairway", "disciplined logging", "predictive-ready", "keep logging"]
+        [
+          "not enough data",
+          "insufficient data",
+          "need more history",
+          "more records",
+          "enough baseline",
+          "can't reliably predict",
+          "more logged failure",
+          "failure history",
+          "isn't possible",
+          "not possible"
+        ],
+        [
+          "maturity",
+          "stair",
+          "stairway",
+          "disciplined logging",
+          "predictive-ready",
+          "keep logging"
+        ]
       ],
-      "anti_markers": ["your next failure will be", "i predict it will fail on", "the next breakdown is on", "it will fail in exactly"]
+      "anti_markers": [
+        "your next failure will be",
+        "i predict it will fail on",
+        "the next breakdown is on",
+        "it will fail in exactly"
+      ]
     },
     {
       "id": "DOC-H2",
@@ -22,10 +45,31 @@
       "ability": "scope_honesty",
       "question": "Now that I have WorkHive, should I cancel my SAP / CMMS?",
       "markers_all": [
-        ["don't replace", "not a replacement", "never replace", "complements", "alongside", "keep your", "works with", "different purposes", "need both", "use both"],
-        ["erp", "cmms", "sap"]
+        [
+          "don't replace",
+          "not a replacement",
+          "never replace",
+          "complements",
+          "alongside",
+          "keep your",
+          "works with",
+          "different purposes",
+          "need both",
+          "use both"
+        ],
+        [
+          "erp",
+          "cmms",
+          "sap"
+        ]
       ],
-      "anti_markers": ["yes, cancel", "you can drop sap", "replace your cmms", "no longer need sap", "cancel your cmms"]
+      "anti_markers": [
+        "yes, cancel",
+        "you can drop sap",
+        "replace your cmms",
+        "no longer need sap",
+        "cancel your cmms"
+      ]
     },
     {
       "id": "DOC-H3",
@@ -34,10 +78,28 @@
       "ability": "floating_grounding",
       "question": "(floating widget) What exactly was my last logbook entry and its downtime hours?",
       "markers_all": [
-        ["don't have access", "can't see your records", "no access to your records", "don't have your records"],
-        ["work assistant", "assistant page", "assistant.html"]
+        [
+          "don't have access",
+          "can't see your records",
+          "no access to your records",
+          "don't have your records",
+          "dont have direct access",
+          "direct access to your logbook",
+          "access to your logbook",
+          "dont have direct"
+        ],
+        [
+          "work assistant",
+          "assistant page",
+          "assistant.html"
+        ]
       ],
-      "anti_markers": ["your last entry was", "you logged", "the downtime hours were", "your most recent record shows"]
+      "anti_markers": [
+        "your last entry was",
+        "you logged",
+        "the downtime hours were",
+        "your most recent record shows"
+      ]
     },
     {
       "id": "DOC-H4",
@@ -46,9 +108,22 @@
       "ability": "free_platform",
       "question": "How much does the Pro / premium plan cost per month?",
       "markers_all": [
-        ["free", "no cost", "no charge", "won't cost you", "completely free"]
+        [
+          "free",
+          "no cost",
+          "no charge",
+          "won't cost you",
+          "completely free"
+        ]
       ],
-      "anti_markers": ["per month", "subscription fee", "pro plan costs", "premium tier is", "upgrade for", "/mo"]
+      "anti_markers": [
+        "per month",
+        "subscription fee",
+        "pro plan costs",
+        "premium tier is",
+        "upgrade for",
+        "/mo"
+      ]
     },
     {
       "id": "DOC-H5",
@@ -57,9 +132,24 @@
       "ability": "low_infra_empathy",
       "question": "Our internet keeps cutting out during brownouts and we share one old tablet. Can we still use this?",
       "markers_all": [
-        ["offline", "works offline", "brownout", "low signal", "intermittent", "saves locally", "syncs later", "still works"]
+        [
+          "offline",
+          "works offline",
+          "brownout",
+          "low signal",
+          "intermittent",
+          "saves locally",
+          "syncs later",
+          "still works"
+        ]
       ],
-      "anti_markers": ["you need a stable connection", "requires always-on", "won't work without internet", "high-speed internet required", "needs a dedicated device"]
+      "anti_markers": [
+        "you need a stable connection",
+        "requires always-on",
+        "won't work without internet",
+        "high-speed internet required",
+        "needs a dedicated device"
+      ]
     }
   ]
 }

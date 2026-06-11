@@ -120,7 +120,13 @@
           "say that again",
           "not sure what",
           "what would you like",
-          "repeat that"
+          "repeat that",
+          "cant go over 100",
+          "cannot exceed",
+          "over 100",
+          "not right",
+          "impossible",
+          "cant be over"
         ]
       ],
       "anti_markers": [
@@ -358,7 +364,12 @@
           "cooling",
           "heat",
           "check",
-          "lube"
+          "lube",
+          "temp",
+          "shut it down",
+          "shut down",
+          "windings",
+          "85"
         ]
       ],
       "anti_markers": [
@@ -414,7 +425,12 @@
           "weekly",
           "frequency",
           "interval",
-          "regularly"
+          "regularly",
+          "6 month",
+          "months",
+          "year",
+          "every",
+          "depending on"
         ]
       ],
       "anti_markers": [],
