@@ -5232,6 +5232,17 @@ document.getElementById('f-category').addEventListener('change', updateTasklistS
     loadEntries().then(updateStatPills);
   }
   updateStatusToggle('f-status');
+
+  // Deep-link via ?id= (search-overlay job results link logbook.html?id=<entry id>;
+  // without this reader the link landed on the page but never opened the entry).
+  try {
+    const deepId = new URLSearchParams(window.location.search).get('id');
+    if (deepId) {
+      const openDeep = () => openModal(deepId);
+      if (_allEntries && _allEntries.length) openDeep();
+      else loadEntries().then(openDeep);
+    }
+  } catch (_) { /* empty-catch-allow: best-effort deep-link; list view still renders */ }
 })();
 
 </script>

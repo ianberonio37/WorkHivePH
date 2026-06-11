@@ -89,6 +89,11 @@ async function fetchRiskTop(db: SupabaseClient, hiveId: string): Promise<AnyRow[
   const { data } = await db.from("v_risk_truth")
     .select("asset_id, asset_name, risk_score, risk_level, top_factors, generated_at, hive_id")
     .eq("hive_id", hiveId)
+    // "Top risk this shift" = assets that actually warrant shift attention. Canonical
+    // bands (batch-risk-scoring): high >= 0.70, critical >= 0.85. Filtering by band
+    // keeps low/medium assets out of the shift brief (they belong in the full risk
+    // register, not the action list) and keeps the count honest vs the verdict copy.
+    .in("risk_level", ["high", "critical"])
     .order("risk_score", { ascending: false })
     .limit(RISK_TOP_LIMIT);
   return data || [];

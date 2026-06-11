@@ -122,11 +122,9 @@
       icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="15" y2="17"/><line x1="9" y1="9" x2="11" y2="9"/></svg>` },
     { label: 'Analytics',    href: 'analytics.html',    match: ['analytics'],          section: 'Intelligence', roles: ['supervisor','engineer'],
       icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg>` },
-    // Phase H.2 (2026-05-12 home streamline): hidden from primary nav,
-    // surfaced via the Predictive tab inside analytics.html. Keeps the page
-    // reachable for direct URLs and existing deep-links.
-    { label: 'Predictive ML', href: 'predictive.html',  match: ['predictive'],         section: 'Intelligence', hidden: true, roles: ['supervisor','engineer'],
-      icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>` },
+    // Phase 4 (2026-06-10): predictive.html RETIRED — delisted entirely. Its jobs
+    // live in Asset Hub (per-asset risk 360, same v_risk_truth) and the Predictive
+    // phase inside analytics.html. File kept on disk so old deep-links don't 404.
     // Phase 4.1 — AI Quality + ROI dashboard. Stair 2+ gated inside the page;
     // supervisor-only nav entry so workers don't see the link they can't act on.
     // Hidden from primary nav, surfaced via the "AI Quality" button on hive.html.

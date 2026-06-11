@@ -3019,9 +3019,12 @@
     const cached = _warmupCache[key];
     if (cached && (now - cached.ts) < _WARMUP_TTL_MS) return cached.value;
     try {
+      // v_asset_truth exposes `tag` (not asset_tag) and has no category/
+      // description/last_pm_at/next_pm_at columns — those reads 400'd silently.
+      // Alias tag->asset_tag to keep the cached record shape stable.
       const { data } = await db.from('v_asset_truth')
-        .select('asset_tag,name,category,status,last_pm_at,next_pm_at,description')
-        .eq('hive_id', hiveId).eq('asset_tag', assetTag).limit(1);
+        .select('asset_tag:tag,name,status,iso_class,criticality,location')
+        .eq('hive_id', hiveId).eq('tag', assetTag).limit(1);
       const value = Array.isArray(data) && data.length ? data[0] : null;
       _warmupCache[key] = { value, ts: now };
       return value;
@@ -4139,7 +4142,7 @@
       // "Prior shift" = previous 8h window in PHT.
       const since = new Date(Date.now() - 16 * 60 * 60 * 1000).toISOString();
       const { data } = await db.from('v_logbook_truth')
-        .select('asset_tag,issue,status,created_at')
+        .select('asset_tag,issue:problem,status,created_at')
         .eq('hive_id', hiveId)
         .eq('status', 'open')
         .gte('created_at', since)
@@ -5406,8 +5409,10 @@
       && !/\b[A-Z]{1,3}-?\d{2,5}\b/.test(transcript);
     if (!looksLikeNickname) return null;
     try {
+      // v_asset_truth has no category/description; match against the real
+      // descriptive columns (name + manufacturer + model + location).
       const { data } = await db.from('v_asset_truth')
-        .select('asset_tag,name,category,description')
+        .select('asset_tag:tag,name,manufacturer,model,location')
         .eq('hive_id', hiveId)
         .limit(60);
       if (!Array.isArray(data) || data.length === 0) return null;
@@ -5418,7 +5423,7 @@
       // Score each asset by overlap with name + category + description.
       let best = null, bestScore = 0;
       for (const a of data) {
-        const hay = (String(a.name || '') + ' ' + String(a.category || '') + ' ' + String(a.description || '')).toLowerCase();
+        const hay = (String(a.name || '') + ' ' + String(a.manufacturer || '') + ' ' + String(a.model || '') + ' ' + String(a.location || '')).toLowerCase();
         let score = 0;
         for (const w of sig) {
           if (hay.includes(w)) score += 1;
@@ -5652,7 +5657,7 @@
     if (!db || !workerName) return '';
     try {
       const { data } = await db.from('v_worker_skill_truth')
-        .select('discipline,level,primary_skill,role')
+        .select('discipline,level:current_level,primary_skill,role')
         .eq('worker_name', workerName)
         .limit(20);
       if (!Array.isArray(data) || data.length === 0) return '';
@@ -6033,14 +6038,25 @@
   // Helper: fetch equipment status from v_asset_truth (running / idle / maintenance / down)
   async function _fetchEquipmentStatus(db, hiveId) {
     try {
+      // Canonical column is `status` (not `state`); PostgREST has no server-side
+      // GROUP BY in select() — fetch the column and tally client-side.
       const { data, error } = await db.from('v_asset_truth')
-        .select('state, COUNT(*)')
+        .select('status')
         .eq('hive_id', hiveId)
-        .not('state', 'is', null)
-        .group_by('state')
-        .execute();
-      if (error || !data) return '';
-      const parts = data.map(r => r.count + ' ' + (r.state || 'unknown')).filter(Boolean);
+        .not('status', 'is', null)
+        .limit(500);
+      if (error || !data || !data.length) return '';
+      const counts = {};
+      for (const r of data) {
+        const k = r.status || 'unknown';
+        counts[k] = (counts[k] || 0) + 1;
+      }
+      // Only the OPERATIONAL vocabulary is real equipment status. The canonical
+      // status enum is an approval state (approved/pending) — NOT equipment
+      // status — so stay silent unless operational telemetry is present (mirrors
+      // the platform-scraper edge fn). Avoids feeding the LLM "30 approved".
+      const OPERATIONAL = ['running', 'idle', 'maintenance', 'down'];
+      const parts = OPERATIONAL.filter(s => counts[s]).map(s => counts[s] + ' ' + s);
       return parts.length ? 'Equipment: ' + parts.join(', ') + '.' : '';
     } catch (_) { return ''; }
   }
@@ -6061,10 +6077,10 @@
   // Helper: fetch PM status (due this week / overdue)
   async function _fetchPMStatus(db, hiveId) {
     try {
-      const dueSoon = await db.from('v_pm_scope_items_truth').select('COUNT').eq('hive_id', hiveId).eq('is_due_soon', true).execute();
-      const overdue = await db.from('v_pm_scope_items_truth').select('COUNT').eq('hive_id', hiveId).eq('is_overdue', true).execute();
-      const due = (dueSoon.data && dueSoon.data[0] && dueSoon.data[0].count) || 0;
-      const overdueCount = (overdue.data && overdue.data[0] && overdue.data[0].count) || 0;
+      const dueSoon = await db.from('v_pm_scope_items_truth').select('*', { count: 'exact', head: true }).eq('hive_id', hiveId).eq('is_due_soon', true);
+      const overdue = await db.from('v_pm_scope_items_truth').select('*', { count: 'exact', head: true }).eq('hive_id', hiveId).eq('is_overdue', true);
+      const due = dueSoon.count || 0;
+      const overdueCount = overdue.count || 0;
       if (due + overdueCount === 0) return '';
       return 'PMs: ' + due + ' due this week' + (overdueCount ? ', ' + overdueCount + ' overdue' : '') + '.';
     } catch (_) { return ''; }
@@ -6073,23 +6089,28 @@
   // Helper: fetch inventory alerts (low stock / out of stock)
   async function _fetchInventoryAlerts(db, hiveId) {
     try {
-      const low = await db.from('v_inventory_items_truth').select('COUNT').eq('hive_id', hiveId).eq('is_low_stock', true).execute();
-      const out = await db.from('v_inventory_items_truth').select('COUNT').eq('hive_id', hiveId).eq('is_out_of_stock', true).execute();
-      const lowCount = (low.data && low.data[0] && low.data[0].count) || 0;
-      const outCount = (out.data && out.data[0] && out.data[0].count) || 0;
+      const low = await db.from('v_inventory_items_truth').select('*', { count: 'exact', head: true }).eq('hive_id', hiveId).eq('is_low_stock', true);
+      const out = await db.from('v_inventory_items_truth').select('*', { count: 'exact', head: true }).eq('hive_id', hiveId).eq('is_out_of_stock', true);
+      const lowCount = low.count || 0;
+      const outCount = out.count || 0;
       if (lowCount + outCount === 0) return '';
       return (lowCount ? lowCount + ' low' : '') + (outCount ? (lowCount ? ' + ' : '') + outCount + ' out of stock' : '');
     } catch (_) { return ''; }
   }
 
-  // Helper: fetch adoption metrics (active workers, adoption score)
+  // Helper: fetch adoption signal. v_adoption_truth models adoption as RISK
+  // (risk_tier/risk_score) — there is no active-worker count column, so the old
+  // active_workers_week/adoption_score reads always 400'd. Surface the latest tier.
   async function _fetchAdoptionMetrics(db, hiveId) {
     try {
-      const { data, error } = await db.from('v_adoption_truth').select('active_workers_week, adoption_score').eq('hive_id', hiveId).single().execute();
-      if (error || !data) return '';
-      const workers = data.active_workers_week || 0;
-      if (workers === 0) return '';
-      return 'Active workers: ' + workers + '.';
+      const { data, error } = await db.from('v_adoption_truth')
+        .select('risk_tier, risk_score, snapshot_date')
+        .eq('hive_id', hiveId)
+        .order('snapshot_date', { ascending: false })
+        .limit(1);
+      const row = Array.isArray(data) && data.length ? data[0] : null;
+      if (error || !row || !row.risk_tier) return '';
+      return 'Adoption risk: ' + row.risk_tier + '.';
     } catch (_) { return ''; }
   }
 

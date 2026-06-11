@@ -7,7 +7,42 @@
   <title>Agentic RAG Observability | WorkHive</title>
   <meta name="theme-color" content="#162032" />
   <meta name="description" content="Per-hive observability of the agentic-rag-loop: route breakdown, retry rate, grader/checker pass rate, hallucination trend, token budget, p95 latency. Phase 8 of AGENTIC_RAG_ROADMAP.md." />
-  <link rel="canonical" href="https://workhiveph.com/workhive/agentic-rag-observability.html" />
+  <meta name="robots" content="noindex, nofollow" />
+  <script>
+    // Founder-only page (Phase 4 critic, 2026-06-10: agentic-rag dev observability
+    // with ZERO product links in = internal dev tool, not a product surface).
+    // Mirrors founder-console.html's gate: loopback = founder dev bypass; public
+    // hosts require isPlatformAdmin. Fail-CLOSED on any load/check error.
+    (function () {
+      if (['127.0.0.1', 'localhost', '::1'].indexOf(location.hostname) !== -1) return;
+      document.documentElement.style.visibility = 'hidden';
+      function deny() {
+        document.body.innerHTML = '<div style="font-family:sans-serif;color:#e6edf3;background:#0d1117;min-height:100vh;display:flex;align-items:center;justify-content:center;text-align:center;padding:2rem;"><div><h1 style="font-size:1.1rem;">Founder access only</h1><p style="color:#94a3b8;font-size:.85rem;margin-top:.5rem;">This is an internal WorkHive page.</p><p style="margin-top:1rem;"><a href="index.html" style="color:#38bdf8;">&larr; Back to WorkHive</a></p></div></div>';
+        document.documentElement.style.visibility = '';
+      }
+      window.addEventListener('DOMContentLoaded', function () {
+        var s1 = document.createElement('script');
+        s1.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
+        s1.onload = function () {
+          var s2 = document.createElement('script');
+          s2.src = 'utils.js';
+          s2.onload = function () {
+            try {
+              var db = supabase.createClient('https://hzyvnjtisfgbksicrouu.supabase.co', 'sb_publishable_ePj-suLMwkMRVDH6eM6S8g_R0rZVbMZ');
+              isPlatformAdmin(db).then(function (ok) {
+                if (ok) document.documentElement.style.visibility = '';
+                else deny();
+              }).catch(deny);
+            } catch (e) { deny(); }
+          };
+          s2.onerror = deny;
+          document.head.appendChild(s2);
+        };
+        s1.onerror = deny;
+        document.head.appendChild(s1);
+      });
+    })();
+  </script>
   <link rel="manifest" href="manifest.json" />
   <!-- chip-allow: phase 8 observability surface; reads agentic_rag_traces directly (canonical owner) -->
   <!-- dashboard-allow: this page IS an observability dashboard for the agentic-rag stack;
@@ -236,6 +271,15 @@
         sumCard(Math.round(retryRate * 100) + '%', 'Retry rate', retryRate > 0.1 ? 'amber' : ''),
         sumCard(Math.round(hallucRate * 100) + '%', 'Hallucination rate', hallucRate > 0.05 ? 'red' : 'green'),
       ].join('');
+
+      // Calm Dashboard verdict-region contract: the label must leave the
+      // "Computing observability verdict…" placeholder once stats land — for
+      // empty AND populated windows. (rate fields are 0-100 to match renderVerdict.)
+      renderVerdict({
+        calls: total,
+        checker_pass_rate: total ? (checkerPass / total) * 100 : 0,
+        hallucination_rate: hallucRate * 100,
+      });
     }
     function sumCard(value, label, klass) {
       return '<div class="sum-card ' + escHtml(klass) + '"><span class="sn">' + escHtml(value) + '</span><span class="sl">' + escHtml(label) + '</span></div>';

@@ -401,8 +401,11 @@
        Analytics already uses, so the user lands on the right surface in one
        tap instead of hunting through the FAB drawer. -->
   <div class="period-row" style="margin-top:-4px;">
-    <a href="predictive.html" class="refresh-btn" title="Per-asset risk ranking + health heatmap + failure trend (daily snapshot from v_risk_truth)" style="text-decoration:none;">
-      🔮 <span style="margin-left:4px;">Predictive</span>
+    <!-- Phase 4 (2026-06-10): predictive.html retired — per-asset risk 360 lives in
+         Asset Hub (same v_risk_truth); the failure-trend/next-failure view is the
+         Predictive phase inside this page's own analytics engine. -->
+    <a href="asset-hub.html" class="refresh-btn" title="Per-asset risk ranking + full asset 360 (v_risk_truth + v_asset_truth)" style="text-decoration:none;">
+      🔮 <span style="margin-left:4px;">Asset Risk</span>
     </a>
     <a href="shift-brain.html" class="refresh-btn" title="Today's top-risk list + handover summary for the current shift" style="text-decoration:none;">
       🧠 <span style="margin-left:4px;">Shift Brain</span>
@@ -866,6 +869,38 @@
     updateStatusBar(_phase);
   }
 
+  // ── Phase 1 (open-fast, 2026-06-10): hydrate from today's saved snapshots ──
+  // The orchestrator persists every successful UNFILTERED compute to
+  // analytics_snapshots (one row per hive+phase+period). First view of the
+  // day computes + saves; later views render the saved copy instantly and
+  // only the Refresh button recomputes. Solo mode and filtered views always
+  // compute live (snapshots are hive-keyed, default-view only).
+  async function loadSnapshots() {
+    if (!HIVE_ID) return [];
+    if (_filters.criticality !== 'all' || _filters.discipline !== 'all') return [];
+    try {
+      const { data, error } = await db.from('analytics_snapshots')
+        .select('phase, payload, computed_at')
+        .eq('hive_id', HIVE_ID)
+        .eq('period_days', _period);
+      if (error || !data) return [];
+      // Fresh = computed today in PHT (UTC+8); the first opener after the PHT
+      // day rolls over recomputes, mirroring the "first view of the day" rule.
+      const phtNow = new Date(Date.now() + 8 * 3600 * 1000);
+      const phtMidnightUtc = Date.UTC(phtNow.getUTCFullYear(), phtNow.getUTCMonth(), phtNow.getUTCDate()) - 8 * 3600 * 1000;
+      const fresh = [];
+      for (const row of data) {
+        const t = new Date(row.computed_at).getTime();
+        if (t >= phtMidnightUtc && row.payload && !row.payload.error) {
+          _cache[row.phase]     = row.payload;
+          _cacheTime[row.phase] = t;
+          fresh.push(row.phase);
+        }
+      }
+      return fresh;
+    } catch (_) { return []; }
+  }
+
   // ── Auto-load on page open ─────────────────────────────────────────────────
   async function autoLoad() {
     // Show current phase skeleton immediately
@@ -879,15 +914,26 @@
     // Restore any persisted global filters (criticality, discipline)
     applySavedFilters();
 
-    // Prioritise current tab — fetch it first, others follow
-    await fetchPhase('descriptive');
+    // Open-fast: today's saved snapshots render instantly; only stale or
+    // missing phases hit the compute engine (which re-saves them).
+    const hydrated = await loadSnapshots();
+    if (hydrated.includes('descriptive')) {
+      renderPhase('descriptive', _cache['descriptive']);
+      renderRoleQuickView();
+    } else {
+      await fetchPhase('descriptive');
+    }
     _loading = false;
     stopLoadingMessages();
     document.getElementById('status-spinner').style.display = 'none';
     updateStatusBar('descriptive');
 
     // Remaining phases load in background (don't block UI)
-    Promise.allSettled(['diagnostic','predictive','prescriptive'].map(p => fetchPhase(p)));
+    Promise.allSettled(
+      ['diagnostic','predictive','prescriptive']
+        .filter(p => !hydrated.includes(p))
+        .map(p => fetchPhase(p))
+    );
   }
 
   // ── Status bar: "Updated X min ago" ──────────────────────────────────────

@@ -3102,6 +3102,25 @@
     /* Load data */
     await Promise.all([loadListings(), loadCounts()]);
 
+    /* Deep-link via ?listing= (asset-hub "related parts" card links here).
+       The listing may sit outside the current section/page, so fall back to a
+       single-row fetch and stage it into _listings before opening the sheet. */
+    try {
+      const deepListing = new URLSearchParams(window.location.search).get('listing');
+      if (deepListing) {
+        if (!_listings.some(l => l.id === deepListing)) {
+          const { data: one } = await db
+            .from('v_marketplace_listings_truth')
+            .select('id,title,description,section,category,condition,price,location,seller_name,seller_verified,completed_sales,rating_avg,image_url,created_at')
+            .eq('id', deepListing)
+            .eq('status', 'published')
+            .maybeSingle();
+          if (one) _listings.push(one);
+        }
+        openDetailSheet(deepListing);
+      }
+    } catch (_) { /* empty-catch-allow: best-effort deep-link; list view still renders */ }
+
     /* Plain-Read details toggle (Layer D — UX Contract) */
     (function wireMkSummaryToggle() {
       const btn  = document.getElementById('details-toggle-btn');

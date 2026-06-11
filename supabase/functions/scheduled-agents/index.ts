@@ -57,7 +57,9 @@ async function runPMOverdue(db: SupabaseClient, hiveId: string, voiceContext?: s
   if (!assets.length) return "No assets found.";
 
   const assetIds = assets.map(a => a.id);
-  const { data: completions } = await db.from("v_pm_compliance_truth")
+  // canonical-allow: per-completion rows: pm_completions (base); the rollup view
+  // has no asset_id/completed_at. assetIds are pm_assets ids (= pm_completions.asset_id). (PROJ-DRIFT triage)
+  const { data: completions } = await db.from("pm_completions")
     .select("asset_id, completed_at")
     .in("asset_id", assetIds)
     .order("completed_at", { ascending: false });
@@ -199,7 +201,8 @@ async function runProjectSuggestions(db: SupabaseClient, hiveId: string, voiceCo
 
   // Skip assets already covered by an active project
   const { data: activeProjects } = await db.from("v_project_truth")
-    .select("id").eq("hive_id", hiveId).in("status", ["planning", "active"]).is("deleted_at", null);
+    // v_project_truth exposes project_id (not id) and pre-filters deleted/archived. Alias to id.
+    .select("id:project_id").eq("hive_id", hiveId).in("status", ["planning", "active"]);
   const activeProjectIds = (activeProjects || []).map(p => p.id);
   let coveredAssets: string[] = [];
   if (activeProjectIds.length) {
@@ -271,8 +274,9 @@ async function runProjectRisk(db: SupabaseClient, hiveId: string, voiceContext?:
   const since = new Date(Date.now() - 30 * 86400000).toISOString();
   // Get active projects + their blockers from last 30d
   const { data: projects } = await db.from("v_project_truth")
-    .select("id, project_code").eq("hive_id", hiveId)
-    .in("status", ["planning", "active"]).is("deleted_at", null);
+    // v_project_truth exposes project_id (not id) and pre-filters deleted/archived. Alias to id.
+    .select("id:project_id, project_code").eq("hive_id", hiveId)
+    .in("status", ["planning", "active"]);
   if (!projects?.length) return "No active projects with blockers to analyse.";
 
   const projectIds = projects.map(p => p.id);

@@ -1,3 +1,8 @@
+-- ⛔ SUPERSEDED 2026-06-10 (Phase 2, migration 20260610000005): the 3 shift-
+-- handover schedules are RETIRED per the no-cron compute rule. shift-brain.html
+-- now auto-generates the handover on the first open of a planless live window
+-- (compute-on-first-view). Do NOT re-run STEP B below; kept for history only.
+--
 -- Activate Shift Brain autonomous shift planner.
 --
 -- Prerequisites (in this order):

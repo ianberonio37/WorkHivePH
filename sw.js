@@ -3,7 +3,8 @@
 // surfaces (logbook, inventory, pm-scheduler, hive, asset-hub, shift-brain).
 // Closes PRODUCTION_FIXES #54.
 
-const CACHE_NAME  = 'workhive-shell-v148';  // bump 2026-06-09: full-platform deep-walk fixes re-prime — SHELL_FILES committed after v147 (hive.html PM-overdue asset roll-up + dashboard h1, logbook.html stat-pill count queries, inventory.html, pm-scheduler.html, shift-brain.html, asset-hub.html, + analytics/marketplace/skillmatrix/achievements/predictive a11y + alert-hub PM canonical). Without this bump PWA users keep the stale cached pages and never see the fixes. Re-prime cache.
+const CACHE_NAME  = 'workhive-shell-v149';  // bump 2026-06-10: DRIFT-49 closure + deep-link fixes re-prime — SHELL_FILES changed: voice-handler.js (digest helpers rewritten: .execute()/.group_by() removed, adoption→risk_tier, asset selects to real columns), pm-scheduler.html, shift-brain.html, hive.html (deep-walk fixes), asset-hub.html (?tag= deep-link reader). Without this bump PWA users keep the stale cached voice digest that silently returns ''. Re-prime cache.
+// const CACHE_NAME  = 'workhive-shell-v148';  // bump 2026-06-09: full-platform deep-walk fixes re-prime — SHELL_FILES committed after v147 (hive.html PM-overdue asset roll-up + dashboard h1, logbook.html stat-pill count queries, inventory.html, pm-scheduler.html, shift-brain.html, asset-hub.html, + analytics/marketplace/skillmatrix/achievements/predictive a11y + alert-hub PM canonical). Without this bump PWA users keep the stale cached pages and never see the fixes. Re-prime cache.
 // const CACHE_NAME  = 'workhive-shell-v147';  // bump 2026-06-07: COMPANION STEP 6 (proactive companion) — re-prime cache so PWA users get the latest committed SHELL_FILES (logbook/inventory/hive/asset-hub/shift-brain/pm-scheduler/report-sender + voice-handler.js were committed after the v146 sw.js, staleness FAIL). Step 6 itself edits companion-launcher.js (NOT a precached shell file) to proactively surface DUE agent_followups; bundling the bump here clears the carried-over PWA staleness. Re-prime cache.
 // const CACHE_NAME  = 'workhive-shell-v146';  // bump 2026-06-07: GROUNDED SWEEP C7 modal-a11y debt RETIRED (18->0) — SHELL_FILEs changed: logbook.html (7 modals) + inventory.html (4) + hive.html (3) + report-sender.html (1) all get role=dialog+aria-modal+aria-label + whModalA11y ESC/focus-trap/restore via utils.js. Re-prime cache.
 // const CACHE_NAME  = 'workhive-shell-v145';  // bump 2026-06-07: GROUNDED SWEEP W2 modal a11y — SHELL_FILE pm-scheduler.html changed: its 3 overlays (#pm-edit-modal/#completion-sheet/#add-task-sheet) get role=dialog+aria-modal+ESC/focus-trap/restore via the new utils.js whModalA11y helper. Re-prime cache.
@@ -81,7 +82,9 @@ const SHELL_FILES = [
   '/logbook.html',
   '/inventory.html',
   '/pm-scheduler.html',
-  '/parts-tracker.html',
+  // parts-tracker.html DELETED 2026-06-10 (Phase 4 consolidation: zombie page —
+  // assistant notes declared it retired; inventory.html is the canonical surface).
+  // Removing it here is mandatory: a precached missing file fails the whole SW install.
   '/shift-brain.html',
   '/asset-hub.html',
   '/hive.html',

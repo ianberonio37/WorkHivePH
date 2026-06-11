@@ -254,7 +254,7 @@
     data-rag-label="Shift brain detail">
       <strong style="display:block;margin-bottom:6px;color:rgba(255,255,255,0.85);">How this shift plan is built</strong>
       <ul style="margin:0;padding-left:20px;">
-        <li><strong>Top risk this shift</strong>: assets ranked by latest <code>asset_risk_scores.risk_score</code>; threshold cuts off below 0.65.</li>
+        <li><strong>Top risk this shift</strong>: assets ranked by latest <code>asset_risk_scores.risk_score</code>; only <strong>high</strong> and <strong>critical</strong> bands shown (risk_score &ge; 0.70). Low/medium assets live in the full risk register, not the shift brief.</li>
         <li><strong>PMs due</strong>: scope items with <code>next_due_date</code> within the shift window.</li>
         <li><strong>Carry-forward</strong>: breakdown / corrective entries left <code>Open</code> from the prior shift.</li>
         <li><strong>Parts pre-stage</strong>: parts at or below <code>min_qty</code> that one of the prioritized jobs is likely to consume.</li>
@@ -431,6 +431,47 @@
 
       _activePlan = (data && data[0]) || null;
       renderPlan();
+      maybeAutoGenerate();
+    }
+
+    // ── Phase 2 (2026-06-10): first open of a NEW shift auto-generates ──────
+    // the handover — compute-on-first-view, same no-cron rule as analytics
+    // snapshots (the 3 pg_cron shift jobs are retired by migration
+    // 20260610000005). Conditions: in a hive, viewing the LIVE window, and no
+    // plan row dated today (PHT — shift_plans.shift_date defaults to
+    // Asia/Manila; the 22-06 window spans midnight so yesterday's date is
+    // still the live shift). One attempt per page load; fail-soft to the
+    // existing empty state + Generate button.
+    let _autoGenTried = false;
+    async function maybeAutoGenerate() {
+      if (_autoGenTried || !HIVE_ID) return;
+      if (_activeWindow !== currentShiftWindow()) return;
+      const phtNow   = new Date(Date.now() + 8 * 3600 * 1000);
+      const phtToday = phtNow.toISOString().slice(0, 10);
+      const phtYest  = new Date(phtNow.getTime() - 86400000).toISOString().slice(0, 10);
+      const fresh = _activePlan && (
+        _activePlan.shift_date === phtToday ||
+        (_activeWindow === '22-06' && _activePlan.shift_date === phtYest)
+      );
+      if (fresh) return;
+      _autoGenTried = true;
+      _setShiftVerdict('Generating this shift’s handover…',
+        'First open of the shift builds the briefing from logbook + risk + PM data.');
+      try {
+        const { data, error } = await db.functions.invoke('shift-planner-orchestrator', {
+          body: { shift_window: _activeWindow, hive_id: HIVE_ID },
+        });
+        if (error || (data && data.error)) {
+          console.warn('shift auto-generate skipped:', (error && error.message) || (data && data.error));
+          renderPlan(); // restore the honest empty-state verdict
+          return;
+        }
+        await loadPlan(); // _autoGenTried blocks recursion
+        showToast('Shift handover generated for this window.');
+      } catch (err) {
+        console.warn('shift auto-generate error:', err && err.message);
+        renderPlan();
+      }
     }
 
     function renderPlan() {
@@ -655,7 +696,7 @@
           const isUnreachable = /404|Failed to fetch|Failed to send|non-2xx|FunctionsFetchError|FunctionsHttpError/i.test(msg);
           if (isUnreachable) {
             console.warn('shift-planner-orchestrator unreachable (likely local edge runtime not running):', msg);
-            showToast('Shift planner is offline locally. Run "npx supabase functions serve" or wait for the production cron.');
+            showToast('Shift planner is offline locally. Run "npx supabase functions serve" (the cron was retired 2026-06-10; plans generate on first open).');
           } else {
             showToast('Re-run failed: ' + (msg || 'unknown'));
           }
@@ -669,7 +710,7 @@
         const isUnreachable = /404|Failed to fetch|Failed to send|non-2xx|FunctionsFetchError|FunctionsHttpError/i.test(msg);
         if (isUnreachable) {
           console.warn('shift-planner-orchestrator unreachable:', msg);
-          showToast('Shift planner is offline locally. Run "npx supabase functions serve" or wait for the production cron.');
+          showToast('Shift planner is offline locally. Run "npx supabase functions serve" (the cron was retired 2026-06-10; plans generate on first open).');
         } else {
           showToast('Re-run error: ' + msg);
         }

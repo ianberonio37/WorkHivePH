@@ -851,7 +851,7 @@ Website simple 1st/
 ├── MARKETPLACE_GO_LIVE_ROADMAP.md   # 6-phase roadmap (blocked at Phase 1: DTI)
 ├── PRODUCTION_FIXES.md              # real prod bugs + fixes log
 ├── CANONICAL_SOURCES_AUDIT.md       # 20-domain truth-scattering audit (May 9)
-├── enable_shift_brain_cron.sql      # ready-to-run pg_cron schedule for Shift Brain
+├── enable_shift_brain_cron.sql      # SUPERSEDED 2026-06-10: shift handover now computes on first open (migration 20260610000005)
 │
 ├── _headers                         # CDN headers
 ├── manifest.json                    # PWA manifest

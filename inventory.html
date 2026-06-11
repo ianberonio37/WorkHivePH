@@ -1773,6 +1773,18 @@ async function validateHiveMembership() {
   try { await db.auth.getUser(); } catch (_) { /* empty-catch-allow: best-effort silent swallow */ }
   await validateHiveMembership();
   await initData();
+
+  // Deep-link via ?q= (search-overlay part results link inventory.html?q=<part>;
+  // without this reader the link landed on the page but never filtered the list).
+  try {
+    const deepQ = new URLSearchParams(window.location.search).get('q');
+    const search = document.getElementById('search-input');
+    if (deepQ && search) {
+      search.value = deepQ;
+      search.dispatchEvent(new Event('input', { bubbles: true }));
+      search.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  } catch (_) { /* empty-catch-allow: best-effort deep-link; full list still renders */ }
 })();
 </script>
   <script src="nav-hub.js"></script>

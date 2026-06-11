@@ -207,5 +207,8 @@
   "20260609000003_fix_community_xp_helpers_search_path.sql": "60eac35b7a403983f6f84a622779b06fd9f26a5b5cb108e3857547c0304b8df4",
   "20260609000004_fix_schedule_item_v1_category_enum.sql": "4255a5ab3020268224ab6d8bed0e2931abf78f595c0fe70c887928fd9a180fc2",
   "20260609000005_fix_readiness_blocker_summary.sql": "ad967f147a294e1eb812fc8b661ec93f9967e9e51362ffd6cf09ddf730d02cb1",
-  "20260609000006_ai_reply_feedback.sql": "d92225b63512f4472bf1ab27b2ff27cd586881e1bff5b8183fe175d922ecd874"
+  "20260609000006_ai_reply_feedback.sql": "d92225b63512f4472bf1ab27b2ff27cd586881e1bff5b8183fe175d922ecd874",
+  "20260610000000_fix_pm_scope_frequency_days.sql": "ae2cb727eea863e9426f7db8bdfd2ccd25fd43fd259bddc42a832493cbea6a3b",
+  "20260610000001_get_pm_compliance_smrp.sql": "ec35b4efe5e8f6445cbaf3937c04a354637bc4f3215304fe6eab3bfc676e9782",
+  "20260610000002_v_marketplace_orders_truth_reviewed_at.sql": "569b87cc4db160199d84e55f072c4a704747d7035456c8e0fefeb3da71f943e5"
 }

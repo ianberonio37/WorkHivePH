@@ -107,10 +107,12 @@ serve(async (req: Request) => {
   /* ── Load project + items + links + logs + roles + change_orders ───── */
   const [projRes, itemsRes, linksRes, logsRes, rolesRes, coRes] = await Promise.all([
     db.from('v_project_truth')
-      .select('id, hive_id, project_type, status, start_date, end_date, budget_php, created_at')
-      .eq('id', project_id)
+      // v_project_truth aliases p.id -> project_id and p.end_date -> target_end_date,
+      // and already filters deleted_at/archived internally. Alias the outputs back to
+      // id/end_date so the forwarded Python payload keeps the keys it reads.
+      .select('id:project_id, hive_id, project_type, status, start_date, end_date:target_end_date, budget_php, created_at')
+      .eq('project_id', project_id)
       .eq('hive_id', hive_id)
-      .is('deleted_at', null)
       .maybeSingle(),
     db.from('v_project_items_truth')
       .select('id, title, status, pct_complete, estimated_hours, actual_hours, predecessors, planned_start, planned_end, owner_name, notes, sort_order')

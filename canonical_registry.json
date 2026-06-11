@@ -1217,7 +1217,10 @@
         "logbook.html",
         "pm-scheduler.html"
       ],
-      "read_by_edge_fns": [],
+      "read_by_edge_fns": [
+        "ai-orchestrator",
+        "analytics-orchestrator"
+      ],
       "written_by_edge_fns": []
     },
     "pm_completions": {
@@ -1262,7 +1265,12 @@
         "pm-scheduler.html"
       ],
       "read_by_edge_fns": [
-        "analytics-orchestrator"
+        "ai-orchestrator",
+        "analytics-orchestrator",
+        "asset-brain-query",
+        "batch-risk-scoring",
+        "scheduled-agents",
+        "trigger-ml-retrain"
       ],
       "written_by_edge_fns": []
     },
@@ -5266,7 +5274,6 @@
         "ai-orchestrator",
         "amc-orchestrator",
         "analytics-orchestrator",
-        "asset-brain-query",
         "batch-risk-scoring",
         "embed-entry",
         "hierarchical-summarizer",
@@ -6542,6 +6549,18 @@
       "comment": "",
       "called_by_surfaces": [],
       "called_by_edge_fns": []
+    },
+    "get_pm_compliance_smrp": {
+      "defined_in": "20260610000001_get_pm_compliance_smrp.sql",
+      "args": "p_hive_id     uuid,\n  p_period_days int DEFAULT 90",
+      "security_definer": true,
+      "comment": "Canonical SMRP 2.1.1 PM-compliance (completed/scheduled, frequency-aware via v_pm_scope_items_truth.frequency_days). Single source of truth for pm-scheduler.html + analytics-orchestrator. SECURITY DEFINER + hive-membership gate (authenticated members; service_role server-to-server). Returns {overall_pct, total_scheduled, total_completed, asset_count, compliance_by_asset[]}.",
+      "called_by_surfaces": [
+        "pm-scheduler.html"
+      ],
+      "called_by_edge_fns": [
+        "analytics-orchestrator"
+      ]
     }
   },
   "surfaces": {
@@ -6563,7 +6582,7 @@
       "tables_written": [],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "size_kb": 18.7
+      "size_kb": 19.1
     },
     "ai-quality.html": {
       "tables_read": [
@@ -6597,7 +6616,7 @@
         "compute_anomaly_signals"
       ],
       "edge_fns_invoked": [],
-      "size_kb": 67.6
+      "size_kb": 67.8
     },
     "analytics-report.html": {
       "tables_read": [
@@ -6668,7 +6687,7 @@
         "pf-calculator",
         "weibull-fitter"
       ],
-      "size_kb": 182.7
+      "size_kb": 183.2
     },
     "assistant.html": {
       "tables_read": [
@@ -6802,14 +6821,14 @@
         "ai-orchestrator",
         "benchmark-compute"
       ],
-      "size_kb": 211.3
+      "size_kb": 211.5
     },
     "index.html": {
       "tables_read": [],
       "tables_written": [],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "size_kb": 116.1
+      "size_kb": 119.1
     },
     "integrations.html": {
       "tables_read": [
@@ -6998,7 +7017,7 @@
         "increment_listing_view"
       ],
       "edge_fns_invoked": [],
-      "size_kb": 159.9
+      "size_kb": 160.8
     },
     "parts-tracker.html": {
       "tables_read": [],
@@ -7063,9 +7082,11 @@
         "pm_scope_items",
         "project_links"
       ],
-      "rpcs_called": [],
+      "rpcs_called": [
+        "get_pm_compliance_smrp"
+      ],
       "edge_fns_invoked": [],
-      "size_kb": 122.4
+      "size_kb": 123.7
     },
     "predictive.html": {
       "tables_read": [
@@ -7128,7 +7149,7 @@
       "edge_fns_invoked": [
         "project-orchestrator"
       ],
-      "size_kb": 29.8
+      "size_kb": 30.0
     },
     "public-feed.html": {
       "tables_read": [
@@ -7180,7 +7201,7 @@
       "edge_fns_invoked": [
         "shift-planner-orchestrator"
       ],
-      "size_kb": 40.2
+      "size_kb": 41.2
     },
     "skillmatrix.html": {
       "tables_read": [
@@ -7448,7 +7469,7 @@
       "tables_written": [],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "loc": 259
+      "loc": 277
     },
     "_shared/provider-health.ts": {
       "tables_read": [],
@@ -7577,6 +7598,8 @@
     },
     "ai-orchestrator": {
       "tables_read": [
+        "pm_assets",
+        "pm_completions",
         "v_inventory_items_truth",
         "v_logbook_truth",
         "v_pm_compliance_truth",
@@ -7588,7 +7611,7 @@
       "tables_written": [],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "loc": 470
+      "loc": 474
     },
     "amc-orchestrator": {
       "tables_read": [
@@ -7610,6 +7633,7 @@
     "analytics-orchestrator": {
       "tables_read": [
         "engineering_calcs",
+        "pm_assets",
         "pm_completions",
         "v_inventory_items_truth",
         "v_inventory_transactions_truth",
@@ -7628,20 +7652,21 @@
         "get_mtbf_by_machine",
         "get_mttr_by_machine",
         "get_oee_by_machine",
+        "get_pm_compliance_smrp",
         "get_repeat_failures"
       ],
       "edge_fns_invoked": [],
-      "loc": 907
+      "loc": 924
     },
     "asset-brain-query": {
       "tables_read": [
         "ai_rate_limits",
         "asset_edges",
+        "pm_completions",
         "v_asset_truth",
         "v_fmea_truth",
         "v_logbook_truth",
         "v_pf_truth",
-        "v_pm_compliance_truth",
         "v_rcm_truth",
         "v_risk_truth",
         "v_weibull_truth",
@@ -7658,6 +7683,7 @@
       "tables_read": [
         "asset_risk_scores",
         "automation_log",
+        "pm_completions",
         "v_asset_truth",
         "v_fmea_truth",
         "v_hives_truth",
@@ -7677,7 +7703,7 @@
         "get_mtbf_by_machine"
       ],
       "edge_fns_invoked": [],
-      "loc": 662
+      "loc": 664
     },
     "benchmark-compute": {
       "tables_read": [
@@ -8013,7 +8039,7 @@
       "tables_written": [],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "loc": 230
+      "loc": 229
     },
     "project-orchestrator": {
       "tables_read": [
@@ -8038,7 +8064,7 @@
       "tables_written": [],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "loc": 152
+      "loc": 154
     },
     "resume-extract": {
       "tables_read": [
@@ -8066,6 +8092,7 @@
       "tables_read": [
         "ai_reports",
         "automation_log",
+        "pm_completions",
         "project_links",
         "v_hives_truth",
         "v_logbook_truth",
@@ -8079,7 +8106,7 @@
       ],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "loc": 336
+      "loc": 340
     },
     "semantic-fact-extractor": {
       "tables_read": [
@@ -8142,7 +8169,7 @@
       ],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "loc": 270
+      "loc": 275
     },
     "temporal-rag-orchestrator": {
       "tables_read": [
@@ -8159,6 +8186,7 @@
     "trigger-ml-retrain": {
       "tables_read": [
         "automation_log",
+        "pm_completions",
         "v_inventory_transactions_truth",
         "v_logbook_truth",
         "v_pm_compliance_truth",
@@ -8169,7 +8197,7 @@
       ],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "loc": 108
+      "loc": 110
     },
     "tts-speak": {
       "tables_read": [],
@@ -8216,7 +8244,7 @@
       "tables_written": [],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "loc": 213
+      "loc": 219
     },
     "voice-logbook-entry": {
       "tables_read": [

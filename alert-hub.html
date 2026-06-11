@@ -943,12 +943,18 @@
         .order('triggered_at', { ascending: false })
         .limit(10),
 
-      // Real columns: rule_id (signature kind), alert_title/alert_detail
-      // (message), detected_at (timestamp). The pre-fix select used phantom
-      // names (signature_kind/message/created_at) and returned nulls silently.
-      db.from('failure_signature_alerts')
-        .select('id, machine, rule_id, alert_title, alert_detail, severity, hive_id, detected_at')
+      // Phase 3 one-brain (2026-06-10): read the SAME alert composer the Hive
+      // Board uses — v_alert_truth (alert_kind='signature') — instead of the raw
+      // failure_signature_alerts table. The raw read had NO status filter, so
+      // RESOLVED alerts re-appeared here as live while the board correctly
+      // dropped them (the view keeps active+acknowledged only). Bonus: the view
+      // normalizes signature severities (warning→high, info→low) into the same
+      // palette the risk/stock alerts in this feed already use. View renames:
+      // alert_title→title, alert_detail→detail.
+      db.from('v_alert_truth')
+        .select('alert_id, machine, rule_id, title, detail, severity, detected_at, status')
         .eq('hive_id', HIVE_ID)
+        .eq('alert_kind', 'signature')
         .order('detected_at', { ascending: false })
         .limit(20),
 
@@ -1041,7 +1047,8 @@
           kind: 'pattern',
           severity: p.severity || 'medium',
           title: p.machine || 'Unknown machine',
-          msg: p.alert_title || p.alert_detail || ('Pattern: ' + (p.rule_id || 'unknown')),
+          // v_alert_truth renames alert_title→title / alert_detail→detail
+          msg: p.title || p.detail || ('Pattern: ' + (p.rule_id || 'unknown')),
           time: p.detected_at,
           href: 'asset-hub.html?tag=' + encodeURIComponent(p.machine || ''),
           actionLabel: 'Open in Asset Hub',

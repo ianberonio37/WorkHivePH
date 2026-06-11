@@ -1,0 +1,72 @@
+{
+  "_doc": "KPI Source Registry (Phase 5, 2026-06-10). One metric -> ONE official derivation. validate_kpi_source_registry.py enforces: every consumer references an allowed source (comment-stripped), no consumer matches a forbidden pattern, and every view.column here exists in the live DB. Derivations were ESTABLISHED by the 2026-06-09/10 parity audits (see ROADMAP_pm_analytics_canonical_2026-06-10.md) - do not edit a derivation without re-running the cross-page parity audit.",
+  "metrics": {
+    "pm_overdue": {
+      "definition": "Assets with >=1 frequency-aware overdue scope item (distinct pm_asset_id roll-up)",
+      "allowed_sources": [
+        "v_pm_scope_items_truth",
+        "get_hive_dashboard"
+      ],
+      "required_signal": "is_overdue",
+      "consumers": [
+        "index.html",
+        "alert-hub.html",
+        "hive.html",
+        "pm-scheduler.html"
+      ],
+      "forbidden": [
+        {
+          "pattern": "\\.from\\(\\s*['\\\"]v_pm_compliance_truth['\\\"]\\s*\\)[^;]{0,400}is_due",
+          "why": "v_pm_compliance_truth.is_due is the retired flat-30-day proxy (F4-class: home showed 26 vs pm-scheduler 4). Overdue tiles read frequency-aware is_overdue."
+        }
+      ]
+    },
+    "pm_compliance": {
+      "definition": "SMRP on-time PM completion rate (completions within window / scheduled), canonical RPC",
+      "allowed_sources": [
+        "get_pm_compliance_smrp"
+      ],
+      "required_signal": null,
+      "consumers": [
+        "pm-scheduler.html",
+        "supabase/functions/analytics-orchestrator/index.ts"
+      ],
+      "forbidden": [
+        {
+          "pattern": "compliance\\s*[:=][^;\\n]{0,80}ontrack\\s*/",
+          "why": "Local ontrack/total ratio is the pre-canonical derivation (showed 0%/60% vs SMRP 88.5%)."
+        }
+      ]
+    },
+    "low_stock": {
+      "definition": "Inventory items at/below threshold, server-derived flag",
+      "allowed_sources": [
+        "v_inventory_items_truth"
+      ],
+      "required_signal": "is_low_stock",
+      "consumers": [
+        "index.html",
+        "alert-hub.html",
+        "inventory.html"
+      ],
+      "forbidden": []
+    },
+    "top_risk_band": {
+      "definition": "Action-list surfaces ('top risk this shift' / 'needs attention now') show high+critical bands only (critical>=0.85, high>=0.70)",
+      "allowed_sources": [
+        "v_risk_truth"
+      ],
+      "required_signal": "risk_level",
+      "consumers": [
+        "shift-brain.html",
+        "supabase/functions/shift-planner-orchestrator/index.ts"
+      ],
+      "forbidden": [
+        {
+          "pattern": "\\.from\\(\\s*['\\\"]v_risk_truth['\\\"]\\s*\\)(?:(?!risk_level)[^;]){0,400}\\.order\\(\\s*['\\\"]risk_score",
+          "why": "Top-N by score WITHOUT a band filter listed low/medium assets as 'top risk this shift' (cried wolf; fixed 2026-06-10)."
+        }
+      ]
+    }
+  }
+}

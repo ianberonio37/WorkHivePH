@@ -647,7 +647,7 @@ STAGE 2 — Team Tools:
 - Asset Hub (asset-hub.html): Asset Brain 360 view of any equipment in the hive. Shows live state, full timeline (logbook, PM, inventory, projects), parent and sister machines, Reliability Workbench (FMEA matrix + RCM strategy + Weibull fit + P-F interval), Live Telemetry tile (last 30d sensor_readings per parameter with Z-score anomaly chip, fed by sensor-readings-ingest edge function from plant MQTT/OPC-UA bridge), and natural-language Q and A grounded in that asset's own history. Asset Brain is the connective tissue across the whole platform; every other module feeds into the hub via the asset_nodes graph. ISO 14224 hierarchy: enterprise > site > plant > unit > equipment > component.
 - Shift Brain (shift-brain.html): Autonomous shift planner. Triggered by pg_cron at the Filipino 3-shift boundaries (06:00 / 14:00 / 22:00 PHT). The shift-planner-orchestrator edge function runs four sub-agents in parallel (risk-ranking from asset_risk_scores, PMs due today from pm_assets, carry-forward open logbook entries older than 8h, parts pre-stage from inventory_items at or below reorder_point) plus a callAI-driven morning briefing synthesizer. Output is a draft shift_plans row per hive per window; supervisors review and publish to the crew.
 
-NOTES: parts-tracker.html and checklist.html are retired — use Logbook instead. Kicked hive members cannot rejoin via invite code.
+NOTES: parts-tracker.html (deleted), checklist.html, predictive.html, and platform-health.html are retired — for parts use Inventory; for per-asset risk use Asset Hub; for failure trends use Analytics' Predictive phase. Kicked hive members cannot rejoin via invite code.
 --- END PLATFORM CONTEXT ---
 
 This person may be a field technician, supervisor, engineer, planner, or plant manager. Adapt your tone and depth to whoever they are. If their context note or records suggest their role, use that to calibrate. When in doubt, be clear and practical for any level.
@@ -1073,6 +1073,18 @@ happens to know maintenance, not a manual.`;
       } else {
         loadRecordsSummary().catch(e => { console.error('loadRecordsSummary:', e); showToast('Could not load your records — check your connection.'); });
       }
+
+      // Deep-link via ?q= (companion-launcher's "continue in Assistant" carries the
+      // question; without this reader the hand-off silently dropped it). Prefill +
+      // focus ONLY — never auto-send, so a crafted link can't fire AI calls.
+      try {
+        const deepQ = new URLSearchParams(window.location.search).get('q');
+        const input = document.getElementById('chat-input');
+        if (deepQ && input) {
+          input.value = deepQ.slice(0, 300);
+          input.focus();
+        }
+      } catch (_) { /* empty-catch-allow: best-effort deep-link; chat still works */ }
     });
   </script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>

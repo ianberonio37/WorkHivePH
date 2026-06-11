@@ -3625,12 +3625,21 @@
 
       await loadAssetNodes();
 
-      // Deep-link via ?node_id=
+      // Deep-link via ?node_id= or ?tag= (index QR-scan sends a tag like "M-001";
+      // the index Top-At-Risk tiles send the asset NAME — match either, case-insensitive)
       try {
         const params = new URLSearchParams(window.location.search);
         const initialNode = params.get('node_id');
         if (initialNode && _allNodes.some(n => n.id === initialNode)) {
           openDetail(initialNode);
+        } else {
+          const initialTag = (params.get('tag') || '').trim().toLowerCase();
+          if (initialTag) {
+            const hit = _allNodes.find(n =>
+              String(n.tag || '').toLowerCase() === initialTag ||
+              String(n.name || '').toLowerCase() === initialTag);
+            if (hit) openDetail(hit.id);
+          }
         }
       } catch (_) { /* empty-catch-allow: best-effort silent swallow */ }
 

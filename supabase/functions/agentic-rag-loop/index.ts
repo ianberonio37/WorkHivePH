@@ -412,9 +412,9 @@ async function retrieverStage(
     try {
       // Parallel narrow counts — kept tight so the lane is bounded.
       const [assetsAll, assetsCritical, pmDue, invOOS, invLow] = await Promise.all([
-        db.from("v_asset_truth").select("id", { count: "exact", head: true }).eq("hive_id", hiveId),
-        db.from("v_asset_truth").select("id", { count: "exact", head: true }).eq("hive_id", hiveId).eq("criticality", "critical"),
-        db.from("v_pm_compliance_truth").select("id", { count: "exact", head: true }).eq("hive_id", hiveId).eq("is_due", true),
+        db.from("v_asset_truth").select("asset_id", { count: "exact", head: true }).eq("hive_id", hiveId),
+        db.from("v_asset_truth").select("asset_id", { count: "exact", head: true }).eq("hive_id", hiveId).eq("criticality", "critical"),
+        db.from("v_pm_compliance_truth").select("pm_asset_id", { count: "exact", head: true }).eq("hive_id", hiveId).eq("is_due", true),
         db.from("v_inventory_items_truth").select("id", { count: "exact", head: true }).eq("hive_id", hiveId).eq("qty_on_hand", 0),
         db.from("v_inventory_items_truth").select("id", { count: "exact", head: true }).eq("hive_id", hiveId).gt("qty_on_hand", 0).lte("qty_on_hand", 5),
       ]);

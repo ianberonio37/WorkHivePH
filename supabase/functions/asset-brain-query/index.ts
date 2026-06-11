@@ -151,8 +151,8 @@ async function fetchAssetGraphContext(
   let parent: AnyRow | null = null;
   if (node && (node as AnyRow).parent_id) {
     const { data: parr } = await db.from("v_asset_truth")
-      .select("id, tag, name, level")
-      .eq("hive_id", hiveId).eq("id", (node as AnyRow).parent_id).limit(1);
+      .select("id:asset_id, tag, name, level")
+      .eq("hive_id", hiveId).eq("asset_id", (node as AnyRow).parent_id).limit(1);
     parent = (parr && parr[0]) || null;
   }
 
@@ -167,8 +167,8 @@ async function fetchAssetGraphContext(
     const otherIds = Array.from(new Set(edges.map(e => (e.from_node_id === assetId ? e.to_node_id : e.from_node_id))));
     if (otherIds.length) {
       const { data: nbs } = await db.from("v_asset_truth")
-        .select("id, tag, name, criticality, iso_class")
-        .eq("hive_id", hiveId).in("id", otherIds);
+        .select("id:asset_id, tag, name, criticality, iso_class")
+        .eq("hive_id", hiveId).in("asset_id", otherIds);
       neighbors = (nbs || []).map(n => {
         const ed = edges.find(e => e.from_node_id === n.id || e.to_node_id === n.id);
         return { ...n, edge_type: ed ? ed.edge_type : "related" };
@@ -199,7 +199,9 @@ async function fetchAssetTimeline(
   );
   if (node.pm_asset_id) {
     queries.push(
-      db.from("v_pm_compliance_truth")
+      // canonical-allow: per-completion timeline rows; the rollup view has no
+      // completed_at/worker_name/scope_item_id. (PROJ-DRIFT triage)
+      db.from("pm_completions")
         .select("id, asset_id, completed_at, worker_name, scope_item_id")
         .eq("hive_id", hiveId)
         .eq("asset_id", node.pm_asset_id)
@@ -233,10 +235,10 @@ async function fetchSimilarFailures(
   // Find peer assets in the same hive + iso_class (excluding self).
   // canonical-allow: asset-brain neighbor traversal needs the raw graph table
   const { data: peers } = await db.from("v_asset_truth")
-    .select("id, tag, name")
+    .select("id:asset_id, tag, name")
     .eq("hive_id", hiveId)
     .eq("iso_class", node.iso_class)
-    .neq("id", node.id)
+    .neq("asset_id", node.id)
     .limit(20);
 
   if (!peers || !peers.length) return [];

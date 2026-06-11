@@ -109,21 +109,23 @@ async function _fetchEquipmentStatus(
   hive_id: string
 ): Promise<string> {
   try {
-    // Group assets by state from v_asset_truth
+    // Group assets by status from v_asset_truth. PostgREST has no server-side
+    // GROUP BY/COUNT in select(); the canonical column is `status` (not the
+    // never-existed `state`). Fetch the status column and tally client-side.
     const { data, error } = await db
       .from("v_asset_truth")
-      .select("state, COUNT(*) as count")
+      .select("status")
       .eq("hive_id", hive_id)
-      .not("state", "is", null)
-      .group_by("state")
-      .execute();
+      .not("status", "is", null)
+      .limit(500);
 
     if (error || !data || data.length === 0) return "";
 
     // Build a summary: "3 running, 1 maintenance, 0 down"
     const stateCounts = data.reduce(
       (acc: Record<string, number>, row: any) => {
-        acc[row.state] = row.count;
+        const k = row.status || "unknown";
+        acc[k] = (acc[k] || 0) + 1;
         return acc;
       },
       {}
@@ -151,8 +153,7 @@ async function _fetchRiskAssets(db: any, hive_id: string): Promise<string> {
       .select("asset_name, risk_level")
       .eq("hive_id", hive_id)
       .order("risk_score", { ascending: false })
-      .limit(2)
-      .execute();
+      .limit(2);
 
     if (error || !data || data.length === 0) return "";
 
@@ -176,14 +177,12 @@ async function _fetchPMStatus(db: any, hive_id: string): Promise<string> {
         .from("v_pm_scope_items_truth")
         .select("scope_item_id", { count: "exact", head: true })
         .eq("hive_id", hive_id)
-        .eq("is_due_soon", true)
-        .execute(),
+        .eq("is_due_soon", true),
       db
         .from("v_pm_scope_items_truth")
         .select("scope_item_id", { count: "exact", head: true })
         .eq("hive_id", hive_id)
-        .eq("is_overdue", true)
-        .execute(),
+        .eq("is_overdue", true),
     ]);
 
     const dueCount    = dueSoon.count ?? 0;
@@ -214,14 +213,12 @@ async function _fetchInventoryAlerts(db: any, hive_id: string): Promise<string> 
         .from("v_inventory_items_truth")
         .select("id", { count: "exact", head: true })
         .eq("hive_id", hive_id)
-        .eq("is_low_stock", true)
-        .execute(),
+        .eq("is_low_stock", true),
       db
         .from("v_inventory_items_truth")
         .select("id", { count: "exact", head: true })
         .eq("hive_id", hive_id)
-        .eq("is_out_of_stock", true)
-        .execute(),
+        .eq("is_out_of_stock", true),
     ]);
 
     const lowCount = low.count ?? 0;
@@ -238,22 +235,23 @@ async function _fetchInventoryAlerts(db: any, hive_id: string): Promise<string> 
   }
 }
 
-// Helper: adoption metrics (active workers, score)
+// Helper: adoption signal. v_adoption_truth models adoption as RISK
+// (risk_tier/risk_score) — there is no active-worker count anywhere in the
+// schema, so the old active_workers_week/adoption_score reads always 400'd.
+// Surface the latest adoption-risk tier instead.
 async function _fetchAdoption(db: any, hive_id: string): Promise<string> {
   try {
     const { data, error } = await db
       .from("v_adoption_truth")
-      .select("active_workers_week, adoption_score")
+      .select("risk_tier, risk_score, snapshot_date")
       .eq("hive_id", hive_id)
-      .single()
-      .execute();
+      .order("snapshot_date", { ascending: false })
+      .limit(1);
 
-    if (error || !data) return "";
+    const row = Array.isArray(data) && data.length ? data[0] : null;
+    if (error || !row || !row.risk_tier) return "";
 
-    const workers = data.active_workers_week || 0;
-    if (workers === 0) return "";
-
-    return `Active this week: ${workers} worker${workers !== 1 ? "s" : ""}.`;
+    return `Adoption risk: ${row.risk_tier}.`;
   } catch (_) {
     return "";
   }

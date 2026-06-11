@@ -79,8 +79,9 @@ async function pmStatusAgent(db: SupabaseClient, hiveId: string | null, workerNa
       id: a.pm_asset_id, asset_name: a.asset_name, category: a.category,
     }));
   } else if (workerName) {
-    // canonical-allow: solo mode (no hive_id) cannot use hive-scoped v_pm_compliance_truth
-    const { data } = await db.from("v_pm_compliance_truth")
+    // canonical-allow: solo mode — v_pm_compliance_truth is hive-scoped and has no
+    // worker_name column; base pm_assets is the only worker-scoped source. (PROJ-DRIFT triage)
+    const { data } = await db.from("pm_assets")
       .select("id, asset_name, category")
       .eq("worker_name", workerName);
     assets = (data || []) as Array<Record<string, string>>;
@@ -88,7 +89,10 @@ async function pmStatusAgent(db: SupabaseClient, hiveId: string | null, workerNa
   if (!assets.length) return { agent: "pm_status", result: null };
 
   const assetIds = assets.map(a => a.id);
-  const { data: completions } = await db.from("v_pm_compliance_truth")
+  // canonical-allow: per-completion rows live in pm_completions (base table);
+  // v_pm_compliance_truth is a per-asset rollup with no asset_id/completed_at. assetIds are pm_assets ids
+  // (= pm_completions.asset_id). (PROJ-DRIFT triage)
+  const { data: completions } = await db.from("pm_completions")
     .select("asset_id, completed_at")
     .in("asset_id", assetIds)
     .order("completed_at", { ascending: false });

@@ -255,14 +255,15 @@ function getPhase(it) {
 
 async function loadAndRender(projectId) {
   const [projRes, itemsRes, linksRes, logsRes] = await Promise.all([
-    db.from('v_project_truth').select('*').eq('id', projectId).is('deleted_at', null).maybeSingle(),
+    db.from('v_project_truth').select('*, id:project_id, end_date:target_end_date').eq('project_id', projectId).maybeSingle(),
     db.from('v_project_items_truth').select('*').eq('project_id', projectId).order('sort_order'),
     db.from('project_links').select('*').eq('project_id', projectId).order('created_at'),
     db.from('v_project_progress_truth').select('*').eq('project_id', projectId).order('log_date', { ascending: false }).limit(60),
   ]);
   if (projRes.error || !projRes.data) {
+    if (projRes.error) console.error('project-report load:', projRes.error.message);
     $('tb-title').textContent = 'Project not found';
-    $('exec-summary').innerHTML = '<div class="empty-section">' + e(projRes.error?.message || 'Project not accessible.') + '</div>';
+    $('exec-summary').innerHTML = '<div class="empty-section">This project could not be loaded. It may have been removed, or you may not have access. <a href="project-manager.html" style="color: var(--accent);">Back to Project Manager</a></div>';
     return;
   }
   const project = projRes.data;

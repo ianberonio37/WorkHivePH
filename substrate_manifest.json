@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-06-09T10:54:40.704759+00:00",
+  "generated_at": "2026-06-10T11:09:03.944448+00:00",
   "sources": 13,
   "present": 13,
   "absent": 0,
@@ -173,7 +173,7 @@
       "proposals": [
         {
           "feature": "has_header_comment",
-          "conformance": 0.99,
+          "conformance": 0.991,
           "outlier_count": 2,
           "outliers": [
             "20260422192855_remote_commit.sql",
@@ -182,7 +182,7 @@
         }
       ],
       "summary": {
-        "files_scanned": 209,
+        "files_scanned": 212,
         "features_extracted": 22,
         "promotion_candidates": 1
       },
@@ -218,6 +218,16 @@
       "present": true,
       "proposals": [
         {
+          "feature": "has_cp1252_stdout_guard",
+          "conformance": 0.991,
+          "outlier_count": 3,
+          "outliers": [
+            "validate_frequency_map_consistency.py",
+            "validate_seeder_insert_columns.py",
+            "validate_truth_view_consumer_columns.py"
+          ]
+        },
+        {
           "feature": "has_main_guard",
           "conformance": 0.988,
           "outlier_count": 4,
@@ -230,11 +240,11 @@
         }
       ],
       "summary": {
-        "files_scanned": 334,
+        "files_scanned": 337,
         "features_extracted": 20,
-        "promotion_candidates": 1
+        "promotion_candidates": 2
       },
-      "proposal_count": 1
+      "proposal_count": 2
     },
     {
       "label": "JS module patterns",
@@ -255,7 +265,7 @@
       "proposals": [
         {
           "feature": "has_print_calls",
-          "conformance": 0.96,
+          "conformance": 0.964,
           "outlier_count": 7,
           "outliers": [
             "analyze_walkthrough_new.py",
@@ -269,7 +279,7 @@
         }
       ],
       "summary": {
-        "files_scanned": 173,
+        "files_scanned": 194,
         "features_extracted": 22,
         "promotion_candidates": 1
       },
@@ -318,15 +328,15 @@
       "file": "canonical_drift_platform_report.json",
       "present": true,
       "summary": {
-        "files_scanned": 187,
-        "kpi_rendering_pages": 78,
+        "files_scanned": 188,
+        "kpi_rendering_pages": 79,
         "truth_math_pages": 0,
         "tier_a_pages": 0,
-        "tier_b_pages": 0,
-        "total_canonical_reads": 292,
-        "total_drift_reads": 0,
-        "total_gap_reads": 54,
-        "total_allowed_reads": 145
+        "tier_b_pages": 6,
+        "total_canonical_reads": 285,
+        "total_drift_reads": 8,
+        "total_gap_reads": 53,
+        "total_allowed_reads": 146
       }
     },
     {

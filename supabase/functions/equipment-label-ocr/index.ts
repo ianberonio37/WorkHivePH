@@ -181,7 +181,7 @@ async function matchAssetNodes(
   const tryQuery = async (filter: Record<string, string>) => {
     // canonical-allow: write-back duplicate matcher needs raw columns (serial_no, manufacturer, model) for fuzzy ilike before insert. v_asset_truth is read-shaped.
     let q = client.from("v_asset_truth")
-      .select("id, tag, name, manufacturer, model")
+      .select("id:asset_id, tag, name, manufacturer, model")
       .eq("hive_id", hiveId)
       .limit(1);
     for (const [col, val] of Object.entries(filter)) {

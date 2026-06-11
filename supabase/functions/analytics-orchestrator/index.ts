@@ -137,8 +137,9 @@ async function fetchDescriptiveData(
       category:   a.category,
     }));
   } else if (workerName) {
-    // canonical-allow: solo mode (no hive_id) cannot use hive-scoped v_pm_compliance_truth
-    const { data } = await db.from("v_pm_compliance_truth")
+    // canonical-allow: solo mode — the canonical view is hive-scoped + has no
+    // worker_name column; base pm_assets is the only worker-scoped source. (PROJ-DRIFT triage)
+    const { data } = await db.from("pm_assets")
       .select("id, asset_name, tag_id, category")
       .eq("worker_name", workerName);
     assets = (data || []) as Array<Record<string, string>>;
@@ -339,8 +340,9 @@ async function fetchPrescriptiveData(
         criticality: a.criticality,
       }));
     }
-    // canonical-allow: solo mode (no hive_id) cannot use hive-scoped v_pm_compliance_truth
-    const q = db.from("v_pm_compliance_truth")
+    // canonical-allow: solo mode — canonical view is hive-scoped + has no
+    // worker_name column; base pm_assets is the only worker-scoped source. (PROJ-DRIFT triage)
+    const q = db.from("pm_assets")
       .select("id, asset_name, tag_id, category, criticality")
       .limit(500);
     if (workerName) q.eq("worker_name", workerName);
@@ -1004,6 +1006,25 @@ serve(async (req) => {
       ...results,
       ...(groqSynthesis ? { action_plan: groqSynthesis } : {}),
     };
+
+    // Phase 1 (open-fast, 2026-06-10): persist the DEFAULT-view result so the
+    // next page open today hydrates instantly from analytics_snapshots
+    // (compute-on-first-view + Refresh; NO cron). Filtered views are never
+    // persisted — a narrowed payload must not become someone else's "all".
+    const filtersActive =
+      (criticality && criticality !== "all") || (discipline && discipline !== "all");
+    if (hive_id && !results.error && !filtersActive) {
+      try {
+        await db.from("analytics_snapshots").upsert({
+          hive_id,
+          phase,
+          period_days: periodDays,
+          payload: response,
+          computed_at: new Date().toISOString(),
+          computed_by: worker_name || null,
+        }, { onConflict: "hive_id,phase,period_days" });
+      } catch (_e) { /* best-effort: the live response still serves */ }
+    }
 
     return new Response(
       JSON.stringify(response),

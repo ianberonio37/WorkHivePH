@@ -260,7 +260,7 @@
 
     const [assetsRes, jobsRes, partsRes, pmsRes] = await Promise.allSettled([
       db.from('v_asset_truth')
-        .select('id, tag, name, level, location, criticality')
+        .select('id:asset_id, tag, name, level, location, criticality')
         .eq('hive_id', HIVE_ID)
         .or(`tag.ilike.%${safe}%,name.ilike.%${safe}%,location.ilike.%${safe}%`)
         .limit(8),
@@ -279,7 +279,7 @@
         .or(`part_name.ilike.%${safe}%,part_number.ilike.%${safe}%`)
         .limit(8),
       db.from('v_pm_compliance_truth')
-        .select('id, asset_name, category, criticality')
+        .select('id:pm_asset_id, asset_name, category, criticality')
         .eq(scopeFilter.col, scopeFilter.val)
         .ilike('asset_name', `%${safe}%`)
         .limit(8),

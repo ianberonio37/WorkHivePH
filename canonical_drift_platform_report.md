@@ -7,11 +7,11 @@ the class that produces _two pages, two numbers_ inconsistency.
 ## Summary
 
 - Files scanned: **187**
-- KPI-rendering pages: **78**
+- KPI-rendering pages: **79**
 - Pages with local truth-math (FREQ_DAYS / calcNextDue / ...): **0**
 - **TIER A drift pages** (user-facing KPI surface): **0**
 - TIER B drift pages (internal / shared JS): **0**
-- Canonical reads: 292 · Drift: 0 · Gap: 53 · Allowed: 146
+- Canonical reads: 286 · Drift: 0 · Gap: 54 · Allowed: 153
 
 ## Gap tables (no `v_*_truth` yet — next-build queue)
 
@@ -33,6 +33,7 @@ the class that produces _two pages, two numbers_ inconsistency.
 | `skill_profiles` | 2 |
 | `pdf_jobs` | 2 |
 | `achievement_xp_log` | 1 |
+| `analytics_snapshots` | 1 |
 | `v_sensor_recent` | 1 |
 | `rcm_strategies` | 1 |
 | `community_reactions` | 1 |
@@ -46,4 +47,3 @@ the class that produces _two pages, two numbers_ inconsistency.
 | `sso_configs` | 1 |
 | `x` | 1 |
 | `resume_versions` | 1 |
-| `resume_documents` | 1 |

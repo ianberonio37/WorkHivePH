@@ -15,7 +15,7 @@ mined against the codebase. Source manifest: `skill_rules_manifest.json`.
 | architect | 2 | 100% | 0 |
 | data-engineer | 1 | 96% | 1 |
 | designer | 7 | 98% | 4 |
-| frontend | 16 | 92% | 43 |
+| frontend | 16 | 92% | 44 |
 | mobile-maestro | 7 | 85% | 4 |
 | qa-tester | 6 | 99% | 1 |
 | security | 14 | 100% | 0 |
@@ -44,9 +44,9 @@ mined against the codebase. Source manifest: `skill_rules_manifest.json`.
 
 | Rule | Skill | Severity | Conformance | Violators |
 |---|---|---|---:|---|
-| `frontend_no_em_dash_in_prompt_template` | frontend | medium | 98% | analytics-orchestrator |
 | `qa_utils_js_loads_before_inline_script` | qa-tester | high | 97% | validator-catalog.html |
 | `data_engineer_restore_identity_from_session` | data-engineer | high | 96% | agentic-rag-observability.html |
+| `frontend_no_em_dash_in_prompt_template` | frontend | medium | 96% | analytics-orchestrator, voice-journal-agent |
 | `mobile_viewport_fit_cover` | mobile-maestro | high | 95% | llm-observability.html, validator-catalog.html |
 | `designer_uses_canonical_orange` | designer | info | 94% | llm-observability.html, validator-catalog.html |
 | `designer_poppins_font` | designer | info | 94% | llm-observability.html, validator-catalog.html |
@@ -65,9 +65,9 @@ mined against the codebase. Source manifest: `skill_rules_manifest.json`.
 | `designer_poppins_font` | designer | 94% (35/37) | html_pages | convention |
 | `designer_uses_canonical_orange` | designer | 94% (36/38) | html_pages | convention |
 | `mobile_viewport_fit_cover` | mobile-maestro | 95% (38/40) | html_pages | convention |
+| `frontend_no_em_dash_in_prompt_template` | frontend | 96% (57/59) | edge_fns | anti_pattern |
 | `data_engineer_restore_identity_from_session` | data-engineer | 96% (31/32) | html_pages | convention |
 | `qa_utils_js_loads_before_inline_script` | qa-tester | 97% (33/34) | html_pages | convention |
-| `frontend_no_em_dash_in_prompt_template` | frontend | 98% (58/59) | edge_fns | anti_pattern |
 | `designer_btn_primary_canonical_gradient` | designer | 100% (15/15) | html_and_js | convention |
 | `designer_dialog_has_aria_modal_true` | designer | 100% (9/9) | html_pages | convention |
 | `mobile_decorative_anim_has_mobile_kill` | mobile-maestro | 100% (8/8) | html_pages | convention |
@@ -93,14 +93,14 @@ mined against the codebase. Source manifest: `skill_rules_manifest.json`.
 | `edge_fn_uses_get_cors_headers` | security | 100% (58/58) | edge_fns | convention |
 | `edge_fn_handles_options_preflight` | security | 100% (59/59) | edge_fns | convention |
 | `migration_grant_when_rls_enabled` | security | 100% (50/50) | migrations | convention |
-| `migration_function_sets_search_path` | security | 100% (43/43) | migrations | convention |
+| `migration_function_sets_search_path` | security | 100% (44/44) | migrations | convention |
 | `security_no_function_constructor` | security | 100% (70/70) | html_and_js | anti_pattern |
 | `security_no_token_in_localstorage` | security | 100% (70/70) | html_and_js | anti_pattern |
 | `designer_card_radius_not_125rem` | designer | 100% (40/40) | html_pages | anti_pattern |
 | `a11y_main_landmark_present` | qa-tester | 100% (40/40) | html_pages | convention |
 | `a11y_img_has_alt` | qa-tester | 100% (40/40) | html_pages | anti_pattern |
 | `kg_voice_handler_must_call_platform_rpc` | architect | 100% (1/1) | js_modules | convention |
-| `kg_migrations_no_broadcast_across_hives` | architect | 100% (209/209) | migrations | anti_pattern |
+| `kg_migrations_no_broadcast_across_hives` | architect | 100% (212/212) | migrations | anti_pattern |
 | `frontend_list_view_has_no_results_state` | frontend | 100% (11/11) | html_pages | convention |
 | `frontend_list_view_has_load_more` | frontend | 100% (12/12) | html_pages | convention |
 | `frontend_filter_tabs_have_aria_roles` | frontend | 100% (6/6) | html_pages | convention |

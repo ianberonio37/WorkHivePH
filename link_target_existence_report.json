@@ -1,7 +1,7 @@
 {
   "summary": {
     "pages_scanned": 30,
-    "total_links": 202,
+    "total_links": 204,
     "total_broken": 0,
     "baseline": 0
   },
@@ -98,7 +98,7 @@
     },
     {
       "page": "integrations.html",
-      "link_count": 6,
+      "link_count": 7,
       "broken": []
     },
     {
@@ -108,7 +108,7 @@
     },
     {
       "page": "project-report.html",
-      "link_count": 5,
+      "link_count": 6,
       "broken": []
     },
     {

@@ -53,9 +53,11 @@ serve(async (req) => {
         .limit(10000),
 
       // unbounded-query-allow: ML retrain reads full PM-compliance set for training data
-      db.from("v_pm_compliance_truth").select("id, asset_name, tag_id, category, hive_id"),
+      db.from("v_pm_compliance_truth").select("id:pm_asset_id, asset_name, tag_id, category, hive_id"),
 
-      db.from("v_pm_compliance_truth")
+      // canonical-allow: per-completion training rows: pm_completions (base), not the
+      // per-asset rollup view (no asset_id/scope_item_id/completed_at/status). (PROJ-DRIFT triage)
+      db.from("pm_completions")
         .select("asset_id, scope_item_id, completed_at, status, hive_id")
         .eq("status", "done")
         .limit(5000),

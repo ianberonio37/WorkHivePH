@@ -86,7 +86,7 @@ function renderSourceChip(opts) {
 // ─────────────────────────────────────────────
 // Phase 5b dropped logbook.asset_ref_id (text) in favour of
 // logbook.asset_node_id (uuid). The asset picker in legacy writer surfaces
-// (logbook.html, parts-tracker.html) still queries the `assets` table, which
+// (logbook.html; parts-tracker.html deleted 2026-06-10, Phase 4) still queries the `assets` table, which
 // is keyed by text. This helper looks up the corresponding canonical
 // asset_nodes.id (uuid) via the legacy_asset_id bridge column so the writer
 // can store the uuid FK on the new logbook column.

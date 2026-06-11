@@ -175,7 +175,7 @@ async function scoreHive(
         .limit(2000),
 
       db.from("v_pm_compliance_truth")
-        .select("id, asset_name, tag_id, category")
+        .select("id:pm_asset_id, asset_name, tag_id, category")
         .eq("hive_id", hiveId),
 
       // inventory_transactions has no part_name column — only item_id (FK
@@ -193,7 +193,7 @@ async function scoreHive(
         .limit(500),
 
       db.from("v_asset_truth")
-        .select("id, name, tag")
+        .select("id:asset_id, name, tag")
         .eq("hive_id", hiveId)
         .eq("status", "approved")
         .limit(500),
@@ -221,7 +221,9 @@ async function scoreHive(
   // PM data requires asset IDs first (child table pattern — Architect rule)
   const [compsRes, scopeRes] = await Promise.allSettled([
     assetIds.length
-      ? db.from("v_pm_compliance_truth")
+      // canonical-allow: per-completion rows: pm_completions (base); rollup view
+      // has no asset_id/scope_item_id/completed_at/status. assetIds = pm_asset_id space. (PROJ-DRIFT triage)
+      ? db.from("pm_completions")
           .select("asset_id, scope_item_id, completed_at, status")
           .in("asset_id", assetIds)
           .eq("status", "done")
