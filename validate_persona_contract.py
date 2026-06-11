@@ -619,6 +619,94 @@ def check_domain_differentiation() -> list[dict]:
     return issues
 
 
+# -- Layer 9: within-conversation recall guardrail ----------------------------
+#
+# 2026-06-12 Memory-recall fix (Probe Taxonomy family C). The floating launcher
+# + voice journal load the last 10 turns into the memory block, but three older
+# rules SUPPRESSED recall of a fact the worker stated earlier in the SAME
+# conversation: the voice-journal GROUNDING rule refused "any specific number"
+# as a record lookup, the DOMAIN_LENS reactive bridge deflected "what torque?"
+# to the other persona's lane, and (unseen) the model confabulated a value from
+# a persona example. The fix is a shared CONVERSATION_RECALL guardrail that
+# OUTRANKS the lane + grounding rules, wired into BOTH worker-facing prose modes
+# (conversational + companion), plus a narrowed voice-journal grounding rule.
+# This layer guards that wiring forward-only so it cannot be silently unwound.
+# The behavioural proof is the C6/C7 live probes; this is the static ratchet.
+
+VOICE_JOURNAL_AGENT_TS = os.path.join(
+    "supabase", "functions", "voice-journal-agent", "index.ts"
+)
+
+
+def check_conversation_recall() -> list[dict]:
+    issues = []
+    server = read_file(SHARED_PERSONA_TS)
+    if server is None:
+        issues.append({
+            "check": "conversation_recall",
+            "reason": f"{SHARED_PERSONA_TS} missing — cannot verify recall guardrail.",
+        })
+        return issues
+
+    # 9a. The shared CONVERSATION_RECALL guardrail const must exist.
+    if "CONVERSATION_RECALL" not in server:
+        issues.append({
+            "check": "conversation_recall",
+            "reason": (
+                f"{SHARED_PERSONA_TS} has no CONVERSATION_RECALL guardrail. "
+                "Within-conversation recall regresses: the grounding rule + "
+                "lane bridge will refuse/deflect a fact the worker stated "
+                "earlier in the same conversation (Probe family C, C6/C7)."
+            ),
+        })
+    else:
+        # 9b. It must be interpolated into BOTH worker-facing prose modes
+        #     (conversational + companion). The const definition is one
+        #     mention; each mode wiring is a `${CONVERSATION_RECALL}`.
+        wired = len(re.findall(r"\$\{CONVERSATION_RECALL\}", server))
+        if wired < 2:
+            issues.append({
+                "check": "conversation_recall",
+                "reason": (
+                    "CONVERSATION_RECALL is defined but wired into "
+                    f"{wired} prose block(s); it must appear in BOTH the "
+                    "conversational and companion blocks (>=2 interpolations) "
+                    "so the floating launcher and voice journal both carry it."
+                ),
+            })
+        # 9c. The guardrail must reference the memory block (the mechanism) —
+        #     guards against a hollow const that says nothing actionable.
+        if "memory block" not in server.lower():
+            issues.append({
+                "check": "conversation_recall",
+                "reason": (
+                    "CONVERSATION_RECALL must point the model at the memory "
+                    "block (where the worker's earlier turns live); without it "
+                    "the directive is not actionable."
+                ),
+            })
+
+    # 9d. The voice-journal grounding rule must carve out conversation recall,
+    #     not blanket-refuse every number as a saved-record lookup.
+    agent = read_file(VOICE_JOURNAL_AGENT_TS)
+    if agent is None:
+        issues.append({
+            "check": "conversation_recall",
+            "reason": f"{VOICE_JOURNAL_AGENT_TS} missing — cannot verify grounding carve-out.",
+        })
+    elif "GROUNDING" in agent and "in THIS conversation" not in agent:
+        issues.append({
+            "check": "conversation_recall",
+            "reason": (
+                f"{VOICE_JOURNAL_AGENT_TS} GROUNDING rule does not carve out "
+                "conversation recall (no 'in THIS conversation' clause). It "
+                "will refuse to recall a number the worker said earlier as if "
+                "it were a database lookup — the original C6/C7 bug."
+            ),
+        })
+    return issues
+
+
 # -- Driver -------------------------------------------------------------------
 
 CHECK_NAMES = [
@@ -630,6 +718,7 @@ CHECK_NAMES = [
     "migrations_present",
     "key_parity",
     "domain_differentiation",
+    "conversation_recall",
 ]
 
 CHECK_LABELS = {
@@ -641,11 +730,12 @@ CHECK_LABELS = {
     "migrations_present":     "L6  Persona migrations (worker + hive column) present",
     "key_parity":             "L7  Server and client persona key sets are identical",
     "domain_differentiation": "L8  Step D: Hezekiah=Technical / Zaniah=Strategist lens preserved (DOMAIN_LENS, tone, examples)",
+    "conversation_recall":    "L9  Within-conversation recall guardrail wired into both prose modes + grounding carve-out",
 }
 
 
 def main() -> int:
-    print("\033[1m\nPersona Contract Validator (8-layer)\033[0m")
+    print("\033[1m\nPersona Contract Validator (9-layer)\033[0m")
     print("=" * 60)
     print(f"  Tracking {len(SERVER_PERSONA_ADOPTION)} server surface(s) + "
           f"{len(CLIENT_PERSONA_ADOPTION)} client surface(s).")
@@ -659,6 +749,7 @@ def main() -> int:
     issues += check_migrations_present()
     issues += check_key_parity()
     issues += check_domain_differentiation()
+    issues += check_conversation_recall()
 
     n_pass, n_skip, n_fail = format_result(CHECK_NAMES, CHECK_LABELS, issues)
 

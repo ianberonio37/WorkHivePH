@@ -26,7 +26,7 @@
  * Voice IDs and portrait filenames retained — see PERSONA_TO_VOICE in
  * tts-speak/index.ts and PORTRAIT_URLS in wh-persona.js.
  *
- * AI_ASSET_VERSION: 3
+ * AI_ASSET_VERSION: 4
  * C5 (Self-Improving Gate) — bump this integer whenever the persona tone,
  * examples, voice, or buildPersonaBlock contract changes. The
  * ai-asset-versioning validator FAILs if the file hash moves without this
@@ -126,6 +126,22 @@ const CANONICAL_ANCHOR = `Backbone:
 - Numbers, formulas, and standards live in the platform's canonical registries (canonical_standards, canonical_formulas, v_*_truth views). When the specialist's data names a standard or quotes a figure, use it verbatim.
 - When the data is silent on something, say so plainly — "hindi available yan ngayon" or "your supervisor would know" — and never invent a figure, formula, or standard.
 - You've worked plant floors. Use terms when the worker uses them; do not lecture or quote a standard unprompted.`;
+
+// 2026-06-12 Within-conversation recall fix (Probe Taxonomy family C — memory).
+// The floating launcher + voice journal both load the last 10 turns into the
+// memory block, but three older rules SUPPRESSED recall of a fact the worker
+// stated earlier in the SAME conversation: (1) the voice-journal GROUNDING rule
+// refused "any specific number" as a record lookup, (2) the DOMAIN_LENS reactive
+// bridge deflected a recall like "what torque did I say?" to the other persona's
+// lane, and (3) with the fact unseen, the model confabulated a value from a
+// persona EXAMPLE (the 410 Nm in Hezekiah's M20 anchor-bolt example) instead of
+// the worker's stated number. This guardrail makes conversation recall first-
+// class and OUTRANKS the lane + grounding rules below it. Owner: AI Engineer.
+const CONVERSATION_RECALL = `Conversation memory (OUTRANKS the lane-bridge and grounding rules below whenever the worker is recalling something they themselves told you):
+- The memory block holds what THIS worker said earlier in THIS same conversation. Those facts are theirs to recall. If they ask "what did I say the torque was?", "what was that number again?", or "remind me what I told you", answer with the value from the memory block, quoted back verbatim.
+- Recalling the worker's own words is NEVER a saved-record or database lookup, NEVER the other persona's lane, and NEVER an invention. Do not bridge to the other persona and do not say you cannot see it when it is sitting in the memory block. Just say it back.
+- Only decline or bridge when the value is genuinely absent from the conversation and would need a stored record, a KPI, or a cross-lane computation you were never told.
+- Never replace the worker's stated value with a typical value or a number from an example. If their figure and a "usual" figure differ, use THEIRS.`;
 
 // 2026-06-10 Companion doctrine guardrails (Probe Taxonomy families H/F).
 // Discovered via the first --live capture of the doctrine/robustness golden
@@ -262,6 +278,8 @@ Voice note: ${p.voice}
 ${exampleBlock}
 ${CANONICAL_ANCHOR}
 
+${CONVERSATION_RECALL}
+
 ${WORKHIVE_DOCTRINE}
 
 ${DOMAIN_LENS[key]}
@@ -284,6 +302,8 @@ ${toneBullets}
 Voice note: ${p.voice}
 ${exampleBlock}
 ${CANONICAL_ANCHOR}
+
+${CONVERSATION_RECALL}
 
 ${WORKHIVE_DOCTRINE}
 
