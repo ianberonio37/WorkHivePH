@@ -194,6 +194,73 @@ companion has ~50 distinct internal wires; we directly probe ~8.
 
 ---
 
+## 7. BUILD ROADMAP — sequenced so we don't drift
+
+Ordered by **dependency + leverage**. Each phase is small, ends GREEN, and moves ONE forward-only number:
+`wiring coverage = N of ~50 wires`. Rule (same as the behaviour flywheel): a phase isn't done until the probe
+runs LIVE, the coverage ratchets up, the gate stays green, and the lesson lands in skills + memory. No phase
+starts before the prior phase's acceptance gate passes.
+
+> **Anchor invariants (apply to every phase):** local-only, never push to prod · always drive the REAL surface
+> via Playwright MCP (or DB via superuser psql for db-effect) · deterministic-first grading · forward-only
+> baseline · `_shared`/specialist edits need an edge restart (stop vector first for the cold compile).
+
+### Phase W0 — Foundation: make wiring coverage measurable  *(no probes yet; prevents drift)*
+- **Do:** extend `companion_probe_taxonomy.json` with families **J/K/L/M/N** (each probe `{id, family, dimension, wire_target, assertion_method, agent, example, coverage}`); extend the `probes` coverage layer in `companion_dev.py` to count **wiring coverage** separately from behaviour ("wire-probe 8 of ~50").
+- **Deliverables:** taxonomy rows + a `wiring_coverage` block in `companion_probe_coverage.json` + a cockpit line.
+- **Acceptance:** `companion_dev.py probes` prints `wiring: 8/50` (today's honest baseline); mega still PASS.
+- **Size:** S. **Unlocks:** every later phase has a target to ratchet.
+
+### Phase W1 — Cross-agent reach (Family L)  *(biggest unlock, no gateway code)*
+- **Do:** add an `agent` param to `__CSURF.runProbe` (default `voice-journal`) so the live battery can drive
+  `asset-brain · shift · analytics · project · assistant` through the gateway. Author L1–L7 probes.
+- **First target:** the **asset-brain gateway-404** found 2026-06-12 (same asset_id grounds via direct
+  `asset-brain-query` but is "not found in this hive" via `agent:'asset-brain'`) — is the gateway passing the
+  asset context wrong, or resolving the hive wrong? Fix or document.
+- **Acceptance:** asset-brain + shift answer through the gateway live; L7 negative (voice-journal must NOT see
+  the episodic bank) holds; wiring coverage +5.
+- **Size:** M. **Unlocks:** L02/L04/L07 only fire for these agents — this is the prerequisite for K3/K5/K8.
+
+### Phase W2 — DB-effect persistence probes (K2/K9/K10, J9)  *(deterministic, proven method)*
+- **Do:** after a driven turn, assert the row landed via superuser psql — `agent_episodic_memory` (K2),
+  `agent_followups` (K9), `agent_memory` summary row at >12 turns (K10), `ai_cost_log` (J9). (Method already
+  used this session to de-contaminate C5.)
+- **Acceptance:** each persistence wire proven to write; wiring coverage +4. No LLM variance (db truth).
+- **Size:** M. **Depends on:** W1 (need to drive the agents that persist episodic/followups).
+
+### Phase W3 — Structural injection probes (J1, K3, K5, K8)  *(the rigorous core; touches the gateway)*
+- **Do:** add an **auth-gated, LOCAL-ONLY** `context.debug_echo_memory_block: true` to `ai-gateway` that returns
+  the assembled `memory_block` (and which layer sections it contains) WITHOUT calling the LLM. Then assert: PII
+  redacted in the forwarded prompt (J1), episodic section present for asset-brain (K3), procedural section for a
+  fix-Q (K5), verified-state section for an asset turn (K8).
+- **Guard:** the echo must be a no-op in prod (env-gated) + covered by a static validator so it can't leak.
+- **Acceptance:** each layer's section deterministically asserted present/absent for the right agent; wiring +4.
+- **Size:** M-L. **Depends on:** W1.
+
+### Phase W4 — Model-chain fault injection (Family M)  *(ops lane, offline)*
+- **Do:** a test hook in `ai-chain.ts` (env-gated) to force a provider 429/down; assert fallback lands an answer
+  (M1), all-down degrades gracefully (M2), 413→skip (M4), sticky session holds (M3).
+- **Acceptance:** fallback proven without the live free-tier flakiness; wiring +4.
+- **Size:** M. **Depends on:** nothing (independent lane) — can run parallel to W2/W3.
+
+### Phase W5 — Remaining pipeline + persona wiring (Family J rest, N, K11)
+- **Do:** gibberish guard (J3), adaptive cache (J4), structured passthrough already covered (J7), response-extract
+  fallback (J8); persona mode-build + hydration live (N1/N4), client-mirror parity (N5); **per-identity memory
+  isolation** (K11 — my memory ≠ teammate's, the security wire).
+- **Acceptance:** wiring coverage approaches ~45/50; the remaining gaps are documented infra-only.
+- **Size:** M. **Depends on:** W0–W3.
+
+### Sequencing summary
+```
+W0 (foundation) ─┬─> W1 (cross-agent) ─┬─> W2 (db-effect)
+                 │                      └─> W3 (structural echo) ─> W5 (pipeline+persona)
+                 └─> W4 (fault-injection, parallel)
+```
+**Done = wiring coverage ratcheted from ~8 to ~45 of ~50, every wire probed live or by db-effect, gate green,
+skills+memory updated each phase.** Deploy stays local; prod push gates on Ian.
+
+---
+
 ## 6. Changelog
 - **2026-06-12** — Study authored. Wiring inventory grounded in `ai-gateway/index.ts` + the 27 `_shared` modules +
   58 specialists. Headline: the live battery exercises ~2 of 7 memory layers + 3 of ~7 agent paths; J–N families
