@@ -256,6 +256,20 @@ function pickPrimaryCandidate(
 
 // ─── Validate / sanitise the AI's parsed JSON ────────────────────────────────
 
+// Slot-fill guard (WAT, 2026-06-12): a write/lookup intent that names NO asset
+// cannot be executed — a live A3 probe found "log a failure" (no machine) routed
+// to a confident logbook.create @0.8 with machine=null, which would write a junk
+// logbook entry against no asset. The router prompt already asks the LLM to be
+// conservative, but it does not reliably demote a param-less write. So we enforce
+// it deterministically here (WAT: the gate is code, not the model's confidence):
+// for kinds whose REQUIRED slot is the asset, a missing/blank machine demotes
+// confidence below the 0.5 confirmation floor so the page slot-fills ("which
+// asset?") instead of silently writing. inventory.deduct is intentionally NOT in
+// this set — its required slot is the part, not the machine (e.g. "pulled two
+// seals from stock"), so guarding it on machine would break valid deductions.
+const ASSET_REQUIRED_KINDS = new Set(["logbook.create", "pm.complete", "asset.lookup"]);
+const SLOT_FILL_CEILING = 0.45; // just under the 0.5 confirmation floor
+
 function sanitiseIntents(parsed: unknown): { intents: VoiceIntent[]; mentioned: string[] } {
   const obj = (parsed && typeof parsed === "object") ? parsed as Record<string, unknown> : {};
   const rawIntents = Array.isArray(obj.intents) ? obj.intents : [];
@@ -266,13 +280,18 @@ function sanitiseIntents(parsed: unknown): { intents: VoiceIntent[]; mentioned: 
     const kind = String(ri.kind || "unknown");
     if (!VALID_KINDS.has(kind)) continue;
     const conf = typeof ri.confidence === "number" ? ri.confidence : 0;
-    intents.push({
-      kind,
-      confidence: Math.max(0, Math.min(1, conf)),
-      params: (ri.params && typeof ri.params === "object")
-        ? ri.params as Record<string, unknown>
-        : {},
-    });
+    const params = (ri.params && typeof ri.params === "object")
+      ? ri.params as Record<string, unknown>
+      : {};
+    let confidence = Math.max(0, Math.min(1, conf));
+    // Slot-fill demotion: asset-required intent with no machine -> below floor.
+    const machine = params.machine;
+    const hasAsset = typeof machine === "string" && machine.trim().length > 0;
+    if (ASSET_REQUIRED_KINDS.has(kind) && !hasAsset) {
+      confidence = Math.min(confidence, SLOT_FILL_CEILING);
+      params._needs_asset = true; // hint for the page to ask "which asset?"
+    }
+    intents.push({ kind, confidence, params });
   }
 
   const mentioned = Array.isArray(obj.mentioned_assets)
