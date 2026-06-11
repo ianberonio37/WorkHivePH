@@ -685,6 +685,21 @@ def check_conversation_recall() -> list[dict]:
                     "the directive is not actionable."
                 ),
             })
+        # 9e. The guardrail must FORBID fabricated recall (the C5 inverse bug:
+        #     a clean live walk found the companion inventing a part number /
+        #     fault code / torque for an asset never mentioned). Recall-on-empty
+        #     must abstain, not confabulate.
+        if "abstain" not in server.lower() or "fabricate" not in server.lower():
+            issues.append({
+                "check": "conversation_recall",
+                "reason": (
+                    "CONVERSATION_RECALL must tell the model to ABSTAIN (not "
+                    "fabricate) when asked to recall something NOT in the memory "
+                    "block. Without it the companion invents a plausible part "
+                    "number/torque/fault code (C5 abstention failure) — the "
+                    "dangerous inverse of the C6/C7 recall bug."
+                ),
+            })
 
     # 9d. The voice-journal grounding rule must carve out conversation recall,
     #     not blanket-refuse every number as a saved-record lookup.
