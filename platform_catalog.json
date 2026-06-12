@@ -1,7 +1,7 @@
 {
   "generator": "platform_catalog.py",
   "version": 1,
-  "generated_at": "2026-06-10T09:35:25+00:00",
+  "generated_at": "2026-06-12T20:41:46+00:00",
   "features": [
     {
       "id": "index",
@@ -23,6 +23,7 @@
         "nav"
       ],
       "articles": [
+        "ai-companion-hezekiah-zaniah-personas",
         "ai-quality-and-roi-stage-2-plants",
         "ai-work-assistant-maintenance-technicians",
         "bms-facilities-maintenance-peza-buildings",
@@ -107,6 +108,7 @@
         "intel"
       ],
       "articles": [
+        "ai-companion-hezekiah-zaniah-personas",
         "ai-quality-and-roi-stage-2-plants",
         "ai-work-assistant-maintenance-technicians",
         "building-asset-register-zero-budget",
@@ -174,6 +176,7 @@
         "intel"
       ],
       "articles": [
+        "ai-companion-hezekiah-zaniah-personas",
         "ai-work-assistant-maintenance-technicians",
         "building-asset-register-zero-budget",
         "connecting-workhive-to-sap-maximo-cmms",
@@ -287,6 +290,7 @@
         "intel"
       ],
       "articles": [
+        "ai-companion-hezekiah-zaniah-personas",
         "ai-quality-and-roi-stage-2-plants",
         "bms-facilities-maintenance-peza-buildings",
         "building-asset-register-zero-budget",
@@ -341,6 +345,7 @@
         "intel"
       ],
       "articles": [
+        "ai-companion-hezekiah-zaniah-personas",
         "building-asset-register-zero-budget",
         "dilo-wilo-day-planner-supervisors",
         "free-pm-checklist-templates",
@@ -462,6 +467,7 @@
         "intel"
       ],
       "articles": [
+        "ai-companion-hezekiah-zaniah-personas",
         "ai-quality-and-roi-stage-2-plants",
         "building-asset-register-zero-budget",
         "dole-iso-audit-trail-from-logbook",
@@ -474,78 +480,6 @@
         "skill-matrix-for-maintenance-technicians",
         "spare-parts-inventory-philippine-plants",
         "start-digital-logbook-philippine-factory"
-      ]
-    },
-    {
-      "id": "predictive",
-      "name": "Predictive Analytics",
-      "route": "predictive.html",
-      "url": "/predictive.html",
-      "status": "active",
-      "capability": "Foresight layer. ML scores every asset by failure risk, real reliability math (Weibull, P-F intervals, FMEA) backs the model, and Auto-Staging reserves the parts before the failure happens. Predict, prepare, prevent.",
-      "connects_to": [
-        "Maintenance Logbook",
-        "Inventory Management",
-        "Asset Brain",
-        "Alert Hub",
-        "Analytics & OEE Dashboard"
-      ],
-      "tables": [
-        "asset_risk_scores",
-        "logbook",
-        "inventory_transactions",
-        "parts_staged_reservations"
-      ],
-      "edge_fns": [
-        "batch-risk-scoring",
-        "trigger-ml-retrain",
-        "parts-staging-recommender",
-        "weibull-fitter",
-        "pf-calculator",
-        "fmea-populator"
-      ],
-      "audience": [
-        "Plant Manager",
-        "Supervisor",
-        "Engineer"
-      ],
-      "nav_label": "Predictive ML",
-      "nav_section": "Intelligence",
-      "nav_hidden": true,
-      "nav_roles": [
-        "supervisor",
-        "engineer"
-      ],
-      "journey_key": "predictive",
-      "sources": [
-        "nav",
-        "intel"
-      ],
-      "articles": [
-        "ai-quality-and-roi-stage-2-plants",
-        "ai-work-assistant-maintenance-technicians",
-        "building-asset-register-zero-budget",
-        "connecting-workhive-to-sap-maximo-cmms",
-        "dilo-wilo-day-planner-supervisors",
-        "dole-iso-audit-trail-from-logbook",
-        "free-engineering-calculators-philippine-plants",
-        "free-pm-checklist-templates",
-        "gamifying-maintenance-for-engagement",
-        "industrial-community-of-practice-philippines",
-        "industrial-marketplace-philippine-specialists",
-        "joining-and-growing-your-hive",
-        "maintenance-project-planning-template",
-        "maintenance-shift-handover-template",
-        "mtbf-vs-mttr-for-supervisors",
-        "ph-industrial-benchmarks-intelligence",
-        "predictive-alert-thresholds-plants",
-        "predictive-maintenance-on-a-budget-philippines",
-        "sensor-cmms-gateway-operations",
-        "skill-matrix-for-maintenance-technicians",
-        "spare-parts-inventory-philippine-plants",
-        "start-digital-logbook-philippine-factory",
-        "voice-to-text-maintenance-philippine-plant-floor",
-        "what-is-oee-how-to-calculate"
       ]
     },
     {
@@ -570,6 +504,7 @@
         "nav"
       ],
       "articles": [
+        "ai-companion-hezekiah-zaniah-personas",
         "ai-quality-and-roi-stage-2-plants",
         "ai-work-assistant-maintenance-technicians",
         "bms-facilities-maintenance-peza-buildings",
@@ -620,6 +555,7 @@
         "nav"
       ],
       "articles": [
+        "ai-companion-hezekiah-zaniah-personas",
         "ai-quality-and-roi-stage-2-plants",
         "ai-work-assistant-maintenance-technicians",
         "bms-facilities-maintenance-peza-buildings",
@@ -687,6 +623,7 @@
         "intel"
       ],
       "articles": [
+        "ai-companion-hezekiah-zaniah-personas",
         "ai-quality-and-roi-stage-2-plants",
         "ai-work-assistant-maintenance-technicians",
         "building-asset-register-zero-budget",
@@ -801,6 +738,7 @@
         "intel"
       ],
       "articles": [
+        "ai-companion-hezekiah-zaniah-personas",
         "ai-quality-and-roi-stage-2-plants",
         "ai-work-assistant-maintenance-technicians",
         "building-asset-register-zero-budget",
@@ -864,6 +802,7 @@
         "intel"
       ],
       "articles": [
+        "ai-companion-hezekiah-zaniah-personas",
         "ai-quality-and-roi-stage-2-plants",
         "ai-work-assistant-maintenance-technicians",
         "bms-facilities-maintenance-peza-buildings",
@@ -928,6 +867,7 @@
         "intel"
       ],
       "articles": [
+        "ai-companion-hezekiah-zaniah-personas",
         "building-asset-register-zero-budget",
         "dilo-wilo-day-planner-supervisors",
         "dole-iso-audit-trail-from-logbook",
@@ -964,6 +904,7 @@
         "nav"
       ],
       "articles": [
+        "ai-companion-hezekiah-zaniah-personas",
         "ai-quality-and-roi-stage-2-plants",
         "ai-work-assistant-maintenance-technicians",
         "building-asset-register-zero-budget",
@@ -1025,6 +966,7 @@
         "intel"
       ],
       "articles": [
+        "ai-companion-hezekiah-zaniah-personas",
         "ai-quality-and-roi-stage-2-plants",
         "ai-work-assistant-maintenance-technicians",
         "building-asset-register-zero-budget",
@@ -1128,6 +1070,7 @@
         "intel"
       ],
       "articles": [
+        "ai-companion-hezekiah-zaniah-personas",
         "ai-quality-and-roi-stage-2-plants",
         "ai-work-assistant-maintenance-technicians",
         "building-asset-register-zero-budget",
@@ -1146,7 +1089,6 @@
         "ph-industrial-benchmarks-intelligence",
         "predictive-alert-thresholds-plants",
         "predictive-maintenance-on-a-budget-philippines",
-        "resume-builder-for-filipino-industrial-workers",
         "sensor-cmms-gateway-operations",
         "skill-matrix-for-maintenance-technicians",
         "spare-parts-inventory-philippine-plants",
@@ -1183,7 +1125,6 @@
         "maintenance-shift-handover-template",
         "ph-industrial-benchmarks-intelligence",
         "predictive-alert-thresholds-plants",
-        "resume-builder-for-filipino-industrial-workers",
         "spare-parts-inventory-philippine-plants",
         "start-digital-logbook-philippine-factory"
       ]
@@ -1221,6 +1162,7 @@
         "intel"
       ],
       "articles": [
+        "ai-companion-hezekiah-zaniah-personas",
         "ai-work-assistant-maintenance-technicians",
         "building-asset-register-zero-budget",
         "connecting-workhive-to-sap-maximo-cmms",
@@ -1309,6 +1251,7 @@
         "intel"
       ],
       "articles": [
+        "ai-companion-hezekiah-zaniah-personas",
         "ai-quality-and-roi-stage-2-plants",
         "ai-work-assistant-maintenance-technicians",
         "building-asset-register-zero-budget",
@@ -1328,7 +1271,6 @@
         "ph-industrial-benchmarks-intelligence",
         "predictive-alert-thresholds-plants",
         "predictive-maintenance-on-a-budget-philippines",
-        "resume-builder-for-filipino-industrial-workers",
         "sensor-cmms-gateway-operations",
         "skill-matrix-for-maintenance-technicians",
         "spare-parts-inventory-philippine-plants",
@@ -1373,6 +1315,7 @@
         "intel"
       ],
       "articles": [
+        "ai-companion-hezekiah-zaniah-personas",
         "ai-quality-and-roi-stage-2-plants",
         "ai-work-assistant-maintenance-technicians",
         "building-asset-register-zero-budget",
@@ -1499,6 +1442,34 @@
   ],
   "articles": [
     {
+      "slug": "ai-companion-hezekiah-zaniah-personas",
+      "title": "Meet the WorkHive AI Companion: Hezekiah and Zaniah (Two Expert Personas)",
+      "url": "/learn/ai-companion-hezekiah-zaniah-personas/",
+      "date_modified": "2026-06-12",
+      "maps_to": null,
+      "maps_to_label": null,
+      "features_referenced": [
+        "index",
+        "logbook",
+        "inventory",
+        "hive",
+        "pm-scheduler",
+        "analytics",
+        "ai-quality",
+        "plant-connections",
+        "assistant",
+        "asset-hub",
+        "alert-hub",
+        "audit-log",
+        "voice-journal",
+        "shift-brain",
+        "project-manager",
+        "skillmatrix",
+        "achievements",
+        "marketplace"
+      ]
+    },
+    {
       "slug": "ai-quality-and-roi-stage-2-plants",
       "title": "Measuring AI Quality and ROI for Stage 2+ Industrial Plants",
       "url": "/learn/ai-quality-and-roi-stage-2-plants/",
@@ -1511,7 +1482,6 @@
         "hive",
         "analytics-report",
         "analytics",
-        "predictive",
         "ai-quality",
         "plant-connections",
         "assistant",
@@ -1537,7 +1507,6 @@
         "index",
         "logbook",
         "inventory",
-        "predictive",
         "ai-quality",
         "plant-connections",
         "assistant",
@@ -1582,7 +1551,6 @@
         "hive",
         "pm-scheduler",
         "analytics",
-        "predictive",
         "ai-quality",
         "plant-connections",
         "assistant",
@@ -1610,7 +1578,6 @@
         "index",
         "logbook",
         "inventory",
-        "predictive",
         "ai-quality",
         "plant-connections",
         "assistant",
@@ -1639,7 +1606,6 @@
         "inventory",
         "dayplanner",
         "pm-scheduler",
-        "predictive",
         "ai-quality",
         "plant-connections",
         "assistant",
@@ -1667,7 +1633,6 @@
         "inventory",
         "hive",
         "analytics",
-        "predictive",
         "ai-quality",
         "plant-connections",
         "assistant",
@@ -1717,7 +1682,6 @@
         "index",
         "logbook",
         "analytics-report",
-        "predictive",
         "ai-quality",
         "plant-connections",
         "assistant",
@@ -1748,7 +1712,6 @@
         "hive",
         "pm-scheduler",
         "analytics",
-        "predictive",
         "ai-quality",
         "plant-connections",
         "assistant",
@@ -1776,7 +1739,6 @@
         "logbook",
         "inventory",
         "pm-scheduler",
-        "predictive",
         "ai-quality",
         "plant-connections",
         "assistant",
@@ -1802,7 +1764,6 @@
         "index",
         "logbook",
         "community",
-        "predictive",
         "ai-quality",
         "plant-connections",
         "assistant",
@@ -1826,7 +1787,6 @@
         "index",
         "logbook",
         "inventory",
-        "predictive",
         "ai-quality",
         "plant-connections",
         "assistant",
@@ -1855,7 +1815,6 @@
         "dayplanner",
         "hive",
         "analytics",
-        "predictive",
         "ai-quality",
         "plant-connections",
         "assistant",
@@ -1897,7 +1856,6 @@
         "dayplanner",
         "pm-scheduler",
         "community",
-        "predictive",
         "ai-quality",
         "plant-connections",
         "assistant",
@@ -1927,7 +1885,6 @@
         "pm-scheduler",
         "analytics-report",
         "analytics",
-        "predictive",
         "ai-quality",
         "plant-connections",
         "assistant",
@@ -1957,7 +1914,6 @@
         "dayplanner",
         "hive",
         "analytics",
-        "predictive",
         "ai-quality",
         "plant-connections",
         "assistant",
@@ -1998,7 +1954,6 @@
         "index",
         "logbook",
         "analytics-report",
-        "predictive",
         "ai-quality",
         "plant-connections",
         "assistant",
@@ -2039,7 +1994,6 @@
         "index",
         "logbook",
         "analytics-report",
-        "predictive",
         "ai-quality",
         "plant-connections",
         "assistant",
@@ -2058,7 +2012,7 @@
       "title": "Predictive Maintenance on a Budget (Philippines)",
       "url": "/learn/predictive-maintenance-on-a-budget-philippines/",
       "date_modified": "2026-05-17",
-      "maps_to": "predictive",
+      "maps_to": "logbook",
       "maps_to_label": "Predictive Maintenance",
       "features_referenced": [
         "index",
@@ -2066,7 +2020,6 @@
         "hive",
         "pm-scheduler",
         "analytics",
-        "predictive",
         "ai-quality",
         "plant-connections",
         "assistant",
@@ -2131,11 +2084,8 @@
         "index",
         "logbook",
         "dayplanner",
-        "project-manager",
-        "project-report",
         "skillmatrix",
-        "resume",
-        "achievements"
+        "resume"
       ]
     },
     {
@@ -2151,7 +2101,6 @@
         "inventory",
         "hive",
         "analytics",
-        "predictive",
         "ai-quality",
         "plant-connections",
         "assistant",
@@ -2180,7 +2129,6 @@
         "hive",
         "pm-scheduler",
         "analytics",
-        "predictive",
         "ai-quality",
         "plant-connections",
         "assistant",
@@ -2208,7 +2156,6 @@
         "hive",
         "analytics-report",
         "analytics",
-        "predictive",
         "ai-quality",
         "plant-connections",
         "assistant",
@@ -2238,7 +2185,6 @@
         "community",
         "analytics-report",
         "analytics",
-        "predictive",
         "ai-quality",
         "plant-connections",
         "assistant",
@@ -2306,7 +2252,6 @@
       "features_referenced": [
         "index",
         "logbook",
-        "predictive",
         "ai-quality",
         "plant-connections",
         "assistant",
@@ -2331,7 +2276,6 @@
         "index",
         "logbook",
         "inventory",
-        "predictive",
         "ai-quality",
         "plant-connections",
         "assistant",
@@ -2387,8 +2331,8 @@
       ],
       "count_claims": {
         "guide": [
-          37,
-          37
+          38,
+          38
         ],
         "tool": [
           33
@@ -2414,6 +2358,7 @@
         "https://workhiveph.com/learn/dilo-wilo-day-planner-supervisors/",
         "https://workhiveph.com/learn/free-engineering-calculators-philippine-plants/",
         "https://workhiveph.com/learn/ai-work-assistant-maintenance-technicians/",
+        "https://workhiveph.com/learn/ai-companion-hezekiah-zaniah-personas/",
         "https://workhiveph.com/learn/predictive-maintenance-on-a-budget-philippines/",
         "https://workhiveph.com/learn/connecting-workhive-to-sap-maximo-cmms/",
         "https://workhiveph.com/learn/voice-to-text-maintenance-philippine-plant-floor/",
@@ -2442,8 +2387,8 @@
         "https://workhiveph.com/learn/bms-facilities-maintenance-peza-buildings/",
         "https://workhiveph.com/learn/resume-builder-for-filipino-industrial-workers/"
       ],
-      "count": 42,
-      "learn_count": 37
+      "count": 43,
+      "learn_count": 38
     },
     "llms_txt": {
       "present": true,
@@ -2525,7 +2470,7 @@
         },
         "predictive-maintenance-on-a-budget-philippines": {
           "label": "Predictive Maintenance",
-          "feature_id": "predictive"
+          "feature_id": "logbook"
         },
         "connecting-workhive-to-sap-maximo-cmms": {
           "label": "CMMS Integration",
@@ -2586,17 +2531,24 @@
     }
   },
   "counts": {
-    "nav_tools_total": 28,
+    "nav_tools_total": 27,
     "nav_tools_visible": 18,
-    "nav_tools_hidden": 10,
-    "features_total": 29,
-    "features_active": 29,
-    "features_routed": 28,
-    "learn_articles": 37,
-    "sitemap_urls": 42,
-    "sitemap_learn_urls": 37,
+    "nav_tools_hidden": 9,
+    "features_total": 28,
+    "features_active": 28,
+    "features_routed": 27,
+    "learn_articles": 38,
+    "sitemap_urls": 43,
+    "sitemap_learn_urls": 38,
     "faqs_index": 15,
     "intel_features": 22
   },
-  "alias_issues": []
+  "alias_issues": [
+    {
+      "kind": "alias_route_missing",
+      "feature": "Predictive Analytics",
+      "href": "predictive.html",
+      "reason": "alias route 'predictive.html' for 'Predictive Analytics' is no longer a nav tool"
+    }
+  ]
 }

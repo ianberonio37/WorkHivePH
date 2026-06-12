@@ -1,0 +1,16 @@
+-- persona_knowledge retrieval correctness fix (2026-06-13).
+--
+-- BUG: the W6 ivfflat index (lists=10) was created when the table was nearly empty, so
+-- its centroids were trained on almost no data. ivfflat is APPROXIMATE — with default
+-- probes=1 it scans ~1/10 of the lists. As the corpus grew (80 -> 386 rows with W11 own
+-- content), high-similarity chunks landed in unscanned partitions and were SILENTLY
+-- MISSED, non-deterministically, depending on the scope set size. Symptom: a query about
+-- "Hezekiah / the AI Companion" returned an unrelated article at 0.61 while the correct
+-- article sat at 0.79 but in a partition the probe never visited.
+--
+-- FIX: drop the ivfflat index. persona_knowledge is a curated brain of hundreds-to-a-few-
+-- thousand chunks; an EXACT cosine scan is sub-millisecond at that scale and gives 100%
+-- recall (every relevant chunk, every time). Approximate indexes (ivfflat/HNSW) only earn
+-- their recall trade-off past ~10k rows — re-add an HNSW index (better recall than ivfflat)
+-- ONLY if persona_knowledge ever exceeds that.
+drop index if exists persona_knowledge_embedding_idx;

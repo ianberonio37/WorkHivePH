@@ -41,9 +41,11 @@ import { redactPIIWithMap, hydratePII } from "../_shared/redactPII.ts";
 import {
   loadMemory,
   saveTurn,
+  summariseIfNeeded,
   formatMemoryContext,
   type MemoryHandle,
 } from "../_shared/memory.ts";
+import { callAI } from "../_shared/ai-chain.ts";
 import {
   loadJournalRecall,
   persistJournalEntry,
@@ -70,6 +72,10 @@ import {
   matchProcedures,
   formatProcedures,
 } from "../_shared/skill-library.ts";
+import {
+  loadPersonaKnowledge,
+  formatPersonaKnowledge,
+} from "../_shared/persona-knowledge.ts";
 // 2026-05-31 memory-stack flywheel Turn 6 (layer 06 Prospective): per-(hive,
 // worker) deferred follow-up queue. Specialists emit followups[] to defer an
 // intention; the gateway enqueues them and surfaces due ones on a later turn.
@@ -85,6 +91,7 @@ import {
 import { beginRequest, ok, recordModelHop } from "../_shared/envelope.ts";
 import { handleHealth } from "../_shared/health.ts";
 import { log } from "../_shared/logger.ts";
+import { logAICost, estimateTokens } from "../_shared/cost-log.ts";
 
 // Agents that get semantic-recall enrichment in addition to short-term
 // agent_memory. Adding an agent here makes the gateway:
@@ -127,6 +134,33 @@ const VERIFIED_STATE_AGENTS: Set<string> = new Set([
   "asset-brain", "shift",
 ]);
 
+// Agents whose downstream specialist REQUIRES a resolved asset_id (UUID), not the
+// human asset_tag. The documented surface contract grounds an asset by
+// `context.asset_tag` (same field verified-state resolves on), but
+// asset-brain-query 400s "Missing required fields: asset_id" when it gets only a
+// tag. The gateway resolves tag -> id (hive-scoped) before forwarding so the
+// asset_tag contract is complete end-to-end (W1 wiring fix 2026-06-12). Only
+// asset-brain needs this today; shift-planner reads asset context differently.
+const ASSET_ID_FORWARD_AGENTS: Set<string> = new Set([
+  "asset-brain",
+]);
+
+// W3 structural-echo (LOCAL-ONLY, opt-in). When WH_ALLOW_DEBUG_ECHO=1 (set only in
+// the local functions/.env, NEVER in prod) AND the caller is authed AND sends
+// context.debug_echo_memory_block=true, the gateway returns the fully-assembled
+// memory_block + which layer sections fired, WITHOUT calling the LLM — so the
+// wiring battery can deterministically assert J1 (PII redacted in the forwarded
+// prompt) / K3 (episodic) / K5 (procedural) / K8 (verified-state) per agent. Triple-
+// gated (env + auth + explicit flag); a static validator guards it can't leak to prod.
+// LOCAL detection: the edge runtime's SUPABASE_URL is the internal docker host
+// (http://kong:8000 / localhost / 127.0.0.1) locally but the public https://*.supabase.co
+// URL in prod — a reliable fail-closed local signal (this setup's edge runtime does NOT
+// read functions/.env, so an env-only gate can't be turned on locally). The env var is
+// an optional explicit override for env-injected deployments.
+const _GW_SUPABASE_URL = Deno.env.get("SUPABASE_URL") || "";
+const _IS_LOCAL_SUPABASE = /\/\/(kong|localhost|127\.0\.0\.1)(:|\/|$)/.test(_GW_SUPABASE_URL);
+const DEBUG_ECHO_ENABLED = Deno.env.get("WH_ALLOW_DEBUG_ECHO") === "1" || _IS_LOCAL_SUPABASE;
+
 // Agents that get PROCEDURAL skill-library matching (layer 04). For a fix-
 // oriented turn the gateway embeds the user's message and pulls the top
 // semantically-matched proven procedures (match_procedural_memories over the
@@ -137,6 +171,15 @@ const PROCEDURAL_SKILL_AGENTS: Set<string> = new Set([
   "asset-brain", "shift",
 ]);
 const PROCEDURE_RECALL_LIMIT = 4;
+
+// Agents that get PERSONA-KNOWLEDGE enrichment (layer 08, L08). THE gap O11 closes:
+// the curated DOMAIN corpus (SKILL.md + standards) served specialists but NEVER the
+// floating launcher where the personas live. voice-journal IS the launcher agent, so
+// wiring it here makes DOMAIN_LENS real on the conversational surface. Persona scope
+// (Hezekiah technical / Zaniah strategic) is resolved per-turn inside loadPersonaKnowledge.
+const PERSONA_KNOWLEDGE_AGENTS: Set<string> = new Set([
+  "voice-journal", "assistant",
+]);
 
 // Agents that participate in the PROSPECTIVE follow-up queue (layer 06). For
 // these the gateway (a) surfaces any of the worker's follow-ups that are now
@@ -211,6 +254,14 @@ const AGENT_ROUTES: Record<string, { fn: string; description: string }> = {
   "voice-action": {
     fn: "voice-action-router",
     description: "Voice/text -> structured platform intents (logbook.create | inventory.deduct | pm.complete | asset.lookup | query.ask) the page applies",
+  },
+  // L05 cold-archive / temporal layer (K6 wire, 2026-06-12). Historical "what
+  // happened back in <period>" questions over canonical_period_summaries (month/
+  // quarter/year rollups, incl. >18mo). The function existed but was never a gateway
+  // route, so the cold-archive wire was dark. Reads body.question -> forwardExtras.
+  "temporal-rag": {
+    fn: "temporal-rag-orchestrator",
+    description: "Temporal / cold-archive retrieval over canonical period summaries (historical >18mo questions)",
   },
 };
 
@@ -365,8 +416,15 @@ serve(async (req) => {
   // a 429. Companion UX dies on 429 today; serving a stale-but-real answer
   // keeps the conversation alive. Cache lookup is keyed by (agent, message)
   // — same shape used in Router/Grader/Checker caching.
-  const RL_OVERRIDE      = Number(Deno.env.get("WH_RATE_LIMIT_OVERRIDE")        || 50);
-  const RL_USER_OVERRIDE = Number(Deno.env.get("WH_USER_RATE_LIMIT_OVERRIDE")   || 25);
+  // Fallback defaults aligned with supabase/functions/.env (hive 500 / user 500).
+  // The local `supabase start` edge runtime is launched WITHOUT --env-file, so
+  // Deno.env never sees functions/.env — the gateway therefore fell back to the
+  // old 50/25 and throttled local testing/probe batteries at 25/user/hour.
+  // Prod sets WH_*_RATE_LIMIT_OVERRIDE explicitly, so these fallbacks only apply
+  // where the env is unset (i.e. local). Test batteries need the headroom to
+  // prove behaviour; the per-user cap still protects a shared hive.
+  const RL_OVERRIDE      = Number(Deno.env.get("WH_RATE_LIMIT_OVERRIDE")        || 500);
+  const RL_USER_OVERRIDE = Number(Deno.env.get("WH_USER_RATE_LIMIT_OVERRIDE")   || 500);
   const userId = authUid || ""; // anon callers skip the inner per-user bucket
   const rl = await checkUserRateLimit(
     adminClient,
@@ -437,12 +495,20 @@ serve(async (req) => {
   // exact failure mode the gateway exists to prevent. Anon paths
   // therefore get an empty memory_block and degrade gracefully.
   let memory_block = "";
+  // W3 structural-echo: track which layer sections actually got injected, so the
+  // auth-gated local-only debug echo can assert each wire deterministically (no LLM).
+  const memorySections: Record<string, boolean> = {
+    working: false, semantic: false, episodic: false,
+    verified_state: false, procedural: false, followups: false,
+    domain_knowledge: false,
+  };
   if (authUid) {
     const handle: MemoryHandle = {
       hive_id, worker_name, auth_uid: authUid, agent_id: agent,
     };
     const loaded = await loadMemory(adminClient, handle);
     memory_block = formatMemoryContext(loaded);
+    memorySections.working = !!memory_block;
   }
 
   // Semantic-recall enrichment for agents that opt in (voice-journal).
@@ -456,6 +522,7 @@ serve(async (req) => {
         memory_block = memory_block
           ? `${memory_block}\n\n${recall.block}`
           : recall.block;
+        memorySections.semantic = true;
       }
     } catch (err) {
       console.warn("[ai-gateway] recall failed (non-fatal):", err instanceof Error ? err.message : err);
@@ -475,6 +542,7 @@ serve(async (req) => {
       const durableBlock = formatEpisodicContext(durable);
       if (durableBlock) {
         memory_block = memory_block ? `${memory_block}\n\n${durableBlock}` : durableBlock;
+        memorySections.episodic = true;
       }
     } catch (err) {
       console.warn("[ai-gateway] episodic recall failed (non-fatal):", err instanceof Error ? err.message : err);
@@ -495,6 +563,7 @@ serve(async (req) => {
         const stateBlock = formatVerifiedState(state);
         if (stateBlock) {
           memory_block = memory_block ? `${memory_block}\n\n${stateBlock}` : stateBlock;
+          memorySections.verified_state = true;
         }
       } catch (err) {
         console.warn("[ai-gateway] verified-state resolve failed (non-fatal):", err instanceof Error ? err.message : err);
@@ -515,6 +584,7 @@ serve(async (req) => {
       const procBlock = formatProcedures(procs);
       if (procBlock) {
         memory_block = memory_block ? `${memory_block}\n\n${procBlock}` : procBlock;
+        memorySections.procedural = true;
       }
     } catch (err) {
       console.warn("[ai-gateway] procedure match failed (non-fatal):", err instanceof Error ? err.message : err);
@@ -532,9 +602,79 @@ serve(async (req) => {
       const dueBlock = formatFollowups(due);
       if (dueBlock) {
         memory_block = memory_block ? `${memory_block}\n\n${dueBlock}` : dueBlock;
+        memorySections.followups = true;
       }
     } catch (err) {
       console.warn("[ai-gateway] follow-up recall failed (non-fatal):", err instanceof Error ? err.message : err);
+    }
+  }
+
+  // Persona-Knowledge enrichment (layer 08 / O11 — the CONVERSATIONAL wire). For the
+  // floating-launcher conversational agent, retrieve the PERSONA-SCOPED curated DOMAIN
+  // corpus (SKILL.md + standards, ingested into persona_knowledge) and inject a
+  // token-capped DOMAIN KNOWLEDGE block — making persona.ts DOMAIN_LENS actually
+  // RETRIEVE from its named wells. THE gap: domain RAG served specialists, never the
+  // launcher where the personas live. persona scope (Hezekiah technical / Zaniah
+  // strategic, both + shared) is the O6/O10 wire; threshold = O8; token cap = O9;
+  // best-effort = O12. Needs identity (embeds the turn).
+  if (authUid && PERSONA_KNOWLEDGE_AGENTS.has(agent)) {
+    try {
+      const persona = context && typeof context === "object"
+        ? ((context as Record<string, unknown>).persona as string | undefined)
+        : undefined;
+      const chunks = await loadPersonaKnowledge(adminClient, persona, message);
+      const domainBlock = formatPersonaKnowledge(chunks);
+      if (domainBlock) {
+        memory_block = memory_block ? `${memory_block}\n\n${domainBlock}` : domainBlock;
+        memorySections.domain_knowledge = true;
+      }
+    } catch (err) {
+      console.warn("[ai-gateway] persona-knowledge load failed (non-fatal):", err instanceof Error ? err.message : err);
+    }
+  }
+
+  // Asset-tag -> asset_id resolution (body-shape adapter completion). The
+  // asset-centric specialist (asset-brain-query) REQUIRES a resolved asset_id
+  // (UUID) but the documented surface contract grounds by `context.asset_tag`
+  // (the human tag — the same field verified-state resolves on above). Without
+  // this, a turn carrying only asset_tag 400s "Missing required fields: asset_id"
+  // at the specialist (W1 wiring gap, 2026-06-12). Resolve tag -> id hive-scoped
+  // (no cross-hive leak; a foreign tag simply doesn't resolve) and inject it into
+  // context so BOTH the forward and the specialist's `asset_id ?? context.asset_id`
+  // adapter land. Best-effort: a miss leaves the prior (400) behavior, no worse.
+  // A UUID is not PII, so it survives the redactor below.
+  if (hive_id && ASSET_ID_FORWARD_AGENTS.has(agent) && context && typeof context === "object") {
+    const ctxObj = context as Record<string, unknown>;
+    const tag = typeof ctxObj.asset_tag === "string" ? ctxObj.asset_tag.trim() : "";
+    const hasId = typeof ctxObj.asset_id === "string" && (ctxObj.asset_id as string).trim();
+    if (tag && !hasId) {
+      let resolvedId: string | undefined;
+      try {
+        const { data: rows } = await adminClient
+          .from("asset_nodes")
+          .select("id")
+          .eq("hive_id", hive_id)
+          .eq("tag", tag)
+          .limit(1);
+        resolvedId = rows && rows[0] ? (rows[0] as { id?: string }).id : undefined;
+      } catch (err) {
+        console.warn("[ai-gateway] asset_tag->asset_id resolve failed (non-fatal):", err instanceof Error ? err.message : err);
+      }
+      if (resolvedId) {
+        ctxObj.asset_id = resolvedId;
+      } else {
+        // Graceful not-found. The tag doesn't resolve in THIS hive (typo, deleted,
+        // or a tag from another hive — hive-scoped query returns nothing). Forwarding
+        // would 400 "Missing required fields: asset_id" and leak a raw error to the
+        // UI (the "Asset not found in this hive" class). Answer helpfully in the
+        // success envelope instead. No PII to hydrate (only the asset tag echoes).
+        log.info(ctx, "asset_tag_unresolved", { agent, tag });
+        return ok(ctx, {
+          answer: `I couldn't find asset "${tag}" in this hive. Double-check the tag, or open the asset from your asset list so I can pull its records.`,
+          agent,
+          usage: { latency_ms: Date.now() - t0 },
+        });
+      }
     }
   }
 
@@ -561,6 +701,104 @@ serve(async (req) => {
   // callers (no authUid) get no key, so the chain behaves exactly as before.
   const session_key = authUid ? `${hive_id || "nohive"}:${agent}:${authUid}` : undefined;
 
+  // Per-agent forward augmentation (body-shape adapter completion). Some
+  // specialists REQUIRE fields the conversational gateway shape doesn't carry.
+  // shift-planner-orchestrator requires `shift_window` (06-14 | 14-22 | 22-06); a
+  // companion "summarize the handover" turn has none, so it 400s "Missing required
+  // field: shift_window" through the gateway (W1 wiring gap, 2026-06-12). Derive
+  // the CURRENT window from PHT (UTC+8), or honor an explicit context.shift_window
+  // if the shift-brain page passed one.
+  const forwardExtras: Record<string, unknown> = {};
+  if (agent === "shift") {
+    const ctxWin = context && typeof context === "object"
+      ? String((context as Record<string, unknown>).shift_window || "").trim() : "";
+    const VALID_SHIFT_WINDOWS = new Set(["06-14", "14-22", "22-06"]);
+    let win = VALID_SHIFT_WINDOWS.has(ctxWin) ? ctxWin : "";
+    if (!win) {
+      const phtHour = (new Date().getUTCHours() + 8) % 24;
+      win = (phtHour >= 6 && phtHour < 14) ? "06-14"
+          : (phtHour >= 14 && phtHour < 22) ? "14-22" : "22-06";
+    }
+    forwardExtras.shift_window = win;
+  }
+  // analytics-orchestrator requires a `phase`; a conversational "how's our OEE" turn
+  // has none -> 400 "Missing required field: phase". Default to the prescriptive phase
+  // (the one that synthesizes a narrative summary), or honor an explicit context.phase.
+  // (W9 wiring fix 2026-06-12 — the 4th instance of the body-shape-adapter gap.)
+  if (agent === "analytics") {
+    const ctxPhase = context && typeof context === "object"
+      ? String((context as Record<string, unknown>).phase || "").trim().toLowerCase() : "";
+    const VALID_PHASES = new Set(["descriptive", "diagnostic", "predictive", "prescriptive"]);
+    forwardExtras.phase = VALID_PHASES.has(ctxPhase) ? ctxPhase : "prescriptive";
+  }
+  // project-orchestrator reads top-level `phase` (narrative|intent|lessons_draft) +
+  // `project_id`; the gateway forwards them only inside context -> 400 "phase is
+  // required". Default to the narrative phase (the conversational progress summary)
+  // and lift project_id out of context. (5th instance of the body-shape-adapter gap.)
+  if (agent === "project") {
+    const c = (context && typeof context === "object") ? context as Record<string, unknown> : {};
+    const ctxPhase = String(c.phase || "").trim().toLowerCase();
+    const VALID_PROJECT_PHASES = new Set(["narrative", "intent", "lessons_draft"]);
+    forwardExtras.phase = VALID_PROJECT_PHASES.has(ctxPhase) ? ctxPhase : "narrative";
+    if (c.project_id) forwardExtras.project_id = c.project_id;
+  }
+  // temporal-rag-orchestrator (L05 cold-archive) reads top-level `question`; the
+  // gateway forwards `message`. Alias it so a historical turn resolves (K6 wire).
+  if (agent === "temporal-rag") {
+    forwardExtras.question = message;
+  }
+
+  // W3 structural-echo short-circuit (LOCAL-ONLY, triple-gated). Return EXACTLY the
+  // context the specialist would receive — the PII-redacted message + the assembled
+  // memory_block + which layer sections fired + the forward extras — with NO LLM
+  // call, so the wiring battery asserts J1/K3/K5/K8 deterministically. Prod never
+  // sets WH_ALLOW_DEBUG_ECHO, so this is dead in production (guarded by a validator).
+  if (DEBUG_ECHO_ENABLED && authUid && context && typeof context === "object"
+      && (context as Record<string, unknown>).debug_echo_memory_block === true) {
+    log.info(ctx, "debug_echo_memory_block", { agent, sections: memorySections });
+    return ok(ctx, {
+      answer: "",
+      debug_echo: {
+        agent,
+        forwarded_message: redactedMessage,
+        memory_block,
+        sections: memorySections,
+        forward_extras: forwardExtras,
+        hydration_keys: Object.keys(hydrationMap),
+      },
+    });
+  }
+
+  // W4 fault-injection probe (LOCAL-ONLY, gated exactly like the debug echo). Drives
+  // the model chain with simulated provider failures and returns whether an answer
+  // still landed — proving M1 (primary down -> fallback serves), M2 (all-down ->
+  // graceful degrade, conversation survives), M4 (413 skip) live, without touching
+  // real provider keys. Chain-only probe: no specialist forward.
+  {
+    const fi = (DEBUG_ECHO_ENABLED && authUid && context && typeof context === "object")
+      ? (context as Record<string, unknown>).debug_fault_inject
+      : undefined;
+    if (fi && typeof fi === "object") {
+      const f = fi as Record<string, unknown>;
+      const probe = await callAI("Reply with the single word OK.", {
+        maxTokens: 16, temperature: 0, jsonMode: false,
+        faultInject: {
+          fail: Array.isArray(f.fail) ? (f.fail as string[]) : undefined,
+          failAll: f.failAll === true,
+          mode: f.mode as "429" | "413" | "down" | undefined,
+        },
+      });
+      const degraded = !probe || probe.trim() === "" || probe.trim() === "{}";
+      log.info(ctx, "debug_fault_inject", { degraded });
+      return ok(ctx, {
+        answer: degraded
+          ? "Sorry, the AI service is unavailable right now. Your message is saved — please try again shortly."
+          : probe.trim(),
+        debug_fault: { degraded, answer_landed: !degraded, raw: String(probe).slice(0, 60) },
+      });
+    }
+  }
+
   let agentRespText = "";
   let agentStatus = 0;
   try {
@@ -585,6 +823,7 @@ serve(async (req) => {
         memory:     memory_block,        // pre-formatted context block
         gateway:    true,                // sentinel for downstream
         session_key,                     // opaque sticky-session key (undefined for anon → omitted)
+        ...forwardExtras,                // per-agent required fields (e.g. shift_window)
       }),
     });
     agentStatus = resp.status;
@@ -633,6 +872,37 @@ serve(async (req) => {
   // Hydrate the answer (substitute placeholders back into real names).
   const hydratedAnswer = hydratePII(answer, hydrationMap);
 
+  // Gateway-side memory DISTILLATION (K2/K9 PRODUCER). The conversational specialists
+  // don't emit memories[]/followups[] (only agentic-rag-loop does), so the episodic
+  // (L02) + prospective (L06) layers were consumer-ready but PRODUCER-LESS — the banks
+  // never filled in normal flow (W2 finding 2026-06-12). For EPISODIC_MEMORY_AGENTS
+  // that emitted nothing, run ONE cheap best-effort extraction so a genuinely durable
+  // fact gets remembered + an implied follow-up gets queued. Conservative by design
+  // (empty arrays for chitchat); the existing persistEpisodic/enqueueFollowups blocks
+  // below clamp/validate/cap. Best-effort — a parse/LLM miss just leaves the banks as
+  // the specialist left them. Uses the redacted message so the distiller never sees PII.
+  if (authUid && EPISODIC_MEMORY_AGENTS.has(agent)
+      && !specialistMemories.length && !specialistFollowups.length
+      && redactedMessage.length > 20) {
+    try {
+      const distilled = await callAI(
+        `From this maintenance exchange, extract ONLY genuinely durable facts worth remembering long-term and any explicit follow-up the worker implied. If nothing is durable, return empty arrays.\nRespond JSON only: {"memories":[{"memory_type":"factual","content":"...","importance":0.7}],"followups":[{"topic":"...","detail":"...","due_in_days":7}]}\n\nWorker: ${redactedMessage}\nAssistant: ${answer}`,
+        {
+          systemPrompt: "You distill durable maintenance memory. Be conservative — return empty arrays unless a concrete fact, spec, or commitment is present.",
+          maxTokens: 320, temperature: 0.1, jsonMode: true, sessionKey: session_key,
+        },
+      );
+      const parsed = JSON.parse(distilled) as { memories?: unknown; followups?: unknown };
+      if (Array.isArray(parsed.memories)) specialistMemories = (parsed.memories as StoreInput[]).slice(0, 2);
+      if (Array.isArray(parsed.followups)) specialistFollowups = (parsed.followups as RawFollowup[]).slice(0, 2);
+      if (specialistMemories.length || specialistFollowups.length) {
+        log.info(ctx, "memory_distilled", { memories: specialistMemories.length, followups: specialistFollowups.length });
+      }
+    } catch (err) {
+      console.warn("[ai-gateway] memory distillation failed (non-fatal):", err instanceof Error ? err.message : err);
+    }
+  }
+
   // Structured passthrough for TOOL agents (voice-action-router). The default
   // gateway contract returns `answer` only; a tool whose UI applies structured
   // intents needs the full specialist payload. We hydrate the WHOLE payload
@@ -669,6 +939,28 @@ serve(async (req) => {
       hive_id, worker_name, auth_uid: authUid, agent_id: agent,
     };
     await saveTurn(adminClient, handle, message, hydratedAnswer, metaExtra);
+
+    // Summary-collapse (K10 / L01 long-term). Once the live turn buffer crosses
+    // SUMMARISE_AT, compress the oldest SUMMARISE_BATCH turns into ONE summary row
+    // so the buffer stays bounded instead of growing unbounded and silently
+    // truncating old context at loadMemory's RECENT_TURNS window. `persistSummary`
+    // / `summariseIfNeeded` were DEAD code (defined, never called) — wired here
+    // 2026-06-12 (W2 finding). Best-effort, non-blocking; the LLM summariser lives
+    // in the gateway so memory.ts stays ai-chain-free. Pinned to the sticky model.
+    try {
+      const collapsed = await summariseIfNeeded(adminClient, handle, async (transcript) =>
+        await callAI(
+          `Compress this earlier conversation excerpt into 2-3 sentences of durable context — decisions made, facts stated, and open items. Plain prose, no preamble.\n\n${transcript}`,
+          {
+            systemPrompt: "You compress chat history into a tight, factual summary that preserves specifics (numbers, asset tags, commitments).",
+            maxTokens: 220, temperature: 0.3, jsonMode: false, sessionKey: session_key,
+          },
+        ),
+      );
+      if (collapsed) log.info(ctx, "memory_summarised", { collapsed: collapsed.collapsed });
+    } catch (err) {
+      console.warn("[ai-gateway] summary collapse failed (non-fatal):", err instanceof Error ? err.message : err);
+    }
 
     // Durable episodic persist (layer 02). Best-effort, non-blocking-on-error.
     // Only for opted-in specialists AND only when the specialist actually
@@ -725,6 +1017,26 @@ serve(async (req) => {
     target_fn:  route.fn,
     latency_ms: Date.now() - t0,
   });
+
+  // Per-turn cost log (P25). The gateway is the single front door, so it logs cost
+  // CENTRALLY for forwarded specialists — asset-brain-query / ai-orchestrator /
+  // shift-planner-orchestrator all IMPORT logAICost but never CALL it (dangling
+  // import), so every gateway-forwarded turn was cost-blind (W2 db-effect finding
+  // 2026-06-12). voice-journal-agent self-logs its own row, so skip it here to
+  // avoid double-counting. Tokens estimated (the gateway never sees provider usage);
+  // best-effort — logAICost swallows its own errors and never blocks the response.
+  if (agent !== "voice-journal") {
+    await logAICost(adminClient, {
+      fn:            route.fn,
+      hive_id,
+      worker_name,
+      model:         `gateway:${route.fn}`,
+      prompt_tokens: estimateTokens(message),
+      output_tokens: estimateTokens(hydratedAnswer),
+      latency_ms:    Date.now() - t0,
+      status:        "success",
+    });
+  }
 
   // Populate adaptive cache for short (re-likely) messages so future 429s
   // can degrade instead of fail. 1h TTL — companion content changes fast
