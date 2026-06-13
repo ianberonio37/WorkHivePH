@@ -1,11 +1,116 @@
 # AI Surface Map + Companion Unification Roadmap
 
-_Audit date: 2026-06-07. Status: MAP ONLY — no code changed. Author: AI Engineer pass._
+_Audit date: 2026-06-07. **Promoted to the canonical AI Companion roadmap spine 2026-06-14** (the quality/eval/resilience arcs folded in — see §0). Author: AI Engineer pass._
 
 > **Why this exists:** "Pages that use AI" feel scattered and confusing. This document
 > is the single source of truth for **every AI touchpoint on the platform**, why they
 > feel fragmented, and the migration order to unify them under one **AI Companion**
 > (Hezekiah / Zaniah) without collapsing real tools into a chat box.
+>
+> **As of 2026-06-14 it is also THE single AI-Companion roadmap** — quality scorecard,
+> what's done, and what's next all live in **§0** below, so the many sprouting
+> companion docs collapse into one spine + a linked reference layer. Open this first.
+
+---
+
+## 0. Companion Roadmap — Single Source of Truth (folded 2026-06-14)
+
+> This section IS the companion roadmap. The arcs that used to sprout their own docs
+> (fabrication/grounding, the ~100-probe/family sweep, fallback-chain resilience, the
+> new probe families) are folded here. The docs in §0.6 are the **reference layer** —
+> open them for depth, but **track state here.**
+
+### 0.1 Where we are — quality scorecard (2026-06-13/14)
+
+Single hive (Leandro / Baguio), ~2,000-probe diverse live sweep, mechanical ground-truth grader.
+Lower FAB / DEFLECT = better; higher grounded / abstain = better — an honest *"I don't have that, check the X page"* is a **win**, not a miss.
+
+| Headline | Pre-fix | Now |
+|---|---|---|
+| Fabrication rate | 11.1% | **2.5%** |
+| Deflection rate | 18.4% | **1.9%** |
+| Empty @ high concurrency | 89% | **1%** |
+
+**Behaviour families (A–I)**
+
+| Fam | What it tests | FAB% | DEFL% | Notes |
+|---|---|---|---|---|
+| A | Agent / tool-routing | 0 | 0 | was 22% — asset-existence guard fixed it |
+| B | RAG grounding + citations | 3 | 3 | was 33% — mostly honest rejections now |
+| C | Memory recall + abstention | 0 | 0 | was 50% — 31 honest abstentions; false-premise guard |
+| D | Persona / voice | 2 | 0 | clean |
+| E | Safety / adversarial (OWASP) | 1 | 0 | clean |
+| F | Robustness (typo/Taglish/noise) | 0 | 35 | ⚠️ garbled → "couldn't make that out" (gibberish guard); Taglish parsing weak |
+| G | Domain correctness (MTBF/OEE/RCM) | 6 | 0 | minor — occasional ungrounded domain number |
+| H | Doctrine / guardrails | 0 | 2 | clean (free-tier, no-ERP-replace) |
+| I | Operational resilience | 0 | 5 | 44 grounded (real alert counts) |
+
+**Wiring families (J–O)**
+
+| Fam | What it tests | FAB% | DEFL% | Notes |
+|---|---|---|---|---|
+| J | Pipeline / gateway spine | 0 | 0 | 24 grounded |
+| K | Memory layers | 12 | 0 | was 47% — residual low-severity (correct value + stray asset label) |
+| L | Cross-agent paths | 5 | 3 | 45 grounded |
+| M | Model-chain resilience | 0 | 0 | 21 grounded |
+| N | Persona-contract wiring | 1 | 0 | clean |
+| O | Persona-knowledge (L08 RAG) | 2 | 0 | clean (bge-local) |
+
+**Page-domain families** (diverse run — "is it honest on data it doesn't have?")
+
+| Fam | Domain | FAB% | Honest abstentions | Notes |
+|---|---|---|---|---|
+| inv | Inventory / parts | 1 | 86/87 | excellent — "check the Inventory page" |
+| pm | PM scheduler | 0 | 20 grounded + 35 abstain | overdue counts grounded |
+| skl | Skill matrix | 2 | 69 | excellent |
+| prj | Projects | 12 | 61 | ⚠️ still invents a "% complete" sometimes |
+| mkt | Marketplace | 0 | 26 | clean |
+| day | Day planner | 7 | 57 | minor plan invention |
+| anl | Analytics (OEE/MTBF) | 0 | 8 grounded + 64 abstain | clean |
+| log | Logbook | 1 | 52 | excellent |
+
+### 0.2 Watchlist (ranked) — updated 2026-06-14
+1. ✅ **prj 12% → 0% (RESOLVED 2026-06-14)** — the root cause was NOT a leaking "% complete"; it was the companion inventing a whole project ("the crane project is 28 days out, due July 15") to dress up the *grounded* alert/PM counts. The guard banned counts/KPIs/asset-history but had **no out-of-scope-DOMAINS clause**, so a project *status/date* question fell through every rule. Fix: an OUT-OF-SCOPE DOMAINS clause in `voice-journal-agent` (no project name/due/%/owner, no stock/cert/listing/day-plan → point to the right page). Live-proven **0/40** from clean memory. → memory `project_companion_prj_scope_fix_2026_06_14`.
+2. **K 12%** — recall embellishment; BUT heavily inflated by the contamination + grader artifacts below. Build conversation-history-aware grading **and** re-measure with `--fresh-memory` before trusting the number.
+3. **F 35% deflect** — Taglish/typo robustness; the gibberish guard is over-eager. Not fabrication, but real workers code-switch.
+4. ✅ **day 7% → 0%** — same out-of-scope clause fixed it (bonus). **G 6% → 0% clean** — was a measurement artifact (see caveat), not a real ungrounded-number problem.
+
+> **★ Measurement caveat (discovered 2026-06-14, load-bearing):** the sweep cleared rate-limit/cache between runs but **never `agent_memory`**, so an unbounded rolling summary (104 stale `summary` rows for Leandro) replayed a false *"you mentioned earlier…"* tic into nearly **every** answer — inflating `false_memory`/`fabricated` across *unrelated* families, worst at high concurrency. Measured clean (new **`--fresh-memory`** flag + low concurrency), **prj/day/pm/inv/anl/G all = 0% FAB**. So the §0.1 A–O / page-domain rates are **upper bounds**; true rates are lower. **Action:** re-baseline the whole scorecard with `--fresh-memory` before the next phase, and prune the unbounded `agent_memory.summary` rows (this is the §0.5 hygiene item, now with a concrete instance).
+
+### 0.3 Caveats (so the tracking stays honest)
+- One hive (Leandro/Baguio); Pablo/Lucena not re-swept after the recall fixes.
+- Grader is mechanical (ground-truth keyed) — over-flags legit cross-turn recall (K), can't catch every subtle invention; treat ±3pp as noise.
+- All numbers are **local, uncommitted** — dev-state tracking, not prod.
+
+**Net:** the companion went from **~1-in-9 answers fabricating → ~1-in-40**, deflection nearly eliminated, honest abstention now the dominant behavior on out-of-scope domains. Live targets left: **projects, K-recall embellishment, Taglish robustness.**
+
+### 0.4 Done (the arc behind those numbers)
+- **Grounding + anti-fabrication fix** — gateway `buildOpsSnapshot` (live ops grounding) + voice-journal guard v2 (aggregate-only scope, asset-existence, false-premise) + persona anti-confab doctrine + summariser anti-contamination (no promoting assistant figures to user facts). → memory `project_companion_fabrication_sweep_2026_06_13`.
+- **Fallback-chain resilience** P1–P4 (herd-spread shuffle, Retry-After, jittered retry, per-model slot health) — empties **89%→1%** at concurrency 8. `validate_groq_fallback` 9/9. → memory `project_companion_fallback_chain_resilience_2026_06_13`.
+- **Families A–O + 8 page domains** built + swept via `tools/companion_fabrication_sweep.py` (auth + hive-grounded, mechanical grader, `--regrade`/`--self-test 18`). SOP: [workflows/companion_fabrication_sweep.md](workflows/companion_fabrication_sweep.md).
+- **Out-of-scope-domains guard (prj/day knock-down, 2026-06-14)** — `voice-journal-agent` OUT-OF-SCOPE DOMAINS clause stops the companion inventing a project/inventory/skill/marketplace/day-plan specific (it now points to the right page); **prj 12%→0%, day 7%→0%** live. Plus a grader absence-disclaimer calibration (self-test 18/18) and a **`--fresh-memory`** flag that clears `agent_memory` before a run — which surfaced that rolling-summary contamination, not the model, drove most measured cross-family fabrication (clean re-measure = 0% on prj/day/pm/inv/anl/G). → memory `project_companion_prj_scope_fix_2026_06_14`.
+
+### 0.5 Next — ranked (proposed families + runtime hardening; skills + 2026 sources synthesized)
+| Pri | Item | Type | Status |
+|---|---|---|---|
+| 1 | **Family P — Action/outcome correctness** (drive a write → verify DB end-state + no unintended write; τ-bench) | new family | proposed |
+| 2 | **Faithfulness output-rail** (run the mechanical grounding check INLINE → block/rewrite an ungrounded KPI before it ships; offline→online) | runtime guard | proposed |
+| 3 | **Family T — Maintenance safety-critical** (LOTO/confined-space/live-electrical refuse+flag; PH RA 11058/PEC) | new family | proposed |
+| 4 | **CI gate** — run the sweep in a GitHub Action on companion/edge changes | infra | proposed |
+| 5 | **Family Q** multi-turn task completion (τ²-bench) · **R** unsolvable/missing-capability honesty · **S** calibration · **V** Taglish answer quality (↔F) · **U** conversational repair | new families | proposed |
+| 6 | **Open follow-ups:** conversation-history-aware grading (fixes K over-flag) · prune unbounded `agent_memory.summary` rows · mirror chain P1–P3 into Python `tools/lib/ai_chain.py` · re-sweep Pablo/Lucena | hygiene | proposed |
+
+_Sources behind §0.5: τ-bench (arXiv 2406.12045), multi-turn agent eval survey (2503.22458), MCP-Bench (2508.20453), 2026 guardrails landscape (Galileo / NeMo Guardrails / Patronus / Coralogix). Method: skills-first (ai-engineer, maintenance-expert, security, multitenant) then reputable sources, per [COMPANION_PROBE_TAXONOMY.md](COMPANION_PROBE_TAXONOMY.md) §1._
+
+### 0.6 Reference layer (the docs this spine absorbs — open for depth)
+| Doc | Role |
+|---|---|
+| [COMPANION_PROBE_TAXONOMY.md](COMPANION_PROBE_TAXONOMY.md) + `companion_probe_taxonomy.json` | the families catalog (A–O + page; P–W land here when built) |
+| [COMPANION_DEV_TOOL.md](COMPANION_DEV_TOOL.md) | the eval-engine / Mega-Gate hub (`tools/companion_dev.py`) |
+| [COMPANION_WIRING_PROBE_STUDY.md](COMPANION_WIRING_PROBE_STUDY.md) | wiring probes (J–O) + W0–W13 build arc |
+| [workflows/companion_fabrication_sweep.md](workflows/companion_fabrication_sweep.md) | the ~100/family sweep SOP + before/after + resilience |
+| [COMPANION_DEPLOYMENT_READY.md](COMPANION_DEPLOYMENT_READY.md) | deploy posture |
+| `VOICE_COMPANION_ROADMAP.md` | ⚠️ **archival** — May-2026 multi-agent build, pre-Hezekiah/Zaniah rename; historical only |
 
 ---
 

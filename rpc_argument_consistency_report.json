@@ -1,8 +1,8 @@
 {
   "summary": {
-    "files_scanned": 146,
-    "total_calls": 33,
-    "total_drift": 0,
+    "files_scanned": 148,
+    "total_calls": 34,
+    "total_drift": 1,
     "baseline": 0,
     "rpcs_known": 80
   },
@@ -145,6 +145,10 @@
     },
     {
       "file": "companion_battery.js",
+      "issues": []
+    },
+    {
+      "file": "companion_surface_battery.js",
       "issues": []
     },
     {
@@ -314,6 +318,15 @@
     {
       "file": "supabase\\functions\\_shared\\memory.ts",
       "issues": []
+    },
+    {
+      "file": "supabase\\functions\\_shared\\persona-knowledge.ts",
+      "issues": [
+        {
+          "rpc": "match_persona_knowledge",
+          "issue": "missing_rpc"
+        }
+      ]
     },
     {
       "file": "supabase\\functions\\_shared\\persona.ts",

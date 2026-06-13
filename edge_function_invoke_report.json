@@ -1,7 +1,7 @@
 {
   "summary": {
-    "files_scanned": 60,
-    "total_calls": 29,
+    "files_scanned": 61,
+    "total_calls": 36,
     "total_drift": 0,
     "baseline": 0,
     "edge_fns_known": 59
@@ -145,6 +145,10 @@
     },
     {
       "page": "companion_battery.js",
+      "broken": []
+    },
+    {
+      "page": "companion_surface_battery.js",
       "broken": []
     },
     {

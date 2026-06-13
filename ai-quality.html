@@ -139,7 +139,7 @@
   <script>
     const SUPABASE_URL = 'https://hzyvnjtisfgbksicrouu.supabase.co';
     const SUPABASE_KEY = 'sb_publishable_ePj-suLMwkMRVDH6eM6S8g_R0rZVbMZ';
-    const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    const db = getDb(SUPABASE_URL, SUPABASE_KEY);
     // Explicit 3-key fallback satisfies the nav registry validator + ensures a
     // direct deep-link still recognises the worker even if Supabase Auth
     // hasn't rehydrated yet. restoreIdentityFromSession runs second as the
@@ -369,14 +369,9 @@
     }
 
     function wireDetailsToggle() {
-      const btn = document.getElementById('details-toggle-btn');
-      const pane = document.getElementById('details-pane');
-      if (!btn || !pane) return;
-      btn.addEventListener('click', () => {
-        const open = pane.classList.toggle('open');
-        btn.setAttribute('aria-expanded', String(open));
-        btn.textContent = open ? 'Hide details' : 'Show details';
-      });
+      // Delegates to the shared utils.js wireDetailToggle (STREAMLINE S10).
+      // Reads the pane from the button's aria-controls (here: #details-pane).
+      if (typeof wireDetailToggle === 'function') wireDetailToggle();
     }
 
     function renderLoadingState() {

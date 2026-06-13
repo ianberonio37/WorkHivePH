@@ -43,18 +43,29 @@ not a rebuild.
 
 ## 1. Layer mapping — Mega Gate → Companion Dev Tool
 
-The Mega Gate runs 7 layers (G-1.5 Substrate → G-1 Auto-discovery → G0 Static → G1 Data →
-G2 UI/Journeys → G3 UFAI Battery → Mega orchestration). The companion mirrors each:
+The Mega Gate runs the layer spine **G-1.5 Substrate → G-1 Auto-discovery → L0 Static →
+L4 Correctness → L2/L3 Battery → G4 Optimize → Mega**, plus two self-improving bridges
+(**⟲ GH Hardening L2→L0**, **🛰️ GS Sentinel L0→L2**). The companion mirrors each.
 
-| # | Mega Gate layer | Companion analog | Reuse / Build |
+> **Two axes (the 2026-06-11 lesson).** A good companion **says the right thing (BRAIN)**
+> AND **the user sees it (DELIVERY)**. Every brain layer builds its OWN client and unwraps
+> the gateway envelope in its OWN code, so it never executes the product's delivery path —
+> which is how a perfect brain shipped a **blank bubble** while the eval stayed green. The
+> loop now covers **both**: a **DELIVERY** column (L0 static + L2/L3 `__CSURF`) sits beside
+> the **BRAIN** column (eval gate + `__CSB`).
+
+| # | Mega Gate layer | Companion analog (BRAIN · DELIVERY) | State |
 |---|---|---|---|
-| **G-1.5** | **Substrate** (9 miners → `substrate_manifest.json`) | **Harvest substrate** — `companion_harvest.py` mines live thumbs-down + live observables (`companion_battery.js`: `model_chain` / `agent_memory` / `cited[]`) → `companion_substrate_manifest.json` | harvest ✅ · manifest 🔨 |
-| **G-1** | **Auto-discovery** (333 validators) | **Dimension + golden discovery** — enumerate every dim (agent/rag/memory/persona/safety/cost), its golden set, grader, baseline; FAIL if any dim is orphaned/un-evaluated | partial (scorecard registry) 🔨 |
-| **G0** | **Static** (`run_platform_checks --fast`, forward-only) | **Eval gate** — `ai_eval_gate.py companion-gate`: per-dim locked-test %, **n-aware blocking** (auto-enforces at n≥20 = ceil(100/tol)), forward-only baselines | ✅ |
-| **G1** | **Data** (seeded correctness) | **Golden capture** — `tests/*-golden-capture.spec.ts` live runs → normalized graded observations | ✅ |
-| **G2** | **UI / Journeys** (L2/L3) | **Live stack battery** — `companion_battery.js` / `__CSB` grades Agent·Memory·RAG·Safety on grounded observables | ✅ |
-| **G3** | **UFAI Battery** (forward-only ratchet) | **Optimize / measured A-B** — `companion_optimize.py` GEPA reflect→propose→(opt-in) measured A/B, accept iff val↑ **and** locked-test holds | ✅ |
-| **Mega** | **Orchestration** (`.last-gate-pass`, persist run) | **`companion_dev.py mega`** — runs all layers, writes `.last-companion-gate-pass`, persists run + scorecard snapshot | 🔨 |
+| **G-1.5** | **Substrate** (miners → manifest) | **Harvest substrate** — `companion_harvest.py` mines live thumbs-down + observables → `companion_substrate_manifest.json` | ✅ |
+| **G-1** | **Auto-discovery** (validators registered) | **Discover** — `discover_check`: every dim ↔ golden ↔ grader ↔ baseline; FAIL on orphan | ✅ |
+| **L0** | **Static** (`run_platform_checks --fast`, forward-only) | **DELIVERY · `companion_delivery_gate.py`** — 4 forward-only surface-wiring checks: `gateway_unwrap` (the answer renders, not a flat `data.answer` = blank), `client_wiring` (no dead client global), `feedback_sink` (👍/👎 reaches `ai_reply_feedback`), `single_mount` (launcher mounts once). `companion_dev.py delivery`, folded into `mega` | ✅ **NEW** |
+| **L4** | **AI prompt regression** (correctness) | **BRAIN · Eval gate** — `ai_eval_gate.py companion-gate`: per-dim locked-test %, n-aware blocking (n≥20), forward-only. `companion_dev.py gate` _(was mislabeled "G0")_ | ✅ |
+| **G1** | **Data** (seeded correctness) | **Golden capture** — `tests/*-golden-capture.spec.ts` live runs → graded observations | ✅ |
+| **L2/L3** | **UI/Journeys + UFAI Battery** (live, MCP-driven) | **BRAIN · `companion_battery.js`/`__CSB`** grades Agent·Memory·RAG·Safety via its own gateway calls · **DELIVERY · `companion_surface_battery.js`/`__CSURF`** drives the REAL surface (launcher/assistant/voice) and asserts what the user sees (non-empty bubble · single widget · feedback row). `companion_dev.py surface`, folded into `mega --live` | ✅ **NEW (`__CSURF`)** |
+| **G4** | **Optimize** (forward-only ratchet) | **Optimize / measured A-B** — `companion_optimize.py` GEPA reflect→propose→(opt-in) measured A/B, accept iff val↑ **and** locked-test holds _(moved out of the L3 battery slot)_ | ✅ |
+| **Mega** | **Orchestration** (`.last-gate-pass`, persist) | **`companion_dev.py mega`** — runs all layers, writes `.last-companion-gate-pass`, persists run. `--live` adds `surface` + `sentinel` | ✅ |
+| **⟲ GH** | **Hardening** (L2 bug → L0 validator) | a live `__CSURF` defect becomes a NEW `companion_delivery_gate` check (this session: the live flop → `gateway_unwrap`). Reuses `/harden` | ✅ **NEW** |
+| **🛰️ GS** | **Sentinel** (L0 validator → L2 scenario) | `companion_dev.py sentinel` (`layer_sentinel`): every L0 static check must have a live `__CSURF` scenario (`_L0_L2_COVERAGE`); blocks on an un-walked L0 check. Reuses `/sentinel-review` | ✅ **NEW** |
 
 Legend: ✅ exists · 🔨 to build · partial = exists but needs a thin wrapper.
 

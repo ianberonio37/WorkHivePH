@@ -1,9 +1,9 @@
 {
   "summary": {
-    "view_column_pairs": 318,
+    "view_column_pairs": 319,
     "at_risk": 0,
     "review": 9,
-    "files_scanned": 213
+    "files_scanned": 215
   },
   "pairs": [
     {
@@ -153,6 +153,11 @@
       "column": "alert_id",
       "consumers": [
         {
+          "file": "alert-hub.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
           "file": "index.html",
           "shape": "direct",
           "smells": []
@@ -179,6 +184,11 @@
       "column": "detail",
       "consumers": [
         {
+          "file": "alert-hub.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
           "file": "hive.html",
           "shape": "direct",
           "smells": []
@@ -191,6 +201,11 @@
       "view": "v_alert_truth",
       "column": "detected_at",
       "consumers": [
+        {
+          "file": "alert-hub.html",
+          "shape": "direct",
+          "smells": []
+        },
         {
           "file": "hive.html",
           "shape": "direct",
@@ -210,6 +225,11 @@
       "column": "machine",
       "consumers": [
         {
+          "file": "alert-hub.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
           "file": "hive.html",
           "shape": "direct",
           "smells": []
@@ -228,6 +248,11 @@
       "column": "rule_id",
       "consumers": [
         {
+          "file": "alert-hub.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
           "file": "hive.html",
           "shape": "direct",
           "smells": []
@@ -240,6 +265,11 @@
       "view": "v_alert_truth",
       "column": "severity",
       "consumers": [
+        {
+          "file": "alert-hub.html",
+          "shape": "direct",
+          "smells": []
+        },
         {
           "file": "hive.html",
           "shape": "direct",
@@ -256,8 +286,26 @@
     },
     {
       "view": "v_alert_truth",
+      "column": "status",
+      "consumers": [
+        {
+          "file": "alert-hub.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_alert_truth",
       "column": "title",
       "consumers": [
+        {
+          "file": "alert-hub.html",
+          "shape": "direct",
+          "smells": []
+        },
         {
           "file": "hive.html",
           "shape": "direct",
@@ -1854,6 +1902,11 @@
           "smells": []
         },
         {
+          "file": "hive.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
           "file": "index.html",
           "shape": "direct",
           "smells": []
@@ -1873,6 +1926,11 @@
       "consumers": [
         {
           "file": "alert-hub.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "hive.html",
           "shape": "direct",
           "smells": []
         }
@@ -4596,11 +4654,6 @@
           "smells": []
         },
         {
-          "file": "supabase/functions/ai-orchestrator/index.ts",
-          "shape": "direct",
-          "smells": []
-        },
-        {
           "file": "supabase/functions/amc-orchestrator/index.ts",
           "shape": "direct",
           "smells": []
@@ -4622,11 +4675,6 @@
         },
         {
           "file": "supabase/functions/scheduled-agents/index.ts",
-          "shape": "direct",
-          "smells": []
-        },
-        {
-          "file": "supabase/functions/shift-planner-orchestrator/index.ts",
           "shape": "direct",
           "smells": []
         },
@@ -4664,11 +4712,6 @@
           "smells": []
         },
         {
-          "file": "supabase/functions/ai-orchestrator/index.ts",
-          "shape": "direct",
-          "smells": []
-        },
-        {
           "file": "supabase/functions/amc-orchestrator/index.ts",
           "shape": "direct",
           "smells": []
@@ -4690,11 +4733,6 @@
         },
         {
           "file": "supabase/functions/scheduled-agents/index.ts",
-          "shape": "direct",
-          "smells": []
-        },
-        {
-          "file": "supabase/functions/shift-planner-orchestrator/index.ts",
           "shape": "direct",
           "smells": []
         },
@@ -4745,11 +4783,6 @@
           "smells": []
         },
         {
-          "file": "supabase/functions/shift-planner-orchestrator/index.ts",
-          "shape": "direct",
-          "smells": []
-        },
-        {
           "file": "voice-handler.js",
           "shape": "direct",
           "smells": []
@@ -4764,11 +4797,6 @@
       "consumers": [
         {
           "file": "supabase/functions/amc-orchestrator/index.ts",
-          "shape": "direct",
-          "smells": []
-        },
-        {
-          "file": "supabase/functions/shift-planner-orchestrator/index.ts",
           "shape": "direct",
           "smells": []
         },
@@ -4794,11 +4822,6 @@
           "file": "supabase/functions/hierarchical-summarizer/index.ts",
           "shape": "direct",
           "smells": []
-        },
-        {
-          "file": "supabase/functions/shift-planner-orchestrator/index.ts",
-          "shape": "direct",
-          "smells": []
         }
       ],
       "smells": [],
@@ -4814,25 +4837,7 @@
           "smells": []
         },
         {
-          "file": "supabase/functions/shift-planner-orchestrator/index.ts",
-          "shape": "direct",
-          "smells": []
-        },
-        {
           "file": "voice-handler.js",
-          "shape": "direct",
-          "smells": []
-        }
-      ],
-      "smells": [],
-      "risk": "OK"
-    },
-    {
-      "view": "v_pm_compliance_truth",
-      "column": "location",
-      "consumers": [
-        {
-          "file": "supabase/functions/shift-planner-orchestrator/index.ts",
           "shape": "direct",
           "smells": []
         }
@@ -4860,11 +4865,6 @@
           "smells": []
         },
         {
-          "file": "supabase/functions/ai-orchestrator/index.ts",
-          "shape": "direct",
-          "smells": []
-        },
-        {
           "file": "supabase/functions/amc-orchestrator/index.ts",
           "shape": "direct",
           "smells": []
@@ -4881,11 +4881,6 @@
         },
         {
           "file": "supabase/functions/scheduled-agents/index.ts",
-          "shape": "direct",
-          "smells": []
-        },
-        {
-          "file": "supabase/functions/shift-planner-orchestrator/index.ts",
           "shape": "direct",
           "smells": []
         },
@@ -4914,11 +4909,6 @@
         },
         {
           "file": "supabase/functions/batch-risk-scoring/index.ts",
-          "shape": "direct",
-          "smells": []
-        },
-        {
-          "file": "supabase/functions/shift-planner-orchestrator/index.ts",
           "shape": "direct",
           "smells": []
         },
@@ -4961,6 +4951,16 @@
           "file": "alert-hub.html",
           "shape": "direct",
           "smells": []
+        },
+        {
+          "file": "supabase/functions/ai-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/shift-planner-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
         }
       ],
       "smells": [],
@@ -4977,6 +4977,11 @@
         },
         {
           "file": "index.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/shift-planner-orchestrator/index.ts",
           "shape": "direct",
           "smells": []
         }
@@ -5023,6 +5028,19 @@
     },
     {
       "view": "v_pm_scope_items_truth",
+      "column": "asset_location",
+      "consumers": [
+        {
+          "file": "supabase/functions/shift-planner-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_pm_scope_items_truth",
       "column": "asset_name",
       "consumers": [
         {
@@ -5039,6 +5057,16 @@
           "file": "index.html",
           "shape": "direct",
           "smells": []
+        },
+        {
+          "file": "supabase/functions/ai-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/shift-planner-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
         }
       ],
       "smells": [],
@@ -5050,6 +5078,11 @@
       "consumers": [
         {
           "file": "index.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/shift-planner-orchestrator/index.ts",
           "shape": "direct",
           "smells": []
         }
@@ -5075,6 +5108,21 @@
         },
         {
           "file": "pm-scheduler.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/ai-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/analytics-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/shift-planner-orchestrator/index.ts",
           "shape": "direct",
           "smells": []
         }
@@ -5116,6 +5164,11 @@
           "smells": []
         },
         {
+          "file": "supabase/functions/shift-planner-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
           "file": "supabase/functions/trigger-ml-retrain/index.ts",
           "shape": "direct",
           "smells": []
@@ -5132,6 +5185,11 @@
       "consumers": [
         {
           "file": "pm-scheduler.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/analytics-orchestrator/index.ts",
           "shape": "direct",
           "smells": []
         }
@@ -5172,6 +5230,16 @@
           "file": "pm-scheduler.html",
           "shape": "direct",
           "smells": []
+        },
+        {
+          "file": "supabase/functions/ai-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/analytics-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
         }
       ],
       "smells": [
@@ -5207,6 +5275,21 @@
         },
         {
           "file": "pm-scheduler.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/ai-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/analytics-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/shift-planner-orchestrator/index.ts",
           "shape": "direct",
           "smells": []
         }
@@ -5248,6 +5331,11 @@
           "smells": []
         },
         {
+          "file": "supabase/functions/shift-planner-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
           "file": "supabase/functions/trigger-ml-retrain/index.ts",
           "shape": "direct",
           "smells": []
@@ -5269,6 +5357,16 @@
         },
         {
           "file": "pm-scheduler.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/ai-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/analytics-orchestrator/index.ts",
           "shape": "direct",
           "smells": []
         }
@@ -5309,6 +5407,16 @@
           "file": "pm-scheduler.html",
           "shape": "direct",
           "smells": []
+        },
+        {
+          "file": "supabase/functions/analytics-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/shift-planner-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
         }
       ],
       "smells": [
@@ -5332,6 +5440,16 @@
         },
         {
           "file": "index.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/ai-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/shift-planner-orchestrator/index.ts",
           "shape": "direct",
           "smells": []
         }

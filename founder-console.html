@@ -974,7 +974,7 @@
 
     const SUPABASE_URL = 'https://hzyvnjtisfgbksicrouu.supabase.co';
     const SUPABASE_KEY = 'sb_publishable_ePj-suLMwkMRVDH6eM6S8g_R0rZVbMZ';
-    const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    const db = getDb(SUPABASE_URL, SUPABASE_KEY);
 
     // RAG thresholds for Health Ring (analytics-engineer skill: must be documented).
     // Composite = validator pass rate today. Other inputs (HRS, DAU, AI$) get folded

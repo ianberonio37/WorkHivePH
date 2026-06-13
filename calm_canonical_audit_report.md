@@ -7,10 +7,10 @@ CANONICAL / DRIFT / GAP / ALLOWED. Run by `tools/audit_calm_dashboard_canonical.
 
 - Calm-opted-in pages: **15**
 - Fully compliant pages (0 drift + 0 gap): **14** (93%)
-- Canonical reads (✅): **40**
+- Canonical reads (✅): **41**
 - Drift reads (⚠️ wrapper exists, page reads raw): **0**
 - Gap reads (❌ no wrapper exists yet): **1**
-- Allowed reads (legitimate raw): **51**
+- Allowed reads (legitimate raw): **50**
 - Truth views in registry: **39**
 
 ## Per-page conformance
@@ -20,7 +20,7 @@ CANONICAL / DRIFT / GAP / ALLOWED. Run by `tools/audit_calm_dashboard_canonical.
 | `achievements.html` | 2 | 0 | 0 | 1 | ✓ | ✅ |
 | `agentic-rag-observability.html` | 0 | 0 | 0 | 1 | — | ✅ |
 | `ai-quality.html` | 0 | 0 | 1 | 1 | ✓ | ❌ |
-| `alert-hub.html` | 4 | 0 | 0 | 6 | ✓ | ✅ |
+| `alert-hub.html` | 5 | 0 | 0 | 5 | ✓ | ✅ |
 | `analytics.html` | 0 | 0 | 0 | 0 | ✓ | ✅ |
 | `asset-hub.html` | 10 | 0 | 0 | 13 | ✓ | ✅ |
 | `dayplanner.html` | 1 | 0 | 0 | 2 | ✓ | ✅ |
@@ -62,8 +62,8 @@ CANONICAL / DRIFT / GAP / ALLOWED. Run by `tools/audit_calm_dashboard_canonical.
 
 ### `alert-hub.html` — ✅ compliant
 
-**Canonical** (4): `v_anomaly_truth`, `v_inventory_items_truth`, `v_pm_scope_items_truth`, `v_risk_truth`
-**Allowed raw** (6): `amc_briefings`, `anomaly_signals`, `automation_log`, `failure_signature_alerts`, `hive_audit_log`, `parts_staging_recommendations`
+**Canonical** (5): `v_alert_truth`, `v_anomaly_truth`, `v_inventory_items_truth`, `v_pm_scope_items_truth`, `v_risk_truth`
+**Allowed raw** (5): `amc_briefings`, `anomaly_signals`, `automation_log`, `hive_audit_log`, `parts_staging_recommendations`
 
 ### `analytics.html` — ✅ compliant
 

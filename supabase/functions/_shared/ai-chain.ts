@@ -4,7 +4,7 @@
 // Order: fastest / most generous limits first, deeper fallbacks last.
 // Only permanently free tiers — no credits that expire.
 //
-// AI_ASSET_VERSION: 1
+// AI_ASSET_VERSION: 2
 // C5 (Self-Improving Gate) — bump this integer whenever the model chain,
 // provider order, judge model, or any other content the eval gate scores
 // against changes. The ai-asset-versioning validator FAILs if the file
@@ -127,7 +127,7 @@ import {
 } from "./provider-health.ts";
 
 
-export function reorderChain(taskProfile?: string): ProviderEntry[] {
+export function reorderChain(taskProfile?: string, spread = false): ProviderEntry[] {
   // ── Step 1: task-profile ordering (or the static chain) ──────────────────
   // Always build a NEW array — never return/mutate the PROVIDER_CHAIN const.
   let ordered: ProviderEntry[];
@@ -158,12 +158,53 @@ export function reorderChain(taskProfile?: string): ProviderEntry[] {
   // comparator non-deterministic. Array.prototype.sort is stable in V8/Deno,
   // so when every slot is healthy (penalty 0) the order is byte-identical to
   // step 1 — this layer is a no-op until something actually fails.
-  const penalty = new Map<string, number>();
+  // P4 (2026-06-14): per-ENTRY penalty = max(provider-wide, this specific model). A model's
+  // own TPM 429 is recorded at the "provider:model" slot, so it sinks JUST that model; a
+  // provider-wide failure (auth/5xx/network) sinks all the provider's models together. Keyed
+  // by entry, not provider, so sibling models can differ. Snapshot once (getSlotPenalty applies
+  // time-decay on read) so the comparator stays deterministic. No model-slot penalties exist
+  // until callAI records them, so this is byte-identical to the old provider-only behavior for
+  // any caller (e.g. the Node port test) that only ever set provider-level penalties.
+  const entryPen = new Map<ProviderEntry, number>();
   for (const e of ordered) {
-    if (!penalty.has(e.provider)) penalty.set(e.provider, getSlotPenalty(e.provider));
+    entryPen.set(e, Math.max(getSlotPenalty(e.provider), getSlotPenalty(`${e.provider}:${e.model}`)));
   }
-  ordered.sort((a, b) => penalty.get(a.provider)! - penalty.get(b.provider)!);
+  ordered.sort((a, b) => entryPen.get(a)! - entryPen.get(b)!);
+
+  // ── Step 3: herd-spread (P1, 2026-06-14) ─────────────────────────────────────
+  // Shuffle WITHIN equal-penalty groups so N concurrent calls don't all stampede the exact
+  // same head entry and 429 in lockstep — the thundering-herd the 10-worker stress sweep
+  // exposed (every call reorders identically -> all hit prov[0] -> all 429 -> all march to
+  // prov[1] together). The chain is "good enough + free", so spreading the head across
+  // equally-healthy entries buys far more usable throughput under burst than strict order.
+  // OFF by default (deterministic order preserved for the Node port test + non-burst callers);
+  // callAI opts in with spread=true. A flaky/parked entry has a higher penalty so it's in a
+  // later group and never shuffles up ahead of a healthy one.
+  if (spread) {
+    let i = 0;
+    while (i < ordered.length) {
+      let j = i + 1;
+      const p = entryPen.get(ordered[i])!;
+      while (j < ordered.length && entryPen.get(ordered[j])! === p) j++;
+      for (let k = j - 1; k > i; k--) {            // Fisher-Yates within the equal-penalty group [i, j)
+        const r = i + Math.floor(Math.random() * (k - i + 1));
+        [ordered[k], ordered[r]] = [ordered[r], ordered[k]];
+      }
+      i = j;
+    }
+  }
   return ordered;
+}
+
+// P2 helper (2026-06-14): parse a 429 `Retry-After` header — either delta-seconds
+// ("12") or an HTTP-date — into milliseconds-from-now. Returns undefined if absent/unparseable.
+function parseRetryAfter(h: string | null): number | undefined {
+  if (!h) return undefined;
+  const secs = Number(h);
+  if (!isNaN(secs)) return Math.max(0, secs * 1000);
+  const when = Date.parse(h);
+  if (!isNaN(when)) return Math.max(0, when - Date.now());
+  return undefined;
 }
 
 /**
@@ -198,6 +239,19 @@ export function stripReasoningBlocks(text: string): string {
   return out;
 }
 
+// W4 fault-injection (LOCAL-ONLY). The faultInject option simulates provider
+// 429/413/down WITHOUT a network call so the wiring battery can prove M1 (fallback),
+// M2 (all-down graceful degrade -> "{}"), M4 (413 skip). It is honored ONLY when the
+// runtime is local (SUPABASE_URL host kong/localhost/127.0.0.1; prod is *.supabase.co),
+// so it is dead in production even if a faultInject option somehow reaches callAI.
+const _AI_CHAIN_LOCAL = /\/\/(kong|localhost|127\.0\.0\.1)(:|\/|$)/.test(Deno.env.get("SUPABASE_URL") || "");
+
+export interface FaultInject {
+  fail?: string[];      // provider names to force-fail (e.g. ["groq"])
+  failAll?: boolean;    // force EVERY provider to fail (all-down degrade -> "{}")
+  mode?: "429" | "413" | "down";
+}
+
 export async function callAI(
   prompt: string,
   options: {
@@ -207,112 +261,145 @@ export async function callAI(
     jsonMode?: boolean;
     taskProfile?: string;
     sessionKey?: string;   // multi-turn affinity — pin this conversation to one model (~30min)
+    faultInject?: FaultInject;  // LOCAL-ONLY test hook (W4); ignored in prod
   } = {}
 ): Promise<string> {
-  const { systemPrompt, temperature = 0.2, maxTokens = 1024, jsonMode = true, taskProfile, sessionKey } = options;
+  const { systemPrompt, temperature = 0.2, maxTokens = 1024, jsonMode = true, taskProfile, sessionKey, faultInject } = options;
 
   const messages = systemPrompt
     ? [{ role: "system", content: systemPrompt }, { role: "user", content: prompt }]
     : [{ role: "user", content: prompt }];
 
-  // Sticky session: if this conversation already has a pinned model and it is
-  // still in the chain, try it FIRST. isSlotBlocked below still wins, so a
-  // hard-blocked pin falls through and the conversation re-pins on the next
-  // success. When sessionKey is absent this is a no-op (chain order unchanged).
-  const chain = reorderChain(taskProfile);
-  if (sessionKey) {
+  // Sticky session: if this conversation already has a pinned model and it is still in the
+  // chain, try it FIRST (applied per-pass). isSlotBlocked still wins, so a parked pin falls
+  // through and the conversation re-pins on the next success. No-op when sessionKey is absent.
+  const applySticky = (chainArr: ProviderEntry[]): ProviderEntry[] => {
+    if (!sessionKey) return chainArr;
     const sticky = getStickyModel(sessionKey);
-    if (sticky) {
-      const idx = chain.findIndex(e => e.provider === sticky.provider && e.model === sticky.model);
-      if (idx > 0) {
-        const [pinned] = chain.splice(idx, 1);
-        chain.unshift(pinned);
-      }
-    }
-  }
+    if (!sticky) return chainArr;
+    const idx = chainArr.findIndex(e => e.provider === sticky.provider && e.model === sticky.model);
+    if (idx > 0) { const c = chainArr.slice(); const [pinned] = c.splice(idx, 1); c.unshift(pinned); return c; }
+    return chainArr;
+  };
 
-  for (const entry of chain) {
-    const apiKey = Deno.env.get(entry.envKey);
-    if (!apiKey) continue;
+  // One pass down a chain: returns the answer on the first success, or null if every entry
+  // was skipped/failed (so the caller can run the P3 retry pass before degrading to "{}").
+  const attemptChain = async (chainArr: ProviderEntry[]): Promise<string | null> => {
+    for (const entry of chainArr) {
+      const apiKey = Deno.env.get(entry.envKey);
+      if (!apiKey) continue;
+      const modelSlot = `${entry.provider}:${entry.model}`;
+      // P1 roadmap 2026-05-27 turn 7 + P4 2026-06-14 — skip a parked PROVIDER or this parked MODEL.
+      if (isSlotBlocked(entry.provider) || isSlotBlocked(modelSlot)) continue;
 
-    // P1 roadmap 2026-05-27 turn 7 — skip recently-failed providers.
-    if (isSlotBlocked(entry.provider)) continue;
-
-    const effectiveMaxTokens = entry.maxTokensCap
-      ? Math.min(maxTokens, entry.maxTokensCap)
-      : maxTokens;
-
-    // Token-aware pre-skip (FreeLLMAPI canUseTokens idea, 2026-05-30): if this
-    // model's total context window provably can't fit prompt + output, skip it
-    // here instead of wasting a round-trip to discover the 413. Only applies to
-    // entries that declare a contextCap (small-context models like Cerebras);
-    // no-op for everything else. 256t margin covers chat-template overhead.
-    if (entry.contextCap) {
-      const estPromptTokens = estimateTokens((systemPrompt ?? "") + prompt);
-      if (estPromptTokens + effectiveMaxTokens + 256 > entry.contextCap) {
-        console.warn(`[ai-chain] ${entry.provider}/${entry.model} pre-skipped (prompt ~${estPromptTokens}t + ${effectiveMaxTokens}t out > ${entry.contextCap}t context)`);
-        continue;
-      }
-    }
-
-    try {
-      const res = await fetch(`${entry.baseUrl}/chat/completions`, {
-        method: "POST",
-        signal: AbortSignal.timeout(60000),
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${apiKey}`,
-          ...(entry.extraHeaders ?? {}),
-        },
-        body: JSON.stringify({
-          model: entry.model,
-          messages,
-          temperature,
-          max_tokens: effectiveMaxTokens,
-          ...(jsonMode ? { response_format: { type: "json_object" } } : {}),
-        }),
-      });
-
-      // Rate-limited, payload too large, or service unavailable: try next
-      if (res.status === 429 || res.status === 413 || res.status === 503) {
-        console.warn(`[ai-chain] ${entry.provider}/${entry.model} skipped (HTTP ${res.status})`);
+      // W4 fault-injection (LOCAL-ONLY): simulate this provider failing (429/413/down)
+      // without a network call, so the next provider is tried (M1), all-down degrades
+      // to "{}" (M2), and 413 is skipped (M4). Honored only locally; dead in prod.
+      if (faultInject && _AI_CHAIN_LOCAL &&
+          (faultInject.failAll === true || (faultInject.fail || []).includes(entry.provider))) {
+        console.warn(`[ai-chain] FAULT-INJECT ${entry.provider}/${entry.model} (${faultInject.mode || "429"}) — simulated skip`);
         recordSlotFailure(entry.provider);
         continue;
       }
 
-      if (!res.ok) {
-        const errSnippet = (await res.text()).slice(0, 120);
-        console.warn(`[ai-chain] ${entry.provider}/${entry.model} error ${res.status}: ${errSnippet} — trying next`);
-        recordSlotFailure(entry.provider);
-        continue;
-      }
+      const effectiveMaxTokens = entry.maxTokensCap
+        ? Math.min(maxTokens, entry.maxTokensCap)
+        : maxTokens;
 
-      const data = await res.json();
-      const content: string | undefined = data?.choices?.[0]?.message?.content;
-      if (content) {
-        // Strip <think>...</think> reasoning blocks (Qwen3-32B et al.) so
-        // chain-of-thought doesn't leak. V4 caught Qwen3 leaking
-        // "worker_profiles" inside a think block while reasoning about
-        // refusing a prompt-injection probe.
-        const stripped = stripReasoningBlocks(content);
-        if (stripped) {
-          console.log(`[ai-chain] served by ${entry.provider} / ${entry.model}`);
-          recordSlotSuccess(entry.provider);
-          // Pin this conversation to the model that just served it so the next
-          // turn stays on the same model (no-op when sessionKey is absent).
-          if (sessionKey) setStickyModel(sessionKey, entry.provider, entry.model);
-          return stripped;
+      // Token-aware pre-skip (FreeLLMAPI canUseTokens idea, 2026-05-30): if this
+      // model's total context window provably can't fit prompt + output, skip it
+      // here instead of wasting a round-trip to discover the 413. Only applies to
+      // entries that declare a contextCap (small-context models like Cerebras);
+      // no-op for everything else. 256t margin covers chat-template overhead.
+      if (entry.contextCap) {
+        const estPromptTokens = estimateTokens((systemPrompt ?? "") + prompt);
+        if (estPromptTokens + effectiveMaxTokens + 256 > entry.contextCap) {
+          console.warn(`[ai-chain] ${entry.provider}/${entry.model} pre-skipped (prompt ~${estPromptTokens}t + ${effectiveMaxTokens}t out > ${entry.contextCap}t context)`);
+          continue;
         }
-        // Reasoning model emitted only a think block with no usable answer —
-        // fall through to the next provider rather than return empty.
-        console.warn(`[ai-chain] ${entry.provider}/${entry.model} returned only reasoning, no answer — trying next`);
-      } else {
-        console.warn(`[ai-chain] ${entry.provider}/${entry.model} returned empty content — trying next`);
       }
-    } catch (err) {
-      console.warn(`[ai-chain] ${entry.provider}/${entry.model} threw: ${String(err).slice(0, 80)}`);
-      recordSlotFailure(entry.provider);
+
+      try {
+        const res = await fetch(`${entry.baseUrl}/chat/completions`, {
+          method: "POST",
+          signal: AbortSignal.timeout(60000),
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${apiKey}`,
+            ...(entry.extraHeaders ?? {}),
+          },
+          body: JSON.stringify({
+            model: entry.model,
+            messages,
+            temperature,
+            max_tokens: effectiveMaxTokens,
+            ...(jsonMode ? { response_format: { type: "json_object" } } : {}),
+          }),
+        });
+
+        // Rate-limited / payload too large / unavailable: try next. P2: honor Retry-After for
+        // the cooldown window. 429+413 are per-MODEL (TPM / prompt size) -> park just this
+        // model so its siblings stay usable; 503 is provider-wide -> park the whole provider.
+        if (res.status === 429 || res.status === 413 || res.status === 503) {
+          const raMs = parseRetryAfter(res.headers.get("retry-after"));
+          console.warn(`[ai-chain] ${entry.provider}/${entry.model} skipped (HTTP ${res.status}${raMs ? `, retry-after ${Math.round(raMs / 1000)}s` : ""})`);
+          recordSlotFailure(modelSlot, raMs);
+          if (res.status === 503) recordSlotFailure(entry.provider, raMs);
+          continue;
+        }
+
+        if (!res.ok) {
+          const errSnippet = (await res.text()).slice(0, 120);
+          console.warn(`[ai-chain] ${entry.provider}/${entry.model} error ${res.status}: ${errSnippet} — trying next`);
+          recordSlotFailure(entry.provider);   // auth/5xx/other = provider-wide
+          continue;
+        }
+
+        const data = await res.json();
+        const content: string | undefined = data?.choices?.[0]?.message?.content;
+        if (content) {
+          // Strip <think>...</think> reasoning blocks (Qwen3-32B et al.) so
+          // chain-of-thought doesn't leak. V4 caught Qwen3 leaking
+          // "worker_profiles" inside a think block while reasoning about
+          // refusing a prompt-injection probe.
+          const stripped = stripReasoningBlocks(content);
+          if (stripped) {
+            console.log(`[ai-chain] served by ${entry.provider} / ${entry.model}`);
+            recordSlotSuccess(entry.provider);
+            recordSlotSuccess(modelSlot);
+            // Pin this conversation to the model that just served it so the next
+            // turn stays on the same model (no-op when sessionKey is absent).
+            if (sessionKey) setStickyModel(sessionKey, entry.provider, entry.model);
+            return stripped;
+          }
+          // Reasoning model emitted only a think block with no usable answer —
+          // fall through to the next provider rather than return empty.
+          console.warn(`[ai-chain] ${entry.provider}/${entry.model} returned only reasoning, no answer — trying next`);
+        } else {
+          console.warn(`[ai-chain] ${entry.provider}/${entry.model} returned empty content — trying next`);
+        }
+      } catch (err) {
+        console.warn(`[ai-chain] ${entry.provider}/${entry.model} threw: ${String(err).slice(0, 80)}`);
+        recordSlotFailure(entry.provider);   // network/abort = provider-wide
+        recordSlotFailure(modelSlot);
+      }
     }
+    return null;
+  };
+
+  // Pass 1 — herd-spread chain (P1), sticky pin first.
+  const first = await attemptChain(applySticky(reorderChain(taskProfile, true)));
+  if (first !== null) return first;
+
+  // P3 (2026-06-14): one bounded jittered-retry pass before degrading to "{}". A concurrent
+  // burst can 429 every slot on pass 1; a short randomized backoff (300-1200ms) lets per-second
+  // token buckets refill AND de-synchronizes this call from the herd, then we re-spread and try
+  // once more. Skipped for the all-down fault-injection (M2) so that test still degrades to "{}"
+  // immediately, and capped at exactly one extra pass so a call can never hang.
+  if (!(faultInject?.failAll)) {
+    await new Promise((r) => setTimeout(r, 300 + Math.floor(Math.random() * 900)));
+    const second = await attemptChain(applySticky(reorderChain(taskProfile, true)));
+    if (second !== null) return second;
   }
 
   return "{}";

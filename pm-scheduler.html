@@ -809,7 +809,7 @@
 // ─────────────────────────────────────
 const SUPABASE_URL = 'https://hzyvnjtisfgbksicrouu.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_ePj-suLMwkMRVDH6eM6S8g_R0rZVbMZ';
-const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const db = getDb(SUPABASE_URL, SUPABASE_KEY);
 window.db = db; // expose for journey-canonical-signal-parity.spec.ts test contract
 logPageView(db);
 let _authUid = null; // C3b: populated at init from Supabase Auth session
@@ -1169,17 +1169,8 @@ async function init() {
   // Category filter
   document.getElementById('cat-filter').addEventListener('change', () => { _pmDisplayCount = 10; renderDashboard(); });
 
-  // Plain-Read summary details toggle (Layer D — UX Contract)
-  (function wirePMSummaryToggle() {
-    const btn  = document.getElementById('details-toggle-btn');
-    const pane = document.getElementById('pm-summary-details');
-    if (!btn || !pane) return;
-    btn.addEventListener('click', () => {
-      const open = pane.classList.toggle('open');
-      btn.setAttribute('aria-expanded', String(open));
-      btn.textContent = open ? 'Hide details' : 'Show details';
-    });
-  })();
+  // Plain-Read summary details toggle (shared — utils.js wireDetailToggle, STREAMLINE S10).
+  if (typeof wireDetailToggle === 'function') wireDetailToggle();
 
   // Subscribe to realtime PM completions (for cross-device sync)
   if (HIVE_ID) subscribeRealtime();

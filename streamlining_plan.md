@@ -4,8 +4,8 @@
 
 > Built from `ia_inventory_corpus.json` (Phase 1). Method = NN/g content audit verbs (keep / consolidate / move / remove) + lawsofux severity. The keep/consolidate/relabel/review split exists because *"the same thing on N pages"* is four different situations — and conflating them is how you delete what you needed.
 
-**Tally:** 6× REVIEW (extra path) · 4× DIFFERENTIATE / merge (review) · 2× KEEP (hub link) · 1× RELABEL / keep-distinct · 1× KEEP (consistent pattern)
-  ·  **11** rows queued for disposition (KEEP rows are documented here but not queued — no decision needed).
+**Tally:** 7× REVIEW (extra path) · 4× DIFFERENTIATE / merge (review) · 2× KEEP (hub link) · 1× RELABEL / keep-distinct · 1× KEEP (consistent pattern)
+  ·  **12** rows queued for disposition (KEEP rows are documented here but not queued — no decision needed).
 
 ## 2. Relabel — same label, different subject (do NOT collapse)
 
@@ -32,10 +32,11 @@ _Body links to a deep page beyond the global nav (Hick's Law)._ Confirm each ext
 
 | Unit | On pages | Canonical home | UX-law | Severity | Why / verify |
 |---|---|---|---|---|---|
-| **link → asset-hub** — _REVIEW (extra path)_ | index, predictive | asset-hub | Hick's Law | Minor | Deep page "asset-hub" reached from 2 page bodies BEYOND the global nav (index, predictive). Hick's Law — confirm each extra path earns its place; otherwise rely on the nav + one contextual link. |
+| **link → asset-hub** — _REVIEW (extra path)_ | analytics, index, predictive | asset-hub | Hick's Law | Minor | Deep page "asset-hub" reached from 3 page bodies BEYOND the global nav (analytics, index, predictive). Hick's Law — confirm each extra path earns its place; otherwise rely on the nav + one contextual link. |
 | **link → integrations** — _REVIEW (extra path)_ | ph-intelligence, plant-connections | integrations | Hick's Law | Minor | Deep page "integrations" reached from 2 page bodies BEYOND the global nav (ph-intelligence, plant-connections). Hick's Law — confirm each extra path earns its place; otherwise rely on the nav + one contextual link. |
 | **link → inventory** — _REVIEW (extra path)_ | hive, index | inventory | Hick's Law | Minor | Deep page "inventory" reached from 2 page bodies BEYOND the global nav (hive, index). Hick's Law — confirm each extra path earns its place; otherwise rely on the nav + one contextual link. |
 | **link → ph-intelligence** — _REVIEW (extra path)_ | analytics, integrations | ph-intelligence | Hick's Law | Minor | Deep page "ph-intelligence" reached from 2 page bodies BEYOND the global nav (analytics, integrations). Hick's Law — confirm each extra path earns its place; otherwise rely on the nav + one contextual link. |
+| **link → plant-connections** — _REVIEW (extra path)_ | hive, integrations | plant-connections | Hick's Law | Minor | Deep page "plant-connections" reached from 2 page bodies BEYOND the global nav (hive, integrations). Hick's Law — confirm each extra path earns its place; otherwise rely on the nav + one contextual link. |
 | **link → pm-scheduler** — _REVIEW (extra path)_ | hive, index | pm-scheduler | Hick's Law | Minor | Deep page "pm-scheduler" reached from 2 page bodies BEYOND the global nav (hive, index). Hick's Law — confirm each extra path earns its place; otherwise rely on the nav + one contextual link. |
 | **link → voice-journal** — _REVIEW (extra path)_ | index, logbook | voice-journal | Hick's Law | Minor | Deep page "voice-journal" reached from 2 page bodies BEYOND the global nav (index, logbook). Hick's Law — confirm each extra path earns its place; otherwise rely on the nav + one contextual link. |
 
@@ -51,7 +52,7 @@ _Replicated BY DESIGN — each instance shows its own page's data, or is an expe
 
 ---
 ### How to act on this
-1. **Queue the decisions:** `python ufai_ingest.py ia_streamlining_candidates.json` → merges the 11 non-KEEP rows into `sweep_critiques.json` (idempotent), where they flow through `flywheel_orchestrator` → `promotion_queue.md`.
+1. **Queue the decisions:** `python ufai_ingest.py ia_streamlining_candidates.json` → merges the 12 non-KEEP rows into `sweep_critiques.json` (idempotent), where they flow through `flywheel_orchestrator` → `promotion_queue.md`.
 2. **Dispose** each via `promotion_dispositions.json` (accept / defer / reject) — same mechanism as every other sweep finding.
 3. **For accepted CONSOLIDATE rows**, the implementation is an Architect/Frontend job (shared component or canonical-source read + deep-link); the **0-math-drift** invariant (`validate_user_facing_kpi_canonical.py`) must stay green.
 

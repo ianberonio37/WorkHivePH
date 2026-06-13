@@ -47,6 +47,16 @@ const PII_KEYS = new Set([
 const EMAIL_RE = /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b/g;
 const PHONE_RE = /\+?\d[\d\s().-]{8,}\d/g;
 
+// ISO-8601 date / datetime (2026-06-13, 2026-06-13T01:29:44, optional
+// fractional seconds + timezone). These are NOT phone numbers, but the
+// loose PHONE_RE above happily eats the `YYYY-MM-DD` head and emits
+// `<phone>T01:29:44` (seen once asset-brain answers routed through the
+// gateway). We carve ISO timestamps out of the scrub pass entirely.
+// Kept non-global; scrubExceptISO builds a fresh `g` instance so the
+// shared lastIndex is never a cross-call hazard.
+const ISO_DATETIME_RE =
+  /\b\d{4}-\d{2}-\d{2}(?:[T ]\d{2}:\d{2}(?::\d{2}(?:\.\d+)?)?(?:Z|[+-]\d{2}:?\d{2})?)?\b/;
+
 export function redactPII<T>(payload: T): T {
   if (payload == null) return payload;
   if (typeof payload === "string") {
@@ -69,10 +79,27 @@ export function redactPII<T>(payload: T): T {
   return payload;
 }
 
+// Run `scrub` over `s`, leaving any ISO date/datetime substrings verbatim so
+// PHONE_RE can't misread `2026-06-13T01:29:44` as a phone number. The scrub
+// callback only ever sees the gaps BETWEEN ISO timestamps.
+function scrubExceptISO(s: string, scrub: (chunk: string) => string): string {
+  const re = new RegExp(ISO_DATETIME_RE.source, "g");
+  let out = "";
+  let last = 0;
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(s)) !== null) {
+    out += scrub(s.slice(last, m.index)); // scrub the text before the timestamp
+    out += m[0];                          // keep the ISO timestamp verbatim
+    last = m.index + m[0].length;
+    if (m.index === re.lastIndex) re.lastIndex++; // guard against zero-width loops
+  }
+  out += scrub(s.slice(last));            // scrub the trailing text
+  return out;
+}
+
 function redactString(s: string): string {
-  return s
-    .replace(EMAIL_RE, "<email>")
-    .replace(PHONE_RE, "<phone>");
+  return scrubExceptISO(s, (chunk) =>
+    chunk.replace(EMAIL_RE, "<email>").replace(PHONE_RE, "<phone>"));
 }
 
 export interface RedactionMap {
@@ -102,9 +129,10 @@ export function redactPIIWithMap(payload: unknown): RedactionMap {
   function walk(v: unknown): unknown {
     if (v == null) return v;
     if (typeof v === "string") {
-      return v
-        .replace(EMAIL_RE, (m) => alloc("email", m))
-        .replace(PHONE_RE, (m) => alloc("phone", m));
+      return scrubExceptISO(v, (chunk) =>
+        chunk
+          .replace(EMAIL_RE, (m) => alloc("email", m))
+          .replace(PHONE_RE, (m) => alloc("phone", m)));
     }
     if (Array.isArray(v)) {
       return v.map(walk);

@@ -56,7 +56,6 @@ TILE_LOCKS: dict = {    "analytics:oee": {"page": "analytics", "label": "OEE (av
     "integrations:disabled": {"page": "integrations", "label": "Disabled integrations", "first_seen": "turn 24", "route": "semantic"},
     "marketplace:listings_in_view": {"page": "marketplace", "label": "Listings in view", "first_seen": "turn 24", "route": "semantic"},
     "marketplace:my_listings": {"page": "marketplace", "label": "My listings", "first_seen": "turn 24", "route": "semantic"},
-    "marketplace:current_tab": {"page": "marketplace", "label": "Current tab", "first_seen": "turn 24", "route": "simple_recency"},
     "ph-intelligence:plants_in_network": {"page": "ph-intelligence", "label": "Plants in network", "first_seen": "turn 24", "route": "semantic"},
     "ph-intelligence:top_failure_cause": {"page": "ph-intelligence", "label": "Top failure cause", "first_seen": "turn 24", "route": "semantic"},
     "ph-intelligence:report_freshness": {"page": "ph-intelligence", "label": "Report freshness", "first_seen": "turn 24", "route": "semantic"},

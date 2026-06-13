@@ -1,14 +1,14 @@
 {
   "summary": {
     "pages_scanned": 30,
-    "total_links": 204,
+    "total_links": 208,
     "total_broken": 0,
     "baseline": 0
   },
   "per_page": [
     {
       "page": "index.html",
-      "link_count": 38,
+      "link_count": 36,
       "broken": []
     },
     {
@@ -38,12 +38,12 @@
     },
     {
       "page": "analytics-report.html",
-      "link_count": 1,
+      "link_count": 2,
       "broken": []
     },
     {
       "page": "skillmatrix.html",
-      "link_count": 5,
+      "link_count": 6,
       "broken": []
     },
     {
@@ -83,7 +83,7 @@
     },
     {
       "page": "report-sender.html",
-      "link_count": 3,
+      "link_count": 4,
       "broken": []
     },
     {
@@ -98,7 +98,7 @@
     },
     {
       "page": "integrations.html",
-      "link_count": 7,
+      "link_count": 8,
       "broken": []
     },
     {
@@ -123,12 +123,12 @@
     },
     {
       "page": "plant-connections.html",
-      "link_count": 6,
+      "link_count": 7,
       "broken": []
     },
     {
       "page": "achievements.html",
-      "link_count": 3,
+      "link_count": 4,
       "broken": []
     },
     {

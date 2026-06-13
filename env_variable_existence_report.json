@@ -1,8 +1,8 @@
 {
   "summary": {
-    "files_scanned": 173,
-    "total_refs": 259,
-    "total_missing": 0,
+    "files_scanned": 174,
+    "total_refs": 268,
+    "total_missing": 5,
     "baseline": 0,
     "env_names_known": 26
   },
@@ -37,7 +37,20 @@
     },
     {
       "file": "supabase/functions/_shared/embedding-chain.ts",
-      "missing": []
+      "missing": [
+        {
+          "env": "CLOUDFLARE_ACCOUNT_ID",
+          "offset": 4824
+        },
+        {
+          "env": "EMBEDDING_PRIMARY",
+          "offset": 8575
+        },
+        {
+          "env": "BGE_EMBED_URL",
+          "offset": 9149
+        }
+      ]
     },
     {
       "file": "supabase/functions/_shared/envelope.ts",
@@ -74,6 +87,15 @@
     {
       "file": "supabase/functions/_shared/memory.ts",
       "missing": []
+    },
+    {
+      "file": "supabase/functions/_shared/persona-knowledge.ts",
+      "missing": [
+        {
+          "env": "PERSONA_KNOWLEDGE_EMBED_MODEL",
+          "offset": 2149
+        }
+      ]
     },
     {
       "file": "supabase/functions/_shared/persona.ts",
@@ -129,7 +151,12 @@
     },
     {
       "file": "supabase/functions/ai-gateway/index.ts",
-      "missing": []
+      "missing": [
+        {
+          "env": "WH_ALLOW_DEBUG_ECHO",
+          "offset": 8077
+        }
+      ]
     },
     {
       "file": "supabase/functions/ai-orchestrator/index.ts",

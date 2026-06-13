@@ -25,7 +25,7 @@
           s2.src = 'utils.js';
           s2.onload = function () {
             try {
-              var db = supabase.createClient('https://hzyvnjtisfgbksicrouu.supabase.co', 'sb_publishable_ePj-suLMwkMRVDH6eM6S8g_R0rZVbMZ');
+              var db = getDb('https://hzyvnjtisfgbksicrouu.supabase.co', 'sb_publishable_ePj-suLMwkMRVDH6eM6S8g_R0rZVbMZ');
               isPlatformAdmin(db).then(function (ok) {
                 if (ok) document.documentElement.style.visibility = '';
                 else deny();

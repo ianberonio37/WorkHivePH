@@ -71,6 +71,7 @@ WITH_PERF = "--with-perf" in sys.argv
 WITH_AI_DEEP = "--with-ai-deep" in sys.argv
 WITH_BATTERY = "--with-battery" in sys.argv   # G3 UFAI battery ratchet (Mega Gate)
 WITH_CONTENT = "--with-content" in sys.argv   # Content Grounding Gate (the 3rd sibling)
+WITH_FULLSTACK = "--with-fullstack" in sys.argv  # Full-Stack SaaS Gate (the 4th sibling)
 
 
 def py_for(path: Path) -> str:
@@ -300,6 +301,26 @@ def phase_content() -> tuple[bool, dict]:
     return (rc == 0, {"summary": summary, "lines": lines})
 
 
+def phase_fullstack() -> tuple[bool, dict]:
+    """Phase 7: Full-Stack SaaS Gate — the 4th sibling, the 13×6 matrix runner.
+
+    Runs tools/fullstack_dev.py mega (the front door organized under the Mega
+    Gate's own gate-layer names: G-1.5 substrate / G-1 discover / GS sentinel /
+    G2 e2e + scorecard). This is the LIGHT pass — it verifies the matrix is
+    intact (every named validator/spec still exists = the G-1 meta-gate) and
+    that each production layer is still protected. It does NOT re-run the heavy
+    G0 ratchet here (that's phase_static's job already), so it stays fast and
+    offline. Gated behind --with-fullstack like phase_content behind
+    --with-content. Source of truth: COMPREHENSIVE_STUDY_FULLSTACK_GATE.md §4.
+    """
+    if not WITH_FULLSTACK:
+        return (True, {"summary": "skipped (no --with-fullstack)", "lines": []})
+    step("Phase 7: Full-Stack SaaS Gate (fullstack_dev.py mega)")
+    rc, summary, lines = run_subprocess(
+        [sys.executable, "tools/fullstack_dev.py", "mega"], cwd=ROOT)
+    return (rc == 0, {"summary": summary, "lines": lines})
+
+
 # ── Verdict ───────────────────────────────────────────────────────────────
 
 def get_head_sha() -> str:
@@ -475,12 +496,14 @@ def main() -> int:
     battery_ok, battery_res = phase_battery()
     print()
     content_ok, content_res = phase_content()
+    print()
+    fullstack_ok, fullstack_res = phase_fullstack()
 
-    results = {"static": static_res, "data": data_res, "ui": ui_res, "ai_deep": ai_deep_res, "battery": battery_res, "content": content_res}
-    layer_oks = {"static": static_ok, "data": data_ok, "ui": ui_ok, "ai_deep": ai_deep_ok, "battery": battery_ok, "content": content_ok}
-    all_pass = static_ok and data_ok and ui_ok and ai_deep_ok and battery_ok and content_ok
+    results = {"static": static_res, "data": data_res, "ui": ui_res, "ai_deep": ai_deep_res, "battery": battery_res, "content": content_res, "fullstack": fullstack_res}
+    layer_oks = {"static": static_ok, "data": data_ok, "ui": ui_ok, "ai_deep": ai_deep_ok, "battery": battery_ok, "content": content_ok, "fullstack": fullstack_ok}
+    all_pass = static_ok and data_ok and ui_ok and ai_deep_ok and battery_ok and content_ok and fullstack_ok
 
-    layer_results = {"static": static_res, "data": data_res, "ui": ui_res, "ai_deep": ai_deep_res, "battery": battery_res, "content": content_res}
+    layer_results = {"static": static_res, "data": data_res, "ui": ui_res, "ai_deep": ai_deep_res, "battery": battery_res, "content": content_res, "fullstack": fullstack_res}
 
     if all_pass:
         banner("GATE PASS — safe to deploy", "green")
@@ -501,6 +524,7 @@ def main() -> int:
             ("ai_deep", ai_deep_res, ai_deep_ok),
             ("battery", battery_res, battery_ok),
             ("content", content_res, content_ok),
+            ("fullstack", fullstack_res, fullstack_ok),
         ]:
             mark = "PASS" if passed else "FAIL"
             print(f"  {label}: {mark} — {res['summary'] or '(no summary)'}")

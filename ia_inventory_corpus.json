@@ -1,7 +1,7 @@
 {
   "_doc": "Phase 1 cross-page IA redundancy corpus. SURFACE-only; Phase 2 rubric reads this.",
   "minPages": 2,
-  "liveMerged": 5,
+  "liveMerged": 28,
   "pagesSurveyed": [
     "achievements.html",
     "ai-quality.html",
@@ -107,7 +107,12 @@
           "theme": null
         }
       ],
-      "links": [],
+      "links": [
+        {
+          "dest": "skillmatrix.html",
+          "text": "&larr; Skills"
+        }
+      ],
       "onclickFns": [
         "closeLevelUpModal",
         "toggleDomain"
@@ -117,7 +122,129 @@
         "sumCardBlocks": 0,
         "hasDetailPanel": true
       },
-      "source": "static"
+      "source": "static",
+      "liveAffordances": [
+        {
+          "kind": "cta",
+          "label": "Go back",
+          "dest": "back()",
+          "destKind": "fn",
+          "labelKey": "go back",
+          "fingerprint": "go back\u2237back()"
+        },
+        {
+          "kind": "cta",
+          "label": "Show details",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "show details",
+          "fingerprint": "show details\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "\ud83d\udd2718 Wrench Chronicle Bronze Lv.18 1769 ",
+          "dest": "toggleDomain()",
+          "destKind": "fn",
+          "labelKey": "18 wrench chronicle bronze lv 18 1769",
+          "fingerprint": "18 wrench chronicle bronze lv 18 1769\u2237toggleDomain()"
+        },
+        {
+          "kind": "cta",
+          "label": "\ud83d\udee1\ufe0f Uptime Guardian Iron Lv.0 100 XP to ",
+          "dest": "toggleDomain()",
+          "destKind": "fn",
+          "labelKey": "uptime guardian iron lv 0 100 xp to",
+          "fingerprint": "uptime guardian iron lv 0 100 xp to\u2237toggleDomain()"
+        },
+        {
+          "kind": "cta",
+          "label": "\ud83d\udce6 Parts Warden Iron Lv.0 100 XP to Lv.1",
+          "dest": "toggleDomain()",
+          "destKind": "fn",
+          "labelKey": "parts warden iron lv 0 100 xp to lv 1",
+          "fingerprint": "parts warden iron lv 0 100 xp to lv 1\u2237toggleDomain()"
+        },
+        {
+          "kind": "cta",
+          "label": "\ud83d\udcd0 Blueprint Master Iron Lv.0 100 XP to ",
+          "dest": "toggleDomain()",
+          "destKind": "fn",
+          "labelKey": "blueprint master iron lv 0 100 xp to",
+          "fingerprint": "blueprint master iron lv 0 100 xp to\u2237toggleDomain()"
+        },
+        {
+          "kind": "cta",
+          "label": "\ud83c\udfaf Failure Hunter Iron Lv.0 100 XP to Lv",
+          "dest": "toggleDomain()",
+          "destKind": "fn",
+          "labelKey": "failure hunter iron lv 0 100 xp to lv",
+          "fingerprint": "failure hunter iron lv 0 100 xp to lv\u2237toggleDomain()"
+        },
+        {
+          "kind": "cta",
+          "label": "\u26a0\ufe0f Safety Sentinel Iron Lv.0 100 XP to L",
+          "dest": "toggleDomain()",
+          "destKind": "fn",
+          "labelKey": "safety sentinel iron lv 0 100 xp to l",
+          "fingerprint": "safety sentinel iron lv 0 100 xp to l\u2237toggleDomain()"
+        },
+        {
+          "kind": "cta",
+          "label": "\ud83d\udcc835 Skill Climber Silver Lv.35 2996 XP ",
+          "dest": "toggleDomain()",
+          "destKind": "fn",
+          "labelKey": "35 skill climber silver lv 35 2996 xp",
+          "fingerprint": "35 skill climber silver lv 35 2996 xp\u2237toggleDomain()"
+        },
+        {
+          "kind": "cta",
+          "label": "\ud83d\udcdd Knowledge Forger Iron Lv.0 100 XP to ",
+          "dest": "toggleDomain()",
+          "destKind": "fn",
+          "labelKey": "knowledge forger iron lv 0 100 xp to",
+          "fingerprint": "knowledge forger iron lv 0 100 xp to\u2237toggleDomain()"
+        },
+        {
+          "kind": "cta",
+          "label": "\ud83c\udfd7\ufe0f Hive Architect Iron Lv.0 100 XP to L",
+          "dest": "toggleDomain()",
+          "destKind": "fn",
+          "labelKey": "hive architect iron lv 0 100 xp to l",
+          "fingerprint": "hive architect iron lv 0 100 xp to l\u2237toggleDomain()"
+        },
+        {
+          "kind": "cta",
+          "label": "\ud83d\udde3\ufe0f9 Voice of the Hive Iron Lv.9 842 XP ",
+          "dest": "toggleDomain()",
+          "destKind": "fn",
+          "labelKey": "9 voice of the hive iron lv 9 842 xp",
+          "fingerprint": "9 voice of the hive iron lv 9 842 xp\u2237toggleDomain()"
+        },
+        {
+          "kind": "cta",
+          "label": "\ud83d\udd50 Shift Keeper Iron Lv.0 100 XP to Lv.1",
+          "dest": "toggleDomain()",
+          "destKind": "fn",
+          "labelKey": "shift keeper iron lv 0 100 xp to lv 1",
+          "fingerprint": "shift keeper iron lv 0 100 xp to lv 1\u2237toggleDomain()"
+        },
+        {
+          "kind": "cta",
+          "label": "\u2699\ufe0f Iron Worker Locked Reach Level 50 in ",
+          "dest": "toggleDomain()",
+          "destKind": "fn",
+          "labelKey": "iron worker locked reach level 50 in",
+          "fingerprint": "iron worker locked reach level 50 in\u2237toggleDomain()"
+        },
+        {
+          "kind": "cta",
+          "label": "Send feedback to WorkHive",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "send feedback to workhive",
+          "fingerprint": "send feedback to workhive\u2237"
+        }
+      ]
     },
     "ai-quality.html": {
       "page": "ai-quality.html",
@@ -129,7 +256,41 @@
         "sumCardBlocks": 4,
         "hasDetailPanel": false
       },
-      "source": "static"
+      "source": "static",
+      "liveAffordances": [
+        {
+          "kind": "cta",
+          "label": "Open Maturity Stairway \u2192",
+          "dest": "hive.html",
+          "destKind": "page",
+          "labelKey": "open maturity stairway",
+          "fingerprint": "open maturity stairway\u2237hive.html"
+        },
+        {
+          "kind": "cta",
+          "label": "Back to Hive Board",
+          "dest": "hive.html",
+          "destKind": "page",
+          "labelKey": "back to hive board",
+          "fingerprint": "back to hive board\u2237hive.html"
+        },
+        {
+          "kind": "cta",
+          "label": "Connectivity status",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "connectivity status",
+          "fingerprint": "connectivity status\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "Send feedback to WorkHive",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "send feedback to workhive",
+          "fingerprint": "send feedback to workhive\u2237"
+        }
+      ]
     },
     "alert-hub.html": {
       "page": "alert-hub.html",
@@ -229,12 +390,139 @@
         "sumCardBlocks": 0,
         "hasDetailPanel": true
       },
-      "source": "static"
+      "source": "static",
+      "liveAffordances": [
+        {
+          "kind": "cta",
+          "label": "Show details",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "show details",
+          "fingerprint": "show details\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "\u229eAll 32",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "all 32",
+          "fingerprint": "all 32\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "\ud83e\udd16AMC 0",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "amc 0",
+          "fingerprint": "amc 0\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "\ud83d\udd34Risk 2",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "risk 2",
+          "fingerprint": "risk 2\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "\u26a0\ufe0fPM 5",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "pm 5",
+          "fingerprint": "pm 5\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "\ud83d\udce6Stock 4",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "stock 4",
+          "fingerprint": "stock 4\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "\ud83d\udce5Staging 1",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "staging 1",
+          "fingerprint": "staging 1\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "\ud83e\uddecPattern 20",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "pattern 20",
+          "fingerprint": "pattern 20\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "\u2699\ufe0fSystem 0",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "system 0",
+          "fingerprint": "system 0\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "Open in Asset Hub \u2192",
+          "dest": "asset-hub.html",
+          "destKind": "page",
+          "labelKey": "open in asset hub",
+          "fingerprint": "open in asset hub\u2237asset-hub.html"
+        },
+        {
+          "kind": "cta",
+          "label": "Review & stage \u2192",
+          "dest": "asset-hub.html",
+          "destKind": "page",
+          "labelKey": "review stage",
+          "fingerprint": "review stage\u2237asset-hub.html"
+        },
+        {
+          "kind": "cta",
+          "label": "Open Inventory \u2192",
+          "dest": "inventory.html",
+          "destKind": "page",
+          "labelKey": "open inventory",
+          "fingerprint": "open inventory\u2237inventory.html"
+        },
+        {
+          "kind": "cta",
+          "label": "Open PM Scheduler \u2192",
+          "dest": "pm-scheduler.html",
+          "destKind": "page",
+          "labelKey": "open pm scheduler",
+          "fingerprint": "open pm scheduler\u2237pm-scheduler.html"
+        },
+        {
+          "kind": "cta",
+          "label": "Load More",
+          "dest": "loadMoreAlerts()",
+          "destKind": "fn",
+          "labelKey": "load more",
+          "fingerprint": "load more\u2237loadMoreAlerts()"
+        },
+        {
+          "kind": "cta",
+          "label": "Send feedback to WorkHive",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "send feedback to workhive",
+          "fingerprint": "send feedback to workhive\u2237"
+        }
+      ]
     },
     "analytics-report.html": {
       "page": "analytics-report.html",
       "infoUnits": [],
-      "links": [],
+      "links": [
+        {
+          "dest": "report-sender.html",
+          "text": "Send / schedule &rarr;"
+        }
+      ],
       "onclickFns": [
         "generateReport",
         "saveAsPdf",
@@ -246,7 +534,81 @@
         "sumCardBlocks": 0,
         "hasDetailPanel": false
       },
-      "source": "static"
+      "source": "static",
+      "liveAffordances": [
+        {
+          "kind": "cta",
+          "label": "30d",
+          "dest": "setPeriod()",
+          "destKind": "fn",
+          "labelKey": "30d",
+          "fingerprint": "30d\u2237setPeriod()"
+        },
+        {
+          "kind": "cta",
+          "label": "90d",
+          "dest": "setPeriod()",
+          "destKind": "fn",
+          "labelKey": "90d",
+          "fingerprint": "90d\u2237setPeriod()"
+        },
+        {
+          "kind": "cta",
+          "label": "180d",
+          "dest": "setPeriod()",
+          "destKind": "fn",
+          "labelKey": "180d",
+          "fingerprint": "180d\u2237setPeriod()"
+        },
+        {
+          "kind": "cta",
+          "label": "365d",
+          "dest": "setPeriod()",
+          "destKind": "fn",
+          "labelKey": "365d",
+          "fingerprint": "365d\u2237setPeriod()"
+        },
+        {
+          "kind": "cta",
+          "label": "Supervisor",
+          "dest": "setRole()",
+          "destKind": "fn",
+          "labelKey": "supervisor",
+          "fingerprint": "supervisor\u2237setRole()"
+        },
+        {
+          "kind": "cta",
+          "label": "Worker",
+          "dest": "setRole()",
+          "destKind": "fn",
+          "labelKey": "worker",
+          "fingerprint": "worker\u2237setRole()"
+        },
+        {
+          "kind": "cta",
+          "label": "Generate Report",
+          "dest": "generateReport()",
+          "destKind": "fn",
+          "labelKey": "generate report",
+          "fingerprint": "generate report\u2237generateReport()"
+        },
+        {
+          "kind": "cta",
+          "label": "Save as PDF",
+          "dest": "saveAsPdf()",
+          "destKind": "fn",
+          "labelKey": "save as pdf",
+          "fingerprint": "save as pdf\u2237saveAsPdf()"
+        },
+        {
+          "kind": "cta",
+          "label": "Send feedback to WorkHive",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "send feedback to workhive",
+          "fingerprint": "send feedback to workhive\u2237"
+        }
+      ]
     },
     "analytics.html": {
       "page": "analytics.html",
@@ -312,8 +674,8 @@
           "text": "\u2709\ufe0f Send"
         },
         {
-          "dest": "predictive.html",
-          "text": "\ud83d\udd2e Predictive"
+          "dest": "asset-hub.html",
+          "text": "\ud83d\udd2e Asset Risk"
         },
         {
           "dest": "shift-brain.html",
@@ -340,7 +702,321 @@
         "sumCardBlocks": 0,
         "hasDetailPanel": true
       },
-      "source": "static"
+      "source": "static",
+      "liveAffordances": [
+        {
+          "kind": "cta",
+          "label": "30 days",
+          "dest": "setPeriod()",
+          "destKind": "fn",
+          "labelKey": "30 days",
+          "fingerprint": "30 days\u2237setPeriod()"
+        },
+        {
+          "kind": "cta",
+          "label": "90 days",
+          "dest": "setPeriod()",
+          "destKind": "fn",
+          "labelKey": "90 days",
+          "fingerprint": "90 days\u2237setPeriod()"
+        },
+        {
+          "kind": "cta",
+          "label": "180 days",
+          "dest": "setPeriod()",
+          "destKind": "fn",
+          "labelKey": "180 days",
+          "fingerprint": "180 days\u2237setPeriod()"
+        },
+        {
+          "kind": "cta",
+          "label": "1 year",
+          "dest": "setPeriod()",
+          "destKind": "fn",
+          "labelKey": "1 year",
+          "fingerprint": "1 year\u2237setPeriod()"
+        },
+        {
+          "kind": "cta",
+          "label": "\ud83d\udd04 Refresh",
+          "dest": "refreshAll()",
+          "destKind": "fn",
+          "labelKey": "refresh",
+          "fingerprint": "refresh\u2237refreshAll()"
+        },
+        {
+          "kind": "cta",
+          "label": "\ud83d\udcc4 PDF Report",
+          "dest": "analytics-report.html",
+          "destKind": "page",
+          "labelKey": "pdf report",
+          "fingerprint": "pdf report\u2237analytics-report.html"
+        },
+        {
+          "kind": "cta",
+          "label": "\u2709\ufe0f Send",
+          "dest": "report-sender.html",
+          "destKind": "page",
+          "labelKey": "send",
+          "fingerprint": "send\u2237report-sender.html"
+        },
+        {
+          "kind": "cta",
+          "label": "\ud83d\udd2e Asset Risk",
+          "dest": "asset-hub.html",
+          "destKind": "page",
+          "labelKey": "asset risk",
+          "fingerprint": "asset risk\u2237asset-hub.html"
+        },
+        {
+          "kind": "cta",
+          "label": "\ud83e\udde0 Shift Brain",
+          "dest": "shift-brain.html",
+          "destKind": "page",
+          "labelKey": "shift brain",
+          "fingerprint": "shift brain\u2237shift-brain.html"
+        },
+        {
+          "kind": "cta",
+          "label": "\ud83c\udf0f Network View",
+          "dest": "ph-intelligence.html",
+          "destKind": "page",
+          "labelKey": "network view",
+          "fingerprint": "network view\u2237ph-intelligence.html"
+        },
+        {
+          "kind": "cta",
+          "label": "Show details",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "show details",
+          "fingerprint": "show details\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "\ud83d\udd27Field Tech",
+          "dest": "setRole()",
+          "destKind": "fn",
+          "labelKey": "field tech",
+          "fingerprint": "field tech\u2237setRole()"
+        },
+        {
+          "kind": "cta",
+          "label": "\ud83d\udc77Supervisor",
+          "dest": "setRole()",
+          "destKind": "fn",
+          "labelKey": "supervisor",
+          "fingerprint": "supervisor\u2237setRole()"
+        },
+        {
+          "kind": "cta",
+          "label": "Descriptive",
+          "dest": "setPhase()",
+          "destKind": "fn",
+          "labelKey": "descriptive",
+          "fingerprint": "descriptive\u2237setPhase()"
+        },
+        {
+          "kind": "cta",
+          "label": "Diagnostic",
+          "dest": "setPhase()",
+          "destKind": "fn",
+          "labelKey": "diagnostic",
+          "fingerprint": "diagnostic\u2237setPhase()"
+        },
+        {
+          "kind": "cta",
+          "label": "Predictive",
+          "dest": "setPhase()",
+          "destKind": "fn",
+          "labelKey": "predictive",
+          "fingerprint": "predictive\u2237setPhase()"
+        },
+        {
+          "kind": "cta",
+          "label": "Prescriptive",
+          "dest": "setPhase()",
+          "destKind": "fn",
+          "labelKey": "prescriptive",
+          "fingerprint": "prescriptive\u2237setPhase()"
+        },
+        {
+          "kind": "cta",
+          "label": "All",
+          "dest": "setFilter()",
+          "destKind": "fn",
+          "labelKey": "all",
+          "fingerprint": "all\u2237setFilter()"
+        },
+        {
+          "kind": "cta",
+          "label": "\ud83d\udd34 Critical",
+          "dest": "setFilter()",
+          "destKind": "fn",
+          "labelKey": "critical",
+          "fingerprint": "critical\u2237setFilter()"
+        },
+        {
+          "kind": "cta",
+          "label": "\ud83d\udfe0 High",
+          "dest": "setFilter()",
+          "destKind": "fn",
+          "labelKey": "high",
+          "fingerprint": "high\u2237setFilter()"
+        },
+        {
+          "kind": "cta",
+          "label": "\ud83d\udfe1 Medium",
+          "dest": "setFilter()",
+          "destKind": "fn",
+          "labelKey": "medium",
+          "fingerprint": "medium\u2237setFilter()"
+        },
+        {
+          "kind": "cta",
+          "label": "\ud83d\udfe2 Low",
+          "dest": "setFilter()",
+          "destKind": "fn",
+          "labelKey": "low",
+          "fingerprint": "low\u2237setFilter()"
+        },
+        {
+          "kind": "cta",
+          "label": "Mechanical",
+          "dest": "setFilter()",
+          "destKind": "fn",
+          "labelKey": "mechanical",
+          "fingerprint": "mechanical\u2237setFilter()"
+        },
+        {
+          "kind": "cta",
+          "label": "Electrical",
+          "dest": "setFilter()",
+          "destKind": "fn",
+          "labelKey": "electrical",
+          "fingerprint": "electrical\u2237setFilter()"
+        },
+        {
+          "kind": "cta",
+          "label": "Instrumentation",
+          "dest": "setFilter()",
+          "destKind": "fn",
+          "labelKey": "instrumentation",
+          "fingerprint": "instrumentation\u2237setFilter()"
+        },
+        {
+          "kind": "cta",
+          "label": "Hydraulic",
+          "dest": "setFilter()",
+          "destKind": "fn",
+          "labelKey": "hydraulic",
+          "fingerprint": "hydraulic\u2237setFilter()"
+        },
+        {
+          "kind": "cta",
+          "label": "Pneumatic",
+          "dest": "setFilter()",
+          "destKind": "fn",
+          "labelKey": "pneumatic",
+          "fingerprint": "pneumatic\u2237setFilter()"
+        },
+        {
+          "kind": "cta",
+          "label": "Lubrication",
+          "dest": "setFilter()",
+          "destKind": "fn",
+          "labelKey": "lubrication",
+          "fingerprint": "lubrication\u2237setFilter()"
+        },
+        {
+          "kind": "cta",
+          "label": "Availability % ISO 14224:2016 \u00a79.2 96.7%",
+          "dest": "if()",
+          "destKind": "fn",
+          "labelKey": "availability iso 14224 2016 9 2 96 7",
+          "fingerprint": "availability iso 14224 2016 9 2 96 7\u2237if()"
+        },
+        {
+          "kind": "cta",
+          "label": "MTBF \u2014 Mean Time Between Failures ISO 14",
+          "dest": "if()",
+          "destKind": "fn",
+          "labelKey": "mtbf mean time between failures iso 14",
+          "fingerprint": "mtbf mean time between failures iso 14\u2237if()"
+        },
+        {
+          "kind": "cta",
+          "label": "Show all 30 assets \u2193",
+          "dest": "toggleShowAll()",
+          "destKind": "fn",
+          "labelKey": "show all 30 assets",
+          "fingerprint": "show all 30 assets\u2237toggleShowAll()"
+        },
+        {
+          "kind": "cta",
+          "label": "MTTR \u2014 Mean Time To Repair ISO 14224:201",
+          "dest": "if()",
+          "destKind": "fn",
+          "labelKey": "mttr mean time to repair iso 14224 201",
+          "fingerprint": "mttr mean time to repair iso 14224 201\u2237if()"
+        },
+        {
+          "kind": "cta",
+          "label": "PM Compliance Rate SMRP Metric 2.1.1 88.",
+          "dest": "if()",
+          "destKind": "fn",
+          "labelKey": "pm compliance rate smrp metric 2 1 1 88",
+          "fingerprint": "pm compliance rate smrp metric 2 1 1 88\u2237if()"
+        },
+        {
+          "kind": "cta",
+          "label": "Downtime Pareto 80/20 Rule 1211.3h total",
+          "dest": "if()",
+          "destKind": "fn",
+          "labelKey": "downtime pareto 80 20 rule 1211 3h total",
+          "fingerprint": "downtime pareto 80 20 rule 1211 3h total\u2237if()"
+        },
+        {
+          "kind": "cta",
+          "label": "Failure Frequency ISO 14224:2016 \u00b7 last ",
+          "dest": "if()",
+          "destKind": "fn",
+          "labelKey": "failure frequency iso 14224 2016 last",
+          "fingerprint": "failure frequency iso 14224 2016 last\u2237if()"
+        },
+        {
+          "kind": "cta",
+          "label": "Show all 30 machines \u2193",
+          "dest": "toggleShowAll()",
+          "destKind": "fn",
+          "labelKey": "show all 30 machines",
+          "fingerprint": "show all 30 machines\u2237toggleShowAll()"
+        },
+        {
+          "kind": "cta",
+          "label": "Show all 65 pairs \u2193",
+          "dest": "toggleShowAll()",
+          "destKind": "fn",
+          "labelKey": "show all 65 pairs",
+          "fingerprint": "show all 65 pairs\u2237toggleShowAll()"
+        },
+        {
+          "kind": "cta",
+          "label": "Show all 27 parts \u2193",
+          "dest": "toggleShowAll()",
+          "destKind": "fn",
+          "labelKey": "show all 27 parts",
+          "fingerprint": "show all 27 parts\u2237toggleShowAll()"
+        },
+        {
+          "kind": "cta",
+          "label": "Send feedback to WorkHive",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "send feedback to workhive",
+          "fingerprint": "send feedback to workhive\u2237"
+        }
+      ]
     },
     "asset-hub.html": {
       "page": "asset-hub.html",
@@ -369,10 +1045,10 @@
           "kind": "rag-tile",
           "unitId": "asset-hub:pending_approval",
           "keySuffix": "pending_approval",
-          "label": "Pending approval",
-          "labelKey": "pending approval",
+          "label": "Pending assets",
+          "labelKey": "pending assets",
           "keyKey": "pending approval",
-          "fingerprint": "pending approval",
+          "fingerprint": "pending assets",
           "theme": "pending approval"
         },
         {
@@ -426,8 +1102,20 @@
           "theme": null
         },
         {
+          "kind": "rag-tile",
+          "unitId": "asset-hub:pending_approval",
+          "keySuffix": "pending_approval",
+          "label": "Pending approval",
+          "value": "0",
+          "labelKey": "pending approval",
+          "keyKey": "pending approval",
+          "fingerprint": "pending approval",
+          "theme": "pending approval",
+          "_live": true
+        },
+        {
           "kind": "kpi-untagged",
-          "unitId": "page:(untagged)",
+          "unitId": "asset-hub:(untagged)",
           "keySuffix": null,
           "label": "Logbook entries",
           "value": "0",
@@ -439,7 +1127,7 @@
         },
         {
           "kind": "kpi-untagged",
-          "unitId": "page:(untagged)",
+          "unitId": "asset-hub:(untagged)",
           "keySuffix": null,
           "label": "PM completed",
           "value": "0",
@@ -451,7 +1139,7 @@
         },
         {
           "kind": "kpi-untagged",
-          "unitId": "page:(untagged)",
+          "unitId": "asset-hub:(untagged)",
           "keySuffix": null,
           "label": "Last failure",
           "value": "never",
@@ -463,7 +1151,7 @@
         },
         {
           "kind": "kpi-untagged",
-          "unitId": "page:(untagged)",
+          "unitId": "asset-hub:(untagged)",
           "keySuffix": null,
           "label": "Edges",
           "value": "0",
@@ -501,7 +1189,56 @@
         "hasDetailPanel": true
       },
       "source": "static",
-      "liveAffordances": []
+      "liveAffordances": [
+        {
+          "kind": "cta",
+          "label": "Back",
+          "dest": "hive.html",
+          "destKind": "page",
+          "labelKey": "back",
+          "fingerprint": "back\u2237hive.html"
+        },
+        {
+          "kind": "cta",
+          "label": "Show details",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "show details",
+          "fingerprint": "show details\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "Scan equipment tag with camera",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "scan equipment tag with camera",
+          "fingerprint": "scan equipment tag with camera\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "Load More",
+          "dest": "loadMoreAssets()",
+          "destKind": "fn",
+          "labelKey": "load more",
+          "fingerprint": "load more\u2237loadMoreAssets()"
+        },
+        {
+          "kind": "cta",
+          "label": "Connectivity status",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "connectivity status",
+          "fingerprint": "connectivity status\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "Send feedback to WorkHive",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "send feedback to workhive",
+          "fingerprint": "send feedback to workhive\u2237"
+        }
+      ]
     },
     "assistant.html": {
       "page": "assistant.html",
@@ -519,7 +1256,57 @@
         "sumCardBlocks": 0,
         "hasDetailPanel": false
       },
-      "source": "static"
+      "source": "static",
+      "liveAffordances": [
+        {
+          "kind": "cta",
+          "label": "Setup",
+          "dest": "handleBack()",
+          "destKind": "fn",
+          "labelKey": "setup",
+          "fingerprint": "setup\u2237handleBack()"
+        },
+        {
+          "kind": "cta",
+          "label": "New Chat",
+          "dest": "clearChat()",
+          "destKind": "fn",
+          "labelKey": "new chat",
+          "fingerprint": "new chat\u2237clearChat()"
+        },
+        {
+          "kind": "cta",
+          "label": "Chat",
+          "dest": "switchAssistantTab()",
+          "destKind": "fn",
+          "labelKey": "chat",
+          "fingerprint": "chat\u2237switchAssistantTab()"
+        },
+        {
+          "kind": "cta",
+          "label": "Journal",
+          "dest": "switchAssistantTab()",
+          "destKind": "fn",
+          "labelKey": "journal",
+          "fingerprint": "journal\u2237switchAssistantTab()"
+        },
+        {
+          "kind": "cta",
+          "label": "Send message",
+          "dest": "sendMessage()",
+          "destKind": "fn",
+          "labelKey": "send message",
+          "fingerprint": "send message\u2237sendMessage()"
+        },
+        {
+          "kind": "cta",
+          "label": "Send feedback to WorkHive",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "send feedback to workhive",
+          "fingerprint": "send feedback to workhive\u2237"
+        }
+      ]
     },
     "audit-log.html": {
       "page": "audit-log.html",
@@ -542,7 +1329,81 @@
         "sumCardBlocks": 0,
         "hasDetailPanel": false
       },
-      "source": "static"
+      "source": "static",
+      "liveAffordances": [
+        {
+          "kind": "cta",
+          "label": "24h",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "24h",
+          "fingerprint": "24h\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "7 days",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "7 days",
+          "fingerprint": "7 days\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "30 days",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "30 days",
+          "fingerprint": "30 days\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "90 days",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "90 days",
+          "fingerprint": "90 days\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "All time",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "all time",
+          "fingerprint": "all time\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "Export filtered entries to CSV",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "export filtered entries to csv",
+          "fingerprint": "export filtered entries to csv\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "Clear all filters",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "clear all filters",
+          "fingerprint": "clear all filters\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "Load More",
+          "dest": "loadMoreAudit()",
+          "destKind": "fn",
+          "labelKey": "load more",
+          "fingerprint": "load more\u2237loadMoreAudit()"
+        },
+        {
+          "kind": "cta",
+          "label": "Send feedback to WorkHive",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "send feedback to workhive",
+          "fingerprint": "send feedback to workhive\u2237"
+        }
+      ]
     },
     "community.html": {
       "page": "community.html",
@@ -580,7 +1441,185 @@
         "sumCardBlocks": 0,
         "hasDetailPanel": false
       },
-      "source": "static"
+      "source": "static",
+      "liveAffordances": [
+        {
+          "kind": "cta",
+          "label": "Feed",
+          "dest": "switchTab()",
+          "destKind": "fn",
+          "labelKey": "feed",
+          "fingerprint": "feed\u2237switchTab()"
+        },
+        {
+          "kind": "cta",
+          "label": "\ud83c\udf10 Global",
+          "dest": "switchTab()",
+          "destKind": "fn",
+          "labelKey": "global",
+          "fingerprint": "global\u2237switchTab()"
+        },
+        {
+          "kind": "cta",
+          "label": "Mod Queue",
+          "dest": "switchTab()",
+          "destKind": "fn",
+          "labelKey": "mod queue",
+          "fingerprint": "mod queue\u2237switchTab()"
+        },
+        {
+          "kind": "cta",
+          "label": "All",
+          "dest": "setFilter()",
+          "destKind": "fn",
+          "labelKey": "all",
+          "fingerprint": "all\u2237setFilter()"
+        },
+        {
+          "kind": "cta",
+          "label": "General",
+          "dest": "setFilter()",
+          "destKind": "fn",
+          "labelKey": "general",
+          "fingerprint": "general\u2237setFilter()"
+        },
+        {
+          "kind": "cta",
+          "label": "Safety",
+          "dest": "setFilter()",
+          "destKind": "fn",
+          "labelKey": "safety",
+          "fingerprint": "safety\u2237setFilter()"
+        },
+        {
+          "kind": "cta",
+          "label": "Technical",
+          "dest": "setFilter()",
+          "destKind": "fn",
+          "labelKey": "technical",
+          "fingerprint": "technical\u2237setFilter()"
+        },
+        {
+          "kind": "cta",
+          "label": "Announcements",
+          "dest": "setFilter()",
+          "destKind": "fn",
+          "labelKey": "announcements",
+          "fingerprint": "announcements\u2237setFilter()"
+        },
+        {
+          "kind": "cta",
+          "label": "Thumbs up, 0 reactions",
+          "dest": "toggleReaction()",
+          "destKind": "fn",
+          "labelKey": "thumbs up 0 reactions",
+          "fingerprint": "thumbs up 0 reactions\u2237toggleReaction()"
+        },
+        {
+          "kind": "cta",
+          "label": "Wrench, 0 reactions",
+          "dest": "toggleReaction()",
+          "destKind": "fn",
+          "labelKey": "wrench 0 reactions",
+          "fingerprint": "wrench 0 reactions\u2237toggleReaction()"
+        },
+        {
+          "kind": "cta",
+          "label": "Fire, 0 reactions",
+          "dest": "toggleReaction()",
+          "destKind": "fn",
+          "labelKey": "fire 0 reactions",
+          "fingerprint": "fire 0 reactions\u2237toggleReaction()"
+        },
+        {
+          "kind": "cta",
+          "label": "Eyes, 0 reactions",
+          "dest": "toggleReaction()",
+          "destKind": "fn",
+          "labelKey": "eyes 0 reactions",
+          "fingerprint": "eyes 0 reactions\u2237toggleReaction()"
+        },
+        {
+          "kind": "cta",
+          "label": "Open thread and reply",
+          "dest": "openThread()",
+          "destKind": "fn",
+          "labelKey": "open thread and reply",
+          "fingerprint": "open thread and reply\u2237openThread()"
+        },
+        {
+          "kind": "cta",
+          "label": "Unpin post",
+          "dest": "togglePin()",
+          "destKind": "fn",
+          "labelKey": "unpin post",
+          "fingerprint": "unpin post\u2237togglePin()"
+        },
+        {
+          "kind": "cta",
+          "label": "Make post public",
+          "dest": "togglePublic()",
+          "destKind": "fn",
+          "labelKey": "make post public",
+          "fingerprint": "make post public\u2237togglePublic()"
+        },
+        {
+          "kind": "cta",
+          "label": "Flag post",
+          "dest": "toggleFlag()",
+          "destKind": "fn",
+          "labelKey": "flag post",
+          "fingerprint": "flag post\u2237toggleFlag()"
+        },
+        {
+          "kind": "cta",
+          "label": "Delete post",
+          "dest": "deletePost()",
+          "destKind": "fn",
+          "labelKey": "delete post",
+          "fingerprint": "delete post\u2237deletePost()"
+        },
+        {
+          "kind": "cta",
+          "label": "Pin post",
+          "dest": "togglePin()",
+          "destKind": "fn",
+          "labelKey": "pin post",
+          "fingerprint": "pin post\u2237togglePin()"
+        },
+        {
+          "kind": "cta",
+          "label": "Make post private",
+          "dest": "togglePublic()",
+          "destKind": "fn",
+          "labelKey": "make post private",
+          "fingerprint": "make post private\u2237togglePublic()"
+        },
+        {
+          "kind": "cta",
+          "label": "Load more posts",
+          "dest": "loadMorePosts()",
+          "destKind": "fn",
+          "labelKey": "load more posts",
+          "fingerprint": "load more posts\u2237loadMorePosts()"
+        },
+        {
+          "kind": "cta",
+          "label": "Write a new post",
+          "dest": "openComposer()",
+          "destKind": "fn",
+          "labelKey": "write a new post",
+          "fingerprint": "write a new post\u2237openComposer()"
+        },
+        {
+          "kind": "cta",
+          "label": "Send feedback to WorkHive",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "send feedback to workhive",
+          "fingerprint": "send feedback to workhive\u2237"
+        }
+      ]
     },
     "dayplanner.html": {
       "page": "dayplanner.html",
@@ -658,21 +1697,339 @@
       "liveAffordances": [
         {
           "kind": "cta",
+          "label": "Collapse sidebar",
+          "dest": "toggleSidebar()",
+          "destKind": "fn",
+          "labelKey": "collapse sidebar",
+          "fingerprint": "collapse sidebar\u2237toggleSidebar()"
+        },
+        {
+          "kind": "cta",
+          "label": "AC-003 2026-06-10T20:37:28+00:00 \u2022 Mecha",
+          "dest": "selectLogbookItem()",
+          "destKind": "fn",
+          "labelKey": "ac 003 2026 06 10t20 37 28 00 00 mecha",
+          "fingerprint": "ac 003 2026 06 10t20 37 28 00 00 mecha\u2237selectLogbookItem()"
+        },
+        {
+          "kind": "cta",
+          "label": "TX-001 2026-05-27T19:29:51+00:00 \u2022 Elect",
+          "dest": "selectLogbookItem()",
+          "destKind": "fn",
+          "labelKey": "tx 001 2026 05 27t19 29 51 00 00 elect",
+          "fingerprint": "tx 001 2026 05 27t19 29 51 00 00 elect\u2237selectLogbookItem()"
+        },
+        {
+          "kind": "cta",
+          "label": "SP-001 2026-04-27T07:54:49+00:00 \u2022 Mecha",
+          "dest": "selectLogbookItem()",
+          "destKind": "fn",
+          "labelKey": "sp 001 2026 04 27t07 54 49 00 00 mecha",
+          "fingerprint": "sp 001 2026 04 27t07 54 49 00 00 mecha\u2237selectLogbookItem()"
+        },
+        {
+          "kind": "cta",
+          "label": "PB-001 2026-04-22T13:58:06+00:00 \u2022 Mecha",
+          "dest": "selectLogbookItem()",
+          "destKind": "fn",
+          "labelKey": "pb 001 2026 04 22t13 58 06 00 00 mecha",
+          "fingerprint": "pb 001 2026 04 22t13 58 06 00 00 mecha\u2237selectLogbookItem()"
+        },
+        {
+          "kind": "cta",
+          "label": "GEN-001 2026-04-02T06:18:19+00:00 \u2022 Mech",
+          "dest": "selectLogbookItem()",
+          "destKind": "fn",
+          "labelKey": "gen 001 2026 04 02t06 18 19 00 00 mech",
+          "fingerprint": "gen 001 2026 04 02t06 18 19 00 00 mech\u2237selectLogbookItem()"
+        },
+        {
+          "kind": "cta",
+          "label": "AC-001 2026-03-23T15:27:33+00:00 \u2022 Mecha",
+          "dest": "selectLogbookItem()",
+          "destKind": "fn",
+          "labelKey": "ac 001 2026 03 23t15 27 33 00 00 mecha",
+          "fingerprint": "ac 001 2026 03 23t15 27 33 00 00 mecha\u2237selectLogbookItem()"
+        },
+        {
+          "kind": "cta",
           "label": "DILO",
           "dest": "switchView()",
-          "destKind": "fn"
+          "destKind": "fn",
+          "labelKey": "dilo",
+          "fingerprint": "dilo\u2237switchView()"
         },
         {
           "kind": "cta",
           "label": "WILO",
           "dest": "switchView()",
-          "destKind": "fn"
+          "destKind": "fn",
+          "labelKey": "wilo",
+          "fingerprint": "wilo\u2237switchView()"
         },
         {
           "kind": "cta",
           "label": "MILO",
           "dest": "switchView()",
-          "destKind": "fn"
+          "destKind": "fn",
+          "labelKey": "milo",
+          "fingerprint": "milo\u2237switchView()"
+        },
+        {
+          "kind": "cta",
+          "label": "YILO",
+          "dest": "switchView()",
+          "destKind": "fn",
+          "labelKey": "yilo",
+          "fingerprint": "yilo\u2237switchView()"
+        },
+        {
+          "kind": "cta",
+          "label": "Previous",
+          "dest": "navigate()",
+          "destKind": "fn",
+          "labelKey": "previous",
+          "fingerprint": "previous\u2237navigate()"
+        },
+        {
+          "kind": "cta",
+          "label": "Today",
+          "dest": "goToday()",
+          "destKind": "fn",
+          "labelKey": "today",
+          "fingerprint": "today\u2237goToday()"
+        },
+        {
+          "kind": "cta",
+          "label": "Next",
+          "dest": "navigate()",
+          "destKind": "fn",
+          "labelKey": "next",
+          "fingerprint": "next\u2237navigate()"
+        },
+        {
+          "kind": "cta",
+          "label": "+ Schedule",
+          "dest": "openAddModal()",
+          "destKind": "fn",
+          "labelKey": "schedule",
+          "fingerprint": "schedule\u2237openAddModal()"
+        },
+        {
+          "kind": "cta",
+          "label": "Show details",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "show details",
+          "fingerprint": "show details\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "Add task at 12 AM",
+          "dest": "onSlotClick()",
+          "destKind": "fn",
+          "labelKey": "add task at 12 am",
+          "fingerprint": "add task at 12 am\u2237onSlotClick()"
+        },
+        {
+          "kind": "cta",
+          "label": "Add task at 1 AM",
+          "dest": "onSlotClick()",
+          "destKind": "fn",
+          "labelKey": "add task at 1 am",
+          "fingerprint": "add task at 1 am\u2237onSlotClick()"
+        },
+        {
+          "kind": "cta",
+          "label": "Add task at 2 AM",
+          "dest": "onSlotClick()",
+          "destKind": "fn",
+          "labelKey": "add task at 2 am",
+          "fingerprint": "add task at 2 am\u2237onSlotClick()"
+        },
+        {
+          "kind": "cta",
+          "label": "Add task at 3 AM",
+          "dest": "onSlotClick()",
+          "destKind": "fn",
+          "labelKey": "add task at 3 am",
+          "fingerprint": "add task at 3 am\u2237onSlotClick()"
+        },
+        {
+          "kind": "cta",
+          "label": "Add task at 4 AM",
+          "dest": "onSlotClick()",
+          "destKind": "fn",
+          "labelKey": "add task at 4 am",
+          "fingerprint": "add task at 4 am\u2237onSlotClick()"
+        },
+        {
+          "kind": "cta",
+          "label": "Add task at 5 AM",
+          "dest": "onSlotClick()",
+          "destKind": "fn",
+          "labelKey": "add task at 5 am",
+          "fingerprint": "add task at 5 am\u2237onSlotClick()"
+        },
+        {
+          "kind": "cta",
+          "label": "Add task at 6 AM",
+          "dest": "onSlotClick()",
+          "destKind": "fn",
+          "labelKey": "add task at 6 am",
+          "fingerprint": "add task at 6 am\u2237onSlotClick()"
+        },
+        {
+          "kind": "cta",
+          "label": "Add task at 7 AM",
+          "dest": "onSlotClick()",
+          "destKind": "fn",
+          "labelKey": "add task at 7 am",
+          "fingerprint": "add task at 7 am\u2237onSlotClick()"
+        },
+        {
+          "kind": "cta",
+          "label": "Add task at 8 AM",
+          "dest": "onSlotClick()",
+          "destKind": "fn",
+          "labelKey": "add task at 8 am",
+          "fingerprint": "add task at 8 am\u2237onSlotClick()"
+        },
+        {
+          "kind": "cta",
+          "label": "Add task at 9 AM",
+          "dest": "onSlotClick()",
+          "destKind": "fn",
+          "labelKey": "add task at 9 am",
+          "fingerprint": "add task at 9 am\u2237onSlotClick()"
+        },
+        {
+          "kind": "cta",
+          "label": "Add task at 10 AM",
+          "dest": "onSlotClick()",
+          "destKind": "fn",
+          "labelKey": "add task at 10 am",
+          "fingerprint": "add task at 10 am\u2237onSlotClick()"
+        },
+        {
+          "kind": "cta",
+          "label": "Add task at 11 AM",
+          "dest": "onSlotClick()",
+          "destKind": "fn",
+          "labelKey": "add task at 11 am",
+          "fingerprint": "add task at 11 am\u2237onSlotClick()"
+        },
+        {
+          "kind": "cta",
+          "label": "Add task at 12 PM",
+          "dest": "onSlotClick()",
+          "destKind": "fn",
+          "labelKey": "add task at 12 pm",
+          "fingerprint": "add task at 12 pm\u2237onSlotClick()"
+        },
+        {
+          "kind": "cta",
+          "label": "Add task at 1 PM",
+          "dest": "onSlotClick()",
+          "destKind": "fn",
+          "labelKey": "add task at 1 pm",
+          "fingerprint": "add task at 1 pm\u2237onSlotClick()"
+        },
+        {
+          "kind": "cta",
+          "label": "Add task at 2 PM",
+          "dest": "onSlotClick()",
+          "destKind": "fn",
+          "labelKey": "add task at 2 pm",
+          "fingerprint": "add task at 2 pm\u2237onSlotClick()"
+        },
+        {
+          "kind": "cta",
+          "label": "Add task at 3 PM",
+          "dest": "onSlotClick()",
+          "destKind": "fn",
+          "labelKey": "add task at 3 pm",
+          "fingerprint": "add task at 3 pm\u2237onSlotClick()"
+        },
+        {
+          "kind": "cta",
+          "label": "Add task at 4 PM",
+          "dest": "onSlotClick()",
+          "destKind": "fn",
+          "labelKey": "add task at 4 pm",
+          "fingerprint": "add task at 4 pm\u2237onSlotClick()"
+        },
+        {
+          "kind": "cta",
+          "label": "Add task at 5 PM",
+          "dest": "onSlotClick()",
+          "destKind": "fn",
+          "labelKey": "add task at 5 pm",
+          "fingerprint": "add task at 5 pm\u2237onSlotClick()"
+        },
+        {
+          "kind": "cta",
+          "label": "Add task at 6 PM",
+          "dest": "onSlotClick()",
+          "destKind": "fn",
+          "labelKey": "add task at 6 pm",
+          "fingerprint": "add task at 6 pm\u2237onSlotClick()"
+        },
+        {
+          "kind": "cta",
+          "label": "Add task at 7 PM",
+          "dest": "onSlotClick()",
+          "destKind": "fn",
+          "labelKey": "add task at 7 pm",
+          "fingerprint": "add task at 7 pm\u2237onSlotClick()"
+        },
+        {
+          "kind": "cta",
+          "label": "Add task at 8 PM",
+          "dest": "onSlotClick()",
+          "destKind": "fn",
+          "labelKey": "add task at 8 pm",
+          "fingerprint": "add task at 8 pm\u2237onSlotClick()"
+        },
+        {
+          "kind": "cta",
+          "label": "Add task at 9 PM",
+          "dest": "onSlotClick()",
+          "destKind": "fn",
+          "labelKey": "add task at 9 pm",
+          "fingerprint": "add task at 9 pm\u2237onSlotClick()"
+        },
+        {
+          "kind": "cta",
+          "label": "Add task at 10 PM",
+          "dest": "onSlotClick()",
+          "destKind": "fn",
+          "labelKey": "add task at 10 pm",
+          "fingerprint": "add task at 10 pm\u2237onSlotClick()"
+        },
+        {
+          "kind": "cta",
+          "label": "Add task at 11 PM",
+          "dest": "onSlotClick()",
+          "destKind": "fn",
+          "labelKey": "add task at 11 pm",
+          "fingerprint": "add task at 11 pm\u2237onSlotClick()"
+        },
+        {
+          "kind": "cta",
+          "label": "Connectivity status",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "connectivity status",
+          "fingerprint": "connectivity status\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "Send feedback to WorkHive",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "send feedback to workhive",
+          "fingerprint": "send feedback to workhive\u2237"
         }
       ]
     },
@@ -734,7 +2091,105 @@
         "sumCardBlocks": 0,
         "hasDetailPanel": false
       },
-      "source": "static"
+      "source": "static",
+      "liveAffordances": [
+        {
+          "kind": "cta",
+          "label": "\u2190 Back",
+          "dest": "index.html",
+          "destKind": "page",
+          "labelKey": "back",
+          "fingerprint": "back\u2237index.html"
+        },
+        {
+          "kind": "cta",
+          "label": "Calculator",
+          "dest": "switchTab()",
+          "destKind": "fn",
+          "labelKey": "calculator",
+          "fingerprint": "calculator\u2237switchTab()"
+        },
+        {
+          "kind": "cta",
+          "label": "History",
+          "dest": "switchTab()",
+          "destKind": "fn",
+          "labelKey": "history",
+          "fingerprint": "history\u2237switchTab()"
+        },
+        {
+          "kind": "cta",
+          "label": "Guide",
+          "dest": "switchTab()",
+          "destKind": "fn",
+          "labelKey": "guide",
+          "fingerprint": "guide\u2237switchTab()"
+        },
+        {
+          "kind": "cta",
+          "label": "\u2744\ufe0f HVAC & Cooling 11",
+          "dest": "selectDiscipline()",
+          "destKind": "fn",
+          "labelKey": "hvac cooling 11",
+          "fingerprint": "hvac cooling 11\u2237selectDiscipline()"
+        },
+        {
+          "kind": "cta",
+          "label": "\ud83d\udd27 Mechanical 4",
+          "dest": "selectDiscipline()",
+          "destKind": "fn",
+          "labelKey": "mechanical 4",
+          "fingerprint": "mechanical 4\u2237selectDiscipline()"
+        },
+        {
+          "kind": "cta",
+          "label": "\u26a1 Electrical 14",
+          "dest": "selectDiscipline()",
+          "destKind": "fn",
+          "labelKey": "electrical 14",
+          "fingerprint": "electrical 14\u2237selectDiscipline()"
+        },
+        {
+          "kind": "cta",
+          "label": "\ud83d\udeb0 Plumbing 10",
+          "dest": "selectDiscipline()",
+          "destKind": "fn",
+          "labelKey": "plumbing 10",
+          "fingerprint": "plumbing 10\u2237selectDiscipline()"
+        },
+        {
+          "kind": "cta",
+          "label": "\ud83d\udd25 Fire Protection 5",
+          "dest": "selectDiscipline()",
+          "destKind": "fn",
+          "labelKey": "fire protection 5",
+          "fingerprint": "fire protection 5\u2237selectDiscipline()"
+        },
+        {
+          "kind": "cta",
+          "label": "\u2699\ufe0f Machine Design 12",
+          "dest": "selectDiscipline()",
+          "destKind": "fn",
+          "labelKey": "machine design 12",
+          "fingerprint": "machine design 12\u2237selectDiscipline()"
+        },
+        {
+          "kind": "cta",
+          "label": "Run Calculation",
+          "dest": "runCalculation()",
+          "destKind": "fn",
+          "labelKey": "run calculation",
+          "fingerprint": "run calculation\u2237runCalculation()"
+        },
+        {
+          "kind": "cta",
+          "label": "Send feedback to WorkHive",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "send feedback to workhive",
+          "fingerprint": "send feedback to workhive\u2237"
+        }
+      ]
     },
     "hive.html": {
       "page": "hive.html",
@@ -831,11 +2286,192 @@
         "sumCardBlocks": 0,
         "hasDetailPanel": true
       },
-      "source": "static"
+      "source": "static",
+      "liveAffordances": [
+        {
+          "kind": "cta",
+          "label": "Notifications",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "notifications",
+          "fingerprint": "notifications\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "Leave Hive",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "leave hive",
+          "fingerprint": "leave hive\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "Audit Log \u2192",
+          "dest": "audit-log.html",
+          "destKind": "page",
+          "labelKey": "audit log",
+          "fingerprint": "audit log\u2237audit-log.html"
+        },
+        {
+          "kind": "cta",
+          "label": "AI Quality \u2192",
+          "dest": "ai-quality.html",
+          "destKind": "page",
+          "labelKey": "ai quality",
+          "fingerprint": "ai quality\u2237ai-quality.html"
+        },
+        {
+          "kind": "cta",
+          "label": "Plant Connections \u2192",
+          "dest": "plant-connections.html",
+          "destKind": "page",
+          "labelKey": "plant connections",
+          "fingerprint": "plant connections\u2237plant-connections.html"
+        },
+        {
+          "kind": "cta",
+          "label": "Show Invite Code",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "show invite code",
+          "fingerprint": "show invite code\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "Leandro Marquez (you)",
+          "dest": "_openWorkerProfileDrawer()",
+          "destKind": "fn",
+          "labelKey": "leandro marquez you",
+          "fingerprint": "leandro marquez you\u2237_openWorkerProfileDrawer()"
+        },
+        {
+          "kind": "cta",
+          "label": "Show details",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "show details",
+          "fingerprint": "show details\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "Why?",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "why",
+          "fingerprint": "why\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "Save",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "save",
+          "fingerprint": "save\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "Later",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "later",
+          "fingerprint": "later\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "Open PM Scheduler \u2192",
+          "dest": "pm-scheduler.html",
+          "destKind": "page",
+          "labelKey": "open pm scheduler",
+          "fingerprint": "open pm scheduler\u2237pm-scheduler.html"
+        },
+        {
+          "kind": "cta",
+          "label": "View Inventory \u2192",
+          "dest": "inventory.html",
+          "destKind": "page",
+          "labelKey": "view inventory",
+          "fingerprint": "view inventory\u2237inventory.html"
+        },
+        {
+          "kind": "cta",
+          "label": "View your inventory \u2192",
+          "dest": "inventory.html",
+          "destKind": "page",
+          "labelKey": "view your inventory",
+          "fingerprint": "view your inventory\u2237inventory.html"
+        },
+        {
+          "kind": "cta",
+          "label": "AI Ask the Reliability Coach \u25b8",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "ai ask the reliability coach",
+          "fingerprint": "ai ask the reliability coach\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "View in PM Scheduler \u2192",
+          "dest": "pm-scheduler.html",
+          "destKind": "page",
+          "labelKey": "view in pm scheduler",
+          "fingerprint": "view in pm scheduler\u2237pm-scheduler.html"
+        },
+        {
+          "kind": "cta",
+          "label": "Load More",
+          "dest": "loadMoreFeed()",
+          "destKind": "fn",
+          "labelKey": "load more",
+          "fingerprint": "load more\u2237loadMoreFeed()"
+        },
+        {
+          "kind": "cta",
+          "label": "Show",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "show",
+          "fingerprint": "show\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "Hide",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "hide",
+          "fingerprint": "hide\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "Connectivity status",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "connectivity status",
+          "fingerprint": "connectivity status\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "Send feedback to WorkHive",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "send feedback to workhive",
+          "fingerprint": "send feedback to workhive\u2237"
+        }
+      ]
     },
     "index.html": {
       "page": "index.html",
-      "infoUnits": [],
+      "infoUnits": [
+        {
+          "kind": "rag-tile",
+          "unitId": "index:hive_activity",
+          "keySuffix": "hive_activity",
+          "label": "Hive Activity Today",
+          "labelKey": "hive activity today",
+          "keyKey": "hive activity",
+          "fingerprint": "hive activity today",
+          "theme": null
+        }
+      ],
       "links": [
         {
           "dest": "index.html",
@@ -906,10 +2542,6 @@
           "text": "AI Work Assistant"
         },
         {
-          "dest": "asset-hub.html",
-          "text": "All assets \u2192"
-        },
-        {
           "dest": "logbook.html",
           "text": "\u2192"
         }
@@ -937,7 +2569,225 @@
         "sumCardBlocks": 0,
         "hasDetailPanel": false
       },
-      "source": "static"
+      "source": "static",
+      "liveAffordances": [
+        {
+          "kind": "cta",
+          "label": "WorkHive home",
+          "dest": "index.html",
+          "destKind": "page",
+          "labelKey": "workhive home",
+          "fingerprint": "workhive home\u2237index.html"
+        },
+        {
+          "kind": "cta",
+          "label": "The Hive",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "the hive",
+          "fingerprint": "the hive\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "Impact",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "impact",
+          "fingerprint": "impact\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "Community",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "community",
+          "fingerprint": "community\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "Learn",
+          "dest": "index.html",
+          "destKind": "page",
+          "labelKey": "learn",
+          "fingerprint": "learn\u2237index.html"
+        },
+        {
+          "kind": "cta",
+          "label": "Install WorkHive",
+          "dest": "triggerInstall()",
+          "destKind": "fn",
+          "labelKey": "install workhive",
+          "fingerprint": "install workhive\u2237triggerInstall()"
+        },
+        {
+          "kind": "cta",
+          "label": "Leandro",
+          "dest": "openSignIn()",
+          "destKind": "fn",
+          "labelKey": "leandro",
+          "fingerprint": "leandro\u2237openSignIn()"
+        },
+        {
+          "kind": "cta",
+          "label": "Join WorkHive",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "join workhive",
+          "fingerprint": "join workhive\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "Change AI companion (Hezekiah or Zaniah)",
+          "dest": "togglePersona()",
+          "destKind": "fn",
+          "labelKey": "change ai companion hezekiah or zaniah",
+          "fingerprint": "change ai companion hezekiah or zaniah\u2237togglePersona()"
+        },
+        {
+          "kind": "cta",
+          "label": "Sign Out",
+          "dest": "signOut()",
+          "destKind": "fn",
+          "labelKey": "sign out",
+          "fingerprint": "sign out\u2237signOut()"
+        },
+        {
+          "kind": "cta",
+          "label": "! Today \u00b7 Oldest Open Job GEN-001: Mecha",
+          "dest": "logbook.html",
+          "destKind": "page",
+          "labelKey": "today oldest open job gen 001 mecha",
+          "fingerprint": "today oldest open job gen 001 mecha\u2237logbook.html"
+        },
+        {
+          "kind": "cta",
+          "label": "6 Open Jobs",
+          "dest": "logbook.html",
+          "destKind": "page",
+          "labelKey": "6 open jobs",
+          "fingerprint": "6 open jobs\u2237logbook.html"
+        },
+        {
+          "kind": "cta",
+          "label": "1 Low Stock",
+          "dest": "inventory.html",
+          "destKind": "page",
+          "labelKey": "1 low stock",
+          "fingerprint": "1 low stock\u2237inventory.html"
+        },
+        {
+          "kind": "cta",
+          "label": "Log a Job",
+          "dest": "logbook.html",
+          "destKind": "page",
+          "labelKey": "log a job",
+          "fingerprint": "log a job\u2237logbook.html"
+        },
+        {
+          "kind": "cta",
+          "label": "Ask Zaniah",
+          "dest": "assistant.html",
+          "destKind": "page",
+          "labelKey": "ask zaniah",
+          "fingerprint": "ask zaniah\u2237assistant.html"
+        },
+        {
+          "kind": "cta",
+          "label": "Maintenance Logbook",
+          "dest": "logbook.html",
+          "destKind": "page",
+          "labelKey": "maintenance logbook",
+          "fingerprint": "maintenance logbook\u2237logbook.html"
+        },
+        {
+          "kind": "cta",
+          "label": "PM Scheduler",
+          "dest": "pm-scheduler.html",
+          "destKind": "page",
+          "labelKey": "pm scheduler",
+          "fingerprint": "pm scheduler\u2237pm-scheduler.html"
+        },
+        {
+          "kind": "cta",
+          "label": "Spare-Parts Inventory",
+          "dest": "inventory.html",
+          "destKind": "page",
+          "labelKey": "spare parts inventory",
+          "fingerprint": "spare parts inventory\u2237inventory.html"
+        },
+        {
+          "kind": "cta",
+          "label": "Skill Matrix",
+          "dest": "skillmatrix.html",
+          "destKind": "page",
+          "labelKey": "skill matrix",
+          "fingerprint": "skill matrix\u2237skillmatrix.html"
+        },
+        {
+          "kind": "cta",
+          "label": "Engineering Calculators",
+          "dest": "engineering-design.html",
+          "destKind": "page",
+          "labelKey": "engineering calculators",
+          "fingerprint": "engineering calculators\u2237engineering-design.html"
+        },
+        {
+          "kind": "cta",
+          "label": "AI Work Assistant",
+          "dest": "assistant.html",
+          "destKind": "page",
+          "labelKey": "ai work assistant",
+          "fingerprint": "ai work assistant\u2237assistant.html"
+        },
+        {
+          "kind": "cta",
+          "label": "Learn (37 free guides)",
+          "dest": "index.html",
+          "destKind": "page",
+          "labelKey": "learn 37 free guides",
+          "fingerprint": "learn 37 free guides\u2237index.html"
+        },
+        {
+          "kind": "cta",
+          "label": "About",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "about",
+          "fingerprint": "about\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "Contact",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "contact",
+          "fingerprint": "contact\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "Privacy Policy",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "privacy policy",
+          "fingerprint": "privacy policy\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "Terms of Service",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "terms of service",
+          "fingerprint": "terms of service\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "Send feedback to WorkHive",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "send feedback to workhive",
+          "fingerprint": "send feedback to workhive\u2237"
+        }
+      ]
     },
     "integrations.html": {
       "page": "integrations.html",
@@ -1005,6 +2855,14 @@
       ],
       "links": [
         {
+          "dest": "plant-connections.html",
+          "text": "Monitor sync health, sensor feeds &amp; "
+        },
+        {
+          "dest": "plant-connections.html",
+          "text": "Plant / IoT &rarr;"
+        },
+        {
           "dest": "hive.html",
           "text": "Go to Hive Board"
         },
@@ -1041,7 +2899,121 @@
         "sumCardBlocks": 0,
         "hasDetailPanel": true
       },
-      "source": "static"
+      "source": "static",
+      "liveAffordances": [
+        {
+          "kind": "cta",
+          "label": "Show details",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "show details",
+          "fingerprint": "show details\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "Dismiss",
+          "dest": "dismissGuide()",
+          "destKind": "fn",
+          "labelKey": "dismiss",
+          "fingerprint": "dismiss\u2237dismissGuide()"
+        },
+        {
+          "kind": "cta",
+          "label": "Start here \u2192",
+          "dest": "switchTab()",
+          "destKind": "fn",
+          "labelKey": "start here",
+          "fingerprint": "start here\u2237switchTab()"
+        },
+        {
+          "kind": "cta",
+          "label": "Set up sync \u2192",
+          "dest": "switchTab()",
+          "destKind": "fn",
+          "labelKey": "set up sync",
+          "fingerprint": "set up sync\u2237switchTab()"
+        },
+        {
+          "kind": "cta",
+          "label": "Manage keys \u2192",
+          "dest": "switchTab()",
+          "destKind": "fn",
+          "labelKey": "manage keys",
+          "fingerprint": "manage keys\u2237switchTab()"
+        },
+        {
+          "kind": "cta",
+          "label": "Import File",
+          "dest": "switchTab()",
+          "destKind": "fn",
+          "labelKey": "import file",
+          "fingerprint": "import file\u2237switchTab()"
+        },
+        {
+          "kind": "cta",
+          "label": "Live Sync",
+          "dest": "switchTab()",
+          "destKind": "fn",
+          "labelKey": "live sync",
+          "fingerprint": "live sync\u2237switchTab()"
+        },
+        {
+          "kind": "cta",
+          "label": "API Keys",
+          "dest": "switchTab()",
+          "destKind": "fn",
+          "labelKey": "api keys",
+          "fingerprint": "api keys\u2237switchTab()"
+        },
+        {
+          "kind": "cta",
+          "label": "\ud83c\udfed SAP PM OData export (AUFNR, ISTAT, EQ",
+          "dest": "selectSource()",
+          "destKind": "fn",
+          "labelKey": "sap pm odata export aufnr istat eq",
+          "fingerprint": "sap pm odata export aufnr istat eq\u2237selectSource()"
+        },
+        {
+          "kind": "cta",
+          "label": "\ud83d\udd27 IBM Maximo OSLC export (WONUM, ASSETN",
+          "dest": "selectSource()",
+          "destKind": "fn",
+          "labelKey": "ibm maximo oslc export wonum assetn",
+          "fingerprint": "ibm maximo oslc export wonum assetn\u2237selectSource()"
+        },
+        {
+          "kind": "cta",
+          "label": "\ud83d\udccb Other / Generic Any CSV from your cur",
+          "dest": "selectSource()",
+          "destKind": "fn",
+          "labelKey": "other generic any csv from your cur",
+          "fingerprint": "other generic any csv from your cur\u2237selectSource()"
+        },
+        {
+          "kind": "cta",
+          "label": "\u2728 Auto-detect WorkHive figures it out fr",
+          "dest": "selectSource()",
+          "destKind": "fn",
+          "labelKey": "auto detect workhive figures it out fr",
+          "fingerprint": "auto detect workhive figures it out fr\u2237selectSource()"
+        },
+        {
+          "kind": "cta",
+          "label": "Next: Upload \u2192",
+          "dest": "goStep()",
+          "destKind": "fn",
+          "labelKey": "next upload",
+          "fingerprint": "next upload\u2237goStep()"
+        },
+        {
+          "kind": "cta",
+          "label": "Send feedback to WorkHive",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "send feedback to workhive",
+          "fingerprint": "send feedback to workhive\u2237"
+        }
+      ]
     },
     "inventory.html": {
       "page": "inventory.html",
@@ -1070,10 +3042,10 @@
           "kind": "rag-tile",
           "unitId": "inventory:pending_approval",
           "keySuffix": "pending_approval",
-          "label": "Pending approval",
-          "labelKey": "pending approval",
+          "label": "Pending parts",
+          "labelKey": "pending parts",
           "keyKey": "pending approval",
-          "fingerprint": "pending approval",
+          "fingerprint": "pending parts",
           "theme": "pending approval"
         },
         {
@@ -1085,6 +3057,18 @@
           "keyKey": "detail panel",
           "fingerprint": "inventory detail breakdown",
           "theme": "detail breakdown panel"
+        },
+        {
+          "kind": "rag-tile",
+          "unitId": "inventory:pending_approval",
+          "keySuffix": "pending_approval",
+          "label": "Pending approval",
+          "value": "0",
+          "labelKey": "pending approval",
+          "keyKey": "pending approval",
+          "fingerprint": "pending approval",
+          "theme": "pending approval",
+          "_live": true
         }
       ],
       "links": [
@@ -1111,7 +3095,80 @@
         "hasDetailPanel": true
       },
       "source": "static",
-      "liveAffordances": []
+      "liveAffordances": [
+        {
+          "kind": "cta",
+          "label": "WorkHive home",
+          "dest": "index.html",
+          "destKind": "page",
+          "labelKey": "workhive home",
+          "fingerprint": "workhive home\u2237index.html"
+        },
+        {
+          "kind": "cta",
+          "label": "\u2190 Back to Basic Worker",
+          "dest": "index.html",
+          "destKind": "page",
+          "labelKey": "back to basic worker",
+          "fingerprint": "back to basic worker\u2237index.html"
+        },
+        {
+          "kind": "cta",
+          "label": "Add Part",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "add part",
+          "fingerprint": "add part\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "Show details",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "show details",
+          "fingerprint": "show details\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "Open item details",
+          "dest": "openDetailModal()",
+          "destKind": "fn",
+          "labelKey": "open item details",
+          "fingerprint": "open item details\u2237openDetailModal()"
+        },
+        {
+          "kind": "cta",
+          "label": "Use",
+          "dest": "openUseModal()",
+          "destKind": "fn",
+          "labelKey": "use",
+          "fingerprint": "use\u2237openUseModal()"
+        },
+        {
+          "kind": "cta",
+          "label": "Restock",
+          "dest": "openRestockModal()",
+          "destKind": "fn",
+          "labelKey": "restock",
+          "fingerprint": "restock\u2237openRestockModal()"
+        },
+        {
+          "kind": "cta",
+          "label": "Connectivity status",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "connectivity status",
+          "fingerprint": "connectivity status\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "Send feedback to WorkHive",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "send feedback to workhive",
+          "fingerprint": "send feedback to workhive\u2237"
+        }
+      ]
     },
     "logbook.html": {
       "page": "logbook.html",
@@ -1158,7 +3215,113 @@
         "sumCardBlocks": 0,
         "hasDetailPanel": false
       },
-      "source": "static"
+      "source": "static",
+      "liveAffordances": [
+        {
+          "kind": "cta",
+          "label": "WorkHive home",
+          "dest": "index.html",
+          "destKind": "page",
+          "labelKey": "workhive home",
+          "fingerprint": "workhive home\u2237index.html"
+        },
+        {
+          "kind": "cta",
+          "label": "\u2190 Back to Basic Worker",
+          "dest": "index.html",
+          "destKind": "page",
+          "labelKey": "back to basic worker",
+          "fingerprint": "back to basic worker\u2237index.html"
+        },
+        {
+          "kind": "cta",
+          "label": "Register Asset",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "register asset",
+          "fingerprint": "register asset\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "Voice Journal",
+          "dest": "voice-journal.html",
+          "destKind": "page",
+          "labelKey": "voice journal",
+          "fingerprint": "voice journal\u2237voice-journal.html"
+        },
+        {
+          "kind": "cta",
+          "label": "Speak",
+          "dest": "startSmartVoice()",
+          "destKind": "fn",
+          "labelKey": "speak",
+          "fingerprint": "speak\u2237startSmartVoice()"
+        },
+        {
+          "kind": "cta",
+          "label": "Capture",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "capture",
+          "fingerprint": "capture\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "Select or search asset...",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "select or search asset",
+          "fingerprint": "select or search asset\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "Scan equipment tag with camera",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "scan equipment tag with camera",
+          "fingerprint": "scan equipment tag with camera\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "What happened? \u2192",
+          "dest": "stepGo()",
+          "destKind": "fn",
+          "labelKey": "what happened",
+          "fingerprint": "what happened\u2237stepGo()"
+        },
+        {
+          "kind": "cta",
+          "label": "Clear form",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "clear form",
+          "fingerprint": "clear form\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "Export to CSV",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "export to csv",
+          "fingerprint": "export to csv\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "Connectivity status",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "connectivity status",
+          "fingerprint": "connectivity status\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "Send feedback to WorkHive",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "send feedback to workhive",
+          "fingerprint": "send feedback to workhive\u2237"
+        }
+      ]
     },
     "marketplace.html": {
       "page": "marketplace.html",
@@ -1185,16 +3348,6 @@
         },
         {
           "kind": "rag-tile",
-          "unitId": "marketplace:current_tab",
-          "keySuffix": "current_tab",
-          "label": "Current tab",
-          "labelKey": "current tab",
-          "keyKey": "current tab",
-          "fingerprint": "current tab",
-          "theme": null
-        },
-        {
-          "kind": "rag-tile",
           "unitId": "marketplace:detail_panel",
           "keySuffix": "detail_panel",
           "label": "Marketplace detail",
@@ -1212,6 +3365,18 @@
           "keyKey": "listing grid",
           "fingerprint": "marketplace listing grid",
           "theme": null
+        },
+        {
+          "kind": "rag-tile",
+          "unitId": "marketplace:current_tab",
+          "keySuffix": "current_tab",
+          "label": "Current tab",
+          "value": "Parts",
+          "labelKey": "current tab",
+          "keyKey": "current tab",
+          "fingerprint": "current tab",
+          "theme": null,
+          "_live": true
         }
       ],
       "links": [
@@ -1236,11 +3401,389 @@
         "handleSellerOnboard"
       ],
       "structural": {
-        "simpleCardBlocks": 3,
+        "simpleCardBlocks": 2,
         "sumCardBlocks": 0,
         "hasDetailPanel": true
       },
-      "source": "static"
+      "source": "static",
+      "liveAffordances": [
+        {
+          "kind": "cta",
+          "label": "Show details",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "show details",
+          "fingerprint": "show details\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "Parts 12",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "parts 12",
+          "fingerprint": "parts 12\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "Training 6",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "training 6",
+          "fingerprint": "training 6\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "Jobs 6",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "jobs 6",
+          "fingerprint": "jobs 6\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "My Watchlist",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "my watchlist",
+          "fingerprint": "my watchlist\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "Saved Searches",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "saved searches",
+          "fingerprint": "saved searches\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "My Listings",
+          "dest": "marketplace-seller.html",
+          "destKind": "page",
+          "labelKey": "my listings",
+          "fingerprint": "my listings\u2237marketplace-seller.html"
+        },
+        {
+          "kind": "cta",
+          "label": "Price",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "price",
+          "fingerprint": "price\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "Compare",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "compare",
+          "fingerprint": "compare\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "All",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "all",
+          "fingerprint": "all\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "Bearings",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "bearings",
+          "fingerprint": "bearings\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "Seals & Gaskets",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "seals gaskets",
+          "fingerprint": "seals gaskets\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "Motors & Drives",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "motors drives",
+          "fingerprint": "motors drives\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "Pumps & Valves",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "pumps valves",
+          "fingerprint": "pumps valves\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "Electrical",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "electrical",
+          "fingerprint": "electrical\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "Instrumentation",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "instrumentation",
+          "fingerprint": "instrumentation\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "Fasteners",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "fasteners",
+          "fingerprint": "fasteners\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "Lubricants",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "lubricants",
+          "fingerprint": "lubricants\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "Safety Equipment",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "safety equipment",
+          "fingerprint": "safety equipment\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "Other",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "other",
+          "fingerprint": "other\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "Save to watchlist",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "save to watchlist",
+          "fingerprint": "save to watchlist\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "LM Leandro Marquez",
+          "dest": "marketplace-seller-profile.html",
+          "destKind": "page",
+          "labelKey": "lm leandro marquez",
+          "fingerprint": "lm leandro marquez\u2237marketplace-seller-profile.html"
+        },
+        {
+          "kind": "cta",
+          "label": "View",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "view",
+          "fingerprint": "view\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "RB Romeo Beltran",
+          "dest": "marketplace-seller-profile.html",
+          "destKind": "page",
+          "labelKey": "rb romeo beltran",
+          "fingerprint": "rb romeo beltran\u2237marketplace-seller-profile.html"
+        },
+        {
+          "kind": "cta",
+          "label": "EV Emma Velasquez",
+          "dest": "marketplace-seller-profile.html",
+          "destKind": "page",
+          "labelKey": "ev emma velasquez",
+          "fingerprint": "ev emma velasquez\u2237marketplace-seller-profile.html"
+        },
+        {
+          "kind": "cta",
+          "label": "RM Ricardo Morales",
+          "dest": "marketplace-seller-profile.html",
+          "destKind": "page",
+          "labelKey": "rm ricardo morales",
+          "fingerprint": "rm ricardo morales\u2237marketplace-seller-profile.html"
+        },
+        {
+          "kind": "cta",
+          "label": "DV David Velasco",
+          "dest": "marketplace-seller-profile.html",
+          "destKind": "page",
+          "labelKey": "dv david velasco",
+          "fingerprint": "dv david velasco\u2237marketplace-seller-profile.html"
+        },
+        {
+          "kind": "cta",
+          "label": "BG Bryan Garcia",
+          "dest": "marketplace-seller-profile.html",
+          "destKind": "page",
+          "labelKey": "bg bryan garcia",
+          "fingerprint": "bg bryan garcia\u2237marketplace-seller-profile.html"
+        },
+        {
+          "kind": "cta",
+          "label": "HS Hector Salvador",
+          "dest": "marketplace-seller-profile.html",
+          "destKind": "page",
+          "labelKey": "hs hector salvador",
+          "fingerprint": "hs hector salvador\u2237marketplace-seller-profile.html"
+        },
+        {
+          "kind": "cta",
+          "label": "PA Pablo Aguilar",
+          "dest": "marketplace-seller-profile.html",
+          "destKind": "page",
+          "labelKey": "pa pablo aguilar",
+          "fingerprint": "pa pablo aguilar\u2237marketplace-seller-profile.html"
+        },
+        {
+          "kind": "cta",
+          "label": "SA Sergio Aguilar",
+          "dest": "marketplace-seller-profile.html",
+          "destKind": "page",
+          "labelKey": "sa sergio aguilar",
+          "fingerprint": "sa sergio aguilar\u2237marketplace-seller-profile.html"
+        },
+        {
+          "kind": "cta",
+          "label": "Post a listing",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "post a listing",
+          "fingerprint": "post a listing\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "Close",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "close",
+          "fingerprint": "close\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "Parts",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "parts",
+          "fingerprint": "parts\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "Training",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "training",
+          "fingerprint": "training\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "Jobs",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "jobs",
+          "fingerprint": "jobs\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "Post Listing",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "post listing",
+          "fingerprint": "post listing\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "Send Inquiry",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "send inquiry",
+          "fingerprint": "send inquiry\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "Send All Quote Requests",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "send all quote requests",
+          "fingerprint": "send all quote requests\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "Open Dispute",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "open dispute",
+          "fingerprint": "open dispute\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "1 star",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "1 star",
+          "fingerprint": "1 star\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "2 stars",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "2 stars",
+          "fingerprint": "2 stars\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "3 stars",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "3 stars",
+          "fingerprint": "3 stars\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "4 stars",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "4 stars",
+          "fingerprint": "4 stars\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "5 stars",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "5 stars",
+          "fingerprint": "5 stars\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "Submit Review",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "submit review",
+          "fingerprint": "submit review\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "Send feedback to WorkHive",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "send feedback to workhive",
+          "fingerprint": "send feedback to workhive\u2237"
+        }
+      ]
     },
     "ph-intelligence.html": {
       "page": "ph-intelligence.html",
@@ -1304,24 +3847,33 @@
         "sumCardBlocks": 0,
         "hasDetailPanel": true
       },
-      "source": "static"
-    },
-    "plant-connections.html": {
-      "page": "plant-connections.html",
-      "infoUnits": [],
-      "links": [
+      "source": "static",
+      "liveAffordances": [
         {
-          "dest": "integrations.html",
-          "text": "CMMS Integration"
+          "kind": "cta",
+          "label": "Open Maturity Stairway \u2192",
+          "dest": "hive.html",
+          "destKind": "page",
+          "labelKey": "open maturity stairway",
+          "fingerprint": "open maturity stairway\u2237hive.html"
+        },
+        {
+          "kind": "cta",
+          "label": "Back to Hive Board",
+          "dest": "hive.html",
+          "destKind": "page",
+          "labelKey": "back to hive board",
+          "fingerprint": "back to hive board\u2237hive.html"
+        },
+        {
+          "kind": "cta",
+          "label": "Send feedback to WorkHive",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "send feedback to workhive",
+          "fingerprint": "send feedback to workhive\u2237"
         }
-      ],
-      "onclickFns": [],
-      "structural": {
-        "simpleCardBlocks": 1,
-        "sumCardBlocks": 0,
-        "hasDetailPanel": false
-      },
-      "source": "static"
+      ]
     },
     "pm-scheduler.html": {
       "page": "pm-scheduler.html",
@@ -1340,10 +3892,10 @@
           "kind": "rag-tile",
           "unitId": "pm-scheduler:due_soon",
           "keySuffix": "due_soon",
-          "label": "Due this week",
-          "labelKey": "due this week",
+          "label": "Due soon (14d)",
+          "labelKey": "due soon 14d",
           "keyKey": "due soon",
-          "fingerprint": "due this week",
+          "fingerprint": "due soon 14d",
           "theme": "due soon / upcoming"
         },
         {
@@ -1365,6 +3917,18 @@
           "keyKey": "detail panel",
           "fingerprint": "pm detail breakdown",
           "theme": "detail breakdown panel"
+        },
+        {
+          "kind": "rag-tile",
+          "unitId": "pm-scheduler:due_soon",
+          "keySuffix": "due_soon",
+          "label": "Due this week",
+          "value": "25",
+          "labelKey": "due this week",
+          "keyKey": "due soon",
+          "fingerprint": "due this week",
+          "theme": "due soon / upcoming",
+          "_live": true
         }
       ],
       "links": [
@@ -1411,109 +3975,165 @@
       "liveAffordances": [
         {
           "kind": "cta",
+          "label": "Show details",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "show details",
+          "fingerprint": "show details\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "All",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "all",
+          "fingerprint": "all\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "Overdue",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "overdue",
+          "fingerprint": "overdue\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "Due Soon",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "due soon",
+          "fingerprint": "due soon\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "On Track",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "on track",
+          "fingerprint": "on track\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "Open PM details for Siemens Simotics SD ",
+          "dest": "openDetail()",
+          "destKind": "fn",
+          "labelKey": "open pm details for siemens simotics sd",
+          "fingerprint": "open pm details for siemens simotics sd\u2237openDetail()"
+        },
+        {
+          "kind": "cta",
+          "label": "Open PM details for Warman AH 6/4",
+          "dest": "openDetail()",
+          "destKind": "fn",
+          "labelKey": "open pm details for warman ah 6 4",
+          "fingerprint": "open pm details for warman ah 6 4\u2237openDetail()"
+        },
+        {
+          "kind": "cta",
+          "label": "Open PM details for Mazak QT-15N",
+          "dest": "openDetail()",
+          "destKind": "fn",
+          "labelKey": "open pm details for mazak qt 15n",
+          "fingerprint": "open pm details for mazak qt 15n\u2237openDetail()"
+        },
+        {
+          "kind": "cta",
+          "label": "Open PM details for Grundfos CR 95-3-2",
+          "dest": "openDetail()",
+          "destKind": "fn",
+          "labelKey": "open pm details for grundfos cr 95 3 2",
+          "fingerprint": "open pm details for grundfos cr 95 3 2\u2237openDetail()"
+        },
+        {
+          "kind": "cta",
+          "label": "Open PM details for Beumer BE 250",
+          "dest": "openDetail()",
+          "destKind": "fn",
+          "labelKey": "open pm details for beumer be 250",
+          "fingerprint": "open pm details for beumer be 250\u2237openDetail()"
+        },
+        {
+          "kind": "cta",
+          "label": "Open PM details for Carrier 39M",
+          "dest": "openDetail()",
+          "destKind": "fn",
+          "labelKey": "open pm details for carrier 39m",
+          "fingerprint": "open pm details for carrier 39m\u2237openDetail()"
+        },
+        {
+          "kind": "cta",
+          "label": "Open PM details for Marley NC8410",
+          "dest": "openDetail()",
+          "destKind": "fn",
+          "labelKey": "open pm details for marley nc8410",
+          "fingerprint": "open pm details for marley nc8410\u2237openDetail()"
+        },
+        {
+          "kind": "cta",
+          "label": "Open PM details for Cleaver-Brooks CB-70",
+          "dest": "openDetail()",
+          "destKind": "fn",
+          "labelKey": "open pm details for cleaver brooks cb 70",
+          "fingerprint": "open pm details for cleaver brooks cb 70\u2237openDetail()"
+        },
+        {
+          "kind": "cta",
+          "label": "Open PM details for Atlas Copco GA75+ VS",
+          "dest": "openDetail()",
+          "destKind": "fn",
+          "labelKey": "open pm details for atlas copco ga75 vs",
+          "fingerprint": "open pm details for atlas copco ga75 vs\u2237openDetail()"
+        },
+        {
+          "kind": "cta",
+          "label": "Open PM details for Caterpillar 3516B",
+          "dest": "openDetail()",
+          "destKind": "fn",
+          "labelKey": "open pm details for caterpillar 3516b",
+          "fingerprint": "open pm details for caterpillar 3516b\u2237openDetail()"
+        },
+        {
+          "kind": "cta",
+          "label": "Load More",
+          "dest": "loadMorePM()",
+          "destKind": "fn",
+          "labelKey": "load more",
+          "fingerprint": "load more\u2237loadMorePM()"
+        },
+        {
+          "kind": "cta",
           "label": "Add asset",
           "dest": "goAddAsset()",
-          "destKind": "fn"
+          "destKind": "fn",
+          "labelKey": "add asset",
+          "fingerprint": "add asset\u2237goAddAsset()"
         },
         {
           "kind": "cta",
           "label": "Dashboard",
           "dest": "showScreen()",
-          "destKind": "fn"
+          "destKind": "fn",
+          "labelKey": "dashboard",
+          "fingerprint": "dashboard\u2237showScreen()"
+        },
+        {
+          "kind": "cta",
+          "label": "Connectivity status",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "connectivity status",
+          "fingerprint": "connectivity status\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "Send feedback to WorkHive",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "send feedback to workhive",
+          "fingerprint": "send feedback to workhive\u2237"
         }
       ]
-    },
-    "predictive.html": {
-      "page": "predictive.html",
-      "infoUnits": [
-        {
-          "kind": "rag-tile",
-          "unitId": "predictive:hot_assets",
-          "keySuffix": "hot_assets",
-          "label": "Hot assets",
-          "labelKey": "hot assets",
-          "keyKey": "hot assets",
-          "fingerprint": "hot assets",
-          "theme": "risk / hot / critical"
-        },
-        {
-          "kind": "rag-tile",
-          "unitId": "predictive:healthy_assets",
-          "keySuffix": "healthy_assets",
-          "label": "Healthy assets",
-          "labelKey": "healthy assets",
-          "keyKey": "healthy assets",
-          "fingerprint": "healthy assets",
-          "theme": "healthy / on-track"
-        },
-        {
-          "kind": "rag-tile",
-          "unitId": "predictive:earliest_forecast",
-          "keySuffix": "earliest_forecast",
-          "label": "Earliest forecast failure",
-          "labelKey": "earliest forecast failure",
-          "keyKey": "earliest forecast",
-          "fingerprint": "earliest forecast failure",
-          "theme": null
-        },
-        {
-          "kind": "rag-tile",
-          "unitId": "predictive:detail_panel",
-          "keySuffix": "detail_panel",
-          "label": "Predictive detail breakdown",
-          "labelKey": "predictive detail breakdown",
-          "keyKey": "detail panel",
-          "fingerprint": "predictive detail breakdown",
-          "theme": "detail breakdown panel"
-        },
-        {
-          "kind": "rag-tile",
-          "unitId": "predictive:risk_ranking",
-          "keySuffix": "risk_ranking",
-          "label": "Risk ranking table",
-          "labelKey": "risk ranking table",
-          "keyKey": "risk ranking",
-          "fingerprint": "risk ranking table",
-          "theme": "risk / hot / critical"
-        },
-        {
-          "kind": "rag-tile",
-          "unitId": "predictive:risk_heatmap",
-          "keySuffix": "risk_heatmap",
-          "label": "Risk heatmap",
-          "labelKey": "risk heatmap",
-          "keyKey": "risk heatmap",
-          "fingerprint": "risk heatmap",
-          "theme": "risk / hot / critical"
-        },
-        {
-          "kind": "rag-tile",
-          "unitId": "predictive:mtbf_trend",
-          "keySuffix": "mtbf_trend",
-          "label": "MTBF trend panel",
-          "labelKey": "mtbf trend panel",
-          "keyKey": "mtbf trend",
-          "fingerprint": "mtbf trend panel",
-          "theme": null
-        }
-      ],
-      "links": [
-        {
-          "dest": "asset-hub.html",
-          "text": "Asset Hub"
-        },
-        {
-          "dest": "asset-hub.html",
-          "text": "Open Asset Hub \u2192"
-        }
-      ],
-      "onclickFns": [],
-      "structural": {
-        "simpleCardBlocks": 3,
-        "sumCardBlocks": 4,
-        "hasDetailPanel": true
-      },
-      "source": "static"
     },
     "project-manager.html": {
       "page": "project-manager.html",
@@ -1631,15 +4251,115 @@
       "liveAffordances": [
         {
           "kind": "cta",
-          "label": "Print Report",
+          "label": "\ud83d\udcc4 Print Report",
           "dest": "project-report.html",
-          "destKind": "page"
+          "destKind": "page",
+          "labelKey": "print report",
+          "fingerprint": "print report\u2237project-report.html"
+        },
+        {
+          "kind": "cta",
+          "label": "Show details",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "show details",
+          "fingerprint": "show details\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "Active 4",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "active 4",
+          "fingerprint": "active 4\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "Planning 0",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "planning 0",
+          "fingerprint": "planning 0\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "On hold 0",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "on hold 0",
+          "fingerprint": "on hold 0\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "Complete 0",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "complete 0",
+          "fingerprint": "complete 0\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "All 4",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "all 4",
+          "fingerprint": "all 4\u2237"
         },
         {
           "kind": "cta",
           "label": "+ New project",
           "dest": "openNewProject()",
-          "destKind": "fn"
+          "destKind": "fn",
+          "labelKey": "new project",
+          "fingerprint": "new project\u2237openNewProject()"
+        },
+        {
+          "kind": "cta",
+          "label": "\ud83e\udd16 AI: from text",
+          "dest": "openAIIntentModal()",
+          "destKind": "fn",
+          "labelKey": "ai from text",
+          "fingerprint": "ai from text\u2237openAIIntentModal()"
+        },
+        {
+          "kind": "cta",
+          "label": "SHD-2026-001 shutdown Centrifugal Pump A",
+          "dest": "openDetail()",
+          "destKind": "fn",
+          "labelKey": "shd 2026 001 shutdown centrifugal pump a",
+          "fingerprint": "shd 2026 001 shutdown centrifugal pump a\u2237openDetail()"
+        },
+        {
+          "kind": "cta",
+          "label": "CAP-2026-001 capex Compressor Replacemen",
+          "dest": "openDetail()",
+          "destKind": "fn",
+          "labelKey": "cap 2026 001 capex compressor replacemen",
+          "fingerprint": "cap 2026 001 capex compressor replacemen\u2237openDetail()"
+        },
+        {
+          "kind": "cta",
+          "label": "CON-2026-001 contractor Cooling Tower Cl",
+          "dest": "openDetail()",
+          "destKind": "fn",
+          "labelKey": "con 2026 001 contractor cooling tower cl",
+          "fingerprint": "con 2026 001 contractor cooling tower cl\u2237openDetail()"
+        },
+        {
+          "kind": "cta",
+          "label": "WO-2026-001 workorder Recurring Compress",
+          "dest": "openDetail()",
+          "destKind": "fn",
+          "labelKey": "wo 2026 001 workorder recurring compress",
+          "fingerprint": "wo 2026 001 workorder recurring compress\u2237openDetail()"
+        },
+        {
+          "kind": "cta",
+          "label": "Send feedback to WorkHive",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "send feedback to workhive",
+          "fingerprint": "send feedback to workhive\u2237"
         }
       ]
     },
@@ -1654,6 +4374,10 @@
         {
           "dest": "project-manager.html",
           "text": "Go to Project Manager"
+        },
+        {
+          "dest": "project-manager.html",
+          "text": "Back to Project Manager"
         }
       ],
       "onclickFns": [
@@ -1665,7 +4389,57 @@
         "sumCardBlocks": 0,
         "hasDetailPanel": false
       },
-      "source": "static"
+      "source": "static",
+      "liveAffordances": [
+        {
+          "kind": "cta",
+          "label": "Go to Project Manager",
+          "dest": "project-manager.html",
+          "destKind": "page",
+          "labelKey": "go to project manager",
+          "fingerprint": "go to project manager\u2237project-manager.html"
+        },
+        {
+          "kind": "cta",
+          "label": "\u2190 Back",
+          "dest": "project-manager.html",
+          "destKind": "page",
+          "labelKey": "back",
+          "fingerprint": "back\u2237project-manager.html"
+        },
+        {
+          "kind": "cta",
+          "label": "\ud83e\udd16 AI: Narrative",
+          "dest": "aiGenerateNarrative()",
+          "destKind": "fn",
+          "labelKey": "ai narrative",
+          "fingerprint": "ai narrative\u2237aiGenerateNarrative()"
+        },
+        {
+          "kind": "cta",
+          "label": "Print",
+          "dest": "print()",
+          "destKind": "fn",
+          "labelKey": "print",
+          "fingerprint": "print\u2237print()"
+        },
+        {
+          "kind": "cta",
+          "label": "Save as PDF",
+          "dest": "saveAsPdf()",
+          "destKind": "fn",
+          "labelKey": "save as pdf",
+          "fingerprint": "save as pdf\u2237saveAsPdf()"
+        },
+        {
+          "kind": "cta",
+          "label": "Send feedback to WorkHive",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "send feedback to workhive",
+          "fingerprint": "send feedback to workhive\u2237"
+        }
+      ]
     },
     "report-sender.html": {
       "page": "report-sender.html",
@@ -1711,14 +4485,125 @@
           "theme": "detail breakdown panel"
         }
       ],
-      "links": [],
+      "links": [
+        {
+          "dest": "analytics-report.html",
+          "text": "&larr; Analytics report"
+        }
+      ],
       "onclickFns": [],
       "structural": {
         "simpleCardBlocks": 3,
         "sumCardBlocks": 0,
         "hasDetailPanel": true
       },
-      "source": "static"
+      "source": "static",
+      "liveAffordances": [
+        {
+          "kind": "cta",
+          "label": "Install app",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "install app",
+          "fingerprint": "install app\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "Show details",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "show details",
+          "fingerprint": "show details\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "PM Overdue",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "pm overdue",
+          "fingerprint": "pm overdue\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "Failure Digest",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "failure digest",
+          "fingerprint": "failure digest\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "Shift Handover",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "shift handover",
+          "fingerprint": "shift handover\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "Predictive",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "predictive",
+          "fingerprint": "predictive\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "OEE Summary Phase 3",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "oee summary phase 3",
+          "fingerprint": "oee summary phase 3\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "Weekly Analytics Phase 3",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "weekly analytics phase 3",
+          "fingerprint": "weekly analytics phase 3\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "+ Add contact",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "add contact",
+          "fingerprint": "add contact\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "Tap to add voice context",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "tap to add voice context",
+          "fingerprint": "tap to add voice context\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "Send Reports",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "send reports",
+          "fingerprint": "send reports\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "Connectivity status",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "connectivity status",
+          "fingerprint": "connectivity status\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "Send feedback to WorkHive",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "send feedback to workhive",
+          "fingerprint": "send feedback to workhive\u2237"
+        }
+      ]
     },
     "resume.html": {
       "page": "resume.html",
@@ -1730,7 +4615,185 @@
         "sumCardBlocks": 0,
         "hasDetailPanel": false
       },
-      "source": "static"
+      "source": "static",
+      "liveAffordances": [
+        {
+          "kind": "cta",
+          "label": "\u2728 Auto-fill from my WorkHive data",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "auto fill from my workhive data",
+          "fingerprint": "auto fill from my workhive data\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "\ud83d\udcbe Save",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "save",
+          "fingerprint": "save\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "\ud83d\udcc2 My Resumes",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "my resumes",
+          "fingerprint": "my resumes\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "\ud83d\udc41 Preview & Export",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "preview export",
+          "fingerprint": "preview export\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "\u21a9 Undo",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "undo",
+          "fingerprint": "undo\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "\ud83d\udcf7 Take photos",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "take photos",
+          "fingerprint": "take photos\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "\ud83d\udcc1 Choose files",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "choose files",
+          "fingerprint": "choose files\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "\ud83e\uddec Write my summary from my whole resume",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "write my summary from my whole resume",
+          "fingerprint": "write my summary from my whole resume\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "\u2728 Polish my experience wording",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "polish my experience wording",
+          "fingerprint": "polish my experience wording\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "\ud83c\udfaf Tailor my resume to this job",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "tailor my resume to this job",
+          "fingerprint": "tailor my resume to this job\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "\ud83d\udcca Check my match score for this job",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "check my match score for this job",
+          "fingerprint": "check my match score for this job\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "\u270d Draft a cover letter",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "draft a cover letter",
+          "fingerprint": "draft a cover letter\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "\u2728 Auto-fill from WorkHive",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "auto fill from workhive",
+          "fingerprint": "auto fill from workhive\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "\ud83d\udcc1 Upload a resume",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "upload a resume",
+          "fingerprint": "upload a resume\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "+ Add work experience",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "add work experience",
+          "fingerprint": "add work experience\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "+ Add skill",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "add skill",
+          "fingerprint": "add skill\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "+ Add education",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "add education",
+          "fingerprint": "add education\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "+ Add certificates & license",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "add certificates license",
+          "fingerprint": "add certificates license\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "+ Add project",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "add project",
+          "fingerprint": "add project\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "+ Add award",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "add award",
+          "fingerprint": "add award\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "+ Add reference",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "add reference",
+          "fingerprint": "add reference\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "Send feedback to WorkHive",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "send feedback to workhive",
+          "fingerprint": "send feedback to workhive\u2237"
+        }
+      ]
     },
     "shift-brain.html": {
       "page": "shift-brain.html",
@@ -1792,7 +4855,89 @@
         "sumCardBlocks": 0,
         "hasDetailPanel": true
       },
-      "source": "static"
+      "source": "static",
+      "liveAffordances": [
+        {
+          "kind": "cta",
+          "label": "Back",
+          "dest": "hive.html",
+          "destKind": "page",
+          "labelKey": "back",
+          "fingerprint": "back\u2237hive.html"
+        },
+        {
+          "kind": "cta",
+          "label": "06-14 Morning",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "06 14 morning",
+          "fingerprint": "06 14 morning\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "14-22 Afternoon",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "14 22 afternoon",
+          "fingerprint": "14 22 afternoon\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "22-06 Night",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "22 06 night",
+          "fingerprint": "22 06 night\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "Show details",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "show details",
+          "fingerprint": "show details\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "Re-run plan",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "re run plan",
+          "fingerprint": "re run plan\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "Publish to crew",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "publish to crew",
+          "fingerprint": "publish to crew\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "Archive plan",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "archive plan",
+          "fingerprint": "archive plan\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "Connectivity status",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "connectivity status",
+          "fingerprint": "connectivity status\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "Send feedback to WorkHive",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "send feedback to workhive",
+          "fingerprint": "send feedback to workhive\u2237"
+        }
+      ]
     },
     "skillmatrix.html": {
       "page": "skillmatrix.html",
@@ -1838,14 +4983,101 @@
           "theme": "detail breakdown panel"
         }
       ],
-      "links": [],
+      "links": [
+        {
+          "dest": "achievements.html",
+          "text": "Achievements &rarr;"
+        }
+      ],
       "onclickFns": [],
       "structural": {
         "simpleCardBlocks": 3,
         "sumCardBlocks": 0,
         "hasDetailPanel": true
       },
-      "source": "static"
+      "source": "static",
+      "liveAffordances": [
+        {
+          "kind": "cta",
+          "label": "Show details",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "show details",
+          "fingerprint": "show details\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "Decrease target",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "decrease target",
+          "fingerprint": "decrease target\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "Increase target",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "increase target",
+          "fingerprint": "increase target\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "Save Targets",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "save targets",
+          "fingerprint": "save targets\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "Open Mechanical",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "open mechanical",
+          "fingerprint": "open mechanical\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "Open Electrical",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "open electrical",
+          "fingerprint": "open electrical\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "Open Instrumentation",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "open instrumentation",
+          "fingerprint": "open instrumentation\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "Open Facilities Management",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "open facilities management",
+          "fingerprint": "open facilities management\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "Open Production Lines",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "open production lines",
+          "fingerprint": "open production lines\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "Send feedback to WorkHive",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "send feedback to workhive",
+          "fingerprint": "send feedback to workhive\u2237"
+        }
+      ]
     },
     "voice-journal.html": {
       "page": "voice-journal.html",
@@ -1864,7 +5096,363 @@
         "sumCardBlocks": 0,
         "hasDetailPanel": false
       },
-      "source": "static"
+      "source": "static",
+      "liveAffordances": [
+        {
+          "kind": "cta",
+          "label": "Back",
+          "dest": "back()",
+          "destKind": "fn",
+          "labelKey": "back",
+          "fingerprint": "back\u2237back()"
+        },
+        {
+          "kind": "cta",
+          "label": "Voice On",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "voice on",
+          "fingerprint": "voice on\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "\ud83e\udded Zaniah \u00b7 Strategy",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "zaniah strategy",
+          "fingerprint": "zaniah strategy\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "\ud83d\udee0\ufe0f Hezekiah \u00b7 Technical",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "hezekiah technical",
+          "fingerprint": "hezekiah technical\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "Hold to talk",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "hold to talk",
+          "fingerprint": "hold to talk\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "All (80)",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "all 80",
+          "fingerprint": "all 80\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "Speak again",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "speak again",
+          "fingerprint": "speak again\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "Load More",
+          "dest": "loadMoreVoice()",
+          "destKind": "fn",
+          "labelKey": "load more",
+          "fingerprint": "load more\u2237loadMoreVoice()"
+        },
+        {
+          "kind": "cta",
+          "label": "Send feedback to WorkHive",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "send feedback to workhive",
+          "fingerprint": "send feedback to workhive\u2237"
+        }
+      ]
+    },
+    "plant-connections.html": {
+      "page": "plant-connections.html",
+      "infoUnits": [
+        {
+          "kind": "kpi-untagged",
+          "unitId": "plant-connections:(untagged)",
+          "keySuffix": null,
+          "label": "CMMS sync",
+          "value": "Not connected",
+          "labelKey": "cmms sync",
+          "keyKey": null,
+          "fingerprint": "cmms sync",
+          "theme": null,
+          "_live": true
+        },
+        {
+          "kind": "kpi-untagged",
+          "unitId": "plant-connections:(untagged)",
+          "keySuffix": null,
+          "label": "Sensor feed",
+          "value": "0 sensors",
+          "labelKey": "sensor feed",
+          "keyKey": null,
+          "fingerprint": "sensor feed",
+          "theme": null,
+          "_live": true
+        },
+        {
+          "kind": "kpi-untagged",
+          "unitId": "plant-connections:(untagged)",
+          "keySuffix": null,
+          "label": "API health (7d)",
+          "value": "No traffic",
+          "labelKey": "api health 7d",
+          "keyKey": null,
+          "fingerprint": "api health 7d",
+          "theme": null,
+          "_live": true
+        },
+        {
+          "kind": "kpi-untagged",
+          "unitId": "plant-connections:(untagged)",
+          "keySuffix": null,
+          "label": "Compliance",
+          "value": "Defaults only",
+          "labelKey": "compliance",
+          "keyKey": null,
+          "fingerprint": "compliance",
+          "theme": null,
+          "_live": true
+        }
+      ],
+      "links": [],
+      "onclickFns": [],
+      "structural": {},
+      "source": "live-only",
+      "liveAffordances": [
+        {
+          "kind": "cta",
+          "label": "Show details",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "show details",
+          "fingerprint": "show details\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "Connectivity status",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "connectivity status",
+          "fingerprint": "connectivity status\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "Send feedback to WorkHive",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "send feedback to workhive",
+          "fingerprint": "send feedback to workhive\u2237"
+        }
+      ]
+    },
+    "predictive.html": {
+      "page": "predictive.html",
+      "infoUnits": [
+        {
+          "kind": "rag-tile",
+          "unitId": "predictive:hot_assets",
+          "keySuffix": "hot_assets",
+          "label": "Hot assets",
+          "value": "2",
+          "labelKey": "hot assets",
+          "keyKey": "hot assets",
+          "fingerprint": "hot assets",
+          "theme": "risk / hot / critical",
+          "_live": true
+        },
+        {
+          "kind": "rag-tile",
+          "unitId": "predictive:healthy_assets",
+          "keySuffix": "healthy_assets",
+          "label": "Healthy assets",
+          "value": "1",
+          "labelKey": "healthy assets",
+          "keyKey": "healthy assets",
+          "fingerprint": "healthy assets",
+          "theme": "healthy / on-track",
+          "_live": true
+        },
+        {
+          "kind": "rag-tile",
+          "unitId": "predictive:earliest_forecast",
+          "keySuffix": "earliest_forecast",
+          "label": "Earliest forecast failure",
+          "value": "1.2d",
+          "labelKey": "earliest forecast failure",
+          "keyKey": "earliest forecast",
+          "fingerprint": "earliest forecast failure",
+          "theme": null,
+          "_live": true
+        },
+        {
+          "kind": "rag-tile",
+          "unitId": "predictive:detail_panel",
+          "keySuffix": "detail_panel",
+          "label": "Predictive detail breakdown",
+          "value": null,
+          "labelKey": "predictive detail breakdown",
+          "keyKey": "detail panel",
+          "fingerprint": "predictive detail breakdown",
+          "theme": "detail breakdown panel",
+          "_live": true
+        },
+        {
+          "kind": "rag-tile",
+          "unitId": "predictive:risk_ranking",
+          "keySuffix": "risk_ranking",
+          "label": "Risk ranking table",
+          "value": null,
+          "labelKey": "risk ranking table",
+          "keyKey": "risk ranking",
+          "fingerprint": "risk ranking table",
+          "theme": "risk / hot / critical",
+          "_live": true
+        },
+        {
+          "kind": "rag-tile",
+          "unitId": "predictive:risk_heatmap",
+          "keySuffix": "risk_heatmap",
+          "label": "Risk heatmap",
+          "value": null,
+          "labelKey": "risk heatmap",
+          "keyKey": "risk heatmap",
+          "fingerprint": "risk heatmap",
+          "theme": "risk / hot / critical",
+          "_live": true
+        },
+        {
+          "kind": "rag-tile",
+          "unitId": "predictive:mtbf_trend",
+          "keySuffix": "mtbf_trend",
+          "label": "MTBF trend panel",
+          "value": null,
+          "labelKey": "mtbf trend panel",
+          "keyKey": "mtbf trend",
+          "fingerprint": "mtbf trend panel",
+          "theme": null,
+          "_live": true
+        }
+      ],
+      "links": [],
+      "onclickFns": [],
+      "structural": {},
+      "source": "live-only",
+      "liveAffordances": [
+        {
+          "kind": "cta",
+          "label": "\u21bb Recompute now",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "recompute now",
+          "fingerprint": "recompute now\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "Asset Hub",
+          "dest": "asset-hub.html",
+          "destKind": "page",
+          "labelKey": "asset hub",
+          "fingerprint": "asset hub\u2237asset-hub.html"
+        },
+        {
+          "kind": "cta",
+          "label": "Open Asset Hub \u2192",
+          "dest": "asset-hub.html",
+          "destKind": "page",
+          "labelKey": "open asset hub",
+          "fingerprint": "open asset hub\u2237asset-hub.html"
+        },
+        {
+          "kind": "cta",
+          "label": "Show details",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "show details",
+          "fingerprint": "show details\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "Risk Ranking",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "risk ranking",
+          "fingerprint": "risk ranking\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "Health Heatmap",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "health heatmap",
+          "fingerprint": "health heatmap\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "Failure Trend",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "failure trend",
+          "fingerprint": "failure trend\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "AC-003 \u203a critical 90% 12d pm overduerepe",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "ac 003 critical 90 12d pm overduerepe",
+          "fingerprint": "ac 003 critical 90 12d pm overduerepe\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "AC-002 \u203a high 78% 22d high fault freqmtb",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "ac 002 high 78 22d high fault freqmtb",
+          "fingerprint": "ac 002 high 78 22d high fault freqmtb\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "SP-001 \u203a medium 55% 45d pm overdue",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "sp 001 medium 55 45d pm overdue",
+          "fingerprint": "sp 001 medium 55 45d pm overdue\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "CT-002 \u203a medium 50% 52d mtbf approaching",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "ct 002 medium 50 52d mtbf approaching",
+          "fingerprint": "ct 002 medium 50 52d mtbf approaching\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "M-001 \u203a low 20% 140d -",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "m 001 low 20 140d",
+          "fingerprint": "m 001 low 20 140d\u2237"
+        },
+        {
+          "kind": "cta",
+          "label": "Send feedback to WorkHive",
+          "dest": null,
+          "destKind": null,
+          "labelKey": "send feedback to workhive",
+          "fingerprint": "send feedback to workhive\u2237"
+        }
+      ]
     }
   },
   "groups": {
@@ -1988,11 +5576,6 @@
             "label": "PM detail breakdown"
           },
           {
-            "page": "predictive.html",
-            "unitId": "predictive:detail_panel",
-            "label": "Predictive detail breakdown"
-          },
-          {
             "page": "report-sender.html",
             "unitId": "report-sender:detail_panel",
             "label": "Report sender detail"
@@ -2006,6 +5589,11 @@
             "page": "skillmatrix.html",
             "unitId": "skillmatrix:detail_panel",
             "label": "Skill matrix detail"
+          },
+          {
+            "page": "predictive.html",
+            "unitId": "predictive:detail_panel",
+            "label": "Predictive detail breakdown"
           }
         ]
       },
@@ -2017,13 +5605,25 @@
           "inventory.html"
         ],
         "labels": [
-          "Pending approval"
+          "Pending approval",
+          "Pending assets",
+          "Pending parts"
         ],
         "units": [
           {
             "page": "asset-hub.html",
             "unitId": "asset-hub:pending_approval",
+            "label": "Pending assets"
+          },
+          {
+            "page": "asset-hub.html",
+            "unitId": "asset-hub:pending_approval",
             "label": "Pending approval"
+          },
+          {
+            "page": "inventory.html",
+            "unitId": "inventory:pending_approval",
+            "label": "Pending parts"
           },
           {
             "page": "inventory.html",
@@ -2128,11 +5728,6 @@
             "label": "PM detail breakdown"
           },
           {
-            "page": "predictive.html",
-            "unitId": "predictive:detail_panel",
-            "label": "Predictive detail breakdown"
-          },
-          {
             "page": "report-sender.html",
             "unitId": "report-sender:detail_panel",
             "label": "Report sender detail"
@@ -2146,6 +5741,11 @@
             "page": "skillmatrix.html",
             "unitId": "skillmatrix:detail_panel",
             "label": "Skill matrix detail"
+          },
+          {
+            "page": "predictive.html",
+            "unitId": "predictive:detail_panel",
+            "label": "Predictive detail breakdown"
           }
         ]
       },
@@ -2190,6 +5790,11 @@
             "label": "Critical assets"
           },
           {
+            "page": "shift-brain.html",
+            "unitId": "shift-brain:top_risk_this_shift",
+            "label": "Top risk this shift"
+          },
+          {
             "page": "predictive.html",
             "unitId": "predictive:hot_assets",
             "label": "Hot assets"
@@ -2203,11 +5808,6 @@
             "page": "predictive.html",
             "unitId": "predictive:risk_heatmap",
             "label": "Risk heatmap"
-          },
-          {
-            "page": "shift-brain.html",
-            "unitId": "shift-brain:top_risk_this_shift",
-            "label": "Top risk this shift"
           }
         ]
       },
@@ -2220,6 +5820,7 @@
           "shift-brain.html"
         ],
         "labels": [
+          "Due soon (14d)",
           "Due this week",
           "PMs due",
           "Tasks this week",
@@ -2235,6 +5836,11 @@
             "page": "dayplanner.html",
             "unitId": "dayplanner:week_count",
             "label": "Tasks this week"
+          },
+          {
+            "page": "pm-scheduler.html",
+            "unitId": "pm-scheduler:due_soon",
+            "label": "Due soon (14d)"
           },
           {
             "page": "pm-scheduler.html",
@@ -2268,14 +5874,14 @@
             "label": "On track"
           },
           {
-            "page": "predictive.html",
-            "unitId": "predictive:healthy_assets",
-            "label": "Healthy assets"
-          },
-          {
             "page": "skillmatrix.html",
             "unitId": "skillmatrix:on_target",
             "label": "On target workers"
+          },
+          {
+            "page": "predictive.html",
+            "unitId": "predictive:healthy_assets",
+            "label": "Healthy assets"
           }
         ]
       },
@@ -2318,13 +5924,25 @@
           "inventory.html"
         ],
         "labels": [
-          "Pending approval"
+          "Pending approval",
+          "Pending assets",
+          "Pending parts"
         ],
         "units": [
           {
             "page": "asset-hub.html",
             "unitId": "asset-hub:pending_approval",
+            "label": "Pending assets"
+          },
+          {
+            "page": "asset-hub.html",
+            "unitId": "asset-hub:pending_approval",
             "label": "Pending approval"
+          },
+          {
+            "page": "inventory.html",
+            "unitId": "inventory:pending_approval",
+            "label": "Pending parts"
           },
           {
             "page": "inventory.html",
@@ -2366,19 +5984,11 @@
         ]
       },
       {
-        "dest": "asset-hub.html",
+        "dest": "analytics-report.html",
         "pageCount": 2,
         "pages": [
-          "index.html",
-          "predictive.html"
-        ]
-      },
-      {
-        "dest": "integrations.html",
-        "pageCount": 2,
-        "pages": [
-          "ph-intelligence.html",
-          "plant-connections.html"
+          "analytics.html",
+          "report-sender.html"
         ]
       },
       {
@@ -2398,10 +6008,34 @@
         ]
       },
       {
+        "dest": "plant-connections.html",
+        "pageCount": 2,
+        "pages": [
+          "hive.html",
+          "integrations.html"
+        ]
+      },
+      {
         "dest": "pm-scheduler.html",
         "pageCount": 2,
         "pages": [
           "hive.html",
+          "index.html"
+        ]
+      },
+      {
+        "dest": "report-sender.html",
+        "pageCount": 2,
+        "pages": [
+          "analytics-report.html",
+          "analytics.html"
+        ]
+      },
+      {
+        "dest": "skillmatrix.html",
+        "pageCount": 2,
+        "pages": [
+          "achievements.html",
           "index.html"
         ]
       },
@@ -2432,7 +6066,7 @@
         "percentage": 27.5
       },
       "detail_panel_family": {
-        "pageCount": 15,
+        "pageCount": 14,
         "pages": [
           "achievements.html",
           "alert-hub.html",
@@ -2445,7 +6079,6 @@
           "marketplace.html",
           "ph-intelligence.html",
           "pm-scheduler.html",
-          "predictive.html",
           "report-sender.html",
           "shift-brain.html",
           "skillmatrix.html"
@@ -2489,19 +6122,11 @@
           "blocks": 3
         },
         {
-          "page": "marketplace.html",
-          "blocks": 3
-        },
-        {
           "page": "ph-intelligence.html",
           "blocks": 3
         },
         {
           "page": "pm-scheduler.html",
-          "blocks": 3
-        },
-        {
-          "page": "predictive.html",
           "blocks": 3
         },
         {
@@ -2522,10 +6147,9 @@
         }
       ],
       "sum_card_family": {
-        "pageCount": 2,
+        "pageCount": 1,
         "pages": [
-          "ai-quality.html",
-          "predictive.html"
+          "ai-quality.html"
         ]
       }
     }

@@ -158,7 +158,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="utils.js"></script>
 <script>
-  const _DB = supabase.createClient(
+  const _DB = getDb(
     'https://hzyvnjtisfgbksicrouu.supabase.co',
     'sb_publishable_ePj-suLMwkMRVDH6eM6S8g_R0rZVbMZ'
   );

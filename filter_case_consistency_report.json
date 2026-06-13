@@ -1,6 +1,6 @@
 {
   "summary": {
-    "files_scanned": 116,
+    "files_scanned": 117,
     "enum_columns": [
       "approval_state",
       "asset_type",

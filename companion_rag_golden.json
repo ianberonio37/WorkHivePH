@@ -4,66 +4,160 @@
   "_negative_behavior": "Negative/abstention controls ask for data the asset LACKS (risk) or that is out of scope. PASS iff the companion ABSTAINS (says it has no such data / clarifies / refuses) AND does NOT fabricate a citation of the forbidden kind. A blind grader that always answers + cites logbook FAILS these.",
   "schema_version": 1,
   "dimension": "rag",
-  "asset": { "asset_id": "c07a5f44-467c-41a1-9bb1-c574e960eacf", "tag": "HPU-001", "name": "Bosch Rexroth ABPAC", "hive_id": "5163ddb9-cfd9-4a0e-b3fe-dc7245c671b7" },
-  "cited_kind_vocabulary": ["logbook", "pm", "neighbor", "stat", "fmea", "rcm", "weibull", "pf", "risk", "risk-factor"],
+  "asset": {
+    "asset_id": "c07a5f44-467c-41a1-9bb1-c574e960eacf",
+    "tag": "HPU-001",
+    "name": "Bosch Rexroth ABPAC",
+    "hive_id": "5163ddb9-cfd9-4a0e-b3fe-dc7245c671b7"
+  },
+  "cited_kind_vocabulary": [
+    "logbook",
+    "pm",
+    "neighbor",
+    "stat",
+    "fmea",
+    "rcm",
+    "weibull",
+    "pf",
+    "risk",
+    "risk-factor"
+  ],
   "default_recall_threshold": 1.0,
   "questions": [
     {
       "id": "RG-01-failure-history",
       "question": "what failures has HPU-001 had and what were the root causes",
-      "expected_kinds": ["logbook"],
-      "expected_keywords_any": ["failure", "breakdown", "root cause", "repair", "downtime", "fault", "history"],
-      "category": "rag_history"
+      "expected_kinds": [
+        "logbook"
+      ],
+      "expected_keywords_any": [
+        "failure",
+        "breakdown",
+        "root cause",
+        "repair",
+        "downtime",
+        "fault",
+        "history"
+      ],
+      "category": "rag_history",
+      "probe_type": "B1"
     },
     {
       "id": "RG-02-pm-compliance",
       "question": "what is the PM compliance status for HPU-001",
-      "expected_kinds": ["pm"],
-      "expected_keywords_any": ["pm", "preventive", "compliance", "scheduled", "overdue", "due", "completed"],
-      "category": "rag_pm"
+      "expected_kinds": [
+        "pm"
+      ],
+      "expected_keywords_any": [
+        "pm",
+        "preventive",
+        "compliance",
+        "scheduled",
+        "overdue",
+        "due",
+        "completed"
+      ],
+      "category": "rag_pm",
+      "probe_type": "B5"
     },
     {
       "id": "RG-03-fmea-modes",
       "question": "what are the known failure modes and effects for HPU-001",
-      "expected_kinds": ["fmea"],
-      "expected_keywords_any": ["failure mode", "effect", "cause", "fmea", "rpn", "severity", "detection"],
+      "expected_kinds": [
+        "fmea"
+      ],
+      "expected_keywords_any": [
+        "failure mode",
+        "effect",
+        "cause",
+        "fmea",
+        "rpn",
+        "severity",
+        "detection"
+      ],
       "category": "rag_fmea"
     },
     {
       "id": "RG-04-weibull-reliability",
       "question": "what does the reliability analysis say about HPU-001, is it wearing out",
-      "expected_kinds": ["weibull"],
-      "expected_keywords_any": ["weibull", "reliability", "beta", "characteristic life", "wear", "mtbf", "failure rate"],
-      "category": "rag_reliability"
+      "expected_kinds": [
+        "weibull"
+      ],
+      "expected_keywords_any": [
+        "weibull",
+        "reliability",
+        "beta",
+        "characteristic life",
+        "wear",
+        "mtbf",
+        "failure rate"
+      ],
+      "category": "rag_reliability",
+      "probe_type": "B7"
     },
     {
       "id": "RG-05-rcm-strategy",
       "question": "what maintenance strategy is recommended for HPU-001",
-      "expected_kinds": ["rcm"],
-      "expected_keywords_any": ["rcm", "strategy", "condition", "task", "predictive", "preventive", "run to failure"],
-      "category": "rag_strategy"
+      "expected_kinds": [
+        "rcm"
+      ],
+      "expected_keywords_any": [
+        "rcm",
+        "strategy",
+        "condition",
+        "task",
+        "predictive",
+        "preventive",
+        "run to failure"
+      ],
+      "category": "rag_strategy",
+      "probe_type": "B2"
     },
     {
       "id": "RG-06-pf-interval",
       "question": "what is the P-F interval and how should we monitor HPU-001 for early warning",
-      "expected_kinds": ["pf"],
-      "expected_keywords_any": ["p-f", "pf interval", "potential failure", "monitor", "inspection interval", "early warning", "detect"],
+      "expected_kinds": [
+        "pf"
+      ],
+      "expected_keywords_any": [
+        "p-f",
+        "pf interval",
+        "potential failure",
+        "monitor",
+        "inspection interval",
+        "early warning",
+        "detect"
+      ],
       "category": "rag_pf"
     },
     {
       "id": "RG-07-combined-history-reliability",
       "question": "give me a full picture of HPU-001: its failure history and its reliability outlook",
-      "expected_kinds": ["logbook", "weibull"],
+      "expected_kinds": [
+        "logbook",
+        "weibull"
+      ],
       "recall_threshold": 0.5,
-      "expected_keywords_any": ["failure", "reliability", "history", "weibull", "downtime", "wear"],
-      "category": "rag_multi"
+      "expected_keywords_any": [
+        "failure",
+        "reliability",
+        "history",
+        "weibull",
+        "downtime",
+        "wear"
+      ],
+      "category": "rag_multi",
+      "probe_type": "B4"
     }
   ],
   "negative_controls": [
     {
       "id": "RG-NEG-01-no-risk-data",
       "question": "what is the quantified risk score and risk factors for HPU-001",
-      "forbidden_kinds": ["risk", "risk-factor"],
+      "forbidden_kinds": [
+        "risk",
+        "risk-factor"
+      ],
       "expected_behavior": "abstain",
       "category": "rag_negative",
       "note": "HPU-001 has ZERO risk rows. The grounded answer must say it has no risk-score data (or clarify), NOT fabricate a risk number or cite a risk/risk-factor source."

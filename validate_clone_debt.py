@@ -18,9 +18,16 @@ Degrade-to-SKIP (exit 0) when jscpd isn't installed, so a fresh checkout never f
 To make it a live ratchet, commit jscpd as a devDependency: `npm i -D jscpd`.
 Re-baseline after a deliberate reduction: `python validate_clone_debt.py --update-baseline`.
 
+★ 2026-06-14 (STREAMLINE S12): ratchet switched from clone-PAIR COUNT to duplicated-LINES,
+and retired predictive.html excluded from the scan. Why lines-not-count: across S8's page
+fusions the count went 73 -> 70 (looked better) while % rose 24.65 -> 27.5 — a count ratchet
+rubber-stamps a proportional regression. duplicatedLines is the honest absolute metric
+(a NEW or BIGGER clone raises it; a dedup lowers it). `percentage` is PRINTED but NOT gated:
+deleting UNIQUE html raises % with no new duplication, which would false-trip a %-gate.
+
 Exit codes:
-  0  clones <= baseline (or jscpd/node absent -> SKIP, or baseline newly established).
-  1  clones > baseline (new copy-paste introduced) -> the forward-only ratchet trips.
+  0  duplicatedLines <= baseline (or jscpd/node absent -> SKIP, or baseline newly established).
+  1  duplicatedLines > baseline (new copy-paste introduced) -> the forward-only ratchet trips.
 """
 from __future__ import annotations
 import io, json, subprocess, sys
@@ -38,7 +45,7 @@ JSCPD = ROOT / "node_modules" / "jscpd" / "bin" / "jscpd"
 # the page shells); backups/tests/vendored dirs excluded.
 PATTERN = "*.html"
 IGNORE = ("**/node_modules/**,**/.tmp/**,**/test-results/**,**/*backup*,**/*-test*,"
-          "**/index-*.html,**/symbol-gallery.html,**/.playwright-mcp/**")
+          "**/index-*.html,**/symbol-gallery.html,**/.playwright-mcp/**,**/predictive.html")
 MIN_TOKENS = "40"
 
 
@@ -97,24 +104,24 @@ def main() -> int:
     baseline = None
     if BASELINE_PATH.exists():
         try:
-            baseline = json.loads(BASELINE_PATH.read_text(encoding="utf-8")).get("clones")
+            baseline = json.loads(BASELINE_PATH.read_text(encoding="utf-8")).get("duplicatedLines")
         except Exception:
             baseline = None
 
     if baseline is None or update:
         BASELINE_PATH.write_text(json.dumps(
             {"clones": clones, "duplicatedLines": dup_lines, "percentage": round(pct, 2),
-             "note": "forward-only ratchet; collapse duplication then --update-baseline to lower"},
+             "note": "forward-only ratchet on duplicatedLines (NOT clone count); collapse duplication then --update-baseline to lower; % informational"},
             indent=2) + "\n", encoding="utf-8")
-        print(f"\033[92mBASELINE {'updated' if update else 'established'}\033[0m  clones={clones}  "
-              f"dupLines={dup_lines}  ({pct:.2f}%)")
+        print(f"\033[92mBASELINE {'updated' if update else 'established'}\033[0m  duplicatedLines={dup_lines}  "
+              f"clones={clones}  ({pct:.2f}%)")
         print(bar)
         return 0
 
-    print(f"  clones: {clones}  (baseline: {baseline})   dupLines={dup_lines}  ({pct:.2f}%)")
-    if clones > baseline:
+    print(f"  duplicatedLines: {dup_lines}  (baseline: {baseline})   clones={clones}  ({pct:.2f}% — informational, not gated)")
+    if dup_lines > baseline:
         dups = sorted(data.get("duplicates", []), key=lambda x: x.get("lines", 0), reverse=True)
-        print(f"\033[91mFAIL\033[0m  clone debt GREW {baseline} -> {clones} — new copy-paste introduced.")
+        print(f"\033[91mFAIL\033[0m  clone debt GREW {baseline} -> {dup_lines} duplicated lines — new copy-paste introduced.")
         print("  Biggest current clones (collapse into a shared component/helper):")
         for c in dups[:5]:
             fa = c["firstFile"]["name"].replace("\\", "/").split("/")[-1]
@@ -123,15 +130,15 @@ def main() -> int:
         print("  Fix: extract the duplicated block; or if intentional, --update-baseline with a reason.")
         print(bar)
         return 1
-    if clones < baseline:
+    if dup_lines < baseline:
         BASELINE_PATH.write_text(json.dumps(
             {"clones": clones, "duplicatedLines": dup_lines, "percentage": round(pct, 2),
-             "note": "forward-only ratchet; tightened automatically on reduction"},
+             "note": "forward-only ratchet on duplicatedLines (NOT clone count); tightened automatically on reduction; % informational"},
             indent=2) + "\n", encoding="utf-8")
-        print(f"\033[92mPASS + TIGHTENED\033[0m  clone debt reduced {baseline} -> {clones}; baseline lowered.")
+        print(f"\033[92mPASS + TIGHTENED\033[0m  clone debt reduced {baseline} -> {dup_lines} duplicated lines; baseline lowered.")
         print(bar)
         return 0
-    print(f"\033[92mPASS\033[0m  clone debt held at baseline ({clones}).")
+    print(f"\033[92mPASS\033[0m  clone debt held at baseline ({dup_lines} duplicated lines).")
     print(bar)
     return 0
 

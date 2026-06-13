@@ -17,6 +17,16 @@
 (function () {
   'use strict';
 
+  // ─── Single-mount guard (Companion Delivery L0: single_mount) ────────────────
+  // nav-hub.js injects this script into <head> AND ~29 pages also statically
+  // include it at end-of-body. nav-hub's dedupe guard runs before the parser
+  // reaches that late static tag, so both load → two stacked widgets (duplicate
+  // #wh-ai-widget / #wh-ai-input, "Zaniah" + "WorkHive AI" headers). This guard
+  // makes any second execution a no-op regardless of how many times the script
+  // is included, with zero per-page churn.
+  if (window.__whLauncherInit) return;
+  window.__whLauncherInit = true;
+
   // ─── Config (Internal Control) ───────────────────────────────────────────────
   // 2026-05-18 Companion Streamline Step C: backend re-wired from the
   // Cloudflare Worker to the platform ai-gateway edge function (agent:
@@ -648,6 +658,29 @@
     return div;  // caller (handleSend) attaches thumbs feedback to live replies
   }
 
+  // ─── Real Supabase client resolver (Companion Delivery L0: client_wiring) ────
+  // The launcher loads on ~32 pages and must NOT depend on any page eagerly
+  // exposing a client. Prefer the singleton the page built via getDb()
+  // (utils.js → window._whSupabaseClient); if the page hasn't built it yet (many
+  // pages create it lazily on first query — logbook does not expose it for
+  // seconds after load), build the singleton here via getDb() using the same
+  // URL/key the fetch path uses (the dev bridge rewrites the hardcoded prod URL →
+  // local at serve time). Returns null only if supabase-js/getDb are absent, in
+  // which case callAPI uses the raw-fetch fallback. The legacy window.WH_DB this
+  // replaces was assigned NOWHERE → its invoke + feedback paths were always dead.
+  function _whClient() {
+    try {
+      if (typeof window === 'undefined') return null;
+      if (window._whSupabaseClient && window._whSupabaseClient.functions) return window._whSupabaseClient;
+      if (typeof window.getDb === 'function' && window.supabase) {
+        const url = window.WH_SUPABASE_URL || 'https://hzyvnjtisfgbksicrouu.supabase.co';
+        const key = window.WH_SUPABASE_ANON_KEY || 'sb_publishable_ePj-suLMwkMRVDH6eM6S8g_R0rZVbMZ';
+        return window.getDb(url, key);
+      }
+    } catch (_) { /* empty-catch-allow: best-effort, fall back to fetch */ }
+    return null;
+  }
+
   // ─── AI quality feedback (8.5 harvest signal) ────────────────────────────────
   // The floating companion is the most-used TYPED companion surface (~32 pages),
   // but until now it shipped NO 👍/👎 affordance — so the harvest pipeline
@@ -663,7 +696,10 @@
   async function _recordReplyFeedback(rating, question, answer) {
     const r = Number(rating);
     if (r !== 1 && r !== -1) return;
-    const db = (typeof window !== 'undefined') ? window.WH_DB : null;
+    // Use the real client (window._whSupabaseClient, lazily built if needed).
+    // The legacy window.WH_DB was never assigned anywhere → this write silently
+    // no-opped on every 👍/👎, starving the harvest mine (ai_reply_feedback).
+    const db = _whClient();
     if (!db || !db.from) return;
     const hiveId = (typeof window !== 'undefined' && window.localStorage)
       ? (localStorage.getItem('wh_active_hive_id') || localStorage.getItem('wh_hive_id') || null)
@@ -866,9 +902,24 @@ happens to know maintenance, not a manual.`;
 
     // Prefer the page's Supabase JS client (handles session auth) when
     // available; fall back to direct fetch using anon key from globals.
-    if (typeof window !== 'undefined' && window.supabase && window.WH_DB) {
-      const { data, error } = await window.WH_DB.functions.invoke('ai-gateway', { body: gatewayBody });
-      if (error) throw new Error(error.message || 'Gateway failed');
+    const _wc = _whClient();
+    if (_wc && _wc.functions) {
+      const { data, error } = await _wc.functions.invoke('ai-gateway', { body: gatewayBody });
+      if (error) {
+        // Surface the gateway's HONEST error body (e.g. the 429 "Per-user AI call
+        // limit reached (25/hour). Other hive members are unaffected.") instead of
+        // supabase-js's generic "Edge Function returned a non-2xx status code".
+        let msg = error.message || 'Gateway failed';
+        try {
+          if (error.context && typeof error.context.json === 'function') {
+            const eb = await error.context.json();
+            if (eb && eb.error) msg = eb.error;
+          }
+        } catch (_) { /* keep msg */ }
+        const e = new Error(msg);
+        if (error.context && error.context.status) e.status = error.context.status;
+        throw e;
+      }
       if (!data)  throw new Error('Empty gateway response');
       if (data.error) throw new Error(data.error);
       // ai-gateway nests the reply under .data (envelope: { ok, data:{answer}, ... }).
@@ -902,7 +953,12 @@ happens to know maintenance, not a manual.`;
     if (!response.ok) throw new Error(`Gateway error ${response.status}`);
     const data = await response.json();
     if (data.error) throw new Error(data.error);
-    return String(data.answer || '').trim();
+    // ai-gateway nests the reply under .data (envelope: { ok, data:{answer} }).
+    // This direct-fetch fallback is the path ALWAYS taken (window.WH_DB is never
+    // set, so the invoke branch above is dead) — reading flat data.answer here
+    // returned undefined on every success → blank bubble. Unwrap .data.answer
+    // first, fall back to flat .answer for any legacy/error-flat shape.
+    return String((data && data.data && data.data.answer) || (data && data.answer) || '').trim();
   }
 
   // ─── Send Handler ─────────────────────────────────────────────────────────────
@@ -938,7 +994,17 @@ happens to know maintenance, not a manual.`;
       maybeAddBridgeButton(message, reply);
     } catch (err) {
       hideTyping();
-      addMessage('assistant', '⚠️ Something went wrong. Please check your connection or API configuration.');
+      // Surface a worker-meaningful message. The per-user rate-limit cap is a
+      // normal, honest state — say so plainly (never "check your API
+      // configuration", which a field worker can't act on). Other meaningful
+      // gateway errors pass through; only opaque network failures fall back.
+      const m = String((err && err.message) || '');
+      const friendly = /limit reached|rate.?limit|too many|\/hour|per-user/i.test(m)
+        ? "⚠️ You've used up your AI questions for this hour. Try again in a little while — your teammates aren't affected."
+        : (m && !/non-2xx|failed to fetch|networkerror|load failed/i.test(m))
+          ? '⚠️ ' + m
+          : "⚠️ Couldn't reach the assistant just now. Check your connection and try again.";
+      addMessage('assistant', friendly);
       console.error('[WorkHive AI]', err);
     } finally {
       isTyping = false;

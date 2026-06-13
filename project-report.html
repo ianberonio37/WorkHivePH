@@ -212,7 +212,7 @@ let WORKER_NAME = localStorage.getItem('wh_last_worker') || /* storage-key-allow
 let HIVE_ID     = localStorage.getItem('wh_active_hive_id') || localStorage.getItem('wh_hive_id') || '';
 let HIVE_NAME   = localStorage.getItem('wh_hive_name') || '';
 
-const db = supabase.createClient(
+const db = getDb(
   'https://hzyvnjtisfgbksicrouu.supabase.co',
   'sb_publishable_ePj-suLMwkMRVDH6eM6S8g_R0rZVbMZ'
 );

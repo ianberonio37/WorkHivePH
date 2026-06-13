@@ -439,7 +439,7 @@
       pag: 'fil-PH',
     };
 
-    const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    const db = getDb(SUPABASE_URL, SUPABASE_KEY);
 
 
     logPageView(db);
@@ -1017,7 +1017,11 @@
       if (error) throw new Error(error.message || 'Gateway failed');
       if (!data)  throw new Error('Empty gateway response');
       if (data.error) throw new Error(data.error);
-      return String(data.answer || '').trim();
+      // ai-gateway nests the reply under .data (envelope: { ok, data:{answer} }).
+      // Reading flat data.answer returned undefined on every success → the page
+      // showed "No reply. Try again." Unwrap .data.answer first, fall back to a
+      // flat .answer for any legacy/error-flat shape.
+      return String((data && data.data && data.data.answer) || (data && data.answer) || '').trim();
     }
 
     // ──────────────── Bootstrap ────────────────

@@ -1,7 +1,7 @@
 {
   "summary": {
-    "files_scanned": 116,
-    "total_calls": 703,
+    "files_scanned": 117,
+    "total_calls": 714,
     "total_drift": 0,
     "baseline": 0,
     "tables_known": 159
@@ -193,6 +193,10 @@
     },
     {
       "file": "supabase/functions/_shared/memory.ts",
+      "issues": []
+    },
+    {
+      "file": "supabase/functions/_shared/persona-knowledge.ts",
       "issues": []
     },
     {

@@ -31,13 +31,13 @@
     },
     {
       "page": "pm-scheduler.html",
-      "add": 4,
+      "add": 3,
       "remove": 0,
       "risky": false
     },
     {
       "page": "analytics.html",
-      "add": 2,
+      "add": 1,
       "remove": 0,
       "risky": false
     },
@@ -49,7 +49,7 @@
     },
     {
       "page": "skillmatrix.html",
-      "add": 15,
+      "add": 14,
       "remove": 1,
       "risky": false
     },
@@ -79,7 +79,7 @@
     },
     {
       "page": "dayplanner.html",
-      "add": 3,
+      "add": 2,
       "remove": 0,
       "risky": false
     },
@@ -109,19 +109,19 @@
     },
     {
       "page": "project-manager.html",
-      "add": 8,
+      "add": 7,
       "remove": 0,
       "risky": false
     },
     {
       "page": "integrations.html",
-      "add": 5,
+      "add": 4,
       "remove": 0,
       "risky": false
     },
     {
       "page": "ph-intelligence.html",
-      "add": 1,
+      "add": 0,
       "remove": 0,
       "risky": false
     },
@@ -139,37 +139,37 @@
     },
     {
       "page": "ai-quality.html",
-      "add": 1,
+      "add": 0,
       "remove": 0,
       "risky": false
     },
     {
       "page": "plant-connections.html",
-      "add": 1,
+      "add": 0,
       "remove": 0,
       "risky": false
     },
     {
       "page": "achievements.html",
-      "add": 2,
+      "add": 1,
       "remove": 0,
       "risky": false
     },
     {
       "page": "asset-hub.html",
-      "add": 12,
+      "add": 11,
       "remove": 3,
       "risky": false
     },
     {
       "page": "shift-brain.html",
-      "add": 7,
+      "add": 6,
       "remove": 0,
       "risky": false
     },
     {
       "page": "alert-hub.html",
-      "add": 9,
+      "add": 8,
       "remove": 0,
       "risky": false
     },

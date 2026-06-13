@@ -723,9 +723,10 @@ VALIDATORS = [
         # Deterministic half of the Holistic/Cross-Page Critic (Grounded MCP Sweep
         # Phase 4.7): redundancy is a RELATIONSHIP between files, invisible to the
         # per-element critic. Wraps jscpd (clone detector); forward-only ratchet on
-        # the duplicated-clone count (baseline clone_debt_baseline.json = 73 / 24.65%
-        # of HTML at 2026-06-07). Degrades to SKIP if jscpd absent (npm i -D jscpd to
-        # activate). Blocks NEW copy-paste; collapsing duplication ratchets it down.
+        # DUPLICATED-LINES (S12 2026-06-14: switched from clone-COUNT, which S8's page
+        # fusions made misleading — count fell while % rose; predictive.html now excluded).
+        # Baseline clone_debt_baseline.json = 4742 lines / 25.92%. Degrades to SKIP if jscpd
+        # absent (npm i -D jscpd to activate). Blocks NEW copy-paste; collapsing ratchets it down.
         "id":      "clone-debt",
         "script":  "validate_clone_debt.py",
         "args":    [],

@@ -1,7 +1,7 @@
 {
-  "generated_at": "2026-06-10T02:24:35+00:00",
+  "generated_at": "2026-06-12T10:11:18+00:00",
   "total_probe_types": 69,
-  "live_tagged": 21,
+  "live_tagged": 47,
   "estimated_covered": 26,
   "missing_families": [],
   "by_family": {
@@ -11,7 +11,7 @@
       "have": 4,
       "partial": 1,
       "missing": 5,
-      "live": 0
+      "live": 9
     },
     "B": {
       "label": "RAG grounding + citations (RAGAS Dec-2025)",
@@ -19,7 +19,7 @@
       "have": 3,
       "partial": 1,
       "missing": 6,
-      "live": 0
+      "live": 5
     },
     "C": {
       "label": "Memory recall + abstention (LongMemEval 5 abilities)",
@@ -27,7 +27,7 @@
       "have": 5,
       "partial": 0,
       "missing": 4,
-      "live": 0
+      "live": 7
     },
     "D": {
       "label": "Persona / voice fidelity",
@@ -35,7 +35,7 @@
       "have": 4,
       "partial": 1,
       "missing": 2,
-      "live": 0
+      "live": 4
     },
     "E": {
       "label": "Safety / adversarial (OWASP LLM Top 10 2025 + promptfoo)",
@@ -43,7 +43,7 @@
       "have": 4,
       "partial": 1,
       "missing": 5,
-      "live": 3
+      "live": 4
     },
     "F": {
       "label": "Robustness (RAGAS noise sensitivity + real input conditions)",
@@ -76,6 +76,62 @@
       "partial": 2,
       "missing": 3,
       "live": 0
+    }
+  },
+  "wiring": {
+    "wire_total": 67,
+    "wiring_covered": 57,
+    "probe_rows": 63,
+    "missing_families": [],
+    "by_family": {
+      "J": {
+        "label": "Pipeline-stage coverage (the 26-stage gateway spine)",
+        "total": 18,
+        "have": 17,
+        "partial": 1,
+        "missing": 0,
+        "live": 0
+      },
+      "K": {
+        "label": "Memory-layer coverage (all 7 layers + persist/summary/isolation)",
+        "total": 11,
+        "have": 10,
+        "partial": 1,
+        "missing": 0,
+        "live": 0
+      },
+      "L": {
+        "label": "Cross-agent path coverage (drive the agents the launcher can't reach)",
+        "total": 7,
+        "have": 7,
+        "partial": 0,
+        "missing": 0,
+        "live": 0
+      },
+      "M": {
+        "label": "Model-chain resilience (fault injection — ai-chain 19-provider fallback)",
+        "total": 5,
+        "have": 5,
+        "partial": 0,
+        "missing": 0,
+        "live": 0
+      },
+      "N": {
+        "label": "Persona-contract wiring (the persona IS the spec)",
+        "total": 5,
+        "have": 5,
+        "partial": 0,
+        "missing": 0,
+        "live": 0
+      },
+      "O": {
+        "label": "Persona-Knowledge Layer (L08) — curated persona-scoped domain RAG + external-source channels (W6-W12)",
+        "total": 17,
+        "have": 12,
+        "partial": 0,
+        "missing": 5,
+        "live": 0
+      }
     }
   }
 }

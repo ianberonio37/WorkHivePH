@@ -1,22 +1,28 @@
 """
 Supabase Client Singleton Validator -- WorkHive Platform
 =========================================================
-Catches the regression class "page creates multiple Supabase clients in
-the same browser context." The Supabase JS SDK prints a warning when
-more than one GoTrueClient instance shares the same storage key — they
-race on the auth token and can produce undefined behavior under
+Catches the regression class "page creates a Supabase client inline
+instead of via the shared getDb() singleton." The Supabase JS SDK prints
+a warning when more than one GoTrueClient instance shares the same storage
+key — they race on the auth token and can produce undefined behavior under
 concurrent reads.
 
 Found 2026-05-13 walkthrough: index.html had THREE separate
 supabase.createClient() calls (one per IIFE: auth, early-access signup,
 ops home dashboard). Each created a fresh GoTrueClient → console warning.
 
+2026-06-14 (D7): the remaining 38 pages were migrated off inline
+`supabase.createClient(...)` onto `getDb()`, so L1 was tightened from
+"at most one" to "ZERO" — any inline createClient in a root page is now
+a regression.
+
 Rules enforced:
 
-  L1  Each HTML page contains AT MOST ONE inline
-      `supabase.createClient(...)` call. Pages with multiple should
-      use the shared singleton helper `window.getDb(url, key)` from
-      utils.js.
+  L1  No HTML page contains an inline `supabase.createClient(...)` call.
+      Every page MUST obtain its client from the shared singleton helper
+      `window.getDb(url, key)` in utils.js — one client per page, no
+      GoTrueClient races, uniform local-repoint. Legit exceptions
+      (e.g. a page talking to a different project) go in OPT_OUT_HTML.
 
   L2  Each shared JS module (nav-hub.js, companion-launcher.js, etc.) MUST NOT
       call `supabase.createClient` at module top level. Loaded scripts
@@ -93,23 +99,27 @@ def check_html_singleton(pages: list[str]) -> list[dict]:
             continue
         src = read_file(os.path.join(ROOT, page)) or ""
         matches = list(CREATE_CLIENT_RE.finditer(src))
-        if len(matches) <= 1:
+        if len(matches) == 0:
             continue
-        # Multiple direct calls. Build a friendly issue with line numbers.
+        # Any inline createClient is now a regression — the D7 migration
+        # (2026-06-14) routed every page through getDb(). Report each site.
         lines = []
         for m in matches:
             line_no = src.count("\n", 0, m.start()) + 1
             lines.append(str(line_no))
+        s = "s" if len(matches) > 1 else ""
         issues.append({
             "check":  "html_singleton",
             "skip":   False,
             "reason": (
-                f"{page}: {len(matches)} direct supabase.createClient() calls "
-                f"at lines {', '.join(lines)}. Multiple clients share the "
-                f"same auth storage key and race — the SDK warns "
-                f"'Multiple GoTrueClient instances detected'. Replace each "
-                f"call with `window.getDb(url, key)` from utils.js so the "
-                f"page shares one client across IIFEs."
+                f"{page}: {len(matches)} inline supabase.createClient() call{s} "
+                f"at line{s} {', '.join(lines)}. Every page must obtain its "
+                f"client from `window.getDb(url, key)` (utils.js) — a direct "
+                f"createClient adds a fresh GoTrueClient that races on the auth "
+                f"storage key ('Multiple GoTrueClient instances detected') and "
+                f"bypasses the uniform local-repoint. Replace with getDb(url, key). "
+                f"If this page legitimately needs a separate client (e.g. a "
+                f"different project), add it to OPT_OUT_HTML with a reason."
             ),
         })
     return issues
@@ -158,7 +168,7 @@ def check_shared_js_no_top_level(modules: list[str]) -> list[dict]:
 
 CHECK_NAMES  = ["html_singleton", "shared_js_no_top_level"]
 CHECK_LABELS = {
-    "html_singleton":          "L1  Each HTML page has at most one inline supabase.createClient()",
+    "html_singleton":          "L1  No HTML page has an inline supabase.createClient() (must use getDb)",
     "shared_js_no_top_level":  "L2  Shared JS modules don't create top-level Supabase clients",
 }
 

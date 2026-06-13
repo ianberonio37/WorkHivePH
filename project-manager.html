@@ -18,6 +18,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="components.css" />  <!-- S11 shared component CSS -->
 <style>
   :root {
     --bg: #0f1923; --surface: #162032; --card: #1d2e44; --card-hover: #243a55;
@@ -328,21 +329,7 @@
 .verdict.attn    .verdict-icon { color:#f87171; }
 .verdict.empty   { background:rgba(255,255,255,0.03); border-color:rgba(255,255,255,0.08); }
 .verdict.empty   .verdict-icon { color:rgba(255,255,255,0.55); }
-.simple-row { display:grid; grid-template-columns:repeat(auto-fit, minmax(160px, 1fr)); gap:12px; margin-bottom:14px; }
-.simple-card { background:#162032; border:1px solid rgba(255,255,255,0.07); border-radius:12px; padding:14px 16px; }
-.simple-card .sc-label { font-size:0.65rem; font-weight:700; color:rgba(255,255,255,0.6); text-transform:uppercase; letter-spacing:0.06em; }
-.simple-card .sc-hero  { font-size:1.5rem; font-weight:800; line-height:1.15; margin:4px 0 2px; color:#F4F6FA; }
-.simple-card .sc-sub   { font-size:0.7rem; color:rgba(255,255,255,0.55); line-height:1.4; }
-.simple-card .sc-tag   { display:inline-block; font-size:0.58rem; font-weight:800; letter-spacing:0.06em; text-transform:uppercase; padding:0.18rem 0.5rem; border-radius:999px; margin-top:7px; }
-.simple-card.tag-green .sc-tag { background:rgba(74,222,128,0.16);  color:#4ade80; }
-.simple-card.tag-amber .sc-tag { background:rgba(247,162,27,0.16);  color:#F7A21B; }
-.simple-card.tag-red   .sc-tag { background:rgba(248,113,113,0.16); color:#f87171; }
-.simple-card.tag-grey  .sc-tag { background:rgba(255,255,255,0.06); color:rgba(255,255,255,0.5); }
-.action-card { background:rgba(41,182,217,0.06); border:1px solid rgba(41,182,217,0.25); border-radius:12px; padding:14px 16px; margin-bottom:14px; }
-.action-card .ac-label { font-size:0.65rem; font-weight:800; color:#29B6D9; text-transform:uppercase; letter-spacing:0.07em; }
-.action-card .ac-text { font-size:0.82rem; line-height:1.5; margin-top:6px; color:rgba(255,255,255,0.85); }
-.details-toggle { display:inline-flex; align-items:center; gap:6px; background:transparent; border:1px solid rgba(255,255,255,0.07); color:rgba(255,255,255,0.6); padding:8px 14px; border-radius:8px; font-family:inherit; font-size:0.7rem; font-weight:600; cursor:pointer; min-height:44px; margin-bottom:14px; }
-.details-toggle:hover { color:#F4F6FA; border-color:rgba(255,255,255,0.18); }
+/* .simple-row / .simple-card / .sc-* / .action-card / .details-toggle → components.css (STREAMLINE S11) */
 #pm-summary-details { display:none; padding:14px 16px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:12px; font-size:0.78rem; line-height:1.5; color:rgba(255,255,255,0.7); margin-bottom:14px; }
 #pm-summary-details.open { display:block; }
 </style>
@@ -835,7 +822,7 @@ let HIVE_NAME = localStorage.getItem('wh_hive_name') || '';
 let HIVE_ROLE = localStorage.getItem('wh_hive_role') || '';
 let _authUid = null;
 
-const db = supabase.createClient(
+const db = getDb(
   'https://hzyvnjtisfgbksicrouu.supabase.co',
   'sb_publishable_ePj-suLMwkMRVDH6eM6S8g_R0rZVbMZ'
 );
@@ -947,17 +934,8 @@ async function validateHiveMembership() {
   bindFilters();
   subscribeRealtime();
 
-  // Plain-Read details toggle (Layer D — UX Contract)
-  (function wirePmSummaryToggle() {
-    const btn  = document.getElementById('details-toggle-btn');
-    const pane = document.getElementById('pm-summary-details');
-    if (!btn || !pane) return;
-    btn.addEventListener('click', () => {
-      const open = pane.classList.toggle('open');
-      btn.setAttribute('aria-expanded', String(open));
-      btn.textContent = open ? 'Hide details' : 'Show details';
-    });
-  })();
+  // Plain-Read details toggle (shared — utils.js wireDetailToggle, STREAMLINE S10).
+  if (typeof wireDetailToggle === 'function') wireDetailToggle();
 
   console.log('[project-manager] booted as', WORKER_NAME, 'hive', HIVE_ID, 'role', HIVE_ROLE); // console-log-allow: page-boot diagnostic, surfaces auth + hive context in DevTools for support
 })();

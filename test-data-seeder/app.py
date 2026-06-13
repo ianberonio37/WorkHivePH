@@ -1153,7 +1153,8 @@ _COMPANION_LAYERS = {
     "substrate": ("companion_substrate", ["substrate"]),   # G-1.5
     "discover":  ("companion_discover",  ["discover"]),     # G-1
     "probes":    ("companion_probes",    ["probes"]),       # probe-type coverage (depth signal)
-    "gate":      ("companion_gate",      ["gate"]),         # G0
+    "delivery":  ("companion_delivery",  ["delivery"]),     # L0 static (surface wiring: render/feedback/mount)
+    "gate":      ("companion_gate",      ["gate"]),         # L4 correctness (per-dim locked-test)
     "eval":      ("companion_eval",      ["eval"]),         # G1+G2 (grader self-tests, $0)
     "optimize":  ("companion_optimize",  ["optimize"]),     # G3 (reflect -> propose)
     "mega":      ("companion_mega",      ["mega"]),         # full closed loop

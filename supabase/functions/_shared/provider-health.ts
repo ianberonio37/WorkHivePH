@@ -84,7 +84,7 @@ function pruneTo24h(timestamps: number[], now: number): number[] {
   return timestamps.filter((t) => now - t < DAY);
 }
 
-export function recordSlotFailure(slotName: string): void {
+export function recordSlotFailure(slotName: string, retryAfterMs?: number): void {
   const now = Date.now();
   let h = slotHealth.get(slotName);
   if (!h) { h = newSlot(); slotHealth.set(slotName, h); }
@@ -93,12 +93,20 @@ export function recordSlotFailure(slotName: string): void {
   // Soft demotion: bump penalty on every failure (decay first so it is current).
   h.penalty = Math.min(decayedPenalty(h, now) + PENALTY_PER_FAILURE, MAX_PENALTY);
   h.penalty_updated = now;
+  // P2 (2026-06-14): honor an explicit Retry-After from a 429. The provider TOLD us
+  // exactly when it resets, so park this slot at least that long (capped at the ladder
+  // ceiling so a bogus/huge header can't park it forever) — even before the failure
+  // threshold, because Retry-After is a hard signal, not a guess. This stops the chain
+  // from re-poking a slot that already said "wait N seconds", saving a wasted hop + latency.
+  if (retryAfterMs && retryAfterMs > 0) {
+    h.blocked_until = Math.max(h.blocked_until, now + Math.min(retryAfterMs, 6 * HOUR));
+  }
   if (h.failures.length >= FAILURE_THRESHOLD) {
     // Choose duration based on how many blocks this slot has had in the last 24h.
     h.block_hits = pruneTo24h(h.block_hits, now);
     const rung = Math.min(h.block_hits.length, COOLDOWN_LADDER_MS.length - 1);
     const duration = COOLDOWN_LADDER_MS[rung]!;
-    h.blocked_until = now + duration;
+    h.blocked_until = Math.max(h.blocked_until, now + duration);  // never SHORTEN a Retry-After park
     h.block_hits.push(now);
     h.failures = [];
   }

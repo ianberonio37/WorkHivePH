@@ -1,0 +1,41 @@
+/* ===========================================================================
+   WorkHive shared component CSS  (STREAMLINE S11)
+   ---------------------------------------------------------------------------
+   The KPI-summary primitives (.simple-card grid + .sc-* parts), the "what to
+   do next" .action-card, and the "Show details" .details-toggle were copy-
+   pasted VERBATIM into ~15 dashboard pages' inline <style>. Extracted here so
+   they can't drift and the duplication leaves the clone-debt count.
+
+   Load order contract: each page links this in <head> BEFORE its own inline
+   <style>, so a page may still OVERRIDE any rule locally (e.g. analytics'
+   translucent .simple-card background, ai-quality / plant-connections'
+   var(--surface) theming — those pages keep their inline rule and are NOT
+   converted). Precached in sw.js SHELL_FILES (cache-first) so it survives
+   offline alongside the page shell.
+
+   The card MARKUP + its data-rag-tile markers stay STATIC in each page
+   (validate_rag_flywheel_locks.py / survey_ia_redundancy.py read them from the
+   static file) — only the CSS moved here. Paired with the S10 shared
+   wireDetailToggle() behavior in utils.js.
+   =========================================================================== */
+
+/* KPI summary cards — the 3-tile "operational heartbeat" header grid */
+.simple-row { display:grid; grid-template-columns:repeat(auto-fit, minmax(160px, 1fr)); gap:12px; margin-bottom:14px; }
+.simple-card { background:#162032; border:1px solid rgba(255,255,255,0.07); border-radius:12px; padding:14px 16px; }
+.simple-card .sc-label { font-size:0.65rem; font-weight:700; color:rgba(255,255,255,0.6); text-transform:uppercase; letter-spacing:0.06em; }
+.simple-card .sc-hero  { font-size:1.5rem; font-weight:800; line-height:1.15; margin:4px 0 2px; color:#F4F6FA; }
+.simple-card .sc-sub   { font-size:0.7rem; color:rgba(255,255,255,0.55); line-height:1.4; }
+.simple-card .sc-tag   { display:inline-block; font-size:0.58rem; font-weight:800; letter-spacing:0.06em; text-transform:uppercase; padding:0.18rem 0.5rem; border-radius:999px; margin-top:7px; }
+.simple-card.tag-green .sc-tag { background:rgba(74,222,128,0.16);  color:#4ade80; }
+.simple-card.tag-amber .sc-tag { background:rgba(247,162,27,0.16);  color:#F7A21B; }
+.simple-card.tag-red   .sc-tag { background:rgba(248,113,113,0.16); color:#f87171; }
+.simple-card.tag-grey  .sc-tag { background:rgba(255,255,255,0.06); color:rgba(255,255,255,0.5); }
+
+/* "What to do next" recommendation card */
+.action-card { background:rgba(41,182,217,0.06); border:1px solid rgba(41,182,217,0.25); border-radius:12px; padding:14px 16px; margin-bottom:14px; }
+.action-card .ac-label { font-size:0.65rem; font-weight:800; color:#29B6D9; text-transform:uppercase; letter-spacing:0.07em; }
+.action-card .ac-text { font-size:0.82rem; line-height:1.5; margin-top:6px; color:rgba(255,255,255,0.85); }
+
+/* "Show details" explainer toggle button (behavior = utils.js wireDetailToggle, S10) */
+.details-toggle { display:inline-flex; align-items:center; gap:6px; background:transparent; border:1px solid rgba(255,255,255,0.07); color:rgba(255,255,255,0.6); padding:8px 14px; border-radius:8px; font-family:inherit; font-size:0.7rem; font-weight:600; cursor:pointer; min-height:44px; margin-bottom:14px; }
+.details-toggle:hover { color:#F4F6FA; border-color:rgba(255,255,255,0.18); }

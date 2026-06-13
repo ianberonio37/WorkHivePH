@@ -164,6 +164,57 @@ export async function persistSummary(
 }
 
 /**
+ * Collapse the oldest SUMMARISE_BATCH turns into one summary row once the live
+ * turn buffer crosses SUMMARISE_AT. Keeps memory.ts LLM-FREE: the caller passes a
+ * `summarise(transcript) => Promise<string>` callback (the gateway wraps callAI),
+ * so the persistence layer never imports ai-chain. Best-effort — returns null
+ * (no-op) when the buffer is short, the summary is empty, or anything throws.
+ * Wires the previously-dead persistSummary primitive (W2 finding 2026-06-12).
+ */
+export async function summariseIfNeeded(
+  db: SupabaseClient,
+  h: MemoryHandle,
+  summarise: (transcript: string) => Promise<string>,
+): Promise<{ collapsed: number } | null> {
+  if (!h.worker_name || !h.agent_id) return null;
+  try {
+    let countQ = db.from("agent_memory")
+      .select("id", { count: "exact", head: true })
+      .eq("worker_name", h.worker_name)
+      .eq("agent_id",    h.agent_id)
+      .eq("kind",        "turn");
+    countQ = h.hive_id ? countQ.eq("hive_id", h.hive_id) : countQ.is("hive_id", null);
+    const { count } = await countQ;
+    if (!count || count <= SUMMARISE_AT) return null;
+
+    let oldestQ = db.from("agent_memory")
+      .select("id, turn_text, meta")
+      .eq("worker_name", h.worker_name)
+      .eq("agent_id",    h.agent_id)
+      .eq("kind",        "turn")
+      .order("created_at", { ascending: true })
+      .limit(SUMMARISE_BATCH);
+    oldestQ = h.hive_id ? oldestQ.eq("hive_id", h.hive_id) : oldestQ.is("hive_id", null);
+    const { data: oldest } = await oldestQ;
+    if (!oldest || !oldest.length) return null;
+
+    const transcript = oldest.map((r) => {
+      const role = (r.meta as Record<string, unknown> | null)?.role === "agent" ? "Assistant" : "User";
+      return `${role}: ${r.turn_text || ""}`;
+    }).join("\n");
+
+    const summary_text = (await summarise(transcript) || "").trim();
+    if (!summary_text) return null;
+
+    await persistSummary(db, h, summary_text, oldest.map((r) => r.id as string));
+    return { collapsed: oldest.length };
+  } catch (err) {
+    console.warn("memory.summariseIfNeeded failed:", err instanceof Error ? err.message : String(err));
+    return null;
+  }
+}
+
+/**
  * Build a compact context block to prepend to the user's prompt.
  * Order: long-term summary first, then recent turns oldest-to-newest.
  */

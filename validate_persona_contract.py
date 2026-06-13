@@ -722,6 +722,85 @@ def check_conversation_recall() -> list[dict]:
     return issues
 
 
+# -- Layer 10: out-of-scope-domains grounding guard ---------------------------
+#
+# 2026-06-14 prj/day knock-down (Probe Taxonomy page families prj/day). The
+# voice-journal grounding guard banned inventing counts/KPIs/asset-history but
+# had NO clause about whole out-of-scope DOMAINS. So a project STATUS/DATE
+# question ("how's the project tracking?", "when is it due?") — which is neither
+# a count nor a KPI nor an asset — fell through every rule, and the model invented
+# a whole project ("the crane project is 28 days out, due July 15") to dress up
+# the grounded alert/PM counts. (Inventory was only ACCIDENTALLY safe: its
+# questions are count-shaped, so the count-ban caught them.) The fix is an
+# OUT-OF-SCOPE DOMAINS clause; this layer guards it forward-only so a later edit
+# cannot silently delete it (the behavioural proof is the prj/day live sweep =
+# 0% FAB; this is the static ratchet). Memory project_companion_prj_scope_fix_2026_06_14.
+
+OUT_OF_SCOPE_DOMAINS = ("project", "inventory", "skill matrix", "marketplace", "day-plan", "logbook")
+
+
+def check_out_of_scope_grounding() -> list[dict]:
+    issues = []
+    agent = read_file(VOICE_JOURNAL_AGENT_TS)
+    if agent is None:
+        issues.append({
+            "check": "out_of_scope_grounding",
+            "reason": f"{VOICE_JOURNAL_AGENT_TS} missing — cannot verify out-of-scope-domains guard.",
+        })
+        return issues
+    low = agent.lower()
+
+    # 10a. The OUT-OF-SCOPE DOMAINS clause must exist.
+    if "out-of-scope domains" not in low:
+        issues.append({
+            "check": "out_of_scope_grounding",
+            "reason": (
+                "voice-journal-agent has no OUT-OF-SCOPE DOMAINS clause. The grounding guard "
+                "bans counts/KPIs/asset-history but NOT whole out-of-scope domains, so a project "
+                "STATUS/DATE question (not count-shaped) falls through and the model invents a "
+                "project ('the crane project is due July 15') — the prj fabrication, 2026-06-14. "
+                "Restore the clause in VOICE_JOURNAL_EXTRA_RULES."
+            ),
+        })
+        return issues
+
+    # 10b. It must enumerate the domains NOT in the snapshot (projects + >=2 more).
+    found = [d for d in OUT_OF_SCOPE_DOMAINS if d in low]
+    if "project" not in low or len(found) < 3:
+        issues.append({
+            "check": "out_of_scope_grounding",
+            "reason": (
+                "OUT-OF-SCOPE DOMAINS clause must enumerate the domains the snapshot does NOT "
+                "carry (projects + inventory/skill matrix/marketplace/day-plan/logbook). "
+                f"Found only: {found}. A domain left unnamed is the next one to confabulate."
+            ),
+        })
+
+    # 10c. It must FORBID inventing their specifics.
+    if not any(p in low for p in ("do not invent", "don't invent", "never say something like")):
+        issues.append({
+            "check": "out_of_scope_grounding",
+            "reason": (
+                "OUT-OF-SCOPE DOMAINS clause must explicitly forbid inventing the domain's "
+                "specifics (no project name/due date/% complete/owner, no stock count, no cert, "
+                "no listing/price). Without an explicit ban the model fills the frame."
+            ),
+        })
+
+    # 10d. It must POINT to the right page, not just refuse (don't reintroduce the
+    #      split-brain "I can't help" deflection — point the worker somewhere useful).
+    if not any(p in low for p in ("point them to", "point to the right page", "project manager")):
+        issues.append({
+            "check": "out_of_scope_grounding",
+            "reason": (
+                "OUT-OF-SCOPE DOMAINS clause must POINT the worker to the right page "
+                "(Project Manager / Inventory / Skill Matrix / ...), not just refuse — a bare "
+                "deflection reintroduces the split-brain 'I don't have access' UX seam."
+            ),
+        })
+    return issues
+
+
 # -- Driver -------------------------------------------------------------------
 
 CHECK_NAMES = [
@@ -734,6 +813,7 @@ CHECK_NAMES = [
     "key_parity",
     "domain_differentiation",
     "conversation_recall",
+    "out_of_scope_grounding",
 ]
 
 CHECK_LABELS = {
@@ -746,11 +826,12 @@ CHECK_LABELS = {
     "key_parity":             "L7  Server and client persona key sets are identical",
     "domain_differentiation": "L8  Step D: Hezekiah=Technical / Zaniah=Strategist lens preserved (DOMAIN_LENS, tone, examples)",
     "conversation_recall":    "L9  Within-conversation recall guardrail wired into both prose modes + grounding carve-out",
+    "out_of_scope_grounding": "L10 Out-of-scope-domains guard (projects/inventory/skills/... → no invented specifics, point to the right page)",
 }
 
 
 def main() -> int:
-    print("\033[1m\nPersona Contract Validator (9-layer)\033[0m")
+    print("\033[1m\nPersona Contract Validator (10-layer)\033[0m")
     print("=" * 60)
     print(f"  Tracking {len(SERVER_PERSONA_ADOPTION)} server surface(s) + "
           f"{len(CLIENT_PERSONA_ADOPTION)} client surface(s).")
@@ -765,6 +846,7 @@ def main() -> int:
     issues += check_key_parity()
     issues += check_domain_differentiation()
     issues += check_conversation_recall()
+    issues += check_out_of_scope_grounding()
 
     n_pass, n_skip, n_fail = format_result(CHECK_NAMES, CHECK_LABELS, issues)
 

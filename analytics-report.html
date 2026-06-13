@@ -526,7 +526,7 @@
     // ── Config ───────────────────────────────────────────
     var SUPABASE_URL = 'https://hzyvnjtisfgbksicrouu.supabase.co';
     var SUPABASE_KEY = 'sb_publishable_ePj-suLMwkMRVDH6eM6S8g_R0rZVbMZ';
-    var db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    var db = getDb(SUPABASE_URL, SUPABASE_KEY);
 
     if (typeof logPageView === 'function') logPageView(db);
     var WORKER_NAME = localStorage.getItem('wh_last_worker')

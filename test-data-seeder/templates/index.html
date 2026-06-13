@@ -1511,10 +1511,14 @@
         data-tip-title="🎛️ Probe coverage"
         data-tip="How much of the companion architecture do we actually EXERCISE? Reads companion_probe_taxonomy.json (~69 grounded probe types across 9 families: Agent/RAG/Memory/Persona/Safety + Robustness/Domain/Doctrine/Operational) and counts how many have a golden unit (probe_type tag). Surfaces the depth gap + missing families. The forward-only 'we ask N of 69 types' number. $0."
         data-tip-foot="✅ CLICK: to see the depth gap (missing families) the corpus still needs.">🎛️ Probe coverage</button>
+      <button class="seed-btn" data-action="companion-delivery"
+        data-tip-title="🔌 L0 Delivery (static)"
+        data-tip="The companion's Layer-0 static gate (companion_delivery_gate.py) — the surface WIRING, not the brain. 4 forward-only checks: gateway_unwrap (the answer the gateway returned actually renders, not a flat data.answer = blank bubble), client_wiring (no client global read-but-never-assigned dead path), feedback_sink (👍/👎 reaches the canonical ai_reply_feedback harvest sink, not a no-op), single_mount (the launcher mounts once, not a double widget). This is the layer that catches a live 'flop' the eval/battery stay green through, because they grade the brain via their own client and never run the product's delivery code. $0, offline."
+        data-tip-foot="✅ CLICK AFTER: any companion-launcher.js / voice-journal.html / assistant.html change.">🔌 Delivery (L0)</button>
       <button class="seed-btn" data-action="companion-gate"
-        data-tip-title="🛡️ G0 Gate"
-        data-tip="Per-dimension locked-test regression gate (ai_eval_gate companion-gate) + scorecard registry verify. Forward-only, n-aware (a dim only BLOCKS at n≥20; below that it WARNs). Exit 1 on a blocking regression. $0."
-        data-tip-foot="✅ CLICK AFTER: any eval run, before trusting a change.">🛡️ Gate (G0)</button>
+        data-tip-title="🛡️ L4 Correctness Gate"
+        data-tip="Per-dimension locked-test regression gate (ai_eval_gate companion-gate) + scorecard registry verify. Forward-only, n-aware (a dim only BLOCKS at n≥20; below that it WARNs). Exit 1 on a blocking regression. This is the companion's correctness layer (answer quality), distinct from L0 Delivery (surface wiring). $0."
+        data-tip-foot="✅ CLICK AFTER: any eval run, before trusting a change.">🛡️ Gate (L4 correctness)</button>
       <button class="seed-btn" data-action="companion-eval"
         data-tip-title="🎯 G1/G2 Eval (graders)"
         data-tip="Run each dimension's grader --self-test (oracle all-pass, blind all-fail = trustworthy). The $0 trust property. (Live capture through ai-gateway is the heavier, opt-in arm — run the *-golden-capture.spec.ts specs.)"
@@ -1529,7 +1533,7 @@
       <div class="button-grid" style="margin-top:8px;">
         <button class="seed-btn" data-action="companion-mega"
           data-tip-title="🤖 Companion Mega Gate"
-          data-tip="Run the whole offline closed loop in order: substrate → discover → gate → graders self-test → scorecard verify → write .last-companion-gate-pass + persist the run. One FAIL blocks. $0, no DB/model."
+          data-tip="Run the whole offline closed loop in order: substrate → discover → probes → delivery(L0 static) → gate(L4 correctness) → graders self-test → scorecard verify → write .last-companion-gate-pass + persist the run. One FAIL blocks. $0, no DB/model."
           data-tip-foot="✅ CLICK: to validate the entire companion loop in one shot.">🤖 Companion Mega · ~15s</button>
       </div>
     </details>

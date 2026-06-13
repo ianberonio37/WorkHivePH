@@ -277,6 +277,42 @@ function renderActionBrief(brief, opts) {
 if (typeof window !== 'undefined') window.renderActionBrief = renderActionBrief;
 
 // ─────────────────────────────────────────────
+// wireDetailToggle — ONE shared "Show details" explainer toggle (STREAMLINE S10)
+// ─────────────────────────────────────────────
+// Every dashboard page carries a "How this is computed" explainer: a
+// <button id="details-toggle-btn"> that shows/hides a <div role="region"> whose
+// id is named in the button's aria-controls. The PANEL CONTENT stays static per
+// page (each explains its own KPIs) — validate_rag_flywheel_locks.py +
+// survey_ia_redundancy.py + tag_all_rag_tiles.py read the
+// data-rag-tile="<page>:detail_panel" marker from the STATIC html, so moving the
+// panel into JS would break those gates. What WAS copy-pasted on all 14 pages is
+// the toggle HANDLER (a ~10-line IIFE) — collapsed here into one idempotent fn.
+// Each page calls this once (replacing its old bespoke IIFE), typically at the
+// end of its load/render. Explicit-call (not auto-run): the button id
+// `details-toggle-btn` lives on ~19 pages, so an auto-runner would double-bind
+// any page that still holds its own handler mid-rollout. The __whDetailWired
+// guard still makes a duplicate call a safe no-op.
+//   - reads the controlled pane from the button's aria-controls (so one fn
+//     serves every page's differently-id'd `#X-summary-details` pane)
+//   - toggles `.open` (matches each page's `#X-summary-details.open{display:block}` css)
+//   - mirrors state into aria-expanded + swaps the label Show/Hide details
+function wireDetailToggle() {
+  if (typeof document === 'undefined') return;
+  var btn = document.getElementById('details-toggle-btn');
+  if (!btn || btn.__whDetailWired) return;
+  var paneId = btn.getAttribute('aria-controls');
+  var pane = paneId ? document.getElementById(paneId) : null;
+  if (!pane) return;
+  btn.__whDetailWired = true;
+  btn.addEventListener('click', function () {
+    var open = pane.classList.toggle('open');
+    btn.setAttribute('aria-expanded', String(open));
+    btn.textContent = open ? 'Hide details' : 'Show details';
+  });
+}
+if (typeof window !== 'undefined') window.wireDetailToggle = wireDetailToggle;
+
+// ─────────────────────────────────────────────
 // resolveAssetNodeId — writer-side legacy-to-canonical bridge (Phase 5b)
 // ─────────────────────────────────────────────
 // Phase 5b dropped logbook.asset_ref_id (text) in favour of

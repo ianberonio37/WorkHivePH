@@ -601,7 +601,7 @@
   // ── Config ─────────────────────────────────────────────────────────────────
   const SUPABASE_URL = 'https://hzyvnjtisfgbksicrouu.supabase.co';
   const SUPABASE_KEY = 'sb_publishable_ePj-suLMwkMRVDH6eM6S8g_R0rZVbMZ';
-  const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  const db = getDb(SUPABASE_URL, SUPABASE_KEY);
 
   logPageView(db);
   let WORKER_NAME = localStorage.getItem('wh_last_worker')
@@ -2517,17 +2517,8 @@
     setRole(_role);
     autoLoad();
 
-    // Plain-Read summary details toggle (Layer D — UX Contract).
-    (function wireAnSummaryToggle() {
-      const btn  = document.getElementById('details-toggle-btn');
-      const pane = document.getElementById('an-summary-details');
-      if (!btn || !pane) return;
-      btn.addEventListener('click', () => {
-        const open = pane.classList.toggle('open');
-        btn.setAttribute('aria-expanded', String(open));
-        btn.textContent = open ? 'Hide details' : 'Show details';
-      });
-    })();
+    // Plain-Read summary details toggle (shared — utils.js wireDetailToggle, STREAMLINE S10).
+    if (typeof wireDetailToggle === 'function') wireDetailToggle();
 
     // Refresh status bar every minute so "Updated X min ago" stays current
     const _statusBarTimer = setInterval(() => updateStatusBar(_phase), 60000);

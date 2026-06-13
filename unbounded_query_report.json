@@ -1,8 +1,8 @@
 {
   "summary": {
-    "files_scanned": 116,
-    "total_calls": 703,
-    "total_unbounded": 0,
+    "files_scanned": 117,
+    "total_calls": 714,
+    "total_unbounded": 1,
     "baseline": 0
   },
   "per_file": [
@@ -195,6 +195,10 @@
       "issues": []
     },
     {
+      "file": "supabase/functions/_shared/persona-knowledge.ts",
+      "issues": []
+    },
+    {
       "file": "supabase/functions/_shared/persona.ts",
       "issues": []
     },
@@ -260,7 +264,12 @@
     },
     {
       "file": "supabase/functions/analytics-orchestrator/index.ts",
-      "issues": []
+      "issues": [
+        {
+          "table": "v_pm_scope_items_truth",
+          "offset": 9505
+        }
+      ]
     },
     {
       "file": "supabase/functions/asset-brain-query/index.ts",

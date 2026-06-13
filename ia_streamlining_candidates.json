@@ -1,6 +1,6 @@
 {
   "_doc": "Phase 2 IA-streamlining critic candidates (sweep_critiques schema). Route via: python ufai_ingest.py ia_streamlining_candidates.json. Engine proposes, you dispose.",
-  "generated": "2026-06-09T13:56:32.340758+00:00",
+  "generated": "2026-06-12T05:38:36.479255+00:00",
   "candidates": [
     {
       "key": "sweep:ia:relabel:pending-approval",
@@ -59,14 +59,14 @@
     },
     {
       "key": "sweep:ia:affordance:asset-hub",
-      "page": "index.html",
+      "page": "analytics.html",
       "wave": 0,
-      "title": "\"asset-hub\" linked from 2 page bodies beyond the nav",
+      "title": "\"asset-hub\" linked from 3 page bodies beyond the nav",
       "pillar": "IA",
       "severity": "Minor",
       "effort": "M",
       "flag": "TASTE",
-      "should_be": "Deep page \"asset-hub\" reached from 2 page bodies BEYOND the global nav (index, predictive). Hick's Law — confirm each extra path earns its place; otherwise rely on the nav + one contextual link."
+      "should_be": "Deep page \"asset-hub\" reached from 3 page bodies BEYOND the global nav (analytics, index, predictive). Hick's Law — confirm each extra path earns its place; otherwise rely on the nav + one contextual link."
     },
     {
       "key": "sweep:ia:affordance:integrations",
@@ -100,6 +100,17 @@
       "effort": "M",
       "flag": "TASTE",
       "should_be": "Deep page \"ph-intelligence\" reached from 2 page bodies BEYOND the global nav (analytics, integrations). Hick's Law — confirm each extra path earns its place; otherwise rely on the nav + one contextual link."
+    },
+    {
+      "key": "sweep:ia:affordance:plant-connections",
+      "page": "hive.html",
+      "wave": 0,
+      "title": "\"plant-connections\" linked from 2 page bodies beyond the nav",
+      "pillar": "IA",
+      "severity": "Minor",
+      "effort": "M",
+      "flag": "TASTE",
+      "should_be": "Deep page \"plant-connections\" reached from 2 page bodies BEYOND the global nav (hive, integrations). Hick's Law — confirm each extra path earns its place; otherwise rely on the nav + one contextual link."
     },
     {
       "key": "sweep:ia:affordance:pm-scheduler",

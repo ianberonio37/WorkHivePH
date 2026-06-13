@@ -28,7 +28,7 @@
           s2.src = 'utils.js';
           s2.onload = function () {
             try {
-              var db = supabase.createClient('https://hzyvnjtisfgbksicrouu.supabase.co', 'sb_publishable_ePj-suLMwkMRVDH6eM6S8g_R0rZVbMZ');
+              var db = getDb('https://hzyvnjtisfgbksicrouu.supabase.co', 'sb_publishable_ePj-suLMwkMRVDH6eM6S8g_R0rZVbMZ');
               isPlatformAdmin(db).then(function (ok) {
                 if (ok) document.documentElement.style.visibility = '';
                 else deny();
@@ -209,7 +209,7 @@
     var SUPABASE_URL = (window).SUPABASE_URL || 'https://hzyvnjtisfgbksicrouu.supabase.co';
     var SUPABASE_KEY = (window).SUPABASE_KEY || 'sb_publishable_ePj-suLMwkMRVDH6eM6S8g_R0rZVbMZ';
     var db = (window.supabase && SUPABASE_URL && SUPABASE_KEY)
-      ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY)
+      ? getDb(SUPABASE_URL, SUPABASE_KEY)
       : null;
 
     function pct(n, d) { return d > 0 ? Math.round((n / d) * 100) + '%' : '-'; }

@@ -1008,7 +1008,7 @@
 // ── SUPABASE SETUP ──
 const SUPABASE_URL = 'https://hzyvnjtisfgbksicrouu.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_ePj-suLMwkMRVDH6eM6S8g_R0rZVbMZ'; // anon key: safe in frontend
-const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const db = getDb(SUPABASE_URL, SUPABASE_KEY);
 window.db = db; // expose for journey-canonical-signal-parity.spec.ts test contract
 logPageView(db);
 let _authUid = null; // C3: populated at init from Supabase Auth session
@@ -2211,18 +2211,10 @@ async function loadSupervisorSummary() {
   }
 }
 
-(function wireSupervisorSummaryToggle() {
-  document.addEventListener('DOMContentLoaded', () => {
-    const btn  = document.getElementById('details-toggle-btn');
-    const pane = document.getElementById('supervisor-summary-details');
-    if (!btn || !pane) return;
-    btn.addEventListener('click', () => {
-      const open = pane.classList.toggle('open');
-      btn.setAttribute('aria-expanded', String(open));
-      btn.textContent = open ? 'Hide details' : 'Show details';
-    });
-  });
-})();
+// Plain-Read details toggle (shared — utils.js wireDetailToggle, STREAMLINE S10).
+document.addEventListener('DOMContentLoaded', function () {
+  if (typeof wireDetailToggle === 'function') wireDetailToggle();
+});
 
 // Reliability Coach - collapsed by default; click the header button to
 // expand. Auto-focuses the input on expand so the supervisor can type

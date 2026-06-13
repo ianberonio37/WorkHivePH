@@ -7,8 +7,14 @@
   "dimension": "persona",
   "agent": "voice-journal",
   "personas": {
-    "hezekiah": { "name": "Hezekiah", "lens": "technical-expert" },
-    "zaniah": { "name": "Zaniah", "lens": "strategist" }
+    "hezekiah": {
+      "name": "Hezekiah",
+      "lens": "technical-expert"
+    },
+    "zaniah": {
+      "name": "Zaniah",
+      "lens": "strategist"
+    }
   },
   "probes": [
     {
@@ -17,9 +23,18 @@
       "ability": "identity",
       "category": "persona_identity",
       "utterance": "Quick question before I log anything, who am I actually talking to here, are you an AI?",
-      "markers_all": [["hezekiah"]],
-      "anti_markers": ["i'm zaniah", "i am zaniah", "this is zaniah"],
-      "expected_behavior": "voice"
+      "markers_all": [
+        [
+          "hezekiah"
+        ]
+      ],
+      "anti_markers": [
+        "i'm zaniah",
+        "i am zaniah",
+        "this is zaniah"
+      ],
+      "expected_behavior": "voice",
+      "probe_type": "D1"
     },
     {
       "id": "PR-HEZ-ID-02",
@@ -27,9 +42,18 @@
       "ability": "identity",
       "category": "persona_identity",
       "utterance": "Hoy, sino ka ba talaga? Introduce yourself please.",
-      "markers_all": [["hezekiah"]],
-      "anti_markers": ["i'm zaniah", "i am zaniah", "this is zaniah"],
-      "expected_behavior": "voice"
+      "markers_all": [
+        [
+          "hezekiah"
+        ]
+      ],
+      "anti_markers": [
+        "i'm zaniah",
+        "i am zaniah",
+        "this is zaniah"
+      ],
+      "expected_behavior": "voice",
+      "probe_type": "D1"
     },
     {
       "id": "PR-ZAN-ID-01",
@@ -37,9 +61,18 @@
       "ability": "identity",
       "category": "persona_identity",
       "utterance": "Quick question before I log anything, who am I actually talking to here, are you an AI?",
-      "markers_all": [["zaniah"]],
-      "anti_markers": ["i'm hezekiah", "i am hezekiah", "this is hezekiah"],
-      "expected_behavior": "voice"
+      "markers_all": [
+        [
+          "zaniah"
+        ]
+      ],
+      "anti_markers": [
+        "i'm hezekiah",
+        "i am hezekiah",
+        "this is hezekiah"
+      ],
+      "expected_behavior": "voice",
+      "probe_type": "D1"
     },
     {
       "id": "PR-ZAN-ID-02",
@@ -47,9 +80,18 @@
       "ability": "identity",
       "category": "persona_identity",
       "utterance": "Hoy, sino ka ba talaga? Introduce yourself please.",
-      "markers_all": [["zaniah"]],
-      "anti_markers": ["i'm hezekiah", "i am hezekiah", "this is hezekiah"],
-      "expected_behavior": "voice"
+      "markers_all": [
+        [
+          "zaniah"
+        ]
+      ],
+      "anti_markers": [
+        "i'm hezekiah",
+        "i am hezekiah",
+        "this is hezekiah"
+      ],
+      "expected_behavior": "voice",
+      "probe_type": "D1"
     },
     {
       "id": "PR-HEZ-REG-01",
@@ -57,9 +99,27 @@
       "ability": "register",
       "category": "persona_register",
       "utterance": "Bearing's running hot on Pump P-203, around 78 degrees C, parang mainit na.",
-      "markers_all": [["regrease", "lube", "ir gun", "ir-gun", "housing", "red line", "loto", "bearing", "80", "threshold", "log it"]],
-      "anti_markers": ["i'm zaniah", "i am zaniah"],
-      "expected_behavior": "voice"
+      "markers_all": [
+        [
+          "regrease",
+          "lube",
+          "ir gun",
+          "ir-gun",
+          "housing",
+          "red line",
+          "loto",
+          "bearing",
+          "80",
+          "threshold",
+          "log it"
+        ]
+      ],
+      "anti_markers": [
+        "i'm zaniah",
+        "i am zaniah"
+      ],
+      "expected_behavior": "voice",
+      "probe_type": "D2"
     },
     {
       "id": "PR-HEZ-REG-02",
@@ -67,9 +127,25 @@
       "ability": "register",
       "category": "persona_register",
       "utterance": "What torque should I use for the M20 anchor bolts on the P-203 baseplate?",
-      "markers_all": [["nm", "torque", "cross-pattern", "cross pattern", "grade 8.8", "dry", "lubricated", "passes", "manual"]],
-      "anti_markers": ["i'm zaniah", "i am zaniah"],
-      "expected_behavior": "voice"
+      "markers_all": [
+        [
+          "nm",
+          "torque",
+          "cross-pattern",
+          "cross pattern",
+          "grade 8.8",
+          "dry",
+          "lubricated",
+          "passes",
+          "manual"
+        ]
+      ],
+      "anti_markers": [
+        "i'm zaniah",
+        "i am zaniah"
+      ],
+      "expected_behavior": "voice",
+      "probe_type": "D2"
     },
     {
       "id": "PR-HEZ-REG-03",
@@ -77,9 +153,25 @@
       "ability": "register",
       "category": "persona_register",
       "utterance": "Compressor C-01 tripped again, sira na naman, ano gagawin ko?",
-      "markers_all": [["loto", "failure mode", "logbook", "unloader", "bearing", "seal", "trip code", "lockout", "secure"]],
-      "anti_markers": ["i'm zaniah", "i am zaniah"],
-      "expected_behavior": "voice"
+      "markers_all": [
+        [
+          "loto",
+          "failure mode",
+          "logbook",
+          "unloader",
+          "bearing",
+          "seal",
+          "trip code",
+          "lockout",
+          "secure"
+        ]
+      ],
+      "anti_markers": [
+        "i'm zaniah",
+        "i am zaniah"
+      ],
+      "expected_behavior": "voice",
+      "probe_type": "D2"
     },
     {
       "id": "PR-ZAN-REG-01",
@@ -87,9 +179,28 @@
       "ability": "register",
       "category": "persona_register",
       "utterance": "We've had four breakdowns this week, parang masyadong nadadagdagan ang reactive work.",
-      "markers_all": [["planned-vs-reactive", "planned vs reactive", "reactive", "pattern", "recurrence", "recurring", "root-cause", "root cause", "supervisor", "trend", "weekly", "escalat"]],
-      "anti_markers": ["i'm hezekiah", "i am hezekiah"],
-      "expected_behavior": "voice"
+      "markers_all": [
+        [
+          "planned-vs-reactive",
+          "planned vs reactive",
+          "reactive",
+          "pattern",
+          "recurrence",
+          "recurring",
+          "root-cause",
+          "root cause",
+          "supervisor",
+          "trend",
+          "weekly",
+          "escalat"
+        ]
+      ],
+      "anti_markers": [
+        "i'm hezekiah",
+        "i am hezekiah"
+      ],
+      "expected_behavior": "voice",
+      "probe_type": "D2"
     },
     {
       "id": "PR-ZAN-REG-02",
@@ -97,9 +208,26 @@
       "ability": "register",
       "category": "persona_register",
       "utterance": "Should we just replace Compressor C-01 or keep fixing it?",
-      "markers_all": [["mtbf", "trend", "cost", "watch line", "pattern", "supervisor", "case", "downtime", "replacement", "escalat"]],
-      "anti_markers": ["i'm hezekiah", "i am hezekiah"],
-      "expected_behavior": "voice"
+      "markers_all": [
+        [
+          "mtbf",
+          "trend",
+          "cost",
+          "watch line",
+          "pattern",
+          "supervisor",
+          "case",
+          "downtime",
+          "replacement",
+          "escalat"
+        ]
+      ],
+      "anti_markers": [
+        "i'm hezekiah",
+        "i am hezekiah"
+      ],
+      "expected_behavior": "voice",
+      "probe_type": "D2"
     },
     {
       "id": "PR-ZAN-REG-03",
@@ -107,9 +235,28 @@
       "ability": "register",
       "category": "persona_register",
       "utterance": "Is Pump P-203 becoming a problem asset for us this month?",
-      "markers_all": [["recurrence", "recurring", "pattern", "planned-vs-reactive", "planned vs reactive", "mtbf", "deep-dive", "deep dive", "supervisor", "trend", "review", "escalat"]],
-      "anti_markers": ["i'm hezekiah", "i am hezekiah"],
-      "expected_behavior": "voice"
+      "markers_all": [
+        [
+          "recurrence",
+          "recurring",
+          "pattern",
+          "planned-vs-reactive",
+          "planned vs reactive",
+          "mtbf",
+          "deep-dive",
+          "deep dive",
+          "supervisor",
+          "trend",
+          "review",
+          "escalat"
+        ]
+      ],
+      "anti_markers": [
+        "i'm hezekiah",
+        "i am hezekiah"
+      ],
+      "expected_behavior": "voice",
+      "probe_type": "D2"
     },
     {
       "id": "PR-HEZ-BRG-01",
@@ -117,10 +264,24 @@
       "ability": "bridge",
       "category": "persona_bridge",
       "utterance": "Honestly, is P-203 turning into a pattern, and should we plan to replace it this quarter?",
-      "markers_all": [["zaniah", "pattern", "strategic", "supervisor", "switch her in", "bigger picture", "planning"]],
-      "anti_markers": ["i'm zaniah", "i am zaniah"],
+      "markers_all": [
+        [
+          "zaniah",
+          "pattern",
+          "strategic",
+          "supervisor",
+          "switch her in",
+          "bigger picture",
+          "planning"
+        ]
+      ],
+      "anti_markers": [
+        "i'm zaniah",
+        "i am zaniah"
+      ],
       "expected_behavior": "voice",
-      "note": "Off-lane (strategic) question to the TECHNICAL persona. The DOMAIN_LENS reactive-bridge should hand off to Zaniah ('that's more Zaniah's lane'). Mentioning Zaniah here is a CORRECT bridge, not an anti-marker; the anti-marker is only a Hezekiah-as-Zaniah self-id."
+      "note": "Off-lane (strategic) question to the TECHNICAL persona. The DOMAIN_LENS reactive-bridge should hand off to Zaniah ('that's more Zaniah's lane'). Mentioning Zaniah here is a CORRECT bridge, not an anti-marker; the anti-marker is only a Hezekiah-as-Zaniah self-id.",
+      "probe_type": "D3"
     },
     {
       "id": "PR-ZAN-BRG-01",
@@ -128,10 +289,63 @@
       "ability": "bridge",
       "category": "persona_bridge",
       "utterance": "Forget the trends for a sec, just tell me the exact torque and the LOTO order for the P-203 baseplate bolts.",
-      "markers_all": [["hezekiah", "torque", "specifics", "switch him in", "his lane", "sop", "loto"]],
-      "anti_markers": ["i'm hezekiah", "i am hezekiah"],
+      "markers_all": [
+        [
+          "hezekiah",
+          "torque",
+          "specifics",
+          "switch him in",
+          "his lane",
+          "sop",
+          "loto"
+        ]
+      ],
+      "anti_markers": [
+        "i'm hezekiah",
+        "i am hezekiah"
+      ],
       "expected_behavior": "voice",
-      "note": "Off-lane (technical) question to the STRATEGIST persona. The DOMAIN_LENS reactive-bridge should hand off to Hezekiah ('specifics like that are Hezekiah's lane'). Mentioning Hezekiah is a CORRECT bridge."
+      "note": "Off-lane (technical) question to the STRATEGIST persona. The DOMAIN_LENS reactive-bridge should hand off to Hezekiah ('specifics like that are Hezekiah's lane'). Mentioning Hezekiah is a CORRECT bridge.",
+      "probe_type": "D3"
+    },
+    {
+      "id": "PR-EMPATHY-D5-01",
+      "probe_type": "D5",
+      "persona": "zaniah",
+      "ability": "empathy_under_emotion",
+      "category": "persona_empathy",
+      "utterance": "Honestly I am so behind on my PMs and stressed, three machines down at once and I cannot keep up.",
+      "markers_all": [
+        [
+          "naks",
+          "hala",
+          "grabe",
+          "i hear you",
+          "i get it",
+          "that sounds",
+          "sounds tough",
+          "sounds rough",
+          "mahirap",
+          "sorry to hear",
+          "kaya mo",
+          "one at a time",
+          "take a breath",
+          "deep breath",
+          "understandable",
+          "rough",
+          "stressful",
+          "feel you",
+          "hang in there",
+          "that is a lot",
+          "overwhelm"
+        ]
+      ],
+      "anti_markers": [
+        "i'm hezekiah",
+        "i am hezekiah",
+        "this is hezekiah"
+      ],
+      "expected_behavior": "voice"
     }
   ]
 }

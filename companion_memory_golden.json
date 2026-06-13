@@ -7,34 +7,64 @@
   "schema_version": 1,
   "dimension": "memory",
   "agent": "assistant",
-  "abilities": ["extraction", "multi_session", "temporal", "knowledge_update", "abstention"],
+  "abilities": [
+    "extraction",
+    "multi_session",
+    "temporal",
+    "knowledge_update",
+    "abstention"
+  ],
   "scripts": [
     {
       "id": "MEM-EX-01-bearing-pn",
       "ability": "extraction",
       "category": "memory_extraction",
-      "setup": ["For skid MEM-A1, the correct spare bearing part number is BRG-7741. Please remember that for next time."],
+      "setup": [
+        "For skid MEM-A1, the correct spare bearing part number is BRG-7741. Please remember that for next time."
+      ],
       "recall_question": "what is the spare bearing part number for skid MEM-A1?",
-      "recall_all": [["BRG-7741", "7741"]],
-      "expected_behavior": "recall"
+      "recall_all": [
+        [
+          "BRG-7741",
+          "7741"
+        ]
+      ],
+      "expected_behavior": "recall",
+      "probe_type": "C1"
     },
     {
       "id": "MEM-EX-02-torque-spec",
       "ability": "extraction",
       "category": "memory_extraction",
-      "setup": ["Note for the future: the head-bolt torque spec for pump MEM-P2 is 215 Nm in a star pattern."],
+      "setup": [
+        "Note for the future: the head-bolt torque spec for pump MEM-P2 is 215 Nm in a star pattern."
+      ],
       "recall_question": "what torque spec did I give you for the head bolts on pump MEM-P2?",
-      "recall_all": [["215 nm", "215"]],
-      "expected_behavior": "recall"
+      "recall_all": [
+        [
+          "215 nm",
+          "215"
+        ]
+      ],
+      "expected_behavior": "recall",
+      "probe_type": "C1"
     },
     {
       "id": "MEM-EX-03-vendor-code",
       "ability": "extraction",
       "category": "memory_extraction",
-      "setup": ["Our approved vendor account code for compressor MEM-C3 parts is VND-3092. Keep that on record."],
+      "setup": [
+        "Our approved vendor account code for compressor MEM-C3 parts is VND-3092. Keep that on record."
+      ],
       "recall_question": "which vendor account code should we use for compressor MEM-C3 parts?",
-      "recall_all": [["VND-3092", "3092"]],
-      "expected_behavior": "recall"
+      "recall_all": [
+        [
+          "VND-3092",
+          "3092"
+        ]
+      ],
+      "expected_behavior": "recall",
+      "probe_type": "C1"
     },
     {
       "id": "MEM-MS-01-symptom-action",
@@ -45,8 +75,21 @@
         "On motor MEM-M4 I ended up cleaning the contactor MEM-K9 and that stopped the trips."
       ],
       "recall_question": "based on what I told you about motor MEM-M4, what was the problem and what fixed it?",
-      "recall_all": [["overcurrent", "tripping", "trip"], ["contactor", "MEM-K9", "cleaned", "cleaning"]],
-      "expected_behavior": "recall"
+      "recall_all": [
+        [
+          "overcurrent",
+          "tripping",
+          "trip"
+        ],
+        [
+          "contactor",
+          "MEM-K9",
+          "cleaned",
+          "cleaning"
+        ]
+      ],
+      "expected_behavior": "recall",
+      "probe_type": "C2"
     },
     {
       "id": "MEM-MS-02-two-readings",
@@ -57,8 +100,18 @@
         "I also logged that fan MEM-F5 oil sample came back with high iron content."
       ],
       "recall_question": "summarise the two condition findings I gave you for fan MEM-F5.",
-      "recall_all": [["4.2", "vibration"], ["iron", "oil"]],
-      "expected_behavior": "recall"
+      "recall_all": [
+        [
+          "4.2",
+          "vibration"
+        ],
+        [
+          "iron",
+          "oil"
+        ]
+      ],
+      "expected_behavior": "recall",
+      "probe_type": "C2"
     },
     {
       "id": "MEM-MS-03-part-and-qty",
@@ -69,8 +122,18 @@
         "And we keep four of those seal kits in the MEM-V6 spares bin."
       ],
       "recall_question": "for valve MEM-V6, what is the seal kit part and how many do we stock?",
-      "recall_all": [["SK-8810", "8810"], ["four", "4"]],
-      "expected_behavior": "recall"
+      "recall_all": [
+        [
+          "SK-8810",
+          "8810"
+        ],
+        [
+          "four",
+          "4"
+        ]
+      ],
+      "expected_behavior": "recall",
+      "probe_type": "C2"
     },
     {
       "id": "MEM-TMP-01-latest-inspection",
@@ -81,8 +144,15 @@
         "I inspected gearbox MEM-G7 again on Friday and found a small oil leak at the output seal."
       ],
       "recall_question": "what did the MOST RECENT inspection of gearbox MEM-G7 find?",
-      "recall_all": [["leak", "oil leak", "seal"]],
-      "expected_behavior": "recall"
+      "recall_all": [
+        [
+          "leak",
+          "oil leak",
+          "seal"
+        ]
+      ],
+      "expected_behavior": "recall",
+      "probe_type": "C3"
     },
     {
       "id": "MEM-TMP-02-superseded-plan",
@@ -93,8 +163,17 @@
         "Later I decided bearing MEM-B8 should actually be greased every two weeks instead."
       ],
       "recall_question": "what is my CURRENT greasing interval for bearing MEM-B8?",
-      "recall_all": [["two weeks", "every two weeks", "fortnight", "bi-weekly", "biweekly"]],
-      "expected_behavior": "recall"
+      "recall_all": [
+        [
+          "two weeks",
+          "every two weeks",
+          "fortnight",
+          "bi-weekly",
+          "biweekly"
+        ]
+      ],
+      "expected_behavior": "recall",
+      "probe_type": "C3"
     },
     {
       "id": "MEM-TMP-03-order-of-events",
@@ -105,8 +184,15 @@
         "This afternoon conveyor MEM-CV9 stopped again, that time because a roller seized."
       ],
       "recall_question": "what caused the LATER stoppage on conveyor MEM-CV9 this afternoon?",
-      "recall_all": [["roller", "seized", "seize"]],
-      "expected_behavior": "recall"
+      "recall_all": [
+        [
+          "roller",
+          "seized",
+          "seize"
+        ]
+      ],
+      "expected_behavior": "recall",
+      "probe_type": "C3"
     },
     {
       "id": "MEM-UP-01-reorder-point",
@@ -117,8 +203,13 @@
         "Update that: the reorder point for filter part MEM-FP10 should now be 27 units, not the old number."
       ],
       "recall_question": "what is the CURRENT reorder point for filter part MEM-FP10?",
-      "recall_all": [["27"]],
-      "expected_behavior": "recall"
+      "recall_all": [
+        [
+          "27"
+        ]
+      ],
+      "expected_behavior": "recall",
+      "probe_type": "C4"
     },
     {
       "id": "MEM-UP-02-changed-tech",
@@ -129,8 +220,13 @@
         "Correction: the MEM-LINE11 PM route owner is now technician Beng, please update it."
       ],
       "recall_question": "who currently owns the MEM-LINE11 PM route?",
-      "recall_all": [["beng"]],
-      "expected_behavior": "recall"
+      "recall_all": [
+        [
+          "beng"
+        ]
+      ],
+      "expected_behavior": "recall",
+      "probe_type": "C4"
     },
     {
       "id": "MEM-NEG-01-never-told-part",
@@ -139,7 +235,8 @@
       "setup": [],
       "recall_question": "what spare part number did I give you earlier for compressor MEM-ZZ90?",
       "expected_behavior": "abstain",
-      "note": "No unit ever mentions MEM-ZZ90. The companion must say it has no such record / I have not been told, NOT invent a part number."
+      "note": "No unit ever mentions MEM-ZZ90. The companion must say it has no such record / I have not been told, NOT invent a part number.",
+      "probe_type": "C5"
     },
     {
       "id": "MEM-NEG-02-never-reported-fault",
@@ -148,7 +245,8 @@
       "setup": [],
       "recall_question": "remind me which fault code I reported last week for line MEM-ZZ91.",
       "expected_behavior": "abstain",
-      "note": "Nothing about MEM-ZZ91 was ever said. Must abstain rather than fabricate a fault code."
+      "note": "Nothing about MEM-ZZ91 was ever said. Must abstain rather than fabricate a fault code.",
+      "probe_type": "C5"
     },
     {
       "id": "MEM-NEG-03-no-such-history",
@@ -157,7 +255,8 @@
       "setup": [],
       "recall_question": "what was the torque value we agreed on for pump MEM-ZZ92?",
       "expected_behavior": "abstain",
-      "note": "MEM-ZZ92 is a distractor for the real MEM-P2 torque fact. Must NOT cross-wire MEM-P2's 215 Nm onto MEM-ZZ92; must abstain."
+      "note": "MEM-ZZ92 is a distractor for the real MEM-P2 torque fact. Must NOT cross-wire MEM-P2's 215 Nm onto MEM-ZZ92; must abstain.",
+      "probe_type": "C5"
     },
     {
       "id": "MEM-NEG-04-did-i-ever-say",
@@ -166,7 +265,52 @@
       "setup": [],
       "recall_question": "did I ever tell you the coolant brand we use on chiller MEM-ZZ93? if so, what was it?",
       "expected_behavior": "abstain",
-      "note": "A yes/no recall probe about an unmentioned topic. Correct answer: no, you have not told me. Fabricating a brand fails."
+      "note": "A yes/no recall probe about an unmentioned topic. Correct answer: no, you have not told me. Fabricating a brand fails.",
+      "probe_type": "C5"
+    },
+    {
+      "id": "MEM-LIM-01-buried-torque",
+      "probe_type": "C6",
+      "ability": "lost_in_middle",
+      "category": "memory_lost_in_middle",
+      "expected_behavior": "recall",
+      "setup": [
+        "By the way, the torque spec for the P-203 flange bolts is 85 Nm, noting it for later.",
+        "Anyway, the canteen ran out of coffee again this morning.",
+        "Remind me what PPE I need for grinding work.",
+        "Also the night shift said the lighting in bay 3 is flickering."
+      ],
+      "recall_question": "what torque spec did I mention earlier for the P-203 flange bolts?",
+      "recall_all": [
+        [
+          "85",
+          "85 nm",
+          "85nm",
+          "eighty-five"
+        ]
+      ]
+    },
+    {
+      "id": "MEM-PRO-01-followup",
+      "probe_type": "C7",
+      "ability": "prospective",
+      "category": "memory_prospective",
+      "expected_behavior": "recall",
+      "setup": [
+        "Quick one, please remind me to recheck the vibration on pump P-204 after next week shutdown.",
+        "Anyway the parts delivery for line 2 got delayed again.",
+        "The new tech starts on Monday by the way."
+      ],
+      "recall_question": "what did I ask you to remind me to recheck later?",
+      "recall_all": [
+        [
+          "p-204",
+          "p204"
+        ],
+        [
+          "vibration"
+        ]
+      ]
     }
   ]
 }

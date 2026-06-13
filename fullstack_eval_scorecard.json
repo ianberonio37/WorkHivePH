@@ -1,0 +1,49 @@
+{
+  "generated_at": "2026-06-11T08:08:14+00:00",
+  "axes": {
+    "coverage": 76.9,
+    "integrity": 100.0,
+    "protection": 100.0,
+    "guardian": null
+  },
+  "signals": {
+    "total_cells": 78,
+    "filled_cells": 60,
+    "blank_cells": 18,
+    "artefacts_referenced": 58,
+    "artefacts_missing": 0,
+    "production_protected": "13/13",
+    "per_gate_layer": {
+      "G-1.5": {
+        "name": "Substrate",
+        "filled": 7,
+        "of": 13
+      },
+      "G-1": {
+        "name": "Auto-discovery",
+        "filled": 10,
+        "of": 13
+      },
+      "G0": {
+        "name": "Fast Guardian",
+        "filled": 13,
+        "of": 13
+      },
+      "GH": {
+        "name": "Hardening",
+        "filled": 10,
+        "of": 13
+      },
+      "GS": {
+        "name": "Sentinel",
+        "filled": 7,
+        "of": 13
+      },
+      "G2": {
+        "name": "Comprehensive E2E",
+        "filled": 13,
+        "of": 13
+      }
+    }
+  }
+}

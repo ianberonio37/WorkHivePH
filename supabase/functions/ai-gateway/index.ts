@@ -181,6 +181,65 @@ const PERSONA_KNOWLEDGE_AGENTS: Set<string> = new Set([
   "voice-journal", "assistant",
 ]);
 
+// Agents that get a LIVE OPERATIONS SNAPSHOT (2026-06-13 fabrication fix). The
+// conversational launcher (voice-journal) has the persona BRAIN but had NO live
+// hive operational data, so it leaned on fuzzy conversational memory and either
+// confabulated assets/metrics (invented "P-203", "78% OEE", "PM compliance <70%")
+// or deflected real operational questions ("check the Work Assistant") even though
+// v_alert_truth / asset_nodes / the PM truth view hold the answers. Injecting a
+// compact, verified, hive-scoped snapshot (active-alert count + top alerts, overdue
+// PM count, the real registered asset-tag list) grounds "open jobs / how many alerts
+// / which assets" in TRUTH and gives the agent the data to reject asset tags that are
+// not registered. Best-effort + token-capped; a DB miss simply omits the block.
+const OPS_SNAPSHOT_AGENTS: Set<string> = new Set(["voice-journal"]);
+
+// Build the LIVE OPERATIONS SNAPSHOT block (2026-06-13 fabrication fix). Reads the same
+// canonical truth views the rest of the platform reads — v_alert_truth (active alerts),
+// asset_nodes (the registered asset-tag list), v_pm_scope_items_truth (overdue PM) — and
+// renders a compact, token-capped grounding block. Uses the service-role admin client
+// (RLS-bypass) but is hive-scoped by the .eq("hive_id") filter on every read, so it can
+// only ever surface THIS hive's data (no cross-hive leak). Never persisted; best-effort
+// (any error or empty result returns "" and the conversation proceeds ungrounded as before).
+async function buildOpsSnapshot(client: SupabaseClient, hiveId: string): Promise<string> {
+  try {
+    const [alertsCountRes, alertsTopRes, assetsRes] = await Promise.all([
+      client.from("v_alert_truth").select("alert_id", { count: "exact", head: true })
+        .eq("hive_id", hiveId).eq("status", "active"),
+      client.from("v_alert_truth").select("machine,severity,title")
+        .eq("hive_id", hiveId).eq("status", "active").limit(60),
+      client.from("asset_nodes").select("tag").eq("hive_id", hiveId).not("tag", "is", null),
+    ]);
+    const topRows = (alertsTopRes.data ?? []) as Array<{ machine?: string; severity?: string; title?: string }>;
+    const activeAlerts = alertsCountRes.count ?? topRows.length;
+    const rank: Record<string, number> = { critical: 0, high: 1, medium: 2, low: 3 };
+    const top = topRows.slice()
+      .sort((a, b) => (rank[String(a.severity || "").toLowerCase()] ?? 9) - (rank[String(b.severity || "").toLowerCase()] ?? 9))
+      .slice(0, 4)
+      .map((a) => `${a.machine || "?"} (${String(a.severity || "?").toLowerCase()}: ${String(a.title || "").slice(0, 44)})`);
+    const tags = Array.from(new Set(
+      ((assetsRes.data ?? []) as Array<{ tag?: string }>).map((a) => a.tag).filter(Boolean) as string[],
+    )).sort();
+
+    let overdue: number | null = null;
+    try {
+      const { count } = await client.from("v_pm_scope_items_truth")
+        .select("*", { count: "exact", head: true }).eq("hive_id", hiveId).eq("is_overdue", true);
+      overdue = count ?? null;
+    } catch (_) { /* view absent in some envs; best-effort */ }
+
+    const lines = [
+      "=== LIVE OPERATIONS SNAPSHOT (verified from this hive's records, right now) ===",
+      `Active alerts (the open jobs needing attention): ${activeAlerts}${top.length ? ` — top: ${top.join("; ")}` : ""}.`,
+      overdue != null ? `Overdue PM tasks: ${overdue}.` : "",
+      tags.length ? `Registered assets (${tags.length}) — these are the ONLY real asset tags in this hive: ${tags.join(", ")}.` : "",
+      "GROUNDING RULE: answer 'open jobs / how many alerts / what's overdue / which assets do I have' from THIS snapshot's real numbers and names. If an exact figure (OEE, MTBF, a per-asset KPI) is NOT in this snapshot, say you don't have that number on this surface — never invent one. If the worker names an asset tag that is not in the list above, tell them it is not one of their registered assets rather than describing its condition.",
+    ].filter(Boolean);
+    return lines.join("\n");
+  } catch (_) {
+    return "";
+  }
+}
+
 // Agents that participate in the PROSPECTIVE follow-up queue (layer 06). For
 // these the gateway (a) surfaces any of the worker's follow-ups that are now
 // due into the context, and (b) enqueues new follow-ups the specialist emits in
@@ -500,7 +559,7 @@ serve(async (req) => {
   const memorySections: Record<string, boolean> = {
     working: false, semantic: false, episodic: false,
     verified_state: false, procedural: false, followups: false,
-    domain_knowledge: false,
+    domain_knowledge: false, ops_snapshot: false,
   };
   if (authUid) {
     const handle: MemoryHandle = {
@@ -630,6 +689,27 @@ serve(async (req) => {
       }
     } catch (err) {
       console.warn("[ai-gateway] persona-knowledge load failed (non-fatal):", err instanceof Error ? err.message : err);
+    }
+  }
+
+  // Live operations snapshot (layer 09 — verified ops grounding for the conversational
+  // launcher). THE 2026-06-13 fabrication fix: voice-journal had the persona BRAIN +
+  // all the recall layers above, but NO live hive operational data — so it answered
+  // "open jobs / how many alerts / which assets / what's my OEE" from fuzzy conversational
+  // memory, confabulating assets ("P-203") and metrics ("78% OEE", "PM <70%") or deflecting
+  // to the Work Assistant. Prepend a compact, verified, hive-scoped snapshot so those
+  // questions ground in TRUTH and the agent can reject unregistered asset tags. Prepended
+  // (not appended) so it OUTRANKS the stale conversational summary that follows it. Pure DB
+  // reads via the admin client, hive-scoped, token-capped, best-effort.
+  if (authUid && hive_id && OPS_SNAPSHOT_AGENTS.has(agent)) {
+    try {
+      const opsBlock = await buildOpsSnapshot(adminClient, hive_id);
+      if (opsBlock) {
+        memory_block = memory_block ? `${opsBlock}\n\n${memory_block}` : opsBlock;
+        memorySections.ops_snapshot = true;
+      }
+    } catch (err) {
+      console.warn("[ai-gateway] ops snapshot failed (non-fatal):", err instanceof Error ? err.message : err);
     }
   }
 
@@ -950,9 +1030,14 @@ serve(async (req) => {
     try {
       const collapsed = await summariseIfNeeded(adminClient, handle, async (transcript) =>
         await callAI(
-          `Compress this earlier conversation excerpt into 2-3 sentences of durable context — decisions made, facts stated, and open items. Plain prose, no preamble.\n\n${transcript}`,
+          // 2026-06-14 false-memory-loop fix: the transcript is labelled "User:" / "Assistant:".
+          // The OLD prompt ("preserve specifics: numbers...") promoted the ASSISTANT's own
+          // volunteered figures into durable "facts" with no speaker attribution — so a
+          // fabricated "PM compliance 68%" became a recalled user fact. Only record what the
+          // WORKER actually stated, attributed to them; never promote an Assistant figure to fact.
+          `Compress this earlier conversation excerpt into 2-3 sentences of durable context. ONLY record facts, values, and decisions stated by the WORKER (lines marked "User:"), and attribute them to the worker (e.g. "the worker said the flange torque was 85 Nm"). Do NOT record any number, KPI, percentage, reading, or claim that only the Assistant volunteered — those are suggestions, not verified facts, and must never become memory. Capture the worker's stated values, their decisions, and open questions only. Plain prose, no preamble.\n\n${transcript}`,
           {
-            systemPrompt: "You compress chat history into a tight, factual summary that preserves specifics (numbers, asset tags, commitments).",
+            systemPrompt: "You compress chat history into a tight, factual summary. You ONLY preserve what the WORKER stated (the numbers, asset tags, and commitments THEY gave) plus decisions and open items, and you attribute facts to the worker. You NEVER promote an Assistant-suggested figure, KPI, or reading into a stated fact.",
             maxTokens: 220, temperature: 0.3, jsonMode: false, sessionKey: session_key,
           },
         ),

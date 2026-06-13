@@ -1051,7 +1051,7 @@ happens to know maintenance, not a manual.`;
     // ── Init ──────────────────────────────────────────────────────
     window.addEventListener('DOMContentLoaded', () => {
       // supabase-js is now loaded (script at end of body executed before DOMContentLoaded)
-      db = supabase.createClient(
+      db = getDb(
         'https://hzyvnjtisfgbksicrouu.supabase.co',
         'sb_publishable_ePj-suLMwkMRVDH6eM6S8g_R0rZVbMZ' // anon/publishable key: safe to expose in frontend
       );
