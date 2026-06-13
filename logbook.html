@@ -1595,7 +1595,13 @@ function updateOfflineUI(isOnline) {
   document.getElementById('offline-banner').classList.toggle('hidden', isOnline);
 }
 async function updateOfflineBadge() {
-  const pending = await getPendingEntries();
+  let pending;
+  try { pending = await getPendingEntries(); }
+  catch (e) { // P14: a broken offline queue must not throw — just hide the badge
+    console.error('offline badge: queue read failed', e);
+    document.getElementById('offline-queue-count')?.classList.add('hidden');
+    return;
+  }
   const badge   = document.getElementById('offline-queue-count');
   if (pending.length) {
     badge.textContent = pending.length + ' pending';
@@ -1607,7 +1613,12 @@ async function updateOfflineBadge() {
 
 // ── Drain queue when connection returns ──
 async function syncOfflineQueue() {
-  const pending = await getPendingEntries();
+  let pending;
+  try { pending = await getPendingEntries(); }
+  catch (e) { // P14: queue read failed — skip this drain, retry on next reconnect
+    console.error('offline sync: queue read failed; will retry on next reconnect', e);
+    return;
+  }
   if (!pending.length) return;
   let synced = 0;
   for (const p of pending) {
@@ -1646,8 +1657,20 @@ async function loadEntries() {
   const { data, error } = await query;
   if (error) { console.error(error); showToast('Could not load entries. Check your connection.'); return []; }
 
-  // Merge pending inserts (new offline entries) and pending updates (offline edits)
-  const pending        = await getPendingEntries();
+  // Merge pending inserts (new offline entries) and pending updates (offline edits).
+  // Offline-first hardening (P14): a queue-read failure (corrupted IndexedDB, iOS
+  // private mode, storage eviction) must NOT discard the rows we already fetched
+  // from the cloud. Without this guard, an IDB reject threw out of loadEntries and
+  // the whole feed rendered "No entries yet." despite a successful 200-row fetch.
+  // Degrade to cloud-only + a visible toast, never blank.
+  let pending;
+  try {
+    pending = await getPendingEntries();
+  } catch (e) {
+    console.error('offline queue read failed; showing cloud entries only:', e);
+    showToast('Offline queue unavailable — showing saved entries only.');
+    pending = [];
+  }
   const pendingInserts = pending.filter(p => !p._queueOp || p._queueOp !== 'update');
   const pendingUpdates = pending.filter(p => p._queueOp === 'update');
   const insertIds      = new Set(pendingInserts.map(p => p.id));

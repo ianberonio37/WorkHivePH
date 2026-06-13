@@ -284,7 +284,14 @@
   <!-- Header -->
   <div id="header-import" style="margin-bottom: 1.5rem;">
     <span style="display:inline-block; font-size:.6rem; font-weight:700; letter-spacing:.06em; text-transform:uppercase; padding:.2rem .6rem; border-radius:999px; background:rgba(247,162,27,0.14); color:var(--gold); border:1px solid rgba(247,162,27,0.28); margin-bottom:.5rem;">Phase 2 · Cold Start Solver</span>
-    <h1 style="font-size:1.4rem; font-weight:800; line-height:1.2;">CMMS Integration</h1>
+    <h1 style="font-size:1.4rem; font-weight:800; line-height:1.2;">Connections</h1>
+    <!-- STREAMLINE F7: integrations + plant-connections are ONE "Connections" surface
+         (both connect external systems, same supervisor audience). One nav entry; this
+         tab bar switches CMMS ↔ Plant/IoT. Both pages kept on disk (reachable via tabs). -->
+    <div class="wh-conn-tabs" role="tablist" style="display:flex; gap:8px; margin:10px 0 6px; flex-wrap:wrap;">
+      <span role="tab" aria-selected="true" style="padding:7px 14px; min-height:36px; display:inline-flex; align-items:center; border-radius:8px; background:rgba(247,162,27,0.15); color:var(--gold); font-size:.78rem; font-weight:700; border:1px solid rgba(247,162,27,0.4);">CMMS Integration</span>
+      <a role="tab" aria-selected="false" href="plant-connections.html" style="padding:7px 14px; min-height:36px; display:inline-flex; align-items:center; border-radius:8px; background:rgba(255,255,255,0.04); color:rgba(255,255,255,0.7); font-size:.78rem; font-weight:600; text-decoration:none; border:1px solid rgba(255,255,255,0.08);">Plant / IoT &rarr;</a>
+    </div>
     <p style="font-size:.75rem; color:var(--muted); margin-top:.25rem;">Import your existing SAP PM, Maximo, or CMMS data. WorkHive's intelligence activates on day one.</p>
     <p id="integrations-source-chip" style="margin-top:3px;"></p>
   </div>

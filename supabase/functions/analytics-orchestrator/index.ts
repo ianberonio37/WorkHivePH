@@ -173,7 +173,12 @@ async function fetchDescriptiveData(
   else if (workerName) completionsQ.eq("worker_name", workerName);
   if (assetIds.length) completionsQ.in("asset_id", assetIds);
 
-  const scopeQ = db.from("v_pm_scope_items_truth").select("id, asset_id, frequency, item_text");   // canonical
+  // canonical: pass the BAKED frequency-aware signals (next_due_date / is_overdue /
+  // is_due_soon / frequency_days) so predictive.py reads them instead of recomputing
+  // from a local frequency map (P5/P6 — read-don't-recompute; keeps the PM Due
+  // Calendar identical to pm-scheduler + home).
+  const scopeQ = db.from("v_pm_scope_items_truth")
+    .select("id, asset_id, frequency, frequency_days, item_text, next_due_date, days_until_due, is_overdue, is_due_soon, last_completed_at");
   if (assetIds.length) scopeQ.in("asset_id", assetIds);
 
   // OEE: only needs production_output + downtime_hours (small select)
@@ -414,12 +419,21 @@ async function callGroqSynthesis(
   canonicalRisk: Array<Record<string, unknown>>,
   db: SupabaseClient,
   persona?: unknown,
+  horizon?: unknown,
 ): Promise<string> {
+  // S6 Action Brief: the horizon frames the SAME prescriptive data as a shift /
+  // today / strategic slice (one engine, three surfaces). Absent → unchanged.
+  const HORIZON_FRAMING: Record<string, string> = {
+    shift:     "FRAME THIS AS A SHIFT BRIEF: the 2-3 most urgent actions for the incoming shift, ordered by what to walk to first.",
+    today:     "FRAME THIS AS TODAY'S BRIEF: the most important things to action today.",
+    strategic: "FRAME THIS AS A STRATEGIC 90-DAY PLAN: the structural moves (PM interval changes, training, reorder policy) that lower risk over the quarter.",
+  };
+  const horizonFraming = (horizon && HORIZON_FRAMING[String(horizon)]) ? HORIZON_FRAMING[String(horizon)] + "\n\n" : "";
   const memberList = hiveMembers.length > 0
     ? `Your actual team members are: ${hiveMembers.join(", ")}. ONLY use these names — never invent names like John, Bob, or any other person not in this list.`
     : "You do not know the team member names — do not invent names. Refer to workers by their discipline (e.g. 'the Mechanical technician').";
 
-  const systemPrompt = `You are a senior maintenance manager writing a weekly action plan for an industrial team.
+  const systemPrompt = `${horizonFraming}You are a senior maintenance manager writing an action plan for an industrial team.
 
 Cite the same standards the platform's deterministic calcs use:
   • MTBF / MTTR / Availability → ISO 14224:2016 §9.2-9.4 (note: platform MTBF/MTTR are partial variants — MTBF uses calendar time, MTTR uses total downtime — declare partial when discussing them)
@@ -688,7 +702,17 @@ serve(async (req) => {
   if (healthResp) return healthResp;
 
   try {
-    let { phase, hive_id, worker_name, period_days, criticality, discipline, persona } = await req.json();
+    let { phase, hive_id, worker_name, period_days, criticality, discipline, persona, horizon } = await req.json();
+
+    // STREAMLINE S6 (Action Brief fusion): `horizon` lets ONE prescriptive engine
+    // serve all three brief surfaces as time-scoped SLICES — shift-brain=shift,
+    // alert-hub=today, analytics/report=strategic — replacing the duplicate
+    // amc-orchestrator + shift-planner-orchestrator brains. It only maps to a default
+    // window + frames the narrative; absent → unchanged. The 5 prescriptive legs
+    // (priority ranking, PM intervals, technician assignment, parts reorder, Groq
+    // plan) ARE amc's 5 sub-agents and shift-planner's legs, 1:1.
+    const HORIZON_DAYS: Record<string, number> = { shift: 7, today: 14, strategic: 90 };
+    if (horizon && (period_days == null)) period_days = HORIZON_DAYS[String(horizon)] ?? period_days;
 
     if (!phase) {
       return new Response(
@@ -841,6 +865,7 @@ serve(async (req) => {
             canonicalRisk,
             db,
             persona,
+            horizon,
           );
           actionPlan = JSON.parse(raw);
         } catch (_e) { actionPlan = null; }
@@ -964,7 +989,7 @@ serve(async (req) => {
       };
 
       const canonicalRisk = await fetchCanonicalRiskTop(db, hive_id || null, 5);
-      const raw = await callGroqSynthesis(fullContext, hiveMembers, canonicalRisk, db);
+      const raw = await callGroqSynthesis(fullContext, hiveMembers, canonicalRisk, db, persona, horizon);
       try { groqSynthesis = JSON.parse(raw); } catch { groqSynthesis = null; }
     }
 
@@ -997,7 +1022,7 @@ serve(async (req) => {
     }
 
     // Attach metadata
-    const response = {
+    const response: Record<string, unknown> = {
       phase,
       hive_id:     hive_id || null,
       worker_name: worker_name || null,
@@ -1006,6 +1031,20 @@ serve(async (req) => {
       ...results,
       ...(groqSynthesis ? { action_plan: groqSynthesis } : {}),
     };
+
+    // Conversational surface: when a Groq synthesis exists, expose a prose top-level
+    // `answer` so the ai-gateway's `answer ?? summary ?? ...` extraction surfaces a
+    // narrative instead of stringifying the whole structured payload (the
+    // "[object Object]" class — same fix shift-planner got). (W9 wiring fix 2026-06-12.)
+    if (groqSynthesis && typeof groqSynthesis === "object") {
+      const g = groqSynthesis as Record<string, unknown>;
+      const parts: string[] = [];
+      if (typeof g.summary === "string" && g.summary.trim()) parts.push(g.summary.trim());
+      if (Array.isArray(g.this_week) && g.this_week.length) {
+        parts.push("This week: " + (g.this_week as unknown[]).slice(0, 3).map(String).join("; "));
+      }
+      if (parts.length) response.answer = parts.join(" ");
+    }
 
     // Phase 1 (open-fast, 2026-06-10): persist the DEFAULT-view result so the
     // next page open today hydrates instantly from analytics_snapshots

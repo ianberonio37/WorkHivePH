@@ -82,6 +82,201 @@ function renderSourceChip(opts) {
 }
 
 // ─────────────────────────────────────────────
+// renderRiskStrip — ONE shared "top at-risk assets" strip (STREAMLINE F2)
+// ─────────────────────────────────────────────
+// One renderer for the top-N at-risk asset list, reused by index (operational
+// heartbeat), shift-brain (shift risk card), and alert-hub so the same asset-risk
+// list cannot drift in look, ordering, or deep-link target across pages. Canonical
+// home is asset-hub (the per-asset 360); every row deep-links back there.
+//   rows : v_risk_truth rows, ALREADY band-filtered (high/critical) + ordered by
+//          risk_score desc by the caller (registry top_risk_band rule stays at the
+//          query). Each row needs asset_name, risk_score, risk_level, mtbf_days.
+//   opts : { limit=3, title=null, ragTile='shared:risk_strip' }
+//          - title set  -> returns a titled .oh-card with an "All assets →" link
+//          - title unset -> returns the bare rows (for embedding in an existing card)
+// Returns an HTML string (caller assigns to el.innerHTML), like renderSourceChip.
+function renderRiskStrip(rows, opts) {
+  opts = opts || {};
+  var e = escHtml;
+  var limit = opts.limit || 3;
+  var list = (rows || []).slice(0, limit);
+  if (!list.length) return '';
+  var rowsHtml = list.map(function (r) {
+    var pct  = Math.round((Number(r.risk_score) || 0) * 100);
+    var mtbf = (r.mtbf_days != null) ? ('MTBF ' + Math.round(r.mtbf_days) + 'd') : '';
+    var href = 'asset-hub.html?tag=' + encodeURIComponent(r.asset_name || '');
+    var lvl  = String(r.risk_level || '').toLowerCase();
+    return '<a href="' + e(href) + '" class="wh-risk-row" style="display:flex;align-items:center;justify-content:space-between;gap:10px;text-decoration:none;padding:8px 10px;background:rgba(255,255,255,0.03);border-radius:8px;">'
+      +   '<div style="display:flex;align-items:center;gap:8px;min-width:0;flex:1;">'
+      +     '<span class="oh-badge oh-badge-' + e(lvl) + '">' + e(r.risk_level) + '</span>'
+      +     '<span style="font-size:.78rem;font-weight:600;color:#F4F6FA;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + e(r.asset_name) + '</span>'
+      +   '</div>'
+      +   '<div style="display:flex;align-items:center;gap:10px;flex-shrink:0;">'
+      +     '<span style="font-size:.65rem;color:rgba(255,255,255,.6);white-space:nowrap;">' + e(mtbf) + '</span>'
+      +     '<span style="font-size:.72rem;font-weight:800;color:#f87171;">' + pct + '%</span>'
+      +   '</div>'
+      + '</a>';
+  }).join('');
+  var inner = '<div style="display:flex;flex-direction:column;gap:8px;">' + rowsHtml + '</div>';
+  if (!opts.title) return inner;
+  return '<div class="oh-card" data-rag-tile="' + e(opts.ragTile || 'shared:risk_strip') + '" data-rag-label="' + e(opts.title) + '" style="padding:14px 16px;border-left:3px solid #f87171;">'
+    +   '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">'
+    +     '<p style="font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#f87171;margin:0;">' + e(opts.title) + '</p>'
+    +     '<a href="asset-hub.html" style="font-size:.62rem;color:rgba(255,255,255,.6);text-decoration:none;display:inline-flex;align-items:center;min-height:44px;">All assets &#8594;</a>'
+    +   '</div>' + inner + '</div>';
+}
+if (typeof window !== 'undefined') window.renderRiskStrip = renderRiskStrip;
+
+// ─────────────────────────────────────────────
+// renderPmDueStrip — ONE shared PM overdue/due-soon strip (STREAMLINE F4)
+// ─────────────────────────────────────────────
+// One renderer for a frequency-aware PM list, reused by shift-brain (this-shift
+// slice) and any page that lists PM scope items, so the overdue/due-soon rows
+// share look + scope labelling and can't drift. After S1 the NUMBERS are already
+// canonical (v_pm_scope_items_truth.is_overdue/is_due_soon); this makes the
+// PRESENTATION single-source too. Owner page = pm-scheduler; every row deep-links there.
+//   rows : v_pm_scope_items_truth-shaped rows; needs asset_name (or tag_id),
+//          is_overdue, days_until_due; optional criticality, item_text.
+//   opts : { limit=10, title=null, scope=null ('this shift'|'hive'|'yours'),
+//            ragTile='shared:pm_due_strip' }
+// Returns an HTML string (caller assigns to el.innerHTML).
+function renderPmDueStrip(rows, opts) {
+  opts = opts || {};
+  var e = escHtml;
+  var limit = opts.limit || 10;
+  var list = (rows || []).slice(0, limit);
+  if (!list.length) return '';
+  var rowsHtml = list.map(function (r) {
+    var name = r.asset_name || r.tag_id || r.asset_tag || 'asset';
+    var over = (r.is_overdue === true);
+    var d = (r.days_until_due != null) ? Math.abs(Math.round(Number(r.days_until_due))) : null;
+    var status, badge;
+    if (over) { badge = 'critical'; status = (d != null) ? ('Overdue by ' + d + 'd') : 'Overdue'; }
+    else      { badge = 'high';     status = (d != null) ? ('Due in ' + d + 'd')     : 'Due soon'; }
+    var crit = r.criticality || r.asset_criticality || '';
+    var href = 'pm-scheduler.html';
+    return '<a href="' + e(href) + '" class="wh-pmdue-row" style="display:flex;align-items:center;justify-content:space-between;gap:10px;text-decoration:none;padding:8px 10px;background:rgba(255,255,255,0.03);border-radius:8px;">'
+      +   '<div style="display:flex;align-items:center;gap:8px;min-width:0;flex:1;">'
+      +     '<span class="oh-badge oh-badge-' + e(badge) + '">' + (over ? 'OVERDUE' : 'DUE') + '</span>'
+      +     '<span style="font-size:.78rem;font-weight:600;color:#F4F6FA;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + e(name) + '</span>'
+      +   '</div>'
+      +   '<div style="display:flex;align-items:center;gap:10px;flex-shrink:0;">'
+      +     (crit ? '<span style="font-size:.62rem;color:rgba(255,255,255,.6);white-space:nowrap;">' + e(crit) + '</span>' : '')
+      +     '<span style="font-size:.68rem;font-weight:700;color:' + (over ? '#f87171' : '#F7A21B') + ';white-space:nowrap;">' + e(status) + '</span>'
+      +   '</div>'
+      + '</a>';
+  }).join('');
+  var scopeChip = opts.scope
+    ? '<span style="font-size:.55rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:rgba(255,255,255,.45);">' + e(opts.scope) + '</span>'
+    : '';
+  var inner = '<div style="display:flex;flex-direction:column;gap:8px;">' + rowsHtml + '</div>';
+  if (!opts.title) return inner;
+  return '<div class="oh-card" data-rag-tile="' + e(opts.ragTile || 'shared:pm_due_strip') + '" data-rag-label="' + e(opts.title) + '" style="padding:14px 16px;border-left:3px solid #29B6D9;">'
+    +   '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">'
+    +     '<p style="font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#29B6D9;margin:0;">' + e(opts.title) + '</p>'
+    +     (scopeChip || '<a href="pm-scheduler.html" style="font-size:.62rem;color:rgba(255,255,255,.6);text-decoration:none;display:inline-flex;align-items:center;min-height:44px;">PM Scheduler &#8594;</a>')
+    +   '</div>' + inner + '</div>';
+}
+if (typeof window !== 'undefined') window.renderPmDueStrip = renderPmDueStrip;
+
+// ─────────────────────────────────────────────
+// renderPartsStrip — ONE shared parts-action list (STREAMLINE F3)
+// ─────────────────────────────────────────────
+// One renderer for an urgency-ranked parts list (out-of-stock first, then low /
+// reorder), reused by shift-brain (parts pre-stage) and any page that lists
+// at-risk parts, so the parts list shares look + ranking and can't drift. Owner
+// page = inventory (the ledger + canonical is_low_stock/is_out_of_stock); every
+// row deep-links there. (Count chips on index/hive already read the same flags.)
+//   rows : inventory-shaped rows; needs part_name, qty_on_hand, min_qty; optional
+//          is_out_of_stock / is_low_stock.
+//   opts : { limit=10, title=null, ragTile='shared:parts_strip' }
+function renderPartsStrip(rows, opts) {
+  opts = opts || {};
+  var e = escHtml;
+  var limit = opts.limit || 10;
+  var list = (rows || []).slice();
+  // urgency rank: out-of-stock (qty<=0) before merely-low
+  list.sort(function (a, b) {
+    var ao = ((a.is_out_of_stock === true) || Number(a.qty_on_hand) <= 0) ? 0 : 1;
+    var bo = ((b.is_out_of_stock === true) || Number(b.qty_on_hand) <= 0) ? 0 : 1;
+    return ao - bo;
+  });
+  list = list.slice(0, limit);
+  if (!list.length) return '';
+  var rowsHtml = list.map(function (r) {
+    var qty = Number(r.qty_on_hand) || 0, mn = Number(r.min_qty) || 0;
+    var out = (r.is_out_of_stock === true) || qty <= 0;
+    var badge = out ? 'critical' : 'high';
+    var label = out ? 'OUT' : 'LOW';
+    var name = r.part_name || 'part';
+    var meta = 'on hand ' + qty + ' / min ' + mn;
+    return '<a href="inventory.html" class="wh-parts-row" style="display:flex;align-items:center;justify-content:space-between;gap:10px;text-decoration:none;padding:8px 10px;background:rgba(255,255,255,0.03);border-radius:8px;">'
+      +   '<div style="display:flex;align-items:center;gap:8px;min-width:0;flex:1;">'
+      +     '<span class="oh-badge oh-badge-' + e(badge) + '">' + label + '</span>'
+      +     '<span style="font-size:.78rem;font-weight:600;color:#F4F6FA;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + e(name) + '</span>'
+      +   '</div>'
+      +   '<span style="font-size:.62rem;color:rgba(255,255,255,.6);white-space:nowrap;flex-shrink:0;">' + e(meta) + '</span>'
+      + '</a>';
+  }).join('');
+  var inner = '<div style="display:flex;flex-direction:column;gap:8px;">' + rowsHtml + '</div>';
+  if (!opts.title) return inner;
+  return '<div class="oh-card" data-rag-tile="' + e(opts.ragTile || 'shared:parts_strip') + '" data-rag-label="' + e(opts.title) + '" style="padding:14px 16px;border-left:3px solid #fb923c;">'
+    +   '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">'
+    +     '<p style="font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#fb923c;margin:0;">' + e(opts.title) + '</p>'
+    +     '<a href="inventory.html" style="font-size:.62rem;color:rgba(255,255,255,.6);text-decoration:none;display:inline-flex;align-items:center;min-height:44px;">Inventory &#8594;</a>'
+    +   '</div>' + inner + '</div>';
+}
+if (typeof window !== 'undefined') window.renderPartsStrip = renderPartsStrip;
+
+// ─────────────────────────────────────────────
+// renderActionBrief — ONE shared Action Brief renderer (STREAMLINE S6 / F1)
+// ─────────────────────────────────────────────
+// One renderer for the unified Action Brief produced by the analytics prescriptive
+// engine (phase=prescriptive + horizon). Replaces the 3 bespoke brief renderers
+// (alert-hub AMC card, shift-brain briefing, analytics action plan) so all three
+// surfaces render time-scoped SLICES of the SAME brief in the SAME shape.
+//   brief : the action_plan object { summary, this_week[], watch_list[], narration }
+//           (analytics_action_plan_v1). Items may be strings or {action,why,...} objects.
+//   opts  : { title='Action Brief', horizon=null, ragTile='shared:action_brief' }
+// Returns an HTML string.
+function renderActionBrief(brief, opts) {
+  opts = opts || {};
+  var e = escHtml;
+  if (!brief || typeof brief !== 'object') return '';
+  var summary = brief.summary || brief.narration || '';
+  var asLine = function (it) {
+    if (it == null) return '';
+    if (typeof it === 'string') return e(it);
+    // object form — prefer action/why, fall back to a compact join of values
+    var a = it.action || it.task || it.item || it.title || '';
+    var why = it.why || it.reason || it.detail || '';
+    if (a || why) return '<strong>' + e(a) + '</strong>' + (why ? ' &middot; ' + e(why) : '');
+    return e(Object.values(it).filter(function (v) { return typeof v === 'string'; }).join(' · '));
+  };
+  var listBlock = function (label, arr, color) {
+    arr = Array.isArray(arr) ? arr.filter(Boolean) : [];
+    if (!arr.length) return '';
+    return '<div style="margin-top:10px;">'
+      + '<p style="font-size:.58rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:' + color + ';margin:0 0 4px;">' + e(label) + '</p>'
+      + '<ul style="margin:0;padding-left:16px;display:flex;flex-direction:column;gap:4px;">'
+      + arr.slice(0, 8).map(function (it) { return '<li style="font-size:.74rem;color:rgba(255,255,255,.82);line-height:1.35;">' + asLine(it) + '</li>'; }).join('')
+      + '</ul></div>';
+  };
+  var hChip = opts.horizon
+    ? '<span style="font-size:.55rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:rgba(255,255,255,.45);">' + e(opts.horizon) + '</span>'
+    : '';
+  return '<div class="oh-card" data-rag-tile="' + e(opts.ragTile || 'shared:action_brief') + '" data-rag-label="' + e(opts.title || 'Action Brief') + '" style="padding:14px 16px;border-left:3px solid #a78bfa;">'
+    +   '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">'
+    +     '<p style="font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#a78bfa;margin:0;">' + e(opts.title || 'Action Brief') + '</p>' + hChip
+    +   '</div>'
+    +   (summary ? '<p style="font-size:.82rem;font-weight:600;color:#F4F6FA;margin:0;line-height:1.4;">' + e(summary) + '</p>' : '')
+    +   listBlock(opts.horizon === 'strategic' ? 'This quarter' : opts.horizon === 'shift' ? 'This shift' : opts.horizon === 'today' ? 'Today' : 'This week', brief.this_week, '#f87171')
+    +   listBlock('Watch list', brief.watch_list, '#F7A21B')
+    + '</div>';
+}
+if (typeof window !== 'undefined') window.renderActionBrief = renderActionBrief;
+
+// ─────────────────────────────────────────────
 // resolveAssetNodeId — writer-side legacy-to-canonical bridge (Phase 5b)
 // ─────────────────────────────────────────────
 // Phase 5b dropped logbook.asset_ref_id (text) in favour of

@@ -57,7 +57,8 @@ ROOT = Path(__file__).resolve().parent.parent
 EXCLUDE_RE = re.compile(
     r"(\.backup\d*\.html$|-test\.html$|test-.*\.html$|^index-.*-test|"
     r"observability|symbol-gallery|validator-catalog|architecture|"
-    r"founder-console|platform-health|public-feed|llm-observability)",
+    r"founder-console|platform-health|public-feed|llm-observability|"
+    r"^predictive\.html$)",   # T4: predictive.html retired Phase 4 (kept on disk so old deep-links don't 404, delisted from nav); its 7 tiles were polluting every survey
     re.I,
 )
 

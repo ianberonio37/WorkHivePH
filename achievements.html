@@ -369,7 +369,14 @@
     <button type="button" onclick="history.back()" class="back-btn" aria-label="Go back">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
     </button>
-    <h1 class="page-title" style="margin:0;">Achievements</h1>
+    <h1 class="page-title" style="margin:0;">Growth</h1>
+  </div>
+  <!-- STREAMLINE F5: skillmatrix + achievements are ONE "Growth" surface (same worker
+       audience, same job "how am I progressing?"). One nav entry; this tab bar switches
+       Skills ↔ Achievements. Both pages kept on disk (reachable via tabs). -->
+  <div class="wh-growth-tabs" role="tablist" style="display:flex; gap:8px; margin:8px 1rem 6px; flex-wrap:wrap;">
+    <a role="tab" aria-selected="false" href="skillmatrix.html" style="padding:6px 12px; min-height:34px; display:inline-flex; align-items:center; border-radius:8px; background:rgba(255,255,255,0.04); color:rgba(255,255,255,0.7); font-size:.76rem; font-weight:600; text-decoration:none; border:1px solid rgba(255,255,255,0.08);">&larr; Skills</a>
+    <span role="tab" aria-selected="true" style="padding:6px 12px; min-height:34px; display:inline-flex; align-items:center; border-radius:8px; background:rgba(247,162,27,0.15); color:#F7A21B; font-size:.76rem; font-weight:700; border:1px solid rgba(247,162,27,0.4);">Achievements</span>
   </div>
   <p id="achievements-source-chip" style="margin:0 0 8px;padding:0 1rem;"></p>
 
@@ -694,7 +701,7 @@
     );
     setCard('level',
       String(composite),
-      composite === 0 ? 'No levels gained yet' : `Sum of levels across all 12 domains (max 60)`,
+      composite === 0 ? 'No levels gained yet' : `Sum of levels across all 12 domains (max 1,200 = 12 domains × level 100)`,
       composite === 0 ? 'START' : composite >= 30 ? 'EXPERT' : composite >= 15 ? 'MID' : 'BUILDING',
       composite === 0 ? 'grey' : composite >= 30 ? 'green' : 'amber'
     );
@@ -959,7 +966,7 @@
         source:    'worker_achievements + achievement_xp_log',
         notes:     [
           'XP this week: achievement_xp_log entries within 7-day window',
-          'Total level: sum of current_level across all achievements (max 60 = 12 domains x level 5)',
+          'Total level: sum of current_level across all achievements (max 1,200 = 12 domains x level 100)',
           'Active domains: distinct achievements with current_level >= 1',
         ],
       });

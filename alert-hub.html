@@ -523,6 +523,23 @@
     if (headlineEl) headlineEl.textContent = String(b.headline || '(no headline)');
     if (summaryEl)  summaryEl.textContent  = String(b.summary  || '');
 
+    // STREAMLINE S6: upgrade the brief body to the unified Action Brief (analytics
+    // prescriptive engine + horizon=today) — the SAME engine shift-brain + analytics
+    // render as their slices. The stored amc_briefings.brief stays as the instant
+    // fallback, and the APPROVAL workflow (approve/reject buttons + amc_briefings.status)
+    // is untouched — the engine fuses the BRAIN, the surface keeps its workflow.
+    (async function loadUnifiedAmcBrief(){
+      if (!summaryEl || !HIVE_ID || typeof renderActionBrief !== 'function') return;
+      try {
+        const { data } = await db.functions.invoke('analytics-orchestrator', {
+          body: { phase: 'prescriptive', hive_id: HIVE_ID, horizon: 'today' },
+        });
+        const ap = data && data.action_plan;
+        if (ap) summaryEl./* xss-allow: renderActionBrief escHtml's every field (utils.js) */ innerHTML =
+          renderActionBrief(ap, { title: 'Action Brief', horizon: 'today', ragTile: 'alert-hub:action_brief' });
+      } catch (_) { /* keep the stored amc_briefings.brief summary as fallback */ }
+    })();
+
     const setStat = (id, n) => {
       const el = document.getElementById(id);
       if (el) {

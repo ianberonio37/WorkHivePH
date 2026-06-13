@@ -62,18 +62,38 @@ def seed_asset_brain(client, log, ctx: dict) -> dict:
 
     crit_map = {"Critical": "critical", "High": "high", "Medium": "medium", "Low": "low"}
 
+    # Bridge each node to its PM program (pm_assets) by tag, so asset-hub's 360
+    # "PM completed" tile + PM timeline light up. seed_pm runs before this seeder,
+    # so pm_assets already exist; match (hive_id, lower(tag_id)). Without this the
+    # bridge is NULL platform-wide and pm_completions.eq('asset_id', pm_asset_id)
+    # silently returns 0 for every asset (STREAMLINE_ROADMAP P9).
+    pm_by_tag: dict = {}
+    try:
+        pm_rows = client.table("pm_assets").select("id, hive_id, tag_id").execute().data or []
+        for pm in pm_rows:
+            if pm.get("tag_id"):
+                pm_by_tag[(pm["hive_id"], str(pm["tag_id"]).strip().lower())] = pm["id"]
+    except Exception as e:  # pragma: no cover — degrade to unlinked, never crash the seed
+        log(f"  WARN: could not load pm_assets for bridge ({e}); nodes will be unlinked")
+
     rows = []
+    linked = 0
     for a in assets:
+        tag = a.get("asset_id") or a.get("name") or "untagged"
+        pm_asset_id = pm_by_tag.get((a["hive_id"], str(tag).strip().lower()))
+        if pm_asset_id:
+            linked += 1
         rows.append({
             "hive_id":         a["hive_id"],
             "worker_name":     a.get("worker_name") or a.get("submitted_by"),
             "level":           "equipment",
-            "tag":             a.get("asset_id") or a.get("name") or "untagged",
+            "tag":             tag,
             "name":            a.get("name") or a.get("asset_id") or "Unnamed",
             "iso_class":       _classify_iso(a.get("type")),
             "criticality":     crit_map.get(a.get("criticality") or "Medium", "medium"),
             "location":        a.get("location"),
             "legacy_asset_id": a["id"],
+            "pm_asset_id":     pm_asset_id,
             "status":          "approved",
             "submitted_by":    a.get("submitted_by"),
             "approved_by":     a.get("approved_by"),
@@ -81,5 +101,5 @@ def seed_asset_brain(client, log, ctx: dict) -> dict:
         })
 
     inserted = batch_insert(client, "asset_nodes", rows, chunk=500)
-    log(f"  inserted {inserted} asset_nodes")
-    return {"asset_nodes_count": inserted}
+    log(f"  inserted {inserted} asset_nodes ({linked} bridged to a PM program by tag)")
+    return {"asset_nodes_count": inserted, "asset_nodes_pm_linked": linked}

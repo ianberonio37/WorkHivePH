@@ -12,12 +12,31 @@
         "index.html",
         "alert-hub.html",
         "hive.html",
-        "pm-scheduler.html"
+        "pm-scheduler.html",
+        "supabase/functions/shift-planner-orchestrator/index.ts",
+        "supabase/functions/ai-orchestrator/index.ts"
       ],
       "forbidden": [
         {
           "pattern": "\\.from\\(\\s*['\\\"]v_pm_compliance_truth['\\\"]\\s*\\)[^;]{0,400}is_due",
-          "why": "v_pm_compliance_truth.is_due is the retired flat-30-day proxy (F4-class: home showed 26 vs pm-scheduler 4). Overdue tiles read frequency-aware is_overdue."
+          "why": "v_pm_compliance_truth.is_due is the retired flat-30-day proxy (F4-class: home showed 26 vs pm-scheduler 4). Overdue tiles read frequency-aware is_overdue. Edge-fn consumers added 2026-06-13 (S1/P1/P10): shift-planner pms_due + ai-orchestrator PM agent both repointed off the flat-30 proxy."
+        }
+      ]
+    },
+    "pm_due_soon": {
+      "definition": "Assets/scope items flagged frequency-aware due-soon (next_due within 14 days, not overdue); distinct pm_asset_id roll-up",
+      "allowed_sources": [
+        "v_pm_scope_items_truth"
+      ],
+      "required_signal": "is_due_soon",
+      "consumers": [
+        "pm-scheduler.html",
+        "supabase/functions/analytics-orchestrator/index.ts"
+      ],
+      "forbidden": [
+        {
+          "pattern": "\\.from\\(\\s*['\\\"]v_pm_compliance_truth['\\\"]\\s*\\)[^;]{0,400}is_due",
+          "why": "v_pm_compliance_truth.is_due is the retired flat-30-day proxy (conflates due + overdue); due-soon is the frequency-aware is_due_soon (next_due within 14 days)."
         }
       ]
     },
@@ -47,7 +66,8 @@
       "consumers": [
         "index.html",
         "alert-hub.html",
-        "inventory.html"
+        "inventory.html",
+        "hive.html"
       ],
       "forbidden": []
     },

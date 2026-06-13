@@ -59,58 +59,84 @@ async function failureAnalysisAgent(db: SupabaseClient, hiveId: string | null, w
 }
 
 // ── AGENT 2: PM Status ────────────────────────────────────────────────────────
-// Reads pm_assets + pm_completions: overdue tasks, health per asset
+// Canonical: v_pm_scope_items_truth.is_overdue (frequency-aware) for hive mode;
+// pm_assets for solo. Overdue is computed DETERMINISTICALLY below (WAT split) and
+// handed to the model — the prompt must NOT re-derive it with a day threshold.
 
-const PM_SYSTEM = `You are a preventive maintenance analyst. Given a list of assets and their PM completion history, identify:
-1. Assets with overdue PM tasks (no completion in over 30 days)
+const PM_SYSTEM = `You are a preventive maintenance analyst. You are GIVEN each asset's PM status, where "overdue" is ALREADY computed from each task's own frequency interval (weekly=7 days, monthly=30, quarterly=90, semi-annual=180, annual=365) — NOT a flat 30-day rule. Do NOT invent your own overdue threshold and do NOT re-classify assets: report exactly the OVERDUE list you are given.
+Identify:
+1. Assets flagged overdue (use the OVERDUE list as given)
 2. Assets with zero PM history (never had a PM done)
-3. Overall PM health score (0-100)
+3. Overall PM health score (0-100, as given)
 Respond only in JSON: { "overdue": [{"asset_name","days_since_last_pm","risk_level"}], "never_done": ["asset_name"], "health_score": number, "summary": "one sentence" }`;
 
 async function pmStatusAgent(db: SupabaseClient, hiveId: string | null, workerName: string | null) {
-  // Canonical: pm_compliance_truth for hive mode. Solo mode falls back to
-  // raw pm_assets because the canonical view is hive-scoped.
-  let assets: Array<Record<string, string>> = [];
+  type PMRow = {
+    pm_asset_id?: string; asset_name?: string; asset_category?: string;
+    is_overdue?: boolean; is_due_soon?: boolean;
+    days_until_due?: number | null; last_completed_at?: string | null;
+  };
+  let rows: PMRow[] = [];
   if (hiveId) {
-    const { data } = await db.from("v_pm_compliance_truth")
-      .select("pm_asset_id, asset_name, category")
+    // Canonical frequency-aware source — the SAME is_overdue pm-scheduler + home
+    // read (kpi_source_registry pm_overdue). Replaces the retired flat-30-day
+    // v_pm_compliance_truth.is_due proxy AND the "no completion in over 30 days"
+    // prompt rule that made the assistant answer "1 overdue" vs canonical 5
+    // (STREAMLINE_ROADMAP P10).
+    const { data } = await db.from("v_pm_scope_items_truth")
+      .select("pm_asset_id, asset_name, asset_category, is_overdue, is_due_soon, days_until_due, last_completed_at")
       .eq("hive_id", hiveId);
-    assets = (data || []).map(a => ({
-      id: a.pm_asset_id, asset_name: a.asset_name, category: a.category,
-    }));
+    rows = (data || []) as PMRow[];
   } else if (workerName) {
-    // canonical-allow: solo mode — v_pm_compliance_truth is hive-scoped and has no
-    // worker_name column; base pm_assets is the only worker-scoped source. (PROJ-DRIFT triage)
+    // canonical-allow: solo mode — v_pm_scope_items_truth is hive-scoped (no
+    // worker_name column); base pm_assets is the only worker-scoped source. Solo
+    // rows carry no per-task frequency, so overdue cannot be frequency-aware here;
+    // we report PM recency only (never the flat-30 overdue rule). (PROJ-DRIFT triage)
     const { data } = await db.from("pm_assets")
-      .select("id, asset_name, category")
+      .select("id, asset_name, category, last_anchor_date")
       .eq("worker_name", workerName);
-    assets = (data || []) as Array<Record<string, string>>;
+    rows = (data || []).map((a: Record<string, string>) => ({
+      pm_asset_id: a.id, asset_name: a.asset_name, asset_category: a.category,
+      is_overdue: false, is_due_soon: false, days_until_due: null,
+      last_completed_at: a.last_anchor_date || null,
+    }));
   }
-  if (!assets.length) return { agent: "pm_status", result: null };
+  if (!rows.length) return { agent: "pm_status", result: null };
 
-  const assetIds = assets.map(a => a.id);
-  // canonical-allow: per-completion rows live in pm_completions (base table);
-  // v_pm_compliance_truth is a per-asset rollup with no asset_id/completed_at. assetIds are pm_assets ids
-  // (= pm_completions.asset_id). (PROJ-DRIFT triage)
-  const { data: completions } = await db.from("pm_completions")
-    .select("asset_id, completed_at")
-    .in("asset_id", assetIds)
-    .order("completed_at", { ascending: false });
-
-  // Build last-completion map per asset
-  const lastDone: Record<string, string> = {};
-  (completions || []).forEach(c => {
-    if (!lastDone[c.asset_id]) lastDone[c.asset_id] = c.completed_at;
-  });
+  // Roll up per asset (distinct pm_asset_id) — matches the canonical pm_overdue metric.
+  type Agg = { name: string; cat: string; overdue: boolean; dueSoon: boolean; lastPm: string | null; worstDays: number; everDone: boolean };
+  const byAsset = new Map<string, Agg>();
+  for (const r of rows) {
+    const key = String(r.pm_asset_id ?? r.asset_name ?? "?");
+    const cur = byAsset.get(key) || { name: r.asset_name || key, cat: r.asset_category || "", overdue: false, dueSoon: false, lastPm: null, worstDays: 0, everDone: false };
+    if (r.is_overdue) cur.overdue = true;
+    if (r.is_due_soon) cur.dueSoon = true;
+    if (r.last_completed_at) {
+      cur.everDone = true;
+      if (!cur.lastPm || r.last_completed_at > cur.lastPm) cur.lastPm = r.last_completed_at;
+    }
+    if (typeof r.days_until_due === "number" && r.days_until_due < cur.worstDays) cur.worstDays = r.days_until_due;
+    byAsset.set(key, cur);
+  }
+  const assets = [...byAsset.values()];
+  const overdueAssets = assets.filter(a => a.overdue);
+  const neverDone = assets.filter(a => !a.everDone);
+  const health = assets.length ? Math.round(100 * (assets.length - overdueAssets.length) / assets.length) : 100;
 
   const now = Date.now();
-  const summary = assets.map(a => {
-    const last = lastDone[a.id];
-    const days = last ? Math.floor((now - new Date(last).getTime()) / 86400000) : 999;
-    return `${a.asset_name}|${a.category}|${last ? `${days} days ago` : "never"}`;
+  const perAsset = assets.map(a => {
+    const last = a.lastPm ? `${Math.floor((now - new Date(a.lastPm).getTime()) / 86400000)} days ago` : "never";
+    const flag = a.overdue ? `OVERDUE by ${Math.abs(a.worstDays)}d` : a.dueSoon ? "due soon" : "ok";
+    return `${a.name}|${a.cat}|${last}|${flag}`;
   }).join("\n");
 
-  const raw = await callGroq(`Assets (name|category|last_pm):\n${summary}`, PM_SYSTEM);
+  // Deterministic canonical facts (WAT: math here, AI narrates).
+  const facts = `Frequency-aware PM status (already computed — do NOT apply your own day threshold):
+- Overdue assets (${overdueAssets.length}): ${overdueAssets.map(a => a.name).join(", ") || "none"}
+- Never had a PM (${neverDone.length}): ${neverDone.map(a => a.name).join(", ") || "none"}
+- PM health score: ${health}/100`;
+
+  const raw = await callGroq(`${facts}\n\nPer-asset (name|category|last_pm|status):\n${perAsset}`, PM_SYSTEM);
   return { agent: "pm_status", result: JSON.parse(raw) };
 }
 

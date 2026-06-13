@@ -116,8 +116,14 @@
 
     <header class="page-header">
       <div>
-        <h1 class="page-title">Plant Connections</h1>
+        <h1 class="page-title">Connections</h1>
         <p class="page-sub">CMMS sync · sensor bridge · gateway audit — all in one supervisor surface.</p>
+        <!-- STREAMLINE F7: integrations + plant-connections are ONE "Connections" surface.
+             This tab bar switches CMMS ↔ Plant/IoT; one nav entry. Both pages kept on disk. -->
+        <div class="wh-conn-tabs" role="tablist" style="display:flex; gap:8px; margin:10px 0 2px; flex-wrap:wrap;">
+          <a role="tab" aria-selected="false" href="integrations.html" style="padding:7px 14px; min-height:36px; display:inline-flex; align-items:center; border-radius:8px; background:rgba(255,255,255,0.04); color:rgba(255,255,255,0.7); font-size:.78rem; font-weight:600; text-decoration:none; border:1px solid rgba(255,255,255,0.08);">&larr; CMMS Integration</a>
+          <span role="tab" aria-selected="true" style="padding:7px 14px; min-height:36px; display:inline-flex; align-items:center; border-radius:8px; background:rgba(247,162,27,0.15); color:#F7A21B; font-size:.78rem; font-weight:700; border:1px solid rgba(247,162,27,0.4);">Plant / IoT</span>
+        </div>
       </div>
       <span class="role-pill">Supervisor only</span>
     </header>

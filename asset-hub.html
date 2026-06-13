@@ -498,8 +498,8 @@
           <div class="sc-sub" id="ah-critical-sub">Loading...</div>
           <span class="sc-tag" id="ah-critical-tag">—</span>
         </div>
-        <div class="simple-card tag-grey" id="ah-card-pending" data-rag-tile="asset-hub:pending_approval" data-rag-label="Pending approval">
-          <div class="sc-label">Pending approval</div>
+        <div class="simple-card tag-grey" id="ah-card-pending" data-rag-tile="asset-hub:pending_approval" data-rag-label="Pending assets">
+          <div class="sc-label">Pending assets</div>
           <div class="sc-hero" id="ah-pending-hero">0</div>
           <div class="sc-sub" id="ah-pending-sub">Loading...</div>
           <span class="sc-tag" id="ah-pending-tag">—</span>
@@ -519,7 +519,7 @@
         <ul style="margin:0;padding-left:20px;">
           <li><strong>Total assets</strong>: <code>asset_nodes</code> rows where <code>status = 'approved'</code> in this hive.</li>
           <li><strong>Critical assets</strong>: subset where <code>criticality = 'critical'</code> (case-insensitive). These should have full PM coverage.</li>
-          <li><strong>Pending approval</strong>: worker-submitted assets awaiting supervisor sign-off (<code>status IN ('pending','rejected')</code>).</li>
+          <li><strong>Pending assets</strong>: worker-submitted assets awaiting supervisor sign-off (<code>status IN ('pending','rejected')</code>).</li>
           <li><strong>Verdict</strong>: red if 5+ pending; amber if any pending OR no critical assets registered; green when registry is complete.</li>
         </ul>
         <p style="margin-top:8px;color:rgba(255,255,255,0.55);font-size:11px;">Search and tap any asset card below for the 360° view.</p>
@@ -1501,17 +1501,34 @@
       const lf = document.getElementById('stat-last-failure');
       const eg = document.getElementById('stat-edges');
 
+      const _node = _allNodes.find(n => n.id === nodeId);
+      const _pmLinked = !!(_node && _node.pm_asset_id);
+
       const _lbv = data?.lifetime_logbook_entries ?? 0;
       const _pmv = data?.pm_completed_count ?? 0;
       const _egv = data?.edge_count ?? 0;
       if (lb) lb.textContent = _lbv;
-      if (pm) pm.textContent = _pmv;
+      // PM completed: distinguish "0 done" from "not linked to a PM program". A bare
+      // 0 on an UNLINKED asset silently hides the missing asset->PM bridge (P9) — show
+      // an honest "—" marker (em dash = N/A, the platform's honest-empty convention)
+      // with a tooltip, so a dark tile reads as "no PM program" not "PM never done".
+      if (pm) {
+        if (!_pmLinked) {
+          pm.textContent = '—';
+          pm.title = 'Not linked to a PM program yet — PM completions can\'t be shown for this asset.';
+          pm.setAttribute('data-pm-unlinked', '1');
+        } else {
+          pm.textContent = _pmv;
+          pm.removeAttribute('title');
+          pm.removeAttribute('data-pm-unlinked');
+        }
+      }
       if (lf) lf.textContent = data?.last_failure_at ? fmtRelative(data.last_failure_at) : 'never';
       if (eg) eg.textContent = _egv;
       // Calm Dashboard Contract: dim zero counts on the asset-360 stat strip.
       if (window.hideZeroStat) {
         hideZeroStat(lb, _lbv);
-        hideZeroStat(pm, _pmv);
+        if (_pmLinked) hideZeroStat(pm, _pmv);  // never dim the "—" not-linked marker
         hideZeroStat(eg, _egv);
       }
     }
@@ -3505,42 +3522,66 @@
       if (metaEl) metaEl.textContent = '';
 
       try {
-        const { data, error } = await db.functions.invoke('asset-brain-query', {
-          body: {
-            question,
-            asset_id: nodeId,
-            hive_id: HIVE_ID,
-            // Persona Contract: persona drives the narration field.
-            persona: (typeof window.getPersona === 'function') ? window.getPersona() : undefined,
-          },
-        });
-
-        if (error) {
-          ansEl.innerHTML = '<span style="color:#ff8a8a;">' + e('Could not reach Asset Brain: ' + (error.message || 'unknown error')) + '</span>';
-          return;
+        // STREAMLINE A2 (Companion fold): route the Asset Brain Q&A THROUGH the unified
+        // ai-gateway agent 'asset-brain' — same front door as the Companion, so it gets
+        // ONE memory + persona + rate-limit. The gateway grounds it (verified-state +
+        // episodic + asset_tag→id resolution) and passes the STRUCTURED payload back under
+        // `route_result` (asset-brain is in STRUCTURED_PASSTHROUGH_AGENTS), so citations +
+        // narration + rate counter survive the gateway's {answer}-only contract. Falls back
+        // to the bespoke direct asset-brain-query tool if the gateway path is unavailable —
+        // zero regression. (Persona-consistent + grounded either way.)
+        const node    = _allNodes.find(n => n.id === nodeId);
+        const persona = (typeof window.getPersona === 'function') ? window.getPersona() : undefined;
+        let answer, cited, narration, remaining;
+        try {
+          const resp = await db.functions.invoke('ai-gateway', {
+            body: {
+              agent: 'asset-brain', message: question, hive_id: HIVE_ID,
+              context: { asset_tag: node && (node.tag || node.name), asset_id: nodeId, persona },
+            },
+          });
+          if (resp.error) throw new Error(resp.error.message || 'gateway error');
+          const body = resp.data || {};
+          const gw = (body.ok === true && body.data) ? body.data : body;   // unwrap envelope
+          const rr = gw.route_result || {};                                // structured passthrough
+          answer    = rr.answer    ?? gw.answer;
+          cited     = rr.cited     ?? gw.cited;
+          narration = rr.narration ?? gw.narration;
+          remaining = (typeof rr.remaining === 'number') ? rr.remaining : gw.remaining;
+          if (answer == null) throw new Error('no answer from gateway');
+        } catch (_gwErr) {
+          // Fallback: the bespoke direct tool (zero regression if the gateway is unavailable).
+          const { data, error } = await db.functions.invoke('asset-brain-query', {
+            body: { question, asset_id: nodeId, hive_id: HIVE_ID, persona },
+          });
+          if (error) {
+            ansEl.innerHTML = '<span style="color:#ff8a8a;">' + e('Could not reach Asset Brain: ' + (error.message || 'unknown error')) + '</span>';
+            return;
+          }
+          if (!data || data.error) {
+            ansEl.innerHTML = '<span style="color:#ff8a8a;">' + e(data?.error || 'No answer returned.') + '</span>';
+            return;
+          }
+          answer = data.answer; cited = data.cited; narration = data.narration; remaining = data.remaining;
         }
-        if (!data || data.error) {
-          ansEl.innerHTML = '<span style="color:#ff8a8a;">' + e(data?.error || 'No answer returned.') + '</span>';
-          return;
-        }
 
-        ansEl.innerHTML = e(data.answer || '(no answer)').replace(/\n/g, '<br>');
+        ansEl.innerHTML = e(answer || '(no answer)').replace(/\n/g, '<br>');
 
         // Persona Contract Phase 4: play the narration in Hezekiah/Zaniah's
         // voice while the worker reads the full answer.
-        if (data.narration && typeof window.speakPersona === 'function') {
-          window.speakPersona(data.narration);
+        if (narration && typeof window.speakPersona === 'function') {
+          window.speakPersona(narration);
         }
 
-        if (citEl && Array.isArray(data.cited) && data.cited.length) {
-          const summary = data.cited.map(c => e(c.kind || 'src') + ' #' + e(String(c.index ?? '?'))).join(', ');
+        if (citEl && Array.isArray(cited) && cited.length) {
+          const summary = cited.map(c => e(c.kind || 'src') + ' #' + e(String(c.index ?? '?'))).join(', ');
           citEl.innerHTML = 'Sources: ' + summary;
         } else if (citEl) {
           citEl.innerHTML = '';
         }
 
-        if (metaEl && typeof data.remaining === 'number') {
-          metaEl.textContent = data.remaining + ' AI calls remaining this hour';
+        if (metaEl && typeof remaining === 'number') {
+          metaEl.textContent = remaining + ' AI calls remaining this hour';
         }
       } catch (err) {
         ansEl.innerHTML = '<span style="color:#ff8a8a;">' + e('Network error: ' + (err && err.message ? err.message : 'unknown')) + '</span>';

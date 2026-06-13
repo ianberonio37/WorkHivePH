@@ -7,7 +7,8 @@
  *
  * Sub-agents run in parallel via Promise.allSettled:
  *   risk_top         - top assets by current risk score (asset_risk_scores)
- *   pms_due          - PM tasks due today (pm_assets + pm_scope_items)
+ *   pms_due          - frequency-aware OVERDUE PMs (v_pm_scope_items_truth.is_overdue,
+ *                      one row per asset) — NOT the retired flat-30-day is_due proxy
  *   carry_forward    - open logbook entries older than 8h (prior shift leftovers)
  *   parts_prestage   - inventory items at or below reorder_point
  *   briefing         - one-paragraph LLM synthesis grounded in the above
@@ -63,7 +64,7 @@ const BRIEFING_SYSTEM_PROMPT = `You are the WorkHive Shift Brain morning briefer
 You receive a JSON payload describing one hive's situation at shift start:
 - shift_window: which shift starts now (06-14 morning, 14-22 afternoon, 22-06 night)
 - risk_top: top assets at risk
-- pms_due: PMs due today
+- pms_due: PMs that are overdue (frequency-aware) for this hive
 - carry_forward: open logbook entries from prior shifts
 - parts_prestage: parts at or below reorder point
 
@@ -100,16 +101,31 @@ async function fetchRiskTop(db: SupabaseClient, hiveId: string): Promise<AnyRow[
 }
 
 async function fetchPMsDue(db: SupabaseClient, hiveId: string): Promise<AnyRow[]> {
-  // Canonical: v_pm_compliance_truth (domain=pm_compliance_truth). The view
-  // exposes is_due, days_since_last_completion, and the period-scoped counts
-  // so we just filter is_due=true.
-  const { data } = await db.from("v_pm_compliance_truth")
-    .select("pm_asset_id, asset_name, tag_id, category, criticality, last_anchor_date, location, days_since_last_completion, is_due")
+  // Canonical: v_pm_scope_items_truth.is_overdue (domain=pm_scope_items_truth) —
+  // the SAME frequency-aware overdue signal pm-scheduler + home read. is_overdue =
+  // next_due_date < today, where next_due_date derives from each task's OWN interval
+  // (weekly=7d … annual=365d), NOT the retired flat-30-day v_pm_compliance_truth.is_due
+  // proxy that over-counted long-frequency assets just past 30 days (kpi_source_registry
+  // pm_overdue; STREAMLINE_ROADMAP P1). Output aliases keep the briefing payload shape
+  // (tag_id/category/criticality/location) byte-identical for shift-brain.html.
+  const { data } = await db.from("v_pm_scope_items_truth")
+    .select("pm_asset_id, asset_name, tag_id:asset_tag, category:asset_category, criticality:asset_criticality, location:asset_location, item_text, frequency, next_due_date, days_until_due, is_overdue")
     .eq("hive_id", hiveId)
-    .eq("is_due", true)
-    .order("criticality", { ascending: true })
-    .limit(PMS_DUE_LIMIT);
-  return data || [];
+    .eq("is_overdue", true)
+    .order("days_until_due", { ascending: true })   // most overdue first
+    .limit(PMS_DUE_LIMIT * 4);
+  // Dedup to one row per asset (its most-overdue task) so the count equals the
+  // canonical distinct-pm_asset_id overdue rollup the registry/pm-scheduler report.
+  const seen = new Set<string>();
+  const deduped: AnyRow[] = [];
+  for (const row of (data || []) as AnyRow[]) {
+    const key = String(row.pm_asset_id ?? row.asset_name);
+    if (seen.has(key)) continue;
+    seen.add(key);
+    deduped.push(row);
+    if (deduped.length >= PMS_DUE_LIMIT) break;
+  }
+  return deduped;
 }
 
 async function fetchCarryForward(db: SupabaseClient, hiveId: string): Promise<AnyRow[]> {
@@ -184,7 +200,7 @@ async function planForHive(
   db: SupabaseClient,
   hiveId: string,
   shiftWindow: string,
-): Promise<{ plan_id?: string; counts: Record<string, number>; error?: string }> {
+): Promise<{ plan_id?: string; counts: Record<string, number>; briefing?: string; error?: string }> {
   const results = await Promise.allSettled([
     fetchRiskTop(db, hiveId),
     fetchPMsDue(db, hiveId),
@@ -229,7 +245,7 @@ async function planForHive(
     .maybeSingle();
 
   if (error) return { counts, error: error.message };
-  return { plan_id: ins?.id, counts };
+  return { plan_id: ins?.id, counts, briefing };
 }
 
 // ---------------------------------------------------------------------------
@@ -296,8 +312,20 @@ serve(async (req) => {
       detail:  r.status === "fulfilled" ? r.value : { error: String(r.reason) },
     }));
 
+    // Conversational surface: the single-hive (manual / gateway companion) path
+    // gets the briefing PROSE as a top-level `answer` so the ai-gateway's
+    // `answer ?? summary ?? ...` extraction surfaces a paragraph, not a stringified
+    // batch object ("[object Object]"). The cron all-hives path omits it (batch
+    // status only). (W1 wiring fix 2026-06-12: shift answers through the gateway.)
+    const firstBriefing = single_hive
+      ? (summary[0]?.detail as { briefing?: string } | undefined)?.briefing
+      : undefined;
+
     return new Response(
-      JSON.stringify({ shift_window, hives_processed: summary.length, summary }),
+      JSON.stringify({
+        shift_window, hives_processed: summary.length, summary,
+        ...(firstBriefing ? { answer: firstBriefing } : {}),
+      }),
       { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } },
     );
   } catch (err) {

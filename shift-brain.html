@@ -255,7 +255,7 @@
       <strong style="display:block;margin-bottom:6px;color:rgba(255,255,255,0.85);">How this shift plan is built</strong>
       <ul style="margin:0;padding-left:20px;">
         <li><strong>Top risk this shift</strong>: assets ranked by latest <code>asset_risk_scores.risk_score</code>; only <strong>high</strong> and <strong>critical</strong> bands shown (risk_score &ge; 0.70). Low/medium assets live in the full risk register, not the shift brief.</li>
-        <li><strong>PMs due</strong>: scope items with <code>next_due_date</code> within the shift window.</li>
+        <li><strong>PMs due</strong>: frequency-aware <strong>overdue</strong> PMs (<code>v_pm_scope_items_truth.is_overdue</code> &mdash; <code>next_due_date</code> &lt; today, derived from each task's own interval), one row per asset. Not the retired flat 30-day proxy.</li>
         <li><strong>Carry-forward</strong>: breakdown / corrective entries left <code>Open</code> from the prior shift.</li>
         <li><strong>Parts pre-stage</strong>: parts at or below <code>min_qty</code> that one of the prioritized jobs is likely to consume.</li>
         <li><strong>Verdict</strong>: red if 3+ top-risk OR 5+ carry-forward; amber if PMs due or 1+ top-risk; green when all four lists are short.</li>
@@ -329,7 +329,7 @@
     // localStorage, so non-members stay hidden (init() shows the hive-gate); a
     // late membership failure re-hides it (rare, acceptable shift).
     // source-chip-allow: the chip documents the upstream canonical sources the
-    // shift-planner-orchestrator drew from (v_risk_truth + pm_scope_items) so
+    // shift-planner-orchestrator drew from (v_risk_truth + v_pm_scope_items_truth) so
     // supervisors can trace any tile back to its fuel.
     (function revealBoardEarly() {
       if (!HIVE_ID) return;
@@ -339,10 +339,10 @@
       if (_sbChip && typeof renderSourceChip === 'function') {
         _sbChip.innerHTML = renderSourceChip({
           freshness: 'Live · shift plan generated on load',
-          source:    'shift_plans + v_risk_truth + pm_scope_items',
+          source:    'shift_plans + v_risk_truth + v_pm_scope_items_truth',
           notes:     [
             'Risk threshold: assets above the hive\'s risk score cutoff',
-            'PM window: scope items due within the 8-hour shift block',
+            'PMs: frequency-aware overdue (v_pm_scope_items_truth.is_overdue, one per asset) — not the flat 30-day proxy',
             'Carry-forward: open items from prior shift that weren\'t closed',
           ],
         });
@@ -528,11 +528,66 @@
       statusEl.className   = 'status-pill status-' + e(_activePlan.status);
       document.getElementById('brief-text').textContent = _activePlan.briefing || '(no briefing)';
 
+      // STREAMLINE S6: the briefing is upgraded in place to the unified Action Brief
+      // (analytics prescriptive engine + horizon=shift) — the SAME engine alert-hub +
+      // analytics render as today/strategic slices, so the shift brief can't drift from
+      // the platform's other AI briefs. The stored shift_plans briefing above stays as
+      // the instant fallback; shift_plans keeps the supervisor publish workflow.
+      (async function loadUnifiedBrief(){
+        const bt = document.getElementById('brief-text');
+        if (!bt || !HIVE_ID || typeof renderActionBrief !== 'function') return;
+        try {
+          const { data } = await db.functions.invoke('analytics-orchestrator', {
+            body: { phase: 'prescriptive', hive_id: HIVE_ID, horizon: 'shift' },
+          });
+          const ap = data && data.action_plan;
+          if (ap) bt./* xss-allow: renderActionBrief escHtml's every field (utils.js) */ innerHTML =
+            renderActionBrief(ap, { title: 'Action Brief', horizon: 'shift', ragTile: 'shift-brain:action_brief' });
+        } catch (_) { /* keep the stored shift_plans briefing as fallback */ }
+      })();
+
       const p = _activePlan.payload || {};
-      renderRows('risk-list',  p.risk_top      || [], 'risk-count',  rowRisk,  'No assets above risk threshold this window.');
-      renderRows('pms-list',   p.pms_due       || [], 'pms-count',   rowPM,    'No PMs flagged as due.');
+      // STREAMLINE F2: the Top-risk list renders through the shared renderRiskStrip
+      // (utils.js — the same single renderer index + alert-hub use), so the at-risk
+      // asset list can't drift in look/ordering/deep-link across pages. rowRisk kept
+      // for reference but no longer the renderer.
+      (function renderRiskShared(){
+        const rl = document.getElementById('risk-list');
+        const rc = document.getElementById('risk-count');
+        const rows = p.risk_top || [];
+        if (rc) rc.textContent = rows.length;
+        if (!rl) return;
+        rl.innerHTML = (rows.length && typeof renderRiskStrip === 'function')
+          ? renderRiskStrip(rows, { limit: 10 })
+          : '<div class="empty-row">' + escHtml('No assets above risk threshold this window.') + '</div>';
+      })();
+      // STREAMLINE F4: PMs-due renders through the shared renderPmDueStrip (utils.js)
+      // — one renderer for the frequency-aware overdue PM list, scope-chipped "this
+      // shift". rowPM kept for reference but no longer the renderer.
+      (function renderPmsShared(){
+        const pl = document.getElementById('pms-list');
+        const pc = document.getElementById('pms-count');
+        const rows = p.pms_due || [];
+        if (pc) pc.textContent = rows.length;
+        if (!pl) return;
+        pl.innerHTML = (rows.length && typeof renderPmDueStrip === 'function')
+          ? renderPmDueStrip(rows, { limit: 12, scope: 'this shift' })
+          : '<div class="empty-row">' + escHtml('No PMs flagged as due.') + '</div>';
+      })();
       renderRows('carry-list', p.carry_forward || [], 'carry-count', rowCarry, 'No carry-forward items from the prior shift.');
-      renderRows('parts-list', p.parts_prestage|| [], 'parts-count', rowPart,  'No parts at or below reorder point.');
+      // STREAMLINE F3: parts pre-stage renders through the shared renderPartsStrip
+      // (utils.js) — one urgency-ranked parts list (out-of-stock first). rowPart kept
+      // for reference but no longer the renderer.
+      (function renderPartsShared(){
+        const pl = document.getElementById('parts-list');
+        const pc = document.getElementById('parts-count');
+        const rows = p.parts_prestage || [];
+        if (pc) pc.textContent = rows.length;
+        if (!pl) return;
+        pl.innerHTML = (rows.length && typeof renderPartsStrip === 'function')
+          ? renderPartsStrip(rows, { limit: 12 })
+          : '<div class="empty-row">' + escHtml('No parts at or below reorder point.') + '</div>';
+      })();
 
       // Plain-Read summary (Layer D) — same counts in plain language.
       renderShiftSummary(p);

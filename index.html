@@ -3614,6 +3614,14 @@
     // TILE NUMBERS come from the head-only count queries / RPC counts — using
     // jobs.length / risks.length here capped the tile at the detail .limit(5).
 
+    // P12: is_low_stock = qty <= min_qty INCLUDING qty<=0, so the raw count lumps
+    // out-of-stock parts under "Low Stock" — index showed "Low Stock (4)" while
+    // inventory buckets them disjointly (Out 1 · Low 3). Split here so the label is
+    // honest and the two pages agree. (Out-of-stock = canonical is_out_of_stock, or
+    // qty_on_hand<=0 when the flag isn't in this payload.)
+    const _outOfStock = lowStock.filter(i => i.is_out_of_stock === true || Number(i.qty_on_hand) <= 0).length;
+    const _lowOnly    = Math.max(0, lowStock.length - _outOfStock);
+
     (function renderStats() {
       const statsEl = document.getElementById('oh-stats');
       if (!statsEl) return;
@@ -3621,7 +3629,7 @@
         { kpi: 'open-jobs',   num: jobsCount,       label: 'Open Jobs',   color: '#F7A21B', href: 'logbook.html'      },
         { kpi: 'risk-alerts', num: risksCount,      label: 'Risk Alerts', color: '#f87171', href: 'asset-hub.html'    },
         { kpi: 'pm-overdue',  num: pmOverdueCount,  label: 'PM Overdue',  color: '#29B6D9', href: 'pm-scheduler.html' },
-        { kpi: 'low-stock',   num: lowStock.length, label: 'Low Stock',   color: '#fb923c', href: 'inventory.html'    },
+        { kpi: 'low-stock',   num: lowStock.length, label: _outOfStock > 0 ? `Stock (${_outOfStock} out · ${_lowOnly} low)` : 'Low Stock', color: '#fb923c', href: 'inventory.html'    },
       ].filter(t => Number(t.num) > 0);
 
       if (tiles.length === 0) {
@@ -3926,35 +3934,15 @@
         </div>`;
     })();
 
-    // Top 3 At-Risk Assets (Phase A integration: links to Asset Hub for the 360 view)
+    // Top 3 At-Risk Assets — ONE shared risk strip (STREAMLINE F2; renderRiskStrip
+    // lives in utils.js and is the single renderer also used by shift-brain + alert-hub,
+    // so this list can't drift in look/ordering/deep-link across pages). `risks` is
+    // already band-filtered (high/critical) + score-ordered by the fetch above.
     const topRiskEl = document.getElementById('oh-top-risk');
-    if (topRiskEl && risks.length > 0) {
-      const top3 = risks.slice(0, 3);
+    if (topRiskEl && risks.length > 0 && typeof renderRiskStrip === 'function') {
       topRiskEl.style.display = 'block';
-      topRiskEl/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = `
-        <div class="oh-card" style="padding:14px 16px; border-left:3px solid #f87171;">
-          <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;">
-            <p style="font-size:.62rem; font-weight:700; text-transform:uppercase; letter-spacing:.07em; color:#f87171; margin:0;">Top At-Risk Assets</p>
-            <a href="asset-hub.html" style="font-size:.62rem; color:rgba(255,255,255,.6); text-decoration:none; display:inline-flex; align-items:center; min-height:44px;">All assets →</a>
-          </div>
-          <div style="display:flex; flex-direction:column; gap:8px;">
-            ${top3.map(r => {
-              const pct = Math.round((Number(r.risk_score) || 0) * 100);
-              const mtbf = r.mtbf_days != null ? `MTBF ${Math.round(r.mtbf_days)}d` : '';
-              const href = `asset-hub.html?tag=${encodeURIComponent(r.asset_name || '')}`;
-              return `<a href="${escHtml(href)}" style="display:flex; align-items:center; justify-content:space-between; gap:10px; text-decoration:none; padding:8px 10px; background:rgba(255,255,255,0.03); border-radius:8px; transition:background .15s;" onmouseover="this.style.background='rgba(255,255,255,0.06)'" onmouseout="this.style.background='rgba(255,255,255,0.03)'">
-                <div style="display:flex; align-items:center; gap:8px; min-width:0; flex:1;">
-                  <span class="oh-badge oh-badge-${escHtml(r.risk_level)}">${escHtml(r.risk_level)}</span>
-                  <span style="font-size:.78rem; font-weight:600; color:#F4F6FA; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${escHtml(r.asset_name)}</span>
-                </div>
-                <div style="display:flex; align-items:center; gap:10px; flex-shrink:0;">
-                  <span style="font-size:.65rem; color:rgba(255,255,255,.6); white-space:nowrap;">${escHtml(mtbf)}</span>
-                  <span style="font-size:.72rem; font-weight:800; color:#f87171;">${pct}%</span>
-                </div>
-              </a>`;
-            }).join('')}
-          </div>
-        </div>`;
+      topRiskEl/* xss-allow: renderRiskStrip escHtml's every field (utils.js) */ .innerHTML =
+        renderRiskStrip(risks, { title: 'Top At-Risk Assets', limit: 3, ragTile: 'index:top_risk' });
     }
 
     // Hive Activity Today (only meaningful when in a hive context)
@@ -3963,7 +3951,7 @@
       activityEl.style.display = 'block';
       activityEl/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = `
         <p class="oh-sec-lbl">Hive Activity Today</p>
-        <div class="oh-card oh-activity" style="padding:14px;">
+        <div class="oh-card oh-activity" data-rag-tile="index:hive_activity" data-rag-label="Hive Activity Today" style="padding:14px;">
           <div style="text-align:center;">
             <span class="ac-num" style="color:#4ade80;">${closedToday}</span>
             <span class="ac-lbl">Jobs Closed</span>

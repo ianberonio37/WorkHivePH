@@ -530,8 +530,13 @@
       <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:0.75rem">
         <div>
           <div class="header-badge">WorkHive</div>
-          <h1>Report Sender</h1>
+          <h1>Reports</h1>
           <p>Select reports. Add email. Send.</p>
+          <!-- STREAMLINE F6: part of the unified "Reports" surface (Analytics report ↔ Send). -->
+          <div class="wh-reports-tabs" role="tablist" style="display:flex; gap:8px; margin:8px 0 6px; flex-wrap:wrap;">
+            <a role="tab" aria-selected="false" href="analytics-report.html" style="padding:6px 12px; min-height:34px; display:inline-flex; align-items:center; border-radius:8px; background:rgba(255,255,255,0.04); color:rgba(255,255,255,0.7); font-size:.76rem; font-weight:600; text-decoration:none; border:1px solid rgba(255,255,255,0.08);">&larr; Analytics report</a>
+            <span role="tab" aria-selected="true" style="padding:6px 12px; min-height:34px; display:inline-flex; align-items:center; border-radius:8px; background:rgba(247,162,27,0.15); color:#F7A21B; font-size:.76rem; font-weight:700; border:1px solid rgba(247,162,27,0.4);">Send / schedule</span>
+          </div>
           <p id="report-sender-source-chip" style="margin-top:3px;"></p>
         </div>
         <button class="install-icon-btn" id="install-icon-btn" aria-label="Install app">

@@ -118,7 +118,7 @@
     // Analytics Report MUST be listed before Analytics — both paths contain
     // 'analytics', and getCurrentTool() returns the first match in iteration order.
     // Phase B: hidden from primary nav, accessible as a button inside analytics.html.
-    { label: 'Analytics Report', href: 'analytics-report.html', match: ['analytics-report'], section: 'Intelligence', hidden: true, roles: ['supervisor','engineer'],
+    { label: 'Reports', href: 'analytics-report.html', match: ['analytics-report', 'report-sender'], section: 'Intelligence', hidden: true, roles: ['supervisor','engineer'],
       icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="15" y2="17"/><line x1="9" y1="9" x2="11" y2="9"/></svg>` },
     { label: 'Analytics',    href: 'analytics.html',    match: ['analytics'],          section: 'Intelligence', roles: ['supervisor','engineer'],
       icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg>` },
@@ -130,11 +130,10 @@
     // Hidden from primary nav, surfaced via the "AI Quality" button on hive.html.
     { label: 'AI Quality + ROI', href: 'ai-quality.html', match: ['ai-quality'],       section: 'Intelligence', hidden: true, roles: ['supervisor'],
       icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>` },
-    // Phase 5 Track C — Plant Connections Console. Supervisor-only operations
-    // surface that unifies CMMS sync, sensor topics, and gateway audit. Hidden
-    // from the worker view; supervisors reach it from the nav hub.
-    { label: 'Plant Connections', href: 'plant-connections.html', match: ['plant-connections'], section: 'Operations', hidden: true, roles: ['supervisor'],
-      icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v6"/><path d="M12 22v-6"/><path d="M4.93 4.93l4.24 4.24"/><path d="M14.83 14.83l4.24 4.24"/><path d="M2 12h6"/><path d="M22 12h-6"/><path d="M4.93 19.07l4.24-4.24"/><path d="M14.83 9.17l4.24-4.24"/></svg>` },
+    // Phase 5 Track C — Plant Connections Console. STREAMLINE F7 (2026-06-13):
+    // folded into the unified "Connections" nav entry (section Connect, below) —
+    // reached via the Connections tab bar on integrations.html. Page kept on disk
+    // + cached (no sw.js change), so old deep-links + the tab still resolve.
     { label: 'AI Assistant', href: 'assistant.html',    match: ['assistant'],          section: 'Intelligence', /* universal */
       icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/><line x1="9" y1="10" x2="9" y2="10" stroke-width="3" stroke-linecap="round"/><line x1="12" y1="10" x2="12" y2="10" stroke-width="3" stroke-linecap="round"/><line x1="15" y1="10" x2="15" y2="10" stroke-width="3" stroke-linecap="round"/></svg>`,
       accent: true },
@@ -165,20 +164,20 @@
       icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>` },
 
     // ── Grow: professional development ────────────────────────────────────────
-    { label: 'Skill Matrix', href: 'skillmatrix.html',  match: ['skillmatrix'],        section: 'Grow',
+    { label: 'Growth', href: 'skillmatrix.html',  match: ['skillmatrix', 'achievements'],        section: 'Grow',
       icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/></svg>` },
     { label: 'Resume Builder', href: 'resume.html', match: ['resume'],               section: 'Grow',
       icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><circle cx="10" cy="13" r="2"/><path d="M14 19a4 4 0 00-8 0"/></svg>` },
-    { label: 'Achievements', href: 'achievements.html', match: ['achievements'],       section: 'Grow',
-      icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg>` },
+    // STREAMLINE F5 (2026-06-13): Achievements folded into the unified "Growth" nav
+    // entry (skillmatrix.html) — reached via the Growth tab bar. Page kept on disk + cached.
 
     // ── Connect: marketplace and integrations ─────────────────────────────────
     { label: 'Marketplace',  href: 'marketplace.html',  match: ['marketplace'],        section: 'Connect', /* universal */
       icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>` },
     // Phase B: hidden from primary nav, accessible as the "Send" button inside analytics.html.
-    { label: 'Report Sender', href: 'report-sender.html', match: ['report-sender'],    section: 'Connect', hidden: true, roles: ['supervisor'],
-      icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>` },
-    { label: 'CMMS Integration', href: 'integrations.html', match: ['integrations'],  section: 'Connect', roles: ['supervisor'],
+    // STREAMLINE F6 (2026-06-13): Report Sender folded into the unified "Reports" nav
+    // entry (analytics-report.html) — reached via the Reports tab bar. Page kept on disk.
+    { label: 'Connections', href: 'integrations.html', match: ['integrations', 'plant-connections'],  section: 'Connect', roles: ['supervisor'],
       icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>` },
     // public-feed.html: public read-only page — linked from index.html, not the app nav
   ];

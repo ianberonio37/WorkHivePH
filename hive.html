@@ -521,7 +521,7 @@
           <ul style="margin:0;padding-left:20px;">
             <li><strong>Maturity stair</strong>: latest snapshot from <code>v_maturity_truth</code>. Hive must clear 5 dimension gates per stair (Reliability / Operations / Safety / People / Cost).</li>
             <li><strong>Adoption health</strong>: <code>compute_adoption_risk</code> RPC. Healthy &lt; 35, At Risk 35-65, Critical &gt; 65.</li>
-            <li><strong>Open issues</strong>: sum of open work orders (<code>v_logbook_truth</code>, status = Open) + PM-overdue ASSETS (<code>v_pm_scope_items_truth</code>, frequency-aware <code>is_overdue</code>; an asset counts once if &ge;1 of its scope items is overdue — matches PM Scheduler) + low stock (<code>v_inventory_items_truth</code>, qty_on_hand &le; reorder_point).</li>
+            <li><strong>Open issues</strong>: sum of open work orders (<code>v_logbook_truth</code>, status = Open) + PM-overdue ASSETS (<code>v_pm_scope_items_truth</code>, frequency-aware <code>is_overdue</code>; an asset counts once if &ge;1 of its scope items is overdue — matches PM Scheduler) + stock issues (<code>v_inventory_items_truth</code>, server-derived <code>is_low_stock</code> — at/below reorder, includes out-of-stock).</li>
             <li><strong>Verdict</strong>: red if Adoption is Critical OR &gt; 5 PMs overdue; amber if Adoption is At Risk OR any of (1-5 PMs overdue, &ge;10 open WOs, &ge;1 low-stock item); green when all clear.</li>
           </ul>
           <p style="margin-top:8px;color:rgba(255,255,255,0.55);font-size:11px;">Full breakdown (top risk reasons, champion candidate, stair dimensions) is in the Maturity Stairway + Engagement Cards below.</p>
@@ -1630,7 +1630,7 @@ async function initBoard() {
       notes:     [
         'Open Work: status = Open',
         'PM overdue: frequency-aware is_overdue, rolled up to assets (matches PM Scheduler)',
-        'Low stock: qty_on_hand <= reorder_point',
+        'Stock issues: server-derived is_low_stock (at/below reorder, includes out-of-stock)',
       ],
     });
   }
@@ -2054,20 +2054,22 @@ async function loadSupervisorSummary() {
   // we read it.
   const openWO = parseInt((document.getElementById('stat-open') || {}).textContent, 10) || 0;
 
-  // Hive-wide low-stock count (canonical fuel: v_inventory_items_truth).
-  // One cheap supervisor-only query, rolled into Card 3 + the verdict.
-  let lowStock = 0;
+  // Hive-wide stock-issue count (canonical fuel: v_inventory_items_truth).
+  // P11: read the server-derived is_low_stock flag instead of recomputing
+  // qty<=min client-side (unregistered drift). is_low_stock already includes
+  // out-of-stock, so it's the "stock issues" total; track the out-of-stock subset
+  // for an honest caption. Hive is a registered low_stock consumer (required_signal).
+  let lowStock = 0, outOfStock = 0;
   try {
     const { data: invRows } = await db.from('v_inventory_items_truth')
-      .select('qty_on_hand, min_qty')
+      .select('qty_on_hand, is_low_stock, is_out_of_stock')
       .eq('hive_id', HIVE_ID)
       .eq('status', 'approved');
     (invRows || []).forEach(i => {
-      const q  = Number(i.qty_on_hand) || 0;
-      const mn = Number(i.min_qty)     || 0;
-      if (q <= 0 || (mn > 0 && q <= mn)) lowStock++;
+      if (i.is_low_stock === true) lowStock++;
+      if (i.is_out_of_stock === true || Number(i.qty_on_hand) <= 0) outOfStock++;
     });
-  } catch (e) { console.warn('low-stock count:', e); }
+  } catch (e) { console.warn('stock-issue count:', e); }
 
   // Weakest stair dimension — surface its name in the verdict + action so
   // a healthy hive still gets a concrete next move instead of a generic
@@ -2114,7 +2116,9 @@ async function loadSupervisorSummary() {
   const issueParts = [];
   if (openWO   > 0) issueParts.push(`${openWO} open WO${openWO === 1 ? '' : 's'}`);
   if (overdue  > 0) issueParts.push(`${overdue} PM overdue`);
-  if (lowStock > 0) issueParts.push(`${lowStock} low stock`);
+  if (lowStock > 0) issueParts.push(outOfStock > 0
+    ? `${lowStock} stock issue${lowStock === 1 ? '' : 's'} (${outOfStock} out)`
+    : `${lowStock} stock issue${lowStock === 1 ? '' : 's'}`);
   const issueSub = issueParts.length
                    ? issueParts.join(' · ')
                    : 'No open work, overdue PMs, or low stock';

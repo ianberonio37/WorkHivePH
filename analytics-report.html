@@ -467,8 +467,17 @@
     <!-- Header ────────────────────────────────────────── -->
     <header class="ar-header">
       <div>
-        <h1>Analytics Report</h1>
+        <h1>Reports</h1>
         <p>Standards-grade. Print-ready. Save as PDF for client delivery.</p>
+        <!-- STREAMLINE F6: analytics-report + report-sender are ONE "Reports" surface
+             (same supervisor audience: GENERATE an analytics report, then SEND/schedule
+             it). project-report is deliberately NOT tabbed here — it is a PER-PROJECT
+             print document (needs a project_id, reached from project-manager), a
+             different job; fusing it would land users on an empty report. -->
+        <div class="wh-reports-tabs" role="tablist" style="display:flex; gap:8px; margin:8px 0 6px; flex-wrap:wrap;">
+          <span role="tab" aria-selected="true" style="padding:6px 12px; min-height:34px; display:inline-flex; align-items:center; border-radius:8px; background:rgba(247,162,27,0.15); color:#F7A21B; font-size:.76rem; font-weight:700; border:1px solid rgba(247,162,27,0.4);">Analytics report</span>
+          <a role="tab" aria-selected="false" href="report-sender.html" style="padding:6px 12px; min-height:34px; display:inline-flex; align-items:center; border-radius:8px; background:rgba(255,255,255,0.04); color:rgba(255,255,255,0.7); font-size:.76rem; font-weight:600; text-decoration:none; border:1px solid rgba(255,255,255,0.08);">Send / schedule &rarr;</a>
+        </div>
       </div>
       <span class="ar-badge">BETA</span>
     </header>

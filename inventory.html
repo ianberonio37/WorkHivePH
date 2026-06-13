@@ -282,8 +282,8 @@
         <div class="sc-sub" id="inv-low-sub">Loading...</div>
         <span class="sc-tag" id="inv-low-tag">—</span>
       </div>
-      <div class="simple-card tag-grey" id="inv-card-pending" data-rag-tile="inventory:pending_approval" data-rag-label="Pending approval">
-        <div class="sc-label">Pending approval</div>
+      <div class="simple-card tag-grey" id="inv-card-pending" data-rag-tile="inventory:pending_approval" data-rag-label="Pending parts">
+        <div class="sc-label">Pending parts</div>
         <div class="sc-hero" id="inv-pending-hero">0</div>
         <div class="sc-sub" id="inv-pending-sub">Loading...</div>
         <span class="sc-tag" id="inv-pending-tag">—</span>
@@ -303,7 +303,7 @@
       <ul style="margin:0;padding-left:20px;">
         <li><strong>Out of stock</strong>: parts with <code>qty_on_hand &lt;= 0</code>.</li>
         <li><strong>Low stock</strong>: parts with <code>0 &lt; qty_on_hand &lt;= min_qty</code> (the reorder threshold).</li>
-        <li><strong>Pending approval</strong>: parts a worker added in this hive that need a supervisor sign-off before Use / Restock unlocks.</li>
+        <li><strong>Pending parts</strong>: parts a worker added in this hive that need a supervisor sign-off before Use / Restock unlocks.</li>
         <li><strong>Verdict</strong>: red if any out-of-stock for critical parts; amber if any low-stock OR pending; green when fully stocked.</li>
       </ul>
       <p style="margin-top:8px;color:rgba(255,255,255,0.55);font-size:11px;">Use the search and category filter below for the part-by-part drill-down.</p>

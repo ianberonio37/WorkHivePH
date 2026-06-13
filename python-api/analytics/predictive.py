@@ -44,7 +44,32 @@ def _corrective_only(df: pd.DataFrame) -> pd.DataFrame:
     return df[df["maintenance_type"].str.contains("Corrective|Breakdown", case=False, na=False)]
 
 
-FREQ_DAYS = {"Monthly": 30, "Quarterly": 90, "Semi-Annual": 180, "Yearly": 365}
+# Canonical frequency -> interval-days map. Keys are LOWERCASE; look up via
+# FREQ_DAYS.get(str(freq).strip().lower(), 30) so the seeder/UI vocabulary
+# (Weekly / Semi-annual / Annual) + legacy labels (Semi-Annual / Yearly) all
+# resolve. Matches prescriptive.py.FREQ_DAYS, descriptive.py.freq_days_canonical
+# and v_pm_scope_items_truth.frequency_days. (2026-06-13, S1 — the old 4-key
+# {Monthly,Quarterly,Semi-Annual,Yearly} map silently sent Weekly/Semi-annual/
+# Annual to the 30-day default; see kpi_source_registry + STREAMLINE_ROADMAP P5.)
+FREQ_DAYS = {
+    "daily": 1, "weekly": 7, "biweekly": 14, "fortnightly": 14,
+    "monthly": 30, "quarterly": 90,
+    "semi-annual": 180, "semiannual": 180, "semi annual": 180,
+    "annual": 365, "yearly": 365,
+}
+
+
+def _freq_days(item) -> int:
+    """Days-per-interval for a scope item. Prefer the view's baked frequency_days
+    (v_pm_scope_items_truth, already canonical) and fall back to the canonical
+    case-insensitive map — never a bare label lookup that drops vocabulary."""
+    baked = item.get("frequency_days")
+    if baked is not None and pd.notna(baked):
+        try:
+            return int(baked)
+        except (TypeError, ValueError):
+            pass
+    return FREQ_DAYS.get(str(item.get("frequency") or "Monthly").strip().lower(), 30)
 
 
 # ── 1. Next Failure Date (MTBF-based) — ISO 14224 / ISO 13381-1 ─────────────
@@ -158,7 +183,6 @@ def calc_pm_due_calendar(
     calendar = []
     for _, item in scope.iterrows():
         freq       = item.get("frequency", "Monthly")
-        days       = FREQ_DAYS.get(freq, 30)
         asset_name = item.get("asset_name", item.get("asset_id", "Unknown"))
         item_text  = item.get("item_text", "PM Task")
         item_id    = item.get("id")
@@ -167,14 +191,46 @@ def calc_pm_due_calendar(
         # Get last done date (scope item match preferred, asset fallback)
         last_done = last_comp.get(item_id) or last_asset_comp.get(asset_id)
 
-        if not last_done:
-            # Never completed — no baseline exists yet
+        baked_next = item.get("next_due_date")
+        baked_over = item.get("is_overdue")
+        if baked_next is not None and pd.notna(baked_next) and baked_over is not None and pd.notna(baked_over):
+            # READ-DON'T-RECOMPUTE (P6): trust the canonical baked signals from
+            # v_pm_scope_items_truth — the SAME frequency-aware next_due_date /
+            # is_overdue / is_due_soon pm-scheduler + home read. Recomputing here
+            # let the calendar drift from the truth view (and from the stale map).
+            next_due   = pd.to_datetime(baked_next, utc=True, errors="coerce")
+            bd         = item.get("days_until_due")
+            if bd is not None and pd.notna(bd):
+                days_until = float(bd)
+            elif pd.notna(next_due):
+                days_until = (next_due - now).total_seconds() / 86400
+            else:
+                days_until = 0.0
+
+            if bool(baked_over):
+                d      = abs(int(days_until))
+                risk   = "OVERDUE"
+                status = f"Overdue by {d} day{'s' if d != 1 else ''}"
+            elif bool(item.get("is_due_soon")):
+                d      = int(days_until)
+                risk   = "DUE SOON"
+                status = "Due today" if d <= 0 else f"Due in {d} day{'s' if d != 1 else ''}"
+            elif days_until <= 30:
+                risk   = "UPCOMING"
+                status = f"Due in {int(days_until)} days"
+            else:
+                risk   = "OK"
+                status = f"Due {next_due.strftime('%Y-%m-%d')}" if pd.notna(next_due) else "Scheduled"
+        elif not last_done:
+            # Fallback (solo / pre-baked payload) — never completed, no baseline.
             next_due   = now
             days_until = 0.0
             risk       = "DUE SOON"
             status     = "No record — set baseline"
         else:
-            next_due   = last_done + pd.Timedelta(days=days)
+            # Fallback recompute with the CANONICAL frequency map (P5) when the
+            # payload carries no baked signal (e.g. solo mode).
+            next_due   = last_done + pd.Timedelta(days=_freq_days(item))
             days_until = (next_due - now).total_seconds() / 86400
 
             if days_until < 0:
@@ -200,7 +256,7 @@ def calc_pm_due_calendar(
             "task":        item_text[:80],
             "frequency":   freq,
             "last_done":   last_done.strftime("%Y-%m-%d") if last_done else "Never",
-            "next_due":    next_due.strftime("%Y-%m-%d"),
+            "next_due":    next_due.strftime("%Y-%m-%d") if pd.notna(next_due) else "—",
             "days_until":  round(days_until, 0),
             "risk":        risk,
             "status":      status,
@@ -402,7 +458,8 @@ def calc_health_scores(
     now    = pd.Timestamp.now(tz="UTC")
     cutoff = now - pd.Timedelta(days=period_days)
 
-    FREQ_DAYS = {"Monthly": 30, "Quarterly": 90, "Semi-Annual": 180, "Yearly": 365}
+    # (frequency -> interval-days uses the canonical module-level FREQ_DAYS via
+    #  _freq_days(); the local 4-key map here was the second copy of the P5 drift.)
 
     # ── Component 1 data: MTBF + last failure per machine ────────────────────
     mtbf_map:        dict = {}
@@ -435,7 +492,7 @@ def calc_health_scores(
         for asset_name, s_group in scope.groupby("asset_name"):
             factors = []
             for _, item in s_group.iterrows():
-                freq_days = FREQ_DAYS.get(item.get("frequency", "Monthly"), 30)
+                freq_days = _freq_days(item)
                 last = last_comp_map.get(item.get("asset_id"))
                 if last:
                     days_since = (now - last).total_seconds() / 86400
