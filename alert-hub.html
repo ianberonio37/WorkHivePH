@@ -221,7 +221,7 @@
     <div id="ah-summary">
       <div id="ah-verdict" class="verdict empty">
         <span id="ah-verdict-icon" class="verdict-icon">·</span>
-        <div class="verdict-text"><span id="ah-verdict-label">Rolling up alert state...</span><small id="ah-verdict-sub">Loading from v_risk_truth + anomaly_signals + AMC briefing.</small></div>
+        <div class="verdict-text"><span id="ah-verdict-label">Rolling up alert state...</span><small id="ah-verdict-sub">Checking risk scores, anomaly signals, and the daily brief.</small></div>
       </div>
       <div class="simple-row">
         <div class="simple-card tag-grey" id="ah-card-critical" data-rag-tile="alert-hub:high_severity_alerts" data-rag-label="High-severity alerts">
@@ -256,7 +256,7 @@
         <strong style="display:block;margin-bottom:6px;color:rgba(255,255,255,0.85);">How this is computed</strong>
         <ul style="margin:0;padding-left:20px;">
           <li><strong>High-severity alerts</strong>: count of alerts in the feed with severity = critical or high.</li>
-          <li><strong>Anomaly signals</strong>: count of <code>anomaly_signals</code> rows in attention status (Stair 3+ hives only).</li>
+          <li><strong>Anomaly signals</strong>: count of sensor anomalies in attention status (Stair 3+ hives only).</li>
           <li><strong>AMC daily brief</strong>: today's brief status — pending / approved / rejected / none.</li>
           <li><strong>Verdict</strong>: red if any critical alerts OR anomalies in attention; amber if AMC pending OR high alerts; green when clear.</li>
         </ul>
@@ -347,7 +347,7 @@
   document.getElementById('wh-source-chip').innerHTML = renderSourceChip({
     freshness: 'Live data',
     source:    'v_risk_truth',
-    notes:     ['PM overdue: frequency-aware is_overdue (v_pm_scope_items_truth), rolled up to assets — matches PM Scheduler'],
+    notes:     ['PM overdue: counted once per asset— matches PM Scheduler'],
   });
 
   const SUPABASE_URL = 'https://hzyvnjtisfgbksicrouu.supabase.co';
@@ -1362,7 +1362,7 @@
 <!-- Calm Dashboard Contract footer: data-sources disclosure + hideZeroStat helper -->
 <details data-calm-disclosure="data-sources" style="max-width:680px; margin:1rem auto 2rem; padding:0 1rem;">
   <summary style="cursor:pointer; font-size:.78rem; color:rgba(255,255,255,0.6); list-style:none; display:flex; align-items:center; min-height:44px;">▸ About this dashboard's data sources</summary>
-  <p style="font-size:.78rem; color:rgba(255,255,255,0.55); padding:.5rem 0; line-height:1.5;">Numbers come from WorkHive canonical truth views (see <code>KPI_ENGINE.md</code>). They refresh live unless a tile chip says otherwise. Empty or zero values are dimmed via <code>hideZeroStat()</code> so you can tell at a glance which signals have data.</p>
+  <p style="font-size:.78rem; color:rgba(255,255,255,0.55); padding:.5rem 0; line-height:1.5;">Numbers come from your live WorkHive data and refresh when you open the page (a tile may note if it updates differently). Empty or zero values are greyed out so you can tell at a glance which ones have data.</p>
 </details>
 <script>
   window.hideZeroStat = window.hideZeroStat || function(el, val) {

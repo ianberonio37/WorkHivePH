@@ -504,9 +504,9 @@
     data-rag-label="Asset detail breakdown">
         <strong style="display:block;margin-bottom:6px;color:rgba(255,255,255,0.85);">How this is computed</strong>
         <ul style="margin:0;padding-left:20px;">
-          <li><strong>Total assets</strong>: <code>asset_nodes</code> rows where <code>status = 'approved'</code> in this hive.</li>
-          <li><strong>Critical assets</strong>: subset where <code>criticality = 'critical'</code> (case-insensitive). These should have full PM coverage.</li>
-          <li><strong>Pending assets</strong>: worker-submitted assets awaiting supervisor sign-off (<code>status IN ('pending','rejected')</code>).</li>
+          <li><strong>Total assets</strong>: approved assets in this hive.</li>
+          <li><strong>Critical assets</strong>: subset where marked critical. These should have full PM coverage.</li>
+          <li><strong>Pending assets</strong>: worker-submitted assets awaiting supervisor sign-off (pending or rejected).</li>
           <li><strong>Verdict</strong>: red if 5+ pending; amber if any pending OR no critical assets registered; green when registry is complete.</li>
         </ul>
         <p style="margin-top:8px;color:rgba(255,255,255,0.55);font-size:11px;">Search and tap any asset card below for the 360° view.</p>
@@ -741,7 +741,7 @@
             <div id="pf-diagnostic" style="font-size:.78rem; line-height:1.45; padding:0.7rem 0.8rem; border-radius:0.55rem; background:rgba(56,189,248,0.06); border:1px solid rgba(56,189,248,0.16);"></div>
           </div>
           <div id="pf-empty" class="empty-row" style="margin-top:0.6rem; padding:0.85rem; text-align:center; font-size:.78rem; color:var(--muted);">
-            Set thresholds and tap Compute to scan readings_json from corrective logbook entries.
+            Set thresholds and tap Compute to scan sensor readings from corrective logbook entries.
           </div>
           <div style="display:flex; gap:8px; margin-top:0.65rem;">
             <button id="pf-compute-btn" class="add-edge-btn" style="flex:1; min-height:44px; background:rgba(56,189,248,0.18); border-color:rgba(56,189,248,0.35); color:#7dd3fc;">Compute P-F interval</button>
@@ -775,7 +775,7 @@
         </div>
         <div id="telemetry-list" style="display:flex; flex-direction:column; gap:6px;"></div>
         <div id="telemetry-empty" style="display:none; font-size:.74rem; color:var(--muted); padding:0.6rem 0;">
-          No readings in the last 30 days. The plant MQTT bridge has not connected yet, or this asset is not mapped in sensor_topic_map.
+          No readings in the last 30 days. The plant MQTT bridge has not connected yet, or this asset is not mapped to a sensor.
         </div>
         <div id="telemetry-meta" style="font-size:.66rem; color:var(--muted); margin-top:0.5rem;"></div>
       </div>
@@ -832,11 +832,11 @@
       <h2 id="edge-modal-title">Add an edge</h2>
       <label for="edge-type">Relationship</label>
       <select id="edge-type" data-select-placeholder-allow="graph edge type, parent_of is the most common edge">
-        <option value="parent_of">parent_of (this asset contains another)</option>
+        <option value="parent_of">Parent of (this asset contains another)</option>
         <option value="feeds">feeds (this asset feeds another)</option>
         <option value="supplies">supplies (this asset supplies another)</option>
         <option value="sister">sister (peer asset, same hive)</option>
-        <option value="redundant_with">redundant_with (failover pair)</option>
+        <option value="redundant_with">Redundant with (failover pair)</option>
         <option value="controls">controls</option>
         <option value="monitors">monitors</option>
       </select>
@@ -903,12 +903,12 @@
       <label for="rcm-decision">1. JA1011 decision (what task type does this failure deserve?)</label>
       <select id="rcm-decision">
         <option value="">(select)</option>
-        <option value="scheduled_on_condition">scheduled_on_condition — predictive (CBM, vibration, temp, oil)</option>
-        <option value="scheduled_restoration">scheduled_restoration — overhaul / restore at age</option>
-        <option value="scheduled_discard">scheduled_discard — replace at fixed interval</option>
-        <option value="failure_finding">failure_finding — test hidden protective device</option>
-        <option value="run_to_failure">run_to_failure — accept; no proactive task</option>
-        <option value="redesign_required">redesign_required — no task is effective</option>
+        <option value="scheduled_on_condition">Scheduled on-condition — predictive (CBM, vibration, temp, oil)</option>
+        <option value="scheduled_restoration">Scheduled restoration — overhaul / restore at age</option>
+        <option value="scheduled_discard">Scheduled discard — replace at fixed interval</option>
+        <option value="failure_finding">Failure-finding — test hidden protective device</option>
+        <option value="run_to_failure">Run to failure — accept; no proactive task</option>
+        <option value="redesign_required">Redesign required — no task is effective</option>
       </select>
 
       <label for="rcm-task">Task text (what does the technician do?)</label>
@@ -916,7 +916,7 @@
 
       <label for="rcm-interval">Interval</label>
       <select id="rcm-interval">
-        <option value="">(none — not applicable for run_to_failure / redesign)</option>
+        <option value="">(none — not applicable for run-to-failure / redesign)</option>
         <option value="30">Monthly (30 d)</option>
         <option value="90">Quarterly (90 d)</option>
         <option value="180">Semi-Annual (180 d)</option>
@@ -2879,7 +2879,7 @@
       const btn    = document.getElementById('pf-compute-btn');
       const status = document.getElementById('pf-status');
       if (btn) { btn.disabled = true; btn.textContent = 'Scanning logbook readings...'; }
-      if (status) status.textContent = 'Pulling readings_json and detecting P-F pairs...';
+      if (status) status.textContent = 'Pulling sensor readings and detecting P-F pairs...';
       try {
         const { data, error } = await db.functions.invoke('pf-calculator', {
           body: {
@@ -3055,7 +3055,7 @@
           <td>${esc(p.basis)}</td>
           <td>${esc(fmtDate(p.generated_at))}</td>
         </tr>`).join('')
-        : '<tr><td colspan="7" class="empty">No P-F intervals computed. Set thresholds on the P-F tab to scan readings_json history.</td></tr>';
+        : '<tr><td colspan="7" class="empty">No P-F intervals computed. Set thresholds on the P-F tab to scan sensor-reading history.</td></tr>';
 
       const logRows = logs.length ? logs.map(l => `
         <tr>
@@ -3813,7 +3813,7 @@
 <!-- Calm Dashboard Contract footer: data-sources disclosure + hideZeroStat helper -->
 <details data-calm-disclosure="data-sources" style="max-width:680px; margin:1rem auto 2rem; padding:0 1rem;">
   <summary style="cursor:pointer; font-size:.78rem; color:rgba(255,255,255,0.6); list-style:none; display:flex; align-items:center; min-height:44px;">▸ About this dashboard's data sources</summary>
-  <p style="font-size:.78rem; color:rgba(255,255,255,0.55); padding:.5rem 0; line-height:1.5;">Numbers come from WorkHive canonical truth views (see <code>KPI_ENGINE.md</code>). They refresh live unless a tile chip says otherwise. Empty or zero values are dimmed via <code>hideZeroStat()</code> so you can tell at a glance which signals have data.</p>
+  <p style="font-size:.78rem; color:rgba(255,255,255,0.55); padding:.5rem 0; line-height:1.5;">Numbers come from your live WorkHive data and refresh when you open the page (a tile may note if it updates differently). Empty or zero values are greyed out so you can tell at a glance which ones have data.</p>
 </details>
 <script>
   window.hideZeroStat = window.hideZeroStat || function(el, val) {

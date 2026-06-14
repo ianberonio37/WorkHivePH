@@ -405,9 +405,9 @@
     <div id="pm-summary-details" role="region" aria-label="Project health explainer">
       <strong style="display:block;margin-bottom:6px;color:rgba(255,255,255,0.85);">How project health is computed</strong>
       <ul style="margin:0;padding-left:20px;">
-        <li><strong>Active projects</strong>: <code>projects.status = 'active'</code>.</li>
-        <li><strong>Past end date</strong>: <code>end_date &lt; today AND status NOT IN ('complete','cancelled','archived')</code> — projects that should have closed but haven't.</li>
-        <li><strong>On hold or planning</strong>: <code>status IN ('on_hold','planning')</code> — work that's not moving yet.</li>
+        <li><strong>Active projects</strong>: active.</li>
+        <li><strong>Past end date</strong>: past their end date but not yet closed — projects that should have closed but haven't.</li>
+        <li><strong>On hold or planning</strong>: on hold or planning — work that's not moving yet.</li>
         <li><strong>Verdict</strong>: red if 3+ past end date; amber if any past end OR blocked count exceeds active; green when active &gt; blocked and nothing overdue.</li>
       </ul>
       <p style="margin-top:8px;color:rgba(255,255,255,0.55);font-size:11px;">Use the status tabs below for the per-project drilldown.</p>
@@ -918,12 +918,12 @@ async function validateHiveMembership() {
   const _pmMgrChip = document.getElementById('pm-mgr-source-chip');
   if (_pmMgrChip && typeof renderSourceChip === 'function') {
     _pmMgrChip/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = renderSourceChip({
-      freshness: 'Live · refreshed on load + realtime on projects table',
+      freshness: 'Live · refreshed on load · updates automatically',
       source:    'projects + project_items',
       notes:     [
         'Status buckets: Active / Planning / On Hold / Complete',
-        'Past end date: active projects where end_date < today',
-        'Completion %: project_items pct_complete, avg per project',
+        'Past end date: active projects whose end date has passed',
+        'Completion %: average task progress per project',
       ],
     });
   }

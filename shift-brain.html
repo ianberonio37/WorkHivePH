@@ -241,10 +241,10 @@
     data-rag-label="Shift brain detail">
       <strong style="display:block;margin-bottom:6px;color:rgba(255,255,255,0.85);">How this shift plan is built</strong>
       <ul style="margin:0;padding-left:20px;">
-        <li><strong>Top risk this shift</strong>: assets ranked by latest <code>asset_risk_scores.risk_score</code>; only <strong>high</strong> and <strong>critical</strong> bands shown (risk_score &ge; 0.70). Low/medium assets live in the full risk register, not the shift brief.</li>
-        <li><strong>PMs due</strong>: frequency-aware <strong>overdue</strong> PMs (<code>v_pm_scope_items_truth.is_overdue</code> &mdash; <code>next_due_date</code> &lt; today, derived from each task's own interval), one row per asset. Not the retired flat 30-day proxy.</li>
+        <li><strong>Top risk this shift</strong>: assets ranked by latest each asset's risk score; only <strong>high</strong> and <strong>critical</strong> bands shown (score &ge; 0.70). Low/medium assets live in the full risk register, not the shift brief.</li>
+        <li><strong>PMs due</strong>: frequency-aware <strong>overdue</strong> PMs (the next due date has passed, based on each task's own interval), one row per asset. Not the retired flat 30-day proxy.</li>
         <li><strong>Carry-forward</strong>: breakdown / corrective entries left <code>Open</code> from the prior shift.</li>
-        <li><strong>Parts pre-stage</strong>: parts at or below <code>min_qty</code> that one of the prioritized jobs is likely to consume.</li>
+        <li><strong>Parts pre-stage</strong>: parts at or below the reorder level that one of the prioritized jobs is likely to consume.</li>
         <li><strong>Verdict</strong>: red if 3+ top-risk OR 5+ carry-forward; amber if PMs due or 1+ top-risk; green when all four lists are short.</li>
       </ul>
     </div>
@@ -289,7 +289,7 @@
         <button class="btn-primary" id="generate-btn">Generate now</button>
       </div>
       <div id="empty-worker" style="margin-top:0.4rem;font-size:0.78rem;display:none;">
-        Your supervisor needs to generate one. The autonomous schedule runs at 06:00, 14:00, and 22:00 PHT once pg_cron is enabled.
+        Your supervisor needs to generate one. The automatic schedule runs at 06:00, 14:00, and 22:00 PHT once enabled.
       </div>
     </div>
 
@@ -329,7 +329,7 @@
           source:    'shift_plans + v_risk_truth + v_pm_scope_items_truth',
           notes:     [
             'Risk threshold: assets above the hive\'s risk score cutoff',
-            'PMs: frequency-aware overdue (v_pm_scope_items_truth.is_overdue, one per asset) — not the flat 30-day proxy',
+            'PMs: overdue, counted once per asset — not a flat 30-day estimate',
             'Carry-forward: open items from prior shift that weren\'t closed',
           ],
         });
@@ -882,7 +882,7 @@
 <!-- Calm Dashboard Contract footer: data-sources disclosure + hideZeroStat helper -->
 <details data-calm-disclosure="data-sources" style="max-width:680px; margin:1rem auto 2rem; padding:0 1rem;">
   <summary style="cursor:pointer; font-size:.78rem; color:rgba(255,255,255,0.6); list-style:none; display:flex; align-items:center; min-height:44px;">▸ About this dashboard's data sources</summary>
-  <p style="font-size:.78rem; color:rgba(255,255,255,0.55); padding:.5rem 0; line-height:1.5;">Numbers come from WorkHive canonical truth views (see <code>KPI_ENGINE.md</code>). They refresh live unless a tile chip says otherwise. Empty or zero values are dimmed via <code>hideZeroStat()</code> so you can tell at a glance which signals have data.</p>
+  <p style="font-size:.78rem; color:rgba(255,255,255,0.55); padding:.5rem 0; line-height:1.5;">Numbers come from your live WorkHive data and refresh when you open the page (a tile may note if it updates differently). Empty or zero values are greyed out so you can tell at a glance which ones have data.</p>
 </details>
 <script>
   window.hideZeroStat = window.hideZeroStat || function(el, val) {

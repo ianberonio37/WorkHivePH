@@ -288,8 +288,8 @@
     data-rag-label="Inventory detail breakdown">
       <strong style="display:block;margin-bottom:6px;color:rgba(255,255,255,0.85);">How these counts are computed</strong>
       <ul style="margin:0;padding-left:20px;">
-        <li><strong>Out of stock</strong>: parts with <code>qty_on_hand &lt;= 0</code>.</li>
-        <li><strong>Low stock</strong>: parts with <code>0 &lt; qty_on_hand &lt;= min_qty</code> (the reorder threshold).</li>
+        <li><strong>Out of stock</strong>: parts with none left on hand.</li>
+        <li><strong>Low stock</strong>: parts at or below the reorder level (the threshold to reorder).</li>
         <li><strong>Pending parts</strong>: parts a worker added in this hive that need a supervisor sign-off before Use / Restock unlocks.</li>
         <li><strong>Verdict</strong>: red if any out-of-stock for critical parts; amber if any low-stock OR pending; green when fully stocked.</li>
       </ul>
@@ -1564,14 +1564,18 @@ async function initData() {
   if (_invChip && typeof renderSourceChip === 'function') {
     _invChip/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = renderSourceChip({
       freshness: 'Live · refreshed on load',
-      source:    'inventory_items + inventory_transactions',
+      source:    'inventory_items + inventory_transactions + qty_on_hand + min_qty',
       notes:     [
-        'Low stock: qty_on_hand <= min_qty',
-        'Out of stock: qty_on_hand <= 0',
-        'Approval gate: status = approved (hive-scoped)',
+        'Low stock: at or below reorder level',
+        'Out of stock: none left on hand',
+        'Approval gate: only approved items count',
       ],
     });
   }
+  // E2 consistent states: show a skeleton while the fetch runs so the panel
+  // never flashes blank (renderParts() at the end overwrites it with data or
+  // the empty-state).
+  if (typeof whListSkeleton === 'function') whListSkeleton(document.getElementById('parts-list'), 4);
   let lsItems = [], lsTxns = [], lsAssets = [];
   try { lsItems  = JSON.parse(localStorage.getItem(INV_KEY)    || '[]'); } catch (_) { lsItems  = []; }
   try { lsTxns   = JSON.parse(localStorage.getItem(TXN_KEY)    || '[]'); } catch (_) { lsTxns   = []; }
@@ -1750,7 +1754,17 @@ async function validateHiveMembership() {
   // v_inventory_items_truth.is_low_stock = 3).
   try { await db.auth.getUser(); } catch (_) { /* empty-catch-allow: best-effort silent swallow */ }
   await validateHiveMembership();
-  await initData();
+  // E2 consistent states: a failed load shows an inline error + Retry (shared
+  // whListError) plus the platform toast, never a blank or stuck skeleton.
+  try {
+    await initData();
+  } catch (err) {
+    console.error('inventory load failed:', err);
+    if (typeof whListError === 'function') {
+      whListError(document.getElementById('parts-list'), "Couldn’t load your inventory. Check your connection and try again.", () => location.reload());
+    }
+    if (typeof showToast === 'function') showToast('Inventory failed to load — tap Retry.', 'warn');
+  }
 
   // Deep-link via ?q= (search-overlay part results link inventory.html?q=<part>;
   // without this reader the link landed on the page but never filtered the list).

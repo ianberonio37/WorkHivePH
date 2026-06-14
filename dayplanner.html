@@ -324,9 +324,9 @@
     data-rag-label="Day planner detail">
       <strong style="display:block;margin-bottom:6px;color:rgba(255,255,255,0.85);">How this is computed</strong>
       <ul style="margin:0;padding-left:20px;">
-        <li><strong>Today</strong>: <code>schedule_items</code> with <code>date = today</code> (PHT).</li>
+        <li><strong>Today</strong>: items scheduled for today (Philippine time).</li>
         <li><strong>This week</strong>: items in the current Monday-Sunday window.</li>
-        <li><strong>Overdue</strong>: items with <code>date &lt; today</code> AND <code>item_status not in (done, closed, cancelled)</code> — open work that slipped.</li>
+        <li><strong>Overdue</strong>: items with <code>date &lt; today</code> AND not yet done — open work that slipped.</li>
         <li><strong>Verdict</strong>: red if 3+ overdue; amber if today &gt; 6 OR any overdue; green when the day is plannable.</li>
       </ul>
       <p style="margin-top:8px;color:rgba(255,255,255,0.55);font-size:11px;">Click into DILO / WILO / MILO / YILO tabs for the day / week / month / year drilldown.</p>
@@ -1562,7 +1562,7 @@ document.addEventListener('keydown', e => {
 <!-- Calm Dashboard Contract footer: data-sources disclosure + hideZeroStat helper -->
 <details data-calm-disclosure="data-sources" style="max-width:680px; margin:1rem auto 2rem; padding:0 1rem;">
   <summary style="cursor:pointer; font-size:.78rem; color:rgba(255,255,255,0.6); list-style:none; display:flex; align-items:center; min-height:44px;">▸ About this dashboard's data sources</summary>
-  <p style="font-size:.78rem; color:rgba(255,255,255,0.55); padding:.5rem 0; line-height:1.5;">Numbers come from WorkHive canonical truth views (see <code>KPI_ENGINE.md</code>). They refresh live unless a tile chip says otherwise. Empty or zero values are dimmed via <code>hideZeroStat()</code> so you can tell at a glance which signals have data.</p>
+  <p style="font-size:.78rem; color:rgba(255,255,255,0.55); padding:.5rem 0; line-height:1.5;">Numbers come from your live WorkHive data and refresh when you open the page (a tile may note if it updates differently). Empty or zero values are greyed out so you can tell at a glance which ones have data.</p>
 </details>
 <script>
   window.hideZeroStat = window.hideZeroStat || function(el, val) {

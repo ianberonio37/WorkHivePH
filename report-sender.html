@@ -1929,9 +1929,9 @@
         freshness: 'Live · contacts refreshed on load, history on load',
         source:    'v_ai_reports_truth + report_contacts',
         notes:     [
-          'Reports: v_ai_reports_truth filtered by hive_id, ordered by generated_at DESC',
-          'Contacts: report_contacts (local + synced) + localStorage fallback',
-          'Delivery: Resend email via send-report edge fn',
+          'Reports: your hive’s AI reports, newest first',
+          'Contacts: saved on this device and synced to your hive',
+          'Delivery: sent by email',
         ],
       });
     }

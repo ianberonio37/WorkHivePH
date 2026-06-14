@@ -649,9 +649,9 @@
     const _commChip = document.getElementById('community-source-chip');
     if (_commChip && typeof renderSourceChip === 'function') {
       _commChip.innerHTML = renderSourceChip({
-        freshness: 'Live via supabase_realtime',
+        freshness: 'Live · updates automatically',
         source:    'community_posts + community_replies + community_reactions',
-        notes:     ['Scoped to hive_id · public posts visible cross-hive', 'Real-time: INSERT/UPDATE/DELETE via postgres_changes'],
+        notes:     ['Your hive’s posts · public posts are visible across hives', 'Updates live as posts change'],
       });
     }
     await Promise.all([loadPosts(), loadLeaderboard(), loadProfileStats(), loadHiveMembers()]);

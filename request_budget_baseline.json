@@ -1,0 +1,17 @@
+{
+  "established": true,
+  "generated": "2026-06-14T05:33:25.772Z",
+  "pages": {
+    "index.html": 10,
+    "analytics.html": 3,
+    "asset-hub.html": 5,
+    "alert-hub.html": 1,
+    "shift-brain.html": 1,
+    "achievements.html": 3,
+    "integrations.html": 1,
+    "audit-log.html": 1,
+    "predictive.html": 2,
+    "report-sender.html": 1,
+    "engineering-design.html": 1
+  }
+}

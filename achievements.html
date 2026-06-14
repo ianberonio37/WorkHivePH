@@ -406,9 +406,9 @@
     <strong style="display:block;margin-bottom:6px;color:rgba(255,255,255,0.85);">How XP and tiers work</strong>
     <div style="font-size:11px;color:rgba(255,255,255,0.55);margin-bottom:6px;">Standard: WorkHive Achievement Tier Model (platform-internal, 5 tiers × 12 domains).</div>
     <ul style="margin:0;padding-left:20px;">
-      <li><strong>XP this week</strong>: <code>achievement_xp_log</code> entries from the past 7 days, summed.</li>
+      <li><strong>XP this week</strong>: XP entries from the past 7 days, summed.</li>
       <li><strong>Active domains</strong>: domains where you've earned at least Level 1 (out of 12 total).</li>
-      <li><strong>Total level</strong>: sum of <code>current_level</code> across all 12 domains. Drives your worker tier.</li>
+      <li><strong>Total level</strong>: sum of your level across all 12 domains. Drives your worker tier.</li>
       <li><strong>Verdict</strong>: green if 50+ XP this week; amber if 1-49 XP; empty if no XP yet; never red — Achievements is purely motivational.</li>
     </ul>
     <p style="margin-top:8px;color:rgba(255,255,255,0.55);font-size:11px;">Scroll for the Tier Guide and domain-by-domain breakdown.</p>
@@ -952,9 +952,9 @@
         freshness: 'Live · refreshed on load',
         source:    'worker_achievements + achievement_xp_log',
         notes:     [
-          'XP this week: achievement_xp_log entries within 7-day window',
-          'Total level: sum of current_level across all achievements (max 1,200 = 12 domains x level 100)',
-          'Active domains: distinct achievements with current_level >= 1',
+          'XP this week: points earned in the last 7 days',
+          'Total level: your levels added up across all domains (max 1,200 = 12 domains × level 100)',
+          'Active domains: domains where you’ve reached level 1 or higher',
         ],
       });
     }
@@ -992,7 +992,7 @@
 <!-- Calm Dashboard Contract footer: data-sources disclosure + hideZeroStat helper -->
 <details data-calm-disclosure="data-sources" style="max-width:680px; margin:1rem auto 2rem; padding:0 1rem;">
   <summary style="cursor:pointer; font-size:.78rem; color:rgba(255,255,255,0.6); list-style:none; display:flex; align-items:center; min-height:44px;">▸ About this dashboard's data sources</summary>
-  <p style="font-size:.78rem; color:rgba(255,255,255,0.55); padding:.5rem 0; line-height:1.5;">Numbers come from WorkHive canonical truth views (see <code>KPI_ENGINE.md</code>). They refresh live unless a tile chip says otherwise. Empty or zero values are dimmed via <code>hideZeroStat()</code> so you can tell at a glance which signals have data.</p>
+  <p style="font-size:.78rem; color:rgba(255,255,255,0.55); padding:.5rem 0; line-height:1.5;">Numbers come from your live WorkHive data and refresh when you open the page (a tile may note if it updates differently). Empty or zero values are greyed out so you can tell at a glance which ones have data.</p>
 </details>
 <script>
   window.hideZeroStat = window.hideZeroStat || function(el, val) {

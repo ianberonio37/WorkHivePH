@@ -466,6 +466,39 @@ VALIDATORS = [
         "skip_if_fast": False,
     },
     {
+        # 2026-06-14 (STREAMLINE §13/§14 E1) — keeps developer jargon OFF the glass.
+        # Ian screenshotted dashboard captions leaking v_*_truth view names, RPC/edge-fn
+        # names, code idents (_pmOverdueCount, hideZeroStat()), *.md doc refs and raw SQL
+        # predicates (qty_on_hand <= min_qty). The provenance chip is good; its TEXT was
+        # authored in engineer voice. Scans user-VISIBLE strings only — chip
+        # freshness/window/notes + HTML explainer blocks — NOT the source: field (that
+        # stays canonical for source-chip-truth and is translated via WH_SOURCE_LABELS in
+        # utils.js) and NOT JS/HTML comments or <code>/<pre>. Forward-only ratchet.
+        "id":      "user-facing-jargon",
+        "script":  "validate_user_facing_jargon.py",
+        "args":    [],
+        "label":   "User-Facing Jargon (no v_*_truth / RPC / code-ident / *.md / SQL on the glass; chip source: exempt; forward-only ratchet)",
+        "group":   "Platform",
+        "report":  "user_facing_jargon_report.json",
+        "skip_if_fast": False,
+    },
+    {
+        # 2026-06-14 (STREAMLINE §14 E4) — the design palette/type/spacing from
+        # designer SKILL.md was raw hex inline on every page (a wrong orange
+        # #e8920a once drifted into parts-tracker/assistant). E4 promotes it to
+        # CSS custom properties in components.css :root. This gate: L1 the token
+        # block must declare every canonical value (palette can't drift/delete),
+        # L2 the drift hex #e8920a is banned on the glass, L3 raw-brand-hex
+        # inline usage ratchets forward-only (use var(--wh-*)).
+        "id":      "design-tokens",
+        "script":  "validate_design_tokens.py",
+        "args":    [],
+        "label":   "Design Tokens (components.css :root canonical palette intact + no #e8920a drift + raw-brand-hex forward-only ratchet)",
+        "group":   "Platform",
+        "report":  "design_tokens_report.json",
+        "skip_if_fast": False,
+    },
+    {
         # 2026-05-20 — catches enum-column filter case/spelling drift across
         # surfaces. Two pages filtering `.eq('status', 'Open')` vs
         # `.eq('status', 'open')` return different result sets from the SAME

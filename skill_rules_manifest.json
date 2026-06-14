@@ -476,6 +476,66 @@
       ]
     },
     {
+      "id": "frontend_list_view_has_loading_state",
+      "skill": "frontend",
+      "section": "List View Contract -- Loading State Anchor",
+      "summary": "Pages that render dynamic lists must declare a loading-state element (id=\"loading\"/\"<feature>-loading\"/\"<feature>-skeleton\", or class=\"skeleton\"/\"loading-state\"/\"is-loading\"/\"wh-skeleton\") so the panel shows a skeleton/spinner instead of a blank flash before data arrives",
+      "scope": "html_pages",
+      "polarity": "convention",
+      "pattern": "id=[\"'](?:loading|[a-z][\\w-]*-(?:loading|skeleton))[\"']|class=[\"'][^\"']*\\b(?:skeleton|loading-state|is-loading|wh-skeleton)\\b|whListSkeleton\\s*\\(",
+      "triggered_by": "innerHTML\\s*[+]?=\\s*[^;]+\\.(?:map|join)\\s*\\(",
+      "rationale": "Designer SKILL.md 'specify EVERY state -- default/hover/active/disabled/empty/loading/error'; NN/g loading-state guidance. A page satisfies it with a markup anchor OR by calling the shared whListSkeleton() helper (utils.js). Without a loading anchor a dynamic list renders a blank panel during fetch (the P14 IDB-blank class -- panel blanks, user can't tell loading from broken). Accepts the canonical id=\"loading\" AND feature-prefixed variants (id=\"feed-skeleton\", id=\"history-loading\"). STREAMLINE E2 2026-06-14; same .map()/innerHTML trigger + exclusions as the empty-state rule.",
+      "severity": "medium",
+      "excluded_files": [
+        {"file": "assistant.html",    "reason": "Chat interface, not a list view; the streaming reply IS the loading affordance."},
+        {"file": "index.html",        "reason": "Marketing landing + operational-home dashboard; tiles render from a fixed set, governed by the Calm Dashboard Contract."},
+        {"file": "integrations.html", "reason": "Multi-step CSV import wizard; the .map() renders preview rows of in-progress data, not a fetched list."},
+        {"file": "report-sender.html","reason": "Report-builder form; the .map() renders recipient chips, not a fetched list."}
+      ]
+    },
+    {
+      "id": "frontend_list_view_has_error_state",
+      "skill": "frontend",
+      "section": "List View Contract -- Error State Anchor",
+      "summary": "Pages that render dynamic lists must surface a load-error affordance for a failed fetch -- either an inline error element (id=\"error\"/\"load-error\"/\"<feature>-error\", class=\"error-state\"/\"load-error\") OR a toast on the fetch catch (showToast/showErrorToast in a catch block) -- so a failed load shows a real message + retry path instead of a blank or stale panel",
+      "scope": "html_pages",
+      "polarity": "convention",
+      "pattern": "id=[\"'](?:error|load-error|[a-z][\\w-]*-(?:error|load-error))[\"']|class=[\"'][^\"']*\\b(?:error-state|load-error)\\b|catch\\s*\\([^)]*\\)\\s*\\{[^}]*show(?:Error)?Toast|whListError\\s*\\(",
+      "triggered_by": "innerHTML\\s*[+]?=\\s*[^;]+\\.(?:map|join)\\s*\\(",
+      "rationale": "Designer 'specify EVERY state' + the platform's established error convention is the toast (P14 IDB-blank surfaced a toast on reject). This rule accepts BOTH an inline error anchor AND a catch->toast, so it enforces 'the user must see SOMETHING on a failed load' without fighting the toast pattern. STREAMLINE E2 2026-06-14; same trigger + exclusions as the empty-state rule.",
+      "severity": "medium",
+      "excluded_files": [
+        {"file": "assistant.html",    "reason": "Chat interface, not a list view; reply errors surface inline in the conversation."},
+        {"file": "index.html",        "reason": "Marketing landing + operational-home dashboard; governed by the Calm Dashboard Contract."},
+        {"file": "integrations.html", "reason": "Multi-step CSV import wizard; import errors surface in the wizard step, not a list."},
+        {"file": "report-sender.html","reason": "Report-builder form; send errors surface on the form, not a list."}
+      ]
+    },
+    {
+      "id": "frontend_currency_uses_shared_formatter",
+      "skill": "frontend",
+      "section": "Formatting Consistency -- shared whFmtPeso (STREAMLINE E6)",
+      "summary": "A page that renders ₱ currency on the glass should format it via the shared whFmtPeso() (utils.js: en-PH locale, thousands separators, null-safe) rather than raw `'₱' + n` concatenation, so peso values format identically everywhere and never print ₱NaN",
+      "scope": "html_pages",
+      "polarity": "convention",
+      "pattern": "whFmtPeso\\s*\\(",
+      "triggered_by": "[\"'`][^\"'`]{0,40}\\u20b1",
+      "rationale": "28 ad-hoc `'₱' + n` concatenations across pages formatted peso differently (some with separators, some not, some emitting ₱NaN on bad input). E6 added whFmtPeso/whFmtNum/whFmtDate/whFmtDuration to utils.js as the PH-locale source of truth. This rule tracks the migration forward-only: a page that prints ₱ in a string literal should reference whFmtPeso(). Baseline conformance is low (new formatters, 2026-06-14) — it ratchets up as pages migrate, exactly like the E4 raw-hex token migration.",
+      "severity": "medium"
+    },
+    {
+      "id": "frontend_detail_toggle_uses_shared_helper",
+      "skill": "frontend",
+      "section": "Disclosure Consistency -- shared wireDetailToggle",
+      "summary": "A page with the canonical explainer button id=\"details-toggle-btn\" must delegate to the shared wireDetailToggle() (utils.js) instead of hand-rolling a toggle, so the disclosure mechanism + 'Show details' / 'Hide details' microcopy stay identical across dashboards",
+      "scope": "html_pages",
+      "polarity": "convention",
+      "pattern": "wireDetailToggle\\s*\\(\\s*\\)",
+      "triggered_by": "id=[\"']details-toggle-btn[\"']",
+      "rationale": "S10 collapsed the per-page toggle IIFE into one wireDetailToggle() (utils.js) that swaps the canonical 'Show details' / 'Hide details' label and mirrors aria-expanded. A page that re-hand-rolls the toggle can drift the label ('Hide extra details', 'Show more') or the a11y wiring. 17/18 pages already delegated; predictive.html was the last hand-rolled holdout, migrated 2026-06-14 (STREAMLINE E5 progressive-disclosure consistency).",
+      "severity": "medium"
+    },
+    {
       "id": "frontend_list_view_has_no_results_state",
       "skill": "frontend",
       "section": "List View Contract -- No-Results State for Filterable Lists",

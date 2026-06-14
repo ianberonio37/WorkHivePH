@@ -32362,7 +32362,7 @@ async function init() {
   const _engChip = document.getElementById('eng-source-chip');
   if (_engChip && typeof renderSourceChip === 'function') {
     _engChip.innerHTML = renderSourceChip({
-      freshness: 'On-demand via engineering-calc-agent edge fn',
+      freshness: 'Calculated on demand',
       source:    'engineering_calcs + canonical_formulas + canonical_standards',
       notes:     ['6 disciplines: HVAC / Mechanical / Electrical / Plumbing / Fire / Machine', 'Formulas anchored to PEC 2017, ASHRAE, PSME, NFPA, ISO standards'],
     });

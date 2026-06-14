@@ -432,7 +432,7 @@
           <a id="btn-audit-log" href="audit-log.html"
              class="hidden text-xs font-semibold"
              style="color:#a78bfa; background:none; border:none; cursor:pointer; min-height:44px; padding:0.5rem 0; text-decoration:none; display:none;"
-             title="View hive_audit_log: supervisor moderation actions + mod queue history">
+             title="View activity log: supervisor actions and moderation history">
             Audit Log &#8594;
           </a>
           <!-- AI Quality + ROI is hidden in nav-hub.js (line 77). Surface it here
@@ -488,7 +488,7 @@
           <div class="verdict-text"><span id="ss-verdict-label">Computing hive health...</span><small id="ss-verdict-sub">Rolling up adoption + PM compliance + open work + low stock.</small></div>
         </div>
         <div class="simple-row" id="ss-cards">
-          <div class="simple-card tag-grey" id="ss-card-stair" title="WorkHive Stair Model — 5-dimension composite (Reliability/Operations/Safety/People/Cost) per KPI_ENGINE.md" data-rag-tile="hive:maturity_stair" data-rag-label="Hive maturity stair">
+          <div class="simple-card tag-grey" id="ss-card-stair" title="WorkHive Stair Model — 5-dimension composite (Reliability / Operations / Safety / People / Cost)" data-rag-tile="hive:maturity_stair" data-rag-label="Hive maturity stair">
             <div class="sc-label">Maturity stair · WorkHive Stair Model</div>
             <div class="sc-hero" id="ss-stair-hero">&#8212;</div>
             <div class="sc-sub" id="ss-stair-sub">Loading...</div>
@@ -519,9 +519,9 @@
     data-rag-label="Hive supervisor detail">
           <strong style="display:block;margin-bottom:6px;color:rgba(255,255,255,0.85);">How this is computed</strong>
           <ul style="margin:0;padding-left:20px;">
-            <li><strong>Maturity stair</strong>: latest snapshot from <code>v_maturity_truth</code>. Hive must clear 5 dimension gates per stair (Reliability / Operations / Safety / People / Cost).</li>
-            <li><strong>Adoption health</strong>: <code>compute_adoption_risk</code> RPC. Healthy &lt; 35, At Risk 35-65, Critical &gt; 65.</li>
-            <li><strong>Open issues</strong>: sum of open work orders (<code>v_logbook_truth</code>, status = Open) + PM-overdue ASSETS (<code>v_pm_scope_items_truth</code>, frequency-aware <code>is_overdue</code>; an asset counts once if &ge;1 of its scope items is overdue — matches PM Scheduler) + stock issues (<code>v_inventory_items_truth</code>, server-derived <code>is_low_stock</code> — at/below reorder, includes out-of-stock).</li>
+            <li><strong>Maturity stair</strong>: latest snapshot from your hive maturity data. Hive must clear 5 dimension gates per stair (Reliability / Operations / Safety / People / Cost).</li>
+            <li><strong>Adoption health</strong>: the adoption-risk calculation. Healthy &lt; 35, At Risk 35-65, Critical &gt; 65.</li>
+            <li><strong>Open issues</strong>: sum of still-open work orders + PM-overdue ASSETS (assets with at least one overdue PM — counted once per asset, matching the PM Scheduler) + stock issues (parts at or below their reorder level, including out of stock).</li>
             <li><strong>Verdict</strong>: red if Adoption is Critical OR &gt; 5 PMs overdue; amber if Adoption is At Risk OR any of (1-5 PMs overdue, &ge;10 open WOs, &ge;1 low-stock item); green when all clear.</li>
           </ul>
           <p style="margin-top:8px;color:rgba(255,255,255,0.55);font-size:11px;">Full breakdown (top risk reasons, champion candidate, stair dimensions) is in the Maturity Stairway + Engagement Cards below.</p>
@@ -1628,9 +1628,9 @@ async function initBoard() {
       freshness: 'Live data',
       source:    'v_logbook_truth + v_pm_scope_items_truth + v_inventory_items_truth',
       notes:     [
-        'Open Work: status = Open',
-        'PM overdue: frequency-aware is_overdue, rolled up to assets (matches PM Scheduler)',
-        'Stock issues: server-derived is_low_stock (at/below reorder, includes out-of-stock)',
+        'Open work: jobs not yet closed',
+        'PM overdue: counted once per asset (matches the PM Scheduler)',
+        'Stock issues: at or below reorder level (includes out of stock)',
       ],
     });
   }
@@ -1761,11 +1761,10 @@ function renderMaturityStairway(row) {
   const chipEl = document.getElementById('stair-source-chip');
   if (chipEl && typeof renderSourceChip === 'function') {
     chipEl.innerHTML = renderSourceChip({
-      freshness: 'Live · refreshes via supabase_realtime on hive_readiness',
+      freshness: 'Live · updates automatically',
       source:    'v_maturity_truth',
       notes:     [
         'Dimensions: Process / Data / Resilience / Leadership / Culture',
-        'RPC: compute_hive_readiness',
       ],
     });
   }
@@ -1888,11 +1887,10 @@ async function loadAdoptionCard() {
   const chipEl = document.getElementById('adoption-source-chip');
   if (chipEl && typeof renderSourceChip === 'function') {
     chipEl.innerHTML = renderSourceChip({
-      freshness: 'Live · refreshes via supabase_realtime on hive_adoption_score',
-      source:    'hive_adoption_score',
+      freshness: 'Live · updates automatically',
+      source:    'hive_adoption_score + at_risk',
       notes:     [
-        'RPC: compute_adoption_risk · view: get_adoption_risk_current',
-        'Tiers: healthy < 35 · at_risk 35-65 · critical > 65',
+        'Tiers: healthy under 35 · at risk 35–65 · critical over 65',
       ],
     });
   }
@@ -2276,11 +2274,10 @@ async function loadKnowledgePipeline() {
   const chipEl = document.getElementById('kpipe-source-chip');
   if (chipEl && typeof renderSourceChip === 'function') {
     chipEl.innerHTML = renderSourceChip({
-      freshness: 'Live · refreshed on each page load (Stair 2+ gated)',
-      source:    'v_knowledge_freshness_truth',
+      freshness: 'Live · refreshed when you open the page',
+      source:    'v_knowledge_freshness_truth + fault_knowledge + skill_knowledge + pm_knowledge',
       notes:     [
-        'Corpora: fault_knowledge + skill_knowledge + pm_knowledge',
-        'Metric: embedded_rows / total_rows + days_since_last_embed',
+        'Shows how much of your knowledge base is searchable, and how recently it was updated',
       ],
     });
   }
@@ -3537,11 +3534,11 @@ async function loadTodaysBrief() {
   const chipEl = document.getElementById('todays-brief-source-chip');
   if (chipEl && typeof renderSourceChip === 'function') {
     chipEl.innerHTML = renderSourceChip({
-      freshness: 'AI brief · regenerated daily · 8h client cache',
+      freshness: 'AI summary · refreshed daily',
       source:    'v_ai_reports_truth',
       notes:     [
-        'Types: failure_digest / predictive / pm_overdue',
-        'Ordered by generated_at DESC; latest of each type wins',
+        'Covers failure summaries, predictions, and overdue PMs',
+        'Shows the most recent of each type',
       ],
     });
   }
@@ -3575,11 +3572,11 @@ async function loadPatternAlerts() {
   const chipEl = document.getElementById('pattern-alerts-source-chip');
   if (chipEl && typeof renderSourceChip === 'function') {
     chipEl.innerHTML = renderSourceChip({
-      freshness: 'Scan: failure-signature-scan edge fn (cron-triggered)',
+      freshness: 'Automatic scan · runs on a schedule',
       source:    'v_alert_truth (kind=signature)',
       notes:     [
-        'Rules: repeat_failure / escalating_frequency / multi_symptom / missed_pm',
-        'Standard: ISO 14224',
+        'Flags repeat failures, rising failure rates, multiple symptoms, and missed PMs',
+        'Follows ISO 14224',
       ],
     });
   }
@@ -3652,11 +3649,11 @@ async function loadBenchmarks() {
   const chipEl = document.getElementById('benchmark-source-chip');
   if (chipEl && typeof renderSourceChip === 'function') {
     chipEl.innerHTML = renderSourceChip({
-      freshness: 'Weekly recompute · run via benchmark-compute edge fn',
-      source:    'hive_benchmarks + network_benchmarks',
+      freshness: 'Recalculated weekly',
+      source:    'hive_benchmarks + network_benchmarks + benchmark-compute',
       notes:     [
-        'Metric: MTBF in days, by equipment_category',
-        'Rows shown only when both own + network counts have data (ISO 14224 reliability)',
+        'MTBF in days, by equipment type',
+        'Shown only when both your hive and the network have enough data (ISO 14224)',
       ],
     });
   }
@@ -3755,11 +3752,10 @@ async function askCoach() {
   const chipEl = document.getElementById('coach-source-chip');
   if (chipEl && typeof renderSourceChip === 'function' && !chipEl.innerHTML) {
     chipEl.innerHTML = renderSourceChip({
-      freshness: 'On-demand · ai-orchestrator edge fn (mode: coach)',
-      source:    'v_logbook_truth + v_pm_compliance_truth + v_inventory_items_truth + v_ai_reports_truth',
+      freshness: 'Generated on demand by your AI coach',
+      source:    'v_logbook_truth + v_pm_compliance_truth + v_inventory_items_truth + v_ai_reports_truth + canonical_agent_contracts',
       notes:     [
-        'Output: ranked actions with urgency (TODAY / THIS WEEK / MONITOR)',
-        'Model: see canonical_agent_contracts for the coach schema',
+        'Ranked actions by urgency: Today, This week, Monitor',
       ],
     });
   }
@@ -3773,12 +3769,32 @@ async function askCoach() {
   result.innerHTML = '<p style="color:rgba(255,255,255,0.6); font-size:0.78rem;">Analyzing your plant data...</p>';
 
   try {
-    const { data, error } = await db.functions.invoke('ai-orchestrator', {
-      body: { question, hive_id: HIVE_ID, worker_name: WORKER_NAME, mode: 'coach' }
-    });
-    if (error) throw new Error(error.message);
+    // D5 fold (2026-06-14): route the Reliability Coach THROUGH the unified
+    // ai-gateway agent 'coach' — the same ONE front door as the Companion, so it
+    // shares persona + rate-limit (+ future memory). Coach is in the gateway's
+    // STRUCTURED_PASSTHROUGH_AGENTS, so the ranked actions[] come back under
+    // route_result (the gateway pins mode:'coach'). Falls back to the bespoke
+    // direct ai-orchestrator invoke if the gateway path is unavailable — zero regression.
+    let actions;
+    try {
+      const resp = await db.functions.invoke('ai-gateway', {
+        body: { agent: 'coach', message: question, hive_id: HIVE_ID }
+      });
+      if (resp.error) throw new Error(resp.error.message || 'gateway error');
+      const body = resp.data || {};
+      const gw = (body.ok === true && body.data) ? body.data : body;   // unwrap envelope
+      const rr = gw.route_result || {};                                // structured passthrough
+      actions = rr.actions ?? gw.actions;
+      if (actions == null) throw new Error('no actions from gateway');
+    } catch (_gwErr) {
+      // Fallback: the bespoke direct tool (zero regression if the gateway is down).
+      const { data, error } = await db.functions.invoke('ai-orchestrator', {
+        body: { question, hive_id: HIVE_ID, worker_name: WORKER_NAME, mode: 'coach' }
+      });
+      if (error) throw new Error(error.message);
+      actions = data?.actions;
+    }
 
-    const actions = data?.actions;
     if (!actions || !actions.length) {
       result.innerHTML = '<p style="color:rgba(255,255,255,0.6); font-size:0.78rem;">Not enough data yet to generate recommendations. Keep logging maintenance entries.</p>';
       return;
@@ -3827,9 +3843,9 @@ async function loadTeamPulse() {
       freshness: 'Live · refreshed on each page load',
       source:    'v_logbook_truth + v_pm_compliance_truth + v_inventory_items_truth',
       notes:     [
-        'Jobs Today: logbook rows where created_at >= midnight (hive scope)',
-        'PMs Overdue: shared _pmOverdueCount (from loadPMHealth)',
-        'Stock Issues: qty_on_hand <= 0 OR qty_on_hand <= min_qty',
+        'Jobs today: logged since midnight',
+        'PMs overdue: across your whole hive',
+        'Stock issues: out of stock, or below reorder level',
       ],
     });
   }
@@ -3964,12 +3980,12 @@ function generateHandover() {
   const chipEl = document.getElementById('handover-source-chip');
   if (chipEl && typeof renderSourceChip === 'function' && !chipEl.innerHTML) {
     chipEl.innerHTML = renderSourceChip({
-      freshness: 'On-demand · client-side rollup of the in-memory feed',
+      freshness: 'Built on demand from the live feed',
       source:    'v_logbook_truth + v_pm_compliance_truth',
       notes:     [
-        'Window: last 8 hours (since8h)',
+        'Covers the last 8 hours',
         'Sections: completed · open this shift · carry-forward · LOTO/PTW · watch list',
-        'LOTO scan: regex on problem/category fields (loto|lock.?out|tag.?out|isolat|permit.?to.?work|ptw)',
+        'Automatically flags lockout/tagout and permit-to-work entries',
       ],
     });
   }
@@ -4154,7 +4170,7 @@ window.addEventListener('beforeunload', () => {
 <!-- Calm Dashboard Contract footer: data-sources disclosure + hideZeroStat helper -->
 <details data-calm-disclosure="data-sources" style="max-width:680px; margin:1rem auto 2rem; padding:0 1rem;">
   <summary style="cursor:pointer; font-size:.78rem; color:rgba(255,255,255,0.6); list-style:none; display:flex; align-items:center; min-height:44px;">▸ About this dashboard's data sources</summary>
-  <p style="font-size:.78rem; color:rgba(255,255,255,0.55); padding:.5rem 0; line-height:1.5;">Numbers come from WorkHive canonical truth views (see <code>KPI_ENGINE.md</code>). They refresh live unless a tile chip says otherwise. Empty or zero values are dimmed via <code>hideZeroStat()</code> so you can tell at a glance which signals have data.</p>
+  <p style="font-size:.78rem; color:rgba(255,255,255,0.55); padding:.5rem 0; line-height:1.5;">Numbers come from your live WorkHive data and refresh when you open the page (a tile may note if it updates differently). Empty or zero values are greyed out so you can tell at a glance which ones have data.</p>
 </details>
 <script>
   window.hideZeroStat = window.hideZeroStat || function(el, val) {

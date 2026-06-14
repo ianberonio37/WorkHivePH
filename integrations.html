@@ -200,8 +200,8 @@
     data-rag-label="Integrations detail">
     <strong style="display:block;margin-bottom:6px;color:rgba(255,255,255,0.85);">How integrations are categorised</strong>
     <ul style="margin:0;padding-left:20px;">
-      <li><strong>Active integrations</strong>: <code>integration_configs</code> rows with <code>enabled = true</code> and a sync in the last 7 days.</li>
-      <li><strong>Stale syncs</strong>: enabled integrations whose <code>last_sync_at</code> is older than 7 days — usually an auth or endpoint issue.</li>
+      <li><strong>Active integrations</strong>: your integrations rows with switched on and a sync in the last 7 days.</li>
+      <li><strong>Stale syncs</strong>: enabled integrations whose the last sync time is older than 7 days — usually an auth or endpoint issue.</li>
       <li><strong>Disabled</strong>: integrations turned off but still in the config table.</li>
       <li><strong>Verdict</strong>: red if any stale; amber if any disabled OR no integrations at all; green when all active integrations are fresh.</li>
     </ul>
@@ -560,7 +560,7 @@
         <p style="margin-bottom:4px;"><code style="color:var(--gold);">?endpoint=report</code> — Latest intelligence report JSON</p>
         <p style="margin-bottom:4px;"><code style="color:var(--gold);">?endpoint=ping</code> — Health check (no auth required)</p>
       </div>
-      <p style="font-size:.7rem; color:var(--muted); margin-top:8px;">Include header: <code>Authorization: Bearer wh_yourkeyhere</code></p>
+      <p style="font-size:.7rem; color:var(--muted); margin-top:8px;">Include header: <code>Authorization: Bearer your-api-key</code></p>
       <a href="ph-intelligence.html" class="btn btn-blue" style="display:inline-block; margin-top:10px; text-decoration:none; font-size:.75rem; padding:7px 14px;">View Latest Intelligence Report →</a>
     </div>
   </div>
@@ -1555,8 +1555,8 @@
         freshness: 'Live · refreshed on load',
         source:    'integration_configs + external_sync',
         notes:     [
-          'Active: enabled = true AND last_sync_at within 7 days',
-          'Stale: last_sync_at > 7 days ago OR sync error state',
+          'Active: turned on and synced within the last 7 days',
+          'Stale: last synced over 7 days ago, or a sync error',
           'Supported: SAP PM, IBM Maximo, generic CSV (Phase 2)',
         ],
       });

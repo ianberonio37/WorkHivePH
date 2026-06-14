@@ -19,23 +19,70 @@
    wireDetailToggle() behavior in utils.js.
    =========================================================================== */
 
+/* ── Design tokens (STREAMLINE E4) ───────────────────────────────────────────
+   The canonical palette / type / spacing / radius from the designer SKILL.md,
+   promoted to CSS custom properties so brand values live in ONE place and can't
+   drift (the `#e8920a` non-brand orange that crept into parts-tracker/assistant
+   is the cautionary tale). Pages that link components.css should reference
+   var(--wh-*) instead of raw hex. Guarded by validate_design_tokens.py: this
+   block must exist with every canonical value, and the drift hex is banned. */
+:root {
+  /* Brand — orange (primary action / highlights) */
+  --wh-orange:       #F7A21B;
+  --wh-orange-dark:  #D88A0E;
+  --wh-orange-light: #FDB94A;
+  --wh-orange-rgb:   247, 162, 27;
+  /* Brand — blue (secondary / info) */
+  --wh-blue:         #29B6D9;
+  --wh-blue-dark:    #1A9ABF;
+  --wh-blue-light:   #5FCCE8;
+  --wh-blue-rgb:     41, 182, 217;
+  /* Surfaces — navy */
+  --wh-navy:         #162032;
+  --wh-navy-mid:     #1F2E45;
+  --wh-navy-light:   #2A3D58;
+  /* Text */
+  --wh-steel:        #7B8794;  /* muted */
+  --wh-cloud:        #F4F6FA;  /* light text on dark */
+  /* Spacing — 8px grid (NN/g dashboard grid) */
+  --wh-space-1: 4px;  --wh-space-2: 8px;  --wh-space-3: 12px;
+  --wh-space-4: 16px; --wh-space-6: 24px; --wh-space-8: 32px;
+  /* Radius */
+  --wh-radius-sm: 8px; --wh-radius: 12px; --wh-radius-lg: 16px;
+  /* Type */
+  --wh-font: 'Poppins', system-ui, -apple-system, sans-serif;
+}
+
 /* KPI summary cards — the 3-tile "operational heartbeat" header grid */
 .simple-row { display:grid; grid-template-columns:repeat(auto-fit, minmax(160px, 1fr)); gap:12px; margin-bottom:14px; }
-.simple-card { background:#162032; border:1px solid rgba(255,255,255,0.07); border-radius:12px; padding:14px 16px; }
+.simple-card { background:var(--wh-navy); border:1px solid rgba(255,255,255,0.07); border-radius:var(--wh-radius); padding:14px 16px; }
 .simple-card .sc-label { font-size:0.65rem; font-weight:700; color:rgba(255,255,255,0.6); text-transform:uppercase; letter-spacing:0.06em; }
-.simple-card .sc-hero  { font-size:1.5rem; font-weight:800; line-height:1.15; margin:4px 0 2px; color:#F4F6FA; }
+.simple-card .sc-hero  { font-size:1.5rem; font-weight:800; line-height:1.15; margin:4px 0 2px; color:var(--wh-cloud); }
 .simple-card .sc-sub   { font-size:0.7rem; color:rgba(255,255,255,0.55); line-height:1.4; }
 .simple-card .sc-tag   { display:inline-block; font-size:0.58rem; font-weight:800; letter-spacing:0.06em; text-transform:uppercase; padding:0.18rem 0.5rem; border-radius:999px; margin-top:7px; }
 .simple-card.tag-green .sc-tag { background:rgba(74,222,128,0.16);  color:#4ade80; }
-.simple-card.tag-amber .sc-tag { background:rgba(247,162,27,0.16);  color:#F7A21B; }
+.simple-card.tag-amber .sc-tag { background:rgba(var(--wh-orange-rgb),0.16);  color:var(--wh-orange); }
 .simple-card.tag-red   .sc-tag { background:rgba(248,113,113,0.16); color:#f87171; }
 .simple-card.tag-grey  .sc-tag { background:rgba(255,255,255,0.06); color:rgba(255,255,255,0.5); }
 
 /* "What to do next" recommendation card */
-.action-card { background:rgba(41,182,217,0.06); border:1px solid rgba(41,182,217,0.25); border-radius:12px; padding:14px 16px; margin-bottom:14px; }
-.action-card .ac-label { font-size:0.65rem; font-weight:800; color:#29B6D9; text-transform:uppercase; letter-spacing:0.07em; }
+.action-card { background:rgba(var(--wh-blue-rgb),0.06); border:1px solid rgba(var(--wh-blue-rgb),0.25); border-radius:var(--wh-radius); padding:14px 16px; margin-bottom:14px; }
+.action-card .ac-label { font-size:0.65rem; font-weight:800; color:var(--wh-blue); text-transform:uppercase; letter-spacing:0.07em; }
 .action-card .ac-text { font-size:0.82rem; line-height:1.5; margin-top:6px; color:rgba(255,255,255,0.85); }
 
 /* "Show details" explainer toggle button (behavior = utils.js wireDetailToggle, S10) */
 .details-toggle { display:inline-flex; align-items:center; gap:6px; background:transparent; border:1px solid rgba(255,255,255,0.07); color:rgba(255,255,255,0.6); padding:8px 14px; border-radius:8px; font-family:inherit; font-size:0.7rem; font-weight:600; cursor:pointer; min-height:44px; margin-bottom:14px; }
 .details-toggle:hover { color:#F4F6FA; border-color:rgba(255,255,255,0.18); }
+
+/* ── List loading skeleton + inline error/retry (STREAMLINE E2 — consistent states) ──
+   Renderers live in utils.js (whListSkeleton / whListError). A dynamic list shows a
+   shimmer skeleton while fetching and an inline error+retry on failure, never a blank
+   panel (the P14 IDB-blank class). Reduced-motion users get a static block. */
+.wh-skeleton { display:flex; flex-direction:column; gap:8px; padding:4px 0; }
+.wh-skeleton-row { height:44px; border-radius:10px; background:linear-gradient(100deg, rgba(255,255,255,0.04) 30%, rgba(255,255,255,0.09) 50%, rgba(255,255,255,0.04) 70%); background-size:200% 100%; animation:wh-shimmer 1.3s ease-in-out infinite; }
+@keyframes wh-shimmer { 0% { background-position:200% 0; } 100% { background-position:-200% 0; } }
+@media (prefers-reduced-motion: reduce) { .wh-skeleton-row { animation:none; } }
+.wh-list-error { text-align:center; padding:1.4rem 1rem; font-size:0.82rem; color:rgba(255,255,255,0.72); line-height:1.5; }
+.wh-list-error .wh-list-error-icon { font-size:1.4rem; }
+.wh-list-error button { margin-top:0.6rem; min-height:44px; padding:0 16px; border-radius:8px; border:1px solid rgba(255,255,255,0.18); background:transparent; color:#F4F6FA; font-family:inherit; font-size:0.78rem; font-weight:600; cursor:pointer; }
+.wh-list-error button:hover { border-color:rgba(255,255,255,0.32); }

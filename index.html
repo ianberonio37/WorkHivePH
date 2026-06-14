@@ -3405,7 +3405,7 @@
         source:    'v_logbook_truth + v_risk_truth + v_inventory_items_truth · PM overdue via get_hive_dashboard',
         notes:     [
           'Risk: daily snapshot at 13:00 PHT',
-          'PM overdue: get_hive_dashboard.pm_overdue_count (distinct assets, 30-day anchor)',
+          'PM overdue: counted once per asset (30-day window)',
           'Click any tile to open the dedicated surface',
         ],
       });

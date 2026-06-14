@@ -350,7 +350,7 @@
   const _auditChip = document.getElementById('audit-source-chip');
   if (_auditChip && typeof renderSourceChip === 'function') {
     _auditChip.innerHTML = renderSourceChip({
-      freshness: 'Live via supabase_realtime on hive_audit_log',
+      freshness: 'Live · updates automatically',
       source:    'hive_audit_log',
       notes:     ['Supervisor-only · hive-scoped', 'Filters: actor / action / target-type / date range'],
     });

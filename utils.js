@@ -55,6 +55,108 @@ function escHtml(str) {
 //
 // Skill alignment: analytics-engineer ("any custom composite must be labeled"),
 // architect (one visual contract per concept), KPI_ENGINE.md rule 2.
+//
+// E1 (2026-06-14 — user-facing jargon audit, STREAMLINE §13/§14): the `source:`
+// field is kept CANONICAL (raw view/table names) because validate_source_chip_truth.py
+// verifies every v_*_truth in it against a real .from() read — that lineage check is
+// load-bearing. But the user must NEVER see `v_logbook_truth` on the glass. So the
+// chip TRANSLATES source through WH_SOURCE_LABELS at render time: the call keeps the
+// canonical name, the worker reads plain language. Keep this map current when a new
+// canonical view ships (validate_user_facing_jargon.py exempts the source: arg precisely
+// because it is machine-translated here; it FAILs raw view/RPC/SQL jargon everywhere else).
+var WH_SOURCE_LABELS = {
+  'v_logbook_truth':            'logbook',
+  'v_pm_scope_items_truth':     'PM schedule',
+  'v_pm_compliance_truth':      'PM compliance',
+  'v_inventory_items_truth':    'inventory',
+  'v_risk_truth':               'risk scores',
+  'v_asset_truth':              'asset records',
+  'v_fmea_truth':               'failure analysis',
+  'v_weibull_truth':            'reliability analysis',
+  'v_maturity_truth':           'hive maturity',
+  'v_knowledge_freshness_truth':'knowledge base',
+  'v_ai_reports_truth':         'AI reports',
+  'v_alert_truth':              'alerts',
+  'v_hive_readiness_truth':     'hive readiness',
+  'v_marketplace_sellers_truth':'seller ratings',
+  'hive_adoption_score':        'adoption score',
+  'hive_benchmarks':            'hive benchmarks',
+  'network_benchmarks':         'network benchmarks',
+  'hive_audit_log':             'activity log',
+  'hive_retention_config':      'retention settings',
+  'worker_achievements':        'achievements',
+  'achievement_xp_log':         'XP history',
+  'schedule_items':             'your schedule',
+  'community_posts':            'community posts',
+  'community_replies':          'replies',
+  'community_reactions':        'reactions',
+  'analytics_events':           'usage analytics',
+  'marketplace_listings':       'marketplace listings',
+  'marketplace_orders':         'orders',
+  'marketplace_disputes':       'disputes',
+  'marketplace_inquiries':      'inquiries',
+  'ai_cost_log':                'AI usage',
+  'pm_assets':                  'PM assets',
+  'pm_scope_items':             'PM tasks',
+  'pm_completions':             'PM completions',
+  'inventory_items':            'inventory',
+  'inventory_transactions':     'stock movements',
+  'integration_configs':        'integrations',
+  'external_sync':              'sync history',
+  'engineering_calcs':          'saved calculations',
+  'canonical_formulas':         'standard formulas',
+  'canonical_standards':        'engineering standards',
+  'projects':                   'projects',
+  'project_items':              'project tasks',
+  'shift_plans':                'shift plan',
+  'skill_profiles':             'skills',
+  'skill_badges':               'badges',
+  'platform_health.json':       'platform health check',
+  'manual':                     'your own entries',
+  // Knowledge corpora — real data sources, shown to the user:
+  'fault_knowledge':            'fault history',
+  'skill_knowledge':            'skills',
+  'pm_knowledge':               'PM knowledge',
+  // Lineage-anchor tokens that validate_canonical_anchor.py requires in the chip
+  // CALL (for panel→fuel traceability) but that are NOT data sources to show a
+  // user — a tier label / an edge-fn name / a column / a schema registry. Kept in
+  // the source: field (machine plane) and rendered to NOTHING here so the glass
+  // stays plain:
+  'at_risk':                    '',
+  'benchmark-compute':          '',
+  'canonical_agent_contracts':  '',
+  'qty_on_hand':                '',
+  'min_qty':                    '',
+};
+
+// Translate one source token (leading identifier of a "+"-segment) to a friendly
+// label. Unknown tokens are humanized (drop v_ / _truth / .json, underscores → spaces)
+// so a new table never leaks a raw name even before it's added to the map.
+function _whFriendlySourceToken(tok) {
+  tok = String(tok).trim();
+  if (WH_SOURCE_LABELS.hasOwnProperty(tok)) return WH_SOURCE_LABELS[tok];
+  return tok.replace(/^v_/, '').replace(/_truth$/, '').replace(/\.json$/, '').replace(/_/g, ' ').trim();
+}
+
+// Turn a canonical source string ("v_logbook_truth + v_risk_truth via Postgres RPCs")
+// into a plain phrase ("logbook & risk scores"). Splits on "+", takes the LEADING
+// identifier of each segment (ignoring trailing prose / parentheticals), translates,
+// de-dupes, and joins with commas + an ampersand before the last.
+function _whFriendlySource(src) {
+  var segs = String(src).split('+');
+  var out  = [];
+  for (var i = 0; i < segs.length; i++) {
+    var s = segs[i].trim();
+    if (!s) continue;
+    var m = s.match(/^[A-Za-z0-9_.-]+/);  // leading table/view identifier (hyphen for edge-fn anchor tokens)
+    var label = _whFriendlySourceToken(m ? m[0] : s);
+    if (label && out.indexOf(label) === -1) out.push(label);
+  }
+  if (out.length === 0) return '';
+  if (out.length === 1) return out[0];
+  return out.slice(0, -1).join(', ') + ' & ' + out[out.length - 1];
+}
+
 function renderSourceChip(opts) {
   opts = opts || {};
   var source    = opts.source    || '';
@@ -65,10 +167,11 @@ function renderSourceChip(opts) {
   var parts = [];
   if (freshness) parts.push(escHtml(freshness));
   if (source) {
-    parts.push(
-      'Source: <code style="background:rgba(255,255,255,0.06);padding:1px 5px;border-radius:3px;font-size:.95em;">'
-      + escHtml(source) + '</code>'
-    );
+    var friendly = _whFriendlySource(source);
+    if (friendly) {
+      var prefix = /^your\b/.test(friendly) ? 'Based on ' : 'Based on your ';
+      parts.push(prefix + escHtml(friendly));
+    }
   }
   if (win) parts.push(escHtml(win));
   for (var i = 0; i < notes.length; i++) {
@@ -79,6 +182,78 @@ function renderSourceChip(opts) {
     + 'style="font-size:.62rem;color:rgba(255,255,255,0.6);margin:3px 0 0;line-height:1.35;">'
     + parts.join(' &middot; ')
     + '</p>';
+}
+
+// ─────────────────────────────────────────────
+// whListSkeleton / whListError — ONE shared loading + error state (STREAMLINE E2)
+// ─────────────────────────────────────────────
+// Every dynamic list shows a shimmer skeleton WHILE fetching and an inline
+// error+retry on failure — never a blank panel (the P14 IDB-blank class, where a
+// list silently emptied and the user couldn't tell "loading" from "broken").
+// Pair with the page's existing #empty-state (no-data) + the catch→showToast.
+// Styles live in components.css (.wh-skeleton / .wh-list-error). Pass the list's
+// container element; for the error, pass an onRetry fn to wire the Retry button.
+function whListSkeleton(el, rows) {
+  if (!el) return;
+  rows = rows || 3;
+  var html = '<div class="wh-skeleton" aria-busy="true" aria-live="polite">';
+  for (var i = 0; i < rows; i++) html += '<div class="wh-skeleton-row"></div>';
+  html += '</div>';
+  el.innerHTML = html;
+}
+function whListError(el, message, onRetry) {
+  if (!el) return;
+  var e = escHtml;
+  el.innerHTML =
+    '<div class="wh-list-error" role="alert">'
+    + '<div class="wh-list-error-icon" aria-hidden="true">⚠️</div>'
+    + '<div>' + e(message || "Couldn’t load this. Check your connection and try again.") + '</div>'
+    + (onRetry ? '<button type="button" class="wh-list-retry">Retry</button>' : '')
+    + '</div>';
+  if (onRetry) {
+    var btn = el.querySelector('.wh-list-retry');
+    if (btn) btn.addEventListener('click', onRetry);
+  }
+}
+
+// ─────────────────────────────────────────────
+// whFmt* — shared number / date / unit / ₱ formatters (STREAMLINE E6)
+// ─────────────────────────────────────────────
+// ONE Philippine-locale source of truth so currency (₱), dates (Asia/Manila),
+// numbers, and hrs/days units render IDENTICALLY everywhere instead of per-page
+// ad-hoc `'₱' + n` / bespoke toLocaleDateString. All null/NaN-safe (never print
+// "₱NaN" / "Invalid Date" on the glass). Guarded by validate_user_facing_jargon
+// sibling lint + the E6 formatter skill rule.
+function whFmtPeso(n, opts) {
+  var v = Number(n);
+  if (!isFinite(v)) return '₱0';
+  opts = opts || {};
+  var dp = (opts.decimals != null) ? opts.decimals : (v % 1 === 0 ? 0 : 2);
+  return '₱' + v.toLocaleString('en-PH', { minimumFractionDigits: dp, maximumFractionDigits: dp });
+}
+function whFmtNum(n, dp) {
+  var v = Number(n);
+  if (!isFinite(v)) return '0';
+  return v.toLocaleString('en-PH', (dp != null) ? { minimumFractionDigits: dp, maximumFractionDigits: dp } : undefined);
+}
+function whFmtDate(d, opts) {
+  var dt = (d instanceof Date) ? d : new Date(d);
+  if (isNaN(dt.getTime())) return '—';
+  opts = opts || {};
+  var fmt = { year: 'numeric', month: opts.long ? 'long' : 'short', day: 'numeric', timeZone: 'Asia/Manila' };
+  if (opts.time) { fmt.hour = '2-digit'; fmt.minute = '2-digit'; }
+  return dt.toLocaleString('en-PH', fmt);
+}
+function whFmtDuration(value, unit) {
+  var v = Number(value);
+  if (!isFinite(v)) return '—';
+  unit = unit || 'days';
+  var singular = (Math.abs(v) === 1) ? unit.replace(/s$/, '') : unit;
+  return whFmtNum(v) + ' ' + singular;
+}
+if (typeof window !== 'undefined') {
+  window.whFmtPeso = whFmtPeso; window.whFmtNum = whFmtNum;
+  window.whFmtDate = whFmtDate; window.whFmtDuration = whFmtDuration;
 }
 
 // ─────────────────────────────────────────────
