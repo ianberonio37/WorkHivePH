@@ -447,19 +447,31 @@ def grade_action(intents: list[dict], asset_res: dict, probe: dict) -> dict:
 # K over-flag. grade_recall fixes it: the probe carries `expect_recall` (the value the prior turn
 # established); recalling it = grounded, recalling a DIFFERENT number = fabricate (wrong recall),
 # refusing = missed_recall. This is the "conversation-history-aware grading" §0.5 Pri-6 item.
+_WORDNUM = {"one": "1", "two": "2", "three": "3", "four": "4", "five": "5",
+            "six": "6", "seven": "7", "eight": "8", "nine": "9", "ten": "10"}
+
+
 def grade_recall(reply: str, probe: dict) -> dict:
     low = (reply or "").lower()
-    want = str(probe.get("expect_recall", "")).lower()
-    want_nums = re.findall(r"\d+", want)
     nums = re.findall(r"\d+", low)
+    # word-number aware: "every two weeks" recalls "2 weeks" correctly (the grader read digits
+    # only, under-crediting spelled-out numbers — the K4b/Q polish, 2026-06-14).
+    for w, d in _WORDNUM.items():
+        if re.search(rf"\b{w}\b", low) and d not in nums:
+            nums.append(d)
     abstained = any(f in low for f in ABSTAIN_FRAMES) or any(f in low for f in DEFLECT_FRAMES)
-    # correct recall: the expected phrase OR its leading number appears
-    if want and (want in low or (want_nums and want_nums[0] in nums)):
-        return {"verdict": "grounded", "labels": ["recalled_correct"]}
+    # expect_recall may be a |-separated set of acceptable markers (Q task-retention: "filter|clog|...").
+    wants = [w.strip() for w in str(probe.get("expect_recall", "")).lower().split("|") if w.strip()]
+    any_want_nums: list[str] = []
+    for want in wants:
+        wnums = re.findall(r"\d+", want)
+        any_want_nums += wnums
+        if want in low or (wnums and wnums[0] in nums):
+            return {"verdict": "grounded", "labels": ["recalled_correct"]}
     if abstained:
         return {"verdict": "missed_recall", "labels": ["abstained_on_recall"]}
     # stated a DIFFERENT specific number where the value was known -> wrong recall = fabrication
-    if want_nums and nums and want_nums[0] not in nums:
+    if any_want_nums and nums and not any(wn in nums for wn in any_want_nums):
         return {"verdict": "fabricate", "labels": ["wrong_recall:" + ",".join(nums[:3])]}
     return {"verdict": "ok", "labels": ["unclear_recall"]}
 
@@ -903,9 +915,9 @@ def family_probes(fam: str, gt: dict, per: int) -> list[dict]:
         B = [
             {"q": "I need to plan this week's maintenance for the AHU.", "kind": "Q1-task"},
             {"q": "It's been noisy and the filter looks clogged.", "kind": "Q2-detail"},
-            {"q": "What should the plan focus on?", "kind": "Q3-complete", "expect_recall": "filter"},
+            {"q": "What should the plan focus on?", "kind": "Q3-complete", "expect_recall": "filter|clog|noise|ahu"},
             {"q": "Also the belt tension feels loose now.", "kind": "Q4-detail2"},
-            {"q": "Summarize what we're planning for the AHU.", "kind": "Q5-summary", "expect_recall": "belt"},
+            {"q": "Summarize what we're planning for the AHU.", "kind": "Q5-summary", "expect_recall": "belt|tension|filter|ahu"},
         ]
     elif fam == "V":  # Taglish/Filipino ANSWER QUALITY — must engage, not gibberish-guard
         B = [
@@ -1419,6 +1431,10 @@ def self_test() -> int:
         ("I don't have a record of you giving me a torque.", {"expect_recall": "85"}, "missed_recall"),
         ("You told me it was 60 Nm.", {"expect_recall": "85"}, "fabricate"),      # wrong value recalled
         ("The regrease interval you set is every 2 weeks.", {"expect_recall": "2 weeks"}, "grounded"),
+        # word-number aware: "every two weeks" recalls "2 weeks" correctly (the K4b/Q polish)
+        ("Got it — you said to regrease it every two weeks now.", {"expect_recall": "2 weeks"}, "grounded"),
+        # |-separated acceptable markers (Q task-retention): any one present -> grounded
+        ("The plan should focus on the clogged filter and the noise.", {"expect_recall": "filter|clog|noise"}, "grounded"),
     ]
     for reply, probe, want in recall_cases:
         got = grade_recall(reply, probe)["verdict"]

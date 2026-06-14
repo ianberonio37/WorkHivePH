@@ -18,6 +18,7 @@ Usage:
 from __future__ import annotations
 
 import os
+import random
 import time
 from dataclasses import dataclass
 from typing import Optional
@@ -67,6 +68,106 @@ class AIChainError(RuntimeError):
     pass
 
 
+# ── Resilience mirror of _shared/ai-chain.ts P1–P3 (2026-06-14) ───────────────
+# Ported so burst Python tools (the companion sweep, seeders) survive the same
+# thundering-herd the edge does. The replica has no per-slot penalty state, so P1
+# shuffles WITHIN each provider tier (the equal-"penalty" proxy) rather than by
+# penalty; P2 honors Retry-After; P3 adds one bounded jittered retry pass.
+
+def _reorder_chain(spread: bool) -> list[_Provider]:
+    """P1 herd-spread (mirrors ai-chain.ts reorderChain spread=true). Shuffle WITHIN each
+    provider tier so N concurrent calls don't all stampede the same head model and 429 in
+    lockstep. Tier order (groq -> cerebras -> openrouter) preserved. OFF by default so the
+    deterministic order is kept for non-burst callers + the Node-parity test."""
+    if not spread:
+        return list(_CHAIN)
+    out: list[_Provider] = []
+    chain = list(_CHAIN)
+    i = 0
+    while i < len(chain):
+        j = i + 1
+        while j < len(chain) and chain[j].provider == chain[i].provider:
+            j += 1
+        group = chain[i:j]
+        random.shuffle(group)          # Fisher-Yates within the equal-tier group
+        out.extend(group)
+        i = j
+    return out
+
+
+def _parse_retry_after(h: Optional[str]) -> Optional[float]:
+    """P2 (mirrors parseRetryAfter). A 429 Retry-After header -> seconds-from-now.
+    Accepts delta-seconds ("12") or an HTTP-date. None if absent/unparseable."""
+    if not h:
+        return None
+    try:
+        return max(0.0, float(h))
+    except ValueError:
+        pass
+    try:
+        from email.utils import parsedate_to_datetime
+        import datetime
+        when = parsedate_to_datetime(h)
+        if when is not None:
+            now = datetime.datetime.now(when.tzinfo)
+            return max(0.0, (when - now).total_seconds())
+    except Exception:
+        pass
+    return None
+
+
+def _attempt_chain(
+    chain: list[_Provider], messages: list, *,
+    temperature: float, max_tokens: int, json_mode: bool, timeout_s: int, verbose: bool,
+) -> tuple[Optional[tuple[str, str]], float, list[str]]:
+    """Walk a given ordered chain once. Returns (result_or_None, max_retry_after_s, errors)."""
+    errors: list[str] = []
+    max_ra = 0.0
+    for entry in chain:
+        api_key = os.environ.get(entry.env_key)
+        if not api_key or api_key.startswith("PASTE_"):
+            continue
+        effective_max = min(max_tokens, entry.max_tokens_cap) if entry.max_tokens_cap else max_tokens
+        headers = {"Content-Type": "application/json", "Authorization": f"Bearer {api_key}"}
+        if entry.extra_headers:
+            headers.update(entry.extra_headers)
+        body = {"model": entry.model, "messages": messages,
+                "temperature": temperature, "max_tokens": effective_max}
+        if json_mode:
+            body["response_format"] = {"type": "json_object"}
+        label = f"{entry.provider}/{entry.model.split('/')[-1]}"
+        try:
+            res = requests.post(f"{entry.base_url}/chat/completions",
+                                headers=headers, json=body, timeout=timeout_s)
+        except requests.RequestException as e:
+            errors.append(f"{label}: network {e.__class__.__name__}")
+            if verbose: print(f"  [ai-chain] {label} network err — next")
+            continue
+        if res.status_code in (429, 413, 503):
+            ra = _parse_retry_after(res.headers.get("retry-after"))   # P2: honor Retry-After
+            if ra is not None:
+                max_ra = max(max_ra, ra)
+            errors.append(f"{label}: HTTP {res.status_code}{f' retry-after {ra:.0f}s' if ra else ''}")
+            if verbose: print(f"  [ai-chain] {label} skipped (HTTP {res.status_code})")
+            continue
+        if not res.ok:
+            snippet = res.text[:120].replace("\n", " ")
+            errors.append(f"{label}: HTTP {res.status_code}: {snippet}")
+            if verbose: print(f"  [ai-chain] {label} HTTP {res.status_code}: {snippet} — next")
+            continue
+        try:
+            content = res.json()["choices"][0]["message"]["content"]
+        except (KeyError, ValueError, IndexError) as e:
+            errors.append(f"{label}: bad payload {e}")
+            continue
+        if not content:
+            errors.append(f"{label}: empty content")
+            continue
+        if verbose: print(f"  [ai-chain] {label} OK ({len(content)} chars)")
+        return (content, label), max_ra, errors
+    return None, max_ra, errors
+
+
 def call_ai(
     prompt:         str,
     *,
@@ -75,84 +176,40 @@ def call_ai(
     max_tokens:     int   = 1024,
     json_mode:      bool  = True,
     timeout_s:      int   = 60,
+    spread:         bool  = False,
     verbose:        bool  = False,
 ) -> tuple[str, str]:
     """Run prompt through the fallback chain. Returns (content, provider_label).
 
-    Skips providers without a configured key. On 429/413/503 — try next.
-    On other 4xx/5xx with a body — log a snippet and try next.
-    Returns the first successful response. Raises AIChainError if every
-    configured provider fails.
+    Skips providers without a configured key. On 429/413/503 -> try next (honoring Retry-After,
+    P2). Pass `spread=True` from BURST tools (concurrent sweeps) to herd-spread the head within
+    each provider tier (P1). After a full chain failure, one bounded jittered-retry pass runs
+    before giving up (P3) — a short backoff lets per-second token buckets refill + de-syncs this
+    call from the herd. Raises AIChainError if every configured provider fails twice.
     """
     messages = []
     if system_prompt:
         messages.append({"role": "system", "content": system_prompt})
     messages.append({"role": "user", "content": prompt})
 
-    errors: list[str] = []
-    for entry in _CHAIN:
-        api_key = os.environ.get(entry.env_key)
-        if not api_key or api_key.startswith("PASTE_"):
-            continue
+    common = dict(temperature=temperature, max_tokens=max_tokens,
+                  json_mode=json_mode, timeout_s=timeout_s, verbose=verbose)
 
-        effective_max = (
-            min(max_tokens, entry.max_tokens_cap) if entry.max_tokens_cap else max_tokens
-        )
-        headers = {"Content-Type": "application/json", "Authorization": f"Bearer {api_key}"}
-        if entry.extra_headers:
-            headers.update(entry.extra_headers)
+    # Pass 1 — herd-spread chain (P1)
+    result, ra1, errs1 = _attempt_chain(_reorder_chain(spread), messages, **common)
+    if result is not None:
+        return result
 
-        body = {
-            "model":       entry.model,
-            "messages":    messages,
-            "temperature": temperature,
-            "max_tokens":  effective_max,
-        }
-        if json_mode:
-            body["response_format"] = {"type": "json_object"}
-
-        label = f"{entry.provider}/{entry.model.split('/')[-1]}"
-        try:
-            res = requests.post(
-                f"{entry.base_url}/chat/completions",
-                headers=headers, json=body, timeout=timeout_s,
-            )
-        except requests.RequestException as e:
-            errors.append(f"{label}: network {e.__class__.__name__}")
-            if verbose:
-                print(f"  [ai-chain] {label} network err — next")
-            continue
-
-        if res.status_code in (429, 413, 503):
-            errors.append(f"{label}: HTTP {res.status_code}")
-            if verbose:
-                print(f"  [ai-chain] {label} skipped (HTTP {res.status_code})")
-            # Tiny pause helps if the throttle is provider-wide rather than model-wide
-            time.sleep(0.3)
-            continue
-
-        if not res.ok:
-            snippet = res.text[:120].replace("\n", " ")
-            errors.append(f"{label}: HTTP {res.status_code}: {snippet}")
-            if verbose:
-                print(f"  [ai-chain] {label} HTTP {res.status_code}: {snippet} — next")
-            continue
-
-        try:
-            data = res.json()
-            content = data["choices"][0]["message"]["content"]
-        except (KeyError, ValueError, IndexError) as e:
-            errors.append(f"{label}: bad payload {e}")
-            continue
-
-        if not content:
-            errors.append(f"{label}: empty content")
-            continue
-
-        if verbose:
-            print(f"  [ai-chain] {label} OK ({len(content)} chars)")
-        return content, label
+    # P3 — one bounded jittered retry before failing. Wait the larger of a jitter (0.3–1.2s) or
+    # the longest Retry-After we saw (capped at 5s so a one-shot tool never hangs), then re-spread.
+    wait = max(0.3 + random.random() * 0.9, min(ra1, 5.0))
+    if verbose:
+        print(f"  [ai-chain] all slots failed pass 1 — P3 jittered retry in {wait:.1f}s")
+    time.sleep(wait)
+    result2, _ra2, errs2 = _attempt_chain(_reorder_chain(spread), messages, **common)
+    if result2 is not None:
+        return result2
 
     raise AIChainError(
-        "All providers failed or unconfigured. Tried:\n  " + "\n  ".join(errors)
+        "All providers failed or unconfigured (2 passes). Tried:\n  " + "\n  ".join(errs1 + errs2)
     )
