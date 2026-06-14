@@ -125,9 +125,15 @@ interface AgentResponse {
 // "offline -> online" rail in AI_SURFACE_MAP.md §0.5). Conservative by design:
 // when unsure, keep the sentence.
 const _RAIL_KPI   = /\b(oee|mtbf|mttr|availability|uptime|pm compliance|compliance|planned[- ]vs[- ]reactive(\s+ratio)?|reactive ratio)\b/i;
-const _RAIL_VALUE = /\b(is|at|of|sits|around|about|hovering|running|currently)\b[^.?!]{0,16}?\d{1,3}\s*%?|\b\d{1,3}\s*%\s*(oee|availability|compliance|uptime|ratio)/i;
+// A current-value assertion: a bare percentage in a KPI sentence, or a verb/preposition + number.
+// (Once _RAIL_KPI has matched, ANY percentage is a current-value claim unless it's benchmark/recall/
+// range framing — see _RAIL_SAFE.) Includes "down to / up to / hit / dropped / fell" framings.
+const _RAIL_VALUE = /\b\d{1,3}\s*%|\b(is|at|of|to|sits|around|about|hovering|running|currently|hit|hits|dropped|fell|rose|reached|down to|up to)\b[^.?!]{0,16}?\d/i;
 // Recall / benchmark / range framing is ALLOWED — those are not ungrounded current-fact claims.
-const _RAIL_SAFE  = /world[- ]class|typically|industry|generally|usually|benchmark|target|standard|rule of thumb|you mentioned|you said|earlier you|i recall|you told me|you noted|a range|ranges|between \d/i;
+// NB "target" was REMOVED (2026-06-14): a fabricated CURRENT value routinely references a "target"
+// ("down to 41% from a target of 80%") and was escaping the rail. A genuine benchmark statement still
+// carries "world-class"/"benchmark"/"industry"/"typically", so dropping "target" loses no real exemption.
+const _RAIL_SAFE  = /world[- ]class|benchmark|industry|typically|generally|usually|standard|rule of thumb|you mentioned|you said|earlier you|i recall|you told me|you noted|a range|ranges|between \d/i;
 
 function stripUngroundedKpi(text: string): string {
   const sentences = text.split(/(?<=[.?!])\s+/);
