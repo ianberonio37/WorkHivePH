@@ -1,9 +1,11 @@
 """Python replica of supabase/functions/_shared/ai-chain.ts.
 
-Same 14-model fallback chain (Groq → Cerebras → OpenRouter) the edge
-functions use. Missing API keys cause silent skip — script keeps working
-with whatever's configured. 429 / 413 / 503 are recoverable; we move to
-the next entry. Hard errors raise.
+Same 19-model fallback chain (Groq → Cerebras → Gemini → Mistral →
+OpenRouter) the edge functions use — kept in lockstep with
+_shared/ai-chain.ts PROVIDER_CHAIN (and tools/ai_chain.py). Missing API
+keys cause silent skip — script keeps working with whatever's configured.
+429 / 413 / 503 are recoverable; we move to the next entry (honoring
+Retry-After, P2). Hard errors raise.
 
 Why a local replica:
   - Edge functions can't be invoked from one-shot Python tools cleanly
@@ -48,7 +50,14 @@ _CHAIN: list[_Provider] = [
     # Tier 2: Cerebras (1M tokens/day free)
     _Provider("cerebras", "https://api.cerebras.ai/v1", "llama-3.3-70b", "CEREBRAS_API_KEY", max_tokens_cap=4096),
     _Provider("cerebras", "https://api.cerebras.ai/v1", "qwen-3-32b",    "CEREBRAS_API_KEY", max_tokens_cap=4096),
-    # Tier 3: OpenRouter (200 req/day on :free models)
+    _Provider("cerebras", "https://api.cerebras.ai/v1", "llama3.1-8b",   "CEREBRAS_API_KEY", max_tokens_cap=4096),
+    # Tier 3: Google Gemini (free tier)
+    _Provider("google", "https://generativelanguage.googleapis.com/v1beta/openai", "gemini-2.5-flash",      "GEMINI_API_KEY"),
+    _Provider("google", "https://generativelanguage.googleapis.com/v1beta/openai", "gemini-2.5-flash-lite", "GEMINI_API_KEY"),
+    # Tier 4: Mistral (free tier)
+    _Provider("mistral", "https://api.mistral.ai/v1", "mistral-large-latest", "MISTRAL_API_KEY"),
+    _Provider("mistral", "https://api.mistral.ai/v1", "codestral-latest",     "MISTRAL_API_KEY"),
+    # Tier 5: OpenRouter (200 req/day on :free models)
     _Provider("openrouter", "https://openrouter.ai/api/v1", "nvidia/nemotron-3-super-120b-a12b:free",
               "OPENROUTER_API_KEY", extra_headers={"HTTP-Referer": "https://workhiveph.com", "X-Title": "WorkHive"}),
     _Provider("openrouter", "https://openrouter.ai/api/v1", "google/gemma-4-31b-it:free",

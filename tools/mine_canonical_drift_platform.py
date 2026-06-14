@@ -119,6 +119,8 @@ LEGITIMATE_RAW: dict[str, str] = {
     "fault_knowledge":               "AI prompt context table; read raw by retrieval, not surfaced as a metric",
     "hive_benchmarks":               "per-hive benchmark snapshots; admin/founder + analytics-orchestrator only",
     "agent_memory":                  "AI agent scratchpad; not a user-facing KPI",
+    "analytics_snapshots":           "compute-on-first-view analytics CACHE (per hive/phase/period); a materialized snapshot, not a canonical domain source — the live truth is recomputed from v_*_truth",
+    "embedding_cache":               "query-embedding vector CACHE keyed by text+model; pure infra, no canonical view",
     "api_keys":                      "service-account secrets; admin-only",
     "marketplace_platform_admins":   "admin-table lookup",
     "report_contacts":               "single-purpose form",
