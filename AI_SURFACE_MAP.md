@@ -144,7 +144,29 @@ _Sources behind §0.5: τ-bench (arXiv 2406.12045), multi-turn agent eval survey
 | [COMPANION_WIRING_PROBE_STUDY.md](COMPANION_WIRING_PROBE_STUDY.md) | wiring probes (J–O) + W0–W13 build arc |
 | [workflows/companion_fabrication_sweep.md](workflows/companion_fabrication_sweep.md) | the ~100/family sweep SOP + before/after + resilience |
 | [COMPANION_DEPLOYMENT_READY.md](COMPANION_DEPLOYMENT_READY.md) | deploy posture |
+| [COMPANION_GROUNDING_DOCTRINE.md](COMPANION_GROUNDING_DOCTRINE.md) | ★ the §0.7 Grounding arc — proactive/deterministic grounding (G1–G3), supersedes the reactive rail |
 | `VOICE_COMPANION_ROADMAP.md` | ⚠️ **archival** — May-2026 multi-agent build, pre-Hezekiah/Zaniah rename; historical only |
+
+---
+
+### 0.7 NEXT ARC — The Grounding Doctrine (proactive/deterministic; supersedes the reactive rail) ★ NEXT WINDOW
+
+> Ian (2026-06-14): *"there will be millions of scenarios… no way to just push a bandage… use a deterministic
+> principle / doctrine / routing + wiring."* The reactive `stripUngroundedKpi` regex shipped a fabricated
+> **"your planned-vs-reactive ratio is 41%"** to his screen (a "target"-word hole). We stop patching patterns and
+> enforce ONE invariant. **Full plan + sources: [COMPANION_GROUNDING_DOCTRINE.md](COMPANION_GROUNDING_DOCTRINE.md).**
+>
+> **Principle (WorkHive WAT, ai-engineer SKILL.md L822): the LLM PHRASES facts it's given, it never AUTHORS
+> numbers.** Every number in an answer must trace to the deterministic fact-sheet, or it's a fabrication by construction.
+
+| Phase | What | Status |
+|---|---|---|
+| **G1 — Numeric-provenance gate** | replace `stripUngroundedKpi` with a GENERAL post-pass: every number must trace to the snapshot fact-set / a worker-stated value / a curated-benchmark table / a safe-non-claim allowlist (dates, ordinals, advice constants); else strip/regenerate. The universal backstop — fixes the whole class, not one regex. **Eval counterpart must use INDEPENDENT logic** ([[feedback_rail_grader_correlated_blindspot_2026_06_14]]). **BUILD FIRST — retires the rail.** | plan-only |
+| **G1b — Curated benchmark table** | `_shared/benchmarks.ts` of citable values (world-class OEE ~85% / ISO 22400…) so benchmark talk is GROUNDED with a citation, not an exemption the model can abuse | plan-only |
+| **G2 — Deterministic routing** | pre-LLM classifier: a query for a value the fact-sheet doesn't hold (OEE/MTBF/ratio/%/project) → **templated** honest deflection (no free generation). Folds the OUT-OF-SCOPE clause into code (NeMo dialog-rail) | plan-only |
+| **G3 — Typed fact-sheet + structured render** | `buildOpsSnapshot` → JSON fact-sheet; LLM returns structured `{facts_to_surface, prose}` via JSON-mode/function-calling; CODE inserts the real numbers. The LLM emits NO numbers. Deepest — fabrication impossible by construction | plan-only |
+
+**Order G1 → G1b → G2 → G3.** Constraints: free-tier = no grammar-decoding (use JSON-mode/function-calling + post-verify); alignment tax → prose stays free, only numbers are slot-filled; G1's false-positives live in the safe-non-claim allowlist (ONE central knob, not N regexes). **§0.5 Pri 2 faithfulness rail is SUPERSEDED by G1.** Sources: NeMo Guardrails · Guardrails AI · RAG-grounding survey (MDPI) · constrained-decoding guide · VeriFact (see the doctrine doc).
 
 ---
 
