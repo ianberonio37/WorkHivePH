@@ -419,6 +419,30 @@ serve(async (req) => {
     const candidates = await resolveAssetCandidates(db, hive_id, mentioned);
     const { primary, ambiguous } = pickPrimaryCandidate(candidates, context_asset_id, mentioned);
 
+    // P7 unresolved-asset slot-fill (2026-06-14, Family P finding). The blank-asset guard in
+    // sanitiseIntents only catches an EMPTY machine; a non-blank but NON-EXISTENT tag ("Log a
+    // failure on P-203" when only AC-001..030 exist) slipped through at confidence 0.95, forming a
+    // confident write against an asset in no hive. Here — AFTER canonical resolution — demote any
+    // asset-required write whose machine resolves to NO real asset below the confirm floor, so the
+    // page slot-fills ("did you mean a registered asset?") exactly like the blank case. Conservative:
+    // a tag that resolves (exact or fuzzy name/tag match) is UNTOUCHED, so a legit write to a real
+    // (or newly-mentioned-but-resolved) asset is never demoted. Non-destructive: demotion only adds a
+    // confirmation step on the page; it never blocks or rewrites.
+    const _knownTags = new Set(candidates.map((c) => String(c.tag || "").toUpperCase()).filter(Boolean));
+    const _knownNames = candidates.map((c) => String(c.name || "").toUpperCase()).filter(Boolean);
+    for (const it of intents) {
+      if (!ASSET_REQUIRED_KINDS.has(it.kind)) continue;
+      const machine = String((it.params as Record<string, unknown>).machine || "").trim();
+      if (!machine) continue;  // empty machine already demoted in sanitiseIntents
+      const m = machine.toUpperCase();
+      const resolved = _knownTags.has(m) || _knownNames.some((nm) => nm.includes(m) || m.includes(nm));
+      if (!resolved && it.confidence >= SLOT_FILL_CEILING) {
+        it.confidence = Math.min(it.confidence, SLOT_FILL_CEILING);
+        (it.params as Record<string, unknown>)._unresolved_asset = true;
+        (it.params as Record<string, unknown>)._needs_asset = true;
+      }
+    }
+
     // Pull narration from the parsed JSON (capped to keep responses sane).
     const narrationRaw = typeof parsed.narration === "string" ? parsed.narration.trim() : "";
     const narration = narrationRaw.slice(0, 280);

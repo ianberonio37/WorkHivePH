@@ -15,6 +15,7 @@ import { SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
 export const RECENT_TURNS = 10;        // raw turns kept verbatim
 export const SUMMARISE_AT = 12;        // collapse oldest 5 once buffer hits this
 export const SUMMARISE_BATCH = 5;
+export const SUMMARY_KEEP = 3;         // rolling-summary rows kept per (hive,agent,worker); rest pruned
 
 export interface MemoryHandle {
   hive_id:     string | null;
@@ -160,6 +161,35 @@ export async function persistSummary(
     if (delErr) {
       console.warn("memory.persistSummary delete failed:", delErr.message);
     }
+  }
+
+  // Bound the rolling-summary rows (2026-06-14). loadMemory reads only the LATEST summary
+  // (limit 1), but a NEW summary row is inserted every time the buffer crosses SUMMARISE_AT and
+  // nothing pruned the old ones — they grew unbounded (104 for a single worker), bloating the
+  // table and, since each summary covers a different batch, leaving stale rows that a sweep
+  // replayed as a false "you mentioned earlier" tic. Keep the most recent SUMMARY_KEEP per
+  // (hive,agent,worker) — matching loadMemory's scope exactly — and delete the rest. Best-effort
+  // and non-blocking: a prune failure must never fail the turn.
+  try {
+    // canonical-allow: agent_memory is the raw per-turn conversation/summary store for ai-gateway
+    // (no canonical truth view exists for it — it IS the source); same raw-store reads as loadMemory/saveTurn above.
+    let staleQ = db.from("agent_memory")
+      .select("id")
+      .eq("worker_name", h.worker_name)
+      .eq("agent_id",    h.agent_id)
+      .eq("kind",        "summary")
+      .order("created_at", { ascending: false })
+      .range(SUMMARY_KEEP, SUMMARY_KEEP + 500);
+    staleQ = h.hive_id ? staleQ.eq("hive_id", h.hive_id) : staleQ.is("hive_id", null);
+    const { data: stale } = await staleQ;
+    const staleIds = (stale ?? []).map((r) => r.id as string).filter(Boolean);
+    if (staleIds.length) {
+      // canonical-allow: agent_memory is the raw conversation/summary store (no canonical view) — pruning its own rows.
+      const { error: pruneErr } = await db.from("agent_memory").delete().in("id", staleIds);
+      if (pruneErr) console.warn("memory.persistSummary prune failed:", pruneErr.message);
+    }
+  } catch (err) {
+    console.warn("memory.persistSummary prune threw:", err instanceof Error ? err.message : String(err));
   }
 }
 

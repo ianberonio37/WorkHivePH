@@ -83,6 +83,7 @@ Voice-Journal-specific rules:
 - THE SNAPSHOT IS YOUR ONLY LIVE DATA, AND IT IS AGGREGATE-ONLY. The only live numbers you have are the ones literally printed in the snapshot: the active-alert count, the overdue-PM count, and the registered-asset list (plus which assets are top alerts). You do NOT have OEE, availability, a planned-vs-reactive ratio, per-asset MTBF/MTTR, per-asset failure or event history, temperatures, or any percentage that is not printed in the snapshot. If asked for any of those, say plainly you don't have that figure on this voice surface and point them to the Work Assistant — do NOT compute, estimate, or state a ratio/percentage/count that isn't in the snapshot.
 - EVEN FOR A REGISTERED ASSET, do not invent its failure history, event counts ("three corrective events"), recurrence, or readings. If the asset is in the list but the snapshot has no detail for it, say it is one of your registered assets but you don't have its detailed history on this surface (the Work Assistant has it). Naming it as a "top alert" is fine ONLY if the snapshot lists it among the top alerts.
 - OUT-OF-SCOPE DOMAINS: the snapshot covers ONLY active alerts, the overdue-PM count, and the registered-asset list. You do NOT have project tracking, inventory/parts stock, the skill matrix, marketplace listings, the day-plan, or logbook-entry detail on this voice surface. When the worker asks about any of these, do NOT invent specifics — no project name or due date or "% complete" or task list or assignee (never say something like "the crane project is due July 15"), no stock count, no certification/qualification, no listing or price, no scheduled day-plan. Say plainly you don't have that here and point them to the right page (Project Manager / Inventory / Skill Matrix / Marketplace / Day Planner / Logbook). You MAY mention the snapshot's real alert or overdue-PM numbers if they genuinely help, but never relabel those maintenance figures as a project's status, and never wrap an invented project around them.
+- CAPABILITY BOUNDS: you are a conversational companion, NOT an action service. You CANNOT place orders, buy parts, send emails or texts, make phone calls, book or schedule visits, process payments, control or start equipment remotely, grant hive/system access, or read a photo/PDF the worker holds up to the screen. When asked to DO one of these, say plainly you can't do that from here — do NOT claim you did it, and do NOT say "I can book/order/pay/call/translate it". Offer the real alternative instead: you can DRAFT the message/text for them to send, summarise what to tell the vendor, or point them to the right page or person (Inventory page, their supplier, their supervisor, the SCADA/HMI for equipment). Honesty about a limit is correct; faking the action is not.
 - "You mentioned earlier" refers ONLY to a fact stated in a PRIOR turn shown in the memory block. NEVER restate the worker's CURRENT question or request as something they "mentioned earlier" (do not say "you mentioned earlier that you want a shift summary" when they just asked for one) — just answer it directly.
 - MEMORY IS NOT LIVE TRUTH: a value, asset, reading, or "situation" that appears only in your memory block / rolling summary is something the worker SAID at some point, not a verified current fact. You may reference it as "you mentioned earlier…", but never restate a remembered number (a backlog figure, a PM-compliance %, a temperature, an event count) as the CURRENT live value, and never volunteer a remembered specific into an answer as if you just looked it up. When they directly ask "what did I tell you the torque was?" you DO quote their own stated value back verbatim (see the Conversation memory rule above) — that legitimate recall is unchanged; what is banned is dressing up stale or uncertain memory as current operational truth.
 - NEVER make up a record, a count, an OEE, an MTBF, a temperature, an event tally, or any KPI value, and never name an internal database view. If you don't have it in the snapshot, the conversation, or what the worker just told you, say so plainly.
@@ -108,6 +109,35 @@ interface AgentResponse {
   answer: string;
   lang:   string;
   error?: string;
+}
+
+// ── Faithfulness output-rail (2026-06-14) ────────────────────────────────────
+// The conversational voice surface has ONLY the aggregate ops-snapshot (alert
+// count, overdue-PM count, asset list). It never carries a live OEE / MTBF /
+// availability / planned-vs-reactive ratio / PM-compliance %. The grounding
+// guard bans inventing those, but a free-tier model still leaks one ~1/25 on a
+// strategic/overpromise bait ("guarantee zero downtime?" -> "your planned-vs-
+// reactive ratio is at 72%"). Same WAT move as the em-dash rule below: enforce
+// the must-be-true output rule in CODE, not by re-asking the model. We drop ONLY
+// a sentence that asserts an ungrounded CURRENT KPI VALUE; grounded counts,
+// benchmark talk ("world-class OEE ~85%"), recalled worker-stated values, and
+// ranges are all preserved. Mirrors the offline grader's KPI_ASSERT (the
+// "offline -> online" rail in AI_SURFACE_MAP.md §0.5). Conservative by design:
+// when unsure, keep the sentence.
+const _RAIL_KPI   = /\b(oee|mtbf|mttr|availability|uptime|pm compliance|compliance|planned[- ]vs[- ]reactive(\s+ratio)?|reactive ratio)\b/i;
+const _RAIL_VALUE = /\b(is|at|of|sits|around|about|hovering|running|currently)\b[^.?!]{0,16}?\d{1,3}\s*%?|\b\d{1,3}\s*%\s*(oee|availability|compliance|uptime|ratio)/i;
+// Recall / benchmark / range framing is ALLOWED — those are not ungrounded current-fact claims.
+const _RAIL_SAFE  = /world[- ]class|typically|industry|generally|usually|benchmark|target|standard|rule of thumb|you mentioned|you said|earlier you|i recall|you told me|you noted|a range|ranges|between \d/i;
+
+function stripUngroundedKpi(text: string): string {
+  const sentences = text.split(/(?<=[.?!])\s+/);
+  const kept = sentences.filter((s) => {
+    if (!_RAIL_KPI.test(s) || !/\d/.test(s)) return true;  // not a KPI-with-number sentence
+    if (_RAIL_SAFE.test(s)) return true;                   // benchmark/recall/range = legitimate
+    if (_RAIL_VALUE.test(s)) return false;                 // ungrounded current-KPI value -> drop
+    return true;                                           // unsure -> keep
+  });
+  return kept.join(" ").replace(/\s+/g, " ").trim();
 }
 
 serve(async (req) => {
@@ -190,7 +220,17 @@ serve(async (req) => {
     // dashes, but the LLM violates it probabilistically run-to-run; WAT says enforce a must-be-exact
     // output rule in CODE, not by re-asking the model. Em dash (U+2014) only -> ", " (a natural spoken
     // pause); en dash (U+2013) is left alone so numeric ranges like "3-6 months" survive.
-    const clean = trimmed.replace(/\s*—\s*/g, ", ").replace(/,\s*,/g, ",").trim();
+    let clean = trimmed.replace(/\s*—\s*/g, ", ").replace(/,\s*,/g, ",").trim();
+    // Faithfulness output-rail: strip any ungrounded current-KPI value the model leaked
+    // (e.g. an invented "planned-vs-reactive ratio is at 72%"). Conservative: only fires when
+    // a sentence asserts a live OEE/MTBF/availability/ratio/compliance figure with no recall or
+    // benchmark framing. If that guts the whole reply, fall back to an honest pointer.
+    const railed = stripUngroundedKpi(clean);
+    if (railed !== clean) {
+      clean = railed.length >= 15
+        ? railed
+        : "I don't have your exact KPI figures on this voice surface. Check the Work Assistant for your live OEE, MTBF, and planned-vs-reactive ratio.";
+    }
     const latency = Date.now() - t0;
     const hiveIdForLog =
       typeof body.hive_id === "string" && body.hive_id ? body.hive_id : null;

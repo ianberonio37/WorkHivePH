@@ -801,6 +801,93 @@ def check_out_of_scope_grounding() -> list[dict]:
     return issues
 
 
+# -- Layer 11: faithfulness output-rail ---------------------------------------
+#
+# 2026-06-14. The conversational voice surface never carries a live OEE / MTBF /
+# availability / planned-vs-reactive ratio / PM-compliance % (the snapshot is
+# counts only). The grounding guard bans inventing those, but a free-tier model
+# still leaks ~1/25 on a strategic/overpromise bait ("guarantee zero downtime?"
+# -> "your planned-vs-reactive ratio is at 72%"). `stripUngroundedKpi` is a
+# deterministic output rail (same WAT move as the em-dash enforcement) that drops
+# any sentence asserting an ungrounded CURRENT KPI value before the answer ships.
+# This layer guards it forward-only (behavioural proof = the rail_verify sweep).
+
+def check_faithfulness_rail() -> list[dict]:
+    issues = []
+    agent = read_file(VOICE_JOURNAL_AGENT_TS)
+    if agent is None:
+        issues.append({
+            "check": "faithfulness_rail",
+            "reason": f"{VOICE_JOURNAL_AGENT_TS} missing — cannot verify faithfulness rail.",
+        })
+        return issues
+    if "stripUngroundedKpi" not in agent:
+        issues.append({
+            "check": "faithfulness_rail",
+            "reason": (
+                "voice-journal-agent has no stripUngroundedKpi faithfulness rail — an ungrounded "
+                "current-KPI value the model leaks (OEE/MTBF/availability/planned-vs-reactive ratio %) "
+                "ships unblocked. The grounding PROMPT alone leaks ~1/25 on a strategic bait; the rail "
+                "is the deterministic backstop (AI_SURFACE_MAP.md §0.5 Pri 2). Restore it."
+            ),
+        })
+        return issues
+    # Must be both DEFINED and INVOKED on the cleaned answer (def + call => >= 2 mentions).
+    if agent.count("stripUngroundedKpi") < 2:
+        issues.append({
+            "check": "faithfulness_rail",
+            "reason": ("stripUngroundedKpi is named but not both DEFINED and INVOKED on the answer "
+                       "(need the function def AND the call on the cleaned reply before it returns)."),
+        })
+    # Must actually key on the KPI tokens it claims to strip (guard against a hollow stub).
+    if not re.search(r"oee|mtbf|planned[- ]vs[- ]reactive", agent, re.I):
+        issues.append({
+            "check": "faithfulness_rail",
+            "reason": ("the faithfulness rail must detect the KPI tokens it strips "
+                       "(OEE / MTBF / planned-vs-reactive ratio) — none found."),
+        })
+    return issues
+
+
+# -- Layer 12: capability-bounds clause ---------------------------------------
+#
+# 2026-06-14 (Family R). The conversational companion is NOT an action service —
+# it cannot place orders, send emails/texts, make calls, book visits, process
+# payments, control equipment, grant access, or read a photo/PDF held to the
+# screen. Without an explicit clause it either vaguely deflects or falsely
+# ACCEPTS the action ("I can book the visit", "I'll translate it"). The CAPABILITY
+# BOUNDS clause makes it disclaim plainly and offer the real alternative (draft
+# the text / point to the page or person). This layer guards the clause exists.
+
+def check_capability_bounds() -> list[dict]:
+    issues = []
+    agent = read_file(VOICE_JOURNAL_AGENT_TS)
+    if agent is None:
+        issues.append({"check": "capability_bounds",
+                       "reason": f"{VOICE_JOURNAL_AGENT_TS} missing — cannot verify capability bounds."})
+        return issues
+    low = agent.lower()
+    if "capability bounds" not in low:
+        issues.append({
+            "check": "capability_bounds",
+            "reason": (
+                "voice-journal-agent has no CAPABILITY BOUNDS clause — the companion vaguely deflects "
+                "or falsely accepts actions it can't do (place orders / send email / control equipment / "
+                "book visits / read a held-up PDF). Restore the clause (Family R)."
+            ),
+        })
+        return issues
+    # must name the impossible actions AND offer the legit alternative (draft / point to page)
+    actions = [a for a in ("order", "email", "call", "book", "pay", "control", "access", "pdf", "photo") if a in low]
+    if len(actions) < 4:
+        issues.append({"check": "capability_bounds",
+                       "reason": f"CAPABILITY BOUNDS clause must enumerate the actions it can't do. Found: {actions}."})
+    if not any(p in low for p in ("draft", "point them", "point you", "right page", "right person")):
+        issues.append({"check": "capability_bounds",
+                       "reason": "CAPABILITY BOUNDS clause must offer the real alternative (draft the text / point to the right page or person), not just refuse."})
+    return issues
+
+
 # -- Driver -------------------------------------------------------------------
 
 CHECK_NAMES = [
@@ -814,6 +901,8 @@ CHECK_NAMES = [
     "domain_differentiation",
     "conversation_recall",
     "out_of_scope_grounding",
+    "faithfulness_rail",
+    "capability_bounds",
 ]
 
 CHECK_LABELS = {
@@ -827,11 +916,13 @@ CHECK_LABELS = {
     "domain_differentiation": "L8  Step D: Hezekiah=Technical / Zaniah=Strategist lens preserved (DOMAIN_LENS, tone, examples)",
     "conversation_recall":    "L9  Within-conversation recall guardrail wired into both prose modes + grounding carve-out",
     "out_of_scope_grounding": "L10 Out-of-scope-domains guard (projects/inventory/skills/... → no invented specifics, point to the right page)",
+    "faithfulness_rail":      "L11 Faithfulness output-rail (stripUngroundedKpi drops a leaked current OEE/MTBF/ratio % before it ships)",
+    "capability_bounds":      "L12 Capability-bounds clause (can't order/email/call/book/pay/control/read-PDF → disclaim + offer draft/point, never fake it)",
 }
 
 
 def main() -> int:
-    print("\033[1m\nPersona Contract Validator (10-layer)\033[0m")
+    print("\033[1m\nPersona Contract Validator (12-layer)\033[0m")
     print("=" * 60)
     print(f"  Tracking {len(SERVER_PERSONA_ADOPTION)} server surface(s) + "
           f"{len(CLIENT_PERSONA_ADOPTION)} client surface(s).")
@@ -847,6 +938,8 @@ def main() -> int:
     issues += check_domain_differentiation()
     issues += check_conversation_recall()
     issues += check_out_of_scope_grounding()
+    issues += check_faithfulness_rail()
+    issues += check_capability_bounds()
 
     n_pass, n_skip, n_fail = format_result(CHECK_NAMES, CHECK_LABELS, issues)
 
