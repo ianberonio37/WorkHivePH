@@ -21,9 +21,9 @@
 <link rel="stylesheet" href="components.css" />  <!-- S11 shared component CSS -->
 <style>
   :root {
-    --bg: #0f1923; --surface: #162032; --card: #1d2e44; --card-hover: #243a55;
-    --gold: #F7A21B; --blue: #29B6D9; --green: #30D068; --amber: #F4C430; --red: #E15554;
-    --text: #F4F6FA; --muted: rgba(255,255,255,0.6); --border: rgba(255,255,255,0.08);
+    --bg: #0f1923; --surface: var(--wh-navy); --card: #1d2e44; --card-hover: #243a55;
+    --gold: var(--wh-orange); --blue: var(--wh-blue); --green: #30D068; --amber: #F4C430; --red: #E15554;
+    --text: var(--wh-cloud); --muted: rgba(255,255,255,0.6); --border: rgba(255,255,255,0.08);
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: 'Poppins', system-ui, sans-serif; background: var(--bg); color: var(--text); padding-top: 60px; min-height: 100vh; }
@@ -324,7 +324,7 @@
 .verdict.healthy { background:rgba(74,222,128,0.07);  border-color:rgba(74,222,128,0.3); }
 .verdict.healthy .verdict-icon { color:#4ade80; }
 .verdict.watch   { background:rgba(247,162,27,0.07);  border-color:rgba(247,162,27,0.3); }
-.verdict.watch   .verdict-icon { color:#F7A21B; }
+.verdict.watch   .verdict-icon { color:var(--wh-orange); }
 .verdict.attn    { background:rgba(248,113,113,0.07); border-color:rgba(248,113,113,0.3); }
 .verdict.attn    .verdict-icon { color:#f87171; }
 .verdict.empty   { background:rgba(255,255,255,0.03); border-color:rgba(255,255,255,0.08); }
@@ -871,8 +871,9 @@ function fmtDate(d) {
   return dt.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
 }
 function fmtPHP(n) {
-  if (n == null) return '—';
-  return '₱' + Number(n).toLocaleString(undefined, { maximumFractionDigits: 0 });
+  // Delegates to the shared utils.js whFmtPeso (STREAMLINE E6): keeps the
+  // null→'—' affordance, whole-peso en-PH with thousands separators, never ₱NaN.
+  return n == null ? '—' : whFmtPeso(n, { decimals: 0 });
 }
 function progressColor(pct) {
   if (pct >= 80) return 'green';
@@ -958,6 +959,9 @@ async function loadHiveMembers() {
 
 /* ── Projects: list ────────────────────────────────────────── */
 async function loadProjects() {
+  // E2 consistent states: skeleton in the project card grid while it fetches so
+  // #card-grid never flashes blank before project cards render (shared whListSkeleton).
+  if (typeof whListSkeleton === 'function') whListSkeleton(document.getElementById('card-grid'), 4);
   const { data, error } = await db.from('projects')
     .select('id, project_code, name, project_type, status, priority, owner_name, start_date, end_date, budget_php, created_at, updated_at')
     .eq('hive_id', HIVE_ID).is('deleted_at', null).order('updated_at', { ascending: false });

@@ -18,10 +18,10 @@
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
-      --bg: #0f1923; --surface: #162032; --card: #1d2e44;
-      --gold: #F7A21B; --blue: #29B6D9; --green: #4ade80;
+      --bg: #0f1923; --surface: var(--wh-navy); --card: #1d2e44;
+      --gold: var(--wh-orange); --blue: var(--wh-blue); --green: #4ade80;
       --red: #f87171; --purple: #a78bfa; --yellow: #fbbf24;
-      --text: #F4F6FA; --muted: rgba(255,255,255,0.4);
+      --text: var(--wh-cloud); --muted: rgba(255,255,255,0.4);
       --border: rgba(255,255,255,0.07);
     }
     body { font-family: 'Poppins', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding-bottom: 80px; }
@@ -88,7 +88,7 @@
     .verdict.healthy { background:rgba(74,222,128,0.07);  border-color:rgba(74,222,128,0.3); }
     .verdict.healthy .verdict-icon { color:#4ade80; }
     .verdict.watch   { background:rgba(247,162,27,0.07);  border-color:rgba(247,162,27,0.3); }
-    .verdict.watch   .verdict-icon { color:#F7A21B; }
+    .verdict.watch   .verdict-icon { color:var(--wh-orange); }
     .verdict.attn    { background:rgba(248,113,113,0.07); border-color:rgba(248,113,113,0.3); }
     .verdict.attn    .verdict-icon { color:#f87171; }
     .verdict.empty   { background:rgba(255,255,255,0.03); border-color:rgba(255,255,255,0.08); }
@@ -115,7 +115,7 @@
   </div>
 
   <!-- Loading state -->
-  <div id="loading-state" class="card" style="text-align:center; padding:32px;">
+  <div id="loading-state" class="card loading-state" style="text-align:center; padding:32px;">
     <p style="color:var(--muted); font-size:.82rem;">Loading latest report...</p>
   </div>
 
@@ -286,11 +286,21 @@
     const loading = document.getElementById('loading-state');
     if (!loading) return;
 
-    const { data, error } = await db.from('ph_intelligence_reports')
-      .select('*')
-      .order('generated_at', { ascending: false })
-      .limit(1)
-      .maybeSingle();
+    let data, error;
+    try {
+      ({ data, error } = await db.from('ph_intelligence_reports')
+        .select('*')
+        .order('generated_at', { ascending: false })
+        .limit(1)
+        .maybeSingle());
+      if (error) throw error;
+    } catch (err) {
+      // E2 consistent states: a failed fetch surfaces a toast, distinct from the
+      // no-report empty state handled below.
+      console.warn('ph-intelligence load failed:', err.message || err);
+      if (typeof showToast === 'function') showToast('Couldn’t load PH Intelligence — please retry.');
+      error = err;
+    }
 
     loading.classList.add('hidden');
 

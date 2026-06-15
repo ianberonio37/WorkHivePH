@@ -15,9 +15,10 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <link rel="preconnect" href="https://hzyvnjtisfgbksicrouu.supabase.co" />
+  <link rel="stylesheet" href="tokens.css">
   <style>
     * { font-family: 'Poppins', sans-serif; box-sizing: border-box; }
-    body { background: #162032; min-height: 100vh; margin: 0; color: white; }
+    body { background: var(--wh-navy); min-height: 100vh; margin: 0; color: white; }
 
     .aurora {
       position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden;
@@ -54,7 +55,7 @@
     }
     .header-btn {
       background: rgba(247,162,27,0.12); border: 1px solid rgba(247,162,27,0.3);
-      color: #F7A21B; font-size: 0.75rem; font-weight: 700; padding: 6px 14px;
+      color: var(--wh-orange); font-size: 0.75rem; font-weight: 700; padding: 6px 14px;
       border-radius: 0.5rem; cursor: pointer; transition: all 0.15s; white-space: nowrap;
       text-decoration: none; display: inline-block;
     }
@@ -78,7 +79,7 @@
     }
     .post-card:hover { border-color: rgba(255,255,255,0.18); }
     .post-card.cat-safety      { border-left-color: #ef4444; }
-    .post-card.cat-technical   { border-left-color: #29B6D9; }
+    .post-card.cat-technical   { border-left-color: var(--wh-blue); }
     .post-card.cat-announcement{ border-left-color: #c084fc; }
 
     .post-meta {
@@ -91,7 +92,7 @@
     }
     .cat-general      { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.5); }
     .cat-safety       { background: rgba(239,68,68,0.15); color: #f87171; }
-    .cat-technical    { background: rgba(41,182,217,0.12); color: #29B6D9; }
+    .cat-technical    { background: rgba(41,182,217,0.12); color: var(--wh-blue); }
     .cat-announcement { background: rgba(168,85,247,0.12); color: #c084fc; }
     .post-time { font-size: 0.7rem; color: rgba(255,255,255,0.3); margin-left: auto; }
 
@@ -221,7 +222,16 @@
     document.getElementById('feed-skeleton').style.display = 'none';
     document.getElementById('feed-list').style.display     = 'block';
 
-    if (error || !data || data.length === 0) {
+    if (error) {
+      // E2 consistent states: a failed fetch shows an inline error + Retry (shared
+      // whListError), distinct from the empty state it used to be conflated with.
+      if (typeof whListError === 'function') {
+        whListError(document.getElementById('feed-list'), "Couldn’t load the public feed. Check your connection and try again.", () => loadInitial());
+      }
+      if (typeof showToast === 'function') showToast('Public feed failed to load — tap Retry.', 'warn');
+      return;
+    }
+    if (!data || data.length === 0) {
       document.getElementById('feed-list').innerHTML =
         '<div class="empty-state">No public posts yet. Be the first hive to share with the world!</div>';
       return;

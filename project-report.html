@@ -13,12 +13,13 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tokens.css">
 <style>
   :root {
     --paper: #FFFFFF; --ink: #1F2A37; --muted: #5B6878;
     --accent: #0E5E8A; --rule: #D7DDE5; --cell-bg: #F7F9FC;
     --green: #1F7A3A; --amber: #B47B00; --red: #B43A3A; --gold: #B47B00;
-    --bg-shell: #0f1923; --shell-text: #F4F6FA;
+    --bg-shell: #0f1923; --shell-text: var(--wh-cloud);
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   html, body { background: var(--bg-shell); color: var(--shell-text); font-family: 'Poppins', system-ui, sans-serif; }
@@ -38,7 +39,7 @@
     padding: 8px 14px; min-height: 44px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; cursor: pointer; text-decoration: none;
   }
   .toolbar button:hover, .toolbar a.btn:hover { background: #243a55; }
-  .toolbar .primary { background: #F7A21B; color: #1a1208; border-color: #F7A21B; }
+  .toolbar .primary { background: var(--wh-orange); color: #1a1208; border-color: var(--wh-orange); }
   .toolbar .primary:hover { background: #ffb840; }
 
   #ar-print-wrapper {
@@ -231,7 +232,8 @@ function fmtDate(d) {
   if (!d) return '—';
   return new Date(d).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
 }
-function fmtPHP(n) { return n == null ? '—' : '₱' + Number(n).toLocaleString(undefined, { maximumFractionDigits: 0 }); }
+// Delegates to the shared utils.js whFmtPeso (STREAMLINE E6): null→'—', whole-peso en-PH, never ₱NaN.
+function fmtPHP(n) { return n == null ? '—' : whFmtPeso(n, { decimals: 0 }); }
 
 const PHASE_LABELS = { pre: 'Pre', execute: 'Execute', commission: 'Commission', close: 'Close',
                        fel1: 'FEL-1', fel2: 'FEL-2', fel3: 'FEL-3', gate: 'Stage Gate' };

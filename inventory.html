@@ -34,14 +34,14 @@
   <link rel="stylesheet" href="components.css" />  <!-- S11 shared component CSS -->
   <style>
     * { font-family: 'Poppins', sans-serif; }
-    body { background-color: #162032; min-height: 100vh; }
+    body { background-color: var(--wh-navy); min-height: 100vh; }
 
     /* Aurora */
     .aurora-bg { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
     .aurora-beam { position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.18; will-change: transform; }
-    .beam-1 { width: 600px; height: 300px; background: #F7A21B; top: -80px; left: -100px; animation: drift1 12s ease-in-out infinite; }
-    .beam-2 { width: 500px; height: 250px; background: #29B6D9; top: 20%; right: -80px; animation: drift2 15s ease-in-out infinite; }
-    .beam-3 { width: 400px; height: 200px; background: #F7A21B; bottom: 10%; left: 30%; animation: drift3 10s ease-in-out infinite; }
+    .beam-1 { width: 600px; height: 300px; background: var(--wh-orange); top: -80px; left: -100px; animation: drift1 12s ease-in-out infinite; }
+    .beam-2 { width: 500px; height: 250px; background: var(--wh-blue); top: 20%; right: -80px; animation: drift2 15s ease-in-out infinite; }
+    .beam-3 { width: 400px; height: 200px; background: var(--wh-orange); bottom: 10%; left: 30%; animation: drift3 10s ease-in-out infinite; }
     @keyframes drift1 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(60px,40px)} }
     @keyframes drift2 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(-40px,60px)} }
     @keyframes drift3 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(30px,-30px)} }
@@ -72,7 +72,7 @@
     }
     .part-card:hover { border-top-color: rgba(255,255,255,0.14); border-right-color: rgba(255,255,255,0.14); border-bottom-color: rgba(255,255,255,0.14); }
     .part-card.stock-ok  { border-left-color: #4ade80; }
-    .part-card.stock-low { border-left-color: #F7A21B; }
+    .part-card.stock-low { border-left-color: var(--wh-orange); }
     .part-card.stock-out { border-left-color: #f87171; }
     @keyframes slide-in { from { opacity:0; transform:translateY(-8px); } to { opacity:1; transform:translateY(0); } }
 
@@ -94,8 +94,8 @@
 
     /* Buttons */
     .btn-primary {
-      background: linear-gradient(135deg, #F7A21B, #FDB94A);
-      color: #162032; font-weight: 700; border-radius: 0.75rem;
+      background: linear-gradient(135deg, var(--wh-orange), var(--wh-orange-light));
+      color: var(--wh-navy); font-weight: 700; border-radius: 0.75rem;
       padding: 0.75rem 1.5rem; font-size: 0.875rem;
       cursor: pointer; border: none; min-height: 44px;
       transition: opacity 0.2s, transform 0.1s;
@@ -161,8 +161,8 @@
       color: rgba(255,255,255,0.5);
       transition: all 0.15s; user-select: none; min-height: 36px;
     }
-    .asset-tag:hover { border-color: rgba(41,182,217,0.35); color: #29B6D9; }
-    .asset-tag.selected { background: rgba(41,182,217,0.15); border-color: rgba(41,182,217,0.4); color: #29B6D9; }
+    .asset-tag:hover { border-color: rgba(41,182,217,0.35); color: var(--wh-blue); }
+    .asset-tag.selected { background: rgba(41,182,217,0.15); border-color: rgba(41,182,217,0.4); color: var(--wh-blue); }
 
     /* Photo */
     .photo-thumb { width: 56px; height: 56px; object-fit: cover; border-radius: 0.5rem; border: 1px solid rgba(255,255,255,0.1); }
@@ -177,7 +177,7 @@
     .empty-state { opacity: 1; }
 
     /* Search highlight */
-    mark { background: rgba(247,162,27,0.3); color: #FDB94A; border-radius: 2px; padding: 0 2px; }
+    mark { background: rgba(247,162,27,0.3); color: var(--wh-orange-light); border-radius: 2px; padding: 0 2px; }
 
     /* Scrollbar */
     ::-webkit-scrollbar { width: 6px; }
@@ -192,7 +192,7 @@
     .verdict.healthy { background:rgba(74,222,128,0.07);  border-color:rgba(74,222,128,0.3); }
     .verdict.healthy .verdict-icon { color:#4ade80; }
     .verdict.watch   { background:rgba(247,162,27,0.07);  border-color:rgba(247,162,27,0.3); }
-    .verdict.watch   .verdict-icon { color:#F7A21B; }
+    .verdict.watch   .verdict-icon { color:var(--wh-orange); }
     .verdict.attn    { background:rgba(248,113,113,0.07); border-color:rgba(248,113,113,0.3); }
     .verdict.attn    .verdict-icon { color:#f87171; }
     .verdict.empty   { background:rgba(255,255,255,0.03); border-color:rgba(255,255,255,0.08); }

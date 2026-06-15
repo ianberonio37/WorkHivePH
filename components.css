@@ -19,31 +19,20 @@
    wireDetailToggle() behavior in utils.js.
    =========================================================================== */
 
+@import url("tokens.css");  /* STREAMLINE E4: the single brand-palette source — must precede all rules. */
+
 /* ── Design tokens (STREAMLINE E4) ───────────────────────────────────────────
-   The canonical palette / type / spacing / radius from the designer SKILL.md,
-   promoted to CSS custom properties so brand values live in ONE place and can't
-   drift (the `#e8920a` non-brand orange that crept into parts-tracker/assistant
-   is the cautionary tale). Pages that link components.css should reference
-   var(--wh-*) instead of raw hex. Guarded by validate_design_tokens.py: this
-   block must exist with every canonical value, and the drift hex is banned. */
+   The canonical brand PALETTE (--wh-orange / -blue / -navy / -steel / -cloud …)
+   now lives in tokens.css — the SINGLE source of truth, @imported above so it
+   loads with components.css. The `-rgb` triplets (for rgba() alpha), spacing,
+   radius and type stay here. Pages reference var(--wh-*) instead of raw hex;
+   validate_design_tokens.py L1 gates tokens.css, L2 bans the #e8920a drift hex,
+   L3 ratchets raw brand hex on the glass down. */
 :root {
-  /* Brand — orange (primary action / highlights) */
-  --wh-orange:       #F7A21B;
-  --wh-orange-dark:  #D88A0E;
-  --wh-orange-light: #FDB94A;
+  /* Brand RGB triplets — for rgba(var(--wh-*-rgb), a); the colors themselves are
+     in tokens.css (the single palette source). */
   --wh-orange-rgb:   247, 162, 27;
-  /* Brand — blue (secondary / info) */
-  --wh-blue:         #29B6D9;
-  --wh-blue-dark:    #1A9ABF;
-  --wh-blue-light:   #5FCCE8;
   --wh-blue-rgb:     41, 182, 217;
-  /* Surfaces — navy */
-  --wh-navy:         #162032;
-  --wh-navy-mid:     #1F2E45;
-  --wh-navy-light:   #2A3D58;
-  /* Text */
-  --wh-steel:        #7B8794;  /* muted */
-  --wh-cloud:        #F4F6FA;  /* light text on dark */
   /* Spacing — 8px grid (NN/g dashboard grid) */
   --wh-space-1: 4px;  --wh-space-2: 8px;  --wh-space-3: 12px;
   --wh-space-4: 16px; --wh-space-6: 24px; --wh-space-8: 32px;

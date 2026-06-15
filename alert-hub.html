@@ -18,13 +18,14 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="utils.js"></script>
   <script src="maturity-gate.js"></script>
+  <link rel="stylesheet" href="tokens.css">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
-      --bg: #0f1923; --surface: #162032; --card: #1d2e44;
-      --gold: #F7A21B; --blue: #29B6D9; --green: #4ade80;
+      --bg: #0f1923; --surface: var(--wh-navy); --card: #1d2e44;
+      --gold: var(--wh-orange); --blue: var(--wh-blue); --green: #4ade80;
       --red: #f87171; --amber: #fb923c; --yellow: #facc15; --purple: #a78bfa;
-      --text: #F4F6FA; --muted: rgba(255,255,255,0.6);
+      --text: var(--wh-cloud); --muted: rgba(255,255,255,0.6);
       --border: rgba(255,255,255,0.07);
     }
     body { font-family: system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding-bottom: 90px; }
@@ -165,26 +166,26 @@
     .verdict.healthy { background:rgba(74,222,128,0.07);  border-color:rgba(74,222,128,0.3); }
     .verdict.healthy .verdict-icon { color:#4ade80; }
     .verdict.watch   { background:rgba(247,162,27,0.07);  border-color:rgba(247,162,27,0.3); }
-    .verdict.watch   .verdict-icon { color:#F7A21B; }
+    .verdict.watch   .verdict-icon { color:var(--wh-orange); }
     .verdict.attn    { background:rgba(248,113,113,0.07); border-color:rgba(248,113,113,0.3); }
     .verdict.attn    .verdict-icon { color:#f87171; }
     .verdict.empty   { background:rgba(255,255,255,0.03); border-color:rgba(255,255,255,0.08); }
     .verdict.empty   .verdict-icon { color:rgba(255,255,255,0.55); }
     .simple-row { display:grid; grid-template-columns:repeat(auto-fit, minmax(170px, 1fr)); gap:12px; margin-bottom:14px; }
-    .simple-card { background:#162032; border:1px solid rgba(255,255,255,0.07); border-radius:12px; padding:14px 16px; }
+    .simple-card { background:var(--wh-navy); border:1px solid rgba(255,255,255,0.07); border-radius:12px; padding:14px 16px; }
     .simple-card .sc-label { font-size:0.65rem; font-weight:700; color:rgba(255,255,255,0.6); text-transform:uppercase; letter-spacing:0.06em; }
-    .simple-card .sc-hero  { font-size:1.5rem; font-weight:800; line-height:1.15; margin:4px 0 2px; color:#F4F6FA; }
+    .simple-card .sc-hero  { font-size:1.5rem; font-weight:800; line-height:1.15; margin:4px 0 2px; color:var(--wh-cloud); }
     .simple-card .sc-sub   { font-size:0.7rem; color:rgba(255,255,255,0.55); line-height:1.4; }
     .simple-card .sc-tag   { display:inline-block; font-size:0.58rem; font-weight:800; letter-spacing:0.06em; text-transform:uppercase; padding:0.18rem 0.5rem; border-radius:999px; margin-top:7px; }
     .simple-card.tag-green .sc-tag { background:rgba(74,222,128,0.16);  color:#4ade80; }
-    .simple-card.tag-amber .sc-tag { background:rgba(247,162,27,0.16);  color:#F7A21B; }
+    .simple-card.tag-amber .sc-tag { background:rgba(247,162,27,0.16);  color:var(--wh-orange); }
     .simple-card.tag-red   .sc-tag { background:rgba(248,113,113,0.16); color:#f87171; }
     .simple-card.tag-grey  .sc-tag { background:rgba(255,255,255,0.06); color:rgba(255,255,255,0.5); }
     .action-card { background:rgba(41,182,217,0.06); border:1px solid rgba(41,182,217,0.25); border-radius:12px; padding:14px 16px; margin-bottom:14px; }
-    .action-card .ac-label { font-size:0.65rem; font-weight:800; color:#29B6D9; text-transform:uppercase; letter-spacing:0.07em; }
+    .action-card .ac-label { font-size:0.65rem; font-weight:800; color:var(--wh-blue); text-transform:uppercase; letter-spacing:0.07em; }
     .action-card .ac-text { font-size:0.82rem; line-height:1.5; margin-top:6px; color:rgba(255,255,255,0.85); }
     .details-toggle { display:inline-flex; align-items:center; gap:6px; background:transparent; border:1px solid rgba(255,255,255,0.07); color:rgba(255,255,255,0.6); padding:8px 14px; border-radius:8px; font-family:inherit; font-size:0.7rem; font-weight:600; cursor:pointer; min-height:44px; margin-bottom:14px; }
-    .details-toggle:hover { color:#F4F6FA; border-color:rgba(255,255,255,0.18); }
+    .details-toggle:hover { color:var(--wh-cloud); border-color:rgba(255,255,255,0.18); }
     #ah-summary-details { display:none; padding:14px 16px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:12px; font-size:0.78rem; line-height:1.5; color:rgba(255,255,255,0.7); margin-bottom:14px; }
     #ah-summary-details.open { display:block; }
   </style>
@@ -910,6 +911,10 @@
     const dayAgo  = new Date(Date.now() - 24 * 3600 * 1000).toISOString();
     const pmCutoff = new Date(Date.now() - 30 * 86400000).toISOString();
 
+    // E2 consistent states: shimmer skeleton in the alert feed while sources fetch
+    // so #feed never flashes blank before alerts render (shared whListSkeleton).
+    if (typeof whListSkeleton === 'function') whListSkeleton(document.getElementById('feed'), 5);
+
     const [riskRes, invRes, pmAssetsRes, autoLogRes, patternRes, stagingRes] = await Promise.allSettled([
       // Canonical: risk_truth — asset_risk_scores is insert-only (history),
       // v_risk_truth returns the latest score per asset via DISTINCT ON.
@@ -1140,6 +1145,12 @@
       renderFeed();
     } catch (err) {
       console.warn('alert-hub render path threw:', err && err.message ? err.message : err);
+      // E2 consistent states: a render failure shows an inline error + Retry
+      // (shared whListError) instead of a stuck/blank feed.
+      const feedEl = document.getElementById('feed');
+      if (feedEl && typeof whListError === 'function') {
+        whListError(feedEl, "Couldn’t show your alerts. Check your connection and try again.", () => loadAll());
+      }
     } finally {
       // Plain-Read roll-up runs after the feed renders so the cards reflect
       // the same state shown below. Always runs — even on render error — so

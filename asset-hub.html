@@ -24,9 +24,9 @@
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
-      --orange-wh: #F7A21B;
-      --blue-wh:   #29B6D9;
-      --navy-wh:   #162032;
+      --orange-wh: var(--wh-orange);
+      --blue-wh:   var(--wh-blue);
+      --navy-wh:   var(--wh-navy);
       --muted:     rgba(255,255,255,0.55);
       --border:    rgba(255,255,255,0.10);
       --card-bg:   linear-gradient(145deg, rgba(42,61,88,0.5) 0%, rgba(31,46,69,0.7) 100%);
@@ -34,7 +34,7 @@
     body {
       font-family: 'Poppins', sans-serif;
       background-color: var(--navy-wh);
-      color: #F4F6FA;
+      color: var(--wh-cloud);
       min-height: 100vh;
       padding-bottom: calc(80px + env(safe-area-inset-bottom));
       background-image:
@@ -45,7 +45,7 @@
     /* Toast */
     #toast {
       position: fixed; top: 1rem; left: 50%; transform: translateX(-50%);
-      background: #1F2E45; border: 1px solid var(--border);
+      background: var(--wh-navy-mid); border: 1px solid var(--border);
       border-radius: 0.75rem; padding: 0.65rem 1.1rem;
       font-size: 0.82rem; font-weight: 600; z-index: 9999;
       box-shadow: 0 8px 32px rgba(0,0,0,0.5);
@@ -77,7 +77,7 @@
     #hive-gate p { color: var(--muted); font-size: 0.85rem; max-width: 360px; }
     #hive-gate a {
       margin-top: 1.25rem; padding: 0.65rem 1.25rem;
-      background: linear-gradient(135deg, var(--orange-wh), #FDB94A);
+      background: linear-gradient(135deg, var(--orange-wh), var(--wh-orange-light));
       color: var(--navy-wh); border-radius: 0.6rem; font-weight: 700;
       text-decoration: none; font-size: 0.85rem;
     }
@@ -89,7 +89,7 @@
     .search-input {
       flex: 1; height: 44px; border-radius: 0.6rem;
       background: rgba(255,255,255,0.04); border: 1px solid var(--border);
-      color: #F4F6FA; padding: 0 0.85rem;
+      color: var(--wh-cloud); padding: 0 0.85rem;
       font-size: 16px; /* iOS auto-zoom rule */
       font-family: inherit;
     }
@@ -221,7 +221,7 @@
       border-radius: 0.5rem; padding: 5px 10px;
       font-size: 0.72rem; color: var(--muted);
     }
-    .ext-pill strong { color: #f4f6fa; font-weight: 700; margin-right: 4px; }
+    .ext-pill strong { color: var(--wh-cloud); font-weight: 700; margin-right: 4px; }
 
     /* Add-edge button */
     .add-edge-btn {
@@ -293,7 +293,7 @@
     .fmea-row-actions button {
       font-size: 0.66rem; padding: 4px 9px; border-radius: 5px;
       background: rgba(255,255,255,0.05); border: 1px solid var(--border);
-      color: #F4F6FA; cursor: pointer; font-family: inherit;
+      color: var(--wh-cloud); cursor: pointer; font-family: inherit;
     }
     .fmea-row-actions .approve { background: rgba(74,222,128,0.16); color: #6ee7a8; border-color: rgba(74,222,128,0.3); }
     .fmea-row-actions .delete  { background: rgba(239,87,87,0.14);  color: #ff8a8a; border-color: rgba(239,87,87,0.3); }
@@ -358,11 +358,11 @@
     #rcm-modal input, #rcm-modal select {
       width: 100%; height: 42px; border-radius: 0.55rem;
       background: rgba(255,255,255,0.04); border: 1px solid var(--border);
-      color: #F4F6FA; padding: 0 0.7rem;
+      color: var(--wh-cloud); padding: 0 0.7rem;
       font-size: 16px; /* iOS auto-zoom rule */
       font-family: inherit; margin-bottom: 0.85rem;
     }
-    #fmea-modal select option, #rcm-modal select option { background: #162032; color: #F4F6FA; }
+    #fmea-modal select option, #rcm-modal select option { background: var(--wh-navy); color: var(--wh-cloud); }
 
     /* Edge editor modal */
     #edge-modal {
@@ -387,11 +387,11 @@
     #edge-modal select, #edge-modal input {
       width: 100%; height: 42px; border-radius: 0.55rem;
       background: rgba(255,255,255,0.04); border: 1px solid var(--border);
-      color: #F4F6FA; padding: 0 0.7rem;
+      color: var(--wh-cloud); padding: 0 0.7rem;
       font-size: 16px; /* iOS auto-zoom rule */
       font-family: inherit; margin-bottom: 0.85rem;
     }
-    #edge-modal select option { background: #162032; color: #F4F6FA; }
+    #edge-modal select option { background: var(--wh-navy); color: var(--wh-cloud); }
     .edge-actions { display: flex; gap: 0.5rem; }
     .edge-actions button {
       flex: 1; height: 42px; border-radius: 0.55rem;
@@ -399,11 +399,11 @@
       font-size: 0.85rem; font-weight: 600; font-family: inherit;
     }
     .edge-actions .save {
-      background: linear-gradient(135deg, var(--orange-wh), #FDB94A);
+      background: linear-gradient(135deg, var(--orange-wh), var(--wh-orange-light));
       color: var(--navy-wh); border-color: transparent;
     }
     .edge-actions .cancel {
-      background: rgba(255,255,255,0.06); color: #F4F6FA;
+      background: rgba(255,255,255,0.06); color: var(--wh-cloud);
     }
     /* Plain-Read summary (Layer D — UX Contract) */
     .verdict { display:flex; align-items:center; gap:12px; padding:14px 16px; margin-bottom:14px; border-radius:12px; border:1px solid; }
@@ -413,7 +413,7 @@
     .verdict.healthy { background:rgba(74,222,128,0.07);  border-color:rgba(74,222,128,0.3); }
     .verdict.healthy .verdict-icon { color:#4ade80; }
     .verdict.watch   { background:rgba(247,162,27,0.07);  border-color:rgba(247,162,27,0.3); }
-    .verdict.watch   .verdict-icon { color:#F7A21B; }
+    .verdict.watch   .verdict-icon { color:var(--wh-orange); }
     .verdict.attn    { background:rgba(248,113,113,0.07); border-color:rgba(248,113,113,0.3); }
     .verdict.attn    .verdict-icon { color:#f87171; }
     .verdict.empty   { background:rgba(255,255,255,0.03); border-color:rgba(255,255,255,0.08); }
@@ -1042,6 +1042,9 @@
 
     // ── List load ──────────────────────────────────────────────────────────────
     async function loadAssetNodes() {
+      // E2 consistent states: skeleton in the asset list while it fetches so
+      // #asset-list never flashes blank before cards render (shared whListSkeleton).
+      if (typeof whListSkeleton === 'function') whListSkeleton(document.getElementById('asset-list'), 5);
       // Narrow select per performance skill, hive-scoped per multitenant skill.
       const { data, error } = await db.from('asset_nodes')
         .select('id, tag, name, level, criticality, location, iso_class, parent_id, pm_asset_id, legacy_asset_id, created_at')

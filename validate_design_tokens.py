@@ -34,6 +34,7 @@ if sys.platform == "win32" and sys.stdout.encoding and sys.stdout.encoding.lower
 
 ROOT          = Path(__file__).resolve().parent
 COMPONENTS    = ROOT / "components.css"
+TOKENS_CSS    = ROOT / "tokens.css"      # E4: the SINGLE brand-palette source (L1 gates this)
 REPORT_PATH   = ROOT / "design_tokens_report.json"
 BASELINE_PATH = ROOT / "design_tokens_baseline.json"
 
@@ -69,17 +70,18 @@ def _yellow(s): return f"\033[93m{s}\033[0m"
 
 
 def check_token_block() -> list[str]:
-    """L1 — every canonical token present with its exact value in components.css :root."""
+    """L1 — every canonical token present with its exact value in tokens.css :root
+    (the SINGLE palette source; components.css @imports it, every page <link>s it)."""
     issues = []
-    if not COMPONENTS.exists():
-        return ["components.css is missing — the design-token source of truth is gone"]
-    css = COMPONENTS.read_text(encoding="utf-8", errors="replace")
+    if not TOKENS_CSS.exists():
+        return ["tokens.css is missing — the design-token source of truth is gone"]
+    css = TOKENS_CSS.read_text(encoding="utf-8", errors="replace")
     if ":root" not in css:
-        return ["components.css has no :root block — design tokens are undefined"]
+        return ["tokens.css has no :root block — design tokens are undefined"]
     for tok, hexv in CANONICAL_TOKENS.items():
         # match `--wh-orange : #F7A21B` (case-insensitive on the hex)
         if not re.search(re.escape(tok) + r"\s*:\s*" + re.escape(hexv) + r"\b", css, re.IGNORECASE):
-            issues.append(f"{tok} missing or not = {hexv} in components.css :root")
+            issues.append(f"{tok} missing or not = {hexv} in tokens.css :root")
     return issues
 
 

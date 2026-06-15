@@ -51,13 +51,14 @@
        quality verdict (pass/fail/hallucination counts) once the route table loads. -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="utils.js"></script>
+  <link rel="stylesheet" href="tokens.css">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
-      --bg: #0f1923; --surface: #162032; --card: #1d2e44;
-      --gold: #F7A21B; --blue: #29B6D9; --green: #4ade80;
+      --bg: #0f1923; --surface: var(--wh-navy); --card: #1d2e44;
+      --gold: var(--wh-orange); --blue: var(--wh-blue); --green: #4ade80;
       --red: #f87171; --amber: #fb923c; --muted: rgba(255,255,255,0.4);
-      --text: #F4F6FA; --border: rgba(255,255,255,0.07);
+      --text: var(--wh-cloud); --border: rgba(255,255,255,0.07);
     }
     body { font-family: 'Poppins', system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding-bottom: 90px; }
     .page { max-width: 1000px; margin: 0 auto; padding: 1rem 1rem 0; padding-top: 68px; }

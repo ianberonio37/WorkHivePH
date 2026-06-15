@@ -16,13 +16,14 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="utils.js"></script>
   <script src="maturity-gate.js"></script>
+  <link rel="stylesheet" href="tokens.css">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
-      --bg: #0f1923; --surface: #162032; --card: #1d2e44;
-      --gold: #F7A21B; --blue: #29B6D9; --green: #4ade80;
+      --bg: #0f1923; --surface: var(--wh-navy); --card: #1d2e44;
+      --gold: var(--wh-orange); --blue: var(--wh-blue); --green: #4ade80;
       --red: #f87171; --amber: #fb923c; --yellow: #facc15; --purple: #a78bfa;
-      --text: #F4F6FA; --muted: rgba(255,255,255,0.4);
+      --text: var(--wh-cloud); --muted: rgba(255,255,255,0.4);
       --border: rgba(255,255,255,0.07);
     }
     body { font-family: 'Poppins', system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding-bottom: 90px; }
@@ -178,7 +179,10 @@
 
     async function render() {
       const host = document.getElementById('content');
-      host.innerHTML = renderLoadingState();
+      // E2 consistent states: shared shimmer skeleton while data fetches (was a
+      // bespoke renderLoadingState() the List View Contract didn't recognize).
+      if (typeof whListSkeleton === 'function') whListSkeleton(host, 4);
+      else host.innerHTML = renderLoadingState();
 
       // Cost/fallback/schema signals live on ai_cost_log (the 2026-05-11
       // extensions migration). Worker THUMBS, however, now live on
@@ -188,7 +192,18 @@
       // write path was a no-op: missing RPC + RLS-denied UPDATE), so reading
       // thumbs from it always showed "no ratings yet". We read both: cost
       // from ai_cost_log, thumbs from ai_reply_feedback.
-      const [costRows, feedbackRows] = await Promise.all([loadCostLog(), loadReplyFeedback()]);
+      let costRows, feedbackRows;
+      try {
+        [costRows, feedbackRows] = await Promise.all([loadCostLog(), loadReplyFeedback()]);
+      } catch (err) {
+        console.error('ai-quality load failed:', err);
+        // E2 consistent states: inline error + Retry (shared whListError) + toast.
+        if (typeof whListError === 'function') {
+          whListError(host, "Couldn’t load your AI quality data. Check your connection and try again.", () => render());
+        }
+        if (typeof showToast === 'function') showToast('AI quality failed to load — tap Retry.', 'warn');
+        return;
+      }
       const summary = aggregate(costRows, feedbackRows);
       // Simple-by-default 2026-05-13: manager dashboard up top, engineering
       // details collapsed behind a toggle. Tradeoff: the page now answers
@@ -273,8 +288,8 @@
       const costTag = php < 500 ? 'MODEST' : php < 2000 ? 'TYPICAL' : 'HEAVY USE';
       const costTone = php < 2000 ? 'green' : 'amber';
       const cost = {
-        hero: '₱' + php.toFixed(2),
-        sub: `${s.totalCalls} AI calls × avg ₱${(php / Math.max(s.totalCalls, 1)).toFixed(2)} each`,
+        hero: whFmtPeso(php, { decimals: 2 }),
+        sub: `${s.totalCalls} AI calls × avg ${whFmtPeso(php / Math.max(s.totalCalls, 1), { decimals: 2 })} each`,
         tag: costTag,
         tone: costTone,
       };

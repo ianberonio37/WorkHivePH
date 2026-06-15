@@ -25,14 +25,14 @@
   <link rel="stylesheet" href="components.css" />  <!-- S11 shared component CSS -->
   <style>
     * { font-family: 'Poppins', sans-serif; box-sizing: border-box; }
-    body { background-color: #162032; min-height: 100vh; color: white; margin: 0; }
+    body { background-color: var(--wh-navy); min-height: 100vh; color: white; margin: 0; }
 
     /* Aurora background */
     .aurora-bg { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
     .aurora-beam { position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.15; will-change: transform; }
-    .beam-1 { width: 600px; height: 300px; background: #F7A21B; top: -80px; left: -100px; animation: drift1 12s ease-in-out infinite; }
-    .beam-2 { width: 500px; height: 250px; background: #29B6D9; top: 20%; right: -80px; animation: drift2 15s ease-in-out infinite; }
-    .beam-3 { width: 400px; height: 200px; background: #F7A21B; bottom: 10%; left: 30%; animation: drift3 10s ease-in-out infinite; }
+    .beam-1 { width: 600px; height: 300px; background: var(--wh-orange); top: -80px; left: -100px; animation: drift1 12s ease-in-out infinite; }
+    .beam-2 { width: 500px; height: 250px; background: var(--wh-blue); top: 20%; right: -80px; animation: drift2 15s ease-in-out infinite; }
+    .beam-3 { width: 400px; height: 200px; background: var(--wh-orange); bottom: 10%; left: 30%; animation: drift3 10s ease-in-out infinite; }
     @keyframes drift1 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(60px,40px)} }
     @keyframes drift2 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(-40px,60px)} }
     @keyframes drift3 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(30px,-30px)} }
@@ -58,7 +58,7 @@
     .view-tabs { display: flex; gap: 0.25rem; background: rgba(22,32,50,0.6); border-radius: 0.75rem; padding: 0.25rem; }
     .view-tab { padding: 0.5rem 1.25rem; min-height: 44px; display: inline-flex; align-items: center; justify-content: center; border-radius: 0.5rem; font-size: 0.8125rem; font-weight: 600; cursor: pointer; transition: all 0.2s; color: rgba(255,255,255,0.45); border: none; background: none; }
     .view-tab:hover { color: rgba(255,255,255,0.75); background: rgba(255,255,255,0.05); }
-    .view-tab.active { background: linear-gradient(135deg, #F7A21B, #FDB94A); color: #162032; }
+    .view-tab.active { background: linear-gradient(135deg, var(--wh-orange), var(--wh-orange-light)); color: var(--wh-navy); }
 
     /* Mobile: stack tabs on second row */
     @media (max-width: 520px) {
@@ -108,7 +108,7 @@
     /* WILO: week grid */
     .wilo-grid { display: grid; grid-template-columns: 52px repeat(7, 1fr); gap: 0; }
     .wilo-day-header { text-align: center; padding: 0.5rem 0.25rem; font-size: 0.75rem; font-weight: 600; border-bottom: 1px solid rgba(255,255,255,0.07); position: sticky; top: 0; background: rgba(22,32,50,0.95); z-index: 3; }
-    .wilo-day-header.today { color: #F7A21B; }
+    .wilo-day-header.today { color: var(--wh-orange); }
     .wilo-cell { border-top: 1px solid rgba(255,255,255,0.04); border-left: 1px solid rgba(255,255,255,0.04); min-height: 40px; position: relative; cursor: pointer; transition: background 0.15s; }
     .wilo-cell:hover { background: rgba(247,162,27,0.04); }
     .wilo-cell.today-col { background: rgba(247,162,27,0.02); }
@@ -134,13 +134,13 @@
     .yilo-mini-day-name { text-align: center; font-size: 0.55rem; color: rgba(255,255,255,0.25); padding: 1px 0; }
     .yilo-mini-cell { aspect-ratio: 1; border-radius: 3px; display: flex; align-items: center; justify-content: center; font-size: 0.55rem; color: rgba(255,255,255,0.35); cursor: pointer; transition: all 0.15s; position: relative; }
     .yilo-mini-cell:hover { background: rgba(247,162,27,0.15); color: white; }
-    .yilo-mini-cell.today { background: #F7A21B; color: #162032; font-weight: 700; border-radius: 50%; }
+    .yilo-mini-cell.today { background: var(--wh-orange); color: var(--wh-navy); font-weight: 700; border-radius: 50%; }
     .yilo-mini-cell.has-items { background: rgba(41,182,217,0.2); color: rgba(255,255,255,0.8); border-radius: 50%; }
-    .yilo-mini-cell.has-items.today { background: #F7A21B; }
+    .yilo-mini-cell.has-items.today { background: var(--wh-orange); }
     .yilo-month.current-month { border-color: rgba(247,162,27,0.3); }
 
     /* Buttons */
-    .btn-primary { background: linear-gradient(135deg, #F7A21B, #FDB94A); color: #162032; font-weight: 700; border-radius: 0.625rem; padding: 0.5rem 1rem; font-size: 0.8rem; cursor: pointer; transition: opacity 0.2s; border: none; min-height: 44px; display: inline-flex; align-items: center; justify-content: center; }
+    .btn-primary { background: linear-gradient(135deg, var(--wh-orange), var(--wh-orange-light)); color: var(--wh-navy); font-weight: 700; border-radius: 0.625rem; padding: 0.5rem 1rem; font-size: 0.8rem; cursor: pointer; transition: opacity 0.2s; border: none; min-height: 44px; display: inline-flex; align-items: center; justify-content: center; }
     .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(247,162,27,0.35); }
     .btn-primary:active { opacity: 0.75; transform: scale(0.97); box-shadow: none; }
     .btn-ghost { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.7); font-weight: 500; border-radius: 0.625rem; padding: 0.4rem 0.75rem; font-size: 0.8rem; cursor: pointer; border: 1px solid rgba(255,255,255,0.08); transition: all 0.2s; min-height: 44px; display: inline-flex; align-items: center; justify-content: center; }
@@ -157,7 +157,7 @@
     .wh-input { background: rgba(22,32,50,0.6); border: 1px solid rgba(255,255,255,0.1); border-radius: 0.625rem; color: white; padding: 0.625rem 0.875rem; width: 100%; font-size: 1rem; outline: none; transition: border-color 0.2s; }
     .wh-input:focus { border-color: rgba(247,162,27,0.5); }
     .wh-input::placeholder { color: rgba(255,255,255,0.2); }
-    select.wh-input option { background: #1F2E45; }
+    select.wh-input option { background: var(--wh-navy-mid); }
 
     /* Badge */
     .badge { display: inline-flex; align-items: center; padding: 0.15rem 0.5rem; border-radius: 9999px; font-size: 0.65rem; font-weight: 600; }
@@ -180,7 +180,7 @@
     .verdict.healthy { background:rgba(74,222,128,0.07);  border-color:rgba(74,222,128,0.3); }
     .verdict.healthy .verdict-icon { color:#4ade80; }
     .verdict.watch   { background:rgba(247,162,27,0.07);  border-color:rgba(247,162,27,0.3); }
-    .verdict.watch   .verdict-icon { color:#F7A21B; }
+    .verdict.watch   .verdict-icon { color:var(--wh-orange); }
     .verdict.attn    { background:rgba(248,113,113,0.07); border-color:rgba(248,113,113,0.3); }
     .verdict.attn    .verdict-icon { color:#f87171; }
     .verdict.empty   { background:rgba(255,255,255,0.03); border-color:rgba(255,255,255,0.08); }
@@ -1530,6 +1530,9 @@ document.addEventListener('keydown', e => {
         ],
       });
     }
+    // E2 consistent states: skeleton in the logbook sidebar while it fetches so
+    // #sidebar-items never flashes blank before open items render (shared whListSkeleton).
+    if (typeof whListSkeleton === 'function') whListSkeleton(document.getElementById('sidebar-items'), 4);
     await Promise.all([loadLogbook(), loadSchedule()]);
 
     // Plain-Read details toggle (shared — utils.js wireDetailToggle, STREAMLINE S10).
@@ -1550,7 +1553,7 @@ document.addEventListener('keydown', e => {
   .dp-toast.show { transform:translateX(-50%) translateY(0); }
   .dp-toast.error { border-color:rgba(248,113,113,.4); background:rgba(127,29,29,.9); }
   /* Keyboard focus ring for the clickable hour slots (a11y: WCAG 2.4.7) */
-  .dp-slot:focus-visible { outline:2px solid #F7A21B; outline-offset:-2px; background:rgba(247,162,27,0.06); }
+  .dp-slot:focus-visible { outline:2px solid var(--wh-orange); outline-offset:-2px; background:rgba(247,162,27,0.06); }
 </style>
   <script src="offline-banner.js"></script>
   <script defer src="offline-queue.js"></script>

@@ -1,0 +1,23 @@
+/* ============================================================================
+   tokens.css — STREAMLINE E4: the SINGLE source of truth for the WorkHive brand
+   palette. Change a brand color HERE and it updates EVERYWHERE — every page either
+   <link>s this directly in <head>, or <link>s components.css which @imports it.
+   Render-blocking in <head> = no flash of unstyled color (FOUC) on first paint.
+
+   Keep in lock-step with CANONICAL_TOKENS in validate_design_tokens.py — the L1
+   gate FAILS if any token here is missing or re-valued. Pages reference these as
+   var(--wh-orange) etc.; raw brand hex on the glass is ratcheted down by L3.
+   ============================================================================ */
+:root {
+  --wh-orange:       #F7A21B;
+  --wh-orange-dark:  #D88A0E;
+  --wh-orange-light: #FDB94A;
+  --wh-blue:         #29B6D9;
+  --wh-blue-dark:    #1A9ABF;
+  --wh-blue-light:   #5FCCE8;
+  --wh-navy:         #162032;
+  --wh-navy-mid:     #1F2E45;
+  --wh-navy-light:   #2A3D58;
+  --wh-steel:        #7B8794;
+  --wh-cloud:        #F4F6FA;
+}

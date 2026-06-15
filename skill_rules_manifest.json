@@ -490,7 +490,12 @@
         {"file": "assistant.html",    "reason": "Chat interface, not a list view; the streaming reply IS the loading affordance."},
         {"file": "index.html",        "reason": "Marketing landing + operational-home dashboard; tiles render from a fixed set, governed by the Calm Dashboard Contract."},
         {"file": "integrations.html", "reason": "Multi-step CSV import wizard; the .map() renders preview rows of in-progress data, not a fetched list."},
-        {"file": "report-sender.html","reason": "Report-builder form; the .map() renders recipient chips, not a fetched list."}
+        {"file": "report-sender.html","reason": "Report-builder form; the .map() renders recipient chips, not a fetched list."},
+        {"file": "validator-catalog.html",          "reason": "Internal dev/observability dashboard — renders the validator catalog from a local platform_health.json into a dense data table for operators, not a customer-facing product list. Table-tbody surface where the div-based whListSkeleton doesn't fit; governed by dev-tooling conventions, not the user-facing List View Contract (cf. the E1 internal-dashboard exemption)."},
+        {"file": "platform-health.html",            "reason": "Internal dev/observability dashboard — gate/health telemetry from local JSON in a data table for operators, not a customer-facing product list. Same dev-tooling surface class as validator-catalog."},
+        {"file": "agentic-rag-observability.html",  "reason": "Internal AI-ops observability dashboard — RAG retrieval/flywheel telemetry for operators, not a customer-facing product list. Dev-tooling surface, not the List View Contract."},
+        {"file": "founder-console.html",            "reason": "Internal founder/admin console (isPlatformAdmin-gated, noindex, same class as Ian's personal pages per the Phase-4 IA tier-split) — platform-ops surface, not a customer-facing product list."},
+        {"file": "marketplace-admin.html",          "reason": "Platform-staff approval/KYB queue gated behind the marketplace_platform_admins role — internal moderation surface, not a customer-facing product list."}
       ]
     },
     {
@@ -508,7 +513,11 @@
         {"file": "assistant.html",    "reason": "Chat interface, not a list view; reply errors surface inline in the conversation."},
         {"file": "index.html",        "reason": "Marketing landing + operational-home dashboard; governed by the Calm Dashboard Contract."},
         {"file": "integrations.html", "reason": "Multi-step CSV import wizard; import errors surface in the wizard step, not a list."},
-        {"file": "report-sender.html","reason": "Report-builder form; send errors surface on the form, not a list."}
+        {"file": "report-sender.html","reason": "Report-builder form; send errors surface on the form, not a list."},
+        {"file": "validator-catalog.html",          "reason": "Internal dev/observability dashboard — renders the validator catalog from a local platform_health.json into a dense data table for operators, not a customer-facing product list; already logs a load failure to console + shows a 'not found' row. Dev-tooling surface, not the user-facing List View Contract (cf. the E1 internal-dashboard exemption)."},
+        {"file": "platform-health.html",            "reason": "Internal dev/observability dashboard — gate/health telemetry from local JSON in a data table for operators, not a customer-facing product list. Same dev-tooling surface class as validator-catalog."},
+        {"file": "agentic-rag-observability.html",  "reason": "Internal AI-ops observability dashboard — RAG retrieval/flywheel telemetry for operators, not a customer-facing product list. Dev-tooling surface, not the List View Contract."},
+        {"file": "predictive.html",                 "reason": "Retired/delisted page (nav entry removed, its sole product link repointed to Asset Hub 360 which now owns the v_risk_truth risk surface) — not a reachable customer surface, kept on disk only. Its ranking is a <tbody> the div-based whListError doesn't fit, and the page has no showToast to credit honestly."}
       ]
     },
     {
@@ -521,7 +530,11 @@
       "pattern": "whFmtPeso\\s*\\(",
       "triggered_by": "[\"'`][^\"'`]{0,40}\\u20b1",
       "rationale": "28 ad-hoc `'₱' + n` concatenations across pages formatted peso differently (some with separators, some not, some emitting ₱NaN on bad input). E6 added whFmtPeso/whFmtNum/whFmtDate/whFmtDuration to utils.js as the PH-locale source of truth. This rule tracks the migration forward-only: a page that prints ₱ in a string literal should reference whFmtPeso(). Baseline conformance is low (new formatters, 2026-06-14) — it ratchets up as pages migrate, exactly like the E4 raw-hex token migration.",
-      "severity": "medium"
+      "severity": "medium",
+      "excluded_files": [
+        {"file": "engineering-design.html", "reason": "The only ₱ is the static input-unit label '₱/kWh' (electricity-tariff suffix on a number field) — a constant unit, not a runtime currency value. whFmtPeso would be the wrong tool here."},
+        {"file": "index.html", "reason": "Marketing landing + operational-home dashboard; the only ₱ are fixed prose constants (the '₱800K–₱2.4M' knowledge-loss copy), not dynamic peso values. Governed by the Calm Dashboard Contract."}
+      ]
     },
     {
       "id": "frontend_detail_toggle_uses_shared_helper",

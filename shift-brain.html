@@ -21,9 +21,9 @@
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
-      --orange-wh: #F7A21B;
-      --blue-wh:   #29B6D9;
-      --navy-wh:   #162032;
+      --orange-wh: var(--wh-orange);
+      --blue-wh:   var(--wh-blue);
+      --navy-wh:   var(--wh-navy);
       --muted:     rgba(255,255,255,0.55);
       --border:    rgba(255,255,255,0.10);
       --card-bg:   linear-gradient(145deg, rgba(42,61,88,0.5) 0%, rgba(31,46,69,0.7) 100%);
@@ -31,7 +31,7 @@
     body {
       font-family: 'Poppins', sans-serif;
       background-color: var(--navy-wh);
-      color: #F4F6FA;
+      color: var(--wh-cloud);
       min-height: 100vh;
       padding-bottom: calc(80px + env(safe-area-inset-bottom));
       background-image:
@@ -40,7 +40,7 @@
     }
     #toast {
       position: fixed; top: 1rem; left: 50%; transform: translateX(-50%);
-      background: #1F2E45; border: 1px solid var(--border);
+      background: var(--wh-navy-mid); border: 1px solid var(--border);
       border-radius: 0.75rem; padding: 0.65rem 1.1rem;
       font-size: 0.82rem; font-weight: 600; z-index: 9999;
       box-shadow: 0 8px 32px rgba(0,0,0,0.5);
@@ -69,7 +69,7 @@
     #hive-gate p  { color: var(--muted); font-size: 0.85rem; max-width: 360px; }
     #hive-gate a {
       margin-top: 1.25rem; padding: 0.65rem 1.25rem;
-      background: linear-gradient(135deg, var(--orange-wh), #FDB94A);
+      background: linear-gradient(135deg, var(--orange-wh), var(--wh-orange-light));
       color: var(--navy-wh); border-radius: 0.6rem; font-weight: 700;
       text-decoration: none; font-size: 0.85rem;
     }
@@ -125,7 +125,7 @@
     }
     .section-count {
       background: rgba(255,255,255,0.06); border-radius: 999px;
-      padding: 1px 8px; font-size: 0.66rem; color: #f4f6fa; font-weight: 700;
+      padding: 1px 8px; font-size: 0.66rem; color: var(--wh-cloud); font-weight: 700;
       letter-spacing: 0.02em; text-transform: none;
     }
 
@@ -147,12 +147,12 @@
       display: inline-flex; align-items: center; justify-content: center;
     }
     .btn-primary {
-      background: linear-gradient(135deg, var(--orange-wh), #FDB94A);
+      background: linear-gradient(135deg, var(--orange-wh), var(--wh-orange-light));
       color: var(--navy-wh); border: none;
     }
     .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
     .btn-ghost {
-      background: rgba(255,255,255,0.06); border: 1px solid var(--border); color: #F4F6FA;
+      background: rgba(255,255,255,0.06); border: 1px solid var(--border); color: var(--wh-cloud);
     }
     /* Plain-Read summary (Layer D — UX Contract) */
     .verdict { display:flex; align-items:center; gap:12px; padding:14px 16px; margin-bottom:14px; border-radius:12px; border:1px solid; }
@@ -162,7 +162,7 @@
     .verdict.healthy { background:rgba(74,222,128,0.07);  border-color:rgba(74,222,128,0.3); }
     .verdict.healthy .verdict-icon { color:#4ade80; }
     .verdict.watch   { background:rgba(247,162,27,0.07);  border-color:rgba(247,162,27,0.3); }
-    .verdict.watch   .verdict-icon { color:#F7A21B; }
+    .verdict.watch   .verdict-icon { color:var(--wh-orange); }
     .verdict.attn    { background:rgba(248,113,113,0.07); border-color:rgba(248,113,113,0.3); }
     .verdict.attn    .verdict-icon { color:#f87171; }
     .verdict.empty   { background:rgba(255,255,255,0.03); border-color:rgba(255,255,255,0.08); }
@@ -384,6 +384,10 @@
     async function loadPlan() {
       const e = escHtml;
       const today = new Date().toISOString().slice(0, 10);
+      // E2 consistent states: skeleton in the carry-forward list while the plan
+      // re-fetches (e.g. on a shift-window switch, when the section is already
+      // visible) so it never flashes stale rows before renderPlan repaints.
+      if (typeof whListSkeleton === 'function') whListSkeleton(document.getElementById('carry-list'), 3);
 
       // Look for the most recent plan for this hive + window. Prefer today's; else fall back
       // to the latest within 24h to handle overnight windows.

@@ -15,12 +15,13 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.plot.ly/plotly-basic-2.26.0.min.js"></script>
+  <link rel="stylesheet" href="tokens.css">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       font-family: 'Poppins', sans-serif;
       background: #0f1923;
-      color: #F4F6FA;
+      color: var(--wh-cloud);
       min-height: 100vh;
       padding-bottom: calc(80px + env(safe-area-inset-bottom));
     }
@@ -29,7 +30,7 @@
     .aurora { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; overflow: hidden; }
     .aurora-blob { position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.06; }
     .aurora-blob-1 { width: 500px; height: 500px; background: #a78bfa; top: -100px; left: -100px; }
-    .aurora-blob-2 { width: 400px; height: 400px; background: #29B6D9; bottom: 0; right: -100px; }
+    .aurora-blob-2 { width: 400px; height: 400px; background: var(--wh-blue); bottom: 0; right: -100px; }
 
     /* ── Layout ── */
     .page { position: relative; z-index: 1; max-width: 680px; margin: 0 auto; padding: 1.5rem 1rem; }
@@ -141,7 +142,7 @@
     .data-table .machine-name { font-weight: 600; color: #fff; }
     .data-table .num { text-align: right; font-weight: 700; }
     .data-table .alert { color: #f87171; }
-    .data-table .warn  { color: #F7A21B; }
+    .data-table .warn  { color: var(--wh-orange); }
     .data-table .good  { color: #4ade80; }
 
     /* ── Top-N + Show All toggle ─────────────────────────────────────────
@@ -252,7 +253,7 @@
       background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08);
       color:rgba(255,255,255,0.6); transition:all 0.15s; min-height:44px;
     }
-    .role-btn.active { background:rgba(41,182,217,0.12); border-color:rgba(41,182,217,0.3); color:#29B6D9; }
+    .role-btn.active { background:rgba(41,182,217,0.12); border-color:rgba(41,182,217,0.3); color:var(--wh-blue); }
     .role-btn .role-icon { margin-right:0.25rem; }
 
     /* ── Role Quick View card ── */
@@ -261,7 +262,7 @@
       background:linear-gradient(145deg,rgba(41,182,217,0.08),rgba(31,46,69,0.7));
       border:1px solid rgba(41,182,217,0.2);
     }
-    .role-card-title { font-size:0.68rem; font-weight:700; color:#29B6D9; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:0.625rem; }
+    .role-card-title { font-size:0.68rem; font-weight:700; color:var(--wh-blue); text-transform:uppercase; letter-spacing:0.08em; margin-bottom:0.625rem; }
     .role-row { display:flex; justify-content:space-between; align-items:center; padding:0.4rem 0; border-bottom:1px solid rgba(255,255,255,0.05); font-size:0.75rem; }
     .role-row:last-child { border-bottom:none; }
     .role-row .label { color:rgba(255,255,255,0.45); }
@@ -285,10 +286,10 @@
     .pm-asset-select {
       font-family:'Poppins',sans-serif; font-size:1rem; font-weight:500;
       background:rgba(22,32,50,0.7); border:1px solid rgba(247,162,27,0.25);
-      border-radius:0.5rem; color:#F7A21B; padding:0.3rem 0.6rem;
+      border-radius:0.5rem; color:var(--wh-orange); padding:0.3rem 0.6rem;
       cursor:pointer; outline:none; width:100%; margin:0.25rem 0;
     }
-    .pm-asset-select option { background:#1a2e44; color:#F4F6FA; }
+    .pm-asset-select option { background:#1a2e44; color:var(--wh-cloud); }
 
     /* ── Info banner ── */
     .info-banner { display: flex; align-items: flex-start; gap: 0.75rem; padding: 0.875rem 1rem; border-radius: 0.75rem; background: rgba(167,139,250,0.07); border: 1px solid rgba(167,139,250,0.15); margin-bottom: 1rem; font-size: 0.75rem; color: rgba(255,255,255,0.55); }
@@ -316,7 +317,7 @@
     .verdict.healthy { background:rgba(74,222,128,0.07);  border-color:rgba(74,222,128,0.3); }
     .verdict.healthy .verdict-icon { color:#4ade80; }
     .verdict.watch   { background:rgba(247,162,27,0.07);  border-color:rgba(247,162,27,0.3); }
-    .verdict.watch   .verdict-icon { color:#F7A21B; }
+    .verdict.watch   .verdict-icon { color:var(--wh-orange); }
     .verdict.attn    { background:rgba(248,113,113,0.07); border-color:rgba(248,113,113,0.3); }
     .verdict.attn    .verdict-icon { color:#f87171; }
     .verdict.empty   { background:rgba(255,255,255,0.03); border-color:rgba(255,255,255,0.08); }
@@ -324,18 +325,18 @@
     .simple-row { display:grid; grid-template-columns:repeat(auto-fit, minmax(170px, 1fr)); gap:12px; margin-bottom:14px; }
     .simple-card { background:rgba(22,32,50,0.7); border:1px solid rgba(255,255,255,0.07); border-radius:12px; padding:14px 16px; }
     .simple-card .sc-label { font-size:0.65rem; font-weight:700; color:rgba(255,255,255,0.6); text-transform:uppercase; letter-spacing:0.06em; }
-    .simple-card .sc-hero  { font-size:1.5rem; font-weight:800; line-height:1.15; margin:4px 0 2px; color:#F4F6FA; }
+    .simple-card .sc-hero  { font-size:1.5rem; font-weight:800; line-height:1.15; margin:4px 0 2px; color:var(--wh-cloud); }
     .simple-card .sc-sub   { font-size:0.7rem; color:rgba(255,255,255,0.55); line-height:1.4; }
     .simple-card .sc-tag   { display:inline-block; font-size:0.58rem; font-weight:800; letter-spacing:0.06em; text-transform:uppercase; padding:0.18rem 0.5rem; border-radius:999px; margin-top:7px; }
     .simple-card.tag-green .sc-tag { background:rgba(74,222,128,0.16);  color:#4ade80; }
-    .simple-card.tag-amber .sc-tag { background:rgba(247,162,27,0.16);  color:#F7A21B; }
+    .simple-card.tag-amber .sc-tag { background:rgba(247,162,27,0.16);  color:var(--wh-orange); }
     .simple-card.tag-red   .sc-tag { background:rgba(248,113,113,0.16); color:#f87171; }
     .simple-card.tag-grey  .sc-tag { background:rgba(255,255,255,0.06); color:rgba(255,255,255,0.5); }
     .action-card { background:rgba(41,182,217,0.06); border:1px solid rgba(41,182,217,0.25); border-radius:12px; padding:14px 16px; margin-bottom:14px; }
-    .action-card .ac-label { font-size:0.65rem; font-weight:800; color:#29B6D9; text-transform:uppercase; letter-spacing:0.07em; }
+    .action-card .ac-label { font-size:0.65rem; font-weight:800; color:var(--wh-blue); text-transform:uppercase; letter-spacing:0.07em; }
     .action-card .ac-text { font-size:0.82rem; line-height:1.5; margin-top:6px; color:rgba(255,255,255,0.85); }
     .details-toggle { display:inline-flex; align-items:center; gap:6px; background:transparent; border:1px solid rgba(255,255,255,0.07); color:rgba(255,255,255,0.6); padding:8px 14px; border-radius:8px; font-family:inherit; font-size:0.7rem; font-weight:600; cursor:pointer; min-height:44px; margin-bottom:14px; }
-    .details-toggle:hover { color:#F4F6FA; border-color:rgba(255,255,255,0.18); }
+    .details-toggle:hover { color:var(--wh-cloud); border-color:rgba(255,255,255,0.18); }
     #an-summary-details { display:none; padding:14px 16px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:12px; font-size:0.78rem; line-height:1.5; color:rgba(255,255,255,0.7); margin-bottom:14px; }
     #an-summary-details.open { display:block; }
   </style>
@@ -951,7 +952,7 @@
   // ── Skeleton loading cards ─────────────────────────────────────────────────
   function showSkeleton() {
     document.getElementById('results-panel')/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = `
-      <div class="card" style="min-height:260px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:2.5rem;">
+      <div class="card skeleton" style="min-height:260px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:2.5rem;">
         <div class="spinner" style="width:40px;height:40px;border-width:3px;border-color:rgba(167,139,250,0.15);border-top-color:#a78bfa;margin-bottom:1.25rem;"></div>
         <div style="color:#a78bfa;font-size:0.7rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;margin-bottom:0.6rem;">WorkHive Analytics AI</div>
         <div id="loading-status-msg" style="font-size:0.85rem;font-weight:600;color:#fff;min-height:1.4rem;transition:opacity 0.4s;margin-bottom:0.4rem;">Loading...</div>

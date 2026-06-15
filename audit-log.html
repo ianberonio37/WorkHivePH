@@ -14,13 +14,14 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="utils.js"></script>
+  <link rel="stylesheet" href="tokens.css">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
-      --bg: #0f1923; --surface: #162032; --card: #1d2e44;
-      --gold: #F7A21B; --blue: #29B6D9; --green: #4ade80;
+      --bg: #0f1923; --surface: var(--wh-navy); --card: #1d2e44;
+      --gold: var(--wh-orange); --blue: var(--wh-blue); --green: #4ade80;
       --red: #f87171; --amber: #fb923c; --yellow: #facc15; --purple: #a78bfa;
-      --text: #F4F6FA; --muted: rgba(255,255,255,0.6);
+      --text: var(--wh-cloud); --muted: rgba(255,255,255,0.6);
       --border: rgba(255,255,255,0.07);
     }
     body { font-family: system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding-bottom: 90px; }
@@ -361,6 +362,10 @@
   // ── Data load ──────────────────────────────────────────────────────────────
   async function loadEntries() {
     const range = RANGES.find(r => r.id === _activeRange) || RANGES[1];
+    const feedEl = document.getElementById('feed');
+    // E2 consistent states: shimmer skeleton while the audit feed fetches so the
+    // panel never flashes blank before rows arrive (shared whListSkeleton).
+    if (typeof whListSkeleton === 'function') whListSkeleton(feedEl, 5);
     let q = db.from('hive_audit_log')
       .select('id, actor, action, target_type, target_id, target_name, meta, created_at')
       .eq('hive_id', HIVE_ID)
@@ -370,10 +375,18 @@
       const since = new Date(Date.now() - range.hours * 3600 * 1000).toISOString();
       q = q.gte('created_at', since);
     }
-    const { data, error } = await q;
+    let data, error;
+    try { ({ data, error } = await q); } catch (err) { error = err; }
     if (error) {
-      document.getElementById('feed').innerHTML =
-        '<div class="loading" style="color:var(--red);">Failed to load: ' + escHtml(error.message) + '</div>';
+      // E2 consistent states: inline error + Retry (shared whListError) plus the
+      // platform toast, never a blank panel or a stuck skeleton.
+      if (typeof whListError === 'function') {
+        whListError(feedEl, "Couldn’t load the audit log. Check your connection and try again.", () => loadEntries());
+      } else {
+        feedEl.innerHTML =
+          '<div class="loading" style="color:var(--red);">Failed to load: ' + escHtml(error.message || error) + '</div>';
+      }
+      if (typeof showToast === 'function') showToast('Audit log failed to load — tap Retry.', 'warn');
       return;
     }
     _entries = data || [];

@@ -215,6 +215,31 @@ function whListError(el, message, onRetry) {
     if (btn) btn.addEventListener('click', onRetry);
   }
 }
+// Self-contained styles (STREAMLINE E2 rollout): inject the .wh-skeleton /
+// .wh-list-error CSS once so whListSkeleton()/whListError() render correctly on
+// ANY page that loads utils.js — not just the 11 that <link> components.css.
+// The rules are theme-agnostic (white-alpha on the dark app surface, no page
+// design tokens), so they're safe to inject globally. Idempotent (id-guarded);
+// the components.css pages just get an identical, harmless duplicate rule set.
+if (typeof document !== 'undefined' && !document.getElementById('wh-list-states-css')) {
+  var whListStatesCss = document.createElement('style');
+  whListStatesCss.id = 'wh-list-states-css';
+  whListStatesCss.textContent =
+    '.wh-skeleton{display:flex;flex-direction:column;gap:8px;padding:4px 0}' +
+    '.wh-skeleton-row{height:44px;border-radius:10px;background:linear-gradient(100deg,rgba(255,255,255,0.04) 30%,rgba(255,255,255,0.09) 50%,rgba(255,255,255,0.04) 70%);background-size:200% 100%;animation:wh-shimmer 1.3s ease-in-out infinite}' +
+    '@keyframes wh-shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}' +
+    '@media (prefers-reduced-motion:reduce){.wh-skeleton-row{animation:none}}' +
+    '.wh-list-error{text-align:center;padding:1.4rem 1rem;font-size:0.82rem;color:rgba(255,255,255,0.72);line-height:1.5}' +
+    '.wh-list-error .wh-list-error-icon{font-size:1.4rem}' +
+    '.wh-list-error button{margin-top:0.6rem;min-height:44px;padding:0 16px;border-radius:8px;border:1px solid rgba(255,255,255,0.18);background:transparent;color:#F4F6FA;font-family:inherit;font-size:0.78rem;font-weight:600;cursor:pointer}' +
+    '.wh-list-error button:hover{border-color:rgba(255,255,255,0.32)}';
+  (document.head || document.documentElement).appendChild(whListStatesCss);
+}
+
+// STREAMLINE E4: the brand palette is NOT injected from JS — it lives in
+// tokens.css, which every page <link>s in <head> (directly, or via components.css
+// which @imports it). A static render-blocking <link> can't FOUC the way a late
+// JS injection would on a body-loaded utils.js, and it keeps ONE source of truth.
 
 // ─────────────────────────────────────────────
 // whFmt* — shared number / date / unit / ₱ formatters (STREAMLINE E6)

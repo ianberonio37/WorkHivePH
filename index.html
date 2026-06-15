@@ -302,6 +302,7 @@
       },
     };
   </script>
+  <link rel="stylesheet" href="tokens.css">
   <style>
     * { font-family: 'Poppins', sans-serif; }
 
@@ -353,8 +354,8 @@
 
     /* ---- buttons ---- */
     .btn-primary {
-      background: linear-gradient(135deg, #F7A21B 0%, #D88A0E 100%);
-      color: #162032;
+      background: linear-gradient(135deg, var(--wh-orange) 0%, var(--wh-orange-dark) 100%);
+      color: var(--wh-navy);
       font-weight: 700;
       padding: 14px 36px;
       border-radius: 10px;
@@ -368,29 +369,29 @@
       box-shadow: 0 8px 28px -2px rgba(247,162,27,0.55);
     }
     .btn-primary:active { transform: translateY(0) scale(0.98); }
-    .btn-primary:focus-visible { outline: 3px solid #F7A21B; outline-offset: 3px; }
+    .btn-primary:focus-visible { outline: 3px solid var(--wh-orange); outline-offset: 3px; }
 
     .btn-secondary {
       background: transparent;
-      color: #29B6D9;
+      color: var(--wh-blue);
       font-weight: 600;
       padding: 13px 35px;
       border-radius: 10px;
-      border: 2px solid #29B6D9;
+      border: 2px solid var(--wh-blue);
       display: inline-block;
       letter-spacing: 0.01em;
       transition: transform 0.18s ease-out, background 0.18s ease, color 0.18s ease;
     }
     .btn-secondary:hover {
-      background: #29B6D9;
-      color: #162032;
+      background: var(--wh-blue);
+      color: var(--wh-navy);
       transform: translateY(-2px) scale(1.02);
     }
     .btn-secondary:active { transform: translateY(0) scale(0.98); }
-    .btn-secondary:focus-visible { outline: 3px solid #29B6D9; outline-offset: 3px; }
+    .btn-secondary:focus-visible { outline: 3px solid var(--wh-blue); outline-offset: 3px; }
 
     .btn-ghost {
-      color: #F4F6FA;
+      color: var(--wh-cloud);
       font-weight: 500;
       padding: 13px 28px;
       border-radius: 10px;
@@ -417,15 +418,15 @@
       left: 0;
       width: 0;
       height: 2px;
-      background: #F7A21B;
+      background: var(--wh-orange);
       transition: width 0.25s ease;
     }
-    .nav-link:hover { color: #F4F6FA; }
+    .nav-link:hover { color: var(--wh-cloud); }
     .nav-link:hover::after { width: 100%; }
 
     /* ---- stat number gradient ---- */
-    .stat-orange { background: linear-gradient(135deg, #F7A21B, #FDB94A); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
-    .stat-blue   { background: linear-gradient(135deg, #29B6D9, #5FCCE8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .stat-orange { background: linear-gradient(135deg, var(--wh-orange), var(--wh-orange-light)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .stat-blue   { background: linear-gradient(135deg, var(--wh-blue), var(--wh-blue-light)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
 
     /* ---- section divider hex ---- */
     .hex-divider {
@@ -436,7 +437,7 @@
     }
     .hex-divider span {
       width: 10px; height: 10px;
-      background: #F7A21B;
+      background: var(--wh-orange);
       clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
     }
 
@@ -447,7 +448,7 @@
       gap: 6px;
       background: rgba(247,162,27,0.12);
       border: 1px solid rgba(247,162,27,0.3);
-      color: #F7A21B;
+      color: var(--wh-orange);
       font-size: 0.75rem;
       font-weight: 600;
       padding: 5px 14px;
@@ -461,7 +462,7 @@
       display: inline-block;
       background: rgba(41,182,217,0.12);
       border: 1px solid rgba(41,182,217,0.25);
-      color: #5FCCE8;
+      color: var(--wh-blue-light);
       font-size: 0.7rem;
       font-weight: 600;
       padding: 3px 10px;
@@ -604,7 +605,7 @@
       position: fixed; top: 0; left: 0; right: 0; height: 3px;
       z-index: 9999; pointer-events: none;
       transform-origin: 0 0; transform: scaleX(0); will-change: transform;
-      background: linear-gradient(90deg, #F7A21B, #FDB94A 35%, #29B6D9 70%, #5FCCE8);
+      background: linear-gradient(90deg, var(--wh-orange), var(--wh-orange-light) 35%, var(--wh-blue) 70%, var(--wh-blue-light));
       background-size: 200% 100%;
       animation: pgbar-shine 2.5s linear infinite;
     }
@@ -676,7 +677,7 @@
       color: rgba(41,182,217,0.7); font-weight: 600; font-size: 1rem;
       transition: color .2s ease, gap .2s ease;
     }
-    .cta-text-link:hover { color: #29B6D9; gap: 10px; }
+    .cta-text-link:hover { color: var(--wh-blue); gap: 10px; }
 
     /* ── Before/after rows slide-in ── */
     .before-after-row {
@@ -692,7 +693,7 @@
       gap: 6px;
       background: rgba(247,162,27,0.1);
       border: 1px solid rgba(247,162,27,0.35);
-      color: #F7A21B;
+      color: var(--wh-orange);
       font-size: 0.8rem;
       font-weight: 700;
       padding: 6px 14px;
@@ -709,8 +710,8 @@
     #pwa-install-btn:active { transform: scale(0.96); }
 
     /* ── Nav active link ── */
-    .nav-link.active { color: #F7A21B !important; }
-    .nav-link.active::after { width: 100% !important; background: #F7A21B; }
+    .nav-link.active { color: var(--wh-orange) !important; }
+    .nav-link.active::after { width: 100% !important; background: var(--wh-orange); }
 
     /* ── Hero badge pulse ── */
     @keyframes badge-pulse { 0%,100%{opacity:.75} 50%{opacity:1} }
@@ -829,7 +830,7 @@
       padding: 18px 22px;
       font-weight: 600;
       font-size: 1rem;
-      color: #F4F6FA;
+      color: var(--wh-cloud);
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -840,7 +841,7 @@
       content: '+';
       font-size: 1.5rem;
       font-weight: 300;
-      color: #F7A21B;
+      color: var(--wh-orange);
       flex-shrink: 0;
     }
     .faq-item[open] summary::after { content: '\2212'; }
@@ -1932,7 +1933,7 @@
       letter-spacing: 0.05em;
       text-transform: uppercase;
       background: rgba(247,162,27,0.18);
-      color: #F7A21B;
+      color: var(--wh-orange);
       border: 1px solid rgba(247,162,27,0.35);
       margin-bottom: 14px;
     }
@@ -1940,7 +1941,7 @@
       font-size: 1.05rem;
       font-weight: 700;
       line-height: 1.3;
-      color: #F4F6FA;
+      color: var(--wh-cloud);
       margin-bottom: 10px;
     }
     .learn-teaser-meta {

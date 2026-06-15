@@ -14,13 +14,14 @@
   <link rel="manifest" href="manifest.json" />
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="utils.js"></script>
+  <link rel="stylesheet" href="tokens.css">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
-      --bg: #0f1923; --surface: #162032; --card: #1d2e44;
-      --gold: #F7A21B; --blue: #29B6D9; --green: #4ade80;
+      --bg: #0f1923; --surface: var(--wh-navy); --card: #1d2e44;
+      --gold: var(--wh-orange); --blue: var(--wh-blue); --green: #4ade80;
       --red: #f87171; --amber: #fb923c; --yellow: #facc15;
-      --text: #F4F6FA; --muted: rgba(255,255,255,0.6);
+      --text: var(--wh-cloud); --muted: rgba(255,255,255,0.6);
       --border: rgba(255,255,255,0.07);
     }
     body { font-family: 'Poppins', system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding-bottom: 90px; }
@@ -171,14 +172,29 @@
 
     async function renderAll() {
       const host = document.getElementById('content');
-      const [cfgs, syncs, topics, audit, retention, sso] = await Promise.all([
-        loadIntegrationConfigs(),
-        loadRecentSync(),
-        loadSensorTopics(),
-        loadGatewayAudit(),
-        loadRetentionConfig(),
-        loadSsoConfig(),
-      ]);
+      // E2 consistent states: shimmer skeleton while the integration data fetches so
+      // #content never flashes blank before the cards render (shared whListSkeleton).
+      if (typeof whListSkeleton === 'function') whListSkeleton(host, 4);
+      let cfgs, syncs, topics, audit, retention, sso;
+      try {
+        [cfgs, syncs, topics, audit, retention, sso] = await Promise.all([
+          loadIntegrationConfigs(),
+          loadRecentSync(),
+          loadSensorTopics(),
+          loadGatewayAudit(),
+          loadRetentionConfig(),
+          loadSsoConfig(),
+        ]);
+      } catch (err) {
+        console.error('plant-connections load failed:', err);
+        // E2 consistent states: inline error + Retry (shared whListError) plus the
+        // platform toast, never a blank panel or a stuck skeleton.
+        if (typeof whListError === 'function') {
+          whListError(host, "Couldn’t load your plant connections. Check your connection and try again.", () => renderAll());
+        }
+        if (typeof showToast === 'function') showToast('Plant connections failed to load — tap Retry.', 'warn');
+        return;
+      }
       // Simple-by-default 2026-05-13: 4 plain cards + verdict + recommendation
       // up top; original 6 engineering panels collapsed behind "Show details".
       const state = { cfgs, syncs, topics, audit, retention, sso };

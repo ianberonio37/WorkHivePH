@@ -36,11 +36,12 @@
       },
     };
   </script>
+  <link rel="stylesheet" href="tokens.css">
   <style>
     * { font-family: 'Poppins', sans-serif; }
 
     body {
-      background-color: #162032;
+      background-color: var(--wh-navy);
       min-height: 100vh;
     }
 
@@ -59,9 +60,9 @@
       opacity: 0.18;
       will-change: transform;
     }
-    .beam-1 { width: 600px; height: 300px; background: #F7A21B; top: -80px; left: -100px; animation: drift1 12s ease-in-out infinite; }
-    .beam-2 { width: 500px; height: 250px; background: #29B6D9; top: 20%; right: -80px; animation: drift2 15s ease-in-out infinite; }
-    .beam-3 { width: 400px; height: 200px; background: #F7A21B; bottom: 10%; left: 30%; animation: drift3 10s ease-in-out infinite; }
+    .beam-1 { width: 600px; height: 300px; background: var(--wh-orange); top: -80px; left: -100px; animation: drift1 12s ease-in-out infinite; }
+    .beam-2 { width: 500px; height: 250px; background: var(--wh-blue); top: 20%; right: -80px; animation: drift2 15s ease-in-out infinite; }
+    .beam-3 { width: 400px; height: 200px; background: var(--wh-orange); bottom: 10%; left: 30%; animation: drift3 10s ease-in-out infinite; }
     @keyframes drift1 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(60px,40px)} }
     @keyframes drift2 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(-40px,60px)} }
     @keyframes drift3 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(30px,-30px)} }
@@ -77,8 +78,8 @@
       transition:all 0.25s; background:rgba(255,255,255,0.06);
       border:2px solid rgba(255,255,255,0.15); color:rgba(255,255,255,0.6);
     }
-    .step-dot.active  { background:rgba(247,162,27,0.2); border-color:#F7A21B; color:#F7A21B; }
-    .step-dot.done    { background:rgba(247,162,27,0.15); border-color:rgba(247,162,27,0.5); color:#F7A21B; }
+    .step-dot.active  { background:rgba(247,162,27,0.2); border-color:var(--wh-orange); color:var(--wh-orange); }
+    .step-dot.done    { background:rgba(247,162,27,0.15); border-color:rgba(247,162,27,0.5); color:var(--wh-orange); }
     .step-line        { flex:1; height:2px; background:rgba(255,255,255,0.08); margin:0 4px; }
     .step-line.done   { background:rgba(247,162,27,0.35); }
     .step-label       { font-size:0.7rem; font-weight:600; color:rgba(255,255,255,0.6);
@@ -98,8 +99,8 @@
     .step-nav .btn-next {
       font-family:inherit; font-size:0.875rem; font-weight:700; padding:0.75rem 1.5rem;
       border-radius:0.75rem; cursor:pointer; transition:all 0.2s; flex:1;
-      background:linear-gradient(135deg,#F7A21B,#FDB94A); border:none;
-      color:#162032; min-height:44px;
+      background:linear-gradient(135deg,var(--wh-orange),var(--wh-orange-light)); border:none;
+      color:var(--wh-navy); min-height:44px;
     }
     .step-nav .btn-next:hover { box-shadow:0 4px 16px rgba(247,162,27,0.35); transform:translateY(-1px); }
     .extras-toggle {
@@ -124,7 +125,7 @@
     .consequence-btn:active { transform: scale(0.97); }
     .consequence-btn.selected {
       background: rgba(247,162,27,0.12); border-color: rgba(247,162,27,0.4);
-      color: #F7A21B;
+      color: var(--wh-orange);
     }
     .consequence-btn[data-value="Safety risk"].selected {
       background: rgba(239,68,68,0.12); border-color: rgba(239,68,68,0.4); color: #f87171;
@@ -146,7 +147,7 @@
       color: rgba(255,255,255,0.55); transition: all 0.15s; user-select: none;
     }
     .rc-chip:active  { transform: scale(0.96); }
-    .rc-chip.selected { background: rgba(247,162,27,0.15); border-color: rgba(247,162,27,0.4); color: #F7A21B; }
+    .rc-chip.selected { background: rgba(247,162,27,0.15); border-color: rgba(247,162,27,0.4); color: var(--wh-orange); }
     .rc-chip .chip-count { font-size: 0.6rem; opacity: 0.6; }
 
     .hex-pattern {
@@ -182,8 +183,8 @@
 
     /* Buttons */
     .btn-primary {
-      background: linear-gradient(135deg, #F7A21B, #FDB94A);
-      color: #162032;
+      background: linear-gradient(135deg, var(--wh-orange), var(--wh-orange-light));
+      color: var(--wh-navy);
       font-weight: 700;
       border-radius: 0.75rem;
       padding: 0.75rem 1.5rem;
@@ -310,7 +311,7 @@
     /* Search highlight */
     mark {
       background: rgba(247,162,27,0.3);
-      color: #FDB94A;
+      color: var(--wh-orange-light);
       border-radius: 2px;
       padding: 0 2px;
     }
@@ -328,7 +329,7 @@
     .tab-btn.active {
       background: linear-gradient(135deg, rgba(247,162,27,0.2), rgba(247,162,27,0.05));
       border-color: rgba(247,162,27,0.35);
-      color: #F7A21B;
+      color: var(--wh-orange);
     }
 
     /* Photo preview */
@@ -363,7 +364,7 @@
       outline-offset: 2px;
     }
     .criticality-btn.sel-Critical { background: rgba(239,68,68,0.15); border-color: rgba(239,68,68,0.4); color: #f87171; }
-    .criticality-btn.sel-Major    { background: rgba(247,162,27,0.15); border-color: rgba(247,162,27,0.4); color: #F7A21B; }
+    .criticality-btn.sel-Major    { background: rgba(247,162,27,0.15); border-color: rgba(247,162,27,0.4); color: var(--wh-orange); }
     .criticality-btn.sel-Minor    { background: rgba(34,197,94,0.15);  border-color: rgba(34,197,94,0.4);  color: #4ade80; }
 
     /* Scrollbar */

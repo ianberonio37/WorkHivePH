@@ -17,19 +17,20 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="utils.js"></script>
+  <link rel="stylesheet" href="tokens.css">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       font-family: 'Poppins', sans-serif;
       background: #0f1923;
-      color: #F4F6FA;
+      color: var(--wh-cloud);
       min-height: 100vh;
       padding-bottom: calc(80px + env(safe-area-inset-bottom));
     }
     .aurora { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
     .aurora-blob { position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.06; }
     .aurora-blob-1 { width: 500px; height: 500px; background: #a78bfa; top: -100px; left: -100px; }
-    .aurora-blob-2 { width: 400px; height: 400px; background: #29B6D9; bottom: 0; right: -100px; }
+    .aurora-blob-2 { width: 400px; height: 400px; background: var(--wh-blue); bottom: 0; right: -100px; }
 
     /* ── Page wrapper ── */
     #ar-page { position: relative; z-index: 1; max-width: 880px; margin: 0 auto; padding: 1.25rem 1rem; }

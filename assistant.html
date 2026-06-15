@@ -33,10 +33,11 @@
       },
     };
   </script>
+  <link rel="stylesheet" href="tokens.css">
   <style>
     * { font-family: 'Poppins', sans-serif; }
     body {
-      background-color: #162032;
+      background-color: var(--wh-navy);
       min-height: 100vh;
       background-image:
         radial-gradient(ellipse 80% 50% at 50% -10%, rgba(247,162,27,0.07) 0%, transparent 60%),
@@ -67,8 +68,8 @@
     .wh-input::placeholder { color: rgba(255,255,255,0.3); }
 
     .btn-primary {
-      background: linear-gradient(135deg, #F7A21B, #FDB94A);
-      color: #162032;
+      background: linear-gradient(135deg, var(--wh-orange), var(--wh-orange-light));
+      color: var(--wh-navy);
       font-weight: 700;
       border-radius: 0.75rem;
       padding: 0.875rem 1.5rem;
@@ -140,7 +141,7 @@
 
     /* Send button */
     .send-btn {
-      background: linear-gradient(135deg, #F7A21B, #FDB94A);
+      background: linear-gradient(135deg, var(--wh-orange), var(--wh-orange-light));
       border: none;
       border-radius: 0.75rem;
       width: 44px; height: 44px;
