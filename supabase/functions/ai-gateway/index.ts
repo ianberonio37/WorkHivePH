@@ -31,6 +31,7 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 // contract-allow: router; forwards to specialist orchestrators
 import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { getCorsHeaders } from "../_shared/cors.ts";
+import sourceRegistry from "../_shared/companion_source_registry.json" with { type: "json" };
 import {
   checkAIRateLimit,
   checkUserRateLimit,
@@ -46,6 +47,7 @@ import {
   type MemoryHandle,
 } from "../_shared/memory.ts";
 import { callAI } from "../_shared/ai-chain.ts";
+import { generateEmbedding } from "../_shared/embedding-chain.ts";
 import {
   loadJournalRecall,
   persistJournalEntry,
@@ -193,20 +195,297 @@ const PERSONA_KNOWLEDGE_AGENTS: Set<string> = new Set([
 // not registered. Best-effort + token-capped; a DB miss simply omits the block.
 const OPS_SNAPSHOT_AGENTS: Set<string> = new Set(["voice-journal"]);
 
+// KPI facts for the companion (Grounding/Capability roadmap — Pillar S, Phase S1, 2026-06-14).
+// Reads the SAME canonical computed sources the analytics / asset surfaces read so the
+// companion SERVES real reliability + OEE figures instead of deflecting ("you don't have that
+// on this surface" was a WIRING gap, not honesty — the platform already computes these):
+//   - v_kpi_truth: materialized MTBF/MTTR/downtime per machine (30/90/365d, hourly refresh)
+//   - analytics_snapshots (descriptive phase): per-asset OEE (ISO 22400 partial A×Q)
+// Hive-scoped, best-effort, token-capped. CODE does the aggregation (WAT: deterministic math,
+// never the LLM authors a number). Returns "" if nothing is computed yet (honest fallback).
+// ── CUSTOM engine handlers (Pillar S, Phase 2) ───────────────────────────────────────────────
+// For the few sources whose shape isn't a flat declarative aggregate — nested JSON (OEE), derived
+// ratio (PM compliance %), latest-per-group dedup (projects). Registered in the source registry as
+// engine:{kind:"custom", handler:"<name>"} and dispatched by buildFromRegistry. Everything else
+// (inventory/reliability/skills/risk) is now a pure declarative `engine` spec — register, don't wire.
+async function buildOeeFacts(client: SupabaseClient, hiveId: string): Promise<string> {
+  try {
+    const { data } = await client.from("analytics_snapshots")
+      .select("payload,period_days").eq("hive_id", hiveId)
+      .eq("phase", "descriptive").order("computed_at", { ascending: false }).limit(1);
+    // deno-lint-ignore no-explicit-any
+    const row = (data?.[0] as any);
+    const arr = row?.payload?.oee?.oee_by_asset as Array<{ oee_pct?: number }> | undefined;
+    const oees = (arr ?? []).map((a) => Number(a?.oee_pct)).filter((n) => Number.isFinite(n) && n > 0);
+    if (!oees.length) return "";
+    const avg = oees.reduce((s, x) => s + x, 0) / oees.length;
+    return `OEE (partial — ISO 22400 Availability×Quality, ${row?.period_days ?? 90}d): hive average ~${avg.toFixed(0)}% across ${oees.length} assets (range ${Math.min(...oees).toFixed(0)}–${Math.max(...oees).toFixed(0)}%). Performance dimension excluded until a planned production rate is configured.`;
+  } catch (_) { return ""; }
+}
+
+async function buildPmComplianceFacts(client: SupabaseClient, hiveId: string): Promise<string> {
+  try {
+    const { data } = await client.from("v_pm_compliance_truth")
+      .select("asset_name,tag_id,is_due,days_since_last_completion").eq("hive_id", hiveId);
+    // deno-lint-ignore no-explicit-any
+    const rows = (data ?? []) as Array<any>;
+    if (!rows.length) return "";
+    const due = rows.filter((r) => r.is_due).length;
+    const pct = Math.round(((rows.length - due) / rows.length) * 100);
+    const worst = rows.filter((r) => r.is_due)
+      .sort((a, b) => Number(b.days_since_last_completion ?? 0) - Number(a.days_since_last_completion ?? 0))
+      .slice(0, 3).map((r) => `${r.tag_id || r.asset_name} (${r.days_since_last_completion ?? "?"}d since last)`);
+    return `PM compliance (from v_pm_compliance_truth): ${pct}% up to date (${rows.length - due} of ${rows.length} PM assets), ${due} due now.${worst.length ? ` Longest waiting: ${worst.join("; ")}.` : ""}`;
+  } catch (_) { return ""; }
+}
+
+async function buildProjectFacts(client: SupabaseClient, hiveId: string): Promise<string> {
+  try {
+    const { data } = await client.from("v_project_progress_truth")
+      .select("project_id,project_name,project_code,project_status,pct_complete,has_blocker,log_date")
+      .eq("hive_id", hiveId).order("log_date", { ascending: false });
+    // deno-lint-ignore no-explicit-any
+    const rows = (data ?? []) as Array<any>;
+    if (!rows.length) return "";
+    // deno-lint-ignore no-explicit-any
+    const latest = new Map<string, any>();           // project_id -> latest log
+    for (const r of rows) if (!latest.has(r.project_id)) latest.set(r.project_id, r);
+    const projs = Array.from(latest.values());
+    const blocked = projs.filter((p) => p.has_blocker).length;
+    const list = projs.slice(0, 4).map((p) =>
+      `${p.project_name || p.project_code} — ${p.pct_complete}% complete${p.has_blocker ? " (blocked)" : ""}`);
+    return `Projects (from v_project_progress_truth): ${projs.length} active${blocked ? `, ${blocked} blocked` : ""}: ${list.join("; ")}.`;
+  } catch (_) { return ""; }
+}
+
+// ── THE GATEWAY ENGINE (Pillar S, Phase 1 — "register, don't wire", 2026-06-14) ──────────────
+// One generic fetch+aggregate+render driven by a registry entry's declarative `engine` spec, so a
+// new served source is a JSON entry in companion_source_registry.json (the SAME file the coverage
+// validator + the grader read), NOT a hand-coded buildXFacts. Hive-scoped, best-effort, "" if empty.
+// Aggregation vocabulary: count · count_where{any:[flags]} · avg_of{field} · list_where · top_n_by.
+// deno-lint-ignore-file no-explicit-any
+const REGISTRY_BY_SOURCE: Record<string, any> = Object.fromEntries(
+  (((sourceRegistry as any).sources) || []).map((e: any) => [e.source, e]),
+);
+function _truthy(v: unknown): boolean { return v === true || v === 1 || v === "true"; }
+// {slot} interpolation, with optional rounding {slot:N} -> Number(v).toFixed(N).
+function _fillSlots(tpl: string, src: Record<string, unknown>): string {
+  return tpl.replace(/\{(\w+)(?::(\d+))?\}/g, (_m, k, dec) => {
+    const v = src[k];
+    if (v === null || v === undefined) return "";
+    if (dec !== undefined && Number.isFinite(Number(v))) return Number(v).toFixed(Number(dec));
+    return String(v);
+  }).replace(/\s+/g, " ").trim();
+}
+// CUSTOM handlers for non-flat shapes (registered as engine:{kind:"custom",handler}).
+const HANDLERS: Record<string, (c: SupabaseClient, h: string) => Promise<string>> = {
+  buildOeeFacts, buildPmComplianceFacts, buildProjectFacts,
+};
+async function buildFromRegistry(client: SupabaseClient, hiveId: string, entry: any): Promise<string> {
+  const spec = entry?.engine;
+  if (!spec) return "";
+  if (spec.kind === "custom") { const fn = HANDLERS[spec.handler]; return fn ? await fn(client, hiveId) : ""; }
+  try {
+    let q = client.from(entry.source).select(spec.select).eq("hive_id", hiveId);
+    if (spec.order) q = q.order(spec.order.field, { ascending: spec.order.dir === "asc" });
+    if (spec.limit) q = q.limit(spec.limit);
+    const { data } = await q;
+    const rows = (data ?? []) as Array<Record<string, unknown>>;
+    if (!rows.length) return "";
+    const anyFlag = (r: Record<string, unknown>, flags: string[]) => (flags || []).some((f) => _truthy(r[f]));
+    const slots: Record<string, string> = {};
+    for (const agg of (spec.aggregate || [])) {
+      if (agg.kind === "count") {
+        slots[agg.as] = String(rows.length);
+      } else if (agg.kind === "count_where") {
+        const pred = agg.gte
+          ? (r: Record<string, unknown>) => Number(r[agg.gte[0]]) >= Number(agg.gte[1])
+          : (r: Record<string, unknown>) => anyFlag(r, agg.any);
+        slots[agg.as] = String(rows.filter(pred).length);
+      } else if (agg.kind === "count_distinct") {
+        slots[agg.as] = String(new Set(rows.map((r) => r[agg.field]).filter(Boolean)).size);
+      } else if (agg.kind === "distinct_list") {
+        slots[agg.as] = Array.from(new Set(rows.map((r) => r[agg.field]).filter(Boolean)))
+          .slice(0, agg.limit ?? 6).join(agg.join ?? ", ");
+      } else if (agg.kind === "avg_of") {
+        const ns = rows.map((r) => Number(r[agg.field])).filter((n) => Number.isFinite(n) && n > 0);
+        slots[agg.as] = ns.length ? (ns.reduce((s, x) => s + x, 0) / ns.length).toFixed(agg.decimals ?? 1) : "—";
+      } else if (agg.kind === "list_where") {
+        slots[agg.as] = rows.filter((r) => anyFlag(r, agg.any)).slice(0, agg.limit ?? 5)
+          .map((r) => _fillSlots(agg.item, r)).join(agg.join ?? "; ");
+      } else if (agg.kind === "top_n_by") {
+        const dir = agg.dir === "asc" ? 1 : -1;
+        slots[agg.as] = rows.filter((r) => Number.isFinite(Number(r[agg.field])))
+          .sort((a, b) => dir * (Number(a[agg.field]) - Number(b[agg.field]))).slice(0, agg.n ?? 3)
+          .map((r) => _fillSlots(agg.item, r)).join(agg.join ?? "; ");
+      } else if (agg.kind === "take") {   // first N rows as-fetched (use with spec.order for "most recent N")
+        slots[agg.as] = rows.slice(0, agg.n ?? 3).map((r) => _fillSlots(agg.item, r)).join(agg.join ?? "; ");
+      }
+    }
+    return _fillSlots(spec.render, slots);
+  } catch (_) { return ""; }
+}
+
+// ── PROACTIVITY (Pillar P, 2026-06-14) — the copilot→agent shift ─────────────────────────
+// When the worker OPENS the companion with a greeting or an open-ended "what should I look at?"
+// (no specific question to answer), surface the most urgent operational facts UNPROMPTED, ranked,
+// each with an offer to act. Deterministic: the ranking is CODE and every number is read from the
+// same canonical truth views (WAT — the LLM only phrases, never authors a number). Returns "" when
+// nothing is urgent (proactivity must be SILENT when all is well — no manufactured urgency).
+const _PROACTIVE_OPENERS = [
+  "good morning", "good afternoon", "good evening", "magandang", "kumusta", "kamusta",
+  "what's up", "whats up", "what should i", "where do i start", "where should i start",
+  "anything i should know", "anything urgent", "what's urgent", "whats urgent",
+  "brief me", "briefing", "catch me up", "what needs attention", "what needs my attention",
+  "how are things", "how's the plant", "hows the plant", "status update", "daily brief",
+  "what do i need to", "start my day", "start my shift", "anything for me", "anything new",
+];
+function isProactiveOpener(msg: string): boolean {
+  const m = (msg || "").trim().toLowerCase();
+  if (!m) return true;                                                 // bare "open companion" → brief
+  if (m.length <= 14 && /^(hi|hey|hello|yo|oy|uy|hoy|sup)\b/.test(m)) return true;  // bare greeting
+  return _PROACTIVE_OPENERS.some((k) => m.includes(k));
+}
+async function buildProactiveBriefing(client: SupabaseClient, hiveId: string): Promise<string> {
+  const items: string[] = [];
+  try {
+    const [alertsRes, pmRes, invRes, riskRes, taskRes] = await Promise.all([
+      client.from("v_alert_truth").select("severity").eq("hive_id", hiveId).eq("status", "active"),
+      client.from("v_pm_scope_items_truth").select("*", { count: "exact", head: true }).eq("hive_id", hiveId).eq("is_overdue", true),
+      client.from("v_inventory_items_truth").select("part_name,is_out_of_stock,is_low_stock,is_critical_low").eq("hive_id", hiveId),
+      client.from("v_risk_truth").select("asset_name,risk_level,risk_score,days_until_failure").eq("hive_id", hiveId),
+      client.from("v_project_items_truth").select("title,is_blocked").eq("hive_id", hiveId).eq("is_blocked", true),
+    ]);
+    // 1) active alerts — critical first, else high (the most time-sensitive signal).
+    const sev = ((alertsRes.data ?? []) as Array<{ severity?: string }>).map((a) => String(a.severity || "").toLowerCase());
+    const crit = sev.filter((s) => s === "critical").length;
+    const high = sev.filter((s) => s === "high").length;
+    if (crit) items.push(`${crit} CRITICAL alert${crit > 1 ? "s" : ""} active — offer to pull the details and help log a response.`);
+    else if (high) items.push(`${high} high-severity alert${high > 1 ? "s" : ""} active — offer to review them.`);
+    // 2) overdue PM.
+    const overdue = pmRes.count ?? 0;
+    if (overdue) items.push(`${overdue} PM task${overdue > 1 ? "s" : ""} overdue — offer to help prioritise and schedule them.`);
+    // 3) stock-outs, else low stock.
+    const inv = (invRes.data ?? []) as Array<{ part_name?: string; is_out_of_stock?: boolean; is_low_stock?: boolean; is_critical_low?: boolean }>;
+    const out = inv.filter((p) => p.is_out_of_stock);
+    const low = inv.filter((p) => (p.is_low_stock || p.is_critical_low) && !p.is_out_of_stock);
+    if (out.length) items.push(`${out.length} part${out.length > 1 ? "s" : ""} OUT of stock (${out.slice(0, 2).map((p) => p.part_name).filter(Boolean).join(", ")}) — offer to flag a reorder.`);
+    else if (low.length) items.push(`${low.length} part${low.length > 1 ? "s" : ""} below reorder point — offer to review stock levels.`);
+    // 4) top at-risk asset (ML-scored).
+    const risk = ((riskRes.data ?? []) as Array<{ asset_name?: string; risk_level?: string; risk_score?: number; days_until_failure?: number }>)
+      .filter((r) => ["critical", "high"].includes(String(r.risk_level || "").toLowerCase()))
+      .sort((a, b) => Number(b.risk_score ?? 0) - Number(a.risk_score ?? 0));
+    if (risk.length) {
+      const r = risk[0];
+      items.push(`${r.asset_name} is ${String(r.risk_level).toLowerCase()}-risk (~${Math.round(Number(r.days_until_failure ?? 0))} days to likely failure) — offer to plan a preventive check.`);
+    }
+    // 5) blocked project tasks.
+    const blocked = (taskRes.data ?? []) as Array<{ title?: string }>;
+    if (blocked.length) items.push(`${blocked.length} project task${blocked.length > 1 ? "s" : ""} blocked (${blocked.slice(0, 1).map((t) => t.title).filter(Boolean).join("")}…) — offer to help unblock.`);
+  } catch (_) { return ""; }
+  if (!items.length) return "";
+  const ranked = items.slice(0, 5).map((s, i) => `${i + 1}. ${s}`).join("\n");
+  return [
+    "=== PROACTIVE ATTENTION (the worker opened with no specific question — OPEN your reply by surfacing these UNPROMPTED, most-urgent first, and offer to act on them) ===",
+    ranked,
+    "(These are the live priorities, ranked. Lead with them warmly and briefly; do NOT invent any item not listed here. If a worker asks something specific instead, answer that first then add the top 1–2.)",
+  ].join("\n");
+}
+
+// ── CROSS-MODAL RAG (Pillar K, 2026-06-14) — structured snapshot + UNSTRUCTURED knowledge ──
+// The snapshot answers "what's my MTBF / how many alerts" (structured truth views). Pillar K adds
+// "how do I fix this / what have we seen before" by retrieving from the hive's own SOPs + fault
+// history + PM notes (v_knowledge_truth → fault_knowledge/skill_knowledge/pm_knowledge, embedded).
+// Same vector space as the query (generateEmbedding → the configured embedding chain; locally the
+// self-hosted bge server). Best-effort: if embeddings are down or nothing is relevant, returns ""
+// and the companion answers from its general knowledge as before (RAG is an ENHANCEMENT, never the
+// critical path — mirrors the semantic-search/embedding-chain doctrine). Cited, never invented.
+const _KNOWLEDGE_CUES = [
+  "how do i", "how do you", "how to", "how can i", "how should i", "what's the procedure",
+  "whats the procedure", "procedure for", "procedure to", "steps to", "steps for", "sop",
+  "best way to", "what causes", "why does", "why is", "why did", "troubleshoot", "diagnose",
+  "how do we fix", "how to fix", "how to repair", "what should i do", "recommend", "guidance",
+  "lessons learned", "have we seen", "has this happened", "seen this before", "past failures",
+  "history of", "what do i do about", "deal with", "resolve the", "root cause of",
+];
+function isKnowledgeQuestion(msg: string): boolean {
+  const m = (msg || "").toLowerCase();
+  return _KNOWLEDGE_CUES.some((k) => m.includes(k));
+}
+async function buildKnowledgeContext(client: SupabaseClient, hiveId: string, message: string): Promise<string> {
+  try {
+    let embedding: number[];
+    try {
+      // Pin the SAME model the knowledge corpus is embedded with — locally the self-hosted bge
+      // server (BGE_EMBED_URL). Query + corpus MUST share one vector space or cosine is noise
+      // (embedding-chain doctrine: re-embed a corpus AND flip its pin together). Failover still
+      // applies on outage, but a non-bge answer is logged loudly and simply won't match → "".
+      embedding = await generateEmbedding(message, "bge-local");
+    } catch (_) {
+      return "";   // embedding chain unavailable → degrade silently (no RAG context this turn)
+    }
+    if (!Array.isArray(embedding) || !embedding.length) return "";
+    const { data, error } = await client.rpc("search_all_knowledge", {
+      query_embedding: embedding, match_hive_id: hiveId, match_count: 4,
+    });
+    if (error) return "";
+    const rows = ((data ?? []) as Array<{ source?: string; summary?: string; similarity?: number }>)
+      .filter((r) => r.summary && Number(r.similarity ?? 0) >= 0.25)   // floor out vector noise
+      .slice(0, 4);
+    if (!rows.length) return "";
+    const items = rows.map((r) => `• [${r.source || "kb"}] ${String(r.summary).slice(0, 220)}`).join("\n");
+    return [
+      "=== KNOWLEDGE BASE (retrieved from THIS hive's own SOPs / fault history / PM notes — ground your how-to answer in these and cite them; do NOT invent a procedure that isn't here) ===",
+      items,
+      "(If these don't cover the question, say what the records show and suggest who/where to check — never fabricate a step.)",
+    ].join("\n");
+  } catch (_) {
+    return "";
+  }
+}
+
+// Robust on-demand keyword match (Pillar R, 2026-06-14 — found by the HELD-OUT diverse run).
+// Naive `msg.includes("what failed")` MISSES natural phrasing — "what MACHINES failed recently"
+// has no literal "what failed" substring (intervening word), so the on-demand fetch silently does
+// NOT fire and the companion deflects or fabricates on a question it should SERVE. This is the
+// brittleness behind "passes the eval, fails the real user". Fix: match if the FULL keyword is a
+// substring (unchanged behaviour) OR every CONTENT word of a multi-word keyword (len ≥ 5, minus
+// framing stopwords) appears anywhere in the message — so word order / intervening words no longer
+// break routing, without per-phrase patching.
+const _MATCH_STOP = new Set([
+  "what", "whats", "the", "and", "any", "show", "tell", "give", "about", "recent", "recently",
+  "last", "this", "that", "your", "you", "have", "has", "with", "from", "right", "now", "please",
+  "can", "could", "would", "should", "does", "did", "are", "is", "for", "our", "their",
+]);
+function _msgMatchesKeywords(msg: string, keywords: string[] | undefined): boolean {
+  const m = msg.toLowerCase();
+  return (keywords || []).some((k) => {
+    const kl = k.toLowerCase();
+    if (m.includes(kl)) return true;                                   // exact substring (legacy)
+    const words = kl.split(/[^a-z0-9]+/).filter((w) => w.length >= 5 && !_MATCH_STOP.has(w));
+    return words.length > 0 && words.every((w) => m.includes(w));      // all content words, any order
+  });
+}
+
 // Build the LIVE OPERATIONS SNAPSHOT block (2026-06-13 fabrication fix). Reads the same
 // canonical truth views the rest of the platform reads — v_alert_truth (active alerts),
-// asset_nodes (the registered asset-tag list), v_pm_scope_items_truth (overdue PM) — and
+// asset_nodes (the registered asset-tag list), v_pm_scope_items_truth (overdue PM),
+// v_kpi_truth + analytics_snapshots + inventory/PM/skills/projects/risk (Pillar S, all assembled by
+// the registry-driven Gateway Engine — see buildFromRegistry) — and
 // renders a compact, token-capped grounding block. Uses the service-role admin client
 // (RLS-bypass) but is hive-scoped by the .eq("hive_id") filter on every read, so it can
 // only ever surface THIS hive's data (no cross-hive leak). Never persisted; best-effort
 // (any error or empty result returns "" and the conversation proceeds ungrounded as before).
-async function buildOpsSnapshot(client: SupabaseClient, hiveId: string): Promise<string> {
+async function buildOpsSnapshot(client: SupabaseClient, hiveId: string, message = ""): Promise<string> {
   try {
     const [alertsCountRes, alertsTopRes, assetsRes] = await Promise.all([
       client.from("v_alert_truth").select("alert_id", { count: "exact", head: true })
         .eq("hive_id", hiveId).eq("status", "active"),
       client.from("v_alert_truth").select("machine,severity,title")
         .eq("hive_id", hiveId).eq("status", "active").limit(60),
+      // canonical-allow: the ops snapshot needs the raw registered-asset TAG list straight from
+      // asset_nodes (the source of truth for "which tags exist in this hive"); v_asset_truth is a
+      // derived/scoped view, not the canonical tag registry for the existence check.
       client.from("asset_nodes").select("tag").eq("hive_id", hiveId).not("tag", "is", null),
     ]);
     const topRows = (alertsTopRes.data ?? []) as Array<{ machine?: string; severity?: string; title?: string }>;
@@ -227,12 +506,48 @@ async function buildOpsSnapshot(client: SupabaseClient, hiveId: string): Promise
       overdue = count ?? null;
     } catch (_) { /* view absent in some envs; best-effort */ }
 
+    // Pillar S — serve every worker-relevant computed domain from its canonical truth view, in parallel.
+    // Pillar S — REGISTRY-DRIVEN (Phase 2): every served + always_on entry that carries an `engine`
+    // spec becomes a snapshot fact through the ONE engine (declarative spec OR custom handler).
+    // Register, don't wire — adding a domain is a companion_source_registry.json entry, no code here.
+    // Order follows the registry. The core facts above (alerts/overdue/asset tags) have no engine
+    // spec and stay hand-built.
+    // deno-lint-ignore no-explicit-any
+    const engineEntries = (((sourceRegistry as any).sources) as any[])
+      .filter((e) => e.status === "served" && e.always_on && e.engine);
+    const engineBlocks = await Promise.all(
+      engineEntries.map((e) => buildFromRegistry(client, hiveId, e)),
+    );
+    // Pillar R (on-demand routing): `served_on_demand` entries whose `match` keywords hit the
+    // worker's message get fetched too — the companion reaches the long-tail views (logbook,
+    // asset detail, sensor, FMEA…) WITHOUT bloating every turn. Same engine, capped at 2.
+    const msg = (message || "").toLowerCase();
+    // deno-lint-ignore no-explicit-any
+    const onDemandBlocks = await Promise.all(
+      (((sourceRegistry as any).sources) as any[])
+        .filter((e) => e.status === "served_on_demand" && e.engine &&
+          _msgMatchesKeywords(msg, e.match as string[]))
+        .slice(0, 2)
+        .map((e) => buildFromRegistry(client, hiveId, e)),
+    );
+    // Pillar P (proactivity): when the worker OPENS with a greeting / open-ended question (no
+    // specific ask), prepend a rank-ordered, deterministic ATTENTION briefing so the companion
+    // surfaces the urgent facts unprompted and offers to act. Silent ("") on specific questions
+    // or when nothing is urgent.
+    const proactive = isProactiveOpener(msg) ? await buildProactiveBriefing(client, hiveId) : "";
+    // Pillar K (cross-modal RAG): a how-to/knowledge question pulls the hive's own SOPs/fault
+    // history into the grounding so the companion answers from real records, not invented steps.
+    const knowledge = isKnowledgeQuestion(msg) ? await buildKnowledgeContext(client, hiveId, message) : "";
     const lines = [
       "=== LIVE OPERATIONS SNAPSHOT (verified from this hive's records, right now) ===",
       `Active alerts (the open jobs needing attention): ${activeAlerts}${top.length ? ` — top: ${top.join("; ")}` : ""}.`,
       overdue != null ? `Overdue PM tasks: ${overdue}.` : "",
       tags.length ? `Registered assets (${tags.length}) — these are the ONLY real asset tags in this hive: ${tags.join(", ")}.` : "",
-      "GROUNDING RULE: answer 'open jobs / how many alerts / what's overdue / which assets do I have' from THIS snapshot's real numbers and names. If an exact figure (OEE, MTBF, a per-asset KPI) is NOT in this snapshot, say you don't have that number on this surface — never invent one. If the worker names an asset tag that is not in the list above, tell them it is not one of their registered assets rather than describing its condition.",
+      proactive,
+      knowledge,
+      ...engineBlocks,
+      ...onDemandBlocks,
+      "GROUNDING RULE: every figure above (alerts, overdue PM, registered assets, MTBF/MTTR/OEE, inventory/stock, PM compliance, team/skills, projects, asset risk) is computed from THIS hive's own records — answer questions about them by quoting these real numbers and names directly; that is the correct, grounded answer, NOT a reason to deflect. If a worker asks for a figure that is genuinely NOT shown above (a metric we don't list, or a specific per-item detail not included), say it isn't in this snapshot and point them to the matching page (Analytics, Inventory, PM Scheduler, Skill Matrix, Project Manager, Asset Hub) — never invent a number. If the worker names an asset tag that is not in the registered list, tell them it is not one of their registered assets rather than describing its condition.",
     ].filter(Boolean);
     return lines.join("\n");
   } catch (_) {
@@ -303,6 +618,16 @@ const AGENT_ROUTES: Record<string, { fn: string; description: string }> = {
     fn: "ai-orchestrator",
     description: "Full multi-agent fan-out (failure/PM/inventory/shift/...) over the worker's own hive data",
   },
+  // Reliability Coach (D5 fold, 2026-06-14): hive.html's supervisor coach used to
+  // call ai-orchestrator DIRECTLY (mode:'coach') — the last conversational Tier-3
+  // surface bypassing the one front door. Route it here so it shares persona +
+  // rate-limit + (future) memory. Coach returns STRUCTURED `actions[]`, so it is
+  // ALSO in STRUCTURED_PASSTHROUGH_AGENTS below and forwardExtras pins mode:'coach'
+  // (ai-orchestrator reads top-level `mode`; the gateway doesn't forward it otherwise).
+  "coach": {
+    fn: "ai-orchestrator",
+    description: "Reliability coach — ranked weekly actions (mode:coach) over the hive's truth views",
+  },
   // Step 4 (Companion Unification) — the cross-page voice/text TOOL router. The
   // Companion mic/text invokes this through the ONE front door so it inherits
   // rate-limit + persona + PII for free; the page then applies the returned
@@ -336,7 +661,11 @@ const AGENT_ROUTES: Record<string, { fn: string; description: string }> = {
 // fold through the gateway would lose source chips (capstone RAG-pillar finding
 // 2026-06-07). Adding it makes the gateway citation-preserving; existing direct
 // asset-hub callers are unaffected (additive).
-const STRUCTURED_PASSTHROUGH_AGENTS: Set<string> = new Set(["voice-action", "asset-brain"]);
+// "coach" added 2026-06-14 (D5 fold): ai-orchestrator coach mode returns a
+// STRUCTURED `actions[]` (priority/urgency/machine/why), NOT a conversational
+// `answer` — so it must pass through under `route_result` to survive the
+// gateway's {answer}-only contract, exactly like asset-brain/voice-action.
+const STRUCTURED_PASSTHROUGH_AGENTS: Set<string> = new Set(["voice-action", "asset-brain", "coach"]);
 
 interface GatewayRequest {
   agent:    string;
@@ -703,7 +1032,7 @@ serve(async (req) => {
   // reads via the admin client, hive-scoped, token-capped, best-effort.
   if (authUid && hive_id && OPS_SNAPSHOT_AGENTS.has(agent)) {
     try {
-      const opsBlock = await buildOpsSnapshot(adminClient, hive_id);
+      const opsBlock = await buildOpsSnapshot(adminClient, hive_id, typeof message === "string" ? message : "");
       if (opsBlock) {
         memory_block = memory_block ? `${opsBlock}\n\n${memory_block}` : opsBlock;
         memorySections.ops_snapshot = true;
@@ -730,6 +1059,9 @@ serve(async (req) => {
     if (tag && !hasId) {
       let resolvedId: string | undefined;
       try {
+        // canonical-allow: resolving a spoken asset TAG to its node id is a registry lookup against
+        // asset_nodes (the canonical tag→id source); v_asset_truth is a scoped/derived view, not the
+        // tag registry, so the raw asset_nodes read is correct here.
         const { data: rows } = await adminClient
           .from("asset_nodes")
           .select("id")
@@ -826,6 +1158,13 @@ serve(async (req) => {
   // gateway forwards `message`. Alias it so a historical turn resolves (K6 wire).
   if (agent === "temporal-rag") {
     forwardExtras.question = message;
+  }
+  // Reliability Coach (D5 fold): ai-orchestrator returns the ranked `actions[]`
+  // ONLY when it receives top-level `mode:'coach'`; the gateway doesn't forward
+  // `mode` otherwise. Pin it for the coach agent so the coach route IS coach mode
+  // (question is already read by the orchestrator as body.message — no alias needed).
+  if (agent === "coach") {
+    forwardExtras.mode = "coach";
   }
 
   // W3 structural-echo short-circuit (LOCAL-ONLY, triple-gated). Return EXACTLY the

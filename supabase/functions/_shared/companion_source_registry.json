@@ -1,0 +1,229 @@
+{
+  "_comment": "THE SOURCES GATEWAY (Ian 2026-06-14). Single declarative registry of every platform data source the AI Companion can read. The companion's ops-snapshot fetcher (ai-gateway buildOpsSnapshot) and the fabrication grader's ground_truth() BOTH read this so they never drift; validate_companion_source_coverage.py (Layer 0 ratchet) enforces that EVERY v_*_truth view is triaged here (served, or served:false with a reason). Add a new source = add an entry here. status: served=wired into the always-on snapshot; candidate=worker-relevant, queued for Pillar R on-demand fetch; out_of_scope=not a worker-companion concern.",
+  "version": 2,
+  "created": "2026-06-14",
+  "_engine": "served entries may carry an `engine` spec (declarative fetch+aggregate+render) run by ai-gateway buildFromRegistry() — register, don't wire. Entries with only `helper` still use a hand-coded fn (being migrated to specs). Aggregation kinds: count, count_where{any:[flags]}, avg_of{field}, list_where{any:[flags],item,join,limit}, top_n_by{field,dir,n,item,join}.",
+  "scopes": {
+    "worker": "things a maintenance worker/engineer asks the companion in conversation",
+    "marketplace": "buying/selling surface — separate product, not worker-maintenance chat",
+    "admin": "hive/founder admin, onboarding, cross-hive, integration, meta",
+    "rag": "unstructured knowledge — served via Pillar K (embeddings), not a count/aggregate"
+  },
+  "sources": [
+    { "source": "v_alert_truth",            "domain": "alerts",        "status": "served",    "scope": "worker", "helper": "buildOpsSnapshot",        "always_on": true, "ground_truth_keys": ["active_alerts"], "note": "active-alert count + top alerts" },
+    { "source": "v_pm_scope_items_truth",   "domain": "pm_due",        "status": "served",    "scope": "worker", "helper": "buildOpsSnapshot",        "always_on": true, "ground_truth_keys": ["overdue_pm"] },
+    { "source": "asset_nodes",              "domain": "asset_registry","status": "served",    "scope": "worker", "helper": "buildOpsSnapshot",        "always_on": true, "ground_truth_keys": ["assets"], "note": "raw table (canonical tag list), not a v_*_truth view" },
+    { "source": "analytics_snapshots",      "domain": "oee",           "status": "served",    "scope": "worker", "always_on": true, "ground_truth_keys": ["oee"], "note": "table (descriptive phase payload.oee), not a v_*_truth view",
+      "engine": { "kind": "custom", "handler": "buildOeeFacts" } },
+    { "source": "v_kpi_truth",              "domain": "reliability",   "status": "served",    "scope": "worker", "always_on": true, "ground_truth_keys": ["mtbf_90d","mttr_90d"], "note": "MATERIALIZED VIEW — needs refresh cron",
+      "engine": {
+        "select": "machine,failures_90d,mtbf_90d,mttr_90d",
+        "aggregate": [
+          { "kind": "count", "as": "n" },
+          { "kind": "avg_of", "field": "mtbf_90d", "as": "avg_mtbf" },
+          { "kind": "avg_of", "field": "mttr_90d", "as": "avg_mttr" },
+          { "kind": "top_n_by", "field": "mtbf_90d", "dir": "asc", "n": 3, "item": "{machine} (MTBF {mtbf_90d:1}h, MTTR {mttr_90d:1}h)", "join": "; ", "as": "worst" }
+        ],
+        "render": "Reliability (last 90 days, from v_kpi_truth): hive average MTBF {avg_mtbf} hours, average MTTR {avg_mttr} hours across {n} machines. Most failure-prone: {worst}."
+      } },
+    { "source": "v_inventory_items_truth",  "domain": "inventory",     "status": "served",    "scope": "worker", "always_on": true, "ground_truth_keys": ["inv_total","inv_low","inv_out"],
+      "engine": {
+        "select": "part_name,qty_on_hand,reorder_point,unit,is_low_stock,is_out_of_stock,is_critical_low",
+        "aggregate": [
+          { "kind": "count", "as": "total" },
+          { "kind": "count_where", "any": ["is_low_stock","is_critical_low","is_out_of_stock"], "as": "low" },
+          { "kind": "count_where", "any": ["is_out_of_stock"], "as": "out" },
+          { "kind": "list_where", "any": ["is_low_stock","is_critical_low","is_out_of_stock"], "limit": 5, "item": "{part_name} ({qty_on_hand} {unit} on hand, reorder at {reorder_point})", "join": "; ", "as": "low_list" }
+        ],
+        "render": "Inventory (from v_inventory_items_truth): {total} parts tracked, {low} at or below reorder point, {out} out of stock. Running low: {low_list}."
+      } },
+    { "source": "v_pm_compliance_truth",    "domain": "pm_compliance", "status": "served",    "scope": "worker", "always_on": true, "ground_truth_keys": ["pm_pct","pm_due","pm_total"],
+      "engine": { "kind": "custom", "handler": "buildPmComplianceFacts" } },
+    { "source": "v_worker_skill_truth",     "domain": "skills",        "status": "served",    "scope": "worker", "always_on": true, "ground_truth_keys": ["members","disciplines","seniors"],
+      "engine": {
+        "select": "worker_name,role,discipline,current_level",
+        "aggregate": [
+          { "kind": "count", "as": "members" },
+          { "kind": "count_distinct", "field": "discipline", "as": "ndisc" },
+          { "kind": "distinct_list", "field": "discipline", "limit": 6, "join": ", ", "as": "disc_list" },
+          { "kind": "count_where", "gte": ["current_level", 4], "as": "seniors" }
+        ],
+        "render": "Team (from v_worker_skill_truth): {members} members across {ndisc} disciplines ({disc_list}); {seniors} at skill level 4+."
+      } },
+    { "source": "v_project_progress_truth", "domain": "projects",      "status": "served",    "scope": "worker", "always_on": true, "ground_truth_keys": ["project_pct","project_count"],
+      "engine": { "kind": "custom", "handler": "buildProjectFacts" } },
+    { "source": "v_risk_truth",             "domain": "risk",          "status": "served",    "scope": "worker", "always_on": true, "ground_truth_keys": ["risk_days","risk_count"],
+      "engine": {
+        "select": "asset_name,risk_score,risk_level,days_until_failure",
+        "aggregate": [
+          { "kind": "top_n_by", "field": "risk_score", "dir": "desc", "n": 4, "item": "{asset_name} ({risk_level} risk, ~{days_until_failure:0} days to likely failure)", "join": "; ", "as": "top" }
+        ],
+        "render": "Asset risk (from v_risk_truth, ML-scored): highest-risk assets — {top}."
+      } },
+
+    { "source": "v_asset_truth",            "domain": "asset_detail",  "status": "served_on_demand", "scope": "worker", "ground_truth_keys": ["asset_detail"],
+      "match": ["status of", "asset detail", "tell me about", "condition of", "where is", "located", "manufacturer", "which assets", "asset list", "criticality"],
+      "engine": {
+        "select": "tag,name,criticality,status,location,manufacturer",
+        "aggregate": [
+          { "kind": "count", "as": "n" },
+          { "kind": "take", "n": 6, "item": "{tag} — {name} ({criticality} criticality, {status}, at {location})", "join": "; ", "as": "sample" }
+        ],
+        "render": "Asset registry detail (from v_asset_truth): {n} registered assets. {sample}."
+      } },
+    { "source": "v_asset_state_truth",      "domain": "asset_state",   "status": "served_on_demand", "scope": "worker", "ground_truth_keys": ["asset_state"],
+      "match": ["asset state", "current state", "condition report", "verified state", "latest state", "asset condition"],
+      "engine": {
+        "order": { "field": "verified_at", "dir": "desc" },
+        "select": "asset_tag,event_type,verified_source,verified_at",
+        "limit": 10,
+        "aggregate": [
+          { "kind": "count", "as": "n" },
+          { "kind": "take", "n": 6, "item": "{asset_tag}: {event_type} (verified from {verified_source})", "join": "; ", "as": "states" }
+        ],
+        "render": "Verified asset states (from v_asset_state_truth): {n} on record. {states}."
+      } },
+    { "source": "v_logbook_truth",          "domain": "logbook",       "status": "served_on_demand", "scope": "worker", "ground_truth_keys": ["logbook_recent"],
+      "match": ["what failed", "what broke", "recent failure", "recent repair", "recently fail", "last failure", "last repair", "logbook", "recent breakdown", "what happened", "downtime", "down time", "went down", "tripped", "outage", "fault", "broke down", "stopped working", "machines failed", "breakdowns"],
+      "engine": {
+        "order": { "field": "created_at", "dir": "desc" },
+        "select": "machine,category,root_cause,problem,downtime_hours,created_at",
+        "limit": 8,
+        "aggregate": [
+          { "kind": "take", "n": 4, "item": "{machine} — {category} ({root_cause}, {downtime_hours}h down)", "join": "; ", "as": "recent" }
+        ],
+        "render": "Recent logbook entries (from v_logbook_truth, newest first): {recent}."
+      } },
+    { "source": "v_anomaly_truth",          "domain": "anomaly",       "status": "served_on_demand", "scope": "worker", "ground_truth_keys": ["anomaly"],
+      "match": ["anomaly", "anomalies", "unusual", "abnormal", "detected anything", "outlier", "something wrong"],
+      "engine": {
+        "select": "machine,severity,composite_score,status",
+        "aggregate": [
+          { "kind": "count", "as": "n" },
+          { "kind": "top_n_by", "field": "composite_score", "dir": "desc", "n": 4, "item": "{machine} ({severity}, composite score {composite_score:2})", "join": "; ", "as": "top" }
+        ],
+        "render": "Anomaly detections (from v_anomaly_truth, ML composite scoring): {n} flagged. Highest: {top}."
+      } },
+    { "source": "v_sensor_truth",           "domain": "sensor",        "status": "served_on_demand", "scope": "worker", "ground_truth_keys": ["sensor"],
+      "match": ["sensor", "reading", "vibration", "temperature", "current draw", "telemetry", "live reading"],
+      "engine": {
+        "order": { "field": "recorded_at", "dir": "desc" },
+        "select": "parameter,value,unit,is_anomaly,recorded_at",
+        "limit": 40,
+        "aggregate": [
+          { "kind": "count", "as": "n" },
+          { "kind": "count_where", "any": ["is_anomaly"], "as": "anom" },
+          { "kind": "take", "n": 5, "item": "{parameter} {value:1} {unit}", "join": "; ", "as": "recent" }
+        ],
+        "render": "Recent sensor readings (from v_sensor_truth, newest first): {n} readings, {anom} flagged anomalous. Latest: {recent}."
+      } },
+    { "source": "v_fmea_truth",             "domain": "fmea",          "status": "served_on_demand", "scope": "worker", "ground_truth_keys": ["fmea"],
+      "match": ["fmea", "failure mode", "failure modes", "rpn", "effects analysis", "what can fail", "failure analysis"],
+      "engine": {
+        "select": "asset_tag,failure_mode,severity,occurrence,detection,rpn",
+        "aggregate": [
+          { "kind": "count", "as": "n" },
+          { "kind": "top_n_by", "field": "rpn", "dir": "desc", "n": 4, "item": "{asset_tag}: {failure_mode} (RPN {rpn})", "join": "; ", "as": "top" }
+        ],
+        "render": "FMEA failure modes (from v_fmea_truth): {n} modes analyzed. Highest-risk by RPN: {top}."
+      } },
+    { "source": "v_rcm_truth",              "domain": "rcm",           "status": "served_on_demand", "scope": "worker", "ground_truth_keys": ["rcm"],
+      "match": ["rcm", "reliability centered", "maintenance strategy", "maintenance decision", "rcm decision", "what strategy"],
+      "engine": {
+        "select": "decision,task_text,interval_days",
+        "aggregate": [
+          { "kind": "count", "as": "n" },
+          { "kind": "count_distinct", "field": "decision", "as": "ndec" },
+          { "kind": "distinct_list", "field": "decision", "limit": 6, "join": ", ", "as": "decisions" },
+          { "kind": "take", "n": 3, "item": "{task_text} (every {interval_days}d)", "join": "; ", "as": "tasks" }
+        ],
+        "render": "RCM maintenance strategy (from v_rcm_truth): {n} strategy decisions across {ndec} decision types ({decisions}). Examples: {tasks}."
+      } },
+    { "source": "v_weibull_truth",          "domain": "weibull",       "status": "served_on_demand", "scope": "worker", "ground_truth_keys": ["weibull"],
+      "match": ["weibull", "beta", "shape parameter", "wear-out", "wearout", "failure pattern", "reliability fit"],
+      "engine": {
+        "select": "beta,eta_days,failure_pattern,n_failures",
+        "aggregate": [
+          { "kind": "count", "as": "n" },
+          { "kind": "avg_of", "field": "beta", "decimals": 2, "as": "avg_beta" },
+          { "kind": "distinct_list", "field": "failure_pattern", "limit": 4, "join": ", ", "as": "patterns" }
+        ],
+        "render": "Weibull reliability fits (from v_weibull_truth): {n} assets fitted, average shape parameter β {avg_beta} (patterns: {patterns}). β greater than 1 indicates wear-out."
+      } },
+    { "source": "v_pf_truth",               "domain": "pf_curve",      "status": "served_on_demand", "scope": "worker", "ground_truth_keys": ["pf_curve"],
+      "match": ["p-f", "pf interval", "pf curve", "potential failure", "inspection interval", "detection interval"],
+      "engine": {
+        "select": "parameter,pf_days,recommended_interval_days",
+        "aggregate": [
+          { "kind": "count", "as": "n" },
+          { "kind": "avg_of", "field": "pf_days", "decimals": 0, "as": "avg_pf" },
+          { "kind": "distinct_list", "field": "parameter", "limit": 5, "join": ", ", "as": "params" }
+        ],
+        "render": "P-F intervals (from v_pf_truth): {n} monitored parameters ({params}), average P-F interval {avg_pf} days — inspect more often than this to catch failures developing."
+      } },
+    { "source": "v_knowledge_truth",        "domain": "knowledge",     "status": "candidate", "scope": "rag",    "reason": "SOPs/knowledge — Pillar K cross-modal RAG, not a count" },
+    { "source": "v_knowledge_freshness_truth","domain": "knowledge",   "status": "candidate", "scope": "rag",    "reason": "knowledge freshness — Pillar K" },
+    { "source": "v_kb_freshness_truth",     "domain": "knowledge",     "status": "candidate", "scope": "rag",    "reason": "KB freshness — Pillar K" },
+    { "source": "v_worker_assignment_truth","domain": "assignments",   "status": "served_on_demand", "scope": "worker", "ground_truth_keys": ["assignments"],
+      "match": ["assigned", "assignment", "who is working", "who's working", "workload", "capacity", "who has", "busy", "available worker"],
+      "engine": {
+        "select": "worker_name,role,open_jobs,jobs_30d,capacity_signal",
+        "aggregate": [
+          { "kind": "count", "as": "n" },
+          { "kind": "top_n_by", "field": "open_jobs", "dir": "desc", "n": 5, "item": "{worker_name} ({role}, {open_jobs} open, {jobs_30d} jobs/30d, {capacity_signal})", "join": "; ", "as": "workers" }
+        ],
+        "render": "Team assignments (from v_worker_assignment_truth): {n} workers. Current workload: {workers}."
+      } },
+    { "source": "v_worker_achievements_truth","domain": "gamification","status": "candidate", "scope": "worker", "reason": "achievements — auth_uid-scoped (no hive_id column); the hive-scoped on-demand engine cannot serve it without a per-user fetch path. Deferred until the engine models user scope (Pillar A-adjacent)." },
+    { "source": "v_skill_badges_truth",     "domain": "gamification",  "status": "candidate", "scope": "worker", "reason": "badges — auth_uid-scoped (no hive_id column); same deferral as v_worker_achievements_truth, needs user-scoped fetch the snapshot path does not carry." },
+    { "source": "v_project_truth",          "domain": "projects",      "status": "served_on_demand", "scope": "worker", "ground_truth_keys": ["project_master"],
+      "match": ["project list", "which projects", "project owner", "project budget", "deliverable", "what projects"],
+      "engine": {
+        "select": "name,project_code,status,owner_name,item_count,items_done",
+        "aggregate": [
+          { "kind": "count", "as": "n" },
+          { "kind": "take", "n": 4, "item": "{name} ({status}, {items_done}/{item_count} items done, owner {owner_name})", "join": "; ", "as": "projs" }
+        ],
+        "render": "Project master list (from v_project_truth): {n} projects. {projs}."
+      } },
+    { "source": "v_project_items_truth",    "domain": "projects",      "status": "served_on_demand", "scope": "worker", "ground_truth_keys": ["project_items"],
+      "match": ["task", "tasks", "line item", "wbs", "overdue task", "blocked task", "work breakdown", "milestone"],
+      "engine": {
+        "select": "title,status,is_done,is_overdue,is_blocked,project_name",
+        "aggregate": [
+          { "kind": "count", "as": "n" },
+          { "kind": "count_where", "any": ["is_done"], "as": "done" },
+          { "kind": "count_where", "any": ["is_overdue"], "as": "overdue" },
+          { "kind": "count_where", "any": ["is_blocked"], "as": "blocked" },
+          { "kind": "list_where", "any": ["is_overdue", "is_blocked"], "limit": 5, "item": "{title} ({project_name}, {status})", "join": "; ", "as": "attention" }
+        ],
+        "render": "Project tasks (from v_project_items_truth): {n} line items — {done} done, {overdue} overdue, {blocked} blocked. Needs attention: {attention}."
+      } },
+    { "source": "v_amc_truth",              "domain": "contracts",     "status": "served_on_demand", "scope": "worker", "ground_truth_keys": ["amc"],
+      "match": ["amc", "contract", "warranty", "annual maintenance", "maintenance contract", "service agreement", "sla"],
+      "engine": {
+        "order": { "field": "generated_at", "dir": "desc" },
+        "select": "status,asset_count,pm_count,parts_count,headline,generated_at",
+        "limit": 5,
+        "aggregate": [
+          { "kind": "count", "as": "n" },
+          { "kind": "take", "n": 3, "item": "{headline} ({status}, {asset_count} assets, {pm_count} PMs, {parts_count} parts)", "join": "; ", "as": "contracts" }
+        ],
+        "render": "Maintenance contracts (from v_amc_truth): {n} on record. {contracts}."
+      } },
+
+    { "source": "v_marketplace_listings_truth",  "domain": "marketplace", "status": "out_of_scope", "scope": "marketplace", "reason": "buying/selling, not worker-maintenance conversation" },
+    { "source": "v_marketplace_orders_truth",    "domain": "marketplace", "status": "out_of_scope", "scope": "marketplace", "reason": "orders — marketplace product surface" },
+    { "source": "v_marketplace_sellers_truth",   "domain": "marketplace", "status": "out_of_scope", "scope": "marketplace", "reason": "sellers — marketplace product surface" },
+    { "source": "v_marketplace_inquiries_truth", "domain": "marketplace", "status": "out_of_scope", "scope": "marketplace", "reason": "inquiries — marketplace product surface" },
+    { "source": "v_community_posts_truth",  "domain": "community",     "status": "out_of_scope", "scope": "admin",  "reason": "forum posts — community surface, not ops chat" },
+    { "source": "v_hives_truth",            "domain": "hive_admin",    "status": "out_of_scope", "scope": "admin",  "reason": "cross-hive registry — admin, not a single worker's ops question" },
+    { "source": "v_hive_readiness_truth",   "domain": "hive_admin",    "status": "out_of_scope", "scope": "admin",  "reason": "onboarding/readiness metric — admin/founder" },
+    { "source": "v_adoption_truth",         "domain": "hive_admin",    "status": "out_of_scope", "scope": "admin",  "reason": "adoption metric — admin/founder analytics" },
+    { "source": "v_ai_reports_truth",       "domain": "meta",          "status": "out_of_scope", "scope": "admin",  "reason": "AI report records — meta, the companion generates these not reads them as ops" },
+    { "source": "v_insurance_bridge_truth", "domain": "integration",   "status": "out_of_scope", "scope": "admin",  "reason": "insurance integration bridge — admin/integration" },
+    { "source": "v_external_sync_truth",    "domain": "integration",   "status": "out_of_scope", "scope": "admin",  "reason": "external CMMS/ERP sync status — admin/integration" },
+    { "source": "v_inventory_transactions_truth", "domain": "inventory", "status": "out_of_scope", "scope": "worker", "reason": "txn detail log — current stock STATE already served by v_inventory_items_truth" },
+    { "source": "v_worker_truth",           "domain": "people",        "status": "out_of_scope", "scope": "admin",  "reason": "worker profiles — PII-sensitive; skills/disciplines served via v_worker_skill_truth without names" }
+  ]
+}

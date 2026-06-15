@@ -1104,6 +1104,15 @@ VALIDATORS = [
         "skip_if_fast": False,
     },
     {
+        "id":      "companion-source-coverage",
+        "script":  "validate_companion_source_coverage.py",
+        "args":    [],
+        "label":   "Companion Source Coverage (L0: the Sources Gateway — every v_*_truth view triaged in companion_source_registry.json)",
+        "group":   "Platform",
+        "report":  None,
+        "skip_if_fast": False,
+    },
+    {
         "id":      "memory-integrity",
         "script":  "validate_memory_integrity.py",
         "args":    [],
@@ -2195,6 +2204,26 @@ VALIDATORS = [
         "label":   "Companion Per-Dimension Regression Gate (Phase 8 §8.3: agent/rag/memory/persona locked-test; degrade-to-SKIP without data)",
         "group":   "Platform",
         "report":  "companion_dim_baselines.json",
+        "skip_if_fast": False,
+    },
+    {
+        # §0.7 Grounding Doctrine / G-Accept — the STANDING HELD-OUT diverse gate. Ian's invariant:
+        # "millions of questions can be right yet a real user still fails." The TEMPLATED fabrication
+        # families overfit; the `--diverse` bank (novel/adversarial phrasings, run ONCE, mechanical
+        # DB-truth grader in companion_fabrication_sweep.py) keeps the fabrication FLOOR honest. This
+        # gate institutionalizes it: it reads the latest diverse board and FAILS only on a genuine
+        # REGRESSION beyond the oscillation-ceiling threshold (the rate OSCILLATES ~0-7% run-to-run
+        # vs the rotating free-tier model — so it is threshold-not-zero by design), and DEGRADES-TO-
+        # SKIP (exit 0) without a fresh/valid board so it never blocks a commit on missing live infra.
+        # Produce fresh data with `python validate_companion_diverse_gate.py --run` (needs the local
+        # stack + free-tier keys); a scheduled job runs that for a true standing loop. Threshold +
+        # forward-only ratchet live in companion_diverse_baseline.json.
+        "id":      "companion-diverse-gate",
+        "script":  "validate_companion_diverse_gate.py",
+        "args":    [],
+        "label":   "Companion Held-Out Diverse Gate (§0.7: novel-phrasing fabrication floor; threshold-not-zero; degrade-to-SKIP without a fresh board)",
+        "group":   "Platform",
+        "report":  "companion_diverse_baseline.json",
         "skip_if_fast": False,
     },
     {
@@ -3302,6 +3331,14 @@ VALIDATORS = [
         "label":   "Companion Launcher Page Coverage (L0 — every nav-hub page has companion-launcher.js)",
         "group":   "Platform",
         "report":  "companion_page_coverage_report.json",
+        "skip_if_fast": False,
+    },
+    {
+        "id":      "companion-source-coverage",
+        "script":  "validate_companion_source_coverage.py",
+        "args":    [],
+        "label":   "Companion Source Coverage (L0 — the Sources Gateway: every v_*_truth view triaged in companion_source_registry.json)",
+        "group":   "Platform",
         "skip_if_fast": False,
     },
     {

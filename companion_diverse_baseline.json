@@ -1,0 +1,11 @@
+{
+  "max_fab_pct": 12.0,
+  "max_deflect_pct": 12.0,
+  "max_age_days": 7,
+  "min_valid_probes": 30,
+  "user": "leandro",
+  "_note": "Held-out --diverse fabrication gate (Companion Grounding Doctrine §0.7 / G-Accept). Ian's invariant: 'millions of questions can be right yet a real user still fails' — the TEMPLATED families overfit, so this gates the HELD-OUT diverse bank (novel/adversarial phrasings, run once, mechanical DB-truth grader). The diverse rate OSCILLATES ~0-7% (rotating free-tier model + false-memory loop are the documented ceiling), so max_fab_pct = oscillation-ceiling + margin: the gate FAILS only on a genuine REGRESSION (a ~2x jump), never on normal oscillation. Forward-only: lower max_fab_pct via --update-baseline after a deliberate improvement; raising it needs an explicit human reason in this note. min_valid_probes guards against a free-tier-EXHAUSTED (mostly-empty) board reading as a spurious pass.",
+  "last_observed_fab_pct": 0.0,
+  "last_observed_deflect_pct": 0.0,
+  "last_updated": "2026-06-15"
+}
