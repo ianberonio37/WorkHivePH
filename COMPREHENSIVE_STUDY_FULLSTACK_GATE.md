@@ -423,3 +423,103 @@ A phase is **done** only when ALL hold: (1) capability bar met; (2) its matrix c
 - **2026-06-16** — **Phase 4 capability: SAST posture gate (S-layer) — DONE (the local half of SAST/DAST).** Built `tools/sast_scan.py` — a single OWASP-Top-10-aligned front door that runs the **12 existing security validators** as subprocesses (no imports) and maps each to a category (A01 access-control → tenancy/policy/service-role/function-security · A02 secrets · A03 XSS/injection · A04 RLS · A05 misconfig · A06 PII · A08 integration). Invent nothing — it's the consolidated "do you run automated SAST?" answer. The GATE assertion = **coverage** (every OWASP category has ≥1 scanner = FAIL if any is unscanned); pass/fail per category is posture (own baselines ratchet). Result: **7/7 categories covered, PASS** (5 clean, 2 baselined-findings). Registered Maturity P4 (skip_if_fast — runs in full mode, 12 sub-scans). Raises S-layer capability. NOTE: this is the **SAST** (static) half; **DAST** (scanning the *running* app) still needs a real tool/CI = Ian-gated.
 - **2026-06-16** — **Idempotency gate GREEN (2 FAIL → 0).** "continue" delegated the call: added a documented `MIGRATION_IDEMPOTENCY_OK` allowlist to `validate_idempotency.py` for the 2 immutability-locked migration FAILs (persona_knowledge index, analytics_snapshots policy) — DB-correct, applied, can't edit (sha256 lock); the platform's standard DEFERRED-allowlist pattern (`function_security` does the same). Migrations themselves UNTOUCHED (immutability preserved). Now **10 PASS / 4 WARN / 0 FAIL**. ★Bonus: a stale memory (`PRODUCTION_FIXES #34`, 2026-05-10) flagged "3 Stripe POSTs missing Idempotency-Key = double-charge risk OPEN" — **verified it's now PASS** (L5 money-movement clean; the fix landed since). No money-safety gap. The 4 WARNs are advisory (upsert onConflict, scheduled-report upsert — the domain-naive ones where a blunt UNIQUE would block recurring PM).
 - **2026-06-16** — **Phase 5 (Maturity-Accept capstone) DONE — `mature-accept` PASS.** Built `fullstack_dev.py mature-accept` (mirrors `accept`, runs validators standalone — no orchestrator import, no full-regen): refreshes the 6 substrate miners → re-stresses the 12 Phase 1-3 gates → asserts matrix coverage 100% + integrity 100% → stamps `.maturity-accept-pass`. **Result: PASS — 12/12 gates, coverage 100%, integrity 100%, 0 failures.** Self-test PASSED (tool wiring intact). Re-verify anytime: `python tools/fullstack_dev.py mature-accept`. **The gate-coverage Layer Maturity Sweep is COMPLETE + LOCKED.** Remaining = **Phase 4 capability** (the mature-6 finishing items + the 3 frozen-baseline drawdowns) — a distinct, partly infra-gated arc. Whole-platform G0 (`gate --full`) + commit + prod deploy stay Ian-gated.
+
+---
+
+## 13. The End-to-End Journey & Data-Lineage Sweep — live MCP (added 2026-06-16, NOT yet built)
+
+> **Why this is here, not a separate doc (Ian: "fold it so we won't be lost"):** §4 proves every layer is *protected* and §12 proves every layer *works*. Neither proves that a **real user's input propagates CORRECTLY through the whole platform**. This §13 is the live, end-to-end, *correctness* sweep — the behavioural capstone on top of §12's 100% gate coverage.
+
+### 13.0 The reframe — Ian's "nerve" insight
+
+A logbook field is not just "saved" — it is a **nerve signal** that must fire, **with the correct VALUE**, at every downstream terminus it innervates: MTTR, OEE, the asset's MTBF, the KPI tiles, **every analytics phase** (descriptive/diagnostic/predictive), the report. "It ran" is not the test; "the number is correct everywhere it lands" is. And the targets are **too many to hand-enumerate** — so the harness must **DISCOVER** the lineage, not rely on a list.
+
+### 13.1 Two axes (massive testing of *everything* = both)
+
+- **Axis V — Architectural layer / plumbing (vertical slice):** does a journey traverse F→A→D→AU→C→CA→RL→S→L→AV and work at each layer? (my original §13.7 journeys)
+- **Axis H — Data lineage / the nerve (horizontal):** does each INPUT VALUE fire correctly at every downstream consumer? (Ian's refinement — the load-bearing axis)
+
+### 13.2 The lineage model — DISCOVERED from the canonical layer, not enumerated
+
+Each input surface (logbook, PM completion, inventory txn, voice, resume, marketplace…) has FIELDS; each field has **innervation targets** (downstream surfaces/computations). The map is **derivable from what already exists** — invent nothing:
+- `canonical_registry.json` — which `v_*_truth` view reads which table/column
+- the `v_*_truth` view SQL — e.g. `v_kpi_truth` reads `logbook.downtime` → MTTR
+- the **source-chip lineage** (each KPI chip already declares its `source:`)
+- `analytics_correctness.js` / `__ANALYTICS_PARITY` — already encodes the parity extractors
+
+→ **Build `lineage_map.json`: `{input_field → [consumers + the expected transform]}`**, mined from the canonical layer. Comprehensive WITHOUT hand-enumeration (Ian's requirement). Worked example (logbook): `downtime_minutes` → MTTR + OEE-availability + asset-downtime-history; `fault_type` → fault-knowledge + FMEA + failure-signature + predictive; `machine` → asset-history + MTBF + per-asset KPIs; `parts_used` → inventory deduction + parts analytics; `status=Closed` → jobs-closed count + MTTR clock-stop.
+
+### 13.3 The nerve-probe method (differential lineage)
+
+For each input field: (1) **read baseline** downstream values; (2) **seed a KNOWN delta** via Playwright MCP doing the *real user action* (enter a logbook entry with a known downtime); (3) **re-read all consumers**; (4) **ASSERT the delta propagated with the correct VALUE** at every terminus (MTTR moved by the right amount, the KPI tile updated, the report reflects it). Differential (seed-a-known-change) is robust to pre-existing data — it's "verify the DB, not the toast" + the analytics-parity pattern, generalized into a full lineage sweep.
+
+### 13.4 The MCP toolkit — one verifier per concern
+
+| Concern | Verified live by |
+|---|---|
+| Frontend render / a11y (F) | **Playwright MCP** (+ `__UFAI` battery) |
+| API envelope / status (A) | **Playwright** network panel |
+| DB row + value + idempotency (D) | **postgres MCP** (the lineage terminus reads) |
+| Auth/tenancy/RLS (AU/S) | **postgres** (hive scoping) + **Playwright** (cross-hive 403) |
+| LLM grounding + cache (C/CA) | **Playwright** (grounded answer) + **postgres** (`ai_cache` hit) |
+| Rate-limit fairness (RL) | **Playwright** (burst → 429 + Retry-After) |
+| Logs/trace (L) | **postgres** (`wh_traces` carries journey `trace_id`) + **Sentry MCP** |
+| Availability/SLO (AV/O) | **Playwright** on `status.html` + `game_day` |
+| Load/scale (LB) | `load_probe` concurrent burst (the "missing 5th dimension") |
+
+*(H Hosting + CI are deploy-time, not live-journey — covered by their gates. ~11/13 layers are live-traceable in a browser journey — the honest scope line.)*
+
+### 13.5 Two coverage matrices (mirror §4 — measurable, anti-drift)
+
+1. **Journeys × 13 layers** — every layer live-exercised by ≥1 journey (Axis V).
+2. **Input-field × Consumers** — every field's nerve verified correct at every terminus (Axis H).
+A `journey-accept` capstone (mirror of `mature-accept`) asserts both → stamps a marker.
+
+### 13.6 Reuse (invent nothing)
+
+L3 battery (`__UFAI`/`__JOURNEY`/`__CSB`/`__ANALYTICS_PARITY`, `journey_battery.js`), the 73 `tests/journey-*.spec.ts`, the existing parity journeys (`journey-cross-surface-kpi-parity`, `journey-canonical-signal-parity`, `journey-home-fanout-parity`), `canonical_registry.json`, `GROUNDED_SWEEP_ROADMAP.md` (the page-by-page sweep), Playwright MCP + postgres MCP.
+
+### 13.7 Canonical journeys (Axis-V vertical slices)
+
+J1 Breakdown→Resolution (flagship: sign-in→logbook→AI/RAG→realtime supervisor→KPI→report) · J2 PM cycle · J3 Marketplace txn (Stripe idempotency) · J4 Voice pipeline · J5 Cross-hive isolation (security E2E, postgres-proven) · J6 Resilience (offline/queue/sync + 429) · J7 Scale (concurrent burst).
+
+### 13.8 Phased rollout (synthesized: skills + OpenLineage + dbt/GE/Soda — each phase ends live-proven)
+
+| Phase | Theme | Builds | Gate layer | External anchor | Exit proof |
+|---|---|---|---|---|---|
+| **P0** | Lineage substrate | `tools/mine_lineage_map.py` → `lineage_map.json` (input field → consumers + transform), mined from `canonical_registry` + `v_*_truth` SQL + the **KPI Source Registry** + source-chips | G‑1.5 Substrate | OpenLineage dataset→job graph | every input field has a discovered consumer graph; coverage measurable |
+| **P1** | Journey harness (Axis V) | `__JOURNEY_TRACE` driver (extends `journey_battery.js`, stamps a journey `trace_id`) + **J1 flagship** vertical slice, multi-MCP | G2 e2e + G3 live | E2E journey + trace propagation | J1 traverses all ~11 live layers, Playwright+postgres proven |
+| **P2** | **logbook→analytics nerve** (Axis H flagship) | differential nerve-probe: seed a known logbook value → assert MTTR/OEE/MTBF/KPI-tiles/report reflect it correctly | G3 live + GH | dbt unit+data test, differential | a logbook delta proven correct across every analytics phase |
+| **P3** | Assertion library | per-field assertions (non-null · referential · value-correct · freshness) → each becomes `validate_lineage_<field>.py` | GH Harden → G0 | GE/Soda checks → SQL | live-found correctness rules ratcheted static (fills §4 cells) |
+| **P4** | Full lineage sweep | every input surface (PM, inventory, voice, marketplace, resume) via the discovered map; Input‑field×Consumer matrix → 100% | G‑1 Discover + G0 | OpenLineage blast-radius coverage | every input field's nerve verified; a new unwired field → FAIL |
+| **P5** | Axis-V completion | J5 cross-hive (postgres-proven) · J6 resilience (offline/429) · J7 scale (concurrent burst) | G2 + GS + G3 | E2E security/chaos/load | the 7 journeys live-proven |
+| **P6** | Capstone | `journey-accept` — both §13.5 matrices green → `.journey-accept-pass`; folds into `fullstack_dev` + `release_gate --with-fullstack` | conductor | data-contract acceptance | one command re-verifies the whole live nerve |
+
+**Start order:** P0 → P1 → **P2** (P2 = Ian's worked example, highest signal). ★The edge vs OpenLineage/dbt: those test the pipeline in isolation; this tests **the real user action → the rendered number**, live, through the UI — what those can't see.
+
+**Sources (lower priority, synthesized):** [OpenLineage](https://www.astronomer.io/why-openlineage/) (Linux-Foundation lineage graph + data-quality facets) · [dbt tests / Great Expectations / Soda](https://www.datafold.com/blog/7-dbt-testing-best-practices/) (non-null / uniqueness / referential / freshness assertions; dbt unit+data+contract tiers) · data contracts (input→consumer interface) · [Datadog data lineage](https://www.datadoghq.com/blog/data-lineage/) (blast-radius). Skills: **analytics-engineer** (KPI Source Registry — one-metric-one-derivation, machine-enforced) + **data-engineer** (user-entered > computed; metric-definition filtering; cross-page field parity).
+
+### 13.9 Decisions (for the next session)
+
+- **Scope start:** J1 flagship + the logbook→analytics nerve (Ian's example) — vs all 7 at once. (Rec: J1 + the nerve — highest signal, proves both axes.)
+- **MCPs:** Playwright + postgres core now; **Sentry/Grafana** folded in when those backends are wired (currently the trace store is `wh_traces`, not Sentry).
+- **Relationship to §12:** §12 = the gate (is each layer protected?); §13 = the live nerve (does a real input flow correctly end-to-end?). §13 builds ON §12's 100% coverage.
+
+### 13.10 Status
+
+**NOT yet built — this is the anti-drift plan.** Next action: P0 (the lineage-map miner + the `__JOURNEY_TRACE` driver). Live Playwright-MCP proof after every phase (D5 standing rule).
+
+### 13.11 How §13 feeds the Unified Mega Gate (the architecture-closing map)
+
+§13 is **not a new gate layer** — it is the LIVE end of the same 6+1-layer spine the Unified Mega Gate already wears across its 4 siblings (`release_gate`=code · `companion_dev`=AI · `content_dev`=content · **`fullstack_dev`=13 layers**). It lands in the `fullstack_dev.py` sibling, same vocabulary:
+
+| §13 piece | Becomes gate layer |
+|---|---|
+| `mine_lineage_map.py` (input→consumer graph) | **G-1.5 Substrate** |
+| lineage-coverage (every input field has a verified consumer) | **G-1 Discover** |
+| differential **nerve-probe** (`__JOURNEY_TRACE` + Playwright/postgres MCP) | **G3 live-MCP battery** |
+| J1–J7 journey specs | **G2 E2E** |
+| per-bug lineage validators | **GH Harden → G0** |
+| `journey-accept` | sibling capstone (mirror of `mature-accept`) |
+
+**The loop (why it matters):** §13's live nerve-probe finds a correctness bug (a logbook field computes MTTR wrong) → it becomes `validate_lineage_<field>.py` (GH) → registered in `run_platform_checks.py` (G0) → **fills a new §4 matrix cell** → that bug can never silently return. §4/§12 measure *protection*; §13 is the live *engine* that keeps discovering real bugs and converting each into permanent static protection. Rides into `release_gate.py` via the existing `--with-fullstack` peer phase. Nothing to get lost in.
