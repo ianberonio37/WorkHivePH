@@ -3,6 +3,7 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 // contract-allow: produces parts staging plan; future Tier C: parts_staging_plan_v1
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { getCorsHeaders } from "../_shared/cors.ts";
+import { log } from "../_shared/logger.ts";
 // P1 roadmap 2026-05-26: envelope adoption (helper imported; success-path migration follows).
 import { beginRequest, ok, fail, recordModelHop } from "../_shared/envelope.ts";
 
@@ -65,7 +66,7 @@ serve(async (req) => {
       job_name: "parts-staging-recommender",
       status:   failed === 0 ? "success" : "failed",
       detail:   `Generated ${total} recommendations across ${ok.length}/${hives.length} hives. Failures: ${failed}`,
-    }).then(({ error }) => { if (error) console.warn("audit log:", error.message); });
+    }).then(({ error }) => { if (error) log.warn(null, "audit log:", { detail: error.message }); });
 
     return new Response(
       JSON.stringify({ recommended: total, hives_processed: ok.length, failed }),
@@ -73,7 +74,7 @@ serve(async (req) => {
     );
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
-    console.error("parts-staging-recommender:", msg);
+    log.error(null, "parts-staging-recommender:", { detail: msg });
     return new Response(JSON.stringify({ error: msg }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -221,7 +222,7 @@ async function recommendForHive(
       .eq("hive_id", hiveId)
       .eq("status", "pending")
       .in("asset_name", assetsToExpire);
-    if (expErr) console.warn(`expire prev recs: ${expErr.message}`);
+    if (expErr) log.warn(null, `expire prev recs: ${expErr.message}`);
   }
 
   // ── 6. Insert new recommendations ──────────────────────────────────────────

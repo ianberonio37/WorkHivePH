@@ -1,0 +1,33 @@
+{
+  "result": "PASS",
+  "ts": "2026-06-16T05:58:42+00:00",
+  "arc_pct": 98.1,
+  "gates": {
+    "I  tenancy": "PASS",
+    "P  policy-hive-binding": "PASS",
+    "P  pii-egress": "PASS",
+    "R  gateway-coverage": "PASS",
+    "R  edge-contracts": "PASS",
+    "C  cache-adoption": "PASS",
+    "C  groq-fallback": "PASS",
+    "C/F resilience": "PASS",
+    "X  report-sender": "PASS",
+    "X  agentic-rag": "PASS",
+    "DR backup-verify": "PASS",
+    "DR game-day (live)": "PASS",
+    "C  load-probe (live)": "PASS"
+  },
+  "pillars": {
+    "D": 100.0,
+    "F": 100.0,
+    "I": 100.0,
+    "P": 100.0,
+    "R": 100.0,
+    "C": 88.9,
+    "O": 100.0,
+    "DR": 100.0
+  },
+  "gate_failures": [],
+  "floor_failures": [],
+  "note": "Gateway-arc acceptance = re-stress + live drills + scorecard floors. Whole-platform G0 guardian + prod deploy remain a separate Ian-gated step."
+}

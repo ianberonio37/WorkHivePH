@@ -83,7 +83,29 @@ When any of these fire, the next investment moves into P1:
 
 ---
 
-## 5. References
+## 5. Machine-checkable thresholds (Maturity Phase 1 — Reliability, 2026-06-16)
+
+These markers turn the prose above into gate-enforceable contracts. The
+`(LB, GH)` saturation ratchet and `(LB, GS)` load-resilience sentinel parse
+them verbatim — do not rename without updating the validators.
+
+- **SATURATION-ALARM:** realtime-channel headroom. Comfortable ceiling **500**,
+  hard ceiling **1000** (project max). Alarm fires when projected peak channels
+  (`realtime_surfaces × ~5 channels/surface × comfortable_hives`) exceeds 500,
+  or when `leak_risk_surfaces > 0` (a `subscribe()` lost its teardown). Enforced
+  by `validate_connection_pool_saturation.py` (leaks frozen at 0; surface count
+  frozen — conscious re-baseline only).
+- **LOAD-SLO:** sustained-load target p95 latency **< 2000 ms**, error rate
+  **< 1%** at 8 concurrent workers (the `tools/load_probe.py` rig; last local
+  run p95 28 ms / 0.00% err). Swap-ready for a k6-against-staging run.
+- **DEGRADED-MODE:** under provider/connection saturation the platform sheds
+  load gracefully rather than 5xx-storming — the free-tier chain rotates on
+  429/503 (`_shared/ai-chain.ts`), the LLM cache serves repeats, and rate
+  limits return 429 + Retry-After. No hard dependency may fail closed.
+
+---
+
+## 6. References
 
 - [RTO_RPO_DECLARATION.md](RTO_RPO_DECLARATION.md) — availability targets
 - [FREE_TIER_ONLY.md](FREE_TIER_ONLY.md) — LLM chain shape

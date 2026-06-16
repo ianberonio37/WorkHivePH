@@ -48,6 +48,9 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 // contract-allow: enriches asset_nodes register flow; no new artifact table
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { getCorsHeaders } from "../_shared/cors.ts";
+import { log } from "../_shared/logger.ts";
+// Pillar I (Gateway Spine): verify hive membership before the service-role read.
+import { resolveIdentity, resolveTenancy } from "../_shared/tenant-context.ts";
 // P1 roadmap 2026-05-26: envelope adoption (helper imported; success-path migration follows).
 import { beginRequest, ok, fail, recordModelHop } from "../_shared/envelope.ts";
 
@@ -287,11 +290,23 @@ serve(async (req) => {
 
   let matched_asset = null;
   if (body.hive_id && SUPABASE_URL && SERVICE_KEY) {
+    const client = createClient(SUPABASE_URL, SERVICE_KEY);
+    // Pillar I: verify membership before the service-role asset_nodes read
+    // (kept OUTSIDE the try so a 403 is never swallowed by the match catch).
+    const { authUid, isServiceRole } = await resolveIdentity(client, req);
+    if (!isServiceRole) {
+      const tenancy = await resolveTenancy(client, authUid, body.hive_id);
+      if (!tenancy.ok) {
+        return new Response(
+          JSON.stringify({ error: tenancy.message, code: tenancy.code }),
+          { status: tenancy.status, headers: { ...cors, "Content-Type": "application/json" } },
+        );
+      }
+    }
     try {
-      const client = createClient(SUPABASE_URL, SERVICE_KEY);
       matched_asset = await matchAssetNodes(client, body.hive_id, parsed);
     } catch (err) {
-      console.warn("[equipment-label-ocr] asset match failed:", (err as Error).message);
+      log.warn(null, "[equipment-label-ocr] asset match failed:", { detail: (err as Error).message });
     }
   }
 

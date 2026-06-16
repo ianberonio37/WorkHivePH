@@ -1,8 +1,13 @@
 import { serve } from "https://deno.land/std@0.208.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.38.4";
 import { getCorsHeaders } from "../_shared/cors.ts";
+import { log } from "../_shared/logger.ts";
 // P1 roadmap 2026-05-26: envelope adoption (helper imported; success-path migration follows).
 import { beginRequest, ok, fail, recordModelHop } from "../_shared/envelope.ts";
+// Pillar R/I (2026-06-15): the one governed identity resolver (getUser(bearer),
+// proven in Pillar I) — used to derive the VERIFIED caller for the personal
+// voice-journal scope instead of trusting the client body auth_uid.
+import { resolveIdentity } from "../_shared/tenant-context.ts";
 
 // contract-allow: RAG retrieval fn, not a brain output producer
 
@@ -24,6 +29,15 @@ import { beginRequest, ok, fail, recordModelHop } from "../_shared/envelope.ts";
  *   - results: array of { transcript, reply, created_at, similarity }
  *   - method: "semantic" (pgvector) | "recency" (time-based) | "error"
  *   - count: number of results returned
+ *
+ * ✅ SECURITY FIX (2026-06-15, Gateway Pillar R) — per-user IDOR CLOSED:
+ *   Previously scoped the per-worker voice-journal read by the CLIENT-SUPPLIED
+ *   `auth_uid` (body) on a SERVICE-ROLE client (RLS bypassed), called with the
+ *   anon key — so any caller could read another worker's journal by passing their
+ *   auth_uid (the auth_uid analogue of the Pillar-I hive_id hole). NOW: auth_uid
+ *   is derived from the JWT via getUser(); the client body value is ignored; a
+ *   caller with no real user JWT (anon key) gets an empty result set. voice-handler.js
+ *   sends the signed-in user's access token. See FULLSTACK_SAAS_GATEWAY_ROADMAP.md §6e.
  */
 
 serve(async (req) => {
@@ -34,19 +48,38 @@ serve(async (req) => {
   }
 
   try {
-    const { auth_uid, query_text, limit = 5 } = await req.json();
+    const { auth_uid: _bodyAuthUid, query_text, limit = 5 } = await req.json();
 
-    if (!auth_uid || !query_text) {
+    if (!query_text) {
       return new Response(
-        JSON.stringify({ error: "Missing auth_uid or query_text" }),
+        JSON.stringify({ error: "Missing query_text" }),
         { status: 400, headers: { "Content-Type": "application/json" } }
       );
     }
 
+    const SUPABASE_URL = Deno.env.get("SUPABASE_URL") || "";
+
     const db = createClient(
-      Deno.env.get("SUPABASE_URL") || "",
+      SUPABASE_URL,
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || ""
     );
+
+    // Pillar R/I auth_uid IDOR fix (2026-06-15): the voice journal is PERSONAL.
+    // Scope it ONLY by the JWT-VERIFIED caller (resolveIdentity → getUser(bearer),
+    // the proven Pillar-I resolver) — NEVER the client-supplied body `auth_uid`,
+    // which let any caller read another worker's journal by passing their id (this
+    // fn uses a service-role client = RLS bypassed). A caller with no real user JWT
+    // (anon key / no token) has no verified identity → no journal to read. A
+    // machine/service-role caller likewise has no personal journal here.
+    const _id = await resolveIdentity(db, req);
+    const auth_uid: string | null = (!_id.isServiceRole && _id.authUid) ? _id.authUid : null;
+    if (!auth_uid) {
+      return new Response(
+        JSON.stringify({ results: [], method: "unauthenticated", count: 0 }),
+        { status: 200, headers: { "Content-Type": "application/json" } }
+      );
+    }
+    void _bodyAuthUid; // intentionally ignored — the verified uid is authoritative
 
     // Phase 1.5: Try semantic search via pgvector if embeddings are available
     let results: any[] = [];
@@ -80,7 +113,7 @@ serve(async (req) => {
         }
       }
     } catch (err) {
-      console.warn("Semantic search failed, falling back to recency:", err);
+      log.warn(null, "Semantic search failed, falling back to recency:", { detail: err });
       // Fall through to recency fallback
     }
 
@@ -109,7 +142,7 @@ serve(async (req) => {
           method = "recency";
         }
       } catch (err) {
-        console.error("Recency fallback failed:", err);
+        log.error(null, "Recency fallback failed:", { detail: err });
       }
     }
 
@@ -125,7 +158,7 @@ serve(async (req) => {
       }
     );
   } catch (err) {
-    console.error("Unexpected error:", err);
+    log.error(null, "Unexpected error:", { detail: err });
     return new Response(
       JSON.stringify({
         error: "Internal server error",
@@ -165,7 +198,7 @@ async function _getEmbedding(text: string): Promise<number[] | null> {
     });
 
     if (resp.status !== 200) {
-      console.warn("Jina API failed:", resp.status);
+      log.warn(null, "Jina API failed:", { detail: resp.status });
       return null;
     }
 
@@ -175,7 +208,7 @@ async function _getEmbedding(text: string): Promise<number[] | null> {
       return embeddings[0].embedding || null;
     }
   } catch (err) {
-    console.warn("Embedding fetch failed:", err);
+    log.warn(null, "Embedding fetch failed:", { detail: err });
   }
 
   return null;

@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.208.0/http/server.ts";
 import { getCorsHeaders } from "../_shared/cors.ts";
+import { log } from "../_shared/logger.ts";
 // P1 roadmap 2026-05-26: envelope adoption (helper imported; success-path migration follows).
 import { beginRequest, ok, fail, recordModelHop } from "../_shared/envelope.ts";
 
@@ -70,7 +71,7 @@ serve(async (req) => {
       const { model, api_url, api_key } = _getModelConfig(strategy);
 
       if (!api_key) {
-        console.warn(`Model ${strategy} not configured, skipping`);
+        log.warn(null, `Model ${strategy} not configured, skipping`);
         continue;
       }
 
@@ -100,7 +101,7 @@ serve(async (req) => {
           );
         }
       } catch (err) {
-        console.warn(`Model ${strategy} failed:`, err);
+        log.warn(null, `Model ${strategy} failed:`, { detail: err });
         continue; // Try next strategy
       }
     }
@@ -117,7 +118,7 @@ serve(async (req) => {
       }
     );
   } catch (err) {
-    console.error("Unexpected error:", err);
+    log.error(null, "Unexpected error:", { detail: err });
     return new Response(
       JSON.stringify({ error: "Internal server error" }),
       {

@@ -1,8 +1,8 @@
 {
   "summary": {
-    "files_scanned": 174,
-    "total_refs": 268,
-    "total_missing": 5,
+    "files_scanned": 179,
+    "total_refs": 281,
+    "total_missing": 6,
     "baseline": 0,
     "env_names_known": 26
   },
@@ -13,6 +13,10 @@
     },
     {
       "file": "supabase/functions/_shared/audio-chain.ts",
+      "missing": []
+    },
+    {
+      "file": "supabase/functions/_shared/benchmarks.ts",
       "missing": []
     },
     {
@@ -65,6 +69,10 @@
       "missing": []
     },
     {
+      "file": "supabase/functions/_shared/factsheet_render.ts",
+      "missing": []
+    },
+    {
       "file": "supabase/functions/_shared/followups.ts",
       "missing": []
     },
@@ -86,6 +94,10 @@
     },
     {
       "file": "supabase/functions/_shared/memory.ts",
+      "missing": []
+    },
+    {
+      "file": "supabase/functions/_shared/numeric_provenance.ts",
       "missing": []
     },
     {
@@ -126,6 +138,14 @@
       "missing": []
     },
     {
+      "file": "supabase/functions/_shared/tenant-context.ts",
+      "missing": []
+    },
+    {
+      "file": "supabase/functions/_shared/trace-store.ts",
+      "missing": []
+    },
+    {
       "file": "supabase/functions/_shared/validate-contract.ts",
       "missing": []
     },
@@ -154,7 +174,7 @@
       "missing": [
         {
           "env": "WH_ALLOW_DEBUG_ECHO",
-          "offset": 8077
+          "offset": 8559
         }
       ]
     },
@@ -204,7 +224,12 @@
     },
     {
       "file": "supabase/functions/embed-entry/index.ts",
-      "missing": []
+      "missing": [
+        {
+          "env": "BGE_EMBED_URL",
+          "offset": 1964
+        }
+      ]
     },
     {
       "file": "supabase/functions/engineering-bom-sow/index.ts",

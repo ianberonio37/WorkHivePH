@@ -35,6 +35,9 @@ import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-
 import { parquetReadObjects } from "https://esm.sh/hyparquet@1.26.0";
 import { compressors } from "https://esm.sh/hyparquet-compressors@1.1.1";
 import { getCorsHeaders } from "../_shared/cors.ts";
+import { log } from "../_shared/logger.ts";
+// Pillar I (Gateway Spine): verify hive membership before service-role archive reads.
+import { resolveIdentity, resolveTenancy } from "../_shared/tenant-context.ts";
 import { selectRelevantQuarters, type DateRange } from "../_shared/cold-archive.ts";
 
 const FN_NAME = "cold-archive-query";
@@ -63,7 +66,7 @@ const ASSET_COLS = ["asset_tag", "machine", "asset", "equipment"];
 
 const _URL = Deno.env.get("SUPABASE_URL") || "";
 const _KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
-if (!_URL || !_KEY) console.warn(`[${FN_NAME}] SUPABASE env missing`);
+if (!_URL || !_KEY) log.warn(null, `[${FN_NAME}] SUPABASE env missing`);
 const _warm = _URL && _KEY ? createClient(_URL, _KEY) : null;
 
 async function listAvailableQuarters(db: SupabaseClient, hiveId: string): Promise<string[]> {
@@ -73,7 +76,7 @@ async function listAvailableQuarters(db: SupabaseClient, hiveId: string): Promis
     const { data } = await db.storage.from(BUCKET).list(`${hiveId}/`, { limit: 100 });
     return (data || []).map(o => o.name).filter(n => /^\d{4}-Q[1-4]$/.test(n));
   } catch (err) {
-    console.warn(`[${FN_NAME}] bucket list failed:`, String(err).slice(0, 80));
+    log.warn(null, `[${FN_NAME}] bucket list failed:`, { detail: String(err).slice(0, 80) });
     return [];
   }
 }
@@ -118,7 +121,7 @@ async function readQuarter(
     if (error || !blob) return null;          // object not present for this quarter
     ab = await blob.arrayBuffer();
   } catch (err) {
-    console.warn(`[${FN_NAME}] download failed ${path}:`, String(err).slice(0, 80));
+    log.warn(null, `[${FN_NAME}] download failed ${path}:`, { detail: String(err).slice(0, 80) });
     return null;
   }
 
@@ -128,7 +131,7 @@ async function readQuarter(
     // AsyncBuffer). `compressors` supplies the snappy codec the exporter uses.
     rows = await parquetReadObjects({ file: ab, compressors }) as Record<string, unknown>[];
   } catch (err) {
-    console.warn(`[${FN_NAME}] parquet decode failed ${path}:`, String(err).slice(0, 120));
+    log.warn(null, `[${FN_NAME}] parquet decode failed ${path}:`, { detail: String(err).slice(0, 120) });
     return [];                                  // file existed but was unreadable
   }
 
@@ -176,6 +179,23 @@ serve(async (req) => {
   }
 
   const db = _warm || createClient(_URL, _KEY);
+
+  // Pillar I: queries a hive's cold-archive snapshots scoped by the client
+  // hive_id on a service-role client — verify membership. Internal callers
+  // (agentic-rag-loop) use service-role and skip.
+  {
+    const { authUid, isServiceRole } = await resolveIdentity(db, req);
+    if (!isServiceRole) {
+      const t = await resolveTenancy(db, authUid, body.hive_id);
+      if (!t.ok) {
+        return new Response(
+          JSON.stringify({ error: t.message, code: t.code }),
+          { status: t.status, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+        );
+      }
+    }
+  }
+
   const table = body.table as ArchivedTable;
   const range: DateRange = { from: body.time_range.from, to: body.time_range.to };
   const assetTag = body.asset_tag ?? null;

@@ -34,6 +34,13 @@ import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-
 import { callAI } from "../_shared/ai-chain.ts";
 import { logAICost, estimateTokens } from "../_shared/cost-log.ts";
 import { getCorsHeaders } from "../_shared/cors.ts";
+// P2 Pillar C (Compute & Resilience): cache the deterministic Router LLM call.
+import { cached } from "../_shared/cache.ts";
+// Pillar O (Observability): expose a /health probe for the gateway status page.
+import { handleHealth } from "../_shared/health.ts";
+import { log } from "../_shared/logger.ts";
+// Pillar I (Gateway Spine): verify hive membership before service-role asset/action reads.
+import { resolveIdentity, resolveTenancy } from "../_shared/tenant-context.ts";
 // P1 roadmap 2026-05-26: envelope adoption (helper imported; success-path migration follows).
 import { beginRequest, ok, fail, recordModelHop } from "../_shared/envelope.ts";
 // Persona Contract: narrated-specialist mode — router returns its route
@@ -307,6 +314,18 @@ serve(async (req) => {
   const corsHeaders = getCorsHeaders(req);
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
 
+  // Pillar O: /health probe (short-circuits before auth/body parsing).
+  const healthResp = await handleHealth(req, "voice-action-router", async () => ({
+    deps: [
+      { name: "supabase", ok: Boolean(Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")) },
+      { name: "ai-chain", ok: Boolean(Deno.env.get("GROQ_API_KEY") || Deno.env.get("CEREBRAS_API_KEY")) },
+    ],
+  }));
+  if (healthResp) return healthResp;
+
+  const _logCtx = beginRequest(req, { route: "voice-action-router" });
+  log.info(_logCtx, "request_start", { method: req.method });
+
   try {
     const body = await req.json().catch(() => ({}));
     // The gateway (Companion Unification Step 4) forwards `message` + `transcript`
@@ -344,6 +363,22 @@ serve(async (req) => {
       Deno.env.get("SUPABASE_URL") || "",
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "",
     );
+
+    // Pillar I: resolves assets/actions for a hive scoped by the client hive_id
+    // on a service-role client — verify membership. The ai-gateway/platform-
+    // gateway forward is service-role and skips.
+    {
+      const { authUid, isServiceRole } = await resolveIdentity(db, req);
+      if (!isServiceRole) {
+        const t = await resolveTenancy(db, authUid, hive_id);
+        if (!t.ok) {
+          return new Response(
+            JSON.stringify({ error: t.message, code: t.code }),
+            { status: t.status, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+          );
+        }
+      }
+    }
 
     // Rate limit gate FIRST. A rejected request must cost zero model tokens.
     // EXCEPTION: when invoked behind ai-gateway (gateway:true), the gateway has
@@ -385,14 +420,39 @@ serve(async (req) => {
     const personaBlock = buildPersonaBlock(personaKey, "narrated-specialist");
     const composedSystem = personaBlock + "\n\n" + ROUTER_SYSTEM;
 
+    // P2 Pillar C: cache the Router LLM call. Like the agentic-rag Router, the
+    // intent JSON + persona narration are deterministic on (transcript, page,
+    // asset_id, persona) — ALL captured in the key below (userPrompt encodes
+    // transcript+page+asset_id; personaKey prefixes it). Hive assets are NOT in
+    // the prompt — they're resolved AFTER this call against v_asset_truth — so
+    // the cached value is hive-independent: the same spoken command across hives
+    // is a cache hit with ZERO cross-hive leakage, and the per-hive asset
+    // resolution + slot-fill confirm-floor (Family P) still run fresh on every
+    // call downstream of the cache. The companion battery + flywheel replay the
+    // same probe transcripts → high repeat-rate. 6h TTL: absorbs a sweep, short
+    // enough that prompt/schema changes don't stick behind stale cache.
+    const routeCacheKey = `voiceroute:${personaKey}::${userPrompt}`;
     let raw: string;
     try {
-      raw = await callAI(userPrompt, {
-        systemPrompt: composedSystem,
-        temperature:  0.2,
-        maxTokens:    MAX_TOKENS_OUT,
-        jsonMode:     true,
-      });
+      const cr = await cached<string>(
+        db, "voice-action-router", routeCacheKey,
+        async () => {
+          const out = await callAI(userPrompt, {
+            systemPrompt: composedSystem,
+            temperature:  0.2,
+            maxTokens:    MAX_TOKENS_OUT,
+            jsonMode:     true,
+          });
+          return {
+            data:      out,
+            tokensIn:  estimateTokens(userPrompt) + estimateTokens(composedSystem),
+            tokensOut: estimateTokens(out),
+          };
+        },
+        6 * 60 * 60,
+      );
+      raw = cr.data;
+      if (cr.hit) console.log("[voice-action-router] router cache hit");
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
       return new Response(

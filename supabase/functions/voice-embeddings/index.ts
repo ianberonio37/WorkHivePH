@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.208.0/http/server.ts";
 import { getCorsHeaders } from "../_shared/cors.ts";
+import { log } from "../_shared/logger.ts";
 // P1 roadmap 2026-05-26: envelope adoption (helper imported; success-path migration follows).
 import { beginRequest, ok, fail, recordModelHop } from "../_shared/envelope.ts";
 
@@ -80,10 +81,10 @@ serve(async (req) => {
             }
           );
         } else {
-          console.warn(`Jina API error: ${resp.status}`);
+          log.warn(null, `Jina API error: ${resp.status}`);
         }
       } catch (err) {
-        console.warn("Jina API call failed:", err);
+        log.warn(null, "Jina API call failed:", { detail: err });
       }
     }
 
@@ -104,7 +105,7 @@ serve(async (req) => {
       }
     );
   } catch (err) {
-    console.error("Unexpected error:", err);
+    log.error(null, "Unexpected error:", { detail: err });
     return new Response(
       JSON.stringify({ error: "Internal server error" }),
       {

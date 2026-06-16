@@ -1,6 +1,9 @@
 import { serve } from "https://deno.land/std@0.208.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.38.4";
 import { getCorsHeaders } from "../_shared/cors.ts";
+import { log } from "../_shared/logger.ts";
+// Pillar I (Gateway Spine): verify hive membership before scraping a hive's KPIs.
+import { resolveIdentity, resolveTenancy } from "../_shared/tenant-context.ts";
 // P1 roadmap 2026-05-26: envelope adoption (helper imported; success-path migration follows).
 import { beginRequest, ok, fail, recordModelHop } from "../_shared/envelope.ts";
 
@@ -56,6 +59,21 @@ serve(async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || ""
     );
 
+    // Pillar I: scrapes a hive's KPI snapshot scoped by the client hive_id on a
+    // service-role client — verify membership. Service-role (internal) skips.
+    {
+      const { authUid, isServiceRole } = await resolveIdentity(db, req);
+      if (!isServiceRole) {
+        const t = await resolveTenancy(db, authUid, hive_id);
+        if (!t.ok) {
+          return new Response(
+            JSON.stringify({ error: t.message, code: t.code }),
+            { status: t.status, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+          );
+        }
+      }
+    }
+
     // Fetch all KPI data in parallel
     const [eqStatus, riskAssets, pmStatus, invAlerts, adoption] = await Promise.all([
       _fetchEquipmentStatus(db, hive_id),
@@ -89,7 +107,7 @@ serve(async (req) => {
       }
     );
   } catch (err) {
-    console.error("Platform scraper error:", err);
+    log.error(null, "Platform scraper error:", { detail: err });
     return new Response(
       JSON.stringify({
         error: "Platform scraper failed",

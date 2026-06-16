@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>WorkHive Gateway — Status</title>
+<!--
+  status.html — Pillar O (Observability & SLO) local status page.
+  Part of the Full-Stack SaaS Gateway arc (FULLSTACK_SAAS_GATEWAY_ROADMAP.md §6, Phase 3).
+  Internal ops surface: pings each edge fn's public /health endpoint, renders a live
+  status grid + provider deps + the SLO targets declared in GATEWAY_SLO.md. Local-first;
+  no external status-page SaaS. Edge base is configurable (window.WH_EDGE_BASE) and
+  defaults to the local stack — prod points it at the project's functions URL.
+-->
+<style>
+  :root {
+    --wh-navy: #0f1b2d; --wh-navy-2: #16223a; --wh-blue: #2f6df6; --wh-amber: #f7a21b;
+    --wh-green: #2ecc71; --wh-red: #e74c3c; --wh-grey: #8aa0bd; --wh-text: #e8eef7;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: 'Poppins', system-ui, sans-serif; background: var(--wh-navy); color: var(--wh-text); padding: 24px; }
+  h1 { font-size: 1.4rem; margin: 0 0 4px; }
+  .sub { color: var(--wh-grey); font-size: .85rem; margin-bottom: 20px; }
+  .bar { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-bottom: 20px; }
+  button { background: var(--wh-blue); color: #fff; border: 0; border-radius: 8px; padding: 10px 16px; font-weight: 600; cursor: pointer; min-height: 44px; }
+  button:disabled { opacity: .6; cursor: default; }
+  .summary { font-size: .9rem; color: var(--wh-grey); }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; }
+  .card { background: var(--wh-navy-2); border-radius: 12px; padding: 14px 16px; border-left: 4px solid var(--wh-grey); }
+  .card.ok { border-left-color: var(--wh-green); }
+  .card.down { border-left-color: var(--wh-red); }
+  .card.slow { border-left-color: var(--wh-amber); }
+  .card.nohealth { border-left-color: var(--wh-grey); }
+  .dot.nohealth { background: var(--wh-grey); }
+  .fn { font-weight: 600; display: flex; justify-content: space-between; align-items: center; }
+  .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--wh-grey); display: inline-block; }
+  .dot.ok { background: var(--wh-green); } .dot.down { background: var(--wh-red); } .dot.slow { background: var(--wh-amber); }
+  .meta { font-size: .78rem; color: var(--wh-grey); margin-top: 6px; }
+  .deps { margin-top: 8px; display: flex; gap: 6px; flex-wrap: wrap; }
+  .dep { font-size: .7rem; padding: 2px 8px; border-radius: 20px; background: #20304d; }
+  .dep.ok { color: var(--wh-green); } .dep.bad { color: var(--wh-red); }
+  .slo { margin-top: 28px; background: var(--wh-navy-2); border-radius: 12px; padding: 16px 18px; }
+  .slo h2 { font-size: 1rem; margin: 0 0 10px; }
+  .slo table { width: 100%; border-collapse: collapse; font-size: .82rem; }
+  .slo td { padding: 5px 8px; border-bottom: 1px solid #20304d; }
+  .slo td:last-child { text-align: right; color: var(--wh-amber); font-weight: 600; }
+</style>
+</head>
+<body>
+  <h1>WorkHive Gateway — Status</h1>
+  <div class="sub">Pillar O · live <code>/health</code> across the edge gateway + specialists. Targets per <code>GATEWAY_SLO.md</code>.</div>
+  <div class="bar">
+    <button id="refresh" onclick="runChecks()">Refresh</button>
+    <span class="summary" id="summary" role="status" aria-live="polite">Checking…</span>
+  </div>
+  <div class="grid" id="grid"></div>
+
+  <div class="slo">
+    <h2>SLO targets (28-day window)</h2>
+    <table>
+      <tr><td>Gateway availability</td><td>≥ 99.5%</td></tr>
+      <tr><td>Interactive latency (p95)</td><td>&lt; 2.0 s</td></tr>
+      <tr><td>Voice surface latency (p95)</td><td>&lt; 2.5 s</td></tr>
+      <tr><td>RAG / background latency (p95)</td><td>&lt; 5.0 s</td></tr>
+      <tr><td>Error rate (excl. 401/403/429)</td><td>&lt; 1.0%</td></tr>
+      <tr><td>Provider-chain success before fallback</td><td>≥ 80%</td></tr>
+      <tr><td>Error budget @ 99.5%</td><td>~3h 22m / 28d</td></tr>
+    </table>
+  </div>
+
+  <script>
+    // Local-first: default to the local stack; prod overrides via window.WH_EDGE_BASE.
+    var EDGE = (window.WH_EDGE_BASE || 'http://127.0.0.1:54321') + '/functions/v1';
+    var SLOW_MS = 2000; // amber if /health round-trip exceeds the interactive SLO
+
+    // The gateway front doors + a representative set of specialists that expose /health.
+    var FUNCTIONS = [
+      'ai-gateway', 'platform-gateway', 'agentic-rag-loop', 'voice-action-router',
+      'voice-report-intent', 'semantic-fact-extractor', 'analytics-orchestrator',
+      'asset-brain-query', 'embed-entry', 'data-fabric-normalizer'
+    ];
+
+    function esc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) {
+      return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]; }); }
+
+    // Bounded fetch — a hung edge fn must not stall the status grid (a status page
+    // especially must time out fast). Self-contained (this page doesn't load utils.js),
+    // so we define the wrapper inline; a timeout aborts → caught → state 'down'.
+    function fetchWithTimeout(url, opts, ms) {
+      var ctl = new AbortController();
+      var t = setTimeout(function () { ctl.abort(); }, ms || 8000);
+      return fetch(url, Object.assign({}, opts || {}, { signal: ctl.signal }))
+        .finally(function () { clearTimeout(t); });
+    }
+
+    // State classes:
+    //   ok       — 200 + body.ok, fast
+    //   slow     — 200 + body.ok, but round-trip > SLOW_MS
+    //   nohealth — fn is UP but exposes no /health probe (a 4xx on the probe path);
+    //              a coverage gap (health-probe adoption), NOT an outage
+    //   down     — 5xx, network failure, or TIMEOUT (a genuine outage)
+    async function pingHealth(fn) {
+      var t0 = performance.now();
+      try {
+        var res = await fetchWithTimeout(EDGE + '/' + fn + '/health', { method: 'GET' }, 8000);
+        var ms = Math.round(performance.now() - t0);
+        var body = null; try { body = await res.json(); } catch (e) {}
+        var state;
+        if (res.status === 200 && body && body.ok !== false) state = (ms > SLOW_MS) ? 'slow' : 'ok';
+        else if (res.status >= 500 || res.status === 0)       state = 'down';
+        else                                                  state = 'nohealth'; // 4xx = no probe
+        return { fn: fn, state: state, status: res.status, ms: ms, deps: (body && body.deps) || [] };
+      } catch (e) {
+        return { fn: fn, state: 'down', status: 0, ms: Math.round(performance.now() - t0), deps: [], err: String(e) };
+      }
+    }
+
+    var LABEL = { ok: 'healthy', slow: 'slow', nohealth: 'no /health probe', down: 'DOWN' };
+
+    function render(rows) {
+      var grid = document.getElementById('grid');
+      grid.innerHTML = rows.map(function (r) {
+        var deps = (r.deps || []).map(function (d) {
+          return '<span class="dep ' + (d.ok ? 'ok' : 'bad') + '">' + esc(d.name) + (d.ok ? ' ✓' : ' ✕') + '</span>';
+        }).join('');
+        return '<div class="card ' + r.state + '">' +
+          '<div class="fn"><span>' + esc(r.fn) + '</span><span class="dot ' + r.state + '"></span></div>' +
+          '<div class="meta">' + esc(LABEL[r.state]) + ' · HTTP ' + esc(r.status) + ' · ' + esc(r.ms) + ' ms' + (r.err ? ' · ' + esc(r.err) : '') + '</div>' +
+          (deps ? '<div class="deps">' + deps + '</div>' : '') +
+          '</div>';
+      }).join('');
+    }
+
+    async function runChecks() {
+      var btn = document.getElementById('refresh');
+      var sum = document.getElementById('summary');
+      btn.disabled = true; sum.textContent = 'Checking ' + FUNCTIONS.length + ' surfaces…';
+      var rows = await Promise.all(FUNCTIONS.map(pingHealth));
+      render(rows);
+      var ok = rows.filter(function (r) { return r.state === 'ok' || r.state === 'slow'; }).length;
+      var down = rows.filter(function (r) { return r.state === 'down'; }).length;
+      var noh = rows.filter(function (r) { return r.state === 'nohealth'; }).length;
+      var probed = rows.length - noh;
+      var avail = probed ? Math.round(100 * ok / probed) : 0;
+      sum.textContent = ok + '/' + probed + ' probed surfaces healthy (' + avail + '%)' +
+        (down ? ' · ' + down + ' DOWN' : '') +
+        (noh ? ' · ' + noh + ' without /health' : '') +
+        ' · ' + new Date().toLocaleTimeString();
+      btn.disabled = false;
+    }
+
+    runChecks();
+  </script>
+</body>
+</html>

@@ -2,6 +2,7 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
 // contract-allow: audio -> text passthrough
 import { transcribeAudio } from "../_shared/audio-chain.ts";
+import { log } from "../_shared/logger.ts";
 import { getCorsHeaders } from "../_shared/cors.ts";
 // P1 roadmap 2026-05-26: envelope adoption (helper imported; success-path migration follows).
 import { beginRequest, ok, fail, recordModelHop } from "../_shared/envelope.ts";
@@ -62,7 +63,7 @@ serve(async (req) => {
     );
 
   } catch (err) {
-    console.error("voice-transcribe error:", err);
+    log.error(null, "voice-transcribe error:", { detail: err });
     return new Response(
       JSON.stringify({ error: err instanceof Error ? err.message : String(err) }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }

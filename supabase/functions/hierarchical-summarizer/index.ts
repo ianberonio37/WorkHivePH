@@ -40,8 +40,11 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { callAI } from "../_shared/ai-chain.ts";
+import { log } from "../_shared/logger.ts";
 import { logAICost, estimateTokens } from "../_shared/cost-log.ts";
 import { getCorsHeaders } from "../_shared/cors.ts";
+// Pillar I (Gateway Spine): verify hive membership before service-role reads.
+import { resolveIdentity, resolveTenancy } from "../_shared/tenant-context.ts";
 // P1 roadmap 2026-05-26: adoption of envelope + /health.
 import { beginRequest, ok } from "../_shared/envelope.ts";
 import { handleHealth } from "../_shared/health.ts";
@@ -71,7 +74,7 @@ Respond JSON only:
 
 const _URL = Deno.env.get("SUPABASE_URL") || "";
 const _KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
-if (!_URL || !_KEY) console.warn("[hierarchical-summarizer] SUPABASE env vars missing");
+if (!_URL || !_KEY) log.warn(null, "[hierarchical-summarizer] SUPABASE env vars missing");
 const _warm = _URL && _KEY ? createClient(_URL, _KEY) : null;
 void _warm;
 
@@ -209,7 +212,7 @@ async function pmOverdueForHive(db: SupabaseClient, hiveId: string, periodEnd: s
       .limit(ROW_CAP);
     return (data || []).filter((r: { is_due?: boolean }) => r.is_due === true).length;
   } catch (err) {
-    console.warn("[hierarchical-summarizer] pm overdue lookup failed:", String(err).slice(0, 80));
+    log.warn(null, "[hierarchical-summarizer] pm overdue lookup failed:", { detail: String(err).slice(0, 80) });
     return 0;
   }
 }
@@ -373,6 +376,23 @@ serve(async (req) => {
   }
 
   const db = _warm || createClient(_URL, _KEY);
+
+  // Pillar I: summarizes a hive's history scoped by the client hive_id on a
+  // service-role client — verify membership. Internal callers (cron / the
+  // temporal-rag delegate) use service-role and skip.
+  {
+    const { authUid, isServiceRole } = await resolveIdentity(db, req);
+    if (!isServiceRole) {
+      const t = await resolveTenancy(db, authUid, body.hive_id);
+      if (!t.ok) {
+        return new Response(
+          JSON.stringify({ error: t.message, code: t.code }),
+          { status: t.status, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+        );
+      }
+    }
+  }
+
   const period = (body.period_start && body.period_end)
     ? { start: body.period_start, end: body.period_end }
     : previousPeriod(body.level);

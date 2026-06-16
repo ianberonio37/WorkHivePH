@@ -58,26 +58,6 @@ import { getCorsHeaders } from "../_shared/cors.ts";
 import { beginRequest, ok, fail } from "../_shared/envelope.ts";
 
 const MAX_TOKENS_OUT = 1200;
-const RATE_LIMIT_PER_HOUR = Number(Deno.env.get("WH_RATE_LIMIT_OVERRIDE") || 40);
-
-// Rate-limit gate (same recipe as resume-extract / visual-defect-capture):
-// enforced only when a hive is present, since ai_rate_limits is hive-keyed.
-async function checkAIRateLimit(
-  db: SupabaseClient, hiveId: string, limitPerHour: number,
-): Promise<{ allowed: boolean; remaining: number }> {
-  const windowStart = new Date(Date.now() - 60 * 60 * 1000);
-  const { data } = await db.from("ai_rate_limits")
-    .select("call_count, window_start").eq("hive_id", hiveId).maybeSingle();
-  if (!data || new Date(data.window_start) < windowStart) {
-    await db.from("ai_rate_limits").upsert({
-      hive_id: hiveId, call_count: 1, window_start: new Date().toISOString(),
-    });
-    return { allowed: true, remaining: limitPerHour - 1 };
-  }
-  if (data.call_count >= limitPerHour) return { allowed: false, remaining: 0 };
-  await db.from("ai_rate_limits").update({ call_count: data.call_count + 1 }).eq("hive_id", hiveId);
-  return { allowed: true, remaining: limitPerHour - data.call_count - 1 };
-}
 
 const POLISH_SYSTEM = `You rewrite a Filipino industrial maintenance worker's rough work notes into stronger, more professional resume bullet points. The goal is a NOTICEABLE upgrade in impact and polish, while staying 100% truthful.
 Respond ONLY with JSON: { "bullets": ["..."] }.
@@ -146,26 +126,21 @@ serve(async (req) => {
   try {
     const body = await req.json().catch(() => ({}));
     const mode = String(body.mode || "").trim();
-    const hive_id = String(body.hive_id || "").trim();
     const auth_uid = body.auth_uid ? String(body.auth_uid).slice(0, 80) : null;
 
-    // Rate-limit gate FIRST. Hive users -> per-hive bucket. Solo users (no hive
-    // -- the Resume Builder's core phone-worker audience) -> per-identity bucket
-    // keyed by auth_uid, or by client IP for an anonymous caller on the public
-    // fn URL (verify_jwt=false). ai_rate_limits is hive_id-keyed and cannot gate
-    // solo users; checkSoloRateLimit (ai_user_rate_limits) closes that hole.
+    // Rate-limit gate FIRST. The Resume Builder is a SOLO per-user feature (keyed
+    // by auth_uid; reads NO hive-scoped data) on a PUBLIC fn (verify_jwt=false).
+    // Pillar P: NEVER key a rate-limit on an UNVERIFIED client hive_id — there is
+    // no membership check here, so a spoofed hive_id would let an anon caller
+    // drain a victim hive's shared rate bucket. Bucket on the caller's
+    // own identity instead (auth_uid, client-IP fallback for anon).
     const db = createClient(
       Deno.env.get("SUPABASE_URL") || "",
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "",
     );
-    if (hive_id) {
-      const rl = await checkAIRateLimit(db, hive_id, RATE_LIMIT_PER_HOUR);
-      if (!rl.allowed) return json({ error: "AI call limit reached for this hive. Try again in an hour." }, 429);
-    } else {
-      const clientIp = (req.headers.get("x-forwarded-for") || "").split(",")[0].trim();
-      const rl = await checkSoloRateLimit(db, soloRateLimitKey(auth_uid, clientIp));
-      if (!rl.allowed) return json({ error: "AI call limit reached. Please try again in an hour." }, 429);
-    }
+    const clientIp = (req.headers.get("x-forwarded-for") || "").split(",")[0].trim();
+    const rl = await checkSoloRateLimit(db, soloRateLimitKey(auth_uid, clientIp));
+    if (!rl.allowed) return json({ error: "AI call limit reached. Please try again in an hour." }, 429);
 
     let raw: string;
     if (mode === "polish_bullets") {

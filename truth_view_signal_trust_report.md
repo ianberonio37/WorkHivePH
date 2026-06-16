@@ -9,7 +9,7 @@ differently (one trusts it; one re-gates on another field).
 - View/column pairs scanned: **319**
 - AT_RISK pairs (re-gating detected): **0**
 - REVIEW pairs (local-math smell on at least one consumer): **9**
-- Files scanned: **215**
+- Files scanned: **221**
 
 ## Smell legend
 
@@ -355,7 +355,7 @@ re-deriving what the canonical view should expose:
 | `v_worker_skill_truth` | `primary_skill` | ✅ OK | 2 | direct |
 | `v_worker_skill_truth` | `role` | ✅ OK | 2 | direct |
 | `v_worker_skill_truth` | `worker_name` | ✅ OK | 3 | direct |
-| `v_worker_truth` | `hive_status` | ✅ OK | 6 | direct |
+| `v_worker_truth` | `hive_status` | ✅ OK | 7 | direct |
 | `v_worker_truth` | `preferred_persona` | ✅ OK | 2 | direct |
-| `v_worker_truth` | `role` | ✅ OK | 5 | direct |
+| `v_worker_truth` | `role` | ✅ OK | 6 | direct |
 | `v_worker_truth` | `worker_name` | ✅ OK | 11 | direct |

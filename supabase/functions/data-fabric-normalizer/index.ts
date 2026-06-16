@@ -26,6 +26,9 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { getCorsHeaders } from "../_shared/cors.ts";
+import { log } from "../_shared/logger.ts";
+// Pillar I: machine-ingest gate — only trusted (service-role) callers may write.
+import { requireServiceRole } from "../_shared/tenant-context.ts";
 // P1 roadmap 2026-05-26: adoption of envelope + /health.
 import { beginRequest, ok } from "../_shared/envelope.ts";
 import { handleHealth } from "../_shared/health.ts";
@@ -49,7 +52,7 @@ const EVENT_TYPES: Record<Source, string> = {
 
 const _URL = Deno.env.get("SUPABASE_URL") || "";
 const _KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
-if (!_URL || !_KEY) console.warn("[data-fabric-normalizer] SUPABASE env missing");
+if (!_URL || !_KEY) log.warn(null, "[data-fabric-normalizer] SUPABASE env missing");
 const _warm = _URL && _KEY ? createClient(_URL, _KEY) : null;
 void _warm;
 
@@ -148,6 +151,20 @@ serve(async (req) => {
   }
 
   const db        = _warm || createClient(_URL, _KEY);
+
+  // Pillar I: machine-ingest gate. Normalizes external events into a hive
+  // scoped by the CLIENT hive_id on a service-role client, with no auth_uid to
+  // membership-check (an external bridge is not a logged-in worker). Require a
+  // trusted (service-role) caller so a browser/anon user can't inject events
+  // into another hive. (Device-facing per-hive ingest key = tracked follow-up.)
+  const _gate = await requireServiceRole(db, req);
+  if (!_gate.ok) {
+    return new Response(
+      JSON.stringify({ error: _gate.message, code: _gate.code }),
+      { status: _gate.status, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+    );
+  }
+
   const occurred  = body.occurred_at ? new Date(body.occurred_at) : new Date();
   const occurredIso = occurred.toISOString();
   const hash      = await sha256(`${body.source}|${body.source_id}|${occurredIso}`);

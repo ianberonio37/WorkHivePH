@@ -32,6 +32,7 @@ Any command can be scoped to ONE of the 13 production layers with --layer:
 
 Usage:
   python tools/fullstack_dev.py status                 # matrix scorecard, one glance
+  python tools/fullstack_dev.py pillars                # Gateway arc per-pillar + per-phase % (measured)
   python tools/fullstack_dev.py matrix [--layer D]     # the 13×6 grid (filled/blank)
   python tools/fullstack_dev.py substrate [--layer F]  # G-1.5 pattern-miner shape layer
   python tools/fullstack_dev.py discover               # G-1   matrix integrity + gap cells
@@ -280,6 +281,186 @@ def write_scorecard() -> dict:
     return sc
 
 
+# ───────────────────── per-PILLAR scorecard (the Gateway BUILD ARC) ────────────
+# The 13×6 matrix above measures CODE×GATE coverage. The Gateway build arc
+# (FULLSTACK_SAAS_GATEWAY_ROADMAP.md) is organized into 8 PILLARS across 6 PHASES.
+# This scorecard measures each pillar's completion from CONCRETE, cheap criteria
+# (a file exists / a grep matches / a ratchet baseline is at target) so the
+# per-pillar and per-phase % are MEASURED, not estimated. Closes Phase 0's
+# "per-pillar scorecard skeleton" item. Invents nothing — it checks artefacts the
+# arc already built; an unmet criterion is an honest open item, never a fabrication.
+
+PILLAR_SCORECARD = ROOT / "fullstack_pillar_scorecard.json"
+GATEWAY_ACCEPT_MARKER = ROOT / ".gateway-accept-pass"
+SF = ROOT / "supabase" / "functions"
+
+def _c_file(rel: str) -> bool:
+    return (ROOT / rel).exists()
+
+def _c_shared(rel: str) -> bool:
+    return (SF / rel).exists()
+
+def _c_grep(rel: str, needle: str) -> bool:
+    try:
+        return needle in (ROOT / rel).read_text(encoding="utf-8", errors="replace")
+    except Exception:  # noqa: BLE001
+        return False
+
+def _c_shared_grep(rel: str, needle: str) -> bool:
+    return _c_grep(f"supabase/functions/{rel}", needle)
+
+def _c_blmin(rel: str, key: str, n: int) -> bool:
+    d = _load(ROOT / rel) or {}
+    try:
+        return int(d.get(key, -1)) >= n
+    except Exception:  # noqa: BLE001
+        return False
+
+def _c_marker(key: str, val: str) -> bool:
+    return (_load(PASS_MARKER) or {}).get(key) == val
+
+def _c_callers(needle: str, n: int) -> bool:
+    """True if >= n edge-fn index.ts files reference `needle` (adoption breadth)."""
+    try:
+        cnt = sum(1 for p in SF.rglob("index.ts")
+                  if needle in p.read_text(encoding="utf-8", errors="replace"))
+        return cnt >= n
+    except Exception:  # noqa: BLE001
+        return False
+
+def _c_accept_pass() -> bool:
+    """True when the Gateway-Accept capstone run last passed (.gateway-accept-pass)."""
+    return (_load(GATEWAY_ACCEPT_MARKER) or {}).get("result") == "PASS"
+
+# Each criterion: (label, callable -> bool). met/total = the pillar's % complete.
+GATEWAY_PILLARS = [
+    ("D", "Data & Truth", "foundation", [
+        ("canonical registry present",        lambda: _c_file("canonical_registry.json")),
+        ("migration hash lock present",        lambda: _c_file("migration_hashes.json")),
+        ("data-governance validator present",  lambda: _c_file("validate_data_governance.py")),
+    ]),
+    ("F", "Edge Experience", "foundation", [
+        ("request-budget scanner present",     lambda: _c_file("tools/request_budget_scan.js")),
+        ("shared components.css present",       lambda: _c_file("components.css")),
+        ("mobile validator present",            lambda: _c_file("validate_mobile.py")),
+    ]),
+    ("I", "Identity & Tenancy", "phase1", [
+        ("tenant-context resolver present",     lambda: _c_shared("_shared/tenant-context.ts")),
+        ("resolveTenancy implemented",          lambda: _c_shared_grep("_shared/tenant-context.ts", "resolveTenancy")),
+        ("requireServiceRole implemented",      lambda: _c_shared_grep("_shared/tenant-context.ts", "requireServiceRole")),
+        ("tenancy ratchet present",             lambda: _c_file("validate_gateway_tenancy.py")),
+    ]),
+    ("P", "Policy & Governance", "phase1", [
+        ("rate-limit helper present",           lambda: _c_shared("_shared/rate-limit.ts")),
+        ("policy hive-binding ratchet present", lambda: _c_file("validate_policy_hive_binding.py")),
+        ("PII-egress ratchet present",          lambda: _c_file("validate_pii_egress.py")),
+        ("PII redactor present",                lambda: _c_shared("_shared/redactPII.ts")),
+    ]),
+    ("R", "Routing & Contract", "phase1", [
+        ("routing-coverage ratchet present",    lambda: _c_file("validate_gateway_coverage.py")),
+        ("routing validator present",           lambda: _c_file("validate_gateway_routing.py")),
+        ("envelope helper present",             lambda: _c_shared("_shared/envelope.ts")),
+        ("trace-id threaded in envelope",       lambda: _c_shared_grep("_shared/envelope.ts", "trace")),
+    ]),
+    ("C", "Compute & Resilience", "phase2", [
+        ("LLM cache helper present",            lambda: _c_shared("_shared/cache.ts")),
+        ("provider-health circuit-break",       lambda: _c_shared("_shared/provider-health.ts")),
+        ("cache-adoption ratchet present",      lambda: _c_file("validate_llm_cache_adoption.py")),
+        ("cache adopters >= 3 (baseline)",      lambda: _c_blmin("llm_cache_adoption_baseline.json", "adopters", 3)),
+        ("provider-fallback validator present", lambda: _c_file("validate_groq_fallback.py")),
+        ("k6 load-test rig present",            lambda: _c_file("tools/load_test.k6.js")),
+        # maturity: quota breadth + an executed load test are genuine wins (met).
+        # "cache adopters >= 5" is left HONESTLY UNMET by design: the genuinely
+        # cacheable surface is the 3 deterministic classifiers (router/intent);
+        # the remaining LLM calls (fmea/extractor/summarizer) have per-instance-
+        # varying prompts → caching them is box-ticking, not value (ai-engineer
+        # skill). Not chased to a number. See roadmap §6f.
+        ("cache adopters >= 5 (broad)",         lambda: _c_blmin("llm_cache_adoption_baseline.json", "adopters", 5)),
+        ("per-route quota in >= 2 fns",         lambda: _c_callers("checkRouteRateLimit", 2)),
+        ("load-test executed (marker)",         lambda: _c_marker("load_test", "PASS")),
+    ]),
+    ("O", "Observability & SLO", "phase3", [
+        ("error-tracker present",               lambda: _c_shared("_shared/error-tracker.ts")),
+        ("structured logger present",           lambda: _c_shared("_shared/logger.ts")),
+        ("trace-id in envelope",                lambda: _c_shared_grep("_shared/envelope.ts", "trace_id")),
+        ("observability validator present",     lambda: _c_file("validate_observability.py")),
+        ("/health probe on >= 10 fns",          lambda: _c_callers("handleHealth", 10)),
+        # maturity gaps (the weakest pillar): aggregation, SLO, status page, breadth
+        ("structured-log adopted >= 10 fns",    lambda: _c_callers("logger", 10)),
+        ("trace aggregation / log store wired", lambda: _c_file("GATEWAY_TRACE_STORE.md") or _c_shared("_shared/trace-store.ts")),
+        ("SLO / error-budget doc present",      lambda: _c_file("GATEWAY_SLO.md")),
+        ("local status page present",           lambda: _c_file("status.html")),
+    ]),
+    ("DR", "Delivery & Recovery", "phase4", [
+        ("CI workflow file written",            lambda: _c_file(".github/workflows") and any((ROOT / ".github/workflows").glob("*.yml"))),
+        ("idempotency validator present",       lambda: _c_file("validate_idempotency.py")),
+        ("edge-config validator present",       lambda: _c_file("validate_edge_config.py")),
+        ("rollback runbook present",            lambda: _c_file("ROLLBACK_RUNBOOK.md")),
+        # maturity (written-not-enabled): a locally-runnable gate + game-day + backups
+        ("CI gate locally runnable",            lambda: _c_file("tools/ci_gate.py")),
+        ("game-day script present",             lambda: _c_file("tools/game_day.py")),
+        ("backup verification present",         lambda: _c_file("tools/verify_backups.py")),
+    ]),
+]
+
+# Phase rollup: each phase = its member pillars (by phase-key) blended with any
+# phase-specific extra criteria (Phase 0 doctrine, Phase 5 accept marker).
+PHASE_DEFS = [
+    ("0", "Foundation lock & doctrine", "foundation_extra", [
+        ("gateway roadmap present",             lambda: _c_file("FULLSTACK_SAAS_GATEWAY_ROADMAP.md")),
+        ("per-pillar scorecard wired",          lambda: True),  # this command existing == the deliverable
+        ("13x6 study present",                  lambda: STUDY.exists()),
+    ]),
+    ("1", "The Gateway Spine (R+I+P)", "phase1", []),
+    ("2", "Compute & Resilience (C)", "phase2", []),
+    ("3", "Observability & SLO (O)", "phase3", []),
+    ("4", "Delivery & Recovery (DR)", "phase4", []),
+    ("5", "Gateway-Accept", "phase5", [
+        # Capstone per roadmap §116: `fullstack_dev accept` re-stresses every pillar
+        # gate + live drills + scorecard floors and stamps .gateway-accept-pass. The
+        # whole-platform G0 guardian + prod deploy are a SEPARATE Ian-gated step
+        # (NOT part of the gateway-accept capstone).
+        ("gateway-accept run = PASS",           lambda: _c_accept_pass()),
+        ("accept marker present",               lambda: _c_file(".gateway-accept-pass")),
+    ]),
+]
+
+def _eval_criteria(criteria) -> tuple[float, int, int, list]:
+    rows = [(label, bool(fn())) for label, fn in criteria]
+    met = sum(1 for _, okk in rows if okk)
+    pct = round(100 * met / len(rows), 1) if rows else 0.0
+    return pct, met, len(rows), rows
+
+def compute_pillar_scorecard() -> dict:
+    pillars: dict = {}
+    by_phase: dict = {}
+    for pid, name, phase_key, criteria in GATEWAY_PILLARS:
+        pct, met, tot, rows = _eval_criteria(criteria)
+        pillars[pid] = {"name": name, "phase_key": phase_key, "pct": pct, "met": met, "of": tot,
+                        "criteria": [{"label": l, "ok": o} for l, o in rows]}
+        by_phase.setdefault(phase_key, []).append(pct)
+    phases = []
+    for ph_id, ph_name, ph_key, extra in PHASE_DEFS:
+        parts = list(by_phase.get(ph_key, []))
+        extra_rows = []
+        if extra:
+            epct, _em, _et, erows = _eval_criteria(extra)
+            parts.append(epct)
+            extra_rows = [{"label": l, "ok": o} for l, o in erows]
+        ph_pct = round(sum(parts) / len(parts), 1) if parts else 0.0
+        phases.append({"phase": ph_id, "name": ph_name, "key": ph_key, "pct": ph_pct,
+                       "pillars": [p for p, _n, k, _c in GATEWAY_PILLARS if k == ph_key],
+                       "extra": extra_rows})
+    overall = round(sum(p["pct"] for p in phases) / len(phases), 1) if phases else 0.0
+    return {"generated_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+            "pillars": pillars, "phases": phases, "overall_pct": overall}
+
+def write_pillar_scorecard() -> dict:
+    sc = compute_pillar_scorecard()
+    PILLAR_SCORECARD.write_text(json.dumps(sc, indent=2), encoding="utf-8")
+    return sc
+
+
 # ───────────────────────────── layer runners (return ok, summary) ─────────────
 
 def _cells_for_layer(m: dict, gid: str, layer: str | None) -> list[tuple[str, dict]]:
@@ -384,6 +565,176 @@ def cmd_status(_a=None) -> int:
     last = _load(PASS_MARKER)
     if last:
         print(f"\n  last mega: {last.get('result')} @ {last.get('ts')}")
+    print()
+    return 0
+
+
+# ───────────────────── Gateway-Accept (the capstone, roadmap §5/§116) ──────────
+# Re-stress the gateway ARC: re-run each pillar's own gate + the live DR/C drills,
+# then assert no pillar regressed below its HONEST floor. This is the arc's
+# acceptance (fullstack_dev mega re-stress + scorecard green-or-baselined + live
+# cross-pillar proof) - NOT the whole-platform G0 guardian, which (plus prod
+# deploy) is a separate Ian-gated step. Runs individual validators + the local
+# tools (no run_platform_checks full-regen ops-hazard).
+ACCEPT_FLOORS = {"D": 100.0, "F": 100.0, "I": 100.0, "P": 100.0,
+                 "R": 100.0, "O": 100.0, "DR": 100.0, "C": 88.9}
+ACCEPT_GATES = [
+    ("I  tenancy",            [ROOT / "validate_gateway_tenancy.py"]),
+    ("P  policy-hive-binding", [ROOT / "validate_policy_hive_binding.py"]),
+    ("P  pii-egress",         [ROOT / "validate_pii_egress.py"]),
+    ("R  gateway-coverage",   [ROOT / "validate_gateway_coverage.py"]),
+    ("R  edge-contracts",     [ROOT / "validate_edge_contracts.py"]),
+    ("C  cache-adoption",     [ROOT / "validate_llm_cache_adoption.py"]),
+    ("C  groq-fallback",      [ROOT / "validate_groq_fallback.py"]),
+    ("C/F resilience",        [ROOT / "validate_resilience.py"]),
+    ("X  report-sender",      [ROOT / "validate_report_sender.py"]),
+    ("X  agentic-rag",        [ROOT / "validate_agentic_rag_loop.py"]),
+    ("DR backup-verify",      [TOOLS / "verify_backups.py"]),
+    ("DR game-day (live)",    [TOOLS / "game_day.py"]),
+    ("C  load-probe (live)",  [TOOLS / "load_probe.py"]),
+]
+
+
+def cmd_accept(_a=None) -> int:
+    banner("GATEWAY-ACCEPT — re-stress the arc (capstone, roadmap §5)", "cyan")
+    results: list[tuple[str, bool, str]] = []
+    for label, args in ACCEPT_GATES:
+        okk, summ = run_tool(args, f"accept: {label}")
+        results.append((label, okk, summ)); print()
+    gate_fail = [l for l, o, _ in results if not o]
+
+    sc = compute_pillar_scorecard()
+    floor_fail = [f"{pid} {sc['pillars'].get(pid, {}).get('pct', 0.0)}% < floor {floor}%"
+                  for pid, floor in ACCEPT_FLOORS.items()
+                  if sc["pillars"].get(pid, {}).get("pct", 0.0) + 1e-9 < floor]
+
+    passed = not gate_fail and not floor_fail
+    rec = {
+        "result": "PASS" if passed else "BLOCK",
+        "ts": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        "arc_pct": sc["overall_pct"],
+        "gates": {l: ("PASS" if o else "FAIL") for l, o, _ in results},
+        "pillars": {k: v["pct"] for k, v in sc["pillars"].items()},
+        "gate_failures": gate_fail, "floor_failures": floor_fail,
+        "note": ("Gateway-arc acceptance = re-stress + live drills + scorecard floors. "
+                 "Whole-platform G0 guardian + prod deploy remain a separate Ian-gated step."),
+    }
+    GATEWAY_ACCEPT_MARKER.write_text(json.dumps(rec, indent=2), encoding="utf-8")
+
+    banner("GATEWAY-ACCEPT — " + rec["result"], "green" if passed else "red")
+    for l, o, s in results:
+        print(f"  {(GREEN + 'PASS' + RESET) if o else (RED + 'FAIL' + RESET)}  {l:<22} {(s or '')[:70]}")
+    print(f"\n  pillar floors: {(GREEN + 'all held' + RESET) if not floor_fail else (RED + '; '.join(floor_fail) + RESET)}")
+    print(f"  arc: {sc['overall_pct']}%")
+    if not passed:
+        print(f"\n{RED}{BOLD}  BLOCK{RESET} - fix the failing gate(s)/floor(s), then re-run `accept`.")
+        return 1
+    print(f"\n{GREEN}{BOLD}  GATEWAY ARC ACCEPTED{RESET} - marker stamped (.gateway-accept-pass).")
+    print("  (Whole-platform G0 guardian + prod deploy stay Ian-gated.)")
+    return 0
+
+
+# ───────────────────────────── maturity-accept (roadmap §12 Phase 5) ──────────
+# Locks the Layer Maturity Sweep: coverage 100% + integrity + the Phase 1-3
+# maturity gates re-stressed PASS. Runs individual validators (no full-regen
+# ops-hazard); refreshes the substrate miners first so the ratchets read fresh.
+MATURITY_ACCEPT_MARKER = ROOT / ".maturity-accept-pass"
+MATURITY_MINERS = [
+    TOOLS / "mine_capacity_signals.py", TOOLS / "mine_health_surface.py",
+    TOOLS / "mine_cache_signals.py",    TOOLS / "mine_rate_limit_signals.py",
+    TOOLS / "mine_deploy_signals.py",   TOOLS / "mine_ci_signals.py",
+]
+MATURITY_GATES = [
+    ("LB GH saturation",     [ROOT / "validate_connection_pool_saturation.py"]),
+    ("LB G-1 conn-surface",  [ROOT / "validate_connection_surface_discovery.py"]),
+    ("LB GS load-resilience",[ROOT / "validate_load_resilience.py"]),
+    ("AV G-1 health-disc",   [ROOT / "validate_health_surface_discovery.py"]),
+    ("AV GH game-day",       [ROOT / "validate_game_day_readiness.py"]),
+    ("CA GH cache-hit-rate", [ROOT / "validate_cache_hit_rate.py"]),
+    ("CA GS invalidation",   [ROOT / "validate_cache_invalidation.py"]),
+    ("RL GS fairness",       [ROOT / "validate_rate_limit_fairness.py"]),
+    ("H  GS deploy-safety",  [ROOT / "validate_deploy_safety.py"]),
+    ("CI GS gate-sentinel",  [ROOT / "validate_ci_gate_sentinel.py"]),
+    ("L  G-1 log-surface",   [ROOT / "validate_log_surface_discovery.py"]),
+    ("L  GS log-correlation",[ROOT / "validate_log_correlation_sentinel.py"]),
+]
+
+
+def cmd_mature_accept(_a=None) -> int:
+    banner("MATURITY-ACCEPT — re-stress the Layer Maturity Sweep (capstone, roadmap §12 Phase 5)", "cyan")
+    # 1. refresh substrate so the ratchets read current shape
+    for m in MATURITY_MINERS:
+        if m.exists():
+            run_tool([m], f"mature-accept: refresh {m.name}")
+    print()
+    # 2. re-stress every maturity gate (Phases 1-3)
+    results: list[tuple[str, bool, str]] = []
+    for label, args in MATURITY_GATES:
+        okk, summ = run_tool(args, f"mature-accept: {label}")
+        results.append((label, okk, summ)); print()
+    gate_fail = [l for l, o, _ in results if not o]
+
+    # 3. the matrix must be 100% covered + integrity clean
+    sc = compute_scorecard()
+    coverage = sc["axes"]["coverage"]; integrity = sc["axes"]["integrity"]
+    cov_ok = coverage + 1e-9 >= 100.0
+    integ_ok = integrity + 1e-9 >= 100.0
+
+    passed = not gate_fail and cov_ok and integ_ok
+    rec = {
+        "result": "PASS" if passed else "BLOCK",
+        "ts": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        "coverage": coverage, "integrity": integrity,
+        "gates": {l: ("PASS" if o else "FAIL") for l, o, _ in results},
+        "gate_failures": gate_fail,
+        "note": ("Maturity-accept = matrix 100% + integrity + the Phase 1-3 maturity gates "
+                 "re-stressed. Phase 4 capability + the frozen baselines (latent RL bindings, "
+                 "undeployed fns, raw-console fns) are tracked debt, driven down over time. "
+                 "Whole-platform G0 + prod deploy stay Ian-gated."),
+    }
+    MATURITY_ACCEPT_MARKER.write_text(json.dumps(rec, indent=2), encoding="utf-8")
+
+    banner("MATURITY-ACCEPT — " + rec["result"], "green" if passed else "red")
+    for l, o, s in results:
+        print(f"  {(GREEN + 'PASS' + RESET) if o else (RED + 'FAIL' + RESET)}  {l:<22} {(s or '')[:64]}")
+    print(f"\n  matrix coverage: {(GREEN if cov_ok else RED)}{coverage}%{RESET}   integrity: {(GREEN if integ_ok else RED)}{integrity}%{RESET}")
+    if not passed:
+        print(f"\n{RED}{BOLD}  BLOCK{RESET} - fix the failing gate(s) / restore coverage, then re-run `mature-accept`.")
+        return 1
+    print(f"\n{GREEN}{BOLD}  LAYER MATURITY SWEEP ACCEPTED{RESET} - marker stamped (.maturity-accept-pass).")
+    print("  (Phase 4 capability + frozen-baseline drawdown continue; whole-platform G0 + prod deploy stay Ian-gated.)")
+    return 0
+
+
+def cmd_pillars(_a=None) -> int:
+    banner("GATEWAY ARC — PER-PILLAR & PER-PHASE SCORECARD", "cyan")
+    sc = write_pillar_scorecard()
+    print(f"  {BOLD}8 pillars (measured from concrete criteria){RESET}")
+    for pid, name, _phase_key, _crit in GATEWAY_PILLARS:
+        p = sc["pillars"][pid]
+        col = GREEN if p["pct"] >= 90 else (YEL if p["pct"] >= 60 else RED)
+        print(f"    {pid:<3} {name:<24} {col}{p['pct']:>5}%{RESET}  ({p['met']}/{p['of']})")
+    print(f"\n  {BOLD}6 phases — % to fully complete{RESET}")
+    for ph in sc["phases"]:
+        col = GREEN if ph["pct"] >= 90 else (YEL if ph["pct"] >= 60 else RED)
+        pill = "+".join(ph["pillars"]) if ph["pillars"] else "—"
+        print(f"    Phase {ph['phase']:<2} {ph['name']:<30} {col}{ph['pct']:>5}%{RESET}  [{pill}]")
+    oc = GREEN if sc["overall_pct"] >= 90 else (YEL if sc["overall_pct"] >= 60 else RED)
+    print(f"\n  {BOLD}overall arc:{RESET} {oc}{sc['overall_pct']}%{RESET}")
+    print(f"\n  {BOLD}open items (unmet criteria — the honest punch-list){RESET}")
+    any_open = False
+    for pid, _name, _pk, _crit in GATEWAY_PILLARS:
+        for c in sc["pillars"][pid]["criteria"]:
+            if not c["ok"]:
+                print(f"    {RED}o{RESET} {pid:<3} {c['label']}")
+                any_open = True
+    for ph in sc["phases"]:
+        for c in ph.get("extra", []):
+            if not c["ok"]:
+                print(f"    {RED}o{RESET} P{ph['phase']:<3} {c['label']}")
+                any_open = True
+    if not any_open:
+        print(f"    {GREEN}none — all criteria met{RESET}")
     print()
     return 0
 
@@ -562,13 +913,30 @@ def cmd_self_test(_a=None) -> int:
         if cmd not in ("substrate", "discover", "gate", "harden", "sentinel", "e2e"):
             fails.append(f"gate layer command {cmd} has no runner")
 
+    # 5. the per-pillar scorecard computes; 8 pillars + 6 phases, all pct in [0,100].
+    try:
+        ps = compute_pillar_scorecard()
+        if len(ps["pillars"]) != 8:
+            fails.append(f"pillar scorecard has {len(ps['pillars'])} pillars, expected 8")
+        if len(ps["phases"]) != 6:
+            fails.append(f"pillar scorecard has {len(ps['phases'])} phases, expected 6")
+        for pid, pdata in ps["pillars"].items():
+            v = pdata["pct"]
+            if not (isinstance(v, (int, float)) and 0 <= v <= 100):
+                fails.append(f"pillar {pid} pct out of range: {v}")
+        if not (0 <= ps["overall_pct"] <= 100):
+            fails.append(f"overall_pct out of range: {ps['overall_pct']}")
+    except Exception as e:  # noqa: BLE001
+        fails.append(f"pillar scorecard threw: {e}")
+
     if fails:
         print(f"{RED}{BOLD}SELF-TEST FAILED:{RESET}")
         for f in fails:
             print(f"  {RED}x{RESET} {f}")
         return 1
     print(f"{GREEN}{BOLD}SELF-TEST PASSED{RESET} — spec + guardian + coverage tool resolve, "
-          f"13×6 matrix parses, 3 axes in range, every gate-layer command has a runner.")
+          f"13×6 matrix parses, 3 axes in range, every gate-layer command has a runner, "
+          f"8-pillar / 6-phase scorecard computes in range.")
     return 0
 
 
@@ -585,6 +953,9 @@ def main() -> int:
     ap.add_argument("--self-test", action="store_true", help="prove the orchestrator wiring (offline, $0)")
     sub = ap.add_subparsers(dest="cmd")
     sub.add_parser("status", help="matrix 4-axis scorecard, one glance")
+    sub.add_parser("pillars", help="Gateway arc per-pillar + per-phase scorecard (measured)")
+    sub.add_parser("accept", help="Gateway-Accept capstone: re-stress the arc + stamp the marker")
+    sub.add_parser("mature-accept", help="Maturity-Accept capstone: re-stress the layer sweep (matrix 100% + Phase 1-3 gates) + stamp .maturity-accept-pass")
     _add_layer(sub.add_parser("matrix", help="the 13×6 grid (filled/blank/missing)"))
     _add_layer(sub.add_parser("substrate", help="G-1.5: pattern-miner shape layer"))
     _add_layer(sub.add_parser("discover", help="G-1: matrix-integrity meta-gate + gaps"))
@@ -602,9 +973,10 @@ def main() -> int:
 
     cmd = args.cmd or "status"
     dispatch = {
-        "status": cmd_status, "matrix": cmd_matrix, "substrate": cmd_substrate,
-        "discover": cmd_discover, "gate": cmd_gate, "harden": cmd_harden,
-        "sentinel": cmd_sentinel, "e2e": cmd_e2e, "mega": cmd_mega,
+        "status": cmd_status, "pillars": cmd_pillars, "accept": cmd_accept,
+        "mature-accept": cmd_mature_accept, "matrix": cmd_matrix,
+        "substrate": cmd_substrate, "discover": cmd_discover, "gate": cmd_gate,
+        "harden": cmd_harden, "sentinel": cmd_sentinel, "e2e": cmd_e2e, "mega": cmd_mega,
     }
     return dispatch[cmd](args)
 

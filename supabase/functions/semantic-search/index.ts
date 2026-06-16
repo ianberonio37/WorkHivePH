@@ -1,9 +1,12 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { getCorsHeaders } from "../_shared/cors.ts";
+import { log } from "../_shared/logger.ts";
 // P1 roadmap 2026-05-26: envelope adoption (helper imported; success-path migration follows).
 import { beginRequest, ok, fail, recordModelHop } from "../_shared/envelope.ts";
 import { generateEmbedding } from "../_shared/embedding-chain.ts";
+// Pillar I (Gateway Spine): verify hive membership before service-role search.
+import { resolveIdentity, resolveTenancy } from "../_shared/tenant-context.ts";
 
 // Warm module-scope Supabase client. Reused across request invocations
 // in the same warm container. Per-request createClient calls below are
@@ -44,7 +47,7 @@ serve(async (req) => {
     try {
       embedding = await generateEmbedding(query);
     } catch (err) {
-      console.warn(`[semantic-search] embedding unavailable — returning empty RAG context: ${err instanceof Error ? err.message : String(err)}`);
+      log.warn(null, `[semantic-search] embedding unavailable — returning empty RAG context: ${err instanceof Error ? err.message : String(err)}`);
       return new Response(
         JSON.stringify({ results: {}, context: "No relevant history found in knowledge base yet." }),
         { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
@@ -55,6 +58,22 @@ serve(async (req) => {
       Deno.env.get("SUPABASE_URL")!,
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
     );
+
+    // Pillar I: knowledge search scoped by the client hive_id on a service-role
+    // client. Verify membership when a hive is claimed (solo/global search has
+    // no tenant to protect). Internal service-role calls skip.
+    if (hive_id) {
+      const { authUid, isServiceRole } = await resolveIdentity(db, req);
+      if (!isServiceRole) {
+        const tenancy = await resolveTenancy(db, authUid, hive_id);
+        if (!tenancy.ok) {
+          return new Response(
+            JSON.stringify({ error: tenancy.message, code: tenancy.code }),
+            { status: tenancy.status, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+          );
+        }
+      }
+    }
 
     const count = match_count || 3;
 
@@ -71,7 +90,7 @@ serve(async (req) => {
         match_hive_id:   hive_id || null,
         match_count:     count,
       });
-      if (error) console.error("search_fault_knowledge error:", error.message);
+      if (error) log.error(null, "search_fault_knowledge error:", { detail: error.message });
       results.faults = data || [];
     }
 
@@ -82,7 +101,7 @@ serve(async (req) => {
         match_hive_id:   hive_id || null,
         match_count:     count,
       });
-      if (error) console.error("search_skill_knowledge error:", error.message);
+      if (error) log.error(null, "search_skill_knowledge error:", { detail: error.message });
       results.skills = data || [];
     }
 
@@ -93,7 +112,7 @@ serve(async (req) => {
         match_hive_id:   hive_id || null,
         match_count:     count,
       });
-      if (error) console.error("search_pm_knowledge error:", error.message);
+      if (error) log.error(null, "search_pm_knowledge error:", { detail: error.message });
       results.pm = data || [];
     }
 
@@ -132,7 +151,7 @@ serve(async (req) => {
     );
 
   } catch (err) {
-    console.error("semantic-search error:", err);
+    log.error(null, "semantic-search error:", { detail: err });
     return new Response(
       JSON.stringify({ error: err instanceof Error ? err.message : String(err) }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }

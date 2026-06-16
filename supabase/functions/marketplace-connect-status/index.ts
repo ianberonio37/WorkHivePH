@@ -17,6 +17,7 @@
 
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { beginRequest, ok, fail, recordModelHop } from "../_shared/envelope.ts";
+import { log } from "../_shared/logger.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { getCorsHeaders } from '../_shared/cors.ts';
 
@@ -94,7 +95,7 @@ serve(async (req: Request) => {
 
   if (!stripeRes.ok) {
     const err = await stripeRes.text();
-    console.error('Stripe account fetch error:', err);
+    log.error(null, 'Stripe account fetch error:', { detail: err });
     return errJson('Could not fetch Stripe account status', 502, req);
   }
 
@@ -116,9 +117,9 @@ serve(async (req: Request) => {
       .eq('worker_name', worker_name);
 
     if (updateErr) {
-      console.error('KYB update error:', updateErr.message);
+      log.error(null, 'KYB update error:', { detail: updateErr.message });
     } else {
-      console.log(`KYB auto-verified for seller: ${worker_name}`);
+      log.info(null, `KYB auto-verified for seller: ${worker_name}`);
     }
   }
 
@@ -128,7 +129,7 @@ serve(async (req: Request) => {
       .from('marketplace_sellers')
       .update({ kyb_verified: false, kyb_verified_at: null, updated_at: new Date().toISOString() })
       .eq('worker_name', worker_name);
-    console.log(`KYB revoked for seller: ${worker_name} (charges no longer enabled)`);
+    log.info(null, `KYB revoked for seller: ${worker_name} (charges no longer enabled)`);
   }
 
   /* ── Collect pending requirements from Stripe ───────────────────────── */

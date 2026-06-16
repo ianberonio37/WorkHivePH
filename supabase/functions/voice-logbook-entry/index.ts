@@ -20,6 +20,8 @@ import { callAI } from "../_shared/ai-chain.ts";
 import { loadMemory, saveTurn, formatMemoryContext } from "../_shared/memory.ts";
 import { logAICost, estimateTokens } from "../_shared/cost-log.ts";
 import { getCorsHeaders } from "../_shared/cors.ts";
+// Pillar I (Gateway Spine): verify hive membership on the direct call path.
+import { resolveIdentity, resolveTenancy } from "../_shared/tenant-context.ts";
 // P1 roadmap 2026-05-26: envelope adoption (helper imported; success-path migration follows).
 import { beginRequest, ok, fail, recordModelHop } from "../_shared/envelope.ts";
 import { checkAIRateLimit, rateLimitedResponse } from "../_shared/rate-limit.ts";
@@ -118,6 +120,21 @@ serve(async (req) => {
       Deno.env.get("SUPABASE_URL") || "",
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "",
     );
+    // Pillar I: the direct (logbook.html) path scopes the entry write by the
+    // client hive_id on a service-role client — verify membership. The
+    // ai-gateway forward is service-role and skips. Verify when hive claimed.
+    if (hive_id) {
+      const { authUid, isServiceRole } = await resolveIdentity(db, req);
+      if (!isServiceRole) {
+        const t = await resolveTenancy(db, authUid, hive_id);
+        if (!t.ok) {
+          return new Response(
+            JSON.stringify({ error: t.message, code: t.code }),
+            { status: t.status, headers: { ...cors, "Content-Type": "application/json" } },
+          );
+        }
+      }
+    }
     const rl = await checkAIRateLimit(db, hive_id || "");
     if (!rl.allowed) return rateLimitedResponse(cors);
 

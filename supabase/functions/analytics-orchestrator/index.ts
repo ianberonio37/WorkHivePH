@@ -7,6 +7,8 @@ import { redactPII } from "../_shared/redactPII.ts";
 import { getCorsHeaders } from "../_shared/cors.ts";
 // P1 roadmap 2026-05-26: envelope adoption (helper imported; success-path migration follows).
 import { beginRequest, ok, fail, recordModelHop } from "../_shared/envelope.ts";
+// Pillar O (Observability): structured request logging.
+import { log } from "../_shared/logger.ts";
 // P1 roadmap 2026-05-26: adoption of shared /health helper.
 import { handleHealth } from "../_shared/health.ts";
 import { checkAIRateLimit, rateLimitedResponse } from "../_shared/rate-limit.ts";
@@ -700,6 +702,9 @@ serve(async (req) => {
     ],
   }));
   if (healthResp) return healthResp;
+
+  const _logCtx = beginRequest(req, { route: "analytics-orchestrator" });
+  log.info(_logCtx, "request_start", { method: req.method });
 
   try {
     let { phase, hive_id, worker_name, period_days, criticality, discipline, persona, horizon } = await req.json();

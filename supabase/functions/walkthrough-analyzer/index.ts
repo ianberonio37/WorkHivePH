@@ -39,6 +39,7 @@
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { getCorsHeaders } from "../_shared/cors.ts";
+import { log } from "../_shared/logger.ts";
 // P1 roadmap 2026-05-26: envelope adoption (helper imported; success-path migration follows).
 import { beginRequest, ok, fail, recordModelHop } from "../_shared/envelope.ts";
 import { callAI, callAIMultimodal } from "../_shared/ai-chain.ts";
@@ -253,7 +254,7 @@ expected vs what is a real issue.`;
         }
         modelUsed = parsed.model_notes ? `vision:${parsed.model_notes}` : "vision";
       } catch {
-        console.warn(`[walkthrough-analyzer] failed to parse visual result: ${raw.slice(0, 120)}`);
+        log.warn(null, `[walkthrough-analyzer] failed to parse visual result: ${raw.slice(0, 120)}`);
       }
     }
 
@@ -323,7 +324,7 @@ Classify these errors against the 9 Sentinel Agent domains.`;
           modelUsed = modelUsed === "none" ? "text" : `${modelUsed}+text`;
         }
       } catch {
-        console.warn(`[walkthrough-analyzer] failed to parse console result: ${raw.slice(0, 120)}`);
+        log.warn(null, `[walkthrough-analyzer] failed to parse console result: ${raw.slice(0, 120)}`);
       }
     }
 
@@ -332,7 +333,7 @@ Classify these errors against the 9 Sentinel Agent domains.`;
       { headers: { "Content-Type": "application/json", ...getCorsHeaders(req) } },
     );
   } catch (err) {
-    console.error("[walkthrough-analyzer] error:", String(err));
+    log.error(null, "[walkthrough-analyzer] error:", { detail: String(err) });
     return new Response(
       JSON.stringify({ error: String(err) }),
       { status: 500, headers: { "Content-Type": "application/json", ...getCorsHeaders(req) } },

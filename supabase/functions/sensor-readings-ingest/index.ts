@@ -48,6 +48,8 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { getCorsHeaders } from "../_shared/cors.ts";
+// Pillar I: machine-ingest gate — only trusted (service-role) callers may write.
+import { requireServiceRole } from "../_shared/tenant-context.ts";
 // P1 roadmap 2026-05-26: envelope adoption (helper imported; success-path migration follows).
 import { beginRequest, ok, fail, recordModelHop } from "../_shared/envelope.ts";
 
@@ -167,6 +169,19 @@ serve(async (req) => {
       Deno.env.get("SUPABASE_URL") || "",
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "",
     );
+
+    // Pillar I: machine-ingest gate. This endpoint writes sensor_readings scoped
+    // by the CLIENT hive_id on a service-role client and has no auth_uid to
+    // membership-check (a plant bridge is not a logged-in worker). Require a
+    // trusted (service-role) caller so a browser/anon user can't inject readings
+    // into another hive. (Device-facing per-hive ingest key = tracked follow-up.)
+    const _gate = await requireServiceRole(db, req);
+    if (!_gate.ok) {
+      return new Response(
+        JSON.stringify({ error: _gate.message, code: _gate.code }),
+        { status: _gate.status, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+      );
+    }
 
     // Validate every row up front.
     const validated: ReadingRow[] = [];

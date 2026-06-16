@@ -53,12 +53,15 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 // contract-allow: produces AMC briefing; future Tier C: amc_brief_v1
 import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { callAI } from "../_shared/ai-chain.ts";
+import { log } from "../_shared/logger.ts";
 // Persona Contract: AMC briefings sign their footer ("Signed by Hezekiah,
 // your WorkHive daily companion"). The brief BODY stays structured —
 // only the narrative footer wears the persona. See
 // WORKHIVE_PERSONA_CONTRACT.md, mode='briefing-signature'.
 import { buildPersonaBlock, clampPersona } from "../_shared/persona.ts";
 import { getCorsHeaders } from "../_shared/cors.ts";
+// Pillar I (Gateway Spine): verify hive membership on the single-hive brief path.
+import { resolveIdentity, resolveTenancy } from "../_shared/tenant-context.ts";
 // P1 roadmap 2026-05-26: envelope adoption (helper imported; success-path migration follows).
 import { beginRequest, ok, fail, recordModelHop } from "../_shared/envelope.ts";
 import { logAICost, estimateTokens } from "../_shared/cost-log.ts";
@@ -566,7 +569,7 @@ async function buildBriefForHive(
   try {
     crew = await crewBuilder(db, hive.id, risk, pm);
   } catch (err) {
-    console.warn(`[amc] crewBuilder failed for ${hive.id}: ${err}`);
+    log.warn(null, `[amc] crewBuilder failed for ${hive.id}: ${err}`);
     crew = { crew: [] };
   }
 
@@ -650,6 +653,22 @@ serve(async (req) => {
       Deno.env.get("SUPABASE_URL") || "",
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "",
     );
+
+    // Pillar I: a single-hive brief (platform-gateway / direct) is scoped by the
+    // client hive_id on a service-role client — verify membership. The cron path
+    // (no hive_id → all subscribed hives) is service-role and skips.
+    if (targetHive) {
+      const { authUid, isServiceRole } = await resolveIdentity(db, req);
+      if (!isServiceRole) {
+        const t = await resolveTenancy(db, authUid, targetHive);
+        if (!t.ok) {
+          return new Response(
+            JSON.stringify({ error: t.message, code: t.code }),
+            { status: t.status, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+          );
+        }
+      }
+    }
 
     // Select hives to brief. Persona Contract Phase 6: pull the hive's
     // preferred_persona alongside id+name so the briefing signature wears

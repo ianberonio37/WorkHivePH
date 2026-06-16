@@ -3,6 +3,7 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 // contract-allow: cron-triggered writes
 import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { callAI } from "../_shared/ai-chain.ts";
+import { log } from "../_shared/logger.ts";
 import { logAICost, estimateTokens } from "../_shared/cost-log.ts";
 
 // Warm module-scope Supabase client. Reused across request invocations
@@ -22,6 +23,8 @@ import { redactPII as _redactPII } from "../_shared/redactPII.ts";  // eslint-di
 import { getCorsHeaders } from "../_shared/cors.ts";
 // P1 roadmap 2026-05-26: envelope adoption (helper imported; success-path migration follows).
 import { beginRequest, ok, fail, recordModelHop } from "../_shared/envelope.ts";
+// Pillar I (Gateway Spine): verify hive membership on the on-demand path.
+import { resolveIdentity, resolveTenancy } from "../_shared/tenant-context.ts";
 
 function callGroq(prompt: string, systemPrompt: string): Promise<string> {
   return callAI(prompt, { systemPrompt, temperature: 0.2, maxTokens: 1024, jsonMode: true });
@@ -326,6 +329,22 @@ serve(async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
     );
 
+    // Pillar I: the on-demand (Report Sender) path runs for a single client
+    // hive_id on a service-role client — verify membership. The pg_cron jobs
+    // pass a service-role bearer AND no hive_id, so they skip twice.
+    if (hive_id) {
+      const { authUid, isServiceRole } = await resolveIdentity(db, req);
+      if (!isServiceRole) {
+        const t = await resolveTenancy(db, authUid, hive_id);
+        if (!t.ok) {
+          return new Response(
+            JSON.stringify({ error: t.message, code: t.code }),
+            { status: t.status, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+          );
+        }
+      }
+    }
+
     // TODO Phase 3: add per-hive AI rate limit check here before running reports.
 
     let hives: { id: string; name: string }[];
@@ -396,7 +415,7 @@ serve(async (req) => {
     );
 
   } catch (err) {
-    console.error("scheduled-agents error:", err);
+    log.error(null, "scheduled-agents error:", { detail: err });
     return new Response(
       JSON.stringify({ error: err instanceof Error ? err.message : String(err) }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }

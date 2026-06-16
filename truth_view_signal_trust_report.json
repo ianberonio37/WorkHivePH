@@ -3,7 +3,7 @@
     "view_column_pairs": 319,
     "at_risk": 0,
     "review": 9,
-    "files_scanned": 215
+    "files_scanned": 221
   },
   "pairs": [
     {
@@ -7192,6 +7192,11 @@
           "smells": []
         },
         {
+          "file": "supabase/functions/_shared/tenant-context.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
           "file": "supabase/functions/ai-orchestrator/index.ts",
           "shape": "direct",
           "smells": []
@@ -7253,6 +7258,11 @@
           "smells": []
         },
         {
+          "file": "supabase/functions/_shared/tenant-context.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
           "file": "supabase/functions/batch-risk-scoring/index.ts",
           "shape": "direct",
           "smells": []
@@ -7286,6 +7296,11 @@
           "smells": []
         },
         {
+          "file": "supabase/functions/_shared/tenant-context.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
           "file": "supabase/functions/ai-gateway/index.ts",
           "shape": "direct",
           "smells": []
@@ -7302,11 +7317,6 @@
         },
         {
           "file": "supabase/functions/cmms-webhook-receiver/index.ts",
-          "shape": "direct",
-          "smells": []
-        },
-        {
-          "file": "supabase/functions/platform-gateway/index.ts",
           "shape": "direct",
           "smells": []
         },

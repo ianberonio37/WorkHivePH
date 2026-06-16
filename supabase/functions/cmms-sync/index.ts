@@ -15,8 +15,11 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { getCorsHeaders } from "../_shared/cors.ts";
+import { log } from "../_shared/logger.ts";
 // P1 roadmap 2026-05-26: envelope adoption (helper imported; success-path migration follows).
 import { beginRequest, ok, fail, recordModelHop } from "../_shared/envelope.ts";
+// Pillar I (Gateway Spine): verify hive membership on the manual sync path.
+import { resolveIdentity, resolveTenancy } from "../_shared/tenant-context.ts";
 import { STATUS_MAP, TYPE_MAP, FieldMap } from "../_shared/mappings.ts";
 
 // Warm module-scope Supabase client. Reused across request invocations
@@ -218,12 +221,12 @@ async function syncConfig(
     }
     if (logRows.length) {
       await db.from("logbook").insert(logRows).then(({ error }) => {
-        if (error) console.warn("logbook insert partial error:", error.message);
+        if (error) log.warn(null, "logbook insert partial error:", { detail: error.message });
       });
     }
     if (fkRows.length) {
       await db.from("fault_knowledge").insert(fkRows).then(({ error }) => {
-        if (error) console.warn("fault_knowledge insert partial error:", error.message);
+        if (error) log.warn(null, "fault_knowledge insert partial error:", { detail: error.message });
       });
     }
 
@@ -251,6 +254,22 @@ serve(async (req) => {
     const body      = await req.json().catch(() => ({}));
     const testMode  = Boolean(body.test);
     const now       = new Date().toISOString();
+
+    // Pillar I: the manual (integrations.html) path scopes the CMMS sync by the
+    // client hive_id on a service-role client — verify membership. The cron path
+    // (no hive_id → all enabled configs) is reached only by service-role and skips.
+    if (body.hive_id) {
+      const { authUid, isServiceRole } = await resolveIdentity(db, req);
+      if (!isServiceRole) {
+        const t = await resolveTenancy(db, authUid, String(body.hive_id));
+        if (!t.ok) {
+          return new Response(
+            JSON.stringify({ error: t.message, code: t.code }),
+            { status: t.status, headers: { ...cors, "Content-Type": "application/json" } },
+          );
+        }
+      }
+    }
 
     // Fetch configs to sync
     // unbounded-query-allow: enabled integration configs (one row per hive max); full fetch required
@@ -305,7 +324,7 @@ serve(async (req) => {
           rows_written:   syncResult.synced,
           rows_failed:    syncResult.failed,
           triggered_by:   "cmms-sync",
-        }).then(() => {}).catch((e: Error) => console.warn("cmms_audit_log write failed:", e.message));
+        }).then(() => {}).catch((e: Error) => log.warn(null, "cmms_audit_log write failed:", { detail: e.message }));
       }
 
       results.push({

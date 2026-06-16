@@ -6127,10 +6127,16 @@
         ? window.fetchWithTimeout
         : (u, o) => fetch(u, o);
 
+      // Pillar R/I: send the signed-in user's JWT so the edge fn verifies identity
+      // server-side (closes the auth_uid IDOR — it ignores body.auth_uid and uses
+      // the JWT-derived uid). Falls back to the publishable key only when there is
+      // no session, in which case the edge returns an empty journal.
+      const _userTok = ((await db.auth.getSession())?.data?.session?.access_token) || SUPABASE_KEY;
       const ragResp = await fetcher(SUPABASE_URL + '/functions/v1/voice-semantic-rag', {
         method: 'POST',
         headers: {
-          'Authorization': 'Bearer ' + SUPABASE_KEY,
+          'Authorization': 'Bearer ' + _userTok,
+          'apikey': SUPABASE_KEY,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
@@ -7731,12 +7737,16 @@
         const _whTraceRag = (window.crypto && window.crypto.getRandomValues
           ? Array.from(window.crypto.getRandomValues(new Uint8Array(8)), b => b.toString(16).padStart(2,'0')).join('')
           : Math.random().toString(16).slice(2, 18).padStart(16, '0'));
+        // Pillar R/I: send the signed-in user's JWT so agentic-rag-loop derives the
+        // verified authUid (its personal voice-journal lane scopes by that, not the
+        // client body.auth_uid — closes the auth_uid IDOR). Anon → publishable key.
+        const _userTokRag = ((await db.auth.getSession())?.data?.session?.access_token) || SUPABASE_KEY;
         const ragResp = await fetcher(SUPABASE_URL + '/functions/v1/agentic-rag-loop', {
           method: 'POST',
           headers: {
             'Content-Type':  'application/json',
             'apikey':        SUPABASE_KEY,
-            'Authorization': 'Bearer ' + SUPABASE_KEY,
+            'Authorization': 'Bearer ' + _userTokRag,
             'x-wh-trace':    _whTraceRag,
           },
           body: JSON.stringify(ragBody),

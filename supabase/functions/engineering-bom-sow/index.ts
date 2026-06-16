@@ -2,6 +2,7 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
 // contract-allow: deterministic BOM/SOW generation; not a brain output
 import { callAI } from "../_shared/ai-chain.ts";
+import { log } from "../_shared/logger.ts";
 import { logAICost, estimateTokens } from "../_shared/cost-log.ts";
 import { getCorsHeaders } from "../_shared/cors.ts";
 // P1 roadmap 2026-05-26: envelope adoption (helper imported; success-path migration follows).
@@ -4899,7 +4900,7 @@ serve(async (req) => {
     });
 
   } catch (err) {
-    console.error("engineering-bom-sow error:", err);
+    log.error(null, "engineering-bom-sow error:", { detail: err });
     return new Response(
       JSON.stringify({ error: err instanceof Error ? err.message : "Internal error" }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }

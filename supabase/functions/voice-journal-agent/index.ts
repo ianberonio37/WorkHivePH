@@ -32,6 +32,7 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 // contract-allow: voice journal write + retrieval
 import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { callAI } from "../_shared/ai-chain.ts";
+import { log } from "../_shared/logger.ts";
 import { getCorsHeaders } from "../_shared/cors.ts";
 // P1 roadmap 2026-05-26: envelope adoption (helper imported; success-path migration follows).
 import { beginRequest, ok, fail, recordModelHop } from "../_shared/envelope.ts";
@@ -492,10 +493,10 @@ serve(async (req) => {
       const rendered = parsed ? renderFactSheet(parsed, factSheet) : null;
       if (rendered?.ok) {
         answer = rendered.prose;
-        console.log(`[voice-journal] G3 slot-fill applied (${factSheet.facts.length} facts available)`);
+        log.info(null, `[voice-journal] G3 slot-fill applied (${factSheet.facts.length} facts available)`);
       } else {
         // strictly-additive fallback: identical to the non-G3 free-prose path.
-        console.log(`[voice-journal] G3 fell back to free prose (${parsed ? rendered?.reason : "unparseable-json"})`);
+        log.info(null, `[voice-journal] G3 fell back to free prose (${parsed ? rendered?.reason : "unparseable-json"})`);
         answer = await callAI(userBlock, proseOpts);
       }
     } else {
@@ -580,7 +581,7 @@ serve(async (req) => {
         status:        "failed",
       });
     }
-    console.error("voice-journal-agent error:", msg);
+    log.error(null, "voice-journal-agent error:", { detail: msg });
     return json(corsHeaders, 502, { error: `Journal agent failed: ${msg}` });
   }
 });

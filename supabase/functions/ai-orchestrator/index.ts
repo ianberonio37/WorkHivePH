@@ -3,6 +3,7 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 // contract-allow: router; forwards to sub-agents
 import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { callAI } from "../_shared/ai-chain.ts";
+import { log } from "../_shared/logger.ts";
 import { logAICost, estimateTokens } from "../_shared/cost-log.ts";
 import { getCorsHeaders } from "../_shared/cors.ts";
 // P1 roadmap 2026-05-26: envelope adoption (helper imported; success-path migration follows).
@@ -576,7 +577,7 @@ serve(async (req) => {
     );
 
   } catch (err) {
-    console.error("ai-orchestrator error:", err);
+    log.error(null, "ai-orchestrator error:", { detail: err });
     return new Response(
       JSON.stringify({ error: err instanceof Error ? err.message : String(err) }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }

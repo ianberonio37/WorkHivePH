@@ -14,6 +14,7 @@
 
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { beginRequest, ok, fail, recordModelHop } from "../_shared/envelope.ts";
+import { log } from "../_shared/logger.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { getCorsHeaders } from '../_shared/cors.ts';
 
@@ -111,7 +112,7 @@ serve(async (req: Request) => {
 
     if (!createRes.ok) {
       const err = await createRes.text();
-      console.error('Stripe account create error:', err);
+      log.error(null, 'Stripe account create error:', { detail: err });
       return errJson('Could not create Stripe account', 502, req);
     }
 
@@ -137,7 +138,7 @@ serve(async (req: Request) => {
 
   if (!linkRes.ok) {
     const err = await linkRes.text();
-    console.error('Stripe account link error:', err);
+    log.error(null, 'Stripe account link error:', { detail: err });
     return errJson('Could not create onboarding link', 502, req);
   }
 

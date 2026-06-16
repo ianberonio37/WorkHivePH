@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { getCorsHeaders } from "../_shared/cors.ts";
+import { log } from "../_shared/logger.ts";
 // P1 roadmap 2026-05-26: envelope adoption (helper imported; success-path migration follows).
 import { beginRequest, ok, fail, recordModelHop } from "../_shared/envelope.ts";
 
@@ -110,7 +111,7 @@ serve(async (req) => {
       job_name: "ml-retrain",
       status:   trainResp.ok ? "success" : "failed",
       detail:   JSON.stringify(trainResult).slice(0, 500),
-    }).then(({ error }) => { if (error) console.warn("audit log:", error.message); });
+    }).then(({ error }) => { if (error) log.warn(null, "audit log:", { detail: error.message }); });
 
     return new Response(JSON.stringify(trainResult), {
       status:  trainResp.ok ? 200 : 502,
@@ -118,7 +119,7 @@ serve(async (req) => {
     });
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
-    console.error("trigger-ml-retrain:", msg);
+    log.error(null, "trigger-ml-retrain:", { detail: msg });
     return new Response(JSON.stringify({ error: msg }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },

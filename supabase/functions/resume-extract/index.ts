@@ -20,7 +20,7 @@
  *   {
  *     kind:        "image" | "text",
  *     payload:     string,      // data:image/...;base64,... (image) OR raw text
- *     hive_id?:    string,      // optional; used only for rate-limit scoping
+ *     hive_id?:    string,      // accepted for back-compat; IGNORED (rate-limit is per-identity)
  *     worker_name?:string,
  *     source?:     string,      // "pdf" | "docx" | "xlsx" | "photo" (telemetry only)
  *     mime_type?:  string,
@@ -37,7 +37,8 @@
  *   security (UNTRUSTED document content -> prompt-injection guard, MIME + size
  *     caps, output clamped so a huge response cannot bloat the page)
  *   frontend (no em dashes in prompt template strings - they garble as â€")
- *   multitenant-engineer (service-role client; rate-limit scoped per hive)
+ *   multitenant-engineer (service-role client; rate-limit scoped per IDENTITY,
+ *     never an unverified client hive_id — Pillar P)
  */
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
@@ -50,7 +51,6 @@ import { canonicalizeSkill, isSectionHeaderLine, PROJECT_ACTION_VERBS } from "..
 // shape retained to match the platform error-contract pattern, like visual-defect-capture).
 import { beginRequest, ok, fail } from "../_shared/envelope.ts";
 
-const RATE_LIMIT_PER_HOUR = Number(Deno.env.get("WH_RATE_LIMIT_OVERRIDE") || 40);
 const MAX_IMAGE_BYTES = 4_500_000;          // ~2.5 MB binary
 // Heavy / multi-page resumes: a single 12K-char truncation silently DROPPED the
 // trailing pages (the last jobs/projects/awards never reached the model). Instead
@@ -219,24 +219,6 @@ Rules:
 const PROMOTE_DEDUPE_RULE = `
 
 PLACEMENT MODE (single placement): When an achievement qualifies as a Project or an Award, list it ONLY in that section and do NOT also repeat it as a work highlight. Each distinct achievement appears once, in the section that best showcases it. Routine recurring duties (operated machines, performed PM) still belong in work highlights. This does not change the recall rule: still capture every distinct role, project, certificate, and award.`;
-
-// ─── Rate-limit gate (same recipe as visual-defect-capture) ─────────────────
-async function checkAIRateLimit(
-  db: SupabaseClient, hiveId: string, limitPerHour: number,
-): Promise<{ allowed: boolean; remaining: number }> {
-  const windowStart = new Date(Date.now() - 60 * 60 * 1000);
-  const { data } = await db.from("ai_rate_limits")
-    .select("call_count, window_start").eq("hive_id", hiveId).maybeSingle();
-  if (!data || new Date(data.window_start) < windowStart) {
-    await db.from("ai_rate_limits").upsert({
-      hive_id: hiveId, call_count: 1, window_start: new Date().toISOString(),
-    });
-    return { allowed: true, remaining: limitPerHour - 1 };
-  }
-  if (data.call_count >= limitPerHour) return { allowed: false, remaining: 0 };
-  await db.from("ai_rate_limits").update({ call_count: data.call_count + 1 }).eq("hive_id", hiveId);
-  return { allowed: true, remaining: limitPerHour - data.call_count - 1 };
-}
 
 function validateImage(dataUrl: string, mimeHint?: string): { ok: boolean; reason?: string } {
   if (!dataUrl) return { ok: false, reason: "image payload missing" };
@@ -407,7 +389,6 @@ serve(async (req) => {
     const body = await req.json().catch(() => ({}));
     const kind = String(body.kind || "").trim();
     const payload = String(body.payload || "");
-    const hive_id = String(body.hive_id || "").trim();
     const worker_name = body.worker_name ? String(body.worker_name).slice(0, 120) : null;
     void worker_name;
     const auth_uid = body.auth_uid ? String(body.auth_uid).slice(0, 80) : null;
@@ -423,22 +404,18 @@ serve(async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "",
     );
 
-    // Rate-limit gate FIRST. Hive users -> per-hive bucket. Solo users (no hive
-    // -- the Resume Builder's core phone-worker audience) -> per-identity bucket
-    // keyed by auth_uid, or by client IP for an anonymous caller on the public
-    // fn URL (verify_jwt=false). ai_rate_limits is hive_id-keyed and cannot gate
-    // solo users; checkSoloRateLimit (ai_user_rate_limits) closes that hole.
-    let remaining = -1;
-    if (hive_id) {
-      const rl = await checkAIRateLimit(db, hive_id, RATE_LIMIT_PER_HOUR);
-      if (!rl.allowed) return json({ error: "AI call limit reached for this hive. Try again in an hour." }, 429);
-      remaining = rl.remaining;
-    } else {
-      const clientIp = (req.headers.get("x-forwarded-for") || "").split(",")[0].trim();
-      const rl = await checkSoloRateLimit(db, soloRateLimitKey(auth_uid, clientIp));
-      if (!rl.allowed) return json({ error: "AI call limit reached. Please try again in an hour." }, 429);
-      remaining = rl.remaining;
-    }
+    // Rate-limit gate FIRST. The Resume Builder is a SOLO per-user feature (keyed
+    // by auth_uid; reads NO hive-scoped data) on a PUBLIC fn (verify_jwt=false).
+    // Pillar P: NEVER key a rate-limit on an UNVERIFIED client hive_id — there is
+    // no membership check here, so a spoofed hive_id would let an anon caller
+    // drain a victim hive's shared rate bucket. Bucket on the caller's
+    // own identity instead (auth_uid, client-IP fallback for anon). A signed-in
+    // hive member is correctly capped per-person, which is the right scope for a
+    // personal document.
+    const clientIp = (req.headers.get("x-forwarded-for") || "").split(",")[0].trim();
+    const rl = await checkSoloRateLimit(db, soloRateLimitKey(auth_uid, clientIp));
+    if (!rl.allowed) return json({ error: "AI call limit reached. Please try again in an hour." }, 429);
+    const remaining = rl.remaining;
 
     let raw = "";
     if (kind === "image") {

@@ -161,6 +161,23 @@ def _has_any(src: str, markers: tuple) -> bool:
     return any(m in src for m in markers)
 
 
+def _blank_comments(src: str) -> str:
+    """Blank out JS block comments, HTML comments, and full-line `//` comments
+    so a bare `await fetch(` that lives inside a documentation example (e.g.
+    companion_surface_battery.js's console boot snippet in its JSDoc header) is
+    not mistaken for a production fetch site. Comment text is replaced with
+    spaces but newlines are preserved, so reported line numbers stay accurate.
+    The `//` strip is anchored to line-start so `https://` URLs and trailing
+    inline comments in live code are never eaten. Mirrors the block-comment
+    strip already used in check_connectivity_widget()."""
+    def _blank(m: "re.Match[str]") -> str:
+        return re.sub(r"[^\n]", " ", m.group(0))
+    src = re.sub(r"/\*[\s\S]*?\*/", _blank, src)   # JS/CSS block comments
+    src = re.sub(r"<!--[\s\S]*?-->", _blank, src)  # HTML comments
+    src = re.sub(r"(?m)^[ \t]*//.*$", _blank, src) # full-line JS line comments
+    return src
+
+
 def check_offline_queue() -> list[dict]:
     issues: list[dict] = []
     for name in WRITE_PAGES:
@@ -218,9 +235,12 @@ def check_fetch_timeout() -> list[dict]:
         src = _read(p)
         if not src:
             continue
-        if "await fetch(" in src and wrapper not in src:
-            for m in bare_fetch.finditer(src):
-                line = src.count("\n", 0, m.start()) + 1
+        # Blank comments first so a bare `await fetch(` in a doc/example block
+        # (not executed) is never flagged as an unbounded production fetch.
+        scan = _blank_comments(src)
+        if "await fetch(" in scan and wrapper not in scan:
+            for m in bare_fetch.finditer(scan):
+                line = scan.count("\n", 0, m.start()) + 1
                 issues.append({"check": "fetch_timeout", "layer": "L3",
                                "page": p.name,
                                "reason": f"{p.name}:{line} uses bare 'await fetch('. "

@@ -41,8 +41,11 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 // contract-allow: deterministic P-F interval calc; not a brain output
 import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { getCorsHeaders } from "../_shared/cors.ts";
+import { log } from "../_shared/logger.ts";
 // P1 roadmap 2026-05-26: envelope adoption (helper imported; success-path migration follows).
 import { beginRequest, ok, fail, recordModelHop } from "../_shared/envelope.ts";
+// Pillar I (Gateway Spine): verify hive membership before any service-role read.
+import { resolveIdentity, resolveTenancy } from "../_shared/tenant-context.ts";
 
 // Warm module-scope Supabase client. Reused across request invocations
 // in the same warm container. Per-request createClient calls below are
@@ -134,6 +137,20 @@ serve(async (req) => {
       Deno.env.get("SUPABASE_URL") || "",
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "",
     );
+
+    // Pillar I: service-role client (RLS bypassed) scoped by the CLIENT hive_id
+    // — verify active membership first, else any signed-in user could read or
+    // write another hive's reliability data. Internal service-role calls skip.
+    const { authUid, isServiceRole } = await resolveIdentity(db, req);
+    if (!isServiceRole) {
+      const tenancy = await resolveTenancy(db, authUid, hive_id);
+      if (!tenancy.ok) {
+        return new Response(
+          JSON.stringify({ error: tenancy.message, code: tenancy.code }),
+          { status: tenancy.status, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+        );
+      }
+    }
 
     // Resolve asset via canonical view
     const asset = await fetchAsset(db, hive_id, asset_id);
@@ -263,7 +280,7 @@ serve(async (req) => {
       const { data: ins, error: insErr } = await db.from("pf_intervals")
         .insert(row).select("id").single();
       if (insErr) {
-        console.warn("pf_intervals insert failed:", insErr.message);
+        log.warn(null, "pf_intervals insert failed:", { detail: insErr.message });
       } else if (ins) {
         interval_id = (ins as { id: string }).id;
       }

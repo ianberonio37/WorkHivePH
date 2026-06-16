@@ -28,8 +28,11 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 // contract-allow: deterministic statistical fit; not a brain output
 import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { getCorsHeaders } from "../_shared/cors.ts";
+import { log } from "../_shared/logger.ts";
 // P1 roadmap 2026-05-26: envelope adoption (helper imported; success-path migration follows).
 import { beginRequest, ok, fail, recordModelHop } from "../_shared/envelope.ts";
+// Pillar I (Gateway Spine): verify hive membership before any service-role read.
+import { resolveIdentity, resolveTenancy } from "../_shared/tenant-context.ts";
 
 // Warm module-scope Supabase client. Reused across request invocations
 // in the same warm container. Per-request createClient calls below are
@@ -132,6 +135,21 @@ serve(async (req) => {
       Deno.env.get("SUPABASE_URL") || "",
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "",
     );
+
+    // Pillar I: this fn uses a service-role client (RLS bypassed) and scopes
+    // every read/write by the CLIENT-supplied hive_id. Verify the caller is an
+    // active member of that hive first — else any signed-in user could read or
+    // write another hive's reliability data. Internal service-role calls skip.
+    const { authUid, isServiceRole } = await resolveIdentity(db, req);
+    if (!isServiceRole) {
+      const tenancy = await resolveTenancy(db, authUid, hive_id);
+      if (!tenancy.ok) {
+        return new Response(
+          JSON.stringify({ error: tenancy.message, code: tenancy.code }),
+          { status: tenancy.status, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+        );
+      }
+    }
 
     // Resolve asset via the canonical view
     const asset = await fetchAsset(db, hive_id, asset_id);
@@ -268,7 +286,7 @@ async function persistFit(
   const { data, error } = await db.from("weibull_fits")
     .insert(row).select("id").single();
   if (error) {
-    console.warn("weibull_fits insert failed:", error.message);
+    log.warn(null, "weibull_fits insert failed:", { detail: error.message });
     return null;
   }
   return data as { id: string };

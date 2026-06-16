@@ -27,6 +27,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { getCorsHeaders } from "../_shared/cors.ts";
+import { log } from "../_shared/logger.ts";
 // P1 roadmap 2026-05-26: envelope adoption (helper imported; success-path migration follows).
 import { beginRequest, ok, fail, recordModelHop } from "../_shared/envelope.ts";
 import { STATUS_MAP, TYPE_MAP } from "../_shared/mappings.ts";
@@ -249,7 +250,7 @@ serve(async (req) => {
 
     } else if (eventType === "pm.overdue" || eventType === "asset.updated") {
       // Acknowledge receipt — signature detection handles pattern analysis separately
-      console.log(`Received ${eventType} for hive ${hiveId}`);
+      log.info(null, `Received ${eventType} for hive ${hiveId}`);
     }
 
     return new Response(

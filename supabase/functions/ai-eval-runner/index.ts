@@ -32,6 +32,7 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 // contract-allow: eval harness; runs fixtures through ai-gateway
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { getCorsHeaders } from "../_shared/cors.ts";
+import { log } from "../_shared/logger.ts";
 // P1 roadmap 2026-05-26: envelope adoption (helper imported; success-path migration follows).
 import { beginRequest, ok, fail, recordModelHop } from "../_shared/envelope.ts";
 import { callAI } from "../_shared/ai-chain.ts";
@@ -281,7 +282,7 @@ serve(async (req) => {
         judge_model:       "callAI-chain",
         failure_reason:    judged.failure_reason,
       });
-      if (logErr) console.warn("ai_quality_log insert failed:", logErr.message);
+      if (logErr) log.warn(null, "ai_quality_log insert failed:", { detail: logErr.message });
 
       results.push({
         agent_id:    agentId,

@@ -1157,7 +1157,11 @@ INSIGHT_PANEL_CONTRACT = [
         "page":             "shift-brain.html",
         "panel_id":         "shift-source-chip",
         "chip_target_id":   "shift-source-chip",
-        "populator":        "init",
+        # The chip is rendered in the `revealBoardEarly()` IIFE (early board
+        # reveal), not in `init()` — same shape as dayplanner's anonymous block,
+        # so search page-wide. (Corrected 2026-06-14: the prior `init` populator
+        # was a stale mismatch after the S5/S6 revealBoardEarly refactor.)
+        "populator":        None,
         "required_chip_tokens": [
             "shift_plans", "v_risk_truth", "pm_scope_items",
         ],

@@ -1,7 +1,7 @@
 {
   "summary": {
-    "files_scanned": 117,
-    "total_calls": 714,
+    "files_scanned": 122,
+    "total_calls": 720,
     "total_unbounded": 1,
     "baseline": 0
   },
@@ -135,6 +135,10 @@
       "issues": []
     },
     {
+      "file": "supabase/functions/_shared/benchmarks.ts",
+      "issues": []
+    },
+    {
       "file": "supabase/functions/_shared/cache.ts",
       "issues": []
     },
@@ -171,6 +175,10 @@
       "issues": []
     },
     {
+      "file": "supabase/functions/_shared/factsheet_render.ts",
+      "issues": []
+    },
+    {
       "file": "supabase/functions/_shared/followups.ts",
       "issues": []
     },
@@ -192,6 +200,10 @@
     },
     {
       "file": "supabase/functions/_shared/memory.ts",
+      "issues": []
+    },
+    {
+      "file": "supabase/functions/_shared/numeric_provenance.ts",
       "issues": []
     },
     {
@@ -224,6 +236,14 @@
     },
     {
       "file": "supabase/functions/_shared/skill-library.ts",
+      "issues": []
+    },
+    {
+      "file": "supabase/functions/_shared/tenant-context.ts",
+      "issues": []
+    },
+    {
+      "file": "supabase/functions/_shared/trace-store.ts",
       "issues": []
     },
     {
@@ -267,7 +287,7 @@
       "issues": [
         {
           "table": "v_pm_scope_items_truth",
-          "offset": 9505
+          "offset": 9606
         }
       ]
     },

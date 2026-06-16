@@ -13,6 +13,9 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { getCorsHeaders } from "../_shared/cors.ts";
+import { log } from "../_shared/logger.ts";
+// Pillar I (Gateway Spine): verify hive membership on the single-hive path.
+import { resolveIdentity, resolveTenancy } from "../_shared/tenant-context.ts";
 // P1 roadmap 2026-05-26: envelope adoption (helper imported; success-path migration follows).
 import { beginRequest, ok, fail, recordModelHop } from "../_shared/envelope.ts";
 
@@ -220,6 +223,23 @@ serve(async (req) => {
     const body = await req.json().catch(() => ({}));
     const now  = new Date();
 
+    // Pillar I: single-hive (browser, from hive.html) path scopes benchmark
+    // reads/writes by the client hive_id on a service-role client — verify
+    // membership. The no-hive_id path fans out over ALL hives (cron,
+    // service-role) and is left untouched. Service-role callers skip.
+    if (body.hive_id) {
+      const { authUid, isServiceRole } = await resolveIdentity(db, req);
+      if (!isServiceRole) {
+        const t = await resolveTenancy(db, authUid, String(body.hive_id));
+        if (!t.ok) {
+          return new Response(
+            JSON.stringify({ error: t.message, code: t.code }),
+            { status: t.status, headers: { ...cors, "Content-Type": "application/json" } },
+          );
+        }
+      }
+    }
+
     let hiveIds: string[] = [];
     if (body.hive_id) {
       hiveIds = [body.hive_id];
@@ -234,7 +254,7 @@ serve(async (req) => {
         await computeForHive(db, hiveId, now);
         totalHives++;
       } catch (e) {
-        console.error(`benchmarkcompute error for ${hiveId}:`, e);
+        log.error(null, "benchmark-compute error", { hive_id: hiveId, err: String(e) });
       }
     }
 

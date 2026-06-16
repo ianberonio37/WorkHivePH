@@ -13,6 +13,8 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { getCorsHeaders } from "../_shared/cors.ts";
 // P1 roadmap 2026-05-26: envelope adoption (helper imported; success-path migration follows).
 import { beginRequest, ok, fail, recordModelHop } from "../_shared/envelope.ts";
+// Pillar I (Gateway Spine): verify hive membership before service-role reads/writes.
+import { resolveIdentity, resolveTenancy } from "../_shared/tenant-context.ts";
 
 // Warm module-scope Supabase client. Reused across request invocations
 // in the same warm container. Per-request createClient calls below are
@@ -42,6 +44,21 @@ serve(async (req) => {
       Deno.env.get("SUPABASE_URL")!,
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
     );
+
+    // Pillar I: scopes the CMMS push by the client hive_id on a service-role
+    // client — verify membership. Service-role (internal) callers skip.
+    {
+      const { authUid, isServiceRole } = await resolveIdentity(db, req);
+      if (!isServiceRole) {
+        const t = await resolveTenancy(db, authUid, hive_id);
+        if (!t.ok) {
+          return new Response(
+            JSON.stringify({ error: t.message, code: t.code }),
+            { status: t.status, headers: { ...cors, "Content-Type": "application/json" } },
+          );
+        }
+      }
+    }
 
     // Find enabled integration config for this hive
     const { data: configs } = await db.from("integration_configs")

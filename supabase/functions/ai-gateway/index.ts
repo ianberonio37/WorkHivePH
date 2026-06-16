@@ -35,8 +35,13 @@ import sourceRegistry from "../_shared/companion_source_registry.json" with { ty
 import {
   checkAIRateLimit,
   checkUserRateLimit,
+  checkSoloRateLimit,
+  soloRateLimitKey,
   rateLimitedResponse,
   userRateLimitedResponse,
+  soloRateLimitedResponse,
+  checkRouteRateLimit,        // Pillar C: per-route AI quota (per (hive, agent))
+  routeRateLimitedResponse,
 } from "../_shared/rate-limit.ts";
 import { redactPIIWithMap, hydratePII } from "../_shared/redactPII.ts";
 import {
@@ -93,6 +98,8 @@ import {
 import { beginRequest, ok, recordModelHop } from "../_shared/envelope.ts";
 import { handleHealth } from "../_shared/health.ts";
 import { log } from "../_shared/logger.ts";
+// Pillar I (Gateway Spine): verify the caller belongs to the hive they claim.
+import { resolveTenancy } from "../_shared/tenant-context.ts";
 import { logAICost, estimateTokens } from "../_shared/cost-log.ts";
 
 // Agents that get semantic-recall enrichment in addition to short-term
@@ -785,6 +792,27 @@ serve(async (req) => {
     worker_name = ctxWorker || "kapatid";   // generic, warm
   }
 
+  // Pillar I (tenancy verification): an authed caller may act only on a hive
+  // they are an ACTIVE member of. Anon voice-journal callers have no hive to
+  // act on → skip. A claimed hive_id that fails membership is rejected (403);
+  // a valid member's claimed hive_id then flows downstream, now proven
+  // legitimate — so the dozens of `hive_id` reads below need no change.
+  // verifiedHiveId is the ONLY hive value trusted for policy (rate-limit/quota/
+  // audit). It is set ONLY after a proven active-member check — never the raw
+  // client `hive_id`. Anon callers leave it null (no membership to prove), so a
+  // spoofed body.hive_id can never key a hive bucket. (Pillar P.)
+  let verifiedHiveId: string | null = null;
+  if (user && hive_id) {
+    const tenancy = await resolveTenancy(adminClient, authUid, hive_id);
+    if (!tenancy.ok) {
+      log.warn(ctx, "tenancy_denied", { code: tenancy.code });
+      return jsonResponse(corsHeaders, tenancy.status, {
+        error: tenancy.message, code: tenancy.code, trace_id: ctx.trace_id,
+      });
+    }
+    verifiedHiveId = tenancy.hive_id;   // membership-proven — safe to bucket on
+  }
+
   // Persona Contract: every conversational specialist that adopts the
   // contract reads ctx.persona; if the client didn't supply one, default
   // to the account-level preference (authed) or the system default
@@ -814,18 +842,30 @@ serve(async (req) => {
   const RL_OVERRIDE      = Number(Deno.env.get("WH_RATE_LIMIT_OVERRIDE")        || 500);
   const RL_USER_OVERRIDE = Number(Deno.env.get("WH_USER_RATE_LIMIT_OVERRIDE")   || 500);
   const userId = authUid || ""; // anon callers skip the inner per-user bucket
-  const rl = await checkUserRateLimit(
-    adminClient,
-    hive_id || "",
-    userId,
-    RL_OVERRIDE,
-    RL_USER_OVERRIDE,
-  );
+  // Pillar P: bucket on the VERIFIED hive for proven members (hive + per-user
+  // caps); for anon callers (voice-journal first-touch — no verified hive)
+  // bucket on their own identity/IP via the solo gate. Keying on the raw client
+  // `hive_id` here let an anon caller drain a victim hive's shared bucket by
+  // spoofing its id — closed.
+  let rl: { allowed: boolean; remaining: number; hive_remaining?: number; user_cap?: number };
+  const rlScope: "hive" | "solo" = verifiedHiveId ? "hive" : "solo";
+  if (verifiedHiveId) {
+    rl = await checkUserRateLimit(
+      adminClient,
+      verifiedHiveId,
+      userId,
+      RL_OVERRIDE,
+      RL_USER_OVERRIDE,
+    );
+  } else {
+    const clientIp = (req.headers.get("x-forwarded-for") || "").split(",")[0].trim();
+    rl = await checkSoloRateLimit(adminClient, soloRateLimitKey(authUid, clientIp));
+  }
   if (!rl.allowed) {
     log.warn(ctx, "rate_limit_hit", {
       hive_remaining: rl.hive_remaining,
       user_cap:       rl.user_cap,
-      scope:          rl.hive_remaining === 0 ? "hive" : "user",
+      scope:          rlScope === "solo" ? "solo" : (rl.hive_remaining === 0 ? "hive" : "user"),
     });
     // Adaptive degrade: try LLM cache for this exact (agent, message) before
     // returning 429. Only worth it for short messages — long ones rarely
@@ -843,8 +883,26 @@ serve(async (req) => {
       } catch { /* fall through to 429 */ }
     }
     // Distinguish scope so the frontend can show a clearer message.
+    if (rlScope === "solo") return soloRateLimitedResponse(corsHeaders);
     if (rl.hive_remaining === 0) return rateLimitedResponse(corsHeaders);
-    return userRateLimitedResponse(corsHeaders, rl.user_cap);
+    return userRateLimitedResponse(corsHeaders, rl.user_cap ?? RL_USER_OVERRIDE);
+  }
+
+  // Pillar C: per-route AI quota — bucket each (verified hive, agent) so an
+  // expensive agent (e.g. rag) can be capped independently of the hive-wide cap.
+  // OBSERVE by default (always increments the (hive,route,hour) counter so
+  // dashboards see per-agent pressure) but ENFORCE only when an explicit
+  // hive_route_quotas row exists (per_route) — so this is a no-op behaviour
+  // change until an admin sets a cap. Wrapped so quota bookkeeping can never
+  // fail a real request.
+  if (verifiedHiveId) {
+    try {
+      const rq = await checkRouteRateLimit(adminClient, verifiedHiveId, agent);
+      if (rq.per_route && !rq.allowed) {
+        log.warn(ctx, "route_quota_hit", { agent, cap: rq.cap });
+        return routeRateLimitedResponse(corsHeaders, agent, rq.cap);
+      }
+    } catch { /* never let per-route bookkeeping break the request */ }
   }
 
   // Gibberish guard — detect transcripts that look like noise BEFORE we burn

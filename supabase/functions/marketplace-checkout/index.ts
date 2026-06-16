@@ -13,6 +13,7 @@
 
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { beginRequest, ok, fail, recordModelHop } from "../_shared/envelope.ts";
+import { log } from "../_shared/logger.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { getCorsHeaders } from '../_shared/cors.ts';
 
@@ -151,7 +152,7 @@ serve(async (req: Request) => {
 
   if (!stripeRes.ok) {
     const errBody = await stripeRes.text();
-    console.error('Stripe error:', errBody);
+    log.error(null, 'Stripe error:', { detail: errBody });
     return errJson('Payment provider error — please try again', 502, req);
   }
 
@@ -171,7 +172,7 @@ serve(async (req: Request) => {
   });
 
   if (orderErr) {
-    console.error('Order insert error:', orderErr.message);
+    log.error(null, 'Order insert error:', { detail: orderErr.message });
     /* Checkout session is still valid — buyer can proceed.
        Log the error but do not block payment. */
   }

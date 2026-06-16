@@ -18,10 +18,13 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { callAI } from "../_shared/ai-chain.ts";
+import { log } from "../_shared/logger.ts";
 import { logAICost, estimateTokens } from "../_shared/cost-log.ts";
 import { getCorsHeaders } from "../_shared/cors.ts";
 // P1 roadmap 2026-05-26: envelope adoption (helper imported; success-path migration follows).
 import { beginRequest, ok, fail, recordModelHop } from "../_shared/envelope.ts";
+// Pillar I (Gateway Spine): verify hive membership on the manual single-hive path.
+import { resolveIdentity, resolveTenancy } from "../_shared/tenant-context.ts";
 
 // Warm module-scope Supabase client. Reused across request invocations
 // in the same warm container. Per-request createClient calls below are
@@ -257,7 +260,7 @@ async function scanHive(
         .upsert(row, { onConflict: "hive_id,machine,rule_id" });
 
       if (upsertErr) {
-        console.error(`upsert error ${machine}/${alert.rule_id}:`, upsertErr.message);
+        log.error(null, `upsert error ${machine}/${alert.rule_id}:`, { detail: upsertErr.message });
         errors++;
       } else {
         created++;
@@ -285,6 +288,22 @@ serve(async (req) => {
   const body = await req.json().catch(() => ({}));
   const now  = new Date();
 
+  // Pillar I: manual single-hive trigger scopes the scan by the client hive_id
+  // on a service-role client — verify membership. The pg_cron daily path (no
+  // hive_id → all hives) is service-role and skips.
+  if (body.hive_id) {
+    const { authUid, isServiceRole } = await resolveIdentity(db, req);
+    if (!isServiceRole) {
+      const t = await resolveTenancy(db, authUid, String(body.hive_id));
+      if (!t.ok) {
+        return new Response(
+          JSON.stringify({ error: t.message, code: t.code }),
+          { status: t.status, headers: { ...cors, "Content-Type": "application/json" } },
+        );
+      }
+    }
+  }
+
   let hiveIds: string[] = [];
 
   if (body.hive_id) {
@@ -307,7 +326,7 @@ serve(async (req) => {
       totalCreated += result.created;
       totalErrors  += result.errors;
     } catch (e) {
-      console.error(`scanHive error for ${hiveId}:`, e);
+      log.error(null, `scanHive error for ${hiveId}:`, { detail: e });
       totalErrors++;
     }
   }
@@ -326,7 +345,7 @@ serve(async (req) => {
   );
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
-    console.error("failure-signature-scan top-level error:", msg);
+    log.error(null, "failure-signature-scan top-level error:", { detail: msg });
     return new Response(
       JSON.stringify({ error: msg }),
       { status: 500, headers: { ...cors, "Content-Type": "application/json" } },

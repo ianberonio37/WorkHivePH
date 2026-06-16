@@ -18,10 +18,10 @@
 | `has_module_docstring` | 100% | 40 / 40 |
 | `accepts_client_param` | 90% | 36 / 40 |
 | `has_module_constants` | 65% | 26 / 40 |
-| `calls_table_dot` | 57% | 23 / 40 |
+| `calls_table_dot` | 60% | 24 / 40 |
 | `uses_random_module` | 57% | 23 / 40 |
 | `uses_datetime` | 52% | 21 / 40 |
-| `has_try_except` | 40% | 16 / 40 |
+| `has_try_except` | 42% | 17 / 40 |
 | `calls_insert` | 37% | 15 / 40 |
 | `scopes_query_to_hive` | 20% | 8 / 40 |
 | `calls_delete` | 12% | 5 / 40 |

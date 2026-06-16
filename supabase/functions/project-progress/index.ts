@@ -104,6 +104,16 @@ serve(async (req: Request) => {
   const serviceKey  = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
   const db = createClient(supabaseUrl, serviceKey);
 
+  // Pillar I: scopes the project rollup by the client hive_id on a service-role
+  // client — verify membership. Service-role (gateway-forwarded) calls skip.
+  {
+    const { authUid, isServiceRole } = await resolveIdentity(db, req);
+    if (!isServiceRole) {
+      const tenancy = await resolveTenancy(db, authUid, hive_id);
+      if (!tenancy.ok) return errJson(tenancy.message, tenancy.status, req);
+    }
+  }
+
   /* ── Load project + items + links + logs + roles + change_orders ───── */
   const [projRes, itemsRes, linksRes, logsRes, rolesRes, coRes] = await Promise.all([
     db.from('v_project_truth')

@@ -1,10 +1,10 @@
 {
   "summary": {
-    "files_scanned": 148,
-    "total_calls": 34,
-    "total_drift": 1,
+    "files_scanned": 153,
+    "total_calls": 35,
+    "total_drift": 0,
     "baseline": 0,
-    "rpcs_known": 80
+    "rpcs_known": 81
   },
   "per_file": [
     {
@@ -260,6 +260,10 @@
       "issues": []
     },
     {
+      "file": "supabase\\functions\\_shared\\benchmarks.ts",
+      "issues": []
+    },
+    {
       "file": "supabase\\functions\\_shared\\cache.ts",
       "issues": []
     },
@@ -296,6 +300,10 @@
       "issues": []
     },
     {
+      "file": "supabase\\functions\\_shared\\factsheet_render.ts",
+      "issues": []
+    },
+    {
       "file": "supabase\\functions\\_shared\\followups.ts",
       "issues": []
     },
@@ -320,13 +328,12 @@
       "issues": []
     },
     {
+      "file": "supabase\\functions\\_shared\\numeric_provenance.ts",
+      "issues": []
+    },
+    {
       "file": "supabase\\functions\\_shared\\persona-knowledge.ts",
-      "issues": [
-        {
-          "rpc": "match_persona_knowledge",
-          "issue": "missing_rpc"
-        }
-      ]
+      "issues": []
     },
     {
       "file": "supabase\\functions\\_shared\\persona.ts",
@@ -354,6 +361,14 @@
     },
     {
       "file": "supabase\\functions\\_shared\\skill-library.ts",
+      "issues": []
+    },
+    {
+      "file": "supabase\\functions\\_shared\\tenant-context.ts",
+      "issues": []
+    },
+    {
+      "file": "supabase\\functions\\_shared\\trace-store.ts",
       "issues": []
     },
     {

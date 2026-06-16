@@ -1,7 +1,7 @@
 {
   "summary": {
     "files_scanned": 61,
-    "total_calls": 36,
+    "total_calls": 37,
     "total_drift": 0,
     "baseline": 0,
     "edge_fns_known": 59

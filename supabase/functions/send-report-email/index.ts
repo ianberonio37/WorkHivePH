@@ -4,6 +4,9 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 // contract-allow: email sender
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { getCorsHeaders } from "../_shared/cors.ts";
+import { log } from "../_shared/logger.ts";
+// Pillar I (Gateway Spine): verify hive membership before emailing a hive's report.
+import { resolveIdentity, resolveTenancy } from "../_shared/tenant-context.ts";
 // P1 roadmap 2026-05-26: envelope adoption (helper imported; success-path migration follows).
 import { beginRequest, ok, fail, recordModelHop } from "../_shared/envelope.ts";
 
@@ -124,6 +127,22 @@ serve(async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
     );
 
+    // Pillar I: emailing a hive's report is scoped by the client hive_id on a
+    // service-role client — verify membership so a worker can't email another
+    // hive's data. hive_id is optional (solo); verify only when claimed.
+    if (hive_id) {
+      const { authUid, isServiceRole } = await resolveIdentity(db, req);
+      if (!isServiceRole) {
+        const t = await resolveTenancy(db, authUid, hive_id);
+        if (!t.ok) {
+          return new Response(
+            JSON.stringify({ error: t.message, code: t.code }),
+            { status: t.status, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+          );
+        }
+      }
+    }
+
     // Hive lookup — optional. If hive_id is null (e.g. worker cleared cache),
     // skip verification and rate limiting; use "WorkHive" as display name.
     let hiveName = "WorkHive";
@@ -220,7 +239,7 @@ serve(async (req) => {
     );
 
   } catch (err) {
-    console.error("send-report-email error:", err);
+    log.error(null, "send-report-email error:", { detail: err });
     return new Response(
       JSON.stringify({ error: err instanceof Error ? err.message : String(err) }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }

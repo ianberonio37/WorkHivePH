@@ -1,6 +1,11 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { getCorsHeaders } from "../_shared/cors.ts";
+// Pillar O (Observability): expose a /health probe for the gateway status page.
+import { handleHealth } from "../_shared/health.ts";
+import { log } from "../_shared/logger.ts";
+// Pillar I (Gateway Spine): verify hive membership on the manual (browser) path.
+import { resolveIdentity, resolveTenancy } from "../_shared/tenant-context.ts";
 // P1 roadmap 2026-05-26: envelope adoption (helper imported; success-path migration follows).
 import { beginRequest, ok, fail, recordModelHop } from "../_shared/envelope.ts";
 import { generateEmbedding } from "../_shared/embedding-chain.ts";
@@ -23,6 +28,18 @@ serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
   }
+
+  // Pillar O: /health probe (short-circuits before auth/body parsing).
+  const healthResp = await handleHealth(req, "embed-entry", async () => ({
+    deps: [
+      { name: "supabase",  ok: Boolean(Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")) },
+      { name: "embedding", ok: Boolean(Deno.env.get("VOYAGE_API_KEY") || Deno.env.get("JINA_API_KEY") || Deno.env.get("GEMINI_API_KEY") || Deno.env.get("BGE_EMBED_URL")) },
+    ],
+  }));
+  if (healthResp) return healthResp;
+
+  const _logCtx = beginRequest(req, { route: "embed-entry" });
+  log.info(_logCtx, "request_start", { method: req.method });
 
   try {
     const body = await req.json();
@@ -79,6 +96,22 @@ serve(async (req) => {
       type    = body.type;
       hive_id = body.hive_id;
       entry   = body.entry;
+
+      // Pillar I: the manual (browser) path scopes the embed write by the client
+      // hive_id on a service-role client — verify membership. The DB-webhook
+      // branch above is service-role/internal; service-role callers skip.
+      if (hive_id) {
+        const { authUid, isServiceRole } = await resolveIdentity(db, req);
+        if (!isServiceRole) {
+          const t = await resolveTenancy(db, authUid, hive_id);
+          if (!t.ok) {
+            return new Response(
+              JSON.stringify({ error: t.message, code: t.code }),
+              { status: t.status, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+            );
+          }
+        }
+      }
 
       if (!type || !entry) {
         return new Response(

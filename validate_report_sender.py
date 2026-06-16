@@ -191,10 +191,13 @@ def run():
                 issues.append({"check": "active_types_match",
                                "reason": f"'{rt}' missing from scheduled-agents runners — chip exists but no handler"})
 
-    # 10. Supabase client
-    if "supabase.createClient" not in page:
+    # 10. Supabase client (accept the canonical getDb() helper, which memoizes
+    #     supabase.createClient — report-sender.html migrated to getDb(), so the
+    #     literal "supabase.createClient" no longer appears though the client IS
+    #     initialized: supabase-js CDN in <head> + `const db = getDb(URL, KEY)`).
+    if "supabase.createClient" not in page and "getDb(" not in page:
         issues.append({"check": "db_client",
-                       "reason": "supabase.createClient not found — contacts and history cannot be saved/loaded"})
+                       "reason": "no Supabase client init found (neither supabase.createClient nor getDb()) — contacts and history cannot be saved/loaded"})
 
     # 11-18. Required DOM elements
     dom_checks = {

@@ -31,12 +31,19 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 // contract-allow: router; forwards to edge fns
 import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { getCorsHeaders } from "../_shared/cors.ts";
+// Pillar O (Observability): expose a /health probe for the gateway status page.
+import { handleHealth } from "../_shared/health.ts";
+// Pillar O: structured request logging (one ndjson line per request).
+import { log } from "../_shared/logger.ts";
 // P1 roadmap 2026-05-26: envelope adoption (helper imported; success-path migration follows).
 import { beginRequest, ok, fail, recordModelHop } from "../_shared/envelope.ts";
 import {
   checkRouteRateLimit,
   routeRateLimitedResponse,
 } from "../_shared/rate-limit.ts";
+// Pillar I (Gateway Spine): verified server-side identity + tenancy.
+// Closes the client-trusted body.hive_id hole — see tenant-context.ts header.
+import { resolveIdentity, resolveTenancy } from "../_shared/tenant-context.ts";
 
 // Warm module-scope client.
 const _WH_SUPABASE_URL_M = Deno.env.get("SUPABASE_URL") || "";
@@ -203,6 +210,15 @@ serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { status: 204, headers: corsHeaders });
   }
+
+  // Pillar O: /health probe (before the POST-only gate so GET /health resolves).
+  const healthResp = await handleHealth(req, "platform-gateway", async () => ({
+    deps: [
+      { name: "supabase", ok: Boolean(Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")) },
+    ],
+  }));
+  if (healthResp) return healthResp;
+
   if (req.method !== "POST") {
     return jsonResponse(corsHeaders, 405, { error: "POST only" });
   }
@@ -227,42 +243,51 @@ serve(async (req) => {
     });
   }
 
+  // One trace-id for this request (threaded to downstream + the response).
+  const ctx = beginRequest(req, { route });
+  log.info(ctx, "request_start", { method: req.method });
+
   const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
-  const ANON_KEY     = Deno.env.get("SUPABASE_ANON_KEY")!;
   const SERVICE_KEY  = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-  const authHeader   = req.headers.get("Authorization") || "";
 
   const adminClient: SupabaseClient = _whWarmClient
     ? _whWarmClient
     : createClient(SUPABASE_URL, SERVICE_KEY);
 
-  // Auth bind (if required).
-  let workerName: string | null = null;
-  let authUid:    string | null = null;
+  // Identity + TENANCY bind (Pillar I). Verifies SERVER-SIDE that the caller is
+  // an active member of the hive they claim — never trusts body.hive_id. The
+  // verified hive_id/worker_name (not the client values) flow downstream.
+  let workerName:     string | null = null;
+  let authUid:        string | null = null;
+  let verifiedHiveId: string | null = body.hive_id || null;
+  let memberRole:     string | null = null;
   if (def.requires_auth) {
-    const authedClient = createClient(SUPABASE_URL, ANON_KEY, {
-      global: { headers: { Authorization: authHeader } },
-    });
-    const { data: { user } } = await authedClient.auth.getUser();
-    if (!user) {
-      return jsonResponse(corsHeaders, 401, { error: "Sign-in required" });
+    const identity = await resolveIdentity(adminClient, req);
+    if (!identity.isServiceRole) {
+      const tenancy = await resolveTenancy(adminClient, identity.authUid, body.hive_id || null);
+      if (!tenancy.ok) {
+        return jsonResponse(corsHeaders, tenancy.status, {
+          error:    tenancy.message,
+          code:     tenancy.code,
+          trace_id: ctx.trace_id,
+        });
+      }
+      authUid        = identity.authUid;
+      workerName     = tenancy.worker_name;   // server-resolved — never the client value
+      verifiedHiveId = tenancy.hive_id;       // VERIFIED membership — replaces body.hive_id
+      memberRole     = tenancy.role;
     }
-    authUid = user.id;
-    const { data: profile } = await adminClient
-      .from("v_worker_truth")
-      .select("worker_name")
-      .eq("auth_uid", user.id)
-      .maybeSingle();
-    workerName = profile?.worker_name || user.email || "anonymous";
+    // Service-role (trusted internal) callers keep the supplied hive_id.
   }
+  void memberRole;  // captured for audit/policy use; downstream forwards verified hive_id
 
-  // Per-route rate gate.
-  const rl = await checkRouteRateLimit(adminClient, body.hive_id || "", route);
+  // Per-route rate gate (against the VERIFIED hive, not the client's claim).
+  const rl = await checkRouteRateLimit(adminClient, verifiedHiveId || "", route);
   if (!rl.allowed) {
     // Log the throttle.
     if (def.audit) {
       await adminClient.from("gateway_audit_log").insert({
-        hive_id:     body.hive_id || null,
+        hive_id:     verifiedHiveId,
         worker_name: workerName,
         auth_uid:    authUid,
         route,
@@ -289,10 +314,11 @@ serve(async (req) => {
         "Content-Type":  "application/json",
         "X-Forwarded-By": "platform-gateway",
         "X-Original-Worker": workerName || "",
+        "x-wh-trace": ctx.trace_id,
       },
       body: JSON.stringify({
         ...(body.payload || {}),
-        hive_id:     body.hive_id || null,
+        hive_id:     verifiedHiveId,
         worker_name: workerName,
         _gateway:    true,
       }),
@@ -318,7 +344,7 @@ serve(async (req) => {
     const ip = req.headers.get("X-Forwarded-For") || req.headers.get("CF-Connecting-IP") || "";
     const ua = req.headers.get("User-Agent") || "";
     await adminClient.from("gateway_audit_log").insert({
-      hive_id:        body.hive_id || null,
+      hive_id:        verifiedHiveId,
       worker_name:    workerName,
       auth_uid:       authUid,
       route,
@@ -336,7 +362,7 @@ serve(async (req) => {
     typeof downstreamBody === "string" ? downstreamBody : JSON.stringify(downstreamBody),
     {
       status:  downstreamStatus,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
+      headers: { ...corsHeaders, "Content-Type": "application/json", "x-wh-trace": ctx.trace_id },
     },
   );
 });

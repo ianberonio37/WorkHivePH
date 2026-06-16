@@ -3,6 +3,7 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
 // contract-allow: deterministic engineering calcs; not a brain output
 import { callAI } from "../_shared/ai-chain.ts";
+import { log } from "../_shared/logger.ts";
 // Persona Contract: narrated-specialist mode — the report narrative gains a
 // `narration` field in the worker's persona voice (the formal report fields
 // stay professional). WAT split intact: the calc math is deterministic +
@@ -6013,7 +6014,7 @@ serve(async (req) => {
         }
       } catch (_pyErr) {
         // Network error, timeout, or cold-start: fall through silently
-        console.warn("Python API unavailable, falling back to TypeScript:", String(_pyErr));
+        log.warn(null, "Python API unavailable, falling back to TypeScript:", { detail: String(_pyErr) });
       }
     }
     // ─────────────────────────────────────────────────────────────────────────

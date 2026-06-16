@@ -28,6 +28,8 @@
 
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { beginRequest, ok, fail, recordModelHop } from "../_shared/envelope.ts";
+// Pillar I (Gateway Spine): verify hive membership before service-role reads.
+import { resolveIdentity, resolveTenancy } from "../_shared/tenant-context.ts";
 
 // contract-allow: project write coordinator
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
@@ -329,6 +331,17 @@ serve(async (req: Request) => {
   const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
   const serviceKey  = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
   const db = createClient(supabaseUrl, serviceKey);
+
+  // Pillar I: narrative/lessons phases read project data scoped by the client
+  // hive_id on a service-role client. Verify membership when a hive is claimed
+  // (the intent phase is hive-less). Service-role (gateway-forwarded) calls skip.
+  if (body.hive_id) {
+    const { authUid, isServiceRole } = await resolveIdentity(db, req);
+    if (!isServiceRole) {
+      const tenancy = await resolveTenancy(db, authUid, body.hive_id);
+      if (!tenancy.ok) return errJson(tenancy.message, tenancy.status, req);
+    }
+  }
 
   // Rate-gate FIRST per ai-engineer skill — every phase that runs callAI
   // (narrative / intent / brief) is paid; without the gate a button-mash

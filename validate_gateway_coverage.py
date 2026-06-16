@@ -84,11 +84,46 @@ GATEWAY_BYPASS_OK = {
     "failure-signature-scan":     "Server-side analytics job; not user-facing",
     "fmea-populator":             "Server-side populate; opt-out for now",
     "benchmark-compute":          "Internal benchmark trigger; not user-facing",
+    # --- Pillar R routing triage (2026-06-15): each verified by frontend-caller
+    # count + its own in-fn gate. Post-Pillar-I/P every browser-callable here
+    # self-secures (resolveTenancy / requireServiceRole / checkSoloRateLimit),
+    # and the structured tools return rich payloads the gateway's flat {answer}
+    # contract would DROP (AI_SURFACE_MAP Option B) — so they stay direct, secured
+    # in-fn, rather than route. The 0-frontend-caller ones are server-side/internal.
+    "agent-memory-store":         "Server-side memory-write pipeline (0 frontend callers); resolveTenancy gate (Pillar I)",
+    "agentic-rag-loop":           "Browser-callable structured RAG tool; resolveTenancy + rate-limit (Pillar I/P); returns {answer,citations,memories} the gateway's flat {answer} would drop",
+    "cold-archive-query":         "Cold-archive retrieval; forwarded server-side; resolveTenancy gate (Pillar I); 0 frontend callers",
+    "data-fabric-normalizer":     "Machine-ingest endpoint; requireServiceRole gate (Pillar I); 0 frontend callers",
+    "equipment-label-ocr":        "Browser-callable structured OCR tool (logbook Tag-OCR); resolveTenancy gate (Pillar I); image-in/fields-out, not a flattenable chat",
+    "export-hive-data":           "Server-side hive export (admin tooling, 0 frontend callers); inline v_worker_truth membership gate",
+    "hierarchical-summarizer":    "Server-side summarization pipeline; resolveTenancy gate (Pillar I); 0 frontend callers",
+    "platform-scraper":           "Browser-triggered admin scraper; resolveTenancy gate (Pillar I)",
+    "resume-extract":             "Public SOLO Resume Builder tool; per-identity rate-limit (checkSoloRateLimit, Pillar P); no hive context; structured JSON-Resume output",
+    "resume-polish":              "Public SOLO Resume Builder tool; per-identity rate-limit (Pillar P); structured bullet output; no hive context",
+    "semantic-fact-extractor":    "Server-side fact-extraction pipeline; resolveTenancy gate (Pillar I); 0 frontend callers",
+    "temporal-rag-orchestrator":  "Server-side temporal-RAG orchestration; resolveTenancy gate (Pillar I); forwarded; 0 frontend callers",
+    "tts-speak":                  "Stateless TTS transform (text+persona->cached MP3 URL); reads no hive-scoped data; returns audio URL not JSON",
+    "voice-embeddings":           "Embedding-generation pipeline; internal/forwarded; 0 frontend callers",
+    "voice-model-call":           "Internal multi-model orchestrator; forwarded server-side; 0 frontend callers",
+    "walkthrough-analyzer":       "Internal self-improving-test-architecture analyzer (screenshot+logs->AI); no hive data; not a product surface",
+    # voice-semantic-rag: the per-user IDOR found during this triage is now FIXED
+    # (2026-06-15) — derives auth_uid from the JWT via resolveIdentity, ignores the
+    # client body value, returns empty for an unverified caller; voice-handler.js
+    # sends the signed-in user's access token. Genuinely self-secured → legitimately
+    # bypass-justified (structured personal RAG tool, not routed). The auth_uid
+    # identity-key family is now ratcheted by validate_gateway_tenancy.py.
+    # LIVE-proven: attacker no-JWT -> empty; authed user -> own-scoped.
+    "voice-semantic-rag":         "Browser-callable personal voice-journal RAG; auth_uid IDOR FIXED (resolveIdentity JWT-verified uid, body ignored, anon->empty); structured tool, not routed",
 }
 
-# Forward-looking ratchet — Phase 2.1 is partially adopted. Every fn
-# above (or routed through platform-gateway) accounts for the full set.
-GATEWAY_COVERAGE_DEFERRED = True
+# Forward-looking ratchet — ENFORCED (2026-06-15, Gateway Pillar R): every callable
+# edge fn is now either routed through platform-gateway OR in GATEWAY_BYPASS_OK with
+# a code-verified justification (uncovered → 0 after the Pillar R routing triage).
+# Promoted WARN → FAIL so a NEW callable fn that is neither routed nor justified
+# blocks the gate. (The one finding the triage surfaced — voice-semantic-rag's
+# auth_uid IDOR — was FIXED before flipping, so this lands on a clean 0, not a
+# false-green.)
+GATEWAY_COVERAGE_DEFERRED = False
 
 
 def list_edge_fns() -> list[tuple[str, str]]:
@@ -232,7 +267,7 @@ CHECK_NAMES = [
 CHECK_LABELS = {
     "platform_gateway_present": "L1  platform-gateway edge fn present + has routes              [FAIL]",
     "routes_exist":             "L2  Every PLATFORM_ROUTES target exists on disk                [FAIL]",
-    "coverage":                 "L3  Every user-facing fn is routed or allowlisted              [WARN]",
+    "coverage":                 "L3  Every user-facing fn is routed or allowlisted              [FAIL]",
     "inventory":                "L4  Per-fn routing kind inventory                              [INFO]",
 }
 

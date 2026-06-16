@@ -31,6 +31,8 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { getCorsHeaders } from "../_shared/cors.ts";
+// Pillar I (Gateway Spine): verify hive membership before service-role memory ops.
+import { resolveIdentity, resolveTenancy } from "../_shared/tenant-context.ts";
 // P1 roadmap 2026-05-26: adoption of envelope + /health.
 import { beginRequest, ok } from "../_shared/envelope.ts";
 import { handleHealth } from "../_shared/health.ts";
@@ -98,6 +100,23 @@ serve(async (req) => {
   const db         = _warm || createClient(_URL, _KEY);
   const hiveId     = body.hive_id || null;
   const workerName = body.worker_name || null;
+
+  // Pillar I: agent_memory is scoped by the client hive_id on a service-role
+  // client — verify membership so a direct caller can't read/write another
+  // hive's memory. Internal callers (ai-gateway, agentic-rag-loop) use
+  // service-role and skip. Verify only when a hive is claimed.
+  if (hiveId) {
+    const _id = await resolveIdentity(db, req);
+    if (!_id.isServiceRole) {
+      const t = await resolveTenancy(db, _id.authUid, hiveId);
+      if (!t.ok) {
+        return new Response(
+          JSON.stringify({ error: t.message, code: t.code }),
+          { status: t.status, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+        );
+      }
+    }
+  }
 
   if (body.op === "recall") {
     const memoryTypes = Array.isArray(body.memory_types) && body.memory_types.length

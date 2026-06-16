@@ -6,7 +6,14 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { callAI } from "../_shared/ai-chain.ts";
 import { loadMemory, saveTurn, formatMemoryContext } from "../_shared/memory.ts";
 import { logAICost, estimateTokens } from "../_shared/cost-log.ts";
+// P2 Pillar C (Compute & Resilience): cache the deterministic intent classifier.
+import { cached } from "../_shared/cache.ts";
 import { getCorsHeaders } from "../_shared/cors.ts";
+// Pillar O (Observability): expose a /health probe for the gateway status page.
+import { handleHealth } from "../_shared/health.ts";
+import { log } from "../_shared/logger.ts";
+// Pillar I (Gateway Spine): verify hive membership on the direct call path.
+import { resolveIdentity, resolveTenancy } from "../_shared/tenant-context.ts";
 // P1 roadmap 2026-05-26: envelope adoption (helper imported; success-path migration follows).
 import { beginRequest, ok, fail, recordModelHop } from "../_shared/envelope.ts";
 import { checkAIRateLimit, rateLimitedResponse } from "../_shared/rate-limit.ts";
@@ -83,6 +90,18 @@ serve(async (req) => {
     return new Response("ok", { headers: corsHeaders });
   }
 
+  // Pillar O: /health probe (short-circuits before auth/body parsing).
+  const healthResp = await handleHealth(req, "voice-report-intent", async () => ({
+    deps: [
+      { name: "supabase", ok: Boolean(Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")) },
+      { name: "ai-chain", ok: Boolean(Deno.env.get("GROQ_API_KEY") || Deno.env.get("CEREBRAS_API_KEY")) },
+    ],
+  }));
+  if (healthResp) return healthResp;
+
+  const _logCtx = beginRequest(req, { route: "voice-report-intent" });
+  log.info(_logCtx, "request_start", { method: req.method });
+
   try {
     const { transcript, hive_id } = await req.json();
 
@@ -101,15 +120,50 @@ serve(async (req) => {
       Deno.env.get("SUPABASE_URL") || "",
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "",
     );
+    // Pillar I: the direct (report-sender.html) path scopes by the client
+    // hive_id on a service-role client — verify membership. The ai-gateway
+    // forward is service-role and skips. Verify when a hive is claimed.
+    if (hive_id) {
+      const { authUid, isServiceRole } = await resolveIdentity(db, req);
+      if (!isServiceRole) {
+        const t = await resolveTenancy(db, authUid, hive_id);
+        if (!t.ok) {
+          return new Response(
+            JSON.stringify({ error: t.message, code: t.code }),
+            { status: t.status, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+          );
+        }
+      }
+    }
     const rl = await checkAIRateLimit(db, hive_id || "");
     if (!rl.allowed) return rateLimitedResponse(corsHeaders);
 
-    const raw = await callAI(safeTranscript, {
-      systemPrompt: INTENT_SYSTEM,
-      temperature:  0.1,
-      maxTokens:    256,
-      jsonMode:     true,
-    });
+    // P2 Pillar C: cache the intent classifier. The report-intent JSON is
+    // determined by the transcript ALONE (INTENT_SYSTEM is a const; no persona,
+    // hive, or asset data in the prompt — memory is loaded around this call, not
+    // into it), so the cached value is hive-independent: the same spoken report
+    // request across hives is a cache hit with zero cross-hive leakage. Hive
+    // scoping (membership verify + rate gate) runs upstream of the cache. 6h TTL.
+    const intentCacheKey = `voiceintent:${safeTranscript}`;
+    const cr = await cached<string>(
+      db, "voice-report-intent", intentCacheKey,
+      async () => {
+        const out = await callAI(safeTranscript, {
+          systemPrompt: INTENT_SYSTEM,
+          temperature:  0.1,
+          maxTokens:    256,
+          jsonMode:     true,
+        });
+        return {
+          data:      out,
+          tokensIn:  estimateTokens(safeTranscript) + estimateTokens(INTENT_SYSTEM),
+          tokensOut: estimateTokens(out),
+        };
+      },
+      6 * 60 * 60,
+    );
+    const raw = cr.data;
+    if (cr.hit) console.log("[voice-report-intent] intent cache hit");
 
     const VALID_TYPES = new Set(["pm_overdue","failure_digest","shift_handover","predictive"]);
 

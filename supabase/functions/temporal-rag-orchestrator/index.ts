@@ -38,8 +38,11 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { callAI } from "../_shared/ai-chain.ts";
+import { log } from "../_shared/logger.ts";
 import { logAICost, estimateTokens } from "../_shared/cost-log.ts";
 import { getCorsHeaders } from "../_shared/cors.ts";
+// Pillar I (Gateway Spine): verify hive membership before service-role reads.
+import { resolveIdentity, resolveTenancy } from "../_shared/tenant-context.ts";
 // P1 roadmap 2026-05-26: adoption of envelope + /health.
 import { beginRequest, ok } from "../_shared/envelope.ts";
 import { handleHealth } from "../_shared/health.ts";
@@ -89,7 +92,7 @@ Respond JSON only:
 
 const _URL = Deno.env.get("SUPABASE_URL") || "";
 const _KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
-if (!_URL || !_KEY) console.warn("[temporal-rag-orchestrator] SUPABASE env missing");
+if (!_URL || !_KEY) log.warn(null, "[temporal-rag-orchestrator] SUPABASE env missing");
 const _warm = _URL && _KEY ? createClient(_URL, _KEY) : null;
 void _warm;
 
@@ -317,6 +320,22 @@ serve(async (req) => {
   });
 
   const db = _warm || createClient(_URL, _KEY);
+
+  // Pillar I: RAG over a hive's temporal summaries scoped by the client hive_id
+  // on a service-role client — verify membership. Internal callers (the
+  // agentic-rag-loop temporal delegate) use service-role and skip.
+  {
+    const { authUid, isServiceRole } = await resolveIdentity(db, req);
+    if (!isServiceRole) {
+      const t = await resolveTenancy(db, authUid, hiveId);
+      if (!t.ok) {
+        return new Response(
+          JSON.stringify({ error: t.message, code: t.code }),
+          { status: t.status, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+        );
+      }
+    }
+  }
 
   // Rate limit BEFORE any sub-agent runs (cost protection)
   const rl = await checkRateLimit(db, hiveId);

@@ -1,0 +1,14 @@
+{
+  "surfaces": [
+    "achievements.html",
+    "alert-hub.html",
+    "asset-hub.html",
+    "audit-log.html",
+    "community.html",
+    "founder-console.html",
+    "hive.html",
+    "marketplace.html",
+    "pm-scheduler.html",
+    "project-manager.html"
+  ]
+}

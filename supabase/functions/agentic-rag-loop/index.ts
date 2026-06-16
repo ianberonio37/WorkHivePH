@@ -55,6 +55,10 @@ import { logAICost, estimateTokens } from "../_shared/cost-log.ts";
 import { getCorsHeaders } from "../_shared/cors.ts";
 // P1 roadmap 2026-05-26: envelope adoption (helper imported; success-path migration follows).
 import { beginRequest, ok, fail, recordModelHop } from "../_shared/envelope.ts";
+// Pillar O (Observability): structured request logging.
+import { log } from "../_shared/logger.ts";
+// Pillar I (Gateway Spine): verify hive membership (JWT-derived, not body.auth_uid).
+import { resolveIdentity, resolveTenancy } from "../_shared/tenant-context.ts";
 // P1 roadmap 2026-05-26: adoption of shared /health helper + LLM response cache.
 import { handleHealth } from "../_shared/health.ts";
 import { cached } from "../_shared/cache.ts";
@@ -1083,6 +1087,9 @@ serve(async (req) => {
   }));
   if (healthResp) return healthResp;
 
+  const _logCtx = beginRequest(req, { route: "agentic-rag-loop" });
+  log.info(_logCtx, "request_start", { method: req.method });
+
   if (req.method !== "POST") {
     return new Response(JSON.stringify({ error: "Method not allowed" }), {
       status: 405,
@@ -1127,6 +1134,34 @@ serve(async (req) => {
     });
   }
   const db = createClient(_WH_URL, _WH_KEY);
+
+  // Resolve the caller's identity ONCE — JWT-derived authUid + isServiceRole.
+  // Browser callers carry a user JWT; gateway/voice forwards use the service role.
+  // This is the authoritative identity for BOTH hive membership AND the personal
+  // voice-journal scope below.
+  const _id = await resolveIdentity(db, req);
+
+  // Pillar I: RAG over a hive's knowledge scoped by the client hive_id on a
+  // service-role client — verify membership using the JWT-derived identity (NOT
+  // the client-supplied body.auth_uid). Service-role (gateway/voice) forwards skip.
+  if (hiveId && !_id.isServiceRole) {
+    const t = await resolveTenancy(db, _id.authUid, hiveId);
+    if (!t.ok) {
+      return new Response(
+        JSON.stringify({ error: t.message, code: t.code }),
+        { status: t.status, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+      );
+    }
+  }
+
+  // Pillar R/I auth_uid IDOR fix (2026-06-15): the voice-journal lane (Lane A) is
+  // PERSONAL. For a BROWSER caller scope it ONLY by the JWT-verified authUid —
+  // never the client-supplied body.auth_uid (which let a caller read another
+  // worker's journal by passing their id, on this service-role/RLS-bypassed
+  // client). A SERVICE-ROLE forward (gateway/voice, already user-verified
+  // upstream) keeps the supplied auth_uid. Anon browser caller → null → Lane A
+  // is skipped (no journal to read).
+  const effectiveAuthUid = _id.isServiceRole ? authUid : (_id.authUid || null);
 
   // ── Rate limit ─────────────────────────────────────────────────────────────
   const rl = await checkRateLimit(db, hiveId);
@@ -1223,7 +1258,7 @@ serve(async (req) => {
   for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
     // Stage 2: Retriever (Item 2 wires Lane C: hierarchical summaries)
     const tR0 = Date.now();
-    const chunks = await retrieverStage(db, currentQuery, hiveId, workerName, authUid, router.parsed.route, router.parsed.asset_tag, router.parsed.time_scope);
+    const chunks = await retrieverStage(db, currentQuery, hiveId, workerName, effectiveAuthUid, router.parsed.route, router.parsed.asset_tag, router.parsed.time_scope);
     stages.push({
       stage: `retriever${attempt > 0 ? `_retry${attempt}` : ""}`,
       latency_ms: Date.now() - tR0,

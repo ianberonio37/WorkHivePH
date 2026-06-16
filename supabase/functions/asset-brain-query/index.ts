@@ -36,6 +36,9 @@ import { loadMemory, saveTurn, formatMemoryContext } from "../_shared/memory.ts"
 import { logAICost, estimateTokens } from "../_shared/cost-log.ts";
 import { redactPII } from "../_shared/redactPII.ts";
 import { getCorsHeaders } from "../_shared/cors.ts";
+// Pillar O (Observability): expose a /health probe for the gateway status page.
+import { handleHealth } from "../_shared/health.ts";
+import { log } from "../_shared/logger.ts";
 // P1 roadmap 2026-05-26: envelope adoption (helper imported; success-path migration follows).
 import { beginRequest, ok, fail, recordModelHop } from "../_shared/envelope.ts";
 
@@ -481,6 +484,18 @@ serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
   }
+
+  // Pillar O: /health probe (short-circuits before auth/body parsing).
+  const healthResp = await handleHealth(req, "asset-brain-query", async () => ({
+    deps: [
+      { name: "supabase", ok: Boolean(Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")) },
+      { name: "ai-chain", ok: Boolean(Deno.env.get("GROQ_API_KEY") || Deno.env.get("CEREBRAS_API_KEY")) },
+    ],
+  }));
+  if (healthResp) return healthResp;
+
+  const _logCtx = beginRequest(req, { route: "asset-brain-query" });
+  log.info(_logCtx, "request_start", { method: req.method });
 
   try {
     const body = await req.json().catch(() => ({}));

@@ -3,6 +3,7 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 // contract: health_score_v1 (canonical_agent_contracts; consumers: predictive.html, asset-hub.html, analytics.html, shift-brain.html)
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { getCorsHeaders } from "../_shared/cors.ts";
+import { log } from "../_shared/logger.ts";
 import { checkAIRateLimit, rateLimitedResponse } from "../_shared/rate-limit.ts";
 // P1 roadmap 2026-05-26: envelope adoption (helper imported; success-path migration follows).
 import { beginRequest, ok, fail, recordModelHop } from "../_shared/envelope.ts";
@@ -95,7 +96,7 @@ serve(async (req) => {
         job_name: "batch-risk-scoring",
         status:   "success",
         detail:   `On-demand recompute (hive ${oneHive.name || reqHiveId}): ${JSON.stringify(result).slice(0, 200)}`,
-      }).then(({ error }) => { if (error) console.warn("audit log:", error.message); });
+      }).then(({ error }) => { if (error) log.warn(null, "audit log:", { detail: error.message }); });
       return new Response(JSON.stringify({ ok: true, on_demand: true, ...result }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
@@ -138,7 +139,7 @@ serve(async (req) => {
       job_name: "batch-risk-scoring",
       status:   failed === 0 ? "success" : "failed",
       detail:   `Scored ${succeeded}/${hives.length} hives. Failures: ${failed}`,
-    }).then(({ error }) => { if (error) console.warn("audit log:", error.message); });
+    }).then(({ error }) => { if (error) log.warn(null, "audit log:", { detail: error.message }); });
 
     return new Response(
       JSON.stringify({ scored: succeeded, failed, total: hives.length }),
@@ -146,7 +147,7 @@ serve(async (req) => {
     );
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
-    console.error("batch-risk-scoring:", msg);
+    log.error(null, "batch-risk-scoring:", { detail: msg });
     return new Response(JSON.stringify({ error: msg }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -298,7 +299,7 @@ async function scoreHive(
         }
       }
     } catch (err) {
-      console.warn(`Python API unavailable for hive ${hiveId}, using inline rules`);
+      log.warn(null, `Python API unavailable for hive ${hiveId}, using inline rules`);
     }
   }
 
@@ -401,7 +402,7 @@ async function scoreHive(
     }
   }
   if (violations > 0) {
-    console.warn(`[batch-risk-scoring] Hive ${hiveId}: ${violations} rows rejected by Tier C contract.`);
+    log.warn(null, `[batch-risk-scoring] Hive ${hiveId}: ${violations} rows rejected by Tier C contract.`);
   }
   if (!validRows.length) {
     return { hive_id: hiveId, scored: 0, contract_violations: violations };

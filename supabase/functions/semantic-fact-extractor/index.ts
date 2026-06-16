@@ -48,9 +48,12 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { callAI } from "../_shared/ai-chain.ts";
+import { log } from "../_shared/logger.ts";
 import { generateEmbedding } from "../_shared/embedding-chain.ts";
 import { logAICost, estimateTokens } from "../_shared/cost-log.ts";
 import { getCorsHeaders } from "../_shared/cors.ts";
+// Pillar I (Gateway Spine): verify hive membership before service-role logbook reads.
+import { resolveIdentity, resolveTenancy } from "../_shared/tenant-context.ts";
 import { beginRequest, ok, fail } from "../_shared/envelope.ts";
 import { handleHealth } from "../_shared/health.ts";
 import {
@@ -89,7 +92,7 @@ Good examples:
 
 const _URL = Deno.env.get("SUPABASE_URL") || "";
 const _KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
-if (!_URL || !_KEY) console.warn("[semantic-fact-extractor] SUPABASE env vars missing");
+if (!_URL || !_KEY) log.warn(null, "[semantic-fact-extractor] SUPABASE env vars missing");
 const _warm = _URL && _KEY ? createClient(_URL, _KEY) : null;
 void _warm;
 
@@ -111,7 +114,7 @@ async function alreadyExtracted(db: SupabaseClient, hiveId: string): Promise<Set
     .eq("created_by", FN_NAME)
     .like("source_ref", "logbook:%")
     .limit(5000);
-  if (error) { console.warn("[semantic-fact-extractor] prior-facts lookup failed:", error.message); return new Set(); }
+  if (error) { log.warn(null, "[semantic-fact-extractor] prior-facts lookup failed:", { detail: error.message }); return new Set(); }
   return new Set((data || []).map((r: { source_ref: string }) => r.source_ref));
 }
 
@@ -138,6 +141,7 @@ serve(async (req) => {
   }
 
   const ctx = beginRequest(req, { route: FN_NAME });
+  log.info(ctx, "request_start", { method: req.method });
 
   let body: { hive_id?: string; since?: string; limit?: number; max_groups?: number } = {};
   try { body = await req.json(); } catch {
@@ -152,6 +156,17 @@ serve(async (req) => {
   const rowLimit  = Math.min(ROW_CAP, Math.max(1, Number(body.limit ?? ROW_CAP)));
   const maxGroups = Math.min(MAX_GROUPS, Math.max(1, Number(body.max_groups ?? MAX_GROUPS)));
   const db        = _warm || createClient(_URL, _KEY);
+
+  // Pillar I: extracts facts from a hive's logbook scoped by the client hive_id
+  // on a service-role client — verify membership. Internal callers (the RAG
+  // Checker stage / cron) use service-role and skip.
+  {
+    const { authUid, isServiceRole } = await resolveIdentity(db, req);
+    if (!isServiceRole) {
+      const t = await resolveTenancy(db, authUid, hiveId);
+      if (!t.ok) return fail(ctx, t.code, t.message, { status: t.status });
+    }
+  }
   const errors: string[] = [];
 
   // 1. Fetch candidate logbook entries (hive-scoped, narrow, capped). Prefer

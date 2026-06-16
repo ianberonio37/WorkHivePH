@@ -34,6 +34,8 @@ import { getCorsHeaders } from "../_shared/cors.ts";
 // P1 roadmap 2026-05-26: envelope adoption (helper imported; success-path migration follows).
 import { beginRequest, ok, fail, recordModelHop } from "../_shared/envelope.ts";
 import { checkAIRateLimit, rateLimitedResponse } from "../_shared/rate-limit.ts";
+// Pillar I (Gateway Spine): verify hive membership on the single-hive path.
+import { resolveIdentity, resolveTenancy } from "../_shared/tenant-context.ts";
 // Persona Contract: briefing-signature mode — the shift briefing is an
 // autonomous hive-level artifact (no per-worker context), so it wears the
 // persona only as a footer signature keyed off hives.preferred_persona,
@@ -281,6 +283,23 @@ serve(async (req) => {
       Deno.env.get("SUPABASE_URL") || "",
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "",
     );
+
+    // Pillar I: the single-hive (manual / companion) path is scoped by the
+    // client hive_id on a service-role client — verify membership. The cron
+    // path (single_hive=null) fans out over ALL hives and is reached only by
+    // service-role callers, so it is left untouched. Service-role callers skip.
+    if (single_hive) {
+      const { authUid, isServiceRole } = await resolveIdentity(db, req);
+      if (!isServiceRole) {
+        const tenancy = await resolveTenancy(db, authUid, single_hive);
+        if (!tenancy.ok) {
+          return new Response(
+            JSON.stringify({ error: tenancy.message, code: tenancy.code }),
+            { status: tenancy.status, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+          );
+        }
+      }
+    }
 
     // Rate-gate FIRST per ai-engineer skill — synthesizeBriefing calls callAI
     // for every hive in the loop. Single-hive (manual / button) path is gated

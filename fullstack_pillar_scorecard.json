@@ -1,0 +1,332 @@
+{
+  "generated_at": "2026-06-16T05:46:35+00:00",
+  "pillars": {
+    "D": {
+      "name": "Data & Truth",
+      "phase_key": "foundation",
+      "pct": 100.0,
+      "met": 3,
+      "of": 3,
+      "criteria": [
+        {
+          "label": "canonical registry present",
+          "ok": true
+        },
+        {
+          "label": "migration hash lock present",
+          "ok": true
+        },
+        {
+          "label": "data-governance validator present",
+          "ok": true
+        }
+      ]
+    },
+    "F": {
+      "name": "Edge Experience",
+      "phase_key": "foundation",
+      "pct": 100.0,
+      "met": 3,
+      "of": 3,
+      "criteria": [
+        {
+          "label": "request-budget scanner present",
+          "ok": true
+        },
+        {
+          "label": "shared components.css present",
+          "ok": true
+        },
+        {
+          "label": "mobile validator present",
+          "ok": true
+        }
+      ]
+    },
+    "I": {
+      "name": "Identity & Tenancy",
+      "phase_key": "phase1",
+      "pct": 100.0,
+      "met": 4,
+      "of": 4,
+      "criteria": [
+        {
+          "label": "tenant-context resolver present",
+          "ok": true
+        },
+        {
+          "label": "resolveTenancy implemented",
+          "ok": true
+        },
+        {
+          "label": "requireServiceRole implemented",
+          "ok": true
+        },
+        {
+          "label": "tenancy ratchet present",
+          "ok": true
+        }
+      ]
+    },
+    "P": {
+      "name": "Policy & Governance",
+      "phase_key": "phase1",
+      "pct": 100.0,
+      "met": 4,
+      "of": 4,
+      "criteria": [
+        {
+          "label": "rate-limit helper present",
+          "ok": true
+        },
+        {
+          "label": "policy hive-binding ratchet present",
+          "ok": true
+        },
+        {
+          "label": "PII-egress ratchet present",
+          "ok": true
+        },
+        {
+          "label": "PII redactor present",
+          "ok": true
+        }
+      ]
+    },
+    "R": {
+      "name": "Routing & Contract",
+      "phase_key": "phase1",
+      "pct": 100.0,
+      "met": 4,
+      "of": 4,
+      "criteria": [
+        {
+          "label": "routing-coverage ratchet present",
+          "ok": true
+        },
+        {
+          "label": "routing validator present",
+          "ok": true
+        },
+        {
+          "label": "envelope helper present",
+          "ok": true
+        },
+        {
+          "label": "trace-id threaded in envelope",
+          "ok": true
+        }
+      ]
+    },
+    "C": {
+      "name": "Compute & Resilience",
+      "phase_key": "phase2",
+      "pct": 88.9,
+      "met": 8,
+      "of": 9,
+      "criteria": [
+        {
+          "label": "LLM cache helper present",
+          "ok": true
+        },
+        {
+          "label": "provider-health circuit-break",
+          "ok": true
+        },
+        {
+          "label": "cache-adoption ratchet present",
+          "ok": true
+        },
+        {
+          "label": "cache adopters >= 3 (baseline)",
+          "ok": true
+        },
+        {
+          "label": "provider-fallback validator present",
+          "ok": true
+        },
+        {
+          "label": "k6 load-test rig present",
+          "ok": true
+        },
+        {
+          "label": "cache adopters >= 5 (broad)",
+          "ok": false
+        },
+        {
+          "label": "per-route quota in >= 2 fns",
+          "ok": true
+        },
+        {
+          "label": "load-test executed (marker)",
+          "ok": true
+        }
+      ]
+    },
+    "O": {
+      "name": "Observability & SLO",
+      "phase_key": "phase3",
+      "pct": 100.0,
+      "met": 9,
+      "of": 9,
+      "criteria": [
+        {
+          "label": "error-tracker present",
+          "ok": true
+        },
+        {
+          "label": "structured logger present",
+          "ok": true
+        },
+        {
+          "label": "trace-id in envelope",
+          "ok": true
+        },
+        {
+          "label": "observability validator present",
+          "ok": true
+        },
+        {
+          "label": "/health probe on >= 10 fns",
+          "ok": true
+        },
+        {
+          "label": "structured-log adopted >= 10 fns",
+          "ok": true
+        },
+        {
+          "label": "trace aggregation / log store wired",
+          "ok": true
+        },
+        {
+          "label": "SLO / error-budget doc present",
+          "ok": true
+        },
+        {
+          "label": "local status page present",
+          "ok": true
+        }
+      ]
+    },
+    "DR": {
+      "name": "Delivery & Recovery",
+      "phase_key": "phase4",
+      "pct": 100.0,
+      "met": 7,
+      "of": 7,
+      "criteria": [
+        {
+          "label": "CI workflow file written",
+          "ok": true
+        },
+        {
+          "label": "idempotency validator present",
+          "ok": true
+        },
+        {
+          "label": "edge-config validator present",
+          "ok": true
+        },
+        {
+          "label": "rollback runbook present",
+          "ok": true
+        },
+        {
+          "label": "CI gate locally runnable",
+          "ok": true
+        },
+        {
+          "label": "game-day script present",
+          "ok": true
+        },
+        {
+          "label": "backup verification present",
+          "ok": true
+        }
+      ]
+    }
+  },
+  "phases": [
+    {
+      "phase": "0",
+      "name": "Foundation lock & doctrine",
+      "key": "foundation_extra",
+      "pct": 100.0,
+      "pillars": [],
+      "extra": [
+        {
+          "label": "gateway roadmap present",
+          "ok": true
+        },
+        {
+          "label": "per-pillar scorecard wired",
+          "ok": true
+        },
+        {
+          "label": "13x6 study present",
+          "ok": true
+        }
+      ]
+    },
+    {
+      "phase": "1",
+      "name": "The Gateway Spine (R+I+P)",
+      "key": "phase1",
+      "pct": 100.0,
+      "pillars": [
+        "I",
+        "P",
+        "R"
+      ],
+      "extra": []
+    },
+    {
+      "phase": "2",
+      "name": "Compute & Resilience (C)",
+      "key": "phase2",
+      "pct": 88.9,
+      "pillars": [
+        "C"
+      ],
+      "extra": []
+    },
+    {
+      "phase": "3",
+      "name": "Observability & SLO (O)",
+      "key": "phase3",
+      "pct": 100.0,
+      "pillars": [
+        "O"
+      ],
+      "extra": []
+    },
+    {
+      "phase": "4",
+      "name": "Delivery & Recovery (DR)",
+      "key": "phase4",
+      "pct": 100.0,
+      "pillars": [
+        "DR"
+      ],
+      "extra": []
+    },
+    {
+      "phase": "5",
+      "name": "Gateway-Accept",
+      "key": "phase5",
+      "pct": 100.0,
+      "pillars": [],
+      "extra": [
+        {
+          "label": "gateway-accept run = PASS",
+          "ok": true
+        },
+        {
+          "label": "accept marker present",
+          "ok": true
+        }
+      ]
+    }
+  ],
+  "overall_pct": 98.1
+}

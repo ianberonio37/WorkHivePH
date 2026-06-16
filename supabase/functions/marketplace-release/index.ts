@@ -14,6 +14,7 @@
 
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { beginRequest, ok, fail, recordModelHop } from "../_shared/envelope.ts";
+import { log } from "../_shared/logger.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { getCorsHeaders } from '../_shared/cors.ts';
 
@@ -122,7 +123,7 @@ serve(async (req: Request) => {
 
   if (!transferRes.ok) {
     const err = await transferRes.text();
-    console.error('Stripe transfer error:', err);
+    log.error(null, 'Stripe transfer error:', { detail: err });
     return errJson('Transfer failed — funds still held safely. Contact support.', 502, req);
   }
 
@@ -142,12 +143,12 @@ serve(async (req: Request) => {
     .eq('id', order_id);
 
   if (releaseErr) {
-    console.error('Order release update failed:', releaseErr.message);
+    log.error(null, 'Order release update failed:', { detail: releaseErr.message });
     /* Transfer succeeded — flag for manual reconciliation */
     return errJson('Transfer sent but order status update failed — contact support', 500, req);
   }
 
-  console.log(`Order ${order_id} released. Transfer: ${transfer.id}`);
+  log.info(null, `Order ${order_id} released. Transfer: ${transfer.id}`);
 
   return new Response(JSON.stringify({ released: true, transfer_id: transfer.id }), {
     status:  200,

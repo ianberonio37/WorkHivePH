@@ -1,0 +1,14 @@
+{
+  "result": "PASS",
+  "ts": "2026-06-11T08:08:14+00:00",
+  "layers": {
+    "G-1.5 substrate": "PASS",
+    "G-1 discover": "PASS",
+    "GS sentinel": "PASS",
+    "G2 e2e": "PASS",
+    "G0 gate": "PASS",
+    "scorecard": "PASS"
+  },
+  "load_test": "PASS",
+  "load_test_ts": "2026-06-16T05:58:42Z"
+}

@@ -26,6 +26,8 @@ import { logAICost, estimateTokens } from "../_shared/cost-log.ts";
 import { getCorsHeaders } from "../_shared/cors.ts";
 // P1 roadmap 2026-05-26: envelope adoption (helper imported; success-path migration follows).
 import { beginRequest, ok, fail, recordModelHop } from "../_shared/envelope.ts";
+// Pillar I (Gateway Spine): verify hive membership before service-role reads/writes.
+import { resolveIdentity, resolveTenancy } from "../_shared/tenant-context.ts";
 
 // Warm module-scope Supabase client. Reused across request invocations
 // in the same warm container. Per-request createClient calls below are
@@ -240,6 +242,22 @@ serve(async (req) => {
       Deno.env.get("SUPABASE_URL") || "",
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "",
     );
+
+    // Pillar I: worker-click path scopes FMEA reads/writes by the client hive_id
+    // on a service-role client — verify membership. Weekly cron passes a
+    // service-role bearer and skips. (Hole closed for the asset-hub button path.)
+    {
+      const { authUid, isServiceRole } = await resolveIdentity(db, req);
+      if (!isServiceRole) {
+        const tenancy = await resolveTenancy(db, authUid, hive_id);
+        if (!tenancy.ok) {
+          return new Response(
+            JSON.stringify({ error: tenancy.message, code: tenancy.code }),
+            { status: tenancy.status, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+          );
+        }
+      }
+    }
 
     // Rate-limit gate FIRST.
     const rl = await checkAIRateLimit(db, hive_id, RATE_LIMIT_PER_HOUR);

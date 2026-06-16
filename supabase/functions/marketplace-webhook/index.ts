@@ -12,6 +12,7 @@
 
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { beginRequest, ok, fail, recordModelHop } from "../_shared/envelope.ts";
+import { log } from "../_shared/logger.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 // Warm module-scope Supabase client. Reused across request invocations
@@ -120,7 +121,7 @@ serve(async (req: Request) => {
       .maybeSingle();
 
     if (findErr || !order) {
-      console.error('Order not found for session:', sessionId);
+      log.error(null, 'Order not found for session:', { detail: sessionId });
       return new Response('ok', { status: 200 }); /* acknowledge to Stripe */
     }
 
@@ -131,7 +132,7 @@ serve(async (req: Request) => {
     /* Verify amount matches what we stored (fraud guard) */
     const storedCentavos = Math.round(Number(order.price) * 100);
     if (amountTotal && amountTotal !== storedCentavos) {
-      console.error(`Amount mismatch: Stripe=${amountTotal} DB=${storedCentavos}`);
+      log.error(null, `Amount mismatch: Stripe=${amountTotal} DB=${storedCentavos}`);
       return errJson('Amount mismatch — payment not applied', 400, req);
     }
 
@@ -145,18 +146,18 @@ serve(async (req: Request) => {
       .eq('id', order.id);
 
     if (updateErr) {
-      console.error('Order update failed:', updateErr.message);
+      log.error(null, 'Order update failed:', { detail: updateErr.message });
       return errJson('Order update failed', 500, req);
     }
 
-    console.log(`Order ${order.id} moved to escrow_hold`);
+    log.info(null, `Order ${order.id} moved to escrow_hold`);
   }
 
   /* ── checkout.session.expired → keep as pending, log only ───────────── */
   if (event.type === 'checkout.session.expired') {
     const session   = event.data.object;
     const sessionId = session['id'] as string;
-    console.log(`Checkout session expired: ${sessionId}`);
+    log.info(null, `Checkout session expired: ${sessionId}`);
     /* No DB change — order stays pending_payment until cleaned up by cron */
   }
 

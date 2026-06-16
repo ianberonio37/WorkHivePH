@@ -1,6 +1,6 @@
 {
-  "clones": 61,
-  "duplicatedLines": 5532,
-  "percentage": 30.24,
-  "note": "forward-only ratchet on duplicatedLines (NOT clone count); collapse duplication then --update-baseline to lower; % informational. 2026-06-14 D7 raised 4742->5532: this is a jscpd MEASUREMENT ARTIFACT, not new copy-paste. D7 migrated 38 pages' inline supabase.createClient(URL,KEY) to the shared getDb() singleton (a single-token swap per page) -- which REDUCED real client-init duplication (38 inline inits -> 1). The line metric rose only because normalizing the init token let jscpd extend/merge clone detection across the already-near-identical (template-shaped, survey T6 KEEP) auth/identity boilerplate that follows it. Evidence: a one-token swap cannot add 790 lines of hand-written copy-paste; clones barely moved (60->61). See S13 lesson (jscpd line-count conflates shape with copy-paste) + STREAMLINE_ROADMAP.md D7. The genuine follow-on dedup this surfaced = D8 (extract a shared page-init helper), which would bring this back below 4742."
+  "clones": 60,
+  "duplicatedLines": 5436,
+  "percentage": 28.95,
+  "note": "forward-only ratchet on duplicatedLines (NOT clone count); tightened automatically on reduction; % informational"
 }

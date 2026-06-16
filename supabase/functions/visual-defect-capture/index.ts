@@ -58,8 +58,11 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 // contract-allow: produces visual defect draft; future Tier C: visual_defect_draft_v1
 import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { callAIMultimodal } from "../_shared/ai-chain.ts";
+import { log } from "../_shared/logger.ts";
 import { generateEmbedding } from "../_shared/embedding-chain.ts";
 import { getCorsHeaders } from "../_shared/cors.ts";
+// Pillar I (Gateway Spine): verify hive membership before service-role reads/writes.
+import { resolveIdentity, resolveTenancy } from "../_shared/tenant-context.ts";
 // P1 roadmap 2026-05-26: envelope adoption (helper imported; success-path migration follows).
 import { beginRequest, ok, fail, recordModelHop } from "../_shared/envelope.ts";
 import { logAICost, estimateTokens } from "../_shared/cost-log.ts";
@@ -266,6 +269,20 @@ serve(async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "",
     );
 
+    // Pillar I: service-role client (RLS bypassed) scoped by the CLIENT hive_id
+    // — verify active membership before any read/write, else any signed-in user
+    // could write defect drafts / read assets in another hive. Service-role skips.
+    const { authUid, isServiceRole } = await resolveIdentity(db, req);
+    if (!isServiceRole) {
+      const tenancy = await resolveTenancy(db, authUid, hive_id);
+      if (!tenancy.ok) {
+        return new Response(
+          JSON.stringify({ error: tenancy.message, code: tenancy.code }),
+          { status: tenancy.status, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+        );
+      }
+    }
+
     // Rate-limit gate FIRST (per ai-engineer skill).
     const rl = await checkAIRateLimit(db, hive_id, RATE_LIMIT_PER_HOUR);
     if (!rl.allowed) {
@@ -411,15 +428,15 @@ serve(async (req) => {
             maintenance_type: "Visual Defect Capture",
           }).select("id").single();
           if (insErr) {
-            console.warn(`[visual-defect-capture] fault_knowledge insert failed: ${insErr.message}`);
+            log.warn(null, `[visual-defect-capture] fault_knowledge insert failed: ${insErr.message}`);
           } else if (ins) {
             // The caller has already received its response; this is purely
             // observability for the runtime.
-            console.log(`[visual-defect-capture] fault_knowledge row inserted: ${(ins as { id: string }).id}`);
+            log.info(null, `[visual-defect-capture] fault_knowledge row inserted: ${(ins as { id: string }).id}`);
           }
         })
         .catch((err) => {
-          console.warn(`[visual-defect-capture] embedding failed: ${err instanceof Error ? err.message : String(err)}`);
+          log.warn(null, `[visual-defect-capture] embedding failed: ${err instanceof Error ? err.message : String(err)}`);
         });
       // fault_knowledge_id stays null in the response because the insert is
       // background; the worker's draft round-trip is independent.

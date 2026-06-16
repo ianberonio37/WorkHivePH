@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-06-10T11:09:03.944448+00:00",
+  "generated_at": "2026-06-16T07:01:06.115347+00:00",
   "sources": 13,
   "present": 13,
   "absent": 0,
@@ -94,7 +94,7 @@
       "proposals": [
         {
           "feature": "has_h1",
-          "conformance": 0.95,
+          "conformance": 0.949,
           "outlier_count": 2,
           "outliers": [
             "marketplace-seller-profile.html",
@@ -103,7 +103,7 @@
         },
         {
           "feature": "has_meta_description",
-          "conformance": 0.925,
+          "conformance": 0.923,
           "outlier_count": 3,
           "outliers": [
             "architecture.html",
@@ -113,54 +113,49 @@
         },
         {
           "feature": "loads_utils_js",
-          "conformance": 0.9,
-          "outlier_count": 4,
+          "conformance": 0.923,
+          "outlier_count": 3,
           "outliers": [
             "architecture.html",
-            "parts-tracker.html",
             "symbol-gallery.html",
             "validator-catalog.html"
           ]
         },
         {
           "feature": "loads_supabase_cdn",
-          "conformance": 0.9,
-          "outlier_count": 4,
+          "conformance": 0.923,
+          "outlier_count": 3,
           "outliers": [
             "architecture.html",
-            "parts-tracker.html",
             "symbol-gallery.html",
             "validator-catalog.html"
           ]
         },
         {
           "feature": "has_manifest_link",
-          "conformance": 0.875,
-          "outlier_count": 5,
+          "conformance": 0.897,
+          "outlier_count": 4,
           "outliers": [
             "architecture.html",
             "llm-observability.html",
-            "parts-tracker.html",
             "symbol-gallery.html",
             "validator-catalog.html"
           ]
         },
         {
           "feature": "calls_eschtml",
-          "conformance": 0.85,
-          "outlier_count": 6,
+          "conformance": 0.897,
+          "outlier_count": 4,
           "outliers": [
             "alert-hub.html",
             "architecture.html",
-            "parts-tracker.html",
             "project-report.html",
-            "shift-brain.html",
             "symbol-gallery.html"
           ]
         }
       ],
       "summary": {
-        "pages_scanned": 40,
+        "pages_scanned": 39,
         "features_extracted": 40,
         "promotion_candidates": 6
       },
@@ -182,7 +177,7 @@
         }
       ],
       "summary": {
-        "files_scanned": 212,
+        "files_scanned": 219,
         "features_extracted": 22,
         "promotion_candidates": 1
       },
@@ -240,7 +235,7 @@
         }
       ],
       "summary": {
-        "files_scanned": 337,
+        "files_scanned": 339,
         "features_extracted": 20,
         "promotion_candidates": 2
       },
@@ -252,7 +247,7 @@
       "present": true,
       "proposals": [],
       "summary": {
-        "files_scanned": 30,
+        "files_scanned": 31,
         "features_extracted": 16,
         "promotion_candidates": 0
       },
@@ -265,7 +260,7 @@
       "proposals": [
         {
           "feature": "has_print_calls",
-          "conformance": 0.964,
+          "conformance": 0.966,
           "outlier_count": 7,
           "outliers": [
             "analyze_walkthrough_new.py",
@@ -279,7 +274,7 @@
         }
       ],
       "summary": {
-        "files_scanned": 194,
+        "files_scanned": 204,
         "features_extracted": 22,
         "promotion_candidates": 1
       },
@@ -290,15 +285,15 @@
       "file": "skill_rules_mining_report.json",
       "present": true,
       "summary": {
-        "rules_evaluated": 53,
+        "rules_evaluated": 57,
         "rules_with_errors": 0,
         "promotion_candidates": 8,
-        "critical_violations": 3,
+        "critical_violations": 4,
         "rules_by_source": {
           "skill_md:designer": 2,
           "skill_md:mobile-maestro": 2,
           "skill_md:security": 3,
-          "manifest": 46
+          "manifest": 50
         },
         "skill_md_parse_errors": []
       }
@@ -328,15 +323,15 @@
       "file": "canonical_drift_platform_report.json",
       "present": true,
       "summary": {
-        "files_scanned": 188,
-        "kpi_rendering_pages": 79,
+        "files_scanned": 195,
+        "kpi_rendering_pages": 80,
         "truth_math_pages": 0,
         "tier_a_pages": 0,
-        "tier_b_pages": 6,
-        "total_canonical_reads": 285,
-        "total_drift_reads": 8,
-        "total_gap_reads": 53,
-        "total_allowed_reads": 146
+        "tier_b_pages": 0,
+        "total_canonical_reads": 286,
+        "total_drift_reads": 0,
+        "total_gap_reads": 54,
+        "total_allowed_reads": 157
       }
     },
     {
@@ -344,9 +339,9 @@
       "file": "auto_discovery_report.json",
       "present": true,
       "summary": {
-        "pass": 3,
+        "pass": 2,
         "warn": 0,
-        "fail": 0
+        "fail": 1
       }
     },
     {

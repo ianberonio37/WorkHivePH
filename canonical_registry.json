@@ -1265,7 +1265,6 @@
         "pm-scheduler.html"
       ],
       "read_by_edge_fns": [
-        "ai-orchestrator",
         "analytics-orchestrator",
         "asset-brain-query",
         "batch-risk-scoring",
@@ -1931,9 +1930,7 @@
       "grants": {},
       "realtime_published": false,
       "comment": "",
-      "read_by_surfaces": [
-        "alert-hub.html"
-      ],
+      "read_by_surfaces": [],
       "written_by_surfaces": [],
       "read_by_edge_fns": [
         "failure-signature-scan"
@@ -2310,7 +2307,9 @@
         "inventory.html",
         "logbook.html"
       ],
-      "read_by_edge_fns": [],
+      "read_by_edge_fns": [
+        "ai-gateway"
+      ],
       "written_by_edge_fns": []
     },
     "asset_edges": {
@@ -5176,6 +5175,85 @@
       ],
       "read_by_edge_fns": [],
       "written_by_edge_fns": []
+    },
+    "analytics_snapshots": {
+      "defined_in": "20260610000004_analytics_snapshots.sql",
+      "columns": [
+        "id",
+        "hive_id",
+        "phase",
+        "period_days",
+        "payload",
+        "computed_at",
+        "computed_by"
+      ],
+      "rls_enabled": true,
+      "grants": {
+        "authenticated": [
+          "SELECT"
+        ]
+      },
+      "realtime_published": false,
+      "comment": "",
+      "read_by_surfaces": [
+        "analytics.html"
+      ],
+      "written_by_surfaces": [],
+      "read_by_edge_fns": [
+        "analytics-orchestrator"
+      ],
+      "written_by_edge_fns": [
+        "analytics-orchestrator"
+      ]
+    },
+    "persona_knowledge": {
+      "defined_in": "20260612000000_persona_knowledge.sql",
+      "columns": [
+        "id",
+        "persona_scope",
+        "source",
+        "source_type",
+        "section",
+        "chunk_index",
+        "context_header",
+        "content",
+        "content_hash",
+        "embedding",
+        "embedding_model",
+        "created_at",
+        "updated_at"
+      ],
+      "rls_enabled": false,
+      "grants": {},
+      "realtime_published": false,
+      "comment": "",
+      "read_by_surfaces": [],
+      "written_by_surfaces": [],
+      "read_by_edge_fns": [],
+      "written_by_edge_fns": []
+    },
+    "embedding_cache": {
+      "defined_in": "20260613000000_embedding_cache.sql",
+      "columns": [
+        "query_hash",
+        "model",
+        "embedding",
+        "hits",
+        "created_at",
+        "last_used"
+      ],
+      "rls_enabled": false,
+      "grants": {},
+      "realtime_published": false,
+      "comment": "",
+      "read_by_surfaces": [],
+      "written_by_surfaces": [],
+      "read_by_edge_fns": [
+        "_shared/embedding-chain.ts"
+      ],
+      "written_by_edge_fns": [
+        "_shared/embedding-chain.ts"
+      ]
     }
   },
   "views": {
@@ -5271,14 +5349,12 @@
       ],
       "read_by_edge_fns": [
         "agentic-rag-loop",
-        "ai-orchestrator",
         "amc-orchestrator",
         "analytics-orchestrator",
         "batch-risk-scoring",
         "embed-entry",
         "hierarchical-summarizer",
         "scheduled-agents",
-        "shift-planner-orchestrator",
         "trigger-ml-retrain"
       ],
       "columns": []
@@ -5413,9 +5489,11 @@
         "pm-scheduler.html"
       ],
       "read_by_edge_fns": [
+        "ai-orchestrator",
         "analytics-orchestrator",
         "batch-risk-scoring",
         "platform-scraper",
+        "shift-planner-orchestrator",
         "trigger-ml-retrain"
       ],
       "columns": []
@@ -5655,6 +5733,7 @@
     "v_alert_truth": {
       "defined_in": "20260520000010_v_alert_truth.sql",
       "read_by_surfaces": [
+        "alert-hub.html",
         "hive.html"
       ],
       "read_by_edge_fns": [],
@@ -6561,6 +6640,16 @@
       "called_by_edge_fns": [
         "analytics-orchestrator"
       ]
+    },
+    "match_persona_knowledge": {
+      "defined_in": "20260612000000_persona_knowledge.sql",
+      "args": "query_embedding vector(384),\n  scopes          text[],\n  match_count     int default 4,\n  min_similarity  float default 0.25",
+      "security_definer": false,
+      "comment": "",
+      "called_by_surfaces": [],
+      "called_by_edge_fns": [
+        "_shared/persona-knowledge.ts"
+      ]
     }
   },
   "surfaces": {
@@ -6573,7 +6662,7 @@
       "tables_written": [],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "size_kb": 47.6
+      "size_kb": 46.6
     },
     "agentic-rag-observability.html": {
       "tables_read": [
@@ -6582,7 +6671,7 @@
       "tables_written": [],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "size_kb": 19.1
+      "size_kb": 20.9
     },
     "ai-quality.html": {
       "tables_read": [
@@ -6592,16 +6681,16 @@
       "tables_written": [],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "size_kb": 30.8
+      "size_kb": 30.7
     },
     "alert-hub.html": {
       "tables_read": [
         "amc_briefings",
         "anomaly_signals",
         "automation_log",
-        "failure_signature_alerts",
         "hive_audit_log",
         "parts_staging_recommendations",
+        "v_alert_truth",
         "v_anomaly_truth",
         "v_inventory_items_truth",
         "v_pm_scope_items_truth",
@@ -6615,8 +6704,10 @@
       "rpcs_called": [
         "compute_anomaly_signals"
       ],
-      "edge_fns_invoked": [],
-      "size_kb": 67.8
+      "edge_fns_invoked": [
+        "analytics-orchestrator"
+      ],
+      "size_kb": 69.0
     },
     "analytics-report.html": {
       "tables_read": [
@@ -6625,23 +6716,25 @@
       "tables_written": [],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "size_kb": 81.2
+      "size_kb": 82.4
     },
     "analytics.html": {
-      "tables_read": [],
+      "tables_read": [
+        "analytics_snapshots"
+      ],
       "tables_written": [],
       "rpcs_called": [],
       "edge_fns_invoked": [
         "batch-risk-scoring"
       ],
-      "size_kb": 135.9
+      "size_kb": 137.6
     },
     "architecture.html": {
       "tables_read": [],
       "tables_written": [],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "size_kb": 29.2
+      "size_kb": 31.2
     },
     "asset-hub.html": {
       "tables_read": [
@@ -6682,12 +6775,13 @@
       ],
       "rpcs_called": [],
       "edge_fns_invoked": [
+        "ai-gateway",
         "asset-brain-query",
         "fmea-populator",
         "pf-calculator",
         "weibull-fitter"
       ],
-      "size_kb": 183.2
+      "size_kb": 183.9
     },
     "assistant.html": {
       "tables_read": [
@@ -6706,7 +6800,7 @@
       "edge_fns_invoked": [
         "ai-gateway"
       ],
-      "size_kb": 59.3
+      "size_kb": 60.0
     },
     "audit-log.html": {
       "tables_read": [
@@ -6749,7 +6843,7 @@
       ],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "size_kb": 84.5
+      "size_kb": 82.4
     },
     "engineering-design.html": {
       "tables_read": [
@@ -6821,7 +6915,7 @@
         "ai-orchestrator",
         "benchmark-compute"
       ],
-      "size_kb": 211.5
+      "size_kb": 211.7
     },
     "index.html": {
       "tables_read": [],
@@ -6861,7 +6955,7 @@
       "edge_fns_invoked": [
         "cmms-sync"
       ],
-      "size_kb": 110.7
+      "size_kb": 110.1
     },
     "inventory.html": {
       "tables_read": [
@@ -6882,7 +6976,7 @@
       ],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "size_kb": 97.8
+      "size_kb": 96.3
     },
     "llm-observability.html": {
       "tables_read": [
@@ -6891,7 +6985,7 @@
       "tables_written": [],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "size_kb": 12.5
+      "size_kb": 14.4
     },
     "logbook.html": {
       "tables_read": [
@@ -6929,7 +7023,7 @@
         "visual-defect-capture",
         "voice-logbook-entry"
       ],
-      "size_kb": 275.4
+      "size_kb": 276.9
     },
     "marketplace-admin.html": {
       "tables_read": [
@@ -7017,14 +7111,7 @@
         "increment_listing_view"
       ],
       "edge_fns_invoked": [],
-      "size_kb": 160.8
-    },
-    "parts-tracker.html": {
-      "tables_read": [],
-      "tables_written": [],
-      "rpcs_called": [],
-      "edge_fns_invoked": [],
-      "size_kb": 2.5
+      "size_kb": 158.7
     },
     "ph-intelligence.html": {
       "tables_read": [
@@ -7036,7 +7123,7 @@
       "edge_fns_invoked": [
         "intelligence-report"
       ],
-      "size_kb": 31.9
+      "size_kb": 29.9
     },
     "plant-connections.html": {
       "tables_read": [
@@ -7050,7 +7137,7 @@
       "tables_written": [],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "size_kb": 32.5
+      "size_kb": 33.3
     },
     "platform-health.html": {
       "tables_read": [
@@ -7086,7 +7173,7 @@
         "get_pm_compliance_smrp"
       ],
       "edge_fns_invoked": [],
-      "size_kb": 123.7
+      "size_kb": 123.4
     },
     "predictive.html": {
       "tables_read": [
@@ -7135,7 +7222,7 @@
         "project-orchestrator",
         "project-progress"
       ],
-      "size_kb": 156.5
+      "size_kb": 154.5
     },
     "project-report.html": {
       "tables_read": [
@@ -7170,7 +7257,7 @@
       ],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "size_kb": 85.9
+      "size_kb": 84.8
     },
     "resume.html": {
       "tables_read": [
@@ -7199,9 +7286,10 @@
       ],
       "rpcs_called": [],
       "edge_fns_invoked": [
+        "analytics-orchestrator",
         "shift-planner-orchestrator"
       ],
-      "size_kb": 41.2
+      "size_kb": 44.4
     },
     "skillmatrix.html": {
       "tables_read": [
@@ -7217,21 +7305,21 @@
       ],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "size_kb": 64.8
+      "size_kb": 63.7
     },
     "symbol-gallery.html": {
       "tables_read": [],
       "tables_written": [],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "size_kb": 6.9
+      "size_kb": 8.9
     },
     "validator-catalog.html": {
       "tables_read": [],
       "tables_written": [],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "size_kb": 9.5
+      "size_kb": 11.4
     },
     "voice-journal.html": {
       "tables_read": [
@@ -7246,7 +7334,7 @@
       "edge_fns_invoked": [
         "ai-gateway"
       ],
-      "size_kb": 44.5
+      "size_kb": 44.9
     },
     "props.html": {
       "tables_read": [],
@@ -7318,7 +7406,7 @@
       "tables_written": [],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "loc": 386
+      "loc": 467
     },
     "_shared/audio-chain.ts": {
       "tables_read": [],
@@ -7373,11 +7461,15 @@
       "loc": 78
     },
     "_shared/embedding-chain.ts": {
-      "tables_read": [],
-      "tables_written": [],
+      "tables_read": [
+        "embedding_cache"
+      ],
+      "tables_written": [
+        "embedding_cache"
+      ],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "loc": 225
+      "loc": 381
     },
     "_shared/envelope.ts": {
       "tables_read": [],
@@ -7462,21 +7554,30 @@
       ],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "loc": 168
+      "loc": 214
+    },
+    "_shared/persona-knowledge.ts": {
+      "tables_read": [],
+      "tables_written": [],
+      "rpcs_called": [
+        "match_persona_knowledge"
+      ],
+      "edge_fns_invoked": [],
+      "loc": 119
     },
     "_shared/persona.ts": {
       "tables_read": [],
       "tables_written": [],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "loc": 277
+      "loc": 297
     },
     "_shared/provider-health.ts": {
       "tables_read": [],
       "tables_written": [],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "loc": 177
+      "loc": 185
     },
     "_shared/rate-limit.ts": {
       "tables_read": [
@@ -7499,7 +7600,7 @@
       "tables_written": [],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "loc": 135
+      "loc": 161
     },
     "_shared/resume-taxonomy.ts": {
       "tables_read": [],
@@ -7589,20 +7690,20 @@
     },
     "ai-gateway": {
       "tables_read": [
+        "asset_nodes",
         "v_worker_truth"
       ],
       "tables_written": [],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "loc": 728
+      "loc": 1109
     },
     "ai-orchestrator": {
       "tables_read": [
         "pm_assets",
-        "pm_completions",
         "v_inventory_items_truth",
         "v_logbook_truth",
-        "v_pm_compliance_truth",
+        "v_pm_scope_items_truth",
         "v_worker_assignment_truth",
         "v_worker_skill_truth",
         "v_worker_truth",
@@ -7611,7 +7712,7 @@
       "tables_written": [],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "loc": 474
+      "loc": 500
     },
     "amc-orchestrator": {
       "tables_read": [
@@ -7632,6 +7733,7 @@
     },
     "analytics-orchestrator": {
       "tables_read": [
+        "analytics_snapshots",
         "engineering_calcs",
         "pm_assets",
         "pm_completions",
@@ -7645,7 +7747,9 @@
         "v_worker_truth",
         "worker_profiles"
       ],
-      "tables_written": [],
+      "tables_written": [
+        "analytics_snapshots"
+      ],
       "rpcs_called": [
         "get_downtime_pareto",
         "get_failure_frequency",
@@ -7656,7 +7760,7 @@
         "get_repeat_failures"
       ],
       "edge_fns_invoked": [],
-      "loc": 924
+      "loc": 979
     },
     "asset-brain-query": {
       "tables_read": [
@@ -7677,7 +7781,7 @@
       ],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "loc": 568
+      "loc": 570
     },
     "batch-risk-scoring": {
       "tables_read": [
@@ -8161,7 +8265,7 @@
         "v_hives_truth",
         "v_inventory_items_truth",
         "v_logbook_truth",
-        "v_pm_compliance_truth",
+        "v_pm_scope_items_truth",
         "v_risk_truth"
       ],
       "tables_written": [
@@ -8169,7 +8273,7 @@
       ],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "loc": 275
+      "loc": 302
     },
     "temporal-rag-orchestrator": {
       "tables_read": [
@@ -8230,7 +8334,7 @@
       ],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "loc": 380
+      "loc": 398
     },
     "voice-embeddings": {
       "tables_read": [],
@@ -8244,7 +8348,7 @@
       "tables_written": [],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "loc": 219
+      "loc": 227
     },
     "voice-logbook-entry": {
       "tables_read": [
@@ -8678,6 +8782,11 @@
     {
       "kind": "dead_table",
       "table": "wh_health_status",
+      "note": "defined in migrations but not referenced in any surface or edge fn"
+    },
+    {
+      "kind": "dead_table",
+      "table": "persona_knowledge",
       "note": "defined in migrations but not referenced in any surface or edge fn"
     }
   ]

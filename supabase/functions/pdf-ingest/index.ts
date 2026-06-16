@@ -22,6 +22,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { getCorsHeaders } from "../_shared/cors.ts";
+import { log } from "../_shared/logger.ts";
 // P1 roadmap 2026-05-26: envelope adoption (helper imported; success-path migration follows).
 import { beginRequest, ok, fail, recordModelHop } from "../_shared/envelope.ts";
 import { generateEmbedding } from "../_shared/embedding-chain.ts";
@@ -96,7 +97,7 @@ async function processJob(
       };
       const { error } = await db.from(job.target_table).insert(row);
       if (error) {
-        console.warn(`pdf-ingest insert failed (${job.target_table}):`, error.message);
+        log.warn(null, `pdf-ingest insert failed (${job.target_table}):`, { detail: error.message });
         errors++;
         continue;
       }
@@ -108,7 +109,7 @@ async function processJob(
         }).eq("id", job.id);
       }
     } catch (err) {
-      console.warn("pdf-ingest chunk error:", err instanceof Error ? err.message : String(err));
+      log.warn(null, "pdf-ingest chunk error:", { detail: err instanceof Error ? err.message : String(err) });
       errors++;
     }
   }

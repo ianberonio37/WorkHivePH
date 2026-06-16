@@ -1,10 +1,10 @@
 {
   "summary": {
-    "files_scanned": 117,
-    "total_calls": 714,
+    "files_scanned": 122,
+    "total_calls": 720,
     "total_drift": 0,
     "baseline": 0,
-    "tables_known": 159
+    "tables_known": 162
   },
   "per_file": [
     {
@@ -136,6 +136,10 @@
       "issues": []
     },
     {
+      "file": "supabase/functions/_shared/benchmarks.ts",
+      "issues": []
+    },
+    {
       "file": "supabase/functions/_shared/cache.ts",
       "issues": []
     },
@@ -172,6 +176,10 @@
       "issues": []
     },
     {
+      "file": "supabase/functions/_shared/factsheet_render.ts",
+      "issues": []
+    },
+    {
       "file": "supabase/functions/_shared/followups.ts",
       "issues": []
     },
@@ -193,6 +201,10 @@
     },
     {
       "file": "supabase/functions/_shared/memory.ts",
+      "issues": []
+    },
+    {
+      "file": "supabase/functions/_shared/numeric_provenance.ts",
       "issues": []
     },
     {
@@ -225,6 +237,14 @@
     },
     {
       "file": "supabase/functions/_shared/skill-library.ts",
+      "issues": []
+    },
+    {
+      "file": "supabase/functions/_shared/tenant-context.ts",
+      "issues": []
+    },
+    {
+      "file": "supabase/functions/_shared/trace-store.ts",
       "issues": []
     },
     {

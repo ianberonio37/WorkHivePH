@@ -14,11 +14,17 @@ Layer 1 -- Direct third-party fetch with PII in scope                    [WARN]
   same source file without going through a redactPII() helper. Fn-level
   exemptions in PII_EGRESS_OK with a one-line justification.
 
-Layer 2 -- AI prompt with PII fields                                     [WARN]
+Layer 2 -- AI prompt with PII fields                                     [FAIL]
   Any callAI() prompt argument (or string template that builds an AI
   prompt) that includes raw PII tokens. Even when callAI() routes
   through the _shared chain, the model provider sees the prompt
   contents -- compliance-meaningful PII must be redacted before send.
+  ENFORCED (2026-06-15, Gateway Pillar P): promoted WARN -> FAIL. PII to a
+  3rd-party LLM is binary (redact, or be code-verified exempt in
+  PII_EGRESS_OK) -- there is no acceptable "ratchet down from N", the bar is
+  ZERO. A new fn that builds an AI prompt with raw PII + no redact helper +
+  no exemption now BLOCKS the gate. (L1 direct-fetch stays WARN: broader
+  heuristic, more false positives, and already empty.)
 
 Layer 3 -- Third-party host distribution (informational)                 [INFO]
   Per-fn host call count. Helps spot lopsided egress patterns.
@@ -93,6 +99,8 @@ PII_EGRESS_OK = {
     "marketplace-connect-status": "Stripe Connect status read; mirrors onboard data",
     "marketplace-release":        "Stripe transfer needs seller name for compliance ledger",
     "engineering-bom-sow":        "AI BOM/SOW prompt operates on equipment names; PII redaction not applicable",
+    "resume-extract":             "Solo Resume Builder — the user uploads their OWN resume to extract their OWN name/email/phone; the contact fields ARE the deliverable (JSON Resume `basics`). The PII is the user's own and opt-in by the act of uploading-to-extract — redaction would defeat the feature. (`worker_name` is read then `void`'d, unused.)",
+    "agentic-rag-loop":           "Code-verified false positive (2026-06-15): worker_name/workerName are used ONLY for DB scoping (.eq) + cost-log rows, NEVER injected into a callAI prompt — all 5 stages (router/grader/generator/checker/extractor) prompt on question/chunks/answer/memory only. The 'phone' token is the literal word in an anti-PII prompt INSTRUCTION (GRADER_SYSTEM: 'content must NOT contain PII (phone numbers, emails...)'). No user PII reaches the model.",
     # Note: ai-orchestrator, analytics-orchestrator, asset-brain-query, and
     # scheduled-agents previously listed here as DEFERRED were closed on
     # 2026-05-11 by wiring `_shared/redactPII.ts` into each. They are now
@@ -205,7 +213,7 @@ def check_ai_prompt_pii(
             "pii": sorted(pii),
         })
         issues.append({
-            "check": "ai_prompt_pii", "skip": True,
+            "check": "ai_prompt_pii", "skip": False,
             "reason": (
                 f"{name}/index.ts builds an AI prompt and references PII "
                 f"token(s) {sorted(pii)}. Models log prompts and the provider "
@@ -269,7 +277,7 @@ CHECK_NAMES = [
 ]
 CHECK_LABELS = {
     "direct_fetch_pii":   "L1  Direct third-party fetch with PII in scope (or redacted)     [WARN]",
-    "ai_prompt_pii":      "L2  AI prompt construction redacts PII (or is opt-in exempt)     [WARN]",
+    "ai_prompt_pii":      "L2  AI prompt construction redacts PII (or is opt-in exempt)     [FAIL]",
     "host_distribution":  "L3  Third-party host call distribution per fn (informational)    [INFO]",
     "pii_reach":          "L4  PII token reach per fn (informational)                       [INFO]",
 }

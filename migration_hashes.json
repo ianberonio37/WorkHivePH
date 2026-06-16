@@ -210,5 +210,12 @@
   "20260609000006_ai_reply_feedback.sql": "d92225b63512f4472bf1ab27b2ff27cd586881e1bff5b8183fe175d922ecd874",
   "20260610000000_fix_pm_scope_frequency_days.sql": "ae2cb727eea863e9426f7db8bdfd2ccd25fd43fd259bddc42a832493cbea6a3b",
   "20260610000001_get_pm_compliance_smrp.sql": "ec35b4efe5e8f6445cbaf3937c04a354637bc4f3215304fe6eab3bfc676e9782",
-  "20260610000002_v_marketplace_orders_truth_reviewed_at.sql": "569b87cc4db160199d84e55f072c4a704747d7035456c8e0fefeb3da71f943e5"
+  "20260610000002_v_marketplace_orders_truth_reviewed_at.sql": "569b87cc4db160199d84e55f072c4a704747d7035456c8e0fefeb3da71f943e5",
+  "20260610000003_parts_spike_factor_nullable.sql": "1e146587401fc0cf2c9acbcd7a1591c814dec175c82d712f82b32208adfe7770",
+  "20260610000004_analytics_snapshots.sql": "fc40e538dfd412611ea2c539af0cf77b8dbfc7ec0407343e77a5ae2569e3e7eb",
+  "20260610000005_retire_shift_handover_cron.sql": "fa33b616cfb9d96d1a8f7b3e71457234734a6297be67eb7072c67b329be38e8a",
+  "20260612000000_persona_knowledge.sql": "514a8db80ae00c6483f5b2e553feaffbb5976e9e629460a2ff55bfcf28521113",
+  "20260612000001_persona_knowledge_source_types.sql": "c6524c88bd50076f405f93b05e69f6eceb78a7aae326696bb046d107e4c4dfeb",
+  "20260613000000_embedding_cache.sql": "9ef8717d195fecc68092b096247a8a09c53b038bdf6b25fa3769f63cfa41a4dc",
+  "20260613000001_persona_knowledge_exact_search.sql": "9634b9c6d75ed716e2af1b1121a9aa3269faf667846a88e5cee3e15b5b5b786b"
 }

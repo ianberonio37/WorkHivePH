@@ -3,9 +3,9 @@
 Generated for 24 uncovered CHECK(s) across 5 per-page validators. Each check is one rule
 the platform should obey - and currently no Playwright spec exercises it.
 
-**Check coverage:** 91.4% (255 of 279 per-page checks - HONEST behavioral coverage)
-**Topic coverage:** 100.0% (36 of 36 per-page validators - loose, validator-level)
-**Raw coverage:** 82.5% (278 of 337 validators)
+**Check coverage:** 91.1% (257 of 282 per-page checks - HONEST behavioral coverage)
+**Topic coverage:** 97.4% (38 of 39 per-page validators - loose, validator-level)
+**Raw coverage:** 81.4% (285 of 350 validators)
 
 Each section below groups uncovered checks by validator. Use the per-check
 list as your test backlog - one scenario per check, not one scenario per
@@ -227,14 +227,15 @@ so the next sentinel run automatically marks the check as covered.
 
 ---
 
-## Platform-wide gaps (0)
+## Platform-wide gaps (1)
 
 These validators scan ALL pages (LIVE_PAGES list, glob, etc.). Layer 0
 is the right enforcement layer because writing a Playwright scenario per
 page would just duplicate the validator with 50x the runtime.
 
+- `validate_user_facing_jargon.py` (1 checks) - validate_user_facing_jargon
 
-## Infrastructure gaps (59)
+## Infrastructure gaps (63)
 
 These validators have no UI surface - they enforce backend / schema /
 edge function / configuration rules. Layer 0 is the right enforcement
@@ -247,12 +248,14 @@ layer; no Playwright scenario is needed.
 - `validate_c_track_self_coverage.py` (1 checks) - validate_c_track_self_coverage
 - `validate_clone_debt.py` (no named checks) - validate_clone_debt
 - `validate_cold_start_memoization.py` (4 checks) - validate_cold_start_memoization
+- `validate_connection_pool_saturation.py` (1 checks) - validate_connection_pool_saturation
 - `validate_contact_consistency.py` (3 checks) - validate_contact_consistency
 - `validate_cors_wildcard.py` (4 checks) - validate_cors_wildcard
 - `validate_cron_functional.py` (4 checks) - validate_cron_functional
 - `validate_data_governance.py` (6 checks) - validate_data_governance
 - `validate_data_retention.py` (4 checks) - validate_data_retention
 - `validate_date_arithmetic.py` (4 checks) - validate_date_arithmetic
+- `validate_deeplink_param_contracts.py` (1 checks) - validate_deeplink_param_contracts
 - `validate_diagram_inputs.py` (no named checks) - validate_diagram_inputs
 - `validate_dialog_flow.py` (no named checks) - validate_dialog_flow
 - `validate_digital_twin.py` (6 checks) - validate_digital_twin
@@ -262,9 +265,11 @@ layer; no Playwright scenario is needed.
 - `validate_fields.py` (no named checks) - validate_fields
 - `validate_fk_on_delete.py` (1 checks) - validate_fk_on_delete
 - `validate_followup_queue_wiring.py` (7 checks) - validate_followup_queue_wiring
-- `validate_frequency_map_consistency.py` (1 checks) - validate_frequency_map_consistency
+- `validate_frequency_map_consistency.py` (2 checks) - validate_frequency_map_consistency
 - `validate_ga4_coverage.py` (4 checks) - validate_ga4_coverage
+- `validate_game_day_readiness.py` (1 checks) - validate_game_day_readiness
 - `validate_gateway_coverage.py` (4 checks) - validate_gateway_coverage
+- `validate_gateway_tenancy.py` (no named checks) - validate_gateway_tenancy
 - `validate_industry_defining.py` (8 checks) - validate_industry_defining.py — Phase 6 of STRATEGIC_ROADMAP.
 - `validate_integration.py` (no named checks) - validate_integration
 - `validate_iot_protocols.py` (6 checks) - validate_iot_protocols
@@ -272,6 +277,7 @@ layer; no Playwright scenario is needed.
 - `validate_jsonb_drift.py` (4 checks) - validate_jsonb_drift
 - `validate_llm_cache_adoption.py` (1 checks) - validate_llm_cache_adoption
 - `validate_llms_sync.py` (4 checks) - validate_llms_sync
+- `validate_load_resilience.py` (1 checks) - validate_load_resilience
 - `validate_meta_gate.py` (1 checks) - validate_meta_gate
 - `validate_migration_immutability.py` (4 checks) - validate_migration_immutability
 - `validate_migration_immutability_strict.py` (1 checks) - validate_migration_immutability_strict
@@ -291,7 +297,6 @@ layer; no Playwright scenario is needed.
 - `validate_sentinel_baseline.py` (no named checks) - validate_sentinel_baseline.py - forward-only ratchet on sentinel coverage.
 - `validate_sitemap_sync.py` (3 checks) - validate_sitemap_sync
 - `validate_soft_delete.py` (1 checks) - validate_soft_delete
-- `validate_status_enum_drift.py` (no named checks) - validate_status_enum_drift
 - `validate_supabase_object_existence.py` (1 checks) - validate_supabase_object_existence
 - `validate_supabase_singleton.py` (2 checks) - validate_supabase_singleton
 - `validate_tester_coverage.py` (no named checks) - validate_tester_coverage
@@ -300,4 +305,4 @@ layer; no Playwright scenario is needed.
 - `validate_validator_self_coverage.py` (4 checks) - validate_validator_self_coverage
 - `validate_verified_state_wiring.py` (1 checks) - validate_verified_state_wiring
 
-_Generated 5 per-page proposal bundles. Skipped 0 with no extractable tokens. Tagged 0 platform-wide and 59 infrastructure._
+_Generated 5 per-page proposal bundles. Skipped 0 with no extractable tokens. Tagged 1 platform-wide and 63 infrastructure._
