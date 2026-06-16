@@ -471,16 +471,23 @@ For each input field: (1) **read baseline** downstream values; (2) **seed a KNOW
 
 ### 13.5 Two coverage matrices + the MEASURED % (mirror §4 — anti-drift, no silent drops)
 
-Every claim in §13 is a **measured fraction**, never a qualitative "done" (the §4 `filled/78` discipline). Two headline numbers, **both 0% today (nothing built)**:
+Every claim in §13 is a **measured fraction**, never a qualitative "done" (the §4 `filled/78` discipline). **Three headline numbers, all 0% today (nothing built):**
 
-- **H · Nerve coverage** = `verified (input-field → consumer) paths / TOTAL paths in lineage_map.json`
+- **P · Page coverage** ⭐ = feature pages whose input-nerve is fully verified / **27** — the *entire* `LIVE_TOOL_PAGES` registry, every page, not a sample. **The denominator (27):** `resume · logbook · assistant · dayplanner · pm-scheduler · hive · inventory · skillmatrix · engineering-design · analytics · analytics-report · report-sender · community · marketplace · project-manager · project-report · integrations · ph-intelligence · predictive · ai-quality · plant-connections · achievements · asset-hub · shift-brain · alert-hub · audit-log · voice-journal`. (Split by role: **input surfaces** originate nerves — logbook, pm-scheduler, inventory, dayplanner, skillmatrix, engineering-design, report-sender, community, marketplace, project-manager, integrations, asset-hub, voice-journal, resume, alert-hub; **terminus surfaces** render the computed values — analytics, analytics-report, project-report, ph-intelligence, predictive, ai-quality, shift-brain, achievements, audit-log, hive, plant-connections, assistant.)
+- **H · Nerve coverage** = `verified (input-field → consumer) paths / TOTAL paths in lineage_map.json` (across all 27 pages)
 - **V · Journey coverage** = `(journey × live-layer) cells proven / (7 journeys × 11 live layers = 77)`
+
+**The nerve-probe is a GENERIC engine, not a per-page script** — built once, applied to every input surface from the discovered map. Logbook is proof #1, never the scope (Ian: "I only used it as one example — there are so many pages").
 
 **Why the denominator comes first (the anti-false-sense rule):** a phase with no total to be a fraction of is exactly where coverage gets silently dropped. **P0's deliverable is the denominator itself** — mine the complete set of input-field→consumer paths so that from P1 on, every "done" is `verified / total`, visible and un-fakeable. **★The denominator spans the WHOLE platform (Ian: "I have a massive platform with so many feature pages").** P0 enumerates input surfaces across **ALL feature pages** — driven from the canonical page registry (`LIVE_TOOL_PAGES` / `nav-hub.js`, ~28 pages), never a hand-picked sample. A % over a subset is the same false sense at a smaller scale; the total must be the full feature surface or the percentage lies. A `journey-accept` capstone (mirror of `mature-accept`) asserts **H = 100% AND V = 100%** → stamps a marker; `journey-status` prints both live %s any time, like `fullstack_dev status`.
 
-### 13.6 Reuse (invent nothing)
+### 13.6 Reuse-FIRST, but fitness-gated (extend/replace what's outdated — don't run circles)
 
-L3 battery (`__UFAI`/`__JOURNEY`/`__CSB`/`__ANALYTICS_PARITY`, `journey_battery.js`), the 73 `tests/journey-*.spec.ts`, the existing parity journeys (`journey-cross-surface-kpi-parity`, `journey-canonical-signal-parity`, `journey-home-fanout-parity`), `canonical_registry.json`, `GROUNDED_SWEEP_ROADMAP.md` (the page-by-page sweep), Playwright MCP + postgres MCP.
+Default = reuse what exists. **But "invent nothing" is NOT absolute** (Ian: "you can only invent or extend the existing if it is needed to achieve the purpose, so that we won't be running circles with the existing we have that are outdated"). The rule: before reusing a piece, **verify it's CURRENT and fit-for-purpose**; if it's outdated or insufficient for the nerve-sweep, **extend or replace it** rather than force-wrap stale machinery.
+
+- **Reuse — but assess fitness first:** L3 battery (`__UFAI`/`__JOURNEY`/`__CSB`/`__ANALYTICS_PARITY`, `journey_battery.js`) · the 73 `tests/journey-*.spec.ts` · the parity journeys (`journey-cross-surface-kpi-parity`, `journey-canonical-signal-parity`, `journey-home-fanout-parity`) · `canonical_registry.json` + the **KPI Source Registry** · `GROUNDED_SWEEP_ROADMAP.md` · Playwright + postgres MCP. P0/P1 must check each is still fit before building on it.
+- **Correctly NEW (no existing tool serves the purpose):** `mine_lineage_map.py` (discovered input→consumer graph), the generic differential `__JOURNEY_TRACE` nerve-probe, `journey-accept`. Invented *because needed*, not by default.
+- **Anti-pattern (running circles):** wrapping an outdated battery/spec just to honour "reuse". If `journey_battery.js v0.2.0` can't carry the differential nerve-probe, extend it (→v0.3) or supersede it — and say so, don't force-fit.
 
 ### 13.7 Canonical journeys (Axis-V vertical slices)
 
@@ -488,29 +495,29 @@ J1 Breakdown→Resolution (flagship: sign-in→logbook→AI/RAG→realtime super
 
 ### 13.8 Phased rollout (synthesized: skills + OpenLineage + dbt/GE/Soda — each phase ends live-proven)
 
-**MEASURED coverage per phase (anti-false-sense — every phase is a fraction, not a vibe; today H=0%, V=0%, see §13.5):**
+**MEASURED coverage per phase (anti-false-sense — every phase is a fraction over ALL 27 pages, never a vibe; today P=0/27, H=0%, V=0%, see §13.5):**
 
 | Phase | The measured fraction it moves | start → target |
 |---|---|---|
-| **P0** | input fields mapped / total input-field inventory — **mines the denominator itself** | 0 → 100% *mapped* |
-| **P1** | **V**: layers J1 proves / 11 | 0 → ~82% (9/11) |
-| **P2** | **H(logbook)**: logbook field-paths verified / logbook paths in map | 0 → 100% *of logbook* |
-| **P3** | static-ratchet: verified paths carrying a `validate_lineage_*` / verified paths | tracks P2/P4 |
-| **P4** | **H total**: all verified paths / all paths in `lineage_map.json` | logbook% → 100% |
-| **P5** | **V total**: journeys proven / 7 · layer-cells / 77 | J1 → 100% |
-| **P6** | `journey-accept` asserts **H = 100% AND V = 100%** | gate |
+| **P0** | input-field→consumer paths mapped across **all 27 pages** — **mines the denominator itself** | 0 → 100% *mapped* |
+| **P1** | nerve-probe **engine** built + proven on surface #1 (logbook = proof, not scope) | engine works · **P = 1/27** |
+| **P2** | **P · Page nerve sweep**: feature pages with input-nerve fully verified / **27** | 1/27 → **27/27** |
+| **P3** | static-ratchet: verified paths carrying a `validate_lineage_*` / verified paths | tracks P2 |
+| **P4** | **V · Journey slices** (J1–J4): journey × live-layer cells / 77 | 0 → 100% |
+| **P5** | resilience / security / scale journeys (J5/J6/J7) | → 100% |
+| **P6** | `journey-accept` asserts **P = 27/27 AND H = 100% AND V = 100%** | gate |
 
 **Build detail per phase:**
 
-| Phase | Theme | Builds | Gate layer | External anchor | Exit proof |
-|---|---|---|---|---|---|
-| **P0** | Lineage substrate | `tools/mine_lineage_map.py` → `lineage_map.json` (input field → consumers + transform), mined from `canonical_registry` + `v_*_truth` SQL + the **KPI Source Registry** + source-chips | G‑1.5 Substrate | OpenLineage dataset→job graph | every input field has a discovered consumer graph; coverage measurable |
-| **P1** | Journey harness (Axis V) | `__JOURNEY_TRACE` driver (extends `journey_battery.js`, stamps a journey `trace_id`) + **J1 flagship** vertical slice, multi-MCP | G2 e2e + G3 live | E2E journey + trace propagation | J1 traverses all ~11 live layers, Playwright+postgres proven |
-| **P2** | **logbook→analytics nerve** (Axis H flagship) | differential nerve-probe: seed a known logbook value → assert MTTR/OEE/MTBF/KPI-tiles/report reflect it correctly | G3 live + GH | dbt unit+data test, differential | a logbook delta proven correct across every analytics phase |
-| **P3** | Assertion library | per-field assertions (non-null · referential · value-correct · freshness) → each becomes `validate_lineage_<field>.py` | GH Harden → G0 | GE/Soda checks → SQL | live-found correctness rules ratcheted static (fills §4 cells) |
-| **P4** | Full lineage sweep | every input surface (PM, inventory, voice, marketplace, resume) via the discovered map; Input‑field×Consumer matrix → 100% | G‑1 Discover + G0 | OpenLineage blast-radius coverage | every input field's nerve verified; a new unwired field → FAIL |
-| **P5** | Axis-V completion | J5 cross-hive (postgres-proven) · J6 resilience (offline/429) · J7 scale (concurrent burst) | G2 + GS + G3 | E2E security/chaos/load | the 7 journeys live-proven |
-| **P6** | Capstone | `journey-accept` — both §13.5 matrices green → `.journey-accept-pass`; folds into `fullstack_dev` + `release_gate --with-fullstack` | conductor | data-contract acceptance | one command re-verifies the whole live nerve |
+| Phase | Theme | Builds | Gate layer | Exit proof |
+|---|---|---|---|---|
+| **P0** | Lineage substrate (ALL pages) | `tools/mine_lineage_map.py` → `lineage_map.json` for **all 27 pages** (input field → consumers + transform), from `canonical_registry` + `v_*_truth` SQL + KPI Source Registry + source-chips | G‑1.5 | every input field across all 27 pages has a discovered consumer graph |
+| **P1** | Nerve-probe **engine** + proof #1 | generic `__JOURNEY_TRACE` differential nerve-probe (Playwright UI + postgres) — proven on the first surface (logbook); engine reusable on any page | G3 + GH | logbook nerves correct; engine validated for reuse |
+| **P2** | **Full page nerve sweep** | apply the engine to **all 27 input surfaces** — every field → every terminus, value-correct; **P = pages verified / 27** | G3 + G0 | 27/27 pages' input-nerves verified (H matrix → 100%) |
+| **P3** | Assertion library | each verified path → `validate_lineage_<field>.py` (non-null · referential · value-correct · freshness) | GH → G0 | live-found rules ratcheted static (fill §4 cells) |
+| **P4** | Journey vertical slices (Axis V) | J1–J4 across pages via the engine; the journey × layer matrix → 77 | G2 + G3 | each layer live-exercised by ≥1 journey |
+| **P5** | Security / resilience / scale | J5 cross-hive (postgres) · J6 resilience (offline/429) · J7 scale (concurrent burst) | G2 + GS + G3 | highest-risk slices proven |
+| **P6** | Capstone | `journey-accept`: P=27/27 ∧ H=100% ∧ V=100% → `.journey-accept-pass`; rides `release_gate --with-fullstack` | conductor | one command re-verifies the whole platform's live nerve |
 
 **Start order:** P0 → P1 → **P2** (P2 = Ian's worked example, highest signal). ★The edge vs OpenLineage/dbt: those test the pipeline in isolation; this tests **the real user action → the rendered number**, live, through the UI — what those can't see.
 
