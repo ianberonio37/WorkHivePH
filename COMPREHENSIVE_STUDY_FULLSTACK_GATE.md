@@ -547,3 +547,14 @@ J1 Breakdown→Resolution (flagship: sign-in→logbook→AI/RAG→realtime super
 | `journey-accept` | sibling capstone (mirror of `mature-accept`) |
 
 **The loop (why it matters):** §13's live nerve-probe finds a correctness bug (a logbook field computes MTTR wrong) → it becomes `validate_lineage_<field>.py` (GH) → registered in `run_platform_checks.py` (G0) → **fills a new §4 matrix cell** → that bug can never silently return. §4/§12 measure *protection*; §13 is the live *engine* that keeps discovering real bugs and converting each into permanent static protection. Rides into `release_gate.py` via the existing `--with-fullstack` peer phase. Nothing to get lost in.
+
+### 13.12 Structural remediation is a FIRST-CLASS disposition (Ian, from the companion arc)
+
+The sweep is not a passive pass/fail test — it is a **discovery engine that licenses fixing the architecture/wiring/structure when that is what the goal needs.** Ian's principle: *"we attack sometimes the architecture/wiring/structure, if what is needed or appropriate to achieve a certain goal beneficial to the platform."* The companion breakthroughs proved it — they were structural (semantic tool layer, gateway engine, embedding-chain revamp), because **agents fail on architecture, not the model.** The structure is a *means to the goal*, not a fixed constraint.
+
+When a nerve is found dead / wrong / missing, the disposition is one of three — **and (b) is first-class, not avoided:**
+- **(a) Surface fix** — a formula/filter bug; patch it.
+- **(b) Structural re-wire** — the wiring is missing or wrong (the field isn't fed to the consumer; the truth-view doesn't read it; the lineage is broken by design). **Fix the structure** — add the feed, fix the view, re-route — don't paper over the symptom.
+- **(c) Documented residual** — ratchet it honestly if the fix isn't yet warranted.
+
+**The three gates that keep (b) disciplined (not gratuitous refactoring) — all must hold:** **Evidence** (the sweep concretely proves the current structure can't deliver the correct value) · **Benefit** (the re-architecture serves a clear platform goal) · **Appropriateness/altitude** (fix at the root-cause level — structure→structure, formula→formula). Bounded by: **immutability** (a structural DB change = a new forward migration, never edit an applied one) + **stay LOCAL** (deploy is Ian-gated). This generalizes platform-wide: the structure serves the goals; when a beneficial goal needs it changed, change it — evidence-, benefit-, and altitude-gated.
