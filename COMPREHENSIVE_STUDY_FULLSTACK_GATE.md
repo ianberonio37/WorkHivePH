@@ -469,11 +469,14 @@ For each input field: (1) **read baseline** downstream values; (2) **seed a KNOW
 
 *(H Hosting + CI are deploy-time, not live-journey — covered by their gates. ~11/13 layers are live-traceable in a browser journey — the honest scope line.)*
 
-### 13.5 Two coverage matrices (mirror §4 — measurable, anti-drift)
+### 13.5 Two coverage matrices + the MEASURED % (mirror §4 — anti-drift, no silent drops)
 
-1. **Journeys × 13 layers** — every layer live-exercised by ≥1 journey (Axis V).
-2. **Input-field × Consumers** — every field's nerve verified correct at every terminus (Axis H).
-A `journey-accept` capstone (mirror of `mature-accept`) asserts both → stamps a marker.
+Every claim in §13 is a **measured fraction**, never a qualitative "done" (the §4 `filled/78` discipline). Two headline numbers, **both 0% today (nothing built)**:
+
+- **H · Nerve coverage** = `verified (input-field → consumer) paths / TOTAL paths in lineage_map.json`
+- **V · Journey coverage** = `(journey × live-layer) cells proven / (7 journeys × 11 live layers = 77)`
+
+**Why the denominator comes first (the anti-false-sense rule):** a phase with no total to be a fraction of is exactly where coverage gets silently dropped. **P0's deliverable is the denominator itself** — mine the complete set of input-field→consumer paths so that from P1 on, every "done" is `verified / total`, visible and un-fakeable. **★The denominator spans the WHOLE platform (Ian: "I have a massive platform with so many feature pages").** P0 enumerates input surfaces across **ALL feature pages** — driven from the canonical page registry (`LIVE_TOOL_PAGES` / `nav-hub.js`, ~28 pages), never a hand-picked sample. A % over a subset is the same false sense at a smaller scale; the total must be the full feature surface or the percentage lies. A `journey-accept` capstone (mirror of `mature-accept`) asserts **H = 100% AND V = 100%** → stamps a marker; `journey-status` prints both live %s any time, like `fullstack_dev status`.
 
 ### 13.6 Reuse (invent nothing)
 
@@ -484,6 +487,20 @@ L3 battery (`__UFAI`/`__JOURNEY`/`__CSB`/`__ANALYTICS_PARITY`, `journey_battery.
 J1 Breakdown→Resolution (flagship: sign-in→logbook→AI/RAG→realtime supervisor→KPI→report) · J2 PM cycle · J3 Marketplace txn (Stripe idempotency) · J4 Voice pipeline · J5 Cross-hive isolation (security E2E, postgres-proven) · J6 Resilience (offline/queue/sync + 429) · J7 Scale (concurrent burst).
 
 ### 13.8 Phased rollout (synthesized: skills + OpenLineage + dbt/GE/Soda — each phase ends live-proven)
+
+**MEASURED coverage per phase (anti-false-sense — every phase is a fraction, not a vibe; today H=0%, V=0%, see §13.5):**
+
+| Phase | The measured fraction it moves | start → target |
+|---|---|---|
+| **P0** | input fields mapped / total input-field inventory — **mines the denominator itself** | 0 → 100% *mapped* |
+| **P1** | **V**: layers J1 proves / 11 | 0 → ~82% (9/11) |
+| **P2** | **H(logbook)**: logbook field-paths verified / logbook paths in map | 0 → 100% *of logbook* |
+| **P3** | static-ratchet: verified paths carrying a `validate_lineage_*` / verified paths | tracks P2/P4 |
+| **P4** | **H total**: all verified paths / all paths in `lineage_map.json` | logbook% → 100% |
+| **P5** | **V total**: journeys proven / 7 · layer-cells / 77 | J1 → 100% |
+| **P6** | `journey-accept` asserts **H = 100% AND V = 100%** | gate |
+
+**Build detail per phase:**
 
 | Phase | Theme | Builds | Gate layer | External anchor | Exit proof |
 |---|---|---|---|---|---|
